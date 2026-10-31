@@ -232,7 +232,7 @@
 </table></div>
 <p>The phone and tablet results are separate from the Simulator comparison. We do not use a fast run on the M1 Max as evidence that the same work is fast on an iPhone.</p>
 <h2>On the phone: Week got fast, Day did not</h2>
-<p>Preparation is load-time work. The question a reader should ask is what happens while you scroll. On October 29 we ran the matched comparison on the same phone: the spare iPhone 14 Pro, the same isolated fixture app, 36,500 events across 12 calendars and 365 days, the same 16 swipe-up/swipe-down window, Instruments attached for eight seconds, old/new/new/old order. We read the update intervals Animation Hitches attributes to the app. &quot;Old host&quot; is the <code>UIScrollView</code> with the full-day SwiftUI tree; &quot;new host&quot; is the <code>UICollectionView</code> with reusable cells.</p>
+<p>Preparation is load-time work. The question a reader should ask is what happens while you scroll. On October 29 we ran the matched comparison on the same phone: the spare iPhone 14 Pro, the same isolated fixture app, 36,500 events across 12 calendars and 365 days, the same 16 swipe-up/swipe-down window, Instruments attached for eight seconds, old/new/new/old order. We read the update intervals Animation Hitches attributes to the app. &quot;Old host&quot; is the <code>UIScrollView</code> with the full-day SwiftUI tree; &quot;new host&quot; is the <code>UICollectionView</code> with reusable cells. Each host was traced twice, so a cell such as &quot;14.9 · 15.1 ms&quot; holds both runs, the first and then the second.</p>
 <div class="table-scroll table-stack" role="region" aria-label="Data table" tabindex="0"><table role="table">
 <thead role="rowgroup">
 <tr role="row">
@@ -343,7 +343,7 @@
 <p>While the phone was on the bench we also tested a hypothesis that had sat in a code comment since the viewport landed: UIKit cell prefetching, which prepares cells ahead of display, was disabled and &quot;never measured&quot;. Measured, in the same clear/prefetch/prefetch/clear pattern, it raised the median update on both views (Day 2.2 to 2.7 ms, Week 2.3 to 2.9 ms) and lowered nothing. It stays off. Negative results are part of a hill climb; the harness exists so they cost twenty minutes instead of a release.</p>
 <p>These are app update intervals from one device and eight-second windows. They are not input-to-visible latency.</p>
 <h2>On the iPad: the same direction, a smaller margin, and orientation matters</h2>
-<p>The next day we ran the same matrix on the iPad Pro 12.9-inch (M1) over USB, in landscape and again in portrait, same fixture app, workload, window and order. The iPad shows far more of the calendar at once: 93 to 111 Week cells and 40 to 59 Day cells, against the phone's few dozen.</p>
+<p>The next day we ran the same matrix on the iPad Pro 12.9-inch (M1) over USB, in landscape and again in portrait, same fixture app, workload, window and order. The iPad shows far more of the calendar at once: 93 to 111 Week cells and 40 to 59 Day cells, against the phone's few dozen. As on the phone, each cell shows the two accepted runs, first and second.</p>
 <div class="table-scroll table-stack" role="region" aria-label="Data table" tabindex="0"><table role="table">
 <thead role="rowgroup">
 <tr role="row">
@@ -437,7 +437,7 @@
 <p>The preparation comparison on the iPad, two rounds of old/new/new/old launches in landscape: the old host prepared 103 to 106 blocks in 42.8 ms on average, the new host 51 to 54 blocks in 28.5 ms. That is 34% less preparation against the phone's 44%, because the larger viewport leaves fewer blocks off-screen to skip. An earlier partial run that happened to be in portrait, where more of the day is visible, pointed at a saving nearer 20%; the collector does not yet record orientation, so we quote the landscape number and the caveat together.</p>
 <h2>The 150 ms stall: found with the same harness, fixed the same evening</h2>
 <p>The periodic Day update deserved its own trace. We recorded eight seconds of Day scrolling with Time Profiler attached, then looked for contiguous main-thread windows of 100 ms or more. There were three, at +2.25, +5.00 and +7.95 s, and inside them 95% of main-thread time was one stack: the plan card above the calendar asked the occurrence store for &quot;the next alert Banana would send&quot;, and the store answered by scanning every one of the 36,500 events, checking each against the muted-calendar settings, inside a SwiftUI body evaluation. Outside those windows the same stack was under 2%. Neither host was at fault; the card sits above both.</p>
-<p>The fix is unglamorous: cache the candidates, keyed on a revision counter the store bumps whenever its timeline is assigned and on the mute set, so a body evaluation costs a lookup. Four unit tests pin the behaviour. Re-measured on the same phone with the fix installed:</p>
+<p>The fix is unglamorous: cache the candidates, keyed on a revision counter the store bumps whenever its timeline is assigned and on the mute set, so a body evaluation costs a lookup. Four unit tests pin the behaviour. Re-measured on the same phone with the fix installed, again two runs per cell:</p>
 <div class="table-scroll table-stack" role="region" aria-label="Data table" tabindex="0"><table role="table">
 <thead role="rowgroup">
 <tr role="row">

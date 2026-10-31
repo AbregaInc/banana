@@ -125,7 +125,7 @@ The phone and tablet results are separate from the Simulator comparison. We do n
 
 ## On the phone: Week got fast, Day did not
 
-Preparation is load-time work. The question a reader should ask is what happens while you scroll. On October 29 we ran the matched comparison on the same phone: the spare iPhone 14 Pro, the same isolated fixture app, 36,500 events across 12 calendars and 365 days, the same 16 swipe-up/swipe-down window, Instruments attached for eight seconds, old/new/new/old order. We read the update intervals Animation Hitches attributes to the app. "Old host" is the `UIScrollView` with the full-day SwiftUI tree; "new host" is the `UICollectionView` with reusable cells.
+Preparation is load-time work. The question a reader should ask is what happens while you scroll. On October 29 we ran the matched comparison on the same phone: the spare iPhone 14 Pro, the same isolated fixture app, 36,500 events across 12 calendars and 365 days, the same 16 swipe-up/swipe-down window, Instruments attached for eight seconds, old/new/new/old order. We read the update intervals Animation Hitches attributes to the app. "Old host" is the `UIScrollView` with the full-day SwiftUI tree; "new host" is the `UICollectionView` with reusable cells. Each host was traced twice, so a cell such as "14.9 · 15.1 ms" holds both runs, the first and then the second.
 
 | View | Host | Updates in window | p50 | p95 | Max | Over 8.3 ms |
 | --- | --- | ---: | ---: | ---: | ---: | ---: |
@@ -152,7 +152,7 @@ These are app update intervals from one device and eight-second windows. They ar
 
 ## On the iPad: the same direction, a smaller margin, and orientation matters
 
-The next day we ran the same matrix on the iPad Pro 12.9-inch (M1) over USB, in landscape and again in portrait, same fixture app, workload, window and order. The iPad shows far more of the calendar at once: 93 to 111 Week cells and 40 to 59 Day cells, against the phone's few dozen.
+The next day we ran the same matrix on the iPad Pro 12.9-inch (M1) over USB, in landscape and again in portrait, same fixture app, workload, window and order. The iPad shows far more of the calendar at once: 93 to 111 Week cells and 40 to 59 Day cells, against the phone's few dozen. As on the phone, each cell shows the two accepted runs, first and second.
 
 | View | Orientation | Host | p50 | p95 | Worst update | Over 8.3 ms |
 | --- | --- | --- | ---: | ---: | ---: | ---: |
@@ -177,7 +177,7 @@ The preparation comparison on the iPad, two rounds of old/new/new/old launches i
 
 The periodic Day update deserved its own trace. We recorded eight seconds of Day scrolling with Time Profiler attached, then looked for contiguous main-thread windows of 100 ms or more. There were three, at +2.25, +5.00 and +7.95 s, and inside them 95% of main-thread time was one stack: the plan card above the calendar asked the occurrence store for "the next alert Banana would send", and the store answered by scanning every one of the 36,500 events, checking each against the muted-calendar settings, inside a SwiftUI body evaluation. Outside those windows the same stack was under 2%. Neither host was at fault; the card sits above both.
 
-The fix is unglamorous: cache the candidates, keyed on a revision counter the store bumps whenever its timeline is assigned and on the mute set, so a body evaluation costs a lookup. Four unit tests pin the behaviour. Re-measured on the same phone with the fix installed:
+The fix is unglamorous: cache the candidates, keyed on a revision counter the store bumps whenever its timeline is assigned and on the mute set, so a body evaluation costs a lookup. Four unit tests pin the behaviour. Re-measured on the same phone with the fix installed, again two runs per cell:
 
 | View | Host | p50 | p95 | p99 | Worst update |
 | --- | --- | ---: | ---: | ---: | ---: |
