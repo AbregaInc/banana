@@ -45,7 +45,7 @@ function hostFrom(row, bookings, now) {
   const zone = row.handle_zone ?? row.account_zone ?? null;
   return {
     handle: row.handle, account: row.account_id, zone, accountZone: row.account_zone ?? zone,
-    name: row.display_name || row.google_name || row.handle, email: row.google_email ?? null,
+    name: row.display_name || row.google_name || null, email: row.google_email ?? null,   // the handle is an address, never a name
     computedAt: Number(row.computed_at ?? 0), toldAt: Number(row.told_at ?? 0),
     horizon: horizon && Number.isFinite(horizon.from) ? horizon : null,
     types: typesFrom(row.types_json ? records : [], zone),

@@ -162,7 +162,7 @@ test("times are rendered in the guest's zone, grouped by their own day, whatever
       const tokyo = pages.times({ ...SAMPLES.times, slots: tue, zone: "Asia/Tokyo" }).html;
       assert.match(tokyo, /<h2 id="day">Tue, Oct 22<\/h2>/);
       assert.match(tokyo, /class="t" data-s="\d+">10:00\u00a0pm</);
-      assert.match(tokyo, /data-k="2030-10-23" aria-pressed="false" tabindex="-1"><small>Wed<\/small> 23<span class="sr"> October<\/span>/);
+      assert.match(tokyo, /data-k="2030-10-23" aria-pressed="false" tabindex="-1">23<span class="sr"> October<\/span>/);
 
       // The week the clocks change (UK 27 Oct 2030, US 3 Nov 2030): 9:00 in New York stays 9:00 there,
       // and moves in London as each side changes.
@@ -179,7 +179,7 @@ test("times are rendered in the guest's zone, grouped by their own day, whatever
       const london = pages.times({ ...SAMPLES.times, slots: [fri, mon], zone: "Europe/London" }).html;
       assert.match(london, /data-s="1919768400000">1:00\u00a0pm</);
 
-      // The strip steps by calendar dates and names each one, across both changes.
+      // Days step by calendar dates and are named, across both changes.
       assert.equal(K.step("2030-10-26", 1), "2030-10-27");
       assert.equal(K.step("2030-11-02", 2), "2030-11-04");
       assert.equal(K.dayName("2030-11-03", "en-US"), "Sun, Nov 3");
@@ -289,35 +289,38 @@ test("the page scripts are esbuild's output of the current sources, and the kit 
     assert.equal(small.time(at, z, "en-US"), K.time(at, z, "en-US"));
     assert.equal(small.key(at, z), K.key(at, z));
     assert.equal(small.offset(at, z), K.offset(at, z));
-    assert.equal(small.strip(K.days(starts, z), null, "en-GB"), K.strip(K.days(starts, z), null, "en-GB"));
     assert.equal(small.cal(K.days(starts, z), null, "en-US"), K.cal(K.days(starts, z), null, "en-US"));
   }
   assert.equal(small.card({ booking: booking(), zone: "Asia/Tokyo", loc: "en-US", host, type: type() }), K.card({ booking: booking(), zone: "Asia/Tokyo", loc: "en-US", host, type: type() }));
 });
 
-test("a time across the guest's midnight, the strip, the month grid and links", () => {
+test("a time across the guest's midnight, the month grid and links", () => {
   // New York's 10:30 am is Tokyo's 11:30 pm: the range names two clocks, no dates.
   const late = slot("2030-10-22T14:30:00.000Z");
   assert.equal(K.range(late.start, late.end, "Asia/Tokyo", "en-US"), "11:30 pm–12:00 am");
   assert.match(K.card({ booking: booking(late), zone: "Asia/Tokyo", loc: "en-US", host, type: type() }), /<b>Tue, Oct 22, 11:30 pm–12:00 am<\/b>/);
   assert.equal(K.range(SLOTS[0].start, SLOTS[0].end, NY, "en-US"), "9:00–9:30 am");
 
-  // Weekdays only: no weekend chips; the month over the first chip and over the 1st.
-  const ds = K.days(SLOTS.map((s) => Date.parse(s.start)), NY), strip = K.strip(ds, ds[0].k, "en-US");
-  assert.ok(!/<small>(Sat|Sun)<\/small>/.test(strip));
-  assert.match(strip, /data-k="2030-10-21" aria-pressed="true"><i aria-hidden="true">Oct<\/i>/);
-  assert.match(strip, /data-k="2030-11-01"[^>]*><i aria-hidden="true">Nov<\/i>/);
-  const weekend = K.strip(K.days([Date.parse("2030-10-25T14:00:00Z"), Date.parse("2030-10-26T14:00:00Z")], NY), null, "en-US");
-  assert.match(weekend, /<small>Sat<\/small>/);
-
-  // The month grid: every day of each month, the week as the locale starts it.
+  // The month grid: one month at a time with its year, every day of it, the week as the locale starts
+  // it; the arrows go only where a day with times is, and a month past the ends is pulled back.
+  const ds = K.days(SLOTS.map((s) => Date.parse(s.start)), NY);
   const us = K.cal(ds, ds[0].k, "en-US"), gb = K.cal(ds, ds[0].k, "en-GB");
-  assert.match(us, /<h3>October<\/h3><div class="cg"><b aria-hidden="true">S<\/b><b aria-hidden="true">M<\/b>/);
-  assert.match(gb, /<h3>October<\/h3><div class="cg"><b aria-hidden="true">M<\/b>/);
-  assert.equal((us.match(/<h3>/g) || []).length, 2);
+  assert.match(us, /<div class="mh"><h3>October 2030<\/h3><button type="button" class="mn" disabled aria-label="Previous month">‹<\/button><button type="button" class="mn" data-m="2030-11" aria-label="Next month">›<\/button><\/div><div class="cg"><b aria-hidden="true">S<\/b><b aria-hidden="true">M<\/b>/);
+  assert.match(gb, /<div class="cg"><b aria-hidden="true">M<\/b>/);
+  assert.equal((us.match(/<h3>/g) || []).length, 1);
   assert.match(us, /data-k="2030-10-01" disabled>1<span class="sr"> October, no times<\/span>/);
+  assert.match(us, /data-k="2030-10-21" aria-pressed="true">21<span class="sr"> October<\/span>/);
+  assert.ok(!us.includes('data-k="2030-11-01"'), "November waits for the arrow");
   assert.match(gb, /<\/b><i><\/i><button type="button" class="d" data-k="2030-10-01"/, "1 Oct 2030 is a Tuesday: one blank before it");
   assert.match(us, /<\/b><i><\/i><i><\/i><button type="button" class="d" data-k="2030-10-01"/, "two blanks from Sunday");
+  const nov = K.cal(ds, ds[0].k, "en-US", "2030-11");
+  assert.match(nov, /<h3>November 2030<\/h3><button type="button" class="mn" data-m="2030-10" aria-label="Previous month">‹<\/button><button type="button" class="mn" disabled aria-label="Next month">›<\/button>/);
+  assert.match(nov, /data-k="2030-11-18" aria-pressed="false" tabindex="-1">18</);
+  assert.match(nov, /data-k="2030-11-19" disabled>19</, "the horizon ends on the 18th");
+  assert.ok(!nov.includes('aria-pressed="true"'), "the picked day is in October");
+  assert.equal(K.cal(ds, ds[0].k, "en-US", "2031-03"), nov, "a month past the end shows the last month");
+  assert.equal(K.cal(ds, ds[0].k, "en-US", "2030-01"), us, "a month before the start shows the first");
+  assert.equal(K.cal(ds, null, "en-US"), us.replace(' aria-pressed="true"', ' aria-pressed="false" tabindex="-1"'), "no day picked: the first month, nothing pressed");
 
   // Links: only http(s), mail, tel and this site.
   assert.equal(K.href("//evil.example/x"), "#");
@@ -341,7 +344,14 @@ test("the card: Booking… while sending, a failed invite, no email offers witho
 
 test("layout and words: the meta line, Time zone beside a next time, lang from an English locale", () => {
   const times = pages.times(SAMPLES.times).html;
-  assert.match(times, /<p class="meta">30 min · Google Meet · with Noor Haddad<\/p>/);
+  assert.match(times, /<div class="side"><p class="host">Noor Haddad<\/p><h1>Intro call<\/h1><p class="meta">30 min · Google Meet<\/p>/, "the host first, then the type, as Calendly and Cal.com lead");
+  assert.match(times, /<div class="grid" id="grid" role="group" aria-labelledby="day" style="--r2:8;--r:6;--r4:4">/);
+  // A host the service has no name for: no line, no "with", and the handle is never put in its place.
+  const nameless = { ...SAMPLES.times, host: { handle: "noor", name: null, photoUrl: null } };
+  assert.match(pages.times(nameless).html, /<div class="side"><h1>Intro call<\/h1><p class="meta">30 min · Google Meet<\/p>/);
+  assert.ok(!pages.times(nameless).html.includes("with noor") && !pages.times(nameless).html.includes(">noor<"));
+  assert.match(pages.profile({ ...SAMPLES.profile, host: { handle: "noor", name: null } }).html, /<h1>Book a time<\/h1>/);
+  assert.match(pages.cancelled({ ...SAMPLES.cancelled, host: { handle: "noor", name: null } }).html, /<p class="meta" data-rl>Intro call, <time/);
   assert.ok(!times.includes('class="mono"'), "no avatar box");
   assert.match(times, /<div class="cal" id="cal"/);
   assert.match(times, /<div id="ts2"><\/div><button class="btn book">Book<\/button>/, "Turnstile sits above Book");
@@ -365,10 +375,10 @@ test("a booking the host cancelled inside the window, and the manage page's colu
   assert.match(card, /<h2 id="card-t" tabindex="-1">Cancelled<\/h2>/);
   assert.ok(!/Sending invite|Add to calendar|class="ck"/.test(card));
   const manage = pages.manage(SAMPLES.manage).html;
-  assert.match(manage, /<main class="w"><div class="cols"><div class="side"><h1>Intro call<\/h1>/);
+  assert.match(manage, /<main class="w"><div class="cols"><div class="side"><p class="host">Noor Haddad<\/p><h1>Intro call<\/h1>/);
   assert.match(manage, /<div data-rl><div class="cal" id="cal"[\s\S]*<\/div><\/div><div><section class="sec" id="change"/, "the month grid on the left, the times on the right");
   assert.ok(manage.indexOf('id="cancel"') > manage.indexOf('id="grid"'), "Cancel follows the times in the right column");
-  assert.match(manage, /style="--r:\d+;--r4:\d+"/);
+  assert.match(manage, /style="--r2:\d+;--r:\d+;--r4:\d+"/);
 });
 
 test("a move's Undo goes to POST /b/undo, never as a move back", () => {

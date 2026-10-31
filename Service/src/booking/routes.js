@@ -120,7 +120,7 @@ export function bookingApp(deps, { vault, signer, push }) {
        WHERE b.guest_account_id = ? AND b.status IN ('pending', 'confirmed') AND b.end_at > ? ORDER BY b.start_at LIMIT 20`,
       guest.accountId, deps.now());
     return Promise.all(rows.map(async (r) => ({
-      manageUrl: `/m/${await manageRef(ctx, r.manage_id)}`, hostName: r.display_name || r.google_name || r.handle || "",
+      manageUrl: `/m/${await manageRef(ctx, r.manage_id)}`, hostName: r.display_name || r.google_name || "",
       title: r.type_title, start: new Date(Number(r.start_at)).toISOString(), end: new Date(Number(r.end_at)).toISOString(),
     })));
   }

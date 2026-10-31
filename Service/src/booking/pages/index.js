@@ -70,9 +70,11 @@ const t = (iso, f, z, loc, now) => {
   const text = `${f === "w" ? `${K.when(ms, z, loc, now)} ` : `${K.day(ms, z, loc)}, `}${K.time(ms, z, loc)}`;   // "w": today 3:00 pm; "dt": Tue, Oct 21, 3:00 pm
   return `<time datetime="${esc(new Date(ms).toISOString())}" data-f="${f}">${esc(text)}</time>`;
 };
-/** "30 min · Google Meet · with Noor Haddad": the type, where, and who. */
-const metaLine = (type, host) => [`${type.minutes} min`, ...(type.places || []).map((p) => p.label).filter(Boolean), host?.name ? `with ${host.name}` : ""]
-  .filter(Boolean).map(esc).join(" · ");
+/** "30 min · Google Meet": the type and where. */
+const metaLine = (type) => [`${type.minutes} min`, ...(type.places || []).map((p) => p.label).filter(Boolean)].filter(Boolean).map(esc).join(" · ");
+/** Who the time is with, over the title, as Calendly and Cal.com lead with the host. A host with no
+ * name has no line: the handle is an address, never shown as a name. */
+const hostLine = (host) => (host?.name ? `<p class="host">${esc(host.name)}</p>` : "");
 const zoneLink = (z, label = "Change") =>
   `<p class="zone"><span data-zn>${esc(K.zoneName(z))}</span> · <button type="button" class="lk" id="zc" aria-label="Change time zone">${label}</button></p>`;
 /** The zone picker, with the major cities in order of their offset now; the script adds this device's
@@ -103,13 +105,14 @@ function footer(guest) {
   return `<footer><a class="brand" href="https://bananatheapp.com">${LOGO}Banana</a><a class="lk" href="/source">Source code</a>${known(guest) ? '<a class="lk" href="/b/forget">Forget me</a>' : ""}</footer>`;
 }
 
-/** The days: a one-row strip on a phone, a month grid wider; the same buttons in both. */
-const dayPickers = (ds, sel, loc) => ({
-  strip: `<div class="strip" id="strip" role="group" aria-label="Days">${K.strip(ds, sel, loc)}</div>`,
-  cal: `<div class="cal" id="cal" role="group" aria-label="Days">${K.cal(ds, sel, loc)}</div>`,
-});
-const timesGrid = (d, z, loc, cur) =>
-  `<div class="grid" id="grid" role="group" aria-labelledby="day" style="--r:${Math.ceil((d ? d.s.length : 1) / 3)};--r4:${Math.ceil((d ? d.s.length : 1) / 4)}">${K.grid(d, z, loc, cur)}</div>`;
+/** The days: one month at a time, on every width. */
+const dayPicker = (ds, sel, loc) => `<div class="cal" id="cal" role="group" aria-label="Days">${K.cal(ds, sel, loc)}</div>`;
+/** The day's times: two to a row on a phone, three from 768 px, four from 1024 px; the height is
+ * set from the count so nothing moves as it fills. */
+const timesGrid = (d, z, loc, cur) => {
+  const n = d ? d.s.length : 1;
+  return `<div class="grid" id="grid" role="group" aria-labelledby="day" style="--r2:${Math.ceil(n / 2)};--r:${Math.ceil(n / 3)};--r4:${Math.ceil(n / 4)}">${K.grid(d, z, loc, cur)}</div>`;
+};
 
 /** The whole document around a page's body. */
 function shell({ title, body, data, zone, loc, status = 200, extra = {}, head = "", started }) {
@@ -137,7 +140,7 @@ export function profile(view) {
   const z = zoneOf({ ...view, type: types[0] }), loc = localeOf(view);
   const rows = types.map((type) => `<li><a class="type" href="${esc(page(host.handle, type.slug))}"><span><b>${esc(type.title)}</b>` +
     `<small>${esc(type.minutes)} min · ${type.nextSlot ? `Next: ${t(type.nextSlot.start, "w", z, loc, now)}` : "No times open"}</small></span><span aria-hidden="true">›</span></a></li>`).join("");
-  const body = `<main class="w narrow"><h1>${esc(host.name)}</h1>${guestBars(guest, z, loc, now, { asWho: false })}` +
+  const body = `<main class="w narrow"><h1>${esc(host.name || "Book a time")}</h1>${guestBars(guest, z, loc, now, { asWho: false })}` +
     (types.length ? `<ul class="types" data-rl>${rows}</ul><div data-rl>${zoneLink(z, nextTime(guest, now) ? "Time zone" : "Change")}</div>` : '<p class="none">No times open</p>') +
     `</main>${footer(guest)}${zonesDialog(now)}`;
   const spec = `<script type="speculationrules" nonce="{nonce}">${jsonData({ prefetch: [{ where: { href_matches: `/${host.handle}/*` }, eagerness: "moderate" }] })}</script>`;
@@ -152,12 +155,12 @@ export function times(view) {
   const z = zoneOf(view), loc = localeOf(view), len = (type.minutes || 30) * 60000;
   const busyMs = (busy || []).map((b) => [Date.parse(b.start), Date.parse(b.end)]);
   const starts = K.free(slots.map((s) => Date.parse(s.start)).filter((s) => Number.isFinite(s)).sort((a, b) => a - b), len, busyMs);
-  const ds = K.days(starts, z), first = ds[0], days = dayPickers(ds, first?.k, loc);
+  const ds = K.days(starts, z), first = ds[0];
   const g = known(guest), base = page(host.handle, type.slug);
-  const side = `<div class="side"><h1>${esc(type.title)}</h1><p class="meta">${metaLine(type, host)}</p>` + guestBars(guest, z, loc, now) +
+  const side = `<div class="side">${hostLine(host)}<h1>${esc(type.title)}</h1><p class="meta">${metaLine(type)}</p>` + guestBars(guest, z, loc, now) +
     (first ? `<button type="button" class="btn soon" id="soon" data-s="${starts[0]}" data-rl><span>Soonest</span>${t(new Date(starts[0]).toISOString(), "w", z, loc, now)}</button>` : "") +
-    `<div data-rl>${days.cal}</div></div>`;
-  const main = `<div data-rl>${days.strip}<div class="row"><h2 id="day">${first ? esc(K.dayName(first.k, loc)) : ""}</h2>${zoneLink(z, nextTime(guest, now) ? "Time zone" : "Change")}</div>` +
+    `<div data-rl>${dayPicker(ds, first?.k, loc)}</div></div>`;
+  const main = `<div data-rl><div class="row"><h2 id="day">${first ? esc(K.dayName(first.k, loc)) : ""}</h2>${zoneLink(z, nextTime(guest, now) ? "Time zone" : "Change")}</div>` +
     timesGrid(first, z, loc) + `<p class="none" id="none"${starts.length ? " hidden" : ""}>No times open</p>` +
     (busy ? `<p class="more" id="fc">Hiding your busy times</p>` : connect?.url ? `<p class="more" id="fc"><a class="lk" href="${href(connect.url)}">Only times I'm free</a></p>` : "") + `</div>`;
   const body = `<main class="w"><div class="cols">${side}${main}</div><div id="ts"></div></main>${footer(guest)}${SHEET}${zonesDialog(now)}${bookForm(type)}`;
@@ -207,13 +210,13 @@ export function manage(view) {
   const z = zoneOf(view), loc = localeOf(view);
   const cur = Date.parse(booking.start);
   const starts = [...new Set([...slots.map((s) => Date.parse(s.start)), cur].filter((s) => Number.isFinite(s) && s > now))].sort((a, b) => a - b);
-  const ds = K.days(starts, z), first = ds.find((d) => d.s.includes(cur)) || ds[0], days = dayPickers(ds, first?.k, loc);
+  const ds = K.days(starts, z), first = ds.find((d) => d.s.includes(cur)) || ds[0];
   const url = String(booking.manageUrl || "");
-  // Like the times page: on a phone the card, the strip and the times; wider, the card and the month
-  // grid on the left, the times and Cancel on the right.
-  const side = `<div class="side"><h1>${esc(type.title)}</h1><p class="meta">${metaLine(type, host)}</p>` +
-    `<div class="sh card panel" id="mine" data-rl>${K.card({ booking, zone: z, loc, host, type, head: "Your time", mail: canEmail !== false })}</div><div data-rl>${days.cal}</div></div>`;
-  const main = `<div><section class="sec" id="change" data-rl>${days.strip}<div class="row"><h2 id="day">${first ? esc(K.dayName(first.k, loc)) : ""}</h2>${zoneLink(z)}</div>` +
+  // Like the times page: on a phone the card, the month and the times in one column; wider, the
+  // card and the month on the left, the times and Cancel on the right.
+  const side = `<div class="side">${hostLine(host)}<h1>${esc(type.title)}</h1><p class="meta">${metaLine(type)}</p>` +
+    `<div class="sh card panel" id="mine" data-rl>${K.card({ booking, zone: z, loc, host, type, head: "Your time", mail: canEmail !== false })}</div><div data-rl>${dayPicker(ds, first?.k, loc)}</div></div>`;
+  const main = `<div><section class="sec" id="change" data-rl><div class="row"><h2 id="day">${first ? esc(K.dayName(first.k, loc)) : ""}</h2>${zoneLink(z)}</div>` +
     timesGrid(first, z, loc, cur) + `</section>` +
     `<section class="sec" id="cancel"><div class="stack"><button type="button" class="btn ghost" id="cx">Cancel time</button>` +
     `<div id="cxf" class="stack" hidden><label>Reason (optional)<textarea maxlength="1000"></textarea></label><button type="button" class="btn" id="cxgo">Cancel time</button></div></div></section></div>`;
@@ -231,7 +234,7 @@ export function cancelled(view) {
   const started = Date.now(), now = Date.now();
   const { host = {}, type = {}, booking = {} } = view || {};
   const z = zoneOf(view), loc = localeOf(view);
-  const body = `<main class="w narrow"><h1>Cancelled</h1><p class="meta" data-rl>${esc(type.title)} with ${esc(host.name)}, ${booking.start ? t(booking.start, "dt", z, loc, now) : ""}</p>` +
+  const body = `<main class="w narrow"><h1>Cancelled</h1><p class="meta" data-rl>${esc(type.title)}${host.name ? ` with ${esc(host.name)}` : ""}, ${booking.start ? t(booking.start, "dt", z, loc, now) : ""}</p>` +
     `<p class="stack"><a class="btn" href="${esc(page(host.handle, type.slug))}">Book another time</a></p></main>${footer(null)}`;
   return shell({ title: "Cancelled", body, zone: z, loc, started, extra: { "cache-control": "no-store" }, data: { p: "cancelled", z, l: loc } });
 }

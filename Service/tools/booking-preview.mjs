@@ -252,7 +252,7 @@ async function shots(out, deps) {
     ["undone", async (p) => { await p.click("[data-undo]"); await p.waitForTimeout(100); }],
   ]);
   await flow("times-kathmandu-places", "Asia/Kathmandu", [
-    ["day-3", (p) => p.locator("#strip .d:not(:disabled)").nth(2).click()],
+    ["day-3", (p) => p.locator("#cal .d:not(:disabled)").nth(2).click()],
     ["sheet-places", (p) => p.locator("#grid .t").first().click()],
     ["phone-place", (p) => p.locator(".pl span", { hasText: "Phone call" }).click()],
     ["note", (p) => p.click("[data-note]")],

@@ -297,9 +297,13 @@ Owner, 19–20 Oct:
 
 ### The flow
 
-1. **Landing.** `/<handle>` with one active type lands on the times: a day strip, the next days' times
-   in the guest's zone, and "New York time · Change" as the only chrome. With several types, one row
-   each with "Next: Tue 3:00 pm".
+1. **Landing.** `/<handle>` with one active type lands on the times: the host's name over the type's
+   title (Calendly's and Cal.com's order; a host the service has no name for gets no line, never the
+   handle), a month grid one month at a time with arrows, the picked day's times in the guest's zone
+   (two to a row on a phone), and "New York time · Change" as the only chrome. On a phone a tapped
+   day brings its times up under the top. With several types, one row each with "Next: Tue 3:00 pm".
+   (Owner, 30 Oct 2026: lay the page out as Calendly, Cal.com and Chili Piper do, mobile first; the
+   one-row day strip of 20 Oct is gone.)
    - The whole horizon is rendered into the first HTML, with no second request.
    - Plex Mono is preloaded.
    - No images and no dark mode: the brand is light, and images cost the phone more than they give.

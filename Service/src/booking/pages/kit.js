@@ -84,35 +84,23 @@ export function kit() {
   const dayButton = (k, on, sel, inner) => '<button type="button" class="d" data-k="' + k + '"' +
     (on ? (k === sel ? ' aria-pressed="true"' : ' aria-pressed="false" tabindex="-1"') : " disabled") + ">" + inner + "</button>";
   const sr = (k, loc, on) => '<span class="sr"> ' + esc(dayName(k, loc, { month: "long" })) + (on ? "" : ", no times") + "</span>";
-  /** The phone's strip: a chip per day from the first with times to the last, the month over the
-   * first chip of each, and no weekend when the times never fall on one. */
-  const strip = (ds, sel, loc) => {
+  /** The month grid, one month at a time as Calendly and Cal.com page it: the month of `month`
+   * ("YYYY-MM", else the selected day's, else the first with times), its name with the year, and
+   * arrows that go only where a day with times is. Weeks start as the locale starts them. */
+  const cal = (ds, sel, loc, month) => {
     if (!ds.length) return "";
-    const have = new Set(ds.map((d) => d.k)), weekends = ds.some((d) => wd(d.k) % 6 === 0);
-    let h = "", k = ds[0].k, first = true;
-    for (let i = 0; i < 400 && k <= ds[ds.length - 1].k; i++, k = step(k, 1)) {
-      if (!weekends && wd(k) % 6 === 0) continue;
-      const on = have.has(k), month = first || k.slice(8) === "01";
-      first = false;
-      h += dayButton(k, on, sel, (month ? '<i aria-hidden="true">' + esc(dayName(k, loc, { month: "short" })) + "</i>" : "") +
-        "<small>" + esc(dayName(k, loc, { weekday: "short" })) + "</small> " + esc(dayName(k, loc, { day: "numeric" })) + sr(k, loc, on));
-    }
-    return h;
-  };
-  /** The month grid of a wider screen: every month the times reach, weeks as the locale starts them. */
-  const cal = (ds, sel, loc) => {
-    if (!ds.length) return "";
-    const have = new Set(ds.map((d) => d.k)), ws = weekStart(loc), end = ds[ds.length - 1].k;
-    let h = "", k = ds[0].k.slice(0, 8) + "01";
-    while (k <= end) {
-      const month = k.slice(0, 7);
-      h += '<div class="mo"><h3>' + esc(dayName(k, loc, { month: "long" })) + '</h3><div class="cg">';
-      for (let i = 0; i < 7; i++) h += '<b aria-hidden="true">' + esc(dayName(step("2023-01-01", (ws + i) % 7), loc, { weekday: "narrow" })) + "</b>";
-      h += "<i></i>".repeat((wd(k) - ws + 7) % 7);
-      for (; k.slice(0, 7) === month; k = step(k, 1)) h += dayButton(k, have.has(k), sel, esc(dayName(k, loc, { day: "numeric" })) + sr(k, loc, have.has(k)));
-      h += "</div></div>";
-    }
-    return h;
+    const have = new Set(ds.map((d) => d.k)), ws = weekStart(loc), first = ds[0].k, last = ds[ds.length - 1].k;
+    let m = (month || (have.has(sel) ? sel : first)).slice(0, 7);
+    if (m < first.slice(0, 7)) m = first.slice(0, 7); else if (m > last.slice(0, 7)) m = last.slice(0, 7);
+    const prev = ds.filter((d) => d.k.slice(0, 7) < m).pop(), next = ds.find((d) => d.k.slice(0, 7) > m);
+    const arrow = (to, label, glyph) => '<button type="button" class="mn"' + (to ? ' data-m="' + to.k.slice(0, 7) + '"' : " disabled") + ' aria-label="' + label + '">' + glyph + "</button>";
+    let k = m + "-01";
+    let h = '<div class="mo"><div class="mh"><h3>' + esc(dayName(k, loc, { month: "long", year: "numeric" })) + "</h3>" +
+      arrow(prev, "Previous month", "\u2039") + arrow(next, "Next month", "\u203a") + '</div><div class="cg">';
+    for (let i = 0; i < 7; i++) h += '<b aria-hidden="true">' + esc(dayName(step("2023-01-01", (ws + i) % 7), loc, { weekday: "narrow" })) + "</b>";
+    h += "<i></i>".repeat((wd(k) - ws + 7) % 7);
+    for (; k.slice(0, 7) === m; k = step(k, 1)) h += dayButton(k, have.has(k), sel, esc(dayName(k, loc, { day: "numeric" })) + sr(k, loc, have.has(k)));
+    return h + "</div></div>";
   };
   /** One day's times. `cur` is the booked start a manage page keeps: the same tile, filled. */
   const grid = (d, z, loc, cur) => {
@@ -166,5 +154,5 @@ export function kit() {
       '<p class="acts">' + (b.icsUrl ? '<a class="btn" href="' + href(b.icsUrl) + '">Add to calendar</a>' : '<span class="btn off">Add to calendar</span>') +
       (o.head || o.moved ? "" : ready ? '<a href="' + href(b.manageUrl) + '">Change</a><a href="' + href(b.manageUrl) + '#cancel">Cancel</a>' : "<span>Change</span><span>Cancel</span>") + "</p>";
   };
-  return { NB, esc, zoneOk, city, zoneName, time, range, offset, key, step, noon, dayName, day, when, free, pack, unpack, days, strip, cal, grid, firstName, href, place, card, fmt };
+  return { NB, esc, zoneOk, city, zoneName, time, range, offset, key, step, noon, dayName, day, when, free, pack, unpack, days, cal, grid, firstName, href, place, card, fmt };
 }

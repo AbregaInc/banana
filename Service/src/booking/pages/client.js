@@ -32,45 +32,41 @@ export function core(K, D) {
     for (const el of doc.querySelectorAll("[data-zn]")) el.textContent = K.zoneName(zone);
   }
   let starts = D.s ? K.unpack(D.s) : [], ds = [], sel = null;
-  const stripEl = $("#strip"), calEl = $("#cal"), gridEl = $("#grid");
+  const calEl = $("#cal"), gridEl = $("#grid");
   function draw() {
     if (!gridEl) return;
     ds = K.days(starts, zone);
     if (!ds.some((d) => d.k === sel)) sel = (ds.find((d) => d.s.indexOf(D.cur) >= 0) || ds[0] || {}).k || null;
-    stripEl.innerHTML = K.strip(ds, sel, loc);
-    if (calEl) calEl.innerHTML = K.cal(ds, sel, loc);
     pick(sel);
     const soon = $("#soon");
     if (soon) { soon.hidden = !starts.length; if (starts.length) { soon.dataset.s = starts[0]; $("#soon time").textContent = K.when(starts[0], zone, loc, Date.now()) + " " + K.time(starts[0], zone, loc); } }
     const none = $("#none");
     if (none) none.hidden = !!starts.length;
   }
-  // Both day pickers carry the same buttons; CSS shows the strip on a phone and the month grid wider.
+  // The month shown follows the day picked; the arrows turn it without picking.
+  function month(m, focusLabel) {
+    if (!calEl) return;
+    calEl.innerHTML = K.cal(ds, sel, loc, m);
+    if (focusLabel) (calEl.querySelector('.mn[aria-label="' + focusLabel + '"]:not(:disabled)') || calEl.querySelector(".d:not(:disabled)") || calEl.querySelector(".mn:not(:disabled)")).focus();
+  }
   function pick(k, focus) {
     sel = k;
     const d = ds.find((x) => x.k === k);
     const n = d ? d.s.length : 1;
+    gridEl.style.setProperty("--r2", Math.ceil(n / 2));
     gridEl.style.setProperty("--r", Math.ceil(n / 3));
     gridEl.style.setProperty("--r4", Math.ceil(n / 4));
     gridEl.innerHTML = K.grid(d, zone, loc, D.cur);
     $("#day").textContent = k ? K.dayName(k, loc) : "";
-    for (const b of doc.querySelectorAll(".d:not(:disabled)")) {
-      const on = b.dataset.k === k;
-      b.setAttribute("aria-pressed", on);
-      b.tabIndex = on ? 0 : -1;
-      if (on && focus && b.offsetParent) b.focus();
-    }
-    reveal();
-  }
-  function reveal() {
-    const b = stripEl && stripEl.querySelector("[aria-pressed=true]");
-    if (b && (b.offsetLeft < stripEl.scrollLeft || b.offsetLeft + b.offsetWidth > stripEl.scrollLeft + stripEl.clientWidth)) stripEl.scrollLeft = b.offsetLeft - 16;
+    month(k ? k.slice(0, 7) : null);
+    const b = k && calEl && calEl.querySelector('.d[data-k="' + k + '"]');
+    if (b && focus) b.focus();
   }
   if (D.cur && starts.indexOf(D.cur) < 0) starts = starts.concat(D.cur).sort((a, b) => a - b);
   ds = K.days(starts, zone);
   const on0 = $(".d[aria-pressed=true]");
   sel = on0 ? on0.dataset.k : null;
-  try { if (zone !== D.z || Intl.DateTimeFormat().resolvedOptions().locale !== D.l) { relabel(); draw(); } else reveal(); } finally { doc.documentElement.classList.remove("rz"); }
+  try { if (zone !== D.z || Intl.DateTimeFormat().resolvedOptions().locale !== D.l) { relabel(); draw(); } } finally { doc.documentElement.classList.remove("rz"); }
   // A page left open: past times drop out each minute.
   setInterval(() => {
     const n = starts.filter((s) => s > Date.now() || s === D.cur);
@@ -82,20 +78,22 @@ export function core(K, D) {
     if (t.tagName === "DIALOG") { if (e.target === t) t.close(); return; }
     for (const h of H) if (h(t, t.dataset)) return;
   });
+  // A day tapped on a phone brings its times up under the top, as Calendly's second step does; a
+  // wider screen has them beside the month already.
   H.push((t, d) => {
-    if (d.k) return pick(d.k), 1;
+    if (d.k) { pick(d.k); if (innerWidth < 768) $("#day").scrollIntoView({ block: "start", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }); return 1; }
+    if (d.m) return month(d.m, t.getAttribute("aria-label")), 1;
     if ("x" in d) return t.closest("dialog").close(), 1;
     if (d.copy) return navigator.clipboard.writeText(d.copy).then(() => { t.textContent = "Copied"; say("Copied"); setTimeout(() => { t.textContent = "Copy"; }, 2000); }), 1;
     if (t.id === "notyou") { g = null; api(U.notMe || "/b/not-me", {}); $("#as").remove(); const s = $("#soon") || $("#grid .t"); if (s) s.focus(); return 1; }
   });
-  // Arrows move along the strip, and by a week up and down the month grid.
+  // Arrows move to the next day with times, and by a week up and down the month grid.
   doc.addEventListener("keydown", (e) => {
     const n = { ArrowRight: 1, ArrowLeft: -1, ArrowDown: 7, ArrowUp: -7 }[e.key];
     if (!n || !e.target.dataset || !e.target.dataset.k) return;
     e.preventDefault();
     const i = ds.findIndex((d) => d.k === sel), want = K.step(sel, n);
-    const to = Math.abs(n) === 1 || e.target.closest("#strip") ? ds[i + Math.sign(n)]
-      : n > 0 ? ds.find((d) => d.k >= want) : ds.slice().reverse().find((d) => d.k <= want);
+    const to = Math.abs(n) === 1 ? ds[i + n] : n > 0 ? ds.find((d) => d.k >= want) : ds.slice().reverse().find((d) => d.k <= want);
     if (to) pick(to.k, true);
   });
 }
