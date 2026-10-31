@@ -5,7 +5,7 @@ published = 2026-10-29
 updated = 2026-10-29
 author = "Banana team"
 category = "Engineering"
-draft = true
+draft = false
 image = "/assets/img/blog/calendar-rendering-ai-og.png"
 image_alt = "Banana Day and Week performance fixtures beside the result: Week scrolling from 15 ms to 2.3 ms per update on an iPhone 14 Pro."
 +++
