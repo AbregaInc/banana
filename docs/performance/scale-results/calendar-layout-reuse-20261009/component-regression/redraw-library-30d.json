@@ -1,0 +1,99 @@
+{
+  "days": 30,
+  "emails": 60000,
+  "episodes": 300000,
+  "events": 3000,
+  "metrics": [
+    {
+      "budgetMS": 50,
+      "checksum": 350,
+      "medianMS": 0.00020832521840929985,
+      "name": "mail.firstPage",
+      "p95MS": 14.353083330206573
+    },
+    {
+      "budgetMS": 100,
+      "checksum": 350,
+      "medianMS": 0.007208320312201977,
+      "name": "mail.readMutation",
+      "p95MS": 0.067333341576159
+    },
+    {
+      "budgetMS": 16,
+      "checksum": 4900,
+      "medianMS": 0.2694583381526172,
+      "name": "calendar.visibleWeek",
+      "p95MS": 4.356333345640451
+    },
+    {
+      "budgetMS": 8,
+      "checksum": 700,
+      "medianMS": 0.0032082898542284966,
+      "name": "calendar.day",
+      "p95MS": 0.7638750248588622
+    },
+    {
+      "budgetMS": 100,
+      "checksum": 700,
+      "medianMS": 18.01404164871201,
+      "name": "notes.search",
+      "p95MS": 19.999624986667186
+    },
+    {
+      "budgetMS": 16,
+      "checksum": 700,
+      "medianMS": 1.059791713487357,
+      "name": "notes.browse",
+      "p95MS": 1.4906249707564712
+    },
+    {
+      "budgetMS": 100,
+      "checksum": 2100,
+      "medianMS": 18.150916614104062,
+      "name": "podcasts.nextAcrossCatalog",
+      "p95MS": 19.944666710216552
+    },
+    {
+      "budgetMS": 100,
+      "checksum": 6300,
+      "medianMS": 21.92716667195782,
+      "name": "podcasts.downloadCandidates",
+      "p95MS": 22.353041684255004
+    }
+  ],
+  "notes": 30000,
+  "passed": true,
+  "platform": "iOS Simulator; disk-paged notes and podcasts; model operations; mail fixture source",
+  "podcasts": 300,
+  "residentMB": 452.4375,
+  "schemaVersion": 1,
+  "idle": {
+    "budgetRendersPerSecond": 2,
+    "clockTicks": 100,
+    "observedRoot": true,
+    "passed": true,
+    "rendersPerSecond": {
+      "downloads\u21bb": 0,
+      "fitness\u21bb": 0,
+      "library\u21bb": 0,
+      "occurrences\u21bb": 0,
+      "PodcastsView": 0,
+      "RootView": 0,
+      "watch\u21bb": 0
+    },
+    "seconds": 10.557404624996707
+  },
+  "label": "redraw-library",
+  "commit": "c8f310b665c3493dcebc039945524de20147b1e5",
+  "device": "5829A24D-81B4-49D9-A31A-C7553C32D527",
+  "binarySHA256": "a9d4178ba25fbe82a7d06cf4b0ce70b73ff14fa90d71cef4370f4d38c632d083",
+  "hostLoad": [
+    52.96142578125,
+    38.79248046875,
+    24.7119140625
+  ],
+  "dirty": true,
+  "readySeconds": 24.518,
+  "memoryBudgetMB": 900.0,
+  "memoryPassed": true
+}

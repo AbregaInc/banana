@@ -1,0 +1,27 @@
+{
+  "timestamp": "2026-10-09T04:36:34.776104-04:00",
+  "device": "<device-udid>",
+  "scope": "Physical native touch profiling; decode schemas before claiming frame/input acceptance",
+  "command": [
+    "xcrun",
+    "xctrace",
+    "record",
+    "--device",
+    "Spar<redacted>",
+    "--template",
+    "Animation Hitches",
+    "--instrument",
+    "Core Animation Commits",
+    "--instrument",
+    "Run Loops",
+    "--instrument",
+    "Points of Interest",
+    "--attach",
+    "11487",
+    "--time-limit",
+    "60s",
+    "--output",
+    ".build/calendar-touch/iphone-control-300-full-trace/touch.trace",
+    "--no-prompt"
+  ]
+}

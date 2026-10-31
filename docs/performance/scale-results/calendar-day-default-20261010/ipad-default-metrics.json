@@ -1,0 +1,105 @@
+[
+  {
+    "testIdentifier" : "ScaleStressUITests/testNativeDayCalendarScroll()",
+    "testIdentifierURL" : "test://com.apple.xcode/Banana/BananaUITests/ScaleStressUITests/testNativeDayCalendarScroll",
+    "testRuns" : [
+      {
+        "device" : {
+          "deviceId" : "DFF60927-BA4A-4E8E-9A6E-63A1A4178858",
+          "deviceName" : "Calendar-Artwork-iPad-20261009"
+        },
+        "metrics" : [
+          {
+            "baselineAverage" : 0,
+            "baselineName" : "",
+            "displayName" : "Clock Monotonic Time",
+            "identifier" : "com.apple.dt.XCTMetric_Clock.time.monotonic",
+            "maxPercentRegression" : 10,
+            "maxPercentRelativeStandardDeviation" : 10,
+            "maxRegression" : 0,
+            "maxStandardDeviation" : 10,
+            "measurements" : [
+              2.413825226,
+              2.395647384,
+              2.427322262
+            ],
+            "polarity" : "prefers smaller",
+            "unitOfMeasurement" : "s"
+          },
+          {
+            "baselineAverage" : 0,
+            "baselineName" : "",
+            "displayName" : "Memory Physical (banana)",
+            "identifier" : "com.apple.dt.XCTMetric_Memory-com.boris.banana.physical",
+            "maxPercentRegression" : 10,
+            "maxPercentRelativeStandardDeviation" : 10,
+            "maxRegression" : 0,
+            "maxStandardDeviation" : 10,
+            "measurements" : [
+              131.072,
+              -196.608,
+              -163.84
+            ],
+            "polarity" : "prefers smaller",
+            "unitOfMeasurement" : "kB"
+          },
+          {
+            "baselineAverage" : 0,
+            "baselineName" : "",
+            "displayName" : "Absolute Memory Physical (banana)",
+            "identifier" : "com.apple.dt.XCTMetric_Memory-com.boris.banana.physical_absolute",
+            "maxPercentRegression" : 10,
+            "maxPercentRelativeStandardDeviation" : 10,
+            "maxRegression" : 0,
+            "maxStandardDeviation" : 10,
+            "measurements" : [
+              205490.624,
+              205294.016,
+              205146.56
+            ],
+            "polarity" : "prefers smaller",
+            "unitOfMeasurement" : "kB"
+          },
+          {
+            "baselineAverage" : 0,
+            "baselineName" : "",
+            "displayName" : "Duration (Scroll_DraggingAndDeceleration)",
+            "identifier" : "com.apple.dt.XCTMetric_OSSignpost-Scroll_DraggingAndDeceleration.duration",
+            "maxPercentRegression" : 10,
+            "maxPercentRelativeStandardDeviation" : 10,
+            "maxRegression" : 0,
+            "maxStandardDeviation" : 10,
+            "measurements" : [
+              0.8334822500000001,
+              0.817022,
+              0.8336592920000001
+            ],
+            "polarity" : "prefers smaller",
+            "unitOfMeasurement" : "s"
+          },
+          {
+            "baselineAverage" : 0,
+            "baselineName" : "",
+            "displayName" : "Memory Peak Physical (banana)",
+            "identifier" : "com.apple.dt.XCTMetric_Memory-com.boris.banana.physical_peak",
+            "maxPercentRegression" : 10,
+            "maxPercentRelativeStandardDeviation" : 10,
+            "maxRegression" : 0,
+            "maxStandardDeviation" : 10,
+            "measurements" : [
+              205670.848,
+              205801.92,
+              205621.696
+            ],
+            "polarity" : "prefers smaller",
+            "unitOfMeasurement" : "kB"
+          }
+        ],
+        "testPlanConfiguration" : {
+          "configurationId" : "1",
+          "configurationName" : "Test Scheme Action"
+        }
+      }
+    ]
+  }
+]

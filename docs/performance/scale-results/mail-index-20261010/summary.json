@@ -1,0 +1,281 @@
+{
+  "databaseFileBytes": {
+    "index.sqlite": 4096,
+    "index.sqlite-shm": 65536,
+    "index.sqlite-wal": 33264912
+  },
+  "databaseTotalBytes": 33334544,
+  "finishedUnixSeconds": 1791690171.92597,
+  "keysetMaxMS": 11.838291,
+  "peakProcessRSSBytes": 112934912,
+  "rows": 180000,
+  "scope": "Real GRDB keyset versus OFFSET with identical decode and row parity. First, warm and page-cache eviction samples retained; not cold filesystem, UI or frame acceptance.",
+  "startedUnixSeconds": 1791690167.921822,
+  "testProcessID": 6932,
+  "cases": [
+    {
+      "offset": 0,
+      "limit": 50,
+      "evictionMS": [
+        0.850041,
+        0.87
+      ],
+      "keysetMS": {
+        "count": 12,
+        "p50": 0.488833,
+        "p95": 0.786584,
+        "max": 0.786584
+      },
+      "offsetMS": {
+        "count": 12,
+        "p50": 0.496521,
+        "p95": 0.571417,
+        "max": 0.571417
+      }
+    },
+    {
+      "offset": 0,
+      "limit": 500,
+      "evictionMS": [
+        3.404084,
+        3.270167
+      ],
+      "keysetMS": {
+        "count": 12,
+        "p50": 2.8842084999999997,
+        "p95": 3.054709,
+        "max": 3.054709
+      },
+      "offsetMS": {
+        "count": 12,
+        "p50": 2.883458,
+        "p95": 3.05225,
+        "max": 3.05225
+      }
+    },
+    {
+      "offset": 0,
+      "limit": 2000,
+      "evictionMS": [
+        11.197333,
+        11.14875
+      ],
+      "keysetMS": {
+        "count": 12,
+        "p50": 10.7820625,
+        "p95": 11.111583,
+        "max": 11.111583
+      },
+      "offsetMS": {
+        "count": 12,
+        "p50": 10.8020415,
+        "p95": 11.108458,
+        "max": 11.108458
+      }
+    },
+    {
+      "offset": 1800,
+      "limit": 50,
+      "evictionMS": [
+        0.748833,
+        1.148334
+      ],
+      "keysetMS": {
+        "count": 12,
+        "p50": 0.436083,
+        "p95": 0.550291,
+        "max": 0.550291
+      },
+      "offsetMS": {
+        "count": 12,
+        "p50": 0.8550415,
+        "p95": 0.918334,
+        "max": 0.918334
+      }
+    },
+    {
+      "offset": 1800,
+      "limit": 500,
+      "evictionMS": [
+        3.121709,
+        3.458833
+      ],
+      "keysetMS": {
+        "count": 12,
+        "p50": 2.7503125,
+        "p95": 2.81575,
+        "max": 2.81575
+      },
+      "offsetMS": {
+        "count": 12,
+        "p50": 3.1878960000000003,
+        "p95": 3.232375,
+        "max": 3.232375
+      }
+    },
+    {
+      "offset": 1800,
+      "limit": 2000,
+      "evictionMS": [
+        11.156542,
+        11.628958
+      ],
+      "keysetMS": {
+        "count": 12,
+        "p50": 10.7796875,
+        "p95": 11.838291,
+        "max": 11.838291
+      },
+      "offsetMS": {
+        "count": 12,
+        "p50": 11.254312500000001,
+        "p95": 12.455292,
+        "max": 12.455292
+      }
+    },
+    {
+      "offset": 90000,
+      "limit": 50,
+      "evictionMS": [
+        0.854208,
+        26.330542
+      ],
+      "keysetMS": {
+        "count": 12,
+        "p50": 0.555166,
+        "p95": 0.600291,
+        "max": 0.600291
+      },
+      "offsetMS": {
+        "count": 12,
+        "p50": 24.82875,
+        "p95": 26.104791,
+        "max": 26.104791
+      }
+    },
+    {
+      "offset": 90000,
+      "limit": 500,
+      "evictionMS": [
+        3.190666,
+        27.178375
+      ],
+      "keysetMS": {
+        "count": 12,
+        "p50": 2.8533955,
+        "p95": 3.046875,
+        "max": 3.046875
+      },
+      "offsetMS": {
+        "count": 12,
+        "p50": 26.5860415,
+        "p95": 28.800083,
+        "max": 28.800083
+      }
+    },
+    {
+      "offset": 90000,
+      "limit": 2000,
+      "evictionMS": [
+        10.9785,
+        35.411916
+      ],
+      "keysetMS": {
+        "count": 12,
+        "p50": 10.6602915,
+        "p95": 11.207666,
+        "max": 11.207666
+      },
+      "offsetMS": {
+        "count": 12,
+        "p50": 34.255770999999996,
+        "p95": 35.039125,
+        "max": 35.039125
+      }
+    },
+    {
+      "offset": 179950,
+      "limit": 50,
+      "evictionMS": [
+        0.844333,
+        49.466125
+      ],
+      "keysetMS": {
+        "count": 12,
+        "p50": 0.5353125,
+        "p95": 0.58075,
+        "max": 0.58075
+      },
+      "offsetMS": {
+        "count": 12,
+        "p50": 48.213499999999996,
+        "p95": 55.811166,
+        "max": 55.811166
+      }
+    },
+    {
+      "offset": 179950,
+      "limit": 500,
+      "evictionMS": [
+        0.872584,
+        50.396125
+      ],
+      "keysetMS": {
+        "count": 12,
+        "p50": 0.548333,
+        "p95": 0.591917,
+        "max": 0.591917
+      },
+      "offsetMS": {
+        "count": 12,
+        "p50": 48.3506045,
+        "p95": 50.0135,
+        "max": 50.0135
+      }
+    },
+    {
+      "offset": 179950,
+      "limit": 2000,
+      "evictionMS": [
+        0.862083,
+        50.184583
+      ],
+      "keysetMS": {
+        "count": 12,
+        "p50": 0.5503335,
+        "p95": 0.621542,
+        "max": 0.621542
+      },
+      "offsetMS": {
+        "count": 12,
+        "p50": 48.6792705,
+        "p95": 51.440625,
+        "max": 51.440625
+      }
+    }
+  ],
+  "competingProcessesDuringMeasurement": [
+    {
+      "elapsedSeconds": 56.8881441669655,
+      "pid": 66029,
+      "process": "xcodebuild"
+    },
+    {
+      "elapsedSeconds": 57.97268458397593,
+      "pid": 66029,
+      "process": "xcodebuild"
+    },
+    {
+      "elapsedSeconds": 59.06098370900145,
+      "pid": 66029,
+      "process": "xcodebuild"
+    },
+    {
+      "elapsedSeconds": 60.14090095896972,
+      "pid": 66029,
+      "process": "xcodebuild"
+    }
+  ],
+  "hostErrors": [],
+  "acceptance": "Component query checks passed; competing build observed; no UI or baseline acceptance"
+}

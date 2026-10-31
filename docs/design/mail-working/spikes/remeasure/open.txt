@@ -1,0 +1,5 @@
+GRDB 7.11.1 · SQLite 3.51.0 · 2026-10-06 01:18:45 +0000 · load 656.6 613.9 576.7
+
+== activate(): four GRDB stores opened, 30 overlay rows rebuilt from intent, first page read — a fresh process each time would add the page cache · load 656.6 613.9 576.7
+  opening the four stores: n=12 p50 16.250 ms · p95 39.008 ms · p99 39.008 ms · max 39.008 ms
+  open + overlay rebuild + first page: n=12 p50 44.890 ms · p95 72.889 ms · p99 72.889 ms · max 72.889 ms

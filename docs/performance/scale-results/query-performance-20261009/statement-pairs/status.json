@@ -1,0 +1,86 @@
+[
+  {
+    "command": [
+      "xcrun",
+      "simctl",
+      "spawn",
+      "5829A24D-81B4-49D9-A31A-C7553C32D527",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/query-performance-20261009/statement-cache",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/query-performance-20261009/podcast-catalog.sqlite",
+      "uncached",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/query-performance-20261009/statement-pairs/0-uncached.json",
+      "7"
+    ],
+    "exit": 0
+  },
+  {
+    "command": [
+      "xcrun",
+      "simctl",
+      "spawn",
+      "5829A24D-81B4-49D9-A31A-C7553C32D527",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/query-performance-20261009/statement-cache",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/query-performance-20261009/podcast-catalog.sqlite",
+      "cached",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/query-performance-20261009/statement-pairs/0-cached.json",
+      "7"
+    ],
+    "exit": 0
+  },
+  {
+    "command": [
+      "xcrun",
+      "simctl",
+      "spawn",
+      "5829A24D-81B4-49D9-A31A-C7553C32D527",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/query-performance-20261009/statement-cache",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/query-performance-20261009/podcast-catalog.sqlite",
+      "cached",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/query-performance-20261009/statement-pairs/1-cached.json",
+      "7"
+    ],
+    "exit": 0
+  },
+  {
+    "command": [
+      "xcrun",
+      "simctl",
+      "spawn",
+      "5829A24D-81B4-49D9-A31A-C7553C32D527",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/query-performance-20261009/statement-cache",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/query-performance-20261009/podcast-catalog.sqlite",
+      "uncached",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/query-performance-20261009/statement-pairs/1-uncached.json",
+      "7"
+    ],
+    "exit": 0
+  },
+  {
+    "command": [
+      "xcrun",
+      "simctl",
+      "spawn",
+      "5829A24D-81B4-49D9-A31A-C7553C32D527",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/query-performance-20261009/statement-cache",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/query-performance-20261009/podcast-catalog.sqlite",
+      "uncached",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/query-performance-20261009/statement-pairs/2-uncached.json",
+      "7"
+    ],
+    "exit": 0
+  },
+  {
+    "command": [
+      "xcrun",
+      "simctl",
+      "spawn",
+      "5829A24D-81B4-49D9-A31A-C7553C32D527",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/query-performance-20261009/statement-cache",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/query-performance-20261009/podcast-catalog.sqlite",
+      "cached",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/query-performance-20261009/statement-pairs/2-cached.json",
+      "7"
+    ],
+    "exit": 0
+  }
+]

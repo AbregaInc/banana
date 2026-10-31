@@ -1,0 +1,459 @@
+{
+  "brand": {
+    "name": "Banana",
+    "tagline": "Many calendars. One you.",
+    "icon": "Brand/BananaAppIconMaster.png",
+    "colors": {
+      "ink": "#221D38",
+      "ivory": "#FBF6EA",
+      "yellow": "#FFD84A",
+      "orange": "#FBD9BB",
+      "coral": "#F9D0DC",
+      "green": "#D3F0E2",
+      "purple": "#E4DBF6",
+      "blue": "#CBE4F6",
+      "mist": "#DDD2F6"
+    }
+  },
+  "capture": {
+    "bundle_id": "com.boris.banana",
+    "watch_bundle_id": "com.boris.banana.watchkitapp",
+    "iphone_device": "iPhone 17 Pro Max",
+    "ipad_device": "iPad Pro 13-inch (M5)",
+    "watch_device": "Apple Watch Series 11 (46mm)",
+    "iphone_size": [
+      1320,
+      2868
+    ],
+    "ipad_size": [
+      2752,
+      2064
+    ],
+    "ipad_orientation": "landscape_left",
+    "watch_size": [
+      416,
+      496
+    ],
+    "mac_size": [
+      2880,
+      1800
+    ],
+    "mac_window": "1320x840",
+    "settle_seconds": 4
+  },
+  "iphone_scenes": [
+    {
+      "id": "01-plan",
+      "route": [
+        "--ui-preview",
+        "--tab",
+        "plan",
+        "--plan",
+        "-planMode",
+        "day"
+      ],
+      "headline": "Every calendar\nin one day.",
+      "subhead": "Google calendars, reminders, routines and travel time in one plan.",
+      "eyebrow": "THE DAILY SURFACE",
+      "mode": "feature",
+      "crop": [
+        0.0,
+        0.055,
+        1.0,
+        0.8
+      ],
+      "background": "ivory",
+      "foreground": "ink",
+      "accent": "yellow",
+      "align": "right"
+    },
+    {
+      "id": "02-week",
+      "route": [
+        "--ui-preview",
+        "--tab",
+        "plan",
+        "--plan",
+        "-planMode",
+        "week"
+      ],
+      "headline": "Your week\nat a glance.",
+      "subhead": "Every account on one timeline. Switch between day and week.",
+      "eyebrow": "THE WEEK",
+      "mode": "feature",
+      "crop": [
+        0.0,
+        0.055,
+        1.0,
+        0.8
+      ],
+      "background": "ivory",
+      "foreground": "ink",
+      "accent": "blue",
+      "align": "right"
+    },
+    {
+      "id": "03-new-event",
+      "route": [
+        "--new-calendar-event",
+        "--new-calendar-event-text",
+        "Lunch with Sam Friday at 1",
+        "--new-calendar-event-fill"
+      ],
+      "headline": "Add it the way\nyou'd say it.",
+      "subhead": "Type a sentence. Banana fills in the day, the time and who's coming.",
+      "eyebrow": "QUICK ADD",
+      "mode": "feature",
+      "crop": [
+        0.0,
+        0.075,
+        1.0,
+        0.8
+      ],
+      "background": "ivory",
+      "foreground": "ink",
+      "accent": "green",
+      "align": "right",
+      "settle_seconds": 12
+    },
+    {
+      "id": "04-routines",
+      "route": [
+        "--routines"
+      ],
+      "headline": "Make room for\nyour routines.",
+      "subhead": "Keep recurring plans and automatic cues alongside your calendars.",
+      "eyebrow": "AUTOMATIC CUES",
+      "mode": "feature",
+      "crop": [
+        0.0,
+        0.055,
+        1.0,
+        0.79
+      ],
+      "background": "ivory",
+      "foreground": "ink",
+      "accent": "coral",
+      "align": "left"
+    },
+    {
+      "id": "05-nutrition",
+      "route": [
+        "--wellness",
+        "--nutrition-week"
+      ],
+      "headline": "A place for\nevery meal.",
+      "subhead": "Take a photo, scan a barcode or pick a past meal. Set when you ate.",
+      "eyebrow": "NUTRITION",
+      "mode": "feature",
+      "crop": [
+        0.0,
+        0.055,
+        1.0,
+        0.78
+      ],
+      "background": "ivory",
+      "foreground": "ink",
+      "accent": "purple",
+      "align": "right"
+    },
+    {
+      "id": "06-continuity",
+      "route": [
+        "--library"
+      ],
+      "headline": "Your shows.\nEverywhere.",
+      "subhead": "Keep the same library and progress on iPhone, iPad, Mac and Apple Watch.",
+      "eyebrow": "CROSS-DEVICE LISTENING",
+      "mode": "continuity",
+      "crop": [
+        0.0,
+        0.055,
+        1.0,
+        0.825
+      ],
+      "background": "ivory",
+      "foreground": "ink",
+      "accent": "orange",
+      "align": "left"
+    },
+    {
+      "id": "07-workouts",
+      "route": [
+        "--workout"
+      ],
+      "headline": "Your workout,\nbeyond the wrist.",
+      "subhead": "Route, heart rate and the episode that came along for the run.",
+      "eyebrow": "WATCH TO PHONE",
+      "mode": "workout",
+      "crop": [
+        0.0,
+        0.055,
+        1.0,
+        0.705
+      ],
+      "background": "ivory",
+      "foreground": "ink",
+      "accent": "green",
+      "align": "right"
+    },
+    {
+      "id": "08-listening",
+      "route": [
+        "--listenmap"
+      ],
+      "settle_seconds": 18,
+      "headline": "A place for\nevery listen.",
+      "subhead": "A private map of the shows that move through life with you.",
+      "eyebrow": "LISTEN MAP",
+      "mode": "feature",
+      "crop": [
+        0.0,
+        0.055,
+        1.0,
+        0.88
+      ],
+      "background": "ivory",
+      "foreground": "ink",
+      "accent": "blue",
+      "align": "left"
+    },
+    {
+      "id": "09-transcripts",
+      "route": [
+        "--transcript-demo",
+        "banana-demo.wav"
+      ],
+      "headline": "Follow\nevery word.",
+      "subhead": "On-device transcripts follow the exact moment you are hearing.",
+      "eyebrow": "LIVE TRANSCRIPTS",
+      "mode": "feature",
+      "crop": [
+        0.0,
+        0.055,
+        1.0,
+        0.845
+      ],
+      "background": "ivory",
+      "foreground": "ink",
+      "accent": "yellow",
+      "align": "right"
+    }
+  ],
+  "ipad_scenes": [
+    {
+      "id": "01-plan",
+      "route": [
+        "--ui-preview",
+        "--tab",
+        "plan",
+        "--plan",
+        "-planMode",
+        "week"
+      ],
+      "headline": "Many calendars.\nOne you.",
+      "subhead": "Calendars, reminders, routines and travel time. Together in one plan.",
+      "eyebrow": "BANANA FOR iPAD",
+      "crop": [
+        0.0,
+        0.021,
+        1.0,
+        0.979
+      ],
+      "background": "ivory",
+      "foreground": "ink",
+      "accent": "yellow"
+    },
+    {
+      "id": "02-nutrition",
+      "route": [
+        "--ui-preview",
+        "--tab",
+        "nutrition",
+        "--wellness"
+      ],
+      "headline": "A place for\nevery meal.",
+      "subhead": "Take a photo, scan a barcode or pick a past meal. Set when you ate.",
+      "eyebrow": "NUTRITION",
+      "crop": [
+        0.0,
+        0.021,
+        1.0,
+        0.979
+      ],
+      "background": "ivory",
+      "foreground": "ink",
+      "accent": "purple"
+    },
+    {
+      "id": "03-workouts",
+      "route": [
+        "--ui-preview",
+        "--tab",
+        "workouts",
+        "--workout"
+      ],
+      "headline": "Your workout,\nbeyond the wrist.",
+      "subhead": "Time, distance, pace and heart rate from Apple Watch and Apple Health.",
+      "eyebrow": "WORKOUTS",
+      "crop": [
+        0.0,
+        0.021,
+        1.0,
+        0.979
+      ],
+      "background": "ivory",
+      "foreground": "ink",
+      "accent": "green"
+    },
+    {
+      "id": "04-sleep",
+      "route": [
+        "--ui-preview",
+        "--tab",
+        "workouts",
+        "--sleep",
+        "--workouts-route",
+        "sleep"
+      ],
+      "headline": "Last night,\nin plain words.",
+      "subhead": "When you slept, when you were up, and how the fortnight compares.",
+      "eyebrow": "SLEEP",
+      "crop": [
+        0.0,
+        0.021,
+        1.0,
+        0.979
+      ],
+      "background": "ivory",
+      "foreground": "ink",
+      "accent": "blue"
+    },
+    {
+      "id": "05-routines",
+      "route": [
+        "--ui-preview",
+        "--tab",
+        "routines",
+        "--routines"
+      ],
+      "headline": "Make room for\nyour routines.",
+      "subhead": "Keep recurring plans and automatic cues alongside your calendars.",
+      "eyebrow": "AUTOMATIC CUES",
+      "crop": [
+        0.0,
+        0.021,
+        1.0,
+        0.979
+      ],
+      "background": "ivory",
+      "foreground": "ink",
+      "accent": "coral"
+    },
+    {
+      "id": "06-library",
+      "route": [
+        "--ui-preview",
+        "--tab",
+        "library",
+        "--library"
+      ],
+      "headline": "Your shows.\nYour pace.",
+      "subhead": "The same library and progress as your iPhone, Mac and Apple Watch.",
+      "eyebrow": "PODCASTS",
+      "crop": [
+        0.0,
+        0.021,
+        1.0,
+        0.979
+      ],
+      "background": "ivory",
+      "foreground": "ink",
+      "accent": "orange"
+    }
+  ],
+  "watch_scenes": [
+    {
+      "id": "01-workout",
+      "route": [
+        "--activeworkout"
+      ]
+    },
+    {
+      "id": "02-now-playing",
+      "route": [
+        "--activeworkout",
+        "--media-page"
+      ]
+    },
+    {
+      "id": "03-workout-picker",
+      "route": [
+        "--workout-picker"
+      ]
+    }
+  ],
+  "mac_scenes": [
+    {
+      "id": "01-plan",
+      "section": "plan",
+      "route": [
+        "-planMode",
+        "week",
+        "-macWeekSpan",
+        "5"
+      ],
+      "headline": "Many calendars.\nOne you.",
+      "subhead": "Calendars, reminders, routines and travel time. Together in one plan.",
+      "eyebrow": "BANANA FOR MAC",
+      "background": "ivory",
+      "foreground": "ink",
+      "accent": "yellow"
+    },
+    {
+      "id": "02-nutrition",
+      "section": "nutrition",
+      "headline": "A place for\nevery meal.",
+      "subhead": "Take a photo, scan a barcode or pick a past meal. Set when you ate.",
+      "eyebrow": "NUTRITION",
+      "background": "ivory",
+      "foreground": "ink",
+      "accent": "purple"
+    },
+    {
+      "id": "03-sleep",
+      "section": "workouts",
+      "route": [
+        "--sleep",
+        "--workouts-route",
+        "sleep"
+      ],
+      "headline": "Last night,\nin plain words.",
+      "subhead": "When you slept, when you were up, and how the fortnight compares.",
+      "eyebrow": "SLEEP",
+      "background": "ivory",
+      "foreground": "ink",
+      "accent": "blue"
+    },
+    {
+      "id": "04-routines",
+      "section": "routines",
+      "headline": "Make room for\nyour routines.",
+      "subhead": "Keep recurring plans and automatic cues alongside your calendars.",
+      "eyebrow": "ROUTINES",
+      "background": "ivory",
+      "foreground": "ink",
+      "accent": "coral"
+    },
+    {
+      "id": "05-library",
+      "section": "library",
+      "headline": "Your shows.\nYour pace.",
+      "subhead": "Listening progress stays with you across devices.",
+      "eyebrow": "PODCASTS",
+      "background": "ivory",
+      "foreground": "ink",
+      "accent": "orange"
+    }
+  ]
+}

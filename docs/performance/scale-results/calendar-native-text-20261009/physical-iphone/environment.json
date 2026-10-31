@@ -1,0 +1,23 @@
+{
+  "timestamp": "2026-10-09T01:53:28.917381-04:00",
+  "device": "<device-udid>",
+  "app": "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-library-device-dd/Build/Products/Release-iphoneos/CalendarLibraryBenchmark.app",
+  "binarySHA256": "732d41d53bd4c313f1b3319e12504cf52a489dd336395a4065321b4d67353bd1",
+  "git": "96d1ef3071fa17363f15bdee4e3a199fee2d0a6b",
+  "dirty": " M .github/workflows/performance-contract.yml\n M Banana/Views/MacEventInspector.swift\n M Banana/Views/WeekView.swift\n M BananaNativePerformanceUITests/NativeInteractionTests.swift\n M docs/performance/regression-testing.md\n M tools/calendar-library-benchmark/AccessibilityTests/main.swift\n M tools/calendar-library-benchmark/Native/MacBenchmark.swift\n M tools/calendar-library-benchmark/Shared/CalendarSurface.swift\n M tools/calendar-library-benchmark/Shared/Optimizations.swift\n M tools/calendar-library-benchmark/Shared/RasterPage.swift\n M tools/calendar-library-benchmark/Sources/Benchmark.swift\n M tools/calendar-library-benchmark/Sources/NativeController.swift\n M tools/calendar-library-benchmark/TileTests/main.swift\n M tools/calendar-library-benchmark/project.yml\n M tools/calendar-library-benchmark/report.py\n M tools/calendar-library-benchmark/run-device.py\n M tools/calendar-library-benchmark/run-mac.py\n M tools/calendar-library-benchmark/run.py\n M tools/calendar-library-benchmark/test_report.py\n M tools/mac-stress-preview.py\n M tools/native-ui-test.sh\n M tools/native-ui-trace.py\n?? Banana/Model/CalendarOverflowRules.swift\n?? Banana/Views/CalendarEventDragFeedback.swift\n?? Banana/Views/CalendarHourLines.swift\n?? Banana/Views/CalendarOverflowButton.swift\n?? Banana/Views/CalendarSlotContextMenu.swift\n?? docs/performance/scale-results/calendar-ax-lazy-20261009/\n?? docs/performance/scale-results/calendar-ax-page-cache-20261009/\n?? docs/performance/scale-results/calendar-column-reuse-20261009/\n?? docs/performance/scale-results/calendar-hour-lines-20261009/\n?? docs/performance/scale-results/calendar-local-hover-20261009/\n?? docs/performance/scale-results/calendar-observation-20261009/\n?? docs/performance/scale-results/calendar-overflow-20261009/\n?? docs/performance/scale-results/calendar-physical-20261009/\n?? tools/calendar-hour-lines-tests/\n?? tools/calendar-library-benchmark/Info.plist\n?? tools/calendar-library-benchmark/Sources/AccessibilityProbe.swift\n?? tools/calendar-library-benchmark/test_device_runner.py\n?? tools/calendar-overflow-tests/\n",
+  "sceneManifest": {
+    "UIApplicationSupportsMultipleScenes": false,
+    "UISceneConfigurations": {}
+  },
+  "minimumFrameDurationDisabled": true,
+  "scope": "Physical device synchronous renderer work; input/display acceptance unmeasured",
+  "matrix": "native-text",
+  "trials": 3,
+  "densities": [
+    100,
+    300
+  ],
+  "alternatingOrder": true,
+  "navigationStress": true,
+  "accessibilityClient": "none"
+}

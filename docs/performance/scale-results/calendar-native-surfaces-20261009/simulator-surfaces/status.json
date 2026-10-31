@@ -1,0 +1,74 @@
+[
+  {
+    "platform": "iphone",
+    "kind": "navigation",
+    "command": [
+      "python3",
+      "tools/calendar-library-benchmark/check-navigation.py",
+      "--simulator",
+      "--device",
+      "5829A24D-81B4-49D9-A31A-C7553C32D527",
+      "--app",
+      ".build/calendar-library-dd/Build/Products/Release-iphonesimulator/CalendarLibraryBenchmark.app",
+      "--out",
+      ".build/calendar-async-preparation/simulator-surfaces/iphone-navigation"
+    ],
+    "exitCode": 0
+  },
+  {
+    "platform": "iphone",
+    "kind": "matrix",
+    "command": [
+      "python3",
+      "tools/calendar-library-benchmark/run.py",
+      "--device",
+      "5829A24D-81B4-49D9-A31A-C7553C32D527",
+      "--app",
+      ".build/calendar-library-dd/Build/Products/Release-iphonesimulator/CalendarLibraryBenchmark.app",
+      "--out",
+      ".build/calendar-async-preparation/simulator-surfaces/iphone-matrix",
+      "--candidates",
+      "native",
+      "--foreground-surface-only",
+      "--foreground-navigation",
+      "--navigation-stress"
+    ],
+    "exitCode": 1
+  },
+  {
+    "platform": "ipad",
+    "kind": "navigation",
+    "command": [
+      "python3",
+      "tools/calendar-library-benchmark/check-navigation.py",
+      "--simulator",
+      "--device",
+      "7CE990BF-066D-4E79-BA7F-B5F285E6A66C",
+      "--app",
+      ".build/calendar-library-dd/Build/Products/Release-iphonesimulator/CalendarLibraryBenchmark.app",
+      "--out",
+      ".build/calendar-async-preparation/simulator-surfaces/ipad-navigation"
+    ],
+    "exitCode": 0
+  },
+  {
+    "platform": "ipad",
+    "kind": "matrix",
+    "command": [
+      "python3",
+      "tools/calendar-library-benchmark/run.py",
+      "--device",
+      "7CE990BF-066D-4E79-BA7F-B5F285E6A66C",
+      "--app",
+      ".build/calendar-library-dd/Build/Products/Release-iphonesimulator/CalendarLibraryBenchmark.app",
+      "--out",
+      ".build/calendar-async-preparation/simulator-surfaces/ipad-matrix",
+      "--candidates",
+      "native",
+      "--foreground-surface-only",
+      "--foreground-navigation",
+      "--navigation-stress"
+    ],
+    "exitCode": 1
+  }
+]

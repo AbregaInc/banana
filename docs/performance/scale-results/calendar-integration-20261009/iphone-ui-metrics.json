@@ -1,0 +1,95 @@
+{
+  "scope": "Simulator XCTest gesture wall time and memory, not frame/input-to-visible latency",
+  "metrics": [
+    {
+      "test": "testDenseCalendarScroll",
+      "metric": "Clock Monotonic Time, s",
+      "values": [
+        5.135904,
+        4.614685,
+        5.14147
+      ]
+    },
+    {
+      "test": "testDenseCalendarScroll",
+      "metric": "Memory Physical (banana), kB",
+      "values": [
+        -32.768,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "test": "testDenseCalendarScroll",
+      "metric": "Absolute Memory Physical (banana), kB",
+      "values": [
+        266799.6,
+        266799.6,
+        266799.6
+      ]
+    },
+    {
+      "test": "testDenseCalendarScroll",
+      "metric": "Duration (Scroll_DraggingAndDeceleration), s",
+      "values": [
+        2.466559,
+        2.466603,
+        2.450483
+      ]
+    },
+    {
+      "test": "testDenseCalendarScroll",
+      "metric": "Memory Peak Physical (banana), kB",
+      "values": [
+        267078.128,
+        267061.744,
+        267045.36
+      ]
+    },
+    {
+      "test": "testPreparedDenseCalendarScroll",
+      "metric": "Clock Monotonic Time, s",
+      "values": [
+        5.270762,
+        5.27848,
+        5.310409
+      ]
+    },
+    {
+      "test": "testPreparedDenseCalendarScroll",
+      "metric": "Memory Physical (banana), kB",
+      "values": [
+        -32.768,
+        -16.384,
+        -16.384
+      ]
+    },
+    {
+      "test": "testPreparedDenseCalendarScroll",
+      "metric": "Absolute Memory Physical (banana), kB",
+      "values": [
+        266242.544,
+        266226.16,
+        266209.776
+      ]
+    },
+    {
+      "test": "testPreparedDenseCalendarScroll",
+      "metric": "Duration (Scroll_DraggingAndDeceleration), s",
+      "values": [
+        2.466997,
+        2.46642,
+        2.467414
+      ]
+    },
+    {
+      "test": "testPreparedDenseCalendarScroll",
+      "metric": "Memory Peak Physical (banana), kB",
+      "values": [
+        266537.456,
+        266504.688,
+        266488.304
+      ]
+    }
+  ]
+}

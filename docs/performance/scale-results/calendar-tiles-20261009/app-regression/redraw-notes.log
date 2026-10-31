@@ -1,0 +1,11 @@
+  redraw probe (notes): {'budgetRendersPerSecond': 2, 'clockTicks': 100, 'observedRoot': True, 'passed': True, 'rendersPerSecond': {'fitness↻': 0, 'library↻': 0, 'NotesView': 0, 'occurrences↻': 0, 'RootView': 0, 'watch↻': 0}, 'seconds': 10.538796166656539}
+30d: 60000 mail, 3000 events, 300000 episodes, 30000 notes; peak RSS 458.6 MB
+  memory: PASS (budget 900 MB)
+  mail.firstPage: median=0.00ms p95=14.16ms budget=50ms PASS
+  mail.readMutation: median=0.01ms p95=0.06ms budget=100ms PASS
+  calendar.visibleWeek: median=0.27ms p95=4.29ms budget=16ms PASS
+  calendar.day: median=0.00ms p95=0.79ms budget=8ms PASS
+  notes.search: median=18.23ms p95=18.66ms budget=100ms PASS
+  notes.browse: median=1.05ms p95=1.42ms budget=16ms PASS
+  podcasts.nextAcrossCatalog: median=17.87ms p95=18.81ms budget=100ms PASS
+  podcasts.downloadCandidates: median=21.47ms p95=22.55ms budget=100ms PASS

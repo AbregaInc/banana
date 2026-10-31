@@ -1,0 +1,35 @@
+files: {'p0': ['20261006-021708-ab-p0-1.json', '20261006-024115-ab-p0-2.json'], 'p0p': ['20261006-022917-ab-p0p-1.json', '20261006-025342-ab-p0p-2.json']}
+route                arm   n body med done-body appear med appear/body  idle%   wake   load
+iphone/shell-plan    p0   10      520       120       1022       1.971 [0.02, 1.91] [46, 47] 56.02,61.20
+iphone/shell-plan    p0p  10      518       124       1034       1.996 [0.03, 0.02] [47, 48] 35.85,58.37
+iphone/today         p0   10      516       118       1188       2.301 [0.03, 0.02] [162, 175] 97.32,274.69
+iphone/today         p0p  10      498       115       1140       2.301 [0.03, 0.02] [202, 168] 154.69,25.21
+iphone/notes         p0   10      516       118       1042       2.021 [0.02, 0.03] [163, 188] 17.29,233.81
+iphone/notes         p0p  10      507       116       1016       2.002 [0.02, 0.02] [167, 178] 10.80,8.83
+iphone/settings      p0   10      520       119       1050       2.014 [0.02, 0.03] [51, 48] 46.25,127.43
+iphone/settings      p0p  10      503       115        996       1.980 [0.02, 0.02] [47, 50] 23.14,22.98
+iphone/week          p0   10      532       121       1374       2.583 [0.02, 0.02] [100, 94] 66.14,264.00
+iphone/week          p0p  10      504       118       1302       2.576 [0.02, 0.02] [94, 85] 41.76,21.16
+ipad/shell-plan      p0   10      532       122       1084       2.069 [0.02, 2.14] [51, 40] 56.02,61.20
+ipad/shell-plan      p0p  10      532       126       1072       2.042 [0.03, 0.03] [53, 46] 35.85,58.37
+ipad/today           p0   10      528       120       1225       2.341 [0.03, 0.03] [169, 168] 86.38,274.69
+ipad/today           p0p  10      522       119       1214       2.320 [0.02, 0.03] [173, 160] 154.69,25.21
+ipad/notes           p0   10      524       118       1074       2.055 [0.03, 0.02] [137, 140] 28.96,227.50
+ipad/notes           p0p  10      518       118       1062       2.035 [0.03, 0.02] [144, 137] 10.80,9.48
+ipad/settings        p0   10      521       120       1078       2.050 [0.02, 0.0] [130, 140] 46.71,126.36
+ipad/settings        p0p  10      514       116       1038       2.018 [0.02, 0.02] [146, 133] 23.14,24.34
+ipad/week            p0   10      522       118       1362       2.622 [0.02, 0.02] [87, 81] 66.14,308.65
+ipad/week            p0p  10      511       115       1306       2.577 [0.03, 0.02] [82, 85] 41.76,20.27
+
+P0' − P0 (same containers, interleaved):  route  Δappear_raw  Δ(done−body)  Δratio  Δbody
+  iphone/shell-plan       +11 ms     +4 ms  +0.025     -2 ms
+  iphone/today            -48 ms     -4 ms  +0.000    -18 ms
+  iphone/notes            -26 ms     -2 ms  -0.019    -10 ms
+  iphone/settings         -54 ms     -4 ms  -0.034    -17 ms
+  iphone/week             -72 ms     -4 ms  -0.007    -29 ms
+  ipad/shell-plan         -12 ms     +4 ms  -0.027     +0 ms
+  ipad/today              -10 ms     -1 ms  -0.021     -6 ms
+  ipad/notes              -11 ms     -1 ms  -0.020     -6 ms
+  ipad/settings           -40 ms     -4 ms  -0.032     -8 ms
+  ipad/week               -56 ms     -3 ms  -0.045    -11 ms
+median: Δappear -32 ms, Δ(done−body) -2 ms, Δratio -0.020 (≈ -10 ms at body=500), Δbody -8 ms

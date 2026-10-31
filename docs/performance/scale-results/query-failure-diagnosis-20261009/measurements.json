@@ -1,0 +1,3432 @@
+{
+  "scope": "Component diagnostics, not physical UI acceptance",
+  "binaries": {
+    "control": {
+      "path": ".build/query-performance-20261009/control.app",
+      "sha256": "37f2bd6c25ec19d41bb3867c3ca7b59a170976654f158a1d0901b447d3f2ea93"
+    },
+    "cached": {
+      "path": ".build/calendar-varied-fix/app-regression/derived-data/Build/Products/Release-iphonesimulator/Banana.app",
+      "sha256": "1798402f29bbe88f74ef4aa92a55135d006460b96a5e19f5036da42848773fdc"
+    },
+    "failed": {
+      "path": ".build/stress-dd/Build/Products/Release-iphonesimulator/Banana.app",
+      "sha256": "84f93eee8de86b6a63655e646de2580971591164963c5b71c7dd9448c7d50907"
+    }
+  },
+  "runs": [
+    {
+      "artifact": "0-cached/cached-90d.json",
+      "binarySHA256": "1798402f29bbe88f74ef4aa92a55135d006460b96a5e19f5036da42848773fdc",
+      "days": 90,
+      "emails": 180000,
+      "events": 9000,
+      "notes": 90000,
+      "episodes": 900000,
+      "podcasts": 900,
+      "metrics": [
+        {
+          "budgetMS": 50,
+          "checksum": 350,
+          "medianMS": 0.00020832521840929985,
+          "name": "mail.firstPage",
+          "p95MS": 34.27204163745046
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 350,
+          "medianMS": 0.00662502134218812,
+          "name": "mail.readMutation",
+          "p95MS": 0.3550833207555115
+        },
+        {
+          "budgetMS": 16,
+          "checksum": 4900,
+          "medianMS": 0.28425001073628664,
+          "name": "calendar.visibleWeek",
+          "p95MS": 9.233041666448116
+        },
+        {
+          "budgetMS": 8,
+          "checksum": 700,
+          "medianMS": 0.00300002284348011,
+          "name": "calendar.day",
+          "p95MS": 0.7556666387245059
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 700,
+          "medianMS": 50.38970831083134,
+          "name": "notes.search",
+          "p95MS": 51.561333355493844
+        },
+        {
+          "budgetMS": 16,
+          "checksum": 700,
+          "medianMS": 3.1010833336040378,
+          "name": "notes.browse",
+          "p95MS": 3.3551249653100967
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 6300,
+          "medianMS": 47.476875013671815,
+          "name": "podcasts.nextAcrossCatalog",
+          "p95MS": 51.75445828353986
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 18900,
+          "medianMS": 62.04466667259112,
+          "name": "podcasts.downloadCandidates",
+          "p95MS": 65.88820833712816
+        }
+      ],
+      "residentMB": 672.5625,
+      "passed": true,
+      "hostLoad": [
+        353.67138671875,
+        107.14013671875,
+        44.98583984375
+      ]
+    },
+    {
+      "artifact": "0-control/control-90d.json",
+      "binarySHA256": "37f2bd6c25ec19d41bb3867c3ca7b59a170976654f158a1d0901b447d3f2ea93",
+      "days": 90,
+      "emails": 180000,
+      "events": 9000,
+      "notes": 90000,
+      "episodes": 900000,
+      "podcasts": 900,
+      "metrics": [
+        {
+          "budgetMS": 50,
+          "checksum": 350,
+          "medianMS": 0.00020838342607021332,
+          "name": "mail.firstPage",
+          "p95MS": 38.451291620731354
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 350,
+          "medianMS": 0.00704167177900672,
+          "name": "mail.readMutation",
+          "p95MS": 0.37370837526395917
+        },
+        {
+          "budgetMS": 16,
+          "checksum": 4900,
+          "medianMS": 0.29520830139517784,
+          "name": "calendar.visibleWeek",
+          "p95MS": 10.933541634585708
+        },
+        {
+          "budgetMS": 8,
+          "checksum": 700,
+          "medianMS": 0.003249966539442539,
+          "name": "calendar.day",
+          "p95MS": 1.0596666834317148
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 700,
+          "medianMS": 53.59020835021511,
+          "name": "notes.search",
+          "p95MS": 160.1221666787751
+        },
+        {
+          "budgetMS": 16,
+          "checksum": 700,
+          "medianMS": 3.245250030886382,
+          "name": "notes.browse",
+          "p95MS": 3.6518333363346756
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 6300,
+          "medianMS": 58.13608336029574,
+          "name": "podcasts.nextAcrossCatalog",
+          "p95MS": 132.3061249568127
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 18900,
+          "medianMS": 75.06204163655639,
+          "name": "podcasts.downloadCandidates",
+          "p95MS": 229.20499998144805
+        }
+      ],
+      "residentMB": 670.28125,
+      "passed": false,
+      "hostLoad": [
+        227.572265625,
+        63.9091796875,
+        28.3427734375
+      ]
+    },
+    {
+      "artifact": "0-failed/failed-90d.json",
+      "binarySHA256": "84f93eee8de86b6a63655e646de2580971591164963c5b71c7dd9448c7d50907",
+      "days": 90,
+      "emails": 180000,
+      "events": 9000,
+      "notes": 90000,
+      "episodes": 900000,
+      "podcasts": 900,
+      "metrics": [
+        {
+          "budgetMS": 50,
+          "checksum": 350,
+          "medianMS": 0.00020832521840929985,
+          "name": "mail.firstPage",
+          "p95MS": 35.05037497961894
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 350,
+          "medianMS": 0.007166701834648848,
+          "name": "mail.readMutation",
+          "p95MS": 0.10216666851192713
+        },
+        {
+          "budgetMS": 16,
+          "checksum": 4900,
+          "medianMS": 0.26266666827723384,
+          "name": "calendar.visibleWeek",
+          "p95MS": 9.054041642230004
+        },
+        {
+          "budgetMS": 8,
+          "checksum": 700,
+          "medianMS": 0.00320834806188941,
+          "name": "calendar.day",
+          "p95MS": 0.7459999760612845
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 700,
+          "medianMS": 48.855750006623566,
+          "name": "notes.search",
+          "p95MS": 50.67158333258703
+        },
+        {
+          "budgetMS": 16,
+          "checksum": 700,
+          "medianMS": 2.7280416688881814,
+          "name": "notes.browse",
+          "p95MS": 2.957083284854889
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 6300,
+          "medianMS": 45.55370833259076,
+          "name": "podcasts.nextAcrossCatalog",
+          "p95MS": 47.7965833269991
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 18900,
+          "medianMS": 58.822958380915225,
+          "name": "podcasts.downloadCandidates",
+          "p95MS": 61.2542083254084
+        }
+      ],
+      "residentMB": 672.375,
+      "passed": true,
+      "hostLoad": [
+        386.4658203125,
+        135.271484375,
+        56.9658203125
+      ]
+    },
+    {
+      "artifact": "1-cached/cached-90d.json",
+      "binarySHA256": "1798402f29bbe88f74ef4aa92a55135d006460b96a5e19f5036da42848773fdc",
+      "days": 90,
+      "emails": 180000,
+      "events": 9000,
+      "notes": 90000,
+      "episodes": 900000,
+      "podcasts": 900,
+      "metrics": [
+        {
+          "budgetMS": 50,
+          "checksum": 350,
+          "medianMS": 0.00020832521840929985,
+          "name": "mail.firstPage",
+          "p95MS": 34.58295832388103
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 350,
+          "medianMS": 0.006750051397830248,
+          "name": "mail.readMutation",
+          "p95MS": 0.40704163257032633
+        },
+        {
+          "budgetMS": 16,
+          "checksum": 4900,
+          "medianMS": 0.26433332823216915,
+          "name": "calendar.visibleWeek",
+          "p95MS": 10.29108336661011
+        },
+        {
+          "budgetMS": 8,
+          "checksum": 700,
+          "medianMS": 0.00300002284348011,
+          "name": "calendar.day",
+          "p95MS": 0.6950416718609631
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 700,
+          "medianMS": 48.75420837197453,
+          "name": "notes.search",
+          "p95MS": 129.18787501985207
+        },
+        {
+          "budgetMS": 16,
+          "checksum": 700,
+          "medianMS": 3.070208302233368,
+          "name": "notes.browse",
+          "p95MS": 3.372041683178395
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 6300,
+          "medianMS": 46.85774998506531,
+          "name": "podcasts.nextAcrossCatalog",
+          "p95MS": 158.40120834764093
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 18900,
+          "medianMS": 62.86962499143556,
+          "name": "podcasts.downloadCandidates",
+          "p95MS": 185.89399999473244
+        }
+      ],
+      "residentMB": 672.3125,
+      "passed": false,
+      "hostLoad": [
+        295.43017578125,
+        152.92578125,
+        68.49658203125
+      ]
+    },
+    {
+      "artifact": "1-control/control-90d.json",
+      "binarySHA256": "37f2bd6c25ec19d41bb3867c3ca7b59a170976654f158a1d0901b447d3f2ea93",
+      "days": 90,
+      "emails": 180000,
+      "events": 9000,
+      "notes": 90000,
+      "episodes": 900000,
+      "podcasts": 900,
+      "metrics": [
+        {
+          "budgetMS": 50,
+          "checksum": 350,
+          "medianMS": 0.00020832521840929985,
+          "name": "mail.firstPage",
+          "p95MS": 34.839624946471304
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 350,
+          "medianMS": 0.006750051397830248,
+          "name": "mail.readMutation",
+          "p95MS": 0.09358336683362722
+        },
+        {
+          "budgetMS": 16,
+          "checksum": 4900,
+          "medianMS": 0.28683332493528724,
+          "name": "calendar.visibleWeek",
+          "p95MS": 9.197208331897855
+        },
+        {
+          "budgetMS": 8,
+          "checksum": 700,
+          "medianMS": 0.003333378117531538,
+          "name": "calendar.day",
+          "p95MS": 0.7338749710470438
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 700,
+          "medianMS": 51.77095835097134,
+          "name": "notes.search",
+          "p95MS": 53.631999995559454
+        },
+        {
+          "budgetMS": 16,
+          "checksum": 700,
+          "medianMS": 3.0047083273530006,
+          "name": "notes.browse",
+          "p95MS": 3.2347083324566483
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 6300,
+          "medianMS": 52.03391669783741,
+          "name": "podcasts.nextAcrossCatalog",
+          "p95MS": 55.201958341058344
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 18900,
+          "medianMS": 67.05229170620441,
+          "name": "podcasts.downloadCandidates",
+          "p95MS": 72.50329171074554
+        }
+      ],
+      "residentMB": 671.96875,
+      "passed": true,
+      "hostLoad": [
+        263.3330078125,
+        155.044921875,
+        71.23046875
+      ]
+    },
+    {
+      "artifact": "1-failed/failed-90d.json",
+      "binarySHA256": "84f93eee8de86b6a63655e646de2580971591164963c5b71c7dd9448c7d50907",
+      "days": 90,
+      "emails": 180000,
+      "events": 9000,
+      "notes": 90000,
+      "episodes": 900000,
+      "podcasts": 900,
+      "metrics": [
+        {
+          "budgetMS": 50,
+          "checksum": 350,
+          "medianMS": 0.00020832521840929985,
+          "name": "mail.firstPage",
+          "p95MS": 35.926499986089766
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 350,
+          "medianMS": 0.00700005330145359,
+          "name": "mail.readMutation",
+          "p95MS": 0.06741663673892617
+        },
+        {
+          "budgetMS": 16,
+          "checksum": 4900,
+          "medianMS": 0.28849998489022255,
+          "name": "calendar.visibleWeek",
+          "p95MS": 9.270166628994048
+        },
+        {
+          "budgetMS": 8,
+          "checksum": 700,
+          "medianMS": 0.00320834806188941,
+          "name": "calendar.day",
+          "p95MS": 0.7239166297949851
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 700,
+          "medianMS": 49.65995834209025,
+          "name": "notes.search",
+          "p95MS": 51.430208317469805
+        },
+        {
+          "budgetMS": 16,
+          "checksum": 700,
+          "medianMS": 2.895708370488137,
+          "name": "notes.browse",
+          "p95MS": 3.1748333130963147
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 6300,
+          "medianMS": 53.63445833791047,
+          "name": "podcasts.nextAcrossCatalog",
+          "p95MS": 57.28412501048297
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 18900,
+          "medianMS": 60.47575001139194,
+          "name": "podcasts.downloadCandidates",
+          "p95MS": 65.23362500593066
+        }
+      ],
+      "residentMB": 670.875,
+      "passed": true,
+      "hostLoad": [
+        332.21044921875,
+        146.63037109375,
+        63.826171875
+      ]
+    },
+    {
+      "artifact": "2-cached/cached-90d.json",
+      "binarySHA256": "1798402f29bbe88f74ef4aa92a55135d006460b96a5e19f5036da42848773fdc",
+      "days": 90,
+      "emails": 180000,
+      "events": 9000,
+      "notes": 90000,
+      "episodes": 900000,
+      "podcasts": 900,
+      "metrics": [
+        {
+          "budgetMS": 50,
+          "checksum": 350,
+          "medianMS": 0.0002500019036233425,
+          "name": "mail.firstPage",
+          "p95MS": 35.94812500523403
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 350,
+          "medianMS": 0.0076249707490205765,
+          "name": "mail.readMutation",
+          "p95MS": 0.10850001126527786
+        },
+        {
+          "budgetMS": 16,
+          "checksum": 4900,
+          "medianMS": 0.26516662910580635,
+          "name": "calendar.visibleWeek",
+          "p95MS": 10.335666651371866
+        },
+        {
+          "budgetMS": 8,
+          "checksum": 700,
+          "medianMS": 0.0031249946914613247,
+          "name": "calendar.day",
+          "p95MS": 0.8442916441708803
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 700,
+          "medianMS": 49.434624961577356,
+          "name": "notes.search",
+          "p95MS": 50.329083285760134
+        },
+        {
+          "budgetMS": 16,
+          "checksum": 700,
+          "medianMS": 2.951333357486874,
+          "name": "notes.browse",
+          "p95MS": 2.993249974679202
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 6300,
+          "medianMS": 49.14412496145815,
+          "name": "podcasts.nextAcrossCatalog",
+          "p95MS": 52.481124992482364
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 18900,
+          "medianMS": 61.34025001665577,
+          "name": "podcasts.downloadCandidates",
+          "p95MS": 63.14529164228588
+        }
+      ],
+      "residentMB": 672.390625,
+      "passed": true,
+      "hostLoad": [
+        236.8642578125,
+        157.34716796875,
+        74.47705078125
+      ]
+    },
+    {
+      "artifact": "2-control/control-90d.json",
+      "binarySHA256": "37f2bd6c25ec19d41bb3867c3ca7b59a170976654f158a1d0901b447d3f2ea93",
+      "days": 90,
+      "emails": 180000,
+      "events": 9000,
+      "notes": 90000,
+      "episodes": 900000,
+      "podcasts": 900,
+      "metrics": [
+        {
+          "budgetMS": 50,
+          "checksum": 350,
+          "medianMS": 0.00020832521840929985,
+          "name": "mail.firstPage",
+          "p95MS": 35.09308333741501
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 350,
+          "medianMS": 0.007083348464220762,
+          "name": "mail.readMutation",
+          "p95MS": 0.1002916251309216
+        },
+        {
+          "budgetMS": 16,
+          "checksum": 4900,
+          "medianMS": 0.27216668240725994,
+          "name": "calendar.visibleWeek",
+          "p95MS": 9.128458332270384
+        },
+        {
+          "budgetMS": 8,
+          "checksum": 700,
+          "medianMS": 0.0032082898542284966,
+          "name": "calendar.day",
+          "p95MS": 0.7610833272337914
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 700,
+          "medianMS": 49.10179163562134,
+          "name": "notes.search",
+          "p95MS": 50.48354167956859
+        },
+        {
+          "budgetMS": 16,
+          "checksum": 700,
+          "medianMS": 2.7257916517555714,
+          "name": "notes.browse",
+          "p95MS": 3.330749983433634
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 6300,
+          "medianMS": 53.72320831520483,
+          "name": "podcasts.nextAcrossCatalog",
+          "p95MS": 57.49212502269074
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 18900,
+          "medianMS": 66.0960833192803,
+          "name": "podcasts.downloadCandidates",
+          "p95MS": 69.64820832945406
+        }
+      ],
+      "residentMB": 672.203125,
+      "passed": true,
+      "hostLoad": [
+        201.826171875,
+        155.78076171875,
+        76.3291015625
+      ]
+    },
+    {
+      "artifact": "2-failed/failed-90d.json",
+      "binarySHA256": "84f93eee8de86b6a63655e646de2580971591164963c5b71c7dd9448c7d50907",
+      "days": 90,
+      "emails": 180000,
+      "events": 9000,
+      "notes": 90000,
+      "episodes": 900000,
+      "podcasts": 900,
+      "metrics": [
+        {
+          "budgetMS": 50,
+          "checksum": 350,
+          "medianMS": 0.00020832521840929985,
+          "name": "mail.firstPage",
+          "p95MS": 35.22899997187778
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 350,
+          "medianMS": 0.006708374712616205,
+          "name": "mail.readMutation",
+          "p95MS": 0.10216666851192713
+        },
+        {
+          "budgetMS": 16,
+          "checksum": 4900,
+          "medianMS": 0.2786249970085919,
+          "name": "calendar.visibleWeek",
+          "p95MS": 9.304458333645016
+        },
+        {
+          "budgetMS": 8,
+          "checksum": 700,
+          "medianMS": 0.0031666713766753674,
+          "name": "calendar.day",
+          "p95MS": 0.7646249723620713
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 700,
+          "medianMS": 50.07179168751463,
+          "name": "notes.search",
+          "p95MS": 52.268916682805866
+        },
+        {
+          "budgetMS": 16,
+          "checksum": 700,
+          "medianMS": 2.8598333010450006,
+          "name": "notes.browse",
+          "p95MS": 3.134500002488494
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 6300,
+          "medianMS": 47.750541649293154,
+          "name": "podcasts.nextAcrossCatalog",
+          "p95MS": 48.912666679825634
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 18900,
+          "medianMS": 60.97799999406561,
+          "name": "podcasts.downloadCandidates",
+          "p95MS": 63.12537501798943
+        }
+      ],
+      "residentMB": 672.109375,
+      "passed": true,
+      "hostLoad": [
+        177.24365234375,
+        153.82080078125,
+        77.93017578125
+      ]
+    },
+    {
+      "artifact": "component-suite/scale-90d-90d.json",
+      "binarySHA256": "b37352af63c29eed8dd683bc0af27a39303b86bd6fec86d0a7648751c17561a4",
+      "days": 90,
+      "emails": 180000,
+      "events": 9000,
+      "notes": 90000,
+      "episodes": 900000,
+      "podcasts": 900,
+      "metrics": [
+        {
+          "budgetMS": 50,
+          "checksum": 350,
+          "medianMS": 0.00020838342607021332,
+          "name": "mail.firstPage",
+          "p95MS": 33.67650002473965,
+          "samplesMS": [
+            33.67650002473965,
+            0.0009583309292793274,
+            0.00020832521840929985,
+            0.0002500019036233425,
+            0.00016670674085617065,
+            0.00020838342607021332,
+            0.00020838342607021332
+          ]
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 350,
+          "medianMS": 0.006708316504955292,
+          "name": "mail.readMutation",
+          "p95MS": 0.06791664054617286,
+          "samplesMS": [
+            0.06791664054617286,
+            0.008416653145104647,
+            0.0066666980274021626,
+            0.006708316504955292,
+            0.007458322215825319,
+            0.006374961230903864,
+            0.006499991286545992
+          ]
+        },
+        {
+          "budgetMS": 16,
+          "checksum": 4900,
+          "medianMS": 0.2618333091959357,
+          "name": "calendar.visibleWeek",
+          "p95MS": 8.430916641373187,
+          "samplesMS": [
+            8.430916641373187,
+            0.2912500058300793,
+            0.25616667699068785,
+            0.2605833578854799,
+            0.2595416735857725,
+            0.26845833053812385,
+            0.2618333091959357
+          ]
+        },
+        {
+          "budgetMS": 8,
+          "checksum": 700,
+          "medianMS": 0.003083318006247282,
+          "name": "calendar.day",
+          "p95MS": 0.6893333629705012,
+          "samplesMS": [
+            0.6893333629705012,
+            0.009708339348435402,
+            0.003249966539442539,
+            0.0029999646358191967,
+            0.0030416413210332394,
+            0.003083318006247282,
+            0.0029583461582660675
+          ]
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 700,
+          "medianMS": 48.4131250414066,
+          "name": "notes.search",
+          "p95MS": 49.53366669360548,
+          "samplesMS": [
+            48.4131250414066,
+            47.25858336314559,
+            47.187000047415495,
+            47.14279167819768,
+            49.53366669360548,
+            49.022291670553386,
+            49.43441669456661
+          ]
+        },
+        {
+          "budgetMS": 16,
+          "checksum": 700,
+          "medianMS": 2.9342083144001663,
+          "name": "notes.browse",
+          "p95MS": 3.22733330540359,
+          "samplesMS": [
+            3.22733330540359,
+            2.9342083144001663,
+            2.928083296865225,
+            3.055624954868108,
+            3.075999964494258,
+            2.793416613712907,
+            2.8563333326019347
+          ]
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 6300,
+          "medianMS": 45.76666664797813,
+          "name": "podcasts.nextAcrossCatalog",
+          "p95MS": 50.92791665811092,
+          "samplesMS": [
+            50.92791665811092,
+            45.44145829277113,
+            45.14129168819636,
+            45.41283333674073,
+            45.76666664797813,
+            45.775749953463674,
+            46.56045831507072
+          ]
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 18900,
+          "medianMS": 57.445291662588716,
+          "name": "podcasts.downloadCandidates",
+          "p95MS": 58.03512502461672,
+          "samplesMS": [
+            57.64841666677967,
+            58.03512502461672,
+            57.64737498247996,
+            57.33862501801923,
+            57.445291662588716,
+            56.67412496404722,
+            56.51245836634189
+          ]
+        }
+      ],
+      "residentMB": 672.015625,
+      "passed": true,
+      "hostLoad": [
+        274.57958984375,
+        180.43896484375,
+        113.23193359375
+      ]
+    },
+    {
+      "artifact": "diagnostics-off/diagnostics-off-90d.json",
+      "binarySHA256": "b37352af63c29eed8dd683bc0af27a39303b86bd6fec86d0a7648751c17561a4",
+      "days": 90,
+      "emails": 180000,
+      "events": 9000,
+      "notes": 90000,
+      "episodes": 900000,
+      "podcasts": 900,
+      "metrics": [
+        {
+          "budgetMS": 50,
+          "checksum": 350,
+          "medianMS": 0.00020832521840929985,
+          "name": "mail.firstPage",
+          "p95MS": 33.78016664646566,
+          "samplesMS": [
+            33.78016664646566,
+            0.00120833283290267,
+            0.00020838342607021332,
+            0.00020832521840929985,
+            0.00020832521840929985,
+            0.0001666485331952572,
+            0.00020832521840929985
+          ]
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 350,
+          "medianMS": 0.007458380423486233,
+          "name": "mail.readMutation",
+          "p95MS": 0.1061666407622397,
+          "samplesMS": [
+            0.1061666407622397,
+            0.009583309292793274,
+            0.0077500008046627045,
+            0.007458380423486233,
+            0.006791669875383377,
+            0.006583344656974077,
+            0.00683334656059742
+          ]
+        },
+        {
+          "budgetMS": 16,
+          "checksum": 4900,
+          "medianMS": 0.2685000072233379,
+          "name": "calendar.visibleWeek",
+          "p95MS": 8.838250010740012,
+          "samplesMS": [
+            8.838250010740012,
+            0.2930833725258708,
+            0.2564166206866503,
+            0.2632500254549086,
+            0.3377916873432696,
+            0.2649166854098439,
+            0.2685000072233379
+          ]
+        },
+        {
+          "budgetMS": 8,
+          "checksum": 700,
+          "medianMS": 0.0032500247471034527,
+          "name": "calendar.day",
+          "p95MS": 0.7503749802708626,
+          "samplesMS": [
+            0.7503749802708626,
+            0.009208335541188717,
+            0.003374996595084667,
+            0.003083318006247282,
+            0.0031249946914613247,
+            0.0032500247471034527,
+            0.003125052899122238
+          ]
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 700,
+          "medianMS": 47.149374964646995,
+          "name": "notes.search",
+          "p95MS": 48.69125003460795,
+          "samplesMS": [
+            48.69125003460795,
+            47.191833320539445,
+            47.94983332976699,
+            47.04495833721012,
+            47.09958331659436,
+            47.05762502271682,
+            47.149374964646995
+          ]
+        },
+        {
+          "budgetMS": 16,
+          "checksum": 700,
+          "medianMS": 2.66604166245088,
+          "name": "notes.browse",
+          "p95MS": 2.9910000157542527,
+          "samplesMS": [
+            2.9910000157542527,
+            2.7395000215619802,
+            2.59666662896052,
+            2.61854165000841,
+            2.6592500507831573,
+            2.7345000416971743,
+            2.66604166245088
+          ]
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 6300,
+          "medianMS": 47.24966664798558,
+          "name": "podcasts.nextAcrossCatalog",
+          "p95MS": 56.75304163014516,
+          "samplesMS": [
+            56.75304163014516,
+            49.199874978512526,
+            47.12679161457345,
+            48.97537501528859,
+            46.88787501072511,
+            47.24966664798558,
+            46.09825002262369
+          ]
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 18900,
+          "medianMS": 58.93316667061299,
+          "name": "podcasts.downloadCandidates",
+          "p95MS": 61.51341664372012,
+          "samplesMS": [
+            58.93316667061299,
+            58.87191666988656,
+            58.82141669280827,
+            59.46775001939386,
+            56.97295832214877,
+            61.51341664372012,
+            59.01487497612834
+          ]
+        }
+      ],
+      "residentMB": 671.96875,
+      "passed": true,
+      "hostLoad": [
+        82.47509765625,
+        122.47265625,
+        83.82763671875
+      ]
+    },
+    {
+      "artifact": "diagnostics-on/diagnostics-on-90d.json",
+      "binarySHA256": "b37352af63c29eed8dd683bc0af27a39303b86bd6fec86d0a7648751c17561a4",
+      "days": 90,
+      "emails": 180000,
+      "events": 9000,
+      "notes": 90000,
+      "episodes": 900000,
+      "podcasts": 900,
+      "metrics": [
+        {
+          "budgetMS": 50,
+          "checksum": 350,
+          "diagnostics": [
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 33.797999999998865,
+              "startUptime": 389446.1311485417,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.0020000000004074536,
+              "startUptime": 389446.16495125,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0,
+              "startUptime": 389446.164953875,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.0020000000004074536,
+              "startUptime": 389446.16495583334,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0,
+              "startUptime": 389446.1649566667,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0,
+              "startUptime": 389446.16495825,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.0010000000002037268,
+              "startUptime": 389446.16495908337,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            }
+          ],
+          "medianMS": 0.00020832521840929985,
+          "name": "mail.firstPage",
+          "p95MS": 33.79000001586974,
+          "samplesMS": [
+            33.79000001586974,
+            0.001374981366097927,
+            0.00020832521840929985,
+            0.00016670674085617065,
+            0.00020832521840929985,
+            0.00020832521840929985,
+            0.00020832521840929985
+          ]
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 350,
+          "diagnostics": [
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.06599999999889405,
+              "startUptime": 389446.1649805417,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.008999999998195563,
+              "startUptime": 389446.16504808335,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.007000000001426088,
+              "startUptime": 389446.16505812504,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.006999999997788109,
+              "startUptime": 389446.16506595834,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.007000000001426088,
+              "startUptime": 389446.16507375,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.007000000001426088,
+              "startUptime": 389446.16508137505,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.007999999997991836,
+              "startUptime": 389446.1650885417,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            }
+          ],
+          "medianMS": 0.006958318408578634,
+          "name": "mail.readMutation",
+          "p95MS": 0.0657916534692049,
+          "samplesMS": [
+            0.0657916534692049,
+            0.009083363693207502,
+            0.006958318408578634,
+            0.007083348464220762,
+            0.00662502134218812,
+            0.006499991286545992,
+            0.006749993190169334
+          ]
+        },
+        {
+          "budgetMS": 16,
+          "checksum": 4900,
+          "diagnostics": [
+            {
+              "involuntaryContextSwitches": 2,
+              "pageFaults": 0,
+              "processCPUMS": 8.84100000000035,
+              "startUptime": 389446.16509716667,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.3040000000000873,
+              "startUptime": 389446.17395487503,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.25799999999799184,
+              "startUptime": 389446.174259875,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.26199999999880674,
+              "startUptime": 389446.174519875,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.25900000000183354,
+              "startUptime": 389446.17478275,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.25899999999819556,
+              "startUptime": 389446.1750423334,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.26599999999962165,
+              "startUptime": 389446.17530191666,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            }
+          ],
+          "medianMS": 0.2619166625663638,
+          "name": "calendar.visibleWeek",
+          "p95MS": 8.850958372931927,
+          "samplesMS": [
+            8.850958372931927,
+            0.3032083041034639,
+            0.2577499835751951,
+            0.2619166625663638,
+            0.25791669031605124,
+            0.25866663781926036,
+            0.26537501253187656
+          ]
+        },
+        {
+          "budgetMS": 8,
+          "checksum": 700,
+          "diagnostics": [
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.7489999999997963,
+              "startUptime": 389446.17557408335,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.008999999998195563,
+              "startUptime": 389446.176327,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.0030000000006111804,
+              "startUptime": 389446.17633754166,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.0030000000006111804,
+              "startUptime": 389446.1763420834,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.005000000001018634,
+              "startUptime": 389446.176345875,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.006000000001222361,
+              "startUptime": 389446.17635983333,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.004000000000814907,
+              "startUptime": 389446.1763652917,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            }
+          ],
+          "medianMS": 0.0031666713766753674,
+          "name": "calendar.day",
+          "p95MS": 0.7474583690054715,
+          "samplesMS": [
+            0.7474583690054715,
+            0.009583309292793274,
+            0.0031666713766753674,
+            0.0031249946914613247,
+            0.00300002284348011,
+            0.004750036168843508,
+            0.0029999646358191967
+          ]
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 700,
+          "diagnostics": [
+            {
+              "involuntaryContextSwitches": 13,
+              "pageFaults": 0,
+              "processCPUMS": 49.317000000002736,
+              "startUptime": 389446.17637170834,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 4,
+              "pageFaults": 0,
+              "processCPUMS": 48.80000000000291,
+              "startUptime": 389446.22580712504,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 8,
+              "pageFaults": 0,
+              "processCPUMS": 47.79100000000108,
+              "startUptime": 389446.274682875,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 47.25300000000061,
+              "startUptime": 389446.32263975,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 46.90400000000227,
+              "startUptime": 389446.36989620834,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 47.04399999999805,
+              "startUptime": 389446.41680458334,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 5,
+              "pageFaults": 0,
+              "processCPUMS": 48.39400000000023,
+              "startUptime": 389446.46385183337,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            }
+          ],
+          "medianMS": 47.95041668694466,
+          "name": "notes.search",
+          "p95MS": 49.42929168464616,
+          "samplesMS": [
+            49.42929168464616,
+            48.87050000252202,
+            47.95041668694466,
+            47.251874988432974,
+            46.90354166086763,
+            47.04337503062561,
+            48.426583351101726
+          ]
+        },
+        {
+          "budgetMS": 16,
+          "checksum": 700,
+          "diagnostics": [
+            {
+              "involuntaryContextSwitches": 1,
+              "pageFaults": 0,
+              "processCPUMS": 3.084000000002561,
+              "startUptime": 389446.5122881667,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 2.708999999998923,
+              "startUptime": 389446.5153474167,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 1,
+              "pageFaults": 0,
+              "processCPUMS": 2.8479999999981374,
+              "startUptime": 389446.51805866667,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 1,
+              "pageFaults": 0,
+              "processCPUMS": 2.7010000000009313,
+              "startUptime": 389446.5209409167,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 2.613999999997759,
+              "startUptime": 389446.5236657084,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 1,
+              "pageFaults": 0,
+              "processCPUMS": 2.754000000000815,
+              "startUptime": 389446.5262817917,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 2.8410000000003492,
+              "startUptime": 389446.5290489584,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            }
+          ],
+          "medianMS": 2.7635000296868384,
+          "name": "notes.browse",
+          "p95MS": 3.0569583759643137,
+          "samplesMS": [
+            3.0569583759643137,
+            2.708791696932167,
+            2.8781250002793968,
+            2.722708333749324,
+            2.6138332905247808,
+            2.7635000296868384,
+            2.8416249551810324
+          ]
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 6300,
+          "diagnostics": [
+            {
+              "involuntaryContextSwitches": 2,
+              "pageFaults": 0,
+              "processCPUMS": 47.293000000001484,
+              "startUptime": 389446.5319007917,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 2,
+              "pageFaults": 0,
+              "processCPUMS": 45.38900000000285,
+              "startUptime": 389446.57920845837,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 3,
+              "pageFaults": 0,
+              "processCPUMS": 45.52100000000064,
+              "startUptime": 389446.6246267917,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 44.99499999999898,
+              "startUptime": 389446.670174,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 1,
+              "pageFaults": 0,
+              "processCPUMS": 45.86000000000058,
+              "startUptime": 389446.71517387504,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 2,
+              "pageFaults": 0,
+              "processCPUMS": 45.86999999999898,
+              "startUptime": 389446.76105425,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 5,
+              "pageFaults": 0,
+              "processCPUMS": 46.39300000000003,
+              "startUptime": 389446.8070395417,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            }
+          ],
+          "medianMS": 45.876041636802256,
+          "name": "podcasts.nextAcrossCatalog",
+          "p95MS": 47.30224999366328,
+          "samplesMS": [
+            47.30224999366328,
+            45.412666629999876,
+            45.54274998372421,
+            44.99500000383705,
+            45.876041636802256,
+            45.981000002939254,
+            46.45816661650315
+          ]
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 18900,
+          "diagnostics": [
+            {
+              "involuntaryContextSwitches": 1,
+              "pageFaults": 0,
+              "processCPUMS": 58.876000000000204,
+              "startUptime": 389446.8535080417,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 3,
+              "pageFaults": 0,
+              "processCPUMS": 60.27799999999843,
+              "startUptime": 389446.91239895835,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 3,
+              "pageFaults": 0,
+              "processCPUMS": 58.06399999999849,
+              "startUptime": 389446.9727565417,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 1,
+              "pageFaults": 0,
+              "processCPUMS": 58.422999999998865,
+              "startUptime": 389447.03084708337,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 3,
+              "pageFaults": 0,
+              "processCPUMS": 57.681000000000495,
+              "startUptime": 389447.0893896667,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 10,
+              "pageFaults": 0,
+              "processCPUMS": 60.47099999999773,
+              "startUptime": 389447.1471141667,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 16,
+              "pageFaults": 0,
+              "processCPUMS": 60.55199999999968,
+              "startUptime": 389447.207769125,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            }
+          ],
+          "medianMS": 58.88637498719618,
+          "name": "podcasts.downloadCandidates",
+          "p95MS": 60.74641668237746,
+          "samplesMS": [
+            58.88637498719618,
+            60.35137502476573,
+            58.08566667838022,
+            58.538166631478816,
+            57.71795834880322,
+            60.650416649878025,
+            60.74641668237746
+          ]
+        }
+      ],
+      "residentMB": 670.5,
+      "passed": true,
+      "hostLoad": [
+        90.9970703125,
+        121.5693359375,
+        84.63818359375
+      ]
+    },
+    {
+      "artifact": "diagnostics-on-repeat/diagnostics-on-repeat-90d.json",
+      "binarySHA256": "b37352af63c29eed8dd683bc0af27a39303b86bd6fec86d0a7648751c17561a4",
+      "days": 90,
+      "emails": 180000,
+      "events": 9000,
+      "notes": 90000,
+      "episodes": 900000,
+      "podcasts": 900,
+      "metrics": [
+        {
+          "budgetMS": 50,
+          "checksum": 350,
+          "diagnostics": [
+            {
+              "involuntaryContextSwitches": 7,
+              "pageFaults": 0,
+              "processCPUMS": 35.83899999999994,
+              "startUptime": 389470.6485705834,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.0020000000004074536,
+              "startUptime": 389470.68450000003,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.0020000000004074536,
+              "startUptime": 389470.6845024167,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0,
+              "startUptime": 389470.68450433336,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.0010000000002037268,
+              "startUptime": 389470.6845051667,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.0020000000004074536,
+              "startUptime": 389470.6845065,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0,
+              "startUptime": 389470.6845073334,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            }
+          ],
+          "medianMS": 0.00020832521840929985,
+          "name": "mail.firstPage",
+          "p95MS": 35.915499960538,
+          "samplesMS": [
+            35.915499960538,
+            0.001374981366097927,
+            0.0002500019036233425,
+            0.00020832521840929985,
+            0.0001666485331952572,
+            0.00020832521840929985,
+            0.0001666485331952572
+          ]
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 350,
+          "diagnostics": [
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.06499999999869033,
+              "startUptime": 389470.6845267084,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.008999999998195563,
+              "startUptime": 389470.684592375,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.008000000001629815,
+              "startUptime": 389470.6846021667,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.007000000001426088,
+              "startUptime": 389470.684610375,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.006999999997788109,
+              "startUptime": 389470.6846180417,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.008000000001629815,
+              "startUptime": 389470.6846259167,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.006999999997788109,
+              "startUptime": 389470.684633375,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            }
+          ],
+          "medianMS": 0.006999995093792677,
+          "name": "mail.readMutation",
+          "p95MS": 0.06333331111818552,
+          "samplesMS": [
+            0.06333331111818552,
+            0.009000010322779417,
+            0.007333350367844105,
+            0.006999995093792677,
+            0.00662502134218812,
+            0.006749993190169334,
+            0.00683334656059742
+          ]
+        },
+        {
+          "budgetMS": 16,
+          "checksum": 4900,
+          "diagnostics": [
+            {
+              "involuntaryContextSwitches": 3,
+              "pageFaults": 0,
+              "processCPUMS": 9.057000000000698,
+              "startUptime": 389470.68464233336,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.30799999999726424,
+              "startUptime": 389470.6937429167,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.27700000000186265,
+              "startUptime": 389470.6940522917,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.27199999999720603,
+              "startUptime": 389470.6943303334,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.27300000000104774,
+              "startUptime": 389470.69460308336,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.2649999999994179,
+              "startUptime": 389470.6948762084,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.272000000000844,
+              "startUptime": 389470.69514245837,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            }
+          ],
+          "medianMS": 0.27258333284407854,
+          "name": "calendar.visibleWeek",
+          "p95MS": 9.093291650060564,
+          "samplesMS": [
+            9.093291650060564,
+            0.3075416898354888,
+            0.27600000612437725,
+            0.27179165044799447,
+            0.27137500001117587,
+            0.2652916591614485,
+            0.27258333284407854
+          ]
+        },
+        {
+          "budgetMS": 8,
+          "checksum": 700,
+          "diagnostics": [
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.8509999999987485,
+              "startUptime": 389470.6954236667,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.011999999998806743,
+              "startUptime": 389470.69627975003,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.005000000001018634,
+              "startUptime": 389470.6962921667,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.0039999999971769284,
+              "startUptime": 389470.69629758334,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.0030000000006111804,
+              "startUptime": 389470.6963015,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.0030000000006111804,
+              "startUptime": 389470.696306125,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.0030000000006111804,
+              "startUptime": 389470.6963100834,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            }
+          ],
+          "medianMS": 0.003291643224656582,
+          "name": "calendar.day",
+          "p95MS": 0.8505416917614639,
+          "samplesMS": [
+            0.8505416917614639,
+            0.011416675988584757,
+            0.003583321813493967,
+            0.00320834806188941,
+            0.003291643224656582,
+            0.003249966539442539,
+            0.0032082898542284966
+          ]
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 700,
+          "diagnostics": [
+            {
+              "involuntaryContextSwitches": 14,
+              "pageFaults": 0,
+              "processCPUMS": 49.85799999999654,
+              "startUptime": 389470.6963170417,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 25,
+              "pageFaults": 0,
+              "processCPUMS": 49.64900000000125,
+              "startUptime": 389470.74629458337,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 13,
+              "pageFaults": 0,
+              "processCPUMS": 50.68800000000192,
+              "startUptime": 389470.796079375,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 14,
+              "pageFaults": 0,
+              "processCPUMS": 50.776999999998225,
+              "startUptime": 389470.84691595833,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 7,
+              "pageFaults": 0,
+              "processCPUMS": 48.44599999999991,
+              "startUptime": 389470.8978810417,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 10,
+              "pageFaults": 0,
+              "processCPUMS": 48.742999999998574,
+              "startUptime": 389470.9463865417,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 15,
+              "pageFaults": 0,
+              "processCPUMS": 49.126000000000204,
+              "startUptime": 389470.9952142917,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            }
+          ],
+          "medianMS": 49.778416636399925,
+          "name": "notes.search",
+          "p95MS": 50.959541695192456,
+          "samplesMS": [
+            49.971458327490836,
+            49.778416636399925,
+            50.82958331331611,
+            50.959541695192456,
+            48.49966667825356,
+            48.821625008713454,
+            49.12120837252587
+          ]
+        },
+        {
+          "budgetMS": 16,
+          "checksum": 700,
+          "diagnostics": [
+            {
+              "involuntaryContextSwitches": 2,
+              "pageFaults": 0,
+              "processCPUMS": 3.2629999999990105,
+              "startUptime": 389471.04434608336,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 2.833999999998923,
+              "startUptime": 389471.04762220837,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 2.712999999999738,
+              "startUptime": 389471.05045875005,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 1,
+              "pageFaults": 0,
+              "processCPUMS": 2.9200000000018917,
+              "startUptime": 389471.053174,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 3.0240000000012515,
+              "startUptime": 389471.0561071667,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 1,
+              "pageFaults": 0,
+              "processCPUMS": 3.098999999998341,
+              "startUptime": 389471.05913475004,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 1,
+              "pageFaults": 0,
+              "processCPUMS": 2.9540000000015425,
+              "startUptime": 389471.0622474167,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            }
+          ],
+          "medianMS": 2.960166661068797,
+          "name": "notes.browse",
+          "p95MS": 3.271499997936189,
+          "samplesMS": [
+            3.271499997936189,
+            2.833249978721142,
+            2.711791661567986,
+            2.9277499997988343,
+            3.023208351805806,
+            3.1079166219569743,
+            2.960166661068797
+          ]
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 6300,
+          "diagnostics": [
+            {
+              "involuntaryContextSwitches": 10,
+              "pageFaults": 0,
+              "processCPUMS": 49.61000000000058,
+              "startUptime": 389471.06521675,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 11,
+              "pageFaults": 0,
+              "processCPUMS": 47.51599999999962,
+              "startUptime": 389471.1149197917,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 8,
+              "pageFaults": 0,
+              "processCPUMS": 46.93899999999849,
+              "startUptime": 389471.1625303334,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 16,
+              "pageFaults": 0,
+              "processCPUMS": 47.971999999997934,
+              "startUptime": 389471.20951508335,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 9,
+              "pageFaults": 0,
+              "processCPUMS": 46.806000000000495,
+              "startUptime": 389471.25760033337,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 4,
+              "pageFaults": 0,
+              "processCPUMS": 45.87999999999738,
+              "startUptime": 389471.30445758335,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 6,
+              "pageFaults": 0,
+              "processCPUMS": 46.25200000000041,
+              "startUptime": 389471.3503689584,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            }
+          ],
+          "medianMS": 46.978541649878025,
+          "name": "podcasts.nextAcrossCatalog",
+          "p95MS": 49.698208342306316,
+          "samplesMS": [
+            49.698208342306316,
+            47.60541667928919,
+            46.978541649878025,
+            48.08108333963901,
+            46.85095831518993,
+            45.90633336920291,
+            46.29537498112768
+          ]
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 18900,
+          "diagnostics": [
+            {
+              "involuntaryContextSwitches": 19,
+              "pageFaults": 0,
+              "processCPUMS": 58.984999999996944,
+              "startUptime": 389471.3966740417,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 19,
+              "pageFaults": 0,
+              "processCPUMS": 60.431000000000495,
+              "startUptime": 389471.45580508333,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 9,
+              "pageFaults": 0,
+              "processCPUMS": 59.8179999999993,
+              "startUptime": 389471.5164002917,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 2,
+              "pageFaults": 0,
+              "processCPUMS": 57.300999999999476,
+              "startUptime": 389471.57629887504,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 56.88999999999942,
+              "startUptime": 389471.63361795834,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 2,
+              "pageFaults": 0,
+              "processCPUMS": 59.56299999999828,
+              "startUptime": 389471.69051358337,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 2,
+              "pageFaults": 0,
+              "processCPUMS": 60.48099999999977,
+              "startUptime": 389471.750168125,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            }
+          ],
+          "medianMS": 59.64933329960331,
+          "name": "podcasts.downloadCandidates",
+          "p95MS": 60.59008336160332,
+          "samplesMS": [
+            59.126333333551884,
+            60.59008336160332,
+            59.89433330250904,
+            57.313916680868715,
+            56.88987503526732,
+            59.64933329960331,
+            60.49762497423217
+          ]
+        }
+      ],
+      "residentMB": 670.578125,
+      "passed": true,
+      "hostLoad": [
+        87.92822265625,
+        118.55712890625,
+        84.6298828125
+      ]
+    },
+    {
+      "artifact": "during-simulator-boot/during-simulator-boot-90d.json",
+      "binarySHA256": "b37352af63c29eed8dd683bc0af27a39303b86bd6fec86d0a7648751c17561a4",
+      "days": 90,
+      "emails": 180000,
+      "events": 9000,
+      "notes": 90000,
+      "episodes": 900000,
+      "podcasts": 900,
+      "metrics": [
+        {
+          "budgetMS": 50,
+          "checksum": 350,
+          "diagnostics": [
+            {
+              "involuntaryContextSwitches": 5,
+              "pageFaults": 0,
+              "processCPUMS": 37.90899999999965,
+              "startUptime": 389501.7155630417,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.0020000000004074536,
+              "startUptime": 389501.75352433336,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.0010000000002037268,
+              "startUptime": 389501.75352720835,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.0010000000002037268,
+              "startUptime": 389501.75352925004,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.0010000000002037268,
+              "startUptime": 389501.753530125,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.0010000000002037268,
+              "startUptime": 389501.7535320417,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0,
+              "startUptime": 389501.75353295833,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            }
+          ],
+          "medianMS": 0.00020832521840929985,
+          "name": "mail.firstPage",
+          "p95MS": 37.94720832956955,
+          "samplesMS": [
+            37.94720832956955,
+            0.0016666599549353123,
+            0.00020832521840929985,
+            0.0001666485331952572,
+            0.0001666485331952572,
+            0.00020832521840929985,
+            0.00020838342607021332
+          ]
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 350,
+          "diagnostics": [
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.07600000000093132,
+              "startUptime": 389501.7535481667,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.00999999999839929,
+              "startUptime": 389501.7536247917,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.008000000001629815,
+              "startUptime": 389501.753634875,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.006999999997788109,
+              "startUptime": 389501.7536432917,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.008000000001629815,
+              "startUptime": 389501.7536514167,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.007999999997991836,
+              "startUptime": 389501.75366079167,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.007000000001426088,
+              "startUptime": 389501.7536684167,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            }
+          ],
+          "medianMS": 0.007458380423486233,
+          "name": "mail.readMutation",
+          "p95MS": 0.07495831232517958,
+          "samplesMS": [
+            0.07495831232517958,
+            0.009166658855974674,
+            0.007458380423486233,
+            0.007291673682630062,
+            0.008291681297123432,
+            0.00683334656059742,
+            0.006999995093792677
+          ]
+        },
+        {
+          "budgetMS": 16,
+          "checksum": 4900,
+          "diagnostics": [
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 9.46900000000096,
+              "startUptime": 389501.7536775,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.35200000000259024,
+              "startUptime": 389501.7631507917,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.30799999999726424,
+              "startUptime": 389501.7635036667,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.29800000000250293,
+              "startUptime": 389501.76381258335,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.27999999999883585,
+              "startUptime": 389501.7641114167,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.2890000000006694,
+              "startUptime": 389501.76439283334,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.29399999999805004,
+              "startUptime": 389501.7646821667,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            }
+          ],
+          "medianMS": 0.2974167000502348,
+          "name": "calendar.visibleWeek",
+          "p95MS": 9.467250027228147,
+          "samplesMS": [
+            9.467250027228147,
+            0.3511666436679661,
+            0.30666665406897664,
+            0.2974167000502348,
+            0.2796666231006384,
+            0.28837501304224133,
+            0.29325002105906606
+          ]
+        },
+        {
+          "budgetMS": 8,
+          "checksum": 700,
+          "diagnostics": [
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.8580000000001746,
+              "startUptime": 389501.7649829167,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.010999999998603016,
+              "startUptime": 389501.76584370836,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.005000000001018634,
+              "startUptime": 389501.76585587504,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.0039999999971769284,
+              "startUptime": 389501.7658616667,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.004000000000814907,
+              "startUptime": 389501.76586570835,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.004000000000814907,
+              "startUptime": 389501.76587025,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.0030000000006111804,
+              "startUptime": 389501.7658742917,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            }
+          ],
+          "medianMS": 0.003374996595084667,
+          "name": "calendar.day",
+          "p95MS": 0.8565832977183163,
+          "samplesMS": [
+            0.8565832977183163,
+            0.010833318810909986,
+            0.004083325620740652,
+            0.0033333199098706245,
+            0.00320834806188941,
+            0.003374996595084667,
+            0.0032082898542284966
+          ]
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 700,
+          "diagnostics": [
+            {
+              "involuntaryContextSwitches": 19,
+              "pageFaults": 0,
+              "processCPUMS": 53.453999999997905,
+              "startUptime": 389501.76588145836,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 2,
+              "pageFaults": 0,
+              "processCPUMS": 51.35399999999936,
+              "startUptime": 389501.81980316667,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 3,
+              "pageFaults": 0,
+              "processCPUMS": 50.54999999999927,
+              "startUptime": 389501.87117733335,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 4,
+              "pageFaults": 0,
+              "processCPUMS": 50.974999999998545,
+              "startUptime": 389501.92180662503,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 9,
+              "pageFaults": 0,
+              "processCPUMS": 50.96099999999933,
+              "startUptime": 389501.972894,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 8,
+              "pageFaults": 0,
+              "processCPUMS": 51.29199999999764,
+              "startUptime": 389502.0240504167,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 26,
+              "pageFaults": 0,
+              "processCPUMS": 52.22699999999895,
+              "startUptime": 389502.0755562917,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            }
+          ],
+          "medianMS": 51.36733333347365,
+          "name": "notes.search",
+          "p95MS": 53.917041688691825,
+          "samplesMS": [
+            53.917041688691825,
+            51.36733333347365,
+            50.62475003069267,
+            51.08175001805648,
+            51.150291692465544,
+            51.500583300367,
+            52.5841666967608
+          ]
+        },
+        {
+          "budgetMS": 16,
+          "checksum": 700,
+          "diagnostics": [
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 3.407999999999447,
+              "startUptime": 389502.12815141666,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 3.074000000000524,
+              "startUptime": 389502.1315635417,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 3.040000000000873,
+              "startUptime": 389502.13464166666,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 26,
+              "pageFaults": 0,
+              "processCPUMS": 3.6859999999978754,
+              "startUptime": 389502.1376858334,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 3.0570000000006985,
+              "startUptime": 389502.14148545836,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 1,
+              "pageFaults": 0,
+              "processCPUMS": 3.1589999999996508,
+              "startUptime": 389502.1445466667,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 1,
+              "pageFaults": 0,
+              "processCPUMS": 3.1349999999983993,
+              "startUptime": 389502.1477735417,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            }
+          ],
+          "medianMS": 3.188250004313886,
+          "name": "notes.browse",
+          "p95MS": 3.7952082930132747,
+          "samplesMS": [
+            3.408250049687922,
+            3.073791624046862,
+            3.0393750057555735,
+            3.7952082930132747,
+            3.056958317756653,
+            3.222749975975603,
+            3.188250004313886
+          ]
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 6300,
+          "diagnostics": [
+            {
+              "involuntaryContextSwitches": 42,
+              "pageFaults": 0,
+              "processCPUMS": 63.17000000000189,
+              "startUptime": 389502.1509715,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 70,
+              "pageFaults": 0,
+              "processCPUMS": 60.27599999999802,
+              "startUptime": 389502.21486350003,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 22,
+              "pageFaults": 0,
+              "processCPUMS": 56.534999999999854,
+              "startUptime": 389502.277004625,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 22,
+              "pageFaults": 0,
+              "processCPUMS": 55.219999999997526,
+              "startUptime": 389502.33413875004,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 15,
+              "pageFaults": 0,
+              "processCPUMS": 58.46800000000076,
+              "startUptime": 389502.3895750417,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 10,
+              "pageFaults": 0,
+              "processCPUMS": 53.33599999999933,
+              "startUptime": 389502.44828454166,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 30,
+              "pageFaults": 0,
+              "processCPUMS": 54.904999999998836,
+              "startUptime": 389502.50167275005,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            }
+          ],
+          "medianMS": 57.129583321511745,
+          "name": "podcasts.nextAcrossCatalog",
+          "p95MS": 63.88687499566004,
+          "samplesMS": [
+            63.88687499566004,
+            62.134250008966774,
+            57.129583321511745,
+            55.43141666566953,
+            58.70358331594616,
+            53.38308337377384,
+            55.173333326820284
+          ]
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 18900,
+          "diagnostics": [
+            {
+              "involuntaryContextSwitches": 25,
+              "pageFaults": 0,
+              "processCPUMS": 73.75600000000122,
+              "startUptime": 389502.556856625,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 35,
+              "pageFaults": 0,
+              "processCPUMS": 75.35599999999977,
+              "startUptime": 389502.63111558335,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 33,
+              "pageFaults": 0,
+              "processCPUMS": 71.83799999999974,
+              "startUptime": 389502.70705458336,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 26,
+              "pageFaults": 0,
+              "processCPUMS": 68.69200000000274,
+              "startUptime": 389502.7805505834,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 68,
+              "pageFaults": 0,
+              "processCPUMS": 69.40500000000247,
+              "startUptime": 389502.8497998334,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 191,
+              "pageFaults": 0,
+              "processCPUMS": 77.21100000000297,
+              "startUptime": 389502.9200110417,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 75,
+              "pageFaults": 0,
+              "processCPUMS": 80.20500000000175,
+              "startUptime": 389502.99853287503,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            }
+          ],
+          "medianMS": 74.25250002415851,
+          "name": "podcasts.downloadCandidates",
+          "p95MS": 82.87170832045376,
+          "samplesMS": [
+            74.25250002415851,
+            75.93345834175125,
+            73.48991668550298,
+            69.24449995858595,
+            70.20520832156762,
+            78.51562497671694,
+            82.87170832045376
+          ]
+        }
+      ],
+      "residentMB": 668.734375,
+      "passed": true,
+      "hostLoad": [
+        102.94189453125,
+        118.76123046875,
+        85.8515625
+      ]
+    },
+    {
+      "artifact": "during-simulator-boot-repeat/during-simulator-boot-repeat-90d.json",
+      "binarySHA256": "b37352af63c29eed8dd683bc0af27a39303b86bd6fec86d0a7648751c17561a4",
+      "days": 90,
+      "emails": 180000,
+      "events": 9000,
+      "notes": 90000,
+      "episodes": 900000,
+      "podcasts": 900,
+      "metrics": [
+        {
+          "budgetMS": 50,
+          "checksum": 350,
+          "diagnostics": [
+            {
+              "involuntaryContextSwitches": 2,
+              "pageFaults": 0,
+              "processCPUMS": 34.75500000000102,
+              "startUptime": 389529.02834625,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.0010000000002037268,
+              "startUptime": 389529.06280795834,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.0010000000002037268,
+              "startUptime": 389529.06281020836,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0,
+              "startUptime": 389529.0628119167,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.0020000000004074536,
+              "startUptime": 389529.06281275,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.0010000000002037268,
+              "startUptime": 389529.06281425,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0,
+              "startUptime": 389529.06281508337,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            }
+          ],
+          "medianMS": 0.00020838342607021332,
+          "name": "mail.firstPage",
+          "p95MS": 34.448541700839996,
+          "samplesMS": [
+            34.448541700839996,
+            0.0012916862033307552,
+            0.0002500019036233425,
+            0.00020832521840929985,
+            0.00020838342607021332,
+            0.00016670674085617065,
+            0.0001666485331952572
+          ]
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 350,
+          "diagnostics": [
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.05800000000090222,
+              "startUptime": 389529.06283012504,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.007999999997991836,
+              "startUptime": 389529.0628900417,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.008000000001629815,
+              "startUptime": 389529.0628991667,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.007999999997991836,
+              "startUptime": 389529.0629069167,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.008000000001629815,
+              "startUptime": 389529.06291520834,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.007000000001426088,
+              "startUptime": 389529.06292287505,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.006999999997788109,
+              "startUptime": 389529.06293041667,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            }
+          ],
+          "medianMS": 0.006916699931025505,
+          "name": "mail.readMutation",
+          "p95MS": 0.057375000324100256,
+          "samplesMS": [
+            0.057375000324100256,
+            0.00825000461190939,
+            0.006916641723364592,
+            0.0076249707490205765,
+            0.0065416679717600346,
+            0.006791669875383377,
+            0.006916699931025505
+          ]
+        },
+        {
+          "budgetMS": 16,
+          "checksum": 4900,
+          "diagnostics": [
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 8.654999999998836,
+              "startUptime": 389529.062939,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.2999999999992724,
+              "startUptime": 389529.07159875,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.2639999999992142,
+              "startUptime": 389529.07190058334,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.26300000000264845,
+              "startUptime": 389529.072166125,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.2699999999967986,
+              "startUptime": 389529.07242958335,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.2530000000006112,
+              "startUptime": 389529.07270075,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.2760000000016589,
+              "startUptime": 389529.0729541667,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            }
+          ],
+          "medianMS": 0.2697500167414546,
+          "name": "calendar.visibleWeek",
+          "p95MS": 8.654333360027522,
+          "samplesMS": [
+            8.654333360027522,
+            0.3002083394676447,
+            0.26358338072896004,
+            0.26258337311446667,
+            0.2697500167414546,
+            0.2525000018067658,
+            0.2752500004135072
+          ]
+        },
+        {
+          "budgetMS": 8,
+          "checksum": 700,
+          "diagnostics": [
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.7330000000001746,
+              "startUptime": 389529.0732357917,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.011000000002240995,
+              "startUptime": 389529.0739736667,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.0039999999971769284,
+              "startUptime": 389529.07398437505,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.004000000000814907,
+              "startUptime": 389529.0739892084,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.004000000000814907,
+              "startUptime": 389529.0739930417,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.0030000000006111804,
+              "startUptime": 389529.0739974167,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 0.0029999999969732016,
+              "startUptime": 389529.07400120836,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            }
+          ],
+          "medianMS": 0.003291643224656582,
+          "name": "calendar.day",
+          "p95MS": 0.7314166286960244,
+          "samplesMS": [
+            0.7314166286960244,
+            0.009708339348435402,
+            0.003291643224656582,
+            0.0031249946914613247,
+            0.0033333199098706245,
+            0.0031249946914613247,
+            0.0031666713766753674
+          ]
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 700,
+          "diagnostics": [
+            {
+              "involuntaryContextSwitches": 615,
+              "pageFaults": 0,
+              "processCPUMS": 69.71399999999994,
+              "startUptime": 389529.0740077917,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 846
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 48.47699999999895,
+              "startUptime": 389529.20936133334,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 14,
+              "pageFaults": 0,
+              "processCPUMS": 48.42900000000009,
+              "startUptime": 389529.25784458336,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 2,
+              "pageFaults": 0,
+              "processCPUMS": 47.848000000001775,
+              "startUptime": 389529.3067585417,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 1,
+              "pageFaults": 0,
+              "processCPUMS": 47.36200000000099,
+              "startUptime": 389529.354632625,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 47.39900000000125,
+              "startUptime": 389529.4020449167,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 3,
+              "pageFaults": 0,
+              "processCPUMS": 48.64999999999782,
+              "startUptime": 389529.4494480417,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            }
+          ],
+          "medianMS": 48.47716668155044,
+          "name": "notes.search",
+          "p95MS": 135.3467916487716,
+          "samplesMS": [
+            135.3467916487716,
+            48.47716668155044,
+            48.908166645560414,
+            47.86908335518092,
+            47.40679170936346,
+            47.39845835138112,
+            48.69379167212173
+          ]
+        },
+        {
+          "budgetMS": 16,
+          "checksum": 700,
+          "diagnostics": [
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 3.069999999999709,
+              "startUptime": 389529.49815208337,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 2.790999999997439,
+              "startUptime": 389529.50122462504,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 2,
+              "pageFaults": 0,
+              "processCPUMS": 2.798000000002503,
+              "startUptime": 389529.50401820836,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 2.8029999999998836,
+              "startUptime": 389529.50687070837,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 2.8040000000000873,
+              "startUptime": 389529.5096764167,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 2.8260000000009313,
+              "startUptime": 389529.51248275,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 0,
+              "pageFaults": 0,
+              "processCPUMS": 2.8259999999972933,
+              "startUptime": 389529.51531208336,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            }
+          ],
+          "medianMS": 2.825458359438926,
+          "name": "notes.browse",
+          "p95MS": 3.0697082984261215,
+          "samplesMS": [
+            3.0697082984261215,
+            2.7902083238586783,
+            2.8491666889749467,
+            2.802333328872919,
+            2.802916686050594,
+            2.8264583670534194,
+            2.825458359438926
+          ]
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 6300,
+          "diagnostics": [
+            {
+              "involuntaryContextSwitches": 91,
+              "pageFaults": 0,
+              "processCPUMS": 102.5580000000009,
+              "startUptime": 389529.518145125,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 1589
+            },
+            {
+              "involuntaryContextSwitches": 19,
+              "pageFaults": 0,
+              "processCPUMS": 53.60699999999997,
+              "startUptime": 389529.8088549167,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 2
+            },
+            {
+              "involuntaryContextSwitches": 5,
+              "pageFaults": 0,
+              "processCPUMS": 51.83799999999974,
+              "startUptime": 389529.8632227917,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 135,
+              "pageFaults": 0,
+              "processCPUMS": 57.96900000000096,
+              "startUptime": 389529.915160375,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 54,
+              "pageFaults": 0,
+              "processCPUMS": 54.840000000000146,
+              "startUptime": 389529.97575783334,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 48,
+              "pageFaults": 0,
+              "processCPUMS": 53.715000000000146,
+              "startUptime": 389530.03108054167,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 129,
+              "pageFaults": 0,
+              "processCPUMS": 57.486000000000786,
+              "startUptime": 389530.08547725005,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            }
+          ],
+          "medianMS": 55.31258333940059,
+          "name": "podcasts.nextAcrossCatalog",
+          "p95MS": 290.70358333410695,
+          "samplesMS": [
+            290.70358333410695,
+            54.361541639082134,
+            51.929833309259266,
+            60.591124987695366,
+            55.31258333940059,
+            54.39054168527946,
+            60.98991661565378
+          ]
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 18900,
+          "diagnostics": [
+            {
+              "involuntaryContextSwitches": 249,
+              "pageFaults": 0,
+              "processCPUMS": 135.6270000000004,
+              "startUptime": 389530.1464815417,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 1707
+            },
+            {
+              "involuntaryContextSwitches": 21,
+              "pageFaults": 0,
+              "processCPUMS": 66.24299999999857,
+              "startUptime": 389530.4896815417,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 71,
+              "pageFaults": 0,
+              "processCPUMS": 66.38300000000163,
+              "startUptime": 389530.5564034167,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 67,
+              "pageFaults": 0,
+              "processCPUMS": 65.5679999999993,
+              "startUptime": 389530.6244699167,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 21,
+              "pageFaults": 0,
+              "processCPUMS": 65.6239999999998,
+              "startUptime": 389530.6909996667,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 60,
+              "pageFaults": 0,
+              "processCPUMS": 66.9320000000007,
+              "startUptime": 389530.75688320835,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            },
+            {
+              "involuntaryContextSwitches": 76,
+              "pageFaults": 0,
+              "processCPUMS": 71.19300000000294,
+              "startUptime": 389530.82557020837,
+              "thermalState": 0,
+              "voluntaryContextSwitches": 0
+            }
+          ],
+          "medianMS": 68.05987498955801,
+          "name": "podcasts.downloadCandidates",
+          "p95MS": 343.1937916902825,
+          "samplesMS": [
+            343.1937916902825,
+            66.71091669704765,
+            68.05987498955801,
+            66.52558333007619,
+            65.87633333401754,
+            68.68041667621583,
+            73.90262500848621
+          ]
+        }
+      ],
+      "residentMB": 669,
+      "passed": false,
+      "hostLoad": [
+        221.8701171875,
+        145.17138671875,
+        96.310546875
+      ]
+    }
+  ]
+}

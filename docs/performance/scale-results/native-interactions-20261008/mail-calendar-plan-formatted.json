@@ -1,0 +1,5259 @@
+{
+  "scope": "Native main-thread commit work and run-loop busy intervals; not input-to-visible or GPU/display delivery",
+  "recordingComplete": true,
+  "commits": {
+    "count": 35,
+    "p50MS": 0.665375,
+    "p95MS": 143.286083,
+    "p99MS": 144.842083,
+    "maxMS": 144.842083,
+    "budgetMS": 8.3,
+    "violations": [
+      {
+        "startMS": 8780.53975,
+        "durationMS": 27.550125
+      },
+      {
+        "startMS": 8992.990166,
+        "durationMS": 41.178667
+      },
+      {
+        "startMS": 9167.589041,
+        "durationMS": 67.224709
+      },
+      {
+        "startMS": 9314.8825,
+        "durationMS": 129.676041
+      },
+      {
+        "startMS": 9456.530333,
+        "durationMS": 143.286083
+      },
+      {
+        "startMS": 9631.585208,
+        "durationMS": 144.842083
+      }
+    ],
+    "samples": [
+      {
+        "startMS": 8745.096958,
+        "durationMS": 0.076625
+      },
+      {
+        "startMS": 8780.53975,
+        "durationMS": 27.550125
+      },
+      {
+        "startMS": 8808.180666,
+        "durationMS": 1.311584
+      },
+      {
+        "startMS": 8809.825291,
+        "durationMS": 2.024625
+      },
+      {
+        "startMS": 8811.973708,
+        "durationMS": 0.850458
+      },
+      {
+        "startMS": 8850.771625,
+        "durationMS": 0.405291
+      },
+      {
+        "startMS": 8851.266791,
+        "durationMS": 1.103792
+      },
+      {
+        "startMS": 8862.639083,
+        "durationMS": 1.227
+      },
+      {
+        "startMS": 8870.3875,
+        "durationMS": 1.187708
+      },
+      {
+        "startMS": 8877.134083,
+        "durationMS": 2.122958
+      },
+      {
+        "startMS": 8879.331375,
+        "durationMS": 0.901875
+      },
+      {
+        "startMS": 8992.990166,
+        "durationMS": 41.178667
+      },
+      {
+        "startMS": 9034.300625,
+        "durationMS": 1.11325
+      },
+      {
+        "startMS": 9035.702583,
+        "durationMS": 0.803
+      },
+      {
+        "startMS": 9167.589041,
+        "durationMS": 67.224709
+      },
+      {
+        "startMS": 9235.587958,
+        "durationMS": 0.077542
+      },
+      {
+        "startMS": 9314.8825,
+        "durationMS": 129.676041
+      },
+      {
+        "startMS": 9448.00325,
+        "durationMS": 0.665375
+      },
+      {
+        "startMS": 9456.530333,
+        "durationMS": 143.286083
+      },
+      {
+        "startMS": 9609.8185,
+        "durationMS": 0.236
+      },
+      {
+        "startMS": 9616.359708,
+        "durationMS": 0.07725
+      },
+      {
+        "startMS": 9624.779416,
+        "durationMS": 0.07625
+      },
+      {
+        "startMS": 9631.585208,
+        "durationMS": 144.842083
+      },
+      {
+        "startMS": 9780.423125,
+        "durationMS": 0.08
+      },
+      {
+        "startMS": 9791.16825,
+        "durationMS": 0.054166
+      },
+      {
+        "startMS": 9804.8935,
+        "durationMS": 0.064416
+      },
+      {
+        "startMS": 9813.206166,
+        "durationMS": 0.181292
+      },
+      {
+        "startMS": 9821.637291,
+        "durationMS": 0.080584
+      },
+      {
+        "startMS": 9829.868125,
+        "durationMS": 0.061958
+      },
+      {
+        "startMS": 9838.235,
+        "durationMS": 0.070083
+      },
+      {
+        "startMS": 9846.540291,
+        "durationMS": 1.133167
+      },
+      {
+        "startMS": 9853.695833,
+        "durationMS": 0.056833
+      },
+      {
+        "startMS": 9861.991541,
+        "durationMS": 0.049292
+      },
+      {
+        "startMS": 10113.163958,
+        "durationMS": 0.207833
+      },
+      {
+        "startMS": 10114.35325,
+        "durationMS": 0.217416
+      }
+    ]
+  },
+  "mainRunLoopBusy": {
+    "count": 1258,
+    "p50MS": 0.010292,
+    "p95MS": 0.730584,
+    "p99MS": 3.611,
+    "maxMS": 33.237292,
+    "budgetMS": 8.3,
+    "violations": [
+      {
+        "startMS": 6211.384,
+        "durationMS": 25.958458
+      },
+      {
+        "startMS": 6237.34375,
+        "durationMS": 10.105583
+      },
+      {
+        "startMS": 9235.688666,
+        "durationMS": 33.237292
+      },
+      {
+        "startMS": 9270.879083,
+        "durationMS": 10.524417
+      },
+      {
+        "startMS": 9281.432333,
+        "durationMS": 11.972625
+      },
+      {
+        "startMS": 9302.056083,
+        "durationMS": 10.720333
+      },
+      {
+        "startMS": 9600.888958,
+        "durationMS": 8.473
+      }
+    ],
+    "samples": [
+      {
+        "startMS": 1955.749,
+        "durationMS": 0.013333
+      },
+      {
+        "startMS": 2014.387375,
+        "durationMS": 2.065708
+      },
+      {
+        "startMS": 2016.453333,
+        "durationMS": 1.678
+      },
+      {
+        "startMS": 2652.198708,
+        "durationMS": 1.185042
+      },
+      {
+        "startMS": 2653.400458,
+        "durationMS": 0.033875
+      },
+      {
+        "startMS": 2653.437375,
+        "durationMS": 0.005708
+      },
+      {
+        "startMS": 2653.447125,
+        "durationMS": 0.002708
+      },
+      {
+        "startMS": 2798.341166,
+        "durationMS": 0.066834
+      },
+      {
+        "startMS": 2798.409125,
+        "durationMS": 0.011125
+      },
+      {
+        "startMS": 5485.148583,
+        "durationMS": 0.525125
+      },
+      {
+        "startMS": 5485.674083,
+        "durationMS": 0.010083
+      },
+      {
+        "startMS": 5526.925333,
+        "durationMS": 4.66625
+      },
+      {
+        "startMS": 5531.592458,
+        "durationMS": 3.814333
+      },
+      {
+        "startMS": 5846.699375,
+        "durationMS": 0.762666
+      },
+      {
+        "startMS": 5847.462458,
+        "durationMS": 0.014083
+      },
+      {
+        "startMS": 6207.772375,
+        "durationMS": 3.611
+      },
+      {
+        "startMS": 6211.384,
+        "durationMS": 25.958458
+      },
+      {
+        "startMS": 6237.34375,
+        "durationMS": 10.105583
+      },
+      {
+        "startMS": 6247.449625,
+        "durationMS": 0.013333
+      },
+      {
+        "startMS": 6329.779625,
+        "durationMS": 0.474291
+      },
+      {
+        "startMS": 6330.254375,
+        "durationMS": 0.013416
+      },
+      {
+        "startMS": 7085.64575,
+        "durationMS": 0.229833
+      },
+      {
+        "startMS": 7085.876041,
+        "durationMS": 0.012459
+      },
+      {
+        "startMS": 7192.405125,
+        "durationMS": 0.372875
+      },
+      {
+        "startMS": 7192.778416,
+        "durationMS": 0.0135
+      },
+      {
+        "startMS": 7351.170875,
+        "durationMS": 0.2965
+      },
+      {
+        "startMS": 7351.467708,
+        "durationMS": 0.013042
+      },
+      {
+        "startMS": 7394.129625,
+        "durationMS": 2.438416
+      },
+      {
+        "startMS": 7396.568333,
+        "durationMS": 0.013333
+      },
+      {
+        "startMS": 7641.688,
+        "durationMS": 0.289291
+      },
+      {
+        "startMS": 7641.977666,
+        "durationMS": 0.012042
+      },
+      {
+        "startMS": 7676.44825,
+        "durationMS": 0.140416
+      },
+      {
+        "startMS": 7676.589208,
+        "durationMS": 0.006583
+      },
+      {
+        "startMS": 7893.257666,
+        "durationMS": 0.977
+      },
+      {
+        "startMS": 7894.235083,
+        "durationMS": 0.01225
+      },
+      {
+        "startMS": 8080.261625,
+        "durationMS": 0.808666
+      },
+      {
+        "startMS": 8081.070791,
+        "durationMS": 0.015667
+      },
+      {
+        "startMS": 8182.680958,
+        "durationMS": 0.364583
+      },
+      {
+        "startMS": 8183.045958,
+        "durationMS": 0.012125
+      },
+      {
+        "startMS": 8244.131833,
+        "durationMS": 0.125458
+      },
+      {
+        "startMS": 8244.275708,
+        "durationMS": 0.005375
+      },
+      {
+        "startMS": 8244.304708,
+        "durationMS": 0.29825
+      },
+      {
+        "startMS": 8244.609,
+        "durationMS": 0.003125
+      },
+      {
+        "startMS": 8244.656541,
+        "durationMS": 0.220709
+      },
+      {
+        "startMS": 8244.882916,
+        "durationMS": 0.003125
+      },
+      {
+        "startMS": 8244.955958,
+        "durationMS": 0.26975
+      },
+      {
+        "startMS": 8245.231625,
+        "durationMS": 0.003208
+      },
+      {
+        "startMS": 8245.285625,
+        "durationMS": 1.49975
+      },
+      {
+        "startMS": 8246.798875,
+        "durationMS": 0.005125
+      },
+      {
+        "startMS": 8246.852541,
+        "durationMS": 0.193917
+      },
+      {
+        "startMS": 8247.052875,
+        "durationMS": 0.003375
+      },
+      {
+        "startMS": 8247.1385,
+        "durationMS": 0.070708
+      },
+      {
+        "startMS": 8247.214583,
+        "durationMS": 0.002958
+      },
+      {
+        "startMS": 8247.260791,
+        "durationMS": 0.047542
+      },
+      {
+        "startMS": 8247.313375,
+        "durationMS": 0.002791
+      },
+      {
+        "startMS": 8247.352625,
+        "durationMS": 0.151541
+      },
+      {
+        "startMS": 8247.509291,
+        "durationMS": 0.002875
+      },
+      {
+        "startMS": 8247.537708,
+        "durationMS": 1.226917
+      },
+      {
+        "startMS": 8248.770666,
+        "durationMS": 0.0035
+      },
+      {
+        "startMS": 8248.845125,
+        "durationMS": 0.175333
+      },
+      {
+        "startMS": 8249.025875,
+        "durationMS": 0.002958
+      },
+      {
+        "startMS": 8249.098041,
+        "durationMS": 0.077167
+      },
+      {
+        "startMS": 8249.181458,
+        "durationMS": 0.00325
+      },
+      {
+        "startMS": 8249.216291,
+        "durationMS": 0.131792
+      },
+      {
+        "startMS": 8249.35375,
+        "durationMS": 0.003041
+      },
+      {
+        "startMS": 8249.381041,
+        "durationMS": 0.053959
+      },
+      {
+        "startMS": 8249.439958,
+        "durationMS": 0.00275
+      },
+      {
+        "startMS": 8249.489375,
+        "durationMS": 0.098
+      },
+      {
+        "startMS": 8249.592583,
+        "durationMS": 0.002833
+      },
+      {
+        "startMS": 8249.634541,
+        "durationMS": 0.077792
+      },
+      {
+        "startMS": 8249.717541,
+        "durationMS": 0.003167
+      },
+      {
+        "startMS": 8249.732541,
+        "durationMS": 0.044875
+      },
+      {
+        "startMS": 8249.782125,
+        "durationMS": 0.00275
+      },
+      {
+        "startMS": 8249.809125,
+        "durationMS": 0.051208
+      },
+      {
+        "startMS": 8249.86525,
+        "durationMS": 0.002791
+      },
+      {
+        "startMS": 8249.899833,
+        "durationMS": 0.069667
+      },
+      {
+        "startMS": 8249.974958,
+        "durationMS": 0.003125
+      },
+      {
+        "startMS": 8250.032083,
+        "durationMS": 0.2205
+      },
+      {
+        "startMS": 8250.257875,
+        "durationMS": 0.002958
+      },
+      {
+        "startMS": 8250.338625,
+        "durationMS": 0.127833
+      },
+      {
+        "startMS": 8250.472,
+        "durationMS": 0.003
+      },
+      {
+        "startMS": 8250.4995,
+        "durationMS": 0.06925
+      },
+      {
+        "startMS": 8250.573583,
+        "durationMS": 0.003125
+      },
+      {
+        "startMS": 8250.644875,
+        "durationMS": 0.094416
+      },
+      {
+        "startMS": 8250.744375,
+        "durationMS": 0.003458
+      },
+      {
+        "startMS": 8250.757958,
+        "durationMS": 0.184167
+      },
+      {
+        "startMS": 8250.947208,
+        "durationMS": 0.003125
+      },
+      {
+        "startMS": 8250.971541,
+        "durationMS": 0.055917
+      },
+      {
+        "startMS": 8251.032083,
+        "durationMS": 0.002917
+      },
+      {
+        "startMS": 8251.079666,
+        "durationMS": 0.398459
+      },
+      {
+        "startMS": 8251.483708,
+        "durationMS": 0.003208
+      },
+      {
+        "startMS": 8251.529041,
+        "durationMS": 0.096667
+      },
+      {
+        "startMS": 8251.630833,
+        "durationMS": 0.002917
+      },
+      {
+        "startMS": 8251.659916,
+        "durationMS": 0.565542
+      },
+      {
+        "startMS": 8252.231791,
+        "durationMS": 0.003584
+      },
+      {
+        "startMS": 8252.278583,
+        "durationMS": 0.206875
+      },
+      {
+        "startMS": 8252.490875,
+        "durationMS": 0.003083
+      },
+      {
+        "startMS": 8252.517541,
+        "durationMS": 0.059917
+      },
+      {
+        "startMS": 8252.582875,
+        "durationMS": 0.002875
+      },
+      {
+        "startMS": 8252.672916,
+        "durationMS": 0.212542
+      },
+      {
+        "startMS": 8252.891041,
+        "durationMS": 0.002875
+      },
+      {
+        "startMS": 8252.954333,
+        "durationMS": 0.064208
+      },
+      {
+        "startMS": 8253.023416,
+        "durationMS": 0.003042
+      },
+      {
+        "startMS": 8253.060625,
+        "durationMS": 0.106583
+      },
+      {
+        "startMS": 8253.172333,
+        "durationMS": 0.003292
+      },
+      {
+        "startMS": 8253.224833,
+        "durationMS": 0.057958
+      },
+      {
+        "startMS": 8253.288375,
+        "durationMS": 0.003083
+      },
+      {
+        "startMS": 8253.336041,
+        "durationMS": 0.100375
+      },
+      {
+        "startMS": 8253.441583,
+        "durationMS": 0.00275
+      },
+      {
+        "startMS": 8253.508083,
+        "durationMS": 0.057833
+      },
+      {
+        "startMS": 8253.571,
+        "durationMS": 0.002875
+      },
+      {
+        "startMS": 8253.602083,
+        "durationMS": 0.06625
+      },
+      {
+        "startMS": 8253.673208,
+        "durationMS": 0.002958
+      },
+      {
+        "startMS": 8253.70325,
+        "durationMS": 0.137708
+      },
+      {
+        "startMS": 8253.846083,
+        "durationMS": 0.002833
+      },
+      {
+        "startMS": 8253.873875,
+        "durationMS": 0.123208
+      },
+      {
+        "startMS": 8254.002208,
+        "durationMS": 0.002958
+      },
+      {
+        "startMS": 8254.133125,
+        "durationMS": 0.227875
+      },
+      {
+        "startMS": 8254.36675,
+        "durationMS": 0.002916
+      },
+      {
+        "startMS": 8254.4375,
+        "durationMS": 0.20275
+      },
+      {
+        "startMS": 8254.646208,
+        "durationMS": 0.0035
+      },
+      {
+        "startMS": 8453.96425,
+        "durationMS": 1.269291
+      },
+      {
+        "startMS": 8455.233791,
+        "durationMS": 0.011292
+      },
+      {
+        "startMS": 8537.48575,
+        "durationMS": 0.525625
+      },
+      {
+        "startMS": 8538.011791,
+        "durationMS": 0.015292
+      },
+      {
+        "startMS": 8663.0525,
+        "durationMS": 0.439625
+      },
+      {
+        "startMS": 8663.492541,
+        "durationMS": 0.012709
+      },
+      {
+        "startMS": 8702.87625,
+        "durationMS": 3.437208
+      },
+      {
+        "startMS": 8706.313958,
+        "durationMS": 0.012125
+      },
+      {
+        "startMS": 8709.057,
+        "durationMS": 0.197083
+      },
+      {
+        "startMS": 8709.267166,
+        "durationMS": 0.004292
+      },
+      {
+        "startMS": 8709.32875,
+        "durationMS": 0.091583
+      },
+      {
+        "startMS": 8709.426833,
+        "durationMS": 0.003292
+      },
+      {
+        "startMS": 8709.503541,
+        "durationMS": 0.077334
+      },
+      {
+        "startMS": 8709.58625,
+        "durationMS": 0.0035
+      },
+      {
+        "startMS": 8709.623125,
+        "durationMS": 0.53
+      },
+      {
+        "startMS": 8710.160083,
+        "durationMS": 0.00375
+      },
+      {
+        "startMS": 8710.313333,
+        "durationMS": 0.075917
+      },
+      {
+        "startMS": 8710.394875,
+        "durationMS": 0.003416
+      },
+      {
+        "startMS": 8710.478041,
+        "durationMS": 0.161584
+      },
+      {
+        "startMS": 8710.645166,
+        "durationMS": 0.003167
+      },
+      {
+        "startMS": 8710.708958,
+        "durationMS": 0.053958
+      },
+      {
+        "startMS": 8710.768083,
+        "durationMS": 0.002917
+      },
+      {
+        "startMS": 8710.912916,
+        "durationMS": 0.099
+      },
+      {
+        "startMS": 8711.018041,
+        "durationMS": 0.003375
+      },
+      {
+        "startMS": 8711.111333,
+        "durationMS": 0.1435
+      },
+      {
+        "startMS": 8711.260333,
+        "durationMS": 0.003083
+      },
+      {
+        "startMS": 8711.581833,
+        "durationMS": 0.063417
+      },
+      {
+        "startMS": 8711.650625,
+        "durationMS": 0.002916
+      },
+      {
+        "startMS": 8711.83625,
+        "durationMS": 0.321208
+      },
+      {
+        "startMS": 8712.164833,
+        "durationMS": 0.003833
+      },
+      {
+        "startMS": 8712.307291,
+        "durationMS": 0.067459
+      },
+      {
+        "startMS": 8712.38,
+        "durationMS": 0.002916
+      },
+      {
+        "startMS": 8712.421583,
+        "durationMS": 0.135458
+      },
+      {
+        "startMS": 8712.5625,
+        "durationMS": 0.003125
+      },
+      {
+        "startMS": 8712.595041,
+        "durationMS": 0.059959
+      },
+      {
+        "startMS": 8712.659958,
+        "durationMS": 0.003042
+      },
+      {
+        "startMS": 8712.733625,
+        "durationMS": 0.105125
+      },
+      {
+        "startMS": 8712.844625,
+        "durationMS": 0.003583
+      },
+      {
+        "startMS": 8712.89725,
+        "durationMS": 0.122416
+      },
+      {
+        "startMS": 8713.025041,
+        "durationMS": 0.003542
+      },
+      {
+        "startMS": 8713.079708,
+        "durationMS": 0.071417
+      },
+      {
+        "startMS": 8713.156,
+        "durationMS": 0.003208
+      },
+      {
+        "startMS": 8713.194125,
+        "durationMS": 0.050416
+      },
+      {
+        "startMS": 8713.249583,
+        "durationMS": 0.003375
+      },
+      {
+        "startMS": 8713.276541,
+        "durationMS": 0.068834
+      },
+      {
+        "startMS": 8713.350083,
+        "durationMS": 0.003208
+      },
+      {
+        "startMS": 8713.423791,
+        "durationMS": 0.205209
+      },
+      {
+        "startMS": 8713.634583,
+        "durationMS": 0.003375
+      },
+      {
+        "startMS": 8713.746375,
+        "durationMS": 0.148
+      },
+      {
+        "startMS": 8713.900375,
+        "durationMS": 0.00375
+      },
+      {
+        "startMS": 8713.961,
+        "durationMS": 0.026958
+      },
+      {
+        "startMS": 8713.993291,
+        "durationMS": 0.003334
+      },
+      {
+        "startMS": 8714.00925,
+        "durationMS": 0.023458
+      },
+      {
+        "startMS": 8714.037166,
+        "durationMS": 0.00275
+      },
+      {
+        "startMS": 8714.64925,
+        "durationMS": 0.174208
+      },
+      {
+        "startMS": 8714.830208,
+        "durationMS": 0.003375
+      },
+      {
+        "startMS": 8714.857083,
+        "durationMS": 0.10975
+      },
+      {
+        "startMS": 8714.971916,
+        "durationMS": 0.002959
+      },
+      {
+        "startMS": 8714.996791,
+        "durationMS": 1.783375
+      },
+      {
+        "startMS": 8716.791833,
+        "durationMS": 0.004542
+      },
+      {
+        "startMS": 8716.837166,
+        "durationMS": 0.076042
+      },
+      {
+        "startMS": 8716.9185,
+        "durationMS": 0.002916
+      },
+      {
+        "startMS": 8716.980666,
+        "durationMS": 0.11725
+      },
+      {
+        "startMS": 8717.103208,
+        "durationMS": 0.002917
+      },
+      {
+        "startMS": 8717.14275,
+        "durationMS": 1.561291
+      },
+      {
+        "startMS": 8718.71075,
+        "durationMS": 0.003958
+      },
+      {
+        "startMS": 8718.779958,
+        "durationMS": 1.041292
+      },
+      {
+        "startMS": 8719.831791,
+        "durationMS": 0.005875
+      },
+      {
+        "startMS": 8719.895041,
+        "durationMS": 0.568167
+      },
+      {
+        "startMS": 8720.47025,
+        "durationMS": 0.0035
+      },
+      {
+        "startMS": 8720.52775,
+        "durationMS": 0.886458
+      },
+      {
+        "startMS": 8721.423291,
+        "durationMS": 0.005
+      },
+      {
+        "startMS": 8721.670708,
+        "durationMS": 0.781125
+      },
+      {
+        "startMS": 8722.461625,
+        "durationMS": 0.00525
+      },
+      {
+        "startMS": 8722.601708,
+        "durationMS": 0.992042
+      },
+      {
+        "startMS": 8723.603166,
+        "durationMS": 0.00475
+      },
+      {
+        "startMS": 8723.686291,
+        "durationMS": 0.46875
+      },
+      {
+        "startMS": 8724.161916,
+        "durationMS": 0.0035
+      },
+      {
+        "startMS": 8724.219833,
+        "durationMS": 0.660833
+      },
+      {
+        "startMS": 8724.887208,
+        "durationMS": 0.003875
+      },
+      {
+        "startMS": 8724.965416,
+        "durationMS": 0.606125
+      },
+      {
+        "startMS": 8725.57975,
+        "durationMS": 0.004291
+      },
+      {
+        "startMS": 8726.032458,
+        "durationMS": 1.014167
+      },
+      {
+        "startMS": 8727.059166,
+        "durationMS": 0.005792
+      },
+      {
+        "startMS": 8727.115291,
+        "durationMS": 0.438167
+      },
+      {
+        "startMS": 8727.560208,
+        "durationMS": 0.003583
+      },
+      {
+        "startMS": 8727.622166,
+        "durationMS": 0.729125
+      },
+      {
+        "startMS": 8728.359291,
+        "durationMS": 0.004417
+      },
+      {
+        "startMS": 8728.4245,
+        "durationMS": 0.504791
+      },
+      {
+        "startMS": 8728.938041,
+        "durationMS": 0.003917
+      },
+      {
+        "startMS": 8728.981875,
+        "durationMS": 0.712541
+      },
+      {
+        "startMS": 8729.703666,
+        "durationMS": 0.004959
+      },
+      {
+        "startMS": 8729.762958,
+        "durationMS": 0.476292
+      },
+      {
+        "startMS": 8730.247458,
+        "durationMS": 0.005167
+      },
+      {
+        "startMS": 8730.313666,
+        "durationMS": 0.874834
+      },
+      {
+        "startMS": 8731.298083,
+        "durationMS": 0.005875
+      },
+      {
+        "startMS": 8731.322541,
+        "durationMS": 0.558625
+      },
+      {
+        "startMS": 8731.887791,
+        "durationMS": 0.003959
+      },
+      {
+        "startMS": 8731.991,
+        "durationMS": 0.691125
+      },
+      {
+        "startMS": 8732.688666,
+        "durationMS": 0.003917
+      },
+      {
+        "startMS": 8732.752458,
+        "durationMS": 0.404458
+      },
+      {
+        "startMS": 8733.162833,
+        "durationMS": 0.003125
+      },
+      {
+        "startMS": 8733.210791,
+        "durationMS": 0.735125
+      },
+      {
+        "startMS": 8733.953208,
+        "durationMS": 0.00425
+      },
+      {
+        "startMS": 8734.00575,
+        "durationMS": 0.614666
+      },
+      {
+        "startMS": 8734.632083,
+        "durationMS": 0.006792
+      },
+      {
+        "startMS": 8735.123833,
+        "durationMS": 0.184333
+      },
+      {
+        "startMS": 8735.314708,
+        "durationMS": 0.003208
+      },
+      {
+        "startMS": 8735.381916,
+        "durationMS": 0.463459
+      },
+      {
+        "startMS": 8735.851708,
+        "durationMS": 0.003542
+      },
+      {
+        "startMS": 8735.920666,
+        "durationMS": 0.234209
+      },
+      {
+        "startMS": 8736.160541,
+        "durationMS": 0.003042
+      },
+      {
+        "startMS": 8736.187666,
+        "durationMS": 0.052125
+      },
+      {
+        "startMS": 8736.244541,
+        "durationMS": 0.002834
+      },
+      {
+        "startMS": 8736.286166,
+        "durationMS": 0.094625
+      },
+      {
+        "startMS": 8736.385708,
+        "durationMS": 0.002833
+      },
+      {
+        "startMS": 8738.013708,
+        "durationMS": 0.072958
+      },
+      {
+        "startMS": 8738.0985,
+        "durationMS": 0.004583
+      },
+      {
+        "startMS": 8738.113291,
+        "durationMS": 0.192
+      },
+      {
+        "startMS": 8738.311166,
+        "durationMS": 0.003292
+      },
+      {
+        "startMS": 8738.462458,
+        "durationMS": 0.027292
+      },
+      {
+        "startMS": 8738.495208,
+        "durationMS": 0.00325
+      },
+      {
+        "startMS": 8744.399375,
+        "durationMS": 0.033
+      },
+      {
+        "startMS": 8744.433583,
+        "durationMS": 0.00925
+      },
+      {
+        "startMS": 8744.643541,
+        "durationMS": 0.003584
+      },
+      {
+        "startMS": 8744.647833,
+        "durationMS": 0.086833
+      },
+      {
+        "startMS": 8744.7365,
+        "durationMS": 0.001125
+      },
+      {
+        "startMS": 8745.178583,
+        "durationMS": 0.153292
+      },
+      {
+        "startMS": 8745.334541,
+        "durationMS": 0.001334
+      },
+      {
+        "startMS": 8745.341666,
+        "durationMS": 0.003042
+      },
+      {
+        "startMS": 8745.346333,
+        "durationMS": 0.019
+      },
+      {
+        "startMS": 8745.369333,
+        "durationMS": 0.002875
+      },
+      {
+        "startMS": 8755.110791,
+        "durationMS": 0.078709
+      },
+      {
+        "startMS": 8755.204625,
+        "durationMS": 0.005166
+      },
+      {
+        "startMS": 8755.223,
+        "durationMS": 0.024416
+      },
+      {
+        "startMS": 8755.252208,
+        "durationMS": 0.003125
+      },
+      {
+        "startMS": 8755.926166,
+        "durationMS": 0.5115
+      },
+      {
+        "startMS": 8756.448333,
+        "durationMS": 0.00375
+      },
+      {
+        "startMS": 8756.508333,
+        "durationMS": 0.103292
+      },
+      {
+        "startMS": 8756.617041,
+        "durationMS": 0.003084
+      },
+      {
+        "startMS": 8756.660041,
+        "durationMS": 1.24125
+      },
+      {
+        "startMS": 8757.908791,
+        "durationMS": 0.00425
+      },
+      {
+        "startMS": 8757.944375,
+        "durationMS": 0.231583
+      },
+      {
+        "startMS": 8758.182541,
+        "durationMS": 0.003625
+      },
+      {
+        "startMS": 8758.251166,
+        "durationMS": 0.14025
+      },
+      {
+        "startMS": 8758.397,
+        "durationMS": 0.003166
+      },
+      {
+        "startMS": 8758.4395,
+        "durationMS": 1.8275
+      },
+      {
+        "startMS": 8760.279625,
+        "durationMS": 0.006083
+      },
+      {
+        "startMS": 8760.327916,
+        "durationMS": 1.148417
+      },
+      {
+        "startMS": 8761.487583,
+        "durationMS": 0.005292
+      },
+      {
+        "startMS": 8761.607583,
+        "durationMS": 0.573
+      },
+      {
+        "startMS": 8762.187416,
+        "durationMS": 0.004125
+      },
+      {
+        "startMS": 8762.252833,
+        "durationMS": 1.057625
+      },
+      {
+        "startMS": 8763.323791,
+        "durationMS": 0.006584
+      },
+      {
+        "startMS": 8763.394125,
+        "durationMS": 0.515291
+      },
+      {
+        "startMS": 8764.038333,
+        "durationMS": 0.004833
+      },
+      {
+        "startMS": 8764.061708,
+        "durationMS": 0.9665
+      },
+      {
+        "startMS": 8765.074833,
+        "durationMS": 0.007333
+      },
+      {
+        "startMS": 8765.153958,
+        "durationMS": 0.69375
+      },
+      {
+        "startMS": 8765.85575,
+        "durationMS": 0.004625
+      },
+      {
+        "startMS": 8765.909125,
+        "durationMS": 0.646333
+      },
+      {
+        "startMS": 8766.562416,
+        "durationMS": 0.003959
+      },
+      {
+        "startMS": 8766.65775,
+        "durationMS": 0.627833
+      },
+      {
+        "startMS": 8767.293541,
+        "durationMS": 0.0045
+      },
+      {
+        "startMS": 8767.417958,
+        "durationMS": 0.629667
+      },
+      {
+        "startMS": 8768.054875,
+        "durationMS": 0.004333
+      },
+      {
+        "startMS": 8768.113958,
+        "durationMS": 0.382375
+      },
+      {
+        "startMS": 8768.502333,
+        "durationMS": 0.0035
+      },
+      {
+        "startMS": 8768.53875,
+        "durationMS": 0.710416
+      },
+      {
+        "startMS": 8769.256416,
+        "durationMS": 0.004125
+      },
+      {
+        "startMS": 8769.308875,
+        "durationMS": 0.3825
+      },
+      {
+        "startMS": 8769.697166,
+        "durationMS": 0.003417
+      },
+      {
+        "startMS": 8769.739291,
+        "durationMS": 0.695834
+      },
+      {
+        "startMS": 8770.444166,
+        "durationMS": 0.0045
+      },
+      {
+        "startMS": 8770.5785,
+        "durationMS": 0.667583
+      },
+      {
+        "startMS": 8771.255625,
+        "durationMS": 0.005083
+      },
+      {
+        "startMS": 8771.324541,
+        "durationMS": 0.730584
+      },
+      {
+        "startMS": 8772.062375,
+        "durationMS": 0.003541
+      },
+      {
+        "startMS": 8772.112916,
+        "durationMS": 0.478834
+      },
+      {
+        "startMS": 8772.598708,
+        "durationMS": 0.003792
+      },
+      {
+        "startMS": 8772.680083,
+        "durationMS": 0.898208
+      },
+      {
+        "startMS": 8773.5875,
+        "durationMS": 0.004541
+      },
+      {
+        "startMS": 8773.633041,
+        "durationMS": 0.533084
+      },
+      {
+        "startMS": 8774.173166,
+        "durationMS": 0.003959
+      },
+      {
+        "startMS": 8774.206583,
+        "durationMS": 1.448125
+      },
+      {
+        "startMS": 8775.663916,
+        "durationMS": 0.003084
+      },
+      {
+        "startMS": 8775.780333,
+        "durationMS": 0.3595
+      },
+      {
+        "startMS": 8776.142791,
+        "durationMS": 0.001375
+      },
+      {
+        "startMS": 8776.18775,
+        "durationMS": 0.066333
+      },
+      {
+        "startMS": 8776.25625,
+        "durationMS": 0.001125
+      },
+      {
+        "startMS": 8776.329708,
+        "durationMS": 0.216833
+      },
+      {
+        "startMS": 8776.555541,
+        "durationMS": 0.002625
+      },
+      {
+        "startMS": 8776.611791,
+        "durationMS": 0.111459
+      },
+      {
+        "startMS": 8776.72675,
+        "durationMS": 0.001666
+      },
+      {
+        "startMS": 8776.750875,
+        "durationMS": 0.026083
+      },
+      {
+        "startMS": 8776.779458,
+        "durationMS": 0.001167
+      },
+      {
+        "startMS": 8776.812833,
+        "durationMS": 0.057792
+      },
+      {
+        "startMS": 8776.872958,
+        "durationMS": 0.001208
+      },
+      {
+        "startMS": 8777.009958,
+        "durationMS": 0.025542
+      },
+      {
+        "startMS": 8777.040958,
+        "durationMS": 0.001458
+      },
+      {
+        "startMS": 8777.058208,
+        "durationMS": 0.082125
+      },
+      {
+        "startMS": 8777.143541,
+        "durationMS": 0.001125
+      },
+      {
+        "startMS": 8778.938541,
+        "durationMS": 0.004667
+      },
+      {
+        "startMS": 8778.943708,
+        "durationMS": 0.031917
+      },
+      {
+        "startMS": 8778.976416,
+        "durationMS": 0.000625
+      },
+      {
+        "startMS": 8808.106125,
+        "durationMS": 1.393041
+      },
+      {
+        "startMS": 8809.500333,
+        "durationMS": 0.000625
+      },
+      {
+        "startMS": 8809.528,
+        "durationMS": 0.00225
+      },
+      {
+        "startMS": 8809.531291,
+        "durationMS": 0.007667
+      },
+      {
+        "startMS": 8809.540333,
+        "durationMS": 2.322458
+      },
+      {
+        "startMS": 8811.871541,
+        "durationMS": 0.048417
+      },
+      {
+        "startMS": 8811.933958,
+        "durationMS": 0.90625
+      },
+      {
+        "startMS": 8812.8415,
+        "durationMS": 0.000666
+      },
+      {
+        "startMS": 8812.866791,
+        "durationMS": 0.002542
+      },
+      {
+        "startMS": 8812.876291,
+        "durationMS": 0.091125
+      },
+      {
+        "startMS": 8812.969875,
+        "durationMS": 0.001291
+      },
+      {
+        "startMS": 8812.972125,
+        "durationMS": 0.046666
+      },
+      {
+        "startMS": 8813.020625,
+        "durationMS": 0.001583
+      },
+      {
+        "startMS": 8813.027333,
+        "durationMS": 0.083333
+      },
+      {
+        "startMS": 8813.112791,
+        "durationMS": 0.001209
+      },
+      {
+        "startMS": 8813.177125,
+        "durationMS": 0.146541
+      },
+      {
+        "startMS": 8813.330458,
+        "durationMS": 0.001792
+      },
+      {
+        "startMS": 8813.347458,
+        "durationMS": 0.043333
+      },
+      {
+        "startMS": 8813.394291,
+        "durationMS": 0.001584
+      },
+      {
+        "startMS": 8813.44125,
+        "durationMS": 0.07675
+      },
+      {
+        "startMS": 8813.521333,
+        "durationMS": 0.001583
+      },
+      {
+        "startMS": 8813.54725,
+        "durationMS": 0.034625
+      },
+      {
+        "startMS": 8813.5845,
+        "durationMS": 0.001208
+      },
+      {
+        "startMS": 8813.602291,
+        "durationMS": 0.02475
+      },
+      {
+        "startMS": 8813.629375,
+        "durationMS": 0.001208
+      },
+      {
+        "startMS": 8813.646833,
+        "durationMS": 0.059208
+      },
+      {
+        "startMS": 8813.708458,
+        "durationMS": 0.00125
+      },
+      {
+        "startMS": 8813.724791,
+        "durationMS": 0.025917
+      },
+      {
+        "startMS": 8813.752958,
+        "durationMS": 0.001125
+      },
+      {
+        "startMS": 8813.784125,
+        "durationMS": 0.072958
+      },
+      {
+        "startMS": 8813.859541,
+        "durationMS": 0.001209
+      },
+      {
+        "startMS": 8813.902041,
+        "durationMS": 0.025875
+      },
+      {
+        "startMS": 8813.93,
+        "durationMS": 0.001125
+      },
+      {
+        "startMS": 8813.948083,
+        "durationMS": 0.042125
+      },
+      {
+        "startMS": 8813.992458,
+        "durationMS": 0.001083
+      },
+      {
+        "startMS": 8814.004,
+        "durationMS": 0.0215
+      },
+      {
+        "startMS": 8814.027583,
+        "durationMS": 0.001083
+      },
+      {
+        "startMS": 8814.050625,
+        "durationMS": 0.038833
+      },
+      {
+        "startMS": 8814.091625,
+        "durationMS": 0.001083
+      },
+      {
+        "startMS": 8814.121166,
+        "durationMS": 0.022125
+      },
+      {
+        "startMS": 8814.145208,
+        "durationMS": 0.001125
+      },
+      {
+        "startMS": 8814.163,
+        "durationMS": 0.028083
+      },
+      {
+        "startMS": 8814.193708,
+        "durationMS": 0.001417
+      },
+      {
+        "startMS": 8814.205583,
+        "durationMS": 0.022083
+      },
+      {
+        "startMS": 8814.229625,
+        "durationMS": 0.001166
+      },
+      {
+        "startMS": 8814.243083,
+        "durationMS": 0.031583
+      },
+      {
+        "startMS": 8814.276791,
+        "durationMS": 0.001167
+      },
+      {
+        "startMS": 8814.315,
+        "durationMS": 0.113666
+      },
+      {
+        "startMS": 8814.430791,
+        "durationMS": 0.001042
+      },
+      {
+        "startMS": 8818.964125,
+        "durationMS": 0.115708
+      },
+      {
+        "startMS": 8819.0865,
+        "durationMS": 0.002458
+      },
+      {
+        "startMS": 8819.124375,
+        "durationMS": 0.029
+      },
+      {
+        "startMS": 8819.155666,
+        "durationMS": 0.001209
+      },
+      {
+        "startMS": 8819.178,
+        "durationMS": 0.043041
+      },
+      {
+        "startMS": 8819.223875,
+        "durationMS": 0.001291
+      },
+      {
+        "startMS": 8819.285375,
+        "durationMS": 0.16425
+      },
+      {
+        "startMS": 8819.458208,
+        "durationMS": 0.002333
+      },
+      {
+        "startMS": 8819.482708,
+        "durationMS": 0.046833
+      },
+      {
+        "startMS": 8819.533291,
+        "durationMS": 0.001375
+      },
+      {
+        "startMS": 8819.638083,
+        "durationMS": 0.088125
+      },
+      {
+        "startMS": 8819.730083,
+        "durationMS": 0.001417
+      },
+      {
+        "startMS": 8819.76775,
+        "durationMS": 0.031875
+      },
+      {
+        "startMS": 8819.803166,
+        "durationMS": 0.001292
+      },
+      {
+        "startMS": 8819.820541,
+        "durationMS": 0.036959
+      },
+      {
+        "startMS": 8819.860041,
+        "durationMS": 0.001334
+      },
+      {
+        "startMS": 8820.194,
+        "durationMS": 0.015
+      },
+      {
+        "startMS": 8820.214,
+        "durationMS": 0.029958
+      },
+      {
+        "startMS": 8820.253291,
+        "durationMS": 0.089042
+      },
+      {
+        "startMS": 8820.345083,
+        "durationMS": 0.001542
+      },
+      {
+        "startMS": 8820.3705,
+        "durationMS": 0.030416
+      },
+      {
+        "startMS": 8820.402958,
+        "durationMS": 0.001125
+      },
+      {
+        "startMS": 8820.448041,
+        "durationMS": 0.086209
+      },
+      {
+        "startMS": 8820.538291,
+        "durationMS": 0.001834
+      },
+      {
+        "startMS": 8820.607583,
+        "durationMS": 0.06175
+      },
+      {
+        "startMS": 8820.6725,
+        "durationMS": 0.002083
+      },
+      {
+        "startMS": 8820.699708,
+        "durationMS": 0.098708
+      },
+      {
+        "startMS": 8820.802875,
+        "durationMS": 0.0015
+      },
+      {
+        "startMS": 8820.8335,
+        "durationMS": 0.030083
+      },
+      {
+        "startMS": 8820.865583,
+        "durationMS": 0.001083
+      },
+      {
+        "startMS": 8820.90725,
+        "durationMS": 0.06925
+      },
+      {
+        "startMS": 8820.979083,
+        "durationMS": 0.001375
+      },
+      {
+        "startMS": 8821.0215,
+        "durationMS": 0.029875
+      },
+      {
+        "startMS": 8821.053541,
+        "durationMS": 0.00125
+      },
+      {
+        "startMS": 8821.074291,
+        "durationMS": 0.029
+      },
+      {
+        "startMS": 8821.105375,
+        "durationMS": 0.001333
+      },
+      {
+        "startMS": 8821.147041,
+        "durationMS": 0.044292
+      },
+      {
+        "startMS": 8821.195958,
+        "durationMS": 0.001625
+      },
+      {
+        "startMS": 8821.221875,
+        "durationMS": 0.041833
+      },
+      {
+        "startMS": 8821.267708,
+        "durationMS": 0.001333
+      },
+      {
+        "startMS": 8821.314333,
+        "durationMS": 0.10075
+      },
+      {
+        "startMS": 8821.417583,
+        "durationMS": 0.00125
+      },
+      {
+        "startMS": 8821.459666,
+        "durationMS": 0.073125
+      },
+      {
+        "startMS": 8821.535541,
+        "durationMS": 0.001334
+      },
+      {
+        "startMS": 8827.362375,
+        "durationMS": 0.095583
+      },
+      {
+        "startMS": 8827.462791,
+        "durationMS": 0.002084
+      },
+      {
+        "startMS": 8827.52175,
+        "durationMS": 0.030583
+      },
+      {
+        "startMS": 8827.554416,
+        "durationMS": 0.001084
+      },
+      {
+        "startMS": 8827.586375,
+        "durationMS": 0.043875
+      },
+      {
+        "startMS": 8827.633333,
+        "durationMS": 0.0015
+      },
+      {
+        "startMS": 8827.656166,
+        "durationMS": 0.118209
+      },
+      {
+        "startMS": 8827.77675,
+        "durationMS": 0.001291
+      },
+      {
+        "startMS": 8827.799833,
+        "durationMS": 0.038708
+      },
+      {
+        "startMS": 8827.841708,
+        "durationMS": 0.001583
+      },
+      {
+        "startMS": 8827.88725,
+        "durationMS": 0.068791
+      },
+      {
+        "startMS": 8827.958041,
+        "durationMS": 0.001125
+      },
+      {
+        "startMS": 8827.984875,
+        "durationMS": 0.021708
+      },
+      {
+        "startMS": 8828.008541,
+        "durationMS": 0.001042
+      },
+      {
+        "startMS": 8828.044833,
+        "durationMS": 0.034667
+      },
+      {
+        "startMS": 8828.082,
+        "durationMS": 0.001333
+      },
+      {
+        "startMS": 8828.127958,
+        "durationMS": 0.125708
+      },
+      {
+        "startMS": 8828.262291,
+        "durationMS": 0.002417
+      },
+      {
+        "startMS": 8828.281166,
+        "durationMS": 0.037917
+      },
+      {
+        "startMS": 8828.322458,
+        "durationMS": 0.001625
+      },
+      {
+        "startMS": 8828.358041,
+        "durationMS": 0.069
+      },
+      {
+        "startMS": 8828.430625,
+        "durationMS": 0.001166
+      },
+      {
+        "startMS": 8828.477583,
+        "durationMS": 0.020875
+      },
+      {
+        "startMS": 8828.500416,
+        "durationMS": 0.001
+      },
+      {
+        "startMS": 8828.516708,
+        "durationMS": 0.052667
+      },
+      {
+        "startMS": 8828.572875,
+        "durationMS": 0.031083
+      },
+      {
+        "startMS": 8828.6045,
+        "durationMS": 0.000583
+      },
+      {
+        "startMS": 8828.606666,
+        "durationMS": 0.001
+      },
+      {
+        "startMS": 8828.648416,
+        "durationMS": 0.064375
+      },
+      {
+        "startMS": 8828.715,
+        "durationMS": 0.001458
+      },
+      {
+        "startMS": 8828.741833,
+        "durationMS": 0.02375
+      },
+      {
+        "startMS": 8828.7675,
+        "durationMS": 0.001166
+      },
+      {
+        "startMS": 8828.811208,
+        "durationMS": 0.068833
+      },
+      {
+        "startMS": 8828.883083,
+        "durationMS": 0.001375
+      },
+      {
+        "startMS": 8828.915333,
+        "durationMS": 0.028208
+      },
+      {
+        "startMS": 8828.947625,
+        "durationMS": 0.001333
+      },
+      {
+        "startMS": 8828.971791,
+        "durationMS": 0.03825
+      },
+      {
+        "startMS": 8829.014,
+        "durationMS": 0.001541
+      },
+      {
+        "startMS": 8829.041125,
+        "durationMS": 0.028125
+      },
+      {
+        "startMS": 8829.072458,
+        "durationMS": 0.001125
+      },
+      {
+        "startMS": 8829.090416,
+        "durationMS": 0.033917
+      },
+      {
+        "startMS": 8829.126208,
+        "durationMS": 0.001083
+      },
+      {
+        "startMS": 8829.173625,
+        "durationMS": 0.08825
+      },
+      {
+        "startMS": 8829.263916,
+        "durationMS": 0.001042
+      },
+      {
+        "startMS": 8829.306,
+        "durationMS": 0.070625
+      },
+      {
+        "startMS": 8829.379583,
+        "durationMS": 0.0015
+      },
+      {
+        "startMS": 8829.400416,
+        "durationMS": 0.00975
+      },
+      {
+        "startMS": 8829.41225,
+        "durationMS": 0.000958
+      },
+      {
+        "startMS": 8829.451916,
+        "durationMS": 0.008584
+      },
+      {
+        "startMS": 8829.462375,
+        "durationMS": 0.000916
+      },
+      {
+        "startMS": 8829.972166,
+        "durationMS": 0.05525
+      },
+      {
+        "startMS": 8830.031208,
+        "durationMS": 0.001417
+      },
+      {
+        "startMS": 8830.066333,
+        "durationMS": 0.090583
+      },
+      {
+        "startMS": 8830.163375,
+        "durationMS": 0.002333
+      },
+      {
+        "startMS": 8830.182458,
+        "durationMS": 2.017917
+      },
+      {
+        "startMS": 8832.206708,
+        "durationMS": 0.003083
+      },
+      {
+        "startMS": 8832.223416,
+        "durationMS": 0.037334
+      },
+      {
+        "startMS": 8832.263458,
+        "durationMS": 0.001292
+      },
+      {
+        "startMS": 8832.303333,
+        "durationMS": 0.064458
+      },
+      {
+        "startMS": 8832.370666,
+        "durationMS": 0.001375
+      },
+      {
+        "startMS": 8832.422958,
+        "durationMS": 0.712292
+      },
+      {
+        "startMS": 8833.1435,
+        "durationMS": 0.002166
+      },
+      {
+        "startMS": 8833.171125,
+        "durationMS": 0.48675
+      },
+      {
+        "startMS": 8833.662208,
+        "durationMS": 0.001708
+      },
+      {
+        "startMS": 8833.717416,
+        "durationMS": 0.331459
+      },
+      {
+        "startMS": 8834.053875,
+        "durationMS": 0.001916
+      },
+      {
+        "startMS": 8834.090708,
+        "durationMS": 0.397958
+      },
+      {
+        "startMS": 8834.492791,
+        "durationMS": 0.002667
+      },
+      {
+        "startMS": 8834.541875,
+        "durationMS": 0.308916
+      },
+      {
+        "startMS": 8834.853958,
+        "durationMS": 0.001917
+      },
+      {
+        "startMS": 8834.892875,
+        "durationMS": 0.426958
+      },
+      {
+        "startMS": 8835.324083,
+        "durationMS": 0.002083
+      },
+      {
+        "startMS": 8835.372791,
+        "durationMS": 0.318084
+      },
+      {
+        "startMS": 8835.694416,
+        "durationMS": 0.002042
+      },
+      {
+        "startMS": 8835.762,
+        "durationMS": 0.338625
+      },
+      {
+        "startMS": 8836.108583,
+        "durationMS": 0.002208
+      },
+      {
+        "startMS": 8836.155041,
+        "durationMS": 0.202542
+      },
+      {
+        "startMS": 8836.360791,
+        "durationMS": 0.001542
+      },
+      {
+        "startMS": 8836.388583,
+        "durationMS": 0.272708
+      },
+      {
+        "startMS": 8836.663916,
+        "durationMS": 0.001584
+      },
+      {
+        "startMS": 8836.69975,
+        "durationMS": 0.189541
+      },
+      {
+        "startMS": 8836.892041,
+        "durationMS": 0.001417
+      },
+      {
+        "startMS": 8836.8945,
+        "durationMS": 0.007958
+      },
+      {
+        "startMS": 8836.903875,
+        "durationMS": 0.05775
+      },
+      {
+        "startMS": 8836.96975,
+        "durationMS": 0.406458
+      },
+      {
+        "startMS": 8837.382291,
+        "durationMS": 0.002084
+      },
+      {
+        "startMS": 8837.447541,
+        "durationMS": 0.255334
+      },
+      {
+        "startMS": 8837.707666,
+        "durationMS": 0.001792
+      },
+      {
+        "startMS": 8838.007958,
+        "durationMS": 0.401958
+      },
+      {
+        "startMS": 8838.413875,
+        "durationMS": 0.001708
+      },
+      {
+        "startMS": 8838.464875,
+        "durationMS": 0.190083
+      },
+      {
+        "startMS": 8838.657958,
+        "durationMS": 0.0015
+      },
+      {
+        "startMS": 8838.700708,
+        "durationMS": 0.419333
+      },
+      {
+        "startMS": 8839.126916,
+        "durationMS": 0.002334
+      },
+      {
+        "startMS": 8839.184916,
+        "durationMS": 0.254334
+      },
+      {
+        "startMS": 8839.443333,
+        "durationMS": 0.002042
+      },
+      {
+        "startMS": 8839.475916,
+        "durationMS": 0.482334
+      },
+      {
+        "startMS": 8839.962541,
+        "durationMS": 0.002375
+      },
+      {
+        "startMS": 8840.019375,
+        "durationMS": 0.613416
+      },
+      {
+        "startMS": 8840.636666,
+        "durationMS": 0.001875
+      },
+      {
+        "startMS": 8840.678541,
+        "durationMS": 0.474459
+      },
+      {
+        "startMS": 8841.158125,
+        "durationMS": 0.001875
+      },
+      {
+        "startMS": 8841.198125,
+        "durationMS": 0.205125
+      },
+      {
+        "startMS": 8841.406083,
+        "durationMS": 0.001458
+      },
+      {
+        "startMS": 8841.431708,
+        "durationMS": 0.064583
+      },
+      {
+        "startMS": 8841.498916,
+        "durationMS": 0.00125
+      },
+      {
+        "startMS": 8841.540541,
+        "durationMS": 0.144709
+      },
+      {
+        "startMS": 8841.688125,
+        "durationMS": 0.001333
+      },
+      {
+        "startMS": 8841.737583,
+        "durationMS": 0.099375
+      },
+      {
+        "startMS": 8841.839375,
+        "durationMS": 0.00125
+      },
+      {
+        "startMS": 8841.854083,
+        "durationMS": 0.029208
+      },
+      {
+        "startMS": 8841.886333,
+        "durationMS": 0.001375
+      },
+      {
+        "startMS": 8841.910375,
+        "durationMS": 0.046916
+      },
+      {
+        "startMS": 8841.959416,
+        "durationMS": 0.001167
+      },
+      {
+        "startMS": 8842.033916,
+        "durationMS": 0.01
+      },
+      {
+        "startMS": 8842.046083,
+        "durationMS": 0.001083
+      },
+      {
+        "startMS": 8842.057375,
+        "durationMS": 0.075083
+      },
+      {
+        "startMS": 8842.13525,
+        "durationMS": 0.001333
+      },
+      {
+        "startMS": 8842.194666,
+        "durationMS": 0.008542
+      },
+      {
+        "startMS": 8842.205416,
+        "durationMS": 0.001
+      },
+      {
+        "startMS": 8845.178625,
+        "durationMS": 0.013875
+      },
+      {
+        "startMS": 8845.199875,
+        "durationMS": 0.033916
+      },
+      {
+        "startMS": 8845.234583,
+        "durationMS": 0.000458
+      },
+      {
+        "startMS": 8845.236791,
+        "durationMS": 0.000959
+      },
+      {
+        "startMS": 8849.109958,
+        "durationMS": 0.003667
+      },
+      {
+        "startMS": 8849.114,
+        "durationMS": 0.012708
+      },
+      {
+        "startMS": 8849.127208,
+        "durationMS": 0.0005
+      },
+      {
+        "startMS": 8849.1325,
+        "durationMS": 0.00125
+      },
+      {
+        "startMS": 8850.598166,
+        "durationMS": 0.021584
+      },
+      {
+        "startMS": 8851.188708,
+        "durationMS": 1.1895
+      },
+      {
+        "startMS": 8852.380333,
+        "durationMS": 0.000833
+      },
+      {
+        "startMS": 8852.391416,
+        "durationMS": 0.00175
+      },
+      {
+        "startMS": 8853.518916,
+        "durationMS": 0.009959
+      },
+      {
+        "startMS": 8853.533583,
+        "durationMS": 0.010292
+      },
+      {
+        "startMS": 8853.544458,
+        "durationMS": 0.000417
+      },
+      {
+        "startMS": 8853.546375,
+        "durationMS": 0.001
+      },
+      {
+        "startMS": 8858.935,
+        "durationMS": 0.029708
+      },
+      {
+        "startMS": 8858.972291,
+        "durationMS": 0.002209
+      },
+      {
+        "startMS": 8859.893125,
+        "durationMS": 0.029291
+      },
+      {
+        "startMS": 8859.92625,
+        "durationMS": 0.001416
+      },
+      {
+        "startMS": 8859.975958,
+        "durationMS": 0.016458
+      },
+      {
+        "startMS": 8859.995166,
+        "durationMS": 0.001167
+      },
+      {
+        "startMS": 8860.705708,
+        "durationMS": 0.093458
+      },
+      {
+        "startMS": 8860.803208,
+        "durationMS": 0.001417
+      },
+      {
+        "startMS": 8860.821375,
+        "durationMS": 0.053875
+      },
+      {
+        "startMS": 8860.878083,
+        "durationMS": 0.001375
+      },
+      {
+        "startMS": 8860.894291,
+        "durationMS": 0.725584
+      },
+      {
+        "startMS": 8861.623625,
+        "durationMS": 0.002291
+      },
+      {
+        "startMS": 8861.636291,
+        "durationMS": 0.034875
+      },
+      {
+        "startMS": 8861.673291,
+        "durationMS": 0.001125
+      },
+      {
+        "startMS": 8861.713958,
+        "durationMS": 0.070625
+      },
+      {
+        "startMS": 8861.787125,
+        "durationMS": 0.00125
+      },
+      {
+        "startMS": 8861.813875,
+        "durationMS": 0.733291
+      },
+      {
+        "startMS": 8862.555041,
+        "durationMS": 0.003709
+      },
+      {
+        "startMS": 8862.560583,
+        "durationMS": 0.008417
+      },
+      {
+        "startMS": 8862.570583,
+        "durationMS": 1.308375
+      },
+      {
+        "startMS": 8863.887208,
+        "durationMS": 0.501167
+      },
+      {
+        "startMS": 8864.401208,
+        "durationMS": 0.002375
+      },
+      {
+        "startMS": 8864.447208,
+        "durationMS": 0.351458
+      },
+      {
+        "startMS": 8864.806375,
+        "durationMS": 0.002291
+      },
+      {
+        "startMS": 8864.835958,
+        "durationMS": 0.319167
+      },
+      {
+        "startMS": 8865.158416,
+        "durationMS": 0.001959
+      },
+      {
+        "startMS": 8865.191791,
+        "durationMS": 0.173334
+      },
+      {
+        "startMS": 8865.367541,
+        "durationMS": 0.001209
+      },
+      {
+        "startMS": 8865.390333,
+        "durationMS": 0.254542
+      },
+      {
+        "startMS": 8865.647291,
+        "durationMS": 0.001209
+      },
+      {
+        "startMS": 8865.677125,
+        "durationMS": 0.219208
+      },
+      {
+        "startMS": 8865.899625,
+        "durationMS": 0.001666
+      },
+      {
+        "startMS": 8865.926791,
+        "durationMS": 0.253584
+      },
+      {
+        "startMS": 8866.182666,
+        "durationMS": 0.001292
+      },
+      {
+        "startMS": 8866.716833,
+        "durationMS": 0.296
+      },
+      {
+        "startMS": 8867.017833,
+        "durationMS": 0.001708
+      },
+      {
+        "startMS": 8867.062,
+        "durationMS": 0.469833
+      },
+      {
+        "startMS": 8867.540333,
+        "durationMS": 0.003042
+      },
+      {
+        "startMS": 8867.544916,
+        "durationMS": 0.025167
+      },
+      {
+        "startMS": 8867.571875,
+        "durationMS": 0.001083
+      },
+      {
+        "startMS": 8867.599916,
+        "durationMS": 0.283084
+      },
+      {
+        "startMS": 8867.888166,
+        "durationMS": 0.002042
+      },
+      {
+        "startMS": 8867.917333,
+        "durationMS": 0.294333
+      },
+      {
+        "startMS": 8868.2145,
+        "durationMS": 0.001666
+      },
+      {
+        "startMS": 8868.27175,
+        "durationMS": 0.19575
+      },
+      {
+        "startMS": 8868.470125,
+        "durationMS": 0.001416
+      },
+      {
+        "startMS": 8868.500833,
+        "durationMS": 0.266083
+      },
+      {
+        "startMS": 8868.769333,
+        "durationMS": 0.001208
+      },
+      {
+        "startMS": 8868.801041,
+        "durationMS": 0.187209
+      },
+      {
+        "startMS": 8868.99125,
+        "durationMS": 0.001583
+      },
+      {
+        "startMS": 8869.013875,
+        "durationMS": 0.253458
+      },
+      {
+        "startMS": 8869.269666,
+        "durationMS": 0.00125
+      },
+      {
+        "startMS": 8869.296916,
+        "durationMS": 0.170042
+      },
+      {
+        "startMS": 8869.469666,
+        "durationMS": 0.001334
+      },
+      {
+        "startMS": 8869.492041,
+        "durationMS": 0.246875
+      },
+      {
+        "startMS": 8869.741125,
+        "durationMS": 0.001208
+      },
+      {
+        "startMS": 8869.773416,
+        "durationMS": 0.151125
+      },
+      {
+        "startMS": 8869.926875,
+        "durationMS": 0.001083
+      },
+      {
+        "startMS": 8869.950791,
+        "durationMS": 0.302959
+      },
+      {
+        "startMS": 8870.257208,
+        "durationMS": 0.00175
+      },
+      {
+        "startMS": 8870.260375,
+        "durationMS": 0.007416
+      },
+      {
+        "startMS": 8870.26925,
+        "durationMS": 1.321166
+      },
+      {
+        "startMS": 8871.600875,
+        "durationMS": 0.351458
+      },
+      {
+        "startMS": 8871.965916,
+        "durationMS": 0.002667
+      },
+      {
+        "startMS": 8872.026166,
+        "durationMS": 0.098792
+      },
+      {
+        "startMS": 8872.133291,
+        "durationMS": 0.002042
+      },
+      {
+        "startMS": 8872.197208,
+        "durationMS": 0.160708
+      },
+      {
+        "startMS": 8872.360541,
+        "durationMS": 0.001292
+      },
+      {
+        "startMS": 8872.429666,
+        "durationMS": 0.095917
+      },
+      {
+        "startMS": 8872.528,
+        "durationMS": 0.001041
+      },
+      {
+        "startMS": 8872.549833,
+        "durationMS": 0.029792
+      },
+      {
+        "startMS": 8872.582583,
+        "durationMS": 0.001292
+      },
+      {
+        "startMS": 8872.617333,
+        "durationMS": 0.042458
+      },
+      {
+        "startMS": 8872.661833,
+        "durationMS": 0.001542
+      },
+      {
+        "startMS": 8872.798958,
+        "durationMS": 0.010292
+      },
+      {
+        "startMS": 8872.811375,
+        "durationMS": 0.001083
+      },
+      {
+        "startMS": 8873.878375,
+        "durationMS": 0.086458
+      },
+      {
+        "startMS": 8873.968791,
+        "durationMS": 0.001459
+      },
+      {
+        "startMS": 8874.620166,
+        "durationMS": 0.002334
+      },
+      {
+        "startMS": 8874.622875,
+        "durationMS": 0.002875
+      },
+      {
+        "startMS": 8874.626166,
+        "durationMS": 0.000584
+      },
+      {
+        "startMS": 8874.629416,
+        "durationMS": 0.001
+      },
+      {
+        "startMS": 8875.606583,
+        "durationMS": 0.021792
+      },
+      {
+        "startMS": 8879.272166,
+        "durationMS": 0.975625
+      },
+      {
+        "startMS": 8880.249666,
+        "durationMS": 0.009917
+      },
+      {
+        "startMS": 8880.274916,
+        "durationMS": 0.009834
+      },
+      {
+        "startMS": 8880.285625,
+        "durationMS": 0.000416
+      },
+      {
+        "startMS": 8880.287625,
+        "durationMS": 0.001333
+      },
+      {
+        "startMS": 8883.936791,
+        "durationMS": 0.022417
+      },
+      {
+        "startMS": 8883.968583,
+        "durationMS": 0.002375
+      },
+      {
+        "startMS": 8891.043958,
+        "durationMS": 0.012083
+      },
+      {
+        "startMS": 8891.061375,
+        "durationMS": 0.016125
+      },
+      {
+        "startMS": 8891.078125,
+        "durationMS": 0.000416
+      },
+      {
+        "startMS": 8891.080166,
+        "durationMS": 0.001
+      },
+      {
+        "startMS": 8891.248625,
+        "durationMS": 0.176791
+      },
+      {
+        "startMS": 8891.428625,
+        "durationMS": 0.001541
+      },
+      {
+        "startMS": 8891.524208,
+        "durationMS": 0.099667
+      },
+      {
+        "startMS": 8891.6265,
+        "durationMS": 0.00125
+      },
+      {
+        "startMS": 8891.652708,
+        "durationMS": 0.065833
+      },
+      {
+        "startMS": 8891.721083,
+        "durationMS": 0.001333
+      },
+      {
+        "startMS": 8891.7535,
+        "durationMS": 0.249541
+      },
+      {
+        "startMS": 8892.005541,
+        "durationMS": 0.001209
+      },
+      {
+        "startMS": 8892.049958,
+        "durationMS": 0.188167
+      },
+      {
+        "startMS": 8892.240458,
+        "durationMS": 0.001292
+      },
+      {
+        "startMS": 8892.265958,
+        "durationMS": 0.020708
+      },
+      {
+        "startMS": 8892.288583,
+        "durationMS": 0.001333
+      },
+      {
+        "startMS": 8892.296208,
+        "durationMS": 0.054542
+      },
+      {
+        "startMS": 8892.352625,
+        "durationMS": 0.001083
+      },
+      {
+        "startMS": 8892.409041,
+        "durationMS": 0.026834
+      },
+      {
+        "startMS": 8892.437875,
+        "durationMS": 0.00125
+      },
+      {
+        "startMS": 8892.493125,
+        "durationMS": 0.02225
+      },
+      {
+        "startMS": 8892.51725,
+        "durationMS": 0.001125
+      },
+      {
+        "startMS": 8892.570375,
+        "durationMS": 0.251208
+      },
+      {
+        "startMS": 8892.830041,
+        "durationMS": 0.002417
+      },
+      {
+        "startMS": 8892.853791,
+        "durationMS": 0.607
+      },
+      {
+        "startMS": 8893.466666,
+        "durationMS": 0.002917
+      },
+      {
+        "startMS": 8893.51775,
+        "durationMS": 0.208916
+      },
+      {
+        "startMS": 8893.730625,
+        "durationMS": 0.001458
+      },
+      {
+        "startMS": 8893.7585,
+        "durationMS": 0.132666
+      },
+      {
+        "startMS": 8893.893333,
+        "durationMS": 0.001125
+      },
+      {
+        "startMS": 8893.947375,
+        "durationMS": 0.09875
+      },
+      {
+        "startMS": 8894.048291,
+        "durationMS": 0.001125
+      },
+      {
+        "startMS": 8894.082458,
+        "durationMS": 0.097458
+      },
+      {
+        "startMS": 8894.182083,
+        "durationMS": 0.001042
+      },
+      {
+        "startMS": 8894.202541,
+        "durationMS": 0.031625
+      },
+      {
+        "startMS": 8894.236833,
+        "durationMS": 0.001208
+      },
+      {
+        "startMS": 8894.271833,
+        "durationMS": 0.052417
+      },
+      {
+        "startMS": 8894.327166,
+        "durationMS": 0.001375
+      },
+      {
+        "startMS": 8894.346791,
+        "durationMS": 0.027167
+      },
+      {
+        "startMS": 8894.376,
+        "durationMS": 0.001041
+      },
+      {
+        "startMS": 8894.417625,
+        "durationMS": 0.025541
+      },
+      {
+        "startMS": 8894.445166,
+        "durationMS": 0.001125
+      },
+      {
+        "startMS": 8894.474375,
+        "durationMS": 0.03125
+      },
+      {
+        "startMS": 8894.507833,
+        "durationMS": 0.000958
+      },
+      {
+        "startMS": 8894.567791,
+        "durationMS": 0.1045
+      },
+      {
+        "startMS": 8894.674375,
+        "durationMS": 0.001041
+      },
+      {
+        "startMS": 8894.728333,
+        "durationMS": 0.033958
+      },
+      {
+        "startMS": 8894.7645,
+        "durationMS": 0.001083
+      },
+      {
+        "startMS": 8894.7835,
+        "durationMS": 0.020708
+      },
+      {
+        "startMS": 8894.806125,
+        "durationMS": 0.000958
+      },
+      {
+        "startMS": 8894.826416,
+        "durationMS": 0.155667
+      },
+      {
+        "startMS": 8894.984375,
+        "durationMS": 0.001083
+      },
+      {
+        "startMS": 8894.99875,
+        "durationMS": 0.16675
+      },
+      {
+        "startMS": 8895.168125,
+        "durationMS": 0.001375
+      },
+      {
+        "startMS": 8895.196333,
+        "durationMS": 0.045042
+      },
+      {
+        "startMS": 8895.253833,
+        "durationMS": 0.001
+      },
+      {
+        "startMS": 8895.278583,
+        "durationMS": 0.047167
+      },
+      {
+        "startMS": 8895.326166,
+        "durationMS": 0.004084
+      },
+      {
+        "startMS": 8895.33675,
+        "durationMS": 0.091208
+      },
+      {
+        "startMS": 8895.434208,
+        "durationMS": 0.001333
+      },
+      {
+        "startMS": 8895.451708,
+        "durationMS": 0.037625
+      },
+      {
+        "startMS": 8895.492625,
+        "durationMS": 0.001375
+      },
+      {
+        "startMS": 8895.514125,
+        "durationMS": 0.153833
+      },
+      {
+        "startMS": 8895.67025,
+        "durationMS": 0.001125
+      },
+      {
+        "startMS": 8895.683416,
+        "durationMS": 0.0965
+      },
+      {
+        "startMS": 8895.782,
+        "durationMS": 0.001125
+      },
+      {
+        "startMS": 8895.812041,
+        "durationMS": 0.167167
+      },
+      {
+        "startMS": 8895.98175,
+        "durationMS": 0.001458
+      },
+      {
+        "startMS": 8896.005666,
+        "durationMS": 0.111917
+      },
+      {
+        "startMS": 8896.119791,
+        "durationMS": 0.001167
+      },
+      {
+        "startMS": 8896.165375,
+        "durationMS": 0.118875
+      },
+      {
+        "startMS": 8896.286375,
+        "durationMS": 0.001333
+      },
+      {
+        "startMS": 8896.316458,
+        "durationMS": 0.108417
+      },
+      {
+        "startMS": 8896.427416,
+        "durationMS": 0.001209
+      },
+      {
+        "startMS": 8896.443541,
+        "durationMS": 0.024
+      },
+      {
+        "startMS": 8896.469833,
+        "durationMS": 0.001208
+      },
+      {
+        "startMS": 8896.534041,
+        "durationMS": 0.088292
+      },
+      {
+        "startMS": 8896.628541,
+        "durationMS": 0.001875
+      },
+      {
+        "startMS": 8896.651166,
+        "durationMS": 0.028917
+      },
+      {
+        "startMS": 8896.683416,
+        "durationMS": 0.001167
+      },
+      {
+        "startMS": 8896.702041,
+        "durationMS": 0.027084
+      },
+      {
+        "startMS": 8896.731416,
+        "durationMS": 0.001084
+      },
+      {
+        "startMS": 8896.74925,
+        "durationMS": 0.028833
+      },
+      {
+        "startMS": 8896.780083,
+        "durationMS": 0.001
+      },
+      {
+        "startMS": 8896.824666,
+        "durationMS": 0.100625
+      },
+      {
+        "startMS": 8896.92775,
+        "durationMS": 0.001291
+      },
+      {
+        "startMS": 8896.97025,
+        "durationMS": 0.0645
+      },
+      {
+        "startMS": 8897.037166,
+        "durationMS": 0.001167
+      },
+      {
+        "startMS": 8899.361041,
+        "durationMS": 0.01075
+      },
+      {
+        "startMS": 8899.378,
+        "durationMS": 0.011916
+      },
+      {
+        "startMS": 8899.390541,
+        "durationMS": 0.000542
+      },
+      {
+        "startMS": 8899.392791,
+        "durationMS": 0.001125
+      },
+      {
+        "startMS": 8900.165791,
+        "durationMS": 0.072834
+      },
+      {
+        "startMS": 8900.241375,
+        "durationMS": 0.001625
+      },
+      {
+        "startMS": 8900.291791,
+        "durationMS": 0.257792
+      },
+      {
+        "startMS": 8900.554791,
+        "durationMS": 0.002084
+      },
+      {
+        "startMS": 8900.591583,
+        "durationMS": 0.186792
+      },
+      {
+        "startMS": 8900.781708,
+        "durationMS": 0.001542
+      },
+      {
+        "startMS": 8900.784666,
+        "durationMS": 0.022084
+      },
+      {
+        "startMS": 8900.808375,
+        "durationMS": 0.001083
+      },
+      {
+        "startMS": 8900.837208,
+        "durationMS": 0.083333
+      },
+      {
+        "startMS": 8900.92425,
+        "durationMS": 0.001541
+      },
+      {
+        "startMS": 8900.960083,
+        "durationMS": 0.212667
+      },
+      {
+        "startMS": 8901.175375,
+        "durationMS": 0.001416
+      },
+      {
+        "startMS": 8901.201208,
+        "durationMS": 0.097292
+      },
+      {
+        "startMS": 8901.300458,
+        "durationMS": 0.001292
+      },
+      {
+        "startMS": 8901.394208,
+        "durationMS": 0.179167
+      },
+      {
+        "startMS": 8901.576083,
+        "durationMS": 0.001292
+      },
+      {
+        "startMS": 8901.613166,
+        "durationMS": 0.098459
+      },
+      {
+        "startMS": 8901.713833,
+        "durationMS": 0.001208
+      },
+      {
+        "startMS": 8901.740333,
+        "durationMS": 0.057
+      },
+      {
+        "startMS": 8901.803666,
+        "durationMS": 0.001709
+      },
+      {
+        "startMS": 8901.844708,
+        "durationMS": 0.049542
+      },
+      {
+        "startMS": 8901.897666,
+        "durationMS": 0.001167
+      },
+      {
+        "startMS": 8901.941583,
+        "durationMS": 0.031542
+      },
+      {
+        "startMS": 8901.975791,
+        "durationMS": 0.001167
+      },
+      {
+        "startMS": 8902.038958,
+        "durationMS": 0.036292
+      },
+      {
+        "startMS": 8902.077666,
+        "durationMS": 0.001292
+      },
+      {
+        "startMS": 8902.168916,
+        "durationMS": 0.141667
+      },
+      {
+        "startMS": 8902.314791,
+        "durationMS": 0.001792
+      },
+      {
+        "startMS": 8902.3645,
+        "durationMS": 0.031916
+      },
+      {
+        "startMS": 8902.399791,
+        "durationMS": 0.001167
+      },
+      {
+        "startMS": 8902.413666,
+        "durationMS": 0.032292
+      },
+      {
+        "startMS": 8902.448291,
+        "durationMS": 0.001084
+      },
+      {
+        "startMS": 8902.484125,
+        "durationMS": 0.041625
+      },
+      {
+        "startMS": 8902.527791,
+        "durationMS": 0.001292
+      },
+      {
+        "startMS": 8902.661291,
+        "durationMS": 0.1765
+      },
+      {
+        "startMS": 8902.840416,
+        "durationMS": 0.001167
+      },
+      {
+        "startMS": 8902.855125,
+        "durationMS": 0.162625
+      },
+      {
+        "startMS": 8903.020083,
+        "durationMS": 0.00175
+      },
+      {
+        "startMS": 8903.04825,
+        "durationMS": 0.041625
+      },
+      {
+        "startMS": 8903.092,
+        "durationMS": 0.001666
+      },
+      {
+        "startMS": 8903.111458,
+        "durationMS": 0.134167
+      },
+      {
+        "startMS": 8903.247625,
+        "durationMS": 0.001208
+      },
+      {
+        "startMS": 8903.336333,
+        "durationMS": 0.106208
+      },
+      {
+        "startMS": 8903.44475,
+        "durationMS": 0.001208
+      },
+      {
+        "startMS": 8903.47075,
+        "durationMS": 0.173208
+      },
+      {
+        "startMS": 8903.646375,
+        "durationMS": 0.001833
+      },
+      {
+        "startMS": 8903.703875,
+        "durationMS": 0.223916
+      },
+      {
+        "startMS": 8903.933125,
+        "durationMS": 0.001791
+      },
+      {
+        "startMS": 8903.950125,
+        "durationMS": 0.028375
+      },
+      {
+        "startMS": 8903.981833,
+        "durationMS": 0.001208
+      },
+      {
+        "startMS": 8904.015458,
+        "durationMS": 0.045583
+      },
+      {
+        "startMS": 8904.063541,
+        "durationMS": 0.001167
+      },
+      {
+        "startMS": 8904.11125,
+        "durationMS": 0.031708
+      },
+      {
+        "startMS": 8904.144958,
+        "durationMS": 0.001042
+      },
+      {
+        "startMS": 8904.159458,
+        "durationMS": 0.03025
+      },
+      {
+        "startMS": 8904.191666,
+        "durationMS": 0.001042
+      },
+      {
+        "startMS": 8904.253875,
+        "durationMS": 0.134958
+      },
+      {
+        "startMS": 8904.393375,
+        "durationMS": 0.001416
+      },
+      {
+        "startMS": 8904.530666,
+        "durationMS": 0.027917
+      },
+      {
+        "startMS": 8904.561458,
+        "durationMS": 0.001375
+      },
+      {
+        "startMS": 8904.588083,
+        "durationMS": 0.039167
+      },
+      {
+        "startMS": 8904.63125,
+        "durationMS": 0.001166
+      },
+      {
+        "startMS": 8904.680125,
+        "durationMS": 0.045208
+      },
+      {
+        "startMS": 8904.727708,
+        "durationMS": 0.00125
+      },
+      {
+        "startMS": 8904.832916,
+        "durationMS": 3.18675
+      },
+      {
+        "startMS": 8992.737875,
+        "durationMS": 0.169708
+      },
+      {
+        "startMS": 8992.90975,
+        "durationMS": 0.007666
+      },
+      {
+        "startMS": 9034.189166,
+        "durationMS": 1.230917
+      },
+      {
+        "startMS": 9035.4285,
+        "durationMS": 0.068916
+      },
+      {
+        "startMS": 9035.517291,
+        "durationMS": 0.004959
+      },
+      {
+        "startMS": 9035.523791,
+        "durationMS": 0.167709
+      },
+      {
+        "startMS": 9035.69175,
+        "durationMS": 1.267875
+      },
+      {
+        "startMS": 9036.969583,
+        "durationMS": 0.008042
+      },
+      {
+        "startMS": 9036.978958,
+        "durationMS": 0.002625
+      },
+      {
+        "startMS": 9036.98175,
+        "durationMS": 0.006458
+      },
+      {
+        "startMS": 9036.989666,
+        "durationMS": 0.003
+      },
+      {
+        "startMS": 9036.994041,
+        "durationMS": 0.008792
+      },
+      {
+        "startMS": 9037.004291,
+        "durationMS": 0.010167
+      },
+      {
+        "startMS": 9037.022833,
+        "durationMS": 0.036042
+      },
+      {
+        "startMS": 9037.060916,
+        "durationMS": 0.003375
+      },
+      {
+        "startMS": 9037.070625,
+        "durationMS": 0.0225
+      },
+      {
+        "startMS": 9037.095041,
+        "durationMS": 0.003042
+      },
+      {
+        "startMS": 9037.104416,
+        "durationMS": 0.013334
+      },
+      {
+        "startMS": 9037.119416,
+        "durationMS": 0.002792
+      },
+      {
+        "startMS": 9037.122958,
+        "durationMS": 0.003833
+      },
+      {
+        "startMS": 9037.128,
+        "durationMS": 0.002708
+      },
+      {
+        "startMS": 9037.134375,
+        "durationMS": 0.010541
+      },
+      {
+        "startMS": 9037.146458,
+        "durationMS": 0.002792
+      },
+      {
+        "startMS": 9037.220041,
+        "durationMS": 0.123042
+      },
+      {
+        "startMS": 9037.34825,
+        "durationMS": 0.004833
+      },
+      {
+        "startMS": 9039.429708,
+        "durationMS": 0.086625
+      },
+      {
+        "startMS": 9039.523291,
+        "durationMS": 0.005709
+      },
+      {
+        "startMS": 9039.6005,
+        "durationMS": 0.069083
+      },
+      {
+        "startMS": 9039.672625,
+        "durationMS": 0.004291
+      },
+      {
+        "startMS": 9039.697291,
+        "durationMS": 0.027625
+      },
+      {
+        "startMS": 9039.727916,
+        "durationMS": 0.004084
+      },
+      {
+        "startMS": 9039.852125,
+        "durationMS": 0.004416
+      },
+      {
+        "startMS": 9039.856958,
+        "durationMS": 0.00325
+      },
+      {
+        "startMS": 9039.86075,
+        "durationMS": 0.0005
+      },
+      {
+        "startMS": 9039.863541,
+        "durationMS": 0.003292
+      },
+      {
+        "startMS": 9040.136541,
+        "durationMS": 0.005792
+      },
+      {
+        "startMS": 9040.14275,
+        "durationMS": 0.002208
+      },
+      {
+        "startMS": 9040.145416,
+        "durationMS": 0.000375
+      },
+      {
+        "startMS": 9040.148083,
+        "durationMS": 0.003042
+      },
+      {
+        "startMS": 9042.268166,
+        "durationMS": 0.043459
+      },
+      {
+        "startMS": 9234.828625,
+        "durationMS": 0.41475
+      },
+      {
+        "startMS": 9235.245083,
+        "durationMS": 0.008875
+      },
+      {
+        "startMS": 9235.293791,
+        "durationMS": 0.02025
+      },
+      {
+        "startMS": 9235.319625,
+        "durationMS": 0.056833
+      },
+      {
+        "startMS": 9235.378875,
+        "durationMS": 0.005583
+      },
+      {
+        "startMS": 9235.385791,
+        "durationMS": 0.00325
+      },
+      {
+        "startMS": 9235.390333,
+        "durationMS": 0.002125
+      },
+      {
+        "startMS": 9235.393583,
+        "durationMS": 0.037792
+      },
+      {
+        "startMS": 9235.431583,
+        "durationMS": 0.135792
+      },
+      {
+        "startMS": 9235.574791,
+        "durationMS": 0.094625
+      },
+      {
+        "startMS": 9235.670916,
+        "durationMS": 0.001042
+      },
+      {
+        "startMS": 9235.674625,
+        "durationMS": 0.007416
+      },
+      {
+        "startMS": 9235.688666,
+        "durationMS": 33.237292
+      },
+      {
+        "startMS": 9268.935291,
+        "durationMS": 0.082959
+      },
+      {
+        "startMS": 9269.019791,
+        "durationMS": 0.004084
+      },
+      {
+        "startMS": 9269.025958,
+        "durationMS": 0.003
+      },
+      {
+        "startMS": 9269.029583,
+        "durationMS": 0.003125
+      },
+      {
+        "startMS": 9269.032916,
+        "durationMS": 0.005542
+      },
+      {
+        "startMS": 9269.039708,
+        "durationMS": 0.003208
+      },
+      {
+        "startMS": 9269.051333,
+        "durationMS": 0.331625
+      },
+      {
+        "startMS": 9269.386166,
+        "durationMS": 0.027375
+      },
+      {
+        "startMS": 9269.414875,
+        "durationMS": 0.004458
+      },
+      {
+        "startMS": 9269.421208,
+        "durationMS": 0.002625
+      },
+      {
+        "startMS": 9269.425041,
+        "durationMS": 0.009209
+      },
+      {
+        "startMS": 9269.435541,
+        "durationMS": 0.005125
+      },
+      {
+        "startMS": 9269.441333,
+        "durationMS": 0.000667
+      },
+      {
+        "startMS": 9269.443291,
+        "durationMS": 0.002625
+      },
+      {
+        "startMS": 9269.452083,
+        "durationMS": 0.244542
+      },
+      {
+        "startMS": 9269.699291,
+        "durationMS": 0.004417
+      },
+      {
+        "startMS": 9269.711291,
+        "durationMS": 0.049417
+      },
+      {
+        "startMS": 9269.762666,
+        "durationMS": 0.003292
+      },
+      {
+        "startMS": 9269.770333,
+        "durationMS": 0.013
+      },
+      {
+        "startMS": 9269.785083,
+        "durationMS": 0.002792
+      },
+      {
+        "startMS": 9269.791708,
+        "durationMS": 0.010792
+      },
+      {
+        "startMS": 9269.804,
+        "durationMS": 0.002833
+      },
+      {
+        "startMS": 9269.809708,
+        "durationMS": 0.01
+      },
+      {
+        "startMS": 9269.821166,
+        "durationMS": 0.002875
+      },
+      {
+        "startMS": 9269.827458,
+        "durationMS": 0.010167
+      },
+      {
+        "startMS": 9269.839208,
+        "durationMS": 0.002833
+      },
+      {
+        "startMS": 9269.845083,
+        "durationMS": 0.016083
+      },
+      {
+        "startMS": 9269.862916,
+        "durationMS": 0.003125
+      },
+      {
+        "startMS": 9269.872,
+        "durationMS": 0.009625
+      },
+      {
+        "startMS": 9269.883083,
+        "durationMS": 0.002792
+      },
+      {
+        "startMS": 9269.888541,
+        "durationMS": 0.009042
+      },
+      {
+        "startMS": 9269.899041,
+        "durationMS": 0.002625
+      },
+      {
+        "startMS": 9270.331333,
+        "durationMS": 0.535833
+      },
+      {
+        "startMS": 9270.870416,
+        "durationMS": 0.004584
+      },
+      {
+        "startMS": 9270.879083,
+        "durationMS": 10.524417
+      },
+      {
+        "startMS": 9281.414375,
+        "durationMS": 0.010916
+      },
+      {
+        "startMS": 9281.432333,
+        "durationMS": 11.972625
+      },
+      {
+        "startMS": 9293.414541,
+        "durationMS": 0.011959
+      },
+      {
+        "startMS": 9293.433125,
+        "durationMS": 0.025041
+      },
+      {
+        "startMS": 9293.460125,
+        "durationMS": 0.003208
+      },
+      {
+        "startMS": 9293.464666,
+        "durationMS": 0.011084
+      },
+      {
+        "startMS": 9293.477416,
+        "durationMS": 0.015625
+      },
+      {
+        "startMS": 9293.499583,
+        "durationMS": 0.012125
+      },
+      {
+        "startMS": 9293.513958,
+        "durationMS": 0.003333
+      },
+      {
+        "startMS": 9293.521708,
+        "durationMS": 0.010708
+      },
+      {
+        "startMS": 9293.534291,
+        "durationMS": 0.003709
+      },
+      {
+        "startMS": 9293.543458,
+        "durationMS": 0.011167
+      },
+      {
+        "startMS": 9293.556458,
+        "durationMS": 0.003542
+      },
+      {
+        "startMS": 9293.563791,
+        "durationMS": 0.010917
+      },
+      {
+        "startMS": 9293.576666,
+        "durationMS": 0.003042
+      },
+      {
+        "startMS": 9293.583875,
+        "durationMS": 0.042541
+      },
+      {
+        "startMS": 9293.628291,
+        "durationMS": 0.003209
+      },
+      {
+        "startMS": 9293.636541,
+        "durationMS": 0.01075
+      },
+      {
+        "startMS": 9293.64875,
+        "durationMS": 0.002666
+      },
+      {
+        "startMS": 9293.657541,
+        "durationMS": 0.300959
+      },
+      {
+        "startMS": 9293.962458,
+        "durationMS": 0.006333
+      },
+      {
+        "startMS": 9293.974875,
+        "durationMS": 0.0495
+      },
+      {
+        "startMS": 9294.026541,
+        "durationMS": 0.003292
+      },
+      {
+        "startMS": 9294.035666,
+        "durationMS": 0.254917
+      },
+      {
+        "startMS": 9294.293083,
+        "durationMS": 0.003708
+      },
+      {
+        "startMS": 9294.300666,
+        "durationMS": 0.2465
+      },
+      {
+        "startMS": 9294.550583,
+        "durationMS": 0.004583
+      },
+      {
+        "startMS": 9294.559916,
+        "durationMS": 0.014
+      },
+      {
+        "startMS": 9294.576,
+        "durationMS": 0.003125
+      },
+      {
+        "startMS": 9294.582666,
+        "durationMS": 0.117584
+      },
+      {
+        "startMS": 9294.7025,
+        "durationMS": 0.00325
+      },
+      {
+        "startMS": 9294.709041,
+        "durationMS": 0.010792
+      },
+      {
+        "startMS": 9294.721416,
+        "durationMS": 0.002709
+      },
+      {
+        "startMS": 9294.726125,
+        "durationMS": 0.009541
+      },
+      {
+        "startMS": 9294.737208,
+        "durationMS": 0.002667
+      },
+      {
+        "startMS": 9294.743916,
+        "durationMS": 0.009625
+      },
+      {
+        "startMS": 9294.755041,
+        "durationMS": 0.00275
+      },
+      {
+        "startMS": 9294.760583,
+        "durationMS": 0.008917
+      },
+      {
+        "startMS": 9294.770958,
+        "durationMS": 0.002625
+      },
+      {
+        "startMS": 9294.776166,
+        "durationMS": 0.00875
+      },
+      {
+        "startMS": 9294.786333,
+        "durationMS": 0.002625
+      },
+      {
+        "startMS": 9294.790958,
+        "durationMS": 0.019458
+      },
+      {
+        "startMS": 9294.812291,
+        "durationMS": 0.002875
+      },
+      {
+        "startMS": 9294.83875,
+        "durationMS": 0.048333
+      },
+      {
+        "startMS": 9294.890083,
+        "durationMS": 0.004375
+      },
+      {
+        "startMS": 9294.899208,
+        "durationMS": 5.257958
+      },
+      {
+        "startMS": 9300.166875,
+        "durationMS": 0.011083
+      },
+      {
+        "startMS": 9300.184875,
+        "durationMS": 0.47975
+      },
+      {
+        "startMS": 9300.669125,
+        "durationMS": 0.005708
+      },
+      {
+        "startMS": 9300.682208,
+        "durationMS": 0.060583
+      },
+      {
+        "startMS": 9300.745125,
+        "durationMS": 0.003666
+      },
+      {
+        "startMS": 9300.753833,
+        "durationMS": 0.2685
+      },
+      {
+        "startMS": 9301.025875,
+        "durationMS": 0.00475
+      },
+      {
+        "startMS": 9301.034458,
+        "durationMS": 0.015375
+      },
+      {
+        "startMS": 9301.052,
+        "durationMS": 0.00325
+      },
+      {
+        "startMS": 9301.058625,
+        "durationMS": 0.011625
+      },
+      {
+        "startMS": 9301.072083,
+        "durationMS": 0.002875
+      },
+      {
+        "startMS": 9301.078208,
+        "durationMS": 0.010875
+      },
+      {
+        "startMS": 9301.090625,
+        "durationMS": 0.002833
+      },
+      {
+        "startMS": 9301.096583,
+        "durationMS": 0.010583
+      },
+      {
+        "startMS": 9301.108666,
+        "durationMS": 0.002917
+      },
+      {
+        "startMS": 9301.114458,
+        "durationMS": 0.0165
+      },
+      {
+        "startMS": 9301.1325,
+        "durationMS": 0.002833
+      },
+      {
+        "startMS": 9301.137666,
+        "durationMS": 0.008917
+      },
+      {
+        "startMS": 9301.148,
+        "durationMS": 0.002666
+      },
+      {
+        "startMS": 9301.227916,
+        "durationMS": 0.343625
+      },
+      {
+        "startMS": 9301.574166,
+        "durationMS": 0.003959
+      },
+      {
+        "startMS": 9301.582,
+        "durationMS": 0.367791
+      },
+      {
+        "startMS": 9301.952333,
+        "durationMS": 0.099333
+      },
+      {
+        "startMS": 9302.056083,
+        "durationMS": 10.720333
+      },
+      {
+        "startMS": 9444.57725,
+        "durationMS": 0.397833
+      },
+      {
+        "startMS": 9444.976666,
+        "durationMS": 0.000625
+      },
+      {
+        "startMS": 9445.980708,
+        "durationMS": 0.0185
+      },
+      {
+        "startMS": 9446.009541,
+        "durationMS": 0.034
+      },
+      {
+        "startMS": 9446.045708,
+        "durationMS": 0.003292
+      },
+      {
+        "startMS": 9446.050125,
+        "durationMS": 0.007458
+      },
+      {
+        "startMS": 9446.058916,
+        "durationMS": 0.002042
+      },
+      {
+        "startMS": 9446.065541,
+        "durationMS": 0.008042
+      },
+      {
+        "startMS": 9446.075208,
+        "durationMS": 0.003
+      },
+      {
+        "startMS": 9446.085458,
+        "durationMS": 0.069292
+      },
+      {
+        "startMS": 9446.156708,
+        "durationMS": 0.003125
+      },
+      {
+        "startMS": 9446.164166,
+        "durationMS": 0.008917
+      },
+      {
+        "startMS": 9446.174583,
+        "durationMS": 0.00275
+      },
+      {
+        "startMS": 9446.178166,
+        "durationMS": 0.336584
+      },
+      {
+        "startMS": 9446.517666,
+        "durationMS": 0.005
+      },
+      {
+        "startMS": 9446.527166,
+        "durationMS": 0.044334
+      },
+      {
+        "startMS": 9446.573375,
+        "durationMS": 0.003125
+      },
+      {
+        "startMS": 9446.57775,
+        "durationMS": 0.016708
+      },
+      {
+        "startMS": 9448.674833,
+        "durationMS": 0.050708
+      },
+      {
+        "startMS": 9448.732791,
+        "durationMS": 0.158
+      },
+      {
+        "startMS": 9448.894375,
+        "durationMS": 0.004125
+      },
+      {
+        "startMS": 9448.899708,
+        "durationMS": 0.002208
+      },
+      {
+        "startMS": 9448.902125,
+        "durationMS": 0.011
+      },
+      {
+        "startMS": 9448.914708,
+        "durationMS": 0.002583
+      },
+      {
+        "startMS": 9448.922,
+        "durationMS": 0.015083
+      },
+      {
+        "startMS": 9448.938916,
+        "durationMS": 0.002167
+      },
+      {
+        "startMS": 9448.944958,
+        "durationMS": 0.008958
+      },
+      {
+        "startMS": 9448.955458,
+        "durationMS": 0.002167
+      },
+      {
+        "startMS": 9448.96125,
+        "durationMS": 0.009416
+      },
+      {
+        "startMS": 9448.97225,
+        "durationMS": 0.001958
+      },
+      {
+        "startMS": 9448.976916,
+        "durationMS": 0.023084
+      },
+      {
+        "startMS": 9449.001916,
+        "durationMS": 0.002292
+      },
+      {
+        "startMS": 9449.019125,
+        "durationMS": 0.046125
+      },
+      {
+        "startMS": 9449.067666,
+        "durationMS": 0.0025
+      },
+      {
+        "startMS": 9449.112083,
+        "durationMS": 0.04525
+      },
+      {
+        "startMS": 9449.159375,
+        "durationMS": 0.00225
+      },
+      {
+        "startMS": 9450.565666,
+        "durationMS": 0.013834
+      },
+      {
+        "startMS": 9450.582958,
+        "durationMS": 0.002708
+      },
+      {
+        "startMS": 9454.914458,
+        "durationMS": 0.014542
+      },
+      {
+        "startMS": 9454.929583,
+        "durationMS": 0.057
+      },
+      {
+        "startMS": 9454.987416,
+        "durationMS": 0.000459
+      },
+      {
+        "startMS": 9599.833708,
+        "durationMS": 0.079042
+      },
+      {
+        "startMS": 9599.915125,
+        "durationMS": 0.000791
+      },
+      {
+        "startMS": 9600.8575,
+        "durationMS": 0.010916
+      },
+      {
+        "startMS": 9600.888958,
+        "durationMS": 8.473
+      },
+      {
+        "startMS": 9609.374541,
+        "durationMS": 0.009792
+      },
+      {
+        "startMS": 9609.385958,
+        "durationMS": 0.420875
+      },
+      {
+        "startMS": 9609.807125,
+        "durationMS": 0.635791
+      },
+      {
+        "startMS": 9610.448125,
+        "durationMS": 0.002708
+      },
+      {
+        "startMS": 9610.451708,
+        "durationMS": 0.00075
+      },
+      {
+        "startMS": 9610.452666,
+        "durationMS": 0.006209
+      },
+      {
+        "startMS": 9610.460333,
+        "durationMS": 0.001
+      },
+      {
+        "startMS": 9610.470791,
+        "durationMS": 0.037292
+      },
+      {
+        "startMS": 9610.510041,
+        "durationMS": 0.001167
+      },
+      {
+        "startMS": 9610.512166,
+        "durationMS": 0.002125
+      },
+      {
+        "startMS": 9610.514541,
+        "durationMS": 0.001167
+      },
+      {
+        "startMS": 9610.5215,
+        "durationMS": 0.020916
+      },
+      {
+        "startMS": 9610.544333,
+        "durationMS": 0.001083
+      },
+      {
+        "startMS": 9610.552291,
+        "durationMS": 0.035709
+      },
+      {
+        "startMS": 9610.589958,
+        "durationMS": 0.000958
+      },
+      {
+        "startMS": 9610.595041,
+        "durationMS": 0.015084
+      },
+      {
+        "startMS": 9610.61175,
+        "durationMS": 0.001333
+      },
+      {
+        "startMS": 9610.618291,
+        "durationMS": 0.01625
+      },
+      {
+        "startMS": 9610.63625,
+        "durationMS": 0.000958
+      },
+      {
+        "startMS": 9610.641958,
+        "durationMS": 0.011583
+      },
+      {
+        "startMS": 9610.655166,
+        "durationMS": 0.000917
+      },
+      {
+        "startMS": 9610.658708,
+        "durationMS": 0.006625
+      },
+      {
+        "startMS": 9610.666708,
+        "durationMS": 0.000917
+      },
+      {
+        "startMS": 9610.671166,
+        "durationMS": 0.032209
+      },
+      {
+        "startMS": 9610.705041,
+        "durationMS": 0.001292
+      },
+      {
+        "startMS": 9610.709541,
+        "durationMS": 0.007209
+      },
+      {
+        "startMS": 9610.718166,
+        "durationMS": 0.000875
+      },
+      {
+        "startMS": 9610.72475,
+        "durationMS": 0.007833
+      },
+      {
+        "startMS": 9610.733958,
+        "durationMS": 0.000958
+      },
+      {
+        "startMS": 9610.854,
+        "durationMS": 0.09675
+      },
+      {
+        "startMS": 9610.953416,
+        "durationMS": 0.00125
+      },
+      {
+        "startMS": 9611.085625,
+        "durationMS": 0.031958
+      },
+      {
+        "startMS": 9611.121,
+        "durationMS": 0.0015
+      },
+      {
+        "startMS": 9611.138541,
+        "durationMS": 0.030917
+      },
+      {
+        "startMS": 9611.171583,
+        "durationMS": 0.00125
+      },
+      {
+        "startMS": 9611.214916,
+        "durationMS": 0.035042
+      },
+      {
+        "startMS": 9611.252083,
+        "durationMS": 0.001042
+      },
+      {
+        "startMS": 9616.039458,
+        "durationMS": 0.015958
+      },
+      {
+        "startMS": 9616.063416,
+        "durationMS": 0.380584
+      },
+      {
+        "startMS": 9616.445041,
+        "durationMS": 0.001084
+      },
+      {
+        "startMS": 9616.453833,
+        "durationMS": 0.009167
+      },
+      {
+        "startMS": 9616.4635,
+        "durationMS": 0.000416
+      },
+      {
+        "startMS": 9616.465458,
+        "durationMS": 0.001208
+      },
+      {
+        "startMS": 9624.372875,
+        "durationMS": 0.015958
+      },
+      {
+        "startMS": 9624.397333,
+        "durationMS": 0.464292
+      },
+      {
+        "startMS": 9624.8635,
+        "durationMS": 0.000666
+      },
+      {
+        "startMS": 9624.8705,
+        "durationMS": 0.008833
+      },
+      {
+        "startMS": 9624.879833,
+        "durationMS": 0.000417
+      },
+      {
+        "startMS": 9624.881708,
+        "durationMS": 0.001417
+      },
+      {
+        "startMS": 9626.671833,
+        "durationMS": 0.002583
+      },
+      {
+        "startMS": 9626.674791,
+        "durationMS": 0.015334
+      },
+      {
+        "startMS": 9626.690541,
+        "durationMS": 0.000375
+      },
+      {
+        "startMS": 9626.6945,
+        "durationMS": 0.000958
+      },
+      {
+        "startMS": 9629.776416,
+        "durationMS": 0.042584
+      },
+      {
+        "startMS": 9776.440625,
+        "durationMS": 1.3075
+      },
+      {
+        "startMS": 9777.7495,
+        "durationMS": 0.00875
+      },
+      {
+        "startMS": 9780.325083,
+        "durationMS": 0.185042
+      },
+      {
+        "startMS": 9780.512791,
+        "durationMS": 0.000875
+      },
+      {
+        "startMS": 9780.517041,
+        "durationMS": 0.005667
+      },
+      {
+        "startMS": 9780.533625,
+        "durationMS": 0.064458
+      },
+      {
+        "startMS": 9780.600208,
+        "durationMS": 0.0085
+      },
+      {
+        "startMS": 9780.615375,
+        "durationMS": 0.025125
+      },
+      {
+        "startMS": 9780.642458,
+        "durationMS": 0.003292
+      },
+      {
+        "startMS": 9780.646625,
+        "durationMS": 0.319916
+      },
+      {
+        "startMS": 9780.96925,
+        "durationMS": 0.004416
+      },
+      {
+        "startMS": 9780.980416,
+        "durationMS": 0.013292
+      },
+      {
+        "startMS": 9780.995416,
+        "durationMS": 0.00325
+      },
+      {
+        "startMS": 9780.999416,
+        "durationMS": 0.007167
+      },
+      {
+        "startMS": 9781.007958,
+        "durationMS": 0.002583
+      },
+      {
+        "startMS": 9783.932541,
+        "durationMS": 0.013084
+      },
+      {
+        "startMS": 9783.950291,
+        "durationMS": 0.004125
+      },
+      {
+        "startMS": 9791.038541,
+        "durationMS": 0.02575
+      },
+      {
+        "startMS": 9791.0695,
+        "durationMS": 0.157541
+      },
+      {
+        "startMS": 9791.227875,
+        "durationMS": 0.000458
+      },
+      {
+        "startMS": 9791.230666,
+        "durationMS": 0.009084
+      },
+      {
+        "startMS": 9791.24025,
+        "durationMS": 0.000375
+      },
+      {
+        "startMS": 9791.241875,
+        "durationMS": 0.003708
+      },
+      {
+        "startMS": 9799.383583,
+        "durationMS": 0.028292
+      },
+      {
+        "startMS": 9799.420125,
+        "durationMS": 0.018583
+      },
+      {
+        "startMS": 9799.439458,
+        "durationMS": 0.000417
+      },
+      {
+        "startMS": 9799.441625,
+        "durationMS": 0.00375
+      },
+      {
+        "startMS": 9803.544541,
+        "durationMS": 0.025667
+      },
+      {
+        "startMS": 9803.578375,
+        "durationMS": 0.017166
+      },
+      {
+        "startMS": 9803.596833,
+        "durationMS": 0.000708
+      },
+      {
+        "startMS": 9803.598958,
+        "durationMS": 0.003667
+      },
+      {
+        "startMS": 9804.766333,
+        "durationMS": 0.193792
+      },
+      {
+        "startMS": 9804.967416,
+        "durationMS": 0.00925
+      },
+      {
+        "startMS": 9804.977375,
+        "durationMS": 0.0005
+      },
+      {
+        "startMS": 9804.979291,
+        "durationMS": 0.004709
+      },
+      {
+        "startMS": 9811.886458,
+        "durationMS": 0.033042
+      },
+      {
+        "startMS": 9811.929583,
+        "durationMS": 0.022958
+      },
+      {
+        "startMS": 9811.95375,
+        "durationMS": 0.000416
+      },
+      {
+        "startMS": 9811.955791,
+        "durationMS": 0.002667
+      },
+      {
+        "startMS": 9813.106875,
+        "durationMS": 0.284125
+      },
+      {
+        "startMS": 9813.396833,
+        "durationMS": 0.011667
+      },
+      {
+        "startMS": 9813.409041,
+        "durationMS": 0.000542
+      },
+      {
+        "startMS": 9813.410916,
+        "durationMS": 0.005417
+      },
+      {
+        "startMS": 9820.2105,
+        "durationMS": 0.024833
+      },
+      {
+        "startMS": 9820.244541,
+        "durationMS": 0.020209
+      },
+      {
+        "startMS": 9820.265625,
+        "durationMS": 0.000416
+      },
+      {
+        "startMS": 9820.267583,
+        "durationMS": 0.00275
+      },
+      {
+        "startMS": 9821.436291,
+        "durationMS": 0.285292
+      },
+      {
+        "startMS": 9821.729166,
+        "durationMS": 0.014084
+      },
+      {
+        "startMS": 9821.744208,
+        "durationMS": 0.000958
+      },
+      {
+        "startMS": 9821.746625,
+        "durationMS": 0.004958
+      },
+      {
+        "startMS": 9828.537541,
+        "durationMS": 0.018792
+      },
+      {
+        "startMS": 9828.561,
+        "durationMS": 0.016291
+      },
+      {
+        "startMS": 9828.577791,
+        "durationMS": 0.000417
+      },
+      {
+        "startMS": 9828.579791,
+        "durationMS": 0.002417
+      },
+      {
+        "startMS": 9829.775291,
+        "durationMS": 0.156792
+      },
+      {
+        "startMS": 9829.938333,
+        "durationMS": 0.009667
+      },
+      {
+        "startMS": 9829.969416,
+        "durationMS": 0.000542
+      },
+      {
+        "startMS": 9829.971666,
+        "durationMS": 0.003375
+      },
+      {
+        "startMS": 9836.911875,
+        "durationMS": 0.02075
+      },
+      {
+        "startMS": 9836.941041,
+        "durationMS": 0.019959
+      },
+      {
+        "startMS": 9836.961708,
+        "durationMS": 0.000458
+      },
+      {
+        "startMS": 9836.963791,
+        "durationMS": 0.002584
+      },
+      {
+        "startMS": 9838.109791,
+        "durationMS": 0.197959
+      },
+      {
+        "startMS": 9838.316458,
+        "durationMS": 0.010208
+      },
+      {
+        "startMS": 9838.327333,
+        "durationMS": 0.000458
+      },
+      {
+        "startMS": 9838.329375,
+        "durationMS": 0.003
+      },
+      {
+        "startMS": 9845.226958,
+        "durationMS": 0.029958
+      },
+      {
+        "startMS": 9845.265791,
+        "durationMS": 0.021375
+      },
+      {
+        "startMS": 9845.28825,
+        "durationMS": 0.000416
+      },
+      {
+        "startMS": 9845.290333,
+        "durationMS": 0.003292
+      },
+      {
+        "startMS": 9846.43625,
+        "durationMS": 1.239916
+      },
+      {
+        "startMS": 9847.681375,
+        "durationMS": 0.009791
+      },
+      {
+        "startMS": 9847.691708,
+        "durationMS": 0.000458
+      },
+      {
+        "startMS": 9847.693583,
+        "durationMS": 0.005667
+      },
+      {
+        "startMS": 9853.5385,
+        "durationMS": 0.020208
+      },
+      {
+        "startMS": 9853.563583,
+        "durationMS": 0.193417
+      },
+      {
+        "startMS": 9853.757875,
+        "durationMS": 0.000541
+      },
+      {
+        "startMS": 9853.761,
+        "durationMS": 0.009333
+      },
+      {
+        "startMS": 9853.771041,
+        "durationMS": 0.005042
+      },
+      {
+        "startMS": 9853.777666,
+        "durationMS": 0.003084
+      },
+      {
+        "startMS": 9860.742875,
+        "durationMS": 0.03725
+      },
+      {
+        "startMS": 9860.7805,
+        "durationMS": 0.006083
+      },
+      {
+        "startMS": 9861.873958,
+        "durationMS": 0.025708
+      },
+      {
+        "startMS": 9861.912416,
+        "durationMS": 0.132584
+      },
+      {
+        "startMS": 9862.045791,
+        "durationMS": 0.000459
+      },
+      {
+        "startMS": 9862.048583,
+        "durationMS": 0.012125
+      },
+      {
+        "startMS": 9862.061166,
+        "durationMS": 0.000417
+      },
+      {
+        "startMS": 9862.062875,
+        "durationMS": 0.004
+      },
+      {
+        "startMS": 9870.212375,
+        "durationMS": 0.032833
+      },
+      {
+        "startMS": 9870.254625,
+        "durationMS": 0.022416
+      },
+      {
+        "startMS": 9870.278333,
+        "durationMS": 0.000458
+      },
+      {
+        "startMS": 9870.280416,
+        "durationMS": 0.004084
+      },
+      {
+        "startMS": 9878.55375,
+        "durationMS": 0.039041
+      },
+      {
+        "startMS": 9878.60175,
+        "durationMS": 0.023
+      },
+      {
+        "startMS": 9878.626291,
+        "durationMS": 0.001
+      },
+      {
+        "startMS": 9878.628916,
+        "durationMS": 0.004125
+      },
+      {
+        "startMS": 9886.8735,
+        "durationMS": 0.026916
+      },
+      {
+        "startMS": 9886.907458,
+        "durationMS": 0.016667
+      },
+      {
+        "startMS": 9886.925041,
+        "durationMS": 0.000417
+      },
+      {
+        "startMS": 9886.927125,
+        "durationMS": 0.004041
+      },
+      {
+        "startMS": 9895.498583,
+        "durationMS": 0.028708
+      },
+      {
+        "startMS": 9895.535833,
+        "durationMS": 0.016667
+      },
+      {
+        "startMS": 9895.553791,
+        "durationMS": 0.000459
+      },
+      {
+        "startMS": 9895.555791,
+        "durationMS": 0.00375
+      },
+      {
+        "startMS": 9896.443416,
+        "durationMS": 0.020375
+      },
+      {
+        "startMS": 9896.467916,
+        "durationMS": 0.003584
+      },
+      {
+        "startMS": 9947.497208,
+        "durationMS": 0.016542
+      },
+      {
+        "startMS": 9947.514166,
+        "durationMS": 0.008042
+      },
+      {
+        "startMS": 9947.522958,
+        "durationMS": 0.002167
+      },
+      {
+        "startMS": 9947.525333,
+        "durationMS": 0.1445
+      },
+      {
+        "startMS": 9947.670416,
+        "durationMS": 0.000542
+      },
+      {
+        "startMS": 9947.676458,
+        "durationMS": 0.001208
+      },
+      {
+        "startMS": 9962.022375,
+        "durationMS": 0.16475
+      },
+      {
+        "startMS": 9962.187541,
+        "durationMS": 0.009792
+      },
+      {
+        "startMS": 9994.922333,
+        "durationMS": 4.001583
+      },
+      {
+        "startMS": 9998.924875,
+        "durationMS": 0.075333
+      },
+      {
+        "startMS": 10111.188291,
+        "durationMS": 0.060959
+      },
+      {
+        "startMS": 10111.250375,
+        "durationMS": 0.032666
+      },
+      {
+        "startMS": 10111.284166,
+        "durationMS": 0.00125
+      },
+      {
+        "startMS": 10111.303416,
+        "durationMS": 0.003125
+      },
+      {
+        "startMS": 10113.139416,
+        "durationMS": 0.237709
+      },
+      {
+        "startMS": 10113.392833,
+        "durationMS": 0.00525
+      },
+      {
+        "startMS": 10113.88525,
+        "durationMS": 0.019958
+      },
+      {
+        "startMS": 10113.905916,
+        "durationMS": 0.019042
+      },
+      {
+        "startMS": 10114.120666,
+        "durationMS": 0.155625
+      },
+      {
+        "startMS": 10114.277041,
+        "durationMS": 0.2995
+      },
+      {
+        "startMS": 10114.577625,
+        "durationMS": 0.001291
+      },
+      {
+        "startMS": 10114.589833,
+        "durationMS": 0.002875
+      },
+      {
+        "startMS": 10121.662708,
+        "durationMS": 0.016958
+      },
+      {
+        "startMS": 10121.697958,
+        "durationMS": 0.005458
+      },
+      {
+        "startMS": 10224.714458,
+        "durationMS": 0.373583
+      },
+      {
+        "startMS": 10225.0885,
+        "durationMS": 0.014083
+      },
+      {
+        "startMS": 10259.755958,
+        "durationMS": 0.031333
+      },
+      {
+        "startMS": 10259.787625,
+        "durationMS": 0.0055
+      },
+      {
+        "startMS": 10295.247333,
+        "durationMS": 0.05525
+      },
+      {
+        "startMS": 10295.303708,
+        "durationMS": 0.010542
+      },
+      {
+        "startMS": 10400.466375,
+        "durationMS": 0.460416
+      },
+      {
+        "startMS": 10400.927208,
+        "durationMS": 0.012167
+      },
+      {
+        "startMS": 10475.716166,
+        "durationMS": 0.305542
+      },
+      {
+        "startMS": 10476.022,
+        "durationMS": 0.014833
+      },
+      {
+        "startMS": 10498.858083,
+        "durationMS": 0.782333
+      },
+      {
+        "startMS": 10499.641,
+        "durationMS": 0.01725
+      },
+      {
+        "startMS": 10627.524541,
+        "durationMS": 0.093167
+      },
+      {
+        "startMS": 10627.618875,
+        "durationMS": 0.010708
+      },
+      {
+        "startMS": 11012.322416,
+        "durationMS": 2.280709
+      },
+      {
+        "startMS": 11014.603416,
+        "durationMS": 0.011792
+      },
+      {
+        "startMS": 11032.863916,
+        "durationMS": 0.943834
+      },
+      {
+        "startMS": 11033.808208,
+        "durationMS": 0.013708
+      },
+      {
+        "startMS": 11240.493583,
+        "durationMS": 0.065792
+      },
+      {
+        "startMS": 11240.577416,
+        "durationMS": 0.005459
+      },
+      {
+        "startMS": 11276.927625,
+        "durationMS": 0.218083
+      },
+      {
+        "startMS": 11277.146291,
+        "durationMS": 0.013459
+      },
+      {
+        "startMS": 11349.423625,
+        "durationMS": 0.3175
+      },
+      {
+        "startMS": 11349.7415,
+        "durationMS": 0.014958
+      },
+      {
+        "startMS": 11485.223041,
+        "durationMS": 0.329584
+      },
+      {
+        "startMS": 11485.552875,
+        "durationMS": 0.011833
+      },
+      {
+        "startMS": 11586.623458,
+        "durationMS": 0.329042
+      },
+      {
+        "startMS": 11586.953208,
+        "durationMS": 0.017958
+      },
+      {
+        "startMS": 11650.591458,
+        "durationMS": 0.46125
+      },
+      {
+        "startMS": 11651.053625,
+        "durationMS": 0.025916
+      },
+      {
+        "startMS": 11834.032541,
+        "durationMS": 1.739792
+      },
+      {
+        "startMS": 11835.772791,
+        "durationMS": 0.016459
+      },
+      {
+        "startMS": 11984.329208,
+        "durationMS": 0.275458
+      },
+      {
+        "startMS": 11984.604916,
+        "durationMS": 0.01075
+      },
+      {
+        "startMS": 12025.5,
+        "durationMS": 3.859083
+      },
+      {
+        "startMS": 12029.359458,
+        "durationMS": 0.014167
+      },
+      {
+        "startMS": 12055.052875,
+        "durationMS": 0.267666
+      },
+      {
+        "startMS": 12055.321208,
+        "durationMS": 0.015333
+      },
+      {
+        "startMS": 12132.955,
+        "durationMS": 0.42875
+      },
+      {
+        "startMS": 12133.384291,
+        "durationMS": 0.012334
+      },
+      {
+        "startMS": 12156.661375,
+        "durationMS": 3.355458
+      },
+      {
+        "startMS": 12160.01725,
+        "durationMS": 0.012833
+      },
+      {
+        "startMS": 12259.116041,
+        "durationMS": 0.330334
+      },
+      {
+        "startMS": 12259.447083,
+        "durationMS": 0.018208
+      },
+      {
+        "startMS": 12310.371541,
+        "durationMS": 1.22575
+      },
+      {
+        "startMS": 12311.597666,
+        "durationMS": 0.014042
+      },
+      {
+        "startMS": 13141.123916,
+        "durationMS": 1.458584
+      },
+      {
+        "startMS": 13142.582916,
+        "durationMS": 0.012584
+      },
+      {
+        "startMS": 13810.848083,
+        "durationMS": 0.097917
+      },
+      {
+        "startMS": 13810.947083,
+        "durationMS": 0.008458
+      },
+      {
+        "startMS": 15514.124791,
+        "durationMS": 0.074459
+      },
+      {
+        "startMS": 15514.213708,
+        "durationMS": 0.005375
+      },
+      {
+        "startMS": 16675.609083,
+        "durationMS": 0.080583
+      },
+      {
+        "startMS": 16675.703,
+        "durationMS": 0.004375
+      },
+      {
+        "startMS": 16675.919291,
+        "durationMS": 0.621209
+      },
+      {
+        "startMS": 16676.551708,
+        "durationMS": 0.004417
+      },
+      {
+        "startMS": 16676.595541,
+        "durationMS": 0.037834
+      },
+      {
+        "startMS": 16676.63925,
+        "durationMS": 0.003166
+      },
+      {
+        "startMS": 16676.666041,
+        "durationMS": 0.033625
+      },
+      {
+        "startMS": 16676.704625,
+        "durationMS": 0.004666
+      },
+      {
+        "startMS": 16676.7695,
+        "durationMS": 0.026666
+      },
+      {
+        "startMS": 16676.801041,
+        "durationMS": 0.002959
+      },
+      {
+        "startMS": 16676.828333,
+        "durationMS": 0.031667
+      },
+      {
+        "startMS": 16676.865708,
+        "durationMS": 0.003042
+      },
+      {
+        "startMS": 16676.893291,
+        "durationMS": 0.165084
+      },
+      {
+        "startMS": 16677.063708,
+        "durationMS": 0.003542
+      },
+      {
+        "startMS": 16677.113708,
+        "durationMS": 1.00625
+      },
+      {
+        "startMS": 16678.127875,
+        "durationMS": 0.003916
+      }
+    ]
+  },
+  "missingEvidence": [
+    "input-to-visible latency",
+    "GPU/display delivery",
+    "refresh-rate correlation"
+  ],
+  "status": "fail",
+  "previewStillRunning": true
+}

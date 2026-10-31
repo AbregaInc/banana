@@ -1,0 +1,14 @@
+# bananatheapp.com: a folder of static files on Cloudflare Workers. No script, no build step.
+#   cd LandingPage && wrangler deploy
+name = "banana-site"
+compatibility_date = "2025-10-01"
+
+# The real domain (live since 18 Oct 2026). Cloudflare makes the DNS records and certificates itself.
+routes = [
+  { pattern = "bananatheapp.com", custom_domain = true },
+  { pattern = "www.bananatheapp.com", custom_domain = true },
+]
+
+[assets]
+directory = "./site"
+not_found_handling = "404-page"

@@ -1,0 +1,60 @@
+{
+  "devicesAndConfigurations" : [
+    {
+      "device" : {
+        "architecture" : "arm64",
+        "deviceId" : "<device-udid>",
+        "deviceName" : "My Mac",
+        "modelName" : "MacBook Pro",
+        "osBuildNumber" : "25G83",
+        "osVersion" : "26.6.2",
+        "platform" : "macOS"
+      },
+      "expectedFailures" : 0,
+      "failedTests" : 2,
+      "passedTests" : 7,
+      "skippedTests" : 0,
+      "testPlanConfiguration" : {
+        "configurationId" : "1",
+        "configurationName" : "Test Scheme Action"
+      }
+    }
+  ],
+  "environmentDescription" : "BananaNativePerformanceUITests · Built with macOS 26.6.2",
+  "expectedFailures" : 0,
+  "failedTests" : 2,
+  "finishTime" : 1791529057.89,
+  "passedTests" : 7,
+  "result" : "Failed",
+  "runtimeWarnings" : [
+
+  ],
+  "skippedTests" : 0,
+  "startTime" : 1791528865.055,
+  "statistics" : [
+
+  ],
+  "testFailures" : [
+    {
+      "failureText" : "XCTAssertTrue failed - Rejected fixture move must remain visible",
+      "targetName" : "BananaNativePerformanceUITests",
+      "testIdentifier" : 3,
+      "testIdentifierString" : "NativeInteractionTests/testPlanDragFailureRecovery()",
+      "testIdentifierURL" : "test://com.apple.xcode/Banana/BananaNativePerformanceUITests/NativeInteractionTests/testPlanDragFailureRecovery",
+      "testName" : "testPlanDragFailureRecovery()"
+    },
+    {
+      "failureText" : "XCTAssertTrue failed",
+      "targetName" : "BananaNativePerformanceUITests",
+      "testIdentifier" : 4,
+      "testIdentifierString" : "NativeInteractionTests/testPlanEventAccessibilityGrouping()",
+      "testIdentifierURL" : "test://com.apple.xcode/Banana/BananaNativePerformanceUITests/NativeInteractionTests/testPlanEventAccessibilityGrouping",
+      "testName" : "testPlanEventAccessibilityGrouping()"
+    }
+  ],
+  "title" : "Test - BananaNativePerformanceUITests",
+  "topInsights" : [
+
+  ],
+  "totalTestCount" : 9
+}

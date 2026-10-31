@@ -1,0 +1,23 @@
+{
+  "exception": {
+    "codes": "0x0000000000000001, 0x00000001930e12b8",
+    "rawCodes": [
+      1,
+      6762140344
+    ],
+    "type": "EXC_BREAKPOINT",
+    "signal": "SIGTRAP"
+  },
+  "triggeredSymbols": [
+    "___UIApplicationEvaluateRuntimeIssueForNoSceneLifecycleAdoption_block_invoke",
+    "_dispatch_client_callout",
+    "_dispatch_once_callout",
+    "-[UIApplication workspace:didCreateScene:withTransitionContext:completion:]",
+    "-[UIApplicationSceneClientAgent scene:didInitializeWithEvent:completion:]",
+    "__95-[FBSScene _callOutQueue_didCreateWithTransitionContext:alternativeCreationCallout:completion:]_block_invoke",
+    "-[FBSScene _callOutQueue_maybeCoalesceClientSettingsUpdates:]",
+    "-[FBSScene _callOutQueue_didCreateWithTransitionContext:alternativeCreationCallout:completion:]",
+    "__93-[FBSWorkspaceScenesClient _callOutQueue_sendDidCreateForScene:transitionContext:completion:]_block_invoke.349",
+    "-[FBSWorkspace _calloutQueue_executeCalloutFromSource:withBlock:]"
+  ]
+}

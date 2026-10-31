@@ -1,0 +1,14 @@
+{
+  "created": "2026-10-09T04:04:27.950552-04:00",
+  "policy": "default off --calendar-cache-layout",
+  "control": "Same binary recomputes each header/grid layout",
+  "candidate": "Prepare visible-day layouts once per changed occurrence snapshot",
+  "invalidation": "Replace all entries when nextDays != days; dates/items/isToday form snapshot equality",
+  "bounds": "At most visibleDayCount (1,3,5,7) day layouts; no retained page history",
+  "validation": [
+    "native nine functional tests for control and candidate",
+    "matched full native scrolling/paging commit traces",
+    "persistent eight-case component regression"
+  ],
+  "acceptance": "unmeasured until completed; no threshold changes"
+}

@@ -1,0 +1,18 @@
+GRDB 7.11.1 · SQLite 3.51.0 · 2026-10-06 01:18:36 +0000 · load 628.1 607.1 573.9
+
+== search: read-only DatabaseQueue on search.sqlite (8 MB), index.sqlite attached; newest 50 conversations · load 628.1 607.1 573.9
+  plan: SCAN f VIRTUAL TABLE INDEX 192:M5
+  plan: SEARCH m USING INDEX message_by_fts (fts_rowid=?)
+  2 letters of the word being typed (40 words × 3): n=120 p50 0.347 ms · p95 29.834 ms · p99 40.795 ms · max 83.216 ms
+  3 letters of the word being typed (40 words × 3): n=120 p50 0.463 ms · p95 46.285 ms · p99 78.288 ms · max 90.997 ms
+  4 letters of the word being typed (40 words × 3): n=120 p50 4.259 ms · p95 51.474 ms · p99 93.037 ms · max 121.472 ms
+  5 letters of the word being typed (40 words × 3): n=120 p50 0.876 ms · p95 5.781 ms · p99 6.986 ms · max 11.144 ms
+  6 letters of the word being typed (40 words × 3): n=120 p50 0.355 ms · p95 3.593 ms · p99 4.105 ms · max 4.224 ms
+  a whole common word (rank 3): n=40 p50 0.251 ms · p95 0.571 ms · p99 2.676 ms · max 2.676 ms
+  a whole middling word (40 words): n=120 p50 0.139 ms · p95 2.579 ms · p99 15.986 ms · max 25.822 ms
+  two common words: n=40 p50 0.349 ms · p95 1.628 ms · p99 3.660 ms · max 3.660 ms
+  a phrase: n=40 p50 0.378 ms · p95 3.758 ms · p99 5.397 ms · max 5.397 ms
+  a finished word then two letters: n=120 p50 0.279 ms · p95 1.484 ms · p99 4.343 ms · max 15.888 ms
+  the same common word ordered by relevance (never done): n=6 p50 764.126 ms · p95 1426.187 ms · p99 1426.187 ms · max 1426.187 ms
+  interrupt(): time from the call to the query ending: n=5 p50 1.459 ms · p95 2.625 ms · p99 2.625 ms · max 2.625 ms
+  an inbox page read while the search connection is open: n=100 p50 0.120 ms · p95 1.235 ms · p99 2.075 ms · max 2.075 ms

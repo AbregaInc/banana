@@ -1,0 +1,9 @@
+18:39  up 16:44, 21 users, load averages: 148.82 185.71 231.56
+62907 bytes · load 149 186 232
+  libxml2 parse only p50    0.806 ms  p95    0.975 ms  min    0.783 ms    74.4 MB/s  (n=300)
+  libxml2 parse + own text only (sync path) p50    0.883 ms  p95    1.009 ms  min    0.844 ms    67.9 MB/s  (n=300)
+  SwiftSoup parse only p50    2.310 ms  p95    2.592 ms  min    2.160 ms    26.0 MB/s  (n=300)
+261257 bytes · load 155 186 232
+  libxml2 parse only p50    3.291 ms  p95    3.642 ms  min    3.217 ms    75.7 MB/s  (n=300)
+  libxml2 parse + own text only (sync path) p50    3.560 ms  p95    3.954 ms  min    3.471 ms    70.0 MB/s  (n=300)
+  SwiftSoup parse only p50    9.535 ms  p95   10.547 ms  min    8.946 ms    26.1 MB/s  (n=255)

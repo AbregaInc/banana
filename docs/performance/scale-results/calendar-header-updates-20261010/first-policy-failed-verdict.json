@@ -1,0 +1,34 @@
+{
+  "status": "fail",
+  "cases": {
+    "rotation-0": {
+      "pass": true,
+      "expectedPublicationWarning": true,
+      "publicationWarnings": 1,
+      "result": "Passed",
+      "passedTests": 1,
+      "skippedTests": 0
+    },
+    "rotation-1": {
+      "pass": false,
+      "expectedPublicationWarning": false,
+      "publicationWarnings": 1,
+      "result": "Passed",
+      "passedTests": 1,
+      "skippedTests": 0
+    },
+    "rotation-2": {
+      "pass": false,
+      "error": "Error: File or directory doesn't exist at path: ~/orca/workspaces/gtfuwgth/stingray/.build/calendar-header-updates-20261010/rotation-2.xcresult.\nUsage: xcresulttool get test-results summary [--schema] [--schema-version <schema-version>] --path <path> [--compact]\n  See 'xcresulttool get test-results summary --help' for more information.\n"
+    },
+    "rotation-3": {
+      "pass": false,
+      "error": "Error: File or directory doesn't exist at path: ~/orca/workspaces/gtfuwgth/stingray/.build/calendar-header-updates-20261010/rotation-3.xcresult.\nUsage: xcresulttool get test-results summary [--schema] [--schema-version <schema-version>] --path <path> [--compact]\n  See 'xcresulttool get test-results summary --help' for more information.\n"
+    },
+    "integration": {
+      "pass": false,
+      "error": "Error: File or directory doesn't exist at path: ~/orca/workspaces/gtfuwgth/stingray/.build/calendar-header-updates-20261010/integration.xcresult.\nUsage: xcresulttool get test-results summary [--schema] [--schema-version <schema-version>] --path <path> [--compact]\n  See 'xcresulttool get test-results summary --help' for more information.\n"
+    }
+  },
+  "scope": "Functional Simulator header delivery/warnings; not physical latency acceptance"
+}

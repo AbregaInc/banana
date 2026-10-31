@@ -1,0 +1,20 @@
+{
+  "sqlite": "3.51.0",
+  "notesPlan": [
+    [
+      4,
+      0,
+      62,
+      "SEARCH notes USING INDEX notesBrowse (archived=?)"
+    ]
+  ],
+  "notesCount": 90000,
+  "podcastPlan": [
+    [
+      5,
+      0,
+      62,
+      "SEARCH episodes USING INDEX episodeDate (snapshot=?)"
+    ]
+  ]
+}

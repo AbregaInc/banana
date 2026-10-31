@@ -1,0 +1,2052 @@
+{
+  "about": "Every screen and state of Banana, how to open it with sample data, and where it leads. tools/atlas/capture.py photographs them; tools/atlas/board.py lays them out. '@shell' expands to the tab shell with every sample loaded.",
+  "base": [
+    "--ui-audit",
+    "--disable-icloud",
+    "--no-space-sync",
+    "--store-capture",
+    "-finishSetupDismissed",
+    "YES",
+    "-onboardingCompleted",
+    "YES"
+  ],
+  "shell": [
+    "--ui-preview",
+    "--plan",
+    "-planMode",
+    "day",
+    "--dummy-health",
+    "--library",
+    "--notes",
+    "--wellness",
+    "--listenmap",
+    "--wake-following-sample"
+  ],
+  "areas": [
+    {
+      "id": "first-run",
+      "title": "First run",
+      "summary": "A new install asks what Banana should look after (Plan is always on; Everything ticks the rest), then two questions that build the day (when you wake, when you wind down), then offers Google Calendar. 'Not now' goes straight to Plan; everything skipped waits in the Set up list."
+    },
+    {
+      "id": "plan",
+      "title": "Plan",
+      "summary": "The first tab. One day or a week of the Google calendar, with Banana's own blocks laid in: routines, reminders, alarms, travel and busy blocks it writes back. A card above the day asks for one thing at a time."
+    },
+    {
+      "id": "events",
+      "title": "Events, reminders, alarms",
+      "summary": "What the Plan grid opens. Tapping a block opens it; the + or a drag on the grid makes a new one. Every change shows at once and has Undo."
+    },
+    {
+      "id": "workouts",
+      "title": "Body · Workouts",
+      "summary": "The Body tab holds Workouts, Food and Taken under one switch in the top bar. Workouts come from Apple Health and the Watch; a workout opens to its route, charts and the podcast that played."
+    },
+    {
+      "id": "food",
+      "title": "Body · Food",
+      "summary": "Meals by photo, words, search, barcode or by hand. Photos wait in 'To log' until they have words; estimates come from the on-device model grounded in USDA and your own scanned foods."
+    },
+    {
+      "id": "taken",
+      "title": "Body · Taken",
+      "summary": "Supplements and medications: what's due, what was skipped, and timing clashes (e.g. calcium too close to levothyroxine)."
+    },
+    {
+      "id": "notes",
+      "title": "Notes",
+      "summary": "Voice and written notes. A recording is transcribed on the device."
+    },
+    {
+      "id": "library",
+      "title": "Library & player",
+      "summary": "Podcasts: shows, episodes, downloads, the player with transcript, notes and up next. Ads can be skipped; the Watch gets downloads."
+    },
+    {
+      "id": "review",
+      "title": "Review",
+      "summary": "Looking back, behind the chart button at the top left of every tab: fitness trends, sleep, food and listening by week, month or year."
+    },
+    {
+      "id": "routines",
+      "title": "Routines & wake",
+      "summary": "Routines play something at a moment: a time, before the first meeting, on waking, when a workout starts. Wake & bedtime sets the day's ends."
+    },
+    {
+      "id": "settings",
+      "title": "Settings & setup",
+      "summary": "Behind '…' on every tab. The Set up list holds every permission still to give, each with its own explainer page."
+    },
+    {
+      "id": "ipad",
+      "title": "iPad",
+      "summary": "The same app with a sidebar: Review, Routines and Settings are sections instead of sheets, and Food and Taken sit side by side."
+    },
+    {
+      "id": "mac",
+      "title": "Mac",
+      "summary": "A sidebar app with the same sections; Plan shows Day, 3, 5 days or the week, events open in a drawer, and ⌘K finds any command."
+    },
+    {
+      "id": "watch",
+      "title": "Apple Watch",
+      "summary": "Start a workout, see it live with the podcast playing, pick a downloaded episode, and the day's agenda."
+    }
+  ],
+  "screens": [
+    {
+      "id": "first-run/welcome",
+      "area": "first-run",
+      "title": "What should Banana look after?",
+      "args": [
+        "-onboardingCompleted",
+        "NO"
+      ],
+      "nobase_onboarding": true,
+      "to": [
+        [
+          "first-run/wake",
+          "Get started"
+        ]
+      ]
+    },
+    {
+      "id": "first-run/welcome-everything",
+      "area": "first-run",
+      "title": "What should Banana look after? · Everything",
+      "args": [
+        "-onboardingCompleted",
+        "NO",
+        "--modules",
+        "everything"
+      ],
+      "nobase_onboarding": true,
+      "to": [
+        [
+          "first-run/wake",
+          "Get started"
+        ]
+      ]
+    },
+    {
+      "id": "first-run/wake",
+      "area": "first-run",
+      "title": "When do you wake up?",
+      "args": [
+        "-onboardingCompleted",
+        "NO",
+        "--onboarding-wake-preview"
+      ],
+      "to": [
+        [
+          "first-run/winddown",
+          "Continue"
+        ]
+      ]
+    },
+    {
+      "id": "first-run/winddown",
+      "area": "first-run",
+      "title": "When do you wind down?",
+      "args": [
+        "-onboardingCompleted",
+        "NO",
+        "--onboarding-winddown-preview"
+      ],
+      "to": [
+        [
+          "first-run/calendar",
+          "Continue"
+        ]
+      ]
+    },
+    {
+      "id": "first-run/calendar",
+      "area": "first-run",
+      "title": "Never double-booked",
+      "args": [
+        "--onboarding-calendar-preview"
+      ],
+      "to": [
+        [
+          "first-run/other-calendar",
+          "Continue with Google"
+        ],
+        [
+          "plan/day",
+          "Not now"
+        ]
+      ]
+    },
+    {
+      "id": "first-run/other-calendar",
+      "area": "first-run",
+      "title": "Add your other calendar",
+      "args": [
+        "--onboarding-calendar-preview",
+        "--onboarding-other-calendar-preview"
+      ],
+      "to": [
+        [
+          "first-run/two-calendars",
+          "Add"
+        ],
+        [
+          "plan/day",
+          "Done"
+        ]
+      ]
+    },
+    {
+      "id": "first-run/two-calendars",
+      "area": "first-run",
+      "title": "Keep them in step",
+      "args": [
+        "--onboarding-calendar-preview",
+        "--onboarding-two-calendars-preview"
+      ],
+      "to": [
+        [
+          "plan/day",
+          "Block busy time"
+        ]
+      ]
+    },
+    {
+      "id": "plan/day",
+      "area": "plan",
+      "title": "Day",
+      "args": [
+        "@shell",
+        "--tab",
+        "plan"
+      ],
+      "to": [
+        [
+          "plan/week",
+          "Day | Week"
+        ],
+        [
+          "events/event-detail",
+          "Tap an event"
+        ],
+        [
+          "events/new-event",
+          "+ › Event"
+        ],
+        [
+          "plan/weather",
+          "Weather"
+        ],
+        [
+          "review/review-week",
+          "Chart button"
+        ],
+        [
+          "settings/settings",
+          "… › Settings"
+        ],
+        [
+          "plan/add-menu",
+          "+"
+        ],
+        [
+          "plan/more-menu",
+          "…"
+        ]
+      ]
+    },
+    {
+      "id": "plan/day-plan-only",
+      "area": "plan",
+      "title": "Day · Plan alone",
+      "args": [
+        "@shell",
+        "--tab",
+        "plan",
+        "--modules",
+        "plan"
+      ]
+    },
+    {
+      "id": "plan/day-plan-and-food",
+      "area": "plan",
+      "title": "Day · Plan and Food",
+      "args": [
+        "@shell",
+        "--tab",
+        "plan",
+        "--modules",
+        "food"
+      ]
+    },
+    {
+      "id": "workouts/list-workouts-only",
+      "area": "workouts",
+      "title": "Workouts · Plan and Workouts",
+      "args": [
+        "@shell",
+        "--tab",
+        "workouts",
+        "--modules",
+        "workouts"
+      ]
+    },
+    {
+      "id": "plan/week",
+      "area": "plan",
+      "title": "Week",
+      "args": [
+        "@shell",
+        "--tab",
+        "plan",
+        "-planMode",
+        "week"
+      ],
+      "to": [
+        [
+          "plan/day",
+          "Tap a day"
+        ]
+      ]
+    },
+    {
+      "id": "plan/no-calendar",
+      "area": "plan",
+      "title": "Calendar isn't connected",
+      "args": [
+        "--tab",
+        "plan",
+        "-planMode",
+        "day"
+      ],
+      "note": "A real launch with no Google account.",
+      "to": [
+        [
+          "settings/setup",
+          "Set up"
+        ]
+      ]
+    },
+    {
+      "id": "plan/busy-question",
+      "area": "plan",
+      "title": "Block my busy time?",
+      "args": [
+        "@shell",
+        "--tab",
+        "plan",
+        "--busy-question-preview"
+      ]
+    },
+    {
+      "id": "plan/place-question",
+      "area": "plan",
+      "title": "Travel and a place question",
+      "args": [
+        "@shell",
+        "--tab",
+        "plan",
+        "--travel-sample"
+      ],
+      "to": [
+        [
+          "events/place-picker",
+          "Where is this?"
+        ]
+      ],
+      "own_day": true
+    },
+    {
+      "id": "plan/trip",
+      "area": "plan",
+      "title": "Trip with a second time zone",
+      "args": [
+        "@shell",
+        "--tab",
+        "plan",
+        "--trip-sample"
+      ]
+    },
+    {
+      "id": "plan/dense",
+      "area": "plan",
+      "title": "A crowded day",
+      "args": [
+        "@shell",
+        "--tab",
+        "plan",
+        "--dense-day-regression"
+      ]
+    },
+    {
+      "id": "plan/event-states",
+      "area": "plan",
+      "title": "Declined, maybe and free events",
+      "args": [
+        "@shell",
+        "--tab",
+        "plan",
+        "--event-states-sample"
+      ]
+    },
+    {
+      "id": "plan/all-day",
+      "area": "plan",
+      "title": "All-day strip, crowded",
+      "args": [
+        "@shell",
+        "--tab",
+        "plan",
+        "--all-day-crowded"
+      ],
+      "to": [
+        [
+          "plan/all-day-more",
+          "+N"
+        ]
+      ],
+      "own_day": true
+    },
+    {
+      "id": "plan/all-day-more",
+      "area": "plan",
+      "title": "All-day list",
+      "args": [
+        "@shell",
+        "--tab",
+        "plan",
+        "--all-day-crowded",
+        "--all-day-more"
+      ],
+      "own_day": true
+    },
+    {
+      "id": "plan/reminders-line",
+      "area": "plan",
+      "title": "Reminders line",
+      "args": [
+        "@shell",
+        "--tab",
+        "plan",
+        "--untimed-reminders",
+        "--outstanding-reminders"
+      ],
+      "to": [
+        [
+          "events/new-task",
+          "Tap a reminder"
+        ]
+      ]
+    },
+    {
+      "id": "plan/timing-offers",
+      "area": "plan",
+      "title": "Timing suggestions",
+      "args": [
+        "@shell",
+        "--tab",
+        "plan",
+        "--timing-suggestions"
+      ],
+      "to": [
+        [
+          "plan/timing-accepted",
+          "Accept"
+        ]
+      ]
+    },
+    {
+      "id": "plan/timing-accepted",
+      "area": "plan",
+      "title": "Suggestion taken (toast)",
+      "args": [
+        "@shell",
+        "--tab",
+        "plan",
+        "--timing-suggestions-accept"
+      ],
+      "own_day": true
+    },
+    {
+      "id": "plan/weather",
+      "area": "plan",
+      "title": "Weather",
+      "walk": true,
+      "args": [
+        "@shell",
+        "--tab",
+        "plan"
+      ],
+      "note": "No forecast in the Simulator: Apple Weather only answers on a device."
+    },
+    {
+      "id": "plan/briefing",
+      "area": "plan",
+      "title": "Morning briefing",
+      "args": [
+        "--morning",
+        "--dummy-health"
+      ],
+      "to": [
+        [
+          "workouts/review",
+          "Yesterday's workout"
+        ]
+      ]
+    },
+    {
+      "id": "plan/availability",
+      "area": "plan",
+      "title": "Share availability",
+      "args": [
+        "--availability"
+      ]
+    },
+    {
+      "id": "events/event-detail",
+      "area": "events",
+      "title": "Event",
+      "args": [
+        "--event-detail"
+      ],
+      "to": [
+        [
+          "events/edit-event",
+          "Edit"
+        ],
+        [
+          "events/place-picker",
+          "Getting there"
+        ]
+      ]
+    },
+    {
+      "id": "events/edit-event",
+      "area": "events",
+      "title": "Edit event",
+      "args": [
+        "--event-editor"
+      ],
+      "to": [
+        [
+          "events/repeat",
+          "Repeat"
+        ]
+      ]
+    },
+    {
+      "id": "events/edit-invite",
+      "area": "events",
+      "title": "Edit an invitation",
+      "args": [
+        "--event-editor",
+        "--event-editor-invite"
+      ]
+    },
+    {
+      "id": "events/edit-guests",
+      "area": "events",
+      "title": "Edit event with guests",
+      "args": [
+        "--event-editor",
+        "--event-editor-guests",
+        "--guest-fixtures"
+      ]
+    },
+    {
+      "id": "events/new-event",
+      "area": "events",
+      "title": "New event",
+      "args": [
+        "--new-calendar-event"
+      ],
+      "to": [
+        [
+          "events/new-event-typed",
+          "Type a phrase"
+        ]
+      ]
+    },
+    {
+      "id": "events/new-event-typed",
+      "area": "events",
+      "title": "New event, filled in from words",
+      "args": [
+        "--new-calendar-event",
+        "--new-calendar-event-text",
+        "Lunch with Sam Thursday 1pm at Via Carota",
+        "--new-calendar-event-fill"
+      ]
+    },
+    {
+      "id": "events/repeat",
+      "area": "events",
+      "title": "Repeat",
+      "walk": true,
+      "args": [
+        "--event-editor"
+      ]
+    },
+    {
+      "id": "events/new-task",
+      "area": "events",
+      "title": "New reminder",
+      "args": [
+        "--new-task"
+      ]
+    },
+    {
+      "id": "events/place-picker",
+      "area": "events",
+      "title": "Where is this?",
+      "args": [
+        "--place-picker"
+      ]
+    },
+    {
+      "id": "workouts/list",
+      "area": "workouts",
+      "title": "Workouts",
+      "args": [
+        "@shell",
+        "--tab",
+        "workouts"
+      ],
+      "to": [
+        [
+          "workouts/detail",
+          "Tap a workout"
+        ],
+        [
+          "food/day",
+          "Body switch › Food"
+        ]
+      ]
+    },
+    {
+      "id": "workouts/not-connected",
+      "area": "workouts",
+      "title": "Apple Health not connected",
+      "args": [
+        "--ui-preview",
+        "--tab",
+        "workouts"
+      ]
+    },
+    {
+      "id": "workouts/detail",
+      "area": "workouts",
+      "title": "Workout",
+      "args": [
+        "--runmap"
+      ],
+      "to": [
+        [
+          "workouts/trim",
+          "… › Trim"
+        ],
+        [
+          "workouts/review",
+          "… › Review"
+        ]
+      ]
+    },
+    {
+      "id": "workouts/detail-place",
+      "area": "workouts",
+      "title": "Workout in one place (a gym)",
+      "args": [
+        "--dummy-health",
+        "--workout-detail",
+        "0000000000AB"
+      ]
+    },
+    {
+      "id": "workouts/detail-charts",
+      "area": "workouts",
+      "title": "Workout: charts",
+      "args": [
+        "--runmap",
+        "--detail-section",
+        "charts"
+      ]
+    },
+    {
+      "id": "workouts/detail-splits",
+      "area": "workouts",
+      "title": "Workout: splits",
+      "args": [
+        "--runmap",
+        "--detail-section",
+        "splits"
+      ]
+    },
+    {
+      "id": "workouts/trim",
+      "area": "workouts",
+      "title": "Trim workout",
+      "args": [
+        "--trim"
+      ]
+    },
+    {
+      "id": "workouts/review",
+      "area": "workouts",
+      "title": "After a workout",
+      "args": [
+        "--workout-review"
+      ],
+      "to": [
+        [
+          "workouts/detail",
+          "Full analysis"
+        ]
+      ]
+    },
+    {
+      "id": "workouts/review-end",
+      "area": "workouts",
+      "title": "After a workout, end",
+      "args": [
+        "--workout-review",
+        "--workout-review-end"
+      ]
+    },
+    {
+      "id": "food/day",
+      "area": "food",
+      "title": "Food",
+      "args": [
+        "@shell",
+        "--tab",
+        "nutrition",
+        "--nutrition-week"
+      ],
+      "to": [
+        [
+          "food/edit-meal",
+          "Tap a meal"
+        ],
+        [
+          "food/describe",
+          "+ › Describe"
+        ],
+        [
+          "food/search",
+          "+ › Search"
+        ],
+        [
+          "food/my-foods",
+          "… › My foods"
+        ],
+        [
+          "taken/list",
+          "Body switch › Taken"
+        ],
+        [
+          "food/add-menu",
+          "+"
+        ],
+        [
+          "food/more-menu",
+          "…"
+        ]
+      ]
+    },
+    {
+      "id": "food/empty",
+      "area": "food",
+      "title": "No food logged",
+      "args": [
+        "--ui-preview",
+        "--tab",
+        "nutrition"
+      ]
+    },
+    {
+      "id": "food/to-log",
+      "area": "food",
+      "title": "To log (photos waiting)",
+      "args": [
+        "@shell",
+        "--tab",
+        "nutrition",
+        "--meal-backlog"
+      ],
+      "to": [
+        [
+          "food/day-review",
+          "Review day"
+        ],
+        [
+          "food/photo-viewer",
+          "Tap a photo"
+        ],
+        [
+          "food/add-photos",
+          "Add photos & notes"
+        ]
+      ]
+    },
+    {
+      "id": "food/day-review",
+      "area": "food",
+      "title": "Review the day's meals",
+      "args": [
+        "--meal-backlog",
+        "--meal-review",
+        "--wellness"
+      ]
+    },
+    {
+      "id": "food/photo-viewer",
+      "area": "food",
+      "title": "Meal photo",
+      "args": [
+        "--meal-backlog",
+        "--meal-photo-viewer",
+        "--wellness"
+      ]
+    },
+    {
+      "id": "food/add-photos",
+      "area": "food",
+      "title": "Add photos & notes",
+      "args": [
+        "--wellness",
+        "--meal-dump"
+      ]
+    },
+    {
+      "id": "food/describe",
+      "area": "food",
+      "title": "Describe what you ate",
+      "args": [
+        "--wellness",
+        "--describe-preview"
+      ]
+    },
+    {
+      "id": "food/edit-meal",
+      "area": "food",
+      "title": "Edit meal",
+      "args": [
+        "--wellness",
+        "--meal-editor-preview"
+      ],
+      "to": [
+        [
+          "food/scan-correct",
+          "Scan for it"
+        ],
+        [
+          "food/search",
+          "Add item"
+        ]
+      ]
+    },
+    {
+      "id": "food/amount",
+      "area": "food",
+      "title": "Edit meal: an amount still to say",
+      "args": [
+        "--wellness",
+        "--meal-amount-editor"
+      ]
+    },
+    {
+      "id": "food/search",
+      "area": "food",
+      "title": "Add food",
+      "args": [
+        "--food-search"
+      ],
+      "to": [
+        [
+          "food/search-results",
+          "Type"
+        ]
+      ]
+    },
+    {
+      "id": "food/search-results",
+      "area": "food",
+      "title": "Add food: results",
+      "args": [
+        "--food-search",
+        "--food-search-query",
+        "greek yogurt"
+      ],
+      "to": [
+        [
+          "food/food-amount",
+          "Pick a food"
+        ]
+      ]
+    },
+    {
+      "id": "food/food-amount",
+      "area": "food",
+      "title": "How much",
+      "args": [
+        "--food-search",
+        "--food-search-query",
+        "greek yogurt",
+        "--food-search-pick"
+      ]
+    },
+    {
+      "id": "food/scan-correct",
+      "area": "food",
+      "title": "Scan for an item",
+      "args": [
+        "--scan-correct-preview"
+      ]
+    },
+    {
+      "id": "food/my-foods",
+      "area": "food",
+      "title": "My foods",
+      "args": [
+        "--my-foods"
+      ]
+    },
+    {
+      "id": "taken/list",
+      "area": "taken",
+      "title": "Taken",
+      "args": [
+        "@shell",
+        "--tab",
+        "nutrition",
+        "--wellness-taken"
+      ],
+      "to": [
+        [
+          "taken/editor",
+          "Tap or +"
+        ]
+      ]
+    },
+    {
+      "id": "taken/editor",
+      "area": "taken",
+      "title": "Supplement",
+      "args": [
+        "--wellness",
+        "--wellness-taken",
+        "--supplement-editor-preview"
+      ]
+    },
+    {
+      "id": "taken/editor-anchored",
+      "area": "taken",
+      "title": "Supplement, after a workout",
+      "args": [
+        "--wellness",
+        "--wellness-taken",
+        "--supplement-anchored-preview"
+      ]
+    },
+    {
+      "id": "notes/list",
+      "area": "notes",
+      "title": "Notes",
+      "args": [
+        "@shell",
+        "--tab",
+        "notes"
+      ],
+      "to": [
+        [
+          "notes/composer",
+          "+ › Write"
+        ],
+        [
+          "notes/add-menu",
+          "+"
+        ],
+        [
+          "notes/detail",
+          "Tap a note"
+        ]
+      ]
+    },
+    {
+      "id": "notes/empty",
+      "area": "notes",
+      "title": "No notes yet",
+      "args": [
+        "--ui-preview",
+        "--tab",
+        "notes"
+      ]
+    },
+    {
+      "id": "notes/composer",
+      "area": "notes",
+      "title": "New note",
+      "args": [
+        "--notes",
+        "--note-composer"
+      ]
+    },
+    {
+      "id": "library/shows",
+      "area": "library",
+      "title": "Library",
+      "args": [
+        "@shell",
+        "--tab",
+        "library"
+      ],
+      "to": [
+        [
+          "library/show",
+          "Tap a show"
+        ],
+        [
+          "library/add-menu",
+          "+"
+        ],
+        [
+          "library/more-menu",
+          "…"
+        ]
+      ]
+    },
+    {
+      "id": "library/empty",
+      "area": "library",
+      "title": "No podcasts yet",
+      "args": [
+        "--ui-preview",
+        "--tab",
+        "library"
+      ]
+    },
+    {
+      "id": "library/show",
+      "area": "library",
+      "title": "Show",
+      "args": [
+        "--library-detail"
+      ],
+      "to": [
+        [
+          "library/player",
+          "Play an episode"
+        ]
+      ]
+    },
+    {
+      "id": "library/show-runs",
+      "area": "library",
+      "title": "Show: what you listened to",
+      "args": [
+        "--library-detail",
+        "--scroll-bottom",
+        "--expand-runs"
+      ]
+    },
+    {
+      "id": "library/player",
+      "area": "library",
+      "title": "Now playing",
+      "args": [
+        "--now-playing"
+      ],
+      "to": [
+        [
+          "library/player-transcript",
+          "Transcript"
+        ],
+        [
+          "library/player-notes",
+          "Notes"
+        ],
+        [
+          "library/player-upnext",
+          "Up next"
+        ]
+      ]
+    },
+    {
+      "id": "library/player-transcript",
+      "area": "library",
+      "title": "Now playing: transcript",
+      "args": [
+        "--now-playing",
+        "--player-transcript"
+      ]
+    },
+    {
+      "id": "library/player-notes",
+      "area": "library",
+      "title": "Now playing: notes",
+      "args": [
+        "--now-playing",
+        "--player-notes"
+      ]
+    },
+    {
+      "id": "library/player-upnext",
+      "area": "library",
+      "title": "Now playing: up next",
+      "args": [
+        "--now-playing",
+        "--player-upnext"
+      ]
+    },
+    {
+      "id": "library/transcript",
+      "area": "library",
+      "title": "Transcript with speakers",
+      "args": [
+        "--transcript-demo",
+        "banana-demo.wav",
+        "--transcript-speakers"
+      ],
+      "needs_demo_audio": true
+    },
+    {
+      "id": "review/review-week",
+      "area": "review",
+      "title": "Review: week",
+      "args": [
+        "--review",
+        "--dummy-health",
+        "-reviewSpan",
+        "week"
+      ],
+      "to": [
+        [
+          "review/review-month",
+          "Month"
+        ],
+        [
+          "review/trends",
+          "Fitness › All measures"
+        ],
+        [
+          "review/sleep",
+          "Sleep"
+        ],
+        [
+          "review/listening",
+          "Listening"
+        ],
+        [
+          "review/energy",
+          "Food"
+        ]
+      ]
+    },
+    {
+      "id": "review/review-month",
+      "area": "review",
+      "title": "Review: month",
+      "args": [
+        "--review",
+        "--dummy-health",
+        "-reviewSpan",
+        "month"
+      ]
+    },
+    {
+      "id": "review/review-year",
+      "area": "review",
+      "title": "Review: year",
+      "args": [
+        "--review",
+        "--dummy-health",
+        "-reviewSpan",
+        "year"
+      ]
+    },
+    {
+      "id": "review/trends",
+      "area": "review",
+      "title": "All measures",
+      "args": [
+        "--trends"
+      ],
+      "to": [
+        [
+          "review/trend",
+          "A measure"
+        ]
+      ]
+    },
+    {
+      "id": "review/trend",
+      "area": "review",
+      "title": "Steps",
+      "args": [
+        "--trend",
+        "steps"
+      ]
+    },
+    {
+      "id": "review/sleep",
+      "area": "review",
+      "title": "Sleep",
+      "args": [
+        "--sleep"
+      ]
+    },
+    {
+      "id": "review/energy",
+      "area": "review",
+      "title": "Food against weight",
+      "args": [
+        "--review",
+        "--dummy-health",
+        "--energy-balance",
+        "measured"
+      ],
+      "walk": true
+    },
+    {
+      "id": "review/listening",
+      "area": "review",
+      "title": "Listening map",
+      "args": [
+        "--listenmap"
+      ],
+      "settle": 18
+    },
+    {
+      "id": "routines/list",
+      "area": "routines",
+      "title": "Routines",
+      "args": [
+        "--routines",
+        "--routine-start-sample"
+      ],
+      "to": [
+        [
+          "routines/wake",
+          "Wake & bedtime"
+        ]
+      ]
+    },
+    {
+      "id": "routines/wake",
+      "area": "routines",
+      "title": "Wake & bedtime",
+      "args": [
+        "--smart"
+      ]
+    },
+    {
+      "id": "settings/settings",
+      "area": "settings",
+      "title": "Settings",
+      "args": [
+        "--settings"
+      ],
+      "to": [
+        [
+          "settings/setup",
+          "Set up"
+        ],
+        [
+          "settings/settings-modules",
+          "Modules"
+        ],
+        [
+          "settings/settings-accounts-calendars",
+          "Accounts & calendars"
+        ],
+        [
+          "settings/settings-calendar",
+          "Calendar"
+        ],
+        [
+          "settings/settings-travel",
+          "Travel"
+        ],
+        [
+          "settings/settings-wake-bedtime",
+          "Wake & bedtime"
+        ],
+        [
+          "settings/settings-podcasts",
+          "Podcasts"
+        ],
+        [
+          "settings/settings-workouts",
+          "Workouts"
+        ],
+        [
+          "settings/settings-apple-watch",
+          "Apple Watch"
+        ],
+        [
+          "settings/settings-icloud",
+          "iCloud"
+        ]
+      ]
+    },
+    {
+      "id": "settings/setup",
+      "area": "settings",
+      "title": "Set up Banana",
+      "walk": true,
+      "args": [
+        "--tab",
+        "plan",
+        "-planMode",
+        "day"
+      ],
+      "to": [
+        [
+          "settings/setup-calendar",
+          "Google Calendar"
+        ]
+      ]
+    },
+    {
+      "id": "settings/widgets",
+      "area": "settings",
+      "title": "Widgets",
+      "args": [
+        "--widgets"
+      ]
+    },
+    {
+      "id": "ipad/plan-week",
+      "area": "ipad",
+      "title": "Plan: week",
+      "devices": [
+        "pad"
+      ],
+      "args": [
+        "@shell",
+        "--tab",
+        "plan",
+        "-planMode",
+        "week"
+      ]
+    },
+    {
+      "id": "ipad/plan-day",
+      "area": "ipad",
+      "title": "Plan: day",
+      "devices": [
+        "pad"
+      ],
+      "args": [
+        "@shell",
+        "--tab",
+        "plan"
+      ]
+    },
+    {
+      "id": "ipad/plan-day-plan-and-food",
+      "area": "ipad",
+      "title": "Plan · Plan and Food",
+      "devices": [
+        "pad"
+      ],
+      "args": [
+        "@shell",
+        "--tab",
+        "plan",
+        "-planMode",
+        "day",
+        "--modules",
+        "food"
+      ]
+    },
+    {
+      "id": "ipad/first-run-welcome",
+      "area": "ipad",
+      "title": "What should Banana look after?",
+      "devices": [
+        "pad"
+      ],
+      "args": [
+        "-onboardingCompleted",
+        "NO"
+      ],
+      "nobase_onboarding": true
+    },
+    {
+      "id": "ipad/workouts",
+      "area": "ipad",
+      "title": "Workouts",
+      "devices": [
+        "pad"
+      ],
+      "args": [
+        "@shell",
+        "--tab",
+        "workouts"
+      ]
+    },
+    {
+      "id": "ipad/sleep",
+      "area": "ipad",
+      "title": "Sleep",
+      "devices": [
+        "pad"
+      ],
+      "args": [
+        "@shell",
+        "--sleep",
+        "--tab",
+        "workouts",
+        "--workouts-route",
+        "sleep"
+      ]
+    },
+    {
+      "id": "ipad/nutrition",
+      "area": "ipad",
+      "title": "Food and Taken",
+      "devices": [
+        "pad"
+      ],
+      "args": [
+        "@shell",
+        "--tab",
+        "nutrition",
+        "--nutrition-week",
+        "--meal-backlog"
+      ]
+    },
+    {
+      "id": "ipad/notes",
+      "area": "ipad",
+      "title": "Notes",
+      "devices": [
+        "pad"
+      ],
+      "args": [
+        "@shell",
+        "--tab",
+        "notes"
+      ]
+    },
+    {
+      "id": "ipad/library",
+      "area": "ipad",
+      "title": "Library",
+      "devices": [
+        "pad"
+      ],
+      "args": [
+        "@shell",
+        "--tab",
+        "library"
+      ]
+    },
+    {
+      "id": "ipad/routines",
+      "area": "ipad",
+      "title": "Routines",
+      "devices": [
+        "pad"
+      ],
+      "args": [
+        "@shell",
+        "--tab",
+        "routines",
+        "--routines"
+      ]
+    },
+    {
+      "id": "ipad/review",
+      "area": "ipad",
+      "title": "Review",
+      "devices": [
+        "pad"
+      ],
+      "args": [
+        "@shell",
+        "--tab",
+        "review"
+      ]
+    },
+    {
+      "id": "ipad/settings",
+      "area": "ipad",
+      "title": "Settings",
+      "devices": [
+        "pad"
+      ],
+      "args": [
+        "@shell",
+        "--tab",
+        "settings"
+      ]
+    },
+    {
+      "id": "mac/plan-week",
+      "area": "mac",
+      "title": "Plan: week",
+      "devices": [
+        "mac"
+      ],
+      "args": [
+        "--mac-section",
+        "plan",
+        "-planMode",
+        "week",
+        "-macWeekSpan",
+        "7"
+      ]
+    },
+    {
+      "id": "mac/plan-5",
+      "area": "mac",
+      "title": "Plan: 5 days",
+      "devices": [
+        "mac"
+      ],
+      "args": [
+        "--mac-section",
+        "plan",
+        "-planMode",
+        "week",
+        "-macWeekSpan",
+        "5"
+      ]
+    },
+    {
+      "id": "mac/plan-day",
+      "area": "mac",
+      "title": "Plan: day",
+      "devices": [
+        "mac"
+      ],
+      "args": [
+        "--mac-section",
+        "plan",
+        "-planMode",
+        "day"
+      ]
+    },
+    {
+      "id": "mac/availability",
+      "area": "mac",
+      "title": "Availability panel",
+      "devices": [
+        "mac"
+      ],
+      "args": [
+        "--mac-section",
+        "plan",
+        "-planMode",
+        "week",
+        "-macWeekSpan",
+        "5",
+        "--open-availability"
+      ]
+    },
+    {
+      "id": "mac/workouts",
+      "area": "mac",
+      "title": "Workouts",
+      "devices": [
+        "mac"
+      ],
+      "args": [
+        "--mac-section",
+        "workouts"
+      ]
+    },
+    {
+      "id": "mac/nutrition",
+      "area": "mac",
+      "title": "Nutrition",
+      "devices": [
+        "mac"
+      ],
+      "args": [
+        "--mac-section",
+        "nutrition",
+        "--meal-backlog"
+      ]
+    },
+    {
+      "id": "mac/notes",
+      "area": "mac",
+      "title": "Notes",
+      "devices": [
+        "mac"
+      ],
+      "args": [
+        "--mac-section",
+        "notes"
+      ]
+    },
+    {
+      "id": "mac/routines",
+      "area": "mac",
+      "title": "Routines",
+      "devices": [
+        "mac"
+      ],
+      "args": [
+        "--mac-section",
+        "routines"
+      ]
+    },
+    {
+      "id": "mac/library",
+      "area": "mac",
+      "title": "Library",
+      "devices": [
+        "mac"
+      ],
+      "args": [
+        "--mac-section",
+        "library"
+      ]
+    },
+    {
+      "id": "mac/review",
+      "area": "mac",
+      "title": "Review",
+      "devices": [
+        "mac"
+      ],
+      "args": [
+        "--mac-section",
+        "review"
+      ]
+    },
+    {
+      "id": "mac/sleep",
+      "area": "mac",
+      "title": "Sleep",
+      "devices": [
+        "mac"
+      ],
+      "args": [
+        "--mac-section",
+        "sleep",
+        "--sleep"
+      ]
+    },
+    {
+      "id": "mac/settings",
+      "area": "mac",
+      "title": "Settings",
+      "devices": [
+        "mac"
+      ],
+      "args": [
+        "--mac-section",
+        "settings"
+      ]
+    },
+    {
+      "id": "mac/briefing",
+      "area": "mac",
+      "title": "Morning briefing",
+      "devices": [
+        "mac"
+      ],
+      "args": [
+        "--mac-section",
+        "plan",
+        "--morning-briefing"
+      ]
+    },
+    {
+      "id": "mac/workout-review",
+      "area": "mac",
+      "title": "After a workout",
+      "devices": [
+        "mac"
+      ],
+      "args": [
+        "--mac-section",
+        "workouts",
+        "--workout-review"
+      ]
+    },
+    {
+      "id": "mac/first-run",
+      "area": "mac",
+      "title": "First run",
+      "devices": [
+        "mac"
+      ],
+      "args": [
+        "--calendar-onboarding"
+      ]
+    },
+    {
+      "id": "watch/picker",
+      "area": "watch",
+      "title": "Start a workout",
+      "devices": [
+        "watch"
+      ],
+      "args": [
+        "--workout-picker"
+      ],
+      "to": [
+        [
+          "watch/active",
+          "Hold to start"
+        ],
+        [
+          "watch/more",
+          "More"
+        ],
+        [
+          "watch/history",
+          "History"
+        ]
+      ]
+    },
+    {
+      "id": "watch/more",
+      "area": "watch",
+      "title": "More workouts",
+      "devices": [
+        "watch"
+      ],
+      "args": [
+        "--more-workouts-preview"
+      ]
+    },
+    {
+      "id": "watch/history",
+      "area": "watch",
+      "title": "History",
+      "devices": [
+        "watch"
+      ],
+      "args": [
+        "--workout-history-preview"
+      ]
+    },
+    {
+      "id": "watch/active",
+      "area": "watch",
+      "title": "Workout",
+      "devices": [
+        "watch"
+      ],
+      "args": [
+        "--activeworkout"
+      ],
+      "to": [
+        [
+          "watch/splits",
+          "Swipe"
+        ],
+        [
+          "watch/media",
+          "Swipe"
+        ],
+        [
+          "watch/paused",
+          "Pause"
+        ]
+      ]
+    },
+    {
+      "id": "watch/splits",
+      "area": "watch",
+      "title": "Splits",
+      "devices": [
+        "watch"
+      ],
+      "args": [
+        "--activeworkout",
+        "--splits-page"
+      ]
+    },
+    {
+      "id": "watch/media",
+      "area": "watch",
+      "title": "Now playing",
+      "devices": [
+        "watch"
+      ],
+      "args": [
+        "--activeworkout",
+        "--media-page"
+      ]
+    },
+    {
+      "id": "watch/phone-playing",
+      "area": "watch",
+      "title": "Playing on the iPhone",
+      "devices": [
+        "watch"
+      ],
+      "args": [
+        "--activeworkout",
+        "--media-page",
+        "--phone-now-playing"
+      ]
+    },
+    {
+      "id": "watch/paused",
+      "area": "watch",
+      "title": "Paused",
+      "devices": [
+        "watch"
+      ],
+      "args": [
+        "--activeworkout",
+        "--paused"
+      ]
+    },
+    {
+      "id": "watch/swim",
+      "area": "watch",
+      "title": "Pool swim",
+      "devices": [
+        "watch"
+      ],
+      "args": [
+        "--activeworkout",
+        "--pool-swim"
+      ]
+    },
+    {
+      "id": "watch/agenda",
+      "area": "watch",
+      "title": "Agenda",
+      "devices": [
+        "watch"
+      ],
+      "args": [
+        "--agenda-preview"
+      ]
+    },
+    {
+      "id": "plan/add-menu",
+      "area": "plan",
+      "title": "The + menu",
+      "walk": true,
+      "args": [],
+      "to": [
+        [
+          "events/new-event",
+          "Event"
+        ],
+        [
+          "events/new-task",
+          "Reminder"
+        ],
+        [
+          "food/describe",
+          "Describe"
+        ]
+      ]
+    },
+    {
+      "id": "plan/more-menu",
+      "area": "plan",
+      "title": "The … menu",
+      "walk": true,
+      "args": [],
+      "to": [
+        [
+          "plan/briefing",
+          "Morning briefing"
+        ],
+        [
+          "plan/availability",
+          "Share availability"
+        ],
+        [
+          "settings/setup",
+          "Finish setup"
+        ],
+        [
+          "routines/routines-sheet",
+          "Routines"
+        ],
+        [
+          "settings/settings",
+          "Settings"
+        ]
+      ]
+    },
+    {
+      "id": "food/add-menu",
+      "area": "food",
+      "title": "The + list, from Food",
+      "walk": true,
+      "args": [],
+      "to": [
+        [
+          "food/describe",
+          "Describe"
+        ],
+        [
+          "food/search",
+          "Search"
+        ],
+        [
+          "food/scan-correct",
+          "Scan"
+        ],
+        [
+          "food/add-photos",
+          "Photos"
+        ]
+      ]
+    },
+    {
+      "id": "food/more-menu",
+      "area": "food",
+      "title": "The … menu on Food",
+      "walk": true,
+      "args": [],
+      "to": []
+    },
+    {
+      "id": "notes/add-menu",
+      "area": "notes",
+      "title": "The + menu on Notes",
+      "walk": true,
+      "args": [],
+      "to": [
+        [
+          "notes/composer",
+          "Write"
+        ]
+      ]
+    },
+    {
+      "id": "notes/more-menu",
+      "area": "notes",
+      "title": "The … menu on Notes",
+      "walk": true,
+      "args": [],
+      "to": []
+    },
+    {
+      "id": "notes/detail",
+      "area": "notes",
+      "title": "A note",
+      "walk": true,
+      "args": [],
+      "to": []
+    },
+    {
+      "id": "library/add-menu",
+      "area": "library",
+      "title": "The + menu on Library",
+      "walk": true,
+      "args": [],
+      "to": []
+    },
+    {
+      "id": "library/more-menu",
+      "area": "library",
+      "title": "The … menu on Library",
+      "walk": true,
+      "args": [],
+      "to": []
+    },
+    {
+      "id": "settings/settings-accounts-calendars",
+      "area": "settings",
+      "title": "Accounts & calendars",
+      "walk": true,
+      "args": [],
+      "to": []
+    },
+    {
+      "id": "settings/settings-modules",
+      "area": "settings",
+      "title": "Modules",
+      "walk": true,
+      "args": [],
+      "to": []
+    },
+    {
+      "id": "settings/settings-calendar",
+      "area": "settings",
+      "title": "Calendar",
+      "walk": true,
+      "args": [],
+      "to": []
+    },
+    {
+      "id": "settings/settings-travel",
+      "area": "settings",
+      "title": "Travel",
+      "walk": true,
+      "args": [],
+      "to": []
+    },
+    {
+      "id": "settings/settings-wake-bedtime",
+      "area": "settings",
+      "title": "Wake & bedtime",
+      "walk": true,
+      "args": [],
+      "to": []
+    },
+    {
+      "id": "settings/settings-podcasts",
+      "area": "settings",
+      "title": "Podcasts",
+      "walk": true,
+      "args": [],
+      "to": []
+    },
+    {
+      "id": "settings/settings-workouts",
+      "area": "settings",
+      "title": "Workouts",
+      "walk": true,
+      "args": [],
+      "to": []
+    },
+    {
+      "id": "settings/settings-apple-watch",
+      "area": "settings",
+      "title": "Apple Watch",
+      "walk": true,
+      "args": [],
+      "to": []
+    },
+    {
+      "id": "settings/settings-icloud",
+      "area": "settings",
+      "title": "iCloud",
+      "walk": true,
+      "args": [],
+      "to": []
+    },
+    {
+      "id": "settings/setup-calendar",
+      "area": "settings",
+      "title": "Set up › Google Calendar",
+      "walk": true,
+      "args": [],
+      "to": []
+    },
+    {
+      "id": "routines/routines-sheet",
+      "area": "routines",
+      "title": "Routines (from …)",
+      "walk": true,
+      "args": [],
+      "to": [
+        [
+          "routines/wake",
+          "Wake & bedtime"
+        ]
+      ]
+    }
+  ]
+}

@@ -1,0 +1,87 @@
+# Send, Undo, Send and Done, discard (MAIL-UX 4.2.6, 6.3.7, T25, T26, T38)
+# The two send chords are told apart by the key's exact modifiers (MailComposerChord): Cmd-Return sends and
+# leaves the conversation where it is; Shift-Cmd-Return sends and marks it Done. Both orders are played,
+# and Undo takes back each.
+name send
+wait 1
+key r
+type Thanks will do
+wait 1.3
+expect composer.body is Thanks will do
+expect mail.counts.inbox is 40
+expect mail.cursor is q3
+
+# Cmd-Return sends and nothing else: the Inbox count is as it was, the cursor is where it was
+key cmd+return
+wait 1
+expect composer.title absent
+expect toast contains Sending
+expect toast notcontains Done
+expect toastAction is Undo
+expect mail.counts.inbox is 40
+expect mail.cursor is q3
+shot sent-plain
+# Z takes the send back: the composer is open again with its text
+key z
+wait 1
+expect composer.title is Reply
+expect composer.body is Thanks will do
+expect mail.counts.inbox is 40
+shot reopened-by-Z
+
+# Shift-Cmd-Return sends and marks Done: the Inbox count drops by one and the toast says so
+key cmd+shift+return
+wait 1
+expect composer.title absent
+expect toast contains marked Done
+expect mail.counts.inbox is 39
+expect mail.cursor isnot q3
+shot sent-and-done
+# one Undo reverses both: the Done and the send
+key z
+wait 1
+expect mail.counts.inbox is 40
+expect composer.title is Reply
+expect composer.body is Thanks will do
+expect mail.cursor is q3
+shot undone-send-and-done
+
+# Cmd-Return straight after that: a plain send again, not a Done
+key cmd+return
+wait 1
+expect composer.title absent
+expect toast contains Sending
+expect toast notcontains Done
+expect mail.counts.inbox is 40
+expect mail.cursor is q3
+# and the toast's own Undo button takes it back
+axpress toast.undo
+wait 1
+expect composer.title is Reply
+expect composer.body is Thanks will do
+expect mail.counts.inbox is 40
+
+# Shift-Cmd-Return, undone by the toast's button: also both
+key cmd+shift+return
+wait 1
+expect toast contains marked Done
+expect mail.counts.inbox is 39
+axpress toast.undo
+wait 1
+expect mail.counts.inbox is 40
+expect composer.title is Reply
+expect composer.body is Thanks will do
+expect mail.cursor is q3
+
+# Shift-Cmd-, discards, with Undo
+key cmd+shift+,
+wait 0.8
+expect composer.title absent
+expect toast contains Draft discarded
+expect mail.counts.drafts is 0
+shot discarded
+key z
+wait 1
+expect composer.body is Thanks will do
+shot discard-undone
+key escape

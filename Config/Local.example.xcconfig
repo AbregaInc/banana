@@ -1,0 +1,21 @@
+// Copy to Local.xcconfig and fill in. Local.xcconfig is not tracked.
+
+// Your Apple developer team (developer.apple.com → Membership).
+DEVELOPMENT_TEAM = ABCDE12345
+
+// A bundle id prefix your team owns.
+BANANA_BUNDLE_ID = com.yourname.banana
+
+// Only if they differ from iCloud.<bundle id> and iCloud.<bundle id>.beta:
+// BANANA_ICLOUD_CONTAINER = iCloud.com.yourname.banana
+// BANANA_ICLOUD_CONTAINER_BETA = iCloud.com.yourname.banana.beta
+
+// Google sign-in (console.cloud.google.com → Credentials → OAuth client ID → iOS, one per
+// bundle id). Leave out to build without Google.
+// BANANA_GOOGLE_CLIENT = 000000000000-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+// BANANA_GOOGLE_CLIENT_BETA =
+
+// A Banana service of your own (Service/): accounts, calendar pushes, usage counts. Leave out
+// for none. The server client is a "Web application" OAuth client in the same Google project.
+// BANANA_SERVICE_HOST = banana-service.example.workers.dev
+// BANANA_GOOGLE_SERVER_CLIENT = 000000000000-yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy

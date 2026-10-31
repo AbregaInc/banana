@@ -1,0 +1,23 @@
+{
+  "scope": "Native UI observation probe; not latency measurement",
+  "app": ".build/mac-stress-previews/20261009-002736-788465/Banana Stress Review.app",
+  "flags": [
+    "--calendar-observation-audit"
+  ],
+  "steps": [
+    {
+      "action": "initial",
+      "visiblePalette": "unset"
+    },
+    {
+      "action": "click calendar.audit.changePalette",
+      "observation": "No accessibility-tree change; palette remains unset"
+    },
+    {
+      "action": "press j",
+      "visiblePalette": "FF0000",
+      "heading": "Oct 14\u201318, 2026"
+    }
+  ],
+  "result": "fail: relevant publisher does not invalidate view until unrelated navigation"
+}

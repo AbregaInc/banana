@@ -1,0 +1,98 @@
+{
+  "days": 30,
+  "emails": 60000,
+  "episodes": 300000,
+  "events": 3000,
+  "metrics": [
+    {
+      "budgetMS": 50,
+      "checksum": 350,
+      "medianMS": 0.0002500019036233425,
+      "name": "mail.firstPage",
+      "p95MS": 12.82962501863949
+    },
+    {
+      "budgetMS": 100,
+      "checksum": 350,
+      "medianMS": 41.76395831746049,
+      "name": "mail.readMutation",
+      "p95MS": 42.29066666448489
+    },
+    {
+      "budgetMS": 16,
+      "checksum": 4900,
+      "medianMS": 0.28474998543970287,
+      "name": "calendar.visibleWeek",
+      "p95MS": 4.687666689278558
+    },
+    {
+      "budgetMS": 8,
+      "checksum": 700,
+      "medianMS": 0.0034999975468963385,
+      "name": "calendar.day",
+      "p95MS": 0.04495831672102213
+    },
+    {
+      "budgetMS": 100,
+      "checksum": 700,
+      "medianMS": 18.46487500006333,
+      "name": "notes.search",
+      "p95MS": 19.021249987417832
+    },
+    {
+      "budgetMS": 16,
+      "checksum": 700,
+      "medianMS": 1.203541673021391,
+      "name": "notes.browse",
+      "p95MS": 1.9139166688546538
+    },
+    {
+      "budgetMS": 100,
+      "checksum": 2100,
+      "medianMS": 18.557791656348854,
+      "name": "podcasts.nextAcrossCatalog",
+      "p95MS": 20.40920831495896
+    },
+    {
+      "budgetMS": 100,
+      "checksum": 6300,
+      "medianMS": 23.38345831958577,
+      "name": "podcasts.downloadCandidates",
+      "p95MS": 24.33754166122526
+    }
+  ],
+  "notes": 30000,
+  "passed": true,
+  "platform": "iOS Simulator; disk-paged notes and podcasts; model operations; mail fixture source",
+  "podcasts": 300,
+  "residentMB": 415.078125,
+  "schemaVersion": 1,
+  "idle": {
+    "budgetRendersPerSecond": 2,
+    "clockTicks": 100,
+    "observedRoot": true,
+    "passed": true,
+    "rendersPerSecond": {
+      "fitness\u21bb": 0,
+      "library\u21bb": 0,
+      "MailSection": 0,
+      "occurrences\u21bb": 0,
+      "RootView": 0,
+      "watch\u21bb": 0
+    },
+    "seconds": 10.528459291672334
+  },
+  "label": "redraw-mail",
+  "commit": "403a0f9eca4cf972495e84ddea9a5027bdce8ac0",
+  "device": "E5232BE0-8F82-4E85-A03B-5CA7160571E2",
+  "binarySHA256": "7ce88d7f89fc86b0fe81ea4a23be56f2686e982a165a812c1447d5d5a747cae1",
+  "hostLoad": [
+    226.5771484375,
+    269.56494140625,
+    243.49755859375
+  ],
+  "dirty": true,
+  "readySeconds": 25.569,
+  "memoryBudgetMB": 900,
+  "memoryPassed": true
+}

@@ -1,0 +1,15 @@
+{
+  "command": [
+    "swiftc",
+    "-O",
+    "-parse-as-library",
+    "Banana/Model/CalendarMobileNeighbors.swift",
+    "Banana/Model/CalendarDayClockGeometry.swift",
+    "Banana/Model/CalendarLanePlan.swift",
+    "tools/calendar-library-benchmark/Shared/Fixtures.swift",
+    "tools/calendar-neighbor-tests/main.swift",
+    "-o",
+    ".build/calendar-neighbors-20261010/checks-final"
+  ],
+  "exit": 0
+}

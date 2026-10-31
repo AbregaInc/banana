@@ -1,0 +1,4 @@
+# Sample Mail routes; no Gmail connection or persistent fixture changes.
+mail-list|iphone,ipad|--mail --mail-fresh
+mail-long|iphone,ipad|--mail --mail-fresh --mail-open long
+mail-reply|iphone,ipad|--mail --mail-fresh --mail-open q3 --mail-state reply

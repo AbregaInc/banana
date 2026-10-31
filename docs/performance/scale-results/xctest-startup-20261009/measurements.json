@@ -1,0 +1,134 @@
+{
+  "scope": "XCTest startup and functional checks only; no performance acceptance",
+  "testSource": "tools/calendar-library-benchmark/SkiaLive/UITests/LiveTests.swift",
+  "testSourceSHA256": "6382356399428d76aa97f45abfac63522aade91a9bbd30bcbe0380f6d9a3e009",
+  "attempts": [
+    {
+      "artifact": "calendar-certificate-control/status.json",
+      "exitCode": 124
+    },
+    {
+      "artifact": "calendar-configured-repeat/status.json",
+      "exitCode": 0,
+      "testSummary": {
+        "title": "Test - CalendarMetalMacUITests",
+        "result": "Passed",
+        "totalTestCount": 1,
+        "passedTests": 1,
+        "failedTests": 0,
+        "skippedTests": 0
+      }
+    },
+    {
+      "artifact": "calendar-fresh-local/status.json",
+      "exitCode": 124
+    },
+    {
+      "artifact": "calendar-local-restored/status.json",
+      "exitCode": 124
+    },
+    {
+      "artifact": "calendar-local-signing/status.json",
+      "exitCode": 0,
+      "testSummary": {
+        "title": "Test - CalendarMetalMacUITests",
+        "result": "Passed",
+        "totalTestCount": 1,
+        "passedTests": 1,
+        "failedTests": 0,
+        "skippedTests": 0
+      }
+    },
+    {
+      "artifact": "calendar-native-retry/status.json",
+      "exitCode": 124
+    },
+    {
+      "artifact": "calendar-project-team-control/status.json",
+      "exitCode": 124
+    },
+    {
+      "artifact": "exclusive-recovery/trial-1/status.json",
+      "exitCode": 124,
+      "verifiedPass": false
+    },
+    {
+      "artifact": "paired-idle-probe/calendar-ui/status.json",
+      "exitCode": 124,
+      "verifiedPass": false,
+      "testSummary": {
+        "title": "Test - CalendarMetalMacUITests",
+        "result": "Failed",
+        "totalTestCount": 1,
+        "passedTests": 0,
+        "failedTests": 1,
+        "skippedTests": 0
+      }
+    },
+    {
+      "artifact": "paired-idle-probe/minimal-ui/status.json",
+      "exitCode": 0,
+      "verifiedPass": true,
+      "testSummary": {
+        "title": "Test - StartupUITests",
+        "result": "Passed",
+        "totalTestCount": 1,
+        "passedTests": 1,
+        "failedTests": 0,
+        "skippedTests": 0
+      }
+    },
+    {
+      "artifact": "stable-signer-comparison/standalone-build/status.json",
+      "exitCode": 0,
+      "verifiedPass": true,
+      "testSummary": {
+        "title": "Test - CalendarMetalMacUITests",
+        "result": "Passed",
+        "totalTestCount": 1,
+        "passedTests": 1,
+        "failedTests": 0,
+        "skippedTests": 0
+      }
+    },
+    {
+      "artifact": "stable-signer-comparison/standalone-repeat/status.json",
+      "exitCode": 0,
+      "verifiedPass": true,
+      "testSummary": {
+        "title": "Test - CalendarMetalMacUITests",
+        "result": "Passed",
+        "totalTestCount": 1,
+        "passedTests": 1,
+        "failedTests": 0,
+        "skippedTests": 0
+      }
+    },
+    {
+      "artifact": "standalone-comparison/standalone-build/status.json",
+      "exitCode": 0,
+      "verifiedPass": true,
+      "testSummary": {
+        "title": "Test - CalendarUITests",
+        "result": "Passed",
+        "totalTestCount": 1,
+        "passedTests": 1,
+        "failedTests": 0,
+        "skippedTests": 0
+      }
+    },
+    {
+      "artifact": "standalone-comparison/standalone-repeat/status.json",
+      "exitCode": 0,
+      "verifiedPass": true,
+      "testSummary": {
+        "title": "Test - CalendarUITests",
+        "result": "Passed",
+        "totalTestCount": 1,
+        "passedTests": 1,
+        "failedTests": 0,
+        "skippedTests": 0
+      }
+    }
+  ]
+}

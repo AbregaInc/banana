@@ -1,0 +1,7 @@
+sqlite 3.51.0, FTS5=1, threadsafe=2
+plan: SCAN f VIRTUAL TABLE INDEX 192:M5 | SEARCH m USING INDEX message_by_fts (fts_rowid=?)
+  split files, 2 chars: n=40 p50=0.215 ms p95=0.324 ms p99=6.264 ms max=6.264 ms
+  split files, 3 chars: n=40 p50=0.211 ms p95=0.539 ms p99=2.526 ms max=2.526 ms
+  split files, common word: n=40 p50=0.217 ms p95=0.262 ms p99=2.598 ms max=2.598 ms
+  split files, mid word: n=40 p50=0.058 ms p95=0.105 ms p99=1.460 ms max=1.460 ms
+  split files, two words: n=40 p50=0.288 ms p95=0.373 ms p99=3.984 ms max=3.984 ms

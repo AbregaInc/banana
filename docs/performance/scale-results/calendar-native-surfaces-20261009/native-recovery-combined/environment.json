@@ -1,0 +1,15 @@
+{
+  "binarySHA256": "9438ba673bd50211115115c4b9af6288921d8edd742f20873a7cadcc2f387ce1",
+  "command": [
+    "tools/calendar-library-benchmark/run-mac-recovery.py",
+    "--binary",
+    ".build/calendar-async-preparation/MacTextCompositionBenchmark",
+    "--comparison",
+    "combined",
+    "--out",
+    ".build/calendar-async-preparation/native-recovery-combined"
+  ],
+  "os": "ProductName:\t\tmacOS\nProductVersion:\t\t26.6.2\nBuildVersion:\t\t25G83\n",
+  "git": "85914f96b9905a85cc8999168d6fe8128c264c49",
+  "scope": "Cache eviction through API flush; no UI acceptance claim"
+}

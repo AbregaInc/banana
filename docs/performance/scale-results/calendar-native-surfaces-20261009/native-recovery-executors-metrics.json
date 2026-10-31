@@ -1,0 +1,338 @@
+[
+  {
+    "name": "0-100-cooperative",
+    "status": "measured",
+    "response": {
+      "count": 21,
+      "p50MS": 20.044000004418194,
+      "p95MS": 24.85187503043562,
+      "p99MS": 115.13099999865517,
+      "maxMS": 115.13099999865517
+    },
+    "action": {
+      "count": 21,
+      "p50MS": 0.6991249974817038,
+      "p95MS": 0.7636250229552388,
+      "p99MS": 0.9487083298154175,
+      "maxMS": 0.9487083298154175
+    },
+    "mainSections": {
+      "count": 105,
+      "p50MS": 0.10370835661888123,
+      "p95MS": 0.7197500090114772,
+      "p99MS": 0.7636250229552388,
+      "maxMS": 0.9487083298154175
+    },
+    "peakResidentBytes": 151339008,
+    "maxSampledPhysicalFootprintBytes": 98911144,
+    "componentBudget": "fail"
+  },
+  {
+    "name": "0-100-dispatch",
+    "status": "measured",
+    "response": {
+      "count": 21,
+      "p50MS": 20.304250007029623,
+      "p95MS": 25.1270416774787,
+      "p99MS": 42.29295835830271,
+      "maxMS": 42.29295835830271
+    },
+    "action": {
+      "count": 21,
+      "p50MS": 0.7484583766199648,
+      "p95MS": 0.951208348851651,
+      "p99MS": 1.1715833097696304,
+      "maxMS": 1.1715833097696304
+    },
+    "mainSections": {
+      "count": 105,
+      "p50MS": 0.10745832696557045,
+      "p95MS": 0.8075000368990004,
+      "p99MS": 0.9522917098365724,
+      "maxMS": 1.1715833097696304
+    },
+    "peakResidentBytes": 146145280,
+    "maxSampledPhysicalFootprintBytes": 78758800,
+    "componentBudget": "within-measured-limits-only"
+  },
+  {
+    "name": "0-300-cooperative",
+    "status": "measured",
+    "response": {
+      "count": 21,
+      "p50MS": 35.878458293154836,
+      "p95MS": 51.22733331518248,
+      "p99MS": 91.12304169684649,
+      "maxMS": 91.12304169684649
+    },
+    "action": {
+      "count": 21,
+      "p50MS": 0.6910833180882037,
+      "p95MS": 0.8795000030659139,
+      "p99MS": 0.9449583594687283,
+      "maxMS": 0.9449583594687283
+    },
+    "mainSections": {
+      "count": 105,
+      "p50MS": 0.17854163888841867,
+      "p95MS": 0.8608333300799131,
+      "p99MS": 0.9447916527278721,
+      "maxMS": 0.9449583594687283
+    },
+    "peakResidentBytes": 149274624,
+    "maxSampledPhysicalFootprintBytes": 101499840,
+    "componentBudget": "within-measured-limits-only"
+  },
+  {
+    "name": "0-300-dispatch",
+    "status": "measured",
+    "response": {
+      "count": 21,
+      "p50MS": 37.39020833745599,
+      "p95MS": 46.49791668634862,
+      "p99MS": 97.09820832358673,
+      "maxMS": 97.09820832358673
+    },
+    "action": {
+      "count": 21,
+      "p50MS": 0.7425000076182187,
+      "p95MS": 1.5025833272375166,
+      "p99MS": 1.843875041231513,
+      "maxMS": 1.843875041231513
+    },
+    "mainSections": {
+      "count": 105,
+      "p50MS": 0.18287496641278267,
+      "p95MS": 0.9509583469480276,
+      "p99MS": 1.5025833272375166,
+      "maxMS": 1.843875041231513
+    },
+    "peakResidentBytes": 149929984,
+    "maxSampledPhysicalFootprintBytes": 82527144,
+    "componentBudget": "within-measured-limits-only"
+  },
+  {
+    "name": "1-100-dispatch",
+    "status": "measured",
+    "response": {
+      "count": 21,
+      "p50MS": 20.282416662666947,
+      "p95MS": 26.692999992519617,
+      "p99MS": 45.47841666499153,
+      "maxMS": 45.47841666499153
+    },
+    "action": {
+      "count": 21,
+      "p50MS": 0.6168750114738941,
+      "p95MS": 0.7696250104345381,
+      "p99MS": 0.8864583796821535,
+      "maxMS": 0.8864583796821535
+    },
+    "mainSections": {
+      "count": 105,
+      "p50MS": 0.10579166701063514,
+      "p95MS": 0.715208298061043,
+      "p99MS": 0.8864583796821535,
+      "maxMS": 2.9719999874942005
+    },
+    "peakResidentBytes": 156991488,
+    "maxSampledPhysicalFootprintBytes": 99746704,
+    "componentBudget": "within-measured-limits-only"
+  },
+  {
+    "name": "1-100-cooperative",
+    "status": "measured",
+    "response": {
+      "count": 21,
+      "p50MS": 20.0659167021513,
+      "p95MS": 23.64070835756138,
+      "p99MS": 29.079458327032626,
+      "maxMS": 29.079458327032626
+    },
+    "action": {
+      "count": 21,
+      "p50MS": 0.7491666474379599,
+      "p95MS": 1.0678750113584101,
+      "p99MS": 1.2005833559669554,
+      "maxMS": 1.2005833559669554
+    },
+    "mainSections": {
+      "count": 105,
+      "p50MS": 0.10549998842179775,
+      "p95MS": 0.7800000021234155,
+      "p99MS": 1.0678750113584101,
+      "maxMS": 1.2005833559669554
+    },
+    "peakResidentBytes": 144605184,
+    "maxSampledPhysicalFootprintBytes": 77759424,
+    "componentBudget": "within-measured-limits-only"
+  },
+  {
+    "name": "1-300-dispatch",
+    "status": "measured",
+    "response": {
+      "count": 21,
+      "p50MS": 35.60537501471117,
+      "p95MS": 45.649333333130926,
+      "p99MS": 81.58641669433564,
+      "maxMS": 81.58641669433564
+    },
+    "action": {
+      "count": 21,
+      "p50MS": 0.689124979544431,
+      "p95MS": 0.8647916838526726,
+      "p99MS": 0.9182500070892274,
+      "maxMS": 0.9182500070892274
+    },
+    "mainSections": {
+      "count": 105,
+      "p50MS": 0.17712503904476762,
+      "p95MS": 0.839749991428107,
+      "p99MS": 0.9182500070892274,
+      "maxMS": 0.9677083580754697
+    },
+    "peakResidentBytes": 149209088,
+    "maxSampledPhysicalFootprintBytes": 81904504,
+    "componentBudget": "within-measured-limits-only"
+  },
+  {
+    "name": "1-300-cooperative",
+    "status": "measured",
+    "response": {
+      "count": 21,
+      "p50MS": 37.48591669136658,
+      "p95MS": 46.986041648779064,
+      "p99MS": 65.9621250233613,
+      "maxMS": 65.9621250233613
+    },
+    "action": {
+      "count": 21,
+      "p50MS": 0.6430416833609343,
+      "p95MS": 0.9341249824501574,
+      "p99MS": 1.138624968007207,
+      "maxMS": 1.138624968007207
+    },
+    "mainSections": {
+      "count": 105,
+      "p50MS": 0.18420832930132747,
+      "p95MS": 0.8814999600872397,
+      "p99MS": 0.9341249824501574,
+      "maxMS": 1.138624968007207
+    },
+    "peakResidentBytes": 150667264,
+    "maxSampledPhysicalFootprintBytes": 83395496,
+    "componentBudget": "within-measured-limits-only"
+  },
+  {
+    "name": "2-100-cooperative",
+    "status": "measured",
+    "response": {
+      "count": 21,
+      "p50MS": 19.84320831252262,
+      "p95MS": 23.03995832335204,
+      "p99MS": 56.965916708577424,
+      "maxMS": 56.965916708577424
+    },
+    "action": {
+      "count": 21,
+      "p50MS": 0.6339167011901736,
+      "p95MS": 0.9903750033117831,
+      "p99MS": 1.07216666219756,
+      "maxMS": 1.07216666219756
+    },
+    "mainSections": {
+      "count": 105,
+      "p50MS": 0.10499998461455107,
+      "p95MS": 0.6935000419616699,
+      "p99MS": 0.9903750033117831,
+      "maxMS": 1.07216666219756
+    },
+    "peakResidentBytes": 149897216,
+    "maxSampledPhysicalFootprintBytes": 77841296,
+    "componentBudget": "within-measured-limits-only"
+  },
+  {
+    "name": "2-100-dispatch",
+    "status": "measured",
+    "response": {
+      "count": 21,
+      "p50MS": 19.504791649524122,
+      "p95MS": 28.780708380509168,
+      "p99MS": 41.445583337917924,
+      "maxMS": 41.445583337917924
+    },
+    "action": {
+      "count": 21,
+      "p50MS": 0.647166627459228,
+      "p95MS": 0.9329166496172547,
+      "p99MS": 0.9442082955501974,
+      "maxMS": 0.9442082955501974
+    },
+    "mainSections": {
+      "count": 105,
+      "p50MS": 0.10483333608135581,
+      "p95MS": 0.775333319325,
+      "p99MS": 0.9329166496172547,
+      "maxMS": 0.9442082955501974
+    },
+    "peakResidentBytes": 145981440,
+    "maxSampledPhysicalFootprintBytes": 78660496,
+    "componentBudget": "within-measured-limits-only"
+  },
+  {
+    "name": "2-300-cooperative",
+    "status": "measured",
+    "response": {
+      "count": 21,
+      "p50MS": 36.50712501257658,
+      "p95MS": 49.71595830284059,
+      "p99MS": 62.91333329863846,
+      "maxMS": 62.91333329863846
+    },
+    "action": {
+      "count": 21,
+      "p50MS": 0.5977500113658607,
+      "p95MS": 0.9298750082962215,
+      "p99MS": 1.133625046350062,
+      "maxMS": 1.133625046350062
+    },
+    "mainSections": {
+      "count": 105,
+      "p50MS": 0.17841660883277655,
+      "p95MS": 0.863624969497323,
+      "p99MS": 0.9298750082962215,
+      "maxMS": 1.133625046350062
+    },
+    "peakResidentBytes": 149291008,
+    "maxSampledPhysicalFootprintBytes": 82035624,
+    "componentBudget": "within-measured-limits-only"
+  },
+  {
+    "name": "2-300-dispatch",
+    "status": "measured",
+    "response": {
+      "count": 21,
+      "p50MS": 36.21062496677041,
+      "p95MS": 40.32683331752196,
+      "p99MS": 63.2159166270867,
+      "maxMS": 63.2159166270867
+    },
+    "action": {
+      "count": 21,
+      "p50MS": 0.5985416937619448,
+      "p95MS": 0.9522500331513584,
+      "p99MS": 1.2037083506584167,
+      "maxMS": 1.2037083506584167
+    },
+    "mainSections": {
+      "count": 105,
+      "p50MS": 0.18070836085826159,
+      "p95MS": 0.8674999698996544,
+      "p99MS": 0.9522500331513584,
+      "maxMS": 1.2037083506584167
+    },
+    "peakResidentBytes": 149340160,
+    "maxSampledPhysicalFootprintBytes": 82101136,
+    "componentBudget": "within-measured-limits-only"
+  }
+]

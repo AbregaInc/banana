@@ -1,0 +1,7 @@
+tools/calendar-library-benchmark/Shared/TileRenderer.swift:191:15: error: failed to produce diagnostic for expression; please submit a bug report (https://swift.org/contributing/#reporting-bugs)
+189 |         style: RasterPage.Style, region: CGRect, cooperative: Bool,
+190 |         receive: @escaping @MainActor @Sendable (RasterPage) -> Void) {
+191 |         queue.addOperation {
+    |               `- error: failed to produce diagnostic for expression; please submit a bug report (https://swift.org/contributing/#reporting-bugs)
+192 |             guard !cancellation.isCancelled else { return }
+193 |             let cancelled: (@Sendable () -> Bool)? = cooperative ? { cancellation.isCancelled } : nil

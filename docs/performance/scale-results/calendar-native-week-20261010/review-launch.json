@@ -1,0 +1,70 @@
+{
+  "device": "DFF60927-BA4A-4E8E-9A6E-63A1A4178858",
+  "binarySHA256": "861c83604fbdd0d27efe160e5e6abd9ee7221a24d20b4999b0711d675ebd3aa1",
+  "commands": [
+    [
+      "xcrun",
+      "simctl",
+      "boot",
+      "DFF60927-BA4A-4E8E-9A6E-63A1A4178858"
+    ],
+    [
+      "xcrun",
+      "simctl",
+      "bootstatus",
+      "DFF60927-BA4A-4E8E-9A6E-63A1A4178858",
+      "-b"
+    ],
+    [
+      "xcrun",
+      "simctl",
+      "install",
+      "DFF60927-BA4A-4E8E-9A6E-63A1A4178858",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/stress-dd/Build/Products/Release-iphonesimulator/Banana.app"
+    ],
+    [
+      "xcrun",
+      "simctl",
+      "launch",
+      "DFF60927-BA4A-4E8E-9A6E-63A1A4178858",
+      "com.boris.banana",
+      "--plan",
+      "--stress-days",
+      "30",
+      "--disable-icloud",
+      "--mail-fresh",
+      "-onboardingCompleted",
+      "YES",
+      "--stress-actionable-calendar",
+      "--stress-calendar-fixture",
+      "varied-v1",
+      "--calendar-native-week",
+      "-mobileWeekLayout",
+      "calendar",
+      "-mobileWeekHourHeight",
+      "56"
+    ]
+  ],
+  "results": [
+    {
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "exit": 0,
+      "stdout": "Monitoring boot status for Calendar-Artwork-iPad-20261009 (DFF60927-BA4A-4E8E-9A6E-63A1A4178858).\n[2026-10-10 13:03:59 +0000] Status=2, isTerminal=NO, Elapsed=00:01.\n\tWaiting on Data Migration\n\t\tReason:(null)\n\t\tMigration Elapsed:00:00 seconds\n\n[2026-10-10 13:04:00 +0000] Status=4, isTerminal=NO, Elapsed=00:03.\n\tWaiting on System App\n\n[2026-10-10 13:04:00 +0000] Status=4, isTerminal=NO, Elapsed=00:03.\n\tWaiting on System App\n\n[2026-10-10 13:04:01 +0000] Status=4, isTerminal=NO, Elapsed=00:04.\n\tWaiting on System App\n\n[2026-10-10 13:04:02 +0000] Status=4, isTerminal=NO, Elapsed=00:05.\n\tWaiting on System App\n\n[2026-10-10 13:04:03 +0000] Status=4, isTerminal=NO, Elapsed=00:06.\n\tWaiting on System App\n\n[2026-10-10 13:04:04 +0000] Status=4, isTerminal=NO, Elapsed=00:07.\n\tWaiting on System App\n\n[2026-10-10 13:04:05 +0000] Status=4, isTerminal=NO, Elapsed=00:08.\n\tWaiting on System App\n\n[2026-10-10 13:04:06 +0000] Status=4, isTerminal=NO, Elapsed=00:09.\n\tWaiting on System App\n\n[2026-10-10 13:04:07 +0000] Status=4, isTerminal=NO, Elapsed=00:10.\n\tWaiting on System App\n\n[2026-10-10 13:04:08 +0000] Status=4, isTerminal=NO, Elapsed=00:11.\n\tWaiting on System App\n\n[2026-10-10 13:04:10 +0000] Status=4, isTerminal=NO, Elapsed=00:12.\n\tWaiting on System App\n\n[2026-10-10 13:04:11 +0000] Status=4, isTerminal=NO, Elapsed=00:13.\n\tWaiting on System App\n\n[2026-10-10 13:04:12 +0000] Status=4294967295, isTerminal=YES, Elapsed=00:15.\n\tFinished\n\n",
+      "stderr": ""
+    },
+    {
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "exit": 0,
+      "stdout": "com.boris.banana: 3833\n",
+      "stderr": ""
+    }
+  ]
+}

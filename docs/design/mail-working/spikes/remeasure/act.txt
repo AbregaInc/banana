@@ -1,0 +1,15 @@
+GRDB 7.11.1 · SQLite 3.51.0 · 2026-10-06 01:18:31 +0000 · load 610.5 603.4 572.4
+
+== an action, as §6.4 writes it: intent first (FULL + fullfsync), then overlay + thread + view rows · load 610.5 603.4 572.4
+  intent commit (1–60 assertions, full fsync, through GRDB): n=1000 p50 0.841 ms · p95 2.091 ms · p99 3.774 ms · max 6.587 ms
+  index write-through (overlay, thread row, five view rows): n=1000 p50 0.212 ms · p95 0.780 ms · p99 2.355 ms · max 21.759 ms
+  both: accepted → durable and in the index: n=1000 p50 1.093 ms · p95 2.832 ms · p99 5.186 ms · max 22.581 ms
+  index log after 1,000 actions: 37.8 MB; intent log: 14.3 MB
+  passive checkpoint of that index log: 10.9 ms
+  passive checkpoint of the intent log: 2.1 ms
+  one intent commit carrying 1 action(s) of three assertions: n=60 p50 0.811 ms · p95 2.689 ms · p99 5.619 ms · max 5.619 ms
+  one intent commit carrying 5 action(s) of three assertions: n=60 p50 0.348 ms · p95 0.940 ms · p99 1.379 ms · max 1.379 ms
+  one intent commit carrying 20 action(s) of three assertions: n=60 p50 0.598 ms · p95 2.183 ms · p99 13.681 ms · max 13.681 ms
+  one intent commit carrying 50 action(s) of three assertions: n=60 p50 1.057 ms · p95 3.845 ms · p99 9.822 ms · max 9.822 ms
+  delete 50 messages from the index: n=20 p50 4.632 ms · p95 12.085 ms · p99 12.085 ms · max 12.085 ms
+  delete their 50 entries from search.sqlite: n=20 p50 88.164 ms · p95 375.474 ms · p99 375.474 ms · max 375.474 ms

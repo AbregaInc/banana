@@ -1,0 +1,634 @@
+[
+  {
+    "status": "measured",
+    "acceptance": "fail",
+    "phases": {
+      "coldMount": {
+        "count": 1,
+        "p50MS": 94.64320837287232,
+        "p95MS": 94.64320837287232,
+        "p99MS": 94.64320837287232,
+        "maxMS": 94.64320837287232,
+        "over8_3MS": 1,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "page": {
+        "count": 12,
+        "p50MS": 2.642249979544431,
+        "p95MS": 15.202208305709064,
+        "p99MS": 15.202208305709064,
+        "maxMS": 15.202208305709064,
+        "over8_3MS": 1,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "settledLayout": {
+        "count": 13,
+        "p50MS": 0.05533330840989947,
+        "p95MS": 0.15195831656455994,
+        "p99MS": 0.15195831656455994,
+        "maxMS": 0.15195831656455994,
+        "over8_3MS": 0,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "scrollOffset": {
+        "count": 120,
+        "p50MS": 0.23620831780135632,
+        "p95MS": 1.3027499662712216,
+        "p99MS": 2.344083331990987,
+        "maxMS": 2.489000034984201,
+        "over8_3MS": 0,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "uncachedPage": {
+        "count": 6,
+        "p50MS": 69.05349995940924,
+        "p95MS": 70.76045835856348,
+        "p99MS": 70.76045835856348,
+        "maxMS": 70.76045835856348,
+        "over8_3MS": 6,
+        "over100MS": 0
+      },
+      "memoryPressurePage": {
+        "count": 1,
+        "p50MS": 72.00949999969453,
+        "p95MS": 72.00949999969453,
+        "p99MS": 72.00949999969453,
+        "maxMS": 72.00949999969453,
+        "over8_3MS": 1,
+        "over100MS": 0
+      },
+      "resize": {
+        "count": 3,
+        "p50MS": 51.4037917018868,
+        "p95MS": 52.92258330155164,
+        "p99MS": 52.92258330155164,
+        "maxMS": 52.92258330155164,
+        "over8_3MS": 2,
+        "over100MS": 0
+      }
+    },
+    "allRasterContentsPresent": true,
+    "scenario": "iphone-week-365d-100perday-raster-batch-raster-prefetch"
+  },
+  {
+    "status": "measured",
+    "acceptance": "fail",
+    "phases": {
+      "coldMount": {
+        "count": 1,
+        "p50MS": 91.38724999502301,
+        "p95MS": 91.38724999502301,
+        "p99MS": 91.38724999502301,
+        "maxMS": 91.38724999502301,
+        "over8_3MS": 1,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "page": {
+        "count": 12,
+        "p50MS": 2.6267916546203196,
+        "p95MS": 13.461499998811632,
+        "p99MS": 13.461499998811632,
+        "maxMS": 13.461499998811632,
+        "over8_3MS": 1,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "settledLayout": {
+        "count": 13,
+        "p50MS": 0.057375000324100256,
+        "p95MS": 0.15229167183861136,
+        "p99MS": 0.15229167183861136,
+        "maxMS": 0.15229167183861136,
+        "over8_3MS": 0,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "scrollOffset": {
+        "count": 120,
+        "p50MS": 0.24666666286066175,
+        "p95MS": 1.6590832965448499,
+        "p99MS": 2.3797499598003924,
+        "maxMS": 2.444041660055518,
+        "over8_3MS": 0,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "uncachedPage": {
+        "count": 6,
+        "p50MS": 68.72195831965655,
+        "p95MS": 75.64287498826161,
+        "p99MS": 75.64287498826161,
+        "maxMS": 75.64287498826161,
+        "over8_3MS": 6,
+        "over100MS": 0
+      },
+      "memoryPressurePage": {
+        "count": 1,
+        "p50MS": 69.71591664478183,
+        "p95MS": 69.71591664478183,
+        "p99MS": 69.71591664478183,
+        "maxMS": 69.71591664478183,
+        "over8_3MS": 1,
+        "over100MS": 0
+      },
+      "resize": {
+        "count": 3,
+        "p50MS": 50.86579162161797,
+        "p95MS": 55.30399997951463,
+        "p99MS": 55.30399997951463,
+        "maxMS": 55.30399997951463,
+        "over8_3MS": 2,
+        "over100MS": 0
+      }
+    },
+    "allRasterContentsPresent": true,
+    "scenario": "iphone-week-365d-100perday-raster-none"
+  },
+  {
+    "status": "measured",
+    "acceptance": "fail",
+    "phases": {
+      "coldMount": {
+        "count": 1,
+        "p50MS": 139.26845835521817,
+        "p95MS": 139.26845835521817,
+        "p99MS": 139.26845835521817,
+        "maxMS": 139.26845835521817,
+        "over8_3MS": 1,
+        "over100MS": 1,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "page": {
+        "count": 12,
+        "p50MS": 2.635083335917443,
+        "p95MS": 15.434541623108089,
+        "p99MS": 15.434541623108089,
+        "maxMS": 15.434541623108089,
+        "over8_3MS": 1,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "settledLayout": {
+        "count": 13,
+        "p50MS": 0.03441667649894953,
+        "p95MS": 0.03875000402331352,
+        "p99MS": 0.03875000402331352,
+        "maxMS": 0.03875000402331352,
+        "over8_3MS": 0,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "scrollOffset": {
+        "count": 120,
+        "p50MS": 0.22987497504800558,
+        "p95MS": 2.665333333425224,
+        "p99MS": 4.838166700210422,
+        "maxMS": 5.866541701834649,
+        "over8_3MS": 0,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "uncachedPage": {
+        "count": 6,
+        "p50MS": 109.91370829287916,
+        "p95MS": 115.61479163356125,
+        "p99MS": 115.61479163356125,
+        "maxMS": 115.61479163356125,
+        "over8_3MS": 6,
+        "over100MS": 6
+      },
+      "memoryPressurePage": {
+        "count": 1,
+        "p50MS": 107.7476249774918,
+        "p95MS": 107.7476249774918,
+        "p99MS": 107.7476249774918,
+        "maxMS": 107.7476249774918,
+        "over8_3MS": 1,
+        "over100MS": 1
+      },
+      "resize": {
+        "count": 3,
+        "p50MS": 87.81970833661035,
+        "p95MS": 94.97674996964633,
+        "p99MS": 94.97674996964633,
+        "maxMS": 94.97674996964633,
+        "over8_3MS": 2,
+        "over100MS": 0
+      }
+    },
+    "allRasterContentsPresent": true,
+    "scenario": "iphone-week-365d-300perday-raster-batch-raster-prefetch"
+  },
+  {
+    "status": "measured",
+    "acceptance": "fail",
+    "phases": {
+      "coldMount": {
+        "count": 1,
+        "p50MS": 127.42850003996864,
+        "p95MS": 127.42850003996864,
+        "p99MS": 127.42850003996864,
+        "maxMS": 127.42850003996864,
+        "over8_3MS": 1,
+        "over100MS": 1,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "page": {
+        "count": 12,
+        "p50MS": 2.6570417103357613,
+        "p95MS": 15.622833336237818,
+        "p99MS": 15.622833336237818,
+        "maxMS": 15.622833336237818,
+        "over8_3MS": 1,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "settledLayout": {
+        "count": 13,
+        "p50MS": 0.0354166841134429,
+        "p95MS": 0.06820837734267116,
+        "p99MS": 0.06820837734267116,
+        "maxMS": 0.06820837734267116,
+        "over8_3MS": 0,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "scrollOffset": {
+        "count": 120,
+        "p50MS": 0.22345833713188767,
+        "p95MS": 2.5840000016614795,
+        "p99MS": 4.463874967768788,
+        "maxMS": 5.361041694413871,
+        "over8_3MS": 0,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "uncachedPage": {
+        "count": 6,
+        "p50MS": 107.4085000436753,
+        "p95MS": 112.00233333511278,
+        "p99MS": 112.00233333511278,
+        "maxMS": 112.00233333511278,
+        "over8_3MS": 6,
+        "over100MS": 6
+      },
+      "memoryPressurePage": {
+        "count": 1,
+        "p50MS": 110.58183328714222,
+        "p95MS": 110.58183328714222,
+        "p99MS": 110.58183328714222,
+        "maxMS": 110.58183328714222,
+        "over8_3MS": 1,
+        "over100MS": 1
+      },
+      "resize": {
+        "count": 3,
+        "p50MS": 88.09258334804326,
+        "p95MS": 88.4700000169687,
+        "p99MS": 88.4700000169687,
+        "maxMS": 88.4700000169687,
+        "over8_3MS": 2,
+        "over100MS": 0
+      }
+    },
+    "allRasterContentsPresent": true,
+    "scenario": "iphone-week-365d-300perday-raster-none"
+  },
+  {
+    "status": "measured",
+    "acceptance": "fail",
+    "phases": {
+      "coldMount": {
+        "count": 1,
+        "p50MS": 115.3581666876562,
+        "p95MS": 115.3581666876562,
+        "p99MS": 115.3581666876562,
+        "maxMS": 115.3581666876562,
+        "over8_3MS": 1,
+        "over100MS": 1,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "page": {
+        "count": 12,
+        "p50MS": 1.326875004451722,
+        "p95MS": 22.988666663877666,
+        "p99MS": 22.988666663877666,
+        "maxMS": 22.988666663877666,
+        "over8_3MS": 1,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "settledLayout": {
+        "count": 13,
+        "p50MS": 0.036874960642308,
+        "p95MS": 0.11449999874457717,
+        "p99MS": 0.11449999874457717,
+        "maxMS": 0.11449999874457717,
+        "over8_3MS": 0,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "scrollOffset": {
+        "count": 120,
+        "p50MS": 0.21529168589040637,
+        "p95MS": 1.038833346683532,
+        "p99MS": 1.1687499936670065,
+        "maxMS": 1.4627916389144957,
+        "over8_3MS": 0,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "uncachedPage": {
+        "count": 6,
+        "p50MS": 88.39133335277438,
+        "p95MS": 93.97762501612306,
+        "p99MS": 93.97762501612306,
+        "maxMS": 93.97762501612306,
+        "over8_3MS": 6,
+        "over100MS": 0
+      },
+      "memoryPressurePage": {
+        "count": 1,
+        "p50MS": 84.9600833025761,
+        "p95MS": 84.9600833025761,
+        "p99MS": 84.9600833025761,
+        "maxMS": 84.9600833025761,
+        "over8_3MS": 1,
+        "over100MS": 0
+      },
+      "resize": {
+        "count": 3,
+        "p50MS": 61.696083343122154,
+        "p95MS": 65.4298749868758,
+        "p99MS": 65.4298749868758,
+        "maxMS": 65.4298749868758,
+        "over8_3MS": 2,
+        "over100MS": 0
+      }
+    },
+    "allRasterContentsPresent": true,
+    "scenario": "ipad-week-365d-100perday-raster-batch-raster-prefetch"
+  },
+  {
+    "status": "measured",
+    "acceptance": "fail",
+    "phases": {
+      "coldMount": {
+        "count": 1,
+        "p50MS": 107.71162499440834,
+        "p95MS": 107.71162499440834,
+        "p99MS": 107.71162499440834,
+        "maxMS": 107.71162499440834,
+        "over8_3MS": 1,
+        "over100MS": 1,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "page": {
+        "count": 12,
+        "p50MS": 2.7860416448675096,
+        "p95MS": 19.74249997874722,
+        "p99MS": 19.74249997874722,
+        "maxMS": 19.74249997874722,
+        "over8_3MS": 1,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "settledLayout": {
+        "count": 13,
+        "p50MS": 0.05895830690860748,
+        "p95MS": 0.10175001807510853,
+        "p99MS": 0.10175001807510853,
+        "maxMS": 0.10175001807510853,
+        "over8_3MS": 0,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "scrollOffset": {
+        "count": 120,
+        "p50MS": 0.22166664712131023,
+        "p95MS": 0.9716250351630151,
+        "p99MS": 1.709250034764409,
+        "maxMS": 3.3309999853372574,
+        "over8_3MS": 0,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "uncachedPage": {
+        "count": 6,
+        "p50MS": 92.15370833408087,
+        "p95MS": 95.49166663782671,
+        "p99MS": 95.49166663782671,
+        "maxMS": 95.49166663782671,
+        "over8_3MS": 6,
+        "over100MS": 0
+      },
+      "memoryPressurePage": {
+        "count": 1,
+        "p50MS": 92.49945834744722,
+        "p95MS": 92.49945834744722,
+        "p99MS": 92.49945834744722,
+        "maxMS": 92.49945834744722,
+        "over8_3MS": 1,
+        "over100MS": 0
+      },
+      "resize": {
+        "count": 3,
+        "p50MS": 64.95929165976122,
+        "p95MS": 65.62091666273773,
+        "p99MS": 65.62091666273773,
+        "maxMS": 65.62091666273773,
+        "over8_3MS": 2,
+        "over100MS": 0
+      }
+    },
+    "allRasterContentsPresent": true,
+    "scenario": "ipad-week-365d-100perday-raster-none"
+  },
+  {
+    "status": "measured",
+    "acceptance": "fail",
+    "phases": {
+      "coldMount": {
+        "count": 1,
+        "p50MS": 174.53470831969753,
+        "p95MS": 174.53470831969753,
+        "p99MS": 174.53470831969753,
+        "maxMS": 174.53470831969753,
+        "over8_3MS": 1,
+        "over100MS": 1,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "page": {
+        "count": 12,
+        "p50MS": 3.0869999900460243,
+        "p95MS": 22.43654162157327,
+        "p99MS": 22.43654162157327,
+        "maxMS": 22.43654162157327,
+        "over8_3MS": 1,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "settledLayout": {
+        "count": 13,
+        "p50MS": 0.03891671076416969,
+        "p95MS": 0.051541661377996206,
+        "p99MS": 0.051541661377996206,
+        "maxMS": 0.051541661377996206,
+        "over8_3MS": 0,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "scrollOffset": {
+        "count": 120,
+        "p50MS": 0.3835416864603758,
+        "p95MS": 2.7641250053420663,
+        "p99MS": 4.77616663556546,
+        "maxMS": 5.752333323471248,
+        "over8_3MS": 0,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "uncachedPage": {
+        "count": 6,
+        "p50MS": 129.5178749714978,
+        "p95MS": 138.51800002157688,
+        "p99MS": 138.51800002157688,
+        "maxMS": 138.51800002157688,
+        "over8_3MS": 6,
+        "over100MS": 6
+      },
+      "memoryPressurePage": {
+        "count": 1,
+        "p50MS": 123.89554164838046,
+        "p95MS": 123.89554164838046,
+        "p99MS": 123.89554164838046,
+        "maxMS": 123.89554164838046,
+        "over8_3MS": 1,
+        "over100MS": 1
+      },
+      "resize": {
+        "count": 3,
+        "p50MS": 111.28929170081392,
+        "p95MS": 116.72762501984835,
+        "p99MS": 116.72762501984835,
+        "maxMS": 116.72762501984835,
+        "over8_3MS": 2,
+        "over100MS": 2
+      }
+    },
+    "allRasterContentsPresent": true,
+    "scenario": "ipad-week-365d-300perday-raster-batch-raster-prefetch"
+  },
+  {
+    "status": "measured",
+    "acceptance": "fail",
+    "phases": {
+      "coldMount": {
+        "count": 1,
+        "p50MS": 147.23366661928594,
+        "p95MS": 147.23366661928594,
+        "p99MS": 147.23366661928594,
+        "maxMS": 147.23366661928594,
+        "over8_3MS": 1,
+        "over100MS": 1,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "page": {
+        "count": 12,
+        "p50MS": 3.1015833374112844,
+        "p95MS": 21.096458309330046,
+        "p99MS": 21.096458309330046,
+        "maxMS": 21.096458309330046,
+        "over8_3MS": 1,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "settledLayout": {
+        "count": 13,
+        "p50MS": 0.036874960642308,
+        "p95MS": 0.047666660975664854,
+        "p99MS": 0.047666660975664854,
+        "maxMS": 0.047666660975664854,
+        "over8_3MS": 0,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "scrollOffset": {
+        "count": 120,
+        "p50MS": 0.23966666776686907,
+        "p95MS": 3.057166642975062,
+        "p99MS": 5.302749981638044,
+        "maxMS": 6.271041696891189,
+        "over8_3MS": 0,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "uncachedPage": {
+        "count": 6,
+        "p50MS": 126.54683331493288,
+        "p95MS": 136.4777499693446,
+        "p99MS": 136.4777499693446,
+        "maxMS": 136.4777499693446,
+        "over8_3MS": 6,
+        "over100MS": 6
+      },
+      "memoryPressurePage": {
+        "count": 1,
+        "p50MS": 124.88566670799628,
+        "p95MS": 124.88566670799628,
+        "p99MS": 124.88566670799628,
+        "maxMS": 124.88566670799628,
+        "over8_3MS": 1,
+        "over100MS": 1
+      },
+      "resize": {
+        "count": 3,
+        "p50MS": 105.39124999195337,
+        "p95MS": 113.31641668220982,
+        "p99MS": 113.31641668220982,
+        "maxMS": 113.31641668220982,
+        "over8_3MS": 2,
+        "over100MS": 2
+      }
+    },
+    "allRasterContentsPresent": true,
+    "scenario": "ipad-week-365d-300perday-raster-none"
+  }
+]

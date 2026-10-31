@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-10-08T08:34:54.343221-04:00",
+  "platform": "macOS-26.6.2-arm64-arm-64bit",
+  "pid": 26999,
+  "git": "ede065b1f92f8f263e49eb37082ebca315fa9542",
+  "dirty": " M Banana/Model/MailUI/MailSession+App.swift\n M Banana/Model/MailUI/Pure/Testing/MailFixtureSource.swift\n M Banana/Model/ScaleStress.swift\n M Banana/Views/WeekView.swift\n M BananaTests/MailFixtureSourceTests.swift\n M docs/performance/regression-testing.md\n M project.yml\n M tools/mac-stress-preview.py\n?? BananaNativePerformanceUITests/\n?? tools/native-ui-test.sh\n?? tools/native-ui-trace.py\n?? tools/tests/test_native_ui_trace.py\n",
+  "load": "8:34  up 3 days,  6:39, 32 users, load averages: 50.27 65.72 56.53",
+  "scenario": "legacy 30d; warm; Plan scroll down/up 3 pages, later then j/k/k; Mail select then j/j/j/k and scroll down/up 3 pages; shared host, correctness build active"
+}

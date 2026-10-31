@@ -1,0 +1,36 @@
+# Which columns show at which window width (MailArrangement: list alone < 660, pane at 660,
+# control at 828, details at 1076, measured on Mail's own area: the window less a 210 sidebar)
+name sizes
+wait 1
+size 840 780
+wait 0.6
+expect ids notcontains mail.pane
+expect ids notcontains mail.control
+expect ids contains mail.list
+shot narrow-840
+size 960 780
+wait 0.6
+expect ids contains mail.pane
+expect ids notcontains mail.control
+shot medium-960
+size 1120 780
+wait 0.6
+expect ids contains mail.pane
+expect ids contains mail.control
+expect ids notcontains mail.details
+shot regular-1120
+size 1500 780
+wait 0.6
+expect ids contains mail.details
+shot wide-1500
+# narrow again, and a new message where there is no pane to hold it is a sheet
+size 840 780
+wait 0.6
+key c
+wait 1.3
+expect composer.title is New message
+expect sheet is true
+shot narrow-new-message-sheet
+key escape
+wait 0.5
+expect composer.title absent

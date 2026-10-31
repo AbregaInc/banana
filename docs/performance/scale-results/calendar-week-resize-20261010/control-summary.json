@@ -1,0 +1,55 @@
+{
+  "devicesAndConfigurations" : [
+    {
+      "device" : {
+        "architecture" : "arm64",
+        "deviceId" : "7531F6E1-402A-43B8-8418-EFB258F8598D",
+        "deviceName" : "Calendar-Artwork-20261009",
+        "modelName" : "iPhone 17 Pro",
+        "osBuildNumber" : "23F77",
+        "osVersion" : "26.5",
+        "platform" : "iOS Simulator"
+      },
+      "expectedFailures" : 0,
+      "failedTests" : 1,
+      "passedTests" : 0,
+      "skippedTests" : 0,
+      "testPlanConfiguration" : {
+        "configurationId" : "1",
+        "configurationName" : "Test Scheme Action"
+      }
+    }
+  ],
+  "environmentDescription" : "Banana · Built with macOS 26.6.2",
+  "expectedFailures" : 0,
+  "failedTests" : 1,
+  "finishTime" : 1791637620.42,
+  "passedTests" : 0,
+  "result" : "Failed",
+  "runtimeWarnings" : [
+    {
+      "issueType" : "Runtime Warning",
+      "message" : "Publishing changes from within view updates is not allowed, this will cause undefined behavior."
+    }
+  ],
+  "skippedTests" : 0,
+  "startTime" : 1791637587.36,
+  "statistics" : [
+
+  ],
+  "testFailures" : [
+    {
+      "failureText" : "XCTAssertEqual failed: (\"XCTWaiterResult(rawValue: 2)\") is not equal to (\"XCTWaiterResult(rawValue: 1)\") - Resize must preserve the selected column using its new width",
+      "targetName" : "BananaUITests",
+      "testIdentifier" : 1,
+      "testIdentifierString" : "ScaleStressUITests/testNativeWeekRotation()",
+      "testIdentifierURL" : "test://com.apple.xcode/Banana/BananaUITests/ScaleStressUITests/testNativeWeekRotation",
+      "testName" : "testNativeWeekRotation()"
+    }
+  ],
+  "title" : "Test - Banana",
+  "topInsights" : [
+
+  ],
+  "totalTestCount" : 1
+}

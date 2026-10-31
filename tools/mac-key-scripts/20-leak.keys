@@ -1,0 +1,91 @@
+# Keys must not leak between Mail and the calendar (MAIL-UX K3, K4, 4.3)
+name leak
+wait 1
+expect section is mail
+expect defaults.planMode is week
+# the calendar's keys that Mail has no use for do nothing in Mail: no jump to Plan, no sheet, no toast
+key t
+key d
+key w
+key 1
+key 2
+key 3
+key 4
+key 5
+key 6
+key 7
+key n
+key b
+key /
+key shift+/
+wait 0.3
+expect section is mail
+expect defaults.planMode is week
+expect defaults.macWeekSpan is 5
+expect shortcutsSheet is false
+expect toast absent
+expect mail.cursor is q3
+expect mail.counts.inbox is 40
+expect mail.open absent
+shot calendar-keys-in-mail
+# Escape with nothing open does nothing
+key escape
+expect section is mail
+expect mail.cursor is q3
+
+# Plan: its keys work there as they always did, and Mail's do not fire
+key cmd+1
+wait 0.8
+expect section is plan
+shot plan
+key shift+/
+wait 0.3
+expect shortcutsSheet is true
+key escape
+wait 0.3
+expect shortcutsSheet is false
+key d
+wait 0.3
+expect defaults.planMode is day
+key w
+wait 0.3
+expect defaults.planMode is week
+key s
+wait 0.3
+expect availabilityPanel is true
+# Mail's keys in Plan
+key e
+key z
+key u
+key r
+key f
+key \
+key ]
+key j
+key k
+wait 0.3
+expect section is plan
+expect toast absent
+expect composer.title absent
+
+# back to Mail: where he was, and untouched
+key cmd+2
+wait 0.8
+expect section is mail
+expect mail.cursor is q3
+expect mail.counts.inbox is 40
+expect mail.showsPane is true
+expect mail.counts.starred is 2
+expect composer.title absent
+expect toast absent
+shot back-in-mail
+# and Mail's keys work again, Plan's do not
+key j
+expect mail.cursor is invite
+key e
+expect mail.counts.inbox is 39
+key z
+expect mail.counts.inbox is 40
+key shift+/
+wait 0.3
+expect shortcutsSheet is false

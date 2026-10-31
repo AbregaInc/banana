@@ -1,0 +1,24 @@
+18:38  up 16:42, 21 users, load averages: 25.84 188.44 238.34
+
+62907 bytes · load 26 188 238
+  libxml2:   out 63680 bytes, text 25850, remote 61, cid 60, dropped 1
+  SwiftSoup: out 64580 bytes, text 25850, remote 61, cid 60, dropped 1  same html: false  same text: true
+  libxml2 parse only p50    0.808 ms  p95    0.861 ms  min    0.780 ms    74.3 MB/s  (n=300)
+  libxml2 parse + sanitise + text p50    6.409 ms  p95    6.638 ms  min    6.126 ms     9.4 MB/s  (n=300)
+  SwiftSoup parse only p50    2.292 ms  p95    2.542 ms  min    2.164 ms    26.2 MB/s  (n=300)
+  SwiftSoup parse + sanitise + text p50   16.177 ms  p95   16.958 ms  min   15.543 ms     3.7 MB/s  (n=152)
+  SwiftSoup.clean(Whitelist.relaxed) p50   18.575 ms  p95   24.269 ms  min   17.117 ms     3.2 MB/s  (n=128)
+  SwiftSoup parse + text() p50    2.473 ms  p95    2.712 ms  min    2.300 ms    24.3 MB/s  (n=300)
+  after: load 32 187 238
+
+261257 bytes · load 32 187 238
+  libxml2:   out 265110 bytes, text 107890, remote 251, cid 250, dropped 1
+  SwiftSoup: out 268860 bytes, text 107890, remote 251, cid 250, dropped 1  same html: false  same text: true
+  libxml2 parse only p50    3.407 ms  p95    3.757 ms  min    3.218 ms    73.1 MB/s  (n=300)
+  libxml2 parse + sanitise + text p50   28.543 ms  p95   71.598 ms  min   26.140 ms     8.7 MB/s  (n=73)
+  SwiftSoup parse only p50   13.167 ms  p95   32.139 ms  min    9.464 ms    18.9 MB/s  (n=153)
+  SwiftSoup parse + sanitise + text p50  106.729 ms  p95  144.679 ms  min   69.088 ms     2.3 MB/s  (n=23)
+  SwiftSoup.clean(Whitelist.relaxed) p50  117.940 ms  p95  214.472 ms  min   80.158 ms     2.1 MB/s  (n=20)
+  SwiftSoup parse + text() p50   14.806 ms  p95   34.194 ms  min   10.065 ms    16.8 MB/s  (n=144)
+  after: load 80 190 238
+18:38  up 16:42, 21 users, load averages: 79.54 189.83 237.66

@@ -1,0 +1,75 @@
+{
+  "status": "analyzed-partial-evidence",
+  "pid": 5022,
+  "scope": "App-attributed update intervals and matching compositor work; not HID-to-visible latency or complete UI acceptance",
+  "attributionLimit": "Render intervals may overlap GPU work and extend beyond its completion. Their entire duration is not proven CPU execution; GPU subtraction does not establish CPU cost. Interval budget failures remain conservative and unchanged.",
+  "measuredWorkBudget": "fail",
+  "appHitchRows": 242,
+  "timings": {
+    "appUpdates": {
+      "stats": {
+        "count": 486,
+        "p50MS": 11.2615,
+        "p95MS": 13.491416,
+        "p99MS": 39.858958,
+        "maxMS": 45.757791,
+        "over8_3MS": 486
+      }
+    },
+    "associatedRenders": {
+      "stats": {
+        "count": 285,
+        "p50MS": 2.177583,
+        "p95MS": 8.99725,
+        "p99MS": 9.036375,
+        "maxMS": 9.044875,
+        "over8_3MS": 56
+      }
+    },
+    "associatedFrameLifetimes": {
+      "stats": {
+        "count": 243,
+        "p50MS": 25.01475,
+        "p95MS": 33.353166,
+        "p99MS": 50.024166,
+        "maxMS": 58.362291,
+        "over8_3MS": 243
+      }
+    },
+    "associatedGPU": {
+      "stats": {
+        "count": 243,
+        "p50MS": 0.071291,
+        "p95MS": 0.076166,
+        "p99MS": 0.079291,
+        "maxMS": 0.115375,
+        "over8_3MS": 0
+      }
+    }
+  },
+  "renderWaitDiagnostic": null,
+  "displayCadence": {
+    "scope": "Display-wide VSync intervals, not app frame/input latency",
+    "count": 936,
+    "firstNS": 396478583,
+    "lastNS": 8742985625,
+    "roundedGapHistogramMS": {
+      "8.33": 5,
+      "8.34": 888,
+      "8.35": 2,
+      "12.51": 11,
+      "16.68": 8,
+      "20.85": 7,
+      "25.01": 4,
+      "29.18": 2,
+      "33.35": 3,
+      "41.69": 5
+    }
+  },
+  "limitations": [
+    "Frame lifetimes span a pipelined render loop and are not single-frame work or input latency.",
+    "No app-attributed HID timestamp or CPU-to-display rows; direct-input acceptance remains unmeasured.",
+    "Variable cadence must not be treated as automatic missed 120 Hz deadlines.",
+    "Retain capture status, workload, binary identity and actual touch overlap separately."
+  ]
+}

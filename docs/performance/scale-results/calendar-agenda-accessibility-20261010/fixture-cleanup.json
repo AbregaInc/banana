@@ -1,0 +1,817 @@
+{
+  "preservedDatabases": [
+    {
+      "source": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-BC9A6C74-8523-40BA-BD68-0ECC22689B61/podcast-catalog.sqlite",
+      "backup": ".build/calendar-agenda-accessibility-20261010/cold-query-databases/podcast-catalog.sqlite",
+      "table": "episodes",
+      "rows": 900000,
+      "sha256": "2ec852bbce009c643fc239a5b446a41a505cca0a7b3a401ea2e8838544ab54af"
+    },
+    {
+      "source": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-BC9A6C74-8523-40BA-BD68-0ECC22689B61/VoiceNotes/notes.sqlite",
+      "backup": ".build/calendar-agenda-accessibility-20261010/cold-query-databases/notes.sqlite",
+      "table": "notes",
+      "rows": 90000,
+      "sha256": "c30cd8eda6276502568fd79db9428d54c688343de0b02a74845fe5139e9ba431"
+    }
+  ],
+  "removedFixtures": [
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-221A4E10-83BA-4ED4-8206-A441264D9540",
+      "logicalBytes": 156454197
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-285C9896-3092-4A35-AA1E-F2745D7D504E",
+      "logicalBytes": 156499128
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-E9BED40F-9765-4B50-B3AE-139B48AC4A4A",
+      "logicalBytes": 156519687
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-1869CC7C-2441-499D-ACCC-0A80C68880E0",
+      "logicalBytes": 156384573
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-DCFBB65A-70F1-4BF2-A332-4DEDBA0F73B1",
+      "logicalBytes": 36379832
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-D3FFEE9F-A69E-487D-8367-3DD90332CED0",
+      "logicalBytes": 36580536
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-3D6060AB-6BBE-490A-B681-CABAAECC8B17",
+      "logicalBytes": 156532021
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-34EA15D6-051F-4DBF-A486-0EEDC2A58E09",
+      "logicalBytes": 156552657
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-E34F48FC-F29E-41AF-BC3F-ACF22F8BF833",
+      "logicalBytes": 469916978
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-BA5C4455-A430-46F1-93A6-EF3D0E1E3FD9",
+      "logicalBytes": 156351751
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-324AFA71-A5C0-47C2-8B2E-4CE46A4615EC",
+      "logicalBytes": 156491065
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-A0050EE8-A134-4266-919D-91A149BC7027",
+      "logicalBytes": 156400824
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-E17F833F-FDAD-44F0-AAEA-8DB123B802AD",
+      "logicalBytes": 5328056
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-B2C7B81A-40B6-4410-9E5B-7BFC1D2B4CE8",
+      "logicalBytes": 470031666
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-7A743E8D-5CA8-4ACA-8F4C-21538D48D501",
+      "logicalBytes": 156474551
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-70718D96-08E6-4F9B-9B6D-57FB459A5F5B",
+      "logicalBytes": 156499251
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-3DFA1621-53AC-4450-B447-0F1D61779FD8",
+      "logicalBytes": 156638515
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-C056F579-C5C3-4551-A2A9-37016E5E5FD3",
+      "logicalBytes": 156466556
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-6C405D9B-72CE-4ECF-AD8E-1AAFFB7705D9",
+      "logicalBytes": 156441917
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-92636C75-76D4-4BF2-AC32-1D10DCFDD64A",
+      "logicalBytes": 5278910
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-816ED0BF-AE30-423F-93AF-5DDF866AD5A5",
+      "logicalBytes": 156384569
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-6073199E-A5A2-4BA1-A40B-064D7A140890",
+      "logicalBytes": 156413308
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-545DB6E0-8FD8-49B7-8C3E-985D848A8F88",
+      "logicalBytes": 469851458
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-196ACD07-D89A-45AE-8616-8FE2067B45A0",
+      "logicalBytes": 156486969
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-05C91717-8A14-4B75-8F32-BCC637FE71EB",
+      "logicalBytes": 156581181
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-3AF4DAB9-C149-4323-8843-E2E138822CF9",
+      "logicalBytes": 156523826
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-5C883732-09D8-482B-81CE-494212860745",
+      "logicalBytes": 156376448
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-E7574936-3407-4B59-BFAA-7B394C268746",
+      "logicalBytes": 156552376
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-E22E8E23-3C0D-44A6-AEA9-AFD8603A6B3F",
+      "logicalBytes": 156441907
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-7BC65A9E-2633-4651-829F-36BA8500E436",
+      "logicalBytes": 156503224
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-A9BFC872-DA92-4C81-96FA-595B7691C082",
+      "logicalBytes": 156519731
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-1FF08761-1422-4721-9757-EA23326F6B01",
+      "logicalBytes": 36433080
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-E684C816-2284-407A-A3A9-274BF70FB419",
+      "logicalBytes": 5287096
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-00AC48C6-9660-4743-93BE-70B4CF3642CC",
+      "logicalBytes": 156507399
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-B90467C7-B4AD-4AE4-916C-79FF558B5741",
+      "logicalBytes": 36564152
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-611C62D7-1B0B-4291-9C8C-E3CAD32EAF80",
+      "logicalBytes": 156597628
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-6F8C1282-3BD3-4840-B900-AE8D8CC4231E",
+      "logicalBytes": 156482873
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-DA353073-7912-4149-80E3-470F997EAD62",
+      "logicalBytes": 36502712
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-E4ABBEAF-F57E-48B2-AD55-34069518D3B7",
+      "logicalBytes": 156519608
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-706B2E20-FABC-4E00-B783-69287A480E9C",
+      "logicalBytes": 5287096
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-E64CC44C-8C49-4AA9-848F-AFA36BA1767B",
+      "logicalBytes": 156470456
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-876293C8-47BC-4ED3-9D61-941DC56869EA",
+      "logicalBytes": 156572856
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-C258BB27-FA5C-45EE-8209-F2B580204587",
+      "logicalBytes": 156368179
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-8E54B27C-2C27-4AE1-A750-7B2A8C5489B3",
+      "logicalBytes": 156495232
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-D41A9FF8-760F-495D-B163-30D4A278E17F",
+      "logicalBytes": 156450099
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-4BCFEEFD-510B-409E-8F72-C2D92BF786EB",
+      "logicalBytes": 156486962
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-905904E5-75B5-41C0-B5FE-1AF0BD89A802",
+      "logicalBytes": 156556675
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-D4E60189-21D5-46E5-A837-65FA960B8050",
+      "logicalBytes": 156429692
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-1844DCA5-6967-439D-93D9-89B18C8C1DAE",
+      "logicalBytes": 5315768
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-F73A20BA-A1E0-4768-88B0-1D44D348F6BA",
+      "logicalBytes": 156568839
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-E34A57D9-931A-494F-B365-489BE086E378",
+      "logicalBytes": 36535479
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-513D98A3-7A1B-423D-8243-503E13064212",
+      "logicalBytes": 156560691
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-38992157-E06E-4C04-9096-08D15656093C",
+      "logicalBytes": 156568883
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-C381F67E-723F-4CE3-B71E-88C456B86384",
+      "logicalBytes": 156413308
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-3A204DC1-0DE1-4794-856A-3DA0FD165FDF",
+      "logicalBytes": 156515591
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-F0E2E1A2-ECAA-41F5-A23C-8FE313C6B290",
+      "logicalBytes": 156630200
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-D330F754-CDE8-4EC4-B3B4-BEB87B839E8A",
+      "logicalBytes": 156450098
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-EFCB39C7-1E40-458B-913B-00842C39FED1",
+      "logicalBytes": 156454268
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-2154FBF7-A2EE-47C7-96E3-7886E39C9E33",
+      "logicalBytes": 156413234
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-3EEF44C5-7C18-4A4D-9CFC-7A1500FBF082",
+      "logicalBytes": 36506808
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-83AE655D-6D37-409E-98F0-910233049A85",
+      "logicalBytes": 5299384
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-7AEE799C-0DB4-4EDC-904A-7757AF7709A7",
+      "logicalBytes": 156552501
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-74B414D9-4D01-4F00-94A7-1641D2030A80",
+      "logicalBytes": 5266616
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-123FA4E3-48C9-4C48-B859-452CD49BAAF0",
+      "logicalBytes": 156482866
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-BD83F967-7B28-4378-A67E-3598EFD8598A",
+      "logicalBytes": 469937457
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-991665D5-4914-4C6D-AC25-565D6718ABAD",
+      "logicalBytes": 156474674
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-C00B2C68-F3A0-465C-B2CB-70ABB3ADA979",
+      "logicalBytes": 36453560
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-E9491C46-A050-4619-80E1-4B5176C9390D",
+      "logicalBytes": 469859633
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-9D4E3BBA-2D19-4D5E-AC5C-7D983B96CFBF",
+      "logicalBytes": 470166836
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-ECFD4011-8A55-47BC-9659-D1DCA00D6087",
+      "logicalBytes": 5315771
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-61ED2FDC-EB53-43F0-89F8-062C49DECA34",
+      "logicalBytes": 156380625
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-EC22B181-CE12-4B3B-9550-BB9272297B62",
+      "logicalBytes": 156462386
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-0A1BFF0D-4F71-4387-B345-08EAF3C3B317",
+      "logicalBytes": 469413169
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-CA78E44C-689E-48F6-9A99-F1AE896FA489",
+      "logicalBytes": 156552498
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-37B7627D-BC24-44FC-B116-C2EE05297C4E",
+      "logicalBytes": 469638452
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-45F76700-D370-484A-BC03-C0D6769C06CB",
+      "logicalBytes": 36498616
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-A3B45EE9-ED7E-4A42-85A9-6141CB73E682",
+      "logicalBytes": 156704050
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-9E390452-1C72-4F25-8EDD-F205CC014B5F",
+      "logicalBytes": 156409016
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-7D8BA66A-7C1A-4410-867E-7294499F9B2A",
+      "logicalBytes": 469359924
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-01A8B85E-7460-4FA0-B757-B5A02E0F80FA",
+      "logicalBytes": 156417475
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-4BC9E2F5-3156-44E8-8E41-816D8ECFC7C7",
+      "logicalBytes": 156486962
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-E03976AA-EE33-48CA-9E0E-374AAE9D0098",
+      "logicalBytes": 156589240
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-6E12D3F5-2AF3-4FF4-AC8B-BF654174F05B",
+      "logicalBytes": 5344441
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-CF13CC78-2E40-4BA1-927C-3CFB7728D5F3",
+      "logicalBytes": 156556593
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-20A32369-9B30-4213-8514-40C57074412A",
+      "logicalBytes": 156638592
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-1E3086CB-B764-4378-8012-180D0651D8D8",
+      "logicalBytes": 156470585
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-749C4F63-01F4-4D88-8BE4-7DECA47D24D8",
+      "logicalBytes": 156454195
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-50FFFE98-67AB-4673-A147-F3E2F6F2B97D",
+      "logicalBytes": 5307576
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-2D732BCF-958D-4CC1-879B-BE66A14E697F",
+      "logicalBytes": 156380348
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-0648CF9C-E22A-446F-94D3-57D075479F75",
+      "logicalBytes": 156572981
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-341CF8DA-D69F-4A20-8D0F-BC6DFEBC7D67",
+      "logicalBytes": 156384721
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-9ABC89CB-407B-4695-9222-C827C4FE4F2C",
+      "logicalBytes": 469876017
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-131B690B-8F31-4B65-9C34-89060950C64A",
+      "logicalBytes": 156515635
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-602E39CE-0290-40BF-9B8A-F2128C95C75C",
+      "logicalBytes": 156486961
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-19CF33CF-E732-435A-9EC1-9BFAAA2E358E",
+      "logicalBytes": 156528976
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-5AF88624-DD96-4C75-A81B-43236E366131",
+      "logicalBytes": 156499128
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-F67E61B8-5633-4035-9F2A-F98F41A3B95E",
+      "logicalBytes": 156495111
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-361F9BD0-4F78-4F3A-BE9D-F02133C28A82",
+      "logicalBytes": 156556595
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-58BA7BD8-CE16-4675-A56E-9AF7024431E6",
+      "logicalBytes": 156618108
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-B7F32D4B-6CEE-4497-BB23-A3672D9D4FC8",
+      "logicalBytes": 469962034
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-9CA18F98-0479-4D9E-9764-B204F56D68AD",
+      "logicalBytes": 156417208
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-74D5CA3D-96F7-4854-A94D-35EFA817258C",
+      "logicalBytes": 156519805
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-BFD717F5-6056-41A3-8BA9-CD8374BB90C1",
+      "logicalBytes": 469798194
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-B787B2B4-5BB9-44EB-B7E8-D7911FAB4D6E",
+      "logicalBytes": 156433592
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-14F6514D-84E4-472E-AA92-19B31AA08C3B",
+      "logicalBytes": 156568760
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-C11C4798-5BD4-4FB9-8054-340163F0004C",
+      "logicalBytes": 156474685
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-44CFA08C-01C1-4456-944A-C0E2437BDD9D",
+      "logicalBytes": 36486328
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-CCF4AAF8-6679-4F80-9E73-66217B796C06",
+      "logicalBytes": 5295293
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-8956664E-4AD5-4A69-B12A-27F0D7D5C249",
+      "logicalBytes": 156560699
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-5A91FB83-DB95-4E37-9B7D-72B4B99253C5",
+      "logicalBytes": 156462386
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-BC9A6C74-8523-40BA-BD68-0ECC22689B61",
+      "logicalBytes": 469843264
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-9FA64F91-B7F5-4E58-BDCC-FCDDB684297F",
+      "logicalBytes": 156523833
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-E633EDB4-448F-4DC0-B4CC-EF011AB54151",
+      "logicalBytes": 156335417
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-B4F1B1E4-5D6E-4781-9030-04E62E141477",
+      "logicalBytes": 156446005
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-6B07FAC8-DEC5-410B-99C2-DE1CD401C69C",
+      "logicalBytes": 469777712
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-752DFB2B-1B46-4422-8887-25EC4A8BCE53",
+      "logicalBytes": 156511416
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-30F7AA9C-DE68-4E5B-9A9E-522F96BE4374",
+      "logicalBytes": 156560693
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-2C7D8772-D457-4DD7-85B7-C409E9238C3C",
+      "logicalBytes": 156470456
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-4971400E-E0F3-43CF-9F2E-22DADD337C82",
+      "logicalBytes": 156622204
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-6695A06D-3316-44FD-9691-310DABE6D912",
+      "logicalBytes": 156540211
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-EB01FDEC-BDE3-418E-8D31-341DC44E13F8",
+      "logicalBytes": 156417208
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-D17BE388-394E-41DE-A7AD-11E53F18B092",
+      "logicalBytes": 5344441
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-6617E4B2-6379-4A23-BE50-3DFC76458636",
+      "logicalBytes": 156474631
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-F1F19CB3-720B-4DF4-AD79-7BB7CE71A5BE",
+      "logicalBytes": 156404999
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-ABFF0C68-9B57-4B24-B3D2-823F847A27A7",
+      "logicalBytes": 156474552
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-5AA870DF-BA3C-4DAC-A331-BA4C5BB1A9C4",
+      "logicalBytes": 156593458
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-BAB3E3DE-DE29-4BCC-8F8B-CB62FDF4260F",
+      "logicalBytes": 156646780
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-2CD4A10F-DAD6-47A0-AAB2-A1BD188BA248",
+      "logicalBytes": 36453560
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-FAFC467E-0638-4088-B1AC-2E54456648C7",
+      "logicalBytes": 36474040
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-49A9DC06-818A-446D-B704-2E8B1A2978D4",
+      "logicalBytes": 156503303
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-B69DA77C-49A8-4280-AAD9-C020BFF3206F",
+      "logicalBytes": 469634356
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-CC8EDDC7-706C-4158-8301-82552690CB1B",
+      "logicalBytes": 36506808
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-EC82404C-201C-46D5-A0CE-444B3466EC86",
+      "logicalBytes": 156601650
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-C68429FD-81D4-4F31-A4F9-B46E8195CE87",
+      "logicalBytes": 156532026
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-53BADA91-F767-47B6-9BCD-BB8F572FC9C3",
+      "logicalBytes": 5315768
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-48C923DB-F055-45E3-ABDE-AD55BA90DB55",
+      "logicalBytes": 156478770
+    },
+    {
+      "device": "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "path": "~/Library/Developer/CoreSimulator/Devices/7531F6E1-402A-43B8-8418-EFB258F8598D/data/Containers/Data/Application/2856C55D-76D9-4F9C-BB9C-3E4734037AD3/tmp/ScaleStress-16DE303C-D9BF-4986-AF90-5793146BDC30",
+      "logicalBytes": 156413308
+    },
+    {
+      "device": "DFF60927-BA4A-4E8E-9A6E-63A1A4178858",
+      "path": "~/Library/Developer/CoreSimulator/Devices/DFF60927-BA4A-4E8E-9A6E-63A1A4178858/data/Containers/Data/Application/CEFE7F79-2FDC-4756-9EFB-641E6A9C2454/tmp/ScaleStress-60A23C29-6910-4623-B4F4-E242FE593124",
+      "logicalBytes": 56037
+    },
+    {
+      "device": "DFF60927-BA4A-4E8E-9A6E-63A1A4178858",
+      "path": "~/Library/Developer/CoreSimulator/Devices/DFF60927-BA4A-4E8E-9A6E-63A1A4178858/data/Containers/Data/Application/CEFE7F79-2FDC-4756-9EFB-641E6A9C2454/tmp/ScaleStress-A66A706B-9717-4233-BEB3-CC50A3E3E122",
+      "logicalBytes": 156560656
+    },
+    {
+      "device": "DFF60927-BA4A-4E8E-9A6E-63A1A4178858",
+      "path": "~/Library/Developer/CoreSimulator/Devices/DFF60927-BA4A-4E8E-9A6E-63A1A4178858/data/Containers/Data/Application/CEFE7F79-2FDC-4756-9EFB-641E6A9C2454/tmp/ScaleStress-0DFF5424-371D-4329-9F34-015C43C3E441",
+      "logicalBytes": 156589192
+    },
+    {
+      "device": "DFF60927-BA4A-4E8E-9A6E-63A1A4178858",
+      "path": "~/Library/Developer/CoreSimulator/Devices/DFF60927-BA4A-4E8E-9A6E-63A1A4178858/data/Containers/Data/Application/CEFE7F79-2FDC-4756-9EFB-641E6A9C2454/tmp/ScaleStress-A28D2CDB-7003-447B-B11C-9BD26E4803AB",
+      "logicalBytes": 156437640
+    },
+    {
+      "device": "DFF60927-BA4A-4E8E-9A6E-63A1A4178858",
+      "path": "~/Library/Developer/CoreSimulator/Devices/DFF60927-BA4A-4E8E-9A6E-63A1A4178858/data/Containers/Data/Application/CEFE7F79-2FDC-4756-9EFB-641E6A9C2454/tmp/ScaleStress-A3B4086A-A8A9-4B0C-AD8F-0383580BEFFE",
+      "logicalBytes": 156556424
+    },
+    {
+      "device": "DFF60927-BA4A-4E8E-9A6E-63A1A4178858",
+      "path": "~/Library/Developer/CoreSimulator/Devices/DFF60927-BA4A-4E8E-9A6E-63A1A4178858/data/Containers/Data/Application/CEFE7F79-2FDC-4756-9EFB-641E6A9C2454/tmp/ScaleStress-5C874C3A-11EE-4F1B-BD3D-5A684E7CFFE5",
+      "logicalBytes": 156364108
+    },
+    {
+      "device": "DFF60927-BA4A-4E8E-9A6E-63A1A4178858",
+      "path": "~/Library/Developer/CoreSimulator/Devices/DFF60927-BA4A-4E8E-9A6E-63A1A4178858/data/Containers/Data/Application/CEFE7F79-2FDC-4756-9EFB-641E6A9C2454/tmp/ScaleStress-95277CC3-4CBF-4811-8B01-BC682F3AD0C7",
+      "logicalBytes": 56043
+    },
+    {
+      "device": "DFF60927-BA4A-4E8E-9A6E-63A1A4178858",
+      "path": "~/Library/Developer/CoreSimulator/Devices/DFF60927-BA4A-4E8E-9A6E-63A1A4178858/data/Containers/Data/Application/CEFE7F79-2FDC-4756-9EFB-641E6A9C2454/tmp/ScaleStress-A3142E78-8989-4555-BB90-54CA0FB67661",
+      "logicalBytes": 156536144
+    },
+    {
+      "device": "DFF60927-BA4A-4E8E-9A6E-63A1A4178858",
+      "path": "~/Library/Developer/CoreSimulator/Devices/DFF60927-BA4A-4E8E-9A6E-63A1A4178858/data/Containers/Data/Application/CEFE7F79-2FDC-4756-9EFB-641E6A9C2454/tmp/ScaleStress-28422DC5-FD3A-44B3-BA10-56F59C52C9F2",
+      "logicalBytes": 156519689
+    },
+    {
+      "device": "DFF60927-BA4A-4E8E-9A6E-63A1A4178858",
+      "path": "~/Library/Developer/CoreSimulator/Devices/DFF60927-BA4A-4E8E-9A6E-63A1A4178858/data/Containers/Data/Application/CEFE7F79-2FDC-4756-9EFB-641E6A9C2454/tmp/ScaleStress-111018C0-E154-4F58-957A-186A9609DE64",
+      "logicalBytes": 156601495
+    },
+    {
+      "device": "DFF60927-BA4A-4E8E-9A6E-63A1A4178858",
+      "path": "~/Library/Developer/CoreSimulator/Devices/DFF60927-BA4A-4E8E-9A6E-63A1A4178858/data/Containers/Data/Application/CEFE7F79-2FDC-4756-9EFB-641E6A9C2454/tmp/ScaleStress-E181A21D-0667-4E7D-8059-91C9E1B7A219",
+      "logicalBytes": 156474708
+    },
+    {
+      "device": "DFF60927-BA4A-4E8E-9A6E-63A1A4178858",
+      "path": "~/Library/Developer/CoreSimulator/Devices/DFF60927-BA4A-4E8E-9A6E-63A1A4178858/data/Containers/Data/Application/CEFE7F79-2FDC-4756-9EFB-641E6A9C2454/tmp/ScaleStress-10EA5B3B-B9C9-464E-9D73-9732B5DC716E",
+      "logicalBytes": 156527752
+    },
+    {
+      "device": "DFF60927-BA4A-4E8E-9A6E-63A1A4178858",
+      "path": "~/Library/Developer/CoreSimulator/Devices/DFF60927-BA4A-4E8E-9A6E-63A1A4178858/data/Containers/Data/Application/CEFE7F79-2FDC-4756-9EFB-641E6A9C2454/tmp/ScaleStress-3E2CA933-1E7F-4268-8018-256ADEB632FA",
+      "logicalBytes": 156511505
+    },
+    {
+      "device": "DFF60927-BA4A-4E8E-9A6E-63A1A4178858",
+      "path": "~/Library/Developer/CoreSimulator/Devices/DFF60927-BA4A-4E8E-9A6E-63A1A4178858/data/Containers/Data/Application/CEFE7F79-2FDC-4756-9EFB-641E6A9C2454/tmp/ScaleStress-6AEB346E-89A4-476A-B91D-56125385664B",
+      "logicalBytes": 56037
+    },
+    {
+      "device": "DFF60927-BA4A-4E8E-9A6E-63A1A4178858",
+      "path": "~/Library/Developer/CoreSimulator/Devices/DFF60927-BA4A-4E8E-9A6E-63A1A4178858/data/Containers/Data/Application/CEFE7F79-2FDC-4756-9EFB-641E6A9C2454/tmp/ScaleStress-A48B0ABB-DC60-46B0-9D15-7775809F0A41",
+      "logicalBytes": 56043
+    },
+    {
+      "device": "DFF60927-BA4A-4E8E-9A6E-63A1A4178858",
+      "path": "~/Library/Developer/CoreSimulator/Devices/DFF60927-BA4A-4E8E-9A6E-63A1A4178858/data/Containers/Data/Application/CEFE7F79-2FDC-4756-9EFB-641E6A9C2454/tmp/ScaleStress-604DECCB-6B63-4DF7-983B-EB75E14C1E5E",
+      "logicalBytes": 156454220
+    },
+    {
+      "device": "DFF60927-BA4A-4E8E-9A6E-63A1A4178858",
+      "path": "~/Library/Developer/CoreSimulator/Devices/DFF60927-BA4A-4E8E-9A6E-63A1A4178858/data/Containers/Data/Application/CEFE7F79-2FDC-4756-9EFB-641E6A9C2454/tmp/ScaleStress-AD363D5E-8AF3-4A52-BE9B-E4E282942996",
+      "logicalBytes": 156564752
+    },
+    {
+      "device": "DFF60927-BA4A-4E8E-9A6E-63A1A4178858",
+      "path": "~/Library/Developer/CoreSimulator/Devices/DFF60927-BA4A-4E8E-9A6E-63A1A4178858/data/Containers/Data/Application/CEFE7F79-2FDC-4756-9EFB-641E6A9C2454/tmp/ScaleStress-FAB35D43-418B-44B2-990F-EF689BFBCCC4",
+      "logicalBytes": 56085
+    },
+    {
+      "device": "DFF60927-BA4A-4E8E-9A6E-63A1A4178858",
+      "path": "~/Library/Developer/CoreSimulator/Devices/DFF60927-BA4A-4E8E-9A6E-63A1A4178858/data/Containers/Data/Application/CEFE7F79-2FDC-4756-9EFB-641E6A9C2454/tmp/ScaleStress-9A4FAF06-0B1D-4C39-B99D-D4337B9A3F0D",
+      "logicalBytes": 14179228
+    },
+    {
+      "device": "DFF60927-BA4A-4E8E-9A6E-63A1A4178858",
+      "path": "~/Library/Developer/CoreSimulator/Devices/DFF60927-BA4A-4E8E-9A6E-63A1A4178858/data/Containers/Data/Application/CEFE7F79-2FDC-4756-9EFB-641E6A9C2454/tmp/ScaleStress-A3909F55-D079-403F-8C40-805A3A94371A",
+      "logicalBytes": 56037
+    },
+    {
+      "device": "DFF60927-BA4A-4E8E-9A6E-63A1A4178858",
+      "path": "~/Library/Developer/CoreSimulator/Devices/DFF60927-BA4A-4E8E-9A6E-63A1A4178858/data/Containers/Data/Application/CEFE7F79-2FDC-4756-9EFB-641E6A9C2454/tmp/ScaleStress-06BF1319-4D3B-46E4-823E-353E45CD7C41",
+      "logicalBytes": 14179228
+    },
+    {
+      "device": "DFF60927-BA4A-4E8E-9A6E-63A1A4178858",
+      "path": "~/Library/Developer/CoreSimulator/Devices/DFF60927-BA4A-4E8E-9A6E-63A1A4178858/data/Containers/Data/Application/CEFE7F79-2FDC-4756-9EFB-641E6A9C2454/tmp/ScaleStress-FC880612-EFC8-4B19-B02A-F12664A85B3F",
+      "logicalBytes": 156560520
+    }
+  ],
+  "scope": "Only ScaleStress-UUID temporary folders in Banana containers on the two recorded owned fixture Simulators; results, traces, binaries and workspaces retained",
+  "completed": true
+}

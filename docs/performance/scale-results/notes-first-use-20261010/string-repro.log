@@ -1,0 +1,363 @@
+checking "Café needle" "needle"
+true
+checking "NEEDLE\0tail" "needle"
+true
+checking "مراجعة needle" "needle"
+true
+checking "顧客との打ち合わせ" "needle"
+false
+checking "Straße" "needle"
+false
+checking "İstanbul" "needle"
+false
+checking "A \"quote\" here" "needle"
+false
+checking "percent %_wild" "needle"
+false
+checking "a\nbc needle" "needle"
+true
+checking "résumé" "needle"
+false
+checking "ﬁle" "needle"
+false
+checking "a😃b" "needle"
+false
+checking "x\u{01}needle" "needle"
+true
+checking "foo bar" "needle"
+false
+checking "foo-bar" "needle"
+false
+checking "foo_bar" "needle"
+false
+checking "a  b" "needle"
+false
+checking "a.b" "needle"
+false
+checking "Café needle" "NEEDLE"
+true
+checking "NEEDLE\0tail" "NEEDLE"
+true
+checking "مراجعة needle" "NEEDLE"
+true
+checking "顧客との打ち合わせ" "NEEDLE"
+false
+checking "Straße" "NEEDLE"
+false
+checking "İstanbul" "NEEDLE"
+false
+checking "A \"quote\" here" "NEEDLE"
+false
+checking "percent %_wild" "NEEDLE"
+false
+checking "a\nbc needle" "NEEDLE"
+true
+checking "résumé" "NEEDLE"
+false
+checking "ﬁle" "NEEDLE"
+false
+checking "a😃b" "NEEDLE"
+false
+checking "x\u{01}needle" "NEEDLE"
+true
+checking "foo bar" "NEEDLE"
+false
+checking "foo-bar" "NEEDLE"
+false
+checking "foo_bar" "NEEDLE"
+false
+checking "a  b" "NEEDLE"
+false
+checking "a.b" "NEEDLE"
+false
+checking "Café needle" "ordinary"
+false
+checking "NEEDLE\0tail" "ordinary"
+false
+checking "مراجعة needle" "ordinary"
+false
+checking "顧客との打ち合わせ" "ordinary"
+false
+checking "Straße" "ordinary"
+false
+checking "İstanbul" "ordinary"
+false
+checking "A \"quote\" here" "ordinary"
+false
+checking "percent %_wild" "ordinary"
+false
+checking "a\nbc needle" "ordinary"
+false
+checking "résumé" "ordinary"
+false
+checking "ﬁle" "ordinary"
+false
+checking "a😃b" "ordinary"
+false
+checking "x\u{01}needle" "ordinary"
+false
+checking "foo bar" "ordinary"
+false
+checking "foo-bar" "ordinary"
+false
+checking "foo_bar" "ordinary"
+false
+checking "a  b" "ordinary"
+false
+checking "a.b" "ordinary"
+false
+checking "Café needle" "missing"
+false
+checking "NEEDLE\0tail" "missing"
+false
+checking "مراجعة needle" "missing"
+false
+checking "顧客との打ち合わせ" "missing"
+false
+checking "Straße" "missing"
+false
+checking "İstanbul" "missing"
+false
+checking "A \"quote\" here" "missing"
+false
+checking "percent %_wild" "missing"
+false
+checking "a\nbc needle" "missing"
+false
+checking "résumé" "missing"
+false
+checking "ﬁle" "missing"
+false
+checking "a😃b" "missing"
+false
+checking "x\u{01}needle" "missing"
+false
+checking "foo bar" "missing"
+false
+checking "foo-bar" "missing"
+false
+checking "foo_bar" "missing"
+false
+checking "a  b" "missing"
+false
+checking "a.b" "missing"
+false
+checking "Café needle" "ne"
+true
+checking "NEEDLE\0tail" "ne"
+true
+checking "مراجعة needle" "ne"
+true
+checking "顧客との打ち合わせ" "ne"
+false
+checking "Straße" "ne"
+false
+checking "İstanbul" "ne"
+false
+checking "A \"quote\" here" "ne"
+false
+checking "percent %_wild" "ne"
+false
+checking "a\nbc needle" "ne"
+true
+checking "résumé" "ne"
+false
+checking "ﬁle" "ne"
+false
+checking "a😃b" "ne"
+false
+checking "x\u{01}needle" "ne"
+true
+checking "foo bar" "ne"
+false
+checking "foo-bar" "ne"
+false
+checking "foo_bar" "ne"
+false
+checking "a  b" "ne"
+false
+checking "a.b" "ne"
+false
+checking "Café needle" "Café"
+true
+checking "NEEDLE\0tail" "Café"
+false
+checking "مراجعة needle" "Café"
+false
+checking "顧客との打ち合わせ" "Café"
+false
+checking "Straße" "Café"
+false
+checking "İstanbul" "Café"
+false
+checking "A \"quote\" here" "Café"
+false
+checking "percent %_wild" "Café"
+false
+checking "a\nbc needle" "Café"
+false
+checking "résumé" "Café"
+false
+checking "ﬁle" "Café"
+false
+checking "a😃b" "Café"
+false
+checking "x\u{01}needle" "Café"
+false
+checking "foo bar" "Café"
+false
+checking "foo-bar" "Café"
+false
+checking "foo_bar" "Café"
+false
+checking "a  b" "Café"
+false
+checking "a.b" "Café"
+false
+checking "Café needle" "quote"
+false
+checking "NEEDLE\0tail" "quote"
+false
+checking "مراجعة needle" "quote"
+false
+checking "顧客との打ち合わせ" "quote"
+false
+checking "Straße" "quote"
+false
+checking "İstanbul" "quote"
+false
+checking "A \"quote\" here" "quote"
+true
+checking "percent %_wild" "quote"
+false
+checking "a\nbc needle" "quote"
+false
+checking "résumé" "quote"
+false
+checking "ﬁle" "quote"
+false
+checking "a😃b" "quote"
+false
+checking "x\u{01}needle" "quote"
+false
+checking "foo bar" "quote"
+false
+checking "foo-bar" "quote"
+false
+checking "foo_bar" "quote"
+false
+checking "a  b" "quote"
+false
+checking "a.b" "quote"
+false
+checking "Café needle" "\"quote\""
+false
+checking "NEEDLE\0tail" "\"quote\""
+false
+checking "مراجعة needle" "\"quote\""
+false
+checking "顧客との打ち合わせ" "\"quote\""
+false
+checking "Straße" "\"quote\""
+false
+checking "İstanbul" "\"quote\""
+false
+checking "A \"quote\" here" "\"quote\""
+true
+checking "percent %_wild" "\"quote\""
+false
+checking "a\nbc needle" "\"quote\""
+false
+checking "résumé" "\"quote\""
+false
+checking "ﬁle" "\"quote\""
+false
+checking "a😃b" "\"quote\""
+false
+checking "x\u{01}needle" "\"quote\""
+false
+checking "foo bar" "\"quote\""
+false
+checking "foo-bar" "\"quote\""
+false
+checking "foo_bar" "\"quote\""
+false
+checking "a  b" "\"quote\""
+false
+checking "a.b" "\"quote\""
+false
+checking "Café needle" "%_wild"
+false
+checking "NEEDLE\0tail" "%_wild"
+false
+checking "مراجعة needle" "%_wild"
+false
+checking "顧客との打ち合わせ" "%_wild"
+false
+checking "Straße" "%_wild"
+false
+checking "İstanbul" "%_wild"
+false
+checking "A \"quote\" here" "%_wild"
+false
+checking "percent %_wild" "%_wild"
+true
+checking "a\nbc needle" "%_wild"
+false
+checking "résumé" "%_wild"
+false
+checking "ﬁle" "%_wild"
+false
+checking "a😃b" "%_wild"
+false
+checking "x\u{01}needle" "%_wild"
+false
+checking "foo bar" "%_wild"
+false
+checking "foo-bar" "%_wild"
+false
+checking "foo_bar" "%_wild"
+false
+checking "a  b" "%_wild"
+false
+checking "a.b" "%_wild"
+false
+checking "Café needle" "\0"
+false
+checking "NEEDLE\0tail" "\0"
+true
+checking "مراجعة needle" "\0"
+false
+checking "顧客との打ち合わせ" "\0"
+false
+checking "Straße" "\0"
+false
+checking "İstanbul" "\0"
+false
+checking "A \"quote\" here" "\0"
+false
+checking "percent %_wild" "\0"
+false
+checking "a\nbc needle" "\0"
+false
+checking "résumé" "\0"
+false
+checking "ﬁle" "\0"
+false
+checking "a😃b" "\0"
+false
+checking "x\u{01}needle" "\0"
+false
+checking "foo bar" "\0"
+false
+checking "foo-bar" "\0"
+false
+checking "foo_bar" "\0"
+false
+checking "a  b" "\0"
+false
+checking "a.b" "\0"
+false
+checking "Café needle" "needle\0"
+Swift/StringUTF16View.swift:147: Fatal error: String index is out of bounds
+Child process terminated with signal 5: Trace/BPT trap

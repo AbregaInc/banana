@@ -1,0 +1,153 @@
+[
+  {
+    "name": "build-MacTextCompositionBenchmark",
+    "command": [
+      "swiftc",
+      "-O",
+      "-parse-as-library",
+      "tools/calendar-library-benchmark/Shared/PrototypeModel.swift",
+      "tools/calendar-library-benchmark/Shared/TileRenderer.swift",
+      "tools/calendar-library-benchmark/Shared/AsyncTilePreparation.swift",
+      "tools/calendar-library-benchmark/Shared/PreparedText.swift",
+      "tools/calendar-library-benchmark/Shared/Optimizations.swift",
+      "tools/calendar-library-benchmark/Shared/CalendarGridView.swift",
+      "tools/calendar-library-benchmark/Shared/RasterPage.swift",
+      "tools/calendar-library-benchmark/Shared/DayGeometry.swift",
+      "tools/calendar-library-benchmark/Shared/CalendarSurface.swift",
+      "tools/calendar-library-benchmark/Shared/Fixtures.swift",
+      "tools/calendar-library-benchmark/Native/MacBenchmark.swift",
+      "-o",
+      ".build/calendar-async-preparation/MacTextCompositionBenchmark"
+    ],
+    "exitCode": 0
+  },
+  {
+    "name": "native-recovery-text-composition",
+    "command": [
+      "python3",
+      "tools/calendar-library-benchmark/run-mac-recovery.py",
+      "--binary",
+      ".build/calendar-async-preparation/MacTextCompositionBenchmark",
+      "--out",
+      ".build/calendar-async-preparation/native-recovery-text-composition",
+      "--comparison",
+      "native-text"
+    ],
+    "exitCode": 2
+  },
+  {
+    "name": "build-AsyncTileTextCompositionChecks",
+    "command": [
+      "swiftc",
+      "-O",
+      "-parse-as-library",
+      "tools/calendar-library-benchmark/Shared/PrototypeModel.swift",
+      "tools/calendar-library-benchmark/Shared/TileRenderer.swift",
+      "tools/calendar-library-benchmark/Shared/AsyncTilePreparation.swift",
+      "tools/calendar-library-benchmark/Shared/PreparedText.swift",
+      "tools/calendar-library-benchmark/Shared/Optimizations.swift",
+      "tools/calendar-library-benchmark/Shared/CalendarGridView.swift",
+      "tools/calendar-library-benchmark/Shared/RasterPage.swift",
+      "tools/calendar-library-benchmark/Shared/DayGeometry.swift",
+      "tools/calendar-library-benchmark/Shared/CalendarSurface.swift",
+      "tools/calendar-library-benchmark/Shared/Fixtures.swift",
+      "tools/calendar-library-benchmark/TileTests/async.swift",
+      "-o",
+      ".build/calendar-async-preparation/AsyncTileTextCompositionChecks"
+    ],
+    "exitCode": 0
+  },
+  {
+    "name": "async-text-composition-100-False",
+    "command": [
+      ".build/calendar-async-preparation/AsyncTileTextCompositionChecks",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "100",
+      "--renderer",
+      "tiles",
+      "--ablation",
+      "tile-prefetch-async-surface",
+      "--output",
+      ".build/calendar-async-preparation/async-text-composition-100-False.json"
+    ],
+    "exitCode": 0
+  },
+  {
+    "name": "async-text-composition-100-True",
+    "command": [
+      ".build/calendar-async-preparation/AsyncTileTextCompositionChecks",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "100",
+      "--renderer",
+      "tiles",
+      "--ablation",
+      "tile-prefetch-async-surface",
+      "--output",
+      ".build/calendar-async-preparation/async-text-composition-100-True.json",
+      "--raster-native-text"
+    ],
+    "exitCode": 0
+  },
+  {
+    "name": "async-text-composition-300-False",
+    "command": [
+      ".build/calendar-async-preparation/AsyncTileTextCompositionChecks",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "300",
+      "--renderer",
+      "tiles",
+      "--ablation",
+      "tile-prefetch-async-surface",
+      "--output",
+      ".build/calendar-async-preparation/async-text-composition-300-False.json"
+    ],
+    "exitCode": 0
+  },
+  {
+    "name": "async-text-composition-300-True",
+    "command": [
+      ".build/calendar-async-preparation/AsyncTileTextCompositionChecks",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "300",
+      "--renderer",
+      "tiles",
+      "--ablation",
+      "tile-prefetch-async-surface",
+      "--output",
+      ".build/calendar-async-preparation/async-text-composition-300-True.json",
+      "--raster-native-text"
+    ],
+    "exitCode": 0
+  },
+  {
+    "name": "python-benchmark-final",
+    "command": [
+      "python3",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tools/calendar-library-benchmark",
+      "-p",
+      "test_*.py",
+      "-v"
+    ],
+    "exitCode": 0
+  }
+]

@@ -1,0 +1,563 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Banana · Google Calendar planner for iPhone, iPad &amp; Mac</title>
+  <meta name="description" content="Plan across Google calendars with Banana. See events, reminders, routines, weather and travel time together on iPhone, iPad and Apple silicon Mac.">
+  <link rel="canonical" href="https://bananatheapp.com/">
+  <meta name="theme-color" content="#fbf6ea">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Banana">
+  <meta property="og:title" content="Banana · Google Calendar planner for iPhone, iPad &amp; Mac">
+  <meta property="og:description" content="Every plan blocks the others, travel time included. On iPhone, iPad and Mac.">
+  <meta property="og:url" content="https://bananatheapp.com/">
+  <meta property="og:image" content="https://bananatheapp.com/assets/img/social.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:video" content="https://bananatheapp.com/assets/video/social.mp4">
+  <meta property="og:video:secure_url" content="https://bananatheapp.com/assets/video/social.mp4">
+  <meta property="og:video:type" content="video/mp4">
+  <meta property="og:video:width" content="1200">
+  <meta property="og:video:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png?v=dimensional82">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=dimensional82">
+  <link rel="preload" href="/assets/fonts/IBMPlexMono-700.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/assets/fonts/IBMPlexMono-400.woff2" as="font" type="font/woff2" crossorigin>
+  <style>
+  @font-face { font-family: "IBM Plex Mono"; font-weight: 400; font-display: swap; src: url("/assets/fonts/IBMPlexMono-400.woff2") format("woff2"); }
+  @font-face { font-family: "IBM Plex Mono"; font-weight: 500; font-display: swap; src: url("/assets/fonts/IBMPlexMono-500.woff2") format("woff2"); }
+  @font-face { font-family: "IBM Plex Mono"; font-weight: 600; font-display: swap; src: url("/assets/fonts/IBMPlexMono-600.woff2") format("woff2"); }
+  @font-face { font-family: "IBM Plex Mono"; font-weight: 700; font-display: swap; src: url("/assets/fonts/IBMPlexMono-700.woff2") format("woff2"); }
+  :root {
+    color-scheme: light;
+    --cream: #fbf6ea; --ink: #221d38; --dim: #625a78; --line: #e6dccb;
+    --banana: #ffd84a; --banana-deep: #efbd2a;
+    --display: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+    --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  body { margin: 0; background: var(--cream); color: var(--ink); font: 15px/1.5 var(--mono); }
+  a { color: inherit; }
+  .pad { padding-inline: 20px; max-width: 1180px; margin-inline: auto; }
+
+  .top { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 16px; border-bottom: 2px solid var(--line); }
+  .brand { display: flex; align-items: center; gap: 10px; font: 700 23px/1 var(--display); text-decoration: none; }
+  .brand img { width: 36px; height: 36px; display: block; }
+  .links { display: flex; align-items: center; gap: 22px; font-size: 14px; }
+  .links a:not(.btn) { text-decoration: none; }
+  @media (max-width: 560px) { .links a[href="#how"], .links a[href="#faq"] { display: none; } .links { gap: 16px; } }
+
+  .btn { display: inline-block; font: 600 16px/1 var(--mono); text-decoration: none; background: var(--banana); color: var(--ink); cursor: pointer;
+         padding: 13px 22px; border: 2px solid var(--ink); border-radius: 4px; box-shadow: 3px 3px 0 var(--ink); transition: transform .08s, box-shadow .08s; }
+  .btn:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 var(--ink); }
+  .btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
+  .btn.small { font-size: 13px; padding: 8px 14px; box-shadow: 2px 2px 0 var(--ink); }
+
+  .hero { text-align: center; padding-block: 44px 26px; display: grid; gap: 16px; justify-items: center; }
+  h1 { font: 700 clamp(36px, 6.4vw, 78px)/1.05 var(--display); margin: 0; letter-spacing: -.03em; text-wrap: balance; }
+  .sub { margin: 0; font-size: clamp(15px, 1.7vw, 19px); text-wrap: balance; }
+  .also { margin: 0; font-size: 13px; color: var(--dim); text-wrap: balance; }
+
+  /* the house: a fixed-size stage, scaled to fit */
+  .wrap { position: relative; overflow: hidden; border-block: 10px solid #c8bfe3; }
+  .wrap.scrolls { -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 88%, transparent); mask-image: linear-gradient(90deg, transparent, #000 7%, #000 88%, transparent);
+                  overflow-x: auto; scroll-snap-type: x proximity; scrollbar-width: none; }
+  .wrap.scrolls::-webkit-scrollbar { display: none; }
+  .sizer { position: relative; margin-inline: auto; }
+  .wrap.scrolls .sizer { margin-inline: 0; }
+  .stage { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+  .snap { position: absolute; top: 0; height: 1px; width: 420px; scroll-snap-align: center; }
+  /* each room is a small dithered picture, shown at twice its size with its pixels kept sharp */
+  .room { position: absolute; top: 0; display: block; image-rendering: pixelated; }
+  .pillar { position: absolute; top: 0; width: 16px; background: linear-gradient(90deg, #d6cfec 0 3px, #bdb3d9 3px 13px, #a99fca 13px); }
+  svg.layer { position: absolute; left: 0; top: 0; overflow: visible; pointer-events: none; }
+  /* at rest the cables stay plain to see over the rooms' detail: soft, with a light edge */
+  .cable { fill: none; stroke-width: 2.6; stroke-linecap: round; opacity: .72; transition: opacity .25s, stroke-width .25s; }
+  #cables, #feed { filter: drop-shadow(0 0 1.5px rgba(255, 255, 255, .95)); }
+  /* every calendar feeds the one day in Banana below: a line down from each card, and a pulse
+     running along it as a plan arrives */
+  .feedline { fill: none; stroke-width: 2.6; stroke-linecap: round; opacity: .72; }
+  .pulse { fill: none; stroke-width: 5; stroke-linecap: round; stroke-dasharray: 22 4000; stroke-dashoffset: 22; }
+  .feed { display: block; width: 100%; height: 92px; overflow: hidden; pointer-events: none; }
+  .plan-wrap { display: grid; justify-items: center; }
+  /* Banana's day is drawn like the calendars above and shown at their size (fit()) */
+  .plan-box { position: relative; }
+  .card.plan { position: absolute; left: 0; top: 0; width: 236px; transform-origin: 0 0; }
+  .plan .blk.real small { margin-left: auto; font-size: 9.5px; font-weight: 400; color: var(--dim); }
+  .plan .rems { gap: 5px; height: auto; min-height: 30px; flex-wrap: wrap; padding-block: 5px; }
+  .plan .rem { font-size: 10px; padding-inline: 3px 7px; gap: 5px; }
+  .dot { fill: #fff; stroke-width: 2; opacity: .75; transition: opacity .25s; }
+  .stage.focus .cable { opacity: .12; }
+  .stage.focus .dot { opacity: .1; }
+  .stage.focus .cable.on { opacity: 1; stroke-width: 3; }
+  .stage.focus .dot.on { opacity: 1; }
+
+  .card { position: absolute; width: 236px; background: var(--paper); border-radius: 6px;
+          box-shadow: 0 0 0 2px rgba(255,255,255,.9), 0 0 0 4px rgba(70,55,110,.12), 0 10px 0 rgba(70,55,110,.07); }
+  .card header { height: 34px; display: flex; align-items: center; gap: 6px; padding-inline: 12px; background: var(--tint); border-radius: 6px 6px 0 0; }
+  .card header i { width: 7px; height: 7px; border-radius: 50%; display: block; }
+  .card header b { margin-left: 6px; font: 700 14px/1 var(--display); }
+  /* the day's weather sits in the header, as on the app's date line */
+  .hwx { margin-left: auto; display: flex; align-items: center; gap: 4px; font: 600 12px/1 var(--mono); font-variant-numeric: tabular-nums; }
+  .hwx svg { width: 11px; height: 11px; }
+  /* reminders with no time: a line of pills above the hours, as on the Plan screen */
+  .rems { height: 30px; display: flex; align-items: center; gap: 6px; padding-inline: 8px; border-bottom: 1px solid rgba(70,55,110,.09); }
+  .rem { display: flex; align-items: center; gap: 6px; height: 20px; padding-inline: 4px 9px; border-radius: 10px; background: rgba(70,55,110,.06); font-size: 11px; white-space: nowrap; }
+  .ring { position: relative; width: 11px; height: 11px; border-radius: 50%; box-shadow: inset 0 0 0 1.5px #41b488; flex: none; }
+  .ring .tick { position: absolute; inset: 0; border-radius: 50%; background: #41b488; display: grid; place-items: center; }
+  .ring .tick::after { content: ""; width: 3px; height: 5px; margin-top: -1px; border: solid #fff; border-width: 0 1.5px 1.5px 0; transform: rotate(45deg); }
+  .rem.done .txt { opacity: .45; text-decoration: line-through; }
+  .body { position: relative; margin: 8px 10px 10px 0; }
+  .hr { position: absolute; left: 0; width: 100%; display: flex; align-items: center; gap: 6px; }
+  .hr span { width: 44px; text-align: right; font-size: 10px; color: var(--dim); font-variant-numeric: tabular-nums; flex: none; }
+  .hr::after { content: ""; flex: 1; border-top: 1px solid rgba(70,55,110,.09); }
+  .blk { position: absolute; left: 50px; right: 0; border-radius: 3px; font-size: 11.5px; line-height: 1; display: flex; align-items: center; gap: 6px;
+         padding-inline: 8px; white-space: nowrap; overflow: hidden; transition: opacity .25s; }
+  .blk.real { background: var(--tint); font-weight: 500; cursor: pointer; }
+  .blk.real::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--strong); flex: none; }
+  .blk.busy { background: var(--banana); box-shadow: inset 0 0 0 1px var(--banana-deep); font-weight: 500; cursor: pointer; }
+  /* the drive on either side of a plan is hatched, so "travel time included" can be seen */
+  .blk.busy.trav { background:
+      linear-gradient(transparent var(--a), var(--banana) var(--a) var(--b), transparent var(--b)),
+      repeating-linear-gradient(135deg, var(--banana) 0 3px, var(--banana-deep) 3px 5px); }
+  .blk.trip { background: none; border: 1px dashed rgba(70,55,110,.25); font-size: 9px; color: var(--dim); gap: 4px; padding-inline: 6px; }
+  .blk.trip svg { width: 13px; height: 9px; flex: none; }
+  .blk.free { background: none; border: 1px dashed #c9bdd2; color: var(--dim); }
+  .stage.focus .blk:not(.on), .plan.focus .blk:not(.on) { opacity: .4; }
+
+
+  section.block { padding-block: 64px 0; display: grid; gap: 28px; justify-items: center; text-align: center; }
+  h2 { font: 700 clamp(26px, 3.6vw, 40px)/1.15 var(--display); letter-spacing: -.02em; margin: 0; text-wrap: balance; }
+  .lede { margin: -12px 0 0; color: var(--dim); text-wrap: balance; }
+  .mini { position: relative; display: grid; grid-template-columns: 1fr minmax(36px, 110px) 1fr; align-items: start; width: 100%; max-width: 560px; text-align: left; }
+  .mini .card { position: relative; width: auto; }
+  .mini > svg { width: 100%; height: 172px; overflow: visible; }
+  .tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; width: 100%; max-width: 760px; }
+  @media (max-width: 620px) { .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .tile { display: grid; justify-items: center; gap: 8px; padding: 16px 10px 18px; border-radius: 6px; background: var(--t); font-size: 14px; }
+  /* small dithered pictures, shown at twice their size with their pixels kept sharp */
+  .tile img { width: 80px; height: 80px; image-rendering: pixelated; }
+  .end { padding-block: 72px 48px; display: grid; gap: 22px; justify-items: center; text-align: center; }
+  .end small { color: var(--dim); font-size: 12px; display: flex; flex-wrap: wrap; justify-content: center; gap: 16px; }
+  .skip { position: absolute; left: -9999px; top: 8px; background: var(--banana); padding: 8px 12px; border: 2px solid var(--ink); z-index: 9; }
+  .skip:focus { left: 8px; }
+  a:focus-visible, button:focus-visible, summary:focus-visible { outline: 3px solid var(--banana-deep); outline-offset: 2px; }
+  h3 { font: 700 17px/1.25 var(--display); margin: 0; }
+  .more { margin: 0; font-size: 14px; }
+  .faq { width: 100%; max-width: 760px; text-align: left; display: grid; border-top: 2px solid var(--line); }
+  .faq details { border-bottom: 2px solid var(--line); }
+  .faq summary { cursor: pointer; padding-block: 16px; font-weight: 600; list-style: none; display: flex; justify-content: space-between; gap: 16px; }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary::after { content: "+"; font: 600 20px/1 var(--display); }
+  .faq details[open] summary::after { content: "–"; }
+  .faq details p { margin: 0 0 18px; color: var(--dim); max-width: 64ch; }
+  .fine { margin: 0; font-size: 12px; color: var(--dim); max-width: 60ch; text-wrap: balance; }
+  .end .legal { max-width: 70ch; }
+  </style>
+<link rel="alternate" type="application/rss+xml" title="Banana blog" href="/blog/feed.xml">
+<meta property="og:image:alt" content="Work, personal and studio calendars brought together into one Banana daily plan.">
+<script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "Organization", "@id": "https://bananatheapp.com/#organization", "name": "Abrega, Inc.", "url": "https://bananatheapp.com/about", "logo": "https://bananatheapp.com/apple-touch-icon.png"}, {"@type": "WebSite", "@id": "https://bananatheapp.com/#website", "url": "https://bananatheapp.com/", "name": "Banana", "publisher": {"@id": "https://bananatheapp.com/#organization"}, "inLanguage": "en"}, {"@type": "SoftwareApplication", "@id": "https://bananatheapp.com/#application", "name": "Banana", "url": "https://bananatheapp.com/", "applicationCategory": "ProductivityApplication", "operatingSystem": "iOS 26.1+, iPadOS 26.1+, macOS 26+ (Apple silicon), watchOS 26+", "description": "A daily planner for Google calendars, reminders, routines, weather and travel time, with optional wellness, food, notes and podcast modules.", "publisher": {"@id": "https://bananatheapp.com/#organization"}, "downloadUrl": "https://testflight.apple.com/join/47yxmU8U"}]}</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<div class="pad">
+  <header class="top">
+    <a class="brand" href="/" aria-label="Banana, home"><img src="/assets/img/mark-192.webp?v=dimensional82" width="36" height="36" alt="">Banana</a>
+    <nav class="links" aria-label="Sections">
+      <a href="#how">How it works</a>
+      <a href="/blog/">Blog</a>
+      <a href="#faq">FAQ</a>
+      <a class="btn small" href="https://testflight.apple.com/join/47yxmU8U">Join the beta</a>
+    </nav>
+  </header>
+</div>
+<main id="main">
+<div class="pad">
+  <div class="hero">
+    <h1>Many calendars. One you.</h1>
+    <p class="sub">Your Google calendars, reminders and routines. One daily plan.</p>
+    <p class="also">Busy blocks help keep your enabled calendars in step, travel time included.</p>
+    <a class="btn" href="https://testflight.apple.com/join/47yxmU8U">Join the beta</a>
+    <p class="also">Also on your plan: travel time · weather · reminders · routines</p>
+  </div>
+</div>
+
+<div id="scene" role="img" aria-label="A Monday on three calendars, Work, Personal and Studio. Each plan, with its travel time, shows up as Busy on the other two, and all of them come together in one day in Banana.">
+<div class="wrap" id="wrap">
+  <div class="sizer" id="sizer"><div class="stage" id="stage" aria-hidden="true"></div></div>
+</div>
+<div aria-hidden="true">
+  <svg class="feed" id="feed"></svg>
+  <div class="pad plan-wrap"><div class="plan-box" id="planBox"><div class="card plan" id="plan"></div></div></div>
+</div>
+</div>
+
+<div class="pad">
+  <section class="block" id="how">
+    <h2>Busy crosses over. The details don't.</h2>
+    <p class="lede">The other calendars get the hour, never the title.</p>
+    <div class="mini" id="mini" role="img" aria-label="A dentist visit on the Personal calendar shows up on Work as one Busy block, drive included."></div>
+  </section>
+
+  <section class="block">
+    <h2>Also on your plan</h2>
+    <div class="tiles">
+      <div class="tile" style="--t:#cbe4f6"><img src="/assets/img/icon-car.png" width="80" height="80" alt="" loading="lazy">Travel time</div>
+      <div class="tile" style="--t:#fdf0c4"><img src="/assets/img/icon-sun.png" width="80" height="80" alt="" loading="lazy">Weather</div>
+      <div class="tile" style="--t:#d3f0e2"><img src="/assets/img/icon-check.png" width="80" height="80" alt="" loading="lazy">Reminders</div>
+      <div class="tile" style="--t:#e4dbf6"><img src="/assets/img/icon-clock.png" width="80" height="80" alt="" loading="lazy">Routines</div>
+    </div>
+  </section>
+
+  <section class="block" id="soon">
+    <h2>Make room for the rest</h2>
+    <p class="lede">Switch on only what you want Banana to look after.</p>
+    <div class="tiles">
+      <div class="tile" style="--t:#f9d0dc"><img src="/assets/img/icon-workout.png" width="80" height="80" alt="" loading="lazy">Workouts and sleep</div>
+      <div class="tile" style="--t:#fbd9bb"><img src="/assets/img/icon-food.png" width="80" height="80" alt="" loading="lazy">Food</div>
+      <div class="tile" style="--t:#fff0b3"><img src="/assets/img/icon-note.png" width="80" height="80" alt="" loading="lazy">Notes</div>
+      <div class="tile" style="--t:#ddd2f6"><img src="/assets/img/icon-podcast.png" width="80" height="80" alt="" loading="lazy">Podcasts</div>
+    </div>
+  </section>
+
+  <section class="block" id="faq">
+    <h2>Good to know</h2>
+    <div class="faq">
+      <details><summary>Why does Banana ask for my Google account?</summary><p>To show your Google Calendar events in your plan, to save the events you make or change in Banana, and to add Busy blocks across your own calendars so one plan blocks the others. Banana uses what it reads from Google only for that, and never for advertising.</p></details>
+      <details><summary>Does it copy my events between calendars?</summary><p>No. The other calendars get a Busy block for the same hours, travel time included, without the title or details. It's on once you connect and can be turned off in Settings.</p></details>
+      <details><summary>Does Banana replace my calendar?</summary><p>No. Your events stay in Google Calendar. Banana shows them with your reminders, routines, travel and weather, and what you add in Banana is saved to Google Calendar.</p></details>
+      <details><summary>Which calendars does it work with?</summary><p>Google Calendar, with as many Google accounts as you use. Calendars that live only in iCloud or Outlook aren't shown.</p></details>
+      <details><summary>What else can I use in Banana?</summary><p>Workouts and sleep, food, notes and podcasts are optional modules you can switch on. Features and permissions vary by device. Meal estimates are approximate and use Apple Intelligence where your device supports it. Banana does not give medical advice.</p></details>
+      <details><summary>Why does Banana need location?</summary><p>For local weather and travel times, and for workout routes. Forecasts come from Apple Weather and travel times from Apple Maps.</p></details>
+    </div>
+  </section>
+
+  <section class="end">
+    <a class="btn" href="https://testflight.apple.com/join/47yxmU8U">Join the beta</a>
+    <p class="fine">Banana is in public beta on TestFlight: iPhone and iPad with iOS 26.1 or later, Mac with Apple silicon and macOS 26, and an Apple Watch app with watchOS 26. Calendar features need a Google account.</p>
+    <small><a href="/blog/">Blog</a><a href="/about">About</a><a href="/privacy">Privacy Policy</a><a href="/terms">Terms</a><a href="/support">Support</a></small>
+    <small class="legal">© 2026 Abrega, Inc. Apple, iPhone, iPad, Mac, Apple Watch, iCloud and TestFlight are trademarks of Apple Inc. Google Calendar is a trademark of Google LLC.</small>
+  </section>
+</div>
+</main>
+<script>
+(() => {
+/* ------------------------------------------------------------------
+   The story: an empty Monday gets booked, one plan at a time.
+   Each plan lands on its own calendar (its drive grows out around it),
+   then a cable carries it room to room, and a Busy appears on each
+   calendar the moment the cable reaches it. When the day is full, the
+   one open hour shows up as Free and the reminder gets ticked.
+
+   The page is written in its finished state. The animation only hides
+   things until their moment (fill: "backwards"), so with no animation
+   support, reduced motion, or any error, the full day is what shows.
+   ------------------------------------------------------------------ */
+const RW = 420, RH = 616, ROW = 40, H0 = 9, H1 = 17;
+const CARD = { left: 92, top: 14, w: 236, head: 34, rems: 30, pad: 8 };
+// The calendars are drawn at full size and shown at K of it, so more of each room shows around them.
+const K = .8;
+const BODY_TOP = CARD.head + CARD.rems + CARD.pad;   // from the card's top, before K
+const WEATHER = "18°";
+const CAL = [
+  { id: "work", name: "Work", tint: "#c3ead6", paper: "#f3fbf7", strong: "#41b488", wall: "#d3f0e2",
+    events: [{ id: "standup", t: "Standup", s: 9, e: 9.5 }, { id: "call", t: "Client call", s: 14, e: 15 }],
+    rem: "Send deck", done: true },
+  { id: "personal", name: "Personal", tint: "#f9d0dc", paper: "#fff5f8", strong: "#e27399", wall: "#fad9e2",
+    events: [{ id: "dentist", t: "Dentist", s: 10, e: 11, pre: 1/3, post: 1/3, preL: "20 min", postL: "20 min" },
+             { id: "pickup", t: "School pickup", s: 16, e: 16.5, pre: 1/3, post: 1/3, preL: "Leave 3:40", postL: "20 min" }],
+    rem: "Call the plumber" },
+  { id: "studio", name: "Studio", tint: "#ddd2f6", paper: "#f8f5ff", strong: "#8e74da", wall: "#e4dbf6",
+    events: [{ id: "pottery", t: "Pottery class", s: 12, e: 13 }], rem: "Buy glaze" },
+];
+const SW = RW * CAL.length;
+// The order the day gets booked in, and when (seconds from the start).
+const BEATS = [["standup", .8], ["dentist", 2.6], ["pottery", 4.4], ["call", 6.0], ["pickup", 7.6]];
+const HOP = .42;                       // seconds for a cable to cross to the next calendar
+const FEED = .8;                       // seconds for a plan to run down into the day in Banana
+const FINALE = 9.9;                    // the day's one free hour, then Send deck gets ticked
+// Banana's own day: every calendar's plans together, and the hour free across all of them.
+const PLAN = { name: "Banana", tint: "#fff0b3", paper: "#fffdf4", strong: "#efbd2a", free: { s: 13, e: 14 } };
+
+const EVENTS = CAL.flatMap((c, ci) => c.events.map(e => ({ ...e, ci, from: e.s - (e.pre || 0), to: e.e + (e.post || 0) })));
+const byId = Object.fromEntries(EVENTS.map(e => [e.id, e]));
+const y = t => (t - H0) * ROW;
+const cardX = i => i * RW + CARD.left + CARD.w / 2;   // the card's centre line
+const cardLeft = i => cardX(i) - CARD.w * K / 2, cardRight = i => cardX(i) + CARD.w * K / 2;
+const midY = (s, e) => CARD.top + (BODY_TOP + y(s) + (e - s) * ROW / 2) * K;
+const hourLabel = h => (h > 12 ? h - 12 : h) + (h >= 12 ? " PM" : " AM");
+
+// ---------- pixel art ----------
+const R = (x, y, w, h, c) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${c}"/>`;
+function spr(x, y, rows, pal) {
+  let s = "";
+  rows.forEach((row, j) => {
+    for (let i = 0; i < row.length;) {
+      const ch = row[i]; let n = 1;
+      while (row[i + n] === ch) n++;
+      if (pal[ch]) s += R(x + i, y + j, n, 1, pal[ch]);
+      i += n;
+    }
+  });
+  return s;
+}
+let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+const ICON = {
+  car: [["...kkkkkk...", "..kwwkkwwk..", ".kwwwkkwwwk.", "kkkkkkkkkkkk", "kpppppppppyk", "kppppppppppk", ".kk......kk.", ".kk......kk."], { k: "#221d38", w: "#cbe4f6", p: "#ea84a5", y: "#ffd84a" }],
+  sun: [[".....y.....", "..y..y..y..", "...y...y...", "....yyy....", ".y.yyyyy.y.", "yy.yyyyy.yy", ".y.yyyyy.y.", "....yyy....", "...y...y...", "..y..y..y..", ".....y....."], { y: "#efbd2a" }],
+};
+function icon(name, el) {
+  const [rows, pal] = ICON[name];
+  el.setAttribute("viewBox", `0 0 ${Math.max(...rows.map(r => r.length))} ${rows.length}`);
+  el.setAttribute("shape-rendering", "crispEdges");
+  el.innerHTML = spr(0, 0, rows, pal);
+}
+
+// ---------- build the finished day ----------
+const stage = document.getElementById("stage"), sizer = document.getElementById("sizer"), wrap = document.getElementById("wrap");
+stage.style.width = SW + "px"; stage.style.height = RH + "px";
+const blockStyle = (s, e) => `top:${y(s) + 1}px;height:${(e - s) * ROW - 2}px`;
+let html = "";
+CAL.forEach((c, i) => {
+  const x = i * RW;
+  // The rooms in view first load at once; the ones past the edge wait. Until a picture arrives
+  // the room is its wall colour, so nothing jumps.
+  html += `<img class="room" src="/assets/img/room-${c.id}.png" width="${RW}" height="${RH}" alt="" decoding="async" style="left:${x}px;background:${c.wall}"><div class="snap" style="left:${x}px"></div>`;
+  if (i) html += `<div class="pillar" style="left:${x - 8}px;height:${RH}px"></div>`;
+});
+html += `<svg class="layer" width="${SW}" height="${RH}" id="cables"></svg>`;
+CAL.forEach((c, i) => {
+  let b = "";
+  for (let h = H0; h <= H1; h++) b += `<div class="hr" style="top:${y(h) - 6}px"><span>${hourLabel(h)}</span></div>`;
+  for (const e of c.events) {
+    if (e.pre) b += `<div class="blk trip" data-trip="${e.id}" data-side="pre" style="${blockStyle(e.s - e.pre, e.s)}"><svg data-icon="car"></svg>${e.preL}</div>`;
+    if (e.post) b += `<div class="blk trip" data-trip="${e.id}" data-side="post" style="${blockStyle(e.e, e.e + e.post)}"><svg data-icon="car"></svg>${e.postL}</div>`;
+    b += `<div class="blk real" data-ev="${e.id}" style="${blockStyle(e.s, e.e)}">${e.t}</div>`;
+  }
+  for (const e of EVENTS) {
+    if (e.ci === i) continue;
+    const len = e.to - e.from, trav = e.pre || e.post;
+    b += `<div class="blk busy${trav ? " trav" : ""}" data-ev="${e.id}" data-cal="${i}" style="${blockStyle(e.from, e.to)}${trav ? `;--a:${e.pre / len * 100}%;--b:${100 - e.post / len * 100}%` : ""}">Busy</div>`;
+  }
+  html += `<div class="card" style="left:${i * RW + CARD.left}px;top:${CARD.top}px;transform:scale(${K});transform-origin:50% 0;--tint:${c.tint};--paper:${c.paper};--strong:${c.strong}">
+    <header><i style="background:#f3a0b5"></i><i style="background:#ffd84a"></i><i style="background:#8fd6b5"></i><b>${c.name}</b><span class="hwx"><svg data-icon="sun"></svg>${WEATHER}</span></header>
+    <div class="rems">${c.rem ? `<span class="rem${c.done ? " done" : ""}"><span class="ring">${c.done ? `<span class="tick"></span>` : ""}</span><span class="txt">${c.rem}</span></span>` : ""}</div>
+    <div class="body" style="height:${y(H1) + 14}px">${b}</div></div>`;
+});
+html += `<svg class="layer" width="${SW}" height="${RH}" id="dots"></svg>`;
+stage.innerHTML = html;
+
+// The day in Banana: each plan once, in its calendar's colour, with its drive; the reminders of
+// every calendar; the day's weather; and the one hour free across all of them.
+const CARD_BOTTOM = CARD.top + (BODY_TOP + y(H1) + 14 + 10) * K;
+const plan = document.getElementById("plan"), planBox = document.getElementById("planBox"), feed = document.getElementById("feed"), scene = document.getElementById("scene");
+{
+  let b = "";
+  for (let h = H0; h <= H1; h++) b += `<div class="hr" style="top:${y(h) - 6}px"><span>${hourLabel(h)}</span></div>`;
+  b += `<div class="blk free" data-beat="finale" style="${blockStyle(PLAN.free.s, PLAN.free.e)}">Free</div>`;
+  for (const e of EVENTS) {
+    const c = CAL[e.ci], tone = `--tint:${c.tint};--strong:${c.strong}`;
+    if (e.pre) b += `<div class="blk trip" data-utrip="${e.id}" data-side="pre" style="${blockStyle(e.s - e.pre, e.s)}"><svg data-icon="car"></svg>${e.preL}</div>`;
+    if (e.post) b += `<div class="blk trip" data-utrip="${e.id}" data-side="post" style="${blockStyle(e.e, e.e + e.post)}"><svg data-icon="car"></svg>${e.postL}</div>`;
+    b += `<div class="blk real" data-ev="${e.id}" data-u style="${blockStyle(e.s, e.e)};${tone}">${e.t}<small>${c.name}</small></div>`;
+  }
+  const pill = c => `<span class="rem${c.done ? " done" : ""}"><span class="ring">${c.done ? `<span class="tick"></span>` : ""}</span><span class="txt">${c.rem}</span></span>`;
+  plan.style.cssText = `--tint:${PLAN.tint};--paper:${PLAN.paper};--strong:${PLAN.strong}`;
+  plan.innerHTML = `<header><i style="background:#f3a0b5"></i><i style="background:#ffd84a"></i><i style="background:#8fd6b5"></i><b>${PLAN.name}</b><span class="hwx"><svg data-icon="sun"></svg>${WEATHER}</span></header>
+    <div class="rems">${CAL.filter(c => c.rem).map(pill).join("")}</div>
+    <div class="body" style="height:${y(H1) + 14}px">${b}</div>`;
+  plan.querySelectorAll("svg[data-icon]").forEach(s => icon(s.dataset.icon, s));
+}
+stage.querySelectorAll("svg[data-icon]").forEach(s => icon(s.dataset.icon, s));
+
+// Cables hop from calendar to neighbouring calendar, so each one is short and level:
+// a plan's cable leaves its own card and passes through every Busy copy in turn.
+const hops = [];   // {ev, n, dir, to, d, x1, y1, x2, y2}
+for (const e of EVENTS) {
+  for (const dir of [1, -1]) {
+    let prevY = midY(e.s, e.e);
+    for (let n = 1, j = e.ci + dir; j >= 0 && j < CAL.length; n++, j += dir) {
+      const x1 = dir > 0 ? cardRight(j - dir) : cardLeft(j - dir), x2 = dir > 0 ? cardLeft(j) : cardRight(j);
+      const y1 = prevY, y2 = midY(e.from, e.to), dx = x2 - x1, sag = 18;
+      hops.push({ ev: e.id, n, dir, to: j, x1, y1, x2, y2,
+        d: `M${x1},${y1} C${x1 + dx * .3},${y1 + sag} ${x2 - dx * .3},${y2 + sag} ${x2},${y2}` });
+      prevY = y2;
+    }
+  }
+}
+const color = id => CAL[byId[id].ci].strong;
+const dropX = cardX;
+document.getElementById("cables").innerHTML = hops.map((h, k) => `<path class="cable" data-ev="${h.ev}" data-k="${k}" d="${h.d}" stroke="${color(h.ev)}"/>`).join("") +
+  CAL.map((c, i) => `<path class="feedline" d="M${dropX(i)},${CARD_BOTTOM} V${RH + 12}" stroke="${c.strong}"/><path class="pulse" data-drop="${i}" d="M${dropX(i)},${CARD_BOTTOM} V${RH + 12}" stroke="${c.strong}"/>`).join("");
+feed.innerHTML = CAL.map((c, i) => `<path class="feedline" data-feed="${i}" stroke="${c.strong}"/><path class="pulse" data-feed="${i}" stroke="${c.strong}"/>`).join("");
+
+// The lines below the rooms run from under each card to the top of Banana's day. On a phone the
+// rooms scroll, so they follow; a room off screen feeds in from the edge.
+function layFeed() {
+  // Banana's day at the calendars' size above; on a phone, where those are tiny, never below
+  // a readable size.
+  const ps = Math.max(fit.scale * K, .95);
+  plan.style.transform = `scale(${ps})`;
+  planBox.style.width = CARD.w * ps + "px"; planBox.style.height = plan.offsetHeight * ps + "px";
+  const s = fit.scale, fr = feed.getBoundingClientRect(), pr = planBox.getBoundingClientRect();
+  const sr = sizer.getBoundingClientRect();
+  CAL.forEach((c, i) => {
+    const x1 = sr.left - fr.left + dropX(i) * s, x2 = pr.left - fr.left + pr.width / 2 + (i - (CAL.length - 1) / 2) * pr.width * .3;
+    const h = fr.height, d = `M${x1},-2 C${x1},${h * .55} ${x2},${h * .45} ${x2},${h + 2}`;
+    feed.querySelectorAll(`[data-feed="${i}"]`).forEach(p => p.setAttribute("d", d));
+  });
+}
+document.getElementById("dots").innerHTML = hops.map((h, k) =>
+  `<circle class="dot" data-ev="${h.ev}" data-k="${k}" data-end="a" cx="${h.x1}" cy="${h.y1}" r="3.5" stroke="${color(h.ev)}"/>` +
+  `<circle class="dot" data-ev="${h.ev}" data-k="${k}" data-end="b" cx="${h.x2}" cy="${h.y2}" r="3.5" stroke="${color(h.ev)}"/>`).join("");
+
+// ---------- fit the stage to the window ----------
+function fit() {
+  const w = wrap.clientWidth;
+  const rooms = w >= 1000 ? 3 : w >= 640 ? 2.1 : 1.45;
+  const s = Math.min(1.15, w / (RW * rooms));
+  stage.style.transform = `scale(${s})`;
+  fit.scale = s;
+  sizer.style.width = SW * s + "px"; sizer.style.height = RH * s + "px";
+  const scrolls = w < 1000;
+  wrap.classList.toggle("scrolls", scrolls);
+  // On a narrow screen, start on Personal, where the story's drive and both directions of cables are.
+  if (scrolls && !fit.placed) { wrap.scrollLeft = RW * 1.5 * s - w / 2; fit.placed = true; }
+  layFeed();
+}
+fit();
+let feedFrame = 0;
+wrap.addEventListener("scroll", () => { cancelAnimationFrame(feedFrame); feedFrame = requestAnimationFrame(layFeed); }, { passive: true });
+// Re-fit whenever the scene's own width changes: window resizes, rotation, a scrollbar coming or going.
+let lastW = wrap.clientWidth;
+const refit = () => { if (wrap.clientWidth !== lastW) { lastW = wrap.clientWidth; fit(); } };
+if ("ResizeObserver" in window) { new ResizeObserver(refit).observe(wrap); new ResizeObserver(layFeed).observe(plan); }
+else addEventListener("resize", refit);
+
+// ---------- point at a plan to follow it ----------
+function focus(id) {
+  stage.classList.toggle("focus", !!id);
+  plan.classList.toggle("focus", !!id);
+  scene.querySelectorAll("[data-ev]").forEach(el => el.classList.toggle("on", el.dataset.ev === id));
+}
+let pinned = null;
+scene.addEventListener("pointerover", e => { if (e.pointerType === "mouse") { const b = e.target.closest(".blk[data-ev]"); focus(b ? b.dataset.ev : pinned); } });
+scene.addEventListener("pointerleave", e => { if (e.pointerType === "mouse") focus(pinned); });
+scene.addEventListener("click", e => { const b = e.target.closest(".blk[data-ev]"); pinned = b && b.dataset.ev !== pinned ? b.dataset.ev : null; focus(pinned); });
+
+// ---------- the story, as one timeline ----------
+const reduce = matchMedia("(prefers-reduced-motion: reduce)");
+const canAnimate = typeof Element.prototype.animate === "function";
+let running = [], playing = false, played = false, storyEnd = 0, endTimer = 0;
+const q = sel => [...scene.querySelectorAll(sel)];
+function at(el, frames, start, dur, opts = {}) {
+  // fill "backwards": hidden until its moment; afterwards the element's own (finished) style shows.
+  const { origin, ...rest } = opts;
+  if (origin) el.style.transformOrigin = origin;
+  running.push(el.animate(frames, { delay: start * 1000, duration: dur * 1000, fill: "backwards", easing: "cubic-bezier(.3,.7,.4,1)", ...rest }));
+  storyEnd = Math.max(storyEnd, start + dur);
+}
+const appear = (dy = -6) => [{ opacity: 0, transform: `translateY(${dy}px)` }, { opacity: 1, transform: "none" }];
+function stop() { clearTimeout(loopTimer); clearTimeout(endTimer); running.forEach(a => a.cancel()); running = []; playing = false; storyEnd = 0; }
+function play() {
+  if (!canAnimate || reduce.matches) return;
+  stop();
+  try {
+    playing = true; played = true;
+    for (const [id, t] of BEATS) {
+      const e = byId[id], real = stage.querySelector(`.blk.real[data-ev="${id}"]`), mine = plan.querySelector(`.blk.real[data-ev="${id}"]`);
+      // 1. the plan lands on its own calendar, with a small ping
+      at(real, appear(-10), t, .45, { easing: "cubic-bezier(.3,1.5,.5,1)" });
+      at(real, [{ boxShadow: `0 0 0 0 ${CAL[e.ci].strong}` }, { boxShadow: "0 0 0 9px rgba(255,255,255,0)" }], t + .3, .6, { fill: "none" });
+      // 2. its drive grows out before and after it
+      let go = t + .5;
+      q(`[data-trip="${id}"]`).forEach(el => at(el, [{ opacity: 0, transform: "scaleY(0)" }, { opacity: 1, transform: "none" }], t + .45, .35,
+        { origin: el.dataset.side === "pre" ? "50% 100%" : "50% 0" }));
+      if (e.pre || e.post) go = t + .9;
+      // 3. it runs down from its calendar into the day in Banana, and appears there
+      const down = go, drop = stage.querySelector(`[data-drop="${e.ci}"]`), into = feed.querySelector(`.pulse[data-feed="${e.ci}"]`);
+      const dropL = RH + 12 - CARD_BOTTOM, intoL = Math.ceil(into.getTotalLength()) + 22;
+      at(drop, [{ strokeDashoffset: 22 }, { strokeDashoffset: -dropL }], down, FEED * .45, { easing: "linear" });
+      at(into, [{ strokeDashoffset: 22 }, { strokeDashoffset: -intoL }], down + FEED * .4, FEED * .6, { easing: "ease-in" });
+      at(mine, appear(-10), down + FEED, .4, { easing: "cubic-bezier(.3,1.5,.5,1)" });
+      at(mine, [{ boxShadow: `0 0 0 0 ${CAL[e.ci].strong}` }, { boxShadow: "0 0 0 9px rgba(255,255,255,0)" }], down + FEED + .25, .6, { fill: "none" });
+      plan.querySelectorAll(`[data-utrip="${id}"]`).forEach(el => at(el, [{ opacity: 0, transform: "scaleY(0)" }, { opacity: 1, transform: "none" }], down + FEED + .3, .35,
+        { origin: el.dataset.side === "pre" ? "50% 100%" : "50% 0" }));
+      // 4. the cable crosses room to room; each Busy appears as the cable reaches it
+      hops.forEach((h, k) => {
+        if (h.ev !== id) return;
+        const start = go + (h.n - 1) * HOP * .92;
+        const path = stage.querySelector(`#cables [data-k="${k}"]`), L = Math.ceil(path.getTotalLength()) + 2;
+        const end = start + HOP, settle = end + 1.1;
+        at(path, [
+          { strokeDasharray: `${L} ${L}`, strokeDashoffset: L, opacity: 1, strokeWidth: 3, offset: 0 },
+          { strokeDasharray: `${L} ${L}`, strokeDashoffset: 0, opacity: 1, strokeWidth: 3, offset: HOP / (settle + .6 - start) },
+          { strokeDasharray: `${L} ${L}`, strokeDashoffset: 0, opacity: 1, strokeWidth: 3, offset: (settle - start) / (settle + .6 - start) },
+          { strokeDasharray: `${L} ${L}`, strokeDashoffset: 0, opacity: .72, strokeWidth: 2.6, offset: 1 },
+        ], start, settle + .6 - start, { easing: "linear" });
+        const dots = q(`#dots [data-k="${k}"]`);
+        at(dots[0], [{ opacity: 0 }, { opacity: 1 }], start - .05, .12);
+        at(dots[1], [{ opacity: 0, r: 0 }, { opacity: 1, r: 5 }, { opacity: .75, r: 3.5 }], end - .04, .35);
+        const busy = stage.querySelector(`.blk.busy[data-ev="${id}"][data-cal="${h.to}"]`);
+        at(busy, [{ opacity: 0, transform: "scaleX(.35)" }, { opacity: 1, transform: "scaleX(1.04)", offset: .7 }, { opacity: 1, transform: "none" }], end - .02, .36,
+          { origin: h.dir > 0 ? "0 50%" : "100% 50%" });
+      });
+    }
+    // 5. the day is booked: the one hour free across all of them shows, and Send deck gets ticked
+    q('[data-beat="finale"]').forEach(el => at(el, appear(4), FINALE, .5));
+    q(".rem.done .tick").forEach(el => at(el, [{ transform: "scale(0)" }, { transform: "scale(1.25)", offset: .6 }, { transform: "none" }], FINALE + .7, .4));
+    q(".rem.done .txt").forEach(el => at(el, [{ opacity: 1, textDecorationColor: "transparent" }, { opacity: .45, textDecorationColor: "currentColor" }], FINALE + .95, .4));
+    // The story's end, by the clock: an animation's "finished" isn't reported everywhere.
+    endTimer = setTimeout(() => { playing = false; scheduleLoop(); }, storyEnd * 1000 + 50);
+  } catch (err) {
+    stop();   // anything unexpected: show the finished day
+  }
+}
+
+// Plays when the house comes into view, then loops: the finished day holds for a moment, fades,
+// and the story starts again. Only while the house is on screen and the page is in front; with
+// reduced motion it stays the finished day.
+const HOLD = 4000;
+let inView = false, loopTimer = 0;
+function scheduleLoop() {
+  clearTimeout(loopTimer);
+  loopTimer = setTimeout(() => { if (inView && !document.hidden && !reduce.matches) fadeThenPlay(); }, HOLD);
+}
+const again = () => { if (!playing && inView && !document.hidden && !reduce.matches) (played ? fadeThenPlay() : play()); };
+if (canAnimate && !reduce.matches) {
+  const r = wrap.getBoundingClientRect();
+  inView = r.top < innerHeight * .8 && r.bottom > innerHeight * .2;
+  if (inView && !document.hidden) play();   // before the first paint, so the finished day never flashes
+  if ("IntersectionObserver" in window) {
+    new IntersectionObserver(([en]) => { inView = en.isIntersecting; again(); }, { threshold: .35 }).observe(wrap);
+  }
+  document.addEventListener("visibilitychange", again);
+}
+reduce.addEventListener?.("change", () => { if (reduce.matches) stop(); else again(); });
+function fadeThenPlay() {
+  // a short fade back to an empty day, then the story again
+  stop();
+  const parts = q(".blk.real, .blk.busy, .blk.trip, [data-beat], .cable, .dot");
+  const fades = parts.map(el => el.animate([{ opacity: getComputedStyle(el).opacity }, { opacity: 0 }], { duration: 300, fill: "forwards" }));
+  setTimeout(() => { fades.forEach(f => f.cancel()); play(); }, 320);
+}
+
+// ---------- the small privacy picture ----------
+const mini = document.getElementById("mini");
+const MY = 36, M0 = 9.25, my = t => (t - M0) * MY, mBody = 34 + 8;
+const miniCard = (c, inner) => `<div class="card" style="--tint:${c.tint};--paper:${c.paper};--strong:${c.strong}"><header><i style="background:#f3a0b5"></i><i style="background:#ffd84a"></i><i style="background:#8fd6b5"></i><b>${c.name}</b></header>
+  <div class="body" style="height:120px">${[10, 11, 12].map(h => `<div class="hr" style="top:${my(h) - 6}px"><span>${hourLabel(h)}</span></div>`).join("")}${inner}</div></div>`;
+const mid = mBody + my(10.5);
+mini.innerHTML =
+  miniCard(CAL[1], `<div class="blk trip" style="top:${my(9 + 2/3) + 1}px;height:${MY / 3 - 2}px"><svg data-icon="car"></svg>20 min</div>
+    <div class="blk real" style="top:${my(10) + 1}px;height:${MY - 2}px">Dentist</div>
+    <div class="blk trip" style="top:${my(11) + 1}px;height:${MY / 3 - 2}px"><svg data-icon="car"></svg>20 min</div>`) +
+  `<svg viewBox="0 0 100 172" preserveAspectRatio="none"><path d="M0,${mid} C30,${mid + 22} 70,${mid + 22} 100,${mid}" fill="none" stroke="${CAL[1].strong}" stroke-width="2.5" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>` +
+  miniCard(CAL[0], `<div class="blk busy trav" style="--a:16.7%;--b:83.3%;top:${my(9 + 2/3) + 1}px;height:${(1 + 2/3) * MY - 2}px">Busy</div>`);
+mini.querySelectorAll("svg[data-icon]").forEach(s => icon(s.dataset.icon, s));
+
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+# smoke: does a key reach the real monitor and move the cursor
+name smoke
+wait 1
+shot start
+expect section is mail
+expect mail.cursor is q3
+key j
+expect mail.cursor is invite
+key j
+key k
+expect mail.cursor is invite
+key e
+expect toast contains Done
+key z
+expect mail.cursor is invite

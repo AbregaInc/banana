@@ -1,0 +1,187 @@
+# Banana service on Cloudflare Workers: accounts, calendar change pushes, usage counts
+# (docs/design/ACCOUNTS.md, README.md). Nothing here is deployed until the author says yes.
+#
+# Secrets (wrangler secret put NAME; locally in .dev.vars, which git ignores):
+#   TOKEN_KEY             base64 of 32 random bytes: encrypts Google refresh tokens
+#   GOOGLE_CLIENT_ID      the web OAuth client (the app's serverClientID)
+#   GOOGLE_CLIENT_SECRET  its secret
+#   APNS_KEY              the .p8 push key's PEM text
+#   APNS_KEY_ID           its key id
+#   APNS_TEAM_ID          the Apple team id
+#   TURNSTILE_SECRET      the booking pages' Turnstile secret (unset: unknown browsers cannot book; TURNSTILE_SKIP=1 only for local runs)
+name = "banana-service"
+main = "src/worker.js"
+compatibility_date = "2025-10-01"
+
+# Two deployments of the same code, each with its own database, secrets and Google web client:
+#   wrangler deploy               → api.bananatheapp.com       (Banana, Google project 411369…)
+#   wrangler deploy --env beta    → beta-api.bananatheapp.com  (Banana Beta, Google project 439702…)
+# Routes sit above the first table, or wrangler reads them as part of it and skips them.
+routes = [{ pattern = "api.bananatheapp.com", custom_domain = true }, { pattern = "book.bananatheapp.com", custom_domain = true }, { pattern = "app.bananatheapp.com", custom_domain = true }]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "banana-service"
+database_id = "03f9efbc-babb-4d97-872a-a0e96d353fc4"
+migrations_dir = "migrations"   # applied by `wrangler d1 migrations apply banana-service`, recorded in d1_migrations
+
+[triggers]
+crons = ["*/15 * * * *", "* * * * *"]   # the job; the alert dispatcher
+
+# The data platform (docs/design/DATA-PLATFORM.md): a Durable Object with SQLite storage per space,
+# blobs in R2 (`s/<space>/<sha256>`; `trash/` expires after 30 days by a lifecycle rule, README.md).
+[[durable_objects.bindings]]
+name = "SPACES"
+class_name = "Space"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["Space"]
+
+[[r2_buckets]]
+binding = "BLOBS"
+bucket_name = "banana-blobs"
+
+# The change stream (§9), off until the pipeline exists (The author's yes):
+# [[pipelines]]
+# pipeline = "banana-changes"
+# binding = "CHANGES"
+
+# Booking (docs/design/BOOKING.md): the pages' rate limits, per address. Periods are 10 or 60 s;
+# the hourly and daily limits are counted in D1. Namespaces are the account's own numbers.
+[[ratelimits]]
+name = "RL_SLOTS"
+namespace_id = "1001"
+simple = { limit = 120, period = 60 }
+
+[[ratelimits]]
+name = "RL_BOOK"
+namespace_id = "1002"
+simple = { limit = 10, period = 60 }
+
+[[ratelimits]]
+name = "RL_CODE"
+namespace_id = "1003"
+simple = { limit = 5, period = 60 }
+
+# Security audit run-1: anonymous API writes per address, change notices per channel, a share's reads.
+[[ratelimits]]
+name = "RL_API"
+namespace_id = "1004"
+simple = { limit = 60, period = 60 }
+
+[[ratelimits]]
+name = "RL_NOTIFY"
+namespace_id = "1005"
+simple = { limit = 30, period = 60 }
+
+[[ratelimits]]
+name = "RL_SHARE"
+namespace_id = "1006"
+simple = { limit = 60, period = 60 }
+
+[[ratelimits]]
+name = "RL_RECONCILE"
+namespace_id = "1007"
+simple = { limit = 6, period = 60 }
+
+# Booking and guest mail use the onboarded ce.bananatheapp.com sending domain.
+# Keep config.emailFrom on that domain; replies go to the owner.
+[[send_email]]
+name = "EMAIL"
+allowed_sender_addresses = ["book@ce.bananatheapp.com"]
+
+[vars]
+PUBLIC_URL = "https://api.bananatheapp.com"   # where Google sends change notices; https
+WEB_URL = "https://app.bananatheapp.com"
+BOOK_URL = "https://book.bananatheapp.com"    # the booking pages; their host is the only one they answer on
+TURNSTILE_SITE_KEY = "0x4AAAAAAFdxjumd7I23GhCt"                       # Turnstile's site key for the booking pages (public)
+EVENT_ALERTS = "on"                           # the privacy policy says so since 19 Oct 2026; "off" stops all reading
+GOOGLE_REDIRECT_URI = ""                                    # empty for iOS serverAuthCode (to confirm at the first real sign-in)
+
+# The booking pages' fonts, served as they are from public/book/; the Worker answers every other path.
+[assets]
+directory = "./public"
+run_worker_first = ["/*", "!/book/*", "!/app/assets/*"]
+
+# Banana Beta. Everything above that is a table or a route is repeated, as wrangler doesn't inherit
+# them into an environment. Secrets are set with `wrangler secret put NAME --env beta`.
+[env.beta]
+name = "banana-service-beta"
+routes = [{ pattern = "beta-api.bananatheapp.com", custom_domain = true }, { pattern = "beta-book.bananatheapp.com", custom_domain = true }, { pattern = "beta-app.bananatheapp.com", custom_domain = true }]
+
+[[env.beta.d1_databases]]
+binding = "DB"
+database_name = "banana-service-beta"
+database_id = "c9485ce8-2431-47fb-b5fa-7cff9fc3c76f"
+migrations_dir = "migrations"
+
+[env.beta.triggers]
+crons = ["*/15 * * * *", "* * * * *"]   # the job; the alert dispatcher
+
+[[env.beta.durable_objects.bindings]]
+name = "SPACES"
+class_name = "Space"
+
+[[env.beta.migrations]]
+tag = "v1"
+new_sqlite_classes = ["Space"]
+
+[[env.beta.r2_buckets]]
+binding = "BLOBS"
+bucket_name = "banana-blobs-beta"
+
+# [[env.beta.pipelines]]
+# pipeline = "banana-changes-beta"
+# binding = "CHANGES"
+
+[[env.beta.ratelimits]]
+name = "RL_SLOTS"
+namespace_id = "1101"
+simple = { limit = 120, period = 60 }
+
+[[env.beta.ratelimits]]
+name = "RL_BOOK"
+namespace_id = "1102"
+simple = { limit = 10, period = 60 }
+
+[[env.beta.ratelimits]]
+name = "RL_CODE"
+namespace_id = "1103"
+simple = { limit = 5, period = 60 }
+
+[[env.beta.ratelimits]]
+name = "RL_API"
+namespace_id = "1104"
+simple = { limit = 60, period = 60 }
+
+[[env.beta.ratelimits]]
+name = "RL_NOTIFY"
+namespace_id = "1105"
+simple = { limit = 30, period = 60 }
+
+[[env.beta.ratelimits]]
+name = "RL_SHARE"
+namespace_id = "1106"
+simple = { limit = 60, period = 60 }
+
+[[env.beta.ratelimits]]
+name = "RL_RECONCILE"
+namespace_id = "1107"
+simple = { limit = 6, period = 60 }
+
+[[env.beta.send_email]]
+name = "EMAIL"
+allowed_sender_addresses = ["book@ce.bananatheapp.com"]
+
+[env.beta.vars]
+PUBLIC_URL = "https://beta-api.bananatheapp.com"
+WEB_URL = "https://beta-app.bananatheapp.com"
+BOOK_URL = "https://beta-book.bananatheapp.com"
+TURNSTILE_SITE_KEY = "0x4AAAAAAFdxjumd7I23GhCt"
+EVENT_ALERTS = "on"
+GOOGLE_REDIRECT_URI = ""
+
+[env.beta.assets]
+directory = "./public"
+run_worker_first = ["/*", "!/book/*", "!/app/assets/*"]

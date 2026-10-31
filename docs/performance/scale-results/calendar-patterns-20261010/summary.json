@@ -1,0 +1,54 @@
+{
+  "scope": "Isolated native-raster design/cost ablation; no app, frame or input acceptance",
+  "tileColdMS": [
+    29.388709,
+    3.497625,
+    0.862208
+  ],
+  "tileBytes": 29952,
+  "sourceSHA256": {
+    "Banana/Views/CalendarNativeText.swift": "1477c024ba6387b3555f72c3693e421c6d041317a575314ffefe06b993ee5b75",
+    "Banana/Views/CalendarNativeEventRaster.swift": "8ca8d62f3f3edb60f0988c6b26c36e01655e9c0b7328f7302b5b49f80aea7735",
+    "tools/calendar-pattern-tests/main.swift": "f8327715d613e3eeb233bb5a2d53f27137169a5f2d83581e3bde5982299dce21"
+  },
+  "modes": {
+    "current-text": {
+      "count": 720,
+      "p50MS": 0.13825,
+      "p95MS": 0.433834,
+      "maxMS": 10.626667,
+      "over8_3MS": 2,
+      "evictionMaxMS": 1.823833
+    },
+    "plain-no-text": {
+      "count": 720,
+      "p50MS": 0.10206299999999999,
+      "p95MS": 0.365709,
+      "maxMS": 11.431708,
+      "over8_3MS": 1,
+      "evictionMaxMS": 0.6975
+    },
+    "pattern-only": {
+      "count": 720,
+      "p50MS": 0.1575625,
+      "p95MS": 0.704667,
+      "maxMS": 12.737333,
+      "over8_3MS": 1,
+      "evictionMaxMS": 1.037292
+    },
+    "pattern-and-text": {
+      "count": 720,
+      "p50MS": 0.18245850000000002,
+      "p95MS": 0.666625,
+      "maxMS": 5.735917,
+      "over8_3MS": 0,
+      "evictionMaxMS": 0.900708
+    }
+  },
+  "limitations": [
+    "Uncalibrated host run; no contention monitor collected",
+    "No physical UI, scrolling or input timing",
+    "No peak process RSS measurement",
+    "Shipping app unchanged"
+  ]
+}

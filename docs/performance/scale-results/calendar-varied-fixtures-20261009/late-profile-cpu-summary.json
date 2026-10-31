@@ -1,0 +1,213 @@
+{
+  "samples": 4296,
+  "threads": [
+    [
+      "CalendarLibraryBenchmark (0x5d1f73) (CalendarLibraryBenchmark, pid: 11997)",
+      973
+    ],
+    [
+      "CalendarLibraryBenchmark (0x5d1f78) (CalendarLibraryBenchmark, pid: 11997)",
+      880
+    ],
+    [
+      "CalendarLibraryBenchmark (0x5d1f84) (CalendarLibraryBenchmark, pid: 11997)",
+      843
+    ],
+    [
+      "CalendarLibraryBenchmark (0x5d1f74) (CalendarLibraryBenchmark, pid: 11997)",
+      836
+    ],
+    [
+      "CalendarLibraryBenchmark (0x5d1f79) (CalendarLibraryBenchmark, pid: 11997)",
+      523
+    ],
+    [
+      "Main Thread (0x5d1f6a) (CalendarLibraryBenchmark, pid: 11997)",
+      241
+    ]
+  ],
+  "leaf": [
+    [
+      "aa_render",
+      283
+    ],
+    [
+      "DplusDM",
+      270
+    ],
+    [
+      "argb32_mark_constmask",
+      189
+    ],
+    [
+      "TRunGlue::GetGlyphID(long) const",
+      119
+    ],
+    [
+      "OTL::Coverage::SearchFmt2Binary(unsigned short) const",
+      118
+    ],
+    [
+      "__ulock_wait2",
+      114
+    ],
+    [
+      "OTL::ClassDefTable::ClassOf(unsigned short) const",
+      97
+    ],
+    [
+      "TGlyphOutlineDictionaryCache<unsigned short, 64ul, 512ul>::Copy(unsigned int)",
+      76
+    ],
+    [
+      "objc_msgSend",
+      75
+    ],
+    [
+      "TRunGlue::FocusOnIndex(long) const",
+      69
+    ],
+    [
+      "TGlyphIterator::CurrentGlyphIsIgnored(OTL::Lookup const*) const",
+      60
+    ],
+    [
+      "TOpenTypePositioningEngine::PositionRuns(SyncState&, KerningStatus&)",
+      59
+    ],
+    [
+      "OTL::Coverage::SearchFmt1Binary(unsigned short) const",
+      57
+    ],
+    [
+      "_platform_memset_pattern16",
+      55
+    ],
+    [
+      "_CFRelease",
+      53
+    ],
+    [
+      "CGRectApplyAffineTransform",
+      52
+    ],
+    [
+      "ItemVariationStore::RegionAxisCoordinates::ComputeScalar(short) const",
+      52
+    ],
+    [
+      "TRunGlue::IsDeleted(long) const",
+      47
+    ],
+    [
+      "<deduplicated_symbol>",
+      44
+    ],
+    [
+      "_platform_memset",
+      44
+    ]
+  ],
+  "inclusive": [
+    [
+      "completeTaskWithClosure(swift::AsyncContext*, swift::SwiftError*)",
+      4290
+    ],
+    [
+      "<deduplicated_symbol>",
+      4285
+    ],
+    [
+      "specialized static RasterPage.render(days:width:height:gutter:scale:style:region:cancelled:)",
+      3993
+    ],
+    [
+      "specialized PreparedText.init(_:style:)",
+      2712
+    ],
+    [
+      "closure #1 in closure #1 in closure #1 in AsyncTilePreparation.prepare(_:days:width:height:gutter:scale:style:)",
+      2053
+    ],
+    [
+      "CTLineCreateWithAttributedString",
+      1955
+    ],
+    [
+      "TTypesetterAttrString::TTypesetterAttrString(__CFAttributedString const*, __CFDictionary const*, bool)",
+      1937
+    ],
+    [
+      "TTypesetterAttrString::Initialize(__CFAttributedString const*, bool)",
+      1925
+    ],
+    [
+      "closure #2 in TileRenderer.preloadPages(store:date:dayCount:width:height:gutter:scale:viewport:style:tileHeight:budgeted:)",
+      1183
+    ],
+    [
+      "CGContextDrawPath",
+      941
+    ],
+    [
+      "ripc_DrawPath",
+      936
+    ],
+    [
+      "ripc_Render",
+      892
+    ],
+    [
+      "TTypesetter::FinishLayout(std::__1::tuple<TLine const*, TCharStream const*, void const* (*)(__CTRun const*, __CFString const*, void*), void*, std::__1::shared_ptr<TBidiLevelsProvider>*, unsigned int, unsigned char, bool, long*> const&, TRunGlue&, signed char, SyncState)",
+      841
+    ],
+    [
+      "TKerningEngine::PositionGlyphs(TRunGlue&, TCharStream const&, signed char)",
+      832
+    ],
+    [
+      "closure #3 in TileRenderer.install(days:width:height:gutter:scale:viewport:style:tileHeight:preloadScroll:lookahead:prepared:)",
+      801
+    ],
+    [
+      "TTypesetter::FinishEncoding(std::__1::tuple<TLine const*, TCharStream const*, void const* (*)(__CTRun const*, __CFString const*, void*), void*, std::__1::shared_ptr<TBidiLevelsProvider>*, unsigned int, unsigned char, bool, long*> const&, TRunGlue&, signed char*)",
+      669
+    ],
+    [
+      "TShapingEngine::ShapeGlyphs(TRunGlue&, TCharStream const&)",
+      645
+    ],
+    [
+      "TOpenTypePositioningEngine::PositionRuns(SyncState&, KerningStatus&)",
+      610
+    ],
+    [
+      "RIPLayerBltShape",
+      539
+    ],
+    [
+      "TOpenTypeMorph::ShapeGlyphs(SyncState&)",
+      530
+    ],
+    [
+      "argb32_mark",
+      529
+    ],
+    [
+      "closure #1 in PreparedText.init(_:style:)",
+      498
+    ],
+    [
+      "CTFontGetBoundingRectsForGlyphs",
+      388
+    ],
+    [
+      "TFont::GetBoundingBoxesForGlyphs(unsigned short const*, CGRect*, long, CTFontOrientation) const",
+      368
+    ],
+    [
+      "TGlyphEncoder::EncodeChars(CFRange, TAttributes const&, TGlyphEncoder::Fallbacks)",
+      358
+    ]
+  ]
+}

@@ -1,0 +1,36 @@
+name: PhysicalStressTests
+options:
+  deploymentTarget:
+    iOS: "26.1"
+# The team comes from Config/Local.xcconfig through Base.xcconfig, as in the main project.
+configFiles:
+  Debug: ../../Config/Base.xcconfig
+  Release: ../../Config/Base.xcconfig
+targets:
+  PhysicalStressUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: ReviewLaunchUITests.swift
+      - path: LiveReminderAcceptanceUITests.swift
+      - path: ../../BananaUITests/Ready.swift
+      - path: PhysicalSystemIdlePolicy.swift
+      - path: ../../BananaUITests/ScaleStressUITests.swift
+      - path: ../../Banana/Model/MailUI/Pure
+        includes:
+          - "MailIdentifiers*.swift"
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.boris.banana.stressreview.uitests
+        GENERATE_INFOPLIST_FILE: YES
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) PHYSICAL_STRESS_UI_TESTS"
+        DEVELOPMENT_TEAM: $(DEVELOPMENT_TEAM)
+schemes:
+  PhysicalStressUITests:
+    build:
+      targets:
+        PhysicalStressUITests: [test]
+    test:
+      config: Release
+      targets:
+        - PhysicalStressUITests

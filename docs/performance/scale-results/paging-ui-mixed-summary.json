@@ -1,0 +1,74 @@
+{
+  "devicesAndConfigurations" : [
+    {
+      "device" : {
+        "architecture" : "arm64",
+        "deviceId" : "7CE990BF-066D-4E79-BA7F-B5F285E6A66C",
+        "deviceName" : "Mail iPad",
+        "modelName" : "iPad Pro 13-inch (M5)",
+        "osBuildNumber" : "23F77",
+        "osVersion" : "26.5",
+        "platform" : "iOS Simulator"
+      },
+      "expectedFailures" : 0,
+      "failedTests" : 1,
+      "passedTests" : 0,
+      "skippedTests" : 0,
+      "testPlanConfiguration" : {
+        "configurationId" : "1",
+        "configurationName" : "Test Scheme Action"
+      }
+    },
+    {
+      "device" : {
+        "architecture" : "arm64",
+        "deviceId" : "E5232BE0-8F82-4E85-A03B-5CA7160571E2",
+        "deviceName" : "Mail iPhone",
+        "modelName" : "iPhone 17 Pro",
+        "osBuildNumber" : "23F77",
+        "osVersion" : "26.5",
+        "platform" : "iOS Simulator"
+      },
+      "expectedFailures" : 0,
+      "failedTests" : 0,
+      "passedTests" : 1,
+      "skippedTests" : 0,
+      "testPlanConfiguration" : {
+        "configurationId" : "1",
+        "configurationName" : "Test Scheme Action"
+      }
+    }
+  ],
+  "environmentDescription" : "Banana · Built with macOS 26.6.2",
+  "expectedFailures" : 0,
+  "failedTests" : 1,
+  "finishTime" : 1791417681.697,
+  "passedTests" : 0,
+  "result" : "Failed",
+  "runtimeWarnings" : [
+
+  ],
+  "skippedTests" : 0,
+  "startTime" : 1791417577.103,
+  "statistics" : [
+    {
+      "subtitle" : "2 test runs",
+      "title" : "1 test ran on 2 devices"
+    }
+  ],
+  "testFailures" : [
+    {
+      "failureText" : "XCTAssertTrue failed",
+      "targetName" : "BananaUITests",
+      "testIdentifier" : 1,
+      "testIdentifierString" : "ScaleStressUITests/testPodcastPagesAndReturnsToFirstPage()",
+      "testIdentifierURL" : "test://com.apple.xcode/Banana/BananaUITests/ScaleStressUITests/testPodcastPagesAndReturnsToFirstPage",
+      "testName" : "testPodcastPagesAndReturnsToFirstPage()"
+    }
+  ],
+  "title" : "Test - Banana",
+  "topInsights" : [
+
+  ],
+  "totalTestCount" : 1
+}

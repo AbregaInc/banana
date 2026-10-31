@@ -1,0 +1,77 @@
+{
+ "status": "analyzed-partial-evidence",
+ "pid": 34076,
+ "scope": "App-attributed update intervals and matching compositor work; not HID-to-visible latency or complete UI acceptance",
+ "attributionLimit": "Render intervals may overlap GPU work and extend beyond its completion. Their entire duration is not proven CPU execution; GPU subtraction does not establish CPU cost. Interval budget failures remain conservative and unchanged.",
+ "measuredWorkBudget": "fail",
+ "appHitchRows": 5,
+ "timings": {
+  "appUpdates": {
+   "stats": {
+    "count": 605,
+    "p50MS": 2.343416,
+    "p95MS": 7.21375,
+    "p99MS": 10.223458,
+    "maxMS": 12.692458,
+    "over8_3MS": 17
+   }
+  },
+  "associatedRenders": {
+   "stats": {
+    "count": 602,
+    "p50MS": 3.027041,
+    "p95MS": 12.685125,
+    "p99MS": 13.741166,
+    "maxMS": 17.018,
+    "over8_3MS": 171
+   }
+  },
+  "associatedFrameLifetimes": {
+   "stats": {
+    "count": 601,
+    "p50MS": 25.02225,
+    "p95MS": 33.366416,
+    "p99MS": 33.367333,
+    "maxMS": 50.045125,
+    "over8_3MS": 601
+   }
+  },
+  "associatedGPU": {
+   "stats": {
+    "count": 601,
+    "p50MS": 1.236916,
+    "p95MS": 1.523,
+    "p99MS": 2.016791,
+    "maxMS": 3.52325,
+    "over8_3MS": 0
+   }
+  }
+ },
+ "renderWaitDiagnostic": null,
+ "displayCadence": {
+  "scope": "Display-wide VSync intervals, not app frame/input latency",
+  "count": 682,
+  "firstNS": 464677416,
+  "lastNS": 9634356333,
+  "roundedGapHistogramMS": {
+   "8.34": 354,
+   "12.51": 12,
+   "16.68": 264,
+   "20.85": 17,
+   "25.02": 6,
+   "29.19": 4,
+   "33.36": 6,
+   "37.53": 5,
+   "41.7": 4,
+   "50.04": 4,
+   "54.21": 1,
+   "58.38": 4
+  }
+ },
+ "limitations": [
+  "Frame lifetimes span a pipelined render loop and are not single-frame work or input latency.",
+  "No app-attributed HID timestamp or CPU-to-display rows; direct-input acceptance remains unmeasured.",
+  "Variable cadence must not be treated as automatic missed 120 Hz deadlines.",
+  "Retain capture status, workload, binary identity and actual touch overlap separately."
+ ]
+}

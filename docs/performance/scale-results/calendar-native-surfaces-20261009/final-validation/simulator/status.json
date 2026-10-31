@@ -1,0 +1,147 @@
+{
+  "binarySHA256": "6c71fa7693b5f6b4a38655b9fd20f15b5703e1b5103ab06c69e1a37de426b592",
+  "scope": "Simulator correctness only, no performance acceptance",
+  "cases": [
+    {
+      "name": "iphone-100-control",
+      "device": "5829A24D-81B4-49D9-A31A-C7553C32D527",
+      "flags": [],
+      "status": "passed",
+      "checks": 44
+    },
+    {
+      "name": "iphone-100-dispatch",
+      "device": "5829A24D-81B4-49D9-A31A-C7553C32D527",
+      "flags": [
+        "--foreground-dispatch"
+      ],
+      "status": "passed",
+      "checks": 44
+    },
+    {
+      "name": "iphone-100-text",
+      "device": "5829A24D-81B4-49D9-A31A-C7553C32D527",
+      "flags": [
+        "--raster-native-text"
+      ],
+      "status": "passed",
+      "checks": 44
+    },
+    {
+      "name": "iphone-100-combined",
+      "device": "5829A24D-81B4-49D9-A31A-C7553C32D527",
+      "flags": [
+        "--foreground-dispatch",
+        "--raster-native-text"
+      ],
+      "status": "passed",
+      "checks": 44
+    },
+    {
+      "name": "iphone-300-control",
+      "device": "5829A24D-81B4-49D9-A31A-C7553C32D527",
+      "flags": [],
+      "status": "passed",
+      "checks": 44
+    },
+    {
+      "name": "iphone-300-dispatch",
+      "device": "5829A24D-81B4-49D9-A31A-C7553C32D527",
+      "flags": [
+        "--foreground-dispatch"
+      ],
+      "status": "passed",
+      "checks": 44
+    },
+    {
+      "name": "iphone-300-text",
+      "device": "5829A24D-81B4-49D9-A31A-C7553C32D527",
+      "flags": [
+        "--raster-native-text"
+      ],
+      "status": "passed",
+      "checks": 44
+    },
+    {
+      "name": "iphone-300-combined",
+      "device": "5829A24D-81B4-49D9-A31A-C7553C32D527",
+      "flags": [
+        "--foreground-dispatch",
+        "--raster-native-text"
+      ],
+      "status": "passed",
+      "checks": 44
+    },
+    {
+      "name": "ipad-100-control",
+      "device": "7CE990BF-066D-4E79-BA7F-B5F285E6A66C",
+      "flags": [],
+      "status": "passed",
+      "checks": 44
+    },
+    {
+      "name": "ipad-100-dispatch",
+      "device": "7CE990BF-066D-4E79-BA7F-B5F285E6A66C",
+      "flags": [
+        "--foreground-dispatch"
+      ],
+      "status": "passed",
+      "checks": 44
+    },
+    {
+      "name": "ipad-100-text",
+      "device": "7CE990BF-066D-4E79-BA7F-B5F285E6A66C",
+      "flags": [
+        "--raster-native-text"
+      ],
+      "status": "passed",
+      "checks": 44
+    },
+    {
+      "name": "ipad-100-combined",
+      "device": "7CE990BF-066D-4E79-BA7F-B5F285E6A66C",
+      "flags": [
+        "--foreground-dispatch",
+        "--raster-native-text"
+      ],
+      "status": "passed",
+      "checks": 44
+    },
+    {
+      "name": "ipad-300-control",
+      "device": "7CE990BF-066D-4E79-BA7F-B5F285E6A66C",
+      "flags": [],
+      "status": "passed",
+      "checks": 44
+    },
+    {
+      "name": "ipad-300-dispatch",
+      "device": "7CE990BF-066D-4E79-BA7F-B5F285E6A66C",
+      "flags": [
+        "--foreground-dispatch"
+      ],
+      "status": "passed",
+      "checks": 44
+    },
+    {
+      "name": "ipad-300-text",
+      "device": "7CE990BF-066D-4E79-BA7F-B5F285E6A66C",
+      "flags": [
+        "--raster-native-text"
+      ],
+      "status": "passed",
+      "checks": 44
+    },
+    {
+      "name": "ipad-300-combined",
+      "device": "7CE990BF-066D-4E79-BA7F-B5F285E6A66C",
+      "flags": [
+        "--foreground-dispatch",
+        "--raster-native-text"
+      ],
+      "status": "passed",
+      "checks": 44
+    }
+  ],
+  "status": "passed"
+}

@@ -1,0 +1,1000 @@
+{
+  "acceptance" : "unmeasured",
+  "fixture" : {
+    "calendarCount" : 12,
+    "calendarEventCounts" : {
+      "0" : 9132,
+      "1" : 9130,
+      "2" : 9130,
+      "3" : 9129,
+      "4" : 9131,
+      "5" : 9122,
+      "6" : 9120,
+      "7" : 9115,
+      "8" : 9114,
+      "9" : 9122,
+      "10" : 9128,
+      "11" : 9127
+    },
+    "contentChecksum" : "ccff29c955d0ac95",
+    "distinctDailyPatterns" : 365,
+    "distinctDurations" : 12,
+    "distinctTitles" : 109500,
+    "distinctWeeklyPatterns" : 52,
+    "hiddenCalendars" : [
+
+    ],
+    "maximumDailyEvents" : 578,
+    "meanDailyEvents" : 300,
+    "minimumDailyEvents" : 51,
+    "profile" : "varied-v1",
+    "retainedEvents" : 109500,
+    "scope" : "Immutable timed-event fixture; no recurrence expansion, provider sync or dynamic edit\/filter invalidation",
+    "seed" : "20261009",
+    "sevenDayBlockEvents" : 2100
+  },
+  "results" : [
+    {
+      "additionalTextureBytesLogical" : 25353216,
+      "device" : "Apple M1 Max",
+      "pipelineAndTargetMS" : 41.525749981403351,
+      "preparedTileMS" : 170.29079097509384,
+      "referenceSnapshotMS" : 5.5009999871253967,
+      "samples" : [
+        {
+          "cpuCompositeMS" : 1.784250020980835,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 4.7077080011367798,
+            "encodeSubmitMS" : 0.74020802974700928,
+            "gpuMS" : 1.66712497593835
+          },
+          "offsetPixels" : 0,
+          "state" : "cold-upload",
+          "trial" : 0,
+          "uploadMS" : 3.0127079486846924
+        },
+        {
+          "cpuCompositeMS" : 0.79295802116394043,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 0.89754199981689453,
+            "encodeSubmitMS" : 0.13512504100799561,
+            "gpuMS" : 0.13449997641146183
+          },
+          "offsetPixels" : 384,
+          "state" : "cold-upload",
+          "trial" : 0,
+          "uploadMS" : 3.0127079486846924
+        },
+        {
+          "cpuCompositeMS" : 0.77520900964736938,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 0.83004099130630493,
+            "encodeSubmitMS" : 0.10437500476837158,
+            "gpuMS" : 0.13908336404711008
+          },
+          "offsetPixels" : 768,
+          "state" : "cold-upload",
+          "trial" : 0,
+          "uploadMS" : 3.0127079486846924
+        },
+        {
+          "cpuCompositeMS" : 0.65424996614456177,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 0.83254200220108032,
+            "encodeSubmitMS" : 0.079334020614624023,
+            "gpuMS" : 0.13233337085694075
+          },
+          "offsetPixels" : 0,
+          "state" : "cold-upload",
+          "trial" : 0,
+          "uploadMS" : 3.0127079486846924
+        },
+        {
+          "cpuCompositeMS" : 0.63804101943969727,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 0.75854200124740601,
+            "encodeSubmitMS" : 0.0814170241355896,
+            "gpuMS" : 0.13341667363420129
+          },
+          "offsetPixels" : 0,
+          "state" : "warm",
+          "trial" : 0,
+          "uploadMS" : 0.00033301115036010742
+        },
+        {
+          "cpuCompositeMS" : 0.69174998998641968,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 0.82875001430511475,
+            "encodeSubmitMS" : 0.086625039577484131,
+            "gpuMS" : 0.12887502089142799
+          },
+          "offsetPixels" : 384,
+          "state" : "warm",
+          "trial" : 0,
+          "uploadMS" : 0.00033301115036010742
+        },
+        {
+          "cpuCompositeMS" : 0.6924169659614563,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 0.79804199934005737,
+            "encodeSubmitMS" : 0.084832966327667236,
+            "gpuMS" : 0.13087497791275382
+          },
+          "offsetPixels" : 768,
+          "state" : "warm",
+          "trial" : 0,
+          "uploadMS" : 0.00033301115036010742
+        },
+        {
+          "cpuCompositeMS" : 0.6827089786529541,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 0.81104099750518799,
+            "encodeSubmitMS" : 0.10870802402496338,
+            "gpuMS" : 0.13000000035390258
+          },
+          "offsetPixels" : 0,
+          "state" : "warm",
+          "trial" : 0,
+          "uploadMS" : 0.00033301115036010742
+        },
+        {
+          "cpuCompositeMS" : 0.72629201412200928,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 1.6151250004768372,
+            "encodeSubmitMS" : 0.090000033378601074,
+            "gpuMS" : 0.1271250075660646
+          },
+          "offsetPixels" : 0,
+          "state" : "eviction-reupload",
+          "trial" : 0,
+          "uploadMS" : 2.7109580039978027
+        },
+        {
+          "cpuCompositeMS" : 0.69216698408126831,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 0.8259589672088623,
+            "encodeSubmitMS" : 0.090291976928710938,
+            "gpuMS" : 0.13112497981637716
+          },
+          "offsetPixels" : 384,
+          "state" : "eviction-reupload",
+          "trial" : 0,
+          "uploadMS" : 2.7109580039978027
+        },
+        {
+          "cpuCompositeMS" : 0.76670801639556885,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 0.87241697311401367,
+            "encodeSubmitMS" : 0.063499987125396729,
+            "gpuMS" : 0.12583337957039475
+          },
+          "offsetPixels" : 768,
+          "state" : "eviction-reupload",
+          "trial" : 0,
+          "uploadMS" : 2.7109580039978027
+        },
+        {
+          "cpuCompositeMS" : 0.71000003814697266,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 0.84125000238418579,
+            "encodeSubmitMS" : 0.085624992847442627,
+            "gpuMS" : 0.12891669757664204
+          },
+          "offsetPixels" : 0,
+          "state" : "eviction-reupload",
+          "trial" : 0,
+          "uploadMS" : 2.7109580039978027
+        },
+        {
+          "cpuCompositeMS" : 0.7295830249786377,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 1.3891249895095825,
+            "encodeSubmitMS" : 0.08033299446105957,
+            "gpuMS" : 0.13441662304103374
+          },
+          "offsetPixels" : 0,
+          "state" : "cold-upload",
+          "trial" : 1,
+          "uploadMS" : 2.6215419769287109
+        },
+        {
+          "cpuCompositeMS" : 1.220041036605835,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 0.61170798540115356,
+            "encodeSubmitMS" : 0.073875010013580322,
+            "gpuMS" : 0.11533335782587528
+          },
+          "offsetPixels" : 384,
+          "state" : "cold-upload",
+          "trial" : 1,
+          "uploadMS" : 2.6215419769287109
+        },
+        {
+          "cpuCompositeMS" : 0.69800001382827759,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 0.52074998617172241,
+            "encodeSubmitMS" : 0.078999996185302734,
+            "gpuMS" : 0.12425001477822661
+          },
+          "offsetPixels" : 768,
+          "state" : "cold-upload",
+          "trial" : 1,
+          "uploadMS" : 2.6215419769287109
+        },
+        {
+          "cpuCompositeMS" : 0.7472909688949585,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 0.78929197788238525,
+            "encodeSubmitMS" : 0.09616696834564209,
+            "gpuMS" : 0.12791668996214867
+          },
+          "offsetPixels" : 0,
+          "state" : "cold-upload",
+          "trial" : 1,
+          "uploadMS" : 2.6215419769287109
+        },
+        {
+          "cpuCompositeMS" : 0.64879202842712402,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 0.77579200267791748,
+            "encodeSubmitMS" : 0.09695899486541748,
+            "gpuMS" : 0.12904161121696234
+          },
+          "offsetPixels" : 0,
+          "state" : "warm",
+          "trial" : 1,
+          "uploadMS" : 0.00037497282028198242
+        },
+        {
+          "cpuCompositeMS" : 0.71337497234344482,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 1.2286670207977295,
+            "encodeSubmitMS" : 0.079541981220245361,
+            "gpuMS" : 0.12866669567301869
+          },
+          "offsetPixels" : 384,
+          "state" : "warm",
+          "trial" : 1,
+          "uploadMS" : 0.00037497282028198242
+        },
+        {
+          "cpuCompositeMS" : 0.62341701984405518,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 0.74429196119308472,
+            "encodeSubmitMS" : 0.08054196834564209,
+            "gpuMS" : 0.13125000987201929
+          },
+          "offsetPixels" : 768,
+          "state" : "warm",
+          "trial" : 1,
+          "uploadMS" : 0.00037497282028198242
+        },
+        {
+          "cpuCompositeMS" : 0.72737503051757812,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 0.78474998474121094,
+            "encodeSubmitMS" : 0.085583031177520752,
+            "gpuMS" : 0.13066665269434452
+          },
+          "offsetPixels" : 0,
+          "state" : "warm",
+          "trial" : 1,
+          "uploadMS" : 0.00037497282028198242
+        },
+        {
+          "cpuCompositeMS" : 0.73895800113677979,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 1.1491249799728394,
+            "encodeSubmitMS" : 0.082583963871002197,
+            "gpuMS" : 0.12824998702853918
+          },
+          "offsetPixels" : 0,
+          "state" : "eviction-reupload",
+          "trial" : 1,
+          "uploadMS" : 2.4991669654846191
+        },
+        {
+          "cpuCompositeMS" : 0.67524999380111694,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 0.98675000667572021,
+            "encodeSubmitMS" : 0.059083998203277588,
+            "gpuMS" : 0.12716668425127864
+          },
+          "offsetPixels" : 384,
+          "state" : "eviction-reupload",
+          "trial" : 1,
+          "uploadMS" : 2.4991669654846191
+        },
+        {
+          "cpuCompositeMS" : 0.68670898675918579,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 0.7843329906463623,
+            "encodeSubmitMS" : 0.090040981769561768,
+            "gpuMS" : 0.13091671280562878
+          },
+          "offsetPixels" : 768,
+          "state" : "eviction-reupload",
+          "trial" : 1,
+          "uploadMS" : 2.4991669654846191
+        },
+        {
+          "cpuCompositeMS" : 0.69520795345306396,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 1.0759169459342957,
+            "encodeSubmitMS" : 0.090958952903747559,
+            "gpuMS" : 0.12937502469867468
+          },
+          "offsetPixels" : 0,
+          "state" : "eviction-reupload",
+          "trial" : 1,
+          "uploadMS" : 2.4991669654846191
+        },
+        {
+          "cpuCompositeMS" : 0.90470898151397705,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 1.1235830187797546,
+            "encodeSubmitMS" : 0.067457973957061768,
+            "gpuMS" : 0.14937500236555934
+          },
+          "offsetPixels" : 0,
+          "state" : "cold-upload",
+          "trial" : 2,
+          "uploadMS" : 2.6704170107841492
+        },
+        {
+          "cpuCompositeMS" : 0.7715420126914978,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 0.87579202651977539,
+            "encodeSubmitMS" : 0.086875021457672119,
+            "gpuMS" : 0.14224997721612453
+          },
+          "offsetPixels" : 384,
+          "state" : "cold-upload",
+          "trial" : 2,
+          "uploadMS" : 2.6704170107841492
+        },
+        {
+          "cpuCompositeMS" : 0.77720803022384644,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 0.8129580020904541,
+            "encodeSubmitMS" : 0.090125024318695068,
+            "gpuMS" : 0.13399997260421515
+          },
+          "offsetPixels" : 768,
+          "state" : "cold-upload",
+          "trial" : 2,
+          "uploadMS" : 2.6704170107841492
+        },
+        {
+          "cpuCompositeMS" : 1.5707499980926514,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 1.3457090258598328,
+            "encodeSubmitMS" : 0.079459011554718018,
+            "gpuMS" : 0.95070834504440427
+          },
+          "offsetPixels" : 0,
+          "state" : "cold-upload",
+          "trial" : 2,
+          "uploadMS" : 2.6704170107841492
+        },
+        {
+          "cpuCompositeMS" : 0.7679169774055481,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 3.7529169917106628,
+            "encodeSubmitMS" : 0.097000002861022949,
+            "gpuMS" : 0.14333333820104599
+          },
+          "offsetPixels" : 0,
+          "state" : "warm",
+          "trial" : 2,
+          "uploadMS" : 0.00037503242492675781
+        },
+        {
+          "cpuCompositeMS" : 0.67208302021026611,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 2.0315000414848328,
+            "encodeSubmitMS" : 0.071334004402160645,
+            "gpuMS" : 0.13154163025319576
+          },
+          "offsetPixels" : 384,
+          "state" : "warm",
+          "trial" : 2,
+          "uploadMS" : 0.00037503242492675781
+        },
+        {
+          "cpuCompositeMS" : 0.65916705131530762,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 0.79466700553894043,
+            "encodeSubmitMS" : 0.084625005722045898,
+            "gpuMS" : 0.13020832557231188
+          },
+          "offsetPixels" : 768,
+          "state" : "warm",
+          "trial" : 2,
+          "uploadMS" : 0.00037503242492675781
+        },
+        {
+          "cpuCompositeMS" : 0.70133298635482788,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 0.80937504768371582,
+            "encodeSubmitMS" : 0.084917008876800537,
+            "gpuMS" : 0.13004167703911662
+          },
+          "offsetPixels" : 0,
+          "state" : "warm",
+          "trial" : 2,
+          "uploadMS" : 0.00037503242492675781
+        },
+        {
+          "cpuCompositeMS" : 0.67774999141693115,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 1.4425829648971558,
+            "encodeSubmitMS" : 0.079124987125396729,
+            "gpuMS" : 0.12962502660229802
+          },
+          "offsetPixels" : 0,
+          "state" : "eviction-reupload",
+          "trial" : 2,
+          "uploadMS" : 2.6795410513877869
+        },
+        {
+          "cpuCompositeMS" : 0.74083304405212402,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 0.81299996376037598,
+            "encodeSubmitMS" : 0.090499997138977051,
+            "gpuMS" : 0.13233337085694075
+          },
+          "offsetPixels" : 384,
+          "state" : "eviction-reupload",
+          "trial" : 2,
+          "uploadMS" : 2.6795410513877869
+        },
+        {
+          "cpuCompositeMS" : 0.89645904302597046,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 0.60291701555252075,
+            "encodeSubmitMS" : 0.090749979019165039,
+            "gpuMS" : 0.13079168274998665
+          },
+          "offsetPixels" : 768,
+          "state" : "eviction-reupload",
+          "trial" : 2,
+          "uploadMS" : 2.6795410513877869
+        },
+        {
+          "cpuCompositeMS" : 0.68633401393890381,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 0.81612503528594971,
+            "encodeSubmitMS" : 0.092917025089263916,
+            "gpuMS" : 0.13041665079072118
+          },
+          "offsetPixels" : 0,
+          "state" : "eviction-reupload",
+          "trial" : 2,
+          "uploadMS" : 2.6795410513877869
+        }
+      ],
+      "scale" : 3,
+      "sourceSurfaceBytes" : 14548992,
+      "widthPoints" : 393
+    },
+    {
+      "additionalTextureBytesLogical" : 39165952,
+      "device" : "Apple M1 Max",
+      "pipelineAndTargetMS" : 0.96500003337860107,
+      "preparedTileMS" : 191.62783294916153,
+      "referenceSnapshotMS" : 9.1812499761581421,
+      "samples" : [
+        {
+          "cpuCompositeMS" : 3.7088339924812317,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 3.4843339920043945,
+            "encodeSubmitMS" : 0.33158403635025024,
+            "gpuMS" : 0.17658335855230689
+          },
+          "offsetPixels" : 0,
+          "state" : "cold-upload",
+          "trial" : 0,
+          "uploadMS" : 6.8616250157356262
+        },
+        {
+          "cpuCompositeMS" : 1.1051660180091858,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 0.86683297157287598,
+            "encodeSubmitMS" : 0.099957942962646484,
+            "gpuMS" : 0.18037500558421016
+          },
+          "offsetPixels" : 256,
+          "state" : "cold-upload",
+          "trial" : 0,
+          "uploadMS" : 6.8616250157356262
+        },
+        {
+          "cpuCompositeMS" : 1.178957998752594,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 0.78704196214675903,
+            "encodeSubmitMS" : 0.077874958515167236,
+            "gpuMS" : 0.17766666132956743
+          },
+          "offsetPixels" : 512,
+          "state" : "cold-upload",
+          "trial" : 0,
+          "uploadMS" : 6.8616250157356262
+        },
+        {
+          "cpuCompositeMS" : 0.89250004291534424,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 0.8845829963684082,
+            "encodeSubmitMS" : 0.087458014488220215,
+            "gpuMS" : 0.17504161223769188
+          },
+          "offsetPixels" : 0,
+          "state" : "cold-upload",
+          "trial" : 0,
+          "uploadMS" : 6.8616250157356262
+        },
+        {
+          "cpuCompositeMS" : 1.0387080311775208,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 0.90587496757507324,
+            "encodeSubmitMS" : 0.090833961963653564,
+            "gpuMS" : 0.17324998043477535
+          },
+          "offsetPixels" : 0,
+          "state" : "warm",
+          "trial" : 0,
+          "uploadMS" : 0.00037497282028198242
+        },
+        {
+          "cpuCompositeMS" : 0.96666699647903442,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 0.8587920069694519,
+            "encodeSubmitMS" : 0.064459025859832764,
+            "gpuMS" : 0.17320836195722222
+          },
+          "offsetPixels" : 256,
+          "state" : "warm",
+          "trial" : 0,
+          "uploadMS" : 0.00037497282028198242
+        },
+        {
+          "cpuCompositeMS" : 0.89079099893569946,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 0.86049997806549072,
+            "encodeSubmitMS" : 0.092916011810302734,
+            "gpuMS" : 0.17337501049041748
+          },
+          "offsetPixels" : 512,
+          "state" : "warm",
+          "trial" : 0,
+          "uploadMS" : 0.00037497282028198242
+        },
+        {
+          "cpuCompositeMS" : 0.93699997663497925,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 0.95704102516174316,
+            "encodeSubmitMS" : 0.091957986354827881,
+            "gpuMS" : 0.17758330795913935
+          },
+          "offsetPixels" : 0,
+          "state" : "warm",
+          "trial" : 0,
+          "uploadMS" : 0.00037497282028198242
+        },
+        {
+          "cpuCompositeMS" : 0.96266698837280273,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 2.3651250004768372,
+            "encodeSubmitMS" : 0.084708034992218018,
+            "gpuMS" : 0.17541664419695735
+          },
+          "offsetPixels" : 0,
+          "state" : "eviction-reupload",
+          "trial" : 0,
+          "uploadMS" : 3.6542080044746399
+        },
+        {
+          "cpuCompositeMS" : 0.94612503051757812,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 0.85591703653335571,
+            "encodeSubmitMS" : 0.09208303689956665,
+            "gpuMS" : 0.17337501049041748
+          },
+          "offsetPixels" : 256,
+          "state" : "eviction-reupload",
+          "trial" : 0,
+          "uploadMS" : 3.6542080044746399
+        },
+        {
+          "cpuCompositeMS" : 1.0238749980926514,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 0.55170798301696777,
+            "encodeSubmitMS" : 0.071082949638366699,
+            "gpuMS" : 0.17625000327825546
+          },
+          "offsetPixels" : 512,
+          "state" : "eviction-reupload",
+          "trial" : 0,
+          "uploadMS" : 3.6542080044746399
+        },
+        {
+          "cpuCompositeMS" : 0.94795799255371094,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 0.91129100322723389,
+            "encodeSubmitMS" : 0.092832982540130615,
+            "gpuMS" : 0.17383333761245012
+          },
+          "offsetPixels" : 0,
+          "state" : "eviction-reupload",
+          "trial" : 0,
+          "uploadMS" : 3.6542080044746399
+        },
+        {
+          "cpuCompositeMS" : 1.0415830016136169,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 2.090749979019165,
+            "encodeSubmitMS" : 0.093209028244018555,
+            "gpuMS" : 0.14712498523294926
+          },
+          "offsetPixels" : 0,
+          "state" : "cold-upload",
+          "trial" : 1,
+          "uploadMS" : 3.6270830035209656
+        },
+        {
+          "cpuCompositeMS" : 1.2706660032272339,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 0.94258302450180054,
+            "encodeSubmitMS" : 0.091125011444091797,
+            "gpuMS" : 0.17200002912431955
+          },
+          "offsetPixels" : 256,
+          "state" : "cold-upload",
+          "trial" : 1,
+          "uploadMS" : 3.6270830035209656
+        },
+        {
+          "cpuCompositeMS" : 0.98991698026657104,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 0.98666703701019287,
+            "encodeSubmitMS" : 0.096875011920928955,
+            "gpuMS" : 0.17075001960620284
+          },
+          "offsetPixels" : 512,
+          "state" : "cold-upload",
+          "trial" : 1,
+          "uploadMS" : 3.6270830035209656
+        },
+        {
+          "cpuCompositeMS" : 1.0036669969558716,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 0.84708303213119507,
+            "encodeSubmitMS" : 0.079874992370605469,
+            "gpuMS" : 0.19662501290440559
+          },
+          "offsetPixels" : 0,
+          "state" : "cold-upload",
+          "trial" : 1,
+          "uploadMS" : 3.6270830035209656
+        },
+        {
+          "cpuCompositeMS" : 1.0406249761581421,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 2.061040997505188,
+            "encodeSubmitMS" : 0.099500000476837158,
+            "gpuMS" : 0.17262500477954745
+          },
+          "offsetPixels" : 0,
+          "state" : "warm",
+          "trial" : 1,
+          "uploadMS" : 0.00029098987579345703
+        },
+        {
+          "cpuCompositeMS" : 0.96599996089935303,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 0.84491699934005737,
+            "encodeSubmitMS" : 0.088542044162750244,
+            "gpuMS" : 0.17199997091665864
+          },
+          "offsetPixels" : 256,
+          "state" : "warm",
+          "trial" : 1,
+          "uploadMS" : 0.00029098987579345703
+        },
+        {
+          "cpuCompositeMS" : 0.91224998235702515,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 0.79224997758865356,
+            "encodeSubmitMS" : 0.083000004291534424,
+            "gpuMS" : 0.17275003483518958
+          },
+          "offsetPixels" : 512,
+          "state" : "warm",
+          "trial" : 1,
+          "uploadMS" : 0.00029098987579345703
+        },
+        {
+          "cpuCompositeMS" : 0.88899999856948853,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 0.93162500858306885,
+            "encodeSubmitMS" : 0.086082994937896729,
+            "gpuMS" : 0.17166667385026813
+          },
+          "offsetPixels" : 0,
+          "state" : "warm",
+          "trial" : 1,
+          "uploadMS" : 0.00029098987579345703
+        },
+        {
+          "cpuCompositeMS" : 0.93174999952316284,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 1.5389999747276306,
+            "encodeSubmitMS" : 0.072457969188690186,
+            "gpuMS" : 0.15424995217472315
+          },
+          "offsetPixels" : 0,
+          "state" : "eviction-reupload",
+          "trial" : 1,
+          "uploadMS" : 4.0251669883728027
+        },
+        {
+          "cpuCompositeMS" : 1.6390840411186218,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 1.648332953453064,
+            "encodeSubmitMS" : 0.086874961853027344,
+            "gpuMS" : 0.14462502440437675
+          },
+          "offsetPixels" : 256,
+          "state" : "eviction-reupload",
+          "trial" : 1,
+          "uploadMS" : 4.0251669883728027
+        },
+        {
+          "cpuCompositeMS" : 0.94325000047683716,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 0.65645802021026611,
+            "encodeSubmitMS" : 0.076125025749206543,
+            "gpuMS" : 0.1598749659024179
+          },
+          "offsetPixels" : 512,
+          "state" : "eviction-reupload",
+          "trial" : 1,
+          "uploadMS" : 4.0251669883728027
+        },
+        {
+          "cpuCompositeMS" : 2.0404170155525208,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 1.5914169549942017,
+            "encodeSubmitMS" : 0.099375009536743164,
+            "gpuMS" : 0.16908335965126753
+          },
+          "offsetPixels" : 0,
+          "state" : "eviction-reupload",
+          "trial" : 1,
+          "uploadMS" : 4.0251669883728027
+        },
+        {
+          "cpuCompositeMS" : 1.1943750381469727,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 2.1025829911231995,
+            "encodeSubmitMS" : 0.088167011737823486,
+            "gpuMS" : 0.17987500177696347
+          },
+          "offsetPixels" : 0,
+          "state" : "cold-upload",
+          "trial" : 2,
+          "uploadMS" : 4.0762500166893005
+        },
+        {
+          "cpuCompositeMS" : 1.034250020980835,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 2.4229159951210022,
+            "encodeSubmitMS" : 0.08970797061920166,
+            "gpuMS" : 0.18149998504668474
+          },
+          "offsetPixels" : 256,
+          "state" : "cold-upload",
+          "trial" : 2,
+          "uploadMS" : 4.0762500166893005
+        },
+        {
+          "cpuCompositeMS" : 0.9631659984588623,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 0.57254201173782349,
+            "encodeSubmitMS" : 0.072500050067901611,
+            "gpuMS" : 0.16837503062561154
+          },
+          "offsetPixels" : 512,
+          "state" : "cold-upload",
+          "trial" : 2,
+          "uploadMS" : 4.0762500166893005
+        },
+        {
+          "cpuCompositeMS" : 0.90224999189376831,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 0.84729194641113281,
+            "encodeSubmitMS" : 0.089666962623596191,
+            "gpuMS" : 0.17637497512623668
+          },
+          "offsetPixels" : 0,
+          "state" : "cold-upload",
+          "trial" : 2,
+          "uploadMS" : 4.0762500166893005
+        },
+        {
+          "cpuCompositeMS" : 1.0436249971389771,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 0.87929099798202515,
+            "encodeSubmitMS" : 0.09370797872543335,
+            "gpuMS" : 0.1788749941624701
+          },
+          "offsetPixels" : 0,
+          "state" : "warm",
+          "trial" : 2,
+          "uploadMS" : 0.00033301115036010742
+        },
+        {
+          "cpuCompositeMS" : 1.071042001247406,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 3.4184170365333557,
+            "encodeSubmitMS" : 0.08691704273223877,
+            "gpuMS" : 1.211833325214684
+          },
+          "offsetPixels" : 256,
+          "state" : "warm",
+          "trial" : 2,
+          "uploadMS" : 0.00033301115036010742
+        },
+        {
+          "cpuCompositeMS" : 0.93912500143051147,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 1.2405830025672913,
+            "encodeSubmitMS" : 0.087832987308502197,
+            "gpuMS" : 0.18183334032073617
+          },
+          "offsetPixels" : 512,
+          "state" : "warm",
+          "trial" : 2,
+          "uploadMS" : 0.00033301115036010742
+        },
+        {
+          "cpuCompositeMS" : 1.1472910046577454,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 0.59254103899002075,
+            "encodeSubmitMS" : 0.080583035945892334,
+            "gpuMS" : 0.15266664559021592
+          },
+          "offsetPixels" : 0,
+          "state" : "warm",
+          "trial" : 2,
+          "uploadMS" : 0.00033301115036010742
+        },
+        {
+          "cpuCompositeMS" : 1.3774589896202087,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 1.0564590096473694,
+            "encodeSubmitMS" : 0.077624976634979248,
+            "gpuMS" : 0.18158333841711283
+          },
+          "offsetPixels" : 0,
+          "state" : "eviction-reupload",
+          "trial" : 2,
+          "uploadMS" : 5.4396249651908875
+        },
+        {
+          "cpuCompositeMS" : 1.3672500252723694,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 0.84674996137619019,
+            "encodeSubmitMS" : 0.091374993324279785,
+            "gpuMS" : 0.17462502000853419
+          },
+          "offsetPixels" : 256,
+          "state" : "eviction-reupload",
+          "trial" : 2,
+          "uploadMS" : 5.4396249651908875
+        },
+        {
+          "cpuCompositeMS" : 1.1255829930305481,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 2.0343330502510071,
+            "encodeSubmitMS" : 0.067083001136779785,
+            "gpuMS" : 1.5577083686366677
+          },
+          "offsetPixels" : 512,
+          "state" : "eviction-reupload",
+          "trial" : 2,
+          "uploadMS" : 5.4396249651908875
+        },
+        {
+          "cpuCompositeMS" : 0.95974999666213989,
+          "maxChannelDifference" : 0,
+          "metal" : {
+            "completionMS" : 0.82895898818969727,
+            "encodeSubmitMS" : 0.087166965007781982,
+            "gpuMS" : 0.17587502952665091
+          },
+          "offsetPixels" : 0,
+          "state" : "eviction-reupload",
+          "trial" : 2,
+          "uploadMS" : 5.4396249651908875
+        }
+      ],
+      "scale" : 2,
+      "sourceSurfaceBytes" : 22413312,
+      "widthPoints" : 1366
+    }
+  ],
+  "scope" : "Offscreen compositing of identical prepared tiles; no display\/input evidence",
+  "textureSource" : "surface-copy"
+}

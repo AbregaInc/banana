@@ -1,0 +1,84 @@
+{
+  "days": 7,
+  "emails": 14000,
+  "episodes": 70000,
+  "events": 700,
+  "metrics": [
+    {
+      "budgetMS": 50,
+      "checksum": 350,
+      "medianMS": 0.00020835432223975658,
+      "name": "mail.firstPage",
+      "p95MS": 4.356833320343867
+    },
+    {
+      "budgetMS": 100,
+      "checksum": 350,
+      "medianMS": 6.61958332057111,
+      "name": "mail.readMutation",
+      "p95MS": 6.814874999690801
+    },
+    {
+      "budgetMS": 16,
+      "checksum": 4900,
+      "medianMS": 0.2775416651275009,
+      "name": "calendar.visibleWeek",
+      "p95MS": 3.2907083514146507
+    },
+    {
+      "budgetMS": 8,
+      "checksum": 700,
+      "medianMS": 0.00320834806188941,
+      "name": "calendar.day",
+      "p95MS": 0.7980833179317415
+    },
+    {
+      "budgetMS": 100,
+      "checksum": 2303,
+      "medianMS": 0.0005416804924607277,
+      "name": "notes.search",
+      "p95MS": 7.5558749958872795
+    },
+    {
+      "budgetMS": 16,
+      "checksum": 39200,
+      "medianMS": 0.000500003807246685,
+      "name": "notes.browse",
+      "p95MS": 0.0008333299774676561
+    },
+    {
+      "budgetMS": 100,
+      "checksum": 490,
+      "medianMS": 1.3376249989960343,
+      "name": "podcasts.nextAcrossCatalog",
+      "p95MS": 2.2585416736546904
+    },
+    {
+      "budgetMS": 100,
+      "checksum": 1470,
+      "medianMS": 2.534791681682691,
+      "name": "podcasts.downloadCandidates",
+      "p95MS": 2.759041643003002
+    }
+  ],
+  "notes": 7000,
+  "passed": true,
+  "platform": "iOS Simulator; model operations; mail fixture source",
+  "podcasts": 70,
+  "residentMB": 366,
+  "schemaVersion": 1,
+  "label": "final",
+  "commit": "3072f8fe54165b18071bc33dd64b20daf8f6f424",
+  "device": "E5232BE0-8F82-4E85-A03B-5CA7160571E2",
+  "binarySHA256": "4e9cebb90e18a24ff89e0f5d525462b203884934764c1d8189f8b60ec2d574c5",
+  "hostLoad": [
+    154.25,
+    157.08251953125,
+    155.90869140625
+  ],
+  "dirty": true,
+  "readySeconds": 2.438,
+  "memoryBudgetMB": 900,
+  "memoryPassed": true,
+  "regressions": []
+}

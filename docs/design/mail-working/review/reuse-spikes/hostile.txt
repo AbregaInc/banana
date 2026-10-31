@@ -1,0 +1,86 @@
+18:37  up 16:41, 21 users, load averages: 19.46 208.10 247.10
+libxml2 20913 · SwiftSoup 2.13.9
+
+[svg-style-reparse] in:  <svg><style><img src=x onerror=alert(1)></style></svg><p>after</p>
+  libxml2   out: <p>after</p>
+  SwiftSoup out: <p>after</p>
+  SS.clean  out: <p>after</p>
+  differential libxml2→SwiftSoup: stable=true unsafe=false
+  differential SwiftSoup→libxml2: stable=true unsafe=false
+
+[math-mglyph-mxss] in:  <math><mtext><table><mglyph><style><!--</style><img title="--&gt;&lt;img src=1 onerror=alert(1)&gt;">
+  libxml2   out: 
+  SwiftSoup out: 
+  SS.clean  out: <img title="--><img src=1 onerror=alert(1)>" />⏎<table></table>
+  differential libxml2→SwiftSoup: stable=true unsafe=false
+  differential SwiftSoup→libxml2: stable=true unsafe=false
+
+[noscript-pixel] in:  <noscript><img src="https://t.example/p.gif" width=1 height=1></noscript><p>x</p>
+  libxml2   out: <img src="banana-mail://remote/3ad2d7e5c28d8faa8138ecf90ec5eaf3bd841d0eef77bf6ad5be4523825ff199" width="1" height="1"><p>x</p>
+  SwiftSoup out: <p>x</p>
+  SS.clean  out: <img src="https://t.example/p.gif" width="1" height="1" />⏎<p>x</p>
+  differential libxml2→SwiftSoup: stable=false unsafe=false
+  differential SwiftSoup→libxml2: stable=true unsafe=false
+
+[conditional-comment] in:  <!--[if mso]><script>alert(1)</script><![endif]--><p>ok</p>
+  libxml2   out: <p>ok</p>
+  SwiftSoup out: <p>ok</p>
+  SS.clean  out: <p>ok</p>
+  differential libxml2→SwiftSoup: stable=true unsafe=false
+  differential SwiftSoup→libxml2: stable=true unsafe=false
+
+[empty-comment] in:  <!--><img src=x onerror=alert(1)>--><p>after</p>
+  libxml2   out: <p>after</p>
+  SwiftSoup out: --&gt;<p>after</p>
+  SS.clean  out: <img />--&gt;⏎<p>after</p>
+  differential libxml2→SwiftSoup: stable=true unsafe=false
+  differential SwiftSoup→libxml2: stable=false unsafe=false
+
+[textarea-escape] in:  <textarea></textarea><img src=x onerror=1><title><img src=y onerror=2></title>
+  libxml2   out: 
+  SwiftSoup out: 
+  SS.clean  out: <img />&lt;img src=y onerror=2&gt;
+  differential libxml2→SwiftSoup: stable=true unsafe=false
+  differential SwiftSoup→libxml2: stable=true unsafe=false
+
+[scheme-obfuscation] in:  <a href="java&#9;script:alert(1)">a</a><a href=" JaVaScRiPt:alert(1)">b</a><a href="https://ok.example/">c</a>
+  libxml2   out: <a>a</a><a>b</a><a href="https://ok.example/">c</a>
+  SwiftSoup out: <a>a</a><a>b</a><a href="https://ok.example/">c</a>
+  SS.clean  out: <a>a</a>⏎<a>b</a>⏎<a href="https://ok.example/">c</a>
+  differential libxml2→SwiftSoup: stable=true unsafe=false
+  differential SwiftSoup→libxml2: stable=true unsafe=false
+
+[misnested] in:  <p>one <b>bold <i>both</b> italic</i><table><tr><td>cell<div>foster</table>tail
+  libxml2   out: <p>one <b>bold <i>both</i></b> italic</p><table><tr><td>cell<div>foster</div></td></tr></table>tail
+  SwiftSoup out: <p>one <b>bold <i>both</i></b><i> italic</i></p><table><tbody><tr><td>cell<div>foster</div></td></tr></tbody></table>tail
+  SS.clean  out: <p>one <b>bold <i>both</i></b><i> italic</i></p>⏎<table>⏎ <tbody>⏎  <tr>⏎   <td>cell⏎    <div>⏎     foster⏎    </div></td>⏎  </tr>⏎ </tbody>⏎</table>tail
+  differential libxml2→SwiftSoup: stable=false unsafe=false
+  differential SwiftSoup→libxml2: stable=true unsafe=false
+
+[duplicate-attrs] in:  <img src="cid:a@b" onerror="1" SRC="https://evil.example/x.png" width=10>
+  libxml2   out: <img src="banana-mail://cid/m/a@b" width="10">
+  SwiftSoup out: <img src="banana-mail://remote/768d999bf99e5292f7bd1912d18ae387e5dc155f89107c231c95873f99072f09" width="10">
+  SS.clean  out: <img src="https://evil.example/x.png" width="10" />
+  differential libxml2→SwiftSoup: stable=false unsafe=false
+  differential SwiftSoup→libxml2: stable=false unsafe=false
+
+[unterminated] in:  <div title="never closed><script>alert(1)</script><p>hidden?</p>
+  libxml2   out: <div title="never closed&gt;&lt;script&gt;alert(1)&lt;/script&gt;&lt;p&gt;hidden?&lt;/p&gt;"></div>
+  SwiftSoup out: 
+  SS.clean  out: 
+  differential libxml2→SwiftSoup: stable=true unsafe=false
+  differential SwiftSoup→libxml2: stable=true unsafe=false
+
+[form-base-meta] in:  <base href="https://evil/"><meta http-equiv=refresh content="0;url=https://evil/"><form action=https://evil/><input name=p type=password></form><p>t</p>
+  libxml2   out: <p>t</p>
+  SwiftSoup out: <p>t</p>
+  SS.clean  out: <p>t</p>
+  differential libxml2→SwiftSoup: stable=true unsafe=false
+  differential SwiftSoup→libxml2: stable=true unsafe=false
+
+[plaintext] in:  <p>a</p><plaintext><img src=x onerror=1></p>
+  libxml2   out: <p>a</p>
+  SwiftSoup out: <p>a</p>
+  SS.clean  out: <p>a</p>&lt;img src=x onerror=1&gt;&lt;/p&gt;
+  differential libxml2→SwiftSoup: stable=true unsafe=false
+  differential SwiftSoup→libxml2: stable=true unsafe=false

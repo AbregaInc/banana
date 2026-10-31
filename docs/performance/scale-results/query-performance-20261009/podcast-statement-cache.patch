@@ -1,0 +1,18 @@
+diff --git a/Banana/Model/PodcastCatalog.swift b/Banana/Model/PodcastCatalog.swift
+index a961bac..da49cfe 100644
+--- a/Banana/Model/PodcastCatalog.swift
++++ b/Banana/Model/PodcastCatalog.swift
+@@ -178,8 +178,11 @@ final class PodcastCatalog: @unchecked Sendable {
+         guard limit > 0 else { return [] }
+         let order = newest.map { "date \($0 ? "DESC" : "ASC"), ordinal \(reverseTies ? "DESC" : "ASC")" } ?? "ordinal ASC"
+         return try database.read { db in
+-            try Data.fetchAll(db, sql: "SELECT payload FROM episodes WHERE snapshot = ? ORDER BY \(order) LIMIT ? OFFSET ?",
+-                              arguments: [id, limit, max(0, offset)]).map { try JSONDecoder().decode(Episode.self, from: $0) }
++            // Only the finite ordering variants form statement keys. Snapshot/page values stay
++            // bound arguments; GRDB owns reuse on this serialized database connection.
++            let request = SQLRequest<Data>(sql: "SELECT payload FROM episodes WHERE snapshot = ? ORDER BY \(order) LIMIT ? OFFSET ?",
++                                           arguments: [id, limit, max(0, offset)], cached: true)
++            return try Data.fetchAll(db, request).map { try JSONDecoder().decode(Episode.self, from: $0) }
+         }
+     }
+ 

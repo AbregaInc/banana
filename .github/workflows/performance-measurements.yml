@@ -1,0 +1,43 @@
+name: Simulator performance measurements
+on:
+  # Paused at the owner's request: not ready for GitHub execution yet.
+  # The workflow is also disabled in GitHub Actions. Re-enable explicitly when ready.
+  workflow_dispatch:
+    inputs:
+      device:
+        description: Dedicated iPhone 17 Pro Simulator UUID
+        required: true
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: dedicated-performance-mac
+  cancel-in-progress: false
+jobs:
+  components:
+    if: github.event_name == 'workflow_dispatch' || vars.BANANA_PERF_ENABLED == 'true'
+    # Dedicated trusted runner only. Never execute untrusted fork PR code on this host.
+    runs-on: [self-hosted, macOS, ARM64, banana-perf]
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and measure against the reviewed reference
+        env:
+          PERF_DEVICE: ${{ inputs.device || vars.BANANA_PERF_SIMULATOR }}
+        run: python3 tools/performance-regression.py run --device "$PERF_DEVICE" --out .build/ci-performance
+      - name: Verify Mail paging and basic search through the real screens
+        if: ${{ !cancelled() }}
+        env:
+          PERF_DEVICE: ${{ inputs.device || vars.BANANA_PERF_SIMULATOR }}
+        run: python3 tools/mail-paging-tests/run.py --device "$PERF_DEVICE" --derived-data .build/ci-performance/derived-data --out .build/ci-mail-paging
+      - name: Retain measurements, logs and policy even on failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: simulator-performance-${{ github.run_id }}
+          path: |
+            .build/ci-performance/*.json
+            .build/ci-performance/*.log
+            .build/ci-mail-paging
+          if-no-files-found: error
+          retention-days: 90

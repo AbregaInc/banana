@@ -1,0 +1,70 @@
+{
+  "binarySHA256": "78c1108facb456a9c0fbced578ad329098ce5121a9d801effd84e77fe8d5b3f2",
+  "device": "<device-udid>",
+  "scope": "Physical device programmatic correctness only, no input/display performance acceptance",
+  "cases": [
+    {
+      "name": "iphone-100-control",
+      "flags": [],
+      "status": "passed",
+      "checks": 44
+    },
+    {
+      "name": "iphone-100-dispatch",
+      "flags": [
+        "--foreground-dispatch"
+      ],
+      "status": "passed",
+      "checks": 44
+    },
+    {
+      "name": "iphone-100-text",
+      "flags": [
+        "--raster-native-text"
+      ],
+      "status": "passed",
+      "checks": 44
+    },
+    {
+      "name": "iphone-100-combined",
+      "flags": [
+        "--foreground-dispatch",
+        "--raster-native-text"
+      ],
+      "status": "passed",
+      "checks": 44
+    },
+    {
+      "name": "iphone-300-control",
+      "flags": [],
+      "status": "passed",
+      "checks": 44
+    },
+    {
+      "name": "iphone-300-dispatch",
+      "flags": [
+        "--foreground-dispatch"
+      ],
+      "status": "passed",
+      "checks": 44
+    },
+    {
+      "name": "iphone-300-text",
+      "flags": [
+        "--raster-native-text"
+      ],
+      "status": "passed",
+      "checks": 44
+    },
+    {
+      "name": "iphone-300-combined",
+      "flags": [
+        "--foreground-dispatch",
+        "--raster-native-text"
+      ],
+      "status": "passed",
+      "checks": 44
+    }
+  ],
+  "status": "passed"
+}

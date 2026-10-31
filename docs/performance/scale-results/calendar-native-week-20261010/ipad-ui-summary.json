@@ -1,0 +1,55 @@
+{
+  "devicesAndConfigurations" : [
+    {
+      "device" : {
+        "architecture" : "arm64",
+        "deviceId" : "DFF60927-BA4A-4E8E-9A6E-63A1A4178858",
+        "deviceName" : "Calendar-Artwork-iPad-20261009",
+        "modelName" : "iPad Pro 13-inch (M5)",
+        "osBuildNumber" : "23F77",
+        "osVersion" : "26.5",
+        "platform" : "iOS Simulator"
+      },
+      "expectedFailures" : 0,
+      "failedTests" : 1,
+      "passedTests" : 2,
+      "skippedTests" : 0,
+      "testPlanConfiguration" : {
+        "configurationId" : "1",
+        "configurationName" : "Test Scheme Action"
+      }
+    }
+  ],
+  "environmentDescription" : "Banana · Built with macOS 26.6.2",
+  "expectedFailures" : 0,
+  "failedTests" : 1,
+  "finishTime" : 1791637215.005,
+  "passedTests" : 2,
+  "result" : "Failed",
+  "runtimeWarnings" : [
+
+  ],
+  "skippedTests" : 0,
+  "startTime" : 1791637110.817,
+  "statistics" : [
+    {
+      "subtitle" : "1 test run",
+      "title" : "1 test collected performance metrics"
+    }
+  ],
+  "testFailures" : [
+    {
+      "failureText" : "XCTAssertLessThan failed: (\"59.0\") is not less than (\"59.0\") - Offscreen cells must be recycled",
+      "targetName" : "BananaUITests",
+      "testIdentifier" : 3,
+      "testIdentifierString" : "ScaleStressUITests/testNativeWeekNavigation()",
+      "testIdentifierURL" : "test://com.apple.xcode/Banana/BananaUITests/ScaleStressUITests/testNativeWeekNavigation",
+      "testName" : "testNativeWeekNavigation()"
+    }
+  ],
+  "title" : "Test - Banana",
+  "topInsights" : [
+
+  ],
+  "totalTestCount" : 3
+}

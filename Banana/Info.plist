@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>BGTaskSchedulerPermittedIdentifiers</key>
+	<array>
+		<string>com.boris.banana.transcribe.overnight</string>
+		<string>com.boris.banana.feeds.overnight</string>
+		<string>com.boris.banana.transcribe.*</string>
+		<string>com.boris.banana.calendar.refresh</string>
+		<string>com.boris.banana.meals.scan</string>
+		<string>com.boris.banana.meals.estimate.*</string>
+		<string>com.boris.banana.meals.catchup</string>
+	</array>
+	<key>BananaCloudContainer</key>
+	<string>$(BANANA_ICLOUD_CONTAINER)</string>
+	<key>BananaGoogleServerClient</key>
+	<string>$(BANANA_GOOGLE_SERVER_CLIENT)</string>
+	<key>BananaLegacyCloudContainer</key>
+	<string>$(BANANA_LEGACY_ICLOUD_CONTAINER)</string>
+	<key>BananaPrivateCloudCompute</key>
+	<false/>
+	<key>BananaServiceHost</key>
+	<string>$(BANANA_SERVICE_HOST)</string>
+	<key>BananaTeamID</key>
+	<string>$(DEVELOPMENT_TEAM)</string>
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>CFBundleDisplayName</key>
+	<string>Banana</string>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>$(PRODUCT_NAME)</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>$(MARKETING_VERSION)</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.$(BANANA_GOOGLE_CLIENT)</string>
+				<string>banananote</string>
+			</array>
+		</dict>
+	</array>
+	<key>CFBundleVersion</key>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>GIDClientID</key>
+	<string>$(BANANA_GOOGLE_CLIENT).apps.googleusercontent.com</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+	<key>NSAlarmKitUsageDescription</key>
+	<string>Banana schedules alarms so it can wake you at the times you turn on — ringing through silent mode and Focus, even when the app is closed.</string>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+	</dict>
+	<key>NSAppleMusicUsageDescription</key>
+	<string>Banana plays a playlist, album, or song from your Apple Music library as your wake-up sound after an alarm.</string>
+	<key>NSBonjourServices</key>
+	<array>
+		<string>_banana-audio._tcp</string>
+	</array>
+	<key>NSCameraUsageDescription</key>
+	<string>Banana uses the camera only when you choose to photograph a meal or a supplement label, or scan a food or supplement barcode.</string>
+	<key>NSContactsUsageDescription</key>
+	<string>Banana looks up the people you type when adding guests to an event, so “Lunch with Sam” can invite the Sam you mean.</string>
+	<key>NSHealthShareUsageDescription</key>
+	<string>Banana reads your workouts and health metrics from Apple Health — including sessions recorded by other apps and devices — so it can show and analyze your fitness in one place.</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>Banana saves your Watch-recorded workouts to Apple Health — including the route — and updates them when you trim a workout.</string>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>Banana finds your other Banana devices on this Wi-Fi so one downloaded podcast file can be reused without downloading it again.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Banana notes where you arrive and leave — only when you turn on Learn from my trips — so travel times match how long your trips really take. The visits stay on this iPhone.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Banana uses your location for forecasts, travel estimates, and—when you explicitly enable it—a route recorded only while a podcast is playing.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Banana records quick voice notes — pause a podcast, capture a thought, and it's saved with the moment it came from for later.</string>
+	<key>NSMotionUsageDescription</key>
+	<string>Banana reads whether you were on foot or in a vehicle — only when you turn on Learn from my trips — so it learns your real pace for each way of travelling.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Banana looks for photos of meals — only when you turn on Find meal photos automatically — so it can ask what you ate and log it.</string>
+	<key>NSRemindersFullAccessUsageDescription</key>
+	<string>Banana reads your reminders on-device so it can schedule tasks onto your day alongside your routines and meetings.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Banana transcribes downloaded episodes on your device so you can follow along word-by-word while listening.</string>
+	<key>NSSupportsLiveActivities</key>
+	<true/>
+	<key>UIApplicationSceneManifest</key>
+	<dict>
+		<key>UIApplicationSupportsMultipleScenes</key>
+		<false/>
+	</dict>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>audio</string>
+		<string>processing</string>
+		<string>fetch</string>
+		<string>location</string>
+		<string>remote-notification</string>
+	</array>
+	<key>UILaunchScreen</key>
+	<dict>
+		<key>UIColorName</key>
+		<string>LaunchBackground</string>
+	</dict>
+	<key>UISupportedInterfaceOrientations</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+	<key>UISupportedInterfaceOrientations~ipad</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+</dict>
+</plist>

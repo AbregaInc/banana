@@ -1,0 +1,74 @@
+["xcrun", "devicectl", "device", "install", "app", "--device", "<device-udid>", "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-library-touch-dd/Build/Products/Release-iphoneos/CalendarLibraryBenchmark.app"]
+App installed:
+• bundleID: com.boris.banana.calendar-library-benchmark
+• installationURL: file:///private/var/containers/Bundle/Application/BC7D0CA6-2190-49C1-BF76-2FBB6209A41C/CalendarLibraryBenchmark.app/
+• launchServicesIdentifier: unknown
+• databaseUUID: 4A2A6963-B40E-4B5A-827C-40E4E1FB022D
+• databaseSequenceNumber: 2320
+• options: 
+
+["xcrun", "devicectl", "device", "process", "launch", "--device", "<device-udid>", "--terminate-existing", "com.boris.banana.calendar-library-benchmark", "--candidate", "native", "--mode", "week", "--days", "365", "--density", "100", "--fixture", "varied-v1", "--seed", "20261009", "--renderer", "tiles", "--ablation", "tile-prefetch-async-two", "--check", "raster-pixels", "--output", "pixels-ac9fdf14-db1c-4e4c-9998-9a9e42501238.json"]
+Launched application with com.boris.banana.calendar-library-benchmark bundle identifier.
+
+["xcrun", "devicectl", "device", "copy", "from", "--device", "<device-udid>", "--source", "Documents/pixels-ac9fdf14-db1c-4e4c-9998-9a9e42501238.json", "--domain-type", "appDataContainer", "--domain-identifier", "com.boris.banana.calendar-library-benchmark", "--destination", "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-varied-fix/iphone-pixels/00-pixels.json"]
+File received from Device
+~/orca/workspaces/gtfuwgth/stingray/.build/calendar-varied-fix/iphone-pixels/00-pixels.json
+
+["xcrun", "devicectl", "device", "process", "launch", "--device", "<device-udid>", "--terminate-existing", "com.boris.banana.calendar-library-benchmark", "--candidate", "native", "--mode", "week", "--days", "365", "--density", "100", "--fixture", "varied-v1", "--seed", "20261009", "--renderer", "tiles", "--ablation", "tile-prefetch-async-two", "--check", "raster-pixels", "--output", "pixels-406678f6-da37-448f-b433-0d0fc1424755.json", "--batch-event-fills"]
+Launched application with com.boris.banana.calendar-library-benchmark bundle identifier.
+
+["xcrun", "devicectl", "device", "copy", "from", "--device", "<device-udid>", "--source", "Documents/pixels-406678f6-da37-448f-b433-0d0fc1424755.json", "--domain-type", "appDataContainer", "--domain-identifier", "com.boris.banana.calendar-library-benchmark", "--destination", "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-varied-fix/iphone-pixels/01-pixels.json"]
+File received from Device
+~/orca/workspaces/gtfuwgth/stingray/.build/calendar-varied-fix/iphone-pixels/01-pixels.json
+
+["xcrun", "devicectl", "device", "process", "launch", "--device", "<device-udid>", "--terminate-existing", "com.boris.banana.calendar-library-benchmark", "--candidate", "native", "--mode", "week", "--days", "365", "--density", "100", "--fixture", "varied-v1", "--seed", "20261009", "--renderer", "tiles", "--ablation", "tile-prefetch-async-surface", "--check", "raster-pixels", "--output", "pixels-3ce9e652-d5f3-425c-93b1-06b81ce52ddf.json"]
+Launched application with com.boris.banana.calendar-library-benchmark bundle identifier.
+
+["xcrun", "devicectl", "device", "copy", "from", "--device", "<device-udid>", "--source", "Documents/pixels-3ce9e652-d5f3-425c-93b1-06b81ce52ddf.json", "--domain-type", "appDataContainer", "--domain-identifier", "com.boris.banana.calendar-library-benchmark", "--destination", "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-varied-fix/iphone-pixels/02-pixels.json"]
+File received from Device
+~/orca/workspaces/gtfuwgth/stingray/.build/calendar-varied-fix/iphone-pixels/02-pixels.json
+
+["xcrun", "devicectl", "device", "process", "launch", "--device", "<device-udid>", "--terminate-existing", "com.boris.banana.calendar-library-benchmark", "--candidate", "native", "--mode", "week", "--days", "365", "--density", "100", "--fixture", "varied-v1", "--seed", "20261009", "--renderer", "tiles", "--ablation", "tile-prefetch-async-surface", "--check", "raster-pixels", "--output", "pixels-9c8a6384-0fc2-4d20-a31e-afc8ed62d15b.json", "--batch-event-fills"]
+Launched application with com.boris.banana.calendar-library-benchmark bundle identifier.
+
+["xcrun", "devicectl", "device", "copy", "from", "--device", "<device-udid>", "--source", "Documents/pixels-9c8a6384-0fc2-4d20-a31e-afc8ed62d15b.json", "--domain-type", "appDataContainer", "--domain-identifier", "com.boris.banana.calendar-library-benchmark", "--destination", "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-varied-fix/iphone-pixels/03-pixels.json"]
+File received from Device
+~/orca/workspaces/gtfuwgth/stingray/.build/calendar-varied-fix/iphone-pixels/03-pixels.json
+
+["xcrun", "devicectl", "device", "process", "launch", "--device", "<device-udid>", "--terminate-existing", "com.boris.banana.calendar-library-benchmark", "--candidate", "native", "--mode", "week", "--days", "365", "--density", "300", "--fixture", "varied-v1", "--seed", "20261009", "--renderer", "tiles", "--ablation", "tile-prefetch-async-two", "--check", "raster-pixels", "--output", "pixels-d67a980a-14eb-49c7-9e2f-a3b3d1317c95.json"]
+Launched application with com.boris.banana.calendar-library-benchmark bundle identifier.
+
+["xcrun", "devicectl", "device", "copy", "from", "--device", "<device-udid>", "--source", "Documents/pixels-d67a980a-14eb-49c7-9e2f-a3b3d1317c95.json", "--domain-type", "appDataContainer", "--domain-identifier", "com.boris.banana.calendar-library-benchmark", "--destination", "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-varied-fix/iphone-pixels/04-pixels.json"]
+ERROR: Failed to retrieve the file node for Documents/pixels-d67a980a-14eb-49c7-9e2f-a3b3d1317c95.json (com.apple.dt.CoreDeviceError error 7000 (0x1B58))
+
+["xcrun", "devicectl", "device", "copy", "from", "--device", "<device-udid>", "--source", "Documents/pixels-d67a980a-14eb-49c7-9e2f-a3b3d1317c95.json", "--domain-type", "appDataContainer", "--domain-identifier", "com.boris.banana.calendar-library-benchmark", "--destination", "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-varied-fix/iphone-pixels/04-pixels.json"]
+File received from Device
+~/orca/workspaces/gtfuwgth/stingray/.build/calendar-varied-fix/iphone-pixels/04-pixels.json
+
+["xcrun", "devicectl", "device", "process", "launch", "--device", "<device-udid>", "--terminate-existing", "com.boris.banana.calendar-library-benchmark", "--candidate", "native", "--mode", "week", "--days", "365", "--density", "300", "--fixture", "varied-v1", "--seed", "20261009", "--renderer", "tiles", "--ablation", "tile-prefetch-async-two", "--check", "raster-pixels", "--output", "pixels-bf663d90-9239-494e-9e08-7340040067bb.json", "--batch-event-fills"]
+Launched application with com.boris.banana.calendar-library-benchmark bundle identifier.
+
+["xcrun", "devicectl", "device", "copy", "from", "--device", "<device-udid>", "--source", "Documents/pixels-bf663d90-9239-494e-9e08-7340040067bb.json", "--domain-type", "appDataContainer", "--domain-identifier", "com.boris.banana.calendar-library-benchmark", "--destination", "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-varied-fix/iphone-pixels/05-pixels.json"]
+File received from Device
+~/orca/workspaces/gtfuwgth/stingray/.build/calendar-varied-fix/iphone-pixels/05-pixels.json
+
+["xcrun", "devicectl", "device", "process", "launch", "--device", "<device-udid>", "--terminate-existing", "com.boris.banana.calendar-library-benchmark", "--candidate", "native", "--mode", "week", "--days", "365", "--density", "300", "--fixture", "varied-v1", "--seed", "20261009", "--renderer", "tiles", "--ablation", "tile-prefetch-async-surface", "--check", "raster-pixels", "--output", "pixels-5c35a3af-c5cd-4045-93f0-1f715dcab93a.json"]
+Launched application with com.boris.banana.calendar-library-benchmark bundle identifier.
+
+["xcrun", "devicectl", "device", "copy", "from", "--device", "<device-udid>", "--source", "Documents/pixels-5c35a3af-c5cd-4045-93f0-1f715dcab93a.json", "--domain-type", "appDataContainer", "--domain-identifier", "com.boris.banana.calendar-library-benchmark", "--destination", "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-varied-fix/iphone-pixels/06-pixels.json"]
+ERROR: Failed to retrieve the file node for Documents/pixels-5c35a3af-c5cd-4045-93f0-1f715dcab93a.json (com.apple.dt.CoreDeviceError error 7000 (0x1B58))
+
+["xcrun", "devicectl", "device", "copy", "from", "--device", "<device-udid>", "--source", "Documents/pixels-5c35a3af-c5cd-4045-93f0-1f715dcab93a.json", "--domain-type", "appDataContainer", "--domain-identifier", "com.boris.banana.calendar-library-benchmark", "--destination", "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-varied-fix/iphone-pixels/06-pixels.json"]
+File received from Device
+~/orca/workspaces/gtfuwgth/stingray/.build/calendar-varied-fix/iphone-pixels/06-pixels.json
+
+["xcrun", "devicectl", "device", "process", "launch", "--device", "<device-udid>", "--terminate-existing", "com.boris.banana.calendar-library-benchmark", "--candidate", "native", "--mode", "week", "--days", "365", "--density", "300", "--fixture", "varied-v1", "--seed", "20261009", "--renderer", "tiles", "--ablation", "tile-prefetch-async-surface", "--check", "raster-pixels", "--output", "pixels-26c0318f-2047-4b44-a3c8-8990949d32de.json", "--batch-event-fills"]
+Launched application with com.boris.banana.calendar-library-benchmark bundle identifier.
+
+["xcrun", "devicectl", "device", "copy", "from", "--device", "<device-udid>", "--source", "Documents/pixels-26c0318f-2047-4b44-a3c8-8990949d32de.json", "--domain-type", "appDataContainer", "--domain-identifier", "com.boris.banana.calendar-library-benchmark", "--destination", "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-varied-fix/iphone-pixels/07-pixels.json"]
+ERROR: Failed to retrieve the file node for Documents/pixels-26c0318f-2047-4b44-a3c8-8990949d32de.json (com.apple.dt.CoreDeviceError error 7000 (0x1B58))
+
+["xcrun", "devicectl", "device", "copy", "from", "--device", "<device-udid>", "--source", "Documents/pixels-26c0318f-2047-4b44-a3c8-8990949d32de.json", "--domain-type", "appDataContainer", "--domain-identifier", "com.boris.banana.calendar-library-benchmark", "--destination", "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-varied-fix/iphone-pixels/07-pixels.json"]
+File received from Device
+~/orca/workspaces/gtfuwgth/stingray/.build/calendar-varied-fix/iphone-pixels/07-pixels.json
+

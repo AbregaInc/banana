@@ -1,0 +1,195 @@
+{
+  "checks" : 12,
+  "eventsPerDay" : 100,
+  "failure" : "Background preparation changed pixels",
+  "fixture" : {
+    "calendarCount" : 12,
+    "calendarEventCounts" : {
+      "0" : 3030,
+      "1" : 3034,
+      "2" : 3038,
+      "3" : 3036,
+      "4" : 3044,
+      "5" : 3048,
+      "6" : 3054,
+      "7" : 3047,
+      "8" : 3045,
+      "9" : 3045,
+      "10" : 3043,
+      "11" : 3036
+    },
+    "contentChecksum" : "cc21d0109064e527",
+    "distinctDailyPatterns" : 365,
+    "distinctDurations" : 12,
+    "distinctTitles" : 36500,
+    "distinctWeeklyPatterns" : 52,
+    "hiddenCalendars" : [
+
+    ],
+    "maximumDailyEvents" : 193,
+    "meanDailyEvents" : 100,
+    "minimumDailyEvents" : 17,
+    "profile" : "varied-v1",
+    "retainedEvents" : 36500,
+    "scope" : "Immutable timed-event fixture; no recurrence expansion, provider sync or dynamic edit\/filter invalidation",
+    "seed" : "20261009",
+    "sevenDayBlockEvents" : 700
+  },
+  "samples" : [
+    {
+      "differentBytes" : 8121,
+      "failureContext" : true,
+      "firstDifferences" : [
+        {
+          "actual" : 237,
+          "channel" : 0,
+          "expected" : 226,
+          "x" : 293,
+          "y" : 340
+        },
+        {
+          "actual" : 239,
+          "channel" : 1,
+          "expected" : 240,
+          "x" : 293,
+          "y" : 340
+        },
+        {
+          "actual" : 225,
+          "channel" : 2,
+          "expected" : 237,
+          "x" : 293,
+          "y" : 340
+        },
+        {
+          "actual" : 237,
+          "channel" : 0,
+          "expected" : 226,
+          "x" : 294,
+          "y" : 340
+        },
+        {
+          "actual" : 239,
+          "channel" : 1,
+          "expected" : 240,
+          "x" : 294,
+          "y" : 340
+        },
+        {
+          "actual" : 225,
+          "channel" : 2,
+          "expected" : 237,
+          "x" : 294,
+          "y" : 340
+        },
+        {
+          "actual" : 248,
+          "channel" : 0,
+          "expected" : 244,
+          "x" : 295,
+          "y" : 340
+        },
+        {
+          "actual" : 244,
+          "channel" : 2,
+          "expected" : 248,
+          "x" : 295,
+          "y" : 340
+        },
+        {
+          "actual" : 244,
+          "channel" : 0,
+          "expected" : 237,
+          "x" : 273,
+          "y" : 341
+        },
+        {
+          "actual" : 236,
+          "channel" : 2,
+          "expected" : 244,
+          "x" : 273,
+          "y" : 341
+        },
+        {
+          "actual" : 237,
+          "channel" : 0,
+          "expected" : 226,
+          "x" : 274,
+          "y" : 341
+        },
+        {
+          "actual" : 239,
+          "channel" : 1,
+          "expected" : 240,
+          "x" : 274,
+          "y" : 341
+        },
+        {
+          "actual" : 225,
+          "channel" : 2,
+          "expected" : 237,
+          "x" : 274,
+          "y" : 341
+        },
+        {
+          "actual" : 237,
+          "channel" : 0,
+          "expected" : 226,
+          "x" : 275,
+          "y" : 341
+        },
+        {
+          "actual" : 239,
+          "channel" : 1,
+          "expected" : 240,
+          "x" : 275,
+          "y" : 341
+        },
+        {
+          "actual" : 225,
+          "channel" : 2,
+          "expected" : 237,
+          "x" : 275,
+          "y" : 341
+        },
+        {
+          "actual" : 237,
+          "channel" : 0,
+          "expected" : 226,
+          "x" : 276,
+          "y" : 341
+        },
+        {
+          "actual" : 239,
+          "channel" : 1,
+          "expected" : 240,
+          "x" : 276,
+          "y" : 341
+        },
+        {
+          "actual" : 225,
+          "channel" : 2,
+          "expected" : 237,
+          "x" : 276,
+          "y" : 341
+        },
+        {
+          "actual" : 237,
+          "channel" : 0,
+          "expected" : 226,
+          "x" : 293,
+          "y" : 341
+        }
+      ],
+      "phase" : "cold",
+      "pixelWidth" : 1179,
+      "rowBytes" : 4736,
+      "scale" : 3,
+      "tileTop" : 512,
+      "trial" : 0,
+      "width" : 393,
+      "workers" : 2
+    }
+  ],
+  "status" : "failed"
+}

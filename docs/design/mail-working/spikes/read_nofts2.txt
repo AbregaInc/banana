@@ -1,0 +1,14 @@
+list pages (50 rows, every column a row draws):
+  unified inbox — first page: n=200 p50=0.029 ms p95=0.030 ms p99=0.039 ms max=0.145 ms
+  account 0 inbox — first page: n=200 p50=0.028 ms p95=0.030 ms p99=0.058 ms max=0.078 ms
+  unified all mail — first page: n=200 p50=0.029 ms p95=0.030 ms p99=0.035 ms max=0.070 ms
+  split: other — first page: n=200 p50=0.030 ms p95=0.035 ms p99=0.057 ms max=0.071 ms
+  a user label — first page: n=200 p50=0.030 ms p95=0.032 ms p99=0.058 ms max=0.140 ms
+  unified promotions — first page: n=200 p50=0.031 ms p95=0.037 ms p99=0.061 ms max=0.150 ms
+  unified all mail — keyset walk, 1386 pages, 69288 threads: n=1386 p50=0.041 ms p95=0.049 ms p99=0.060 ms max=0.136 ms
+    … last 100 pages of that walk (deepest): n=100 p50=0.037 ms p95=0.046 ms p99=0.136 ms max=0.136 ms
+  unified all mail — same last page by OFFSET 69228: n=20 p50=1.189 ms p95=1.543 ms p99=1.543 ms max=1.543 ms
+unified inbox without twin views (IN-list over 4 per-account views, sorted):
+  unified inbox: 706 unread
+      unread by partial index: n=200 p50=0.014 ms p95=0.015 ms p99=0.018 ms max=0.046 ms
+      unread from counter row: n=200 p50=0.002 ms p95=0.002 ms p99=0.002 ms max=0.005 ms

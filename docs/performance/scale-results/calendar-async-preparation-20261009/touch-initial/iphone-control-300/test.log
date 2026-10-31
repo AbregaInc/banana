@@ -1,0 +1,163 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild test-without-building -project ~/orca/workspaces/gtfuwgth/stingray/tools/calendar-library-benchmark/CalendarLibraryBenchmark.xcodeproj -scheme CalendarLibraryBenchmarkUITests -configuration Release -destination platform=iOS,id=<device-udid> -derivedDataPath ~/orca/workspaces/gtfuwgth/stingray/.build/calendar-library-touch-dd ARCHS=arm64 ONLY_ACTIVE_ARCH=YES CODE_SIGNING_ALLOWED=YES CODE_SIGN_STYLE=Automatic DEVELOPMENT_TEAM=<redacted> -resultBundlePath ~/orca/workspaces/gtfuwgth/stingray/.build/calendar-touch/iphone-control-300/ui.xcresult -parallel-testing-enabled NO -collect-test-diagnostics never
+
+Build settings from command line:
+    ARCHS = arm64
+    CODE_SIGN_STYLE = Automatic
+    CODE_SIGNING_ALLOWED = YES
+    DEVELOPMENT_TEAM = <redacted>
+    ONLY_ACTIVE_ARCH = YES
+
+Resolve Package Graph
+
+
+Resolved source packages:
+  CalendarKit: https://github.com/richardtop/CalendarKit.git @ 99a4a05
+  KVKCalendar: https://github.com/kvyatkovskys/KVKCalendar.git @ 0bcad2b
+
+Writing result bundle at path:
+	~/orca/workspaces/gtfuwgth/stingray/.build/calendar-touch/iphone-control-300/ui.xcresult
+
+2026-10-09 04:30:05.648855-0400 CalendarLibraryBenchmarkUITests-Runner[11472:5905099] [Default] Running tests...
+    t =      nans Interface orientation changed to Portrait
+Test Suite 'All tests' started at 2026-10-09 04:30:06.194.
+Test Suite 'CalendarLibraryBenchmarkUITests.xctest' started at 2026-10-09 04:30:06.194.
+Test Suite 'InteractiveTests' started at 2026-10-09 04:30:06.194.
+Test Case '-[CalendarLibraryBenchmarkUITests.InteractiveTests testPagingScrollingAndEviction]' started.
+    t =     0.01s Start Test at 2026-10-09 04:30:06.200
+    t =     0.01s Set Up
+    t =     0.02s     Open com.boris.banana.calendar-library-benchmark
+    t =     0.02s         Activate com.boris.banana.calendar-library-benchmark
+    t =     0.04s             Wait for com.boris.banana.calendar-library-benchmark to idle
+    t =     0.06s     Waiting 10.0s for "benchmark.interactive.ready" StaticText to exist
+    t =     1.08s         Checking `Expect predicate `existsNoRetry == 1` for object "benchmark.interactive.ready" StaticText`
+    t =     1.08s             Checking existence of `"benchmark.interactive.ready" StaticText`
+    t =     1.40s Find the "benchmark.date" StaticText
+    t =     1.66s Tap "benchmark.next" Button
+    t =     1.66s     Wait for com.boris.banana.calendar-library-benchmark to idle
+    t =     1.67s     Find the "benchmark.next" Button
+    t =     1.93s     Check for interrupting elements affecting "benchmark.next" Button
+    t =     2.16s     Synthesize event
+    t =     2.47s     Wait for com.boris.banana.calendar-library-benchmark to idle
+    t =     2.78s Find the "benchmark.date" StaticText
+    t =     3.07s Tap "benchmark.next" Button
+    t =     3.07s     Wait for com.boris.banana.calendar-library-benchmark to idle
+    t =     3.09s     Find the "benchmark.next" Button
+    t =     3.34s     Check for interrupting elements affecting "benchmark.next" Button
+    t =     3.58s     Synthesize event
+    t =     3.88s     Wait for com.boris.banana.calendar-library-benchmark to idle
+    t =     4.18s Find the "benchmark.date" StaticText
+    t =     4.46s Tap "benchmark.next" Button
+    t =     4.46s     Wait for com.boris.banana.calendar-library-benchmark to idle
+    t =     4.47s     Find the "benchmark.next" Button
+    t =     4.71s     Check for interrupting elements affecting "benchmark.next" Button
+    t =     4.93s     Synthesize event
+    t =     5.23s     Wait for com.boris.banana.calendar-library-benchmark to idle
+    t =     5.53s Find the "benchmark.date" StaticText
+    t =     5.83s Tap "benchmark.next" Button
+    t =     5.83s     Wait for com.boris.banana.calendar-library-benchmark to idle
+    t =     5.84s     Find the "benchmark.next" Button
+    t =     6.09s     Check for interrupting elements affecting "benchmark.next" Button
+    t =     6.33s     Synthesize event
+    t =     6.63s     Wait for com.boris.banana.calendar-library-benchmark to idle
+    t =     6.92s Find the "benchmark.date" StaticText
+    t =     7.20s Checking existence of `"benchmark.timeline" ScrollView`
+    t =     7.44s Swipe up "benchmark.timeline" ScrollView
+    t =     7.44s     Wait for com.boris.banana.calendar-library-benchmark to idle
+    t =     7.45s     Find the "benchmark.timeline" ScrollView
+    t =     7.69s     Check for interrupting elements affecting "benchmark.timeline" ScrollView
+    t =     7.91s     Synthesize event
+    t =     8.36s     Wait for com.boris.banana.calendar-library-benchmark to idle
+    t =    10.40s Swipe down "benchmark.timeline" ScrollView
+    t =    10.41s     Wait for com.boris.banana.calendar-library-benchmark to idle
+    t =    10.42s     Find the "benchmark.timeline" ScrollView
+    t =    10.78s     Check for interrupting elements affecting "benchmark.timeline" ScrollView
+    t =    11.08s     Synthesize event
+    t =    11.54s     Wait for com.boris.banana.calendar-library-benchmark to idle
+    t =    13.45s Swipe up "benchmark.timeline" ScrollView
+    t =    13.45s     Wait for com.boris.banana.calendar-library-benchmark to idle
+    t =    13.47s     Find the "benchmark.timeline" ScrollView
+    t =    13.76s     Check for interrupting elements affecting "benchmark.timeline" ScrollView
+    t =    13.99s     Synthesize event
+    t =    14.44s     Wait for com.boris.banana.calendar-library-benchmark to idle
+    t =    16.48s Swipe down "benchmark.timeline" ScrollView
+    t =    16.48s     Wait for com.boris.banana.calendar-library-benchmark to idle
+    t =    16.49s     Find the "benchmark.timeline" ScrollView
+    t =    16.85s     Check for interrupting elements affecting "benchmark.timeline" ScrollView
+    t =    17.14s     Synthesize event
+    t =    17.60s     Wait for com.boris.banana.calendar-library-benchmark to idle
+    t =    19.64s Swipe up "benchmark.timeline" ScrollView
+    t =    19.64s     Wait for com.boris.banana.calendar-library-benchmark to idle
+    t =    19.66s     Find the "benchmark.timeline" ScrollView
+    t =    20.01s     Check for interrupting elements affecting "benchmark.timeline" ScrollView
+    t =    20.30s     Synthesize event
+    t =    20.76s     Wait for com.boris.banana.calendar-library-benchmark to idle
+    t =    22.78s Swipe down "benchmark.timeline" ScrollView
+    t =    22.78s     Wait for com.boris.banana.calendar-library-benchmark to idle
+    t =    22.79s     Find the "benchmark.timeline" ScrollView
+    t =    23.26s     Check for interrupting elements affecting "benchmark.timeline" ScrollView
+    t =    23.58s     Synthesize event
+    t =    24.04s     Wait for com.boris.banana.calendar-library-benchmark to idle
+    t =    25.86s Swipe up "benchmark.timeline" ScrollView
+    t =    25.86s     Wait for com.boris.banana.calendar-library-benchmark to idle
+    t =    25.87s     Find the "benchmark.timeline" ScrollView
+    t =    26.17s     Check for interrupting elements affecting "benchmark.timeline" ScrollView
+    t =    26.40s     Synthesize event
+    t =    26.84s     Wait for com.boris.banana.calendar-library-benchmark to idle
+    t =    28.90s Swipe down "benchmark.timeline" ScrollView
+    t =    28.90s     Wait for com.boris.banana.calendar-library-benchmark to idle
+    t =    28.92s     Find the "benchmark.timeline" ScrollView
+    t =    29.28s     Check for interrupting elements affecting "benchmark.timeline" ScrollView
+    t =    29.57s     Synthesize event
+    t =    30.02s     Wait for com.boris.banana.calendar-library-benchmark to idle
+    t =    32.05s Tap "benchmark.clearCache" Button
+    t =    32.05s     Wait for com.boris.banana.calendar-library-benchmark to idle
+    t =    32.06s     Find the "benchmark.clearCache" Button
+    t =    32.47s     Check for interrupting elements affecting "benchmark.clearCache" Button
+    t =    32.72s     Synthesize event
+    t =    33.03s     Wait for com.boris.banana.calendar-library-benchmark to idle
+    t =    33.33s Tap "benchmark.previous" Button
+    t =    33.33s     Wait for com.boris.banana.calendar-library-benchmark to idle
+    t =    33.34s     Find the "benchmark.previous" Button
+    t =    33.63s     Check for interrupting elements affecting "benchmark.previous" Button
+    t =    33.86s     Synthesize event
+    t =    34.16s     Wait for com.boris.banana.calendar-library-benchmark to idle
+    t =    34.50s Tap "benchmark.previous" Button
+    t =    34.51s     Wait for com.boris.banana.calendar-library-benchmark to idle
+    t =    34.52s     Find the "benchmark.previous" Button
+    t =    34.83s     Check for interrupting elements affecting "benchmark.previous" Button
+    t =    35.07s     Synthesize event
+    t =    35.37s     Wait for com.boris.banana.calendar-library-benchmark to idle
+    t =    35.66s Tap "benchmark.previous" Button
+    t =    35.66s     Wait for com.boris.banana.calendar-library-benchmark to idle
+    t =    35.67s     Find the "benchmark.previous" Button
+    t =    35.98s     Check for interrupting elements affecting "benchmark.previous" Button
+    t =    36.21s     Synthesize event
+    t =    36.51s     Wait for com.boris.banana.calendar-library-benchmark to idle
+    t =    36.81s Tap "benchmark.previous" Button
+    t =    36.81s     Wait for com.boris.banana.calendar-library-benchmark to idle
+    t =    36.83s     Find the "benchmark.previous" Button
+    t =    37.14s     Check for interrupting elements affecting "benchmark.previous" Button
+    t =    37.38s     Synthesize event
+    t =    37.68s     Wait for com.boris.banana.calendar-library-benchmark to idle
+    t =    37.99s Find the "benchmark.date" StaticText
+    t =    38.28s Find the Target Application 'com.boris.banana.calendar-library-benchmark'
+    t =    38.60s Added attachment named 'native-calendar-after-touch-and-eviction'
+    t =    38.60s Tear Down
+Test Case '-[CalendarLibraryBenchmarkUITests.InteractiveTests testPagingScrollingAndEviction]' passed (38.661 seconds).
+Test Suite 'InteractiveTests' passed at 2026-10-09 04:30:44.861.
+	 Executed 1 test, with 0 failures (0 unexpected) in 38.661 (38.666) seconds
+Test Suite 'CalendarLibraryBenchmarkUITests.xctest' passed at 2026-10-09 04:30:44.861.
+	 Executed 1 test, with 0 failures (0 unexpected) in 38.661 (38.667) seconds
+Test Suite 'All tests' passed at 2026-10-09 04:30:44.861.
+	 Executed 1 test, with 0 failures (0 unexpected) in 38.661 (38.668) seconds
+2026-10-09 04:30:45.252 xcodebuild[59635:38276344] [MT] IDETestOperationsObserverDebug: 42.162 elapsed -- Testing started completed.
+2026-10-09 04:30:45.252 xcodebuild[59635:38276344] [MT] IDETestOperationsObserverDebug: 0.000 sec, +0.000 sec -- start
+2026-10-09 04:30:45.252 xcodebuild[59635:38276344] [MT] IDETestOperationsObserverDebug: 42.162 sec, +42.162 sec -- end
+
+Test session results, code coverage, and logs:
+	~/orca/workspaces/gtfuwgth/stingray/.build/calendar-touch/iphone-control-300/ui.xcresult
+
+** TEST EXECUTE SUCCEEDED **
+
+Testing started

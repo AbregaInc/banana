@@ -1,0 +1,68 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild test-without-building -project Banana.xcodeproj -scheme BananaNativePerformanceUITests -configuration Release -destination platform=macOS,arch=arm64 -derivedDataPath .build/native-ui-test-dd -resultBundlePath .build/native-ui-performance/uitests-20261009-003959/ui.xcresult -parallel-testing-enabled NO
+
+Resolve Package Graph
+
+
+Resolved source packages:
+  GoogleUtilities: https://github.com/google/GoogleUtilities.git @ 8.1.4
+  GoogleSignIn: https://github.com/google/GoogleSignIn-iOS.git @ 9.1.0
+  InteropForGoogle: https://github.com/google/interop-ios-for-google-sdks.git @ 101.0.0
+  GRDB: https://github.com/groue/GRDB.swift.git @ b83108d
+  AppAuth: https://github.com/openid/AppAuth-iOS.git @ 2.1.0
+  GTMAppAuth: https://github.com/google/GTMAppAuth.git @ 5.0.0
+  AppCheck: https://github.com/google/app-check.git @ 11.3.2
+  Promises: https://github.com/google/promises.git @ 2.4.1
+  GTMSessionFetcher: https://github.com/google/gtm-session-fetcher.git @ 3.5.0
+  FluidAudio: https://github.com/FluidInference/FluidAudio.git @ 0.15.5
+  SwiftSoup: https://github.com/scinfu/SwiftSoup.git @ 18b8032
+
+Writing result bundle at path:
+	~/orca/workspaces/gtfuwgth/stingray/.build/native-ui-performance/uitests-20261009-003959/ui.xcresult
+
+2026-10-09 00:40:27.308767-0400 BananaNativePerformanceUITests-Runner[76016:36691012] [Default] Running tests...
+Test Suite 'All tests' started at 2026-10-09 00:40:27.658.
+Test Suite 'BananaNativePerformanceUITests.xctest' started at 2026-10-09 00:40:27.658.
+Test Suite 'NativeInteractionTests' started at 2026-10-09 00:40:27.659.
+Test Case '-[BananaNativePerformanceUITests.NativeInteractionTests testMailSelectionScrollAndTyping]' started.
+    t =     0.00s Start Test at 2026-10-09 00:40:27.659
+    t =     0.97s Set Up
+~/orca/workspaces/gtfuwgth/stingray/BananaNativePerformanceUITests/NativeInteractionTests.swift:11: error: -[BananaNativePerformanceUITests.NativeInteractionTests testMailSelectionScrollAndTyping] : failed: caught error: "Error Domain=NativePerformance Code=1 "Open the isolated Mac stress preview first" UserInfo={NSLocalizedDescription=Open the isolated Mac stress preview first}"
+<unknown>:0: -[BananaNativePerformanceUITests.NativeInteractionTests testMailSelectionScrollAndTyping] : Test skipped: threw error "Open the isolated Mac stress preview first"
+    t =     1.12s Tear Down
+Test Case '-[BananaNativePerformanceUITests.NativeInteractionTests testMailSelectionScrollAndTyping]' failed (1.203 seconds).
+Test Case '-[BananaNativePerformanceUITests.NativeInteractionTests testPlanOverflowReachability]' started.
+    t =     0.00s Start Test at 2026-10-09 00:40:28.863
+    t =     0.45s Set Up
+~/orca/workspaces/gtfuwgth/stingray/BananaNativePerformanceUITests/NativeInteractionTests.swift:11: error: -[BananaNativePerformanceUITests.NativeInteractionTests testPlanOverflowReachability] : failed: caught error: "Error Domain=NativePerformance Code=1 "Open the isolated Mac stress preview first" UserInfo={NSLocalizedDescription=Open the isolated Mac stress preview first}"
+<unknown>:0: -[BananaNativePerformanceUITests.NativeInteractionTests testPlanOverflowReachability] : Test skipped: threw error "Open the isolated Mac stress preview first"
+    t =     0.47s Tear Down
+Test Case '-[BananaNativePerformanceUITests.NativeInteractionTests testPlanOverflowReachability]' failed (0.492 seconds).
+Test Case '-[BananaNativePerformanceUITests.NativeInteractionTests testPlanPagingAndScrolling]' started.
+    t =     0.00s Start Test at 2026-10-09 00:40:29.356
+    t =     0.39s Set Up
+~/orca/workspaces/gtfuwgth/stingray/BananaNativePerformanceUITests/NativeInteractionTests.swift:11: error: -[BananaNativePerformanceUITests.NativeInteractionTests testPlanPagingAndScrolling] : failed: caught error: "Error Domain=NativePerformance Code=1 "Open the isolated Mac stress preview first" UserInfo={NSLocalizedDescription=Open the isolated Mac stress preview first}"
+<unknown>:0: -[BananaNativePerformanceUITests.NativeInteractionTests testPlanPagingAndScrolling] : Test skipped: threw error "Open the isolated Mac stress preview first"
+    t =     0.39s Tear Down
+Test Case '-[BananaNativePerformanceUITests.NativeInteractionTests testPlanPagingAndScrolling]' failed (0.403 seconds).
+Test Suite 'NativeInteractionTests' failed at 2026-10-09 00:40:29.759.
+	 Executed 3 tests, with 3 tests skipped and 3 failures (3 unexpected) in 2.099 (2.100) seconds
+Test Suite 'BananaNativePerformanceUITests.xctest' failed at 2026-10-09 00:40:29.759.
+	 Executed 3 tests, with 3 tests skipped and 3 failures (3 unexpected) in 2.099 (2.101) seconds
+Test Suite 'All tests' failed at 2026-10-09 00:40:29.759.
+	 Executed 3 tests, with 3 tests skipped and 3 failures (3 unexpected) in 2.099 (2.101) seconds
+2026-10-09 00:40:43.507 xcodebuild[75599:36689675] [MT] IDETestOperationsObserverDebug: 17.753 elapsed -- Testing started completed.
+2026-10-09 00:40:43.507 xcodebuild[75599:36689675] [MT] IDETestOperationsObserverDebug: 0.000 sec, +0.000 sec -- start
+2026-10-09 00:40:43.507 xcodebuild[75599:36689675] [MT] IDETestOperationsObserverDebug: 17.753 sec, +17.753 sec -- end
+
+Test session results, code coverage, and logs:
+	~/orca/workspaces/gtfuwgth/stingray/.build/native-ui-performance/uitests-20261009-003959/ui.xcresult
+
+Failing tests:
+	NativeInteractionTests.testMailSelectionScrollAndTyping()
+	NativeInteractionTests.testPlanOverflowReachability()
+	NativeInteractionTests.testPlanPagingAndScrolling()
+
+** TEST EXECUTE FAILED **
+
+Testing started

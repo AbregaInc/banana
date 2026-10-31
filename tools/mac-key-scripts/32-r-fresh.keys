@@ -1,0 +1,39 @@
+# R and a word typed at once, from a fresh launch, at 1120x780 (the owner's window size, with the reading
+# pane showing the conversation under the cursor). The word must end up in the reply, which must be on
+# screen with the caret in it (MAIL-UX K12, T38).
+name r-fresh
+size 1120 780
+wait 1
+expect windowSize contains 1120x
+# nothing has the caret: the window is the first responder. The driver cannot click a row to make the list
+# the first responder; the monitor takes R the same either way (it only steps aside for a text field).
+expect firstResponder is MailKeyDriverWindow
+expect mail.cursor is q3
+expect mail.pane is q3
+expect composer.title absent
+shot before-R
+type rEach
+wait 1.5
+expect composer.title is Reply
+expect composer.host is q3
+expect composer.to is sam@lee.example
+expect composer.body is Each
+expect composer.queued absent
+expect composer.awaitingCaret is false
+expect firstResponder contains mail.composer.body
+expect mail.counts.inbox is 40
+expect toast absent
+shot reply-on-screen
+# R again on the conversation he left a draft in: the draft reopens and a word typed at once goes after
+# the text it already has
+key escape
+wait 0.5
+expect composer.title absent
+expect mail.counts.drafts is 1
+type rThanks
+wait 1.5
+expect composer.title is Reply
+expect composer.body is EachThanks
+expect firstResponder contains mail.composer.body
+shot reopened-draft
+key escape

@@ -1,0 +1,14 @@
+{
+  "binarySHA256": "0114ed441109d7aa200a3f2ce3a1149c719083819a055506f0f219e842c9fb78",
+  "ablation": "tile-prefetch-async-surface",
+  "command": [
+    "tools/calendar-library-benchmark/run-mac-mount.py",
+    "--binary",
+    ".build/calendar-async-preparation/MacSurfacePropertiesBenchmark",
+    "--out",
+    ".build/calendar-async-preparation/native-cold-mount-surface"
+  ],
+  "os": "ProductName:\t\tmacOS\nProductVersion:\t\t26.6.2\nBuildVersion:\t\t25G83\n",
+  "git": "c8f310b665c3493dcebc039945524de20147b1e5",
+  "scope": "Fresh-process controller mount; excludes fixture generation; not input/display acceptance"
+}

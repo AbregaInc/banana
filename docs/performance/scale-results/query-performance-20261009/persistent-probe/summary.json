@@ -1,0 +1,126 @@
+{
+  "scope": "Simulator SQL fetches, not app/UI acceptance",
+  "compileCommand": [
+    "xcrun",
+    "--sdk",
+    "iphonesimulator",
+    "swiftc",
+    "-O",
+    "-parse-as-library",
+    "-target",
+    "arm64-apple-ios26.1-simulator",
+    "-I",
+    "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-varied-fix/app-regression/derived-data/Build/Products/Release-iphonesimulator",
+    "-I",
+    "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-varied-fix/app-regression/derived-data/SourcePackages/checkouts/GRDB.swift/Sources/GRDBSQLite",
+    "~/orca/workspaces/gtfuwgth/stingray/tools/performance/statement-cache.swift",
+    "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-varied-fix/app-regression/derived-data/Build/Products/Release-iphonesimulator/GRDB.o",
+    "-lsqlite3",
+    "-o",
+    "~/orca/workspaces/gtfuwgth/stingray/.build/query-performance-20261009/persistent-probe/statement-cache"
+  ],
+  "sourceSHA256": "64d65c5c65e9e1a1f8d18d9d1ead45e081f673b1911416da0edc2f0c25be296f",
+  "binarySHA256": "fa445c71a1581a1eb753220330624067b3e297289fb6cc5ec40defc78a30b2f1",
+  "device": "5829A24D-81B4-49D9-A31A-C7553C32D527",
+  "cases": [
+    {
+      "name": "0-uncached",
+      "command": [
+        "xcrun",
+        "simctl",
+        "spawn",
+        "5829A24D-81B4-49D9-A31A-C7553C32D527",
+        "~/orca/workspaces/gtfuwgth/stingray/.build/query-performance-20261009/persistent-probe/statement-cache",
+        "~/orca/workspaces/gtfuwgth/stingray/.build/query-performance-20261009/podcast-catalog.sqlite",
+        "uncached",
+        "~/orca/workspaces/gtfuwgth/stingray/.build/query-performance-20261009/persistent-probe/0-uncached.json",
+        "7"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "0-cached",
+      "command": [
+        "xcrun",
+        "simctl",
+        "spawn",
+        "5829A24D-81B4-49D9-A31A-C7553C32D527",
+        "~/orca/workspaces/gtfuwgth/stingray/.build/query-performance-20261009/persistent-probe/statement-cache",
+        "~/orca/workspaces/gtfuwgth/stingray/.build/query-performance-20261009/podcast-catalog.sqlite",
+        "cached",
+        "~/orca/workspaces/gtfuwgth/stingray/.build/query-performance-20261009/persistent-probe/0-cached.json",
+        "7"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "1-cached",
+      "command": [
+        "xcrun",
+        "simctl",
+        "spawn",
+        "5829A24D-81B4-49D9-A31A-C7553C32D527",
+        "~/orca/workspaces/gtfuwgth/stingray/.build/query-performance-20261009/persistent-probe/statement-cache",
+        "~/orca/workspaces/gtfuwgth/stingray/.build/query-performance-20261009/podcast-catalog.sqlite",
+        "cached",
+        "~/orca/workspaces/gtfuwgth/stingray/.build/query-performance-20261009/persistent-probe/1-cached.json",
+        "7"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "1-uncached",
+      "command": [
+        "xcrun",
+        "simctl",
+        "spawn",
+        "5829A24D-81B4-49D9-A31A-C7553C32D527",
+        "~/orca/workspaces/gtfuwgth/stingray/.build/query-performance-20261009/persistent-probe/statement-cache",
+        "~/orca/workspaces/gtfuwgth/stingray/.build/query-performance-20261009/podcast-catalog.sqlite",
+        "uncached",
+        "~/orca/workspaces/gtfuwgth/stingray/.build/query-performance-20261009/persistent-probe/1-uncached.json",
+        "7"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "2-uncached",
+      "command": [
+        "xcrun",
+        "simctl",
+        "spawn",
+        "5829A24D-81B4-49D9-A31A-C7553C32D527",
+        "~/orca/workspaces/gtfuwgth/stingray/.build/query-performance-20261009/persistent-probe/statement-cache",
+        "~/orca/workspaces/gtfuwgth/stingray/.build/query-performance-20261009/podcast-catalog.sqlite",
+        "uncached",
+        "~/orca/workspaces/gtfuwgth/stingray/.build/query-performance-20261009/persistent-probe/2-uncached.json",
+        "7"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "2-cached",
+      "command": [
+        "xcrun",
+        "simctl",
+        "spawn",
+        "5829A24D-81B4-49D9-A31A-C7553C32D527",
+        "~/orca/workspaces/gtfuwgth/stingray/.build/query-performance-20261009/persistent-probe/statement-cache",
+        "~/orca/workspaces/gtfuwgth/stingray/.build/query-performance-20261009/podcast-catalog.sqlite",
+        "cached",
+        "~/orca/workspaces/gtfuwgth/stingray/.build/query-performance-20261009/persistent-probe/2-cached.json",
+        "7"
+      ],
+      "exit": 0
+    }
+  ],
+  "host": {
+    "startedUTC": "2026-10-09T16:26:26.522820+00:00",
+    "samples": 10,
+    "clean": true,
+    "overlappingDeveloperProcesses": [],
+    "errors": [],
+    "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+  },
+  "status": "collected"
+}

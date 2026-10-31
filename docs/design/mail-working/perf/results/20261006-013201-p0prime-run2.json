@@ -1,0 +1,9993 @@
+{
+ "meta": {
+  "label": "p0prime-run2",
+  "commit": "3542829",
+  "date": "2026-10-06T02:17:01",
+  "build_config": "Release -O wholemodule + SWIFT_ACTIVE_COMPILATION_CONDITIONS DEBUG (audit routes) ONLY_ACTIVE_ARCH=YES",
+  "build_seconds": null,
+  "app_kb": 189496,
+  "exe_bytes": 55980080,
+  "tests_seconds": null,
+  "tests_summary": "",
+  "runs": 5,
+  "settle_s": 15,
+  "idle_s": 65,
+  "meta_txt": "Tue Oct  6 01:32:01 EDT 2026  src=~/orca/workspaces/gtfuwgth/stingray/.build/p0prime-src commit=3542829 dirty=0  load=11.96 37.09 39.70 xcodebuild=1\nxcode: Xcode 27.0 Build version 27A266a   macOS: 26.6.2  host: MacBookPro18,2  dd=~/orca/workspaces/gtfuwgth/stingray/.build/p0prime-src/.build/mail-perf-dd\napp_kb=189496 exe_bytes=55980080 arch=arm64"
+ },
+ "devices": {
+  "iphone": {
+   "routes": {
+    "day": {
+     "command": "xcrun simctl launch E5232BE0-8F82-4E85-A03B-5CA7160571E2 com.boris.banana --day --disable-icloud -onboardingCompleted YES",
+     "launch": {
+      "fitness.init": {
+       "median": 489,
+       "min": 472,
+       "max": 523,
+       "n": 5,
+       "values": [
+        472,
+        497,
+        489,
+        523,
+        482
+       ]
+      },
+      "library.init": {
+       "median": 507,
+       "min": 483,
+       "max": 560,
+       "n": 5,
+       "values": [
+        483,
+        514,
+        507,
+        560,
+        495
+       ]
+      },
+      "wake.init": {
+       "median": 508,
+       "min": 484,
+       "max": 562,
+       "n": 5,
+       "values": [
+        484,
+        515,
+        508,
+        562,
+        496
+       ]
+      },
+      "downloads.init": {
+       "median": 509,
+       "min": 484,
+       "max": 562,
+       "n": 5,
+       "values": [
+        484,
+        515,
+        509,
+        562,
+        496
+       ]
+      },
+      "music.init": {
+       "median": 512,
+       "min": 487,
+       "max": 566,
+       "n": 5,
+       "values": [
+        487,
+        518,
+        512,
+        566,
+        499
+       ]
+      },
+      "player.init": {
+       "median": 523,
+       "min": 494,
+       "max": 575,
+       "n": 5,
+       "values": [
+        494,
+        527,
+        523,
+        575,
+        508
+       ]
+      },
+      "wakegraph.init": {
+       "median": 525,
+       "min": 496,
+       "max": 591,
+       "n": 5,
+       "values": [
+        496,
+        529,
+        525,
+        591,
+        510
+       ]
+      },
+      "app.init.body": {
+       "median": 534,
+       "min": 499,
+       "max": 624,
+       "n": 5,
+       "values": [
+        499,
+        534,
+        534,
+        624,
+        514
+       ]
+      },
+      "occurrences.snapshot": {
+       "median": 565,
+       "min": 529,
+       "max": 661,
+       "n": 5,
+       "values": [
+        529,
+        565,
+        572,
+        661,
+        545
+       ]
+      },
+      "planningWindows.snapshot": {
+       "median": 566,
+       "min": 530,
+       "max": 662,
+       "n": 5,
+       "values": [
+        530,
+        566,
+        574,
+        662,
+        546
+       ]
+      },
+      "weather.snapshot": {
+       "median": 608,
+       "min": 568,
+       "max": 706,
+       "n": 5,
+       "values": [
+        568,
+        608,
+        618,
+        706,
+        590
+       ]
+      },
+      "app.init.done": {
+       "median": 653,
+       "min": 614,
+       "max": 755,
+       "n": 5,
+       "values": [
+        614,
+        653,
+        666,
+        755,
+        637
+       ]
+      },
+      "smart.init": {
+       "median": 716,
+       "min": 676,
+       "max": 822,
+       "n": 5,
+       "values": [
+        676,
+        716,
+        730,
+        822,
+        700
+       ]
+      },
+      "alarms.init": {
+       "median": 748,
+       "min": 683,
+       "max": 864,
+       "n": 5,
+       "values": [
+        683,
+        748,
+        767,
+        864,
+        732
+       ]
+      },
+      "health.init": {
+       "median": 755,
+       "min": 690,
+       "max": 871,
+       "n": 5,
+       "values": [
+        690,
+        755,
+        774,
+        871,
+        739
+       ]
+      },
+      "settings.init": {
+       "median": 774,
+       "min": 709,
+       "max": 893,
+       "n": 5,
+       "values": [
+        709,
+        774,
+        793,
+        893,
+        758
+       ]
+      },
+      "history.init": {
+       "median": 775,
+       "min": 710,
+       "max": 894,
+       "n": 5,
+       "values": [
+        710,
+        775,
+        794,
+        894,
+        759
+       ]
+      },
+      "root.body": {
+       "median": 898,
+       "min": 837,
+       "max": 1028,
+       "n": 5,
+       "values": [
+        837,
+        898,
+        935,
+        1028,
+        891
+       ]
+      },
+      "root.appear": {
+       "median": 1343,
+       "min": 1298,
+       "max": 1481,
+       "n": 5,
+       "values": [
+        1298,
+        1343,
+        1399,
+        1481,
+        1332
+       ]
+      },
+      "fitness.loaded": {
+       "median": 1574,
+       "min": 1541,
+       "max": 1706,
+       "n": 5,
+       "values": [
+        1541,
+        1574,
+        1624,
+        1706,
+        1554
+       ]
+      },
+      "library.loaded": {
+       "median": 1575,
+       "min": 1542,
+       "max": 1707,
+       "n": 5,
+       "values": [
+        1542,
+        1575,
+        1625,
+        1707,
+        1555
+       ]
+      }
+     },
+     "idle": {
+      "cpu_pct_ps": 0.03,
+      "rss_mb": 309.3,
+      "power_cpu_avg": 4.2,
+      "power_cpu_max": 17.0,
+      "power_mem_mb": 41,
+      "power_wakeups": 100,
+      "power_syscalls": 18491,
+      "power_activity": "none",
+      "storms": 0,
+      "high_cpu": 0,
+      "power_lines": 1,
+      "alive_at_end": "yes",
+      "store_sizes_kb": {
+       "Application Support": 252,
+       "Documents": 0,
+       "Caches": 884,
+       "Preferences": 4,
+       "tmp": 0
+      },
+      "load_before": "load=7.90 16.98 29.74 xcodebuild=0"
+     }
+    },
+    "library": {
+     "command": "xcrun simctl launch E5232BE0-8F82-4E85-A03B-5CA7160571E2 com.boris.banana --library --disable-icloud -onboardingCompleted YES",
+     "launch": {
+      "fitness.init": {
+       "median": 478,
+       "min": 475,
+       "max": 482,
+       "n": 5,
+       "values": [
+        482,
+        479,
+        478,
+        475,
+        476
+       ]
+      },
+      "library.init": {
+       "median": 490,
+       "min": 489,
+       "max": 496,
+       "n": 5,
+       "values": [
+        496,
+        490,
+        490,
+        490,
+        489
+       ]
+      },
+      "wake.init": {
+       "median": 491,
+       "min": 490,
+       "max": 497,
+       "n": 5,
+       "values": [
+        497,
+        491,
+        492,
+        491,
+        490
+       ]
+      },
+      "downloads.init": {
+       "median": 492,
+       "min": 490,
+       "max": 497,
+       "n": 5,
+       "values": [
+        497,
+        491,
+        492,
+        492,
+        490
+       ]
+      },
+      "music.init": {
+       "median": 494,
+       "min": 493,
+       "max": 500,
+       "n": 5,
+       "values": [
+        500,
+        494,
+        495,
+        494,
+        493
+       ]
+      },
+      "player.init": {
+       "median": 502,
+       "min": 501,
+       "max": 509,
+       "n": 5,
+       "values": [
+        509,
+        502,
+        503,
+        502,
+        501
+       ]
+      },
+      "wakegraph.init": {
+       "median": 505,
+       "min": 504,
+       "max": 511,
+       "n": 5,
+       "values": [
+        511,
+        505,
+        506,
+        505,
+        504
+       ]
+      },
+      "app.init.body": {
+       "median": 509,
+       "min": 507,
+       "max": 514,
+       "n": 5,
+       "values": [
+        514,
+        508,
+        509,
+        509,
+        507
+       ]
+      },
+      "occurrences.snapshot": {
+       "median": 539,
+       "min": 537,
+       "max": 545,
+       "n": 5,
+       "values": [
+        545,
+        539,
+        540,
+        539,
+        537
+       ]
+      },
+      "planningWindows.snapshot": {
+       "median": 541,
+       "min": 538,
+       "max": 547,
+       "n": 5,
+       "values": [
+        547,
+        540,
+        541,
+        541,
+        538
+       ]
+      },
+      "weather.snapshot": {
+       "median": 583,
+       "min": 578,
+       "max": 590,
+       "n": 5,
+       "values": [
+        590,
+        579,
+        583,
+        583,
+        578
+       ]
+      },
+      "app.init.done": {
+       "median": 632,
+       "min": 624,
+       "max": 637,
+       "n": 5,
+       "values": [
+        637,
+        627,
+        632,
+        632,
+        624
+       ]
+      },
+      "smart.init": {
+       "median": 695,
+       "min": 685,
+       "max": 699,
+       "n": 5,
+       "values": [
+        699,
+        689,
+        697,
+        695,
+        685
+       ]
+      },
+      "alarms.init": {
+       "median": 726,
+       "min": 692,
+       "max": 731,
+       "n": 5,
+       "values": [
+        731,
+        720,
+        729,
+        726,
+        692
+       ]
+      },
+      "health.init": {
+       "median": 733,
+       "min": 698,
+       "max": 738,
+       "n": 5,
+       "values": [
+        738,
+        727,
+        736,
+        733,
+        698
+       ]
+      },
+      "settings.init": {
+       "median": 754,
+       "min": 717,
+       "max": 757,
+       "n": 5,
+       "values": [
+        757,
+        747,
+        756,
+        754,
+        717
+       ]
+      },
+      "history.init": {
+       "median": 755,
+       "min": 718,
+       "max": 758,
+       "n": 5,
+       "values": [
+        758,
+        748,
+        757,
+        755,
+        718
+       ]
+      },
+      "root.body": {
+       "median": 883,
+       "min": 853,
+       "max": 891,
+       "n": 5,
+       "values": [
+        886,
+        870,
+        891,
+        883,
+        853
+       ]
+      },
+      "root.appear": {
+       "median": 1006,
+       "min": 983,
+       "max": 1015,
+       "n": 5,
+       "values": [
+        1007,
+        994,
+        1015,
+        1006,
+        983
+       ]
+      },
+      "fitness.loaded": {
+       "median": 1164,
+       "min": 1147,
+       "max": 1175,
+       "n": 5,
+       "values": [
+        1168,
+        1147,
+        1175,
+        1164,
+        1159
+       ]
+      }
+     },
+     "idle": {
+      "cpu_pct_ps": 0.03,
+      "rss_mb": 287.5,
+      "power_cpu_avg": 2.7,
+      "power_cpu_max": 10.6,
+      "power_mem_mb": 34,
+      "power_wakeups": 47,
+      "power_syscalls": 14757,
+      "power_activity": "none",
+      "storms": 0,
+      "high_cpu": 0,
+      "power_lines": 1,
+      "alive_at_end": "yes",
+      "store_sizes_kb": {
+       "Application Support": 324,
+       "Documents": 0,
+       "Caches": 884,
+       "Preferences": 4,
+       "tmp": 0
+      },
+      "load_before": "load=8.98 12.98 21.61 xcodebuild=0"
+     }
+    },
+    "notes": {
+     "command": "xcrun simctl launch E5232BE0-8F82-4E85-A03B-5CA7160571E2 com.boris.banana --notes --disable-icloud -onboardingCompleted YES",
+     "launch": {
+      "fitness.init": {
+       "median": 468,
+       "min": 464,
+       "max": 473,
+       "n": 5,
+       "values": [
+        473,
+        465,
+        469,
+        464,
+        468
+       ]
+      },
+      "library.init": {
+       "median": 479,
+       "min": 477,
+       "max": 485,
+       "n": 5,
+       "values": [
+        485,
+        477,
+        480,
+        477,
+        479
+       ]
+      },
+      "wake.init": {
+       "median": 479,
+       "min": 478,
+       "max": 486,
+       "n": 5,
+       "values": [
+        486,
+        478,
+        480,
+        478,
+        479
+       ]
+      },
+      "downloads.init": {
+       "median": 480,
+       "min": 478,
+       "max": 486,
+       "n": 5,
+       "values": [
+        486,
+        478,
+        481,
+        478,
+        480
+       ]
+      },
+      "music.init": {
+       "median": 482,
+       "min": 481,
+       "max": 489,
+       "n": 5,
+       "values": [
+        489,
+        481,
+        483,
+        481,
+        482
+       ]
+      },
+      "player.init": {
+       "median": 489,
+       "min": 488,
+       "max": 496,
+       "n": 5,
+       "values": [
+        496,
+        488,
+        491,
+        488,
+        489
+       ]
+      },
+      "wakegraph.init": {
+       "median": 491,
+       "min": 490,
+       "max": 498,
+       "n": 5,
+       "values": [
+        498,
+        491,
+        493,
+        490,
+        491
+       ]
+      },
+      "app.init.body": {
+       "median": 494,
+       "min": 493,
+       "max": 502,
+       "n": 5,
+       "values": [
+        502,
+        493,
+        496,
+        494,
+        494
+       ]
+      },
+      "occurrences.snapshot": {
+       "median": 523,
+       "min": 522,
+       "max": 532,
+       "n": 5,
+       "values": [
+        532,
+        523,
+        524,
+        522,
+        522
+       ]
+      },
+      "planningWindows.snapshot": {
+       "median": 524,
+       "min": 523,
+       "max": 533,
+       "n": 5,
+       "values": [
+        533,
+        524,
+        526,
+        523,
+        523
+       ]
+      },
+      "weather.snapshot": {
+       "median": 563,
+       "min": 560,
+       "max": 572,
+       "n": 5,
+       "values": [
+        572,
+        563,
+        563,
+        563,
+        560
+       ]
+      },
+      "app.init.done": {
+       "median": 609,
+       "min": 606,
+       "max": 620,
+       "n": 5,
+       "values": [
+        620,
+        609,
+        608,
+        611,
+        606
+       ]
+      },
+      "smart.init": {
+       "median": 670,
+       "min": 666,
+       "max": 683,
+       "n": 5,
+       "values": [
+        683,
+        670,
+        666,
+        672,
+        666
+       ]
+      },
+      "alarms.init": {
+       "median": 696,
+       "min": 677,
+       "max": 713,
+       "n": 5,
+       "values": [
+        713,
+        677,
+        696,
+        702,
+        695
+       ]
+      },
+      "health.init": {
+       "median": 703,
+       "min": 684,
+       "max": 720,
+       "n": 5,
+       "values": [
+        720,
+        684,
+        703,
+        709,
+        702
+       ]
+      },
+      "settings.init": {
+       "median": 722,
+       "min": 704,
+       "max": 739,
+       "n": 5,
+       "values": [
+        739,
+        704,
+        722,
+        729,
+        720
+       ]
+      },
+      "history.init": {
+       "median": 723,
+       "min": 705,
+       "max": 740,
+       "n": 5,
+       "values": [
+        740,
+        705,
+        723,
+        730,
+        721
+       ]
+      },
+      "root.body": {
+       "median": 847,
+       "min": 837,
+       "max": 866,
+       "n": 5,
+       "values": [
+        866,
+        837,
+        847,
+        853,
+        842
+       ]
+      },
+      "root.appear": {
+       "median": 1009,
+       "min": 993,
+       "max": 1022,
+       "n": 5,
+       "values": [
+        1022,
+        1009,
+        1008,
+        1010,
+        993
+       ]
+      },
+      "fitness.loaded": {
+       "median": 1202,
+       "min": 1188,
+       "max": 1213,
+       "n": 5,
+       "values": [
+        1213,
+        1210,
+        1202,
+        1200,
+        1188
+       ]
+      },
+      "library.loaded": {
+       "median": 1203,
+       "min": 1189,
+       "max": 1214,
+       "n": 5,
+       "values": [
+        1214,
+        1211,
+        1203,
+        1201,
+        1189
+       ]
+      }
+     },
+     "idle": {
+      "cpu_pct_ps": 0.02,
+      "rss_mb": 289.8,
+      "power_cpu_avg": 2.9,
+      "power_cpu_max": 11.4,
+      "power_mem_mb": 36,
+      "power_wakeups": 163,
+      "power_syscalls": 14717,
+      "power_activity": "none",
+      "storms": 0,
+      "high_cpu": 0,
+      "power_lines": 1,
+      "alive_at_end": "yes",
+      "store_sizes_kb": {
+       "Application Support": 324,
+       "Documents": 0,
+       "Caches": 884,
+       "Preferences": 4,
+       "tmp": 0
+      },
+      "load_before": "load=16.76 15.67 21.50 xcodebuild=0"
+     }
+    },
+    "settings": {
+     "command": "xcrun simctl launch E5232BE0-8F82-4E85-A03B-5CA7160571E2 com.boris.banana --settings --disable-icloud -onboardingCompleted YES",
+     "launch": {
+      "fitness.init": {
+       "median": 477,
+       "min": 474,
+       "max": 485,
+       "n": 5,
+       "values": [
+        485,
+        477,
+        478,
+        476,
+        474
+       ]
+      },
+      "library.init": {
+       "median": 490,
+       "min": 488,
+       "max": 498,
+       "n": 5,
+       "values": [
+        498,
+        492,
+        490,
+        488,
+        488
+       ]
+      },
+      "wake.init": {
+       "median": 491,
+       "min": 489,
+       "max": 499,
+       "n": 5,
+       "values": [
+        499,
+        493,
+        491,
+        490,
+        489
+       ]
+      },
+      "downloads.init": {
+       "median": 491,
+       "min": 490,
+       "max": 499,
+       "n": 5,
+       "values": [
+        499,
+        493,
+        491,
+        490,
+        490
+       ]
+      },
+      "music.init": {
+       "median": 494,
+       "min": 492,
+       "max": 502,
+       "n": 5,
+       "values": [
+        502,
+        496,
+        494,
+        493,
+        492
+       ]
+      },
+      "player.init": {
+       "median": 502,
+       "min": 500,
+       "max": 511,
+       "n": 5,
+       "values": [
+        511,
+        504,
+        502,
+        500,
+        500
+       ]
+      },
+      "wakegraph.init": {
+       "median": 505,
+       "min": 502,
+       "max": 513,
+       "n": 5,
+       "values": [
+        513,
+        506,
+        505,
+        503,
+        502
+       ]
+      },
+      "app.init.body": {
+       "median": 508,
+       "min": 505,
+       "max": 516,
+       "n": 5,
+       "values": [
+        516,
+        509,
+        508,
+        506,
+        505
+       ]
+      },
+      "occurrences.snapshot": {
+       "median": 538,
+       "min": 534,
+       "max": 546,
+       "n": 5,
+       "values": [
+        546,
+        541,
+        538,
+        535,
+        534
+       ]
+      },
+      "planningWindows.snapshot": {
+       "median": 539,
+       "min": 536,
+       "max": 547,
+       "n": 5,
+       "values": [
+        547,
+        543,
+        539,
+        536,
+        536
+       ]
+      },
+      "weather.snapshot": {
+       "median": 579,
+       "min": 576,
+       "max": 587,
+       "n": 5,
+       "values": [
+        587,
+        584,
+        579,
+        577,
+        576
+       ]
+      },
+      "app.init.done": {
+       "median": 628,
+       "min": 623,
+       "max": 635,
+       "n": 5,
+       "values": [
+        635,
+        633,
+        628,
+        623,
+        624
+       ]
+      },
+      "smart.init": {
+       "median": 691,
+       "min": 684,
+       "max": 702,
+       "n": 5,
+       "values": [
+        702,
+        697,
+        691,
+        684,
+        688
+       ]
+      },
+      "alarms.init": {
+       "median": 719,
+       "min": 704,
+       "max": 734,
+       "n": 5,
+       "values": [
+        734,
+        704,
+        723,
+        716,
+        719
+       ]
+      },
+      "health.init": {
+       "median": 726,
+       "min": 712,
+       "max": 741,
+       "n": 5,
+       "values": [
+        741,
+        712,
+        730,
+        723,
+        726
+       ]
+      },
+      "settings.init": {
+       "median": 747,
+       "min": 732,
+       "max": 762,
+       "n": 5,
+       "values": [
+        762,
+        732,
+        751,
+        742,
+        747
+       ]
+      },
+      "history.init": {
+       "median": 748,
+       "min": 733,
+       "max": 763,
+       "n": 5,
+       "values": [
+        763,
+        733,
+        752,
+        743,
+        748
+       ]
+      },
+      "root.body": {
+       "median": 880,
+       "min": 861,
+       "max": 890,
+       "n": 5,
+       "values": [
+        890,
+        867,
+        880,
+        861,
+        880
+       ]
+      },
+      "root.appear": {
+       "median": 1034,
+       "min": 1018,
+       "max": 1049,
+       "n": 5,
+       "values": [
+        1049,
+        1034,
+        1038,
+        1018,
+        1033
+       ]
+      },
+      "fitness.loaded": {
+       "median": 1235,
+       "min": 1214,
+       "max": 1247,
+       "n": 5,
+       "values": [
+        1247,
+        1245,
+        1235,
+        1214,
+        1223
+       ]
+      },
+      "library.loaded": {
+       "median": 1235,
+       "min": 1214,
+       "max": 1248,
+       "n": 5,
+       "values": [
+        1248,
+        1245,
+        1235,
+        1214,
+        1223
+       ]
+      }
+     },
+     "idle": {
+      "cpu_pct_ps": 0.02,
+      "rss_mb": 289.2,
+      "power_cpu_avg": 2.8,
+      "power_cpu_max": 11.3,
+      "power_mem_mb": 35,
+      "power_wakeups": 52,
+      "power_syscalls": 14465,
+      "power_activity": "none",
+      "storms": 0,
+      "high_cpu": 0,
+      "power_lines": 1,
+      "alive_at_end": "yes",
+      "store_sizes_kb": {
+       "Application Support": 268,
+       "Documents": 0,
+       "Caches": 884,
+       "Preferences": 4,
+       "tmp": 0
+      },
+      "load_before": "load=8.77 12.62 19.37 xcodebuild=0"
+     }
+    },
+    "shell-library": {
+     "command": "xcrun simctl launch E5232BE0-8F82-4E85-A03B-5CA7160571E2 com.boris.banana --ui-preview --dummy-health --tab library --disable-icloud -onboardingCompleted YES",
+     "launch": {
+      "fitness.init": {
+       "median": 477,
+       "min": 476,
+       "max": 478,
+       "n": 5,
+       "values": [
+        478,
+        478,
+        477,
+        476,
+        476
+       ]
+      },
+      "library.init": {
+       "median": 488,
+       "min": 487,
+       "max": 490,
+       "n": 5,
+       "values": [
+        489,
+        490,
+        488,
+        487,
+        487
+       ]
+      },
+      "wake.init": {
+       "median": 489,
+       "min": 488,
+       "max": 491,
+       "n": 5,
+       "values": [
+        490,
+        491,
+        489,
+        488,
+        488
+       ]
+      },
+      "downloads.init": {
+       "median": 489,
+       "min": 488,
+       "max": 491,
+       "n": 5,
+       "values": [
+        490,
+        491,
+        489,
+        488,
+        489
+       ]
+      },
+      "music.init": {
+       "median": 492,
+       "min": 491,
+       "max": 494,
+       "n": 5,
+       "values": [
+        493,
+        494,
+        492,
+        491,
+        492
+       ]
+      },
+      "player.init": {
+       "median": 500,
+       "min": 499,
+       "max": 502,
+       "n": 5,
+       "values": [
+        501,
+        502,
+        499,
+        499,
+        500
+       ]
+      },
+      "wakegraph.init": {
+       "median": 502,
+       "min": 501,
+       "max": 504,
+       "n": 5,
+       "values": [
+        503,
+        504,
+        501,
+        501,
+        502
+       ]
+      },
+      "app.init.body": {
+       "median": 506,
+       "min": 504,
+       "max": 508,
+       "n": 5,
+       "values": [
+        506,
+        508,
+        504,
+        504,
+        508
+       ]
+      },
+      "occurrences.snapshot": {
+       "median": 537,
+       "min": 532,
+       "max": 539,
+       "n": 5,
+       "values": [
+        537,
+        539,
+        533,
+        532,
+        539
+       ]
+      },
+      "planningWindows.snapshot": {
+       "median": 538,
+       "min": 533,
+       "max": 541,
+       "n": 5,
+       "values": [
+        538,
+        540,
+        534,
+        533,
+        541
+       ]
+      },
+      "weather.snapshot": {
+       "median": 578,
+       "min": 571,
+       "max": 582,
+       "n": 5,
+       "values": [
+        578,
+        581,
+        574,
+        571,
+        582
+       ]
+      },
+      "app.init.done": {
+       "median": 627,
+       "min": 617,
+       "max": 628,
+       "n": 5,
+       "values": [
+        627,
+        628,
+        621,
+        617,
+        627
+       ]
+      },
+      "smart.init": {
+       "median": 689,
+       "min": 676,
+       "max": 692,
+       "n": 5,
+       "values": [
+        690,
+        692,
+        683,
+        676,
+        689
+       ]
+      },
+      "alarms.init": {
+       "median": 719,
+       "min": 704,
+       "max": 723,
+       "n": 5,
+       "values": [
+        721,
+        723,
+        716,
+        704,
+        719
+       ]
+      },
+      "settings.init": {
+       "median": 771,
+       "min": 756,
+       "max": 776,
+       "n": 5,
+       "values": [
+        775,
+        776,
+        769,
+        756,
+        771
+       ]
+      },
+      "history.init": {
+       "median": 772,
+       "min": 757,
+       "max": 777,
+       "n": 5,
+       "values": [
+        776,
+        777,
+        770,
+        757,
+        772
+       ]
+      },
+      "root.body": {
+       "median": 892,
+       "min": 875,
+       "max": 904,
+       "n": 5,
+       "values": [
+        904,
+        902,
+        892,
+        875,
+        889
+       ]
+      },
+      "root.appear": {
+       "median": 985,
+       "min": 969,
+       "max": 1000,
+       "n": 5,
+       "values": [
+        1000,
+        995,
+        985,
+        969,
+        976
+       ]
+      },
+      "fitness.loaded": {
+       "median": 1162,
+       "min": 1144,
+       "max": 1180,
+       "n": 5,
+       "values": [
+        1180,
+        1171,
+        1162,
+        1144,
+        1147
+       ]
+      },
+      "library.loaded": {
+       "median": 1163,
+       "min": 1145,
+       "max": 1180,
+       "n": 5,
+       "values": [
+        1180,
+        1171,
+        1163,
+        1145,
+        1148
+       ]
+      }
+     },
+     "idle": {
+      "cpu_pct_ps": 0.02,
+      "rss_mb": 279.7,
+      "power_cpu_avg": 2.4,
+      "power_cpu_max": 9.5,
+      "power_mem_mb": 33,
+      "power_wakeups": 222,
+      "power_syscalls": 15138,
+      "power_activity": "none",
+      "storms": 0,
+      "high_cpu": 0,
+      "power_lines": 1,
+      "alive_at_end": "yes",
+      "store_sizes_kb": {
+       "Application Support": 248,
+       "Documents": 0,
+       "Caches": 884,
+       "Preferences": 4,
+       "tmp": 0
+      },
+      "load_before": "load=10.17 28.66 37.55 xcodebuild=0"
+     }
+    },
+    "shell-notes": {
+     "command": "xcrun simctl launch E5232BE0-8F82-4E85-A03B-5CA7160571E2 com.boris.banana --ui-preview --dummy-health --tab notes --disable-icloud -onboardingCompleted YES",
+     "launch": {
+      "fitness.init": {
+       "median": 481,
+       "min": 474,
+       "max": 487,
+       "n": 5,
+       "values": [
+        479,
+        474,
+        481,
+        487,
+        483
+       ]
+      },
+      "library.init": {
+       "median": 493,
+       "min": 486,
+       "max": 501,
+       "n": 5,
+       "values": [
+        490,
+        486,
+        493,
+        501,
+        496
+       ]
+      },
+      "wake.init": {
+       "median": 494,
+       "min": 487,
+       "max": 502,
+       "n": 5,
+       "values": [
+        491,
+        487,
+        494,
+        502,
+        497
+       ]
+      },
+      "downloads.init": {
+       "median": 494,
+       "min": 487,
+       "max": 503,
+       "n": 5,
+       "values": [
+        491,
+        487,
+        494,
+        503,
+        497
+       ]
+      },
+      "music.init": {
+       "median": 497,
+       "min": 490,
+       "max": 506,
+       "n": 5,
+       "values": [
+        494,
+        490,
+        497,
+        506,
+        500
+       ]
+      },
+      "player.init": {
+       "median": 506,
+       "min": 498,
+       "max": 515,
+       "n": 5,
+       "values": [
+        501,
+        498,
+        506,
+        515,
+        509
+       ]
+      },
+      "wakegraph.init": {
+       "median": 508,
+       "min": 500,
+       "max": 517,
+       "n": 5,
+       "values": [
+        504,
+        500,
+        508,
+        517,
+        511
+       ]
+      },
+      "app.init.body": {
+       "median": 512,
+       "min": 504,
+       "max": 521,
+       "n": 5,
+       "values": [
+        507,
+        504,
+        512,
+        521,
+        514
+       ]
+      },
+      "occurrences.snapshot": {
+       "median": 543,
+       "min": 534,
+       "max": 553,
+       "n": 5,
+       "values": [
+        536,
+        534,
+        543,
+        553,
+        545
+       ]
+      },
+      "planningWindows.snapshot": {
+       "median": 544,
+       "min": 535,
+       "max": 554,
+       "n": 5,
+       "values": [
+        538,
+        535,
+        544,
+        554,
+        546
+       ]
+      },
+      "weather.snapshot": {
+       "median": 585,
+       "min": 577,
+       "max": 598,
+       "n": 5,
+       "values": [
+        578,
+        577,
+        585,
+        598,
+        589
+       ]
+      },
+      "app.init.done": {
+       "median": 632,
+       "min": 625,
+       "max": 647,
+       "n": 5,
+       "values": [
+        627,
+        625,
+        632,
+        647,
+        635
+       ]
+      },
+      "smart.init": {
+       "median": 695,
+       "min": 685,
+       "max": 712,
+       "n": 5,
+       "values": [
+        689,
+        685,
+        695,
+        712,
+        698
+       ]
+      },
+      "alarms.init": {
+       "median": 726,
+       "min": 717,
+       "max": 743,
+       "n": 5,
+       "values": [
+        721,
+        717,
+        726,
+        743,
+        730
+       ]
+      },
+      "settings.init": {
+       "median": 780,
+       "min": 771,
+       "max": 797,
+       "n": 5,
+       "values": [
+        775,
+        771,
+        780,
+        797,
+        785
+       ]
+      },
+      "history.init": {
+       "median": 782,
+       "min": 772,
+       "max": 798,
+       "n": 5,
+       "values": [
+        776,
+        772,
+        782,
+        798,
+        786
+       ]
+      },
+      "root.body": {
+       "median": 908,
+       "min": 895,
+       "max": 921,
+       "n": 5,
+       "values": [
+        900,
+        895,
+        908,
+        921,
+        908
+       ]
+      },
+      "root.appear": {
+       "median": 999,
+       "min": 987,
+       "max": 1012,
+       "n": 5,
+       "values": [
+        997,
+        987,
+        1002,
+        1012,
+        999
+       ]
+      },
+      "fitness.loaded": {
+       "median": 1270,
+       "min": 1252,
+       "max": 1277,
+       "n": 5,
+       "values": [
+        1265,
+        1252,
+        1275,
+        1277,
+        1270
+       ]
+      },
+      "library.loaded": {
+       "median": 1271,
+       "min": 1254,
+       "max": 1279,
+       "n": 5,
+       "values": [
+        1267,
+        1254,
+        1277,
+        1279,
+        1271
+       ]
+      }
+     },
+     "idle": {
+      "cpu_pct_ps": 0.03,
+      "rss_mb": 291.4,
+      "power_cpu_avg": 3.2,
+      "power_cpu_max": 12.9,
+      "power_mem_mb": 36,
+      "power_wakeups": 226,
+      "power_syscalls": 15603,
+      "power_activity": "none",
+      "storms": 0,
+      "high_cpu": 0,
+      "power_lines": 1,
+      "alive_at_end": "yes",
+      "store_sizes_kb": {
+       "Application Support": 244,
+       "Documents": 0,
+       "Caches": 884,
+       "Preferences": 4,
+       "tmp": 0
+      },
+      "load_before": "load=10.41 40.21 42.63 xcodebuild=0"
+     }
+    },
+    "shell-nutrition": {
+     "command": "xcrun simctl launch E5232BE0-8F82-4E85-A03B-5CA7160571E2 com.boris.banana --ui-preview --dummy-health --tab nutrition --disable-icloud -onboardingCompleted YES",
+     "launch": {
+      "fitness.init": {
+       "median": 468,
+       "min": 463,
+       "max": 473,
+       "n": 5,
+       "values": [
+        468,
+        473,
+        466,
+        463,
+        473
+       ]
+      },
+      "library.init": {
+       "median": 479,
+       "min": 474,
+       "max": 483,
+       "n": 5,
+       "values": [
+        479,
+        483,
+        477,
+        474,
+        482
+       ]
+      },
+      "wake.init": {
+       "median": 480,
+       "min": 475,
+       "max": 484,
+       "n": 5,
+       "values": [
+        480,
+        484,
+        478,
+        475,
+        483
+       ]
+      },
+      "downloads.init": {
+       "median": 480,
+       "min": 476,
+       "max": 484,
+       "n": 5,
+       "values": [
+        480,
+        484,
+        478,
+        476,
+        484
+       ]
+      },
+      "music.init": {
+       "median": 483,
+       "min": 478,
+       "max": 487,
+       "n": 5,
+       "values": [
+        483,
+        487,
+        481,
+        478,
+        486
+       ]
+      },
+      "player.init": {
+       "median": 490,
+       "min": 486,
+       "max": 494,
+       "n": 5,
+       "values": [
+        490,
+        494,
+        488,
+        486,
+        493
+       ]
+      },
+      "wakegraph.init": {
+       "median": 492,
+       "min": 489,
+       "max": 496,
+       "n": 5,
+       "values": [
+        492,
+        496,
+        491,
+        489,
+        495
+       ]
+      },
+      "app.init.body": {
+       "median": 495,
+       "min": 492,
+       "max": 499,
+       "n": 5,
+       "values": [
+        495,
+        499,
+        494,
+        492,
+        498
+       ]
+      },
+      "occurrences.snapshot": {
+       "median": 523,
+       "min": 522,
+       "max": 526,
+       "n": 5,
+       "values": [
+        522,
+        526,
+        522,
+        523,
+        526
+       ]
+      },
+      "planningWindows.snapshot": {
+       "median": 524,
+       "min": 524,
+       "max": 528,
+       "n": 5,
+       "values": [
+        524,
+        528,
+        524,
+        524,
+        527
+       ]
+      },
+      "weather.snapshot": {
+       "median": 564,
+       "min": 561,
+       "max": 564,
+       "n": 5,
+       "values": [
+        561,
+        564,
+        564,
+        563,
+        564
+       ]
+      },
+      "app.init.done": {
+       "median": 607,
+       "min": 607,
+       "max": 610,
+       "n": 5,
+       "values": [
+        607,
+        607,
+        607,
+        609,
+        610
+       ]
+      },
+      "smart.init": {
+       "median": 667,
+       "min": 665,
+       "max": 677,
+       "n": 5,
+       "values": [
+        667,
+        665,
+        665,
+        677,
+        667
+       ]
+      },
+      "alarms.init": {
+       "median": 694,
+       "min": 674,
+       "max": 707,
+       "n": 5,
+       "values": [
+        674,
+        694,
+        694,
+        707,
+        696
+       ]
+      },
+      "settings.init": {
+       "median": 746,
+       "min": 729,
+       "max": 760,
+       "n": 5,
+       "values": [
+        729,
+        746,
+        747,
+        760,
+        746
+       ]
+      },
+      "history.init": {
+       "median": 747,
+       "min": 730,
+       "max": 761,
+       "n": 5,
+       "values": [
+        730,
+        747,
+        748,
+        761,
+        747
+       ]
+      },
+      "root.body": {
+       "median": 861,
+       "min": 850,
+       "max": 882,
+       "n": 5,
+       "values": [
+        850,
+        861,
+        864,
+        882,
+        858
+       ]
+      },
+      "root.appear": {
+       "median": 951,
+       "min": 941,
+       "max": 967,
+       "n": 5,
+       "values": [
+        941,
+        952,
+        951,
+        967,
+        949
+       ]
+      },
+      "fitness.loaded": {
+       "median": 1252,
+       "min": 1246,
+       "max": 1267,
+       "n": 5,
+       "values": [
+        1263,
+        1250,
+        1252,
+        1267,
+        1246
+       ]
+      },
+      "library.loaded": {
+       "median": 1253,
+       "min": 1248,
+       "max": 1269,
+       "n": 5,
+       "values": [
+        1265,
+        1251,
+        1253,
+        1269,
+        1248
+       ]
+      }
+     },
+     "idle": {
+      "cpu_pct_ps": 0.02,
+      "rss_mb": 291.9,
+      "power_cpu_avg": 2.5,
+      "power_cpu_max": 9.8,
+      "power_mem_mb": 38,
+      "power_wakeups": 255,
+      "power_syscalls": 15790,
+      "power_activity": "none",
+      "storms": 0,
+      "high_cpu": 0,
+      "power_lines": 1,
+      "alive_at_end": "yes",
+      "store_sizes_kb": {
+       "Application Support": 240,
+       "Documents": 0,
+       "Caches": 884,
+       "Preferences": 4,
+       "tmp": 0
+      },
+      "load_before": "load=59.31 60.34 49.11 xcodebuild=0"
+     }
+    },
+    "shell-plan": {
+     "command": "xcrun simctl launch E5232BE0-8F82-4E85-A03B-5CA7160571E2 com.boris.banana --ui-preview --dummy-health --tab plan --disable-icloud -onboardingCompleted YES",
+     "launch": {
+      "fitness.init": {
+       "median": 478,
+       "min": 469,
+       "max": 484,
+       "n": 5,
+       "values": [
+        479,
+        484,
+        478,
+        469,
+        478
+       ]
+      },
+      "library.init": {
+       "median": 492,
+       "min": 482,
+       "max": 496,
+       "n": 5,
+       "values": [
+        492,
+        496,
+        495,
+        482,
+        488
+       ]
+      },
+      "wake.init": {
+       "median": 493,
+       "min": 484,
+       "max": 497,
+       "n": 5,
+       "values": [
+        493,
+        497,
+        496,
+        484,
+        489
+       ]
+      },
+      "downloads.init": {
+       "median": 493,
+       "min": 484,
+       "max": 497,
+       "n": 5,
+       "values": [
+        493,
+        497,
+        496,
+        484,
+        489
+       ]
+      },
+      "music.init": {
+       "median": 496,
+       "min": 487,
+       "max": 500,
+       "n": 5,
+       "values": [
+        496,
+        500,
+        499,
+        487,
+        492
+       ]
+      },
+      "player.init": {
+       "median": 505,
+       "min": 495,
+       "max": 508,
+       "n": 5,
+       "values": [
+        505,
+        508,
+        508,
+        495,
+        499
+       ]
+      },
+      "wakegraph.init": {
+       "median": 507,
+       "min": 497,
+       "max": 510,
+       "n": 5,
+       "values": [
+        507,
+        510,
+        510,
+        497,
+        502
+       ]
+      },
+      "app.init.body": {
+       "median": 511,
+       "min": 501,
+       "max": 514,
+       "n": 5,
+       "values": [
+        511,
+        514,
+        513,
+        501,
+        505
+       ]
+      },
+      "occurrences.snapshot": {
+       "median": 542,
+       "min": 533,
+       "max": 546,
+       "n": 5,
+       "values": [
+        542,
+        545,
+        546,
+        533,
+        535
+       ]
+      },
+      "planningWindows.snapshot": {
+       "median": 544,
+       "min": 534,
+       "max": 547,
+       "n": 5,
+       "values": [
+        544,
+        546,
+        547,
+        534,
+        536
+       ]
+      },
+      "weather.snapshot": {
+       "median": 587,
+       "min": 574,
+       "max": 593,
+       "n": 5,
+       "values": [
+        587,
+        588,
+        593,
+        575,
+        574
+       ]
+      },
+      "app.init.done": {
+       "median": 637,
+       "min": 624,
+       "max": 645,
+       "n": 5,
+       "values": [
+        641,
+        637,
+        645,
+        625,
+        624
+       ]
+      },
+      "smart.init": {
+       "median": 701,
+       "min": 686,
+       "max": 712,
+       "n": 5,
+       "values": [
+        712,
+        701,
+        709,
+        686,
+        687
+       ]
+      },
+      "alarms.init": {
+       "median": 733,
+       "min": 718,
+       "max": 745,
+       "n": 5,
+       "values": [
+        745,
+        733,
+        742,
+        718,
+        718
+       ]
+      },
+      "settings.init": {
+       "median": 787,
+       "min": 773,
+       "max": 804,
+       "n": 5,
+       "values": [
+        804,
+        787,
+        798,
+        773,
+        775
+       ]
+      },
+      "history.init": {
+       "median": 788,
+       "min": 774,
+       "max": 805,
+       "n": 5,
+       "values": [
+        805,
+        788,
+        799,
+        774,
+        776
+       ]
+      },
+      "root.body": {
+       "median": 915,
+       "min": 903,
+       "max": 956,
+       "n": 5,
+       "values": [
+        956,
+        913,
+        929,
+        903,
+        915
+       ]
+      },
+      "root.appear": {
+       "median": 1013,
+       "min": 1000,
+       "max": 1053,
+       "n": 5,
+       "values": [
+        1053,
+        1010,
+        1023,
+        1000,
+        1013
+       ]
+      },
+      "fitness.loaded": {
+       "median": 1689,
+       "min": 1668,
+       "max": 1726,
+       "n": 5,
+       "values": [
+        1726,
+        1671,
+        1694,
+        1668,
+        1689
+       ]
+      },
+      "library.loaded": {
+       "median": 1690,
+       "min": 1669,
+       "max": 1728,
+       "n": 5,
+       "values": [
+        1728,
+        1673,
+        1696,
+        1669,
+        1690
+       ]
+      }
+     },
+     "idle": {
+      "cpu_pct_ps": 0.03,
+      "rss_mb": 297.8,
+      "power_cpu_avg": 4.0,
+      "power_cpu_max": 16.1,
+      "power_mem_mb": 41,
+      "power_wakeups": 55,
+      "power_syscalls": 14953,
+      "power_activity": "none",
+      "storms": 0,
+      "high_cpu": 0,
+      "power_lines": 1,
+      "alive_at_end": "yes",
+      "store_sizes_kb": {
+       "Application Support": 296,
+       "Documents": 0,
+       "Caches": 884,
+       "Preferences": 4,
+       "tmp": 0
+      },
+      "load_before": "load=25.66 39.51 40.54 xcodebuild=1"
+     }
+    },
+    "shell-workouts": {
+     "command": "xcrun simctl launch E5232BE0-8F82-4E85-A03B-5CA7160571E2 com.boris.banana --ui-preview --dummy-health --tab workouts --disable-icloud -onboardingCompleted YES",
+     "launch": {
+      "fitness.init": {
+       "median": 490,
+       "min": 487,
+       "max": 498,
+       "n": 5,
+       "values": [
+        489,
+        492,
+        498,
+        490,
+        487
+       ]
+      },
+      "library.init": {
+       "median": 506,
+       "min": 503,
+       "max": 515,
+       "n": 5,
+       "values": [
+        505,
+        509,
+        515,
+        506,
+        503
+       ]
+      },
+      "wake.init": {
+       "median": 507,
+       "min": 504,
+       "max": 516,
+       "n": 5,
+       "values": [
+        506,
+        510,
+        516,
+        507,
+        504
+       ]
+      },
+      "downloads.init": {
+       "median": 507,
+       "min": 504,
+       "max": 516,
+       "n": 5,
+       "values": [
+        506,
+        510,
+        516,
+        507,
+        504
+       ]
+      },
+      "music.init": {
+       "median": 510,
+       "min": 507,
+       "max": 520,
+       "n": 5,
+       "values": [
+        509,
+        513,
+        520,
+        510,
+        507
+       ]
+      },
+      "player.init": {
+       "median": 519,
+       "min": 515,
+       "max": 529,
+       "n": 5,
+       "values": [
+        517,
+        522,
+        529,
+        519,
+        515
+       ]
+      },
+      "wakegraph.init": {
+       "median": 521,
+       "min": 518,
+       "max": 531,
+       "n": 5,
+       "values": [
+        520,
+        524,
+        531,
+        521,
+        518
+       ]
+      },
+      "app.init.body": {
+       "median": 526,
+       "min": 522,
+       "max": 535,
+       "n": 5,
+       "values": [
+        523,
+        528,
+        535,
+        526,
+        522
+       ]
+      },
+      "occurrences.snapshot": {
+       "median": 559,
+       "min": 554,
+       "max": 570,
+       "n": 5,
+       "values": [
+        556,
+        560,
+        570,
+        559,
+        554
+       ]
+      },
+      "planningWindows.snapshot": {
+       "median": 560,
+       "min": 556,
+       "max": 572,
+       "n": 5,
+       "values": [
+        557,
+        561,
+        572,
+        560,
+        556
+       ]
+      },
+      "weather.snapshot": {
+       "median": 605,
+       "min": 602,
+       "max": 616,
+       "n": 5,
+       "values": [
+        603,
+        605,
+        616,
+        606,
+        602
+       ]
+      },
+      "app.init.done": {
+       "median": 657,
+       "min": 653,
+       "max": 665,
+       "n": 5,
+       "values": [
+        653,
+        657,
+        665,
+        654,
+        657
+       ]
+      },
+      "smart.init": {
+       "median": 726,
+       "min": 721,
+       "max": 733,
+       "n": 5,
+       "values": [
+        721,
+        725,
+        733,
+        727,
+        726
+       ]
+      },
+      "alarms.init": {
+       "median": 759,
+       "min": 729,
+       "max": 773,
+       "n": 5,
+       "values": [
+        729,
+        733,
+        773,
+        760,
+        759
+       ]
+      },
+      "settings.init": {
+       "median": 816,
+       "min": 788,
+       "max": 830,
+       "n": 5,
+       "values": [
+        788,
+        791,
+        830,
+        816,
+        816
+       ]
+      },
+      "history.init": {
+       "median": 817,
+       "min": 789,
+       "max": 831,
+       "n": 5,
+       "values": [
+        789,
+        792,
+        831,
+        818,
+        817
+       ]
+      },
+      "root.body": {
+       "median": 959,
+       "min": 932,
+       "max": 971,
+       "n": 5,
+       "values": [
+        938,
+        932,
+        971,
+        959,
+        963
+       ]
+      },
+      "root.appear": {
+       "median": 1063,
+       "min": 1034,
+       "max": 1074,
+       "n": 5,
+       "values": [
+        1040,
+        1034,
+        1074,
+        1063,
+        1066
+       ]
+      },
+      "fitness.loaded": {
+       "median": 1395,
+       "min": 1382,
+       "max": 1402,
+       "n": 5,
+       "values": [
+        1395,
+        1392,
+        1400,
+        1382,
+        1402
+       ]
+      },
+      "library.loaded": {
+       "median": 1397,
+       "min": 1384,
+       "max": 1404,
+       "n": 5,
+       "values": [
+        1397,
+        1394,
+        1401,
+        1384,
+        1404
+       ]
+      }
+     },
+     "idle": {
+      "cpu_pct_ps": 0.02,
+      "rss_mb": 282.9,
+      "power_cpu_avg": 3.6,
+      "power_cpu_max": 14.4,
+      "power_mem_mb": 42,
+      "power_wakeups": 193,
+      "power_syscalls": 16256,
+      "power_activity": "none",
+      "storms": 0,
+      "high_cpu": 0,
+      "power_lines": 1,
+      "alive_at_end": "yes",
+      "store_sizes_kb": {
+       "Application Support": 296,
+       "Documents": 0,
+       "Caches": 884,
+       "Preferences": 4,
+       "tmp": 0
+      },
+      "load_before": "load=40.01 35.40 38.43 xcodebuild=1"
+     }
+    },
+    "sleep": {
+     "command": "xcrun simctl launch E5232BE0-8F82-4E85-A03B-5CA7160571E2 com.boris.banana --sleep --disable-icloud -onboardingCompleted YES",
+     "launch": {
+      "fitness.init": {
+       "median": 478,
+       "min": 473,
+       "max": 481,
+       "n": 5,
+       "values": [
+        481,
+        479,
+        478,
+        477,
+        473
+       ]
+      },
+      "library.init": {
+       "median": 491,
+       "min": 484,
+       "max": 492,
+       "n": 5,
+       "values": [
+        492,
+        491,
+        491,
+        488,
+        484
+       ]
+      },
+      "wake.init": {
+       "median": 492,
+       "min": 485,
+       "max": 493,
+       "n": 5,
+       "values": [
+        493,
+        492,
+        492,
+        489,
+        485
+       ]
+      },
+      "downloads.init": {
+       "median": 492,
+       "min": 485,
+       "max": 494,
+       "n": 5,
+       "values": [
+        494,
+        492,
+        492,
+        489,
+        485
+       ]
+      },
+      "music.init": {
+       "median": 495,
+       "min": 488,
+       "max": 496,
+       "n": 5,
+       "values": [
+        496,
+        495,
+        495,
+        492,
+        488
+       ]
+      },
+      "player.init": {
+       "median": 503,
+       "min": 496,
+       "max": 505,
+       "n": 5,
+       "values": [
+        505,
+        503,
+        503,
+        500,
+        496
+       ]
+      },
+      "wakegraph.init": {
+       "median": 505,
+       "min": 498,
+       "max": 507,
+       "n": 5,
+       "values": [
+        507,
+        506,
+        505,
+        502,
+        498
+       ]
+      },
+      "app.init.body": {
+       "median": 508,
+       "min": 501,
+       "max": 510,
+       "n": 5,
+       "values": [
+        510,
+        509,
+        508,
+        505,
+        501
+       ]
+      },
+      "occurrences.snapshot": {
+       "median": 540,
+       "min": 531,
+       "max": 541,
+       "n": 5,
+       "values": [
+        540,
+        541,
+        541,
+        535,
+        531
+       ]
+      },
+      "planningWindows.snapshot": {
+       "median": 541,
+       "min": 532,
+       "max": 542,
+       "n": 5,
+       "values": [
+        541,
+        542,
+        542,
+        536,
+        532
+       ]
+      },
+      "weather.snapshot": {
+       "median": 583,
+       "min": 570,
+       "max": 587,
+       "n": 5,
+       "values": [
+        583,
+        583,
+        587,
+        578,
+        570
+       ]
+      },
+      "app.init.done": {
+       "median": 629,
+       "min": 616,
+       "max": 636,
+       "n": 5,
+       "values": [
+        632,
+        629,
+        636,
+        627,
+        616
+       ]
+      },
+      "smart.init": {
+       "median": 691,
+       "min": 678,
+       "max": 700,
+       "n": 5,
+       "values": [
+        694,
+        691,
+        700,
+        691,
+        678
+       ]
+      },
+      "alarms.init": {
+       "median": 724,
+       "min": 710,
+       "max": 732,
+       "n": 5,
+       "values": [
+        724,
+        724,
+        732,
+        722,
+        710
+       ]
+      },
+      "settings.init": {
+       "median": 777,
+       "min": 765,
+       "max": 788,
+       "n": 5,
+       "values": [
+        779,
+        777,
+        788,
+        776,
+        765
+       ]
+      },
+      "history.init": {
+       "median": 778,
+       "min": 766,
+       "max": 789,
+       "n": 5,
+       "values": [
+        780,
+        778,
+        789,
+        777,
+        766
+       ]
+      },
+      "root.body": {
+       "median": 907,
+       "min": 896,
+       "max": 917,
+       "n": 5,
+       "values": [
+        908,
+        907,
+        917,
+        907,
+        896
+       ]
+      },
+      "root.appear": {
+       "median": 1102,
+       "min": 1083,
+       "max": 1109,
+       "n": 5,
+       "values": [
+        1104,
+        1102,
+        1109,
+        1101,
+        1083
+       ]
+      },
+      "fitness.loaded": {
+       "median": 1201,
+       "min": 1181,
+       "max": 1209,
+       "n": 5,
+       "values": [
+        1209,
+        1207,
+        1201,
+        1201,
+        1181
+       ]
+      },
+      "library.loaded": {
+       "median": 1202,
+       "min": 1182,
+       "max": 1210,
+       "n": 5,
+       "values": [
+        1210,
+        1208,
+        1202,
+        1202,
+        1182
+       ]
+      }
+     },
+     "idle": {
+      "cpu_pct_ps": 1.17,
+      "rss_mb": 289.9,
+      "power_cpu_avg": 3.5,
+      "power_cpu_max": 9.0,
+      "power_mem_mb": 38,
+      "power_wakeups": 75,
+      "power_syscalls": 14827,
+      "power_activity": "none",
+      "storms": 0,
+      "high_cpu": 0,
+      "power_lines": 1,
+      "alive_at_end": "yes",
+      "store_sizes_kb": {
+       "Application Support": 336,
+       "Documents": 0,
+       "Caches": 884,
+       "Preferences": 4,
+       "tmp": 0
+      },
+      "load_before": "load=7.44 9.34 15.98 xcodebuild=0"
+     }
+    },
+    "today": {
+     "command": "xcrun simctl launch E5232BE0-8F82-4E85-A03B-5CA7160571E2 com.boris.banana --today --disable-icloud -onboardingCompleted YES",
+     "launch": {
+      "fitness.init": {
+       "median": 474,
+       "min": 472,
+       "max": 483,
+       "n": 5,
+       "values": [
+        472,
+        474,
+        474,
+        475,
+        483
+       ]
+      },
+      "library.init": {
+       "median": 486,
+       "min": 485,
+       "max": 494,
+       "n": 5,
+       "values": [
+        485,
+        486,
+        486,
+        485,
+        494
+       ]
+      },
+      "wake.init": {
+       "median": 487,
+       "min": 486,
+       "max": 495,
+       "n": 5,
+       "values": [
+        486,
+        487,
+        487,
+        486,
+        495
+       ]
+      },
+      "downloads.init": {
+       "median": 487,
+       "min": 486,
+       "max": 495,
+       "n": 5,
+       "values": [
+        486,
+        487,
+        488,
+        486,
+        495
+       ]
+      },
+      "music.init": {
+       "median": 490,
+       "min": 488,
+       "max": 498,
+       "n": 5,
+       "values": [
+        489,
+        490,
+        490,
+        488,
+        498
+       ]
+      },
+      "player.init": {
+       "median": 498,
+       "min": 496,
+       "max": 505,
+       "n": 5,
+       "values": [
+        496,
+        498,
+        498,
+        496,
+        505
+       ]
+      },
+      "wakegraph.init": {
+       "median": 500,
+       "min": 498,
+       "max": 507,
+       "n": 5,
+       "values": [
+        498,
+        500,
+        501,
+        498,
+        507
+       ]
+      },
+      "app.init.body": {
+       "median": 503,
+       "min": 501,
+       "max": 510,
+       "n": 5,
+       "values": [
+        501,
+        503,
+        504,
+        501,
+        510
+       ]
+      },
+      "occurrences.snapshot": {
+       "median": 533,
+       "min": 530,
+       "max": 539,
+       "n": 5,
+       "values": [
+        530,
+        533,
+        536,
+        532,
+        539
+       ]
+      },
+      "planningWindows.snapshot": {
+       "median": 534,
+       "min": 531,
+       "max": 541,
+       "n": 5,
+       "values": [
+        531,
+        534,
+        537,
+        533,
+        541
+       ]
+      },
+      "weather.snapshot": {
+       "median": 574,
+       "min": 570,
+       "max": 579,
+       "n": 5,
+       "values": [
+        570,
+        574,
+        576,
+        572,
+        579
+       ]
+      },
+      "app.init.done": {
+       "median": 621,
+       "min": 615,
+       "max": 623,
+       "n": 5,
+       "values": [
+        619,
+        621,
+        623,
+        615,
+        621
+       ]
+      },
+      "smart.init": {
+       "median": 680,
+       "min": 675,
+       "max": 682,
+       "n": 5,
+       "values": [
+        680,
+        682,
+        682,
+        675,
+        680
+       ]
+      },
+      "alarms.init": {
+       "median": 711,
+       "min": 705,
+       "max": 713,
+       "n": 5,
+       "values": [
+        711,
+        713,
+        712,
+        705,
+        711
+       ]
+      },
+      "health.init": {
+       "median": 718,
+       "min": 712,
+       "max": 720,
+       "n": 5,
+       "values": [
+        718,
+        720,
+        719,
+        712,
+        718
+       ]
+      },
+      "settings.init": {
+       "median": 738,
+       "min": 731,
+       "max": 739,
+       "n": 5,
+       "values": [
+        739,
+        739,
+        737,
+        731,
+        738
+       ]
+      },
+      "history.init": {
+       "median": 739,
+       "min": 732,
+       "max": 740,
+       "n": 5,
+       "values": [
+        740,
+        740,
+        738,
+        732,
+        739
+       ]
+      },
+      "root.body": {
+       "median": 859,
+       "min": 851,
+       "max": 865,
+       "n": 5,
+       "values": [
+        865,
+        859,
+        855,
+        851,
+        863
+       ]
+      },
+      "today.body": {
+       "median": 892,
+       "min": 885,
+       "max": 898,
+       "n": 5,
+       "values": [
+        898,
+        892,
+        887,
+        885,
+        897
+       ]
+      },
+      "today.content": {
+       "median": 919,
+       "min": 913,
+       "max": 925,
+       "n": 5,
+       "values": [
+        924,
+        919,
+        915,
+        913,
+        925
+       ]
+      },
+      "root.appear": {
+       "median": 1162,
+       "min": 1156,
+       "max": 1165,
+       "n": 5,
+       "values": [
+        1165,
+        1160,
+        1162,
+        1156,
+        1162
+       ]
+      },
+      "fitness.loaded": {
+       "median": 1431,
+       "min": 1424,
+       "max": 1440,
+       "n": 5,
+       "values": [
+        1431,
+        1429,
+        1440,
+        1424,
+        1432
+       ]
+      },
+      "library.loaded": {
+       "median": 1432,
+       "min": 1425,
+       "max": 1441,
+       "n": 5,
+       "values": [
+        1432,
+        1430,
+        1441,
+        1425,
+        1433
+       ]
+      }
+     },
+     "idle": {
+      "cpu_pct_ps": 0.02,
+      "rss_mb": 307.7,
+      "power_cpu_avg": 4.3,
+      "power_cpu_max": 17.2,
+      "power_mem_mb": 44,
+      "power_wakeups": 169,
+      "power_syscalls": 16067,
+      "power_activity": "none",
+      "storms": 0,
+      "high_cpu": 0,
+      "power_lines": 1,
+      "alive_at_end": "yes",
+      "store_sizes_kb": {
+       "Application Support": 248,
+       "Documents": 0,
+       "Caches": 884,
+       "Preferences": 4,
+       "tmp": 0
+      },
+      "load_before": "load=6.61 20.73 33.06 xcodebuild=0"
+     }
+    },
+    "trends": {
+     "command": "xcrun simctl launch E5232BE0-8F82-4E85-A03B-5CA7160571E2 com.boris.banana --trends --disable-icloud -onboardingCompleted YES",
+     "launch": {
+      "fitness.init": {
+       "median": 464,
+       "min": 462,
+       "max": 477,
+       "n": 5,
+       "values": [
+        465,
+        462,
+        464,
+        464,
+        477
+       ]
+      },
+      "library.init": {
+       "median": 475,
+       "min": 472,
+       "max": 489,
+       "n": 5,
+       "values": [
+        476,
+        472,
+        475,
+        475,
+        489
+       ]
+      },
+      "wake.init": {
+       "median": 476,
+       "min": 473,
+       "max": 490,
+       "n": 5,
+       "values": [
+        477,
+        473,
+        476,
+        476,
+        490
+       ]
+      },
+      "downloads.init": {
+       "median": 476,
+       "min": 474,
+       "max": 491,
+       "n": 5,
+       "values": [
+        478,
+        474,
+        476,
+        476,
+        491
+       ]
+      },
+      "music.init": {
+       "median": 479,
+       "min": 476,
+       "max": 493,
+       "n": 5,
+       "values": [
+        480,
+        476,
+        479,
+        478,
+        493
+       ]
+      },
+      "player.init": {
+       "median": 486,
+       "min": 483,
+       "max": 502,
+       "n": 5,
+       "values": [
+        487,
+        483,
+        486,
+        486,
+        502
+       ]
+      },
+      "wakegraph.init": {
+       "median": 488,
+       "min": 485,
+       "max": 504,
+       "n": 5,
+       "values": [
+        490,
+        485,
+        488,
+        488,
+        504
+       ]
+      },
+      "app.init.body": {
+       "median": 491,
+       "min": 488,
+       "max": 507,
+       "n": 5,
+       "values": [
+        492,
+        488,
+        491,
+        491,
+        507
+       ]
+      },
+      "occurrences.snapshot": {
+       "median": 520,
+       "min": 516,
+       "max": 536,
+       "n": 5,
+       "values": [
+        520,
+        516,
+        519,
+        520,
+        536
+       ]
+      },
+      "planningWindows.snapshot": {
+       "median": 521,
+       "min": 517,
+       "max": 537,
+       "n": 5,
+       "values": [
+        521,
+        517,
+        520,
+        521,
+        537
+       ]
+      },
+      "weather.snapshot": {
+       "median": 558,
+       "min": 553,
+       "max": 576,
+       "n": 5,
+       "values": [
+        558,
+        553,
+        556,
+        558,
+        576
+       ]
+      },
+      "app.init.done": {
+       "median": 605,
+       "min": 597,
+       "max": 620,
+       "n": 5,
+       "values": [
+        605,
+        597,
+        599,
+        606,
+        620
+       ]
+      },
+      "smart.init": {
+       "median": 665,
+       "min": 655,
+       "max": 681,
+       "n": 5,
+       "values": [
+        666,
+        655,
+        656,
+        665,
+        681
+       ]
+      },
+      "alarms.init": {
+       "median": 687,
+       "min": 673,
+       "max": 712,
+       "n": 5,
+       "values": [
+        673,
+        687,
+        686,
+        695,
+        712
+       ]
+      },
+      "settings.init": {
+       "median": 739,
+       "min": 726,
+       "max": 764,
+       "n": 5,
+       "values": [
+        726,
+        739,
+        737,
+        746,
+        764
+       ]
+      },
+      "history.init": {
+       "median": 740,
+       "min": 727,
+       "max": 765,
+       "n": 5,
+       "values": [
+        727,
+        740,
+        738,
+        747,
+        765
+       ]
+      },
+      "root.body": {
+       "median": 852,
+       "min": 846,
+       "max": 890,
+       "n": 5,
+       "values": [
+        846,
+        852,
+        849,
+        861,
+        890
+       ]
+      },
+      "root.appear": {
+       "median": 1026,
+       "min": 1018,
+       "max": 1072,
+       "n": 5,
+       "values": [
+        1026,
+        1023,
+        1018,
+        1030,
+        1072
+       ]
+      },
+      "fitness.loaded": {
+       "median": 1105,
+       "min": 1093,
+       "max": 1158,
+       "n": 5,
+       "values": [
+        1118,
+        1098,
+        1093,
+        1105,
+        1158
+       ]
+      },
+      "library.loaded": {
+       "median": 1106,
+       "min": 1094,
+       "max": 1159,
+       "n": 5,
+       "values": [
+        1119,
+        1099,
+        1094,
+        1106,
+        1159
+       ]
+      }
+     },
+     "idle": {
+      "cpu_pct_ps": 0.02,
+      "rss_mb": 279.9,
+      "power_cpu_avg": 2.3,
+      "power_cpu_max": 9.1,
+      "power_mem_mb": 36,
+      "power_wakeups": 40,
+      "power_syscalls": 13496,
+      "power_activity": "none",
+      "storms": 0,
+      "high_cpu": 0,
+      "power_lines": 1,
+      "alive_at_end": "yes",
+      "store_sizes_kb": {
+       "Application Support": 272,
+       "Documents": 0,
+       "Caches": 884,
+       "Preferences": 4,
+       "tmp": 0
+      },
+      "load_before": "load=5.66 10.26 17.44 xcodebuild=0"
+     }
+    },
+    "week": {
+     "command": "xcrun simctl launch E5232BE0-8F82-4E85-A03B-5CA7160571E2 com.boris.banana --week --disable-icloud -onboardingCompleted YES",
+     "launch": {
+      "fitness.init": {
+       "median": 507,
+       "min": 490,
+       "max": 537,
+       "n": 5,
+       "values": [
+        537,
+        515,
+        490,
+        507,
+        500
+       ]
+      },
+      "library.init": {
+       "median": 527,
+       "min": 508,
+       "max": 579,
+       "n": 5,
+       "values": [
+        579,
+        527,
+        508,
+        540,
+        518
+       ]
+      },
+      "wake.init": {
+       "median": 528,
+       "min": 509,
+       "max": 580,
+       "n": 5,
+       "values": [
+        580,
+        528,
+        509,
+        541,
+        520
+       ]
+      },
+      "downloads.init": {
+       "median": 528,
+       "min": 509,
+       "max": 580,
+       "n": 5,
+       "values": [
+        580,
+        528,
+        509,
+        542,
+        520
+       ]
+      },
+      "music.init": {
+       "median": 531,
+       "min": 513,
+       "max": 583,
+       "n": 5,
+       "values": [
+        583,
+        531,
+        513,
+        545,
+        523
+       ]
+      },
+      "player.init": {
+       "median": 541,
+       "min": 523,
+       "max": 592,
+       "n": 5,
+       "values": [
+        592,
+        541,
+        523,
+        555,
+        532
+       ]
+      },
+      "wakegraph.init": {
+       "median": 543,
+       "min": 526,
+       "max": 595,
+       "n": 5,
+       "values": [
+        595,
+        543,
+        526,
+        557,
+        535
+       ]
+      },
+      "app.init.body": {
+       "median": 550,
+       "min": 533,
+       "max": 601,
+       "n": 5,
+       "values": [
+        601,
+        550,
+        533,
+        563,
+        540
+       ]
+      },
+      "occurrences.snapshot": {
+       "median": 586,
+       "min": 563,
+       "max": 642,
+       "n": 5,
+       "values": [
+        642,
+        586,
+        563,
+        599,
+        576
+       ]
+      },
+      "planningWindows.snapshot": {
+       "median": 587,
+       "min": 565,
+       "max": 643,
+       "n": 5,
+       "values": [
+        643,
+        587,
+        565,
+        600,
+        578
+       ]
+      },
+      "weather.snapshot": {
+       "median": 629,
+       "min": 609,
+       "max": 685,
+       "n": 5,
+       "values": [
+        685,
+        629,
+        609,
+        640,
+        619
+       ]
+      },
+      "app.init.done": {
+       "median": 674,
+       "min": 656,
+       "max": 731,
+       "n": 5,
+       "values": [
+        731,
+        674,
+        656,
+        685,
+        666
+       ]
+      },
+      "smart.init": {
+       "median": 738,
+       "min": 721,
+       "max": 890,
+       "n": 5,
+       "values": [
+        890,
+        738,
+        721,
+        749,
+        733
+       ]
+      },
+      "alarms.init": {
+       "median": 778,
+       "min": 727,
+       "max": 962,
+       "n": 5,
+       "values": [
+        962,
+        778,
+        727,
+        786,
+        771
+       ]
+      },
+      "health.init": {
+       "median": 784,
+       "min": 735,
+       "max": 969,
+       "n": 5,
+       "values": [
+        969,
+        784,
+        735,
+        793,
+        777
+       ]
+      },
+      "settings.init": {
+       "median": 804,
+       "min": 755,
+       "max": 989,
+       "n": 5,
+       "values": [
+        989,
+        804,
+        755,
+        813,
+        798
+       ]
+      },
+      "history.init": {
+       "median": 805,
+       "min": 756,
+       "max": 1003,
+       "n": 5,
+       "values": [
+        1003,
+        805,
+        756,
+        814,
+        799
+       ]
+      },
+      "root.body": {
+       "median": 938,
+       "min": 883,
+       "max": 1139,
+       "n": 5,
+       "values": [
+        1139,
+        931,
+        883,
+        940,
+        938
+       ]
+      },
+      "root.appear": {
+       "median": 1401,
+       "min": 1337,
+       "max": 1632,
+       "n": 5,
+       "values": [
+        1632,
+        1428,
+        1337,
+        1394,
+        1401
+       ]
+      },
+      "fitness.loaded": {
+       "median": 1701,
+       "min": 1652,
+       "max": 1934,
+       "n": 5,
+       "values": [
+        1934,
+        1738,
+        1652,
+        1687,
+        1701
+       ]
+      },
+      "library.loaded": {
+       "median": 1702,
+       "min": 1653,
+       "max": 1935,
+       "n": 5,
+       "values": [
+        1935,
+        1739,
+        1653,
+        1688,
+        1702
+       ]
+      }
+     },
+     "idle": {
+      "cpu_pct_ps": 0.02,
+      "rss_mb": 311.3,
+      "power_cpu_avg": 5.0,
+      "power_cpu_max": 20.1,
+      "power_mem_mb": 51,
+      "power_wakeups": 90,
+      "power_syscalls": 17439,
+      "power_activity": "none",
+      "storms": 0,
+      "high_cpu": 0,
+      "power_lines": 1,
+      "alive_at_end": "yes",
+      "store_sizes_kb": {
+       "Application Support": 256,
+       "Documents": 0,
+       "Caches": 884,
+       "Preferences": 4,
+       "tmp": 0
+      },
+      "load_before": "load=12.95 16.13 27.49 xcodebuild=0"
+     }
+    },
+    "wellness": {
+     "command": "xcrun simctl launch E5232BE0-8F82-4E85-A03B-5CA7160571E2 com.boris.banana --wellness --nutrition-week --disable-icloud -onboardingCompleted YES",
+     "launch": {
+      "fitness.init": {
+       "median": 500,
+       "min": 490,
+       "max": 503,
+       "n": 5,
+       "values": [
+        501,
+        500,
+        490,
+        503,
+        497
+       ]
+      },
+      "library.init": {
+       "median": 517,
+       "min": 512,
+       "max": 522,
+       "n": 5,
+       "values": [
+        517,
+        512,
+        522,
+        522,
+        515
+       ]
+      },
+      "wake.init": {
+       "median": 518,
+       "min": 513,
+       "max": 523,
+       "n": 5,
+       "values": [
+        518,
+        513,
+        523,
+        523,
+        516
+       ]
+      },
+      "downloads.init": {
+       "median": 519,
+       "min": 513,
+       "max": 524,
+       "n": 5,
+       "values": [
+        519,
+        513,
+        524,
+        523,
+        516
+       ]
+      },
+      "music.init": {
+       "median": 522,
+       "min": 516,
+       "max": 527,
+       "n": 5,
+       "values": [
+        522,
+        516,
+        527,
+        526,
+        519
+       ]
+      },
+      "player.init": {
+       "median": 532,
+       "min": 526,
+       "max": 537,
+       "n": 5,
+       "values": [
+        532,
+        526,
+        536,
+        537,
+        528
+       ]
+      },
+      "wakegraph.init": {
+       "median": 534,
+       "min": 529,
+       "max": 539,
+       "n": 5,
+       "values": [
+        534,
+        529,
+        538,
+        539,
+        531
+       ]
+      },
+      "app.init.body": {
+       "median": 545,
+       "min": 542,
+       "max": 597,
+       "n": 5,
+       "values": [
+        542,
+        597,
+        543,
+        545,
+        557
+       ]
+      },
+      "occurrences.snapshot": {
+       "median": 581,
+       "min": 575,
+       "max": 632,
+       "n": 5,
+       "values": [
+        580,
+        632,
+        575,
+        581,
+        595
+       ]
+      },
+      "planningWindows.snapshot": {
+       "median": 583,
+       "min": 576,
+       "max": 633,
+       "n": 5,
+       "values": [
+        581,
+        633,
+        576,
+        583,
+        596
+       ]
+      },
+      "weather.snapshot": {
+       "median": 626,
+       "min": 619,
+       "max": 675,
+       "n": 5,
+       "values": [
+        624,
+        675,
+        619,
+        626,
+        640
+       ]
+      },
+      "app.init.done": {
+       "median": 673,
+       "min": 665,
+       "max": 723,
+       "n": 5,
+       "values": [
+        670,
+        723,
+        665,
+        673,
+        686
+       ]
+      },
+      "smart.init": {
+       "median": 738,
+       "min": 729,
+       "max": 787,
+       "n": 5,
+       "values": [
+        734,
+        787,
+        729,
+        738,
+        751
+       ]
+      },
+      "alarms.init": {
+       "median": 776,
+       "min": 741,
+       "max": 794,
+       "n": 5,
+       "values": [
+        741,
+        794,
+        760,
+        776,
+        789
+       ]
+      },
+      "health.init": {
+       "median": 783,
+       "min": 748,
+       "max": 801,
+       "n": 5,
+       "values": [
+        748,
+        801,
+        767,
+        783,
+        796
+       ]
+      },
+      "settings.init": {
+       "median": 802,
+       "min": 768,
+       "max": 821,
+       "n": 5,
+       "values": [
+        768,
+        821,
+        787,
+        802,
+        816
+       ]
+      },
+      "history.init": {
+       "median": 803,
+       "min": 769,
+       "max": 822,
+       "n": 5,
+       "values": [
+        769,
+        822,
+        788,
+        803,
+        817
+       ]
+      },
+      "root.body": {
+       "median": 940,
+       "min": 900,
+       "max": 955,
+       "n": 5,
+       "values": [
+        900,
+        951,
+        924,
+        940,
+        955
+       ]
+      },
+      "root.appear": {
+       "median": 1068,
+       "min": 1037,
+       "max": 1086,
+       "n": 5,
+       "values": [
+        1037,
+        1086,
+        1049,
+        1068,
+        1081
+       ]
+      },
+      "fitness.loaded": {
+       "median": 1295,
+       "min": 1261,
+       "max": 1321,
+       "n": 5,
+       "values": [
+        1270,
+        1321,
+        1261,
+        1295,
+        1303
+       ]
+      },
+      "library.loaded": {
+       "median": 1296,
+       "min": 1262,
+       "max": 1322,
+       "n": 5,
+       "values": [
+        1272,
+        1322,
+        1262,
+        1296,
+        1304
+       ]
+      }
+     },
+     "idle": {
+      "cpu_pct_ps": 0.02,
+      "rss_mb": 284.4,
+      "power_cpu_avg": 2.9,
+      "power_cpu_max": 11.6,
+      "power_mem_mb": 36,
+      "power_wakeups": 49,
+      "power_syscalls": 14219,
+      "power_activity": "none",
+      "storms": 0,
+      "high_cpu": 0,
+      "power_lines": 1,
+      "alive_at_end": "yes",
+      "store_sizes_kb": {
+       "Application Support": 256,
+       "Documents": 0,
+       "Caches": 884,
+       "Preferences": 4,
+       "tmp": 0
+      },
+      "load_before": "load=14.94 15.45 25.36 xcodebuild=0"
+     }
+    },
+    "workouts": {
+     "command": "xcrun simctl launch E5232BE0-8F82-4E85-A03B-5CA7160571E2 com.boris.banana --dummy-health --disable-icloud -onboardingCompleted YES",
+     "launch": {
+      "fitness.init": {
+       "median": 474,
+       "min": 470,
+       "max": 475,
+       "n": 5,
+       "values": [
+        470,
+        475,
+        474,
+        475,
+        470
+       ]
+      },
+      "library.init": {
+       "median": 486,
+       "min": 480,
+       "max": 488,
+       "n": 5,
+       "values": [
+        480,
+        488,
+        486,
+        486,
+        482
+       ]
+      },
+      "wake.init": {
+       "median": 487,
+       "min": 481,
+       "max": 489,
+       "n": 5,
+       "values": [
+        481,
+        489,
+        487,
+        487,
+        483
+       ]
+      },
+      "downloads.init": {
+       "median": 487,
+       "min": 481,
+       "max": 489,
+       "n": 5,
+       "values": [
+        481,
+        489,
+        487,
+        487,
+        483
+       ]
+      },
+      "music.init": {
+       "median": 490,
+       "min": 484,
+       "max": 492,
+       "n": 5,
+       "values": [
+        484,
+        492,
+        490,
+        490,
+        486
+       ]
+      },
+      "player.init": {
+       "median": 497,
+       "min": 491,
+       "max": 501,
+       "n": 5,
+       "values": [
+        491,
+        501,
+        497,
+        498,
+        493
+       ]
+      },
+      "wakegraph.init": {
+       "median": 499,
+       "min": 494,
+       "max": 503,
+       "n": 5,
+       "values": [
+        494,
+        503,
+        499,
+        500,
+        495
+       ]
+      },
+      "app.init.body": {
+       "median": 502,
+       "min": 497,
+       "max": 506,
+       "n": 5,
+       "values": [
+        497,
+        506,
+        502,
+        504,
+        498
+       ]
+      },
+      "occurrences.snapshot": {
+       "median": 531,
+       "min": 526,
+       "max": 537,
+       "n": 5,
+       "values": [
+        526,
+        537,
+        531,
+        534,
+        527
+       ]
+      },
+      "planningWindows.snapshot": {
+       "median": 532,
+       "min": 527,
+       "max": 539,
+       "n": 5,
+       "values": [
+        527,
+        539,
+        532,
+        535,
+        528
+       ]
+      },
+      "weather.snapshot": {
+       "median": 572,
+       "min": 567,
+       "max": 580,
+       "n": 5,
+       "values": [
+        567,
+        580,
+        572,
+        572,
+        567
+       ]
+      },
+      "app.init.done": {
+       "median": 618,
+       "min": 612,
+       "max": 627,
+       "n": 5,
+       "values": [
+        614,
+        627,
+        621,
+        618,
+        612
+       ]
+      },
+      "smart.init": {
+       "median": 678,
+       "min": 671,
+       "max": 688,
+       "n": 5,
+       "values": [
+        677,
+        688,
+        680,
+        678,
+        671
+       ]
+      },
+      "alarms.init": {
+       "median": 708,
+       "min": 678,
+       "max": 719,
+       "n": 5,
+       "values": [
+        708,
+        719,
+        710,
+        685,
+        678
+       ]
+      },
+      "settings.init": {
+       "median": 762,
+       "min": 731,
+       "max": 774,
+       "n": 5,
+       "values": [
+        762,
+        774,
+        762,
+        735,
+        731
+       ]
+      },
+      "history.init": {
+       "median": 763,
+       "min": 732,
+       "max": 775,
+       "n": 5,
+       "values": [
+        763,
+        775,
+        763,
+        736,
+        732
+       ]
+      },
+      "root.body": {
+       "median": 879,
+       "min": 853,
+       "max": 894,
+       "n": 5,
+       "values": [
+        885,
+        894,
+        879,
+        856,
+        853
+       ]
+      },
+      "root.appear": {
+       "median": 1014,
+       "min": 1001,
+       "max": 1030,
+       "n": 5,
+       "values": [
+        1024,
+        1030,
+        1014,
+        1001,
+        1002
+       ]
+      },
+      "fitness.loaded": {
+       "median": 1164,
+       "min": 1157,
+       "max": 1178,
+       "n": 5,
+       "values": [
+        1171,
+        1178,
+        1158,
+        1164,
+        1157
+       ]
+      },
+      "library.loaded": {
+       "median": 1166,
+       "min": 1159,
+       "max": 1180,
+       "n": 5,
+       "values": [
+        1173,
+        1180,
+        1160,
+        1166,
+        1159
+       ]
+      }
+     },
+     "idle": {
+      "cpu_pct_ps": 0.02,
+      "rss_mb": 282.9,
+      "power_cpu_avg": 2.5,
+      "power_cpu_max": 10.2,
+      "power_mem_mb": 35,
+      "power_wakeups": 48,
+      "power_syscalls": 13935,
+      "power_activity": "none",
+      "storms": 0,
+      "high_cpu": 0,
+      "power_lines": 1,
+      "alive_at_end": "yes",
+      "store_sizes_kb": {
+       "Application Support": 260,
+       "Documents": 0,
+       "Caches": 884,
+       "Preferences": 4,
+       "tmp": 0
+      },
+      "load_before": "load=12.17 15.27 23.82 xcodebuild=0"
+     }
+    }
+   }
+  },
+  "ipad": {
+   "routes": {
+    "day": {
+     "command": "xcrun simctl launch 7CE990BF-066D-4E79-BA7F-B5F285E6A66C com.boris.banana --day --disable-icloud -onboardingCompleted YES",
+     "launch": {
+      "fitness.init": {
+       "median": 492,
+       "min": 487,
+       "max": 497,
+       "n": 5,
+       "values": [
+        497,
+        497,
+        492,
+        487,
+        487
+       ]
+      },
+      "library.init": {
+       "median": 507,
+       "min": 499,
+       "max": 510,
+       "n": 5,
+       "values": [
+        508,
+        510,
+        507,
+        499,
+        499
+       ]
+      },
+      "wake.init": {
+       "median": 508,
+       "min": 500,
+       "max": 511,
+       "n": 5,
+       "values": [
+        509,
+        511,
+        508,
+        500,
+        501
+       ]
+      },
+      "downloads.init": {
+       "median": 509,
+       "min": 500,
+       "max": 512,
+       "n": 5,
+       "values": [
+        509,
+        512,
+        509,
+        500,
+        501
+       ]
+      },
+      "music.init": {
+       "median": 512,
+       "min": 503,
+       "max": 515,
+       "n": 5,
+       "values": [
+        512,
+        515,
+        512,
+        503,
+        504
+       ]
+      },
+      "player.init": {
+       "median": 520,
+       "min": 512,
+       "max": 524,
+       "n": 5,
+       "values": [
+        520,
+        524,
+        520,
+        512,
+        512
+       ]
+      },
+      "wakegraph.init": {
+       "median": 522,
+       "min": 514,
+       "max": 526,
+       "n": 5,
+       "values": [
+        522,
+        526,
+        522,
+        514,
+        514
+       ]
+      },
+      "app.init.body": {
+       "median": 526,
+       "min": 517,
+       "max": 529,
+       "n": 5,
+       "values": [
+        526,
+        529,
+        526,
+        517,
+        517
+       ]
+      },
+      "occurrences.snapshot": {
+       "median": 554,
+       "min": 547,
+       "max": 561,
+       "n": 5,
+       "values": [
+        554,
+        561,
+        556,
+        547,
+        548
+       ]
+      },
+      "planningWindows.snapshot": {
+       "median": 555,
+       "min": 548,
+       "max": 562,
+       "n": 5,
+       "values": [
+        555,
+        562,
+        557,
+        548,
+        549
+       ]
+      },
+      "weather.snapshot": {
+       "median": 596,
+       "min": 590,
+       "max": 604,
+       "n": 5,
+       "values": [
+        596,
+        604,
+        600,
+        590,
+        590
+       ]
+      },
+      "app.init.done": {
+       "median": 645,
+       "min": 640,
+       "max": 657,
+       "n": 5,
+       "values": [
+        645,
+        657,
+        650,
+        640,
+        640
+       ]
+      },
+      "alarms.init": {
+       "median": 731,
+       "min": 727,
+       "max": 746,
+       "n": 5,
+       "values": [
+        731,
+        746,
+        742,
+        727,
+        729
+       ]
+      },
+      "health.init": {
+       "median": 739,
+       "min": 735,
+       "max": 753,
+       "n": 5,
+       "values": [
+        739,
+        753,
+        750,
+        735,
+        737
+       ]
+      },
+      "smart.init": {
+       "median": 756,
+       "min": 752,
+       "max": 772,
+       "n": 5,
+       "values": [
+        756,
+        772,
+        766,
+        752,
+        755
+       ]
+      },
+      "settings.init": {
+       "median": 766,
+       "min": 763,
+       "max": 783,
+       "n": 5,
+       "values": [
+        766,
+        783,
+        776,
+        763,
+        766
+       ]
+      },
+      "history.init": {
+       "median": 767,
+       "min": 764,
+       "max": 784,
+       "n": 5,
+       "values": [
+        767,
+        784,
+        777,
+        764,
+        767
+       ]
+      },
+      "root.body": {
+       "median": 913,
+       "min": 906,
+       "max": 934,
+       "n": 5,
+       "values": [
+        913,
+        934,
+        921,
+        906,
+        906
+       ]
+      },
+      "root.appear": {
+       "median": 1365,
+       "min": 1352,
+       "max": 1388,
+       "n": 5,
+       "values": [
+        1365,
+        1388,
+        1377,
+        1356,
+        1352
+       ]
+      },
+      "fitness.loaded": {
+       "median": 1646,
+       "min": 1624,
+       "max": 1668,
+       "n": 5,
+       "values": [
+        1646,
+        1668,
+        1663,
+        1625,
+        1624
+       ]
+      },
+      "library.loaded": {
+       "median": 1648,
+       "min": 1625,
+       "max": 1669,
+       "n": 5,
+       "values": [
+        1648,
+        1669,
+        1664,
+        1626,
+        1625
+       ]
+      }
+     },
+     "idle": {
+      "cpu_pct_ps": 0.03,
+      "rss_mb": 299.6,
+      "power_cpu_avg": 4.3,
+      "power_cpu_max": 17.0,
+      "power_mem_mb": 41,
+      "power_wakeups": 65,
+      "power_syscalls": 16705,
+      "power_activity": "none",
+      "storms": 0,
+      "high_cpu": 0,
+      "power_lines": 1,
+      "alive_at_end": "yes",
+      "store_sizes_kb": {
+       "Application Support": 352,
+       "Documents": 0,
+       "Caches": 1172,
+       "Preferences": 4,
+       "tmp": 0
+      },
+      "load_before": "load=8.98 12.98 21.61 xcodebuild=0"
+     }
+    },
+    "library": {
+     "command": "xcrun simctl launch 7CE990BF-066D-4E79-BA7F-B5F285E6A66C com.boris.banana --library --disable-icloud -onboardingCompleted YES",
+     "launch": {
+      "fitness.init": {
+       "median": 479,
+       "min": 474,
+       "max": 483,
+       "n": 5,
+       "values": [
+        478,
+        479,
+        482,
+        474,
+        483
+       ]
+      },
+      "library.init": {
+       "median": 490,
+       "min": 486,
+       "max": 496,
+       "n": 5,
+       "values": [
+        490,
+        490,
+        494,
+        486,
+        496
+       ]
+      },
+      "wake.init": {
+       "median": 491,
+       "min": 487,
+       "max": 497,
+       "n": 5,
+       "values": [
+        491,
+        491,
+        495,
+        487,
+        497
+       ]
+      },
+      "downloads.init": {
+       "median": 492,
+       "min": 487,
+       "max": 497,
+       "n": 5,
+       "values": [
+        491,
+        492,
+        496,
+        487,
+        497
+       ]
+      },
+      "music.init": {
+       "median": 494,
+       "min": 490,
+       "max": 500,
+       "n": 5,
+       "values": [
+        494,
+        494,
+        499,
+        490,
+        500
+       ]
+      },
+      "player.init": {
+       "median": 502,
+       "min": 498,
+       "max": 509,
+       "n": 5,
+       "values": [
+        502,
+        502,
+        507,
+        498,
+        509
+       ]
+      },
+      "wakegraph.init": {
+       "median": 505,
+       "min": 501,
+       "max": 511,
+       "n": 5,
+       "values": [
+        504,
+        505,
+        509,
+        501,
+        511
+       ]
+      },
+      "app.init.body": {
+       "median": 507,
+       "min": 504,
+       "max": 514,
+       "n": 5,
+       "values": [
+        507,
+        507,
+        512,
+        504,
+        514
+       ]
+      },
+      "occurrences.snapshot": {
+       "median": 537,
+       "min": 533,
+       "max": 544,
+       "n": 5,
+       "values": [
+        536,
+        537,
+        542,
+        533,
+        544
+       ]
+      },
+      "planningWindows.snapshot": {
+       "median": 538,
+       "min": 534,
+       "max": 545,
+       "n": 5,
+       "values": [
+        537,
+        538,
+        543,
+        534,
+        545
+       ]
+      },
+      "weather.snapshot": {
+       "median": 580,
+       "min": 571,
+       "max": 584,
+       "n": 5,
+       "values": [
+        577,
+        580,
+        584,
+        571,
+        584
+       ]
+      },
+      "app.init.done": {
+       "median": 627,
+       "min": 615,
+       "max": 630,
+       "n": 5,
+       "values": [
+        625,
+        627,
+        629,
+        615,
+        630
+       ]
+      },
+      "alarms.init": {
+       "median": 712,
+       "min": 688,
+       "max": 715,
+       "n": 5,
+       "values": [
+        712,
+        713,
+        688,
+        697,
+        715
+       ]
+      },
+      "health.init": {
+       "median": 720,
+       "min": 696,
+       "max": 723,
+       "n": 5,
+       "values": [
+        720,
+        720,
+        696,
+        704,
+        723
+       ]
+      },
+      "smart.init": {
+       "median": 737,
+       "min": 712,
+       "max": 739,
+       "n": 5,
+       "values": [
+        737,
+        737,
+        712,
+        719,
+        739
+       ]
+      },
+      "settings.init": {
+       "median": 747,
+       "min": 722,
+       "max": 749,
+       "n": 5,
+       "values": [
+        747,
+        748,
+        722,
+        729,
+        749
+       ]
+      },
+      "history.init": {
+       "median": 748,
+       "min": 723,
+       "max": 750,
+       "n": 5,
+       "values": [
+        748,
+        749,
+        723,
+        730,
+        750
+       ]
+      },
+      "root.body": {
+       "median": 880,
+       "min": 863,
+       "max": 882,
+       "n": 5,
+       "values": [
+        882,
+        880,
+        865,
+        863,
+        880
+       ]
+      },
+      "root.appear": {
+       "median": 1009,
+       "min": 987,
+       "max": 1013,
+       "n": 5,
+       "values": [
+        1013,
+        1009,
+        1002,
+        987,
+        1009
+       ]
+      },
+      "fitness.loaded": {
+       "median": 1181,
+       "min": 1158,
+       "max": 1185,
+       "n": 5,
+       "values": [
+        1184,
+        1180,
+        1185,
+        1158,
+        1181
+       ]
+      }
+     },
+     "idle": {
+      "cpu_pct_ps": 0.94,
+      "rss_mb": 286.6,
+      "power_cpu_avg": 2.8,
+      "power_cpu_max": 8.0,
+      "power_mem_mb": 34,
+      "power_wakeups": 44,
+      "power_syscalls": 15184,
+      "power_activity": "none",
+      "storms": 0,
+      "high_cpu": 0,
+      "power_lines": 1,
+      "alive_at_end": "yes",
+      "store_sizes_kb": {
+       "Application Support": 364,
+       "Documents": 0,
+       "Caches": 1172,
+       "Preferences": 4,
+       "tmp": 0
+      },
+      "load_before": "load=8.28 9.49 16.00 xcodebuild=0"
+     }
+    },
+    "notes": {
+     "command": "xcrun simctl launch 7CE990BF-066D-4E79-BA7F-B5F285E6A66C com.boris.banana --notes --disable-icloud -onboardingCompleted YES",
+     "launch": {
+      "fitness.init": {
+       "median": 479,
+       "min": 472,
+       "max": 485,
+       "n": 5,
+       "values": [
+        485,
+        473,
+        480,
+        472,
+        479
+       ]
+      },
+      "library.init": {
+       "median": 490,
+       "min": 483,
+       "max": 496,
+       "n": 5,
+       "values": [
+        496,
+        486,
+        493,
+        483,
+        490
+       ]
+      },
+      "wake.init": {
+       "median": 491,
+       "min": 484,
+       "max": 497,
+       "n": 5,
+       "values": [
+        497,
+        487,
+        494,
+        484,
+        491
+       ]
+      },
+      "downloads.init": {
+       "median": 491,
+       "min": 484,
+       "max": 497,
+       "n": 5,
+       "values": [
+        497,
+        488,
+        495,
+        484,
+        491
+       ]
+      },
+      "music.init": {
+       "median": 494,
+       "min": 487,
+       "max": 500,
+       "n": 5,
+       "values": [
+        500,
+        490,
+        497,
+        487,
+        494
+       ]
+      },
+      "player.init": {
+       "median": 502,
+       "min": 495,
+       "max": 508,
+       "n": 5,
+       "values": [
+        508,
+        499,
+        506,
+        495,
+        502
+       ]
+      },
+      "wakegraph.init": {
+       "median": 504,
+       "min": 497,
+       "max": 510,
+       "n": 5,
+       "values": [
+        510,
+        501,
+        508,
+        497,
+        504
+       ]
+      },
+      "app.init.body": {
+       "median": 507,
+       "min": 500,
+       "max": 513,
+       "n": 5,
+       "values": [
+        513,
+        505,
+        511,
+        500,
+        507
+       ]
+      },
+      "occurrences.snapshot": {
+       "median": 534,
+       "min": 529,
+       "max": 542,
+       "n": 5,
+       "values": [
+        542,
+        534,
+        542,
+        529,
+        534
+       ]
+      },
+      "planningWindows.snapshot": {
+       "median": 535,
+       "min": 530,
+       "max": 543,
+       "n": 5,
+       "values": [
+        543,
+        535,
+        543,
+        530,
+        535
+       ]
+      },
+      "weather.snapshot": {
+       "median": 575,
+       "min": 570,
+       "max": 584,
+       "n": 5,
+       "values": [
+        584,
+        574,
+        582,
+        570,
+        575
+       ]
+      },
+      "app.init.done": {
+       "median": 620,
+       "min": 617,
+       "max": 630,
+       "n": 5,
+       "values": [
+        630,
+        620,
+        628,
+        620,
+        617
+       ]
+      },
+      "alarms.init": {
+       "median": 701,
+       "min": 680,
+       "max": 715,
+       "n": 5,
+       "values": [
+        715,
+        680,
+        691,
+        708,
+        701
+       ]
+      },
+      "health.init": {
+       "median": 708,
+       "min": 688,
+       "max": 722,
+       "n": 5,
+       "values": [
+        722,
+        688,
+        700,
+        715,
+        708
+       ]
+      },
+      "smart.init": {
+       "median": 725,
+       "min": 706,
+       "max": 738,
+       "n": 5,
+       "values": [
+        738,
+        706,
+        717,
+        732,
+        725
+       ]
+      },
+      "settings.init": {
+       "median": 734,
+       "min": 716,
+       "max": 747,
+       "n": 5,
+       "values": [
+        747,
+        716,
+        727,
+        742,
+        734
+       ]
+      },
+      "history.init": {
+       "median": 736,
+       "min": 717,
+       "max": 748,
+       "n": 5,
+       "values": [
+        748,
+        717,
+        728,
+        743,
+        736
+       ]
+      },
+      "root.body": {
+       "median": 866,
+       "min": 854,
+       "max": 875,
+       "n": 5,
+       "values": [
+        875,
+        854,
+        854,
+        866,
+        870
+       ]
+      },
+      "root.appear": {
+       "median": 1029,
+       "min": 1022,
+       "max": 1035,
+       "n": 5,
+       "values": [
+        1035,
+        1025,
+        1022,
+        1029,
+        1032
+       ]
+      },
+      "fitness.loaded": {
+       "median": 1213,
+       "min": 1211,
+       "max": 1220,
+       "n": 5,
+       "values": [
+        1213,
+        1213,
+        1215,
+        1211,
+        1220
+       ]
+      },
+      "library.loaded": {
+       "median": 1214,
+       "min": 1212,
+       "max": 1221,
+       "n": 5,
+       "values": [
+        1214,
+        1214,
+        1216,
+        1212,
+        1221
+       ]
+      }
+     },
+     "idle": {
+      "cpu_pct_ps": 0.02,
+      "rss_mb": 288.3,
+      "power_cpu_avg": 2.8,
+      "power_cpu_max": 11.2,
+      "power_mem_mb": 35,
+      "power_wakeups": 137,
+      "power_syscalls": 14857,
+      "power_activity": "none",
+      "storms": 0,
+      "high_cpu": 0,
+      "power_lines": 1,
+      "alive_at_end": "yes",
+      "store_sizes_kb": {
+       "Application Support": 308,
+       "Documents": 0,
+       "Caches": 1172,
+       "Preferences": 4,
+       "tmp": 0
+      },
+      "load_before": "load=25.33 18.90 18.93 xcodebuild=0"
+     }
+    },
+    "settings": {
+     "command": "xcrun simctl launch 7CE990BF-066D-4E79-BA7F-B5F285E6A66C com.boris.banana --settings --disable-icloud -onboardingCompleted YES",
+     "launch": {
+      "fitness.init": {
+       "median": 472,
+       "min": 471,
+       "max": 477,
+       "n": 5,
+       "values": [
+        476,
+        472,
+        471,
+        472,
+        477
+       ]
+      },
+      "library.init": {
+       "median": 485,
+       "min": 483,
+       "max": 488,
+       "n": 5,
+       "values": [
+        488,
+        485,
+        483,
+        484,
+        488
+       ]
+      },
+      "wake.init": {
+       "median": 486,
+       "min": 484,
+       "max": 489,
+       "n": 5,
+       "values": [
+        489,
+        486,
+        484,
+        485,
+        489
+       ]
+      },
+      "downloads.init": {
+       "median": 486,
+       "min": 485,
+       "max": 489,
+       "n": 5,
+       "values": [
+        489,
+        486,
+        485,
+        486,
+        489
+       ]
+      },
+      "music.init": {
+       "median": 489,
+       "min": 487,
+       "max": 493,
+       "n": 5,
+       "values": [
+        493,
+        489,
+        487,
+        488,
+        492
+       ]
+      },
+      "player.init": {
+       "median": 497,
+       "min": 495,
+       "max": 501,
+       "n": 5,
+       "values": [
+        501,
+        497,
+        495,
+        496,
+        500
+       ]
+      },
+      "wakegraph.init": {
+       "median": 500,
+       "min": 497,
+       "max": 503,
+       "n": 5,
+       "values": [
+        503,
+        500,
+        497,
+        498,
+        502
+       ]
+      },
+      "app.init.body": {
+       "median": 504,
+       "min": 500,
+       "max": 506,
+       "n": 5,
+       "values": [
+        506,
+        504,
+        500,
+        501,
+        506
+       ]
+      },
+      "occurrences.snapshot": {
+       "median": 533,
+       "min": 528,
+       "max": 536,
+       "n": 5,
+       "values": [
+        536,
+        533,
+        528,
+        530,
+        536
+       ]
+      },
+      "planningWindows.snapshot": {
+       "median": 534,
+       "min": 529,
+       "max": 538,
+       "n": 5,
+       "values": [
+        537,
+        534,
+        529,
+        532,
+        538
+       ]
+      },
+      "weather.snapshot": {
+       "median": 574,
+       "min": 566,
+       "max": 579,
+       "n": 5,
+       "values": [
+        579,
+        574,
+        566,
+        570,
+        579
+       ]
+      },
+      "app.init.done": {
+       "median": 617,
+       "min": 610,
+       "max": 627,
+       "n": 5,
+       "values": [
+        627,
+        617,
+        610,
+        615,
+        625
+       ]
+      },
+      "alarms.init": {
+       "median": 697,
+       "min": 683,
+       "max": 714,
+       "n": 5,
+       "values": [
+        714,
+        698,
+        695,
+        697,
+        683
+       ]
+      },
+      "health.init": {
+       "median": 704,
+       "min": 692,
+       "max": 722,
+       "n": 5,
+       "values": [
+        722,
+        705,
+        703,
+        704,
+        692
+       ]
+      },
+      "smart.init": {
+       "median": 720,
+       "min": 708,
+       "max": 739,
+       "n": 5,
+       "values": [
+        739,
+        721,
+        720,
+        719,
+        708
+       ]
+      },
+      "settings.init": {
+       "median": 730,
+       "min": 718,
+       "max": 749,
+       "n": 5,
+       "values": [
+        749,
+        730,
+        730,
+        729,
+        718
+       ]
+      },
+      "history.init": {
+       "median": 731,
+       "min": 719,
+       "max": 750,
+       "n": 5,
+       "values": [
+        750,
+        731,
+        731,
+        729,
+        719
+       ]
+      },
+      "root.body": {
+       "median": 861,
+       "min": 854,
+       "max": 886,
+       "n": 5,
+       "values": [
+        886,
+        861,
+        872,
+        857,
+        854
+       ]
+      },
+      "root.appear": {
+       "median": 1015,
+       "min": 1013,
+       "max": 1043,
+       "n": 5,
+       "values": [
+        1043,
+        1014,
+        1030,
+        1015,
+        1013
+       ]
+      },
+      "fitness.loaded": {
+       "median": 1194,
+       "min": 1185,
+       "max": 1216,
+       "n": 5,
+       "values": [
+        1216,
+        1185,
+        1202,
+        1192,
+        1194
+       ]
+      },
+      "library.loaded": {
+       "median": 1195,
+       "min": 1186,
+       "max": 1217,
+       "n": 5,
+       "values": [
+        1217,
+        1186,
+        1202,
+        1193,
+        1195
+       ]
+      }
+     },
+     "idle": {
+      "cpu_pct_ps": 0.03,
+      "rss_mb": 288.8,
+      "power_cpu_avg": 2.4,
+      "power_cpu_max": 9.6,
+      "power_mem_mb": 35,
+      "power_wakeups": 150,
+      "power_syscalls": 14866,
+      "power_activity": "none",
+      "storms": 0,
+      "high_cpu": 0,
+      "power_lines": 1,
+      "alive_at_end": "yes",
+      "store_sizes_kb": {
+       "Application Support": 308,
+       "Documents": 0,
+       "Caches": 1172,
+       "Preferences": 4,
+       "tmp": 0
+      },
+      "load_before": "load=10.96 15.37 17.49 xcodebuild=0"
+     }
+    },
+    "shell-library": {
+     "command": "xcrun simctl launch 7CE990BF-066D-4E79-BA7F-B5F285E6A66C com.boris.banana --ui-preview --dummy-health --tab library --disable-icloud -onboardingCompleted YES",
+     "launch": {
+      "fitness.init": {
+       "median": 494,
+       "min": 489,
+       "max": 498,
+       "n": 5,
+       "values": [
+        498,
+        495,
+        494,
+        492,
+        489
+       ]
+      },
+      "library.init": {
+       "median": 507,
+       "min": 501,
+       "max": 509,
+       "n": 5,
+       "values": [
+        509,
+        507,
+        504,
+        508,
+        501
+       ]
+      },
+      "wake.init": {
+       "median": 508,
+       "min": 502,
+       "max": 510,
+       "n": 5,
+       "values": [
+        510,
+        508,
+        505,
+        509,
+        502
+       ]
+      },
+      "downloads.init": {
+       "median": 508,
+       "min": 502,
+       "max": 510,
+       "n": 5,
+       "values": [
+        510,
+        508,
+        506,
+        509,
+        502
+       ]
+      },
+      "music.init": {
+       "median": 511,
+       "min": 505,
+       "max": 513,
+       "n": 5,
+       "values": [
+        513,
+        511,
+        509,
+        512,
+        505
+       ]
+      },
+      "player.init": {
+       "median": 520,
+       "min": 514,
+       "max": 522,
+       "n": 5,
+       "values": [
+        522,
+        520,
+        516,
+        521,
+        514
+       ]
+      },
+      "wakegraph.init": {
+       "median": 522,
+       "min": 516,
+       "max": 524,
+       "n": 5,
+       "values": [
+        524,
+        522,
+        519,
+        523,
+        516
+       ]
+      },
+      "app.init.body": {
+       "median": 526,
+       "min": 520,
+       "max": 527,
+       "n": 5,
+       "values": [
+        527,
+        526,
+        522,
+        527,
+        520
+       ]
+      },
+      "occurrences.snapshot": {
+       "median": 555,
+       "min": 549,
+       "max": 559,
+       "n": 5,
+       "values": [
+        557,
+        555,
+        551,
+        559,
+        549
+       ]
+      },
+      "planningWindows.snapshot": {
+       "median": 557,
+       "min": 550,
+       "max": 560,
+       "n": 5,
+       "values": [
+        558,
+        557,
+        552,
+        560,
+        550
+       ]
+      },
+      "weather.snapshot": {
+       "median": 599,
+       "min": 591,
+       "max": 604,
+       "n": 5,
+       "values": [
+        599,
+        599,
+        593,
+        604,
+        591
+       ]
+      },
+      "app.init.done": {
+       "median": 647,
+       "min": 644,
+       "max": 655,
+       "n": 5,
+       "values": [
+        648,
+        647,
+        644,
+        655,
+        645
+       ]
+      },
+      "alarms.init": {
+       "median": 734,
+       "min": 727,
+       "max": 743,
+       "n": 5,
+       "values": [
+        738,
+        732,
+        727,
+        743,
+        734
+       ]
+      },
+      "smart.init": {
+       "median": 784,
+       "min": 779,
+       "max": 796,
+       "n": 5,
+       "values": [
+        792,
+        784,
+        779,
+        796,
+        784
+       ]
+      },
+      "settings.init": {
+       "median": 795,
+       "min": 789,
+       "max": 807,
+       "n": 5,
+       "values": [
+        803,
+        795,
+        789,
+        807,
+        794
+       ]
+      },
+      "history.init": {
+       "median": 796,
+       "min": 790,
+       "max": 808,
+       "n": 5,
+       "values": [
+        804,
+        796,
+        790,
+        808,
+        796
+       ]
+      },
+      "root.body": {
+       "median": 943,
+       "min": 931,
+       "max": 947,
+       "n": 5,
+       "values": [
+        947,
+        936,
+        931,
+        943,
+        944
+       ]
+      },
+      "root.appear": {
+       "median": 1067,
+       "min": 1050,
+       "max": 1076,
+       "n": 5,
+       "values": [
+        1076,
+        1065,
+        1050,
+        1068,
+        1067
+       ]
+      },
+      "fitness.loaded": {
+       "median": 1292,
+       "min": 1275,
+       "max": 1312,
+       "n": 5,
+       "values": [
+        1312,
+        1292,
+        1275,
+        1291,
+        1292
+       ]
+      },
+      "library.loaded": {
+       "median": 1292,
+       "min": 1276,
+       "max": 1312,
+       "n": 5,
+       "values": [
+        1312,
+        1292,
+        1276,
+        1292,
+        1293
+       ]
+      }
+     },
+     "idle": {
+      "cpu_pct_ps": 0.03,
+      "rss_mb": 286.9,
+      "power_cpu_avg": 2.6,
+      "power_cpu_max": 10.5,
+      "power_mem_mb": 35,
+      "power_wakeups": 228,
+      "power_syscalls": 15608,
+      "power_activity": "none",
+      "storms": 0,
+      "high_cpu": 0,
+      "power_lines": 1,
+      "alive_at_end": "yes",
+      "store_sizes_kb": {
+       "Application Support": 276,
+       "Documents": 0,
+       "Caches": 1172,
+       "Preferences": 4,
+       "tmp": 0
+      },
+      "load_before": "load=10.17 28.66 37.55 xcodebuild=0"
+     }
+    },
+    "shell-notes": {
+     "command": "xcrun simctl launch 7CE990BF-066D-4E79-BA7F-B5F285E6A66C com.boris.banana --ui-preview --dummy-health --tab notes --disable-icloud -onboardingCompleted YES",
+     "launch": {
+      "fitness.init": {
+       "median": 497,
+       "min": 496,
+       "max": 501,
+       "n": 5,
+       "values": [
+        501,
+        500,
+        496,
+        497,
+        496
+       ]
+      },
+      "library.init": {
+       "median": 510,
+       "min": 507,
+       "max": 517,
+       "n": 5,
+       "values": [
+        517,
+        512,
+        510,
+        510,
+        507
+       ]
+      },
+      "wake.init": {
+       "median": 511,
+       "min": 508,
+       "max": 518,
+       "n": 5,
+       "values": [
+        518,
+        514,
+        511,
+        511,
+        508
+       ]
+      },
+      "downloads.init": {
+       "median": 511,
+       "min": 508,
+       "max": 518,
+       "n": 5,
+       "values": [
+        518,
+        514,
+        511,
+        511,
+        508
+       ]
+      },
+      "music.init": {
+       "median": 514,
+       "min": 511,
+       "max": 521,
+       "n": 5,
+       "values": [
+        521,
+        517,
+        514,
+        514,
+        511
+       ]
+      },
+      "player.init": {
+       "median": 524,
+       "min": 520,
+       "max": 530,
+       "n": 5,
+       "values": [
+        530,
+        526,
+        522,
+        524,
+        520
+       ]
+      },
+      "wakegraph.init": {
+       "median": 526,
+       "min": 522,
+       "max": 532,
+       "n": 5,
+       "values": [
+        532,
+        528,
+        525,
+        526,
+        522
+       ]
+      },
+      "app.init.body": {
+       "median": 529,
+       "min": 526,
+       "max": 536,
+       "n": 5,
+       "values": [
+        536,
+        531,
+        528,
+        529,
+        526
+       ]
+      },
+      "occurrences.snapshot": {
+       "median": 559,
+       "min": 555,
+       "max": 567,
+       "n": 5,
+       "values": [
+        567,
+        564,
+        558,
+        559,
+        555
+       ]
+      },
+      "planningWindows.snapshot": {
+       "median": 561,
+       "min": 556,
+       "max": 569,
+       "n": 5,
+       "values": [
+        569,
+        565,
+        559,
+        561,
+        556
+       ]
+      },
+      "weather.snapshot": {
+       "median": 604,
+       "min": 599,
+       "max": 613,
+       "n": 5,
+       "values": [
+        613,
+        609,
+        600,
+        604,
+        599
+       ]
+      },
+      "app.init.done": {
+       "median": 655,
+       "min": 649,
+       "max": 664,
+       "n": 5,
+       "values": [
+        664,
+        663,
+        649,
+        655,
+        651
+       ]
+      },
+      "alarms.init": {
+       "median": 739,
+       "min": 726,
+       "max": 753,
+       "n": 5,
+       "values": [
+        753,
+        726,
+        736,
+        743,
+        739
+       ]
+      },
+      "smart.init": {
+       "median": 793,
+       "min": 782,
+       "max": 807,
+       "n": 5,
+       "values": [
+        807,
+        782,
+        789,
+        797,
+        793
+       ]
+      },
+      "settings.init": {
+       "median": 805,
+       "min": 793,
+       "max": 818,
+       "n": 5,
+       "values": [
+        818,
+        793,
+        800,
+        808,
+        805
+       ]
+      },
+      "history.init": {
+       "median": 806,
+       "min": 794,
+       "max": 819,
+       "n": 5,
+       "values": [
+        819,
+        794,
+        802,
+        810,
+        806
+       ]
+      },
+      "root.body": {
+       "median": 952,
+       "min": 939,
+       "max": 961,
+       "n": 5,
+       "values": [
+        961,
+        939,
+        952,
+        948,
+        957
+       ]
+      },
+      "root.appear": {
+       "median": 1086,
+       "min": 1072,
+       "max": 1090,
+       "n": 5,
+       "values": [
+        1089,
+        1072,
+        1086,
+        1079,
+        1090
+       ]
+      },
+      "fitness.loaded": {
+       "median": 1423,
+       "min": 1410,
+       "max": 1430,
+       "n": 5,
+       "values": [
+        1430,
+        1423,
+        1421,
+        1410,
+        1425
+       ]
+      },
+      "library.loaded": {
+       "median": 1425,
+       "min": 1411,
+       "max": 1432,
+       "n": 5,
+       "values": [
+        1432,
+        1425,
+        1423,
+        1411,
+        1427
+       ]
+      }
+     },
+     "idle": {
+      "cpu_pct_ps": 0.02,
+      "rss_mb": 294.7,
+      "power_cpu_avg": 3.4,
+      "power_cpu_max": 13.5,
+      "power_mem_mb": 36,
+      "power_wakeups": 262,
+      "power_syscalls": 16739,
+      "power_activity": "none",
+      "storms": 0,
+      "high_cpu": 0,
+      "power_lines": 1,
+      "alive_at_end": "yes",
+      "store_sizes_kb": {
+       "Application Support": 272,
+       "Documents": 0,
+       "Caches": 1172,
+       "Preferences": 4,
+       "tmp": 0
+      },
+      "load_before": "load=9.98 39.62 42.41 xcodebuild=0"
+     }
+    },
+    "shell-nutrition": {
+     "command": "xcrun simctl launch 7CE990BF-066D-4E79-BA7F-B5F285E6A66C com.boris.banana --ui-preview --dummy-health --tab nutrition --disable-icloud -onboardingCompleted YES",
+     "launch": {
+      "fitness.init": {
+       "median": 496,
+       "min": 481,
+       "max": 499,
+       "n": 5,
+       "values": [
+        499,
+        495,
+        496,
+        497,
+        481
+       ]
+      },
+      "library.init": {
+       "median": 508,
+       "min": 493,
+       "max": 510,
+       "n": 5,
+       "values": [
+        510,
+        506,
+        508,
+        508,
+        493
+       ]
+      },
+      "wake.init": {
+       "median": 509,
+       "min": 495,
+       "max": 512,
+       "n": 5,
+       "values": [
+        512,
+        507,
+        509,
+        509,
+        495
+       ]
+      },
+      "downloads.init": {
+       "median": 509,
+       "min": 495,
+       "max": 512,
+       "n": 5,
+       "values": [
+        512,
+        507,
+        509,
+        509,
+        495
+       ]
+      },
+      "music.init": {
+       "median": 511,
+       "min": 498,
+       "max": 515,
+       "n": 5,
+       "values": [
+        515,
+        510,
+        511,
+        512,
+        498
+       ]
+      },
+      "player.init": {
+       "median": 519,
+       "min": 505,
+       "max": 524,
+       "n": 5,
+       "values": [
+        524,
+        518,
+        519,
+        521,
+        505
+       ]
+      },
+      "wakegraph.init": {
+       "median": 521,
+       "min": 507,
+       "max": 526,
+       "n": 5,
+       "values": [
+        526,
+        520,
+        521,
+        523,
+        507
+       ]
+      },
+      "app.init.body": {
+       "median": 525,
+       "min": 510,
+       "max": 530,
+       "n": 5,
+       "values": [
+        530,
+        523,
+        525,
+        526,
+        510
+       ]
+      },
+      "occurrences.snapshot": {
+       "median": 553,
+       "min": 538,
+       "max": 559,
+       "n": 5,
+       "values": [
+        559,
+        552,
+        553,
+        556,
+        538
+       ]
+      },
+      "planningWindows.snapshot": {
+       "median": 554,
+       "min": 539,
+       "max": 560,
+       "n": 5,
+       "values": [
+        560,
+        553,
+        554,
+        557,
+        539
+       ]
+      },
+      "weather.snapshot": {
+       "median": 594,
+       "min": 577,
+       "max": 603,
+       "n": 5,
+       "values": [
+        603,
+        594,
+        593,
+        597,
+        577
+       ]
+      },
+      "app.init.done": {
+       "median": 641,
+       "min": 622,
+       "max": 653,
+       "n": 5,
+       "values": [
+        653,
+        641,
+        641,
+        643,
+        622
+       ]
+      },
+      "alarms.init": {
+       "median": 725,
+       "min": 703,
+       "max": 727,
+       "n": 5,
+       "values": [
+        712,
+        725,
+        726,
+        727,
+        703
+       ]
+      },
+      "smart.init": {
+       "median": 776,
+       "min": 752,
+       "max": 778,
+       "n": 5,
+       "values": [
+        765,
+        776,
+        776,
+        778,
+        752
+       ]
+      },
+      "settings.init": {
+       "median": 785,
+       "min": 761,
+       "max": 787,
+       "n": 5,
+       "values": [
+        774,
+        786,
+        785,
+        787,
+        761
+       ]
+      },
+      "history.init": {
+       "median": 786,
+       "min": 762,
+       "max": 788,
+       "n": 5,
+       "values": [
+        775,
+        787,
+        786,
+        788,
+        762
+       ]
+      },
+      "root.body": {
+       "median": 914,
+       "min": 884,
+       "max": 925,
+       "n": 5,
+       "values": [
+        915,
+        925,
+        912,
+        914,
+        884
+       ]
+      },
+      "root.appear": {
+       "median": 1033,
+       "min": 1007,
+       "max": 1045,
+       "n": 5,
+       "values": [
+        1039,
+        1045,
+        1033,
+        1031,
+        1007
+       ]
+      },
+      "fitness.loaded": {
+       "median": 1493,
+       "min": 1467,
+       "max": 1524,
+       "n": 5,
+       "values": [
+        1524,
+        1512,
+        1490,
+        1493,
+        1467
+       ]
+      },
+      "library.loaded": {
+       "median": 1495,
+       "min": 1469,
+       "max": 1526,
+       "n": 5,
+       "values": [
+        1526,
+        1513,
+        1492,
+        1495,
+        1469
+       ]
+      }
+     },
+     "idle": {
+      "cpu_pct_ps": 0.02,
+      "rss_mb": 300.3,
+      "power_cpu_avg": 2.9,
+      "power_cpu_max": 11.7,
+      "power_mem_mb": 41,
+      "power_wakeups": 238,
+      "power_syscalls": 16738,
+      "power_activity": "none",
+      "storms": 0,
+      "high_cpu": 0,
+      "power_lines": 1,
+      "alive_at_end": "yes",
+      "store_sizes_kb": {
+       "Application Support": 268,
+       "Documents": 0,
+       "Caches": 1172,
+       "Preferences": 4,
+       "tmp": 0
+      },
+      "load_before": "load=59.31 60.34 49.11 xcodebuild=0"
+     }
+    },
+    "shell-plan": {
+     "command": "xcrun simctl launch 7CE990BF-066D-4E79-BA7F-B5F285E6A66C com.boris.banana --ui-preview --dummy-health --tab plan --disable-icloud -onboardingCompleted YES",
+     "launch": {
+      "fitness.init": {
+       "median": 484,
+       "min": 472,
+       "max": 503,
+       "n": 5,
+       "values": [
+        503,
+        484,
+        490,
+        472,
+        475
+       ]
+      },
+      "library.init": {
+       "median": 495,
+       "min": 483,
+       "max": 519,
+       "n": 5,
+       "values": [
+        519,
+        495,
+        501,
+        483,
+        489
+       ]
+      },
+      "wake.init": {
+       "median": 496,
+       "min": 484,
+       "max": 520,
+       "n": 5,
+       "values": [
+        520,
+        496,
+        502,
+        484,
+        490
+       ]
+      },
+      "downloads.init": {
+       "median": 497,
+       "min": 484,
+       "max": 520,
+       "n": 5,
+       "values": [
+        520,
+        497,
+        503,
+        484,
+        490
+       ]
+      },
+      "music.init": {
+       "median": 500,
+       "min": 487,
+       "max": 523,
+       "n": 5,
+       "values": [
+        523,
+        500,
+        506,
+        487,
+        493
+       ]
+      },
+      "player.init": {
+       "median": 508,
+       "min": 495,
+       "max": 532,
+       "n": 5,
+       "values": [
+        532,
+        508,
+        515,
+        495,
+        502
+       ]
+      },
+      "wakegraph.init": {
+       "median": 510,
+       "min": 497,
+       "max": 535,
+       "n": 5,
+       "values": [
+        535,
+        510,
+        517,
+        497,
+        503
+       ]
+      },
+      "app.init.body": {
+       "median": 513,
+       "min": 500,
+       "max": 538,
+       "n": 5,
+       "values": [
+        538,
+        513,
+        521,
+        500,
+        507
+       ]
+      },
+      "occurrences.snapshot": {
+       "median": 543,
+       "min": 527,
+       "max": 569,
+       "n": 5,
+       "values": [
+        569,
+        543,
+        550,
+        527,
+        537
+       ]
+      },
+      "planningWindows.snapshot": {
+       "median": 544,
+       "min": 528,
+       "max": 570,
+       "n": 5,
+       "values": [
+        570,
+        544,
+        552,
+        528,
+        538
+       ]
+      },
+      "weather.snapshot": {
+       "median": 584,
+       "min": 572,
+       "max": 615,
+       "n": 5,
+       "values": [
+        615,
+        584,
+        593,
+        572,
+        580
+       ]
+      },
+      "app.init.done": {
+       "median": 633,
+       "min": 621,
+       "max": 667,
+       "n": 5,
+       "values": [
+        667,
+        633,
+        641,
+        621,
+        630
+       ]
+      },
+      "alarms.init": {
+       "median": 719,
+       "min": 711,
+       "max": 759,
+       "n": 5,
+       "values": [
+        759,
+        717,
+        727,
+        711,
+        719
+       ]
+      },
+      "smart.init": {
+       "median": 770,
+       "min": 764,
+       "max": 813,
+       "n": 5,
+       "values": [
+        813,
+        769,
+        779,
+        764,
+        770
+       ]
+      },
+      "settings.init": {
+       "median": 780,
+       "min": 774,
+       "max": 825,
+       "n": 5,
+       "values": [
+        825,
+        779,
+        790,
+        774,
+        780
+       ]
+      },
+      "history.init": {
+       "median": 782,
+       "min": 775,
+       "max": 826,
+       "n": 5,
+       "values": [
+        826,
+        780,
+        791,
+        775,
+        782
+       ]
+      },
+      "root.body": {
+       "median": 936,
+       "min": 920,
+       "max": 979,
+       "n": 5,
+       "values": [
+        979,
+        936,
+        938,
+        920,
+        924
+       ]
+      },
+      "root.appear": {
+       "median": 1062,
+       "min": 1046,
+       "max": 1103,
+       "n": 5,
+       "values": [
+        1103,
+        1062,
+        1065,
+        1046,
+        1051
+       ]
+      },
+      "fitness.loaded": {
+       "median": 1841,
+       "min": 1819,
+       "max": 1876,
+       "n": 5,
+       "values": [
+        1876,
+        1841,
+        1842,
+        1826,
+        1819
+       ]
+      },
+      "library.loaded": {
+       "median": 1843,
+       "min": 1820,
+       "max": 1878,
+       "n": 5,
+       "values": [
+        1878,
+        1843,
+        1844,
+        1827,
+        1820
+       ]
+      }
+     },
+     "idle": {
+      "cpu_pct_ps": 0.02,
+      "rss_mb": 305.0,
+      "power_cpu_avg": 4.5,
+      "power_cpu_max": 17.8,
+      "power_mem_mb": 43,
+      "power_wakeups": 59,
+      "power_syscalls": 15612,
+      "power_activity": "none",
+      "storms": 0,
+      "high_cpu": 0,
+      "power_lines": 1,
+      "alive_at_end": "yes",
+      "store_sizes_kb": {
+       "Application Support": 312,
+       "Documents": 0,
+       "Caches": 1172,
+       "Preferences": 4,
+       "tmp": 0
+      },
+      "load_before": "load=25.66 39.51 40.54 xcodebuild=1"
+     }
+    },
+    "shell-routines": {
+     "command": "xcrun simctl launch 7CE990BF-066D-4E79-BA7F-B5F285E6A66C com.boris.banana --ui-preview --dummy-health --tab routines --disable-icloud -onboardingCompleted YES",
+     "launch": {
+      "fitness.init": {
+       "median": 509,
+       "min": 496,
+       "max": 523,
+       "n": 5,
+       "values": [
+        523,
+        512,
+        509,
+        500,
+        496
+       ]
+      },
+      "library.init": {
+       "median": 526,
+       "min": 509,
+       "max": 542,
+       "n": 5,
+       "values": [
+        542,
+        541,
+        526,
+        524,
+        509
+       ]
+      },
+      "wake.init": {
+       "median": 527,
+       "min": 510,
+       "max": 543,
+       "n": 5,
+       "values": [
+        543,
+        542,
+        527,
+        526,
+        510
+       ]
+      },
+      "downloads.init": {
+       "median": 527,
+       "min": 510,
+       "max": 543,
+       "n": 5,
+       "values": [
+        543,
+        542,
+        527,
+        526,
+        510
+       ]
+      },
+      "music.init": {
+       "median": 530,
+       "min": 513,
+       "max": 546,
+       "n": 5,
+       "values": [
+        546,
+        545,
+        530,
+        529,
+        513
+       ]
+      },
+      "player.init": {
+       "median": 540,
+       "min": 522,
+       "max": 556,
+       "n": 5,
+       "values": [
+        556,
+        554,
+        540,
+        538,
+        522
+       ]
+      },
+      "wakegraph.init": {
+       "median": 542,
+       "min": 524,
+       "max": 558,
+       "n": 5,
+       "values": [
+        558,
+        556,
+        542,
+        540,
+        524
+       ]
+      },
+      "app.init.body": {
+       "median": 548,
+       "min": 528,
+       "max": 563,
+       "n": 5,
+       "values": [
+        563,
+        560,
+        548,
+        545,
+        528
+       ]
+      },
+      "occurrences.snapshot": {
+       "median": 583,
+       "min": 559,
+       "max": 602,
+       "n": 5,
+       "values": [
+        602,
+        591,
+        583,
+        576,
+        559
+       ]
+      },
+      "planningWindows.snapshot": {
+       "median": 584,
+       "min": 561,
+       "max": 606,
+       "n": 5,
+       "values": [
+        606,
+        592,
+        584,
+        577,
+        561
+       ]
+      },
+      "weather.snapshot": {
+       "median": 627,
+       "min": 607,
+       "max": 649,
+       "n": 5,
+       "values": [
+        649,
+        635,
+        627,
+        621,
+        607
+       ]
+      },
+      "app.init.done": {
+       "median": 674,
+       "min": 656,
+       "max": 698,
+       "n": 5,
+       "values": [
+        698,
+        684,
+        674,
+        669,
+        656
+       ]
+      },
+      "alarms.init": {
+       "median": 756,
+       "min": 744,
+       "max": 785,
+       "n": 5,
+       "values": [
+        785,
+        744,
+        764,
+        756,
+        744
+       ]
+      },
+      "smart.init": {
+       "median": 810,
+       "min": 796,
+       "max": 838,
+       "n": 5,
+       "values": [
+        838,
+        798,
+        819,
+        810,
+        796
+       ]
+      },
+      "settings.init": {
+       "median": 820,
+       "min": 806,
+       "max": 848,
+       "n": 5,
+       "values": [
+        848,
+        809,
+        829,
+        820,
+        806
+       ]
+      },
+      "history.init": {
+       "median": 822,
+       "min": 810,
+       "max": 849,
+       "n": 5,
+       "values": [
+        849,
+        810,
+        831,
+        822,
+        810
+       ]
+      },
+      "root.body": {
+       "median": 974,
+       "min": 950,
+       "max": 995,
+       "n": 5,
+       "values": [
+        995,
+        950,
+        984,
+        974,
+        959
+       ]
+      },
+      "root.appear": {
+       "median": 1110,
+       "min": 1078,
+       "max": 1118,
+       "n": 5,
+       "values": [
+        1118,
+        1078,
+        1112,
+        1110,
+        1082
+       ]
+      },
+      "fitness.loaded": {
+       "median": 1427,
+       "min": 1394,
+       "max": 1439,
+       "n": 5,
+       "values": [
+        1439,
+        1425,
+        1427,
+        1433,
+        1394
+       ]
+      },
+      "library.loaded": {
+       "median": 1428,
+       "min": 1396,
+       "max": 1441,
+       "n": 5,
+       "values": [
+        1441,
+        1427,
+        1428,
+        1435,
+        1396
+       ]
+      }
+     },
+     "idle": {
+      "cpu_pct_ps": 0.02,
+      "rss_mb": 296.2,
+      "power_cpu_avg": 3.3,
+      "power_cpu_max": 13.1,
+      "power_mem_mb": 39,
+      "power_wakeups": 249,
+      "power_syscalls": 16943,
+      "power_activity": "none",
+      "storms": 0,
+      "high_cpu": 0,
+      "power_lines": 1,
+      "alive_at_end": "yes",
+      "store_sizes_kb": {
+       "Application Support": 284,
+       "Documents": 0,
+       "Caches": 1172,
+       "Preferences": 4,
+       "tmp": 0
+      },
+      "load_before": "load=13.60 16.21 27.46 xcodebuild=0"
+     }
+    },
+    "shell-settings": {
+     "command": "xcrun simctl launch 7CE990BF-066D-4E79-BA7F-B5F285E6A66C com.boris.banana --ui-preview --dummy-health --tab settings --disable-icloud -onboardingCompleted YES",
+     "launch": {
+      "fitness.init": {
+       "median": 492,
+       "min": 489,
+       "max": 501,
+       "n": 5,
+       "values": [
+        493,
+        489,
+        501,
+        491,
+        492
+       ]
+      },
+      "library.init": {
+       "median": 512,
+       "min": 506,
+       "max": 517,
+       "n": 5,
+       "values": [
+        514,
+        512,
+        517,
+        509,
+        506
+       ]
+      },
+      "wake.init": {
+       "median": 513,
+       "min": 508,
+       "max": 518,
+       "n": 5,
+       "values": [
+        515,
+        513,
+        518,
+        510,
+        508
+       ]
+      },
+      "downloads.init": {
+       "median": 513,
+       "min": 508,
+       "max": 518,
+       "n": 5,
+       "values": [
+        516,
+        513,
+        518,
+        511,
+        508
+       ]
+      },
+      "music.init": {
+       "median": 516,
+       "min": 511,
+       "max": 521,
+       "n": 5,
+       "values": [
+        519,
+        516,
+        521,
+        514,
+        511
+       ]
+      },
+      "player.init": {
+       "median": 525,
+       "min": 521,
+       "max": 531,
+       "n": 5,
+       "values": [
+        530,
+        525,
+        531,
+        524,
+        521
+       ]
+      },
+      "wakegraph.init": {
+       "median": 527,
+       "min": 523,
+       "max": 534,
+       "n": 5,
+       "values": [
+        532,
+        527,
+        534,
+        527,
+        523
+       ]
+      },
+      "app.init.body": {
+       "median": 533,
+       "min": 527,
+       "max": 546,
+       "n": 5,
+       "values": [
+        536,
+        533,
+        546,
+        531,
+        527
+       ]
+      },
+      "occurrences.snapshot": {
+       "median": 563,
+       "min": 560,
+       "max": 581,
+       "n": 5,
+       "values": [
+        568,
+        563,
+        581,
+        563,
+        560
+       ]
+      },
+      "planningWindows.snapshot": {
+       "median": 565,
+       "min": 562,
+       "max": 582,
+       "n": 5,
+       "values": [
+        569,
+        565,
+        582,
+        564,
+        562
+       ]
+      },
+      "weather.snapshot": {
+       "median": 608,
+       "min": 603,
+       "max": 626,
+       "n": 5,
+       "values": [
+        611,
+        608,
+        626,
+        607,
+        603
+       ]
+      },
+      "app.init.done": {
+       "median": 656,
+       "min": 654,
+       "max": 677,
+       "n": 5,
+       "values": [
+        659,
+        655,
+        677,
+        656,
+        654
+       ]
+      },
+      "alarms.init": {
+       "median": 746,
+       "min": 742,
+       "max": 773,
+       "n": 5,
+       "values": [
+        747,
+        742,
+        773,
+        744,
+        746
+       ]
+      },
+      "smart.init": {
+       "median": 799,
+       "min": 795,
+       "max": 827,
+       "n": 5,
+       "values": [
+        800,
+        795,
+        827,
+        797,
+        799
+       ]
+      },
+      "settings.init": {
+       "median": 810,
+       "min": 805,
+       "max": 837,
+       "n": 5,
+       "values": [
+        810,
+        805,
+        837,
+        808,
+        810
+       ]
+      },
+      "history.init": {
+       "median": 811,
+       "min": 806,
+       "max": 839,
+       "n": 5,
+       "values": [
+        812,
+        806,
+        839,
+        809,
+        811
+       ]
+      },
+      "root.body": {
+       "median": 962,
+       "min": 941,
+       "max": 982,
+       "n": 5,
+       "values": [
+        963,
+        941,
+        982,
+        962,
+        952
+       ]
+      },
+      "root.appear": {
+       "median": 1086,
+       "min": 1078,
+       "max": 1113,
+       "n": 5,
+       "values": [
+        1089,
+        1078,
+        1113,
+        1086,
+        1078
+       ]
+      },
+      "fitness.loaded": {
+       "median": 1428,
+       "min": 1421,
+       "max": 1453,
+       "n": 5,
+       "values": [
+        1453,
+        1422,
+        1443,
+        1421,
+        1428
+       ]
+      },
+      "library.loaded": {
+       "median": 1430,
+       "min": 1422,
+       "max": 1454,
+       "n": 5,
+       "values": [
+        1454,
+        1424,
+        1445,
+        1422,
+        1430
+       ]
+      }
+     },
+     "idle": {
+      "cpu_pct_ps": 0.0,
+      "rss_mb": 299.3,
+      "power_cpu_avg": 3.2,
+      "power_cpu_max": 12.7,
+      "power_mem_mb": 39,
+      "power_wakeups": 242,
+      "power_syscalls": 16712,
+      "power_activity": "none",
+      "storms": 0,
+      "high_cpu": 0,
+      "power_lines": 1,
+      "alive_at_end": "yes",
+      "store_sizes_kb": {
+       "Application Support": 348,
+       "Documents": 0,
+       "Caches": 1172,
+       "Preferences": 4,
+       "tmp": 0
+      },
+      "load_before": "load=14.94 15.45 25.36 xcodebuild=0"
+     }
+    },
+    "shell-sleep": {
+     "command": "xcrun simctl launch 7CE990BF-066D-4E79-BA7F-B5F285E6A66C com.boris.banana --ui-preview --dummy-health --tab sleep --disable-icloud -onboardingCompleted YES",
+     "launch": {
+      "fitness.init": {
+       "median": 493,
+       "min": 489,
+       "max": 508,
+       "n": 5,
+       "values": [
+        493,
+        490,
+        508,
+        507,
+        489
+       ]
+      },
+      "library.init": {
+       "median": 506,
+       "min": 500,
+       "max": 524,
+       "n": 5,
+       "values": [
+        506,
+        501,
+        519,
+        524,
+        500
+       ]
+      },
+      "wake.init": {
+       "median": 507,
+       "min": 501,
+       "max": 525,
+       "n": 5,
+       "values": [
+        507,
+        502,
+        521,
+        525,
+        501
+       ]
+      },
+      "downloads.init": {
+       "median": 507,
+       "min": 502,
+       "max": 526,
+       "n": 5,
+       "values": [
+        507,
+        502,
+        521,
+        526,
+        502
+       ]
+      },
+      "music.init": {
+       "median": 510,
+       "min": 505,
+       "max": 529,
+       "n": 5,
+       "values": [
+        510,
+        505,
+        524,
+        529,
+        505
+       ]
+      },
+      "player.init": {
+       "median": 518,
+       "min": 513,
+       "max": 539,
+       "n": 5,
+       "values": [
+        518,
+        513,
+        533,
+        539,
+        513
+       ]
+      },
+      "wakegraph.init": {
+       "median": 521,
+       "min": 515,
+       "max": 542,
+       "n": 5,
+       "values": [
+        521,
+        515,
+        535,
+        542,
+        515
+       ]
+      },
+      "app.init.body": {
+       "median": 524,
+       "min": 518,
+       "max": 545,
+       "n": 5,
+       "values": [
+        524,
+        518,
+        539,
+        545,
+        518
+       ]
+      },
+      "occurrences.snapshot": {
+       "median": 554,
+       "min": 548,
+       "max": 577,
+       "n": 5,
+       "values": [
+        554,
+        548,
+        569,
+        577,
+        548
+       ]
+      },
+      "planningWindows.snapshot": {
+       "median": 555,
+       "min": 549,
+       "max": 579,
+       "n": 5,
+       "values": [
+        555,
+        549,
+        570,
+        579,
+        549
+       ]
+      },
+      "weather.snapshot": {
+       "median": 598,
+       "min": 590,
+       "max": 626,
+       "n": 5,
+       "values": [
+        598,
+        590,
+        613,
+        626,
+        591
+       ]
+      },
+      "app.init.done": {
+       "median": 647,
+       "min": 638,
+       "max": 678,
+       "n": 5,
+       "values": [
+        647,
+        638,
+        663,
+        678,
+        640
+       ]
+      },
+      "alarms.init": {
+       "median": 735,
+       "min": 726,
+       "max": 772,
+       "n": 5,
+       "values": [
+        735,
+        726,
+        749,
+        772,
+        727
+       ]
+      },
+      "smart.init": {
+       "median": 787,
+       "min": 777,
+       "max": 827,
+       "n": 5,
+       "values": [
+        787,
+        777,
+        801,
+        827,
+        778
+       ]
+      },
+      "settings.init": {
+       "median": 797,
+       "min": 787,
+       "max": 838,
+       "n": 5,
+       "values": [
+        797,
+        787,
+        812,
+        838,
+        789
+       ]
+      },
+      "history.init": {
+       "median": 798,
+       "min": 788,
+       "max": 839,
+       "n": 5,
+       "values": [
+        798,
+        788,
+        813,
+        839,
+        790
+       ]
+      },
+      "root.body": {
+       "median": 937,
+       "min": 924,
+       "max": 979,
+       "n": 5,
+       "values": [
+        937,
+        924,
+        954,
+        979,
+        934
+       ]
+      },
+      "root.appear": {
+       "median": 1070,
+       "min": 1056,
+       "max": 1118,
+       "n": 5,
+       "values": [
+        1070,
+        1056,
+        1086,
+        1118,
+        1064
+       ]
+      },
+      "fitness.loaded": {
+       "median": 1435,
+       "min": 1408,
+       "max": 1501,
+       "n": 5,
+       "values": [
+        1435,
+        1408,
+        1456,
+        1501,
+        1415
+       ]
+      },
+      "library.loaded": {
+       "median": 1437,
+       "min": 1410,
+       "max": 1503,
+       "n": 5,
+       "values": [
+        1437,
+        1410,
+        1458,
+        1503,
+        1417
+       ]
+      }
+     },
+     "idle": {
+      "cpu_pct_ps": 0.03,
+      "rss_mb": 304.6,
+      "power_cpu_avg": 3.5,
+      "power_cpu_max": 13.9,
+      "power_mem_mb": 41,
+      "power_wakeups": 232,
+      "power_syscalls": 16787,
+      "power_activity": "none",
+      "storms": 0,
+      "high_cpu": 0,
+      "power_lines": 1,
+      "alive_at_end": "yes",
+      "store_sizes_kb": {
+       "Application Support": 276,
+       "Documents": 0,
+       "Caches": 1172,
+       "Preferences": 4,
+       "tmp": 0
+      },
+      "load_before": "load=7.04 20.59 32.94 xcodebuild=0"
+     }
+    },
+    "shell-trends": {
+     "command": "xcrun simctl launch 7CE990BF-066D-4E79-BA7F-B5F285E6A66C com.boris.banana --ui-preview --dummy-health --tab trends --disable-icloud -onboardingCompleted YES",
+     "launch": {
+      "fitness.init": {
+       "median": 496,
+       "min": 476,
+       "max": 522,
+       "n": 5,
+       "values": [
+        477,
+        503,
+        522,
+        496,
+        476
+       ]
+      },
+      "library.init": {
+       "median": 512,
+       "min": 486,
+       "max": 557,
+       "n": 5,
+       "values": [
+        488,
+        519,
+        557,
+        512,
+        486
+       ]
+      },
+      "wake.init": {
+       "median": 513,
+       "min": 487,
+       "max": 558,
+       "n": 5,
+       "values": [
+        489,
+        520,
+        558,
+        513,
+        487
+       ]
+      },
+      "downloads.init": {
+       "median": 513,
+       "min": 488,
+       "max": 558,
+       "n": 5,
+       "values": [
+        489,
+        521,
+        558,
+        513,
+        488
+       ]
+      },
+      "music.init": {
+       "median": 516,
+       "min": 490,
+       "max": 561,
+       "n": 5,
+       "values": [
+        492,
+        524,
+        561,
+        516,
+        490
+       ]
+      },
+      "player.init": {
+       "median": 527,
+       "min": 497,
+       "max": 571,
+       "n": 5,
+       "values": [
+        500,
+        533,
+        571,
+        527,
+        497
+       ]
+      },
+      "wakegraph.init": {
+       "median": 529,
+       "min": 499,
+       "max": 574,
+       "n": 5,
+       "values": [
+        502,
+        535,
+        574,
+        529,
+        499
+       ]
+      },
+      "app.init.body": {
+       "median": 535,
+       "min": 502,
+       "max": 583,
+       "n": 5,
+       "values": [
+        505,
+        556,
+        583,
+        535,
+        502
+       ]
+      },
+      "occurrences.snapshot": {
+       "median": 567,
+       "min": 533,
+       "max": 617,
+       "n": 5,
+       "values": [
+        533,
+        587,
+        617,
+        567,
+        533
+       ]
+      },
+      "planningWindows.snapshot": {
+       "median": 568,
+       "min": 534,
+       "max": 618,
+       "n": 5,
+       "values": [
+        534,
+        589,
+        618,
+        568,
+        534
+       ]
+      },
+      "weather.snapshot": {
+       "median": 613,
+       "min": 571,
+       "max": 661,
+       "n": 5,
+       "values": [
+        571,
+        632,
+        661,
+        613,
+        574
+       ]
+      },
+      "app.init.done": {
+       "median": 662,
+       "min": 615,
+       "max": 710,
+       "n": 5,
+       "values": [
+        615,
+        681,
+        710,
+        662,
+        619
+       ]
+      },
+      "alarms.init": {
+       "median": 744,
+       "min": 697,
+       "max": 800,
+       "n": 5,
+       "values": [
+        697,
+        744,
+        800,
+        748,
+        708
+       ]
+      },
+      "smart.init": {
+       "median": 799,
+       "min": 747,
+       "max": 854,
+       "n": 5,
+       "values": [
+        747,
+        799,
+        854,
+        799,
+        758
+       ]
+      },
+      "settings.init": {
+       "median": 809,
+       "min": 756,
+       "max": 864,
+       "n": 5,
+       "values": [
+        756,
+        810,
+        864,
+        809,
+        768
+       ]
+      },
+      "history.init": {
+       "median": 811,
+       "min": 757,
+       "max": 865,
+       "n": 5,
+       "values": [
+        757,
+        811,
+        865,
+        811,
+        769
+       ]
+      },
+      "root.body": {
+       "median": 954,
+       "min": 895,
+       "max": 1015,
+       "n": 5,
+       "values": [
+        895,
+        954,
+        1015,
+        955,
+        906
+       ]
+      },
+      "root.appear": {
+       "median": 1076,
+       "min": 1024,
+       "max": 1137,
+       "n": 5,
+       "values": [
+        1024,
+        1084,
+        1137,
+        1076,
+        1027
+       ]
+      },
+      "fitness.loaded": {
+       "median": 1580,
+       "min": 1526,
+       "max": 1671,
+       "n": 5,
+       "values": [
+        1526,
+        1635,
+        1671,
+        1580,
+        1558
+       ]
+      },
+      "library.loaded": {
+       "median": 1583,
+       "min": 1528,
+       "max": 1673,
+       "n": 5,
+       "values": [
+        1528,
+        1637,
+        1673,
+        1583,
+        1560
+       ]
+      }
+     },
+     "idle": {
+      "cpu_pct_ps": 0.02,
+      "rss_mb": 301.7,
+      "power_cpu_avg": 3.9,
+      "power_cpu_max": 15.8,
+      "power_mem_mb": 44,
+      "power_wakeups": 179,
+      "power_syscalls": 16371,
+      "power_activity": "none",
+      "storms": 0,
+      "high_cpu": 0,
+      "power_lines": 1,
+      "alive_at_end": "yes",
+      "store_sizes_kb": {
+       "Application Support": 280,
+       "Documents": 0,
+       "Caches": 1172,
+       "Preferences": 4,
+       "tmp": 0
+      },
+      "load_before": "load=7.90 16.98 29.74 xcodebuild=0"
+     }
+    },
+    "shell-workouts": {
+     "command": "xcrun simctl launch 7CE990BF-066D-4E79-BA7F-B5F285E6A66C com.boris.banana --ui-preview --dummy-health --tab workouts --disable-icloud -onboardingCompleted YES",
+     "launch": {
+      "fitness.init": {
+       "median": 498,
+       "min": 494,
+       "max": 511,
+       "n": 5,
+       "values": [
+        498,
+        496,
+        511,
+        494,
+        501
+       ]
+      },
+      "library.init": {
+       "median": 513,
+       "min": 509,
+       "max": 532,
+       "n": 5,
+       "values": [
+        513,
+        510,
+        532,
+        509,
+        518
+       ]
+      },
+      "wake.init": {
+       "median": 514,
+       "min": 510,
+       "max": 533,
+       "n": 5,
+       "values": [
+        514,
+        511,
+        533,
+        510,
+        518
+       ]
+      },
+      "downloads.init": {
+       "median": 514,
+       "min": 510,
+       "max": 533,
+       "n": 5,
+       "values": [
+        514,
+        512,
+        533,
+        510,
+        519
+       ]
+      },
+      "music.init": {
+       "median": 517,
+       "min": 513,
+       "max": 536,
+       "n": 5,
+       "values": [
+        517,
+        515,
+        536,
+        513,
+        522
+       ]
+      },
+      "player.init": {
+       "median": 526,
+       "min": 522,
+       "max": 545,
+       "n": 5,
+       "values": [
+        526,
+        525,
+        545,
+        522,
+        532
+       ]
+      },
+      "wakegraph.init": {
+       "median": 528,
+       "min": 524,
+       "max": 547,
+       "n": 5,
+       "values": [
+        528,
+        528,
+        547,
+        524,
+        534
+       ]
+      },
+      "app.init.body": {
+       "median": 533,
+       "min": 528,
+       "max": 552,
+       "n": 5,
+       "values": [
+        533,
+        532,
+        552,
+        528,
+        538
+       ]
+      },
+      "occurrences.snapshot": {
+       "median": 565,
+       "min": 563,
+       "max": 583,
+       "n": 5,
+       "values": [
+        563,
+        565,
+        583,
+        563,
+        575
+       ]
+      },
+      "planningWindows.snapshot": {
+       "median": 567,
+       "min": 564,
+       "max": 584,
+       "n": 5,
+       "values": [
+        564,
+        567,
+        584,
+        565,
+        576
+       ]
+      },
+      "weather.snapshot": {
+       "median": 609,
+       "min": 606,
+       "max": 628,
+       "n": 5,
+       "values": [
+        606,
+        609,
+        628,
+        609,
+        620
+       ]
+      },
+      "app.init.done": {
+       "median": 661,
+       "min": 658,
+       "max": 680,
+       "n": 5,
+       "values": [
+        658,
+        661,
+        680,
+        660,
+        671
+       ]
+      },
+      "alarms.init": {
+       "median": 756,
+       "min": 727,
+       "max": 770,
+       "n": 5,
+       "values": [
+        750,
+        756,
+        770,
+        727,
+        761
+       ]
+      },
+      "smart.init": {
+       "median": 813,
+       "min": 782,
+       "max": 823,
+       "n": 5,
+       "values": [
+        804,
+        813,
+        823,
+        782,
+        815
+       ]
+      },
+      "settings.init": {
+       "median": 824,
+       "min": 792,
+       "max": 836,
+       "n": 5,
+       "values": [
+        815,
+        824,
+        836,
+        792,
+        826
+       ]
+      },
+      "history.init": {
+       "median": 825,
+       "min": 793,
+       "max": 837,
+       "n": 5,
+       "values": [
+        816,
+        825,
+        837,
+        793,
+        827
+       ]
+      },
+      "root.body": {
+       "median": 980,
+       "min": 949,
+       "max": 993,
+       "n": 5,
+       "values": [
+        971,
+        983,
+        993,
+        949,
+        980
+       ]
+      },
+      "root.appear": {
+       "median": 1115,
+       "min": 1088,
+       "max": 1119,
+       "n": 5,
+       "values": [
+        1100,
+        1118,
+        1119,
+        1088,
+        1115
+       ]
+      },
+      "fitness.loaded": {
+       "median": 1562,
+       "min": 1540,
+       "max": 1580,
+       "n": 5,
+       "values": [
+        1545,
+        1562,
+        1580,
+        1540,
+        1571
+       ]
+      },
+      "library.loaded": {
+       "median": 1564,
+       "min": 1542,
+       "max": 1582,
+       "n": 5,
+       "values": [
+        1547,
+        1564,
+        1582,
+        1542,
+        1573
+       ]
+      }
+     },
+     "idle": {
+      "cpu_pct_ps": 0.91,
+      "rss_mb": 332.3,
+      "power_cpu_avg": 5.1,
+      "power_cpu_max": 17.6,
+      "power_mem_mb": 60,
+      "power_wakeups": 8879,
+      "power_syscalls": 110509,
+      "power_activity": "none",
+      "storms": 0,
+      "high_cpu": 0,
+      "power_lines": 1,
+      "alive_at_end": "yes",
+      "store_sizes_kb": {
+       "Application Support": 312,
+       "Documents": 0,
+       "Caches": 1172,
+       "Preferences": 4,
+       "tmp": 0
+      },
+      "load_before": "load=40.01 35.40 38.43 xcodebuild=1"
+     }
+    },
+    "sleep": {
+     "command": "xcrun simctl launch 7CE990BF-066D-4E79-BA7F-B5F285E6A66C com.boris.banana --sleep --disable-icloud -onboardingCompleted YES",
+     "launch": {
+      "fitness.init": {
+       "median": 477,
+       "min": 473,
+       "max": 505,
+       "n": 5,
+       "values": [
+        505,
+        480,
+        476,
+        473,
+        477
+       ]
+      },
+      "library.init": {
+       "median": 489,
+       "min": 485,
+       "max": 517,
+       "n": 5,
+       "values": [
+        517,
+        492,
+        488,
+        485,
+        489
+       ]
+      },
+      "wake.init": {
+       "median": 490,
+       "min": 486,
+       "max": 518,
+       "n": 5,
+       "values": [
+        518,
+        493,
+        489,
+        486,
+        490
+       ]
+      },
+      "downloads.init": {
+       "median": 490,
+       "min": 486,
+       "max": 518,
+       "n": 5,
+       "values": [
+        518,
+        494,
+        489,
+        486,
+        490
+       ]
+      },
+      "music.init": {
+       "median": 493,
+       "min": 489,
+       "max": 522,
+       "n": 5,
+       "values": [
+        522,
+        497,
+        492,
+        489,
+        493
+       ]
+      },
+      "player.init": {
+       "median": 501,
+       "min": 497,
+       "max": 530,
+       "n": 5,
+       "values": [
+        530,
+        505,
+        500,
+        497,
+        501
+       ]
+      },
+      "wakegraph.init": {
+       "median": 503,
+       "min": 500,
+       "max": 532,
+       "n": 5,
+       "values": [
+        532,
+        508,
+        502,
+        500,
+        503
+       ]
+      },
+      "app.init.body": {
+       "median": 507,
+       "min": 503,
+       "max": 536,
+       "n": 5,
+       "values": [
+        536,
+        512,
+        505,
+        503,
+        507
+       ]
+      },
+      "occurrences.snapshot": {
+       "median": 535,
+       "min": 532,
+       "max": 567,
+       "n": 5,
+       "values": [
+        567,
+        542,
+        534,
+        532,
+        535
+       ]
+      },
+      "planningWindows.snapshot": {
+       "median": 536,
+       "min": 533,
+       "max": 570,
+       "n": 5,
+       "values": [
+        570,
+        543,
+        535,
+        533,
+        536
+       ]
+      },
+      "weather.snapshot": {
+       "median": 577,
+       "min": 573,
+       "max": 610,
+       "n": 5,
+       "values": [
+        610,
+        580,
+        574,
+        573,
+        577
+       ]
+      },
+      "app.init.done": {
+       "median": 624,
+       "min": 620,
+       "max": 657,
+       "n": 5,
+       "values": [
+        657,
+        628,
+        620,
+        621,
+        624
+       ]
+      },
+      "alarms.init": {
+       "median": 707,
+       "min": 682,
+       "max": 746,
+       "n": 5,
+       "values": [
+        746,
+        715,
+        707,
+        682,
+        707
+       ]
+      },
+      "smart.init": {
+       "median": 758,
+       "min": 735,
+       "max": 799,
+       "n": 5,
+       "values": [
+        799,
+        768,
+        758,
+        735,
+        758
+       ]
+      },
+      "settings.init": {
+       "median": 768,
+       "min": 746,
+       "max": 810,
+       "n": 5,
+       "values": [
+        810,
+        778,
+        768,
+        746,
+        768
+       ]
+      },
+      "history.init": {
+       "median": 769,
+       "min": 747,
+       "max": 811,
+       "n": 5,
+       "values": [
+        811,
+        779,
+        768,
+        747,
+        769
+       ]
+      },
+      "root.body": {
+       "median": 904,
+       "min": 878,
+       "max": 965,
+       "n": 5,
+       "values": [
+        965,
+        921,
+        896,
+        878,
+        904
+       ]
+      },
+      "root.appear": {
+       "median": 1088,
+       "min": 1066,
+       "max": 1150,
+       "n": 5,
+       "values": [
+        1150,
+        1115,
+        1075,
+        1066,
+        1088
+       ]
+      },
+      "fitness.loaded": {
+       "median": 1219,
+       "min": 1203,
+       "max": 1277,
+       "n": 5,
+       "values": [
+        1277,
+        1251,
+        1203,
+        1214,
+        1219
+       ]
+      },
+      "library.loaded": {
+       "median": 1220,
+       "min": 1204,
+       "max": 1278,
+       "n": 5,
+       "values": [
+        1278,
+        1252,
+        1204,
+        1215,
+        1220
+       ]
+      }
+     },
+     "idle": {
+      "cpu_pct_ps": 0.03,
+      "rss_mb": 275.4,
+      "power_cpu_avg": 3.0,
+      "power_cpu_max": 12.1,
+      "power_mem_mb": 40,
+      "power_wakeups": 67,
+      "power_syscalls": 14661,
+      "power_activity": "none",
+      "storms": 0,
+      "high_cpu": 0,
+      "power_lines": 1,
+      "alive_at_end": "yes",
+      "store_sizes_kb": {
+       "Application Support": 376,
+       "Documents": 0,
+       "Caches": 1172,
+       "Preferences": 4,
+       "tmp": 0
+      },
+      "load_before": "load=100.33 32.09 22.47 xcodebuild=1"
+     }
+    },
+    "today": {
+     "command": "xcrun simctl launch 7CE990BF-066D-4E79-BA7F-B5F285E6A66C com.boris.banana --today --disable-icloud -onboardingCompleted YES",
+     "launch": {
+      "fitness.init": {
+       "median": 491,
+       "min": 484,
+       "max": 498,
+       "n": 5,
+       "values": [
+        498,
+        492,
+        484,
+        491,
+        490
+       ]
+      },
+      "library.init": {
+       "median": 502,
+       "min": 495,
+       "max": 511,
+       "n": 5,
+       "values": [
+        511,
+        503,
+        495,
+        502,
+        502
+       ]
+      },
+      "wake.init": {
+       "median": 502,
+       "min": 496,
+       "max": 512,
+       "n": 5,
+       "values": [
+        512,
+        504,
+        496,
+        502,
+        502
+       ]
+      },
+      "downloads.init": {
+       "median": 503,
+       "min": 496,
+       "max": 512,
+       "n": 5,
+       "values": [
+        512,
+        504,
+        496,
+        503,
+        503
+       ]
+      },
+      "music.init": {
+       "median": 506,
+       "min": 499,
+       "max": 515,
+       "n": 5,
+       "values": [
+        515,
+        506,
+        499,
+        505,
+        506
+       ]
+      },
+      "player.init": {
+       "median": 514,
+       "min": 507,
+       "max": 524,
+       "n": 5,
+       "values": [
+        524,
+        514,
+        507,
+        513,
+        514
+       ]
+      },
+      "wakegraph.init": {
+       "median": 516,
+       "min": 509,
+       "max": 526,
+       "n": 5,
+       "values": [
+        526,
+        516,
+        509,
+        515,
+        517
+       ]
+      },
+      "app.init.body": {
+       "median": 519,
+       "min": 512,
+       "max": 529,
+       "n": 5,
+       "values": [
+        529,
+        519,
+        512,
+        519,
+        520
+       ]
+      },
+      "occurrences.snapshot": {
+       "median": 549,
+       "min": 541,
+       "max": 559,
+       "n": 5,
+       "values": [
+        559,
+        548,
+        541,
+        549,
+        550
+       ]
+      },
+      "planningWindows.snapshot": {
+       "median": 550,
+       "min": 542,
+       "max": 561,
+       "n": 5,
+       "values": [
+        561,
+        549,
+        542,
+        550,
+        551
+       ]
+      },
+      "weather.snapshot": {
+       "median": 590,
+       "min": 582,
+       "max": 602,
+       "n": 5,
+       "values": [
+        602,
+        589,
+        582,
+        590,
+        592
+       ]
+      },
+      "app.init.done": {
+       "median": 638,
+       "min": 632,
+       "max": 652,
+       "n": 5,
+       "values": [
+        652,
+        636,
+        632,
+        638,
+        641
+       ]
+      },
+      "alarms.init": {
+       "median": 723,
+       "min": 703,
+       "max": 742,
+       "n": 5,
+       "values": [
+        742,
+        723,
+        715,
+        724,
+        703
+       ]
+      },
+      "health.init": {
+       "median": 730,
+       "min": 713,
+       "max": 751,
+       "n": 5,
+       "values": [
+        751,
+        730,
+        723,
+        732,
+        713
+       ]
+      },
+      "smart.init": {
+       "median": 747,
+       "min": 731,
+       "max": 769,
+       "n": 5,
+       "values": [
+        769,
+        747,
+        739,
+        749,
+        731
+       ]
+      },
+      "settings.init": {
+       "median": 758,
+       "min": 741,
+       "max": 780,
+       "n": 5,
+       "values": [
+        780,
+        758,
+        749,
+        759,
+        741
+       ]
+      },
+      "history.init": {
+       "median": 759,
+       "min": 742,
+       "max": 781,
+       "n": 5,
+       "values": [
+        781,
+        759,
+        750,
+        760,
+        742
+       ]
+      },
+      "root.body": {
+       "median": 902,
+       "min": 885,
+       "max": 916,
+       "n": 5,
+       "values": [
+        916,
+        901,
+        902,
+        907,
+        885
+       ]
+      },
+      "today.body": {
+       "median": 939,
+       "min": 921,
+       "max": 950,
+       "n": 5,
+       "values": [
+        950,
+        938,
+        939,
+        943,
+        921
+       ]
+      },
+      "today.content": {
+       "median": 967,
+       "min": 950,
+       "max": 978,
+       "n": 5,
+       "values": [
+        978,
+        965,
+        967,
+        971,
+        950
+       ]
+      },
+      "root.appear": {
+       "median": 1211,
+       "min": 1200,
+       "max": 1229,
+       "n": 5,
+       "values": [
+        1229,
+        1204,
+        1211,
+        1220,
+        1200
+       ]
+      },
+      "fitness.loaded": {
+       "median": 1536,
+       "min": 1530,
+       "max": 1547,
+       "n": 5,
+       "values": [
+        1546,
+        1530,
+        1536,
+        1547,
+        1536
+       ]
+      },
+      "library.loaded": {
+       "median": 1537,
+       "min": 1531,
+       "max": 1548,
+       "n": 5,
+       "values": [
+        1547,
+        1531,
+        1536,
+        1548,
+        1537
+       ]
+      }
+     },
+     "idle": {
+      "cpu_pct_ps": 0.03,
+      "rss_mb": 308.0,
+      "power_cpu_avg": 4.2,
+      "power_cpu_max": 16.9,
+      "power_mem_mb": 44,
+      "power_wakeups": 213,
+      "power_syscalls": 16149,
+      "power_activity": "none",
+      "storms": 0,
+      "high_cpu": 0,
+      "power_lines": 1,
+      "alive_at_end": "yes",
+      "store_sizes_kb": {
+       "Application Support": 288,
+       "Documents": 0,
+       "Caches": 1172,
+       "Preferences": 4,
+       "tmp": 0
+      },
+      "load_before": "load=12.17 15.27 23.82 xcodebuild=0"
+     }
+    },
+    "trends": {
+     "command": "xcrun simctl launch 7CE990BF-066D-4E79-BA7F-B5F285E6A66C com.boris.banana --trends --disable-icloud -onboardingCompleted YES",
+     "launch": {
+      "fitness.init": {
+       "median": 474,
+       "min": 466,
+       "max": 478,
+       "n": 5,
+       "values": [
+        466,
+        468,
+        474,
+        478,
+        475
+       ]
+      },
+      "library.init": {
+       "median": 487,
+       "min": 477,
+       "max": 490,
+       "n": 5,
+       "values": [
+        477,
+        480,
+        487,
+        490,
+        487
+       ]
+      },
+      "wake.init": {
+       "median": 488,
+       "min": 478,
+       "max": 491,
+       "n": 5,
+       "values": [
+        478,
+        481,
+        488,
+        491,
+        488
+       ]
+      },
+      "downloads.init": {
+       "median": 489,
+       "min": 478,
+       "max": 491,
+       "n": 5,
+       "values": [
+        478,
+        481,
+        489,
+        491,
+        489
+       ]
+      },
+      "music.init": {
+       "median": 491,
+       "min": 481,
+       "max": 494,
+       "n": 5,
+       "values": [
+        481,
+        485,
+        491,
+        494,
+        491
+       ]
+      },
+      "player.init": {
+       "median": 499,
+       "min": 488,
+       "max": 503,
+       "n": 5,
+       "values": [
+        488,
+        494,
+        500,
+        503,
+        499
+       ]
+      },
+      "wakegraph.init": {
+       "median": 501,
+       "min": 490,
+       "max": 505,
+       "n": 5,
+       "values": [
+        490,
+        496,
+        502,
+        505,
+        501
+       ]
+      },
+      "app.init.body": {
+       "median": 504,
+       "min": 493,
+       "max": 508,
+       "n": 5,
+       "values": [
+        493,
+        500,
+        505,
+        508,
+        504
+       ]
+      },
+      "occurrences.snapshot": {
+       "median": 532,
+       "min": 520,
+       "max": 537,
+       "n": 5,
+       "values": [
+        520,
+        531,
+        533,
+        537,
+        532
+       ]
+      },
+      "planningWindows.snapshot": {
+       "median": 533,
+       "min": 521,
+       "max": 539,
+       "n": 5,
+       "values": [
+        521,
+        532,
+        534,
+        539,
+        533
+       ]
+      },
+      "weather.snapshot": {
+       "median": 571,
+       "min": 559,
+       "max": 577,
+       "n": 5,
+       "values": [
+        559,
+        571,
+        572,
+        577,
+        571
+       ]
+      },
+      "app.init.done": {
+       "median": 617,
+       "min": 602,
+       "max": 620,
+       "n": 5,
+       "values": [
+        602,
+        617,
+        617,
+        620,
+        616
+       ]
+      },
+      "alarms.init": {
+       "median": 696,
+       "min": 678,
+       "max": 700,
+       "n": 5,
+       "values": [
+        682,
+        700,
+        697,
+        678,
+        696
+       ]
+      },
+      "smart.init": {
+       "median": 745,
+       "min": 730,
+       "max": 750,
+       "n": 5,
+       "values": [
+        731,
+        750,
+        747,
+        730,
+        745
+       ]
+      },
+      "settings.init": {
+       "median": 754,
+       "min": 739,
+       "max": 759,
+       "n": 5,
+       "values": [
+        740,
+        759,
+        758,
+        739,
+        754
+       ]
+      },
+      "history.init": {
+       "median": 755,
+       "min": 740,
+       "max": 760,
+       "n": 5,
+       "values": [
+        742,
+        760,
+        759,
+        740,
+        755
+       ]
+      },
+      "root.body": {
+       "median": 895,
+       "min": 873,
+       "max": 901,
+       "n": 5,
+       "values": [
+        873,
+        901,
+        895,
+        880,
+        895
+       ]
+      },
+      "root.appear": {
+       "median": 1077,
+       "min": 1045,
+       "max": 1080,
+       "n": 5,
+       "values": [
+        1045,
+        1077,
+        1077,
+        1075,
+        1080
+       ]
+      },
+      "fitness.loaded": {
+       "median": 1308,
+       "min": 1273,
+       "max": 1314,
+       "n": 5,
+       "values": [
+        1273,
+        1301,
+        1314,
+        1314,
+        1308
+       ]
+      },
+      "library.loaded": {
+       "median": 1309,
+       "min": 1274,
+       "max": 1315,
+       "n": 5,
+       "values": [
+        1274,
+        1302,
+        1315,
+        1315,
+        1309
+       ]
+      }
+     },
+     "idle": {
+      "cpu_pct_ps": 0.02,
+      "rss_mb": 280.7,
+      "power_cpu_avg": 2.5,
+      "power_cpu_max": 9.9,
+      "power_mem_mb": 40,
+      "power_wakeups": 41,
+      "power_syscalls": 13380,
+      "power_activity": "none",
+      "storms": 0,
+      "high_cpu": 0,
+      "power_lines": 1,
+      "alive_at_end": "yes",
+      "store_sizes_kb": {
+       "Application Support": 312,
+       "Documents": 0,
+       "Caches": 1172,
+       "Preferences": 4,
+       "tmp": 0
+      },
+      "load_before": "load=6.64 12.82 16.19 xcodebuild=0"
+     }
+    },
+    "week": {
+     "command": "xcrun simctl launch 7CE990BF-066D-4E79-BA7F-B5F285E6A66C com.boris.banana --week --disable-icloud -onboardingCompleted YES",
+     "launch": {
+      "fitness.init": {
+       "median": 471,
+       "min": 467,
+       "max": 472,
+       "n": 5,
+       "values": [
+        471,
+        467,
+        472,
+        467,
+        472
+       ]
+      },
+      "library.init": {
+       "median": 483,
+       "min": 479,
+       "max": 484,
+       "n": 5,
+       "values": [
+        483,
+        479,
+        483,
+        479,
+        484
+       ]
+      },
+      "wake.init": {
+       "median": 483,
+       "min": 479,
+       "max": 485,
+       "n": 5,
+       "values": [
+        483,
+        480,
+        484,
+        479,
+        485
+       ]
+      },
+      "downloads.init": {
+       "median": 484,
+       "min": 480,
+       "max": 486,
+       "n": 5,
+       "values": [
+        484,
+        480,
+        484,
+        480,
+        486
+       ]
+      },
+      "music.init": {
+       "median": 486,
+       "min": 482,
+       "max": 489,
+       "n": 5,
+       "values": [
+        486,
+        483,
+        487,
+        482,
+        489
+       ]
+      },
+      "player.init": {
+       "median": 493,
+       "min": 489,
+       "max": 496,
+       "n": 5,
+       "values": [
+        493,
+        490,
+        494,
+        489,
+        496
+       ]
+      },
+      "wakegraph.init": {
+       "median": 496,
+       "min": 491,
+       "max": 498,
+       "n": 5,
+       "values": [
+        496,
+        493,
+        496,
+        491,
+        498
+       ]
+      },
+      "app.init.body": {
+       "median": 499,
+       "min": 494,
+       "max": 501,
+       "n": 5,
+       "values": [
+        499,
+        496,
+        499,
+        494,
+        501
+       ]
+      },
+      "occurrences.snapshot": {
+       "median": 526,
+       "min": 521,
+       "max": 528,
+       "n": 5,
+       "values": [
+        526,
+        522,
+        526,
+        521,
+        528
+       ]
+      },
+      "planningWindows.snapshot": {
+       "median": 527,
+       "min": 522,
+       "max": 529,
+       "n": 5,
+       "values": [
+        527,
+        523,
+        527,
+        522,
+        529
+       ]
+      },
+      "weather.snapshot": {
+       "median": 563,
+       "min": 559,
+       "max": 567,
+       "n": 5,
+       "values": [
+        565,
+        560,
+        563,
+        559,
+        567
+       ]
+      },
+      "app.init.done": {
+       "median": 607,
+       "min": 603,
+       "max": 612,
+       "n": 5,
+       "values": [
+        610,
+        603,
+        607,
+        603,
+        612
+       ]
+      },
+      "alarms.init": {
+       "median": 694,
+       "min": 683,
+       "max": 697,
+       "n": 5,
+       "values": [
+        696,
+        683,
+        694,
+        688,
+        697
+       ]
+      },
+      "health.init": {
+       "median": 701,
+       "min": 690,
+       "max": 704,
+       "n": 5,
+       "values": [
+        703,
+        690,
+        701,
+        695,
+        704
+       ]
+      },
+      "smart.init": {
+       "median": 716,
+       "min": 706,
+       "max": 720,
+       "n": 5,
+       "values": [
+        718,
+        706,
+        716,
+        710,
+        720
+       ]
+      },
+      "settings.init": {
+       "median": 726,
+       "min": 714,
+       "max": 729,
+       "n": 5,
+       "values": [
+        727,
+        714,
+        726,
+        719,
+        729
+       ]
+      },
+      "history.init": {
+       "median": 727,
+       "min": 715,
+       "max": 730,
+       "n": 5,
+       "values": [
+        727,
+        715,
+        727,
+        720,
+        730
+       ]
+      },
+      "root.body": {
+       "median": 853,
+       "min": 840,
+       "max": 861,
+       "n": 5,
+       "values": [
+        861,
+        840,
+        854,
+        845,
+        853
+       ]
+      },
+      "root.appear": {
+       "median": 1287,
+       "min": 1275,
+       "max": 1296,
+       "n": 5,
+       "values": [
+        1296,
+        1275,
+        1293,
+        1276,
+        1287
+       ]
+      },
+      "fitness.loaded": {
+       "median": 1647,
+       "min": 1629,
+       "max": 1652,
+       "n": 5,
+       "values": [
+        1647,
+        1629,
+        1652,
+        1634,
+        1647
+       ]
+      },
+      "library.loaded": {
+       "median": 1648,
+       "min": 1629,
+       "max": 1652,
+       "n": 5,
+       "values": [
+        1648,
+        1629,
+        1652,
+        1634,
+        1648
+       ]
+      }
+     },
+     "idle": {
+      "cpu_pct_ps": 0.03,
+      "rss_mb": 313.0,
+      "power_cpu_avg": 4.4,
+      "power_cpu_max": 17.5,
+      "power_mem_mb": 52,
+      "power_wakeups": 82,
+      "power_syscalls": 16188,
+      "power_activity": "none",
+      "storms": 0,
+      "high_cpu": 0,
+      "power_lines": 1,
+      "alive_at_end": "yes",
+      "store_sizes_kb": {
+       "Application Support": 352,
+       "Documents": 0,
+       "Caches": 1172,
+       "Preferences": 4,
+       "tmp": 0
+      },
+      "load_before": "load=16.76 15.67 21.50 xcodebuild=0"
+     }
+    },
+    "wellness": {
+     "command": "xcrun simctl launch 7CE990BF-066D-4E79-BA7F-B5F285E6A66C com.boris.banana --wellness --nutrition-week --disable-icloud -onboardingCompleted YES",
+     "launch": {
+      "fitness.init": {
+       "median": 478,
+       "min": 474,
+       "max": 484,
+       "n": 5,
+       "values": [
+        478,
+        474,
+        475,
+        484,
+        484
+       ]
+      },
+      "library.init": {
+       "median": 489,
+       "min": 487,
+       "max": 497,
+       "n": 5,
+       "values": [
+        489,
+        487,
+        487,
+        497,
+        497
+       ]
+      },
+      "wake.init": {
+       "median": 490,
+       "min": 487,
+       "max": 498,
+       "n": 5,
+       "values": [
+        490,
+        487,
+        488,
+        498,
+        498
+       ]
+      },
+      "downloads.init": {
+       "median": 490,
+       "min": 488,
+       "max": 498,
+       "n": 5,
+       "values": [
+        490,
+        488,
+        488,
+        498,
+        498
+       ]
+      },
+      "music.init": {
+       "median": 493,
+       "min": 490,
+       "max": 501,
+       "n": 5,
+       "values": [
+        493,
+        490,
+        491,
+        501,
+        501
+       ]
+      },
+      "player.init": {
+       "median": 501,
+       "min": 498,
+       "max": 510,
+       "n": 5,
+       "values": [
+        501,
+        498,
+        498,
+        508,
+        510
+       ]
+      },
+      "wakegraph.init": {
+       "median": 503,
+       "min": 501,
+       "max": 512,
+       "n": 5,
+       "values": [
+        503,
+        501,
+        501,
+        511,
+        512
+       ]
+      },
+      "app.init.body": {
+       "median": 506,
+       "min": 504,
+       "max": 516,
+       "n": 5,
+       "values": [
+        506,
+        504,
+        504,
+        514,
+        516
+       ]
+      },
+      "occurrences.snapshot": {
+       "median": 536,
+       "min": 533,
+       "max": 545,
+       "n": 5,
+       "values": [
+        536,
+        533,
+        535,
+        542,
+        545
+       ]
+      },
+      "planningWindows.snapshot": {
+       "median": 537,
+       "min": 534,
+       "max": 546,
+       "n": 5,
+       "values": [
+        537,
+        534,
+        536,
+        543,
+        546
+       ]
+      },
+      "weather.snapshot": {
+       "median": 577,
+       "min": 573,
+       "max": 588,
+       "n": 5,
+       "values": [
+        577,
+        573,
+        577,
+        583,
+        588
+       ]
+      },
+      "app.init.done": {
+       "median": 623,
+       "min": 622,
+       "max": 635,
+       "n": 5,
+       "values": [
+        622,
+        623,
+        623,
+        632,
+        635
+       ]
+      },
+      "alarms.init": {
+       "median": 708,
+       "min": 684,
+       "max": 719,
+       "n": 5,
+       "values": [
+        705,
+        684,
+        708,
+        717,
+        719
+       ]
+      },
+      "health.init": {
+       "median": 715,
+       "min": 694,
+       "max": 727,
+       "n": 5,
+       "values": [
+        713,
+        694,
+        715,
+        725,
+        727
+       ]
+      },
+      "smart.init": {
+       "median": 732,
+       "min": 710,
+       "max": 745,
+       "n": 5,
+       "values": [
+        729,
+        710,
+        732,
+        741,
+        745
+       ]
+      },
+      "settings.init": {
+       "median": 742,
+       "min": 720,
+       "max": 754,
+       "n": 5,
+       "values": [
+        739,
+        720,
+        742,
+        750,
+        754
+       ]
+      },
+      "history.init": {
+       "median": 743,
+       "min": 721,
+       "max": 755,
+       "n": 5,
+       "values": [
+        740,
+        721,
+        743,
+        751,
+        755
+       ]
+      },
+      "root.body": {
+       "median": 886,
+       "min": 865,
+       "max": 888,
+       "n": 5,
+       "values": [
+        879,
+        865,
+        888,
+        886,
+        886
+       ]
+      },
+      "root.appear": {
+       "median": 1018,
+       "min": 1008,
+       "max": 1019,
+       "n": 5,
+       "values": [
+        1013,
+        1008,
+        1019,
+        1018,
+        1018
+       ]
+      },
+      "fitness.loaded": {
+       "median": 1317,
+       "min": 1312,
+       "max": 1322,
+       "n": 5,
+       "values": [
+        1317,
+        1322,
+        1313,
+        1318,
+        1312
+       ]
+      },
+      "library.loaded": {
+       "median": 1318,
+       "min": 1313,
+       "max": 1323,
+       "n": 5,
+       "values": [
+        1318,
+        1323,
+        1314,
+        1319,
+        1313
+       ]
+      }
+     },
+     "idle": {
+      "cpu_pct_ps": 0.02,
+      "rss_mb": 287.8,
+      "power_cpu_avg": 2.9,
+      "power_cpu_max": 11.5,
+      "power_mem_mb": 38,
+      "power_wakeups": 46,
+      "power_syscalls": 14907,
+      "power_activity": "none",
+      "storms": 0,
+      "high_cpu": 0,
+      "power_lines": 1,
+      "alive_at_end": "yes",
+      "store_sizes_kb": {
+       "Application Support": 296,
+       "Documents": 0,
+       "Caches": 1172,
+       "Preferences": 4,
+       "tmp": 0
+      },
+      "load_before": "load=8.77 12.62 19.37 xcodebuild=0"
+     }
+    },
+    "workouts": {
+     "command": "xcrun simctl launch 7CE990BF-066D-4E79-BA7F-B5F285E6A66C com.boris.banana --dummy-health --disable-icloud -onboardingCompleted YES",
+     "launch": {
+      "fitness.init": {
+       "median": 475,
+       "min": 467,
+       "max": 481,
+       "n": 5,
+       "values": [
+        467,
+        475,
+        469,
+        481,
+        478
+       ]
+      },
+      "library.init": {
+       "median": 487,
+       "min": 479,
+       "max": 492,
+       "n": 5,
+       "values": [
+        479,
+        487,
+        479,
+        492,
+        489
+       ]
+      },
+      "wake.init": {
+       "median": 487,
+       "min": 480,
+       "max": 493,
+       "n": 5,
+       "values": [
+        480,
+        487,
+        480,
+        493,
+        490
+       ]
+      },
+      "downloads.init": {
+       "median": 488,
+       "min": 480,
+       "max": 493,
+       "n": 5,
+       "values": [
+        480,
+        488,
+        480,
+        493,
+        490
+       ]
+      },
+      "music.init": {
+       "median": 490,
+       "min": 483,
+       "max": 496,
+       "n": 5,
+       "values": [
+        483,
+        490,
+        483,
+        496,
+        494
+       ]
+      },
+      "player.init": {
+       "median": 498,
+       "min": 490,
+       "max": 503,
+       "n": 5,
+       "values": [
+        491,
+        498,
+        490,
+        503,
+        501
+       ]
+      },
+      "wakegraph.init": {
+       "median": 500,
+       "min": 492,
+       "max": 506,
+       "n": 5,
+       "values": [
+        493,
+        500,
+        492,
+        506,
+        503
+       ]
+      },
+      "app.init.body": {
+       "median": 503,
+       "min": 495,
+       "max": 509,
+       "n": 5,
+       "values": [
+        496,
+        503,
+        495,
+        509,
+        506
+       ]
+      },
+      "occurrences.snapshot": {
+       "median": 531,
+       "min": 522,
+       "max": 537,
+       "n": 5,
+       "values": [
+        523,
+        531,
+        522,
+        537,
+        537
+       ]
+      },
+      "planningWindows.snapshot": {
+       "median": 532,
+       "min": 523,
+       "max": 538,
+       "n": 5,
+       "values": [
+        524,
+        532,
+        523,
+        538,
+        538
+       ]
+      },
+      "weather.snapshot": {
+       "median": 568,
+       "min": 560,
+       "max": 580,
+       "n": 5,
+       "values": [
+        563,
+        568,
+        560,
+        576,
+        580
+       ]
+      },
+      "app.init.done": {
+       "median": 611,
+       "min": 603,
+       "max": 626,
+       "n": 5,
+       "values": [
+        606,
+        611,
+        603,
+        619,
+        626
+       ]
+      },
+      "alarms.init": {
+       "median": 689,
+       "min": 684,
+       "max": 708,
+       "n": 5,
+       "values": [
+        686,
+        689,
+        684,
+        700,
+        708
+       ]
+      },
+      "smart.init": {
+       "median": 739,
+       "min": 733,
+       "max": 759,
+       "n": 5,
+       "values": [
+        736,
+        739,
+        733,
+        748,
+        759
+       ]
+      },
+      "settings.init": {
+       "median": 748,
+       "min": 742,
+       "max": 769,
+       "n": 5,
+       "values": [
+        746,
+        748,
+        742,
+        758,
+        769
+       ]
+      },
+      "history.init": {
+       "median": 749,
+       "min": 743,
+       "max": 770,
+       "n": 5,
+       "values": [
+        747,
+        749,
+        743,
+        759,
+        770
+       ]
+      },
+      "root.body": {
+       "median": 882,
+       "min": 871,
+       "max": 912,
+       "n": 5,
+       "values": [
+        882,
+        871,
+        872,
+        892,
+        912
+       ]
+      },
+      "root.appear": {
+       "median": 1018,
+       "min": 1009,
+       "max": 1060,
+       "n": 5,
+       "values": [
+        1018,
+        1009,
+        1010,
+        1034,
+        1060
+       ]
+      },
+      "fitness.loaded": {
+       "median": 1220,
+       "min": 1210,
+       "max": 1268,
+       "n": 5,
+       "values": [
+        1220,
+        1210,
+        1214,
+        1238,
+        1268
+       ]
+      },
+      "library.loaded": {
+       "median": 1222,
+       "min": 1211,
+       "max": 1270,
+       "n": 5,
+       "values": [
+        1222,
+        1211,
+        1215,
+        1240,
+        1270
+       ]
+      }
+     },
+     "idle": {
+      "cpu_pct_ps": 0.02,
+      "rss_mb": 287.5,
+      "power_cpu_avg": 3.0,
+      "power_cpu_max": 11.8,
+      "power_mem_mb": 37,
+      "power_wakeups": 48,
+      "power_syscalls": 14705,
+      "power_activity": "none",
+      "storms": 0,
+      "high_cpu": 0,
+      "power_lines": 1,
+      "alive_at_end": "yes",
+      "store_sizes_kb": {
+       "Application Support": 300,
+       "Documents": 0,
+       "Caches": 1172,
+       "Preferences": 4,
+       "tmp": 0
+      },
+      "load_before": "load=6.09 10.27 17.40 xcodebuild=0"
+     }
+    }
+   }
+  }
+ }
+}

@@ -1,0 +1,36 @@
+test_cooperative_queue_matrix_keeps_alternating_controls (test_device_runner.DeviceRunnerTests.test_cooperative_queue_matrix_keeps_alternating_controls) ... ok
+test_foreground_accessibility_changes_only_accessibility_policy (test_device_runner.DeviceRunnerTests.test_foreground_accessibility_changes_only_accessibility_policy) ... ok
+test_foreground_matrix_preserves_matched_controls (test_device_runner.DeviceRunnerTests.test_foreground_matrix_preserves_matched_controls) ... ok
+test_install_failure_keeps_all_scenarios_unmeasured (test_device_runner.DeviceRunnerTests.test_install_failure_keeps_all_scenarios_unmeasured) ... ok
+test_interruption_keeps_current_and_remaining_scenarios (test_device_runner.DeviceRunnerTests.test_interruption_keeps_current_and_remaining_scenarios) ... ok
+test_matrix_retains_three_alternating_trials_at_both_densities (test_device_runner.DeviceRunnerTests.test_matrix_retains_three_alternating_trials_at_both_densities) ... ok
+test_native_surface_matrix_preserves_controls_and_densities (test_device_runner.DeviceRunnerTests.test_native_surface_matrix_preserves_controls_and_densities) ... ok
+test_repeated_launch_failures_retain_unmeasured_coverage (test_device_runner.DeviceRunnerTests.test_repeated_launch_failures_retain_unmeasured_coverage) ... ok
+test_surface_accessibility_matrix_keeps_storage_fixed (test_device_runner.DeviceRunnerTests.test_surface_accessibility_matrix_keeps_storage_fixed) ... ok
+test_export_references_are_resolved (test_hitches_report.HitchesReportTests.test_export_references_are_resolved) ... ok
+test_gpu_overrun_is_retained_independently (test_hitches_report.HitchesReportTests.test_gpu_overrun_is_retained_independently) ... ok
+test_no_hitches_does_not_erase_render_overrun (test_hitches_report.HitchesReportTests.test_no_hitches_does_not_erase_render_overrun) ... ok
+test_pipeline_lifetime_is_not_single_frame_budget (test_hitches_report.HitchesReportTests.test_pipeline_lifetime_is_not_single_frame_budget) ... ok
+test_wrong_process_and_missing_compositor_coverage_fail (test_hitches_report.HitchesReportTests.test_wrong_process_and_missing_compositor_coverage_fail) ... ok
+testCompleteFastComponentsDoNotCertifyUI (test_mac_recovery.RecoveryReportTests.testCompleteFastComponentsDoNotCertifyUI) ... ok
+testMainSectionBudgetIsIndependentOfResponseBudget (test_mac_recovery.RecoveryReportTests.testMainSectionBudgetIsIndependentOfResponseBudget) ... ok
+testMalformedShapeIsUnmeasuredRatherThanACollectorCrash (test_mac_recovery.RecoveryReportTests.testMalformedShapeIsUnmeasuredRatherThanACollectorCrash) ... ok
+testMissingCoverageOrSynchronousFallbackInvalidates (test_mac_recovery.RecoveryReportTests.testMissingCoverageOrSynchronousFallbackInvalidates) ... ok
+testOneColdOutlierCannotDisappearInPercentiles (test_mac_recovery.RecoveryReportTests.testOneColdOutlierCannotDisappearInPercentiles) ... ok
+testWrongScenarioOrDroppedSampleInvalidates (test_mac_recovery.RecoveryReportTests.testWrongScenarioOrDroppedSampleInvalidates) ... ok
+test_absent_or_invalid_evidence_cannot_pass (test_report.EvidenceTests.test_absent_or_invalid_evidence_cannot_pass) ... ok
+test_accessibility_page_cache_bounds_are_required (test_report.EvidenceTests.test_accessibility_page_cache_bounds_are_required) ... ok
+test_fast_component_never_certifies_ui (test_report.EvidenceTests.test_fast_component_never_certifies_ui) ... ok
+test_foreground_requires_complete_correct_measured_publication (test_report.EvidenceTests.test_foreground_requires_complete_correct_measured_publication) ... ok
+test_native_requires_draw_coverage_and_all_recovery_experiments (test_report.EvidenceTests.test_native_requires_draw_coverage_and_all_recovery_experiments) ... ok
+test_navigation_stress_cannot_omit_failures_or_coverage (test_report.EvidenceTests.test_navigation_stress_cannot_omit_failures_or_coverage) ... ok
+test_one_slow_sample_is_retained (test_report.EvidenceTests.test_one_slow_sample_is_retained) ... ok
+test_percentile_does_not_hide_maximum (test_report.EvidenceTests.test_percentile_does_not_hide_maximum) ... ok
+test_raster_cache_limits_are_required_evidence (test_report.EvidenceTests.test_raster_cache_limits_are_required_evidence) ... ok
+test_stale_calendar_page_is_invalid (test_report.EvidenceTests.test_stale_calendar_page_is_invalid) ... ok
+test_tiles_require_contents_and_bounded_retention (test_report.EvidenceTests.test_tiles_require_contents_and_bounded_retention) ... ok
+
+----------------------------------------------------------------------
+Ran 31 tests in 0.040s
+
+OK

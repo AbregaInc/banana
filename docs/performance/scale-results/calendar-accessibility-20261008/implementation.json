@@ -1,0 +1,42 @@
+{
+  "recorded": "2026-10-08T20:11:12.430083-04:00",
+  "parentCommit": "bc6a01455e3509d19158b1e1994b9b07db642a8b",
+  "scope": "Isolated renderer accessibility retention experiment; production unchanged",
+  "sourceSHA256": {
+    "tools/calendar-library-benchmark/Shared/PrototypeModel.swift": "825d35f3cdddd4955dfcf5e0a53027170bc34d1a298d8b904c9917032e187b2e",
+    "tools/calendar-library-benchmark/Shared/PreparedText.swift": "a513fee9a3b658d14642bfa6f62958c85003db8b1cfa59f82224ad4f335571e1",
+    "tools/calendar-library-benchmark/Shared/Optimizations.swift": "f3d2e4364fed971f6384e8d62d4942c62615a45d80441a53485cb5ae4f9b436e",
+    "tools/calendar-library-benchmark/Shared/RasterPage.swift": "830a9b9ecc4e2632ee377f6b9b1e07f41f296c2ad2939715c3d2009d436b4783",
+    "tools/calendar-library-benchmark/Shared/DayGeometry.swift": "4055cdc583cd84683ce9fd6d7dbbe09bb4c6a5e814a4fc81354c3d6c00aeb2a2",
+    "tools/calendar-library-benchmark/Shared/CalendarSurface.swift": "3bd65e34e665dd47857bad976f886554a9d6f375a844d1e864c16bb3e7504f5c",
+    "tools/calendar-library-benchmark/Shared/Fixtures.swift": "a05a57e756c8327fe096aade509071e0296bb1d37d4e89a9900f92a34ba5678a",
+    "tools/calendar-library-benchmark/Native/MacBenchmark.swift": "2ad7efc9193f9b822951d293c7dd1087333c9c9b68e59ed8b21d85db5456a6db",
+    "tools/calendar-library-benchmark/Sources/NativeController.swift": "4e00168a6830f843529f54d51356c6fe10f08fc4fe4a499a61a3aa07c562a25f",
+    "tools/calendar-library-benchmark/AccessibilityTests/main.swift": "372c2bceca947a5407cab10f3d1e19e4e7c07612738a74833fb431e666118e1e",
+    "tools/calendar-library-benchmark/RasterTests/main.swift": "dddbed923be69966c8bf889c14142a57c02edc92c51902313536b5dab31ff3f9",
+    ".github/workflows/performance-contract.yml": "9bd3bac86c118c2cb4c1fd22412796e25e5594f115ac37513bd00fe8b7f2b8c7",
+    "tools/calendar-library-benchmark/run.py": "2dd3ac19e067ad3c155f407a45ea70dcb658139702ffbfebd8775aaf03b6ca6b",
+    "tools/calendar-library-benchmark/run-mac.py": "4161f4f98cd272834409ae1e28ad65023d4e1b1ae7efe25e59e5d7934bf7c45c"
+  },
+  "binarySHA256": {
+    ".build/calendar-accessibility/MacCalendarBenchmark": "481a4a6d86d42e93cb5548cf15cfc0783564dd9b3f4c196d6a8b3a89716de1de",
+    ".build/calendar-accessibility/checks": "63183d501bccc27d6f82f092797633bb2bc712b06e34de429ca05725e46cbce1",
+    ".build/calendar-library-benchmark-dd/Build/Products/Release-iphonesimulator/CalendarLibraryBenchmark.app/CalendarLibraryBenchmark": "c44cba722ad3fb4fa2ad6e14b3e9fabf41158457b328a73a7c8471e548d23d9b"
+  },
+  "baselinesChanged": false,
+  "uiAcceptance": "unmeasured",
+  "budgetStatus": "fail",
+  "checks": {
+    "geometry": 2088,
+    "textPixels": 28,
+    "raster": 233,
+    "pythonGates": 19,
+    "pythonRenderer": 7,
+    "componentComparisons": 12,
+    "nativeMatrix": 24,
+    "iphoneMatrix": 24,
+    "ipadMatrix": 24,
+    "appRegressionCases": 8,
+    "appRegressionStatus": "fail"
+  }
+}

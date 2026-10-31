@@ -1,0 +1,5 @@
+triage write path, wal_autocheckpoint=0 (checkpoints run explicitly, never inside a user action's commit):
+  archive one conversation, one transaction each: n=1000 p50=0.333 ms p95=0.473 ms p99=0.960 ms max=46.921 ms
+  WAL after 1000 archives: 37.9 MB
+  explicit checkpoint(PASSIVE): 20.03 ms
+  unread recount for 12 views by partial index: n=200 p50=0.224 ms p95=0.231 ms p99=0.255 ms max=8.921 ms

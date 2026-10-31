@@ -1,0 +1,38 @@
+{
+  "status": "failed-or-incomplete",
+  "mode": "Week",
+  "template": "Animation Hitches",
+  "cellHostPolicy": "clear",
+  "viewport": "reference",
+  "eventsPerDay": 100,
+  "orientation": "landscape",
+  "device": "<device-udid>",
+  "instrumentsDevice": "AyePad (27.0.1)",
+  "scope": "Partial Instruments trace of integrated app scrolling; no input-to-visible acceptance",
+  "commands": [
+    [
+      "xcrun",
+      "xctrace",
+      "list",
+      "devices"
+    ],
+    [
+      "xcodebuild",
+      "test-without-building",
+      "-xctestrun",
+      ".build/physical-stress-ui-dd/Build/Products/PhysicalStressUITests-system-idle-probe-landscape.xctestrun",
+      "-destination",
+      "platform=iOS,id=<device-udid>",
+      "-resultBundlePath",
+      ".build/viewport-compare-20261029/ipadpro-m1-landscape-week/week-1-reference/ui.xcresult",
+      "-parallel-testing-enabled",
+      "NO",
+      "-collect-test-diagnostics",
+      "never",
+      "-only-testing:PhysicalStressUITests/ScaleStressUITests/testPhysicalWeekReferenceScrollTrace"
+    ]
+  ],
+  "xctestrun": ".build/physical-stress-ui-dd/Build/Products/PhysicalStressUITests-system-idle-probe-landscape.xctestrun",
+  "error": "No observed scroll window before test ended or deadline",
+  "testExit": 65
+}

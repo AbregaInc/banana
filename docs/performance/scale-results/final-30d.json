@@ -1,0 +1,84 @@
+{
+  "days": 30,
+  "emails": 60000,
+  "episodes": 300000,
+  "events": 3000,
+  "metrics": [
+    {
+      "budgetMS": 50,
+      "checksum": 350,
+      "medianMS": 0.0002499727997928858,
+      "name": "mail.firstPage",
+      "p95MS": 14.057583321118727
+    },
+    {
+      "budgetMS": 100,
+      "checksum": 350,
+      "medianMS": 28.022708342177793,
+      "name": "mail.readMutation",
+      "p95MS": 28.571000002557412
+    },
+    {
+      "budgetMS": 16,
+      "checksum": 4900,
+      "medianMS": 0.2708749962039292,
+      "name": "calendar.visibleWeek",
+      "p95MS": 4.877166677033529
+    },
+    {
+      "budgetMS": 8,
+      "checksum": 700,
+      "medianMS": 0.0032916723284870386,
+      "name": "calendar.day",
+      "p95MS": 0.8835833286866546
+    },
+    {
+      "budgetMS": 100,
+      "checksum": 9884,
+      "medianMS": 0.0006250047590583563,
+      "name": "notes.search",
+      "p95MS": 32.8533333085943
+    },
+    {
+      "budgetMS": 16,
+      "checksum": 168000,
+      "medianMS": 0.000500003807246685,
+      "name": "notes.browse",
+      "p95MS": 0.0009583309292793274
+    },
+    {
+      "budgetMS": 100,
+      "checksum": 2100,
+      "medianMS": 5.9668750036507845,
+      "name": "podcasts.nextAcrossCatalog",
+      "p95MS": 8.343791676452383
+    },
+    {
+      "budgetMS": 100,
+      "checksum": 6300,
+      "medianMS": 11.024000006727874,
+      "name": "podcasts.downloadCandidates",
+      "p95MS": 11.554166674613953
+    }
+  ],
+  "notes": 30000,
+  "passed": true,
+  "platform": "iOS Simulator; model operations; mail fixture source",
+  "podcasts": 300,
+  "residentMB": 635.28125,
+  "schemaVersion": 1,
+  "label": "final",
+  "commit": "3072f8fe54165b18071bc33dd64b20daf8f6f424",
+  "device": "E5232BE0-8F82-4E85-A03B-5CA7160571E2",
+  "binarySHA256": "4e9cebb90e18a24ff89e0f5d525462b203884934764c1d8189f8b60ec2d574c5",
+  "hostLoad": [
+    161.59716796875,
+    158.55859375,
+    156.4365234375
+  ],
+  "dirty": true,
+  "readySeconds": 4.413,
+  "memoryBudgetMB": 900,
+  "memoryPassed": true,
+  "regressions": []
+}

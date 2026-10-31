@@ -1,0 +1,64 @@
+["xcrun", "devicectl", "device", "install", "app", "--device", "<device-udid>", "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-library-touch-dd/Build/Products/Release-iphoneos/CalendarLibraryBenchmark.app"]
+App installed:
+• bundleID: com.boris.banana.calendar-library-benchmark
+• installationURL: file:///private/var/containers/Bundle/Application/E1CE9851-C1C1-414A-8474-3BE5A9B51E01/CalendarLibraryBenchmark.app/
+• launchServicesIdentifier: unknown
+• databaseUUID: 4A2A6963-B40E-4B5A-827C-40E4E1FB022D
+• databaseSequenceNumber: 2296
+• options:
+
+["xcrun", "devicectl", "device", "process", "launch", "--device", "<device-udid>", "--terminate-existing", "com.boris.banana.calendar-library-benchmark", "--candidate", "native", "--mode", "week", "--days", "365", "--density", "100", "--renderer", "tiles", "--ablation", "tile-prefetch-async-surface", "--async-workers", "2", "--check", "navigation", "--output", "final-dbf7b11c-53c5-4467-8952-d094b8167d60.json"]
+Launched application with com.boris.banana.calendar-library-benchmark bundle identifier.
+
+["xcrun", "devicectl", "device", "copy", "from", "--device", "<device-udid>", "--source", "Documents/final-dbf7b11c-53c5-4467-8952-d094b8167d60.json", "--domain-type", "appDataContainer", "--domain-identifier", "com.boris.banana.calendar-library-benchmark", "--destination", "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-async-preparation/final-physical-checks/iphone-100-control.json"]
+File received from Device
+~/orca/workspaces/gtfuwgth/stingray/.build/calendar-async-preparation/final-physical-checks/iphone-100-control.json
+
+["xcrun", "devicectl", "device", "process", "launch", "--device", "<device-udid>", "--terminate-existing", "com.boris.banana.calendar-library-benchmark", "--candidate", "native", "--mode", "week", "--days", "365", "--density", "100", "--renderer", "tiles", "--ablation", "tile-prefetch-async-surface", "--async-workers", "2", "--check", "navigation", "--output", "final-c6275b81-cc91-4fa4-b118-31125bce3818.json", "--foreground-dispatch"]
+Launched application with com.boris.banana.calendar-library-benchmark bundle identifier.
+
+["xcrun", "devicectl", "device", "copy", "from", "--device", "<device-udid>", "--source", "Documents/final-c6275b81-cc91-4fa4-b118-31125bce3818.json", "--domain-type", "appDataContainer", "--domain-identifier", "com.boris.banana.calendar-library-benchmark", "--destination", "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-async-preparation/final-physical-checks/iphone-100-dispatch.json"]
+File received from Device
+~/orca/workspaces/gtfuwgth/stingray/.build/calendar-async-preparation/final-physical-checks/iphone-100-dispatch.json
+
+["xcrun", "devicectl", "device", "process", "launch", "--device", "<device-udid>", "--terminate-existing", "com.boris.banana.calendar-library-benchmark", "--candidate", "native", "--mode", "week", "--days", "365", "--density", "100", "--renderer", "tiles", "--ablation", "tile-prefetch-async-surface", "--async-workers", "2", "--check", "navigation", "--output", "final-5c867407-4256-431a-a717-5c29e8af0aeb.json", "--raster-native-text"]
+Launched application with com.boris.banana.calendar-library-benchmark bundle identifier.
+
+["xcrun", "devicectl", "device", "copy", "from", "--device", "<device-udid>", "--source", "Documents/final-5c867407-4256-431a-a717-5c29e8af0aeb.json", "--domain-type", "appDataContainer", "--domain-identifier", "com.boris.banana.calendar-library-benchmark", "--destination", "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-async-preparation/final-physical-checks/iphone-100-text.json"]
+File received from Device
+~/orca/workspaces/gtfuwgth/stingray/.build/calendar-async-preparation/final-physical-checks/iphone-100-text.json
+
+["xcrun", "devicectl", "device", "process", "launch", "--device", "<device-udid>", "--terminate-existing", "com.boris.banana.calendar-library-benchmark", "--candidate", "native", "--mode", "week", "--days", "365", "--density", "100", "--renderer", "tiles", "--ablation", "tile-prefetch-async-surface", "--async-workers", "2", "--check", "navigation", "--output", "final-84c0e797-4aaa-46d7-a194-2f3fe8dfe462.json", "--foreground-dispatch", "--raster-native-text"]
+Launched application with com.boris.banana.calendar-library-benchmark bundle identifier.
+
+["xcrun", "devicectl", "device", "copy", "from", "--device", "<device-udid>", "--source", "Documents/final-84c0e797-4aaa-46d7-a194-2f3fe8dfe462.json", "--domain-type", "appDataContainer", "--domain-identifier", "com.boris.banana.calendar-library-benchmark", "--destination", "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-async-preparation/final-physical-checks/iphone-100-combined.json"]
+File received from Device
+~/orca/workspaces/gtfuwgth/stingray/.build/calendar-async-preparation/final-physical-checks/iphone-100-combined.json
+
+["xcrun", "devicectl", "device", "process", "launch", "--device", "<device-udid>", "--terminate-existing", "com.boris.banana.calendar-library-benchmark", "--candidate", "native", "--mode", "week", "--days", "365", "--density", "300", "--renderer", "tiles", "--ablation", "tile-prefetch-async-surface", "--async-workers", "2", "--check", "navigation", "--output", "final-bb3ad0a2-9e22-49a5-9d8c-d74b930796ff.json"]
+Launched application with com.boris.banana.calendar-library-benchmark bundle identifier.
+
+["xcrun", "devicectl", "device", "copy", "from", "--device", "<device-udid>", "--source", "Documents/final-bb3ad0a2-9e22-49a5-9d8c-d74b930796ff.json", "--domain-type", "appDataContainer", "--domain-identifier", "com.boris.banana.calendar-library-benchmark", "--destination", "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-async-preparation/final-physical-checks/iphone-300-control.json"]
+File received from Device
+~/orca/workspaces/gtfuwgth/stingray/.build/calendar-async-preparation/final-physical-checks/iphone-300-control.json
+
+["xcrun", "devicectl", "device", "process", "launch", "--device", "<device-udid>", "--terminate-existing", "com.boris.banana.calendar-library-benchmark", "--candidate", "native", "--mode", "week", "--days", "365", "--density", "300", "--renderer", "tiles", "--ablation", "tile-prefetch-async-surface", "--async-workers", "2", "--check", "navigation", "--output", "final-39dd4dee-c994-41f2-927e-c084d47b614c.json", "--foreground-dispatch"]
+Launched application with com.boris.banana.calendar-library-benchmark bundle identifier.
+
+["xcrun", "devicectl", "device", "copy", "from", "--device", "<device-udid>", "--source", "Documents/final-39dd4dee-c994-41f2-927e-c084d47b614c.json", "--domain-type", "appDataContainer", "--domain-identifier", "com.boris.banana.calendar-library-benchmark", "--destination", "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-async-preparation/final-physical-checks/iphone-300-dispatch.json"]
+File received from Device
+~/orca/workspaces/gtfuwgth/stingray/.build/calendar-async-preparation/final-physical-checks/iphone-300-dispatch.json
+
+["xcrun", "devicectl", "device", "process", "launch", "--device", "<device-udid>", "--terminate-existing", "com.boris.banana.calendar-library-benchmark", "--candidate", "native", "--mode", "week", "--days", "365", "--density", "300", "--renderer", "tiles", "--ablation", "tile-prefetch-async-surface", "--async-workers", "2", "--check", "navigation", "--output", "final-01cf8133-dd3b-4c1d-97b5-02ecbe66abd9.json", "--raster-native-text"]
+Launched application with com.boris.banana.calendar-library-benchmark bundle identifier.
+
+["xcrun", "devicectl", "device", "copy", "from", "--device", "<device-udid>", "--source", "Documents/final-01cf8133-dd3b-4c1d-97b5-02ecbe66abd9.json", "--domain-type", "appDataContainer", "--domain-identifier", "com.boris.banana.calendar-library-benchmark", "--destination", "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-async-preparation/final-physical-checks/iphone-300-text.json"]
+File received from Device
+~/orca/workspaces/gtfuwgth/stingray/.build/calendar-async-preparation/final-physical-checks/iphone-300-text.json
+
+["xcrun", "devicectl", "device", "process", "launch", "--device", "<device-udid>", "--terminate-existing", "com.boris.banana.calendar-library-benchmark", "--candidate", "native", "--mode", "week", "--days", "365", "--density", "300", "--renderer", "tiles", "--ablation", "tile-prefetch-async-surface", "--async-workers", "2", "--check", "navigation", "--output", "final-6e410eeb-de16-448e-b740-65c2541cb512.json", "--foreground-dispatch", "--raster-native-text"]
+Launched application with com.boris.banana.calendar-library-benchmark bundle identifier.
+
+["xcrun", "devicectl", "device", "copy", "from", "--device", "<device-udid>", "--source", "Documents/final-6e410eeb-de16-448e-b740-65c2541cb512.json", "--domain-type", "appDataContainer", "--domain-identifier", "com.boris.banana.calendar-library-benchmark", "--destination", "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-async-preparation/final-physical-checks/iphone-300-combined.json"]
+File received from Device
+~/orca/workspaces/gtfuwgth/stingray/.build/calendar-async-preparation/final-physical-checks/iphone-300-combined.json

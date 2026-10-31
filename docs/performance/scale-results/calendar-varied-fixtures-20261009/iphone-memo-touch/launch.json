@@ -1,0 +1,96 @@
+{
+  "info" : {
+    "arguments" : [
+      "devicectl",
+      "device",
+      "process",
+      "launch",
+      "--device",
+      "<device-udid>",
+      "--json-output",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-varied-fix/iphone-memo-touch/launch.json",
+      "--terminate-existing",
+      "com.boris.banana.calendar-library-benchmark",
+      "--candidate",
+      "native",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "300",
+      "--renderer",
+      "tiles",
+      "--fixture",
+      "varied-v1",
+      "--seed",
+      "20261009",
+      "--ablation",
+      "tile-prefetch-budgeted",
+      "--interactive",
+      "--async-workers",
+      "2",
+      "--memo-raster-text"
+    ],
+    "commandType" : "devicectl.device.process.launch",
+    "environment" : {
+      "TERM" : "xterm-256color"
+    },
+    "jsonVersion" : 5,
+    "outcome" : "success",
+    "version" : "642.16"
+  },
+  "result" : {
+    "deviceIdentifier" : "1924304A-F654-5B0E-ACDD-4353AAF93C8C",
+    "launchOptions" : {
+      "activatedWhenStarted" : true,
+      "arguments" : [
+        "--candidate",
+        "native",
+        "--mode",
+        "week",
+        "--days",
+        "365",
+        "--density",
+        "300",
+        "--renderer",
+        "tiles",
+        "--fixture",
+        "varied-v1",
+        "--seed",
+        "20261009",
+        "--ablation",
+        "tile-prefetch-budgeted",
+        "--interactive",
+        "--async-workers",
+        "2",
+        "--memo-raster-text"
+      ],
+      "environmentVariables" : {
+        "TERM" : "xterm-256color"
+      },
+      "platformSpecificOptions" : {
+
+      },
+      "startStopped" : false,
+      "terminateExistingInstances" : true,
+      "user" : {
+        "active" : true
+      }
+    },
+    "process" : {
+      "auditToken" : [
+        4294967295,
+        501,
+        501,
+        501,
+        501,
+        12035,
+        0,
+        31617
+      ],
+      "executable" : "file:///private/var/containers/Bundle/Application/6FA6CF6E-F0CE-49CC-8979-81F5EAB24FF6/CalendarLibraryBenchmark.app/CalendarLibraryBenchmark",
+      "processIdentifier" : 12035
+    }
+  }
+}

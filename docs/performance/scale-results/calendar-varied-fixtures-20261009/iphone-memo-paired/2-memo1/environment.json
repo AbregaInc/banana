@@ -1,0 +1,29 @@
+{
+  "timestamp": "2026-10-09T11:24:32.882719-04:00",
+  "device": "<device-udid>",
+  "app": "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-library-touch-dd/Build/Products/Release-iphoneos/CalendarLibraryBenchmark.app",
+  "binarySHA256": "10e4d2cea9cb53902f5cf10df17ae44a5683ff0a58f128327e5daef1f1eb9ad5",
+  "git": "6bfe533acab9898c6a92955a9506e31019634964",
+  "dirty": " M .github/workflows/performance-contract.yml\n M docs/performance/regression-testing.md\n M tools/calendar-library-benchmark/Info.plist\n M tools/calendar-library-benchmark/Native/MacBenchmark.swift\n M tools/calendar-library-benchmark/Shared/AsyncTilePreparation.swift\n M tools/calendar-library-benchmark/Shared/CalendarSurface.swift\n M tools/calendar-library-benchmark/Shared/DayGeometry.swift\n M tools/calendar-library-benchmark/Shared/Fixtures.swift\n M tools/calendar-library-benchmark/Shared/PreparedText.swift\n M tools/calendar-library-benchmark/Shared/RasterPage.swift\n M tools/calendar-library-benchmark/Shared/TileRenderer.swift\n M tools/calendar-library-benchmark/Sources/Benchmark.swift\n M tools/calendar-library-benchmark/TileTests/async.swift\n M tools/calendar-library-benchmark/profile-device.py\n M tools/calendar-library-benchmark/profile-touch.py\n M tools/calendar-library-benchmark/project.yml\n M tools/calendar-library-benchmark/run-device.py\n M tools/calendar-library-benchmark/run-mac.py\n M tools/calendar-library-benchmark/run.py\n M tools/calendar-library-benchmark/test-device-interactive.py\n?? docs/performance/event-capacity-search.md\n?? docs/performance/scale-results/calendar-ipad-20261009/\n?? docs/performance/scale-results/calendar-varied-fixtures-20261009/\n?? tools/calendar-library-benchmark/FixtureTests/\n?? tools/calendar-library-benchmark/Shared/FixturePalette.swift\n?? tools/calendar-library-benchmark/Shared/RasterConcurrencyProbe.swift\n?? tools/calendar-library-benchmark/fixture_policy.py\n?? tools/calendar-library-benchmark/test-device-raster.py\n?? tools/calendar-library-benchmark/test_fixture_policy.py\n?? tools/calendar-library-benchmark/test_raster_runner.py\n",
+  "sceneManifest": {
+    "UIApplicationSupportsMultipleScenes": false,
+    "UISceneConfigurations": {}
+  },
+  "minimumFrameDurationDisabled": true,
+  "scope": "Physical device synchronous renderer work; input/display acceptance unmeasured",
+  "batchEventFills": false,
+  "memoRasterText": true,
+  "fixture": "varied-v1",
+  "seed": "20261009",
+  "hiddenCalendars": "",
+  "matrix": "foreground",
+  "trials": 3,
+  "densities": [
+    100,
+    300
+  ],
+  "alternatingOrder": true,
+  "navigationStress": true,
+  "foregroundNavigation": true,
+  "accessibilityClient": "none"
+}

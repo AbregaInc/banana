@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Building a calendar renderer we can measure · Banana</title>
+<meta name="description" content="Inside Banana’s calendar renderer: native reusable viewports, separate event artwork, retained-history stress tests, and what our benchmarks actually prove.">
+<link rel="canonical" href="https://bananatheapp.com/blog/building-a-measurable-calendar-renderer/">
+<meta name="theme-color" content="#fbf6ea">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Banana">
+<meta property="og:title" content="Building a calendar renderer we can measure · Banana">
+<meta property="og:description" content="Inside Banana’s calendar renderer: native reusable viewports, separate event artwork, retained-history stress tests, and what our benchmarks actually prove.">
+<meta property="og:url" content="https://bananatheapp.com/blog/building-a-measurable-calendar-renderer/">
+<meta property="og:image" content="https://bananatheapp.com/assets/img/social.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Banana brings work, personal and studio calendars together into one daily plan.">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png?v=dimensional82">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png?v=dimensional82">
+<link rel="alternate" type="application/rss+xml" title="Banana blog" href="/blog/feed.xml">
+<link rel="stylesheet" href="/editorial.css">
+<meta property="article:published_time" content="2026-10-27">
+<meta property="article:modified_time" content="2026-10-27">
+<script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "Organization", "@id": "https://bananatheapp.com/#organization", "name": "Abrega, Inc.", "url": "https://bananatheapp.com/about", "logo": "https://bananatheapp.com/apple-touch-icon.png"}, {"@type": "Organization", "@id": "https://bananatheapp.com/about#team", "name": "Banana team", "url": "https://bananatheapp.com/about#team", "parentOrganization": {"@id": "https://bananatheapp.com/#organization"}}, {"@type": "BlogPosting", "@id": "https://bananatheapp.com/blog/building-a-measurable-calendar-renderer/#article", "headline": "Building a calendar renderer we can measure", "description": "Inside Banana’s calendar renderer: native reusable viewports, separate event artwork, retained-history stress tests, and what our benchmarks actually prove.", "url": "https://bananatheapp.com/blog/building-a-measurable-calendar-renderer/", "mainEntityOfPage": "https://bananatheapp.com/blog/building-a-measurable-calendar-renderer/", "datePublished": "2026-10-27", "dateModified": "2026-10-27", "author": {"@id": "https://bananatheapp.com/about#team"}, "publisher": {"@id": "https://bananatheapp.com/#organization"}, "image": "https://bananatheapp.com/assets/img/social.png", "inLanguage": "en", "isPartOf": {"@id": "https://bananatheapp.com/blog/#blog"}}, {"@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Home", "item": "https://bananatheapp.com/"}, {"@type": "ListItem", "position": 2, "name": "Blog", "item": "https://bananatheapp.com/blog/"}, {"@type": "ListItem", "position": 3, "name": "Building a calendar renderer we can measure", "item": "https://bananatheapp.com/blog/building-a-measurable-calendar-renderer/"}]}]}</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="top shell">
+<a class="brand" href="/" aria-label="Banana, home"><img src="/assets/img/mark-192.webp?v=dimensional82" width="36" height="36" alt="">Banana</a>
+<nav aria-label="Main"><a href="/#how">The app</a><a href="/blog/" >Blog</a><a href="/about" >About</a><a class="button" href="https://testflight.apple.com/join/47yxmU8U">Join the beta</a></nav>
+</header>
+<main id="main" class="shell"><nav aria-label="Breadcrumb"><ol class="breadcrumb"><li><a href="/">Home</a></li><li aria-hidden="true">/</li><li><a href="/blog/">Blog</a></li></ol></nav><article><header class="article-head"><p class="eyebrow">Engineering</p><h1>Building a calendar renderer we can measure</h1><p class="meta">By <a href="/about#team">Banana team</a> · Published <time datetime="2026-10-27">October 27, 2026</time></p></header><div class="prose"><p>A calendar can look smooth with a handful of appointments and still struggle when the day fills up. Overlapping events narrow the columns. An overnight event appears on two dates. A drag must keep working while the underlying data changes. Meanwhile, the rest of the app may be syncing, playing audio, or loading retained history.</p>
+<p>Building Banana’s calendar renderer has meant working on two things together: the renderer itself and a way to tell whether a change actually helps. Reusable native cells have reduced memory in our Simulator comparisons. Preparing only the artwork a viewport needs has reduced measured drawing work. Neither result, by itself, proves that scrolling meets our frame budget.</p>
+<p>Here is how we split the problem, what we measured, and where our evidence still falls short.</p>
+<h2>Start with three different clocks</h2>
+<p>We use three performance requirements:</p>
+<ul>
+<li><strong>Frame work:</strong> a 120 Hz display has about 8.3 milliseconds between refreshes.</li>
+<li><strong>Direct interaction:</strong> target input feedback under 10 milliseconds at the 95th percentile, with a 20-millisecond maximum.</li>
+<li><strong>Other local actions:</strong> aim for roughly 32–50 milliseconds to open a detail or switch a view, with a 100-millisecond ceiling.</li>
+</ul>
+<p>These are our targets, not a statement that every current screen meets them.</p>
+<p>The distinction matters because the tools measure different things. A layout function finishing in two milliseconds does not mean the GPU delivered the next frame on time. An XCTest swipe includes gesture injection, motion, and deceleration; its duration is not a measurement of input-to-visible latency. Even a display-link callback tells us about callback scheduling rather than proving what appeared on the screen.</p>
+<p>We keep component cost, functional correctness, memory, and actual frame/input measurements separate. Combining them into one green “performance” label would hide too much.</p>
+<h2>Give the viewport ownership of view lifetimes</h2>
+<p>Our reference Day implementation used a scroll view containing the day’s event view tree. The native path moves event content into reusable collection-view cells. On iPhone and iPad that means UIKit’s <code>UICollectionView</code>; the Mac implementation uses AppKit’s <code>NSCollectionView</code> rather than assuming the UIKit bridge works on macOS.</p>
+<p>We separated four responsibilities:</p>
+<ol>
+<li><strong>Calendar rules</strong> determine occurrence identity, overlap lanes, clipping, and frames.</li>
+<li><strong>The native viewport</strong> decides which event views need to exist for the visible region.</li>
+<li><strong>Artwork</strong> draws the event’s title, time, color, and state.</li>
+<li><strong>The interactive cell</strong> owns activation, accessibility, gestures, and the connection to edit actions.</li>
+</ol>
+<p>The core of our event descriptor looks like this, with movement and clipping fields omitted:</p>
+<pre><code class="language-swift">struct CalendarViewportItem {
+    let id: String
+    let frame: CGRect
+    let content: () -&gt; AnyView
+}
+</code></pre>
+<p>The closure is the important boundary: describing an event does not require constructing its SwiftUI view immediately. The collection layout answers the native framework’s rectangle queries; the cell constructs the existing event content when needed. On iOS, <a href="https://developer.apple.com/documentation/swiftui/uihostingconfiguration">UIHostingConfiguration</a> lets that content remain SwiftUI inside a reusable UIKit cell. Apple’s <a href="https://developer.apple.com/documentation/uikit/customizing-collection-view-layouts">custom collection-layout APIs</a> supply the viewport integration.</p>
+<p>This does not make all calendar work proportional to the visible cells. Our fixed-frame layout still scans cached attributes for intersections, and placement geometry is a separate cost. View reuse reduces the number of live event views; it does not magically bound retained data or remove layout work.</p>
+<p>Week adds another identity problem: the same overnight occurrence can occupy cells in multiple day columns. We namespace the viewport identity by day while keeping the action attached to the original occurrence. Otherwise, reuse can confuse two visible pieces of one event with two independent events.</p>
+<h2>Keep drawing separate from behavior</h2>
+<p>An immutable paint description holds the inputs needed to draw an event. It does not carry a provider object, a database store, or a pending write operation. That boundary lets us compare the existing SwiftUI artwork with prepared rendering without moving the event’s behavior into an image cache.</p>
+<p>The prepared-artwork path is enabled in our separate Beta configuration and can be selected for controlled development comparisons. It is distinct from adopting a native collection viewport. We can test the viewport with reference artwork, then test artwork preparation separately.</p>
+<p>Cached artwork needs a more complete identity than an event ID. A title edit, changed width, different appearance, or accessibility text size can require a new result. Preparation also has to handle cancellation, eviction, and consumers releasing images. A late result from an obsolete request must not repaint a reused cell with the wrong event.</p>
+<p>That is why lifecycle tests belong beside rendering tests. A cache that is fast only while it grows forever is not a finished cache.</p>
+<h2>Use workloads that can expose the problem</h2>
+<p>A quiet demo calendar is useful for explaining the interface. It is a weak stress test.</p>
+<p>Our persistent component workload specification covers 1, 7, 30, and 90 days of synthetic retained history, with daily loads of 2,000 emails, 100 calendar events, 1,000 notes, and 10,000 podcast episodes. Separate redraw probes deliver 100 playback-clock updates at 10 Hz to check whether unrelated views recompute. These are stress fixtures, not claims about a typical person’s usage.</p>
+<p>We also use a varied calendar fixture with 12 calendars and 30 different daily patterns. Repeating the same convenient day can miss the cases that hurt: dense overlaps, long events, clipping, and different visible working sets.</p>
+<p>For a renderer comparison, the policies must use the same workload and binary. We retain the old renderer as an explicit development comparison path and alternate runs—for example, reference, native, native, reference. This helps expose run-order effects, although it cannot eliminate host noise. Cold, warm, and eviction phases answer different questions and stay separate.</p>
+<h2>What the native Week comparison showed</h2>
+<p>One October 10 Simulator comparison used the same optimized application, an unchanged 30-day legacy stress workload, and three scroll iterations per run. That fixture is separate from the broader retained-history matrix above. These were the recorded median process-memory values:</p>
+<div class="table-scroll" role="region" aria-label="Data table" tabindex="0"><table>
+<thead>
+<tr>
+<th>Run</th>
+<th>Viewport</th>
+<th style="text-align:right">Median process memory, kB</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Reference</td>
+<td style="text-align:right">239,291</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Native</td>
+<td style="text-align:right">198,462</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Native</td>
+<td style="text-align:right">198,134</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Reference</td>
+<td style="text-align:right">239,504</td>
+</tr>
+</tbody>
+</table></div>
+<p>That is approximately 41 MB, or 17%, less process memory in this particular Simulator comparison. It is useful evidence for reducing the live view working set.</p>
+<p>It is not evidence of faster scrolling. The recorded XCTest gesture durations did not demonstrate a speedup, and that comparison did not export frame-deadline or input-to-visible measurements. The displayed week also sat at a fixture boundary; it was not seven fully populated days. We cannot turn those numbers into a calendar capacity ceiling or a physical-device result.</p>
+<h2>What the artwork experiment showed</h2>
+<p>A separate Day experiment compared prepared artwork in the reference and native viewports, again in reference/native/native/reference order:</p>
+<div class="table-scroll" role="region" aria-label="Data table" tabindex="0"><table>
+<thead>
+<tr>
+<th>Run</th>
+<th>Viewport</th>
+<th style="text-align:right">Rasterizations</th>
+<th style="text-align:right">Total measured raster work</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Reference</td>
+<td style="text-align:right">107</td>
+<td style="text-align:right">96.231 ms</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Native</td>
+<td style="text-align:right">45</td>
+<td style="text-align:right">39.168 ms</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Native</td>
+<td style="text-align:right">44</td>
+<td style="text-align:right">37.263 ms</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Reference</td>
+<td style="text-align:right">106</td>
+<td style="text-align:right">93.871 ms</td>
+</tr>
+</tbody>
+</table></div>
+<p>The native viewport requested less initial artwork. Measured consumer image ownership fell from 2,652,480 bytes to 1,113,920 bytes in those runs.</p>
+<p>The total-work column adds together multiple queued jobs. It is not one main-thread stall, a first-frame completion time, or a claim that each drawing operation became faster. Individual rasterization maxima did not improve in this comparison. The useful result is that we did less work, not that a stopwatch proved the complete interface faster.</p>
+<p>These measurements are historical experiment results from October 10, not fresh benchmarks of today’s release build.</p>
+<h2>A failed test can reveal a bad assumption</h2>
+<p>The first native Week candidate failed while the test tried to locate an event. Investigating the hierarchy showed that the reference renderer exposed the chosen event outside its day column. The native renderer clipped it correctly, so the old scroll anchor disappeared.</p>
+<p>The old test had also opened a different event after scrolling. It could pass without proving the intended event was reachable.</p>
+<p>We changed the protocol to search for and open the specific event, verify its detail title, and then use a shared clock position for the scrolling comparison. The workload stayed unchanged, and the earlier failures remained in the record.</p>
+<p>An iPad reuse check exposed another assumption. It expected offscreen cells, but the larger viewport showed almost the entire day: all 59 descriptors could legitimately be visible. The corrected setup zoomed into a partial-day viewport before checking reuse. Changing the setup made the test exercise its stated condition; simply relaxing the assertion would not have done that.</p>
+<p>These were harness corrections, not renderer speedups.</p>
+<h2>Fast edits still need durable failure handling</h2>
+<p>Dragging an event raises a different correctness question: what happens if the provider rejects the move?</p>
+<p>The design needs to preserve the pending operation, restore or reconcile the displayed event, and offer a retry that survives relaunch. Cell reuse cannot silently replace the event being dragged. A prepared image cannot become the owner of the event’s actions or accessibility semantics.</p>
+<p>Our recorded default Week tests include an isolated rejected move, restoration, relaunch, and another rejected retry. Those checks prove that tested failure path. They do not prove a successful write against a live Google account, every recurring-event case, or physical interaction latency.</p>
+<p>Performance work that loses an edit is a regression, even if its timing is excellent.</p>
+<h2>Where the work stands</h2>
+<p>Native Day and Week viewports became the iPhone/iPad defaults during this work, and the Mac has its own AppKit collection host. The historical component and UI results cover specific builds and workloads. We still have gaps in physical frame/input evidence and retained failing measurements; a passing Simulator cohort does not close them.</p>
+<p>We have also paused automatic GitHub performance runs while the harness is being made ready. The test code and recorded results remain. This article describes the engineering and the evidence, not a claim that the performance suite is ready as a release gate.</p>
+<p>The next useful evidence is a reproducible trace on the actual device: the same workload, build, cache state, display behavior, and concurrent activity, with both frame work and input-to-visible response measured. Until then, the claims we can defend are narrower: fewer live views, lower measured memory in a controlled comparison, less artwork preparation, and better tests for the cases a smooth demo can miss.</p>
+<div class="article-end"><a href="/blog/">← All posts</a> · <a href="/support">Questions? Contact us</a></div></div></article></main>
+<footer class="shell footer"><a class="brand" href="/">Banana</a><nav aria-label="Footer"><a href="/blog/">Blog</a><a href="/blog/feed.xml">RSS</a><a href="/about">About</a><a href="/support">Support</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a></nav><p>© 2026 Abrega, Inc.</p></footer>
+</body>
+</html>

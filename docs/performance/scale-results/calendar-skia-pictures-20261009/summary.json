@@ -1,0 +1,3106 @@
+[
+  {
+    "name": "20261009-1-0-pictures",
+    "variant": "pictures",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "1",
+      "--seed",
+      "20261009",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261009-1-0-pictures",
+      "--cg-paths",
+      "--reuse-pictures",
+      "--reverse"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:20:15.190584+00:00",
+      "samples": 2,
+      "clean": false,
+      "overlappingDeveloperProcesses": [
+        {
+          "elapsedSeconds": 0.07156258297618479,
+          "pid": 36287,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 1.1289906660094857,
+          "pid": 36287,
+          "process": "xcodebuild"
+        }
+      ],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "name": "20261009-1-0-paths",
+    "variant": "paths",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "1",
+      "--seed",
+      "20261009",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261009-1-0-paths",
+      "--cg-paths",
+      "--reverse"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:20:16.320851+00:00",
+      "samples": 2,
+      "clean": false,
+      "overlappingDeveloperProcesses": [
+        {
+          "elapsedSeconds": 0.07809704204555601,
+          "pid": 36287,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 1.0768993750098161,
+          "pid": 36287,
+          "process": "xcodebuild"
+        }
+      ],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "name": "20261009-1-0-managed",
+    "variant": "managed",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "1",
+      "--seed",
+      "20261009",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261009-1-0-managed",
+      "--reverse"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:20:17.398737+00:00",
+      "samples": 2,
+      "clean": false,
+      "overlappingDeveloperProcesses": [
+        {
+          "elapsedSeconds": 0.0689046669867821,
+          "pid": 36287,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 1.127805583004374,
+          "pid": 36287,
+          "process": "xcodebuild"
+        }
+      ],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "name": "20261009-1-0-unmanaged",
+    "variant": "unmanaged",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "1",
+      "--seed",
+      "20261009",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261009-1-0-unmanaged",
+      "--legacy-unmanaged-colors",
+      "--reverse"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:20:18.528221+00:00",
+      "samples": 2,
+      "clean": false,
+      "overlappingDeveloperProcesses": [
+        {
+          "elapsedSeconds": 0.06993875000625849,
+          "pid": 36287,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 1.024798083002679,
+          "pid": 36287,
+          "process": "xcodebuild"
+        }
+      ],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "name": "20261009-1-1-unmanaged",
+    "variant": "unmanaged",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "1",
+      "--seed",
+      "20261009",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261009-1-1-unmanaged",
+      "--legacy-unmanaged-colors"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:20:19.554058+00:00",
+      "samples": 2,
+      "clean": false,
+      "overlappingDeveloperProcesses": [
+        {
+          "elapsedSeconds": 0.06798804097343236,
+          "pid": 36287,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 1.0139096659841016,
+          "pid": 36287,
+          "process": "xcodebuild"
+        }
+      ],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "name": "20261009-1-1-managed",
+    "variant": "managed",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "1",
+      "--seed",
+      "20261009",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261009-1-1-managed"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:20:20.569035+00:00",
+      "samples": 2,
+      "clean": false,
+      "overlappingDeveloperProcesses": [
+        {
+          "elapsedSeconds": 0.07372575002955273,
+          "pid": 36287,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 1.0318516250117682,
+          "pid": 36287,
+          "process": "xcodebuild"
+        }
+      ],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "name": "20261009-1-1-paths",
+    "variant": "paths",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "1",
+      "--seed",
+      "20261009",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261009-1-1-paths",
+      "--cg-paths"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:20:21.602010+00:00",
+      "samples": 2,
+      "clean": false,
+      "overlappingDeveloperProcesses": [
+        {
+          "elapsedSeconds": 0.07154066703515127,
+          "pid": 36287,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 0.9806045420118608,
+          "pid": 36287,
+          "process": "xcodebuild"
+        }
+      ],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "name": "20261009-1-1-pictures",
+    "variant": "pictures",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "1",
+      "--seed",
+      "20261009",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261009-1-1-pictures",
+      "--cg-paths",
+      "--reuse-pictures"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:20:22.583846+00:00",
+      "samples": 2,
+      "clean": false,
+      "overlappingDeveloperProcesses": [
+        {
+          "elapsedSeconds": 0.0718334160046652,
+          "pid": 36287,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 1.0250587080372497,
+          "pid": 36287,
+          "process": "xcodebuild"
+        }
+      ],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "name": "20261009-1-2-pictures",
+    "variant": "pictures",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "1",
+      "--seed",
+      "20261009",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261009-1-2-pictures",
+      "--cg-paths",
+      "--reuse-pictures",
+      "--reverse"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:20:23.610187+00:00",
+      "samples": 2,
+      "clean": false,
+      "overlappingDeveloperProcesses": [
+        {
+          "elapsedSeconds": 0.06558437499916181,
+          "pid": 36287,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 0.9958579580415972,
+          "pid": 36287,
+          "process": "xcodebuild"
+        }
+      ],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "name": "20261009-1-2-paths",
+    "variant": "paths",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "1",
+      "--seed",
+      "20261009",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261009-1-2-paths",
+      "--cg-paths",
+      "--reverse"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:20:24.607237+00:00",
+      "samples": 3,
+      "clean": false,
+      "overlappingDeveloperProcesses": [
+        {
+          "elapsedSeconds": 0.08128579199546948,
+          "pid": 36287,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 1.1885780839947984,
+          "pid": 36287,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 1.3712374169845134,
+          "pid": 36287,
+          "process": "xcodebuild"
+        }
+      ],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "name": "20261009-1-2-managed",
+    "variant": "managed",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "1",
+      "--seed",
+      "20261009",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261009-1-2-managed",
+      "--reverse"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:20:25.980052+00:00",
+      "samples": 2,
+      "clean": false,
+      "overlappingDeveloperProcesses": [
+        {
+          "elapsedSeconds": 0.10055545903742313,
+          "pid": 36287,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 1.117934417037759,
+          "pid": 36287,
+          "process": "xcodebuild"
+        }
+      ],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "name": "20261009-1-2-unmanaged",
+    "variant": "unmanaged",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "1",
+      "--seed",
+      "20261009",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261009-1-2-unmanaged",
+      "--legacy-unmanaged-colors",
+      "--reverse"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:20:27.099151+00:00",
+      "samples": 2,
+      "clean": false,
+      "overlappingDeveloperProcesses": [
+        {
+          "elapsedSeconds": 0.0654368749819696,
+          "pid": 36287,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 1.0176777919987217,
+          "pid": 36287,
+          "process": "xcodebuild"
+        }
+      ],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "name": "20261009-100-0-pictures",
+    "variant": "pictures",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "100",
+      "--seed",
+      "20261009",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261009-100-0-pictures",
+      "--cg-paths",
+      "--reuse-pictures",
+      "--reverse"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:20:28.118413+00:00",
+      "samples": 3,
+      "clean": false,
+      "overlappingDeveloperProcesses": [
+        {
+          "elapsedSeconds": 0.07176516600884497,
+          "pid": 36287,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 1.148296041006688,
+          "pid": 36287,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 1.646330833027605,
+          "pid": 36287,
+          "process": "xcodebuild"
+        }
+      ],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "name": "20261009-100-0-paths",
+    "variant": "paths",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "100",
+      "--seed",
+      "20261009",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261009-100-0-paths",
+      "--cg-paths",
+      "--reverse"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:20:29.766359+00:00",
+      "samples": 3,
+      "clean": false,
+      "overlappingDeveloperProcesses": [
+        {
+          "elapsedSeconds": 0.07476520800264552,
+          "pid": 36287,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 1.1521865419927053,
+          "pid": 36287,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 1.6304726249654777,
+          "pid": 36287,
+          "process": "xcodebuild"
+        }
+      ],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "name": "20261009-100-0-managed",
+    "variant": "managed",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "100",
+      "--seed",
+      "20261009",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261009-100-0-managed",
+      "--reverse"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:20:31.398432+00:00",
+      "samples": 3,
+      "clean": false,
+      "overlappingDeveloperProcesses": [
+        {
+          "elapsedSeconds": 0.07638966699596494,
+          "pid": 36287,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 1.1524625830352306,
+          "pid": 36287,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 1.6213127080118284,
+          "pid": 36287,
+          "process": "xcodebuild"
+        }
+      ],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "name": "20261009-100-0-unmanaged",
+    "variant": "unmanaged",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "100",
+      "--seed",
+      "20261009",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261009-100-0-unmanaged",
+      "--legacy-unmanaged-colors",
+      "--reverse"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:20:33.021087+00:00",
+      "samples": 3,
+      "clean": false,
+      "overlappingDeveloperProcesses": [
+        {
+          "elapsedSeconds": 0.06775333301629871,
+          "pid": 36287,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 1.1504637080361135,
+          "pid": 36287,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 1.5602648750063963,
+          "pid": 36287,
+          "process": "xcodebuild"
+        }
+      ],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "name": "20261009-100-1-unmanaged",
+    "variant": "unmanaged",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "100",
+      "--seed",
+      "20261009",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261009-100-1-unmanaged",
+      "--legacy-unmanaged-colors"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:20:34.582745+00:00",
+      "samples": 3,
+      "clean": false,
+      "overlappingDeveloperProcesses": [
+        {
+          "elapsedSeconds": 0.06844037497648969,
+          "pid": 36287,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 1.1734922920004465,
+          "pid": 36287,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 1.5655210830154829,
+          "pid": 36287,
+          "process": "xcodebuild"
+        }
+      ],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "name": "20261009-100-1-managed",
+    "variant": "managed",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "100",
+      "--seed",
+      "20261009",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261009-100-1-managed"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:20:36.149592+00:00",
+      "samples": 3,
+      "clean": false,
+      "overlappingDeveloperProcesses": [
+        {
+          "elapsedSeconds": 0.13522837503114715,
+          "pid": 36287,
+          "process": "xcodebuild"
+        }
+      ],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "name": "20261009-100-1-paths",
+    "variant": "paths",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "100",
+      "--seed",
+      "20261009",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261009-100-1-paths",
+      "--cg-paths"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:20:37.718824+00:00",
+      "samples": 3,
+      "clean": true,
+      "overlappingDeveloperProcesses": [],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "name": "20261009-100-1-pictures",
+    "variant": "pictures",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "100",
+      "--seed",
+      "20261009",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261009-100-1-pictures",
+      "--cg-paths",
+      "--reuse-pictures"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:20:39.325732+00:00",
+      "samples": 3,
+      "clean": true,
+      "overlappingDeveloperProcesses": [],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "name": "20261009-100-2-pictures",
+    "variant": "pictures",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "100",
+      "--seed",
+      "20261009",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261009-100-2-pictures",
+      "--cg-paths",
+      "--reuse-pictures",
+      "--reverse"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:20:40.938232+00:00",
+      "samples": 3,
+      "clean": true,
+      "overlappingDeveloperProcesses": [],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "name": "20261009-100-2-paths",
+    "variant": "paths",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "100",
+      "--seed",
+      "20261009",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261009-100-2-paths",
+      "--cg-paths",
+      "--reverse"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:20:42.543535+00:00",
+      "samples": 3,
+      "clean": true,
+      "overlappingDeveloperProcesses": [],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "name": "20261009-100-2-managed",
+    "variant": "managed",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "100",
+      "--seed",
+      "20261009",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261009-100-2-managed",
+      "--reverse"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:20:44.154680+00:00",
+      "samples": 3,
+      "clean": true,
+      "overlappingDeveloperProcesses": [],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "name": "20261009-100-2-unmanaged",
+    "variant": "unmanaged",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "100",
+      "--seed",
+      "20261009",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261009-100-2-unmanaged",
+      "--legacy-unmanaged-colors",
+      "--reverse"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:20:45.828189+00:00",
+      "samples": 3,
+      "clean": true,
+      "overlappingDeveloperProcesses": [],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "name": "20261009-300-0-pictures",
+    "variant": "pictures",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "300",
+      "--seed",
+      "20261009",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261009-300-0-pictures",
+      "--cg-paths",
+      "--reuse-pictures",
+      "--reverse"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:20:47.432265+00:00",
+      "samples": 4,
+      "clean": true,
+      "overlappingDeveloperProcesses": [],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "name": "20261009-300-0-paths",
+    "variant": "paths",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "300",
+      "--seed",
+      "20261009",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261009-300-0-paths",
+      "--cg-paths",
+      "--reverse"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:20:49.847906+00:00",
+      "samples": 4,
+      "clean": true,
+      "overlappingDeveloperProcesses": [],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "name": "20261009-300-0-managed",
+    "variant": "managed",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "300",
+      "--seed",
+      "20261009",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261009-300-0-managed",
+      "--reverse"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:20:52.367377+00:00",
+      "samples": 4,
+      "clean": true,
+      "overlappingDeveloperProcesses": [],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "name": "20261009-300-0-unmanaged",
+    "variant": "unmanaged",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "300",
+      "--seed",
+      "20261009",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261009-300-0-unmanaged",
+      "--legacy-unmanaged-colors",
+      "--reverse"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:20:54.775965+00:00",
+      "samples": 4,
+      "clean": true,
+      "overlappingDeveloperProcesses": [],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "name": "20261009-300-1-unmanaged",
+    "variant": "unmanaged",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "300",
+      "--seed",
+      "20261009",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261009-300-1-unmanaged",
+      "--legacy-unmanaged-colors"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:20:57.258095+00:00",
+      "samples": 4,
+      "clean": true,
+      "overlappingDeveloperProcesses": [],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "name": "20261009-300-1-managed",
+    "variant": "managed",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "300",
+      "--seed",
+      "20261009",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261009-300-1-managed"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:21:00.793526+00:00",
+      "samples": 6,
+      "clean": true,
+      "overlappingDeveloperProcesses": [],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "name": "20261009-300-1-paths",
+    "variant": "paths",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "300",
+      "--seed",
+      "20261009",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261009-300-1-paths",
+      "--cg-paths"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:21:06.201764+00:00",
+      "samples": 6,
+      "clean": true,
+      "overlappingDeveloperProcesses": [],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "name": "20261009-300-1-pictures",
+    "variant": "pictures",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "300",
+      "--seed",
+      "20261009",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261009-300-1-pictures",
+      "--cg-paths",
+      "--reuse-pictures"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:21:11.640623+00:00",
+      "samples": 5,
+      "clean": true,
+      "overlappingDeveloperProcesses": [],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "name": "20261009-300-2-pictures",
+    "variant": "pictures",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "300",
+      "--seed",
+      "20261009",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261009-300-2-pictures",
+      "--cg-paths",
+      "--reuse-pictures",
+      "--reverse"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:21:15.520775+00:00",
+      "samples": 4,
+      "clean": true,
+      "overlappingDeveloperProcesses": [],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "name": "20261009-300-2-paths",
+    "variant": "paths",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "300",
+      "--seed",
+      "20261009",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261009-300-2-paths",
+      "--cg-paths",
+      "--reverse"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:21:18.201480+00:00",
+      "samples": 4,
+      "clean": true,
+      "overlappingDeveloperProcesses": [],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "name": "20261009-300-2-managed",
+    "variant": "managed",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "300",
+      "--seed",
+      "20261009",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261009-300-2-managed",
+      "--reverse"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:21:20.987516+00:00",
+      "samples": 4,
+      "clean": true,
+      "overlappingDeveloperProcesses": [],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "name": "20261009-300-2-unmanaged",
+    "variant": "unmanaged",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "300",
+      "--seed",
+      "20261009",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261009-300-2-unmanaged",
+      "--legacy-unmanaged-colors",
+      "--reverse"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:21:24.033180+00:00",
+      "samples": 4,
+      "clean": true,
+      "overlappingDeveloperProcesses": [],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "name": "20261010-1-0-unmanaged",
+    "variant": "unmanaged",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "1",
+      "--seed",
+      "20261010",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261010-1-0-unmanaged",
+      "--legacy-unmanaged-colors"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:21:27.187464+00:00",
+      "samples": 3,
+      "clean": true,
+      "overlappingDeveloperProcesses": [],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "name": "20261010-1-0-managed",
+    "variant": "managed",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "1",
+      "--seed",
+      "20261010",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261010-1-0-managed"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:21:28.600207+00:00",
+      "samples": 3,
+      "clean": true,
+      "overlappingDeveloperProcesses": [],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "name": "20261010-1-0-paths",
+    "variant": "paths",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "1",
+      "--seed",
+      "20261010",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261010-1-0-paths",
+      "--cg-paths"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:21:30.356378+00:00",
+      "samples": 3,
+      "clean": true,
+      "overlappingDeveloperProcesses": [],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "name": "20261010-1-0-pictures",
+    "variant": "pictures",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "1",
+      "--seed",
+      "20261010",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261010-1-0-pictures",
+      "--cg-paths",
+      "--reuse-pictures"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:21:31.822730+00:00",
+      "samples": 3,
+      "clean": true,
+      "overlappingDeveloperProcesses": [],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "name": "20261010-1-1-pictures",
+    "variant": "pictures",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "1",
+      "--seed",
+      "20261010",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261010-1-1-pictures",
+      "--cg-paths",
+      "--reuse-pictures",
+      "--reverse"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:21:33.431211+00:00",
+      "samples": 3,
+      "clean": true,
+      "overlappingDeveloperProcesses": [],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "name": "20261010-1-1-paths",
+    "variant": "paths",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "1",
+      "--seed",
+      "20261010",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261010-1-1-paths",
+      "--cg-paths",
+      "--reverse"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:21:34.704114+00:00",
+      "samples": 3,
+      "clean": true,
+      "overlappingDeveloperProcesses": [],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "name": "20261010-1-1-managed",
+    "variant": "managed",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "1",
+      "--seed",
+      "20261010",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261010-1-1-managed",
+      "--reverse"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:21:37.101925+00:00",
+      "samples": 3,
+      "clean": true,
+      "overlappingDeveloperProcesses": [],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "name": "20261010-1-1-unmanaged",
+    "variant": "unmanaged",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "1",
+      "--seed",
+      "20261010",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261010-1-1-unmanaged",
+      "--legacy-unmanaged-colors",
+      "--reverse"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:21:39.034315+00:00",
+      "samples": 4,
+      "clean": true,
+      "overlappingDeveloperProcesses": [],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "name": "20261010-1-2-unmanaged",
+    "variant": "unmanaged",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "1",
+      "--seed",
+      "20261010",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261010-1-2-unmanaged",
+      "--legacy-unmanaged-colors"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:21:44.273450+00:00",
+      "samples": 4,
+      "clean": true,
+      "overlappingDeveloperProcesses": [],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "name": "20261010-1-2-managed",
+    "variant": "managed",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "1",
+      "--seed",
+      "20261010",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261010-1-2-managed"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:21:48.785705+00:00",
+      "samples": 4,
+      "clean": true,
+      "overlappingDeveloperProcesses": [],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "name": "20261010-1-2-paths",
+    "variant": "paths",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "1",
+      "--seed",
+      "20261010",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261010-1-2-paths",
+      "--cg-paths"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:21:53.426899+00:00",
+      "samples": 4,
+      "clean": false,
+      "overlappingDeveloperProcesses": [
+        {
+          "elapsedSeconds": 1.7210967499995604,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 3.0799335830379277,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 3.705140875012148,
+          "pid": 43435,
+          "process": "xcodebuild"
+        }
+      ],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "name": "20261010-1-2-pictures",
+    "variant": "pictures",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "1",
+      "--seed",
+      "20261010",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261010-1-2-pictures",
+      "--cg-paths",
+      "--reuse-pictures"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:21:57.136490+00:00",
+      "samples": 4,
+      "clean": false,
+      "overlappingDeveloperProcesses": [
+        {
+          "elapsedSeconds": 0.20918283401988447,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 1.7947178750182502,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 3.158665084047243,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 3.4761122500058264,
+          "pid": 43435,
+          "process": "xcodebuild"
+        }
+      ],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "name": "20261010-100-0-unmanaged",
+    "variant": "unmanaged",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "100",
+      "--seed",
+      "20261010",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261010-100-0-unmanaged",
+      "--legacy-unmanaged-colors"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:22:00.614745+00:00",
+      "samples": 5,
+      "clean": false,
+      "overlappingDeveloperProcesses": [
+        {
+          "elapsedSeconds": 0.15752737497678027,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 1.3760827079531737,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 2.7092797919758596,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 3.958731332968455,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 4.174971874977928,
+          "pid": 43435,
+          "process": "xcodebuild"
+        }
+      ],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "name": "20261010-100-0-managed",
+    "variant": "managed",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "100",
+      "--seed",
+      "20261010",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261010-100-0-managed"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:22:04.793968+00:00",
+      "samples": 3,
+      "clean": false,
+      "overlappingDeveloperProcesses": [
+        {
+          "elapsedSeconds": 0.15132045798236504,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 1.3775261249975301,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 2.363992041966412,
+          "pid": 43435,
+          "process": "xcodebuild"
+        }
+      ],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "name": "20261010-100-0-paths",
+    "variant": "paths",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "100",
+      "--seed",
+      "20261010",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261010-100-0-paths",
+      "--cg-paths"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:22:07.160020+00:00",
+      "samples": 3,
+      "clean": false,
+      "overlappingDeveloperProcesses": [
+        {
+          "elapsedSeconds": 0.12698875000933185,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 1.3249687089701183,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 2.226556250010617,
+          "pid": 43435,
+          "process": "xcodebuild"
+        }
+      ],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "name": "20261010-100-0-pictures",
+    "variant": "pictures",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "100",
+      "--seed",
+      "20261010",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261010-100-0-pictures",
+      "--cg-paths",
+      "--reuse-pictures"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:22:09.389446+00:00",
+      "samples": 3,
+      "clean": false,
+      "overlappingDeveloperProcesses": [
+        {
+          "elapsedSeconds": 0.11685008299537003,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 1.3098830829840153,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 2.246762958006002,
+          "pid": 43435,
+          "process": "xcodebuild"
+        }
+      ],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "name": "20261010-100-1-pictures",
+    "variant": "pictures",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "100",
+      "--seed",
+      "20261010",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261010-100-1-pictures",
+      "--cg-paths",
+      "--reuse-pictures",
+      "--reverse"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:22:11.645947+00:00",
+      "samples": 3,
+      "clean": false,
+      "overlappingDeveloperProcesses": [
+        {
+          "elapsedSeconds": 0.09683204197790474,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 1.2850422089686617,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 2.295294667012058,
+          "pid": 43435,
+          "process": "xcodebuild"
+        }
+      ],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "name": "20261010-100-1-paths",
+    "variant": "paths",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "100",
+      "--seed",
+      "20261010",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261010-100-1-paths",
+      "--cg-paths",
+      "--reverse"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:22:13.943317+00:00",
+      "samples": 3,
+      "clean": false,
+      "overlappingDeveloperProcesses": [
+        {
+          "elapsedSeconds": 0.1647234580013901,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 1.3262329160352238,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 2.1415292500169016,
+          "pid": 43435,
+          "process": "xcodebuild"
+        }
+      ],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "name": "20261010-100-1-managed",
+    "variant": "managed",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "100",
+      "--seed",
+      "20261010",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261010-100-1-managed",
+      "--reverse"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:22:16.089933+00:00",
+      "samples": 3,
+      "clean": false,
+      "overlappingDeveloperProcesses": [
+        {
+          "elapsedSeconds": 0.1061705420142971,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 1.2607116250437684,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 2.072830834018532,
+          "pid": 43435,
+          "process": "xcodebuild"
+        }
+      ],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "name": "20261010-100-1-unmanaged",
+    "variant": "unmanaged",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "100",
+      "--seed",
+      "20261010",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261010-100-1-unmanaged",
+      "--legacy-unmanaged-colors",
+      "--reverse"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:22:18.164883+00:00",
+      "samples": 3,
+      "clean": false,
+      "overlappingDeveloperProcesses": [
+        {
+          "elapsedSeconds": 0.11909774999367073,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 1.2578878750209697,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 2.1732364580384456,
+          "pid": 43435,
+          "process": "xcodebuild"
+        }
+      ],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "name": "20261010-100-2-unmanaged",
+    "variant": "unmanaged",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "100",
+      "--seed",
+      "20261010",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261010-100-2-unmanaged",
+      "--legacy-unmanaged-colors"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:22:20.340309+00:00",
+      "samples": 3,
+      "clean": false,
+      "overlappingDeveloperProcesses": [
+        {
+          "elapsedSeconds": 0.11709995899582282,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 1.2586060839821585,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 1.972417459008284,
+          "pid": 43435,
+          "process": "xcodebuild"
+        }
+      ],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "name": "20261010-100-2-managed",
+    "variant": "managed",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "100",
+      "--seed",
+      "20261010",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261010-100-2-managed"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:22:22.315015+00:00",
+      "samples": 3,
+      "clean": false,
+      "overlappingDeveloperProcesses": [
+        {
+          "elapsedSeconds": 0.12849783297860995,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 1.2526737499865703,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 2.098898915981408,
+          "pid": 43435,
+          "process": "xcodebuild"
+        }
+      ],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "name": "20261010-100-2-paths",
+    "variant": "paths",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "100",
+      "--seed",
+      "20261010",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261010-100-2-paths",
+      "--cg-paths"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:22:24.416096+00:00",
+      "samples": 3,
+      "clean": false,
+      "overlappingDeveloperProcesses": [
+        {
+          "elapsedSeconds": 0.12144712504232302,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 1.2390819160500541,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 2.149886333034374,
+          "pid": 43435,
+          "process": "xcodebuild"
+        }
+      ],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "name": "20261010-100-2-pictures",
+    "variant": "pictures",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "100",
+      "--seed",
+      "20261010",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261010-100-2-pictures",
+      "--cg-paths",
+      "--reuse-pictures"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:22:26.568428+00:00",
+      "samples": 3,
+      "clean": false,
+      "overlappingDeveloperProcesses": [
+        {
+          "elapsedSeconds": 0.09081258397782221,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 1.2350764169823378,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 2.060796500009019,
+          "pid": 43435,
+          "process": "xcodebuild"
+        }
+      ],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "name": "20261010-300-0-unmanaged",
+    "variant": "unmanaged",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "300",
+      "--seed",
+      "20261010",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261010-300-0-unmanaged",
+      "--legacy-unmanaged-colors"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:22:28.632488+00:00",
+      "samples": 5,
+      "clean": false,
+      "overlappingDeveloperProcesses": [
+        {
+          "elapsedSeconds": 0.12587766599608585,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 1.2901508749928325,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 2.4384890829678625,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 3.581505707988981,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 3.8552395830047317,
+          "pid": 43435,
+          "process": "xcodebuild"
+        }
+      ],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "name": "20261010-300-0-managed",
+    "variant": "managed",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "300",
+      "--seed",
+      "20261010",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261010-300-0-managed"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:22:32.492935+00:00",
+      "samples": 4,
+      "clean": false,
+      "overlappingDeveloperProcesses": [
+        {
+          "elapsedSeconds": 0.13983970799017698,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 1.2877641249797307,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 2.4481594579992816,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 3.3467061250121333,
+          "pid": 43435,
+          "process": "xcodebuild"
+        }
+      ],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "name": "20261010-300-0-paths",
+    "variant": "paths",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "300",
+      "--seed",
+      "20261010",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261010-300-0-paths",
+      "--cg-paths"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:22:35.843242+00:00",
+      "samples": 5,
+      "clean": false,
+      "overlappingDeveloperProcesses": [
+        {
+          "elapsedSeconds": 0.1470352080068551,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 1.3150286250165664,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 2.48698304197751,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 3.7279413749929518,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 3.8748768749646842,
+          "pid": 43435,
+          "process": "xcodebuild"
+        }
+      ],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "name": "20261010-300-0-pictures",
+    "variant": "pictures",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "300",
+      "--seed",
+      "20261010",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261010-300-0-pictures",
+      "--cg-paths",
+      "--reuse-pictures"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:22:39.720316+00:00",
+      "samples": 5,
+      "clean": false,
+      "overlappingDeveloperProcesses": [
+        {
+          "elapsedSeconds": 0.146935333032161,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 1.3598328750231303,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 2.4965420410153456,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 3.713778082979843,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 4.074652791023254,
+          "pid": 43435,
+          "process": "xcodebuild"
+        }
+      ],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "name": "20261010-300-1-pictures",
+    "variant": "pictures",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "300",
+      "--seed",
+      "20261010",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261010-300-1-pictures",
+      "--cg-paths",
+      "--reuse-pictures",
+      "--reverse"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:22:43.797182+00:00",
+      "samples": 5,
+      "clean": false,
+      "overlappingDeveloperProcesses": [
+        {
+          "elapsedSeconds": 0.14390399999683723,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 1.3003004579804838,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 2.438714624964632,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 3.551551249984186,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 3.789492957992479,
+          "pid": 43435,
+          "process": "xcodebuild"
+        }
+      ],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "name": "20261010-300-1-paths",
+    "variant": "paths",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "300",
+      "--seed",
+      "20261010",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261010-300-1-paths",
+      "--cg-paths",
+      "--reverse"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:22:47.590551+00:00",
+      "samples": 5,
+      "clean": false,
+      "overlappingDeveloperProcesses": [
+        {
+          "elapsedSeconds": 0.10869449999881908,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 1.270222624996677,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 2.4754272919963114,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 3.7099797499831766,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 4.472240208007861,
+          "pid": 43435,
+          "process": "xcodebuild"
+        }
+      ],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "name": "20261010-300-1-managed",
+    "variant": "managed",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "300",
+      "--seed",
+      "20261010",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261010-300-1-managed",
+      "--reverse"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:22:52.071532+00:00",
+      "samples": 5,
+      "clean": false,
+      "overlappingDeveloperProcesses": [
+        {
+          "elapsedSeconds": 0.14373816701117903,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 1.3143157919985242,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 2.4620029170182534,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 3.648158208001405,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 3.8663143329904415,
+          "pid": 43435,
+          "process": "xcodebuild"
+        }
+      ],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "name": "20261010-300-1-unmanaged",
+    "variant": "unmanaged",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "300",
+      "--seed",
+      "20261010",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261010-300-1-unmanaged",
+      "--legacy-unmanaged-colors",
+      "--reverse"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:22:55.941138+00:00",
+      "samples": 5,
+      "clean": false,
+      "overlappingDeveloperProcesses": [
+        {
+          "elapsedSeconds": 0.1490125409909524,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 1.2922647499945015,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 2.469775874982588,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 3.6848776660044678,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 4.318748124991544,
+          "pid": 43435,
+          "process": "xcodebuild"
+        }
+      ],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "name": "20261010-300-2-unmanaged",
+    "variant": "unmanaged",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "300",
+      "--seed",
+      "20261010",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261010-300-2-unmanaged",
+      "--legacy-unmanaged-colors"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:23:00.262388+00:00",
+      "samples": 5,
+      "clean": false,
+      "overlappingDeveloperProcesses": [
+        {
+          "elapsedSeconds": 0.14444962498964742,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 1.4625121660064906,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 2.6404840409522876,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 3.838741540967021,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 4.275488624989521,
+          "pid": 43435,
+          "process": "xcodebuild"
+        }
+      ],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "name": "20261010-300-2-managed",
+    "variant": "managed",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "300",
+      "--seed",
+      "20261010",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261010-300-2-managed"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:23:04.541786+00:00",
+      "samples": 5,
+      "clean": false,
+      "overlappingDeveloperProcesses": [
+        {
+          "elapsedSeconds": 0.15203345904592425,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 1.3128709589946084,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 2.9515401670360006,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 4.061374375014566,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 4.24076341703767,
+          "pid": 43435,
+          "process": "xcodebuild"
+        }
+      ],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "name": "20261010-300-2-paths",
+    "variant": "paths",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "300",
+      "--seed",
+      "20261010",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261010-300-2-paths",
+      "--cg-paths"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:23:08.785016+00:00",
+      "samples": 5,
+      "clean": false,
+      "overlappingDeveloperProcesses": [
+        {
+          "elapsedSeconds": 0.11501266696723178,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 1.2974822079995647,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 2.512409500021022,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 3.895916417008266,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 4.053938291966915,
+          "pid": 43435,
+          "process": "xcodebuild"
+        }
+      ],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "name": "20261010-300-2-pictures",
+    "variant": "pictures",
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-picture-fixed-20261009/probe",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "300",
+      "--seed",
+      "20261010",
+      "--out",
+      ".build/calendar-skia-picture-fixed-20261009/matrix/20261010-300-2-pictures",
+      "--cg-paths",
+      "--reuse-pictures"
+    ],
+    "exitCode": 0,
+    "status": "pixel-mismatch",
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T19:23:12.842958+00:00",
+      "samples": 4,
+      "clean": false,
+      "overlappingDeveloperProcesses": [
+        {
+          "elapsedSeconds": 0.16563533298904076,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 1.3278525829664432,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 2.49958045798121,
+          "pid": 43435,
+          "process": "xcodebuild"
+        },
+        {
+          "elapsedSeconds": 3.549469791993033,
+          "pid": 43435,
+          "process": "xcodebuild"
+        }
+      ],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  }
+]

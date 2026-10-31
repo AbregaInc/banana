@@ -1,0 +1,64 @@
+{
+  "status": "captured-and-analyzed-partial-evidence",
+  "command": [
+    "tools/calendar-library-benchmark/profile-touch.py",
+    "--device",
+    "<device-udid>",
+    "--instruments-device",
+    "Spar<redacted>",
+    "--out",
+    ".build/calendar-touch/presentation-policies/system",
+    "--ablation",
+    "tile-prefetch-async-lazy",
+    "--density",
+    "300",
+    "--presentation-policy",
+    "system"
+  ],
+  "scope": "Partial real-swipe trace; no input-to-visible acceptance",
+  "pid": 11773,
+  "triggerTimestamp": "2026-10-09T06:35:19.647093-04:00",
+  "trigger": "First Swipe up in XCTest log; recorder attaches afterward",
+  "profileExit": 0,
+  "touchExit": 0,
+  "captureTriggered": true,
+  "exports": [
+    {
+      "schema": "hitches-updates",
+      "exitCode": 0
+    },
+    {
+      "schema": "hitches-renders",
+      "exitCode": 0
+    },
+    {
+      "schema": "hitches-gpu",
+      "exitCode": 0
+    },
+    {
+      "schema": "hitches-frame-lifetimes",
+      "exitCode": 0
+    },
+    {
+      "schema": "hitches",
+      "exitCode": 0
+    },
+    {
+      "schema": "display-vsyncs-interval",
+      "exitCode": 0
+    },
+    {
+      "schema": "device-display-info",
+      "exitCode": 0
+    },
+    {
+      "schema": "displayed-surfaces-interval",
+      "exitCode": 0
+    },
+    {
+      "schema": "display-surface-swap",
+      "exitCode": 0
+    }
+  ],
+  "analysisExit": 1
+}

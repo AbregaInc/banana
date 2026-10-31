@@ -1,0 +1,274 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild test-without-building -project ~/orca/workspaces/gtfuwgth/stingray/tools/calendar-library-benchmark/CalendarLibraryBenchmark.xcodeproj -scheme CalendarLibraryBenchmarkUITests -configuration Release -destination platform=iOS,id=<device-udid> -derivedDataPath ~/orca/workspaces/gtfuwgth/stingray/.build/calendar-library-touch-dd ARCHS=arm64 ONLY_ACTIVE_ARCH=YES CODE_SIGNING_ALLOWED=YES CODE_SIGN_STYLE=Automatic DEVELOPMENT_TEAM=<redacted> -resultBundlePath ~/orca/workspaces/gtfuwgth/stingray/.build/calendar-ipad-20261009/touch-100/ui.xcresult -parallel-testing-enabled NO -collect-test-diagnostics never
+
+Build settings from command line:
+    ARCHS = arm64
+    CODE_SIGN_STYLE = Automatic
+    CODE_SIGNING_ALLOWED = YES
+    DEVELOPMENT_TEAM = <redacted>
+    ONLY_ACTIVE_ARCH = YES
+
+Resolve Package Graph
+
+
+Resolved source packages:
+  CalendarKit: https://github.com/richardtop/CalendarKit.git @ 99a4a05
+  KVKCalendar: https://github.com/kvyatkovskys/KVKCalendar.git @ 0bcad2b
+
+Writing result bundle at path:
+	~/orca/workspaces/gtfuwgth/stingray/.build/calendar-ipad-20261009/touch-100/ui.xcresult
+
+2026-10-09 08:30:16.664179-0400 CalendarLibraryBenchmarkUITests-Runner[17359:7022897] [Default] Running tests...
+2026-10-09 08:30:16.697361-0400 CalendarLibraryBenchmarkUITests-Runner[17359:7022897] [UIKit App Config] Update the Info.plist: Launch screens will soon be required.
+2026-10-09 08:30:16.777368-0400 CalendarLibraryBenchmarkUITests-Runner[17359:7022897] [MC] Reading from public effective user settings.
+    t =      nans Interface orientation changed to Landscape Right
+Test Suite 'All tests' started at 2026-10-09 08:30:23.724.
+Test Suite 'CalendarLibraryBenchmarkUITests.xctest' started at 2026-10-09 08:30:23.725.
+Test Suite 'InteractiveTests' started at 2026-10-09 08:30:23.725.
+Test Case '-[CalendarLibraryBenchmarkUITests.InteractiveTests testPagingScrollingAndEviction]' started.
+    t =     0.00s Start Test at 2026-10-09 08:30:23.726
+    t =     0.03s Set Up
+    t =     0.04s     Open com.boris.banana.calendar-library-benchmark
+    t =     0.04s         Activate com.boris.banana.calendar-library-benchmark
+    t =     0.06s             Wait for com.boris.banana.calendar-library-benchmark to idle
+    t =     0.08s     Waiting 10.0s for "benchmark.interactive.ready" StaticText to exist
+    t =     1.10s         Checking `Expect predicate `existsNoRetry == 1` for object "benchmark.interactive.ready" StaticText`
+    t =     1.10s             Checking existence of `"benchmark.interactive.ready" StaticText`
+    t =     1.23s Find the "benchmark.date" StaticText
+    t =     1.29s Find the "benchmark.date" StaticText
+    t =     1.35s Tap "benchmark.next" Button
+    t =     1.35s     Wait for com.boris.banana.calendar-library-benchmark to idle
+    t =     1.36s     Find the "benchmark.next" Button
+    t =     1.43s     Check for interrupting elements affecting "benchmark.next" Button
+    t =     1.50s         Wait for com.apple.springboard to idle
+    t =     1.59s Ignoring failure to get hierarchy for remote element in process 342 (Error getting main window kAXErrorServerNotFound)
+    t =     1.60s Ignoring failure to get hierarchy for remote element in process 12109 (Error getting main window kAXErrorServerNotFound)
+    t =     1.61s Ignoring failure to get hierarchy for remote element in process 342 (Error getting main window kAXErrorServerNotFound)
+    t =     1.61s Ignoring failure to get hierarchy for remote element in process 12109 (Error getting main window kAXErrorServerNotFound)
+    t =     1.62s     Synthesize event
+    t =     1.96s     Wait for com.boris.banana.calendar-library-benchmark to idle
+    t =     3.28s Checking `Expect predicate `label != "Oct 8, 2026"` for object "benchmark.date" StaticText`
+    t =     3.28s     Find the "benchmark.date" StaticText
+    t =     3.39s Find the "benchmark.date" StaticText
+    t =     3.46s Find the "benchmark.date" StaticText
+    t =     3.52s Find the "benchmark.date" StaticText
+    t =     3.58s Tap "benchmark.next" Button
+    t =     3.58s     Wait for com.boris.banana.calendar-library-benchmark to idle
+    t =     3.59s     Find the "benchmark.next" Button
+    t =     3.65s     Check for interrupting elements affecting "benchmark.next" Button
+    t =     3.72s         Wait for com.apple.springboard to idle
+    t =     3.79s Ignoring failure to get hierarchy for remote element in process 342 (Error getting main window kAXErrorServerNotFound)
+    t =     3.79s Ignoring failure to get hierarchy for remote element in process 12109 (Error getting main window kAXErrorServerNotFound)
+    t =     3.80s Ignoring failure to get hierarchy for remote element in process 342 (Error getting main window kAXErrorServerNotFound)
+    t =     3.81s Ignoring failure to get hierarchy for remote element in process 12109 (Error getting main window kAXErrorServerNotFound)
+    t =     3.82s     Synthesize event
+    t =     4.13s     Wait for com.boris.banana.calendar-library-benchmark to idle
+    t =     5.43s Checking `Expect predicate `label != "Oct 13, 2026"` for object "benchmark.date" StaticText`
+    t =     5.43s     Find the "benchmark.date" StaticText
+    t =     5.55s Find the "benchmark.date" StaticText
+    t =     5.62s Find the "benchmark.date" StaticText
+    t =     5.68s Find the "benchmark.date" StaticText
+    t =     5.74s Tap "benchmark.next" Button
+    t =     5.74s     Wait for com.boris.banana.calendar-library-benchmark to idle
+    t =     5.74s     Find the "benchmark.next" Button
+    t =     5.81s     Check for interrupting elements affecting "benchmark.next" Button
+    t =     5.88s         Wait for com.apple.springboard to idle
+    t =     5.95s Ignoring failure to get hierarchy for remote element in process 342 (Error getting main window kAXErrorServerNotFound)
+    t =     5.95s Ignoring failure to get hierarchy for remote element in process 12109 (Error getting main window kAXErrorServerNotFound)
+    t =     5.96s Ignoring failure to get hierarchy for remote element in process 342 (Error getting main window kAXErrorServerNotFound)
+    t =     5.96s Ignoring failure to get hierarchy for remote element in process 12109 (Error getting main window kAXErrorServerNotFound)
+    t =     5.98s     Synthesize event
+    t =     6.29s     Wait for com.boris.banana.calendar-library-benchmark to idle
+    t =     7.59s Checking `Expect predicate `label != "Oct 18, 2026"` for object "benchmark.date" StaticText`
+    t =     7.59s     Find the "benchmark.date" StaticText
+    t =     7.71s Find the "benchmark.date" StaticText
+    t =     7.77s Find the "benchmark.date" StaticText
+    t =     7.83s Find the "benchmark.date" StaticText
+    t =     7.89s Tap "benchmark.next" Button
+    t =     7.89s     Wait for com.boris.banana.calendar-library-benchmark to idle
+    t =     7.90s     Find the "benchmark.next" Button
+    t =     7.97s     Check for interrupting elements affecting "benchmark.next" Button
+    t =     8.03s         Wait for com.apple.springboard to idle
+    t =     8.10s Ignoring failure to get hierarchy for remote element in process 342 (Error getting main window kAXErrorServerNotFound)
+    t =     8.10s Ignoring failure to get hierarchy for remote element in process 12109 (Error getting main window kAXErrorServerNotFound)
+    t =     8.11s Ignoring failure to get hierarchy for remote element in process 342 (Error getting main window kAXErrorServerNotFound)
+    t =     8.12s Ignoring failure to get hierarchy for remote element in process 12109 (Error getting main window kAXErrorServerNotFound)
+    t =     8.13s     Synthesize event
+    t =     8.44s     Wait for com.boris.banana.calendar-library-benchmark to idle
+    t =     9.74s Checking `Expect predicate `label != "Oct 23, 2026"` for object "benchmark.date" StaticText`
+    t =     9.75s     Find the "benchmark.date" StaticText
+    t =     9.86s Find the "benchmark.date" StaticText
+    t =     9.92s Find the "benchmark.date" StaticText
+    t =     9.98s Checking existence of `"benchmark.timeline" ScrollView`
+    t =    10.04s Swipe up "benchmark.timeline" ScrollView
+    t =    10.04s     Wait for com.boris.banana.calendar-library-benchmark to idle
+    t =    10.05s     Find the "benchmark.timeline" ScrollView
+    t =    10.11s     Check for interrupting elements affecting "benchmark.timeline" ScrollView
+    t =    10.18s         Wait for com.apple.springboard to idle
+    t =    10.25s Ignoring failure to get hierarchy for remote element in process 342 (Error getting main window kAXErrorServerNotFound)
+    t =    10.25s Ignoring failure to get hierarchy for remote element in process 12109 (Error getting main window kAXErrorServerNotFound)
+    t =    10.26s Ignoring failure to get hierarchy for remote element in process 342 (Error getting main window kAXErrorServerNotFound)
+    t =    10.26s Ignoring failure to get hierarchy for remote element in process 12109 (Error getting main window kAXErrorServerNotFound)
+    t =    10.28s     Synthesize event
+    t =    10.74s     Wait for com.boris.banana.calendar-library-benchmark to idle
+    t =    12.76s Swipe down "benchmark.timeline" ScrollView
+    t =    12.76s     Wait for com.boris.banana.calendar-library-benchmark to idle
+    t =    12.77s     Find the "benchmark.timeline" ScrollView
+    t =    12.85s     Check for interrupting elements affecting "benchmark.timeline" ScrollView
+    t =    12.92s         Wait for com.apple.springboard to idle
+    t =    12.99s Ignoring failure to get hierarchy for remote element in process 342 (Error getting main window kAXErrorServerNotFound)
+    t =    12.99s Ignoring failure to get hierarchy for remote element in process 12109 (Error getting main window kAXErrorServerNotFound)
+    t =    13.00s Ignoring failure to get hierarchy for remote element in process 342 (Error getting main window kAXErrorServerNotFound)
+    t =    13.00s Ignoring failure to get hierarchy for remote element in process 12109 (Error getting main window kAXErrorServerNotFound)
+    t =    13.02s     Synthesize event
+    t =    13.48s     Wait for com.boris.banana.calendar-library-benchmark to idle
+    t =    15.34s Swipe up "benchmark.timeline" ScrollView
+    t =    15.34s     Wait for com.boris.banana.calendar-library-benchmark to idle
+    t =    15.35s     Find the "benchmark.timeline" ScrollView
+    t =    15.45s     Check for interrupting elements affecting "benchmark.timeline" ScrollView
+    t =    15.52s         Wait for com.apple.springboard to idle
+    t =    15.59s Ignoring failure to get hierarchy for remote element in process 342 (Error getting main window kAXErrorServerNotFound)
+    t =    15.59s Ignoring failure to get hierarchy for remote element in process 12109 (Error getting main window kAXErrorServerNotFound)
+    t =    15.60s Ignoring failure to get hierarchy for remote element in process 342 (Error getting main window kAXErrorServerNotFound)
+    t =    15.60s Ignoring failure to get hierarchy for remote element in process 12109 (Error getting main window kAXErrorServerNotFound)
+    t =    15.62s     Synthesize event
+    t =    16.08s     Wait for com.boris.banana.calendar-library-benchmark to idle
+    t =    18.11s Swipe down "benchmark.timeline" ScrollView
+    t =    18.11s     Wait for com.boris.banana.calendar-library-benchmark to idle
+    t =    18.12s     Find the "benchmark.timeline" ScrollView
+    t =    18.22s     Check for interrupting elements affecting "benchmark.timeline" ScrollView
+    t =    18.29s         Wait for com.apple.springboard to idle
+    t =    18.35s Ignoring failure to get hierarchy for remote element in process 342 (Error getting main window kAXErrorServerNotFound)
+    t =    18.36s Ignoring failure to get hierarchy for remote element in process 12109 (Error getting main window kAXErrorServerNotFound)
+    t =    18.37s Ignoring failure to get hierarchy for remote element in process 342 (Error getting main window kAXErrorServerNotFound)
+    t =    18.37s Ignoring failure to get hierarchy for remote element in process 12109 (Error getting main window kAXErrorServerNotFound)
+    t =    18.39s     Synthesize event
+    t =    18.85s     Wait for com.boris.banana.calendar-library-benchmark to idle
+    t =    20.45s Swipe up "benchmark.timeline" ScrollView
+    t =    20.45s     Wait for com.boris.banana.calendar-library-benchmark to idle
+    t =    20.46s     Find the "benchmark.timeline" ScrollView
+    t =    20.56s     Check for interrupting elements affecting "benchmark.timeline" ScrollView
+    t =    20.63s         Wait for com.apple.springboard to idle
+    t =    20.69s Ignoring failure to get hierarchy for remote element in process 342 (Error getting main window kAXErrorServerNotFound)
+    t =    20.70s Ignoring failure to get hierarchy for remote element in process 12109 (Error getting main window kAXErrorServerNotFound)
+    t =    20.71s Ignoring failure to get hierarchy for remote element in process 342 (Error getting main window kAXErrorServerNotFound)
+    t =    20.71s Ignoring failure to get hierarchy for remote element in process 12109 (Error getting main window kAXErrorServerNotFound)
+    t =    20.72s     Synthesize event
+    t =    21.18s     Wait for com.boris.banana.calendar-library-benchmark to idle
+    t =    23.21s Swipe down "benchmark.timeline" ScrollView
+    t =    23.21s     Wait for com.boris.banana.calendar-library-benchmark to idle
+    t =    23.22s     Find the "benchmark.timeline" ScrollView
+    t =    23.31s     Check for interrupting elements affecting "benchmark.timeline" ScrollView
+    t =    23.38s         Wait for com.apple.springboard to idle
+    t =    23.45s Ignoring failure to get hierarchy for remote element in process 342 (Error getting main window kAXErrorServerNotFound)
+    t =    23.46s Ignoring failure to get hierarchy for remote element in process 12109 (Error getting main window kAXErrorServerNotFound)
+    t =    23.47s Ignoring failure to get hierarchy for remote element in process 342 (Error getting main window kAXErrorServerNotFound)
+    t =    23.47s Ignoring failure to get hierarchy for remote element in process 12109 (Error getting main window kAXErrorServerNotFound)
+    t =    23.49s     Synthesize event
+    t =    23.95s     Wait for com.boris.banana.calendar-library-benchmark to idle
+    t =    25.98s Swipe up "benchmark.timeline" ScrollView
+    t =    25.98s     Wait for com.boris.banana.calendar-library-benchmark to idle
+    t =    25.99s     Find the "benchmark.timeline" ScrollView
+    t =    26.08s     Check for interrupting elements affecting "benchmark.timeline" ScrollView
+    t =    26.15s         Wait for com.apple.springboard to idle
+    t =    26.22s Ignoring failure to get hierarchy for remote element in process 342 (Error getting main window kAXErrorServerNotFound)
+    t =    26.23s Ignoring failure to get hierarchy for remote element in process 12109 (Error getting main window kAXErrorServerNotFound)
+    t =    26.24s Ignoring failure to get hierarchy for remote element in process 342 (Error getting main window kAXErrorServerNotFound)
+    t =    26.24s Ignoring failure to get hierarchy for remote element in process 12109 (Error getting main window kAXErrorServerNotFound)
+    t =    26.26s     Synthesize event
+    t =    26.72s     Wait for com.boris.banana.calendar-library-benchmark to idle
+    t =    28.75s Swipe down "benchmark.timeline" ScrollView
+    t =    28.75s     Wait for com.boris.banana.calendar-library-benchmark to idle
+    t =    28.76s     Find the "benchmark.timeline" ScrollView
+    t =    28.86s     Check for interrupting elements affecting "benchmark.timeline" ScrollView
+    t =    28.93s         Wait for com.apple.springboard to idle
+    t =    28.99s Ignoring failure to get hierarchy for remote element in process 342 (Error getting main window kAXErrorServerNotFound)
+    t =    29.00s Ignoring failure to get hierarchy for remote element in process 12109 (Error getting main window kAXErrorServerNotFound)
+    t =    29.01s Ignoring failure to get hierarchy for remote element in process 342 (Error getting main window kAXErrorServerNotFound)
+    t =    29.01s Ignoring failure to get hierarchy for remote element in process 12109 (Error getting main window kAXErrorServerNotFound)
+    t =    29.03s     Synthesize event
+    t =    29.48s     Wait for com.boris.banana.calendar-library-benchmark to idle
+    t =    31.50s Tap "benchmark.clearCache" Button
+    t =    31.50s     Wait for com.boris.banana.calendar-library-benchmark to idle
+    t =    31.51s     Find the "benchmark.clearCache" Button
+    t =    31.61s     Check for interrupting elements affecting "benchmark.clearCache" Button
+    t =    31.68s         Wait for com.apple.springboard to idle
+    t =    31.74s Ignoring failure to get hierarchy for remote element in process 342 (Error getting main window kAXErrorServerNotFound)
+    t =    31.75s Ignoring failure to get hierarchy for remote element in process 12109 (Error getting main window kAXErrorServerNotFound)
+    t =    31.76s Ignoring failure to get hierarchy for remote element in process 342 (Error getting main window kAXErrorServerNotFound)
+    t =    31.76s Ignoring failure to get hierarchy for remote element in process 12109 (Error getting main window kAXErrorServerNotFound)
+    t =    31.78s     Synthesize event
+    t =    32.08s     Wait for com.boris.banana.calendar-library-benchmark to idle
+    t =    32.37s Tap "benchmark.previous" Button
+    t =    32.37s     Wait for com.boris.banana.calendar-library-benchmark to idle
+    t =    32.38s     Find the "benchmark.previous" Button
+    t =    32.49s     Check for interrupting elements affecting "benchmark.previous" Button
+    t =    32.55s         Wait for com.apple.springboard to idle
+    t =    32.60s Ignoring failure to get hierarchy for remote element in process 342 (Error getting main window kAXErrorServerNotFound)
+    t =    32.61s Ignoring failure to get hierarchy for remote element in process 12109 (Error getting main window kAXErrorServerNotFound)
+    t =    32.61s Ignoring failure to get hierarchy for remote element in process 342 (Error getting main window kAXErrorServerNotFound)
+    t =    32.62s Ignoring failure to get hierarchy for remote element in process 12109 (Error getting main window kAXErrorServerNotFound)
+    t =    32.63s     Synthesize event
+    t =    32.93s     Wait for com.boris.banana.calendar-library-benchmark to idle
+    t =    34.21s Checking `Expect predicate `label == "Oct 23, 2026"` for object "benchmark.date" StaticText`
+    t =    34.21s     Find the "benchmark.date" StaticText
+    t =    34.33s Tap "benchmark.previous" Button
+    t =    34.33s     Wait for com.boris.banana.calendar-library-benchmark to idle
+    t =    34.34s     Find the "benchmark.previous" Button
+    t =    34.41s     Check for interrupting elements affecting "benchmark.previous" Button
+    t =    34.47s         Wait for com.apple.springboard to idle
+    t =    34.54s Ignoring failure to get hierarchy for remote element in process 342 (Error getting main window kAXErrorServerNotFound)
+    t =    34.54s Ignoring failure to get hierarchy for remote element in process 12109 (Error getting main window kAXErrorServerNotFound)
+    t =    34.55s Ignoring failure to get hierarchy for remote element in process 342 (Error getting main window kAXErrorServerNotFound)
+    t =    34.56s Ignoring failure to get hierarchy for remote element in process 12109 (Error getting main window kAXErrorServerNotFound)
+    t =    34.57s     Synthesize event
+    t =    34.88s     Wait for com.boris.banana.calendar-library-benchmark to idle
+    t =    36.17s Checking `Expect predicate `label == "Oct 18, 2026"` for object "benchmark.date" StaticText`
+    t =    36.17s     Find the "benchmark.date" StaticText
+    t =    36.28s Tap "benchmark.previous" Button
+    t =    36.28s     Wait for com.boris.banana.calendar-library-benchmark to idle
+    t =    36.29s     Find the "benchmark.previous" Button
+    t =    36.36s     Check for interrupting elements affecting "benchmark.previous" Button
+    t =    36.43s         Wait for com.apple.springboard to idle
+    t =    36.50s Ignoring failure to get hierarchy for remote element in process 342 (Error getting main window kAXErrorServerNotFound)
+    t =    36.50s Ignoring failure to get hierarchy for remote element in process 12109 (Error getting main window kAXErrorServerNotFound)
+    t =    36.51s Ignoring failure to get hierarchy for remote element in process 342 (Error getting main window kAXErrorServerNotFound)
+    t =    36.51s Ignoring failure to get hierarchy for remote element in process 12109 (Error getting main window kAXErrorServerNotFound)
+    t =    36.53s     Synthesize event
+    t =    36.83s     Wait for com.boris.banana.calendar-library-benchmark to idle
+    t =    38.14s Checking `Expect predicate `label == "Oct 13, 2026"` for object "benchmark.date" StaticText`
+    t =    38.14s     Find the "benchmark.date" StaticText
+    t =    38.25s Tap "benchmark.previous" Button
+    t =    38.25s     Wait for com.boris.banana.calendar-library-benchmark to idle
+    t =    38.26s     Find the "benchmark.previous" Button
+    t =    38.33s     Check for interrupting elements affecting "benchmark.previous" Button
+    t =    38.40s         Wait for com.apple.springboard to idle
+    t =    38.47s Ignoring failure to get hierarchy for remote element in process 342 (Error getting main window kAXErrorServerNotFound)
+    t =    38.47s Ignoring failure to get hierarchy for remote element in process 12109 (Error getting main window kAXErrorServerNotFound)
+    t =    38.48s Ignoring failure to get hierarchy for remote element in process 342 (Error getting main window kAXErrorServerNotFound)
+    t =    38.49s Ignoring failure to get hierarchy for remote element in process 12109 (Error getting main window kAXErrorServerNotFound)
+    t =    38.51s     Synthesize event
+    t =    38.82s     Wait for com.boris.banana.calendar-library-benchmark to idle
+    t =    40.10s Checking `Expect predicate `label == "Oct 8, 2026"` for object "benchmark.date" StaticText`
+    t =    40.10s     Find the "benchmark.date" StaticText
+    t =    40.22s Find the "benchmark.date" StaticText
+    t =    40.28s Find the Target Application 'com.boris.banana.calendar-library-benchmark'
+    t =    40.62s Added attachment named 'native-calendar-after-touch-and-eviction'
+    t =    40.62s Tear Down
+Test Case '-[CalendarLibraryBenchmarkUITests.InteractiveTests testPagingScrollingAndEviction]' passed (40.726 seconds).
+Test Suite 'InteractiveTests' passed at 2026-10-09 08:31:04.451.
+	 Executed 1 test, with 0 failures (0 unexpected) in 40.726 (40.726) seconds
+Test Suite 'CalendarLibraryBenchmarkUITests.xctest' passed at 2026-10-09 08:31:04.452.
+	 Executed 1 test, with 0 failures (0 unexpected) in 40.726 (40.727) seconds
+Test Suite 'All tests' passed at 2026-10-09 08:31:04.452.
+	 Executed 1 test, with 0 failures (0 unexpected) in 40.726 (40.728) seconds
+2026-10-09 08:31:04.595 xcodebuild[73816:39942877] [MT] IDETestOperationsObserverDebug: 50.204 elapsed -- Testing started completed.
+2026-10-09 08:31:04.595 xcodebuild[73816:39942877] [MT] IDETestOperationsObserverDebug: 0.000 sec, +0.000 sec -- start
+2026-10-09 08:31:04.595 xcodebuild[73816:39942877] [MT] IDETestOperationsObserverDebug: 50.204 sec, +50.204 sec -- end
+
+Test session results, code coverage, and logs:
+	~/orca/workspaces/gtfuwgth/stingray/.build/calendar-ipad-20261009/touch-100/ui.xcresult
+
+** TEST EXECUTE SUCCEEDED **
+
+Testing started

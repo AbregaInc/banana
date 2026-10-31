@@ -1,0 +1,15 @@
+{
+  "timestamp": "2026-10-09T00:54:50.100158-04:00",
+  "device": "<device-udid>",
+  "app": "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-library-device-dd/Build/Products/Release-iphoneos/CalendarLibraryBenchmark.app",
+  "binarySHA256": "30d979e9c30477bdabbd1a886aee5bdb5fa1b6744ce65ac009dc710707ea04e7",
+  "git": "96d1ef3071fa17363f15bdee4e3a199fee2d0a6b",
+  "dirty": " M .github/workflows/performance-contract.yml\n M Banana/Views/MacEventInspector.swift\n M Banana/Views/WeekView.swift\n M BananaNativePerformanceUITests/NativeInteractionTests.swift\n M docs/performance/regression-testing.md\n M tools/calendar-library-benchmark/Sources/Benchmark.swift\n M tools/calendar-library-benchmark/project.yml\n M tools/calendar-library-benchmark/run-device.py\n M tools/mac-stress-preview.py\n M tools/native-ui-trace.py\n?? Banana/Model/CalendarOverflowRules.swift\n?? Banana/Views/CalendarHourLines.swift\n?? Banana/Views/CalendarOverflowButton.swift\n?? docs/performance/scale-results/calendar-hour-lines-20261009/\n?? docs/performance/scale-results/calendar-observation-20261009/\n?? docs/performance/scale-results/calendar-overflow-20261009/\n?? tools/calendar-hour-lines-tests/\n?? tools/calendar-library-benchmark/Info.plist\n?? tools/calendar-library-benchmark/test_device_runner.py\n?? tools/calendar-overflow-tests/\n",
+  "sceneManifest": {
+    "UIApplicationSupportsMultipleScenes": false,
+    "UISceneConfigurations": {}
+  },
+  "minimumFrameDurationDisabled": true,
+  "scope": "Physical device synchronous renderer work; input/display acceptance unmeasured",
+  "matrix": "Three alternating-order trials, two densities, tile cache policy ablations"
+}

@@ -1,0 +1,36 @@
+[
+  {
+    "name": "uniform-v1-100-tile-prefetch-async-two",
+    "command": [
+      ".build/calendar-ipad-20261009/varied-tile-checks",
+      "--fixture",
+      "uniform-v1",
+      "--mode",
+      "week",
+      "--density",
+      "100",
+      "--ablation",
+      "tile-prefetch-async-two",
+      "--output",
+      ".build/calendar-ipad-20261009/varied-oracles/uniform-v1-100-tile-prefetch-async-two.json"
+    ],
+    "exitCode": 0
+  },
+  {
+    "name": "varied-v1-100-tile-prefetch-async-two",
+    "command": [
+      ".build/calendar-ipad-20261009/varied-tile-checks",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--density",
+      "100",
+      "--ablation",
+      "tile-prefetch-async-two",
+      "--output",
+      ".build/calendar-ipad-20261009/varied-oracles/varied-v1-100-tile-prefetch-async-two.json"
+    ],
+    "exitCode": 1
+  }
+]

@@ -1,0 +1,25 @@
+{
+  "name": "banana-service",
+  "private": true,
+  "type": "module",
+  "description": "Banana accounts, calendar change pushes and usage counts. Runs on Cloudflare Workers (src/worker.js) or Node 24 (src/node.js).",
+  "engines": {
+    "node": ">=24.22.1 <25"
+  },
+  "scripts": {
+    "test": "TZ=UTC node --test test/*.test.js && TZ=America/New_York node --test test/*.test.js",
+    "start": "node src/node.js",
+    "fixtures": "node tools/make-protocol-fixtures.mjs",
+    "pretest": "node src/node-runtime.js",
+    "prestart": "node src/node-runtime.js"
+  },
+  "dependencies": {
+    "@date-fns/tz": "1.5.0",
+    "@hono/node-server": "2.1.3",
+    "hono": "4.13.12"
+  },
+  "volta": {
+    "node": "24.22.1"
+  },
+  "license": "AGPL-3.0-only"
+}

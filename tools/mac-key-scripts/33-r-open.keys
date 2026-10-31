@@ -1,0 +1,22 @@
+# R and a word at once with the conversation open full width over the columns, at 1120x780: the reply is
+# written under the last message, on screen, with the caret in it, and the word is in it.
+name r-open
+size 1120 780
+wait 1
+key return
+wait 0.8
+expect mail.open is q3
+expect composer.title absent
+shot opened
+type rEach
+wait 1.5
+expect composer.title is Reply
+expect composer.host is q3
+expect composer.body is Each
+expect composer.awaitingCaret is false
+expect firstResponder contains mail.composer.body
+expect mail.counts.inbox is 40
+expect toast absent
+shot reply-in-the-open-conversation
+key escape
+wait 0.5

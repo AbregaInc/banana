@@ -1,0 +1,11 @@
+{
+  "timestamp": "2026-10-09T06:42:33.074304-04:00",
+  "platform": "macOS-26.6.2-arm64-arm-64bit",
+  "pid": 93573,
+  "git": "85914f96b9905a85cc8999168d6fe8128c264c49",
+  "dirty": " M docs/performance/scale-results/calendar-native-surfaces-20261009/README.md\n M tools/calendar-library-benchmark/Info.plist\n M tools/calendar-library-benchmark/Sources/NativeController.swift\n M tools/calendar-library-benchmark/profile-touch.py\n M tools/calendar-library-benchmark/project.yml\n M tools/calendar-library-benchmark/report-hitches.py\n M tools/calendar-library-benchmark/test-device-interactive.py\n M tools/calendar-library-benchmark/test_hitches_report.py\n?? docs/performance/scale-results/calendar-native-surfaces-20261009/physical-cg-swipe/\n?? docs/performance/scale-results/calendar-native-surfaces-20261009/physical-surface-accessibility-client-pooled.json\n?? docs/performance/scale-results/calendar-native-surfaces-20261009/physical-surface-accessibility-client/\n?? docs/performance/scale-results/calendar-native-surfaces-20261009/physical-surface-storage-pooled.json\n?? docs/performance/scale-results/calendar-native-surfaces-20261009/physical-surface-storage/\n",
+  "load": "6:42  up 4 days,  4:46, 31 users, load averages: 18.79 22.54 18.65",
+  "scenario": "Visible native prototype, week365d100perday, async two workers CVPixelBuffer; four Next, two down/up scroll pairs at 0.75 page, four Previous, Clear cache, Next and Previous; CUA AX reads between actions; warm initial page",
+  "executable": "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-async-preparation/SurfacePreview.app/Contents/MacOS/SurfacePreview",
+  "binarySHA256": "855b7d6fb0d18481b3e8a9c189f46615b7df0537ba6cc09dec02c9f0f01a85bd"
+}

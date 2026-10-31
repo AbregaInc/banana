@@ -1,0 +1,4 @@
+sqlite 3.51.0, FTS5=1, threadsafe=2
+  intent commit, WAL + synchronous=NORMAL: n=400 p50=0.029 ms p95=0.077 ms p99=0.104 ms max=0.210 ms
+  intent commit, WAL + synchronous=FULL: n=400 p50=0.071 ms p95=0.191 ms p99=1.431 ms max=4.634 ms
+  intent commit, WAL + synchronous=FULL + fullfsync: n=400 p50=2.975 ms p95=4.999 ms p99=9.285 ms max=12.970 ms

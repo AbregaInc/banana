@@ -1,0 +1,165 @@
+⚙️  Generating plists...
+⚙️  Generating project...
+⚙️  Writing project...
+Created project at ~/orca/workspaces/gtfuwgth/stingray/Banana.xcodeproj
+error: the following command failed with exit code 0 but produced no further output
+SwiftCompile normal arm64 (in target 'BananaWidgetExtension' from project 'Banana')
+~/orca/workspaces/gtfuwgth/stingray/Shared/DiagnosticsTracing.swift:211:52: warning: converting non-Sendable function value to '@Sendable () -> Date' may introduce data races
+209 |         maxBytes: Int = 512 * 1024,
+210 |         processSessionID: UUID = UUID(),
+211 |         now: @escaping @Sendable () -> Date = Date.init,
+    |                                                    `- warning: converting non-Sendable function value to '@Sendable () -> Date' may introduce data races
+212 |         uptime: @escaping @Sendable () -> TimeInterval = { ProcessInfo.processInfo.systemUptime }
+213 |     ) {
+error: the following command failed with exit code 0 but produced no further output
+SwiftCompile normal arm64 (in target 'BananaTests' from project 'Banana')
+~/orca/workspaces/gtfuwgth/stingray/Banana/Model/EventPhrase.swift:140:5: warning: 'nonisolated(unsafe)' is unnecessary for a constant with 'Sendable' type 'NSDataDetector?', consider removing it
+138 | 
+139 |     /// Made once: the form reads the title on every keystroke.
+140 |     nonisolated(unsafe) private static let detector = try? NSDataDetector(types: NSTextCheckingResult.CheckingType.date.rawValue)
+    |     `- warning: 'nonisolated(unsafe)' is unnecessary for a constant with 'Sendable' type 'NSDataDetector?', consider removing it
+141 | 
+142 |     struct FoundDate {
+
+~/orca/workspaces/gtfuwgth/stingray/BananaTests/GuidedSessionTests.swift:43:11: warning: result of call to 'tick(in:now:)' is unused [#NoUsage]
+ 41 |         var s = GuidedSession(plan: plan, now: t0)
+ 42 |         s.completeSet(in: plan, at: t0)
+ 43 |         s.tick(in: plan, now: t0.addingTimeInterval(30))
+    |           `- warning: result of call to 'tick(in:now:)' is unused [#NoUsage]
+ 44 |         s.completeSet(in: plan, at: t0.addingTimeInterval(40))   // push-ups done → 30 s rest
+ 45 |         // Rest ends at 70; plank 1 runs 70–110; rest 110–130; plank 2 runs from 130.
+
+~/orca/workspaces/gtfuwgth/stingray/BananaTests/GuidedSessionTests.swift:118:11: warning: result of call to 'tick(in:now:)' is unused [#NoUsage]
+116 |         var s = GuidedSession(plan: plan, now: t0)
+117 |         s.completeSet(in: plan, at: t0)
+118 |         s.tick(in: plan, now: t0.addingTimeInterval(30))
+    |           `- warning: result of call to 'tick(in:now:)' is unused [#NoUsage]
+119 |         s.completeSet(in: plan, at: t0.addingTimeInterval(40))
+120 |         XCTAssertEqual(s.tick(in: plan, now: t0.addingTimeInterval(3_600)), .finished)
+
+~/orca/workspaces/gtfuwgth/stingray/Banana/Model/MailUI/Pure/MailRichText.swift:230:46: warning: trailing closure in this context is confusable with the body of the statement; pass as a parenthesized argument to silence this warning
+228 |         if let signature {
+229 |             html += signature.fragment.html
+230 |             if let text = signature.text.map { Self.plain($0) }, !text.isEmpty { parts.append("-- \n" + text) }
+    |                                              `- warning: trailing closure in this context is confusable with the body of the statement; pass as a parenthesized argument to silence this warning
+231 |         }
+232 |         if let quote {
+
+~/orca/workspaces/gtfuwgth/stingray/Banana/Model/MailUI/Pure/MailRichText.swift:234:42: warning: trailing closure in this context is confusable with the body of the statement; pass as a parenthesized argument to silence this warning
+232 |         if let quote {
+233 |             html += quote.fragment.html
+234 |             if let text = quote.text.map { Self.plain($0) }, !text.isEmpty { parts.append(text) }
+    |                                          `- warning: trailing closure in this context is confusable with the body of the statement; pass as a parenthesized argument to silence this warning
+235 |         }
+236 |         return (html, parts.joined(separator: "\n\n"))
+
+~/orca/workspaces/gtfuwgth/stingray/BananaTests/MyFoodsStoreTests.swift:54:15: warning: result of call to 'applyCloud(_:id:item:)' is unused [#NoUsage]
+52 |         XCTAssertNotNil(store.cloudItems(.myFood)[remote.id.uuidString])
+53 |         XCTAssertTrue(store.cloudItems(.routine).isEmpty)
+54 |         store.applyCloud(.myFood, id: remote.id.uuidString, item: nil)
+   |               `- warning: result of call to 'applyCloud(_:id:item:)' is unused [#NoUsage]
+55 |         XCTAssertNil(store.food(remote.id))
+56 |     }
+
+~/orca/workspaces/gtfuwgth/stingray/BananaTests/ToastCenterTests.swift:147:13: warning: mutation of captured var 'committed' in concurrently-executing code; this is an error in the Swift 6 language mode [#SendableClosureCaptures]
+145 |         }
+146 |         async let second: Void = center.deferRemoval(id: "b", message: "B", failure: { $0 }) {
+147 |             committed.append("b"); return nil
+    |             `- warning: mutation of captured var 'committed' in concurrently-executing code; this is an error in the Swift 6 language mode [#SendableClosureCaptures]
+148 |         }
+149 |         async let third: Void = center.deferRemoval(id: "c", message: "C", failure: { $0 }) {
+
+~/orca/workspaces/gtfuwgth/stingray/BananaTests/ToastCenterTests.swift:150:13: warning: mutation of captured var 'committed' in concurrently-executing code; this is an error in the Swift 6 language mode [#SendableClosureCaptures]
+148 |         }
+149 |         async let third: Void = center.deferRemoval(id: "c", message: "C", failure: { $0 }) {
+150 |             committed.append("c"); return nil
+    |             `- warning: mutation of captured var 'committed' in concurrently-executing code; this is an error in the Swift 6 language mode [#SendableClosureCaptures]
+151 |         }
+152 |         _ = await (second, third)
+
+[#NoUsage]: <https://docs.swift.org/compiler/documentation/diagnostics/no-usage>
+[#SendableClosureCaptures]: <https://docs.swift.org/compiler/documentation/diagnostics/sendable-closure-captures>
+error: the following command failed with exit code 0 but produced no further output
+SwiftCompile normal arm64 (in target 'Banana' from project 'Banana')
+~/orca/workspaces/gtfuwgth/stingray/Banana/Model/TranscriptCoordinator.swift:309:83: warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+301 |         let base = kept
+302 |         resetPartial(id, to: base)   // trims the rewind window on disk; checkpoints append from here
+303 |         let work = Task.detached(priority: .utility) { () -> [TranscriptWord] in
+    |                                                      |- note: 'self' implicitly strongly captured here
+    |                                                      `- note: add 'self' as a capture list item to silence
+304 |             // From the top, hand the analyzer the original file. Routing through transcribeSegment
+305 |             // would first decode the WHOLE episode into a temp 16k file — a minute of silent work
+    :
+307 |             // continued-processing task expired: "tasks that appear stalled may be forcibly
+308 |             // expired". Only a resume needs a slice cut out of the middle.
+309 |             let checkpointHandler: @Sendable ([TranscriptWord]) -> Void = { [weak self] words in
+    |                                                                                   |- warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+    |                                                                                   `- note: explicitly assign the capture list item to silence
+310 |                 guard self != nil else { return }
+311 |                 Self.appendPartial(id, newWords: words)
+
+~/orca/workspaces/gtfuwgth/stingray/Banana/Model/TranscriptCoordinator.swift:315:92: warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+301 |         let base = kept
+302 |         resetPartial(id, to: base)   // trims the rewind window on disk; checkpoints append from here
+303 |         let work = Task.detached(priority: .utility) { () -> [TranscriptWord] in
+    |                                                      |- note: 'self' implicitly strongly captured here
+    |                                                      `- note: add 'self' as a capture list item to silence
+304 |             // From the top, hand the analyzer the original file. Routing through transcribeSegment
+305 |             // would first decode the WHOLE episode into a temp 16k file — a minute of silent work
+    :
+313 | 
+314 |             if startAt <= 0.01 {
+315 |                 let stageHandler: @Sendable (TranscriptionService.Stage) -> Void = { [weak self] stage in
+    |                                                                                            |- warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+    |                                                                                            `- note: explicitly assign the capture list item to silence
+316 |                     Task { @MainActor in
+317 |                         switch stage {
+
+~/orca/workspaces/gtfuwgth/stingray/Banana/Model/TranscriptCoordinator.swift:344:92: warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+301 |         let base = kept
+302 |         resetPartial(id, to: base)   // trims the rewind window on disk; checkpoints append from here
+303 |         let work = Task.detached(priority: .utility) { () -> [TranscriptWord] in
+    |                                                      |- note: 'self' implicitly strongly captured here
+    |                                                      `- note: add 'self' as a capture list item to silence
+304 |             // From the top, hand the analyzer the original file. Routing through transcribeSegment
+305 |             // would first decode the WHOLE episode into a temp 16k file — a minute of silent work
+    :
+342 |                 }
+343 | 
+344 |                 let stageHandler: @Sendable (TranscriptionService.Stage) -> Void = { [weak self] stage in
+    |                                                                                            |- warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+    |                                                                                            `- note: explicitly assign the capture list item to silence
+345 |                     Task { @MainActor in
+346 |                         switch stage {
+
+~/orca/workspaces/gtfuwgth/stingray/Banana/Views/WeekView.swift:3777:87: warning: 'main' was deprecated in iOS 26.0: Use a UIScreen instance found through context instead (i.e, view.window.windowScene.screen), or for properties like UIScreen.scale with trait equivalents, use a traitCollection found through context. [#DeprecatedDeclaration]
+3775 |             // outside it. The screen width is only the fallback for such a tiny reading: beside
+3776 |             // an iPad sidebar or in a split, the screen is wider than the column.
+3777 |             let measured = geometry.size.width > 100 ? geometry.size.width : UIScreen.main.bounds.width
+     |                                                                                       `- warning: 'main' was deprecated in iOS 26.0: Use a UIScreen instance found through context instead (i.e, view.window.windowScene.screen), or for properties like UIScreen.scale with trait equivalents, use a traitCollection found through context. [#DeprecatedDeclaration]
+3778 |             let dayWidth = dayMode
+3779 |                 ? max(64, measured - timeWidth)
+
+~/orca/workspaces/gtfuwgth/stingray/Banana/Views/Workouts/WorkoutMotionCache.swift:150:20: warning: value 'sampleFileSize' was defined but never used; consider replacing with boolean test [#NoUsage]
+148 |             // still gets returned and held in memory for the rest of this launch; it just never
+149 |             // lands on disk for a future one to find.
+150 |             if let sampleFileSize {
+    |                    `- warning: value 'sampleFileSize' was defined but never used; consider replacing with boolean test [#NoUsage]
+151 |                 await Task.detached(priority: .utility) {
+152 |                     WorkoutMotionDiskCache.save(fresh, to: cacheURL)
+
+[#DeprecatedDeclaration]: <https://docs.swift.org/compiler/documentation/diagnostics/deprecated-declaration>
+[#ImplicitStrongCapture]: <https://docs.swift.org/compiler/documentation/diagnostics/implicit-strong-capture>
+[#NoUsage]: <https://docs.swift.org/compiler/documentation/diagnostics/no-usage>
+[#SendableClosureCaptures]: <https://docs.swift.org/compiler/documentation/diagnostics/sendable-closure-captures>
+[#VariableNeverMutated]: <https://docs.swift.org/compiler/documentation/diagnostics/variable-never-mutated>
+~/orca/workspaces/gtfuwgth/stingray/Banana.xcodeproj: Banana: ld: warning: object file (~/orca/workspaces/gtfuwgth/stingray/.build/stress-dd/Build/Products/Release-iphonesimulator/libneedle.a[2](needle.cpp.o)) was built for newer 'iOS-simulator' version (27.0) than being linked (26.1)
+error: the following command failed with exit code 0 but produced no further output
+SwiftCompile normal arm64 (in target 'BananaUITests' from project 'Banana')
+~/orca/workspaces/gtfuwgth/stingray/BananaUITests/VerifyTimelineUITest.swift:17:9: warning: code after 'throw' will never be executed
+  15 |         throw XCTSkip("Barcode scanning needs camera hardware; not available on the Simulator.")
+  16 |         #endif
+  17 |         let app = XCUIApplication()
+     |         `- warning: code after 'throw' will never be executed
+  18 |         app.launchArguments = ["--wellness", "--ui-audit", "-onboardingCompleted", "YES"]
+  19 |         addUIInterruptionMonitor(withDescription: "Camera permission") { alert in

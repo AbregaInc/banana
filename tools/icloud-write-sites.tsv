@@ -1,0 +1,71 @@
+# Every place in the app that could write iCloud, and the gate it sits behind
+# (BananaTests/ICloudWriteSitesTests.swift reads this; docs/design/DATA-PLATFORM.md §8 step 2).
+# With every tier read-only, none of them writes, except the two kept key-value keys.
+# kind<TAB>path<TAB>code (the trimmed line)<TAB>why
+# kinds: gated (a write gate in the enclosing declaration, checked), kept (a kept key),
+#        purge (ICloudPurge, behind its own gate), local (a local file, in code that holds a ubiquity URL)
+gated	Banana/Model/CloudBackup.swift	try? FileManager.default.createDirectory(at: docs, withIntermediateDirectories: true)	documentsURL: if LegacyCloud.mayWrite(.personal), LegacyCloud.mayWrite(.health)
+gated	Banana/Model/CloudBackup.swift	try? FileManager.default.removeItem(at: previous)	performBackup: guard LegacyCloud.mayWrite(.personal), LegacyCloud.mayWrite(.health) else
+gated	Banana/Model/CloudBackup.swift	try FileManager.default.copyItem(at: url, to: previous)	performBackup: guard LegacyCloud.mayWrite(.personal), LegacyCloud.mayWrite(.health) else
+gated	Banana/Model/CloudBackup.swift	try payload.write(to: url, options: .atomic)	performBackup: guard LegacyCloud.mayWrite(.personal), LegacyCloud.mayWrite(.health) else
+local	Banana/Model/CloudBackup.swift	try FileManager.default.createDirectory(at: dest.deletingLastPathComponent(),	restore: writes the restored files into AppSupport.directory (this device)
+local	Banana/Model/CloudBackup.swift	try data.write(to: dest, options: .atomic)	restore: writes the restored files into AppSupport.directory (this device)
+gated	Banana/Model/CloudControlsSync.swift	do { try await engine.sendChanges(.init(scope: .zoneIDs([zoneID]))) } catch {	drainToEnd: if anyWrites
+gated	Banana/Model/CloudControlsSync.swift	engine.state.add(pendingDatabaseChanges: [.saveZone(CKRecordZone(zoneID: zoneID))])	queuePending: guard let engine, anyWrites else
+gated	Banana/Model/CloudControlsSync.swift	engine.state.add(pendingRecordZoneChanges: state.dirty.filter { writes(name: $0) }.map { .saveRecord(recordID($0)) })	queuePending: guard let engine, anyWrites else; and only the names that write
+gated	Banana/Model/CloudControlsSync.swift	if self.anyWrites { try await engine.sendChanges(.init(scope: .zoneIDs([self.zoneID]))) }	exchangeSoon: if self.anyWrites
+gated	Banana/Model/CloudControlsSync.swift	engine?.state.add(pendingRecordZoneChanges: [.saveRecord(recordID(name))])	offered: guard Self.isAvailable, !applyingRemote, writes(kind) else
+gated	Banana/Model/CloudControlsSync.swift	engine?.state.add(pendingRecordZoneChanges: [.saveRecord(recordID(name))])	mark: guard writes(kind) else
+gated	Banana/Model/CloudControlsSync.swift	engine.state.add(pendingRecordZoneChanges: [.saveRecord(record.recordID)])	incoming: if let local, local > envelope.editedAt, !state.dirty.contains(name), writes(kind)
+gated	Banana/Model/CloudControlsSync.swift	if writes(name: id.recordName) { engine.state.add(pendingRecordZoneChanges: [.saveRecord(id)]) }	sent: if writes(name: id.recordName)
+gated	Banana/Model/CloudControlsSync.swift	engine.state.add(pendingDatabaseChanges: [.saveZone(CKRecordZone(zoneID: zoneID))])	zoneWasReset: guard let engine, anyWrites else
+gated	Banana/Model/CloudControlsSync.swift	engine.state.add(pendingRecordZoneChanges: state.dirty.map { .saveRecord(recordID($0)) })	zoneWasReset: guard let engine, anyWrites else
+gated	Banana/Model/CloudProgressSync.swift	do { try await engine.sendChanges(.init(scope: .zoneIDs([zoneID]))) } catch {	drainToEnd: if mode.writes
+gated	Banana/Model/CloudProgressSync.swift	if mode.writes { engine.state.add(pendingDatabaseChanges: [.saveZone(CKRecordZone(zoneName: Self.zoneName))]) }	finishStart: if mode.writes
+gated	Banana/Model/CloudProgressSync.swift	engine.state.add(pendingRecordZoneChanges: episodeIDs.map {	enqueue: guard !episodeIDs.isEmpty, mode.writes else
+gated	Banana/Model/CloudProgressSync.swift	if mode.writes { try await engine.sendChanges(.init(scope: .zoneIDs([zoneID]))) }	drainFlushes: if mode.writes
+gated	Banana/Model/CloudProgressSync.swift	if mode.writes { syncEngine.state.add(pendingRecordZoneChanges: [.saveRecord(failed.record.recordID)]) }	resolveFailedSave: if mode.writes
+gated	Banana/Model/CloudProgressSync.swift	if mode.writes { syncEngine.state.add(pendingDatabaseChanges: [.saveZone(CKRecordZone(zoneName: Self.zoneName))]) }	resolveFailedSave: if mode.writes
+gated	Banana/Model/CloudProgressSync.swift	do { try await engine.sendChanges(.init(scope: .zoneIDs([zoneID]))) } catch {	drainToEnd: if anyWrites
+gated	Banana/Model/CloudProgressSync.swift	if anyWrites { engine.state.add(pendingDatabaseChanges: [.saveZone(CKRecordZone(zoneName: Self.zoneName))]) }	start: if anyWrites
+gated	Banana/Model/CloudProgressSync.swift	engine.state.add(pendingRecordZoneChanges: [.deleteRecord(recordID(for: id))])	start: if workoutsWrite
+gated	Banana/Model/CloudProgressSync.swift	engine.state.add(pendingRecordZoneChanges: [.deleteRecord(record)])	delete: guard workoutsWrite else
+gated	Banana/Model/CloudProgressSync.swift	engine.state.add(pendingRecordZoneChanges: [.deleteRecord(record)])	deleteNote: guard notesWrite, let engine else
+gated	Banana/Model/CloudProgressSync.swift	engine.state.add(pendingRecordZoneChanges: [.saveRecord(recordID(for: id))])	queue: guard workoutsWrite, let engine else
+gated	Banana/Model/CloudProgressSync.swift	engine.state.add(pendingRecordZoneChanges: [.saveRecord(healthRecordID)])	queueHealth: guard workoutsWrite, let engine else
+gated	Banana/Model/CloudProgressSync.swift	engine.state.add(pendingRecordZoneChanges: [.saveRecord(noteRecordID(for: id))])	queueNote: guard notesWrite, let engine else
+gated	Banana/Model/CloudProgressSync.swift	if self.anyWrites { try await engine.sendChanges(.init(scope: .zoneIDs([self.zoneID]))) }	syncImmediatelyAfterStart: if self.anyWrites
+gated	Banana/Model/CloudProgressSync.swift	syncEngine.state.add(pendingRecordZoneChanges: [.saveRecord(failed.record.recordID)])	handleEvent: failed.error.code == .invalidArguments, workoutsWrite
+gated	Banana/Model/CloudProgressSync.swift	engine.state.add(pendingRecordZoneChanges: ids.map { .deleteRecord($0) })	purgeCorruptWorkouts: guard workoutsWrite else
+gated	Banana/Model/CloudProgressSync.swift	try await engine.sendChanges()	purgeCorruptWorkouts: guard workoutsWrite else
+gated	Banana/Model/CloudSettingsSync.swift	do { try await engine.sendChanges(.init(scope: .zoneIDs([zoneID]))) } catch {	drainToEnd: if mode.writes
+gated	Banana/Model/CloudSettingsSync.swift	if mode.writes { engine.state.add(pendingDatabaseChanges: [.saveZone(CKRecordZone(zoneName: Self.zoneName))]) }	startIfPossible: if mode.writes
+gated	Banana/Model/CloudSettingsSync.swift	engine.state.add(pendingRecordZoneChanges: [.saveRecord(recordID)])	push: guard mode.writes else
+gated	Banana/Model/CloudSettingsSync.swift	if mode.writes { syncEngine.state.add(pendingRecordZoneChanges: [.saveRecord(recordID)]) }	resolveFailedSave: if mode.writes
+gated	Banana/Model/CloudWellnessSync.swift	do { try await engine.sendChanges(.init(scope: .zoneIDs([zoneID]))) } catch {	drainToEnd: if mode.writes
+gated	Banana/Model/CloudWellnessSync.swift	add: { [weak engine] in engine?.state.add(pendingRecordZoneChanges: $0) },	makeEngine: LegacyOutbox's add, reached only through queue(), which drops unless the mode writes
+gated	Banana/Model/CloudWellnessSync.swift	engine.state.add(pendingDatabaseChanges: [.saveZone(CKRecordZone(zoneID: zoneID))])	queuePending: guard let engine, let outbox, mode.writes else
+gated	Banana/Model/CloudWellnessSync.swift	if self.mode.writes { try await engine.sendChanges(.init(scope: .zoneIDs([self.zoneID]))) }	exchangeSoon: if self.mode.writes
+gated	Banana/Model/CloudWellnessSync.swift	engine.state.add(pendingDatabaseChanges: [.saveZone(CKRecordZone(zoneID: zoneID))])	zoneWasReset: guard let engine, mode.writes else
+gated	Banana/Model/CloudWellnessSync.swift	engine.state.add(pendingRecordZoneChanges: state.dirty.map { .saveRecord(recordID($0)) })	zoneWasReset: guard let engine, mode.writes else
+kept	Banana/Model/DownloadManager.swift	store.set(created, forKey: tokenKey)	a kept key (LegacyKVS.keptKeys): stays in iCloud
+kept	Banana/Model/GoogleCalendarService.swift	cloud.set(email, forKey: Self.accountHintKey)	a kept key (LegacyKVS.keptKeys): stays in iCloud
+kept	Banana/Model/GoogleCalendarService.swift	cloud.removeObject(forKey: Self.accountHintKey)	a kept key (LegacyKVS.keptKeys): stays in iCloud
+gated	Banana/Model/MealBacklogWake.swift	.modifySubscriptions(saving: [subscription], deleting: [])	subscribe: guard CloudSyncPoll.isAllowed, LegacyCloud.mayWrite(.health),
+purge	Banana/Model/Sync/ICloudPurge+Live.swift	let (_, results) = try await database(container).modifyRecordZones(	the purge: runs only behind ICloudPurge.gate, and each step checks no tier writes
+purge	Banana/Model/Sync/ICloudPurge+Live.swift	let (_, results) = try await database(container).modifySubscriptions(saving: [], deleting: ids)	the purge: runs only behind ICloudPurge.gate, and each step checks no tier writes
+purge	Banana/Model/Sync/ICloudPurge+Live.swift	NSFileCoordinator(filePresenter: nil).coordinate(writingItemAt: target, options: .forDeleting,	the purge: runs only behind ICloudPurge.gate, and each step checks no tier writes
+purge	Banana/Model/Sync/ICloudPurge+Live.swift	try manager.removeItem(at: coordinated)	the purge: runs only behind ICloudPurge.gate, and each step checks no tier writes
+purge	Banana/Model/Sync/ICloudPurge.swift	deps.keyValues.removeObject(forKey: key)	the purge: runs only behind ICloudPurge.gate, and each step checks no tier writes
+gated	Banana/Model/Sync/LegacyCloud.swift	if mode(forKey: key).writes { store.set(value, forKey: key) } else { keep(value, forKey: key) }	set: if mode(forKey: key).writes
+gated	Banana/Model/Sync/LegacyCloud.swift	if mode(forKey: key).writes { store.removeObject(forKey: key) } else { keep(nil, forKey: key) }	removeObject: if mode(forKey: key).writes
+gated	Banana/Model/Transcript.swift	try? FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)	root: if LegacyCloud.mayWrite(.personal)
+gated	Banana/Model/Transcript.swift	try compressed.write(to: file, options: .atomic)	write: guard LegacyCloud.mayWrite(.personal), let file = url(transcript.episodeID) else
+gated	Banana/Model/VoiceNoteStore.swift	try? FileManager.default.createDirectory(	root: if LegacyCloud.mayWrite(.personal)
+gated	Banana/Model/VoiceNoteStore.swift	try audio.write(to: audioURL, options: .atomic)	write: guard LegacyCloud.mayWrite(.personal), let root else
+gated	Banana/Model/VoiceNoteStore.swift	try metadata.write(to: metadataURL, options: .atomic)	write: guard LegacyCloud.mayWrite(.personal), let root else
+gated	Banana/Model/VoiceNoteStore.swift	try? FileManager.default.removeItem(at: tombstoneURL)	write: guard LegacyCloud.mayWrite(.personal), let root else
+gated	Banana/Model/VoiceNoteStore.swift	.write(to: tombstoneURL, options: .atomic)	delete: guard LegacyCloud.mayWrite(.personal), let root else
+gated	Banana/Model/VoiceNoteStore.swift	try? FileManager.default.removeItem(at: metadataURL)	delete: guard LegacyCloud.mayWrite(.personal), let root else
+gated	Banana/Model/VoiceNoteStore.swift	try? FileManager.default.removeItem(at: audioURL)	delete: guard LegacyCloud.mayWrite(.personal), let root else
+local	Banana/Model/VoiceNoteStore.swift	try? audio.write(to: localAudio, options: .atomic)	readSnapshot: copies a note's audio from iCloud into the local audio folder

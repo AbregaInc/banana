@@ -1,0 +1,19 @@
+GRDB 7.11.1 · SQLite 3.51.0 · 2026-10-06 01:18:26 +0000 · load 596.4 600.5 571.2
+
+== reads through DatabasePool.read (4 MB cache, the design's page query) · load 596.4 600.5 571.2
+  plan: SEARCH v USING PRIMARY KEY (view_pk=? AND sort_key>? AND (sort_key,tie)<(?,?))
+  plan: SEARCH t USING INTEGER PRIMARY KEY (rowid=?)
+  count plan: SEARCH view_thread USING COVERING INDEX view_thread_unread (view_pk=?)
+  unread-only page plan: SEARCH view_thread USING PRIMARY KEY (view_pk=? AND sort_key>?)
+  unified inbox, first 50: n=300 p50 0.108 ms · p95 0.145 ms · p99 2.873 ms · max 18.156 ms
+  unified all mail, first 50: n=300 p50 0.111 ms · p95 0.184 ms · p99 0.932 ms · max 2.232 ms
+  a user label, first 50: n=300 p50 0.110 ms · p95 0.164 ms · p99 0.615 ms · max 9.534 ms
+  keyset walk of all mail, 1381 pages, 69040 conversations: n=1381 p50 0.848 ms · p95 3.638 ms · p99 10.482 ms · max 25.884 ms
+  one read of the newest 400 rows of all mail: n=40 p50 0.371 ms · p95 0.702 ms · p99 1.810 ms · max 1.810 ms
+  one read of the newest 2000 rows of all mail: n=40 p50 1.769 ms · p95 7.013 ms · p99 11.088 ms · max 11.088 ms
+  unread count, all mail (10323 unread), partial index: n=300 p50 0.347 ms · p95 1.531 ms · p99 7.116 ms · max 13.427 ms
+  unread counts for twelve views, one read: n=300 p50 0.414 ms · p95 1.326 ms · p99 6.170 ms · max 22.240 ms
+  total count of all mail: n=300 p50 2.460 ms · p95 11.360 ms · p99 23.281 ms · max 40.764 ms
+  a conversation's rows, labels and overlay (2,000 at random): n=2000 p50 0.133 ms · p95 0.988 ms · p99 3.276 ms · max 13.955 ms
+  recipient lookup, two or more letters, 30,000 addresses: n=320 p50 1.172 ms · p95 3.040 ms · p99 7.577 ms · max 119.869 ms
+  first-page.json, 50 rows, 24864 bytes: read and decode: n=300 p50 0.273 ms · p95 0.449 ms · p99 1.499 ms · max 2.948 ms

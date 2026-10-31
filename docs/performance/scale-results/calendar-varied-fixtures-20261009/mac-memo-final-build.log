@@ -1,0 +1,15 @@
+tools/calendar-library-benchmark/Native/MacBenchmark.swift:484:58: warning: dictionary literal of type '[String : Any]' has duplicate entries for string literal key 'timeZone'
+482 |             }
+483 |         }
+484 |         let report: [String: Any] = ["schemaVersion": 7, "timeZone": store.calendar.timeZone.identifier, "fixture": store.fixtureSummary, "batchEventFills": config.args.contains("--batch-event-fills"), "memoRasterText": config.args.contains("--memo-raster-text"), "candidate": "native", "mode": config.mode, "feed": "bounded",
+    |                                                          |- warning: dictionary literal of type '[String : Any]' has duplicate entries for string literal key 'timeZone'
+    |                                                          `- note: duplicate key declared here
+485 |             "days": config.days, "eventsPerDay": config.density, "retainedEvents": config.days * config.density,
+486 |             "optimizations": ["renderer": controller.surface.optimizations.renderer, "ablation": controller.surface.optimizations.disabled],
+    :
+492 |                 "height": controller.view.bounds.height, "scale": window.backingScaleFactor,
+493 |                 "maximumFramesPerSecond": window.screen?.maximumFramesPerSecond ?? 0],
+494 |             "os": ProcessInfo.processInfo.operatingSystemVersionString, "timeZone": store.calendar.timeZone.identifier,
+    |                                                                         `- note: duplicate key declared here
+495 |             "scope": "Primary: AppKit synchronous API/layout/display/flush. Foreground: request-to-publication and main sections; not input-to-visible or compositor delivery",
+496 |             "acceptance": "unmeasured", "missing": ["input latency", "display delivery", "feature parity"]]

@@ -1,0 +1,938 @@
+[
+  {
+    "name": "0-uniform-v1-100-workers1-memo0",
+    "exit": 0,
+    "command": [
+      ".build/calendar-varied-fix/memo-async",
+      "--fixture",
+      "uniform-v1",
+      "--mode",
+      "week",
+      "--density",
+      "100",
+      "--workers",
+      "1",
+      "--memory-probe",
+      "--output",
+      ".build/calendar-varied-fix/memo-cost/0-uniform-v1-100-workers1-memo0.json"
+    ],
+    "sha256": "a13362d16d2cd7935f59ba63a5e5ea83b493cea65c6fd6d1d243b17d3d511d83"
+  },
+  {
+    "name": "0-uniform-v1-100-workers1-memo1",
+    "exit": 0,
+    "command": [
+      ".build/calendar-varied-fix/memo-async",
+      "--fixture",
+      "uniform-v1",
+      "--mode",
+      "week",
+      "--density",
+      "100",
+      "--workers",
+      "1",
+      "--memory-probe",
+      "--output",
+      ".build/calendar-varied-fix/memo-cost/0-uniform-v1-100-workers1-memo1.json",
+      "--memo-raster-text"
+    ],
+    "sha256": "a13362d16d2cd7935f59ba63a5e5ea83b493cea65c6fd6d1d243b17d3d511d83"
+  },
+  {
+    "name": "0-uniform-v1-100-workers2-memo0",
+    "exit": 0,
+    "command": [
+      ".build/calendar-varied-fix/memo-async",
+      "--fixture",
+      "uniform-v1",
+      "--mode",
+      "week",
+      "--density",
+      "100",
+      "--workers",
+      "2",
+      "--memory-probe",
+      "--output",
+      ".build/calendar-varied-fix/memo-cost/0-uniform-v1-100-workers2-memo0.json"
+    ],
+    "sha256": "a13362d16d2cd7935f59ba63a5e5ea83b493cea65c6fd6d1d243b17d3d511d83"
+  },
+  {
+    "name": "0-uniform-v1-100-workers2-memo1",
+    "exit": 0,
+    "command": [
+      ".build/calendar-varied-fix/memo-async",
+      "--fixture",
+      "uniform-v1",
+      "--mode",
+      "week",
+      "--density",
+      "100",
+      "--workers",
+      "2",
+      "--memory-probe",
+      "--output",
+      ".build/calendar-varied-fix/memo-cost/0-uniform-v1-100-workers2-memo1.json",
+      "--memo-raster-text"
+    ],
+    "sha256": "a13362d16d2cd7935f59ba63a5e5ea83b493cea65c6fd6d1d243b17d3d511d83"
+  },
+  {
+    "name": "0-uniform-v1-300-workers1-memo0",
+    "exit": 0,
+    "command": [
+      ".build/calendar-varied-fix/memo-async",
+      "--fixture",
+      "uniform-v1",
+      "--mode",
+      "week",
+      "--density",
+      "300",
+      "--workers",
+      "1",
+      "--memory-probe",
+      "--output",
+      ".build/calendar-varied-fix/memo-cost/0-uniform-v1-300-workers1-memo0.json"
+    ],
+    "sha256": "a13362d16d2cd7935f59ba63a5e5ea83b493cea65c6fd6d1d243b17d3d511d83"
+  },
+  {
+    "name": "0-uniform-v1-300-workers1-memo1",
+    "exit": 0,
+    "command": [
+      ".build/calendar-varied-fix/memo-async",
+      "--fixture",
+      "uniform-v1",
+      "--mode",
+      "week",
+      "--density",
+      "300",
+      "--workers",
+      "1",
+      "--memory-probe",
+      "--output",
+      ".build/calendar-varied-fix/memo-cost/0-uniform-v1-300-workers1-memo1.json",
+      "--memo-raster-text"
+    ],
+    "sha256": "a13362d16d2cd7935f59ba63a5e5ea83b493cea65c6fd6d1d243b17d3d511d83"
+  },
+  {
+    "name": "0-uniform-v1-300-workers2-memo0",
+    "exit": 0,
+    "command": [
+      ".build/calendar-varied-fix/memo-async",
+      "--fixture",
+      "uniform-v1",
+      "--mode",
+      "week",
+      "--density",
+      "300",
+      "--workers",
+      "2",
+      "--memory-probe",
+      "--output",
+      ".build/calendar-varied-fix/memo-cost/0-uniform-v1-300-workers2-memo0.json"
+    ],
+    "sha256": "a13362d16d2cd7935f59ba63a5e5ea83b493cea65c6fd6d1d243b17d3d511d83"
+  },
+  {
+    "name": "0-uniform-v1-300-workers2-memo1",
+    "exit": 0,
+    "command": [
+      ".build/calendar-varied-fix/memo-async",
+      "--fixture",
+      "uniform-v1",
+      "--mode",
+      "week",
+      "--density",
+      "300",
+      "--workers",
+      "2",
+      "--memory-probe",
+      "--output",
+      ".build/calendar-varied-fix/memo-cost/0-uniform-v1-300-workers2-memo1.json",
+      "--memo-raster-text"
+    ],
+    "sha256": "a13362d16d2cd7935f59ba63a5e5ea83b493cea65c6fd6d1d243b17d3d511d83"
+  },
+  {
+    "name": "0-varied-v1-100-workers1-memo0",
+    "exit": 0,
+    "command": [
+      ".build/calendar-varied-fix/memo-async",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--density",
+      "100",
+      "--workers",
+      "1",
+      "--memory-probe",
+      "--output",
+      ".build/calendar-varied-fix/memo-cost/0-varied-v1-100-workers1-memo0.json"
+    ],
+    "sha256": "a13362d16d2cd7935f59ba63a5e5ea83b493cea65c6fd6d1d243b17d3d511d83"
+  },
+  {
+    "name": "0-varied-v1-100-workers1-memo1",
+    "exit": 0,
+    "command": [
+      ".build/calendar-varied-fix/memo-async",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--density",
+      "100",
+      "--workers",
+      "1",
+      "--memory-probe",
+      "--output",
+      ".build/calendar-varied-fix/memo-cost/0-varied-v1-100-workers1-memo1.json",
+      "--memo-raster-text"
+    ],
+    "sha256": "a13362d16d2cd7935f59ba63a5e5ea83b493cea65c6fd6d1d243b17d3d511d83"
+  },
+  {
+    "name": "0-varied-v1-100-workers2-memo0",
+    "exit": 0,
+    "command": [
+      ".build/calendar-varied-fix/memo-async",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--density",
+      "100",
+      "--workers",
+      "2",
+      "--memory-probe",
+      "--output",
+      ".build/calendar-varied-fix/memo-cost/0-varied-v1-100-workers2-memo0.json"
+    ],
+    "sha256": "a13362d16d2cd7935f59ba63a5e5ea83b493cea65c6fd6d1d243b17d3d511d83"
+  },
+  {
+    "name": "0-varied-v1-100-workers2-memo1",
+    "exit": 0,
+    "command": [
+      ".build/calendar-varied-fix/memo-async",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--density",
+      "100",
+      "--workers",
+      "2",
+      "--memory-probe",
+      "--output",
+      ".build/calendar-varied-fix/memo-cost/0-varied-v1-100-workers2-memo1.json",
+      "--memo-raster-text"
+    ],
+    "sha256": "a13362d16d2cd7935f59ba63a5e5ea83b493cea65c6fd6d1d243b17d3d511d83"
+  },
+  {
+    "name": "0-varied-v1-300-workers1-memo0",
+    "exit": 0,
+    "command": [
+      ".build/calendar-varied-fix/memo-async",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--density",
+      "300",
+      "--workers",
+      "1",
+      "--memory-probe",
+      "--output",
+      ".build/calendar-varied-fix/memo-cost/0-varied-v1-300-workers1-memo0.json"
+    ],
+    "sha256": "a13362d16d2cd7935f59ba63a5e5ea83b493cea65c6fd6d1d243b17d3d511d83"
+  },
+  {
+    "name": "0-varied-v1-300-workers1-memo1",
+    "exit": 0,
+    "command": [
+      ".build/calendar-varied-fix/memo-async",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--density",
+      "300",
+      "--workers",
+      "1",
+      "--memory-probe",
+      "--output",
+      ".build/calendar-varied-fix/memo-cost/0-varied-v1-300-workers1-memo1.json",
+      "--memo-raster-text"
+    ],
+    "sha256": "a13362d16d2cd7935f59ba63a5e5ea83b493cea65c6fd6d1d243b17d3d511d83"
+  },
+  {
+    "name": "0-varied-v1-300-workers2-memo0",
+    "exit": 0,
+    "command": [
+      ".build/calendar-varied-fix/memo-async",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--density",
+      "300",
+      "--workers",
+      "2",
+      "--memory-probe",
+      "--output",
+      ".build/calendar-varied-fix/memo-cost/0-varied-v1-300-workers2-memo0.json"
+    ],
+    "sha256": "a13362d16d2cd7935f59ba63a5e5ea83b493cea65c6fd6d1d243b17d3d511d83"
+  },
+  {
+    "name": "0-varied-v1-300-workers2-memo1",
+    "exit": 0,
+    "command": [
+      ".build/calendar-varied-fix/memo-async",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--density",
+      "300",
+      "--workers",
+      "2",
+      "--memory-probe",
+      "--output",
+      ".build/calendar-varied-fix/memo-cost/0-varied-v1-300-workers2-memo1.json",
+      "--memo-raster-text"
+    ],
+    "sha256": "a13362d16d2cd7935f59ba63a5e5ea83b493cea65c6fd6d1d243b17d3d511d83"
+  },
+  {
+    "name": "1-uniform-v1-100-workers1-memo1",
+    "exit": 0,
+    "command": [
+      ".build/calendar-varied-fix/memo-async",
+      "--fixture",
+      "uniform-v1",
+      "--mode",
+      "week",
+      "--density",
+      "100",
+      "--workers",
+      "1",
+      "--memory-probe",
+      "--output",
+      ".build/calendar-varied-fix/memo-cost/1-uniform-v1-100-workers1-memo1.json",
+      "--memo-raster-text"
+    ],
+    "sha256": "a13362d16d2cd7935f59ba63a5e5ea83b493cea65c6fd6d1d243b17d3d511d83"
+  },
+  {
+    "name": "1-uniform-v1-100-workers1-memo0",
+    "exit": 0,
+    "command": [
+      ".build/calendar-varied-fix/memo-async",
+      "--fixture",
+      "uniform-v1",
+      "--mode",
+      "week",
+      "--density",
+      "100",
+      "--workers",
+      "1",
+      "--memory-probe",
+      "--output",
+      ".build/calendar-varied-fix/memo-cost/1-uniform-v1-100-workers1-memo0.json"
+    ],
+    "sha256": "a13362d16d2cd7935f59ba63a5e5ea83b493cea65c6fd6d1d243b17d3d511d83"
+  },
+  {
+    "name": "1-uniform-v1-100-workers2-memo1",
+    "exit": 0,
+    "command": [
+      ".build/calendar-varied-fix/memo-async",
+      "--fixture",
+      "uniform-v1",
+      "--mode",
+      "week",
+      "--density",
+      "100",
+      "--workers",
+      "2",
+      "--memory-probe",
+      "--output",
+      ".build/calendar-varied-fix/memo-cost/1-uniform-v1-100-workers2-memo1.json",
+      "--memo-raster-text"
+    ],
+    "sha256": "a13362d16d2cd7935f59ba63a5e5ea83b493cea65c6fd6d1d243b17d3d511d83"
+  },
+  {
+    "name": "1-uniform-v1-100-workers2-memo0",
+    "exit": 0,
+    "command": [
+      ".build/calendar-varied-fix/memo-async",
+      "--fixture",
+      "uniform-v1",
+      "--mode",
+      "week",
+      "--density",
+      "100",
+      "--workers",
+      "2",
+      "--memory-probe",
+      "--output",
+      ".build/calendar-varied-fix/memo-cost/1-uniform-v1-100-workers2-memo0.json"
+    ],
+    "sha256": "a13362d16d2cd7935f59ba63a5e5ea83b493cea65c6fd6d1d243b17d3d511d83"
+  },
+  {
+    "name": "1-uniform-v1-300-workers1-memo1",
+    "exit": 0,
+    "command": [
+      ".build/calendar-varied-fix/memo-async",
+      "--fixture",
+      "uniform-v1",
+      "--mode",
+      "week",
+      "--density",
+      "300",
+      "--workers",
+      "1",
+      "--memory-probe",
+      "--output",
+      ".build/calendar-varied-fix/memo-cost/1-uniform-v1-300-workers1-memo1.json",
+      "--memo-raster-text"
+    ],
+    "sha256": "a13362d16d2cd7935f59ba63a5e5ea83b493cea65c6fd6d1d243b17d3d511d83"
+  },
+  {
+    "name": "1-uniform-v1-300-workers1-memo0",
+    "exit": 0,
+    "command": [
+      ".build/calendar-varied-fix/memo-async",
+      "--fixture",
+      "uniform-v1",
+      "--mode",
+      "week",
+      "--density",
+      "300",
+      "--workers",
+      "1",
+      "--memory-probe",
+      "--output",
+      ".build/calendar-varied-fix/memo-cost/1-uniform-v1-300-workers1-memo0.json"
+    ],
+    "sha256": "a13362d16d2cd7935f59ba63a5e5ea83b493cea65c6fd6d1d243b17d3d511d83"
+  },
+  {
+    "name": "1-uniform-v1-300-workers2-memo1",
+    "exit": 0,
+    "command": [
+      ".build/calendar-varied-fix/memo-async",
+      "--fixture",
+      "uniform-v1",
+      "--mode",
+      "week",
+      "--density",
+      "300",
+      "--workers",
+      "2",
+      "--memory-probe",
+      "--output",
+      ".build/calendar-varied-fix/memo-cost/1-uniform-v1-300-workers2-memo1.json",
+      "--memo-raster-text"
+    ],
+    "sha256": "a13362d16d2cd7935f59ba63a5e5ea83b493cea65c6fd6d1d243b17d3d511d83"
+  },
+  {
+    "name": "1-uniform-v1-300-workers2-memo0",
+    "exit": 0,
+    "command": [
+      ".build/calendar-varied-fix/memo-async",
+      "--fixture",
+      "uniform-v1",
+      "--mode",
+      "week",
+      "--density",
+      "300",
+      "--workers",
+      "2",
+      "--memory-probe",
+      "--output",
+      ".build/calendar-varied-fix/memo-cost/1-uniform-v1-300-workers2-memo0.json"
+    ],
+    "sha256": "a13362d16d2cd7935f59ba63a5e5ea83b493cea65c6fd6d1d243b17d3d511d83"
+  },
+  {
+    "name": "1-varied-v1-100-workers1-memo1",
+    "exit": 0,
+    "command": [
+      ".build/calendar-varied-fix/memo-async",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--density",
+      "100",
+      "--workers",
+      "1",
+      "--memory-probe",
+      "--output",
+      ".build/calendar-varied-fix/memo-cost/1-varied-v1-100-workers1-memo1.json",
+      "--memo-raster-text"
+    ],
+    "sha256": "a13362d16d2cd7935f59ba63a5e5ea83b493cea65c6fd6d1d243b17d3d511d83"
+  },
+  {
+    "name": "1-varied-v1-100-workers1-memo0",
+    "exit": 0,
+    "command": [
+      ".build/calendar-varied-fix/memo-async",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--density",
+      "100",
+      "--workers",
+      "1",
+      "--memory-probe",
+      "--output",
+      ".build/calendar-varied-fix/memo-cost/1-varied-v1-100-workers1-memo0.json"
+    ],
+    "sha256": "a13362d16d2cd7935f59ba63a5e5ea83b493cea65c6fd6d1d243b17d3d511d83"
+  },
+  {
+    "name": "1-varied-v1-100-workers2-memo1",
+    "exit": 0,
+    "command": [
+      ".build/calendar-varied-fix/memo-async",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--density",
+      "100",
+      "--workers",
+      "2",
+      "--memory-probe",
+      "--output",
+      ".build/calendar-varied-fix/memo-cost/1-varied-v1-100-workers2-memo1.json",
+      "--memo-raster-text"
+    ],
+    "sha256": "a13362d16d2cd7935f59ba63a5e5ea83b493cea65c6fd6d1d243b17d3d511d83"
+  },
+  {
+    "name": "1-varied-v1-100-workers2-memo0",
+    "exit": 0,
+    "command": [
+      ".build/calendar-varied-fix/memo-async",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--density",
+      "100",
+      "--workers",
+      "2",
+      "--memory-probe",
+      "--output",
+      ".build/calendar-varied-fix/memo-cost/1-varied-v1-100-workers2-memo0.json"
+    ],
+    "sha256": "a13362d16d2cd7935f59ba63a5e5ea83b493cea65c6fd6d1d243b17d3d511d83"
+  },
+  {
+    "name": "1-varied-v1-300-workers1-memo1",
+    "exit": 0,
+    "command": [
+      ".build/calendar-varied-fix/memo-async",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--density",
+      "300",
+      "--workers",
+      "1",
+      "--memory-probe",
+      "--output",
+      ".build/calendar-varied-fix/memo-cost/1-varied-v1-300-workers1-memo1.json",
+      "--memo-raster-text"
+    ],
+    "sha256": "a13362d16d2cd7935f59ba63a5e5ea83b493cea65c6fd6d1d243b17d3d511d83"
+  },
+  {
+    "name": "1-varied-v1-300-workers1-memo0",
+    "exit": 0,
+    "command": [
+      ".build/calendar-varied-fix/memo-async",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--density",
+      "300",
+      "--workers",
+      "1",
+      "--memory-probe",
+      "--output",
+      ".build/calendar-varied-fix/memo-cost/1-varied-v1-300-workers1-memo0.json"
+    ],
+    "sha256": "a13362d16d2cd7935f59ba63a5e5ea83b493cea65c6fd6d1d243b17d3d511d83"
+  },
+  {
+    "name": "1-varied-v1-300-workers2-memo1",
+    "exit": 0,
+    "command": [
+      ".build/calendar-varied-fix/memo-async",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--density",
+      "300",
+      "--workers",
+      "2",
+      "--memory-probe",
+      "--output",
+      ".build/calendar-varied-fix/memo-cost/1-varied-v1-300-workers2-memo1.json",
+      "--memo-raster-text"
+    ],
+    "sha256": "a13362d16d2cd7935f59ba63a5e5ea83b493cea65c6fd6d1d243b17d3d511d83"
+  },
+  {
+    "name": "1-varied-v1-300-workers2-memo0",
+    "exit": 0,
+    "command": [
+      ".build/calendar-varied-fix/memo-async",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--density",
+      "300",
+      "--workers",
+      "2",
+      "--memory-probe",
+      "--output",
+      ".build/calendar-varied-fix/memo-cost/1-varied-v1-300-workers2-memo0.json"
+    ],
+    "sha256": "a13362d16d2cd7935f59ba63a5e5ea83b493cea65c6fd6d1d243b17d3d511d83"
+  },
+  {
+    "name": "2-uniform-v1-100-workers1-memo0",
+    "exit": 0,
+    "command": [
+      ".build/calendar-varied-fix/memo-async",
+      "--fixture",
+      "uniform-v1",
+      "--mode",
+      "week",
+      "--density",
+      "100",
+      "--workers",
+      "1",
+      "--memory-probe",
+      "--output",
+      ".build/calendar-varied-fix/memo-cost/2-uniform-v1-100-workers1-memo0.json"
+    ],
+    "sha256": "a13362d16d2cd7935f59ba63a5e5ea83b493cea65c6fd6d1d243b17d3d511d83"
+  },
+  {
+    "name": "2-uniform-v1-100-workers1-memo1",
+    "exit": 0,
+    "command": [
+      ".build/calendar-varied-fix/memo-async",
+      "--fixture",
+      "uniform-v1",
+      "--mode",
+      "week",
+      "--density",
+      "100",
+      "--workers",
+      "1",
+      "--memory-probe",
+      "--output",
+      ".build/calendar-varied-fix/memo-cost/2-uniform-v1-100-workers1-memo1.json",
+      "--memo-raster-text"
+    ],
+    "sha256": "a13362d16d2cd7935f59ba63a5e5ea83b493cea65c6fd6d1d243b17d3d511d83"
+  },
+  {
+    "name": "2-uniform-v1-100-workers2-memo0",
+    "exit": 0,
+    "command": [
+      ".build/calendar-varied-fix/memo-async",
+      "--fixture",
+      "uniform-v1",
+      "--mode",
+      "week",
+      "--density",
+      "100",
+      "--workers",
+      "2",
+      "--memory-probe",
+      "--output",
+      ".build/calendar-varied-fix/memo-cost/2-uniform-v1-100-workers2-memo0.json"
+    ],
+    "sha256": "a13362d16d2cd7935f59ba63a5e5ea83b493cea65c6fd6d1d243b17d3d511d83"
+  },
+  {
+    "name": "2-uniform-v1-100-workers2-memo1",
+    "exit": 0,
+    "command": [
+      ".build/calendar-varied-fix/memo-async",
+      "--fixture",
+      "uniform-v1",
+      "--mode",
+      "week",
+      "--density",
+      "100",
+      "--workers",
+      "2",
+      "--memory-probe",
+      "--output",
+      ".build/calendar-varied-fix/memo-cost/2-uniform-v1-100-workers2-memo1.json",
+      "--memo-raster-text"
+    ],
+    "sha256": "a13362d16d2cd7935f59ba63a5e5ea83b493cea65c6fd6d1d243b17d3d511d83"
+  },
+  {
+    "name": "2-uniform-v1-300-workers1-memo0",
+    "exit": 0,
+    "command": [
+      ".build/calendar-varied-fix/memo-async",
+      "--fixture",
+      "uniform-v1",
+      "--mode",
+      "week",
+      "--density",
+      "300",
+      "--workers",
+      "1",
+      "--memory-probe",
+      "--output",
+      ".build/calendar-varied-fix/memo-cost/2-uniform-v1-300-workers1-memo0.json"
+    ],
+    "sha256": "a13362d16d2cd7935f59ba63a5e5ea83b493cea65c6fd6d1d243b17d3d511d83"
+  },
+  {
+    "name": "2-uniform-v1-300-workers1-memo1",
+    "exit": 0,
+    "command": [
+      ".build/calendar-varied-fix/memo-async",
+      "--fixture",
+      "uniform-v1",
+      "--mode",
+      "week",
+      "--density",
+      "300",
+      "--workers",
+      "1",
+      "--memory-probe",
+      "--output",
+      ".build/calendar-varied-fix/memo-cost/2-uniform-v1-300-workers1-memo1.json",
+      "--memo-raster-text"
+    ],
+    "sha256": "a13362d16d2cd7935f59ba63a5e5ea83b493cea65c6fd6d1d243b17d3d511d83"
+  },
+  {
+    "name": "2-uniform-v1-300-workers2-memo0",
+    "exit": 0,
+    "command": [
+      ".build/calendar-varied-fix/memo-async",
+      "--fixture",
+      "uniform-v1",
+      "--mode",
+      "week",
+      "--density",
+      "300",
+      "--workers",
+      "2",
+      "--memory-probe",
+      "--output",
+      ".build/calendar-varied-fix/memo-cost/2-uniform-v1-300-workers2-memo0.json"
+    ],
+    "sha256": "a13362d16d2cd7935f59ba63a5e5ea83b493cea65c6fd6d1d243b17d3d511d83"
+  },
+  {
+    "name": "2-uniform-v1-300-workers2-memo1",
+    "exit": 0,
+    "command": [
+      ".build/calendar-varied-fix/memo-async",
+      "--fixture",
+      "uniform-v1",
+      "--mode",
+      "week",
+      "--density",
+      "300",
+      "--workers",
+      "2",
+      "--memory-probe",
+      "--output",
+      ".build/calendar-varied-fix/memo-cost/2-uniform-v1-300-workers2-memo1.json",
+      "--memo-raster-text"
+    ],
+    "sha256": "a13362d16d2cd7935f59ba63a5e5ea83b493cea65c6fd6d1d243b17d3d511d83"
+  },
+  {
+    "name": "2-varied-v1-100-workers1-memo0",
+    "exit": 0,
+    "command": [
+      ".build/calendar-varied-fix/memo-async",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--density",
+      "100",
+      "--workers",
+      "1",
+      "--memory-probe",
+      "--output",
+      ".build/calendar-varied-fix/memo-cost/2-varied-v1-100-workers1-memo0.json"
+    ],
+    "sha256": "a13362d16d2cd7935f59ba63a5e5ea83b493cea65c6fd6d1d243b17d3d511d83"
+  },
+  {
+    "name": "2-varied-v1-100-workers1-memo1",
+    "exit": 0,
+    "command": [
+      ".build/calendar-varied-fix/memo-async",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--density",
+      "100",
+      "--workers",
+      "1",
+      "--memory-probe",
+      "--output",
+      ".build/calendar-varied-fix/memo-cost/2-varied-v1-100-workers1-memo1.json",
+      "--memo-raster-text"
+    ],
+    "sha256": "a13362d16d2cd7935f59ba63a5e5ea83b493cea65c6fd6d1d243b17d3d511d83"
+  },
+  {
+    "name": "2-varied-v1-100-workers2-memo0",
+    "exit": 0,
+    "command": [
+      ".build/calendar-varied-fix/memo-async",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--density",
+      "100",
+      "--workers",
+      "2",
+      "--memory-probe",
+      "--output",
+      ".build/calendar-varied-fix/memo-cost/2-varied-v1-100-workers2-memo0.json"
+    ],
+    "sha256": "a13362d16d2cd7935f59ba63a5e5ea83b493cea65c6fd6d1d243b17d3d511d83"
+  },
+  {
+    "name": "2-varied-v1-100-workers2-memo1",
+    "exit": 0,
+    "command": [
+      ".build/calendar-varied-fix/memo-async",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--density",
+      "100",
+      "--workers",
+      "2",
+      "--memory-probe",
+      "--output",
+      ".build/calendar-varied-fix/memo-cost/2-varied-v1-100-workers2-memo1.json",
+      "--memo-raster-text"
+    ],
+    "sha256": "a13362d16d2cd7935f59ba63a5e5ea83b493cea65c6fd6d1d243b17d3d511d83"
+  },
+  {
+    "name": "2-varied-v1-300-workers1-memo0",
+    "exit": 0,
+    "command": [
+      ".build/calendar-varied-fix/memo-async",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--density",
+      "300",
+      "--workers",
+      "1",
+      "--memory-probe",
+      "--output",
+      ".build/calendar-varied-fix/memo-cost/2-varied-v1-300-workers1-memo0.json"
+    ],
+    "sha256": "a13362d16d2cd7935f59ba63a5e5ea83b493cea65c6fd6d1d243b17d3d511d83"
+  },
+  {
+    "name": "2-varied-v1-300-workers1-memo1",
+    "exit": 0,
+    "command": [
+      ".build/calendar-varied-fix/memo-async",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--density",
+      "300",
+      "--workers",
+      "1",
+      "--memory-probe",
+      "--output",
+      ".build/calendar-varied-fix/memo-cost/2-varied-v1-300-workers1-memo1.json",
+      "--memo-raster-text"
+    ],
+    "sha256": "a13362d16d2cd7935f59ba63a5e5ea83b493cea65c6fd6d1d243b17d3d511d83"
+  },
+  {
+    "name": "2-varied-v1-300-workers2-memo0",
+    "exit": 0,
+    "command": [
+      ".build/calendar-varied-fix/memo-async",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--density",
+      "300",
+      "--workers",
+      "2",
+      "--memory-probe",
+      "--output",
+      ".build/calendar-varied-fix/memo-cost/2-varied-v1-300-workers2-memo0.json"
+    ],
+    "sha256": "a13362d16d2cd7935f59ba63a5e5ea83b493cea65c6fd6d1d243b17d3d511d83"
+  },
+  {
+    "name": "2-varied-v1-300-workers2-memo1",
+    "exit": 0,
+    "command": [
+      ".build/calendar-varied-fix/memo-async",
+      "--fixture",
+      "varied-v1",
+      "--mode",
+      "week",
+      "--density",
+      "300",
+      "--workers",
+      "2",
+      "--memory-probe",
+      "--output",
+      ".build/calendar-varied-fix/memo-cost/2-varied-v1-300-workers2-memo1.json",
+      "--memo-raster-text"
+    ],
+    "sha256": "a13362d16d2cd7935f59ba63a5e5ea83b493cea65c6fd6d1d243b17d3d511d83"
+  }
+]

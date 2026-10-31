@@ -1,0 +1,277 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild test-without-building -project Banana.xcodeproj -scheme BananaNativePerformanceUITests -configuration Release -destination platform=macOS,arch=arm64 -derivedDataPath .build/native-ui-test-dd -resultBundlePath .build/native-ui-performance/calendar-prototype-20261009/properties-ui.xcresult -parallel-testing-enabled NO -collect-test-diagnostics never "-only-testing:BananaNativePerformanceUITests/CalendarPrototypeInteractionTests"
+
+Resolve Package Graph
+
+
+Resolved source packages:
+  Promises: https://github.com/google/promises.git @ 2.4.1
+  InteropForGoogle: https://github.com/google/interop-ios-for-google-sdks.git @ 101.0.0
+  GoogleUtilities: https://github.com/google/GoogleUtilities.git @ 8.1.4
+  GoogleSignIn: https://github.com/google/GoogleSignIn-iOS.git @ 9.1.0
+  AppAuth: https://github.com/openid/AppAuth-iOS.git @ 2.1.0
+  SwiftSoup: https://github.com/scinfu/SwiftSoup.git @ 18b8032
+  GRDB: https://github.com/groue/GRDB.swift.git @ b83108d
+  AppCheck: https://github.com/google/app-check.git @ 11.3.2
+  FluidAudio: https://github.com/FluidInference/FluidAudio.git @ 0.15.5
+  GTMAppAuth: https://github.com/google/GTMAppAuth.git @ 5.0.0
+  GTMSessionFetcher: https://github.com/google/gtm-session-fetcher.git @ 3.5.0
+
+Writing result bundle at path:
+	~/orca/workspaces/gtfuwgth/stingray/.build/native-ui-performance/calendar-prototype-20261009/properties-ui.xcresult
+
+2026-10-09 07:35:49.708883-0400 BananaNativePerformanceUITests-Runner[33638:39584877] [Default] Running tests...
+Test Suite 'Selected tests' started at 2026-10-09 07:35:49.763.
+Test Suite 'BananaNativePerformanceUITests.xctest' started at 2026-10-09 07:35:49.763.
+Test Suite 'CalendarPrototypeInteractionTests' started at 2026-10-09 07:35:49.763.
+Test Case '-[BananaNativePerformanceUITests.CalendarPrototypeInteractionTests testCacheRecoveryAndPaging]' started.
+    t =     0.00s Start Test at 2026-10-09 07:35:49.764
+    t =     0.49s Set Up
+    t =     0.51s     Open com.boris.banana.calendar-surface-review
+    t =     0.51s         Activate com.boris.banana.calendar-surface-review
+    t =     0.52s             Wait for com.boris.banana.calendar-surface-review to idle
+    t =     0.56s     Waiting 5.0s for "Next" Button to exist
+    t =     1.60s         Checking `Expect predicate `existsNoRetry == 1` for object "Next" Button`
+    t =     1.60s             Checking existence of `"Next" Button`
+    t =     1.76s Waiting 5.0s for StaticText (First Match) to exist
+    t =     2.81s     Checking `Expect predicate `existsNoRetry == 1` for object StaticText (First Match)`
+    t =     2.81s         Checking existence of `StaticText (First Match)`
+    t =     2.83s Find the StaticText (First Match)
+    t =     2.84s Click "Clear cache" Button
+    t =     2.84s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =     2.86s     Find the "Clear cache" Button
+    t =     2.98s     Check for interrupting elements affecting "Clear cache" Button
+    t =     3.00s     Synthesize event
+    t =     3.54s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =     3.56s Click "Next" Button
+    t =     3.56s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =     3.57s     Find the "Next" Button
+    t =     3.70s     Check for interrupting elements affecting "Next" Button
+    t =     3.73s     Synthesize event
+    t =     4.26s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =     5.35s Checking existence of `StaticText (First Match)`
+    t =     5.36s Find the StaticText (First Match)
+    t =     5.36s Click "Previous" Button
+    t =     5.36s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =     5.37s     Find the "Previous" Button
+    t =     5.49s     Check for interrupting elements affecting "Previous" Button
+    t =     5.51s     Synthesize event
+    t =     6.04s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =     7.10s Find the StaticText (First Match)
+    t =     7.13s Click "Clear cache" Button
+    t =     7.13s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =     7.15s     Find the "Clear cache" Button
+    t =     7.27s     Check for interrupting elements affecting "Clear cache" Button
+    t =     7.32s     Synthesize event
+    t =     7.82s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =     7.82s Click "Next" Button
+    t =     7.83s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =     7.83s     Find the "Next" Button
+    t =     7.94s     Check for interrupting elements affecting "Next" Button
+    t =     8.02s     Synthesize event
+    t =     8.55s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =     9.60s Checking existence of `StaticText (First Match)`
+    t =     9.61s Find the StaticText (First Match)
+    t =     9.63s Click "Previous" Button
+    t =     9.63s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =     9.64s     Find the "Previous" Button
+    t =     9.75s     Check for interrupting elements affecting "Previous" Button
+    t =     9.79s     Synthesize event
+    t =    10.32s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =    11.39s Find the StaticText (First Match)
+    t =    11.40s Click "Clear cache" Button
+    t =    11.42s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =    11.42s     Find the "Clear cache" Button
+    t =    11.55s     Check for interrupting elements affecting "Clear cache" Button
+    t =    11.56s     Synthesize event
+    t =    12.06s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =    12.08s Click "Next" Button
+    t =    12.08s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =    12.09s     Find the "Next" Button
+    t =    12.22s     Check for interrupting elements affecting "Next" Button
+    t =    12.25s     Synthesize event
+    t =    12.75s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =    13.80s Checking existence of `StaticText (First Match)`
+    t =    13.81s Find the StaticText (First Match)
+    t =    13.83s Click "Previous" Button
+    t =    13.83s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =    13.85s     Find the "Previous" Button
+    t =    13.97s     Check for interrupting elements affecting "Previous" Button
+    t =    13.99s     Synthesize event
+    t =    14.54s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =    15.60s Find the StaticText (First Match)
+    t =    15.61s Click "Clear cache" Button
+    t =    15.61s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =    15.62s     Find the "Clear cache" Button
+    t =    15.74s     Check for interrupting elements affecting "Clear cache" Button
+    t =    15.78s     Synthesize event
+    t =    16.28s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =    16.30s Click "Next" Button
+    t =    16.30s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =    16.31s     Find the "Next" Button
+    t =    16.44s     Check for interrupting elements affecting "Next" Button
+    t =    16.50s     Synthesize event
+    t =    17.02s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =    18.07s Checking existence of `StaticText (First Match)`
+    t =    18.08s Find the StaticText (First Match)
+    t =    18.08s Click "Previous" Button
+    t =    18.08s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =    18.10s     Find the "Previous" Button
+    t =    18.25s     Check for interrupting elements affecting "Previous" Button
+    t =    18.28s     Synthesize event
+    t =    18.78s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =    19.85s Find the StaticText (First Match)
+    t =    19.87s Click "Clear cache" Button
+    t =    19.87s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =    19.89s     Find the "Clear cache" Button
+    t =    20.01s     Check for interrupting elements affecting "Clear cache" Button
+    t =    20.02s     Synthesize event
+    t =    20.54s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =    20.56s Click "Next" Button
+    t =    20.56s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =    20.58s     Find the "Next" Button
+    t =    20.71s     Check for interrupting elements affecting "Next" Button
+    t =    20.74s     Synthesize event
+    t =    21.24s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =    22.33s Checking existence of `StaticText (First Match)`
+    t =    22.35s Find the StaticText (First Match)
+    t =    22.37s Click "Previous" Button
+    t =    22.37s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =    22.37s     Find the "Previous" Button
+    t =    22.50s     Check for interrupting elements affecting "Previous" Button
+    t =    22.52s     Synthesize event
+    t =    23.06s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =    24.14s Find the StaticText (First Match)
+    t =    24.15s Click "Clear cache" Button
+    t =    24.15s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =    24.16s     Find the "Clear cache" Button
+    t =    24.27s     Check for interrupting elements affecting "Clear cache" Button
+    t =    24.30s     Synthesize event
+    t =    24.81s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =    24.84s Click "Next" Button
+    t =    24.84s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =    24.84s     Find the "Next" Button
+    t =    24.96s     Check for interrupting elements affecting "Next" Button
+    t =    24.99s     Synthesize event
+    t =    25.49s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =    26.55s Checking existence of `StaticText (First Match)`
+    t =    26.57s Find the StaticText (First Match)
+    t =    26.58s Click "Previous" Button
+    t =    26.58s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =    26.59s     Find the "Previous" Button
+    t =    26.72s     Check for interrupting elements affecting "Previous" Button
+    t =    26.77s     Synthesize event
+    t =    27.30s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =    28.37s Find the StaticText (First Match)
+    t =    28.39s Find the Application 'com.boris.banana.calendar-surface-review'
+2026-10-09 07:36:18.247846-0400 BananaNativePerformanceUITests-Runner[33638:39584877] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+    t =    28.60s Added attachment named 'prototype-after-cache-recovery'
+    t =    28.60s Tear Down
+Test Case '-[BananaNativePerformanceUITests.CalendarPrototypeInteractionTests testCacheRecoveryAndPaging]' passed (29.068 seconds).
+Test Case '-[BananaNativePerformanceUITests.CalendarPrototypeInteractionTests testRepeatedWheelScrolling]' started.
+    t =     0.00s Start Test at 2026-10-09 07:36:18.833
+    t =     0.46s Set Up
+    t =     0.48s     Open com.boris.banana.calendar-surface-review
+    t =     0.48s         Activate com.boris.banana.calendar-surface-review
+    t =     0.49s             Wait for com.boris.banana.calendar-surface-review to idle
+    t =     0.50s     Waiting 5.0s for "Next" Button to exist
+    t =     1.54s         Checking `Expect predicate `existsNoRetry == 1` for object "Next" Button`
+    t =     1.54s             Checking existence of `"Next" Button`
+    t =     1.66s Waiting 5.0s for ScrollView (First Match) to exist
+    t =     2.70s     Checking `Expect predicate `existsNoRetry == 1` for object ScrollView (First Match)`
+    t =     2.70s         Checking existence of `ScrollView (First Match)`
+    t =     2.72s Scroll ScrollView (First Match) by dx: 0.00, dy: -400.00
+    t =     2.72s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =     2.73s     Find the ScrollView (First Match)
+    t =     2.77s     Check for interrupting elements affecting ScrollView
+    t =     2.85s     Synthesize event
+    t =     3.21s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =     3.22s Scroll ScrollView at {{60.0, 187.0}, {1200.0, 806.0}} by dx: 0.00, dy: -400.00
+    t =     3.22s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =     3.24s     Find the ScrollView at {{60.0, 187.0}, {1200.0, 806.0}}
+    t =     3.26s     Check for interrupting elements affecting ScrollView
+    t =     3.32s     Synthesize event
+    t =     3.79s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =     3.80s Scroll ScrollView at {{60.0, 187.0}, {1200.0, 806.0}} by dx: 0.00, dy: -400.00
+    t =     3.81s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =     3.82s     Find the ScrollView at {{60.0, 187.0}, {1200.0, 806.0}}
+    t =     3.85s     Check for interrupting elements affecting ScrollView
+    t =     3.87s     Synthesize event
+    t =     4.22s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =     4.22s Scroll ScrollView at {{60.0, 187.0}, {1200.0, 806.0}} by dx: 0.00, dy: -400.00
+    t =     4.22s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =     4.23s     Find the ScrollView at {{60.0, 187.0}, {1200.0, 806.0}}
+    t =     4.26s     Check for interrupting elements affecting ScrollView
+    t =     4.31s     Synthesize event
+    t =     4.76s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =     4.76s Scroll ScrollView at {{60.0, 187.0}, {1200.0, 806.0}} by dx: 0.00, dy: -400.00
+    t =     4.76s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =     4.78s     Find the ScrollView at {{60.0, 187.0}, {1200.0, 806.0}}
+    t =     4.82s     Check for interrupting elements affecting ScrollView
+    t =     4.90s     Synthesize event
+    t =     5.27s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =     5.28s Scroll ScrollView at {{60.0, 187.0}, {1200.0, 806.0}} by dx: 0.00, dy: -400.00
+    t =     5.28s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =     5.29s     Find the ScrollView at {{60.0, 187.0}, {1200.0, 806.0}}
+    t =     5.32s     Check for interrupting elements affecting ScrollView
+    t =     5.37s     Synthesize event
+    t =     5.75s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =     5.76s Scroll ScrollView at {{60.0, 187.0}, {1200.0, 806.0}} by dx: 0.00, dy: 400.00
+    t =     5.76s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =     5.78s     Find the ScrollView at {{60.0, 187.0}, {1200.0, 806.0}}
+    t =     5.80s     Check for interrupting elements affecting ScrollView
+    t =     5.85s     Synthesize event
+    t =     6.20s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =     6.21s Scroll ScrollView at {{60.0, 187.0}, {1200.0, 806.0}} by dx: 0.00, dy: 400.00
+    t =     6.21s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =     6.21s     Find the ScrollView at {{60.0, 187.0}, {1200.0, 806.0}}
+    t =     6.22s     Check for interrupting elements affecting ScrollView
+    t =     6.27s     Synthesize event
+    t =     6.65s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =     6.66s Scroll ScrollView at {{60.0, 187.0}, {1200.0, 806.0}} by dx: 0.00, dy: 400.00
+    t =     6.66s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =     6.67s     Find the ScrollView at {{60.0, 187.0}, {1200.0, 806.0}}
+    t =     6.67s     Check for interrupting elements affecting ScrollView
+    t =     6.71s     Synthesize event
+    t =     7.06s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =     7.07s Scroll ScrollView at {{60.0, 187.0}, {1200.0, 806.0}} by dx: 0.00, dy: 400.00
+    t =     7.07s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =     7.09s     Find the ScrollView at {{60.0, 187.0}, {1200.0, 806.0}}
+    t =     7.12s     Check for interrupting elements affecting ScrollView
+    t =     7.18s     Synthesize event
+    t =     7.54s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =     7.55s Scroll ScrollView at {{60.0, 187.0}, {1200.0, 806.0}} by dx: 0.00, dy: 400.00
+    t =     7.55s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =     7.56s     Find the ScrollView at {{60.0, 187.0}, {1200.0, 806.0}}
+    t =     7.58s     Check for interrupting elements affecting ScrollView
+    t =     7.65s     Synthesize event
+    t =     8.02s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =     8.03s Scroll ScrollView at {{60.0, 187.0}, {1200.0, 806.0}} by dx: 0.00, dy: 400.00
+    t =     8.04s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =     8.06s     Find the ScrollView at {{60.0, 187.0}, {1200.0, 806.0}}
+    t =     8.08s     Check for interrupting elements affecting ScrollView
+    t =     8.12s     Synthesize event
+    t =     8.47s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =     8.48s Checking existence of `StaticText (First Match)`
+    t =     8.50s Get number of matches for: Descendants matching type Button
+    t =    12.55s Find the Application 'com.boris.banana.calendar-surface-review'
+2026-10-09 07:36:31.431696-0400 BananaNativePerformanceUITests-Runner[33638:39584877] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+    t =    12.71s Added attachment named 'prototype-after-wheel-scroll'
+    t =    12.71s Tear Down
+Test Case '-[BananaNativePerformanceUITests.CalendarPrototypeInteractionTests testRepeatedWheelScrolling]' passed (13.084 seconds).
+Test Suite 'CalendarPrototypeInteractionTests' passed at 2026-10-09 07:36:31.917.
+	 Executed 2 tests, with 0 failures (0 unexpected) in 42.152 (42.154) seconds
+Test Suite 'BananaNativePerformanceUITests.xctest' passed at 2026-10-09 07:36:31.918.
+	 Executed 2 tests, with 0 failures (0 unexpected) in 42.152 (42.155) seconds
+Test Suite 'Selected tests' passed at 2026-10-09 07:36:31.919.
+	 Executed 2 tests, with 0 failures (0 unexpected) in 42.152 (42.156) seconds
+2026-10-09 07:36:32.228 xcodebuild[33372:39583930] [MT] IDETestOperationsObserverDebug: 43.874 elapsed -- Testing started completed.
+2026-10-09 07:36:32.228 xcodebuild[33372:39583930] [MT] IDETestOperationsObserverDebug: 0.000 sec, +0.000 sec -- start
+2026-10-09 07:36:32.228 xcodebuild[33372:39583930] [MT] IDETestOperationsObserverDebug: 43.874 sec, +43.874 sec -- end
+
+Test session results, code coverage, and logs:
+	~/orca/workspaces/gtfuwgth/stingray/.build/native-ui-performance/calendar-prototype-20261009/properties-ui.xcresult
+
+** TEST EXECUTE SUCCEEDED **
+
+Testing started

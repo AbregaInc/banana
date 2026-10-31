@@ -1,0 +1,1320 @@
+name: Banana
+options:
+  bundleIdPrefix: $(BANANA_BUNDLE_ID)
+  createIntermediateGroups: true
+  deploymentTarget:
+    iOS: "26.1"
+    macOS: "26.0"
+
+schemes:
+  BananaModelTests:
+    build:
+      targets:
+        BananaTests: [test]
+    test:
+      config: Release
+      targets:
+        - BananaTests
+  BananaNativePerformanceUITests:
+    build:
+      targets:
+        BananaNativePerformanceUITests: [test]
+    test:
+      config: Release
+      targets:
+        - BananaNativePerformanceUITests
+  Banana:
+    build:
+      targets:
+        Banana: all
+        BananaUITests: [test]
+    test:
+      config: Debug
+      targets:
+        - BananaTests
+        - BananaUITests
+    run:
+      config: Debug
+    archive:
+      config: Release
+  BananaMac:
+    build:
+      targets:
+        BananaMac: all
+    run:
+      config: Debug
+  BananaMacBeta:
+    build:
+      targets:
+        BananaMacBeta: all
+    run:
+      config: Debug
+  # The Mac's keyboard-and-mouse UI tests (BananaMacUITests/). Its own scheme and nothing else's:
+  # they launch the Beta on the owner's desktop and take his keyboard, so no other scheme builds or
+  # runs them. Debug, because the launch routes they use (`--mail-fresh`, `--mail-open`,
+  # `--mail-state`) are compiled into Debug only. Run it with tools/mac-mail-uitest.sh.
+  BananaMacBetaUITests:
+    build:
+      targets:
+        BananaMacBeta: all
+        BananaMacUITests: [test]
+    test:
+      config: Debug
+      targets:
+        - BananaMacUITests
+    run:
+      config: Debug
+  BananaBeta:
+    build:
+      targets:
+        BananaBeta: all
+    run:
+      config: Debug
+  BananaWatch:
+    build:
+      targets:
+        BananaWatch: all
+    run:
+      config: Debug
+  BananaWidgetExtension:
+    build:
+      targets:
+        BananaWidgetExtension: all
+    run:
+      config: Debug
+
+# The team that signs and the names only one developer account can own (bundle id, iCloud
+# container, Google sign-in client) are not in this file: Config/Base.xcconfig holds stand-ins
+# and reads your own from Config/Local.xcconfig, which is not tracked. See README.
+configFiles:
+  Debug: Config/Base.xcconfig
+  Release: Config/Base.xcconfig
+
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    SWIFT_STRICT_CONCURRENCY: minimal
+    MARKETING_VERSION: "1.0"
+    CURRENT_PROJECT_VERSION: "83"
+    CODE_SIGN_STYLE: Automatic
+    # Native Mac apps and test hosts support Apple silicon only. iOS settings are unchanged.
+    "ARCHS[sdk=macosx*]": arm64
+    # iPhone and iPad: one app, laid out by the room it has (see docs/design/ADAPTIVE-LAYOUT.md).
+    TARGETED_DEVICE_FAMILY: "1,2"
+
+packages:
+  FluidAudio:
+    url: https://github.com/FluidInference/FluidAudio.git
+    exactVersion: 0.15.5
+  GoogleSignIn:
+    url: https://github.com/google/GoogleSignIn-iOS.git
+    exactVersion: 9.1.0
+  # Mail's two libraries (docs/design/MAIL-ENGINE.md, decision D19). Pinned to a REVISION, not
+  # to a version as the two above are. A version names a tag, and a tag can be moved to other
+  # code; a revision is the code. These direct revisions remain explicit here, with their
+  # tagged versions beside them. Config/Package.resolved retains reviewed direct/transitive
+  # pins outside the generated project; copy it into the generated workspace as described
+  # in README.md. Upgrade source pins and resolved revisions together, deliberately, with
+  # updated notices and a re-measurement behind implementation/dependency changes.
+  #
+  # GRDB is the door to mail's SQLite stores. It links the SYSTEM's SQLite (its `GRDBSQLite`
+  # target is a module map over /usr/lib/libsqlite3, with no SQLite of its own), which is the
+  # same library FoodDatabase.swift and BarcodeProductLookup.swift already call directly — one
+  # SQLite in the process, two ways of calling it, no second copy to clash with.
+  #
+  # SwiftSoup parses a message's HTML, behind mail's own sanitiser.
+  #
+  # Both go to the four apps and the unit tests ONLY. Not the Watch, not the widgets: mail does
+  # not run there, and neither may anything it links.
+  GRDB:
+    url: https://github.com/groue/GRDB.swift.git
+    revision: b83108d10f42680d78f23fe4d4d80fc88dab3212   # v7.11.1
+  SwiftSoup:
+    url: https://github.com/scinfu/SwiftSoup.git
+    revision: 18b80329749eca5ea29fc50211dca5c7eff5bfec   # 2.13.9
+
+targets:
+  Banana:
+    type: application
+    platform: iOS
+    sources:
+      - path: tools/calendar-library-benchmark/Shared/Fixtures.swift
+      - path: Banana
+      - path: Shared
+        excludes:
+          # The merge and protocol cases are the tests’ (BananaTests), not the app’s.
+          - SyncMergeFixtures.json
+          - SyncProtocolFixtures.json
+      # The widget views, for the `--widgets` debug gallery.
+      - path: BananaWidget/AgendaWidgets.swift
+    info:
+      path: Banana/Info.plist
+      properties:
+        # Read by the code; filled from Config (see README).
+        BananaTeamID: $(DEVELOPMENT_TEAM)
+        BananaCloudContainer: $(BANANA_ICLOUD_CONTAINER)
+        BananaLegacyCloudContainer: $(BANANA_LEGACY_ICLOUD_CONTAINER)
+        # The Banana service (Service/) and the Google client it signs in with; empty in any
+        # build but the official app.
+        BananaServiceHost: $(BANANA_SERVICE_HOST)
+        BananaGoogleServerClient: $(BANANA_GOOGLE_SERVER_CLIENT)
+        CFBundleDisplayName: Banana
+        GIDClientID: $(BANANA_GOOGLE_CLIENT).apps.googleusercontent.com
+        CFBundleURLTypes:
+          - CFBundleTypeRole: Editor
+            CFBundleURLSchemes:
+              - com.googleusercontent.apps.$(BANANA_GOOGLE_CLIENT)
+              - banananote
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        # Launch screen matches the app's grouped background, so launch → first frame doesn't
+        # flash white before the UI paints.
+        UILaunchScreen:
+          UIColorName: LaunchBackground
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        UISupportedInterfaceOrientations~ipad:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+        # Unlock the full ProMotion range for UIKit, SwiftUI, and Core Animation. Without this
+        # opt-in, iPhone caps the Day scroll below the display's supported refresh rate.
+        CADisableMinimumFrameDurationOnPhone: true
+        NSAlarmKitUsageDescription: "Banana schedules alarms so it can wake you at the times you turn on — ringing through silent mode and Focus, even when the app is closed."
+        NSAppleMusicUsageDescription: "Banana plays a playlist, album, or song from your Apple Music library as your wake-up sound after an alarm."
+        NSRemindersFullAccessUsageDescription: "Banana reads your reminders on-device so it can schedule tasks onto your day alongside your routines and meetings."
+        NSLocationWhenInUseUsageDescription: "Banana uses your location for forecasts, travel estimates, and—when you explicitly enable it—a route recorded only while a podcast is playing."
+        # "Learn from my trips" (Settings › Travel) asks for Always location and Motion. Without
+        # these two iOS ignores the first request and kills the app on the second, and App Store
+        # Connect refuses the build (ITMS-90683) — which is how their absence was found.
+        NSLocationAlwaysAndWhenInUseUsageDescription: "Banana notes where you arrive and leave — only when you turn on Learn from my trips — so travel times match how long your trips really take. The visits stay on this iPhone."
+        NSMotionUsageDescription: "Banana reads whether you were on foot or in a vehicle — only when you turn on Learn from my trips — so it learns your real pace for each way of travelling."
+        NSHealthShareUsageDescription: "Banana reads your workouts and health metrics from Apple Health — including sessions recorded by other apps and devices — so it can show and analyze your fitness in one place."
+        NSHealthUpdateUsageDescription: "Banana saves your Watch-recorded workouts to Apple Health — including the route — and updates them when you trim a workout."
+        UIBackgroundModes:
+          - audio
+          - processing
+          # BGAppRefreshTaskRequest (calendar write-back below) needs "fetch"; BGProcessingTaskRequest
+          # (feed refresh, transcription) needs "processing" — both must be declared for their
+          # respective task types to actually run.
+          - fetch
+          - location
+          # Silent pushes for the meal backlog's zone (MealBacklogWake): a meal the Mac found wakes
+          # the iPhone for a few seconds to fetch it and ask about it. Inert without aps-environment.
+          - remote-notification
+        # Required for the AlarmKit alert Live Activity and the continued-processing
+        # transcription activity to actually present — was silently missing.
+        NSSupportsLiveActivities: true
+        BGTaskSchedulerPermittedIdentifiers:
+          - com.boris.banana.transcribe.overnight
+          # Overnight feed refresh + auto-downloads + Watch backfill (charger + network).
+          - com.boris.banana.feeds.overnight
+          # iOS 26 continued-processing: identifiers MUST be wildcarded and prefixed with the
+          # bundle ID. This is what lets a user-initiated transcription keep running (with a Live
+          # Activity) after you leave the app, instead of waiting for an overnight window.
+          - com.boris.banana.transcribe.*
+          # Calendar write-back: re-syncs busy blocks (incl. travel/return-home holds) across the
+          # 31-day write-back horizon while the app is backgrounded, so a Calendly booking landing
+          # in that gap still gets covered without the person having to open Banana first.
+          - com.boris.banana.calendar.refresh
+          # "Find meal photos automatically": looks through new photos for meals about hourly while
+          # the app is closed (MealPhotoScanner), so each can ask what it was.
+          - com.boris.banana.meals.scan
+          # Meals someone just asked for keep being estimated after they leave the app (iOS 26
+          # continued processing, wildcarded like transcription), and anything left waiting is
+          # estimated on the next charge.
+          - com.boris.banana.meals.estimate.*
+          - com.boris.banana.meals.catchup
+        NSPhotoLibraryUsageDescription: "Banana looks for photos of meals — only when you turn on Find meal photos automatically — so it can ask what you ate and log it."
+        # Apple's cloud model needs com.apple.developer.private-cloud-compute; true only once granted
+        # and added to the entitlements (CloudModelGuard).
+        BananaPrivateCloudCompute: false
+        NSSpeechRecognitionUsageDescription: "Banana transcribes downloaded episodes on your device so you can follow along word-by-word while listening."
+        NSMicrophoneUsageDescription: "Banana records quick voice notes — pause a podcast, capture a thought, and it's saved with the moment it came from for later."
+        NSCameraUsageDescription: "Banana uses the camera only when you choose to photograph a meal or a supplement label, or scan a food or supplement barcode."
+        NSContactsUsageDescription: "Banana looks up the people you type when adding guests to an event, so \u201CLunch with Sam\u201D can invite the Sam you mean."
+        NSLocalNetworkUsageDescription: "Banana finds your other Banana devices on this Wi-Fi so one downloaded podcast file can be reused without downloading it again."
+        NSBonjourServices:
+          - _banana-audio._tcp
+        NSAppTransportSecurity:
+          NSAllowsArbitraryLoads: true      # podcast feeds/audio are still served over plain HTTP
+        ITSAppUsesNonExemptEncryption: false
+    entitlements:
+      path: Banana/Banana.entitlements
+      properties:
+        # The app's own group stays FIRST: it is the default for every keychain write that does
+        # not name a group (Google accounts, tokens), exactly as before this list existed. The
+        # second is shared with the widget extension — the agenda the calendar widgets draw.
+        # Team-prefixed keychain groups need no developer-portal registration (App Groups do).
+        keychain-access-groups:
+          - $(AppIdentifierPrefix)com.boris.banana
+          - $(AppIdentifierPrefix)com.boris.banana.widget.agenda
+        # Notifications that should reach you through a Focus: leave-by, commute, event alerts,
+        # bedtime, supplements. Without this entitlement `.timeSensitive` is silently downgraded.
+        com.apple.developer.usernotifications.time-sensitive: true
+        com.apple.developer.healthkit: true
+        com.apple.developer.healthkit.access: []
+        com.apple.developer.weatherkit: true
+        com.apple.developer.icloud-services: [CloudDocuments, CloudKit]
+        com.apple.developer.icloud-container-identifiers: [$(BANANA_ICLOUD_CONTAINER)]
+        # Direct production installs must use the same private CloudKit database as TestFlight
+        # and the production Mac app; otherwise an Xcode development default splits sync.
+        com.apple.developer.icloud-container-environment: Production
+        # Silent pushes for the meal backlog's zone (MealBacklogWake). Development for the
+        # development-signed builds installed directly; an App Store export rewrites it to production.
+        aps-environment: development
+        # Apple's cloud model (PrivateCloudComputeLanguageModel) needs the managed entitlement
+        # com.apple.developer.private-cloud-compute, granted on request
+        # (developer.apple.com/private-cloud-compute). Without it the model reports itself available
+        # and the first request crashes the app. When Apple grants it: add it here and set
+        # BananaPrivateCloudCompute to true in both Info.plists (CloudModelGuard).
+        com.apple.developer.ubiquity-container-identifiers: [$(BANANA_ICLOUD_CONTAINER)]
+        # Shared key-value store — the SAME identifier on iOS and Mac (not the default
+        # per-bundle one), so phone↔Mac settings actually land in one store.
+        com.apple.developer.ubiquity-kvstore-identifier: $(TeamIdentifierPrefix)com.boris.banana
+    settings:
+      base:
+        BANANA_UNRELEASED: YES
+        PRODUCT_BUNDLE_IDENTIFIER: $(BANANA_BUNDLE_ID)
+        ENABLE_PREVIEWS: YES
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+      configs:
+        Release:
+          # A normal Release build must be the public app; Debug retains test fixtures.
+          BANANA_UNRELEASED: NO
+    dependencies:
+      - package: FluidAudio
+      - package: GoogleSignIn
+      - package: GRDB
+      - package: SwiftSoup
+      - target: BananaWidgetExtension
+      - target: BananaWatch
+        embed: true
+
+  # The iOS twin of BananaMacBeta: the build that gets TESTED, so the build you USE is never
+  # the one under test. Distinct bundle id, so it has its own data container, its own TCC
+  # permission grants, and its own icon on the Home Screen — nothing it does can reach the
+  # production app.
+  #
+  # Deliberately embeds neither the Watch app nor the widget extension: both are singletons
+  # keyed by bundle id, and a second copy would fight the production ones for the same slot.
+  # Watch and widget work is done against the production target, on purpose and out loud.
+  BananaBeta:
+    type: application
+    platform: iOS
+    sources:
+      - path: tools/calendar-library-benchmark/Shared/Fixtures.swift
+      - path: Banana
+        excludes:
+          - Info.plist
+      - path: Shared
+        excludes:
+          # The merge and protocol cases are the tests’ (BananaTests), not the app’s.
+          - SyncMergeFixtures.json
+          - SyncProtocolFixtures.json
+      - path: BananaWidget/AgendaWidgets.swift
+    info:
+      path: Banana/InfoBeta.plist
+      properties:
+        # Read by the code; filled from Config (see README).
+        BananaTeamID: $(DEVELOPMENT_TEAM)
+        BananaCloudContainer: $(BANANA_ICLOUD_CONTAINER_BETA)
+        # Beta's own service and web client, never the production ones.
+        BananaServiceHost: $(BANANA_SERVICE_HOST_BETA)
+        BananaGoogleServerClient: $(BANANA_GOOGLE_SERVER_CLIENT_BETA)
+        CFBundleDisplayName: Banana Beta
+        GIDClientID: $(BANANA_GOOGLE_CLIENT_BETA).apps.googleusercontent.com
+        CFBundleURLTypes:
+          - CFBundleTypeRole: Editor
+            CFBundleURLSchemes:
+              - com.googleusercontent.apps.$(BANANA_GOOGLE_CLIENT_BETA)
+              - banananotebeta
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        UILaunchScreen:
+          UIColorName: LaunchBackground
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        UISupportedInterfaceOrientations~ipad:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        CADisableMinimumFrameDurationOnPhone: true
+        UIBackgroundModes:
+          - audio
+          - processing
+          - fetch
+          - location
+          - remote-notification
+        # Beta previously declared no BGTaskSchedulerPermittedIdentifiers at all, so
+        # OvernightRefresh/TranscriptCoordinator's calls to BGTaskScheduler.register(forTaskWithIdentifier:)
+        # were silently permitted-but-inert in beta builds (the identifier isn't in this Info.plist,
+        # so the task can never actually be scheduled). Mirrored from the Banana target below —
+        # fixes that gap for the existing tasks too, not just the new one.
+        BGTaskSchedulerPermittedIdentifiers:
+          - com.boris.banana.transcribe.overnight
+          - com.boris.banana.feeds.overnight
+          - com.boris.banana.transcribe.*
+          - com.boris.banana.calendar.refresh
+          - com.boris.banana.meals.scan
+          # Meals someone just asked for keep being estimated after they leave the app (iOS 26
+          # continued processing, wildcarded like transcription), and anything left waiting is
+          # estimated on the next charge.
+          - com.boris.banana.meals.estimate.*
+          - com.boris.banana.meals.catchup
+        NSSupportsLiveActivities: true
+        NSPhotoLibraryUsageDescription: "Banana Beta looks for photos of meals — only when you turn on Find meal photos automatically — so it can ask what you ate and log it."
+        # Apple's cloud model needs com.apple.developer.private-cloud-compute; true only once granted
+        # and added to the entitlements (CloudModelGuard).
+        BananaPrivateCloudCompute: false
+        NSAlarmKitUsageDescription: "Banana Beta schedules alarms so it can wake you at the times you turn on — ringing through silent mode and Focus, even when the app is closed."
+        NSAppleMusicUsageDescription: "Banana Beta plays a playlist, album, or song from your Apple Music library as your wake-up sound after an alarm."
+        NSRemindersFullAccessUsageDescription: "Banana Beta reads your reminders on-device so it can schedule tasks onto your day."
+        NSLocationWhenInUseUsageDescription: "Banana Beta uses your location for your local forecast and travel estimates."
+        NSLocationAlwaysAndWhenInUseUsageDescription: "Banana Beta notes where you arrive and leave — only when you turn on Learn from my trips — so travel times match how long your trips really take."
+        NSMotionUsageDescription: "Banana Beta reads whether you were on foot or in a vehicle — only when you turn on Learn from my trips."
+        NSHealthShareUsageDescription: "Banana Beta reads your workouts and health metrics from Apple Health so it can show and analyze your fitness in one place."
+        NSHealthUpdateUsageDescription: "Banana Beta saves workouts recorded with Banana to Apple Health and updates them when you trim a workout."
+        NSSpeechRecognitionUsageDescription: "Banana Beta transcribes downloaded episodes on your device."
+        NSMicrophoneUsageDescription: "Banana Beta records quick voice notes."
+        NSCameraUsageDescription: "Banana Beta uses the camera only when you choose to photograph a meal or a supplement label, or scan a food or supplement barcode."
+        NSContactsUsageDescription: "Banana Beta looks up the people you type when adding guests to an event, so \u201CLunch with Sam\u201D can invite the Sam you mean."
+        NSLocalNetworkUsageDescription: "Banana Beta finds your other Banana devices on this Wi-Fi."
+        NSBonjourServices:
+          - _banana-beta._tcp
+        NSAppTransportSecurity:
+          NSAllowsArbitraryLoads: true
+        ITSAppUsesNonExemptEncryption: false
+    entitlements:
+      path: Banana/BananaBeta.entitlements
+      properties:
+        # Notifications that should reach you through a Focus: leave-by, commute, event alerts,
+        # bedtime, supplements. Without this entitlement `.timeSensitive` is silently downgraded.
+        com.apple.developer.usernotifications.time-sensitive: true
+        com.apple.developer.healthkit: true
+        com.apple.developer.healthkit.access: []
+        com.apple.developer.weatherkit: true
+        com.apple.developer.icloud-services: [CloudDocuments, CloudKit]
+        com.apple.developer.icloud-container-identifiers: [$(BANANA_ICLOUD_CONTAINER_BETA)]
+        com.apple.developer.ubiquity-container-identifiers: [$(BANANA_ICLOUD_CONTAINER_BETA)]
+        com.apple.developer.ubiquity-kvstore-identifier: $(TeamIdentifierPrefix)com.boris.banana.beta
+        # Silent pushes from the Beta's own Banana service (beta-api.bananatheapp.com).
+        aps-environment: development
+        # Beta uses only the staging iCloud namespace above. HealthKit is enabled under beta's
+        # distinct App ID so every permission flow can be tested; beta still embeds no Watch app.
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: $(BANANA_BUNDLE_ID).beta
+        PRODUCT_NAME: Banana Beta
+        # One module name for both apps: code that says `Banana.calendarTint` to get past a
+        # member of the same name didn't compile in Beta, whose module was "Banana_Beta".
+        PRODUCT_MODULE_NAME: Banana
+        ENABLE_PREVIEWS: YES
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIconBeta
+        # MAIL_FIXTURES: the sample mailbox (Banana/Model/MailUI/Pure/Testing/), in this target's Release
+        # as well as its Debug. The owner's Beta is a Release build and is how he tries Mail.
+        # Neither production target has it, so production has no sample mail.
+        BANANA_UNRELEASED: YES
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) BANANA_BETA MAIL_FIXTURES"
+    dependencies:
+      - package: FluidAudio
+      - package: GoogleSignIn
+      - package: GRDB
+      - package: SwiftSoup
+
+  BananaUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: BananaUITests
+      # Mail's accessibility identifiers, the SAME files the views use, so that a UI test never
+      # retypes a string a view spells. Only the identifier files: this bundle has nothing else
+      # of the app's, which is why those files may name Foundation and nothing more.
+      - path: Banana/Model/MailUI/Pure
+        includes:
+          - "MailIdentifiers*.swift"
+    dependencies:
+      - target: Banana
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: $(BANANA_BUNDLE_ID).uitests
+        TEST_TARGET_NAME: Banana
+        GENERATE_INFOPLIST_FILE: YES
+
+  # Mac UI tests: they press real keys and drag real windows in the Beta (BananaMacBeta), so they
+  # only run through the BananaMacBetaUITests scheme, by tools/mac-mail-uitest.sh, with the owner's
+  # say. Same arrangement as BananaUITests: the identifier files of Mail are the SAME files the views
+  # use, and MailArrangement.swift (Foundation only) is the one place the column breakpoints are
+  # written, so the window-size cases hold the app to the number it declares.
+  BananaNativePerformanceUITests:
+    type: bundle.ui-testing
+    platform: macOS
+    sources:
+      - path: BananaNativePerformanceUITests
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.boris.banana.mac.native-performance.uitests
+        MACOSX_DEPLOYMENT_TARGET: "26.0"
+        GENERATE_INFOPLIST_FILE: YES
+        CODE_SIGN_IDENTITY: "Apple Development"
+
+  BananaMacUITests:
+    type: bundle.ui-testing
+    platform: macOS
+    sources:
+      - path: BananaMacUITests
+      - path: Banana/Model/MailUI/Pure
+        includes:
+          - "MailIdentifiers*.swift"
+          - "MailArrangement.swift"
+    dependencies:
+      - target: BananaMacBeta
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.boris.banana.mac.beta.uitests
+        TEST_TARGET_NAME: BananaMacBeta
+        GENERATE_INFOPLIST_FILE: YES
+        TARGETED_DEVICE_FAMILY: ""
+
+  BananaTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: BananaTests
+      - path: Banana/Model/HealthAuthorization.swift
+      # Snapshot decode-and-quarantine (the data-safety sweep across every on-disk JSON store) —
+      # SnapshotPersistence.swift is the shared, store-agnostic loader; WellnessModels.swift now
+      # builds on it. WatchAudioQuality.swift/Podcast.swift and ListenEvent.swift are the pure
+      # storage-shaped models for PodcastLibrary/ListenHistoryStore — split out (same reasoning
+      # as DistanceUnit.swift below) so their decode-and-quarantine tests don't also pull in
+      # PodcastLibrary/ListenHistoryStore's own CloudBackup/CloudKit dependency chain.
+      - path: Shared/SnapshotPersistence.swift
+      - path: Shared/WorkoutRecoveryCheckpoint.swift
+      - path: BananaWatch/SampleWriter.swift
+      - path: Banana/Model/NoteReminderWriter.swift
+      - path: Shared/JSONRecordStream.swift
+      - path: Shared/WellnessModels.swift
+      - path: Banana/Model/WatchAudioQuality.swift
+      - path: Banana/Model/Podcast.swift
+      - path: Banana/Model/FeedTranscriptParser.swift
+      - path: Banana/Model/EpisodeOwnership.swift
+      - path: Banana/Model/PodcastCatalog.swift
+      - path: Banana/Model/PodcastEpisodeBrowser.swift
+      - path: Banana/Model/FeedParser.swift
+      - path: Banana/Model/VoiceNote.swift
+      - path: Banana/Model/LiveFilter.swift
+      - path: Shared/LiveFilterRules.json
+        buildPhase: resources
+      - path: Banana/Model/NoteRepository.swift
+      - path: Banana/Model/NoteQueryCache.swift
+      - path: Banana/Model/TimeRangeIndex.swift
+      - path: Banana/Model/ListenEvent.swift
+      - path: Banana/Model/BarcodeProductLookup.swift
+      - path: Banana/Model/Credits.swift
+      # Barcode network fallback caches Open Food Facts hits under AppSupport.directory — the
+      # file itself is self-contained (Foundation + Security only), unlike the AppSupport-using
+      # chain the comment below routes around.
+      # Voice verdicts per narrator, including hand corrections. Takes its directory as a
+      # parameter, so every case here runs against a throwaway folder.
+      - path: Banana/Model/NarratorVoiceStore.swift
+      - path: Banana/Model/AppSupport.swift
+      - path: Banana/Model/CalendarEventTitlePolicy.swift
+      - path: Banana/Model/CalendarWriteBackPolicy.swift
+      - path: Banana/Model/TravelBlockPolicy.swift
+      # Confirmed places, the per-trip mode rule, and what a travel block says. Pure.
+      - path: Banana/Model/TravelPlaces.swift
+      # 5-minute time-entry grid — FiveMinuteGrid.snapped is pure (Foundation only); the
+      # UIKit-backed FiveMinuteTimeWheel control in the same file compiles fine alongside it
+      # since this test target's platform is iOS too.
+      - path: Banana/Views/FiveMinuteTimeWheel.swift
+      - path: BananaTests/FiveMinuteGridTests.swift
+      - path: Shared/FitnessModels.swift
+      - path: Shared/WorkoutMotionAnalysis.swift
+      - path: BananaTests/WorkoutMotionAnalysisTests.swift
+      # Fitness cloud-sync state derivation (FitnessSyncStateDerivation/
+      # WorkoutCloudUploadStateDerivation, appended to FitnessModels.swift above) — pure, so it's
+      # testable here without constructing a CKSyncEngine/CKContainer.
+      - path: BananaTests/FitnessSyncStateTests.swift
+      # Orientation-capture fix — RotationVector.swift (pure quaternion <-> rotation-vector math)
+      # and the new FitnessSample.Kind.orientation case (already in FitnessModels.swift above).
+      - path: Shared/RotationVector.swift
+      - path: BananaTests/RotationVectorTests.swift
+      # Hand-path model — pure, depends only on FitnessModels + the two WorkoutMotionAnalysis
+      # helpers it reuses (bandpassFilter, dominantPeriodSamples), both already above.
+      - path: Shared/WorkoutHandPath.swift
+      - path: BananaTests/WorkoutHandPathTests.swift
+      # Hand-path renderer (Package B) — pure geometry only; the SwiftUI Canvas view
+      # (HandPathView.swift) isn't listed here since nothing under BananaTests exercises it.
+      - path: Banana/Views/Workouts/HandPathScene.swift
+      - path: BananaTests/HandPathSceneTests.swift
+      # Motion rendering, disk cache and the scale-invariant consistency metric. These are
+      # listed here because BananaTests names its sources individually; the app targets glob the
+      # folder. They were briefly only in the generated project file, which xcodegen overwrites.
+      - path: Banana/Views/Workouts/MotionSignatureScene.swift
+      - path: Shared/WorkoutMotionDiskCache.swift
+      - path: Shared/WorkoutMotionConsistency.swift
+      # Automatic podcast ad skipping. PodcastSkipPlan/PodcastSkipCorrections are the plan and the
+      # learning loop (Foundation only, and shared with the Watch); PodcastAudioSeams and
+      # PodcastAdServerHeaders are the two byte-level detectors, which need no transcript and no
+      # model. SkipPlaybackEngine/SkipPlanStore are the playback decision and its persistence —
+      # both Foundation/os-only, and AppSupport.swift + SnapshotPersistence.swift are already
+      # listed above, so no new dependency chain arrives with them.
+      - path: Shared/PodcastSkipPlan.swift
+      - path: Shared/PodcastSkipCorrections.swift
+      - path: Shared/PodcastSkipPlanBuilder.swift
+      - path: Shared/PodcastAudioSeams.swift
+      - path: Shared/PodcastAdServerHeaders.swift
+      - path: Banana/Model/SkipPlaybackEngine.swift
+      - path: Banana/Model/SkipPlanStore.swift
+      # Events created but not yet confirmed on a calendar. Until the write lands this store is
+      # the ONLY copy of what the user typed, so its decode-and-quarantine behaviour is tested
+      # alongside the reconciliation that decides when a placeholder may be retired.
+      - path: Banana/Model/PendingCalendarWriteRules.swift
+      - path: Banana/Model/PendingCalendarWrites.swift
+      # What coming to `.active` runs: the network half only after a real return from the
+      # background, the permission half on every activation. Pure; ScenePhase is its only import.
+      - path: Banana/Model/ForegroundCascadeRules.swift
+      # The Google change poll's loop and its stop/start for the background. Foundation only.
+      - path: Banana/Model/CalendarChangePoll.swift
+      # The menu-bar switch's dot-free key and its one-time move from the dotted one. Foundation only.
+      - path: Banana/Model/MenuBarAgendaSetting.swift
+      # Where a new booking may start (the hour or the half hour). Pure geometry, Foundation only.
+      - path: Banana/Model/BookingGrid.swift
+      # Reading the narrator out of episode notes. Foundation only, and the parsing is fiddly
+      # enough (flags, variation selectors, short forms) to be worth pinning.
+      - path: Banana/Model/NarratorCredit.swift
+      # Supplement/food timing interactions. A curated rules table, Foundation only — see the
+      # file for why this is deliberately not a model.
+      - path: Banana/Model/SupplementInteractions.swift
+      - path: Banana/Model/VoiceGender.swift
+      # Foreground/background gating: stops work immediately, keeps drawing briefly so the
+      # app-switcher snapshot is not a black rectangle. SwiftUI-only, no further dependencies.
+      - path: Banana/Model/AppVisibility.swift
+      # The selected tab and each tab's open screen, kept outside the tree the gate above throws
+      # away. Foundation + Combine only.
+      - path: Banana/Model/ShellNavigation.swift
+      - path: Shared/Features.swift
+      - path: Shared/PlaybackSpeeds.swift
+      - path: Shared/WorkoutPauses.swift
+      - path: Shared/WorkoutRestTimer.swift
+      # ShellState.Tab is AppSection: one list of sections for the phone, iPad and Mac.
+      - path: Banana/Model/AppSection.swift
+      # What each device is for: the phone is the hub (Health, Watch, alarms, calendar holds).
+      - path: Banana/Model/DeviceRole.swift
+      # The phone's status for controls on every device. Pure apart from the KVS read/write.
+      - path: Banana/Model/HubStatus.swift
+      # What Today may headline as Up next. Pure.
+      - path: Banana/Model/UpNext.swift
+      # Which episodes' progress CloudKit hasn't confirmed. Pure.
+      - path: Banana/Model/ProgressReconcile.swift
+      # Synced controls: record names, the newer-edit rule, taking the phone's set; and the one-off
+      # alarm list every device keeps. Pure.
+      - path: Banana/Model/ControlsCloudRecords.swift
+      - path: Banana/Model/OneOffAlarm.swift
+      # Updating a cached Day/Week window from a fresher read of some of its days. Pure.
+      - path: Banana/Model/PlanningWindowSlice.swift
+      # How tall an event is drawn: its minutes, a readable minimum, never over the next block. Pure.
+      - path: Banana/Model/CalendarBlockHeight.swift
+      # Taps during and just after a pinch belong to the pinch. Pure.
+      - path: Banana/Model/ZoomTapGate.swift
+      # What each sync is doing, in words, for the pages and Settings. Foundation + Combine.
+      - path: Banana/Model/SyncProgress.swift
+      # What's drawn leaves out items whose removal waits on an Undo (a declined invitation). Pure.
+      - path: Banana/Model/PendingRemovals.swift
+      # How the nearby-device Bonjour browse is paced (a quick stop/start crashed CFNetwork). Pure.
+      - path: Banana/Model/PeerBrowsePacing.swift
+      # One async job at a time; a request made mid-run runs it once more after. Foundation.
+      - path: Banana/Model/CoalescingRun.swift
+      # A guided workout's progress as wall-clock deadlines, so a locked phone neither pauses the
+      # rest timer nor (via the background blank) loses the session. Foundation + Combine.
+      - path: Banana/Model/GuidedSession.swift
+      # What an episode row says: its date line and the play capsule's time left. Pure.
+      - path: Banana/Model/EpisodeRowText.swift
+      # Today's words for time: countdowns, free gaps, and the part of the day. Pure.
+      - path: Banana/Model/TodayText.swift
+      - path: Banana/Model/BackupRules.swift
+      # The average colour of an image (the player's background wash). CoreGraphics only.
+      - path: Banana/Model/ImageAverage.swift
+      # Portion scaling and the meal list's macro line. Pure; needs WellnessModels.
+      - path: Banana/Model/PortionScaling.swift
+      # Heart-rate zones: max from recent peaks, time in each. Pure; needs FitnessModels.
+      - path: Banana/Model/HeartRateZones.swift
+      # Phone↔Mac wellness sync: record names and the merge of another device's changes. Pure;
+      # needs WellnessModels.
+      - path: Banana/Model/WellnessCloudRecords.swift
+      # The Mac Nutrition page's week, day totals and dose times. Pure; needs WellnessModels.
+      - path: Banana/Model/NutritionDays.swift
+      # Your logs against your weight: four weeks of weigh-ins and Watch energy against the meals
+      # on fully logged days. Pure; needs WellnessModels and HealthWorkout (MetricPoint).
+      - path: Banana/Model/EnergyBalance.swift
+      - path: BananaTests/EnergyBalanceTests.swift
+      # The meal backlog: items, photo grouping, splitting a day's words, log times, which device
+      # estimates, repeat meals, sanity checks. Pure; needs WellnessModels + PortionScaling.
+      - path: Banana/Model/MealBacklog.swift
+      # A meal photo's capture date and the small copy kept. ImageIO only.
+      - path: Banana/Model/MealPhotoImage.swift
+      # Depth from Portrait (and LiDAR) photos: reading the map (ImageIO + AVFoundation) and
+      # measuring the plate and the food on it — pure, tested on ray-cast maps in
+      # BananaTests/MealPhotoDepthTests.swift. MealPhotoImage and MealBacklog need it.
+      - path: Banana/Model/MealPhotoDepth.swift
+      - path: BananaTests/MealPhotoDepthTests.swift
+      # Finding meal photos: the food labels, which photos a pass looks at, joining a waiting meal,
+      # what the phone remembers, the status line and the question. Pure; needs MealBacklog. The
+      # Photos/Vision half (MealPhotoScanner.swift) stays out.
+      - path: Banana/Model/MealPhotoScan.swift
+      # A meal you've had before, from its photo: matching prints, the proposal, Not the same
+      # (pure), and the prints' cache on disk (Vision + ImageIO; needs AppSupport, MealPhotoImage).
+      - path: Banana/Model/RepeatPhotoMeal.swift
+      - path: Banana/Model/MealPhotoPrints.swift
+      - path: BananaTests/RepeatPhotoMealTests.swift
+      # Nights, wake-ups and what they were for (bathroom, baby…). Pure; Foundation only.
+      - path: Banana/Model/SleepNights.swift
+      # Trends: rolling windows and the same-point workout comparison. Pure; needs
+      # HealthWorkout (MetricKind) and RhythmPeriod, both listed below.
+      - path: Banana/Model/MetricTrends.swift
+      # Show-notes HTML to text for the Episode info sheet (WebKit's importer froze the app).
+      - path: Banana/Model/ShowNotes.swift
+      # Learning real trip times from visits and motion: trip pairing, pace and per-place medians,
+      # the adjustment travel estimates use. Pure (Foundation + CoreLocation).
+      - path: Banana/Model/TripLearning.swift
+      # Which calendar events get a "starting soon" notification. Foundation only.
+      - path: Banana/Model/EventAlertPlan.swift
+      # The transcript-side detectors: recurring wording across episodes of one show, and host-read
+      # sponsor slots. Both are pure value types over word timings, so they test without a
+      # transcriber; neither reaches for the on-device model, which measured too imprecise to ship.
+      - path: Shared/PodcastBoilerplate.swift
+      - path: Shared/PodcastSponsorReads.swift
+      - path: BananaTests/WorkoutMotionConsistencyTests.swift
+      # Sample coding + rotation-vector encoding: these cover the on-disk byte format and the
+      # orientation fallback, the two places a mistake is silent and permanent, so they must run.
+      - path: BananaTests/FitnessSampleCodingTests.swift
+      - path: BananaTests/RotationVectorTests.swift
+      # Package 2 (List redesign) — WorkoutGrouping.swift + its dependency chain: RhythmPeriod
+      # (RhythmGranularity), SmartSchedule (Calendar.app), WorkoutEntry (which itself needs
+      # HealthWorkout — split out of HealthKitStore.swift into its own file specifically so
+      # BananaTests doesn't also pull in HealthKitStore's class body and ITS dependency chain
+      # (AppSupport, CloudFitnessSync, LaunchClock, Log) — since BananaTests sources files
+      # individually rather than the Banana/Model folder as a whole).
+      - path: Banana/Model/RhythmPeriod.swift
+      - path: Banana/Model/SmartSchedule.swift
+      # What a routine moment's sheet says about its time. Pure.
+      - path: Banana/Model/CueTimeText.swift
+      # What counts as waiting on you, for the badges. Pure.
+      - path: Banana/Model/ActionItems.swift
+      # Which instance of a repeating reminder is outstanding: overdue until the next one's day. Pure.
+      - path: Banana/Model/ReminderRollover.swift
+      # What was missed before a reminder Banana moved on (its Ledger is pure).
+      - path: Banana/Model/MissedRepeats.swift
+      - path: Banana/Model/HealthWorkout.swift
+      - path: Banana/Model/WorkoutEntry.swift
+      # A workout removed on an iPad or the Mac, finished by the phone: the pure rules.
+      - path: Banana/Model/HealthRemovalRequests.swift
+      - path: Banana/Model/WorkoutEdits.swift
+      - path: Banana/Model/TranscriptModels.swift
+      - path: Banana/Model/RoutineWording.swift
+      - path: Banana/Model/CalendarRefreshPace.swift
+      - path: Banana/Model/CloudPollRules.swift
+      - path: Banana/Views/AdaptiveLayout.swift
+      - path: Banana/Model/WorkoutCleanup.swift
+      - path: Banana/Views/Workouts/WorkoutGrouping.swift
+      - path: BananaTests/WorkoutGroupingTests.swift
+      # "Delete leaves the Fitness entry" fix — WorkoutEntry.merge's hiddenHealthIDs filter and
+      # PendingRemoval's match window/expiry (both pure, in HealthWorkout.swift above).
+      - path: BananaTests/WorkoutEntryTests.swift
+      # Package 3 (Comparison + splits logic) — WorkoutComparison.swift + its dependency chain:
+      # DistanceUnit (split out of AppSettings.swift so BananaTests doesn't also pull in
+      # AppSettings' LaunchClock/CloudBackup singleton dependencies — see DistanceUnit.swift's
+      # doc comment), WorkoutReviewCoordinator (WorkoutReviewSubject), WorkoutDesign
+      # (WorkoutPalette).
+      - path: Banana/Model/DistanceUnit.swift
+      - path: Banana/Model/WorkoutReviewCoordinator.swift
+      - path: Banana/Views/Workouts/WorkoutDesign.swift
+      - path: Banana/Model/WorkoutComparison.swift
+      - path: BananaTests/WorkoutComparisonTests.swift
+      - path: Banana/Resources/BarcodeProducts.sqlite
+      # Open Food Facts fallback (supplement barcodes) — real captured responses, parsed with no
+      # network access in the test.
+      - path: BananaTests/OpenFoodFactsFixtures.json
+      - path: BananaTests/BarcodeOpenFoodFactsTests.swift
+      # Cascade extension (DSLD + UPCitemdb) and record cleanup — DSLD's regrouping/upcSku-match
+      # tests and UPCitemdb's parse/rate-limit tests are pure (no network); ProductRecordCleaner's
+      # deterministic fallback (the path actually exercised in tests, since Apple Intelligence
+      # isn't guaranteed available in a test environment) is pure too.
+      - path: Banana/Model/ProductRecordCleaner.swift
+      - path: BananaTests/DSLDFixtures.json
+      - path: BananaTests/BarcodeDSLDTests.swift
+      - path: BananaTests/UPCItemDBFixtures.json
+      - path: BananaTests/BarcodeUPCItemDBTests.swift
+      - path: BananaTests/BarcodeMergeTests.swift
+      - path: BananaTests/ProductRecordCleanerTests.swift
+      # Supplement label photo reader — Vision OCR + FoundationModels, all guarded `#if os(iOS)`;
+      # this test target is iOS, so it compiles like the rest of the app. Only the pure
+      # confidence-attribution function and deterministic fallback are exercised directly (no
+      # camera/model dependency in the test environment).
+      # Which model a request goes to on iOS 27, and how it degrades to iOS 26. Only the pure
+      # routing decision and the budget are exercised — neither model can run in a test here.
+      # Join-link selection out of a real meeting invite. Pure — the SwiftUI controls that use
+      # it stay in MeetingLink.swift, which would drag MeetingInfo/AppSettings in behind them.
+      # Dropping recurrence instances that EventKit returns past their own rule's end date.
+      # Truncating a Google RRULE for "delete this and all following". Pure string handling; the
+      # rest of GoogleCalendarService is network and SDK and stays out of the test target.
+      # Which connected Google account a request belongs to. Pure URL handling.
+      # "Repeats until X" — which instant each provider wants for an inclusive end date.
+      # Busy blocks written through Google's API, where ownership survives sync.
+      # A calendar shared across connected accounts arrives once per account, under one id.
+      # Never withdraw busy-block coverage computed from a calendar that failed to load.
+      - path: BananaTests/DegradedSourceSafetyTests.swift
+      # The Google-only calendar layer: what a Google event means (meeting, busy, travel, Banana's
+      # own block), the removal gate, destinations, exclusion carry-over and token rejection. All
+      # pure; the network half stays in GoogleCalendarService.swift, out of this target.
+      - path: Banana/Model/CalendarEventModels.swift
+      - path: Banana/Model/GoogleCalendarModels.swift
+      - path: Banana/Model/GoogleEventWindow.swift
+      # All-day events: which calendars' show, which block their days, the days they cover.
+      - path: Banana/Model/AllDayEvents.swift
+      - path: Banana/Model/OutstandingReminders.swift
+      - path: Banana/Model/UntimedMoments.swift
+      - path: Banana/Model/WorkoutRoutineCompletion.swift
+      - path: Banana/Model/PlanMode.swift
+      # One control for each job (10 Oct 2026): Review's parts and spans, the date line's words.
+      - path: Banana/Model/PageChromeRules.swift
+      - path: Banana/Model/AppModules.swift
+      - path: Banana/Model/Demo/DemoWorkspace.swift
+      - path: Banana/Model/Demo/DemoFixtures.swift
+      - path: Banana/Model/Demo/DemoScenario.swift
+      - path: Banana/Model/PlanPrompt.swift
+      # The first run and the setup list (9 Oct 2026): the route through the welcome, every item
+      # the setup list shows and what each state means, and the rule that Banana never shows
+      # the system's location question by itself.
+      - path: Banana/Model/OnboardingFlow.swift
+      - path: Banana/Model/SetupChecklist.swift
+      - path: Banana/Model/LocationUse.swift
+      - path: Banana/Model/WeatherGlance.swift
+      - path: Banana/Model/WakeFollowing.swift
+      - path: Banana/Model/TaskTicks.swift
+      # Every calendar its own colour: Google's unless another already looks like it.
+      - path: Banana/Model/CalendarColorAssignment.swift
+      - path: Banana/Model/AgendaMoment.swift
+      - path: Banana/Model/AvailabilityFinder.swift
+      - path: Banana/Model/ToastCenter.swift
+      - path: Banana/Views/Controls.swift
+      - path: Banana/Model/GoogleEventSync.swift
+      - path: Banana/Model/TripTimeZone.swift
+      - path: Shared/WidgetAgenda.swift
+      - path: Shared/BananaDesign.swift
+      - path: Banana/Model/CommandMenuDateParser.swift
+      - path: Banana/Model/GoogleTokenMinter.swift
+      - path: Banana/Model/FlightParser.swift
+      - path: Banana/Model/AirportTable.swift
+      - path: Banana/Resources/Airports.tsv
+        buildPhase: resources
+      - path: BananaTests/DuplicateCalendarIDTests.swift
+      - path: Banana/Model/GoogleBusyBlocks.swift
+      - path: BananaTests/GoogleBusyBlockTests.swift
+      - path: BananaTests/GoogleWriteBackRoutingTests.swift
+      - path: Banana/Model/RecurrenceEndDate.swift
+      - path: BananaTests/RecurrenceEndDateTests.swift
+      - path: Banana/Model/GoogleRequestRouting.swift
+      - path: BananaTests/GoogleRequestRoutingTests.swift
+      - path: Banana/Model/GoogleRecurrenceRule.swift
+      - path: BananaTests/GoogleRecurrenceTruncationTests.swift
+      # Editing events: the repeat rule (weekly on several days), who may change what, which
+      # events a save applies to, and the exact PATCH body. Pure; the network stays out.
+      - path: Banana/Model/EventRepeat.swift
+      - path: Banana/Model/RoutineEditorValues.swift
+      # "Lunch with Sam Friday 1pm at Balthazar" → the new-event form, filled in. Pure apart from
+      # the system's date reading.
+      - path: Banana/Model/EventPhrase.swift
+      - path: Banana/Model/GuestDirectory.swift
+      # Due around a moment — after your workout, before breakfast (docs/design/ANCHORED-TIMING.md).
+      - path: Banana/Model/AnchoredTiming.swift
+      - path: Banana/Model/NotificationWrites.swift
+      - path: Banana/Model/DoseReminderPlan.swift
+      - path: Banana/Model/WakeFollow.swift
+      # The moment something is done after, learned from what you do; and a reminder that's
+      # something taken, moved into Taken with its ticks as doses. Pure; the store isn't here.
+      - path: Banana/Model/AnchorSuggestions.swift
+      - path: Banana/Model/ReminderToTaken.swift
+      # The names of things people take (RxNorm + NIH's label database), built by
+      # tools/build_taken_vocabulary.py; the real file is checked too.
+      - path: Banana/Model/TakenVocabulary.swift
+      - path: Banana/Resources/TakenVocabulary.json
+      - path: BananaTests/AnchorSuggestionsTests.swift
+      - path: BananaTests/ReminderToTakenTests.swift
+      - path: Banana/Model/GoogleEventEditing.swift
+      - path: Banana/Model/MeetingLinkDetection.swift
+      - path: BananaTests/MeetingLinkTests.swift
+      - path: Banana/Model/Intelligence.swift
+      - path: BananaTests/IntelligenceRoutingTests.swift
+      - path: Banana/Model/SupplementLabelExtractor.swift
+      - path: BananaTests/SupplementLabelExtractorTests.swift
+      # Name search against NIH's DSLD, for adding a supplement with no barcode to scan. Only the
+      # URL builder and the response parser are exercised — no network call in tests.
+      - path: Banana/Model/SupplementCatalogSearch.swift
+      - path: BananaTests/SupplementCatalogSearchTests.swift
+      # Natural-language food entry — GenericFoodCatalog + FoodTextExtractor.resolve(_:) are pure
+      # (no FoundationModels call in tests). WellnessStore.swift itself is deliberately NOT
+      # sourced here: its save() unconditionally calls CloudBackup.shared.schedule(), and
+      # CloudBackup.swift pulls in FitnessStore.swift (CloudFitnessSync/CloudKit) and
+      # ListenHistoryStore.swift — the same class of heavy, unrelated dependency chain the
+      # HealthKitStore comment above this routes around. FoodCorrection/FoodCorrectionBook (the
+      # part WellnessStore's lookupLearned/recordEdit delegate to) live in WellnessModels.swift
+      # above instead, specifically so the promotion/tolerance logic is testable on its own.
+      - path: Banana/Model/GenericFoodCatalog.swift
+      - path: Banana/Resources/GenericFoods.json
+      # The bundled USDA food database behind grounded meal estimates — search ranking, branded
+      # products and the text the model reads. The fixture databases in BananaTests/Fixtures come
+      # from the same build script (tools/build_food_database.py --fixture); the real Foods.sqlite
+      # is checked too. Branded names resolve through BarcodeProducts.sqlite (listed above) and
+      # BarcodeProductLookup.combinedName.
+      - path: Banana/Model/FoodDatabase.swift
+      - path: Banana/Resources/Foods.sqlite
+      - path: Banana/Model/FoodTextExtractor.swift
+      # Grounded estimates: the model names foods and grams, the USDA database gives the numbers.
+      # resolve(_:) is pure; the FoundationModels calls never run in tests.
+      - path: Banana/Model/GroundedFoodEstimate.swift
+      # The amount someone said ("1/2 can", "2 medium") and its grams in the food's own measures.
+      - path: Banana/Model/FoodPortionText.swift
+      # Your foods: what you scanned, your usual amounts, which meal item a scan corrects, and the
+      # Nutrition Facts read off a label photo. Pure; the store and the camera aren't here.
+      - path: Banana/Model/MyFoods.swift
+      - path: Banana/Model/NutritionLabelParser.swift
+      - path: Banana/Model/NutritionLabelReader.swift
+      # Barcodes read off a photo picked from Photos (the groceries list, a package's sheet).
+      - path: Banana/Model/PackagePhoto.swift
+      # Its counts (`Telemetry`), which the label reader records, and the service they go to.
+      - path: Banana/Model/Telemetry.swift
+      - path: Banana/Model/BananaService.swift
+      # Crash, hang and performance reports for the service (the outbox and the batch).
+      - path: Banana/Model/DiagnosticReports.swift
+      - path: Banana/Model/MyFoodsStore.swift
+      # Estimates that learn (docs/design/MEAL-LEARNING.md): each estimate paired with what was
+      # logged, the portions learned from what was changed, usual foods by time of day, and the
+      # one portion question worth asking. Pure.
+      - path: Banana/Model/EstimateLedger.swift
+      - path: Banana/Model/LearnedPortions.swift
+      - path: Banana/Model/UsualFoods.swift
+      # Searching foods by name: yours, USDA's, products of a brand named; amounts; Open Food
+      # Facts' answers. Pure; the network and iCloud aren't here.
+      - path: Banana/Model/FoodSearch.swift
+      - path: Banana/Model/PortionQuestion.swift
+      - path: Banana/Model/EstimatorBenchScore.swift
+      - path: BananaTests/GenericFoodCatalogTests.swift
+      - path: BananaTests/FoodTextExtractorTests.swift
+      - path: BananaTests/FoodCorrectionBookTests.swift
+      - path: Brand/BananaAppIconMaster.png
+      # The data platform's engine (docs/design/DATA-PLATFORM.md §3–§6): the canonical encoding,
+      # clocks, the merge, the diff, the catalog, the mirror and SpaceSync, run against an
+      # in-memory service (MemorySyncServer). The merge cases are the same file the service's
+      # tests run. SpaceSyncLaunch stays out: it is the app's wiring to the account.
+      - path: Banana/Model/Sync/JSONValue.swift
+      - path: Banana/Model/Sync/HLC.swift
+      - path: Banana/Model/Sync/RecordMerge.swift
+      - path: Banana/Model/Sync/DataCatalog.swift
+      - path: Banana/Model/Sync/RecordMirror.swift
+      - path: Banana/Model/Sync/RecordAdapter.swift
+      - path: Banana/Model/Sync/SyncTransport.swift
+      - path: Banana/Model/Sync/SpaceSync.swift
+      # The move off iCloud (§3 "Seeding", §8): the legacy channels' modes and the key-value gate
+      # (LegacyCloud), and the orchestrator (MoveOver), run with fake channels against the same
+      # in-memory service. The channels themselves (LegacyChannels.swift) are CloudKit's and stay out.
+      - path: Banana/Model/Sync/LegacyCloud.swift
+      # Whether the data platform is on (`--no-space-sync` turns it off), read by the above.
+      - path: Banana/Model/Sync/SpaceSyncFlag.swift
+      - path: Banana/Model/Sync/MoveOver.swift
+      - path: Banana/Model/KeepAwake.swift
+      # The zone listing the move's drain resumes (CloudZonePoller's CloudKit side stays out).
+      - path: Banana/Model/Sync/ZoneListing.swift
+      # The purge (§8 step 4): its gate, what it deletes, weekly, over protocols with fakes. Its
+      # CloudKit and iCloud Drive side (ICloudPurge+Live.swift) stays out.
+      - path: Banana/Model/Sync/ICloudPurge.swift
+      # Stage C's adapters (health and food, T2): their kit and the adapters over small store
+      # protocols, run against fakes and the stores compiled here (MyFoodsStore, MealPhotoStore).
+      # Their bindings to the app's own stores (HealthFoodStores.swift, SyncAdapters+Health.swift)
+      # stay out with those stores.
+      - path: Banana/Model/Sync/Adapters/HealthFoodKit.swift
+      - path: Banana/Model/Sync/Adapters/WellnessAdapter.swift
+      - path: Banana/Model/Sync/Adapters/FoodExtrasAdapter.swift
+      - path: Banana/Model/Sync/Adapters/HealthAdapter.swift
+      - path: Banana/Model/MealPhotoStore.swift
+      # Stage D's adapters (everything but health and food): the kit they're made of and the
+      # adapters over protocols, run against fakes and the stores compiled here. Their bindings
+      # to the app's own stores (SyncAdapters+Other.swift, SettingsAdapters, KeyValueAdapters)
+      # stay out with those stores.
+      - path: Banana/Model/Sync/Adapters/AdapterKit.swift
+      - path: Banana/Model/Sync/Adapters/SyncReport.swift
+      - path: Banana/Model/Sync/Adapters/ControlsAdapter.swift
+      - path: Banana/Model/Sync/Adapters/ListenAdapter.swift
+      - path: Banana/Model/Sync/Adapters/PodcastProgressAdapter.swift
+      - path: Banana/Model/Sync/Adapters/TranscriptAdapter.swift
+      - path: Banana/Model/Sync/Adapters/VoiceNoteAdapter.swift
+      - path: Banana/Model/Sync/Adapters/EverythingElseTypes.swift
+      # Booking (docs/design/BOOKING.md, Stage E): the type as the service reads it, the handle's
+      # rules, the store and its adapter. The link's state (BookingCenter) and the views stay out.
+      - path: Banana/Model/Sync/Adapters/BookingTypeAdapter.swift
+      - path: Banana/Model/Booking/BookingType.swift
+      - path: Banana/Model/Booking/BookingHandle.swift
+      - path: Banana/Model/Booking/BookingTypeStore.swift
+      # The notification rule both delegates follow (iPhone and Mac).
+      - path: Banana/Model/NotificationRoute.swift
+      # What a booking push's tap asks the Plan to open, taken once.
+      - path: Banana/Model/PlanOpenRequests.swift
+      - path: Banana/Model/VoiceNote.swift
+      - path: Shared/PlaybackSyncClock.swift
+      - path: Shared/DataCatalog.json
+        buildPhase: resources
+      - path: Shared/SyncMergeFixtures.json
+        buildPhase: resources
+      # The sync protocol's request/answer pairs, made by running Service/src/space.js; the
+      # service's suite runs the same file.
+      - path: Shared/SyncProtocolFixtures.json
+        buildPhase: resources
+      - path: BananaTests/SyncFoundationTests.swift
+      - path: BananaTests/SpaceSyncTests.swift
+      - path: BananaTests/MemorySyncServer.swift
+      - path: BananaTests/MoveOverTests.swift
+      - path: BananaTests/ZoneListingTests.swift
+      - path: BananaTests/LegacyCloudTests.swift
+      - path: BananaTests/ICloudPurgeTests.swift
+      # Every place that could write iCloud, listed with its gate (tools/icloud-write-sites.tsv).
+      - path: BananaTests/ICloudWriteSitesTests.swift
+      # Mail (docs/design/MAIL-ENGINE.md 17.3). The whole engine folder, and the pure half of
+      # mail's UI, are compiled into the tests as DIRECTORIES — unlike everything above, which
+      # is listed file by file. Mail is built a package at a time, and a file-by-file list
+      # would make every one of those packages edit this file. The price is two rules the
+      # folders keep: nothing in them may name anything outside them that is not also compiled
+      # here; and only Swift files live in them. The `includes` keeps anything else out of this
+      # bundle — but the four apps take the same folders through their own `Banana` entry, where
+      # a stray .json would ship as a resource, so MailSourceTreeTests fails on one.
+      - path: Banana/Model/Mail
+        includes:
+          - "**/*.swift"
+      - path: Banana/Model/MailApp/MailCredentialStore.swift
+      - path: Banana/Model/MailApp/MailGoogleAccess.swift
+      - path: Banana/Model/MailApp/GmailHTTP.swift
+      - path: Banana/Model/MailUI/Pure
+        includes:
+          - "**/*.swift"
+    # The engine folder imports these two, so the bundle that compiles it links them.
+    dependencies:
+      - package: GRDB
+      - package: SwiftSoup
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: $(BANANA_BUNDLE_ID).tests
+        GENERATE_INFOPLIST_FILE: YES
+
+  BananaWatch:
+    type: application
+    platform: watchOS
+    deploymentTarget: "26.0"
+    sources:
+      - path: BananaWatch
+      - path: Shared/WorkoutRecoveryCheckpoint.swift
+      - path: Shared/WatchCalendarSnapshot.swift
+      - path: Shared/FitnessModels.swift
+      - path: Shared/DiagnosticsTracing.swift
+      - path: Shared/WorkoutMediaRouting.swift
+      - path: Shared/PlaybackSyncClock.swift
+      - path: Shared/SnapshotPersistence.swift
+      - path: Shared/JSONRecordStream.swift
+      - path: Shared/WellnessModels.swift
+      # Which built features are switched off, the same answer on the Watch as on the phone.
+      - path: Shared/Features.swift
+      - path: Shared/PlaybackSpeeds.swift
+      - path: Shared/WorkoutPauses.swift
+      - path: Shared/WorkoutRestTimer.swift
+      # Quaternion <-> rotation-vector math for the orientation fallback in WorkoutRecorder.
+      - path: Shared/RotationVector.swift
+      # The Watch never builds a skip plan: it has neither a speech framework nor an on-device
+      # model, and it plays only files already transferred to it. It consumes the plan the phone
+      # computed, so it needs the plan type and the correction thresholds and nothing else.
+      - path: Shared/PodcastSkipPlan.swift
+      - path: Shared/PodcastSkipCorrections.swift
+    info:
+      path: BananaWatch/Info.plist
+      properties:
+        # Read by the code; filled from Config (see README).
+        BananaTeamID: $(DEVELOPMENT_TEAM)
+        CFBundleDisplayName: Banana
+        CFBundleURLTypes:
+          - CFBundleTypeRole: Viewer
+            CFBundleURLName: $(BANANA_BUNDLE_ID).watchkitapp
+            CFBundleURLSchemes:
+              - bananawatch
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        WKApplication: true
+        WKCompanionAppBundleIdentifier: $(BANANA_BUNDLE_ID)
+        WKBackgroundModes:
+          - workout-processing
+        NSHealthShareUsageDescription: "Banana reads heart rate, energy, and distance during a workout so it can record your session."
+        NSHealthUpdateUsageDescription: "Banana saves your recorded workouts to Apple Health."
+        NSMotionUsageDescription: "Banana records motion during a workout for later analysis, and reads your steps at night to tell when you got up."
+        NSMicrophoneUsageDescription: "Banana records quick voice notes on your wrist — capture a thought mid-run and it syncs to your iPhone with its context."
+        NSLocationWhenInUseUsageDescription: "Banana records your route and speed during a workout."
+    entitlements:
+      path: BananaWatch/BananaWatch.entitlements
+      properties:
+        com.apple.developer.healthkit: true
+        com.apple.developer.healthkit.access: []
+        keychain-access-groups: [$(AppIdentifierPrefix)com.boris.banana.watch.calendar]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: $(BANANA_BUNDLE_ID).watchkitapp
+        # The phone, iPad and Mac take the system's accent (no AccentColor asset there); a
+        # Watch has no such setting, so it keeps its own orange.
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        TARGETED_DEVICE_FAMILY: "4"
+        ENABLE_PREVIEWS: YES
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+    dependencies:
+      - target: BananaWatchWidget
+        embed: true
+
+  BananaWatchWidget:
+    type: app-extension
+    platform: watchOS
+    deploymentTarget: "26.0"
+    sources:
+      - path: BananaWatchWidget
+      - path: Shared/WatchCalendarSnapshot.swift
+    info:
+      path: BananaWatchWidget/Info.plist
+      properties:
+        # Read by the code; filled from Config (see README).
+        BananaTeamID: $(DEVELOPMENT_TEAM)
+        CFBundleDisplayName: Banana
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: $(BANANA_BUNDLE_ID).watchkitapp.watchface
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        TARGETED_DEVICE_FAMILY: "4"
+    entitlements:
+      path: BananaWatchWidget/BananaWatchWidget.entitlements
+      properties:
+        keychain-access-groups: [$(AppIdentifierPrefix)com.boris.banana.watch.calendar]
+
+  BananaWidgetExtension:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: BananaWidget
+      - path: Shared
+        excludes:
+          # The data platform’s files are the app’s, not the widget’s.
+          - DataCatalog.json
+          - SyncMergeFixtures.json
+          - SyncProtocolFixtures.json
+    info:
+      path: BananaWidget/Info.plist
+      properties:
+        # Read by the code; filled from Config (see README).
+        BananaTeamID: $(DEVELOPMENT_TEAM)
+        CFBundleDisplayName: Banana
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+    entitlements:
+      path: BananaWidget/BananaWidget.entitlements
+      properties:
+        keychain-access-groups: [$(AppIdentifierPrefix)com.boris.banana.widget.agenda]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: $(BANANA_BUNDLE_ID).widget
+        ENABLE_PREVIEWS: YES
+
+  BananaMac:
+    type: application
+    platform: macOS
+    sources:
+      - path: tools/calendar-library-benchmark/Shared/Fixtures.swift
+      - path: Banana
+        excludes:
+          - Assets.xcassets
+          - Info.plist
+          - Banana.entitlements
+      - path: Shared
+        excludes:
+          # The merge and protocol cases are the tests’ (BananaTests), not the app’s.
+          - SyncMergeFixtures.json
+          - SyncProtocolFixtures.json
+      - path: BananaMac/Assets.xcassets
+    info:
+      path: BananaMac/Info.plist
+      properties:
+        # Read by the code; filled from Config (see README).
+        BananaTeamID: $(DEVELOPMENT_TEAM)
+        BananaCloudContainer: $(BANANA_ICLOUD_CONTAINER)
+        BananaLegacyCloudContainer: $(BANANA_LEGACY_ICLOUD_CONTAINER)
+        # The Banana service (Service/) and the Google client it signs in with; empty in any
+        # build but the official app.
+        BananaServiceHost: $(BANANA_SERVICE_HOST)
+        BananaGoogleServerClient: $(BANANA_GOOGLE_SERVER_CLIENT)
+        CFBundleDisplayName: Banana
+        GIDClientID: $(BANANA_GOOGLE_CLIENT).apps.googleusercontent.com
+        CFBundleURLTypes:
+          - CFBundleTypeRole: Editor
+            CFBundleURLSchemes:
+              - com.googleusercontent.apps.$(BANANA_GOOGLE_CLIENT)
+              - banananote
+        # Same standard-crypto-only declaration as iOS; without it every Mac upload
+        # re-asks the export-compliance question (build 7 was patched via API).
+        ITSAppUsesNonExemptEncryption: false
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        LSMinimumSystemVersion: "26.0"
+        LSApplicationCategoryType: public.app-category.productivity
+        NSAppleMusicUsageDescription: "Banana plays a playlist, album, or song from your Apple Music library when a routine starts."
+        NSHealthShareUsageDescription: "Banana reads your workouts and health metrics from Apple Health so it can show and analyze your fitness in one place."
+        NSHealthUpdateUsageDescription: "Banana saves workouts to Apple Health and updates them when you trim a workout."
+        NSMicrophoneUsageDescription: "Banana records quick voice notes when you ask it to."
+        NSCameraUsageDescription: "Banana uses the camera only when you choose to photograph a meal or a supplement label, or scan a barcode."
+        NSContactsUsageDescription: "Banana looks up the people you type when adding guests to an event, so \u201CLunch with Sam\u201D can invite the Sam you mean."
+        NSPhotoLibraryUsageDescription: "Banana looks for photos of meals — only when you turn on Find meal photos automatically — so it can ask what you ate and log it."
+        # Apple's cloud model needs com.apple.developer.private-cloud-compute; true only once granted
+        # and added to the entitlements (CloudModelGuard).
+        BananaPrivateCloudCompute: false
+        NSRemindersFullAccessUsageDescription: "Banana reads your reminders on-device so it can schedule tasks onto your day."
+        NSLocationWhenInUseUsageDescription: "Banana uses your location for your local forecast."
+        NSSpeechRecognitionUsageDescription: "Banana transcribes downloaded episodes on your device."
+        NSLocalNetworkUsageDescription: "Banana finds your other Banana devices on this Wi-Fi so one downloaded podcast file can be reused without downloading it again."
+        NSBonjourServices:
+          - _banana-audio._tcp
+        NSAppTransportSecurity:
+          NSAllowsArbitraryLoads: true
+    settings:
+      base:
+        # Same bundle id as iOS: shares the App Store record (universal purchase) and — key —
+        # the com.boris.banana App ID that already has the iCloud containers associated, which
+        # unblocks both Mac provisioning and a synced TestFlight build. The historical
+        # com.boris.banana.mac id is retired; defaults migrate in BananaApp, and macOS asks
+        # for calendar access once more under the new identity.
+        PRODUCT_BUNDLE_IDENTIFIER: $(BANANA_BUNDLE_ID)
+        # Without this the product is named after the TARGET, so CFBundleName becomes
+        # "BananaMac" -- and CFBundleName is what the menu bar, System Settings > Privacy
+        # and the App Store installer use. TestFlight installed it as
+        # /Applications/BananaMac.app, and the Privacy entry to grant was called BananaMac
+        # while Finder called it Banana.
+        PRODUCT_NAME: Banana
+        # Release is provisioned with iCloud so restore/settings sync work phone↔Mac.
+        CODE_SIGN_ENTITLEMENTS: BananaMac/BananaMac.entitlements
+        ENABLE_PREVIEWS: YES
+        TARGETED_DEVICE_FAMILY: ""
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) MAC_APP"
+      configs:
+        # Local Mac builds should not require a developer-portal provisioning profile.
+        # Release retains BananaMac.entitlements so App Store builds keep iCloud sync.
+        Debug:
+          CODE_SIGN_ENTITLEMENTS: BananaMac/BananaMacDebug.entitlements
+    dependencies:
+      - package: FluidAudio
+      - package: GoogleSignIn
+      - package: GRDB
+      - package: SwiftSoup
+
+  # The test variant that coexists with prod on one Mac. Its own bundle id and display
+  # name make macOS treat it as a separate app; BANANA_BETA diverts all local storage
+  # into "Application Support/Banana Beta/" (see AppSupport.swift). Its iCloud entitlements
+  # point only at the shared staging container used by iOS Beta, never production. Caveat:
+  # system calendars, reminders, and notifications are still the real ones.
+  BananaMacBeta:
+    type: application
+    platform: macOS
+    sources:
+      - path: tools/calendar-library-benchmark/Shared/Fixtures.swift
+      - path: Banana
+        excludes:
+          - Assets.xcassets
+          - Info.plist
+          - Banana.entitlements
+      - path: Shared
+        excludes:
+          # The merge and protocol cases are the tests’ (BananaTests), not the app’s.
+          - SyncMergeFixtures.json
+          - SyncProtocolFixtures.json
+      - path: BananaMac/Assets.xcassets
+    info:
+      path: BananaMac/InfoBeta.plist
+      properties:
+        # Read by the code; filled from Config (see README).
+        BananaTeamID: $(DEVELOPMENT_TEAM)
+        BananaCloudContainer: $(BANANA_ICLOUD_CONTAINER_BETA)
+        # Beta's own service and web client, never the production ones.
+        BananaServiceHost: $(BANANA_SERVICE_HOST_BETA)
+        BananaGoogleServerClient: $(BANANA_GOOGLE_SERVER_CLIENT_BETA)
+        CFBundleDisplayName: Banana Beta
+        # The same bundle id and Google client as the iPhone Beta, as Stable shares one across
+        # iPhone and Mac: one Google client, and its sign-in shared through iCloud Keychain.
+        GIDClientID: $(BANANA_GOOGLE_CLIENT_BETA).apps.googleusercontent.com
+        CFBundleURLTypes:
+          - CFBundleTypeRole: Editor
+            CFBundleURLSchemes:
+              - com.googleusercontent.apps.$(BANANA_GOOGLE_CLIENT_BETA)
+              - banananotebeta
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        LSMinimumSystemVersion: "26.0"
+        NSAppleMusicUsageDescription: "Banana Beta plays a playlist, album, or song from your Apple Music library when a routine starts."
+        NSHealthShareUsageDescription: "Banana Beta reads your workouts and health metrics from Apple Health so it can show and analyze your fitness in one place."
+        NSHealthUpdateUsageDescription: "Banana Beta saves workouts to Apple Health and updates them when you trim a workout."
+        NSPhotoLibraryUsageDescription: "Banana Beta looks for photos of meals — only when you turn on Find meal photos automatically — so it can ask what you ate and log it."
+        # Apple's cloud model needs com.apple.developer.private-cloud-compute; true only once granted
+        # and added to the entitlements (CloudModelGuard).
+        BananaPrivateCloudCompute: false
+        NSMicrophoneUsageDescription: "Banana Beta records quick voice notes when you ask it to."
+        NSCameraUsageDescription: "Banana Beta uses the camera only when you choose to photograph a meal or a supplement label, or scan a barcode."
+        NSContactsUsageDescription: "Banana Beta looks up the people you type when adding guests to an event, so \u201CLunch with Sam\u201D can invite the Sam you mean."
+        NSRemindersFullAccessUsageDescription: "Banana reads your reminders on-device so it can schedule tasks onto your day."
+        NSLocationWhenInUseUsageDescription: "Banana uses your location for your local forecast."
+        NSSpeechRecognitionUsageDescription: "Banana transcribes downloaded episodes on your device."
+        NSLocalNetworkUsageDescription: "Banana finds your other Banana devices on this Wi-Fi so one downloaded podcast file can be reused without downloading it again."
+        NSBonjourServices:
+          - _banana-beta._tcp
+        NSAppTransportSecurity:
+          NSAllowsArbitraryLoads: true
+    entitlements:
+      path: BananaMac/BananaMacBeta.entitlements
+      properties:
+        # Notifications that should reach you through a Focus: leave-by, commute, event alerts,
+        # bedtime, supplements. Without this entitlement `.timeSensitive` is silently downgraded.
+        com.apple.developer.usernotifications.time-sensitive: true
+        com.apple.developer.weatherkit: true
+        com.apple.developer.icloud-services: [CloudDocuments, CloudKit]
+        com.apple.developer.icloud-container-identifiers: [$(BANANA_ICLOUD_CONTAINER_BETA)]
+        com.apple.developer.ubiquity-container-identifiers: [$(BANANA_ICLOUD_CONTAINER_BETA)]
+        com.apple.developer.ubiquity-kvstore-identifier: $(TeamIdentifierPrefix)com.boris.banana.beta
+        keychain-access-groups: [$(AppIdentifierPrefix)$(CFBundleIdentifier)]
+        # Silent pushes from the Beta's own Banana service (beta-api.bananatheapp.com).
+        com.apple.developer.aps-environment: development
+    settings:
+      base:
+        # Was $(BANANA_BUNDLE_ID).mac.beta until 18 Oct 2026 (defaults carried over at launch).
+        PRODUCT_BUNDLE_IDENTIFIER: $(BANANA_BUNDLE_ID).beta
+        PRODUCT_NAME: Banana Beta
+        ENABLE_PREVIEWS: YES
+        TARGETED_DEVICE_FAMILY: ""
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIconBeta
+        # MAIL_FIXTURES: as on BananaBeta. Neither production target has it.
+        BANANA_UNRELEASED: YES
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) MAC_APP BANANA_BETA MAIL_FIXTURES"
+    dependencies:
+      - package: FluidAudio
+      - package: GoogleSignIn
+      - package: GRDB
+      - package: SwiftSoup

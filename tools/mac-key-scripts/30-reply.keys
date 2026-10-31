@@ -1,0 +1,88 @@
+# Reply, reply to all, forward, new message; letters typed in a composer are text; Esc keeps the draft
+name reply
+wait 1
+
+# R then "Each" at once (K12): the letters land in the reply and the conversation is not marked Done
+type rEach
+wait 1.5
+shot after-R-Each
+expect composer.title is Reply
+expect composer.to is sam@lee.example
+expect composer.body is Each
+expect mail.counts.inbox is 40
+expect toast absent
+# "Each" is in it now, so Esc would keep a draft in q3, and then F and Return reopen that draft instead
+# of forwarding or replying to all (one draft per conversation). The draft is discarded, so that the
+# steps below start from a conversation with none.
+key cmd+shift+,
+wait 0.5
+expect composer.title absent
+expect mail.counts.drafts is 0
+
+# Return in the list opens; Return in an open conversation is reply all (q3 has no draft now)
+key return
+expect mail.open is q3
+key return
+wait 1.3
+expect composer.title is Reply to all
+expect composer.to contains sam@lee.example
+expect composer.to contains jane@parkdesign.example
+shot reply-all
+key escape
+wait 0.4
+key escape
+wait 0.4
+expect mail.open absent
+
+# F: forward, nobody addressed
+key f
+wait 1.3
+expect composer.title is Forward
+expect composer.to absent
+expect composer.subject contains Fwd:
+shot forward
+key escape
+wait 0.4
+
+# C and Cmd-N: a new message
+key c
+wait 1.3
+expect composer.title is New message
+shot new-message-C
+key escape
+wait 0.4
+expect composer.title absent
+key cmd+n
+wait 1.3
+expect composer.title is New message
+expect section is mail
+shot new-message-cmd-N
+key escape
+wait 0.4
+
+# R, and every triage letter typed at once after it is text in the reply, not a command
+key r
+type jkesuzrfc
+wait 1.3
+wait 0.3
+expect composer.body is jkesuzrfc
+expect mail.counts.inbox is 40
+expect mail.counts.starred is 2
+expect toast absent
+expect composer.title is Reply
+shot letters-are-text
+# Esc keeps the draft, which shows in the conversation and in Drafts, and reopens
+key escape
+wait 0.5
+expect composer.title absent
+expect mail.counts.drafts is 1
+shot draft-kept
+click label:Drafts,
+wait 0.6
+expect mail.place is Drafts
+shot drafts-place
+key return
+wait 1.3
+expect composer.body is jkesuzrfc
+shot draft-reopened
+key escape

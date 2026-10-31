@@ -1,0 +1,606 @@
+{
+  "days" : 90,
+  "emails" : 180000,
+  "episodes" : 900000,
+  "events" : 9000,
+  "metrics" : [
+    {
+      "budgetMS" : 50,
+      "checksum" : 350,
+      "diagnostics" : [
+        {
+          "involuntaryContextSwitches" : 9,
+          "pageFaults" : 1,
+          "processCPUMS" : 34.71800000000076,
+          "startUptime" : 407278.77796129166,
+          "thermalState" : 0,
+          "voluntaryContextSwitches" : 0
+        },
+        {
+          "involuntaryContextSwitches" : 0,
+          "pageFaults" : 0,
+          "processCPUMS" : 0.0020000000004074536,
+          "startUptime" : 407278.815008,
+          "thermalState" : 0,
+          "voluntaryContextSwitches" : 0
+        },
+        {
+          "involuntaryContextSwitches" : 0,
+          "pageFaults" : 0,
+          "processCPUMS" : 0.0010000000002037268,
+          "startUptime" : 407278.81501045835,
+          "thermalState" : 0,
+          "voluntaryContextSwitches" : 0
+        },
+        {
+          "involuntaryContextSwitches" : 0,
+          "pageFaults" : 0,
+          "processCPUMS" : 0,
+          "startUptime" : 407278.8150124167,
+          "thermalState" : 0,
+          "voluntaryContextSwitches" : 0
+        },
+        {
+          "involuntaryContextSwitches" : 0,
+          "pageFaults" : 0,
+          "processCPUMS" : 0.0010000000002037268,
+          "startUptime" : 407278.81501329166,
+          "thermalState" : 0,
+          "voluntaryContextSwitches" : 0
+        },
+        {
+          "involuntaryContextSwitches" : 0,
+          "pageFaults" : 0,
+          "processCPUMS" : 0.0010000000002037268,
+          "startUptime" : 407278.81501483335,
+          "thermalState" : 0,
+          "voluntaryContextSwitches" : 0
+        },
+        {
+          "involuntaryContextSwitches" : 0,
+          "pageFaults" : 0,
+          "processCPUMS" : 0,
+          "startUptime" : 407278.8150156667,
+          "thermalState" : 0,
+          "voluntaryContextSwitches" : 0
+        }
+      ],
+      "medianMS" : 0.00020838342607021332,
+      "name" : "mail.firstPage",
+      "p95MS" : 37.03066671732813,
+      "samplesMS" : [
+        37.03066671732813,
+        0.0014583347365260124,
+        0.0002500019036233425,
+        0.00020832521840929985,
+        0.00020838342607021332,
+        0.0001666485331952572,
+        0.00020832521840929985
+      ]
+    },
+    {
+      "budgetMS" : 100,
+      "checksum" : 350,
+      "diagnostics" : [
+        {
+          "involuntaryContextSwitches" : 2,
+          "pageFaults" : 2,
+          "processCPUMS" : 0.11799999999857391,
+          "startUptime" : 407278.81502845837,
+          "thermalState" : 0,
+          "voluntaryContextSwitches" : 0
+        },
+        {
+          "involuntaryContextSwitches" : 0,
+          "pageFaults" : 0,
+          "processCPUMS" : 0.010000000002037268,
+          "startUptime" : 407278.81534958334,
+          "thermalState" : 0,
+          "voluntaryContextSwitches" : 0
+        },
+        {
+          "involuntaryContextSwitches" : 0,
+          "pageFaults" : 0,
+          "processCPUMS" : 0.007999999997991836,
+          "startUptime" : 407278.8153600417,
+          "thermalState" : 0,
+          "voluntaryContextSwitches" : 0
+        },
+        {
+          "involuntaryContextSwitches" : 0,
+          "pageFaults" : 0,
+          "processCPUMS" : 0.008000000001629815,
+          "startUptime" : 407278.81536833337,
+          "thermalState" : 0,
+          "voluntaryContextSwitches" : 0
+        },
+        {
+          "involuntaryContextSwitches" : 0,
+          "pageFaults" : 0,
+          "processCPUMS" : 0.007999999997991836,
+          "startUptime" : 407278.8153768334,
+          "thermalState" : 0,
+          "voluntaryContextSwitches" : 0
+        },
+        {
+          "involuntaryContextSwitches" : 0,
+          "pageFaults" : 0,
+          "processCPUMS" : 0.007000000001426088,
+          "startUptime" : 407278.8153848334,
+          "thermalState" : 0,
+          "voluntaryContextSwitches" : 0
+        },
+        {
+          "involuntaryContextSwitches" : 0,
+          "pageFaults" : 0,
+          "processCPUMS" : 0.008000000001629815,
+          "startUptime" : 407278.8153925834,
+          "thermalState" : 0,
+          "voluntaryContextSwitches" : 0
+        }
+      ],
+      "medianMS" : 0.007333350367844105,
+      "name" : "mail.readMutation",
+      "p95MS" : 0.31916663283482194,
+      "samplesMS" : [
+        0.31916663283482194,
+        0.009583367500454187,
+        0.007333350367844105,
+        0.007791677489876747,
+        0.006916641723364592,
+        0.00704167177900672,
+        0.007083290256559849
+      ]
+    },
+    {
+      "budgetMS" : 16,
+      "checksum" : 4900,
+      "diagnostics" : [
+        {
+          "involuntaryContextSwitches" : 6,
+          "pageFaults" : 7,
+          "processCPUMS" : 9.031000000002678,
+          "startUptime" : 407278.815401625,
+          "thermalState" : 0,
+          "voluntaryContextSwitches" : 0
+        },
+        {
+          "involuntaryContextSwitches" : 0,
+          "pageFaults" : 0,
+          "processCPUMS" : 0.29200000000128057,
+          "startUptime" : 407278.8252810417,
+          "thermalState" : 0,
+          "voluntaryContextSwitches" : 0
+        },
+        {
+          "involuntaryContextSwitches" : 0,
+          "pageFaults" : 0,
+          "processCPUMS" : 0.2750000000014552,
+          "startUptime" : 407278.82557487505,
+          "thermalState" : 0,
+          "voluntaryContextSwitches" : 0
+        },
+        {
+          "involuntaryContextSwitches" : 0,
+          "pageFaults" : 0,
+          "processCPUMS" : 0.25899999999819556,
+          "startUptime" : 407278.8258514167,
+          "thermalState" : 0,
+          "voluntaryContextSwitches" : 0
+        },
+        {
+          "involuntaryContextSwitches" : 0,
+          "pageFaults" : 0,
+          "processCPUMS" : 0.27000000000043656,
+          "startUptime" : 407278.82611233334,
+          "thermalState" : 0,
+          "voluntaryContextSwitches" : 0
+        },
+        {
+          "involuntaryContextSwitches" : 0,
+          "pageFaults" : 0,
+          "processCPUMS" : 0.25799999999799184,
+          "startUptime" : 407278.8263827917,
+          "thermalState" : 0,
+          "voluntaryContextSwitches" : 0
+        },
+        {
+          "involuntaryContextSwitches" : 1,
+          "pageFaults" : 0,
+          "processCPUMS" : 0.28100000000267755,
+          "startUptime" : 407278.8266419584,
+          "thermalState" : 0,
+          "voluntaryContextSwitches" : 0
+        }
+      ],
+      "medianMS" : 0.2746249665506184,
+      "name" : "calendar.visibleWeek",
+      "p95MS" : 9.873125003650784,
+      "samplesMS" : [
+        9.873125003650784,
+        0.29229169012978673,
+        0.2746249665506184,
+        0.26008335407823324,
+        0.2690000110305846,
+        0.25820836890488863,
+        0.46983332140371203
+      ]
+    },
+    {
+      "budgetMS" : 8,
+      "checksum" : 700,
+      "diagnostics" : [
+        {
+          "involuntaryContextSwitches" : 1,
+          "pageFaults" : 1,
+          "processCPUMS" : 0.7370000000009895,
+          "startUptime" : 407278.82711758337,
+          "thermalState" : 0,
+          "voluntaryContextSwitches" : 0
+        },
+        {
+          "involuntaryContextSwitches" : 0,
+          "pageFaults" : 0,
+          "processCPUMS" : 0.00999999999839929,
+          "startUptime" : 407278.82796662505,
+          "thermalState" : 0,
+          "voluntaryContextSwitches" : 0
+        },
+        {
+          "involuntaryContextSwitches" : 0,
+          "pageFaults" : 0,
+          "processCPUMS" : 0.0030000000006111804,
+          "startUptime" : 407278.827976625,
+          "thermalState" : 0,
+          "voluntaryContextSwitches" : 0
+        },
+        {
+          "involuntaryContextSwitches" : 0,
+          "pageFaults" : 0,
+          "processCPUMS" : 0.0030000000006111804,
+          "startUptime" : 407278.8279815,
+          "thermalState" : 0,
+          "voluntaryContextSwitches" : 0
+        },
+        {
+          "involuntaryContextSwitches" : 0,
+          "pageFaults" : 0,
+          "processCPUMS" : 0.0039999999971769284,
+          "startUptime" : 407278.827985375,
+          "thermalState" : 0,
+          "voluntaryContextSwitches" : 0
+        },
+        {
+          "involuntaryContextSwitches" : 0,
+          "pageFaults" : 0,
+          "processCPUMS" : 0.004000000000814907,
+          "startUptime" : 407278.82798975,
+          "thermalState" : 0,
+          "voluntaryContextSwitches" : 0
+        },
+        {
+          "involuntaryContextSwitches" : 0,
+          "pageFaults" : 0,
+          "processCPUMS" : 0.004000000000814907,
+          "startUptime" : 407278.82799354166,
+          "thermalState" : 0,
+          "voluntaryContextSwitches" : 0
+        }
+      ],
+      "medianMS" : 0.00320834806188941,
+      "name" : "calendar.day",
+      "p95MS" : 0.8432083413936198,
+      "samplesMS" : [
+        0.8432083413936198,
+        0.008916656952351332,
+        0.0034583499655127525,
+        0.00320834806188941,
+        0.003041699528694153,
+        0.0031249946914613247,
+        0.003041699528694153
+      ]
+    },
+    {
+      "budgetMS" : 100,
+      "checksum" : 700,
+      "diagnostics" : [
+        {
+          "involuntaryContextSwitches" : 638,
+          "pageFaults" : 0,
+          "processCPUMS" : 63.242999999998574,
+          "startUptime" : 407278.82799995836,
+          "thermalState" : 0,
+          "voluntaryContextSwitches" : 846
+        },
+        {
+          "involuntaryContextSwitches" : 6,
+          "pageFaults" : 0,
+          "processCPUMS" : 48.47999999999956,
+          "startUptime" : 407278.968238,
+          "thermalState" : 0,
+          "voluntaryContextSwitches" : 0
+        },
+        {
+          "involuntaryContextSwitches" : 9,
+          "pageFaults" : 0,
+          "processCPUMS" : 48.852999999999156,
+          "startUptime" : 407279.017398375,
+          "thermalState" : 0,
+          "voluntaryContextSwitches" : 0
+        },
+        {
+          "involuntaryContextSwitches" : 6,
+          "pageFaults" : 0,
+          "processCPUMS" : 48.693999999999505,
+          "startUptime" : 407279.0679608334,
+          "thermalState" : 0,
+          "voluntaryContextSwitches" : 0
+        },
+        {
+          "involuntaryContextSwitches" : 7,
+          "pageFaults" : 0,
+          "processCPUMS" : 48.90799999999945,
+          "startUptime" : 407279.117924875,
+          "thermalState" : 0,
+          "voluntaryContextSwitches" : 0
+        },
+        {
+          "involuntaryContextSwitches" : 4,
+          "pageFaults" : 0,
+          "processCPUMS" : 48.82500000000073,
+          "startUptime" : 407279.169065625,
+          "thermalState" : 0,
+          "voluntaryContextSwitches" : 0
+        },
+        {
+          "involuntaryContextSwitches" : 5,
+          "pageFaults" : 0,
+          "processCPUMS" : 48.56300000000192,
+          "startUptime" : 407279.2189794167,
+          "thermalState" : 0,
+          "voluntaryContextSwitches" : 0
+        }
+      ],
+      "medianMS" : 50.417666672728956,
+      "name" : "notes.search",
+      "p95MS" : 140.23424999322742,
+      "samplesMS" : [
+        140.23424999322742,
+        49.15641667321324,
+        50.557166687212884,
+        49.95966667775065,
+        51.1357500217855,
+        49.90941670257598,
+        50.417666672728956
+      ]
+    },
+    {
+      "budgetMS" : 16,
+      "checksum" : 700,
+      "diagnostics" : [
+        {
+          "involuntaryContextSwitches" : 0,
+          "pageFaults" : 0,
+          "processCPUMS" : 3.213999999999942,
+          "startUptime" : 407279.2694070417,
+          "thermalState" : 0,
+          "voluntaryContextSwitches" : 0
+        },
+        {
+          "involuntaryContextSwitches" : 11,
+          "pageFaults" : 0,
+          "processCPUMS" : 3.3440000000009604,
+          "startUptime" : 407279.27262345835,
+          "thermalState" : 0,
+          "voluntaryContextSwitches" : 0
+        },
+        {
+          "involuntaryContextSwitches" : 2,
+          "pageFaults" : 0,
+          "processCPUMS" : 3.356999999999971,
+          "startUptime" : 407279.27615187503,
+          "thermalState" : 0,
+          "voluntaryContextSwitches" : 0
+        },
+        {
+          "involuntaryContextSwitches" : 0,
+          "pageFaults" : 0,
+          "processCPUMS" : 2.8810000000012224,
+          "startUptime" : 407279.27969933336,
+          "thermalState" : 0,
+          "voluntaryContextSwitches" : 0
+        },
+        {
+          "involuntaryContextSwitches" : 0,
+          "pageFaults" : 0,
+          "processCPUMS" : 2.812999999998283,
+          "startUptime" : 407279.2825828334,
+          "thermalState" : 0,
+          "voluntaryContextSwitches" : 0
+        },
+        {
+          "involuntaryContextSwitches" : 0,
+          "pageFaults" : 0,
+          "processCPUMS" : 2.805000000000291,
+          "startUptime" : 407279.28539808333,
+          "thermalState" : 0,
+          "voluntaryContextSwitches" : 0
+        },
+        {
+          "involuntaryContextSwitches" : 2,
+          "pageFaults" : 0,
+          "processCPUMS" : 2.9579999999987194,
+          "startUptime" : 407279.2882057917,
+          "thermalState" : 0,
+          "voluntaryContextSwitches" : 0
+        }
+      ],
+      "medianMS" : 3.1662500114180148,
+      "name" : "notes.browse",
+      "p95MS" : 3.5429999697953463,
+      "samplesMS" : [
+        3.21274995803833,
+        3.524083353113383,
+        3.5429999697953463,
+        2.8802916640415788,
+        2.812374965287745,
+        2.804500050842762,
+        3.1662500114180148
+      ]
+    },
+    {
+      "budgetMS" : 100,
+      "checksum" : 6300,
+      "diagnostics" : [
+        {
+          "involuntaryContextSwitches" : 18,
+          "pageFaults" : 0,
+          "processCPUMS" : 65.86999999999898,
+          "startUptime" : 407279.2913800417,
+          "thermalState" : 0,
+          "voluntaryContextSwitches" : 1245
+        },
+        {
+          "involuntaryContextSwitches" : 4,
+          "pageFaults" : 0,
+          "processCPUMS" : 48.077000000001135,
+          "startUptime" : 407279.4945492917,
+          "thermalState" : 0,
+          "voluntaryContextSwitches" : 0
+        },
+        {
+          "involuntaryContextSwitches" : 5,
+          "pageFaults" : 0,
+          "processCPUMS" : 48.72999999999956,
+          "startUptime" : 407279.5440672917,
+          "thermalState" : 0,
+          "voluntaryContextSwitches" : 0
+        },
+        {
+          "involuntaryContextSwitches" : 18,
+          "pageFaults" : 0,
+          "processCPUMS" : 48.52100000000064,
+          "startUptime" : 407279.59446083335,
+          "thermalState" : 0,
+          "voluntaryContextSwitches" : 0
+        },
+        {
+          "involuntaryContextSwitches" : 21,
+          "pageFaults" : 0,
+          "processCPUMS" : 47.34600000000137,
+          "startUptime" : 407279.64576779166,
+          "thermalState" : 0,
+          "voluntaryContextSwitches" : 0
+        },
+        {
+          "involuntaryContextSwitches" : 12,
+          "pageFaults" : 0,
+          "processCPUMS" : 48.077000000001135,
+          "startUptime" : 407279.6958011667,
+          "thermalState" : 0,
+          "voluntaryContextSwitches" : 0
+        },
+        {
+          "involuntaryContextSwitches" : 11,
+          "pageFaults" : 0,
+          "processCPUMS" : 48.76299999999901,
+          "startUptime" : 407279.74652491667,
+          "thermalState" : 0,
+          "voluntaryContextSwitches" : 0
+        }
+      ],
+      "medianMS" : 50.38787500234321,
+      "name" : "podcasts.nextAcrossCatalog",
+      "p95MS" : 203.16400000592694,
+      "samplesMS" : [
+        203.16400000592694,
+        49.51466666534543,
+        50.38787500234321,
+        51.30200000712648,
+        50.02829170553014,
+        50.71891663828865,
+        49.54712500330061
+      ]
+    },
+    {
+      "budgetMS" : 100,
+      "checksum" : 18900,
+      "diagnostics" : [
+        {
+          "involuntaryContextSwitches" : 110,
+          "pageFaults" : 0,
+          "processCPUMS" : 102.46199999999953,
+          "startUptime" : 407279.796083,
+          "thermalState" : 0,
+          "voluntaryContextSwitches" : 2023
+        },
+        {
+          "involuntaryContextSwitches" : 50,
+          "pageFaults" : 0,
+          "processCPUMS" : 67.7719999999972,
+          "startUptime" : 407280.14476366667,
+          "thermalState" : 0,
+          "voluntaryContextSwitches" : 54
+        },
+        {
+          "involuntaryContextSwitches" : 38,
+          "pageFaults" : 0,
+          "processCPUMS" : 63.875,
+          "startUptime" : 407280.22261220834,
+          "thermalState" : 0,
+          "voluntaryContextSwitches" : 0
+        },
+        {
+          "involuntaryContextSwitches" : 19,
+          "pageFaults" : 0,
+          "processCPUMS" : 62.49799999999959,
+          "startUptime" : 407280.28948750003,
+          "thermalState" : 0,
+          "voluntaryContextSwitches" : 0
+        },
+        {
+          "involuntaryContextSwitches" : 16,
+          "pageFaults" : 0,
+          "processCPUMS" : 62.27400000000125,
+          "startUptime" : 407280.3544410834,
+          "thermalState" : 0,
+          "voluntaryContextSwitches" : 0
+        },
+        {
+          "involuntaryContextSwitches" : 10,
+          "pageFaults" : 0,
+          "processCPUMS" : 61.413000000000466,
+          "startUptime" : 407280.41963983333,
+          "thermalState" : 0,
+          "voluntaryContextSwitches" : 0
+        },
+        {
+          "involuntaryContextSwitches" : 16,
+          "pageFaults" : 0,
+          "processCPUMS" : 60.21600000000035,
+          "startUptime" : 407280.485099625,
+          "thermalState" : 0,
+          "voluntaryContextSwitches" : 0
+        }
+      ],
+      "medianMS" : 65.45495835598558,
+      "name" : "podcasts.downloadCandidates",
+      "p95MS" : 348.6743333633058,
+      "samplesMS" : [
+        348.6743333633058,
+        77.84020836697891,
+        66.86945835826918,
+        64.94870834285393,
+        65.19266666145995,
+        65.45495835598558,
+        63.10000002849847
+      ]
+    }
+  ],
+  "notes" : 90000,
+  "passed" : false,
+  "platform" : "iOS Simulator; disk-paged notes and podcasts; model operations; mail fixture source",
+  "podcasts" : 900,
+  "residentMB" : 671.890625,
+  "schemaVersion" : 1
+}

@@ -1,0 +1,100 @@
+{
+  "days": 30,
+  "emails": 60000,
+  "episodes": 300000,
+  "events": 3000,
+  "metrics": [
+    {
+      "budgetMS": 50,
+      "checksum": 350,
+      "medianMS": 0.00020832521840929985,
+      "name": "mail.firstPage",
+      "p95MS": 14.435208315262571
+    },
+    {
+      "budgetMS": 100,
+      "checksum": 350,
+      "medianMS": 29.511958331568167,
+      "name": "mail.readMutation",
+      "p95MS": 30.7722500001546
+    },
+    {
+      "budgetMS": 16,
+      "checksum": 4900,
+      "medianMS": 0.292083335807547,
+      "name": "calendar.visibleWeek",
+      "p95MS": 5.265500018140301
+    },
+    {
+      "budgetMS": 8,
+      "checksum": 700,
+      "medianMS": 0.003249995643272996,
+      "name": "calendar.day",
+      "p95MS": 0.027875008527189493
+    },
+    {
+      "budgetMS": 100,
+      "checksum": 700,
+      "medianMS": 18.74370832229033,
+      "name": "notes.search",
+      "p95MS": 19.234666659031063
+    },
+    {
+      "budgetMS": 16,
+      "checksum": 700,
+      "medianMS": 1.1319583572912961,
+      "name": "notes.browse",
+      "p95MS": 1.445000001695007
+    },
+    {
+      "budgetMS": 100,
+      "checksum": 2100,
+      "medianMS": 18.79270834615454,
+      "name": "podcasts.nextAcrossCatalog",
+      "p95MS": 20.508125016931444
+    },
+    {
+      "budgetMS": 100,
+      "checksum": 6300,
+      "medianMS": 23.332333337748423,
+      "name": "podcasts.downloadCandidates",
+      "p95MS": 24.717124993912876
+    }
+  ],
+  "notes": 30000,
+  "passed": true,
+  "platform": "iOS Simulator; disk-paged notes and podcasts; model operations; mail fixture source",
+  "podcasts": 300,
+  "residentMB": 474.84375,
+  "schemaVersion": 1,
+  "idle": {
+    "budgetRendersPerSecond": 2,
+    "clockTicks": 100,
+    "observedRoot": true,
+    "passed": true,
+    "rendersPerSecond": {
+      "fitness\u21bb": 0,
+      "library\u21bb": 0,
+      "occurrences\u21bb": 0,
+      "PlannerTab": 0,
+      "RootView": 0,
+      "watch\u21bb": 0,
+      "weather\u21bb": 0,
+      "WeekView": 0
+    },
+    "seconds": 10.591483249998419
+  },
+  "label": "redraw-plan",
+  "commit": "403a0f9eca4cf972495e84ddea9a5027bdce8ac0",
+  "device": "E5232BE0-8F82-4E85-A03B-5CA7160571E2",
+  "binarySHA256": "7ce88d7f89fc86b0fe81ea4a23be56f2686e982a165a812c1447d5d5a747cae1",
+  "hostLoad": [
+    259.025390625,
+    279.39697265625,
+    245.90283203125
+  ],
+  "dirty": true,
+  "readySeconds": 25.468,
+  "memoryBudgetMB": 900,
+  "memoryPassed": true
+}

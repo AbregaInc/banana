@@ -1,0 +1,257 @@
+[
+  {
+    "name": "build-PixelBufferChecks-v3",
+    "command": [
+      "swiftc",
+      "-O",
+      "-parse-as-library",
+      "tools/calendar-library-benchmark/Shared/PrototypeModel.swift",
+      "tools/calendar-library-benchmark/Shared/TileRenderer.swift",
+      "tools/calendar-library-benchmark/Shared/AsyncTilePreparation.swift",
+      "tools/calendar-library-benchmark/Shared/PreparedText.swift",
+      "tools/calendar-library-benchmark/Shared/Optimizations.swift",
+      "tools/calendar-library-benchmark/Shared/CalendarGridView.swift",
+      "tools/calendar-library-benchmark/Shared/RasterPage.swift",
+      "tools/calendar-library-benchmark/Shared/DayGeometry.swift",
+      "tools/calendar-library-benchmark/Shared/CalendarSurface.swift",
+      "tools/calendar-library-benchmark/Shared/Fixtures.swift",
+      "tools/calendar-library-benchmark/TileTests/pixel-buffer.swift",
+      "-o",
+      ".build/calendar-async-preparation/PixelBufferChecks-v3"
+    ],
+    "exitCode": 0,
+    "seconds": 11.156431913375854
+  },
+  {
+    "name": "build-LayerChecks-v2",
+    "command": [
+      "swiftc",
+      "-O",
+      "-parse-as-library",
+      "tools/calendar-library-benchmark/Shared/PrototypeModel.swift",
+      "tools/calendar-library-benchmark/Shared/TileRenderer.swift",
+      "tools/calendar-library-benchmark/Shared/AsyncTilePreparation.swift",
+      "tools/calendar-library-benchmark/Shared/PreparedText.swift",
+      "tools/calendar-library-benchmark/Shared/Optimizations.swift",
+      "tools/calendar-library-benchmark/Shared/CalendarGridView.swift",
+      "tools/calendar-library-benchmark/Shared/RasterPage.swift",
+      "tools/calendar-library-benchmark/Shared/DayGeometry.swift",
+      "tools/calendar-library-benchmark/Shared/CalendarSurface.swift",
+      "tools/calendar-library-benchmark/Shared/Fixtures.swift",
+      "tools/calendar-library-benchmark/LayerTests/main.swift",
+      "-o",
+      ".build/calendar-async-preparation/LayerChecks-v2"
+    ],
+    "exitCode": 0,
+    "seconds": 10.510475158691406
+  },
+  {
+    "name": "build-MacSurfaceCacheBenchmark",
+    "command": [
+      "swiftc",
+      "-O",
+      "-parse-as-library",
+      "tools/calendar-library-benchmark/Shared/PrototypeModel.swift",
+      "tools/calendar-library-benchmark/Shared/TileRenderer.swift",
+      "tools/calendar-library-benchmark/Shared/AsyncTilePreparation.swift",
+      "tools/calendar-library-benchmark/Shared/PreparedText.swift",
+      "tools/calendar-library-benchmark/Shared/Optimizations.swift",
+      "tools/calendar-library-benchmark/Shared/CalendarGridView.swift",
+      "tools/calendar-library-benchmark/Shared/RasterPage.swift",
+      "tools/calendar-library-benchmark/Shared/DayGeometry.swift",
+      "tools/calendar-library-benchmark/Shared/CalendarSurface.swift",
+      "tools/calendar-library-benchmark/Shared/Fixtures.swift",
+      "tools/calendar-library-benchmark/Native/MacBenchmark.swift",
+      "-o",
+      ".build/calendar-async-preparation/MacSurfaceCacheBenchmark"
+    ],
+    "exitCode": 0,
+    "seconds": 12.078190088272095
+  },
+  {
+    "name": "pixel-buffer-100-v3",
+    "command": [
+      ".build/calendar-async-preparation/PixelBufferChecks-v3",
+      "--mode",
+      "week",
+      "--density",
+      "100",
+      "--output",
+      ".build/calendar-async-preparation/pixel-buffer-100-v3.json"
+    ],
+    "exitCode": 0,
+    "seconds": 0.7801108360290527
+  },
+  {
+    "name": "pixel-buffer-300-v3",
+    "command": [
+      ".build/calendar-async-preparation/PixelBufferChecks-v3",
+      "--mode",
+      "week",
+      "--density",
+      "300",
+      "--output",
+      ".build/calendar-async-preparation/pixel-buffer-300-v3.json"
+    ],
+    "exitCode": 0,
+    "seconds": 0.6241168975830078
+  },
+  {
+    "name": "layer-reference-v2",
+    "command": [
+      ".build/calendar-async-preparation/LayerChecks-v2",
+      "--renderer",
+      "tiles",
+      "--mode",
+      "week",
+      "--density",
+      "300",
+      "--ablation",
+      "tile-prefetch-async-two",
+      "--output",
+      ".build/calendar-async-preparation/layer-reference-v2"
+    ],
+    "exitCode": 0,
+    "seconds": 0.9864072799682617
+  },
+  {
+    "name": "layer-updates-v2",
+    "command": [
+      ".build/calendar-async-preparation/LayerChecks-v2",
+      "--renderer",
+      "tiles",
+      "--mode",
+      "week",
+      "--density",
+      "300",
+      "--ablation",
+      "tile-prefetch-async-layer",
+      "--output",
+      ".build/calendar-async-preparation/layer-updates-v2",
+      "--reference",
+      ".build/calendar-async-preparation/layer-reference-v2"
+    ],
+    "exitCode": 0,
+    "seconds": 0.8957288265228271
+  },
+  {
+    "name": "mac-navigation-100-tile-prefetch-async-two",
+    "command": [
+      ".build/calendar-async-preparation/MacSurfaceCacheBenchmark",
+      "--renderer",
+      "tiles",
+      "--mode",
+      "week",
+      "--density",
+      "100",
+      "--ablation",
+      "tile-prefetch-async-two",
+      "--check",
+      "navigation",
+      "--output",
+      ".build/calendar-async-preparation/mac-navigation-100-tile-prefetch-async-two.json"
+    ],
+    "exitCode": 0,
+    "seconds": 1.8677639961242676
+  },
+  {
+    "name": "mac-navigation-100-tile-prefetch-async-surface",
+    "command": [
+      ".build/calendar-async-preparation/MacSurfaceCacheBenchmark",
+      "--renderer",
+      "tiles",
+      "--mode",
+      "week",
+      "--density",
+      "100",
+      "--ablation",
+      "tile-prefetch-async-surface",
+      "--check",
+      "navigation",
+      "--output",
+      ".build/calendar-async-preparation/mac-navigation-100-tile-prefetch-async-surface.json"
+    ],
+    "exitCode": 0,
+    "seconds": 1.6023447513580322
+  },
+  {
+    "name": "mac-navigation-100-tile-prefetch-async-surface-cache",
+    "command": [
+      ".build/calendar-async-preparation/MacSurfaceCacheBenchmark",
+      "--renderer",
+      "tiles",
+      "--mode",
+      "week",
+      "--density",
+      "100",
+      "--ablation",
+      "tile-prefetch-async-surface-cache",
+      "--check",
+      "navigation",
+      "--output",
+      ".build/calendar-async-preparation/mac-navigation-100-tile-prefetch-async-surface-cache.json"
+    ],
+    "exitCode": 0,
+    "seconds": 1.6028640270233154
+  },
+  {
+    "name": "mac-navigation-300-tile-prefetch-async-two",
+    "command": [
+      ".build/calendar-async-preparation/MacSurfaceCacheBenchmark",
+      "--renderer",
+      "tiles",
+      "--mode",
+      "week",
+      "--density",
+      "300",
+      "--ablation",
+      "tile-prefetch-async-two",
+      "--check",
+      "navigation",
+      "--output",
+      ".build/calendar-async-preparation/mac-navigation-300-tile-prefetch-async-two.json"
+    ],
+    "exitCode": 0,
+    "seconds": 2.221446990966797
+  },
+  {
+    "name": "mac-navigation-300-tile-prefetch-async-surface",
+    "command": [
+      ".build/calendar-async-preparation/MacSurfaceCacheBenchmark",
+      "--renderer",
+      "tiles",
+      "--mode",
+      "week",
+      "--density",
+      "300",
+      "--ablation",
+      "tile-prefetch-async-surface",
+      "--check",
+      "navigation",
+      "--output",
+      ".build/calendar-async-preparation/mac-navigation-300-tile-prefetch-async-surface.json"
+    ],
+    "exitCode": 0,
+    "seconds": 1.8199419975280762
+  },
+  {
+    "name": "mac-navigation-300-tile-prefetch-async-surface-cache",
+    "command": [
+      ".build/calendar-async-preparation/MacSurfaceCacheBenchmark",
+      "--renderer",
+      "tiles",
+      "--mode",
+      "week",
+      "--density",
+      "300",
+      "--ablation",
+      "tile-prefetch-async-surface-cache",
+      "--check",
+      "navigation",
+      "--output",
+      ".build/calendar-async-preparation/mac-navigation-300-tile-prefetch-async-surface-cache.json"
+    ],
+    "exitCode": 0,
+    "seconds": 1.8940370082855225
+  }
+]

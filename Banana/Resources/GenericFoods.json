@@ -1,0 +1,2050 @@
+{
+  "source": "Hand-curated per-unit macros, values sourced from USDA FoodData Central (SR Legacy / Foundation Foods) and standard US Nutrition Facts labels for branded staples (e.g. peanut butter, cola). Curated for Banana's natural-language food entry feature; not a full USDA export — see docs/design notes for the natural-language food entry feature for scope. Audit by cross-checking a row's `unitLabel` against the FDC food it names.",
+  "foods": [
+    {
+      "names": [
+        "egg",
+        "eggs",
+        "fried egg",
+        "boiled egg",
+        "scrambled egg",
+        "hard boiled egg",
+        "poached egg",
+        "hard-boiled egg"
+      ],
+      "unitLabel": "large egg",
+      "unitMacros": {
+        "calories": 72.0,
+        "proteinGrams": 6.3,
+        "carbohydrateGrams": 0.4,
+        "fatGrams": 4.8
+      }
+    },
+    {
+      "names": [
+        "egg white",
+        "egg whites"
+      ],
+      "unitLabel": "large egg white",
+      "unitMacros": {
+        "calories": 17.0,
+        "proteinGrams": 3.6,
+        "carbohydrateGrams": 0.2,
+        "fatGrams": 0.1
+      }
+    },
+    {
+      "names": [
+        "egg yolk",
+        "egg yolks"
+      ],
+      "unitLabel": "large egg yolk",
+      "unitMacros": {
+        "calories": 55.0,
+        "proteinGrams": 2.7,
+        "carbohydrateGrams": 0.6,
+        "fatGrams": 4.5
+      }
+    },
+    {
+      "names": [
+        "white bread",
+        "toast",
+        "white toast",
+        "slice of bread",
+        "slice of white bread",
+        "slice of toast"
+      ],
+      "unitLabel": "slice (25 g)",
+      "unitMacros": {
+        "calories": 67.0,
+        "proteinGrams": 2.0,
+        "carbohydrateGrams": 12.7,
+        "fatGrams": 0.8
+      }
+    },
+    {
+      "names": [
+        "whole wheat bread",
+        "wheat bread",
+        "wheat toast",
+        "whole wheat toast",
+        "brown bread"
+      ],
+      "unitLabel": "slice (28 g)",
+      "unitMacros": {
+        "calories": 80.0,
+        "proteinGrams": 4.0,
+        "carbohydrateGrams": 14.0,
+        "fatGrams": 1.0
+      }
+    },
+    {
+      "names": [
+        "sourdough bread",
+        "sourdough"
+      ],
+      "unitLabel": "slice (56 g)",
+      "unitMacros": {
+        "calories": 90.0,
+        "proteinGrams": 3.5,
+        "carbohydrateGrams": 18.0,
+        "fatGrams": 0.6
+      }
+    },
+    {
+      "names": [
+        "bagel",
+        "plain bagel"
+      ],
+      "unitLabel": "1 medium bagel (105 g)",
+      "unitMacros": {
+        "calories": 289.0,
+        "proteinGrams": 11.0,
+        "carbohydrateGrams": 56.0,
+        "fatGrams": 1.7
+      }
+    },
+    {
+      "names": [
+        "english muffin"
+      ],
+      "unitLabel": "1 muffin (57 g)",
+      "unitMacros": {
+        "calories": 134.0,
+        "proteinGrams": 5.0,
+        "carbohydrateGrams": 26.0,
+        "fatGrams": 1.0
+      }
+    },
+    {
+      "names": [
+        "flour tortilla",
+        "tortilla",
+        "wrap"
+      ],
+      "unitLabel": "1 medium tortilla (49 g)",
+      "unitMacros": {
+        "calories": 146.0,
+        "proteinGrams": 4.0,
+        "carbohydrateGrams": 25.0,
+        "fatGrams": 3.4
+      }
+    },
+    {
+      "names": [
+        "corn tortilla"
+      ],
+      "unitLabel": "1 tortilla (24 g)",
+      "unitMacros": {
+        "calories": 52.0,
+        "proteinGrams": 1.4,
+        "carbohydrateGrams": 10.7,
+        "fatGrams": 0.6
+      }
+    },
+    {
+      "names": [
+        "pita bread",
+        "pita"
+      ],
+      "unitLabel": "1 pita (60 g)",
+      "unitMacros": {
+        "calories": 165.0,
+        "proteinGrams": 5.5,
+        "carbohydrateGrams": 33.0,
+        "fatGrams": 0.7
+      }
+    },
+    {
+      "names": [
+        "rye bread"
+      ],
+      "unitLabel": "slice (32 g)",
+      "unitMacros": {
+        "calories": 83.0,
+        "proteinGrams": 2.7,
+        "carbohydrateGrams": 15.5,
+        "fatGrams": 1.1
+      }
+    },
+    {
+      "names": [
+        "baguette",
+        "french bread"
+      ],
+      "unitLabel": "2-inch slice (28 g)",
+      "unitMacros": {
+        "calories": 79.0,
+        "proteinGrams": 3.0,
+        "carbohydrateGrams": 15.0,
+        "fatGrams": 0.6
+      }
+    },
+    {
+      "names": [
+        "croissant"
+      ],
+      "unitLabel": "1 medium (57 g)",
+      "unitMacros": {
+        "calories": 231.0,
+        "proteinGrams": 4.7,
+        "carbohydrateGrams": 26.0,
+        "fatGrams": 12.0
+      }
+    },
+    {
+      "names": [
+        "waffle"
+      ],
+      "unitLabel": "1 frozen waffle (35 g)",
+      "unitMacros": {
+        "calories": 98.0,
+        "proteinGrams": 2.4,
+        "carbohydrateGrams": 15.0,
+        "fatGrams": 3.3
+      }
+    },
+    {
+      "names": [
+        "pancake",
+        "pancakes"
+      ],
+      "unitLabel": "1 pancake, 6 in (77 g)",
+      "unitMacros": {
+        "calories": 175.0,
+        "proteinGrams": 5.0,
+        "carbohydrateGrams": 22.0,
+        "fatGrams": 7.4
+      }
+    },
+    {
+      "names": [
+        "cereal",
+        "breakfast cereal",
+        "cornflakes"
+      ],
+      "unitLabel": "1 cup (28 g)",
+      "unitMacros": {
+        "calories": 100.0,
+        "proteinGrams": 2.0,
+        "carbohydrateGrams": 24.0,
+        "fatGrams": 0.5
+      }
+    },
+    {
+      "names": [
+        "granola"
+      ],
+      "unitLabel": "1/2 cup (61 g)",
+      "unitMacros": {
+        "calories": 260.0,
+        "proteinGrams": 6.0,
+        "carbohydrateGrams": 32.0,
+        "fatGrams": 12.0
+      }
+    },
+    {
+      "names": [
+        "rice cake"
+      ],
+      "unitLabel": "1 cake (9 g)",
+      "unitMacros": {
+        "calories": 35.0,
+        "proteinGrams": 0.7,
+        "carbohydrateGrams": 7.3,
+        "fatGrams": 0.3
+      }
+    },
+    {
+      "names": [
+        "crackers"
+      ],
+      "unitLabel": "5 crackers (16 g)",
+      "unitMacros": {
+        "calories": 78.0,
+        "proteinGrams": 1.7,
+        "carbohydrateGrams": 12.7,
+        "fatGrams": 2.6
+      }
+    },
+    {
+      "names": [
+        "muffin",
+        "blueberry muffin"
+      ],
+      "unitLabel": "1 medium bakery muffin (113 g)",
+      "unitMacros": {
+        "calories": 340.0,
+        "proteinGrams": 6.0,
+        "carbohydrateGrams": 54.0,
+        "fatGrams": 12.0
+      }
+    },
+    {
+      "names": [
+        "donut",
+        "doughnut",
+        "glazed donut"
+      ],
+      "unitLabel": "1 glazed donut (60 g)",
+      "unitMacros": {
+        "calories": 195.0,
+        "proteinGrams": 2.3,
+        "carbohydrateGrams": 23.0,
+        "fatGrams": 10.5
+      }
+    },
+    {
+      "names": [
+        "cookie",
+        "chocolate chip cookie"
+      ],
+      "unitLabel": "1 medium cookie (16 g)",
+      "unitMacros": {
+        "calories": 78.0,
+        "proteinGrams": 0.9,
+        "carbohydrateGrams": 10.0,
+        "fatGrams": 3.7
+      }
+    },
+    {
+      "names": [
+        "whole milk",
+        "milk"
+      ],
+      "unitLabel": "1 cup (244 g)",
+      "unitMacros": {
+        "calories": 149.0,
+        "proteinGrams": 7.7,
+        "carbohydrateGrams": 11.7,
+        "fatGrams": 8.0
+      }
+    },
+    {
+      "names": [
+        "2% milk",
+        "reduced fat milk"
+      ],
+      "unitLabel": "1 cup (244 g)",
+      "unitMacros": {
+        "calories": 122.0,
+        "proteinGrams": 8.1,
+        "carbohydrateGrams": 11.4,
+        "fatGrams": 4.8
+      }
+    },
+    {
+      "names": [
+        "skim milk",
+        "nonfat milk",
+        "fat free milk"
+      ],
+      "unitLabel": "1 cup (245 g)",
+      "unitMacros": {
+        "calories": 83.0,
+        "proteinGrams": 8.3,
+        "carbohydrateGrams": 12.2,
+        "fatGrams": 0.2
+      }
+    },
+    {
+      "names": [
+        "almond milk",
+        "unsweetened almond milk"
+      ],
+      "unitLabel": "1 cup (240 g)",
+      "unitMacros": {
+        "calories": 39.0,
+        "proteinGrams": 1.5,
+        "carbohydrateGrams": 3.4,
+        "fatGrams": 2.5
+      }
+    },
+    {
+      "names": [
+        "oat milk"
+      ],
+      "unitLabel": "1 cup (240 g)",
+      "unitMacros": {
+        "calories": 120.0,
+        "proteinGrams": 3.0,
+        "carbohydrateGrams": 16.0,
+        "fatGrams": 5.0
+      }
+    },
+    {
+      "names": [
+        "soy milk"
+      ],
+      "unitLabel": "1 cup (243 g)",
+      "unitMacros": {
+        "calories": 105.0,
+        "proteinGrams": 6.0,
+        "carbohydrateGrams": 12.0,
+        "fatGrams": 4.3
+      }
+    },
+    {
+      "names": [
+        "greek yogurt",
+        "plain greek yogurt",
+        "nonfat greek yogurt"
+      ],
+      "unitLabel": "1 cup (245 g)",
+      "unitMacros": {
+        "calories": 146.0,
+        "proteinGrams": 24.0,
+        "carbohydrateGrams": 8.0,
+        "fatGrams": 0.7
+      }
+    },
+    {
+      "names": [
+        "yogurt",
+        "plain yogurt",
+        "whole milk yogurt"
+      ],
+      "unitLabel": "1 cup (245 g)",
+      "unitMacros": {
+        "calories": 149.0,
+        "proteinGrams": 8.5,
+        "carbohydrateGrams": 11.4,
+        "fatGrams": 8.0
+      }
+    },
+    {
+      "names": [
+        "cottage cheese"
+      ],
+      "unitLabel": "1 cup, 2% (226 g)",
+      "unitMacros": {
+        "calories": 180.0,
+        "proteinGrams": 25.0,
+        "carbohydrateGrams": 8.0,
+        "fatGrams": 4.0
+      }
+    },
+    {
+      "names": [
+        "cheddar cheese",
+        "cheddar"
+      ],
+      "unitLabel": "1 oz (28 g)",
+      "unitMacros": {
+        "calories": 113.0,
+        "proteinGrams": 7.0,
+        "carbohydrateGrams": 0.4,
+        "fatGrams": 9.3
+      }
+    },
+    {
+      "names": [
+        "mozzarella",
+        "mozzarella cheese"
+      ],
+      "unitLabel": "1 oz (28 g)",
+      "unitMacros": {
+        "calories": 85.0,
+        "proteinGrams": 6.3,
+        "carbohydrateGrams": 0.6,
+        "fatGrams": 6.3
+      }
+    },
+    {
+      "names": [
+        "parmesan",
+        "parmesan cheese",
+        "grated parmesan"
+      ],
+      "unitLabel": "1 tbsp (5 g)",
+      "unitMacros": {
+        "calories": 22.0,
+        "proteinGrams": 2.0,
+        "carbohydrateGrams": 0.2,
+        "fatGrams": 1.4
+      }
+    },
+    {
+      "names": [
+        "cream cheese"
+      ],
+      "unitLabel": "1 tbsp (14 g)",
+      "unitMacros": {
+        "calories": 51.0,
+        "proteinGrams": 0.9,
+        "carbohydrateGrams": 0.8,
+        "fatGrams": 5.1
+      }
+    },
+    {
+      "names": [
+        "string cheese",
+        "mozzarella stick"
+      ],
+      "unitLabel": "1 stick (28 g)",
+      "unitMacros": {
+        "calories": 80.0,
+        "proteinGrams": 7.0,
+        "carbohydrateGrams": 1.0,
+        "fatGrams": 6.0
+      }
+    },
+    {
+      "names": [
+        "half and half"
+      ],
+      "unitLabel": "1 tbsp (15 g)",
+      "unitMacros": {
+        "calories": 20.0,
+        "proteinGrams": 0.4,
+        "carbohydrateGrams": 0.6,
+        "fatGrams": 1.7
+      }
+    },
+    {
+      "names": [
+        "heavy cream",
+        "heavy whipping cream"
+      ],
+      "unitLabel": "1 tbsp (15 g)",
+      "unitMacros": {
+        "calories": 51.0,
+        "proteinGrams": 0.3,
+        "carbohydrateGrams": 0.4,
+        "fatGrams": 5.5
+      }
+    },
+    {
+      "names": [
+        "butter"
+      ],
+      "unitLabel": "1 tbsp (14 g)",
+      "unitMacros": {
+        "calories": 102.0,
+        "proteinGrams": 0.1,
+        "carbohydrateGrams": 0.0,
+        "fatGrams": 11.5
+      }
+    },
+    {
+      "names": [
+        "sour cream"
+      ],
+      "unitLabel": "1 tbsp (12 g)",
+      "unitMacros": {
+        "calories": 23.0,
+        "proteinGrams": 0.3,
+        "carbohydrateGrams": 0.5,
+        "fatGrams": 2.3
+      }
+    },
+    {
+      "names": [
+        "ice cream"
+      ],
+      "unitLabel": "1/2 cup (66 g)",
+      "unitMacros": {
+        "calories": 137.0,
+        "proteinGrams": 2.3,
+        "carbohydrateGrams": 15.6,
+        "fatGrams": 7.3
+      }
+    },
+    {
+      "names": [
+        "whipped cream"
+      ],
+      "unitLabel": "2 tbsp (7.5 g)",
+      "unitMacros": {
+        "calories": 19.0,
+        "proteinGrams": 0.2,
+        "carbohydrateGrams": 0.9,
+        "fatGrams": 1.7
+      }
+    },
+    {
+      "names": [
+        "chicken breast",
+        "grilled chicken",
+        "cooked chicken breast",
+        "chicken"
+      ],
+      "unitLabel": "3 oz cooked (85 g)",
+      "unitMacros": {
+        "calories": 140.0,
+        "proteinGrams": 26.0,
+        "carbohydrateGrams": 0.0,
+        "fatGrams": 3.0
+      }
+    },
+    {
+      "names": [
+        "chicken thigh",
+        "chicken thighs"
+      ],
+      "unitLabel": "3 oz cooked (85 g)",
+      "unitMacros": {
+        "calories": 178.0,
+        "proteinGrams": 23.0,
+        "carbohydrateGrams": 0.0,
+        "fatGrams": 9.0
+      }
+    },
+    {
+      "names": [
+        "ground beef",
+        "hamburger meat",
+        "80/20 ground beef"
+      ],
+      "unitLabel": "3 oz cooked (85 g)",
+      "unitMacros": {
+        "calories": 231.0,
+        "proteinGrams": 21.0,
+        "carbohydrateGrams": 0.0,
+        "fatGrams": 15.7
+      }
+    },
+    {
+      "names": [
+        "lean ground beef",
+        "90/10 ground beef",
+        "93% lean ground beef"
+      ],
+      "unitLabel": "3 oz cooked (85 g)",
+      "unitMacros": {
+        "calories": 173.0,
+        "proteinGrams": 22.0,
+        "carbohydrateGrams": 0.0,
+        "fatGrams": 8.9
+      }
+    },
+    {
+      "names": [
+        "steak",
+        "sirloin steak",
+        "beef steak"
+      ],
+      "unitLabel": "3 oz cooked (85 g)",
+      "unitMacros": {
+        "calories": 156.0,
+        "proteinGrams": 26.0,
+        "carbohydrateGrams": 0.0,
+        "fatGrams": 5.2
+      }
+    },
+    {
+      "names": [
+        "bacon",
+        "bacon strip"
+      ],
+      "unitLabel": "1 slice, cooked (8 g)",
+      "unitMacros": {
+        "calories": 43.0,
+        "proteinGrams": 3.0,
+        "carbohydrateGrams": 0.1,
+        "fatGrams": 3.3
+      }
+    },
+    {
+      "names": [
+        "ham",
+        "sliced ham",
+        "deli ham"
+      ],
+      "unitLabel": "2 oz (57 g)",
+      "unitMacros": {
+        "calories": 60.0,
+        "proteinGrams": 10.0,
+        "carbohydrateGrams": 1.5,
+        "fatGrams": 1.8
+      }
+    },
+    {
+      "names": [
+        "turkey breast",
+        "sliced turkey",
+        "deli turkey"
+      ],
+      "unitLabel": "2 oz (57 g)",
+      "unitMacros": {
+        "calories": 60.0,
+        "proteinGrams": 12.0,
+        "carbohydrateGrams": 0.0,
+        "fatGrams": 0.7
+      }
+    },
+    {
+      "names": [
+        "deli chicken",
+        "sliced chicken breast"
+      ],
+      "unitLabel": "2 oz (57 g)",
+      "unitMacros": {
+        "calories": 60.0,
+        "proteinGrams": 12.0,
+        "carbohydrateGrams": 1.0,
+        "fatGrams": 0.8
+      }
+    },
+    {
+      "names": [
+        "pork chop"
+      ],
+      "unitLabel": "3 oz cooked (85 g)",
+      "unitMacros": {
+        "calories": 172.0,
+        "proteinGrams": 25.0,
+        "carbohydrateGrams": 0.0,
+        "fatGrams": 7.7
+      }
+    },
+    {
+      "names": [
+        "salmon",
+        "grilled salmon",
+        "salmon fillet"
+      ],
+      "unitLabel": "3 oz cooked (85 g)",
+      "unitMacros": {
+        "calories": 175.0,
+        "proteinGrams": 19.0,
+        "carbohydrateGrams": 0.0,
+        "fatGrams": 10.5
+      }
+    },
+    {
+      "names": [
+        "tuna",
+        "canned tuna",
+        "tuna fish"
+      ],
+      "unitLabel": "3 oz drained (85 g)",
+      "unitMacros": {
+        "calories": 99.0,
+        "proteinGrams": 22.0,
+        "carbohydrateGrams": 0.0,
+        "fatGrams": 0.7
+      }
+    },
+    {
+      "names": [
+        "shrimp",
+        "cooked shrimp",
+        "prawns"
+      ],
+      "unitLabel": "3 oz cooked (85 g)",
+      "unitMacros": {
+        "calories": 84.0,
+        "proteinGrams": 18.0,
+        "carbohydrateGrams": 0.4,
+        "fatGrams": 0.9
+      }
+    },
+    {
+      "names": [
+        "tilapia"
+      ],
+      "unitLabel": "3 oz cooked (85 g)",
+      "unitMacros": {
+        "calories": 109.0,
+        "proteinGrams": 22.0,
+        "carbohydrateGrams": 0.0,
+        "fatGrams": 2.3
+      }
+    },
+    {
+      "names": [
+        "cod",
+        "baked cod"
+      ],
+      "unitLabel": "3 oz cooked (85 g)",
+      "unitMacros": {
+        "calories": 89.0,
+        "proteinGrams": 19.4,
+        "carbohydrateGrams": 0.0,
+        "fatGrams": 0.7
+      }
+    },
+    {
+      "names": [
+        "sausage",
+        "breakfast sausage",
+        "sausage link"
+      ],
+      "unitLabel": "1 link (25 g)",
+      "unitMacros": {
+        "calories": 85.0,
+        "proteinGrams": 4.0,
+        "carbohydrateGrams": 0.6,
+        "fatGrams": 7.0
+      }
+    },
+    {
+      "names": [
+        "hot dog"
+      ],
+      "unitLabel": "1 hot dog (57 g)",
+      "unitMacros": {
+        "calories": 151.0,
+        "proteinGrams": 5.2,
+        "carbohydrateGrams": 2.0,
+        "fatGrams": 13.2
+      }
+    },
+    {
+      "names": [
+        "tofu"
+      ],
+      "unitLabel": "1/2 cup (126 g)",
+      "unitMacros": {
+        "calories": 94.0,
+        "proteinGrams": 10.0,
+        "carbohydrateGrams": 2.3,
+        "fatGrams": 6.0
+      }
+    },
+    {
+      "names": [
+        "edamame"
+      ],
+      "unitLabel": "1 cup (155 g)",
+      "unitMacros": {
+        "calories": 122.0,
+        "proteinGrams": 10.9,
+        "carbohydrateGrams": 10.0,
+        "fatGrams": 5.2
+      }
+    },
+    {
+      "names": [
+        "white rice",
+        "rice",
+        "cooked rice"
+      ],
+      "unitLabel": "1 cup cooked (158 g)",
+      "unitMacros": {
+        "calories": 205.0,
+        "proteinGrams": 4.25,
+        "carbohydrateGrams": 44.5,
+        "fatGrams": 0.4
+      }
+    },
+    {
+      "names": [
+        "brown rice"
+      ],
+      "unitLabel": "1 cup cooked (195 g)",
+      "unitMacros": {
+        "calories": 216.0,
+        "proteinGrams": 5.0,
+        "carbohydrateGrams": 45.0,
+        "fatGrams": 1.8
+      }
+    },
+    {
+      "names": [
+        "pasta",
+        "spaghetti",
+        "noodles",
+        "cooked pasta"
+      ],
+      "unitLabel": "1 cup cooked (140 g)",
+      "unitMacros": {
+        "calories": 221.0,
+        "proteinGrams": 8.1,
+        "carbohydrateGrams": 43.2,
+        "fatGrams": 1.3
+      }
+    },
+    {
+      "names": [
+        "quinoa",
+        "cooked quinoa"
+      ],
+      "unitLabel": "1 cup cooked (185 g)",
+      "unitMacros": {
+        "calories": 222.0,
+        "proteinGrams": 8.1,
+        "carbohydrateGrams": 39.4,
+        "fatGrams": 3.6
+      }
+    },
+    {
+      "names": [
+        "oatmeal",
+        "porridge",
+        "cooked oatmeal"
+      ],
+      "unitLabel": "1 cup cooked (234 g)",
+      "unitMacros": {
+        "calories": 166.0,
+        "proteinGrams": 5.9,
+        "carbohydrateGrams": 28.1,
+        "fatGrams": 3.6
+      }
+    },
+    {
+      "names": [
+        "couscous"
+      ],
+      "unitLabel": "1 cup cooked (157 g)",
+      "unitMacros": {
+        "calories": 176.0,
+        "proteinGrams": 6.0,
+        "carbohydrateGrams": 36.5,
+        "fatGrams": 0.3
+      }
+    },
+    {
+      "names": [
+        "banana"
+      ],
+      "unitLabel": "1 medium (118 g)",
+      "unitMacros": {
+        "calories": 105.0,
+        "proteinGrams": 1.3,
+        "carbohydrateGrams": 27.0,
+        "fatGrams": 0.4
+      }
+    },
+    {
+      "names": [
+        "apple"
+      ],
+      "unitLabel": "1 medium (182 g)",
+      "unitMacros": {
+        "calories": 95.0,
+        "proteinGrams": 0.5,
+        "carbohydrateGrams": 25.0,
+        "fatGrams": 0.3
+      }
+    },
+    {
+      "names": [
+        "orange"
+      ],
+      "unitLabel": "1 medium (131 g)",
+      "unitMacros": {
+        "calories": 62.0,
+        "proteinGrams": 1.2,
+        "carbohydrateGrams": 15.4,
+        "fatGrams": 0.2
+      }
+    },
+    {
+      "names": [
+        "strawberries",
+        "strawberry"
+      ],
+      "unitLabel": "1 cup (152 g)",
+      "unitMacros": {
+        "calories": 49.0,
+        "proteinGrams": 1.0,
+        "carbohydrateGrams": 11.7,
+        "fatGrams": 0.5
+      }
+    },
+    {
+      "names": [
+        "blueberries",
+        "blueberry"
+      ],
+      "unitLabel": "1 cup (148 g)",
+      "unitMacros": {
+        "calories": 84.0,
+        "proteinGrams": 1.1,
+        "carbohydrateGrams": 21.4,
+        "fatGrams": 0.5
+      }
+    },
+    {
+      "names": [
+        "grapes"
+      ],
+      "unitLabel": "1 cup (151 g)",
+      "unitMacros": {
+        "calories": 104.0,
+        "proteinGrams": 1.1,
+        "carbohydrateGrams": 27.3,
+        "fatGrams": 0.2
+      }
+    },
+    {
+      "names": [
+        "watermelon"
+      ],
+      "unitLabel": "1 cup diced (152 g)",
+      "unitMacros": {
+        "calories": 46.0,
+        "proteinGrams": 0.9,
+        "carbohydrateGrams": 11.5,
+        "fatGrams": 0.2
+      }
+    },
+    {
+      "names": [
+        "pineapple"
+      ],
+      "unitLabel": "1 cup chunks (165 g)",
+      "unitMacros": {
+        "calories": 82.0,
+        "proteinGrams": 0.9,
+        "carbohydrateGrams": 21.6,
+        "fatGrams": 0.2
+      }
+    },
+    {
+      "names": [
+        "mango"
+      ],
+      "unitLabel": "1 cup pieces (165 g)",
+      "unitMacros": {
+        "calories": 99.0,
+        "proteinGrams": 1.4,
+        "carbohydrateGrams": 24.7,
+        "fatGrams": 0.6
+      }
+    },
+    {
+      "names": [
+        "avocado"
+      ],
+      "unitLabel": "1 medium (150 g)",
+      "unitMacros": {
+        "calories": 240.0,
+        "proteinGrams": 3.0,
+        "carbohydrateGrams": 12.8,
+        "fatGrams": 22.0
+      }
+    },
+    {
+      "names": [
+        "pear"
+      ],
+      "unitLabel": "1 medium (178 g)",
+      "unitMacros": {
+        "calories": 101.0,
+        "proteinGrams": 0.6,
+        "carbohydrateGrams": 27.0,
+        "fatGrams": 0.2
+      }
+    },
+    {
+      "names": [
+        "peach"
+      ],
+      "unitLabel": "1 medium (150 g)",
+      "unitMacros": {
+        "calories": 59.0,
+        "proteinGrams": 1.4,
+        "carbohydrateGrams": 14.3,
+        "fatGrams": 0.4
+      }
+    },
+    {
+      "names": [
+        "cherries"
+      ],
+      "unitLabel": "1 cup (154 g)",
+      "unitMacros": {
+        "calories": 97.0,
+        "proteinGrams": 1.6,
+        "carbohydrateGrams": 24.7,
+        "fatGrams": 0.3
+      }
+    },
+    {
+      "names": [
+        "kiwi"
+      ],
+      "unitLabel": "1 medium (69 g)",
+      "unitMacros": {
+        "calories": 42.0,
+        "proteinGrams": 0.8,
+        "carbohydrateGrams": 10.1,
+        "fatGrams": 0.4
+      }
+    },
+    {
+      "names": [
+        "raspberries"
+      ],
+      "unitLabel": "1 cup (123 g)",
+      "unitMacros": {
+        "calories": 64.0,
+        "proteinGrams": 1.5,
+        "carbohydrateGrams": 14.7,
+        "fatGrams": 0.8
+      }
+    },
+    {
+      "names": [
+        "grapefruit"
+      ],
+      "unitLabel": "1/2 medium (123 g)",
+      "unitMacros": {
+        "calories": 52.0,
+        "proteinGrams": 0.9,
+        "carbohydrateGrams": 13.0,
+        "fatGrams": 0.2
+      }
+    },
+    {
+      "names": [
+        "broccoli"
+      ],
+      "unitLabel": "1 cup chopped (91 g)",
+      "unitMacros": {
+        "calories": 31.0,
+        "proteinGrams": 2.5,
+        "carbohydrateGrams": 6.0,
+        "fatGrams": 0.3
+      }
+    },
+    {
+      "names": [
+        "spinach"
+      ],
+      "unitLabel": "1 cup raw (30 g)",
+      "unitMacros": {
+        "calories": 7.0,
+        "proteinGrams": 0.9,
+        "carbohydrateGrams": 1.1,
+        "fatGrams": 0.1
+      }
+    },
+    {
+      "names": [
+        "carrots",
+        "carrot"
+      ],
+      "unitLabel": "1 cup chopped (128 g)",
+      "unitMacros": {
+        "calories": 52.0,
+        "proteinGrams": 1.2,
+        "carbohydrateGrams": 12.3,
+        "fatGrams": 0.3
+      }
+    },
+    {
+      "names": [
+        "tomato"
+      ],
+      "unitLabel": "1 medium (123 g)",
+      "unitMacros": {
+        "calories": 22.0,
+        "proteinGrams": 1.1,
+        "carbohydrateGrams": 4.8,
+        "fatGrams": 0.2
+      }
+    },
+    {
+      "names": [
+        "cucumber"
+      ],
+      "unitLabel": "1 cup sliced (119 g)",
+      "unitMacros": {
+        "calories": 16.0,
+        "proteinGrams": 0.7,
+        "carbohydrateGrams": 3.8,
+        "fatGrams": 0.1
+      }
+    },
+    {
+      "names": [
+        "bell pepper",
+        "pepper"
+      ],
+      "unitLabel": "1 medium (119 g)",
+      "unitMacros": {
+        "calories": 24.0,
+        "proteinGrams": 1.0,
+        "carbohydrateGrams": 5.5,
+        "fatGrams": 0.2
+      }
+    },
+    {
+      "names": [
+        "onion"
+      ],
+      "unitLabel": "1 medium (110 g)",
+      "unitMacros": {
+        "calories": 44.0,
+        "proteinGrams": 1.2,
+        "carbohydrateGrams": 10.3,
+        "fatGrams": 0.1
+      }
+    },
+    {
+      "names": [
+        "potato",
+        "baked potato"
+      ],
+      "unitLabel": "1 medium (173 g)",
+      "unitMacros": {
+        "calories": 161.0,
+        "proteinGrams": 4.3,
+        "carbohydrateGrams": 36.6,
+        "fatGrams": 0.2
+      }
+    },
+    {
+      "names": [
+        "sweet potato"
+      ],
+      "unitLabel": "1 medium baked (114 g)",
+      "unitMacros": {
+        "calories": 112.0,
+        "proteinGrams": 2.0,
+        "carbohydrateGrams": 26.0,
+        "fatGrams": 0.1
+      }
+    },
+    {
+      "names": [
+        "corn"
+      ],
+      "unitLabel": "1 cup kernels (154 g)",
+      "unitMacros": {
+        "calories": 132.0,
+        "proteinGrams": 4.7,
+        "carbohydrateGrams": 29.0,
+        "fatGrams": 1.8
+      }
+    },
+    {
+      "names": [
+        "green beans"
+      ],
+      "unitLabel": "1 cup (100 g)",
+      "unitMacros": {
+        "calories": 31.0,
+        "proteinGrams": 1.8,
+        "carbohydrateGrams": 7.0,
+        "fatGrams": 0.1
+      }
+    },
+    {
+      "names": [
+        "peas"
+      ],
+      "unitLabel": "1 cup cooked (160 g)",
+      "unitMacros": {
+        "calories": 118.0,
+        "proteinGrams": 7.9,
+        "carbohydrateGrams": 21.0,
+        "fatGrams": 0.6
+      }
+    },
+    {
+      "names": [
+        "lettuce"
+      ],
+      "unitLabel": "1 cup shredded (36 g)",
+      "unitMacros": {
+        "calories": 5.0,
+        "proteinGrams": 0.5,
+        "carbohydrateGrams": 1.0,
+        "fatGrams": 0.1
+      }
+    },
+    {
+      "names": [
+        "mushrooms"
+      ],
+      "unitLabel": "1 cup sliced (70 g)",
+      "unitMacros": {
+        "calories": 15.0,
+        "proteinGrams": 2.2,
+        "carbohydrateGrams": 2.3,
+        "fatGrams": 0.2
+      }
+    },
+    {
+      "names": [
+        "zucchini"
+      ],
+      "unitLabel": "1 cup sliced (124 g)",
+      "unitMacros": {
+        "calories": 20.0,
+        "proteinGrams": 1.5,
+        "carbohydrateGrams": 3.9,
+        "fatGrams": 0.4
+      }
+    },
+    {
+      "names": [
+        "cauliflower"
+      ],
+      "unitLabel": "1 cup chopped (107 g)",
+      "unitMacros": {
+        "calories": 27.0,
+        "proteinGrams": 2.1,
+        "carbohydrateGrams": 5.3,
+        "fatGrams": 0.3
+      }
+    },
+    {
+      "names": [
+        "asparagus"
+      ],
+      "unitLabel": "1 cup (134 g)",
+      "unitMacros": {
+        "calories": 27.0,
+        "proteinGrams": 3.0,
+        "carbohydrateGrams": 5.2,
+        "fatGrams": 0.2
+      }
+    },
+    {
+      "names": [
+        "almonds"
+      ],
+      "unitLabel": "1 oz (28 g)",
+      "unitMacros": {
+        "calories": 164.0,
+        "proteinGrams": 6.0,
+        "carbohydrateGrams": 6.1,
+        "fatGrams": 14.2
+      }
+    },
+    {
+      "names": [
+        "walnuts"
+      ],
+      "unitLabel": "1 oz (28 g)",
+      "unitMacros": {
+        "calories": 185.0,
+        "proteinGrams": 4.3,
+        "carbohydrateGrams": 3.9,
+        "fatGrams": 18.5
+      }
+    },
+    {
+      "names": [
+        "cashews"
+      ],
+      "unitLabel": "1 oz (28 g)",
+      "unitMacros": {
+        "calories": 157.0,
+        "proteinGrams": 5.2,
+        "carbohydrateGrams": 8.6,
+        "fatGrams": 12.4
+      }
+    },
+    {
+      "names": [
+        "peanuts"
+      ],
+      "unitLabel": "1 oz (28 g)",
+      "unitMacros": {
+        "calories": 161.0,
+        "proteinGrams": 7.3,
+        "carbohydrateGrams": 4.6,
+        "fatGrams": 14.0
+      }
+    },
+    {
+      "names": [
+        "peanut butter"
+      ],
+      "unitLabel": "2 tbsp (32 g)",
+      "unitMacros": {
+        "calories": 188.0,
+        "proteinGrams": 8.0,
+        "carbohydrateGrams": 6.9,
+        "fatGrams": 16.0
+      }
+    },
+    {
+      "names": [
+        "almond butter"
+      ],
+      "unitLabel": "2 tbsp (32 g)",
+      "unitMacros": {
+        "calories": 196.0,
+        "proteinGrams": 6.7,
+        "carbohydrateGrams": 6.0,
+        "fatGrams": 17.8
+      }
+    },
+    {
+      "names": [
+        "chia seeds"
+      ],
+      "unitLabel": "1 oz (28 g)",
+      "unitMacros": {
+        "calories": 138.0,
+        "proteinGrams": 4.7,
+        "carbohydrateGrams": 12.0,
+        "fatGrams": 8.7
+      }
+    },
+    {
+      "names": [
+        "sunflower seeds"
+      ],
+      "unitLabel": "1 oz (28 g)",
+      "unitMacros": {
+        "calories": 165.0,
+        "proteinGrams": 5.5,
+        "carbohydrateGrams": 6.8,
+        "fatGrams": 14.4
+      }
+    },
+    {
+      "names": [
+        "trail mix"
+      ],
+      "unitLabel": "1/4 cup (35 g)",
+      "unitMacros": {
+        "calories": 173.0,
+        "proteinGrams": 5.0,
+        "carbohydrateGrams": 17.0,
+        "fatGrams": 11.0
+      }
+    },
+    {
+      "names": [
+        "olive oil"
+      ],
+      "unitLabel": "1 tbsp (13.5 g)",
+      "unitMacros": {
+        "calories": 119.0,
+        "proteinGrams": 0.0,
+        "carbohydrateGrams": 0.0,
+        "fatGrams": 13.5
+      }
+    },
+    {
+      "names": [
+        "vegetable oil"
+      ],
+      "unitLabel": "1 tbsp (14 g)",
+      "unitMacros": {
+        "calories": 120.0,
+        "proteinGrams": 0.0,
+        "carbohydrateGrams": 0.0,
+        "fatGrams": 14.0
+      }
+    },
+    {
+      "names": [
+        "margarine"
+      ],
+      "unitLabel": "1 tbsp (14 g)",
+      "unitMacros": {
+        "calories": 102.0,
+        "proteinGrams": 0.1,
+        "carbohydrateGrams": 0.2,
+        "fatGrams": 11.5
+      }
+    },
+    {
+      "names": [
+        "coconut oil"
+      ],
+      "unitLabel": "1 tbsp (13.5 g)",
+      "unitMacros": {
+        "calories": 121.0,
+        "proteinGrams": 0.0,
+        "carbohydrateGrams": 0.0,
+        "fatGrams": 13.5
+      }
+    },
+    {
+      "names": [
+        "mayonnaise",
+        "mayo"
+      ],
+      "unitLabel": "1 tbsp (14 g)",
+      "unitMacros": {
+        "calories": 94.0,
+        "proteinGrams": 0.1,
+        "carbohydrateGrams": 0.1,
+        "fatGrams": 10.3
+      }
+    },
+    {
+      "names": [
+        "black coffee",
+        "coffee"
+      ],
+      "unitLabel": "1 cup (240 g)",
+      "unitMacros": {
+        "calories": 2.0,
+        "proteinGrams": 0.3,
+        "carbohydrateGrams": 0.0,
+        "fatGrams": 0.0
+      }
+    },
+    {
+      "names": [
+        "coffee with milk",
+        "white coffee"
+      ],
+      "unitLabel": "1 cup (250 g)",
+      "unitMacros": {
+        "calories": 27.0,
+        "proteinGrams": 1.5,
+        "carbohydrateGrams": 2.7,
+        "fatGrams": 1.3
+      }
+    },
+    {
+      "names": [
+        "latte",
+        "cafe latte",
+        "caffe latte"
+      ],
+      "unitLabel": "12 oz (355 g)",
+      "unitMacros": {
+        "calories": 120.0,
+        "proteinGrams": 8.0,
+        "carbohydrateGrams": 12.0,
+        "fatGrams": 4.5
+      }
+    },
+    {
+      "names": [
+        "cappuccino"
+      ],
+      "unitLabel": "12 oz (355 g)",
+      "unitMacros": {
+        "calories": 80.0,
+        "proteinGrams": 5.0,
+        "carbohydrateGrams": 7.5,
+        "fatGrams": 3.5
+      }
+    },
+    {
+      "names": [
+        "black tea",
+        "tea"
+      ],
+      "unitLabel": "1 cup (237 g)",
+      "unitMacros": {
+        "calories": 2.0,
+        "proteinGrams": 0.0,
+        "carbohydrateGrams": 0.5,
+        "fatGrams": 0.0
+      }
+    },
+    {
+      "names": [
+        "green tea"
+      ],
+      "unitLabel": "1 cup (237 g)",
+      "unitMacros": {
+        "calories": 2.0,
+        "proteinGrams": 0.0,
+        "carbohydrateGrams": 0.0,
+        "fatGrams": 0.0
+      }
+    },
+    {
+      "names": [
+        "tea with milk"
+      ],
+      "unitLabel": "1 cup (250 g)",
+      "unitMacros": {
+        "calories": 20.0,
+        "proteinGrams": 1.0,
+        "carbohydrateGrams": 2.0,
+        "fatGrams": 1.0
+      }
+    },
+    {
+      "names": [
+        "orange juice"
+      ],
+      "unitLabel": "1 cup (248 g)",
+      "unitMacros": {
+        "calories": 112.0,
+        "proteinGrams": 1.7,
+        "carbohydrateGrams": 25.8,
+        "fatGrams": 0.5
+      }
+    },
+    {
+      "names": [
+        "apple juice"
+      ],
+      "unitLabel": "1 cup (248 g)",
+      "unitMacros": {
+        "calories": 114.0,
+        "proteinGrams": 0.2,
+        "carbohydrateGrams": 28.0,
+        "fatGrams": 0.3
+      }
+    },
+    {
+      "names": [
+        "cola",
+        "soda",
+        "coke"
+      ],
+      "unitLabel": "12 oz can (355 g)",
+      "unitMacros": {
+        "calories": 140.0,
+        "proteinGrams": 0.0,
+        "carbohydrateGrams": 39.0,
+        "fatGrams": 0.0
+      }
+    },
+    {
+      "names": [
+        "diet soda",
+        "diet coke"
+      ],
+      "unitLabel": "12 oz can (355 g)",
+      "unitMacros": {
+        "calories": 0.0,
+        "proteinGrams": 0.0,
+        "carbohydrateGrams": 0.0,
+        "fatGrams": 0.0
+      }
+    },
+    {
+      "names": [
+        "beer"
+      ],
+      "unitLabel": "12 oz (355 g)",
+      "unitMacros": {
+        "calories": 153.0,
+        "proteinGrams": 1.6,
+        "carbohydrateGrams": 13.0,
+        "fatGrams": 0.0
+      }
+    },
+    {
+      "names": [
+        "red wine",
+        "wine"
+      ],
+      "unitLabel": "5 oz glass (147 g)",
+      "unitMacros": {
+        "calories": 125.0,
+        "proteinGrams": 0.1,
+        "carbohydrateGrams": 3.8,
+        "fatGrams": 0.0
+      }
+    },
+    {
+      "names": [
+        "white wine"
+      ],
+      "unitLabel": "5 oz glass (147 g)",
+      "unitMacros": {
+        "calories": 121.0,
+        "proteinGrams": 0.1,
+        "carbohydrateGrams": 3.8,
+        "fatGrams": 0.0
+      }
+    },
+    {
+      "names": [
+        "sparkling water",
+        "seltzer"
+      ],
+      "unitLabel": "12 oz can (355 g)",
+      "unitMacros": {
+        "calories": 0.0,
+        "proteinGrams": 0.0,
+        "carbohydrateGrams": 0.0,
+        "fatGrams": 0.0
+      }
+    },
+    {
+      "names": [
+        "protein shake"
+      ],
+      "unitLabel": "1 bottle (325 g)",
+      "unitMacros": {
+        "calories": 160.0,
+        "proteinGrams": 30.0,
+        "carbohydrateGrams": 5.0,
+        "fatGrams": 3.0
+      }
+    },
+    {
+      "names": [
+        "whey protein",
+        "protein powder",
+        "whey protein powder"
+      ],
+      "unitLabel": "1 scoop (30 g)",
+      "unitMacros": {
+        "calories": 120.0,
+        "proteinGrams": 24.0,
+        "carbohydrateGrams": 3.0,
+        "fatGrams": 1.5
+      }
+    },
+    {
+      "names": [
+        "plant protein",
+        "plant protein powder",
+        "pea protein powder"
+      ],
+      "unitLabel": "1 scoop (34 g)",
+      "unitMacros": {
+        "calories": 130.0,
+        "proteinGrams": 21.0,
+        "carbohydrateGrams": 6.0,
+        "fatGrams": 3.0
+      }
+    },
+    {
+      "names": [
+        "black beans"
+      ],
+      "unitLabel": "1 cup cooked (172 g)",
+      "unitMacros": {
+        "calories": 227.0,
+        "proteinGrams": 15.2,
+        "carbohydrateGrams": 40.8,
+        "fatGrams": 0.9
+      }
+    },
+    {
+      "names": [
+        "chickpeas",
+        "garbanzo beans"
+      ],
+      "unitLabel": "1 cup cooked (164 g)",
+      "unitMacros": {
+        "calories": 269.0,
+        "proteinGrams": 14.5,
+        "carbohydrateGrams": 45.0,
+        "fatGrams": 4.2
+      }
+    },
+    {
+      "names": [
+        "lentils"
+      ],
+      "unitLabel": "1 cup cooked (198 g)",
+      "unitMacros": {
+        "calories": 230.0,
+        "proteinGrams": 17.9,
+        "carbohydrateGrams": 39.9,
+        "fatGrams": 0.8
+      }
+    },
+    {
+      "names": [
+        "kidney beans"
+      ],
+      "unitLabel": "1 cup cooked (177 g)",
+      "unitMacros": {
+        "calories": 225.0,
+        "proteinGrams": 15.3,
+        "carbohydrateGrams": 40.4,
+        "fatGrams": 0.9
+      }
+    },
+    {
+      "names": [
+        "hummus"
+      ],
+      "unitLabel": "1 tbsp (15 g)",
+      "unitMacros": {
+        "calories": 25.0,
+        "proteinGrams": 1.2,
+        "carbohydrateGrams": 3.0,
+        "fatGrams": 1.4
+      }
+    },
+    {
+      "names": [
+        "guacamole"
+      ],
+      "unitLabel": "2 tbsp (30 g)",
+      "unitMacros": {
+        "calories": 45.0,
+        "proteinGrams": 0.5,
+        "carbohydrateGrams": 3.0,
+        "fatGrams": 4.0
+      }
+    },
+    {
+      "names": [
+        "dark chocolate"
+      ],
+      "unitLabel": "1 oz (28 g)",
+      "unitMacros": {
+        "calories": 155.0,
+        "proteinGrams": 2.2,
+        "carbohydrateGrams": 13.0,
+        "fatGrams": 11.0
+      }
+    },
+    {
+      "names": [
+        "milk chocolate",
+        "chocolate"
+      ],
+      "unitLabel": "1 oz (28 g)",
+      "unitMacros": {
+        "calories": 152.0,
+        "proteinGrams": 2.0,
+        "carbohydrateGrams": 16.6,
+        "fatGrams": 8.5
+      }
+    },
+    {
+      "names": [
+        "honey"
+      ],
+      "unitLabel": "1 tbsp (21 g)",
+      "unitMacros": {
+        "calories": 64.0,
+        "proteinGrams": 0.1,
+        "carbohydrateGrams": 17.3,
+        "fatGrams": 0.0
+      }
+    },
+    {
+      "names": [
+        "jam",
+        "jelly"
+      ],
+      "unitLabel": "1 tbsp (20 g)",
+      "unitMacros": {
+        "calories": 56.0,
+        "proteinGrams": 0.1,
+        "carbohydrateGrams": 13.8,
+        "fatGrams": 0.0
+      }
+    },
+    {
+      "names": [
+        "maple syrup"
+      ],
+      "unitLabel": "1 tbsp (20 g)",
+      "unitMacros": {
+        "calories": 52.0,
+        "proteinGrams": 0.0,
+        "carbohydrateGrams": 13.4,
+        "fatGrams": 0.0
+      }
+    },
+    {
+      "names": [
+        "sugar"
+      ],
+      "unitLabel": "1 tsp (4.2 g)",
+      "unitMacros": {
+        "calories": 16.0,
+        "proteinGrams": 0.0,
+        "carbohydrateGrams": 4.2,
+        "fatGrams": 0.0
+      }
+    },
+    {
+      "names": [
+        "potato chips",
+        "chips"
+      ],
+      "unitLabel": "1 oz (28 g)",
+      "unitMacros": {
+        "calories": 152.0,
+        "proteinGrams": 2.0,
+        "carbohydrateGrams": 15.0,
+        "fatGrams": 10.0
+      }
+    },
+    {
+      "names": [
+        "popcorn"
+      ],
+      "unitLabel": "1 cup air popped (8 g)",
+      "unitMacros": {
+        "calories": 31.0,
+        "proteinGrams": 1.0,
+        "carbohydrateGrams": 6.2,
+        "fatGrams": 0.4
+      }
+    },
+    {
+      "names": [
+        "granola bar"
+      ],
+      "unitLabel": "1 bar (28 g)",
+      "unitMacros": {
+        "calories": 132.0,
+        "proteinGrams": 3.0,
+        "carbohydrateGrams": 18.5,
+        "fatGrams": 5.5
+      }
+    },
+    {
+      "names": [
+        "protein bar"
+      ],
+      "unitLabel": "1 bar (60 g)",
+      "unitMacros": {
+        "calories": 200.0,
+        "proteinGrams": 20.0,
+        "carbohydrateGrams": 22.0,
+        "fatGrams": 7.0
+      }
+    },
+    {
+      "names": [
+        "french fries"
+      ],
+      "unitLabel": "1 medium serving (117 g)",
+      "unitMacros": {
+        "calories": 365.0,
+        "proteinGrams": 4.0,
+        "carbohydrateGrams": 48.0,
+        "fatGrams": 17.0
+      }
+    },
+    {
+      "names": [
+        "ketchup"
+      ],
+      "unitLabel": "1 tbsp (17 g)",
+      "unitMacros": {
+        "calories": 15.0,
+        "proteinGrams": 0.2,
+        "carbohydrateGrams": 3.7,
+        "fatGrams": 0.0
+      }
+    },
+    {
+      "names": [
+        "mustard"
+      ],
+      "unitLabel": "1 tbsp (15 g)",
+      "unitMacros": {
+        "calories": 3.0,
+        "proteinGrams": 0.2,
+        "carbohydrateGrams": 0.3,
+        "fatGrams": 0.2
+      }
+    },
+    {
+      "names": [
+        "soy sauce"
+      ],
+      "unitLabel": "1 tbsp (16 g)",
+      "unitMacros": {
+        "calories": 8.0,
+        "proteinGrams": 1.3,
+        "carbohydrateGrams": 0.8,
+        "fatGrams": 0.0
+      }
+    },
+    {
+      "names": [
+        "salsa"
+      ],
+      "unitLabel": "1 tbsp (16 g)",
+      "unitMacros": {
+        "calories": 4.0,
+        "proteinGrams": 0.2,
+        "carbohydrateGrams": 0.8,
+        "fatGrams": 0.0
+      }
+    },
+    {
+      "names": [
+        "pizza",
+        "pizza slice"
+      ],
+      "unitLabel": "1 slice (107 g)",
+      "unitMacros": {
+        "calories": 285.0,
+        "proteinGrams": 12.0,
+        "carbohydrateGrams": 36.0,
+        "fatGrams": 10.0
+      }
+    },
+    {
+      "names": [
+        "hamburger",
+        "cheeseburger",
+        "burger"
+      ],
+      "unitLabel": "1 burger",
+      "unitMacros": {
+        "calories": 540.0,
+        "proteinGrams": 29.0,
+        "carbohydrateGrams": 40.0,
+        "fatGrams": 29.0
+      }
+    },
+    {
+      "names": [
+        "salad",
+        "mixed salad",
+        "greens"
+      ],
+      "unitLabel": "2 cups, dressing included",
+      "unitMacros": {
+        "calories": 260.0,
+        "proteinGrams": 8.0,
+        "carbohydrateGrams": 22.0,
+        "fatGrams": 17.0
+      }
+    },
+    {
+      "names": [
+        "sandwich",
+        "submarine sandwich"
+      ],
+      "unitLabel": "1 sandwich",
+      "unitMacros": {
+        "calories": 450.0,
+        "proteinGrams": 24.0,
+        "carbohydrateGrams": 48.0,
+        "fatGrams": 18.0
+      }
+    },
+    {
+      "names": [
+        "sushi",
+        "sushi roll",
+        "maki"
+      ],
+      "unitLabel": "8 pieces",
+      "unitMacros": {
+        "calories": 330.0,
+        "proteinGrams": 13.0,
+        "carbohydrateGrams": 53.0,
+        "fatGrams": 8.0
+      }
+    },
+    {
+      "names": [
+        "soup",
+        "stew"
+      ],
+      "unitLabel": "2 cups",
+      "unitMacros": {
+        "calories": 300.0,
+        "proteinGrams": 18.0,
+        "carbohydrateGrams": 32.0,
+        "fatGrams": 11.0
+      }
+    },
+    {
+      "names": [
+        "taco",
+        "tacos"
+      ],
+      "unitLabel": "2 tacos",
+      "unitMacros": {
+        "calories": 420.0,
+        "proteinGrams": 22.0,
+        "carbohydrateGrams": 38.0,
+        "fatGrams": 20.0
+      }
+    }
+  ]
+}

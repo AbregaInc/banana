@@ -1,0 +1,15 @@
+(lldb) target create ".build/calendar-skia-evaluation-20261009/skia-smoke"
+Current executable set to '~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-evaluation-20261009/skia-smoke' (arm64).
+(lldb) run
+Process 76729 launched: '~/orca/workspaces/gtfuwgth/stingray/.build/calendar-skia-evaluation-20261009/skia-smoke' (arm64)
+Process 76729 stopped
+* thread #1, queue = 'com.apple.main-thread', stop reason = EXC_BAD_ACCESS (code=1, address=0x0)
+       frame #0: 0x0000000100112cb8 skia-smoke`SkFontMgr::matchFamilyStyleCharacter(char const*, SkFontStyle const&, char const**, int, int) const
+skia-smoke`SkFontMgr::matchFamilyStyleCharacter:
+->  0x100112cb8 <+0>: ldr    x9, [x0]
+    0x100112cbc <+4>: ldr    x6, [x9, #0x40]
+    0x100112cc0 <+8>: br     x6
+
+skia-smoke`SkFontMgr::match:
+    0x100112cc4 <+0>: ldr    x9, [x0]
+Target 0: (skia-smoke) stopped.

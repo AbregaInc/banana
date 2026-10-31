@@ -1,0 +1,160 @@
+[
+  {
+    "case": "day-100-all",
+    "exitCode": 0,
+    "hostClean": true,
+    "command": [
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-async-preparation/AsyncTileChecks-v3",
+      "--mode",
+      "day",
+      "--density",
+      "100",
+      "--output",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-async-preparation/component-v3/day-100-all.json"
+    ]
+  },
+  {
+    "case": "day-300-all",
+    "exitCode": 0,
+    "hostClean": true,
+    "command": [
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-async-preparation/AsyncTileChecks-v3",
+      "--mode",
+      "day",
+      "--density",
+      "300",
+      "--output",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-async-preparation/component-v3/day-300-all.json"
+    ]
+  },
+  {
+    "case": "week-100-all",
+    "exitCode": 0,
+    "hostClean": true,
+    "command": [
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-async-preparation/AsyncTileChecks-v3",
+      "--mode",
+      "week",
+      "--density",
+      "100",
+      "--output",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-async-preparation/component-v3/week-100-all.json"
+    ]
+  },
+  {
+    "case": "week-100-0",
+    "exitCode": 0,
+    "hostClean": true,
+    "command": [
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-async-preparation/AsyncTileChecks-v3",
+      "--mode",
+      "week",
+      "--density",
+      "100",
+      "--output",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-async-preparation/component-v3/week-100-0.json",
+      "--workers",
+      "0",
+      "--memory-probe"
+    ]
+  },
+  {
+    "case": "week-100-1",
+    "exitCode": 0,
+    "hostClean": true,
+    "command": [
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-async-preparation/AsyncTileChecks-v3",
+      "--mode",
+      "week",
+      "--density",
+      "100",
+      "--output",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-async-preparation/component-v3/week-100-1.json",
+      "--workers",
+      "1",
+      "--memory-probe"
+    ]
+  },
+  {
+    "case": "week-100-2",
+    "exitCode": 0,
+    "hostClean": true,
+    "command": [
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-async-preparation/AsyncTileChecks-v3",
+      "--mode",
+      "week",
+      "--density",
+      "100",
+      "--output",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-async-preparation/component-v3/week-100-2.json",
+      "--workers",
+      "2",
+      "--memory-probe"
+    ]
+  },
+  {
+    "case": "week-300-all",
+    "exitCode": 0,
+    "hostClean": true,
+    "command": [
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-async-preparation/AsyncTileChecks-v3",
+      "--mode",
+      "week",
+      "--density",
+      "300",
+      "--output",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-async-preparation/component-v3/week-300-all.json"
+    ]
+  },
+  {
+    "case": "week-300-0",
+    "exitCode": 0,
+    "hostClean": true,
+    "command": [
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-async-preparation/AsyncTileChecks-v3",
+      "--mode",
+      "week",
+      "--density",
+      "300",
+      "--output",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-async-preparation/component-v3/week-300-0.json",
+      "--workers",
+      "0",
+      "--memory-probe"
+    ]
+  },
+  {
+    "case": "week-300-1",
+    "exitCode": 0,
+    "hostClean": true,
+    "command": [
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-async-preparation/AsyncTileChecks-v3",
+      "--mode",
+      "week",
+      "--density",
+      "300",
+      "--output",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-async-preparation/component-v3/week-300-1.json",
+      "--workers",
+      "1",
+      "--memory-probe"
+    ]
+  },
+  {
+    "case": "week-300-2",
+    "exitCode": 0,
+    "hostClean": true,
+    "command": [
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-async-preparation/AsyncTileChecks-v3",
+      "--mode",
+      "week",
+      "--density",
+      "300",
+      "--output",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-async-preparation/component-v3/week-300-2.json",
+      "--workers",
+      "2",
+      "--memory-probe"
+    ]
+  }
+]

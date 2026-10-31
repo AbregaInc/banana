@@ -1,0 +1,14 @@
+{
+  "scope": "Physical touch correctness; gesture wall clock is not input/display latency",
+  "timestamp": "2026-10-09T06:36:25.798960-04:00",
+  "device": "<device-udid>",
+  "density": 300,
+  "ablation": "tile-prefetch-async-lazy",
+  "asyncWorkers": 2,
+  "presentationPolicy": "immediate",
+  "status": "passed-correctness",
+  "binarySHA256": "885e75f15daa0cd5a31b2235101778e4947052a09a9f5306b91a2302be76285c",
+  "git": "85914f96b9905a85cc8999168d6fe8128c264c49",
+  "dirty": " M docs/performance/scale-results/calendar-native-surfaces-20261009/README.md\n M tools/calendar-library-benchmark/Info.plist\n M tools/calendar-library-benchmark/Sources/NativeController.swift\n M tools/calendar-library-benchmark/profile-touch.py\n M tools/calendar-library-benchmark/project.yml\n M tools/calendar-library-benchmark/report-hitches.py\n M tools/calendar-library-benchmark/test-device-interactive.py\n M tools/calendar-library-benchmark/test_hitches_report.py\n?? docs/performance/scale-results/calendar-native-surfaces-20261009/physical-cg-swipe/\n?? docs/performance/scale-results/calendar-native-surfaces-20261009/physical-surface-accessibility-client-pooled.json\n?? docs/performance/scale-results/calendar-native-surfaces-20261009/physical-surface-accessibility-client/\n?? docs/performance/scale-results/calendar-native-surfaces-20261009/physical-surface-storage-pooled.json\n?? docs/performance/scale-results/calendar-native-surfaces-20261009/physical-surface-storage/\n",
+  "latencyAcceptance": "unmeasured"
+}

@@ -1,0 +1,11 @@
+{
+  "timestamp": "2026-10-08T23:56:29.805242-04:00",
+  "platform": "macOS-26.6.2-arm64-arm-64bit",
+  "pid": 56381,
+  "git": "976403cf01a6c80b83dae52f07a7f0d4071d7855",
+  "dirty": " M .github/workflows/performance-contract.yml\n M Banana/Views/WeekView.swift\n M docs/performance/scale-results/calendar-grid-20261008/README.md\n M tools/calendar-library-benchmark/Native/MacBenchmark.swift\n M tools/calendar-library-benchmark/Shared/CalendarSurface.swift\n M tools/calendar-library-benchmark/Shared/Optimizations.swift\n M tools/calendar-library-benchmark/Shared/RasterPage.swift\n M tools/calendar-library-benchmark/Sources/Benchmark.swift\n M tools/calendar-library-benchmark/Sources/NativeController.swift\n M tools/calendar-library-benchmark/report.py\n M tools/calendar-library-benchmark/run-mac.py\n M tools/calendar-library-benchmark/run.py\n M tools/calendar-library-benchmark/test_report.py\n?? Banana/Model/CalendarOverflowRules.swift\n?? docs/performance/scale-results/calendar-overflow-20261009/\n?? docs/performance/scale-results/calendar-tiles-20261009/\n?? tools/calendar-library-benchmark/Shared/TileRenderer.swift\n?? tools/calendar-library-benchmark/TileTests/\n?? tools/calendar-library-benchmark/run-device.py\n?? tools/calendar-overflow-tests/\n",
+  "load": "23:56  up 3 days, 22 hrs, 31 users, load averages: 20.95 32.02 55.82",
+  "scenario": "Visible isolated Mac mail-calendar overload: 180k mail, 36500 events, 5000 notes, 20000 episodes. CUA four alternating half-page down/up pairs, four J pages, four K pages; warm calendar. Corrected overflow grouping and header popover. No competing build or benchmark. Two older idle isolated previews remain as in baseline.",
+  "executable": "~/orca/workspaces/gtfuwgth/stingray/.build/mac-stress-previews/20261008-235531-683026/Banana Stress Review.app/Contents/MacOS/Banana Beta",
+  "binarySHA256": "11020724f67b34507976c532e5ffc61a29cc8f888824a619009368bd994e8054"
+}

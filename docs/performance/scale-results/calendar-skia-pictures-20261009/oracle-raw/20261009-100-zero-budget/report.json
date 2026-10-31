@@ -1,0 +1,387 @@
+{
+  "acceptance" : "unmeasured",
+  "cgPaths" : true,
+  "fixture" : {
+    "calendarCount" : 12,
+    "calendarEventCounts" : {
+      "0" : 3030,
+      "1" : 3034,
+      "2" : 3038,
+      "3" : 3036,
+      "4" : 3044,
+      "5" : 3048,
+      "6" : 3054,
+      "7" : 3047,
+      "8" : 3045,
+      "9" : 3045,
+      "10" : 3043,
+      "11" : 3036
+    },
+    "contentChecksum" : "cc21d0109064e527",
+    "distinctDailyPatterns" : 365,
+    "distinctDurations" : 12,
+    "distinctTitles" : 36500,
+    "distinctWeeklyPatterns" : 52,
+    "hiddenCalendars" : [
+
+    ],
+    "maximumDailyEvents" : 193,
+    "meanDailyEvents" : 100,
+    "minimumDailyEvents" : 17,
+    "profile" : "varied-v1",
+    "retainedEvents" : 36500,
+    "scope" : "Immutable timed-event fixture; no recurrence expansion, provider sync or dynamic edit\/filter invalidation",
+    "seed" : "20261009",
+    "sevenDayBlockEvents" : 700
+  },
+  "managedColors" : true,
+  "pictureLimit" : 0,
+  "results" : [
+    {
+      "samples" : [
+        {
+          "coreGraphicsRasterMS" : 138.17233401536942,
+          "coreGraphicsTileBytes" : 14548992,
+          "first" : "coreGraphics",
+          "pictureBytes" : 0,
+          "pictureCount" : 0,
+          "pictureHits" : 0,
+          "pictureMisses" : 4,
+          "pixels" : [
+            {
+              "events" : 175,
+              "maxChannelDifference" : 137,
+              "meanAbsoluteChannelDifference" : 0.31548021363443596,
+              "pixelsOverOne" : 108168,
+              "skiaEvents" : 175,
+              "skiaPhaseMaxDifference" : 0,
+              "tile" : 0,
+              "totalPixels" : 905472
+            },
+            {
+              "events" : 172,
+              "maxChannelDifference" : 143,
+              "meanAbsoluteChannelDifference" : 0.25408930370016963,
+              "pixelsOverOne" : 89500,
+              "skiaEvents" : 172,
+              "skiaPhaseMaxDifference" : 0,
+              "tile" : 1,
+              "totalPixels" : 905472
+            },
+            {
+              "events" : 235,
+              "maxChannelDifference" : 138,
+              "meanAbsoluteChannelDifference" : 0.25948814540924514,
+              "pixelsOverOne" : 85640,
+              "skiaEvents" : 235,
+              "skiaPhaseMaxDifference" : 0,
+              "tile" : 2,
+              "totalPixels" : 905472
+            },
+            {
+              "events" : 287,
+              "maxChannelDifference" : 137,
+              "meanAbsoluteChannelDifference" : 0.2363510412249081,
+              "pixelsOverOne" : 80965,
+              "skiaEvents" : 287,
+              "skiaPhaseMaxDifference" : 0,
+              "tile" : 3,
+              "totalPixels" : 905472
+            }
+          ],
+          "skiaCacheBytes" : 31246786,
+          "skiaCompletionMS" : 78.359791994094849,
+          "skiaEncodeMS" : 51.040916979312897,
+          "state" : "cold-raster"
+        },
+        {
+          "coreGraphicsRasterMS" : 166.81745898723602,
+          "coreGraphicsTileBytes" : 14548992,
+          "first" : "coreGraphics",
+          "pictureBytes" : 0,
+          "pictureCount" : 0,
+          "pictureHits" : 0,
+          "pictureMisses" : 4,
+          "pixels" : [
+            {
+              "events" : 175,
+              "maxChannelDifference" : 137,
+              "meanAbsoluteChannelDifference" : 0.31548021363443596,
+              "pixelsOverOne" : 108168,
+              "skiaEvents" : 175,
+              "skiaPhaseMaxDifference" : 0,
+              "tile" : 0,
+              "totalPixels" : 905472
+            },
+            {
+              "events" : 172,
+              "maxChannelDifference" : 143,
+              "meanAbsoluteChannelDifference" : 0.25408930370016963,
+              "pixelsOverOne" : 89500,
+              "skiaEvents" : 172,
+              "skiaPhaseMaxDifference" : 0,
+              "tile" : 1,
+              "totalPixels" : 905472
+            },
+            {
+              "events" : 235,
+              "maxChannelDifference" : 138,
+              "meanAbsoluteChannelDifference" : 0.25948731711195927,
+              "pixelsOverOne" : 85640,
+              "skiaEvents" : 235,
+              "skiaPhaseMaxDifference" : 1,
+              "tile" : 2,
+              "totalPixels" : 905472
+            },
+            {
+              "events" : 287,
+              "maxChannelDifference" : 137,
+              "meanAbsoluteChannelDifference" : 0.2363510412249081,
+              "pixelsOverOne" : 80965,
+              "skiaEvents" : 287,
+              "skiaPhaseMaxDifference" : 0,
+              "tile" : 3,
+              "totalPixels" : 905472
+            }
+          ],
+          "skiaCacheBytes" : 31115714,
+          "skiaCompletionMS" : 63.347208023071289,
+          "skiaEncodeMS" : 58.170542001724243,
+          "state" : "warm-reraster"
+        },
+        {
+          "coreGraphicsRasterMS" : 91.93529200553894,
+          "coreGraphicsTileBytes" : 14548992,
+          "first" : "coreGraphics",
+          "pictureBytes" : 0,
+          "pictureCount" : 0,
+          "pictureHits" : 0,
+          "pictureMisses" : 4,
+          "pixels" : [
+            {
+              "events" : 175,
+              "maxChannelDifference" : 137,
+              "meanAbsoluteChannelDifference" : 0.31548021363443596,
+              "pixelsOverOne" : 108168,
+              "skiaEvents" : 175,
+              "skiaPhaseMaxDifference" : 0,
+              "tile" : 0,
+              "totalPixels" : 905472
+            },
+            {
+              "events" : 172,
+              "maxChannelDifference" : 143,
+              "meanAbsoluteChannelDifference" : 0.25408930370016963,
+              "pixelsOverOne" : 89500,
+              "skiaEvents" : 172,
+              "skiaPhaseMaxDifference" : 0,
+              "tile" : 1,
+              "totalPixels" : 905472
+            },
+            {
+              "events" : 235,
+              "maxChannelDifference" : 138,
+              "meanAbsoluteChannelDifference" : 0.25948731711195927,
+              "pixelsOverOne" : 85640,
+              "skiaEvents" : 235,
+              "skiaPhaseMaxDifference" : 1,
+              "tile" : 2,
+              "totalPixels" : 905472
+            },
+            {
+              "events" : 287,
+              "maxChannelDifference" : 137,
+              "meanAbsoluteChannelDifference" : 0.2363510412249081,
+              "pixelsOverOne" : 80965,
+              "skiaEvents" : 287,
+              "skiaPhaseMaxDifference" : 0,
+              "tile" : 3,
+              "totalPixels" : 905472
+            }
+          ],
+          "skiaCacheBytes" : 31181250,
+          "skiaCompletionMS" : 56.674625039100647,
+          "skiaEncodeMS" : 50.872042000293732,
+          "state" : "eviction-reraster"
+        }
+      ],
+      "scale" : 3,
+      "startupMS" : 89.692291021347046,
+      "widthPoints" : 393
+    },
+    {
+      "samples" : [
+        {
+          "coreGraphicsRasterMS" : 90.60512501001358,
+          "coreGraphicsTileBytes" : 22413312,
+          "first" : "coreGraphics",
+          "pictureBytes" : 0,
+          "pictureCount" : 0,
+          "pictureHits" : 0,
+          "pictureMisses" : 4,
+          "pixels" : [
+            {
+              "events" : 175,
+              "maxChannelDifference" : 248,
+              "meanAbsoluteChannelDifference" : 0.30000718481195093,
+              "pixelsOverOne" : 86502,
+              "skiaEvents" : 175,
+              "skiaPhaseMaxDifference" : 0,
+              "tile" : 0,
+              "totalPixels" : 1398784
+            },
+            {
+              "events" : 172,
+              "maxChannelDifference" : 251,
+              "meanAbsoluteChannelDifference" : 0.19738501441251829,
+              "pixelsOverOne" : 67805,
+              "skiaEvents" : 172,
+              "skiaPhaseMaxDifference" : 0,
+              "tile" : 1,
+              "totalPixels" : 1398784
+            },
+            {
+              "events" : 235,
+              "maxChannelDifference" : 251,
+              "meanAbsoluteChannelDifference" : 0.19358403441846633,
+              "pixelsOverOne" : 63509,
+              "skiaEvents" : 235,
+              "skiaPhaseMaxDifference" : 0,
+              "tile" : 2,
+              "totalPixels" : 1398784
+            },
+            {
+              "events" : 287,
+              "maxChannelDifference" : 251,
+              "meanAbsoluteChannelDifference" : 0.18788998158400438,
+              "pixelsOverOne" : 57658,
+              "skiaEvents" : 287,
+              "skiaPhaseMaxDifference" : 0,
+              "tile" : 3,
+              "totalPixels" : 1398784
+            }
+          ],
+          "skiaCacheBytes" : 33536000,
+          "skiaCompletionMS" : 47.500750005245209,
+          "skiaEncodeMS" : 33.02054101228714,
+          "state" : "cold-raster"
+        },
+        {
+          "coreGraphicsRasterMS" : 86.003250002861023,
+          "coreGraphicsTileBytes" : 22413312,
+          "first" : "coreGraphics",
+          "pictureBytes" : 0,
+          "pictureCount" : 0,
+          "pictureHits" : 0,
+          "pictureMisses" : 4,
+          "pixels" : [
+            {
+              "events" : 175,
+              "maxChannelDifference" : 248,
+              "meanAbsoluteChannelDifference" : 0.30000718481195093,
+              "pixelsOverOne" : 86502,
+              "skiaEvents" : 175,
+              "skiaPhaseMaxDifference" : 0,
+              "tile" : 0,
+              "totalPixels" : 1398784
+            },
+            {
+              "events" : 172,
+              "maxChannelDifference" : 251,
+              "meanAbsoluteChannelDifference" : 0.19738501441251829,
+              "pixelsOverOne" : 67805,
+              "skiaEvents" : 172,
+              "skiaPhaseMaxDifference" : 0,
+              "tile" : 1,
+              "totalPixels" : 1398784
+            },
+            {
+              "events" : 235,
+              "maxChannelDifference" : 251,
+              "meanAbsoluteChannelDifference" : 0.19358403441846633,
+              "pixelsOverOne" : 63509,
+              "skiaEvents" : 235,
+              "skiaPhaseMaxDifference" : 0,
+              "tile" : 2,
+              "totalPixels" : 1398784
+            },
+            {
+              "events" : 287,
+              "maxChannelDifference" : 251,
+              "meanAbsoluteChannelDifference" : 0.18788998158400438,
+              "pixelsOverOne" : 57658,
+              "skiaEvents" : 287,
+              "skiaPhaseMaxDifference" : 0,
+              "tile" : 3,
+              "totalPixels" : 1398784
+            }
+          ],
+          "skiaCacheBytes" : 33536000,
+          "skiaCompletionMS" : 39.389500021934509,
+          "skiaEncodeMS" : 32.481875002384186,
+          "state" : "warm-reraster"
+        },
+        {
+          "coreGraphicsRasterMS" : 78.43149995803833,
+          "coreGraphicsTileBytes" : 22413312,
+          "first" : "coreGraphics",
+          "pictureBytes" : 0,
+          "pictureCount" : 0,
+          "pictureHits" : 0,
+          "pictureMisses" : 4,
+          "pixels" : [
+            {
+              "events" : 175,
+              "maxChannelDifference" : 248,
+              "meanAbsoluteChannelDifference" : 0.30000718481195093,
+              "pixelsOverOne" : 86502,
+              "skiaEvents" : 175,
+              "skiaPhaseMaxDifference" : 0,
+              "tile" : 0,
+              "totalPixels" : 1398784
+            },
+            {
+              "events" : 172,
+              "maxChannelDifference" : 251,
+              "meanAbsoluteChannelDifference" : 0.19738501441251829,
+              "pixelsOverOne" : 67805,
+              "skiaEvents" : 172,
+              "skiaPhaseMaxDifference" : 0,
+              "tile" : 1,
+              "totalPixels" : 1398784
+            },
+            {
+              "events" : 235,
+              "maxChannelDifference" : 251,
+              "meanAbsoluteChannelDifference" : 0.19358403441846633,
+              "pixelsOverOne" : 63509,
+              "skiaEvents" : 235,
+              "skiaPhaseMaxDifference" : 0,
+              "tile" : 2,
+              "totalPixels" : 1398784
+            },
+            {
+              "events" : 287,
+              "maxChannelDifference" : 251,
+              "meanAbsoluteChannelDifference" : 0.18788998158400438,
+              "pixelsOverOne" : 57658,
+              "skiaEvents" : 287,
+              "skiaPhaseMaxDifference" : 0,
+              "tile" : 3,
+              "totalPixels" : 1398784
+            }
+          ],
+          "skiaCacheBytes" : 33536000,
+          "skiaCompletionMS" : 39.080875039100647,
+          "skiaEncodeMS" : 29.192917048931122,
+          "state" : "eviction-reraster"
+        }
+      ],
+      "scale" : 2,
+      "startupMS" : 7.4585829973220825,
+      "widthPoints" : 1366
+    }
+  ],
+  "reusePictures" : true,
+  "scope" : "Four tile raster jobs using identical Core Text layout; no presentation or input latency"
+}

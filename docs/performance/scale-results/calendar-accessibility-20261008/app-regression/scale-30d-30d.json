@@ -1,0 +1,83 @@
+{
+  "days": 30,
+  "emails": 60000,
+  "episodes": 300000,
+  "events": 3000,
+  "metrics": [
+    {
+      "budgetMS": 50,
+      "checksum": 350,
+      "medianMS": 0.00020832521840929985,
+      "name": "mail.firstPage",
+      "p95MS": 14.096166705712676
+    },
+    {
+      "budgetMS": 100,
+      "checksum": 350,
+      "medianMS": 0.006958318408578634,
+      "name": "mail.readMutation",
+      "p95MS": 0.06499997107312083
+    },
+    {
+      "budgetMS": 16,
+      "checksum": 4900,
+      "medianMS": 0.28404168551787734,
+      "name": "calendar.visibleWeek",
+      "p95MS": 4.814958316273987
+    },
+    {
+      "budgetMS": 8,
+      "checksum": 700,
+      "medianMS": 0.003125052899122238,
+      "name": "calendar.day",
+      "p95MS": 0.7690833299420774
+    },
+    {
+      "budgetMS": 100,
+      "checksum": 700,
+      "medianMS": 17.81083334935829,
+      "name": "notes.search",
+      "p95MS": 77.8991249972023
+    },
+    {
+      "budgetMS": 16,
+      "checksum": 700,
+      "medianMS": 1.0261250426992774,
+      "name": "notes.browse",
+      "p95MS": 1.4757083263248205
+    },
+    {
+      "budgetMS": 100,
+      "checksum": 2100,
+      "medianMS": 16.925208328757435,
+      "name": "podcasts.nextAcrossCatalog",
+      "p95MS": 31.058833352290094
+    },
+    {
+      "budgetMS": 100,
+      "checksum": 6300,
+      "medianMS": 22.807833331171423,
+      "name": "podcasts.downloadCandidates",
+      "p95MS": 40.24804168147966
+    }
+  ],
+  "notes": 30000,
+  "passed": true,
+  "platform": "iOS Simulator; disk-paged notes and podcasts; model operations; mail fixture source",
+  "podcasts": 300,
+  "residentMB": 457.65625,
+  "schemaVersion": 1,
+  "label": "scale-30d",
+  "commit": "bc6a01455e3509d19158b1e1994b9b07db642a8b",
+  "device": "5829A24D-81B4-49D9-A31A-C7553C32D527",
+  "binarySHA256": "2ed3a4f34fcd7c49eb564320d1a6d5965df0dbc0e507100732cb810286b9681e",
+  "hostLoad": [
+    27.12060546875,
+    21.5146484375,
+    17.3681640625
+  ],
+  "dirty": true,
+  "readySeconds": 9.4,
+  "memoryBudgetMB": 900.0,
+  "memoryPassed": true
+}

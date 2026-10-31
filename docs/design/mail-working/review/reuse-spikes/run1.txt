@@ -1,0 +1,40 @@
+18:43  up 16:47, 21 users, load averages: 87.08 149.64 207.55
+GRDB 7.11.1 · SQLite 3.51.0 · load 87 150 208
+
+1. Topology and pragmas (§4.2)
+  ok    DatabasePool opens index.sqlite in WAL
+  ok    writer has wal_autocheckpoint=0
+  ok    migrator ran once and reports not superseded
+  ok    an older build sees the file as newer than itself (4.9: do not open)
+  FAIL  intent: synchronous=FULL(2) and fullfsync=1 read back
+  ok    FTS5 contentless_delete: replace dropped the old terms, kept the new
+  ok    FTS5 prefix query streams newest first by our row id
+  ok    search connection joins the attached index read-only
+  ok    attached index cannot be written through the read-only connection
+
+2. Data
+  70000 threads, 93333 view rows · load 87 150 208
+  ok    explicit passive checkpoint through GRDB runs (wal file 23059672 bytes stays allocated, as in WAL)
+  ok    interrupt() ends the search query with SQLITE_INTERRUPT in 0.3 ms; the pool's read was untouched (3333)
+  ok    a file that is not a database throws 26 (file is not a database) (extended 26); message has no bound values
+
+3. The list page (§4.4): 50 rows, 15 columns, keyset · load 87 150 208
+  raw C API, prepared once p50  0.0574 ms  p95  0.0690 ms  p99  0.0888 ms  (n=3000)
+  GRDB pool.read + cached statement + Row p50  0.1197 ms  p95  0.1500 ms  p99  0.2414 ms  (n=3000)
+  GRDB pool.unsafeRead (no transaction) + Row p50  0.1155 ms  p95  0.1492 ms  p99  0.2343 ms  (n=3000)
+  GRDB pool.read + C API on its cached statement p50  0.1108 ms  p95  0.1387 ms  p99  0.2189 ms  (n=3000)
+  GRDB pool.read + Codable FetchableRecord (the easy way) p50  0.1800 ms  p95  0.1922 ms  p99  0.2206 ms  (n=3000)
+  unread count on the partial index, GRDB p50  0.0708 ms  p95  0.0763 ms  p99  0.1133 ms  (n=3000)
+  plan: SEARCH v USING PRIMARY KEY (view_pk=? AND sort_key>? AND (sort_key,thread_pk)<(?,?)) | SEARCH t USING INTEGER PRIMARY KEY (rowid=?)
+
+4. A 50-message write transaction (§4.12) · load 87 150 208
+  GRDB pool.write, cached statements, 50 messages p50  0.4312 ms  p95  0.4844 ms  p99  9.1807 ms  (n=300)
+  raw C API, prepared once, 50 messages p50  0.3057 ms  p95  0.3718 ms  p99  6.9826 ms  (n=300)
+
+5. Intent commit, three rows, full fsync (§4.2) · load 84 148 207
+  GRDB DatabaseQueue.write p50  0.0173 ms  p95  0.0302 ms  p99  0.0369 ms  (n=150)
+  raw C API p50  0.2528 ms  p95  0.8697 ms  p99  2.2400 ms  (n=150)
+
+12 checks · total rows touched 10769000 · load 84 148 207
+.build/release/sqlspike $S/sqlspike/data  2.53s user 0.34s system 81% cpu 3.506 total
+18:43  up 16:47, 21 users, load averages: 84.03 147.97 206.62

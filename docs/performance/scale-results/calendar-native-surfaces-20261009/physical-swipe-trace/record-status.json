@@ -1,0 +1,26 @@
+{
+  "status": "recorded-unvalidated",
+  "timestamp": "2026-10-09T05:48:48.276575-04:00",
+  "command": [
+    "xcrun",
+    "xctrace",
+    "record",
+    "--device",
+    "Spar<redacted>",
+    "--template",
+    "Animation Hitches",
+    "--attach",
+    "11659",
+    "--time-limit",
+    "8s",
+    "--output",
+    "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-touch/iphone-surface-lazy-300-lean-trace/touch.trace",
+    "--no-prompt"
+  ],
+  "device": "Spar<redacted>",
+  "pid": 11659,
+  "scope": "Physical trace collection; verify input overlap, schema, completeness and process identity before analysis",
+  "exitCode": 0,
+  "reason": null,
+  "elapsedSeconds": 42.350556750025135
+}

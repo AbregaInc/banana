@@ -1,0 +1,138 @@
+{
+  "failures" : [
+    "iOS scope 1: retained removed row\/display IDs",
+    "macOS scope 1: retained removed row\/display IDs",
+    "iOS scope 2: retained removed row\/display IDs",
+    "macOS scope 2: retained removed row\/display IDs",
+    "iOS scope 3: retained removed row\/display IDs",
+    "macOS scope 3: retained removed row\/display IDs",
+    "iOS scope 4: retained removed row\/display IDs",
+    "macOS scope 4: retained removed row\/display IDs",
+    "iOS scope 5: retained removed row\/display IDs",
+    "macOS scope 5: retained removed row\/display IDs",
+    "iOS scope 6: retained removed row\/display IDs",
+    "macOS scope 6: retained removed row\/display IDs",
+    "iOS scope 7: retained removed row\/display IDs",
+    "macOS scope 7: retained removed row\/display IDs",
+    "iOS empty scope retains previous data",
+    "macOS empty scope retains previous data",
+    "Latest completed retirement failed to evict its row",
+    "Out-of-order completion leaked retired rows"
+  ],
+  "samples" : [
+    {
+      "platform" : "iOS",
+      "retainedDisplays" : 64,
+      "retainedRows" : 64,
+      "scope" : 0,
+      "visible" : 64
+    },
+    {
+      "platform" : "macOS",
+      "retainedDisplays" : 64,
+      "retainedRows" : 64,
+      "scope" : 0,
+      "visible" : 64
+    },
+    {
+      "platform" : "iOS",
+      "retainedDisplays" : 128,
+      "retainedRows" : 128,
+      "scope" : 1,
+      "visible" : 64
+    },
+    {
+      "platform" : "macOS",
+      "retainedDisplays" : 128,
+      "retainedRows" : 128,
+      "scope" : 1,
+      "visible" : 64
+    },
+    {
+      "platform" : "iOS",
+      "retainedDisplays" : 192,
+      "retainedRows" : 192,
+      "scope" : 2,
+      "visible" : 64
+    },
+    {
+      "platform" : "macOS",
+      "retainedDisplays" : 192,
+      "retainedRows" : 192,
+      "scope" : 2,
+      "visible" : 64
+    },
+    {
+      "platform" : "iOS",
+      "retainedDisplays" : 256,
+      "retainedRows" : 256,
+      "scope" : 3,
+      "visible" : 64
+    },
+    {
+      "platform" : "macOS",
+      "retainedDisplays" : 256,
+      "retainedRows" : 256,
+      "scope" : 3,
+      "visible" : 64
+    },
+    {
+      "platform" : "iOS",
+      "retainedDisplays" : 320,
+      "retainedRows" : 320,
+      "scope" : 4,
+      "visible" : 64
+    },
+    {
+      "platform" : "macOS",
+      "retainedDisplays" : 320,
+      "retainedRows" : 320,
+      "scope" : 4,
+      "visible" : 64
+    },
+    {
+      "platform" : "iOS",
+      "retainedDisplays" : 384,
+      "retainedRows" : 384,
+      "scope" : 5,
+      "visible" : 64
+    },
+    {
+      "platform" : "macOS",
+      "retainedDisplays" : 384,
+      "retainedRows" : 384,
+      "scope" : 5,
+      "visible" : 64
+    },
+    {
+      "platform" : "iOS",
+      "retainedDisplays" : 448,
+      "retainedRows" : 448,
+      "scope" : 6,
+      "visible" : 64
+    },
+    {
+      "platform" : "macOS",
+      "retainedDisplays" : 448,
+      "retainedRows" : 448,
+      "scope" : 6,
+      "visible" : 64
+    },
+    {
+      "platform" : "iOS",
+      "retainedDisplays" : 512,
+      "retainedRows" : 512,
+      "scope" : 7,
+      "visible" : 64
+    },
+    {
+      "platform" : "macOS",
+      "retainedDisplays" : 512,
+      "retainedRows" : 512,
+      "scope" : 7,
+      "visible" : 64
+    }
+  ],
+  "scope" : "Actual host dictionary membership; adapter types do not measure UI transitions, text, bytes or latency",
+  "status" : "fail"
+}

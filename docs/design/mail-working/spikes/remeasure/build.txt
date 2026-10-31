@@ -1,0 +1,17 @@
+GRDB 7.11.1 · SQLite 3.51.0 · 2026-10-06 00:41:05 +0000 · load 497.7 202.7 92.7
+
+== build 200000 messages, newest first, 50 per index transaction, FTS in its own file · load 497.7 202.7 92.7
+  pragmas read back — index writer: journal wal, synchronous 1, wal_autocheckpoint 0, cache_size -4096; intent: synchronous 2, fullfsync 1
+  200011 messages in 69608 conversations, 763.2 MB of indexed text, 231.0 s in all · load 700.1 494.0 249.5
+  index transaction of ~50 messages (GRDB, cached statements, explicit checkpoints): n=3495 p50 3.230 ms · p95 14.216 ms · p99 30.305 ms · max 193.092 ms
+  search transaction of the same ~50 messages (FTS5, own file): n=3495 p50 41.076 ms · p95 117.623 ms · p99 174.571 ms · max 430.655 ms
+  index.sqlite 172.7 MB · search.sqlite 1118.2 MB (146 % of the text)
+  rows: message 200011 · thread 69608 · message_label 281098 · view_thread 313767
+    message: 81.2 MB
+    thread: 24.7 MB
+    view_thread: 14.6 MB
+    view_thread_by_thread: 9.0 MB
+    correspondent_key: 7.8 MB
+    message_by_rfc_id: 5.9 MB
+    sqlite_autoindex_message_1: 5.6 MB
+    message_by_fts: 4.7 MB

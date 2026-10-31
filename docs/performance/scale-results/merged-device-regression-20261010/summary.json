@@ -1,0 +1,154 @@
+{
+  "scope": "Merged Beta integration checks and partial performance evidence; no full input-to-visible acceptance",
+  "componentGate": {
+    "status": "fail",
+    "scope": "Simulator components, not UI acceptance",
+    "baselineVersion": 1,
+    "failures": {
+      "scale-1d": [
+        "Competing developer workload or incomplete host monitoring; samples retained, clean comparison required"
+      ],
+      "redraw-mail": [
+        "Competing developer workload or incomplete host monitoring; samples retained, clean comparison required"
+      ]
+    }
+  },
+  "deviceTimings": {
+    "spare/day": {
+      "measuredWorkBudget": "fail",
+      "timings": {
+        "appUpdates": {
+          "count": 631,
+          "p50MS": 3.419666,
+          "p95MS": 10.463208,
+          "p99MS": 29.498666,
+          "maxMS": 33.685958,
+          "over8_3MS": 54
+        },
+        "associatedRenders": {
+          "count": 621,
+          "p50MS": 3.085583,
+          "p95MS": 12.278416,
+          "p99MS": 13.894416,
+          "maxMS": 18.545583,
+          "over8_3MS": 190
+        },
+        "associatedFrameLifetimes": {
+          "count": 612,
+          "p50MS": 25.022458,
+          "p95MS": 33.366708,
+          "p99MS": 50.043541,
+          "maxMS": 66.72675,
+          "over8_3MS": 612
+        },
+        "associatedGPU": {
+          "count": 612,
+          "p50MS": 1.898583,
+          "p95MS": 2.909291,
+          "p99MS": 3.10425,
+          "maxMS": 5.126,
+          "over8_3MS": 0
+        }
+      },
+      "limitations": [
+        "Frame lifetimes span a pipelined render loop and are not single-frame work or input latency.",
+        "No app-attributed HID timestamp or CPU-to-display rows; direct-input acceptance remains unmeasured.",
+        "Variable cadence must not be treated as automatic missed 120 Hz deadlines.",
+        "Retain capture status, workload, binary identity and actual touch overlap separately."
+      ]
+    },
+    "spare/week": {
+      "measuredWorkBudget": "fail",
+      "timings": {
+        "appUpdates": {
+          "count": 849,
+          "p50MS": 2.846833,
+          "p95MS": 8.282875,
+          "p99MS": 12.021125,
+          "maxMS": 13.327375,
+          "over8_3MS": 42
+        },
+        "associatedRenders": {
+          "count": 849,
+          "p50MS": 2.993333,
+          "p95MS": 12.691125,
+          "p99MS": 14.269875,
+          "maxMS": 15.798666,
+          "over8_3MS": 176
+        },
+        "associatedFrameLifetimes": {
+          "count": 835,
+          "p50MS": 25.022333,
+          "p95MS": 33.366541,
+          "p99MS": 37.532958,
+          "maxMS": 50.045708,
+          "over8_3MS": 835
+        },
+        "associatedGPU": {
+          "count": 835,
+          "p50MS": 1.749625,
+          "p95MS": 2.464416,
+          "p99MS": 3.05275,
+          "maxMS": 4.51375,
+          "over8_3MS": 0
+        }
+      },
+      "limitations": [
+        "Frame lifetimes span a pipelined render loop and are not single-frame work or input latency.",
+        "No app-attributed HID timestamp or CPU-to-display rows; direct-input acceptance remains unmeasured.",
+        "Variable cadence must not be treated as automatic missed 120 Hz deadlines.",
+        "Retain capture status, workload, binary identity and actual touch overlap separately."
+      ]
+    },
+    "mac/calendar": {
+      "status": "fail",
+      "scope": "Native main-thread commit work and run-loop busy intervals; not input-to-visible or GPU/display delivery",
+      "commits": {
+        "count": 1444,
+        "p50MS": 0.069292,
+        "p95MS": 11.8245,
+        "p99MS": 58.470583,
+        "maxMS": 884.205917,
+        "budgetMS": 8.3
+      },
+      "commitViolations": 78,
+      "hostMonitorNote": "Only flagged developer PID 53798 was this test run\u2019s own xcodebuild test-without-building; no monitor errors. Raw gate retained unchanged."
+    }
+  },
+  "primaryTraceFailures": [
+    "Recorder/postprocessing deadline",
+    "Recorder/postprocessing deadline"
+  ],
+  "functionalTestCounts": [
+    {
+      "case": "mac-corrected/mac-ui",
+      "total": 2,
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "case": "mac-ui",
+      "total": 3,
+      "passed": 1,
+      "failed": 2,
+      "skipped": 0
+    },
+    {
+      "case": "mail-harness/spare/correctness",
+      "total": 3,
+      "passed": 3,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "case": "mail-harness/primary/correctness",
+      "total": 3,
+      "passed": 3,
+      "failed": 0,
+      "skipped": 0
+    }
+  ],
+  "mailHarnessPolicyChecks": 43,
+  "iPadUsed": false
+}

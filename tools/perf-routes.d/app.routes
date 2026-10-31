@@ -1,0 +1,23 @@
+# Whole-app routes for tools/perf-gate.sh — one line per route: name|devices|launch arguments.
+# devices: comma-separated subset of iphone,ipad. Arguments are VisualAuditRoute flags only
+# (BananaApp.swift); the gate appends --disable-icloud -onboardingCompleted YES to every launch.
+# Each package adds its own file to this directory (e.g. mail.routes); never edit another's.
+shell-plan|iphone,ipad|--ui-preview --dummy-health --tab plan
+shell-workouts|iphone,ipad|--ui-preview --dummy-health --tab workouts
+shell-nutrition|iphone,ipad|--ui-preview --dummy-health --tab nutrition
+shell-notes|iphone,ipad|--ui-preview --dummy-health --tab notes
+shell-library|iphone,ipad|--ui-preview --dummy-health --tab library
+shell-sleep|ipad|--ui-preview --dummy-health --tab sleep
+shell-trends|ipad|--ui-preview --dummy-health --tab trends
+shell-routines|ipad|--ui-preview --dummy-health --tab routines
+shell-settings|ipad|--ui-preview --dummy-health --tab settings
+today|iphone,ipad|--today
+day|iphone,ipad|--day
+week|iphone,ipad|--week
+wellness|iphone,ipad|--wellness --nutrition-week
+workouts|iphone,ipad|--dummy-health
+library|iphone,ipad|--library
+notes|iphone,ipad|--notes
+settings|iphone,ipad|--settings
+trends|iphone,ipad|--trends
+sleep|iphone,ipad|--sleep

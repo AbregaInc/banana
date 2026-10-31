@@ -1,0 +1,264 @@
+name: Performance contract
+on:
+  # Paused at the owner's request: not ready for GitHub execution yet.
+  # The workflow is also disabled in GitHub Actions. Re-enable explicitly when ready.
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  review-sync-clock:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify workout review persistence and note sync clocks
+        run: python3 tools/review-sync-tests/run.py --out .build/review-sync
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: review-sync-clock
+          path: .build/review-sync
+  mail-reader:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify reader body arrival, cancellation and removal
+        run: python3 tools/mail-reader-tests/run.py --out .build/mail-reader
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mail-reader
+          path: |
+            .build/mail-reader/test.log
+            .build/mail-reader/status.json
+            .build/mail-reader/source-sha256.json
+            .build/mail-reader/Tests
+  mail-http:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify Gmail transport with controlled responses
+        run: python3 tools/mail-http-tests/run.py --out .build/mail-http
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mail-http
+          path: |
+            .build/mail-http/test.log
+            .build/mail-http/status.json
+            .build/mail-http/source-sha256.json
+  mail-index:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify disk-backed Mail paging and retain query-cost controls
+        run: python3 tools/mail-index-tests/run.py --out .build/mail-index
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mail-index
+          path: |
+            .build/mail-index/test.log
+            .build/mail-index/status.json
+            .build/mail-index/source-sha256.json
+            .build/mail-index/benchmark.json
+            .build/mail-index/search-benchmark.json
+            .build/mail-index/mime-benchmark.json
+            .build/mail-index/html-benchmark.json
+            .build/mail-index/host.json
+  mail-auth:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify Mail credential durability and refresh races
+        run: python3 tools/mail-auth-tests/run.py --out .build/mail-auth
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mail-auth
+          path: |
+            .build/mail-auth/test.log
+            .build/mail-auth/status.json
+            .build/mail-auth/source-sha256.json
+  gate-integrity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate reference coverage and regression failure behavior
+        run: python3 -m unittest discover -s tools/tests -v
+      - name: Reject invalid calendar benchmark evidence
+        run: python3 -m unittest discover -s tools/calendar-library-benchmark -p 'test_*.py' -v
+  mail-row-retention:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify Mail cache retirement and snapshot completion ordering
+        run: python3 tools/mail-row-retention-tests/run.py --out .build/mail-row-retention
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mail-row-retention
+          path: .build/mail-row-retention
+  calendar-search:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify bounded Calendar search query routing
+        run: python3 tools/calendar-search-tests/run.py --out .build/calendar-search
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: calendar-search
+          path: .build/calendar-search
+  calendar-core:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify durable calendar move recovery
+        run: |
+          mkdir -p .build/calendar-core
+          swiftc -O -strict-concurrency=complete -warnings-as-errors -parse-as-library Banana/Model/CalendarMoveJournal.swift tools/calendar-move-tests/main.swift -o .build/calendar-core/move-journal
+          .build/calendar-core/move-journal .build/calendar-core/move-journal.json
+          swiftc -O -strict-concurrency=complete -warnings-as-errors -parse-as-library Banana/Model/CalendarMoveJournal.swift Banana/Model/CalendarMoveRecoveryStore.swift tools/calendar-move-tests/recovery.swift -o .build/calendar-core/move-recovery
+          .build/calendar-core/move-recovery .build/calendar-core/move-recovery.json
+      - name: Verify calendar geometry and prepared text
+        run: |
+          mkdir -p .build/calendar-core
+          python3 tools/calendar-day-snapshot-tests/run.py --out .build/calendar-core/day-snapshot
+          python3 tools/travel-horizon-tests/run.py --out .build/calendar-core/travel-horizon
+          python3 tools/calendar-viewport-item-tests/run.py --out .build/calendar-core/viewport-items
+          python3 tools/calendar-mac-viewport-tests/run.py --out .build/calendar-core/mac-viewport
+          python3 tools/physical-stress-tests/run.py --out .build/calendar-core/physical-stress
+          python3 tools/calendar-header-tests/run.py --out .build/calendar-core/header-delivery
+          swiftc -O -parse-as-library Banana/Model/CalendarMobileNeighbors.swift Banana/Model/CalendarDayClockGeometry.swift Banana/Model/CalendarLanePlan.swift tools/calendar-library-benchmark/Shared/Fixtures.swift tools/calendar-neighbor-tests/main.swift -o .build/calendar-core/neighbor-tests
+          .build/calendar-core/neighbor-tests .build/calendar-core/neighbor-ablation.json
+          swiftc -O Banana/Model/CalendarLanePlan.swift tools/calendar-lane-tests/main.swift -o .build/calendar-core/lane-tests
+          .build/calendar-core/lane-tests .build/calendar-core/lane-ablation.json
+          swiftc -O -parse-as-library -target "$(uname -m)-apple-macos13.0" Shared/BananaDesign.swift Banana/Views/FreeIndicator.swift Banana/Views/CalendarEventDecorations.swift Banana/Views/CalendarEventArtwork.swift tools/calendar-artwork-tests/LegacyArtwork.swift tools/calendar-artwork-tests/main.swift -o .build/calendar-core/artwork-tests
+          .build/calendar-core/artwork-tests .build/calendar-core/artwork-pixels
+          swiftc -O Banana/Views/CalendarNativeText.swift tools/calendar-native-text-tests/main.swift -o .build/calendar-core/native-text-tests
+          .build/calendar-core/native-text-tests .build/calendar-core/native-text.json
+          swiftc -O Banana/Views/CalendarNativeText.swift Banana/Views/CalendarNativeEventRaster.swift tools/calendar-native-event-tests/main.swift -o .build/calendar-core/native-event-tests
+          .build/calendar-core/native-event-tests .build/calendar-core/native-event
+          swiftc -O -parse-as-library -target "$(uname -m)-apple-macos14.0" Shared/BananaDesign.swift Banana/Views/FreeIndicator.swift Banana/Views/CalendarEventDecorations.swift Banana/Views/CalendarEventArtwork.swift Banana/Views/CalendarArtworkRaster.swift Banana/Views/CalendarNativeText.swift Banana/Views/CalendarNativeEventRaster.swift Banana/Views/CalendarNativeEventAdapter.swift tools/calendar-artwork-tests/LegacyArtwork.swift tools/calendar-artwork-tests/raster.swift -o .build/calendar-core/artwork-raster-tests
+          .build/calendar-core/artwork-raster-tests .build/calendar-core/artwork-raster
+          swiftc -O -parse-as-library -target "$(uname -m)-apple-macos15.0" Shared/BananaDesign.swift Banana/Views/FreeIndicator.swift Banana/Views/CalendarEventDecorations.swift Banana/Views/CalendarEventArtwork.swift Banana/Views/CalendarArtworkRaster.swift Banana/Views/CalendarNativeText.swift Banana/Views/CalendarNativeEventRaster.swift Banana/Views/CalendarNativeEventAdapter.swift Banana/Views/CalendarViewportEnvironment.swift Banana/Views/CalendarNativeEventCanvas.swift Banana/Views/CalendarPreparedArtwork.swift tools/calendar-artwork-tests/preparation.swift -o .build/calendar-core/artwork-preparation-tests
+          .build/calendar-core/artwork-preparation-tests .build/calendar-core/artwork-preparation.json
+          swiftc -O -D BANANA_BETA -parse-as-library -target "$(uname -m)-apple-macos15.0" Shared/BananaDesign.swift Banana/Views/FreeIndicator.swift Banana/Views/CalendarEventDecorations.swift Banana/Views/CalendarEventArtwork.swift Banana/Views/CalendarArtworkRaster.swift Banana/Views/CalendarNativeText.swift Banana/Views/CalendarNativeEventRaster.swift Banana/Views/CalendarNativeEventAdapter.swift Banana/Views/CalendarViewportEnvironment.swift Banana/Views/CalendarNativeEventCanvas.swift Banana/Views/CalendarPreparedArtwork.swift tools/calendar-artwork-tests/preparation.swift -o .build/calendar-core/beta-preparation-tests
+          .build/calendar-core/beta-preparation-tests .build/calendar-core/beta-preparation.json
+          swiftc -O -parse-as-library -target "$(uname -m)-apple-macos15.0" Shared/BananaDesign.swift Banana/Views/FreeIndicator.swift Banana/Views/CalendarEventDecorations.swift Banana/Views/CalendarEventArtwork.swift Banana/Views/CalendarArtworkRaster.swift Banana/Views/CalendarNativeText.swift Banana/Views/CalendarNativeEventRaster.swift Banana/Views/CalendarNativeEventAdapter.swift Banana/Views/CalendarViewportEnvironment.swift Banana/Views/CalendarNativeEventCanvas.swift Banana/Views/CalendarPreparedArtwork.swift tools/calendar-native-event-tests/adapter.swift -o .build/calendar-core/native-adapter-tests
+          .build/calendar-core/native-adapter-tests .build/calendar-core/native-adapter.json
+          swiftc -O Banana/Model/CalendarDayClockGeometry.swift tools/calendar-day-clock-tests/main.swift -o .build/calendar-core/day-clock
+          .build/calendar-core/day-clock .build/calendar-core/day-clock.json
+          swiftc -O Banana/Model/CalendarMoveGeometry.swift tools/calendar-move-geometry-tests/main.swift -o .build/calendar-core/move-geometry
+          .build/calendar-core/move-geometry --out .build/calendar-core/move-geometry.json
+          swiftc -O Banana/Model/CalendarBlockHeight.swift Banana/Model/CalendarAgendaGeometry.swift tools/calendar-agenda-tests/main.swift -o .build/calendar-core/agenda-geometry
+          .build/calendar-core/agenda-geometry .build/calendar-core/agenda-geometry.json
+          swiftc -O Banana/Model/CalendarOverflowRules.swift tools/calendar-overflow-tests/main.swift -o .build/calendar-core/overflow-tests
+          .build/calendar-core/overflow-tests
+          swiftc -O -parse-as-library -target "$(uname -m)-apple-macos13.0" Banana/Views/CalendarHourLines.swift tools/calendar-hour-lines-tests/main.swift -o .build/calendar-core/hour-line-tests
+          .build/calendar-core/hour-line-tests .build/calendar-core/hour-lines
+          swiftc -O tools/calendar-library-benchmark/Shared/Fixtures.swift tools/calendar-library-benchmark/Shared/DayGeometry.swift tools/calendar-library-benchmark/GeometryTests/main.swift -o .build/calendar-core/geometry-tests
+          .build/calendar-core/geometry-tests
+          swiftc -O -parse-as-library tools/calendar-library-benchmark/Shared/Fixtures.swift tools/calendar-library-benchmark/Shared/DayGeometry.swift tools/calendar-library-benchmark/FixtureTests/main.swift -o .build/calendar-core/fixture-tests
+          .build/calendar-core/fixture-tests
+          swiftc -O -parse-as-library tools/calendar-library-benchmark/Shared/Fixtures.swift tools/calendar-library-benchmark/Shared/DayGeometry.swift tools/calendar-library-benchmark/Shared/FixturePalette.swift tools/calendar-library-benchmark/Shared/PreparedText.swift tools/calendar-library-benchmark/Shared/RasterPage.swift tools/calendar-library-benchmark/FixtureTests/render.swift -o .build/calendar-core/fixture-render-tests
+          .build/calendar-core/fixture-render-tests
+          swiftc -O tools/calendar-library-benchmark/Shared/PreparedText.swift tools/calendar-library-benchmark/TextTests/main.swift -o .build/calendar-core/text-tests
+          .build/calendar-core/text-tests .build/calendar-core/text-components.json
+          swiftc -O -parse-as-library tools/calendar-library-benchmark/Shared/PreparedText.swift tools/calendar-library-benchmark/FixtureTests/memo.swift -o .build/calendar-core/text-memo-tests
+          .build/calendar-core/text-memo-tests
+          swiftc -O -parse-as-library tools/calendar-library-benchmark/Shared/*.swift tools/calendar-library-benchmark/FixtureTests/concurrency.swift -o .build/calendar-core/concurrent-pixels
+          .build/calendar-core/concurrent-pixels --fixture varied-v1 --mode week --density 300 --output .build/calendar-core/concurrent-pixels.json
+          .build/calendar-core/concurrent-pixels --fixture varied-v1 --mode week --density 300 --batch-event-fills --output .build/calendar-core/concurrent-pixels-batched.json
+          .build/calendar-core/concurrent-pixels --fixture varied-v1 --mode week --density 300 --memo-raster-text --output .build/calendar-core/concurrent-pixels-memo.json
+          swiftc -O -parse-as-library tools/calendar-library-benchmark/Shared/*.swift tools/calendar-library-benchmark/GridTests/main.swift -o .build/calendar-core/grid-tests
+          .build/calendar-core/grid-tests --mode week --density 300 --output .build/calendar-core/grid-control
+          .build/calendar-core/grid-tests --mode week --density 300 --ablation split-grid --output .build/calendar-core/grid-split --reference .build/calendar-core/grid-control
+          swiftc -O -parse-as-library tools/calendar-library-benchmark/Shared/*.swift tools/calendar-library-benchmark/TileTests/main.swift -o .build/calendar-core/tile-tests
+          .build/calendar-core/tile-tests --renderer tiles --mode week --density 300 --output .build/calendar-core/tile-checks.json
+          swiftc -O -parse-as-library tools/calendar-library-benchmark/Shared/*.swift tools/calendar-library-benchmark/TileTests/prefetch.swift -o .build/calendar-core/tile-prefetch-tests
+          .build/calendar-core/tile-prefetch-tests --mode week --density 300 --output .build/calendar-core/tile-prefetch-checks.json
+          for variant in tile-prefetch-queue-one tile-prefetch-queue-two tile-prefetch-queue-two-cancel; do
+            .build/calendar-core/tile-prefetch-tests --mode week --density 300 --ablation $variant --output .build/calendar-core/prefetch-$variant.json
+          done
+          swiftc -O -parse-as-library tools/calendar-library-benchmark/Shared/*.swift tools/calendar-library-benchmark/TileTests/cancellation.swift -o .build/calendar-core/tile-cancellation
+          .build/calendar-core/tile-cancellation --mode week --density 300 --output .build/calendar-core/tile-cancellation.json
+          swiftc -O -parse-as-library tools/calendar-library-benchmark/Shared/*.swift tools/calendar-library-benchmark/TileTests/async.swift -o .build/calendar-core/tile-async
+          for mode in day week; do
+            for density in 100 300; do
+              .build/calendar-core/tile-async --mode $mode --density $density --output .build/calendar-core/tile-async-$mode-$density.json
+            done
+          done
+          .build/calendar-core/tile-async --mode week --density 300 --ablation tile-prefetch-async-surface --output .build/calendar-core/tile-async-surface.json
+          .build/calendar-core/tile-async --mode week --density 300 --ablation tile-prefetch-async-surface --foreground-dispatch --output .build/calendar-core/tile-async-surface-dispatch.json
+          .build/calendar-core/tile-async --mode week --density 300 --ablation tile-prefetch-async-surface --raster-native-text --output .build/calendar-core/tile-async-surface-native-text.json
+          .build/calendar-core/tile-async --mode week --density 300 --ablation tile-prefetch-async-surface --foreground-dispatch --raster-native-text --output .build/calendar-core/tile-async-surface-combined.json
+          for mode in day week; do
+            for density in 100 300; do
+              for variant in tile-prefetch-async-two tile-prefetch-async-surface; do
+                .build/calendar-core/tile-async --fixture varied-v1 --mode $mode --density $density --ablation $variant --output .build/calendar-core/varied-$mode-$density-$variant.json
+                .build/calendar-core/tile-async --fixture varied-v1 --mode $mode --density $density --ablation $variant --batch-event-fills --output .build/calendar-core/varied-batched-$mode-$density-$variant.json
+                .build/calendar-core/tile-async --fixture varied-v1 --mode $mode --density $density --ablation $variant --memo-raster-text --output .build/calendar-core/varied-memo-$mode-$density-$variant.json
+              done
+            done
+          done
+          swiftc -O -parse-as-library tools/calendar-library-benchmark/Shared/*.swift tools/calendar-library-benchmark/TileTests/pixel-buffer.swift -o .build/calendar-core/pixel-buffer-checks
+          .build/calendar-core/pixel-buffer-checks --mode week --density 100 --output .build/calendar-core/pixel-buffer-100.json
+          .build/calendar-core/pixel-buffer-checks --mode week --density 300 --output .build/calendar-core/pixel-buffer-300.json
+          swiftc -O -parse-as-library tools/calendar-library-benchmark/Shared/*.swift tools/calendar-library-benchmark/LayerTests/main.swift -o .build/calendar-core/layer-checks
+          .build/calendar-core/layer-checks --renderer tiles --mode week --density 300 --ablation tile-prefetch-async-two --output .build/calendar-core/layer-reference
+          .build/calendar-core/layer-checks --renderer tiles --mode week --density 300 --ablation tile-prefetch-async-layer --output .build/calendar-core/layer-updates --reference .build/calendar-core/layer-reference
+          swiftc -O -parse-as-library tools/calendar-library-benchmark/Shared/*.swift tools/calendar-library-benchmark/TileTests/availability.swift -o .build/calendar-core/tile-availability
+          for variant in tile-prefetch-budgeted tile-prefetch-queue-one tile-prefetch-queue-two; do
+            .build/calendar-core/tile-availability --mode week --density 300 --ablation $variant --output .build/calendar-core/availability-$variant.json
+          done
+          swiftc -O -parse-as-library tools/calendar-library-benchmark/Shared/*.swift tools/calendar-library-benchmark/AccessibilityTests/main.swift -o .build/calendar-core/accessibility-tests
+          for density in 100 300; do
+            for variant in rebuild-accessibility none accessibility-page-cache; do
+              .build/calendar-core/accessibility-tests --mode week --density $density --ablation $variant --output .build/calendar-core/accessibility-$density-$variant.json
+            done
+          done
+          for density in 100 300; do
+            for variant in tile-prefetch-async-surface tile-prefetch-async-surface-properties; do
+              .build/calendar-core/accessibility-tests --renderer tiles --mode week --density $density --ablation $variant --output .build/calendar-core/accessibility-$density-$variant.json
+            done
+          done
+          swiftc -O -parse-as-library tools/calendar-library-benchmark/Shared/*.swift tools/calendar-library-benchmark/RasterTests/main.swift -o .build/calendar-core/raster-tests
+          .build/calendar-core/raster-tests --renderer raster --output .build/calendar-core/raster-retention.json
+          swiftc -O -parse-as-library tools/calendar-library-benchmark/Shared/*.swift tools/calendar-library-benchmark/RasterTests/prefetch.swift -o .build/calendar-core/raster-prefetch
+          .build/calendar-core/raster-prefetch --renderer raster --days 30 --density 300 --ablation batch-raster-prefetch --output .build/calendar-core/prefetch-batch.json
+          .build/calendar-core/raster-prefetch --renderer raster --days 30 --density 300 --ablation none --output .build/calendar-core/prefetch-stream.json
+          swiftc -O -parse-as-library tools/calendar-library-benchmark/Shared/Fixtures.swift tools/calendar-library-benchmark/Shared/DayGeometry.swift tools/calendar-library-benchmark/GeometryTests/performance.swift -o .build/calendar-core/geometry-perf
+          .build/calendar-core/geometry-perf .build/calendar-core/geometry-components.json
+      - name: Retain component samples without claiming UI acceptance
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: calendar-core-components
+          path: |
+            .build/calendar-core/*.json
+            .build/calendar-core/physical-stress/*
+            .build/calendar-core/travel-horizon/*
+            .build/calendar-core/grid-*/*.json
+            .build/calendar-core/grid-*/*.png
+            .build/calendar-core/hour-lines/*.json
+            .build/calendar-core/hour-lines/*.png
+            .build/calendar-core/artwork-*/*.json
+            .build/calendar-core/artwork-*/*.png
+          if-no-files-found: error
+
+  notes-search:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify localized Notes matching and retain bridge samples
+        run: |
+          mkdir -p .build/notes-search
+          swiftc -O Banana/Model/LiveFilter.swift Banana/Model/VoiceNote.swift Banana/Model/NoteQueryCache.swift tools/notes-search-tests/main.swift -o .build/notes-search/checks
+          .build/notes-search/checks .build/notes-search/bridge.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: notes-search-components
+          path: .build/notes-search/*.json
+          if-no-files-found: error

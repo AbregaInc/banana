@@ -1,0 +1,27 @@
+{
+  "status": "exploratory component failures; no UI acceptance",
+  "sourceSHA256": {
+    "tools/calendar-library-benchmark/run.py": "79f9e1a55724ac4b23dcc88656dbb1938d083f9c73305cc91a9d3ebd77520fd4",
+    "tools/calendar-library-benchmark/project.yml": "2fca24d1bf88b71780c007c475e2a9072fca3456b7802d1fa65077f15a40f33d",
+    "tools/calendar-library-benchmark/test_report.py": "de19d1555a5842647c2dff1bbad6c3901c8555dfa21f71ea9fae4299a8a0ee33",
+    "tools/calendar-library-benchmark/report.py": "560dfd60a32b78eea1f72b15eda5a3af3751763c25fdfd654b9491b226f6e3b7",
+    "tools/calendar-library-benchmark/run-mac.py": "5efca788d683c46df23b812642e71961bc8a30a6ec4a5087c39dc6c105286048",
+    "tools/calendar-library-benchmark/Native/MacBenchmark.swift": "49c917bab78307b02950083cd398c37c72118bc917fd6ec193ac04c081fcbc1b",
+    "tools/calendar-library-benchmark/Shared/PrototypeModel.swift": "353b4f8907e56115daee1677ff2f48296bd17991829bc5fd84f2fb3a255902b4",
+    "tools/calendar-library-benchmark/Shared/Optimizations.swift": "a419437daf2999f2efcdcb31b5f86f2baa45066e98ca0f3f921e99f5dc9e8153",
+    "tools/calendar-library-benchmark/Shared/DayGeometry.swift": "db1e8182e379389b2ee177664fc7b95fc2e6520fff5d915d7eab65fb7cb14fbe",
+    "tools/calendar-library-benchmark/Shared/CalendarSurface.swift": "82f9465a05cef9c26c1b96a8210ee8bc9a8f4e7c88b2e5bd53e53b7a55e724d5",
+    "tools/calendar-library-benchmark/Shared/Fixtures.swift": "65a65847e4e5e366ac8ebfdbcc5b5c13dd8cbe107370d1d76604df3ac54dc744",
+    "tools/calendar-library-benchmark/GeometryTests/performance.swift": "21e95e7a16b6bdd27335f271c1e08c71d975136ecaf5b91fa0c7a3b47020134d",
+    "tools/calendar-library-benchmark/GeometryTests/main.swift": "2712066dae0e0290b6f8ee251582ffe27b6c4f53715a5bac7bdad9b99425a221",
+    "tools/calendar-library-benchmark/Sources/Benchmark.swift": "34699a90b580c2ecd0d760461441b2a209c137db4d2601d7e7ede83dad5256bd",
+    "tools/calendar-library-benchmark/Sources/NativeController.swift": "da8cca1483ef6a0d956214daa2ff240d782d7ec65cc64ca361d70257fa5888e7"
+  },
+  "earlierLocalProbes": [
+    ".build/native-calendar-prototype/mac-first.json",
+    ".build/native-calendar-prototype/mac-segments.json",
+    ".build/native-calendar-prototype/mac-canvas-first.json"
+  ],
+  "buildLogs": ".build/native-calendar-prototype",
+  "scope": "Shared geometry; UIKit/AppKit prototype, canvas versus reusable cells; feature parity incomplete"
+}

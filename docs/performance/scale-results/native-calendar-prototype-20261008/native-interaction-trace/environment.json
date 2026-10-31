@@ -1,0 +1,11 @@
+{
+  "timestamp": "2026-10-08T13:33:45.702319-04:00",
+  "platform": "macOS-26.6.2-arm64-arm-64bit",
+  "pid": 79852,
+  "git": "ada06e1028e5d396b3439766c4f6fd6ca7bb4a83",
+  "dirty": " M .github/workflows/performance-contract.yml\n M docs/performance/regression-testing.md\n M tools/calendar-library-benchmark/GeometryTests/main.swift\n M tools/calendar-library-benchmark/GeometryTests/performance.swift\n M tools/calendar-library-benchmark/Native/MacBenchmark.swift\n M tools/calendar-library-benchmark/Shared/CalendarSurface.swift\n M tools/calendar-library-benchmark/Shared/DayGeometry.swift\n M tools/calendar-library-benchmark/Shared/Fixtures.swift\n M tools/calendar-library-benchmark/Shared/Optimizations.swift\n M tools/calendar-library-benchmark/Shared/PrototypeModel.swift\n M tools/calendar-library-benchmark/Sources/NativeController.swift\n M tools/calendar-library-benchmark/run-mac.py\n?? tools/calendar-library-benchmark/Shared/PreparedText.swift\n?? tools/calendar-library-benchmark/TextTests/\n",
+  "load": "13:33  up 3 days, 11:38, 35 users, load averages: 372.92 378.16 412.49",
+  "scenario": "Native calendar prototype, 36500 retained events, five-day week, 100/day, warm paging/scrolling/selection and cache recovery through CUA",
+  "executable": "~/orca/workspaces/gtfuwgth/stingray/.build/native-calendar-prototype/Calendar Renderer Prototype.app/Contents/MacOS/MacCalendarBenchmark",
+  "binarySHA256": "e4de40c48d46d5bb5720fa7610d5ec9d532ceffc6b51ce603a060ecc85dee7e0"
+}

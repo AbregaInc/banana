@@ -1,0 +1,83 @@
+{
+  "days": 7,
+  "emails": 14000,
+  "episodes": 70000,
+  "events": 700,
+  "metrics": [
+    {
+      "budgetMS": 50,
+      "checksum": 350,
+      "medianMS": 0.00020838342607021332,
+      "name": "mail.firstPage",
+      "p95MS": 4.126250045374036
+    },
+    {
+      "budgetMS": 100,
+      "checksum": 350,
+      "medianMS": 0.00683334656059742,
+      "name": "mail.readMutation",
+      "p95MS": 0.06254168692976236
+    },
+    {
+      "budgetMS": 16,
+      "checksum": 4900,
+      "medianMS": 0.2905000001192093,
+      "name": "calendar.visibleWeek",
+      "p95MS": 2.6996666565537453
+    },
+    {
+      "budgetMS": 8,
+      "checksum": 700,
+      "medianMS": 0.00320834806188941,
+      "name": "calendar.day",
+      "p95MS": 0.7749166688881814
+    },
+    {
+      "budgetMS": 100,
+      "checksum": 700,
+      "medianMS": 5.386083328630775,
+      "name": "notes.search",
+      "p95MS": 5.744291644077748
+    },
+    {
+      "budgetMS": 16,
+      "checksum": 700,
+      "medianMS": 0.689916661940515,
+      "name": "notes.browse",
+      "p95MS": 0.788333360105753
+    },
+    {
+      "budgetMS": 100,
+      "checksum": 490,
+      "medianMS": 3.945250005926937,
+      "name": "podcasts.nextAcrossCatalog",
+      "p95MS": 4.357791680376977
+    },
+    {
+      "budgetMS": 100,
+      "checksum": 1470,
+      "medianMS": 4.919458355288953,
+      "name": "podcasts.downloadCandidates",
+      "p95MS": 5.3008333197794855
+    }
+  ],
+  "notes": 7000,
+  "passed": true,
+  "platform": "iOS Simulator; disk-paged notes and podcasts; model operations; mail fixture source",
+  "podcasts": 70,
+  "residentMB": 336.90625,
+  "schemaVersion": 1,
+  "label": "scale-7d",
+  "commit": "6bfe533acab9898c6a92955a9506e31019634964",
+  "device": "5829A24D-81B4-49D9-A31A-C7553C32D527",
+  "binarySHA256": "37f2bd6c25ec19d41bb3867c3ca7b59a170976654f158a1d0901b447d3f2ea93",
+  "hostLoad": [
+    23.70751953125,
+    25.091796875,
+    35.6025390625
+  ],
+  "dirty": true,
+  "readySeconds": 3.341,
+  "memoryBudgetMB": 900.0,
+  "memoryPassed": true
+}

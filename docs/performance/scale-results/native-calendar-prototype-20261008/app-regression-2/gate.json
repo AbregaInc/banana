@@ -1,0 +1,31 @@
+{
+  "status": "fail",
+  "scope": "Simulator components, not UI acceptance",
+  "baselineVersion": 1,
+  "failures": {
+    "scale-30d": [
+      "notes.search.p95MS: 56.050 > 18.931 + 2.840 ms",
+      "podcasts.nextAcrossCatalog.p95MS: 37.572 > 19.342 + 2.901 ms",
+      "podcasts.downloadCandidates.p95MS: 45.307 > 23.175 + 3.476 ms"
+    ],
+    "scale-90d": [
+      "notes.search.p95MS: 199.120 > 54.071 + 8.111 ms",
+      "notes.search: absolute component latency budget exceeded",
+      "podcasts.nextAcrossCatalog.p95MS: 237.983 > 65.378 + 9.807 ms",
+      "podcasts.nextAcrossCatalog: absolute component latency budget exceeded",
+      "podcasts.downloadCandidates.p95MS: 283.356 > 80.569 + 12.085 ms",
+      "podcasts.downloadCandidates: absolute component latency budget exceeded",
+      "collector reported failure"
+    ],
+    "redraw-notes": [
+      "notes.search.p95MS: 59.039 > 19.598 + 2.940 ms",
+      "podcasts.nextAcrossCatalog.p95MS: 45.995 > 21.597 + 3.240 ms",
+      "podcasts.downloadCandidates.p95MS: 61.973 > 25.050 + 3.758 ms"
+    ],
+    "redraw-plan": [
+      "notes.search.p95MS: 68.480 > 19.235 + 2.885 ms",
+      "podcasts.nextAcrossCatalog.p95MS: 43.234 > 20.508 + 3.076 ms",
+      "podcasts.downloadCandidates.p95MS: 48.354 > 24.717 + 3.708 ms"
+    ]
+  }
+}

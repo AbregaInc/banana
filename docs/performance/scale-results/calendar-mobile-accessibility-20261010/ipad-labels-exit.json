@@ -1,0 +1,20 @@
+{
+  "command": [
+    "xcodebuild",
+    "-xctestrun",
+    ".build/stress-dd/Build/Products/Banana_iphonesimulator27.0-arm64.xctestrun",
+    "-destination",
+    "platform=iOS Simulator,id=DFF60927-BA4A-4E8E-9A6E-63A1A4178858,arch=arm64",
+    "-parallel-testing-enabled",
+    "NO",
+    "-collect-test-diagnostics",
+    "never",
+    "-only-testing:BananaUITests/ScaleStressUITests/testNativeDayEventAccessibility",
+    "-only-testing:BananaUITests/ScaleStressUITests/testPreparedDayEventAccessibility",
+    "-only-testing:BananaUITests/ScaleStressUITests/testAgendaEarlyEventIdentity",
+    "-resultBundlePath",
+    ".build/calendar-mobile-accessibility-20261010/ipad-labels.xcresult",
+    "test-without-building"
+  ],
+  "exit": 0
+}

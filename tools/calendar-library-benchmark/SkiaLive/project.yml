@@ -1,0 +1,89 @@
+name: CalendarMetalLive
+options:
+  deploymentTarget:
+    iOS: '26.1'
+    macOS: '26.0'
+# The team comes from Config/Local.xcconfig through Base.xcconfig, as in the main project.
+configFiles:
+  Debug: ../../../Config/Base.xcconfig
+  Release: ../../../Config/Base.xcconfig
+settings:
+  base:
+    SWIFT_VERSION: '5.0'
+    ARCHS: arm64
+    CODE_SIGN_STYLE: Automatic
+    DEVELOPMENT_TEAM: $(DEVELOPMENT_TEAM)
+    CLANG_CXX_LANGUAGE_STANDARD: c++20
+    HEADER_SEARCH_PATHS: $(PROJECT_DIR)/../../../.build/calendar-skia-evaluation-20261009/skia
+    GCC_PREPROCESSOR_DEFINITIONS: [$(inherited), SK_GANESH, SK_METAL]
+targets:
+  CalendarMetalLive:
+    type: application
+    platform: iOS
+    sources:
+      - path: Model.swift
+      - path: App.swift
+      - path: LiveBridge.mm
+      - path: ../Shared/Fixtures.swift
+      - path: ../Shared/DayGeometry.swift
+      - path: ../Shared/Optimizations.swift
+      - path: ../Shared/FixturePalette.swift
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.boris.banana.calendar-metal-review
+        TARGETED_DEVICE_FAMILY: '1,2'
+        LIBRARY_SEARCH_PATHS: $(inherited) $(PROJECT_DIR)/../../../.build/calendar-skia-evaluation-20261009/skia/out/CalendarIOS
+        OTHER_LDFLAGS: $(inherited) -lc++ -framework Metal -framework CoreText -framework QuartzCore -framework CoreGraphics -framework CoreVideo
+    dependencies:
+      - framework: ../../../.build/calendar-skia-evaluation-20261009/skia/out/CalendarIOS/libskia.a
+        embed: false
+    info:
+      path: LiveInfo.plist
+      properties:
+        CFBundleDisplayName: Calendar Metal Review
+        CADisableMinimumFrameDurationOnPhone: true
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+          UISceneConfigurations: {}
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+  CalendarMetalLiveUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources: [UITests]
+    dependencies:
+      - target: CalendarMetalLive
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.boris.banana.calendar-metal-review.uitests
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_TARGET_NAME: CalendarMetalLive
+  CalendarMetalMacUITests:
+    type: bundle.ui-testing
+    platform: macOS
+    sources: [UITests]
+    settings:
+      base:
+        # Keep a distinct container and stable signer; do not reuse the ad-hoc probe identity.
+        PRODUCT_BUNDLE_IDENTIFIER: com.boris.banana.calendar-metal-review.macuitests.development
+        GENERATE_INFOPLIST_FILE: YES
+        CODE_SIGN_IDENTITY: Apple Development
+schemes:
+  CalendarMetalLiveUITests:
+    build:
+      targets:
+        CalendarMetalLiveUITests: [test]
+    test:
+      config: Release
+      targets: [CalendarMetalLiveUITests]
+  CalendarMetalMacUITests:
+    build:
+      targets:
+        CalendarMetalMacUITests: [test]
+    test:
+      config: Release
+      debugEnabled: false
+      targets: [CalendarMetalMacUITests]

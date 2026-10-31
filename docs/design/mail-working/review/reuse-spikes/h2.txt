@@ -1,0 +1,8 @@
+18:44  up 16:49, 21 users, load averages: 58.99 122.04 190.06
+load 59 122 190
+round 0: 20 parallel GETs statuses [401: 20]; batch outer 200, inner 401 parts 20, 22496 bytes
+one GET, warm connection:        median 45 ms  (all: 136 55 43 45 40 31)
+20 GETs at once, one session:    median 74 ms  (all: 71 71 126 64 74 152)
+one batch of 20 (multipart):     median 60 ms  (all: 64 60 46 63 59 51)
+protocols: ["h2": 133] · connections opened 1, requests on a reused connection 132
+load 57 120 189

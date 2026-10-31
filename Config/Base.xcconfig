@@ -1,0 +1,46 @@
+// Who signs the app, and the names only one developer account can own.
+//
+// These are stand-ins: with them the app builds and runs in a simulator, with iCloud sync and
+// Google sign-in switched off. To use your own, copy Local.example.xcconfig to Local.xcconfig
+// (not tracked) and fill it in. See README, "Building it yourself".
+
+DEVELOPMENT_TEAM =
+
+// Every bundle id starts with this: the app is exactly this, the Watch app adds .watchkitapp,
+// the widgets .widget, the Beta .beta.
+BANANA_BUNDLE_ID = org.example.banana
+
+// The private iCloud database the app syncs through. Used only when DEVELOPMENT_TEAM is set.
+BANANA_ICLOUD_CONTAINER = iCloud.$(BANANA_BUNDLE_ID)
+BANANA_ICLOUD_CONTAINER_BETA = iCloud.$(BANANA_BUNDLE_ID).beta
+// A container an earlier app of yours synced through, read once to carry its data over. Empty for none.
+BANANA_LEGACY_ICLOUD_CONTAINER =
+
+// Google sign-in: the part of an iOS OAuth client id before ".apps.googleusercontent.com".
+// A client id is tied to one bundle id, so each build that has its own bundle id has its own.
+// Empty: the app has no Google sign-in.
+BANANA_GOOGLE_CLIENT =
+BANANA_GOOGLE_CLIENT_BETA =
+
+// The Banana service (Service/, docs/design/ACCOUNTS.md): accounts, calendar pushes, usage
+// counts. Its host name only (no "https://": xcconfig reads "//" as a comment). Empty: no
+// account, and the app counts and sends nothing.
+BANANA_SERVICE_HOST =
+// The web OAuth client the service trades Google sign-in codes with: the part before
+// ".apps.googleusercontent.com", or the whole id. Empty: no account.
+BANANA_GOOGLE_SERVER_CLIENT =
+// The Beta's own service and web client (Service/wrangler.toml, env beta). Empty: Beta has no account.
+BANANA_SERVICE_HOST_BETA =
+BANANA_GOOGLE_SERVER_CLIENT_BETA =
+
+// Unreleased modules (`#if BANANA_UNRELEASED`, see AppModules.swift): built into Debug and into
+// the author's own installs (tools/ios-install.sh, tools/mac-install.sh pass YES), and left out of
+// everything else, so an archive for Apple has none of their code, strings or scopes and nothing
+// hidden for review to find (App Review 2.3.1). tools/check-release.sh proves it on an archive.
+BANANA_UNRELEASED = NO
+BANANA_UNRELEASED[config=Debug] = YES
+BANANA_UNRELEASED_SWIFT_YES = -DBANANA_UNRELEASED
+BANANA_UNRELEASED_SWIFT_NO = -DBANANA_PUBLIC
+OTHER_SWIFT_FLAGS = $(inherited) $(BANANA_UNRELEASED_SWIFT_$(BANANA_UNRELEASED))
+
+#include? "Local.xcconfig"

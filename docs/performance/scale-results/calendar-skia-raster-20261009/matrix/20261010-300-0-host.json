@@ -1,0 +1,27 @@
+{
+  "startedUTC": "2026-10-09T19:08:51.200968+00:00",
+  "samples": 3,
+  "clean": false,
+  "overlappingDeveloperProcesses": [
+    {
+      "elapsedSeconds": 0.08877400000346825,
+      "pid": 1765,
+      "process": "xcodebuild"
+    },
+    {
+      "elapsedSeconds": 1.1712048750487156,
+      "pid": 1765,
+      "process": "xcodebuild"
+    },
+    {
+      "elapsedSeconds": 5.738247083034366,
+      "pid": 1765,
+      "process": "xcodebuild"
+    }
+  ],
+  "errors": [
+    "Host monitor failed to stop within 3 seconds",
+    "Command '['ps', '-axo', 'pid=,comm=']' timed out after 2 seconds"
+  ],
+  "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+}

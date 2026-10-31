@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 600" role="img" aria-labelledby="calendar-viewport-title calendar-viewport-desc"><title id="calendar-viewport-title">Calendar event views</title><desc id="calendar-viewport-desc">The calendar keeps event positions available and builds or reuses event cells when they are needed.</desc><style>text{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace;fill:#221d38}.node-name{font-size:18px;font-weight:700}.sub{font-size:14px;fill:#625a78}.label{font-size:14px;font-weight:700}</style><defs><marker id="calendar-viewport-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8" fill="#625a78"/></marker></defs>
+<!-- Connectors precede nodes. -->
+<path d="M224 120 V152" fill="none" stroke="#625a78" stroke-width="2" marker-end="url(#calendar-viewport-arrow)"/>
+<path d="M368 232 H464" fill="none" stroke="#625a78" stroke-width="2" marker-end="url(#calendar-viewport-arrow)"/>
+<path d="M224 312 V392" fill="none" stroke="#625a78" stroke-width="2" marker-end="url(#calendar-viewport-arrow)"/>
+<path d="M664 272 V392" fill="none" stroke="#625a78" stroke-width="2" marker-end="url(#calendar-viewport-arrow)"/>
+<rect x="392" y="216" width="48" height="32" fill="#fbf6ea"/><text class="label" x="416" y="237" text-anchor="middle">YES</text>
+<rect x="240" y="336" width="40" height="28" fill="#fbf6ea"/><text class="label" x="244" y="356">NO</text>
+<!-- Geometry remains available independently of view lifetime. -->
+<rect x="64" y="48" width="320" height="72" rx="6" fill="#fbf6ea" stroke="#221d38" stroke-width="2"/><text class="node-name" x="88" y="80">Events for the day</text><text class="sub" x="88" y="104">Event data, position and size</text>
+<polygon points="224,152 368,232 224,312 80,232" fill="#ffd84a" stroke="#221d38" stroke-width="2"/><text class="node-name" x="224" y="224" text-anchor="middle">Needed in</text><text class="node-name" x="224" y="248" text-anchor="middle">view?</text>
+<rect x="464" y="192" width="400" height="80" rx="6" fill="#d3f0e2" stroke="#221d38" stroke-width="2"/><text class="node-name" x="488" y="224">Create or reuse event cell</text><text class="sub" x="488" y="248">Build its event view</text>
+<rect x="64" y="392" width="320" height="72" rx="6" fill="#fbf6ea" stroke="#221d38" stroke-width="2"/><text class="node-name" x="88" y="424">Keep event data</text><text class="sub" x="88" y="448">Build the view when needed</text>
+<rect x="464" y="392" width="400" height="72" rx="6" fill="#fbf6ea" stroke="#221d38" stroke-width="2"/><text class="node-name" x="488" y="424">Draw the event block</text><text class="sub" x="488" y="448">Reuse a drawing or make one</text>
+<text class="sub" x="64" y="512">Keep the cell alive while its event is being dragged.</text>
+<line x1="64" y1="536" x2="896" y2="536" stroke="#e6dccb" stroke-width="2"/><rect x="64" y="556" width="20" height="16" rx="2" fill="#fbf6ea" stroke="#221d38"/><text class="sub" x="96" y="570">Action</text><polygon points="248,552 260,564 248,576 236,564" fill="#ffd84a" stroke="#221d38"/><text class="sub" x="272" y="570">Viewport decision</text>
+</svg>

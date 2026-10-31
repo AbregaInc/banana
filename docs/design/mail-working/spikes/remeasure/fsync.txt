@@ -1,0 +1,8 @@
+GRDB 7.11.1 · SQLite 3.51.0 · 2026-10-06 01:22:23 +0000 · load 769.3 720.6 633.4
+
+== one intent commit of three assertions through GRDB, under three settings, interleaved · load 769.3 720.6 633.4
+  as GRDB leaves it after opening: synchronous 1, fullfsync 0
+  NORMAL (what GRDB sets): n=400 p50 0.041 ms · p95 0.079 ms · p99 0.177 ms · max 1.550 ms
+  FULL, plain fsync: n=400 p50 0.097 ms · p95 0.238 ms · p99 1.005 ms · max 2.323 ms
+  FULL + fullfsync (the design): n=400 p50 0.379 ms · p95 0.702 ms · p99 2.791 ms · max 43.446 ms
+  read back at the end: synchronous 2, fullfsync 1

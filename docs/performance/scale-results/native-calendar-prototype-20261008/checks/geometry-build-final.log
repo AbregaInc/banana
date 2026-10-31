@@ -1,0 +1,7 @@
+tools/calendar-library-benchmark/Shared/DayGeometry.swift:46:22: error: argument passed to call that takes no arguments
+ 44 |         let eventWidth = max(0.5, laneWidth - min(2, laneWidth * 0.15))
+ 45 |         let eventHeight = max(0.5, CGFloat(end - start) * height - 1)
+ 46 |         return CGRect(x: x, y: CGFloat(start) * height, width: eventWidth, height: eventHeight)
+    |                      `- error: argument passed to call that takes no arguments
+ 47 |     }
+ 48 | }

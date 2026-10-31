@@ -1,0 +1,14 @@
+{
+  "status": "fail",
+  "scope": "Simulator components, not UI acceptance",
+  "baselineVersion": 1,
+  "failures": {
+    "redraw-plan": [
+      "notes.search.p95MS: 50.631 > 19.235 + 2.885 ms",
+      "podcasts.downloadCandidates.medianMS: 26.026 > 23.332 + 2.333 ms"
+    ],
+    "redraw-mail": [
+      "Competing developer workload or incomplete host monitoring; samples retained, clean comparison required"
+    ]
+  }
+}

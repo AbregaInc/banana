@@ -1,0 +1,21 @@
+Banana combines a daily planner with optional Workouts and sleep, Food, Notes and Podcasts. Plan is always available; enable other modules in Settings > Modules. There are no purchases. The public app excludes the separate experimental Email implementation and Gmail scopes. Guided workout coaching is disabled.
+
+QUICK REVIEW: SAMPLE WORKSPACE (NO SIGN-IN)
+1. On the welcome screen choose "Try with sample data". Existing users can enter from Settings > About. A Demo banner identifies this fictional, local workspace.
+2. In Plan, switch Day/Week, search, change calendar visibility, and create/edit/delete sample events. Complete a reminder or routine. The Alex calendar intentionally shows availability only and is read-only.
+3. In Body, explore sample workout/sleep charts. In Food, log a manual meal, edit its eaten time, and reuse a past meal.
+4. In Notes, create/edit/archive a sample note. In Library, play the clearly labeled system-voice narration of app-authored sample text and change its speed.
+5. Edits survive reopening. Demo options > Reset sample data restores the fictional records. Exit demo returns to the personal workspace without connecting accounts or completing onboarding.
+
+LIVE GOOGLE-CALENDAR REVIEW
+Exit demo first. Choose "Continue with Google" during setup, or Settings > Accounts & calendars > Connect Google Calendar. Use the dedicated Google account in App Review Sign-In Information. This is Google's normal sign-in, not a separate Banana password screen. After authorizing Calendar access, test Day/Week, visibility and creating/editing/deleting an event. Google connection also enables Banana account sync and calendar change notifications.
+
+Account deletion is in Settings > Accounts & calendars > Delete account and requires fresh authentication. It revokes service access and deletes the account's Banana service data according to the privacy policy. Optional permissions can be declined. Other modules can be used without connecting Google.
+
+The local sample workspace does NOT exercise Google writes/invitations, server sync/sharing, Apple Health/Watch recording, AI meal-photo analysis or real podcast streaming. Use the normal workspace and appropriate accounts/devices for these integrations. Simulated workouts and sample narration are labeled.
+
+Health and food service sync require separate consent; otherwise they stay local. Withdraw Health sync consent in Settings > Accounts & calendars to remove the service copy. Legacy health iCloud transports are read-only for migration; new health writes use consented Banana service sync. Existing local data is preserved.
+
+Apple Watch workout recording requires Health access on the paired Watch. Transcription runs on-device. Meal estimates use Apple Intelligence on-device or Apple's Private Cloud Compute where available; capture screens explain the route. Food lookup uses bundled/public databases. Weather displays Apple Weather attribution. Some user-selected podcast media uses HTTP; Banana's service and Google use HTTPS.
+
+Banana is for general wellness and planning, with no regulated medical-device claims. Medication timing information does not determine a safe schedule or automatically reschedule medication; users are directed to their doctor or pharmacist.

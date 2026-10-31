@@ -1,0 +1,23 @@
+{
+  "timestamp": "2026-10-09T04:00:54.634904-04:00",
+  "device": "<device-udid>",
+  "app": "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-library-device-dd/Build/Products/Release-iphoneos/CalendarLibraryBenchmark.app",
+  "binarySHA256": "7769e1d689ce291275fdd02493ea52769ea00e06c12e434e3e0929e4d0b9832f",
+  "git": "c8f310b665c3493dcebc039945524de20147b1e5",
+  "dirty": " M .github/workflows/performance-contract.yml\n M tools/calendar-library-benchmark/Shared/Optimizations.swift\n M tools/calendar-library-benchmark/Shared/RasterPage.swift\n M tools/calendar-library-benchmark/Shared/TileRenderer.swift\n M tools/calendar-library-benchmark/run-device.py\n M tools/calendar-library-benchmark/run-mac.py\n M tools/calendar-library-benchmark/run.py\n M tools/calendar-library-benchmark/test_device_runner.py\n?? tools/calendar-library-benchmark/TileTests/cancellation.swift\n",
+  "sceneManifest": {
+    "UIApplicationSupportsMultipleScenes": false,
+    "UISceneConfigurations": {}
+  },
+  "minimumFrameDurationDisabled": true,
+  "scope": "Physical device synchronous renderer work; input/display acceptance unmeasured",
+  "matrix": "queue-cancel",
+  "trials": 3,
+  "densities": [
+    100,
+    300
+  ],
+  "alternatingOrder": true,
+  "navigationStress": true,
+  "accessibilityClient": "none"
+}

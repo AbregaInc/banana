@@ -1,0 +1,25 @@
+{
+  "status": "fail",
+  "scope": "Simulator components, not UI acceptance",
+  "baselineVersion": 1,
+  "failures": {
+    "scale-7d": [
+      "podcasts.downloadCandidates.medianMS: 6.314 > 5.284 + 1.000 ms"
+    ],
+    "scale-30d": [
+      "notes.search.medianMS: 21.198 > 18.823 + 1.882 ms",
+      "notes.search.p95MS: 52.636 > 18.931 + 2.840 ms",
+      "podcasts.nextAcrossCatalog.medianMS: 20.965 > 17.613 + 1.761 ms",
+      "podcasts.nextAcrossCatalog.p95MS: 27.482 > 19.342 + 2.901 ms",
+      "podcasts.downloadCandidates.medianMS: 26.150 > 22.820 + 2.282 ms",
+      "podcasts.downloadCandidates.p95MS: 26.894 > 23.175 + 3.476 ms"
+    ],
+    "redraw-library": [
+      "podcasts.nextAcrossCatalog.medianMS: 20.698 > 18.575 + 1.858 ms"
+    ],
+    "redraw-plan": [
+      "notes.search.p95MS: 56.163 > 19.235 + 2.885 ms",
+      "podcasts.downloadCandidates.medianMS: 26.693 > 23.332 + 2.333 ms"
+    ]
+  }
+}

@@ -1,0 +1,7 @@
+sqlite 3.51.0, FTS5=1, threadsafe=2
+fresh connection each time (OS file cache warm — a true cold boot is slower and needs the device):
+  open + pragmas: n=30 p50=0.365 ms p95=0.917 ms p99=1.539 ms max=1.539 ms
+  open + pragmas + prepare + first inbox page: n=30 p50=0.472 ms p95=1.413 ms p99=2.967 ms max=2.967 ms
+  first-page snapshot file: 50 rows, 17641 bytes JSON
+  read + decode snapshot (JSON): n=200 p50=0.265 ms p95=0.315 ms p99=0.361 ms max=0.477 ms
+  read + decode snapshot (binary plist): n=200 p50=0.608 ms p95=0.688 ms p99=0.740 ms max=0.743 ms

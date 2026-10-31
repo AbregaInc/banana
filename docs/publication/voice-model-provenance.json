@@ -1,0 +1,22 @@
+{
+  "model": "JaesungHuh/voice-gender-classifier",
+  "modelCard": "https://huggingface.co/JaesungHuh/voice-gender-classifier",
+  "declaredLicense": "MIT",
+  "licenseSource": "https://github.com/JaesungHuh/voice-gender-classifier/blob/49bcbecfd929ba5a043bde645fdff1a375eb79c7/LICENSE",
+  "licenseNotice": "Banana/Resources/NarratorVoiceModel-LICENSE.txt",
+  "scope": "Existing converted Core ML artifact retained byte-for-byte. Original conversion revision/recipe is not recorded; do not misrepresent the licence-source revision as the weights revision.",
+  "artifacts": [
+    {
+      "path": "Banana/Resources/NarratorVoiceModel.mlpackage/Data/com.apple.CoreML/model.mlmodel",
+      "sha256": "cd74e198cad0fc5adb99672a3190e29077bcc021b16df8161a858eda4ea85764"
+    },
+    {
+      "path": "Banana/Resources/NarratorVoiceModel.mlpackage/Data/com.apple.CoreML/weights/weight.bin",
+      "sha256": "c74f8d740641c17e528ab96a16b22538ca79dbad46065ada21853673351669e2"
+    },
+    {
+      "path": "Banana/Resources/NarratorVoiceModel.mlpackage/Manifest.json",
+      "sha256": "c318f3c56ff09c6bca5d1d363402527ee7dc567bfc59042cee3065812b75a5d9"
+    }
+  ]
+}

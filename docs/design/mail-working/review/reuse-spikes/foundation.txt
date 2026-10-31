@@ -1,0 +1,34 @@
+charset utf-8 -> Unicode (UTF-8)
+charset ISO-8859-1 -> Western (ISO Latin 1)
+charset windows-1252 -> Western (Windows Latin 1)
+charset iso-2022-jp -> Japanese (ISO 2022-JP)
+charset Shift_JIS -> Japanese (Shift JIS)
+charset GB2312 -> Simplified Chinese (GB 2312)
+charset gbk -> Chinese (GBK)
+charset big5 -> Traditional Chinese (Big 5)
+charset koi8-r -> Cyrillic (KOI8-R)
+charset us-ascii -> Western (ASCII)
+charset utf-16 -> Unicode (UTF-16)
+charset iso-8859-15 -> Western (ISO Latin 9)
+charset x-unknown -> unknown
+decode latin1: café
+zlib via NSData: 253500 -> 796 bytes; deflate 0.610417 ms; inflate 1.01118 ms; round trip ok: true
+mime application/pdf -> ext pdf | image: false | desc: PDF document
+mime image/png -> ext png | image: true | desc: PNG image
+mime text/calendar -> ext ics | image: false | desc: ICS File
+mime application/vnd.openxmlformats-officedocument.spreadsheetml.sheet -> ext xlsx | image: false | desc: Office Open XML spreadsheet
+mime application/zip -> ext zip | image: false | desc: Zip archive
+mime application/x-nonsense -> ext nil | image: false | desc: nil
+ext xlsx -> application/vnd.openxmlformats-officedocument.spreadsheetml.sheet | ics -> text/calendar
+sizes: 84 kB | 1.2 MB | 31 MB
+url https://аpple.com/login | URL.host: %D0%B0pple.com | encodedHost: xn--pple-43d.com | host: аpple.com
+url https://xn--pple-43d.com/login | URL.host: xn--pple-43d.com | encodedHost: xn--pple-43d.com | host: аpple.com
+url https://bücher.example/x | URL.host: b%C3%BCcher.example | encodedHost: xn--bcher-kva.example | host: bücher.example
+url https://example.com/ | URL.host: example.com | encodedHost: example.com | host: example.com
+rfc3339: Optional(2026-10-06 08:00:00 +0000)
+rfc5322 DateFormatter: Mon, 05 Oct 2026 09:12:44 +0200 -> Optional(2026-10-05 07:12:44 +0000)
+rfc5322 DateFormatter: Mon, 5 Oct 2026 09:12:44 -0700 (PDT) -> nil
+rfc5322 DateFormatter: 5 Oct 2026 09:12 GMT -> nil
+rfc5322 DateFormatter: Mon, 05 Oct 2026 09:12:44 GMT -> Optional(2026-10-05 09:12:44 +0000)
+mailto path: unsubscribe@list.example.com | items: [subject=unsubscribe, body=please stop]
+sha256: 494a30704d4f32ac

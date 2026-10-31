@@ -1,0 +1,12 @@
+{
+  "timestamp": "2026-10-09T07:09:36.063814-04:00",
+  "platform": "macOS-26.6.2-arm64-arm-64bit",
+  "pid": 65043,
+  "git": "85914f96b9905a85cc8999168d6fe8128c264c49",
+  "dirty": " M docs/performance/scale-results/calendar-native-surfaces-20261009/README.md\n M tools/calendar-library-benchmark/Info.plist\n M tools/calendar-library-benchmark/Native/MacBenchmark.swift\n M tools/calendar-library-benchmark/Sources/NativeController.swift\n M tools/calendar-library-benchmark/profile-touch.py\n M tools/calendar-library-benchmark/project.yml\n M tools/calendar-library-benchmark/report-hitches.py\n M tools/calendar-library-benchmark/test-device-interactive.py\n M tools/calendar-library-benchmark/test_hitches_report.py\n M tools/native-ui-trace.py\n M tools/tests/test_native_ui_trace.py\n?? docs/performance/scale-results/calendar-native-surfaces-20261009/physical-cg-swipe/\n?? docs/performance/scale-results/calendar-native-surfaces-20261009/physical-surface-accessibility-client-pooled.json\n?? docs/performance/scale-results/calendar-native-surfaces-20261009/physical-surface-accessibility-client/\n?? docs/performance/scale-results/calendar-native-surfaces-20261009/physical-surface-storage-pooled.json\n?? docs/performance/scale-results/calendar-native-surfaces-20261009/physical-surface-storage/\n?? docs/performance/scale-results/calendar-native-surfaces-20261009/presentation-policies/\n?? docs/performance/scale-results/calendar-native-surfaces-20261009/simulator-surfaces-pooled.json\n?? docs/performance/scale-results/calendar-native-surfaces-20261009/simulator-surfaces/\n?? docs/performance/scale-results/calendar-native-surfaces-20261009/visible-native-traces/\n",
+  "load": "7:09  up 4 days,  5:13, 31 users, load averages: 41.79 30.87 22.95",
+  "scenario": "Six Clear cache, Next, Previous triplets; asynchronous recovery; direct AX properties; density 100; CV surface; two workers",
+  "timeProfiler": false,
+  "executable": "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-async-preparation/SurfacePreview.app/Contents/MacOS/SurfacePreview",
+  "binarySHA256": "96663343c9349db294a04c65eeb2f4089d31c4cca5702c97d810a33097653947"
+}

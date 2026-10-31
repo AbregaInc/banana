@@ -1,0 +1,188 @@
+{
+  "recorded": "2026-10-08T14:32:45.704594-04:00",
+  "scope": "Isolated calendar renderer experiments; production calendar unchanged",
+  "uiAcceptance": "unmeasured",
+  "componentStatus": "fail",
+  "runs": {
+    "mac-matrix-1": {
+      "summary": "mac-matrix-1/summary.json",
+      "environment": "mac-matrix-1/environment.json",
+      "cases": 18,
+      "valid": 18,
+      "componentFailures": 18,
+      "missingOrInvalid": []
+    },
+    "mac-matrix-2": {
+      "summary": "mac-matrix-2/summary.json",
+      "environment": "mac-matrix-2/environment.json",
+      "cases": 26,
+      "valid": 26,
+      "componentFailures": 26,
+      "missingOrInvalid": []
+    },
+    "mac-matrix-3": {
+      "summary": "mac-matrix-3/summary.json",
+      "environment": "mac-matrix-3/environment.json",
+      "cases": 28,
+      "valid": 28,
+      "componentFailures": 28,
+      "missingOrInvalid": []
+    },
+    "mac-matrix-4": {
+      "summary": "mac-matrix-4/summary.json",
+      "environment": "mac-matrix-4/environment.json",
+      "cases": 48,
+      "valid": 42,
+      "componentFailures": 42,
+      "missingOrInvalid": [
+        {
+          "scenarioIndex": 42,
+          "status": "unmeasured-user-interrupted",
+          "reason": "User is using the computer; stopped foreground native UI runs to avoid stealing focus. Remaining native cases deferred, not passed.",
+          "scenario": "42-native-week-365d-300perday-raster-none"
+        },
+        {
+          "scenarioIndex": 43,
+          "status": "unmeasured-user-interrupted",
+          "reason": "User is using the computer; stopped foreground native UI runs to avoid stealing focus. Remaining native cases deferred, not passed.",
+          "scenario": "43-native-week-365d-300perday-raster-no-raster-cache"
+        },
+        {
+          "scenarioIndex": 44,
+          "status": "unmeasured-user-interrupted",
+          "reason": "User is using the computer; stopped foreground native UI runs to avoid stealing focus. Remaining native cases deferred, not passed.",
+          "scenario": "44-native-week-365d-300perday-raster-none"
+        },
+        {
+          "scenarioIndex": 45,
+          "status": "unmeasured-user-interrupted",
+          "reason": "User is using the computer; stopped foreground native UI runs to avoid stealing focus. Remaining native cases deferred, not passed.",
+          "scenario": "45-native-week-365d-300perday-raster-no-raster-prefetch"
+        },
+        {
+          "scenarioIndex": 46,
+          "status": "unmeasured-user-interrupted",
+          "reason": "User is using the computer; stopped foreground native UI runs to avoid stealing focus. Remaining native cases deferred, not passed.",
+          "scenario": "46-native-week-365d-300perday-canvas-none"
+        },
+        {
+          "scenarioIndex": 47,
+          "status": "unmeasured-user-interrupted",
+          "reason": "User is using the computer; stopped foreground native UI runs to avoid stealing focus. Remaining native cases deferred, not passed.",
+          "scenario": "47-native-week-365d-300perday-canvas-full-text-prefetch"
+        }
+      ]
+    },
+    "iphone-comparison-1": {
+      "summary": "iphone-comparison-1/summary.json",
+      "environment": "iphone-comparison-1/environment.json",
+      "cases": 39,
+      "valid": 38,
+      "componentFailures": 38,
+      "missingOrInvalid": [
+        {
+          "scenario": "kvk-week-365d-300perday-bounded",
+          "status": "failed-or-timeout",
+          "launchExit": 0,
+          "elapsedSeconds": 90.34424170805141,
+          "hostLoadBefore": "13:56  up 3 days, 12 hrs, 35 users, load averages: 141.24 165.75 245.41",
+          "resultFilename": "result-bd66b206-35f0-4f79-8cce-9c6398a1ca10.json"
+        }
+      ]
+    },
+    "iphone-comparison-2": {
+      "summary": "iphone-comparison-2/summary.json",
+      "environment": "iphone-comparison-2/environment.json",
+      "cases": 30,
+      "valid": 30,
+      "componentFailures": 30,
+      "missingOrInvalid": []
+    },
+    "ipad-comparison-1": {
+      "summary": "ipad-comparison-1/summary.json",
+      "environment": "ipad-comparison-1/environment.json",
+      "cases": 54,
+      "valid": 54,
+      "componentFailures": 54,
+      "missingOrInvalid": []
+    },
+    "raster-retention-device-checks": {
+      "summary": "raster-retention-device-checks/summary.json",
+      "environment": "raster-retention-device-checks/environment.json",
+      "cases": 2,
+      "valid": 2,
+      "componentFailures": 2,
+      "scope": "Targeted raster checks, not full matrix"
+    },
+    "raster-stream-device-checks": {
+      "summary": "raster-stream-device-checks/summary.json",
+      "environment": "raster-stream-device-checks/environment.json",
+      "cases": 8,
+      "valid": 8,
+      "componentFailures": 8,
+      "scope": "Targeted raster checks, not full matrix"
+    },
+    "mac-matrix-5": {
+      "summary": "mac-matrix-5/summary.json",
+      "environment": "mac-matrix-5/environment.json",
+      "cases": 52,
+      "valid": 52,
+      "componentFailures": 52,
+      "missingOrInvalid": []
+    }
+  },
+  "implementations": [
+    "first-implementation.json",
+    "second-implementation.json",
+    "third-implementation.json",
+    "fourth-implementation.json",
+    "final-implementation.json"
+  ],
+  "checks": {
+    "geometry": 2088,
+    "textPixels": 28,
+    "raster": 232,
+    "existingPython": 19,
+    "rendererPython": 7,
+    "logs": "checks/",
+    "rasterEvictionTrials": 200,
+    "rasterAvailabilityTrials": 10
+  },
+  "nativeInteractionTrace": {
+    "summary": "native-interaction-trace/summary.json",
+    "scope": "Earlier implementation; retained historical evidence"
+  },
+  "appRegression": {
+    "initial": "app-regression-blocked/gate.json",
+    "complete": "app-regression-2/gate.json",
+    "measurements": "app-regression-2/measurements.json",
+    "status": "fail",
+    "cases": 8
+  },
+  "localDiagnostics": "local-diagnostics.json",
+  "baselinesChanged": false,
+  "workspacesPreserved": true,
+  "remaining": [
+    "Physical iPhone/iPad 120 Hz and input-to-visible evidence missing",
+    "Production feature/data integration not implemented",
+    "Observed cold/resize/dense-scroll failures remain",
+    "App-wide notes/podcast component regressions remain",
+    "Latest native traces exceed frame commit budget; main-thread busy intervals exceed 100 ms with attribution unresolved",
+    "Dense accessibility event children absent from CUA snapshot at 300/day for both canvas and raster; independent VoiceOver/XCTest verification needed",
+    "Quiet dedicated-host measurements missing; host load remains high"
+  ],
+  "resumedNativeTesting": "2026-10-08T16:23:55.849826-04:00",
+  "latestNativeInteractionTraces": [
+    {
+      "summary": "native-canvas-trace-2/summary.json",
+      "environment": "native-canvas-trace-2/environment.json",
+      "status": "fail"
+    },
+    {
+      "summary": "native-raster-trace-1/summary.json",
+      "environment": "native-raster-trace-1/environment.json",
+      "status": "fail"
+    }
+  ],
+  "nativeFunctionalReview": "native-functional-review.json"
+}

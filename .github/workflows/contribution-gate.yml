@@ -1,0 +1,31 @@
+# A pull request stays open only when it closes an approved issue assigned to its author.
+# Maintainers (repository variable MAINTAINERS, space-separated logins) bypass.
+# pull_request_target gives the token write access on fork pull requests; the base
+# repository is checked out and nothing from the pull request is executed.
+name: Contribution gate
+on:
+  pull_request_target:
+    types: [opened, reopened, edited, synchronize]
+permissions:
+  contents: read
+  issues: read
+  pull-requests: write
+concurrency:
+  group: gate-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: node --test .github/scripts/contribution-gate.test.mjs
+      - run: node .github/scripts/contribution-gate.mjs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MAINTAINERS: ${{ vars.MAINTAINERS }}

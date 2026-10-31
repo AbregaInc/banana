@@ -1,0 +1,68 @@
+{
+  "status": "failed-or-incomplete",
+  "mode": "Week",
+  "template": "Animation Hitches",
+  "cellHostPolicy": "clear",
+  "viewport": "native",
+  "eventsPerDay": 100,
+  "orientation": "landscape",
+  "device": "<device-udid>",
+  "instrumentsDevice": "AyePad (27.0.1)",
+  "scope": "Partial Instruments trace of integrated app scrolling; no input-to-visible acceptance",
+  "commands": [
+    [
+      "xcrun",
+      "xctrace",
+      "list",
+      "devices"
+    ],
+    [
+      "xcodebuild",
+      "test-without-building",
+      "-xctestrun",
+      ".build/physical-stress-ui-dd/Build/Products/PhysicalStressUITests-system-idle-probe-landscape.xctestrun",
+      "-destination",
+      "platform=iOS,id=<device-udid>",
+      "-resultBundlePath",
+      ".build/viewport-compare-20261029/ipadpro-m1-landscape/week-2-native/ui.xcresult",
+      "-parallel-testing-enabled",
+      "NO",
+      "-collect-test-diagnostics",
+      "never",
+      "-only-testing:PhysicalStressUITests/ScaleStressUITests/testPhysicalWeekScrollTrace"
+    ],
+    [
+      "xcrun",
+      "devicectl",
+      "device",
+      "info",
+      "processes",
+      "--device",
+      "<device-udid>",
+      "--json-output",
+      ".build/viewport-compare-20261029/ipadpro-m1-landscape/week-2-native/processes.json"
+    ],
+    [
+      "~/.pyenv/versions/3.11.5/bin/python3",
+      "~/repo/abrega/gtfuwgth/tools/calendar-library-benchmark/profile-device.py",
+      "--device",
+      "AyePad (27.0.1)",
+      "--pid",
+      "4382",
+      "--out",
+      ".build/viewport-compare-20261029/ipadpro-m1-landscape/week-2-native/trace",
+      "--seconds",
+      "8",
+      "--template",
+      "Animation Hitches"
+    ]
+  ],
+  "xctestrun": ".build/physical-stress-ui-dd/Build/Products/PhysicalStressUITests-system-idle-probe-landscape.xctestrun",
+  "process": {
+    "executable": "file:///private/var/containers/Bundle/Application/B62398CB-5562-45C1-B613-0B8D8D628819/Banana%20Stress%20Review.app/Banana%20Stress%20Review",
+    "processIdentifier": 4382
+  },
+  "profileExit": 2,
+  "testExit": 0,
+  "error": "Trace or interaction test failed; retained partial evidence"
+}

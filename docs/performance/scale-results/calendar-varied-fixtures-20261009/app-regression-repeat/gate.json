@@ -1,0 +1,37 @@
+{
+  "status": "fail",
+  "scope": "Simulator components, not UI acceptance",
+  "baselineVersion": 1,
+  "failures": {
+    "scale-30d": [
+      "notes.search.p95MS: 44.541 > 18.931 + 2.840 ms",
+      "podcasts.nextAcrossCatalog.p95MS: 25.663 > 19.342 + 2.901 ms",
+      "podcasts.downloadCandidates.p95MS: 32.218 > 23.175 + 3.476 ms"
+    ],
+    "scale-90d": [
+      "notes.search.p95MS: 124.744 > 54.071 + 8.111 ms",
+      "notes.search: absolute component latency budget exceeded",
+      "podcasts.nextAcrossCatalog.p95MS: 238.605 > 65.378 + 9.807 ms",
+      "podcasts.nextAcrossCatalog: absolute component latency budget exceeded",
+      "podcasts.downloadCandidates.p95MS: 283.114 > 80.569 + 12.085 ms",
+      "podcasts.downloadCandidates: absolute component latency budget exceeded",
+      "collector reported failure"
+    ],
+    "redraw-notes": [
+      "notes.search.p95MS: 45.864 > 19.598 + 2.940 ms",
+      "podcasts.downloadCandidates.medianMS: 26.755 > 23.638 + 2.364 ms",
+      "podcasts.downloadCandidates.p95MS: 32.216 > 25.050 + 3.758 ms"
+    ],
+    "redraw-library": [
+      "podcasts.downloadCandidates.medianMS: 28.239 > 25.066 + 2.507 ms"
+    ],
+    "redraw-plan": [
+      "notes.search.p95MS: 48.812 > 19.235 + 2.885 ms",
+      "podcasts.nextAcrossCatalog.p95MS: 30.121 > 20.508 + 3.076 ms",
+      "podcasts.downloadCandidates.p95MS: 36.875 > 24.717 + 3.708 ms"
+    ],
+    "redraw-mail": [
+      "mail.firstPage.p95MS: 15.593 > 12.830 + 2.000 ms"
+    ]
+  }
+}

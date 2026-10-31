@@ -1,0 +1,256 @@
+{
+  "scope": "Complete standalone Time Profiler during native XCTest wheel input; sample counts, not input/display timing",
+  "mainSamples": 469,
+  "appInclusive": [
+    [
+      "specialized static MacBenchmark.main()",
+      469
+    ],
+    [
+      "main",
+      469
+    ],
+    [
+      "@objc NativeAccessibilityEvent.accessibilityParent()",
+      63
+    ],
+    [
+      "NativeAccessibilityEvent.accessibilityParent()",
+      55
+    ],
+    [
+      "CalendarSurface.update(viewport:)",
+      12
+    ],
+    [
+      "partial apply for closure #1 in closure #2 in MacCalendarController.loadView()",
+      12
+    ],
+    [
+      "specialized static MainActor.assumeIsolated<A>(_:file:line:)",
+      12
+    ],
+    [
+      "partial apply for closure #2 in MacCalendarController.loadView()",
+      12
+    ],
+    [
+      "thunk for @escaping @callee_guaranteed @Sendable (@in_guaranteed Notification) -> ()",
+      12
+    ],
+    [
+      "NativeAccessibilityEvent.accessibilityFrame()",
+      10
+    ],
+    [
+      "@objc NativeAccessibilityEvent.accessibilityFrame()",
+      10
+    ],
+    [
+      "CalendarSurface.updateAccessibility()",
+      9
+    ],
+    [
+      "specialized closure #1 in UnsafeMutableBufferPointer._stableSortImpl(by:)",
+      4
+    ],
+    [
+      "specialized UnsafeMutableBufferPointer._stableSortImpl(by:)",
+      4
+    ],
+    [
+      "@objc NativeAccessibilityEvent.accessibilityRole()",
+      1
+    ],
+    [
+      "DYLD-STUB$$objc_autoreleaseReturnValue",
+      1
+    ],
+    [
+      "specialized _ArrayBuffer._consumeAndCreateNew(bufferIsUnique:minimumCapacity:growForAppend:)",
+      1
+    ],
+    [
+      "specialized ContiguousArray._createNewBuffer(bufferIsUnique:minimumCapacity:growForAppend:)",
+      1
+    ],
+    [
+      "specialized __RawDictionaryStorage.find<A>(_:hashValue:)",
+      1
+    ],
+    [
+      "specialized implicit closure #1 in Sequence<>.sorted()",
+      1
+    ],
+    [
+      "specialized _NativeDictionary._copyOrMoveAndResize(capacity:moveElements:)",
+      1
+    ],
+    [
+      "@objc NativeAccessibilityEvent.isAccessibilityElement()",
+      1
+    ]
+  ],
+  "allInclusive": [
+    [
+      "main",
+      469
+    ],
+    [
+      "-[NSApplication run]",
+      469
+    ],
+    [
+      "start",
+      469
+    ],
+    [
+      "specialized static MacBenchmark.main()",
+      469
+    ],
+    [
+      "-[NSApplication(NSEventRouting) _nextEventMatchingEventMask:untilDate:inMode:dequeue:]",
+      425
+    ],
+    [
+      "-[NSApplication(NSEventRouting) nextEventMatchingMask:untilDate:inMode:dequeue:]",
+      425
+    ],
+    [
+      "_DPSNextEvent",
+      421
+    ],
+    [
+      "_DPSBlockUntilNextEventMatchingListInMode",
+      417
+    ],
+    [
+      "_BlockUntilNextEventMatchingListInMode",
+      417
+    ],
+    [
+      "ReceiveNextEventCommon",
+      417
+    ],
+    [
+      "RunCurrentEventLoopInMode",
+      410
+    ],
+    [
+      "_CFRunLoopRunSpecificWithOptions",
+      409
+    ],
+    [
+      "__CFRunLoopRun",
+      379
+    ],
+    [
+      "__CFRunLoopDoBlocks",
+      262
+    ],
+    [
+      "__CFRUNLOOP_IS_CALLING_OUT_TO_A_BLOCK__",
+      260
+    ],
+    [
+      "__XCTPerformOnMainRunLoop_block_invoke",
+      240
+    ],
+    [
+      "+[XCTRuntimeIssueContext captureIssuesWithContext:inScope:]",
+      161
+    ],
+    [
+      "__90-[XCTElementQuery matchingSnapshotsInSnapshotTree:relatedElements:noMatchesMessage:error:]_block_invoke",
+      161
+    ],
+    [
+      "__90-[XCTElementQuery matchingSnapshotsInSnapshotTree:relatedElements:noMatchesMessage:error:]_block_invoke_2",
+      161
+    ],
+    [
+      "NSAccessibilityPerformEntryPointObject",
+      120
+    ],
+    [
+      "_NSAccessibilityEntryPointValueForAttribute",
+      120
+    ],
+    [
+      "-[XCTElementQuery _firstMatchingSnapshotForInput:transformers:relatedElements:noMatchesMessage:error:]",
+      120
+    ],
+    [
+      "-[XCTElementQuery _firstMatchingSnapshotForInput:transformersSubarrays:relatedElements:noMatchesMessage:error:]",
+      120
+    ],
+    [
+      "___NSAccessibilityEntryPointValueForAttribute_block_invoke.773",
+      119
+    ],
+    [
+      "-[XCTFilteringTransformerIterator nextMatch]",
+      106
+    ],
+    [
+      "__CFRunLoopDoSource1",
+      91
+    ],
+    [
+      "__CFRUNLOOP_IS_CALLING_OUT_TO_A_SOURCE1_PERFORM_FUNCTION__",
+      90
+    ],
+    [
+      "-[XCElementSnapshot childEnumerator]",
+      89
+    ],
+    [
+      "-[XCElementSnapshot children]",
+      89
+    ],
+    [
+      "-[XCElementSnapshot _fetchSimpleValueForKey:]",
+      88
+    ],
+    [
+      "mshMIGPerform",
+      87
+    ],
+    [
+      "CopyAppKitUIElementAttributeValueNoCatch",
+      84
+    ],
+    [
+      "-[XCTElementSnapshotRequest(PlatformImplementation) _accessibilitySnapshotForElement:error:]",
+      83
+    ],
+    [
+      "NSAccessibilityChildren",
+      83
+    ],
+    [
+      "__56-[XCTElementSnapshotRequest loadSnapshotAndReturnError:]_block_invoke_2",
+      83
+    ],
+    [
+      "-[XCTElementSnapshotRequest(PlatformImplementation) accessibilitySnapshotOrError:]",
+      83
+    ],
+    [
+      "AXUIElementCopyHierarchy",
+      83
+    ],
+    [
+      "NSAccessibilityGetObjectValueForAttribute",
+      83
+    ],
+    [
+      "-[XCTAccessibilityFramework hierarchyForElement:attributes:options:error:]",
+      83
+    ],
+    [
+      "-[XCTElementSnapshotDescendantsEnumerator nextObject]",
+      80
+    ]
+  ]
+}

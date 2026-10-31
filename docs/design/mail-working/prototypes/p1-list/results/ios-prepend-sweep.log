@@ -1,0 +1,15 @@
+list  /reader      prepend       pass=False deciding=156 shifts=[156, 156, 156, 156, 156, 156, 156, 156, 156, 156] displacedFrames=[118, 118, 119, 119, 118, 118, 118, 118, 118, 118] missing=0
+list  /readerNow   prepend       pass=False deciding=192 shifts=[192, 192, 192, 192, 192, 192, 192, 192, 192, 192] displacedFrames=[118, 118, 118, 118, 118, 118, 118, 118, 118, 118] missing=0
+list  /readerAsync prepend       pass=False deciding=192 shifts=[-1, 192, 192, 192, 192, 192, 192, 192, 192, 192] displacedFrames=[None, 118, 118, 118, 118, 118, 118, 118, 118, 118] missing=0
+list  /positionID  prepend       pass=False deciding=0 shifts=[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1] displacedFrames=[None, None, None, None, None, None, None, None, None, None] missing=0
+list  /none        prepend       pass=False deciding=192 shifts=[192, 192, 192, 192, 192, 192, 192, 192, 192, 192] displacedFrames=[118, 118, 118, 118, 118, 118, 118, 118, 118, 118] missing=0
+list  /anchor      prepend       pass=False deciding=192 shifts=[192, 192, 192, 192, 192, 192, 192, 192, 192, 192] displacedFrames=[118, 118, 118, 118, 118, 118, 118, 118, 118, 119] missing=0
+list  /id          prepend       pass=False deciding=0 shifts=[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1] displacedFrames=[None, None, None, None, None, None, None, None, None, None] missing=0
+lazy  /positionY   prepend       pass=False deciding=192 shifts=[192, 192, 192, 192, 192, 192, 192, 192, 192, 192] displacedFrames=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1] missing=0
+lazy  /positionID  prepend       pass=False deciding=192 shifts=[0, 192, 192, 192, 192, 192, 192, 192, 192, 192] displacedFrames=[0, 120, 120, 120, 120, 120, 120, 120, 120, 120] missing=1
+lazy  /reader      prepend       pass=False deciding=192 shifts=[192, 192, 192, 192, 192, 192, 192, 192, 192, 192] displacedFrames=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1] missing=0
+lazy  /readerNow   prepend       pass=False deciding=192 shifts=[192, 192, 192, 192, 192, 192, 192, 192, 192, 192] displacedFrames=[120, 120, 120, 120, 120, 120, 120, 120, 120, 120] missing=0
+lazy  /readerAsync prepend       pass=False deciding=192 shifts=[-1, 192, 192, 192, 192, 192, 192, 192, 192, 192] displacedFrames=[None, 120, 120, 120, 120, 120, 120, 120, 120, 120] missing=0
+lazy  /none        prepend       pass=False deciding=192 shifts=[192, 192, 192, 192, 192, 192, 192, 192, 192, 192] displacedFrames=[120, 120, 120, 120, 120, 120, 120, 120, 120, 120] missing=0
+lazy  /anchor      prepend       pass=False deciding=192 shifts=[192, 192, 192, 192, 192, 192, 192, 192, 192, 192] displacedFrames=[120, 120, 120, 120, 120, 120, 120, 120, 120, 120] missing=0
+lazy  /id          prepend       pass=True  deciding=0 shifts=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0] displacedFrames=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0] missing=0

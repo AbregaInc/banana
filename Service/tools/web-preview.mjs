@@ -1,0 +1,75 @@
+// Local-only UI QA with an in-memory service. Never deployed.
+// cd Service && node tools/web-preview.mjs; open http://localhost:8899/__preview/login
+import { serve } from '@hono/node-server';
+import { lzfseDecompress } from '../public/app/assets/vendor/lzfse.js';
+import { createApp } from '../src/app.js';
+import { serveStatic } from '@hono/node-server/serve-static';
+import { readFileSync } from 'node:fs';
+import { setup, device } from '../test/helpers.js';
+import { sha256Hex, newSessionToken, createVault } from '../src/crypto.js';
+import { memoryEmail } from '../src/booking/email.js';
+const mail=memoryEmail({enabled:true,log:false});
+const previewPort=Number(process.env.BANANA_PREVIEW_PORT??8899);
+const origin=`http://localhost:${previewPort}`,s=setup({config:{publicUrl:origin},deps:{email:mail}});
+s.google.person('preview','preview-sub','you@example.com','preview-refresh',{name:'Alex'});
+const who=(await s.signIn('preview',device('phone-preview-001'))).json;
+const space=`sp_${who.account.id}`,stub=s.deps.spaces.get(space),now=Date.now();
+await stub.setConsent('health',{version:'1',at:s.now()});
+const changes=[];
+function record(type,id,fields){changes.push({type,id,set:fields,clocks:Object.fromEntries(Object.keys(fields).map(k=>[k,`${s.now()}.0000.phone`]))});}
+async function blob(type,bytes,ext){const data=new Uint8Array(bytes),sha=await crypto.subtle.digest('SHA-256',data).then(b=>Buffer.from(b).toString('hex'));await s.deps.blobs.put(`s/${space}/${sha}`,new Blob([data]).stream(),{sha256:sha});await stub.recordBlob(sha,data.length,s.now(),type);return {$blob:sha,size:data.length,ext};}
+record('core.smartSettings','smart-settings',{v:{updatedAt:s.now()/1000-978307200,calendarIDsAreGoogle:true,excludedCalendars:[],settings:{mutedCalendarIDs:[],excludedCalendarIDs:[]}}});
+record('plan.routine','routine-1',{name:'A good start',hour:7,minute:30,weekdays:[2,3,4,5,6],enabled:true,triggerKind:'time',durationMinutes:30,sourceLabel:'Morning listening'});
+record('plan.routine','routine-2',{name:'Get outside',hour:12,minute:15,weekdays:[],enabled:true,triggerKind:'time',durationMinutes:45,sourceLabel:'Your walking playlist'});
+record('plan.routine','routine-3',{name:'A little wind-down',hour:21,minute:0,weekdays:[],enabled:true,triggerKind:'time',durationMinutes:30,sourceLabel:'The end of the day'});
+record('plan.alarm','alarm-1',{label:'An early one',fire:new Date(new Date(now).setHours(6,45,0,0)).getTime()});
+record('food.meal','meal-1',{name:'A slow breakfast',date:now-3600000,note:'Coffee, then a walk.',items:[{name:'Greek yogurt',serving:'200 g',macros:{calories:140,proteinGrams:20,carbohydrateGrams:8,fatGrams:3}},{name:'Blueberries & granola',serving:'1 bowl',macros:{calories:240,proteinGrams:5,carbohydrateGrams:40,fatGrams:8}}],photoIDs:['photo-1']});
+record('food.mealPhoto','photo-1',{v:await blob('food.mealPhoto',readFileSync(new URL('../../LandingPage/site/assets/img/mark-192.webp',import.meta.url)),'webp')});
+record('food.meal','meal-2',{name:'Lunch after the swim',date:now-86400000,items:[{name:'Roasted vegetables & rice',serving:'1 plate',macros:{calories:540,proteinGrams:18,carbohydrateGrams:80,fatGrams:12}}]});
+record('food.supplement','sup-1',{name:'PRIVATE-TAKEN-SECRET',dose:'1 tablet',hour:8,minute:0,kind:'supplement',enabled:true,note:'With breakfast'});
+record('food.dose','dose-1',{supplementID:'sup-1',day:'20261020',date:now,status:'taken'});
+const sampleBuffer=Buffer.alloc(33*300);for(let i=0;i<300;i++){const p=i*33;sampleBuffer.writeUInt8(i%2?0:3,p);sampleBuffer.writeDoubleLE(i*9,p+1);sampleBuffer.writeDoubleLE(i%2?110+(i%35):.4,p+9);sampleBuffer.writeDoubleLE(i%2?NaN:.3,p+17);sampleBuffer.writeDoubleLE(i%2?NaN:.9,p+25);}
+const rawSamples=await blob('health.workout',sampleBuffer,'samples');
+record('health.workout','workout-1',{activity:'Pool swim',start:now-7200000,end:now-4500000,totalDistance:1500,totalEnergy:420,avgHeartRate:132,poolLengthMeters:25,sampleCount:300,samples:rawSamples,laps:Array.from({length:12},(_,i)=>({number:i+1,duration:38+i%5})),strokeSeries:Array.from({length:12},(_,i)=>({t:(i+1)*40,value:(i+1)*20})),pauses:[{start:500,end:560}],powerSeries:[{t:0,value:100},{t:300,value:140},{t:900,value:120}],route:[{lat:40.71,lon:-74},{lat:40.713,lon:-74.005},{lat:40.718,lon:-74.001}],insights:{movingDuration:2600,averagePower:120},heartRateSeries:Array.from({length:30},(_,i)=>({t:i*90,bpm:110+(i*7%35)}))});
+record('health.workout','workout-2',{activity:'Outdoor walk',start:now-90000000,end:now-86400000,totalDistance:4700,totalEnergy:240,avgHeartRate:106});
+const compressed=readFileSync(new URL('../test/fixtures/web-health.lzfse',import.meta.url)),healthPayload=JSON.parse(new TextDecoder().decode(lzfseDecompress(compressed.subarray(6))));
+const swift=ms=>ms/1000-978307200;
+healthPayload.workouts=[{id:'health-swim',activity:'Pool swim',start:swift(now-7200000),end:swift(now-4500000),duration:2640,distanceMeters:1500,energyKcal:420,source:'Apple Watch',avgHeartRate:132},{id:'duplicate',activity:'Pool swim',start:swift(now-7170000),end:swift(now-4500000),duration:2670,source:'WHOOP'},{id:'health-only',activity:'Indoor cycling',start:swift(now-3*86400000),end:swift(now-3*86400000+1800000),duration:1800,distanceMeters:12000,energyKcal:310,source:'Apple Watch',avgHeartRate:125}];
+record('health.snapshot','snapshot',{v:await blob('health.snapshot',new TextEncoder().encode(JSON.stringify(healthPayload)),'json')});
+record('podcast.show','show-1',{title:'The Knowledge Project',author:'Farnam Street',feedURL:'https://example.com/feed'});
+record('podcast.listen','listen-1',{podcastTitle:'The Knowledge Project',episodeTitle:'Making room for what matters',episodeID:'episode-1',date:now-3600000,endedAt:now-1800000,place:'On a walk'});
+record('podcast.progress','episode-1',{v:{position:1800,completed:false,updatedAt:now-1800000}});
+record('podcast.transcript','episode-1',{source:'feed',body:await blob('podcast.transcript',readFileSync(new URL('../test/fixtures/web-transcript.lzfse',import.meta.url)),'lzfse')});
+record('notes.voiceNote','note-1',{createdAt:now-3600000,transcript:'Leave a little room in the afternoon. A walk without anything playing might be just what the day needs.',kind:'general',status:'transcribed'});
+record('notes.voiceNote','note-2',{createdAt:now-86400000,transcript:'Try the longer swim on Thursday. The new pool is quieter in the morning.',kind:'workoutFeedback',status:'transcribed'});
+record('notes.voiceNote','note-xss',{createdAt:now-172800000,transcript:'<img src=x onerror="window.injected=true"> & "safe text"',kind:'general',status:'transcribed'});
+await stub.sync({account:who.account.id,device:'phone-preview-001',platform:'iphone',now:s.now(),changes});
+await s.db.run('UPDATE devices SET last_sync_at = ? WHERE account_id = ?',now,who.account.id);
+const token=newSessionToken(s.deps.random);
+await s.db.run("INSERT INTO sessions (token_hash,account_id,kind,created_at,last_used_at) VALUES (?,?,'web',?,?)",await sha256Hex(token),who.account.id,s.now(),s.now());
+s.google.calendars.set('preview-refresh',[{id:'preview-calendar',summary:'Personal',accessRole:'owner',selected:true},{id:'work-calendar',summary:'Work',accessRole:'owner'},{id:'training-calendar',summary:'Training',accessRole:'owner'}]);
+s.google.events.set('preview-calendar',[{id:'meeting-1',summary:'Catch up over coffee',start:{dateTime:new Date(now).toISOString()},end:{dateTime:new Date(now+3600000).toISOString()},location:'The corner café'}]);
+const today=new Date(now);today.setHours(10,0,0,0);const meeting={id:'real-meeting',summary:'Design review',start:{dateTime:today.toISOString()},end:{dateTime:new Date(+today+3600000).toISOString()}};
+s.google.events.get('preview-calendar').push(meeting,{...meeting,id:'busy-copy',summary:'Busy',extendedProperties:{private:{bananaVariant:'banana',bananaItemID:'mirror-one'}}});
+s.google.events.set('work-calendar',[{...meeting,id:'same-invite',summary:'Accepted: Design review',location:'Studio 2'}, {...meeting,id:'another-meeting',summary:'Dentist',end:{dateTime:new Date(+today+1800000).toISOString()}}, {id:'trip',summary:'Offsite',start:{date:today.toISOString().slice(0,10)},end:{date:new Date(+today+2*86400000).toISOString().slice(0,10)}}]);
+s.google.events.set('training-calendar',[{...meeting,id:'training',summary:'Training session',description:'Bring your swim kit.',location:'The pool',attendees:[{email:'trainer@example.com',displayName:'Trainer',responseStatus:'accepted'}],start:{dateTime:new Date(+today+3*3600000).toISOString()},end:{dateTime:new Date(+today+4*3600000).toISOString()}}]);
+const privateRefresh=await createVault(s.deps.config.tokenKey,s.deps.random).seal('private-sub','private-refresh');
+await s.db.run("INSERT INTO google_links (sub,account_id,email,refresh_token,scopes,status,created_at,updated_at) VALUES (?,?,?,?,?,'ok',?,?)",'private-sub',who.account.id,'private-account@example.com',privateRefresh,'https://www.googleapis.com/auth/calendar',s.now()+1,s.now());
+s.google.calendars.set('private-refresh',[{id:'private-family',summary:'PRIVATE FAMILY CALENDAR',accessRole:'owner'},{id:'private-personal',summary:'PRIVATE PERSONAL CALENDAR',accessRole:'owner'}]);
+for(const [i,id]of ['private-family','private-personal'].entries())s.google.events.set(id,[{...meeting,id:'PRIVATE-EVENT-'+i,summary:'PRIVATE CALENDAR TITLE',description:'PRIVATE CALENDAR NOTES',location:'PRIVATE LOCATION',start:{dateTime:new Date(+today+(4+i)*3600000).toISOString()},end:{dateTime:new Date(+today+(5+i)*3600000).toISOString()}}]);
+s.google.person('trainer-preview','trainer-sub','trainer@example.com',null,{name:'Trainer'});
+s.google.person('stranger-preview','stranger-sub','stranger@example.com',null,{name:'Stranger'});
+if(process.env.BANANA_PREVIEW_EMPTY_CALENDARS==='1')s.google.calendarList=async()=>[];
+const app=createApp(s.deps);
+app.get('/__preview/login',c=>{c.header('Set-Cookie',`__Host-banana-web=${token}; Path=/; HttpOnly; Secure; SameSite=Lax`);return c.redirect('/app/');});
+app.get('/__preview/auth/:role',async c=>{
+  const code=c.req.param('role')==='trainer'?'trainer-preview':'stranger-preview';
+  const start=await app.request('/app/auth/google?'+new URLSearchParams({share:c.req.query('share')??''}));
+  const state=new URL(start.headers.get('location')).searchParams.get('state');
+  const end=await app.request('/v1/google/callback?'+new URLSearchParams({state,code}),{headers:{cookie:start.headers.get('set-cookie').split(';')[0]}});
+  return new Response(null,{status:end.status,headers:end.headers});
+});
+app.get('/__preview/outbox',c=>c.json(mail.sent.map(m=>({kind:m.kind,to:m.to,text:m.text}))));
+if(process.env.BANANA_PREVIEW_FILTER_CATALOG_REFERENCE==='1')app.get('/app/assets/app.js',c=>c.body(readFileSync(new URL('../public/app/assets/app.js',import.meta.url),'utf8').replace('if(account.shared||filterSourcesLoaded)return;','if(account.shared||filterSources.length)return;'),200,{'Content-Type':'application/javascript','Cache-Control':'no-store'}));
+app.get('/app/assets/*',serveStatic({root:'./public'}));app.get('/book/fonts/*',serveStatic({root:'./public'}));
+serve({fetch:app.fetch,port:previewPort,hostname:'127.0.0.1'},()=>console.log(`Cloud app preview: ${origin}/__preview/login`));

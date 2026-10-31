@@ -1,0 +1,11 @@
+{
+  "timestamp": "2026-10-09T04:22:46.281612-04:00",
+  "platform": "macOS-26.6.2-arm64-arm-64bit",
+  "pid": 40324,
+  "git": "c8f310b665c3493dcebc039945524de20147b1e5",
+  "dirty": " M .github/workflows/performance-contract.yml\n M Banana/Views/WeekView.swift\n M docs/performance/regression-testing.md\n M tools/calendar-library-benchmark/Shared/Optimizations.swift\n M tools/calendar-library-benchmark/Shared/RasterPage.swift\n M tools/calendar-library-benchmark/Shared/TileRenderer.swift\n M tools/calendar-library-benchmark/Sources/Benchmark.swift\n M tools/calendar-library-benchmark/Sources/NativeController.swift\n M tools/calendar-library-benchmark/TileTests/prefetch.swift\n M tools/calendar-library-benchmark/project.yml\n M tools/calendar-library-benchmark/run-device.py\n M tools/calendar-library-benchmark/run-mac.py\n M tools/calendar-library-benchmark/run.py\n M tools/calendar-library-benchmark/test_device_runner.py\n M tools/mac-stress-preview.py\n?? docs/performance/scale-results/calendar-queue-cancellation-20261009/\n?? tools/calendar-library-benchmark/Sources/InteractiveControls.swift\n?? tools/calendar-library-benchmark/TileTests/cancellation.swift\n?? tools/calendar-library-benchmark/UITests/\n?? tools/calendar-library-benchmark/test-device-interactive.py\n",
+  "load": "4:22  up 4 days,  2:27, 31 users, load averages: 16.67 16.86 18.70",
+  "scenario": "Supplemental diagnostic: same-binary uncached layouts; fresh process; builtin120Hz; 180k mail/36500 events; four half-page down/up pairs then four J/four K in deterministic batch; no AX queries during capture; verify afterward. Cadence differs from queried recipe; not a replacement for those retained failures.",
+  "executable": "~/orca/workspaces/gtfuwgth/stingray/.build/mac-stress-previews/20261009-042216-223539/Banana Stress Review.app/Contents/MacOS/Banana Beta",
+  "binarySHA256": "080ad4bc6c2f937fd62c47e701279c7641a1a64f134579b10116ae8ae51ebe06"
+}

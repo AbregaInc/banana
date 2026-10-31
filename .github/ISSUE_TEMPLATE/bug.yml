@@ -1,0 +1,27 @@
+name: Bug
+description: Something Banana does wrong. Approved bugs can be fixed by a pull request.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Use sample data. Remove account identifiers, health information, event details and credentials from logs and screenshots.
+  - type: input
+    id: build
+    attributes:
+      label: Build
+      description: Settings › About, for example "1.0 (83)" and the device.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps
+      description: What you did, what happened, what you expected.
+    validations:
+      required: true
+  - type: checkboxes
+    id: fix
+    attributes:
+      label: Fixing it
+      options:
+        - label: I'd like to fix this myself once it is approved.

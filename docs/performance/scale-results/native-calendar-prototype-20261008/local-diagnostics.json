@@ -1,0 +1,22 @@
+{
+  "scope": "Local retained diagnostics; failed/invalid runs are not substituted for passing checks",
+  "initialStandaloneGeometryBuild": {
+    "status": "failed",
+    "log": ".build/native-calendar-prototype/geometry-build-final.log",
+    "reason": "Missing CoreGraphics import; rebuilt and passed from a fresh executable in final-v2"
+  },
+  "initialRasterIOSBuild": {
+    "status": "failed",
+    "log": ".build/native-calendar-prototype/build-ios-raster.log",
+    "reason": "Generated Xcode project did not yet include newly added RasterPage.swift; regenerated, rebuilt and passed"
+  },
+  "initialGlyphCulling": {
+    "status": "failed",
+    "log": ".build/native-calendar-prototype/text-tests-v3.log",
+    "reason": "Narrow clipping lost accent pixels; corrected antialias fringe passes all 28 comparisons"
+  },
+  "rawNativeTrace": ".build/native-calendar-prototype/native-interaction-trace/interactions.trace",
+  "initialAppRegression": ".build/native-calendar-prototype/app-regression/gate.json",
+  "rasterSmoke": ".build/native-calendar-prototype/mac-raster-smoke.json",
+  "windowedSmoke": ".build/native-calendar-prototype/mac-windowed-smoke.json"
+}

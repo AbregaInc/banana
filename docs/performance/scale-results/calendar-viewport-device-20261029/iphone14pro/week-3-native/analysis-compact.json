@@ -1,0 +1,78 @@
+{
+ "status": "analyzed-partial-evidence",
+ "pid": 34080,
+ "scope": "App-attributed update intervals and matching compositor work; not HID-to-visible latency or complete UI acceptance",
+ "attributionLimit": "Render intervals may overlap GPU work and extend beyond its completion. Their entire duration is not proven CPU execution; GPU subtraction does not establish CPU cost. Interval budget failures remain conservative and unchanged.",
+ "measuredWorkBudget": "fail",
+ "appHitchRows": 5,
+ "timings": {
+  "appUpdates": {
+   "stats": {
+    "count": 599,
+    "p50MS": 2.364333,
+    "p95MS": 7.286416,
+    "p99MS": 11.617625,
+    "maxMS": 11.984875,
+    "over8_3MS": 20
+   }
+  },
+  "associatedRenders": {
+   "stats": {
+    "count": 608,
+    "p50MS": 3.084583,
+    "p95MS": 12.456,
+    "p99MS": 13.50325,
+    "maxMS": 14.089333,
+    "over8_3MS": 194
+   }
+  },
+  "associatedFrameLifetimes": {
+   "stats": {
+    "count": 595,
+    "p50MS": 25.022458,
+    "p95MS": 33.366875,
+    "p99MS": 33.367458,
+    "maxMS": 50.045583,
+    "over8_3MS": 595
+   }
+  },
+  "associatedGPU": {
+   "stats": {
+    "count": 595,
+    "p50MS": 1.256875,
+    "p95MS": 1.647708,
+    "p99MS": 2.996083,
+    "maxMS": 3.3885,
+    "over8_3MS": 0
+   }
+  }
+ },
+ "renderWaitDiagnostic": null,
+ "displayCadence": {
+  "scope": "Display-wide VSync intervals, not app frame/input latency",
+  "count": 688,
+  "firstNS": 463379958,
+  "lastNS": 9633058916,
+  "roundedGapHistogramMS": {
+   "8.33": 2,
+   "8.34": 363,
+   "8.35": 1,
+   "12.51": 12,
+   "16.68": 254,
+   "20.85": 19,
+   "25.02": 8,
+   "29.19": 4,
+   "33.36": 8,
+   "37.53": 4,
+   "41.7": 4,
+   "50.04": 4,
+   "58.38": 4
+  }
+ },
+ "limitations": [
+  "Frame lifetimes span a pipelined render loop and are not single-frame work or input latency.",
+  "No app-attributed HID timestamp or CPU-to-display rows; direct-input acceptance remains unmeasured.",
+  "Variable cadence must not be treated as automatic missed 120 Hz deadlines.",
+  "Retain capture status, workload, binary identity and actual touch overlap separately."
+ ]
+}

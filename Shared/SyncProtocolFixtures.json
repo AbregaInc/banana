@@ -1,0 +1,1205 @@
+{
+  "comment": "The sync protocol (docs/design/DATA-PLATFORM.md §4) as request/answer pairs, run by both suites: Service/test (space.js) and BananaTests (MemorySyncServer). Each case starts from an empty space and runs its steps in order: `sync` (device, platform, since, changes, now, optional pageRecords) must give `answer`; `consent` grants a consent; `blob` puts a blob in the space's index. `epoch` is random and left out of the answers. The answers were made by running Service/src/space.js.",
+  "cases": [
+    {
+      "name": "a write comes back applied and in the changes; another device pulls it",
+      "steps": [
+        {
+          "sync": {
+            "device": "phone-0001",
+            "platform": "iphone",
+            "since": 0,
+            "changes": [
+              {
+                "type": "core.smartSettings",
+                "id": "s1",
+                "set": {
+                  "theme": "dark",
+                  "week": 1
+                },
+                "clocks": {
+                  "theme": "1760900000000.0000.phone",
+                  "week": "1760900000000.0000.phone"
+                },
+                "delete": null,
+                "schema": 1
+              }
+            ],
+            "now": 1760900000000
+          },
+          "answer": {
+            "now": 1760900000000,
+            "head": 1,
+            "next": 1,
+            "more": false,
+            "applied": [
+              {
+                "type": "core.smartSettings",
+                "id": "s1",
+                "clocks": {
+                  "theme": "1760900000000.0000.phone",
+                  "week": "1760900000000.0000.phone"
+                },
+                "deleted": null
+              }
+            ],
+            "changes": [
+              {
+                "type": "core.smartSettings",
+                "id": "s1",
+                "fields": {
+                  "theme": "dark",
+                  "week": 1
+                },
+                "clocks": {
+                  "theme": "1760900000000.0000.phone",
+                  "week": "1760900000000.0000.phone"
+                },
+                "deleted": null,
+                "seq": 1
+              }
+            ],
+            "rejected": [],
+            "consents": {
+              "health": false
+            }
+          }
+        },
+        {
+          "sync": {
+            "device": "mac-0001",
+            "platform": "mac",
+            "since": 0,
+            "changes": [],
+            "now": 1760900000000
+          },
+          "answer": {
+            "now": 1760900000000,
+            "head": 1,
+            "next": 1,
+            "more": false,
+            "applied": [],
+            "changes": [
+              {
+                "type": "core.smartSettings",
+                "id": "s1",
+                "fields": {
+                  "theme": "dark",
+                  "week": 1
+                },
+                "clocks": {
+                  "theme": "1760900000000.0000.phone",
+                  "week": "1760900000000.0000.phone"
+                },
+                "deleted": null,
+                "seq": 1
+              }
+            ],
+            "rejected": [],
+            "consents": {
+              "health": false
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "a retry is no change: same clocks back, no new seq",
+      "steps": [
+        {
+          "sync": {
+            "device": "phone-0001",
+            "platform": "iphone",
+            "since": 0,
+            "changes": [
+              {
+                "type": "core.smartSettings",
+                "id": "s1",
+                "set": {
+                  "theme": "dark"
+                },
+                "clocks": {
+                  "theme": "1760900000000.0000.phone"
+                },
+                "delete": null,
+                "schema": 1
+              }
+            ],
+            "now": 1760900000000
+          },
+          "answer": {
+            "now": 1760900000000,
+            "head": 1,
+            "next": 1,
+            "more": false,
+            "applied": [
+              {
+                "type": "core.smartSettings",
+                "id": "s1",
+                "clocks": {
+                  "theme": "1760900000000.0000.phone"
+                },
+                "deleted": null
+              }
+            ],
+            "changes": [
+              {
+                "type": "core.smartSettings",
+                "id": "s1",
+                "fields": {
+                  "theme": "dark"
+                },
+                "clocks": {
+                  "theme": "1760900000000.0000.phone"
+                },
+                "deleted": null,
+                "seq": 1
+              }
+            ],
+            "rejected": [],
+            "consents": {
+              "health": false
+            }
+          }
+        },
+        {
+          "sync": {
+            "device": "phone-0001",
+            "platform": "iphone",
+            "since": 1,
+            "changes": [
+              {
+                "type": "core.smartSettings",
+                "id": "s1",
+                "set": {
+                  "theme": "dark"
+                },
+                "clocks": {
+                  "theme": "1760900000000.0000.phone"
+                },
+                "delete": null,
+                "schema": 1
+              }
+            ],
+            "now": 1760900000000
+          },
+          "answer": {
+            "now": 1760900000000,
+            "head": 1,
+            "next": 1,
+            "more": false,
+            "applied": [
+              {
+                "type": "core.smartSettings",
+                "id": "s1",
+                "clocks": {
+                  "theme": "1760900000000.0000.phone"
+                },
+                "deleted": null
+              }
+            ],
+            "changes": [],
+            "rejected": [],
+            "consents": {
+              "health": false
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "a clock more than five minutes ahead is refused, whole; five minutes exactly is taken",
+      "steps": [
+        {
+          "sync": {
+            "device": "phone-0001",
+            "platform": "iphone",
+            "since": 0,
+            "changes": [
+              {
+                "type": "core.smartSettings",
+                "id": "s1",
+                "set": {
+                  "theme": "dark",
+                  "week": 2
+                },
+                "clocks": {
+                  "theme": "1760900000000.0000.phone",
+                  "week": "1760900300001.0000.phone"
+                },
+                "delete": null,
+                "schema": 1
+              }
+            ],
+            "now": 1760900000000
+          },
+          "answer": {
+            "now": 1760900000000,
+            "head": 0,
+            "next": 0,
+            "more": false,
+            "applied": [],
+            "changes": [],
+            "rejected": [
+              {
+                "type": "core.smartSettings",
+                "id": "s1",
+                "reason": "clock"
+              }
+            ],
+            "consents": {
+              "health": false
+            }
+          }
+        },
+        {
+          "sync": {
+            "device": "phone-0001",
+            "platform": "iphone",
+            "since": 0,
+            "changes": [
+              {
+                "type": "core.smartSettings",
+                "id": "s1",
+                "set": {
+                  "theme": "dark",
+                  "week": 2
+                },
+                "clocks": {
+                  "theme": "1760900300000.0000.phone",
+                  "week": "1760900300000.0000.phone"
+                },
+                "delete": null,
+                "schema": 1
+              }
+            ],
+            "now": 1760900000000
+          },
+          "answer": {
+            "now": 1760900000000,
+            "head": 1,
+            "next": 1,
+            "more": false,
+            "applied": [
+              {
+                "type": "core.smartSettings",
+                "id": "s1",
+                "clocks": {
+                  "theme": "1760900300000.0000.phone",
+                  "week": "1760900300000.0000.phone"
+                },
+                "deleted": null
+              }
+            ],
+            "changes": [
+              {
+                "type": "core.smartSettings",
+                "id": "s1",
+                "fields": {
+                  "theme": "dark",
+                  "week": 2
+                },
+                "clocks": {
+                  "theme": "1760900300000.0000.phone",
+                  "week": "1760900300000.0000.phone"
+                },
+                "deleted": null,
+                "seq": 1
+              }
+            ],
+            "rejected": [],
+            "consents": {
+              "health": false
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "a delete from a fast clock is refused too",
+      "steps": [
+        {
+          "sync": {
+            "device": "phone-0001",
+            "platform": "iphone",
+            "since": 0,
+            "changes": [
+              {
+                "type": "core.smartSettings",
+                "id": "s1",
+                "set": {
+                  "theme": "dark"
+                },
+                "clocks": {
+                  "theme": "1760900000000.0000.phone"
+                },
+                "delete": null,
+                "schema": 1
+              }
+            ],
+            "now": 1760900000000
+          },
+          "answer": {
+            "now": 1760900000000,
+            "head": 1,
+            "next": 1,
+            "more": false,
+            "applied": [
+              {
+                "type": "core.smartSettings",
+                "id": "s1",
+                "clocks": {
+                  "theme": "1760900000000.0000.phone"
+                },
+                "deleted": null
+              }
+            ],
+            "changes": [
+              {
+                "type": "core.smartSettings",
+                "id": "s1",
+                "fields": {
+                  "theme": "dark"
+                },
+                "clocks": {
+                  "theme": "1760900000000.0000.phone"
+                },
+                "deleted": null,
+                "seq": 1
+              }
+            ],
+            "rejected": [],
+            "consents": {
+              "health": false
+            }
+          }
+        },
+        {
+          "sync": {
+            "device": "phone-0001",
+            "platform": "iphone",
+            "since": 1,
+            "changes": [
+              {
+                "type": "core.smartSettings",
+                "id": "s1",
+                "set": {},
+                "clocks": {},
+                "delete": "1760900600000.0000.phone",
+                "schema": 1
+              }
+            ],
+            "now": 1760900000000
+          },
+          "answer": {
+            "now": 1760900000000,
+            "head": 1,
+            "next": 1,
+            "more": false,
+            "applied": [],
+            "changes": [],
+            "rejected": [
+              {
+                "type": "core.smartSettings",
+                "id": "s1",
+                "reason": "clock"
+              }
+            ],
+            "consents": {
+              "health": false
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "applied carries the space's delete clock",
+      "steps": [
+        {
+          "sync": {
+            "device": "phone-0001",
+            "platform": "iphone",
+            "since": 0,
+            "changes": [
+              {
+                "type": "plan.extra",
+                "id": "x1",
+                "set": {
+                  "title": "Swim"
+                },
+                "clocks": {
+                  "title": "1760900000000.0000.phone"
+                },
+                "delete": null,
+                "schema": 1
+              }
+            ],
+            "now": 1760900000000
+          },
+          "answer": {
+            "now": 1760900000000,
+            "head": 1,
+            "next": 1,
+            "more": false,
+            "applied": [
+              {
+                "type": "plan.extra",
+                "id": "x1",
+                "clocks": {
+                  "title": "1760900000000.0000.phone"
+                },
+                "deleted": null
+              }
+            ],
+            "changes": [
+              {
+                "type": "plan.extra",
+                "id": "x1",
+                "fields": {
+                  "title": "Swim"
+                },
+                "clocks": {
+                  "title": "1760900000000.0000.phone"
+                },
+                "deleted": null,
+                "seq": 1
+              }
+            ],
+            "rejected": [],
+            "consents": {
+              "health": false
+            }
+          }
+        },
+        {
+          "sync": {
+            "device": "mac-0001",
+            "platform": "mac",
+            "since": 0,
+            "changes": [
+              {
+                "type": "plan.extra",
+                "id": "x1",
+                "set": {},
+                "clocks": {},
+                "delete": "1760900001000.0000.mac",
+                "schema": 1
+              }
+            ],
+            "now": 1760900000000
+          },
+          "answer": {
+            "now": 1760900000000,
+            "head": 2,
+            "next": 2,
+            "more": false,
+            "applied": [
+              {
+                "type": "plan.extra",
+                "id": "x1",
+                "clocks": {
+                  "title": "1760900000000.0000.phone"
+                },
+                "deleted": "1760900001000.0000.mac"
+              }
+            ],
+            "changes": [
+              {
+                "type": "plan.extra",
+                "id": "x1",
+                "fields": {
+                  "title": "Swim"
+                },
+                "clocks": {
+                  "title": "1760900000000.0000.phone"
+                },
+                "deleted": "1760900001000.0000.mac",
+                "seq": 2
+              }
+            ],
+            "rejected": [],
+            "consents": {
+              "health": false
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "T2 needs the Health consent, and every answer says it",
+      "steps": [
+        {
+          "sync": {
+            "device": "phone-0001",
+            "platform": "iphone",
+            "since": 0,
+            "changes": [
+              {
+                "type": "food.meal",
+                "id": "m1",
+                "set": {
+                  "title": "Oats"
+                },
+                "clocks": {
+                  "title": "1760900000000.0000.phone"
+                },
+                "delete": null,
+                "schema": 1
+              }
+            ],
+            "now": 1760900000000
+          },
+          "answer": {
+            "now": 1760900000000,
+            "head": 0,
+            "next": 0,
+            "more": false,
+            "applied": [],
+            "changes": [],
+            "rejected": [
+              {
+                "type": "food.meal",
+                "id": "m1",
+                "reason": "consent"
+              }
+            ],
+            "consents": {
+              "health": false
+            }
+          }
+        },
+        {
+          "consent": "health"
+        },
+        {
+          "sync": {
+            "device": "phone-0001",
+            "platform": "iphone",
+            "since": 0,
+            "changes": [
+              {
+                "type": "food.meal",
+                "id": "m1",
+                "set": {
+                  "title": "Oats"
+                },
+                "clocks": {
+                  "title": "1760900000000.0000.phone"
+                },
+                "delete": null,
+                "schema": 1
+              }
+            ],
+            "now": 1760900000000
+          },
+          "answer": {
+            "now": 1760900000000,
+            "head": 1,
+            "next": 1,
+            "more": false,
+            "applied": [
+              {
+                "type": "food.meal",
+                "id": "m1",
+                "clocks": {
+                  "title": "1760900000000.0000.phone"
+                },
+                "deleted": null
+              }
+            ],
+            "changes": [
+              {
+                "type": "food.meal",
+                "id": "m1",
+                "fields": {
+                  "title": "Oats"
+                },
+                "clocks": {
+                  "title": "1760900000000.0000.phone"
+                },
+                "deleted": null,
+                "seq": 1
+              }
+            ],
+            "rejected": [],
+            "consents": {
+              "health": true
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "hub-only types are written only by the iPhone",
+      "steps": [
+        {
+          "sync": {
+            "device": "mac-0001",
+            "platform": "mac",
+            "since": 0,
+            "changes": [
+              {
+                "type": "core.hubStatus",
+                "id": "status",
+                "set": {
+                  "v": {
+                    "charging": true
+                  }
+                },
+                "clocks": {
+                  "v": "1760900000000.0000.mac"
+                },
+                "delete": null,
+                "schema": 1
+              }
+            ],
+            "now": 1760900000000
+          },
+          "answer": {
+            "now": 1760900000000,
+            "head": 0,
+            "next": 0,
+            "more": false,
+            "applied": [],
+            "changes": [],
+            "rejected": [
+              {
+                "type": "core.hubStatus",
+                "id": "status",
+                "reason": "hub_only"
+              }
+            ],
+            "consents": {
+              "health": false
+            }
+          }
+        },
+        {
+          "sync": {
+            "device": "phone-0001",
+            "platform": "iphone",
+            "since": 0,
+            "changes": [
+              {
+                "type": "core.hubStatus",
+                "id": "status",
+                "set": {
+                  "v": {
+                    "charging": true
+                  }
+                },
+                "clocks": {
+                  "v": "1760900000000.0000.phone"
+                },
+                "delete": null,
+                "schema": 1
+              }
+            ],
+            "now": 1760900000000
+          },
+          "answer": {
+            "now": 1760900000000,
+            "head": 1,
+            "next": 1,
+            "more": false,
+            "applied": [
+              {
+                "type": "core.hubStatus",
+                "id": "status",
+                "clocks": {
+                  "v": "1760900000000.0000.phone"
+                },
+                "deleted": null
+              }
+            ],
+            "changes": [
+              {
+                "type": "core.hubStatus",
+                "id": "status",
+                "fields": {
+                  "v": {
+                    "charging": true
+                  }
+                },
+                "clocks": {
+                  "v": "1760900000000.0000.phone"
+                },
+                "deleted": null,
+                "seq": 1
+              }
+            ],
+            "rejected": [],
+            "consents": {
+              "health": false
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "a patch naming a blob the space doesn't have waits for it",
+      "steps": [
+        {
+          "sync": {
+            "device": "phone-0001",
+            "platform": "iphone",
+            "since": 0,
+            "changes": [
+              {
+                "type": "podcast.listen",
+                "id": "l1",
+                "set": {
+                  "route": {
+                    "$blob": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                    "size": 3,
+                    "ext": "json"
+                  }
+                },
+                "clocks": {
+                  "route": "1760900000000.0000.phone"
+                },
+                "delete": null,
+                "schema": 1
+              }
+            ],
+            "now": 1760900000000
+          },
+          "answer": {
+            "now": 1760900000000,
+            "head": 0,
+            "next": 0,
+            "more": false,
+            "applied": [],
+            "changes": [],
+            "rejected": [
+              {
+                "type": "podcast.listen",
+                "id": "l1",
+                "reason": "blob_missing"
+              }
+            ],
+            "consents": {
+              "health": false
+            }
+          }
+        },
+        {
+          "blob": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "size": 3,
+          "type": "podcast.listen"
+        },
+        {
+          "sync": {
+            "device": "phone-0001",
+            "platform": "iphone",
+            "since": 0,
+            "changes": [
+              {
+                "type": "podcast.listen",
+                "id": "l1",
+                "set": {
+                  "route": {
+                    "$blob": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                    "size": 3,
+                    "ext": "json"
+                  }
+                },
+                "clocks": {
+                  "route": "1760900000000.0000.phone"
+                },
+                "delete": null,
+                "schema": 1
+              }
+            ],
+            "now": 1760900000000
+          },
+          "answer": {
+            "now": 1760900000000,
+            "head": 1,
+            "next": 1,
+            "more": false,
+            "applied": [
+              {
+                "type": "podcast.listen",
+                "id": "l1",
+                "clocks": {
+                  "route": "1760900000000.0000.phone"
+                },
+                "deleted": null
+              }
+            ],
+            "changes": [
+              {
+                "type": "podcast.listen",
+                "id": "l1",
+                "fields": {
+                  "route": {
+                    "$blob": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                    "ext": "json",
+                    "size": 3
+                  }
+                },
+                "clocks": {
+                  "route": "1760900000000.0000.phone"
+                },
+                "deleted": null,
+                "seq": 1
+              }
+            ],
+            "rejected": [],
+            "consents": {
+              "health": false
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "paging by count: next is the last seq returned, more says ask again",
+      "steps": [
+        {
+          "sync": {
+            "device": "phone-0001",
+            "platform": "iphone",
+            "since": 0,
+            "changes": [
+              {
+                "type": "plan.extra",
+                "id": "a",
+                "set": {
+                  "title": "A"
+                },
+                "clocks": {
+                  "title": "1760900000000.0000.phone"
+                },
+                "delete": null,
+                "schema": 1
+              },
+              {
+                "type": "plan.extra",
+                "id": "b",
+                "set": {
+                  "title": "B"
+                },
+                "clocks": {
+                  "title": "1760900000000.0000.phone"
+                },
+                "delete": null,
+                "schema": 1
+              },
+              {
+                "type": "plan.extra",
+                "id": "c",
+                "set": {
+                  "title": "C"
+                },
+                "clocks": {
+                  "title": "1760900000000.0000.phone"
+                },
+                "delete": null,
+                "schema": 1
+              }
+            ],
+            "now": 1760900000000
+          },
+          "answer": {
+            "now": 1760900000000,
+            "head": 3,
+            "next": 3,
+            "more": false,
+            "applied": [
+              {
+                "type": "plan.extra",
+                "id": "a",
+                "clocks": {
+                  "title": "1760900000000.0000.phone"
+                },
+                "deleted": null
+              },
+              {
+                "type": "plan.extra",
+                "id": "b",
+                "clocks": {
+                  "title": "1760900000000.0000.phone"
+                },
+                "deleted": null
+              },
+              {
+                "type": "plan.extra",
+                "id": "c",
+                "clocks": {
+                  "title": "1760900000000.0000.phone"
+                },
+                "deleted": null
+              }
+            ],
+            "changes": [
+              {
+                "type": "plan.extra",
+                "id": "a",
+                "fields": {
+                  "title": "A"
+                },
+                "clocks": {
+                  "title": "1760900000000.0000.phone"
+                },
+                "deleted": null,
+                "seq": 1
+              },
+              {
+                "type": "plan.extra",
+                "id": "b",
+                "fields": {
+                  "title": "B"
+                },
+                "clocks": {
+                  "title": "1760900000000.0000.phone"
+                },
+                "deleted": null,
+                "seq": 2
+              },
+              {
+                "type": "plan.extra",
+                "id": "c",
+                "fields": {
+                  "title": "C"
+                },
+                "clocks": {
+                  "title": "1760900000000.0000.phone"
+                },
+                "deleted": null,
+                "seq": 3
+              }
+            ],
+            "rejected": [],
+            "consents": {
+              "health": false
+            }
+          }
+        },
+        {
+          "sync": {
+            "device": "mac-0001",
+            "platform": "mac",
+            "since": 0,
+            "changes": [],
+            "now": 1760900000000,
+            "pageRecords": 2
+          },
+          "answer": {
+            "now": 1760900000000,
+            "head": 3,
+            "next": 2,
+            "more": true,
+            "applied": [],
+            "changes": [
+              {
+                "type": "plan.extra",
+                "id": "a",
+                "fields": {
+                  "title": "A"
+                },
+                "clocks": {
+                  "title": "1760900000000.0000.phone"
+                },
+                "deleted": null,
+                "seq": 1
+              },
+              {
+                "type": "plan.extra",
+                "id": "b",
+                "fields": {
+                  "title": "B"
+                },
+                "clocks": {
+                  "title": "1760900000000.0000.phone"
+                },
+                "deleted": null,
+                "seq": 2
+              }
+            ],
+            "rejected": [],
+            "consents": {
+              "health": false
+            }
+          }
+        },
+        {
+          "sync": {
+            "device": "mac-0001",
+            "platform": "mac",
+            "since": 2,
+            "changes": [],
+            "now": 1760900000000,
+            "pageRecords": 2
+          },
+          "answer": {
+            "now": 1760900000000,
+            "head": 3,
+            "next": 3,
+            "more": false,
+            "applied": [],
+            "changes": [
+              {
+                "type": "plan.extra",
+                "id": "c",
+                "fields": {
+                  "title": "C"
+                },
+                "clocks": {
+                  "title": "1760900000000.0000.phone"
+                },
+                "deleted": null,
+                "seq": 3
+              }
+            ],
+            "rejected": [],
+            "consents": {
+              "health": false
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "a cursor past the head reads the space from the start",
+      "steps": [
+        {
+          "sync": {
+            "device": "phone-0001",
+            "platform": "iphone",
+            "since": 0,
+            "changes": [
+              {
+                "type": "plan.extra",
+                "id": "a",
+                "set": {
+                  "title": "A"
+                },
+                "clocks": {
+                  "title": "1760900000000.0000.phone"
+                },
+                "delete": null,
+                "schema": 1
+              }
+            ],
+            "now": 1760900000000
+          },
+          "answer": {
+            "now": 1760900000000,
+            "head": 1,
+            "next": 1,
+            "more": false,
+            "applied": [
+              {
+                "type": "plan.extra",
+                "id": "a",
+                "clocks": {
+                  "title": "1760900000000.0000.phone"
+                },
+                "deleted": null
+              }
+            ],
+            "changes": [
+              {
+                "type": "plan.extra",
+                "id": "a",
+                "fields": {
+                  "title": "A"
+                },
+                "clocks": {
+                  "title": "1760900000000.0000.phone"
+                },
+                "deleted": null,
+                "seq": 1
+              }
+            ],
+            "rejected": [],
+            "consents": {
+              "health": false
+            }
+          }
+        },
+        {
+          "sync": {
+            "device": "mac-0001",
+            "platform": "mac",
+            "since": 50,
+            "changes": [],
+            "now": 1760900000000
+          },
+          "answer": {
+            "now": 1760900000000,
+            "head": 1,
+            "next": 1,
+            "more": false,
+            "applied": [],
+            "changes": [
+              {
+                "type": "plan.extra",
+                "id": "a",
+                "fields": {
+                  "title": "A"
+                },
+                "clocks": {
+                  "title": "1760900000000.0000.phone"
+                },
+                "deleted": null,
+                "seq": 1
+              }
+            ],
+            "rejected": [],
+            "consents": {
+              "health": false
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "an unknown type is refused",
+      "steps": [
+        {
+          "sync": {
+            "device": "phone-0001",
+            "platform": "iphone",
+            "since": 0,
+            "changes": [
+              {
+                "type": "plan.unknownKind",
+                "id": "a",
+                "set": {
+                  "title": "A"
+                },
+                "clocks": {
+                  "title": "1760900000000.0000.phone"
+                },
+                "delete": null,
+                "schema": 1
+              }
+            ],
+            "now": 1760900000000
+          },
+          "answer": {
+            "now": 1760900000000,
+            "head": 0,
+            "next": 0,
+            "more": false,
+            "applied": [],
+            "changes": [],
+            "rejected": [
+              {
+                "type": "plan.unknownKind",
+                "id": "a",
+                "reason": "unknown_type"
+              }
+            ],
+            "consents": {
+              "health": false
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

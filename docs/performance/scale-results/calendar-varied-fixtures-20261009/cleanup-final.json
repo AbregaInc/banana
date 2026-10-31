@@ -1,0 +1,48 @@
+{
+  "timestamp": "2026-10-09T11:30:17.012162",
+  "beforeFree": 128741265408,
+  "afterFree": 129605541888,
+  "removed": [
+    {
+      "path": "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-library-touch-dd/Build/Intermediates.noindex",
+      "logicalBytes": 27755799
+    },
+    {
+      "path": "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-library-touch-dd/ModuleCache.noindex",
+      "logicalBytes": 20594230
+    },
+    {
+      "path": "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-varied-fix/app-regression/derived-data/Build/Intermediates.noindex",
+      "logicalBytes": 610977400
+    },
+    {
+      "path": "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-varied-fix/app-regression/derived-data/ModuleCache.noindex",
+      "logicalBytes": 84554148
+    }
+  ],
+  "commands": [
+    {
+      "command": [
+        "xcrun",
+        "simctl",
+        "shutdown",
+        "5829A24D-81B4-49D9-A31A-C7553C32D527"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "xcrun",
+        "simctl",
+        "erase",
+        "5829A24D-81B4-49D9-A31A-C7553C32D527"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "preserved": "Workspaces, worktrees, binaries, results, traces; unrelated booted iPad simulator untouched"
+}

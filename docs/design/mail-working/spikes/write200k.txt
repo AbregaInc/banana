@@ -1,0 +1,14 @@
+sqlite 3.51.0, FTS5=1, threadsafe=2
+triage write path (index.sqlite, WAL, synchronous=NORMAL):
+  archive one conversation, one transaction each: n=300 p50=0.360 ms p95=0.750 ms p99=18.632 ms max=65.416 ms
+  20 archives in one transaction (simplified rows): n=15 p50=0.084 ms p95=0.430 ms p99=0.430 ms max=0.430 ms
+readers under a writer ingesting continuously for 20 s (+19211 messages):
+  writer: 50-message ingest transaction: n=337 p50=54.398 ms p95=117.387 ms p99=150.799 ms max=214.049 ms
+  reader A: all-mail first page, own connection: n=6572 p50=0.072 ms p95=0.204 ms p99=0.566 ms max=17.531 ms
+  reader B: 3-char prefix search, own connection: n=4090 p50=0.249 ms p95=2.025 ms p99=5.012 ms max=30.447 ms
+  largest WAL seen with wal_autocheckpoint=1000 while two readers were active: 14.0 MB
+  checkpoint(PASSIVE) after the run: 29.0 ms
+  checkpoint(TRUNCATE): 2.3 ms; WAL now 0.0 MB
+  WAL after 5 s of ingest while one reader held a read transaction open: 486.0 MB (it cannot be checkpointed past that reader)
+  checkpoint(TRUNCATE) once it let go: 396.2 ms
+  delete 50 messages (row, labels, FTS entry) per transaction: n=40 p50=5.595 ms p95=79.752 ms p99=132.674 ms max=132.674 ms

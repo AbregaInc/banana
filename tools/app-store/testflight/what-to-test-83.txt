@@ -1,0 +1,17 @@
+Build 83 is the App Store release candidate. It carries everything from build 82 plus podcast safety changes: hardened progress transfer between your devices, episode ownership checks, and bounded transcript parsing. Try with sample data is on the welcome screen and in Settings > About; sample data is isolated from your accounts. The Mac app requires Apple silicon.
+
+Please check the release candidate on your usual devices:
+
+• Calendar: switch Day/Week, create an event by typing a sentence such as "Lunch with Sam Friday at 1", edit it, and check recurring and shared calendars. Another person's availability must remain visible when no detailed source is available.
+• Podcasts: subscribe to a show, download an episode, open its transcript, and scroll a large history. Episodes hidden by speaker/voice preferences should be absent.
+• Food: pick a past meal without taking a new photo, edit the time you ate, and confirm the saved meal on another device.
+• Notes: save and edit a note, then check its Apple Reminder. A pending write-back should not create a duplicate reminder on retry.
+• Workouts: dismiss a completed workout summary, background and reopen the app. It should stay dismissed.
+• Watch: check the complication on your usual face and in Night Mode.
+• Privacy: a new install should leave optional usage/diagnostic sharing off until you choose it.
+
+Known issue: some Busy copies on Google-shared calendars still remain separate; Calendar diagnostics has a shareable report.
+
+Plan is always enabled. Food, Notes, Podcasts and Workouts and sleep can be enabled in Settings > Modules. Email is unavailable in this app.
+
+Report problems with TestFlight feedback or support@abrega.com.

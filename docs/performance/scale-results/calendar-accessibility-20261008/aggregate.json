@@ -1,0 +1,2066 @@
+[
+  {
+    "platform": "mac",
+    "renderer": "canvas",
+    "density": 100,
+    "ablation": "rebuild-accessibility",
+    "cases": [
+      "00-native-week-365d-100perday-canvas-rebuild-accessibility",
+      "09-native-week-365d-100perday-canvas-rebuild-accessibility",
+      "16-native-week-365d-100perday-canvas-rebuild-accessibility"
+    ],
+    "phases": {
+      "coldMount": {
+        "count": 3,
+        "p50MS": 63.344458292704076,
+        "p95MS": 66.99125003069639,
+        "p99MS": 66.99125003069639,
+        "maxMS": 66.99125003069639,
+        "over8_3": 3,
+        "over100": 0
+      },
+      "page": {
+        "count": 36,
+        "p50MS": 6.571916659595445,
+        "p95MS": 7.828958332538605,
+        "p99MS": 8.258166664745659,
+        "maxMS": 8.258166664745659,
+        "over8_3": 0,
+        "over100": 0
+      },
+      "settledLayout": {
+        "count": 39,
+        "p50MS": 0.11841667583212256,
+        "p95MS": 0.2967083128169179,
+        "p99MS": 0.4282500012777746,
+        "maxMS": 0.4282500012777746,
+        "over8_3": 0,
+        "over100": 0
+      },
+      "scrollOffset": {
+        "count": 360,
+        "p50MS": 4.0360625134781,
+        "p95MS": 7.455541694071144,
+        "p99MS": 9.7303333459422,
+        "maxMS": 11.96658331900835,
+        "over8_3": 11,
+        "over100": 0
+      },
+      "uncachedPage": {
+        "count": 18,
+        "p50MS": 14.884729171171784,
+        "p95MS": 24.060374998953193,
+        "p99MS": 24.060374998953193,
+        "maxMS": 24.060374998953193,
+        "over8_3": 15,
+        "over100": 0
+      },
+      "memoryPressurePage": {
+        "count": 3,
+        "p50MS": 11.957000009715557,
+        "p95MS": 13.519999978598207,
+        "p99MS": 13.519999978598207,
+        "maxMS": 13.519999978598207,
+        "over8_3": 3,
+        "over100": 0
+      },
+      "resize": {
+        "count": 9,
+        "p50MS": 9.03029169421643,
+        "p95MS": 11.254750017542392,
+        "p99MS": 11.254750017542392,
+        "maxMS": 11.254750017542392,
+        "over8_3": 7,
+        "over100": 0
+      }
+    },
+    "peakRSSMiB": [
+      104.25,
+      104.109375,
+      104.1875
+    ],
+    "perRunScrollP95MS": [
+      7.691083359532058,
+      7.521583349443972,
+      7.146625022869557
+    ]
+  },
+  {
+    "platform": "mac",
+    "renderer": "canvas",
+    "density": 100,
+    "ablation": "none",
+    "cases": [
+      "01-native-week-365d-100perday-canvas-none",
+      "08-native-week-365d-100perday-canvas-none",
+      "17-native-week-365d-100perday-canvas-none"
+    ],
+    "phases": {
+      "coldMount": {
+        "count": 3,
+        "p50MS": 63.83308331714943,
+        "p95MS": 64.09683328820392,
+        "p99MS": 64.09683328820392,
+        "maxMS": 64.09683328820392,
+        "over8_3": 3,
+        "over100": 0
+      },
+      "page": {
+        "count": 36,
+        "p50MS": 6.5709374903235584,
+        "p95MS": 7.994708372280002,
+        "p99MS": 7.996250002179295,
+        "maxMS": 7.996250002179295,
+        "over8_3": 0,
+        "over100": 0
+      },
+      "settledLayout": {
+        "count": 39,
+        "p50MS": 0.1247500185854733,
+        "p95MS": 0.18779170932248235,
+        "p99MS": 0.19162503303959966,
+        "maxMS": 0.19162503303959966,
+        "over8_3": 0,
+        "over100": 0
+      },
+      "scrollOffset": {
+        "count": 360,
+        "p50MS": 2.6294999988749623,
+        "p95MS": 7.1599583607167006,
+        "p99MS": 8.833250030875206,
+        "maxMS": 9.923416655510664,
+        "over8_3": 10,
+        "over100": 0
+      },
+      "uncachedPage": {
+        "count": 18,
+        "p50MS": 15.419041650602594,
+        "p95MS": 25.969541689846665,
+        "p99MS": 25.969541689846665,
+        "maxMS": 25.969541689846665,
+        "over8_3": 16,
+        "over100": 0
+      },
+      "memoryPressurePage": {
+        "count": 3,
+        "p50MS": 12.244625017046928,
+        "p95MS": 14.321791648399085,
+        "p99MS": 14.321791648399085,
+        "maxMS": 14.321791648399085,
+        "over8_3": 3,
+        "over100": 0
+      },
+      "resize": {
+        "count": 9,
+        "p50MS": 9.096583351492882,
+        "p95MS": 10.057833336759359,
+        "p99MS": 10.057833336759359,
+        "maxMS": 10.057833336759359,
+        "over8_3": 8,
+        "over100": 0
+      }
+    },
+    "peakRSSMiB": [
+      102.953125,
+      103.625,
+      102.71875
+    ],
+    "perRunScrollP95MS": [
+      7.828583300579339,
+      7.16166669735685,
+      6.720416655298322
+    ]
+  },
+  {
+    "platform": "mac",
+    "renderer": "canvas",
+    "density": 300,
+    "ablation": "rebuild-accessibility",
+    "cases": [
+      "04-native-week-365d-300perday-canvas-rebuild-accessibility",
+      "13-native-week-365d-300perday-canvas-rebuild-accessibility",
+      "20-native-week-365d-300perday-canvas-rebuild-accessibility"
+    ],
+    "phases": {
+      "coldMount": {
+        "count": 3,
+        "p50MS": 85.04037495004013,
+        "p95MS": 85.67800000309944,
+        "p99MS": 85.67800000309944,
+        "maxMS": 85.67800000309944,
+        "over8_3": 3,
+        "over100": 0
+      },
+      "page": {
+        "count": 36,
+        "p50MS": 10.850437538465485,
+        "p95MS": 13.268916634842753,
+        "p99MS": 15.514791652094573,
+        "maxMS": 15.514791652094573,
+        "over8_3": 35,
+        "over100": 0
+      },
+      "settledLayout": {
+        "count": 39,
+        "p50MS": 0.12204167433083057,
+        "p95MS": 0.44549995800480247,
+        "p99MS": 0.4662916762754321,
+        "maxMS": 0.4662916762754321,
+        "over8_3": 0,
+        "over100": 0
+      },
+      "scrollOffset": {
+        "count": 360,
+        "p50MS": 4.685645864810795,
+        "p95MS": 10.752041649539024,
+        "p99MS": 21.988958353176713,
+        "maxMS": 22.462250024545938,
+        "over8_3": 35,
+        "over100": 0
+      },
+      "uncachedPage": {
+        "count": 18,
+        "p50MS": 33.84945832658559,
+        "p95MS": 37.9876249935478,
+        "p99MS": 37.9876249935478,
+        "maxMS": 37.9876249935478,
+        "over8_3": 18,
+        "over100": 0
+      },
+      "memoryPressurePage": {
+        "count": 3,
+        "p50MS": 26.46900003310293,
+        "p95MS": 29.695541656110436,
+        "p99MS": 29.695541656110436,
+        "maxMS": 29.695541656110436,
+        "over8_3": 3,
+        "over100": 0
+      },
+      "resize": {
+        "count": 9,
+        "p50MS": 14.838916657026857,
+        "p95MS": 18.669624987524003,
+        "p99MS": 18.669624987524003,
+        "maxMS": 18.669624987524003,
+        "over8_3": 9,
+        "over100": 0
+      }
+    },
+    "peakRSSMiB": [
+      117.84375,
+      118.109375,
+      118.046875
+    ],
+    "perRunScrollP95MS": [
+      10.752041649539024,
+      10.779833362903446,
+      10.546250035986304
+    ]
+  },
+  {
+    "platform": "mac",
+    "renderer": "canvas",
+    "density": 300,
+    "ablation": "none",
+    "cases": [
+      "05-native-week-365d-300perday-canvas-none",
+      "12-native-week-365d-300perday-canvas-none",
+      "21-native-week-365d-300perday-canvas-none"
+    ],
+    "phases": {
+      "coldMount": {
+        "count": 3,
+        "p50MS": 81.40262501547113,
+        "p95MS": 88.37741665774956,
+        "p99MS": 88.37741665774956,
+        "maxMS": 88.37741665774956,
+        "over8_3": 3,
+        "over100": 0
+      },
+      "page": {
+        "count": 36,
+        "p50MS": 10.359979147324339,
+        "p95MS": 14.333166647702456,
+        "p99MS": 14.889791666064411,
+        "maxMS": 14.889791666064411,
+        "over8_3": 36,
+        "over100": 0
+      },
+      "settledLayout": {
+        "count": 39,
+        "p50MS": 0.10229169856756926,
+        "p95MS": 0.3034999826923013,
+        "p99MS": 0.34558336483314633,
+        "maxMS": 0.34558336483314633,
+        "over8_3": 0,
+        "over100": 0
+      },
+      "scrollOffset": {
+        "count": 360,
+        "p50MS": 4.806229146197438,
+        "p95MS": 9.748916665557772,
+        "p99MS": 19.937291624955833,
+        "maxMS": 21.55599999241531,
+        "over8_3": 27,
+        "over100": 0
+      },
+      "uncachedPage": {
+        "count": 18,
+        "p50MS": 33.022708346834406,
+        "p95MS": 44.087083311751485,
+        "p99MS": 44.087083311751485,
+        "maxMS": 44.087083311751485,
+        "over8_3": 18,
+        "over100": 0
+      },
+      "memoryPressurePage": {
+        "count": 3,
+        "p50MS": 30.17749998252839,
+        "p95MS": 33.88470830395818,
+        "p99MS": 33.88470830395818,
+        "maxMS": 33.88470830395818,
+        "over8_3": 3,
+        "over100": 0
+      },
+      "resize": {
+        "count": 9,
+        "p50MS": 14.446583343669772,
+        "p95MS": 15.650124987587333,
+        "p99MS": 15.650124987587333,
+        "maxMS": 15.650124987587333,
+        "over8_3": 9,
+        "over100": 0
+      }
+    },
+    "peakRSSMiB": [
+      115.078125,
+      114.890625,
+      115.078125
+    ],
+    "perRunScrollP95MS": [
+      9.550541697535664,
+      9.748916665557772,
+      9.32745833415538
+    ]
+  },
+  {
+    "platform": "mac",
+    "renderer": "raster",
+    "density": 100,
+    "ablation": "rebuild-accessibility",
+    "cases": [
+      "02-native-week-365d-100perday-raster-rebuild-accessibility",
+      "11-native-week-365d-100perday-raster-rebuild-accessibility",
+      "18-native-week-365d-100perday-raster-rebuild-accessibility"
+    ],
+    "phases": {
+      "coldMount": {
+        "count": 3,
+        "p50MS": 130.01354166772217,
+        "p95MS": 133.54137499118224,
+        "p99MS": 133.54137499118224,
+        "maxMS": 133.54137499118224,
+        "over8_3": 3,
+        "over100": 3
+      },
+      "page": {
+        "count": 36,
+        "p50MS": 3.804479172686115,
+        "p95MS": 40.06537504028529,
+        "p99MS": 43.50770835299045,
+        "maxMS": 43.50770835299045,
+        "over8_3": 3,
+        "over100": 0
+      },
+      "settledLayout": {
+        "count": 39,
+        "p50MS": 0.12695835903286934,
+        "p95MS": 0.240333320107311,
+        "p99MS": 0.7640833500772715,
+        "maxMS": 0.7640833500772715,
+        "over8_3": 0,
+        "over100": 0
+      },
+      "scrollOffset": {
+        "count": 360,
+        "p50MS": 0.5626041966024786,
+        "p95MS": 2.1285833208821714,
+        "p99MS": 3.9775000186637044,
+        "maxMS": 4.2126250336878,
+        "over8_3": 0,
+        "over100": 0
+      },
+      "uncachedPage": {
+        "count": 18,
+        "p50MS": 89.38975000637583,
+        "p95MS": 98.1310416245833,
+        "p99MS": 98.1310416245833,
+        "maxMS": 98.1310416245833,
+        "over8_3": 18,
+        "over100": 0
+      },
+      "memoryPressurePage": {
+        "count": 3,
+        "p50MS": 93.54887501103804,
+        "p95MS": 94.29283335339278,
+        "p99MS": 94.29283335339278,
+        "maxMS": 94.29283335339278,
+        "over8_3": 3,
+        "over100": 0
+      },
+      "resize": {
+        "count": 9,
+        "p50MS": 85.03112499602139,
+        "p95MS": 117.33766668476164,
+        "p99MS": 117.33766668476164,
+        "maxMS": 117.33766668476164,
+        "over8_3": 9,
+        "over100": 3
+      }
+    },
+    "peakRSSMiB": [
+      412.703125,
+      412.84375,
+      412.78125
+    ],
+    "perRunScrollP95MS": [
+      3.316208370961249,
+      3.0770833254791796,
+      1.2505416525527835
+    ]
+  },
+  {
+    "platform": "mac",
+    "renderer": "raster",
+    "density": 100,
+    "ablation": "none",
+    "cases": [
+      "03-native-week-365d-100perday-raster-none",
+      "10-native-week-365d-100perday-raster-none",
+      "19-native-week-365d-100perday-raster-none"
+    ],
+    "phases": {
+      "coldMount": {
+        "count": 3,
+        "p50MS": 131.6129167098552,
+        "p95MS": 132.45700002880767,
+        "p99MS": 132.45700002880767,
+        "maxMS": 132.45700002880767,
+        "over8_3": 3,
+        "over100": 3
+      },
+      "page": {
+        "count": 36,
+        "p50MS": 3.9542500162497163,
+        "p95MS": 39.75366667145863,
+        "p99MS": 40.07566667860374,
+        "maxMS": 40.07566667860374,
+        "over8_3": 3,
+        "over100": 0
+      },
+      "settledLayout": {
+        "count": 39,
+        "p50MS": 0.11937500676140189,
+        "p95MS": 0.42787502752617,
+        "p99MS": 0.8287917007692158,
+        "maxMS": 0.8287917007692158,
+        "over8_3": 0,
+        "over100": 0
+      },
+      "scrollOffset": {
+        "count": 360,
+        "p50MS": 0.4960208316333592,
+        "p95MS": 1.498500001616776,
+        "p99MS": 2.355000004172325,
+        "maxMS": 2.9443750390782952,
+        "over8_3": 0,
+        "over100": 0
+      },
+      "uncachedPage": {
+        "count": 18,
+        "p50MS": 91.62393750739284,
+        "p95MS": 97.10333333350718,
+        "p99MS": 97.10333333350718,
+        "maxMS": 97.10333333350718,
+        "over8_3": 18,
+        "over100": 0
+      },
+      "memoryPressurePage": {
+        "count": 3,
+        "p50MS": 91.63237502798438,
+        "p95MS": 112.80799994710833,
+        "p99MS": 112.80799994710833,
+        "maxMS": 112.80799994710833,
+        "over8_3": 3,
+        "over100": 1
+      },
+      "resize": {
+        "count": 9,
+        "p50MS": 81.23100001830608,
+        "p95MS": 119.64766669552773,
+        "p99MS": 119.64766669552773,
+        "maxMS": 119.64766669552773,
+        "over8_3": 9,
+        "over100": 3
+      }
+    },
+    "peakRSSMiB": [
+      411.859375,
+      412.109375,
+      452.8125
+    ],
+    "perRunScrollP95MS": [
+      1.688208372797817,
+      1.9001250038854778,
+      0.8684583590365946
+    ]
+  },
+  {
+    "platform": "mac",
+    "renderer": "raster",
+    "density": 300,
+    "ablation": "rebuild-accessibility",
+    "cases": [
+      "06-native-week-365d-300perday-raster-rebuild-accessibility",
+      "15-native-week-365d-300perday-raster-rebuild-accessibility",
+      "22-native-week-365d-300perday-raster-rebuild-accessibility"
+    ],
+    "phases": {
+      "coldMount": {
+        "count": 3,
+        "p50MS": 183.4427083376795,
+        "p95MS": 184.01758332038298,
+        "p99MS": 184.01758332038298,
+        "maxMS": 184.01758332038298,
+        "over8_3": 3,
+        "over100": 3
+      },
+      "page": {
+        "count": 36,
+        "p50MS": 3.0605208594352007,
+        "p95MS": 41.86558333458379,
+        "p99MS": 42.916916660033166,
+        "maxMS": 42.916916660033166,
+        "over8_3": 3,
+        "over100": 0
+      },
+      "settledLayout": {
+        "count": 39,
+        "p50MS": 0.07320835720747709,
+        "p95MS": 0.1587499864399433,
+        "p99MS": 0.1741250162012875,
+        "maxMS": 0.1741250162012875,
+        "over8_3": 0,
+        "over100": 0
+      },
+      "scrollOffset": {
+        "count": 360,
+        "p50MS": 0.8807916601654142,
+        "p95MS": 3.1573333544656634,
+        "p99MS": 7.393458334263414,
+        "maxMS": 8.724250015802681,
+        "over8_3": 1,
+        "over100": 0
+      },
+      "uncachedPage": {
+        "count": 18,
+        "p50MS": 122.47929166187532,
+        "p95MS": 133.42608331004158,
+        "p99MS": 133.42608331004158,
+        "maxMS": 133.42608331004158,
+        "over8_3": 18,
+        "over100": 18
+      },
+      "memoryPressurePage": {
+        "count": 3,
+        "p50MS": 125.3922083415091,
+        "p95MS": 126.32379168644547,
+        "p99MS": 126.32379168644547,
+        "maxMS": 126.32379168644547,
+        "over8_3": 3,
+        "over100": 3
+      },
+      "resize": {
+        "count": 9,
+        "p50MS": 112.70958330715075,
+        "p95MS": 139.1269167070277,
+        "p99MS": 139.1269167070277,
+        "maxMS": 139.1269167070277,
+        "over8_3": 9,
+        "over100": 9
+      }
+    },
+    "peakRSSMiB": [
+      419.921875,
+      420.359375,
+      420.34375
+    ],
+    "perRunScrollP95MS": [
+      2.6789166731759906,
+      3.2215416431427,
+      5.433916696347296
+    ]
+  },
+  {
+    "platform": "mac",
+    "renderer": "raster",
+    "density": 300,
+    "ablation": "none",
+    "cases": [
+      "07-native-week-365d-300perday-raster-none",
+      "14-native-week-365d-300perday-raster-none",
+      "23-native-week-365d-300perday-raster-none"
+    ],
+    "phases": {
+      "coldMount": {
+        "count": 3,
+        "p50MS": 182.72429169155657,
+        "p95MS": 187.5666250125505,
+        "p99MS": 187.5666250125505,
+        "maxMS": 187.5666250125505,
+        "over8_3": 3,
+        "over100": 3
+      },
+      "page": {
+        "count": 36,
+        "p50MS": 3.434583341004327,
+        "p95MS": 40.83224997157231,
+        "p99MS": 42.1458333148621,
+        "maxMS": 42.1458333148621,
+        "over8_3": 3,
+        "over100": 0
+      },
+      "settledLayout": {
+        "count": 39,
+        "p50MS": 0.06587500683963299,
+        "p95MS": 0.17829163698479533,
+        "p99MS": 0.31408335780724883,
+        "maxMS": 0.31408335780724883,
+        "over8_3": 0,
+        "over100": 0
+      },
+      "scrollOffset": {
+        "count": 360,
+        "p50MS": 0.8490624895785004,
+        "p95MS": 2.7641666238196194,
+        "p99MS": 3.9882499841041863,
+        "maxMS": 4.673625051509589,
+        "over8_3": 0,
+        "over100": 0
+      },
+      "uncachedPage": {
+        "count": 18,
+        "p50MS": 123.72193750343286,
+        "p95MS": 147.17499999096617,
+        "p99MS": 147.17499999096617,
+        "maxMS": 147.17499999096617,
+        "over8_3": 18,
+        "over100": 18
+      },
+      "memoryPressurePage": {
+        "count": 3,
+        "p50MS": 122.62587499571964,
+        "p95MS": 127.09399999585003,
+        "p99MS": 127.09399999585003,
+        "maxMS": 127.09399999585003,
+        "over8_3": 3,
+        "over100": 3
+      },
+      "resize": {
+        "count": 9,
+        "p50MS": 114.55629166448489,
+        "p95MS": 139.27700003841892,
+        "p99MS": 139.27700003841892,
+        "maxMS": 139.27700003841892,
+        "over8_3": 9,
+        "over100": 9
+      }
+    },
+    "peakRSSMiB": [
+      417.359375,
+      417.515625,
+      417.34375
+    ],
+    "perRunScrollP95MS": [
+      2.517666667699814,
+      2.7651666896417737,
+      2.7641666238196194
+    ]
+  },
+  {
+    "platform": "iphone",
+    "renderer": "canvas",
+    "density": 100,
+    "ablation": "rebuild-accessibility",
+    "cases": [
+      "native-week-365d-100perday-bounded-ax-0-canvas-rebuild-accessibility",
+      "native-week-365d-100perday-bounded-ax-1-canvas-rebuild-accessibility",
+      "native-week-365d-100perday-bounded-ax-2-canvas-rebuild-accessibility"
+    ],
+    "phases": {
+      "coldMount": {
+        "count": 3,
+        "p50MS": 46.71450000023469,
+        "p95MS": 70.23670838680118,
+        "p99MS": 70.23670838680118,
+        "maxMS": 70.23670838680118,
+        "over8_3": 3,
+        "over100": 0
+      },
+      "page": {
+        "count": 36,
+        "p50MS": 28.594020841410384,
+        "p95MS": 33.185916661750525,
+        "p99MS": 34.04516668524593,
+        "maxMS": 34.04516668524593,
+        "over8_3": 36,
+        "over100": 0
+      },
+      "settledLayout": {
+        "count": 39,
+        "p50MS": 0.06854167440906167,
+        "p95MS": 0.24470832431688905,
+        "p99MS": 0.585708359722048,
+        "maxMS": 0.585708359722048,
+        "over8_3": 0,
+        "over100": 0
+      },
+      "scrollOffset": {
+        "count": 360,
+        "p50MS": 0.2161666634492576,
+        "p95MS": 30.5299999890849,
+        "p99MS": 35.46366665977985,
+        "maxMS": 37.15237497817725,
+        "over8_3": 42,
+        "over100": 0
+      },
+      "uncachedPage": {
+        "count": 18,
+        "p50MS": 32.507479161722586,
+        "p95MS": 39.28204166004434,
+        "p99MS": 39.28204166004434,
+        "maxMS": 39.28204166004434,
+        "over8_3": 18,
+        "over100": 0
+      },
+      "memoryPressurePage": {
+        "count": 3,
+        "p50MS": 30.167583317961544,
+        "p95MS": 38.3697499637492,
+        "p99MS": 38.3697499637492,
+        "maxMS": 38.3697499637492,
+        "over8_3": 3,
+        "over100": 0
+      },
+      "resize": {
+        "count": 9,
+        "p50MS": 28.04112498415634,
+        "p95MS": 32.34304167563096,
+        "p99MS": 32.34304167563096,
+        "maxMS": 32.34304167563096,
+        "over8_3": 6,
+        "over100": 0
+      }
+    },
+    "peakRSSMiB": [
+      188.515625,
+      188.90625,
+      188.875
+    ],
+    "perRunScrollP95MS": [
+      30.767249991185963,
+      28.052208304870874,
+      31.79529163753614
+    ]
+  },
+  {
+    "platform": "iphone",
+    "renderer": "canvas",
+    "density": 100,
+    "ablation": "none",
+    "cases": [
+      "native-week-365d-100perday-bounded-ax-0-canvas-none",
+      "native-week-365d-100perday-bounded-ax-1-canvas-none",
+      "native-week-365d-100perday-bounded-ax-2-canvas-none"
+    ],
+    "phases": {
+      "coldMount": {
+        "count": 3,
+        "p50MS": 51.059916673693806,
+        "p95MS": 56.17091670865193,
+        "p99MS": 56.17091670865193,
+        "maxMS": 56.17091670865193,
+        "over8_3": 3,
+        "over100": 0
+      },
+      "page": {
+        "count": 36,
+        "p50MS": 28.58272916637361,
+        "p95MS": 31.710666662547737,
+        "p99MS": 32.96654165023938,
+        "maxMS": 32.96654165023938,
+        "over8_3": 36,
+        "over100": 0
+      },
+      "settledLayout": {
+        "count": 39,
+        "p50MS": 0.06420834688469768,
+        "p95MS": 0.13004167703911662,
+        "p99MS": 0.20308332750573754,
+        "maxMS": 0.20308332750573754,
+        "over8_3": 0,
+        "over100": 0
+      },
+      "scrollOffset": {
+        "count": 360,
+        "p50MS": 0.20983334979973733,
+        "p95MS": 28.83254166226834,
+        "p99MS": 32.33629162423313,
+        "maxMS": 38.87416666839272,
+        "over8_3": 42,
+        "over100": 0
+      },
+      "uncachedPage": {
+        "count": 18,
+        "p50MS": 32.08702086703852,
+        "p95MS": 41.535124997608364,
+        "p99MS": 41.535124997608364,
+        "maxMS": 41.535124997608364,
+        "over8_3": 18,
+        "over100": 0
+      },
+      "memoryPressurePage": {
+        "count": 3,
+        "p50MS": 35.38404166465625,
+        "p95MS": 40.36350001115352,
+        "p99MS": 40.36350001115352,
+        "maxMS": 40.36350001115352,
+        "over8_3": 3,
+        "over100": 0
+      },
+      "resize": {
+        "count": 9,
+        "p50MS": 27.17891667271033,
+        "p95MS": 36.35700000450015,
+        "p99MS": 36.35700000450015,
+        "maxMS": 36.35700000450015,
+        "over8_3": 6,
+        "over100": 0
+      }
+    },
+    "peakRSSMiB": [
+      188.046875,
+      188.84375,
+      188.765625
+    ],
+    "perRunScrollP95MS": [
+      30.893041694071144,
+      26.503708329983056,
+      28.228708368260413
+    ]
+  },
+  {
+    "platform": "iphone",
+    "renderer": "canvas",
+    "density": 300,
+    "ablation": "rebuild-accessibility",
+    "cases": [
+      "native-week-365d-300perday-bounded-ax-0-canvas-rebuild-accessibility",
+      "native-week-365d-300perday-bounded-ax-1-canvas-rebuild-accessibility",
+      "native-week-365d-300perday-bounded-ax-2-canvas-rebuild-accessibility"
+    ],
+    "phases": {
+      "coldMount": {
+        "count": 3,
+        "p50MS": 76.36462501250207,
+        "p95MS": 78.72104167472571,
+        "p99MS": 78.72104167472571,
+        "maxMS": 78.72104167472571,
+        "over8_3": 3,
+        "over100": 0
+      },
+      "page": {
+        "count": 36,
+        "p50MS": 44.68083335086703,
+        "p95MS": 56.777291640173644,
+        "p99MS": 57.94837500434369,
+        "maxMS": 57.94837500434369,
+        "over8_3": 36,
+        "over100": 0
+      },
+      "settledLayout": {
+        "count": 39,
+        "p50MS": 0.06266665877774358,
+        "p95MS": 0.2414583577774465,
+        "p99MS": 0.25929167168214917,
+        "maxMS": 0.25929167168214917,
+        "over8_3": 0,
+        "over100": 0
+      },
+      "scrollOffset": {
+        "count": 360,
+        "p50MS": 0.214291678275913,
+        "p95MS": 52.390416676644236,
+        "p99MS": 70.01033332198858,
+        "maxMS": 72.8450000169687,
+        "over8_3": 42,
+        "over100": 0
+      },
+      "uncachedPage": {
+        "count": 18,
+        "p50MS": 60.22304168436676,
+        "p95MS": 67.15629168320447,
+        "p99MS": 67.15629168320447,
+        "maxMS": 67.15629168320447,
+        "over8_3": 18,
+        "over100": 0
+      },
+      "memoryPressurePage": {
+        "count": 3,
+        "p50MS": 60.25366665562615,
+        "p95MS": 63.76520829508081,
+        "p99MS": 63.76520829508081,
+        "maxMS": 63.76520829508081,
+        "over8_3": 3,
+        "over100": 0
+      },
+      "resize": {
+        "count": 9,
+        "p50MS": 43.54537499602884,
+        "p95MS": 50.95329164760187,
+        "p99MS": 50.95329164760187,
+        "maxMS": 50.95329164760187,
+        "over8_3": 6,
+        "over100": 0
+      }
+    },
+    "peakRSSMiB": [
+      194.796875,
+      194.84375,
+      194.78125
+    ],
+    "perRunScrollP95MS": [
+      51.814208331052214,
+      48.04500000318512,
+      54.2589999968186
+    ]
+  },
+  {
+    "platform": "iphone",
+    "renderer": "canvas",
+    "density": 300,
+    "ablation": "none",
+    "cases": [
+      "native-week-365d-300perday-bounded-ax-0-canvas-none",
+      "native-week-365d-300perday-bounded-ax-1-canvas-none",
+      "native-week-365d-300perday-bounded-ax-2-canvas-none"
+    ],
+    "phases": {
+      "coldMount": {
+        "count": 3,
+        "p50MS": 76.51729165809229,
+        "p95MS": 84.22941667959094,
+        "p99MS": 84.22941667959094,
+        "maxMS": 84.22941667959094,
+        "over8_3": 3,
+        "over100": 0
+      },
+      "page": {
+        "count": 36,
+        "p50MS": 47.287645837059245,
+        "p95MS": 56.493333308026195,
+        "p99MS": 61.68720836285502,
+        "maxMS": 61.68720836285502,
+        "over8_3": 36,
+        "over100": 0
+      },
+      "settledLayout": {
+        "count": 39,
+        "p50MS": 0.07354165427386761,
+        "p95MS": 0.1968333381228149,
+        "p99MS": 0.21733331959694624,
+        "maxMS": 0.21733331959694624,
+        "over8_3": 0,
+        "over100": 0
+      },
+      "scrollOffset": {
+        "count": 360,
+        "p50MS": 0.20789584959857166,
+        "p95MS": 49.64166664285585,
+        "p99MS": 64.7694583167322,
+        "maxMS": 69.68816666631028,
+        "over8_3": 42,
+        "over100": 0
+      },
+      "uncachedPage": {
+        "count": 18,
+        "p50MS": 63.00414583529346,
+        "p95MS": 74.68445831909776,
+        "p99MS": 74.68445831909776,
+        "maxMS": 74.68445831909776,
+        "over8_3": 18,
+        "over100": 0
+      },
+      "memoryPressurePage": {
+        "count": 3,
+        "p50MS": 65.12804166413844,
+        "p95MS": 66.35416665812954,
+        "p99MS": 66.35416665812954,
+        "maxMS": 66.35416665812954,
+        "over8_3": 3,
+        "over100": 0
+      },
+      "resize": {
+        "count": 9,
+        "p50MS": 46.265416662208736,
+        "p95MS": 56.07449996750802,
+        "p99MS": 56.07449996750802,
+        "maxMS": 56.07449996750802,
+        "over8_3": 6,
+        "over100": 0
+      }
+    },
+    "peakRSSMiB": [
+      194.5625,
+      194.578125,
+      194.515625
+    ],
+    "perRunScrollP95MS": [
+      48.4451666707173,
+      47.00766666792333,
+      50.14970834599808
+    ]
+  },
+  {
+    "platform": "iphone",
+    "renderer": "raster",
+    "density": 100,
+    "ablation": "rebuild-accessibility",
+    "cases": [
+      "native-week-365d-100perday-bounded-ax-0-raster-rebuild-accessibility",
+      "native-week-365d-100perday-bounded-ax-1-raster-rebuild-accessibility",
+      "native-week-365d-100perday-bounded-ax-2-raster-rebuild-accessibility"
+    ],
+    "phases": {
+      "coldMount": {
+        "count": 3,
+        "p50MS": 89.92370835039765,
+        "p95MS": 91.4810833055526,
+        "p99MS": 91.4810833055526,
+        "maxMS": 91.4810833055526,
+        "over8_3": 3,
+        "over100": 0
+      },
+      "page": {
+        "count": 36,
+        "p50MS": 2.8030208486597985,
+        "p95MS": 16.31133334012702,
+        "p99MS": 18.870208295993507,
+        "maxMS": 18.870208295993507,
+        "over8_3": 3,
+        "over100": 0
+      },
+      "settledLayout": {
+        "count": 39,
+        "p50MS": 0.05708332173526287,
+        "p95MS": 0.1554166665300727,
+        "p99MS": 0.16449997201561928,
+        "maxMS": 0.16449997201561928,
+        "over8_3": 0,
+        "over100": 0
+      },
+      "scrollOffset": {
+        "count": 360,
+        "p50MS": 0.40383334271609783,
+        "p95MS": 1.7380000208504498,
+        "p99MS": 2.856541657820344,
+        "maxMS": 4.43837494822219,
+        "over8_3": 0,
+        "over100": 0
+      },
+      "uncachedPage": {
+        "count": 18,
+        "p50MS": 64.79204166680574,
+        "p95MS": 72.90099997771904,
+        "p99MS": 72.90099997771904,
+        "maxMS": 72.90099997771904,
+        "over8_3": 18,
+        "over100": 0
+      },
+      "memoryPressurePage": {
+        "count": 3,
+        "p50MS": 62.927291670348495,
+        "p95MS": 69.94437501998618,
+        "p99MS": 69.94437501998618,
+        "maxMS": 69.94437501998618,
+        "over8_3": 3,
+        "over100": 0
+      },
+      "resize": {
+        "count": 9,
+        "p50MS": 44.62379164760932,
+        "p95MS": 49.78512501111254,
+        "p99MS": 49.78512501111254,
+        "maxMS": 49.78512501111254,
+        "over8_3": 6,
+        "over100": 0
+      }
+    },
+    "peakRSSMiB": [
+      306.640625,
+      307.171875,
+      307.234375
+    ],
+    "perRunScrollP95MS": [
+      1.8113750265911222,
+      1.4177917037159204,
+      1.0116249904967844
+    ]
+  },
+  {
+    "platform": "iphone",
+    "renderer": "raster",
+    "density": 100,
+    "ablation": "none",
+    "cases": [
+      "native-week-365d-100perday-bounded-ax-0-raster-none",
+      "native-week-365d-100perday-bounded-ax-1-raster-none",
+      "native-week-365d-100perday-bounded-ax-2-raster-none"
+    ],
+    "phases": {
+      "coldMount": {
+        "count": 3,
+        "p50MS": 89.95291666360572,
+        "p95MS": 97.88945835316554,
+        "p99MS": 97.88945835316554,
+        "maxMS": 97.88945835316554,
+        "over8_3": 3,
+        "over100": 0
+      },
+      "page": {
+        "count": 36,
+        "p50MS": 3.1572708394378424,
+        "p95MS": 15.312541683670133,
+        "p99MS": 15.722624957561493,
+        "maxMS": 15.722624957561493,
+        "over8_3": 3,
+        "over100": 0
+      },
+      "settledLayout": {
+        "count": 39,
+        "p50MS": 0.05570828216150403,
+        "p95MS": 0.3744999994523823,
+        "p99MS": 0.6129583343863487,
+        "maxMS": 0.6129583343863487,
+        "over8_3": 0,
+        "over100": 0
+      },
+      "scrollOffset": {
+        "count": 360,
+        "p50MS": 0.2278333413414657,
+        "p95MS": 0.680458324495703,
+        "p99MS": 1.338499947451055,
+        "maxMS": 2.962916623800993,
+        "over8_3": 0,
+        "over100": 0
+      },
+      "uncachedPage": {
+        "count": 18,
+        "p50MS": 64.55322916735895,
+        "p95MS": 76.378624944482,
+        "p99MS": 76.378624944482,
+        "maxMS": 76.378624944482,
+        "over8_3": 18,
+        "over100": 0
+      },
+      "memoryPressurePage": {
+        "count": 3,
+        "p50MS": 65.11429167585447,
+        "p95MS": 67.86883337190375,
+        "p99MS": 67.86883337190375,
+        "maxMS": 67.86883337190375,
+        "over8_3": 3,
+        "over100": 0
+      },
+      "resize": {
+        "count": 9,
+        "p50MS": 42.451041692402214,
+        "p95MS": 49.55237498506904,
+        "p99MS": 49.55237498506904,
+        "maxMS": 49.55237498506904,
+        "over8_3": 6,
+        "over100": 0
+      }
+    },
+    "peakRSSMiB": [
+      306.640625,
+      307.34375,
+      307.1875
+    ],
+    "perRunScrollP95MS": [
+      0.5848333239555359,
+      0.8007500437088311,
+      0.7987499702721834
+    ]
+  },
+  {
+    "platform": "iphone",
+    "renderer": "raster",
+    "density": 300,
+    "ablation": "rebuild-accessibility",
+    "cases": [
+      "native-week-365d-300perday-bounded-ax-0-raster-rebuild-accessibility",
+      "native-week-365d-300perday-bounded-ax-1-raster-rebuild-accessibility",
+      "native-week-365d-300perday-bounded-ax-2-raster-rebuild-accessibility"
+    ],
+    "phases": {
+      "coldMount": {
+        "count": 3,
+        "p50MS": 120.50308333709836,
+        "p95MS": 124.97270834865049,
+        "p99MS": 124.97270834865049,
+        "maxMS": 124.97270834865049,
+        "over8_3": 3,
+        "over100": 3
+      },
+      "page": {
+        "count": 36,
+        "p50MS": 2.355979144340381,
+        "p95MS": 14.507458312436938,
+        "p99MS": 17.995208327192813,
+        "maxMS": 17.995208327192813,
+        "over8_3": 3,
+        "over100": 0
+      },
+      "settledLayout": {
+        "count": 39,
+        "p50MS": 0.03104167990386486,
+        "p95MS": 0.04270835779607296,
+        "p99MS": 0.043208361603319645,
+        "maxMS": 0.043208361603319645,
+        "over8_3": 0,
+        "over100": 0
+      },
+      "scrollOffset": {
+        "count": 360,
+        "p50MS": 0.21897919941693544,
+        "p95MS": 2.3142083664424717,
+        "p99MS": 5.254624993540347,
+        "maxMS": 5.378958361689001,
+        "over8_3": 0,
+        "over100": 0
+      },
+      "uncachedPage": {
+        "count": 18,
+        "p50MS": 99.56347913248464,
+        "p95MS": 114.33354165637866,
+        "p99MS": 114.33354165637866,
+        "maxMS": 114.33354165637866,
+        "over8_3": 18,
+        "over100": 8
+      },
+      "memoryPressurePage": {
+        "count": 3,
+        "p50MS": 99.48949998943135,
+        "p95MS": 102.07779164193198,
+        "p99MS": 102.07779164193198,
+        "maxMS": 102.07779164193198,
+        "over8_3": 3,
+        "over100": 1
+      },
+      "resize": {
+        "count": 9,
+        "p50MS": 78.66012502927333,
+        "p95MS": 81.59704168792814,
+        "p99MS": 81.59704168792814,
+        "maxMS": 81.59704168792814,
+        "over8_3": 6,
+        "over100": 0
+      }
+    },
+    "peakRSSMiB": [
+      311.234375,
+      311.1875,
+      311.3125
+    ],
+    "perRunScrollP95MS": [
+      2.2700416739098728,
+      2.4376249639317393,
+      2.299708314239979
+    ]
+  },
+  {
+    "platform": "iphone",
+    "renderer": "raster",
+    "density": 300,
+    "ablation": "none",
+    "cases": [
+      "native-week-365d-300perday-bounded-ax-0-raster-none",
+      "native-week-365d-300perday-bounded-ax-1-raster-none",
+      "native-week-365d-300perday-bounded-ax-2-raster-none"
+    ],
+    "phases": {
+      "coldMount": {
+        "count": 3,
+        "p50MS": 156.71058336738497,
+        "p95MS": 170.1330416253768,
+        "p99MS": 170.1330416253768,
+        "maxMS": 170.1330416253768,
+        "over8_3": 3,
+        "over100": 3
+      },
+      "page": {
+        "count": 36,
+        "p50MS": 2.741916658123955,
+        "p95MS": 15.661749988794327,
+        "p99MS": 16.19216665858403,
+        "maxMS": 16.19216665858403,
+        "over8_3": 3,
+        "over100": 0
+      },
+      "settledLayout": {
+        "count": 39,
+        "p50MS": 0.03341666888445616,
+        "p95MS": 0.04487502155825496,
+        "p99MS": 0.04891667049378157,
+        "maxMS": 0.04891667049378157,
+        "over8_3": 0,
+        "over100": 0
+      },
+      "scrollOffset": {
+        "count": 360,
+        "p50MS": 0.23406249238178134,
+        "p95MS": 1.305916637647897,
+        "p99MS": 2.779833332169801,
+        "maxMS": 7.39062501816079,
+        "over8_3": 0,
+        "over100": 0
+      },
+      "uncachedPage": {
+        "count": 18,
+        "p50MS": 102.74433335871436,
+        "p95MS": 120.9682083572261,
+        "p99MS": 120.9682083572261,
+        "maxMS": 120.9682083572261,
+        "over8_3": 18,
+        "over100": 10
+      },
+      "memoryPressurePage": {
+        "count": 3,
+        "p50MS": 96.16704162908718,
+        "p95MS": 120.25933334371075,
+        "p99MS": 120.25933334371075,
+        "maxMS": 120.25933334371075,
+        "over8_3": 3,
+        "over100": 1
+      },
+      "resize": {
+        "count": 9,
+        "p50MS": 74.17216670000926,
+        "p95MS": 90.00591665972024,
+        "p99MS": 90.00591665972024,
+        "maxMS": 90.00591665972024,
+        "over8_3": 6,
+        "over100": 0
+      }
+    },
+    "peakRSSMiB": [
+      308.234375,
+      311.1875,
+      311.109375
+    ],
+    "perRunScrollP95MS": [
+      1.956833351869136,
+      1.2325416901148856,
+      1.2940000160597265
+    ]
+  },
+  {
+    "platform": "ipad",
+    "renderer": "canvas",
+    "density": 100,
+    "ablation": "rebuild-accessibility",
+    "cases": [
+      "native-week-365d-100perday-bounded-ax-0-canvas-rebuild-accessibility",
+      "native-week-365d-100perday-bounded-ax-1-canvas-rebuild-accessibility",
+      "native-week-365d-100perday-bounded-ax-2-canvas-rebuild-accessibility"
+    ],
+    "phases": {
+      "coldMount": {
+        "count": 3,
+        "p50MS": 64.33683331124485,
+        "p95MS": 85.45312500791624,
+        "p99MS": 85.45312500791624,
+        "maxMS": 85.45312500791624,
+        "over8_3": 3,
+        "over100": 0
+      },
+      "page": {
+        "count": 36,
+        "p50MS": 42.25672918255441,
+        "p95MS": 46.96279170457274,
+        "p99MS": 47.15641669463366,
+        "maxMS": 47.15641669463366,
+        "over8_3": 36,
+        "over100": 0
+      },
+      "settledLayout": {
+        "count": 39,
+        "p50MS": 0.06770831532776356,
+        "p95MS": 0.19237503875046968,
+        "p99MS": 0.24458335246890783,
+        "maxMS": 0.24458335246890783,
+        "over8_3": 0,
+        "over100": 0
+      },
+      "scrollOffset": {
+        "count": 360,
+        "p50MS": 0.21710418513976038,
+        "p95MS": 41.983375034760684,
+        "p99MS": 47.523083339910954,
+        "maxMS": 49.61237497627735,
+        "over8_3": 30,
+        "over100": 0
+      },
+      "uncachedPage": {
+        "count": 18,
+        "p50MS": 46.88139582867734,
+        "p95MS": 53.106333303730935,
+        "p99MS": 53.106333303730935,
+        "maxMS": 53.106333303730935,
+        "over8_3": 18,
+        "over100": 0
+      },
+      "memoryPressurePage": {
+        "count": 3,
+        "p50MS": 46.31758335744962,
+        "p95MS": 56.033500004559755,
+        "p99MS": 56.033500004559755,
+        "maxMS": 56.033500004559755,
+        "over8_3": 3,
+        "over100": 0
+      },
+      "resize": {
+        "count": 9,
+        "p50MS": 40.98225000780076,
+        "p95MS": 52.42133332649246,
+        "p99MS": 52.42133332649246,
+        "maxMS": 52.42133332649246,
+        "over8_3": 6,
+        "over100": 0
+      }
+    },
+    "peakRSSMiB": [
+      226.109375,
+      226.671875,
+      226.640625
+    ],
+    "perRunScrollP95MS": [
+      43.26354165095836,
+      41.47708334494382,
+      41.983375034760684
+    ]
+  },
+  {
+    "platform": "ipad",
+    "renderer": "canvas",
+    "density": 100,
+    "ablation": "none",
+    "cases": [
+      "native-week-365d-100perday-bounded-ax-0-canvas-none",
+      "native-week-365d-100perday-bounded-ax-1-canvas-none",
+      "native-week-365d-100perday-bounded-ax-2-canvas-none"
+    ],
+    "phases": {
+      "coldMount": {
+        "count": 3,
+        "p50MS": 63.68233333341777,
+        "p95MS": 68.2105416781269,
+        "p99MS": 68.2105416781269,
+        "maxMS": 68.2105416781269,
+        "over8_3": 3,
+        "over100": 0
+      },
+      "page": {
+        "count": 36,
+        "p50MS": 41.555416682967916,
+        "p95MS": 44.8972083395347,
+        "p99MS": 46.45816667471081,
+        "maxMS": 46.45816667471081,
+        "over8_3": 36,
+        "over100": 0
+      },
+      "settledLayout": {
+        "count": 39,
+        "p50MS": 0.06770831532776356,
+        "p95MS": 0.31979166669771075,
+        "p99MS": 0.37370831705629826,
+        "maxMS": 0.37370831705629826,
+        "over8_3": 0,
+        "over100": 0
+      },
+      "scrollOffset": {
+        "count": 360,
+        "p50MS": 0.21272915182635188,
+        "p95MS": 41.08758334768936,
+        "p99MS": 45.48250004881993,
+        "maxMS": 48.54008328402415,
+        "over8_3": 30,
+        "over100": 0
+      },
+      "uncachedPage": {
+        "count": 18,
+        "p50MS": 46.988625021185726,
+        "p95MS": 50.266875012312084,
+        "p99MS": 50.266875012312084,
+        "maxMS": 50.266875012312084,
+        "over8_3": 18,
+        "over100": 0
+      },
+      "memoryPressurePage": {
+        "count": 3,
+        "p50MS": 48.724583350121975,
+        "p95MS": 50.565208308398724,
+        "p99MS": 50.565208308398724,
+        "maxMS": 50.565208308398724,
+        "over8_3": 3,
+        "over100": 0
+      },
+      "resize": {
+        "count": 9,
+        "p50MS": 41.74408334074542,
+        "p95MS": 49.703874974511564,
+        "p99MS": 49.703874974511564,
+        "maxMS": 49.703874974511564,
+        "over8_3": 6,
+        "over100": 0
+      }
+    },
+    "peakRSSMiB": [
+      226.53125,
+      226.546875,
+      226.546875
+    ],
+    "perRunScrollP95MS": [
+      41.34825000073761,
+      41.143624985124916,
+      39.9465833324939
+    ]
+  },
+  {
+    "platform": "ipad",
+    "renderer": "canvas",
+    "density": 300,
+    "ablation": "rebuild-accessibility",
+    "cases": [
+      "native-week-365d-300perday-bounded-ax-0-canvas-rebuild-accessibility",
+      "native-week-365d-300perday-bounded-ax-1-canvas-rebuild-accessibility",
+      "native-week-365d-300perday-bounded-ax-2-canvas-rebuild-accessibility"
+    ],
+    "phases": {
+      "coldMount": {
+        "count": 3,
+        "p50MS": 115.8514583366923,
+        "p95MS": 118.25666669756174,
+        "p99MS": 118.25666669756174,
+        "maxMS": 118.25666669756174,
+        "over8_3": 3,
+        "over100": 3
+      },
+      "page": {
+        "count": 36,
+        "p50MS": 75.64039583667181,
+        "p95MS": 82.04162499168888,
+        "p99MS": 84.31420830311254,
+        "maxMS": 84.31420830311254,
+        "over8_3": 36,
+        "over100": 0
+      },
+      "settledLayout": {
+        "count": 39,
+        "p50MS": 0.06658333586528897,
+        "p95MS": 0.21929165814071894,
+        "p99MS": 0.22250000620260835,
+        "maxMS": 0.22250000620260835,
+        "over8_3": 0,
+        "over100": 0
+      },
+      "scrollOffset": {
+        "count": 360,
+        "p50MS": 0.216104177525267,
+        "p95MS": 75.1572500448674,
+        "p99MS": 91.37679170817137,
+        "maxMS": 97.86737500689924,
+        "over8_3": 30,
+        "over100": 0
+      },
+      "uncachedPage": {
+        "count": 18,
+        "p50MS": 91.20272917789407,
+        "p95MS": 102.35337499761954,
+        "p99MS": 102.35337499761954,
+        "maxMS": 102.35337499761954,
+        "over8_3": 18,
+        "over100": 1
+      },
+      "memoryPressurePage": {
+        "count": 3,
+        "p50MS": 95.06333334138617,
+        "p95MS": 100.26325000217184,
+        "p99MS": 100.26325000217184,
+        "maxMS": 100.26325000217184,
+        "over8_3": 3,
+        "over100": 1
+      },
+      "resize": {
+        "count": 9,
+        "p50MS": 77.113333332818,
+        "p95MS": 81.6940416698344,
+        "p99MS": 81.6940416698344,
+        "maxMS": 81.6940416698344,
+        "over8_3": 6,
+        "over100": 0
+      }
+    },
+    "peakRSSMiB": [
+      234.015625,
+      234.453125,
+      234.28125
+    ],
+    "perRunScrollP95MS": [
+      80.1884166430682,
+      70.13524998910725,
+      72.28045834926888
+    ]
+  },
+  {
+    "platform": "ipad",
+    "renderer": "canvas",
+    "density": 300,
+    "ablation": "none",
+    "cases": [
+      "native-week-365d-300perday-bounded-ax-0-canvas-none",
+      "native-week-365d-300perday-bounded-ax-1-canvas-none",
+      "native-week-365d-300perday-bounded-ax-2-canvas-none"
+    ],
+    "phases": {
+      "coldMount": {
+        "count": 3,
+        "p50MS": 114.03537500882521,
+        "p95MS": 120.16916665015742,
+        "p99MS": 120.16916665015742,
+        "maxMS": 120.16916665015742,
+        "over8_3": 3,
+        "over100": 3
+      },
+      "page": {
+        "count": 36,
+        "p50MS": 78.09833332430571,
+        "p95MS": 84.19370837509632,
+        "p99MS": 85.40162502322346,
+        "maxMS": 85.40162502322346,
+        "over8_3": 36,
+        "over100": 0
+      },
+      "settledLayout": {
+        "count": 39,
+        "p50MS": 0.0712500186637044,
+        "p95MS": 0.23883336689323187,
+        "p99MS": 1.4131249627098441,
+        "maxMS": 1.4131249627098441,
+        "over8_3": 0,
+        "over100": 0
+      },
+      "scrollOffset": {
+        "count": 360,
+        "p50MS": 0.2092916693072766,
+        "p95MS": 72.6730833412148,
+        "p99MS": 89.41374998539686,
+        "maxMS": 95.9003750467673,
+        "over8_3": 30,
+        "over100": 0
+      },
+      "uncachedPage": {
+        "count": 18,
+        "p50MS": 91.18431247770786,
+        "p95MS": 97.19612495973706,
+        "p99MS": 97.19612495973706,
+        "maxMS": 97.19612495973706,
+        "over8_3": 18,
+        "over100": 0
+      },
+      "memoryPressurePage": {
+        "count": 3,
+        "p50MS": 83.5397916380316,
+        "p95MS": 91.87858330551535,
+        "p99MS": 91.87858330551535,
+        "maxMS": 91.87858330551535,
+        "over8_3": 3,
+        "over100": 0
+      },
+      "resize": {
+        "count": 9,
+        "p50MS": 71.04645838262513,
+        "p95MS": 81.81599999079481,
+        "p99MS": 81.81599999079481,
+        "maxMS": 81.81599999079481,
+        "over8_3": 6,
+        "over100": 0
+      }
+    },
+    "peakRSSMiB": [
+      233.859375,
+      233.53125,
+      233.75
+    ],
+    "perRunScrollP95MS": [
+      72.78333336580545,
+      71.3897499954328,
+      72.6730833412148
+    ]
+  },
+  {
+    "platform": "ipad",
+    "renderer": "raster",
+    "density": 100,
+    "ablation": "rebuild-accessibility",
+    "cases": [
+      "native-week-365d-100perday-bounded-ax-0-raster-rebuild-accessibility",
+      "native-week-365d-100perday-bounded-ax-1-raster-rebuild-accessibility",
+      "native-week-365d-100perday-bounded-ax-2-raster-rebuild-accessibility"
+    ],
+    "phases": {
+      "coldMount": {
+        "count": 3,
+        "p50MS": 101.39737499412149,
+        "p95MS": 106.68929165694863,
+        "p99MS": 106.68929165694863,
+        "maxMS": 106.68929165694863,
+        "over8_3": 3,
+        "over100": 2
+      },
+      "page": {
+        "count": 36,
+        "p50MS": 2.9065833368804306,
+        "p95MS": 23.34312500897795,
+        "p99MS": 23.564958362840116,
+        "maxMS": 23.564958362840116,
+        "over8_3": 3,
+        "over100": 0
+      },
+      "settledLayout": {
+        "count": 39,
+        "p50MS": 0.06304169073700905,
+        "p95MS": 0.20225002663210034,
+        "p99MS": 0.2105833264067769,
+        "maxMS": 0.2105833264067769,
+        "over8_3": 0,
+        "over100": 0
+      },
+      "scrollOffset": {
+        "count": 360,
+        "p50MS": 0.2418750082142651,
+        "p95MS": 1.1071666376665235,
+        "p99MS": 2.7287499979138374,
+        "maxMS": 2.8972916770726442,
+        "over8_3": 0,
+        "over100": 0
+      },
+      "uncachedPage": {
+        "count": 18,
+        "p50MS": 81.42460414092056,
+        "p95MS": 95.92716669430956,
+        "p99MS": 95.92716669430956,
+        "maxMS": 95.92716669430956,
+        "over8_3": 18,
+        "over100": 0
+      },
+      "memoryPressurePage": {
+        "count": 3,
+        "p50MS": 82.23004167666659,
+        "p95MS": 92.98045834293589,
+        "p99MS": 92.98045834293589,
+        "maxMS": 92.98045834293589,
+        "over8_3": 3,
+        "over100": 0
+      },
+      "resize": {
+        "count": 9,
+        "p50MS": 57.33329162467271,
+        "p95MS": 66.64629169972613,
+        "p99MS": 66.64629169972613,
+        "maxMS": 66.64629169972613,
+        "over8_3": 6,
+        "over100": 0
+      }
+    },
+    "peakRSSMiB": [
+      394.125,
+      389.359375,
+      384.546875
+    ],
+    "perRunScrollP95MS": [
+      1.0610833414830267,
+      1.0102916858159006,
+      1.1145416647195816
+    ]
+  },
+  {
+    "platform": "ipad",
+    "renderer": "raster",
+    "density": 100,
+    "ablation": "none",
+    "cases": [
+      "native-week-365d-100perday-bounded-ax-0-raster-none",
+      "native-week-365d-100perday-bounded-ax-1-raster-none",
+      "native-week-365d-100perday-bounded-ax-2-raster-none"
+    ],
+    "phases": {
+      "coldMount": {
+        "count": 3,
+        "p50MS": 102.16424998361617,
+        "p95MS": 186.48787500569597,
+        "p99MS": 186.48787500569597,
+        "maxMS": 186.48787500569597,
+        "over8_3": 3,
+        "over100": 3
+      },
+      "page": {
+        "count": 36,
+        "p50MS": 3.019104158738628,
+        "p95MS": 21.313791687134653,
+        "p99MS": 24.58954165922478,
+        "maxMS": 24.58954165922478,
+        "over8_3": 3,
+        "over100": 0
+      },
+      "settledLayout": {
+        "count": 39,
+        "p50MS": 0.06154167931526899,
+        "p95MS": 0.21529168589040637,
+        "p99MS": 0.2218333538621664,
+        "maxMS": 0.2218333538621664,
+        "over8_3": 0,
+        "over100": 0
+      },
+      "scrollOffset": {
+        "count": 360,
+        "p50MS": 0.394499977119267,
+        "p95MS": 1.052499981597066,
+        "p99MS": 1.9731250358745456,
+        "maxMS": 2.906416659243405,
+        "over8_3": 0,
+        "over100": 0
+      },
+      "uncachedPage": {
+        "count": 18,
+        "p50MS": 81.65735416696407,
+        "p95MS": 87.97187497839332,
+        "p99MS": 87.97187497839332,
+        "maxMS": 87.97187497839332,
+        "over8_3": 18,
+        "over100": 0
+      },
+      "memoryPressurePage": {
+        "count": 3,
+        "p50MS": 80.2322500385344,
+        "p95MS": 86.65474998997524,
+        "p99MS": 86.65474998997524,
+        "maxMS": 86.65474998997524,
+        "over8_3": 3,
+        "over100": 0
+      },
+      "resize": {
+        "count": 9,
+        "p50MS": 60.050833330024034,
+        "p95MS": 65.1044583064504,
+        "p99MS": 65.1044583064504,
+        "maxMS": 65.1044583064504,
+        "over8_3": 6,
+        "over100": 0
+      }
+    },
+    "peakRSSMiB": [
+      394.140625,
+      384.53125,
+      384.59375
+    ],
+    "perRunScrollP95MS": [
+      1.214708318002522,
+      0.7214582874439657,
+      0.8215416455641389
+    ]
+  },
+  {
+    "platform": "ipad",
+    "renderer": "raster",
+    "density": 300,
+    "ablation": "rebuild-accessibility",
+    "cases": [
+      "native-week-365d-300perday-bounded-ax-0-raster-rebuild-accessibility",
+      "native-week-365d-300perday-bounded-ax-1-raster-rebuild-accessibility",
+      "native-week-365d-300perday-bounded-ax-2-raster-rebuild-accessibility"
+    ],
+    "phases": {
+      "coldMount": {
+        "count": 3,
+        "p50MS": 139.14124999428168,
+        "p95MS": 187.95691669220105,
+        "p99MS": 187.95691669220105,
+        "maxMS": 187.95691669220105,
+        "over8_3": 3,
+        "over100": 3
+      },
+      "page": {
+        "count": 36,
+        "p50MS": 2.7150208479724824,
+        "p95MS": 20.19387495238334,
+        "p99MS": 21.14562498172745,
+        "maxMS": 21.14562498172745,
+        "over8_3": 3,
+        "over100": 0
+      },
+      "settledLayout": {
+        "count": 39,
+        "p50MS": 0.03850000211969018,
+        "p95MS": 0.05120836431160569,
+        "p99MS": 0.08712505223229527,
+        "maxMS": 0.08712505223229527,
+        "over8_3": 0,
+        "over100": 0
+      },
+      "scrollOffset": {
+        "count": 360,
+        "p50MS": 0.22437502047978342,
+        "p95MS": 2.6064583798870444,
+        "p99MS": 6.257416622247547,
+        "maxMS": 6.70441664988175,
+        "over8_3": 0,
+        "over100": 0
+      },
+      "uncachedPage": {
+        "count": 18,
+        "p50MS": 114.5174166886136,
+        "p95MS": 120.7063749898225,
+        "p99MS": 120.7063749898225,
+        "maxMS": 120.7063749898225,
+        "over8_3": 18,
+        "over100": 18
+      },
+      "memoryPressurePage": {
+        "count": 3,
+        "p50MS": 113.09095832984895,
+        "p95MS": 116.66904162848368,
+        "p99MS": 116.66904162848368,
+        "maxMS": 116.66904162848368,
+        "over8_3": 3,
+        "over100": 3
+      },
+      "resize": {
+        "count": 9,
+        "p50MS": 92.44137501809746,
+        "p95MS": 103.08295831782743,
+        "p99MS": 103.08295831782743,
+        "maxMS": 103.08295831782743,
+        "over8_3": 6,
+        "over100": 2
+      }
+    },
+    "peakRSSMiB": [
+      388.75,
+      390.140625,
+      398.3125
+    ],
+    "perRunScrollP95MS": [
+      4.778416710905731,
+      2.587250026408583,
+      2.5817916612140834
+    ]
+  },
+  {
+    "platform": "ipad",
+    "renderer": "raster",
+    "density": 300,
+    "ablation": "none",
+    "cases": [
+      "native-week-365d-300perday-bounded-ax-0-raster-none",
+      "native-week-365d-300perday-bounded-ax-1-raster-none",
+      "native-week-365d-300perday-bounded-ax-2-raster-none"
+    ],
+    "phases": {
+      "coldMount": {
+        "count": 3,
+        "p50MS": 134.9602083209902,
+        "p95MS": 138.82091670529917,
+        "p99MS": 138.82091670529917,
+        "maxMS": 138.82091670529917,
+        "over8_3": 3,
+        "over100": 3
+      },
+      "page": {
+        "count": 36,
+        "p50MS": 3.2636250252835453,
+        "p95MS": 22.27012498769909,
+        "p99MS": 22.49508333625272,
+        "maxMS": 22.49508333625272,
+        "over8_3": 3,
+        "over100": 0
+      },
+      "settledLayout": {
+        "count": 39,
+        "p50MS": 0.03516662400215864,
+        "p95MS": 0.04333333345130086,
+        "p99MS": 0.0477083376608789,
+        "maxMS": 0.0477083376608789,
+        "over8_3": 0,
+        "over100": 0
+      },
+      "scrollOffset": {
+        "count": 360,
+        "p50MS": 0.22879167227074504,
+        "p95MS": 1.1895417119376361,
+        "p99MS": 3.4056250005960464,
+        "maxMS": 4.4669166672974825,
+        "over8_3": 0,
+        "over100": 0
+      },
+      "uncachedPage": {
+        "count": 18,
+        "p50MS": 113.88295833603479,
+        "p95MS": 126.7398750060238,
+        "p99MS": 126.7398750060238,
+        "maxMS": 126.7398750060238,
+        "over8_3": 18,
+        "over100": 18
+      },
+      "memoryPressurePage": {
+        "count": 3,
+        "p50MS": 115.4313333099708,
+        "p95MS": 118.93245833925903,
+        "p99MS": 118.93245833925903,
+        "maxMS": 118.93245833925903,
+        "over8_3": 3,
+        "over100": 3
+      },
+      "resize": {
+        "count": 9,
+        "p50MS": 92.7642083261162,
+        "p95MS": 106.54883331153542,
+        "p99MS": 106.54883331153542,
+        "maxMS": 106.54883331153542,
+        "over8_3": 6,
+        "over100": 3
+      }
+    },
+    "peakRSSMiB": [
+      398.34375,
+      388.5625,
+      398.328125
+    ],
+    "perRunScrollP95MS": [
+      1.1529583716765046,
+      1.1167500051669776,
+      1.2507499777711928
+    ]
+  }
+]

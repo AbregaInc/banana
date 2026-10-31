@@ -1,0 +1,11 @@
+{
+  "timestamp": "2026-10-08T23:43:03.404593-04:00",
+  "platform": "macOS-26.6.2-arm64-arm-64bit",
+  "pid": 16741,
+  "git": "976403cf01a6c80b83dae52f07a7f0d4071d7855",
+  "dirty": " M .github/workflows/performance-contract.yml\n M docs/performance/scale-results/calendar-grid-20261008/README.md\n M tools/calendar-library-benchmark/Native/MacBenchmark.swift\n M tools/calendar-library-benchmark/Shared/CalendarSurface.swift\n M tools/calendar-library-benchmark/Shared/Optimizations.swift\n M tools/calendar-library-benchmark/Shared/RasterPage.swift\n M tools/calendar-library-benchmark/Sources/NativeController.swift\n M tools/calendar-library-benchmark/report.py\n M tools/calendar-library-benchmark/run-mac.py\n M tools/calendar-library-benchmark/run.py\n M tools/calendar-library-benchmark/test_report.py\n?? Banana/Model/CalendarOverflowRules.swift\n?? tools/calendar-library-benchmark/Shared/TileRenderer.swift\n?? tools/calendar-library-benchmark/TileTests/\n?? tools/calendar-overflow-tests/\n",
+  "load": "23:43  up 3 days, 21:47, 31 users, load averages: 27.06 33.20 94.58",
+  "scenario": "Visible isolated Mac mail-calendar overload: 180k mail, 36500 events, 5000 notes, 20000 episodes. CUA four alternating half-page down/up pairs, four J pages, four K pages; warm calendar. No competing build or benchmark.",
+  "executable": "~/orca/workspaces/gtfuwgth/stingray/.build/mac-stress-previews/20261008-234046-950172/Banana Stress Review.app/Contents/MacOS/Banana Beta",
+  "binarySHA256": "5b70c74940d4bbb05906da8c69294287911c850ccd0ca5663653452926fe1acf"
+}

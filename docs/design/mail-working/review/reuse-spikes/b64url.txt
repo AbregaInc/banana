@@ -1,0 +1,6 @@
+--- b64url.swift (encode options):
+b64url.swift:4:40: error: 'base64URLAlphabet' is only available in macOS 26.4 or newer
+  |                                        |- error: 'base64URLAlphabet' is only available in macOS 26.4 or newer
+--- b64url3.swift (decode options):
+b64url3.swift:5:87: error: type 'NSData.Base64DecodingOptions.ArrayLiteralElement' (aka 'NSData.Base64DecodingOptions') has no member 'base64URLAlphabet'
+  |                                                                                       `- error: type 'NSData.Base64DecodingOptions.ArrayLiteralElement' (aka 'NSData.Base64DecodingOptions') has no 

@@ -1,0 +1,25 @@
+{
+  "status": "failed-or-incomplete",
+  "command": [
+    "tools/calendar-library-benchmark/profile-touch.py",
+    "--device",
+    "<device-udid>",
+    "--instruments-device",
+    "Spar<redacted>",
+    "--out",
+    ".build/calendar-touch/presentation-policies/prefer120-repeat",
+    "--ablation",
+    "tile-prefetch-async-lazy",
+    "--density",
+    "300",
+    "--presentation-policy",
+    "prefer120"
+  ],
+  "scope": "Partial real-swipe trace; no input-to-visible acceptance",
+  "pid": 11831,
+  "triggerTimestamp": "2026-10-09T07:40:50.019999-04:00",
+  "trigger": "First Swipe up in XCTest log; recorder attaches afterward",
+  "profileExit": 2,
+  "touchExit": 0,
+  "captureTriggered": true
+}

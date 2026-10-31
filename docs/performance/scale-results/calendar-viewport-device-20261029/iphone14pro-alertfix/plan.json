@@ -1,0 +1,35 @@
+{
+  "device": "<device-udid>",
+  "instrumentsDevice": "Spar<redacted> (27.0.1)",
+  "xctestrun": ".build/physical-stress-ui-dd/Build/Products/PhysicalStressUITests_iphoneos27.1-arm64.xctestrun",
+  "runs": [
+    {
+      "mode": "Day",
+      "order": 1,
+      "viewport": "reference",
+      "folder": ".build/viewport-compare-20261029/iphone14pro-alertfix/day-1-reference",
+      "exit": 1
+    },
+    {
+      "mode": "Day",
+      "order": 2,
+      "viewport": "native",
+      "folder": ".build/viewport-compare-20261029/iphone14pro-alertfix/day-2-native",
+      "exit": 1
+    },
+    {
+      "mode": "Day",
+      "order": 3,
+      "viewport": "native",
+      "folder": ".build/viewport-compare-20261029/iphone14pro-alertfix/day-3-native",
+      "exit": 1
+    },
+    {
+      "mode": "Day",
+      "order": 4,
+      "viewport": "reference",
+      "folder": ".build/viewport-compare-20261029/iphone14pro-alertfix/day-4-reference",
+      "exit": 1
+    }
+  ]
+}

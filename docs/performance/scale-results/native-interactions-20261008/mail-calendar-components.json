@@ -1,0 +1,70 @@
+{
+  "days" : 30,
+  "emails" : 180000,
+  "episodes" : 20000,
+  "events" : 36500,
+  "metrics" : [
+    {
+      "budgetMS" : 50,
+      "checksum" : 350,
+      "medianMS" : 0.0002499727997928858,
+      "name" : "mail.firstPage",
+      "p95MS" : 62.96016665874049
+    },
+    {
+      "budgetMS" : 100,
+      "checksum" : 350,
+      "medianMS" : 0.008083356078714132,
+      "name" : "mail.readMutation",
+      "p95MS" : 0.07779168663546443
+    },
+    {
+      "budgetMS" : 16,
+      "checksum" : 4900,
+      "medianMS" : 0.1981249952223152,
+      "name" : "calendar.visibleWeek",
+      "p95MS" : 27.71341666812077
+    },
+    {
+      "budgetMS" : 8,
+      "checksum" : 700,
+      "medianMS" : 0.003249995643272996,
+      "name" : "calendar.day",
+      "p95MS" : 0.03783334977924824
+    },
+    {
+      "budgetMS" : 100,
+      "checksum" : 700,
+      "medianMS" : 4.062208317918703,
+      "name" : "notes.search",
+      "p95MS" : 4.651791678043082
+    },
+    {
+      "budgetMS" : 16,
+      "checksum" : 700,
+      "medianMS" : 0.681583333062008,
+      "name" : "notes.browse",
+      "p95MS" : 0.740541669074446
+    },
+    {
+      "budgetMS" : 100,
+      "checksum" : 700,
+      "medianMS" : 4.769291670527309,
+      "name" : "podcasts.nextAcrossCatalog",
+      "p95MS" : 5.436375009594485
+    },
+    {
+      "budgetMS" : 100,
+      "checksum" : 2100,
+      "medianMS" : 6.473583343904465,
+      "name" : "podcasts.downloadCandidates",
+      "p95MS" : 6.739333330187947
+    }
+  ],
+  "notes" : 5000,
+  "passed" : false,
+  "platform" : "macOS; disk-paged notes and podcasts; model operations; mail fixture source",
+  "podcasts" : 100,
+  "residentMB" : 615.53125,
+  "schemaVersion" : 1
+}

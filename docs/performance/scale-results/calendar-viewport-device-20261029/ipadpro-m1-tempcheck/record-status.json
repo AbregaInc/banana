@@ -1,0 +1,35 @@
+{
+  "status": "recorded-unvalidated",
+  "timestamp": "2026-10-30T14:51:54.772006-04:00",
+  "command": [
+    "xcrun",
+    "xctrace",
+    "record",
+    "--device",
+    "AyePad (27.0.1)",
+    "--template",
+    "Animation Hitches",
+    "--attach",
+    "614",
+    "--time-limit",
+    "8s",
+    "--output",
+    "~/repo/abrega/gtfuwgth/.build/viewport-compare-20261029/ipadpro-m1-tempcheck/trace/touch.trace",
+    "--no-prompt"
+  ],
+  "device": "AyePad (27.0.1)",
+  "pid": 614,
+  "scope": "Physical trace collection; verify input overlap, schema, completeness and process identity before analysis",
+  "exitCode": 0,
+  "reason": null,
+  "elapsedSeconds": 43.38180633308366,
+  "temporaryRecordings": {
+    "removed": [
+      {
+        "name": "instruments902LWR.ktrace",
+        "bytes": 977167872
+      }
+    ],
+    "bytes": 977167872
+  }
+}

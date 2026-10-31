@@ -1,0 +1,1034 @@
+[
+  {
+    "scenario": "native-week-365d-100perday-bounded-tile-ax-cache-0-tile-prefetch-budgeted",
+    "status": "measured",
+    "acceptance": "fail",
+    "phases": {
+      "coldMount": {
+        "count": 1,
+        "p50MS": 87.12037501391023,
+        "p95MS": 87.12037501391023,
+        "p99MS": 87.12037501391023,
+        "maxMS": 87.12037501391023,
+        "over8_3MS": 1,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "page": {
+        "count": 12,
+        "p50MS": 3.5272917011752725,
+        "p95MS": 14.292083331383765,
+        "p99MS": 14.292083331383765,
+        "maxMS": 14.292083331383765,
+        "over8_3MS": 1,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "settledLayout": {
+        "count": 13,
+        "p50MS": 0.06408331682905555,
+        "p95MS": 0.1614167122170329,
+        "p99MS": 0.1614167122170329,
+        "maxMS": 0.1614167122170329,
+        "over8_3MS": 0,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "scrollOffset": {
+        "count": 120,
+        "p50MS": 0.24979165755212307,
+        "p95MS": 1.0313749662600458,
+        "p99MS": 3.425708331633359,
+        "maxMS": 3.7588750128634274,
+        "over8_3MS": 0,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "uncachedPage": {
+        "count": 6,
+        "p50MS": 62.84058332676068,
+        "p95MS": 66.27937499433756,
+        "p99MS": 66.27937499433756,
+        "maxMS": 66.27937499433756,
+        "over8_3MS": 6,
+        "over100MS": 0
+      },
+      "memoryPressurePage": {
+        "count": 1,
+        "p50MS": 60.9485000022687,
+        "p95MS": 60.9485000022687,
+        "p99MS": 60.9485000022687,
+        "maxMS": 60.9485000022687,
+        "over8_3MS": 1,
+        "over100MS": 0
+      },
+      "resize": {
+        "count": 3,
+        "p50MS": 40.9841249929741,
+        "p95MS": 42.57133335340768,
+        "p99MS": 42.57133335340768,
+        "maxMS": 42.57133335340768,
+        "over8_3MS": 2,
+        "over100MS": 0
+      }
+    },
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T05:16:18.017492+00:00",
+      "samples": 9,
+      "clean": true,
+      "overlappingDeveloperProcesses": [],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "scenario": "native-week-365d-100perday-bounded-tile-ax-cache-0-tile-prefetch-ax-cache",
+    "status": "measured",
+    "acceptance": "fail",
+    "phases": {
+      "coldMount": {
+        "count": 1,
+        "p50MS": 77.00041669886559,
+        "p95MS": 77.00041669886559,
+        "p99MS": 77.00041669886559,
+        "maxMS": 77.00041669886559,
+        "over8_3MS": 1,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "page": {
+        "count": 12,
+        "p50MS": 2.658249984961003,
+        "p95MS": 13.86383333010599,
+        "p99MS": 13.86383333010599,
+        "maxMS": 13.86383333010599,
+        "over8_3MS": 1,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "settledLayout": {
+        "count": 13,
+        "p50MS": 0.057166675105690956,
+        "p95MS": 0.1572916517034173,
+        "p99MS": 0.1572916517034173,
+        "maxMS": 0.1572916517034173,
+        "over8_3MS": 0,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "scrollOffset": {
+        "count": 120,
+        "p50MS": 0.24387502344325185,
+        "p95MS": 1.0042499634437263,
+        "p99MS": 2.8265833389014006,
+        "maxMS": 3.255416639149189,
+        "over8_3MS": 0,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "uncachedPage": {
+        "count": 6,
+        "p50MS": 64.0099166193977,
+        "p95MS": 68.31600004807115,
+        "p99MS": 68.31600004807115,
+        "maxMS": 68.31600004807115,
+        "over8_3MS": 6,
+        "over100MS": 0
+      },
+      "memoryPressurePage": {
+        "count": 1,
+        "p50MS": 60.803000000305474,
+        "p95MS": 60.803000000305474,
+        "p99MS": 60.803000000305474,
+        "maxMS": 60.803000000305474,
+        "over8_3MS": 1,
+        "over100MS": 0
+      },
+      "resize": {
+        "count": 3,
+        "p50MS": 41.543833329342306,
+        "p95MS": 43.71416667709127,
+        "p99MS": 43.71416667709127,
+        "maxMS": 43.71416667709127,
+        "over8_3MS": 2,
+        "over100MS": 0
+      }
+    },
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T05:16:26.494557+00:00",
+      "samples": 8,
+      "clean": true,
+      "overlappingDeveloperProcesses": [],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "scenario": "native-week-365d-300perday-bounded-tile-ax-cache-0-tile-prefetch-budgeted",
+    "status": "measured",
+    "acceptance": "fail",
+    "phases": {
+      "coldMount": {
+        "count": 1,
+        "p50MS": 111.54466669540852,
+        "p95MS": 111.54466669540852,
+        "p99MS": 111.54466669540852,
+        "maxMS": 111.54466669540852,
+        "over8_3MS": 1,
+        "over100MS": 1,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "page": {
+        "count": 12,
+        "p50MS": 6.010708340909332,
+        "p95MS": 15.404291683807969,
+        "p99MS": 15.404291683807969,
+        "maxMS": 15.404291683807969,
+        "over8_3MS": 1,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "settledLayout": {
+        "count": 13,
+        "p50MS": 0.06791664054617286,
+        "p95MS": 0.5729999975301325,
+        "p99MS": 0.5729999975301325,
+        "maxMS": 0.5729999975301325,
+        "over8_3MS": 0,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "scrollOffset": {
+        "count": 120,
+        "p50MS": 0.25908334646373987,
+        "p95MS": 3.502458333969116,
+        "p99MS": 4.576333332806826,
+        "maxMS": 5.2038750145584345,
+        "over8_3MS": 0,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "uncachedPage": {
+        "count": 6,
+        "p50MS": 98.45300001325086,
+        "p95MS": 112.08833329146728,
+        "p99MS": 112.08833329146728,
+        "maxMS": 112.08833329146728,
+        "over8_3MS": 6,
+        "over100MS": 2
+      },
+      "memoryPressurePage": {
+        "count": 1,
+        "p50MS": 91.77408332470804,
+        "p95MS": 91.77408332470804,
+        "p99MS": 91.77408332470804,
+        "maxMS": 91.77408332470804,
+        "over8_3MS": 1,
+        "over100MS": 0
+      },
+      "resize": {
+        "count": 3,
+        "p50MS": 74.67479165643454,
+        "p95MS": 76.23358332784846,
+        "p99MS": 76.23358332784846,
+        "maxMS": 76.23358332784846,
+        "over8_3MS": 2,
+        "over100MS": 0
+      }
+    },
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T05:16:34.503548+00:00",
+      "samples": 9,
+      "clean": true,
+      "overlappingDeveloperProcesses": [],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "scenario": "native-week-365d-300perday-bounded-tile-ax-cache-0-tile-prefetch-ax-cache",
+    "status": "measured",
+    "acceptance": "fail",
+    "phases": {
+      "coldMount": {
+        "count": 1,
+        "p50MS": 124.85137500334531,
+        "p95MS": 124.85137500334531,
+        "p99MS": 124.85137500334531,
+        "maxMS": 124.85137500334531,
+        "over8_3MS": 1,
+        "over100MS": 1,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "page": {
+        "count": 12,
+        "p50MS": 2.138374955393374,
+        "p95MS": 14.169375004712492,
+        "p99MS": 14.169375004712492,
+        "maxMS": 14.169375004712492,
+        "over8_3MS": 1,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "settledLayout": {
+        "count": 13,
+        "p50MS": 0.03791670314967632,
+        "p95MS": 0.08141668513417244,
+        "p99MS": 0.08141668513417244,
+        "maxMS": 0.08141668513417244,
+        "over8_3MS": 0,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "scrollOffset": {
+        "count": 120,
+        "p50MS": 0.2443333505652845,
+        "p95MS": 2.438208321109414,
+        "p99MS": 4.104125022422522,
+        "maxMS": 4.383333318401128,
+        "over8_3MS": 0,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "uncachedPage": {
+        "count": 6,
+        "p50MS": 96.19187499629334,
+        "p95MS": 97.78762498172,
+        "p99MS": 97.78762498172,
+        "maxMS": 97.78762498172,
+        "over8_3MS": 6,
+        "over100MS": 0
+      },
+      "memoryPressurePage": {
+        "count": 1,
+        "p50MS": 92.55066665355116,
+        "p95MS": 92.55066665355116,
+        "p99MS": 92.55066665355116,
+        "maxMS": 92.55066665355116,
+        "over8_3MS": 1,
+        "over100MS": 0
+      },
+      "resize": {
+        "count": 3,
+        "p50MS": 75.036583293695,
+        "p95MS": 75.93041664222255,
+        "p99MS": 75.93041664222255,
+        "maxMS": 75.93041664222255,
+        "over8_3MS": 2,
+        "over100MS": 0
+      }
+    },
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T05:16:43.470168+00:00",
+      "samples": 9,
+      "clean": true,
+      "overlappingDeveloperProcesses": [],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "scenario": "native-week-365d-100perday-bounded-tile-ax-cache-1-tile-prefetch-ax-cache",
+    "status": "measured",
+    "acceptance": "fail",
+    "phases": {
+      "coldMount": {
+        "count": 1,
+        "p50MS": 75.38758328882977,
+        "p95MS": 75.38758328882977,
+        "p99MS": 75.38758328882977,
+        "maxMS": 75.38758328882977,
+        "over8_3MS": 1,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "page": {
+        "count": 12,
+        "p50MS": 2.237458305899054,
+        "p95MS": 11.975208297371864,
+        "p99MS": 11.975208297371864,
+        "maxMS": 11.975208297371864,
+        "over8_3MS": 1,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "settledLayout": {
+        "count": 13,
+        "p50MS": 0.06591668352484703,
+        "p95MS": 0.21458335686475039,
+        "p99MS": 0.21458335686475039,
+        "maxMS": 0.21458335686475039,
+        "over8_3MS": 0,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "scrollOffset": {
+        "count": 120,
+        "p50MS": 0.2369166468270123,
+        "p95MS": 0.7947916747070849,
+        "p99MS": 2.9937916551716626,
+        "maxMS": 3.3088333439081907,
+        "over8_3MS": 0,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "uncachedPage": {
+        "count": 6,
+        "p50MS": 61.494499968830496,
+        "p95MS": 63.091791700571775,
+        "p99MS": 63.091791700571775,
+        "maxMS": 63.091791700571775,
+        "over8_3MS": 6,
+        "over100MS": 0
+      },
+      "memoryPressurePage": {
+        "count": 1,
+        "p50MS": 60.204833338502795,
+        "p95MS": 60.204833338502795,
+        "p99MS": 60.204833338502795,
+        "maxMS": 60.204833338502795,
+        "over8_3MS": 1,
+        "over100MS": 0
+      },
+      "resize": {
+        "count": 3,
+        "p50MS": 42.2235417063348,
+        "p95MS": 44.4514166447334,
+        "p99MS": 44.4514166447334,
+        "maxMS": 44.4514166447334,
+        "over8_3MS": 2,
+        "over100MS": 0
+      }
+    },
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T05:16:51.924033+00:00",
+      "samples": 8,
+      "clean": true,
+      "overlappingDeveloperProcesses": [],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "scenario": "native-week-365d-100perday-bounded-tile-ax-cache-1-tile-prefetch-budgeted",
+    "status": "measured",
+    "acceptance": "fail",
+    "phases": {
+      "coldMount": {
+        "count": 1,
+        "p50MS": 73.03008332382888,
+        "p95MS": 73.03008332382888,
+        "p99MS": 73.03008332382888,
+        "maxMS": 73.03008332382888,
+        "over8_3MS": 1,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "page": {
+        "count": 12,
+        "p50MS": 3.41466668760404,
+        "p95MS": 12.82662496669218,
+        "p99MS": 12.82662496669218,
+        "maxMS": 12.82662496669218,
+        "over8_3MS": 1,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "settledLayout": {
+        "count": 13,
+        "p50MS": 0.06758334347978234,
+        "p95MS": 0.3081666654907167,
+        "p99MS": 0.3081666654907167,
+        "maxMS": 0.3081666654907167,
+        "over8_3MS": 0,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "scrollOffset": {
+        "count": 120,
+        "p50MS": 0.23879169020801783,
+        "p95MS": 1.4459583326242864,
+        "p99MS": 2.932708361186087,
+        "maxMS": 2.9497499926947057,
+        "over8_3MS": 0,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "uncachedPage": {
+        "count": 6,
+        "p50MS": 58.957999979611486,
+        "p95MS": 63.03695833776146,
+        "p99MS": 63.03695833776146,
+        "maxMS": 63.03695833776146,
+        "over8_3MS": 6,
+        "over100MS": 0
+      },
+      "memoryPressurePage": {
+        "count": 1,
+        "p50MS": 58.56887501431629,
+        "p95MS": 58.56887501431629,
+        "p99MS": 58.56887501431629,
+        "maxMS": 58.56887501431629,
+        "over8_3MS": 1,
+        "over100MS": 0
+      },
+      "resize": {
+        "count": 3,
+        "p50MS": 41.38429166050628,
+        "p95MS": 44.89374998956919,
+        "p99MS": 44.89374998956919,
+        "maxMS": 44.89374998956919,
+        "over8_3MS": 2,
+        "over100MS": 0
+      }
+    },
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T05:16:59.845291+00:00",
+      "samples": 9,
+      "clean": true,
+      "overlappingDeveloperProcesses": [],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "scenario": "native-week-365d-300perday-bounded-tile-ax-cache-1-tile-prefetch-ax-cache",
+    "status": "measured",
+    "acceptance": "fail",
+    "phases": {
+      "coldMount": {
+        "count": 1,
+        "p50MS": 108.50145836593583,
+        "p95MS": 108.50145836593583,
+        "p99MS": 108.50145836593583,
+        "maxMS": 108.50145836593583,
+        "over8_3MS": 1,
+        "over100MS": 1,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "page": {
+        "count": 12,
+        "p50MS": 3.9668750250712037,
+        "p95MS": 14.187458320520818,
+        "p99MS": 14.187458320520818,
+        "maxMS": 14.187458320520818,
+        "over8_3MS": 1,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "settledLayout": {
+        "count": 13,
+        "p50MS": 0.06854167440906167,
+        "p95MS": 0.21887500770390034,
+        "p99MS": 0.21887500770390034,
+        "maxMS": 0.21887500770390034,
+        "over8_3MS": 0,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "scrollOffset": {
+        "count": 120,
+        "p50MS": 0.254791637416929,
+        "p95MS": 3.0327500426210463,
+        "p99MS": 5.933375039603561,
+        "maxMS": 6.820750015322119,
+        "over8_3MS": 0,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "uncachedPage": {
+        "count": 6,
+        "p50MS": 93.89629168435931,
+        "p95MS": 95.4080416704528,
+        "p99MS": 95.4080416704528,
+        "maxMS": 95.4080416704528,
+        "over8_3MS": 6,
+        "over100MS": 0
+      },
+      "memoryPressurePage": {
+        "count": 1,
+        "p50MS": 90.59787500882521,
+        "p95MS": 90.59787500882521,
+        "p99MS": 90.59787500882521,
+        "maxMS": 90.59787500882521,
+        "over8_3MS": 1,
+        "over100MS": 0
+      },
+      "resize": {
+        "count": 3,
+        "p50MS": 72.1556666539982,
+        "p95MS": 74.73683333955705,
+        "p99MS": 74.73683333955705,
+        "maxMS": 74.73683333955705,
+        "over8_3MS": 2,
+        "over100MS": 0
+      }
+    },
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T05:17:08.572002+00:00",
+      "samples": 9,
+      "clean": true,
+      "overlappingDeveloperProcesses": [],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "scenario": "native-week-365d-300perday-bounded-tile-ax-cache-1-tile-prefetch-budgeted",
+    "status": "measured",
+    "acceptance": "fail",
+    "phases": {
+      "coldMount": {
+        "count": 1,
+        "p50MS": 111.4314166479744,
+        "p95MS": 111.4314166479744,
+        "p99MS": 111.4314166479744,
+        "maxMS": 111.4314166479744,
+        "over8_3MS": 1,
+        "over100MS": 1,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "page": {
+        "count": 12,
+        "p50MS": 6.109250010922551,
+        "p95MS": 14.398375002201647,
+        "p99MS": 14.398375002201647,
+        "maxMS": 14.398375002201647,
+        "over8_3MS": 1,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "settledLayout": {
+        "count": 13,
+        "p50MS": 0.09454169776290655,
+        "p95MS": 0.22108334815129638,
+        "p99MS": 0.22108334815129638,
+        "maxMS": 0.22108334815129638,
+        "over8_3MS": 0,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "scrollOffset": {
+        "count": 120,
+        "p50MS": 0.23812497965991497,
+        "p95MS": 1.65125000057742,
+        "p99MS": 4.055124998558313,
+        "maxMS": 7.689208316151053,
+        "over8_3MS": 0,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "uncachedPage": {
+        "count": 6,
+        "p50MS": 91.56387503026053,
+        "p95MS": 99.66183337382972,
+        "p99MS": 99.66183337382972,
+        "maxMS": 99.66183337382972,
+        "over8_3MS": 6,
+        "over100MS": 0
+      },
+      "memoryPressurePage": {
+        "count": 1,
+        "p50MS": 91.05745831038803,
+        "p95MS": 91.05745831038803,
+        "p99MS": 91.05745831038803,
+        "maxMS": 91.05745831038803,
+        "over8_3MS": 1,
+        "over100MS": 0
+      },
+      "resize": {
+        "count": 3,
+        "p50MS": 71.4135832968168,
+        "p95MS": 75.1595416222699,
+        "p99MS": 75.1595416222699,
+        "maxMS": 75.1595416222699,
+        "over8_3MS": 2,
+        "over100MS": 0
+      }
+    },
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T05:17:16.976328+00:00",
+      "samples": 9,
+      "clean": true,
+      "overlappingDeveloperProcesses": [],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "scenario": "native-week-365d-100perday-bounded-tile-ax-cache-2-tile-prefetch-budgeted",
+    "status": "measured",
+    "acceptance": "fail",
+    "phases": {
+      "coldMount": {
+        "count": 1,
+        "p50MS": 79.6218749601394,
+        "p95MS": 79.6218749601394,
+        "p99MS": 79.6218749601394,
+        "maxMS": 79.6218749601394,
+        "over8_3MS": 1,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "page": {
+        "count": 12,
+        "p50MS": 3.839041688479483,
+        "p95MS": 11.839624959975481,
+        "p99MS": 11.839624959975481,
+        "maxMS": 11.839624959975481,
+        "over8_3MS": 1,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "settledLayout": {
+        "count": 13,
+        "p50MS": 0.06908329669386148,
+        "p95MS": 0.1854999572969973,
+        "p99MS": 0.1854999572969973,
+        "maxMS": 0.1854999572969973,
+        "over8_3MS": 0,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "scrollOffset": {
+        "count": 120,
+        "p50MS": 0.2581666922196746,
+        "p95MS": 0.8078333339653909,
+        "p99MS": 4.137333366088569,
+        "maxMS": 4.26174997119233,
+        "over8_3MS": 0,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "uncachedPage": {
+        "count": 6,
+        "p50MS": 63.740583369508386,
+        "p95MS": 64.63554163929075,
+        "p99MS": 64.63554163929075,
+        "maxMS": 64.63554163929075,
+        "over8_3MS": 6,
+        "over100MS": 0
+      },
+      "memoryPressurePage": {
+        "count": 1,
+        "p50MS": 60.161625035107136,
+        "p95MS": 60.161625035107136,
+        "p99MS": 60.161625035107136,
+        "maxMS": 60.161625035107136,
+        "over8_3MS": 1,
+        "over100MS": 0
+      },
+      "resize": {
+        "count": 3,
+        "p50MS": 42.05474996706471,
+        "p95MS": 43.57754165539518,
+        "p99MS": 43.57754165539518,
+        "maxMS": 43.57754165539518,
+        "over8_3MS": 2,
+        "over100MS": 0
+      }
+    },
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T05:17:25.364436+00:00",
+      "samples": 9,
+      "clean": true,
+      "overlappingDeveloperProcesses": [],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "scenario": "native-week-365d-100perday-bounded-tile-ax-cache-2-tile-prefetch-ax-cache",
+    "status": "measured",
+    "acceptance": "fail",
+    "phases": {
+      "coldMount": {
+        "count": 1,
+        "p50MS": 77.10658333962783,
+        "p95MS": 77.10658333962783,
+        "p99MS": 77.10658333962783,
+        "maxMS": 77.10658333962783,
+        "over8_3MS": 1,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "page": {
+        "count": 12,
+        "p50MS": 2.165333367884159,
+        "p95MS": 12.737750017549843,
+        "p99MS": 12.737750017549843,
+        "maxMS": 12.737750017549843,
+        "over8_3MS": 1,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "settledLayout": {
+        "count": 13,
+        "p50MS": 0.045249995309859514,
+        "p95MS": 0.07737497799098492,
+        "p99MS": 0.07737497799098492,
+        "maxMS": 0.07737497799098492,
+        "over8_3MS": 0,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "scrollOffset": {
+        "count": 120,
+        "p50MS": 0.2450832980684936,
+        "p95MS": 0.9377916576340795,
+        "p99MS": 3.017958311829716,
+        "maxMS": 6.39900000533089,
+        "over8_3MS": 0,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "uncachedPage": {
+        "count": 6,
+        "p50MS": 63.9787083491683,
+        "p95MS": 67.81466666143388,
+        "p99MS": 67.81466666143388,
+        "maxMS": 67.81466666143388,
+        "over8_3MS": 6,
+        "over100MS": 0
+      },
+      "memoryPressurePage": {
+        "count": 1,
+        "p50MS": 62.1511249919422,
+        "p95MS": 62.1511249919422,
+        "p99MS": 62.1511249919422,
+        "maxMS": 62.1511249919422,
+        "over8_3MS": 1,
+        "over100MS": 0
+      },
+      "resize": {
+        "count": 3,
+        "p50MS": 42.73766663391143,
+        "p95MS": 45.98741664085537,
+        "p99MS": 45.98741664085537,
+        "maxMS": 45.98741664085537,
+        "over8_3MS": 2,
+        "over100MS": 0
+      }
+    },
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T05:17:33.823938+00:00",
+      "samples": 9,
+      "clean": true,
+      "overlappingDeveloperProcesses": [],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "scenario": "native-week-365d-300perday-bounded-tile-ax-cache-2-tile-prefetch-budgeted",
+    "status": "measured",
+    "acceptance": "fail",
+    "phases": {
+      "coldMount": {
+        "count": 1,
+        "p50MS": 107.56412503542379,
+        "p95MS": 107.56412503542379,
+        "p99MS": 107.56412503542379,
+        "maxMS": 107.56412503542379,
+        "over8_3MS": 1,
+        "over100MS": 1,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "page": {
+        "count": 12,
+        "p50MS": 5.5165833327919245,
+        "p95MS": 13.57825001468882,
+        "p99MS": 13.57825001468882,
+        "maxMS": 13.57825001468882,
+        "over8_3MS": 1,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "settledLayout": {
+        "count": 13,
+        "p50MS": 0.06891670636832714,
+        "p95MS": 0.5480833351612091,
+        "p99MS": 0.5480833351612091,
+        "maxMS": 0.5480833351612091,
+        "over8_3MS": 0,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "scrollOffset": {
+        "count": 120,
+        "p50MS": 0.24583330377936363,
+        "p95MS": 1.6438749735243618,
+        "p99MS": 3.8523333496414125,
+        "maxMS": 6.461958342697471,
+        "over8_3MS": 0,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "uncachedPage": {
+        "count": 6,
+        "p50MS": 88.96500000264496,
+        "p95MS": 95.3936250298284,
+        "p99MS": 95.3936250298284,
+        "maxMS": 95.3936250298284,
+        "over8_3MS": 6,
+        "over100MS": 0
+      },
+      "memoryPressurePage": {
+        "count": 1,
+        "p50MS": 90.4676666832529,
+        "p95MS": 90.4676666832529,
+        "p99MS": 90.4676666832529,
+        "maxMS": 90.4676666832529,
+        "over8_3MS": 1,
+        "over100MS": 0
+      },
+      "resize": {
+        "count": 3,
+        "p50MS": 71.97079167235643,
+        "p95MS": 75.70783334085718,
+        "p99MS": 75.70783334085718,
+        "maxMS": 75.70783334085718,
+        "over8_3MS": 2,
+        "over100MS": 0
+      }
+    },
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T05:17:42.287040+00:00",
+      "samples": 9,
+      "clean": true,
+      "overlappingDeveloperProcesses": [],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  },
+  {
+    "scenario": "native-week-365d-300perday-bounded-tile-ax-cache-2-tile-prefetch-ax-cache",
+    "status": "measured",
+    "acceptance": "fail",
+    "phases": {
+      "coldMount": {
+        "count": 1,
+        "p50MS": 112.3046666616574,
+        "p95MS": 112.3046666616574,
+        "p99MS": 112.3046666616574,
+        "maxMS": 112.3046666616574,
+        "over8_3MS": 1,
+        "over100MS": 1,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "page": {
+        "count": 12,
+        "p50MS": 3.6530833458527923,
+        "p95MS": 13.64699995610863,
+        "p99MS": 13.64699995610863,
+        "maxMS": 13.64699995610863,
+        "over8_3MS": 1,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "settledLayout": {
+        "count": 13,
+        "p50MS": 0.07966667180880904,
+        "p95MS": 0.18824997823685408,
+        "p99MS": 0.18824997823685408,
+        "maxMS": 0.18824997823685408,
+        "over8_3MS": 0,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "scrollOffset": {
+        "count": 120,
+        "p50MS": 0.23554166546091437,
+        "p95MS": 1.6604167176410556,
+        "p99MS": 4.104708321392536,
+        "maxMS": 5.553625000175089,
+        "over8_3MS": 0,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "uncachedPage": {
+        "count": 6,
+        "p50MS": 95.36841668887064,
+        "p95MS": 100.68637499352917,
+        "p99MS": 100.68637499352917,
+        "maxMS": 100.68637499352917,
+        "over8_3MS": 6,
+        "over100MS": 1
+      },
+      "memoryPressurePage": {
+        "count": 1,
+        "p50MS": 93.03049999289215,
+        "p95MS": 93.03049999289215,
+        "p99MS": 93.03049999289215,
+        "maxMS": 93.03049999289215,
+        "over8_3MS": 1,
+        "over100MS": 0
+      },
+      "resize": {
+        "count": 3,
+        "p50MS": 74.3134583462961,
+        "p95MS": 78.32629169570282,
+        "p99MS": 78.32629169570282,
+        "maxMS": 78.32629169570282,
+        "over8_3MS": 2,
+        "over100MS": 0
+      }
+    },
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T05:17:50.724631+00:00",
+      "samples": 9,
+      "clean": true,
+      "overlappingDeveloperProcesses": [],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    }
+  }
+]

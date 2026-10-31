@@ -1,0 +1,325 @@
+⚙️  Generating plists...
+⚙️  Generating project...
+⚙️  Writing project...
+Created project at ~/orca/workspaces/gtfuwgth/stingray/Banana.xcodeproj
+error: the following command failed with exit code 0 but produced no further output
+SwiftCompile normal arm64 (in target 'Banana' from project 'Banana')
+~/orca/workspaces/gtfuwgth/stingray/Banana/Model/CloudProgressSync.swift:1149:84: warning: reference to captured var 'records' in concurrently-executing code; this is an error in the Swift 6 language mode [#SendableClosureCaptures]
+1147 |             records[id] = record
+1148 |         }
+1149 |         return await CKSyncEngine.RecordZoneChangeBatch(pendingChanges: changes) { records[$0] }
+     |                                                                                    `- warning: reference to captured var 'records' in concurrently-executing code; this is an error in the Swift 6 language mode [#SendableClosureCaptures]
+1150 |     }
+1151 | 
+
+~/orca/workspaces/gtfuwgth/stingray/Banana/Model/CloudProgressSync.swift:1324:40: warning: conditional cast from 'CKError' to 'CKError' always succeeds
+1322 |     private func resolve(_ failed: CKSyncEngine.Event.SentRecordZoneChanges.FailedRecordSave,
+1323 |                          engine: CKSyncEngine) {
+1324 |         guard let error = failed.error as? CKError, error.code == .serverRecordChanged,
+     |                                        `- warning: conditional cast from 'CKError' to 'CKError' always succeeds
+1325 |               let server = error.serverRecord else {
+1326 |             // Anything else (network, quota, throttle, a real rejection) — CKSyncEngine's own
+
+~/orca/workspaces/gtfuwgth/stingray/Banana/Model/CloudSettingsSync.swift:139:42: warning: conditional cast from 'CKError' to 'CKError' always succeeds
+137 |     private func resolveFailedSave(_ failed: CKSyncEngine.Event.SentRecordZoneChanges.FailedRecordSave,
+138 |                                    syncEngine: CKSyncEngine) {
+139 |         guard let ckError = failed.error as? CKError,
+    |                                          `- warning: conditional cast from 'CKError' to 'CKError' always succeeds
+140 |               ckError.code == .serverRecordChanged,
+141 |               let server = ckError.serverRecord else { return }
+
+~/orca/workspaces/gtfuwgth/stingray/Banana/Model/CloudWellnessSync.swift:371:37: warning: main actor-isolated static property 'recordType' can not be referenced from a nonisolated autoclosure; this is an error in the Swift 6 language mode
+ 29 |     /// item as JSON in `payload`. A new type would need a schema deployment before the first
+ 30 |     /// save could land.
+ 31 |     private static let recordType = "SettingsSnapshot"
+    |                        `- note: static property declared here
+ 32 |     private static let stateKey = "ckSyncEngine.wellness.state"
+ 33 | 
+    :
+369 |         guard let payload else { return nil }
+370 |         let record = systemFields.flatMap(Self.record(fromSystemFields:))
+371 |             ?? CKRecord(recordType: recordType, recordID: id)
+    |                                     `- warning: main actor-isolated static property 'recordType' can not be referenced from a nonisolated autoclosure; this is an error in the Swift 6 language mode
+372 |         record["payload"] = payload as CKRecordValue
+373 |         return record
+
+~/orca/workspaces/gtfuwgth/stingray/Shared/DiagnosticsTracing.swift:211:52: warning: converting non-Sendable function value to '@Sendable () -> Date' may introduce data races
+209 |         maxBytes: Int = 512 * 1024,
+210 |         processSessionID: UUID = UUID(),
+211 |         now: @escaping @Sendable () -> Date = Date.init,
+    |                                                    `- warning: converting non-Sendable function value to '@Sendable () -> Date' may introduce data races
+212 |         uptime: @escaping @Sendable () -> TimeInterval = { ProcessInfo.processInfo.systemUptime }
+213 |     ) {
+
+~/orca/workspaces/gtfuwgth/stingray/Banana/Model/EventPhrase.swift:140:5: warning: 'nonisolated(unsafe)' is unnecessary for a constant with 'Sendable' type 'NSDataDetector?', consider removing it
+138 | 
+139 |     /// Made once: the form reads the title on every keystroke.
+140 |     nonisolated(unsafe) private static let detector = try? NSDataDetector(types: NSTextCheckingResult.CheckingType.date.rawValue)
+    |     `- warning: 'nonisolated(unsafe)' is unnecessary for a constant with 'Sendable' type 'NSDataDetector?', consider removing it
+141 | 
+142 |     struct FoundDate {
+
+~/orca/workspaces/gtfuwgth/stingray/Banana/Model/FitnessStore.swift:175:20: warning: reference to captured var 'mustRefuseSaves' in concurrently-executing code; this is an error in the Swift 6 language mode [#SendableClosureCaptures]
+ 173 |             await MainActor.run { [weak self] in
+ 174 |                 guard let self else { return }
+ 175 |                 if mustRefuseSaves { self.saveIsUnsafe = true }
+     |                    `- warning: reference to captured var 'mustRefuseSaves' in concurrently-executing code; this is an error in the Swift 6 language mode [#SendableClosureCaptures]
+ 176 |                 if self.summaries.isEmpty {
+ 177 |                     self.summaries = decoded
+
+~/orca/workspaces/gtfuwgth/stingray/Banana/Model/FitnessStore.swift:177:38: warning: reference to captured var 'decoded' in concurrently-executing code; this is an error in the Swift 6 language mode [#SendableClosureCaptures]
+ 175 |                 if mustRefuseSaves { self.saveIsUnsafe = true }
+ 176 |                 if self.summaries.isEmpty {
+ 177 |                     self.summaries = decoded
+     |                                      `- warning: reference to captured var 'decoded' in concurrently-executing code; this is an error in the Swift 6 language mode [#SendableClosureCaptures]
+ 178 |                 } else if !decoded.isEmpty {
+ 179 |                     let existing = Set(self.summaries.map(\.id))
+
+~/orca/workspaces/gtfuwgth/stingray/Banana/Model/FitnessStore.swift:178:28: warning: reference to captured var 'decoded' in concurrently-executing code; this is an error in the Swift 6 language mode [#SendableClosureCaptures]
+ 176 |                 if self.summaries.isEmpty {
+ 177 |                     self.summaries = decoded
+ 178 |                 } else if !decoded.isEmpty {
+     |                            `- warning: reference to captured var 'decoded' in concurrently-executing code; this is an error in the Swift 6 language mode [#SendableClosureCaptures]
+ 179 |                     let existing = Set(self.summaries.map(\.id))
+ 180 |                     self.summaries.append(contentsOf: decoded.filter { !existing.contains($0.id) })
+
+~/orca/workspaces/gtfuwgth/stingray/Banana/Model/FitnessStore.swift:180:55: warning: reference to captured var 'decoded' in concurrently-executing code; this is an error in the Swift 6 language mode [#SendableClosureCaptures]
+ 178 |                 } else if !decoded.isEmpty {
+ 179 |                     let existing = Set(self.summaries.map(\.id))
+ 180 |                     self.summaries.append(contentsOf: decoded.filter { !existing.contains($0.id) })
+     |                                                       `- warning: reference to captured var 'decoded' in concurrently-executing code; this is an error in the Swift 6 language mode [#SendableClosureCaptures]
+ 181 |                     self.summaries.sort { $0.start > $1.start }
+ 182 |                 }
+
+~/orca/workspaces/gtfuwgth/stingray/Banana/Model/FitnessStore.swift:190:20: warning: reference to captured var 'droppedCount' in concurrently-executing code; this is an error in the Swift 6 language mode [#SendableClosureCaptures]
+ 188 |                 self.loadWaiters.removeAll()
+ 189 |                 self.backfillDerivedSeriesIfPossible()
+ 190 |                 if droppedCount > 0 { self.logOrphanedSampleFilesIfAny() }
+     |                    `- warning: reference to captured var 'droppedCount' in concurrently-executing code; this is an error in the Swift 6 language mode [#SendableClosureCaptures]
+ 191 |                 LaunchClock.mark("fitness.loaded")
+ 192 |             }
+
+~/orca/workspaces/gtfuwgth/stingray/Banana/Model/FitnessStore.swift:480:34: warning: reference to captured var 'rebuilt' in concurrently-executing code; this is an error in the Swift 6 language mode [#SendableClosureCaptures]
+ 478 |                 var next = self.summaries
+ 479 |                 var changedIDs: [UUID] = []
+ 480 |                 for candidate in rebuilt {
+     |                                  `- warning: reference to captured var 'rebuilt' in concurrently-executing code; this is an error in the Swift 6 language mode [#SendableClosureCaptures]
+ 481 |                     guard let index = next.firstIndex(where: { $0.id == candidate.id }),
+ 482 |                           Self.needsDerivedBackfill(next[index]) else { continue }   // a trim or sync since wins
+
+~/orca/workspaces/gtfuwgth/stingray/Banana/Model/ListenHistory.swift:93:20: warning: reference to captured var 'mustRefuseSaves' in concurrently-executing code; this is an error in the Swift 6 language mode [#SendableClosureCaptures]
+ 91 |             await MainActor.run { [weak self] in
+ 92 |                 guard let self else { return }
+ 93 |                 if mustRefuseSaves { self.saveIsUnsafe = true }
+    |                    `- warning: reference to captured var 'mustRefuseSaves' in concurrently-executing code; this is an error in the Swift 6 language mode [#SendableClosureCaptures]
+ 94 |                 self.finishLoad(loadedEvents, migrateRoutes: shouldMigrate)
+ 95 |             }
+
+~/orca/workspaces/gtfuwgth/stingray/Banana/Model/MailUI/Pure/MailRichText.swift:230:46: warning: trailing closure in this context is confusable with the body of the statement; pass as a parenthesized argument to silence this warning
+228 |         if let signature {
+229 |             html += signature.fragment.html
+230 |             if let text = signature.text.map { Self.plain($0) }, !text.isEmpty { parts.append("-- \n" + text) }
+    |                                              `- warning: trailing closure in this context is confusable with the body of the statement; pass as a parenthesized argument to silence this warning
+231 |         }
+232 |         if let quote {
+
+~/orca/workspaces/gtfuwgth/stingray/Banana/Model/MailUI/Pure/MailRichText.swift:234:42: warning: trailing closure in this context is confusable with the body of the statement; pass as a parenthesized argument to silence this warning
+232 |         if let quote {
+233 |             html += quote.fragment.html
+234 |             if let text = quote.text.map { Self.plain($0) }, !text.isEmpty { parts.append(text) }
+    |                                          `- warning: trailing closure in this context is confusable with the body of the statement; pass as a parenthesized argument to silence this warning
+235 |         }
+236 |         return (html, parts.joined(separator: "\n\n"))
+
+~/orca/workspaces/gtfuwgth/stingray/Banana/Model/MealBacklogProcessor.swift:28:35: warning: main actor-isolated static property 'shared' can not be referenced from a nonisolated context; this is an error in the Swift 6 language mode
+ 26 |     private var recheck: Timer?
+ 27 | 
+ 28 |     init(inbox: MealInboxStore = .shared, photos: MealPhotoStore = .shared) {
+    |                                   `- warning: main actor-isolated static property 'shared' can not be referenced from a nonisolated context; this is an error in the Swift 6 language mode
+ 29 |         self.inbox = inbox
+ 30 |         self.photos = photos
+
+~/orca/workspaces/gtfuwgth/stingray/Banana/Model/MealInboxStore.swift:9:16: note: static property declared here
+  7 | @MainActor
+  8 | final class MealInboxStore: ObservableObject {
+  9 |     static let shared = MealInboxStore()
+    |                `- note: static property declared here
+ 10 | 
+ 11 |     @Published private(set) var items: [MealInboxItem] = []
+
+~/orca/workspaces/gtfuwgth/stingray/Banana/Model/MealBacklogProcessor.swift:28:69: warning: main actor-isolated static property 'shared' can not be referenced from a nonisolated context; this is an error in the Swift 6 language mode
+ 26 |     private var recheck: Timer?
+ 27 | 
+ 28 |     init(inbox: MealInboxStore = .shared, photos: MealPhotoStore = .shared) {
+    |                                                                     `- warning: main actor-isolated static property 'shared' can not be referenced from a nonisolated context; this is an error in the Swift 6 language mode
+ 29 |         self.inbox = inbox
+ 30 |         self.photos = photos
+
+~/orca/workspaces/gtfuwgth/stingray/Banana/Model/MealPhotoStore.swift:10:16: note: static property declared here
+  8 | @MainActor
+  9 | final class MealPhotoStore: ObservableObject {
+ 10 |     static let shared = MealPhotoStore()
+    |                `- note: static property declared here
+ 11 | 
+ 12 |     /// Bumped when a photo arrives or goes, so thumbnails waiting on one redraw.
+
+~/orca/workspaces/gtfuwgth/stingray/Banana/Model/MealBacklogWake.swift:85:87: warning: main actor-isolated static property 'subscriptionID' can not be referenced from a nonisolated context; this is an error in the Swift 6 language mode
+ 20 | @MainActor
+ 21 | enum MealBacklogWake {
+ 22 |     static let subscriptionID = "meals-zone-changes"
+    |                `- note: static property declared here
+ 23 |     private static let subscribedKey = "mealsPush.subscribed.v1"
+ 24 |     private static let registeredKey = "mealsPush.registeredAt"
+    :
+ 83 |     /// Whether a remote notification is the backlog zone's.
+ 84 |     nonisolated static func isMealsPush(_ userInfo: [AnyHashable: Any]) -> Bool {
+ 85 |         CKNotification(fromRemoteNotificationDictionary: userInfo)?.subscriptionID == subscriptionID
+    |                                                                                       `- warning: main actor-isolated static property 'subscriptionID' can not be referenced from a nonisolated context; this is an error in the Swift 6 language mode
+ 86 |     }
+ 87 | 
+
+~/orca/workspaces/gtfuwgth/stingray/Banana/Model/MealInboxStore.swift:20:36: warning: main actor-isolated static property 'shared' can not be referenced from a nonisolated context; this is an error in the Swift 6 language mode
+ 18 | 
+ 19 |     init(fileURL: URL = AppSupport.directory.appendingPathComponent("meal-inbox.json"),
+ 20 |          photos: MealPhotoStore = .shared) {
+    |                                    `- warning: main actor-isolated static property 'shared' can not be referenced from a nonisolated context; this is an error in the Swift 6 language mode
+ 21 |         self.fileURL = fileURL
+ 22 |         self.photos = photos
+
+~/orca/workspaces/gtfuwgth/stingray/Banana/Model/MealPhotoStore.swift:10:16: note: static property declared here
+  8 | @MainActor
+  9 | final class MealPhotoStore: ObservableObject {
+ 10 |     static let shared = MealPhotoStore()
+    |                `- note: static property declared here
+ 11 | 
+ 12 |     /// Bumped when a photo arrives or goes, so thumbnails waiting on one redraw.
+
+~/orca/workspaces/gtfuwgth/stingray/Banana/Views/MealWordsEditor.swift:17:67: warning: '+' was deprecated in iOS 26.0: Use string interpolation on `Text` instead: `Text("Hello \(name)")` [#DeprecatedDeclaration]
+15 |                 } else {
+16 |                     // The pencil follows the last word, however the words wrap.
+17 |                     (Text("\u{201C}\(item.trimmedNote)\u{201D} ") + Text(Image(systemName: "pencil")))
+   |                                                                   `- warning: '+' was deprecated in iOS 26.0: Use string interpolation on `Text` instead: `Text("Hello \(name)")` [#DeprecatedDeclaration]
+18 |                         .lineLimit(3)
+19 |                         .multilineTextAlignment(.leading)
+
+~/orca/workspaces/gtfuwgth/stingray/Banana/Views/PodcastsView.swift:168:13: warning: '+' was deprecated in iOS 26.0: Use string interpolation on `Text` instead: `Text("Hello \(name)")` [#DeprecatedDeclaration]
+166 |         return base + Text(" \u{00B7} ")
+167 |             + Text(Image(systemName: "arrow.down.circle.fill")).foregroundStyle(DS.Palette.success)
+168 |             + Text(" \(downloaded)").foregroundStyle(DS.Palette.success)
+    |             `- warning: '+' was deprecated in iOS 26.0: Use string interpolation on `Text` instead: `Text("Hello \(name)")` [#DeprecatedDeclaration]
+169 |     }
+170 | 
+
+~/orca/workspaces/gtfuwgth/stingray/Banana/Views/PodcastsView.swift:167:13: warning: '+' was deprecated in iOS 26.0: Use string interpolation on `Text` instead: `Text("Hello \(name)")` [#DeprecatedDeclaration]
+165 |         guard downloaded > 0 else { return base }
+166 |         return base + Text(" \u{00B7} ")
+167 |             + Text(Image(systemName: "arrow.down.circle.fill")).foregroundStyle(DS.Palette.success)
+    |             `- warning: '+' was deprecated in iOS 26.0: Use string interpolation on `Text` instead: `Text("Hello \(name)")` [#DeprecatedDeclaration]
+168 |             + Text(" \(downloaded)").foregroundStyle(DS.Palette.success)
+169 |     }
+
+~/orca/workspaces/gtfuwgth/stingray/Banana/Views/PodcastsView.swift:166:21: warning: '+' was deprecated in iOS 26.0: Use string interpolation on `Text` instead: `Text("Hello \(name)")` [#DeprecatedDeclaration]
+164 |         let base = Text(subtitle)
+165 |         guard downloaded > 0 else { return base }
+166 |         return base + Text(" \u{00B7} ")
+    |                     `- warning: '+' was deprecated in iOS 26.0: Use string interpolation on `Text` instead: `Text("Hello \(name)")` [#DeprecatedDeclaration]
+167 |             + Text(Image(systemName: "arrow.down.circle.fill")).foregroundStyle(DS.Palette.success)
+168 |             + Text(" \(downloaded)").foregroundStyle(DS.Palette.success)
+
+~/orca/workspaces/gtfuwgth/stingray/Banana/Views/SettingsView.swift:394:13: warning: variable 'hits' was never mutated; consider changing to 'let' constant [#VariableNeverMutated]
+ 392 | 
+ 393 |     private var searchResults: some View {
+ 394 |         var hits = Self.searchIndex.filter { $0.matches(settingsSearch) }
+     |             `- warning: variable 'hits' was never mutated; consider changing to 'let' constant [#VariableNeverMutated]
+ 395 |         return Section(hits.isEmpty ? "No matches" : "Results") {
+ 396 |             if hits.isEmpty {
+
+~/orca/workspaces/gtfuwgth/stingray/Banana/Model/SkipPlanDetector.swift:26:81: warning: main actor-isolated static property 'shared' can not be referenced from a nonisolated context; this is an error in the Swift 6 language mode
+ 24 |     private let transcripts: TranscriptStore
+ 25 | 
+ 26 |     init(directory: URL = AppSupport.directory, transcripts: TranscriptStore = .shared) {
+    |                                                                                 `- warning: main actor-isolated static property 'shared' can not be referenced from a nonisolated context; this is an error in the Swift 6 language mode
+ 27 |         self.directory = directory
+ 28 |         self.transcripts = transcripts
+
+~/orca/workspaces/gtfuwgth/stingray/Banana/Model/Transcript.swift:70:16: note: static property declared here
+ 68 | @MainActor
+ 69 | final class TranscriptStore: ObservableObject {
+ 70 |     static let shared = TranscriptStore()
+    |                `- note: static property declared here
+ 71 | 
+ 72 |     /// The transcript for the episode currently open in the transcript view.
+
+~/orca/workspaces/gtfuwgth/stingray/Banana/Model/TranscriptCoordinator.swift:309:83: warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+301 |         let base = kept
+302 |         resetPartial(id, to: base)   // trims the rewind window on disk; checkpoints append from here
+303 |         let work = Task.detached(priority: .utility) { () -> [TranscriptWord] in
+    |                                                      |- note: 'self' implicitly strongly captured here
+    |                                                      `- note: add 'self' as a capture list item to silence
+304 |             // From the top, hand the analyzer the original file. Routing through transcribeSegment
+305 |             // would first decode the WHOLE episode into a temp 16k file — a minute of silent work
+    :
+307 |             // continued-processing task expired: "tasks that appear stalled may be forcibly
+308 |             // expired". Only a resume needs a slice cut out of the middle.
+309 |             let checkpointHandler: @Sendable ([TranscriptWord]) -> Void = { [weak self] words in
+    |                                                                                   |- warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+    |                                                                                   `- note: explicitly assign the capture list item to silence
+310 |                 guard self != nil else { return }
+311 |                 Self.appendPartial(id, newWords: words)
+
+~/orca/workspaces/gtfuwgth/stingray/Banana/Model/TranscriptCoordinator.swift:315:92: warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+301 |         let base = kept
+302 |         resetPartial(id, to: base)   // trims the rewind window on disk; checkpoints append from here
+303 |         let work = Task.detached(priority: .utility) { () -> [TranscriptWord] in
+    |                                                      |- note: 'self' implicitly strongly captured here
+    |                                                      `- note: add 'self' as a capture list item to silence
+304 |             // From the top, hand the analyzer the original file. Routing through transcribeSegment
+305 |             // would first decode the WHOLE episode into a temp 16k file — a minute of silent work
+    :
+313 | 
+314 |             if startAt <= 0.01 {
+315 |                 let stageHandler: @Sendable (TranscriptionService.Stage) -> Void = { [weak self] stage in
+    |                                                                                            |- warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+    |                                                                                            `- note: explicitly assign the capture list item to silence
+316 |                     Task { @MainActor in
+317 |                         switch stage {
+
+~/orca/workspaces/gtfuwgth/stingray/Banana/Model/TranscriptCoordinator.swift:344:92: warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+301 |         let base = kept
+302 |         resetPartial(id, to: base)   // trims the rewind window on disk; checkpoints append from here
+303 |         let work = Task.detached(priority: .utility) { () -> [TranscriptWord] in
+    |                                                      |- note: 'self' implicitly strongly captured here
+    |                                                      `- note: add 'self' as a capture list item to silence
+304 |             // From the top, hand the analyzer the original file. Routing through transcribeSegment
+305 |             // would first decode the WHOLE episode into a temp 16k file — a minute of silent work
+    :
+342 |                 }
+343 | 
+344 |                 let stageHandler: @Sendable (TranscriptionService.Stage) -> Void = { [weak self] stage in
+    |                                                                                            |- warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+    |                                                                                            `- note: explicitly assign the capture list item to silence
+345 |                     Task { @MainActor in
+346 |                         switch stage {
+
+~/orca/workspaces/gtfuwgth/stingray/Banana/Views/WeekView.swift:3666:87: warning: 'main' was deprecated in iOS 26.0: Use a UIScreen instance found through context instead (i.e, view.window.windowScene.screen), or for properties like UIScreen.scale with trait equivalents, use a traitCollection found through context. [#DeprecatedDeclaration]
+3664 |             // outside it. The screen width is only the fallback for such a tiny reading: beside
+3665 |             // an iPad sidebar or in a split, the screen is wider than the column.
+3666 |             let measured = geometry.size.width > 100 ? geometry.size.width : UIScreen.main.bounds.width
+     |                                                                                       `- warning: 'main' was deprecated in iOS 26.0: Use a UIScreen instance found through context instead (i.e, view.window.windowScene.screen), or for properties like UIScreen.scale with trait equivalents, use a traitCollection found through context. [#DeprecatedDeclaration]
+3667 |             let dayWidth = dayMode
+3668 |                 ? max(64, measured - timeWidth)
+
+~/orca/workspaces/gtfuwgth/stingray/Banana/Views/Workouts/WorkoutMotionCache.swift:150:20: warning: value 'sampleFileSize' was defined but never used; consider replacing with boolean test [#NoUsage]
+148 |             // still gets returned and held in memory for the rest of this launch; it just never
+149 |             // lands on disk for a future one to find.
+150 |             if let sampleFileSize {
+    |                    `- warning: value 'sampleFileSize' was defined but never used; consider replacing with boolean test [#NoUsage]
+151 |                 await Task.detached(priority: .utility) {
+152 |                     WorkoutMotionDiskCache.save(fresh, to: cacheURL)
+
+[#DeprecatedDeclaration]: <https://docs.swift.org/compiler/documentation/diagnostics/deprecated-declaration>
+[#ImplicitStrongCapture]: <https://docs.swift.org/compiler/documentation/diagnostics/implicit-strong-capture>
+[#NoUsage]: <https://docs.swift.org/compiler/documentation/diagnostics/no-usage>
+[#SendableClosureCaptures]: <https://docs.swift.org/compiler/documentation/diagnostics/sendable-closure-captures>
+[#VariableNeverMutated]: <https://docs.swift.org/compiler/documentation/diagnostics/variable-never-mutated>
+~/orca/workspaces/gtfuwgth/stingray/Banana.xcodeproj: Banana: ld: warning: object file (~/orca/workspaces/gtfuwgth/stingray/.build/stress-dd/Build/Products/Release-iphonesimulator/libneedle.a[2](needle.cpp.o)) was built for newer 'iOS-simulator' version (27.0) than being linked (26.1)

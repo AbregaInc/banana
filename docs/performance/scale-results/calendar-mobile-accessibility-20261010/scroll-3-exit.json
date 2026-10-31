@@ -1,0 +1,18 @@
+{
+  "command": [
+    "xcodebuild",
+    "-xctestrun",
+    ".build/stress-dd/Build/Products/Banana_iphonesimulator27.0-arm64.xctestrun",
+    "-destination",
+    "platform=iOS Simulator,id=7531F6E1-402A-43B8-8418-EFB258F8598D,arch=arm64",
+    "-parallel-testing-enabled",
+    "NO",
+    "-collect-test-diagnostics",
+    "never",
+    "-only-testing:BananaUITests/ScaleStressUITests/testLegacyNativeDayAccessibilityScroll",
+    "-resultBundlePath",
+    ".build/calendar-mobile-accessibility-20261010/scroll-3.xcresult",
+    "test-without-building"
+  ],
+  "exit": 0
+}

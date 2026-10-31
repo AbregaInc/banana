@@ -1,0 +1,10 @@
+1d: 2000 mail, 100 events, 10000 episodes, 1000 notes; peak RSS 298.7 MB
+  memory: PASS (budget 900 MB)
+  mail.firstPage: median=0.00ms p95=1.60ms budget=50ms PASS
+  mail.readMutation: median=0.01ms p95=0.11ms budget=100ms PASS
+  calendar.visibleWeek: median=0.05ms p95=2.73ms budget=16ms PASS
+  calendar.day: median=0.00ms p95=0.80ms budget=8ms PASS
+  notes.search: median=1.32ms p95=1.63ms budget=100ms PASS
+  notes.browse: median=0.60ms p95=0.67ms budget=16ms PASS
+  podcasts.nextAcrossCatalog: median=0.62ms p95=0.80ms budget=100ms PASS
+  podcasts.downloadCandidates: median=0.68ms p95=0.74ms budget=100ms PASS

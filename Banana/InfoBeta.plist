@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>BGTaskSchedulerPermittedIdentifiers</key>
+	<array>
+		<string>com.boris.banana.transcribe.overnight</string>
+		<string>com.boris.banana.feeds.overnight</string>
+		<string>com.boris.banana.transcribe.*</string>
+		<string>com.boris.banana.calendar.refresh</string>
+		<string>com.boris.banana.meals.scan</string>
+		<string>com.boris.banana.meals.estimate.*</string>
+		<string>com.boris.banana.meals.catchup</string>
+	</array>
+	<key>BananaCloudContainer</key>
+	<string>$(BANANA_ICLOUD_CONTAINER_BETA)</string>
+	<key>BananaGoogleServerClient</key>
+	<string>$(BANANA_GOOGLE_SERVER_CLIENT_BETA)</string>
+	<key>BananaPrivateCloudCompute</key>
+	<false/>
+	<key>BananaServiceHost</key>
+	<string>$(BANANA_SERVICE_HOST_BETA)</string>
+	<key>BananaTeamID</key>
+	<string>$(DEVELOPMENT_TEAM)</string>
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>CFBundleDisplayName</key>
+	<string>Banana Beta</string>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>$(PRODUCT_NAME)</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>$(MARKETING_VERSION)</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.$(BANANA_GOOGLE_CLIENT_BETA)</string>
+				<string>banananotebeta</string>
+			</array>
+		</dict>
+	</array>
+	<key>CFBundleVersion</key>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>GIDClientID</key>
+	<string>$(BANANA_GOOGLE_CLIENT_BETA).apps.googleusercontent.com</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+	<key>NSAlarmKitUsageDescription</key>
+	<string>Banana Beta schedules alarms so it can wake you at the times you turn on — ringing through silent mode and Focus, even when the app is closed.</string>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+	</dict>
+	<key>NSAppleMusicUsageDescription</key>
+	<string>Banana Beta plays a playlist, album, or song from your Apple Music library as your wake-up sound after an alarm.</string>
+	<key>NSBonjourServices</key>
+	<array>
+		<string>_banana-beta._tcp</string>
+	</array>
+	<key>NSCameraUsageDescription</key>
+	<string>Banana Beta uses the camera only when you choose to photograph a meal or a supplement label, or scan a food or supplement barcode.</string>
+	<key>NSContactsUsageDescription</key>
+	<string>Banana Beta looks up the people you type when adding guests to an event, so “Lunch with Sam” can invite the Sam you mean.</string>
+	<key>NSHealthShareUsageDescription</key>
+	<string>Banana Beta reads your workouts and health metrics from Apple Health so it can show and analyze your fitness in one place.</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>Banana Beta saves workouts recorded with Banana to Apple Health and updates them when you trim a workout.</string>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>Banana Beta finds your other Banana devices on this Wi-Fi.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Banana Beta notes where you arrive and leave — only when you turn on Learn from my trips — so travel times match how long your trips really take.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Banana Beta uses your location for your local forecast and travel estimates.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Banana Beta records quick voice notes.</string>
+	<key>NSMotionUsageDescription</key>
+	<string>Banana Beta reads whether you were on foot or in a vehicle — only when you turn on Learn from my trips.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Banana Beta looks for photos of meals — only when you turn on Find meal photos automatically — so it can ask what you ate and log it.</string>
+	<key>NSRemindersFullAccessUsageDescription</key>
+	<string>Banana Beta reads your reminders on-device so it can schedule tasks onto your day.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Banana Beta transcribes downloaded episodes on your device.</string>
+	<key>NSSupportsLiveActivities</key>
+	<true/>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>audio</string>
+		<string>processing</string>
+		<string>fetch</string>
+		<string>location</string>
+		<string>remote-notification</string>
+	</array>
+	<key>UILaunchScreen</key>
+	<dict>
+		<key>UIColorName</key>
+		<string>LaunchBackground</string>
+	</dict>
+	<key>UISupportedInterfaceOrientations</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+	<key>UISupportedInterfaceOrientations~ipad</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+</dict>
+</plist>

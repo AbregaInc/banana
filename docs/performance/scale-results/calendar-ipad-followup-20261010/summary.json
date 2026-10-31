@@ -1,0 +1,85 @@
+{
+  "scope": "Same physical stress app binary; runner-only SpringBoard idle policy experiment. Not a renderer speedup or input acceptance.",
+  "device": "<device-udid>",
+  "os": "27.0.1",
+  "results": {
+    "day": {
+      "path": ".build/merged-device-regression-20261010/ipad-priority/idle-policy-day-trace",
+      "verdict": "fail",
+      "appHitchRows": 12,
+      "timings": {
+        "appUpdates": {
+          "count": 485,
+          "p50MS": 2.006875,
+          "p95MS": 10.251666,
+          "p99MS": 32.385333,
+          "maxMS": 53.991958,
+          "over8_3MS": 34
+        },
+        "associatedRenders": {
+          "count": 554,
+          "p50MS": 2.767375,
+          "p95MS": 8.465166,
+          "p99MS": 8.832375,
+          "maxMS": 24.329125,
+          "over8_3MS": 45
+        },
+        "associatedFrameLifetimes": {
+          "count": 472,
+          "p50MS": 16.678541,
+          "p95MS": 25.01725,
+          "p99MS": 45.863458,
+          "maxMS": 66.701458,
+          "over8_3MS": 472
+        },
+        "associatedGPU": {
+          "count": 472,
+          "p50MS": 1.614625,
+          "p95MS": 1.693708,
+          "p99MS": 2.964,
+          "maxMS": 3.154666,
+          "over8_3MS": 0
+        }
+      }
+    },
+    "week": {
+      "path": ".build/merged-device-regression-20261010/ipad-priority/idle-policy-week-trace",
+      "verdict": "fail",
+      "appHitchRows": 3,
+      "timings": {
+        "appUpdates": {
+          "count": 494,
+          "p50MS": 1.569375,
+          "p95MS": 5.744583,
+          "p99MS": 7.459916,
+          "maxMS": 77.399583,
+          "over8_3MS": 3
+        },
+        "associatedRenders": {
+          "count": 564,
+          "p50MS": 3.114666,
+          "p95MS": 8.861041,
+          "p99MS": 10.227625,
+          "maxMS": 12.293416,
+          "over8_3MS": 148
+        },
+        "associatedFrameLifetimes": {
+          "count": 494,
+          "p50MS": 25.009833,
+          "p95MS": 25.017083,
+          "p99MS": 33.348125,
+          "maxMS": 91.71625,
+          "over8_3MS": 494
+        },
+        "associatedGPU": {
+          "count": 494,
+          "p50MS": 1.648666,
+          "p95MS": 1.73,
+          "p99MS": 3.171666,
+          "maxMS": 3.522041,
+          "over8_3MS": 0
+        }
+      }
+    }
+  }
+}

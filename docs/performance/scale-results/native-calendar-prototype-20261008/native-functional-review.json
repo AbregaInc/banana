@@ -1,0 +1,56 @@
+{
+  "date": "2026-10-08",
+  "authorization": "User left computer and explicitly authorized continued foreground testing",
+  "buildCommit": "e6443ea",
+  "method": "CUA native visible window; no gesture wall time used as latency evidence",
+  "checks": [
+    {
+      "renderer": "canvas",
+      "eventsPerDay": 100,
+      "historyDays": 365,
+      "observations": [
+        "Visible hourly grid and events at start and end of day",
+        "Scroll down/up moved viewport and refreshed event children",
+        "Next changed Oct 8 to Oct 13; Previous returned Oct 8",
+        "Event activation after scroll/page selected 4:24-73",
+        "Clear cache returned correct current date and content"
+      ]
+    },
+    {
+      "renderer": "raster",
+      "eventsPerDay": 300,
+      "historyDays": 365,
+      "observations": [
+        "Visible hourly grid/event orientation matched time axis",
+        "Scroll down/up moved visible hours",
+        "Next/Previous changed date correctly",
+        "Mouse selection selected 0:20-190",
+        "Visible content present after cache clear"
+      ],
+      "gap": "No event children in CUA accessibility snapshot"
+    },
+    {
+      "renderer": "raster",
+      "eventsPerDay": 100,
+      "historyDays": 365,
+      "observations": [
+        "CUA exposes event children",
+        "Event activation selected 4:19-55"
+      ]
+    },
+    {
+      "renderer": "canvas",
+      "eventsPerDay": 300,
+      "historyDays": 365,
+      "gap": "No event children in CUA accessibility snapshot; same density-dependent observation as raster"
+    }
+  ],
+  "limitations": [
+    "Dense overlap titles unreadable; no overflow/expansion UX",
+    "Snapshot absence does not establish whether app or inspection layer loses dense accessibility children",
+    "Screenshots after recovery do not prove absence of a transient blank frame; retained component retention tests cover active layer contents",
+    "No input-to-visible/display delivery/refresh correlation measurement",
+    "No VoiceOver, keyboard, drag/edit or physical iOS acceptance"
+  ],
+  "testProcessesClosed": true
+}

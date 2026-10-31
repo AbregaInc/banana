@@ -1,0 +1,30 @@
+{
+  "scope": "Native UI functional observation probe; no latency claim",
+  "app": ".build/mac-stress-previews/20261009-002826-085329/Banana Stress Review.app",
+  "flags": [
+    "--calendar-observation-audit",
+    "--calendar-observation-fix"
+  ],
+  "steps": [
+    {
+      "action": "initial",
+      "visiblePalette": "FF0000"
+    },
+    {
+      "action": "click calendar.audit.changePalette",
+      "visiblePalette": "00FF00",
+      "heading": "Oct 9\u201313, 2026"
+    },
+    {
+      "action": "click again",
+      "visiblePalette": "FF0000",
+      "heading": "Oct 9\u201313, 2026"
+    }
+  ],
+  "result": "pass: both updates visible without navigation",
+  "additionalChecks": [
+    "Overflow popover visibly anchored beneath its day button",
+    "Popover AX Scroll Down changes scrollbar from 0 to 0.1; wheel route still pending XCTest",
+    "Calendar wheel scroll visibly moves first hour from 7 AM to 1 PM"
+  ]
+}

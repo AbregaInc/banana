@@ -1,0 +1,25 @@
+sqlite 3.51.0, FTS5=1, threadsafe=2
+build: 200024 messages in 69845 threads, indexed text 761.2 MB, 29.5 s  (6781 msg/s, newest-first inserts, 50 per transaction, NO FTS in this file)
+  ingest transaction of ~50 messages (thread rows, labels, views, counters): n=3489 p50=5.368 ms p95=25.625 ms p99=28.718 ms max=44.730 ms
+  WAL before checkpoint: 3.1 MB
+  checkpoint(TRUNCATE): 20.0 ms
+  index.sqlite: 135.3 MB
+  rows: message=200024 thread=69845 message_label=281834 view_thread=315325
+  unified inbox threads=1442 unread there=706; unified all mail threads=69288 unread there=10284
+  bytes by b-tree:
+    message: 72.6 MB
+    thread: 19.3 MB
+    view_thread: 9.7 MB
+    correspondent_key: 7.8 MB
+    sqlite_autoindex_message_1: 5.6 MB
+    message_by_fts: 4.8 MB
+    message_by_thread: 4.0 MB
+    message_label: 3.1 MB
+    message_label_by_label: 3.1 MB
+    correspondent: 2.2 MB
+    sqlite_autoindex_thread_1: 1.9 MB
+    view_thread_unread: 1.3 MB
+    label: 0.0 MB
+    view_count: 0.0 MB
+    sqlite_schema: 0.0 MB
+    sqlite_autoindex_label_1: 0.0 MB

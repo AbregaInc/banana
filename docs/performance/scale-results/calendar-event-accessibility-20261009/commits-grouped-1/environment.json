@@ -1,0 +1,11 @@
+{
+  "timestamp": "2026-10-09T03:34:54.563029-04:00",
+  "platform": "macOS-26.6.2-arm64-arm-64bit",
+  "pid": 17265,
+  "git": "1ec98308c8e408e3910cea8b38ce16a44d0889cf",
+  "dirty": "?? docs/performance/scale-results/calendar-event-accessibility-20261009/frame-instrument-probes/\n",
+  "load": "3:34  up 4 days,  1:39, 31 users, load averages: 34.57 35.79 53.78",
+  "scenario": "Single native accessibility element per event; same Release+DEBUG binary, fresh process, built-in display configured120Hz; 180k mail/36500 events. Four alternating half-page down/up pairs, four J then four K; AX after each pair/key. No audit footer.",
+  "executable": "~/orca/workspaces/gtfuwgth/stingray/.build/mac-stress-previews/20261009-033327-838981/Banana Stress Review.app/Contents/MacOS/Banana Beta",
+  "binarySHA256": "4303ef096e52698f258af4df7a601afced917c02fea5416e8baac17738a02954"
+}

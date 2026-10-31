@@ -1,0 +1,67 @@
+{
+  "device": "<device-udid>",
+  "fixture": "varied-v1",
+  "seed": "20261009",
+  "binarySHA256": "10e4d2cea9cb53902f5cf10df17ae44a5683ff0a58f128327e5daef1f1eb9ad5",
+  "scope": "Physical-device offscreen concurrent pixels; UI/frame/input latency unmeasured",
+  "memoRasterText": true,
+  "cases": [
+    {
+      "density": 100,
+      "pixelBuffer": false,
+      "batchEventFills": false,
+      "status": "passed",
+      "checks": 96
+    },
+    {
+      "density": 100,
+      "pixelBuffer": false,
+      "batchEventFills": true,
+      "status": "passed",
+      "checks": 96
+    },
+    {
+      "density": 100,
+      "pixelBuffer": true,
+      "batchEventFills": false,
+      "status": "passed",
+      "checks": 96
+    },
+    {
+      "density": 100,
+      "pixelBuffer": true,
+      "batchEventFills": true,
+      "status": "passed",
+      "checks": 96
+    },
+    {
+      "density": 300,
+      "pixelBuffer": false,
+      "batchEventFills": false,
+      "status": "passed",
+      "checks": 96
+    },
+    {
+      "density": 300,
+      "pixelBuffer": false,
+      "batchEventFills": true,
+      "status": "passed",
+      "checks": 96
+    },
+    {
+      "density": 300,
+      "pixelBuffer": true,
+      "batchEventFills": false,
+      "status": "passed",
+      "checks": 96
+    },
+    {
+      "density": 300,
+      "pixelBuffer": true,
+      "batchEventFills": true,
+      "status": "passed",
+      "checks": 96
+    }
+  ],
+  "status": "passed"
+}

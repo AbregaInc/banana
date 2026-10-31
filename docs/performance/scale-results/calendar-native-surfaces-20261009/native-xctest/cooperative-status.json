@@ -1,0 +1,24 @@
+{
+  "exitCode": 0,
+  "command": [
+    "xcodebuild",
+    "test-without-building",
+    "-project",
+    "Banana.xcodeproj",
+    "-scheme",
+    "BananaNativePerformanceUITests",
+    "-configuration",
+    "Release",
+    "-destination",
+    "platform=macOS,arch=arm64",
+    "-derivedDataPath",
+    ".build/native-ui-test-dd",
+    "-resultBundlePath",
+    ".build/native-ui-performance/calendar-prototype-20261009/cooperative-ui.xcresult",
+    "-parallel-testing-enabled",
+    "NO",
+    "-collect-test-diagnostics",
+    "never",
+    "-only-testing:BananaNativePerformanceUITests/CalendarPrototypeInteractionTests"
+  ]
+}

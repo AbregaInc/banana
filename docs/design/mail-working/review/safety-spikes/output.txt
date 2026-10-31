@@ -1,0 +1,30 @@
+sqlite: 3.51.0 2025-06-12
+== mode 1: SIGKILL between the intent commit and the index commit (3 runs) ==
+child signalled 'intent committed' then was SIGKILLed; status=killed by SIGKILL
+after reopen: intent.label_intent=2 intent.action_group=1 | index.overlay=0 index.thread.labels=',1,' index.thread.pending=0
+index is BEHIND the intent
+what the design does about it (6.4): overlay is emptied and refilled from label_intent at launch -> overlay rows become 2, thread row re-summarised
+exit=0
+child signalled 'intent committed' then was SIGKILLed; status=killed by SIGKILL
+after reopen: intent.label_intent=2 intent.action_group=1 | index.overlay=0 index.thread.labels=',1,' index.thread.pending=0
+index is BEHIND the intent
+what the design does about it (6.4): overlay is emptied and refilled from label_intent at launch -> overlay rows become 2, thread row re-summarised
+exit=0
+child signalled 'intent committed' then was SIGKILLed; status=killed by SIGKILL
+after reopen: intent.label_intent=2 intent.action_group=1 | index.overlay=0 index.thread.labels=',1,' index.thread.pending=0
+index is BEHIND the intent
+what the design does about it (6.4): overlay is emptied and refilled from label_intent at launch -> overlay rows become 2, thread row re-summarised
+exit=0
+
+== mode 2: 2xx handler vs a newer assertion for the same key ==
+primary-key-only 2xx handler:
+  archive sent, in flight                      want=0 seq=5 state=1 (in flight)
+  undo accepted (overwrites the key)           want=1 seq=6 state=0 (pending)
+  archive's 2xx handled                        want=1 seq=6 state=2 (settling)
+  -> the undo (want INBOX present) is marked settling: it will be deleted after its echo window and was NEVER SENT. Gmail keeps the archive; this device shows the conversation back in the inbox until the overlay row is dropped, then it vanishes. The undo is lost.
+seq-guarded 2xx handler:
+  archive sent, in flight                      want=0 seq=5 state=1 (in flight)
+  undo accepted (overwrites the key)           want=1 seq=6 state=0 (pending)
+  archive's 2xx handled                        want=1 seq=6 state=0 (pending)
+  -> the undo stays pending (want=1, state=0) and is delivered on the next drain. Correct.
+exit=0

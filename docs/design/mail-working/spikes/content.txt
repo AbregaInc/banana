@@ -1,0 +1,11 @@
+prepare pass:   8837 bytes in,   8620 out,  146 tags,  25 URLs rewritten — p50 0.021 ms p95 0.021 ms (402 MB/s)
+  zlib: 8837 → 1086 bytes (8.1×; synthetic markup, real mail differs) — compress p50 0.032 ms, decompress p50 0.010 ms
+  lzfse: 8837 → 1160 bytes (7.6×; synthetic markup, real mail differs) — compress p50 0.046 ms, decompress p50 0.010 ms
+prepare pass:  62907 bytes in,  62634 out,  978 tags, 181 URLs rewritten — p50 0.187 ms p95 0.261 ms (321 MB/s)
+  zlib: 62907 → 2165 bytes (29.1×; synthetic markup, real mail differs) — compress p50 0.122 ms, decompress p50 0.017 ms
+  lzfse: 62907 → 1841 bytes (34.2×; synthetic markup, real mail differs) — compress p50 0.186 ms, decompress p50 0.010 ms
+prepare pass: 261257 bytes in, 260634 out, 4018 tags, 751 URLs rewritten — p50 0.601 ms p95 0.635 ms (415 MB/s)
+  zlib: 261257 → 5828 bytes (44.8×; synthetic markup, real mail differs) — compress p50 0.643 ms, decompress p50 0.054 ms
+  lzfse: 261257 → 4873 bytes (53.6×; synthetic markup, real mail differs) — compress p50 0.685 ms, decompress p50 0.033 ms
+base64url, whole 25 MB in memory with Foundation (string + Data both alive: ~91 MB peak): p50 458 ms
+base64url, streamed in 64 KB chunks through a table decoder (64 KB peak): p50 37 ms (682 MB/s of decoded bytes)

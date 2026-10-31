@@ -1,0 +1,46 @@
+{
+  "status": "pass",
+  "cases": {
+    "rotation-0": {
+      "pass": true,
+      "expectedPublicationWarning": true,
+      "publicationWarnings": 1,
+      "result": "Passed",
+      "passedTests": 1,
+      "skippedTests": 0
+    },
+    "rotation-1": {
+      "pass": true,
+      "expectedPublicationWarning": false,
+      "publicationWarnings": 0,
+      "result": "Passed",
+      "passedTests": 1,
+      "skippedTests": 0
+    },
+    "rotation-2": {
+      "pass": true,
+      "expectedPublicationWarning": false,
+      "publicationWarnings": 0,
+      "result": "Passed",
+      "passedTests": 1,
+      "skippedTests": 0
+    },
+    "rotation-3": {
+      "pass": true,
+      "expectedPublicationWarning": true,
+      "publicationWarnings": 1,
+      "result": "Passed",
+      "passedTests": 1,
+      "skippedTests": 0
+    },
+    "integration": {
+      "pass": true,
+      "expectedPublicationWarning": false,
+      "publicationWarnings": 0,
+      "result": "Passed",
+      "passedTests": 3,
+      "skippedTests": 0
+    }
+  },
+  "scope": "Functional Simulator header delivery/warnings; not physical latency acceptance"
+}

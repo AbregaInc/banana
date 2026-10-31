@@ -1,0 +1,86 @@
+{
+  "traceSHA256": "ad4c2916338a18b50a1651cc92c5bb22b5b91ae6b827bef67f5a1bfc39578785",
+  "tracePath": ".build/calendar-agenda-accessibility-20261010/cold-query-stack-10ms/sample.txt",
+  "intervalMS": 10,
+  "durationSeconds": 45,
+  "scope": "Aggregated samples over fixture setup and all seven calls per metric; not per-call trace timing or UI acceptance",
+  "findings": [
+    "Measured Notes search enters NoteRepository.page count(*) at line 146; its SQLite path contains pread samples.",
+    "Measured Podcast.nextEpisode/selectedEpisodes and nextUnplayed/selectedEpisodes enter PodcastCatalog.page payload fetch at line 185; SQLite pager reads contain pread samples."
+  ],
+  "selectedFrames": [
+    {
+      "line": 5556,
+      "frame": "+ ! :         | 63 ScaleStress.prepare(library:clock:)  (in Banana) + 1356  [0x103180238]  ScaleStress.swift:204"
+    },
+    {
+      "line": 5558,
+      "frame": "+ ! :         | +   63 closure #12 in ScaleStress.prepare(library:clock:)  (in Banana) + 308  [0x103187608]  ScaleStress.swift:205"
+    },
+    {
+      "line": 5588,
+      "frame": "+ ! :         | +     !                                     :   |               46 closure #2 in PodcastCatalog.page(_:newest:reverseTies:offset:limit:)  (in Banana) + 424  [0x103088eb4]  PodcastCatalog.swift:185"
+    },
+    {
+      "line": 5603,
+      "frame": "+ ! :         | +     !                                     :   |               + !       : |         +       25 pread  (in libsystem_kernel.dylib) + 8  [0x10729234c]"
+    },
+    {
+      "line": 5631,
+      "frame": "+ ! :         | +     !                                     :   |               + !       :       +       5 pread  (in libsystem_kernel.dylib) + 8  [0x10729234c]"
+    },
+    {
+      "line": 5673,
+      "frame": "+ ! :         | +     !                                     :   |               10 closure #2 in PodcastCatalog.page(_:newest:reverseTies:offset:limit:)  (in Banana) + 680  [0x103088fb4]  PodcastCatalog.swift:185"
+    },
+    {
+      "line": 5817,
+      "frame": "+ ! :         | 42 ScaleStress.prepare(library:clock:)  (in Banana) + 1312  [0x10318020c]  ScaleStress.swift:201"
+    },
+    {
+      "line": 5819,
+      "frame": "+ ! :         | +   42 closure #11 in ScaleStress.prepare(library:clock:)  (in Banana) + 392  [0x1031872b4]  ScaleStress.swift:202"
+    },
+    {
+      "line": 5850,
+      "frame": "+ ! :         | +       !             :                       |   +               35 closure #2 in PodcastCatalog.page(_:newest:reverseTies:offset:limit:)  (in Banana) + 424  [0x103088eb4]  PodcastCatalog.swift:185"
+    },
+    {
+      "line": 5870,
+      "frame": "+ ! :         | +       !             :                       |   +               ! :     | + !         1 pread  (in libsystem_kernel.dylib) + 8  [0x10729234c]"
+    },
+    {
+      "line": 5878,
+      "frame": "+ ! :         | +       !             :                       |   +               ! :     | + !             8 pread  (in libsystem_kernel.dylib) + 8  [0x10729234c]"
+    },
+    {
+      "line": 5888,
+      "frame": "+ ! :         | +       !             :                       |   +               ! :     | +     :     |       5 pread  (in libsystem_kernel.dylib) + 8  [0x10729234c]"
+    },
+    {
+      "line": 5959,
+      "frame": "+ ! :         | +       !             :                       |   +               2 closure #2 in PodcastCatalog.page(_:newest:reverseTies:offset:limit:)  (in Banana) + 680  [0x103088fb4]  PodcastCatalog.swift:185"
+    },
+    {
+      "line": 6010,
+      "frame": "+ ! :         | 37 ScaleStress.prepare(library:clock:)  (in Banana) + 1220  [0x1031801b0]  ScaleStress.swift:195"
+    },
+    {
+      "line": 6039,
+      "frame": "+ ! :         | +                                                         34 closure #1 in NoteRepository.page(search:archived:offset:limit:)  (in Banana) + 1024  [0x102f3d814]  NoteRepository.swift:146"
+    },
+    {
+      "line": 6096,
+      "frame": "+ ! :         | +                                                         !             :   | +             7 pread  (in libsystem_kernel.dylib) + 8  [0x10729234c]"
+    },
+    {
+      "line": 6106,
+      "frame": "+ ! :         | +                                                         !             :   |             3 pread  (in libsystem_kernel.dylib) + 8  [0x10729234c]"
+    },
+    {
+      "line": 6119,
+      "frame": "+ ! :         | +                                                         !             : |             1 pread  (in libsystem_kernel.dylib) + 8  [0x10729234c]"
+    }
+  ],
+  "firstCapture": "The 25-second, 1 ms capture ended during fixture construction without a model report; retained as incomplete diagnostic, not query evidence."
+}

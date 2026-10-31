@@ -1,0 +1,67 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild test-without-building -xctestrun .build/calendar-varied-fix/app-regression/derived-data/Build/Products/Banana_iphonesimulator27.0-arm64.xctestrun -destination "platform=iOS Simulator,id=5829A24D-81B4-49D9-A31A-C7553C32D527" "-only-testing:BananaTests/PodcastCatalogTests" "-only-testing:BananaTests/NoteRepositoryTests" "-only-testing:BananaTests/NarratorVoiceFilterTests" -parallel-testing-enabled NO -resultBundlePath .build/query-performance-20261009/correctness.xcresult
+
+Writing result bundle at path:
+	~/orca/workspaces/gtfuwgth/stingray/.build/query-performance-20261009/correctness.xcresult
+
+Test Suite 'Selected tests' started at 2026-10-09 12:23:16.996.
+Test Suite 'BananaTests.xctest' started at 2026-10-09 12:23:16.997.
+Test Suite 'NarratorVoiceFilterTests' started at 2026-10-09 12:23:16.997.
+Test Case '-[BananaTests.NarratorVoiceFilterTests testACreditedEpisodeIsFilteredByItsNarratorsVoice]' started.
+Test Case '-[BananaTests.NarratorVoiceFilterTests testACreditedEpisodeIsFilteredByItsNarratorsVoice]' passed (0.004 seconds).
+Test Case '-[BananaTests.NarratorVoiceFilterTests testACreditedNameStillFiltersWhenMutedByName]' started.
+Test Case '-[BananaTests.NarratorVoiceFilterTests testACreditedNameStillFiltersWhenMutedByName]' passed (0.001 seconds).
+Test Case '-[BananaTests.NarratorVoiceFilterTests testAGenderMuteAppliesToACreditedNarrator]' started.
+Test Case '-[BananaTests.NarratorVoiceFilterTests testAGenderMuteAppliesToACreditedNarrator]' passed (0.001 seconds).
+Test Case '-[BananaTests.NarratorVoiceFilterTests testANarratorWithNoVerdictYetIsNotMuted]' started.
+Test Case '-[BananaTests.NarratorVoiceFilterTests testANarratorWithNoVerdictYetIsNotMuted]' passed (0.001 seconds).
+Test Case '-[BananaTests.NarratorVoiceFilterTests testAnExplicitNameMuteStillWins]' started.
+Test Case '-[BananaTests.NarratorVoiceFilterTests testAnExplicitNameMuteStillWins]' passed (0.000 seconds).
+Test Case '-[BananaTests.NarratorVoiceFilterTests testAnUncreditedEpisodeIsFilteredByItsVoice]' started.
+Test Case '-[BananaTests.NarratorVoiceFilterTests testAnUncreditedEpisodeIsFilteredByItsVoice]' passed (0.010 seconds).
+Test Case '-[BananaTests.NarratorVoiceFilterTests testAVoiceFilterAppliesToANarratorNeverSeenBefore]' started.
+Test Case '-[BananaTests.NarratorVoiceFilterTests testAVoiceFilterAppliesToANarratorNeverSeenBefore]' passed (0.000 seconds).
+Test Case '-[BananaTests.NarratorVoiceFilterTests testNextUnplayedSkipsMutedVoices]' started.
+Test Case '-[BananaTests.NarratorVoiceFilterTests testNextUnplayedSkipsMutedVoices]' passed (0.001 seconds).
+Test Case '-[BananaTests.NarratorVoiceFilterTests testNoReadingMeansNoFiltering]' started.
+Test Case '-[BananaTests.NarratorVoiceFilterTests testNoReadingMeansNoFiltering]' passed (0.000 seconds).
+Test Case '-[BananaTests.NarratorVoiceFilterTests testOneVerdictCoversEveryEpisodeByThatNarrator]' started.
+Test Case '-[BananaTests.NarratorVoiceFilterTests testOneVerdictCoversEveryEpisodeByThatNarrator]' passed (0.006 seconds).
+Test Case '-[BananaTests.NarratorVoiceFilterTests testTurningTheFilterOffOffersEverythingAgain]' started.
+Test Case '-[BananaTests.NarratorVoiceFilterTests testTurningTheFilterOffOffersEverythingAgain]' passed (0.000 seconds).
+Test Suite 'NarratorVoiceFilterTests' passed at 2026-10-09 12:23:17.023.
+	 Executed 11 tests, with 0 failures (0 unexpected) in 0.023 (0.026) seconds
+Test Suite 'NoteRepositoryTests' started at 2026-10-09 12:23:17.023.
+Test Case '-[BananaTests.NoteRepositoryTests testContextSearchPendingAndMissingExcerptIndexes]' started.
+Test Case '-[BananaTests.NoteRepositoryTests testContextSearchPendingAndMissingExcerptIndexes]' passed (0.015 seconds).
+Test Case '-[BananaTests.NoteRepositoryTests testMalformedMigrationRollsBackAndCanRetry]' started.
+Test Case '-[BananaTests.NoteRepositoryTests testMalformedMigrationRollsBackAndCanRetry]' passed (0.010 seconds).
+Test Case '-[BananaTests.NoteRepositoryTests testMigrationPagingLocalizedSearchAndDurableEdits]' started.
+Test Case '-[BananaTests.NoteRepositoryTests testMigrationPagingLocalizedSearchAndDurableEdits]' passed (0.024 seconds).
+Test Case '-[BananaTests.NoteRepositoryTests testSearchPrefilterMatchesFoundationForUnicodeAndControlCharacters]' started.
+Test Case '-[BananaTests.NoteRepositoryTests testSearchPrefilterMatchesFoundationForUnicodeAndControlCharacters]' passed (0.008 seconds).
+Test Suite 'NoteRepositoryTests' passed at 2026-10-09 12:23:17.082.
+	 Executed 4 tests, with 0 failures (0 unexpected) in 0.057 (0.059) seconds
+Test Suite 'PodcastCatalogTests' started at 2026-10-09 12:23:17.083.
+Test Case '-[BananaTests.PodcastCatalogTests testFailedCommitAndCorruptRestorePreserveWorkingCatalog]' started.
+Test Case '-[BananaTests.PodcastCatalogTests testFailedCommitAndCorruptRestorePreserveWorkingCatalog]' passed (0.018 seconds).
+Test Case '-[BananaTests.PodcastCatalogTests testMigrationPagesPlaybackOrderAndPortableBackup]' started.
+Test Case '-[BananaTests.PodcastCatalogTests testMigrationPagesPlaybackOrderAndPortableBackup]' passed (0.087 seconds).
+Test Case '-[BananaTests.PodcastCatalogTests testRefreshKeepsOldSnapshotReadableAndSettingsDoNotRewriteEpisodes]' started.
+Test Case '-[BananaTests.PodcastCatalogTests testRefreshKeepsOldSnapshotReadableAndSettingsDoNotRewriteEpisodes]' passed (0.008 seconds).
+Test Suite 'PodcastCatalogTests' passed at 2026-10-09 12:23:17.197.
+	 Executed 3 tests, with 0 failures (0 unexpected) in 0.113 (0.114) seconds
+Test Suite 'BananaTests.xctest' passed at 2026-10-09 12:23:17.197.
+	 Executed 18 tests, with 0 failures (0 unexpected) in 0.194 (0.200) seconds
+Test Suite 'Selected tests' passed at 2026-10-09 12:23:17.197.
+	 Executed 18 tests, with 0 failures (0 unexpected) in 0.194 (0.201) seconds
+2026-10-09 12:23:17.508 xcodebuild[88125:41526421] [MT] IDETestOperationsObserverDebug: 2.181 elapsed -- Testing started completed.
+2026-10-09 12:23:17.508 xcodebuild[88125:41526421] [MT] IDETestOperationsObserverDebug: 0.000 sec, +0.000 sec -- start
+2026-10-09 12:23:17.508 xcodebuild[88125:41526421] [MT] IDETestOperationsObserverDebug: 2.181 sec, +2.181 sec -- end
+
+Test session results, code coverage, and logs:
+	~/orca/workspaces/gtfuwgth/stingray/.build/query-performance-20261009/correctness.xcresult
+
+** TEST EXECUTE SUCCEEDED **
+
+Testing started

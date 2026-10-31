@@ -1,0 +1,24 @@
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: DENY
+
+/assets/fonts/*
+  Cache-Control: public, max-age=2592000
+
+/assets/img/*
+  Cache-Control: public, max-age=86400
+
+/assets/video/*
+  Cache-Control: public, max-age=86400
+
+/blog/feed.xml
+  Content-Type: application/rss+xml; charset=utf-8
+  Cache-Control: public, max-age=0, must-revalidate
+
+/sitemap.xml
+  Content-Type: application/xml; charset=utf-8
+  Cache-Control: public, max-age=0, must-revalidate
+
+/.content-manifest.json
+  X-Robots-Tag: noindex

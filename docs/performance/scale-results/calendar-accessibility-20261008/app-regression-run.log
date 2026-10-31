@@ -1,0 +1,52 @@
+Measuring scale-1d
+Measuring scale-7d
+Measuring scale-30d
+Measuring scale-90d
+Measuring redraw-notes
+Measuring redraw-library
+Measuring redraw-plan
+Measuring redraw-mail
+{
+  "status": "fail",
+  "scope": "Simulator components, not UI acceptance",
+  "baselineVersion": 1,
+  "failures": {
+    "scale-30d": [
+      "notes.search.p95MS: 77.899 > 18.931 + 2.840 ms",
+      "podcasts.nextAcrossCatalog.p95MS: 31.059 > 19.342 + 2.901 ms",
+      "podcasts.downloadCandidates.p95MS: 40.248 > 23.175 + 3.476 ms"
+    ],
+    "scale-90d": [
+      "notes.search.p95MS: 227.112 > 54.071 + 8.111 ms",
+      "notes.search: absolute component latency budget exceeded",
+      "podcasts.nextAcrossCatalog.p95MS: 252.539 > 65.378 + 9.807 ms",
+      "podcasts.nextAcrossCatalog: absolute component latency budget exceeded",
+      "podcasts.downloadCandidates.p95MS: 274.448 > 80.569 + 12.085 ms",
+      "podcasts.downloadCandidates: absolute component latency budget exceeded",
+      "collector reported failure"
+    ],
+    "redraw-notes": [
+      "notes.search.p95MS: 74.136 > 19.598 + 2.940 ms",
+      "podcasts.nextAcrossCatalog.p95MS: 29.651 > 21.597 + 3.240 ms",
+      "podcasts.downloadCandidates.p95MS: 39.608 > 25.050 + 3.758 ms"
+    ],
+    "redraw-library": [
+      "notes.search.p95MS: 697.291 > 57.763 + 8.664 ms",
+      "notes.search: absolute component latency budget exceeded",
+      "podcasts.nextAcrossCatalog.p95MS: 129.130 > 37.924 + 5.689 ms",
+      "podcasts.nextAcrossCatalog: absolute component latency budget exceeded",
+      "podcasts.downloadCandidates.p95MS: 496.833 > 46.854 + 7.028 ms",
+      "podcasts.downloadCandidates: absolute component latency budget exceeded",
+      "collector reported failure"
+    ],
+    "redraw-plan": [
+      "notes.search.p95MS: 95.222 > 19.235 + 2.885 ms",
+      "podcasts.nextAcrossCatalog.p95MS: 32.363 > 20.508 + 3.076 ms",
+      "podcasts.downloadCandidates.p95MS: 42.956 > 24.717 + 3.708 ms"
+    ],
+    "redraw-mail": [
+      "notes.search.p95MS: 22.108 > 19.021 + 2.853 ms"
+    ]
+  }
+}
+Artifacts: ~/orca/workspaces/gtfuwgth/stingray/.build/calendar-accessibility/app-regression

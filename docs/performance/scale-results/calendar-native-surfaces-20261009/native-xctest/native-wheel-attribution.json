@@ -1,0 +1,3782 @@
+{
+  "source": ".build/calendar-async-preparation/native-wheel-300-cpu.xml",
+  "scope": "Sampled main-thread stacks in a separate native wheel-only CPU trace; not latency or causal attribution of other traces",
+  "mainSamples": 469,
+  "totalSampleWeightMS": 469.0,
+  "categories": {
+    "xctest": {
+      "sampleCount": 242,
+      "sampleWeightMS": 242.0,
+      "overlapWithXCTestSamples": 242
+    },
+    "accessibility": {
+      "sampleCount": 280,
+      "sampleWeightMS": 280.0,
+      "overlapWithXCTestSamples": 175
+    },
+    "nativeAccessibilityParent": {
+      "sampleCount": 63,
+      "sampleWeightMS": 63.0,
+      "overlapWithXCTestSamples": 18
+    },
+    "rasterRendering": {
+      "sampleCount": 0,
+      "sampleWeightMS": 0.0,
+      "overlapWithXCTestSamples": 0
+    }
+  },
+  "samples": [
+    {
+      "sampleTimeNS": 1254497208,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 1262496666,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 1263496166,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 1286496750,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 1288497041,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 1303497833,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 2142497958,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 2277497875,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 3360496666,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 3361496791,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": true,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 3362495625,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": true,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 3363496041,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 3364495750,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 3365495708,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 3366495916,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 3367495833,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 3368496166,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 3369495958,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 3370496500,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 3371495708,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 3372495875,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 3373496000,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 3374496250,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 3375496000,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 3376495833,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 3377495833,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 3378495791,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 3379495708,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 3380495750,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 3381495833,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 3382496416,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 3383496625,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 3384495625,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 3385495666,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 3386495625,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 3387495750,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 3388495666,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 3390496916,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 3392495833,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 3393496041,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 3394495666,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 3395496250,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 3396496083,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 3397495958,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 3398496166,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 3746499500,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 4544497500,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 4578497666,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 4590498541,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 4593498791,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 4599498500,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 4620499375,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": true,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 4621499083,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 4624497208,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": true,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 4629498166,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": true,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 4630497458,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": true,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 4651497583,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 4660498041,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 4661496791,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": true,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 4662498250,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 4667497916,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 4670498500,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 4671497625,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 4672497500,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": true,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 4673497291,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 4674496208,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 4675496750,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 4676496708,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 4677495666,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 4678495875,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 4730497250,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 4746496583,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 4770496500,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 4771496500,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 4821498125,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 4846497791,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 4852497666,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 5011497041,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 5012496791,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 5013496125,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 5014495958,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 5015496291,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 5016495791,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 5021497625,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 5046498708,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 5061497958,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 5062496458,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 5070499958,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 5092496875,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 5106498500,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": true,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 5107497041,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 5108496916,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 5111497083,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": true,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 5114496458,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": true,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 5195498041,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": true,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 5196496333,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": true,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 5215498125,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 5219497041,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 5220496250,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": true,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 5221496500,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": true,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 5222495708,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 5223496625,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 5224495791,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 5225495666,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 5226495833,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 5227496250,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 5228495625,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 5321497333,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 5369500458,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 5371496583,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 5546498166,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 5547498125,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 5548498333,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 5549498083,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 5550497666,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 5551496625,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 5552497125,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 5595496958,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 5603497791,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 5605497291,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 5611497041,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": true,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 5620496875,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 5647497000,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": true,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 5653497166,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 5654495833,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 5655495875,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 5656497375,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 5657496916,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 5658496916,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 5659498583,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 5721497958,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 5771497125,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 5796497625,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 5914498500,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 5915497625,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 5923496708,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 5938498041,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 5939496500,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 5940496041,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 5946496541,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 6019496500,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 6022496916,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 6036496958,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 6045496958,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": true,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 6070498375,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 6073497875,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 6078497208,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 6079497333,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": true,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 6080495916,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 6081496666,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 6082495708,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 6171496750,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 6221497291,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 6391499000,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 6396497416,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 6444497541,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 6445497125,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 6446496708,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 6478498208,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 6479498083,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": true,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 6480501625,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 6481498041,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": true,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 6528498583,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": true,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 6560497958,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 6579497791,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 6580497750,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": true,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 6584497875,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 6586498375,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 6588496916,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 6589495833,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 6590497916,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 6591495625,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 6592495791,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 6631496625,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 6646496958,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 6671500125,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 6679497875,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 6680496958,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 6705498375,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 6721497958,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 6896496916,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 6914497333,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 6937497375,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 6941497458,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 6945497125,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 6949499125,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 6961497791,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 6963500041,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 6964497541,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 6970497958,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 6971497208,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 6988497916,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 7012498791,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": true,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 7027496833,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 7028496041,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": true,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 7029496000,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 7030495875,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 7031496041,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 7056496666,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 7061496625,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 7113496750,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 7146497625,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 7155497791,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 7330498250,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 7346496958,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 7402497833,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 7406496708,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 7408497291,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 7452498166,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": true,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 7465497625,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 7470497916,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 7471497958,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 7474498750,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 7545497708,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": true,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 7546496791,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 7552497791,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 7553497083,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 7554497541,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 7555496750,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": true,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 7556496708,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 7557495750,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 7558496416,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 7559496125,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 7621496083,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 7644496583,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 7646495916,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 7671496625,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 7696497291,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 7877497875,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 7878497708,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 7879496541,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 7880496333,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 7888497083,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 7944496500,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 7952497041,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 7962496708,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": true,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 7964496083,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": true,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 7980496750,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": true,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 7986496666,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": true,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 7987495791,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 7988496041,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 7989495708,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 7990496750,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 7991496208,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 8046496875,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 8071496875,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 8096497666,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 8121496625,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 8305497416,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 8306497083,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 8307496333,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 8344497958,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 8345497333,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 8362497875,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": true,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 8363497083,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": true,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 8364497333,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 8365498000,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": true,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 8369498000,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 8370497541,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": true,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 8371496833,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 8372497666,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 8390497916,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 8410498125,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 8411496458,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": true,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 8428497250,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 8429495750,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 8430495750,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 8431495750,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 8432496291,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 8433496208,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 8434496083,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 8435495875,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 8436496041,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 8470497250,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 8496497250,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 8521496791,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 8546496791,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 8571496291,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 8694497875,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 8695497500,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 8711499125,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 8712498125,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 8713497166,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 8714496583,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 8715496291,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 8716496416,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 8727497166,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 8738497333,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 8747496833,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 8769496583,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 8814497583,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 8826497041,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 8832496583,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 8837496208,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": true,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 8845497958,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 8846496583,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": true,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 8847498208,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 8849496541,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 8877497666,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": true,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 8878496875,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": true,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 8882498458,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 8883497375,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 8884496541,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": true,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 8885496083,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 8886496125,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 8887495791,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 8888495916,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 8889497000,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 8890496125,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 8891495750,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 8920496583,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 8946497625,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 8977497208,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 8996497458,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 9010496708,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 9146497041,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 9171496500,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 9181498416,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 9182499833,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 9188497916,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 9205498083,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 9231498125,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 9239497958,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 9245497666,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 9248497166,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 9255497375,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 9258497291,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 9268497791,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 9270498666,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": true,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 9271497625,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": true,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 9272498333,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 9274497541,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": true,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 9275496666,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 9278497625,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 9279496666,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": true,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 9280497750,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 9281496833,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": true,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 9311497583,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": true,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 9312497083,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": true,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 9319496708,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 9320495916,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": true,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 9321496916,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 9322496208,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 9323496250,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 9324496583,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 9325495916,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 9326497541,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 9327496000,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 9446497500,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 9471497541,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 9655498625,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 9686497375,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 9687497333,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 9713516958,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 9719497625,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 9720497458,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": true,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 9721497083,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 9724498791,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": true,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 9727497916,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 9737497208,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": true,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 9738496750,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": true,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 9739497000,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 9741497125,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": true,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 9770498750,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 9771498166,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": true,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 9777497500,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 9779497958,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 9780497958,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": true,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 9781496625,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": true,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 9782496875,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 9783497250,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 9784496083,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 9785496958,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 9787496708,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 9788495666,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 9789497041,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 9790497041,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 9791495750,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 9816496500,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 9824497416,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 9846496916,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 9871496041,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 9921497666,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 10105497958,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 10154496666,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 10178496250,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 10179495750,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": true,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 10180495458,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 10181495791,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 10182495666,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 10183495583,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 10184495875,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 10185495791,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 10186495625,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 10187495875,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 10188497000,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": true,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 10190496500,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 10191495708,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 10192496166,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 10193495708,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 10194496458,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 10195496041,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 10196495625,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 10197496208,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 10198497125,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 10199496500,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 10200496083,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 10201496375,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 10202495958,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 10203495916,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 10204495958,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 10205496416,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 10206496583,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 10208497333,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 10209496500,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 10210495708,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 10211495750,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 10212495666,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 10213495541,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 10214496291,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 10215496291,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 10216496000,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 10217495750,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 10218496125,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 10219495791,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 10220495708,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 10221495750,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 10438496916,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 10496497250,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 10521496583,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 10596496500,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 10621495708,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 10646496541,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 10696496791,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 11067496875,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 11079497500,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 14181496666,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": true,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 14182495916,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": true,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 14183496833,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": true,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 14184495833,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 14185495833,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 14186495666,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 14187495625,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 14188495833,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 14189495625,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 14190496000,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 14191497875,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 14192495791,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 14193496208,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 14194496083,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 14195496208,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 14196495666,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 14197495666,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 14198495666,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 14199495666,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 14200496125,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 14201497500,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 14202495916,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 14205496541,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 14206496250,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 14207497125,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 14208496875,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 14209495791,
+      "weightNS": 1000000,
+      "xctest": true,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 15008497708,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 15016497708,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 15019497250,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 17644502500,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 21491499041,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": true,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    },
+    {
+      "sampleTimeNS": 23697498250,
+      "weightNS": 1000000,
+      "xctest": false,
+      "accessibility": false,
+      "nativeAccessibilityParent": false,
+      "rasterRendering": false
+    }
+  ]
+}

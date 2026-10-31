@@ -1,0 +1,81 @@
+# Formatting keys act on the selection and do nothing else (MAIL-UX 4.2.6)
+name format
+wait 1
+key r
+wait 1.3
+expect firstResponder contains mail.composer.body
+type the report
+key cmd+a
+wait 0.3
+shot selected
+key cmd+b
+wait 0.3
+expect selectedButtons contains Bold
+shot bold
+key cmd+i
+wait 0.3
+expect selectedButtons contains Italic
+key cmd+u
+wait 0.3
+expect selectedButtons contains Underline
+# no other effect: still Mail, still the composer, nothing opened
+expect section is mail
+expect composer.title is Reply
+expect commandMenu is false
+expect sheet is false
+# the selection moved off, the text shows what the three keys did to it
+key right
+wait 0.3
+shot formatted-text
+expect composer.body is the report
+expect selectedButtons contains Bold
+# select it again: Cmd-K with words selected is a link, not the command menu
+key cmd+a
+wait 0.3
+key cmd+k
+wait 0.5
+expect commandMenu is false
+expect ids contains mail.composer.format.link.field
+# the link field has the caret by itself (it is made by the key, as the composer is)
+expect firstResponder contains _SystemTextFieldFieldEditor
+shot link-field
+# Escape cancels the link field without closing the composer or losing its selection.
+key escape
+wait 0.3
+expect ids notcontains mail.composer.format.link.field
+expect composer.title is Reply
+expect firstResponder contains mail.composer.body
+# lists and the quote
+key cmd+shift+8
+wait 0.3
+expect composer.body contains •
+shot bullets
+key cmd+shift+7
+wait 0.3
+expect selectedButtons contains Numbered
+key cmd+shift+9
+wait 0.3
+expect selectedButtons contains Quote
+expect section is mail
+expect sheet is false
+expect commandMenu is false
+# the same chords with the caret in To are taken and do nothing: they do not reach File > Library
+# (cmd+9), another section, or the body
+key cmd+shift+o
+wait 0.5
+expect firstResponder contains _SystemTextFieldFieldEditor
+key cmd+shift+9
+key cmd+shift+8
+key cmd+shift+7
+key cmd+b
+key cmd+i
+key cmd+u
+wait 0.3
+expect section is mail
+expect sheet is false
+expect commandMenu is false
+expect composer.title is Reply
+expect composer.body contains the report
+shot chords-in-To
+# Cmd-K with nothing selected opens the command menu, which is not the composer's
+key escape

@@ -1,0 +1,18 @@
+{
+  "status": "fail",
+  "scope": "Simulator components, not UI acceptance",
+  "baselineVersion": 1,
+  "failures": {
+    "redraw-plan": [
+      "notes.search.p95MS: 548.018 > 19.235 + 2.885 ms",
+      "notes.search: absolute component latency budget exceeded",
+      "podcasts.nextAcrossCatalog.p95MS: 344.640 > 20.508 + 3.076 ms",
+      "podcasts.nextAcrossCatalog: absolute component latency budget exceeded",
+      "podcasts.downloadCandidates.p95MS: 60.796 > 24.717 + 3.708 ms",
+      "collector reported failure"
+    ],
+    "redraw-mail": [
+      "mail.firstPage.p95MS: 15.042 > 12.830 + 2.000 ms"
+    ]
+  }
+}

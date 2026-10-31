@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="Banana app mascot icon">
+ <defs>
+  <linearGradient id="yellow" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffe168"/><stop offset="1" stop-color="#ffca2c"/></linearGradient>
+  <radialGradient id="iris" cx="35%" cy="22%" r="80%"><stop offset="0" stop-color="#19222a"/><stop offset="1" stop-color="#080e13"/></radialGradient>
+ </defs>
+ <rect width="512" height="512" rx="92" fill="url(#yellow)"/>
+ <!-- Looking sideways: the smaller left eye and larger right eye are intentional. -->
+ <path d="M91 324 C87 263 112 224 157 220 C200 216 230 257 230 316 C230 373 200 409 156 409 C115 409 95 378 91 324Z" fill="#fff"/>
+ <path d="M198 262 C225 256 239 275 236 311 C234 349 216 382 189 396 C170 405 156 380 158 351 C161 313 171 279 198 262Z" fill="url(#iris)"/>
+ <ellipse cx="200" cy="290" rx="6" ry="7" fill="#44505b" opacity=".42"/>
+ <path d="M290 312 C291 254 314 208 362 207 C414 206 444 247 444 315 C444 376 414 407 367 408 C317 408 289 371 290 312Z" fill="#fff"/>
+ <ellipse cx="352" cy="324" rx="53" ry="72" fill="url(#iris)"/>
+ <ellipse cx="335" cy="278" rx="7" ry="9" fill="#46515b" opacity=".44"/>
+ <!-- One expressive eyebrow, exactly as in the concept icon. -->
+ <path d="M317 174 C345 137 404 143 427 172" stroke="#11171b" stroke-width="31" fill="none" stroke-linecap="round"/>
+ <!-- Nearly imperceptible understated smile. -->
+ <path d="M197 447 Q211 455 225 451" stroke="#d7961f" stroke-width="5" stroke-linecap="round" fill="none" opacity=".65"/>
+</svg>

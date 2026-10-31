@@ -1,0 +1,114 @@
+# Triage keys on the sample Inbox (MAIL-UX 3, 4.2.2, 4.2.4). Run: tools/mac-mail-keydriver.sh <this> <out>
+name triage
+wait 1
+expect section is mail
+expect mail.cursor is q3
+expect mail.title is Q3 numbers before Thursday
+
+# J / K and the arrows; the pane follows the cursor
+key j
+expect mail.cursor is invite
+expect mail.title is Invitation: Design review
+key j
+expect mail.cursor is plain-chain
+key k
+expect mail.cursor is invite
+key down
+expect mail.cursor is plain-chain
+key up
+expect mail.cursor is invite
+key k
+expect mail.cursor is q3
+key k
+expect mail.cursor is q3
+expect toast absent
+
+# thirty quick J presses end on the thirty-first row
+type jjjjjjjjjjjjjjjjjjjjjjjjjjjjjj
+wait 0.5
+expect mail.cursor is three-newsletters
+expect mail.title is Your weekly reading
+shot after-thirty-j
+
+# Return opens full width, Esc returns; Right and Left too
+key return
+expect mail.open is three-newsletters
+shot open
+key escape
+expect mail.open absent
+expect mail.cursor is three-newsletters
+key right
+expect mail.open is three-newsletters
+key left
+expect mail.open absent
+
+# the last row: nothing beyond it, and E on it
+type jjjjjjjjj
+expect mail.cursor is intro
+key j
+expect mail.cursor is intro
+key e
+expect toast contains Intro: Noor and Dewey
+expect toast contains Done
+expect mail.counts.inbox is 39
+expect mail.cursor is hiring
+shot done-on-last-row
+key z
+expect mail.cursor is intro
+expect mail.counts.inbox is 40
+expect toast is Undone
+
+# star, unread, undo
+key s
+expect mail.counts.starred is 3
+key s
+expect mail.counts.starred is 2
+key u
+key z
+expect toast is Undone
+
+# Done, then the Done place, then Shift-E brings one back
+key e
+expect mail.counts.done is 1
+click label:Done,
+expect mail.place is Done
+expect mail.cursor is intro
+shot done-place
+key shift+e
+expect toast contains back in the inbox
+expect mail.counts.done is 0
+expect mail.counts.inbox is 40
+click label:Inbox,
+expect mail.place is Inbox
+
+# the pane and the details column
+key \
+expect mail.showsPane is false
+expect ids notcontains mail.pane
+key \
+expect mail.showsPane is true
+expect ids contains mail.pane
+size 1500 780
+wait 0.5
+expect ids contains mail.details
+key ]
+expect mail.showsDetails is false
+expect ids notcontains mail.details
+key ]
+expect mail.showsDetails is true
+expect ids contains mail.details
+shot wide-with-details
+
+# the five places
+click label:Starred,
+expect mail.place is Starred
+expect rows contains q3
+shot starred
+click label:Drafts,
+expect mail.place is Drafts
+click label:Scheduled,
+expect mail.place is Scheduled
+click label:Done,
+expect mail.place is Done
+click label:Inbox,
+expect mail.place is Inbox

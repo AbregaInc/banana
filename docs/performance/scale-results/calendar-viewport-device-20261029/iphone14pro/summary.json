@@ -1,0 +1,264 @@
+{
+  ".build/viewport-compare-20261029/iphone14pro": {
+    "device": "<device-udid>",
+    "instrumentsDevice": "Spar<redacted> (27.0.1)",
+    "runs": [
+      {
+        "mode": "Day",
+        "order": 1,
+        "viewport": "reference",
+        "exit": 1,
+        "status": "captured-partial-evidence",
+        "verdict": "fail",
+        "appUpdates": {
+          "count": 630,
+          "p50MS": 1.917166,
+          "p95MS": 3.13825,
+          "p99MS": 10.574458,
+          "maxMS": 157.107041,
+          "over8_3MS": 8
+        },
+        "associatedRenders": {
+          "count": 631,
+          "p50MS": 3.103583,
+          "p95MS": 12.261583,
+          "p99MS": 12.924166,
+          "maxMS": 16.0165,
+          "over8_3MS": 178
+        },
+        "associatedGPU": {
+          "count": 625,
+          "p50MS": 1.369791,
+          "p95MS": 1.723166,
+          "p99MS": 2.034625,
+          "maxMS": 2.362916,
+          "over8_3MS": 0
+        }
+      },
+      {
+        "mode": "Day",
+        "order": 2,
+        "viewport": "native",
+        "exit": 1,
+        "status": "captured-partial-evidence",
+        "verdict": "fail",
+        "appUpdates": {
+          "count": 665,
+          "p50MS": 2.009416,
+          "p95MS": 7.650375,
+          "p99MS": 13.28825,
+          "maxMS": 149.404958,
+          "over8_3MS": 29
+        },
+        "associatedRenders": {
+          "count": 658,
+          "p50MS": 3.036333,
+          "p95MS": 12.009916,
+          "p99MS": 12.738875,
+          "maxMS": 14.281541,
+          "over8_3MS": 207
+        },
+        "associatedGPU": {
+          "count": 653,
+          "p50MS": 1.302583,
+          "p95MS": 1.834625,
+          "p99MS": 2.3215,
+          "maxMS": 3.438208,
+          "over8_3MS": 0
+        }
+      },
+      {
+        "mode": "Day",
+        "order": 3,
+        "viewport": "native",
+        "exit": 1,
+        "status": "captured-partial-evidence",
+        "verdict": "fail",
+        "appUpdates": {
+          "count": 634,
+          "p50MS": 2.158958,
+          "p95MS": 7.385875,
+          "p99MS": 12.050458,
+          "maxMS": 143.895708,
+          "over8_3MS": 22
+        },
+        "associatedRenders": {
+          "count": 631,
+          "p50MS": 3.050791,
+          "p95MS": 12.220125,
+          "p99MS": 12.918833,
+          "maxMS": 14.399666,
+          "over8_3MS": 185
+        },
+        "associatedGPU": {
+          "count": 626,
+          "p50MS": 1.261,
+          "p95MS": 1.763875,
+          "p99MS": 2.149083,
+          "maxMS": 3.639958,
+          "over8_3MS": 0
+        }
+      },
+      {
+        "mode": "Day",
+        "order": 4,
+        "viewport": "reference",
+        "exit": 1,
+        "status": "captured-partial-evidence",
+        "verdict": "fail",
+        "appUpdates": {
+          "count": 637,
+          "p50MS": 1.983375,
+          "p95MS": 3.102791,
+          "p99MS": 11.634208,
+          "maxMS": 158.650458,
+          "over8_3MS": 8
+        },
+        "associatedRenders": {
+          "count": 643,
+          "p50MS": 3.111291,
+          "p95MS": 12.257416,
+          "p99MS": 13.017791,
+          "maxMS": 14.85525,
+          "over8_3MS": 181
+        },
+        "associatedGPU": {
+          "count": 633,
+          "p50MS": 1.404833,
+          "p95MS": 1.714375,
+          "p99MS": 1.872375,
+          "maxMS": 2.1675,
+          "over8_3MS": 0
+        }
+      },
+      {
+        "mode": "Week",
+        "order": 1,
+        "viewport": "reference",
+        "exit": 1,
+        "status": "captured-partial-evidence",
+        "verdict": "fail",
+        "appUpdates": {
+          "count": 230,
+          "p50MS": 14.92675,
+          "p95MS": 46.136041,
+          "p99MS": 51.511625,
+          "maxMS": 90.917708,
+          "over8_3MS": 230
+        },
+        "associatedRenders": {
+          "count": 196,
+          "p50MS": 7.03875,
+          "p95MS": 8.958291,
+          "p99MS": 14.937291,
+          "maxMS": 15.425,
+          "over8_3MS": 29
+        },
+        "associatedGPU": {
+          "count": 196,
+          "p50MS": 0.060708,
+          "p95MS": 0.065708,
+          "p99MS": 0.068791,
+          "maxMS": 0.069625,
+          "over8_3MS": 0
+        }
+      },
+      {
+        "mode": "Week",
+        "order": 2,
+        "viewport": "native",
+        "exit": 1,
+        "status": "captured-partial-evidence",
+        "verdict": "fail",
+        "appUpdates": {
+          "count": 605,
+          "p50MS": 2.343416,
+          "p95MS": 7.21375,
+          "p99MS": 10.223458,
+          "maxMS": 12.692458,
+          "over8_3MS": 17
+        },
+        "associatedRenders": {
+          "count": 602,
+          "p50MS": 3.027041,
+          "p95MS": 12.685125,
+          "p99MS": 13.741166,
+          "maxMS": 17.018,
+          "over8_3MS": 171
+        },
+        "associatedGPU": {
+          "count": 601,
+          "p50MS": 1.236916,
+          "p95MS": 1.523,
+          "p99MS": 2.016791,
+          "maxMS": 3.52325,
+          "over8_3MS": 0
+        }
+      },
+      {
+        "mode": "Week",
+        "order": 3,
+        "viewport": "native",
+        "exit": 1,
+        "status": "captured-partial-evidence",
+        "verdict": "fail",
+        "appUpdates": {
+          "count": 599,
+          "p50MS": 2.364333,
+          "p95MS": 7.286416,
+          "p99MS": 11.617625,
+          "maxMS": 11.984875,
+          "over8_3MS": 20
+        },
+        "associatedRenders": {
+          "count": 608,
+          "p50MS": 3.084583,
+          "p95MS": 12.456,
+          "p99MS": 13.50325,
+          "maxMS": 14.089333,
+          "over8_3MS": 194
+        },
+        "associatedGPU": {
+          "count": 595,
+          "p50MS": 1.256875,
+          "p95MS": 1.647708,
+          "p99MS": 2.996083,
+          "maxMS": 3.3885,
+          "over8_3MS": 0
+        }
+      },
+      {
+        "mode": "Week",
+        "order": 4,
+        "viewport": "reference",
+        "exit": 1,
+        "status": "captured-partial-evidence",
+        "verdict": "fail",
+        "appUpdates": {
+          "count": 218,
+          "p50MS": 15.125458,
+          "p95MS": 47.629208,
+          "p99MS": 95.360125,
+          "maxMS": 100.895375,
+          "over8_3MS": 218
+        },
+        "associatedRenders": {
+          "count": 185,
+          "p50MS": 7.186125,
+          "p95MS": 9.433166,
+          "p99MS": 16.027208,
+          "maxMS": 16.088833,
+          "over8_3MS": 37
+        },
+        "associatedGPU": {
+          "count": 185,
+          "p50MS": 0.062375,
+          "p95MS": 0.067958,
+          "p99MS": 0.077208,
+          "maxMS": 0.089,
+          "over8_3MS": 0
+        }
+      }
+    ]
+  }
+}

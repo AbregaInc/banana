@@ -1,0 +1,692 @@
+[
+  {
+    "name": "0-100-prepared-text",
+    "command": [
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-async-preparation/MacTextCompositionBenchmark",
+      "--candidate",
+      "native",
+      "--renderer",
+      "tiles",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "100",
+      "--ablation",
+      "tile-prefetch-async-surface",
+      "--check",
+      "recovery-benchmark",
+      "--output",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-async-preparation/native-recovery-text-composition/0-100-prepared-text.json",
+      "--async-cache-recovery"
+    ],
+    "exitCode": 0,
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T11:38:39.525400+00:00",
+      "samples": 4,
+      "clean": true,
+      "overlappingDeveloperProcesses": [],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    },
+    "status": "measured",
+    "response": {
+      "count": 21,
+      "p50MS": 20.775458368007094,
+      "p95MS": 44.35941664269194,
+      "p99MS": 51.56045837793499,
+      "maxMS": 51.56045837793499
+    },
+    "action": {
+      "count": 21,
+      "p50MS": 0.6668333080597222,
+      "p95MS": 0.8840833324939013,
+      "p99MS": 0.9058750001713634,
+      "maxMS": 0.9058750001713634
+    },
+    "mainSections": {
+      "count": 105,
+      "p50MS": 0.10254164226353168,
+      "p95MS": 0.7516666664741933,
+      "p99MS": 0.8840833324939013,
+      "maxMS": 0.9058750001713634
+    },
+    "peakResidentBytes": 160923648,
+    "maxSampledPhysicalFootprintBytes": 83854224,
+    "componentBudget": "within-measured-limits-only"
+  },
+  {
+    "name": "0-100-native-text",
+    "command": [
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-async-preparation/MacTextCompositionBenchmark",
+      "--candidate",
+      "native",
+      "--renderer",
+      "tiles",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "100",
+      "--ablation",
+      "tile-prefetch-async-surface",
+      "--check",
+      "recovery-benchmark",
+      "--output",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-async-preparation/native-recovery-text-composition/0-100-native-text.json",
+      "--async-cache-recovery",
+      "--raster-native-text"
+    ],
+    "exitCode": 0,
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T11:38:42.912830+00:00",
+      "samples": 4,
+      "clean": true,
+      "overlappingDeveloperProcesses": [],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    },
+    "status": "measured",
+    "response": {
+      "count": 21,
+      "p50MS": 18.476958328392357,
+      "p95MS": 21.01487497566268,
+      "p99MS": 22.978666645940393,
+      "maxMS": 22.978666645940393
+    },
+    "action": {
+      "count": 21,
+      "p50MS": 0.6729583255946636,
+      "p95MS": 0.8240000461228192,
+      "p99MS": 1.0067499824799597,
+      "maxMS": 1.0067499824799597
+    },
+    "mainSections": {
+      "count": 105,
+      "p50MS": 0.10416668374091387,
+      "p95MS": 0.7249583140946925,
+      "p99MS": 0.8240000461228192,
+      "maxMS": 1.0067499824799597
+    },
+    "peakResidentBytes": 144998400,
+    "maxSampledPhysicalFootprintBytes": 77726608,
+    "componentBudget": "within-measured-limits-only"
+  },
+  {
+    "name": "0-300-prepared-text",
+    "command": [
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-async-preparation/MacTextCompositionBenchmark",
+      "--candidate",
+      "native",
+      "--renderer",
+      "tiles",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "300",
+      "--ablation",
+      "tile-prefetch-async-surface",
+      "--check",
+      "recovery-benchmark",
+      "--output",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-async-preparation/native-recovery-text-composition/0-300-prepared-text.json",
+      "--async-cache-recovery"
+    ],
+    "exitCode": 0,
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T11:38:45.799487+00:00",
+      "samples": 4,
+      "clean": true,
+      "overlappingDeveloperProcesses": [],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    },
+    "status": "measured",
+    "response": {
+      "count": 21,
+      "p50MS": 36.59020835766569,
+      "p95MS": 40.966333355754614,
+      "p99MS": 67.37099995370954,
+      "maxMS": 67.37099995370954
+    },
+    "action": {
+      "count": 21,
+      "p50MS": 0.6762500270269811,
+      "p95MS": 0.820250017568469,
+      "p99MS": 0.8343333029188216,
+      "maxMS": 0.8343333029188216
+    },
+    "mainSections": {
+      "count": 105,
+      "p50MS": 0.18024997552856803,
+      "p95MS": 0.8544583106413484,
+      "p99MS": 0.9060416487045586,
+      "maxMS": 0.9450833313167095
+    },
+    "peakResidentBytes": 149258240,
+    "maxSampledPhysicalFootprintBytes": 81970064,
+    "componentBudget": "within-measured-limits-only"
+  },
+  {
+    "name": "0-300-native-text",
+    "command": [
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-async-preparation/MacTextCompositionBenchmark",
+      "--candidate",
+      "native",
+      "--renderer",
+      "tiles",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "300",
+      "--ablation",
+      "tile-prefetch-async-surface",
+      "--check",
+      "recovery-benchmark",
+      "--output",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-async-preparation/native-recovery-text-composition/0-300-native-text.json",
+      "--async-cache-recovery",
+      "--raster-native-text"
+    ],
+    "exitCode": 0,
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T11:38:49.071178+00:00",
+      "samples": 4,
+      "clean": true,
+      "overlappingDeveloperProcesses": [],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    },
+    "status": "measured",
+    "response": {
+      "count": 21,
+      "p50MS": 33.004458353389055,
+      "p95MS": 38.42562501085922,
+      "p99MS": 48.4170833369717,
+      "maxMS": 48.4170833369717
+    },
+    "action": {
+      "count": 21,
+      "p50MS": 0.6498333532363176,
+      "p95MS": 0.9049582877196372,
+      "p99MS": 0.9067083592526615,
+      "maxMS": 0.9067083592526615
+    },
+    "mainSections": {
+      "count": 105,
+      "p50MS": 0.1820833422243595,
+      "p95MS": 0.9067083592526615,
+      "p99MS": 0.9474583202973008,
+      "maxMS": 0.9550416725687683
+    },
+    "peakResidentBytes": 150437888,
+    "maxSampledPhysicalFootprintBytes": 83166120,
+    "componentBudget": "within-measured-limits-only"
+  },
+  {
+    "name": "1-100-native-text",
+    "command": [
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-async-preparation/MacTextCompositionBenchmark",
+      "--candidate",
+      "native",
+      "--renderer",
+      "tiles",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "100",
+      "--ablation",
+      "tile-prefetch-async-surface",
+      "--check",
+      "recovery-benchmark",
+      "--output",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-async-preparation/native-recovery-text-composition/1-100-native-text.json",
+      "--async-cache-recovery",
+      "--raster-native-text"
+    ],
+    "exitCode": 0,
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T11:38:52.445202+00:00",
+      "samples": 4,
+      "clean": true,
+      "overlappingDeveloperProcesses": [],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    },
+    "status": "measured",
+    "response": {
+      "count": 21,
+      "p50MS": 18.52450001752004,
+      "p95MS": 24.8800833360292,
+      "p99MS": 74.4754999759607,
+      "maxMS": 74.4754999759607
+    },
+    "action": {
+      "count": 21,
+      "p50MS": 0.6742500117979944,
+      "p95MS": 0.8146250038407743,
+      "p99MS": 0.8789167040959001,
+      "maxMS": 0.8789167040959001
+    },
+    "mainSections": {
+      "count": 105,
+      "p50MS": 0.10291667422279716,
+      "p95MS": 0.7570833549834788,
+      "p99MS": 0.8146250038407743,
+      "maxMS": 0.8789167040959001
+    },
+    "peakResidentBytes": 149831680,
+    "maxSampledPhysicalFootprintBytes": 77677480,
+    "componentBudget": "within-measured-limits-only"
+  },
+  {
+    "name": "1-100-prepared-text",
+    "command": [
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-async-preparation/MacTextCompositionBenchmark",
+      "--candidate",
+      "native",
+      "--renderer",
+      "tiles",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "100",
+      "--ablation",
+      "tile-prefetch-async-surface",
+      "--check",
+      "recovery-benchmark",
+      "--output",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-async-preparation/native-recovery-text-composition/1-100-prepared-text.json",
+      "--async-cache-recovery"
+    ],
+    "exitCode": 0,
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T11:38:55.343632+00:00",
+      "samples": 4,
+      "clean": true,
+      "overlappingDeveloperProcesses": [],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    },
+    "status": "measured",
+    "response": {
+      "count": 21,
+      "p50MS": 20.55912499781698,
+      "p95MS": 26.642791694030166,
+      "p99MS": 51.00325000239536,
+      "maxMS": 51.00325000239536
+    },
+    "action": {
+      "count": 21,
+      "p50MS": 0.683374993968755,
+      "p95MS": 0.8782500517554581,
+      "p99MS": 0.9051249944604933,
+      "maxMS": 0.9051249944604933
+    },
+    "mainSections": {
+      "count": 105,
+      "p50MS": 0.10950001887977123,
+      "p95MS": 0.7621666300110519,
+      "p99MS": 0.8782500517554581,
+      "maxMS": 0.9051249944604933
+    },
+    "peakResidentBytes": 144736256,
+    "maxSampledPhysicalFootprintBytes": 77562768,
+    "componentBudget": "within-measured-limits-only"
+  },
+  {
+    "name": "1-300-native-text",
+    "command": [
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-async-preparation/MacTextCompositionBenchmark",
+      "--candidate",
+      "native",
+      "--renderer",
+      "tiles",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "300",
+      "--ablation",
+      "tile-prefetch-async-surface",
+      "--check",
+      "recovery-benchmark",
+      "--output",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-async-preparation/native-recovery-text-composition/1-300-native-text.json",
+      "--async-cache-recovery",
+      "--raster-native-text"
+    ],
+    "exitCode": 0,
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T11:38:58.312014+00:00",
+      "samples": 4,
+      "clean": true,
+      "overlappingDeveloperProcesses": [],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    },
+    "status": "measured",
+    "response": {
+      "count": 21,
+      "p50MS": 32.46220835717395,
+      "p95MS": 42.75962495012209,
+      "p99MS": 44.038083287887275,
+      "maxMS": 44.038083287887275
+    },
+    "action": {
+      "count": 21,
+      "p50MS": 0.6645416142418981,
+      "p95MS": 0.8900833199732006,
+      "p99MS": 0.9570833062753081,
+      "maxMS": 0.9570833062753081
+    },
+    "mainSections": {
+      "count": 105,
+      "p50MS": 0.1761667081154883,
+      "p95MS": 0.8719583856873214,
+      "p99MS": 0.9570833062753081,
+      "maxMS": 1.26541662029922
+    },
+    "peakResidentBytes": 149422080,
+    "maxSampledPhysicalFootprintBytes": 82215848,
+    "componentBudget": "within-measured-limits-only"
+  },
+  {
+    "name": "1-300-prepared-text",
+    "command": [
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-async-preparation/MacTextCompositionBenchmark",
+      "--candidate",
+      "native",
+      "--renderer",
+      "tiles",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "300",
+      "--ablation",
+      "tile-prefetch-async-surface",
+      "--check",
+      "recovery-benchmark",
+      "--output",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-async-preparation/native-recovery-text-composition/1-300-prepared-text.json",
+      "--async-cache-recovery"
+    ],
+    "exitCode": 0,
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T11:39:01.611839+00:00",
+      "samples": 4,
+      "clean": true,
+      "overlappingDeveloperProcesses": [],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    },
+    "status": "measured",
+    "response": {
+      "count": 21,
+      "p50MS": 37.08995832130313,
+      "p95MS": 48.5611250041984,
+      "p99MS": 50.77983334194869,
+      "maxMS": 50.77983334194869
+    },
+    "action": {
+      "count": 21,
+      "p50MS": 0.6441666628234088,
+      "p95MS": 0.8632916724309325,
+      "p99MS": 0.8664583438076079,
+      "maxMS": 0.8664583438076079
+    },
+    "mainSections": {
+      "count": 105,
+      "p50MS": 0.1821666955947876,
+      "p95MS": 0.8632916724309325,
+      "p99MS": 0.9344166610389948,
+      "maxMS": 1.0080833453685045
+    },
+    "peakResidentBytes": 149389312,
+    "maxSampledPhysicalFootprintBytes": 82232232,
+    "componentBudget": "within-measured-limits-only"
+  },
+  {
+    "name": "2-100-prepared-text",
+    "command": [
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-async-preparation/MacTextCompositionBenchmark",
+      "--candidate",
+      "native",
+      "--renderer",
+      "tiles",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "100",
+      "--ablation",
+      "tile-prefetch-async-surface",
+      "--check",
+      "recovery-benchmark",
+      "--output",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-async-preparation/native-recovery-text-composition/2-100-prepared-text.json",
+      "--async-cache-recovery"
+    ],
+    "exitCode": 0,
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T11:39:04.943355+00:00",
+      "samples": 4,
+      "clean": true,
+      "overlappingDeveloperProcesses": [],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    },
+    "status": "measured",
+    "response": {
+      "count": 21,
+      "p50MS": 19.941500038839877,
+      "p95MS": 23.461333301384002,
+      "p99MS": 24.663166666869074,
+      "maxMS": 24.663166666869074
+    },
+    "action": {
+      "count": 21,
+      "p50MS": 0.6468750070780516,
+      "p95MS": 0.7375000277534127,
+      "p99MS": 0.8669166709296405,
+      "maxMS": 0.8669166709296405
+    },
+    "mainSections": {
+      "count": 105,
+      "p50MS": 0.10558334179222584,
+      "p95MS": 0.7180416723713279,
+      "p99MS": 0.7375000277534127,
+      "maxMS": 0.8669166709296405
+    },
+    "peakResidentBytes": 144883712,
+    "maxSampledPhysicalFootprintBytes": 77661072,
+    "componentBudget": "within-measured-limits-only"
+  },
+  {
+    "name": "2-100-native-text",
+    "command": [
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-async-preparation/MacTextCompositionBenchmark",
+      "--candidate",
+      "native",
+      "--renderer",
+      "tiles",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "100",
+      "--ablation",
+      "tile-prefetch-async-surface",
+      "--check",
+      "recovery-benchmark",
+      "--output",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-async-preparation/native-recovery-text-composition/2-100-native-text.json",
+      "--async-cache-recovery",
+      "--raster-native-text"
+    ],
+    "exitCode": 0,
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T11:39:07.825337+00:00",
+      "samples": 4,
+      "clean": true,
+      "overlappingDeveloperProcesses": [],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    },
+    "status": "measured",
+    "response": {
+      "count": 21,
+      "p50MS": 18.41595832956955,
+      "p95MS": 21.51087502716109,
+      "p99MS": 28.62354164244607,
+      "maxMS": 28.62354164244607
+    },
+    "action": {
+      "count": 21,
+      "p50MS": 0.6484583718702197,
+      "p95MS": 0.8219582960009575,
+      "p99MS": 1.1757083120755851,
+      "maxMS": 1.1757083120755851
+    },
+    "mainSections": {
+      "count": 105,
+      "p50MS": 0.10350003140047193,
+      "p95MS": 0.6986666703596711,
+      "p99MS": 0.8219582960009575,
+      "maxMS": 1.1757083120755851
+    },
+    "peakResidentBytes": 146194432,
+    "maxSampledPhysicalFootprintBytes": 97780624,
+    "componentBudget": "within-measured-limits-only"
+  },
+  {
+    "name": "2-300-prepared-text",
+    "command": [
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-async-preparation/MacTextCompositionBenchmark",
+      "--candidate",
+      "native",
+      "--renderer",
+      "tiles",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "300",
+      "--ablation",
+      "tile-prefetch-async-surface",
+      "--check",
+      "recovery-benchmark",
+      "--output",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-async-preparation/native-recovery-text-composition/2-300-prepared-text.json",
+      "--async-cache-recovery"
+    ],
+    "exitCode": 0,
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T11:39:10.662069+00:00",
+      "samples": 4,
+      "clean": true,
+      "overlappingDeveloperProcesses": [],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    },
+    "status": "measured",
+    "response": {
+      "count": 21,
+      "p50MS": 36.20491665787995,
+      "p95MS": 53.879208338912576,
+      "p99MS": 56.89866666216403,
+      "maxMS": 56.89866666216403
+    },
+    "action": {
+      "count": 21,
+      "p50MS": 0.6374166696332395,
+      "p95MS": 0.7865416700951755,
+      "p99MS": 0.8437082869932055,
+      "maxMS": 0.8437082869932055
+    },
+    "mainSections": {
+      "count": 105,
+      "p50MS": 0.17662497702986002,
+      "p95MS": 0.8681666804477572,
+      "p99MS": 0.9215833269990981,
+      "maxMS": 0.9352500201202929
+    },
+    "peakResidentBytes": 151928832,
+    "maxSampledPhysicalFootprintBytes": 84657040,
+    "componentBudget": "within-measured-limits-only"
+  },
+  {
+    "name": "2-300-native-text",
+    "command": [
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-async-preparation/MacTextCompositionBenchmark",
+      "--candidate",
+      "native",
+      "--renderer",
+      "tiles",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--density",
+      "300",
+      "--ablation",
+      "tile-prefetch-async-surface",
+      "--check",
+      "recovery-benchmark",
+      "--output",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-async-preparation/native-recovery-text-composition/2-300-native-text.json",
+      "--async-cache-recovery",
+      "--raster-native-text"
+    ],
+    "exitCode": 0,
+    "hostMonitor": {
+      "startedUTC": "2026-10-09T11:39:14.059315+00:00",
+      "samples": 4,
+      "clean": true,
+      "overlappingDeveloperProcesses": [],
+      "errors": [],
+      "scope": "One-second developer-process samples; short tasks and other system contention may be missed"
+    },
+    "status": "measured",
+    "response": {
+      "count": 21,
+      "p50MS": 31.731208378914744,
+      "p95MS": 34.08795833820477,
+      "p99MS": 50.16304168384522,
+      "maxMS": 50.16304168384522
+    },
+    "action": {
+      "count": 21,
+      "p50MS": 0.6378749967552722,
+      "p95MS": 0.8244583150371909,
+      "p99MS": 0.8318333420902491,
+      "maxMS": 0.8318333420902491
+    },
+    "mainSections": {
+      "count": 105,
+      "p50MS": 0.17837504856288433,
+      "p95MS": 0.8244583150371909,
+      "p99MS": 0.8573749801144004,
+      "maxMS": 0.9827916510403156
+    },
+    "peakResidentBytes": 149389312,
+    "maxSampledPhysicalFootprintBytes": 82166696,
+    "componentBudget": "within-measured-limits-only"
+  }
+]

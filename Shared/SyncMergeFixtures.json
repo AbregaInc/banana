@@ -1,0 +1,115 @@
+{
+  "comment": "The one merge rule (docs/design/DATA-PLATFORM.md §3), as cases both test suites run: Service/test (space.js) and BananaTests (RecordMerge). Each case starts from `start` (null: no record), applies `changes` in EVERY order, and must end at `expect` every time. A change is {set, clocks, delete}. Field: higher clock wins; equal clocks: the greater canonical JSON (sorted keys, no spaces, compared as UTF-8 bytes) wins, null lowest. deleted is a register; visible = deleted is null or no higher than some field clock. append: a record with any field ignores further sets.",
+  "cases": [
+    {
+      "name": "disjoint fields both survive",
+      "merge": "field",
+      "start": null,
+      "changes": [
+        { "set": { "title": "Oats" }, "clocks": { "title": "1760000000000.0000.mac" } },
+        { "set": { "kcal": 320 }, "clocks": { "kcal": "1760000000500.0000.phone" } }
+      ],
+      "expect": { "fields": { "title": "Oats", "kcal": 320 }, "clocks": { "title": "1760000000000.0000.mac", "kcal": "1760000000500.0000.phone" }, "deleted": null, "visible": true }
+    },
+    {
+      "name": "same field: higher clock wins",
+      "merge": "field",
+      "start": null,
+      "changes": [
+        { "set": { "title": "Oats" }, "clocks": { "title": "1760000000000.0000.mac" } },
+        { "set": { "title": "Porridge" }, "clocks": { "title": "1760000000000.0001.mac" } },
+        { "set": { "title": "Muesli" }, "clocks": { "title": "1759999999999.0009.phone" } }
+      ],
+      "expect": { "fields": { "title": "Porridge" }, "clocks": { "title": "1760000000000.0001.mac" }, "deleted": null, "visible": true }
+    },
+    {
+      "name": "equal clocks: greater canonical value wins",
+      "merge": "field",
+      "start": null,
+      "changes": [
+        { "set": { "tags": ["b", "a"] }, "clocks": { "tags": "1760000000000.0000.phone" } },
+        { "set": { "tags": ["a", "b"] }, "clocks": { "tags": "1760000000000.0000.phone" } }
+      ],
+      "expect": { "fields": { "tags": ["b", "a"] }, "clocks": { "tags": "1760000000000.0000.phone" }, "deleted": null, "visible": true }
+    },
+    {
+      "name": "null is a value with a clock",
+      "merge": "field",
+      "start": { "fields": { "note": "salty", "kcal": 300 }, "clocks": { "note": "1760000000000.0000.phone", "kcal": "1760000000000.0000.phone" }, "deleted": null },
+      "changes": [
+        { "set": { "note": null }, "clocks": { "note": "1760000001000.0000.mac" } }
+      ],
+      "expect": { "fields": { "note": null, "kcal": 300 }, "clocks": { "note": "1760000001000.0000.mac", "kcal": "1760000000000.0000.phone" }, "deleted": null, "visible": true }
+    },
+    {
+      "name": "equal clocks: null loses to any value",
+      "merge": "field",
+      "start": null,
+      "changes": [
+        { "set": { "note": null }, "clocks": { "note": "1760000000000.0000.phone" } },
+        { "set": { "note": "" }, "clocks": { "note": "1760000000000.0000.phone" } }
+      ],
+      "expect": { "fields": { "note": "" }, "clocks": { "note": "1760000000000.0000.phone" }, "deleted": null, "visible": true }
+    },
+    {
+      "name": "delete after every edit hides the record",
+      "merge": "field",
+      "start": { "fields": { "title": "Oats" }, "clocks": { "title": "1760000000000.0000.phone" }, "deleted": null },
+      "changes": [
+        { "set": {}, "clocks": {}, "delete": "1760000005000.0000.mac" }
+      ],
+      "expect": { "fields": { "title": "Oats" }, "clocks": { "title": "1760000000000.0000.phone" }, "deleted": "1760000005000.0000.mac", "visible": false }
+    },
+    {
+      "name": "an edit after the delete brings it back",
+      "merge": "field",
+      "start": null,
+      "changes": [
+        { "set": { "title": "Oats" }, "clocks": { "title": "1760000000000.0000.phone" } },
+        { "set": {}, "clocks": {}, "delete": "1760000005000.0000.mac" },
+        { "set": { "kcal": 250 }, "clocks": { "kcal": "1760000009000.0000.phone" } }
+      ],
+      "expect": { "fields": { "title": "Oats", "kcal": 250 }, "clocks": { "title": "1760000000000.0000.phone", "kcal": "1760000009000.0000.phone" }, "deleted": "1760000005000.0000.mac", "visible": true }
+    },
+    {
+      "name": "the later of two deletes is kept",
+      "merge": "field",
+      "start": { "fields": { "title": "Oats" }, "clocks": { "title": "1760000000000.0000.phone" }, "deleted": null },
+      "changes": [
+        { "set": {}, "clocks": {}, "delete": "1760000005000.0000.mac" },
+        { "set": {}, "clocks": {}, "delete": "1760000004000.0000.phone" }
+      ],
+      "expect": { "fields": { "title": "Oats" }, "clocks": { "title": "1760000000000.0000.phone" }, "deleted": "1760000005000.0000.mac", "visible": false }
+    },
+    {
+      "name": "whole moves as one value",
+      "merge": "whole",
+      "start": null,
+      "changes": [
+        { "set": { "v": { "position": 1200, "completed": false } }, "clocks": { "v": "1760000000000.0000.phone" } },
+        { "set": { "v": { "position": 0, "completed": true } }, "clocks": { "v": "1760000002000.0000.mac" } }
+      ],
+      "expect": { "fields": { "v": { "position": 0, "completed": true } }, "clocks": { "v": "1760000002000.0000.mac" }, "deleted": null, "visible": true }
+    },
+    {
+      "name": "nested objects are one value",
+      "merge": "field",
+      "start": null,
+      "changes": [
+        { "set": { "slots": { "a": 1, "b": 2 } }, "clocks": { "slots": "1760000000000.0000.phone" } },
+        { "set": { "slots": { "a": 9 } }, "clocks": { "slots": "1760000001000.0000.mac" } }
+      ],
+      "expect": { "fields": { "slots": { "a": 9 } }, "clocks": { "slots": "1760000001000.0000.mac" }, "deleted": null, "visible": true }
+    },
+    {
+      "name": "seed clock 0 loses to any real edit",
+      "merge": "field",
+      "start": null,
+      "changes": [
+        { "set": { "unit": "km" }, "clocks": { "unit": "0000000000001.0000.mac" } },
+        { "set": { "unit": "mi" }, "clocks": { "unit": "1760000000000.0000.phone" } }
+      ],
+      "expect": { "fields": { "unit": "mi" }, "clocks": { "unit": "1760000000000.0000.phone" }, "deleted": null, "visible": true }
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+list  /reader      rebuild       pass=True  deciding=0 firstPresentDelta=[0, 0, 0, 0, 0] framesBeforeHost=[1, 1, 1, 1, 1] blankListFrames=[0, 0, 0, 0, 0] after=[0, 0, 0, 0, 0]
+list  /readerNow   rebuild       pass=True  deciding=0 firstPresentDelta=[0, 0, 0, 0, 0] framesBeforeHost=[1, 1, 1, 1, 1] blankListFrames=[0, 0, 0, 0, 0] after=[0, 0, 0, 0, 0]
+list  /readerAsync rebuild       pass=True  deciding=0 firstPresentDelta=[None, 0, 0, 0, 0] framesBeforeHost=[None, 1, 1, 1, 1] blankListFrames=[None, 0, 0, 0, 0] after=[0, 0, 0, 0, 0]
+list  /none        rebuild       pass=True  deciding=0 firstPresentDelta=[0, 0, 0, 0, 0] framesBeforeHost=[1, 1, 1, 1, 1] blankListFrames=[0, 0, 0, 0, 0] after=[0, 0, 0, 0, 0]
+lazy  /positionY   rebuild       pass=True  deciding=0.33333333333393966 firstPresentDelta=[-0.3, -0.3, -0.3, -0.3, -0.3] framesBeforeHost=[1, 1, 1, 1, 1] blankListFrames=[0, 0, 0, 0, 0] after=[0.3, 0.3, 0.3, 0.3, 0.3]
+lazy  /positionID  rebuild       pass=False deciding=-1 firstPresentDelta=[None, None, None, None, None] framesBeforeHost=[1, 1, 1, 1, 1] blankListFrames=[59, 59, 59, 59, 59] after=[0, 0, 0, 0, 0]
+lazy  /reader      rebuild       pass=False deciding=16 firstPresentDelta=[16, 16, 16, 16, 16] framesBeforeHost=[1, 1, 1, 1, 1] blankListFrames=[0, 0, 0, 0, 0] after=[16, 16, 16, 16, 16]
+lazy  /readerNow   rebuild       pass=False deciding=16 firstPresentDelta=[16, 16, 16, 16, 16] framesBeforeHost=[1, 1, 1, 1, 1] blankListFrames=[0, 0, 0, 0, 0] after=[16, 16, 16, 16, 16]
+lazy  /readerAsync rebuild       pass=False deciding=16 firstPresentDelta=[None, 16, 16, 16, 16] framesBeforeHost=[None, 1, 1, 1, 1] blankListFrames=[None, 0, 0, 0, 0] after=[0, 16, 16, 16, 16]
+lazy  /id          rebuild       pass=True  deciding=0 firstPresentDelta=[0, 0, 0, 0, 0] framesBeforeHost=[1, 1, 1, 1, 1] blankListFrames=[0, 0, 0, 0, 0] after=[0, 0, 0, 0, 0]
+list  /reader      slide         pass=False deciding=2 worstErr=64.0 recentres=3 frames=1206 compared=25 nyMissing=1178 syMissing=1178 onSlide=0
+list  /readerNow   slide         pass=False deciding=2 worstErr=64.0 recentres=3 frames=1205 compared=25 nyMissing=1179 syMissing=1179 onSlide=0
+list  /readerAsync slide         pass=False deciding=2 worstErr=64.0 recentres=3 frames=1207 compared=25 nyMissing=1181 syMissing=1181 onSlide=0
+lazy  /positionY   slide         pass=False deciding=1176 worstErr=1505.0 recentres=3 frames=1217 compared=1216 nyMissing=1217 syMissing=0 onSlide=3
+lazy  /positionID  slide         pass=False deciding=6 worstErr=64.0 recentres=3 frames=1210 compared=31 nyMissing=1210 syMissing=1175 onSlide=0
+lazy  /reader      slide         pass=False deciding=1173 worstErr=1666.0 recentres=3 frames=1218 compared=1213 nyMissing=1218 syMissing=2 onSlide=3
+lazy  /readerAsync slide         pass=False deciding=1172 worstErr=1346.0 recentres=3 frames=1220 compared=1213 nyMissing=1220 syMissing=3 onSlide=3
+lazy  /id          slide         pass=False deciding=1120 worstErr=5768.0 recentres=3 frames=1216 compared=1213 nyMissing=1216 syMissing=1 onSlide=2

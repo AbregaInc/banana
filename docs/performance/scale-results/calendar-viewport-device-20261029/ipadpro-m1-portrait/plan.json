@@ -1,0 +1,64 @@
+{
+  "device": "<device-udid>",
+  "instrumentsDevice": "AyePad (27.0.1)",
+  "xctestrun": ".build/physical-stress-ui-dd/Build/Products/PhysicalStressUITests-system-idle-probe.xctestrun",
+  "orientation": "portrait",
+  "runs": [
+    {
+      "mode": "Day",
+      "order": 1,
+      "viewport": "reference",
+      "folder": ".build/viewport-compare-20261029/ipadpro-m1-portrait/day-1-reference",
+      "exit": 1
+    },
+    {
+      "mode": "Day",
+      "order": 2,
+      "viewport": "native",
+      "folder": ".build/viewport-compare-20261029/ipadpro-m1-portrait/day-2-native",
+      "exit": 1
+    },
+    {
+      "mode": "Day",
+      "order": 3,
+      "viewport": "native",
+      "folder": ".build/viewport-compare-20261029/ipadpro-m1-portrait/day-3-native",
+      "exit": 2
+    },
+    {
+      "mode": "Day",
+      "order": 4,
+      "viewport": "reference",
+      "folder": ".build/viewport-compare-20261029/ipadpro-m1-portrait/day-4-reference",
+      "exit": 1
+    },
+    {
+      "mode": "Week",
+      "order": 1,
+      "viewport": "reference",
+      "folder": ".build/viewport-compare-20261029/ipadpro-m1-portrait/week-1-reference",
+      "exit": 1
+    },
+    {
+      "mode": "Week",
+      "order": 2,
+      "viewport": "native",
+      "folder": ".build/viewport-compare-20261029/ipadpro-m1-portrait/week-2-native",
+      "exit": 1
+    },
+    {
+      "mode": "Week",
+      "order": 3,
+      "viewport": "native",
+      "folder": ".build/viewport-compare-20261029/ipadpro-m1-portrait/week-3-native",
+      "exit": 2
+    },
+    {
+      "mode": "Week",
+      "order": 4,
+      "viewport": "reference",
+      "folder": ".build/viewport-compare-20261029/ipadpro-m1-portrait/week-4-reference",
+      "exit": 1
+    }
+  ]
+}

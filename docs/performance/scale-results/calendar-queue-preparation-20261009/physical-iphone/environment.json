@@ -1,0 +1,23 @@
+{
+  "timestamp": "2026-10-09T03:44:40.718919-04:00",
+  "device": "<device-udid>",
+  "app": "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-library-device-dd/Build/Products/Release-iphoneos/CalendarLibraryBenchmark.app",
+  "binarySHA256": "ca7c9231dbb1cd4e1ff79ab7764caf18ba957029ae3a1b0db5e766428b5ad29d",
+  "git": "1ec98308c8e408e3910cea8b38ce16a44d0889cf",
+  "dirty": " M docs/performance/scale-results/calendar-event-accessibility-20261009/README.md\n M tools/calendar-library-benchmark/Shared/Optimizations.swift\n M tools/calendar-library-benchmark/Shared/TileRenderer.swift\n M tools/calendar-library-benchmark/run-device.py\n M tools/calendar-library-benchmark/run-mac.py\n M tools/calendar-library-benchmark/run.py\n M tools/calendar-library-benchmark/test_device_runner.py\n?? docs/performance/scale-results/calendar-event-accessibility-20261009/commits-control-1/\n?? docs/performance/scale-results/calendar-event-accessibility-20261009/commits-grouped-1/\n?? docs/performance/scale-results/calendar-event-accessibility-20261009/frame-instrument-probes/\n?? tools/calendar-library-benchmark/TileTests/availability.swift\n",
+  "sceneManifest": {
+    "UIApplicationSupportsMultipleScenes": false,
+    "UISceneConfigurations": {}
+  },
+  "minimumFrameDurationDisabled": true,
+  "scope": "Physical device synchronous renderer work; input/display acceptance unmeasured",
+  "matrix": "queue",
+  "trials": 3,
+  "densities": [
+    100,
+    300
+  ],
+  "alternatingOrder": true,
+  "navigationStress": true,
+  "accessibilityClient": "none"
+}

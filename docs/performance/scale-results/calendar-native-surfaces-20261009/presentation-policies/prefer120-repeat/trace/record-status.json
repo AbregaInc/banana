@@ -1,0 +1,26 @@
+{
+  "status": "failed-unmeasured",
+  "timestamp": "2026-10-09T07:40:50.080224-04:00",
+  "command": [
+    "xcrun",
+    "xctrace",
+    "record",
+    "--device",
+    "Spar<redacted>",
+    "--template",
+    "Animation Hitches",
+    "--attach",
+    "11831",
+    "--time-limit",
+    "8s",
+    "--output",
+    "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-touch/presentation-policies/prefer120-repeat/trace/touch.trace",
+    "--no-prompt"
+  ],
+  "device": "Spar<redacted>",
+  "pid": 11831,
+  "scope": "Physical trace collection; verify input overlap, schema, completeness and process identity before analysis",
+  "exitCode": -11,
+  "reason": null,
+  "elapsedSeconds": 23.153177666012198
+}

@@ -1,0 +1,974 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild test-without-building -project Banana.xcodeproj -scheme BananaNativePerformanceUITests -configuration Release -destination platform=macOS,arch=arm64 -derivedDataPath .build/native-ui-test-dd -resultBundlePath .build/native-ui-performance/uitests-20261009-025011/ui.xcresult -parallel-testing-enabled NO
+
+Resolve Package Graph
+
+
+Resolved source packages:
+  GoogleUtilities: https://github.com/google/GoogleUtilities.git @ 8.1.4
+  SwiftSoup: https://github.com/scinfu/SwiftSoup.git @ 18b8032
+  GRDB: https://github.com/groue/GRDB.swift.git @ b83108d
+  InteropForGoogle: https://github.com/google/interop-ios-for-google-sdks.git @ 101.0.0
+  Promises: https://github.com/google/promises.git @ 2.4.1
+  AppAuth: https://github.com/openid/AppAuth-iOS.git @ 2.1.0
+  GoogleSignIn: https://github.com/google/GoogleSignIn-iOS.git @ 9.1.0
+  FluidAudio: https://github.com/FluidInference/FluidAudio.git @ 0.15.5
+  GTMAppAuth: https://github.com/google/GTMAppAuth.git @ 5.0.0
+  GTMSessionFetcher: https://github.com/google/gtm-session-fetcher.git @ 3.5.0
+  AppCheck: https://github.com/google/app-check.git @ 11.3.2
+
+Writing result bundle at path:
+	~/orca/workspaces/gtfuwgth/stingray/.build/native-ui-performance/uitests-20261009-025011/ui.xcresult
+
+2026-10-09 02:50:22.443179-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [Default] Running tests...
+Test Suite 'All tests' started at 2026-10-09 02:50:22.532.
+Test Suite 'BananaNativePerformanceUITests.xctest' started at 2026-10-09 02:50:22.533.
+Test Suite 'NativeInteractionTests' started at 2026-10-09 02:50:22.533.
+Test Case '-[BananaNativePerformanceUITests.NativeInteractionTests testCalendarDraftSurvivesLocalWriteFailure]' started.
+    t =     0.00s Start Test at 2026-10-09 02:50:22.533
+    t =     0.58s Set Up
+    t =     0.60s     Open com.boris.banana.mac.stressreview
+    t =     0.60s         Activate com.boris.banana.mac.stressreview
+    t =     0.63s             Wait for com.boris.banana.mac.stressreview to idle
+    t =     0.65s     Waiting 10.0s for "stress.ready" StaticText to exist
+    t =     1.69s         Checking `Expect predicate `existsNoRetry == 1` for object "stress.ready" StaticText`
+    t =     1.69s             Checking existence of `"stress.ready" StaticText`
+    t =     2.04s     Checking existence of `Sheet (First Match)`
+    t =     2.15s Waiting 3.0s for StaticText (First Match) to exist
+    t =     3.19s     Checking `Expect predicate `existsNoRetry == 1` for object StaticText (First Match)`
+    t =     3.19s         Checking existence of `StaticText (First Match)`
+    t =     3.29s Click StaticText (First Match)
+    t =     3.29s     Wait for com.boris.banana.mac.stressreview to idle
+    t =     3.31s     Find the StaticText (First Match)
+    t =     3.41s     Check for interrupting elements affecting "Plan" StaticText
+    t =     3.52s     Synthesize event
+    t =     4.09s     Wait for com.boris.banana.mac.stressreview to idle
+    t =     4.12s Checking existence of `"calendar.audit.localWriteFailure" StaticText`
+    t =     4.33s Type 'c' key with no modifiers
+    t =     4.33s     Wait for com.boris.banana.mac.stressreview to idle
+    t =     4.38s     Find the Application 'com.boris.banana.mac.stressreview'
+    t =     4.71s     Check for interrupting elements affecting "Banana Stress Review" Application
+    t =     4.71s     Synthesize event
+2026-10-09 02:50:27.260220-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+2026-10-09 02:50:27.310660-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+    t =     5.64s     Wait for com.boris.banana.mac.stressreview to idle
+    t =     5.77s Waiting 3.0s for "event.title" TextField to exist
+    t =     6.86s     Checking `Expect predicate `existsNoRetry == 1` for object "event.title" TextField`
+    t =     6.86s         Checking existence of `"event.title" TextField`
+    t =     7.27s Click "event.title" TextField
+    t =     7.27s     Wait for com.boris.banana.mac.stressreview to idle
+    t =     7.33s     Find the "event.title" TextField
+    t =     7.59s     Check for interrupting elements affecting "event.title" TextField
+    t =     7.75s     Synthesize event
+2026-10-09 02:50:30.297716-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+    t =     8.56s     Wait for com.boris.banana.mac.stressreview to idle
+    t =     8.60s Type 'Durable failure dr...' into "event.title" TextField
+    t =     8.60s     Wait for com.boris.banana.mac.stressreview to idle
+    t =     8.62s     Find the "event.title" TextField
+    t =     8.88s     Check for interrupting elements affecting "event.title" TextField
+    t =     9.07s     Synthesize event
+2026-10-09 02:50:31.616866-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+2026-10-09 02:50:31.668265-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Found 1 displays containing rect (715.0, 383.5, 430.0, 18.0): [1]
+    t =    10.65s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    10.70s Click "Save" Button
+    t =    10.70s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    10.73s     Find the "Save" Button
+    t =    10.87s     Check for interrupting elements affecting "Save" Button
+    t =    10.99s     Synthesize event
+2026-10-09 02:50:33.543430-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+    t =    11.64s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    12.00s Waiting 3.0s for StaticText (First Match) to exist
+    t =    13.05s     Checking `Expect predicate `existsNoRetry == 1` for object StaticText (First Match)`
+    t =    13.05s         Checking existence of `StaticText (First Match)`
+    t =    13.11s Click "OK" Button
+    t =    13.11s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    13.15s     Find the "OK" Button
+    t =    13.25s     Check for interrupting elements affecting "action-button-1" Button
+    t =    13.37s     Synthesize event
+2026-10-09 02:50:35.918115-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+    t =    14.34s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    14.43s Find the "event.title" TextField
+    t =    14.72s Find the "Save" Button
+    t =    14.86s Click "Cancel" Button
+    t =    14.86s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    14.87s     Find the "Cancel" Button
+    t =    14.95s     Check for interrupting elements affecting "Cancel" Button
+    t =    15.17s     Synthesize event
+2026-10-09 02:50:37.727732-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+    t =    15.81s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    16.14s Checking existence of `Sheet (First Match)`
+    t =    16.50s Tear Down
+Test Case '-[BananaNativePerformanceUITests.NativeInteractionTests testCalendarDraftSurvivesLocalWriteFailure]' passed (16.851 seconds).
+Test Case '-[BananaNativePerformanceUITests.NativeInteractionTests testMailSelectionScrollAndTyping]' started.
+    t =     0.00s Start Test at 2026-10-09 02:50:39.385
+    t =     0.55s Set Up
+    t =     0.56s     Open com.boris.banana.mac.stressreview
+    t =     0.57s         Activate com.boris.banana.mac.stressreview
+    t =     0.57s             Wait for com.boris.banana.mac.stressreview to idle
+    t =     0.58s     Waiting 10.0s for "stress.ready" StaticText to exist
+    t =     1.63s         Checking `Expect predicate `existsNoRetry == 1` for object "stress.ready" StaticText`
+    t =     1.63s             Checking existence of `"stress.ready" StaticText`
+    t =     1.90s     Checking existence of `Sheet (First Match)`
+    t =     2.07s Waiting 3.0s for StaticText (First Match) to exist
+    t =     3.12s     Checking `Expect predicate `existsNoRetry == 1` for object StaticText (First Match)`
+    t =     3.12s         Checking existence of `StaticText (First Match)`
+    t =     3.23s Click StaticText (First Match)
+    t =     3.23s     Wait for com.boris.banana.mac.stressreview to idle
+    t =     3.24s     Find the StaticText (First Match)
+    t =     3.32s     Check for interrupting elements affecting "Mail" StaticText
+    t =     3.48s     Synthesize event
+    t =     4.31s     Wait for com.boris.banana.mac.stressreview to idle
+    t =     4.35s Waiting 5.0s for "mail.list" Table to exist
+    t =     5.40s     Checking `Expect predicate `existsNoRetry == 1` for object "mail.list" Table`
+    t =     5.40s         Checking existence of `"mail.list" Table`
+    t =     6.01s Get number of matches for: Descendants matching type TableRow
+    t =     6.64s Click TableRow (Element at index 1)
+    t =     6.64s     Wait for com.boris.banana.mac.stressreview to idle
+    t =     6.64s     Find the TableRow (Element at index 1)
+    t =     7.05s     Check for interrupting elements affecting TableRow
+    t =     7.14s     Synthesize event
+    t =     8.03s     Wait for com.boris.banana.mac.stressreview to idle
+    t =     8.07s Type 'j' key with no modifiers
+    t =     8.07s     Wait for com.boris.banana.mac.stressreview to idle
+    t =     8.10s     Find the Application 'com.boris.banana.mac.stressreview'
+    t =     8.54s     Check for interrupting elements affecting "Banana Stress Review" Application
+    t =     8.54s     Synthesize event
+2026-10-09 02:50:47.933185-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+2026-10-09 02:50:47.950281-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+    t =     8.60s     Wait for com.boris.banana.mac.stressreview to idle
+    t =     8.63s Type 'j' key with no modifiers
+    t =     8.63s     Wait for com.boris.banana.mac.stressreview to idle
+    t =     8.64s     Find the Application 'com.boris.banana.mac.stressreview'
+    t =     9.04s     Check for interrupting elements affecting "Banana Stress Review" Application
+    t =     9.04s     Synthesize event
+2026-10-09 02:50:48.439422-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+2026-10-09 02:50:48.482143-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+    t =     9.17s     Wait for com.boris.banana.mac.stressreview to idle
+    t =     9.19s Type 'j' key with no modifiers
+    t =     9.19s     Wait for com.boris.banana.mac.stressreview to idle
+    t =     9.21s     Find the Application 'com.boris.banana.mac.stressreview'
+    t =     9.64s     Check for interrupting elements affecting "Banana Stress Review" Application
+    t =     9.64s     Synthesize event
+2026-10-09 02:50:49.042456-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+2026-10-09 02:50:49.046933-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+    t =     9.73s     Wait for com.boris.banana.mac.stressreview to idle
+    t =     9.75s Type 'j' key with no modifiers
+    t =     9.75s     Wait for com.boris.banana.mac.stressreview to idle
+    t =     9.77s     Find the Application 'com.boris.banana.mac.stressreview'
+    t =    10.19s     Check for interrupting elements affecting "Banana Stress Review" Application
+    t =    10.19s     Synthesize event
+2026-10-09 02:50:49.590449-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+2026-10-09 02:50:49.619655-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+    t =    10.28s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    10.29s Type 'j' key with no modifiers
+    t =    10.29s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    10.29s     Find the Application 'com.boris.banana.mac.stressreview'
+    t =    10.75s     Check for interrupting elements affecting "Banana Stress Review" Application
+    t =    10.75s     Synthesize event
+2026-10-09 02:50:50.136504-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+2026-10-09 02:50:50.159591-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+    t =    10.85s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    10.90s Type 'j' key with no modifiers
+    t =    10.90s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    10.90s     Find the Application 'com.boris.banana.mac.stressreview'
+    t =    11.23s     Check for interrupting elements affecting "Banana Stress Review" Application
+    t =    11.23s     Synthesize event
+2026-10-09 02:50:50.632976-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+2026-10-09 02:50:50.658402-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+    t =    11.33s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    11.34s Type 'j' key with no modifiers
+    t =    11.34s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    11.36s     Find the Application 'com.boris.banana.mac.stressreview'
+    t =    11.79s     Check for interrupting elements affecting "Banana Stress Review" Application
+    t =    11.79s     Synthesize event
+2026-10-09 02:50:51.173700-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+2026-10-09 02:50:51.174684-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+    t =    11.89s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    11.90s Type 'j' key with no modifiers
+    t =    11.90s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    11.94s     Find the Application 'com.boris.banana.mac.stressreview'
+    t =    12.36s     Check for interrupting elements affecting "Banana Stress Review" Application
+    t =    12.36s     Synthesize event
+2026-10-09 02:50:51.750164-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+2026-10-09 02:50:51.753723-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+    t =    12.45s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    12.46s Type 'j' key with no modifiers
+    t =    12.46s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    12.49s     Find the Application 'com.boris.banana.mac.stressreview'
+    t =    12.86s     Check for interrupting elements affecting "Banana Stress Review" Application
+    t =    12.86s     Synthesize event
+2026-10-09 02:50:52.257920-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+2026-10-09 02:50:52.259362-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+    t =    12.91s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    12.94s Type 'j' key with no modifiers
+    t =    12.94s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    12.95s     Find the Application 'com.boris.banana.mac.stressreview'
+    t =    13.36s     Check for interrupting elements affecting "Banana Stress Review" Application
+    t =    13.36s     Synthesize event
+2026-10-09 02:50:52.753468-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+2026-10-09 02:50:52.758779-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+    t =    13.47s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    13.49s Type 'j' key with no modifiers
+    t =    13.49s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    13.51s     Find the Application 'com.boris.banana.mac.stressreview'
+    t =    13.89s     Check for interrupting elements affecting "Banana Stress Review" Application
+    t =    13.89s     Synthesize event
+2026-10-09 02:50:53.290707-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+2026-10-09 02:50:53.313945-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+    t =    14.01s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    14.03s Type 'j' key with no modifiers
+    t =    14.04s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    14.07s     Find the Application 'com.boris.banana.mac.stressreview'
+    t =    14.41s     Check for interrupting elements affecting "Banana Stress Review" Application
+    t =    14.41s     Synthesize event
+2026-10-09 02:50:53.794969-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+2026-10-09 02:50:53.813891-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+    t =    14.50s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    14.51s Type 'k' key with no modifiers
+    t =    14.51s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    14.54s     Find the Application 'com.boris.banana.mac.stressreview'
+    t =    14.97s     Check for interrupting elements affecting "Banana Stress Review" Application
+    t =    14.98s     Synthesize event
+2026-10-09 02:50:54.371299-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+2026-10-09 02:50:54.393989-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+    t =    15.12s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    15.16s Type 'k' key with no modifiers
+    t =    15.16s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    15.16s     Find the Application 'com.boris.banana.mac.stressreview'
+    t =    15.57s     Check for interrupting elements affecting "Banana Stress Review" Application
+    t =    15.58s     Synthesize event
+2026-10-09 02:50:54.971574-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+2026-10-09 02:50:54.991531-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+    t =    15.78s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    15.82s Type 'k' key with no modifiers
+    t =    15.82s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    15.84s     Find the Application 'com.boris.banana.mac.stressreview'
+    t =    16.30s     Check for interrupting elements affecting "Banana Stress Review" Application
+    t =    16.30s     Synthesize event
+2026-10-09 02:50:55.684297-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+2026-10-09 02:50:55.702109-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+    t =    16.37s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    16.39s Type 'k' key with no modifiers
+    t =    16.39s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    16.39s     Find the Application 'com.boris.banana.mac.stressreview'
+    t =    16.82s     Check for interrupting elements affecting "Banana Stress Review" Application
+    t =    16.82s     Synthesize event
+2026-10-09 02:50:56.209478-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+2026-10-09 02:50:56.221156-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+    t =    16.91s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    16.93s Type 'k' key with no modifiers
+    t =    16.93s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    16.93s     Find the Application 'com.boris.banana.mac.stressreview'
+    t =    17.34s     Check for interrupting elements affecting "Banana Stress Review" Application
+    t =    17.35s     Synthesize event
+2026-10-09 02:50:56.750225-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+2026-10-09 02:50:56.777035-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+    t =    17.46s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    17.49s Type 'k' key with no modifiers
+    t =    17.49s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    17.53s     Find the Application 'com.boris.banana.mac.stressreview'
+    t =    17.86s     Check for interrupting elements affecting "Banana Stress Review" Application
+    t =    17.86s     Synthesize event
+2026-10-09 02:50:57.247774-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+2026-10-09 02:50:57.266134-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+    t =    17.96s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    18.00s Checking existence of `"mail.conversation.title" StaticText`
+    t =    18.53s Scroll "mail.list" Table by dx: 0.00, dy: -600.00
+    t =    18.53s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    18.55s     Find the "mail.list" Table
+    t =    19.01s     Check for interrupting elements affecting "mail.list" Table
+    t =    19.08s     Synthesize event
+2026-10-09 02:50:58.461409-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+    t =    19.83s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    19.85s Scroll "mail.list" Table by dx: 0.00, dy: -600.00
+    t =    19.85s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    19.85s     Find the "mail.list" Table
+    t =    20.39s     Check for interrupting elements affecting "mail.list" Table
+    t =    20.67s     Synthesize event
+2026-10-09 02:51:00.067781-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+    t =    21.45s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    21.48s Scroll "mail.list" Table by dx: 0.00, dy: -600.00
+    t =    21.48s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    21.48s     Find the "mail.list" Table
+    t =    22.01s     Check for interrupting elements affecting "mail.list" Table
+    t =    22.31s     Synthesize event
+2026-10-09 02:51:01.709100-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+    t =    22.88s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    22.90s Scroll "mail.list" Table by dx: 0.00, dy: -600.00
+    t =    22.90s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    22.92s     Find the "mail.list" Table
+    t =    23.46s     Check for interrupting elements affecting "mail.list" Table
+    t =    23.55s     Synthesize event
+2026-10-09 02:51:02.945792-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+    t =    24.31s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    24.34s Scroll "mail.list" Table by dx: 0.00, dy: 600.00
+    t =    24.34s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    24.35s     Find the "mail.list" Table
+    t =    24.86s     Check for interrupting elements affecting "mail.list" Table
+    t =    24.98s     Synthesize event
+2026-10-09 02:51:04.370038-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+    t =    25.74s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    25.77s Scroll "mail.list" Table by dx: 0.00, dy: 600.00
+    t =    25.77s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    25.79s     Find the "mail.list" Table
+    t =    26.31s     Check for interrupting elements affecting "mail.list" Table
+    t =    26.42s     Synthesize event
+2026-10-09 02:51:05.805433-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+    t =    27.21s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    27.24s Scroll "mail.list" Table by dx: 0.00, dy: 600.00
+    t =    27.24s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    27.26s     Find the "mail.list" Table
+    t =    27.75s     Check for interrupting elements affecting "mail.list" Table
+    t =    27.88s     Synthesize event
+2026-10-09 02:51:07.273582-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+    t =    28.65s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    28.68s Scroll "mail.list" Table by dx: 0.00, dy: 600.00
+    t =    28.68s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    28.71s     Find the "mail.list" Table
+    t =    29.14s     Check for interrupting elements affecting "mail.list" Table
+    t =    29.24s     Synthesize event
+2026-10-09 02:51:08.644733-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+    t =    30.06s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    30.09s Click "mail.list.compose" Button
+    t =    30.09s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    30.13s     Find the "mail.list.compose" Button
+    t =    30.63s     Check for interrupting elements affecting "mail.list.compose" Button
+    t =    30.66s     Synthesize event
+2026-10-09 02:51:10.052831-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+    t =    31.40s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    31.52s Waiting 3.0s for "mail.composer.body" TextView to exist
+    t =    32.58s     Checking `Expect predicate `existsNoRetry == 1` for object "mail.composer.body" TextView`
+    t =    32.59s         Checking existence of `"mail.composer.body" TextView`
+    t =    33.17s Click "mail.composer.body" TextView
+    t =    33.17s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    33.19s     Find the "mail.composer.body" TextView
+    t =    33.64s     Check for interrupting elements affecting "mail.composer.body" TextView
+    t =    33.67s     Synthesize event
+2026-10-09 02:51:13.069524-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+    t =    34.26s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    34.29s Type 'performance typing...' into "mail.composer.body" TextView
+    t =    34.29s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    34.31s     Find the "mail.composer.body" TextView
+    t =    34.89s     Check for interrupting elements affecting "mail.composer.body" TextView
+    t =    35.06s     Synthesize event
+2026-10-09 02:51:14.457294-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+2026-10-09 02:51:14.503231-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Found 1 displays containing rect (1040.0, 433.0, 356.0, 120.0): [1]
+    t =    36.64s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    36.65s Find the "mail.composer.body" TextView
+    t =    37.19s Find the Application 'com.boris.banana.mac.stressreview'
+2026-10-09 02:51:17.000926-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+    t =    37.90s Added attachment named 'mail-after-typing'
+    t =    37.90s Type '⎋' key (XCUIKeyboardKeyEscape) with no modifiers
+    t =    37.90s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    37.92s     Find the Application 'com.boris.banana.mac.stressreview'
+    t =    38.39s     Check for interrupting elements affecting "Banana Stress Review" Application
+    t =    38.39s     Synthesize event
+2026-10-09 02:51:17.773952-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+2026-10-09 02:51:17.791453-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+    t =    38.50s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    38.53s Tear Down
+Test Case '-[BananaNativePerformanceUITests.NativeInteractionTests testMailSelectionScrollAndTyping]' passed (38.986 seconds).
+Test Case '-[BananaNativePerformanceUITests.NativeInteractionTests testPlanDragFailureRecovery]' started.
+    t =     0.00s Start Test at 2026-10-09 02:51:18.372
+    t =     0.50s Set Up
+    t =     0.52s     Open com.boris.banana.mac.stressreview
+    t =     0.52s         Activate com.boris.banana.mac.stressreview
+    t =     0.53s             Wait for com.boris.banana.mac.stressreview to idle
+    t =     0.53s     Waiting 10.0s for "stress.ready" StaticText to exist
+    t =     1.57s         Checking `Expect predicate `existsNoRetry == 1` for object "stress.ready" StaticText`
+    t =     1.58s             Checking existence of `"stress.ready" StaticText`
+    t =     2.16s     Checking existence of `Sheet (First Match)`
+    t =     2.50s Waiting 3.0s for StaticText (First Match) to exist
+    t =     3.54s     Checking `Expect predicate `existsNoRetry == 1` for object StaticText (First Match)`
+    t =     3.54s         Checking existence of `StaticText (First Match)`
+    t =     3.66s Click StaticText (First Match)
+    t =     3.66s     Wait for com.boris.banana.mac.stressreview to idle
+    t =     3.68s     Find the StaticText (First Match)
+    t =     3.75s     Check for interrupting elements affecting "Plan" StaticText
+    t =     3.83s     Synthesize event
+    t =     4.76s     Wait for com.boris.banana.mac.stressreview to idle
+    t =     4.81s Checking existence of `"calendar.audit.renderCount" StaticText`
+    t =     5.10s Waiting 5.0s for "mac.week.timeGrid" ScrollView to exist
+    t =     6.13s     Checking `Expect predicate `existsNoRetry == 1` for object "mac.week.timeGrid" ScrollView`
+    t =     6.14s         Checking existence of `"mac.week.timeGrid" ScrollView`
+    t =     6.39s Scroll "mac.week.timeGrid" ScrollView by dx: 0.00, dy: 10000.00
+    t =     6.39s     Wait for com.boris.banana.mac.stressreview to idle
+    t =     6.39s     Find the "mac.week.timeGrid" ScrollView
+    t =     6.61s     Check for interrupting elements affecting "mac.week.timeGrid" ScrollView
+    t =     6.71s     Synthesize event
+    t =     9.13s     Wait for com.boris.banana.mac.stressreview to idle
+    t =     9.19s Checking existence of `Button (First Match)`
+    t =     9.37s Waiting 3.0s for Image (First Match) to exist
+    t =    10.42s     Checking `Expect predicate `existsNoRetry == 1` for object Image (First Match)`
+    t =    10.42s         Checking existence of `Image (First Match)`
+    t =    10.55s Find the Image (First Match)
+    t =    10.69s Find the "calendar.audit.renderCount" StaticText
+    t =    10.89s Click and drag from "mac.week.occurrence.ext:stress-event-2" Image[0.50, 0.50] to "mac.week.occurrence.ext:stress-event-2" Image[0.50, 0.50] -> (0.0, 116.0) with velocity of 250.00 pixels per second, and then hold for 0.1 seconds
+    t =    10.90s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    10.93s     Find the "mac.week.occurrence.ext:stress-event-2" Image
+    t =    11.00s     Check for interrupting elements affecting "mac.week.occurrence.ext:stress-event-2" Image
+    t =    11.08s     Synthesize event
+    t =    11.11s         Find the "mac.week.occurrence.ext:stress-event-2" Image
+    t =    11.19s         Find the "mac.week.occurrence.ext:stress-event-2" Image
+    t =    11.28s         Find the "mac.week.occurrence.ext:stress-event-2" Image
+    t =    11.38s         Find the "mac.week.occurrence.ext:stress-event-2" Image
+    t =    12.62s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    13.12s Waiting 3.0s for StaticText (First Match) to exist
+    t =    14.15s     Checking `Expect predicate `existsNoRetry == 1` for object StaticText (First Match)`
+    t =    14.15s         Checking existence of `StaticText (First Match)`
+    t =    14.21s Click "OK" Button
+    t =    14.21s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    14.23s     Find the "OK" Button
+    t =    14.27s     Check for interrupting elements affecting "action-button-1" Button
+    t =    14.39s     Synthesize event
+    t =    15.30s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    15.32s Find the "mac.week.occurrence.ext:stress-event-2" Image
+    t =    15.41s Find the "calendar.audit.renderCount" StaticText
+    t =    15.66s Checking existence of `"calendar.audit.dragPolicy" StaticText`
+    t =    15.94s Find the "calendar.audit.dragPolicy" StaticText
+    t =    16.23s Added attachment named 'calendar-drag-redraws'
+    t =    16.24s Tear Down
+Test Case '-[BananaNativePerformanceUITests.NativeInteractionTests testPlanDragFailureRecovery]' passed (16.677 seconds).
+Test Case '-[BananaNativePerformanceUITests.NativeInteractionTests testPlanEventAccessibilityGrouping]' started.
+    t =     0.00s Start Test at 2026-10-09 02:51:35.051
+    t =     0.47s Set Up
+    t =     0.48s     Open com.boris.banana.mac.stressreview
+    t =     0.50s         Activate com.boris.banana.mac.stressreview
+    t =     0.50s             Wait for com.boris.banana.mac.stressreview to idle
+    t =     0.53s     Waiting 10.0s for "stress.ready" StaticText to exist
+    t =     1.56s         Checking `Expect predicate `existsNoRetry == 1` for object "stress.ready" StaticText`
+    t =     1.57s             Checking existence of `"stress.ready" StaticText`
+    t =     1.87s     Checking existence of `Sheet (First Match)`
+    t =     2.01s Waiting 3.0s for StaticText (First Match) to exist
+    t =     3.03s     Checking `Expect predicate `existsNoRetry == 1` for object StaticText (First Match)`
+    t =     3.03s         Checking existence of `StaticText (First Match)`
+    t =     3.17s Click StaticText (First Match)
+    t =     3.17s     Wait for com.boris.banana.mac.stressreview to idle
+    t =     3.20s     Find the StaticText (First Match)
+    t =     3.40s     Check for interrupting elements affecting "Plan" StaticText
+    t =     3.60s     Synthesize event
+    t =     4.19s     Wait for com.boris.banana.mac.stressreview to idle
+    t =     4.21s Checking existence of `"calendar.audit.eventAccessibilityPolicy" StaticText`
+    t =     4.49s Waiting 5.0s for "mac.week.timeGrid" ScrollView to exist
+    t =     5.53s     Checking `Expect predicate `existsNoRetry == 1` for object "mac.week.timeGrid" ScrollView`
+    t =     5.53s         Checking existence of `"mac.week.timeGrid" ScrollView`
+    t =     5.87s Scroll "mac.week.timeGrid" ScrollView by dx: 0.00, dy: 10000.00
+    t =     5.87s     Wait for com.boris.banana.mac.stressreview to idle
+    t =     5.88s     Find the "mac.week.timeGrid" ScrollView
+    t =     6.15s     Check for interrupting elements affecting "mac.week.timeGrid" ScrollView
+    t =     6.22s     Synthesize event
+    t =     8.67s     Wait for com.boris.banana.mac.stressreview to idle
+    t =     8.70s Find the "calendar.audit.eventAccessibilityPolicy" StaticText
+    t =     8.94s Get number of matches for: Elements matching predicate '"mac.week.occurrence.ext:stress-event-2" IN identifiers'
+    t =     9.20s Added attachment named 'calendar-event-accessibility'
+    t =     9.20s Tear Down
+Test Case '-[BananaNativePerformanceUITests.NativeInteractionTests testPlanEventAccessibilityGrouping]' passed (9.562 seconds).
+Test Case '-[BananaNativePerformanceUITests.NativeInteractionTests testPlanHoverRedraws]' started.
+    t =     0.00s Start Test at 2026-10-09 02:51:44.614
+    t =     0.46s Set Up
+    t =     0.47s     Open com.boris.banana.mac.stressreview
+    t =     0.48s         Activate com.boris.banana.mac.stressreview
+    t =     0.49s             Wait for com.boris.banana.mac.stressreview to idle
+    t =     0.51s     Waiting 10.0s for "stress.ready" StaticText to exist
+    t =     1.56s         Checking `Expect predicate `existsNoRetry == 1` for object "stress.ready" StaticText`
+    t =     1.57s             Checking existence of `"stress.ready" StaticText`
+    t =     1.83s     Checking existence of `Sheet (First Match)`
+    t =     1.97s Waiting 3.0s for StaticText (First Match) to exist
+    t =     3.00s     Checking `Expect predicate `existsNoRetry == 1` for object StaticText (First Match)`
+    t =     3.00s         Checking existence of `StaticText (First Match)`
+    t =     3.12s Click StaticText (First Match)
+    t =     3.12s     Wait for com.boris.banana.mac.stressreview to idle
+    t =     3.13s     Find the StaticText (First Match)
+    t =     3.24s     Check for interrupting elements affecting "Plan" StaticText
+    t =     3.40s     Synthesize event
+    t =     4.09s     Wait for com.boris.banana.mac.stressreview to idle
+    t =     4.11s Checking existence of `"calendar.audit.renderCount" StaticText`
+    t =     4.38s Waiting 5.0s for "mac.week.timeGrid" ScrollView to exist
+    t =     5.42s     Checking `Expect predicate `existsNoRetry == 1` for object "mac.week.timeGrid" ScrollView`
+    t =     5.42s         Checking existence of `"mac.week.timeGrid" ScrollView`
+    t =     5.66s Scroll "mac.week.timeGrid" ScrollView by dx: 0.00, dy: 10000.00
+    t =     5.66s     Wait for com.boris.banana.mac.stressreview to idle
+    t =     5.71s     Find the "mac.week.timeGrid" ScrollView
+    t =     5.93s     Check for interrupting elements affecting "mac.week.timeGrid" ScrollView
+    t =     6.01s     Synthesize event
+    t =     8.43s     Wait for com.boris.banana.mac.stressreview to idle
+    t =     8.46s Find the "calendar.audit.renderCount" StaticText
+    t =     8.75s Get all elements bound by index for: Elements matching predicate 'identifier BEGINSWITH "mac.week.day."'
+    t =     8.93s Find the Any (Element at index 0)
+    t =     9.11s Find the Any (Element at index 1)
+    t =     9.27s Find the Any (Element at index 2)
+    t =     9.46s Find the Any (Element at index 3)
+    t =     9.66s Find the Any (Element at index 4)
+    t =     9.89s Find the Any (Element at index 5)
+    t =    10.05s Find the Any (Element at index 6)
+    t =    10.25s Find the Any (Element at index 7)
+    t =    10.42s Find the Any (Element at index 8)
+    t =    10.60s Find the Any (Element at index 9)
+    t =    10.77s Find the Any (Element at index 10)
+    t =    10.94s Find the Any (Element at index 11)
+    t =    11.12s Find the Any (Element at index 12)
+    t =    11.31s Find the Any (Element at index 13)
+    t =    11.48s Find the Any (Element at index 14)
+    t =    11.67s Find the "mac.week.timeGrid" ScrollView
+    t =    11.86s Find the "mac.week.timeGrid" ScrollView
+    t =    12.10s Hover over "mac.week.timeGrid" ScrollView[0.25, 0.12]
+    t =    12.10s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    12.12s     Find the "mac.week.timeGrid" ScrollView
+    t =    12.33s     Check for interrupting elements affecting "mac.week.timeGrid" ScrollView
+    t =    12.43s     Synthesize event
+    t =    12.46s         Find the "mac.week.timeGrid" ScrollView
+    t =    12.66s         Find the "mac.week.timeGrid" ScrollView
+    t =    13.25s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    13.29s Hover over "mac.week.timeGrid" ScrollView[0.25, 0.24]
+    t =    13.29s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    13.32s     Find the "mac.week.timeGrid" ScrollView
+    t =    13.70s     Check for interrupting elements affecting "mac.week.timeGrid" ScrollView
+    t =    13.90s     Synthesize event
+    t =    13.95s         Find the "mac.week.timeGrid" ScrollView
+    t =    14.18s         Find the "mac.week.timeGrid" ScrollView
+    t =    14.70s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    14.75s Hover over "mac.week.timeGrid" ScrollView[0.25, 0.36]
+    t =    14.75s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    14.78s     Find the "mac.week.timeGrid" ScrollView
+    t =    15.02s     Check for interrupting elements affecting "mac.week.timeGrid" ScrollView
+    t =    15.17s     Synthesize event
+    t =    15.22s         Find the "mac.week.timeGrid" ScrollView
+    t =    15.47s         Find the "mac.week.timeGrid" ScrollView
+    t =    16.04s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    16.08s Hover over "mac.week.timeGrid" ScrollView[0.25, 0.48]
+    t =    16.08s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    16.14s     Find the "mac.week.timeGrid" ScrollView
+    t =    16.39s     Check for interrupting elements affecting "mac.week.timeGrid" ScrollView
+    t =    16.60s     Synthesize event
+    t =    16.66s         Find the "mac.week.timeGrid" ScrollView
+    t =    16.91s         Find the "mac.week.timeGrid" ScrollView
+    t =    17.55s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    17.61s Hover over "mac.week.timeGrid" ScrollView[0.25, 0.60]
+    t =    17.61s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    17.64s     Find the "mac.week.timeGrid" ScrollView
+    t =    17.91s     Check for interrupting elements affecting "mac.week.timeGrid" ScrollView
+    t =    18.03s     Synthesize event
+    t =    18.07s         Find the "mac.week.timeGrid" ScrollView
+    t =    18.28s         Find the "mac.week.timeGrid" ScrollView
+    t =    18.84s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    18.90s Hover over "mac.week.timeGrid" ScrollView[0.25, 0.72]
+    t =    18.90s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    18.95s     Find the "mac.week.timeGrid" ScrollView
+    t =    19.23s     Check for interrupting elements affecting "mac.week.timeGrid" ScrollView
+    t =    19.43s     Synthesize event
+    t =    19.49s         Find the "mac.week.timeGrid" ScrollView
+    t =    19.71s         Find the "mac.week.timeGrid" ScrollView
+    t =    20.36s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    20.40s Hover over "mac.week.timeGrid" ScrollView[0.25, 0.84]
+    t =    20.40s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    20.42s     Find the "mac.week.timeGrid" ScrollView
+    t =    20.66s     Check for interrupting elements affecting "mac.week.timeGrid" ScrollView
+    t =    20.78s     Synthesize event
+    t =    20.79s         Find the "mac.week.timeGrid" ScrollView
+    t =    21.01s         Find the "mac.week.timeGrid" ScrollView
+    t =    21.44s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    21.47s Hover over "mac.week.timeGrid" ScrollView[0.25, 0.72]
+    t =    21.47s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    21.49s     Find the "mac.week.timeGrid" ScrollView
+    t =    21.76s     Check for interrupting elements affecting "mac.week.timeGrid" ScrollView
+    t =    22.04s     Synthesize event
+    t =    22.04s         Find the "mac.week.timeGrid" ScrollView
+    t =    22.23s         Find the "mac.week.timeGrid" ScrollView
+    t =    22.78s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    22.79s Hover over "mac.week.timeGrid" ScrollView[0.25, 0.60]
+    t =    22.79s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    22.82s     Find the "mac.week.timeGrid" ScrollView
+    t =    23.20s     Check for interrupting elements affecting "mac.week.timeGrid" ScrollView
+    t =    23.43s     Synthesize event
+    t =    23.44s         Find the "mac.week.timeGrid" ScrollView
+    t =    23.65s         Find the "mac.week.timeGrid" ScrollView
+    t =    24.16s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    24.21s Hover over "mac.week.timeGrid" ScrollView[0.25, 0.48]
+    t =    24.22s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    24.24s     Find the "mac.week.timeGrid" ScrollView
+    t =    24.53s     Check for interrupting elements affecting "mac.week.timeGrid" ScrollView
+    t =    24.69s     Synthesize event
+    t =    24.71s         Find the "mac.week.timeGrid" ScrollView
+    t =    24.94s         Find the "mac.week.timeGrid" ScrollView
+    t =    25.45s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    25.49s Hover over "mac.week.timeGrid" ScrollView[0.25, 0.36]
+    t =    25.49s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    25.55s     Find the "mac.week.timeGrid" ScrollView
+    t =    25.84s     Check for interrupting elements affecting "mac.week.timeGrid" ScrollView
+    t =    26.10s     Synthesize event
+    t =    26.11s         Find the "mac.week.timeGrid" ScrollView
+    t =    26.34s         Find the "mac.week.timeGrid" ScrollView
+    t =    27.03s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    27.05s Hover over "mac.week.timeGrid" ScrollView[0.25, 0.24]
+    t =    27.05s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    27.10s     Find the "mac.week.timeGrid" ScrollView
+    t =    27.40s     Check for interrupting elements affecting "mac.week.timeGrid" ScrollView
+    t =    27.74s     Synthesize event
+    t =    27.75s         Find the "mac.week.timeGrid" ScrollView
+    t =    28.02s         Find the "mac.week.timeGrid" ScrollView
+    t =    28.48s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    28.51s Find the "calendar.audit.renderCount" StaticText
+    t =    28.74s Checking existence of `"calendar.audit.hoverPolicy" StaticText`
+    t =    28.97s Find the "calendar.audit.hoverPolicy" StaticText
+    t =    29.17s Added attachment named 'calendar-hover-redraws'
+    t =    29.17s Tear Down
+Test Case '-[BananaNativePerformanceUITests.NativeInteractionTests testPlanHoverRedraws]' passed (29.570 seconds).
+Test Case '-[BananaNativePerformanceUITests.NativeInteractionTests testPlanOverflowReachability]' started.
+    t =     0.00s Start Test at 2026-10-09 02:52:14.186
+    t =     0.49s Set Up
+    t =     0.50s     Open com.boris.banana.mac.stressreview
+    t =     0.51s         Activate com.boris.banana.mac.stressreview
+    t =     0.52s             Wait for com.boris.banana.mac.stressreview to idle
+    t =     0.52s     Waiting 10.0s for "stress.ready" StaticText to exist
+    t =     1.55s         Checking `Expect predicate `existsNoRetry == 1` for object "stress.ready" StaticText`
+    t =     1.55s             Checking existence of `"stress.ready" StaticText`
+    t =     1.81s     Checking existence of `Sheet (First Match)`
+    t =     1.94s Waiting 3.0s for StaticText (First Match) to exist
+    t =     2.97s     Checking `Expect predicate `existsNoRetry == 1` for object StaticText (First Match)`
+    t =     2.97s         Checking existence of `StaticText (First Match)`
+    t =     3.08s Click StaticText (First Match)
+    t =     3.08s     Wait for com.boris.banana.mac.stressreview to idle
+    t =     3.13s     Find the StaticText (First Match)
+    t =     3.25s     Check for interrupting elements affecting "Plan" StaticText
+    t =     3.41s     Synthesize event
+    t =     4.05s     Wait for com.boris.banana.mac.stressreview to idle
+    t =     4.05s Waiting 5.0s for Button (First Match) to exist
+    t =     5.09s     Checking `Expect predicate `existsNoRetry == 1` for object Button (First Match)`
+    t =     5.09s         Checking existence of `Button (First Match)`
+    t =     5.20s Click Button (First Match)
+    t =     5.20s     Wait for com.boris.banana.mac.stressreview to idle
+    t =     5.20s     Find the Button (First Match)
+    t =     5.29s     Check for interrupting elements affecting "mac.week.day.2026-10-09" Button
+    t =     5.40s     Synthesize event
+    t =     6.13s     Wait for com.boris.banana.mac.stressreview to idle
+    t =     6.16s Waiting 3.0s for Popover (First Match) to exist
+    t =     7.20s     Checking `Expect predicate `existsNoRetry == 1` for object Popover (First Match)`
+    t =     7.20s         Checking existence of `Popover (First Match)`
+    t =     7.34s Checking existence of `ScrollView (First Match)`
+    t =     7.45s Scroll ScrollView (First Match) by dx: 0.00, dy: -1000.00
+    t =     7.45s     Wait for com.boris.banana.mac.stressreview to idle
+    t =     7.49s     Find the ScrollView (First Match)
+    t =     7.60s     Check for interrupting elements affecting ScrollView
+    t =     7.67s     Synthesize event
+    t =     8.34s     Wait for com.boris.banana.mac.stressreview to idle
+    t =     8.39s Scroll ScrollView at {{526.0, 302.0}, {320.0, 400.0}} by dx: 0.00, dy: -1000.00
+    t =     8.39s     Wait for com.boris.banana.mac.stressreview to idle
+    t =     8.42s     Find the ScrollView at {{526.0, 302.0}, {320.0, 400.0}}
+    t =     8.81s     Check for interrupting elements affecting ScrollView
+    t =     8.99s     Synthesize event
+    t =     9.59s     Wait for com.boris.banana.mac.stressreview to idle
+    t =     9.62s Scroll ScrollView at {{526.0, 302.0}, {320.0, 400.0}} by dx: 0.00, dy: -1000.00
+    t =     9.62s     Wait for com.boris.banana.mac.stressreview to idle
+    t =     9.67s     Find the ScrollView at {{526.0, 302.0}, {320.0, 400.0}}
+    t =     9.98s     Check for interrupting elements affecting ScrollView
+    t =    10.16s     Synthesize event
+    t =    10.77s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    10.80s Scroll ScrollView at {{526.0, 302.0}, {320.0, 400.0}} by dx: 0.00, dy: -1000.00
+    t =    10.80s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    10.82s     Find the ScrollView at {{526.0, 302.0}, {320.0, 400.0}}
+    t =    11.04s     Check for interrupting elements affecting ScrollView
+    t =    11.19s     Synthesize event
+    t =    11.82s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    11.83s Scroll ScrollView at {{526.0, 302.0}, {320.0, 400.0}} by dx: 0.00, dy: -1000.00
+    t =    11.83s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    11.86s     Find the ScrollView at {{526.0, 302.0}, {320.0, 400.0}}
+    t =    11.96s     Check for interrupting elements affecting ScrollView
+    t =    12.19s     Synthesize event
+    t =    13.05s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    13.10s Waiting 3.0s for Button (First Match) to exist
+    t =    14.11s     Checking `Expect predicate `existsNoRetry == 1` for object Button (First Match)`
+    t =    14.11s         Checking existence of `Button (First Match)`
+    t =    14.23s Click Button (First Match)
+    t =    14.23s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    14.25s     Find the Button (First Match)
+    t =    14.33s     Check for interrupting elements affecting "Stress event 99, 4:30 PM" Button
+    t =    14.42s     Synthesize event
+    t =    15.12s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    15.19s Waiting 3.0s for "mac.eventInspector.title" StaticText to exist
+    t =    16.21s     Checking `Expect predicate `existsNoRetry == 1` for object "mac.eventInspector.title" StaticText`
+    t =    16.21s         Checking existence of `"mac.eventInspector.title" StaticText`
+    t =    16.59s Find the "mac.eventInspector.title" StaticText
+    t =    16.82s Find the Application 'com.boris.banana.mac.stressreview'
+2026-10-09 02:52:31.145852-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+    t =    17.16s Added attachment named 'calendar-last-overflow-event'
+    t =    17.17s Type '⎋' key (XCUIKeyboardKeyEscape) with no modifiers
+    t =    17.17s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    17.19s     Find the Application 'com.boris.banana.mac.stressreview'
+    t =    17.32s     Check for interrupting elements affecting "Banana Stress Review" Application
+    t =    17.32s     Synthesize event
+2026-10-09 02:52:31.520622-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+2026-10-09 02:52:31.545165-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+    t =    17.60s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    17.68s Tear Down
+Test Case '-[BananaNativePerformanceUITests.NativeInteractionTests testPlanOverflowReachability]' passed (18.140 seconds).
+Test Case '-[BananaNativePerformanceUITests.NativeInteractionTests testPlanPagingAndScrolling]' started.
+    t =     0.00s Start Test at 2026-10-09 02:52:32.328
+    t =     0.60s Set Up
+    t =     0.62s     Open com.boris.banana.mac.stressreview
+    t =     0.68s         Activate com.boris.banana.mac.stressreview
+    t =     0.68s             Wait for com.boris.banana.mac.stressreview to idle
+    t =     0.71s     Waiting 10.0s for "stress.ready" StaticText to exist
+    t =     1.74s         Checking `Expect predicate `existsNoRetry == 1` for object "stress.ready" StaticText`
+    t =     1.74s             Checking existence of `"stress.ready" StaticText`
+    t =     2.09s     Checking existence of `Sheet (First Match)`
+    t =     2.19s Waiting 3.0s for StaticText (First Match) to exist
+    t =     3.22s     Checking `Expect predicate `existsNoRetry == 1` for object StaticText (First Match)`
+    t =     3.22s         Checking existence of `StaticText (First Match)`
+    t =     3.36s Click StaticText (First Match)
+    t =     3.36s     Wait for com.boris.banana.mac.stressreview to idle
+    t =     3.39s     Find the StaticText (First Match)
+    t =     3.48s     Check for interrupting elements affecting "Plan" StaticText
+    t =     3.60s     Synthesize event
+    t =     4.15s     Wait for com.boris.banana.mac.stressreview to idle
+    t =     4.17s Waiting 5.0s for "mac.week.timeGrid" ScrollView to exist
+    t =     5.20s     Checking `Expect predicate `existsNoRetry == 1` for object "mac.week.timeGrid" ScrollView`
+    t =     5.20s         Checking existence of `"mac.week.timeGrid" ScrollView`
+    t =     5.45s Scroll "mac.week.timeGrid" ScrollView by dx: 0.00, dy: -600.00
+    t =     5.45s     Wait for com.boris.banana.mac.stressreview to idle
+    t =     5.47s     Find the "mac.week.timeGrid" ScrollView
+    t =     5.67s     Check for interrupting elements affecting "mac.week.timeGrid" ScrollView
+    t =     5.94s     Synthesize event
+    t =     6.58s     Wait for com.boris.banana.mac.stressreview to idle
+    t =     6.62s Scroll "mac.week.timeGrid" ScrollView by dx: 0.00, dy: -600.00
+    t =     6.63s     Wait for com.boris.banana.mac.stressreview to idle
+    t =     6.66s     Find the "mac.week.timeGrid" ScrollView
+    t =     6.92s     Check for interrupting elements affecting "mac.week.timeGrid" ScrollView
+    t =     6.99s     Synthesize event
+    t =     7.50s     Wait for com.boris.banana.mac.stressreview to idle
+    t =     7.51s Scroll "mac.week.timeGrid" ScrollView by dx: 0.00, dy: -600.00
+    t =     7.51s     Wait for com.boris.banana.mac.stressreview to idle
+    t =     7.51s     Find the "mac.week.timeGrid" ScrollView
+    t =     7.73s     Check for interrupting elements affecting "mac.week.timeGrid" ScrollView
+    t =     7.87s     Synthesize event
+    t =     8.49s     Wait for com.boris.banana.mac.stressreview to idle
+    t =     8.52s Scroll "mac.week.timeGrid" ScrollView by dx: 0.00, dy: -600.00
+    t =     8.52s     Wait for com.boris.banana.mac.stressreview to idle
+    t =     8.54s     Find the "mac.week.timeGrid" ScrollView
+    t =     8.75s     Check for interrupting elements affecting "mac.week.timeGrid" ScrollView
+    t =     9.01s     Synthesize event
+    t =     9.60s     Wait for com.boris.banana.mac.stressreview to idle
+    t =     9.65s Scroll "mac.week.timeGrid" ScrollView by dx: 0.00, dy: 600.00
+    t =     9.65s     Wait for com.boris.banana.mac.stressreview to idle
+    t =     9.67s     Find the "mac.week.timeGrid" ScrollView
+    t =     9.90s     Check for interrupting elements affecting "mac.week.timeGrid" ScrollView
+    t =    10.04s     Synthesize event
+    t =    10.53s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    10.58s Scroll "mac.week.timeGrid" ScrollView by dx: 0.00, dy: 600.00
+    t =    10.58s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    10.58s     Find the "mac.week.timeGrid" ScrollView
+    t =    10.83s     Check for interrupting elements affecting "mac.week.timeGrid" ScrollView
+    t =    10.96s     Synthesize event
+    t =    11.46s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    11.50s Scroll "mac.week.timeGrid" ScrollView by dx: 0.00, dy: 600.00
+    t =    11.50s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    11.55s     Find the "mac.week.timeGrid" ScrollView
+    t =    11.76s     Check for interrupting elements affecting "mac.week.timeGrid" ScrollView
+    t =    11.90s     Synthesize event
+    t =    12.46s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    12.48s Scroll "mac.week.timeGrid" ScrollView by dx: 0.00, dy: 600.00
+    t =    12.48s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    12.53s     Find the "mac.week.timeGrid" ScrollView
+    t =    12.77s     Check for interrupting elements affecting "mac.week.timeGrid" ScrollView
+    t =    12.95s     Synthesize event
+    t =    13.48s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    13.50s Type 'j' key with no modifiers
+    t =    13.50s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    13.53s     Find the Application 'com.boris.banana.mac.stressreview'
+    t =    13.67s     Check for interrupting elements affecting "Banana Stress Review" Application
+    t =    13.67s     Synthesize event
+2026-10-09 02:52:46.005680-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+2026-10-09 02:52:46.006982-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+    t =    13.98s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    14.01s Type 'j' key with no modifiers
+    t =    14.01s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    14.03s     Find the Application 'com.boris.banana.mac.stressreview'
+    t =    14.35s     Check for interrupting elements affecting "Banana Stress Review" Application
+    t =    14.35s     Synthesize event
+2026-10-09 02:52:46.689612-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+2026-10-09 02:52:46.691131-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+    t =    14.61s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    14.61s Type 'j' key with no modifiers
+    t =    14.61s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    14.64s     Find the Application 'com.boris.banana.mac.stressreview'
+    t =    14.80s     Check for interrupting elements affecting "Banana Stress Review" Application
+    t =    14.80s     Synthesize event
+2026-10-09 02:52:47.133595-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+2026-10-09 02:52:47.134810-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+    t =    15.03s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    15.05s Type 'j' key with no modifiers
+    t =    15.05s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    15.06s     Find the Application 'com.boris.banana.mac.stressreview'
+    t =    15.20s     Check for interrupting elements affecting "Banana Stress Review" Application
+    t =    15.20s     Synthesize event
+2026-10-09 02:52:47.530689-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+2026-10-09 02:52:47.531939-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+    t =    15.40s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    15.43s Type 'k' key with no modifiers
+    t =    15.43s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    15.48s     Find the Application 'com.boris.banana.mac.stressreview'
+    t =    15.69s     Check for interrupting elements affecting "Banana Stress Review" Application
+    t =    15.69s     Synthesize event
+2026-10-09 02:52:48.022111-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+2026-10-09 02:52:48.046878-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+    t =    15.93s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    15.96s Type 'k' key with no modifiers
+    t =    15.96s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    15.99s     Find the Application 'com.boris.banana.mac.stressreview'
+    t =    16.19s     Check for interrupting elements affecting "Banana Stress Review" Application
+    t =    16.19s     Synthesize event
+2026-10-09 02:52:48.524736-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+2026-10-09 02:52:48.525763-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+    t =    16.45s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    16.46s Type 'k' key with no modifiers
+    t =    16.46s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    16.47s     Find the Application 'com.boris.banana.mac.stressreview'
+    t =    16.65s     Check for interrupting elements affecting "Banana Stress Review" Application
+    t =    16.65s     Synthesize event
+2026-10-09 02:52:48.989349-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+2026-10-09 02:52:49.011079-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+    t =    16.93s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    16.96s Type 'k' key with no modifiers
+    t =    16.96s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    16.98s     Find the Application 'com.boris.banana.mac.stressreview'
+    t =    17.24s     Check for interrupting elements affecting "Banana Stress Review" Application
+    t =    17.24s     Synthesize event
+2026-10-09 02:52:49.589085-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+2026-10-09 02:52:49.615579-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+    t =    17.56s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    17.59s Checking existence of `"mac.planner.view" MenuButton`
+    t =    17.80s Find the Application 'com.boris.banana.mac.stressreview'
+2026-10-09 02:52:50.289239-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+    t =    18.19s Added attachment named 'plan-after-paging'
+    t =    18.19s Tear Down
+Test Case '-[BananaNativePerformanceUITests.NativeInteractionTests testPlanPagingAndScrolling]' passed (18.628 seconds).
+Test Case '-[BananaNativePerformanceUITests.NativeInteractionTests testPlanPagingRebindsEventActions]' started.
+    t =     0.00s Start Test at 2026-10-09 02:52:50.956
+    t =     0.51s Set Up
+    t =     0.53s     Open com.boris.banana.mac.stressreview
+    t =     0.54s         Activate com.boris.banana.mac.stressreview
+    t =     0.55s             Wait for com.boris.banana.mac.stressreview to idle
+    t =     0.57s     Waiting 10.0s for "stress.ready" StaticText to exist
+    t =     1.59s         Checking `Expect predicate `existsNoRetry == 1` for object "stress.ready" StaticText`
+    t =     1.59s             Checking existence of `"stress.ready" StaticText`
+    t =     1.93s     Checking existence of `Sheet (First Match)`
+    t =     2.11s Waiting 3.0s for StaticText (First Match) to exist
+    t =     3.12s     Checking `Expect predicate `existsNoRetry == 1` for object StaticText (First Match)`
+    t =     3.12s         Checking existence of `StaticText (First Match)`
+    t =     3.27s Click StaticText (First Match)
+    t =     3.27s     Wait for com.boris.banana.mac.stressreview to idle
+    t =     3.28s     Find the StaticText (First Match)
+    t =     3.38s     Check for interrupting elements affecting "Plan" StaticText
+    t =     3.46s     Synthesize event
+    t =     4.05s     Wait for com.boris.banana.mac.stressreview to idle
+    t =     4.09s Waiting 5.0s for "mac.week.timeGrid" ScrollView to exist
+    t =     5.10s     Checking `Expect predicate `existsNoRetry == 1` for object "mac.week.timeGrid" ScrollView`
+    t =     5.10s         Checking existence of `"mac.week.timeGrid" ScrollView`
+    t =     5.33s Scroll "mac.week.timeGrid" ScrollView by dx: 0.00, dy: 10000.00
+    t =     5.33s     Wait for com.boris.banana.mac.stressreview to idle
+    t =     5.33s     Find the "mac.week.timeGrid" ScrollView
+    t =     5.57s     Check for interrupting elements affecting "mac.week.timeGrid" ScrollView
+    t =     5.66s     Synthesize event
+    t =     8.08s     Wait for com.boris.banana.mac.stressreview to idle
+    t =     8.12s Waiting 3.0s for Any (First Match) to exist
+    t =     9.13s     Checking `Expect predicate `existsNoRetry == 1` for object Any (First Match)`
+    t =     9.13s         Checking existence of `Any (First Match)`
+    t =     9.47s Find the Any (First Match)
+    t =     9.58s Type 'j' key with no modifiers
+    t =     9.58s     Wait for com.boris.banana.mac.stressreview to idle
+    t =     9.60s     Find the Application 'com.boris.banana.mac.stressreview'
+    t =     9.75s     Check for interrupting elements affecting "Banana Stress Review" Application
+    t =     9.76s     Synthesize event
+2026-10-09 02:53:00.721576-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+2026-10-09 02:53:00.773105-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+    t =    10.09s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    11.14s Checking `Expect predicate `identifier != "mac.week.occurrence.ext:stress-event-0"` for object "mac.week.occurrence.ext:stress-event-0" Any`
+    t =    11.14s     Find the "mac.week.occurrence.ext:stress-event-0" Any
+    t =    11.34s Find the "mac.week.occurrence.ext:stress-event-410" Image
+    t =    11.42s Click "mac.week.occurrence.ext:stress-event-410" Image
+    t =    11.42s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    11.47s     Find the "mac.week.occurrence.ext:stress-event-410" Image
+    t =    11.56s     Check for interrupting elements affecting "mac.week.occurrence.ext:stress-event-410" Image
+    t =    11.62s     Synthesize event
+2026-10-09 02:53:02.599265-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+    t =    12.41s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    12.55s Waiting 3.0s for "mac.eventInspector.title" StaticText to exist
+    t =    13.57s     Checking `Expect predicate `existsNoRetry == 1` for object "mac.eventInspector.title" StaticText`
+    t =    13.57s         Checking existence of `"mac.eventInspector.title" StaticText`
+    t =    13.93s Find the "mac.eventInspector.title" StaticText
+    t =    14.10s Type '⎋' key (XCUIKeyboardKeyEscape) with no modifiers
+    t =    14.10s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    14.11s     Find the Application 'com.boris.banana.mac.stressreview'
+    t =    14.27s     Check for interrupting elements affecting "Banana Stress Review" Application
+    t =    14.27s     Synthesize event
+2026-10-09 02:53:05.239751-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+2026-10-09 02:53:05.286585-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+    t =    14.42s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    14.61s Type 'k' key with no modifiers
+    t =    14.61s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    14.64s     Find the Application 'com.boris.banana.mac.stressreview'
+    t =    14.84s     Check for interrupting elements affecting "Banana Stress Review" Application
+    t =    14.84s     Synthesize event
+2026-10-09 02:53:05.799144-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+2026-10-09 02:53:05.800291-0400 BananaNativePerformanceUITests-Runner[9474:37596080] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+    t =    15.09s     Wait for com.boris.banana.mac.stressreview to idle
+    t =    15.15s Tear Down
+Test Case '-[BananaNativePerformanceUITests.NativeInteractionTests testPlanPagingRebindsEventActions]' passed (15.460 seconds).
+Test Case '-[BananaNativePerformanceUITests.NativeInteractionTests testPlanPaletteInvalidation]' started.
+    t =     0.00s Start Test at 2026-10-09 02:53:06.418
+    t =     0.51s Set Up
+    t =     0.52s     Open com.boris.banana.mac.stressreview
+    t =     0.53s         Activate com.boris.banana.mac.stressreview
+    t =     0.54s             Wait for com.boris.banana.mac.stressreview to idle
+    t =     0.57s     Waiting 10.0s for "stress.ready" StaticText to exist
+    t =     1.59s         Checking `Expect predicate `existsNoRetry == 1` for object "stress.ready" StaticText`
+    t =     1.59s             Checking existence of `"stress.ready" StaticText`
+    t =     1.91s     Checking existence of `Sheet (First Match)`
+    t =     2.07s Waiting 3.0s for StaticText (First Match) to exist
+    t =     3.08s     Checking `Expect predicate `existsNoRetry == 1` for object StaticText (First Match)`
+    t =     3.09s         Checking existence of `StaticText (First Match)`
+    t =     3.17s Click StaticText (First Match)
+    t =     3.17s     Wait for com.boris.banana.mac.stressreview to idle
+    t =     3.20s     Find the StaticText (First Match)
+    t =     3.29s     Check for interrupting elements affecting "Plan" StaticText
+    t =     3.35s     Synthesize event
+    t =     3.94s     Wait for com.boris.banana.mac.stressreview to idle
+    t =     3.97s Checking existence of `"calendar.audit.changePalette" Button`
+    t =     4.20s Find the "calendar.audit.palette" StaticText
+    t =     4.49s Find the Window (First Match)
+    t =     4.51s Click "calendar.audit.changePalette" Button
+    t =     4.51s     Wait for com.boris.banana.mac.stressreview to idle
+    t =     4.54s     Find the "calendar.audit.changePalette" Button
+    t =     4.75s     Check for interrupting elements affecting "calendar.audit.changePalette" Button
+    t =     4.91s     Synthesize event
+    t =     5.51s     Wait for com.boris.banana.mac.stressreview to idle
+    t =     6.57s Checking `Expect predicate `value == "00FF00" OR label == "00FF00"` for object "calendar.audit.palette" StaticText`
+    t =     6.57s     Find the "calendar.audit.palette" StaticText
+    t =     6.91s Find the Window (First Match)
+    t =     6.93s Find the "calendar.audit.renderCount" StaticText
+    t =     7.11s Click "calendar.audit.repeatPalette" Button
+    t =     7.11s     Wait for com.boris.banana.mac.stressreview to idle
+    t =     7.13s     Find the "calendar.audit.repeatPalette" Button
+    t =     7.33s     Check for interrupting elements affecting "calendar.audit.repeatPalette" Button
+    t =     7.49s     Synthesize event
+    t =     8.06s     Wait for com.boris.banana.mac.stressreview to idle
+    t =     9.12s Checking `Expect predicate `NOT (value == "76" OR label == "76")` for object "calendar.audit.renderCount" StaticText`
+    t =     9.12s     Find the "calendar.audit.renderCount" StaticText
+    t =     9.40s     Find the "calendar.audit.renderCount" StaticText
+    t =     9.42s Tear Down
+Test Case '-[BananaNativePerformanceUITests.NativeInteractionTests testPlanPaletteInvalidation]' passed (9.798 seconds).
+Test Suite 'NativeInteractionTests' passed at 2026-10-09 02:53:16.216.
+	 Executed 9 tests, with 0 failures (0 unexpected) in 173.672 (173.683) seconds
+Test Suite 'BananaNativePerformanceUITests.xctest' passed at 2026-10-09 02:53:16.218.
+	 Executed 9 tests, with 0 failures (0 unexpected) in 173.672 (173.686) seconds
+Test Suite 'All tests' passed at 2026-10-09 02:53:16.219.
+	 Executed 9 tests, with 0 failures (0 unexpected) in 173.672 (173.687) seconds
+2026-10-09 02:53:16.540 xcodebuild[9383:37595706] [MT] IDETestOperationsObserverDebug: 174.916 elapsed -- Testing started completed.
+2026-10-09 02:53:16.540 xcodebuild[9383:37595706] [MT] IDETestOperationsObserverDebug: 0.000 sec, +0.000 sec -- start
+2026-10-09 02:53:16.540 xcodebuild[9383:37595706] [MT] IDETestOperationsObserverDebug: 174.916 sec, +174.916 sec -- end
+
+Test session results, code coverage, and logs:
+	~/orca/workspaces/gtfuwgth/stingray/.build/native-ui-performance/uitests-20261009-025011/ui.xcresult
+
+** TEST EXECUTE SUCCEEDED **
+
+Testing started

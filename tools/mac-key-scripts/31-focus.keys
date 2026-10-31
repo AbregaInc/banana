@@ -1,0 +1,26 @@
+# Does the caret land in the composer that a key opens, with no more keys pressed? (R, C, Return Return)
+name focus-landing
+wait 1
+key r
+wait 3
+expect firstResponder contains mail.composer.body
+key escape
+wait 1
+expect composer.title absent
+key c
+wait 3
+# a field editor has the caret (it is not named by the field's own identifier here: the pane's replaces it),
+# and a character typed now lands in To
+expect firstResponder contains _SystemTextFieldFieldEditor
+type 1
+wait 0.3
+expect composer.toText is 1
+key escape
+wait 1
+key return
+wait 1
+expect mail.open is q3
+key return
+wait 3
+expect composer.title is Reply to all
+expect firstResponder contains mail.composer.body

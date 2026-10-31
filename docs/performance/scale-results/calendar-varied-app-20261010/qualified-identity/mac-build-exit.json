@@ -1,0 +1,22 @@
+{
+  "command": [
+    "xcodebuild",
+    "-project",
+    "Banana.xcodeproj",
+    "-scheme",
+    "BananaMac",
+    "-configuration",
+    "Release",
+    "-destination",
+    "platform=macOS,arch=arm64",
+    "ARCHS=arm64",
+    "ONLY_ACTIVE_ARCH=YES",
+    "SWIFT_ACTIVE_COMPILATION_CONDITIONS=$(inherited) DEBUG",
+    "-derivedDataPath",
+    ".build/macuitest-dd",
+    "CODE_SIGNING_ALLOWED=NO",
+    "-quiet",
+    "build"
+  ],
+  "exit": 0
+}

@@ -1,0 +1,86 @@
+[
+  {
+    "policy": "original",
+    "command": [
+      "xcrun",
+      "simctl",
+      "spawn",
+      "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/notes-first-use-20261010/probe",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/notes-first-use-20261010/0-notes.sqlite",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/notes-first-use-20261010/0-original.json",
+      "original"
+    ],
+    "exit": 0
+  },
+  {
+    "policy": "instrumented",
+    "command": [
+      "xcrun",
+      "simctl",
+      "spawn",
+      "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/notes-first-use-20261010/probe",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/notes-first-use-20261010/1-notes.sqlite",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/notes-first-use-20261010/1-instrumented.json",
+      "instrumented"
+    ],
+    "exit": 0
+  },
+  {
+    "policy": "prewarm",
+    "command": [
+      "xcrun",
+      "simctl",
+      "spawn",
+      "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/notes-first-use-20261010/probe",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/notes-first-use-20261010/2-notes.sqlite",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/notes-first-use-20261010/2-prewarm.json",
+      "prewarm"
+    ],
+    "exit": 0
+  },
+  {
+    "policy": "prewarm",
+    "command": [
+      "xcrun",
+      "simctl",
+      "spawn",
+      "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/notes-first-use-20261010/probe",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/notes-first-use-20261010/3-notes.sqlite",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/notes-first-use-20261010/3-prewarm.json",
+      "prewarm"
+    ],
+    "exit": 0
+  },
+  {
+    "policy": "instrumented",
+    "command": [
+      "xcrun",
+      "simctl",
+      "spawn",
+      "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/notes-first-use-20261010/probe",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/notes-first-use-20261010/4-notes.sqlite",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/notes-first-use-20261010/4-instrumented.json",
+      "instrumented"
+    ],
+    "exit": 0
+  },
+  {
+    "policy": "original",
+    "command": [
+      "xcrun",
+      "simctl",
+      "spawn",
+      "7531F6E1-402A-43B8-8418-EFB258F8598D",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/notes-first-use-20261010/probe",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/notes-first-use-20261010/5-notes.sqlite",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/notes-first-use-20261010/5-original.json",
+      "original"
+    ],
+    "exit": 0
+  }
+]

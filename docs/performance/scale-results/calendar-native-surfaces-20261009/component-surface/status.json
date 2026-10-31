@@ -1,0 +1,70 @@
+[
+  {
+    "case": "100-tile-prefetch-async-two",
+    "exitCode": 0,
+    "hostClean": true,
+    "binarySHA256": "af72ac81714d056875ee82f99d9b071810c85f050bff87438bd5017e29bb7fb4",
+    "command": [
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-async-preparation/AsyncTileChecks-v4",
+      "--mode",
+      "week",
+      "--density",
+      "100",
+      "--ablation",
+      "tile-prefetch-async-two",
+      "--output",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-async-preparation/component-surface/100-tile-prefetch-async-two.json"
+    ]
+  },
+  {
+    "case": "300-tile-prefetch-async-two",
+    "exitCode": 0,
+    "hostClean": true,
+    "binarySHA256": "af72ac81714d056875ee82f99d9b071810c85f050bff87438bd5017e29bb7fb4",
+    "command": [
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-async-preparation/AsyncTileChecks-v4",
+      "--mode",
+      "week",
+      "--density",
+      "300",
+      "--ablation",
+      "tile-prefetch-async-two",
+      "--output",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-async-preparation/component-surface/300-tile-prefetch-async-two.json"
+    ]
+  },
+  {
+    "case": "100-tile-prefetch-async-surface",
+    "exitCode": 0,
+    "hostClean": true,
+    "binarySHA256": "af72ac81714d056875ee82f99d9b071810c85f050bff87438bd5017e29bb7fb4",
+    "command": [
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-async-preparation/AsyncTileChecks-v4",
+      "--mode",
+      "week",
+      "--density",
+      "100",
+      "--ablation",
+      "tile-prefetch-async-surface",
+      "--output",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-async-preparation/component-surface/100-tile-prefetch-async-surface.json"
+    ]
+  },
+  {
+    "case": "300-tile-prefetch-async-surface",
+    "exitCode": 0,
+    "hostClean": true,
+    "binarySHA256": "af72ac81714d056875ee82f99d9b071810c85f050bff87438bd5017e29bb7fb4",
+    "command": [
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-async-preparation/AsyncTileChecks-v4",
+      "--mode",
+      "week",
+      "--density",
+      "300",
+      "--ablation",
+      "tile-prefetch-async-surface",
+      "--output",
+      "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-async-preparation/component-surface/300-tile-prefetch-async-surface.json"
+    ]
+  }
+]

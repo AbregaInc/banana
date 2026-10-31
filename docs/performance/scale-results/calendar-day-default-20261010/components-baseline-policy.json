@@ -1,0 +1,85 @@
+{
+  "version": 1,
+  "status": "initial reference; shared-host noise calibration pending",
+  "environment": {
+    "hostModel": "MacBookPro18,2",
+    "architecture": "arm64",
+    "runtime": "com.apple.CoreSimulator.SimRuntime.iOS-26-5",
+    "deviceType": "com.apple.CoreSimulator.SimDeviceType.iPhone-17-Pro",
+    "xcode": "Xcode 27.0\nBuild version 27A266a",
+    "configuration": "Release + DEBUG audit fixtures; arm64"
+  },
+  "latencyTolerance": {
+    "medianMS": {
+      "floorMS": 1,
+      "fraction": 0.1
+    },
+    "p95MS": {
+      "floorMS": 2,
+      "fraction": 0.15
+    }
+  },
+  "memoryTolerance": {
+    "floorMB": 16,
+    "fraction": 0.05
+  },
+  "memoryCeilingMB": 900,
+  "cases": [
+    {
+      "name": "scale-1d",
+      "days": 1,
+      "route": "notes",
+      "redraw": false,
+      "reference": "docs/performance/scale-results/paged-1d.json"
+    },
+    {
+      "name": "scale-7d",
+      "days": 7,
+      "route": "notes",
+      "redraw": false,
+      "reference": "docs/performance/scale-results/paged-7d.json"
+    },
+    {
+      "name": "scale-30d",
+      "days": 30,
+      "route": "notes",
+      "redraw": false,
+      "reference": "docs/performance/scale-results/paged-30d.json"
+    },
+    {
+      "name": "scale-90d",
+      "days": 90,
+      "route": "notes",
+      "redraw": false,
+      "reference": "docs/performance/scale-results/paged-90d.json"
+    },
+    {
+      "name": "redraw-notes",
+      "days": 30,
+      "route": "notes",
+      "redraw": true,
+      "reference": "docs/performance/scale-results/redraw-notes-30d.json"
+    },
+    {
+      "name": "redraw-library",
+      "days": 30,
+      "route": "library",
+      "redraw": true,
+      "reference": "docs/performance/scale-results/redraw-library-30d.json"
+    },
+    {
+      "name": "redraw-plan",
+      "days": 30,
+      "route": "plan",
+      "redraw": true,
+      "reference": "docs/performance/scale-results/redraw-plan-30d.json"
+    },
+    {
+      "name": "redraw-mail",
+      "days": 30,
+      "route": "mail",
+      "redraw": true,
+      "reference": "docs/performance/scale-results/redraw-mail-30d.json"
+    }
+  ]
+}

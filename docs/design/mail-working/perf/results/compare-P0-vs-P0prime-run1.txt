@@ -1,0 +1,82 @@
+base: baseline-run1 @ 1155270  (2026-10-05T17:40:22)
+new : p0prime-run1 @ 3542829  (2026-10-06T01:31:30)
+rule: regression if new-base > max(floor, k*max(spread_base, spread_new)), k=1.0; launch marks normalised by app.init.body where it moved > 40 ms (host load); STORM/HIGH CPU > 0 fails
+
+device  route            metric                              base       new     delta    noise  verdict
+ipad    library          launch.root.appear                 971.0    1013.0     +42.0     40.0  REGRESSION
+ipad    notes            launch.alarms.init                 672.0     741.0     +69.0     55.0  REGRESSION
+ipad    notes            launch.app.init.done               598.0     649.0     +51.0     40.0  REGRESSION
+ipad    notes            launch.fitness.loaded             1157.0    1290.0    +133.0    100.0  REGRESSION
+ipad    notes            launch.health.init                 679.0     750.0     +71.0     56.0  REGRESSION
+ipad    notes            launch.history.init                703.0     778.0     +75.0     60.0  REGRESSION
+ipad    notes            launch.library.loaded             1158.0    1291.0    +133.0    100.0  REGRESSION
+ipad    notes            launch.root.appear                 987.0    1105.0    +118.0     77.0  REGRESSION
+ipad    notes            launch.root.body                   833.0     927.0     +94.0     69.0  REGRESSION
+ipad    notes            launch.settings.init               702.0     777.0     +75.0     61.0  REGRESSION
+ipad    notes            launch.smart.init                  694.0     767.0     +73.0     59.0  REGRESSION
+ipad    settings         launch.alarms.init                 676.0     738.0     +62.0     42.0  REGRESSION
+ipad    settings         launch.app.init.done               599.0     650.0     +51.0     40.0  REGRESSION
+ipad    settings         launch.fitness.loaded             1145.0    1278.0    +133.0    100.0  REGRESSION
+ipad    settings         launch.health.init                 683.0     748.0     +65.0     41.0  REGRESSION
+ipad    settings         launch.history.init                707.0     778.0     +71.0     41.0  REGRESSION
+ipad    settings         launch.library.loaded             1146.0    1279.0    +133.0    100.0  REGRESSION
+ipad    settings         launch.root.appear                 988.0    1099.0    +111.0     62.0  REGRESSION
+ipad    settings         launch.root.body                   837.0     926.0     +89.0     56.0  REGRESSION
+ipad    settings         launch.settings.init               706.0     777.0     +71.0     41.0  REGRESSION
+ipad    settings         launch.smart.init                  698.0     766.0     +68.0     42.0  REGRESSION
+ipad    shell-notes      launch.fitness.loaded             1255.0    1373.0    +118.0    100.0  REGRESSION
+ipad    shell-notes      launch.library.loaded             1257.0    1375.0    +118.0    100.0  REGRESSION
+ipad    shell-routines   launch.root.appear                 997.0    1053.0     +56.0     45.0  REGRESSION
+ipad    shell-routines   launch.root.body                   874.0     922.0     +48.0     41.0  REGRESSION
+ipad    shell-trends     launch.fitness.loaded             1448.0    1564.0    +116.0    105.0  REGRESSION
+ipad    shell-trends     launch.library.loaded             1449.0    1566.0    +117.0    104.0  REGRESSION
+ipad    sleep            launch.fitness.loaded             1142.0    1260.0    +118.0    100.0  REGRESSION
+ipad    sleep            launch.history.init                735.0     780.0     +45.0     40.0  REGRESSION
+ipad    sleep            launch.library.loaded             1142.0    1261.0    +119.0    100.0  REGRESSION
+ipad    sleep            launch.root.appear                1044.0    1120.0     +76.0     40.0  REGRESSION
+ipad    sleep            launch.root.body                   858.0     926.0     +68.0     40.0  REGRESSION
+ipad    sleep            launch.settings.init               734.0     779.0     +45.0     40.0  REGRESSION
+ipad    sleep            launch.smart.init                  725.0     768.0     +43.0     40.0  REGRESSION
+ipad    week             launch.alarms.init                 684.0     748.0     +64.0     40.0  REGRESSION
+ipad    week             launch.app.init.done               601.0     651.0     +50.0     40.0  REGRESSION
+ipad    week             launch.fitness.loaded             1591.0    1794.0    +203.0    106.0  REGRESSION
+ipad    week             launch.health.init                 691.0     756.0     +65.0     40.0  REGRESSION
+ipad    week             launch.history.init                715.0     786.0     +71.0     40.0  REGRESSION
+ipad    week             launch.library.loaded             1592.0    1795.0    +203.0    107.0  REGRESSION
+ipad    week             launch.root.appear                1283.0    1406.0    +123.0     76.0  REGRESSION
+ipad    week             launch.root.body                   845.0     936.0     +91.0     67.0  REGRESSION
+ipad    week             launch.settings.init               714.0     784.0     +70.0     40.0  REGRESSION
+ipad    week             launch.smart.init                  706.0     774.0     +68.0     40.0  REGRESSION
+ipad    wellness         launch.root.appear                 965.0    1022.0     +57.0     40.0  REGRESSION
+ipad    wellness         launch.root.body                   838.0     890.0     +52.0     40.0  REGRESSION
+ipad    workouts         launch.root.appear                1004.0    1061.0     +57.0     55.0  REGRESSION
+iphone  day              launch.fitness.loaded             1383.0    1538.0    +155.0    100.0  REGRESSION
+iphone  day              launch.library.loaded             1383.0    1539.0    +156.0    100.0  REGRESSION
+iphone  day              launch.root.appear                1251.0    1311.0     +60.0     40.0  REGRESSION
+iphone  day              launch.root.body                   831.0     875.0     +44.0     40.0  REGRESSION
+iphone  notes            launch.root.appear                 998.0    1049.0     +51.0     41.0  REGRESSION
+iphone  notes            launch.smart.init                  670.0     713.0     +43.0     40.0  REGRESSION
+iphone  shell-nutrition  launch.root.appear                 942.0     992.0     +50.0     40.0  REGRESSION
+iphone  shell-nutrition  launch.root.body                   853.0     896.0     +43.0     40.0  REGRESSION
+iphone  shell-nutrition  launch.smart.init                  648.0     692.0     +44.0     40.0  REGRESSION
+iphone  today            launch.root.appear                1091.0    1189.0     +98.0     70.0  REGRESSION
+iphone  today            launch.smart.init                  655.0     697.0     +42.0     40.0  REGRESSION
+iphone  today            launch.today.content              1095.0     939.0    -156.0     70.0  improved
+iphone  trends           launch.alarms.init                 680.0     732.0     +52.0     41.0  REGRESSION
+iphone  trends           launch.app.init.done               595.0     640.0     +45.0     40.0  REGRESSION
+iphone  trends           launch.history.init                731.0     787.0     +56.0     44.0  REGRESSION
+iphone  trends           launch.root.appear                1021.0    1096.0     +75.0     40.0  REGRESSION
+iphone  trends           launch.root.body                   848.0     913.0     +65.0     49.0  REGRESSION
+iphone  trends           launch.settings.init               730.0     786.0     +56.0     44.0  REGRESSION
+iphone  trends           launch.smart.init                  651.0     704.0     +53.0     40.0  REGRESSION
+iphone  week             launch.fitness.loaded             1481.0    1672.0    +191.0    100.0  REGRESSION
+iphone  week             launch.library.loaded             1482.0    1673.0    +191.0    100.0  REGRESSION
+iphone  wellness         launch.alarms.init                 734.0     692.0     -42.0     40.0  improved
+iphone  wellness         launch.health.init                 741.0     699.0     -42.0     40.0  improved
+iphone  wellness         launch.root.appear                1025.0     971.0     -54.0     40.0  improved
+iphone  wellness         launch.root.body                   895.0     847.0     -48.0     40.0  improved
+iphone  workouts         idle.cpu_pct_ps                      0.0       1.1      +1.1      0.5  REGRESSION
+
+40 metric(s) only in new (new routes/marks): ipad/shell-library/launch.occurrences.snapshot, ipad/shell-library/launch.planningWindows.snapshot, ipad/shell-notes/launch.occurrences.snapshot, ipad/shell-notes/launch.planningWindows.snapshot, ipad/shell-nutrition/launch.occurrences.snapshot, ipad/shell-nutrition/launch.planningWindows.snapshot, ipad/shell-plan/launch.occurrences.snapshot, ipad/shell-plan/launch.planningWindows.snapshot, ipad/shell-routines/launch.occurrences.snapshot, ipad/shell-routines/launch.planningWindows.snapshot, ipad/shell-sleep/launch.occurrences.snapshot, ipad/shell-sleep/launch.planningWindows.snapshot …
+
+68 regression(s), 5 improvement(s) beyond noise; metrics compared: 792

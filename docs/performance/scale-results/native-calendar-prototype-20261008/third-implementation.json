@@ -1,0 +1,32 @@
+{
+  "timestamp": "2026-10-08T13:53:11.700055-04:00",
+  "scope": "Windowed surface and in-place cell reuse; full-day adjacent text preloading",
+  "sources": {
+    "tools/calendar-library-benchmark/run.py": "3c7531e46ee45f093c47eedf9b470fda5e990ca93fa8d11250fa8a7ad0a4b0f6",
+    "tools/calendar-library-benchmark/project.yml": "2fca24d1bf88b71780c007c475e2a9072fca3456b7802d1fa65077f15a40f33d",
+    "tools/calendar-library-benchmark/test_report.py": "de19d1555a5842647c2dff1bbad6c3901c8555dfa21f71ea9fae4299a8a0ee33",
+    "tools/calendar-library-benchmark/report.py": "560dfd60a32b78eea1f72b15eda5a3af3751763c25fdfd654b9491b226f6e3b7",
+    "tools/calendar-library-benchmark/run-mac.py": "35a58e83be2837803206cdcefbbe0d5d3427d1132d7bb24f00781a457af158a3",
+    "tools/calendar-library-benchmark/Native/MacBenchmark.swift": "832249bbe439130533ec444d7098597cb82a2c4b18c208ac3ad29fdbb2c62da2",
+    "tools/calendar-library-benchmark/TextTests/main.swift": "67c24099175d61898b98de63d8a61d0ff0e343c0188192bd613711947f021184",
+    "tools/calendar-library-benchmark/Shared/PrototypeModel.swift": "825d35f3cdddd4955dfcf5e0a53027170bc34d1a298d8b904c9917032e187b2e",
+    "tools/calendar-library-benchmark/Shared/PreparedText.swift": "a513fee9a3b658d14642bfa6f62958c85003db8b1cfa59f82224ad4f335571e1",
+    "tools/calendar-library-benchmark/Shared/Optimizations.swift": "777acb376c9664ca39d936ea3f345330e4bfe1d782820003214926466e45ebd5",
+    "tools/calendar-library-benchmark/Shared/DayGeometry.swift": "6d75ef432cbefb45299e29a024c747bd037a040b569f4dd88cede4c9e76793d0",
+    "tools/calendar-library-benchmark/Shared/CalendarSurface.swift": "ecd720e959d3b58717e42d44981a1948b884d74f12627e3f5b8a2ab0ba0a0d83",
+    "tools/calendar-library-benchmark/Shared/Fixtures.swift": "6e5560922970ad213ea20cbe3f8eb75ca06628416088468b23be73518b0672f8",
+    "tools/calendar-library-benchmark/GeometryTests/performance.swift": "174b5e7ade648c0ead1509b8922734c240e0925890311dc41d84d44201ec5cc2",
+    "tools/calendar-library-benchmark/GeometryTests/main.swift": "b7325297b47d645f13568d024b08bb5e90f99e58bc6408cf52b910c05d829c22",
+    "tools/calendar-library-benchmark/Sources/Benchmark.swift": "34699a90b580c2ecd0d760461441b2a209c137db4d2601d7e7ede83dad5256bd",
+    "tools/calendar-library-benchmark/Sources/NativeController.swift": "a1bae0b719f898944c23539e719428477ffabb5a0b66d9ede4cffb09d872e56d"
+  },
+  "binaries": {
+    ".build/native-calendar-prototype/MacCalendarBenchmark": "01e769a8598ab823268fa137b49d0df4df0b4fadd6ba39c71b5995f37dce7b1b",
+    ".build/calendar-library-benchmark-dd/Build/Products/Release-iphonesimulator/CalendarLibraryBenchmark.app/CalendarLibraryBenchmark": "27e64276d32f9bbe325f8049989b9c6e1c4d78be4753823ee666720231a3f69f"
+  },
+  "runs": [
+    "mac-matrix-3",
+    "iphone-comparison-1"
+  ],
+  "acceptance": "fail/unmeasured; see per-run results"
+}

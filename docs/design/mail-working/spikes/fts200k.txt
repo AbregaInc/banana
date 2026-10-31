@@ -1,0 +1,36 @@
+sqlite 3.51.0, FTS5=1, threadsafe=2
+plan: SCAN f VIRTUAL TABLE INDEX 192:M5 | SEARCH m USING INDEX message_by_fts (fts_rowid=?)
+search-as-you-type (prefix index '2 3'):
+  [1 char] MATCH c*  → 199703 matching messages
+      newest 50 conversations: n=40 p50=205.111 ms p95=267.559 ms p99=416.978 ms max=416.978 ms
+  [2 chars] MATCH ce*  → 182937 matching messages
+      newest 50 conversations: n=40 p50=0.213 ms p95=0.245 ms p99=2.154 ms max=2.154 ms
+  [3 chars] MATCH cee*  → 179848 matching messages
+      newest 50 conversations: n=40 p50=0.215 ms p95=0.338 ms p99=3.096 ms max=3.096 ms
+  [4 chars (no prefix index at this length)] MATCH shai*  → 68329 matching messages
+      newest 50 conversations: n=40 p50=16.440 ms p95=18.409 ms p99=33.794 ms max=33.794 ms
+  [5 chars] MATCH shain*  → 27642 matching messages
+      newest 50 conversations: n=40 p50=3.908 ms p95=4.137 ms p99=4.179 ms max=4.179 ms
+  [very common word] MATCH "ceendloum"  → 177229 matching messages
+      newest 50 conversations: n=40 p50=0.224 ms p95=0.278 ms p99=3.791 ms max=3.791 ms
+  [mid word] MATCH "shainzeamplourt"  → 5874 matching messages
+      newest 50 conversations: n=40 p50=0.060 ms p95=0.189 ms p99=1.349 ms max=1.349 ms
+  [rare word] MATCH "cloungwilzion"  → 80 matching messages
+      newest 50 conversations: n=40 p50=0.060 ms p95=0.141 ms p99=13.592 ms max=13.592 ms
+  [two common words AND] MATCH "breertcream" AND "gastvusbroust"  → 128631 matching messages
+      newest 50 conversations: n=40 p50=0.301 ms p95=0.385 ms p99=5.408 ms max=5.408 ms
+  [common AND rare] MATCH "breertcream" AND "cloungwilzion"  → 77 matching messages
+      newest 50 conversations: n=40 p50=0.757 ms p95=0.949 ms p99=1.931 ms max=1.931 ms
+  [word then prefix] MATCH "voumaiplajain" kea*  → 60557 matching messages
+      newest 50 conversations: n=40 p50=0.230 ms p95=0.380 ms p99=5.264 ms max=5.264 ms
+  [phrase of two common words] MATCH "breertcream gastvusbroust"  → 8330 matching messages
+      newest 50 conversations: n=40 p50=0.324 ms p95=0.379 ms p99=1.735 ms max=1.735 ms
+  [subject column only] MATCH subject : "pleengjionin"  → 1815 matching messages
+      newest 50 conversations: n=40 p50=0.294 ms p95=0.386 ms p99=11.175 ms max=11.175 ms
+  [sender column prefix] MATCH sender : cra*  → 3435 matching messages
+      newest 50 conversations: n=40 p50=0.230 ms p95=0.309 ms p99=6.019 ms max=6.019 ms
+  [no hits] MATCH "zzzzqqqq"  → 0 matching messages
+      newest 50 conversations: n=40 p50=0.028 ms p95=0.040 ms p99=1.470 ms max=1.470 ms
+  very common word restricted to the smallest account (5% of mail): n=10 p50=1.636 ms p95=17.545 ms p99=17.545 ms max=17.545 ms
+  very common word ORDER BY rank (bm25) LIMIT 50: n=10 p50=468.312 ms p95=664.691 ms p99=664.691 ms max=664.691 ms
+  sqlite3_interrupt 2 ms into a count over a 1-char prefix: rc=9 after 3.11 ms

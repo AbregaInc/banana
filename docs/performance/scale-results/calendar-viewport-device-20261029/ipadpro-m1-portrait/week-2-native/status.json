@@ -1,0 +1,186 @@
+{
+  "status": "captured-partial-evidence",
+  "mode": "Week",
+  "template": "Animation Hitches",
+  "cellHostPolicy": "clear",
+  "viewport": "native",
+  "eventsPerDay": 100,
+  "orientation": "portrait",
+  "device": "<device-udid>",
+  "instrumentsDevice": "AyePad (27.0.1)",
+  "scope": "Partial Instruments trace of integrated app scrolling; no input-to-visible acceptance",
+  "commands": [
+    [
+      "xcrun",
+      "xctrace",
+      "list",
+      "devices"
+    ],
+    [
+      "xcodebuild",
+      "test-without-building",
+      "-xctestrun",
+      ".build/physical-stress-ui-dd/Build/Products/PhysicalStressUITests-system-idle-probe-portrait.xctestrun",
+      "-destination",
+      "platform=iOS,id=<device-udid>",
+      "-resultBundlePath",
+      ".build/viewport-compare-20261029/ipadpro-m1-portrait/week-2-native/ui.xcresult",
+      "-parallel-testing-enabled",
+      "NO",
+      "-collect-test-diagnostics",
+      "never",
+      "-only-testing:PhysicalStressUITests/ScaleStressUITests/testPhysicalWeekScrollTrace"
+    ],
+    [
+      "xcrun",
+      "devicectl",
+      "device",
+      "info",
+      "processes",
+      "--device",
+      "<device-udid>",
+      "--json-output",
+      ".build/viewport-compare-20261029/ipadpro-m1-portrait/week-2-native/processes.json"
+    ],
+    [
+      "~/.pyenv/versions/3.11.5/bin/python3",
+      "~/repo/abrega/gtfuwgth/tools/calendar-library-benchmark/profile-device.py",
+      "--device",
+      "AyePad (27.0.1)",
+      "--pid",
+      "5028",
+      "--out",
+      ".build/viewport-compare-20261029/ipadpro-m1-portrait/week-2-native/trace",
+      "--seconds",
+      "8",
+      "--template",
+      "Animation Hitches"
+    ],
+    [
+      "xcrun",
+      "xcresulttool",
+      "get",
+      "test-results",
+      "summary",
+      "--path",
+      ".build/viewport-compare-20261029/ipadpro-m1-portrait/week-2-native/ui.xcresult"
+    ],
+    [
+      "xcrun",
+      "xctrace",
+      "export",
+      "--input",
+      ".build/viewport-compare-20261029/ipadpro-m1-portrait/week-2-native/trace/touch.trace",
+      "--xpath",
+      "/trace-toc/run[@number=\"1\"]/data/table[@schema=\"hitches-updates\"]",
+      "--output",
+      ".build/viewport-compare-20261029/ipadpro-m1-portrait/week-2-native/trace/hitches-updates.xml"
+    ],
+    [
+      "xcrun",
+      "xctrace",
+      "export",
+      "--input",
+      ".build/viewport-compare-20261029/ipadpro-m1-portrait/week-2-native/trace/touch.trace",
+      "--xpath",
+      "/trace-toc/run[@number=\"1\"]/data/table[@schema=\"hitches-renders\"]",
+      "--output",
+      ".build/viewport-compare-20261029/ipadpro-m1-portrait/week-2-native/trace/hitches-renders.xml"
+    ],
+    [
+      "xcrun",
+      "xctrace",
+      "export",
+      "--input",
+      ".build/viewport-compare-20261029/ipadpro-m1-portrait/week-2-native/trace/touch.trace",
+      "--xpath",
+      "/trace-toc/run[@number=\"1\"]/data/table[@schema=\"hitches-gpu\"]",
+      "--output",
+      ".build/viewport-compare-20261029/ipadpro-m1-portrait/week-2-native/trace/hitches-gpu.xml"
+    ],
+    [
+      "xcrun",
+      "xctrace",
+      "export",
+      "--input",
+      ".build/viewport-compare-20261029/ipadpro-m1-portrait/week-2-native/trace/touch.trace",
+      "--xpath",
+      "/trace-toc/run[@number=\"1\"]/data/table[@schema=\"hitches-frame-lifetimes\"]",
+      "--output",
+      ".build/viewport-compare-20261029/ipadpro-m1-portrait/week-2-native/trace/hitches-frame-lifetimes.xml"
+    ],
+    [
+      "xcrun",
+      "xctrace",
+      "export",
+      "--input",
+      ".build/viewport-compare-20261029/ipadpro-m1-portrait/week-2-native/trace/touch.trace",
+      "--xpath",
+      "/trace-toc/run[@number=\"1\"]/data/table[@schema=\"hitches\"]",
+      "--output",
+      ".build/viewport-compare-20261029/ipadpro-m1-portrait/week-2-native/trace/hitches.xml"
+    ],
+    [
+      "xcrun",
+      "xctrace",
+      "export",
+      "--input",
+      ".build/viewport-compare-20261029/ipadpro-m1-portrait/week-2-native/trace/touch.trace",
+      "--xpath",
+      "/trace-toc/run[@number=\"1\"]/data/table[@schema=\"display-vsyncs-interval\"]",
+      "--output",
+      ".build/viewport-compare-20261029/ipadpro-m1-portrait/week-2-native/trace/display-vsyncs-interval.xml"
+    ],
+    [
+      "xcrun",
+      "xctrace",
+      "export",
+      "--input",
+      ".build/viewport-compare-20261029/ipadpro-m1-portrait/week-2-native/trace/touch.trace",
+      "--xpath",
+      "/trace-toc/run[@number=\"1\"]/data/table[@schema=\"device-display-info\"]",
+      "--output",
+      ".build/viewport-compare-20261029/ipadpro-m1-portrait/week-2-native/trace/device-display-info.xml"
+    ],
+    [
+      "xcrun",
+      "xctrace",
+      "export",
+      "--input",
+      ".build/viewport-compare-20261029/ipadpro-m1-portrait/week-2-native/trace/touch.trace",
+      "--xpath",
+      "/trace-toc/run[@number=\"1\"]/data/table[@schema=\"displayed-surfaces-interval\"]",
+      "--output",
+      ".build/viewport-compare-20261029/ipadpro-m1-portrait/week-2-native/trace/displayed-surfaces-interval.xml"
+    ],
+    [
+      "xcrun",
+      "xctrace",
+      "export",
+      "--input",
+      ".build/viewport-compare-20261029/ipadpro-m1-portrait/week-2-native/trace/touch.trace",
+      "--xpath",
+      "/trace-toc/run[@number=\"1\"]/data/table[@schema=\"display-surface-swap\"]",
+      "--output",
+      ".build/viewport-compare-20261029/ipadpro-m1-portrait/week-2-native/trace/display-surface-swap.xml"
+    ],
+    [
+      "~/.pyenv/versions/3.11.5/bin/python3",
+      "~/repo/abrega/gtfuwgth/tools/calendar-library-benchmark/report-hitches.py",
+      "--directory",
+      ".build/viewport-compare-20261029/ipadpro-m1-portrait/week-2-native/trace",
+      "--pid",
+      "5028",
+      "--out",
+      ".build/viewport-compare-20261029/ipadpro-m1-portrait/week-2-native/trace/analysis.json"
+    ]
+  ],
+  "xctestrun": ".build/physical-stress-ui-dd/Build/Products/PhysicalStressUITests-system-idle-probe-portrait.xctestrun",
+  "process": {
+    "executable": "file:///private/var/containers/Bundle/Application/B62398CB-5562-45C1-B613-0B8D8D628819/Banana%20Stress%20Review.app/Banana%20Stress%20Review",
+    "processIdentifier": 5028
+  },
+  "profileExit": 0,
+  "testExit": 0,
+  "analysisExit": 1
+}

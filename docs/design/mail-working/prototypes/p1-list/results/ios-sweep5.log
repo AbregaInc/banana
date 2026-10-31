@@ -1,0 +1,31 @@
+lazy  /positionY   prepend       pass=False deciding=192 shifts=[192, 192, 192, 192, 192, 192, 192, 192, 192, 192] displacedFrames=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1] missing=0
+lazy  /positionID  prepend       pass=True  deciding=0 shifts=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0] displacedFrames=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0] missing=1200
+lazy  /reader      prepend       pass=False deciding=192 shifts=[192, 192, 192, 192, 192, 192, 192, 192, 192, 192] displacedFrames=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1] missing=0
+lazy  /readerNow   prepend       pass=False deciding=192 shifts=[192, 192, 192, 192, 192, 192, 192, 192, 192, 192] displacedFrames=[120, 120, 120, 120, 120, 120, 120, 120, 120, 120] missing=0
+lazy  /readerAsync prepend       pass=False deciding=192 shifts=[-1, 192, 192, 192, 192, 192, 192, 192, 192, 192] displacedFrames=[None, 120, 120, 120, 120, 120, 120, 120, 120, 120] missing=0
+lazy  /none        prepend       pass=False deciding=192 shifts=[192, 192, 192, 192, 192, 192, 192, 192, 192, 192] displacedFrames=[120, 120, 120, 120, 120, 120, 120, 120, 120, 120] missing=0
+lazy  /anchor      prepend       pass=False deciding=192 shifts=[192, 192, 192, 192, 192, 192, 192, 192, 192, 192] displacedFrames=[120, 120, 120, 120, 120, 120, 120, 120, 120, 120] missing=0
+lazy  /id          prepend       pass=True  deciding=0 shifts=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0] displacedFrames=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0] missing=0
+lazy  /idBox       prepend       pass=False deciding=192 shifts=[192, 192, 192, 192, 192, 192, 192, 192, 192, 192] displacedFrames=[120, 120, 120, 120, 120, 120, 120, 120, 120, 120] missing=0
+list  /reader      prepend       pass=False deciding=448 shifts=[448, 448, 448, 448, 448, 448, 448, 448, 448, 448] displacedFrames=[118, 120, 120, 120, 120, 120, 120, 120, 120, 120] missing=0
+list  /readerNow   prepend       pass=False deciding=768 shifts=[718, 704, 704, 704, 704, 704, 704, 704, 704, 768] displacedFrames=[117, 120, 120, 120, 120, 120, 119, 119, 120, 119] missing=0
+list  /readerAsync prepend       pass=False deciding=718 shifts=[-1, 718, 640, 704, 704, 704, 704, 704, 704, 704] displacedFrames=[None, 117, 120, 120, 120, 120, 120, 120, 119, 120] missing=0
+list  /none        prepend       pass=False deciding=192 shifts=[192, 192, 192, 192, 192, 192, 192, 192, 192, 192] displacedFrames=[119, 119, 119, 119, 118, 119, 119, 119, 119, 119] missing=0
+list  /reader      rebuild       pass=False deciding=-1 firstPresentDelta=[None, None, None, None, None] framesBeforeHost=[1, 1, 1, 1, 1] blankListFrames=[54, 54, 54, 54, 54] after=[0, 0, 0, 0, 0]
+list  /readerNow   rebuild       pass=False deciding=-1 firstPresentDelta=[None, None, None, None, None] framesBeforeHost=[1, 1, 1, 1, 1] blankListFrames=[54, 54, 54, 54, 54] after=[0, 0, 0, 0, 0]
+list  /readerAsync rebuild       pass=False deciding=-1 firstPresentDelta=[None, None, None, None, None] framesBeforeHost=[None, 1, 1, 1, 1] blankListFrames=[None, 54, 54, 54, 54] after=[0, 0, 0, 0, 0]
+lazy  /positionY   rebuild       pass=True  deciding=0.33333333333393966 firstPresentDelta=[-0.3, -0.3, -0.3, -0.3, -0.3] framesBeforeHost=[1, 1, 1, 1, 1] blankListFrames=[0, 0, 0, 0, 0] after=[0.3, 0.3, 0.3, 0.3, 0.3]
+lazy  /positionID  rebuild       pass=False deciding=-1 firstPresentDelta=[None, None, None, None, None] framesBeforeHost=[1, 1, 1, 1, 1] blankListFrames=[59, 59, 59, 59, 59] after=[0, 0, 0, 0, 0]
+lazy  /reader      rebuild       pass=False deciding=1.6666666666678793 firstPresentDelta=[-1.7, -1.7, -1.7, -1.7, -1.7] framesBeforeHost=[1, 1, 1, 1, 1] blankListFrames=[0, 0, 0, 0, 0] after=[1.7, 1.7, 1.7, 1.7, 1.7]
+lazy  /readerNow   rebuild       pass=False deciding=1.6666666666678793 firstPresentDelta=[-1.7, -1.7, -1.7, -1.7, -1.7] framesBeforeHost=[1, 1, 1, 1, 1] blankListFrames=[0, 0, 0, 0, 0] after=[1.7, 1.7, 1.7, 1.7, 1.7]
+lazy  /readerAsync rebuild       pass=False deciding=1.6666666666678793 firstPresentDelta=[None, -1.7, -1.7, -1.7, -1.7] framesBeforeHost=[None, 1, 1, 1, 1] blankListFrames=[None, 0, 0, 0, 0] after=[0, 1.7, 1.7, 1.7, 1.7]
+lazy  /id          rebuild       pass=False deciding=47.66666666666606 firstPresentDelta=[23.7, 47.7, None, 23.7, 47.7] framesBeforeHost=[1, 1, None, 1, 1] blankListFrames=[0, 0, None, 0, 0] after=[23.7, 47.7, 0, 23.7, 47.7]
+list  /reader      slide         pass=False deciding=2 worstErr=64.0 recentres=3 frames=1209 compared=25 nyMissing=1183 syMissing=1183 onSlide=0 lateScrollFrames=2 realJumps=2 (max 64)
+list  /readerNow   slide         pass=False deciding=2 worstErr=64.0 recentres=3 frames=1209 compared=25 nyMissing=1183 syMissing=1183 onSlide=0 lateScrollFrames=2 realJumps=2 (max 64)
+list  /readerAsync slide         pass=False deciding=3 worstErr=452.0 recentres=3 frames=1205 compared=41 nyMissing=1163 syMissing=1162 onSlide=0 lateScrollFrames=2 realJumps=4 (max 5072)
+lazy  /positionY   slide         pass=False deciding=1180 worstErr=1569.0 recentres=3 frames=1219 compared=1218 nyMissing=1219 syMissing=0 onSlide=3 lateScrollFrames=587 realJumps=6 (max 1569)
+lazy  /positionID  slide         pass=False deciding=6 worstErr=64.0 recentres=3 frames=1214 compared=31 nyMissing=1214 syMissing=1179 onSlide=0 lateScrollFrames=6 realJumps=6 (max 64)
+lazy  /reader      slide         pass=False deciding=1180 worstErr=1121.0 recentres=3 frames=1218 compared=1217 nyMissing=1218 syMissing=0 onSlide=3 lateScrollFrames=586 realJumps=9 (max 1121)
+lazy  /readerNow   slide         pass=False deciding=1174 worstErr=1313.0 recentres=3 frames=1216 compared=1215 nyMissing=1216 syMissing=0 onSlide=2 lateScrollFrames=585 realJumps=4 (max 1313)
+lazy  /readerAsync slide         pass=False deciding=1182 worstErr=1569.0 recentres=3 frames=1220 compared=1219 nyMissing=1220 syMissing=0 onSlide=3 lateScrollFrames=588 realJumps=9 (max 1569)
+lazy  /id          slide         pass=False deciding=1120 worstErr=5824.0 recentres=3 frames=1217 compared=1212 nyMissing=1217 syMissing=2 onSlide=1 lateScrollFrames=560 realJumps=3 (max 6464)

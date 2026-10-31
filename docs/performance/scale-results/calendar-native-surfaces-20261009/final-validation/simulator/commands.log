@@ -1,0 +1,61 @@
+["xcrun", "simctl", "install", "5829A24D-81B4-49D9-A31A-C7553C32D527", ".build/calendar-library-dd/Build/Products/Release-iphonesimulator/CalendarLibraryBenchmark.app"]
+
+["xcrun", "simctl", "get_app_container", "5829A24D-81B4-49D9-A31A-C7553C32D527", "com.boris.banana.calendar-library-benchmark", "data"]
+~/Library/Developer/CoreSimulator/Devices/5829A24D-81B4-49D9-A31A-C7553C32D527/data/Containers/Data/Application/F5DE88EB-EB07-4254-A3A9-1E8ABA43A16E
+
+["xcrun", "simctl", "launch", "--terminate-running-process", "5829A24D-81B4-49D9-A31A-C7553C32D527", "com.boris.banana.calendar-library-benchmark", "--candidate", "native", "--mode", "week", "--days", "365", "--density", "100", "--renderer", "tiles", "--ablation", "tile-prefetch-async-surface", "--async-workers", "2", "--check", "navigation", "--output", "final-iphone-100-control.json"]
+com.boris.banana.calendar-library-benchmark: 66385
+
+["xcrun", "simctl", "launch", "--terminate-running-process", "5829A24D-81B4-49D9-A31A-C7553C32D527", "com.boris.banana.calendar-library-benchmark", "--candidate", "native", "--mode", "week", "--days", "365", "--density", "100", "--renderer", "tiles", "--ablation", "tile-prefetch-async-surface", "--async-workers", "2", "--check", "navigation", "--output", "final-iphone-100-dispatch.json", "--foreground-dispatch"]
+com.boris.banana.calendar-library-benchmark: 66485
+
+["xcrun", "simctl", "launch", "--terminate-running-process", "5829A24D-81B4-49D9-A31A-C7553C32D527", "com.boris.banana.calendar-library-benchmark", "--candidate", "native", "--mode", "week", "--days", "365", "--density", "100", "--renderer", "tiles", "--ablation", "tile-prefetch-async-surface", "--async-workers", "2", "--check", "navigation", "--output", "final-iphone-100-text.json", "--raster-native-text"]
+com.boris.banana.calendar-library-benchmark: 66570
+
+["xcrun", "simctl", "launch", "--terminate-running-process", "5829A24D-81B4-49D9-A31A-C7553C32D527", "com.boris.banana.calendar-library-benchmark", "--candidate", "native", "--mode", "week", "--days", "365", "--density", "100", "--renderer", "tiles", "--ablation", "tile-prefetch-async-surface", "--async-workers", "2", "--check", "navigation", "--output", "final-iphone-100-combined.json", "--foreground-dispatch", "--raster-native-text"]
+com.boris.banana.calendar-library-benchmark: 66629
+
+["xcrun", "simctl", "launch", "--terminate-running-process", "5829A24D-81B4-49D9-A31A-C7553C32D527", "com.boris.banana.calendar-library-benchmark", "--candidate", "native", "--mode", "week", "--days", "365", "--density", "300", "--renderer", "tiles", "--ablation", "tile-prefetch-async-surface", "--async-workers", "2", "--check", "navigation", "--output", "final-iphone-300-control.json"]
+com.boris.banana.calendar-library-benchmark: 66785
+
+["xcrun", "simctl", "launch", "--terminate-running-process", "5829A24D-81B4-49D9-A31A-C7553C32D527", "com.boris.banana.calendar-library-benchmark", "--candidate", "native", "--mode", "week", "--days", "365", "--density", "300", "--renderer", "tiles", "--ablation", "tile-prefetch-async-surface", "--async-workers", "2", "--check", "navigation", "--output", "final-iphone-300-dispatch.json", "--foreground-dispatch"]
+com.boris.banana.calendar-library-benchmark: 66873
+
+["xcrun", "simctl", "launch", "--terminate-running-process", "5829A24D-81B4-49D9-A31A-C7553C32D527", "com.boris.banana.calendar-library-benchmark", "--candidate", "native", "--mode", "week", "--days", "365", "--density", "300", "--renderer", "tiles", "--ablation", "tile-prefetch-async-surface", "--async-workers", "2", "--check", "navigation", "--output", "final-iphone-300-text.json", "--raster-native-text"]
+com.boris.banana.calendar-library-benchmark: 66998
+
+["xcrun", "simctl", "launch", "--terminate-running-process", "5829A24D-81B4-49D9-A31A-C7553C32D527", "com.boris.banana.calendar-library-benchmark", "--candidate", "native", "--mode", "week", "--days", "365", "--density", "300", "--renderer", "tiles", "--ablation", "tile-prefetch-async-surface", "--async-workers", "2", "--check", "navigation", "--output", "final-iphone-300-combined.json", "--foreground-dispatch", "--raster-native-text"]
+com.boris.banana.calendar-library-benchmark: 67078
+
+["xcrun", "simctl", "terminate", "5829A24D-81B4-49D9-A31A-C7553C32D527", "com.boris.banana.calendar-library-benchmark"]
+
+["xcrun", "simctl", "install", "7CE990BF-066D-4E79-BA7F-B5F285E6A66C", ".build/calendar-library-dd/Build/Products/Release-iphonesimulator/CalendarLibraryBenchmark.app"]
+
+["xcrun", "simctl", "get_app_container", "7CE990BF-066D-4E79-BA7F-B5F285E6A66C", "com.boris.banana.calendar-library-benchmark", "data"]
+~/Library/Developer/CoreSimulator/Devices/7CE990BF-066D-4E79-BA7F-B5F285E6A66C/data/Containers/Data/Application/87461671-BFAF-409B-8C8B-E5D123900DFB
+
+["xcrun", "simctl", "launch", "--terminate-running-process", "7CE990BF-066D-4E79-BA7F-B5F285E6A66C", "com.boris.banana.calendar-library-benchmark", "--candidate", "native", "--mode", "week", "--days", "365", "--density", "100", "--renderer", "tiles", "--ablation", "tile-prefetch-async-surface", "--async-workers", "2", "--check", "navigation", "--output", "final-ipad-100-control.json"]
+com.boris.banana.calendar-library-benchmark: 67241
+
+["xcrun", "simctl", "launch", "--terminate-running-process", "7CE990BF-066D-4E79-BA7F-B5F285E6A66C", "com.boris.banana.calendar-library-benchmark", "--candidate", "native", "--mode", "week", "--days", "365", "--density", "100", "--renderer", "tiles", "--ablation", "tile-prefetch-async-surface", "--async-workers", "2", "--check", "navigation", "--output", "final-ipad-100-dispatch.json", "--foreground-dispatch"]
+com.boris.banana.calendar-library-benchmark: 67395
+
+["xcrun", "simctl", "launch", "--terminate-running-process", "7CE990BF-066D-4E79-BA7F-B5F285E6A66C", "com.boris.banana.calendar-library-benchmark", "--candidate", "native", "--mode", "week", "--days", "365", "--density", "100", "--renderer", "tiles", "--ablation", "tile-prefetch-async-surface", "--async-workers", "2", "--check", "navigation", "--output", "final-ipad-100-text.json", "--raster-native-text"]
+com.boris.banana.calendar-library-benchmark: 67539
+
+["xcrun", "simctl", "launch", "--terminate-running-process", "7CE990BF-066D-4E79-BA7F-B5F285E6A66C", "com.boris.banana.calendar-library-benchmark", "--candidate", "native", "--mode", "week", "--days", "365", "--density", "100", "--renderer", "tiles", "--ablation", "tile-prefetch-async-surface", "--async-workers", "2", "--check", "navigation", "--output", "final-ipad-100-combined.json", "--foreground-dispatch", "--raster-native-text"]
+com.boris.banana.calendar-library-benchmark: 67718
+
+["xcrun", "simctl", "launch", "--terminate-running-process", "7CE990BF-066D-4E79-BA7F-B5F285E6A66C", "com.boris.banana.calendar-library-benchmark", "--candidate", "native", "--mode", "week", "--days", "365", "--density", "300", "--renderer", "tiles", "--ablation", "tile-prefetch-async-surface", "--async-workers", "2", "--check", "navigation", "--output", "final-ipad-300-control.json"]
+com.boris.banana.calendar-library-benchmark: 67797
+
+["xcrun", "simctl", "launch", "--terminate-running-process", "7CE990BF-066D-4E79-BA7F-B5F285E6A66C", "com.boris.banana.calendar-library-benchmark", "--candidate", "native", "--mode", "week", "--days", "365", "--density", "300", "--renderer", "tiles", "--ablation", "tile-prefetch-async-surface", "--async-workers", "2", "--check", "navigation", "--output", "final-ipad-300-dispatch.json", "--foreground-dispatch"]
+com.boris.banana.calendar-library-benchmark: 67909
+
+["xcrun", "simctl", "launch", "--terminate-running-process", "7CE990BF-066D-4E79-BA7F-B5F285E6A66C", "com.boris.banana.calendar-library-benchmark", "--candidate", "native", "--mode", "week", "--days", "365", "--density", "300", "--renderer", "tiles", "--ablation", "tile-prefetch-async-surface", "--async-workers", "2", "--check", "navigation", "--output", "final-ipad-300-text.json", "--raster-native-text"]
+com.boris.banana.calendar-library-benchmark: 68022
+
+["xcrun", "simctl", "launch", "--terminate-running-process", "7CE990BF-066D-4E79-BA7F-B5F285E6A66C", "com.boris.banana.calendar-library-benchmark", "--candidate", "native", "--mode", "week", "--days", "365", "--density", "300", "--renderer", "tiles", "--ablation", "tile-prefetch-async-surface", "--async-workers", "2", "--check", "navigation", "--output", "final-ipad-300-combined.json", "--foreground-dispatch", "--raster-native-text"]
+com.boris.banana.calendar-library-benchmark: 68124
+
+["xcrun", "simctl", "terminate", "7CE990BF-066D-4E79-BA7F-B5F285E6A66C", "com.boris.banana.calendar-library-benchmark"]

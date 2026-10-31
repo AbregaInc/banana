@@ -1,0 +1,24 @@
+name: Cloud service
+on:
+  pull_request:
+    paths: ['Service/**', 'Shared/LiveFilterRules.json', '.node-version', '.github/workflows/service.yml']
+  push:
+    paths: ['Service/**', 'Shared/LiveFilterRules.json', '.node-version', '.github/workflows/service.yml']
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: Service
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: npm
+          cache-dependency-path: Service/package-lock.json
+      - run: npm ci
+      - run: npm test

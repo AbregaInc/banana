@@ -1,0 +1,158 @@
+[
+  {
+    "text": "Work meetings next week, excluding declined",
+    "scope": "plan",
+    "terms": [
+      "calendar:is:work-id",
+      "date:in:nextWeek",
+      "kind:is:meeting",
+      "status:not:declined"
+    ]
+  },
+  {
+    "text": "not Work today",
+    "scope": "plan",
+    "terms": [
+      "calendar:not:work-id",
+      "date:in:today"
+    ]
+  },
+  {
+    "text": "Meetings with Alex Chen next week",
+    "scope": "plan",
+    "terms": [
+      "date:in:nextWeek",
+      "kind:is:meeting",
+      "person:contains:Alex Chen"
+    ]
+  },
+  {
+    "text": "Unread emails from Alex Morgan",
+    "scope": "mail",
+    "terms": [
+      "person:contains:Alex Morgan",
+      "unread:is:true"
+    ]
+  },
+  {
+    "text": "Unarchived notes about physical therapy",
+    "scope": "notes",
+    "terms": [
+      "archived:is:false",
+      "text:contains:physical therapy"
+    ]
+  },
+  {
+    "text": "Strength workouts longer than 30 minutes this week",
+    "scope": "workouts",
+    "terms": [
+      "date:in:thisWeek",
+      "duration:gt:30",
+      "kind:is:strength"
+    ]
+  },
+  {
+    "text": "Running workouts under 45 minutes last month",
+    "scope": "workouts",
+    "terms": [
+      "date:in:lastMonth",
+      "duration:lt:45",
+      "kind:is:running"
+    ]
+  },
+  {
+    "text": "notes about \"today\"",
+    "scope": "notes",
+    "terms": [
+      "text:contains:today"
+    ]
+  },
+  {
+    "text": "notes about café 😃",
+    "scope": "notes",
+    "terms": [
+      "text:contains:café 😃"
+    ]
+  },
+  {
+    "text": "read emails not starred",
+    "scope": "mail",
+    "terms": [
+      "starred:is:false",
+      "unread:is:false"
+    ]
+  },
+  {
+    "text": "meetings today next week",
+    "scope": "plan",
+    "issues": 1
+  },
+  {
+    "text": "running or walking workouts",
+    "scope": "workouts",
+    "issues": 2
+  },
+  {
+    "text": "last 30 days",
+    "scope": "notes",
+    "terms": [
+      "date:in:30days"
+    ]
+  },
+  {
+    "text": "all-day events tomorrow",
+    "scope": "plan",
+    "terms": [
+      "allDay:is:true",
+      "date:in:tomorrow"
+    ]
+  },
+  {
+    "text": "events excluding canceled",
+    "scope": "plan",
+    "terms": [
+      "status:not:canceled"
+    ]
+  },
+  {
+    "text": "notes",
+    "scope": "notes",
+    "terms": []
+  },
+  {
+    "text": "\"next week\" notes about shoulders",
+    "scope": "notes",
+    "terms": [
+      "text:contains:next week",
+      "text:contains:shoulders"
+    ]
+  },
+  {
+    "text": "important emails this month",
+    "scope": "mail",
+    "terms": [
+      "date:in:thisMonth",
+      "important:is:true"
+    ]
+  },
+  {
+    "text": "Swimming workouts today",
+    "scope": "workouts",
+    "terms": [
+      "date:in:today",
+      "kind:is:swimming"
+    ]
+  },
+  {
+    "text": "show all my unread emails",
+    "scope": "mail",
+    "terms": [
+      "unread:is:true"
+    ]
+  },
+  {
+    "text": "canceled events today",
+    "scope": "plan",
+    "issues": 1
+  }
+]

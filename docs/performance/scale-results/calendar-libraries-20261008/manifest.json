@@ -1,0 +1,56 @@
+{
+  "scope": "Isolated UIKit Release renderer component evaluation; not real input/display acceptance",
+  "productionRendererChanged": false,
+  "pinnedRevisions": {
+    "CalendarKit": "99a4a05c641d70c3f735ef4256f60dc86580cf20",
+    "KVKCalendar": "0bcad2bd51e512a4088c0bcf65b85bc6e484d86f",
+    "ScheduleKitSourceOnly": "b4f631e027d6cbaee799a5a4d8b97aea89df665c"
+  },
+  "earlierRunsRetainedLocally": [
+    {
+      "path": ".build/calendar-library-review/iphone-run-1",
+      "validity": "Invalid: forced layout each offset and inconsistent timezone. Do not compare timings."
+    },
+    {
+      "path": ".build/calendar-library-review/iphone-run-2",
+      "validity": "CalendarKit component data retained; KVK invalid: reload before scrollTo, full feed blank."
+    },
+    {
+      "path": ".build/calendar-library-review/ipad-run-1",
+      "validity": "Interrupted for adapter correction. CalendarKit partial data retained; do not treat as complete suite."
+    }
+  ],
+  "buildLog": ".build/calendar-library-review/build-v3.log",
+  "sourceCheckouts": ".build/calendar-library-review/sources",
+  "limitations": [
+    "Severe shared-host load; no clean comparative ranking",
+    "Programmatic API/layout/flush timings exclude asynchronous work and actual input/display delivery",
+    "No physical-device, AppKit integration, memory, feature parity or durable-edit acceptance",
+    "No new baseline; failed and invalid runs retained"
+  ],
+  "harnessFilesSHA256": {
+    "tools/calendar-library-benchmark/run.py": "56a235b9b8f44469d9ee77559c5ad6d1dca60476f3d39f9c2810253a45f104fe",
+    "tools/calendar-library-benchmark/project.yml": "d282d9dffec54ea0a81442a6fae1bdae0207f511487dfb249b1839a8f27f60c4",
+    "tools/calendar-library-benchmark/test_report.py": "fd7c8376fc191a5f8b52fe4efeb285ae5a7f219f768289b12476bee7c6d34bf8",
+    "tools/calendar-library-benchmark/report.py": "e6890da64b39a5a46a7bfbea5eb44dd1ce02a7bdc7ebc93977e86d9bc69b72ab",
+    "tools/calendar-library-benchmark/Sources/Benchmark.swift": "1339488484f7eb515af01ce9c37ffe0fcaab0be140100453e44b8bf80456f9d0"
+  },
+  "runnerRevisionNote": "The iPhone runner began before subprocess command timeouts and failure filename/elapsed fields were added; binary and timed sections are identical across corrected iPhone/iPad attempts.",
+  "finalCoverage": {
+    "iphone": {
+      "measuredOverBudget": 9,
+      "failedOrTimeout": 2
+    },
+    "ipad": {
+      "measured": 0,
+      "failedOrTimeout": 3,
+      "interruptedOrUnmeasured": 8
+    }
+  },
+  "tests": {
+    "existingGateIntegrity": 19,
+    "newRendererEvidence": 5,
+    "releaseBuild": "passed",
+    "productionAppSuite": "Not rerun: isolated benchmark/docs/CI only; production code unchanged. Fresh Simulator UI/component runs blocked by repeated launch/result timeouts."
+  }
+}

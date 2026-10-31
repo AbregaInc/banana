@@ -1,0 +1,19 @@
+Measuring scale-1d
+Measuring scale-7d
+Measuring scale-30d
+Measuring scale-90d
+Measuring redraw-notes
+Measuring redraw-library
+Measuring redraw-plan
+Measuring redraw-mail
+{
+  "status": "fail",
+  "scope": "Simulator components, not UI acceptance",
+  "baselineVersion": 1,
+  "failures": {
+    "redraw-mail": [
+      "mail.firstPage.p95MS: 16.474 > 12.830 + 2.000 ms"
+    ]
+  }
+}
+Artifacts: ~/orca/workspaces/gtfuwgth/stingray/.build/calendar-grid/app-regression-retry

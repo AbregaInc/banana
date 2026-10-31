@@ -1,0 +1,50 @@
+name: CalendarLibraryBenchmark
+options:
+  deploymentTarget:
+    iOS: '26.1'
+packages:
+  CalendarKit:
+    url: https://github.com/richardtop/CalendarKit.git
+    revision: 99a4a05c641d70c3f735ef4256f60dc86580cf20
+  KVKCalendar:
+    url: https://github.com/kvyatkovskys/KVKCalendar.git
+    revision: 0bcad2bd51e512a4088c0bcf65b85bc6e484d86f
+settings:
+  base:
+    SWIFT_VERSION: '5.0'
+    CODE_SIGNING_ALLOWED: NO
+    SUPPORTS_MACCATALYST: YES
+    TARGETED_DEVICE_FAMILY: '1,2'
+targets:
+  CalendarLibraryBenchmark:
+    type: application
+    platform: iOS
+    info:
+      path: Info.plist
+      properties:
+        CADisableMinimumFrameDurationOnPhone: true
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+          UISceneConfigurations: {}
+        UIApplicationSupportsIndirectInputEvents: true
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+    sources: [Sources, Shared]
+    dependencies:
+      - package: CalendarKit
+      - package: KVKCalendar
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.boris.banana.calendar-library-benchmark
+        GENERATE_INFOPLIST_FILE: NO
+schemes:
+  CalendarLibraryBenchmark:
+    build:
+      targets:
+        CalendarLibraryBenchmark: all
+    run:
+      config: Release

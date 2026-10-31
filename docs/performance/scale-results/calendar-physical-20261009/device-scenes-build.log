@@ -1,0 +1,48 @@
+error: the following command failed with exit code 0 but produced no further output
+SwiftCompile normal arm64 (in target 'CalendarLibraryBenchmark' from project 'CalendarLibraryBenchmark')
+~/orca/workspaces/gtfuwgth/stingray/tools/calendar-library-benchmark/Sources/Benchmark.swift:25:46: warning: conformance of 'KVKController' to protocol 'CalendarDataSource' crosses into main actor-isolated code and can cause data races; this is an error in the Swift 6 language mode [#ConformanceIsolation]
+ 23 | 
+ 24 | @MainActor
+ 25 | final class KVKController: UIViewController, CalendarDataSource {
+    |                                              |- warning: conformance of 'KVKController' to protocol 'CalendarDataSource' crosses into main actor-isolated code and can cause data races; this is an error in the Swift 6 language mode [#ConformanceIsolation]
+    |                                              |- note: isolate this conformance to the main actor with '@MainActor'
+    |                                              `- note: turn data races into runtime errors with '@preconcurrency'
+ 26 |     let store: FixtureStore
+ 27 |     var date: Date
+    :
+ 61 |         refresh()
+ 62 |     }
+ 63 |     func eventsForCalendar(systemEvents: [EKEvent]) -> [KVKCalendar.Event] { items }
+    |          |- note: main actor-isolated instance method 'eventsForCalendar(systemEvents:)' cannot satisfy nonisolated requirement
+    |          `- note: mark instance method 'eventsForCalendar(systemEvents:)' 'nonisolated'
+ 64 | }
+ 65 | 
+
+~/orca/workspaces/gtfuwgth/stingray/tools/calendar-library-benchmark/Sources/Benchmark.swift:226:71: warning: 'main' was deprecated in iOS 26.0: Use a UIScreen instance found through context instead (i.e, view.window.windowScene.screen), or for properties like UIScreen.scale with trait equivalents, use a traitCollection found through context. [#DeprecatedDeclaration]
+224 |             "fixtureGenerationMS": fixtureMS, "samples": primary, "experiments": samples, "verticalScrollFound": scroll != nil,
+225 |             "screen": ["width": view.bounds.width, "height": view.bounds.height,
+226 |                        "scale": view.window?.screen.scale ?? UIScreen.main.scale,
+    |                                                                       `- warning: 'main' was deprecated in iOS 26.0: Use a UIScreen instance found through context instead (i.e, view.window.windowScene.screen), or for properties like UIScreen.scale with trait equivalents, use a traitCollection found through context. [#DeprecatedDeclaration]
+227 |                        "maximumFramesPerSecond": view.window?.screen.maximumFramesPerSecond ?? UIScreen.main.maximumFramesPerSecond],
+228 |             "deviceModel": UIDevice.current.model,
+
+~/orca/workspaces/gtfuwgth/stingray/tools/calendar-library-benchmark/Sources/Benchmark.swift:227:105: warning: 'main' was deprecated in iOS 26.0: Use a UIScreen instance found through context instead (i.e, view.window.windowScene.screen), or for properties like UIScreen.scale with trait equivalents, use a traitCollection found through context. [#DeprecatedDeclaration]
+225 |             "screen": ["width": view.bounds.width, "height": view.bounds.height,
+226 |                        "scale": view.window?.screen.scale ?? UIScreen.main.scale,
+227 |                        "maximumFramesPerSecond": view.window?.screen.maximumFramesPerSecond ?? UIScreen.main.maximumFramesPerSecond],
+    |                                                                                                         `- warning: 'main' was deprecated in iOS 26.0: Use a UIScreen instance found through context instead (i.e, view.window.windowScene.screen), or for properties like UIScreen.scale with trait equivalents, use a traitCollection found through context. [#DeprecatedDeclaration]
+228 |             "deviceModel": UIDevice.current.model,
+229 |             "thermalStateAtCompletion": ProcessInfo.processInfo.thermalState.rawValue,
+
+~/orca/workspaces/gtfuwgth/stingray/tools/calendar-library-benchmark/Shared/CalendarGridView.swift:48:15: warning: 'traitCollectionDidChange' was deprecated in iOS 17.0: Use the trait change registration APIs declared in the UITraitChangeObservable protocol [#DeprecatedDeclaration]
+46 |     required init?(coder: NSCoder) { fatalError("Programmatic prototype") }
+47 |     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+48 |         super.traitCollectionDidChange(previousTraitCollection)
+   |               `- warning: 'traitCollectionDidChange' was deprecated in iOS 17.0: Use the trait change registration APIs declared in the UITraitChangeObservable protocol [#DeprecatedDeclaration]
+49 |         if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) { invalidate() }
+50 |     }
+
+[#ConformanceIsolation]: <https://docs.swift.org/compiler/documentation/diagnostics/conformance-isolation>
+[#DeprecatedDeclaration]: <https://docs.swift.org/compiler/documentation/diagnostics/deprecated-declaration>
+warning: 'UIRequiresFullScreen' has been deprecated starting in iOS 26.0 and will be ignored in a future release. See the UIRequiresFullScreen documentation for more details. (in target 'CalendarLibraryBenchmark' from project 'CalendarLibraryBenchmark')
+warning: All interface orientations must be supported unless the app requires full screen. (in target 'CalendarLibraryBenchmark' from project 'CalendarLibraryBenchmark')

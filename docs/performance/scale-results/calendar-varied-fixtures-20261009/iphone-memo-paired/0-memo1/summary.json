@@ -1,0 +1,375 @@
+[
+  {
+    "scenario": "dense-300-trial0",
+    "status": "measured",
+    "acceptance": "fail",
+    "phases": {
+      "coldMount": {
+        "count": 1,
+        "p50MS": 85.29537497088313,
+        "p95MS": 85.29537497088313,
+        "p99MS": 85.29537497088313,
+        "maxMS": 85.29537497088313,
+        "over8_3MS": 1,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "page": {
+        "count": 12,
+        "p50MS": 7.631416665390134,
+        "p95MS": 16.539583331905305,
+        "p99MS": 16.539583331905305,
+        "maxMS": 16.539583331905305,
+        "over8_3MS": 4,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "settledLayout": {
+        "count": 13,
+        "p50MS": 0.051333336159586906,
+        "p95MS": 0.07833330892026424,
+        "p99MS": 0.07833330892026424,
+        "maxMS": 0.07833330892026424,
+        "over8_3MS": 0,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "scrollOffset": {
+        "count": 120,
+        "p50MS": 0.30016666278243065,
+        "p95MS": 7.563125109300017,
+        "p99MS": 10.372541612014174,
+        "maxMS": 68.90683341771364,
+        "over8_3MS": 6,
+        "over100MS": 0,
+        "maxAttachedEvents": 0,
+        "maxIntersectingEvents": 0
+      },
+      "uncachedPage": {
+        "count": 6,
+        "p50MS": 57.799916714429855,
+        "p95MS": 106.01316660176963,
+        "p99MS": 106.01316660176963,
+        "maxMS": 106.01316660176963,
+        "over8_3MS": 6,
+        "over100MS": 1
+      },
+      "memoryPressurePage": {
+        "count": 1,
+        "p50MS": 71.74295838922262,
+        "p95MS": 71.74295838922262,
+        "p99MS": 71.74295838922262,
+        "maxMS": 71.74295838922262,
+        "over8_3MS": 1,
+        "over100MS": 0
+      },
+      "resize": {
+        "count": 3,
+        "p50MS": 69.27216670010239,
+        "p95MS": 69.54754155594856,
+        "p99MS": 69.54754155594856,
+        "maxMS": 69.54754155594856,
+        "over8_3MS": 2,
+        "over100MS": 0
+      },
+      "forwardPage": {
+        "count": 12,
+        "p50MS": 2.7747084386646748,
+        "p95MS": 78.26224993914366,
+        "p99MS": 78.26224993914366,
+        "maxMS": 78.26224993914366,
+        "over8_3MS": 2,
+        "over100MS": 0
+      },
+      "returnPage": {
+        "count": 12,
+        "p50MS": 2.629291615448892,
+        "p95MS": 37.72437502630055,
+        "p99MS": 37.72437502630055,
+        "maxMS": 37.72437502630055,
+        "over8_3MS": 2,
+        "over100MS": 0
+      },
+      "rapidForwardPage": {
+        "count": 12,
+        "p50MS": 55.1691249711439,
+        "p95MS": 67.65595823526382,
+        "p99MS": 67.65595823526382,
+        "maxMS": 67.65595823526382,
+        "over8_3MS": 10,
+        "over100MS": 0
+      },
+      "rapidReturnPage": {
+        "count": 12,
+        "p50MS": 51.92954163067043,
+        "p95MS": 71.6247083619237,
+        "p99MS": 71.6247083619237,
+        "maxMS": 71.6247083619237,
+        "over8_3MS": 9,
+        "over100MS": 0
+      }
+    },
+    "foregroundPhases": {
+      "foregroundColdPage": {
+        "responseMS": {
+          "count": 1,
+          "p50MS": 46.65795830078423,
+          "p95MS": 46.65795830078423,
+          "p99MS": 46.65795830078423,
+          "maxMS": 46.65795830078423,
+          "over8_3MS": 1,
+          "over50MS": 0,
+          "over100MS": 0
+        },
+        "measuredMainMS": {
+          "count": 1,
+          "p50MS": 2.627998882645905,
+          "p95MS": 2.627998882645905,
+          "p99MS": 2.627998882645905,
+          "maxMS": 2.627998882645905,
+          "over8_3MS": 0,
+          "over50MS": 0,
+          "over100MS": 0
+        },
+        "maxMainSectionMS": {
+          "count": 1,
+          "p50MS": 2.012416603974998,
+          "p95MS": 2.012416603974998,
+          "p99MS": 2.012416603974998,
+          "maxMS": 2.012416603974998,
+          "over8_3MS": 0,
+          "over50MS": 0,
+          "over100MS": 0
+        }
+      },
+      "foregroundWarmPage": {
+        "responseMS": {
+          "count": 12,
+          "p50MS": 15.198708279058337,
+          "p95MS": 18.717583385296166,
+          "p99MS": 18.717583385296166,
+          "maxMS": 18.717583385296166,
+          "over8_3MS": 9,
+          "over50MS": 0,
+          "over100MS": 0
+        },
+        "measuredMainMS": {
+          "count": 12,
+          "p50MS": 14.973124722476483,
+          "p95MS": 18.514000884832083,
+          "p99MS": 18.514000884832083,
+          "maxMS": 18.514000884832083,
+          "over8_3MS": 9,
+          "over50MS": 0,
+          "over100MS": 0
+        },
+        "maxMainSectionMS": {
+          "count": 12,
+          "p50MS": 14.256500056944788,
+          "p95MS": 17.683583428151906,
+          "p99MS": 17.683583428151906,
+          "maxMS": 17.683583428151906,
+          "over8_3MS": 9,
+          "over50MS": 0,
+          "over100MS": 0
+        }
+      },
+      "foregroundUncachedPage": {
+        "responseMS": {
+          "count": 6,
+          "p50MS": 51.6896250192076,
+          "p95MS": 91.03704174049199,
+          "p99MS": 91.03704174049199,
+          "maxMS": 91.03704174049199,
+          "over8_3MS": 6,
+          "over50MS": 4,
+          "over100MS": 0
+        },
+        "measuredMainMS": {
+          "count": 6,
+          "p50MS": 3.034082611202061,
+          "p95MS": 8.074834207476318,
+          "p99MS": 8.074834207476318,
+          "maxMS": 8.074834207476318,
+          "over8_3MS": 0,
+          "over50MS": 0,
+          "over100MS": 0
+        },
+        "maxMainSectionMS": {
+          "count": 6,
+          "p50MS": 2.046625013463199,
+          "p95MS": 3.8474167231470346,
+          "p99MS": 3.8474167231470346,
+          "maxMS": 3.8474167231470346,
+          "over8_3MS": 0,
+          "over50MS": 0,
+          "over100MS": 0
+        }
+      },
+      "foregroundMemoryPressurePage": {
+        "responseMS": {
+          "count": 1,
+          "p50MS": 51.15208332426846,
+          "p95MS": 51.15208332426846,
+          "p99MS": 51.15208332426846,
+          "maxMS": 51.15208332426846,
+          "over8_3MS": 1,
+          "over50MS": 1,
+          "over100MS": 0
+        },
+        "measuredMainMS": {
+          "count": 1,
+          "p50MS": 1.698584378508687,
+          "p95MS": 1.698584378508687,
+          "p99MS": 1.698584378508687,
+          "maxMS": 1.698584378508687,
+          "over8_3MS": 0,
+          "over50MS": 0,
+          "over100MS": 0
+        },
+        "maxMainSectionMS": {
+          "count": 1,
+          "p50MS": 0.7996250642463565,
+          "p95MS": 0.7996250642463565,
+          "p99MS": 0.7996250642463565,
+          "maxMS": 0.7996250642463565,
+          "over8_3MS": 0,
+          "over50MS": 0,
+          "over100MS": 0
+        }
+      },
+      "foregroundForwardPage": {
+        "responseMS": {
+          "count": 12,
+          "p50MS": 2.727125072851777,
+          "p95MS": 36.48975002579391,
+          "p99MS": 36.48975002579391,
+          "maxMS": 36.48975002579391,
+          "over8_3MS": 1,
+          "over50MS": 0,
+          "over100MS": 0
+        },
+        "measuredMainMS": {
+          "count": 12,
+          "p50MS": 2.676792029146671,
+          "p95MS": 3.4607499076426027,
+          "p99MS": 3.4607499076426027,
+          "maxMS": 3.4607499076426027,
+          "over8_3MS": 0,
+          "over50MS": 0,
+          "over100MS": 0
+        },
+        "maxMainSectionMS": {
+          "count": 12,
+          "p50MS": 2.439708332531154,
+          "p95MS": 3.102125017903745,
+          "p99MS": 3.102125017903745,
+          "maxMS": 3.102125017903745,
+          "over8_3MS": 0,
+          "over50MS": 0,
+          "over100MS": 0
+        }
+      },
+      "foregroundReturnPage": {
+        "responseMS": {
+          "count": 12,
+          "p50MS": 2.685083309188485,
+          "p95MS": 35.68687499500811,
+          "p99MS": 35.68687499500811,
+          "maxMS": 35.68687499500811,
+          "over8_3MS": 2,
+          "over50MS": 0,
+          "over100MS": 0
+        },
+        "measuredMainMS": {
+          "count": 12,
+          "p50MS": 2.6467503606645466,
+          "p95MS": 16.07633358988595,
+          "p99MS": 16.07633358988595,
+          "maxMS": 16.07633358988595,
+          "over8_3MS": 1,
+          "over50MS": 0,
+          "over100MS": 0
+        },
+        "maxMainSectionMS": {
+          "count": 12,
+          "p50MS": 2.4335000198334455,
+          "p95MS": 15.46704163774848,
+          "p99MS": 15.46704163774848,
+          "maxMS": 15.46704163774848,
+          "over8_3MS": 1,
+          "over50MS": 0,
+          "over100MS": 0
+        }
+      },
+      "foregroundRapidForwardPage": {
+        "responseMS": {
+          "count": 12,
+          "p50MS": 47.859624959528446,
+          "p95MS": 55.71804172359407,
+          "p99MS": 55.71804172359407,
+          "maxMS": 55.71804172359407,
+          "over8_3MS": 10,
+          "over50MS": 3,
+          "over100MS": 0
+        },
+        "measuredMainMS": {
+          "count": 12,
+          "p50MS": 2.0947915945351125,
+          "p95MS": 2.5612496675135494,
+          "p99MS": 2.5612496675135494,
+          "maxMS": 2.5612496675135494,
+          "over8_3MS": 0,
+          "over50MS": 0,
+          "over100MS": 0
+        },
+        "maxMainSectionMS": {
+          "count": 12,
+          "p50MS": 1.8593332497403026,
+          "p95MS": 2.3364999797195196,
+          "p99MS": 2.3364999797195196,
+          "maxMS": 2.3364999797195196,
+          "over8_3MS": 0,
+          "over50MS": 0,
+          "over100MS": 0
+        }
+      },
+      "foregroundRapidReturnPage": {
+        "responseMS": {
+          "count": 12,
+          "p50MS": 45.304875005967915,
+          "p95MS": 54.68287505209446,
+          "p99MS": 54.68287505209446,
+          "maxMS": 54.68287505209446,
+          "over8_3MS": 9,
+          "over50MS": 3,
+          "over100MS": 0
+        },
+        "measuredMainMS": {
+          "count": 12,
+          "p50MS": 2.056957829106033,
+          "p95MS": 2.3024159943301084,
+          "p99MS": 2.3024159943301084,
+          "maxMS": 2.3024159943301084,
+          "over8_3MS": 0,
+          "over50MS": 0,
+          "over100MS": 0
+        },
+        "maxMainSectionMS": {
+          "count": 12,
+          "p50MS": 1.8788749584928155,
+          "p95MS": 2.1474583772942424,
+          "p99MS": 2.1474583772942424,
+          "maxMS": 2.1474583772942424,
+          "over8_3MS": 0,
+          "over50MS": 0,
+          "over100MS": 0
+        }
+      }
+    },
+    "foregroundComponentBudget": "fail"
+  }
+]

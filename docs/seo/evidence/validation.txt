@@ -1,0 +1,58 @@
+$ uv run --with markdown-it-py==4.0.0 python -m unittest discover -s LandingPage -p test_content.py
+Published 1 post(s); blog, about, RSS and sitemap generated.
+Published 1 post(s); blog, about, RSS and sitemap generated.
+Previewed 1 post(s); blog, about, RSS and sitemap generated.
+Published 1 post(s); blog, about, RSS and sitemap generated.
+Published 0 post(s); blog, about, RSS and sitemap generated.
+.......
+----------------------------------------------------------------------
+Ran 7 tests in 0.023s
+
+OK
+
+$ uv run --locked LandingPage/build_content.py
+Published 1 post(s); blog, about, RSS and sitemap generated.
+
+$ uv run --locked LandingPage/build_content.py
+Published 1 post(s); blog, about, RSS and sitemap generated.
+
+Repeated production build is byte-for-byte deterministic.
+$ python3 LandingPage/check_site.py
+link preview 725 KB (Messages' limit 10 MB)
+first screen 169 KB (budget 320), whole page 187 KB (budget 900)
+search engines: allowed in
+search checks: 7 indexable pages, sitemap, RSS, metadata and internal anchors
+site check: passed
+
+$ git diff --check
+
+$ uv run --with markdown-it-py==4.0.0 python -m unittest discover -s LandingPage -p test_content.py
+Published 1 post(s); blog, about, RSS and sitemap generated.
+Published 1 post(s); blog, about, RSS and sitemap generated.
+Previewed 1 post(s); blog, about, RSS and sitemap generated.
+Published 1 post(s); blog, about, RSS and sitemap generated.
+Published 0 post(s); blog, about, RSS and sitemap generated.
+.......
+----------------------------------------------------------------------
+Ran 7 tests in 0.023s
+
+OK
+
+$ python3 LandingPage/check_site.py
+link preview 725 KB (Messages' limit 10 MB)
+first screen 169 KB (budget 320), whole page 187 KB (budget 900)
+search engines: allowed in
+search checks: 7 indexable pages, sitemap, RSS, metadata and internal anchors
+site check: passed
+
+Final layout cases: 22
+Final live deployment: {
+  "worker": "banana-site",
+  "version": "13c279e4-c3d8-480c-8f65-5707ad7a14fe",
+  "domains": [
+    "bananatheapp.com",
+    "www.bananatheapp.com"
+  ],
+  "verified": "Ten documents match generated/source bytes after known provider analytics injection normalization",
+  "scope": "Website only; public Apple submission hold unchanged"
+}

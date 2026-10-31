@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>BananaTeamID</key>
+	<string>$(DEVELOPMENT_TEAM)</string>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>CFBundleDisplayName</key>
+	<string>Banana</string>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>$(PRODUCT_NAME)</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>$(MARKETING_VERSION)</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>CFBundleURLName</key>
+			<string>$(BANANA_BUNDLE_ID).watchkitapp</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>bananawatch</string>
+			</array>
+		</dict>
+	</array>
+	<key>CFBundleVersion</key>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>NSHealthShareUsageDescription</key>
+	<string>Banana reads heart rate, energy, and distance during a workout so it can record your session.</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>Banana saves your recorded workouts to Apple Health.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Banana records your route and speed during a workout.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Banana records quick voice notes on your wrist — capture a thought mid-run and it syncs to your iPhone with its context.</string>
+	<key>NSMotionUsageDescription</key>
+	<string>Banana records motion during a workout for later analysis, and reads your steps at night to tell when you got up.</string>
+	<key>WKApplication</key>
+	<true/>
+	<key>WKBackgroundModes</key>
+	<array>
+		<string>workout-processing</string>
+	</array>
+	<key>WKCompanionAppBundleIdentifier</key>
+	<string>$(BANANA_BUNDLE_ID)</string>
+</dict>
+</plist>

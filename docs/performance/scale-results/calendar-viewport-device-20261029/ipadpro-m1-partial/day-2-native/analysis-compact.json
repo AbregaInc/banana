@@ -1,0 +1,75 @@
+{
+ "status": "analyzed-partial-evidence",
+ "pid": 60843,
+ "scope": "App-attributed update intervals and matching compositor work; not HID-to-visible latency or complete UI acceptance",
+ "attributionLimit": "Render intervals may overlap GPU work and extend beyond its completion. Their entire duration is not proven CPU execution; GPU subtraction does not establish CPU cost. Interval budget failures remain conservative and unchanged.",
+ "measuredWorkBudget": "fail",
+ "appHitchRows": 15,
+ "timings": {
+  "appUpdates": {
+   "stats": {
+    "count": 446,
+    "p50MS": 2.1685,
+    "p95MS": 9.886666,
+    "p99MS": 50.019666,
+    "maxMS": 62.334583,
+    "over8_3MS": 41
+   }
+  },
+  "associatedRenders": {
+   "stats": {
+    "count": 537,
+    "p50MS": 2.422875,
+    "p95MS": 7.206291,
+    "p99MS": 7.745333,
+    "maxMS": 15.531208,
+    "over8_3MS": 4
+   }
+  },
+  "associatedFrameLifetimes": {
+   "stats": {
+    "count": 428,
+    "p50MS": 16.678541,
+    "p95MS": 25.020291,
+    "p99MS": 58.378458,
+    "maxMS": 75.039708,
+    "over8_3MS": 428
+   }
+  },
+  "associatedGPU": {
+   "stats": {
+    "count": 428,
+    "p50MS": 1.426375,
+    "p95MS": 1.539125,
+    "p99MS": 2.895125,
+    "maxMS": 3.065208,
+    "over8_3MS": 0
+   }
+  }
+ },
+ "renderWaitDiagnostic": null,
+ "displayCadence": {
+  "scope": "Display-wide VSync intervals, not app frame/input latency",
+  "count": 729,
+  "firstNS": 435995916,
+  "lastNS": 9349610291,
+  "roundedGapHistogramMS": {
+   "8.33": 2,
+   "8.34": 548,
+   "8.35": 1,
+   "12.51": 37,
+   "16.68": 37,
+   "20.85": 28,
+   "25.01": 17,
+   "29.18": 11,
+   "33.35": 6,
+   "41.69": 41
+  }
+ },
+ "limitations": [
+  "Frame lifetimes span a pipelined render loop and are not single-frame work or input latency.",
+  "No app-attributed HID timestamp or CPU-to-display rows; direct-input acceptance remains unmeasured.",
+  "Variable cadence must not be treated as automatic missed 120 Hz deadlines.",
+  "Retain capture status, workload, binary identity and actual touch overlap separately."
+ ]
+}

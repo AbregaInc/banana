@@ -1,0 +1,44 @@
+{
+  "recorded": "2026-10-08T22:40:31.842238-04:00",
+  "parentCommit": "9f406272582e707bfaa0347413123618e19110f8",
+  "scope": "Isolated opt-in grid experiment; production and default renderer unchanged",
+  "sourceSHA256": {
+    "tools/calendar-library-benchmark/Shared/CalendarGridView.swift": "80ac11d6e2f422970e18c3b7638d666260ff6a8cdf9fad08112fa4beb67478b5",
+    "tools/calendar-library-benchmark/Shared/CalendarSurface.swift": "efdfaaa3f9ca370340a68bf6747aedb8f67322781d684ebe33b864bf76601647",
+    "tools/calendar-library-benchmark/Shared/DayGeometry.swift": "4055cdc583cd84683ce9fd6d7dbbe09bb4c6a5e814a4fc81354c3d6c00aeb2a2",
+    "tools/calendar-library-benchmark/Shared/Fixtures.swift": "a05a57e756c8327fe096aade509071e0296bb1d37d4e89a9900f92a34ba5678a",
+    "tools/calendar-library-benchmark/Shared/Optimizations.swift": "3467ad6e088bd0683904166829b1af115583119e5dd148275aeffd8a47e462f3",
+    "tools/calendar-library-benchmark/Shared/PreparedText.swift": "a513fee9a3b658d14642bfa6f62958c85003db8b1cfa59f82224ad4f335571e1",
+    "tools/calendar-library-benchmark/Shared/PrototypeModel.swift": "825d35f3cdddd4955dfcf5e0a53027170bc34d1a298d8b904c9917032e187b2e",
+    "tools/calendar-library-benchmark/Shared/RasterPage.swift": "830a9b9ecc4e2632ee377f6b9b1e07f41f296c2ad2939715c3d2009d436b4783",
+    "tools/calendar-library-benchmark/Native/MacBenchmark.swift": "2b668f22b57f1653c8d437a3cddc74c28473e0ff2902a20876b8ca0dfb0404a4",
+    "tools/calendar-library-benchmark/Sources/NativeController.swift": "c3d70ee0b39f70f79eaefd16960a6b8ecd03f008af2d0957e46a9c4b331d8e37",
+    "tools/calendar-library-benchmark/GridTests/main.swift": "de6426584fc3dff5d00a564363acc1e430f1ed98421be245cf142040f0dd89e7",
+    "tools/calendar-library-benchmark/run.py": "cecf29819ed3176f9bc029097b16685d6d09c37f17a49d805d20820bb7fa0ed1",
+    "tools/calendar-library-benchmark/run-mac.py": "2b4bb3de8063136cca9e7ad4d44c03c0042bc6bd668857b2f68de76a364447c4",
+    ".github/workflows/performance-contract.yml": "e4a773dda01fdbd74b3c28f6797e5c8fdadf5ada80529854ad00f2f301e24a4e"
+  },
+  "binarySHA256": {
+    ".build/calendar-grid/MacCalendarBenchmark": "b57964f07d63b468e022ca5600d9302a732d26ac01f5b6be706c7e80d3743db1",
+    ".build/calendar-grid/grid-tests": "40c5e96622ffa0861290b346b13d64d87d420c28171d3dac262f818f7103322e",
+    ".build/calendar-library-benchmark-dd/Build/Products/Release-iphonesimulator/CalendarLibraryBenchmark.app/CalendarLibraryBenchmark": "b12ea62abe8f2c3ad4a00aa505412e0906b31a2f3d4a2a6b2da5ff73ea80e9c8"
+  },
+  "baselinesChanged": false,
+  "uiAcceptance": "unmeasured",
+  "rendererBudgetStatus": "fail",
+  "adoptedAsDefault": false,
+  "checks": {
+    "geometry": 2088,
+    "textPixels": 28,
+    "raster": 233,
+    "gridControl": 7,
+    "gridSplit": 20,
+    "accessibilityAssertionsPerVariant": 689946,
+    "pythonGates": 19,
+    "pythonRenderer": 7,
+    "rendererCases": 48,
+    "appRegressionStatus": "fail: redraw-mail mail.firstPage.p95MS baseline regression",
+    "appRegressionCases": 8,
+    "initialAppRegressionAttempt": "unmeasured: concurrent external Xcode build"
+  }
+}

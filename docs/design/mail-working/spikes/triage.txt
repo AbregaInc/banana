@@ -1,0 +1,6 @@
+sqlite 3.51.0, FTS5=1, threadsafe=2
+triage write path, wal_autocheckpoint=0 (checkpoints run explicitly, never inside a user action's commit):
+  archive one conversation, one transaction each: n=1000 p50=0.322 ms p95=0.482 ms p99=1.342 ms max=44.289 ms
+  WAL after 1000 archives: 33.6 MB
+  explicit checkpoint(PASSIVE): 13.00 ms
+  unread recount for 12 views by partial index: n=200 p50=0.219 ms p95=0.247 ms p99=0.282 ms max=10.586 ms

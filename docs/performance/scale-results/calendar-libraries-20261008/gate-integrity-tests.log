@@ -1,0 +1,24 @@
+testFastCommitsNeverCertifyVisibleLatency (test_native_ui_trace.NativeTraceTests.testFastCommitsNeverCertifyVisibleLatency) ... ok
+testMissingCommitsNeverPass (test_native_ui_trace.NativeTraceTests.testMissingCommitsNeverPass) ... ok
+testReferenceElementsAreResolved (test_native_ui_trace.NativeTraceTests.testReferenceElementsAreResolved) ... ok
+testSlowCommitFailsEvenIfRecordingIncomplete (test_native_ui_trace.NativeTraceTests.testSlowCommitFailsEvenIfRecordingIncomplete) ... ok
+test_absolute_budget_cannot_be_relaxed_by_candidate (test_performance_regression.RegressionTests.test_absolute_budget_cannot_be_relaxed_by_candidate) ... ok
+test_environment_and_binary_mismatch (test_performance_regression.RegressionTests.test_environment_and_binary_mismatch) ... ok
+test_memory_growth (test_performance_regression.RegressionTests.test_memory_growth) ... ok
+test_missing_case_metric_and_checksum (test_performance_regression.RegressionTests.test_missing_case_metric_and_checksum) ... ok
+test_nonfinite_or_negative_numbers_rejected (test_performance_regression.RegressionTests.test_nonfinite_or_negative_numbers_rejected) ... ok
+test_p95_regression_with_unchanged_median (test_performance_regression.RegressionTests.test_p95_regression_with_unchanged_median) ... ok
+test_redraw_regression_and_missing_root (test_performance_regression.RegressionTests.test_redraw_regression_and_missing_root) ... ok
+test_reference_integrity (test_performance_regression.RegressionTests.test_reference_integrity) ... ok
+test_single_over_100_sample_fails (test_performance_regression.RegressionTests.test_single_over_100_sample_fails) ... ok
+test_slowdown_below_absolute_budget_still_fails (test_performance_regression.RegressionTests.test_slowdown_below_absolute_budget_still_fails) ... ok
+testExactly100AllowedButTargetMissIsReported (test_ui_performance_gate.UIPerformanceGateTests.testExactly100AllowedButTargetMissIsReported) ... ok
+testFrameAndDirectLimits (test_ui_performance_gate.UIPerformanceGateTests.testFrameAndDirectLimits) ... ok
+testInvalidSamplesAreRejected (test_ui_performance_gate.UIPerformanceGateTests.testInvalidSamplesAreRejected) ... ok
+testSimulatorAndMissingCoverageCannotCertifyAcceptance (test_ui_performance_gate.UIPerformanceGateTests.testSimulatorAndMissingCoverageCannotCertifyAcceptance) ... ok
+testSingleSlowSampleCannotBeHiddenByPercentiles (test_ui_performance_gate.UIPerformanceGateTests.testSingleSlowSampleCannotBeHiddenByPercentiles) ... ok
+
+----------------------------------------------------------------------
+Ran 19 tests in 0.021s
+
+OK

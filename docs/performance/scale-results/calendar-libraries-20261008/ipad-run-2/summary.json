@@ -1,0 +1,74 @@
+[
+  {
+    "scenario": "ck-day-30d-100perday-bounded",
+    "status": "failed-or-timeout",
+    "launchExit": 124,
+    "elapsedSeconds": 60.03531100001419,
+    "hostLoadBefore": "10:33  up 3 days,  8:38, 35 users, load averages: 954.45 909.89 692.60",
+    "resultFilename": "result-6b1487f7-cbc7-4a36-bbbf-ee35f9768118.json"
+  },
+  {
+    "scenario": "ck-day-365d-100perday-bounded",
+    "status": "failed-or-timeout",
+    "launchExit": 0,
+    "elapsedSeconds": 90.30354395898758,
+    "hostLoadBefore": "10:34  up 3 days,  8:39, 35 users, load averages: 329.37 937.69 720.47",
+    "resultFilename": "result-8e7a5c81-d859-4110-95c8-8ed8b6c4e7b3.json"
+  },
+  {
+    "scenario": "ck-day-3650d-100perday-bounded",
+    "status": "failed-or-timeout",
+    "launchExit": 124,
+    "elapsedSeconds": 60.01544762501726,
+    "hostLoadBefore": "10:36  up 3 days,  8:41, 35 users, load averages: 888.67 952.88 755.22",
+    "resultFilename": "result-11af97ed-a48a-47e7-a35f-ce79fe0f5a3f.json"
+  },
+  {
+    "scenario": "ck-day-365d-300perday-bounded",
+    "status": "interrupted-infrastructure",
+    "acceptance": "unmeasured",
+    "reason": "Stopped after three consecutive Simulator launch/result timeouts under severe host load; not a passing suite."
+  },
+  {
+    "scenario": "kvk-day-30d-100perday-bounded",
+    "status": "unmeasured-infrastructure",
+    "acceptance": "unmeasured",
+    "reason": "Stopped after three consecutive Simulator launch/result timeouts under severe host load; not a passing suite."
+  },
+  {
+    "scenario": "kvk-day-365d-100perday-bounded",
+    "status": "unmeasured-infrastructure",
+    "acceptance": "unmeasured",
+    "reason": "Stopped after three consecutive Simulator launch/result timeouts under severe host load; not a passing suite."
+  },
+  {
+    "scenario": "kvk-day-3650d-100perday-bounded",
+    "status": "unmeasured-infrastructure",
+    "acceptance": "unmeasured",
+    "reason": "Stopped after three consecutive Simulator launch/result timeouts under severe host load; not a passing suite."
+  },
+  {
+    "scenario": "kvk-day-365d-300perday-bounded",
+    "status": "unmeasured-infrastructure",
+    "acceptance": "unmeasured",
+    "reason": "Stopped after three consecutive Simulator launch/result timeouts under severe host load; not a passing suite."
+  },
+  {
+    "scenario": "kvk-week-365d-100perday-bounded",
+    "status": "unmeasured-infrastructure",
+    "acceptance": "unmeasured",
+    "reason": "Stopped after three consecutive Simulator launch/result timeouts under severe host load; not a passing suite."
+  },
+  {
+    "scenario": "kvk-week-365d-100perday-full",
+    "status": "unmeasured-infrastructure",
+    "acceptance": "unmeasured",
+    "reason": "Stopped after three consecutive Simulator launch/result timeouts under severe host load; not a passing suite."
+  },
+  {
+    "scenario": "kvk-week-365d-300perday-bounded",
+    "status": "unmeasured-infrastructure",
+    "acceptance": "unmeasured",
+    "reason": "Stopped after three consecutive Simulator launch/result timeouts under severe host load; not a passing suite."
+  }
+]

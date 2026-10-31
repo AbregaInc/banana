@@ -1,0 +1,58 @@
+maildeep · SwiftSoup 2.13.9 · secondary thread with a 512 KB stack · Mon Oct  5 22:42:05 EDT 2026 · load averages: 9.21 15.44 19.22
+div × 200 · parse · 512 KB stack → parsed; tree kept alive
+div × 200 · walk · 512 KB stack → walked 205 nodes, depth 203; tree kept alive
+div × 200 · drop · 512 KB stack → parsed and released
+div × 1000 · parse · 512 KB stack → parsed; tree kept alive
+div × 1000 · walk · 512 KB stack → walked 1005 nodes, depth 1003; tree kept alive
+div × 1000 · drop · 512 KB stack → parsed and released
+div × 3000 · parse · 512 KB stack → parsed; tree kept alive
+div × 3000 · walk · 512 KB stack → walked 3005 nodes, depth 3003; tree kept alive
+div × 3000 · drop · 512 KB stack → parsed and released
+div × 10000 · parse · 512 KB stack → parsed; tree kept alive
+div × 10000 · walk · 512 KB stack → walked 10005 nodes, depth 10003; tree kept alive
+div × 10000 · drop · 512 KB stack → parsed and released
+div × 100000 · parse · 512 KB stack → parsed; tree kept alive
+div × 100000 · walk · 512 KB stack → walked 100005 nodes, depth 100003; tree kept alive
+div × 100000 · drop · 512 KB stack → parsed and released
+span × 200 · parse · 512 KB stack → parsed; tree kept alive
+span × 200 · walk · 512 KB stack → walked 205 nodes, depth 203; tree kept alive
+span × 200 · drop · 512 KB stack → parsed and released
+span × 1000 · parse · 512 KB stack → parsed; tree kept alive
+span × 1000 · walk · 512 KB stack → walked 1005 nodes, depth 1003; tree kept alive
+span × 1000 · drop · 512 KB stack → parsed and released
+span × 3000 · parse · 512 KB stack → parsed; tree kept alive
+span × 3000 · walk · 512 KB stack → walked 3005 nodes, depth 3003; tree kept alive
+span × 3000 · drop · 512 KB stack → parsed and released
+span × 10000 · parse · 512 KB stack → parsed; tree kept alive
+span × 10000 · walk · 512 KB stack → walked 10005 nodes, depth 10003; tree kept alive
+span × 10000 · drop · 512 KB stack → parsed and released
+span × 100000 · parse · 512 KB stack → parsed; tree kept alive
+span × 100000 · walk · 512 KB stack → walked 100005 nodes, depth 100003; tree kept alive
+span × 100000 · drop · 512 KB stack → parsed and released
+b × 200 · parse · 512 KB stack → parsed; tree kept alive
+b × 200 · walk · 512 KB stack → walked 205 nodes, depth 203; tree kept alive
+b × 200 · drop · 512 KB stack → parsed and released
+b × 1000 · parse · 512 KB stack → parsed; tree kept alive
+b × 1000 · walk · 512 KB stack → walked 1005 nodes, depth 1003; tree kept alive
+b × 1000 · drop · 512 KB stack → parsed and released
+b × 3000 · parse · 512 KB stack → parsed; tree kept alive
+b × 3000 · walk · 512 KB stack → walked 3005 nodes, depth 3003; tree kept alive
+b × 3000 · drop · 512 KB stack → parsed and released
+b × 10000 · parse · 512 KB stack → parsed; tree kept alive
+b × 10000 · walk · 512 KB stack → walked 10005 nodes, depth 10003; tree kept alive
+b × 10000 · drop · 512 KB stack → parsed and released
+b × 100000 · parse · 512 KB stack → parsed; tree kept alive
+
+--- the pre-parse bound (one pass over the bytes, start tags outside comments, no credit for end tags) · load averages: 344.85 221.05 117.48
+div × 100000 · bound · 512 KB stack → bound=100002 in 0.50 ms for 500027 bytes
+b × 30000 · bound · 512 KB stack → bound=30002 in 0.16 ms for 90027 bytes
+table × 10000 · bound · 512 KB stack → bound=30002 in 0.19 ms for 150027 bytes
+
+--- wall time of one process: parse of N nested elements, 512 KB stack · load 220 at the start of this run (22:55), so upper bounds; the shape is the finding
+   0.09 s  b × 1000        0.41 s  b × 3000        4.91 s  b × 10000       54.48 s  b × 30000
+   0.05 s  font × 1000     0.35 s  font × 3000     6.10 s  font × 10000    45.42 s  font × 30000
+   0.26 s  i × 1000        0.71 s  i × 3000       11.09 s  i × 10000       42.74 s  i × 30000
+   0.02 s  a × 1000        0.02 s  a × 3000        0.05 s  a × 10000        0.10 s  a × 30000
+   0.16 s  div × 100000    0.12 s  span × 100000
+   1.99 s  table/tr/td × 3000 (parse)             44.37 s  table/tr/td × 10000 (parse + walk)
+   b × 100000: parse completed; parse + walk was still running after 4 minutes and was stopped.

@@ -1,0 +1,21 @@
+name mouse
+wait 1
+# buttons: the assistive press (the mouse does not reach SwiftUI buttons in a window that is never shown)
+axpress label:Starred,
+expect mail.place is Starred
+axpress label:Inbox,
+expect mail.place is Inbox
+# rows are an NSTableView: real mouse events
+delivery window
+click mail.list.row.invite
+expect mail.cursor is invite
+expect mail.open absent
+expect mail.title is Invitation: Design review
+doubleclick mail.list.row.plain-chain
+expect mail.open is plain-chain
+shot opened-by-double-click
+key escape
+expect mail.open absent
+delivery post
+click mail.list.row.receipt
+expect mail.cursor is receipt

@@ -1,0 +1,60 @@
+{
+  "devicesAndConfigurations" : [
+    {
+      "device" : {
+        "architecture" : "arm64",
+        "deviceId" : "DFF60927-BA4A-4E8E-9A6E-63A1A4178858",
+        "deviceName" : "Calendar-Artwork-iPad-20261009",
+        "modelName" : "iPad Pro 13-inch (M5)",
+        "osBuildNumber" : "23F77",
+        "osVersion" : "26.5",
+        "platform" : "iOS Simulator"
+      },
+      "expectedFailures" : 0,
+      "failedTests" : 2,
+      "passedTests" : 0,
+      "skippedTests" : 0,
+      "testPlanConfiguration" : {
+        "configurationId" : "1",
+        "configurationName" : "Test Scheme Action"
+      }
+    }
+  ],
+  "environmentDescription" : "Banana · Built with macOS 26.6.2",
+  "expectedFailures" : 0,
+  "failedTests" : 2,
+  "finishTime" : 1791612191.696,
+  "passedTests" : 0,
+  "result" : "Failed",
+  "runtimeWarnings" : [
+
+  ],
+  "skippedTests" : 0,
+  "startTime" : 1791612058.254,
+  "statistics" : [
+
+  ],
+  "testFailures" : [
+    {
+      "failureText" : "Failed to get matching snapshots: Unable to perform work on main run loop, process main thread busy for 30.0s",
+      "targetName" : "BananaUITests",
+      "testIdentifier" : 1,
+      "testIdentifierString" : "ScaleStressUITests/testAgendaEarlyEventIdentity()",
+      "testIdentifierURL" : "test://com.apple.xcode/Banana/BananaUITests/ScaleStressUITests/testAgendaEarlyEventIdentity",
+      "testName" : "testAgendaEarlyEventIdentity()"
+    },
+    {
+      "failureText" : "Testing was canceled",
+      "targetName" : "BananaUITests",
+      "testIdentifier" : 2,
+      "testIdentifierString" : "ScaleStressUITests/testPreparedAgendaEarlyEventIdentity()",
+      "testIdentifierURL" : "test://com.apple.xcode/Banana/BananaUITests/ScaleStressUITests/testPreparedAgendaEarlyEventIdentity",
+      "testName" : "testPreparedAgendaEarlyEventIdentity()"
+    }
+  ],
+  "title" : "Test - Banana",
+  "topInsights" : [
+
+  ],
+  "totalTestCount" : 2
+}

@@ -1,0 +1,5 @@
+# Paths that stay out of the public tree: tools/public-export.sh removes them from the export. One
+# path per line, a folder or a file, from the repository's root.
+#
+# Empty since 30 Oct 2026: the whole tree is public. Notes that stay off the record live in the
+# ignored private/ folder, which the pre-push hook refuses to publish.

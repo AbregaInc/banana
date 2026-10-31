@@ -1,0 +1,133 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild test-without-building -project Banana.xcodeproj -scheme BananaNativePerformanceUITests -configuration Release -destination platform=macOS,arch=arm64 -derivedDataPath .build/native-ui-test-dd -resultBundlePath .build/native-ui-performance/calendar-prototype-20261009/wheel-profile-ui.xcresult -parallel-testing-enabled NO -collect-test-diagnostics never "-only-testing:BananaNativePerformanceUITests/CalendarPrototypeInteractionTests/testRepeatedWheelScrolling"
+
+Resolve Package Graph
+
+
+Resolved source packages:
+  AppCheck: https://github.com/google/app-check.git @ 11.3.2
+  Promises: https://github.com/google/promises.git @ 2.4.1
+  GoogleSignIn: https://github.com/google/GoogleSignIn-iOS.git @ 9.1.0
+  GRDB: https://github.com/groue/GRDB.swift.git @ b83108d
+  GTMSessionFetcher: https://github.com/google/gtm-session-fetcher.git @ 3.5.0
+  GTMAppAuth: https://github.com/google/GTMAppAuth.git @ 5.0.0
+  SwiftSoup: https://github.com/scinfu/SwiftSoup.git @ 18b8032
+  GoogleUtilities: https://github.com/google/GoogleUtilities.git @ 8.1.4
+  FluidAudio: https://github.com/FluidInference/FluidAudio.git @ 0.15.5
+  InteropForGoogle: https://github.com/google/interop-ios-for-google-sdks.git @ 101.0.0
+  AppAuth: https://github.com/openid/AppAuth-iOS.git @ 2.1.0
+
+Writing result bundle at path:
+	~/orca/workspaces/gtfuwgth/stingray/.build/native-ui-performance/calendar-prototype-20261009/wheel-profile-ui.xcresult
+
+2026-10-09 07:32:55.642769-0400 BananaNativePerformanceUITests-Runner[26435:39564443] [Default] Running tests...
+Test Suite 'Selected tests' started at 2026-10-09 07:32:55.683.
+Test Suite 'BananaNativePerformanceUITests.xctest' started at 2026-10-09 07:32:55.683.
+Test Suite 'CalendarPrototypeInteractionTests' started at 2026-10-09 07:32:55.684.
+Test Case '-[BananaNativePerformanceUITests.CalendarPrototypeInteractionTests testRepeatedWheelScrolling]' started.
+    t =     0.00s Start Test at 2026-10-09 07:32:55.684
+    t =     0.39s Set Up
+    t =     0.41s     Open com.boris.banana.calendar-surface-review
+    t =     0.41s         Activate com.boris.banana.calendar-surface-review
+    t =     0.42s             Wait for com.boris.banana.calendar-surface-review to idle
+    t =     0.43s     Waiting 5.0s for "Next" Button to exist
+    t =     1.48s         Checking `Expect predicate `existsNoRetry == 1` for object "Next" Button`
+    t =     1.48s             Checking existence of `"Next" Button`
+    t =     1.62s Waiting 5.0s for ScrollView (First Match) to exist
+    t =     2.66s     Checking `Expect predicate `existsNoRetry == 1` for object ScrollView (First Match)`
+    t =     2.66s         Checking existence of `ScrollView (First Match)`
+    t =     2.69s Scroll ScrollView (First Match) by dx: 0.00, dy: -400.00
+    t =     2.69s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =     2.70s     Find the ScrollView (First Match)
+    t =     2.72s     Check for interrupting elements affecting ScrollView
+    t =     2.78s     Synthesize event
+    t =     3.16s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =     3.18s Scroll ScrollView at {{60.0, 187.0}, {1200.0, 806.0}} by dx: 0.00, dy: -400.00
+    t =     3.18s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =     3.18s     Find the ScrollView at {{60.0, 187.0}, {1200.0, 806.0}}
+    t =     3.22s     Check for interrupting elements affecting ScrollView
+    t =     3.31s     Synthesize event
+    t =     3.70s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =     3.71s Scroll ScrollView at {{60.0, 187.0}, {1200.0, 806.0}} by dx: 0.00, dy: -400.00
+    t =     3.71s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =     3.72s     Find the ScrollView at {{60.0, 187.0}, {1200.0, 806.0}}
+    t =     3.73s     Check for interrupting elements affecting ScrollView
+    t =     3.77s     Synthesize event
+    t =     4.12s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =     4.13s Scroll ScrollView at {{60.0, 187.0}, {1200.0, 806.0}} by dx: 0.00, dy: -400.00
+    t =     4.13s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =     4.14s     Find the ScrollView at {{60.0, 187.0}, {1200.0, 806.0}}
+    t =     4.15s     Check for interrupting elements affecting ScrollView
+    t =     4.18s     Synthesize event
+    t =     4.54s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =     4.55s Scroll ScrollView at {{60.0, 187.0}, {1200.0, 806.0}} by dx: 0.00, dy: -400.00
+    t =     4.55s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =     4.57s     Find the ScrollView at {{60.0, 187.0}, {1200.0, 806.0}}
+    t =     4.59s     Check for interrupting elements affecting ScrollView
+    t =     4.70s     Synthesize event
+    t =     5.04s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =     5.05s Scroll ScrollView at {{60.0, 187.0}, {1200.0, 806.0}} by dx: 0.00, dy: -400.00
+    t =     5.05s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =     5.07s     Find the ScrollView at {{60.0, 187.0}, {1200.0, 806.0}}
+    t =     5.08s     Check for interrupting elements affecting ScrollView
+    t =     5.12s     Synthesize event
+    t =     5.50s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =     5.52s Scroll ScrollView at {{60.0, 187.0}, {1200.0, 806.0}} by dx: 0.00, dy: 400.00
+    t =     5.52s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =     5.53s     Find the ScrollView at {{60.0, 187.0}, {1200.0, 806.0}}
+    t =     5.54s     Check for interrupting elements affecting ScrollView
+    t =     5.64s     Synthesize event
+    t =     6.02s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =     6.03s Scroll ScrollView at {{60.0, 187.0}, {1200.0, 806.0}} by dx: 0.00, dy: 400.00
+    t =     6.03s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =     6.07s     Find the ScrollView at {{60.0, 187.0}, {1200.0, 806.0}}
+    t =     6.08s     Check for interrupting elements affecting ScrollView
+    t =     6.11s     Synthesize event
+    t =     6.44s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =     6.46s Scroll ScrollView at {{60.0, 187.0}, {1200.0, 806.0}} by dx: 0.00, dy: 400.00
+    t =     6.46s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =     6.47s     Find the ScrollView at {{60.0, 187.0}, {1200.0, 806.0}}
+    t =     6.48s     Check for interrupting elements affecting ScrollView
+    t =     6.52s     Synthesize event
+    t =     6.91s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =     6.93s Scroll ScrollView at {{60.0, 187.0}, {1200.0, 806.0}} by dx: 0.00, dy: 400.00
+    t =     6.93s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =     6.94s     Find the ScrollView at {{60.0, 187.0}, {1200.0, 806.0}}
+    t =     6.96s     Check for interrupting elements affecting ScrollView
+    t =     7.00s     Synthesize event
+    t =     7.34s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =     7.36s Scroll ScrollView at {{60.0, 187.0}, {1200.0, 806.0}} by dx: 0.00, dy: 400.00
+    t =     7.36s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =     7.36s     Find the ScrollView at {{60.0, 187.0}, {1200.0, 806.0}}
+    t =     7.39s     Check for interrupting elements affecting ScrollView
+    t =     7.43s     Synthesize event
+    t =     7.79s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =     7.81s Scroll ScrollView at {{60.0, 187.0}, {1200.0, 806.0}} by dx: 0.00, dy: 400.00
+    t =     7.81s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =     7.81s     Find the ScrollView at {{60.0, 187.0}, {1200.0, 806.0}}
+    t =     7.84s     Check for interrupting elements affecting ScrollView
+    t =     7.89s     Synthesize event
+    t =     8.25s     Wait for com.boris.banana.calendar-surface-review to idle
+    t =     8.27s Checking existence of `StaticText (First Match)`
+    t =     8.29s Get number of matches for: Descendants matching type Button
+    t =    12.31s Find the Application 'com.boris.banana.calendar-surface-review'
+2026-10-09 07:33:08.058973-0400 BananaNativePerformanceUITests-Runner[26435:39564443] [DisplayManager] Could not find any displays containing rect (inf, inf, 0.0, 0.0)
+    t =    12.50s Added attachment named 'prototype-after-wheel-scroll'
+    t =    12.50s Tear Down
+Test Case '-[BananaNativePerformanceUITests.CalendarPrototypeInteractionTests testRepeatedWheelScrolling]' passed (12.817 seconds).
+Test Suite 'CalendarPrototypeInteractionTests' passed at 2026-10-09 07:33:08.502.
+	 Executed 1 test, with 0 failures (0 unexpected) in 12.817 (12.818) seconds
+Test Suite 'BananaNativePerformanceUITests.xctest' passed at 2026-10-09 07:33:08.503.
+	 Executed 1 test, with 0 failures (0 unexpected) in 12.817 (12.819) seconds
+Test Suite 'Selected tests' passed at 2026-10-09 07:33:08.503.
+	 Executed 1 test, with 0 failures (0 unexpected) in 12.817 (12.820) seconds
+2026-10-09 07:33:08.813 xcodebuild[26333:39563448] [MT] IDETestOperationsObserverDebug: 13.624 elapsed -- Testing started completed.
+2026-10-09 07:33:08.813 xcodebuild[26333:39563448] [MT] IDETestOperationsObserverDebug: 0.000 sec, +0.000 sec -- start
+2026-10-09 07:33:08.813 xcodebuild[26333:39563448] [MT] IDETestOperationsObserverDebug: 13.624 sec, +13.624 sec -- end
+
+Test session results, code coverage, and logs:
+	~/orca/workspaces/gtfuwgth/stingray/.build/native-ui-performance/calendar-prototype-20261009/wheel-profile-ui.xcresult
+
+** TEST EXECUTE SUCCEEDED **
+
+Testing started

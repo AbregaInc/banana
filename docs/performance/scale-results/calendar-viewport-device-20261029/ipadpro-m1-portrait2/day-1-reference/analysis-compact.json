@@ -1,0 +1,70 @@
+{
+  "status": "analyzed-partial-evidence",
+  "pid": 5051,
+  "scope": "App-attributed update intervals and matching compositor work; not HID-to-visible latency or complete UI acceptance",
+  "attributionLimit": "Render intervals may overlap GPU work and extend beyond its completion. Their entire duration is not proven CPU execution; GPU subtraction does not establish CPU cost. Interval budget failures remain conservative and unchanged.",
+  "measuredWorkBudget": "fail",
+  "appHitchRows": 7,
+  "timings": {
+    "appUpdates": {
+      "stats": {
+        "count": 484,
+        "p50MS": 0.790375,
+        "p95MS": 1.425458,
+        "p99MS": 40.541291,
+        "maxMS": 44.437708,
+        "over8_3MS": 12
+      }
+    },
+    "associatedRenders": {
+      "stats": {
+        "count": 482,
+        "p50MS": 3.059416,
+        "p95MS": 10.371958,
+        "p99MS": 11.171791,
+        "maxMS": 12.548416,
+        "over8_3MS": 109
+      }
+    },
+    "associatedFrameLifetimes": {
+      "stats": {
+        "count": 478,
+        "p50MS": 25.014958,
+        "p95MS": 25.016416,
+        "p99MS": 58.369458,
+        "maxMS": 66.707791,
+        "over8_3MS": 478
+      }
+    },
+    "associatedGPU": {
+      "stats": {
+        "count": 478,
+        "p50MS": 1.407958,
+        "p95MS": 1.493583,
+        "p99MS": 1.553625,
+        "maxMS": 2.660291,
+        "over8_3MS": 0
+      }
+    }
+  },
+  "renderWaitDiagnostic": null,
+  "displayCadence": {
+    "scope": "Display-wide VSync intervals, not app frame/input latency",
+    "count": 1002,
+    "firstNS": 412736083,
+    "lastNS": 8775941125,
+    "roundedGapHistogramMS": {
+      "8.33": 8,
+      "8.34": 989,
+      "8.35": 1,
+      "12.51": 2,
+      "16.68": 1
+    }
+  },
+  "limitations": [
+    "Frame lifetimes span a pipelined render loop and are not single-frame work or input latency.",
+    "No app-attributed HID timestamp or CPU-to-display rows; direct-input acceptance remains unmeasured.",
+    "Variable cadence must not be treated as automatic missed 120 Hz deadlines.",
+    "Retain capture status, workload, binary identity and actual touch overlap separately."
+  ]
+}

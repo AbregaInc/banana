@@ -1,0 +1,19 @@
+{
+  "status": "fail",
+  "scope": "Simulator components, not UI acceptance",
+  "baselineVersion": 1,
+  "failures": {
+    "scale-30d": [
+      "notes.search.p95MS: 52.168 > 18.931 + 2.840 ms"
+    ],
+    "scale-90d": [
+      "notes.search.p95MS: 153.419 > 54.071 + 8.111 ms",
+      "notes.search: absolute component latency budget exceeded",
+      "podcasts.nextAcrossCatalog.p95MS: 259.949 > 65.378 + 9.807 ms",
+      "podcasts.nextAcrossCatalog: absolute component latency budget exceeded",
+      "podcasts.downloadCandidates.p95MS: 258.995 > 80.569 + 12.085 ms",
+      "podcasts.downloadCandidates: absolute component latency budget exceeded",
+      "collector reported failure"
+    ]
+  }
+}

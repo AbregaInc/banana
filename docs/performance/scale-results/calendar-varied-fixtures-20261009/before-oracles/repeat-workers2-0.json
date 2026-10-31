@@ -1,0 +1,405 @@
+{
+  "checks" : 176,
+  "eventsPerDay" : 100,
+  "failure" : "Background preparation changed pixels",
+  "fixture" : {
+    "calendarCount" : 12,
+    "calendarEventCounts" : {
+      "0" : 3030,
+      "1" : 3034,
+      "2" : 3038,
+      "3" : 3036,
+      "4" : 3044,
+      "5" : 3048,
+      "6" : 3054,
+      "7" : 3047,
+      "8" : 3045,
+      "9" : 3045,
+      "10" : 3043,
+      "11" : 3036
+    },
+    "contentChecksum" : "cc21d0109064e527",
+    "distinctDailyPatterns" : 365,
+    "distinctDurations" : 12,
+    "distinctTitles" : 36500,
+    "distinctWeeklyPatterns" : 52,
+    "hiddenCalendars" : [
+
+    ],
+    "maximumDailyEvents" : 193,
+    "meanDailyEvents" : 100,
+    "minimumDailyEvents" : 17,
+    "profile" : "varied-v1",
+    "retainedEvents" : 36500,
+    "scope" : "Immutable timed-event fixture; no recurrence expansion, provider sync or dynamic edit\/filter invalidation",
+    "seed" : "20261009",
+    "sevenDayBlockEvents" : 700
+  },
+  "samples" : [
+    {
+      "activeBytes" : 14548992,
+      "cacheBytes" : 14548992,
+      "heartbeatMaxGapMS" : 11.875999975018203,
+      "installMS" : 0.18733332399278879,
+      "measuredMainSectionsMS" : 0.2857493239927888,
+      "peakResidentBytes" : 57114624,
+      "phase" : "cold",
+      "physicalFootprintBytes" : 36766344,
+      "scale" : 3,
+      "totalMS" : 39.756375015713274,
+      "trial" : 0,
+      "width" : 393,
+      "workers" : 2
+    },
+    {
+      "activeBytes" : 14548992,
+      "cacheBytes" : 14548992,
+      "heartbeatMaxGapMS" : 1.2874166714027524,
+      "installMS" : 0.021166633814573288,
+      "measuredMainSectionsMS" : 0.036166633814573287,
+      "peakResidentBytes" : 57163776,
+      "phase" : "warm",
+      "physicalFootprintBytes" : 36766344,
+      "scale" : 3,
+      "totalMS" : 0.03891665255650878,
+      "trial" : 0,
+      "width" : 393,
+      "workers" : 2
+    },
+    {
+      "activeBytes" : 14548992,
+      "cacheBytes" : 14548992,
+      "heartbeatMaxGapMS" : 21.040916675701737,
+      "installMS" : 0.26487495051696897,
+      "measuredMainSectionsMS" : 0.29304095051696899,
+      "peakResidentBytes" : 61784064,
+      "phase" : "eviction",
+      "physicalFootprintBytes" : 37716640,
+      "scale" : 3,
+      "totalMS" : 57.776291621848941,
+      "trial" : 0,
+      "width" : 393,
+      "workers" : 2
+    },
+    {
+      "activeBytes" : 19660800,
+      "cacheBytes" : 19660800,
+      "heartbeatMaxGapMS" : 5.4050000035203993,
+      "installMS" : 3.9439999964088202,
+      "measuredMainSectionsMS" : 4.0253319964088199,
+      "peakResidentBytes" : 74891264,
+      "phase" : "cold",
+      "physicalFootprintBytes" : 53281464,
+      "scale" : 2,
+      "totalMS" : 20.368833327665925,
+      "trial" : 0,
+      "width" : 1200,
+      "workers" : 2
+    },
+    {
+      "activeBytes" : 19660800,
+      "cacheBytes" : 19660800,
+      "heartbeatMaxGapMS" : 3.0331250163726509,
+      "installMS" : 0.017625046893954277,
+      "measuredMainSectionsMS" : 0.027833046893954279,
+      "peakResidentBytes" : 74924032,
+      "phase" : "warm",
+      "physicalFootprintBytes" : 53281464,
+      "scale" : 2,
+      "totalMS" : 0.031000003218650818,
+      "trial" : 0,
+      "width" : 1200,
+      "workers" : 2
+    },
+    {
+      "activeBytes" : 19660800,
+      "cacheBytes" : 19660800,
+      "heartbeatMaxGapMS" : 6.6980833071283996,
+      "installMS" : 0.31112501164898276,
+      "measuredMainSectionsMS" : 0.33616701164898277,
+      "peakResidentBytes" : 80003072,
+      "phase" : "eviction",
+      "physicalFootprintBytes" : 54575800,
+      "scale" : 2,
+      "totalMS" : 20.296124974265695,
+      "trial" : 0,
+      "width" : 1200,
+      "workers" : 2
+    },
+    {
+      "activeBytes" : 14548992,
+      "cacheBytes" : 14548992,
+      "heartbeatMaxGapMS" : 7.7988749835640192,
+      "installMS" : 0.293916673399508,
+      "measuredMainSectionsMS" : 0.327000673399508,
+      "peakResidentBytes" : 80003072,
+      "phase" : "cold",
+      "physicalFootprintBytes" : 49480376,
+      "scale" : 3,
+      "totalMS" : 15.581083309371024,
+      "trial" : 1,
+      "width" : 393,
+      "workers" : 2
+    },
+    {
+      "activeBytes" : 14548992,
+      "cacheBytes" : 14548992,
+      "heartbeatMaxGapMS" : 2.447625040076673,
+      "installMS" : 0.016624981071799994,
+      "measuredMainSectionsMS" : 0.025874981071799995,
+      "peakResidentBytes" : 80003072,
+      "phase" : "warm",
+      "physicalFootprintBytes" : 49480376,
+      "scale" : 3,
+      "totalMS" : 0.028125010430812836,
+      "trial" : 1,
+      "width" : 393,
+      "workers" : 2
+    },
+    {
+      "activeBytes" : 14548992,
+      "cacheBytes" : 14548992,
+      "heartbeatMaxGapMS" : 4.9745416617952287,
+      "installMS" : 0.82320836372673512,
+      "measuredMainSectionsMS" : 0.84504236372673514,
+      "peakResidentBytes" : 80003072,
+      "phase" : "eviction",
+      "physicalFootprintBytes" : 49480376,
+      "scale" : 3,
+      "totalMS" : 21.460083313286304,
+      "trial" : 1,
+      "width" : 393,
+      "workers" : 2
+    },
+    {
+      "activeBytes" : 19660800,
+      "cacheBytes" : 19660800,
+      "heartbeatMaxGapMS" : 8.935999998357147,
+      "installMS" : 0.4139167140237987,
+      "measuredMainSectionsMS" : 0.43208271402379872,
+      "peakResidentBytes" : 80003072,
+      "phase" : "cold",
+      "physicalFootprintBytes" : 54690488,
+      "scale" : 2,
+      "totalMS" : 25.36799997324124,
+      "trial" : 1,
+      "width" : 1200,
+      "workers" : 2
+    },
+    {
+      "activeBytes" : 19660800,
+      "cacheBytes" : 19660800,
+      "heartbeatMaxGapMS" : 2.8142499504610896,
+      "installMS" : 0.017916667275130749,
+      "measuredMainSectionsMS" : 0.030041667275130749,
+      "peakResidentBytes" : 80003072,
+      "phase" : "warm",
+      "physicalFootprintBytes" : 54690488,
+      "scale" : 2,
+      "totalMS" : 0.032791635021567345,
+      "trial" : 1,
+      "width" : 1200,
+      "workers" : 2
+    },
+    {
+      "activeBytes" : 19660800,
+      "cacheBytes" : 19660800,
+      "heartbeatMaxGapMS" : 7.9617916489951313,
+      "installMS" : 1.0950416326522827,
+      "measuredMainSectionsMS" : 1.1192086326522828,
+      "peakResidentBytes" : 82132992,
+      "phase" : "eviction",
+      "physicalFootprintBytes" : 55493304,
+      "scale" : 2,
+      "totalMS" : 16.188666631933302,
+      "trial" : 1,
+      "width" : 1200,
+      "workers" : 2
+    },
+    {
+      "activeBytes" : 14548992,
+      "cacheBytes" : 14548992,
+      "heartbeatMaxGapMS" : 8.8250000262632966,
+      "installMS" : 0.29016670305281878,
+      "measuredMainSectionsMS" : 0.31258270305281877,
+      "peakResidentBytes" : 82132992,
+      "phase" : "cold",
+      "physicalFootprintBytes" : 50381496,
+      "scale" : 3,
+      "totalMS" : 24.828833353240043,
+      "trial" : 2,
+      "width" : 393,
+      "workers" : 2
+    },
+    {
+      "activeBytes" : 14548992,
+      "cacheBytes" : 14548992,
+      "heartbeatMaxGapMS" : 2.4773333570919931,
+      "installMS" : 0.019166676793247461,
+      "measuredMainSectionsMS" : 0.033500676793247461,
+      "peakResidentBytes" : 82132992,
+      "phase" : "warm",
+      "physicalFootprintBytes" : 50381496,
+      "scale" : 3,
+      "totalMS" : 0.037124962545931339,
+      "trial" : 2,
+      "width" : 393,
+      "workers" : 2
+    },
+    {
+      "differentBytes" : 3726,
+      "failureContext" : true,
+      "firstDifferences" : [
+        {
+          "actual" : 226,
+          "channel" : 0,
+          "expected" : 223,
+          "x" : 293,
+          "y" : 590
+        },
+        {
+          "actual" : 240,
+          "channel" : 1,
+          "expected" : 242,
+          "x" : 293,
+          "y" : 590
+        },
+        {
+          "actual" : 237,
+          "channel" : 2,
+          "expected" : 231,
+          "x" : 293,
+          "y" : 590
+        },
+        {
+          "actual" : 226,
+          "channel" : 0,
+          "expected" : 223,
+          "x" : 294,
+          "y" : 590
+        },
+        {
+          "actual" : 240,
+          "channel" : 1,
+          "expected" : 242,
+          "x" : 294,
+          "y" : 590
+        },
+        {
+          "actual" : 237,
+          "channel" : 2,
+          "expected" : 231,
+          "x" : 294,
+          "y" : 590
+        },
+        {
+          "actual" : 244,
+          "channel" : 0,
+          "expected" : 243,
+          "x" : 295,
+          "y" : 590
+        },
+        {
+          "actual" : 249,
+          "channel" : 1,
+          "expected" : 250,
+          "x" : 295,
+          "y" : 590
+        },
+        {
+          "actual" : 248,
+          "channel" : 2,
+          "expected" : 246,
+          "x" : 295,
+          "y" : 590
+        },
+        {
+          "actual" : 237,
+          "channel" : 0,
+          "expected" : 235,
+          "x" : 273,
+          "y" : 591
+        },
+        {
+          "actual" : 245,
+          "channel" : 1,
+          "expected" : 247,
+          "x" : 273,
+          "y" : 591
+        },
+        {
+          "actual" : 244,
+          "channel" : 2,
+          "expected" : 240,
+          "x" : 273,
+          "y" : 591
+        },
+        {
+          "actual" : 226,
+          "channel" : 0,
+          "expected" : 223,
+          "x" : 274,
+          "y" : 591
+        },
+        {
+          "actual" : 240,
+          "channel" : 1,
+          "expected" : 242,
+          "x" : 274,
+          "y" : 591
+        },
+        {
+          "actual" : 237,
+          "channel" : 2,
+          "expected" : 231,
+          "x" : 274,
+          "y" : 591
+        },
+        {
+          "actual" : 226,
+          "channel" : 0,
+          "expected" : 223,
+          "x" : 275,
+          "y" : 591
+        },
+        {
+          "actual" : 240,
+          "channel" : 1,
+          "expected" : 242,
+          "x" : 275,
+          "y" : 591
+        },
+        {
+          "actual" : 237,
+          "channel" : 2,
+          "expected" : 231,
+          "x" : 275,
+          "y" : 591
+        },
+        {
+          "actual" : 226,
+          "channel" : 0,
+          "expected" : 223,
+          "x" : 276,
+          "y" : 591
+        },
+        {
+          "actual" : 240,
+          "channel" : 1,
+          "expected" : 242,
+          "x" : 276,
+          "y" : 591
+        }
+      ],
+      "phase" : "eviction",
+      "pixelWidth" : 1179,
+      "rowBytes" : 4736,
+      "scale" : 3,
+      "tileTop" : 512,
+      "trial" : 2,
+      "width" : 393,
+      "workers" : 2
+    }
+  ],
+  "status" : "failed"
+}

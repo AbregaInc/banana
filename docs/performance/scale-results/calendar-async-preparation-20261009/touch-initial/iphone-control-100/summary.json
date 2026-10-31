@@ -1,0 +1,12 @@
+{
+  "scope": "Physical touch correctness; gesture wall clock is not input/display latency",
+  "timestamp": "2026-10-09T04:26:14.111998-04:00",
+  "device": "<device-udid>",
+  "density": 100,
+  "ablation": "tile-prefetch-budgeted",
+  "status": "passed-correctness",
+  "binarySHA256": "d58f71af94285e9eb4adf3e00cba011f5d4f80b7683152cabe5da5d2128e8f4d",
+  "git": "c8f310b665c3493dcebc039945524de20147b1e5",
+  "dirty": " M .github/workflows/performance-contract.yml\n M Banana/Views/WeekView.swift\n M docs/performance/regression-testing.md\n M tools/calendar-library-benchmark/Shared/Optimizations.swift\n M tools/calendar-library-benchmark/Shared/RasterPage.swift\n M tools/calendar-library-benchmark/Shared/TileRenderer.swift\n M tools/calendar-library-benchmark/Sources/Benchmark.swift\n M tools/calendar-library-benchmark/Sources/NativeController.swift\n M tools/calendar-library-benchmark/TileTests/prefetch.swift\n M tools/calendar-library-benchmark/project.yml\n M tools/calendar-library-benchmark/run-device.py\n M tools/calendar-library-benchmark/run-mac.py\n M tools/calendar-library-benchmark/run.py\n M tools/calendar-library-benchmark/test_device_runner.py\n M tools/mac-stress-preview.py\n?? docs/performance/scale-results/calendar-layout-reuse-20261009/\n?? docs/performance/scale-results/calendar-queue-cancellation-20261009/\n?? tools/calendar-library-benchmark/Sources/InteractiveControls.swift\n?? tools/calendar-library-benchmark/TileTests/cancellation.swift\n?? tools/calendar-library-benchmark/UITests/\n?? tools/calendar-library-benchmark/test-device-interactive.py\n",
+  "latencyAcceptance": "unmeasured"
+}

@@ -1,0 +1,64 @@
+{
+  "status": "captured-and-analyzed-partial-evidence",
+  "command": [
+    "tools/calendar-library-benchmark/profile-touch.py",
+    "--device",
+    "<device-udid>",
+    "--instruments-device",
+    "AyePad",
+    "--out",
+    ".build/calendar-capacity-20261009/ipad-touch-floor",
+    "--ablation",
+    "tile-prefetch-budgeted",
+    "--fixture",
+    "varied-v1",
+    "--density",
+    "1"
+  ],
+  "scope": "Partial real-swipe trace; no input-to-visible acceptance",
+  "pid": 17891,
+  "triggerTimestamp": "2026-10-09T14:05:49.465782-04:00",
+  "trigger": "First Swipe up in XCTest log; recorder attaches afterward",
+  "profileExit": 0,
+  "touchExit": 0,
+  "captureTriggered": true,
+  "exports": [
+    {
+      "schema": "hitches-updates",
+      "exitCode": 0
+    },
+    {
+      "schema": "hitches-renders",
+      "exitCode": 0
+    },
+    {
+      "schema": "hitches-gpu",
+      "exitCode": 0
+    },
+    {
+      "schema": "hitches-frame-lifetimes",
+      "exitCode": 0
+    },
+    {
+      "schema": "hitches",
+      "exitCode": 0
+    },
+    {
+      "schema": "display-vsyncs-interval",
+      "exitCode": 0
+    },
+    {
+      "schema": "device-display-info",
+      "exitCode": 0
+    },
+    {
+      "schema": "displayed-surfaces-interval",
+      "exitCode": 0
+    },
+    {
+      "schema": "display-surface-swap",
+      "exitCode": 0
+    }
+  ],
+  "analysisExit": 2
+}

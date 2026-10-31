@@ -1,0 +1,40 @@
+# Send later: Shift-Cmd-L, a typed time, the Scheduled place (MAIL-UX 6.3.6, 6.5)
+name schedule
+wait 1
+key r
+wait 1.3
+expect firstResponder contains mail.composer.body
+type See you then
+key cmd+shift+l
+wait 0.8
+expect composer.picker isnot (closed)
+expect firstResponder contains _SystemTextFieldFieldEditor
+shot picker
+# Escape dismisses only the picker, leaving the reply ready to continue.
+key escape
+wait 0.4
+expect composer.picker is (closed)
+expect composer.title is Reply
+expect firstResponder contains mail.composer.body
+key cmd+shift+l
+wait 0.8
+# the picker's field has the caret by itself, so a typed time goes there and not into the body
+type tomorrow 8am
+wait 0.5
+expect composer.picker is tomorrow 8am
+expect composer.body is See you then
+key return
+wait 0.8
+expect composer.schedule contains Sends
+shot scheduled-line
+key cmd+return
+wait 1
+expect composer.title absent
+expect toast contains Scheduled for
+expect mail.counts.scheduled is 1
+shot scheduled-toast
+axpress label:Scheduled,
+wait 0.6
+expect mail.place is Scheduled
+expect rows exists
+shot scheduled-place

@@ -1,0 +1,21 @@
+{
+  "command": [
+    "python3",
+    "tools/scale-stress.py",
+    "--device",
+    "7531F6E1-402A-43B8-8418-EFB258F8598D",
+    "--days",
+    "30",
+    "--out",
+    ".build/calendar-neighbors-20261010/query-diagnostic-3",
+    "--label",
+    "reference",
+    "--route",
+    "plan",
+    "--idle-seconds",
+    "10",
+    "--diagnostics",
+    "--calendar-reference-neighbors"
+  ],
+  "exit": 0
+}

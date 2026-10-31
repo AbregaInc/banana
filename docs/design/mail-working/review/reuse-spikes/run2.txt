@@ -1,0 +1,41 @@
+18:43  up 16:48, 21 users, load averages: 68.55 134.95 198.80
+GRDB 7.11.1 · SQLite 3.51.0 · load 69 135 199
+
+1. Topology and pragmas (§4.2)
+  ok    DatabasePool opens index.sqlite in WAL
+  ok    writer has wal_autocheckpoint=0
+  ok    migrator ran once and reports not superseded
+  ok    an older build sees the file as newer than itself (4.9: do not open)
+  ok    TRAP: synchronous=FULL set in prepareDatabase is overwritten by GRDB's WAL setup (reads back synchronous=1, fullfsync=1)
+  ok    intent: synchronous=FULL(2) and fullfsync=1 read back once set after opening
+  ok    FTS5 contentless_delete: replace dropped the old terms, kept the new
+  ok    FTS5 prefix query streams newest first by our row id
+  ok    search connection joins the attached index read-only
+  ok    attached index cannot be written through the read-only connection
+
+2. Data
+  70000 threads, 93333 view rows · load 69 135 199
+  ok    explicit passive checkpoint through GRDB runs (wal file 23059672 bytes stays allocated, as in WAL)
+  ok    interrupt() ends the search query with SQLITE_INTERRUPT in 0.3 ms; the pool's read was untouched (3333)
+  ok    a file that is not a database throws 26 (file is not a database) (extended 26); message has no bound values
+
+3. The list page (§4.4): 50 rows, 15 columns, keyset · load 69 135 199
+  raw C API, prepared once, called inline p50  0.0649 ms  p95  0.0769 ms  p99  0.1339 ms  (n=3000)
+  raw C API behind a serial queue (what §4.2 specifies) p50  0.0654 ms  p95  0.0785 ms  p99  0.1457 ms  (n=3000)
+  GRDB pool.read + cached statement + Row p50  0.1068 ms  p95  0.1326 ms  p99  0.2018 ms  (n=3000)
+  GRDB pool.unsafeRead (no transaction) + Row p50  0.1013 ms  p95  0.1108 ms  p99  0.1354 ms  (n=3000)
+  GRDB pool.read + C API on its cached statement p50  0.1019 ms  p95  0.1134 ms  p99  0.1668 ms  (n=3000)
+  GRDB pool.read + Codable FetchableRecord (the easy way) p50  0.1788 ms  p95  0.1912 ms  p99  0.2187 ms  (n=3000)
+  unread count on the partial index, GRDB p50  0.0696 ms  p95  0.0721 ms  p99  0.0848 ms  (n=3000)
+  plan: SEARCH v USING PRIMARY KEY (view_pk=? AND sort_key>? AND (sort_key,thread_pk)<(?,?)) | SEARCH t USING INTEGER PRIMARY KEY (rowid=?)
+
+4. A 50-message write transaction (§4.12) · load 69 135 199
+  GRDB pool.write, cached statements, 50 messages p50  0.4277 ms  p95  0.4844 ms  p99  5.4986 ms  (n=300)
+  raw C API, prepared once, 50 messages p50  0.2955 ms  p95  0.3370 ms  p99  1.2388 ms  (n=300)
+
+5. Intent commit, three rows, full fsync (§4.2) · load 69 135 199
+  GRDB DatabaseQueue.write p50  0.2744 ms  p95  1.0023 ms  p99  2.9464 ms  (n=150)
+  raw C API p50  0.1869 ms  p95  0.4064 ms  p99  0.6953 ms  (n=150)
+
+13 checks · total rows touched 10919000 · load 69 135 199
+18:44  up 16:48, 21 users, load averages: 68.55 134.95 198.80

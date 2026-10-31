@@ -1,0 +1,24 @@
+{
+  "timestamp": "2026-10-09T06:23:15.512935-04:00",
+  "device": "<device-udid>",
+  "app": "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-library-touch-dd/Build/Products/Release-iphoneos/CalendarLibraryBenchmark.app",
+  "binarySHA256": "91981a0da0827687ee8d738939c222115fab87409530c9a573fb212f591a53a0",
+  "git": "85914f96b9905a85cc8999168d6fe8128c264c49",
+  "dirty": " M docs/performance/scale-results/calendar-native-surfaces-20261009/README.md\n M tools/calendar-library-benchmark/Sources/NativeController.swift\n M tools/calendar-library-benchmark/profile-touch.py\n M tools/calendar-library-benchmark/project.yml\n M tools/calendar-library-benchmark/test-device-interactive.py\n",
+  "sceneManifest": {
+    "UIApplicationSupportsMultipleScenes": false,
+    "UISceneConfigurations": {}
+  },
+  "minimumFrameDurationDisabled": true,
+  "scope": "Physical device synchronous renderer work; input/display acceptance unmeasured",
+  "matrix": "foreground-surface",
+  "trials": 3,
+  "densities": [
+    100,
+    300
+  ],
+  "alternatingOrder": true,
+  "navigationStress": true,
+  "foregroundNavigation": true,
+  "accessibilityClient": "none"
+}

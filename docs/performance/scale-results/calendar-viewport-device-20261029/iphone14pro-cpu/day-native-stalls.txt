@@ -1,0 +1,122 @@
+recording 9.3 s, 2516 samples, main-thread CPU 2462 ms; per 50 ms bucket (ms):
+ 19   9  14   9  17   7  12  18   8   5   6  10  18   2   7  20  19  15  11  14   4   3   7   7   2  11   7   4   4   7   8   9   8   9  21   9   8   8   8   9   6   7   8   4  23  50  50  27  15  37   0   5   8  25  11  12  19  10  17  14  25  11   8   7  18  14  16  15  23  14  15   9  13   7   9   9  10  13  13   7   7   8   9   9  11  10   9  10  16  10   9   9  10   9   7  16   8   6   7   8  35  50  50  23  26  15   0   0   2   2  24  29  14  21  16  10  10  17  20   8  15  15  16   6  10  15  16  16  13  20  14  15  10  18   4   4   5   9   9   7   7  18   5   7   9   9  10   8  10   9   9  17   6   9   7   5   7   6  19  50  50  29  13  36   2   5  14  27  13  13  18  13  18  10  19  11   7  10  14  20  16  16  21  11  14   8  13
+
+stall windows (>= 100 ms of main-thread CPU, contiguous):
+  +2.25s .. +2.35s  main CPU 100 ms
+  +5.00s .. +5.15s  main CPU 135 ms
+  +7.95s .. +8.05s  main CPU 100 ms
+
+INSIDE stalls: 335 ms main-thread CPU; heaviest frames (inclusive ms, share) and share in the other windows
+      335 ms 100.0%  (elsewhere  89.4%)  UC::DriverCore::continueProcessing()
+      335 ms 100.0%  (elsewhere  88.1%)  schedulerStepScheduledMainSectionContinue
+      335 ms 100.0%  (elsewhere  46.2%)  __CFMachPortPerform
+      335 ms 100.0%  (elsewhere  99.9%)  _CFRunLoopRunSpecificWithOptions
+      335 ms 100.0%  (elsewhere  99.9%)  closure #1 in KitRendererCommon(_:)
+      335 ms 100.0%  (elsewhere  87.7%)  _UIUpdateSequenceRunNext
+      335 ms 100.0%  (elsewhere  99.9%)  runApp<A>(_:)
+      335 ms 100.0%  (elsewhere  99.9%)  static App.main()
+      332 ms  99.1%  (elsewhere  31.5%)  AG::Graph::UpdateStack::update()
+      331 ms  98.8%  (elsewhere  37.3%)  AG::Subgraph::update(unsigned int)
+      329 ms  98.2%  (elsewhere   9.1%)  partial apply for implicit closure #1 in closure #1 in closure #1 in Attribute.init<A>(_:)
+      328 ms  97.9%  (elsewhere  15.7%)  GraphHost.flushTransactions()
+      328 ms  97.9%  (elsewhere   2.7%)  partial apply for closure #1 in ViewGraphRootValueUpdater.updateGraph<A>(body:)
+      328 ms  97.9%  (elsewhere  10.2%)  ViewGraphRootValueUpdater._updateViewGraph<A>(body:)
+      328 ms  97.9%  (elsewhere   3.3%)  0x19205ec80
+      328 ms  97.9%  (elsewhere   3.9%)  0x191eaf128
+      328 ms  97.9%  (elsewhere   3.3%)  UpdateGroup.dispatchImmediately<A>(reason:_:)
+      328 ms  97.9%  (elsewhere   3.3%)  static ViewGraphHostUpdate.dispatchImmediately<A>(_:)
+      328 ms  97.9%  (elsewhere   3.3%)  0x191efca38
+      328 ms  97.9%  (elsewhere   2.7%)  closure #1 in closure #1 in _UIHostingView.beginTransaction()
+      328 ms  97.9%  (elsewhere  14.9%)  <deduplicated_symbol>
+      328 ms  97.9%  (elsewhere   3.3%)  0x191efc078
+      328 ms  97.9%  (elsewhere   3.7%)  0x191eae370
+      328 ms  97.9%  (elsewhere  10.1%)  ViewGraphRootValueUpdater.updateGraph<A>(body:)
+      322 ms  96.1%  (elsewhere   3.2%)  closure #1 in DynamicBody.updateValue()
+
+OUTSIDE stalls: 2127 ms main-thread CPU; heaviest frames (inclusive ms, share) and share in the other windows
+     2125 ms  99.9%  (elsewhere 100.0%)  _CFRunLoopRunSpecificWithOptions
+     2125 ms  99.9%  (elsewhere 100.0%)  closure #1 in KitRendererCommon(_:)
+     2125 ms  99.9%  (elsewhere 100.0%)  runApp<A>(_:)
+     2125 ms  99.9%  (elsewhere 100.0%)  static App.main()
+     1902 ms  89.4%  (elsewhere 100.0%)  UC::DriverCore::continueProcessing()
+     1874 ms  88.1%  (elsewhere 100.0%)  schedulerStepScheduledMainSectionContinue
+     1865 ms  87.7%  (elsewhere 100.0%)  _UIUpdateSequenceRunNext
+     1577 ms  74.1%  (elsewhere   1.8%)  __setupUpdateSequence_block_invoke_2
+     1577 ms  74.1%  (elsewhere   1.8%)  _UIApplicationFlushCATransaction
+     1576 ms  74.1%  (elsewhere   1.8%)  CA::Transaction::commit()
+     1576 ms  74.1%  (elsewhere   1.8%)  CA::Transaction::flush_as_runloop_observer(bool)
+     1576 ms  74.1%  (elsewhere   1.8%)  CA::Transaction::flush()
+     1570 ms  73.8%  (elsewhere   1.8%)  CA::Context::commit_transaction(CA::Transaction*, double, double*)
+     1536 ms  72.2%  (elsewhere   1.8%)  CA::Layer::update_if_needed_(CA::Transaction*, CA::LayerUpdateReason)
+     1536 ms  72.2%  (elsewhere   1.8%)  CA::Layer::layout_and_display_if_needed(CA::Transaction*)
+     1515 ms  71.2%  (elsewhere   1.8%)  CA::Layer::perform_update_(CA::Layer*, CALayer*, unsigned int, CA::LayerUpdateReason, CA::Transaction*)
+     1512 ms  71.1%  (elsewhere   1.8%)  -[CALayer layoutSublayers]
+     1497 ms  70.4%  (elsewhere   1.8%)  -[UIView(CALayerDelegate) layoutSublayersOfLayer:]
+     1411 ms  66.3%  (elsewhere   1.8%)  0x191e88e04
+     1409 ms  66.2%  (elsewhere   1.8%)  0x191e89364
+     1137 ms  53.5%  (elsewhere   1.8%)  @objc _UIHostingView.layoutSubviews()
+     1135 ms  53.4%  (elsewhere   1.8%)  _UIHostingView.layoutSubviews()
+     1133 ms  53.3%  (elsewhere   1.8%)  0x191f904c0
+     1130 ms  53.1%  (elsewhere   1.8%)  ViewGraphRootValueUpdater.render(interval:updateDisplayList:targetTimestamp:)
+     1098 ms  51.6%  (elsewhere   1.8%)  closure #1 in ViewGraphRootValueUpdater.render(interval:updateDisplayList:targetTimestamp:)
+
+frames most specific to the stalls (share inside - share elsewhere):
+      328 ms  97.9%  (elsewhere   2.7%)  closure #1 in closure #1 in _UIHostingView.beginTransaction()
+      328 ms  97.9%  (elsewhere   2.7%)  partial apply for closure #1 in ViewGraphRootValueUpdater.updateGraph<A>(body:)
+      328 ms  97.9%  (elsewhere   3.3%)  0x19205ec80
+      328 ms  97.9%  (elsewhere   3.3%)  UpdateGroup.dispatchImmediately<A>(reason:_:)
+      328 ms  97.9%  (elsewhere   3.3%)  static ViewGraphHostUpdate.dispatchImmediately<A>(_:)
+      328 ms  97.9%  (elsewhere   3.3%)  0x191efca38
+      328 ms  97.9%  (elsewhere   3.3%)  0x191efc078
+      328 ms  97.9%  (elsewhere   3.7%)  0x191eae370
+      328 ms  97.9%  (elsewhere   3.9%)  0x191eaf128
+      322 ms  96.1%  (elsewhere   2.4%)  closure #1 in ViewBodyAccessor.updateBody(of:changed:)
+      322 ms  96.1%  (elsewhere   2.4%)  protocol witness for BodyAccessor.updateBody(of:changed:) in conformance ViewBodyAccessor<A>
+      322 ms  96.1%  (elsewhere   2.5%)  ViewBodyAccessor.updateBody(of:changed:)
+      319 ms  95.2%  (elsewhere   1.7%)  OccurrenceStore.nextAlertSample.getter
+      319 ms  95.2%  (elsewhere   1.8%)  PlanPromptCard.body.getter
+      319 ms  95.2%  (elsewhere   1.8%)  closure #1 in PlanPromptCard.body.getter
+      322 ms  96.1%  (elsewhere   3.2%)  closure #1 in DynamicBody.updateValue()
+      322 ms  96.1%  (elsewhere   3.5%)  DynamicBody.updateValue()
+      313 ms  93.4%  (elsewhere   1.6%)  OccurrenceStore.alertCandidates(from:)
+      308 ms  91.9%  (elsewhere   1.6%)  closure #1 in OccurrenceStore.alertCandidates(from:)
+      329 ms  98.2%  (elsewhere   9.1%)  partial apply for implicit closure #1 in closure #1 in closure #1 in Attribute.init<A>(_:)
+      328 ms  97.9%  (elsewhere  10.1%)  ViewGraphRootValueUpdater.updateGraph<A>(body:)
+      328 ms  97.9%  (elsewhere  10.2%)  ViewGraphRootValueUpdater._updateViewGraph<A>(body:)
+      328 ms  97.9%  (elsewhere  14.9%)  <deduplicated_symbol>
+      328 ms  97.9%  (elsewhere  15.7%)  GraphHost.flushTransactions()
+      332 ms  99.1%  (elsewhere  31.5%)  AG::Graph::UpdateStack::update()
+
+app frames inside the stalls (inclusive ms):
+      335 ms 100.0%  (elsewhere  99.9%)  GSEventRunModal
+      319 ms  95.2%  (elsewhere   1.7%)  OccurrenceStore.nextAlertSample.getter
+      313 ms  93.4%  (elsewhere   1.6%)  OccurrenceStore.alertCandidates(from:)
+      308 ms  91.9%  (elsewhere   1.6%)  closure #1 in OccurrenceStore.alertCandidates(from:)
+       59 ms  17.6%  (elsewhere   0.2%)  specialized static EventAlertPlan.allows(calendarID:alsoOn:muted:)
+        2 ms   0.6%  (elsewhere   0.1%)  WeekView.body.getter
+        2 ms   0.6%  (elsewhere   0.1%)  specialized static EventAlertPlan.items(from:leads:now:limit:horizon:)
+        2 ms   0.6%  (elsewhere   0.1%)  CalendarDayCollectionView.apply(_:height:width:environment:preservesActiveGesture:)
+        1 ms   0.3%  (elsewhere   8.1%)  CA::Display::DisplayLinkItem::dispatch_(CA::SignPost::Interval<(CA::SignPost::CAEventCode)835322056>&)
+        1 ms   0.3%  (elsewhere   0.1%)  closure #1 in WeekView.body.getter
+        1 ms   0.3%  (elsewhere   0.0%)  WeekView.mobileWeekRangeTitle.getter
+        1 ms   0.3%  (elsewhere   0.0%)  WeekView.mobileWeekChrome.getter
+        1 ms   0.3%  (elsewhere   0.0%)  closure #1 in WeekView.mobilePlanner.getter
+        1 ms   0.3%  (elsewhere   0.0%)  WeekView.mobilePlanner.getter
+        1 ms   0.3%  (elsewhere   0.0%)  outlined destroy of EventAlertPlan.Item
+        1 ms   0.3%  (elsewhere   0.1%)  closure #1 in WeekView.mobileWeekCalendarGrid.getter
+        1 ms   0.3%  (elsewhere   0.1%)  closure #1 in closure #1 in WeekView.mobileWeekCalendarGrid.getter
+        1 ms   0.3%  (elsewhere   0.0%)  specialized static CalendarLaneAllocator.placements(_:)
+        1 ms   0.3%  (elsewhere   0.1%)  WeekView.mobileNativeDayItems(_:width:gutter:startHour:endHour:hourHeight:)
+        1 ms   0.3%  (elsewhere   0.4%)  WeekView.gridBlockContent(_:height:)
+        1 ms   0.3%  (elsewhere   0.4%)  partial apply for closure #2 in WeekView.gridBlock(_:height:width:)
+        1 ms   0.3%  (elsewhere   0.5%)  WeekView.gridBlock(_:height:width:)
+        1 ms   0.3%  (elsewhere   2.2%)  CalendarDayCollectionView.configure(_:at:)
+        1 ms   0.3%  (elsewhere   0.8%)  closure #8 in WeekView.mobileNativeDayItems(_:width:gutter:startHour:endHour:hourHeight:)
+        1 ms   0.3%  (elsewhere   0.8%)  closure #1 in CalendarDayCollectionView.configure(_:at:)
+        1 ms   0.3%  (elsewhere   1.2%)  closure #1 in CalendarPreparedArtwork.body.getter
+        1 ms   0.3%  (elsewhere   0.0%)  WeekView.mobileHourLabel(_:)
+        1 ms   0.3%  (elsewhere   0.0%)  closure #1 in closure #1 in closure #1 in WeekView.mobileTimeGutter(width:startHour:endHour:hourHeight:)
+        1 ms   0.3%  (elsewhere   0.0%)  Calendar.date(bySettingHour:minute:second:of:matchingPolicy:repeatedTimePolicy:direction:)
+        1 ms   0.3%  (elsewhere   0.0%)  closure #1 in closure #1 in WeekView.mobileTimeGutter(width:startHour:endHour:hourHeight:)
+
+main-thread samples whose top frames are unsymbolicated addresses: 109

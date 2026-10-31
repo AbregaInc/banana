@@ -1,0 +1,206 @@
+[
+  {
+    "name": "build-MacSurfacePropertiesBenchmark",
+    "command": [
+      "swiftc",
+      "-O",
+      "-parse-as-library",
+      "tools/calendar-library-benchmark/Shared/PrototypeModel.swift",
+      "tools/calendar-library-benchmark/Shared/TileRenderer.swift",
+      "tools/calendar-library-benchmark/Shared/AsyncTilePreparation.swift",
+      "tools/calendar-library-benchmark/Shared/PreparedText.swift",
+      "tools/calendar-library-benchmark/Shared/Optimizations.swift",
+      "tools/calendar-library-benchmark/Shared/CalendarGridView.swift",
+      "tools/calendar-library-benchmark/Shared/RasterPage.swift",
+      "tools/calendar-library-benchmark/Shared/DayGeometry.swift",
+      "tools/calendar-library-benchmark/Shared/CalendarSurface.swift",
+      "tools/calendar-library-benchmark/Shared/Fixtures.swift",
+      "tools/calendar-library-benchmark/Native/MacBenchmark.swift",
+      "-o",
+      ".build/calendar-async-preparation/MacSurfacePropertiesBenchmark"
+    ],
+    "exitCode": 0
+  },
+  {
+    "name": "build-AXPropertiesChecks",
+    "command": [
+      "swiftc",
+      "-O",
+      "-parse-as-library",
+      "tools/calendar-library-benchmark/Shared/PrototypeModel.swift",
+      "tools/calendar-library-benchmark/Shared/TileRenderer.swift",
+      "tools/calendar-library-benchmark/Shared/AsyncTilePreparation.swift",
+      "tools/calendar-library-benchmark/Shared/PreparedText.swift",
+      "tools/calendar-library-benchmark/Shared/Optimizations.swift",
+      "tools/calendar-library-benchmark/Shared/CalendarGridView.swift",
+      "tools/calendar-library-benchmark/Shared/RasterPage.swift",
+      "tools/calendar-library-benchmark/Shared/DayGeometry.swift",
+      "tools/calendar-library-benchmark/Shared/CalendarSurface.swift",
+      "tools/calendar-library-benchmark/Shared/Fixtures.swift",
+      "tools/calendar-library-benchmark/AccessibilityTests/main.swift",
+      "-o",
+      ".build/calendar-async-preparation/AXPropertiesChecks"
+    ],
+    "exitCode": 0
+  },
+  {
+    "name": "ax-properties-100-tile-prefetch-async-surface",
+    "command": [
+      ".build/calendar-async-preparation/AXPropertiesChecks",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--renderer",
+      "tiles",
+      "--density",
+      "100",
+      "--ablation",
+      "tile-prefetch-async-surface",
+      "--output",
+      ".build/calendar-async-preparation/ax-properties-100-tile-prefetch-async-surface.json"
+    ],
+    "exitCode": 0
+  },
+  {
+    "name": "nav-properties-100-tile-prefetch-async-surface",
+    "command": [
+      ".build/calendar-async-preparation/MacSurfacePropertiesBenchmark",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--renderer",
+      "tiles",
+      "--density",
+      "100",
+      "--ablation",
+      "tile-prefetch-async-surface",
+      "--check",
+      "navigation",
+      "--output",
+      ".build/calendar-async-preparation/nav-properties-100-tile-prefetch-async-surface.json"
+    ],
+    "exitCode": 0
+  },
+  {
+    "name": "ax-properties-100-tile-prefetch-async-surface-properties",
+    "command": [
+      ".build/calendar-async-preparation/AXPropertiesChecks",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--renderer",
+      "tiles",
+      "--density",
+      "100",
+      "--ablation",
+      "tile-prefetch-async-surface-properties",
+      "--output",
+      ".build/calendar-async-preparation/ax-properties-100-tile-prefetch-async-surface-properties.json"
+    ],
+    "exitCode": 0
+  },
+  {
+    "name": "nav-properties-100-tile-prefetch-async-surface-properties",
+    "command": [
+      ".build/calendar-async-preparation/MacSurfacePropertiesBenchmark",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--renderer",
+      "tiles",
+      "--density",
+      "100",
+      "--ablation",
+      "tile-prefetch-async-surface-properties",
+      "--check",
+      "navigation",
+      "--output",
+      ".build/calendar-async-preparation/nav-properties-100-tile-prefetch-async-surface-properties.json"
+    ],
+    "exitCode": 0
+  },
+  {
+    "name": "ax-properties-300-tile-prefetch-async-surface",
+    "command": [
+      ".build/calendar-async-preparation/AXPropertiesChecks",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--renderer",
+      "tiles",
+      "--density",
+      "300",
+      "--ablation",
+      "tile-prefetch-async-surface",
+      "--output",
+      ".build/calendar-async-preparation/ax-properties-300-tile-prefetch-async-surface.json"
+    ],
+    "exitCode": 0
+  },
+  {
+    "name": "nav-properties-300-tile-prefetch-async-surface",
+    "command": [
+      ".build/calendar-async-preparation/MacSurfacePropertiesBenchmark",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--renderer",
+      "tiles",
+      "--density",
+      "300",
+      "--ablation",
+      "tile-prefetch-async-surface",
+      "--check",
+      "navigation",
+      "--output",
+      ".build/calendar-async-preparation/nav-properties-300-tile-prefetch-async-surface.json"
+    ],
+    "exitCode": 0
+  },
+  {
+    "name": "ax-properties-300-tile-prefetch-async-surface-properties",
+    "command": [
+      ".build/calendar-async-preparation/AXPropertiesChecks",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--renderer",
+      "tiles",
+      "--density",
+      "300",
+      "--ablation",
+      "tile-prefetch-async-surface-properties",
+      "--output",
+      ".build/calendar-async-preparation/ax-properties-300-tile-prefetch-async-surface-properties.json"
+    ],
+    "exitCode": 0
+  },
+  {
+    "name": "nav-properties-300-tile-prefetch-async-surface-properties",
+    "command": [
+      ".build/calendar-async-preparation/MacSurfacePropertiesBenchmark",
+      "--mode",
+      "week",
+      "--days",
+      "365",
+      "--renderer",
+      "tiles",
+      "--density",
+      "300",
+      "--ablation",
+      "tile-prefetch-async-surface-properties",
+      "--check",
+      "navigation",
+      "--output",
+      ".build/calendar-async-preparation/nav-properties-300-tile-prefetch-async-surface-properties.json"
+    ],
+    "exitCode": 0
+  }
+]

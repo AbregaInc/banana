@@ -1,0 +1,58 @@
+{
+  "at": "2026-10-09T12:30:44.497085",
+  "beforeFree": 127904821248,
+  "afterFree": 128998957056,
+  "actions": [
+    {
+      "command": [
+        "xcrun",
+        "simctl",
+        "shutdown",
+        "5829A24D-81B4-49D9-A31A-C7553C32D527"
+      ],
+      "exit": 0,
+      "output": ""
+    },
+    {
+      "command": [
+        "xcrun",
+        "simctl",
+        "erase",
+        "5829A24D-81B4-49D9-A31A-C7553C32D527"
+      ],
+      "exit": 0,
+      "output": ""
+    }
+  ],
+  "removed": [
+    {
+      "path": "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-varied-fix/app-regression/derived-data/Build/Intermediates.noindex",
+      "logicalBytes": 610298156
+    },
+    {
+      "path": "~/orca/workspaces/gtfuwgth/stingray/.build/calendar-varied-fix/app-regression/derived-data/ModuleCache.noindex",
+      "logicalBytes": 84554148
+    },
+    {
+      "path": "~/orca/workspaces/gtfuwgth/stingray/.build/query-performance-20261009/notes-page-count/probe.sqlite",
+      "logicalBytes": 61120512
+    },
+    {
+      "path": "~/orca/workspaces/gtfuwgth/stingray/.build/query-performance-20261009/notes-trigram/probe.sqlite",
+      "logicalBytes": 61120512
+    },
+    {
+      "path": "~/orca/workspaces/gtfuwgth/stingray/.build/query-performance-20261009/notes-smoke/probe.sqlite",
+      "logicalBytes": 102400
+    },
+    {
+      "path": "~/orca/workspaces/gtfuwgth/stingray/.build/query-performance-20261009/notes-selective/probe.sqlite",
+      "logicalBytes": 61120512
+    },
+    {
+      "path": "~/orca/workspaces/gtfuwgth/stingray/.build/query-performance-20261009/notes-one-gram/probe.sqlite",
+      "logicalBytes": 61120512
+    }
+  ],
+  "preserved": "Workspaces/worktrees, source fixture copies, comparison apps/binaries, test results and logs; other simulators untouched"
+}
