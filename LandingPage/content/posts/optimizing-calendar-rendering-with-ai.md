@@ -125,14 +125,14 @@ The phone and tablet results are separate from the Simulator comparison. We do n
 
 ## On the phone: Week got fast, Day did not
 
-Preparation is load-time work. The question a reader should ask is what happens while you scroll. On October 29 we ran the matched comparison on the same phone: the spare iPhone 14 Pro, the same isolated fixture app, 36,500 events across 12 calendars and 365 days, the same 16 swipe-up/swipe-down window, Instruments attached for eight seconds, old/new/new/old order. We read the update intervals Animation Hitches attributes to the app. "Old host" is the `UIScrollView` with the full-day SwiftUI tree; "new host" is the `UICollectionView` with reusable cells. Each host was traced twice, so a cell such as "14.9 · 15.1 ms" holds both runs, the first and then the second.
+Preparation is load-time work. The question a reader should ask is what happens while you scroll. On October 29 we ran the matched comparison on the same phone: the spare iPhone 14 Pro, the same isolated fixture app, 36,500 events across 12 calendars and 365 days, the same 16 swipe-up/swipe-down window, Instruments attached for eight seconds, old/new/new/old order. We read the update intervals Animation Hitches attributes to the app. "Old host" is the `UIScrollView` with the full-day SwiftUI tree; "new host" is the `UICollectionView` with reusable cells. Each host was traced twice, so a cell such as "14.9, 15.1 ms" holds both runs, the first and then the second.
 
 | View | Host | Updates in window | p50 | p95 | Max | Over 8.3 ms |
 | --- | --- | ---: | ---: | ---: | ---: | ---: |
-| Week | Old host | 230 · 218 | 14.9 · 15.1 ms | 46.1 · 47.6 ms | 90.9 · 100.9 ms | all |
-| Week | New host | 605 · 599 | 2.3 · 2.4 ms | 7.2 · 7.3 ms | 12.7 · 12.0 ms | 17 · 20 |
-| Day | Old host | 630 · 637 | 1.9 · 2.0 ms | 3.1 · 3.1 ms | 157 · 159 ms | 8 · 8 |
-| Day | New host | 665 · 634 | 2.0 · 2.2 ms | 7.7 · 7.4 ms | 149 · 144 ms | 29 · 22 |
+| Week | Old host | 230, 218 | 14.9, 15.1 ms | 46.1, 47.6 ms | 90.9, 100.9 ms | all |
+| Week | New host | 605, 599 | 2.3, 2.4 ms | 7.2, 7.3 ms | 12.7, 12.0 ms | 17, 20 |
+| Day | Old host | 630, 637 | 1.9, 2.0 ms | 3.1, 3.1 ms | 157, 159 ms | 8, 8 |
+| Day | New host | 665, 634 | 2.0, 2.2 ms | 7.7, 7.4 ms | 149, 144 ms | 29, 22 |
 
 ```diagram
 src: /assets/blog/optimizing-calendar-rendering-with-ai/update-intervals-iphone14pro.svg
@@ -156,14 +156,14 @@ The next day we ran the same matrix on the iPad Pro 12.9-inch (M1) over USB, in 
 
 | View | Orientation | Host | p50 | p95 | Worst update | Over 8.3 ms |
 | --- | --- | --- | ---: | ---: | ---: | ---: |
-| Week | Landscape | Old host | 11.8 · 11.5 ms | 14.4 · 13.6 ms | 43 · 42 ms | all |
-| Week | Landscape | New host | 2.3 · 2.3 ms | 12.7 · 12.4 ms | 20 · 21 ms | 79 · 92 |
-| Week | Portrait | Old host | 11.3 · 10.9 ms | 13.5 · 13.3 ms | 46 · 45 ms | all |
-| Week | Portrait | New host | 2.5 · 2.5 ms | 8.6 · 10.5 ms | 116 · 125 ms | 28 · 51 |
-| Day | Landscape | Old host | 0.8 · 1.3 ms | 1.6 · 1.9 ms | 41 · 42 ms | 6 · 6 |
-| Day | Landscape | New host | 1.6 · 1.7 ms | 7.2 · 9.5 ms | 49 · 68 ms | 23 · 36 |
-| Day | Portrait | Old host | 0.5 · 0.6 ms | 1.3 · 1.2 ms | 40 · 40 ms | 12 · 12 |
-| Day | Portrait | New host | 2.2 · 2.2 ms | 9.4 · 9.8 ms | 90 · 95 ms | 32 · 43 |
+| Week | Landscape | Old host | 11.8, 11.5 ms | 14.4, 13.6 ms | 43, 42 ms | all |
+| Week | Landscape | New host | 2.3, 2.3 ms | 12.7, 12.4 ms | 20, 21 ms | 79, 92 |
+| Week | Portrait | Old host | 11.3, 10.9 ms | 13.5, 13.3 ms | 46, 45 ms | all |
+| Week | Portrait | New host | 2.5, 2.5 ms | 8.6, 10.5 ms | 116, 125 ms | 28, 51 |
+| Day | Landscape | Old host | 0.8, 1.3 ms | 1.6, 1.9 ms | 41, 42 ms | 6, 6 |
+| Day | Landscape | New host | 1.6, 1.7 ms | 7.2, 9.5 ms | 49, 68 ms | 23, 36 |
+| Day | Portrait | Old host | 0.5, 0.6 ms | 1.3, 1.2 ms | 40, 40 ms | 12, 12 |
+| Day | Portrait | New host | 2.2, 2.2 ms | 9.4, 9.8 ms | 90, 95 ms | 32, 43 |
 
 Week moves the same way as on the phone, less far. The old host's median is 11 to 12 ms in both orientations and no update fits a frame; the new host's median is 2.3 to 2.5 ms. But the new host's p95 is over budget on the iPad, 12.5 ms in landscape and 8.6 to 10.5 ms in portrait, where the phone's was 7.2 ms, and portrait adds a 116 to 125 ms worst update that landscape does not have. Per-cell work scales with cells on screen, and the iPad has two to three times as many.
 
@@ -181,9 +181,9 @@ The fix is unglamorous: cache the candidates, keyed on a revision counter the st
 
 | View | Host | p50 | p95 | p99 | Worst update |
 | --- | --- | ---: | ---: | ---: | ---: |
-| Day | Old host | 2.0 · 1.9 ms | 3.1 · 3.0 ms | 8.1 · 39.7 ms | 59 · 45 ms (was 157 · 159) |
-| Day | New host | 2.4 · 2.2 ms | 7.0 · 7.0 ms | 11.2 · 13.2 ms | 37 · 36 ms (was 149 · 144) |
-| Week | New host | 2.2 · 2.4 ms | 7.4 · 7.4 ms | 11.3 · 10.4 ms | 22 · 14 ms |
+| Day | Old host | 2.0, 1.9 ms | 3.1, 3.0 ms | 8.1, 39.7 ms | 59, 45 ms (was 157, 159) |
+| Day | New host | 2.4, 2.2 ms | 7.0, 7.0 ms | 11.2, 13.2 ms | 37, 36 ms (was 149, 144) |
+| Week | New host | 2.2, 2.4 ms | 7.4, 7.4 ms | 11.3, 10.4 ms | 22, 14 ms |
 
 Medians and p95 did not move, which is the point: this was a stall, not per-update work. The worst Day update dropped by about 110 ms on both hosts. A 36 to 59 ms tail remains, and it is the next thing to attribute.
 
