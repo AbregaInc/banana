@@ -39,44 +39,44 @@
 <p>Each event view contains its title, time, icons, and background. Our old Day and Week views hosted the full day’s SwiftUI event-view tree inside a <code>UIScrollView</code>. We replaced that host with a <code>UICollectionView</code> that creates and reuses event cells as they are needed. The event geometry and block-drawing code stayed the same.</p>
 <p>This came out of an <strong>AI-driven performance hill climb</strong>. We set the calendar workload and performance requirements, then used a coding agent to implement alternatives, run comparisons, investigate failures, and iterate. The agent worked on the renderer and the tests used to judge it.</p>
 <h2>Before and after</h2>
-<div class="table-scroll" role="region" aria-label="Data table" tabindex="0"><table>
-<thead>
-<tr>
-<th></th>
-<th>Old Day view</th>
-<th>New Day view</th>
+<div class="table-scroll table-stack" role="region" aria-label="Data table" tabindex="0"><table role="table">
+<thead role="rowgroup">
+<tr role="row">
+<th role="columnheader"></th>
+<th role="columnheader">Old Day view</th>
+<th role="columnheader">New Day view</th>
 </tr>
 </thead>
-<tbody>
-<tr>
-<td>Scroll host</td>
-<td><code>UIScrollView</code></td>
-<td><code>UICollectionView</code></td>
+<tbody role="rowgroup">
+<tr role="row">
+<td role="cell">Scroll host</td>
+<td data-label="Old Day view" role="cell"><code>UIScrollView</code></td>
+<td data-label="New Day view" role="cell"><code>UICollectionView</code></td>
 </tr>
-<tr>
-<td>Event views</td>
-<td>Full day’s SwiftUI event-view tree</td>
-<td>Reusable cells requested by the viewport</td>
+<tr role="row">
+<td role="cell">Event views</td>
+<td data-label="Old Day view" role="cell">Full day’s SwiftUI event-view tree</td>
+<td data-label="New Day view" role="cell">Reusable cells requested by the viewport</td>
 </tr>
-<tr>
-<td>Event placement</td>
-<td>Existing calendar geometry</td>
-<td>Same geometry</td>
+<tr role="row">
+<td role="cell">Event placement</td>
+<td data-label="Old Day view" role="cell">Existing calendar geometry</td>
+<td data-label="New Day view" role="cell">Same geometry</td>
 </tr>
-<tr>
-<td>Block drawing</td>
-<td>Prepared event blocks</td>
-<td>Same prepared-block path</td>
+<tr role="row">
+<td role="cell">Block drawing</td>
+<td data-label="Old Day view" role="cell">Prepared event blocks</td>
+<td data-label="New Day view" role="cell">Same prepared-block path</td>
 </tr>
-<tr>
-<td>Blocks prepared to show one day</td>
-<td>104 to 108</td>
-<td>48</td>
+<tr role="row">
+<td role="cell">Blocks prepared to show one day</td>
+<td class="measure" data-label="Old Day view" role="cell">104 to 108</td>
+<td class="measure" data-label="New Day view" role="cell">48</td>
 </tr>
-<tr>
-<td>Preparation work, iPhone 14 Pro</td>
-<td>29.1 ms mean</td>
-<td>16.4 ms mean</td>
+<tr role="row">
+<td role="cell">Preparation work, iPhone 14 Pro</td>
+<td class="measure" data-label="Old Day view" role="cell">29.1 ms mean</td>
+<td class="measure" data-label="New Day view" role="cell">16.4 ms mean</td>
 </tr>
 </tbody>
 </table></div>
@@ -92,52 +92,52 @@
 </thead>
 <tbody>
 <tr>
-<td>1</td>
+<td class="measure">1</td>
 <td>Old</td>
-<td style="text-align:right">108</td>
-<td style="text-align:right">37.751 ms</td>
+<td style="text-align:right" class="measure">108</td>
+<td style="text-align:right" class="measure">37.751 ms</td>
 </tr>
 <tr>
-<td>2</td>
+<td class="measure">2</td>
 <td>New</td>
-<td style="text-align:right">48</td>
-<td style="text-align:right">16.348 ms</td>
+<td style="text-align:right" class="measure">48</td>
+<td style="text-align:right" class="measure">16.348 ms</td>
 </tr>
 <tr>
-<td>3</td>
+<td class="measure">3</td>
 <td>New</td>
-<td style="text-align:right">48</td>
-<td style="text-align:right">16.721 ms</td>
+<td style="text-align:right" class="measure">48</td>
+<td style="text-align:right" class="measure">16.721 ms</td>
 </tr>
 <tr>
-<td>4</td>
+<td class="measure">4</td>
 <td>Old</td>
-<td style="text-align:right">104</td>
-<td style="text-align:right">27.031 ms</td>
+<td style="text-align:right" class="measure">104</td>
+<td style="text-align:right" class="measure">27.031 ms</td>
 </tr>
 <tr>
-<td>5</td>
+<td class="measure">5</td>
 <td>Old</td>
-<td style="text-align:right">104</td>
-<td style="text-align:right">27.126 ms</td>
+<td style="text-align:right" class="measure">104</td>
+<td style="text-align:right" class="measure">27.126 ms</td>
 </tr>
 <tr>
-<td>6</td>
+<td class="measure">6</td>
 <td>New</td>
-<td style="text-align:right">48</td>
-<td style="text-align:right">16.029 ms</td>
+<td style="text-align:right" class="measure">48</td>
+<td style="text-align:right" class="measure">16.029 ms</td>
 </tr>
 <tr>
-<td>7</td>
+<td class="measure">7</td>
 <td>New</td>
-<td style="text-align:right">48</td>
-<td style="text-align:right">16.562 ms</td>
+<td style="text-align:right" class="measure">48</td>
+<td style="text-align:right" class="measure">16.562 ms</td>
 </tr>
 <tr>
-<td>8</td>
+<td class="measure">8</td>
 <td>Old</td>
-<td style="text-align:right">105</td>
-<td style="text-align:right">24.499 ms</td>
+<td style="text-align:right" class="measure">105</td>
+<td style="text-align:right" class="measure">24.499 ms</td>
 </tr>
 </tbody>
 </table></div>
@@ -170,34 +170,34 @@
 <rect x="464" y="392" width="400" height="72" rx="6" fill="#fbf6ea" stroke="#221d38" stroke-width="2"/><text class="node-name" x="488" y="424">Draw the event block</text><text class="sub" x="488" y="448">Reuse a drawing or make one</text>
 <text class="sub" x="64" y="512">Keep the cell alive while its event is being dragged.</text>
 <line x1="64" y1="536" x2="896" y2="536" stroke="#e6dccb" stroke-width="2"/><rect x="64" y="556" width="20" height="16" rx="2" fill="#fbf6ea" stroke="#221d38"/><text class="sub" x="96" y="570">Action</text><polygon points="248,552 260,564 248,576 236,564" fill="#ffd84a" stroke="#221d38"/><text class="sub" x="272" y="570">Viewport decision</text>
-</svg></button><figcaption>How the calendar chooses which event views to build · <a href="/assets/blog/optimizing-calendar-rendering-with-ai/calendar-viewport.svg">Open full size</a></figcaption></figure><dialog class="diagram-dialog" aria-label="Flowchart: event data and positions stay available; cells are created or reused only for events needed in the viewport, and drawings are reused while their inputs match"><div class="diagram-stage" style="--diagram-aspect:1.6000"></div><button type="button" class="diagram-close">Close</button></dialog>
+</svg></button><figcaption>How the calendar chooses which event views to build · <a class="diagram-full" href="/assets/blog/optimizing-calendar-rendering-with-ai/calendar-viewport.svg">Open full size</a></figcaption></figure><dialog class="diagram-dialog" aria-label="Flowchart: event data and positions stay available; cells are created or reused only for events needed in the viewport, and drawings are reused while their inputs match"><div class="diagram-stage" style="--diagram-aspect:1.6000"></div><button type="button" class="diagram-close">Close</button></dialog>
 <p>That separation gave the agent smaller changes to test. It could change the scroll host while retaining the placement rules and drawing code, then evaluate drawing changes separately.</p>
 <p>It also made the remaining costs easier to name. Our fixed-frame layout still scans cached attributes to find intersecting events. Reusable cells reduce the live view tree; they do not remove placement work or make retained calendar history disappear.</p>
 <h2>Libraries and tools we evaluated</h2>
 <p>We looked at existing calendar components before building our own host:</p>
-<div class="table-scroll" role="region" aria-label="Data table" tabindex="0"><table>
-<thead>
-<tr>
-<th>Library</th>
-<th>What we evaluated</th>
-<th>What it meant for this calendar</th>
+<div class="table-scroll table-stack" role="region" aria-label="Data table" tabindex="0"><table role="table">
+<thead role="rowgroup">
+<tr role="row">
+<th role="columnheader">Library</th>
+<th role="columnheader">What we evaluated</th>
+<th role="columnheader">What it meant for this calendar</th>
 </tr>
 </thead>
-<tbody>
-<tr>
-<td><a href="https://github.com/richardtop/CalendarKit">CalendarKit</a></td>
-<td>Its day timeline, event pool, and overlap layout; pinned in our isolated benchmark</td>
-<td>A useful iOS comparator. At the inspected revision, its event-view lifecycle would still need changes, and it did not provide an AppKit host.</td>
+<tbody role="rowgroup">
+<tr role="row">
+<td data-label="Library" role="cell"><a href="https://github.com/richardtop/CalendarKit">CalendarKit</a></td>
+<td data-label="What we evaluated" role="cell">Its day timeline, event pool, and overlap layout; pinned in our isolated benchmark</td>
+<td data-label="What it meant for this calendar" role="cell">A useful iOS comparator. At the inspected revision, its event-view lifecycle would still need changes, and it did not provide an AppKit host.</td>
 </tr>
-<tr>
-<td><a href="https://github.com/kvyatkovskys/KVKCalendar">KVKCalendar</a></td>
-<td>Its multi-day timeline and custom event-view/layout hooks; also pinned in the benchmark</td>
-<td>The closest mobile week-view candidate. Those hooks did not supply the vertical event virtualization we wanted.</td>
+<tr role="row">
+<td data-label="Library" role="cell"><a href="https://github.com/kvyatkovskys/KVKCalendar">KVKCalendar</a></td>
+<td data-label="What we evaluated" role="cell">Its multi-day timeline and custom event-view/layout hooks; also pinned in the benchmark</td>
+<td data-label="What it meant for this calendar" role="cell">The closest mobile week-view candidate. Those hooks did not supply the vertical event virtualization we wanted.</td>
 </tr>
-<tr>
-<td><a href="https://github.com/airbnb/HorizonCalendar">HorizonCalendar</a></td>
-<td>Incremental visible-item lookup and view reuse</td>
-<td>A useful architecture reference for virtualization. Its date/month grid was not a drop-in hourly event timeline.</td>
+<tr role="row">
+<td data-label="Library" role="cell"><a href="https://github.com/airbnb/HorizonCalendar">HorizonCalendar</a></td>
+<td data-label="What we evaluated" role="cell">Incremental visible-item lookup and view reuse</td>
+<td data-label="What it meant for this calendar" role="cell">A useful architecture reference for virtualization. Its date/month grid was not a drop-in hourly event timeline.</td>
 </tr>
 </tbody>
 </table></div>
@@ -233,54 +233,54 @@
 <p>The phone and tablet results are separate from the Simulator comparison. We do not use a fast run on the M1 Max as evidence that the same work is fast on an iPhone.</p>
 <h2>On the phone: Week got fast, Day did not</h2>
 <p>Preparation is load-time work. The question a reader should ask is what happens while you scroll. On October 29 we ran the matched comparison on the same phone: the spare iPhone 14 Pro, the same isolated fixture app, 36,500 events across 12 calendars and 365 days, the same 16 swipe-up/swipe-down window, Instruments attached for eight seconds, old/new/new/old order. We read the update intervals Animation Hitches attributes to the app. &quot;Old host&quot; is the <code>UIScrollView</code> with the full-day SwiftUI tree; &quot;new host&quot; is the <code>UICollectionView</code> with reusable cells.</p>
-<div class="table-scroll" role="region" aria-label="Data table" tabindex="0"><table>
-<thead>
-<tr>
-<th>View</th>
-<th>Host</th>
-<th style="text-align:right">Updates in window</th>
-<th style="text-align:right">p50</th>
-<th style="text-align:right">p95</th>
-<th style="text-align:right">Max</th>
-<th style="text-align:right">Over 8.3 ms</th>
+<div class="table-scroll table-stack" role="region" aria-label="Data table" tabindex="0"><table role="table">
+<thead role="rowgroup">
+<tr role="row">
+<th role="columnheader">View</th>
+<th role="columnheader">Host</th>
+<th style="text-align:right" role="columnheader">Updates in window</th>
+<th style="text-align:right" role="columnheader">p50</th>
+<th style="text-align:right" role="columnheader">p95</th>
+<th style="text-align:right" role="columnheader">Max</th>
+<th style="text-align:right" role="columnheader">Over 8.3 ms</th>
 </tr>
 </thead>
-<tbody>
-<tr>
-<td>Week</td>
-<td>Old host</td>
-<td style="text-align:right">230 · 218</td>
-<td style="text-align:right">14.9 · 15.1 ms</td>
-<td style="text-align:right">46.1 · 47.6 ms</td>
-<td style="text-align:right">90.9 · 100.9 ms</td>
-<td style="text-align:right">all</td>
+<tbody role="rowgroup">
+<tr role="row">
+<td data-label="View" role="cell">Week</td>
+<td data-label="Host" role="cell">Old host</td>
+<td style="text-align:right" class="measure" data-label="Updates in window" role="cell">230 · 218</td>
+<td style="text-align:right" class="measure" data-label="p50" role="cell">14.9 · 15.1 ms</td>
+<td style="text-align:right" class="measure" data-label="p95" role="cell">46.1 · 47.6 ms</td>
+<td style="text-align:right" class="measure" data-label="Max" role="cell">90.9 · 100.9 ms</td>
+<td style="text-align:right" data-label="Over 8.3 ms" role="cell">all</td>
 </tr>
-<tr>
-<td>Week</td>
-<td>New host</td>
-<td style="text-align:right">605 · 599</td>
-<td style="text-align:right">2.3 · 2.4 ms</td>
-<td style="text-align:right">7.2 · 7.3 ms</td>
-<td style="text-align:right">12.7 · 12.0 ms</td>
-<td style="text-align:right">17 · 20</td>
+<tr role="row">
+<td data-label="View" role="cell">Week</td>
+<td data-label="Host" role="cell">New host</td>
+<td style="text-align:right" class="measure" data-label="Updates in window" role="cell">605 · 599</td>
+<td style="text-align:right" class="measure" data-label="p50" role="cell">2.3 · 2.4 ms</td>
+<td style="text-align:right" class="measure" data-label="p95" role="cell">7.2 · 7.3 ms</td>
+<td style="text-align:right" class="measure" data-label="Max" role="cell">12.7 · 12.0 ms</td>
+<td style="text-align:right" class="measure" data-label="Over 8.3 ms" role="cell">17 · 20</td>
 </tr>
-<tr>
-<td>Day</td>
-<td>Old host</td>
-<td style="text-align:right">630 · 637</td>
-<td style="text-align:right">1.9 · 2.0 ms</td>
-<td style="text-align:right">3.1 · 3.1 ms</td>
-<td style="text-align:right">157 · 159 ms</td>
-<td style="text-align:right">8 · 8</td>
+<tr role="row">
+<td data-label="View" role="cell">Day</td>
+<td data-label="Host" role="cell">Old host</td>
+<td style="text-align:right" class="measure" data-label="Updates in window" role="cell">630 · 637</td>
+<td style="text-align:right" class="measure" data-label="p50" role="cell">1.9 · 2.0 ms</td>
+<td style="text-align:right" class="measure" data-label="p95" role="cell">3.1 · 3.1 ms</td>
+<td style="text-align:right" class="measure" data-label="Max" role="cell">157 · 159 ms</td>
+<td style="text-align:right" class="measure" data-label="Over 8.3 ms" role="cell">8 · 8</td>
 </tr>
-<tr>
-<td>Day</td>
-<td>New host</td>
-<td style="text-align:right">665 · 634</td>
-<td style="text-align:right">2.0 · 2.2 ms</td>
-<td style="text-align:right">7.7 · 7.4 ms</td>
-<td style="text-align:right">149 · 144 ms</td>
-<td style="text-align:right">29 · 22</td>
+<tr role="row">
+<td data-label="View" role="cell">Day</td>
+<td data-label="Host" role="cell">New host</td>
+<td style="text-align:right" class="measure" data-label="Updates in window" role="cell">665 · 634</td>
+<td style="text-align:right" class="measure" data-label="p50" role="cell">2.0 · 2.2 ms</td>
+<td style="text-align:right" class="measure" data-label="p95" role="cell">7.7 · 7.4 ms</td>
+<td style="text-align:right" class="measure" data-label="Max" role="cell">149 · 144 ms</td>
+<td style="text-align:right" class="measure" data-label="Over 8.3 ms" role="cell">29 · 22</td>
 </tr>
 </tbody>
 </table></div>
@@ -336,7 +336,7 @@
 <text class="s" x="645.0" y="251.0" text-anchor="start" fill="#221d38"><tspan fill="#2a78d6">●</tspan> new UICollectionView</text>
 <text class="s dim" x="24" y="496">x: how long an app update took, log scale. y: share of updates at or under that time.</text>
 <text class="s dim" x="24" y="512">App-attributed update intervals from Animation Hitches; not input-to-visible latency.</text>
-</svg></button><figcaption>Share of app updates finishing within a given time, old host versus new, on the iPhone 14 Pro. Dashed line: one 120 Hz frame. · <a href="/assets/blog/optimizing-calendar-rendering-with-ai/update-intervals-iphone14pro.svg">Open full size</a></figcaption></figure><dialog class="diagram-dialog" aria-label="Two cumulative distribution panels. Week: the old host&#x27;s updates mostly take 11 to 100 milliseconds, the new host&#x27;s mostly finish under 8.3. Day: both hosts finish most updates under 8.3 milliseconds, the old host slightly faster."><div class="diagram-stage" style="--diagram-aspect:1.8462"></div><button type="button" class="diagram-close">Close</button></dialog>
+</svg></button><figcaption>Share of app updates finishing within a given time, old host versus new, on the iPhone 14 Pro. Dashed line: one 120 Hz frame. · <a class="diagram-full" href="/assets/blog/optimizing-calendar-rendering-with-ai/update-intervals-iphone14pro.svg">Open full size</a></figcaption></figure><dialog class="diagram-dialog" aria-label="Two cumulative distribution panels. Week: the old host&#x27;s updates mostly take 11 to 100 milliseconds, the new host&#x27;s mostly finish under 8.3. Day: both hosts finish most updates under 8.3 milliseconds, the old host slightly faster."><div class="diagram-stage" style="--diagram-aspect:1.8462"></div><button type="button" class="diagram-close">Close</button></dialog>
 <p>Week is where the change pays. The old host's median update was 15 ms, no update fit in a 120 Hz frame, and the display fell to 60 Hz and lower cadences. The new host's median is 2.3 ms, p95 7.2 ms, worst 12.7 ms, and the display mostly kept its 8.3 ms cadence.</p>
 <p>Day is not an improvement in this sample, and we are saying so. The old host built the entire day's view tree up front, so scrolling it was nearly free. The new host does per-cell work while you scroll: still inside 8.3 ms at p95, but with about three times as many over-budget updates. The preparation saving above is load-time work; this is scroll-time work, and on Day they trade against each other.</p>
 <p>Both Day hosts also showed the same 150 ms update about every 2.7 seconds. It did not move with the viewport change, so the viewport neither caused nor fixed it. We profiled it the same evening; that story is below.</p>
@@ -344,90 +344,90 @@
 <p>These are app update intervals from one device and eight-second windows. They are not input-to-visible latency.</p>
 <h2>On the iPad: the same direction, a smaller margin, and orientation matters</h2>
 <p>The next day we ran the same matrix on the iPad Pro 12.9-inch (M1) over USB, in landscape and again in portrait, same fixture app, workload, window and order. The iPad shows far more of the calendar at once: 93 to 111 Week cells and 40 to 59 Day cells, against the phone's few dozen.</p>
-<div class="table-scroll" role="region" aria-label="Data table" tabindex="0"><table>
-<thead>
-<tr>
-<th>View</th>
-<th>Orientation</th>
-<th>Host</th>
-<th style="text-align:right">p50</th>
-<th style="text-align:right">p95</th>
-<th style="text-align:right">Worst update</th>
-<th style="text-align:right">Over 8.3 ms</th>
+<div class="table-scroll table-stack" role="region" aria-label="Data table" tabindex="0"><table role="table">
+<thead role="rowgroup">
+<tr role="row">
+<th role="columnheader">View</th>
+<th role="columnheader">Orientation</th>
+<th role="columnheader">Host</th>
+<th style="text-align:right" role="columnheader">p50</th>
+<th style="text-align:right" role="columnheader">p95</th>
+<th style="text-align:right" role="columnheader">Worst update</th>
+<th style="text-align:right" role="columnheader">Over 8.3 ms</th>
 </tr>
 </thead>
-<tbody>
-<tr>
-<td>Week</td>
-<td>Landscape</td>
-<td>Old host</td>
-<td style="text-align:right">11.8 · 11.5 ms</td>
-<td style="text-align:right">14.4 · 13.6 ms</td>
-<td style="text-align:right">43 · 42 ms</td>
-<td style="text-align:right">all</td>
+<tbody role="rowgroup">
+<tr role="row">
+<td data-label="View" role="cell">Week</td>
+<td data-label="Orientation" role="cell">Landscape</td>
+<td data-label="Host" role="cell">Old host</td>
+<td style="text-align:right" class="measure" data-label="p50" role="cell">11.8 · 11.5 ms</td>
+<td style="text-align:right" class="measure" data-label="p95" role="cell">14.4 · 13.6 ms</td>
+<td style="text-align:right" class="measure" data-label="Worst update" role="cell">43 · 42 ms</td>
+<td style="text-align:right" data-label="Over 8.3 ms" role="cell">all</td>
 </tr>
-<tr>
-<td>Week</td>
-<td>Landscape</td>
-<td>New host</td>
-<td style="text-align:right">2.3 · 2.3 ms</td>
-<td style="text-align:right">12.7 · 12.4 ms</td>
-<td style="text-align:right">20 · 21 ms</td>
-<td style="text-align:right">79 · 92</td>
+<tr role="row">
+<td data-label="View" role="cell">Week</td>
+<td data-label="Orientation" role="cell">Landscape</td>
+<td data-label="Host" role="cell">New host</td>
+<td style="text-align:right" class="measure" data-label="p50" role="cell">2.3 · 2.3 ms</td>
+<td style="text-align:right" class="measure" data-label="p95" role="cell">12.7 · 12.4 ms</td>
+<td style="text-align:right" class="measure" data-label="Worst update" role="cell">20 · 21 ms</td>
+<td style="text-align:right" class="measure" data-label="Over 8.3 ms" role="cell">79 · 92</td>
 </tr>
-<tr>
-<td>Week</td>
-<td>Portrait</td>
-<td>Old host</td>
-<td style="text-align:right">11.3 · 10.9 ms</td>
-<td style="text-align:right">13.5 · 13.3 ms</td>
-<td style="text-align:right">46 · 45 ms</td>
-<td style="text-align:right">all</td>
+<tr role="row">
+<td data-label="View" role="cell">Week</td>
+<td data-label="Orientation" role="cell">Portrait</td>
+<td data-label="Host" role="cell">Old host</td>
+<td style="text-align:right" class="measure" data-label="p50" role="cell">11.3 · 10.9 ms</td>
+<td style="text-align:right" class="measure" data-label="p95" role="cell">13.5 · 13.3 ms</td>
+<td style="text-align:right" class="measure" data-label="Worst update" role="cell">46 · 45 ms</td>
+<td style="text-align:right" data-label="Over 8.3 ms" role="cell">all</td>
 </tr>
-<tr>
-<td>Week</td>
-<td>Portrait</td>
-<td>New host</td>
-<td style="text-align:right">2.5 · 2.5 ms</td>
-<td style="text-align:right">8.6 · 10.5 ms</td>
-<td style="text-align:right">116 · 125 ms</td>
-<td style="text-align:right">28 · 51</td>
+<tr role="row">
+<td data-label="View" role="cell">Week</td>
+<td data-label="Orientation" role="cell">Portrait</td>
+<td data-label="Host" role="cell">New host</td>
+<td style="text-align:right" class="measure" data-label="p50" role="cell">2.5 · 2.5 ms</td>
+<td style="text-align:right" class="measure" data-label="p95" role="cell">8.6 · 10.5 ms</td>
+<td style="text-align:right" class="measure" data-label="Worst update" role="cell">116 · 125 ms</td>
+<td style="text-align:right" class="measure" data-label="Over 8.3 ms" role="cell">28 · 51</td>
 </tr>
-<tr>
-<td>Day</td>
-<td>Landscape</td>
-<td>Old host</td>
-<td style="text-align:right">0.8 · 1.3 ms</td>
-<td style="text-align:right">1.6 · 1.9 ms</td>
-<td style="text-align:right">41 · 42 ms</td>
-<td style="text-align:right">6 · 6</td>
+<tr role="row">
+<td data-label="View" role="cell">Day</td>
+<td data-label="Orientation" role="cell">Landscape</td>
+<td data-label="Host" role="cell">Old host</td>
+<td style="text-align:right" class="measure" data-label="p50" role="cell">0.8 · 1.3 ms</td>
+<td style="text-align:right" class="measure" data-label="p95" role="cell">1.6 · 1.9 ms</td>
+<td style="text-align:right" class="measure" data-label="Worst update" role="cell">41 · 42 ms</td>
+<td style="text-align:right" class="measure" data-label="Over 8.3 ms" role="cell">6 · 6</td>
 </tr>
-<tr>
-<td>Day</td>
-<td>Landscape</td>
-<td>New host</td>
-<td style="text-align:right">1.6 · 1.7 ms</td>
-<td style="text-align:right">7.2 · 9.5 ms</td>
-<td style="text-align:right">49 · 68 ms</td>
-<td style="text-align:right">23 · 36</td>
+<tr role="row">
+<td data-label="View" role="cell">Day</td>
+<td data-label="Orientation" role="cell">Landscape</td>
+<td data-label="Host" role="cell">New host</td>
+<td style="text-align:right" class="measure" data-label="p50" role="cell">1.6 · 1.7 ms</td>
+<td style="text-align:right" class="measure" data-label="p95" role="cell">7.2 · 9.5 ms</td>
+<td style="text-align:right" class="measure" data-label="Worst update" role="cell">49 · 68 ms</td>
+<td style="text-align:right" class="measure" data-label="Over 8.3 ms" role="cell">23 · 36</td>
 </tr>
-<tr>
-<td>Day</td>
-<td>Portrait</td>
-<td>Old host</td>
-<td style="text-align:right">0.5 · 0.6 ms</td>
-<td style="text-align:right">1.3 · 1.2 ms</td>
-<td style="text-align:right">40 · 40 ms</td>
-<td style="text-align:right">12 · 12</td>
+<tr role="row">
+<td data-label="View" role="cell">Day</td>
+<td data-label="Orientation" role="cell">Portrait</td>
+<td data-label="Host" role="cell">Old host</td>
+<td style="text-align:right" class="measure" data-label="p50" role="cell">0.5 · 0.6 ms</td>
+<td style="text-align:right" class="measure" data-label="p95" role="cell">1.3 · 1.2 ms</td>
+<td style="text-align:right" class="measure" data-label="Worst update" role="cell">40 · 40 ms</td>
+<td style="text-align:right" class="measure" data-label="Over 8.3 ms" role="cell">12 · 12</td>
 </tr>
-<tr>
-<td>Day</td>
-<td>Portrait</td>
-<td>New host</td>
-<td style="text-align:right">2.2 · 2.2 ms</td>
-<td style="text-align:right">9.4 · 9.8 ms</td>
-<td style="text-align:right">90 · 95 ms</td>
-<td style="text-align:right">32 · 43</td>
+<tr role="row">
+<td data-label="View" role="cell">Day</td>
+<td data-label="Orientation" role="cell">Portrait</td>
+<td data-label="Host" role="cell">New host</td>
+<td style="text-align:right" class="measure" data-label="p50" role="cell">2.2 · 2.2 ms</td>
+<td style="text-align:right" class="measure" data-label="p95" role="cell">9.4 · 9.8 ms</td>
+<td style="text-align:right" class="measure" data-label="Worst update" role="cell">90 · 95 ms</td>
+<td style="text-align:right" class="measure" data-label="Over 8.3 ms" role="cell">32 · 43</td>
 </tr>
 </tbody>
 </table></div>
@@ -438,41 +438,41 @@
 <h2>The 150 ms stall: found with the same harness, fixed the same evening</h2>
 <p>The periodic Day update deserved its own trace. We recorded eight seconds of Day scrolling with Time Profiler attached, then looked for contiguous main-thread windows of 100 ms or more. There were three, at +2.25, +5.00 and +7.95 s, and inside them 95% of main-thread time was one stack: the plan card above the calendar asked the occurrence store for &quot;the next alert Banana would send&quot;, and the store answered by scanning every one of the 36,500 events, checking each against the muted-calendar settings, inside a SwiftUI body evaluation. Outside those windows the same stack was under 2%. Neither host was at fault; the card sits above both.</p>
 <p>The fix is unglamorous: cache the candidates, keyed on a revision counter the store bumps whenever its timeline is assigned and on the mute set, so a body evaluation costs a lookup. Four unit tests pin the behaviour. Re-measured on the same phone with the fix installed:</p>
-<div class="table-scroll" role="region" aria-label="Data table" tabindex="0"><table>
-<thead>
-<tr>
-<th>View</th>
-<th>Host</th>
-<th style="text-align:right">p50</th>
-<th style="text-align:right">p95</th>
-<th style="text-align:right">p99</th>
-<th style="text-align:right">Worst update</th>
+<div class="table-scroll table-stack" role="region" aria-label="Data table" tabindex="0"><table role="table">
+<thead role="rowgroup">
+<tr role="row">
+<th role="columnheader">View</th>
+<th role="columnheader">Host</th>
+<th style="text-align:right" role="columnheader">p50</th>
+<th style="text-align:right" role="columnheader">p95</th>
+<th style="text-align:right" role="columnheader">p99</th>
+<th style="text-align:right" role="columnheader">Worst update</th>
 </tr>
 </thead>
-<tbody>
-<tr>
-<td>Day</td>
-<td>Old host</td>
-<td style="text-align:right">2.0 · 1.9 ms</td>
-<td style="text-align:right">3.1 · 3.0 ms</td>
-<td style="text-align:right">8.1 · 39.7 ms</td>
-<td style="text-align:right">59 · 45 ms (was 157 · 159)</td>
+<tbody role="rowgroup">
+<tr role="row">
+<td data-label="View" role="cell">Day</td>
+<td data-label="Host" role="cell">Old host</td>
+<td style="text-align:right" class="measure" data-label="p50" role="cell">2.0 · 1.9 ms</td>
+<td style="text-align:right" class="measure" data-label="p95" role="cell">3.1 · 3.0 ms</td>
+<td style="text-align:right" class="measure" data-label="p99" role="cell">8.1 · 39.7 ms</td>
+<td style="text-align:right" data-label="Worst update" role="cell">59 · 45 ms (was 157 · 159)</td>
 </tr>
-<tr>
-<td>Day</td>
-<td>New host</td>
-<td style="text-align:right">2.4 · 2.2 ms</td>
-<td style="text-align:right">7.0 · 7.0 ms</td>
-<td style="text-align:right">11.2 · 13.2 ms</td>
-<td style="text-align:right">37 · 36 ms (was 149 · 144)</td>
+<tr role="row">
+<td data-label="View" role="cell">Day</td>
+<td data-label="Host" role="cell">New host</td>
+<td style="text-align:right" class="measure" data-label="p50" role="cell">2.4 · 2.2 ms</td>
+<td style="text-align:right" class="measure" data-label="p95" role="cell">7.0 · 7.0 ms</td>
+<td style="text-align:right" class="measure" data-label="p99" role="cell">11.2 · 13.2 ms</td>
+<td style="text-align:right" data-label="Worst update" role="cell">37 · 36 ms (was 149 · 144)</td>
 </tr>
-<tr>
-<td>Week</td>
-<td>New host</td>
-<td style="text-align:right">2.2 · 2.4 ms</td>
-<td style="text-align:right">7.4 · 7.4 ms</td>
-<td style="text-align:right">11.3 · 10.4 ms</td>
-<td style="text-align:right">22 · 14 ms</td>
+<tr role="row">
+<td data-label="View" role="cell">Week</td>
+<td data-label="Host" role="cell">New host</td>
+<td style="text-align:right" class="measure" data-label="p50" role="cell">2.2 · 2.4 ms</td>
+<td style="text-align:right" class="measure" data-label="p95" role="cell">7.4 · 7.4 ms</td>
+<td style="text-align:right" class="measure" data-label="p99" role="cell">11.3 · 10.4 ms</td>
+<td style="text-align:right" class="measure" data-label="Worst update" role="cell">22 · 14 ms</td>
 </tr>
 </tbody>
 </table></div>

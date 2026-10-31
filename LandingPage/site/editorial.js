@@ -18,6 +18,12 @@
     const open = () => { stage.append(svg); dialog.showModal(); };
     const close = () => dialog.close();
     button.addEventListener("click", open);
+    // The caption link opens the same dialog; a modified click still opens the SVG file in a new tab.
+    const link = figure.querySelector(".diagram-full");
+    if (link) link.addEventListener("click", (event) => {
+      if (event.button || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      event.preventDefault(); open();
+    });
     dialog.querySelector(".diagram-close").addEventListener("click", close);
     dialog.addEventListener("click", (event) => { if (event.target === dialog) close(); });
     dialog.addEventListener("close", () => button.append(svg));

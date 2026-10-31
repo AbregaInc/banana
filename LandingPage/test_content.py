@@ -55,6 +55,18 @@ class PublishingTests(unittest.TestCase):
     def test_no_raw_html_or_executable_link_is_rendered(self):
         rendered=MD.render('<script>alert(1)</script>\n\n[x](javascript:alert(1))')
         self.assertNotIn('<script>',rendered);self.assertNotIn('href="javascript:',rendered)
+    def test_table_too_wide_for_a_phone_becomes_labelled_cards(self):
+        wide=MD.render('| View | Host | p50 | p95 | Max |\n| --- | --- | ---: | ---: | ---: |\n| Week | Old host | 14.9 · 15.1 ms | 46.1 · 47.6 ms | 90.9 · 100.9 ms |\n')
+        self.assertIn('class="table-scroll table-stack"',wide);self.assertIn('<table role="table">',wide)
+        self.assertIn('data-label="p95"',wide);self.assertIn('role="cell"',wide);self.assertIn('class="measure"',wide)
+    def test_table_that_fits_a_phone_stays_a_table(self):
+        narrow=MD.render('| Launch | Day view | Blocks drawn |\n| --- | --- | ---: |\n| 1 | Old | 108 |\n')
+        self.assertIn('<div class="table-scroll" ',narrow);self.assertNotIn('data-label',narrow);self.assertNotIn('role="cell"',narrow)
+    def test_diagram_caption_link_is_marked_to_open_the_dialog(self):
+        src='/assets/blog/optimizing-calendar-rendering-with-ai/calendar-viewport.svg'
+        rendered=MD.render(f'```diagram\nsrc: {src}\ncaption: A diagram\n```\n')
+        self.assertIn(f'<a class="diagram-full" href="{src}">Open full size</a>',rendered)
+        self.assertIn('.diagram-full',(Path(__file__).parent/'site/editorial.js').read_text())
     def test_no_duplicate_h1_or_unsized_markdown_image(self):
         for extra in ['\n# Another title\n','\n![image](/assets/img/social.png)\n']:
             with TemporaryDirectory() as temp:

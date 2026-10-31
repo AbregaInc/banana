@@ -32,8 +32,61 @@ ORIGIN = "https://bananatheapp.com"
 PUBLISHER = {"@type": "Organization", "@id": ORIGIN + "/#organization", "name": "Abrega, Inc.", "url": ORIGIN + "/about", "logo": ORIGIN + "/apple-touch-icon.png"}
 AUTHOR = {"@type": "Organization", "@id": ORIGIN + "/about#team", "name": "Banana team", "url": ORIGIN + "/about#team", "parentOrganization": {"@id": PUBLISHER["@id"]}}
 MD = MarkdownIt("js-default", {"html": False, "typographer": False})
-# Tables retain native semantics inside a keyboard-scrollable region on small screens.
-MD.renderer.rules["table_open"] = lambda tokens, idx, options, env: '<div class="table-scroll" role="region" aria-label="Data table" tabindex="0"><table>\n'
+# A table that cannot fit a phone without breaking words is drawn as one card per row there, each
+# value labelled with its column (editorial.css, .table-stack). Phone = 375 px less the page gutters;
+# IBM Plex Mono at the phone table size is 8.4 px a character, plus 16 px of padding per cell.
+PHONE_TABLE_WIDTH, CHAR_WIDTH, CELL_PADDING = 335, 8.4, 16
+MEASURE = re.compile(r"\d")
+
+
+def _text(inline) -> str:
+    return "".join(child.content for child in inline.children or [] if child.type in ("text", "code_inline"))
+
+
+def _narrowest(cell: str) -> int:
+    # A short measurement ("14.9 · 15.1 ms") never wraps; anything else may wrap between words.
+    if MEASURE.search(cell) and len(cell) <= 16:
+        return len(cell)
+    return max((len(word) for word in cell.split()), default=0)
+
+
+def _table_cards(state) -> None:
+    tokens = state.tokens
+    for start, token in enumerate(tokens):
+        if token.type != "table_open":
+            continue
+        end = next(i for i in range(start, len(tokens)) if tokens[i].type == "table_close")
+        rows, headers, row = [], [], None
+        for i in range(start, end):
+            kind = tokens[i].type
+            if kind == "tr_open":
+                row = []
+                rows.append(row)
+            elif kind in ("th_open", "td_open"):
+                row.append((tokens[i], _text(tokens[i + 1])))
+            if kind == "th_open":
+                headers.append(_text(tokens[i + 1]))
+        widths = [max(_narrowest(text) for text in column) for column in zip(*[[text for _, text in r] for r in rows])]
+        stack = token.meta["stack"] = sum(w * CHAR_WIDTH + CELL_PADDING for w in widths) > PHONE_TABLE_WIDTH
+        for r in rows[1:]:
+            for (cell, text), header in zip(r, headers):
+                if MEASURE.search(text) and len(text) <= 16:
+                    cell.attrJoin("class", "measure")
+                if stack and header:
+                    cell.attrSet("data-label", header)
+        if stack:
+            # Explicit roles keep the table's semantics when the cards change its display.
+            roles = {"thead_open": "rowgroup", "tbody_open": "rowgroup", "tr_open": "row", "th_open": "columnheader", "td_open": "cell"}
+            for t in tokens[start:end]:
+                if t.type in roles:
+                    t.attrSet("role", roles[t.type])
+
+
+MD.core.ruler.push("table_cards", _table_cards)
+MD.renderer.rules["table_open"] = lambda tokens, idx, options, env: (
+    '<div class="table-scroll table-stack" role="region" aria-label="Data table" tabindex="0"><table role="table">\n'
+    if tokens[idx].meta.get("stack") else
+    '<div class="table-scroll" role="region" aria-label="Data table" tabindex="0"><table>\n')
 MD.renderer.rules["table_close"] = lambda tokens, idx, options, env: '</table></div>\n'
 
 
@@ -76,7 +129,7 @@ def _render_diagram(fields: dict, slug: str) -> str:
     alt = escape(fields.get("alt") or fields["caption"])
     return (
         f'<figure class="media-figure diagram-figure" data-diagram><button type="button" class="diagram-open" aria-label="Enlarge diagram: {alt}">{svg}</button>'
-        f'<figcaption>{escape(fields["caption"])} · <a href="{escape(fields["src"])}">Open full size</a></figcaption></figure>'
+        f'<figcaption>{escape(fields["caption"])} · <a class="diagram-full" href="{escape(fields["src"])}">Open full size</a></figcaption></figure>'
         f'<dialog class="diagram-dialog" aria-label="{alt}"><div class="diagram-stage" style="--diagram-aspect:{width / height:.4f}"></div>'
         f'<button type="button" class="diagram-close">Close</button></dialog>\n'
     )
