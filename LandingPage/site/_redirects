@@ -1,3 +1,5 @@
 # Host-level www -> apex redirects need a Cloudflare zone Redirect Rule.
 # Workers static-asset _redirects does not support domain-level redirects.
 /blog /blog/ 301
+/blog/building-a-measurable-calendar-renderer/ /blog/optimizing-calendar-rendering-with-ai/ 301
+/blog/building-a-measurable-calendar-renderer /blog/optimizing-calendar-rendering-with-ai/ 301
