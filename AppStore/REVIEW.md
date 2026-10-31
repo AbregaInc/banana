@@ -1,7 +1,11 @@
-# Banana public release review — updated 25 October 2026
+# Banana public release review — updated 31 October 2026
 
-**Submission is on hold until the owner reviews and authorizes it.** Neither public App Store
-version has been submitted. The owner has approved publication of the privacy declarations; they were published on 24 October. Both platforms are configured for manual release.
+**Submitted for App Review on 31 October 2026 (UTC), on the owner's word.** Both iOS and macOS 1.0
+(83) are WAITING_FOR_REVIEW with manual release (`tools/asc-submit.py 83 --apply`; review
+submissions 67705115… iOS, 90bb5111… macOS). The text below is the preparation record.
+
+Before that: neither public App Store
+version had been submitted. The owner has approved publication of the privacy declarations; they were published on 24 October. Both platforms are configured for manual release.
 The pending Mac TestFlight review publisher was stopped. iOS TestFlight 75 was already live
 before the hold.
 
