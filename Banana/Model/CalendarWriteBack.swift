@@ -443,6 +443,11 @@ final class CalendarWriteBack: ObservableObject {
             for (itemID, eventIDs) in owned {
                 var removedAllCopies = true
                 for eventID in eventIDs {
+                    // Shared manager access does not prove this account wrote a marked block.
+                    // On someone else's calendar, only remove the exact locally recorded copy.
+                    guard BusyBlockCleanupPolicy.mayDelete(calendarIsOwner: calendar.isOwner,
+                        recordedEventID: ledger[ledgerKey(appItemID: itemID, calendarID: calendar.infoID)]?.eventIdentifier,
+                        eventID: eventID) else { continue }
                     do {
                         try await google.deleteBusyBlock(calendarID: raw, eventID: eventID)
                         removed += 1

@@ -560,6 +560,13 @@ final class BlockRemovalGateTests: XCTestCase {
 // MARK: - Destinations and exclusions
 
 final class WriteBackDestinationTests: XCTestCase {
+    func testCleanupDoesNotClaimOtherPeoplesMarkedBlocks() {
+        XCTAssertTrue(BusyBlockCleanupPolicy.mayDelete(calendarIsOwner: true, recordedEventID: nil, eventID: "copy"))
+        XCTAssertFalse(BusyBlockCleanupPolicy.mayDelete(calendarIsOwner: false, recordedEventID: nil, eventID: "copy"))
+        XCTAssertFalse(BusyBlockCleanupPolicy.mayDelete(calendarIsOwner: false, recordedEventID: "our-copy", eventID: "their-copy"))
+        XCTAssertTrue(BusyBlockCleanupPolicy.mayDelete(calendarIsOwner: false, recordedEventID: "our-copy", eventID: "our-copy"))
+    }
+
     private let mine = WriteBackDestinations.Calendar(
         infoID: "google-calendar:mine", titles: ["bo@dewey.example"],
         accountEmail: "bo@dewey.example", isOwner: true)

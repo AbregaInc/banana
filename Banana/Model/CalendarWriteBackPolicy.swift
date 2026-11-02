@@ -236,3 +236,11 @@ enum BusyBlockDuplicates {
         eventIDs.min()
     }
 }
+
+/// A marker identifies Banana scaffolding, not the person who wrote it. Shared calendars
+/// additionally require the exact event ID recorded by this app before cleanup may delete it.
+enum BusyBlockCleanupPolicy {
+    static func mayDelete(calendarIsOwner: Bool, recordedEventID: String?, eventID: String) -> Bool {
+        calendarIsOwner || recordedEventID == eventID
+    }
+}
