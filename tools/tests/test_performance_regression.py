@@ -16,6 +16,16 @@ class RegressionTests(unittest.TestCase):
         self.bundle = dict(environment=copy.deepcopy(self.policy['environment']), cases={
             c['name']: json.loads((ROOT / c['reference']).read_text()) for c in self.policy['cases']})
 
+    def test_new_redraw_counters_must_remain_zero_and_old_roots_cannot_disappear(self):
+        rates = self.bundle['cases']['redraw-notes']['idle']['rendersPerSecond']
+        rates['Notes.appear'] = 0
+        self.assertEqual(gate.evaluate(self.policy, self.bundle)['status'], 'pass')
+        rates['Notes.appear'] = 1
+        self.assertEqual(gate.evaluate(self.policy, self.bundle)['status'], 'fail')
+        del rates['RootView']
+        with self.assertRaisesRegex(ValueError, 'coverage changed'):
+            gate.evaluate(self.policy, self.bundle)
+
     def test_reference_integrity(self):
         self.assertEqual({c['days'] for c in self.policy['cases'] if not c['redraw']}, {1, 7, 30, 90})
         self.assertEqual({c['route'] for c in self.policy['cases'] if c['redraw']}, {'notes', 'library', 'plan', 'mail'})

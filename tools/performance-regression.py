@@ -65,11 +65,12 @@ def compare_case(base, new, policy, redraw=False):
         if idle.get('observedRoot') is not True or idle['clockTicks'] != 100 or number(idle['seconds']) < 10:
             raise ValueError('incomplete redraw probe')
         old_rates, rates = base['idle']['rendersPerSecond'], idle['rendersPerSecond']
-        if rates.keys() != old_rates.keys():
+        if not old_rates.keys() <= rates.keys():
             raise ValueError('redraw root coverage changed')
         for name, rate in rates.items():
-            if number(rate) > number(old_rates[name]):
-                failures.append(f'{name}: redraw rate increased from {old_rates[name]} to {rate}')
+            ceiling = old_rates.get(name, 0)
+            if number(rate) > number(ceiling):
+                failures.append(f'{name}: redraw rate increased from {ceiling} to {rate}')
         if idle.get('passed') is not True:
             failures.append('redraw collector reported failure')
     return failures
@@ -108,7 +109,7 @@ def evaluate(policy, bundle):
 
 def command(args, log=None):
     return subprocess.run(args, cwd=ROOT, text=True, stdout=log or subprocess.PIPE,
-                          stderr=subprocess.STDOUT, check=True, timeout=2400)
+                          stderr=log or subprocess.PIPE, check=True, timeout=2400)
 
 
 def collect(args, policy):
@@ -130,7 +131,7 @@ def collect(args, policy):
         command(['xcodebuild', '-project', 'Banana.xcodeproj', '-scheme', 'Banana', '-configuration', 'Release',
                  '-destination', f'platform=iOS Simulator,id={args.device},arch=arm64', 'ARCHS=arm64',
                  'ONLY_ACTIVE_ARCH=YES', 'BANANA_UNRELEASED=YES', 'SWIFT_ACTIVE_COMPILATION_CONDITIONS=$(inherited) DEBUG',
-                 '-derivedDataPath', str(dd), 'CODE_SIGNING_ALLOWED=NO', '-quiet', 'build-for-testing'], log)
+                 '-derivedDataPath', str(dd), 'CODE_SIGNING_ALLOWED=NO', '-quiet', 'build'], log)
     if subprocess.run(['pgrep', '-x', 'xcodebuild'], stdout=subprocess.DEVNULL).returncode == 0:
         raise ValueError('another Xcode build/test is running; retain this run and retry on an idle host')
     app = dd / 'Build/Products/Release-iphonesimulator/Banana.app'
@@ -154,7 +155,7 @@ def main():
     parser.add_argument('mode', choices=['run', 'compare'])
     parser.add_argument('--results', type=Path, help='Retained measurements.json (compare mode)')
     parser.add_argument('--derived-data', type=Path, help='Reuse build products; build is still mandatory')
-    parser.add_argument('--device', default='E5232BE0-8F82-4E85-A03B-5CA7160571E2')
+    parser.add_argument('--device', default='6DFFC0F9-AA09-41C8-B868-FB0D9CC28255')
     parser.add_argument('--out', type=Path, help='New artifact directory; never overwritten')
     args = parser.parse_args()
     args.out = (args.out or ROOT / '.build/performance-regression' / datetime.datetime.now().strftime('%Y%m%d-%H%M%S-%f')).resolve()

@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "status": "initial reference; shared-host noise calibration pending",
+  "status": "iOS 27 runtime migration; original measurements and all budgets retained; cross-runtime comparison",
   "environment": {
     "hostModel": "MacBookPro18,2",
     "architecture": "arm64",
-    "runtime": "com.apple.CoreSimulator.SimRuntime.iOS-26-5",
+    "runtime": "com.apple.CoreSimulator.SimRuntime.iOS-27-0",
     "deviceType": "com.apple.CoreSimulator.SimDeviceType.iPhone-17-Pro",
-    "xcode": "Xcode 27.0\nBuild version 27A266a",
+    "xcode": "Xcode 27.2\nBuild version 27B52",
     "configuration": "Release + DEBUG audit fixtures; arm64"
   },
   "latencyTolerance": {
@@ -81,5 +81,13 @@
       "redraw": true,
       "reference": "docs/performance/scale-results/redraw-mail-30d.json"
     }
-  ]
+  ],
+  "referenceEnvironment": {
+    "hostModel": "MacBookPro18,2",
+    "architecture": "arm64",
+    "runtime": "com.apple.CoreSimulator.SimRuntime.iOS-26-5",
+    "deviceType": "com.apple.CoreSimulator.SimDeviceType.iPhone-17-Pro",
+    "xcode": "Xcode 27.0\nBuild version 27A266a",
+    "configuration": "Release + DEBUG audit fixtures; arm64"
+  }
 }

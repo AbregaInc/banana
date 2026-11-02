@@ -71,7 +71,7 @@ The runner only installs on the selected Simulator. Use a dedicated fixture Simu
 replaces its Banana binary. Fixture data is isolated; the normal service graph stays disabled.
 Prerequisites: Xcode, xcodegen, Python 3 and the runtime specified in
 [regression-baseline.json](regression-baseline.json). The initial reference targets this Mac model,
-arm64, iPhone 17 Pro / iOS 26.5, Xcode 27.0. Other environments need their own reviewed reference.
+arm64, iPhone 17 Pro / iOS 26.5, Xcode 27.0. The November 2026 runtime migration runs on the same host and device type with iOS 27.0 and Xcode 27.2. The original environment is retained as `referenceEnvironment`; measurements, budgets, tolerances and workloads are unchanged. Results are cross-runtime comparisons, not a newly measured iOS 27 baseline. Other environments need explicit review.
 Do not compare Debug and optimized builds or silently substitute another device/runtime.
 
 Each invocation creates a new `.build/performance-regression/<timestamp>/` directory. An optional
