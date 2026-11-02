@@ -31,6 +31,9 @@ struct SmartScheduleSettings: Codable, Equatable {
     var excludedCalendarIDs: Set<String> = []   // calendars that do NOT count as "meetings"
     /// Raw Google calendar ids whose events stay visible but never notify in Banana.
     var mutedCalendarIDs: Set<String> = []
+    /// Raw Google calendar IDs; absent choices default to actual ownership.
+    var calendarBlockingOverrides: [String: Bool] = [:]
+    var hiddenSharedAvailabilityCalendarIDs: Set<String> = []
     /// Calendars you own that availability busy blocks must NOT be written to — still read
     /// normally.
     var writeBackExcludedCalendarIDs: Set<String> = []
@@ -135,6 +138,8 @@ extension SmartScheduleSettings {
         bedtimeRemindersEnabled = try c.decodeIfPresent(Bool.self, forKey: .bedtimeRemindersEnabled) ?? bedtimeRemindersEnabled
         windDownEnabled = try c.decodeIfPresent(Bool.self, forKey: .windDownEnabled) ?? windDownEnabled
         excludedCalendarIDs = try c.decodeIfPresent(Set<String>.self, forKey: .excludedCalendarIDs) ?? excludedCalendarIDs
+        hiddenSharedAvailabilityCalendarIDs = try c.decodeIfPresent(Set<String>.self, forKey: .hiddenSharedAvailabilityCalendarIDs) ?? []
+        calendarBlockingOverrides = try c.decodeIfPresent([String: Bool].self, forKey: .calendarBlockingOverrides) ?? [:]
         mutedCalendarIDs = try c.decodeIfPresent(Set<String>.self, forKey: .mutedCalendarIDs) ?? mutedCalendarIDs
         writeBackExcludedCalendarIDs = try c.decodeIfPresent(Set<String>.self, forKey: .writeBackExcludedCalendarIDs) ?? writeBackExcludedCalendarIDs
         reserveTaskTime = try c.decodeIfPresent(Bool.self, forKey: .reserveTaskTime) ?? reserveTaskTime

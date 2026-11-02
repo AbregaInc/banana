@@ -10,3 +10,17 @@ export function calendarNotifies(record, calendarID) {
   return !(settings.mutedCalendarIDs ?? []).includes(calendarID)
     && !(settings.excludedCalendarIDs ?? []).some(id => id === calendarID || id === calendarInfoID(calendarID));
 }
+
+// Manager permission alone does not establish personal ownership.
+export function calendarBlocksTime(record, calendar, accountEmail) {
+  const {settings} = calendarSettings(record);
+  const override = settings.calendarBlockingOverrides?.[calendar.id];
+  if (typeof override === 'boolean') return override;
+  if (calendar.accessRole !== 'owner') return false;
+  const viewer = String(accountEmail ?? '').trim().toLowerCase();
+  const owner = String(calendar.dataOwner ?? '').trim().toLowerCase();
+  if (owner) return owner === viewer;
+  if (calendar.primary) return true;
+  if (calendar.id.includes('@') && !calendar.id.endsWith('.calendar.google.com')) return calendar.id.toLowerCase() === viewer;
+  return true;
+}

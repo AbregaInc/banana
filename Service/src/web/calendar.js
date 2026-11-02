@@ -84,7 +84,7 @@ export function calendarAgenda(fetched,record,options={}){
     const title=trim(e.summary),others=(e.attendees??[]).filter(a=>!a.self&&!String(a.email??'').endsWith('resource.calendar.google.com'));
     const sharedAvailability=!ownCalendar&&placeholders.has(title.toLowerCase())&&others.length===0;
     if(allDay){
-      const shows=cal.accessRole==='owner'?!(settings.allDayHiddenCalendarIDs??[]).includes(cal.id):(settings.allDayShownCalendarIDs??[]).includes(cal.id);
+      const shows=!(settings.allDayHiddenCalendarIDs??[]).includes(cal.id);
       if(!options.allDay&&(!shows||e.eventType==='workingLocation'||(settings.allDayHiddenTitles??[]).includes(title.toLowerCase())||(settings.showsBirthdays===false&&e.eventType==='birthday')))continue;
     }else if(!options.includeBusy&&ownCalendar&&placeholders.has(title.toLowerCase())&&others.length===0)continue;
     events.push({id:e.id,calendarID:cal.id,title:sharedAvailability?'Busy':title||(allDay?'All day':'your meeting'),start:e.start,end:e.end,

@@ -145,7 +145,8 @@ struct MeetingInfo: Identifiable {
     var isAllDay: Bool = false
     /// Someone else's private availability: visible on their calendar, never your appointment.
     var isAvailabilityOnly: Bool = false
-    var shouldMirrorBusyTime: Bool { !showsAsFree && !isAvailabilityOnly }
+    var calendarBlocksTime: Bool = true
+    var shouldMirrorBusyTime: Bool { calendarBlocksTime && !showsAsFree && !isAvailabilityOnly }
 
     var id: String { eventID ?? "\(Int(start.timeIntervalSince1970))-\(title)" }
     var hasPhysicalLocation: Bool {
@@ -173,7 +174,7 @@ enum MeetingResponse: String, Codable, Hashable {
 extension MeetingInfo: Codable {
     private enum CodingKeys: String, CodingKey {
         case start, end, lat, lon, address, isVirtual, title, eventID, joinURL, platform, calendarID
-        case showsAsFree, isRecurring, myResponse, othersAllDeclined, alsoOnCalendarIDs, isAllDay, isAvailabilityOnly
+        case calendarBlocksTime, showsAsFree, isRecurring, myResponse, othersAllDeclined, alsoOnCalendarIDs, isAllDay, isAvailabilityOnly
     }
 
     init(from decoder: Decoder) throws {
@@ -196,7 +197,8 @@ extension MeetingInfo: Codable {
                   othersAllDeclined: try c.decodeIfPresent(Bool.self, forKey: .othersAllDeclined) ?? false,
                   alsoOnCalendarIDs: try c.decodeIfPresent([String].self, forKey: .alsoOnCalendarIDs) ?? [],
                   isAllDay: try c.decodeIfPresent(Bool.self, forKey: .isAllDay) ?? false,
-                  isAvailabilityOnly: try c.decodeIfPresent(Bool.self, forKey: .isAvailabilityOnly) ?? false)
+                  isAvailabilityOnly: try c.decodeIfPresent(Bool.self, forKey: .isAvailabilityOnly) ?? false,
+                  calendarBlocksTime: try c.decodeIfPresent(Bool.self, forKey: .calendarBlocksTime) ?? true)
     }
 
     func encode(to encoder: Encoder) throws {
@@ -212,6 +214,7 @@ extension MeetingInfo: Codable {
         try c.encodeIfPresent(joinURL, forKey: .joinURL)
         try c.encodeIfPresent(platform, forKey: .platform)
         try c.encodeIfPresent(calendarID, forKey: .calendarID)
+        try c.encode(calendarBlocksTime, forKey: .calendarBlocksTime)
         try c.encode(showsAsFree, forKey: .showsAsFree)
         try c.encode(isRecurring, forKey: .isRecurring)
         try c.encodeIfPresent(myResponse, forKey: .myResponse)
@@ -235,6 +238,7 @@ extension MeetingInfo: Hashable {
             && a.address == b.address && a.isVirtual == b.isVirtual && a.title == b.title
             && a.eventID == b.eventID && a.joinURL == b.joinURL && a.platform == b.platform
             && a.calendarID == b.calendarID && a.showsAsFree == b.showsAsFree
+            && a.calendarBlocksTime == b.calendarBlocksTime
             && a.isRecurring == b.isRecurring
             && a.myResponse == b.myResponse && a.othersAllDeclined == b.othersAllDeclined
             && a.alsoOnCalendarIDs == b.alsoOnCalendarIDs && a.isAllDay == b.isAllDay && a.isAvailabilityOnly == b.isAvailabilityOnly
@@ -245,7 +249,7 @@ extension MeetingInfo: Hashable {
         hasher.combine(coordinate?.latitude); hasher.combine(coordinate?.longitude)
         hasher.combine(address); hasher.combine(isVirtual); hasher.combine(title)
         hasher.combine(eventID); hasher.combine(joinURL); hasher.combine(platform)
-        hasher.combine(calendarID); hasher.combine(showsAsFree); hasher.combine(isRecurring)
+        hasher.combine(calendarBlocksTime); hasher.combine(calendarID); hasher.combine(showsAsFree); hasher.combine(isRecurring)
         hasher.combine(myResponse); hasher.combine(othersAllDeclined); hasher.combine(alsoOnCalendarIDs)
         hasher.combine(isAllDay); hasher.combine(isAvailabilityOnly)
     }

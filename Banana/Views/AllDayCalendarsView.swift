@@ -15,7 +15,7 @@ struct IndividualCalendarsView: View {
         Set(calendars.map(\.accountEmail)).sorted()
     }
 
-    private enum Control: String, CaseIterable { case visibility = "Visibility", notifications = "Notifications" }
+    private enum Control: String, CaseIterable { case visibility = "Visibility", blocking = "Blocks my time", notifications = "Notifications" }
     @State private var control: Control = .visibility
 
     var body: some View {
@@ -28,7 +28,8 @@ struct IndividualCalendarsView: View {
                 .accessibilityIdentifier("calendars.control")
             } footer: {
                 Text(control == .visibility
-                     ? "Choose which calendars appear in Banana and count toward your availability."
+                     ? "Choose which calendars appear in Banana."
+                     : control == .blocking ? "Choose whose events make you unavailable and can be copied as Busy events. Shared calendars are off by default. Hidden calendars do not block your time."
                      : "Choose which calendars can notify you. Hidden calendars do not send notifications.")
             }
             if calendars.isEmpty {
@@ -42,6 +43,17 @@ struct IndividualCalendarsView: View {
                     ForEach(calendars.filter { $0.accountEmail == account }
                         .sorted { $0.displayTitle.localizedStandardCompare($1.displayTitle) == .orderedAscending }) { calendar in
                         calendarRow(calendar)
+                        if control == .visibility && !calendar.isOwnedByAccount {
+                            Toggle("Show private Busy entries", isOn: Binding(
+                                get: { !smart.settings.hiddenSharedAvailabilityCalendarIDs.contains(calendar.id) },
+                                set: { show in
+                                    if show { smart.settings.hiddenSharedAvailabilityCalendarIDs.remove(calendar.id) }
+                                    else { smart.settings.hiddenSharedAvailabilityCalendarIDs.insert(calendar.id) }
+                                }))
+                            .font(.subheadline)
+                            Text("Hides opaque Busy entries on this calendar, including genuine private appointments. Detailed events remain visible. Availability is unchanged.")
+                                .font(.caption).foregroundStyle(.secondary)
+                        }
                     }
                 } header: {
                     Text(verbatim: account.isEmpty ? "Calendars" : account)
@@ -74,10 +86,11 @@ struct IndividualCalendarsView: View {
 
     private func calendarRow(_ calendar: GoogleCalendar) -> some View {
         let included = inclusion(calendar).wrappedValue
-        let selected = control == .visibility ? included : included && notifications(calendar).wrappedValue
-        let disabled = control == .notifications && !included
+        let selected = control == .visibility ? included : included && (control == .blocking ? blocking(calendar).wrappedValue : notifications(calendar).wrappedValue)
+        let disabled = control != .visibility && !included
         return Button {
             if control == .visibility { inclusion(calendar).wrappedValue.toggle() }
+            else if control == .blocking { blocking(calendar).wrappedValue.toggle() }
             else { notifications(calendar).wrappedValue.toggle() }
         } label: {
             HStack(spacing: 12) {
@@ -97,9 +110,9 @@ struct IndividualCalendarsView: View {
         }
         .disabled(disabled)
         .accessibilityLabel(calendar.displayTitle)
-        .accessibilityValue(control == .visibility ? (included ? "Shown" : "Hidden") : (selected ? "Notifications on" : "Notifications off"))
+        .accessibilityValue(control == .visibility ? (included ? "Shown" : "Hidden") : (control == .blocking ? (selected ? "Blocks my time" : "Does not block my time") : (selected ? "Notifications on" : "Notifications off")))
         .accessibilityAddTraits(selected ? .isSelected : [])
-        .accessibilityIdentifier("calendars.\(control == .visibility ? "include" : "notify").\(calendar.id)")
+        .accessibilityIdentifier("calendars.\(control == .visibility ? "include" : control == .blocking ? "block" : "notify").\(calendar.id)")
     }
 
     private func calendarColor(_ calendar: GoogleCalendar) -> Color {
@@ -107,6 +120,11 @@ struct IndividualCalendarsView: View {
               let value = UInt32(hex, radix: 16), hex.count == 6 else { return .accentColor }
         return Color(red: Double((value >> 16) & 255) / 255,
                      green: Double((value >> 8) & 255) / 255, blue: Double(value & 255) / 255)
+    }
+
+    private func blocking(_ calendar: GoogleCalendar) -> Binding<Bool> {
+        Binding(get: { smart.settings.calendarBlockingOverrides[calendar.id] ?? calendar.isOwnedByAccount },
+                set: { smart.settings.calendarBlockingOverrides[calendar.id] = $0 })
     }
 
     private func notifications(_ calendar: GoogleCalendar) -> Binding<Bool> {
@@ -130,9 +148,8 @@ struct IndividualCalendarsView: View {
 }
 
 /// Settings › Accounts & calendars › All-day events: whose all-day events show (`AllDayEvents`).
-/// Yours are on unless switched off; shared and subscribed calendars (a partner's, rocket
-/// launches, holidays) are off unless switched on. Whether one blocks the day is its own Busy or
-/// Free, not this.
+/// All included calendars show these by default. Blocking is a separate calendar choice
+/// and also respects each event's Busy or Free value.
 struct AllDayCalendarsView: View {
     @EnvironmentObject private var smart: SmartScheduleStore
     @ObservedObject private var google = GoogleCalendarService.shared
@@ -144,8 +161,8 @@ struct AllDayCalendarsView: View {
 
     var body: some View {
         Form {
-            let owned = readable.filter { $0.accessRole == "owner" }
-            let others = readable.filter { $0.accessRole != "owner" }
+            let owned = readable.filter { $0.isOwnedByAccount }
+            let others = readable.filter { !$0.isOwnedByAccount }
             if !owned.isEmpty {
                 Section {
                     ForEach(owned, id: \.id) { toggle($0, isOwner: true) }
@@ -161,7 +178,7 @@ struct AllDayCalendarsView: View {
                 } header: {
                     Text("Shared and subscribed")
                 } footer: {
-                    Text("Off unless you turn one on: someone else\u{2019}s days, launches and holidays aren\u{2019}t yours.")
+                    Text("Shown by default. Showing an event does not make you unavailable; use Blocks my time in Calendar visibility to choose that.")
                 }
             }
             Section {
@@ -208,12 +225,12 @@ struct AllDayCalendarsView: View {
                                    shown: smart.settings.allDayShownCalendarIDs)
             },
             set: { on in
-                if isOwner {
-                    if on { smart.settings.allDayHiddenCalendarIDs.remove(calendar.id) }
-                    else { smart.settings.allDayHiddenCalendarIDs.insert(calendar.id) }
+                if on {
+                    smart.settings.allDayHiddenCalendarIDs.remove(calendar.id)
+                    smart.settings.allDayShownCalendarIDs.insert(calendar.id)
                 } else {
-                    if on { smart.settings.allDayShownCalendarIDs.insert(calendar.id) }
-                    else { smart.settings.allDayShownCalendarIDs.remove(calendar.id) }
+                    smart.settings.allDayHiddenCalendarIDs.insert(calendar.id)
+                    smart.settings.allDayShownCalendarIDs.remove(calendar.id)
                 }
             })) {
             VStack(alignment: .leading, spacing: 1) {

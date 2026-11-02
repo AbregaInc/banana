@@ -39,6 +39,14 @@ final class ScreensOpenUITest: XCTestCase {
         let notify = app.buttons["calendars.notify.wife@example.com"]
         XCTAssertTrue(include.waitForExistence(timeout: 20))
         XCTAssertTrue(app.navigationBars["Calendar visibility"].exists)
+        XCTAssertEqual(include.value as? String, "Shown", "Shared calendars are visible by default")
+        app.buttons["Blocks my time"].tap()
+        let blocks = app.buttons["calendars.block.wife@example.com"]
+        XCTAssertTrue(blocks.waitForExistence(timeout: 5))
+        XCTAssertEqual(blocks.value as? String, "Does not block my time")
+        blocks.tap()
+        XCTAssertTrue(waitUntil { blocks.value as? String == "Blocks my time" })
+        app.buttons["Visibility"].tap()
         if include.value as? String == "Hidden" { include.tap() }
         app.buttons["Notifications"].tap()
         XCTAssertTrue(notify.waitForExistence(timeout: 5))
@@ -59,6 +67,11 @@ final class ScreensOpenUITest: XCTestCase {
         XCTAssertEqual(include.value as? String, "Shown")
         app.buttons["Notifications"].tap()
         XCTAssertEqual(notify.value as? String, "Notifications off", "The setting must survive relaunch")
+        app.buttons["Blocks my time"].tap()
+        XCTAssertTrue(blocks.waitForExistence(timeout: 5))
+        XCTAssertEqual(blocks.value as? String, "Blocks my time", "Blocking choice must survive relaunch")
+        blocks.tap()
+        XCTAssertTrue(waitUntil { blocks.value as? String == "Does not block my time" })
     }
 
     func testEverySectionAndSettingsPageOpens() throws {

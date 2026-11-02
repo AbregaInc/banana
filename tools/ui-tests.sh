@@ -60,7 +60,7 @@ stamp=.build/sim/ui-tests-built.stamp
 if [ ! -f "$stamp" ] || [ project.yml -nt "$stamp" ] ||
    [ -n "$(find Banana BananaUITests Shared \( -name '*.swift' -o -name '*.json' \) -newer "$stamp" 2>/dev/null | head -1)" ]; then
   echo "building…"
-  xcodebuild build-for-testing -jobs "${BUILD_JOBS:-2}" -project Banana.xcodeproj -scheme Banana -destination 'generic/platform=iOS Simulator' ARCHS=arm64 ONLY_ACTIVE_ARCH=YES \
+  xcodebuild build-for-testing -jobs "${BUILD_JOBS:-2}" -project Banana.xcodeproj -scheme BananaUITests -destination 'generic/platform=iOS Simulator' ARCHS=arm64 ONLY_ACTIVE_ARCH=YES \
     -derivedDataPath .build/sim "${packages[@]}" > .build/ui-tests-build.log 2>&1 || { grep -E ' error: ' .build/ui-tests-build.log | head; echo "build failed: .build/ui-tests-build.log"; exit 1; }
   touch "$stamp"
 fi
@@ -74,7 +74,7 @@ started=$(date +%s)
 # prune an in-progress bundle there; always read this run's own bundle, never the newest one.
 mkdir -p .build/ui-results
 result="$PWD/.build/ui-results/${device}-$(date +%Y%m%d-%H%M%S).xcresult"
-xcodebuild test-without-building -collect-test-diagnostics never -project Banana.xcodeproj -scheme Banana \
+xcodebuild test-without-building -collect-test-diagnostics never -project Banana.xcodeproj -scheme BananaUITests \
   -destination "platform=iOS Simulator,id=$udid" -derivedDataPath .build/sim "${packages[@]}" -resultBundlePath "$result" "${only[@]}" "${skip[@]}" "${parallel[@]}" \
   -test-timeouts-enabled YES -default-test-execution-time-allowance 150 -maximum-test-execution-time-allowance 300 \
   > "$log" 2>&1 &

@@ -7,6 +7,15 @@ options:
     macOS: "26.0"
 
 schemes:
+  BananaUITests:
+    build:
+      targets:
+        Banana: [test]
+        BananaUITests: [test]
+    test:
+      config: Debug
+      targets:
+        - BananaUITests
   BananaModelTests:
     build:
       targets:
@@ -95,7 +104,7 @@ settings:
     SWIFT_VERSION: "5.0"
     SWIFT_STRICT_CONCURRENCY: minimal
     MARKETING_VERSION: "1.0"
-    CURRENT_PROJECT_VERSION: "83"
+    CURRENT_PROJECT_VERSION: "84"
     CODE_SIGN_STYLE: Automatic
     # Native Mac apps and test hosts support Apple silicon only. iOS settings are unchanged.
     "ARCHS[sdk=macosx*]": arm64

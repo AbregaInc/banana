@@ -158,23 +158,34 @@ struct WriteBackCalendarSetupSheet: View {
             }
             .padding(.top, DS.Space.l)
             VStack(alignment: .leading, spacing: DS.Space.m) {
-                Text("Keep your calendars in step")
+                Text("Copy busy time to Google Calendar?")
                     .font(.headline)
-                Text("Busy time is copied to the calendars you tick. Only the time, never a title.")
+                Text("Banana will create Busy events on the calendars you select. People who can see several of your calendars may see both the original event and its Busy copy. Select only calendars that need these copies.")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
                 BusyExample()
             }
+            Text("Events on calendars you own supply busy time by default. Shared calendars do not. Review these choices in Settings → Accounts & calendars → Calendar visibility → Blocks my time.")
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+            Text("Calendars receiving copies").font(.headline)
             WriteBackCalendarPicker()
         } actions: {
             // Continue is the yes: busy blocks start only now, on what is ticked above.
-            Button("Continue") {
+            Button("Enable busy copies") {
                 CalendarWriteBack.shared.answerQuestion()
                 onDone()
             }
             .buttonStyle(.primaryCapsule)
             .accessibilityIdentifier("calendars.continue")
+            Button("Don’t copy busy time") {
+                CalendarWriteBack.shared.setEnabled(false)
+                CalendarWriteBack.shared.answerQuestion()
+                onDone()
+            }
+            .buttonStyle(.quiet)
+            .accessibilityIdentifier("calendars.skipCopying")
             // The first sign-in is one account; most people have more, and each account's
             // calendars should be here before choosing.
             Button {

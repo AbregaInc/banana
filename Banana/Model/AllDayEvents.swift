@@ -2,21 +2,16 @@ import Foundation
 
 /// All-day events: which show, and which block (docs/design/ALL-DAY-EVENTS.md).
 ///
-/// **One rule: an all-day event shows if it's yours, and blocks if your copy says Busy.**
-/// - *Yours:* on a calendar you own — your accounts' calendars, which is also where an invitation
-///   you've accepted lands — unless you've hidden that calendar's all-day events; on anyone else's
-///   (a shared calendar, a subscribed feed of launches or holidays) only if you've switched it on.
-/// - *Busy:* Google's own "Show as", on your copy. Google makes all-day events Free by default,
-///   an accepted all-day invitation included, so a day trip someone invites you to blocks nothing
-///   until you say so ("Block this day"). Free ones show and block nothing.
-/// - Google's working-location markers ("Home", "Office") are a status, not an event: never shown.
+/// Events on included calendars are visible by default. Availability is controlled separately
+/// by the calendar's Blocks my time setting and the event's own Busy/Free value.
+/// Working-location markers are status entries, not events.
 ///
 /// Pure, for tests.
 enum AllDayEvents {
-    /// Whether a calendar's all-day events show. `hidden`: your calendars you've hidden them on;
-    /// `shown`: other people's and subscribed calendars you've shown them on. Raw Google ids.
+    /// All included calendars show all-day events unless explicitly hidden. Legacy shown IDs
+    /// remain decode-compatible; ownership no longer controls visibility. Raw Google IDs.
     static func shows(calendarID: String, isOwner: Bool, hidden: Set<String>, shown: Set<String>) -> Bool {
-        isOwner ? !hidden.contains(calendarID) : shown.contains(calendarID)
+        !hidden.contains(calendarID)
     }
 
     /// The choices you've made, by raw Google calendar id — synced as settings

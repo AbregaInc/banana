@@ -169,7 +169,7 @@ struct Occurrence: Identifiable {
 
     /// An all-day event marked Busy: the whole day is taken — Re-plan places nothing in it,
     /// availability offers none of it, and it's covered on your other calendars.
-    var blocksWholeDay: Bool { behavior == .allDay && !showsAsFree && !skipped }
+    var blocksWholeDay: Bool { behavior == .allDay && !showsAsFree && meeting?.calendarBlocksTime != false && !skipped }
 
     /// A concrete end for layout/write-back (defaults to a short block for non-events).
     var resolvedEnd: Date { end ?? start.addingTimeInterval(behavior == .event ? 1800 : 600) }

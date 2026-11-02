@@ -41,10 +41,11 @@ test('native agenda parity: flight copies key by destination with the native con
   const a=build([fetched(event('route',{summary:'UA 123 EWR → MIA'}),cal('a')),fetched(event('city',{summary:'United flight to Miami',location:'Newark EWR'}),cal('b'))]);
   assert.equal(a.length,1);assert.equal(a[0].id,'city');
 });
-test('native agenda parity: all-day visibility follows owned/shared calendars and synced choices',()=>{
+test('native agenda parity: all-day events are visible by default on owned and shared calendars unless hidden',()=>{
   const all=event('trip',{summary:'Day trip',start:{date:'2026-10-05'},end:{date:'2026-10-08'}});
   assert.equal(build([fetched(all)]).length,1);
-  assert.equal(build([fetched(all,cal('shared',{accessRole:'reader'}))]).length,0);
+  assert.equal(build([fetched(all,cal('shared',{accessRole:'reader'}))]).length,1);
+  assert.equal(build([fetched(all,cal('shared',{accessRole:'reader'}))],{v:{settings:{allDayHiddenCalendarIDs:['shared']}}}).length,0);
   assert.equal(build([fetched(all,cal('shared',{accessRole:'reader'}))],{v:{settings:{allDayShownCalendarIDs:['shared']}}}).length,1);
   for(const settings of [{allDayHiddenCalendarIDs:['personal']},{allDayHiddenTitles:['day trip']}])assert.equal(build([fetched(all)],{v:{settings}}).length,0);
   assert.equal(build([fetched({...all,eventType:'workingLocation'})]).length,0);

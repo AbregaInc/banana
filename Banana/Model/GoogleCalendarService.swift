@@ -696,7 +696,7 @@ final class GoogleCalendarService: ObservableObject {
         }
         let allDayIDs = allDay.map { choice in
             Set(included.filter {
-                AllDayEvents.shows(calendarID: $0.id, isOwner: $0.accessRole == "owner",
+                AllDayEvents.shows(calendarID: $0.id, isOwner: $0.isOwnedByAccount,
                                    hidden: choice.hidden, shown: choice.shown)
             }.map(\.id))
         } ?? []
@@ -704,6 +704,9 @@ final class GoogleCalendarService: ObservableObject {
         // on it, every read held the app for seconds — the lag while the Day/Week spinner turned.
         let choice = allDay ?? .init()
         let read = fetched
+        let hiddenSharedAvailabilityCalendarIDs = SmartScheduleStore.shared.settings.hiddenSharedAvailabilityCalendarIDs
+        let blockingOverrides = SmartScheduleStore.shared.settings.calendarBlockingOverrides
+        let blockingCalendarIDs = Set(included.filter { blockingOverrides[$0.id] ?? $0.isOwnedByAccount }.map(\.id))
         let ownedCalendarIDs = Set(included.filter(\.isOwnedByAccount).map(\.id))
         let calendarOwners = Dictionary(uniqueKeysWithValues: included.compactMap { calendar in
             calendar.reconciliationOwner.map { (calendar.id, $0) }
@@ -716,7 +719,8 @@ final class GoogleCalendarService: ObservableObject {
             }
             return GoogleEventWindowBuilder.window(from: sliced, allDayCalendarIDs: allDayIDs,
                                                    allDayChoice: choice, ownedCalendarIDs: ownedCalendarIDs,
-                                                   calendarOwners: calendarOwners)
+                                                   calendarOwners: calendarOwners, blockingCalendarIDs: blockingCalendarIDs,
+                                                   hiddenSharedAvailabilityCalendarIDs: hiddenSharedAvailabilityCalendarIDs)
         }.value
         return GoogleWindowFetch(window: window, isComplete: complete, problems: problems, covered: covered)
     }
@@ -1872,8 +1876,8 @@ final class GoogleCalendarService: ObservableObject {
     }
 
     func ownedBusyBlocks(calendarID: String, variant: String,
-                         from start: Date, to end: Date) async throws -> [String: [String]] {
-        try await ownedBusyBlockDetails(calendarID: calendarID, variant: variant, from: start, to: end)
+                         from start: Date, to end: Date, allDates: Bool = false) async throws -> [String: [String]] {
+        try await ownedBusyBlockDetails(calendarID: calendarID, variant: variant, from: start, to: end, allDates: allDates)
             .mapValues { $0.map(\.eventID) }
     }
 
@@ -1885,7 +1889,7 @@ final class GoogleCalendarService: ObservableObject {
     }
 
     func ownedBusyBlockDetails(calendarID: String, variant: String,
-                               from start: Date, to end: Date) async throws -> [String: [OwnedBlock]] {
+                               from start: Date, to end: Date, allDates: Bool = false) async throws -> [String: [OwnedBlock]] {
         var found: [String: [OwnedBlock]] = [:]
         var pageToken: String?
         repeat {
@@ -1899,6 +1903,10 @@ final class GoogleCalendarService: ObservableObject {
                 URLQueryItem(name: "privateExtendedProperty",
                              value: GoogleBusyBlocks.ownershipFilter(variant: variant)),
             ]
+            if allDates {
+                query.removeAll { ["timeMin", "timeMax", "singleEvents"].contains($0.name) }
+                query.append(URLQueryItem(name: "singleEvents", value: "false"))
+            }
             if let pageToken { query.append(URLQueryItem(name: "pageToken", value: pageToken)) }
             components.queryItems = query
             let page: GoogleEventsResponse = try await request(url: components.url!)

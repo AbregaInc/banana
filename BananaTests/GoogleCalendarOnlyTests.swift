@@ -75,6 +75,36 @@ private func window(_ events: [(calendar: String, event: GoogleEvent)]) -> Calen
 // MARK: - What a Google event means
 
 final class GoogleEventWindowTests: XCTestCase {
+    func testHidingPrivateBusyEntriesPreservesAvailabilityAndDetailedEvents() {
+        let opaque = googleEvent(id: "opaque", summary: "Busy")
+        let detailed = googleEvent(id: "detailed", summary: "Planning")
+        let fetched = [opaque, detailed].map { GoogleFetchedEvent(calendarID: "shared", event: $0) }
+        let visible = GoogleEventWindowBuilder.window(from: fetched, ownedCalendarIDs: [], blockingCalendarIDs: ["shared"])
+        let hidden = GoogleEventWindowBuilder.window(from: fetched, ownedCalendarIDs: [], blockingCalendarIDs: ["shared"], hiddenSharedAvailabilityCalendarIDs: ["shared"])
+        XCTAssertEqual(visible.meetings.count, 2)
+        XCTAssertEqual(hidden.meetings.map(\.title), ["Planning"])
+        XCTAssertEqual(hidden.busyIntervals.count, visible.busyIntervals.count)
+        XCTAssertEqual(hidden.busyIntervals.count, 2)
+    }
+
+    func testVisibleNonBlockingCalendarDoesNotSupplyBusyTimeOrMirrors() {
+        let event = googleEvent(id: "shared", summary: "Planning")
+        let result = GoogleEventWindowBuilder.window(
+            from: [.init(calendarID: "shared", event: event)],
+            ownedCalendarIDs: [], blockingCalendarIDs: [])
+        XCTAssertEqual(result.meetings.count, 1)
+        XCTAssertTrue(result.busyIntervals.isEmpty)
+        XCTAssertFalse(result.meetings[0].shouldMirrorBusyTime)
+        XCTAssertFalse(result.meetings[0].showsAsFree, "Keep the provider's transparency unchanged")
+        XCTAssertTrue(result.travelEvents.isEmpty)
+        XCTAssertTrue(CalendarAgenda.firstMeetings(result.meetings, now: .distantPast).isEmpty)
+        let optedIn = GoogleEventWindowBuilder.window(
+            from: [.init(calendarID: "shared", event: event)],
+            ownedCalendarIDs: [], blockingCalendarIDs: ["shared"])
+        XCTAssertEqual(optedIn.busyIntervals.count, 1)
+        XCTAssertTrue(optedIn.meetings[0].shouldMirrorBusyTime)
+    }
+
     func testReconciliationReportPreservesLinkageWithoutPersonalDetails() throws {
         let calendars = try JSONDecoder().decode([GoogleCalendar].self, from: Data("""
         [{"id":"private-calendar-id","summary":"Private calendar name","accessRole":"reader","dataOwner":"owner@example.com"},

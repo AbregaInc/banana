@@ -31,6 +31,10 @@ final class CalendarWriteBack: ObservableObject {
     static let shared = CalendarWriteBack()
 
     /// Master switch. Automatically enabled on first Google connection; user changes persist.
+    @Published private(set) var cleanupRunning = false
+    @Published private(set) var cleanupRemovedCount = 0
+    @Published private(set) var cleanupPending = UserDefaults.standard.bool(forKey: "banana.busyCleanupPending")
+
     @Published var enabled = false {
         didSet { defaults.set(enabled, forKey: DefaultsKey.enabled) }
     }
@@ -293,13 +297,15 @@ final class CalendarWriteBack: ObservableObject {
         recordUserPreference()   // a choice exists; never auto-enable over it
         // Live, as production always is: left in test mode, a device that adopted "on" would
         // write only to a calendar named "Banana" — or nowhere.
+        if wanted && (cleanupPending || cleanupRunning) { return }
         if wanted { goLive = true }
         if wanted != enabled {
             enabled = wanted
             if wanted {
                 lastError = nil
             } else {
-                Task { await removeEveryOwnedBlock(reason: "write-back turned off on another device") }
+                markCleanupPending()
+                Task { await retryCleanup() }
             }
         }
     }
@@ -314,8 +320,13 @@ final class CalendarWriteBack: ObservableObject {
             // Off everywhere: every device withdraws the blocks, whichever gets there first — a
             // block another already deleted counts as done.
             SmartScheduleStore.shared.settings.writeBackEnabled = false
-            Task { await removeEveryOwnedBlock(reason: "write-back turned off") }
+            markCleanupPending()
+            Task { await retryCleanup() }
             return true
+        }
+        guard !cleanupPending && !cleanupRunning else {
+            lastError = "Finish removing Banana’s old busy copies before enabling copying again."
+            return false
         }
         refreshCalendars()
         guard calendarAuthorized else {
@@ -373,6 +384,47 @@ final class CalendarWriteBack: ObservableObject {
         heldRemovalCount = 0
     }
 
+    private func markCleanupPending() {
+        cleanupPending = true
+        UserDefaults.standard.set(true, forKey: "banana.busyCleanupPending")
+    }
+
+    /// Explicit recovery remains available after restart or reconnect, while copying stays off.
+    func retryCleanup() async {
+        guard !enabled, !cleanupRunning else { return }
+        markCleanupPending()
+        guard !passInFlight else {
+            lastError = "A calendar update is finishing. Retry cleanup in a moment."
+            return
+        }
+        guard GoogleCalendarService.shared.isConnected else {
+            lastError = "Reconnect the affected Google accounts, then retry cleanup. Busy copying stays off."
+            return
+        }
+        cleanupRunning = true
+        passInFlight = true
+        defer { cleanupRunning = false; passInFlight = false }
+        lastError = nil
+        await GoogleCalendarService.shared.refresh()
+        if GoogleCalendarService.shared.hasDegradedSources {
+            lastError = "Some calendars could not be read. Reconnect the affected accounts and retry cleanup."
+            return
+        }
+        if let error = GoogleCalendarService.shared.lastError {
+            lastError = "Calendar refresh failed: \(error). Retry cleanup after reconnecting."
+            return
+        }
+        guard !GoogleCalendarService.shared.writeBackCandidates.isEmpty else {
+            lastError = "No writable calendars were loaded. Reconnect the affected accounts and retry."
+            return
+        }
+        cleanupRemovedCount = await removeEveryOwnedBlock(reason: "requested cleanup")
+        if lastError == nil {
+            cleanupPending = false
+            UserDefaults.standard.set(false, forKey: "banana.busyCleanupPending")
+        }
+    }
+
     @discardableResult
     private func removeEveryOwnedBlock(reason: String) async -> Int {
         let google = GoogleCalendarService.shared
@@ -383,21 +435,25 @@ final class CalendarWriteBack: ObservableObject {
             let owned: [String: [String]]
             do {
                 owned = try await google.ownedBusyBlocks(
-                    calendarID: raw, variant: Self.scheme, from: windowStart, to: windowEnd)
+                    calendarID: raw, variant: Self.scheme, from: windowStart, to: windowEnd, allDates: true)
             } catch {
                 lastError = "Couldn’t read Banana’s blocks on \(calendar.titles.first ?? "a calendar"): \(error.localizedDescription)"
                 continue
             }
             for (itemID, eventIDs) in owned {
+                var removedAllCopies = true
                 for eventID in eventIDs {
                     do {
                         try await google.deleteBusyBlock(calendarID: raw, eventID: eventID)
                         removed += 1
                     } catch {
+                        removedAllCopies = false
                         lastError = "Couldn’t remove a Banana busy block: \(error.localizedDescription)"
                     }
                 }
-                ledger[ledgerKey(appItemID: itemID, calendarID: calendar.infoID)] = nil
+                if removedAllCopies {
+                    ledger[ledgerKey(appItemID: itemID, calendarID: calendar.infoID)] = nil
+                }
             }
         }
         saveLedger()
@@ -502,6 +558,10 @@ final class CalendarWriteBack: ObservableObject {
                 passRequestedWhileBusy = false
                 OccurrenceStore.shared.requestRecompute(reason: "write-back pass coalesced")
             }
+        }
+        guard !cleanupPending && !cleanupRunning else {
+            lastError = "Finish removing Banana’s old busy copies before enabling copying again."
+            return 0
         }
         refreshCalendars()
         guard calendarAuthorized else { return 0 }
@@ -844,7 +904,7 @@ final class CalendarWriteBack: ObservableObject {
             for calendarID in destinations {
                 if calendarID == sourceCalendarID { continue }
                 // Already covered there: the same event (an invitation that reached two accounts).
-                if isBlockedDay, occurrence.meeting?.alsoOnCalendarIDs.contains(calendarID) == true { continue }
+                if isExternalMeeting || isBlockedDay, occurrence.meeting?.alsoOnCalendarIDs.contains(calendarID) == true { continue }
                 if hasForeignCoverage(
                     start: occurrence.start,
                     end: end,

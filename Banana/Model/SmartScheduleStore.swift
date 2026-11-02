@@ -30,7 +30,9 @@ final class SmartScheduleStore: ObservableObject {
                 || settings.excludedCalendarIDs != oldValue.excludedCalendarIDs {
                 OccurrenceStore.shared.calendarNotificationSettingsChanged()
             }
-            if settings.blockTravelTime != oldValue.blockTravelTime
+            if settings.hiddenSharedAvailabilityCalendarIDs != oldValue.hiddenSharedAvailabilityCalendarIDs
+                || settings.calendarBlockingOverrides != oldValue.calendarBlockingOverrides
+                || settings.blockTravelTime != oldValue.blockTravelTime
                 || settings.transitMode != oldValue.transitMode
                 || settings.savedPlaces != oldValue.savedPlaces
                 || settings.walkShortTrips != oldValue.walkShortTrips

@@ -496,9 +496,10 @@ final class OnboardingWalkUITest: XCTestCase {
         XCTAssertTrue(yes.waitForExistence(timeout: 6), "Choose did not open the question")
         pause(1)
         keep(app, "busy-calendars-question")
-        XCTAssertTrue(app.staticTexts["Keep your calendars in step"].exists)
+        XCTAssertTrue(app.staticTexts["Copy busy time to Google Calendar?"].exists)
         XCTAssertFalse(text(containing: "write availability", in: app).exists, "the app's own jargon is back")
-        assertFullSize(yes, "Continue")
+        assertFullSize(yes, "Enable busy copies")
+        XCTAssertTrue(app.buttons["calendars.skipCopying"].exists)
         yes.tap()
         XCTAssertTrue(choose.waitForNonExistence(timeout: 6), "answered, and the plan still asks")
 

@@ -55,6 +55,7 @@ enum GoogleEventWindowBuilder {
         var eventType: String? = nil
         /// Raw ids of other calendars this event was merged from by `dedupe`.
         var alsoOn: [String] = []
+        var calendarBlocksTime = true
         var isSharedCalendar = false
         var calendarOwner: String? = nil
         var iCalUID: String? = nil
@@ -145,11 +146,14 @@ enum GoogleEventWindowBuilder {
                        allDayCalendarIDs: Set<String> = [],
                        allDayChoice: AllDayEvents.Choice = .init(),
                        ownedCalendarIDs: Set<String>? = nil,
-                       calendarOwners: [String: String] = [:]) -> CalendarEventWindow {
+                       calendarOwners: [String: String] = [:],
+                       blockingCalendarIDs: Set<String>? = nil,
+                       hiddenSharedAvailabilityCalendarIDs: Set<String> = []) -> CalendarEventWindow {
         // A stable order makes every tie below deterministic, so two devices reading the same
         // calendars keep the same copy of a duplicated meeting.
         let events = fetched.compactMap { item -> Normalized? in
             guard var event = normalize(item) else { return nil }
+            event.calendarBlocksTime = blockingCalendarIDs?.contains(item.calendarID) ?? true
             event.calendarOwner = calendarOwners[item.calendarID]?.lowercased()
             event.isSharedCalendar = ownedCalendarIDs.map { !$0.contains(item.calendarID) } ?? false
             return event
@@ -170,7 +174,7 @@ enum GoogleEventWindowBuilder {
                 appItemID: event.isAppWritten ? event.ownership?.appItemID : nil)
         }
 
-        let meetings = perDay(events.filter(qualifiesAsMeeting), calendar: calendar)
+        let meetings = perDay(events.filter { qualifiesAsMeeting($0) && !($0.isSharedAvailability && hiddenSharedAvailabilityCalendarIDs.contains($0.calendarID)) }, calendar: calendar)
             .map(meetingInfo)
             .sorted { $0.start < $1.start }
 
@@ -201,7 +205,7 @@ enum GoogleEventWindowBuilder {
 
     /// Whether an event consumes availability. Transparency is honoured here and only here.
     static func blocksTime(_ event: Normalized) -> Bool {
-        occupiesTimeline(event) && !event.isFree
+        event.calendarBlocksTime && occupiesTimeline(event) && !event.isFree
     }
 
     /// An all-day event that shows: on a calendar whose all-day events show, not declined, an
@@ -218,7 +222,7 @@ enum GoogleEventWindowBuilder {
     /// Banana's own busy copy of one, which is coverage another calendar already has.
     static func blocksDays(_ event: Normalized, shown: Set<String>,
                            choice: AllDayEvents.Choice = .init()) -> Bool {
-        guard event.isAllDay, event.end > event.start, !event.isFree, !event.isDeclined else { return false }
+        guard event.calendarBlocksTime, event.isAllDay, event.end > event.start, !event.isFree, !event.isDeclined else { return false }
         return event.isAppWritten || qualifiesAsAllDay(event, shown: shown, choice: choice)
     }
 
@@ -234,7 +238,7 @@ enum GoogleEventWindowBuilder {
     /// Looser than a meeting: keeps all-day located events (a hotel stay is exactly the anchor
     /// for the days you're not flying). Only things with a place count.
     static func qualifiesForTravel(_ event: Normalized) -> Bool {
-        !event.isAppWritten && !event.isSharedAvailability && !event.isDeclined && event.location != nil
+        event.calendarBlocksTime && !event.isAppWritten && !event.isSharedAvailability && !event.isDeclined && event.location != nil
     }
 
     /// Explicitly shared support text. Labels preserve equality only within this report;
@@ -317,6 +321,7 @@ enum GoogleEventWindowBuilder {
                     || (existing.isSharedAvailability == event.isSharedAvailability && richness(event) > richness(existing))
                 var winner = preferNew ? event : existing
                 let loser = preferNew ? existing : event
+                winner.calendarBlocksTime = existing.calendarBlocksTime || event.calendarBlocksTime
                 for id in [loser.calendarID] + loser.alsoOn where id != winner.calendarID && !winner.alsoOn.contains(id) {
                     winner.alsoOn.append(id)
                 }
@@ -410,7 +415,7 @@ enum GoogleEventWindowBuilder {
             myResponse: MeetingResponse(googleStatus: event.myResponse),
             othersAllDeclined: event.othersAllDeclined,
             alsoOnCalendarIDs: event.alsoOn.map(GoogleCalendarIDs.calendarInfoID),
-            isAvailabilityOnly: event.isSharedAvailability)
+            isAvailabilityOnly: event.isSharedAvailability, calendarBlocksTime: event.calendarBlocksTime)
     }
 
     private static func allDayInfo(_ event: Normalized) -> MeetingInfo {
@@ -428,7 +433,7 @@ enum GoogleEventWindowBuilder {
             myResponse: MeetingResponse(googleStatus: event.myResponse),
             othersAllDeclined: event.othersAllDeclined,
             alsoOnCalendarIDs: event.alsoOn.map(GoogleCalendarIDs.calendarInfoID),
-            isAllDay: true)
+            isAllDay: true, calendarBlocksTime: event.calendarBlocksTime)
     }
 
     private static func looksVirtual(_ address: String?) -> Bool {
@@ -472,7 +477,7 @@ enum CalendarAgenda {
                               calendar: Calendar = .current) -> [Date: MeetingInfo] {
         let today = calendar.startOfDay(for: now)
         var winner: [Date: MeetingInfo] = [:]
-        for meeting in meetings where !meeting.isAvailabilityOnly {
+        for meeting in meetings where !meeting.isAvailabilityOnly && meeting.calendarBlocksTime {
             let day = calendar.startOfDay(for: meeting.start)
             guard meeting.start >= now || day > today else { continue }
             if let existing = winner[day], existing.start <= meeting.start { continue }

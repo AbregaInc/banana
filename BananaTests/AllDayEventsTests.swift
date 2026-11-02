@@ -46,7 +46,8 @@ final class AllDayEventsTests: XCTestCase {
     func testYoursShowUnlessHiddenOthersOnlyWhenShown() {
         XCTAssertTrue(AllDayEvents.shows(calendarID: "me", isOwner: true, hidden: [], shown: []))
         XCTAssertFalse(AllDayEvents.shows(calendarID: "me", isOwner: true, hidden: ["me"], shown: []))
-        XCTAssertFalse(AllDayEvents.shows(calendarID: "launches", isOwner: false, hidden: [], shown: []))
+        XCTAssertTrue(AllDayEvents.shows(calendarID: "launches", isOwner: false, hidden: [], shown: []))
+        XCTAssertFalse(AllDayEvents.shows(calendarID: "launches", isOwner: false, hidden: ["launches"], shown: []))
         XCTAssertTrue(AllDayEvents.shows(calendarID: "launches", isOwner: false, hidden: [], shown: ["launches"]))
     }
 

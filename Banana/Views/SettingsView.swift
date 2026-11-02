@@ -997,7 +997,7 @@ struct SettingsView: View {
                             }
                         }
                     } message: {
-                        Text("Accounts are shared across your devices, so this removes it from your iPhone and Mac too. Its calendars stop counting toward your availability until you sign in again.")
+                        Text("Accounts are shared across your devices, so this removes it from your iPhone and Mac too. Its calendars stop counting toward your availability until you sign in again. Existing Busy copies remain in Google Calendar. Turn off busy copying and finish cleanup before disconnecting if you want those copies removed.")
                     }
                     Button(role: .destructive) {
                         confirmDisconnectAll = true
@@ -1020,7 +1020,7 @@ struct SettingsView: View {
                             }
                         }
                     } message: {
-                        Text("Your accounts are shared across your devices, so this signs Banana out of Google on your iPhone and Mac too. Banana stops reading your calendars and stops protecting your availability until you sign in again.")
+                        Text("Your accounts are shared across your devices, so this signs Banana out of Google on your iPhone and Mac too. Banana stops reading your calendars and stops protecting your availability until you sign in again. Existing Busy copies remain in Google Calendar. Turn off busy copying and finish cleanup first if you want them removed.")
                     }
                 } else {
                     if let email = googleCalendar.suggestedAccountEmail {
@@ -1589,6 +1589,26 @@ struct SettingsView: View {
             }
         } message: {
             Text("Every busy block Banana wrote is removed from your calendars, on every device’s behalf. That time becomes bookable.")
+        }
+
+        if !calendarWriteBack.enabled {
+            Button(calendarWriteBack.cleanupRunning ? "Removing Banana’s busy copies…" : "Remove remaining Banana busy copies") {
+                Task { await calendarWriteBack.retryCleanup() }
+            }
+            .disabled(calendarWriteBack.cleanupRunning)
+            Text("Reconnect every affected Google account first. This removes only copies marked as written by this Banana app, across all dates on connected writable calendars. Original appointments stay. Copying remains off.")
+                .font(.footnote).foregroundStyle(.secondary)
+            if calendarWriteBack.cleanupPending {
+                Text("Cleanup is pending. Keep accounts connected and retry if a read or deletion fails.")
+                    .font(.footnote)
+            }
+            if calendarWriteBack.cleanupRemovedCount > 0 {
+                Text("Removed \(calendarWriteBack.cleanupRemovedCount) Banana copies in the last cleanup attempt.")
+                    .font(.footnote)
+            }
+            if let error = calendarWriteBack.lastError {
+                Text(error).font(.footnote).foregroundStyle(DS.Palette.danger)
+            }
         }
 
         if calendarWriteBack.enabled {

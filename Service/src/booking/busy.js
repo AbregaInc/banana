@@ -7,7 +7,7 @@
 //
 // Never logged: calendar ids, emails, event contents.
 
-import { calendarInfoID } from "../calendar-preferences.js";
+import { calendarInfoID, calendarBlocksTime } from "../calendar-preferences.js";
 import { accessToken } from "../calendar.js";
 import { GoogleRefused } from "../google.js";
 import { busyFromEvents, canonicalZone } from "./slots.js";
@@ -62,7 +62,7 @@ export async function readBusy(deps, vault, account, { from, to, settings = null
     let list;
     try { list = await deps.google.calendarList(access); }
     catch { out.failed++; return; }
-    const calendars = list.filter((c) => c?.id && !c.hidden && !c.deleted && !excluded.has(c.id) && !excluded.has(calendarInfoID(c.id))
+    const calendars = list.filter((c) => c?.id && calendarBlocksTime(settings, c, link.email) && !c.hidden && !c.deleted && !excluded.has(c.id) && !excluded.has(calendarInfoID(c.id))
       && !named.has(`${link.email}\n${c.summary ?? ""}`));
     await Promise.all(calendars.map(async (c) => {
       const tz = canonicalZone(c.timeZone) ?? canonicalZone(zone) ?? "UTC";

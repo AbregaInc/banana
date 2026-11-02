@@ -42,6 +42,7 @@ struct AvailabilitySheet: View {
             guard occurrence.hasScheduledTime, !occurrence.skipped else { return nil }
             let isMeeting = occurrence.source == .external && occurrence.behavior == .event
                 && !occurrence.showsAsFree
+                && occurrence.meeting?.calendarBlocksTime != false
             let isOwnBusyBlock = occurrence.isWritable && occurrence.writePolicy == .busy
             guard isMeeting || isOwnBusyBlock else { return nil }
             let end = occurrence.resolvedEnd
