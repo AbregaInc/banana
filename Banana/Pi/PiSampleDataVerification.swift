@@ -1,3 +1,4 @@
+#if BANANA_AI
 #if DEBUG && PI_DEVELOPMENT
 import Foundation
 
@@ -44,4 +45,6 @@ import Foundation
         AssistantVerification.finishHeadless(passed: report["passed"] as? Bool == true)
     }
 }
+#endif
+
 #endif

@@ -1,3 +1,4 @@
+#if BANANA_AI
 import SwiftUI
 
 struct AssistantView: View {
@@ -496,3 +497,5 @@ struct SavedNoteRow: View {
         .accessibilityIdentifier("assistant.savedNote")
     }
 }
+
+#endif

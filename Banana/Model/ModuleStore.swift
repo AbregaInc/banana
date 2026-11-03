@@ -1,3 +1,6 @@
+#if PI_DEVELOPMENT && !BANANA_AI
+#error("PiDevelopment requires BANANA_LOCAL_AI=YES; use Release for a public build.")
+#endif
 import Combine
 import Foundation
 import SwiftUI
@@ -31,6 +34,9 @@ final class ModuleStore: ObservableObject {
         // Unreleased modules are built in. These words are what tools/check-release.sh looks for:
         // an archive that has them stops before it reaches Apple.
         LaunchClock.mark("banana-unreleased-modules-built-in")
+        #endif
+        #if BANANA_AI
+        LaunchClock.mark("banana-local-ai-built-in")
         #endif
         choice = Self.stored() ?? .everything
         #if DEBUG

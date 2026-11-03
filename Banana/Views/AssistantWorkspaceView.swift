@@ -13,6 +13,7 @@ extension EnvironmentValues {
     }
 }
 
+#if BANANA_AI
 /// The one header every workspace object uses: what it is, where it stands, and Dismiss at the
 /// top right. Meals, events, search results and copied meals all read the same way, so the
 /// person learns one place to look and one way to close.
@@ -331,3 +332,5 @@ private struct AssistantSearchDetail: View {
         .accessibilityIdentifier("assistant.workspace.searchDetail")
     }
 }
+
+#endif

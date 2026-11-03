@@ -266,7 +266,7 @@ struct BananaApp: App {
             }
         }
         #endif
-        #if DEBUG && os(macOS)
+        #if DEBUG && os(macOS) && BANANA_AI
         MainActor.assumeIsolated { AssistantVerification.scheduleHeadlessIfRequested() }
         #endif
         LaunchClock.mark("app.init.done")
@@ -300,7 +300,11 @@ struct BananaApp: App {
             if AppSupport.isPiHeadlessVerification {
                 Color.clear
             } else if ProcessInfo.processInfo.arguments.contains("--assistant-test") || ProcessInfo.processInfo.arguments.contains("--assistant-real-test") {
+                #if BANANA_AI
                 configured(AssistantView())
+                #else
+                configuredPlatformRoot
+                #endif
             } else {
                 configuredPlatformRoot.task { await wireUpPiApp() }
             }
@@ -328,7 +332,11 @@ struct BananaApp: App {
             }
             #elseif DEBUG && os(iOS)
             if ProcessInfo.processInfo.arguments.contains("--assistant-test") || ProcessInfo.processInfo.arguments.contains("--assistant-real-test") {
+                #if BANANA_AI
                 configured(AssistantView())
+                #else
+                configuredPlatformRoot
+                #endif
             } else if ProcessInfo.processInfo.arguments.contains("--verify-timeline") {
                 VerificationView()   // isolated harness UI; RootView/wireUp stays out of the way
             } else if ProcessInfo.processInfo.arguments.contains("--occurrences") {
@@ -353,7 +361,11 @@ struct BananaApp: App {
             }
             #elseif DEBUG && os(macOS)
             if ProcessInfo.processInfo.arguments.contains("--assistant-test") || ProcessInfo.processInfo.arguments.contains("--assistant-real-test") {
+                #if BANANA_AI
                 configured(AssistantView())
+                #else
+                configuredPlatformRoot
+                #endif
             } else if MailKeyDriver.requested {
                 Color.clear
             } else if let outputURL = routineEditorSnapshotURL {

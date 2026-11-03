@@ -1,3 +1,4 @@
+#if BANANA_AI
 import Foundation
 
 /// Application capabilities. Pi owns tool admission, argument validation and replay policy.
@@ -64,3 +65,5 @@ enum AssistantCapabilities {
         return String(decoding: try JSONSerialization.data(withJSONObject: result, options: [.sortedKeys]), as: UTF8.self)
     }
 }
+
+#endif

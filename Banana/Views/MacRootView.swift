@@ -204,7 +204,11 @@ struct MacRootView: View {
                             #if PI_DEVELOPMENT
                             macReview
                             #else
+                            #if BANANA_AI
                             AssistantView()
+                            #else
+                            EmptyView()
+                            #endif
                             #endif
                         case .routines:  RoutinesView()
                         // Told how much room it has, so a wide window gets the grid of shows.
@@ -220,6 +224,7 @@ struct MacRootView: View {
                         if section == .settings { openSettings() } else { nav.section = section }
                     }
                     .toolbar {
+                        #if BANANA_AI
                         ToolbarItem(placement: .primaryAction) {
                             Button {
                                 nav.showsAssistant.toggle()
@@ -229,6 +234,7 @@ struct MacRootView: View {
                                 .accessibilityValue(nav.showsAssistant ? "Open" : "Closed")
                                 .accessibilityIdentifier("app.askBanana")
                         }
+                        #endif
                     }
                     // A module switched off (here or on another device) takes its section with it.
                     .onChange(of: modules.choice, initial: true) { _, choice in
@@ -272,13 +278,16 @@ struct MacRootView: View {
                         }
                     }
                     #endif
+                    #if BANANA_AI
                     if nav.showsAssistant {
                         Divider()
                         AssistantView(panelClose: { nav.showsAssistant = false }, panelAddSection: nav.section)
                             .frame(width: 420)
                             .accessibilityIdentifier("assistant.panel")
                             .transition(.move(edge: .trailing))
-                    } else if let meeting = nav.inspectedMeeting {
+                    }
+                    #endif
+                    if !nav.showsAssistant, let meeting = nav.inspectedMeeting {
                         Divider()
                         MacEventInspectorView(meeting: meeting)
                             .frame(width: 350)

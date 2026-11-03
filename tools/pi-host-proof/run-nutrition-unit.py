@@ -15,7 +15,7 @@ try:
     executable = build / 'nutrition-tests'
     platform = pathlib.Path(subprocess.check_output(['xcrun', '--sdk', 'macosx', '--show-sdk-platform-path'], text=True).strip())
     frameworks = platform / 'Developer/Library/Frameworks'
-    subprocess.run(['swiftc', '-I', str(platform / 'Developer/usr/lib'), '-F', str(frameworks), '-L', str(platform / 'Developer/usr/lib'), '-lXCTestSwiftSupport', '-framework', 'XCTest', '-Xlinker', '-rpath', '-Xlinker', str(platform / 'Developer/usr/lib'), '-Xlinker', '-rpath', '-Xlinker', str(frameworks),
+    subprocess.run(['swiftc', '-D', 'BANANA_AI', '-I', str(platform / 'Developer/usr/lib'), '-F', str(frameworks), '-L', str(platform / 'Developer/usr/lib'), '-lXCTestSwiftSupport', '-framework', 'XCTest', '-Xlinker', '-rpath', '-Xlinker', str(platform / 'Developer/usr/lib'), '-Xlinker', '-rpath', '-Xlinker', str(frameworks),
                     *sources, '-o', str(executable)], cwd=repo, check=True)
     subprocess.run([str(executable)], cwd=repo, check=True)
 finally:

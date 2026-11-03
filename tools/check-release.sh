@@ -3,16 +3,18 @@
 #
 #   tools/check-release.sh <path to .xcarchive, .app or .ipa folder>
 #
-# Unreleased modules (Mail first) are compiled only with BANANA_UNRELEASED (Config/Base.xcconfig):
-# Debug and the author's own installs. An archive for TestFlight or the App Store must have none
-# of their code: a feature in the binary that review can't see is a rejection (App Review 2.5.19),
-# and Gmail's scopes in the app would put it under Google's yearly security assessment.
-#
-# Looks through every executable in the bundle for the words ModuleStore marks such a build with,
-# and for Gmail's API and scopes. Exits 1, naming the file, when any is there.
+# Local assistant and email must be absent from distribution artifacts. Check both
+# their copied resources and their native implementation markers before exporting.
+# Archives made in Xcode run this check from local-feature-resources.sh too.
 set -e
 target="${1:?usage: $0 <.xcarchive | .app | folder>}"
 [ -e "$target" ] || { echo "No such path: $target"; exit 2; }
+
+# Runtime bundles, JS entry points and build markers must never reach distribution.
+while IFS= read -r -d '' resource; do
+  echo "Not for Apple: local-only feature resource in $resource"
+  exit 1
+done < <(find "$target" \( -name 'banana-local-features.txt' -o -name 'PiRuntime' -o -name 'pi-agent.js' -o -name 'pi-bootstrap.js' -o -name 'pi-local-model.json' -o -name 'pi-runtime-manifest.json' -o -name 'pi-inference-worker.py' \) -print0)
 
 # Check nested apps and extensions before export. A global arm64 override also affects
 # Watch targets, which still need arm64_32 when supporting watchOS versions before 27.
@@ -47,7 +49,10 @@ while IFS= read -r -d '' app; do
 done < <(find "$target" -type d \( -name '*.app' -o -name '*.appex' \) -print0)
 
 # What only an unreleased build carries.
-patterns='banana-unreleased-modules-built-in
+patterns='banana-local-ai-built-in
+AppleRuntimeHost
+AssistantStore
+banana-unreleased-modules-built-in
 gmail.googleapis.com
 https://www.googleapis.com/auth/gmail
 https://mail.google.com/'
@@ -72,7 +77,7 @@ if [ "$checked" -eq 0 ]; then
   exit 2
 fi
 if [ "$found" -ne 0 ]; then
-  echo "Not for Apple: this build has unreleased modules in it. Archive without BANANA_UNRELEASED=YES."
+  echo "Not for Apple: this build has unreleased modules in it. Archive with BANANA_LOCAL_AI=NO and BANANA_LOCAL_EMAIL=NO."
   exit 1
 fi
 echo "OK: no unreleased module in $checked executable(s) under $target"

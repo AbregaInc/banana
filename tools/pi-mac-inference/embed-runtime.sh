@@ -3,6 +3,7 @@
 # Contents/Resources/PiRuntime. PiDevelopment only; other configurations carry nothing.
 set -euo pipefail
 [ "${CONFIGURATION:-}" = PiDevelopment ] || exit 0
+[ "${BANANA_LOCAL_AI:-NO}" = YES ] || exit 0
 # The embed caller keeps this lock until its copy is complete. Standalone builds take it too.
 if [ "${BANANA_RUNTIME_CACHE_LOCKED:-}" != 1 ]; then
   exec /usr/bin/python3 "$(dirname "$0")/runtime-cache-lock.py" /bin/bash "$0" "$@"

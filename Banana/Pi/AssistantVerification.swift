@@ -1,3 +1,4 @@
+#if BANANA_AI
 #if DEBUG
 import Foundation
 
@@ -300,4 +301,6 @@ enum AssistantLifecycleVerification {
         }
     }
 }
+#endif
+
 #endif

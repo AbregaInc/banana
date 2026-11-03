@@ -39,8 +39,14 @@ BANANA_GOOGLE_SERVER_CLIENT_BETA =
 // hidden for review to find (App Review 2.3.1). tools/check-release.sh proves it on an archive.
 BANANA_UNRELEASED = NO
 BANANA_UNRELEASED[config=Debug] = YES
+// Independent local feature switches. Release defaults to NO; local install scripts can
+// opt in with BANANA_UNRELEASED=YES, or set either switch independently.
+BANANA_LOCAL_AI = $(BANANA_UNRELEASED)
+BANANA_LOCAL_EMAIL = $(BANANA_UNRELEASED)
+BANANA_AI_SWIFT_YES = -DBANANA_AI
+BANANA_AI_SWIFT_NO =
 BANANA_UNRELEASED_SWIFT_YES = -DBANANA_UNRELEASED
 BANANA_UNRELEASED_SWIFT_NO = -DBANANA_PUBLIC
-OTHER_SWIFT_FLAGS = $(inherited) $(BANANA_UNRELEASED_SWIFT_$(BANANA_UNRELEASED))
+OTHER_SWIFT_FLAGS = $(inherited) $(BANANA_UNRELEASED_SWIFT_$(BANANA_LOCAL_EMAIL)) $(BANANA_AI_SWIFT_$(BANANA_LOCAL_AI))
 
 #include? "Local.xcconfig"

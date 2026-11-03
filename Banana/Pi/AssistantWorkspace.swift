@@ -28,6 +28,7 @@ struct AssistantWorkspaceState: Decodable {
     var action: AssistantAction?
 }
 
+#if BANANA_AI
 @MainActor
 enum AssistantWorkspace {
     static func prepare(_ fields: [String: Any], operation: String, now: Date = Date()) throws -> AssistantAction {
@@ -179,6 +180,8 @@ enum AssistantWorkspace {
         return results
     }
 }
+
+#endif
 
 extension Notification.Name {
     static let assistantOpenSection = Notification.Name("banana.assistant.open-section")

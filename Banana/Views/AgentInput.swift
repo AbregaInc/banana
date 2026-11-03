@@ -1,3 +1,4 @@
+#if BANANA_AI
 import SwiftUI
 
 /// The agent as a way to put data into the fixed app or get answers out of it, never a screen
@@ -367,3 +368,5 @@ struct AgentSendGlyph: View {
             .accessibilityHidden(true)
     }
 }
+
+#endif

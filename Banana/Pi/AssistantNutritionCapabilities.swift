@@ -1,3 +1,4 @@
+#if BANANA_AI
 import Foundation
 
 extension AssistantNutrition {
@@ -48,3 +49,5 @@ extension AssistantNutrition {
         return String(decoding: try JSONSerialization.data(withJSONObject: result, options: [.sortedKeys]), as: UTF8.self)
     }
 }
+
+#endif

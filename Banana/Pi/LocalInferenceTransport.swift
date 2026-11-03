@@ -1,3 +1,4 @@
+#if BANANA_AI
 import Foundation
 
 /// Pure OpenAI chat protocol translation. No native app capability is reachable here.
@@ -100,3 +101,5 @@ enum LocalInferenceTransport {
         return text
     }
 }
+
+#endif
