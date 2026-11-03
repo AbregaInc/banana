@@ -13,6 +13,9 @@ struct AssistantView: View {
     var showsDoneButton = false
     /// Embedded beside a Mac page; controls stay in the panel rather than the window toolbar.
     var panelClose: (() -> Void)? = nil
+    var panelAddSection: AppSection? = nil
+    var pickAdd: ((AddKind) -> Void)? = nil
+    @ObservedObject private var modules = ModuleStore.shared
     @Environment(\.dismiss) private var dismiss
     #if os(iOS)
     @Environment(\.horizontalSizeClass) private var sizeClass
@@ -32,12 +35,12 @@ struct AssistantView: View {
             } else {
                 NavigationStack {
                     assistantContent
-                        .navigationTitle(AppSupport.isPiVerification ? "Assistant verification" : "Assistant")
+                        .navigationTitle(AppSupport.isPiVerification ? "Assistant verification" : panelAddSection != nil ? "Ask or add" : "Assistant")
                         #if os(iOS)
                         .navigationBarTitleDisplayMode(.inline)
                         #endif
                         .toolbar {
-                            ToolbarItemGroup(placement: .automatic) { conversationControls }
+                            ToolbarItemGroup(placement: .automatic) { addFormMenu; conversationControls }
                             if showsDoneButton {
                                 ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } }
                             }
@@ -91,6 +94,38 @@ struct AssistantView: View {
         .onChange(of: draft) { _, value in UserDefaults.standard.set(value, forKey: draftKey) }
     }
 
+    @ViewBuilder private var addFormMenu: some View {
+        #if PI_DEVELOPMENT
+        if let section = panelAddSection {
+            Menu {
+                ForEach(AddKind.groups(for: section, with: modules.choice), id: \.section) { group in
+                    Section(group.section.title) {
+                        ForEach(group.kinds.filter { kind in
+                            #if os(macOS)
+                            ![AddKind.describeMeal, .scanFood, .groceries].contains(kind)
+                            #else
+                            kind != .describeMeal
+                            #endif
+                        }) { kind in
+                            Button {
+                                if let pickAdd { pickAdd(kind) }
+                                else {
+                                    if let half = kind.nutritionSection { ShellNavigation.shared.state.nutritionSection = half }
+                                    AssistantWorkspace.open(kind.section)
+                                    PageChrome.shared.pendingAdd = kind
+                                }
+                            } label: { Label(kind.title, systemImage: kind.symbol) }
+                        }
+                    }
+                }
+            } label: { Image(systemName: "plus") }
+            .help("Add using a form")
+            .accessibilityLabel("Add using a form")
+            .accessibilityIdentifier("assistant.panel.addForm")
+        }
+        #endif
+    }
+
     @ViewBuilder private var conversationControls: some View {
         Button { showingConversations = true } label: { Image(systemName: "clock.arrow.circlepath") }
             .accessibilityLabel("Conversations")
@@ -121,8 +156,9 @@ struct AssistantView: View {
         VStack(spacing: 0) {
             if let panelClose {
                 HStack(spacing: 12) {
-                    Text("Chat").font(.headline)
+                    Text("Ask or add").font(.headline)
                     Spacer()
+                    addFormMenu
                     conversationControls
                     Button(action: panelClose) { Image(systemName: "xmark") }
                         .accessibilityLabel("Close chat")

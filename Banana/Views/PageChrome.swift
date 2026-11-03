@@ -198,9 +198,20 @@ private struct AddButton<Items: View>: ViewModifier {
     @Environment(\.addOpensList) private var phoneShell
 
     func body(content: Content) -> some View {
-        #if os(macOS)
+        #if os(macOS) && PI_DEVELOPMENT
+        // The window's Ask or add control owns the single desktop entry point.
+        content
+        #elseif os(macOS)
         content.toolbar {
             if ownItems { ToolbarItem(placement: .primaryAction) { control } }
+        }
+        #elseif PI_DEVELOPMENT
+        content.toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button { PageChrome.shared.showAssistant = true } label: { Image(systemName: "bubble.left.and.bubble.right") }
+                    .accessibilityLabel("Ask or add")
+                    .accessibilityIdentifier(identifier)
+            }
         }
         #else
         content.toolbar {
