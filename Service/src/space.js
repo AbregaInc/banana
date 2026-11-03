@@ -7,6 +7,7 @@
 //
 // A clock is an HLC, "<13-digit ms>.<4-hex counter>.<device>", compared as plain text.
 
+import { WEB_STATUS_TYPES } from "./web-types.js";
 import { calendarInfoID } from "./calendar-preferences.js";
 import { CATALOG, T2_TYPES } from "./catalog.js";
 
@@ -207,6 +208,7 @@ export function sync(port, { device, platform, since = 0, changes = [], now, spa
     const startHead = Number(meta(port, "head") ?? 0);
     const startHlc = meta(port, "hlc") ?? "";
     let head = startHead, hlc = startHlc;
+    let webRevisions;
     const most = now + MOST_AHEAD;
     const applied = [], rejected = [], accepted = [];
     let trashed = 0;
@@ -229,6 +231,15 @@ export function sync(port, { device, platform, since = 0, changes = [], now, spa
       const d = delta(before, after);
       if (d) {
         head++;
+        // A sync heartbeat or newer clock on identical values is not new web content.
+        if(WEB_STATUS_TYPES.has(key.type)){
+          const beforeContent=before&&visible(before)?canonical(before.fields):null;
+          const afterContent=visible(after)?fieldsText:null;
+          if(beforeContent!==afterContent){
+            webRevisions??=JSON.parse(meta(port,"web-revisions")??"{}");
+            webRevisions[key.type]=head;
+          }
+        }
         port.exec(
           `INSERT INTO records (type, id, fields, clocks, deleted, seq) VALUES (?, ?, ?, ?, ?, ?)
            ON CONFLICT (type, id) DO UPDATE SET fields = excluded.fields, clocks = excluded.clocks, deleted = excluded.deleted, seq = excluded.seq`,
@@ -260,6 +271,7 @@ export function sync(port, { device, platform, since = 0, changes = [], now, spa
     }
     // A pull writes nothing.
     if (head !== startHead) setMeta(port, "head", head);
+    if (webRevisions) setMeta(port, "web-revisions", JSON.stringify(webRevisions));
     if (hlc !== startHlc) setMeta(port, "hlc", hlc);
     if (trashed && space) setMeta(port, "space", space);
 
@@ -343,6 +355,7 @@ export function withdrawConsent(port, kind, { space } = {}) {
       `SELECT sha FROM blobs WHERE tier = 'T2' UNION SELECT sha FROM blob_refs WHERE type IN (${marks})`, ...T2_TYPES).map((r) => r.sha);
     const records = port.exec(`SELECT COUNT(*) AS n FROM records WHERE type IN (${marks})`, ...T2_TYPES)[0].n;
     port.exec(`DELETE FROM records WHERE type IN (${marks})`, ...T2_TYPES);
+    if(records){const revisions=JSON.parse(meta(port,"web-revisions")??"{}"),revision=newEpoch();for(const type of T2_TYPES)revisions[type]=revision;setMeta(port,"web-revisions",JSON.stringify(revisions));}
     port.exec("DELETE FROM meta WHERE key = 'counts'");   // the kept counts named these records
     port.exec(`DELETE FROM history WHERE type IN (${marks})`, ...T2_TYPES);
     port.exec(`DELETE FROM blob_refs WHERE type IN (${marks})`, ...T2_TYPES);
@@ -392,6 +405,14 @@ export function counts(port) {
   }
   setMeta(port, "counts", JSON.stringify({ head, counts: out }));
   return out;
+}
+
+/** Bounded metadata only: no record scan, blob download, or write on established spaces. */
+export function webStatus(port, types) {
+  ready(port);
+  const revisions=JSON.parse(meta(port,"web-revisions")??"{}");
+  return {epoch:epochOf(port),consents:consentsOf(port),
+    revisions:Object.fromEntries([...new Set(types)].sort().map(type=>[type,revisions[type]??0]))};
 }
 
 /** The signed-in web reader: one page, including T2 only while consent stands. No history. */
@@ -533,6 +554,7 @@ export function setCalendarPreference(port, { calendarID, preference, enabled, n
     const values = new Set(snapshot.settings[key] ?? []);
     if (enabled) values.delete(value); else values.add(value);
     snapshot.settings[key] = [...values].sort();
+    if(canonical(snapshot.settings)===canonical(before.fields.v.settings))return {settings:snapshot.settings,updatedAt:snapshot.updatedAt};
     snapshot.updatedAt = Math.max(now / 1000 - 978307200, Number(snapshot.updatedAt ?? 0) + 0.001);
     const latest = [meta(port, "hlc") ?? "", ...Object.values(before.clocks)].sort().at(-1);
     let wall = Math.max(now, Number(latest?.slice(0, 13) || 0));
@@ -546,6 +568,7 @@ export function setCalendarPreference(port, { calendarID, preference, enabled, n
     port.exec("INSERT INTO history (seq, type, id, device, at, before, after) VALUES (?, ?, ?, ?, ?, ?, ?)",
       head, type, id, "web", now, canonical(before), canonical(after));
     setMeta(port, "head", head); setMeta(port, "hlc", clock);
+    const revisions=JSON.parse(meta(port,"web-revisions")??"{}");revisions[type]=head;setMeta(port,"web-revisions",JSON.stringify(revisions));
     return { settings: snapshot.settings, updatedAt: snapshot.updatedAt };
   });
 }

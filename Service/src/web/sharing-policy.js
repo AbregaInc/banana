@@ -16,9 +16,13 @@ export const emptyPolicy = () => ({ calendars: [], sections: Object.fromEntries(
 const object = v => v && typeof v === 'object' && !Array.isArray(v);
 export const calendarKey = (sub, id) => JSON.stringify([sub, id]);
 export function normalizePolicy(value) {
-  if (!object(value) || Object.keys(value).some(k => !['calendars', 'sections'].includes(k))
+  if (!object(value) || Object.keys(value).some(k => !['calendars', 'sections', 'expiresOn'].includes(k))
     || !Array.isArray(value.calendars) || value.calendars.length > 300 || !object(value.sections)
     || Object.keys(value.sections).some(k => !Object.hasOwn(SECTIONS, k))) throw new Error('Choose valid sharing permissions.');
+  const expiresOn = value.expiresOn;
+  if (expiresOn != null && (typeof expiresOn !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(expiresOn)
+    || !Number.isFinite(Date.parse(expiresOn)) || new Date(expiresOn).toISOString().slice(0, 10) !== expiresOn))
+    throw new Error('Choose a valid access expiration date.');
   const sections = {};
   for (const key of Object.keys(SECTIONS)) {
     if (value.sections[key] != null && typeof value.sections[key] !== 'boolean') throw new Error('Choose valid sharing permissions.');
@@ -36,7 +40,7 @@ export function normalizePolicy(value) {
     return { sub: c.sub, id: c.id, access: c.access };
   }).sort((a, b) => calendarKey(a.sub, a.id).localeCompare(calendarKey(b.sub, b.id)));
   if (!calendars.length && !Object.values(sections).some(Boolean)) throw new Error('Choose at least one calendar or section to share.');
-  return { calendars, sections };
+  return { calendars, sections, ...(expiresOn ? { expiresOn } : {}) };
 }
 export function allowedTypes(policy) {
   const types = new Set(Object.entries(SECTIONS).filter(([key]) => policy.sections[key]).flatMap(([, value]) => value.types));
@@ -96,3 +100,6 @@ export async function sharedCalendar(fetched, policy, { secret, shareID, setting
   }
   return events.sort((a, b) => Date.parse(a.start.dateTime ?? a.start.date) - Date.parse(b.start.dateTime ?? b.start.date));
 }
+
+// Access includes the selected UTC date and ends at the following midnight.
+export const policyExpired = (policy, now) => Boolean(policy?.expiresOn && now >= Date.parse(policy.expiresOn) + 86_400_000);

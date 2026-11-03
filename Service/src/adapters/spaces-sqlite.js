@@ -96,6 +96,7 @@ export function spacesSqlite(dir, { blobs, batch = TRASH_BATCH, now = Date.now, 
           if (space.trashPending(port())) drain(id);
           return result;
         },
+        async webStatus(types) { return space.webStatus(port(), types); },
         async counts() { return space.counts(port()); },
         async setCalendarPreference(request) { return space.setCalendarPreference(port(), request); },
         async read(type, recordId) { return space.read(port(), type, recordId); },
