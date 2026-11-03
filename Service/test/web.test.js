@@ -300,3 +300,20 @@ test('calendar choices apply to booking availability too; muting does not change
   assert.equal((await read({calendarIDsAreGoogle:true,excludedCalendars:names,settings:{excludedCalendarIDs:[],calendarBlockingOverrides:{wife:true}}})).calendars.length,2,'Stale legacy names cannot undo re-enabling');
   assert.equal((await read({excludedCalendars:names})).calendars.length,1,'Legacy snapshots still migrate by name');
 });
+
+test('web status: actual content only, opaque version, no payload reads or provider calls',async()=>{
+  const {s,get,put,who}=await fixture();
+  const status=async()=>{const r=await get('/app/api/status');assert.equal(r.headers.get('cache-control'),'no-store');return r.json();};
+  assert.equal((await s.app.request('/app/api/status')).status,401);
+  const first=await status();assert.match(first.contentVersion,/^[0-9a-f]{64}$/);
+  assert.equal((await(await get('/app/api/account')).json()).contentVersion,first.contentVersion);
+  await put('plan.routine','status-routine',{name:'Morning'});const added=await status();assert.notEqual(added.contentVersion,first.contentVersion);
+  s.advance(1000);await put('plan.routine','status-routine',{name:'Morning'});assert.equal((await status()).contentVersion,added.contentVersion);
+  await s.call('POST','/v2/sync',{session:who.session,body:{device:'phone-ann-0001',changes:[]}});
+  assert.equal((await status()).contentVersion,added.contentVersion);
+  s.advance(1000);await put('plan.routine','status-routine',{name:'Evening'});assert.notEqual((await status()).contentVersion,added.contentVersion);
+  const before=s.google.listCalls.length;
+  const originalGet=s.deps.spaces.get.bind(s.deps.spaces),calls=[];
+  s.deps.spaces.get=id=>new Proxy(originalGet(id),{get(target,key){const value=target[key];return typeof value==='function'?(...args)=>{calls.push(key);return value.apply(target,args);}:value;}});
+  await status();assert.equal(s.google.listCalls.length,before);assert.deepEqual(calls,['webStatus']);
+});

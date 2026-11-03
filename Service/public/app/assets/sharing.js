@@ -56,11 +56,14 @@ export function sharingControls({ request, escape: esc, notice, rerender }) {
         ${[['none', 'Not shared'], ['busy', 'Busy only'], ['details', 'Full details']].map(([value, label]) => `<option value="${value}" ${picked(a.sub, c.id) === value ? 'selected' : ''}>${label}</option>`).join('')}</select></label>`).join('')}
       </fieldset>`).join('');
     const current = list.filter(s => s.status !== 'revoked');
-    const entries = current.map(s => `<article class="share-invitation"><div><h3>${esc(s.guestName || s.email)}</h3>${s.guestName ? `<p>${esc(s.email)}</p>` : ''}<span class="share-status">${s.status === 'draft' ? 'Draft · not sent' : s.sendStatus === 'failed' ? 'Email failed · permissions saved' : s.status === 'active' ? 'Connected' : 'Invited'}</span></div><div class="share-row-actions"><a class="text-button" href="#sharing/${s.id}">${s.status === 'draft' ? 'Continue draft' : 'Edit access'}</a>${s.policy ? `<button class="text-button" data-share-revoke="${s.id}">Remove access</button>` : ''}</div></article>`).join('');
+    const showEditor = Boolean(id) || current.length === 0;
+    const expiry = s => { const date = (s.policy || s.draftPolicy)?.expiresOn; return date ? `${Date.now() >= Date.parse(date) + 86400000 ? 'Expired' : 'Access through'} ${date} (UTC)` : 'No expiration date'; };
+    const entries = current.map(s => `<article class="share-invitation"><div><h3>${esc(s.guestName || s.email)}</h3>${s.guestName ? `<p>${esc(s.email)}</p>` : ''}<span class="share-status">${s.status === 'draft' ? 'Draft · not sent' : s.sendStatus === 'failed' ? 'Email failed · permissions saved' : s.status === 'active' ? 'Connected' : 'Invited'}</span><p>${esc(expiry(s))}</p></div><div class="share-row-actions">${s.policy ? `<a class="text-button" href="/share/${s.id}?preview=published">Preview access ↗</a>` : ''}<a class="text-button" href="#sharing/${s.id}">${s.status === 'draft' ? 'Continue draft' : 'Edit access'}</a>${s.policy ? `<button class="text-button" data-share-revoke="${s.id}">Remove access</button>` : ''}</div></article>`).join('');
     const body = ['workouts', 'health', 'nutrition', 'taken'];
-    return `<div class="sharing-intro"><p>Invite someone to a read-only view of the parts of Banana you choose. They sign in with their own Google account.</p><button class="text-button" data-share-action="new">New invitation ↗</button></div>
-      <section class="share-editor" aria-labelledby="share-editor-title"><div class="section-title"><h2 id="share-editor-title">${draft.publishedVersion ? 'Edit guest access' : 'Invite a guest'}</h2><span class="share-status">${draft.publishedVersion ? 'Changes stay private until you publish them' : 'Nothing has been sent'}</span></div>
+    return `<div class="sharing-intro"><p>Invite someone to a read-only view of the parts of Banana you choose. They sign in with their own Google account.</p><button class="text-button" data-share-action="new">Add new guest</button></div>
+      ${showEditor ? `<section class="share-editor" aria-labelledby="share-editor-title"><div class="section-title"><h2 id="share-editor-title">${draft.publishedVersion ? 'Edit guest access' : 'Invite a guest'}</h2><span class="share-status">${draft.publishedVersion ? 'Changes stay private until you publish them' : 'Nothing has been sent'}</span></div>
       <label class="share-email">Google sign-in email<input type="email" id="share-email" autocomplete="email" placeholder="trainer@example.com" value="${esc(draft.email)}" ${draft.publishedVersion ? 'disabled' : ''}><small>Use the email they sign in to Google with. The link alone does not grant access.</small></label>
+      <label class="share-email">Access expiration date<input type="date" id="share-expiry" value="${esc(draft.policy.expiresOn || '')}" min="${new Date().toISOString().slice(0,10)}"><small>Optional. Access ends after this date at midnight UTC. Leave blank for no expiration.</small></label>
       <h3>Calendars</h3><p class="subtle">Full details includes titles, notes, locations and meeting links. Busy only shares occupied time. New calendars are not shared automatically.</p>
       ${calendarHTML || '<p class="subtle">Connect Google Calendar in Banana to choose calendars here.</p>'}
       <div class="share-extra">${checkbox('personalPlan')}</div>
@@ -71,13 +74,14 @@ export function sharingControls({ request, escape: esc, notice, rerender }) {
       <div class="share-actions"><button class="button" data-share-action="preview" ${busy || !validEmail() || !hasData() ? 'disabled' : ''}>Preview as guest ↗</button>
       ${draft.publishedVersion ? `<button class="button secondary" data-share-publish="publish" ${dirty || !draft.previewed || busy ? 'disabled' : ''}>Save access</button>` : ''}
       <button class="button secondary" data-share-publish="send" ${dirty || !draft.previewed || busy || !emailEnabled ? 'disabled' : ''}>${draft.publishedVersion ? 'Send invitation again' : 'Send invitation'}</button></div>
-      ${!emailEnabled ? '<p class="notice">Email delivery is not configured. You can prepare and preview a draft.</p>' : ''}</div></section>
-      <section><div class="section-title"><h2>Your guests</h2></div>${entries || '<p class="subtle">No guests yet. Start with a preview above.</p>'}</section>
+      ${!emailEnabled ? '<p class="notice">Email delivery is not configured. You can prepare and preview a draft.</p>' : ''}</div></section>` : ''}
+      <section><div class="section-title"><h2>Your guests</h2></div>${entries || '<p class="subtle">No guests yet. Add a guest and preview their access above.</p>'}</section>
       ${received.length ? `<section><div class="section-title"><h2>Shared with you</h2></div>${received.map(s => `<a class="record" href="/share/${s.id}"><strong>${esc(s.owner)}</strong><span>Open shared view ↗</span></a>`).join('')}</section>` : ''}`;
   }
   function change(target) {
     if (!draft) return false;
     if (target.id === 'share-email') { draft.email = target.value; dirty = true; }
+    else if (target.id === 'share-expiry') { if (target.value) draft.policy.expiresOn = target.value; else delete draft.policy.expiresOn; dirty = true; }
     else if (target.dataset.shareSection) { draft.policy.sections[target.dataset.shareSection] = target.checked; dirty = true; }
     else if (target.dataset.shareCalendar) choose(target.dataset.shareSub, target.dataset.shareCalendar, target.value);
     else return false;
@@ -89,7 +93,7 @@ export function sharingControls({ request, escape: esc, notice, rerender }) {
     if (busy) return true;
     if (button.dataset.shareAction === 'new') {
       draft = null; dirty = false; selected = '';
-      if (location.hash === '#sharing') await rerender(); else location.hash = 'sharing';
+      if (location.hash === '#sharing/new') await rerender(); else location.hash = 'sharing/new';
       return true;
     }
     if (button.dataset.shareBulk) {

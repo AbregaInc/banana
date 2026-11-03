@@ -1,3 +1,4 @@
+import { WEB_TYPES as TYPES, WEB_STATUS_TYPES } from "../web-types.js";
 // The cloud app is a read-only view of the same personal space the native apps sync.
 // Browser sessions are host-only HttpOnly cookies, isolated from person/guest API sessions.
 import { getCookie, setCookie, deleteCookie } from "hono/cookie";
@@ -6,6 +7,7 @@ import { createVault, newSecret, newSessionToken, sha256Hex } from "../crypto.js
 import { GoogleRefused } from "../google.js";
 import { canRead } from "../booking/busy.js";
 import { personalSpace } from "../sync-routes.js";
+import { contentVersion } from "./status.js";
 import { page } from "./page.js";
 import { calendarAgenda, calendarSettings, includesCalendar } from "./calendar.js";
 import { guestAccount } from "../booking/guests.js";
@@ -15,10 +17,7 @@ const DAY = 86_400_000;
 const SESSION = "__Host-banana-web";
 const NONCE = "__Host-banana-web-login";
 const options = { httpOnly: true, secure: true, sameSite: "Lax", path: "/" };
-const TYPES = new Set(["plan.routine", "plan.alarm", "plan.wake", "plan.extra", "plan.override", "plan.bookingType", "core.wakePlan",
-  "food.meal", "food.mealPhoto", "food.supplement", "food.dose", "food.myFood",
-  "health.workout", "health.workoutPlan", "health.snapshot", "health.workoutCompletion",
-  "podcast.show", "podcast.listen", "podcast.progress", "podcast.transcript", "notes.voiceNote"]);
+
 
 export function webRoutes(app, deps, { signer, onCalendarSettingsChanged = () => {} }) {
   const origin = deps.config.publicUrl;
@@ -172,14 +171,22 @@ export function webRoutes(app, deps, { signer, onCalendarSettingsChanged = () =>
     deleteCookie(c, SESSION, options);
     return c.body(null, 204);
   });
+  const statusTypes=[...WEB_STATUS_TYPES];
+  async function updateStatus(c,provided){
+    const status=provided??await ownSpace(c).webStatus(statusTypes);
+    const types=statusTypes.filter(type=>CATALOG.get(type)?.tier!=="T2"||status.consents.health);
+    return {consents:status.consents,contentVersion:await contentVersion(status,types)};
+  }
+  app.get("/app/api/status",signedIn,async c=>c.json(await updateStatus(c)));
   app.get("/app/api/account", signedIn, async (c) => {
     const who = c.get("web");
     const stub = ownSpace(c);
-    const [consents, counts, latest, smart, preferences, phone] = await Promise.all([stub.consents(), stub.counts(), deps.db.first(
+    const [statusState, counts, latest, smart, preferences, phone] = await Promise.all([stub.webStatus(statusTypes), stub.counts(), deps.db.first(
       "SELECT MAX(last_sync_at) AS at FROM devices WHERE account_id = ?", who.account),
       stub.read("core.smartSettings", "smart-settings"), stub.read("core.appSettings", "appSettings"),
       deps.db.first("SELECT bundle FROM devices WHERE account_id = ? AND platform = 'iphone' ORDER BY last_sync_at DESC, updated_at DESC, id LIMIT 1", who.account)]);
-    return c.json({ email: who.email, name: who.name, consents,
+    const consents=statusState.consents,status=await updateStatus(c,statusState);
+    return c.json({ email: who.email, name: who.name, consents, contentVersion:status.contentVersion,
       counts: Object.fromEntries(Object.entries(counts).filter(([type]) => TYPES.has(type) && (CATALOG.get(type)?.tier !== "T2" || consents.health))),
       calendarSettingsUpdatedAt: smart?.v?.updatedAt ?? null,
       weekStartWeekday: calendarSettings(smart).weekStartWeekday,

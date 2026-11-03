@@ -601,3 +601,35 @@ test("counts are kept against the head seq: asked again they cost a meta read, a
   assert.deepEqual(space.counts(p), { "podcast.listen": 2 });
   assert.equal(JSON.parse(rows(p, "SELECT value FROM meta WHERE key = 'counts'")[0].value).counts["podcast.listen"], 2);
 });
+
+test("web status changes for content, not empty pulls, retries, or newer clocks on equal values",()=>{
+  const p=port(),types=['plan.routine','notes.voiceNote'];
+  const token=()=>space.webStatus(p,types).revisions;
+  const initial=token();
+  const change={type:'plan.routine',id:'r',set:{name:'Morning'},clocks:{name:clock(NOW)}};
+  syncAs(p,[change]);const created=token();assert.notDeepEqual(created,initial);
+  syncAs(p,[]);assert.deepEqual(token(),created);
+  syncAs(p,[change]);assert.deepEqual(token(),created);
+  syncAs(p,[{...change,clocks:{name:clock(NOW,1)}}]);assert.deepEqual(token(),created);
+  syncAs(p,[{...change,set:{name:'Evening'},clocks:{name:clock(NOW,2)}}]);const edited=token();assert.notDeepEqual(edited,created);
+  syncAs(p,[{type:'plan.routine',id:'r',delete:clock(NOW,3)}]);assert.notDeepEqual(token(),edited);
+  assert.deepEqual(space.webStatus(p,['notes.voiceNote']).revisions,{'notes.voiceNote':0});
+  const statements=[],observed={...p,exec:(sql,...args)=>{statements.push(sql);return p.exec(sql,...args);}};
+  space.webStatus(observed,types);statements.length=0;space.webStatus(observed,types);
+  assert.ok(!statements.some(sql=>/FROM records|INSERT|UPDATE|DELETE/i.test(sql)),statements.join('\n'));
+});
+
+test("web revisions cover consent purge/regrant and calendar edits without repeated-toggle churn",()=>{
+  const p=port();
+  space.setConsent(p,'health',{version:'1',at:NOW});
+  syncAs(p,[{type:'food.meal',id:'m',set:{name:'Lunch'},clocks:{name:clock(NOW)}}]);
+  const before=space.webStatus(p,['food.meal']).revisions;
+  space.withdrawConsent(p,'health');space.setConsent(p,'health',{version:'1',at:NOW});
+  assert.notDeepEqual(space.webStatus(p,['food.meal']).revisions,before);
+  syncAs(p,[{type:'core.smartSettings',id:'smart-settings',set:{v:{calendarIDsAreGoogle:true,settings:{excludedCalendarIDs:[],mutedCalendarIDs:[]}}},clocks:{v:clock(NOW)}}]);
+  const initial=space.webStatus(p,['core.smartSettings']).revisions;
+  const request={calendarID:'example-calendar',preference:'notifications',enabled:false,now:NOW+1000};
+  space.setCalendarPreference(p,request);const changed=space.webStatus(p,['core.smartSettings']).revisions;
+  assert.notDeepEqual(changed,initial);
+  space.setCalendarPreference(p,request);assert.deepEqual(space.webStatus(p,['core.smartSettings']).revisions,changed);
+});

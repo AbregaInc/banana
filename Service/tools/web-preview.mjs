@@ -1,5 +1,6 @@
 // Local-only UI QA with an in-memory service. Never deployed.
 // cd Service && node tools/web-preview.mjs; open http://localhost:8899/__preview/login
+import { coachFixture } from './coach-fixture.mjs';
 import { serve } from '@hono/node-server';
 import { lzfseDecompress } from '../public/app/assets/vendor/lzfse.js';
 import { createApp } from '../src/app.js';
@@ -9,9 +10,10 @@ import { setup, device } from '../test/helpers.js';
 import { sha256Hex, newSessionToken, createVault } from '../src/crypto.js';
 import { memoryEmail } from '../src/booking/email.js';
 const mail=memoryEmail({enabled:true,log:false});
+const coachPreview=process.env.BANANA_PREVIEW_COACH==='1';
 const previewPort=Number(process.env.BANANA_PREVIEW_PORT??8899);
-const origin=`http://localhost:${previewPort}`,s=setup({config:{publicUrl:origin},deps:{email:mail}});
-s.google.person('preview','preview-sub','you@example.com','preview-refresh',{name:'Alex'});
+const origin=process.env.BANANA_PREVIEW_ORIGIN??`http://localhost:${previewPort}`,s=setup({config:{publicUrl:origin},deps:{email:mail}});
+s.google.person('preview','preview-sub','you@example.com','preview-refresh',{name:'Noor Haddad'});
 const who=(await s.signIn('preview',device('phone-preview-001'))).json;
 const space=`sp_${who.account.id}`,stub=s.deps.spaces.get(space),now=Date.now();
 await stub.setConsent('health',{version:'1',at:s.now()});
@@ -26,8 +28,8 @@ record('plan.alarm','alarm-1',{label:'An early one',fire:new Date(new Date(now).
 record('food.meal','meal-1',{name:'A slow breakfast',date:now-3600000,note:'Coffee, then a walk.',items:[{name:'Greek yogurt',serving:'200 g',macros:{calories:140,proteinGrams:20,carbohydrateGrams:8,fatGrams:3}},{name:'Blueberries & granola',serving:'1 bowl',macros:{calories:240,proteinGrams:5,carbohydrateGrams:40,fatGrams:8}}],photoIDs:['photo-1']});
 record('food.mealPhoto','photo-1',{v:await blob('food.mealPhoto',readFileSync(new URL('../../LandingPage/site/assets/img/mark-192.webp',import.meta.url)),'webp')});
 record('food.meal','meal-2',{name:'Lunch after the swim',date:now-86400000,items:[{name:'Roasted vegetables & rice',serving:'1 plate',macros:{calories:540,proteinGrams:18,carbohydrateGrams:80,fatGrams:12}}]});
-record('food.supplement','sup-1',{name:'PRIVATE-TAKEN-SECRET',dose:'1 tablet',hour:8,minute:0,kind:'supplement',enabled:true,note:'With breakfast'});
-record('food.dose','dose-1',{supplementID:'sup-1',day:'20261020',date:now,status:'taken'});
+if(!coachPreview)record('food.supplement','sup-1',{name:'PRIVATE-TAKEN-SECRET',dose:'1 tablet',hour:8,minute:0,kind:'supplement',enabled:true,note:'With breakfast'});
+if(!coachPreview)record('food.dose','dose-1',{supplementID:'sup-1',day:'20261020',date:now,status:'taken'});
 const sampleBuffer=Buffer.alloc(33*300);for(let i=0;i<300;i++){const p=i*33;sampleBuffer.writeUInt8(i%2?0:3,p);sampleBuffer.writeDoubleLE(i*9,p+1);sampleBuffer.writeDoubleLE(i%2?110+(i%35):.4,p+9);sampleBuffer.writeDoubleLE(i%2?NaN:.3,p+17);sampleBuffer.writeDoubleLE(i%2?NaN:.9,p+25);}
 const rawSamples=await blob('health.workout',sampleBuffer,'samples');
 record('health.workout','workout-1',{activity:'Pool swim',start:now-7200000,end:now-4500000,totalDistance:1500,totalEnergy:420,avgHeartRate:132,poolLengthMeters:25,sampleCount:300,samples:rawSamples,laps:Array.from({length:12},(_,i)=>({number:i+1,duration:38+i%5})),strokeSeries:Array.from({length:12},(_,i)=>({t:(i+1)*40,value:(i+1)*20})),pauses:[{start:500,end:560}],powerSeries:[{t:0,value:100},{t:300,value:140},{t:900,value:120}],route:[{lat:40.71,lon:-74},{lat:40.713,lon:-74.005},{lat:40.718,lon:-74.001}],insights:{movingDuration:2600,averagePower:120},heartRateSeries:Array.from({length:30},(_,i)=>({t:i*90,bpm:110+(i*7%35)}))});
@@ -35,6 +37,7 @@ record('health.workout','workout-2',{activity:'Outdoor walk',start:now-90000000,
 const compressed=readFileSync(new URL('../test/fixtures/web-health.lzfse',import.meta.url)),healthPayload=JSON.parse(new TextDecoder().decode(lzfseDecompress(compressed.subarray(6))));
 const swift=ms=>ms/1000-978307200;
 healthPayload.workouts=[{id:'health-swim',activity:'Pool swim',start:swift(now-7200000),end:swift(now-4500000),duration:2640,distanceMeters:1500,energyKcal:420,source:'Apple Watch',avgHeartRate:132},{id:'duplicate',activity:'Pool swim',start:swift(now-7170000),end:swift(now-4500000),duration:2670,source:'WHOOP'},{id:'health-only',activity:'Indoor cycling',start:swift(now-3*86400000),end:swift(now-3*86400000+1800000),duration:1800,distanceMeters:12000,energyKcal:310,source:'Apple Watch',avgHeartRate:125}];
+if(coachPreview)coachFixture({now,healthPayload,record});
 record('health.snapshot','snapshot',{v:await blob('health.snapshot',new TextEncoder().encode(JSON.stringify(healthPayload)),'json')});
 record('podcast.show','show-1',{title:'The Knowledge Project',author:'Farnam Street',feedURL:'https://example.com/feed'});
 record('podcast.listen','listen-1',{podcastTitle:'The Knowledge Project',episodeTitle:'Making room for what matters',episodeID:'episode-1',date:now-3600000,endedAt:now-1800000,place:'On a walk'});
@@ -61,7 +64,14 @@ s.google.person('trainer-preview','trainer-sub','trainer@example.com',null,{name
 s.google.person('stranger-preview','stranger-sub','stranger@example.com',null,{name:'Stranger'});
 if(process.env.BANANA_PREVIEW_EMPTY_CALENDARS==='1')s.google.calendarList=async()=>[];
 const app=createApp(s.deps);
-app.get('/__preview/login',c=>{c.header('Set-Cookie',`__Host-banana-web=${token}; Path=/; HttpOnly; Secure; SameSite=Lax`);return c.redirect('/app/');});
+let coachShare;
+app.get('/__preview/coach',c=>coachShare?c.redirect('/__preview/auth/trainer?share='+coachShare):c.notFound());
+app.get('/__preview/login',async c=>{
+  const loginToken=newSessionToken(s.deps.random);
+  await s.db.run("INSERT INTO sessions (token_hash,account_id,kind,created_at,last_used_at) VALUES (?,?,'web',?,?)",await sha256Hex(loginToken),who.account.id,s.now(),s.now());
+  c.header('Set-Cookie',`__Host-banana-web=${loginToken}; Path=/; HttpOnly; Secure; SameSite=Lax`);
+  return c.redirect(coachPreview?'/app/#health':'/app/');
+});
 app.get('/__preview/auth/:role',async c=>{
   const code=c.req.param('role')==='trainer'?'trainer-preview':'stranger-preview';
   const start=await app.request('/app/auth/google?'+new URLSearchParams({share:c.req.query('share')??''}));
@@ -72,4 +82,41 @@ app.get('/__preview/auth/:role',async c=>{
 app.get('/__preview/outbox',c=>c.json(mail.sent.map(m=>({kind:m.kind,to:m.to,text:m.text}))));
 if(process.env.BANANA_PREVIEW_FILTER_CATALOG_REFERENCE==='1')app.get('/app/assets/app.js',c=>c.body(readFileSync(new URL('../public/app/assets/app.js',import.meta.url),'utf8').replace('if(account.shared||filterSourcesLoaded)return;','if(account.shared||filterSources.length)return;'),200,{'Content-Type':'application/javascript','Cache-Control':'no-store'}));
 app.get('/app/assets/*',serveStatic({root:'./public'}));app.get('/book/fonts/*',serveStatic({root:'./public'}));
-serve({fetch:app.fetch,port:previewPort,hostname:'127.0.0.1'},()=>console.log(`Cloud app preview: ${origin}/__preview/login`));
+if(coachPreview){
+  const post=async(path,body)=>{
+    const response=await app.request(origin+path,{method:'POST',headers:{cookie:'__Host-banana-web='+token,Origin:origin,'Content-Type':'application/json'},body:JSON.stringify(body)});
+    if(!response.ok)throw new Error('Could not prepare coach demo: '+response.status+' '+await response.text());
+    return response.json();
+  };
+  const draft=await post('/app/api/shares',{email:'trainer@example.com',policy:{calendars:[],sections:{health:true,nutrition:true,workouts:true}}});
+  await post('/app/api/shares/'+draft.id+'/preview',{version:draft.version});
+  // Seed an invited fixture without sending any email. Guest authorization still uses real routes.
+  await s.db.run("UPDATE web_shares SET policy = draft_policy, published_version = draft_version, status = 'invited' WHERE id = ?",draft.id);
+  coachShare=draft.id;
+}
+
+const previewFetch=async request=>{
+  // The fictional-data preview can run over tailnet HTTP. Production keeps Secure host cookies.
+  const demoHTTP=coachPreview&&new URL(origin).protocol==='http:';
+  if(demoHTTP){
+    const headers=new Headers(request.headers);
+    const cookie=headers.get('cookie');
+    if(cookie)headers.set('cookie',cookie.replaceAll('banana-demo-web','__Host-banana-web'));
+    request=new Request(request,{headers});
+  }
+  const response=await app.fetch(request);
+  const headers=new Headers(response.headers);
+  if(demoHTTP){
+    headers.delete('set-cookie');
+    for(const cookie of response.headers.getSetCookie()){
+      headers.append('set-cookie',cookie.startsWith('__Host-banana-web')?cookie.replace('__Host-banana-web','banana-demo-web').replace(/; Secure/gi,''):cookie);
+    }
+  }
+  let body=response.body;
+  if(coachPreview&&headers.get('content-type')?.includes('text/html')){
+    body=(await response.text()).replace('<body>','<body><div class="notice" role="status">LOCAL DEMO · Fictional data for Noor Haddad. No real account or cloud service is connected. <a href="/__preview/login">Owner demo</a> · <a href="/__preview/coach">Coach demo</a></div>');
+    headers.delete('content-length');
+  }
+  return new Response(body,{status:response.status,headers});
+};
+serve({fetch:previewFetch,port:previewPort,hostname:'127.0.0.1'},()=>console.log(`Cloud app preview: ${origin}/__preview/login`));
