@@ -83,6 +83,32 @@ struct NewCalendarEventSheet: View {
             TimeInterval(max(15, duration) * 60)))
     }
 
+    /// Reuses every existing editor control and its normal calendar save path.
+    init(assistantDraft: AssistantAction, words: String? = nil, embedded: Bool = false, onSave: @escaping () -> Void) {
+        let start = assistantDraft.start.flatMap { try? Date($0, strategy: .iso8601) } ?? Date()
+        let end = assistantDraft.end.flatMap { try? Date($0, strategy: .iso8601) } ?? start.addingTimeInterval(3600)
+        self.init(initialStart: start, initialDurationMinutes: Int(end.timeIntervalSince(start) / 60), initialTitle: assistantDraft.title)
+        _eventStart = State(initialValue: start)
+        // The existing editor uses an inclusive end day for all-day events.
+        _eventEnd = State(initialValue: assistantDraft.isAllDay == true ? start : end)
+        _isAllDay = State(initialValue: assistantDraft.isAllDay ?? false)
+        // What was said fills what the draft left out: "…at Taco Bell" is where, even when the
+        // model didn't say so (`EventPhrase.takeLocation`, the same reading as Fill in).
+        let heard = words.flatMap { EventPhrase.parse($0).location }
+        let given = assistantDraft.location?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        _location = State(initialValue: given.isEmpty ? (heard ?? "") : given)
+        _notes = State(initialValue: assistantDraft.notes ?? "")
+        _filledTitle = State(initialValue: assistantDraft.title)
+        assistantOperationID = UUID(uuidString: assistantDraft.id)
+        onAssistantSave = onSave
+        self.embedded = embedded
+    }
+
+    private var embedded = false
+    @Environment(\.workspaceChrome) private var workspaceChrome
+    private var assistantOperationID: UUID?
+    private var onAssistantSave: (() -> Void)?
+
     private var cleanTitle: String {
         title.trimmingCharacters(in: .whitespacesAndNewlines)
     }
@@ -146,7 +172,7 @@ struct NewCalendarEventSheet: View {
             // The whole rule, end included: set here rather than by deleting later, since cutting
             // a series short has to reach every copy of the calendar.
             recurrenceRules: recurrence.repeatValue.map { [$0.rule(isAllDay: isAllDay)] },
-            attendees: guests.isEmpty ? nil : guests.map(\.email))
+            attendees: guests.isEmpty ? nil : guests.map(\.email), assistantOperationID: assistantOperationID)
     }
 
     private var selectedCalendar: CalendarSourceInfo? {
@@ -163,36 +189,85 @@ struct NewCalendarEventSheet: View {
     }
 
     var body: some View {
-        NavigationStack {
-            eventForm
-                .navigationTitle("New event")
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .cancellationAction) {
-                        Button("Cancel") { dismiss() }
+        Group {
+            if embedded {
+                VStack(alignment: .leading, spacing: 20) {
+                    InlineEditorSections { primaryFields; embeddedWhere }
+                    DisclosureGroup {
+                        InlineEditorSections { detailFields }.padding(.top, 12)
+                    } label: {
+                        Text("More details").accessibilityIdentifier("assistant.workspace.eventDetails")
                     }
-                    ToolbarItem(placement: .confirmationAction) {
+                    // The workspace header says when there's no calendar to save to.
+                    if workspaceChrome != .sheetToolbar {
                         Button(saveTitle) { save() }
-                            .disabled(cleanTitle.isEmpty || !timeRangeIsValid || !videoCallLinkIsValid || saving)
-                            .keyboardShortcut(.return, modifiers: .command)
+                            .buttonStyle(.borderedProminent)
+                            .disabled(embeddedSaveDisabled)
                             .accessibilityIdentifier("event.save")
                     }
                 }
-                .interactiveDismissDisabled(saving)
-                .alert("Couldn’t create event", isPresented: Binding(
-                    get: { errorMessage != nil },
-                    set: { if !$0 { errorMessage = nil } }
-                )) {
-                    Button("OK", role: .cancel) { errorMessage = nil }
-                } message: {
-                    Text(errorMessage ?? "")
+                .toolbar {
+                    if workspaceChrome == .sheetToolbar {
+                        ToolbarItem(placement: .confirmationAction) {
+                            Button(saveTitle) { save() }
+                                .disabled(embeddedSaveDisabled)
+                                .accessibilityIdentifier("event.save")
+                        }
+                    }
                 }
+            } else {
+                NavigationStack {
+                    eventForm
+                        .navigationTitle("New event")
+                        .navigationBarTitleDisplayMode(.inline)
+                        .toolbar {
+                            ToolbarItem(placement: .cancellationAction) {
+                                Button("Cancel") { dismiss() }
+                            }
+                            ToolbarItem(placement: .confirmationAction) {
+                                // Not while Fill in is reading the words: the form is about to
+                                // change, and Save approves the form as it shows.
+                                Button(saveTitle) { save() }
+                                    .disabled(cleanTitle.isEmpty || !timeRangeIsValid || !videoCallLinkIsValid || saving || filling || (onAssistantSave != nil && calendarID == nil))
+                                    .keyboardShortcut(.return, modifiers: .command)
+                                    .accessibilityIdentifier("event.save")
+                            }
+                        }
+                        .interactiveDismissDisabled(saving)
+                }
+                #if os(macOS)
+                .frame(width: 620, height: 680)
+                #else
+                .presentationDetents([.large])
+                #endif
+            }
         }
-        #if os(macOS)
-        .frame(width: 620, height: 680)
-        #else
-        .presentationDetents([.large])
-        #endif
+        .alert("Couldn’t create event", isPresented: Binding(
+            get: { errorMessage != nil },
+            set: { if !$0 { errorMessage = nil } }
+        )) {
+            Button("OK", role: .cancel) { errorMessage = nil }
+        } message: {
+            Text(errorMessage ?? "")
+        }
+        .onChange(of: eventStart) { oldStart, newStart in
+            if let pendingEnd {
+                eventEnd = pendingEnd
+                self.pendingEnd = nil
+                return
+            }
+            guard !isAllDay else { return }
+            let oldDuration = max(15 * 60, eventEnd.timeIntervalSince(oldStart))
+            eventEnd = newStart.addingTimeInterval(oldDuration)
+        }
+        .onChange(of: isAllDay) {
+            if isAllDay {
+                eventEnd = eventStart
+            } else if eventEnd <= eventStart {
+                eventEnd = eventStart.addingTimeInterval(3_600)
+            }
+        }
+
         .task {
             await GoogleCalendarService.shared.restoreIfNeeded()
             calendars = occurrences.writableEventCalendars
@@ -201,7 +276,7 @@ struct NewCalendarEventSheet: View {
                     ?? calendars.first(where: \.isDefault)?.id
                     ?? calendars.first?.id
             }
-            titleFocused = true
+            if !embedded { titleFocused = true }
             templates = await occurrences.eventAuthoringTemplates()
             people = await GuestSources.people()
             #if DEBUG
@@ -222,8 +297,8 @@ struct NewCalendarEventSheet: View {
     @ViewBuilder private var phraseRow: some View {
         if let draft = phraseDraft {
             Button { Task { await fillIn() } } label: {
-                HStack(spacing: DS.Space.s) {
-                    Image(systemName: "wand.and.stars").foregroundStyle(DS.Palette.accent)
+                HStack(spacing: DS.Space.m) {
+                    IconTile(systemImage: "wand.and.stars", tint: DS.Palette.accent, style: .soft)
                     VStack(alignment: .leading, spacing: DS.Space.hair) {
                         Text(EventPhrase.preview(draft)).font(.subheadline).foregroundStyle(.primary)
                         if !draft.title.isEmpty {
@@ -232,7 +307,10 @@ struct NewCalendarEventSheet: View {
                     }
                     Spacer(minLength: DS.Space.s)
                     if filling {
-                        ProgressView().controlSize(.small)
+                        HStack(spacing: DS.Space.xs) {
+                            ProgressView().controlSize(.small)
+                            Text("Reading\u{2026}").font(.subheadline).foregroundStyle(.secondary)
+                        }
                     } else {
                         Text("Fill in").font(.subheadline.weight(.semibold)).foregroundStyle(DS.Palette.accent)
                     }
@@ -310,6 +388,24 @@ struct NewCalendarEventSheet: View {
     }
 
     private var saveTitle: String { guests.isEmpty ? "Save" : "Save & Invite" }
+    @State private var connectingCalendar = false
+
+    /// Connect Google from inside the draft, then pick up its calendars as the sheet would on open.
+    private func connectCalendar() async {
+        connectingCalendar = true
+        await SmartScheduleStore.shared.requestCalendarAccess()
+        await GoogleCalendarService.shared.restoreIfNeeded()
+        calendars = occurrences.writableEventCalendars
+        if calendarID == nil {
+            calendarID = calendars.first(where: { $0.id == lastCalendarID })?.id
+                ?? calendars.first(where: \.isDefault)?.id ?? calendars.first?.id
+        }
+        connectingCalendar = false
+    }
+
+    private var embeddedSaveDisabled: Bool {
+        cleanTitle.isEmpty || !timeRangeIsValid || !videoCallLinkIsValid || saving || calendarID == nil
+    }
 
     private var guestSuggestions: [GuestPerson] {
         let query = guestQuery.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -398,11 +494,9 @@ struct NewCalendarEventSheet: View {
             }
         } header: {
             Text("Guests")
-        } footer: {
-            Text(guests.isEmpty
-                 ? "People you meet most come first."
-                 : "Google emails each guest an invitation when you save.")
         }
+        // No footer: suggestions already come in the order you meet people, and Save says
+        // "Save & Invite" once there is someone to invite.
     }
 
     /// Return in the guest field: the best match, or the address typed.
@@ -439,20 +533,37 @@ struct NewCalendarEventSheet: View {
 
     private var eventForm: some View {
         Form {
-            Section {
-                TextField("What’s happening?", text: $title)
-                    .focused($titleFocused)
-                    .submitLabel(.done)
-                    .onSubmit { if phraseDraft != nil { Task { await fillIn() } } }
-                    .accessibilityIdentifier("event.title")
+            primaryFields
+            detailFields
+            saveNotice
+        }
+        .editingFormStyle()
+    }
+
+    @ViewBuilder private var primaryFields: some View {
+        Section {
+            // The example is the placeholder: it was a three-line hint under the field.
+            TextField(embedded ? "What’s happening?" : "Lunch with Sam Fri 1pm", text: $title)
+                .focused($titleFocused)
+                .submitLabel(.done)
+                .onSubmit {
+                    if embedded { titleFocused = false }
+                    else if phraseDraft != nil { Task { await fillIn() } }
+                }
+                .accessibilityIdentifier("event.title")
+                // Leaving the title fills the form in from its words, as Return does, so the
+                // When fields don't sit beside a summary that says something else.
+                .onChange(of: titleFocused) { _, focused in
+                    if !focused, !embedded, !filling, phraseDraft != nil { Task { await fillIn() } }
+                }
+            if !embedded {
                 phraseRow
                 ForEach(matchingTemplates) { template in
                     Button {
                         apply(template)
                     } label: {
-                        HStack {
-                            Image(systemName: "clock.arrow.circlepath")
-                                .foregroundStyle(DS.Palette.accent)
+                        HStack(spacing: DS.Space.m) {
+                            IconTile(systemImage: "clock.arrow.circlepath", tint: DS.Palette.accent, style: .soft)
                             VStack(alignment: .leading, spacing: 1) {
                                 Text(template.title).foregroundStyle(.primary)
                                 Text(templateSubtitle(template))
@@ -464,152 +575,190 @@ struct NewCalendarEventSheet: View {
                     }
                     .buttonStyle(.plain)
                 }
-                if let selectedCalendar {
-                    NavigationLink {
-                        CalendarDestinationPicker(
-                            calendars: calendars,
-                            selection: $calendarID
-                        )
-                    } label: {
-                        HStack {
-                            Text("Calendar")
-                            Spacer()
-                            Circle()
-                                .fill(calendarTint(SmartScheduleStore.shared.shownColor(selectedCalendar.id, google: selectedCalendar.colorHex)))
-                                .frame(width: 10, height: 10)
-                            VStack(alignment: .trailing, spacing: 1) {
-                                Text(selectedCalendar.title)
-                                    .foregroundStyle(.primary)
-                                Text(selectedCalendar.sourceTitle)
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                            }
-                        }
-                    }
-                    .accessibilityIdentifier("event.calendar.destination")
-                } else {
-                    LabeledContent("Calendar") {
-                        Text("Default")
-                            .foregroundStyle(.secondary)
+            }
+            if embedded && !calendars.isEmpty {
+                Picker("Calendar", selection: $calendarID) {
+                    Text("Choose calendar").tag(String?.none)
+                    ForEach(calendars) { calendar in
+                        Text("\(calendar.title) · \(calendar.sourceTitle)").tag(Optional(calendar.id))
                     }
                 }
-            } header: {
-                Text("Event")
-            }
-
-            Section("When") {
-                Toggle("All-day", isOn: $isAllDay)
-                if isAllDay {
-                    DatePicker("Starts", selection: $eventStart, displayedComponents: .date)
-                    DatePicker("Ends", selection: $eventEnd, displayedComponents: .date)
-                } else {
-                    MomentField("Starts", selection: $eventStart)
-                    MomentField("Ends", selection: $eventEnd)
-                    HStack(spacing: DS.Space.s) {
-                        Text("Quick duration")
+                .pickerStyle(.menu)
+                .accessibilityIdentifier("event.calendar.destination")
+            } else if let selectedCalendar {
+                NavigationLink {
+                    CalendarDestinationPicker(
+                        calendars: calendars,
+                        selection: $calendarID
+                    )
+                } label: {
+                    HStack {
+                        Text("Calendar")
                         Spacer()
-                        ForEach([30, 45, 60, 120], id: \.self) { minutes in
-                            Button(durationLabel(minutes)) {
-                                eventEnd = eventStart.addingTimeInterval(TimeInterval(minutes * 60))
-                            }
-                            .buttonStyle(.inline)
+                        Circle()
+                            .fill(calendarTint(SmartScheduleStore.shared.shownColor(selectedCalendar.id, google: selectedCalendar.colorHex)))
+                            .frame(width: 10, height: 10)
+                        VStack(alignment: .trailing, spacing: 1) {
+                            Text(selectedCalendar.title)
+                                .foregroundStyle(.primary)
+                            Text(selectedCalendar.sourceTitle)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
                         }
                     }
                 }
-                if !timeRangeIsValid {
-                    Text("The event must end after it starts.")
-                        .font(.footnote)
-                        .foregroundStyle(DS.Palette.danger)
+                .accessibilityIdentifier("event.calendar.destination")
+            } else if embedded {
+                // Why Save is unavailable, on the row it's about, and the way to fix it there:
+                // Google's sign-in opens over the draft and the draft is still here after.
+                LabeledContent("Calendar") {
+                    Button {
+                        Task { await connectCalendar() }
+                    } label: {
+                        if connectingCalendar { ProgressView().controlSize(.small) } else { Text("Connect Google") }
+                    }
+                    .disabled(connectingCalendar)
                 }
+                .accessibilityIdentifier("event.calendar.connect")
             }
+            // With no calendar to choose there is no Calendar row: a grey "Default" read as a
+            // control that didn't work, and named nothing.
+        } header: {
+            // In the workspace the object's own header already says it's an event.
+            if !embedded { Text("Event") }
+        }
 
-            if !conflicts.isEmpty {
-                AuthoringConflictSection(conflicts: conflicts)
-            }
-
-            Section("Where") {
-                EventLocationField(
-                    location: $location,
-                    structuredLocation: $structuredLocation
-                )
-                TextField("Video call link", text: $videoCallLink)
-                    #if os(iOS)
-                    .textInputAutocapitalization(.never)
-                    .keyboardType(.URL)
-                    #endif
-                    .accessibilityIdentifier("event.videoLink")
-                if !videoCallLinkIsValid {
-                    Text("Enter a valid web address, such as meet.google.com/…")
-                        .font(.footnote)
-                        .foregroundStyle(DS.Palette.danger)
-                }
-            }
-
-            guestsSection
-
-            Section("Scheduling") {
-                Picker("Show as", selection: $availability) {
-                    ForEach(CalendarEventAvailability.allCases) { choice in
-                        Text(choice.title).tag(choice)
+        Section("When") {
+            Toggle("All-day", isOn: $isAllDay)
+            if isAllDay {
+                DatePicker("Starts", selection: $eventStart, displayedComponents: .date)
+                DatePicker("Ends", selection: $eventEnd, displayedComponents: .date)
+            } else {
+                momentField("Starts", selection: $eventStart)
+                momentField("Ends", selection: $eventEnd)
+                HStack(spacing: DS.Space.s) {
+                    Text("Quick duration")
+                    Spacer()
+                    ForEach([30, 45, 60, 120], id: \.self) { minutes in
+                        Button(durationLabel(minutes)) {
+                            eventEnd = eventStart.addingTimeInterval(TimeInterval(minutes * 60))
+                        }
+                        .buttonStyle(.inline)
                     }
                 }
-                .accessibilityIdentifier("event.availability")
-                Picker("Alert", selection: $alertMinutesBefore) {
-                    Text("None").tag(-1)
-                    Text("At start").tag(0)
-                    Text("5 minutes before").tag(5)
-                    Text("10 minutes before").tag(10)
-                    Text("15 minutes before").tag(15)
-                    Text("30 minutes before").tag(30)
-                    Text("1 hour before").tag(60)
-                }
-                .accessibilityIdentifier("event.alert")
-                Picker("Second alert", selection: $secondaryAlertMinutesBefore) {
-                    Text("None").tag(-1)
-                    Text("At start").tag(0)
-                    Text("5 minutes before").tag(5)
-                    Text("10 minutes before").tag(10)
-                    Text("15 minutes before").tag(15)
-                    Text("30 minutes before").tag(30)
-                    Text("1 hour before").tag(60)
-                    Text("1 day before").tag(1_440)
-                }
-                .accessibilityIdentifier("event.secondAlert")
-                RepeatPicker(recurrence: $recurrence, start: normalizedStart, isAllDay: isAllDay)
-                Text("Save this event here, then add invitees in Google Calendar.")
+            }
+            if !timeRangeIsValid {
+                Text("The event must end after it starts.")
                     .font(.footnote)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(DS.Palette.danger)
             }
+        }
 
-            Section("Notes") {
-                NotesField(title: "Notes", text: $notes)
-                    .accessibilityIdentifier("event.notes")
+        if !conflicts.isEmpty {
+            AuthoringConflictSection(conflicts: conflicts)
+        }
+
+    }
+
+    /// Where, among the first fields in the assistant's editor: a place said in the words is
+    /// filled in there, and has to be seen to be checked.
+    @ViewBuilder private var embeddedWhere: some View { whereSection }
+
+    /// One field for where: a place searches Maps; a link becomes the video call, shown as its
+    /// own row, and the field is free again for a place (a hybrid meeting has both).
+    @ViewBuilder private var whereSection: some View {
+        Section("Where") {
+            EventLocationField(location: $location, structuredLocation: $structuredLocation,
+                               searchesGivenText: embedded, onLink: { videoCallLink = $0 })
+            if !videoCallLink.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                HStack(spacing: DS.Space.m) {
+                    Label(cleanVideoCallURL?.host ?? videoCallLink, systemImage: "video.fill")
+                        .lineLimit(1)
+                    Spacer(minLength: DS.Space.s)
+                    Button { videoCallLink = "" } label: { Image(systemName: "xmark.circle.fill").foregroundStyle(.secondary) }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel("Remove video call")
+                }
+                .accessibilityIdentifier("event.videoLink")
             }
+            if !videoCallLinkIsValid {
+                Text("Enter a valid web address, such as meet.google.com/…")
+                    .font(.footnote)
+                    .foregroundStyle(DS.Palette.danger)
+            }
+        }
+    }
 
+    @ViewBuilder private var detailFields: some View {
+        if !embedded { whereSection }
+
+        guestsSection
+
+        Section("Scheduling") {
+            Picker("Show as", selection: $availability) {
+                ForEach(CalendarEventAvailability.allCases) { choice in
+                    Text(choice.title).tag(choice)
+                }
+            }
+            .accessibilityIdentifier("event.availability")
+            Picker("Alert", selection: $alertMinutesBefore) {
+                Text("None").tag(-1)
+                Text("At start").tag(0)
+                Text("5 minutes before").tag(5)
+                Text("10 minutes before").tag(10)
+                Text("15 minutes before").tag(15)
+                Text("30 minutes before").tag(30)
+                Text("1 hour before").tag(60)
+            }
+            .accessibilityIdentifier("event.alert")
+            Picker("Second alert", selection: $secondaryAlertMinutesBefore) {
+                Text("None").tag(-1)
+                Text("At start").tag(0)
+                Text("5 minutes before").tag(5)
+                Text("10 minutes before").tag(10)
+                Text("15 minutes before").tag(15)
+                Text("30 minutes before").tag(30)
+                Text("1 hour before").tag(60)
+                Text("1 day before").tag(1_440)
+            }
+            .accessibilityIdentifier("event.secondAlert")
+            // Guests are added above now; a line here still sent them to Google Calendar.
+            RepeatPicker(recurrence: $recurrence, start: normalizedStart, isAllDay: isAllDay)
+        }
+
+        Section("Notes") {
+            NotesField(title: "Notes", text: $notes)
+                .accessibilityIdentifier("event.notes")
+        }
+
+    }
+
+    /// Why Save is unavailable to an agent's draft with no calendar to save to. (A second line
+    /// said where every save goes, which the Calendar row already shows.)
+    @ViewBuilder private var saveNotice: some View {
+        if onAssistantSave != nil && calendarID == nil {
             Section {
-                Text("Banana saves directly to the selected Google calendar.")
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
+                Text("Connect a writable Google calendar in Settings to save. Your draft stays in Assistant.")
+                    .font(.footnote).foregroundStyle(.secondary)
             }
         }
-        .editingFormStyle()
-        .onChange(of: eventStart) { oldStart, newStart in
-            if let pendingEnd {
-                eventEnd = pendingEnd
-                self.pendingEnd = nil
-                return
-            }
-            guard !isAllDay else { return }
-            let oldDuration = max(15 * 60, eventEnd.timeIntervalSince(oldStart))
-            eventEnd = newStart.addingTimeInterval(oldDuration)
+    }
+
+    /// Starts and Ends. In the agent's workspace the system's compact picker, which spells the
+    /// date out ("Nov 1, 2026") as the meal editor beside it does; the five-minute pill read
+    /// "11/2/26" there. Still on the five-minute grid.
+    @ViewBuilder private func momentField(_ title: String, selection: Binding<Date>) -> some View {
+        #if os(iOS)
+        if embedded {
+            DatePicker(title, selection: FiveMinuteGrid.binding(selection),
+                       displayedComponents: [.date, .hourAndMinute])
+                .datePickerStyle(.compact)
+        } else {
+            MomentField(title, selection: selection)
         }
-        .onChange(of: isAllDay) {
-            if isAllDay {
-                eventEnd = eventStart
-            } else if eventEnd <= eventStart {
-                eventEnd = eventStart.addingTimeInterval(3_600)
-            }
-        }
+        #else
+        MomentField(title, selection: selection)
+        #endif
     }
 
     private func durationLabel(_ minutes: Int) -> String {
@@ -647,6 +796,7 @@ struct NewCalendarEventSheet: View {
             errorMessage = error.localizedDescription
             return
         }
+        onAssistantSave?()
         // Who each name meant, so the next "Sam" is this one without asking.
         for (email, name) in chosenFor where guests.contains(where: { $0.email == email }) {
             GuestPicks.record(name: name, email: email)
@@ -662,7 +812,7 @@ struct NewCalendarEventSheet: View {
                         forKey: "eventAuthoringDurationMinutes"
                     )
                 }
-                dismiss()
+                if !embedded { dismiss() }
             }
         }
     }
@@ -834,8 +984,6 @@ struct AuthoringConflictSection: View {
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             }
-        } footer: {
-            Text("You can still save; this is a warning, not a blocker.")
         }
     }
 }

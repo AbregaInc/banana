@@ -1,0 +1,4076 @@
+{
+  "complete": true,
+  "scope": "Development smoke corpus, not held-out or production accuracy. No capability executes. Prompt sections and schemas come from the real Banana extensions.",
+  "engine": "mlx",
+  "runnerSha256": "cab6501430107f954f08a9ee674c75e8a92b3c2c93e14cdc53c95dc121e4c75e",
+  "checkpoint": {
+    "repo": "mlx-community/Ministral-3-3B-Instruct-2512-4bit",
+    "revision": "a962dcb09eee4169c890e544c9eb938f1113fdee",
+    "metadataOverrides": {
+      "fix_mistral_regex": true
+    },
+    "originalManifestSha256": "e946ecc76c8abd66d2df13e571f979166bab7f25d5e402de4495c55616213697",
+    "files": {
+      "README.md": {
+        "bytes": 914,
+        "sha256": "da10e9cd318bd36448fa6edf613b19c193621e25d7aec374088846b279ff18c7"
+      },
+      "chat_template.jinja": {
+        "bytes": 7759,
+        "sha256": "c101a09b4ff42e8ed714cb67cd7144176e169b7d7be45d62e1e13326a5d7afd7"
+      },
+      "config.json": {
+        "bytes": 1988,
+        "sha256": "cdd4bfa0a702d0241faaa3b80d15d481d7f8abf2659fba0958b1e7f24a28055f"
+      },
+      "generation_config.json": {
+        "bytes": 131,
+        "sha256": "e0923390059f84a9180b00e5501778acc45ea9856cd7f2fd68208b360927c677"
+      },
+      "model.safetensors": {
+        "bytes": 2745210934,
+        "sha256": "69a68c0a961a64bb1145a697a83cf6cec45220d425c77a6c0a3568924078c3b4"
+      },
+      "model.safetensors.index.json": {
+        "bytes": 74906,
+        "sha256": "22e571d413d8aa4e5f81f5ae678aa8b4f5b1d67598a67c08b31182075592ec93"
+      },
+      "params.json": {
+        "bytes": 1183,
+        "sha256": "184afbdca12f4075121650335d65ada27b471b8b2952c8f2b699c16516306459"
+      },
+      "processor_config.json": {
+        "bytes": 976,
+        "sha256": "ece2373c2ae391bce18785a1810543bc6173a1f28b6767cffab2c35dbea5f002"
+      },
+      "tekken.json": {
+        "bytes": 16753777,
+        "sha256": "e29d19ea32eb7e26e6c0572d57cb7f9eca0f4420e0e0fe6ae1cf3be94da1c0d6"
+      },
+      "tokenizer.json": {
+        "bytes": 17077402,
+        "sha256": "286acad9b0e27fce778ac429763536accf618ccb6ed72963b6f94685e531c5c7"
+      },
+      "tokenizer_config.json": {
+        "bytes": 21217,
+        "sha256": "968bf20a6c12df27a89966f36cd374061db4ff202f60be3915116dfe310ead3f"
+      }
+    }
+  },
+  "fixtureSha256": "65a850d931dc9038e49f71c0b92d1b7a49421c7eeebd9ab6f0afa63fa863a2de",
+  "fixtureVersion": 1,
+  "recipeNote": "Ministral3 3B native MLX compute through existing Locals HTTP/frontend lifecycle; no custom-compute tool grammar. Fixed tokenizer metadata, vendor starting temp .1, neutral top_p/top_k. Compare existing frontend transport before app integration.",
+  "settings": {
+    "thinking": false,
+    "context": 32768,
+    "maxTokens": 2048,
+    "temperature": 0.1,
+    "topP": 1.0,
+    "topK": 0,
+    "repetitionPenalty": 1.0,
+    "templateToolsKey": "tools",
+    "slots": 1,
+    "cacheGB": 2,
+    "repeats": 2,
+    "memoryBudgetGB": 5.0,
+    "budgetMeaning": "Checkpoint preflight only; working memory is observed, not hard-limited by this option"
+  },
+  "runtimeEnvironment": {
+    "LOCALS_KERNELS": null,
+    "LOCALS_TUNE": null,
+    "LOCALS_DTYPE": null,
+    "LOCALS_FUSE": null
+  },
+  "environmentOverrides": {},
+  "hostBefore": {
+    "utc": "2026-10-25T18:08:30.895984+00:00",
+    "chip": "Apple M1 Max",
+    "ramBytes": "68719476736",
+    "os": "27.0.1",
+    "swap": "vm.swapusage: total = 23552.00M  used = 21936.75M  free = 1615.25M  (encrypted)",
+    "paging": {
+      "Pageouts": 384027,
+      "Swapins": 5059134,
+      "Swapouts": 9298822
+    }
+  },
+  "results": [
+    {
+      "case": "identity",
+      "repeat": 0,
+      "milliseconds": 10566.8,
+      "raw": {
+        "id": "chatcmpl-61aefadc8fa844b18de0dca0",
+        "object": "chat.completion",
+        "created": 1792951725,
+        "model": "mlx/ministral3-3b-fixed-tokenizer",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "I\u2019m just a helpful assistant here\u2014no name needed! Think of me as your Banana buddy. What\u2019s on your mind today?"
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2033,
+          "completion_tokens": 28,
+          "total_tokens": 2061,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 10.544978249934502
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/serving-views/ministral3-3b-fixed-tokenizer",
+        "uptime_s": 13.16934585571289,
+        "requests": 1,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 2149.126706,
+          "gpu_peak_mb": 2754.715504,
+          "gpu_cache_mb": 720.669506,
+          "rss_mb": 2456.338432
+        },
+        "engines": {
+          "mlx": {
+            "requests": 1,
+            "prompt_tokens": 2033,
+            "cached_tokens": 0,
+            "completion_tokens": 28,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 10.36093012499623,
+            "tool_calls": 0,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 28,
+            "prompt_cache_mb": 219.594752,
+            "prompt_cache_entries": 1,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 1,
+                "mb": 220
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "greeting",
+      "repeat": 0,
+      "milliseconds": 860.8,
+      "raw": {
+        "id": "chatcmpl-db78494872dc43138b8a6da7",
+        "object": "chat.completion",
+        "created": 1792951726,
+        "model": "mlx/ministral3-3b-fixed-tokenizer",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "Hi there! How can I assist you today?"
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2029,
+          "completion_tokens": 10,
+          "total_tokens": 2039,
+          "prompt_tokens_details": {
+            "cached_tokens": 2027
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 0.853284667013213
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/serving-views/ministral3-3b-fixed-tokenizer",
+        "uptime_s": 14.033093929290771,
+        "requests": 2,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 2366.378546,
+          "gpu_peak_mb": 2754.715504,
+          "gpu_cache_mb": 449.003264,
+          "rss_mb": 2456.338432
+        },
+        "engines": {
+          "mlx": {
+            "requests": 2,
+            "prompt_tokens": 4062,
+            "cached_tokens": 2027,
+            "completion_tokens": 38,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 11.101700374973007,
+            "tool_calls": 0,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 38,
+            "prompt_cache_mb": 436.846592,
+            "prompt_cache_entries": 2,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 2,
+                "mb": 437
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "monthly",
+      "repeat": 0,
+      "milliseconds": 1956.4,
+      "raw": {
+        "id": "chatcmpl-3a64f466895d481eabadcb15",
+        "object": "chat.completion",
+        "created": 1792951728,
+        "model": "mlx/ministral3-3b-fixed-tokenizer",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "ef49fef23",
+                  "type": "function",
+                  "function": {
+                    "name": "nutrition_view",
+                    "arguments": "{\"metric\": \"protein\", \"period\": \"this_month\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2033,
+          "completion_tokens": 17,
+          "total_tokens": 2050,
+          "prompt_tokens_details": {
+            "cached_tokens": 2027
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 1.9487935840152204
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/serving-views/ministral3-3b-fixed-tokenizer",
+        "uptime_s": 15.993224859237671,
+        "requests": 3,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 2585.334322,
+          "gpu_peak_mb": 2841.216777,
+          "gpu_cache_mb": 468.782458,
+          "rss_mb": 2456.338432
+        },
+        "engines": {
+          "mlx": {
+            "requests": 3,
+            "prompt_tokens": 6095,
+            "cached_tokens": 4054,
+            "completion_tokens": 55,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 12.958394290995784,
+            "tool_calls": 1,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 55,
+            "prompt_cache_mb": 655.269888,
+            "prompt_cache_entries": 3,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 3,
+                "mb": 655
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "calories",
+      "repeat": 0,
+      "milliseconds": 2045.8,
+      "raw": {
+        "id": "chatcmpl-1fde8ba4779d4f40bf90a752",
+        "object": "chat.completion",
+        "created": 1792951730,
+        "model": "mlx/ministral3-3b-fixed-tokenizer",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "c9262a34c",
+                  "type": "function",
+                  "function": {
+                    "name": "nutrition_view",
+                    "arguments": "{\"metric\": \"calories\", \"period\": \"last_7_days\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2035,
+          "completion_tokens": 20,
+          "total_tokens": 2055,
+          "prompt_tokens_details": {
+            "cached_tokens": 2028
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 2.036193124949932
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/serving-views/ministral3-3b-fixed-tokenizer",
+        "uptime_s": 18.045533895492554,
+        "requests": 4,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 2804.290098,
+          "gpu_peak_mb": 3060.260622,
+          "gpu_cache_mb": 470.011322,
+          "rss_mb": 2456.338432
+        },
+        "engines": {
+          "mlx": {
+            "requests": 4,
+            "prompt_tokens": 8130,
+            "cached_tokens": 6082,
+            "completion_tokens": 75,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 14.808603957062587,
+            "tool_calls": 2,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 75,
+            "prompt_cache_mb": 874.225664,
+            "prompt_cache_entries": 4,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 4,
+                "mb": 874
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "food-search",
+      "repeat": 0,
+      "milliseconds": 11909.1,
+      "raw": {
+        "id": "chatcmpl-00d5e3a0efed423bb7259fd4",
+        "object": "chat.completion",
+        "created": 1792951742,
+        "model": "mlx/ministral3-3b-fixed-tokenizer",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "9562aa3f3",
+                  "type": "function",
+                  "function": {
+                    "name": "nutrition_view",
+                    "arguments": "{\"foodName\": \"yogurt\", \"revision\": 2}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2177,
+          "completion_tokens": 20,
+          "total_tokens": 2197,
+          "prompt_tokens_details": {
+            "cached_tokens": 172
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 11.898423124919645
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/serving-views/ministral3-3b-fixed-tokenizer",
+        "uptime_s": 29.959757804870605,
+        "requests": 5,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3038.581298,
+          "gpu_peak_mb": 3629.63744,
+          "gpu_cache_mb": 484.348748,
+          "rss_mb": 2456.338432
+        },
+        "engines": {
+          "mlx": {
+            "requests": 5,
+            "prompt_tokens": 10307,
+            "cached_tokens": 6254,
+            "completion_tokens": 95,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 26.4976489150431,
+            "tool_calls": 3,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 95,
+            "prompt_cache_mb": 1108.303872,
+            "prompt_cache_entries": 5,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 5,
+                "mb": 1108
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "weekdays",
+      "repeat": 0,
+      "milliseconds": 896.5,
+      "raw": {
+        "id": "chatcmpl-46fdd928d671462a8cce7e74",
+        "object": "chat.completion",
+        "created": 1792951743,
+        "model": "mlx/ministral3-3b-fixed-tokenizer",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "f7b252905",
+                  "type": "function",
+                  "function": {
+                    "name": "filter_nutrition",
+                    "arguments": "{\"changes\": [\"weekdays_only\"], \"revision\": 2}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2173,
+          "completion_tokens": 21,
+          "total_tokens": 2194,
+          "prompt_tokens_details": {
+            "cached_tokens": 2169
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 0.8881278750486672
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/serving-views/ministral3-3b-fixed-tokenizer",
+        "uptime_s": 30.860779762268066,
+        "requests": 6,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3272.872498,
+          "gpu_peak_mb": 3629.63744,
+          "gpu_cache_mb": 446.660834,
+          "rss_mb": 2456.338432
+        },
+        "engines": {
+          "mlx": {
+            "requests": 6,
+            "prompt_tokens": 12480,
+            "cached_tokens": 8423,
+            "completion_tokens": 116,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 27.19069695600774,
+            "tool_calls": 4,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 116,
+            "prompt_cache_mb": 1342.062592,
+            "prompt_cache_entries": 6,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 6,
+                "mb": 1342
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "compare",
+      "repeat": 0,
+      "milliseconds": 1143.1,
+      "raw": {
+        "id": "chatcmpl-2362095a212141db8edf962e",
+        "object": "chat.completion",
+        "created": 1792951744,
+        "model": "mlx/ministral3-3b-fixed-tokenizer",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "8f09497cf",
+                  "type": "function",
+                  "function": {
+                    "name": "filter_nutrition",
+                    "arguments": "{\"changes\": [\"compare_previous\"], \"revision\": 2}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2175,
+          "completion_tokens": 21,
+          "total_tokens": 2196,
+          "prompt_tokens_details": {
+            "cached_tokens": 2169
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 1.1343230420025066
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/serving-views/ministral3-3b-fixed-tokenizer",
+        "uptime_s": 32.00902581214905,
+        "requests": 7,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3507.163698,
+          "gpu_peak_mb": 3776.341871,
+          "gpu_cache_mb": 452.042018,
+          "rss_mb": 2456.338432
+        },
+        "engines": {
+          "mlx": {
+            "requests": 7,
+            "prompt_tokens": 14655,
+            "cached_tokens": 10592,
+            "completion_tokens": 137,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 28.155603580991738,
+            "tool_calls": 5,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 137,
+            "prompt_cache_mb": 1576.034304,
+            "prompt_cache_entries": 7,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 7,
+                "mb": 1576
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "copy",
+      "repeat": 0,
+      "milliseconds": 4073.0,
+      "raw": {
+        "id": "chatcmpl-1b767f9368764ab5a1923e1c",
+        "object": "chat.completion",
+        "created": 1792951748,
+        "model": "mlx/ministral3-3b-fixed-tokenizer",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "54ed97901",
+                  "type": "function",
+                  "function": {
+                    "name": "prepare_meal_copy",
+                    "arguments": "{\"mealID\": \"BA5A4E11-0000-4000-8000-000202610231\", \"day\": \"tomorrow\", \"revision\": 2}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2186,
+          "completion_tokens": 61,
+          "total_tokens": 2247,
+          "prompt_tokens_details": {
+            "cached_tokens": 2169
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 4.063841332914308
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/serving-views/ministral3-3b-fixed-tokenizer",
+        "uptime_s": 36.087430000305176,
+        "requests": 8,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3746.566706,
+          "gpu_peak_mb": 4015.83793,
+          "gpu_cache_mb": 481.929588,
+          "rss_mb": 2456.338432
+        },
+        "engines": {
+          "mlx": {
+            "requests": 8,
+            "prompt_tokens": 16841,
+            "cached_tokens": 12761,
+            "completion_tokens": 198,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 32.00819495599717,
+            "tool_calls": 6,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 198,
+            "prompt_cache_mb": 1815.437312,
+            "prompt_cache_entries": 8,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 8,
+                "mb": 1815
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "new-meal",
+      "repeat": 0,
+      "milliseconds": 1989.8,
+      "raw": {
+        "id": "chatcmpl-78272e6852214f7faf58859f",
+        "object": "chat.completion",
+        "created": 1792951750,
+        "model": "mlx/ministral3-3b-fixed-tokenizer",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "a12cef2f8",
+                  "type": "function",
+                  "function": {
+                    "name": "prepare_meal",
+                    "arguments": "{\"foods\": [{\"name\": \"eggs\", \"quantity\": \"2\"}, {\"name\": \"banana\", \"quantity\": \"1\"}], \"day\": \"today\", \"title\": \"Review of today's meal\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2050,
+          "completion_tokens": 53,
+          "total_tokens": 2103,
+          "prompt_tokens_details": {
+            "cached_tokens": 2027
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 1.9809896250953898
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/serving-views/ministral3-3b-fixed-tokenizer",
+        "uptime_s": 38.08131003379822,
+        "requests": 9,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3970.63429,
+          "gpu_peak_mb": 4223.160058,
+          "gpu_cache_mb": 441.799482,
+          "rss_mb": 2456.338432
+        },
+        "engines": {
+          "mlx": {
+            "requests": 9,
+            "prompt_tokens": 18891,
+            "cached_tokens": 14788,
+            "completion_tokens": 251,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 33.77961766405497,
+            "tool_calls": 7,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 251,
+            "prompt_cache_mb": 2039.504896,
+            "prompt_cache_entries": 9,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 9,
+                "mb": 2040
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "new-event",
+      "repeat": 0,
+      "milliseconds": 2168.7,
+      "raw": {
+        "id": "chatcmpl-e7c33c9ef2ee4d6c970fa9f2",
+        "object": "chat.completion",
+        "created": 1792951752,
+        "model": "mlx/ministral3-3b-fixed-tokenizer",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "27579051d",
+                  "type": "function",
+                  "function": {
+                    "name": "prepare_event",
+                    "arguments": "{\"title\": \"Lunch\", \"day\": \"tomorrow\", \"time\": \"13:00\", \"durationMinutes\": 30}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2055,
+          "completion_tokens": 36,
+          "total_tokens": 2091,
+          "prompt_tokens_details": {
+            "cached_tokens": 2027
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 2.159547834075056
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/serving-views/ministral3-3b-fixed-tokenizer",
+        "uptime_s": 40.254652976989746,
+        "requests": 10,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3974.042162,
+          "gpu_peak_mb": 4449.644376,
+          "gpu_cache_mb": 668.2431,
+          "rss_mb": 2456.338432
+        },
+        "engines": {
+          "mlx": {
+            "requests": 10,
+            "prompt_tokens": 20946,
+            "cached_tokens": 16815,
+            "completion_tokens": 287,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 35.82255737297237,
+            "tool_calls": 8,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 287,
+            "prompt_cache_mb": 2042.699776,
+            "prompt_cache_entries": 9,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 9,
+                "mb": 2043
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "explicit-event",
+      "repeat": 0,
+      "milliseconds": 2657.5,
+      "raw": {
+        "id": "chatcmpl-5bae47c06a284e34b22b040c",
+        "object": "chat.completion",
+        "created": 1792951755,
+        "model": "mlx/ministral3-3b-fixed-tokenizer",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "b911e2476",
+                  "type": "function",
+                  "function": {
+                    "name": "prepare_event",
+                    "arguments": "{\"title\": \"Dentist\", \"day\": \"2026-11-03\", \"time\": \"09:15\", \"durationMinutes\": 45}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2058,
+          "completion_tokens": 45,
+          "total_tokens": 2103,
+          "prompt_tokens_details": {
+            "cached_tokens": 2027
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 2.648098916048184
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/serving-views/ministral3-3b-fixed-tokenizer",
+        "uptime_s": 42.91831183433533,
+        "requests": 11,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4198.109746,
+          "gpu_peak_mb": 4449.644376,
+          "gpu_cache_mb": 472.59708,
+          "rss_mb": 2456.338432
+        },
+        "engines": {
+          "mlx": {
+            "requests": 11,
+            "prompt_tokens": 23004,
+            "cached_tokens": 18842,
+            "completion_tokens": 332,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 38.26904474792536,
+            "tool_calls": 9,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 332,
+            "prompt_cache_mb": 2049.51552,
+            "prompt_cache_entries": 9,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 9,
+                "mb": 2050
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "missing-time",
+      "repeat": 0,
+      "milliseconds": 1122.9,
+      "raw": {
+        "id": "chatcmpl-fe74deedfdf04c208e744589",
+        "object": "chat.completion",
+        "created": 1792951756,
+        "model": "mlx/ministral3-3b-fixed-tokenizer",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "6672d0680",
+                  "type": "function",
+                  "function": {
+                    "name": "prepare_event",
+                    "arguments": "{\"title\": \"Dinner\", \"day\": \"today\", \"revision\": 0}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2041,
+          "completion_tokens": 24,
+          "total_tokens": 2065,
+          "prompt_tokens_details": {
+            "cached_tokens": 2031
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 1.113933083950542
+          }
+        }
+      },
+      "passed": false,
+      "reason": "reply_contract",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/serving-views/ministral3-3b-fixed-tokenizer",
+        "uptime_s": 44.04658269882202,
+        "requests": 12,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3982.561842,
+          "gpu_peak_mb": 4453.844652,
+          "gpu_cache_mb": 644.886914,
+          "rss_mb": 2456.338432
+        },
+        "engines": {
+          "mlx": {
+            "requests": 12,
+            "prompt_tokens": 25045,
+            "cached_tokens": 20873,
+            "completion_tokens": 356,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 39.172354539856315,
+            "tool_calls": 10,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 356,
+            "prompt_cache_mb": 2051.11296,
+            "prompt_cache_entries": 9,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 9,
+                "mb": 2051
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "missing-food",
+      "repeat": 0,
+      "milliseconds": 3300.8,
+      "raw": {
+        "id": "chatcmpl-0c12cd3655c1415597ab4a96",
+        "object": "chat.completion",
+        "created": 1792951759,
+        "model": "mlx/ministral3-3b-fixed-tokenizer",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "You haven\u2019t specified what you want to log yet. Let me know the foods and quantities, and I\u2019ll help you prepare the meal draft. For example:\n- *\"I ate 1 banana and \u00bd cup yogurt.\"*\n- *\"I\u2019ll repeat my usual lunch.\"* (Then share the meal ID or I\u2019ll guide you.)"
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2041,
+          "completion_tokens": 68,
+          "total_tokens": 2109,
+          "prompt_tokens_details": {
+            "cached_tokens": 2029
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 3.286920459009707
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/serving-views/ministral3-3b-fixed-tokenizer",
+        "uptime_s": 47.35507273674011,
+        "requests": 13,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3988.525618,
+          "gpu_peak_mb": 4461.440776,
+          "gpu_cache_mb": 632.03414,
+          "rss_mb": 2456.338432
+        },
+        "engines": {
+          "mlx": {
+            "requests": 13,
+            "prompt_tokens": 27086,
+            "cached_tokens": 22902,
+            "completion_tokens": 424,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 42.159978081821464,
+            "tool_calls": 10,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 424,
+            "prompt_cache_mb": 2056.863744,
+            "prompt_cache_entries": 9,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 9,
+                "mb": 2057
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "global-search",
+      "repeat": 0,
+      "milliseconds": 1562.1,
+      "raw": {
+        "id": "chatcmpl-0453f53dfec748429e0fa469",
+        "object": "chat.completion",
+        "created": 1792951761,
+        "model": "mlx/ministral3-3b-fixed-tokenizer",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "610a0ad88",
+                  "type": "function",
+                  "function": {
+                    "name": "search_app",
+                    "arguments": "{\"query\": \"clinic\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2034,
+          "completion_tokens": 11,
+          "total_tokens": 2045,
+          "prompt_tokens_details": {
+            "cached_tokens": 2027
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 1.540649958071299
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/serving-views/ministral3-3b-fixed-tokenizer",
+        "uptime_s": 48.93714785575867,
+        "requests": 14,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3972.338226,
+          "gpu_peak_mb": 4462.481138,
+          "gpu_cache_mb": 690.20401,
+          "rss_mb": 2456.338432
+        },
+        "engines": {
+          "mlx": {
+            "requests": 14,
+            "prompt_tokens": 29120,
+            "cached_tokens": 24929,
+            "completion_tokens": 435,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 43.54041712381877,
+            "tool_calls": 11,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 435,
+            "prompt_cache_mb": 2040.676352,
+            "prompt_cache_entries": 9,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 9,
+                "mb": 2041
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "open-page",
+      "repeat": 0,
+      "milliseconds": 779.9,
+      "raw": {
+        "id": "chatcmpl-1333658df53b4dbea260975a",
+        "object": "chat.completion",
+        "created": 1792951761,
+        "model": "mlx/ministral3-3b-fixed-tokenizer",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "422553db9",
+                  "type": "function",
+                  "function": {
+                    "name": "open_page",
+                    "arguments": "{\"section\": \"notes\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2032,
+          "completion_tokens": 10,
+          "total_tokens": 2042,
+          "prompt_tokens_details": {
+            "cached_tokens": 2027
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 0.7748291250318289
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/serving-views/ministral3-3b-fixed-tokenizer",
+        "uptime_s": 49.720441818237305,
+        "requests": 15,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3956.150834,
+          "gpu_peak_mb": 4462.481138,
+          "gpu_cache_mb": 669.40861,
+          "rss_mb": 2456.338432
+        },
+        "engines": {
+          "mlx": {
+            "requests": 15,
+            "prompt_tokens": 31152,
+            "cached_tokens": 26956,
+            "completion_tokens": 445,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 44.12151737383101,
+            "tool_calls": 12,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 445,
+            "prompt_cache_mb": 2024.48896,
+            "prompt_cache_entries": 9,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 9,
+                "mb": 2024
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "notes",
+      "repeat": 0,
+      "milliseconds": 704.9,
+      "raw": {
+        "id": "chatcmpl-6b4ef5aafc1c401c919cd0c5",
+        "object": "chat.completion",
+        "created": 1792951762,
+        "model": "mlx/ministral3-3b-fixed-tokenizer",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "6a3fe0131",
+                  "type": "function",
+                  "function": {
+                    "name": "list_notes",
+                    "arguments": "{\"limit\": 5}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2032,
+          "completion_tokens": 11,
+          "total_tokens": 2043,
+          "prompt_tokens_details": {
+            "cached_tokens": 2027
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 0.6986805000342429
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/serving-views/ministral3-3b-fixed-tokenizer",
+        "uptime_s": 50.42993998527527,
+        "requests": 16,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3939.963442,
+          "gpu_peak_mb": 4462.481138,
+          "gpu_cache_mb": 650.665262,
+          "rss_mb": 2456.338432
+        },
+        "engines": {
+          "mlx": {
+            "requests": 16,
+            "prompt_tokens": 33184,
+            "cached_tokens": 28983,
+            "completion_tokens": 456,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 44.616081415791996,
+            "tool_calls": 13,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 456,
+            "prompt_cache_mb": 2008.195072,
+            "prompt_cache_entries": 9,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 9,
+                "mb": 2008
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "create-note",
+      "repeat": 0,
+      "milliseconds": 929.6,
+      "raw": {
+        "id": "chatcmpl-0a1d6598329b42cc8c7c52a1",
+        "object": "chat.completion",
+        "created": 1792951763,
+        "model": "mlx/ministral3-3b-fixed-tokenizer",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "b1bd151e8",
+                  "type": "function",
+                  "function": {
+                    "name": "create_note",
+                    "arguments": "{\"text\": \"Bring the blue notebook\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2040,
+          "completion_tokens": 13,
+          "total_tokens": 2053,
+          "prompt_tokens_details": {
+            "cached_tokens": 2028
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 0.9209828750463203
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/serving-views/ministral3-3b-fixed-tokenizer",
+        "uptime_s": 51.36558175086975,
+        "requests": 17,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3919.51621,
+          "gpu_peak_mb": 4462.481138,
+          "gpu_cache_mb": 655.683068,
+          "rss_mb": 2456.338432
+        },
+        "engines": {
+          "mlx": {
+            "requests": 17,
+            "prompt_tokens": 35224,
+            "cached_tokens": 31011,
+            "completion_tokens": 469,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 45.33369129081257,
+            "tool_calls": 14,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 469,
+            "prompt_cache_mb": 1987.534848,
+            "prompt_cache_entries": 9,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 9,
+                "mb": 1988
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "plan",
+      "repeat": 0,
+      "milliseconds": 767.8,
+      "raw": {
+        "id": "chatcmpl-9abe47bb4b674b12bccc18d2",
+        "object": "chat.completion",
+        "created": 1792951764,
+        "model": "mlx/ministral3-3b-fixed-tokenizer",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "7edc9a289",
+                  "type": "function",
+                  "function": {
+                    "name": "day_plan",
+                    "arguments": "{\"date\": \"\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2035,
+          "completion_tokens": 9,
+          "total_tokens": 2044,
+          "prompt_tokens_details": {
+            "cached_tokens": 2027
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 0.7598211669828743
+          }
+        }
+      },
+      "passed": false,
+      "reason": "plan_day",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/serving-views/ministral3-3b-fixed-tokenizer",
+        "uptime_s": 52.14016079902649,
+        "requests": 18,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3913.552434,
+          "gpu_peak_mb": 4462.481138,
+          "gpu_cache_mb": 640.943544,
+          "rss_mb": 2456.338432
+        },
+        "engines": {
+          "mlx": {
+            "requests": 18,
+            "prompt_tokens": 37259,
+            "cached_tokens": 33038,
+            "completion_tokens": 478,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 45.891812331741676,
+            "tool_calls": 15,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 478,
+            "prompt_cache_mb": 1981.251584,
+            "prompt_cache_entries": 9,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 9,
+                "mb": 1981
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "unsupported",
+      "repeat": 0,
+      "milliseconds": 4062.1,
+      "raw": {
+        "id": "chatcmpl-95d5143a054b449a8ac59cfc",
+        "object": "chat.completion",
+        "created": 1792951768,
+        "model": "mlx/ministral3-3b-fixed-tokenizer",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "I can't delete meals directly from my tools\u2014those actions require the Banana app's native functionality. To do this, you\u2019d need to:\n\n1. Open the **Banana app**.\n2. Go to the **Review** tab.\n3. Select all meals in your history.\n4. Delete them via the app\u2019s menu.\n\nIf you\u2019d like, I can guide you through the app\u2019s navigation to find your meal history. Would you like to try that?"
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2034,
+          "completion_tokens": 95,
+          "total_tokens": 2129,
+          "prompt_tokens_details": {
+            "cached_tokens": 2027
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 4.054497916949913
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/serving-views/ministral3-3b-fixed-tokenizer",
+        "uptime_s": 56.20964789390564,
+        "requests": 19,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3917.812274,
+          "gpu_peak_mb": 4462.481138,
+          "gpu_cache_mb": 485.304742,
+          "rss_mb": 2456.338432
+        },
+        "engines": {
+          "mlx": {
+            "requests": 19,
+            "prompt_tokens": 39293,
+            "cached_tokens": 35065,
+            "completion_tokens": 573,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 49.797773498808965,
+            "tool_calls": 15,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 573,
+            "prompt_cache_mb": 1985.298432,
+            "prompt_cache_entries": 9,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 9,
+                "mb": 1985
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "explanation",
+      "repeat": 0,
+      "milliseconds": 7397.7,
+      "raw": {
+        "id": "chatcmpl-b450cb06a6d04f1d8c6143e3",
+        "object": "chat.completion",
+        "created": 1792951775,
+        "model": "mlx/ministral3-3b-fixed-tokenizer",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "Protein is a **nutrient essential for building and repairing tissues** in your body. It\u2019s made up of amino acids, which are like the building blocks for muscles, skin, hair, enzymes, and hormones.\n\nKey points about protein:\n- **Muscle growth**: Helps repair and strengthen muscles after exercise.\n- **Immune support**: Provides antibodies to fight infections.\n- **Energy**: Acts as a fuel source, though your body uses it more for maintenance than quick energy.\n- **Sources**: Found in foods like meat, fish, eggs, beans, tofu, and dairy.\n\nUnlike carbs or fats, your body doesn\u2019t store protein\u2014it must come from your diet. Too little can lead to fatigue or weakened immunity, while too much (in excess of needs) is typically excreted."
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2043,
+          "completion_tokens": 165,
+          "total_tokens": 2208,
+          "prompt_tokens_details": {
+            "cached_tokens": 2027
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 7.389116332982667
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/serving-views/ministral3-3b-fixed-tokenizer",
+        "uptime_s": 63.614083766937256,
+        "requests": 20,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3929.739826,
+          "gpu_peak_mb": 4462.481138,
+          "gpu_cache_mb": 675.131186,
+          "rss_mb": 2456.338432
+        },
+        "engines": {
+          "mlx": {
+            "requests": 20,
+            "prompt_tokens": 41336,
+            "cached_tokens": 37092,
+            "completion_tokens": 738,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 56.990560956764966,
+            "tool_calls": 15,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 738,
+            "prompt_cache_mb": 1996.480512,
+            "prompt_cache_entries": 9,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 9,
+                "mb": 1996
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "ambiguous",
+      "repeat": 0,
+      "milliseconds": 2127.6,
+      "raw": {
+        "id": "chatcmpl-ba72edb511b54ca1ac321a21",
+        "object": "chat.completion",
+        "created": 1792951777,
+        "model": "mlx/ministral3-3b-fixed-tokenizer",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "What other thing? Could you clarify what you'd like me to do? For example:\n- Check your **nutrition logs** for today?\n- Review a **specific meal** you logged earlier?\n- Adjust your **day plan**?\n- Look up something in your **notes**?"
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2032,
+          "completion_tokens": 57,
+          "total_tokens": 2089,
+          "prompt_tokens_details": {
+            "cached_tokens": 2027
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 2.1184472090099007
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/serving-views/ministral3-3b-fixed-tokenizer",
+        "uptime_s": 65.74946689605713,
+        "requests": 21,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3932.29573,
+          "gpu_peak_mb": 4462.481138,
+          "gpu_cache_mb": 637.55736,
+          "rss_mb": 2456.338432
+        },
+        "engines": {
+          "mlx": {
+            "requests": 21,
+            "prompt_tokens": 43368,
+            "cached_tokens": 39119,
+            "completion_tokens": 795,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 58.931337415706366,
+            "tool_calls": 15,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 795,
+            "prompt_cache_mb": 1999.036416,
+            "prompt_cache_entries": 9,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 9,
+                "mb": 1999
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "not-a-write",
+      "repeat": 0,
+      "milliseconds": 2641.6,
+      "raw": {
+        "id": "chatcmpl-8c4560db949e4803ba0355ca",
+        "object": "chat.completion",
+        "created": 1792951780,
+        "model": "mlx/ministral3-3b-fixed-tokenizer",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "You're welcome! I won\u2019t log or save anything\u2014just a reminder that eggs are a great breakfast option. If you'd like to track your egg intake or explore other meals, let me know! Otherwise, enjoy your day."
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2046,
+          "completion_tokens": 47,
+          "total_tokens": 2093,
+          "prompt_tokens_details": {
+            "cached_tokens": 2027
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 2.6337767500663176
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/serving-views/ministral3-3b-fixed-tokenizer",
+        "uptime_s": 68.40065288543701,
+        "requests": 22,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3930.591794,
+          "gpu_peak_mb": 4462.481138,
+          "gpu_cache_mb": 663.658264,
+          "rss_mb": 2456.338432
+        },
+        "engines": {
+          "mlx": {
+            "requests": 22,
+            "prompt_tokens": 45414,
+            "cached_tokens": 41146,
+            "completion_tokens": 842,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 61.3716747907456,
+            "tool_calls": 15,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 842,
+            "prompt_cache_mb": 1997.33248,
+            "prompt_cache_entries": 9,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 9,
+                "mb": 1997
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "identity",
+      "repeat": 1,
+      "milliseconds": 1155.7,
+      "raw": {
+        "id": "chatcmpl-6b878fbb94da421f88174201",
+        "object": "chat.completion",
+        "created": 1792951781,
+        "model": "mlx/ministral3-3b-fixed-tokenizer",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "I\u2019m just a helpful assistant here\u2014no name needed! Think of me as your Banana buddy. What\u2019s on your mind today?"
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2033,
+          "completion_tokens": 28,
+          "total_tokens": 2061,
+          "prompt_tokens_details": {
+            "cached_tokens": 2029
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 1.1451994160888717
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/serving-views/ministral3-3b-fixed-tokenizer",
+        "uptime_s": 69.56491708755493,
+        "requests": 23,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3932.29573,
+          "gpu_peak_mb": 4462.481138,
+          "gpu_cache_mb": 634.613634,
+          "rss_mb": 2456.338432
+        },
+        "engines": {
+          "mlx": {
+            "requests": 23,
+            "prompt_tokens": 47447,
+            "cached_tokens": 43175,
+            "completion_tokens": 870,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 62.30864837381523,
+            "tool_calls": 15,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 870,
+            "prompt_cache_mb": 1999.036416,
+            "prompt_cache_entries": 9,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 9,
+                "mb": 1999
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "greeting",
+      "repeat": 1,
+      "milliseconds": 793.5,
+      "raw": {
+        "id": "chatcmpl-8e1bbd636e964b24af10c1fc",
+        "object": "chat.completion",
+        "created": 1792951782,
+        "model": "mlx/ministral3-3b-fixed-tokenizer",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "Hi there! What's on your mind today? Need help with meals, tracking, or something else?"
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2029,
+          "completion_tokens": 21,
+          "total_tokens": 2050,
+          "prompt_tokens_details": {
+            "cached_tokens": 2027
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 0.7832274580141529
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/serving-views/ministral3-3b-fixed-tokenizer",
+        "uptime_s": 70.36915898323059,
+        "requests": 24,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4151.251506,
+          "gpu_peak_mb": 4462.481138,
+          "gpu_cache_mb": 406.869923,
+          "rss_mb": 2456.338432
+        },
+        "engines": {
+          "mlx": {
+            "requests": 24,
+            "prompt_tokens": 49476,
+            "cached_tokens": 45202,
+            "completion_tokens": 891,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 62.87721149879508,
+            "tool_calls": 15,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 891,
+            "prompt_cache_mb": 1999.888384,
+            "prompt_cache_entries": 9,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 9,
+                "mb": 2000
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "monthly",
+      "repeat": 1,
+      "milliseconds": 739.9,
+      "raw": {
+        "id": "chatcmpl-4d750f31a2c64fab9fe4a5fe",
+        "object": "chat.completion",
+        "created": 1792951783,
+        "model": "mlx/ministral3-3b-fixed-tokenizer",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "01d10002d",
+                  "type": "function",
+                  "function": {
+                    "name": "nutrition_view",
+                    "arguments": "{\"metric\": \"protein\", \"period\": \"this_month\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2033,
+          "completion_tokens": 17,
+          "total_tokens": 2050,
+          "prompt_tokens_details": {
+            "cached_tokens": 2029
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 0.7311897500185296
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/serving-views/ministral3-3b-fixed-tokenizer",
+        "uptime_s": 71.11713099479675,
+        "requests": 25,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4152.103474,
+          "gpu_peak_mb": 4462.481138,
+          "gpu_cache_mb": 411.686168,
+          "rss_mb": 2456.338432
+        },
+        "engines": {
+          "mlx": {
+            "requests": 25,
+            "prompt_tokens": 51509,
+            "cached_tokens": 47231,
+            "completion_tokens": 908,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 63.398845123825595,
+            "tool_calls": 16,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 908,
+            "prompt_cache_mb": 2000.633856,
+            "prompt_cache_entries": 9,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 9,
+                "mb": 2001
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "calories",
+      "repeat": 1,
+      "milliseconds": 1826.5,
+      "raw": {
+        "id": "chatcmpl-cd53543ca3ae4ea491e45f0b",
+        "object": "chat.completion",
+        "created": 1792951785,
+        "model": "mlx/ministral3-3b-fixed-tokenizer",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "61230a43f",
+                  "type": "function",
+                  "function": {
+                    "name": "nutrition_view",
+                    "arguments": "{\"metric\": \"calories\", \"period\": \"last_7_days\", \"revision\": 0}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2035,
+          "completion_tokens": 27,
+          "total_tokens": 2062,
+          "prompt_tokens_details": {
+            "cached_tokens": 2028
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 1.819897250039503
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/serving-views/ministral3-3b-fixed-tokenizer",
+        "uptime_s": 72.94953179359436,
+        "requests": 26,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3934.851634,
+          "gpu_peak_mb": 4462.481138,
+          "gpu_cache_mb": 632.765978,
+          "rss_mb": 2456.338432
+        },
+        "engines": {
+          "mlx": {
+            "requests": 26,
+            "prompt_tokens": 53544,
+            "cached_tokens": 49259,
+            "completion_tokens": 935,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 65.0813438318437,
+            "tool_calls": 17,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 935,
+            "prompt_cache_mb": 2001.59232,
+            "prompt_cache_entries": 9,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 9,
+                "mb": 2002
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "food-search",
+      "repeat": 1,
+      "milliseconds": 11011.3,
+      "raw": {
+        "id": "chatcmpl-c1b4bbd735fb45f1a0d046ea",
+        "object": "chat.completion",
+        "created": 1792951796,
+        "model": "mlx/ministral3-3b-fixed-tokenizer",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "4575078d1",
+                  "type": "function",
+                  "function": {
+                    "name": "nutrition_view",
+                    "arguments": "{\"foodName\": \"yogurt\", \"revision\": 2}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2177,
+          "completion_tokens": 20,
+          "total_tokens": 2197,
+          "prompt_tokens_details": {
+            "cached_tokens": 172
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 10.999067583936267
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/serving-views/ministral3-3b-fixed-tokenizer",
+        "uptime_s": 83.97147989273071,
+        "requests": 27,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4169.142834,
+          "gpu_peak_mb": 4760.215448,
+          "gpu_cache_mb": 484.365732,
+          "rss_mb": 2456.338432
+        },
+        "engines": {
+          "mlx": {
+            "requests": 27,
+            "prompt_tokens": 55721,
+            "cached_tokens": 49431,
+            "completion_tokens": 955,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 75.8726419567829,
+            "tool_calls": 18,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 955,
+            "prompt_cache_mb": 2017.886208,
+            "prompt_cache_entries": 9,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 9,
+                "mb": 2018
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "weekdays",
+      "repeat": 1,
+      "milliseconds": 834.2,
+      "raw": {
+        "id": "chatcmpl-9bfb1e4d656b4b918d6d71cc",
+        "object": "chat.completion",
+        "created": 1792951796,
+        "model": "mlx/ministral3-3b-fixed-tokenizer",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "48aaffefb",
+                  "type": "function",
+                  "function": {
+                    "name": "filter_nutrition",
+                    "arguments": "{\"changes\": [\"weekdays_only\"], \"revision\": 2}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2173,
+          "completion_tokens": 21,
+          "total_tokens": 2194,
+          "prompt_tokens_details": {
+            "cached_tokens": 2169
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 0.8241376660298556
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/serving-views/ministral3-3b-fixed-tokenizer",
+        "uptime_s": 84.81516289710999,
+        "requests": 28,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3957.85477,
+          "gpu_peak_mb": 4760.215448,
+          "gpu_cache_mb": 664.17481,
+          "rss_mb": 2456.338432
+        },
+        "engines": {
+          "mlx": {
+            "requests": 28,
+            "prompt_tokens": 57894,
+            "cached_tokens": 51600,
+            "completion_tokens": 976,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 76.49027053976897,
+            "tool_calls": 19,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 976,
+            "prompt_cache_mb": 2024.808448,
+            "prompt_cache_entries": 9,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 9,
+                "mb": 2025
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "compare",
+      "repeat": 1,
+      "milliseconds": 912.7,
+      "raw": {
+        "id": "chatcmpl-de3815e99f1a49e4be14a3f3",
+        "object": "chat.completion",
+        "created": 1792951797,
+        "model": "mlx/ministral3-3b-fixed-tokenizer",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "bbfde0463",
+                  "type": "function",
+                  "function": {
+                    "name": "filter_nutrition",
+                    "arguments": "{\"changes\": [\"compare_previous\"], \"revision\": 2}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2175,
+          "completion_tokens": 21,
+          "total_tokens": 2196,
+          "prompt_tokens_details": {
+            "cached_tokens": 2169
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 0.903662999975495
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/serving-views/ministral3-3b-fixed-tokenizer",
+        "uptime_s": 85.73721385002136,
+        "requests": 29,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3956.150834,
+          "gpu_peak_mb": 4760.215448,
+          "gpu_cache_mb": 512.988121,
+          "rss_mb": 2456.338432
+        },
+        "engines": {
+          "mlx": {
+            "requests": 29,
+            "prompt_tokens": 60069,
+            "cached_tokens": 53769,
+            "completion_tokens": 997,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 77.19208558171522,
+            "tool_calls": 20,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 997,
+            "prompt_cache_mb": 2023.530496,
+            "prompt_cache_entries": 9,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 9,
+                "mb": 2024
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "copy",
+      "repeat": 1,
+      "milliseconds": 2811.7,
+      "raw": {
+        "id": "chatcmpl-6f96e4324ae34ef3acda321e",
+        "object": "chat.completion",
+        "created": 1792951800,
+        "model": "mlx/ministral3-3b-fixed-tokenizer",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "b57d97076",
+                  "type": "function",
+                  "function": {
+                    "name": "prepare_meal_copy",
+                    "arguments": "{\"mealID\": \"BA5A4E11-0000-4000-8000-000202610231\", \"day\": \"tomorrow\", \"revision\": 2}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2186,
+          "completion_tokens": 61,
+          "total_tokens": 2247,
+          "prompt_tokens_details": {
+            "cached_tokens": 2169
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 2.8029933749930933
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/serving-views/ministral3-3b-fixed-tokenizer",
+        "uptime_s": 88.55789494514465,
+        "requests": 30,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3972.338226,
+          "gpu_peak_mb": 4760.215448,
+          "gpu_cache_mb": 671.47813,
+          "rss_mb": 2456.338432
+        },
+        "engines": {
+          "mlx": {
+            "requests": 30,
+            "prompt_tokens": 62255,
+            "cached_tokens": 55938,
+            "completion_tokens": 1058,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 79.82406691566575,
+            "tool_calls": 21,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1058,
+            "prompt_cache_mb": 2040.356864,
+            "prompt_cache_entries": 9,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 9,
+                "mb": 2040
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "new-meal",
+      "repeat": 1,
+      "milliseconds": 2617.3,
+      "raw": {
+        "id": "chatcmpl-fd11096740964e3584dd3e64",
+        "object": "chat.completion",
+        "created": 1792951803,
+        "model": "mlx/ministral3-3b-fixed-tokenizer",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "98fc13248",
+                  "type": "function",
+                  "function": {
+                    "name": "prepare_meal",
+                    "arguments": "{\"foods\": [{\"name\": \"eggs\", \"quantity\": \"2\"}, {\"name\": \"banana\", \"quantity\": \"1\"}], \"day\": \"today\", \"title\": \"Review of today's meal\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2050,
+          "completion_tokens": 53,
+          "total_tokens": 2103,
+          "prompt_tokens_details": {
+            "cached_tokens": 2027
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 2.610086041968316
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/serving-views/ministral3-3b-fixed-tokenizer",
+        "uptime_s": 91.18434000015259,
+        "requests": 31,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3973.190194,
+          "gpu_peak_mb": 4760.215448,
+          "gpu_cache_mb": 672.9306,
+          "rss_mb": 2456.338432
+        },
+        "engines": {
+          "mlx": {
+            "requests": 31,
+            "prompt_tokens": 64305,
+            "cached_tokens": 57965,
+            "completion_tokens": 1111,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 82.24191345775034,
+            "tool_calls": 22,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1111,
+            "prompt_cache_mb": 2041.421824,
+            "prompt_cache_entries": 9,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 9,
+                "mb": 2041
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "new-event",
+      "repeat": 1,
+      "milliseconds": 1573.8,
+      "raw": {
+        "id": "chatcmpl-f8c043f60cc046fcb3f1c80f",
+        "object": "chat.completion",
+        "created": 1792951804,
+        "model": "mlx/ministral3-3b-fixed-tokenizer",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "96f97a711",
+                  "type": "function",
+                  "function": {
+                    "name": "prepare_event",
+                    "arguments": "{\"title\": \"Lunch\", \"day\": \"tomorrow\", \"time\": \"13:00\", \"durationMinutes\": 30}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2055,
+          "completion_tokens": 36,
+          "total_tokens": 2091,
+          "prompt_tokens_details": {
+            "cached_tokens": 2027
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 1.5684389169327915
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/serving-views/ministral3-3b-fixed-tokenizer",
+        "uptime_s": 92.76329684257507,
+        "requests": 32,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3976.598066,
+          "gpu_peak_mb": 4760.215448,
+          "gpu_cache_mb": 663.559316,
+          "rss_mb": 2456.338432
+        },
+        "engines": {
+          "mlx": {
+            "requests": 32,
+            "prompt_tokens": 66360,
+            "cached_tokens": 59992,
+            "completion_tokens": 1147,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 83.61701558274217,
+            "tool_calls": 23,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1147,
+            "prompt_cache_mb": 2044.616704,
+            "prompt_cache_entries": 9,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 9,
+                "mb": 2045
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "explicit-event",
+      "repeat": 1,
+      "milliseconds": 2551.2,
+      "raw": {
+        "id": "chatcmpl-756b0ba6d7ea4df7aa251fdf",
+        "object": "chat.completion",
+        "created": 1792951807,
+        "model": "mlx/ministral3-3b-fixed-tokenizer",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "2891d064d",
+                  "type": "function",
+                  "function": {
+                    "name": "prepare_event",
+                    "arguments": "{\"title\": \"Dentist\", \"day\": \"2026-11-03\", \"time\": \"09:15\", \"durationMinutes\": 45}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2058,
+          "completion_tokens": 45,
+          "total_tokens": 2103,
+          "prompt_tokens_details": {
+            "cached_tokens": 2027
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 2.5411240410758182
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/serving-views/ministral3-3b-fixed-tokenizer",
+        "uptime_s": 95.32488083839417,
+        "requests": 33,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4200.66565,
+          "gpu_peak_mb": 4760.215448,
+          "gpu_cache_mb": 444.486224,
+          "rss_mb": 2456.338432
+        },
+        "engines": {
+          "mlx": {
+            "requests": 33,
+            "prompt_tokens": 68418,
+            "cached_tokens": 62019,
+            "completion_tokens": 1192,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 86.0063569167396,
+            "tool_calls": 24,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1192,
+            "prompt_cache_mb": 2050.260992,
+            "prompt_cache_entries": 9,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 9,
+                "mb": 2050
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "missing-time",
+      "repeat": 1,
+      "milliseconds": 1745.9,
+      "raw": {
+        "id": "chatcmpl-58a3aee4ada1462dbbf5d064",
+        "object": "chat.completion",
+        "created": 1792951809,
+        "model": "mlx/ministral3-3b-fixed-tokenizer",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "639289cab",
+                  "type": "function",
+                  "function": {
+                    "name": "prepare_event",
+                    "arguments": "{\"title\": \"Dinner\", \"day\": \"today\", \"revision\": 0}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2041,
+          "completion_tokens": 24,
+          "total_tokens": 2065,
+          "prompt_tokens_details": {
+            "cached_tokens": 2031
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 1.7371778750093654
+          }
+        }
+      },
+      "passed": false,
+      "reason": "reply_contract",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/serving-views/ministral3-3b-fixed-tokenizer",
+        "uptime_s": 97.07987999916077,
+        "requests": 34,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3983.41381,
+          "gpu_peak_mb": 4760.215448,
+          "gpu_cache_mb": 672.999838,
+          "rss_mb": 2456.338432
+        },
+        "engines": {
+          "mlx": {
+            "requests": 34,
+            "prompt_tokens": 70459,
+            "cached_tokens": 64050,
+            "completion_tokens": 1216,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 87.56778670777567,
+            "tool_calls": 25,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1216,
+            "prompt_cache_mb": 2051.858432,
+            "prompt_cache_entries": 9,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 9,
+                "mb": 2052
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "missing-food",
+      "repeat": 1,
+      "milliseconds": 4479.3,
+      "raw": {
+        "id": "chatcmpl-3bf70683ecb042f3bdfab3ac",
+        "object": "chat.completion",
+        "created": 1792951813,
+        "model": "mlx/ministral3-3b-fixed-tokenizer",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "You haven\u2019t specified what you want to log yet. Let me know the foods and quantities, and I\u2019ll help you prepare the meal draft. For example:\n- *\"I ate 1 banana and 1 cup of yogurt.\"*\n- *\"What I had was 2 eggs and half a cup of oats.\"*"
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2041,
+          "completion_tokens": 65,
+          "total_tokens": 2106,
+          "prompt_tokens_details": {
+            "cached_tokens": 2029
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 4.471922707976773
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/serving-views/ministral3-3b-fixed-tokenizer",
+        "uptime_s": 101.56666398048401,
+        "requests": 35,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3988.525618,
+          "gpu_peak_mb": 4760.215448,
+          "gpu_cache_mb": 655.49084,
+          "rss_mb": 2456.338432
+        },
+        "engines": {
+          "mlx": {
+            "requests": 35,
+            "prompt_tokens": 72500,
+            "cached_tokens": 66079,
+            "completion_tokens": 1281,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 91.88656337477732,
+            "tool_calls": 25,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1281,
+            "prompt_cache_mb": 2056.544256,
+            "prompt_cache_entries": 9,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 9,
+                "mb": 2057
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "global-search",
+      "repeat": 1,
+      "milliseconds": 853.4,
+      "raw": {
+        "id": "chatcmpl-e2c97da5ed6e4761b35757fe",
+        "object": "chat.completion",
+        "created": 1792951814,
+        "model": "mlx/ministral3-3b-fixed-tokenizer",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "6c82e944d",
+                  "type": "function",
+                  "function": {
+                    "name": "search_app",
+                    "arguments": "{\"query\": \"clinic\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2034,
+          "completion_tokens": 11,
+          "total_tokens": 2045,
+          "prompt_tokens_details": {
+            "cached_tokens": 2027
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 0.8434003749862313
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/serving-views/ministral3-3b-fixed-tokenizer",
+        "uptime_s": 102.43044304847717,
+        "requests": 36,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3972.338226,
+          "gpu_peak_mb": 4760.215448,
+          "gpu_cache_mb": 676.130162,
+          "rss_mb": 2456.338432
+        },
+        "engines": {
+          "mlx": {
+            "requests": 36,
+            "prompt_tokens": 74534,
+            "cached_tokens": 68106,
+            "completion_tokens": 1292,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 92.5219825837994,
+            "tool_calls": 26,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1292,
+            "prompt_cache_mb": 2040.356864,
+            "prompt_cache_entries": 9,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 9,
+                "mb": 2040
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "open-page",
+      "repeat": 1,
+      "milliseconds": 590.6,
+      "raw": {
+        "id": "chatcmpl-f7589811b60348a8a34bf913",
+        "object": "chat.completion",
+        "created": 1792951815,
+        "model": "mlx/ministral3-3b-fixed-tokenizer",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "8772b967f",
+                  "type": "function",
+                  "function": {
+                    "name": "open_page",
+                    "arguments": "{\"section\": \"notes\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2032,
+          "completion_tokens": 10,
+          "total_tokens": 2042,
+          "prompt_tokens_details": {
+            "cached_tokens": 2027
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 0.5804068750003353
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/serving-views/ministral3-3b-fixed-tokenizer",
+        "uptime_s": 103.03160572052002,
+        "requests": 37,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3956.150834,
+          "gpu_peak_mb": 4760.215448,
+          "gpu_cache_mb": 641.295662,
+          "rss_mb": 2456.338432
+        },
+        "engines": {
+          "mlx": {
+            "requests": 37,
+            "prompt_tokens": 76566,
+            "cached_tokens": 70133,
+            "completion_tokens": 1302,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 92.88998824986629,
+            "tool_calls": 27,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1302,
+            "prompt_cache_mb": 2024.169472,
+            "prompt_cache_entries": 9,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 9,
+                "mb": 2024
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "notes",
+      "repeat": 1,
+      "milliseconds": 554.3,
+      "raw": {
+        "id": "chatcmpl-2d551631b1f448e19f8a8adb",
+        "object": "chat.completion",
+        "created": 1792951815,
+        "model": "mlx/ministral3-3b-fixed-tokenizer",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "3c6a7c95a",
+                  "type": "function",
+                  "function": {
+                    "name": "list_notes",
+                    "arguments": "{\"limit\": 5}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2032,
+          "completion_tokens": 11,
+          "total_tokens": 2043,
+          "prompt_tokens_details": {
+            "cached_tokens": 2027
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 0.5459689589915797
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/serving-views/ministral3-3b-fixed-tokenizer",
+        "uptime_s": 103.59482097625732,
+        "requests": 38,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3939.963442,
+          "gpu_peak_mb": 4760.215448,
+          "gpu_cache_mb": 650.667326,
+          "rss_mb": 2456.338432
+        },
+        "engines": {
+          "mlx": {
+            "requests": 38,
+            "prompt_tokens": 78598,
+            "cached_tokens": 72160,
+            "completion_tokens": 1313,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 93.21336524991784,
+            "tool_calls": 28,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1313,
+            "prompt_cache_mb": 2007.875584,
+            "prompt_cache_entries": 9,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 9,
+                "mb": 2008
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "create-note",
+      "repeat": 1,
+      "milliseconds": 691.7,
+      "raw": {
+        "id": "chatcmpl-dca57cf0978b45ad8c73ec41",
+        "object": "chat.completion",
+        "created": 1792951816,
+        "model": "mlx/ministral3-3b-fixed-tokenizer",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "94d882ccd",
+                  "type": "function",
+                  "function": {
+                    "name": "create_note",
+                    "arguments": "{\"text\": \"Bring the blue notebook\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2040,
+          "completion_tokens": 13,
+          "total_tokens": 2053,
+          "prompt_tokens_details": {
+            "cached_tokens": 2028
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 0.6823721670079976
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/serving-views/ministral3-3b-fixed-tokenizer",
+        "uptime_s": 104.29631280899048,
+        "requests": 39,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3919.516216,
+          "gpu_peak_mb": 4760.215448,
+          "gpu_cache_mb": 641.658324,
+          "rss_mb": 2456.338432
+        },
+        "engines": {
+          "mlx": {
+            "requests": 39,
+            "prompt_tokens": 80638,
+            "cached_tokens": 74188,
+            "completion_tokens": 1326,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 93.66691441694275,
+            "tool_calls": 29,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1326,
+            "prompt_cache_mb": 1987.21536,
+            "prompt_cache_entries": 9,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 9,
+                "mb": 1987
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "plan",
+      "repeat": 1,
+      "milliseconds": 557.7,
+      "raw": {
+        "id": "chatcmpl-5f42f6aa06f54c1e900b981b",
+        "object": "chat.completion",
+        "created": 1792951817,
+        "model": "mlx/ministral3-3b-fixed-tokenizer",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "c7ee4ebe4",
+                  "type": "function",
+                  "function": {
+                    "name": "day_plan",
+                    "arguments": "{\"date\": \"\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2035,
+          "completion_tokens": 9,
+          "total_tokens": 2044,
+          "prompt_tokens_details": {
+            "cached_tokens": 2027
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 0.5495567080797628
+          }
+        }
+      },
+      "passed": false,
+      "reason": "plan_day",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/serving-views/ministral3-3b-fixed-tokenizer",
+        "uptime_s": 104.86410593986511,
+        "requests": 40,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3913.552434,
+          "gpu_peak_mb": 4760.215448,
+          "gpu_cache_mb": 622.200214,
+          "rss_mb": 2456.338432
+        },
+        "engines": {
+          "mlx": {
+            "requests": 40,
+            "prompt_tokens": 82673,
+            "cached_tokens": 76215,
+            "completion_tokens": 1335,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 93.99726562493015,
+            "tool_calls": 30,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1335,
+            "prompt_cache_mb": 1980.932096,
+            "prompt_cache_entries": 9,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 9,
+                "mb": 1981
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "unsupported",
+      "repeat": 1,
+      "milliseconds": 4776.8,
+      "raw": {
+        "id": "chatcmpl-8339a9cb4216458eae58fc88",
+        "object": "chat.completion",
+        "created": 1792951821,
+        "model": "mlx/ministral3-3b-fixed-tokenizer",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "I can't delete meals directly from my tools. To remove meals from your history, you'll need to use Banana's native deletion feature. Here\u2019s what you can do:\n\n1. Open the **Review** tab in Banana.\n2. Find the meals you want to delete.\n3. Select them and delete them manually.\n\nIf you'd like, I can guide you through the steps to open the Review section. Would you like me to provide a link?"
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2034,
+          "completion_tokens": 94,
+          "total_tokens": 2128,
+          "prompt_tokens_details": {
+            "cached_tokens": 2027
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 4.770314584020525
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/serving-views/ministral3-3b-fixed-tokenizer",
+        "uptime_s": 109.64825487136841,
+        "requests": 41,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3917.812274,
+          "gpu_peak_mb": 4760.215448,
+          "gpu_cache_mb": 627.93093,
+          "rss_mb": 2456.338432
+        },
+        "engines": {
+          "mlx": {
+            "requests": 41,
+            "prompt_tokens": 84707,
+            "cached_tokens": 78242,
+            "completion_tokens": 1429,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 98.57475945795886,
+            "tool_calls": 30,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1429,
+            "prompt_cache_mb": 1984.872448,
+            "prompt_cache_entries": 9,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 9,
+                "mb": 1985
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "explanation",
+      "repeat": 1,
+      "milliseconds": 9152.9,
+      "raw": {
+        "id": "chatcmpl-7ea60793093b451b90ed255d",
+        "object": "chat.completion",
+        "created": 1792951830,
+        "model": "mlx/ministral3-3b-fixed-tokenizer",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "Protein is a **nutrient essential for building and repairing tissues** in your body. It\u2019s made up of amino acids, which are like the building blocks for muscles, organs, skin, hair, and enzymes (the molecules that help chemical reactions happen inside your cells).\n\n**Key roles of protein:**\n- **Muscle growth and repair** (especially after workouts).\n- **Immune function** (antibodies are proteins that fight infections).\n- **Hormone regulation** (like insulin, which controls blood sugar).\n- **Enzyme production** (proteins speed up reactions in your metabolism).\n\n**Sources of protein** include meat, fish, eggs, dairy, beans, lentils, nuts, and seeds. Your body can\u2019t store protein like it does with carbs or fats\u2014you need a steady supply through meals.\n\n**Fun fact:** Your body breaks down protein into amino acids during digestion, then uses them as needed. Too much protein isn\u2019t always better (your kidneys filter it), but not enough can lead to muscle loss or other deficiencies."
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2043,
+          "completion_tokens": 215,
+          "total_tokens": 2258,
+          "prompt_tokens_details": {
+            "cached_tokens": 2027
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 9.1438047910342
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/serving-views/ministral3-3b-fixed-tokenizer",
+        "uptime_s": 118.81147599220276,
+        "requests": 42,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3934.851634,
+          "gpu_peak_mb": 4760.215448,
+          "gpu_cache_mb": 487.581505,
+          "rss_mb": 2456.338432
+        },
+        "engines": {
+          "mlx": {
+            "requests": 42,
+            "prompt_tokens": 86750,
+            "cached_tokens": 80269,
+            "completion_tokens": 1644,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 107.53415729093831,
+            "tool_calls": 30,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1644,
+            "prompt_cache_mb": 2001.379328,
+            "prompt_cache_entries": 9,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 9,
+                "mb": 2001
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "ambiguous",
+      "repeat": 1,
+      "milliseconds": 3969.9,
+      "raw": {
+        "id": "chatcmpl-3d73839aa4f94302b2315a94",
+        "object": "chat.completion",
+        "created": 1792951834,
+        "model": "mlx/ministral3-3b-fixed-tokenizer",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "What other thing? I\u2019m here to help with meals, nutrition, reminders, or planning\u2014let me know what you\u2019d like to do! For example:\n- Log a meal\n- Check your day\u2019s schedule\n- Create a note\n- Search something else"
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2032,
+          "completion_tokens": 54,
+          "total_tokens": 2086,
+          "prompt_tokens_details": {
+            "cached_tokens": 2027
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 3.9624267499893904
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/serving-views/ministral3-3b-fixed-tokenizer",
+        "uptime_s": 122.79146981239319,
+        "requests": 43,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3936.55557,
+          "gpu_peak_mb": 4760.215448,
+          "gpu_cache_mb": 637.521736,
+          "rss_mb": 2456.338432
+        },
+        "engines": {
+          "mlx": {
+            "requests": 43,
+            "prompt_tokens": 88782,
+            "cached_tokens": 82296,
+            "completion_tokens": 1698,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 111.36850070790388,
+            "tool_calls": 30,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1698,
+            "prompt_cache_mb": 2003.615744,
+            "prompt_cache_entries": 9,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 9,
+                "mb": 2004
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "not-a-write",
+      "repeat": 1,
+      "milliseconds": 2370.5,
+      "raw": {
+        "id": "chatcmpl-4643a0e609d143dc8afeb14e",
+        "object": "chat.completion",
+        "created": 1792951837,
+        "model": "mlx/ministral3-3b-fixed-tokenizer",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "You're welcome! I won\u2019t log or save anything\u2014just a reminder that eggs are a great breakfast option. Let me know if you'd like tips or more details. \ud83d\ude0a"
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2046,
+          "completion_tokens": 38,
+          "total_tokens": 2084,
+          "prompt_tokens_details": {
+            "cached_tokens": 2027
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 2.3642302500084043
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/serving-views/ministral3-3b-fixed-tokenizer",
+        "uptime_s": 125.17269587516785,
+        "requests": 44,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3933.999666,
+          "gpu_peak_mb": 4760.215448,
+          "gpu_cache_mb": 674.383388,
+          "rss_mb": 2456.338432
+        },
+        "engines": {
+          "mlx": {
+            "requests": 44,
+            "prompt_tokens": 90828,
+            "cached_tokens": 84323,
+            "completion_tokens": 1736,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 113.54358608287293,
+            "tool_calls": 30,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1736,
+            "prompt_cache_mb": 2001.272832,
+            "prompt_cache_entries": 9,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 9,
+                "mb": 2001
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "versions": {
+    "mlx": "0.32.4",
+    "mlx-lm": "0.32.2",
+    "locals": "0.2.1"
+  },
+  "engineSourceCommit": "4f4d03f10232c9f2adeb1e96e2a7bd79a9e7fe19",
+  "engineSourceDirty": "",
+  "servingImplementation": "locals.server",
+  "command": [
+    "../pi-inference-upstream/locals-env/bin/python",
+    "-m",
+    "locals.server",
+    "--model",
+    "~/orca/workspaces/gtfuwgth/pi-inference-upstream/serving-views/ministral3-3b-fixed-tokenizer",
+    "--engines",
+    "mlx",
+    "--preload",
+    "mlx",
+    "--host",
+    "127.0.0.1",
+    "--port",
+    "41790",
+    "--slots",
+    "1",
+    "--cache-gb",
+    "2",
+    "--max-context",
+    "32768",
+    "--max-tokens",
+    "2048",
+    "--temp",
+    "0.1",
+    "--top-p",
+    "1.0",
+    "--top-k",
+    "0",
+    "--seed",
+    "0"
+  ],
+  "serverReadySeconds": 2.69,
+  "loadSeconds": 2.69,
+  "serverModel": "mlx/ministral3-3b-fixed-tokenizer",
+  "hostAfter": {
+    "utc": "2026-10-25T18:10:37.408491+00:00",
+    "chip": "Apple M1 Max",
+    "ramBytes": "68719476736",
+    "os": "27.0.1",
+    "swap": "vm.swapusage: total = 23552.00M  used = 21936.75M  free = 1615.25M  (encrypted)",
+    "paging": {
+      "Pageouts": 384027,
+      "Swapins": 5059134,
+      "Swapouts": 9298822
+    }
+  },
+  "ownedWorkerReleased": true,
+  "pagingDelta": {
+    "Pageouts": 0,
+    "Swapins": 0,
+    "Swapouts": 0
+  },
+  "cleanPerformanceRun": true,
+  "summary": {
+    "passes": 40,
+    "total": 44,
+    "warmMedianMilliseconds": 1659.85,
+    "firstRequestMilliseconds": 10566.8,
+    "gpuPeakMB": 4760.215448,
+    "rssMaxObservedMB": 2456.338432
+  }
+}

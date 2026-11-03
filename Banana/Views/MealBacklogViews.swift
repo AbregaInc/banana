@@ -193,22 +193,21 @@ struct MealInboxRow: View {
         note = ""
     }
 
+    /// Being estimated, or waiting its turn (on another device, or for a retry): one state, since
+    /// either way it needs nothing from the person. Words can be added or changed meanwhile.
     @ViewBuilder private var estimating: some View {
         VStack(alignment: .leading, spacing: DS.Space.xs) {
-            if MealBacklogRouting.waitsElsewhere(item, here: processor.here, working: processor.working.contains(item.id)) {
-                Label("Waiting to estimate", systemImage: "hourglass")
-                    .foregroundStyle(.secondary)
-                // Words can be added or changed while it waits.
-                MealWordsButton(item: item)
-            } else {
-                HStack(spacing: DS.Space.s) {
-                    ProgressView().controlSize(.small)
-                    Text("Estimating\u{2026}").foregroundStyle(.secondary)
-                }
-                if !item.trimmedNote.isEmpty { MealWordsButton(item: item) }
-            }
+            estimatingLine
+            if item.hasPhotos || !item.trimmedNote.isEmpty { MealWordsButton(item: item) }
         }
         .font(.callout)
+    }
+
+    private var estimatingLine: some View {
+        HStack(spacing: DS.Space.s) {
+            ProgressView().controlSize(.small)
+            Text("Estimating\u{2026}").foregroundStyle(.secondary)
+        }
     }
 
     @ViewBuilder private var proposed: some View {
@@ -219,26 +218,61 @@ struct MealInboxRow: View {
         }
     }
 
-    /// What went wrong, and the one thing most worth doing about it; the rest is in the menu.
+    /// A failed estimate is mostly passing (the model was busy, no network), so it's tried again
+    /// by itself, a few times, further apart each time — no button to press. Until then the row
+    /// waits like any other; only once those are spent does it say it couldn't, with Enter by
+    /// hand and Try again in its menu.
     private var failed: some View {
-        VStack(alignment: .leading, spacing: DS.Space.xs) {
-            // Mostly passing (the model was busy, no network): a warning, not an error.
-            Label(item.failure ?? "Couldn\u{2019}t estimate it.", systemImage: "exclamationmark.triangle.fill")
-                .font(.footnote)
-                .foregroundStyle(DS.Palette.warning)
+        let gaveUp = MealAutoRetry.isSpent(item.id)
+        return VStack(alignment: .leading, spacing: DS.Space.xs) {
+            if gaveUp {
+                Label("Couldn\u{2019}t estimate", systemImage: "exclamationmark.triangle.fill")
+                    .font(.footnote)
+                    .foregroundStyle(DS.Palette.warning)
+            } else {
+                estimatingLine.font(.callout)
+            }
             if item.hasPhotos || !item.trimmedNote.isEmpty { MealWordsButton(item: item) }
-            Button("Try again") { inbox.retry(item.id) }
-                .buttonStyle(.inline)
         }
+    }
+}
+
+/// How often a failed estimate has been tried again by itself, this launch: three times, at
+/// 20 s, 1 min and 3 min, then it waits for the person (Try again, Enter by hand in its menu).
+@MainActor
+enum MealAutoRetry {
+    private static var attempts: [UUID: Int] = [:]
+    private static let delays: [Duration] = [.seconds(20), .seconds(60), .seconds(180)]
+
+    static func nextDelay(_ id: UUID) -> Duration? {
+        let done = attempts[id, default: 0]
+        return done < delays.count ? delays[done] : nil
+    }
+
+    static func count(_ id: UUID) { attempts[id, default: 0] += 1 }
+
+    static func isSpent(_ id: UUID) -> Bool { nextDelay(id) == nil }
+
+    /// Waits out the next delay and tries again, if it's still failed. Run by the backlog on the
+    /// page (`MealBacklogPanel`), which is there whether or not the day is open.
+    static func run(_ id: UUID, in inbox: MealInboxStore) async {
+        guard let delay = nextDelay(id) else { return }
+        try? await Task.sleep(for: delay)
+        guard !Task.isCancelled, inbox.item(id)?.state == .failed else { return }
+        count(id)
+        inbox.retry(id)
     }
 }
 
 // MARK: - The backlog
 
-/// Everything waiting: days with estimates to check, then meals still needing words or being
-/// estimated. Empty when there's nothing — the page hides it then.
+/// Everything waiting, one row per day: what's ready to log and what's still to finish, with the
+/// day's photos. A tap opens the day (`MealDayReviewView`), the one place its meals are listed,
+/// checked and logged — a day's meals were a summary row here and its meals again under it.
+/// Empty when there's nothing — the page hides it then.
 struct MealBacklogPanel: View {
     var onReviewDay: (Date) -> Void
+    /// Kept for the pages that pass it; entering a meal by hand now starts in the day's review.
     var onEnterByHand: (MealInboxItem) -> Void
     @ObservedObject private var inbox = MealInboxStore.shared
 
@@ -256,33 +290,60 @@ struct MealBacklogPanel: View {
     }
 
     @ViewBuilder private var rows: some View {
-        let proposed = inbox.items.filter { $0.state == .proposed }
-        let open = inbox.items.filter { $0.state != .proposed }.sorted { $0.eatenAt > $1.eatenAt }
-        ForEach(MealBacklogDays.days(proposed), id: \.self) { day in
-            reviewRow(day, MealBacklogDays.items(proposed, on: day))
-        }
-        ForEach(open) { item in
-            MealInboxRow(item: item, onEnterByHand: onEnterByHand)
+        ForEach(MealBacklogDays.days(inbox.items), id: \.self) { day in
+            let items = MealBacklogDays.items(inbox.items, on: day)
+            dayRow(day, items)
+                // A failed estimate is tried again by itself, a few times (`MealAutoRetry`).
+                .background {
+                    ForEach(items.filter { $0.state == .failed }) { item in
+                        Color.clear.task(id: item.id) { await MealAutoRetry.run(item.id, in: inbox) }
+                    }
+                }
         }
     }
 
-    private func reviewRow(_ day: Date, _ items: [MealInboxItem]) -> some View {
-        let total = items.compactMap(\.proposal).reduce(NutritionMacros()) { $0 + $1.totals }
+    /// "1 ready · about 922 kcal · 1 to finish · 2 estimating": what the day holds, by what each
+    /// needs — the person (ready, to finish) or nothing yet (estimating).
+    @MainActor static func summary(_ items: [MealInboxItem]) -> String {
+        let ready = items.filter { $0.state == .proposed }
+        let toFinish = items.filter { $0.state == .awaitingNote || ($0.state == .failed && MealAutoRetry.isSpent($0.id)) }
+        let estimating = items.count - ready.count - toFinish.count
+        var parts: [String] = []
+        if !ready.isEmpty {
+            let total = ready.compactMap(\.proposal).reduce(NutritionMacros()) { $0 + $1.totals }
+            parts.append("\(ready.count) ready \u{00B7} about \(NutritionText.kcal(total))")
+        }
+        if !toFinish.isEmpty { parts.append("\(toFinish.count) to finish") }
+        if estimating > 0 { parts.append("\(estimating) estimating") }
+        return parts.joined(separator: " \u{00B7} ")
+    }
+
+    private func dayRow(_ day: Date, _ items: [MealInboxItem]) -> some View {
+        let photos = items.flatMap { $0.photos.map(\.id) }
+        let ready = items.contains { $0.state == .proposed }
         return Button { onReviewDay(day) } label: {
             HStack(spacing: DS.Space.m) {
-                MealPhotoStrip(ids: items.flatMap { $0.photos.map(\.id) }, size: 40, limit: 3)
+                if photos.isEmpty {
+                    IconTile(systemImage: "text.bubble", size: 40)
+                } else {
+                    MealPhotoStrip(ids: photos, size: 40, limit: 3)
+                }
                 VStack(alignment: .leading, spacing: DS.Space.hair) {
                     Text(NutritionDays.title(for: day))
                         .font(.subheadline.weight(.semibold))
                         .foregroundStyle(.primary)
-                    Text("\(MealInboxText.meals(items.count)) to check \u{00B7} about \(NutritionText.kcal(total))")
+                    Text(Self.summary(items))
                         .font(.caption)
                         .foregroundStyle(.secondary)
-                        .lineLimit(1)
+                        .lineLimit(2)
                 }
                 .multilineTextAlignment(.leading)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                Image(systemName: "chevron.right").font(.caption.weight(.semibold)).foregroundStyle(.tertiary)
+                // Something to approve: the row says so in its verb, as a list's row action does.
+                if ready {
+                    Text("Review").font(.subheadline.weight(.semibold)).foregroundStyle(DS.Palette.accent)
+                }
+                RowChevron()
             }
             .contentShape(Rectangle())
         }
@@ -338,7 +399,9 @@ struct MealDayReviewView: View {
                 }
                 let rest = items.filter { $0.state != .proposed }
                 if !rest.isEmpty {
-                    Section("Still to do") {
+                    // Not part of this Log yet: each is logged here once it's ready. In the order
+                    // they were eaten, as the meals above are.
+                    Section("To finish") {
                         ForEach(rest) { MealInboxRow(item: $0, onEnterByHand: { checking = CheckRequest(item: $0) }) }
                     }
                 }
@@ -352,7 +415,8 @@ struct MealDayReviewView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button(proposed.count > 1 ? "Log \(proposed.count)" : "Log") {
+                    // Says what it saves: the meals ready, not the ones still estimating.
+                    Button(proposed.isEmpty ? "Log" : "Log \(MealInboxText.meals(proposed.count))") {
                         inbox.log(proposed.map(\.id), into: wellness)
                         if items.isEmpty { dismiss() }
                     }
@@ -411,7 +475,7 @@ struct MealDayReviewView: View {
         let logged = NutritionDays.total(NutritionDays.meals(wellness.meals, on: day))
         let adding = proposed.compactMap(\.proposal).reduce(NutritionMacros()) { $0 + $1.totals }
         return Section {
-            StatValue(label: "With these", value: (logged.calories + adding.calories).rounded()
+            StatValue(label: "Total", value: (logged.calories + adding.calories).rounded()
                         .formatted(.number.precision(.fractionLength(0))), unit: "kcal",
                       footnote: logged.calories > 0 ? "\(NutritionText.kcal(logged)) already logged" : nil, size: .hero)
         }
@@ -460,18 +524,19 @@ struct MealDayReviewView: View {
     }
 
     private func foodRow(_ food: MealItem) -> some View {
-        HStack(alignment: .firstTextBaseline, spacing: DS.Space.s) {
-            // The model's own figures, with no USDA food behind them: worth a look. The slot is
-            // there either way, so every name starts in one column.
-            Image(systemName: "exclamationmark.triangle.fill")
-                .font(.caption2)
-                .foregroundStyle(DS.Palette.warning)
-                .opacity(food.reference == nil && (food.confidence ?? 1) < 0.9 ? 1 : 0)
-                .accessibilityHidden(!(food.reference == nil && (food.confidence ?? 1) < 0.9))
-                .accessibilityLabel("Estimate")
-                .frame(width: 14)
+        // The model's own figures, with no USDA food behind them: worth a look, and the row says
+        // so in a word ("Estimated"), in amber after its serving, instead of a bare triangle.
+        let estimated = food.reference == nil && (food.confidence ?? 1) < 0.9
+        return HStack(alignment: .firstTextBaseline, spacing: DS.Space.s) {
             Text(food.name).lineLimit(1)
-            Text(food.serving).font(.caption).foregroundStyle(.secondary).lineLimit(1)
+            Group {
+                if estimated {
+                    Text("\(food.serving) \u{00B7} \(Text("Estimated").foregroundStyle(DS.Palette.warning))")
+                } else {
+                    Text(food.serving)
+                }
+            }
+            .font(.caption).foregroundStyle(.secondary).lineLimit(1)
             Spacer(minLength: DS.Space.s)
             Text(NutritionText.kcal(food.macros)).monospacedDigit()
         }
@@ -543,11 +608,11 @@ struct MealDayReviewView: View {
                     TimeField("Time", selection: Binding(get: { item.eatenAt }, set: { inbox.setEatenAt(item.id, $0) }))
                         .labelsHidden()
                     Spacer()
-                    Button("Edit") { checking = CheckRequest(item: item) }
-                        .buttonStyle(.inline)
-                        .accessibilityIdentifier("mealReview.edit")
+                    // One control for the meal besides its time: its menu, Edit first.
                     Menu {
-                        Button("Scan a package", systemImage: "barcode.viewfinder") { scanRequest = ScanRequest(item: item) }
+                        Button("Edit", systemImage: "pencil") { checking = CheckRequest(item: item) }
+                            .accessibilityIdentifier("mealReview.edit")
+                        Button("Scan package", systemImage: "barcode.viewfinder") { scanRequest = ScanRequest(item: item) }
                             .accessibilityIdentifier("mealReview.scan")
                         Button("Estimate again") { inbox.retry(item.id) }
                         Button("Not a meal", role: .destructive) { DeleteUndo.notAMeal(item.id, in: inbox) }
@@ -557,6 +622,8 @@ struct MealDayReviewView: View {
                     .menuStyle(.borderlessButton)
                     .buttonStyle(.borderless)
                     .fixedSize()
+                    .accessibilityLabel("Meal actions")
+                    .accessibilityIdentifier("mealReview.more")
                 }
             }
             .padding(.vertical, DS.Space.xs)
@@ -567,8 +634,8 @@ struct MealDayReviewView: View {
 // MARK: - Adding photos and words
 
 /// Photos and words for a day, all at once. Photos go on the day and time they were taken, close
-/// ones together as one meal; each asks what it was (left blank, it waits in To log). Words are
-/// split into the meals they name.
+/// ones together as one meal; each asks what it was (left blank, it's estimated from the photo
+/// alone). Words are split into the meals they name.
 struct MealDumpView: View {
     let day: Date
     /// Images dropped on the page (Mac, iPad), to start from.
@@ -579,7 +646,6 @@ struct MealDumpView: View {
     @State private var picked: [PhotosPickerItem: UUID] = [:]
     @State private var photos: [Picked] = []
     @State private var notes: [UUID: String] = [:]
-    @State private var photoOnly: Set<UUID> = []
     @State private var words = ""
     /// Meals (keyed by their first photo) already looked up against the meals logged before.
     @State private var lookedUp: Set<UUID> = []
@@ -613,11 +679,11 @@ struct MealDumpView: View {
                     // The photo as it is (a HEIC stays one), so a Portrait photo keeps its depth.
                     PhotosPicker(selection: $pickerItems, matching: .images, preferredItemEncoding: .current,
                                  photoLibrary: .shared()) {
-                        Label(photos.isEmpty ? "Choose photos" : "Choose more photos", systemImage: "photo.on.rectangle.angled")
+                        WellnessTileLabel("Choose photos", systemImage: "photo.on.rectangle.angled")
                     }
                     .accessibilityIdentifier("mealDump.pick")
                     #if os(iOS)
-                    Button { showCamera = true } label: { Label("Take a photo", systemImage: "camera") }
+                    Button { showCamera = true } label: { WellnessTileLabel("Take photo", systemImage: "camera.fill") }
                         .disabled(!UIImagePickerController.isSourceTypeAvailable(.camera))
                     #endif
                     if reading > 0 {
@@ -630,12 +696,9 @@ struct MealDumpView: View {
                 }
 
                 Section {
-                    TextField("Anything else you ate \(dayWords)? \u{201C}Oatmeal for breakfast, chicken caesar at lunch\u{201D}",
-                              text: $words, axis: .vertical)
+                    TextField("Anything else you ate?", text: $words, axis: .vertical)
                         .lineLimit(2...8)
                         .accessibilityIdentifier("mealDump.words")
-                } header: {
-                    Text("Words")
                 } footer: {
                     if !pieces.isEmpty {
                         Text(pieces.map { "\($0.part?.title ?? "Meal"): \($0.text)" }.joined(separator: "\n"))
@@ -681,7 +744,6 @@ struct MealDumpView: View {
 
     private func groupSection(_ group: [Picked], key: UUID) -> some View {
         let note = Binding(get: { notes[key] ?? "" }, set: { notes[key] = $0 })
-        let empty = (notes[key] ?? "").trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         return Section {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: DS.Space.xs) {
@@ -694,13 +756,9 @@ struct MealDumpView: View {
                     }
                 }
             }
+            // Left blank, it's estimated from the photo alone; words make it better.
             TextField("What was this?", text: note, axis: .vertical)
                 .lineLimit(1...3)
-            if empty {
-                Toggle("Estimate from the photo alone", isOn: Binding(
-                    get: { photoOnly.contains(key) },
-                    set: { if $0 { photoOnly.insert(key) } else { photoOnly.remove(key) } }))
-            }
         } header: {
             Text(group.first?.takenAt.map { MealInboxText.when($0) } ?? "No time on the photo \u{2014} goes \(dayWords)")
         }
@@ -784,7 +842,7 @@ struct MealDumpView: View {
             new.append(MealInboxItem(eatenAt: eatenAt,
                                      photos: group.map { MealPhotoRef(id: $0.id, takenAt: $0.takenAt, depth: $0.depth) },
                                      note: note,
-                                     state: note.isEmpty && !photoOnly.contains(key) ? .awaitingNote : .ready,
+                                     state: .ready,
                                      origin: .picked))
         }
         for piece in pieces {

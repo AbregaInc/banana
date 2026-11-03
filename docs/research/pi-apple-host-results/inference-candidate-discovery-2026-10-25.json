@@ -1,0 +1,706 @@
+{
+  "freshModelSignals": [
+    {
+      "id": "Qwen/Qwen-Drive-1.0-4B",
+      "lastModified": "2026-09-02T06:31:52.000Z",
+      "pipeline_tag": "image-text-to-text",
+      "downloads": 6989,
+      "gated": null
+    },
+    {
+      "id": "Qwen/Qwen3.8-Flash-Next-FP8",
+      "lastModified": "2026-08-31T08:19:15.000Z",
+      "pipeline_tag": "image-text-to-text",
+      "downloads": 148216,
+      "gated": null
+    },
+    {
+      "id": "Qwen/Qwen3.8-Flash-Next",
+      "lastModified": "2026-08-27T05:03:36.000Z",
+      "pipeline_tag": "image-text-to-text",
+      "downloads": 3093369,
+      "gated": null
+    },
+    {
+      "id": "Qwen/Qwen3.8-27B",
+      "lastModified": "2026-08-14T15:00:01.000Z",
+      "pipeline_tag": "image-text-to-text",
+      "downloads": 7762014,
+      "gated": null
+    },
+    {
+      "id": "Qwen/Qwen3.8-27B-FP8",
+      "lastModified": "2026-08-14T14:44:41.000Z",
+      "pipeline_tag": "image-text-to-text",
+      "downloads": 4390238,
+      "gated": null
+    },
+    {
+      "id": "Qwen/Qwen3.8-2.4T-A95B",
+      "lastModified": "2026-08-12T10:24:04.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 25164,
+      "gated": null
+    },
+    {
+      "id": "Qwen/Qwen3.8-2.4T-A95B-FP8",
+      "lastModified": "2026-08-12T10:23:42.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 5782,
+      "gated": null
+    },
+    {
+      "id": "LiquidAI/LFM2.5-2.6B",
+      "lastModified": "2026-10-23T20:50:16.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 97589,
+      "gated": null
+    },
+    {
+      "id": "LiquidAI/LFM2.5-24B-A2B",
+      "lastModified": "2026-10-21T01:14:14.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 20480,
+      "gated": null
+    },
+    {
+      "id": "LiquidAI/LFM2.5-24B-A2B-DSpark-GGUF",
+      "lastModified": "2026-10-21T01:11:31.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 945,
+      "gated": null
+    },
+    {
+      "id": "LiquidAI/LFM2.5-24B-A2B-DSpark",
+      "lastModified": "2026-10-21T01:11:30.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 791,
+      "gated": null
+    },
+    {
+      "id": "LiquidAI/d1-omni-600M-GGUF",
+      "lastModified": "2026-10-17T09:33:50.000Z",
+      "pipeline_tag": "image-text-to-text",
+      "downloads": 11101,
+      "gated": null
+    },
+    {
+      "id": "LiquidAI/LFM2.5-24B-A2B-GGUF",
+      "lastModified": "2026-10-13T21:33:53.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 180531,
+      "gated": null
+    },
+    {
+      "id": "LiquidAI/LFM2.5-24B-A2B-Base",
+      "lastModified": "2026-10-13T06:11:43.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 1516,
+      "gated": null
+    },
+    {
+      "id": "LiquidAI/LFM2.5-24B-A2B-FP8",
+      "lastModified": "2026-10-13T06:11:42.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 34202,
+      "gated": null
+    },
+    {
+      "id": "LiquidAI/LFM2.5-24B-A2B-MLX-6bit",
+      "lastModified": "2026-10-13T06:11:41.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 1443,
+      "gated": null
+    },
+    {
+      "id": "LiquidAI/LFM2.5-24B-A2B-MLX-8bit",
+      "lastModified": "2026-10-13T06:11:41.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 2806,
+      "gated": null
+    },
+    {
+      "id": "LiquidAI/LFM2.5-24B-A2B-MLX-5bit",
+      "lastModified": "2026-10-13T06:11:39.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 1591,
+      "gated": null
+    },
+    {
+      "id": "LiquidAI/LFM2.5-24B-A2B-ONNX",
+      "lastModified": "2026-10-13T06:11:38.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 609,
+      "gated": null
+    },
+    {
+      "id": "LiquidAI/LFM2.5-24B-A2B-MLX-4bit",
+      "lastModified": "2026-10-13T06:11:38.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 7719,
+      "gated": null
+    },
+    {
+      "id": "LiquidAI/LFM2.5-24B-A2B-MLX-bf16",
+      "lastModified": "2026-10-12T20:18:04.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 1324,
+      "gated": null
+    },
+    {
+      "id": "LiquidAI/d1-omni-600M-MLX-8bit",
+      "lastModified": "2026-10-12T02:26:39.000Z",
+      "pipeline_tag": "image-text-to-text",
+      "downloads": 524,
+      "gated": null
+    },
+    {
+      "id": "mlx-community/NVIDIA-Nemotron-3.5-Bolt-E4B-OptiQ-4bit",
+      "lastModified": "2026-10-24T15:36:18.000Z",
+      "pipeline_tag": "image-text-to-text",
+      "downloads": 390,
+      "gated": null
+    },
+    {
+      "id": "mlx-community/Spark-X2.6-4B-OptiQ-4bit",
+      "lastModified": "2026-10-24T15:15:15.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 87,
+      "gated": null
+    },
+    {
+      "id": "mlx-community/flint-OptiQ-4bit",
+      "lastModified": "2026-10-24T14:41:28.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 138,
+      "gated": null
+    },
+    {
+      "id": "mlx-community/Astrea-R8-Chat-9B-OptiQ-4bit",
+      "lastModified": "2026-10-23T05:37:43.000Z",
+      "pipeline_tag": "image-text-to-text",
+      "downloads": 119,
+      "gated": null
+    },
+    {
+      "id": "mlx-community/MiniMax-M3.1-Flash-oQ3e-mtp",
+      "lastModified": "2026-10-23T03:03:16.000Z",
+      "pipeline_tag": "image-text-to-text",
+      "downloads": 335,
+      "gated": null
+    },
+    {
+      "id": "mlx-community/MiniMax-M3.1-Flash-oQ3.5e-mtp",
+      "lastModified": "2026-10-23T03:02:25.000Z",
+      "pipeline_tag": "image-text-to-text",
+      "downloads": 255,
+      "gated": null
+    },
+    {
+      "id": "mlx-community/MiniMax-M3.1-Flash-oQ4e-mtp",
+      "lastModified": "2026-10-23T03:01:30.000Z",
+      "pipeline_tag": "image-text-to-text",
+      "downloads": 390,
+      "gated": null
+    },
+    {
+      "id": "mlx-community/MiniMax-M3.1-Flash-Text-4bit",
+      "lastModified": "2026-10-23T01:51:56.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 399,
+      "gated": null
+    },
+    {
+      "id": "mlx-community/MiniMax-M3.1-Flash-Text-3bit",
+      "lastModified": "2026-10-23T01:47:16.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 178,
+      "gated": null
+    }
+  ],
+  "observedAt": "2026-10-25T14:31:49.459083+00:00",
+  "scope": "Discovery only: tip/release metadata is not reviewed code, supported hardware proof or measured quality. No automatic promotion.",
+  "engines": [
+    {
+      "repo": "Generated-Computers/Locals",
+      "platforms": [
+        "macOS"
+      ],
+      "role": "Current serving frontend and custom MLX compute engine; batch-one claims must be measured separately from concurrent throughput",
+      "url": "https://github.com/Generated-Computers/Locals",
+      "archived": false,
+      "license": "Apache-2.0",
+      "branch": "main",
+      "tip": "4f4d03f10232c9f2adeb1e96e2a7bd79a9e7fe19",
+      "tipDate": "2026-10-24T15:53:55Z",
+      "latestRelease": null
+    },
+    {
+      "repo": "ml-explore/mlx-lm",
+      "platforms": [
+        "macOS"
+      ],
+      "role": "Stock MLX baseline; same checkpoint comparison through Locals' mlx engine",
+      "url": "https://github.com/ml-explore/mlx-lm",
+      "archived": false,
+      "license": "MIT",
+      "branch": "main",
+      "tip": "4cfc6478473b0668ede3eb0cc93f2a9181a15052",
+      "tipDate": "2026-10-24T00:10:47Z",
+      "latestRelease": {
+        "tag_name": "v0.32.2",
+        "published_at": "2026-10-16T02:49:02Z",
+        "html_url": "https://github.com/ml-explore/mlx-lm/releases/tag/v0.32.2"
+      }
+    },
+    {
+      "repo": "ml-explore/mlx-swift-lm",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "role": "Native app runtime; model/template/tool parity required, no Python on mobile",
+      "url": "https://github.com/ml-explore/mlx-swift-lm",
+      "archived": false,
+      "license": "MIT",
+      "branch": "main",
+      "tip": "991266ad300f47a3b9f21e62ff5bdb679215e758",
+      "tipDate": "2026-10-23T20:19:36Z",
+      "latestRelease": {
+        "tag_name": "3.32.3",
+        "published_at": "2026-09-30T20:38:34Z",
+        "html_url": "https://github.com/ml-explore/mlx-swift-lm/releases/tag/3.32.3"
+      }
+    },
+    {
+      "repo": "ggml-org/llama.cpp",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "role": "Native Metal/GGUF candidate; verify pinned model parser and function-calling template",
+      "url": "https://github.com/ggml-org/llama.cpp",
+      "archived": false,
+      "license": "MIT",
+      "branch": "master",
+      "tip": "2280f0fd163b03d4331d49e08460f66502e35854",
+      "tipDate": "2026-10-25T13:23:22Z",
+      "latestRelease": {
+        "tag_name": "v0.7.0",
+        "published_at": "2026-10-15T17:13:19Z",
+        "html_url": "https://github.com/ggml-org/llama.cpp/releases/tag/v0.7.0"
+      }
+    },
+    {
+      "repo": "google-ai-edge/LiteRT-LM",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "role": "Native Swift/LiteRT candidate, especially Gemma; compiled model assets and tool parity need qualification",
+      "url": "https://github.com/google-ai-edge/LiteRT-LM",
+      "archived": false,
+      "license": "Apache-2.0",
+      "branch": "main",
+      "tip": "9a9a74fc1e22831a7888e3ed7e40f73b510016b8",
+      "tipDate": "2026-10-24T22:53:16Z",
+      "latestRelease": {
+        "tag_name": "v0.18.1",
+        "published_at": "2026-10-20T22:36:51Z",
+        "html_url": "https://github.com/google-ai-edge/LiteRT-LM/releases/tag/v0.18.1"
+      }
+    },
+    {
+      "repo": "mlc-ai/mlc-llm",
+      "platforms": [
+        "iOS",
+        "macOS"
+      ],
+      "role": "Compiled native candidate; assess per-model conversion/build and app packaging costs",
+      "url": "https://github.com/mlc-ai/mlc-llm",
+      "archived": false,
+      "license": "Apache-2.0",
+      "branch": "main",
+      "tip": "8978ea9aec626d64096aaa92fbc89bda2e3ea802",
+      "tipDate": "2026-10-06T23:27:06Z",
+      "latestRelease": null
+    },
+    {
+      "repo": "ollama/ollama",
+      "platforms": [
+        "macOS"
+      ],
+      "role": "Mac serving/packaging candidate; record actual compute backend, template and resident-memory policy",
+      "url": "https://github.com/ollama/ollama",
+      "archived": false,
+      "license": "MIT",
+      "branch": "main",
+      "tip": "d44c2581904a98430e348d89cc2af1529b1808a0",
+      "tipDate": "2026-10-24T18:03:30Z",
+      "latestRelease": {
+        "tag_name": "v0.40.11",
+        "published_at": "2026-10-24T00:30:13Z",
+        "html_url": "https://github.com/ollama/ollama/releases/tag/v0.40.11"
+      }
+    },
+    {
+      "repo": "cactus-compute/cactus",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "role": "Mobile runtime candidate; check current distribution/license conditions before qualification",
+      "url": "https://github.com/cactus-compute/cactus",
+      "archived": false,
+      "license": "NOASSERTION",
+      "branch": "main",
+      "tip": "2cfcdb8568eb9192323b27fd0012a834517b4419",
+      "tipDate": "2026-09-26T03:09:48Z",
+      "latestRelease": {
+        "tag_name": "v2.2.2",
+        "published_at": "2026-09-26T03:13:21Z",
+        "html_url": "https://github.com/cactus-compute/cactus/releases/tag/v2.2.2"
+      }
+    }
+  ],
+  "models": [
+    {
+      "repo": "mlx-community/Qwen3.5-2B-4bit",
+      "role": "Smaller fast candidate; compare against 4B with identical nonthinking settings",
+      "url": "https://huggingface.co/mlx-community/Qwen3.5-2B-4bit",
+      "revision": "674aaa7240b91e8012fcad5d791b7dfe5ba90207",
+      "lastModified": "2026-03-02T16:14:15.000Z",
+      "gated": false,
+      "license": "apache-2.0",
+      "pipeline": "image-text-to-text",
+      "safetensors": {
+        "parameters": {
+          "U32": 1881276416,
+          "BF16": 331964960,
+          "F32": 288
+        },
+        "total": 2213241664
+      },
+      "baseModel": [
+        "Qwen/Qwen3.5-2B-Base"
+      ],
+      "adapterOnly": false,
+      "assetBytesAreNotResidentMemory": true,
+      "weightFiles": [
+        {
+          "file": "model.safetensors",
+          "bytes": 1722271785,
+          "sha256": "713fe7e5d3c3965f7106b0d0ee17615f7869c23c8d327996df8c1196fbcf07d5"
+        }
+      ],
+      "downloadWeightBytes": 1722271785
+    },
+    {
+      "repo": "mlx-community/Qwen3.5-4B-4bit",
+      "role": "Current Mac fast incumbent, not proven best",
+      "url": "https://huggingface.co/mlx-community/Qwen3.5-4B-4bit",
+      "revision": "0e7ffd5c629ef7719d4cbc04069232580bfa9d9c",
+      "lastModified": "2026-03-02T15:04:59.000Z",
+      "gated": false,
+      "license": null,
+      "pipeline": null,
+      "safetensors": {
+        "parameters": {
+          "BF16": 465874688,
+          "U32": 525598720,
+          "F32": 768
+        },
+        "total": 991474176
+      },
+      "baseModel": null,
+      "adapterOnly": false,
+      "assetBytesAreNotResidentMemory": true,
+      "weightFiles": [
+        {
+          "file": "model.safetensors",
+          "bytes": 3034300695,
+          "sha256": "5fb9acd0246866381cf8c5c354c6db1019f6498eec4ccb4f5edcc71ffeacb2db"
+        }
+      ],
+      "downloadWeightBytes": 3034300695
+    },
+    {
+      "repo": "mlx-community/Qwen3.5-9B-4bit",
+      "role": "Larger quality/latency tradeoff candidate",
+      "url": "https://huggingface.co/mlx-community/Qwen3.5-9B-4bit",
+      "revision": "8b2b98c00a6b4d291155e4890773ca8f769aee53",
+      "lastModified": "2026-03-02T16:42:26.000Z",
+      "gated": false,
+      "license": "apache-2.0",
+      "pipeline": "image-text-to-text",
+      "safetensors": {
+        "parameters": {
+          "U32": 8952741888,
+          "BF16": 457071088,
+          "F32": 768
+        },
+        "total": 9409813744
+      },
+      "baseModel": [
+        "Qwen/Qwen3.5-9B-Base"
+      ],
+      "adapterOnly": false,
+      "assetBytesAreNotResidentMemory": true,
+      "weightFiles": [
+        {
+          "file": "model-00001-of-00002.safetensors",
+          "bytes": 5349771222,
+          "sha256": "a68b87558c6ef43f74c2bd63ce7e9092ceddc3101f3def0030774bae5f42aadd"
+        },
+        {
+          "file": "model-00002-of-00002.safetensors",
+          "bytes": 600449850,
+          "sha256": "b0a770bf8469c7f3f18756a0e0283f1c1174344a83e059a4e483f6af4907352d"
+        }
+      ],
+      "downloadWeightBytes": 5950221072
+    },
+    {
+      "repo": "mlx-community/Qwen3.8-27B-4bit",
+      "role": "Preserved quality profile; previously too slow for everyday turns",
+      "url": "https://huggingface.co/mlx-community/Qwen3.8-27B-4bit",
+      "revision": "10c35caafbb80f7dc6a7a432cdd11af10a6d4818",
+      "lastModified": "2026-09-14T12:37:43.000Z",
+      "gated": false,
+      "license": "apache-2.0",
+      "pipeline": "image-text-to-text",
+      "safetensors": {
+        "parameters": {
+          "U32": 26893352960,
+          "BF16": 463375600
+        },
+        "total": 27356728560
+      },
+      "baseModel": "Qwen/Qwen3.8-27B",
+      "adapterOnly": false,
+      "assetBytesAreNotResidentMemory": true,
+      "weightFiles": [
+        {
+          "file": "model-00001-of-00003.safetensors",
+          "bytes": 5343268662,
+          "sha256": "6cc1508e96fb5d0865dfd5753a79f4ec60651bf3e2a82844a7e8ae9c60528c0d"
+        },
+        {
+          "file": "model-00002-of-00003.safetensors",
+          "bytes": 5354185130,
+          "sha256": "83f2a20ca8058f486a3634a27faf99587f4cd3c156a83dee34fb99e6ac178670"
+        },
+        {
+          "file": "model-00003-of-00003.safetensors",
+          "bytes": 5357087557,
+          "sha256": "31b8c91ef899f79efaaa69e3d2c096f6e2ebeb2ff20e29222abbd9ebc79e560a"
+        }
+      ],
+      "downloadWeightBytes": 16054541349
+    },
+    {
+      "repo": "mlx-community/Qwen3.6-35B-A3B-4bit",
+      "role": "Mac MoE candidate; resident 35B weights matter despite 3B active compute",
+      "url": "https://huggingface.co/mlx-community/Qwen3.6-35B-A3B-4bit",
+      "revision": "38740b847e4cb78f352aba30aa41c76e08e6eb46",
+      "lastModified": "2026-04-16T16:32:41.000Z",
+      "gated": false,
+      "license": "apache-2.0",
+      "pipeline": "image-text-to-text",
+      "safetensors": {
+        "parameters": {
+          "U32": 34659450880,
+          "BF16": 447731056
+        },
+        "total": 35107181936
+      },
+      "baseModel": "Qwen/Qwen3.6-35B-A3B",
+      "adapterOnly": false,
+      "assetBytesAreNotResidentMemory": true,
+      "weightFiles": [
+        {
+          "file": "model-00001-of-00004.safetensors",
+          "bytes": 5288196018,
+          "sha256": "09f3e6ecb0b7af6e6a38bc8169a134c821b0924c2679b2bb8f4426ad38d032b8"
+        },
+        {
+          "file": "model-00002-of-00004.safetensors",
+          "bytes": 5368472749,
+          "sha256": "31dcdb1c49eebdb1505bd14e3cb33f9cf900bd2546b638f2464694ae763a033f"
+        },
+        {
+          "file": "model-00003-of-00004.safetensors",
+          "bytes": 5368324139,
+          "sha256": "3e66de06a1f03dade16a612a368cfce4a4c9caa4efd7d28185454384082cec03"
+        },
+        {
+          "file": "model-00004-of-00004.safetensors",
+          "bytes": 4377211365,
+          "sha256": "a5d0cf03519c26f8b506df6b0ba60526e5c08c8cea22d0c21ce92950e58a5422"
+        }
+      ],
+      "downloadWeightBytes": 20402204271
+    },
+    {
+      "repo": "google/gemma-4-E2B-it",
+      "role": "Mobile candidate; effective parameters do not equal resident weight size",
+      "url": "https://huggingface.co/google/gemma-4-E2B-it",
+      "revision": "3e22461f65e89153144f8adb70e3b8c2cc9845a7",
+      "lastModified": "2026-07-20T16:41:56.000Z",
+      "gated": false,
+      "license": "apache-2.0",
+      "pipeline": "any-to-any",
+      "safetensors": {
+        "parameters": {
+          "BF16": 5123178051
+        },
+        "total": 5123178051
+      },
+      "baseModel": [
+        "google/gemma-4-E2B"
+      ],
+      "adapterOnly": false,
+      "assetBytesAreNotResidentMemory": true,
+      "weightFiles": [
+        {
+          "file": "model.safetensors",
+          "bytes": 10246621918,
+          "sha256": "2db5482b20d746879bb3ef79b5203e9075a2e2b98f54ec7c2f281c1477ddc550"
+        }
+      ],
+      "downloadWeightBytes": 10246621918
+    },
+    {
+      "repo": "google/gemma-4-E4B-it",
+      "role": "Mobile/Mac candidate; qualify native tool template and memory",
+      "url": "https://huggingface.co/google/gemma-4-E4B-it",
+      "revision": "ee0ef6023621cff504d758262d4e04895a5af4a2",
+      "lastModified": "2026-07-20T16:42:03.000Z",
+      "gated": false,
+      "license": "apache-2.0",
+      "pipeline": "any-to-any",
+      "safetensors": {
+        "parameters": {
+          "BF16": 7996156490
+        },
+        "total": 7996156490
+      },
+      "baseModel": [
+        "google/gemma-4-E4B"
+      ],
+      "adapterOnly": false,
+      "assetBytesAreNotResidentMemory": true,
+      "weightFiles": [
+        {
+          "file": "model.safetensors",
+          "bytes": 15992595884,
+          "sha256": "cfbd3d2f1cd71bd471c37fe2bf8546d5028d41e5736f64e1ca6c6b8893125503"
+        }
+      ],
+      "downloadWeightBytes": 15992595884
+    },
+    {
+      "repo": "LiquidAI/LFM2.5-2.6B-MLX-4bit",
+      "role": "Small model from Locals' curated catalog; qualify Banana behavior rather than adopting throughput claims",
+      "url": "https://huggingface.co/LiquidAI/LFM2.5-2.6B-MLX-4bit",
+      "revision": "04efa23776ce61ec34ec95ec34c859854c89542b",
+      "lastModified": "2026-08-12T19:14:45.000Z",
+      "gated": false,
+      "license": "other",
+      "pipeline": "text-generation",
+      "safetensors": {
+        "parameters": {
+          "U32": 2696937472,
+          "BF16": 261120
+        },
+        "total": 2697198592
+      },
+      "baseModel": "LiquidAI/LFM2.5-2.6B",
+      "adapterOnly": false,
+      "assetBytesAreNotResidentMemory": true,
+      "weightFiles": [
+        {
+          "file": "model.safetensors",
+          "bytes": 1583152892,
+          "sha256": "ef350b75815752f8bff8c064c9fc8bd8b5709577d72943436852013d2bcd4691"
+        }
+      ],
+      "downloadWeightBytes": 1583152892
+    },
+    {
+      "repo": "LiquidAI/d1-omni-600M",
+      "role": "Optional decision/routing experiment, not a chat replacement",
+      "url": "https://huggingface.co/LiquidAI/d1-omni-600M",
+      "revision": "02b55d7076f15129e59ab3f94783f32c4b088674",
+      "lastModified": "2026-10-07T20:22:38.000Z",
+      "gated": false,
+      "license": "other",
+      "pipeline": "image-text-to-text",
+      "safetensors": {
+        "parameters": {
+          "F32": 587161089
+        },
+        "total": 587161089
+      },
+      "baseModel": "LiquidAI/LFM2.5-Encoder-350M",
+      "adapterOnly": false,
+      "assetBytesAreNotResidentMemory": true,
+      "weightFiles": [
+        {
+          "file": "model.safetensors",
+          "bytes": 2348774500,
+          "sha256": "0713bb05270c2685ad106522f4092bceeeb3a93cf79b401f399a712296c911e1"
+        }
+      ],
+      "downloadWeightBytes": 2348774500
+    },
+    {
+      "repo": "jaredpalmer/kev-0.8b",
+      "role": "Decision model; card excludes tool-call routing, not deployed",
+      "url": "https://huggingface.co/jaredpalmer/kev-0.8b",
+      "revision": "bf75a6a8848ea6960ff2ed108d9ed44c2941174f",
+      "lastModified": "2026-10-01T17:17:58.000Z",
+      "gated": false,
+      "license": "apache-2.0",
+      "pipeline": "text-classification",
+      "safetensors": null,
+      "baseModel": "Qwen/Qwen3.5-0.8B-Base",
+      "adapterOnly": true,
+      "assetBytesAreNotResidentMemory": true,
+      "weightFiles": [
+        {
+          "file": "adapter_model.safetensors",
+          "bytes": 43338624,
+          "sha256": "9b908623acb162118575f4e7a94524f9c139c335be4bfb74d6cfceca01e1885a"
+        }
+      ],
+      "downloadWeightBytes": 43338624
+    },
+    {
+      "repo": "jaredpalmer/kev-4b",
+      "role": "Task-specific decision candidate; extra memory, calibration and total-workflow latency must be justified",
+      "url": "https://huggingface.co/jaredpalmer/kev-4b",
+      "revision": "6cfce5c2fa4b4bd64026336ab649c5ca78857d52",
+      "lastModified": "2026-10-01T17:18:26.000Z",
+      "gated": false,
+      "license": "apache-2.0",
+      "pipeline": "text-classification",
+      "safetensors": null,
+      "baseModel": "Qwen/Qwen3.5-4B-Base",
+      "adapterOnly": true,
+      "assetBytesAreNotResidentMemory": true,
+      "weightFiles": [
+        {
+          "file": "adapter_model.safetensors",
+          "bytes": 129924032,
+          "sha256": "90e817356246e7f18bfa7ca3d31794cd4fbeb3332a66a84cb51d9ceae925f2b2"
+        }
+      ],
+      "downloadWeightBytes": 129924032
+    }
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "scope": "Pi sample history and isolated local inference investigation",
+  "sampleData": {
+    "passed": true,
+    "personalMealsAndSavedCopiesPreserved": true,
+    "reloadDeduplicated": true,
+    "removalPersisted": true,
+    "run": "6b04a8cd-a6eb-4abd-baad-62a23c7feb98",
+    "sampleMealCount": 249,
+    "normalHistoryUnchanged": true,
+    "normalSelectionAndDraftUnchanged": true
+  },
+  "normalStore": {
+    "bundle": "com.boris.banana.pi-development",
+    "sampleMealCount": 249,
+    "totalMealCount": 249,
+    "normalStore": true,
+    "verifiedAfterFinalInstall": true,
+    "wellnessSHA256": "5e3df7b4b781eb4e9c10b39b101b11152d5b33372dce53f716b49b35498138e0"
+  },
+  "focusedIPadUITests": {
+    "passed": 2,
+    "failed": 0,
+    "cases": [
+      "testSampleHistoryLoadsOnceAndCanBeRemoved",
+      "testNutritionShortcutOpensWithoutAnInferenceTurn"
+    ],
+    "xcresult": ".build/sim/Logs/Test/Test-BananaPi-2026.10.24_15-42-53--0400.xcresult"
+  },
+  "nativeUnitTests": {
+    "passed": 14,
+    "scope": "8 nutrition queries and 6 sample dataset cases"
+  },
+  "inferenceProbe": {
+    "apple": {
+      "backend": "apple",
+      "toolContractPasses": 18,
+      "total": 24,
+      "warmMedianMilliseconds": 3698.5,
+      "warmRangeMilliseconds": [
+        2731,
+        5489
+      ],
+      "scope": "Twelve synthetic independent fixed-clock requests, repeated. Tool/view contract checks only; conversational text quality not scored. Not production accuracy or p95."
+    },
+    "lfm350": {
+      "backend": "lfm350",
+      "toolContractPasses": 14,
+      "total": 24,
+      "warmMedianMilliseconds": 935.0,
+      "warmRangeMilliseconds": [
+        746,
+        1192
+      ],
+      "scope": "Twelve synthetic independent fixed-clock requests, repeated. Tool/view contract checks only; conversational text quality not scored. Not production accuracy or p95."
+    },
+    "lfm1200": {
+      "backend": "lfm1200",
+      "toolContractPasses": 10,
+      "total": 24,
+      "warmMedianMilliseconds": 3028.5,
+      "warmRangeMilliseconds": [
+        2418,
+        3618
+      ],
+      "scope": "Twelve synthetic independent fixed-clock requests, repeated. Tool/view contract checks only; conversational text quality not scored. Not production accuracy or p95."
+    }
+  },
+  "temporaryBenchmarkAppRemoved": true,
+  "normalPiAppInstalled": true,
+  "newDefaultModelEnabled": false,
+  "physicalNutritionScreenshotInspected": true,
+  "upstreamPiCoreUnchanged": true,
+  "iPadSimulatorShutdown": true
+}

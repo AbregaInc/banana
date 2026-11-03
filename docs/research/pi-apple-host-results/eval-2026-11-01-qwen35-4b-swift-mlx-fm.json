@@ -1,0 +1,1550 @@
+{
+  "complete": true,
+  "scope": "Development smoke corpus, not held-out or production accuracy. No capability executes. Prompt sections and schemas come from the real Banana extensions.",
+  "engine": "mlx",
+  "runnerSha256": "cab6501430107f954f08a9ee674c75e8a92b3c2c93e14cdc53c95dc121e4c75e",
+  "checkpoint": {
+    "repo": "mlx-community/Qwen3.5-4B-4bit",
+    "revision": "0e7ffd5c629ef7719d4cbc04069232580bfa9d9c",
+    "files": {
+      "chat_template.jinja": {
+        "bytes": 7756,
+        "sha256": "a4aee8afcf2e0711942cf848899be66016f8d14a889ff9ede07bca099c28f715"
+      },
+      "config.json": {
+        "bytes": 3366,
+        "sha256": "f3efc81b2ea8d96a45301037d3ccccbcccdef44a961845c87f286aaddbc6eaaa"
+      },
+      "model.safetensors": {
+        "bytes": 3034300695,
+        "sha256": "5fb9acd0246866381cf8c5c354c6db1019f6498eec4ccb4f5edcc71ffeacb2db"
+      },
+      "model.safetensors.index.json": {
+        "bytes": 101944,
+        "sha256": "52e534c41f7b97708329c85f762e5882bf48bd5955a422c6ae74eba321e6048a"
+      },
+      "preprocessor_config.json": {
+        "bytes": 390,
+        "sha256": "27225450ac9c6529872ee1924fcb0962ff5634834f817040f444118116f4e516"
+      },
+      "processor_config.json": {
+        "bytes": 1300,
+        "sha256": "14932921ca485d458a04dafd8069fbb0a4505622a48208d19ed247115801385b"
+      },
+      "tokenizer.json": {
+        "bytes": 19989343,
+        "sha256": "87a7830d63fcf43bf241c3c5242e96e62dd3fdc29224ca26fed8ea333db72de4"
+      },
+      "tokenizer_config.json": {
+        "bytes": 1139,
+        "sha256": "e98f1901ac6f0adff67b1d540bfa0c36ac1a0cf59eb72ed78146ef89aafa1182"
+      },
+      "video_preprocessor_config.json": {
+        "bytes": 385,
+        "sha256": "7768af27c1fafa9cc9011c1dc20067e03f8915e03b63504550e11d5066986d13"
+      },
+      "vocab.json": {
+        "bytes": 6722759,
+        "sha256": "ce99b4cb2983d118806ce0a8b777a35b093e2000a503ebde25853284c9dfa003"
+      }
+    }
+  },
+  "fixtureSha256": "65a850d931dc9038e49f71c0b92d1b7a49421c7eeebd9ab6f0afa63fa863a2de",
+  "fixtureVersion": 1,
+  "recipeNote": "Swift MLX in-process: Pi AppleFoundationModel bridge on MLXLanguageModel (mlx-swift-lm 3.32.3), scratch OpenAI shim; thinking forced off by adapter",
+  "settings": {
+    "thinking": false,
+    "context": 32768,
+    "maxTokens": 2048,
+    "temperature": 0.6,
+    "topP": 0.95,
+    "topK": 20,
+    "repetitionPenalty": 1.0,
+    "templateToolsKey": "tools",
+    "slots": 1,
+    "cacheGB": 2,
+    "repeats": 2,
+    "memoryBudgetGB": 6.0,
+    "budgetMeaning": "Checkpoint preflight only; working memory is observed, not hard-limited by this option"
+  },
+  "runtimeEnvironment": {
+    "LOCALS_KERNELS": null,
+    "LOCALS_TUNE": null,
+    "LOCALS_DTYPE": null,
+    "LOCALS_FUSE": null
+  },
+  "environmentOverrides": {},
+  "hostBefore": {
+    "utc": "2026-11-01T19:10:25.213970+00:00",
+    "chip": "Apple M1 Max",
+    "ramBytes": "68719476736",
+    "os": "27.0.1",
+    "swap": "vm.swapusage: total = 19456.00M  used = 18468.38M  free = 987.62M  (encrypted)",
+    "paging": {
+      "Pageouts": 407581,
+      "Swapins": 5693988,
+      "Swapouts": 10358983
+    }
+  },
+  "results": [
+    {
+      "case": "identity",
+      "repeat": 0,
+      "milliseconds": 4564.5,
+      "raw": {
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "I'm Banana, your personal assistant. How can I help you today?"
+            },
+            "finish_reason": "stop"
+          }
+        ]
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "memory": {
+          "gpu_active_mb": 2367.680344,
+          "gpu_peak_mb": 3557.398688
+        }
+      }
+    },
+    {
+      "case": "greeting",
+      "repeat": 0,
+      "milliseconds": 4739.3,
+      "raw": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "Hi there! How can I help you today?"
+            }
+          }
+        ]
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "memory": {
+          "gpu_peak_mb": 3557.398688,
+          "gpu_active_mb": 2367.680384
+        }
+      }
+    },
+    {
+      "case": "monthly",
+      "repeat": 0,
+      "milliseconds": 5182.0,
+      "raw": {
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "tool_calls": [
+                {
+                  "id": "call_ed0d4c0d56f547f1bfc114fcb4df3341",
+                  "function": {
+                    "arguments": "{\"metric\":\"protein\",\"period\":\"this_month\"}",
+                    "name": "nutrition_view"
+                  },
+                  "type": "function"
+                }
+              ],
+              "content": "",
+              "role": "assistant"
+            },
+            "finish_reason": "tool_calls"
+          }
+        ]
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "gpu_peak_mb": 3557.398688,
+          "gpu_active_mb": 2367.680384
+        }
+      }
+    },
+    {
+      "case": "calories",
+      "repeat": 0,
+      "milliseconds": 5207.8,
+      "raw": {
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "tool_calls",
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "type": "function",
+                  "function": {
+                    "name": "nutrition_view",
+                    "arguments": "{\"period\":\"last_7_days\",\"metric\":\"calories\"}"
+                  },
+                  "id": "call_30fd33b5e81a40cdb6396f8214e7bc73"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "gpu_active_mb": 2367.680402,
+          "gpu_peak_mb": 3557.398688
+        }
+      }
+    },
+    {
+      "case": "food-search",
+      "repeat": 0,
+      "milliseconds": 5241.3,
+      "raw": {
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "type": "function",
+                  "id": "call_20b5f00ea64c4bea8dc1b4a33f951824",
+                  "function": {
+                    "arguments": "{\"foodName\":\"yogurt\"}",
+                    "name": "nutrition_view"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ]
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "gpu_active_mb": 2367.680546,
+          "gpu_peak_mb": 3557.398688
+        }
+      }
+    },
+    {
+      "case": "weekdays",
+      "repeat": 0,
+      "milliseconds": 5362.7,
+      "raw": {
+        "choices": [
+          {
+            "finish_reason": "tool_calls",
+            "message": {
+              "content": "",
+              "tool_calls": [
+                {
+                  "type": "function",
+                  "function": {
+                    "name": "filter_nutrition",
+                    "arguments": "{\"changes\":[\"weekdays_only\"]}"
+                  },
+                  "id": "call_cdfac51a48d14aa8816f9b78066619b1"
+                }
+              ],
+              "role": "assistant"
+            },
+            "index": 0
+          }
+        ]
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "gpu_peak_mb": 3557.398688,
+          "gpu_active_mb": 2367.680568
+        }
+      }
+    },
+    {
+      "case": "compare",
+      "repeat": 0,
+      "milliseconds": 5432.8,
+      "raw": {
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "content": "",
+              "role": "assistant",
+              "tool_calls": [
+                {
+                  "id": "call_1331333e2af943fe863d6d2b3eb478ee",
+                  "function": {
+                    "arguments": "{\"changes\":[\"compare_previous\"]}",
+                    "name": "filter_nutrition"
+                  },
+                  "type": "function"
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ]
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "gpu_peak_mb": 3557.398688,
+          "gpu_active_mb": 2367.680568
+        }
+      }
+    },
+    {
+      "case": "copy",
+      "repeat": 0,
+      "milliseconds": 6669.7,
+      "raw": {
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "tool_calls": [
+                {
+                  "id": "call_38b3cace77a04ae29a6293a20b99dac7",
+                  "function": {
+                    "name": "prepare_meal_copy",
+                    "arguments": "{\"day\":\"tomorrow\",\"mealID\":\"BA5A4E11-0000-4000-8000-000202610231\"}"
+                  },
+                  "type": "function"
+                }
+              ],
+              "content": ""
+            },
+            "finish_reason": "tool_calls"
+          }
+        ]
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "gpu_peak_mb": 3557.398688,
+          "gpu_active_mb": 2367.680568
+        }
+      }
+    },
+    {
+      "case": "new-meal",
+      "repeat": 0,
+      "milliseconds": 5922.4,
+      "raw": {
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "type": "function",
+                  "function": {
+                    "arguments": "{\"foods\":[{\"name\":\"eggs\",\"quantity\":\"2\"},{\"name\":\"banana\",\"quantity\":\"1\"}],\"day\":\"today\"}",
+                    "name": "prepare_meal"
+                  },
+                  "id": "call_e0b5580fea3b460a9654374fb6fca0c2"
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ]
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "gpu_peak_mb": 3557.398688,
+          "gpu_active_mb": 2367.680568
+        }
+      }
+    },
+    {
+      "case": "new-event",
+      "repeat": 0,
+      "milliseconds": 6485.5,
+      "raw": {
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "tool_calls",
+            "message": {
+              "tool_calls": [
+                {
+                  "type": "function",
+                  "function": {
+                    "name": "prepare_event",
+                    "arguments": "{\"title\":\"Lunch\",\"day\":\"tomorrow\",\"time\":\"13:00\",\"durationMinutes\":30}"
+                  },
+                  "id": "call_bd0296be1be74b2b8642adcd35e55468"
+                }
+              ],
+              "content": "",
+              "role": "assistant"
+            }
+          }
+        ]
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "gpu_active_mb": 2367.680568,
+          "gpu_peak_mb": 3557.398688
+        }
+      }
+    },
+    {
+      "case": "explicit-event",
+      "repeat": 0,
+      "milliseconds": 7165.8,
+      "raw": {
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "tool_calls": [
+                {
+                  "id": "call_d003366e66f145268f91dd20d09936a4",
+                  "type": "function",
+                  "function": {
+                    "arguments": "{\"time\":\"09:15\",\"title\":\"Dentist\",\"notes\":\"Dentist appointment\",\"durationMinutes\":45,\"day\":\"2026-11-03\",\"location\":\"Dentist\"}",
+                    "name": "prepare_event"
+                  }
+                }
+              ],
+              "content": ""
+            },
+            "finish_reason": "tool_calls"
+          }
+        ]
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "gpu_peak_mb": 3557.782028,
+          "gpu_active_mb": 2367.680568
+        }
+      }
+    },
+    {
+      "case": "missing-time",
+      "repeat": 0,
+      "milliseconds": 5343.2,
+      "raw": {
+        "choices": [
+          {
+            "finish_reason": "tool_calls",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_a03845dafb644a15ae1f595370e3ac04",
+                  "type": "function",
+                  "function": {
+                    "name": "prepare_event",
+                    "arguments": "{\"title\":\"Dinner\"}"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "passed": false,
+      "reason": "reply_contract",
+      "engineStats": {
+        "memory": {
+          "gpu_active_mb": 2367.680568,
+          "gpu_peak_mb": 3557.782028
+        }
+      }
+    },
+    {
+      "case": "missing-food",
+      "repeat": 0,
+      "milliseconds": 6777.5,
+      "raw": {
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "I'd be happy to help you log a meal! Could you please tell me what you ate and the quantities of each item? For example:\n- What food items did you consume?\n- Approximately how much of each (e.g., 1 cup, \u00bd cup, 100g, etc.)?\n- Did you have it for breakfast, lunch, dinner, or a snack?"
+            },
+            "finish_reason": "stop"
+          }
+        ]
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "memory": {
+          "gpu_active_mb": 2367.680568,
+          "gpu_peak_mb": 3557.782028
+        }
+      }
+    },
+    {
+      "case": "global-search",
+      "repeat": 0,
+      "milliseconds": 5269.0,
+      "raw": {
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "tool_calls",
+            "message": {
+              "tool_calls": [
+                {
+                  "type": "function",
+                  "function": {
+                    "arguments": "{\"query\":\"clinic\"}",
+                    "name": "search_app"
+                  },
+                  "id": "call_586667169e394f02a63115f3cfaba145"
+                }
+              ],
+              "content": "",
+              "role": "assistant"
+            }
+          }
+        ]
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "gpu_peak_mb": 3557.782028,
+          "gpu_active_mb": 2367.680568
+        }
+      }
+    },
+    {
+      "case": "open-page",
+      "repeat": 0,
+      "milliseconds": 5748.1,
+      "raw": {
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "tool_calls": [
+                {
+                  "function": {
+                    "name": "open_page",
+                    "arguments": "{\"section\":\"notes\"}"
+                  },
+                  "type": "function",
+                  "id": "call_86fad6216f29457482c2c0f80a02c738"
+                }
+              ],
+              "role": "assistant",
+              "content": ""
+            },
+            "finish_reason": "tool_calls"
+          }
+        ]
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "gpu_peak_mb": 3557.782028,
+          "gpu_active_mb": 2367.680618
+        }
+      }
+    },
+    {
+      "case": "notes",
+      "repeat": 0,
+      "milliseconds": 5921.6,
+      "raw": {
+        "choices": [
+          {
+            "finish_reason": "tool_calls",
+            "message": {
+              "role": "assistant",
+              "tool_calls": [
+                {
+                  "type": "function",
+                  "function": {
+                    "arguments": "{\"limit\":10}",
+                    "name": "list_notes"
+                  },
+                  "id": "call_45cef405141345cfae4d2764901c6ff0"
+                }
+              ],
+              "content": ""
+            },
+            "index": 0
+          }
+        ]
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "gpu_peak_mb": 3557.782028,
+          "gpu_active_mb": 2367.68064
+        }
+      }
+    },
+    {
+      "case": "create-note",
+      "repeat": 0,
+      "milliseconds": 5885.5,
+      "raw": {
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "content": "",
+              "tool_calls": [
+                {
+                  "function": {
+                    "name": "create_note",
+                    "arguments": "{\"text\":\"Bring the blue notebook\"}"
+                  },
+                  "id": "call_1a043dd8a8f94f7e80e0c41c3e9f708a",
+                  "type": "function"
+                }
+              ],
+              "role": "assistant"
+            },
+            "finish_reason": "tool_calls"
+          }
+        ]
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "gpu_active_mb": 2367.68064,
+          "gpu_peak_mb": 3559.577904
+        }
+      }
+    },
+    {
+      "case": "plan",
+      "repeat": 0,
+      "milliseconds": 5724.3,
+      "raw": {
+        "choices": [
+          {
+            "message": {
+              "content": "",
+              "tool_calls": [
+                {
+                  "function": {
+                    "arguments": "{}",
+                    "name": "day_plan"
+                  },
+                  "id": "call_95ca00eb37d84d24a9cde2b73fe00e3f",
+                  "type": "function"
+                }
+              ],
+              "role": "assistant"
+            },
+            "index": 0,
+            "finish_reason": "tool_calls"
+          }
+        ]
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "gpu_peak_mb": 3559.577904,
+          "gpu_active_mb": 2367.68051
+        }
+      }
+    },
+    {
+      "case": "unsupported",
+      "repeat": 0,
+      "milliseconds": 8345.4,
+      "raw": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "I can't delete meals from your history directly. The tools available to me don't include a function to delete or clear logged meals.\n\nYou'll need to delete meals directly through the Banana app interface itself. You can typically do this by opening your nutrition chart/history and selecting the delete option for each meal, or by looking for a \"clear history\" or \"delete all\" option in the app's settings or within the meal list view.\n\nWould you like me to help you with anything else, like viewing your current nutrition data or preparing a new meal plan?"
+            },
+            "index": 0
+          }
+        ]
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "memory": {
+          "gpu_active_mb": 2367.68051,
+          "gpu_peak_mb": 3559.577904
+        }
+      }
+    },
+    {
+      "case": "explanation",
+      "repeat": 0,
+      "milliseconds": 13154.7,
+      "raw": {
+        "choices": [
+          {
+            "message": {
+              "role": "assistant",
+              "content": "Protein is one of the three main macronutrients (along with carbohydrates and fats) that your body needs to function properly. Here's a simple explanation of what it is and why it's important:\n\n**What is protein?**\nProtein is made up of long chains of smaller building blocks called amino acids. Your body uses these amino acids to build and repair tissues throughout your body.\n\n**Key functions of protein:**\n- **Building and repairing tissues**: Protein is essential for building and repairing muscles, skin, hair, nails, and organs.\n- **Enzyme and hormone production**: Many enzymes and hormones are proteins that help regulate your body's processes.\n- **Immune system support**: Proteins help create antibodies that fight infections.\n- **Energy source**: While primarily used for building and repair, protein can also provide energy when needed.\n\n**Complete vs. incomplete proteins:**\nSome foods contain all nine essential amino acids that your body can't make itself. These are called \"complete proteins\" and include foods like meat, fish, eggs, dairy products, and some legumes and grains. Other foods are called \"incomplete proteins\" because they're missing one or more of these amino acids, but you can get all the essential ones by eating a variety of foods throughout the day.\n\nThe recommended daily intake varies by person, but generally ranges from about 0.8 to 1.6 grams per kilogram of body weight, depending on activity level and health goals."
+            },
+            "index": 0,
+            "finish_reason": "stop"
+          }
+        ]
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "memory": {
+          "gpu_peak_mb": 3560.253846,
+          "gpu_active_mb": 2367.680542
+        }
+      }
+    },
+    {
+      "case": "ambiguous",
+      "repeat": 0,
+      "milliseconds": 6505.4,
+      "raw": {
+        "choices": [
+          {
+            "message": {
+              "role": "assistant",
+              "content": "I'm not sure what \"the other thing\" you're referring to. Could you please clarify what you'd like me to help you with?"
+            },
+            "finish_reason": "stop",
+            "index": 0
+          }
+        ]
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "memory": {
+          "gpu_peak_mb": 3560.253846,
+          "gpu_active_mb": 2367.68047
+        }
+      }
+    },
+    {
+      "case": "not-a-write",
+      "repeat": 0,
+      "milliseconds": 6526.2,
+      "raw": {
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "Understood, I've noted that you typically have eggs for breakfast. I won't log or save anything about your breakfast. Is there anything else I can help you with?"
+            }
+          }
+        ]
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "memory": {
+          "gpu_peak_mb": 3560.253846,
+          "gpu_active_mb": 2367.680614
+        }
+      }
+    },
+    {
+      "case": "identity",
+      "repeat": 1,
+      "milliseconds": 6630.4,
+      "raw": {
+        "choices": [
+          {
+            "message": {
+              "role": "assistant",
+              "content": "I'm Banana, your personal assistant. I'm here to help you with your day, whether that's looking at your nutrition, planning your day, or finding information in the app."
+            },
+            "finish_reason": "stop",
+            "index": 0
+          }
+        ]
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "memory": {
+          "gpu_peak_mb": 3560.253846,
+          "gpu_active_mb": 2367.680614
+        }
+      }
+    },
+    {
+      "case": "greeting",
+      "repeat": 1,
+      "milliseconds": 6057.8,
+      "raw": {
+        "choices": [
+          {
+            "message": {
+              "role": "assistant",
+              "content": "Hi! How can I help you today?"
+            },
+            "index": 0,
+            "finish_reason": "stop"
+          }
+        ]
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "memory": {
+          "gpu_active_mb": 2367.680614,
+          "gpu_peak_mb": 3560.253846
+        }
+      }
+    },
+    {
+      "case": "monthly",
+      "repeat": 1,
+      "milliseconds": 6608.6,
+      "raw": {
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "tool_calls": [
+                {
+                  "id": "call_15f838f5195a473fa10a987e36c045a6",
+                  "function": {
+                    "name": "nutrition_view",
+                    "arguments": "{\"period\":\"this_month\",\"metric\":\"protein\"}"
+                  },
+                  "type": "function"
+                }
+              ],
+              "role": "assistant",
+              "content": ""
+            },
+            "finish_reason": "tool_calls"
+          }
+        ]
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "gpu_active_mb": 2367.680614,
+          "gpu_peak_mb": 3560.253846
+        }
+      }
+    },
+    {
+      "case": "calories",
+      "repeat": 1,
+      "milliseconds": 6727.9,
+      "raw": {
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "tool_calls": [
+                {
+                  "id": "call_cced4c81b45f43768ca550bc0d4dc614",
+                  "function": {
+                    "arguments": "{\"metric\":\"calories\",\"period\":\"last_7_days\"}",
+                    "name": "nutrition_view"
+                  },
+                  "type": "function"
+                }
+              ],
+              "content": "",
+              "role": "assistant"
+            },
+            "finish_reason": "tool_calls"
+          }
+        ]
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "gpu_active_mb": 2367.680758,
+          "gpu_peak_mb": 3560.253846
+        }
+      }
+    },
+    {
+      "case": "food-search",
+      "repeat": 1,
+      "milliseconds": 6721.7,
+      "raw": {
+        "choices": [
+          {
+            "finish_reason": "tool_calls",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "type": "function",
+                  "function": {
+                    "name": "nutrition_view",
+                    "arguments": "{\"foodName\":\"yogurt\"}"
+                  },
+                  "id": "call_170a20cf10b240d39cf97aadfbd4fbdc"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "gpu_active_mb": 2367.68078,
+          "gpu_peak_mb": 3560.253846
+        }
+      }
+    },
+    {
+      "case": "weekdays",
+      "repeat": 1,
+      "milliseconds": 6539.5,
+      "raw": {
+        "choices": [
+          {
+            "message": {
+              "role": "assistant",
+              "tool_calls": [
+                {
+                  "function": {
+                    "arguments": "{\"changes\":[\"weekdays_only\"]}",
+                    "name": "filter_nutrition"
+                  },
+                  "id": "call_d594472011774c2aa0cc29acfc438562",
+                  "type": "function"
+                }
+              ],
+              "content": ""
+            },
+            "index": 0,
+            "finish_reason": "tool_calls"
+          }
+        ]
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "gpu_peak_mb": 3560.253846,
+          "gpu_active_mb": 2367.680802
+        }
+      }
+    },
+    {
+      "case": "compare",
+      "repeat": 1,
+      "milliseconds": 6516.0,
+      "raw": {
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "tool_calls": [
+                {
+                  "id": "call_8f81d2636317474b834c172c2b12b843",
+                  "type": "function",
+                  "function": {
+                    "name": "filter_nutrition",
+                    "arguments": "{\"changes\":[\"compare_previous\"]}"
+                  }
+                }
+              ],
+              "role": "assistant",
+              "content": ""
+            },
+            "finish_reason": "tool_calls"
+          }
+        ]
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "gpu_peak_mb": 3560.253846,
+          "gpu_active_mb": 2367.680802
+        }
+      }
+    },
+    {
+      "case": "copy",
+      "repeat": 1,
+      "milliseconds": 7499.9,
+      "raw": {
+        "choices": [
+          {
+            "message": {
+              "content": "",
+              "tool_calls": [
+                {
+                  "type": "function",
+                  "id": "call_6683e4ff5fce4558b4d68050e0d0e1ce",
+                  "function": {
+                    "arguments": "{\"day\":\"tomorrow\",\"mealID\":\"BA5A4E11-0000-4000-8000-000202610231\"}",
+                    "name": "prepare_meal_copy"
+                  }
+                }
+              ],
+              "role": "assistant"
+            },
+            "index": 0,
+            "finish_reason": "tool_calls"
+          }
+        ]
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "gpu_active_mb": 2367.680802,
+          "gpu_peak_mb": 3560.253846
+        }
+      }
+    },
+    {
+      "case": "new-meal",
+      "repeat": 1,
+      "milliseconds": 6962.8,
+      "raw": {
+        "choices": [
+          {
+            "message": {
+              "tool_calls": [
+                {
+                  "id": "call_911814a260754aa8914f1019b9acda7c",
+                  "function": {
+                    "name": "prepare_meal",
+                    "arguments": "{\"day\":\"today\",\"foods\":[{\"name\":\"eggs\",\"quantity\":\"2\"},{\"name\":\"banana\",\"quantity\":\"1\"}]}"
+                  },
+                  "type": "function"
+                }
+              ],
+              "content": "",
+              "role": "assistant"
+            },
+            "finish_reason": "tool_calls",
+            "index": 0
+          }
+        ]
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "gpu_peak_mb": 3560.253846,
+          "gpu_active_mb": 2367.680802
+        }
+      }
+    },
+    {
+      "case": "new-event",
+      "repeat": 1,
+      "milliseconds": 6803.2,
+      "raw": {
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "tool_calls",
+            "message": {
+              "content": "",
+              "role": "assistant",
+              "tool_calls": [
+                {
+                  "type": "function",
+                  "function": {
+                    "arguments": "{\"title\":\"Lunch\",\"durationMinutes\":30,\"day\":\"tomorrow\",\"time\":\"13:00\"}",
+                    "name": "prepare_event"
+                  },
+                  "id": "call_746588a24f3a4f38b5556c9db86ad89b"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "gpu_peak_mb": 3560.253846,
+          "gpu_active_mb": 2367.680802
+        }
+      }
+    },
+    {
+      "case": "explicit-event",
+      "repeat": 1,
+      "milliseconds": 7079.4,
+      "raw": {
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "type": "function",
+                  "id": "call_dfd9e4996d4942f99786c8eefb7913c0",
+                  "function": {
+                    "name": "prepare_event",
+                    "arguments": "{\"title\":\"Dentist\",\"day\":\"2026-11-03\",\"time\":\"09:15\",\"durationMinutes\":45}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ]
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "gpu_peak_mb": 3560.253846,
+          "gpu_active_mb": 2367.680802
+        }
+      }
+    },
+    {
+      "case": "missing-time",
+      "repeat": 1,
+      "milliseconds": 5720.7,
+      "raw": {
+        "choices": [
+          {
+            "message": {
+              "content": "I need to know the start time for your dinner event. What time would you like to schedule it?",
+              "role": "assistant"
+            },
+            "index": 0,
+            "finish_reason": "stop"
+          }
+        ]
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "memory": {
+          "gpu_active_mb": 2367.680802,
+          "gpu_peak_mb": 3560.253846
+        }
+      }
+    },
+    {
+      "case": "missing-food",
+      "repeat": 1,
+      "milliseconds": 7355.1,
+      "raw": {
+        "choices": [
+          {
+            "message": {
+              "content": "I'll help you log a meal, but I need to know what you ate. Could you please tell me:\n\n1. What foods you had\n2. How much of each (quantities)\n3. The date (if not today)\n\nFor example: \"I had a grilled chicken breast with brown rice and vegetables\" or \"I ate 2 slices of whole wheat bread with peanut butter\"\n\nOnce you provide these details, I can help you log the meal.",
+              "role": "assistant"
+            },
+            "index": 0,
+            "finish_reason": "stop"
+          }
+        ]
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "memory": {
+          "gpu_active_mb": 2367.680802,
+          "gpu_peak_mb": 3560.253846
+        }
+      }
+    },
+    {
+      "case": "global-search",
+      "repeat": 1,
+      "milliseconds": 5169.8,
+      "raw": {
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_cc5d0dba3d744572a8e269192becd688",
+                  "function": {
+                    "arguments": "{\"query\":\"clinic\"}",
+                    "name": "search_app"
+                  },
+                  "type": "function"
+                }
+              ],
+              "role": "assistant"
+            },
+            "finish_reason": "tool_calls"
+          }
+        ]
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "gpu_peak_mb": 3560.253846,
+          "gpu_active_mb": 2367.680802
+        }
+      }
+    },
+    {
+      "case": "open-page",
+      "repeat": 1,
+      "milliseconds": 5600.9,
+      "raw": {
+        "choices": [
+          {
+            "finish_reason": "tool_calls",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "tool_calls": [
+                {
+                  "type": "function",
+                  "function": {
+                    "name": "open_page",
+                    "arguments": "{\"section\":\"notes\"}"
+                  },
+                  "id": "call_20257bb812bd4be18143e277bcf06fbf"
+                }
+              ],
+              "content": ""
+            }
+          }
+        ]
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "gpu_active_mb": 2367.680802,
+          "gpu_peak_mb": 3560.253846
+        }
+      }
+    },
+    {
+      "case": "notes",
+      "repeat": 1,
+      "milliseconds": 5174.1,
+      "raw": {
+        "choices": [
+          {
+            "message": {
+              "tool_calls": [
+                {
+                  "function": {
+                    "arguments": "{}",
+                    "name": "list_notes"
+                  },
+                  "id": "call_e6294c4d0fbc4fb28cb5e6e2894be5d2",
+                  "type": "function"
+                }
+              ],
+              "content": "",
+              "role": "assistant"
+            },
+            "index": 0,
+            "finish_reason": "tool_calls"
+          }
+        ]
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "gpu_peak_mb": 3560.253846,
+          "gpu_active_mb": 2367.680802
+        }
+      }
+    },
+    {
+      "case": "create-note",
+      "repeat": 1,
+      "milliseconds": 5421.1,
+      "raw": {
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_ecabc04bc620483aad641570c77affef",
+                  "type": "function",
+                  "function": {
+                    "name": "create_note",
+                    "arguments": "{\"text\":\"Bring the blue notebook\"}"
+                  }
+                }
+              ],
+              "role": "assistant"
+            },
+            "finish_reason": "tool_calls"
+          }
+        ]
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "gpu_peak_mb": 3560.253846,
+          "gpu_active_mb": 2367.680802
+        }
+      }
+    },
+    {
+      "case": "plan",
+      "repeat": 1,
+      "milliseconds": 5170.4,
+      "raw": {
+        "choices": [
+          {
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "type": "function",
+                  "id": "call_1dd81c789c4a4765be5f914d0bc4e0d1",
+                  "function": {
+                    "arguments": "{}",
+                    "name": "day_plan"
+                  }
+                }
+              ]
+            },
+            "index": 0,
+            "finish_reason": "tool_calls"
+          }
+        ]
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "gpu_active_mb": 2367.680802,
+          "gpu_peak_mb": 3560.253846
+        }
+      }
+    },
+    {
+      "case": "unsupported",
+      "repeat": 1,
+      "milliseconds": 6598.5,
+      "raw": {
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "stop",
+            "message": {
+              "content": "I'm not able to delete meals from your history. I don't have tools that can modify or remove logged meals or nutrition data. You'll need to delete meals directly through the native app interface or contact support if you need help with that.\n\nIs there anything else I can help you with regarding your nutrition tracking, like viewing your charts or preparing a new meal entry?",
+              "role": "assistant"
+            }
+          }
+        ]
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "memory": {
+          "gpu_active_mb": 2367.680802,
+          "gpu_peak_mb": 3560.253846
+        }
+      }
+    },
+    {
+      "case": "explanation",
+      "repeat": 1,
+      "milliseconds": 11585.1,
+      "raw": {
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "stop",
+            "message": {
+              "content": "Protein is one of the three main macronutrients (along with carbohydrates and fats), and it's essential for building and repairing your body's tissues. Here's a simple breakdown:\n\n**What protein does:**\n- **Builds and repairs tissues** \u2013 It's the building block of muscles, bones, skin, hair, and organs.\n- **Growth and development** \u2013 Especially important during childhood and adolescence.\n- **Enzyme and hormone production** \u2013 Proteins act as catalysts in your body and help regulate various bodily functions.\n- **Immune system support** \u2013 Antibodies are proteins that help fight off infections.\n\n**Main types of protein:**\n- **Complete proteins** contain all nine essential amino acids your body can't make on its own. Sources include meat, fish, eggs, dairy, and some legumes.\n- **Incomplete proteins** lack one or more essential amino acids, but you can get all nine by eating a variety of foods throughout the day.\n\n**Why you need it:**\nYour body needs protein regularly to maintain muscle mass, support wound healing, and keep your immune system functioning properly. The recommended intake varies by age, activity level, and health goals, but generally ranges from 0.8 to 2.2 grams per kilogram of body weight depending on individual needs.\n\nWould you like to see how much protein you've been eating recently through your nutrition chart?",
+              "role": "assistant"
+            }
+          }
+        ]
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "memory": {
+          "gpu_peak_mb": 3560.253846,
+          "gpu_active_mb": 2367.680802
+        }
+      }
+    },
+    {
+      "case": "ambiguous",
+      "repeat": 1,
+      "milliseconds": 4708.4,
+      "raw": {
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "I don't have any context about what \"that other thing\" refers to. Could you clarify what you'd like me to do?"
+            }
+          }
+        ]
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "memory": {
+          "gpu_active_mb": 2367.680802,
+          "gpu_peak_mb": 3560.253846
+        }
+      }
+    },
+    {
+      "case": "not-a-write",
+      "repeat": 1,
+      "milliseconds": 4946.4,
+      "raw": {
+        "choices": [
+          {
+            "message": {
+              "role": "assistant",
+              "content": "Understood. I'll keep that in mind for your usual breakfast, but I won't log or save anything right now."
+            },
+            "index": 0,
+            "finish_reason": "stop"
+          }
+        ]
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "memory": {
+          "gpu_peak_mb": 3560.253846,
+          "gpu_active_mb": 2367.680802
+        }
+      }
+    }
+  ],
+  "versions": {
+    "mlx-swift-lm": "3.32.3",
+    "swift-transformers": "1.3.5",
+    "engine": "MLXLanguageModel via Pi AppleFoundationModel bridge"
+  },
+  "engineSourceCommit": "4f4d03f10232c9f2adeb1e96e2a7bd79a9e7fe19",
+  "engineSourceDirty": "",
+  "servingImplementation": "locals.server",
+  "command": [
+    "/private/tmp/claude-501/<redacted>orca-workspaces-gtfuwgth-pi/fb2b7f31-47a3-4e18-a8ad-d4e3ba482ebc/scratchpad/bin/swift-mlx-launcher",
+    "-m",
+    "locals.server",
+    "--model",
+    "~/Library/Application Support/Banana Pi/Models/Qwen3.5-4B-4bit@0e7ffd5c629e",
+    "--engines",
+    "mlx",
+    "--preload",
+    "mlx",
+    "--host",
+    "127.0.0.1",
+    "--port",
+    "41790",
+    "--slots",
+    "1",
+    "--cache-gb",
+    "2",
+    "--max-context",
+    "32768",
+    "--max-tokens",
+    "2048",
+    "--temp",
+    "0.6",
+    "--top-p",
+    "0.95",
+    "--top-k",
+    "20",
+    "--seed",
+    "0"
+  ],
+  "serverReadySeconds": 10.768,
+  "loadSeconds": 10.768,
+  "serverModel": "mlx/qwen35-4b",
+  "hostAfter": {
+    "utc": "2026-11-01T19:15:14.975424+00:00",
+    "chip": "Apple M1 Max",
+    "ramBytes": "68719476736",
+    "os": "27.0.1",
+    "swap": "vm.swapusage: total = 19456.00M  used = 18468.38M  free = 987.62M  (encrypted)",
+    "paging": {
+      "Pageouts": 407581,
+      "Swapins": 5693996,
+      "Swapouts": 10358983
+    }
+  },
+  "ownedWorkerReleased": true,
+  "pagingDelta": {
+    "Pageouts": 0,
+    "Swapins": 8,
+    "Swapouts": 0
+  },
+  "cleanPerformanceRun": false,
+  "summary": {
+    "passes": 43,
+    "total": 44,
+    "warmMedianMilliseconds": 6569.0,
+    "firstRequestMilliseconds": 4564.5,
+    "gpuPeakMB": 3560.253846,
+    "rssMaxObservedMB": null
+  }
+}

@@ -102,9 +102,16 @@ final class EventLocationRecents: ObservableObject {
 struct EventLocationField: View {
     @Binding var location: String
     @Binding var structuredLocation: CalendarEventLocation?
+    /// A place filled in from words ("…at Taco Bell") rather than picked: it opens searching, so
+    /// the Maps places it could be are there to tap, instead of sitting as bare text.
+    var searchesGivenText = false
+    /// One field for where, whatever it is: a link typed or pasted ("meet.google.com/…") is the
+    /// event's video call, handed here, and the field clears for a place (`EventWhere.link`).
+    var onLink: ((String) -> Void)? = nil
     @StateObject private var model = LocationSearchModel()
     @ObservedObject private var recents = EventLocationRecents.shared
     @State private var resolving = false
+    @FocusState private var locationFocused: Bool
 
     private var cleanQuery: String {
         model.query.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -123,6 +130,8 @@ struct EventLocationField: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 TextField("Location or room", text: $model.query)
+                    .focused($locationFocused)
+                    .onSubmit(commitLink)
                     .accessibilityIdentifier("event.location")
                 if resolving { ProgressView().controlSize(.small) }
             }
@@ -156,7 +165,13 @@ struct EventLocationField: View {
             }
         }
         .onAppear {
-            if model.query.isEmpty { model.finish(with: location) }
+            if model.query.isEmpty {
+                if searchesGivenText && structuredLocation == nil && !location.isEmpty {
+                    model.query = location
+                } else {
+                    model.finish(with: location)
+                }
+            }
             #if DEBUG
             // `--location-query <text>`: show the suggestions for a typed place in a snapshot.
             let args = ProcessInfo.processInfo.arguments
@@ -164,6 +179,9 @@ struct EventLocationField: View {
                 model.query = args[flag + 1]
             }
             #endif
+        }
+        .onChange(of: locationFocused) { _, focused in
+            if !focused { commitLink() }
         }
         .onChange(of: model.query) {
             location = model.query
@@ -176,6 +194,14 @@ struct EventLocationField: View {
         .onChange(of: location) {
             if location != model.query { model.finish(with: location) }
         }
+    }
+
+    private func commitLink() {
+        guard let onLink, let link = EventWhere.link(in: model.query) else { return }
+        onLink(link)
+        model.finish(with: "")
+        location = ""
+        structuredLocation = nil
     }
 
     private func select(_ selected: CalendarEventLocation) {

@@ -28,7 +28,10 @@ final class WideLayoutsUITest: XCTestCase {
         let app = launch(tab: "settings")
         // The list and a page at once: on the phone a page is pushed over the list.
         XCTAssertTrue(app.staticTexts["Wake & bedtime"].waitForExistence(timeout: 10))
-        XCTAssertTrue(app.staticTexts["Connect Google Calendar"].firstMatch.exists)
+        // The accounts page, open beside the list (its Connect button; the list's first row is
+        // now named after the page, "Accounts & calendars").
+        XCTAssertTrue(app.buttons["Connect Google Calendar"].firstMatch.exists
+                      || app.staticTexts["Connect Google Calendar"].firstMatch.exists)
         app.staticTexts["Podcasts"].firstMatch.tap()
         XCTAssertTrue(app.staticTexts["Podcast transcripts"].waitForExistence(timeout: 5)
                       || app.staticTexts["PODCAST TRANSCRIPTS"].exists, "the page opens on the right")
@@ -38,13 +41,16 @@ final class WideLayoutsUITest: XCTestCase {
 
     func testNotesShowsTheListBesideTheNote() {
         let app = launch(tab: "notes")
-        XCTAssertTrue(app.staticTexts["No note open"].waitForExistence(timeout: 10))
         // The list's one + sits in its own column, beside the note and not over it. (A capture
         // card and a "write instead" row were here: four ways in to two things.)
         let add = app.buttons["notes.add"]
-        XCTAssertTrue(add.waitForExistence(timeout: 5), "Notes has no + button")
+        XCTAssertTrue(add.waitForExistence(timeout: 10), "Notes has no + button")
         XCTAssertFalse(app.staticTexts["Capture a thought"].exists)
-        XCTAssertLessThan(add.frame.maxX, app.staticTexts["No note open"].frame.minX, "the list is beside the note, not over it")
+        // No empty pane with a second "New note" button: the newest note is open beside the list.
+        XCTAssertFalse(app.staticTexts["No note open"].exists)
+        XCTAssertFalse(app.buttons["New note"].exists)
+        let screen = app.windows.firstMatch.frame.width
+        XCTAssertLessThan(add.frame.maxX, screen * 0.5, "the list is beside the note, not over it")
     }
 
     func testTheLibraryIsAGridOfShows() {

@@ -33,7 +33,7 @@ enum TripTimeZone {
             let leaves = index + 1 < ordered.count ? ordered[index + 1].departs
                                                    : flight.arrives.addingTimeInterval(openEndedStay)
             guard leaves > flight.arrives,
-                  !sameClock(flight.zone, home, at: flight.arrives) else { continue }
+                  !sameClock(flight.zone, home, during: DateInterval(start: flight.arrives, end: leaves)) else { continue }
             result.append(Stay(interval: DateInterval(start: flight.arrives, end: leaves), zone: flight.zone))
         }
         return result
@@ -42,11 +42,11 @@ enum TripTimeZone {
     /// The extra zone for a range of visible days, or nil for a single column.
     static func secondaryZone(visible: DateInterval, flights: [Flight], home: TimeZone,
                               current: TimeZone) -> TimeZone? {
-        if !sameClock(current, home, at: visible.start) { return home }
+        if !sameClock(current, home, during: visible) { return home }
         var overlapByZone: [String: (zone: TimeZone, seconds: TimeInterval)] = [:]
         for stay in stays(flights: flights, home: home) {
             guard let overlap = stay.interval.intersection(with: visible), overlap.duration > 0 else { continue }
-            guard !sameClock(stay.zone, current, at: overlap.start) else { continue }
+            guard !sameClock(stay.zone, current, during: overlap) else { continue }
             overlapByZone[stay.zone.identifier, default: (stay.zone, 0)].seconds += overlap.duration
         }
         return overlapByZone.values.max { $0.seconds < $1.seconds }?.zone
@@ -87,6 +87,21 @@ enum TripTimeZone {
         if let id = defaults.string(forKey: homeKey), let zone = TimeZone(identifier: id) { return zone }
         defaults.set(TimeZone.current.identifier, forKey: homeKey)
         return .current
+    }
+
+    /// Equal offsets on arrival do not mean equal clocks throughout a trip. One
+    /// country may change clocks during the stay while the other does not.
+    static func sameClock(_ a: TimeZone, _ b: TimeZone, during interval: DateInterval) -> Bool {
+        guard sameClock(a, b, at: interval.start),
+              sameClock(a, b, at: max(interval.start, interval.end.addingTimeInterval(-1))) else { return false }
+        for zone in [a, b] {
+            var cursor = interval.start
+            while let transition = zone.nextDaylightSavingTimeTransition(after: cursor), transition < interval.end {
+                guard sameClock(a, b, at: transition) else { return false }
+                cursor = transition.addingTimeInterval(1)
+            }
+        }
+        return true
     }
 
     static func sameClock(_ a: TimeZone, _ b: TimeZone, at date: Date) -> Bool {

@@ -112,15 +112,17 @@ struct AvailabilitySheet: View {
                     Button("Cancel") { dismiss() }
                 }
                 ToolbarItem(placement: .confirmationAction) {
+                    #if os(iOS)
+                    // One verb: the system's share sheet, which has Copy in it. Copy here and a
+                    // second share button at the bottom were two ways to do one thing.
+                    ShareLink(item: text) { Text("Share") }
+                        .accessibilityIdentifier("availability.copy")
+                    #else
                     Button(copied ? "Copied" : "Copy") { copy(text) }
                         .keyboardShortcut(.defaultAction)
                         .accessibilityIdentifier("availability.copy")
+                    #endif
                 }
-                #if os(iOS)
-                ToolbarItem(placement: .bottomBar) {
-                    ShareLink(item: text) { Label("Share", systemImage: "square.and.arrow.up") }
-                }
-                #endif
             }
         }
         #if os(macOS)

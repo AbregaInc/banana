@@ -102,6 +102,10 @@ struct WideWorkoutDetailView: View {
             ToolbarItem {
                 Button { showTrim = true } label: { Label("Trim", systemImage: "scissors") }
                     .labelStyle(.titleAndIcon)
+                    // Off until the recording is on this device, rather than a sheet that can't
+                    // trim anything.
+                    .disabled(!fitness.hasLocalSamples(workout.id))
+                    .help(fitness.hasLocalSamples(workout.id) ? "Trim" : "Recording not here yet")
             }
         }
         ToolbarItem(placement: .destructiveAction) {

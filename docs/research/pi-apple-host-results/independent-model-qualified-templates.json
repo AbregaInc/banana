@@ -1,0 +1,51 @@
+[
+  {
+    "modelDirectory": "ministral3-3b-fixed-tokenizer",
+    "mlxToolCalling": true,
+    "mlxToolParser": "mlx_lm.tool_parsers.mistral",
+    "localsFormat": "mistral_v11",
+    "explicitMetadata": {
+      "fix_mistral_regex": true
+    },
+    "standardToolNameRendered": true,
+    "xmlToolNameRendered": true
+  },
+  {
+    "modelDirectory": "smollm3-3b-xml",
+    "mlxToolCalling": true,
+    "mlxToolParser": "mlx_lm.tool_parsers.json_tools",
+    "localsFormat": "hermes",
+    "explicitMetadata": {
+      "tool_parser_type": "json_tools"
+    },
+    "standardToolNameRendered": false,
+    "xmlToolNameRendered": true
+  },
+  {
+    "modelDirectory": "gemma4-e2b",
+    "mlxToolCalling": true,
+    "mlxToolParser": "mlx_lm.tool_parsers.gemma4",
+    "localsFormat": "gemma4",
+    "explicitMetadata": {},
+    "standardToolNameRendered": true,
+    "xmlToolNameRendered": true
+  },
+  {
+    "modelDirectory": "gemma4-e4b",
+    "mlxToolCalling": true,
+    "mlxToolParser": "mlx_lm.tool_parsers.gemma4",
+    "localsFormat": "gemma4",
+    "explicitMetadata": {},
+    "standardToolNameRendered": true,
+    "xmlToolNameRendered": true
+  },
+  {
+    "modelDirectory": "lfm25-8b-a1b",
+    "mlxToolCalling": true,
+    "mlxToolParser": "mlx_lm.tool_parsers.pythonic",
+    "localsFormat": "lfm2_python",
+    "explicitMetadata": {},
+    "standardToolNameRendered": true,
+    "xmlToolNameRendered": true
+  }
+]

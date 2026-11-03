@@ -1,0 +1,5450 @@
+{
+  "complete": false,
+  "scope": "900 synthetic development routing/argument contracts, 100 per module. 20 intent families \u00d7 5 variants; not empirical top-query rankings, not held-out accuracy, and not end-to-end action tests. Text-only responses require semantic review. Capability gaps are labeled explicitly.",
+  "engine": "locals",
+  "runnerSha256": "d9b075e5e048e8353640163557966876a688c87e9d19684ffeae20bc431985fb",
+  "checkpoint": {
+    "repo": "mlx-community/Qwen3.5-4B-4bit",
+    "revision": "0e7ffd5c629ef7719d4cbc04069232580bfa9d9c",
+    "files": {
+      "chat_template.jinja": {
+        "bytes": 7756,
+        "sha256": "a4aee8afcf2e0711942cf848899be66016f8d14a889ff9ede07bca099c28f715"
+      },
+      "config.json": {
+        "bytes": 3366,
+        "sha256": "f3efc81b2ea8d96a45301037d3ccccbcccdef44a961845c87f286aaddbc6eaaa"
+      },
+      "model.safetensors": {
+        "bytes": 3034300695,
+        "sha256": "5fb9acd0246866381cf8c5c354c6db1019f6498eec4ccb4f5edcc71ffeacb2db"
+      },
+      "model.safetensors.index.json": {
+        "bytes": 101944,
+        "sha256": "52e534c41f7b97708329c85f762e5882bf48bd5955a422c6ae74eba321e6048a"
+      },
+      "preprocessor_config.json": {
+        "bytes": 390,
+        "sha256": "27225450ac9c6529872ee1924fcb0962ff5634834f817040f444118116f4e516"
+      },
+      "processor_config.json": {
+        "bytes": 1300,
+        "sha256": "14932921ca485d458a04dafd8069fbb0a4505622a48208d19ed247115801385b"
+      },
+      "tokenizer.json": {
+        "bytes": 19989343,
+        "sha256": "87a7830d63fcf43bf241c3c5242e96e62dd3fdc29224ca26fed8ea333db72de4"
+      },
+      "tokenizer_config.json": {
+        "bytes": 1139,
+        "sha256": "e98f1901ac6f0adff67b1d540bfa0c36ac1a0cf59eb72ed78146ef89aafa1182"
+      },
+      "video_preprocessor_config.json": {
+        "bytes": 385,
+        "sha256": "7768af27c1fafa9cc9011c1dc20067e03f8915e03b63504550e11d5066986d13"
+      },
+      "vocab.json": {
+        "bytes": 6722759,
+        "sha256": "ce99b4cb2983d118806ce0a8b777a35b093e2000a503ebde25853284c9dfa003"
+      }
+    }
+  },
+  "fixtureSha256": "b7c0d2e188bc397659e57a5af48339b8af728ff37c0fbbb0624f007472cdcbe5",
+  "fixtureVersion": 1,
+  "recipeNote": "Controlled Qwen nonthinking baseline",
+  "settings": {
+    "thinking": false,
+    "context": 32768,
+    "maxTokens": 1024,
+    "temperature": 0.6,
+    "topP": 0.95,
+    "topK": 20,
+    "repetitionPenalty": 1.0,
+    "templateToolsKey": "tools",
+    "slots": 1,
+    "cacheGB": 2,
+    "repeats": 1,
+    "memoryBudgetGB": 6.0,
+    "budgetMeaning": "Checkpoint preflight only; working memory is observed, not hard-limited by this option"
+  },
+  "runtimeEnvironment": {
+    "LOCALS_KERNELS": null,
+    "LOCALS_TUNE": null,
+    "LOCALS_DTYPE": null,
+    "LOCALS_FUSE": null
+  },
+  "environmentOverrides": {},
+  "hostBefore": {
+    "utc": "2026-11-03T04:22:35.609272+00:00",
+    "chip": "Apple M1 Max",
+    "ramBytes": "68719476736",
+    "os": "27.0.1",
+    "swap": "vm.swapusage: total = 5120.00M  used = 3496.44M  free = 1623.56M  (encrypted)",
+    "paging": {
+      "Pageouts": 409765,
+      "Swapins": 6023175,
+      "Swapouts": 10626450
+    }
+  },
+  "results": [
+    {
+      "case": "plan-today-1",
+      "repeat": 0,
+      "milliseconds": 6474.5,
+      "raw": {
+        "id": "chatcmpl-d83d7660c9fc490d8e1b7ef8",
+        "object": "chat.completion",
+        "created": 1793679766,
+        "model": "locals/qwen3.5-4b-4bit@0e7ffd5c629e",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_4335b13ca4184811b92e9342",
+                  "type": "function",
+                  "function": {
+                    "name": "day_plan",
+                    "arguments": "{\"date\": \"today\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2604,
+          "completion_tokens": 25,
+          "total_tokens": 2629,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 11,
+            "passes": 14,
+            "constrained": true,
+            "wall_s": 6.445098083931953
+          }
+        }
+      },
+      "passed": true,
+      "reason": "tool_contract_pass",
+      "engineStats": {
+        "model": "~/Library/Application Support/Banana Pi/Models/Qwen3.5-4B-4bit@0e7ffd5c629e",
+        "uptime_s": 10.544348001480103,
+        "requests": 1,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 2805.545584,
+          "gpu_peak_mb": 4449.892998,
+          "gpu_cache_mb": 1112.907134,
+          "rss_mb": 3002.810368
+        },
+        "engines": {
+          "locals": {
+            "requests": 1,
+            "prompt_tokens": 2604,
+            "cached_tokens": 0,
+            "completion_tokens": 25,
+            "forced_tokens": 11,
+            "passes": 14,
+            "decode_s": 6.186192957917228,
+            "tool_calls": 1,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 25,
+            "steps": 16,
+            "rows": 16,
+            "prefill_s": 4.375527291093022,
+            "prefill_tokens": 2603,
+            "admissions": 1,
+            "idle_s": 1.5149936659727246,
+            "solo_steps": 3,
+            "prompt_cache_mb": 281.280512,
+            "prompt_cache_entries": 2,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 1,
+                "mb": 137
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 1,
+                "mb": 144
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "plan-today-2",
+      "repeat": 0,
+      "milliseconds": 567.0,
+      "raw": {
+        "id": "chatcmpl-6df5453366b14f9bb43d51c6",
+        "object": "chat.completion",
+        "created": 1793679767,
+        "model": "locals/qwen3.5-4b-4bit@0e7ffd5c629e",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_ccb4d22e6f854a4595095496",
+                  "type": "function",
+                  "function": {
+                    "name": "day_plan",
+                    "arguments": "{\"date\": \"today\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2605,
+          "completion_tokens": 25,
+          "total_tokens": 2630,
+          "prompt_tokens_details": {
+            "cached_tokens": 2589
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 11,
+            "passes": 14,
+            "constrained": true,
+            "wall_s": 0.5534875830635428
+          }
+        }
+      },
+      "passed": true,
+      "reason": "tool_contract_pass",
+      "engineStats": {
+        "model": "~/Library/Application Support/Banana Pi/Models/Qwen3.5-4B-4bit@0e7ffd5c629e",
+        "uptime_s": 11.112759113311768,
+        "requests": 2,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 2949.331576,
+          "gpu_peak_mb": 4449.892998,
+          "gpu_cache_mb": 1123.509102,
+          "rss_mb": 3002.810368
+        },
+        "engines": {
+          "locals": {
+            "requests": 2,
+            "prompt_tokens": 5209,
+            "cached_tokens": 2589,
+            "completion_tokens": 50,
+            "forced_tokens": 22,
+            "passes": 28,
+            "decode_s": 6.481988666811958,
+            "tool_calls": 2,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 50,
+            "steps": 32,
+            "rows": 32,
+            "prefill_s": 4.432179499184713,
+            "prefill_tokens": 2618,
+            "admissions": 2,
+            "idle_s": 1.7902215409558266,
+            "solo_steps": 6,
+            "prompt_cache_mb": 418.807808,
+            "prompt_cache_entries": 3,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 2,
+                "mb": 275
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 1,
+                "mb": 144
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "plan-today-3",
+      "repeat": 0,
+      "milliseconds": 421.3,
+      "raw": {
+        "id": "chatcmpl-1db7625719414308a485b14d",
+        "object": "chat.completion",
+        "created": 1793679767,
+        "model": "locals/qwen3.5-4b-4bit@0e7ffd5c629e",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_2d21bca263504cc38745fd61",
+                  "type": "function",
+                  "function": {
+                    "name": "day_plan",
+                    "arguments": "{}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2606,
+          "completion_tokens": 14,
+          "total_tokens": 2620,
+          "prompt_tokens_details": {
+            "cached_tokens": 2589
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 10,
+            "passes": 4,
+            "constrained": true,
+            "wall_s": 0.406926958123222
+          }
+        }
+      },
+      "passed": true,
+      "reason": "tool_contract_pass",
+      "engineStats": {
+        "model": "~/Library/Application Support/Banana Pi/Models/Qwen3.5-4B-4bit@0e7ffd5c629e",
+        "uptime_s": 11.535661220550537,
+        "requests": 3,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3093.117572,
+          "gpu_peak_mb": 4449.892998,
+          "gpu_cache_mb": 1099.629414,
+          "rss_mb": 3002.810368
+        },
+        "engines": {
+          "locals": {
+            "requests": 3,
+            "prompt_tokens": 7815,
+            "cached_tokens": 5178,
+            "completion_tokens": 64,
+            "forced_tokens": 32,
+            "passes": 32,
+            "decode_s": 6.631485416786745,
+            "tool_calls": 3,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 64,
+            "steps": 38,
+            "rows": 38,
+            "prefill_s": 4.483775624074042,
+            "prefill_tokens": 2634,
+            "admissions": 3,
+            "idle_s": 2.0640431658830494,
+            "solo_steps": 8,
+            "prompt_cache_mb": 556.007424,
+            "prompt_cache_entries": 4,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 3,
+                "mb": 412
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 1,
+                "mb": 144
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "plan-today-4",
+      "repeat": 0,
+      "milliseconds": 414.5,
+      "raw": {
+        "id": "chatcmpl-145bb1606e1c4e01b1c913de",
+        "object": "chat.completion",
+        "created": 1793679768,
+        "model": "locals/qwen3.5-4b-4bit@0e7ffd5c629e",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_007428e2bc4e4c20950026db",
+                  "type": "function",
+                  "function": {
+                    "name": "day_plan",
+                    "arguments": "{}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2606,
+          "completion_tokens": 14,
+          "total_tokens": 2620,
+          "prompt_tokens_details": {
+            "cached_tokens": 2589
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 10,
+            "passes": 4,
+            "constrained": true,
+            "wall_s": 0.39992579189129174
+          }
+        }
+      },
+      "passed": true,
+      "reason": "tool_contract_pass",
+      "engineStats": {
+        "model": "~/Library/Application Support/Banana Pi/Models/Qwen3.5-4B-4bit@0e7ffd5c629e",
+        "uptime_s": 11.951626062393188,
+        "requests": 4,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3236.903556,
+          "gpu_peak_mb": 4449.892998,
+          "gpu_cache_mb": 1040.648038,
+          "rss_mb": 3002.810368
+        },
+        "engines": {
+          "locals": {
+            "requests": 4,
+            "prompt_tokens": 10421,
+            "cached_tokens": 7767,
+            "completion_tokens": 78,
+            "forced_tokens": 42,
+            "passes": 36,
+            "decode_s": 6.77248716680333,
+            "tool_calls": 4,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 78,
+            "steps": 44,
+            "rows": 44,
+            "prefill_s": 4.533773123985156,
+            "prefill_tokens": 2650,
+            "admissions": 4,
+            "idle_s": 2.3376221659127623,
+            "solo_steps": 10,
+            "prompt_cache_mb": 693.20704,
+            "prompt_cache_entries": 5,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 4,
+                "mb": 549
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 1,
+                "mb": 144
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "plan-today-5",
+      "repeat": 0,
+      "milliseconds": 400.8,
+      "raw": {
+        "id": "chatcmpl-1fabf4990a664be5a59b036c",
+        "object": "chat.completion",
+        "created": 1793679768,
+        "model": "locals/qwen3.5-4b-4bit@0e7ffd5c629e",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_10fd5f2800e94eda92e9d0d8",
+                  "type": "function",
+                  "function": {
+                    "name": "day_plan",
+                    "arguments": "{}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2604,
+          "completion_tokens": 14,
+          "total_tokens": 2618,
+          "prompt_tokens_details": {
+            "cached_tokens": 2589
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 10,
+            "passes": 4,
+            "constrained": true,
+            "wall_s": 0.3873802500311285
+          }
+        }
+      },
+      "passed": true,
+      "reason": "tool_contract_pass",
+      "engineStats": {
+        "model": "~/Library/Application Support/Banana Pi/Models/Qwen3.5-4B-4bit@0e7ffd5c629e",
+        "uptime_s": 12.353880167007446,
+        "requests": 5,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3380.68954,
+          "gpu_peak_mb": 4449.892998,
+          "gpu_cache_mb": 1052.83787,
+          "rss_mb": 3002.810368
+        },
+        "engines": {
+          "locals": {
+            "requests": 5,
+            "prompt_tokens": 13025,
+            "cached_tokens": 10356,
+            "completion_tokens": 92,
+            "forced_tokens": 52,
+            "passes": 40,
+            "decode_s": 6.908496999880299,
+            "tool_calls": 5,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 92,
+            "steps": 50,
+            "rows": 50,
+            "prefill_s": 4.581278498983011,
+            "prefill_tokens": 2664,
+            "admissions": 5,
+            "idle_s": 2.611722415778786,
+            "solo_steps": 12,
+            "prompt_cache_mb": 830.34112,
+            "prompt_cache_entries": 6,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 5,
+                "mb": 687
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 1,
+                "mb": 144
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "plan-tomorrow-1",
+      "repeat": 0,
+      "milliseconds": 535.3,
+      "raw": {
+        "id": "chatcmpl-d7c5e01f8c1d4e508c555821",
+        "object": "chat.completion",
+        "created": 1793679768,
+        "model": "locals/qwen3.5-4b-4bit@0e7ffd5c629e",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_9e4f67fea57c4b4581fdbb99",
+                  "type": "function",
+                  "function": {
+                    "name": "day_plan",
+                    "arguments": "{\"date\": \"tomorrow\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2604,
+          "completion_tokens": 26,
+          "total_tokens": 2630,
+          "prompt_tokens_details": {
+            "cached_tokens": 2589
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 11,
+            "passes": 15,
+            "constrained": true,
+            "wall_s": 0.5225652498193085
+          }
+        }
+      },
+      "passed": true,
+      "reason": "tool_contract_pass",
+      "engineStats": {
+        "model": "~/Library/Application Support/Banana Pi/Models/Qwen3.5-4B-4bit@0e7ffd5c629e",
+        "uptime_s": 12.890692949295044,
+        "requests": 6,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3524.475524,
+          "gpu_peak_mb": 4449.892998,
+          "gpu_cache_mb": 1065.469938,
+          "rss_mb": 3002.810368
+        },
+        "engines": {
+          "locals": {
+            "requests": 6,
+            "prompt_tokens": 15629,
+            "cached_tokens": 12945,
+            "completion_tokens": 118,
+            "forced_tokens": 63,
+            "passes": 55,
+            "decode_s": 7.180525666801259,
+            "tool_calls": 6,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 118,
+            "steps": 67,
+            "rows": 67,
+            "prefill_s": 4.628894499037415,
+            "prefill_tokens": 2678,
+            "admissions": 6,
+            "idle_s": 2.877287665847689,
+            "solo_steps": 15,
+            "prompt_cache_mb": 967.868416,
+            "prompt_cache_entries": 7,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 6,
+                "mb": 824
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 1,
+                "mb": 144
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "plan-tomorrow-2",
+      "repeat": 0,
+      "milliseconds": 526.3,
+      "raw": {
+        "id": "chatcmpl-1037f4498cd5441c9f24993c",
+        "object": "chat.completion",
+        "created": 1793679769,
+        "model": "locals/qwen3.5-4b-4bit@0e7ffd5c629e",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_5f71a55ccc414172a7828a5a",
+                  "type": "function",
+                  "function": {
+                    "name": "day_plan",
+                    "arguments": "{\"date\": \"tomorrow\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2605,
+          "completion_tokens": 26,
+          "total_tokens": 2631,
+          "prompt_tokens_details": {
+            "cached_tokens": 2589
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 11,
+            "passes": 15,
+            "constrained": true,
+            "wall_s": 0.5124610830098391
+          }
+        }
+      },
+      "passed": true,
+      "reason": "tool_contract_pass",
+      "engineStats": {
+        "model": "~/Library/Application Support/Banana Pi/Models/Qwen3.5-4B-4bit@0e7ffd5c629e",
+        "uptime_s": 13.418511867523193,
+        "requests": 7,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3668.261508,
+          "gpu_peak_mb": 4449.892998,
+          "gpu_cache_mb": 1063.70047,
+          "rss_mb": 3002.810368
+        },
+        "engines": {
+          "locals": {
+            "requests": 7,
+            "prompt_tokens": 18234,
+            "cached_tokens": 15534,
+            "completion_tokens": 144,
+            "forced_tokens": 74,
+            "passes": 70,
+            "decode_s": 7.443872999865562,
+            "tool_calls": 7,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 144,
+            "steps": 84,
+            "rows": 84,
+            "prefill_s": 4.672446249052882,
+            "prefill_tokens": 2693,
+            "admissions": 7,
+            "idle_s": 3.143786873901263,
+            "solo_steps": 18,
+            "prompt_cache_mb": 1105.42848,
+            "prompt_cache_entries": 8,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 7,
+                "mb": 962
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 1,
+                "mb": 144
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "plan-tomorrow-3",
+      "repeat": 0,
+      "milliseconds": 536.0,
+      "raw": {
+        "id": "chatcmpl-c8e98cba7934495f821e6e45",
+        "object": "chat.completion",
+        "created": 1793679770,
+        "model": "locals/qwen3.5-4b-4bit@0e7ffd5c629e",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_898b6addeed94b5fa0b2087e",
+                  "type": "function",
+                  "function": {
+                    "name": "day_plan",
+                    "arguments": "{\"date\": \"tomorrow\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2606,
+          "completion_tokens": 26,
+          "total_tokens": 2632,
+          "prompt_tokens_details": {
+            "cached_tokens": 2589
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 11,
+            "passes": 15,
+            "constrained": true,
+            "wall_s": 0.522275583120063
+          }
+        }
+      },
+      "passed": true,
+      "reason": "tool_contract_pass",
+      "engineStats": {
+        "model": "~/Library/Application Support/Banana Pi/Models/Qwen3.5-4B-4bit@0e7ffd5c629e",
+        "uptime_s": 13.956132173538208,
+        "requests": 8,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3812.047492,
+          "gpu_peak_mb": 4449.892998,
+          "gpu_cache_mb": 1065.824246,
+          "rss_mb": 3002.810368
+        },
+        "engines": {
+          "locals": {
+            "requests": 8,
+            "prompt_tokens": 20840,
+            "cached_tokens": 18123,
+            "completion_tokens": 170,
+            "forced_tokens": 85,
+            "passes": 85,
+            "decode_s": 7.7071747907903045,
+            "tool_calls": 8,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 170,
+            "steps": 101,
+            "rows": 101,
+            "prefill_s": 4.716393583221361,
+            "prefill_tokens": 2709,
+            "admissions": 8,
+            "idle_s": 3.4082490410655737,
+            "solo_steps": 21,
+            "prompt_cache_mb": 1243.021312,
+            "prompt_cache_entries": 9,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 8,
+                "mb": 1099
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 1,
+                "mb": 144
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "plan-tomorrow-4",
+      "repeat": 0,
+      "milliseconds": 532.5,
+      "raw": {
+        "id": "chatcmpl-804ca0675ca14b6c97d1fcb8",
+        "object": "chat.completion",
+        "created": 1793679770,
+        "model": "locals/qwen3.5-4b-4bit@0e7ffd5c629e",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_2dabf1c5f63b485481f5dc17",
+                  "type": "function",
+                  "function": {
+                    "name": "day_plan",
+                    "arguments": "{\"date\": \"tomorrow\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2606,
+          "completion_tokens": 26,
+          "total_tokens": 2632,
+          "prompt_tokens_details": {
+            "cached_tokens": 2589
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 11,
+            "passes": 15,
+            "constrained": true,
+            "wall_s": 0.5189263750799
+          }
+        }
+      },
+      "passed": true,
+      "reason": "tool_contract_pass",
+      "engineStats": {
+        "model": "~/Library/Application Support/Banana Pi/Models/Qwen3.5-4B-4bit@0e7ffd5c629e",
+        "uptime_s": 14.490284204483032,
+        "requests": 9,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3955.833476,
+          "gpu_peak_mb": 4449.892998,
+          "gpu_cache_mb": 1065.824246,
+          "rss_mb": 3002.810368
+        },
+        "engines": {
+          "locals": {
+            "requests": 9,
+            "prompt_tokens": 23446,
+            "cached_tokens": 20712,
+            "completion_tokens": 196,
+            "forced_tokens": 96,
+            "passes": 100,
+            "decode_s": 7.967147456947714,
+            "tool_calls": 9,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 196,
+            "steps": 118,
+            "rows": 118,
+            "prefill_s": 4.757464999333024,
+            "prefill_tokens": 2725,
+            "admissions": 9,
+            "idle_s": 3.6825754570309073,
+            "solo_steps": 24,
+            "prompt_cache_mb": 1380.614144,
+            "prompt_cache_entries": 10,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 9,
+                "mb": 1237
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 1,
+                "mb": 144
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "plan-tomorrow-5",
+      "repeat": 0,
+      "milliseconds": 524.3,
+      "raw": {
+        "id": "chatcmpl-8f84e5316027428b863ba54d",
+        "object": "chat.completion",
+        "created": 1793679771,
+        "model": "locals/qwen3.5-4b-4bit@0e7ffd5c629e",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_f093d522aacb40fc97d13ae8",
+                  "type": "function",
+                  "function": {
+                    "name": "day_plan",
+                    "arguments": "{\"date\": \"tomorrow\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2605,
+          "completion_tokens": 26,
+          "total_tokens": 2631,
+          "prompt_tokens_details": {
+            "cached_tokens": 2589
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 11,
+            "passes": 15,
+            "constrained": true,
+            "wall_s": 0.5111309168860316
+          }
+        }
+      },
+      "passed": true,
+      "reason": "tool_contract_pass",
+      "engineStats": {
+        "model": "~/Library/Application Support/Banana Pi/Models/Qwen3.5-4B-4bit@0e7ffd5c629e",
+        "uptime_s": 15.016231060028076,
+        "requests": 10,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4099.61946,
+          "gpu_peak_mb": 4449.892998,
+          "gpu_cache_mb": 1059.385334,
+          "rss_mb": 3002.810368
+        },
+        "engines": {
+          "locals": {
+            "requests": 10,
+            "prompt_tokens": 26051,
+            "cached_tokens": 23301,
+            "completion_tokens": 222,
+            "forced_tokens": 107,
+            "passes": 115,
+            "decode_s": 8.228620998095721,
+            "tool_calls": 10,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 222,
+            "steps": 135,
+            "rows": 135,
+            "prefill_s": 4.801858207210898,
+            "prefill_tokens": 2740,
+            "admissions": 10,
+            "idle_s": 3.9565267069265246,
+            "solo_steps": 27,
+            "prompt_cache_mb": 1518.174208,
+            "prompt_cache_entries": 11,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 10,
+                "mb": 1374
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 1,
+                "mb": 144
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "plan-appointments-1",
+      "repeat": 0,
+      "milliseconds": 532.6,
+      "raw": {
+        "id": "chatcmpl-413a517d7f3e4176a6c144dd",
+        "object": "chat.completion",
+        "created": 1793679771,
+        "model": "locals/qwen3.5-4b-4bit@0e7ffd5c629e",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_cdbb7eff8922441c9665537b",
+                  "type": "function",
+                  "function": {
+                    "name": "day_plan",
+                    "arguments": "{\"date\": \"tomorrow\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2602,
+          "completion_tokens": 26,
+          "total_tokens": 2628,
+          "prompt_tokens_details": {
+            "cached_tokens": 2589
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 11,
+            "passes": 15,
+            "constrained": true,
+            "wall_s": 0.5196026659104973
+          }
+        }
+      },
+      "passed": true,
+      "reason": "tool_contract_pass",
+      "engineStats": {
+        "model": "~/Library/Application Support/Banana Pi/Models/Qwen3.5-4B-4bit@0e7ffd5c629e",
+        "uptime_s": 15.550297975540161,
+        "requests": 11,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4243.40546,
+          "gpu_peak_mb": 4449.892998,
+          "gpu_cache_mb": 1088.22117,
+          "rss_mb": 3002.810368
+        },
+        "engines": {
+          "locals": {
+            "requests": 11,
+            "prompt_tokens": 28653,
+            "cached_tokens": 25890,
+            "completion_tokens": 248,
+            "forced_tokens": 118,
+            "passes": 130,
+            "decode_s": 8.489245415199548,
+            "tool_calls": 11,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 248,
+            "steps": 152,
+            "rows": 152,
+            "prefill_s": 4.844468624098226,
+            "prefill_tokens": 2752,
+            "admissions": 11,
+            "idle_s": 4.2207676658872515,
+            "solo_steps": 30,
+            "prompt_cache_mb": 1655.635968,
+            "prompt_cache_entries": 12,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 11,
+                "mb": 1512
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 1,
+                "mb": 144
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "plan-appointments-2",
+      "repeat": 0,
+      "milliseconds": 525.3,
+      "raw": {
+        "id": "chatcmpl-29120a22373643a0b50ac537",
+        "object": "chat.completion",
+        "created": 1793679772,
+        "model": "locals/qwen3.5-4b-4bit@0e7ffd5c629e",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_7992263246274c4db453f5e7",
+                  "type": "function",
+                  "function": {
+                    "name": "day_plan",
+                    "arguments": "{\"date\": \"tomorrow\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2603,
+          "completion_tokens": 26,
+          "total_tokens": 2629,
+          "prompt_tokens_details": {
+            "cached_tokens": 2589
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 11,
+            "passes": 15,
+            "constrained": true,
+            "wall_s": 0.5119265411049128
+          }
+        }
+      },
+      "passed": true,
+      "reason": "tool_contract_pass",
+      "engineStats": {
+        "model": "~/Library/Application Support/Banana Pi/Models/Qwen3.5-4B-4bit@0e7ffd5c629e",
+        "uptime_s": 16.07713007926941,
+        "requests": 12,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4387.19146,
+          "gpu_peak_mb": 4521.33613,
+          "gpu_cache_mb": 1085.403122,
+          "rss_mb": 3002.810368
+        },
+        "engines": {
+          "locals": {
+            "requests": 12,
+            "prompt_tokens": 31256,
+            "cached_tokens": 28479,
+            "completion_tokens": 274,
+            "forced_tokens": 129,
+            "passes": 145,
+            "decode_s": 8.752314623212442,
+            "tool_calls": 12,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 274,
+            "steps": 169,
+            "rows": 169,
+            "prefill_s": 4.888935833005235,
+            "prefill_tokens": 2765,
+            "admissions": 12,
+            "idle_s": 4.494795915903524,
+            "solo_steps": 33,
+            "prompt_cache_mb": 1793.130496,
+            "prompt_cache_entries": 13,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 12,
+                "mb": 1649
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 1,
+                "mb": 144
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "plan-appointments-3",
+      "repeat": 0,
+      "milliseconds": 534.7,
+      "raw": {
+        "id": "chatcmpl-fe1f1a6f397f4ee28aea2285",
+        "object": "chat.completion",
+        "created": 1793679772,
+        "model": "locals/qwen3.5-4b-4bit@0e7ffd5c629e",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_217c0bf3f31e4669aee749a2",
+                  "type": "function",
+                  "function": {
+                    "name": "day_plan",
+                    "arguments": "{\"date\": \"tomorrow\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2605,
+          "completion_tokens": 26,
+          "total_tokens": 2631,
+          "prompt_tokens_details": {
+            "cached_tokens": 2589
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 11,
+            "passes": 15,
+            "constrained": true,
+            "wall_s": 0.52114695799537
+          }
+        }
+      },
+      "passed": true,
+      "reason": "tool_contract_pass",
+      "engineStats": {
+        "model": "~/Library/Application Support/Banana Pi/Models/Qwen3.5-4B-4bit@0e7ffd5c629e",
+        "uptime_s": 16.613380908966064,
+        "requests": 13,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4530.977444,
+          "gpu_peak_mb": 4665.154882,
+          "gpu_cache_mb": 997.273586,
+          "rss_mb": 3002.810368
+        },
+        "engines": {
+          "locals": {
+            "requests": 13,
+            "prompt_tokens": 33861,
+            "cached_tokens": 31068,
+            "completion_tokens": 300,
+            "forced_tokens": 140,
+            "passes": 160,
+            "decode_s": 9.017893748357892,
+            "tool_calls": 13,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 300,
+            "steps": 186,
+            "rows": 186,
+            "prefill_s": 4.936798291048035,
+            "prefill_tokens": 2780,
+            "admissions": 13,
+            "idle_s": 4.758817457826808,
+            "solo_steps": 36,
+            "prompt_cache_mb": 1930.69056,
+            "prompt_cache_entries": 14,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 13,
+                "mb": 1787
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 1,
+                "mb": 144
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "plan-appointments-4",
+      "repeat": 0,
+      "milliseconds": 538.9,
+      "raw": {
+        "id": "chatcmpl-b7b6bc4e12d0408faa2831bf",
+        "object": "chat.completion",
+        "created": 1793679773,
+        "model": "locals/qwen3.5-4b-4bit@0e7ffd5c629e",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_0c3bc48b738949d6ba604713",
+                  "type": "function",
+                  "function": {
+                    "name": "day_plan",
+                    "arguments": "{\"date\": \"tomorrow\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2604,
+          "completion_tokens": 26,
+          "total_tokens": 2630,
+          "prompt_tokens_details": {
+            "cached_tokens": 2589
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 11,
+            "passes": 15,
+            "constrained": true,
+            "wall_s": 0.5253874168265611
+          }
+        }
+      },
+      "passed": true,
+      "reason": "tool_contract_pass",
+      "engineStats": {
+        "model": "~/Library/Application Support/Banana Pi/Models/Qwen3.5-4B-4bit@0e7ffd5c629e",
+        "uptime_s": 17.15399718284607,
+        "requests": 14,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4674.763428,
+          "gpu_peak_mb": 4804.139892,
+          "gpu_cache_mb": 997.224434,
+          "rss_mb": 3002.810368
+        },
+        "engines": {
+          "locals": {
+            "requests": 14,
+            "prompt_tokens": 36465,
+            "cached_tokens": 33657,
+            "completion_tokens": 326,
+            "forced_tokens": 151,
+            "passes": 175,
+            "decode_s": 9.284317498328164,
+            "tool_calls": 14,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 326,
+            "steps": 203,
+            "rows": 203,
+            "prefill_s": 4.983251624973491,
+            "prefill_tokens": 2794,
+            "admissions": 14,
+            "idle_s": 5.0296675828285515,
+            "solo_steps": 39,
+            "prompt_cache_mb": 2068.217856,
+            "prompt_cache_entries": 15,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 14,
+                "mb": 1924
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 1,
+                "mb": 144
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "plan-appointments-5",
+      "repeat": 0,
+      "milliseconds": 534.9,
+      "raw": {
+        "id": "chatcmpl-ffe728d6d89145a9bf33379f",
+        "object": "chat.completion",
+        "created": 1793679773,
+        "model": "locals/qwen3.5-4b-4bit@0e7ffd5c629e",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_8986c295f38240ae9bc76012",
+                  "type": "function",
+                  "function": {
+                    "name": "day_plan",
+                    "arguments": "{\"date\": \"tomorrow\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2603,
+          "completion_tokens": 26,
+          "total_tokens": 2629,
+          "prompt_tokens_details": {
+            "cached_tokens": 2589
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 11,
+            "passes": 15,
+            "constrained": true,
+            "wall_s": 0.5213567919563502
+          }
+        }
+      },
+      "passed": true,
+      "reason": "tool_contract_pass",
+      "engineStats": {
+        "model": "~/Library/Application Support/Banana Pi/Models/Qwen3.5-4B-4bit@0e7ffd5c629e",
+        "uptime_s": 17.69056010246277,
+        "requests": 15,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4674.763428,
+          "gpu_peak_mb": 4952.72685,
+          "gpu_cache_mb": 1074.392154,
+          "rss_mb": 3002.810368
+        },
+        "engines": {
+          "locals": {
+            "requests": 15,
+            "prompt_tokens": 39068,
+            "cached_tokens": 36246,
+            "completion_tokens": 352,
+            "forced_tokens": 162,
+            "passes": 190,
+            "decode_s": 9.552564040292054,
+            "tool_calls": 15,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 352,
+            "steps": 220,
+            "rows": 220,
+            "prefill_s": 5.030063499929383,
+            "prefill_tokens": 2807,
+            "admissions": 15,
+            "idle_s": 5.304046374978498,
+            "solo_steps": 42,
+            "prompt_cache_mb": 2068.217856,
+            "prompt_cache_entries": 15,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 14,
+                "mb": 1924
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 1,
+                "mb": 144
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "plan-agenda-1",
+      "repeat": 0,
+      "milliseconds": 529.0,
+      "raw": {
+        "id": "chatcmpl-89354d4fa7284f70b9e96d47",
+        "object": "chat.completion",
+        "created": 1793679774,
+        "model": "locals/qwen3.5-4b-4bit@0e7ffd5c629e",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_1bd37285f7204d198a2e13fb",
+                  "type": "function",
+                  "function": {
+                    "name": "day_plan",
+                    "arguments": "{\"date\": \"today\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2603,
+          "completion_tokens": 25,
+          "total_tokens": 2628,
+          "prompt_tokens_details": {
+            "cached_tokens": 2589
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 11,
+            "passes": 14,
+            "constrained": true,
+            "wall_s": 0.514430166920647
+          }
+        }
+      },
+      "passed": true,
+      "reason": "tool_contract_pass",
+      "engineStats": {
+        "model": "~/Library/Application Support/Banana Pi/Models/Qwen3.5-4B-4bit@0e7ffd5c629e",
+        "uptime_s": 18.221221923828125,
+        "requests": 16,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4674.763428,
+          "gpu_peak_mb": 4952.72685,
+          "gpu_cache_mb": 1104.09637,
+          "rss_mb": 3002.810368
+        },
+        "engines": {
+          "locals": {
+            "requests": 16,
+            "prompt_tokens": 41671,
+            "cached_tokens": 38835,
+            "completion_tokens": 377,
+            "forced_tokens": 173,
+            "passes": 204,
+            "decode_s": 9.808162415167317,
+            "tool_calls": 16,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 377,
+            "steps": 236,
+            "rows": 236,
+            "prefill_s": 5.075670999940485,
+            "prefill_tokens": 2820,
+            "admissions": 16,
+            "idle_s": 5.57319474988617,
+            "solo_steps": 45,
+            "prompt_cache_mb": 2068.15232,
+            "prompt_cache_entries": 15,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 14,
+                "mb": 1924
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 1,
+                "mb": 144
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "plan-agenda-2",
+      "repeat": 0,
+      "milliseconds": 525.9,
+      "raw": {
+        "id": "chatcmpl-c45447977a354a368742da54",
+        "object": "chat.completion",
+        "created": 1793679774,
+        "model": "locals/qwen3.5-4b-4bit@0e7ffd5c629e",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_5c7bf31e4cd04b5eb977cbcd",
+                  "type": "function",
+                  "function": {
+                    "name": "day_plan",
+                    "arguments": "{\"date\": \"today\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2604,
+          "completion_tokens": 25,
+          "total_tokens": 2629,
+          "prompt_tokens_details": {
+            "cached_tokens": 2589
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 11,
+            "passes": 14,
+            "constrained": true,
+            "wall_s": 0.5119294577743858
+          }
+        }
+      },
+      "passed": true,
+      "reason": "tool_contract_pass",
+      "engineStats": {
+        "model": "~/Library/Application Support/Banana Pi/Models/Qwen3.5-4B-4bit@0e7ffd5c629e",
+        "uptime_s": 18.74972915649414,
+        "requests": 17,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4674.763428,
+          "gpu_peak_mb": 4952.72685,
+          "gpu_cache_mb": 1070.83685,
+          "rss_mb": 3002.810368
+        },
+        "engines": {
+          "locals": {
+            "requests": 17,
+            "prompt_tokens": 44275,
+            "cached_tokens": 41424,
+            "completion_tokens": 402,
+            "forced_tokens": 184,
+            "passes": 218,
+            "decode_s": 10.06470541516319,
+            "tool_calls": 17,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 402,
+            "steps": 252,
+            "rows": 252,
+            "prefill_s": 5.122943915892392,
+            "prefill_tokens": 2834,
+            "admissions": 17,
+            "idle_s": 5.847057124832645,
+            "solo_steps": 48,
+            "prompt_cache_mb": 2068.447232,
+            "prompt_cache_entries": 15,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 14,
+                "mb": 1925
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 1,
+                "mb": 144
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "plan-agenda-3",
+      "repeat": 0,
+      "milliseconds": 533.1,
+      "raw": {
+        "id": "chatcmpl-abd4a16ce951481cad69b978",
+        "object": "chat.completion",
+        "created": 1793679775,
+        "model": "locals/qwen3.5-4b-4bit@0e7ffd5c629e",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_f06d5a719cd34712aba4ab36",
+                  "type": "function",
+                  "function": {
+                    "name": "day_plan",
+                    "arguments": "{\"date\": \"today\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2606,
+          "completion_tokens": 25,
+          "total_tokens": 2631,
+          "prompt_tokens_details": {
+            "cached_tokens": 2589
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 11,
+            "passes": 14,
+            "constrained": true,
+            "wall_s": 0.5186497911345214
+          }
+        }
+      },
+      "passed": true,
+      "reason": "tool_contract_pass",
+      "engineStats": {
+        "model": "~/Library/Application Support/Banana Pi/Models/Qwen3.5-4B-4bit@0e7ffd5c629e",
+        "uptime_s": 19.285161018371582,
+        "requests": 18,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4674.763428,
+          "gpu_peak_mb": 4952.72685,
+          "gpu_cache_mb": 1070.935154,
+          "rss_mb": 3002.810368
+        },
+        "engines": {
+          "locals": {
+            "requests": 18,
+            "prompt_tokens": 46881,
+            "cached_tokens": 44013,
+            "completion_tokens": 427,
+            "forced_tokens": 195,
+            "passes": 232,
+            "decode_s": 10.33185124816373,
+            "tool_calls": 18,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 427,
+            "steps": 268,
+            "rows": 268,
+            "prefill_s": 5.173774207010865,
+            "prefill_tokens": 2850,
+            "admissions": 18,
+            "idle_s": 6.121043790830299,
+            "solo_steps": 51,
+            "prompt_cache_mb": 2068.80768,
+            "prompt_cache_entries": 15,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 14,
+                "mb": 1925
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 1,
+                "mb": 144
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "plan-agenda-4",
+      "repeat": 0,
+      "milliseconds": 523.2,
+      "raw": {
+        "id": "chatcmpl-44c3cf56ff4342efbbe9e6ca",
+        "object": "chat.completion",
+        "created": 1793679775,
+        "model": "locals/qwen3.5-4b-4bit@0e7ffd5c629e",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_5e37c87fb57846bcbb3665f3",
+                  "type": "function",
+                  "function": {
+                    "name": "day_plan",
+                    "arguments": "{\"date\": \"today\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2605,
+          "completion_tokens": 25,
+          "total_tokens": 2630,
+          "prompt_tokens_details": {
+            "cached_tokens": 2589
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 11,
+            "passes": 14,
+            "constrained": true,
+            "wall_s": 0.5093364999629557
+          }
+        }
+      },
+      "passed": true,
+      "reason": "tool_contract_pass",
+      "engineStats": {
+        "model": "~/Library/Application Support/Banana Pi/Models/Qwen3.5-4B-4bit@0e7ffd5c629e",
+        "uptime_s": 19.81022000312805,
+        "requests": 19,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4674.763428,
+          "gpu_peak_mb": 4952.72685,
+          "gpu_cache_mb": 1070.935154,
+          "rss_mb": 3002.810368
+        },
+        "engines": {
+          "locals": {
+            "requests": 19,
+            "prompt_tokens": 49486,
+            "cached_tokens": 46602,
+            "completion_tokens": 452,
+            "forced_tokens": 206,
+            "passes": 246,
+            "decode_s": 10.589358748169616,
+            "tool_calls": 19,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 452,
+            "steps": 284,
+            "rows": 284,
+            "prefill_s": 5.22156920703128,
+            "prefill_tokens": 2865,
+            "admissions": 19,
+            "idle_s": 6.388535207835957,
+            "solo_steps": 54,
+            "prompt_cache_mb": 2069.200896,
+            "prompt_cache_entries": 15,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 14,
+                "mb": 1925
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 1,
+                "mb": 144
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "plan-agenda-5",
+      "repeat": 0,
+      "milliseconds": 531.6,
+      "raw": {
+        "id": "chatcmpl-ae567f8bc9454dcd88581daa",
+        "object": "chat.completion",
+        "created": 1793679776,
+        "model": "locals/qwen3.5-4b-4bit@0e7ffd5c629e",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_3ee5e52acaed47709f48f291",
+                  "type": "function",
+                  "function": {
+                    "name": "day_plan",
+                    "arguments": "{\"date\": \"today\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2603,
+          "completion_tokens": 25,
+          "total_tokens": 2628,
+          "prompt_tokens_details": {
+            "cached_tokens": 2589
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 11,
+            "passes": 14,
+            "constrained": true,
+            "wall_s": 0.5184865000192076
+          }
+        }
+      },
+      "passed": true,
+      "reason": "tool_contract_pass",
+      "engineStats": {
+        "model": "~/Library/Application Support/Banana Pi/Models/Qwen3.5-4B-4bit@0e7ffd5c629e",
+        "uptime_s": 20.343671083450317,
+        "requests": 20,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4674.763428,
+          "gpu_peak_mb": 4952.72685,
+          "gpu_cache_mb": 1071.197298,
+          "rss_mb": 3002.810368
+        },
+        "engines": {
+          "locals": {
+            "requests": 20,
+            "prompt_tokens": 52089,
+            "cached_tokens": 49191,
+            "completion_tokens": 477,
+            "forced_tokens": 217,
+            "passes": 260,
+            "decode_s": 10.848939582239836,
+            "tool_calls": 20,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 477,
+            "steps": 300,
+            "rows": 300,
+            "prefill_s": 5.270101540023461,
+            "prefill_tokens": 2878,
+            "admissions": 20,
+            "idle_s": 6.655322874896228,
+            "solo_steps": 57,
+            "prompt_cache_mb": 2069.200896,
+            "prompt_cache_entries": 15,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 14,
+                "mb": 1925
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 1,
+                "mb": 144
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "plan-dated-1",
+      "repeat": 0,
+      "milliseconds": 624.0,
+      "raw": {
+        "id": "chatcmpl-d6e2374d61564ebc8d27fbb5",
+        "object": "chat.completion",
+        "created": 1793679777,
+        "model": "locals/qwen3.5-4b-4bit@0e7ffd5c629e",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_d01a45a54b4a495589cc5b34",
+                  "type": "function",
+                  "function": {
+                    "name": "day_plan",
+                    "arguments": "{\"date\": \"2026-11-03\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2614,
+          "completion_tokens": 34,
+          "total_tokens": 2648,
+          "prompt_tokens_details": {
+            "cached_tokens": 2589
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 11,
+            "passes": 23,
+            "constrained": true,
+            "wall_s": 0.6105002500116825
+          }
+        }
+      },
+      "passed": true,
+      "reason": "tool_contract_pass",
+      "engineStats": {
+        "model": "~/Library/Application Support/Banana Pi/Models/Qwen3.5-4B-4bit@0e7ffd5c629e",
+        "uptime_s": 20.969726085662842,
+        "requests": 21,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4674.763432,
+          "gpu_peak_mb": 5218.772753,
+          "gpu_cache_mb": 1078.107711,
+          "rss_mb": 3002.810368
+        },
+        "engines": {
+          "locals": {
+            "requests": 21,
+            "prompt_tokens": 54703,
+            "cached_tokens": 51780,
+            "completion_tokens": 511,
+            "forced_tokens": 228,
+            "passes": 283,
+            "decode_s": 11.201230957172811,
+            "tool_calls": 21,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 511,
+            "steps": 320,
+            "rows": 320,
+            "prefill_s": 5.333716998109594,
+            "prefill_tokens": 2902,
+            "admissions": 21,
+            "idle_s": 6.929957750020549,
+            "solo_steps": 62,
+            "drafted": 5,
+            "prompt_cache_mb": 2069.79072,
+            "prompt_cache_entries": 15,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 14,
+                "mb": 1926
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 1,
+                "mb": 144
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "plan-dated-2",
+      "repeat": 0,
+      "milliseconds": 622.0,
+      "raw": {
+        "id": "chatcmpl-e1748120b7ac4a6fb7a5c5cf",
+        "object": "chat.completion",
+        "created": 1793679777,
+        "model": "locals/qwen3.5-4b-4bit@0e7ffd5c629e",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_b24b863c92f44315be7f664b",
+                  "type": "function",
+                  "function": {
+                    "name": "day_plan",
+                    "arguments": "{\"date\": \"2026-11-04\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2615,
+          "completion_tokens": 34,
+          "total_tokens": 2649,
+          "prompt_tokens_details": {
+            "cached_tokens": 2589
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 11,
+            "passes": 23,
+            "constrained": true,
+            "wall_s": 0.6088183331303298
+          }
+        }
+      },
+      "passed": true,
+      "reason": "tool_contract_pass",
+      "engineStats": {
+        "model": "~/Library/Application Support/Banana Pi/Models/Qwen3.5-4B-4bit@0e7ffd5c629e",
+        "uptime_s": 21.593460083007812,
+        "requests": 22,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4674.763432,
+          "gpu_peak_mb": 5230.032629,
+          "gpu_cache_mb": 1078.515444,
+          "rss_mb": 3002.810368
+        },
+        "engines": {
+          "locals": {
+            "requests": 22,
+            "prompt_tokens": 57318,
+            "cached_tokens": 54369,
+            "completion_tokens": 545,
+            "forced_tokens": 239,
+            "passes": 306,
+            "decode_s": 11.551536041079089,
+            "tool_calls": 22,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 545,
+            "steps": 340,
+            "rows": 340,
+            "prefill_s": 5.4000292480923235,
+            "prefill_tokens": 2927,
+            "admissions": 22,
+            "idle_s": 7.202312875073403,
+            "solo_steps": 67,
+            "drafted": 10,
+            "prompt_cache_mb": 2070.380544,
+            "prompt_cache_entries": 15,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 14,
+                "mb": 1927
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 1,
+                "mb": 144
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "plan-dated-3",
+      "repeat": 0,
+      "milliseconds": 616.8,
+      "raw": {
+        "id": "chatcmpl-c0d0b03e21cb4819b8de690d",
+        "object": "chat.completion",
+        "created": 1793679778,
+        "model": "locals/qwen3.5-4b-4bit@0e7ffd5c629e",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_c25298f025fd456d87a2438c",
+                  "type": "function",
+                  "function": {
+                    "name": "day_plan",
+                    "arguments": "{\"date\": \"2026-11-05\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2616,
+          "completion_tokens": 34,
+          "total_tokens": 2650,
+          "prompt_tokens_details": {
+            "cached_tokens": 2589
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 11,
+            "passes": 23,
+            "constrained": true,
+            "wall_s": 0.6037907919380814
+          }
+        }
+      },
+      "passed": true,
+      "reason": "tool_contract_pass",
+      "engineStats": {
+        "model": "~/Library/Application Support/Banana Pi/Models/Qwen3.5-4B-4bit@0e7ffd5c629e",
+        "uptime_s": 22.21185302734375,
+        "requests": 23,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4674.763432,
+          "gpu_peak_mb": 5230.049013,
+          "gpu_cache_mb": 1077.915377,
+          "rss_mb": 3002.810368
+        },
+        "engines": {
+          "locals": {
+            "requests": 23,
+            "prompt_tokens": 59934,
+            "cached_tokens": 56958,
+            "completion_tokens": 579,
+            "forced_tokens": 250,
+            "passes": 329,
+            "decode_s": 11.901020291028544,
+            "tool_calls": 23,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 579,
+            "steps": 360,
+            "rows": 360,
+            "prefill_s": 5.465009039035067,
+            "prefill_tokens": 2953,
+            "admissions": 23,
+            "idle_s": 7.4747885840479285,
+            "solo_steps": 72,
+            "drafted": 15,
+            "prompt_cache_mb": 2070.970368,
+            "prompt_cache_entries": 15,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 14,
+                "mb": 1927
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 1,
+                "mb": 144
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "plan-dated-4",
+      "repeat": 0,
+      "milliseconds": 628.7,
+      "raw": {
+        "id": "chatcmpl-2abc633e5a174882b83f12d9",
+        "object": "chat.completion",
+        "created": 1793679778,
+        "model": "locals/qwen3.5-4b-4bit@0e7ffd5c629e",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_3ae011bb675f4d25bf54b57f",
+                  "type": "function",
+                  "function": {
+                    "name": "day_plan",
+                    "arguments": "{\"date\": \"2026-11-06\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2616,
+          "completion_tokens": 34,
+          "total_tokens": 2650,
+          "prompt_tokens_details": {
+            "cached_tokens": 2589
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 11,
+            "passes": 23,
+            "constrained": true,
+            "wall_s": 0.6149336670059711
+          }
+        }
+      },
+      "passed": true,
+      "reason": "tool_contract_pass",
+      "engineStats": {
+        "model": "~/Library/Application Support/Banana Pi/Models/Qwen3.5-4B-4bit@0e7ffd5c629e",
+        "uptime_s": 22.842198133468628,
+        "requests": 24,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4674.763432,
+          "gpu_peak_mb": 5230.049013,
+          "gpu_cache_mb": 1074.439958,
+          "rss_mb": 3002.810368
+        },
+        "engines": {
+          "locals": {
+            "requests": 24,
+            "prompt_tokens": 62550,
+            "cached_tokens": 59547,
+            "completion_tokens": 613,
+            "forced_tokens": 261,
+            "passes": 352,
+            "decode_s": 12.26125262491405,
+            "tool_calls": 24,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 613,
+            "steps": 380,
+            "rows": 380,
+            "prefill_s": 5.530979954870418,
+            "prefill_tokens": 2979,
+            "admissions": 24,
+            "idle_s": 7.743732334114611,
+            "solo_steps": 77,
+            "drafted": 20,
+            "prompt_cache_mb": 2071.560192,
+            "prompt_cache_entries": 15,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 14,
+                "mb": 1928
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 1,
+                "mb": 144
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "plan-dated-5",
+      "repeat": 0,
+      "milliseconds": 622.8,
+      "raw": {
+        "id": "chatcmpl-231ce9c10bce4f36a4cd9074",
+        "object": "chat.completion",
+        "created": 1793679779,
+        "model": "locals/qwen3.5-4b-4bit@0e7ffd5c629e",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_7d7051523be8433789b841a4",
+                  "type": "function",
+                  "function": {
+                    "name": "day_plan",
+                    "arguments": "{\"date\": \"2026-11-07\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2614,
+          "completion_tokens": 34,
+          "total_tokens": 2648,
+          "prompt_tokens_details": {
+            "cached_tokens": 2589
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 11,
+            "passes": 23,
+            "constrained": true,
+            "wall_s": 0.6087658330798149
+          }
+        }
+      },
+      "passed": true,
+      "reason": "tool_contract_pass",
+      "engineStats": {
+        "model": "~/Library/Application Support/Banana Pi/Models/Qwen3.5-4B-4bit@0e7ffd5c629e",
+        "uptime_s": 23.466934204101562,
+        "requests": 25,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4674.763432,
+          "gpu_peak_mb": 5230.049013,
+          "gpu_cache_mb": 1075.282915,
+          "rss_mb": 3002.810368
+        },
+        "engines": {
+          "locals": {
+            "requests": 25,
+            "prompt_tokens": 65164,
+            "cached_tokens": 62136,
+            "completion_tokens": 647,
+            "forced_tokens": 272,
+            "passes": 375,
+            "decode_s": 12.611777166835964,
+            "tool_calls": 25,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 647,
+            "steps": 400,
+            "rows": 400,
+            "prefill_s": 5.594912912929431,
+            "prefill_tokens": 3003,
+            "admissions": 25,
+            "idle_s": 8.013788251206279,
+            "solo_steps": 82,
+            "drafted": 25,
+            "prompt_cache_mb": 2072.117248,
+            "prompt_cache_entries": 15,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 14,
+                "mb": 1928
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 1,
+                "mb": 144
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "plan-create-1",
+      "repeat": 0,
+      "milliseconds": 1066.6,
+      "raw": {
+        "id": "chatcmpl-893578632b444f17afc6a9f6",
+        "object": "chat.completion",
+        "created": 1793679780,
+        "model": "locals/qwen3.5-4b-4bit@0e7ffd5c629e",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_563b9b3ea7b04cb1b7357967",
+                  "type": "function",
+                  "function": {
+                    "name": "prepare_event",
+                    "arguments": "{\"title\": \"Dentist\", \"day\": \"tomorrow\", \"time\": \"09:15\", \"durationMinutes\": 15}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2614,
+          "completion_tokens": 69,
+          "total_tokens": 2683,
+          "prompt_tokens_details": {
+            "cached_tokens": 2589
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 13,
+            "passes": 56,
+            "constrained": true,
+            "wall_s": 1.0536424580495805
+          }
+        }
+      },
+      "passed": true,
+      "reason": "tool_contract_pass",
+      "engineStats": {
+        "model": "~/Library/Application Support/Banana Pi/Models/Qwen3.5-4B-4bit@0e7ffd5c629e",
+        "uptime_s": 24.53531503677368,
+        "requests": 26,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4674.763432,
+          "gpu_peak_mb": 5265.94158,
+          "gpu_cache_mb": 1074.549866,
+          "rss_mb": 3002.810368
+        },
+        "engines": {
+          "locals": {
+            "requests": 26,
+            "prompt_tokens": 67778,
+            "cached_tokens": 64725,
+            "completion_tokens": 716,
+            "forced_tokens": 285,
+            "passes": 431,
+            "decode_s": 13.411883082706481,
+            "tool_calls": 26,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 716,
+            "steps": 454,
+            "rows": 454,
+            "prefill_s": 5.6564080798998475,
+            "prefill_tokens": 3027,
+            "admissions": 26,
+            "idle_s": 8.286328959278762,
+            "solo_steps": 94,
+            "drafted": 31,
+            "prompt_cache_mb": 2073.919488,
+            "prompt_cache_entries": 15,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 14,
+                "mb": 1930
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 1,
+                "mb": 144
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "plan-create-2",
+      "repeat": 0,
+      "milliseconds": 1057.1,
+      "raw": {
+        "id": "chatcmpl-dadd8c895db447909dc29373",
+        "object": "chat.completion",
+        "created": 1793679781,
+        "model": "locals/qwen3.5-4b-4bit@0e7ffd5c629e",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_96857515d0644c038461d44f",
+                  "type": "function",
+                  "function": {
+                    "name": "prepare_event",
+                    "arguments": "{\"title\": \"Team lunch\", \"day\": \"tomorrow\", \"time\": \"11:30\", \"durationMinutes\": 30}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2615,
+          "completion_tokens": 68,
+          "total_tokens": 2683,
+          "prompt_tokens_details": {
+            "cached_tokens": 2589
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 13,
+            "passes": 55,
+            "constrained": true,
+            "wall_s": 1.04193766717799
+          }
+        }
+      },
+      "passed": true,
+      "reason": "tool_contract_pass",
+      "engineStats": {
+        "model": "~/Library/Application Support/Banana Pi/Models/Qwen3.5-4B-4bit@0e7ffd5c629e",
+        "uptime_s": 25.59476399421692,
+        "requests": 27,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4674.763432,
+          "gpu_peak_mb": 5356.50369,
+          "gpu_cache_mb": 1078.391279,
+          "rss_mb": 3002.810368
+        },
+        "engines": {
+          "locals": {
+            "requests": 27,
+            "prompt_tokens": 70393,
+            "cached_tokens": 67314,
+            "completion_tokens": 784,
+            "forced_tokens": 298,
+            "passes": 486,
+            "decode_s": 14.2004115418531,
+            "tool_calls": 27,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 784,
+            "steps": 507,
+            "rows": 507,
+            "prefill_s": 5.722020912682638,
+            "prefill_tokens": 3052,
+            "admissions": 27,
+            "idle_s": 8.554986293194816,
+            "solo_steps": 106,
+            "drafted": 37,
+            "prompt_cache_mb": 2075.68896,
+            "prompt_cache_entries": 15,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 14,
+                "mb": 1932
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 1,
+                "mb": 144
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "plan-create-3",
+      "repeat": 0,
+      "milliseconds": 1102.3,
+      "raw": {
+        "id": "chatcmpl-99f5f22d14a940e1a0697356",
+        "object": "chat.completion",
+        "created": 1793679782,
+        "model": "locals/qwen3.5-4b-4bit@0e7ffd5c629e",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_18674cdfa4fa4c588d54739a",
+                  "type": "function",
+                  "function": {
+                    "name": "prepare_event",
+                    "arguments": "{\"title\": \"Design review\", \"day\": \"tomorrow\", \"time\": \"14:00\", \"durationMinutes\": 45}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2617,
+          "completion_tokens": 68,
+          "total_tokens": 2685,
+          "prompt_tokens_details": {
+            "cached_tokens": 2589
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 13,
+            "passes": 55,
+            "constrained": true,
+            "wall_s": 1.061459416989237
+          }
+        }
+      },
+      "passed": true,
+      "reason": "tool_contract_pass",
+      "engineStats": {
+        "model": "~/Library/Application Support/Banana Pi/Models/Qwen3.5-4B-4bit@0e7ffd5c629e",
+        "uptime_s": 26.70309090614319,
+        "requests": 28,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4674.763432,
+          "gpu_peak_mb": 5356.602058,
+          "gpu_cache_mb": 1073.762986,
+          "rss_mb": 3002.810368
+        },
+        "engines": {
+          "locals": {
+            "requests": 28,
+            "prompt_tokens": 73010,
+            "cached_tokens": 69903,
+            "completion_tokens": 852,
+            "forced_tokens": 311,
+            "passes": 541,
+            "decode_s": 14.995559957809746,
+            "tool_calls": 28,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 852,
+            "steps": 561,
+            "rows": 561,
+            "prefill_s": 5.785883037606254,
+            "prefill_tokens": 3079,
+            "admissions": 28,
+            "idle_s": 8.85317696025595,
+            "solo_steps": 117,
+            "drafted": 41,
+            "prompt_cache_mb": 2077.458432,
+            "prompt_cache_entries": 15,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 14,
+                "mb": 1934
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 1,
+                "mb": 144
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "plan-create-4",
+      "repeat": 0,
+      "milliseconds": 1083.8,
+      "raw": {
+        "id": "chatcmpl-80c4831cb7aa4d998540be5c",
+        "object": "chat.completion",
+        "created": 1793679783,
+        "model": "locals/qwen3.5-4b-4bit@0e7ffd5c629e",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_ad40e976b96b434f93b15040",
+                  "type": "function",
+                  "function": {
+                    "name": "prepare_event",
+                    "arguments": "{\"title\": \"Dinner\", \"day\": \"tomorrow\", \"time\": \"17:00\", \"durationMinutes\": 60}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2615,
+          "completion_tokens": 68,
+          "total_tokens": 2683,
+          "prompt_tokens_details": {
+            "cached_tokens": 2589
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 13,
+            "passes": 55,
+            "constrained": true,
+            "wall_s": 1.0603417921811342
+          }
+        }
+      },
+      "passed": true,
+      "reason": "tool_contract_pass",
+      "engineStats": {
+        "model": "~/Library/Application Support/Banana Pi/Models/Qwen3.5-4B-4bit@0e7ffd5c629e",
+        "uptime_s": 27.790372848510742,
+        "requests": 29,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4674.763432,
+          "gpu_peak_mb": 5356.602058,
+          "gpu_cache_mb": 1078.668571,
+          "rss_mb": 3002.810368
+        },
+        "engines": {
+          "locals": {
+            "requests": 29,
+            "prompt_tokens": 75625,
+            "cached_tokens": 72492,
+            "completion_tokens": 920,
+            "forced_tokens": 324,
+            "passes": 596,
+            "decode_s": 15.798256957903504,
+            "tool_calls": 29,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 920,
+            "steps": 615,
+            "rows": 615,
+            "prefill_s": 5.8536234544590116,
+            "prefill_tokens": 3104,
+            "admissions": 29,
+            "idle_s": 9.147789835231379,
+            "solo_steps": 129,
+            "drafted": 46,
+            "prompt_cache_mb": 2079.195136,
+            "prompt_cache_entries": 15,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 14,
+                "mb": 1935
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 1,
+                "mb": 144
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "plan-create-5",
+      "repeat": 0,
+      "milliseconds": 1083.6,
+      "raw": {
+        "id": "chatcmpl-d46e6888323e4337810f2652",
+        "object": "chat.completion",
+        "created": 1793679784,
+        "model": "locals/qwen3.5-4b-4bit@0e7ffd5c629e",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_cfb18e5b8c88400ea4324dec",
+                  "type": "function",
+                  "function": {
+                    "name": "prepare_event",
+                    "arguments": "{\"title\": \"Airport pickup\", \"day\": \"tomorrow\", \"time\": \"20:45\", \"durationMinutes\": 90}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2615,
+          "completion_tokens": 68,
+          "total_tokens": 2683,
+          "prompt_tokens_details": {
+            "cached_tokens": 2589
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 13,
+            "passes": 55,
+            "constrained": true,
+            "wall_s": 1.0505751247983426
+          }
+        }
+      },
+      "passed": true,
+      "reason": "tool_contract_pass",
+      "engineStats": {
+        "model": "~/Library/Application Support/Banana Pi/Models/Qwen3.5-4B-4bit@0e7ffd5c629e",
+        "uptime_s": 28.879729986190796,
+        "requests": 30,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4674.763432,
+          "gpu_peak_mb": 5356.602058,
+          "gpu_cache_mb": 1075.70789,
+          "rss_mb": 3002.810368
+        },
+        "engines": {
+          "locals": {
+            "requests": 30,
+            "prompt_tokens": 78240,
+            "cached_tokens": 75081,
+            "completion_tokens": 988,
+            "forced_tokens": 337,
+            "passes": 651,
+            "decode_s": 16.59372920775786,
+            "tool_calls": 30,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 988,
+            "steps": 669,
+            "rows": 669,
+            "prefill_s": 5.923687996342778,
+            "prefill_tokens": 3129,
+            "admissions": 30,
+            "idle_s": 9.443157960195094,
+            "solo_steps": 140,
+            "drafted": 50,
+            "prompt_cache_mb": 2080.964608,
+            "prompt_cache_entries": 15,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 14,
+                "mb": 1937
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 1,
+                "mb": 144
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "plan-explicit-date-1",
+      "repeat": 0,
+      "milliseconds": 1004.2,
+      "raw": {
+        "id": "chatcmpl-111a936c0575465ea414c480",
+        "object": "chat.completion",
+        "created": 1793679785,
+        "model": "locals/qwen3.5-4b-4bit@0e7ffd5c629e",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_03903d3fc03a43a98db060dd",
+                  "type": "function",
+                  "function": {
+                    "name": "prepare_event",
+                    "arguments": "{\"title\": \"Dentist\", \"day\": \"2026-11-03\", \"time\": \"09:15\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2620,
+          "completion_tokens": 63,
+          "total_tokens": 2683,
+          "prompt_tokens_details": {
+            "cached_tokens": 2589
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 12,
+            "passes": 51,
+            "constrained": true,
+            "wall_s": 0.9578036670573056
+          }
+        }
+      },
+      "passed": true,
+      "reason": "tool_contract_pass",
+      "engineStats": {
+        "model": "~/Library/Application Support/Banana Pi/Models/Qwen3.5-4B-4bit@0e7ffd5c629e",
+        "uptime_s": 29.889708042144775,
+        "requests": 31,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4674.763432,
+          "gpu_peak_mb": 5356.602058,
+          "gpu_cache_mb": 1074.552359,
+          "rss_mb": 3002.810368
+        },
+        "engines": {
+          "locals": {
+            "requests": 31,
+            "prompt_tokens": 80860,
+            "cached_tokens": 77670,
+            "completion_tokens": 1051,
+            "forced_tokens": 349,
+            "passes": 702,
+            "decode_s": 17.30161404167302,
+            "tool_calls": 31,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1051,
+            "steps": 716,
+            "rows": 716,
+            "prefill_s": 5.9946726623456925,
+            "prefill_tokens": 3159,
+            "admissions": 31,
+            "idle_s": 9.750038835220039,
+            "solo_steps": 149,
+            "drafted": 57,
+            "prompt_cache_mb": 2082.73408,
+            "prompt_cache_entries": 15,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 14,
+                "mb": 1939
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 1,
+                "mb": 144
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "plan-explicit-date-2",
+      "repeat": 0,
+      "milliseconds": 1002.2,
+      "raw": {
+        "id": "chatcmpl-265c54ff00c34ad8a8c6b432",
+        "object": "chat.completion",
+        "created": 1793679786,
+        "model": "locals/qwen3.5-4b-4bit@0e7ffd5c629e",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_f3521b500a3643b3a1c3fc67",
+                  "type": "function",
+                  "function": {
+                    "name": "prepare_event",
+                    "arguments": "{\"title\": \"Team lunch\", \"day\": \"2026-11-04\", \"time\": \"11:30\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2621,
+          "completion_tokens": 62,
+          "total_tokens": 2683,
+          "prompt_tokens_details": {
+            "cached_tokens": 2589
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 12,
+            "passes": 50,
+            "constrained": true,
+            "wall_s": 0.9556566250976175
+          }
+        }
+      },
+      "passed": true,
+      "reason": "tool_contract_pass",
+      "engineStats": {
+        "model": "~/Library/Application Support/Banana Pi/Models/Qwen3.5-4B-4bit@0e7ffd5c629e",
+        "uptime_s": 30.900472164154053,
+        "requests": 32,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4674.763432,
+          "gpu_peak_mb": 5356.765102,
+          "gpu_cache_mb": 1074.738603,
+          "rss_mb": 3002.810368
+        },
+        "engines": {
+          "locals": {
+            "requests": 32,
+            "prompt_tokens": 83481,
+            "cached_tokens": 80259,
+            "completion_tokens": 1113,
+            "forced_tokens": 361,
+            "passes": 752,
+            "decode_s": 17.997262624790892,
+            "tool_calls": 32,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1113,
+            "steps": 762,
+            "rows": 762,
+            "prefill_s": 6.061244829325005,
+            "prefill_tokens": 3190,
+            "admissions": 32,
+            "idle_s": 10.05162421008572,
+            "solo_steps": 158,
+            "drafted": 64,
+            "prompt_cache_mb": 2084.438016,
+            "prompt_cache_entries": 15,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 14,
+                "mb": 1941
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 1,
+                "mb": 144
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "plan-explicit-date-3",
+      "repeat": 0,
+      "milliseconds": 1035.6,
+      "raw": {
+        "id": "chatcmpl-a3c2b3d99c6a4fed875eaaf3",
+        "object": "chat.completion",
+        "created": 1793679788,
+        "model": "locals/qwen3.5-4b-4bit@0e7ffd5c629e",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_a8c343f358ac403faed735e3",
+                  "type": "function",
+                  "function": {
+                    "name": "prepare_event",
+                    "arguments": "{\"title\": \"Design review\", \"day\": \"2026-11-05\", \"time\": \"14:00\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2623,
+          "completion_tokens": 62,
+          "total_tokens": 2685,
+          "prompt_tokens_details": {
+            "cached_tokens": 2589
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 12,
+            "passes": 50,
+            "constrained": true,
+            "wall_s": 1.0080170000437647
+          }
+        }
+      },
+      "passed": true,
+      "reason": "tool_contract_pass",
+      "engineStats": {
+        "model": "~/Library/Application Support/Banana Pi/Models/Qwen3.5-4B-4bit@0e7ffd5c629e",
+        "uptime_s": 31.951364278793335,
+        "requests": 33,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4674.763432,
+          "gpu_peak_mb": 5356.765102,
+          "gpu_cache_mb": 1079.404206,
+          "rss_mb": 3002.810368
+        },
+        "engines": {
+          "locals": {
+            "requests": 33,
+            "prompt_tokens": 86104,
+            "cached_tokens": 82848,
+            "completion_tokens": 1175,
+            "forced_tokens": 373,
+            "passes": 802,
+            "decode_s": 18.749469415750355,
+            "tool_calls": 33,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1175,
+            "steps": 807,
+            "rows": 807,
+            "prefill_s": 6.15523507934995,
+            "prefill_tokens": 3223,
+            "admissions": 33,
+            "idle_s": 10.342780627077445,
+            "solo_steps": 168,
+            "drafted": 72,
+            "prompt_cache_mb": 2086.240256,
+            "prompt_cache_entries": 15,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 14,
+                "mb": 1942
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 1,
+                "mb": 144
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "plan-explicit-date-4",
+      "repeat": 0,
+      "milliseconds": 979.1,
+      "raw": {
+        "id": "chatcmpl-2b8037fd884d411b97420350",
+        "object": "chat.completion",
+        "created": 1793679789,
+        "model": "locals/qwen3.5-4b-4bit@0e7ffd5c629e",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_4f68459eb9194e67b8c5762b",
+                  "type": "function",
+                  "function": {
+                    "name": "prepare_event",
+                    "arguments": "{\"title\": \"Dinner\", \"day\": \"2026-11-06\", \"time\": \"17:00\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2621,
+          "completion_tokens": 62,
+          "total_tokens": 2683,
+          "prompt_tokens_details": {
+            "cached_tokens": 2589
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 12,
+            "passes": 50,
+            "constrained": true,
+            "wall_s": 0.9557721249293536
+          }
+        }
+      },
+      "passed": true,
+      "reason": "tool_contract_pass",
+      "engineStats": {
+        "model": "~/Library/Application Support/Banana Pi/Models/Qwen3.5-4B-4bit@0e7ffd5c629e",
+        "uptime_s": 32.93978023529053,
+        "requests": 34,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4674.763432,
+          "gpu_peak_mb": 5356.765102,
+          "gpu_cache_mb": 1073.898149,
+          "rss_mb": 3002.810368
+        },
+        "engines": {
+          "locals": {
+            "requests": 34,
+            "prompt_tokens": 88725,
+            "cached_tokens": 85437,
+            "completion_tokens": 1237,
+            "forced_tokens": 385,
+            "passes": 852,
+            "decode_s": 19.44659166573547,
+            "tool_calls": 34,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1237,
+            "steps": 852,
+            "rows": 852,
+            "prefill_s": 6.221226912457496,
+            "prefill_tokens": 3254,
+            "admissions": 34,
+            "idle_s": 10.638577793026343,
+            "solo_steps": 178,
+            "drafted": 80,
+            "prompt_cache_mb": 2088.042496,
+            "prompt_cache_entries": 15,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 14,
+                "mb": 1944
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 1,
+                "mb": 144
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "plan-explicit-date-5",
+      "repeat": 0,
+      "milliseconds": 1016.1,
+      "raw": {
+        "id": "chatcmpl-527a844838f944fea08f820c",
+        "object": "chat.completion",
+        "created": 1793679790,
+        "model": "locals/qwen3.5-4b-4bit@0e7ffd5c629e",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_a936f9292a41475b9c2b4e24",
+                  "type": "function",
+                  "function": {
+                    "name": "prepare_event",
+                    "arguments": "{\"title\": \"Airport pickup\", \"day\": \"2026-11-07\", \"time\": \"20:45\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2620,
+          "completion_tokens": 62,
+          "total_tokens": 2682,
+          "prompt_tokens_details": {
+            "cached_tokens": 2589
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 12,
+            "passes": 50,
+            "constrained": true,
+            "wall_s": 0.9819269999861717
+          }
+        }
+      },
+      "passed": true,
+      "reason": "tool_contract_pass",
+      "engineStats": {
+        "model": "~/Library/Application Support/Banana Pi/Models/Qwen3.5-4B-4bit@0e7ffd5c629e",
+        "uptime_s": 33.963831186294556,
+        "requests": 35,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4674.763432,
+          "gpu_peak_mb": 5356.765102,
+          "gpu_cache_mb": 1075.711146,
+          "rss_mb": 3002.810368
+        },
+        "engines": {
+          "locals": {
+            "requests": 35,
+            "prompt_tokens": 91345,
+            "cached_tokens": 88026,
+            "completion_tokens": 1299,
+            "forced_tokens": 397,
+            "passes": 902,
+            "decode_s": 20.173279248876497,
+            "tool_calls": 35,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1299,
+            "steps": 898,
+            "rows": 898,
+            "prefill_s": 6.287416620412841,
+            "prefill_tokens": 3284,
+            "admissions": 35,
+            "idle_s": 10.940782126039267,
+            "solo_steps": 188,
+            "drafted": 87,
+            "prompt_cache_mb": 2089.156608,
+            "prompt_cache_entries": 15,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 14,
+                "mb": 1945
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 1,
+                "mb": 144
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "plan-time-only-1",
+      "repeat": 0,
+      "milliseconds": 772.7,
+      "raw": {
+        "id": "chatcmpl-34bb0f41d01e49ca8f25cdeb",
+        "object": "chat.completion",
+        "created": 1793679790,
+        "model": "locals/qwen3.5-4b-4bit@0e7ffd5c629e",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_735e84f850a143e2a4a2292c",
+                  "type": "function",
+                  "function": {
+                    "name": "prepare_event",
+                    "arguments": "{\"title\": \"Dentist\", \"time\": \"09:15\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2608,
+          "completion_tokens": 42,
+          "total_tokens": 2650,
+          "prompt_tokens_details": {
+            "cached_tokens": 2589
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 11,
+            "passes": 31,
+            "constrained": true,
+            "wall_s": 0.7457330001052469
+          }
+        }
+      },
+      "passed": true,
+      "reason": "tool_contract_pass",
+      "engineStats": {
+        "model": "~/Library/Application Support/Banana Pi/Models/Qwen3.5-4B-4bit@0e7ffd5c629e",
+        "uptime_s": 34.74537801742554,
+        "requests": 36,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4674.76344,
+          "gpu_peak_mb": 5356.765102,
+          "gpu_cache_mb": 1073.77391,
+          "rss_mb": 3002.810368
+        },
+        "engines": {
+          "locals": {
+            "requests": 36,
+            "prompt_tokens": 93953,
+            "cached_tokens": 90615,
+            "completion_tokens": 1341,
+            "forced_tokens": 408,
+            "passes": 933,
+            "decode_s": 20.673722457839176,
+            "tool_calls": 36,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1341,
+            "steps": 935,
+            "rows": 935,
+            "prefill_s": 6.3488812034484,
+            "prefill_tokens": 3302,
+            "admissions": 36,
+            "idle_s": 11.235095210140571,
+            "solo_steps": 190,
+            "drafted": 87,
+            "prompt_cache_mb": 2089.222144,
+            "prompt_cache_entries": 15,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 14,
+                "mb": 1945
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 1,
+                "mb": 144
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "plan-time-only-2",
+      "repeat": 0,
+      "milliseconds": 1962.7,
+      "raw": {
+        "id": "chatcmpl-d86b5d8d2e6b40c6bd4ed08f",
+        "object": "chat.completion",
+        "created": 1793679792,
+        "model": "locals/qwen3.5-4b-4bit@0e7ffd5c629e",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "I need the activity name and start time to prepare a calendar event. You mentioned \"team lunch\" as the activity, but I need to confirm the start time.",
+              "tool_calls": [
+                {
+                  "id": "call_3b3747ecd10b4f0ba4998488",
+                  "type": "function",
+                  "function": {
+                    "name": "prepare_event",
+                    "arguments": "{\"day\": \"today\", \"durationMinutes\": 60, \"location\": \"team lunch\", \"notes\": \"team lunch at 11:30\", \"revision\": 0, \"time\": \"11:30\", \"title\": \"team lunch\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2608,
+          "completion_tokens": 146,
+          "total_tokens": 2754,
+          "prompt_tokens_details": {
+            "cached_tokens": 2589
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 16,
+            "passes": 130,
+            "constrained": true,
+            "wall_s": 1.9196973331272602
+          }
+        }
+      },
+      "passed": false,
+      "reason": "argument_title",
+      "engineStats": {
+        "model": "~/Library/Application Support/Banana Pi/Models/Qwen3.5-4B-4bit@0e7ffd5c629e",
+        "uptime_s": 36.71344995498657,
+        "requests": 37,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4674.76344,
+          "gpu_peak_mb": 5356.765102,
+          "gpu_cache_mb": 1075.227054,
+          "rss_mb": 3002.810368
+        },
+        "engines": {
+          "locals": {
+            "requests": 37,
+            "prompt_tokens": 96561,
+            "cached_tokens": 93204,
+            "completion_tokens": 1487,
+            "forced_tokens": 424,
+            "passes": 1063,
+            "decode_s": 22.34844512376003,
+            "tool_calls": 37,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1487,
+            "steps": 1076,
+            "rows": 1076,
+            "prefill_s": 6.416522120358422,
+            "prefill_tokens": 3320,
+            "admissions": 37,
+            "idle_s": 11.528407460311428,
+            "solo_steps": 192,
+            "drafted": 87,
+            "prompt_cache_mb": 2092.662784,
+            "prompt_cache_entries": 15,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 14,
+                "mb": 1949
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 1,
+                "mb": 144
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "plan-time-only-3",
+      "repeat": 0,
+      "milliseconds": 964.6,
+      "raw": {
+        "id": "chatcmpl-be20ada044504f14bbe58f98",
+        "object": "chat.completion",
+        "created": 1793679793,
+        "model": "locals/qwen3.5-4b-4bit@0e7ffd5c629e",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "To create a calendar event at 14:00, I need to know the activity or title you'd like to use for this event. What would you like to schedule for 14:00?"
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2610,
+          "completion_tokens": 44,
+          "total_tokens": 2654,
+          "prompt_tokens_details": {
+            "cached_tokens": 2589
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 0,
+            "passes": 45,
+            "constrained": true,
+            "wall_s": 0.9295565830543637
+          }
+        }
+      },
+      "passed": false,
+      "reason": "missing_tool",
+      "engineStats": {
+        "model": "~/Library/Application Support/Banana Pi/Models/Qwen3.5-4B-4bit@0e7ffd5c629e",
+        "uptime_s": 37.68163704872131,
+        "requests": 38,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4674.763448,
+          "gpu_peak_mb": 5395.108296,
+          "gpu_cache_mb": 1076.767561,
+          "rss_mb": 3002.810368
+        },
+        "engines": {
+          "locals": {
+            "requests": 38,
+            "prompt_tokens": 99171,
+            "cached_tokens": 95793,
+            "completion_tokens": 1531,
+            "forced_tokens": 424,
+            "passes": 1108,
+            "decode_s": 23.04491899884306,
+            "tool_calls": 37,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1531,
+            "steps": 1117,
+            "rows": 1117,
+            "prefill_s": 6.4814877873286605,
+            "prefill_tokens": 3340,
+            "admissions": 38,
+            "idle_s": 11.81147112720646,
+            "solo_steps": 194,
+            "drafted": 92,
+            "prompt_cache_mb": 2092.990464,
+            "prompt_cache_entries": 15,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 14,
+                "mb": 1949
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 1,
+                "mb": 144
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "plan-time-only-4",
+      "repeat": 0,
+      "milliseconds": 724.7,
+      "raw": {
+        "id": "chatcmpl-b475a2f2288d486d888be22e",
+        "object": "chat.completion",
+        "created": 1793679794,
+        "model": "locals/qwen3.5-4b-4bit@0e7ffd5c629e",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "I need a bit more information to create a calendar event for dinner. Could you please provide the activity or title you'd like to use for this event?"
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2609,
+          "completion_tokens": 31,
+          "total_tokens": 2640,
+          "prompt_tokens_details": {
+            "cached_tokens": 2589
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 0,
+            "passes": 32,
+            "constrained": true,
+            "wall_s": 0.6837619168218225
+          }
+        }
+      },
+      "passed": false,
+      "reason": "missing_tool",
+      "engineStats": {
+        "model": "~/Library/Application Support/Banana Pi/Models/Qwen3.5-4B-4bit@0e7ffd5c629e",
+        "uptime_s": 38.41518020629883,
+        "requests": 39,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4674.763448,
+          "gpu_peak_mb": 5395.108296,
+          "gpu_cache_mb": 1073.798527,
+          "rss_mb": 3002.810368
+        },
+        "engines": {
+          "locals": {
+            "requests": 39,
+            "prompt_tokens": 101780,
+            "cached_tokens": 98382,
+            "completion_tokens": 1562,
+            "forced_tokens": 424,
+            "passes": 1140,
+            "decode_s": 23.493900373810902,
+            "tool_calls": 37,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1562,
+            "steps": 1150,
+            "rows": 1150,
+            "prefill_s": 6.545555121265352,
+            "prefill_tokens": 3359,
+            "admissions": 39,
+            "idle_s": 12.09128821012564,
+            "solo_steps": 195,
+            "drafted": 92,
+            "prompt_cache_mb": 2092.924928,
+            "prompt_cache_entries": 15,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 14,
+                "mb": 1949
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 1,
+                "mb": 144
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "plan-time-only-5",
+      "repeat": 0,
+      "milliseconds": 1093.6,
+      "raw": {
+        "id": "chatcmpl-146636dcc14648bd96b3f7e8",
+        "object": "chat.completion",
+        "created": 1793679795,
+        "model": "locals/qwen3.5-4b-4bit@0e7ffd5c629e",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "I'll prepare a calendar event for the airport pickup at 20:45. I need to know the duration of the pickup.",
+              "tool_calls": [
+                {
+                  "id": "call_29131245cf2548e49bb089f4",
+                  "type": "function",
+                  "function": {
+                    "name": "prepare_event",
+                    "arguments": "{\"title\": \"Airport pickup\", \"time\": \"20:45\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2607,
+          "completion_tokens": 70,
+          "total_tokens": 2677,
+          "prompt_tokens_details": {
+            "cached_tokens": 2589
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 11,
+            "passes": 59,
+            "constrained": true,
+            "wall_s": 1.0584182920865715
+          }
+        }
+      },
+      "passed": true,
+      "reason": "tool_contract_pass",
+      "engineStats": {
+        "model": "~/Library/Application Support/Banana Pi/Models/Qwen3.5-4B-4bit@0e7ffd5c629e",
+        "uptime_s": 39.5160698890686,
+        "requests": 40,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4674.763449,
+          "gpu_peak_mb": 5395.108296,
+          "gpu_cache_mb": 1075.821291,
+          "rss_mb": 3002.810368
+        },
+        "engines": {
+          "locals": {
+            "requests": 40,
+            "prompt_tokens": 104387,
+            "cached_tokens": 100971,
+            "completion_tokens": 1632,
+            "forced_tokens": 435,
+            "passes": 1199,
+            "decode_s": 24.300634373677894,
+            "tool_calls": 38,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1632,
+            "steps": 1215,
+            "rows": 1215,
+            "prefill_s": 6.6131542881485075,
+            "prefill_tokens": 3376,
+            "admissions": 40,
+            "idle_s": 12.370108585106209,
+            "solo_steps": 197,
+            "drafted": 92,
+            "prompt_cache_mb": 2092.761088,
+            "prompt_cache_entries": 15,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 14,
+                "mb": 1949
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 1,
+                "mb": 144
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "plan-missing-time-1",
+      "repeat": 0,
+      "milliseconds": 590.5,
+      "raw": {
+        "id": "chatcmpl-62b32cbf5b3a43d9a67bd3ee",
+        "object": "chat.completion",
+        "created": 1793679796,
+        "model": "locals/qwen3.5-4b-4bit@0e7ffd5c629e",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_e38bd30d6e9e4c118480d5a8",
+                  "type": "function",
+                  "function": {
+                    "name": "prepare_event",
+                    "arguments": "{\"title\": \"Dentist\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2609,
+          "completion_tokens": 27,
+          "total_tokens": 2636,
+          "prompt_tokens_details": {
+            "cached_tokens": 2589
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 10,
+            "passes": 17,
+            "constrained": true,
+            "wall_s": 0.5642517090309411
+          }
+        }
+      },
+      "passed": false,
+      "reason": "wrong_tool",
+      "engineStats": {
+        "model": "~/Library/Application Support/Banana Pi/Models/Qwen3.5-4B-4bit@0e7ffd5c629e",
+        "uptime_s": 40.11258411407471,
+        "requests": 41,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4674.763444,
+          "gpu_peak_mb": 5395.108296,
+          "gpu_cache_mb": 1075.755872,
+          "rss_mb": 3002.810368
+        },
+        "engines": {
+          "locals": {
+            "requests": 41,
+            "prompt_tokens": 106996,
+            "cached_tokens": 103560,
+            "completion_tokens": 1659,
+            "forced_tokens": 445,
+            "passes": 1216,
+            "decode_s": 24.60470716562122,
+            "tool_calls": 39,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1659,
+            "steps": 1235,
+            "rows": 1235,
+            "prefill_s": 6.675784996245056,
+            "prefill_tokens": 3395,
+            "admissions": 41,
+            "idle_s": 12.654010294238105,
+            "solo_steps": 199,
+            "drafted": 92,
+            "prompt_cache_mb": 2091.220992,
+            "prompt_cache_entries": 15,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 14,
+                "mb": 1947
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 1,
+                "mb": 144
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "plan-missing-time-2",
+      "repeat": 0,
+      "milliseconds": 578.9,
+      "raw": {
+        "id": "chatcmpl-961a6e1d0b3248bbaae9498b",
+        "object": "chat.completion",
+        "created": 1793679796,
+        "model": "locals/qwen3.5-4b-4bit@0e7ffd5c629e",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_e10cc2683eb642c7ba44e321",
+                  "type": "function",
+                  "function": {
+                    "name": "prepare_event",
+                    "arguments": "{\"title\": \"Team lunch\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2610,
+          "completion_tokens": 26,
+          "total_tokens": 2636,
+          "prompt_tokens_details": {
+            "cached_tokens": 2589
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 10,
+            "passes": 16,
+            "constrained": true,
+            "wall_s": 0.5557115420233458
+          }
+        }
+      },
+      "passed": false,
+      "reason": "wrong_tool",
+      "engineStats": {
+        "model": "~/Library/Application Support/Banana Pi/Models/Qwen3.5-4B-4bit@0e7ffd5c629e",
+        "uptime_s": 40.70024394989014,
+        "requests": 42,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4674.763444,
+          "gpu_peak_mb": 5395.108296,
+          "gpu_cache_mb": 1074.261974,
+          "rss_mb": 3002.810368
+        },
+        "engines": {
+          "locals": {
+            "requests": 42,
+            "prompt_tokens": 109606,
+            "cached_tokens": 106149,
+            "completion_tokens": 1685,
+            "forced_tokens": 455,
+            "passes": 1232,
+            "decode_s": 24.902902790578082,
+            "tool_calls": 40,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1685,
+            "steps": 1254,
+            "rows": 1254,
+            "prefill_s": 6.7403833291027695,
+            "prefill_tokens": 3415,
+            "admissions": 42,
+            "idle_s": 12.945837586186826,
+            "solo_steps": 201,
+            "drafted": 92,
+            "prompt_cache_mb": 2089.61536,
+            "prompt_cache_entries": 15,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 14,
+                "mb": 1946
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 1,
+                "mb": 144
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "plan-missing-time-3",
+      "repeat": 0,
+      "milliseconds": 590.5,
+      "raw": {
+        "id": "chatcmpl-e8f9dddd68a341518a097942",
+        "object": "chat.completion",
+        "created": 1793679797,
+        "model": "locals/qwen3.5-4b-4bit@0e7ffd5c629e",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "I need a start time to schedule the Design review. What time would you like it to be?"
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2612,
+          "completion_tokens": 20,
+          "total_tokens": 2632,
+          "prompt_tokens_details": {
+            "cached_tokens": 2589
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 0,
+            "passes": 21,
+            "constrained": true,
+            "wall_s": 0.5536402920261025
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_needs_semantic_review",
+      "engineStats": {
+        "model": "~/Library/Application Support/Banana Pi/Models/Qwen3.5-4B-4bit@0e7ffd5c629e",
+        "uptime_s": 41.297308921813965,
+        "requests": 43,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4674.763452,
+          "gpu_peak_mb": 5395.108296,
+          "gpu_cache_mb": 1078.911369,
+          "rss_mb": 3002.810368
+        },
+        "engines": {
+          "locals": {
+            "requests": 43,
+            "prompt_tokens": 112218,
+            "cached_tokens": 108738,
+            "completion_tokens": 1705,
+            "forced_tokens": 455,
+            "passes": 1253,
+            "decode_s": 25.217192249605432,
+            "tool_calls": 40,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1705,
+            "steps": 1276,
+            "rows": 1276,
+            "prefill_s": 6.809750121086836,
+            "prefill_tokens": 3437,
+            "admissions": 43,
+            "idle_s": 13.245671128155664,
+            "solo_steps": 201,
+            "drafted": 92,
+            "prompt_cache_mb": 2088.1408,
+            "prompt_cache_entries": 15,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 14,
+                "mb": 1944
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 1,
+                "mb": 144
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "plan-missing-time-4",
+      "repeat": 0,
+      "milliseconds": 538.2,
+      "raw": {
+        "id": "chatcmpl-5519be4f2276412d9640fc4f",
+        "object": "chat.completion",
+        "created": 1793679797,
+        "model": "locals/qwen3.5-4b-4bit@0e7ffd5c629e",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "I'll help you schedule Dinner. What time would you like to start?"
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2610,
+          "completion_tokens": 15,
+          "total_tokens": 2625,
+          "prompt_tokens_details": {
+            "cached_tokens": 2589
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 0,
+            "passes": 16,
+            "constrained": true,
+            "wall_s": 0.5119425000157207
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_needs_semantic_review",
+      "engineStats": {
+        "model": "~/Library/Application Support/Banana Pi/Models/Qwen3.5-4B-4bit@0e7ffd5c629e",
+        "uptime_s": 41.84425616264343,
+        "requests": 44,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4674.763448,
+          "gpu_peak_mb": 5395.108296,
+          "gpu_cache_mb": 1074.025978,
+          "rss_mb": 3002.810368
+        },
+        "engines": {
+          "locals": {
+            "requests": 44,
+            "prompt_tokens": 114828,
+            "cached_tokens": 111327,
+            "completion_tokens": 1720,
+            "forced_tokens": 455,
+            "passes": 1269,
+            "decode_s": 25.48873799946159,
+            "tool_calls": 40,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1720,
+            "steps": 1293,
+            "rows": 1293,
+            "prefill_s": 6.877190870931372,
+            "prefill_tokens": 3457,
+            "admissions": 44,
+            "idle_s": 13.5205442532897,
+            "solo_steps": 201,
+            "drafted": 92,
+            "prompt_cache_mb": 2086.436864,
+            "prompt_cache_entries": 15,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 14,
+                "mb": 1943
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 1,
+                "mb": 144
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "plan-missing-time-5",
+      "repeat": 0,
+      "milliseconds": 577.4,
+      "raw": {
+        "id": "chatcmpl-0b44cb3e0b794972b047c782",
+        "object": "chat.completion",
+        "created": 1793679798,
+        "model": "locals/qwen3.5-4b-4bit@0e7ffd5c629e",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_1412bfd30b2a45debff81d4d",
+                  "type": "function",
+                  "function": {
+                    "name": "prepare_event",
+                    "arguments": "{\"title\": \"Airport pickup\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2609,
+          "completion_tokens": 26,
+          "total_tokens": 2635,
+          "prompt_tokens_details": {
+            "cached_tokens": 2589
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 10,
+            "passes": 16,
+            "constrained": true,
+            "wall_s": 0.5577531671151519
+          }
+        }
+      },
+      "passed": false,
+      "reason": "wrong_tool",
+      "engineStats": {
+        "model": "~/Library/Application Support/Banana Pi/Models/Qwen3.5-4B-4bit@0e7ffd5c629e",
+        "uptime_s": 42.4240140914917,
+        "requests": 45,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4674.763444,
+          "gpu_peak_mb": 5395.108296,
+          "gpu_cache_mb": 1076.529487,
+          "rss_mb": 3002.810368
+        },
+        "engines": {
+          "locals": {
+            "requests": 45,
+            "prompt_tokens": 117437,
+            "cached_tokens": 113916,
+            "completion_tokens": 1746,
+            "forced_tokens": 465,
+            "passes": 1285,
+            "decode_s": 25.78551779151894,
+            "tool_calls": 41,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1746,
+            "steps": 1312,
+            "rows": 1312,
+            "prefill_s": 6.941261412808672,
+            "prefill_tokens": 3476,
+            "admissions": 45,
+            "idle_s": 13.777348544215783,
+            "solo_steps": 203,
+            "drafted": 92,
+            "prompt_cache_mb": 2084.864,
+            "prompt_cache_entries": 15,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 14,
+                "mb": 1941
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 1,
+                "mb": 144
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "plan-ambiguous-1",
+      "repeat": 0,
+      "milliseconds": 752.3,
+      "raw": {
+        "id": "chatcmpl-155bd3b68bc543acb5b82b90",
+        "object": "chat.completion",
+        "created": 1793679799,
+        "model": "locals/qwen3.5-4b-4bit@0e7ffd5c629e",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "I don't have access to your calendar or any specific events. Could you tell me which event you'd like to move and what date or time you'd like to change it to?"
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2602,
+          "completion_tokens": 37,
+          "total_tokens": 2639,
+          "prompt_tokens_details": {
+            "cached_tokens": 2589
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 0,
+            "passes": 38,
+            "constrained": true,
+            "wall_s": 0.7282638750039041
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_needs_semantic_review",
+      "engineStats": {
+        "model": "~/Library/Application Support/Banana Pi/Models/Qwen3.5-4B-4bit@0e7ffd5c629e",
+        "uptime_s": 43.1793110370636,
+        "requests": 46,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4674.763448,
+          "gpu_peak_mb": 5395.108296,
+          "gpu_cache_mb": 1079.154692,
+          "rss_mb": 3002.810368
+        },
+        "engines": {
+          "locals": {
+            "requests": 46,
+            "prompt_tokens": 120039,
+            "cached_tokens": 116505,
+            "completion_tokens": 1783,
+            "forced_tokens": 465,
+            "passes": 1323,
+            "decode_s": 26.27966404147446,
+            "tool_calls": 41,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1783,
+            "steps": 1351,
+            "rows": 1351,
+            "prefill_s": 6.984771787887439,
+            "prefill_tokens": 3488,
+            "admissions": 46,
+            "idle_s": 14.069707461399958,
+            "solo_steps": 204,
+            "drafted": 92,
+            "prompt_cache_mb": 2083.618816,
+            "prompt_cache_entries": 15,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 14,
+                "mb": 1940
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 1,
+                "mb": 144
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "plan-ambiguous-2",
+      "repeat": 0,
+      "milliseconds": 665.5,
+      "raw": {
+        "id": "chatcmpl-25512d3ff71949e6af796440",
+        "object": "chat.completion",
+        "created": 1793679799,
+        "model": "locals/qwen3.5-4b-4bit@0e7ffd5c629e",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "I don't see a specific event or note that you'd like to move to a later time. Could you clarify which event you're referring to?"
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2603,
+          "completion_tokens": 30,
+          "total_tokens": 2633,
+          "prompt_tokens_details": {
+            "cached_tokens": 2589
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 0,
+            "passes": 31,
+            "constrained": true,
+            "wall_s": 0.6392993747722358
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_needs_semantic_review",
+      "engineStats": {
+        "model": "~/Library/Application Support/Banana Pi/Models/Qwen3.5-4B-4bit@0e7ffd5c629e",
+        "uptime_s": 43.849311113357544,
+        "requests": 47,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4674.845368,
+          "gpu_peak_mb": 5395.108296,
+          "gpu_cache_mb": 1079.210624,
+          "rss_mb": 3002.810368
+        },
+        "engines": {
+          "locals": {
+            "requests": 47,
+            "prompt_tokens": 122642,
+            "cached_tokens": 119094,
+            "completion_tokens": 1813,
+            "forced_tokens": 465,
+            "passes": 1354,
+            "decode_s": 26.677046541590244,
+            "tool_calls": 41,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1813,
+            "steps": 1383,
+            "rows": 1383,
+            "prefill_s": 7.030062037985772,
+            "prefill_tokens": 3501,
+            "admissions": 47,
+            "idle_s": 14.334660752443597,
+            "solo_steps": 204,
+            "drafted": 92,
+            "prompt_cache_mb": 2082.111488,
+            "prompt_cache_entries": 15,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 14,
+                "mb": 1938
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 1,
+                "mb": 144
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "plan-ambiguous-3",
+      "repeat": 0,
+      "milliseconds": 660.1,
+      "raw": {
+        "id": "chatcmpl-3341eebf01484e61bb0b3ccb",
+        "object": "chat.completion",
+        "created": 1793679800,
+        "model": "locals/qwen3.5-4b-4bit@0e7ffd5c629e",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "I need to know which event you're referring to. Could you please provide the activity or title of the event you'd like to reschedule?"
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2605,
+          "completion_tokens": 29,
+          "total_tokens": 2634,
+          "prompt_tokens_details": {
+            "cached_tokens": 2589
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 0,
+            "passes": 30,
+            "constrained": true,
+            "wall_s": 0.6309227501042187
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_needs_semantic_review",
+      "engineStats": {
+        "model": "~/Library/Application Support/Banana Pi/Models/Qwen3.5-4B-4bit@0e7ffd5c629e",
+        "uptime_s": 44.516947984695435,
+        "requests": 48,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4674.845368,
+          "gpu_peak_mb": 5395.108296,
+          "gpu_cache_mb": 1075.486844,
+          "rss_mb": 3002.810368
+        },
+        "engines": {
+          "locals": {
+            "requests": 48,
+            "prompt_tokens": 125247,
+            "cached_tokens": 121683,
+            "completion_tokens": 1842,
+            "forced_tokens": 465,
+            "passes": 1384,
+            "decode_s": 27.069874125765637,
+            "tool_calls": 41,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1842,
+            "steps": 1414,
+            "rows": 1414,
+            "prefill_s": 7.079463955014944,
+            "prefill_tokens": 3516,
+            "admissions": 48,
+            "idle_s": 14.613691336475313,
+            "solo_steps": 204,
+            "drafted": 92,
+            "prompt_cache_mb": 2080.702464,
+            "prompt_cache_entries": 15,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 14,
+                "mb": 1937
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 1,
+                "mb": 144
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "plan-ambiguous-4",
+      "repeat": 0,
+      "milliseconds": 1069.0,
+      "raw": {
+        "id": "chatcmpl-5fea3cd951024766b0cf46cb",
+        "object": "chat.completion",
+        "created": 1793679801,
+        "model": "locals/qwen3.5-4b-4bit@0e7ffd5c629e",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "I'd be happy to help you reschedule that event, but I need a bit more information:\n\n1. What activity/event should be moved?\n2. What time would you like to move it to?\n\nOnce you provide the activity and the new start time, I can help you prepare the updated calendar event draft."
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2604,
+          "completion_tokens": 66,
+          "total_tokens": 2670,
+          "prompt_tokens_details": {
+            "cached_tokens": 2589
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 0,
+            "passes": 67,
+            "constrained": true,
+            "wall_s": 1.043755458202213
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_needs_semantic_review",
+      "engineStats": {
+        "model": "~/Library/Application Support/Banana Pi/Models/Qwen3.5-4B-4bit@0e7ffd5c629e",
+        "uptime_s": 45.58865213394165,
+        "requests": 49,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4674.845368,
+          "gpu_peak_mb": 5395.108296,
+          "gpu_cache_mb": 1076.239756,
+          "rss_mb": 3002.810368
+        },
+        "engines": {
+          "locals": {
+            "requests": 49,
+            "prompt_tokens": 127851,
+            "cached_tokens": 124272,
+            "completion_tokens": 1908,
+            "forced_tokens": 465,
+            "passes": 1451,
+            "decode_s": 27.872191542759538,
+            "tool_calls": 41,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1908,
+            "steps": 1482,
+            "rows": 1482,
+            "prefill_s": 7.126387580065057,
+            "prefill_tokens": 3530,
+            "admissions": 49,
+            "idle_s": 14.877262795576826,
+            "solo_steps": 204,
+            "drafted": 92,
+            "prompt_cache_mb": 2080.505856,
+            "prompt_cache_entries": 15,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 14,
+                "mb": 1937
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 1,
+                "mb": 144
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "plan-ambiguous-5",
+      "repeat": 0,
+      "milliseconds": 1041.9,
+      "raw": {
+        "id": "chatcmpl-1c29c9bdf88040bebc8b3eee",
+        "object": "chat.completion",
+        "created": 1793679802,
+        "model": "locals/qwen3.5-4b-4bit@0e7ffd5c629e",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "I need to clarify which event you're referring to and what changes you'd like to make. Could you please specify:\n\n1. Which event you want to move\n2. What date/time you'd like to move it to\n\nI'll need the current event details to help you make this change."
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2602,
+          "completion_tokens": 61,
+          "total_tokens": 2663,
+          "prompt_tokens_details": {
+            "cached_tokens": 2589
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 0,
+            "passes": 62,
+            "constrained": true,
+            "wall_s": 0.9912579169031233
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_needs_semantic_review",
+      "engineStats": {
+        "model": "~/Library/Application Support/Banana Pi/Models/Qwen3.5-4B-4bit@0e7ffd5c629e",
+        "uptime_s": 46.63807797431946,
+        "requests": 50,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4674.845368,
+          "gpu_peak_mb": 5395.108296,
+          "gpu_cache_mb": 1073.781356,
+          "rss_mb": 3002.810368
+        },
+        "engines": {
+          "locals": {
+            "requests": 50,
+            "prompt_tokens": 130453,
+            "cached_tokens": 126861,
+            "completion_tokens": 1969,
+            "forced_tokens": 465,
+            "passes": 1513,
+            "decode_s": 28.62470841757022,
+            "tool_calls": 41,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1969,
+            "steps": 1545,
+            "rows": 1545,
+            "prefill_s": 7.172770872013643,
+            "prefill_tokens": 3542,
+            "admissions": 50,
+            "idle_s": 15.176395253511146,
+            "solo_steps": 205,
+            "drafted": 92,
+            "prompt_cache_mb": 2081.09568,
+            "prompt_cache_entries": 15,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 14,
+                "mb": 1937
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 1,
+                "mb": 144
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "plan-open-1",
+      "repeat": 0,
+      "milliseconds": 564.5,
+      "raw": {
+        "id": "chatcmpl-eefa81b0c79c43c0b47652fe",
+        "object": "chat.completion",
+        "created": 1793679803,
+        "model": "locals/qwen3.5-4b-4bit@0e7ffd5c629e",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_4bb61d2570044f6886c2a034",
+                  "type": "function",
+                  "function": {
+                    "name": "open_page",
+                    "arguments": "{\"section\": \"plan\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2601,
+          "completion_tokens": 25,
+          "total_tokens": 2626,
+          "prompt_tokens_details": {
+            "cached_tokens": 2589
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 11,
+            "passes": 14,
+            "constrained": true,
+            "wall_s": 0.5405702078714967
+          }
+        }
+      },
+      "passed": true,
+      "reason": "tool_contract_pass",
+      "engineStats": {
+        "model": "~/Library/Application Support/Banana Pi/Models/Qwen3.5-4B-4bit@0e7ffd5c629e",
+        "uptime_s": 47.20872211456299,
+        "requests": 51,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4674.845384,
+          "gpu_peak_mb": 5395.108296,
+          "gpu_cache_mb": 1074.370336,
+          "rss_mb": 3002.810368
+        },
+        "engines": {
+          "locals": {
+            "requests": 51,
+            "prompt_tokens": 133054,
+            "cached_tokens": 129450,
+            "completion_tokens": 1994,
+            "forced_tokens": 476,
+            "passes": 1527,
+            "decode_s": 28.911909917602316,
+            "tool_calls": 42,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1994,
+            "steps": 1562,
+            "rows": 1562,
+            "prefill_s": 7.216208038153127,
+            "prefill_tokens": 3553,
+            "admissions": 51,
+            "idle_s": 15.44491933635436,
+            "solo_steps": 208,
+            "drafted": 92,
+            "prompt_cache_mb": 2076.901376,
+            "prompt_cache_entries": 15,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 14,
+                "mb": 1933
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 1,
+                "mb": 144
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "plan-open-2",
+      "repeat": 0,
+      "milliseconds": 559.3,
+      "raw": {
+        "id": "chatcmpl-12756891c6834ec491fa3ead",
+        "object": "chat.completion",
+        "created": 1793679803,
+        "model": "locals/qwen3.5-4b-4bit@0e7ffd5c629e",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_abc7079682bf4a5a834ecc91",
+                  "type": "function",
+                  "function": {
+                    "name": "open_page",
+                    "arguments": "{\"section\": \"plan\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2602,
+          "completion_tokens": 25,
+          "total_tokens": 2627,
+          "prompt_tokens_details": {
+            "cached_tokens": 2589
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 11,
+            "passes": 14,
+            "constrained": true,
+            "wall_s": 0.5334264580160379
+          }
+        }
+      },
+      "passed": true,
+      "reason": "tool_contract_pass",
+      "engineStats": {
+        "model": "~/Library/Application Support/Banana Pi/Models/Qwen3.5-4B-4bit@0e7ffd5c629e",
+        "uptime_s": 47.77390003204346,
+        "requests": 52,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4674.845384,
+          "gpu_peak_mb": 5395.108296,
+          "gpu_cache_mb": 1074.336752,
+          "rss_mb": 3002.810368
+        },
+        "engines": {
+          "locals": {
+            "requests": 52,
+            "prompt_tokens": 135656,
+            "cached_tokens": 132039,
+            "completion_tokens": 2019,
+            "forced_tokens": 487,
+            "passes": 1541,
+            "decode_s": 29.198005667654797,
+            "tool_calls": 43,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 2019,
+            "steps": 1579,
+            "rows": 1579,
+            "prefill_s": 7.269397205207497,
+            "prefill_tokens": 3565,
+            "admissions": 52,
+            "idle_s": 15.72821533633396,
+            "solo_steps": 211,
+            "drafted": 92,
+            "prompt_cache_mb": 2075.8528,
+            "prompt_cache_entries": 15,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 14,
+                "mb": 1932
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 1,
+                "mb": 144
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "plan-open-3",
+      "repeat": 0,
+      "milliseconds": 561.9,
+      "raw": {
+        "id": "chatcmpl-11f21d51128746ecabc5fdb8",
+        "object": "chat.completion",
+        "created": 1793679804,
+        "model": "locals/qwen3.5-4b-4bit@0e7ffd5c629e",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_b1b0c0ab88ac40ef8b04b289",
+                  "type": "function",
+                  "function": {
+                    "name": "open_page",
+                    "arguments": "{\"section\": \"plan\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2604,
+          "completion_tokens": 25,
+          "total_tokens": 2629,
+          "prompt_tokens_details": {
+            "cached_tokens": 2589
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 11,
+            "passes": 14,
+            "constrained": true,
+            "wall_s": 0.5311324591748416
+          }
+        }
+      },
+      "passed": true,
+      "reason": "tool_contract_pass",
+      "engineStats": {
+        "model": "~/Library/Application Support/Banana Pi/Models/Qwen3.5-4B-4bit@0e7ffd5c629e",
+        "uptime_s": 48.34953808784485,
+        "requests": 53,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4674.845384,
+          "gpu_peak_mb": 5395.108296,
+          "gpu_cache_mb": 1075.45,
+          "rss_mb": 3002.810368
+        },
+        "engines": {
+          "locals": {
+            "requests": 53,
+            "prompt_tokens": 138260,
+            "cached_tokens": 134628,
+            "completion_tokens": 2044,
+            "forced_tokens": 498,
+            "passes": 1555,
+            "decode_s": 29.476209125714377,
+            "tool_calls": 44,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 2044,
+            "steps": 1596,
+            "rows": 1596,
+            "prefill_s": 7.313168580178171,
+            "prefill_tokens": 3579,
+            "admissions": 53,
+            "idle_s": 16.01310825231485,
+            "solo_steps": 214,
+            "drafted": 92,
+            "prompt_cache_mb": 2075.328512,
+            "prompt_cache_entries": 15,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 14,
+                "mb": 1932
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 1,
+                "mb": 144
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "plan-open-4",
+      "repeat": 0,
+      "milliseconds": 550.9,
+      "raw": {
+        "id": "chatcmpl-fe87b5ba70554a68ae100d04",
+        "object": "chat.completion",
+        "created": 1793679804,
+        "model": "locals/qwen3.5-4b-4bit@0e7ffd5c629e",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_14e24c6902ac40bbaac91273",
+                  "type": "function",
+                  "function": {
+                    "name": "open_page",
+                    "arguments": "{\"section\": \"plan\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2603,
+          "completion_tokens": 25,
+          "total_tokens": 2628,
+          "prompt_tokens_details": {
+            "cached_tokens": 2589
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 11,
+            "passes": 14,
+            "constrained": true,
+            "wall_s": 0.5319117079488933
+          }
+        }
+      },
+      "passed": true,
+      "reason": "tool_contract_pass",
+      "engineStats": {
+        "model": "~/Library/Application Support/Banana Pi/Models/Qwen3.5-4B-4bit@0e7ffd5c629e",
+        "uptime_s": 48.90835785865784,
+        "requests": 54,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4674.845384,
+          "gpu_peak_mb": 5395.108296,
+          "gpu_cache_mb": 1074.762728,
+          "rss_mb": 3002.810368
+        },
+        "engines": {
+          "locals": {
+            "requests": 54,
+            "prompt_tokens": 140863,
+            "cached_tokens": 137217,
+            "completion_tokens": 2069,
+            "forced_tokens": 509,
+            "passes": 1569,
+            "decode_s": 29.757087875623256,
+            "tool_calls": 45,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 2069,
+            "steps": 1613,
+            "rows": 1613,
+            "prefill_s": 7.361236330121756,
+            "prefill_tokens": 3592,
+            "admissions": 54,
+            "idle_s": 16.299280918436125,
+            "solo_steps": 217,
+            "drafted": 92,
+            "prompt_cache_mb": 2073.72288,
+            "prompt_cache_entries": 15,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 14,
+                "mb": 1930
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 1,
+                "mb": 144
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "versions": {
+    "mlx": "0.32.4",
+    "mlx-lm": "0.32.2",
+    "locals": "0.2.1"
+  },
+  "engineSourceCommit": "4f4d03f10232c9f2adeb1e96e2a7bd79a9e7fe19",
+  "engineSourceDirty": "",
+  "servingImplementation": "locals.server",
+  "command": [
+    "~/Applications/Banana Pi.app/Contents/Resources/PiRuntime/bin/python3",
+    "-m",
+    "locals.server",
+    "--model",
+    "~/Library/Application Support/Banana Pi/Models/Qwen3.5-4B-4bit@0e7ffd5c629e",
+    "--engines",
+    "locals",
+    "--preload",
+    "locals",
+    "--host",
+    "127.0.0.1",
+    "--port",
+    "41790",
+    "--slots",
+    "1",
+    "--cache-gb",
+    "2",
+    "--max-context",
+    "32768",
+    "--max-tokens",
+    "1024",
+    "--temp",
+    "0.6",
+    "--top-p",
+    "0.95",
+    "--top-k",
+    "20",
+    "--seed",
+    "0"
+  ],
+  "serverReadySeconds": 4.178,
+  "loadSeconds": 4.178,
+  "serverModel": "locals/qwen3.5-4b-4bit@0e7ffd5c629e",
+  "hostAfter": {
+    "utc": "2026-11-03T04:23:25.351356+00:00",
+    "chip": "Apple M1 Max",
+    "ramBytes": "68719476736",
+    "os": "27.0.1",
+    "swap": "vm.swapusage: total = 5120.00M  used = 3496.44M  free = 1623.56M  (encrypted)",
+    "paging": {
+      "Pageouts": 409765,
+      "Swapins": 6023175,
+      "Swapouts": 10626450
+    }
+  },
+  "ownedWorkerReleased": true,
+  "pagingDelta": {
+    "Pageouts": 0,
+    "Swapins": 0,
+    "Swapouts": 0
+  },
+  "cleanPerformanceRun": true,
+  "summary": {
+    "passes": 48,
+    "total": 54,
+    "warmMedianMilliseconds": null,
+    "firstRequestMilliseconds": 6474.5,
+    "gpuPeakMB": 5395.108296,
+    "rssMaxObservedMB": 3002.810368
+  }
+}

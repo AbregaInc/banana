@@ -1,5 +1,29 @@
 import SwiftUI
 
+/// A symbol beside a line of text: the symbol on a solid tile, the words in the primary colour
+/// (DESIGN-SYSTEM.md: never a bare outline glyph in the accent). For action rows in a form or a
+/// list — "Take a photo", "Scan barcode", "My foods".
+struct WellnessTileLabel: View {
+    let title: String
+    let systemImage: String
+    var tint: Color = DS.Palette.accent
+
+    init(_ title: String, systemImage: String, tint: Color = DS.Palette.accent) {
+        self.title = title
+        self.systemImage = systemImage
+        self.tint = tint
+    }
+
+    var body: some View {
+        Label {
+            Text(title).foregroundStyle(.primary)
+        } icon: {
+            IconTile(systemImage: systemImage, tint: tint)
+        }
+    }
+}
+
+
 /// Nutrition pieces the phone's Food tab and the Mac's Nutrition page share, so a meal and a
 /// day's macros read the same on both.
 

@@ -21,7 +21,7 @@ enum VisualAuditRoute {
         "--library", "--library-detail", "--notes", "--new-calendar-event", "--verify-flight-boarding",
         "--workout-review", "--workout-detail", "--wellness", "--widgets", "--availability", "--place-picker", "--settings", "--event-detail", "--event-editor", "--now-playing", "--sleep",
         "--trends", "--trend", "--scan-correct-preview", "--my-foods", "--energy-balance",
-        "--food-search", "--booking-preview", "--calendar-settings-preview", "--speech-lab", "--mail"
+        "--food-search", "--booking-preview", "--calendar-settings-preview", "--speech-lab", "--mail", "--assistant-test", "--assistant-real-test"
     ]
     static func matches(_ arguments: [String] = ProcessInfo.processInfo.arguments) -> Bool {
         arguments.contains { flags.contains($0) }
@@ -91,7 +91,7 @@ struct BananaApp: App {
         UISegmentedControl.appearance(whenContainedInInstancesOf: [UINavigationBar.self])
             .apportionsSegmentWidthsByContent = true
         #endif
-        #if os(macOS)
+        #if os(macOS) && !PI_DEVELOPMENT
         // One-time carry-over from the retired Mac identities (`<id>.mac`, and Beta's
         // `<id>.mac.beta` until 18 Oct 2026). The Mac bundle id now matches iOS (shared App Store
         // record, one App ID, one Google client); without this, every per-bundle-id preference
@@ -266,6 +266,9 @@ struct BananaApp: App {
             }
         }
         #endif
+        #if DEBUG && os(macOS)
+        MainActor.assumeIsolated { AssistantVerification.scheduleHeadlessIfRequested() }
+        #endif
         LaunchClock.mark("app.init.done")
     }
 
@@ -293,7 +296,15 @@ struct BananaApp: App {
         let _ = wireUpEvenWithoutAWindow()
         #endif
         let group = WindowGroup {
-            #if PERFORMANCE_TESTING && os(iOS)
+            #if PI_DEVELOPMENT
+            if AppSupport.isPiHeadlessVerification {
+                Color.clear
+            } else if ProcessInfo.processInfo.arguments.contains("--assistant-test") || ProcessInfo.processInfo.arguments.contains("--assistant-real-test") {
+                configured(AssistantView())
+            } else {
+                configuredPlatformRoot.task { await wireUpPiApp() }
+            }
+            #elseif PERFORMANCE_TESTING && os(iOS)
             if PerformanceScenarioRunner.isRequested {
                 configured(PerformanceScenarioView())
                     .task {
@@ -316,7 +327,9 @@ struct BananaApp: App {
                 configuredRoot
             }
             #elseif DEBUG && os(iOS)
-            if ProcessInfo.processInfo.arguments.contains("--verify-timeline") {
+            if ProcessInfo.processInfo.arguments.contains("--assistant-test") || ProcessInfo.processInfo.arguments.contains("--assistant-real-test") {
+                configured(AssistantView())
+            } else if ProcessInfo.processInfo.arguments.contains("--verify-timeline") {
                 VerificationView()   // isolated harness UI; RootView/wireUp stays out of the way
             } else if ProcessInfo.processInfo.arguments.contains("--occurrences") {
                 OccurrenceDebugView()   // L1 occurrence-engine inspector
@@ -339,7 +352,9 @@ struct BananaApp: App {
                 configuredRoot
             }
             #elseif DEBUG && os(macOS)
-            if MailKeyDriver.requested {
+            if ProcessInfo.processInfo.arguments.contains("--assistant-test") || ProcessInfo.processInfo.arguments.contains("--assistant-real-test") {
+                configured(AssistantView())
+            } else if MailKeyDriver.requested {
                 Color.clear
             } else if let outputURL = routineEditorSnapshotURL {
                 configured(MacRoutineEditorSnapshotHarness(outputURL: outputURL))
@@ -726,6 +741,13 @@ struct BananaApp: App {
         if arguments.contains("--notes") {
             VoiceNoteStore.shared.injectSampleForPreview()
         }
+        #if PI_DEVELOPMENT
+        // The agent walk through the real shell: sample meals from launch, so Review's rows and
+        // the agent's answers read the same data (not seeded lazily by the first tool call).
+        if arguments.contains("--assistant-test-navigation"), arguments.contains("--ui-preview") {
+            wellness.injectPreviewData()
+        }
+        #endif
         // `--ui-preview --tab nutrition --wellness`: the Nutrition tab inside the real tabs — the
         // wide page on an iPad — on the sample the standalone `--wellness` route loads for itself.
         // The same sample has the guided plan the Workouts tab's `--workouts-route plan` opens.
@@ -739,6 +761,8 @@ struct BananaApp: App {
     @ViewBuilder private var platformRoot: some View {
         #if os(iOS)
         RootView()
+        #elseif PI_DEVELOPMENT
+        MacRootView()
         #else
         MacGatedRootView()
         #endif
@@ -803,6 +827,65 @@ struct BananaApp: App {
             .bananaToggleStyle()
     }
 
+    #if PI_DEVELOPMENT
+    /// The isolated build uses the real local app graph, without production cloud/background duties.
+    @MainActor private func wireUpPiApp() async {
+        let occ = OccurrenceStore.shared
+        occ.settings = settings; occ.routines = routines; occ.smart = smart
+        occ.alarms = store; occ.health = health
+        smart.alarms = store; smart.health = health
+        player.history = history
+        VoiceNoteStore.shared.player = player
+        RoutineStore.shared.onChange = { occ.requestRecompute(reason: "routines") }
+        store.onOneOffChange = { occ.requestRecompute(reason: "one-off alarms") }
+        await wellness.whenLoaded()
+        #if DEBUG
+        if AppSupport.isPiSampleWorkspace {
+            await fitness.whenLoaded()
+            routines.injectSampleForPreview()
+            fitness.injectSampleForPreview()
+            history.injectSampleForPreview()
+            library.injectSampleForPreview()
+            WeatherStore.shared.injectSampleForPreview()
+            smart.injectSampleAgenda()
+            VoiceNoteStore.shared.injectSampleForPreview()
+            wellness.injectPreviewData()
+            wellness.injectPreviewMeals(PiSampleMeals.make())
+            let flights = PiSampleData.flights()
+            smart.injectFlightLegsForPreview(zip(flights, ["LHR", "JFK"]).map { flight, airport in
+                SmartScheduleStore.FlightLeg(flightStart: flight.start, destCode: airport,
+                    arriveAt: flight.end!, boardingAt: nil, leaveBy: nil, toAirportMin: nil,
+                    bufferMin: 0, international: true, toStayMin: nil, stayName: nil)
+            })
+            occ.injectSampleForPreview(meetings: smart.todayMeetings + smart.tomorrowMeetings + flights)
+            if ProcessInfo.processInfo.arguments.contains("--pi-sample-check") {
+                let counts = ["calendar": occ.occurrences.count, "workouts": fitness.summaries.count,
+                    "healthWorkouts": health.workouts.count, "sleep": health.trends.sleepHours.count,
+                    "meals": wellness.meals.count, "supplements": wellness.supplements.count,
+                    "workoutPlans": wellness.workoutPlans.count, "notes": VoiceNoteStore.shared.notes.count,
+                    "routines": routines.routines.count, "podcasts": library.podcasts.count,
+                    "listeningHistory": history.events.count, "trends": health.trends.steps.count]
+                let calendarWindows = await occ.verifySampleCalendarWindows()
+                let agendaTimes: Bool
+                do { try AssistantWorkspaceVerification.verifyAgendaTimes(); agendaTimes = true }
+                catch { print(error.localizedDescription); agendaTimes = false }
+                let passed = counts.values.allSatisfy { $0 > 0 } && calendarWindows && agendaTimes
+                let report: [String: Any] = ["passed": passed, "counts": counts,
+                    "calendarGridSurvivesEmptyCacheAndRefresh": calendarWindows,
+                    "agendaTimezoneAndFlightChecks": agendaTimes, "directory": AppSupport.directory.path]
+                if let data = try? JSONSerialization.data(withJSONObject: report, options: [.prettyPrinted, .sortedKeys]) {
+                    print(String(decoding: data, as: UTF8.self))
+                }
+                exit(passed ? 0 : 1)
+            }
+            return
+        }
+        #endif
+        // A day-plan request now uses the same graph the Plan screen reads.
+        Task { await occ.recomputeIfStale(reason: "Pi app launch") }
+    }
+    #endif
+
     private static var wiring: Task<Void, Never>?
 
     /// Connect the object graph once per launch, whoever asks first: a window's view, or the app
@@ -821,12 +904,18 @@ struct BananaApp: App {
     /// Whether this launch shows the production root (and so runs `wireUp` from its window): the
     /// snapshot and preview routes below don't, and must not start services.
     private var showsProductionRoot: Bool {
+        #if PI_DEVELOPMENT
+        return false
+        #else
         #if DEBUG
         if routineEditorSnapshotURL != nil || appStoreSnapshotURL != nil
             || debugOutputURL(after: "--snapshot-workout-review") != nil
-            || ProcessInfo.processInfo.arguments.contains("--ui-audit") { return false }
+            || ProcessInfo.processInfo.arguments.contains("--ui-audit")
+            || ProcessInfo.processInfo.arguments.contains("--assistant-test")
+            || ProcessInfo.processInfo.arguments.contains("--assistant-real-test") { return false }
         #endif
         return true
+        #endif
     }
 
     /// A Mac app started with no window (reopened in the background after an update, at login,

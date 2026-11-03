@@ -1,0 +1,504 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild test-without-building -collect-test-diagnostics never -project Banana.xcodeproj -scheme BananaPi -configuration PiDevelopment -destination "platform=iOS Simulator,id=22DDB577-4616-4E99-AF0F-6AC31A3753B7" -derivedDataPath .build/sim "-only-testing:BananaAgentUITests/AssistantUITest/testNewMealDraftIsInlineAndRestores" "-only-testing:BananaAgentUITests/AssistantUITest/testNewMealDraftSaveAppearsInExistingNutritionStore" "-only-testing:BananaAgentUITests/AssistantUITest/testNewEventDraftIsInlineAndRestores" "-only-testing:BananaAgentUITests/AssistantUITest/testNutritionMealCopyOpensExistingReviewEditor" "-only-testing:BananaAgentUITests/AssistantUITest/testGlobalMealSearchLinksThroughNormalAppShell" -parallel-testing-enabled NO -test-timeouts-enabled YES -default-test-execution-time-allowance 150 -maximum-test-execution-time-allowance 300
+
+Resolve Package Graph
+
+
+Resolved source packages:
+  AppAuth: https://github.com/openid/AppAuth-iOS.git @ 2.1.0
+  AppCheck: https://github.com/google/app-check.git @ 11.3.2
+  Promises: https://github.com/google/promises.git @ 2.4.1
+  GoogleUtilities: https://github.com/google/GoogleUtilities.git @ 8.1.5
+  InteropForGoogle: https://github.com/google/interop-ios-for-google-sdks.git @ 101.0.0
+  GTMAppAuth: https://github.com/google/GTMAppAuth.git @ 5.0.0
+  FluidAudio: https://github.com/FluidInference/FluidAudio.git @ 0.15.5
+  GoogleSignIn: https://github.com/google/GoogleSignIn-iOS.git @ 9.1.0
+  GTMSessionFetcher: https://github.com/google/gtm-session-fetcher.git @ 3.5.0
+
+2026-10-26 12:06:51.165 xcodebuild[81409:92424094] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-26 12:07:21.527502-0400 BananaAgentUITests-Runner[82830:92429309] [Default] Running tests...
+2026-10-26 12:07:21.560498-0400 BananaAgentUITests-Runner[82830:92429309] [UIKit App Config] Update the Info.plist: Launch screens will soon be required.
+objc[82830]: Class UIAccessibilityLoaderWebShared is implemented in both /Library/Developer/CoreSimulator/Volumes/iOS_23F77/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.5.simruntime/Contents/Resources/RuntimeRoot/System/Library/AccessibilityBundles/WebCore.axbundle/WebCore (0x1091b0310) and /Library/Developer/CoreSimulator/Volumes/iOS_23F77/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.5.simruntime/Contents/Resources/RuntimeRoot/System/Library/AccessibilityBundles/WebKit.axbundle/WebKit (0x109218398). This may cause spurious casting failures and mysterious crashes. One of the duplicates must be removed or renamed.
+Test Suite 'Selected tests' started at 2026-10-26 12:07:24.703.
+Test Suite 'BananaAgentUITests.xctest' started at 2026-10-26 12:07:24.704.
+Test Suite 'AssistantUITest' started at 2026-10-26 12:07:24.704.
+Test Case '-[BananaAgentUITests.AssistantUITest testGlobalMealSearchLinksThroughNormalAppShell]' started.
+    t =     0.00s Start Test at 2026-10-26 12:07:24.705
+    t =     0.24s Set Up
+    t =     0.25s Open com.boris.banana.pi-development
+    t =     0.25s     Launch com.boris.banana.pi-development
+2026-10-26 12:07:25.026 xcodebuild[81409:92424094] [MT] IDELaunchParametersSnapshot: debugger version lookup failed for path '<nil>': noURL
+2026-10-26 12:07:25.026 xcodebuild[81409:92424094] [MT] IDELaunchParametersSnapshot: no debugger version
+2026-10-26 12:07:25.089 xcodebuild[81409:92424094] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+    t =     2.87s         Setting up automation session
+    t =     4.13s         Wait for com.boris.banana.pi-development to idle
+    t =     7.44s Waiting 25.0s for "More" Button to exist
+    t =     8.49s     Checking `Expect predicate `existsNoRetry == 1` for object "More" Button`
+    t =     8.50s         Checking existence of `"More" Button`
+    t =     8.71s Tap "More" Button
+    t =     8.71s     Wait for com.boris.banana.pi-development to idle
+    t =     9.11s     Find the "More" Button
+    t =     9.19s     Check for interrupting elements affecting "mobile.week.more" Button
+    t =     9.27s         Wait for com.apple.springboard to idle
+    t =     9.33s     Synthesize event
+    t =     9.76s     Wait for com.boris.banana.pi-development to idle
+    t =    10.72s Waiting 5.0s for "page.more.assistant" Button to exist
+    t =    11.77s     Checking `Expect predicate `existsNoRetry == 1` for object "page.more.assistant" Button`
+    t =    11.77s         Checking existence of `"page.more.assistant" Button`
+    t =    11.85s Tap "page.more.assistant" Button
+    t =    11.85s     Wait for com.boris.banana.pi-development to idle
+    t =    11.86s     Find the "page.more.assistant" Button
+    t =    11.93s     Check for interrupting elements affecting "page.more.assistant" Button
+    t =    11.99s         Wait for com.apple.springboard to idle
+    t =    12.02s     Synthesize event
+    t =    12.31s     Wait for com.boris.banana.pi-development to idle
+    t =    13.74s Waiting 15.0s for "assistant.input" Any to exist
+    t =    14.80s     Checking `Expect predicate `existsNoRetry == 1` for object "assistant.input" Any`
+    t =    14.80s         Checking existence of `"assistant.input" Any`
+    t =    14.94s Tap "assistant.input" Any
+    t =    14.94s     Wait for com.boris.banana.pi-development to idle
+    t =    14.94s     Find the "assistant.input" Any
+    t =    15.05s     Check for interrupting elements affecting "assistant.input" TextField
+    t =    15.10s         Wait for com.apple.springboard to idle
+    t =    15.15s     Synthesize event
+    t =    15.45s     Wait for com.boris.banana.pi-development to idle
+    t =    16.03s Type 'Search Banana for ...' into "assistant.input" TextField
+    t =    16.03s     Wait for com.boris.banana.pi-development to idle
+    t =    16.39s     Find the "assistant.input" TextField
+    t =    16.81s     Check for interrupting elements affecting "assistant.input" TextField
+    t =    16.91s         Wait for com.apple.springboard to idle
+    t =    17.19s     Synthesize event
+    t =    17.79s     Wait for com.boris.banana.pi-development to idle
+    t =    17.80s Find the "assistant.send" Button
+    t =    17.88s Tap "assistant.send" Button
+    t =    17.88s     Wait for com.boris.banana.pi-development to idle
+    t =    17.89s     Find the "assistant.send" Button
+    t =    17.96s     Check for interrupting elements affecting "assistant.send" Button
+    t =    18.03s         Wait for com.apple.springboard to idle
+    t =    18.05s     Synthesize event
+    t =    18.35s     Wait for com.boris.banana.pi-development to idle
+    t =    18.36s Waiting 15.0s for Button (First Match) to exist
+    t =    19.42s     Checking `Expect predicate `existsNoRetry == 1` for object Button (First Match)`
+    t =    19.42s         Checking existence of `Button (First Match)`
+    t =    19.57s Tap Button (First Match)
+    t =    19.57s     Wait for com.boris.banana.pi-development to idle
+    t =    19.57s     Find the Button (First Match)
+    t =    19.73s     Check for interrupting elements affecting "assistant.workspace.result.meal:BA9A9A00-0000-4000-8000-000000000001" Button
+    t =    19.79s         Wait for com.apple.springboard to idle
+    t =    19.81s     Synthesize event
+    t =    20.11s     Wait for com.boris.banana.pi-development to idle
+    t =    21.41s Checking existence of `"nutrition.phrase" Any`
+    t =    21.61s Tear Down
+Test Case '-[BananaAgentUITests.AssistantUITest testGlobalMealSearchLinksThroughNormalAppShell]' passed (22.081 seconds).
+Test Case '-[BananaAgentUITests.AssistantUITest testNewEventDraftIsInlineAndRestores]' started.
+    t =     0.00s Start Test at 2026-10-26 12:07:46.787
+    t =     0.02s Set Up
+    t =     0.02s Open com.boris.banana.pi-development
+    t =     0.02s     Launch com.boris.banana.pi-development
+    t =     0.02s         Terminate com.boris.banana.pi-development:83291
+2026-10-26 12:07:46.851 xcodebuild[81409:92424094] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-26 12:07:46.851 xcodebuild[81409:92424094] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-26 12:07:47.853 xcodebuild[81409:92424094] [MT] IDELaunchParametersSnapshot: debugger version lookup failed for path '<nil>': noURL
+2026-10-26 12:07:47.853 xcodebuild[81409:92424094] [MT] IDELaunchParametersSnapshot: no debugger version
+2026-10-26 12:07:47.897 xcodebuild[81409:92424094] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+    t =     1.51s         Setting up automation session
+    t =     2.63s         Wait for com.boris.banana.pi-development to idle
+    t =     4.73s Waiting 25.0s for "assistant.input" Any to exist
+    t =     5.78s     Checking `Expect predicate `existsNoRetry == 1` for object "assistant.input" Any`
+    t =     5.78s         Checking existence of `"assistant.input" Any`
+    t =     5.95s Tap "assistant.input" Any
+    t =     5.95s     Wait for com.boris.banana.pi-development to idle
+    t =     5.95s     Find the "assistant.input" Any
+    t =     6.07s     Check for interrupting elements affecting "assistant.input" TextField
+    t =     6.11s         Wait for com.apple.springboard to idle
+    t =     6.19s     Synthesize event
+    t =     6.49s     Wait for com.boris.banana.pi-development to idle
+    t =     6.59s Type 'Create Pi UI Lunch...' into "assistant.input" TextField
+    t =     6.59s     Wait for com.boris.banana.pi-development to idle
+    t =     6.98s     Find the "assistant.input" TextField
+    t =     7.27s     Check for interrupting elements affecting "assistant.input" TextField
+    t =     7.33s         Wait for com.apple.springboard to idle
+    t =     7.38s     Synthesize event
+    t =     8.43s     Wait for com.boris.banana.pi-development to idle
+    t =     8.44s Find the "assistant.send" Button
+    t =     8.49s Tap "assistant.send" Button
+    t =     8.49s     Wait for com.boris.banana.pi-development to idle
+    t =     8.50s     Find the "assistant.send" Button
+    t =     8.55s     Check for interrupting elements affecting "assistant.send" Button
+    t =     8.60s         Wait for com.apple.springboard to idle
+    t =     8.63s     Synthesize event
+    t =     8.93s     Wait for com.boris.banana.pi-development to idle
+    t =     9.06s Waiting 15.0s for "event.title" TextField to exist
+    t =    10.14s     Checking `Expect predicate `existsNoRetry == 1` for object "event.title" TextField`
+    t =    10.14s         Checking existence of `"event.title" TextField`
+    t =    10.21s Find the "event.title" TextField
+    t =    10.28s Checking existence of `"assistant.workspace.reviewEvent" Button`
+    t =    10.34s Get number of matches for: Descendants matching type Sheet
+    t =    10.39s Terminate com.boris.banana.pi-development:84093
+2026-10-26 12:07:57.196 xcodebuild[81409:92424094] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-26 12:07:57.196 xcodebuild[81409:92424094] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+    t =    11.47s Open com.boris.banana.pi-development
+    t =    11.47s     Launch com.boris.banana.pi-development
+2026-10-26 12:07:58.256 xcodebuild[81409:92424094] [MT] IDELaunchParametersSnapshot: debugger version lookup failed for path '<nil>': noURL
+2026-10-26 12:07:58.256 xcodebuild[81409:92424094] [MT] IDELaunchParametersSnapshot: no debugger version
+2026-10-26 12:07:58.287 xcodebuild[81409:92424094] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+    t =    11.68s         Setting up automation session
+    t =    12.75s         Wait for com.boris.banana.pi-development to idle
+    t =    14.81s Waiting 25.0s for "assistant.input" Any to exist
+    t =    15.86s     Checking `Expect predicate `existsNoRetry == 1` for object "assistant.input" Any`
+    t =    15.86s         Checking existence of `"assistant.input" Any`
+    t =    16.00s Waiting 20.0s for "event.title" TextField to exist
+    t =    17.05s     Checking `Expect predicate `existsNoRetry == 1` for object "event.title" TextField`
+    t =    17.05s         Checking existence of `"event.title" TextField`
+    t =    17.10s Find the "event.title" TextField
+    t =    17.14s Tap "event.title" TextField
+    t =    17.14s     Wait for com.boris.banana.pi-development to idle
+    t =    17.14s     Find the "event.title" TextField
+    t =    17.18s     Check for interrupting elements affecting "event.title" TextField
+    t =    17.23s         Wait for com.apple.springboard to idle
+    t =    17.26s     Synthesize event
+    t =    17.56s     Wait for com.boris.banana.pi-development to idle
+    t =    17.79s Type '' into "event.title" TextField
+    t =    17.79s     Wait for com.boris.banana.pi-development to idle
+    t =    18.17s     Find the "event.title" TextField
+    t =    18.27s     Check for interrupting elements affecting "event.title" TextField
+    t =    18.32s         Wait for com.apple.springboard to idle
+    t =    18.36s     Synthesize event
+    t =    18.75s     Wait for com.boris.banana.pi-development to idle
+    t =    18.77s Type 'Inline lunch' into "event.title" TextField
+    t =    18.77s     Wait for com.boris.banana.pi-development to idle
+    t =    18.77s     Find the "event.title" TextField
+    t =    18.86s     Check for interrupting elements affecting "event.title" TextField
+    t =    18.92s         Wait for com.apple.springboard to idle
+    t =    18.95s     Synthesize event
+    t =    19.35s     Wait for com.boris.banana.pi-development to idle
+    t =    19.35s Find the "event.title" TextField
+    t =    19.41s Type '
+' into "event.title" TextField
+    t =    19.41s     Wait for com.boris.banana.pi-development to idle
+    t =    19.41s     Find the "event.title" TextField
+    t =    19.47s     Check for interrupting elements affecting "event.title" TextField
+    t =    19.52s         Wait for com.apple.springboard to idle
+    t =    19.55s     Synthesize event
+    t =    19.77s     Wait for com.boris.banana.pi-development to idle
+    t =    20.00s Checking existence of `Keyboard (First Match)`
+    t =    20.08s Checking existence of `"event.save" Button`
+    t =    20.13s Find the "event.save" Button
+    t =    20.17s Find the Target Application 'com.boris.banana.pi-development'
+    t =    20.38s Added attachment named 'Inline event editor'
+    t =    20.38s Find the "assistant.workspace.dismiss" Button
+    t =    20.43s Tap "assistant.workspace.dismiss" Button
+    t =    20.43s     Wait for com.boris.banana.pi-development to idle
+    t =    20.43s     Find the "assistant.workspace.dismiss" Button
+    t =    20.47s     Check for interrupting elements affecting "assistant.workspace.dismiss" Button
+    t =    20.51s         Wait for com.apple.springboard to idle
+    t =    20.53s     Synthesize event
+    t =    20.83s     Wait for com.boris.banana.pi-development to idle
+    t =    20.84s Checking existence of `"event.title" TextField`
+    t =    20.86s Checking existence of `"assistant.input" Any`
+    t =    20.93s Tear Down
+Test Case '-[BananaAgentUITests.AssistantUITest testNewEventDraftIsInlineAndRestores]' passed (21.295 seconds).
+Test Case '-[BananaAgentUITests.AssistantUITest testNewMealDraftIsInlineAndRestores]' started.
+    t =     0.00s Start Test at 2026-10-26 12:08:08.082
+    t =     0.02s Set Up
+    t =     0.03s Open com.boris.banana.pi-development
+    t =     0.03s     Launch com.boris.banana.pi-development
+    t =     0.03s         Terminate com.boris.banana.pi-development:84505
+2026-10-26 12:08:08.130 xcodebuild[81409:92424094] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-26 12:08:08.130 xcodebuild[81409:92424094] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-26 12:08:09.119 xcodebuild[81409:92424094] [MT] IDELaunchParametersSnapshot: debugger version lookup failed for path '<nil>': noURL
+2026-10-26 12:08:09.119 xcodebuild[81409:92424094] [MT] IDELaunchParametersSnapshot: no debugger version
+2026-10-26 12:08:09.150 xcodebuild[81409:92424094] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+    t =     1.46s         Setting up automation session
+    t =     2.39s         Wait for com.boris.banana.pi-development to idle
+    t =     4.28s Waiting 25.0s for "assistant.input" Any to exist
+    t =     5.32s     Checking `Expect predicate `existsNoRetry == 1` for object "assistant.input" Any`
+    t =     5.32s         Checking existence of `"assistant.input" Any`
+    t =     5.42s Tap "assistant.input" Any
+    t =     5.42s     Wait for com.boris.banana.pi-development to idle
+    t =     5.42s     Find the "assistant.input" Any
+    t =     5.48s     Check for interrupting elements affecting "assistant.input" TextField
+    t =     5.52s         Wait for com.apple.springboard to idle
+    t =     5.57s     Synthesize event
+    t =     5.87s     Wait for com.boris.banana.pi-development to idle
+    t =     5.93s Type 'Make a meal with 2...' into "assistant.input" TextField
+    t =     5.93s     Wait for com.boris.banana.pi-development to idle
+    t =     6.31s     Find the "assistant.input" TextField
+    t =     6.54s     Check for interrupting elements affecting "assistant.input" TextField
+    t =     6.60s         Wait for com.apple.springboard to idle
+    t =     6.64s     Synthesize event
+    t =     7.45s     Wait for com.boris.banana.pi-development to idle
+    t =     7.46s Find the "assistant.send" Button
+    t =     7.51s Tap "assistant.send" Button
+    t =     7.51s     Wait for com.boris.banana.pi-development to idle
+    t =     7.52s     Find the "assistant.send" Button
+    t =     7.57s     Check for interrupting elements affecting "assistant.send" Button
+    t =     7.61s         Wait for com.apple.springboard to idle
+    t =     7.64s     Synthesize event
+    t =     7.93s     Wait for com.boris.banana.pi-development to idle
+<unknown>:0: warning: -[BananaAgentUITests.AssistantUITest testNewMealDraftIsInlineAndRestores] : Invalid frame dimension (negative or non-finite).
+    t =     8.17s Waiting 15.0s for "foodText.mealName" TextField to exist
+    t =     9.26s     Checking `Expect predicate `existsNoRetry == 1` for object "foodText.mealName" TextField`
+    t =     9.26s         Checking existence of `"foodText.mealName" TextField`
+    t =     9.35s Checking existence of `"foodText.total" Any`
+    t =     9.63s Checking existence of `"foodText.confirmed" Switch`
+    t =     9.70s Checking existence of `"assistant.workspace.reviewMeal" Button`
+    t =     9.77s Get number of matches for: Descendants matching type Sheet
+    t =     9.82s Terminate com.boris.banana.pi-development:85132
+2026-10-26 12:08:17.920 xcodebuild[81409:92424094] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-26 12:08:17.921 xcodebuild[81409:92424094] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+    t =    10.82s Open com.boris.banana.pi-development
+    t =    10.82s     Launch com.boris.banana.pi-development
+2026-10-26 12:08:18.912 xcodebuild[81409:92424094] [MT] IDELaunchParametersSnapshot: debugger version lookup failed for path '<nil>': noURL
+2026-10-26 12:08:18.913 xcodebuild[81409:92424094] [MT] IDELaunchParametersSnapshot: no debugger version
+2026-10-26 12:08:18.947 xcodebuild[81409:92424094] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+    t =    11.05s         Setting up automation session
+    t =    12.07s         Wait for com.boris.banana.pi-development to idle
+    t =    14.18s Waiting 25.0s for "assistant.input" Any to exist
+    t =    15.21s     Checking `Expect predicate `existsNoRetry == 1` for object "assistant.input" Any`
+    t =    15.21s         Checking existence of `"assistant.input" Any`
+    t =    15.33s Waiting 20.0s for "foodText.mealName" TextField to exist
+    t =    16.34s     Checking `Expect predicate `existsNoRetry == 1` for object "foodText.mealName" TextField`
+    t =    16.34s         Checking existence of `"foodText.mealName" TextField`
+    t =    16.41s Checking existence of `"foodText.mealName" TextField`
+    t =    16.45s Tap "assistant.workspace.dismiss" Button
+    t =    16.45s     Wait for com.boris.banana.pi-development to idle
+    t =    16.45s     Find the "assistant.workspace.dismiss" Button
+    t =    16.50s     Check for interrupting elements affecting "assistant.workspace.dismiss" Button
+    t =    16.55s         Wait for com.apple.springboard to idle
+    t =    16.57s     Synthesize event
+    t =    16.87s     Wait for com.boris.banana.pi-development to idle
+    t =    16.88s Checking existence of `"foodText.mealName" TextField`
+    t =    16.91s Checking existence of `"assistant.input" Any`
+    t =    16.96s Tear Down
+Test Case '-[BananaAgentUITests.AssistantUITest testNewMealDraftIsInlineAndRestores]' passed (17.222 seconds).
+Test Case '-[BananaAgentUITests.AssistantUITest testNewMealDraftSaveAppearsInExistingNutritionStore]' started.
+    t =     0.00s Start Test at 2026-10-26 12:08:25.304
+    t =     0.02s Set Up
+    t =     0.03s Open com.boris.banana.pi-development
+    t =     0.03s     Launch com.boris.banana.pi-development
+    t =     0.03s         Terminate com.boris.banana.pi-development:85552
+2026-10-26 12:08:25.349 xcodebuild[81409:92424094] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-26 12:08:25.350 xcodebuild[81409:92424094] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-26 12:08:26.422 xcodebuild[81409:92424094] [MT] IDELaunchParametersSnapshot: debugger version lookup failed for path '<nil>': noURL
+2026-10-26 12:08:26.422 xcodebuild[81409:92424094] [MT] IDELaunchParametersSnapshot: no debugger version
+2026-10-26 12:08:26.455 xcodebuild[81409:92424094] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+    t =     1.33s         Setting up automation session
+    t =     2.51s         Wait for com.boris.banana.pi-development to idle
+    t =     4.50s Waiting 25.0s for "assistant.input" Any to exist
+    t =     5.56s     Checking `Expect predicate `existsNoRetry == 1` for object "assistant.input" Any`
+    t =     5.56s         Checking existence of `"assistant.input" Any`
+    t =     5.67s Tap "Show my protein this month" Button
+    t =     5.67s     Wait for com.boris.banana.pi-development to idle
+    t =     5.68s     Find the "Show my protein this month" Button
+    t =     5.72s     Check for interrupting elements affecting "Show my protein this month" Button
+    t =     5.75s         Wait for com.apple.springboard to idle
+    t =     5.78s     Synthesize event
+    t =     6.08s     Wait for com.boris.banana.pi-development to idle
+    t =     6.47s Waiting 15.0s for "assistant.test.meals" StaticText to exist
+    t =     7.54s     Checking `Expect predicate `existsNoRetry == 1` for object "assistant.test.meals" StaticText`
+    t =     7.54s         Checking existence of `"assistant.test.meals" StaticText`
+    t =     7.58s Find the "assistant.test.meals" StaticText
+    t =     7.61s Tap "assistant.input" Any
+    t =     7.61s     Wait for com.boris.banana.pi-development to idle
+    t =     7.62s     Find the "assistant.input" Any
+    t =     7.71s     Check for interrupting elements affecting "assistant.input" TextField
+    t =     7.75s         Wait for com.apple.springboard to idle
+    t =     8.52s     Synthesize event
+    t =     8.92s     Wait for com.boris.banana.pi-development to idle
+    t =     9.10s Type 'Make a meal with 2...' into "assistant.input" TextField
+    t =     9.10s     Wait for com.boris.banana.pi-development to idle
+    t =     9.47s     Find the "assistant.input" TextField
+    t =     9.87s     Check for interrupting elements affecting "assistant.input" TextField
+    t =     9.93s         Wait for com.apple.springboard to idle
+    t =     9.99s     Synthesize event
+    t =    10.79s     Wait for com.boris.banana.pi-development to idle
+    t =    10.79s Find the "assistant.send" Button
+    t =    10.86s Tap "assistant.send" Button
+    t =    10.86s     Wait for com.boris.banana.pi-development to idle
+    t =    10.86s     Find the "assistant.send" Button
+    t =    10.92s     Check for interrupting elements affecting "assistant.send" Button
+    t =    10.97s         Wait for com.apple.springboard to idle
+    t =    11.00s     Synthesize event
+    t =    11.30s     Wait for com.boris.banana.pi-development to idle
+<unknown>:0: warning: -[BananaAgentUITests.AssistantUITest testNewMealDraftSaveAppearsInExistingNutritionStore] : Invalid frame dimension (negative or non-finite).
+    t =    11.53s Waiting 15.0s for "foodText.mealName" TextField to exist
+    t =    12.55s     Checking `Expect predicate `existsNoRetry == 1` for object "foodText.mealName" TextField`
+    t =    12.55s         Checking existence of `"foodText.mealName" TextField`
+    t =    12.66s Tap "foodText.mealName" TextField
+    t =    12.67s     Wait for com.boris.banana.pi-development to idle
+    t =    12.67s     Find the "foodText.mealName" TextField
+    t =    12.74s     Check for interrupting elements affecting "foodText.mealName" TextField
+    t =    12.80s         Wait for com.apple.springboard to idle
+    t =    12.83s     Synthesize event
+    t =    13.12s     Wait for com.boris.banana.pi-development to idle
+    t =    13.14s Find the "foodText.mealName" TextField
+    t =    13.23s Type '' into "foodText.mealName" TextField
+    t =    13.23s     Wait for com.boris.banana.pi-development to idle
+    t =    13.24s     Find the "foodText.mealName" TextField
+    t =    13.32s     Check for interrupting elements affecting "foodText.mealName" TextField
+    t =    13.38s         Wait for com.apple.springboard to idle
+    t =    13.41s     Synthesize event
+    t =    13.87s     Wait for com.boris.banana.pi-development to idle
+    t =    13.87s Type 'Inline breakfast' into "foodText.mealName" TextField
+    t =    13.87s     Wait for com.boris.banana.pi-development to idle
+    t =    13.88s     Find the "foodText.mealName" TextField
+    t =    13.96s     Check for interrupting elements affecting "foodText.mealName" TextField
+    t =    14.02s         Wait for com.apple.springboard to idle
+    t =    14.05s     Synthesize event
+    t =    14.52s     Wait for com.boris.banana.pi-development to idle
+    t =    14.52s Checking existence of `"Done" Button`
+    t =    14.77s Tap "Done" Button
+    t =    14.77s     Wait for com.boris.banana.pi-development to idle
+    t =    14.77s     Find the "Done" Button
+    t =    15.02s     Check for interrupting elements affecting "Done" Button
+    t =    15.08s         Wait for com.apple.springboard to idle
+    t =    15.75s     Synthesize event
+    t =    16.05s     Wait for com.boris.banana.pi-development to idle
+    t =    16.86s Checking existence of `"assistant.workspace.saveMeal" Button`
+    t =    16.91s Find the "assistant.workspace.saveMeal" Button
+    t =    16.97s Waiting 10.0s for "foodText.confirmed" Switch to exist
+    t =    18.02s     Checking `Expect predicate `existsNoRetry == 1` for object "foodText.confirmed" Switch`
+    t =    18.02s         Checking existence of `"foodText.confirmed" Switch`
+    t =    18.09s Find the "foodText.confirmed" Switch
+    t =    18.18s Find the "foodText.confirmed" Switch
+    t =    18.27s Checking existence of `Switch (First Match)`
+    t =    18.41s Tap Switch (First Match)
+    t =    18.41s     Wait for com.boris.banana.pi-development to idle
+    t =    18.42s     Find the Switch (First Match)
+    t =    18.62s     Check for interrupting elements affecting "0" Switch
+    t =    18.69s         Wait for com.apple.springboard to idle
+    t =    18.74s     Synthesize event
+    t =    19.05s     Wait for com.boris.banana.pi-development to idle
+    t =    20.35s Find the "assistant.workspace.saveMeal" Button
+    t =    20.42s Find the "assistant.workspace.saveMeal" Button
+    t =    20.52s Find the Target Application 'com.boris.banana.pi-development'
+    t =    20.77s Added attachment named 'Inline meal editor'
+    t =    20.78s Tap "assistant.workspace.saveMeal" Button
+    t =    20.78s     Wait for com.boris.banana.pi-development to idle
+    t =    20.79s     Find the "assistant.workspace.saveMeal" Button
+    t =    20.86s     Check for interrupting elements affecting "assistant.workspace.saveMeal" Button
+    t =    20.93s         Wait for com.apple.springboard to idle
+    t =    20.97s     Synthesize event
+    t =    21.28s     Wait for com.boris.banana.pi-development to idle
+    t =    21.29s Waiting 10.0s for "Meal saved" StaticText to exist
+    t =    22.34s     Checking `Expect predicate `existsNoRetry == 1` for object "Meal saved" StaticText`
+    t =    22.34s         Checking existence of `"Meal saved" StaticText`
+    t =    22.39s Checking existence of `"assistant.workspace.saveMeal" Button`
+    t =    22.43s Checking existence of `"assistant.input" Any`
+    t =    22.60s Find the "assistant.workspace.dismiss" Button
+    t =    22.66s Tap "assistant.workspace.dismiss" Button
+    t =    22.66s     Wait for com.boris.banana.pi-development to idle
+    t =    22.66s     Find the "assistant.workspace.dismiss" Button
+    t =    22.72s     Check for interrupting elements affecting "assistant.workspace.dismiss" Button
+    t =    22.80s         Wait for com.apple.springboard to idle
+    t =    22.84s     Synthesize event
+    t =    23.15s     Wait for com.boris.banana.pi-development to idle
+    t =    23.16s Waiting 10.0s for "assistant.test.meals" StaticText to exist
+    t =    24.23s     Checking `Expect predicate `existsNoRetry == 1` for object "assistant.test.meals" StaticText`
+    t =    24.23s         Checking existence of `"assistant.test.meals" StaticText`
+    t =    24.29s Find the "assistant.test.meals" StaticText
+    t =    24.34s Tear Down
+Test Case '-[BananaAgentUITests.AssistantUITest testNewMealDraftSaveAppearsInExistingNutritionStore]' passed (24.571 seconds).
+Test Case '-[BananaAgentUITests.AssistantUITest testNutritionMealCopyOpensExistingReviewEditor]' started.
+    t =     0.00s Start Test at 2026-10-26 12:08:49.878
+    t =     0.04s Set Up
+    t =     0.04s Open com.boris.banana.pi-development
+    t =     0.04s     Launch com.boris.banana.pi-development
+    t =     0.04s         Terminate com.boris.banana.pi-development:86064
+2026-10-26 12:08:50.010 xcodebuild[81409:92424094] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-26 12:08:50.011 xcodebuild[81409:92424094] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-26 12:08:50.962 xcodebuild[81409:92424094] [MT] IDELaunchParametersSnapshot: debugger version lookup failed for path '<nil>': noURL
+2026-10-26 12:08:50.962 xcodebuild[81409:92424094] [MT] IDELaunchParametersSnapshot: no debugger version
+2026-10-26 12:08:51.004 xcodebuild[81409:92424094] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+    t =     1.53s         Setting up automation session
+    t =     2.64s         Wait for com.boris.banana.pi-development to idle
+    t =     4.71s Waiting 25.0s for "assistant.input" Any to exist
+    t =     5.73s     Checking `Expect predicate `existsNoRetry == 1` for object "assistant.input" Any`
+    t =     5.73s         Checking existence of `"assistant.input" Any`
+    t =     5.89s Tap "assistant.input" Any
+    t =     5.89s     Wait for com.boris.banana.pi-development to idle
+    t =     5.90s     Find the "assistant.input" Any
+    t =     5.99s     Check for interrupting elements affecting "assistant.input" TextField
+    t =     6.04s         Wait for com.apple.springboard to idle
+    t =     6.15s     Synthesize event
+    t =     6.48s     Wait for com.boris.banana.pi-development to idle
+    t =     6.65s Type 'Show my protein th...' into "assistant.input" TextField
+    t =     6.65s     Wait for com.boris.banana.pi-development to idle
+    t =     7.03s     Find the "assistant.input" TextField
+    t =     7.75s     Check for interrupting elements affecting "assistant.input" TextField
+    t =     7.93s         Wait for com.apple.springboard to idle
+    t =     8.06s     Synthesize event
+    t =     8.73s     Wait for com.boris.banana.pi-development to idle
+    t =     8.74s Find the "assistant.send" Button
+    t =     8.84s Tap "assistant.send" Button
+    t =     8.84s     Wait for com.boris.banana.pi-development to idle
+    t =     8.85s     Find the "assistant.send" Button
+    t =     8.97s     Check for interrupting elements affecting "assistant.send" Button
+    t =     9.09s         Wait for com.apple.springboard to idle
+    t =     9.15s     Synthesize event
+    t =     9.49s     Wait for com.boris.banana.pi-development to idle
+    t =     9.63s Waiting 20.0s for Button (First Match) to exist
+    t =    10.89s     Checking `Expect predicate `existsNoRetry == 1` for object Button (First Match)`
+    t =    10.90s         Checking existence of `Button (First Match)`
+    t =    14.07s Find the "assistant.test.meals" StaticText
+    t =    14.21s Tap Button (First Match)
+    t =    14.21s     Wait for com.boris.banana.pi-development to idle
+    t =    14.24s     Find the Button (First Match)
+    t =    14.89s     Check for interrupting elements affecting "assistant.nutrition.copy.BA9A9A00-0000-4000-8000-000000000001" Button
+    t =    14.96s         Wait for com.apple.springboard to idle
+    t =    15.00s     Synthesize event
+    t =    15.32s     Wait for com.boris.banana.pi-development to idle
+    t =    15.34s Find the "assistant.nutrition.review" Button
+    t =    15.58s Swipe up Target Application 'com.boris.banana.pi-development'
+    t =    15.58s     Wait for com.boris.banana.pi-development to idle
+    t =    15.59s     Find the Target Application 'com.boris.banana.pi-development'
+    t =    15.66s     Check for interrupting elements affecting "Banana Pi" Application
+    t =    15.73s         Wait for com.apple.springboard to idle
+    t =    15.77s     Synthesize event
+    t =    16.20s     Wait for com.boris.banana.pi-development to idle
+    t =    76.22s         App event loop idle notification not received, will attempt to continue.
+    t =   113.68s App animations complete notification not received, will attempt to continue.
+    t =   173.70s Waiting 10.0s for "assistant.nutrition.review" Button to exist
+    t =   174.74s     Checking `Expect predicate `existsNoRetry == 1` for object "assistant.nutrition.review" Button`
+    t =   174.74s         Checking existence of `"assistant.nutrition.review" Button`
+Test Case '-[BananaAgentUITests.AssistantUITest testNutritionMealCopyOpensExistingReviewEditor]' exceeded execution time allowance of 3 minutes. The test may have hung; check Xcode's test report for additional diagnostics. If the test requires additional time, use -[XCTestCase executionTimeAllowance] or one of xcodebuild's command-line overrides.
+    t =   183.97s         Capturing element debug description
+    t =   184.02s             Requesting snapshot of accessibility hierarchy for app with pid 87296
+    t =   184.02s             Requesting snapshot of accessibility hierarchy for app with pid 87296
+    t =   184.02s             Requesting snapshot of accessibility hierarchy for app with pid 87296
+    t =   184.03s     Checking existence of `"assistant.nutrition.review" Button`
+
+
+*** If you believe this error represents a bug, please attach the result bundle at ~/orca/workspaces/gtfuwgth/pi/.build/sim/Logs/Test/Test-BananaPi-2026.10.26_12-06-49--0400.xcresult
+
+2026-10-26 12:12:09.914 xcodebuild[81409:92424094] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-26 12:12:09.914 xcodebuild[81409:92424094] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-26 12:12:10.213 xcodebuild[81409:92424094] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-26 12:12:10.213 xcodebuild[81409:92424094] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-26 12:12:10.221 xcodebuild[81409:92424094] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-26 12:12:10.713967-0400 BananaAgentUITests-Runner[96773:92470486] [Default] Running tests...
+2026-10-26 12:12:10.737291-0400 BananaAgentUITests-Runner[96773:92470486] [UIKit App Config] Update the Info.plist: Launch screens will soon be required.
+    t =      nans Interface orientation changed to Portrait
+
+Restarting after unexpected exit, crash, or test timeout; summary will include totals from previous launches.
+
+Test Suite 'Selected tests' started at 2026-10-26 12:12:11.320.
+Test Suite 'BananaAgentUITests.xctest' started at 2026-10-26 12:12:11.320.
+Test Suite 'BananaAgentUITests.xctest' passed at 2026-10-26 12:12:11.320.
+	 Executed 0 tests, with 0 failures (0 unexpected) in 0.000 (0.000) seconds
+Test Suite 'Selected tests' passed at 2026-10-26 12:12:11.321.
+	 Executed 0 tests, with 0 failures (0 unexpected) in 0.000 (0.001) seconds
+2026-10-26 12:12:11.338 xcodebuild[81409:92424094] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-26 12:12:11.339 xcodebuild[81409:92424094] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-26 12:12:11.610 xcodebuild[81409:92424094] [MT] IDETestOperationsObserverDebug: 322.325 elapsed -- Testing started completed.
+2026-10-26 12:12:11.610 xcodebuild[81409:92424094] [MT] IDETestOperationsObserverDebug: 0.000 sec, +0.000 sec -- start
+2026-10-26 12:12:11.610 xcodebuild[81409:92424094] [MT] IDETestOperationsObserverDebug: 322.325 sec, +322.325 sec -- end
+
+Test session results, code coverage, and logs:
+	~/orca/workspaces/gtfuwgth/pi/.build/sim/Logs/Test/Test-BananaPi-2026.10.26_12-06-49--0400.xcresult
+
+Failing tests:
+	AssistantUITest.testNutritionMealCopyOpensExistingReviewEditor()
+
+** TEST EXECUTE FAILED **

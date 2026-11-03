@@ -1,0 +1,117 @@
+{
+  "date": "2026-10-25T01:18:27.453671+00:00",
+  "passed": true,
+  "method": "CUA native app interaction; model durations from committed Pi entries",
+  "model": "mac-local/qwen3.5-4b-4bit",
+  "thinking": "off",
+  "installedApp": "~/Applications/Banana Pi.app",
+  "existingUserConversationRestored": true,
+  "existingSavedSalmonPreserved": true,
+  "firstNameModelMilliseconds": 7163,
+  "warmRepeatedNameModelMilliseconds": 653,
+  "salmonModelMilliseconds": 1290,
+  "salmonReviewDraftForTodayVisible": true,
+  "testDraftDismissedWithoutSave": true,
+  "mealCountBefore": 250,
+  "mealCountAfter": 250,
+  "answers": [
+    {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "toolCall",
+          "id": "call_ebaa424b8b6e44e5ae32a975",
+          "name": "prepare_meal_copy",
+          "arguments": {
+            "day": "today",
+            "mealID": "BA5A4E11-0000-4000-8000-000202610042",
+            "revision": 9
+          }
+        }
+      ],
+      "api": "banana-mac-local",
+      "provider": "mac-local",
+      "model": "qwen3.5-4b-4bit",
+      "timestamp": 1792891093834,
+      "stopReason": "toolUse",
+      "usage": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0,
+        "totalTokens": 0,
+        "cost": {
+          "input": 0,
+          "output": 0,
+          "cacheRead": 0,
+          "cacheWrite": 0,
+          "total": 0
+        }
+      },
+      "durationMs": 1290
+    },
+    {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "text",
+          "text": "I'm Banana! I'm your personal assistant running on this device.\n\nHow can I help you today?"
+        }
+      ],
+      "api": "banana-mac-local",
+      "provider": "mac-local",
+      "model": "qwen3.5-4b-4bit",
+      "timestamp": 1792891076959,
+      "stopReason": "stop",
+      "usage": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0,
+        "totalTokens": 0,
+        "cost": {
+          "input": 0,
+          "output": 0,
+          "cacheRead": 0,
+          "cacheWrite": 0,
+          "total": 0
+        }
+      },
+      "durationMs": 653
+    },
+    {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "text",
+          "text": "I'm Banana! I'm your personal assistant running on this device. How can I help you today?"
+        }
+      ],
+      "api": "banana-mac-local",
+      "provider": "mac-local",
+      "model": "qwen3.5-4b-4bit",
+      "timestamp": 1792891030548,
+      "stopReason": "stop",
+      "usage": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0,
+        "totalTokens": 0,
+        "cost": {
+          "input": 0,
+          "output": 0,
+          "cacheRead": 0,
+          "cacheWrite": 0,
+          "total": 0
+        }
+      },
+      "durationMs": 7163
+    }
+  ],
+  "limitations": [
+    "Three observed turns, not p95 or general quality.",
+    "Durations measure model calls, not complete UI rendering.",
+    "Warm name input was a repeated prompt; first post-restart reply took 7.163 seconds."
+  ]
+}

@@ -1,0 +1,34 @@
+
+Launched application with com.boris.banana.pi-host-proof bundle identifier.
+Waiting for the application to terminate…
+PI_PROOF_PASS handoff-first {"mode":"handoff-first","passed":true,"task":{"id":7,"conversationId":1,"kind":"banana.lifecycle-sleeper","version":1,"input":{"until":1792807195960},"background":false,"abortRequested":false,"state":{"status":"sleeping","checkpoint":{"phase":"deliver"},"until":1792807195960},"startedAt":1792807185962},"armCalls":1,"deliverCalls":0,"wakeCalls":0,"readOnly":false,"nativeResources":{"timers":0,"databases":0,"modelRequests":0},"clock":"real epoch clock on each host"}
+The app terminated with the exit code 0.
+
+File received from Device
+~/orca/workspaces/gtfuwgth/pi/docs/research/pi-apple-host-results/ipad-handoff-first.json
+
+File received from Device
+/var/folders/n9/49zt1xp97n16k_k7hndfwkvc0000gn/T/banana-pi-handoff-7g9lixm6/transferred.sqlite
+
+{"mode":"handoff-viewer","passed":true,"task":{"id":7,"conversationId":1,"kind":"banana.lifecycle-sleeper","version":1,"input":{"until":1792807195960},"background":false,"abortRequested":false,"state":{"status":"sleeping","checkpoint":{"phase":"deliver"},"until":1792807195960},"startedAt":1792807185962},"armCalls":0,"deliverCalls":0,"wakeCalls":0,"readOnly":true,"nativeResources":{"timers":0,"modelRequests":0,"databases":0},"clock":"real epoch clock on each host"}
+
+{"mode":"handoff-resume","passed":true,"task":{"id":7,"conversationId":1,"kind":"banana.lifecycle-sleeper","version":1,"input":{"until":1792807195960},"background":false,"abortRequested":false,"state":{"status":"terminal","outcome":{"status":"completed","result":{"wokeAt":1792807195988}}},"startedAt":1792807185962,"endedAt":1792807195989},"armCalls":0,"deliverCalls":1,"wakeCalls":0,"readOnly":false,"nativeResources":{"databases":0,"timers":0,"modelRequests":0},"clock":"real epoch clock on each host"}
+
+File on Device
+Path: /private/var/mobile/Containers/Data/Application/C8439C8C-DFB6-4E22-94E1-3338E92ED5DB/Documents/handoff-return-d587d4b53472-persist.sqlite
+URL Resources: Writable, Readable
+File Size: 120 KB
+Last modification date: 10/23/26, 9:59 PM
+Permissions: UID: 501, GID: 501, Permissions: 420
+Extended Attributes: [:]
+
+Launched application with com.boris.banana.pi-host-proof bundle identifier.
+Waiting for the application to terminate…
+PI_PROOF_PASS handoff-completed {"mode":"handoff-completed","passed":true,"task":{"id":7,"conversationId":1,"kind":"banana.lifecycle-sleeper","version":1,"input":{"until":1792807195960},"background":false,"abortRequested":false,"state":{"status":"terminal","outcome":{"status":"completed","result":{"wokeAt":1792807195988}}},"startedAt":1792807185962,"endedAt":1792807195989},"armCalls":0,"deliverCalls":0,"wakeCalls":0,"readOnly":true,"nativeResources":{"timers":0,"modelRequests":0,"databases":0},"clock":"real epoch clock on each host"}
+The app terminated with the exit code 0.
+
+File received from Device
+~/orca/workspaces/gtfuwgth/pi/docs/research/pi-apple-host-results/ipad-handoff-completed.json
+
+File received from Device
+/var/folders/n9/49zt1xp97n16k_k7hndfwkvc0000gn/T/banana-pi-handoff-7g9lixm6/returned.sqlite

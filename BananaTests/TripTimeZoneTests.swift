@@ -81,4 +81,23 @@ final class TripTimeZoneTests: XCTestCase {
         XCTAssertTrue(["CEST", "Berlin"].contains(TripTimeZone.shortName(berlin, at: day(6))))
         XCTAssertFalse(TripTimeZone.shortName(kolkata, at: day(6)).isEmpty)
     }
+    func testSameArrivalOffsetDoesNotHideDifferentDSTDuringStay() throws {
+        let bogota = TimeZone(identifier: "America/Bogota")!
+        let arrival = try Date("2027-03-10T15:00:00Z", strategy: .iso8601)
+        let departure = try Date("2027-03-17T15:00:00Z", strategy: .iso8601)
+        XCTAssertTrue(TripTimeZone.sameClock(newYork, bogota, at: arrival))
+        let flights = [TripTimeZone.Flight(departs: arrival.addingTimeInterval(-6 * 3600), arrives: arrival, zone: bogota),
+                       TripTimeZone.Flight(departs: departure, arrives: departure.addingTimeInterval(6 * 3600), zone: newYork)]
+        let visible = DateInterval(start: arrival, end: departure)
+        XCTAssertEqual(TripTimeZone.stays(flights: flights, home: newYork).count, 1)
+        XCTAssertEqual(TripTimeZone.secondaryZone(visible: visible, flights: flights,
+                                                 home: newYork, current: newYork)?.identifier, bogota.identifier)
+    }
+
+    func testZonesWithMatchingDSTRemainOneClockAcrossTransition() throws {
+        let interval = DateInterval(start: try Date("2027-03-10T15:00:00Z", strategy: .iso8601),
+                                    end: try Date("2027-03-17T15:00:00Z", strategy: .iso8601))
+        XCTAssertTrue(TripTimeZone.sameClock(newYork, toronto, during: interval))
+    }
+
 }

@@ -50,10 +50,6 @@ struct MealWordsEditor: View {
                         .lineLimit(2...6)
                         .focused($focused)
                         .accessibilityIdentifier("mealWords.field")
-                } footer: {
-                    Text(item.hasPhotos
-                         ? "It\u{2019}s estimated again with these words; where they and the photo disagree, your words win. Left empty, it goes on the photo alone."
-                         : "It\u{2019}s estimated again with these words.")
                 }
             }
             .editingFormStyle()

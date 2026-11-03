@@ -1,0 +1,18 @@
+{
+  "bundle": "com.boris.banana.mac.pi-development",
+  "error": "Timed out waiting for the nutrition view",
+  "messages": [
+    {
+      "role": "user",
+      "text": "Show my protein this month"
+    },
+    {
+      "role": "error",
+      "text": "Error: Unsupported tool schema type at nutrition_view_draftDate"
+    }
+  ],
+  "model": "apple-foundation/on-device",
+  "passed": false,
+  "normalHistoryUnchanged": true,
+  "normalSelectionAndDraftUnchanged": true
+}

@@ -22,6 +22,7 @@ struct ReviewView: View {
     @AppStorage("reviewSpan") private var span: ReviewSpan = .week
     /// How many periods back from now. Not kept: Review opens on now.
     @State private var offset = 0
+    @State private var showingAnswer = false
     @ObservedObject private var modules = ModuleStore.shared
 
     private var period: RhythmPeriod { RhythmPeriod(granularity: span.granularity, offset: offset) }
@@ -29,6 +30,12 @@ struct ReviewView: View {
     var body: some View {
         NavigationStack {
             List {
+                #if PI_DEVELOPMENT
+                Section {
+                    AgentAskRow { showingAnswer = true }
+                    AgentRecentQuestions { showingAnswer = true }
+                }
+                #endif
                 // One group, as the system's own lists of places to go are.
                 Section {
                     ForEach(ReviewSubject.ordered(for: from, with: modules.choice)) { subject in
@@ -43,6 +50,7 @@ struct ReviewView: View {
             .contentMargins(.top, DS.Space.s, for: .scrollContent)
             .safeAreaInset(edge: .top, spacing: 0) { dateLine }
             .navigationTitle("Review")
+            .sheet(isPresented: $showingAnswer) { AssistantView(showsDoneButton: true) }
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
             #endif

@@ -1,0 +1,2138 @@
+{
+  "complete": true,
+  "scope": "Development smoke corpus, not held-out or production accuracy. No capability executes. Prompt sections and schemas come from the real Banana extensions.",
+  "engine": "mlx-server",
+  "runnerSha256": "feb5b07407dd209fa5d263126342a8d82b92b29a3a854b76ef5cb902563607e1",
+  "checkpoint": {
+    "repo": "mlx-community/Ministral-3-3B-Instruct-2512-4bit",
+    "revision": "a962dcb09eee4169c890e544c9eb938f1113fdee",
+    "metadataOverrides": {
+      "fix_mistral_regex": true
+    },
+    "originalManifestSha256": "e946ecc76c8abd66d2df13e571f979166bab7f25d5e402de4495c55616213697",
+    "files": {
+      "README.md": {
+        "bytes": 914,
+        "sha256": "da10e9cd318bd36448fa6edf613b19c193621e25d7aec374088846b279ff18c7"
+      },
+      "chat_template.jinja": {
+        "bytes": 7759,
+        "sha256": "c101a09b4ff42e8ed714cb67cd7144176e169b7d7be45d62e1e13326a5d7afd7"
+      },
+      "config.json": {
+        "bytes": 1988,
+        "sha256": "cdd4bfa0a702d0241faaa3b80d15d481d7f8abf2659fba0958b1e7f24a28055f"
+      },
+      "generation_config.json": {
+        "bytes": 131,
+        "sha256": "e0923390059f84a9180b00e5501778acc45ea9856cd7f2fd68208b360927c677"
+      },
+      "model.safetensors": {
+        "bytes": 2745210934,
+        "sha256": "69a68c0a961a64bb1145a697a83cf6cec45220d425c77a6c0a3568924078c3b4"
+      },
+      "model.safetensors.index.json": {
+        "bytes": 74906,
+        "sha256": "22e571d413d8aa4e5f81f5ae678aa8b4f5b1d67598a67c08b31182075592ec93"
+      },
+      "params.json": {
+        "bytes": 1183,
+        "sha256": "184afbdca12f4075121650335d65ada27b471b8b2952c8f2b699c16516306459"
+      },
+      "processor_config.json": {
+        "bytes": 976,
+        "sha256": "ece2373c2ae391bce18785a1810543bc6173a1f28b6767cffab2c35dbea5f002"
+      },
+      "tekken.json": {
+        "bytes": 16753777,
+        "sha256": "e29d19ea32eb7e26e6c0572d57cb7f9eca0f4420e0e0fe6ae1cf3be94da1c0d6"
+      },
+      "tokenizer.json": {
+        "bytes": 17077402,
+        "sha256": "286acad9b0e27fce778ac429763536accf618ccb6ed72963b6f94685e531c5c7"
+      },
+      "tokenizer_config.json": {
+        "bytes": 21217,
+        "sha256": "968bf20a6c12df27a89966f36cd374061db4ff202f60be3915116dfe310ead3f"
+      }
+    }
+  },
+  "fixtureSha256": "65a850d931dc9038e49f71c0b92d1b7a49421c7eeebd9ab6f0afa63fa863a2de",
+  "fixtureVersion": 1,
+  "recipeNote": "Ministral3 3B Instruct 4bit, text-only loading via native MLX; vendor starting temperature .1, top_p=1/top_k=0 unspecified defaults. Public fix_mistral_regex=True metadata in isolated serving view; original checkpoint unchanged.",
+  "settings": {
+    "thinking": false,
+    "context": 32768,
+    "maxTokens": 2048,
+    "temperature": 0.1,
+    "topP": 1.0,
+    "topK": 0,
+    "repetitionPenalty": 1.0,
+    "templateToolsKey": "tools",
+    "slots": 1,
+    "cacheGB": 2,
+    "repeats": 2,
+    "memoryBudgetGB": 5.0,
+    "budgetMeaning": "Checkpoint preflight only; working memory is observed, not hard-limited by this option",
+    "contextEnforcement": "Fixture inputs/output bound; standalone server has no matching max-context flag",
+    "cachePolicy": "One retained prompt cache, 2GB cap; different implementation from Locals slots",
+    "serverSeed": "Per-request seed=0; standalone API rather than Locals server-global RNG"
+  },
+  "hostBefore": {
+    "utc": "2026-10-25T16:30:54.280037+00:00",
+    "chip": "Apple M1 Max",
+    "ramBytes": "68719476736",
+    "os": "27.0.1",
+    "swap": "vm.swapusage: total = 23552.00M  used = 21984.75M  free = 1567.25M  (encrypted)",
+    "paging": {
+      "Pageouts": 383988,
+      "Swapins": 5055594,
+      "Swapouts": 9298822
+    }
+  },
+  "results": [
+    {
+      "case": "identity",
+      "repeat": 0,
+      "milliseconds": 3711.8,
+      "raw": {
+        "id": "chatcmpl-91daa0ee-5382-4e15-afd3-467438aac8b6",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792945856,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "I\u2019m just a helpful assistant here\u2014no name needed! Think of me as your Banana buddy. What\u2019s up? \ud83c\udf4c"
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2034,
+          "completion_tokens": 29,
+          "total_tokens": 2063,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 2314.338304
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "greeting",
+      "repeat": 0,
+      "milliseconds": 141.9,
+      "raw": {
+        "id": "chatcmpl-77956d49-2321-4cb2-bce2-2a4faccbfaae",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792945860,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "Hi there! How can I assist you today?"
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2030,
+          "completion_tokens": 11,
+          "total_tokens": 2041,
+          "prompt_tokens_details": {
+            "cached_tokens": 2028
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 2314.420224
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "monthly",
+      "repeat": 0,
+      "milliseconds": 246.8,
+      "raw": {
+        "id": "chatcmpl-c4f82a74-0664-41cb-90f0-f13ad634a392",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792945860,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "tool_calls",
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "tool_calls": [
+                {
+                  "function": {
+                    "name": "nutrition_view",
+                    "arguments": "{\"metric\": \"protein\", \"period\": \"this_month\"}"
+                  },
+                  "type": "function",
+                  "id": "69c90632-da9e-4e4c-9277-d010125a05da"
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2034,
+          "completion_tokens": 18,
+          "total_tokens": 2052,
+          "prompt_tokens_details": {
+            "cached_tokens": 2028
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 2314.616832
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "calories",
+      "repeat": 0,
+      "milliseconds": 330.2,
+      "raw": {
+        "id": "chatcmpl-462151c7-0258-4b18-ab37-194440f138ca",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792945860,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "tool_calls",
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "tool_calls": [
+                {
+                  "function": {
+                    "name": "nutrition_view",
+                    "arguments": "{\"metric\": \"calories\", \"period\": \"last_7_days\", \"revision\": 0}"
+                  },
+                  "type": "function",
+                  "id": "38ae57e4-03b7-42a3-8356-94cae8f29553"
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2036,
+          "completion_tokens": 28,
+          "total_tokens": 2064,
+          "prompt_tokens_details": {
+            "cached_tokens": 2029
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 2314.6496
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "food-search",
+      "repeat": 0,
+      "milliseconds": 2791.9,
+      "raw": {
+        "id": "chatcmpl-2aa62575-ac43-4df0-ab99-80708e909df7",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792945860,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "tool_calls",
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "tool_calls": [
+                {
+                  "function": {
+                    "name": "nutrition_view",
+                    "arguments": "{\"foodName\": \"yogurt\", \"metric\": \"protein\", \"start\": \"2026-10-01\", \"end\": \"2026-10-25\"}"
+                  },
+                  "type": "function",
+                  "id": "bf27339c-7003-4db2-aeba-93a830521928"
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2178,
+          "completion_tokens": 50,
+          "total_tokens": 2228,
+          "prompt_tokens_details": {
+            "cached_tokens": 172
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 2314.846208
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "weekdays",
+      "repeat": 0,
+      "milliseconds": 254.6,
+      "raw": {
+        "id": "chatcmpl-6915d8c3-b043-436e-b6af-cfdd3e564830",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792945863,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "tool_calls",
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "tool_calls": [
+                {
+                  "function": {
+                    "name": "filter_nutrition",
+                    "arguments": "{\"changes\": [\"weekdays_only\"], \"revision\": 2}"
+                  },
+                  "type": "function",
+                  "id": "5fe4f48e-2d56-4097-a16c-f0488d541cac"
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2174,
+          "completion_tokens": 22,
+          "total_tokens": 2196,
+          "prompt_tokens_details": {
+            "cached_tokens": 2170
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 2314.698752
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "compare",
+      "repeat": 0,
+      "milliseconds": 266.7,
+      "raw": {
+        "id": "chatcmpl-5cdb91f8-aaae-4a5f-a166-72f4576003a5",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792945863,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "tool_calls",
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "tool_calls": [
+                {
+                  "function": {
+                    "name": "filter_nutrition",
+                    "arguments": "{\"changes\": [\"compare_previous\"], \"revision\": 2}"
+                  },
+                  "type": "function",
+                  "id": "db5a9845-e08d-4633-a84e-0b6976c32e03"
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2176,
+          "completion_tokens": 22,
+          "total_tokens": 2198,
+          "prompt_tokens_details": {
+            "cached_tokens": 2170
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 2314.698752
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "copy",
+      "repeat": 0,
+      "milliseconds": 703.5,
+      "raw": {
+        "id": "chatcmpl-3be33029-5fd3-401f-9b38-78ba1488391e",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792945864,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "tool_calls",
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "tool_calls": [
+                {
+                  "function": {
+                    "name": "prepare_meal_copy",
+                    "arguments": "{\"mealID\": \"BA5A4E11-0000-4000-8000-000202610231\", \"day\": \"tomorrow\", \"revision\": 2}"
+                  },
+                  "type": "function",
+                  "id": "c83a7c7a-d889-4579-bfe2-3bc3d6567fc5"
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2187,
+          "completion_tokens": 62,
+          "total_tokens": 2249,
+          "prompt_tokens_details": {
+            "cached_tokens": 2170
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 2314.73152
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "new-meal",
+      "repeat": 0,
+      "milliseconds": 2675.5,
+      "raw": {
+        "id": "chatcmpl-7fb3e7af-2c69-4d13-b065-67fb2ab92068",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792945864,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "tool_calls",
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "tool_calls": [
+                {
+                  "function": {
+                    "name": "prepare_meal",
+                    "arguments": "{\"foods\": [{\"name\": \"eggs\", \"quantity\": \"2\"}, {\"name\": \"banana\", \"quantity\": \"1\"}], \"day\": \"today\", \"title\": \"Review of today's meal\"}"
+                  },
+                  "type": "function",
+                  "id": "5ccf45b5-c133-4678-8e57-1f1635589120"
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2051,
+          "completion_tokens": 54,
+          "total_tokens": 2105,
+          "prompt_tokens_details": {
+            "cached_tokens": 172
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 2314.89536
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "new-event",
+      "repeat": 0,
+      "milliseconds": 444.5,
+      "raw": {
+        "id": "chatcmpl-b7cec01d-c855-4d27-aafe-1f539f572f37",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792945867,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "tool_calls",
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "tool_calls": [
+                {
+                  "function": {
+                    "name": "prepare_event",
+                    "arguments": "{\"title\": \"Lunch\", \"day\": \"tomorrow\", \"time\": \"13:00\", \"durationMinutes\": 30}"
+                  },
+                  "type": "function",
+                  "id": "73abf71d-a5b6-43fb-ad21-84b124ccf638"
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2056,
+          "completion_tokens": 37,
+          "total_tokens": 2093,
+          "prompt_tokens_details": {
+            "cached_tokens": 2028
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 2314.747904
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "explicit-event",
+      "repeat": 0,
+      "milliseconds": 542.0,
+      "raw": {
+        "id": "chatcmpl-bc947dab-168f-4420-9012-12e51d43b0ff",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792945867,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "tool_calls",
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "tool_calls": [
+                {
+                  "function": {
+                    "name": "prepare_event",
+                    "arguments": "{\"day\": \"2026-11-03\", \"time\": \"09:15\", \"title\": \"Dentist\", \"durationMinutes\": 45}"
+                  },
+                  "type": "function",
+                  "id": "7e0a0bfb-20d0-4de0-a7b9-b849b45f2660"
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2059,
+          "completion_tokens": 46,
+          "total_tokens": 2105,
+          "prompt_tokens_details": {
+            "cached_tokens": 2028
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 2314.747904
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "missing-time",
+      "repeat": 0,
+      "milliseconds": 258.4,
+      "raw": {
+        "id": "chatcmpl-5dfeb161-379d-4651-8be3-a46269248036",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792945868,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "tool_calls",
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "tool_calls": [
+                {
+                  "function": {
+                    "name": "prepare_event",
+                    "arguments": "{\"title\": \"Dinner\", \"day\": \"today\"}"
+                  },
+                  "type": "function",
+                  "id": "b075141b-06ec-4199-a9db-9b6e8a8ca14a"
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2042,
+          "completion_tokens": 18,
+          "total_tokens": 2060,
+          "prompt_tokens_details": {
+            "cached_tokens": 2028
+          }
+        }
+      },
+      "passed": false,
+      "reason": "reply_contract",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 2314.764288
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "missing-food",
+      "repeat": 0,
+      "milliseconds": 370.6,
+      "raw": {
+        "id": "chatcmpl-005b9d4f-fe7f-4c6a-bb71-e1ea83561da0",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792945868,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "You haven\u2019t specified the foods or amounts yet, so let\u2019s start with what you\u2019d like to log. What did you eat today?"
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2042,
+          "completion_tokens": 29,
+          "total_tokens": 2071,
+          "prompt_tokens_details": {
+            "cached_tokens": 2028
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 2314.764288
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "global-search",
+      "repeat": 0,
+      "milliseconds": 242.8,
+      "raw": {
+        "id": "chatcmpl-32cec625-9684-48db-a0a6-679e77124a26",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792945869,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "tool_calls",
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "tool_calls": [
+                {
+                  "function": {
+                    "name": "search_app",
+                    "arguments": "{\"query\": \"clinic\", \"revision\": 0}"
+                  },
+                  "type": "function",
+                  "id": "85a9542c-ac05-4327-bb30-b802f3f5427b"
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2035,
+          "completion_tokens": 19,
+          "total_tokens": 2054,
+          "prompt_tokens_details": {
+            "cached_tokens": 2028
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 2314.764288
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "open-page",
+      "repeat": 0,
+      "milliseconds": 153.7,
+      "raw": {
+        "id": "chatcmpl-b16ca191-190c-478d-8e98-22370d632136",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792945869,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "tool_calls",
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "tool_calls": [
+                {
+                  "function": {
+                    "name": "open_page",
+                    "arguments": "{\"section\": \"notes\"}"
+                  },
+                  "type": "function",
+                  "id": "483c6c9e-185e-4de2-ba31-57870aa7b8ed"
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2033,
+          "completion_tokens": 11,
+          "total_tokens": 2044,
+          "prompt_tokens_details": {
+            "cached_tokens": 2028
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 2314.764288
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "notes",
+      "repeat": 0,
+      "milliseconds": 173.4,
+      "raw": {
+        "id": "chatcmpl-8f346efa-7586-4a27-ab6b-9813678c0dee",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792945869,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "tool_calls",
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "tool_calls": [
+                {
+                  "function": {
+                    "name": "list_notes",
+                    "arguments": "{\"limit\": 10}"
+                  },
+                  "type": "function",
+                  "id": "d0276e86-9f7b-48c5-a773-3cc3f19cb3d3"
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2033,
+          "completion_tokens": 13,
+          "total_tokens": 2046,
+          "prompt_tokens_details": {
+            "cached_tokens": 2028
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 2314.764288
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "create-note",
+      "repeat": 0,
+      "milliseconds": 218.0,
+      "raw": {
+        "id": "chatcmpl-09efc317-3984-43e4-802f-60698c802a5d",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792945869,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "tool_calls",
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "tool_calls": [
+                {
+                  "function": {
+                    "name": "create_note",
+                    "arguments": "{\"text\": \"Bring the blue notebook\"}"
+                  },
+                  "type": "function",
+                  "id": "49a96b8d-de69-46d9-8204-00e3c8100928"
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2041,
+          "completion_tokens": 14,
+          "total_tokens": 2055,
+          "prompt_tokens_details": {
+            "cached_tokens": 2028
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 2314.764288
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "plan",
+      "repeat": 0,
+      "milliseconds": 170.5,
+      "raw": {
+        "id": "chatcmpl-74cda016-e0f0-41b9-ad43-846e6e5c0499",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792945869,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "tool_calls",
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "tool_calls": [
+                {
+                  "function": {
+                    "name": "day_plan",
+                    "arguments": "{\"date\": \"\"}"
+                  },
+                  "type": "function",
+                  "id": "42c8fed2-f8fe-46b0-a894-92e16bcc05f2"
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2036,
+          "completion_tokens": 10,
+          "total_tokens": 2046,
+          "prompt_tokens_details": {
+            "cached_tokens": 2028
+          }
+        }
+      },
+      "passed": false,
+      "reason": "plan_day",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 2314.764288
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "unsupported",
+      "repeat": 0,
+      "milliseconds": 1440.5,
+      "raw": {
+        "id": "chatcmpl-622c2894-0c67-4120-bcff-243d08fdd0a6",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792945870,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "I can't delete meals directly from my tools. To remove meals from your history, you'll need to use Banana's native **Review** or **Notes** section to manually clear them. Here\u2019s how you can do it:\n\n1. Open the **Review** tab in Banana.\n2. Look for a \"Clear Meal History\" or \"Delete All Meals\" option\u2014this might involve a manual reset or export/import process.\n3. Alternatively, check the **Notes** section for any hidden notes or prompts about resetting your meal logs.\n\nIf you\u2019d like, I can guide you to the **Review** page directly. Let me know how you'd like to proceed!"
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2035,
+          "completion_tokens": 142,
+          "total_tokens": 2177,
+          "prompt_tokens_details": {
+            "cached_tokens": 2028
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 2314.764288
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "explanation",
+      "repeat": 0,
+      "milliseconds": 1491.0,
+      "raw": {
+        "id": "chatcmpl-38eeb1f1-1e58-4705-b995-184ecfb66f6b",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792945871,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "Protein is a **nutrient essential for building and repairing tissues** in your body. It\u2019s made up of amino acids, which are like the building blocks for muscles, skin, hair, enzymes, and hormones. When you eat protein-rich foods, your body breaks them down into amino acids to maintain or grow cells.\n\n**Key points:**\n- Helps with **muscle growth and recovery** (especially important for athletes or those who exercise).\n- Supports **immune function** and wound healing.\n- Found in foods like **meat, fish, eggs, dairy, beans, lentils, and nuts**.\n\nToo much or too little can affect your health, but most adults need a balanced intake."
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2044,
+          "completion_tokens": 143,
+          "total_tokens": 2187,
+          "prompt_tokens_details": {
+            "cached_tokens": 2028
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 2314.764288
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "ambiguous",
+      "repeat": 0,
+      "milliseconds": 711.6,
+      "raw": {
+        "id": "chatcmpl-2d9bbd93-1efc-4ea8-9921-909eaec2d300",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792945873,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "What other thing? I\u2019m here to help with meals, schedules, notes, or whatever you need\u2014just clarify what you\u2019re asking! For example:\n- Want to check your **nutrition chart**?\n- Need to **log a meal**?\n- Want to **review your day plan**?\n- Or something else?"
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2033,
+          "completion_tokens": 66,
+          "total_tokens": 2099,
+          "prompt_tokens_details": {
+            "cached_tokens": 2028
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 2314.764288
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "not-a-write",
+      "repeat": 0,
+      "milliseconds": 286.7,
+      "raw": {
+        "id": "chatcmpl-0078d43b-00e0-415b-832d-004212bffb8e",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792945873,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "Got it! Just a reminder: You typically have eggs at breakfast. No logging or saving needed."
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2047,
+          "completion_tokens": 21,
+          "total_tokens": 2068,
+          "prompt_tokens_details": {
+            "cached_tokens": 2028
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 2314.764288
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "identity",
+      "repeat": 1,
+      "milliseconds": 332.2,
+      "raw": {
+        "id": "chatcmpl-b2af3556-2c2e-4a62-b45d-f31c7db9b0b9",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792945874,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "I\u2019m just a helpful assistant here\u2014no name needed! Think of me as your Banana buddy. What\u2019s up? \ud83c\udf4c"
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2034,
+          "completion_tokens": 29,
+          "total_tokens": 2063,
+          "prompt_tokens_details": {
+            "cached_tokens": 2028
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 2314.764288
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "greeting",
+      "repeat": 1,
+      "milliseconds": 136.2,
+      "raw": {
+        "id": "chatcmpl-ab2ad312-7d21-42af-b941-368b4b2ef819",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792945874,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "Hi there! How can I assist you today?"
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2030,
+          "completion_tokens": 11,
+          "total_tokens": 2041,
+          "prompt_tokens_details": {
+            "cached_tokens": 2028
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 2314.764288
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "monthly",
+      "repeat": 1,
+      "milliseconds": 226.1,
+      "raw": {
+        "id": "chatcmpl-0d4cf7e7-dff7-4781-8005-0738aea307d4",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792945874,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "tool_calls",
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "tool_calls": [
+                {
+                  "function": {
+                    "name": "nutrition_view",
+                    "arguments": "{\"metric\": \"protein\", \"period\": \"this_month\"}"
+                  },
+                  "type": "function",
+                  "id": "17b5bf96-034e-4365-a8ea-33204e914276"
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2034,
+          "completion_tokens": 18,
+          "total_tokens": 2052,
+          "prompt_tokens_details": {
+            "cached_tokens": 2028
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 2314.764288
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "calories",
+      "repeat": 1,
+      "milliseconds": 331.8,
+      "raw": {
+        "id": "chatcmpl-4c7752ce-a521-4fc7-803d-258f9aa43460",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792945874,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "tool_calls",
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "tool_calls": [
+                {
+                  "function": {
+                    "name": "nutrition_view",
+                    "arguments": "{\"metric\": \"calories\", \"period\": \"last_7_days\", \"revision\": 0}"
+                  },
+                  "type": "function",
+                  "id": "5c775dee-0c6f-4a45-a65d-15eb08b9240f"
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2036,
+          "completion_tokens": 28,
+          "total_tokens": 2064,
+          "prompt_tokens_details": {
+            "cached_tokens": 2029
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 2314.764288
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "food-search",
+      "repeat": 1,
+      "milliseconds": 2794.0,
+      "raw": {
+        "id": "chatcmpl-44924d29-6fb9-4c75-a0ed-c4ab16f192ca",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792945875,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "tool_calls",
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "tool_calls": [
+                {
+                  "function": {
+                    "name": "nutrition_view",
+                    "arguments": "{\"foodName\": \"yogurt\", \"metric\": \"protein\", \"start\": \"2026-10-01\", \"end\": \"2026-10-25\"}"
+                  },
+                  "type": "function",
+                  "id": "f49a10c1-8ee8-42f9-a10d-387dfeb4e94a"
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2178,
+          "completion_tokens": 50,
+          "total_tokens": 2228,
+          "prompt_tokens_details": {
+            "cached_tokens": 172
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 2314.944512
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "weekdays",
+      "repeat": 1,
+      "milliseconds": 254.9,
+      "raw": {
+        "id": "chatcmpl-bd5a280d-dc61-4fe9-8430-f66bf554d503",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792945877,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "tool_calls",
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "tool_calls": [
+                {
+                  "function": {
+                    "name": "filter_nutrition",
+                    "arguments": "{\"changes\": [\"weekdays_only\"], \"revision\": 2}"
+                  },
+                  "type": "function",
+                  "id": "fe52eac4-77e7-4605-b1ab-8cc4d686e4ef"
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2174,
+          "completion_tokens": 22,
+          "total_tokens": 2196,
+          "prompt_tokens_details": {
+            "cached_tokens": 2170
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 2314.797056
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "compare",
+      "repeat": 1,
+      "milliseconds": 267.5,
+      "raw": {
+        "id": "chatcmpl-dc402edf-3c76-44fe-ad5b-aa11d2727c6e",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792945878,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "tool_calls",
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "tool_calls": [
+                {
+                  "function": {
+                    "name": "filter_nutrition",
+                    "arguments": "{\"changes\": [\"compare_previous\"], \"revision\": 2}"
+                  },
+                  "type": "function",
+                  "id": "45a265a4-87dd-45fe-8e62-55cac57983e4"
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2176,
+          "completion_tokens": 22,
+          "total_tokens": 2198,
+          "prompt_tokens_details": {
+            "cached_tokens": 2170
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 2314.797056
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "copy",
+      "repeat": 1,
+      "milliseconds": 705.7,
+      "raw": {
+        "id": "chatcmpl-a612d970-b2e2-4a38-8385-86745e00d589",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792945878,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "tool_calls",
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "tool_calls": [
+                {
+                  "function": {
+                    "name": "prepare_meal_copy",
+                    "arguments": "{\"mealID\": \"BA5A4E11-0000-4000-8000-000202610231\", \"day\": \"tomorrow\", \"revision\": 2}"
+                  },
+                  "type": "function",
+                  "id": "823bd1ef-cc99-4952-8b4b-f2340a658411"
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2187,
+          "completion_tokens": 62,
+          "total_tokens": 2249,
+          "prompt_tokens_details": {
+            "cached_tokens": 2170
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 2314.797056
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "new-meal",
+      "repeat": 1,
+      "milliseconds": 2675.3,
+      "raw": {
+        "id": "chatcmpl-ffe134c2-2f4a-4b69-9083-4f62f2b1783d",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792945879,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "tool_calls",
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "tool_calls": [
+                {
+                  "function": {
+                    "name": "prepare_meal",
+                    "arguments": "{\"foods\": [{\"name\": \"eggs\", \"quantity\": \"2\"}, {\"name\": \"banana\", \"quantity\": \"1\"}], \"day\": \"today\", \"title\": \"Review of today's meal\"}"
+                  },
+                  "type": "function",
+                  "id": "d8ba707e-5174-46c3-b013-dee7e2c6336d"
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2051,
+          "completion_tokens": 54,
+          "total_tokens": 2105,
+          "prompt_tokens_details": {
+            "cached_tokens": 172
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 2314.944512
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "new-event",
+      "repeat": 1,
+      "milliseconds": 451.8,
+      "raw": {
+        "id": "chatcmpl-cc45d50a-0578-4578-bb22-0d4c05618b68",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792945881,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "tool_calls",
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "tool_calls": [
+                {
+                  "function": {
+                    "name": "prepare_event",
+                    "arguments": "{\"title\": \"Lunch\", \"day\": \"tomorrow\", \"time\": \"13:00\", \"durationMinutes\": 30}"
+                  },
+                  "type": "function",
+                  "id": "1b9d5b72-2779-42a9-aeca-c75d61b70753"
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2056,
+          "completion_tokens": 37,
+          "total_tokens": 2093,
+          "prompt_tokens_details": {
+            "cached_tokens": 2028
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 2314.797056
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "explicit-event",
+      "repeat": 1,
+      "milliseconds": 537.0,
+      "raw": {
+        "id": "chatcmpl-6de8c1be-bcab-445a-933a-bb95913f49b2",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792945882,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "tool_calls",
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "tool_calls": [
+                {
+                  "function": {
+                    "name": "prepare_event",
+                    "arguments": "{\"day\": \"2026-11-03\", \"time\": \"09:15\", \"title\": \"Dentist\", \"durationMinutes\": 45}"
+                  },
+                  "type": "function",
+                  "id": "be5b636e-c9a8-4428-a613-d16e07c320b9"
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2059,
+          "completion_tokens": 46,
+          "total_tokens": 2105,
+          "prompt_tokens_details": {
+            "cached_tokens": 2028
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 2314.780672
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "missing-time",
+      "repeat": 1,
+      "milliseconds": 256.0,
+      "raw": {
+        "id": "chatcmpl-8f4e6f25-0e23-4b3a-9467-e3a9f3e4fbf3",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792945882,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "tool_calls",
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "tool_calls": [
+                {
+                  "function": {
+                    "name": "prepare_event",
+                    "arguments": "{\"title\": \"Dinner\", \"day\": \"today\"}"
+                  },
+                  "type": "function",
+                  "id": "b6f06064-42c8-491e-9c9e-0ca31ce15e66"
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2042,
+          "completion_tokens": 18,
+          "total_tokens": 2060,
+          "prompt_tokens_details": {
+            "cached_tokens": 2028
+          }
+        }
+      },
+      "passed": false,
+      "reason": "reply_contract",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 2314.780672
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "missing-food",
+      "repeat": 1,
+      "milliseconds": 364.4,
+      "raw": {
+        "id": "chatcmpl-8377e572-6e96-4559-b416-22158c09ce4e",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792945883,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "You haven\u2019t specified the foods or amounts yet, so let\u2019s start with what you\u2019d like to log. What did you eat today?"
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2042,
+          "completion_tokens": 29,
+          "total_tokens": 2071,
+          "prompt_tokens_details": {
+            "cached_tokens": 2028
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 2314.780672
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "global-search",
+      "repeat": 1,
+      "milliseconds": 237.7,
+      "raw": {
+        "id": "chatcmpl-37bb7bfb-1989-42ef-9f5a-34d5d50fb706",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792945883,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "tool_calls",
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "tool_calls": [
+                {
+                  "function": {
+                    "name": "search_app",
+                    "arguments": "{\"query\": \"clinic\", \"revision\": 0}"
+                  },
+                  "type": "function",
+                  "id": "e4836c96-d96d-440f-967b-1a3b40777d1b"
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2035,
+          "completion_tokens": 19,
+          "total_tokens": 2054,
+          "prompt_tokens_details": {
+            "cached_tokens": 2028
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 2314.780672
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "open-page",
+      "repeat": 1,
+      "milliseconds": 150.1,
+      "raw": {
+        "id": "chatcmpl-71bba037-e1da-4bbb-a090-57e3ddb5f031",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792945883,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "tool_calls",
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "tool_calls": [
+                {
+                  "function": {
+                    "name": "open_page",
+                    "arguments": "{\"section\": \"notes\"}"
+                  },
+                  "type": "function",
+                  "id": "75e225f4-5486-4b05-8d93-f357bfc55288"
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2033,
+          "completion_tokens": 11,
+          "total_tokens": 2044,
+          "prompt_tokens_details": {
+            "cached_tokens": 2028
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 2314.780672
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "notes",
+      "repeat": 1,
+      "milliseconds": 172.2,
+      "raw": {
+        "id": "chatcmpl-f138b776-3820-425d-be5f-ccf34516ac12",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792945883,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "tool_calls",
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "tool_calls": [
+                {
+                  "function": {
+                    "name": "list_notes",
+                    "arguments": "{\"limit\": 10}"
+                  },
+                  "type": "function",
+                  "id": "32e0916c-5460-4f11-863f-f5cc754677f7"
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2033,
+          "completion_tokens": 13,
+          "total_tokens": 2046,
+          "prompt_tokens_details": {
+            "cached_tokens": 2028
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 2314.780672
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "create-note",
+      "repeat": 1,
+      "milliseconds": 220.8,
+      "raw": {
+        "id": "chatcmpl-ab8f1e1d-fec3-4ba9-918d-c26af16012a2",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792945884,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "tool_calls",
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "tool_calls": [
+                {
+                  "function": {
+                    "name": "create_note",
+                    "arguments": "{\"text\": \"Bring the blue notebook\"}"
+                  },
+                  "type": "function",
+                  "id": "429c902c-c85c-4bc7-b728-c25279271299"
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2041,
+          "completion_tokens": 14,
+          "total_tokens": 2055,
+          "prompt_tokens_details": {
+            "cached_tokens": 2028
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 2314.780672
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "plan",
+      "repeat": 1,
+      "milliseconds": 166.6,
+      "raw": {
+        "id": "chatcmpl-8eac6e43-f077-49f1-bb21-6f3ec251f0c9",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792945884,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "tool_calls",
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "tool_calls": [
+                {
+                  "function": {
+                    "name": "day_plan",
+                    "arguments": "{\"date\": \"\"}"
+                  },
+                  "type": "function",
+                  "id": "e0ab2f83-37de-4923-a915-584ff2577ca0"
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2036,
+          "completion_tokens": 10,
+          "total_tokens": 2046,
+          "prompt_tokens_details": {
+            "cached_tokens": 2028
+          }
+        }
+      },
+      "passed": false,
+      "reason": "plan_day",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 2314.780672
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "unsupported",
+      "repeat": 1,
+      "milliseconds": 1447.0,
+      "raw": {
+        "id": "chatcmpl-46c3653d-a793-493f-b155-b374fff2cae5",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792945884,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "I can't delete meals directly from my tools. To remove meals from your history, you'll need to use Banana's native **Review** or **Notes** section to manually clear them. Here\u2019s how you can do it:\n\n1. Open the **Review** tab in Banana.\n2. Look for a \"Clear Meal History\" or \"Delete All Meals\" option\u2014this might involve a manual reset or export/import process.\n3. Alternatively, check the **Notes** section for any hidden notes or prompts about resetting your meal logs.\n\nIf you\u2019d like, I can guide you to the **Review** page directly. Let me know how you'd like to proceed!"
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2035,
+          "completion_tokens": 142,
+          "total_tokens": 2177,
+          "prompt_tokens_details": {
+            "cached_tokens": 2028
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 2314.780672
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "explanation",
+      "repeat": 1,
+      "milliseconds": 1505.0,
+      "raw": {
+        "id": "chatcmpl-2404794c-60de-401e-bc1e-b120d264078a",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792945885,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "Protein is a **nutrient essential for building and repairing tissues** in your body. It\u2019s made up of amino acids, which are like the building blocks for muscles, skin, hair, enzymes, and hormones. When you eat protein-rich foods, your body breaks them down into amino acids to maintain or grow cells.\n\n**Key points:**\n- Helps with **muscle growth and recovery** (especially important for athletes or those who exercise).\n- Supports **immune function** and wound healing.\n- Found in foods like **meat, fish, eggs, dairy, beans, lentils, and nuts**.\n\nToo much or too little can affect your health, but most adults need a balanced intake."
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2044,
+          "completion_tokens": 143,
+          "total_tokens": 2187,
+          "prompt_tokens_details": {
+            "cached_tokens": 2028
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 2314.780672
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "ambiguous",
+      "repeat": 1,
+      "milliseconds": 699.6,
+      "raw": {
+        "id": "chatcmpl-3826a2c2-52b5-4731-bc8e-54ef1333c103",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792945887,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "What other thing? I\u2019m here to help with meals, schedules, notes, or whatever you need\u2014just clarify what you\u2019re asking! For example:\n- Want to check your **nutrition chart**?\n- Need to **log a meal**?\n- Want to **review your day plan**?\n- Or something else?"
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2033,
+          "completion_tokens": 66,
+          "total_tokens": 2099,
+          "prompt_tokens_details": {
+            "cached_tokens": 2028
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 2314.780672
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "not-a-write",
+      "repeat": 1,
+      "milliseconds": 289.2,
+      "raw": {
+        "id": "chatcmpl-a4d52a5e-d8cb-45f4-90c8-21831702870e",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792945888,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "Got it! Just a reminder: You typically have eggs at breakfast. No logging or saving needed."
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2047,
+          "completion_tokens": 21,
+          "total_tokens": 2068,
+          "prompt_tokens_details": {
+            "cached_tokens": 2028
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 2314.780672
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    }
+  ],
+  "versions": {
+    "mlx": "0.32.4",
+    "mlx-lm": "0.32.2",
+    "locals": "0.2.1"
+  },
+  "servingImplementation": "mlx_lm.server",
+  "unusedLocalsReference": {
+    "commit": "4f4d03f10232c9f2adeb1e96e2a7bd79a9e7fe19",
+    "dirty": ""
+  },
+  "engineSourceCommit": null,
+  "engineSourceDirty": null,
+  "engineSourceNote": "Installed mlx-lm wheel version is recorded; no claim that the unused Locals source is this frontend",
+  "command": [
+    "../pi-inference-upstream/locals-env/bin/python",
+    "-m",
+    "mlx_lm.server",
+    "--model",
+    "~/orca/workspaces/gtfuwgth/pi-inference-upstream/serving-views/ministral3-3b-fixed-tokenizer",
+    "--host",
+    "127.0.0.1",
+    "--port",
+    "41790",
+    "--temp",
+    "0.1",
+    "--top-p",
+    "1.0",
+    "--top-k",
+    "0",
+    "--max-tokens",
+    "2048",
+    "--decode-concurrency",
+    "1",
+    "--prompt-concurrency",
+    "1",
+    "--prompt-cache-size",
+    "1",
+    "--prompt-cache-bytes",
+    "2GB"
+  ],
+  "serverReadySeconds": 0.875,
+  "loadSeconds": null,
+  "readinessNote": "HTTP readiness is not a separate completed-model-load measurement; loading may overlap readiness/first response",
+  "serverModel": "default_model",
+  "hostAfter": {
+    "utc": "2026-10-25T16:31:28.485519+00:00",
+    "chip": "Apple M1 Max",
+    "ramBytes": "68719476736",
+    "os": "27.0.1",
+    "swap": "vm.swapusage: total = 23552.00M  used = 21984.75M  free = 1567.25M  (encrypted)",
+    "paging": {
+      "Pageouts": 383988,
+      "Swapins": 5055594,
+      "Swapouts": 9298822
+    }
+  },
+  "ownedWorkerReleased": true,
+  "pagingDelta": {
+    "Pageouts": 0,
+    "Swapins": 0,
+    "Swapouts": 0
+  },
+  "cleanPerformanceRun": true,
+  "summary": {
+    "passes": 40,
+    "total": 44,
+    "warmMedianMilliseconds": 310.5,
+    "firstRequestMilliseconds": 3711.8,
+    "gpuPeakMB": null,
+    "rssMaxObservedMB": 2314.944512
+  }
+}

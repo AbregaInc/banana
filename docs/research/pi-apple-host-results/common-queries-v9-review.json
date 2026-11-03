@@ -1,0 +1,3492 @@
+{
+  "complete": true,
+  "queries": 900,
+  "scope": "900 synthetic development routing/argument contracts, 100 per module. 20 intent families \u00d7 5 variants; not empirical top-query rankings, not held-out accuracy, and not end-to-end action tests. Text-only responses require semantic review. Capability gaps are labeled explicitly.",
+  "evidenceScope": "900-case qualification: 804 cases use recorded responses only after verifying every consumed model request is unchanged; 96 cases use fresh inference on the final host policy. This is not a fresh 900-call model run and app tools do not execute.",
+  "evidenceCounts": {
+    "verified_replay": 804,
+    "fresh_inference": 96
+  },
+  "scorerSha256": "25b00f6864811a23b083b2bae7e7389696dec849a242834e22d9a8fd79b34a81",
+  "fixtureSha256": "2e484eb1a2a6ff051b8b96260dabb067fe146fb66a0a6d87cc560251d2587f6e",
+  "capabilityRouting": true,
+  "routingSha256": "093f356c5edc2e330b9f44884c4153708ad62b57355a16d13ce244ed7a14b8b5",
+  "routingDriverSha256": null,
+  "requestLanguageSha256": "eb72c037a21caf4893c09d9ba02c3acea4d816b77d4a83b73b12af7bdf9bcf01",
+  "commandContractsSha256": "fc20414d331fd835e38e8692099275494f4753fea306d9eecd1a5e8bfa1101a9",
+  "oracleCorrections": {
+    "reason": "Oracle correction only: opening Assistant is supported by open_page, just like opening the other modules. Original inputs and raw replies remain frozen.",
+    "cases": {
+      "assistant-open-1": {
+        "capability": "supported",
+        "expected": {
+          "tools": {
+            "open_page": {
+              "section": "assistant"
+            }
+          },
+          "reply": false
+        }
+      },
+      "assistant-open-2": {
+        "capability": "supported",
+        "expected": {
+          "tools": {
+            "open_page": {
+              "section": "assistant"
+            }
+          },
+          "reply": false
+        }
+      },
+      "assistant-open-3": {
+        "capability": "supported",
+        "expected": {
+          "tools": {
+            "open_page": {
+              "section": "assistant"
+            }
+          },
+          "reply": false
+        }
+      },
+      "assistant-open-4": {
+        "capability": "supported",
+        "expected": {
+          "tools": {
+            "open_page": {
+              "section": "assistant"
+            }
+          },
+          "reply": false
+        }
+      },
+      "assistant-open-5": {
+        "capability": "supported",
+        "expected": {
+          "tools": {
+            "open_page": {
+              "section": "assistant"
+            }
+          },
+          "reply": false
+        }
+      }
+    }
+  },
+  "modules": {
+    "plan": {
+      "tested": 100,
+      "tool_contract_passes": 45,
+      "text_requires_review": 55,
+      "capability_gap_cases": 45
+    },
+    "nutrition": {
+      "tested": 100,
+      "tool_contract_passes": 55,
+      "text_requires_review": 45,
+      "capability_gap_cases": 30
+    },
+    "notes": {
+      "tested": 100,
+      "tool_contract_passes": 60,
+      "text_requires_review": 40,
+      "capability_gap_cases": 30
+    },
+    "workouts": {
+      "tested": 100,
+      "tool_contract_passes": 25,
+      "text_requires_review": 75,
+      "capability_gap_cases": 70
+    },
+    "routines": {
+      "tested": 100,
+      "tool_contract_passes": 25,
+      "text_requires_review": 75,
+      "capability_gap_cases": 70
+    },
+    "library": {
+      "tested": 100,
+      "tool_contract_passes": 25,
+      "text_requires_review": 57,
+      "capability_gap_cases": 70,
+      "navigation_fallbacks": 18
+    },
+    "review": {
+      "tested": 100,
+      "tool_contract_passes": 25,
+      "text_requires_review": 75,
+      "capability_gap_cases": 70
+    },
+    "settings": {
+      "tested": 100,
+      "tool_contract_passes": 25,
+      "text_requires_review": 52,
+      "capability_gap_cases": 70,
+      "navigation_fallbacks": 23
+    },
+    "assistant": {
+      "tested": 100,
+      "tool_contract_passes": 15,
+      "text_requires_review": 85,
+      "capability_gap_cases": 25
+    }
+  },
+  "failures": [],
+  "textReviewQueue": [
+    {
+      "id": "plan-missing-time-1",
+      "query": "Schedule Dentist, but I have not chosen a time",
+      "capability": "clarification",
+      "response": "What would you like me to do?"
+    },
+    {
+      "id": "plan-missing-time-2",
+      "query": "Hi, Schedule Team lunch, but I have not chosen a time",
+      "capability": "clarification",
+      "response": "What would you like me to do?"
+    },
+    {
+      "id": "plan-missing-time-3",
+      "query": "Please help with this: Schedule Design review, but I have not chosen a time",
+      "capability": "clarification",
+      "response": "What would you like me to do?"
+    },
+    {
+      "id": "plan-missing-time-4",
+      "query": "Schedule Dinner, but I have not chosen a time Thanks.",
+      "capability": "clarification",
+      "response": "What would you like me to do?"
+    },
+    {
+      "id": "plan-missing-time-5",
+      "query": "Quick question: Schedule Airport pickup, but I have not chosen a time",
+      "capability": "clarification",
+      "response": "What would you like me to do?"
+    },
+    {
+      "id": "plan-ambiguous-1",
+      "query": "Move that to later",
+      "capability": "clarification",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "plan-ambiguous-2",
+      "query": "Hi, Move that to later",
+      "capability": "clarification",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "plan-ambiguous-3",
+      "query": "Please help with this: Move that to later",
+      "capability": "clarification",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "plan-ambiguous-4",
+      "query": "Move that to later Thanks.",
+      "capability": "clarification",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "plan-ambiguous-5",
+      "query": "Quick question: Move that to later",
+      "capability": "clarification",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "plan-delete-1",
+      "query": "Delete all calendar events tomorrow",
+      "capability": "capability_gap",
+      "response": "I can show a daily agenda or prepare a new one-off event, but I can\u2019t make that calendar change or resolve that travel request from chat."
+    },
+    {
+      "id": "plan-delete-2",
+      "query": "Hi, Delete all calendar events tomorrow",
+      "capability": "capability_gap",
+      "response": "I can show a daily agenda or prepare a new one-off event, but I can\u2019t make that calendar change or resolve that travel request from chat."
+    },
+    {
+      "id": "plan-delete-3",
+      "query": "Please help with this: Delete all calendar events tomorrow",
+      "capability": "capability_gap",
+      "response": "I can show a daily agenda or prepare a new one-off event, but I can\u2019t make that calendar change or resolve that travel request from chat."
+    },
+    {
+      "id": "plan-delete-4",
+      "query": "Delete all calendar events tomorrow Thanks.",
+      "capability": "capability_gap",
+      "response": "I can show a daily agenda or prepare a new one-off event, but I can\u2019t make that calendar change or resolve that travel request from chat."
+    },
+    {
+      "id": "plan-delete-5",
+      "query": "Quick question: Delete all calendar events tmrw",
+      "capability": "capability_gap",
+      "response": "I can show a daily agenda or prepare a new one-off event, but I can\u2019t make that calendar change or resolve that travel request from chat."
+    },
+    {
+      "id": "plan-reschedule-1",
+      "query": "Move Dentist to 09:15",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "plan-reschedule-2",
+      "query": "Hi, Move Team lunch to 11:30",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "plan-reschedule-3",
+      "query": "Please help with this: Move Design review to 14:00",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "plan-reschedule-4",
+      "query": "Move Dinner to 17:00 Thanks.",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "plan-reschedule-5",
+      "query": "Quick question: Move Airport pickup to 20:45",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "plan-cancel-1",
+      "query": "Cancel Dentist tomorrow",
+      "capability": "capability_gap",
+      "response": "I can show a daily agenda or prepare a new one-off event, but I can\u2019t make that calendar change or resolve that travel request from chat."
+    },
+    {
+      "id": "plan-cancel-2",
+      "query": "Hi, Cancel Team lunch tomorrow",
+      "capability": "capability_gap",
+      "response": "I can show a daily agenda or prepare a new one-off event, but I can\u2019t make that calendar change or resolve that travel request from chat."
+    },
+    {
+      "id": "plan-cancel-3",
+      "query": "Please help with this: Cancel Design review tomorrow",
+      "capability": "capability_gap",
+      "response": "I can show a daily agenda or prepare a new one-off event, but I can\u2019t make that calendar change or resolve that travel request from chat."
+    },
+    {
+      "id": "plan-cancel-4",
+      "query": "Cancel Dinner tomorrow Thanks.",
+      "capability": "capability_gap",
+      "response": "I can show a daily agenda or prepare a new one-off event, but I can\u2019t make that calendar change or resolve that travel request from chat."
+    },
+    {
+      "id": "plan-cancel-5",
+      "query": "Quick question: Cancel Airport pickup tmrw",
+      "capability": "capability_gap",
+      "response": "I can show a daily agenda or prepare a new one-off event, but I can\u2019t make that calendar change or resolve that travel request from chat."
+    },
+    {
+      "id": "plan-invite-1",
+      "query": "Invite Alex to Dentist",
+      "capability": "capability_gap",
+      "response": "I can\u2019t perform that action or access that private information from chat."
+    },
+    {
+      "id": "plan-invite-2",
+      "query": "Hi, Invite Alex to Team lunch",
+      "capability": "capability_gap",
+      "response": "I can\u2019t perform that action or access that private information from chat."
+    },
+    {
+      "id": "plan-invite-3",
+      "query": "Please help with this: Invite Alex to Design review",
+      "capability": "capability_gap",
+      "response": "I can\u2019t perform that action or access that private information from chat."
+    },
+    {
+      "id": "plan-invite-4",
+      "query": "Invite Alex to Dinner Thanks.",
+      "capability": "capability_gap",
+      "response": "I can show a daily agenda or prepare a new one-off event, but I can\u2019t make that calendar change or resolve that travel request from chat."
+    },
+    {
+      "id": "plan-invite-5",
+      "query": "Quick question: Invite Alex to Airport pickup",
+      "capability": "capability_gap",
+      "response": "I can\u2019t perform that action or access that private information from chat."
+    },
+    {
+      "id": "plan-recurrence-1",
+      "query": "Schedule Dentist every second Tuesday at 09:15",
+      "capability": "capability_gap",
+      "response": "I can show a daily agenda or prepare a new one-off event, but I can\u2019t make that calendar change or resolve that travel request from chat. Open Plan to see the available controls."
+    },
+    {
+      "id": "plan-recurrence-2",
+      "query": "Hi, Schedule Team lunch every second Tuesday at 11:30",
+      "capability": "capability_gap",
+      "response": "I can show a daily agenda or prepare a new one-off event, but I can\u2019t make that calendar change or resolve that travel request from chat. Open Plan to see the available controls."
+    },
+    {
+      "id": "plan-recurrence-3",
+      "query": "Please help with this: Schedule Design review every second Tuesday at 14:00",
+      "capability": "capability_gap",
+      "response": "I can show a daily agenda or prepare a new one-off event, but I can\u2019t make that calendar change or resolve that travel request from chat. Open Plan to see the available controls."
+    },
+    {
+      "id": "plan-recurrence-4",
+      "query": "Schedule Dinner every second Tuesday at 17:00 Thanks.",
+      "capability": "capability_gap",
+      "response": "I can show a daily agenda or prepare a new one-off event, but I can\u2019t make that calendar change or resolve that travel request from chat. Open Plan to see the available controls."
+    },
+    {
+      "id": "plan-recurrence-5",
+      "query": "Quick question: Schedule Airport pickup every second Tuesday at 20:45",
+      "capability": "capability_gap",
+      "response": "I can show a daily agenda or prepare a new one-off event, but I can\u2019t make that calendar change or resolve that travel request from chat. Open Plan to see the available controls."
+    },
+    {
+      "id": "plan-flight-1",
+      "query": "Add flight JFK to LHR on 2026-11-03, leaving 8pm New York and arriving 8am London next day",
+      "capability": "capability_gap",
+      "response": "I can show a daily agenda or prepare a new one-off event, but I can\u2019t make that calendar change or resolve that travel request from chat. Open Plan to see the available controls."
+    },
+    {
+      "id": "plan-flight-2",
+      "query": "Hi, Add flight JFK to LHR on 2026-11-04, leaving 8pm New York and arriving 8am London next day",
+      "capability": "capability_gap",
+      "response": "I can show a daily agenda or prepare a new one-off event, but I can\u2019t make that calendar change or resolve that travel request from chat. Open Plan to see the available controls."
+    },
+    {
+      "id": "plan-flight-3",
+      "query": "Please help with this: Add flight JFK to LHR on 2026-11-05, leaving 8pm New York and arriving 8am London next day",
+      "capability": "capability_gap",
+      "response": "I can show a daily agenda or prepare a new one-off event, but I can\u2019t make that calendar change or resolve that travel request from chat. Open Plan to see the available controls."
+    },
+    {
+      "id": "plan-flight-4",
+      "query": "Add flight JFK to LHR on 2026-11-06, leaving 8pm New York and arriving 8am London next day Thanks.",
+      "capability": "capability_gap",
+      "response": "I can show a daily agenda or prepare a new one-off event, but I can\u2019t make that calendar change or resolve that travel request from chat. Open Plan to see the available controls."
+    },
+    {
+      "id": "plan-flight-5",
+      "query": "Quick question: Add flight JFK to LHR on 2026-11-07, leaving 8pm New York and arriving 8am London next day",
+      "capability": "capability_gap",
+      "response": "I can show a daily agenda or prepare a new one-off event, but I can\u2019t make that calendar change or resolve that travel request from chat. Open Plan to see the available controls."
+    },
+    {
+      "id": "plan-arrival-1",
+      "query": "What local time does my flight land in Tokyo?",
+      "capability": "capability_gap",
+      "response": "I can show a daily agenda or prepare a new one-off event, but I can\u2019t make that calendar change or resolve that travel request from chat. Open Plan to see the available controls."
+    },
+    {
+      "id": "plan-arrival-2",
+      "query": "Hi, What local time does my flight land in Tokyo?",
+      "capability": "capability_gap",
+      "response": "I can show a daily agenda or prepare a new one-off event, but I can\u2019t make that calendar change or resolve that travel request from chat. Open Plan to see the available controls."
+    },
+    {
+      "id": "plan-arrival-3",
+      "query": "Please help with this: What local time does my flight land in Tokyo?",
+      "capability": "capability_gap",
+      "response": "I can show a daily agenda or prepare a new one-off event, but I can\u2019t make that calendar change or resolve that travel request from chat. Open Plan to see the available controls."
+    },
+    {
+      "id": "plan-arrival-4",
+      "query": "What local time does my flight land in Tokyo? Thanks.",
+      "capability": "capability_gap",
+      "response": "I can show a daily agenda or prepare a new one-off event, but I can\u2019t make that calendar change or resolve that travel request from chat. Open Plan to see the available controls."
+    },
+    {
+      "id": "plan-arrival-5",
+      "query": "Quick question: What local time does my flight land in Tokyo?",
+      "capability": "capability_gap",
+      "response": "I can show a daily agenda or prepare a new one-off event, but I can\u2019t make that calendar change or resolve that travel request from chat. Open Plan to see the available controls."
+    },
+    {
+      "id": "plan-timezone-1",
+      "query": "Change my calendar timezone to Europe/London",
+      "capability": "capability_gap",
+      "response": "I can\u2019t change settings, accounts, permissions, models, backups or personal data from chat."
+    },
+    {
+      "id": "plan-timezone-2",
+      "query": "Hi, Change my calendar timezone to Europe/London",
+      "capability": "capability_gap",
+      "response": "I can\u2019t change settings, accounts, permissions, models, backups or personal data from chat."
+    },
+    {
+      "id": "plan-timezone-3",
+      "query": "Please help with this: Change my calendar timezone to Europe/London",
+      "capability": "capability_gap",
+      "response": "I can\u2019t change settings, accounts, permissions, models, backups or personal data from chat."
+    },
+    {
+      "id": "plan-timezone-4",
+      "query": "Change my calendar timezone to Europe/London Thanks.",
+      "capability": "capability_gap",
+      "response": "I can\u2019t change settings, accounts, permissions, models, backups or personal data from chat."
+    },
+    {
+      "id": "plan-timezone-5",
+      "query": "Quick question: Change my calendar timezone to Europe/London",
+      "capability": "capability_gap",
+      "response": "I can\u2019t change settings, accounts, permissions, models, backups or personal data from chat."
+    },
+    {
+      "id": "plan-alarm-1",
+      "query": "Set an alarm for 09:15 tomorrow",
+      "capability": "capability_gap",
+      "response": "I can\u2019t perform that action or access that private information from chat. Open Assistant to see the available controls."
+    },
+    {
+      "id": "plan-alarm-2",
+      "query": "Hi, Set an alarm for 11:30 tomorrow",
+      "capability": "capability_gap",
+      "response": "I can\u2019t perform that action or access that private information from chat. Open Assistant to see the available controls."
+    },
+    {
+      "id": "plan-alarm-3",
+      "query": "Please help with this: Set an alarm for 14:00 tomorrow",
+      "capability": "capability_gap",
+      "response": "I can\u2019t perform that action or access that private information from chat. Open Assistant to see the available controls."
+    },
+    {
+      "id": "plan-alarm-4",
+      "query": "Set an alarm for 17:00 tomorrow Thanks.",
+      "capability": "capability_gap",
+      "response": "I can\u2019t perform that action or access that private information from chat. Open Assistant to see the available controls."
+    },
+    {
+      "id": "plan-alarm-5",
+      "query": "Quick question: Set an alarm for 20:45 tmrw",
+      "capability": "capability_gap",
+      "response": "I can\u2019t perform that action or access that private information from chat. Open Assistant to see the available controls."
+    },
+    {
+      "id": "nutrition-missing-food-1",
+      "query": "Log lunch, but I have not said what I ate",
+      "capability": "clarification",
+      "response": "What would you like me to do?"
+    },
+    {
+      "id": "nutrition-missing-food-2",
+      "query": "Hi, Log lunch, but I have not said what I ate",
+      "capability": "clarification",
+      "response": "What would you like me to do?"
+    },
+    {
+      "id": "nutrition-missing-food-3",
+      "query": "Please help with this: Log lunch, but I have not said what I ate",
+      "capability": "clarification",
+      "response": "I cannot log the lunch meal because you have not specified what you ate. Please provide the list of foods and their quantities (e.g., \"2 slices of bread, 1 cup of chicken\")."
+    },
+    {
+      "id": "nutrition-missing-food-4",
+      "query": "Log lunch, but I have not said what I ate Thanks.",
+      "capability": "clarification",
+      "response": "I cannot log the lunch because you have not specified what you ate. Please provide the list of foods and their quantities."
+    },
+    {
+      "id": "nutrition-missing-food-5",
+      "query": "Quick question: Log lunch, but I have not said what I ate",
+      "capability": "clarification",
+      "response": "What would you like me to do?"
+    },
+    {
+      "id": "nutrition-missing-amount-1",
+      "query": "I had some yogurt; ask me the amount before making a meal",
+      "capability": "clarification",
+      "response": "What would you like me to do?"
+    },
+    {
+      "id": "nutrition-missing-amount-2",
+      "query": "Hi, I had some chicken; ask me the amount before making a meal",
+      "capability": "clarification",
+      "response": "How much did you have?"
+    },
+    {
+      "id": "nutrition-missing-amount-3",
+      "query": "Please help with this: I had some salmon; ask me the amount before making a meal",
+      "capability": "clarification",
+      "response": "I will need to know the amount of salmon you had to prepare the meal. Could you please provide that information?"
+    },
+    {
+      "id": "nutrition-missing-amount-4",
+      "query": "I had some tofu; ask me the amount before making a meal Thanks.",
+      "capability": "clarification",
+      "response": "What would you like me to do?"
+    },
+    {
+      "id": "nutrition-missing-amount-5",
+      "query": "Quick question: I had some oats; ask me the amount before making a meal",
+      "capability": "clarification",
+      "response": "What would you like me to do?"
+    },
+    {
+      "id": "nutrition-general-1",
+      "query": "Explain what dietary protein is, without using my records",
+      "capability": "supported",
+      "response": "Dietary protein is one of the three main macronutrients (along with carbohydrates and fats) found in food. It is essential for your body's growth, repair, and maintenance.\n\nHere are its key functions:\n*   **Tissue Repair:** It helps fix damaged tissues and muscles.\n*   **Enzyme and Hormone Production:** It builds the proteins that regulate body processes.\n*   **Immune Support:** It forms antibodies that fight off infections.\n*   **Satiety:** It helps you feel full, which can aid in weight management.\n\nProtein is composed of amino acids, which are the building blocks your body uses to create these essential proteins."
+    },
+    {
+      "id": "nutrition-general-2",
+      "query": "Hi, Explain what dietary protein is, without using my records",
+      "capability": "supported",
+      "response": "Dietary protein is one of the three main macronutrients, essential for building and repairing tissues, making enzymes and hormones, and supporting immune function. It consists of amino acids, which your body uses for various biological processes. Your body cannot produce all essential amino acids, so you must obtain them from your diet, typically through sources like meat, beans, nuts, and dairy. This information is provided generally and does not reference any personal data or records."
+    },
+    {
+      "id": "nutrition-general-3",
+      "query": "Please help with this: Explain what dietary protein is, without using my records",
+      "capability": "supported",
+      "response": "Dietary protein is an essential macronutrient found in foods like meat, eggs, dairy, beans, and nuts. It serves as a building block for your body, helping to repair tissues, build enzymes and hormones, and support muscle function. Your body needs a daily amount to maintain these functions, but I cannot access or reference your specific records, so I'm providing this general information only."
+    },
+    {
+      "id": "nutrition-general-4",
+      "query": "Explain what dietary protein is, without using my records Thanks.",
+      "capability": "supported",
+      "response": "Dietary protein is one of the three main macronutrients (along with carbs and fats) found in food. It is essential for building and repairing body tissues, creating enzymes and hormones, and supporting immune function.\n\nProtein consists of long chains of smaller units called amino acids. Your body can use all 20 different amino acids, but some must be obtained through your diet because your body cannot make them.\n\nAdequate protein intake is crucial for maintaining muscle mass, promoting wound healing, and fueling metabolic processes. The specific amount needed varies based on age, activity level, and health goals."
+    },
+    {
+      "id": "nutrition-general-5",
+      "query": "Quick question: Explain what dietary protein is, without using my records",
+      "capability": "supported",
+      "response": "Dietary protein is an essential nutrient composed of amino acids that your body uses to build and repair tissues, make enzymes, and support immune function. It's found in foods like meat, eggs, dairy, legumes, nuts, and seeds. Without it, your body struggles to maintain muscle mass, recover from exercise, and support overall health."
+    },
+    {
+      "id": "nutrition-delete-1",
+      "query": "Delete all my meal history",
+      "capability": "capability_gap",
+      "response": "I can show nutrition records or prepare a new meal, but I can\u2019t make that change to existing meals, supplements, or goals from chat."
+    },
+    {
+      "id": "nutrition-delete-2",
+      "query": "Hi, Delete all my meal history",
+      "capability": "capability_gap",
+      "response": "I can show nutrition records or prepare a new meal, but I can\u2019t make that change to existing meals, supplements, or goals from chat."
+    },
+    {
+      "id": "nutrition-delete-3",
+      "query": "Please help with this: Delete all my meal history",
+      "capability": "capability_gap",
+      "response": "I can show nutrition records or prepare a new meal, but I can\u2019t make that change to existing meals, supplements, or goals from chat."
+    },
+    {
+      "id": "nutrition-delete-4",
+      "query": "Delete all my meal history Thanks.",
+      "capability": "capability_gap",
+      "response": "I can show nutrition records or prepare a new meal, but I can\u2019t make that change to existing meals, supplements, or goals from chat."
+    },
+    {
+      "id": "nutrition-delete-5",
+      "query": "Quick question: Delete all my meal history",
+      "capability": "capability_gap",
+      "response": "I can show nutrition records or prepare a new meal, but I can\u2019t make that change to existing meals, supplements, or goals from chat."
+    },
+    {
+      "id": "nutrition-edit-1",
+      "query": "Change yesterday\u2019s yogurt entry to 200 grams",
+      "capability": "capability_gap",
+      "response": "I can show nutrition records or prepare a new meal, but I can\u2019t make that change to existing meals, supplements, or goals from chat."
+    },
+    {
+      "id": "nutrition-edit-2",
+      "query": "Hi, Change yesterday\u2019s chicken entry to 200 grams",
+      "capability": "capability_gap",
+      "response": "I can show nutrition records or prepare a new meal, but I can\u2019t make that change to existing meals, supplements, or goals from chat."
+    },
+    {
+      "id": "nutrition-edit-3",
+      "query": "Please help with this: Change yesterday\u2019s salmon entry to 200 grams",
+      "capability": "capability_gap",
+      "response": "I can show nutrition records or prepare a new meal, but I can\u2019t make that change to existing meals, supplements, or goals from chat."
+    },
+    {
+      "id": "nutrition-edit-4",
+      "query": "Change yesterday\u2019s tofu entry to 200 grams Thanks.",
+      "capability": "capability_gap",
+      "response": "I can show nutrition records or prepare a new meal, but I can\u2019t make that change to existing meals, supplements, or goals from chat."
+    },
+    {
+      "id": "nutrition-edit-5",
+      "query": "Quick question: Change yesterday\u2019s oats entry to 200 grams",
+      "capability": "capability_gap",
+      "response": "I can show nutrition records or prepare a new meal, but I can\u2019t make that change to existing meals, supplements, or goals from chat."
+    },
+    {
+      "id": "nutrition-goal-1",
+      "query": "Set my protein target to 140 grams",
+      "capability": "capability_gap",
+      "response": "I can\u2019t change settings, accounts, permissions, models, backups or personal data from chat."
+    },
+    {
+      "id": "nutrition-goal-2",
+      "query": "Hi, Set my protein target to 140 grams",
+      "capability": "capability_gap",
+      "response": "I can\u2019t change settings, accounts, permissions, models, backups or personal data from chat."
+    },
+    {
+      "id": "nutrition-goal-3",
+      "query": "Please help with this: Set my protein target to 140 grams",
+      "capability": "capability_gap",
+      "response": "I can\u2019t change settings, accounts, permissions, models, backups or personal data from chat."
+    },
+    {
+      "id": "nutrition-goal-4",
+      "query": "Set my protein target to 140 grams Thanks.",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "nutrition-goal-5",
+      "query": "Quick question: Set my protein target to 140 grams",
+      "capability": "capability_gap",
+      "response": "I can\u2019t change settings, accounts, permissions, models, backups or personal data from chat."
+    },
+    {
+      "id": "nutrition-supplement-1",
+      "query": "Mark my morning vitamin as taken",
+      "capability": "capability_gap",
+      "response": "I can\u2019t read routine completion history or create, change, or complete routines from chat. Open Routines to see the available controls."
+    },
+    {
+      "id": "nutrition-supplement-2",
+      "query": "Hi, Mark my morning vitamin as taken",
+      "capability": "capability_gap",
+      "response": "I can\u2019t read routine completion history or create, change, or complete routines from chat. Open Routines to see the available controls."
+    },
+    {
+      "id": "nutrition-supplement-3",
+      "query": "Please help with this: Mark my morning vitamin as taken",
+      "capability": "capability_gap",
+      "response": "I can\u2019t read routine completion history or create, change, or complete routines from chat. Open Routines to see the available controls."
+    },
+    {
+      "id": "nutrition-supplement-4",
+      "query": "Mark my morning vitamin as taken Thanks.",
+      "capability": "capability_gap",
+      "response": "I can\u2019t read routine completion history or create, change, or complete routines from chat. Open Routines to see the available controls."
+    },
+    {
+      "id": "nutrition-supplement-5",
+      "query": "Quick question: Mark my morning vitamin as taken",
+      "capability": "capability_gap",
+      "response": "I can\u2019t read routine completion history or create, change, or complete routines from chat. Open Routines to see the available controls."
+    },
+    {
+      "id": "nutrition-allergy-1",
+      "query": "Remove every food containing peanuts from my saved meals",
+      "capability": "capability_gap",
+      "response": "I can show nutrition records or prepare a new meal, but I can\u2019t make that change to existing meals, supplements, or goals from chat."
+    },
+    {
+      "id": "nutrition-allergy-2",
+      "query": "Hi, Remove every food containing peanuts from my saved meals",
+      "capability": "capability_gap",
+      "response": "I can show nutrition records or prepare a new meal, but I can\u2019t make that change to existing meals, supplements, or goals from chat."
+    },
+    {
+      "id": "nutrition-allergy-3",
+      "query": "Please help with this: Remove every food containing peanuts from my saved meals",
+      "capability": "capability_gap",
+      "response": "I can show nutrition records or prepare a new meal, but I can\u2019t make that change to existing meals, supplements, or goals from chat."
+    },
+    {
+      "id": "nutrition-allergy-4",
+      "query": "Remove every food containing peanuts from my saved meals Thanks.",
+      "capability": "capability_gap",
+      "response": "I can show nutrition records or prepare a new meal, but I can\u2019t make that change to existing meals, supplements, or goals from chat."
+    },
+    {
+      "id": "nutrition-allergy-5",
+      "query": "Quick question: Remove every food containing peanuts from my saved meals",
+      "capability": "capability_gap",
+      "response": "I can show nutrition records or prepare a new meal, but I can\u2019t make that change to existing meals, supplements, or goals from chat."
+    },
+    {
+      "id": "nutrition-no-write-1",
+      "query": "I usually eat yogurt. Do not log or save this",
+      "capability": "capability_gap",
+      "response": "Got it. I'll keep in mind that you usually eat yogurt, but I won't log or save this preference."
+    },
+    {
+      "id": "nutrition-no-write-2",
+      "query": "Hi, I usually eat chicken. Do not log or save this",
+      "capability": "capability_gap",
+      "response": "Got it. I'll keep your preference for eating chicken in mind for this conversation, without logging or saving it."
+    },
+    {
+      "id": "nutrition-no-write-3",
+      "query": "Please help with this: I usually eat salmon. Do not log or save this",
+      "capability": "capability_gap",
+      "response": "Understood. I'll note that you usually eat salmon for this conversation, but I won't log or save this preference."
+    },
+    {
+      "id": "nutrition-no-write-4",
+      "query": "I usually eat tofu. Do not log or save this Thanks.",
+      "capability": "capability_gap",
+      "response": "Understood. I'll keep in mind that you usually eat tofu, and I won't log or save this preference."
+    },
+    {
+      "id": "nutrition-no-write-5",
+      "query": "Quick question: I usually eat oats. Do not log or save this",
+      "capability": "capability_gap",
+      "response": "Got it. I'll keep that in mind for this conversation, but I won't log or save it."
+    },
+    {
+      "id": "notes-ambiguous-1",
+      "query": "Save that",
+      "capability": "clarification",
+      "response": "What would you like me to do?"
+    },
+    {
+      "id": "notes-ambiguous-2",
+      "query": "Hi, Save that",
+      "capability": "clarification",
+      "response": "What would you like me to do?"
+    },
+    {
+      "id": "notes-ambiguous-3",
+      "query": "Please help with this: Save that",
+      "capability": "clarification",
+      "response": "What would you like me to do?"
+    },
+    {
+      "id": "notes-ambiguous-4",
+      "query": "Save that Thanks.",
+      "capability": "clarification",
+      "response": "Understood. I've acknowledged that information for our current conversation."
+    },
+    {
+      "id": "notes-ambiguous-5",
+      "query": "Quick question: Save that",
+      "capability": "clarification",
+      "response": "What would you like me to do?"
+    },
+    {
+      "id": "notes-conversation-1",
+      "query": "For context, \"Bring the blue notebook\". Do not create a note",
+      "capability": "supported",
+      "response": "Got it. I'll treat \"Bring the blue notebook\" as context for our conversation. No note will be created."
+    },
+    {
+      "id": "notes-conversation-2",
+      "query": "Hi, For context, \"Call the hotel\". Do not create a note",
+      "capability": "supported",
+      "response": "Got it. I'll treat \"Call the hotel\" as context for this conversation. I won't create a note or perform the call."
+    },
+    {
+      "id": "notes-conversation-3",
+      "query": "Please help with this: For context, \"Pack the charger\". Do not create a note",
+      "capability": "supported",
+      "response": "Understood. I will treat \"Pack the charger\" as context for our conversation. No note will be created."
+    },
+    {
+      "id": "notes-conversation-4",
+      "query": "For context, \"Ask about the deadline\". Do not create a note Thanks.",
+      "capability": "supported",
+      "response": "Understood. I will ask about the deadline, and I will not create a note."
+    },
+    {
+      "id": "notes-conversation-5",
+      "query": "Quick question: For context, \"Remember the reservation\". Do not create a note",
+      "capability": "supported",
+      "response": "Got it. I'll keep \"Remember the reservation\" in mind as context for this conversation, but I won't create a note."
+    },
+    {
+      "id": "notes-delete-1",
+      "query": "Delete every note",
+      "capability": "capability_gap",
+      "response": "I can read, search, or prepare a new note, but I can\u2019t modify, organize, share, or transcribe existing notes from chat."
+    },
+    {
+      "id": "notes-delete-2",
+      "query": "Hi, Delete every note",
+      "capability": "capability_gap",
+      "response": "I can read, search, or prepare a new note, but I can\u2019t modify, organize, share, or transcribe existing notes from chat."
+    },
+    {
+      "id": "notes-delete-3",
+      "query": "Please help with this: Delete every note",
+      "capability": "capability_gap",
+      "response": "I can read, search, or prepare a new note, but I can\u2019t modify, organize, share, or transcribe existing notes from chat."
+    },
+    {
+      "id": "notes-delete-4",
+      "query": "Delete every note Thanks.",
+      "capability": "capability_gap",
+      "response": "I can read, search, or prepare a new note, but I can\u2019t modify, organize, share, or transcribe existing notes from chat."
+    },
+    {
+      "id": "notes-delete-5",
+      "query": "Quick question: Delete every note",
+      "capability": "capability_gap",
+      "response": "I can read, search, or prepare a new note, but I can\u2019t modify, organize, share, or transcribe existing notes from chat."
+    },
+    {
+      "id": "notes-edit-1",
+      "query": "Replace my latest note with \"Bring the blue notebook\"",
+      "capability": "capability_gap",
+      "response": "I can read, search, or prepare a new note, but I can\u2019t modify, organize, share, or transcribe existing notes from chat."
+    },
+    {
+      "id": "notes-edit-2",
+      "query": "Hi, Replace my latest note with \"Call the hotel\"",
+      "capability": "capability_gap",
+      "response": "I can read, search, or prepare a new note, but I can\u2019t modify, organize, share, or transcribe existing notes from chat."
+    },
+    {
+      "id": "notes-edit-3",
+      "query": "Please help with this: Replace my latest note with \"Pack the charger\"",
+      "capability": "capability_gap",
+      "response": "I can read, search, or prepare a new note, but I can\u2019t modify, organize, share, or transcribe existing notes from chat."
+    },
+    {
+      "id": "notes-edit-4",
+      "query": "Replace my latest note with \"Ask about the deadline\" Thanks.",
+      "capability": "capability_gap",
+      "response": "I can read, search, or prepare a new note, but I can\u2019t modify, organize, share, or transcribe existing notes from chat."
+    },
+    {
+      "id": "notes-edit-5",
+      "query": "Quick question: Replace my latest note with \"Remember the reservation\"",
+      "capability": "capability_gap",
+      "response": "I can read, search, or prepare a new note, but I can\u2019t modify, organize, share, or transcribe existing notes from chat."
+    },
+    {
+      "id": "notes-share-1",
+      "query": "Email my project notes to Alex",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "notes-share-2",
+      "query": "Hi, Email my travel notes to Alex",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "notes-share-3",
+      "query": "Please help with this: Email my meeting notes to Alex",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "notes-share-4",
+      "query": "Email my training notes to Alex Thanks.",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "notes-share-5",
+      "query": "Quick question: Email my shopping notes to Alex",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "notes-archive-1",
+      "query": "Archive all notes about project",
+      "capability": "capability_gap",
+      "response": "I can read, search, or prepare a new note, but I can\u2019t modify, organize, share, or transcribe existing notes from chat."
+    },
+    {
+      "id": "notes-archive-2",
+      "query": "Hi, Archive all notes about travel",
+      "capability": "capability_gap",
+      "response": "I can read, search, or prepare a new note, but I can\u2019t modify, organize, share, or transcribe existing notes from chat."
+    },
+    {
+      "id": "notes-archive-3",
+      "query": "Please help with this: Archive all notes about meeting",
+      "capability": "capability_gap",
+      "response": "I can read, search, or prepare a new note, but I can\u2019t modify, organize, share, or transcribe existing notes from chat."
+    },
+    {
+      "id": "notes-archive-4",
+      "query": "Archive all notes about training Thanks.",
+      "capability": "capability_gap",
+      "response": "I can read, search, or prepare a new note, but I can\u2019t modify, organize, share, or transcribe existing notes from chat."
+    },
+    {
+      "id": "notes-archive-5",
+      "query": "Quick question: Archive all notes about shopping",
+      "capability": "capability_gap",
+      "response": "I can read, search, or prepare a new note, but I can\u2019t modify, organize, share, or transcribe existing notes from chat."
+    },
+    {
+      "id": "notes-audio-1",
+      "query": "Transcribe the audio I recorded yesterday",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "notes-audio-2",
+      "query": "Hi, Transcribe the audio I recorded yesterday",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "notes-audio-3",
+      "query": "Please help with this: Transcribe the audio I recorded yesterday",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "notes-audio-4",
+      "query": "Transcribe the audio I recorded yesterday Thanks.",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "notes-audio-5",
+      "query": "Quick question: Transcribe the audio I recorded yesterday",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "notes-folders-1",
+      "query": "Move my project notes into a new folder",
+      "capability": "capability_gap",
+      "response": "I can read, search, or prepare a new note, but I can\u2019t modify, organize, share, or transcribe existing notes from chat."
+    },
+    {
+      "id": "notes-folders-2",
+      "query": "Hi, Move my travel notes into a new folder",
+      "capability": "capability_gap",
+      "response": "I can read, search, or prepare a new note, but I can\u2019t modify, organize, share, or transcribe existing notes from chat."
+    },
+    {
+      "id": "notes-folders-3",
+      "query": "Please help with this: Move my meeting notes into a new folder",
+      "capability": "capability_gap",
+      "response": "I can read, search, or prepare a new note, but I can\u2019t modify, organize, share, or transcribe existing notes from chat."
+    },
+    {
+      "id": "notes-folders-4",
+      "query": "Move my training notes into a new folder Thanks.",
+      "capability": "capability_gap",
+      "response": "I can read, search, or prepare a new note, but I can\u2019t modify, organize, share, or transcribe existing notes from chat."
+    },
+    {
+      "id": "notes-folders-5",
+      "query": "Quick question: Move my shopping notes into a new folder",
+      "capability": "capability_gap",
+      "response": "I can read, search, or prepare a new note, but I can\u2019t modify, organize, share, or transcribe existing notes from chat."
+    },
+    {
+      "id": "workouts-unclear-1",
+      "query": "Do something with that project thing; I have not specified what",
+      "capability": "clarification",
+      "response": "What would you like me to do?"
+    },
+    {
+      "id": "workouts-unclear-2",
+      "query": "Hi, Do something with that travel thing; I have not specified what",
+      "capability": "clarification",
+      "response": "What would you like me to do?"
+    },
+    {
+      "id": "workouts-unclear-3",
+      "query": "Please help with this: Do something with that meeting thing; I have not specified what",
+      "capability": "clarification",
+      "response": "What would you like me to do?"
+    },
+    {
+      "id": "workouts-unclear-4",
+      "query": "Do something with that training thing; I have not specified what Thanks.",
+      "capability": "clarification",
+      "response": "What would you like me to do?"
+    },
+    {
+      "id": "workouts-unclear-5",
+      "query": "Quick question: Do something with that shopping thing; I have not specified what",
+      "capability": "clarification",
+      "response": "What would you like me to do?"
+    },
+    {
+      "id": "workouts-start-1",
+      "query": "Start a strength workout",
+      "capability": "capability_gap",
+      "response": "I can't start the workout or change your existing routine, but I can help you prepare. Would you like me to create a new note for your upcoming session, search your notes for your current program, or open the workout app page?"
+    },
+    {
+      "id": "workouts-start-2",
+      "query": "Hi, Start a strength workout",
+      "capability": "capability_gap",
+      "response": "I cannot start or execute a workout for you, as I cannot change existing routines or actions.\n\nHowever, I can help you prepare one. Would you like me to:\n*   **Create** a new workout plan?\n*   **Search** your notes or existing routines for a specific workout?\n*   **Open** a specific app page where you can start?"
+    },
+    {
+      "id": "workouts-start-3",
+      "query": "Please help with this: Start a strength workout",
+      "capability": "capability_gap",
+      "response": "I cannot start or initiate the workout for you.\n\nHowever, I can help you prepare. What would you like to do?\n*   **Create a plan:** I can draft a strength workout plan for your review.\n*   **Search notes:** I can look through your existing notes for specific exercises or routines.\n*   **Open an app:** I can open the relevant app page where you can manage your workouts.\n*   **Review data:** I can read your current nutrition charts or agendas to help align the workout with your goals.\n\nLet me know how you'd like to proceed."
+    },
+    {
+      "id": "workouts-start-4",
+      "query": "Start a strength workout Thanks.",
+      "capability": "capability_gap",
+      "response": "I cannot start or execute a workout, change routines, or play audio. I can only help you prepare data, such as reviewing an agenda, creating a new workout note, or opening an app page for you to do it yourself."
+    },
+    {
+      "id": "workouts-start-5",
+      "query": "Quick question: Start a strength workout",
+      "capability": "capability_gap",
+      "response": "I can't start or initiate workouts for you, as I cannot change existing routines or take actions outside the current conversation.\n\nHowever, I can help you prepare a **new** workout plan for review, search your notes for specific exercises, or open an app page related to strength training if you'd like. Would you like to do any of those instead?"
+    },
+    {
+      "id": "workouts-stop-1",
+      "query": "Stop my current workout",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "workouts-stop-2",
+      "query": "Hi, Stop my current workout",
+      "capability": "capability_gap",
+      "response": "I can\u2019t read detailed workout records or control, log, or change workouts from chat. Open Workouts to see the available controls."
+    },
+    {
+      "id": "workouts-stop-3",
+      "query": "Please help with this: Stop my current workout",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "workouts-stop-4",
+      "query": "Stop my current workout Thanks.",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "workouts-stop-5",
+      "query": "Quick question: Stop my current workout",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "workouts-log-1",
+      "query": "Log a 30-minute run",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "workouts-log-2",
+      "query": "Hi, Log a 30-minute run",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "workouts-log-3",
+      "query": "Please help with this: Log a 30-minute run",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "workouts-log-4",
+      "query": "Log a 30-minute run Thanks.",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "workouts-log-5",
+      "query": "Quick question: Log a 30-minute run",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "workouts-edit-1",
+      "query": "Change yesterday\u2019s run distance to 5km",
+      "capability": "capability_gap",
+      "response": "I can\u2019t read detailed workout records or control, log, or change workouts from chat."
+    },
+    {
+      "id": "workouts-edit-2",
+      "query": "Hi, Change yesterday\u2019s run distance to 5km",
+      "capability": "capability_gap",
+      "response": "I can\u2019t read detailed workout records or control, log, or change workouts from chat."
+    },
+    {
+      "id": "workouts-edit-3",
+      "query": "Please help with this: Change yesterday\u2019s run distance to 5km",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "workouts-edit-4",
+      "query": "Change yesterday\u2019s run distance to 5km Thanks.",
+      "capability": "capability_gap",
+      "response": "I can\u2019t read detailed workout records or control, log, or change workouts from chat."
+    },
+    {
+      "id": "workouts-edit-5",
+      "query": "Quick question: Change yesterday\u2019s run distance to 5km",
+      "capability": "capability_gap",
+      "response": "I can\u2019t read detailed workout records or control, log, or change workouts from chat."
+    },
+    {
+      "id": "workouts-delete-1",
+      "query": "Delete my latest workout",
+      "capability": "capability_gap",
+      "response": "I can\u2019t read detailed workout records or control, log, or change workouts from chat."
+    },
+    {
+      "id": "workouts-delete-2",
+      "query": "Hi, Delete my latest workout",
+      "capability": "capability_gap",
+      "response": "I can\u2019t read detailed workout records or control, log, or change workouts from chat."
+    },
+    {
+      "id": "workouts-delete-3",
+      "query": "Please help with this: Delete my latest workout",
+      "capability": "capability_gap",
+      "response": "I can\u2019t read detailed workout records or control, log, or change workouts from chat."
+    },
+    {
+      "id": "workouts-delete-4",
+      "query": "Delete my latest workout Thanks.",
+      "capability": "capability_gap",
+      "response": "I can\u2019t read detailed workout records or control, log, or change workouts from chat."
+    },
+    {
+      "id": "workouts-delete-5",
+      "query": "Quick question: Delete my latest workout",
+      "capability": "capability_gap",
+      "response": "I can\u2019t read detailed workout records or control, log, or change workouts from chat."
+    },
+    {
+      "id": "workouts-distance-1",
+      "query": "How far did I run this week?",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "workouts-distance-2",
+      "query": "Hi, How far did I run this week?",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "workouts-distance-3",
+      "query": "Please help with this: How far did I run this week?",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "workouts-distance-4",
+      "query": "How far did I run this week? Thanks.",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "workouts-distance-5",
+      "query": "Quick question: How far did I run this week?",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "workouts-heart-1",
+      "query": "What was my average heart rate on my last ride?",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "workouts-heart-2",
+      "query": "Hi, What was my average heart rate on my last ride?",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "workouts-heart-3",
+      "query": "Please help with this: What was my average heart rate on my last ride?",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "workouts-heart-4",
+      "query": "What was my average heart rate on my last ride? Thanks.",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "workouts-heart-5",
+      "query": "Quick question: What was my average heart rate on my last ride?",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "workouts-compare-1",
+      "query": "Compare my last two runs",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "workouts-compare-2",
+      "query": "Hi, Compare my last two runs",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "workouts-compare-3",
+      "query": "Please help with this: Compare my last two runs",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "workouts-compare-4",
+      "query": "Compare my last two runs Thanks.",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "workouts-compare-5",
+      "query": "Quick question: Compare my last two runs",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "workouts-route-1",
+      "query": "Show the route of my last ride",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "workouts-route-2",
+      "query": "Hi, Show the route of my last ride",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "workouts-route-3",
+      "query": "Please help with this: Show the route of my last ride",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "workouts-route-4",
+      "query": "Show the route of my last ride Thanks.",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "workouts-route-5",
+      "query": "Quick question: Show the route of my last ride",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "workouts-calories-1",
+      "query": "How many calories did my last workout burn?",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "workouts-calories-2",
+      "query": "Hi, How many calories did my last workout burn?",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "workouts-calories-3",
+      "query": "Please help with this: How many calories did my last workout burn?",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "workouts-calories-4",
+      "query": "How many calories did my last workout burn? Thanks.",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "workouts-calories-5",
+      "query": "Quick question: How many calories did my last workout burn?",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "workouts-streak-1",
+      "query": "How many days in a row have I exercised?",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "workouts-streak-2",
+      "query": "Hi, How many days in a row have I exercised?",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "workouts-streak-3",
+      "query": "Please help with this: How many days in a row have I exercised?",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "workouts-streak-4",
+      "query": "How many days in a row have I exercised? Thanks.",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "workouts-streak-5",
+      "query": "Quick question: How many days in a row have I exercised?",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "workouts-export-1",
+      "query": "Export my workout history",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "workouts-export-2",
+      "query": "Hi, Export my workout history",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "workouts-export-3",
+      "query": "Please help with this: Export my workout history",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "workouts-export-4",
+      "query": "Export my workout history Thanks.",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "workouts-export-5",
+      "query": "Quick question: Export my workout history",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "workouts-sync-1",
+      "query": "Sync my Watch workouts now",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "workouts-sync-2",
+      "query": "Hi, Sync my Watch workouts now",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "workouts-sync-3",
+      "query": "Please help with this: Sync my Watch workouts now",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "workouts-sync-4",
+      "query": "Sync my Watch workouts now Thanks.",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "workouts-sync-5",
+      "query": "Quick question: Sync my Watch workouts now",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "workouts-schedule-1",
+      "query": "Schedule three strength workouts each week",
+      "capability": "capability_gap",
+      "response": "I can\u2019t read detailed workout records or control, log, or change workouts from chat. Open Workouts to see the available controls."
+    },
+    {
+      "id": "workouts-schedule-2",
+      "query": "Hi, Schedule three strength workouts each week",
+      "capability": "capability_gap",
+      "response": "I can show a daily agenda or prepare a new one-off event, but I can\u2019t make that calendar change or resolve that travel request from chat. Open Plan to see the available controls."
+    },
+    {
+      "id": "workouts-schedule-3",
+      "query": "Please help with this: Schedule three strength workouts each week",
+      "capability": "capability_gap",
+      "response": "I can\u2019t read detailed workout records or control, log, or change workouts from chat. Open Workouts to see the available controls."
+    },
+    {
+      "id": "workouts-schedule-4",
+      "query": "Schedule three strength workouts each week Thanks.",
+      "capability": "capability_gap",
+      "response": "I can show a daily agenda or prepare a new one-off event, but I can\u2019t make that calendar change or resolve that travel request from chat. Open Plan to see the available controls."
+    },
+    {
+      "id": "workouts-schedule-5",
+      "query": "Quick question: Schedule three strength workouts each week",
+      "capability": "capability_gap",
+      "response": "I can show a daily agenda or prepare a new one-off event, but I can\u2019t make that calendar change or resolve that travel request from chat. Open Plan to see the available controls."
+    },
+    {
+      "id": "routines-unclear-1",
+      "query": "Do something with that project thing; I have not specified what",
+      "capability": "clarification",
+      "response": "What would you like me to do?"
+    },
+    {
+      "id": "routines-unclear-2",
+      "query": "Hi, Do something with that travel thing; I have not specified what",
+      "capability": "clarification",
+      "response": "What would you like me to do?"
+    },
+    {
+      "id": "routines-unclear-3",
+      "query": "Please help with this: Do something with that meeting thing; I have not specified what",
+      "capability": "clarification",
+      "response": "What would you like me to do?"
+    },
+    {
+      "id": "routines-unclear-4",
+      "query": "Do something with that training thing; I have not specified what Thanks.",
+      "capability": "clarification",
+      "response": "What would you like me to do?"
+    },
+    {
+      "id": "routines-unclear-5",
+      "query": "Quick question: Do something with that shopping thing; I have not specified what",
+      "capability": "clarification",
+      "response": "What would you like me to do?"
+    },
+    {
+      "id": "routines-create-1",
+      "query": "Create a bedtime routine at 09:15",
+      "capability": "capability_gap",
+      "response": "I can\u2019t read routine completion history or create, change, or complete routines from chat. Open Routines to see the available controls."
+    },
+    {
+      "id": "routines-create-2",
+      "query": "Hi, Create a bedtime routine at 11:30",
+      "capability": "capability_gap",
+      "response": "I can\u2019t read routine completion history or create, change, or complete routines from chat. Open Routines to see the available controls."
+    },
+    {
+      "id": "routines-create-3",
+      "query": "Please help with this: Create a bedtime routine at 14:00",
+      "capability": "capability_gap",
+      "response": "I can\u2019t read routine completion history or create, change, or complete routines from chat. Open Routines to see the available controls."
+    },
+    {
+      "id": "routines-create-4",
+      "query": "Create a bedtime routine at 17:00 Thanks.",
+      "capability": "capability_gap",
+      "response": "I can\u2019t read routine completion history or create, change, or complete routines from chat. Open Routines to see the available controls."
+    },
+    {
+      "id": "routines-create-5",
+      "query": "Quick question: Create a bedtime routine at 20:45",
+      "capability": "capability_gap",
+      "response": "I can\u2019t read routine completion history or create, change, or complete routines from chat. Open Routines to see the available controls."
+    },
+    {
+      "id": "routines-edit-1",
+      "query": "Move my morning routine to 09:15",
+      "capability": "capability_gap",
+      "response": "I can\u2019t read routine completion history or create, change, or complete routines from chat."
+    },
+    {
+      "id": "routines-edit-2",
+      "query": "Hi, Move my morning routine to 11:30",
+      "capability": "capability_gap",
+      "response": "I can\u2019t read routine completion history or create, change, or complete routines from chat."
+    },
+    {
+      "id": "routines-edit-3",
+      "query": "Please help with this: Move my morning routine to 14:00",
+      "capability": "capability_gap",
+      "response": "I can\u2019t read routine completion history or create, change, or complete routines from chat."
+    },
+    {
+      "id": "routines-edit-4",
+      "query": "Move my morning routine to 17:00 Thanks.",
+      "capability": "capability_gap",
+      "response": "I can\u2019t read routine completion history or create, change, or complete routines from chat."
+    },
+    {
+      "id": "routines-edit-5",
+      "query": "Quick question: Move my morning routine to 20:45",
+      "capability": "capability_gap",
+      "response": "I can\u2019t read routine completion history or create, change, or complete routines from chat."
+    },
+    {
+      "id": "routines-delete-1",
+      "query": "Delete my bedtime routine",
+      "capability": "capability_gap",
+      "response": "I can\u2019t read routine completion history or create, change, or complete routines from chat."
+    },
+    {
+      "id": "routines-delete-2",
+      "query": "Hi, Delete my bedtime routine",
+      "capability": "capability_gap",
+      "response": "I can\u2019t read routine completion history or create, change, or complete routines from chat."
+    },
+    {
+      "id": "routines-delete-3",
+      "query": "Please help with this: Delete my bedtime routine",
+      "capability": "capability_gap",
+      "response": "I can\u2019t read routine completion history or create, change, or complete routines from chat."
+    },
+    {
+      "id": "routines-delete-4",
+      "query": "Delete my bedtime routine Thanks.",
+      "capability": "capability_gap",
+      "response": "I can\u2019t read routine completion history or create, change, or complete routines from chat."
+    },
+    {
+      "id": "routines-delete-5",
+      "query": "Quick question: Delete my bedtime routine",
+      "capability": "capability_gap",
+      "response": "I can\u2019t read routine completion history or create, change, or complete routines from chat."
+    },
+    {
+      "id": "routines-disable-1",
+      "query": "Disable all routines",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "routines-disable-2",
+      "query": "Hi, Disable all routines",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "routines-disable-3",
+      "query": "Please help with this: Disable all routines",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "routines-disable-4",
+      "query": "Disable all routines Thanks.",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "routines-disable-5",
+      "query": "Quick question: Disable all routines",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "routines-skip-1",
+      "query": "Skip tomorrow\u2019s morning routine",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "routines-skip-2",
+      "query": "Hi, Skip tomorrow\u2019s morning routine",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "routines-skip-3",
+      "query": "Please help with this: Skip tomorrow\u2019s morning routine",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "routines-skip-4",
+      "query": "Skip tomorrow\u2019s morning routine Thanks.",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "routines-skip-5",
+      "query": "Quick question: Skip tmrw\u2019s morning routine",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "routines-complete-1",
+      "query": "Mark my morning routine complete",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "routines-complete-2",
+      "query": "Hi, Mark my morning routine complete",
+      "capability": "capability_gap",
+      "response": "I can\u2019t read routine completion history or create, change, or complete routines from chat."
+    },
+    {
+      "id": "routines-complete-3",
+      "query": "Please help with this: Mark my morning routine complete",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "routines-complete-4",
+      "query": "Mark my morning routine complete Thanks.",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "routines-complete-5",
+      "query": "Quick question: Mark my morning routine complete",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "routines-repeat-1",
+      "query": "Repeat my routine only on weekdays",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "routines-repeat-2",
+      "query": "Hi, Repeat my routine only on weekdays",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "routines-repeat-3",
+      "query": "Please help with this: Repeat my routine only on weekdays",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "routines-repeat-4",
+      "query": "Repeat my routine only on weekdays Thanks.",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "routines-repeat-5",
+      "query": "Quick question: Repeat my routine only on weekdays",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "routines-rename-1",
+      "query": "Rename my evening routine to Wind down",
+      "capability": "capability_gap",
+      "response": "I can\u2019t read routine completion history or create, change, or complete routines from chat."
+    },
+    {
+      "id": "routines-rename-2",
+      "query": "Hi, Rename my evening routine to Wind down",
+      "capability": "capability_gap",
+      "response": "I can\u2019t read routine completion history or create, change, or complete routines from chat."
+    },
+    {
+      "id": "routines-rename-3",
+      "query": "Please help with this: Rename my evening routine to Wind down",
+      "capability": "capability_gap",
+      "response": "I can\u2019t read routine completion history or create, change, or complete routines from chat."
+    },
+    {
+      "id": "routines-rename-4",
+      "query": "Rename my evening routine to Wind down Thanks.",
+      "capability": "capability_gap",
+      "response": "I can\u2019t read routine completion history or create, change, or complete routines from chat."
+    },
+    {
+      "id": "routines-rename-5",
+      "query": "Quick question: Rename my evening routine to Wind down",
+      "capability": "capability_gap",
+      "response": "I can\u2019t read routine completion history or create, change, or complete routines from chat."
+    },
+    {
+      "id": "routines-order-1",
+      "query": "Move stretching before breakfast in my routine",
+      "capability": "capability_gap",
+      "response": "I can\u2019t read routine completion history or create, change, or complete routines from chat."
+    },
+    {
+      "id": "routines-order-2",
+      "query": "Hi, Move stretching before breakfast in my routine",
+      "capability": "capability_gap",
+      "response": "I can\u2019t read routine completion history or create, change, or complete routines from chat."
+    },
+    {
+      "id": "routines-order-3",
+      "query": "Please help with this: Move stretching before breakfast in my routine",
+      "capability": "capability_gap",
+      "response": "I can\u2019t read routine completion history or create, change, or complete routines from chat."
+    },
+    {
+      "id": "routines-order-4",
+      "query": "Move stretching before breakfast in my routine Thanks.",
+      "capability": "capability_gap",
+      "response": "I can\u2019t read routine completion history or create, change, or complete routines from chat."
+    },
+    {
+      "id": "routines-order-5",
+      "query": "Quick question: Move stretching before breakfast in my routine",
+      "capability": "capability_gap",
+      "response": "I can\u2019t read routine completion history or create, change, or complete routines from chat."
+    },
+    {
+      "id": "routines-add-step-1",
+      "query": "Add a glass of water to my morning routine",
+      "capability": "capability_gap",
+      "response": "I can\u2019t read routine completion history or create, change, or complete routines from chat. Open Routines to see the available controls."
+    },
+    {
+      "id": "routines-add-step-2",
+      "query": "Hi, Add a glass of water to my morning routine",
+      "capability": "capability_gap",
+      "response": "I can\u2019t read routine completion history or create, change, or complete routines from chat. Open Routines to see the available controls."
+    },
+    {
+      "id": "routines-add-step-3",
+      "query": "Please help with this: Add a glass of water to my morning routine",
+      "capability": "capability_gap",
+      "response": "I can\u2019t read routine completion history or create, change, or complete routines from chat. Open Routines to see the available controls."
+    },
+    {
+      "id": "routines-add-step-4",
+      "query": "Add a glass of water to my morning routine Thanks.",
+      "capability": "capability_gap",
+      "response": "I can\u2019t read routine completion history or create, change, or complete routines from chat. Open Routines to see the available controls."
+    },
+    {
+      "id": "routines-add-step-5",
+      "query": "Quick question: Add a glass of water to my morning routine",
+      "capability": "capability_gap",
+      "response": "I can\u2019t read routine completion history or create, change, or complete routines from chat. Open Routines to see the available controls."
+    },
+    {
+      "id": "routines-remove-step-1",
+      "query": "Remove meditation from my morning routine",
+      "capability": "capability_gap",
+      "response": "I can\u2019t read routine completion history or create, change, or complete routines from chat."
+    },
+    {
+      "id": "routines-remove-step-2",
+      "query": "Hi, Remove meditation from my morning routine",
+      "capability": "capability_gap",
+      "response": "I can\u2019t read routine completion history or create, change, or complete routines from chat."
+    },
+    {
+      "id": "routines-remove-step-3",
+      "query": "Please help with this: Remove meditation from my morning routine",
+      "capability": "capability_gap",
+      "response": "I can\u2019t read routine completion history or create, change, or complete routines from chat."
+    },
+    {
+      "id": "routines-remove-step-4",
+      "query": "Remove meditation from my morning routine Thanks.",
+      "capability": "capability_gap",
+      "response": "I can\u2019t read routine completion history or create, change, or complete routines from chat."
+    },
+    {
+      "id": "routines-remove-step-5",
+      "query": "Quick question: Remove meditation from my morning routine",
+      "capability": "capability_gap",
+      "response": "I can\u2019t read routine completion history or create, change, or complete routines from chat."
+    },
+    {
+      "id": "routines-history-1",
+      "query": "How often did I complete my routines this week?",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "routines-history-2",
+      "query": "Hi, How often did I complete my routines this week?",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "routines-history-3",
+      "query": "Please help with this: How often did I complete my routines this week?",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "routines-history-4",
+      "query": "How often did I complete my routines this week? Thanks.",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "routines-history-5",
+      "query": "Quick question: How often did I complete my routines this week?",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "routines-notification-1",
+      "query": "Turn off routine notifications",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "routines-notification-2",
+      "query": "Hi, Turn off routine notifications",
+      "capability": "capability_gap",
+      "response": "I can\u2019t change settings, accounts, permissions, models, backups or personal data from chat."
+    },
+    {
+      "id": "routines-notification-3",
+      "query": "Please help with this: Turn off routine notifications",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "routines-notification-4",
+      "query": "Turn off routine notifications Thanks.",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "routines-notification-5",
+      "query": "Quick question: Turn off routine notifications",
+      "capability": "capability_gap",
+      "response": "I can\u2019t change settings, accounts, permissions, models, backups or personal data from chat. Open Settings to see the available controls."
+    },
+    {
+      "id": "routines-travel-1",
+      "query": "Shift my routines to London time for my trip",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "routines-travel-2",
+      "query": "Hi, Shift my routines to London time for my trip",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "routines-travel-3",
+      "query": "Please help with this: Shift my routines to London time for my trip",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "routines-travel-4",
+      "query": "Shift my routines to London time for my trip Thanks.",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "routines-travel-5",
+      "query": "Quick question: Shift my routines to London time for my trip",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "library-unclear-1",
+      "query": "Do something with that project thing; I have not specified what",
+      "capability": "clarification",
+      "response": "What would you like me to do?"
+    },
+    {
+      "id": "library-unclear-2",
+      "query": "Hi, Do something with that travel thing; I have not specified what",
+      "capability": "clarification",
+      "response": "What would you like me to do?"
+    },
+    {
+      "id": "library-unclear-3",
+      "query": "Please help with this: Do something with that meeting thing; I have not specified what",
+      "capability": "clarification",
+      "response": "What would you like me to do?"
+    },
+    {
+      "id": "library-unclear-4",
+      "query": "Do something with that training thing; I have not specified what Thanks.",
+      "capability": "clarification",
+      "response": "What would you like me to do?"
+    },
+    {
+      "id": "library-unclear-5",
+      "query": "Quick question: Do something with that shopping thing; I have not specified what",
+      "capability": "clarification",
+      "response": "What would you like me to do?"
+    },
+    {
+      "id": "library-pause-1",
+      "query": "Pause my podcast",
+      "capability": "capability_gap",
+      "response": "I can\u2019t control playback, downloads, subscriptions or queues, or read episode content and detailed listening records from chat. Open Library to see the available controls."
+    },
+    {
+      "id": "library-pause-2",
+      "query": "Hi, Pause my podcast",
+      "capability": "capability_gap",
+      "response": "I cannot pause your podcast. I cannot control playback or change existing app settings. Please use the device's native controls or the podcast app directly."
+    },
+    {
+      "id": "library-pause-4",
+      "query": "Pause my podcast Thanks.",
+      "capability": "capability_gap",
+      "response": "I cannot pause your podcast. I don't have access to your media playback or the ability to change existing routines or playback settings."
+    },
+    {
+      "id": "library-seek-1",
+      "query": "Skip ahead 30 seconds",
+      "capability": "capability_gap",
+      "response": "I cannot skip ahead in time. I can only help you with tasks like reviewing your agenda, checking nutrition charts, or creating new notes/events if you'd like."
+    },
+    {
+      "id": "library-seek-2",
+      "query": "Hi, Skip ahead 30 seconds",
+      "capability": "capability_gap",
+      "response": "I can't skip ahead in time. I can only help you manage your schedule, like creating a new event or adjusting your agenda. Would you like me to prepare a note or event for later?"
+    },
+    {
+      "id": "library-seek-4",
+      "query": "Skip ahead 30 seconds Thanks.",
+      "capability": "capability_gap",
+      "response": "Understood. I cannot skip time or advance the current playback. I can only open or read media files if you provide them here."
+    },
+    {
+      "id": "library-seek-5",
+      "query": "Quick question: Skip ahead 30 seconds",
+      "capability": "capability_gap",
+      "response": "I cannot skip ahead in time or change playback. I can only help you prepare notes, events, or meals for review."
+    },
+    {
+      "id": "library-speed-1",
+      "query": "Set playback speed to 1.5x",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "library-speed-3",
+      "query": "Please help with this: Set playback speed to 1.5x",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "library-speed-4",
+      "query": "Set playback speed to 1.5x Thanks.",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "library-speed-5",
+      "query": "Quick question: Set playback speed to 1.5x",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "library-download-1",
+      "query": "Download the latest Acquired episode",
+      "capability": "capability_gap",
+      "response": "I can\u2019t control playback, downloads, subscriptions or queues, or read episode content and detailed listening records from chat."
+    },
+    {
+      "id": "library-download-2",
+      "query": "Hi, Download the latest Acquired episode",
+      "capability": "capability_gap",
+      "response": "I can\u2019t control playback, downloads, subscriptions or queues, or read episode content and detailed listening records from chat."
+    },
+    {
+      "id": "library-download-3",
+      "query": "Please help with this: Download the latest Acquired episode",
+      "capability": "capability_gap",
+      "response": "I can\u2019t control playback, downloads, subscriptions or queues, or read episode content and detailed listening records from chat."
+    },
+    {
+      "id": "library-download-4",
+      "query": "Download the latest Acquired episode Thanks.",
+      "capability": "capability_gap",
+      "response": "I can\u2019t control playback, downloads, subscriptions or queues, or read episode content and detailed listening records from chat."
+    },
+    {
+      "id": "library-download-5",
+      "query": "Quick question: Download the latest Acquired episode",
+      "capability": "capability_gap",
+      "response": "I can\u2019t control playback, downloads, subscriptions or queues, or read episode content and detailed listening records from chat."
+    },
+    {
+      "id": "library-remove-1",
+      "query": "Delete all downloaded episodes",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "library-remove-2",
+      "query": "Hi, Delete all downloaded episodes",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "library-remove-3",
+      "query": "Please help with this: Delete all downloaded episodes",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "library-remove-4",
+      "query": "Delete all downloaded episodes Thanks.",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "library-remove-5",
+      "query": "Quick question: Delete all downloaded episodes",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "library-subscribe-1",
+      "query": "Subscribe me to a new science podcast",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "library-subscribe-2",
+      "query": "Hi, Subscribe me to a new science podcast",
+      "capability": "capability_gap",
+      "response": "I cannot subscribe you to a new podcast. I cannot change your account settings or access the apps where subscriptions are managed. You'll need to do that manually in your preferred podcast app."
+    },
+    {
+      "id": "library-subscribe-3",
+      "query": "Please help with this: Subscribe me to a new science podcast",
+      "capability": "capability_gap",
+      "response": "I can\u2019t control playback, downloads, subscriptions or queues, or read episode content and detailed listening records from chat. Open Library to see the available controls."
+    },
+    {
+      "id": "library-subscribe-4",
+      "query": "Subscribe me to a new science podcast Thanks.",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "library-subscribe-5",
+      "query": "Quick question: Subscribe me to a new science podcast",
+      "capability": "capability_gap",
+      "response": "I can\u2019t control playback, downloads, subscriptions or queues, or read episode content and detailed listening records from chat. Open Library to see the available controls."
+    },
+    {
+      "id": "library-unsubscribe-1",
+      "query": "Unsubscribe me from Acquired",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "library-unsubscribe-2",
+      "query": "Hi, Unsubscribe me from Acquired",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "library-unsubscribe-3",
+      "query": "Please help with this: Unsubscribe me from Acquired",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "library-unsubscribe-4",
+      "query": "Unsubscribe me from Acquired Thanks.",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "library-unsubscribe-5",
+      "query": "Quick question: Unsubscribe me from Acquired",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "library-queue-1",
+      "query": "Add the newest episode to my queue",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "library-queue-2",
+      "query": "Hi, Add the newest episode to my queue",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "library-queue-3",
+      "query": "Please help with this: Add the newest episode to my queue",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "library-queue-4",
+      "query": "Add the newest episode to my queue Thanks.",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "library-queue-5",
+      "query": "Quick question: Add the newest episode to my queue",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "library-finished-1",
+      "query": "Mark this episode as played",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "library-finished-2",
+      "query": "Hi, Mark this episode as played",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "library-finished-4",
+      "query": "Mark this episode as played Thanks.",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "library-timer-1",
+      "query": "Stop playback after 20 minutes",
+      "capability": "capability_gap",
+      "response": "I can\u2019t control playback, downloads, subscriptions or queues, or read episode content and detailed listening records from chat. Open Library to see the available controls."
+    },
+    {
+      "id": "library-timer-2",
+      "query": "Hi, Stop playback after 20 minutes",
+      "capability": "capability_gap",
+      "response": "I can\u2019t control playback, downloads, subscriptions or queues, or read episode content and detailed listening records from chat. Open Library to see the available controls."
+    },
+    {
+      "id": "library-timer-4",
+      "query": "Stop playback after 20 minutes Thanks.",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "library-timer-5",
+      "query": "Quick question: Stop playback after 20 minutes",
+      "capability": "capability_gap",
+      "response": "I can\u2019t control playback, downloads, subscriptions or queues, or read episode content and detailed listening records from chat. Open Library to see the available controls."
+    },
+    {
+      "id": "library-where-1",
+      "query": "Where did I listen to my last episode?",
+      "capability": "capability_gap",
+      "response": "I can\u2019t control playback, downloads, subscriptions or queues, or read episode content and detailed listening records from chat."
+    },
+    {
+      "id": "library-where-2",
+      "query": "Hi, Where did I listen to my last episode?",
+      "capability": "capability_gap",
+      "response": "I can\u2019t control playback, downloads, subscriptions or queues, or read episode content and detailed listening records from chat."
+    },
+    {
+      "id": "library-where-3",
+      "query": "Please help with this: Where did I listen to my last episode?",
+      "capability": "capability_gap",
+      "response": "I can\u2019t control playback, downloads, subscriptions or queues, or read episode content and detailed listening records from chat."
+    },
+    {
+      "id": "library-where-4",
+      "query": "Where did I listen to my last episode? Thanks.",
+      "capability": "capability_gap",
+      "response": "I can\u2019t control playback, downloads, subscriptions or queues, or read episode content and detailed listening records from chat."
+    },
+    {
+      "id": "library-summary-1",
+      "query": "Summarize the podcast episode I heard yesterday",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "library-summary-2",
+      "query": "Hi, Summarize the podcast episode I heard yesterday",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "library-summary-3",
+      "query": "Please help with this: Summarize the podcast episode I heard yesterday",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "library-summary-4",
+      "query": "Summarize the podcast episode I heard yesterday Thanks.",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "library-summary-5",
+      "query": "Quick question: Summarize the podcast episode I heard yesterday",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "review-unclear-1",
+      "query": "Do something with that project thing; I have not specified what",
+      "capability": "clarification",
+      "response": "What would you like me to do?"
+    },
+    {
+      "id": "review-unclear-2",
+      "query": "Hi, Do something with that travel thing; I have not specified what",
+      "capability": "clarification",
+      "response": "What would you like me to do?"
+    },
+    {
+      "id": "review-unclear-3",
+      "query": "Please help with this: Do something with that meeting thing; I have not specified what",
+      "capability": "clarification",
+      "response": "What would you like me to do?"
+    },
+    {
+      "id": "review-unclear-4",
+      "query": "Do something with that training thing; I have not specified what Thanks.",
+      "capability": "clarification",
+      "response": "What would you like me to do?"
+    },
+    {
+      "id": "review-unclear-5",
+      "query": "Quick question: Do something with that shopping thing; I have not specified what",
+      "capability": "clarification",
+      "response": "What would you like me to do?"
+    },
+    {
+      "id": "review-last-night-1",
+      "query": "How much did I sleep last night?",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "review-last-night-2",
+      "query": "Hi, How much did I sleep last night?",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "review-last-night-3",
+      "query": "Please help with this: How much did I sleep last night?",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "review-last-night-4",
+      "query": "How much did I sleep last night? Thanks.",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "review-last-night-5",
+      "query": "Quick question: How much did I sleep last night?",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "review-sleep-week-1",
+      "query": "What was my average sleep this week?",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "review-sleep-week-2",
+      "query": "Hi, What was my average sleep this week?",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "review-sleep-week-3",
+      "query": "Please help with this: What was my average sleep this week?",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "review-sleep-week-4",
+      "query": "What was my average sleep this week? Thanks.",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "review-sleep-week-5",
+      "query": "Quick question: What was my average sleep this week?",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "review-weight-1",
+      "query": "How has my weight changed this month?",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "review-weight-2",
+      "query": "Hi, How has my weight changed this month?",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "review-weight-3",
+      "query": "Please help with this: How has my weight changed this month?",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "review-weight-4",
+      "query": "How has my weight changed this month? Thanks.",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "review-weight-5",
+      "query": "Quick question: How has my weight changed this month?",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "review-steps-1",
+      "query": "How many steps did I take yesterday?",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "review-steps-2",
+      "query": "Hi, How many steps did I take yesterday?",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "review-steps-3",
+      "query": "Please help with this: How many steps did I take yesterday?",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "review-steps-4",
+      "query": "How many steps did I take yesterday? Thanks.",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "review-steps-5",
+      "query": "Quick question: How many steps did I take yesterday?",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "review-hrv-1",
+      "query": "What is my current HRV trend?",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "review-hrv-2",
+      "query": "Hi, What is my current HRV trend?",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "review-hrv-3",
+      "query": "Please help with this: What is my current HRV trend?",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "review-hrv-4",
+      "query": "What is my current HRV trend? Thanks.",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "review-hrv-5",
+      "query": "Quick question: What is my current HRV trend?",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "review-resting-1",
+      "query": "Has my resting heart rate improved?",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "review-resting-2",
+      "query": "Hi, Has my resting heart rate improved?",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "review-resting-3",
+      "query": "Please help with this: Has my resting heart rate improved?",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "review-resting-4",
+      "query": "Has my resting heart rate improved? Thanks.",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "review-resting-5",
+      "query": "Quick question: Has my resting heart rate improved?",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "review-vo2-1",
+      "query": "Show my latest VO2 max value",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "review-vo2-2",
+      "query": "Hi, Show my latest VO2 max value",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "review-vo2-3",
+      "query": "Please help with this: Show my latest VO2 max value",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "review-vo2-4",
+      "query": "Show my latest VO2 max value Thanks.",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "review-vo2-5",
+      "query": "Quick question: Show my latest VO2 max value",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "review-energy-1",
+      "query": "Compare calories burned with food intake",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "review-energy-2",
+      "query": "Hi, Compare calories burned with food intake",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "review-energy-3",
+      "query": "Please help with this: Compare calories burned with food intake",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "review-energy-4",
+      "query": "Compare calories burned with food intake Thanks.",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "review-energy-5",
+      "query": "Quick question: Compare calories burned with food intake",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "review-missing-1",
+      "query": "Why are yesterday\u2019s health measurements missing?",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "review-missing-2",
+      "query": "Hi, Why are yesterday\u2019s health measurements missing?",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "review-missing-3",
+      "query": "Please help with this: Why are yesterday\u2019s health measurements missing?",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "review-missing-4",
+      "query": "Why are yesterday\u2019s health measurements missing? Thanks.",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "review-missing-5",
+      "query": "Quick question: Why are yesterday\u2019s health measurements missing?",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "review-goal-1",
+      "query": "Set a daily goal of 10000 steps",
+      "capability": "capability_gap",
+      "response": "I can\u2019t change settings, accounts, permissions, models, backups or personal data from chat. Open Settings to see the available controls."
+    },
+    {
+      "id": "review-goal-2",
+      "query": "Hi, Set a daily goal of 10000 steps",
+      "capability": "capability_gap",
+      "response": "I cannot create new routines or change existing records, so I am not able to set a daily goal for you.\n\nHowever, I can help you prepare a note for your review with that goal, or we can chat about nutrition and fitness strategies."
+    },
+    {
+      "id": "review-goal-3",
+      "query": "Please help with this: Set a daily goal of 10000 steps",
+      "capability": "capability_gap",
+      "response": "I can\u2019t change settings, accounts, permissions, models, backups or personal data from chat. Open Settings to see the available controls."
+    },
+    {
+      "id": "review-goal-4",
+      "query": "Set a daily goal of 10000 steps Thanks.",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "review-goal-5",
+      "query": "Quick question: Set a daily goal of 10000 steps",
+      "capability": "capability_gap",
+      "response": "I can\u2019t change settings, accounts, permissions, models, backups or personal data from chat. Open Settings to see the available controls."
+    },
+    {
+      "id": "review-correct-1",
+      "query": "Correct my weight to 75kg",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "review-correct-2",
+      "query": "Hi, Correct my weight to 75kg",
+      "capability": "capability_gap",
+      "response": "I can\u2019t change settings, accounts, permissions, models, backups or personal data from chat. Open Settings to see the available controls."
+    },
+    {
+      "id": "review-correct-3",
+      "query": "Please help with this: Correct my weight to 75kg",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "review-correct-4",
+      "query": "Correct my weight to 75kg Thanks.",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "review-correct-5",
+      "query": "Quick question: Correct my weight to 75kg",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "review-delete-1",
+      "query": "Delete my sleep history",
+      "capability": "capability_gap",
+      "response": "I can\u2019t read or change detailed health measurements from chat. Open Review to inspect the available data."
+    },
+    {
+      "id": "review-delete-2",
+      "query": "Hi, Delete my sleep history",
+      "capability": "capability_gap",
+      "response": "I can\u2019t read or change detailed health measurements from chat. Open Review to inspect the available data."
+    },
+    {
+      "id": "review-delete-3",
+      "query": "Please help with this: Delete my sleep history",
+      "capability": "capability_gap",
+      "response": "I can\u2019t read or change detailed health measurements from chat. Open Review to inspect the available data."
+    },
+    {
+      "id": "review-delete-4",
+      "query": "Delete my sleep history Thanks.",
+      "capability": "capability_gap",
+      "response": "I can\u2019t read or change detailed health measurements from chat. Open Review to inspect the available data."
+    },
+    {
+      "id": "review-delete-5",
+      "query": "Quick question: Delete my sleep history",
+      "capability": "capability_gap",
+      "response": "I can\u2019t read or change detailed health measurements from chat. Open Review to inspect the available data."
+    },
+    {
+      "id": "review-timezone-1",
+      "query": "Did my flight make my sleep look shorter?",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "review-timezone-2",
+      "query": "Hi, Did my flight make my sleep look shorter?",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "review-timezone-3",
+      "query": "Please help with this: Did my flight make my sleep look shorter?",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "review-timezone-4",
+      "query": "Did my flight make my sleep look shorter? Thanks.",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "review-timezone-5",
+      "query": "Quick question: Did my flight make my sleep look shorter?",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "review-diagnosis-1",
+      "query": "Diagnose why my heart rate went up from my records",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "review-diagnosis-2",
+      "query": "Hi, Diagnose why my heart rate went up from my records",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "review-diagnosis-3",
+      "query": "Please help with this: Diagnose why my heart rate went up from my records",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "review-diagnosis-4",
+      "query": "Diagnose why my heart rate went up from my records Thanks.",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "review-diagnosis-5",
+      "query": "Quick question: Diagnose why my heart rate went up from my records",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "settings-unclear-1",
+      "query": "Do something with that project thing; I have not specified what",
+      "capability": "clarification",
+      "response": "What would you like me to do?"
+    },
+    {
+      "id": "settings-unclear-2",
+      "query": "Hi, Do something with that travel thing; I have not specified what",
+      "capability": "clarification",
+      "response": "What would you like me to do?"
+    },
+    {
+      "id": "settings-unclear-3",
+      "query": "Please help with this: Do something with that meeting thing; I have not specified what",
+      "capability": "clarification",
+      "response": "What would you like me to do?"
+    },
+    {
+      "id": "settings-unclear-4",
+      "query": "Do something with that training thing; I have not specified what Thanks.",
+      "capability": "clarification",
+      "response": "What would you like me to do?"
+    },
+    {
+      "id": "settings-unclear-5",
+      "query": "Quick question: Do something with that shopping thing; I have not specified what",
+      "capability": "clarification",
+      "response": "What would you like me to do?"
+    },
+    {
+      "id": "settings-disconnect-1",
+      "query": "Disconnect all my accounts",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "settings-disconnect-2",
+      "query": "Hi, Disconnect all my accounts",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "settings-disconnect-3",
+      "query": "Please help with this: Disconnect all my accounts",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "settings-disconnect-4",
+      "query": "Disconnect all my accounts Thanks.",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "settings-disconnect-5",
+      "query": "Quick question: Disconnect all my accounts",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "settings-units-2",
+      "query": "Hi, Switch distance units to kilometers",
+      "capability": "capability_gap",
+      "response": "I can\u2019t change settings, accounts, permissions, models, backups or personal data from chat."
+    },
+    {
+      "id": "settings-units-3",
+      "query": "Please help with this: Switch distance units to kilometers",
+      "capability": "capability_gap",
+      "response": "I can\u2019t change settings, accounts, permissions, models, backups or personal data from chat."
+    },
+    {
+      "id": "settings-units-4",
+      "query": "Switch distance units to kilometers Thanks.",
+      "capability": "capability_gap",
+      "response": "I can\u2019t change settings, accounts, permissions, models, backups or personal data from chat."
+    },
+    {
+      "id": "settings-units-5",
+      "query": "Quick question: Switch distance units to kilometers",
+      "capability": "capability_gap",
+      "response": "I can\u2019t change settings, accounts, permissions, models, backups or personal data from chat."
+    },
+    {
+      "id": "settings-notifications-1",
+      "query": "Disable every notification",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "settings-notifications-2",
+      "query": "Hi, Disable every notification",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "settings-notifications-3",
+      "query": "Please help with this: Disable every notification",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "settings-notifications-4",
+      "query": "Disable every notification Thanks.",
+      "capability": "capability_gap",
+      "response": "I can\u2019t change settings, accounts, permissions, models, backups or personal data from chat."
+    },
+    {
+      "id": "settings-notifications-5",
+      "query": "Quick question: Disable every notification",
+      "capability": "capability_gap",
+      "response": "I can\u2019t change settings, accounts, permissions, models, backups or personal data from chat."
+    },
+    {
+      "id": "settings-export-1",
+      "query": "Export all my personal data",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "settings-export-2",
+      "query": "Hi, Export all my personal data",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "settings-export-3",
+      "query": "Please help with this: Export all my personal data",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "settings-export-4",
+      "query": "Export all my personal data Thanks.",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "settings-export-5",
+      "query": "Quick question: Export all my personal data",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "settings-delete-1",
+      "query": "Delete all app data",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "settings-delete-2",
+      "query": "Hi, Delete all app data",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "settings-delete-3",
+      "query": "Please help with this: Delete all app data",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "settings-delete-4",
+      "query": "Delete all app data Thanks.",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "settings-delete-5",
+      "query": "Quick question: Delete all app data",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "settings-backup-1",
+      "query": "Back up my data now",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "settings-backup-2",
+      "query": "Hi, Back up my data now",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "settings-backup-3",
+      "query": "Please help with this: Back up my data now",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "settings-backup-4",
+      "query": "Back up my data now Thanks.",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "settings-backup-5",
+      "query": "Quick question: Back up my data now",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "settings-restore-1",
+      "query": "Restore yesterday\u2019s backup",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "settings-restore-2",
+      "query": "Hi, Restore yesterday\u2019s backup",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "settings-restore-3",
+      "query": "Please help with this: Restore yesterday\u2019s backup",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "settings-restore-4",
+      "query": "Restore yesterday\u2019s backup Thanks.",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "settings-restore-5",
+      "query": "Quick question: Restore yesterday\u2019s backup",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "settings-permissions-2",
+      "query": "Hi, Grant access to my microphone",
+      "capability": "capability_gap",
+      "response": "I cannot grant access to your microphone. I do not have the ability to change app permissions, access your device's hardware, or record audio."
+    },
+    {
+      "id": "settings-permissions-3",
+      "query": "Please help with this: Grant access to my microphone",
+      "capability": "capability_gap",
+      "response": "I can\u2019t change settings, accounts, permissions, models, backups or personal data from chat."
+    },
+    {
+      "id": "settings-sample-1",
+      "query": "Turn off all sample data",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "settings-sample-2",
+      "query": "Hi, Turn off all sample data",
+      "capability": "capability_gap",
+      "response": "I can\u2019t change settings, accounts, permissions, models, backups or personal data from chat."
+    },
+    {
+      "id": "settings-sample-3",
+      "query": "Please help with this: Turn off all sample data",
+      "capability": "capability_gap",
+      "response": "I can\u2019t change settings, accounts, permissions, models, backups or personal data from chat."
+    },
+    {
+      "id": "settings-sample-4",
+      "query": "Turn off all sample data Thanks.",
+      "capability": "capability_gap",
+      "response": "I can\u2019t change settings, accounts, permissions, models, backups or personal data from chat."
+    },
+    {
+      "id": "settings-sample-5",
+      "query": "Quick question: Turn off all sample data",
+      "capability": "capability_gap",
+      "response": "I can\u2019t change settings, accounts, permissions, models, backups or personal data from chat."
+    },
+    {
+      "id": "settings-model-1",
+      "query": "Download a different AI model",
+      "capability": "capability_gap",
+      "response": "I can\u2019t change settings, accounts, permissions, models, backups or personal data from chat."
+    },
+    {
+      "id": "settings-model-2",
+      "query": "Hi, Download a different AI model",
+      "capability": "capability_gap",
+      "response": "I can\u2019t perform that action or access that private information from chat."
+    },
+    {
+      "id": "settings-model-3",
+      "query": "Please help with this: Download a different AI model",
+      "capability": "capability_gap",
+      "response": "I can\u2019t perform that action or access that private information from chat."
+    },
+    {
+      "id": "settings-model-4",
+      "query": "Download a different AI model Thanks.",
+      "capability": "capability_gap",
+      "response": "I can\u2019t perform that action or access that private information from chat."
+    },
+    {
+      "id": "settings-model-5",
+      "query": "Quick question: Download a different AI model",
+      "capability": "capability_gap",
+      "response": "I can\u2019t perform that action or access that private information from chat."
+    },
+    {
+      "id": "settings-sync-3",
+      "query": "Please help with this: Enable iCloud sync",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "assistant-unclear-1",
+      "query": "Do something with that project thing; I have not specified what",
+      "capability": "clarification",
+      "response": "What would you like me to do?"
+    },
+    {
+      "id": "assistant-unclear-2",
+      "query": "Hi, Do something with that travel thing; I have not specified what",
+      "capability": "clarification",
+      "response": "What would you like me to do?"
+    },
+    {
+      "id": "assistant-unclear-3",
+      "query": "Please help with this: Do something with that meeting thing; I have not specified what",
+      "capability": "clarification",
+      "response": "What would you like me to do?"
+    },
+    {
+      "id": "assistant-unclear-4",
+      "query": "Do something with that training thing; I have not specified what Thanks.",
+      "capability": "clarification",
+      "response": "What would you like me to do?"
+    },
+    {
+      "id": "assistant-unclear-5",
+      "query": "Quick question: Do something with that shopping thing; I have not specified what",
+      "capability": "clarification",
+      "response": "What would you like me to do?"
+    },
+    {
+      "id": "assistant-greeting-1",
+      "query": "Hello",
+      "capability": "supported",
+      "response": "Hello! How can I assist you today?"
+    },
+    {
+      "id": "assistant-greeting-2",
+      "query": "Hi, Hello",
+      "capability": "supported",
+      "response": "Hello! How can I assist you today?"
+    },
+    {
+      "id": "assistant-greeting-3",
+      "query": "Please help with this: Hello",
+      "capability": "supported",
+      "response": "Hello! How can I assist you today?"
+    },
+    {
+      "id": "assistant-greeting-4",
+      "query": "Hello Thanks.",
+      "capability": "supported",
+      "response": "You're welcome! How can I help you today?"
+    },
+    {
+      "id": "assistant-greeting-5",
+      "query": "Quick question: Hello",
+      "capability": "supported",
+      "response": "Hi there! How can I help you today?"
+    },
+    {
+      "id": "assistant-identity-1",
+      "query": "What is your name?",
+      "capability": "supported",
+      "response": "My name is Banana."
+    },
+    {
+      "id": "assistant-identity-2",
+      "query": "Hi, What is your name?",
+      "capability": "supported",
+      "response": "Hi, I'm Banana. How can I help you today?"
+    },
+    {
+      "id": "assistant-identity-3",
+      "query": "Please help with this: What is your name?",
+      "capability": "supported",
+      "response": "I am Banana."
+    },
+    {
+      "id": "assistant-identity-4",
+      "query": "What is your name? Thanks.",
+      "capability": "supported",
+      "response": "My name is Banana. I'm here to help you with your agenda, notes, nutrition charts, and other tasks. Is there anything specific you'd like to review or prepare?"
+    },
+    {
+      "id": "assistant-identity-5",
+      "query": "Quick question: What is your name?",
+      "capability": "supported",
+      "response": "My name is Banana."
+    },
+    {
+      "id": "assistant-capabilities-1",
+      "query": "What can you help me with?",
+      "capability": "supported",
+      "response": "I can help you access your agenda, view nutrition charts, search or read your notes, and prepare new notes, meals, or one-off events for review. I can also open app pages. I cannot change existing records, routines, workout plans, playback settings, or account details. I also cannot read private emails or passwords."
+    },
+    {
+      "id": "assistant-capabilities-2",
+      "query": "Hi, What can you help me with?",
+      "capability": "supported",
+      "response": "Hi! I can help with:\n\n*   **Preparation**: Creating new notes, meal plans, one-off events, or agenda items for your review.\n*   **Access**: Opening app pages, showing your agendas or nutrition charts, and reading/searching your notes.\n*   **Context**: Acknowledging preferences or facts you share in our chat (without saving them permanently).\n*   **Advice**: Providing general explanations or tips.\n\n**I cannot** change existing records, routines, workouts, playback, settings, or accounts. I also cannot read private emails or passwords.\n\nHow would you like to proceed?"
+    },
+    {
+      "id": "assistant-capabilities-3",
+      "query": "Please help with this: What can you help me with?",
+      "capability": "supported",
+      "response": "I can help you with:\n\n*   **Agendas & Nutrition:** Viewing your schedules, nutrition charts, and meal plans.\n*   **Notes & Search:** Reading, searching, and creating new notes, meals, or one-off events for review.\n*   **App Access:** Opening specific app pages.\n\n**What I cannot do:**\n*   Change existing records, routines, workouts, playback, settings, or accounts.\n*   Read private emails or passwords.\n*   Save preferences or memories explicitly (I acknowledge context for this conversation only).\n\nWhat would you like to do first?"
+    },
+    {
+      "id": "assistant-capabilities-4",
+      "query": "What can you help me with? Thanks.",
+      "capability": "supported",
+      "response": "I can help you with:\n\n*   **Agendas & Nutrition:** Viewing agendas and nutrition charts.\n*   **Notes:** Reading, searching, preparing new notes, meals, or one-off events for review.\n*   **Apps:** Opening specific app pages.\n\nI **cannot** change existing records, routines, workouts, playback, settings, or accounts. I also cannot access private emails or passwords.\n\nWhat would you like to do first?"
+    },
+    {
+      "id": "assistant-capabilities-5",
+      "query": "Quick question: What can you help me with?",
+      "capability": "supported",
+      "response": "I can help you review agendas, nutrition charts, notes, and app pages. I can also prepare new notes, meals, and events for your review. However, I cannot change existing records, routines, workouts, playback, settings, or accounts. I also cannot read private emails or passwords."
+    },
+    {
+      "id": "assistant-thanks-1",
+      "query": "Thank you",
+      "capability": "supported",
+      "response": "You're welcome! How can I assist you today?"
+    },
+    {
+      "id": "assistant-thanks-2",
+      "query": "Hi, Thank you",
+      "capability": "supported",
+      "response": "You're welcome! How can I help you today?"
+    },
+    {
+      "id": "assistant-thanks-3",
+      "query": "Please help with this: Thank you",
+      "capability": "supported",
+      "response": "You're welcome! I'm here to help. What would you like to do next?"
+    },
+    {
+      "id": "assistant-thanks-4",
+      "query": "Thank you Thanks.",
+      "capability": "supported",
+      "response": "You're welcome! Let me know if you need help with your agenda, nutrition chart, or any other tasks within our current conversation."
+    },
+    {
+      "id": "assistant-thanks-5",
+      "query": "Quick question: Thank you",
+      "capability": "supported",
+      "response": "You're welcome! Let me know if you need help with agendas, notes, or anything else."
+    },
+    {
+      "id": "assistant-explain-1",
+      "query": "Explain what a timezone is in plain language",
+      "capability": "supported",
+      "response": "A timezone is a standard clock time used for a specific region of the world. Instead of everyone using local solar time, countries and regions group areas into blocks where everyone follows the same time. This makes it easier to schedule calls, flights, and events across different locations without confusion."
+    },
+    {
+      "id": "assistant-explain-2",
+      "query": "Hi, Explain what a timezone is in plain language",
+      "capability": "supported",
+      "response": "A timezone is a specific region on Earth where everyone follows the same clock time. Instead of each place having its own time, the world is divided into blocks based on longitude. When you move from one block to another\u2014like crossing from New York to London\u2014you might need to adjust your clock forward or backward by one or more hours. It helps coordinate events, business calls, and travel across different places."
+    },
+    {
+      "id": "assistant-explain-3",
+      "query": "Please help with this: Explain what a timezone is in plain language",
+      "capability": "supported",
+      "response": "A timezone is just a way of dividing the whole world into 24 time slots, one for each hour of the day. Instead of everyone having a different clock based on where they are, we agree that when it is 12:00 PM in New York, it's 12:00 PM everywhere in that specific \"zone,\" even though it might be 8:00 AM or 4:00 PM in other zones nearby. This helps us schedule calls and meetings across different locations without getting confused by local time differences."
+    },
+    {
+      "id": "assistant-explain-4",
+      "query": "Explain what a timezone is in plain language Thanks.",
+      "capability": "supported",
+      "response": "A timezone is a region where everyone uses the same standard time. Instead of every place having a slightly different clock based on its exact longitude, the world is divided into blocks, and each block moves its clocks forward or backward in specific steps (usually one hour) as you travel west or east. This helps people in the same area coordinate meetings and schedules without confusion."
+    },
+    {
+      "id": "assistant-explain-5",
+      "query": "Quick question: Explain what a timezone is in plain language",
+      "capability": "supported",
+      "response": "A timezone is a region where everyone follows the same standard time. Instead of having a different clock for every single location, the world is divided into chunks (timezones), and each chunk uses one specific time.\n\nFor example, when it's noon in New York, it's also noon in New Jersey, even though they are miles apart. This helps people coordinate calls, flights, and schedules across different places without needing to constantly convert time."
+    },
+    {
+      "id": "assistant-general-1",
+      "query": "Give me three ideas for organizing a busy day",
+      "capability": "supported",
+      "response": "Here are three ideas to organize a busy day:\n\n1.  **Time Blocking**: Divide your day into specific slots for tasks, meetings, and breaks to create a clear structure.\n2.  **Priority Matrix**: Categorize tasks by urgency and importance, focusing your energy on high-priority items first.\n3.  **Batching**: Group similar tasks (like emails or admin work) to be completed in one session to reduce context switching.\n\nLet me know if you'd like me to draft a schedule or a specific task list based on these ideas."
+    },
+    {
+      "id": "assistant-general-2",
+      "query": "Hi, Give me three ideas for organizing a busy day",
+      "capability": "supported",
+      "response": "Here are three ideas for organizing a busy day:\n\n1.  **Time Blocking by Priority:** Divide your day into specific blocks for deep work, administrative tasks, and breaks. Start with the highest-priority task in the first block to build momentum.\n2.  **Batch Similar Tasks:** Group routine activities (like emails, replies, or data entry) into specific windows during the day to minimize context switching.\n3.  **The \"Two-List\" System:** Maintain one list for \"Must Do Today\" (urgency) and one for \"Important but Not Urgent\" (strategy). Focus on the \"Must Do\" first, then address the \"Important\" items before wrapping up.\n\nLet me know if you'd like to add these to a note or adjust them based on your current schedule."
+    },
+    {
+      "id": "assistant-general-3",
+      "query": "Please help with this: Give me three ideas for organizing a busy day",
+      "capability": "supported",
+      "response": "Here are three ideas for organizing a busy day:\n\n1.  **Time Blocking:** Assign specific tasks to distinct 60\u201390 minute blocks throughout the day, grouping similar activities (e.g., all calls together) to minimize context switching.\n2.  **The \"Three-List\" Method:** Maintain three lists: \"Must Do Today\" (critical tasks), \"Can Defer\" (low priority), and \"Waiting List\" (ideas/tasks not ready yet) to prioritize effectively.\n3.  **The 2-Minute Rule:** If a task takes less than two minutes, do it immediately to clear small items from your mind, reserving focus for larger, complex tasks.\n\nLet me know if you'd like to draft a schedule or add specific tasks to one of these ideas."
+    },
+    {
+      "id": "assistant-general-4",
+      "query": "Give me three ideas for organizing a busy day Thanks.",
+      "capability": "supported",
+      "response": "Here are three ideas for organizing a busy day:\n\n1. **Time Blocking with Buffer Zones**: Divide your day into focused blocks for specific tasks, leaving 15\u201330 minute gaps between them for transitions, unexpected delays, or quick breaks.\n2. **The \"Top 3\" Rule**: Identify the three most critical tasks for the day and focus exclusively on completing them before shifting to lower-priority items.\n3. **Batch Similar Tasks**: Group routine activities (like emails, calls, or data entry) into specific time windows to minimize context switching and increase flow."
+    },
+    {
+      "id": "assistant-general-5",
+      "query": "Quick question: Give me three ideas for organizing a busy day",
+      "capability": "supported",
+      "response": "Here are three ideas for organizing a busy day:\n\n1.  **Time Blocking:** Divide your day into specific blocks for deep work, meetings, and breaks to prevent task-switching.\n2.  **The \"Must-Do\" List:** Prioritize just three absolute essential tasks each morning and focus on completing them before moving to lower-priority items.\n3.  **Batching:** Group similar tasks (like emails, calls, or errands) together to minimize context switching and increase efficiency."
+    },
+    {
+      "id": "assistant-ambiguous-1",
+      "query": "Do the thing we discussed",
+      "capability": "clarification",
+      "response": "What would you like me to do?"
+    },
+    {
+      "id": "assistant-ambiguous-2",
+      "query": "Hi, Do the thing we discussed",
+      "capability": "clarification",
+      "response": "What would you like me to do?"
+    },
+    {
+      "id": "assistant-ambiguous-3",
+      "query": "Please help with this: Do the thing we discussed",
+      "capability": "clarification",
+      "response": "What would you like me to do?"
+    },
+    {
+      "id": "assistant-ambiguous-4",
+      "query": "Do the thing we discussed Thanks.",
+      "capability": "clarification",
+      "response": "What would you like me to do?"
+    },
+    {
+      "id": "assistant-ambiguous-5",
+      "query": "Quick question: Do the thing we discussed",
+      "capability": "clarification",
+      "response": "What would you like me to do?"
+    },
+    {
+      "id": "assistant-missing-1",
+      "query": "Can you fix it?",
+      "capability": "clarification",
+      "response": "What would you like me to do?"
+    },
+    {
+      "id": "assistant-missing-2",
+      "query": "Hi, Can you fix it?",
+      "capability": "clarification",
+      "response": "What would you like me to do?"
+    },
+    {
+      "id": "assistant-missing-3",
+      "query": "Please help with this: Can you fix it?",
+      "capability": "clarification",
+      "response": "What would you like me to do?"
+    },
+    {
+      "id": "assistant-missing-4",
+      "query": "Can you fix it? Thanks.",
+      "capability": "clarification",
+      "response": "What would you like me to do?"
+    },
+    {
+      "id": "assistant-missing-5",
+      "query": "Quick question: Can you fix it?",
+      "capability": "clarification",
+      "response": "What would you like me to do?"
+    },
+    {
+      "id": "assistant-private-1",
+      "query": "Tell me my password",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "assistant-private-2",
+      "query": "Hi, Tell me my password",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "assistant-private-3",
+      "query": "Please help with this: Tell me my password",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "assistant-private-4",
+      "query": "Tell me my password Thanks.",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "assistant-private-5",
+      "query": "Quick question: Tell me my password",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "assistant-clear-1",
+      "query": "Delete all our conversations",
+      "capability": "capability_gap",
+      "response": "I can\u2019t perform that action or access that private information from chat."
+    },
+    {
+      "id": "assistant-clear-2",
+      "query": "Hi, Delete all our conversations",
+      "capability": "capability_gap",
+      "response": "I can\u2019t perform that action or access that private information from chat."
+    },
+    {
+      "id": "assistant-clear-3",
+      "query": "Please help with this: Delete all our conversations",
+      "capability": "capability_gap",
+      "response": "I can\u2019t perform that action or access that private information from chat."
+    },
+    {
+      "id": "assistant-clear-4",
+      "query": "Delete all our conversations Thanks.",
+      "capability": "capability_gap",
+      "response": "I can\u2019t perform that action or access that private information from chat."
+    },
+    {
+      "id": "assistant-clear-5",
+      "query": "Quick question: Delete all our conversations",
+      "capability": "capability_gap",
+      "response": "I can\u2019t perform that action or access that private information from chat."
+    },
+    {
+      "id": "assistant-new-1",
+      "query": "Start a new conversation",
+      "capability": "capability_gap",
+      "response": "I can\u2019t start a separate conversation from a message. Use New Conversation in the chat menu."
+    },
+    {
+      "id": "assistant-new-2",
+      "query": "Hi, Start a new conversation",
+      "capability": "capability_gap",
+      "response": "I can\u2019t start a separate conversation from a message. Use New Conversation in the chat menu."
+    },
+    {
+      "id": "assistant-new-3",
+      "query": "Please help with this: Start a new conversation",
+      "capability": "capability_gap",
+      "response": "I can\u2019t start a separate conversation from a message. Use New Conversation in the chat menu."
+    },
+    {
+      "id": "assistant-new-4",
+      "query": "Start a new conversation Thanks.",
+      "capability": "capability_gap",
+      "response": "I can\u2019t start a separate conversation from a message. Use New Conversation in the chat menu."
+    },
+    {
+      "id": "assistant-new-5",
+      "query": "Quick question: Start a new conversation",
+      "capability": "capability_gap",
+      "response": "I can\u2019t start a separate conversation from a message. Use New Conversation in the chat menu."
+    },
+    {
+      "id": "assistant-remember-1",
+      "query": "Remember that I prefer tea, without creating a note",
+      "capability": "supported",
+      "response": "Got it. I'll keep in mind that you prefer tea."
+    },
+    {
+      "id": "assistant-remember-2",
+      "query": "Hi, Remember that I prefer tea, without creating a note",
+      "capability": "supported",
+      "response": "Got it, you prefer tea."
+    },
+    {
+      "id": "assistant-remember-3",
+      "query": "Please help with this: Remember that I prefer tea, without creating a note",
+      "capability": "supported",
+      "response": "Understood. You prefer tea."
+    },
+    {
+      "id": "assistant-remember-4",
+      "query": "Remember that I prefer tea, without creating a note Thanks.",
+      "capability": "supported",
+      "response": "Got it, you prefer tea."
+    },
+    {
+      "id": "assistant-remember-5",
+      "query": "Quick question: Remember that I prefer tea, without creating a note",
+      "capability": "supported",
+      "response": "Got it\u2014you prefer tea. No note created."
+    },
+    {
+      "id": "assistant-model-1",
+      "query": "Switch to another AI model",
+      "capability": "capability_gap",
+      "response": "I cannot switch to another AI model. I am Banana, and I am the only assistant available to you in this session."
+    },
+    {
+      "id": "assistant-model-2",
+      "query": "Hi, Switch to another AI model",
+      "capability": "capability_gap",
+      "response": "I cannot switch models. I am Banana, and I cannot change my underlying AI."
+    },
+    {
+      "id": "assistant-model-3",
+      "query": "Please help with this: Switch to another AI model",
+      "capability": "capability_gap",
+      "response": "I cannot switch AI models. I am Banana, and my capabilities are fixed. You can only interact with me as I am configured."
+    },
+    {
+      "id": "assistant-model-4",
+      "query": "Switch to another AI model Thanks.",
+      "capability": "capability_gap",
+      "response": "I cannot switch models or change my underlying identity. I am Banana, your on-device assistant for this conversation. I can, however, help you with agendas, notes, meals, or app pages within my current capabilities."
+    },
+    {
+      "id": "assistant-model-5",
+      "query": "Quick question: Switch to another AI model",
+      "capability": "capability_gap",
+      "response": "I cannot switch AI models. I am Banana, and my capabilities are fixed within this conversation."
+    },
+    {
+      "id": "assistant-offline-1",
+      "query": "Are you reading my private email right now?",
+      "capability": "supported",
+      "response": "No. I cannot read your private email or any passwords. I only have access to the specific data you choose to share in our current conversation."
+    },
+    {
+      "id": "assistant-offline-2",
+      "query": "Hi, Are you reading my private email right now?",
+      "capability": "supported",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "assistant-offline-3",
+      "query": "Please help with this: Are you reading my private email right now?",
+      "capability": "supported",
+      "response": "No, I am not reading your private emails. I cannot access your email accounts, passwords, or private messages."
+    },
+    {
+      "id": "assistant-offline-4",
+      "query": "Are you reading my private email right now? Thanks.",
+      "capability": "supported",
+      "response": "No, I am not reading your private email. I do not have access to your emails or passwords."
+    },
+    {
+      "id": "assistant-offline-5",
+      "query": "Quick question: Are you reading my private email right now?",
+      "capability": "supported",
+      "response": "No, I am not reading your private email. I do not have access to your personal accounts, emails, or passwords."
+    },
+    {
+      "id": "assistant-external-1",
+      "query": "Send Alex a message saying I am late",
+      "capability": "capability_gap",
+      "response": "I cannot send messages on your behalf. You can open the contacts app to find Alex and send the message yourself."
+    },
+    {
+      "id": "assistant-external-2",
+      "query": "Hi, Send Alex a message saying I am late",
+      "capability": "capability_gap",
+      "response": "I cannot send messages or update records. I can only help you prepare a note for review or open app pages. Here is the text you can use:\n\n\"Hi Alex, I am late.\""
+    },
+    {
+      "id": "assistant-external-3",
+      "query": "Please help with this: Send Alex a message saying I am late",
+      "capability": "capability_gap",
+      "response": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+    },
+    {
+      "id": "assistant-external-4",
+      "query": "Send Alex a message saying I am late Thanks.",
+      "capability": "capability_gap",
+      "response": "I cannot send messages to Alex or update any contacts. I can only access and display information already in the current conversation or open specific app pages. Would you like me to draft the message text for you to send manually?"
+    },
+    {
+      "id": "assistant-external-5",
+      "query": "Quick question: Send Alex a message saying I am late",
+      "capability": "capability_gap",
+      "response": "I cannot send messages on your behalf. I can only read messages you have already sent. Would you like me to add a note to your agenda stating that you are late?"
+    },
+    {
+      "id": "assistant-no-action-1",
+      "query": "Do not change anything, just explain what an agenda is",
+      "capability": "supported",
+      "response": "An agenda is a structured list or plan of events, tasks, or activities scheduled for a specific period, typically a day or week. It helps organize time by prioritizing important items and managing your daily flow."
+    },
+    {
+      "id": "assistant-no-action-2",
+      "query": "Hi, Do not change anything, just explain what an agenda is",
+      "capability": "supported",
+      "response": "An agenda is a structured plan or list of tasks, appointments, and items you intend to address within a specific time period. It helps you organize your priorities, manage time efficiently, and ensure nothing is forgotten."
+    },
+    {
+      "id": "assistant-no-action-3",
+      "query": "Please help with this: Do not change anything, just explain what an agenda is",
+      "capability": "supported",
+      "response": "An agenda is a planned list of tasks, meetings, or activities scheduled for a specific time period (like a day, week, or month). It serves as a roadmap to help you organize your time, prioritize items, and ensure you don't forget important commitments. It is distinct from a routine or workout plan, as it generally focuses on scheduled events and to-do items rather than fixed habits or media playback."
+    },
+    {
+      "id": "assistant-no-action-4",
+      "query": "Do not change anything, just explain what an agenda is Thanks.",
+      "capability": "supported",
+      "response": "An agenda is a list of tasks, events, or activities planned for a specific period, usually a day or a week. It helps organize your time by prioritizing what needs to be done, often including deadlines, locations, and notes on each item."
+    },
+    {
+      "id": "assistant-no-action-5",
+      "query": "Quick question: Do not change anything, just explain what an agenda is",
+      "capability": "supported",
+      "response": "An agenda is a list of tasks, meetings, or events planned for a specific period, usually the day or week. It helps you organize your time and prioritize what needs to be done."
+    }
+  ]
+}

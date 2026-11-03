@@ -28,8 +28,7 @@ struct ListenHistoryView: View {
         Group {
             if events.isEmpty {
                 ContentUnavailableView(span == nil ? "No history yet" : "Nothing played then",
-                                       systemImage: "clock.arrow.circlepath",
-                                       description: Text("Episodes you play show up here."))
+                                       systemImage: "clock.arrow.circlepath")
             } else {
                 List {
                     if !located.isEmpty {

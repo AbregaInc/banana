@@ -1,0 +1,185 @@
+{
+  "complete": true,
+  "scope": "Synthetic nonstreaming client cancellation and next-request responsiveness, not Pi/app acceptance or production p95. No tools or user data.",
+  "engine": "mlx",
+  "checkpoint": {
+    "repo": "mlx-community/Ministral-3-3B-Instruct-2512-4bit",
+    "revision": "a962dcb09eee4169c890e544c9eb938f1113fdee",
+    "metadataOverrides": {
+      "fix_mistral_regex": true
+    },
+    "originalManifestSha256": "e946ecc76c8abd66d2df13e571f979166bab7f25d5e402de4495c55616213697",
+    "files": {
+      "README.md": {
+        "bytes": 914,
+        "sha256": "da10e9cd318bd36448fa6edf613b19c193621e25d7aec374088846b279ff18c7"
+      },
+      "chat_template.jinja": {
+        "bytes": 7759,
+        "sha256": "c101a09b4ff42e8ed714cb67cd7144176e169b7d7be45d62e1e13326a5d7afd7"
+      },
+      "config.json": {
+        "bytes": 1988,
+        "sha256": "cdd4bfa0a702d0241faaa3b80d15d481d7f8abf2659fba0958b1e7f24a28055f"
+      },
+      "generation_config.json": {
+        "bytes": 131,
+        "sha256": "e0923390059f84a9180b00e5501778acc45ea9856cd7f2fd68208b360927c677"
+      },
+      "model.safetensors": {
+        "bytes": 2745210934,
+        "sha256": "69a68c0a961a64bb1145a697a83cf6cec45220d425c77a6c0a3568924078c3b4"
+      },
+      "model.safetensors.index.json": {
+        "bytes": 74906,
+        "sha256": "22e571d413d8aa4e5f81f5ae678aa8b4f5b1d67598a67c08b31182075592ec93"
+      },
+      "params.json": {
+        "bytes": 1183,
+        "sha256": "184afbdca12f4075121650335d65ada27b471b8b2952c8f2b699c16516306459"
+      },
+      "processor_config.json": {
+        "bytes": 976,
+        "sha256": "ece2373c2ae391bce18785a1810543bc6173a1f28b6767cffab2c35dbea5f002"
+      },
+      "tekken.json": {
+        "bytes": 16753777,
+        "sha256": "e29d19ea32eb7e26e6c0572d57cb7f9eca0f4420e0e0fe6ae1cf3be94da1c0d6"
+      },
+      "tokenizer.json": {
+        "bytes": 17077402,
+        "sha256": "286acad9b0e27fce778ac429763536accf618ccb6ed72963b6f94685e531c5c7"
+      },
+      "tokenizer_config.json": {
+        "bytes": 21217,
+        "sha256": "968bf20a6c12df27a89966f36cd374061db4ff202f60be3915116dfe310ead3f"
+      }
+    }
+  },
+  "command": [
+    "../pi-inference-upstream/locals-env/bin/python",
+    "-m",
+    "locals.server",
+    "--model",
+    "~/orca/workspaces/gtfuwgth/pi-inference-upstream/serving-views/ministral3-3b-fixed-tokenizer",
+    "--engines",
+    "mlx",
+    "--preload",
+    "mlx",
+    "--host",
+    "127.0.0.1",
+    "--port",
+    "41790",
+    "--slots",
+    "1",
+    "--cache-gb",
+    "2",
+    "--max-tokens",
+    "2048",
+    "--max-context",
+    "32768",
+    "--seed",
+    "0"
+  ],
+  "runnerSha256": "0c8497dee88970d28378801ab39f3cbd5fded472dd32745881316a7db13ed0bd",
+  "warmup": {
+    "id": "chatcmpl-7552dc4b016b4c75a56ed8ed",
+    "object": "chat.completion",
+    "created": 1792952580,
+    "model": "mlx/ministral3-3b-fixed-tokenizer",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "ready"
+        },
+        "finish_reason": "stop"
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 26,
+      "completion_tokens": 1,
+      "total_tokens": 27,
+      "prompt_tokens_details": {
+        "cached_tokens": 0
+      },
+      "locals": {
+        "engine": "mlx",
+        "forced_tokens": 0,
+        "passes": 0,
+        "constrained": false,
+        "wall_s": 0.4523294579703361
+      }
+    }
+  },
+  "warmupMilliseconds": 465.8,
+  "baseline": {
+    "id": "chatcmpl-9c8197b97b2b4eb2bf265229",
+    "object": "chat.completion",
+    "created": 1792952599,
+    "model": "mlx/ministral3-3b-fixed-tokenizer",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "```json\n[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 1"
+        },
+        "finish_reason": "length"
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 51,
+      "completion_tokens": 512,
+      "total_tokens": 563,
+      "prompt_tokens_details": {
+        "cached_tokens": 18
+      },
+      "locals": {
+        "engine": "mlx",
+        "forced_tokens": 0,
+        "passes": 0,
+        "constrained": false,
+        "wall_s": 19.394094625022262
+      }
+    }
+  },
+  "baselineMilliseconds": 19396.5,
+  "longWorkloadEstablished": true,
+  "stage": "next_response_received",
+  "cancellationTrigger": "Server reports active request before buffered headers/body",
+  "nextResponse": {
+    "id": "chatcmpl-7819ae0208f04726a4042618",
+    "object": "chat.completion",
+    "created": 1792952601,
+    "model": "mlx/ministral3-3b-fixed-tokenizer",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "ready"
+        },
+        "finish_reason": "stop"
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 26,
+      "completion_tokens": 1,
+      "total_tokens": 27,
+      "prompt_tokens_details": {
+        "cached_tokens": 24
+      },
+      "locals": {
+        "engine": "mlx",
+        "forced_tokens": 0,
+        "passes": 0,
+        "constrained": false,
+        "wall_s": 2.08788029209245
+      }
+    }
+  },
+  "nextResponseMilliseconds": 2092.8,
+  "ownedWorkerReleased": true
+}

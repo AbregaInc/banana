@@ -1,0 +1,648 @@
+{
+  "agendaTimezoneAndFlightChecks": true,
+  "bundle": "com.boris.banana.mac.pi-development",
+  "clarificationToolErrors": 0,
+  "conversationIsolation": true,
+  "draftProvenanceSurvivesUnrelatedRequest": true,
+  "eventClarificationContinuation": true,
+  "eventDraftRestored": true,
+  "eventFromWords": true,
+  "eventMilliseconds": 9281,
+  "externalCalendarWritesAttempted": false,
+  "flightAgendaFromWords": true,
+  "localSearchGrounded": true,
+  "mealDraftRestored": true,
+  "mealMilliseconds": 8802,
+  "missingMealAmountDoesNotDraft": true,
+  "missingTimeClarifiedWithoutDraft": true,
+  "model": "mac-local/qwen3.5-4b-4bit",
+  "nativeAgendaFromWordsAndRestored": true,
+  "nativeDraftDismissed": true,
+  "nativeInvalidInputsRejected": 5,
+  "nativeMealResolution": true,
+  "newMealFromWords": true,
+  "newMealSaveDeduplicated": true,
+  "newMealSavePersisted": true,
+  "noteDraftDoesNotWrite": true,
+  "noteReviewedSaveDeduplicated": true,
+  "pageNavigation": true,
+  "passed": true,
+  "relativeDaysRefreshAcrossMidnightAndTimezones": true,
+  "run": "7ee718b4-819f-43f8-9b18-805bba0c632f",
+  "searchUsesAppNavigation": true,
+  "timeOnlyEventFromWords": true,
+  "timeOnlyEventUsesNextOccurrence": true,
+  "unavailableOutcomesHaveNoToolEffects": 7,
+  "workspaceTransitions": true,
+  "driverTimedOut": false,
+  "wholeProcessMilliseconds": 97176.8,
+  "hostBefore": {
+    "vm": "Mach Virtual Memory Statistics: (page size of 16384 bytes)\nPages free:                                   398326.\nPages active:                                1359527.\nPages inactive:                              1334702.\nPages speculative:                             24138.\nPages throttled:                                   0.\nPages wired down:                             415802.\nPages purgeable:                               14272.\n\"Translation faults\":                    63820227585.\nPages copy-on-write:                      1112882328.\nPages zero filled:                       48913658208.\nPages reactivated:                        1227985915.\nPages purged:                              162425466.\nFile-backed pages:                           1280916.\nAnonymous pages:                             1437451.\nPages stored in compressor:                  1225216.\nPages occupied by compressor:                 605385.\nDecompressions:                           1198321125.\nCompressions:                             1396766132.\nPageins:                                   751754489.\nPageouts:                                     410754.\nSwapins:                                     6023611.\nSwapouts:                                   10626534.",
+    "swap": "vm.swapusage: total = 5120.00M  used = 3497.75M  free = 1622.25M  (encrypted)"
+  },
+  "hostAfter": {
+    "vm": "Mach Virtual Memory Statistics: (page size of 16384 bytes)\nPages free:                                   339042.\nPages active:                                1206859.\nPages inactive:                              1204651.\nPages speculative:                              1301.\nPages throttled:                                   0.\nPages wired down:                             772592.\nPages purgeable:                                7911.\n\"Translation faults\":                    63821479108.\nPages copy-on-write:                      1112949519.\nPages zero filled:                       48917432985.\nPages reactivated:                        1228077667.\nPages purged:                              162435451.\nFile-backed pages:                           1034507.\nAnonymous pages:                             1378304.\nPages stored in compressor:                  1242342.\nPages occupied by compressor:                 613435.\nDecompressions:                           1198323883.\nCompressions:                             1396788042.\nPageins:                                   751801563.\nPageouts:                                     410759.\nSwapins:                                     6023615.\nSwapouts:                                   10626534.",
+    "swap": "vm.swapusage: total = 5120.00M  used = 3497.75M  free = 1622.25M  (encrypted)"
+  },
+  "ownedWorkerReleasedOnExit": true,
+  "normalHistoryAndMealsUnchanged": true,
+  "normalSelectionAndDraftUnchanged": true,
+  "inferenceConfigurationSha256": "e55ba7f2cc4a897bdf9adf1c33820ce85c1311038465f70fb66fa12171054bb8",
+  "inferenceTurns": [
+    {
+      "transportMilliseconds": 4002.790167,
+      "requestBytes": 8060,
+      "usage": {
+        "completion_tokens": 108,
+        "locals": {
+          "constrained": true,
+          "engine": "locals",
+          "forced_tokens": 17,
+          "passes": 91,
+          "wall_s": 3.9643858331255615
+        },
+        "prompt_tokens": 1799,
+        "prompt_tokens_details": {
+          "cached_tokens": 1633
+        },
+        "total_tokens": 1907
+      },
+      "tools": [
+        "select_capability"
+      ]
+    },
+    {
+      "transportMilliseconds": 4534.769083,
+      "requestBytes": 2280,
+      "usage": {
+        "completion_tokens": 65,
+        "locals": {
+          "constrained": true,
+          "engine": "locals",
+          "forced_tokens": 15,
+          "passes": 50,
+          "wall_s": 4.507766708033159
+        },
+        "prompt_tokens": 682,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "total_tokens": 747
+      },
+      "tools": [
+        "prepare_meal"
+      ]
+    },
+    {
+      "transportMilliseconds": 2707.6868329999998,
+      "requestBytes": 8105,
+      "usage": {
+        "completion_tokens": 116,
+        "locals": {
+          "constrained": true,
+          "engine": "locals",
+          "forced_tokens": 17,
+          "passes": 99,
+          "wall_s": 2.6904017499182373
+        },
+        "prompt_tokens": 1807,
+        "prompt_tokens_details": {
+          "cached_tokens": 1633
+        },
+        "total_tokens": 1923
+      },
+      "tools": [
+        "select_capability"
+      ]
+    },
+    {
+      "transportMilliseconds": 6206.9765,
+      "requestBytes": 3254,
+      "usage": {
+        "completion_tokens": 96,
+        "locals": {
+          "constrained": true,
+          "engine": "locals",
+          "forced_tokens": 18,
+          "passes": 78,
+          "wall_s": 6.1923924998845905
+        },
+        "prompt_tokens": 896,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "total_tokens": 992
+      },
+      "tools": [
+        "prepare_event"
+      ]
+    },
+    {
+      "transportMilliseconds": 2794.592167,
+      "requestBytes": 7984,
+      "usage": {
+        "completion_tokens": 104,
+        "locals": {
+          "constrained": true,
+          "engine": "locals",
+          "forced_tokens": 18,
+          "passes": 86,
+          "wall_s": 2.750656375195831
+        },
+        "prompt_tokens": 1779,
+        "prompt_tokens_details": {
+          "cached_tokens": 1633
+        },
+        "total_tokens": 1883
+      },
+      "tools": [
+        "select_capability"
+      ]
+    },
+    {
+      "transportMilliseconds": 4537.691208,
+      "requestBytes": 3133,
+      "usage": {
+        "completion_tokens": 68,
+        "locals": {
+          "constrained": true,
+          "engine": "locals",
+          "forced_tokens": 16,
+          "passes": 52,
+          "wall_s": 4.511727625038475
+        },
+        "prompt_tokens": 868,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "total_tokens": 936
+      },
+      "tools": [
+        "prepare_event"
+      ]
+    },
+    {
+      "transportMilliseconds": 2128.391417,
+      "requestBytes": 8003,
+      "usage": {
+        "completion_tokens": 88,
+        "locals": {
+          "constrained": true,
+          "engine": "locals",
+          "forced_tokens": 17,
+          "passes": 71,
+          "wall_s": 2.096858333097771
+        },
+        "prompt_tokens": 1780,
+        "prompt_tokens_details": {
+          "cached_tokens": 1633
+        },
+        "total_tokens": 1868
+      },
+      "tools": [
+        "select_capability"
+      ]
+    },
+    {
+      "transportMilliseconds": 4073.19675,
+      "requestBytes": 1972,
+      "usage": {
+        "completion_tokens": 30,
+        "locals": {
+          "constrained": true,
+          "engine": "locals",
+          "forced_tokens": 12,
+          "passes": 18,
+          "wall_s": 4.056874209083617
+        },
+        "prompt_tokens": 587,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "total_tokens": 617
+      },
+      "tools": [
+        "search_app"
+      ]
+    },
+    {
+      "transportMilliseconds": 2591.9335,
+      "requestBytes": 8025,
+      "usage": {
+        "completion_tokens": 108,
+        "locals": {
+          "constrained": true,
+          "engine": "locals",
+          "forced_tokens": 18,
+          "passes": 90,
+          "wall_s": 2.558085541939363
+        },
+        "prompt_tokens": 1782,
+        "prompt_tokens_details": {
+          "cached_tokens": 1633
+        },
+        "total_tokens": 1890
+      },
+      "tools": [
+        "select_capability"
+      ]
+    },
+    {
+      "transportMilliseconds": 4359.908,
+      "requestBytes": 3174,
+      "usage": {
+        "completion_tokens": 78,
+        "locals": {
+          "constrained": true,
+          "engine": "locals",
+          "forced_tokens": 17,
+          "passes": 61,
+          "wall_s": 4.339574916055426
+        },
+        "prompt_tokens": 871,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "total_tokens": 949
+      },
+      "tools": [
+        "prepare_event"
+      ]
+    },
+    {
+      "transportMilliseconds": 2445.455,
+      "requestBytes": 8138,
+      "usage": {
+        "completion_tokens": 97,
+        "locals": {
+          "constrained": true,
+          "engine": "locals",
+          "forced_tokens": 17,
+          "passes": 80,
+          "wall_s": 2.4299659579992294
+        },
+        "prompt_tokens": 1815,
+        "prompt_tokens_details": {
+          "cached_tokens": 1633
+        },
+        "total_tokens": 1912
+      },
+      "tools": [
+        "select_capability"
+      ]
+    },
+    {
+      "transportMilliseconds": 4507.144958,
+      "requestBytes": 3287,
+      "usage": {
+        "completion_tokens": 83,
+        "locals": {
+          "constrained": true,
+          "engine": "locals",
+          "forced_tokens": 17,
+          "passes": 66,
+          "wall_s": 4.494388583116233
+        },
+        "prompt_tokens": 904,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "total_tokens": 987
+      },
+      "tools": [
+        "prepare_event"
+      ]
+    },
+    {
+      "transportMilliseconds": 3300.95675,
+      "requestBytes": 8733,
+      "usage": {
+        "completion_tokens": 88,
+        "locals": {
+          "constrained": true,
+          "engine": "locals",
+          "forced_tokens": 17,
+          "passes": 71,
+          "wall_s": 3.283623042050749
+        },
+        "prompt_tokens": 2020,
+        "prompt_tokens_details": {
+          "cached_tokens": 1633
+        },
+        "total_tokens": 2108
+      },
+      "tools": [
+        "select_capability"
+      ]
+    },
+    {
+      "transportMilliseconds": 3392.7745409999998,
+      "requestBytes": 2688,
+      "usage": {
+        "completion_tokens": 34,
+        "locals": {
+          "constrained": true,
+          "engine": "locals",
+          "forced_tokens": 13,
+          "passes": 21,
+          "wall_s": 3.376750916009769
+        },
+        "prompt_tokens": 821,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "total_tokens": 855
+      },
+      "tools": [
+        "day_plan"
+      ]
+    },
+    {
+      "transportMilliseconds": 2688.205625,
+      "requestBytes": 8020,
+      "usage": {
+        "completion_tokens": 105,
+        "locals": {
+          "constrained": true,
+          "engine": "locals",
+          "forced_tokens": 18,
+          "passes": 87,
+          "wall_s": 2.6752537079155445
+        },
+        "prompt_tokens": 1785,
+        "prompt_tokens_details": {
+          "cached_tokens": 1633
+        },
+        "total_tokens": 1890
+      },
+      "tools": [
+        "select_capability"
+      ]
+    },
+    {
+      "transportMilliseconds": 2792.8170410000002,
+      "requestBytes": 2000,
+      "usage": {
+        "completion_tokens": 33,
+        "locals": {
+          "constrained": true,
+          "engine": "locals",
+          "forced_tokens": 12,
+          "passes": 21,
+          "wall_s": 2.774004500126466
+        },
+        "prompt_tokens": 591,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "total_tokens": 624
+      },
+      "tools": [
+        "create_note"
+      ]
+    },
+    {
+      "transportMilliseconds": 2810.1803330000002,
+      "requestBytes": 8667,
+      "usage": {
+        "completion_tokens": 83,
+        "locals": {
+          "constrained": true,
+          "engine": "locals",
+          "forced_tokens": 17,
+          "passes": 66,
+          "wall_s": 2.795165332965553
+        },
+        "prompt_tokens": 1970,
+        "prompt_tokens_details": {
+          "cached_tokens": 1633
+        },
+        "total_tokens": 2053
+      },
+      "tools": [
+        "select_capability"
+      ]
+    },
+    {
+      "transportMilliseconds": 2551.9694170000002,
+      "requestBytes": 8008,
+      "usage": {
+        "completion_tokens": 101,
+        "locals": {
+          "constrained": true,
+          "engine": "locals",
+          "forced_tokens": 17,
+          "passes": 84,
+          "wall_s": 2.537175875157118
+        },
+        "prompt_tokens": 1791,
+        "prompt_tokens_details": {
+          "cached_tokens": 1633
+        },
+        "total_tokens": 1892
+      },
+      "tools": [
+        "select_capability"
+      ]
+    },
+    {
+      "transportMilliseconds": 2831.6124170000003,
+      "requestBytes": 1963,
+      "usage": {
+        "completion_tokens": 34,
+        "locals": {
+          "constrained": true,
+          "engine": "locals",
+          "forced_tokens": 13,
+          "passes": 21,
+          "wall_s": 2.82282799994573
+        },
+        "prompt_tokens": 592,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "total_tokens": 626
+      },
+      "tools": [
+        "day_plan"
+      ]
+    },
+    {
+      "transportMilliseconds": 2033.014208,
+      "requestBytes": 8030,
+      "usage": {
+        "completion_tokens": 97,
+        "locals": {
+          "constrained": true,
+          "engine": "locals",
+          "forced_tokens": 17,
+          "passes": 80,
+          "wall_s": 2.020154792116955
+        },
+        "prompt_tokens": 1784,
+        "prompt_tokens_details": {
+          "cached_tokens": 1633
+        },
+        "total_tokens": 1881
+      },
+      "tools": [
+        "select_capability"
+      ]
+    },
+    {
+      "transportMilliseconds": 2303.847625,
+      "requestBytes": 8017,
+      "usage": {
+        "completion_tokens": 89,
+        "locals": {
+          "constrained": true,
+          "engine": "locals",
+          "forced_tokens": 17,
+          "passes": 72,
+          "wall_s": 2.2871026671491563
+        },
+        "prompt_tokens": 1781,
+        "prompt_tokens_details": {
+          "cached_tokens": 1633
+        },
+        "total_tokens": 1870
+      },
+      "tools": [
+        "select_capability"
+      ]
+    },
+    {
+      "transportMilliseconds": 2643.825042,
+      "requestBytes": 8026,
+      "usage": {
+        "completion_tokens": 97,
+        "locals": {
+          "constrained": true,
+          "engine": "locals",
+          "forced_tokens": 17,
+          "passes": 80,
+          "wall_s": 2.6271710000000894
+        },
+        "prompt_tokens": 1786,
+        "prompt_tokens_details": {
+          "cached_tokens": 1633
+        },
+        "total_tokens": 1883
+      },
+      "tools": [
+        "select_capability"
+      ]
+    },
+    {
+      "transportMilliseconds": 2562.064459,
+      "requestBytes": 8034,
+      "usage": {
+        "completion_tokens": 109,
+        "locals": {
+          "constrained": true,
+          "engine": "locals",
+          "forced_tokens": 18,
+          "passes": 91,
+          "wall_s": 2.54685395793058
+        },
+        "prompt_tokens": 1785,
+        "prompt_tokens_details": {
+          "cached_tokens": 1633
+        },
+        "total_tokens": 1894
+      },
+      "tools": [
+        "select_capability"
+      ]
+    },
+    {
+      "transportMilliseconds": 2659.640416,
+      "requestBytes": 8083,
+      "usage": {
+        "completion_tokens": 104,
+        "locals": {
+          "constrained": true,
+          "engine": "locals",
+          "forced_tokens": 17,
+          "passes": 87,
+          "wall_s": 2.6427302500233054
+        },
+        "prompt_tokens": 1799,
+        "prompt_tokens_details": {
+          "cached_tokens": 1633
+        },
+        "total_tokens": 1903
+      },
+      "tools": [
+        "select_capability"
+      ]
+    },
+    {
+      "transportMilliseconds": 2584.367958,
+      "requestBytes": 8011,
+      "usage": {
+        "completion_tokens": 108,
+        "locals": {
+          "constrained": true,
+          "engine": "locals",
+          "forced_tokens": 18,
+          "passes": 90,
+          "wall_s": 2.5706939168740064
+        },
+        "prompt_tokens": 1782,
+        "prompt_tokens_details": {
+          "cached_tokens": 1633
+        },
+        "total_tokens": 1890
+      },
+      "tools": [
+        "select_capability"
+      ]
+    },
+    {
+      "transportMilliseconds": 2227.692542,
+      "requestBytes": 8008,
+      "usage": {
+        "completion_tokens": 87,
+        "locals": {
+          "constrained": true,
+          "engine": "locals",
+          "forced_tokens": 17,
+          "passes": 70,
+          "wall_s": 2.205992750125006
+        },
+        "prompt_tokens": 1781,
+        "prompt_tokens_details": {
+          "cached_tokens": 1633
+        },
+        "total_tokens": 1868
+      },
+      "tools": [
+        "select_capability"
+      ]
+    },
+    {
+      "transportMilliseconds": 2181.162709,
+      "requestBytes": 8028,
+      "usage": {
+        "completion_tokens": 97,
+        "locals": {
+          "constrained": true,
+          "engine": "locals",
+          "forced_tokens": 17,
+          "passes": 80,
+          "wall_s": 2.168517915997654
+        },
+        "prompt_tokens": 1787,
+        "prompt_tokens_details": {
+          "cached_tokens": 1633
+        },
+        "total_tokens": 1884
+      },
+      "tools": [
+        "select_capability"
+      ]
+    }
+  ],
+  "processExitCode": 0
+}

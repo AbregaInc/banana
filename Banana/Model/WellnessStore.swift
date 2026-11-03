@@ -267,6 +267,61 @@ final class WellnessStore: ObservableObject {
         }
     }
 
+    /// Pi's persisted draft ID is the meal ID. An interrupted review/save can retry safely.
+    /// Persist before publishing success; normal manual entry retains its existing path.
+    @discardableResult
+    func addAssistantMeal(_ meal: MealEntry) throws -> MealEntry {
+        guard isLoaded, !saveIsUnsafe else {
+            throw AssistantFailure(message: "Meals are not ready to save. Try again after the existing meals have loaded.")
+        }
+        var sanitized = meal
+        sanitized.name = String(meal.name.trimmingCharacters(in: .whitespacesAndNewlines).prefix(120))
+        sanitized.items = meal.items.map(MealEntry.sanitizedItem)
+        guard !sanitized.items.isEmpty else { throw AssistantFailure(message: "Add at least one food before saving.") }
+        if let existing = meals.first(where: { $0.id == meal.id }) {
+            // Review rows may reconstruct item IDs and the time of day on reopening.
+            // Their actual food, portions, nutrition and target day must still agree.
+            guard Calendar.current.isDate(existing.date, inSameDayAs: sanitized.date), existing.items.count == sanitized.items.count else {
+                throw AssistantFailure(message: "This draft was already saved with different contents. Prepare a new draft to save another meal.")
+            }
+            sanitized.date = existing.date
+            for index in sanitized.items.indices { sanitized.items[index].id = existing.items[index].id }
+            guard sanitized == existing else {
+                throw AssistantFailure(message: "This draft was already saved with different contents. Prepare a new draft to save another meal.")
+            }
+            return existing
+        }
+        let updated = [sanitized] + meals
+        try HealthFileProtection.write(JSONEncoder().encode(snapshot(meals: updated)), to: fileURL)
+        saveRevision &+= 1
+        meals = updated
+        CloudBackup.shared.schedule()
+        saved(.meal(sanitized.id))
+        Telemetry.shared.record(.feature(.mealLogged, Self.telemetryDetail(sanitized.source)))
+        return sanitized
+    }
+
+    #if PI_DEVELOPMENT
+    func setPiSampleMeals(loaded: Bool) throws {
+        guard isLoaded, !saveIsUnsafe else { throw AssistantFailure(message: "Meal storage is not ready to update sample data.") }
+        let updated = loaded ? PiSampleMeals.adding(to: meals) : PiSampleMeals.removing(from: meals)
+        guard updated.count <= 1_500 else { throw AssistantFailure(message: "There is not enough meal-history space for the sample dataset.") }
+        guard updated != meals else { return }
+        try HealthFileProtection.write(JSONEncoder().encode(snapshot(meals: updated)), to: fileURL)
+        saveRevision &+= 1
+        meals = updated
+    }
+    #endif
+
+    private func snapshot(meals: [MealEntry]) -> WellnessSnapshot {
+        var value = WellnessSnapshot()
+        value.meals = meals
+        value.supplements = supplements; value.supplementLogs = supplementLogs
+        value.workoutPlans = workoutPlans; value.workoutCompletions = workoutCompletions
+        value.foodCorrections = foodCorrections
+        return value
+    }
+
     private static func telemetryDetail(_ source: MealEntry.Source) -> Telemetry.Signal.Detail {
         switch source {
         case .manual: .byHand

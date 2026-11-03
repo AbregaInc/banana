@@ -1,0 +1,14 @@
+[
+  {
+    "modelDirectory": "ministral3-3b",
+    "mlxToolCalling": true,
+    "mlxToolParser": "mlx_lm.tool_parsers.mistral",
+    "localsFormat": "mistral_v11"
+  },
+  {
+    "modelDirectory": "smollm3-3b",
+    "mlxToolCalling": false,
+    "mlxToolParser": null,
+    "localsFormat": "hermes"
+  }
+]

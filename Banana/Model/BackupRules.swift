@@ -23,7 +23,9 @@ enum BackupRules {
     /// Every sync engine keeps its state under one of these. Only the podcast-progress engine's
     /// two keys were listed, so the settings, workout, nutrition and controls engines' state rode
     /// along in a backup and was written over a restoring device's own.
-    static let operationalPrefixes = ["ckSyncEngine.", "mealsPush.", "fitnessCloud."]
+    // Assistant selection/drafts belong to its local Pi database, which these
+    // file backups do not carry. Restoring them could select an unrelated local ID.
+    static let operationalPrefixes = ["ckSyncEngine.", "mealsPush.", "fitnessCloud.", "assistant."]
 
     static func isOperational(_ key: String) -> Bool {
         operationalKeys.contains(key) || operationalPrefixes.contains { key.hasPrefix($0) }

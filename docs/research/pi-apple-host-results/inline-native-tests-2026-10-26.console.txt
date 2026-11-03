@@ -1,0 +1,63 @@
+Test Suite 'Pi native queries, sample meals and inference transport' started at 2026-10-26 11:56:46.904.
+Test Suite 'AssistantNutritionTests' started at 2026-10-26 11:56:46.905.
+Test Case '-[main.AssistantNutritionTests testDraftRequiresValidMealIdentityAndDate]' started.
+Test Case '-[main.AssistantNutritionTests testDraftRequiresValidMealIdentityAndDate]' passed (0.002 seconds).
+Test Case '-[main.AssistantNutritionTests testInvalidDatesRangesAndSelectionAreRejected]' started.
+Test Case '-[main.AssistantNutritionTests testInvalidDatesRangesAndSelectionAreRejected]' passed (0.000 seconds).
+Test Case '-[main.AssistantNutritionTests testMealNameSearchAndMetricSelection]' started.
+Test Case '-[main.AssistantNutritionTests testMealNameSearchAndMetricSelection]' passed (0.001 seconds).
+Test Case '-[main.AssistantNutritionTests testMissingDaysAreNotZeroAndSameDayMealsSum]' started.
+Test Case '-[main.AssistantNutritionTests testMissingDaysAreNotZeroAndSameDayMealsSum]' passed (0.000 seconds).
+Test Case '-[main.AssistantNutritionTests testPreviousIntervalUsesCalendarDaysAcrossDST]' started.
+Test Case '-[main.AssistantNutritionTests testPreviousIntervalUsesCalendarDaysAcrossDST]' passed (0.000 seconds).
+Test Case '-[main.AssistantNutritionTests testRelativePeriodsUseNativeCalendarArithmetic]' started.
+Test Case '-[main.AssistantNutritionTests testRelativePeriodsUseNativeCalendarArithmetic]' passed (0.000 seconds).
+Test Case '-[main.AssistantNutritionTests testWeekdayFilterAlsoExcludesPriorWeekendMeals]' started.
+Test Case '-[main.AssistantNutritionTests testWeekdayFilterAlsoExcludesPriorWeekendMeals]' passed (0.000 seconds).
+Test Case '-[main.AssistantNutritionTests testWeekdaysAndFoodSearchFilterActualEntries]' started.
+Test Case '-[main.AssistantNutritionTests testWeekdaysAndFoodSearchFilterActualEntries]' passed (0.000 seconds).
+Test Suite 'AssistantNutritionTests' passed at 2026-10-26 11:56:46.910.
+	 Executed 8 tests, with 0 failures (0 unexpected) in 0.005 (0.006) seconds
+Test Suite 'PiSampleMealsTests' started at 2026-10-26 11:56:46.910.
+Test Case '-[main.PiSampleMealsTests testDataSupportsFoodSearchAndPreviousPeriodComparison]' started.
+Test Case '-[main.PiSampleMealsTests testDataSupportsFoodSearchAndPreviousPeriodComparison]' passed (0.007 seconds).
+Test Case '-[main.PiSampleMealsTests testHistoryIsDeterministicVariedAndHasGaps]' started.
+Test Case '-[main.PiSampleMealsTests testHistoryIsDeterministicVariedAndHasGaps]' passed (0.011 seconds).
+Test Case '-[main.PiSampleMealsTests testReloadDoesNotDuplicateOrOverwriteExistingRows]' started.
+Test Case '-[main.PiSampleMealsTests testReloadDoesNotDuplicateOrOverwriteExistingRows]' passed (0.010 seconds).
+Test Case '-[main.PiSampleMealsTests testRemovalKeepsRealMealsAndSavedCopies]' started.
+Test Case '-[main.PiSampleMealsTests testRemovalKeepsRealMealsAndSavedCopies]' passed (0.008 seconds).
+Test Case '-[main.PiSampleMealsTests testSnapshotRoundTripPreservesMarkersAndNutrition]' started.
+Test Case '-[main.PiSampleMealsTests testSnapshotRoundTripPreservesMarkersAndNutrition]' passed (0.010 seconds).
+Test Case '-[main.PiSampleMealsTests testStableIDsSurviveDifferentGenerationDates]' started.
+Test Case '-[main.PiSampleMealsTests testStableIDsSurviveDifferentGenerationDates]' passed (0.008 seconds).
+Test Suite 'PiSampleMealsTests' passed at 2026-10-26 11:56:46.966.
+	 Executed 6 tests, with 0 failures (0 unexpected) in 0.055 (0.056) seconds
+Test Suite 'LocalInferenceTransportTests' started at 2026-10-26 11:56:46.966.
+Test Case '-[main.LocalInferenceTransportTests testCapsBudgetAndPassesExplicitReasoningPolicy]' started.
+Test Case '-[main.LocalInferenceTransportTests testCapsBudgetAndPassesExplicitReasoningPolicy]' passed (0.000 seconds).
+Test Case '-[main.LocalInferenceTransportTests testCapturesIntentWithoutExecutingAndKeepsIdentity]' started.
+Test Case '-[main.LocalInferenceTransportTests testCapturesIntentWithoutExecutingAndKeepsIdentity]' passed (0.000 seconds).
+Test Case '-[main.LocalInferenceTransportTests testPreservesReasoningToolsAndFailedResults]' started.
+Test Case '-[main.LocalInferenceTransportTests testPreservesReasoningToolsAndFailedResults]' passed (0.000 seconds).
+Test Case '-[main.LocalInferenceTransportTests testRejectsInvalidProfileSamplingBeforeInference]' started.
+Test Case '-[main.LocalInferenceTransportTests testRejectsInvalidProfileSamplingBeforeInference]' passed (0.000 seconds).
+Test Case '-[main.LocalInferenceTransportTests testRejectsMalformedArgumentsAndReasoningWithoutAnswer]' started.
+Test Case '-[main.LocalInferenceTransportTests testRejectsMalformedArgumentsAndReasoningWithoutAnswer]' passed (0.000 seconds).
+Test Case '-[main.LocalInferenceTransportTests testRejectsTruncatedToolIntentEvenWhenArgumentsLookComplete]' started.
+Test Case '-[main.LocalInferenceTransportTests testRejectsTruncatedToolIntentEvenWhenArgumentsLookComplete]' passed (0.000 seconds).
+Test Case '-[main.LocalInferenceTransportTests testRejectsUnsupportedInputBeforeInference]' started.
+Test Case '-[main.LocalInferenceTransportTests testRejectsUnsupportedInputBeforeInference]' passed (0.000 seconds).
+Test Case '-[main.LocalInferenceTransportTests testUsesProfileSamplingAndHonorsExplicitRequestTemperature]' started.
+Test Case '-[main.LocalInferenceTransportTests testUsesProfileSamplingAndHonorsExplicitRequestTemperature]' passed (0.000 seconds).
+Test Suite 'LocalInferenceTransportTests' passed at 2026-10-26 11:56:46.969.
+	 Executed 8 tests, with 0 failures (0 unexpected) in 0.002 (0.002) seconds
+Test Suite 'AssistantCalendarIdentityTests' started at 2026-10-26 11:56:46.969.
+Test Case '-[main.AssistantCalendarIdentityTests testChangedPayloadOrAnotherDraftIsNotAcceptedAsRetry]' started.
+Test Case '-[main.AssistantCalendarIdentityTests testChangedPayloadOrAnotherDraftIsNotAcceptedAsRetry]' passed (0.000 seconds).
+Test Case '-[main.AssistantCalendarIdentityTests testRetryKeepsIDAndReceiptAcrossDictionaryOrdering]' started.
+Test Case '-[main.AssistantCalendarIdentityTests testRetryKeepsIDAndReceiptAcrossDictionaryOrdering]' passed (0.000 seconds).
+Test Suite 'AssistantCalendarIdentityTests' passed at 2026-10-26 11:56:46.970.
+	 Executed 2 tests, with 0 failures (0 unexpected) in 0.001 (0.001) seconds
+Test Suite 'Pi native queries, sample meals and inference transport' passed at 2026-10-26 11:56:46.970.
+	 Executed 24 tests, with 0 failures (0 unexpected) in 0.062 (0.066) seconds

@@ -297,9 +297,11 @@ final class DeleteUndoUITest: XCTestCase {
         app.withoutSpaceSync()
         app.launch()
 
-        // The waiting photo's own field: there while that meal is in the backlog.
+        // To log is a row a day; the waiting photo's own field is in its day's review.
         let asking = app.descendants(matching: .any).matching(identifier: "mealInbox.note").firstMatch
-        XCTAssertTrue(asking.waitForExistence(timeout: 20), app.debugDescription)
+        XCTAssertTrue(app.buttons["mealInbox.reviewDay"].firstMatch.waitForExistence(timeout: 20), app.debugDescription)
+        openDay(holding: asking, in: app)
+        XCTAssertTrue(asking.waitForExistence(timeout: 5), app.debugDescription)
         // Its menu is the one on its row: the nearest above the field.
         let mine = app.buttons.matching(identifier: "mealInbox.more").allElementsBoundByIndex
             .filter { $0.frame.minY <= asking.frame.minY }
@@ -317,8 +319,25 @@ final class DeleteUndoUITest: XCTestCase {
         XCTAssertFalse(app.alerts.firstMatch.exists, "it asks nothing first")
 
         undo.tap()
-        XCTAssertTrue(asking.waitForExistence(timeout: 4), "Undo didn't bring the meal back\n\(app.debugDescription)")
-        sleep(1)
-        XCTAssertEqual(asking.frame.minY, place.minY, accuracy: 2, "the meal came back somewhere else")
+        if asking.waitForExistence(timeout: 4) {
+            sleep(1)
+            XCTAssertEqual(asking.frame.minY, place.minY, accuracy: 2, "the meal came back somewhere else")
+        } else {
+            // It was its day's only meal: the review closed with it, and Undo puts the day back.
+            openDay(holding: asking, in: app)
+            XCTAssertTrue(asking.waitForExistence(timeout: 4), "Undo didn't bring the meal back\n\(app.debugDescription)")
+        }
+    }
+
+    /// Opens each day in To log in turn until one shows `element`.
+    private func openDay(holding element: XCUIElement, in app: XCUIApplication) {
+        let days = app.buttons.matching(identifier: "mealInbox.reviewDay")
+        XCTAssertTrue(days.firstMatch.waitForExistence(timeout: 5), app.debugDescription)
+        for index in 0..<days.count {
+            days.element(boundBy: index).tap()
+            if element.waitForExistence(timeout: 4) { return }
+            app.buttons["Cancel"].firstMatch.tap()
+            sleep(1)
+        }
     }
 }

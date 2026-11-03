@@ -1,0 +1,36 @@
+{
+  "mode": "handoff-resume",
+  "passed": true,
+  "task": {
+    "id": 7,
+    "conversationId": 1,
+    "kind": "banana.lifecycle-sleeper",
+    "version": 1,
+    "input": {
+      "until": 1792807195960
+    },
+    "background": false,
+    "abortRequested": false,
+    "state": {
+      "status": "terminal",
+      "outcome": {
+        "status": "completed",
+        "result": {
+          "wokeAt": 1792807195988
+        }
+      }
+    },
+    "startedAt": 1792807185962,
+    "endedAt": 1792807195989
+  },
+  "armCalls": 0,
+  "deliverCalls": 1,
+  "wakeCalls": 0,
+  "readOnly": false,
+  "nativeResources": {
+    "databases": 0,
+    "timers": 0,
+    "modelRequests": 0
+  },
+  "clock": "real epoch clock on each host"
+}

@@ -112,6 +112,7 @@ final class SmartScheduleStore: ObservableObject {
 
     /// Calendar read for the Today + Tomorrow views (no travel calls).
     func refreshAgenda() async {
+        guard !AppSupport.isPiSampleWorkspace else { return }
         let google = GoogleCalendarService.shared
         await google.restoreIfNeeded()
         let authorized = google.isConnected
@@ -149,6 +150,7 @@ final class SmartScheduleStore: ObservableObject {
     /// Pull-to-refresh: nudge the calendar accounts to sync, re-read immediately, then
     /// read once after a beat so a fast server sync shows up.
     func refreshCalendar() async {
+        guard !AppSupport.isPiSampleWorkspace else { return }
         GoogleCalendarService.shared.invalidateEventCache()
         await GoogleCalendarService.shared.refresh()
         try? await Task.sleep(for: .seconds(1.2))
@@ -354,6 +356,8 @@ final class SmartScheduleStore: ObservableObject {
             return meeting
         }
     }
+
+    func injectFlightLegsForPreview(_ legs: [FlightLeg]) { flightLegs = legs }
 
     /// `--trip-sample`: a flight to Berlin this week and home next week, for the time-zone column.
     func injectTripSample() {

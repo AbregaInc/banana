@@ -218,6 +218,12 @@ private struct AddButton<Items: View>: ViewModifier {
     }
 
     @ViewBuilder private var control: some View {
+        #if PI_DEVELOPMENT
+        // The same sheet as a phone's +: words first, this page's kinds right under them.
+        Button { PageChrome.shared.showAdd = true } label: { Image(systemName: "plus") }
+            .accessibilityLabel("Add")
+            .accessibilityIdentifier(identifier)
+        #else
         if let action {
             Button(action: action) { Image(systemName: "plus") }
                 .accessibilityLabel("Add")
@@ -227,6 +233,7 @@ private struct AddButton<Items: View>: ViewModifier {
                 .accessibilityLabel("Add")
                 .accessibilityIdentifier(identifier)
         }
+        #endif
     }
 }
 
@@ -379,11 +386,15 @@ final class PageChrome: ObservableObject {
     @Published var showSettings = false
     /// A page's + was tapped: the list of everything is up.
     @Published var showAdd = false
+    /// Words typed on a page for the + sheet to start on (Nutrition's line, with Pi).
+    var agentPrefill: String?
     /// What was picked from it, for its page to start.
     @Published var pendingAdd: AddKind?
     /// Picked, and waiting for the list to be gone: a page's sheet cannot open under it.
     var pickedAdd: AddKind?
     @Published var showRoutines = false
+    @Published var showAssistant = false
+    var assistantDestination: AppSection?
 }
 
 /// The chart button at the top left of every main page: Review, on this page's subject.

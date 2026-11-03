@@ -1,0 +1,1910 @@
+{
+  "freshModelSignals": [
+    {
+      "id": "Qwen/Qwen-Drive-1.0-4B",
+      "lastModified": "2026-09-02T06:31:52.000Z",
+      "pipeline_tag": "image-text-to-text",
+      "downloads": 6989,
+      "gated": null
+    },
+    {
+      "id": "Qwen/Qwen3.8-Flash-Next-FP8",
+      "lastModified": "2026-08-31T08:19:15.000Z",
+      "pipeline_tag": "image-text-to-text",
+      "downloads": 148216,
+      "gated": null
+    },
+    {
+      "id": "Qwen/Qwen3.8-Flash-Next",
+      "lastModified": "2026-08-27T05:03:36.000Z",
+      "pipeline_tag": "image-text-to-text",
+      "downloads": 3093369,
+      "gated": null
+    },
+    {
+      "id": "Qwen/Qwen3.8-27B",
+      "lastModified": "2026-08-14T15:00:01.000Z",
+      "pipeline_tag": "image-text-to-text",
+      "downloads": 7762014,
+      "gated": null
+    },
+    {
+      "id": "Qwen/Qwen3.8-27B-FP8",
+      "lastModified": "2026-08-14T14:44:41.000Z",
+      "pipeline_tag": "image-text-to-text",
+      "downloads": 4390238,
+      "gated": null
+    },
+    {
+      "id": "Qwen/Qwen3.8-2.4T-A95B",
+      "lastModified": "2026-08-12T10:24:04.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 25164,
+      "gated": null
+    },
+    {
+      "id": "Qwen/Qwen3.8-2.4T-A95B-FP8",
+      "lastModified": "2026-08-12T10:23:42.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 5782,
+      "gated": null
+    },
+    {
+      "id": "LiquidAI/LFM2.5-2.6B",
+      "lastModified": "2026-10-23T20:50:16.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 97589,
+      "gated": null
+    },
+    {
+      "id": "LiquidAI/LFM2.5-24B-A2B",
+      "lastModified": "2026-10-21T01:14:14.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 20480,
+      "gated": null
+    },
+    {
+      "id": "LiquidAI/LFM2.5-24B-A2B-DSpark-GGUF",
+      "lastModified": "2026-10-21T01:11:31.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 945,
+      "gated": null
+    },
+    {
+      "id": "LiquidAI/LFM2.5-24B-A2B-DSpark",
+      "lastModified": "2026-10-21T01:11:30.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 791,
+      "gated": null
+    },
+    {
+      "id": "LiquidAI/d1-omni-600M-GGUF",
+      "lastModified": "2026-10-17T09:33:50.000Z",
+      "pipeline_tag": "image-text-to-text",
+      "downloads": 11101,
+      "gated": null
+    },
+    {
+      "id": "LiquidAI/LFM2.5-24B-A2B-GGUF",
+      "lastModified": "2026-10-13T21:33:53.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 180531,
+      "gated": null
+    },
+    {
+      "id": "LiquidAI/LFM2.5-24B-A2B-Base",
+      "lastModified": "2026-10-13T06:11:43.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 1516,
+      "gated": null
+    },
+    {
+      "id": "LiquidAI/LFM2.5-24B-A2B-FP8",
+      "lastModified": "2026-10-13T06:11:42.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 34202,
+      "gated": null
+    },
+    {
+      "id": "LiquidAI/LFM2.5-24B-A2B-MLX-6bit",
+      "lastModified": "2026-10-13T06:11:41.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 1443,
+      "gated": null
+    },
+    {
+      "id": "LiquidAI/LFM2.5-24B-A2B-MLX-8bit",
+      "lastModified": "2026-10-13T06:11:41.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 2806,
+      "gated": null
+    },
+    {
+      "id": "LiquidAI/LFM2.5-24B-A2B-MLX-5bit",
+      "lastModified": "2026-10-13T06:11:39.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 1591,
+      "gated": null
+    },
+    {
+      "id": "LiquidAI/LFM2.5-24B-A2B-ONNX",
+      "lastModified": "2026-10-13T06:11:38.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 609,
+      "gated": null
+    },
+    {
+      "id": "LiquidAI/LFM2.5-24B-A2B-MLX-4bit",
+      "lastModified": "2026-10-13T06:11:38.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 7719,
+      "gated": null
+    },
+    {
+      "id": "LiquidAI/LFM2.5-24B-A2B-MLX-bf16",
+      "lastModified": "2026-10-12T20:18:04.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 1324,
+      "gated": null
+    },
+    {
+      "id": "LiquidAI/d1-omni-600M-MLX-8bit",
+      "lastModified": "2026-10-12T02:26:39.000Z",
+      "pipeline_tag": "image-text-to-text",
+      "downloads": 524,
+      "gated": null
+    },
+    {
+      "id": "mlx-community/NVIDIA-Nemotron-3.5-Bolt-E4B-OptiQ-4bit",
+      "lastModified": "2026-10-24T15:36:18.000Z",
+      "pipeline_tag": "image-text-to-text",
+      "downloads": 390,
+      "gated": null
+    },
+    {
+      "id": "mlx-community/Spark-X2.6-4B-OptiQ-4bit",
+      "lastModified": "2026-10-24T15:15:15.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 87,
+      "gated": null
+    },
+    {
+      "id": "mlx-community/flint-OptiQ-4bit",
+      "lastModified": "2026-10-24T14:41:28.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 138,
+      "gated": null
+    },
+    {
+      "id": "mlx-community/Astrea-R8-Chat-9B-OptiQ-4bit",
+      "lastModified": "2026-10-23T05:37:43.000Z",
+      "pipeline_tag": "image-text-to-text",
+      "downloads": 119,
+      "gated": null
+    },
+    {
+      "id": "mlx-community/MiniMax-M3.1-Flash-oQ3e-mtp",
+      "lastModified": "2026-10-23T03:03:16.000Z",
+      "pipeline_tag": "image-text-to-text",
+      "downloads": 335,
+      "gated": null
+    },
+    {
+      "id": "mlx-community/MiniMax-M3.1-Flash-oQ3.5e-mtp",
+      "lastModified": "2026-10-23T03:02:25.000Z",
+      "pipeline_tag": "image-text-to-text",
+      "downloads": 255,
+      "gated": null
+    },
+    {
+      "id": "mlx-community/MiniMax-M3.1-Flash-oQ4e-mtp",
+      "lastModified": "2026-10-23T03:01:30.000Z",
+      "pipeline_tag": "image-text-to-text",
+      "downloads": 390,
+      "gated": null
+    },
+    {
+      "id": "mlx-community/MiniMax-M3.1-Flash-Text-4bit",
+      "lastModified": "2026-10-23T01:51:56.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 399,
+      "gated": null
+    },
+    {
+      "id": "mlx-community/MiniMax-M3.1-Flash-Text-3bit",
+      "lastModified": "2026-10-23T01:47:16.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 178,
+      "gated": null
+    },
+    {
+      "id": "bottlecapai/ThinkingCap-gemma-4-26B-A4B-it-GGUF",
+      "lastModified": "2026-10-23T14:34:13.000Z",
+      "pipeline_tag": "image-text-to-text",
+      "downloads": 5429,
+      "gated": null
+    },
+    {
+      "id": "bottlecapai/ThinkingCap-gemma-4-26B-A4B-it",
+      "lastModified": "2026-10-23T13:21:21.000Z",
+      "pipeline_tag": "image-text-to-text",
+      "downloads": 114,
+      "gated": null
+    },
+    {
+      "id": "bottlecapai/ThinkingCap-Qwen3.8-Flash-Next-NVFP4",
+      "lastModified": "2026-10-22T16:43:57.000Z",
+      "pipeline_tag": "image-text-to-text",
+      "downloads": 185,
+      "gated": null
+    },
+    {
+      "id": "bottlecapai/ThinkingCap-Qwen3.8-Flash-Next-GGUF",
+      "lastModified": "2026-10-22T16:12:07.000Z",
+      "pipeline_tag": "image-text-to-text",
+      "downloads": 1336,
+      "gated": null
+    },
+    {
+      "id": "bottlecapai/ThinkingCap-Qwen3.8-Flash-Next-FP8",
+      "lastModified": "2026-10-22T16:12:04.000Z",
+      "pipeline_tag": "image-text-to-text",
+      "downloads": 52,
+      "gated": null
+    },
+    {
+      "id": "bottlecapai/ThinkingCap-Qwen3.8-Flash-Next",
+      "lastModified": "2026-10-22T16:12:03.000Z",
+      "pipeline_tag": "image-text-to-text",
+      "downloads": 213,
+      "gated": null
+    },
+    {
+      "id": "bottlecapai/ThinkingCap-NVIDIA-Nemotron-3.5-Lightning-30B-A3B",
+      "lastModified": "2026-10-21T14:13:46.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 189,
+      "gated": null
+    },
+    {
+      "id": "bottlecapai/ThinkingCap-NVIDIA-Nemotron-3.5-Lightning-30B-A3B-GGUF",
+      "lastModified": "2026-10-21T13:12:23.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 549,
+      "gated": null
+    },
+    {
+      "id": "bottlecapai/ThinkingCap-NVIDIA-Nemotron-3.5-Lightning-30B-A3B-FP8",
+      "lastModified": "2026-10-21T06:56:57.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 24,
+      "gated": null
+    },
+    {
+      "id": "bottlecapai/ThinkingCap-Qwen3.8-27B-GGUF",
+      "lastModified": "2026-10-07T12:31:52.000Z",
+      "pipeline_tag": "image-text-to-text",
+      "downloads": 884170,
+      "gated": null
+    },
+    {
+      "id": "bottlecapai/ThinkingCap-Qwen3.8-27B-GGUF-RCO-4.2bpw",
+      "lastModified": "2026-10-07T12:25:47.000Z",
+      "pipeline_tag": "image-text-to-text",
+      "downloads": 8076,
+      "gated": null
+    },
+    {
+      "id": "bottlecapai/ThinkingCap-Qwen3.6-27B-NVFP4",
+      "lastModified": "2026-10-07T11:31:48.000Z",
+      "pipeline_tag": "image-text-to-text",
+      "downloads": 51,
+      "gated": null
+    },
+    {
+      "id": "bottlecapai/ThinkingCap-Qwen3.6-27B-FP8",
+      "lastModified": "2026-10-07T11:31:45.000Z",
+      "pipeline_tag": "image-text-to-text",
+      "downloads": 266,
+      "gated": null
+    },
+    {
+      "id": "bottlecapai/ThinkingCap-Qwen3.6-27B-GGUF",
+      "lastModified": "2026-10-07T11:31:40.000Z",
+      "pipeline_tag": "image-text-to-text",
+      "downloads": 280,
+      "gated": null
+    },
+    {
+      "id": "bottlecapai/ThinkingCap-Qwen3.6-27B",
+      "lastModified": "2026-10-07T11:31:36.000Z",
+      "pipeline_tag": "image-text-to-text",
+      "downloads": 170,
+      "gated": null
+    },
+    {
+      "id": "inclusionAI/Ling-3.1-flash",
+      "lastModified": "2026-10-25T14:23:35.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 4222,
+      "gated": null
+    },
+    {
+      "id": "inclusionAI/Ling-3.0-tiny-UBTree",
+      "lastModified": "2026-10-23T15:04:37.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 303,
+      "gated": null
+    },
+    {
+      "id": "inclusionAI/Ling-3.0-flash-UBTree",
+      "lastModified": "2026-10-23T08:55:55.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 240,
+      "gated": null
+    },
+    {
+      "id": "inclusionAI/Ling-3.0-flash-Sante",
+      "lastModified": "2026-10-22T14:53:04.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 441,
+      "gated": null
+    },
+    {
+      "id": "inclusionAI/LLaDA2.2-flash",
+      "lastModified": "2026-10-14T07:18:31.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 781,
+      "gated": null
+    },
+    {
+      "id": "inclusionAI/LLaDA2.2-mini",
+      "lastModified": "2026-10-14T06:40:22.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 3119,
+      "gated": null
+    },
+    {
+      "id": "ibm-granite/granite-4.2-8b",
+      "lastModified": "2026-10-20T23:00:24.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 78274,
+      "gated": null
+    },
+    {
+      "id": "ibm-granite/granite-4.2-3b",
+      "lastModified": "2026-10-20T20:44:28.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 39769,
+      "gated": null
+    },
+    {
+      "id": "ibm-granite/granitelib-guardian-r1.0",
+      "lastModified": "2026-10-16T03:06:32.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 2475,
+      "gated": null
+    },
+    {
+      "id": "ibm-granite/granite-switch-4.1-30b",
+      "lastModified": "2026-10-15T20:27:51.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 1788,
+      "gated": null
+    },
+    {
+      "id": "ibm-granite/granite-switch-4.1-8b",
+      "lastModified": "2026-10-15T20:27:14.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 2581,
+      "gated": null
+    },
+    {
+      "id": "ibm-granite/granitelib-core-r1.0",
+      "lastModified": "2026-10-15T19:30:23.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 4196,
+      "gated": null
+    },
+    {
+      "id": "ibm-granite/granite-switch-4.1-30b-preview",
+      "lastModified": "2026-10-15T13:51:55.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 1043,
+      "gated": null
+    },
+    {
+      "id": "ibm-granite/granite-switch-4.1-3b-preview",
+      "lastModified": "2026-10-15T13:02:12.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 2395,
+      "gated": null
+    },
+    {
+      "id": "HuggingFaceTB/nanowhale-100m",
+      "lastModified": "2026-05-04T14:34:18.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 1117,
+      "gated": null
+    },
+    {
+      "id": "HuggingFaceTB/nanowhale-100m-base",
+      "lastModified": "2026-05-04T14:34:18.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 908,
+      "gated": null
+    },
+    {
+      "id": "HuggingFaceTB/SmolLM3-3B-GSM8K-SFT",
+      "lastModified": "2026-04-03T01:34:35.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 605,
+      "gated": null
+    },
+    {
+      "id": "HuggingFaceTB/qwen3-1.7b-gsm8k-sft",
+      "lastModified": "2026-03-25T00:54:04.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 1730,
+      "gated": null
+    },
+    {
+      "id": "HuggingFaceTB/SmolLM2-360M-Instruct",
+      "lastModified": "2025-09-22T20:44:35.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 192448,
+      "gated": null
+    },
+    {
+      "id": "HuggingFaceTB/SmolLM2-135M-Instruct",
+      "lastModified": "2025-09-22T20:43:15.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 1009563,
+      "gated": null
+    },
+    {
+      "id": "HuggingFaceTB/SmolLM3-3B",
+      "lastModified": "2025-09-10T12:28:11.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 718665,
+      "gated": null
+    },
+    {
+      "id": "HuggingFaceTB/SmolLM3-3B-Base",
+      "lastModified": "2025-08-14T16:41:36.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 77135,
+      "gated": null
+    },
+    {
+      "id": "HuggingFaceTB/SmolLM3-3B-ONNX",
+      "lastModified": "2025-07-14T21:57:00.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 430,
+      "gated": null
+    },
+    {
+      "id": "HuggingFaceTB/SmolLM2-1.7B-Instruct",
+      "lastModified": "2025-04-21T20:51:14.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 255464,
+      "gated": null
+    },
+    {
+      "id": "HuggingFaceTB/SmolVLM2-2.2B-Base",
+      "lastModified": "2025-04-14T12:26:06.000Z",
+      "pipeline_tag": "image-text-to-text",
+      "downloads": 755,
+      "gated": null
+    },
+    {
+      "id": "HuggingFaceTB/SmolVLM-256M-Instruct",
+      "lastModified": "2025-04-08T21:39:50.000Z",
+      "pipeline_tag": "image-text-to-text",
+      "downloads": 191352,
+      "gated": null
+    },
+    {
+      "id": "nvidia/NVIDIA-Nemotron-3.5-Super-VL-120B-A12B-NVFP4",
+      "lastModified": "2026-10-23T21:46:53.000Z",
+      "pipeline_tag": "image-text-to-text",
+      "downloads": 17283,
+      "gated": null
+    },
+    {
+      "id": "nvidia/NVIDIA-Nemotron-3.5-Bolt-E4B-4GB",
+      "lastModified": "2026-10-23T19:03:57.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 17599,
+      "gated": null
+    },
+    {
+      "id": "nvidia/NVIDIA-Nemotron-3.5-Bolt-E4B-BF16",
+      "lastModified": "2026-10-23T17:12:03.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 2734,
+      "gated": null
+    },
+    {
+      "id": "nvidia/NVIDIA-Nemotron-3.5-Bolt-E4B-4GB-DFlash",
+      "lastModified": "2026-10-23T15:22:13.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 2407,
+      "gated": null
+    },
+    {
+      "id": "nvidia/NVIDIA-Nemotron-3.5-Bolt-E4B-BF16-DFlash-NVFP4",
+      "lastModified": "2026-10-23T15:12:26.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 335,
+      "gated": null
+    },
+    {
+      "id": "microsoft/Sentiment-Analysis-7B",
+      "lastModified": "2026-10-20T19:28:08.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 857,
+      "gated": null
+    },
+    {
+      "id": "microsoft/UserRepGen-4B",
+      "lastModified": "2026-10-14T22:03:45.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 1737,
+      "gated": null
+    },
+    {
+      "id": "microsoft/AesCode-32B",
+      "lastModified": "2026-10-14T19:28:36.000Z",
+      "pipeline_tag": "image-text-to-text",
+      "downloads": 1448,
+      "gated": null
+    },
+    {
+      "id": "microsoft/AesCode-8B",
+      "lastModified": "2026-10-14T19:28:35.000Z",
+      "pipeline_tag": "image-text-to-text",
+      "downloads": 1540,
+      "gated": null
+    },
+    {
+      "id": "openbmb/MiniCPM-V-4.7-35B-A3B-gguf",
+      "lastModified": "2026-10-20T05:57:46.000Z",
+      "pipeline_tag": "image-text-to-text",
+      "downloads": 239545,
+      "gated": null
+    },
+    {
+      "id": "openbmb/MiniCPM-V-4.7-1B-gguf",
+      "lastModified": "2026-10-20T05:56:52.000Z",
+      "pipeline_tag": "image-text-to-text",
+      "downloads": 87273,
+      "gated": null
+    },
+    {
+      "id": "openbmb/MiniCPM-V-4.7-35B-A3B-DSpark-gguf",
+      "lastModified": "2026-10-20T05:49:04.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 12555,
+      "gated": null
+    },
+    {
+      "id": "openbmb/MiniCPM-V-4.7-1B-DSpark-gguf",
+      "lastModified": "2026-10-20T05:48:13.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 7934,
+      "gated": null
+    },
+    {
+      "id": "openbmb/MiniCPM-V-4.7-1B-GPTQ",
+      "lastModified": "2026-10-19T13:11:04.000Z",
+      "pipeline_tag": "image-text-to-text",
+      "downloads": 21348,
+      "gated": null
+    },
+    {
+      "id": "openbmb/MiniCPM-V-4.7-1B",
+      "lastModified": "2026-10-19T12:53:37.000Z",
+      "pipeline_tag": "image-text-to-text",
+      "downloads": 116673,
+      "gated": null
+    },
+    {
+      "id": "openbmb/MiniCPM-V-4.7-35B-A3B",
+      "lastModified": "2026-10-19T12:52:58.000Z",
+      "pipeline_tag": "image-text-to-text",
+      "downloads": 218995,
+      "gated": null
+    },
+    {
+      "id": "openbmb/MiniCPM-V-4.7-35B-A3B-int4",
+      "lastModified": "2026-10-19T12:33:03.000Z",
+      "pipeline_tag": "image-text-to-text",
+      "downloads": 24716,
+      "gated": null
+    },
+    {
+      "id": "openbmb/MiniCPM-V-4.7-1B-AWQ",
+      "lastModified": "2026-10-19T12:31:48.000Z",
+      "pipeline_tag": "image-text-to-text",
+      "downloads": 14315,
+      "gated": null
+    },
+    {
+      "id": "openbmb/MiniCPM-V-4.7-1B-int4",
+      "lastModified": "2026-10-19T12:30:29.000Z",
+      "pipeline_tag": "image-text-to-text",
+      "downloads": 36601,
+      "gated": null
+    },
+    {
+      "id": "openbmb/MiniCPM-V-4.7-35B-A3B-AWQ",
+      "lastModified": "2026-10-19T12:29:55.000Z",
+      "pipeline_tag": "image-text-to-text",
+      "downloads": 16365,
+      "gated": null
+    },
+    {
+      "id": "openbmb/MiniCPM-V-4.7-35B-A3B-GPTQ",
+      "lastModified": "2026-10-19T12:29:16.000Z",
+      "pipeline_tag": "image-text-to-text",
+      "downloads": 16804,
+      "gated": null
+    },
+    {
+      "id": "openbmb/MiniCPM-V-4.7-35B-A3B-FP8",
+      "lastModified": "2026-10-19T12:28:18.000Z",
+      "pipeline_tag": "image-text-to-text",
+      "downloads": 22849,
+      "gated": null
+    },
+    {
+      "id": "tiiuae/Falcon3-10B-Base-1.58bit-prequantized",
+      "lastModified": "2026-04-30T09:51:58.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 536,
+      "gated": null
+    },
+    {
+      "id": "tiiuae/Falcon-E-3B-Base-prequantized",
+      "lastModified": "2026-04-22T13:09:56.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 629,
+      "gated": null
+    },
+    {
+      "id": "tiiuae/Falcon-H1R-7B-FP8",
+      "lastModified": "2026-02-11T12:53:23.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 240,
+      "gated": null
+    },
+    {
+      "id": "tiiuae/Falcon-H1-Tiny-R-0.6B",
+      "lastModified": "2026-02-04T06:03:55.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 1465,
+      "gated": null
+    },
+    {
+      "id": "tiiuae/Falcon-H1-Tiny-R-90M",
+      "lastModified": "2026-01-30T11:29:51.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 885,
+      "gated": null
+    },
+    {
+      "id": "tiiuae/Falcon-H1-Tiny-R-0.6B-pre-GRPO",
+      "lastModified": "2026-01-21T19:42:24.000Z",
+      "pipeline_tag": "text-generation",
+      "downloads": 561,
+      "gated": null
+    }
+  ],
+  "observedAt": "2026-10-25T14:55:39.489630+00:00",
+  "scope": "Discovery only: tip/release metadata is not reviewed code, supported hardware proof or measured quality. No automatic promotion.",
+  "engines": [
+    {
+      "repo": "Generated-Computers/Locals",
+      "platforms": [
+        "macOS"
+      ],
+      "role": "Current serving frontend and custom MLX compute engine; batch-one claims must be measured separately from concurrent throughput",
+      "url": "https://github.com/Generated-Computers/Locals",
+      "archived": false,
+      "license": "Apache-2.0",
+      "branch": "main",
+      "tip": "4f4d03f10232c9f2adeb1e96e2a7bd79a9e7fe19",
+      "tipDate": "2026-10-24T15:53:55Z",
+      "latestRelease": null
+    },
+    {
+      "repo": "ml-explore/mlx-lm",
+      "platforms": [
+        "macOS"
+      ],
+      "role": "Stock MLX baseline; same checkpoint comparison through Locals' mlx engine",
+      "url": "https://github.com/ml-explore/mlx-lm",
+      "archived": false,
+      "license": "MIT",
+      "branch": "main",
+      "tip": "4cfc6478473b0668ede3eb0cc93f2a9181a15052",
+      "tipDate": "2026-10-24T00:10:47Z",
+      "latestRelease": {
+        "tag_name": "v0.32.2",
+        "published_at": "2026-10-16T02:49:02Z",
+        "html_url": "https://github.com/ml-explore/mlx-lm/releases/tag/v0.32.2"
+      }
+    },
+    {
+      "repo": "ml-explore/mlx-swift-lm",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "role": "Native app runtime; model/template/tool parity required, no Python on mobile",
+      "url": "https://github.com/ml-explore/mlx-swift-lm",
+      "archived": false,
+      "license": "MIT",
+      "branch": "main",
+      "tip": "991266ad300f47a3b9f21e62ff5bdb679215e758",
+      "tipDate": "2026-10-23T20:19:36Z",
+      "latestRelease": {
+        "tag_name": "3.32.3",
+        "published_at": "2026-09-30T20:38:34Z",
+        "html_url": "https://github.com/ml-explore/mlx-swift-lm/releases/tag/3.32.3"
+      }
+    },
+    {
+      "repo": "ggml-org/llama.cpp",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "role": "Native Metal/GGUF candidate; verify pinned model parser and function-calling template",
+      "url": "https://github.com/ggml-org/llama.cpp",
+      "archived": false,
+      "license": "MIT",
+      "branch": "master",
+      "tip": "2280f0fd163b03d4331d49e08460f66502e35854",
+      "tipDate": "2026-10-25T13:23:22Z",
+      "latestRelease": {
+        "tag_name": "v0.7.0",
+        "published_at": "2026-10-15T17:13:19Z",
+        "html_url": "https://github.com/ggml-org/llama.cpp/releases/tag/v0.7.0"
+      }
+    },
+    {
+      "repo": "google-ai-edge/LiteRT-LM",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "role": "Native Swift/LiteRT candidate, especially Gemma; compiled model assets and tool parity need qualification",
+      "url": "https://github.com/google-ai-edge/LiteRT-LM",
+      "archived": false,
+      "license": "Apache-2.0",
+      "branch": "main",
+      "tip": "9a9a74fc1e22831a7888e3ed7e40f73b510016b8",
+      "tipDate": "2026-10-24T22:53:16Z",
+      "latestRelease": {
+        "tag_name": "v0.18.1",
+        "published_at": "2026-10-20T22:36:51Z",
+        "html_url": "https://github.com/google-ai-edge/LiteRT-LM/releases/tag/v0.18.1"
+      }
+    },
+    {
+      "repo": "mlc-ai/mlc-llm",
+      "platforms": [
+        "iOS",
+        "macOS"
+      ],
+      "role": "Compiled native candidate; assess per-model conversion/build and app packaging costs",
+      "url": "https://github.com/mlc-ai/mlc-llm",
+      "archived": false,
+      "license": "Apache-2.0",
+      "branch": "main",
+      "tip": "8978ea9aec626d64096aaa92fbc89bda2e3ea802",
+      "tipDate": "2026-10-06T23:27:06Z",
+      "latestRelease": null
+    },
+    {
+      "repo": "ollama/ollama",
+      "platforms": [
+        "macOS"
+      ],
+      "role": "Mac serving/packaging candidate; record actual compute backend, template and resident-memory policy",
+      "url": "https://github.com/ollama/ollama",
+      "archived": false,
+      "license": "MIT",
+      "branch": "main",
+      "tip": "d44c2581904a98430e348d89cc2af1529b1808a0",
+      "tipDate": "2026-10-24T18:03:30Z",
+      "latestRelease": {
+        "tag_name": "v0.40.11",
+        "published_at": "2026-10-24T00:30:13Z",
+        "html_url": "https://github.com/ollama/ollama/releases/tag/v0.40.11"
+      }
+    },
+    {
+      "repo": "cactus-compute/cactus",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "role": "Mobile runtime candidate; check current distribution/license conditions before qualification",
+      "url": "https://github.com/cactus-compute/cactus",
+      "archived": false,
+      "license": "NOASSERTION",
+      "branch": "main",
+      "tip": "2cfcdb8568eb9192323b27fd0012a834517b4419",
+      "tipDate": "2026-09-26T03:09:48Z",
+      "latestRelease": {
+        "tag_name": "v2.2.2",
+        "published_at": "2026-09-26T03:13:21Z",
+        "html_url": "https://github.com/cactus-compute/cactus/releases/tag/v2.2.2"
+      }
+    }
+  ],
+  "models": [
+    {
+      "repo": "mlx-community/Qwen3.5-2B-4bit",
+      "role": "Smaller fast candidate; compare against 4B with identical nonthinking settings",
+      "url": "https://huggingface.co/mlx-community/Qwen3.5-2B-4bit",
+      "revision": "674aaa7240b91e8012fcad5d791b7dfe5ba90207",
+      "lastModified": "2026-03-02T16:14:15.000Z",
+      "gated": false,
+      "license": "apache-2.0",
+      "pipeline": "image-text-to-text",
+      "safetensors": {
+        "parameters": {
+          "U32": 1881276416,
+          "BF16": 331964960,
+          "F32": 288
+        },
+        "total": 2213241664
+      },
+      "baseModel": [
+        "Qwen/Qwen3.5-2B-Base"
+      ],
+      "adapterOnly": false,
+      "assetBytesAreNotResidentMemory": true,
+      "weightFiles": [
+        {
+          "file": "model.safetensors",
+          "bytes": 1722271785,
+          "sha256": "713fe7e5d3c3965f7106b0d0ee17615f7869c23c8d327996df8c1196fbcf07d5"
+        }
+      ],
+      "downloadWeightBytes": 1722271785,
+      "weightBytesInterpretation": "Sum of repository weight assets, which can include alternative quantizations or draft/target assets. Select a concrete artifact; this is not required download size or resident RAM."
+    },
+    {
+      "repo": "mlx-community/Qwen3.5-4B-4bit",
+      "role": "Current Mac fast incumbent, not proven best",
+      "url": "https://huggingface.co/mlx-community/Qwen3.5-4B-4bit",
+      "revision": "0e7ffd5c629ef7719d4cbc04069232580bfa9d9c",
+      "lastModified": "2026-03-02T15:04:59.000Z",
+      "gated": false,
+      "license": null,
+      "pipeline": null,
+      "safetensors": {
+        "parameters": {
+          "BF16": 465874688,
+          "U32": 525598720,
+          "F32": 768
+        },
+        "total": 991474176
+      },
+      "baseModel": null,
+      "adapterOnly": false,
+      "assetBytesAreNotResidentMemory": true,
+      "weightFiles": [
+        {
+          "file": "model.safetensors",
+          "bytes": 3034300695,
+          "sha256": "5fb9acd0246866381cf8c5c354c6db1019f6498eec4ccb4f5edcc71ffeacb2db"
+        }
+      ],
+      "downloadWeightBytes": 3034300695,
+      "weightBytesInterpretation": "Sum of repository weight assets, which can include alternative quantizations or draft/target assets. Select a concrete artifact; this is not required download size or resident RAM."
+    },
+    {
+      "repo": "mlx-community/Qwen3.5-9B-4bit",
+      "role": "Larger quality/latency tradeoff candidate",
+      "url": "https://huggingface.co/mlx-community/Qwen3.5-9B-4bit",
+      "revision": "8b2b98c00a6b4d291155e4890773ca8f769aee53",
+      "lastModified": "2026-03-02T16:42:26.000Z",
+      "gated": false,
+      "license": "apache-2.0",
+      "pipeline": "image-text-to-text",
+      "safetensors": {
+        "parameters": {
+          "U32": 8952741888,
+          "BF16": 457071088,
+          "F32": 768
+        },
+        "total": 9409813744
+      },
+      "baseModel": [
+        "Qwen/Qwen3.5-9B-Base"
+      ],
+      "adapterOnly": false,
+      "assetBytesAreNotResidentMemory": true,
+      "weightFiles": [
+        {
+          "file": "model-00001-of-00002.safetensors",
+          "bytes": 5349771222,
+          "sha256": "a68b87558c6ef43f74c2bd63ce7e9092ceddc3101f3def0030774bae5f42aadd"
+        },
+        {
+          "file": "model-00002-of-00002.safetensors",
+          "bytes": 600449850,
+          "sha256": "b0a770bf8469c7f3f18756a0e0283f1c1174344a83e059a4e483f6af4907352d"
+        }
+      ],
+      "downloadWeightBytes": 5950221072,
+      "weightBytesInterpretation": "Sum of repository weight assets, which can include alternative quantizations or draft/target assets. Select a concrete artifact; this is not required download size or resident RAM."
+    },
+    {
+      "repo": "mlx-community/Qwen3.8-27B-4bit",
+      "role": "Preserved quality profile; previously too slow for everyday turns",
+      "url": "https://huggingface.co/mlx-community/Qwen3.8-27B-4bit",
+      "revision": "10c35caafbb80f7dc6a7a432cdd11af10a6d4818",
+      "lastModified": "2026-09-14T12:37:43.000Z",
+      "gated": false,
+      "license": "apache-2.0",
+      "pipeline": "image-text-to-text",
+      "safetensors": {
+        "parameters": {
+          "U32": 26893352960,
+          "BF16": 463375600
+        },
+        "total": 27356728560
+      },
+      "baseModel": "Qwen/Qwen3.8-27B",
+      "adapterOnly": false,
+      "assetBytesAreNotResidentMemory": true,
+      "weightFiles": [
+        {
+          "file": "model-00001-of-00003.safetensors",
+          "bytes": 5343268662,
+          "sha256": "6cc1508e96fb5d0865dfd5753a79f4ec60651bf3e2a82844a7e8ae9c60528c0d"
+        },
+        {
+          "file": "model-00002-of-00003.safetensors",
+          "bytes": 5354185130,
+          "sha256": "83f2a20ca8058f486a3634a27faf99587f4cd3c156a83dee34fb99e6ac178670"
+        },
+        {
+          "file": "model-00003-of-00003.safetensors",
+          "bytes": 5357087557,
+          "sha256": "31b8c91ef899f79efaaa69e3d2c096f6e2ebeb2ff20e29222abbd9ebc79e560a"
+        }
+      ],
+      "downloadWeightBytes": 16054541349,
+      "weightBytesInterpretation": "Sum of repository weight assets, which can include alternative quantizations or draft/target assets. Select a concrete artifact; this is not required download size or resident RAM."
+    },
+    {
+      "repo": "mlx-community/Qwen3.6-35B-A3B-4bit",
+      "role": "Mac MoE candidate; resident 35B weights matter despite 3B active compute",
+      "url": "https://huggingface.co/mlx-community/Qwen3.6-35B-A3B-4bit",
+      "revision": "38740b847e4cb78f352aba30aa41c76e08e6eb46",
+      "lastModified": "2026-04-16T16:32:41.000Z",
+      "gated": false,
+      "license": "apache-2.0",
+      "pipeline": "image-text-to-text",
+      "safetensors": {
+        "parameters": {
+          "U32": 34659450880,
+          "BF16": 447731056
+        },
+        "total": 35107181936
+      },
+      "baseModel": "Qwen/Qwen3.6-35B-A3B",
+      "adapterOnly": false,
+      "assetBytesAreNotResidentMemory": true,
+      "weightFiles": [
+        {
+          "file": "model-00001-of-00004.safetensors",
+          "bytes": 5288196018,
+          "sha256": "09f3e6ecb0b7af6e6a38bc8169a134c821b0924c2679b2bb8f4426ad38d032b8"
+        },
+        {
+          "file": "model-00002-of-00004.safetensors",
+          "bytes": 5368472749,
+          "sha256": "31dcdb1c49eebdb1505bd14e3cb33f9cf900bd2546b638f2464694ae763a033f"
+        },
+        {
+          "file": "model-00003-of-00004.safetensors",
+          "bytes": 5368324139,
+          "sha256": "3e66de06a1f03dade16a612a368cfce4a4c9caa4efd7d28185454384082cec03"
+        },
+        {
+          "file": "model-00004-of-00004.safetensors",
+          "bytes": 4377211365,
+          "sha256": "a5d0cf03519c26f8b506df6b0ba60526e5c08c8cea22d0c21ce92950e58a5422"
+        }
+      ],
+      "downloadWeightBytes": 20402204271,
+      "weightBytesInterpretation": "Sum of repository weight assets, which can include alternative quantizations or draft/target assets. Select a concrete artifact; this is not required download size or resident RAM."
+    },
+    {
+      "repo": "google/gemma-4-E2B-it",
+      "role": "Mobile candidate; effective parameters do not equal resident weight size",
+      "url": "https://huggingface.co/google/gemma-4-E2B-it",
+      "revision": "3e22461f65e89153144f8adb70e3b8c2cc9845a7",
+      "lastModified": "2026-07-20T16:41:56.000Z",
+      "gated": false,
+      "license": "apache-2.0",
+      "pipeline": "any-to-any",
+      "safetensors": {
+        "parameters": {
+          "BF16": 5123178051
+        },
+        "total": 5123178051
+      },
+      "baseModel": [
+        "google/gemma-4-E2B"
+      ],
+      "adapterOnly": false,
+      "assetBytesAreNotResidentMemory": true,
+      "weightFiles": [
+        {
+          "file": "model.safetensors",
+          "bytes": 10246621918,
+          "sha256": "2db5482b20d746879bb3ef79b5203e9075a2e2b98f54ec7c2f281c1477ddc550"
+        }
+      ],
+      "downloadWeightBytes": 10246621918,
+      "weightBytesInterpretation": "Sum of repository weight assets, which can include alternative quantizations or draft/target assets. Select a concrete artifact; this is not required download size or resident RAM."
+    },
+    {
+      "repo": "google/gemma-4-E4B-it",
+      "role": "Mobile/Mac candidate; qualify native tool template and memory",
+      "url": "https://huggingface.co/google/gemma-4-E4B-it",
+      "revision": "ee0ef6023621cff504d758262d4e04895a5af4a2",
+      "lastModified": "2026-07-20T16:42:03.000Z",
+      "gated": false,
+      "license": "apache-2.0",
+      "pipeline": "any-to-any",
+      "safetensors": {
+        "parameters": {
+          "BF16": 7996156490
+        },
+        "total": 7996156490
+      },
+      "baseModel": [
+        "google/gemma-4-E4B"
+      ],
+      "adapterOnly": false,
+      "assetBytesAreNotResidentMemory": true,
+      "weightFiles": [
+        {
+          "file": "model.safetensors",
+          "bytes": 15992595884,
+          "sha256": "cfbd3d2f1cd71bd471c37fe2bf8546d5028d41e5736f64e1ca6c6b8893125503"
+        }
+      ],
+      "downloadWeightBytes": 15992595884,
+      "weightBytesInterpretation": "Sum of repository weight assets, which can include alternative quantizations or draft/target assets. Select a concrete artifact; this is not required download size or resident RAM."
+    },
+    {
+      "repo": "LiquidAI/LFM2.5-2.6B-MLX-4bit",
+      "role": "Small model from Locals' curated catalog; qualify Banana behavior rather than adopting throughput claims",
+      "url": "https://huggingface.co/LiquidAI/LFM2.5-2.6B-MLX-4bit",
+      "revision": "04efa23776ce61ec34ec95ec34c859854c89542b",
+      "lastModified": "2026-08-12T19:14:45.000Z",
+      "gated": false,
+      "license": "other",
+      "pipeline": "text-generation",
+      "safetensors": {
+        "parameters": {
+          "U32": 2696937472,
+          "BF16": 261120
+        },
+        "total": 2697198592
+      },
+      "baseModel": "LiquidAI/LFM2.5-2.6B",
+      "adapterOnly": false,
+      "assetBytesAreNotResidentMemory": true,
+      "weightFiles": [
+        {
+          "file": "model.safetensors",
+          "bytes": 1583152892,
+          "sha256": "ef350b75815752f8bff8c064c9fc8bd8b5709577d72943436852013d2bcd4691"
+        }
+      ],
+      "downloadWeightBytes": 1583152892,
+      "weightBytesInterpretation": "Sum of repository weight assets, which can include alternative quantizations or draft/target assets. Select a concrete artifact; this is not required download size or resident RAM."
+    },
+    {
+      "repo": "LiquidAI/d1-omni-600M",
+      "role": "Optional decision/routing experiment, not a chat replacement",
+      "url": "https://huggingface.co/LiquidAI/d1-omni-600M",
+      "revision": "02b55d7076f15129e59ab3f94783f32c4b088674",
+      "lastModified": "2026-10-07T20:22:38.000Z",
+      "gated": false,
+      "license": "other",
+      "pipeline": "image-text-to-text",
+      "safetensors": {
+        "parameters": {
+          "F32": 587161089
+        },
+        "total": 587161089
+      },
+      "baseModel": "LiquidAI/LFM2.5-Encoder-350M",
+      "adapterOnly": false,
+      "assetBytesAreNotResidentMemory": true,
+      "weightFiles": [
+        {
+          "file": "model.safetensors",
+          "bytes": 2348774500,
+          "sha256": "0713bb05270c2685ad106522f4092bceeeb3a93cf79b401f399a712296c911e1"
+        }
+      ],
+      "downloadWeightBytes": 2348774500,
+      "weightBytesInterpretation": "Sum of repository weight assets, which can include alternative quantizations or draft/target assets. Select a concrete artifact; this is not required download size or resident RAM."
+    },
+    {
+      "repo": "jaredpalmer/kev-0.8b",
+      "role": "Decision model; card excludes tool-call routing, not deployed",
+      "url": "https://huggingface.co/jaredpalmer/kev-0.8b",
+      "revision": "bf75a6a8848ea6960ff2ed108d9ed44c2941174f",
+      "lastModified": "2026-10-01T17:17:58.000Z",
+      "gated": false,
+      "license": "apache-2.0",
+      "pipeline": "text-classification",
+      "safetensors": null,
+      "baseModel": "Qwen/Qwen3.5-0.8B-Base",
+      "adapterOnly": true,
+      "assetBytesAreNotResidentMemory": true,
+      "weightFiles": [
+        {
+          "file": "adapter_model.safetensors",
+          "bytes": 43338624,
+          "sha256": "9b908623acb162118575f4e7a94524f9c139c335be4bfb74d6cfceca01e1885a"
+        }
+      ],
+      "downloadWeightBytes": 43338624,
+      "weightBytesInterpretation": "Sum of repository weight assets, which can include alternative quantizations or draft/target assets. Select a concrete artifact; this is not required download size or resident RAM."
+    },
+    {
+      "repo": "jaredpalmer/kev-4b",
+      "role": "Task-specific decision candidate; extra memory, calibration and total-workflow latency must be justified",
+      "url": "https://huggingface.co/jaredpalmer/kev-4b",
+      "revision": "6cfce5c2fa4b4bd64026336ab649c5ca78857d52",
+      "lastModified": "2026-10-01T17:18:26.000Z",
+      "gated": false,
+      "license": "apache-2.0",
+      "pipeline": "text-classification",
+      "safetensors": null,
+      "baseModel": "Qwen/Qwen3.5-4B-Base",
+      "adapterOnly": true,
+      "assetBytesAreNotResidentMemory": true,
+      "weightFiles": [
+        {
+          "file": "adapter_model.safetensors",
+          "bytes": 129924032,
+          "sha256": "90e817356246e7f18bfa7ca3d31794cd4fbeb3332a66a84cb51d9ceae925f2b2"
+        }
+      ],
+      "downloadWeightBytes": 129924032,
+      "weightBytesInterpretation": "Sum of repository weight assets, which can include alternative quantizations or draft/target assets. Select a concrete artifact; this is not required download size or resident RAM."
+    },
+    {
+      "repo": "LiquidAI/LFM2.5-1.2B-Instruct",
+      "role": "Efficient nonthinking instruction model; small mobile screening candidate, not previously qualified on current Banana workspace suite",
+      "efficiencyMechanism": "hybrid-small-instruct",
+      "qualificationState": "Discovery only; not Banana app qualified",
+      "url": "https://huggingface.co/LiquidAI/LFM2.5-1.2B-Instruct",
+      "revision": "0f604ada3f766f9f257460c4c9f0b5d6f69d431b",
+      "lastModified": "2026-08-24T21:06:29.000Z",
+      "gated": false,
+      "license": "other",
+      "pipeline": "text-generation",
+      "safetensors": {
+        "parameters": {
+          "BF16": 1170340608
+        },
+        "total": 1170340608
+      },
+      "baseModel": "LiquidAI/LFM2.5-1.2B-Base",
+      "adapterOnly": false,
+      "assetBytesAreNotResidentMemory": true,
+      "weightFiles": [
+        {
+          "file": "model.safetensors",
+          "bytes": 2340697936,
+          "sha256": "1ba63d9adb03ae43581db0e136e4416febe0441aff7296397bd455fb6017f73a"
+        }
+      ],
+      "downloadWeightBytes": 2340697936,
+      "weightBytesInterpretation": "Sum of repository weight assets, which can include alternative quantizations or draft/target assets. Select a concrete artifact; this is not required download size or resident RAM."
+    },
+    {
+      "repo": "LiquidAI/LFM2.5-2.6B",
+      "role": "Agent-trained hybrid architecture; include supported reasoning/template and native recommended preset",
+      "efficiencyMechanism": "hybrid-agent",
+      "qualificationState": "Discovery only; not Banana app qualified",
+      "url": "https://huggingface.co/LiquidAI/LFM2.5-2.6B",
+      "revision": "b212e75975bbda9676a94d3cb7b2ca25b65fed48",
+      "lastModified": "2026-10-23T20:50:16.000Z",
+      "gated": false,
+      "license": "other",
+      "pipeline": "text-generation",
+      "safetensors": {
+        "parameters": {
+          "BF16": 2697198592
+        },
+        "total": 2697198592
+      },
+      "baseModel": "LiquidAI/LFM2.5-2.6B-Base",
+      "adapterOnly": false,
+      "assetBytesAreNotResidentMemory": true,
+      "weightFiles": [
+        {
+          "file": "model-00001-of-00002.safetensors",
+          "bytes": 5329406264,
+          "sha256": "05be188e6570a7642b4690545ab22ebf4d0a6068775dd776a452eebf738854cc"
+        },
+        {
+          "file": "model-00002-of-00002.safetensors",
+          "bytes": 65021192,
+          "sha256": "532f803a9e6f127adc124d977503b438d8cc9c18f96e0862bf6835e38867bca8"
+        }
+      ],
+      "downloadWeightBytes": 5394427456,
+      "weightBytesInterpretation": "Sum of repository weight assets, which can include alternative quantizations or draft/target assets. Select a concrete artifact; this is not required download size or resident RAM."
+    },
+    {
+      "repo": "LiquidAI/LFM2.5-8B-A1B",
+      "role": "8.3B total / 1.5B active hybrid MoE; candidate for Mac and larger mobile budgets, total residency still matters",
+      "efficiencyMechanism": "low-active-moe",
+      "qualificationState": "Discovery only; not Banana app qualified",
+      "url": "https://huggingface.co/LiquidAI/LFM2.5-8B-A1B",
+      "revision": "5dd22602c2e9f6a097b1de4c4efe0658b605015c",
+      "lastModified": "2026-08-24T21:05:21.000Z",
+      "gated": false,
+      "license": "other",
+      "pipeline": "text-generation",
+      "safetensors": {
+        "parameters": {
+          "F32": 704,
+          "BF16": 8467856128
+        },
+        "total": 8467856832
+      },
+      "baseModel": "LiquidAI/LFM2.5-8B-A1B-Base",
+      "adapterOnly": false,
+      "assetBytesAreNotResidentMemory": true,
+      "weightFiles": [
+        {
+          "file": "model.safetensors",
+          "bytes": 16936006912,
+          "sha256": "c9b9e3c4b3be50b576e6da8c02de1b4223614ffe131d812abf92bb84421f6217"
+        }
+      ],
+      "downloadWeightBytes": 16936006912,
+      "weightBytesInterpretation": "Sum of repository weight assets, which can include alternative quantizations or draft/target assets. Select a concrete artifact; this is not required download size or resident RAM."
+    },
+    {
+      "repo": "LiquidAI/LFM2.5-2.6B-DSpark",
+      "role": "Speculative drafter paired with target; first-party Apple Metal support, not an independent assistant or enabled in Banana",
+      "efficiencyMechanism": "speculative-drafter",
+      "qualificationState": "Discovery only; not Banana app qualified",
+      "url": "https://huggingface.co/LiquidAI/LFM2.5-2.6B-DSpark",
+      "revision": "458cedab07d0f7b2b05700c77e1aa463d43d6f04",
+      "lastModified": "2026-08-20T18:43:59.000Z",
+      "gated": false,
+      "license": "other",
+      "pipeline": "text-generation",
+      "safetensors": {
+        "parameters": {
+          "BF16": 327707521
+        },
+        "total": 327707521
+      },
+      "baseModel": "LiquidAI/LFM2.5-2.6B",
+      "adapterOnly": false,
+      "assetBytesAreNotResidentMemory": true,
+      "weightFiles": [
+        {
+          "file": "model.safetensors",
+          "bytes": 655421522,
+          "sha256": "a464fec8d5cd06042ffb96b4da8cbb9d3222684901bae6830685c8464a536044"
+        }
+      ],
+      "downloadWeightBytes": 655421522,
+      "weightBytesInterpretation": "Sum of repository weight assets, which can include alternative quantizations or draft/target assets. Select a concrete artifact; this is not required download size or resident RAM."
+    },
+    {
+      "repo": "HuggingFaceTB/SmolLM3-3B",
+      "role": "Tool-capable dense model with explicit thinking control; native tool-template mapping needs qualification",
+      "efficiencyMechanism": "small-tool-instruct",
+      "qualificationState": "Discovery only; not Banana app qualified",
+      "url": "https://huggingface.co/HuggingFaceTB/SmolLM3-3B",
+      "revision": "a07cc9a04f16550a088caea529712d1d335b0ac1",
+      "lastModified": "2025-09-10T12:28:11.000Z",
+      "gated": false,
+      "license": "apache-2.0",
+      "pipeline": "text-generation",
+      "safetensors": {
+        "parameters": {
+          "BF16": 3075098624
+        },
+        "total": 3075098624
+      },
+      "baseModel": [
+        "HuggingFaceTB/SmolLM3-3B-Base"
+      ],
+      "adapterOnly": false,
+      "assetBytesAreNotResidentMemory": true,
+      "weightFiles": [
+        {
+          "file": "model-00001-of-00002.safetensors",
+          "bytes": 4966315264,
+          "sha256": "e5eed4113a925264c33e3cdf76cd9f547c06a207ef2270914a7274a2bf685ffd"
+        },
+        {
+          "file": "model-00002-of-00002.safetensors",
+          "bytes": 1183919744,
+          "sha256": "6c3ad90646457295723e4da5ee8afac47006e20407b122df5174693dd8d68a43"
+        }
+      ],
+      "downloadWeightBytes": 6150235008,
+      "weightBytesInterpretation": "Sum of repository weight assets, which can include alternative quantizations or draft/target assets. Select a concrete artifact; this is not required download size or resident RAM."
+    },
+    {
+      "repo": "mistralai/Ministral-3-3B-Instruct-2512",
+      "role": "Efficient edge instruct model; compare complete turn and avoid paying for unused vision assets",
+      "efficiencyMechanism": "small-instruct",
+      "qualificationState": "Discovery only; not Banana app qualified",
+      "url": "https://huggingface.co/mistralai/Ministral-3-3B-Instruct-2512",
+      "revision": "b35d4dfe56c142746f54dbd64f579faab2744308",
+      "lastModified": "2026-07-15T12:21:35.000Z",
+      "gated": false,
+      "license": "apache-2.0",
+      "pipeline": null,
+      "safetensors": {
+        "parameters": {
+          "BF16": 822899712,
+          "F8_E4M3": 3026190336
+        },
+        "total": 3849090048
+      },
+      "baseModel": [
+        "mistralai/Ministral-3-3B-Base-2512"
+      ],
+      "adapterOnly": false,
+      "assetBytesAreNotResidentMemory": true,
+      "weightFiles": [
+        {
+          "file": "consolidated.safetensors",
+          "bytes": 4672089108,
+          "sha256": "a1b2aa6d22874ed04b7071a595581d48832ddeda8d6e69f54537b31aa3a775cf"
+        },
+        {
+          "file": "model.safetensors",
+          "bytes": 4672099184,
+          "sha256": "728f1826cd0e38191ca7b1379e81f78cf0555c6ffd95882aabd2404632346f86"
+        }
+      ],
+      "downloadWeightBytes": 9344188292,
+      "weightBytesInterpretation": "Sum of repository weight assets, which can include alternative quantizations or draft/target assets. Select a concrete artifact; this is not required download size or resident RAM."
+    },
+    {
+      "repo": "mistralai/Ministral-3-8B-Instruct-2512",
+      "role": "Larger efficient instruct control for Mac quality/latency tradeoff",
+      "efficiencyMechanism": "compact-instruct",
+      "qualificationState": "Discovery only; not Banana app qualified",
+      "url": "https://huggingface.co/mistralai/Ministral-3-8B-Instruct-2512",
+      "revision": "5b26027e7b19eeb4b7352e1fed3926375dd2cb4d",
+      "lastModified": "2026-07-15T12:22:08.000Z",
+      "gated": false,
+      "license": "apache-2.0",
+      "pipeline": null,
+      "safetensors": {
+        "parameters": {
+          "BF16": 1502496768,
+          "F8_E4M3": 7415529472
+        },
+        "total": 8918026716
+      },
+      "baseModel": [
+        "mistralai/Ministral-3-8B-Base-2512"
+      ],
+      "adapterOnly": false,
+      "assetBytesAreNotResidentMemory": true,
+      "weightFiles": [
+        {
+          "file": "consolidated.safetensors",
+          "bytes": 10420633176,
+          "sha256": "ab5e41c341ac8331e653f572218e6bf29082b2360c0207c1f84d9a3c963b27fe"
+        },
+        {
+          "file": "model-00001-of-00003.safetensors",
+          "bytes": 4983094790,
+          "sha256": "5a4d6e02534a2a10ce9b54ee1d91020617429d348f09de4cf912bcae362a9fc9"
+        },
+        {
+          "file": "model-00002-of-00003.safetensors",
+          "bytes": 4992892530,
+          "sha256": "ca3b3df6c15e1f1e19977b1bb3e1bb8ec77798c2687f0dd87337b0737002f619"
+        },
+        {
+          "file": "model-00003-of-00003.safetensors",
+          "bytes": 444667504,
+          "sha256": "ee2a5e33fe9dfdc8c013aa856fbafcb1bb9b4168f96ddef9484baa23adcb5d35"
+        }
+      ],
+      "downloadWeightBytes": 20841288000,
+      "weightBytesInterpretation": "Sum of repository weight assets, which can include alternative quantizations or draft/target assets. Select a concrete artifact; this is not required download size or resident RAM."
+    },
+    {
+      "repo": "ibm-granite/granite-4.0-h-tiny",
+      "role": "7B total / 1B active hybrid Mamba2 MoE; qualify native kernel/tool support, not just weight conversion",
+      "efficiencyMechanism": "hybrid-low-active-moe",
+      "qualificationState": "Discovery only; not Banana app qualified",
+      "url": "https://huggingface.co/ibm-granite/granite-4.0-h-tiny",
+      "revision": "791e0d3d28c86e106c9b6e0b4cecdee0375b6124",
+      "lastModified": "2025-11-03T19:42:57.000Z",
+      "gated": false,
+      "license": "apache-2.0",
+      "pipeline": "text-generation",
+      "safetensors": {
+        "parameters": {
+          "BF16": 6939037248
+        },
+        "total": 6939037248
+      },
+      "baseModel": null,
+      "adapterOnly": false,
+      "assetBytesAreNotResidentMemory": true,
+      "weightFiles": [
+        {
+          "file": "model-00001-of-00003.safetensors",
+          "bytes": 4924822608,
+          "sha256": "d79109218e59c850b26146a40d5c2dd7084ac8e569e53a59e2dcb78a16529f73"
+        },
+        {
+          "file": "model-00002-of-00003.safetensors",
+          "bytes": 4879018632,
+          "sha256": "f15b2625114d52bbe658050732687683a3596e14fab4a817d3147549ac609ef3"
+        },
+        {
+          "file": "model-00003-of-00003.safetensors",
+          "bytes": 4074301016,
+          "sha256": "825bf48c51808ce93042dc9ff65e6b8b76131fac76b8bda4183cff32abf39c83"
+        }
+      ],
+      "downloadWeightBytes": 13878142256,
+      "weightBytesInterpretation": "Sum of repository weight assets, which can include alternative quantizations or draft/target assets. Select a concrete artifact; this is not required download size or resident RAM."
+    },
+    {
+      "repo": "inclusionAI/Ling-3.0-tiny",
+      "role": "Hybrid sparse model candidate; verify exact architecture and supported Apple runtime before benchmarking",
+      "efficiencyMechanism": "hybrid-low-active-moe",
+      "qualificationState": "Discovery only; not Banana app qualified",
+      "url": "https://huggingface.co/inclusionAI/Ling-3.0-tiny",
+      "revision": "9a98e35fe1c9ee255f78dd64771c7ae15a799481",
+      "lastModified": "2026-09-24T08:58:30.000Z",
+      "gated": false,
+      "license": "mit",
+      "pipeline": "text-generation",
+      "safetensors": {
+        "parameters": {
+          "F32": 40096,
+          "BF16": 7893352704
+        },
+        "total": 7893392800
+      },
+      "baseModel": null,
+      "adapterOnly": false,
+      "assetBytesAreNotResidentMemory": true,
+      "weightFiles": [
+        {
+          "file": "model-00000-of-00032.safetensors",
+          "bytes": 1132407184,
+          "sha256": "9bb303a6dd00e834995ea7be63edbd8558f46dece92bd1c0f8f0eaa57bf39693"
+        },
+        {
+          "file": "model-00001-of-00032.safetensors",
+          "bytes": 377516376,
+          "sha256": "1c1ad79385a0ec2a9ee7be3314b829c80040c9f001f9595a75645ca666bb556b"
+        },
+        {
+          "file": "model-00002-of-00032.safetensors",
+          "bytes": 377516376,
+          "sha256": "4d01a9623f463083dc79975a809b7517b12126a85a6572d6368076824ba8cf59"
+        },
+        {
+          "file": "model-00003-of-00032.safetensors",
+          "bytes": 377516376,
+          "sha256": "4575f56fe8bb9532062fc11eda2321ec19392dc0d3a36a042fcb1a970be89561"
+        },
+        {
+          "file": "model-00004-of-00032.safetensors",
+          "bytes": 377516376,
+          "sha256": "ecf2a369a93260d360a5c7a1a1bd71786a97f030e35de59bb92a88976808498f"
+        },
+        {
+          "file": "model-00005-of-00032.safetensors",
+          "bytes": 377516376,
+          "sha256": "ccd22ff95a3d10ecb0e0b923c5d8cd47471e0bf380e68fa7c24bf2328b7b89f0"
+        },
+        {
+          "file": "model-00006-of-00032.safetensors",
+          "bytes": 377516560,
+          "sha256": "4b0201280c34b6d2602d2167a7661ae4f4d27725584bace09b88e035c5ce9b21"
+        },
+        {
+          "file": "model-00007-of-00032.safetensors",
+          "bytes": 377516616,
+          "sha256": "a61e330da0464fb2f50a1415e6352a0f679366d5fe58c8fb3b0c93ec6dcec04a"
+        },
+        {
+          "file": "model-00008-of-00032.safetensors",
+          "bytes": 664495552,
+          "sha256": "c4459b350bc325bcefc53a2096e80e8a834fd22d33e5540c61dfd2d7e6dcdb48"
+        },
+        {
+          "file": "model-00009-of-00032.safetensors",
+          "bytes": 453019768,
+          "sha256": "b98ac4cace09ec8b28f85ccb308f5a42cc954630eba774c38eded1d79860512e"
+        },
+        {
+          "file": "model-00010-of-00032.safetensors",
+          "bytes": 453019768,
+          "sha256": "6a4ddb41133474bc344fc0c4d80c6f762d9de196a51f882fb7079e6336e1b3ca"
+        },
+        {
+          "file": "model-00011-of-00032.safetensors",
+          "bytes": 453019768,
+          "sha256": "bd63440d9640fab5e2d8edda678c0086b459dd1705b3b534d1dfb448f95fff33"
+        },
+        {
+          "file": "model-00012-of-00032.safetensors",
+          "bytes": 453019768,
+          "sha256": "59586d8ac45397a511a0111255c95ff0473e8f6a0fe2d0528d547f943453d5f3"
+        },
+        {
+          "file": "model-00013-of-00032.safetensors",
+          "bytes": 453019768,
+          "sha256": "3fd40d58f7272b0a38dc098ed888921c26f4efefa9ecbcce967f253d2a514eda"
+        },
+        {
+          "file": "model-00014-of-00032.safetensors",
+          "bytes": 453019984,
+          "sha256": "df1f857798f12a2798b254a894d042c0d9e07516ec14ed6d5c95aa77c69a9db9"
+        },
+        {
+          "file": "model-00015-of-00032.safetensors",
+          "bytes": 453020056,
+          "sha256": "70214d7ffc0ed438ba4504a87dcb2399f081b5833bc75f1791d0a26e206e9b0b"
+        },
+        {
+          "file": "model-00016-of-00032.safetensors",
+          "bytes": 687686672,
+          "sha256": "ff24ebf8c9c2608e954f8a9c8558e4e0a2f9f18841e1be0ed73022d04f607740"
+        },
+        {
+          "file": "model-00017-of-00032.safetensors",
+          "bytes": 453019960,
+          "sha256": "631b6ffb07fe81a01aee5d9c4ba6cd88a0fc7ab48d1d763b74b6fc1abbb12e7e"
+        },
+        {
+          "file": "model-00018-of-00032.safetensors",
+          "bytes": 453019960,
+          "sha256": "e59906f46355f089081a99008ed5633710cc2ac19fda7cfda67a1211eb64509c"
+        },
+        {
+          "file": "model-00019-of-00032.safetensors",
+          "bytes": 453019960,
+          "sha256": "8181a52c54d0a4f49e24ceebf2a87856b23cdf01c2425f1ff1913edc04f6d87b"
+        },
+        {
+          "file": "model-00020-of-00032.safetensors",
+          "bytes": 453019960,
+          "sha256": "784e6251f7c9acaf0417b1081fe21c12cbea07003b42c95a5190b3e7ea34ca24"
+        },
+        {
+          "file": "model-00021-of-00032.safetensors",
+          "bytes": 453019960,
+          "sha256": "dedef14f97ba246fb1696167ec2db8f7a48a16b9f41314a3d8ec5b81b427ee1e"
+        },
+        {
+          "file": "model-00022-of-00032.safetensors",
+          "bytes": 453020176,
+          "sha256": "c12c6aaa5f6d18fa19509c14f15fd691b37a4b2256a7e8bc106947c50c331357"
+        },
+        {
+          "file": "model-00023-of-00032.safetensors",
+          "bytes": 453020248,
+          "sha256": "453ba0fac8d0bcc1cf29686f44bbc1d96ac637146cffbff8b4afdfe70caf8bd0"
+        },
+        {
+          "file": "model-00024-of-00032.safetensors",
+          "bytes": 1147368624,
+          "sha256": "242ab0ba19233eb65e5d2cbeb8d577cbceeadc01ffa98beb85d8d4b855f06b56"
+        },
+        {
+          "file": "model-00025-of-00032.safetensors",
+          "bytes": 453019960,
+          "sha256": "b64ad179cd994e1c1a6e1f638ba05d1b1d8af0619f2f70dc6af792437823cd61"
+        },
+        {
+          "file": "model-00026-of-00032.safetensors",
+          "bytes": 453019960,
+          "sha256": "208264e994d79a7c016f342c57ad7bd737d7b1ddd48ad5ef107d9f8b87eee6c2"
+        },
+        {
+          "file": "model-00027-of-00032.safetensors",
+          "bytes": 453019960,
+          "sha256": "c332b5b2190d21411d3864de489dc192c42f1a48869b969c09ccf7a0dc46c75d"
+        },
+        {
+          "file": "model-00028-of-00032.safetensors",
+          "bytes": 453019960,
+          "sha256": "292bbc8a22035864018762a389f36d33495737b4530aef69db414809e56964f6"
+        },
+        {
+          "file": "model-00029-of-00032.safetensors",
+          "bytes": 453019960,
+          "sha256": "c561e7d76d9bc6422109c47aadc0c73bbb5c2b8b498f6accd7921be7c9ce90b1"
+        },
+        {
+          "file": "model-00030-of-00032.safetensors",
+          "bytes": 453020176,
+          "sha256": "9aaf7272165764d0895d2c85e8ad26aff0b26ee155129ccfef0acdbd22908ce7"
+        },
+        {
+          "file": "model-00031-of-00032.safetensors",
+          "bytes": 453020248,
+          "sha256": "411913f6502724d0cb94783aec90e0e3788fbd5be8195573a2769be8c41285f4"
+        }
+      ],
+      "downloadWeightBytes": 15787992416,
+      "weightBytesInterpretation": "Sum of repository weight assets, which can include alternative quantizations or draft/target assets. Select a concrete artifact; this is not required download size or resident RAM."
+    },
+    {
+      "repo": "google/functiongemma-270m-it",
+      "role": "Task-specific function-calling specialist intended for customization; evaluate fine-tuning plus fallback, not general assistant replacement",
+      "efficiencyMechanism": "specialist",
+      "qualificationState": "Discovery only; not Banana app qualified",
+      "url": "https://huggingface.co/google/functiongemma-270m-it",
+      "revision": "39eccb091651513a5dfb56892d3714c1b5b8276c",
+      "lastModified": "2026-01-14T09:33:54.000Z",
+      "gated": "manual",
+      "license": "gemma",
+      "pipeline": "text-generation",
+      "safetensors": {
+        "parameters": {
+          "BF16": 268098176
+        },
+        "total": 268098176
+      },
+      "baseModel": null,
+      "adapterOnly": false,
+      "assetBytesAreNotResidentMemory": true,
+      "weightFiles": [
+        {
+          "file": "model.safetensors",
+          "bytes": 536223056,
+          "sha256": "af4f8a7c4c5eb82291759fd828720c7bcfcb92a5274556d13dde3caccf5f427b"
+        }
+      ],
+      "downloadWeightBytes": 536223056,
+      "weightBytesInterpretation": "Sum of repository weight assets, which can include alternative quantizations or draft/target assets. Select a concrete artifact; this is not required download size or resident RAM."
+    },
+    {
+      "repo": "bottlecapai/ThinkingCap-gemma-4-26B-A4B-it",
+      "role": "Shorter-thinking Mac quality candidate; reduced generated reasoning does not reduce total weight residency",
+      "efficiencyMechanism": "shorter-thinking-moe",
+      "qualificationState": "Discovery only; not Banana app qualified",
+      "url": "https://huggingface.co/bottlecapai/ThinkingCap-gemma-4-26B-A4B-it",
+      "revision": "92b53c9b065d4710bbda9e5c84be751470386e7b",
+      "lastModified": "2026-10-23T13:21:21.000Z",
+      "gated": false,
+      "license": "apache-2.0",
+      "pipeline": "image-text-to-text",
+      "safetensors": {
+        "parameters": {
+          "BF16": 25805936206
+        },
+        "total": 25805936206
+      },
+      "baseModel": "google/gemma-4-26B-A4B-it",
+      "adapterOnly": false,
+      "assetBytesAreNotResidentMemory": true,
+      "weightFiles": [
+        {
+          "file": "model-00001-of-00002.safetensors",
+          "bytes": 49907246508,
+          "sha256": "07e3e2f23a4a76ebc387fd56bff2d4d7eadb12cecab5ab0c93428bd5f448a163"
+        },
+        {
+          "file": "model-00002-of-00002.safetensors",
+          "bytes": 1704763408,
+          "sha256": "5ccdeb1a054a02df7558f78e22b14666b221ecd22898be183553cdb329d9b4f2"
+        }
+      ],
+      "downloadWeightBytes": 51612009916,
+      "weightBytesInterpretation": "Sum of repository weight assets, which can include alternative quantizations or draft/target assets. Select a concrete artifact; this is not required download size or resident RAM."
+    },
+    {
+      "repo": "bottlecapai/ThinkingCap-gemma-4-26B-A4B-it-GGUF",
+      "role": "Published GGUF quantizations; select one exact artifact, do not sum alternate quantizations as required RAM",
+      "efficiencyMechanism": "shorter-thinking-moe",
+      "qualificationState": "Discovery only; not Banana app qualified",
+      "url": "https://huggingface.co/bottlecapai/ThinkingCap-gemma-4-26B-A4B-it-GGUF",
+      "revision": "bb52b322579d218a9931261d6c9cd7403d80eb96",
+      "lastModified": "2026-10-23T14:34:13.000Z",
+      "gated": false,
+      "license": "apache-2.0",
+      "pipeline": "image-text-to-text",
+      "safetensors": null,
+      "baseModel": "bottlecapai/ThinkingCap-gemma-4-26B-A4B-it",
+      "adapterOnly": false,
+      "assetBytesAreNotResidentMemory": true,
+      "weightFiles": [
+        {
+          "file": "ThinkingCap-gemma-4-26B-A4B-it-IQ4_XS.gguf",
+          "bytes": 13597177152,
+          "sha256": "c84bb3c8b997cc7c8fbd5922f3abb362f92ebf5d290654a90bcef5a10c021085"
+        },
+        {
+          "file": "ThinkingCap-gemma-4-26B-A4B-it-MXFP4_MOE.gguf",
+          "bytes": 16551048512,
+          "sha256": "5fc218edb5663cdacac4f56af30022706c292eb5c99afc06897c4c14e76b80d2"
+        },
+        {
+          "file": "ThinkingCap-gemma-4-26B-A4B-it-Q4_K_M.gguf",
+          "bytes": 17010980160,
+          "sha256": "a8886c823fdc09694db766ba0e86eaf75e2a54ae676071ef73630868cc94c77b"
+        },
+        {
+          "file": "ThinkingCap-gemma-4-26B-A4B-it-Q6_K.gguf",
+          "bytes": 23295391040,
+          "sha256": "82cefd31fd4b8c469399db2bb015ded75e58a588be21ad8a11b90225a128b877"
+        },
+        {
+          "file": "ThinkingCap-gemma-4-26B-A4B-it-Q8_0.gguf",
+          "bytes": 26859861056,
+          "sha256": "48fadbcf38a2fe1191f7865769435bc26e5ca5ad00d482c7e157e71953aec3e0"
+        },
+        {
+          "file": "ThinkingCap-gemma-4-26B-A4B-it-imatrix.gguf",
+          "bytes": 56941536,
+          "sha256": "f54d3b5da79ccd7555658b6d9766be840fd694841ff5c806c9964e1885157612"
+        },
+        {
+          "file": "mmproj-ThinkingCap-gemma-4-26B-A4B-it-f16.gguf",
+          "bytes": 1193058784,
+          "sha256": "4030b92de0d559d7a0cde19659761adc3d8454f06503adb8dac425acfd67c239"
+        }
+      ],
+      "downloadWeightBytes": 98564458240,
+      "weightBytesInterpretation": "Sum of repository weight assets, which can include alternative quantizations or draft/target assets. Select a concrete artifact; this is not required download size or resident RAM."
+    },
+    {
+      "repo": "bottlecapai/ThinkingCap-Qwen3.8-27B",
+      "role": "Shorter-thinking dense Mac quality control; compare against same base with thinking on/off and native settings",
+      "efficiencyMechanism": "shorter-thinking-dense",
+      "qualificationState": "Discovery only; not Banana app qualified",
+      "url": "https://huggingface.co/bottlecapai/ThinkingCap-Qwen3.8-27B",
+      "revision": "7891e03dbda2e9b63a5b9610f20e83ea441f8e2c",
+      "lastModified": "2026-10-06T08:27:28.000Z",
+      "gated": "auto",
+      "license": "other",
+      "pipeline": "image-text-to-text",
+      "safetensors": {
+        "parameters": {
+          "BF16": 27781427952
+        },
+        "total": 27781427952
+      },
+      "baseModel": "Qwen/Qwen3.8-27B",
+      "adapterOnly": false,
+      "assetBytesAreNotResidentMemory": true,
+      "weightFiles": [
+        {
+          "file": "model-00001-of-00018.safetensors",
+          "bytes": 3966730552,
+          "sha256": "9b28e7585678328374bf1a133125eb0b7eca3671849ec39826f633298329a37b"
+        },
+        {
+          "file": "model-00002-of-00018.safetensors",
+          "bytes": 3043080328,
+          "sha256": "8ea256cc35c1cc84377ee53b1199912d941d2babcbc60dff9443e2102fc379ec"
+        },
+        {
+          "file": "model-00003-of-00018.safetensors",
+          "bytes": 2542796952,
+          "sha256": "2e1bf62cbcd406eaa64b60d10353e1f0ef4039d0976e56f05cabe953454f9968"
+        },
+        {
+          "file": "model-00004-of-00018.safetensors",
+          "bytes": 3988973152,
+          "sha256": "4fe2cd350910cce5ef626747ca19583f0df9e5f2f92062d9e3a2dc742fcb5c7a"
+        },
+        {
+          "file": "model-00005-of-00018.safetensors",
+          "bytes": 2099339864,
+          "sha256": "e4eacfe819ce56c963474c6cb2bcd0f2e2094b498d1fe85339f13f6227491298"
+        },
+        {
+          "file": "model-00006-of-00018.safetensors",
+          "bytes": 3979553696,
+          "sha256": "2b2bb8efa0a9156d634d24ddf4764c00719147667026f86dafb99a7070e8e1a1"
+        },
+        {
+          "file": "model-00007-of-00018.safetensors",
+          "bytes": 2108759344,
+          "sha256": "9765bc800428b388d0ff26016b7b91b3f918f4981767a68c186171d736b26f89"
+        },
+        {
+          "file": "model-00008-of-00018.safetensors",
+          "bytes": 3979553696,
+          "sha256": "3c05cd420ab5421c884b474ee66eb7a494c75117a618fc26bc0aaf21ed5bb915"
+        },
+        {
+          "file": "model-00009-of-00018.safetensors",
+          "bytes": 2108759344,
+          "sha256": "e36e43138ce2d9e2bf32fe984b58a2896c7c7b9a20b599f180ea73261b1c3a71"
+        },
+        {
+          "file": "model-00010-of-00018.safetensors",
+          "bytes": 3979553696,
+          "sha256": "e1a24a81f82b204817a5f82c3fd2c9441287d0e4b23350b83b9e95264dd88935"
+        },
+        {
+          "file": "model-00011-of-00018.safetensors",
+          "bytes": 2108759344,
+          "sha256": "ba8655d21b9dc8d516bb6d53f837706f568bf43aa765d8a91c62cb68d9537e84"
+        },
+        {
+          "file": "model-00012-of-00018.safetensors",
+          "bytes": 3979553696,
+          "sha256": "8af115dec77479af088f165049bf302b222ce6ad2a20b696652d54a1c90aca40"
+        },
+        {
+          "file": "model-00013-of-00018.safetensors",
+          "bytes": 2108759344,
+          "sha256": "1cfd3820391a6bc031f72a29ce768655a47a80e600c083ea89620e5b7ed147c0"
+        },
+        {
+          "file": "model-00014-of-00018.safetensors",
+          "bytes": 3979553696,
+          "sha256": "a4e34164489f111609ad1e8988de856d4c0ef2e0f5eb55ee6ce90c9f76fb027d"
+        },
+        {
+          "file": "model-00015-of-00018.safetensors",
+          "bytes": 2108759344,
+          "sha256": "16a67bfed18c8bcd19be3c29e4a686e54f2bc1f4d192d3a70c1958e0f3237a35"
+        },
+        {
+          "file": "model-00016-of-00018.safetensors",
+          "bytes": 3979564040,
+          "sha256": "dfdeb40699218ba36694671bc190c473f47a3f4a29424f54616092eedc8f6a62"
+        },
+        {
+          "file": "model-00017-of-00018.safetensors",
+          "bytes": 2108759344,
+          "sha256": "2e071b771487a71a4346f6456633b392c43299305f3c5945ff440eadb6794907"
+        },
+        {
+          "file": "model-00018-of-00018.safetensors",
+          "bytes": 3392197344,
+          "sha256": "1d3479509e21494658f9b64d317f5ea8e55c4025d28c702d6c4d0b356ce8ea06"
+        }
+      ],
+      "downloadWeightBytes": 55563006776,
+      "weightBytesInterpretation": "Sum of repository weight assets, which can include alternative quantizations or draft/target assets. Select a concrete artifact; this is not required download size or resident RAM."
+    }
+  ]
+}
