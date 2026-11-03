@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {period,inPeriod,readings,summary,nights,awakeMinutes,clockSpread,sleepVariation,refreshKind,doseInPeriod,displayMetric,shouldCheckStatus,STATUS_INTERVAL_MS} from '../public/app/assets/health-model.js';
+import {period,inPeriod,readings,summary,nights,awakeMinutes,clockSpread,sleepVariation,refreshKind,doseInPeriod,displayMetric,latestReading,defaultHiddenMetrics,metrics,shouldCheckStatus,STATUS_INTERVAL_MS} from '../public/app/assets/health-model.js';
 const swift=ms=>ms/1000-978307200;
 const at=s=>+new Date(s);
 test('day/week windows use calendar boundaries, including DST, and respect week start',()=>{
@@ -54,4 +54,21 @@ test('status checks share a five-minute budget across timer and tab-return trigg
   assert.equal(shouldCheckStatus(100+STATUS_INTERVAL_MS-1,100,false),false);
   assert.equal(shouldCheckStatus(100+STATUS_INTERVAL_MS,100,false),true);
   assert.equal(shouldCheckStatus(100+STATUS_INTERVAL_MS,100,true),false);
+});
+
+test('all Health units follow the snapshot contract, with fractions converted to percentage points',()=>{
+  const factors={bodyFatPercentage:[100,100],bodyMassKg:[1,2.2046226],leanBodyMassKg:[1,2.2046226],heightMeters:[100,1/0.0254],walkingSpeedMetersPerSecond:[3.6,2.2369363]};
+  for(const [key,,unit]of metrics)for(const imperial of [false,true])assert.equal(displayMetric(key,unit,imperial).factor,(factors[key]??[1,1])[Number(imperial)],key);
+  assert.equal(.21*displayMetric('bodyFatPercentage','%',true).factor,21);
+  assert.deepEqual(displayMetric('heightMeters','m',false),{unit:'cm',factor:100});
+  assert.equal(metrics.find(([key])=>key==='bodyMassKg')[1],'Weight');
+  assert.ok(defaultHiddenMetrics.includes('heightMeters'));
+});
+test('latest daily reading includes today, ignores future/invalid points, and leaves source units unchanged',()=>{
+  const today=at('2026-11-04T00:00:00'),now=at('2026-11-04T12:00:00');
+  const points=[{date:swift(today),value:.21},{date:swift(today-86400000),value:.22},{date:swift(now+86400000),value:.23},{date:swift(now),value:null}];
+  const data={trends:{bodyFatPercentage:points}};
+  assert.deepEqual(latestReading(data,'bodyFatPercentage',100,now),{date:today,value:21});
+  assert.equal(points[0].value,.21);
+  assert.equal(latestReading(data,'unknown',1,now),null);
 });

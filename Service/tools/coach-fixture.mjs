@@ -3,8 +3,8 @@ export function coachFixture({now,healthPayload,record}) {
   const swift=ms=>ms/1000-978307200;
   const dayAt=(ago,h=0,m=0)=>{const d=new Date(now);d.setDate(d.getDate()-ago);d.setHours(h,m,0,0);return +d;};
   const dateKey=ms=>{const d=new Date(ms);return String(d.getFullYear())+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0');};
-  const specs={sleepHours:[7.2,.8],restingHR:[57,5],hrv:[52,12],steps:[8500,2800],vo2Max:[44,2],respiratory:[14,1],bodyMassKg:[72,1.1],bodyFatPercentage:[21,.8],activeEnergyKcal:[510,150],exerciseMinutes:[42,18],walkingHeartRate:[99,8],basalEnergyKcal:[1650,60],leanBodyMassKg:[57,.5],bodyMassIndex:[23.5,.3],heightMeters:[1.75,0],flightsClimbed:[9,4],walkingSpeedMetersPerSecond:[1.35,.15]};
-  healthPayload.trends=Object.fromEntries(Object.entries(specs).map(([key,[base,spread]])=>[key,Array.from({length:400},(_,i)=>({date:swift(dayAt(399-i)),value:Math.round((base+Math.sin(i*1.7)*spread)*100)/100}))]));
+  const specs={sleepHours:[7.2,.8],restingHR:[57,5],hrv:[52,12],steps:[8500,2800],vo2Max:[44,2],respiratory:[14,1],bodyMassKg:[72,1.1],bodyFatPercentage:[.21,.008],activeEnergyKcal:[510,150],exerciseMinutes:[42,18],walkingHeartRate:[99,8],basalEnergyKcal:[1650,60],leanBodyMassKg:[57,.5],bodyMassIndex:[23.5,.3],heightMeters:[1.75,0],flightsClimbed:[9,4],walkingSpeedMetersPerSecond:[1.35,.15]};
+  healthPayload.trends=Object.fromEntries(Object.entries(specs).map(([key,[base,spread]])=>[key,Array.from({length:400},(_,i)=>({date:swift(dayAt(399-i)),value:Math.round((base+Math.sin(i*1.7)*spread)*10000)/10000}))]));
   healthPayload.trends.nights=Array.from({length:120},(_,i)=>{
     const wake=dayAt(i,7,10+(i%4)*10),bed=dayAt(i+1,23,10+(i%3)*15),awake=12+(i%4)*7;
     return {night:swift(dayAt(i)),bedtime:swift(bed),wake:swift(wake),asleepMinutes:(wake-bed)/60000-awake,wakes:[{start:swift(bed+3*3600000),end:swift(bed+3*3600000+awake*60000),steps:i%2?18:0,kind:'awakeInBed',labelled:false}]};

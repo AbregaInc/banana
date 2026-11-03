@@ -4,9 +4,9 @@ import {swiftMillis} from './workout-model.js';
 export const metrics = [
   ['sleepHours','Sleep duration','hours'],['restingHR','Resting heart rate','bpm'],
   ['hrv','Heart rate variability','ms'],['steps','Steps','steps'],['vo2Max','VO₂ max','mL/kg/min'],
-  ['respiratory','Respiratory rate','/min'],['bodyMassKg','Body mass','kg'],['bodyFatPercentage','Body fat','%'],
+  ['respiratory','Respiratory rate','/min'],['bodyMassKg','Weight','kg'],['bodyFatPercentage','Body fat','%'],
   ['activeEnergyKcal','Active energy','kcal'],['exerciseMinutes','Exercise','min'],['walkingHeartRate','Walking heart rate','bpm'],
-  ['basalEnergyKcal','Resting energy','kcal'],['leanBodyMassKg','Lean body mass','kg'],['bodyMassIndex','Body mass index',''],
+  ['basalEnergyKcal','Resting energy','kcal'],['leanBodyMassKg','Lean body mass','kg'],['bodyMassIndex','BMI',''],
   ['heightMeters','Height','m'],['flightsClimbed','Flights climbed','flights'],['walkingSpeedMetersPerSecond','Walking speed','m/s'],
 ];
 const cumulative = new Set(['steps','activeEnergyKcal','basalEnergyKcal','exerciseMinutes','flightsClimbed']);
@@ -54,11 +54,25 @@ export function doseInPeriod(fields,window) {
   return day?window.days.includes(day):inPeriod(fields.date,window);
 }
 export function displayMetric(key,unit,imperial) {
+  if(key==='bodyFatPercentage')return {unit:'%',factor:100};
   if(imperial&&['bodyMassKg','leanBodyMassKg'].includes(key))return {unit:'lb',factor:2.2046226};
   if(key==='walkingSpeedMetersPerSecond')return {unit:imperial?'mph':'km/h',factor:imperial?2.2369363:3.6};
-  if(imperial&&key==='heightMeters')return {unit:'in',factor:1/0.0254};
+  if(key==='heightMeters')return {unit:imperial?'in':'cm',factor:imperial?1/0.0254:100};
   return {unit,factor:1};
 }
 
 export const STATUS_INTERVAL_MS=5*60_000;
 export const shouldCheckStatus=(now,last,hidden)=>!hidden&&now-last>=STATUS_INTERVAL_MS;
+
+// The snapshot stores daily summaries. Keep the latest day (including today)
+// separate from completed-day trend averages; never invent an intraday sample.
+export function latestReading(data,key,factor=1,now=Date.now()) {
+  let latest=null;
+  for(const point of data?.trends?.[key]??[]) {
+    if(!Number.isFinite(point.date)||!Number.isFinite(point.value))continue;
+    const date=swiftMillis(point.date);
+    if(date<=now&&(!latest||date>latest.date))latest={date,value:point.value*factor};
+  }
+  return latest;
+}
+export const defaultHiddenMetrics=['heightMeters'];

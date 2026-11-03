@@ -5,7 +5,7 @@ import { lzfseDecompress } from './vendor/lzfse.js';
 import { activeSeconds, mergeWorkouts } from './workout-model.js';
 import { workoutHTML, recordingHTML, distanceText, exactDuration } from './workout-view.js';
 import { visibleDays, eventOnDay, layoutEvents, stepDay, authoredEvents } from './plan-model.js';
-import {metrics, period, inPeriod, readings, summary as metricSummary, nights, awakeMinutes, sleepVariation, refreshKind, doseInPeriod, displayMetric, STATUS_INTERVAL_MS, shouldCheckStatus} from './health-model.js';
+import {metrics, period, inPeriod, readings, summary as metricSummary, nights, awakeMinutes, sleepVariation, refreshKind, doseInPeriod, displayMetric, latestReading, defaultHiddenMetrics, STATUS_INTERVAL_MS, shouldCheckStatus} from './health-model.js';
 import { sharingControls } from './sharing.js';
 
 const appHome = document.querySelector('meta[name="app-home"]').content;
@@ -76,7 +76,7 @@ let guestHomeSession=null;
 let healthDay=dayKey(Date.now()), healthMode='week', hiddenMetrics=new Set();
 let trendThrough=stepDay(dayKey(Date.now()),-1),trendDays=90,trendGrouping='day',currentHealthMetric=null;
 const metricPreferenceKey=()=>JSON.stringify(['banana.health.metrics',account?.email,sharedContext?.id??'own']);
-function loadMetricPreferences(){try{const value=JSON.parse(localStorage.getItem(metricPreferenceKey()));hiddenMetrics=new Set(Array.isArray(value)?value.filter(v=>typeof v==='string'):[]);}catch{hiddenMetrics=new Set();}}
+function loadMetricPreferences(){try{const value=JSON.parse(localStorage.getItem(metricPreferenceKey()));hiddenMetrics=new Set(Array.isArray(value)?value.filter(v=>typeof v==='string'):defaultHiddenMetrics);}catch{hiddenMetrics=new Set(defaultHiddenMetrics);}}
 const viewPreferenceKey=()=>JSON.stringify(['banana.web.view',account?.email,sharedContext?.id??'own']);
 function saveViewPreferences(){
   if(!account)return;
@@ -106,12 +106,12 @@ function metricRecord(key,data=healthSnapshot){
   const definition=metrics.find(m=>m[0]===key);if(!definition)return null;
   const [,label,rawUnit]=definition,{unit,factor}=displayMetric(key,rawUnit,account.preferences?.distanceUnit==='miles');
   const trend=healthTrend(data,key,{through:trendThrough,days:trendDays,group:trendGrouping,factor});
-  return {type:'health.metric',id:key,fields:{key,label,unit,trend}};
+  return {type:'health.metric',id:key,fields:{key,label,unit,trend,latest:latestReading(data,key,factor)}};
 }
 function trendComparison(trend,unit){
   if(trend.previous.value==null)return 'No preceding-period data';
   const change=trend.change==null?'':` · ${trend.change>0?'+':''}${num(trend.change,1)}%`;
-  return `Previously ${metric(trend.previous.value,unit)}${change}`;
+  return `Previously ${metric(trend.previous.value,unit+(trend.isCumulative?'/day':''))}${change}`;
 }
 function trendCaption(trend){
   return `${trend.current.kind} · ${trend.current.recorded} days recorded vs ${trend.previous.recorded} previously`;
@@ -349,9 +349,9 @@ async function health() {
   const choices=[...metrics.map(([key,label])=>[key,label]),['nights','Sleep timing & wake-ups'],['variation','Sleep consistency'],...(canView('workouts')?[['workoutLog','Workout log']]:[])];
   const chooser=`<details class="metric-choices"><summary>Choose metrics</summary><div class="metric-options">${choices.map(([key,label])=>`<label><input type="checkbox" data-health-metric="${key}" ${hiddenMetrics.has(key)?'':'checked'}> ${label}</label>`).join('')}</div></details>`;
   const cards=metrics.filter(([key])=>!hiddenMetrics.has(key)).map(([key])=>{
-    const record=metricRecord(key,data),{label,unit,trend}=record.fields;
-    if(trend.current.value==null&&trend.previous.value==null)return '';
-    return `<button class="measure metric-button" ${openAttr(record)}><span class="measure-label">${label}</span><span class="measure-value">${metric(trend.current.value)} <small>${unit}${trend.isCumulative?'/day':''}</small></span><span class="trend-comparison">${escape(trendComparison(trend,unit))}</span>${trendChartHTML(trend,label,unit)}<span class="chart-caption">${trendCaption(trend)} · Open trend ↗</span></button>`;
+    const record=metricRecord(key,data),{label,unit,trend,latest}=record.fields;
+    if(trend.current.value==null&&trend.previous.value==null&&!latest)return '';
+    return `<button class="measure metric-button" ${openAttr(record)}><span class="measure-label">${label} · ${trendDays}-day average</span><span class="measure-value">${metric(trend.current.value)} <small>${unit}${trend.isCumulative?'/day':''}</small></span>${latest&&!trend.isCumulative?`<span class="metric-latest">Latest daily value: ${metric(latest.value,unit)} · ${date(latest.date)}</span>`:''}<span class="trend-comparison">${escape(trendComparison(trend,unit))}</span>${trendChartHTML(trend,label,unit)}<span class="chart-caption">${trendCaption(trend)} · Open trend ↗</span></button>`;
   }).join('');
   let html=periodControls()+chooser+(cards?`<div class="measure-grid">${cards}</div>`:empty('No visible readings for these periods','Try another range or change your metric choices.'));
   const sleep=nights(data,window);
@@ -493,6 +493,7 @@ async function showDetail(r) {
   if(r.type==='health.metric'){
     const t=f.trend;
     html=heading(f.label)+trendControls()+`<dl class="detail-data">${stat(t.current.kind,metric(t.current.value,f.unit+(t.isCumulative?'/day':'')))}${stat('Preceding period',metric(t.previous.value,f.unit+(t.isCumulative?'/day':'')))}</dl><p>${escape(trendComparison(t,f.unit))}</p>${trendChartHTML(t,f.label,f.unit)}<p class="subtle">${trendCaption(t)}.</p>`;
+    if(f.latest&&!t.isCumulative)html+=section('Latest daily reading',listHTML([{type:'health.reading',id:f.key,fields:{...f.latest,label:f.label,unit:f.unit}}],r=>row(r,f.label,'',date(r.fields.date),metric(r.fields.value,f.unit))));
     const bucketRows=(buckets,points,previous)=>listHTML(buckets.filter(b=>b.value!=null).map((b,i)=>({id:String(i),type:'health.bucket',fields:{...b,label:f.label,unit:f.unit,points:points.filter(p=>p.date>=b.start&&p.date<b.end),previous}})),r=>row(r,f.label,r.fields.kind,date(r.fields.start)+(trendGrouping==='day'?'':` – ${date(r.fields.end-1)}`),metric(r.fields.value,f.unit)));
     html+=section('Selected period',bucketRows(t.currentBuckets,t.points,false));
     html+=`<details><summary>Preceding-period readings</summary>${bucketRows(t.previousBuckets,t.previousPoints,true)}</details>`;
