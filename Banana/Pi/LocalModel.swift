@@ -1,3 +1,4 @@
+#if BANANA_AI
 #if os(macOS) && PI_DEVELOPMENT
 import Foundation
 
@@ -118,4 +119,6 @@ private final class DownloadProgress: NSObject, URLSessionDownloadDelegate, @unc
     }
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {}
 }
+#endif
+
 #endif

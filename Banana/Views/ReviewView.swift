@@ -50,7 +50,9 @@ struct ReviewView: View {
             .contentMargins(.top, DS.Space.s, for: .scrollContent)
             .safeAreaInset(edge: .top, spacing: 0) { dateLine }
             .navigationTitle("Review")
+            #if BANANA_AI
             .sheet(isPresented: $showingAnswer) { AssistantView(showsDoneButton: true) }
+            #endif
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
             #endif

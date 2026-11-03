@@ -62,7 +62,7 @@ def sha(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 try:
-    run(['swiftc', str(repo / 'Banana/Pi/AppleRuntimeHost.swift'), str(repo / 'Banana/Pi/AppleFoundationModel.swift'), str(sources / 'ProofHooks.swift'), str(sources / 'MacRunner.swift'),
+    run(['swiftc', '-D', 'BANANA_AI', str(repo / 'Banana/Pi/AppleRuntimeHost.swift'), str(repo / 'Banana/Pi/AppleFoundationModel.swift'), str(sources / 'ProofHooks.swift'), str(sources / 'MacRunner.swift'),
          '-o', str(executable), '-framework', 'JavaScriptCore', '-framework', 'Security', '-framework', 'FoundationModels', '-lsqlite3'])
     with tempfile.TemporaryDirectory(prefix='banana-pi-handoff-') as directory:
         database = pathlib.Path(directory) / 'transferred.sqlite'

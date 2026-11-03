@@ -1,3 +1,4 @@
+#if BANANA_AI
 #if DEBUG
 import Foundation
 
@@ -322,4 +323,6 @@ import Foundation
         }
     }
 }
+#endif
+
 #endif

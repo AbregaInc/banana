@@ -1,3 +1,4 @@
+#if BANANA_AI
 #if DEBUG
 import Foundation
 
@@ -31,4 +32,6 @@ enum AssistantFixtureTools {
         return String(decoding: try JSONSerialization.data(withJSONObject: value, options: [.fragmentsAllowed, .sortedKeys]), as: UTF8.self)
     }
 }
+#endif
+
 #endif

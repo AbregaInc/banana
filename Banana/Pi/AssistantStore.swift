@@ -1,3 +1,4 @@
+#if BANANA_AI
 import Combine
 import Foundation
 import JavaScriptCore
@@ -510,3 +511,5 @@ final class AssistantStore: ObservableObject {
     }
     #endif
 }
+
+#endif

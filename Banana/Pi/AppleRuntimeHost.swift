@@ -1,3 +1,4 @@
+#if BANANA_AI
 import Foundation
 import JavaScriptCore
 import Security
@@ -390,3 +391,5 @@ final class AppleRuntimeHost {
         databases.removeAll()
     }
 }
+
+#endif

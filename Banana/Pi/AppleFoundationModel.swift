@@ -1,3 +1,4 @@
+#if BANANA_AI
 import Foundation
 import FoundationModels
 
@@ -210,3 +211,5 @@ enum AppleFoundationModel {
         String(decoding: try JSONSerialization.data(withJSONObject: ["content": content]), as: UTF8.self)
     }
 }
+
+#endif

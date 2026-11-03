@@ -625,7 +625,7 @@ struct RootView: View {
                 .tabPlacement(.sidebarOnly)
             }
             if showsSidebarSections {
-                #if !PI_DEVELOPMENT
+                #if BANANA_AI && !PI_DEVELOPMENT
                 Tab(AppSection.assistant.title, systemImage: AppSection.assistant.symbol, value: ShellTab.section(.assistant)) {
                     AssistantView().measuresLayoutClass()
                 }
@@ -931,6 +931,7 @@ private struct PageChromeHost: ViewModifier {
 
     func body(content: Content) -> some View {
         content
+            #if BANANA_AI
             .sheet(isPresented: Binding(get: { (Self.reviewIsASheet || !sidebar) && chrome.showAssistant }, set: { chrome.showAssistant = $0 }), onDismiss: {
                 if let destination = chrome.assistantDestination {
                     chrome.assistantDestination = nil
@@ -947,6 +948,7 @@ private struct PageChromeHost: ViewModifier {
                 AssistantView(showsDoneButton: true)
                 #endif
             }
+            #endif
             .sheet(item: Binding(get: { (sidebar && !Self.reviewIsASheet) || !AppSection.review.isShown(with: modules.choice) ? nil : chrome.review }, set: { chrome.review = $0 })) { from in
                 // Its own toast host, as Routines below: clearing the listening history offers Undo.
                 ReviewView(from: from, showsDoneButton: true).toastHost()

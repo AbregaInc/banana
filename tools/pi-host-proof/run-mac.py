@@ -17,7 +17,7 @@ executable = output / 'pi-host-proof'
 reports = repo / 'docs/research/pi-apple-host-results'
 reports.mkdir(parents=True, exist_ok=True)
 try:
-    subprocess.run(['swiftc', str(repo / 'Banana/Pi/AppleRuntimeHost.swift'), str(repo / 'Banana/Pi/AppleFoundationModel.swift'), str(sources / 'ProofHooks.swift'), str(sources / 'MacRunner.swift'),
+    subprocess.run(['swiftc', '-D', 'BANANA_AI', str(repo / 'Banana/Pi/AppleRuntimeHost.swift'), str(repo / 'Banana/Pi/AppleFoundationModel.swift'), str(sources / 'ProofHooks.swift'), str(sources / 'MacRunner.swift'),
                     '-o', str(executable), '-framework', 'JavaScriptCore', '-framework', 'Security', '-framework', 'FoundationModels', '-lsqlite3'], check=True)
     with tempfile.TemporaryDirectory(prefix='banana-pi-shims-') as directory:
         modes = (['foundation-tool', 'foundation-reopen'] if args.mode == 'foundation-roundtrip' else

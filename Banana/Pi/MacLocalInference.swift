@@ -1,3 +1,4 @@
+#if BANANA_AI
 #if os(macOS) && PI_DEVELOPMENT
 import Foundation
 
@@ -219,4 +220,6 @@ final class MacLocalInference {
         return models.compactMap { $0["id"] as? String }
     }
 }
+#endif
+
 #endif

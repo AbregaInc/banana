@@ -178,8 +178,6 @@ targets:
       - path: Banana
         excludes:
           - Pi/Resources
-      - path: Banana/Pi/Resources
-        buildPhase: resources
       - path: Shared
         excludes:
           # The merge and protocol cases are the tests’ (BananaTests), not the app’s.
@@ -323,6 +321,7 @@ targets:
         BANANA_UNRELEASED: YES
         PRODUCT_BUNDLE_IDENTIFIER: $(BANANA_BUNDLE_ID)
         ENABLE_PREVIEWS: YES
+        ENABLE_USER_SCRIPT_SANDBOXING: NO
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
       configs:
         Release:
@@ -341,6 +340,11 @@ targets:
       - target: BananaWatch
         embed: true
 
+    postBuildScripts:
+      - name: Gate local features and resources
+        script: '"$SRCROOT/tools/local-feature-resources.sh"'
+        basedOnDependencyAnalysis: false
+
   # The iOS twin of BananaMacBeta: the build that gets TESTED, so the build you USE is never
   # the one under test. Distinct bundle id, so it has its own data container, its own TCC
   # permission grants, and its own icon on the Home Screen — nothing it does can reach the
@@ -349,6 +353,7 @@ targets:
   # Deliberately embeds neither the Watch app nor the widget extension: both are singletons
   # keyed by bundle id, and a second copy would fight the production ones for the same slot.
   # Watch and widget work is done against the production target, on purpose and out loud.
+
   BananaBeta:
     type: application
     platform: iOS
@@ -358,8 +363,6 @@ targets:
         excludes:
           - Pi/Resources
           - Info.plist
-      - path: Banana/Pi/Resources
-        buildPhase: resources
       - path: Shared
         excludes:
           # The merge and protocol cases are the tests’ (BananaTests), not the app’s.
@@ -453,13 +456,16 @@ targets:
         # member of the same name didn't compile in Beta, whose module was "Banana_Beta".
         PRODUCT_MODULE_NAME: Banana
         ENABLE_PREVIEWS: YES
+        ENABLE_USER_SCRIPT_SANDBOXING: NO
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIconBeta
-        # MAIL_FIXTURES: the sample mailbox (Banana/Model/MailUI/Pure/Testing/), in this target's Release
-        # as well as its Debug. The owner's Beta is a Release build and is how he tries Mail.
+        # MAIL_FIXTURES supplies the sample mailbox only when local Email is compiled in.
+        # Release defaults to public; local install scripts explicitly opt in.
         # Neither production target has it, so production has no sample mail.
         BANANA_UNRELEASED: YES
         SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) BANANA_BETA MAIL_FIXTURES"
       configs:
+        Release:
+          BANANA_UNRELEASED: NO
         PiDevelopment:
           PRODUCT_BUNDLE_IDENTIFIER: $(BANANA_BUNDLE_ID).pi-development
           CODE_SIGN_ENTITLEMENTS: Config/PiDevelopment.entitlements
@@ -475,6 +481,10 @@ targets:
       - package: GoogleSignIn
       - package: GRDB
       - package: SwiftSoup
+    postBuildScripts:
+      - name: Gate local features and resources
+        script: '"$SRCROOT/tools/local-feature-resources.sh"'
+        basedOnDependencyAnalysis: false
 
   BananaAgentUITests:
     type: bundle.ui-testing
@@ -1081,6 +1091,10 @@ targets:
       - package: SwiftSoup
     settings:
       base:
+        # These standalone test bundles compile both local implementations even when
+        # measuring in Release. They are never embedded in the distributed application.
+        BANANA_LOCAL_AI: YES
+        BANANA_LOCAL_EMAIL: YES
         PRODUCT_BUNDLE_IDENTIFIER: $(BANANA_BUNDLE_ID).tests
         GENERATE_INFOPLIST_FILE: YES
 
@@ -1208,6 +1222,7 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: $(BANANA_BUNDLE_ID).widget
         ENABLE_PREVIEWS: YES
+        ENABLE_USER_SCRIPT_SANDBOXING: NO
 
   BananaMac:
     type: application
@@ -1220,8 +1235,6 @@ targets:
           - Assets.xcassets
           - Info.plist
           - Banana.entitlements
-      - path: Banana/Pi/Resources
-        buildPhase: resources
       - path: Shared
         excludes:
           # The merge and protocol cases are the tests’ (BananaTests), not the app’s.
@@ -1288,6 +1301,7 @@ targets:
         # Release is provisioned with iCloud so restore/settings sync work phone↔Mac.
         CODE_SIGN_ENTITLEMENTS: BananaMac/BananaMac.entitlements
         ENABLE_PREVIEWS: YES
+        ENABLE_USER_SCRIPT_SANDBOXING: NO
         TARGETED_DEVICE_FAMILY: ""
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) MAC_APP"
@@ -1306,11 +1320,17 @@ targets:
       - package: GRDB
       - package: SwiftSoup
 
+    postBuildScripts:
+      - name: Gate local features and resources
+        script: '"$SRCROOT/tools/local-feature-resources.sh"'
+        basedOnDependencyAnalysis: false
+
   # The test variant that coexists with prod on one Mac. Its own bundle id and display
   # name make macOS treat it as a separate app; BANANA_BETA diverts all local storage
   # into "Application Support/Banana Beta/" (see AppSupport.swift). Its iCloud entitlements
   # point only at the shared staging container used by iOS Beta, never production. Caveat:
   # system calendars, reminders, and notifications are still the real ones.
+
   BananaMacBeta:
     type: application
     platform: macOS
@@ -1322,8 +1342,6 @@ targets:
           - Assets.xcassets
           - Info.plist
           - Banana.entitlements
-      - path: Banana/Pi/Resources
-        buildPhase: resources
       - path: Shared
         excludes:
           # The merge and protocol cases are the tests’ (BananaTests), not the app’s.
@@ -1376,12 +1394,15 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: $(BANANA_BUNDLE_ID).beta
         PRODUCT_NAME: Banana Beta
         ENABLE_PREVIEWS: YES
+        ENABLE_USER_SCRIPT_SANDBOXING: NO
         TARGETED_DEVICE_FAMILY: ""
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIconBeta
         # MAIL_FIXTURES: as on BananaBeta. Neither production target has it.
         BANANA_UNRELEASED: YES
         SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) MAC_APP BANANA_BETA MAIL_FIXTURES"
       configs:
+        Release:
+          BANANA_UNRELEASED: NO
         PiDevelopment:
           PRODUCT_BUNDLE_IDENTIFIER: $(BANANA_BUNDLE_ID).mac.pi-development
           CODE_SIGN_ENTITLEMENTS: Config/PiDevelopment.entitlements
@@ -1400,6 +1421,9 @@ targets:
       - package: GRDB
       - package: SwiftSoup
     postBuildScripts:
+      - name: Gate local features and resources
+        script: '"$SRCROOT/tools/local-feature-resources.sh"'
+        basedOnDependencyAnalysis: false
       # Banana Pi (PiDevelopment) carries its own Python, Locals and pinned packages, so its Mac
       # model needs nothing installed (docs/design/PI-LOCAL-MODEL.md). Other configurations: no-op.
       - name: Embed Banana Pi runtime
