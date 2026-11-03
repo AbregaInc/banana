@@ -1,0 +1,49 @@
+Launched application with com.boris.banana.pi-host-proof bundle identifier.
+Waiting for the application to terminate…
+PASS UTF-8 streams preserve every split of an emoji
+PASS UTF-8 fatal decoding and BOM policy
+PASS TextEncoder preserves character boundaries and view offsets
+PASS structuredClone preserves cycles, maps, dates, undefined and shared buffers
+PASS WHATWG URL resolution, IDNA, mutable search params and validation
+PASS abort is synchronous, preserves first reason and dispatches once
+PASS AbortSignal.any handles already-aborted and later-aborted sources
+PASS AbortSignal.timeout dispatches TimeoutError
+PASS native timers carry arguments, cancel, and follow microtasks
+PASS performance clock is independent of wall-clock adjustment
+Pi host error: Error: intentional-host-microtask-probe
+@
+@
+flush@
+PASS throwing microtasks reach the native error reporter
+PASS crypto validates integer views and 65536-byte quota
+PASS SQLite binding preserves NUL, Unicode, zero-length blobs, integers and null
+PASS SQLite rollback, revoked handles and transaction isolation
+PASS SQLite constraint failures roll back earlier statements
+PASS upstream storage: reserves ID 1 for the immutable root conversation
+PASS upstream storage: adopts a durable commit once before resolving, and never a failed one
+PASS upstream storage: commits mixed table writes atomically and rolls all of them back on failure
+PASS upstream storage: detaches retained writes and every returned record
+PASS upstream storage: detaches prototype-like JSON keys without changing object prototypes
+PASS upstream storage: indexes entries committed out of ID order
+PASS upstream storage: continues an entry cursor below its last item after a newer commit
+PASS upstream storage: paginates conversations by opaque cursor in ascending ID order
+PASS upstream storage: filters and pages conversations by durable owner edges
+PASS upstream storage: scans deep fork history newest-first through every ancestor cap
+PASS upstream storage: scans tables in either ID order and continues a cursor in its order
+PASS upstream storage: replaces complete task records and pages filtered task scans
+PASS upstream storage: stores owners and scans waiting and completing tasks by status
+PASS upstream storage: stores and scans sleeping tasks by status
+PASS upstream storage: indexes request IDs per conversation and replaces complete submission records
+PASS upstream storage: stores passive write submissions without input-only lifecycle states
+PASS upstream storage: reconstructs rewindable documents and preserves half-open incarnations
+PASS upstream storage: streams long document tails across root replacement deltas
+PASS upstream storage: copies stored document bases independently and rejects ambiguous sources
+PASS upstream storage: uses bases for version transitions and rejects historical reads of current-only documents
+PASS upstream storage: indexes logical addresses and exact-scope scans independently
+PASS upstream storage: keeps document lifecycle failures atomic and gives create-plus-retire an empty lifetime
+PASS upstream storage: rolls back record tables and secondary indexes when a document command fails
+PASS upstream storage: keeps indexed string identities lossless
+PASS upstream storage: keeps one global record ID namespace and rejects exhausted ID minting
+PASS upstream storage: rejects every operation after close
+PI_PROOF_PASS host-conformance {"mode":"host-conformance","passed":true,"hostCases":15,"storageCases":26,"total":41,"failed":[],"results":[{"name":"UTF-8 streams preserve every split of an emoji","passed":true},{"name":"UTF-8 fatal decoding and BOM policy","passed":true},{"name":"TextEncoder preserves character boundaries and view offsets","passed":true},{"name":"structuredClone preserves cycles, maps, dates, undefined and shared buffers","passed":true},{"name":"WHATWG URL resolution, IDNA, mutable search params and validation","passed":true},{"name":"abort is synchronous, preserves first reason and dispatches once","passed":true},{"name":"AbortSignal.any handles already-aborted and later-aborted sources","passed":true},{"name":"AbortSignal.timeout dispatches TimeoutError","passed":true},{"name":"native timers carry arguments, cancel, and follow microtasks","passed":true},{"name":"performance clock is independent of wall-clock adjustment","passed":true},{"name":"throwing microtasks reach the native error reporter","passed":true},{"name":"crypto validates integer views and 65536-byte quota","passed":true},{"name":"SQLite binding preserves NUL, Unicode, zero-length blobs, integers and null","passed":true},{"name":"SQLite rollback, revoked handles and transaction isolation","passed":true},{"name":"SQLite constraint failures roll back earlier statements","passed":true},{"name":"upstream storage: reserves ID 1 for the immutable root conversation","passed":true},{"name":"upstream storage: adopts a durable commit once before resolving, and never a failed one","passed":true},{"name":"upstream storage: commits mixed table writes atomically and rolls all of them back on failure","passed":true},{"name":"upstream storage: detaches retained writes and every returned record","passed":true},{"name":"upstream storage: detaches prototype-like JSON keys without changing object prototypes","passed":true},{"name":"upstream storage: indexes entries committed out of ID order","passed":true},{"name":"upstream storage: continues an entry cursor below its last item after a newer commit","passed":true},{"name":"upstream storage: paginates conversations by opaque cursor in ascending ID order","passed":true},{"name":"upstream storage: filters and pages conversations by durable owner edges","passed":true},{"name":"upstream storage: scans deep fork history newest-first through every ancestor cap","passed":true},{"name":"upstream storage: scans tables in either ID order and continues a cursor in its order","passed":true},{"name":"upstream storage: replaces complete task records and pages filtered task scans","passed":true},{"name":"upstream storage: stores owners and scans waiting and completing tasks by status","passed":true},{"name":"upstream storage: stores and scans sleeping tasks by status","passed":true},{"name":"upstream storage: indexes request IDs per conversation and replaces complete submission records","passed":true},{"name":"upstream storage: stores passive write submissions without input-only lifecycle states","passed":true},{"name":"upstream storage: reconstructs rewindable documents and preserves half-open incarnations","passed":true},{"name":"upstream storage: streams long document tails across root replacement deltas","passed":true},{"name":"upstream storage: copies stored document bases independently and rejects ambiguous sources","passed":true},{"name":"upstream storage: uses bases for version transitions and rejects historical reads of current-only documents","passed":true},{"name":"upstream storage: indexes logical addresses and exact-scope scans independently","passed":true},{"name":"upstream storage: keeps document lifecycle failures atomic and gives create-plus-retire an empty lifetime","passed":true},{"name":"upstream storage: rolls back record tables and secondary indexes when a document command fails","passed":true},{"name":"upstream storage: keeps indexed string identities lossless","passed":true},{"name":"upstream storage: keeps one global record ID namespace and rejects exhausted ID minting","passed":true},{"name":"upstream storage: rejects every operation after close","passed":true}]}
+The app terminated with the exit code 0.

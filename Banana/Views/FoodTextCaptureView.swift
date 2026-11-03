@@ -26,7 +26,7 @@ struct FoodTextCaptureView: View {
     @State private var showingRecentMeals = false
     @State private var phrase: String
     @State private var mealName: String
-    @State private var eatenAt = Date()
+    @State private var reviewDay: Date?
     @State private var rows: [EditableFoodRow]
     @State private var thinking = false
     /// Which model the last parse actually used, so the spinner can say so rather than assert
@@ -47,6 +47,8 @@ struct FoodTextCaptureView: View {
     @State private var usualNow: [UsualFoods.Food] = []
     /// Rows added from those, kept when the phrase is read.
     @State private var usualRowIDs: Set<UUID> = []
+    /// When a described meal was eaten, once the person sets it; until then `logDate`'s guess.
+    @State private var eatenAt: Date?
     /// Read the phrase as soon as the sheet opens — the Mac's inline "What did you eat?" field
     /// has already been typed into and submitted by then.
     private var parseOnOpen = false
@@ -77,6 +79,11 @@ struct FoodTextCaptureView: View {
     private var startsWithScan = false
     /// A new meal entered by hand: one blank row, open, its name field ready.
     private var startsByHand = false
+    private var embedded = false
+    @Environment(\.workspaceChrome) private var workspaceChrome
+    private var copyingMeal = false
+    private var copyOperationID: UUID?
+    @State private var copySaveError: String?
 
     private struct ScanReplacement {
         var food: UUID
@@ -171,10 +178,47 @@ struct FoodTextCaptureView: View {
         _mealName = State(initialValue: meal.name)
         let rows = meal.items.map(EditableFoodRow.init(saved:))
         _rows = State(initialValue: rows)
-        // Same rule as a fresh parse: the rows nobody has vouched for are the ones worth opening.
-        // A meal saved with an unconfirmed estimate in it is exactly what someone reopens to fix.
-        _openRows = State(initialValue: Set(rows.filter { !$0.isConfident || $0.needsAmount }.map(\.id)))
+        // Same rule as a fresh parse: the row that most needs a look opens itself — the one still
+        // to say an amount, else the first estimate. One, so the rest of the meal stays in view.
+        _openRows = State(initialValue: Self.firstToOpen(rows))
         _confirmed = State(initialValue: true)
+        _hasParsed = State(initialValue: true)
+    }
+
+    /// A new meal copied from logged foods. Reuses review/save; never edits the source meal.
+    init(copying meal: MealEntry, on day: Date, operationID: UUID, embedded: Bool = false) {
+        self.embedded = embedded
+        // A time as well as a day, so where the meal will be filed is visible before saving.
+        _reviewDay = State(initialValue: MealLogTime.date(on: day, part: nil))
+        copyingMeal = true
+        copyOperationID = operationID
+        editingMealID = nil
+        reviewingInboxID = nil
+        self.day = day
+        photoIDs = []
+        startsWithSearch = true
+        _phrase = State(initialValue: "")
+        _mealName = State(initialValue: meal.name)
+        _rows = State(initialValue: meal.items.map(EditableFoodRow.init(saved:)))
+        _confirmed = State(initialValue: meal.isConfident)
+        _hasParsed = State(initialValue: true)
+    }
+
+    /// Pi supplies food names/amounts; the shared editor reviews native catalog matches or blanks.
+    init(assistantItems: [ResolvedFoodItem], name: String, day: Date, operationID: UUID, embedded: Bool = false) {
+        self.embedded = embedded
+        // "…breakfast" is filed at breakfast time, and the draft shows that time to correct.
+        let named = MealTextSplitter.split(name)
+        _reviewDay = State(initialValue: MealLogTime.date(on: day, part: named.count == 1 ? named[0].part : nil))
+        editingMealID = nil; reviewingInboxID = nil
+        self.day = day; photoIDs = []
+        copyingMeal = true; startsWithSearch = true; copyOperationID = operationID
+        _phrase = State(initialValue: "")
+        _mealName = State(initialValue: name)
+        _rows = State(initialValue: assistantItems.map(EditableFoodRow.init))
+        _parsedItems = State(initialValue: assistantItems)
+        _openRows = State(initialValue: Set(assistantItems.filter { !$0.isConfident }.map(\.id)))
+        _confirmed = State(initialValue: false)
         _hasParsed = State(initialValue: true)
     }
 
@@ -190,8 +234,7 @@ struct FoodTextCaptureView: View {
         _mealName = State(initialValue: item.proposal?.name ?? "")
         let rows = (item.proposal?.items ?? []).map(EditableFoodRow.init(saved:))
         _rows = State(initialValue: rows)
-        _openRows = State(initialValue: itemID.map { [$0] }
-                          ?? Set(rows.filter { !$0.isConfident || $0.needsAmount }.map(\.id)))
+        _openRows = State(initialValue: itemID.map { [$0] } ?? Self.firstToOpen(rows))
         _confirmed = State(initialValue: true)
         _hasParsed = State(initialValue: true)
     }
@@ -204,95 +247,131 @@ struct FoodTextCaptureView: View {
     private var readsPhrase: Bool { !isEditingExisting && !startsWithSearch }
 
     var body: some View {
-        NavigationStack {
-            ScrollViewReader { proxy in
-                Form {
-                    if !isEditingExisting && !hasParsed {
-                        Section { Button { showingRecentMeals = true } label: { Label("Recent meals", systemImage: "clock.arrow.circlepath") }
-                            .accessibilityIdentifier("capture.recentMeals") }
+        Group {
+            if embedded {
+                VStack(alignment: .leading, spacing: 16) {
+                    InlineEditorSections { editorFields }
+                    if workspaceChrome != .sheetToolbar {
+                        Button(approvesOnSave ? "Approve and save" : "Save meal") { approveAndSave() }
+                            .buttonStyle(.borderedProminent)
+                            .disabled(approvesOnSave ? !canApprove : !canSave)
+                            .accessibilityIdentifier("assistant.workspace.saveMeal")
                     }
-                    if readsPhrase { phraseSection }
-                    if hasParsed {
-                        nameSection
-                        if editingMealID != nil {
-                            Section {
-                                DatePicker("Ate at", selection: $eatenAt, in: ...Date(),
-                                           displayedComponents: [.date, .hourAndMinute])
-                                    .accessibilityIdentifier("foodText.eatenAt")
+                }
+                .toolbar {
+                    // In a sheet that is this draft: Save where every sheet's verb is, always in
+                    // reach. The tap is the person's approval.
+                    if workspaceChrome == .sheetToolbar {
+                        ToolbarItem(placement: .confirmationAction) {
+                            Button("Save") { approveAndSave() }
+                                .disabled(approvesOnSave ? !canApprove : !canSave)
+                                .accessibilityIdentifier("assistant.workspace.saveMeal")
+                        }
+                    }
+                }
+            } else {
+                NavigationStack {
+                    ScrollViewReader { proxy in
+                        Form { editorFields }
+                            .onChange(of: scannedRow) { _, id in
+                                guard let id else { return }
+                                withAnimation { proxy.scrollTo(id, anchor: .top) }
+                                scannedRow = nil
+                            }
+                    }
+                    .editingFormStyle()
+                    .navigationTitle(reviewingInboxID != nil ? "Check meal" : isEditingExisting ? "Edit meal"
+                                     : startsWithSearch ? "New meal" : "Describe meal")
+                    #if os(iOS)
+                    .navigationBarTitleDisplayMode(.inline)
+                    #else
+                    .frame(minWidth: 460, idealWidth: 520, minHeight: 520, idealHeight: 640)
+                    #endif
+                    .toolbar {
+                        ToolbarItem(placement: .cancellationAction) {
+                            Button("Cancel") { Drafts.foodPhrase = ""; closeScanToast(); dismiss() }
+                        }
+                        ToolbarItem(placement: .confirmationAction) {
+                            // Words not read yet: the sheet's verb is Estimate, and what it makes
+                            // lands below to check; then Save. One verb at a time, where the verb is.
+                            if needsEstimate {
+                                Button("Estimate") { Task { await parse() } }
+                                    .disabled(!canParse)
+                                    .accessibilityIdentifier("foodText.parse")
+                            } else {
+                                Button("Save") { save() }.disabled(!canSave)
                             }
                         }
-                        mealSummarySection
-                        itemSections
-                        if readsPhrase { confirmSection }
                     }
                 }
-                // A scan lands on its row, amount in view, wherever the list was scrolled to.
-                .onChange(of: scannedRow) { _, id in
-                    guard let id else { return }
-                    withAnimation { proxy.scrollTo(id, anchor: .top) }
-                    scannedRow = nil
-                }
             }
-            .editingFormStyle()
-            .navigationTitle(reviewingInboxID != nil ? "Check meal" : isEditingExisting ? "Edit meal"
-                             : startsWithSearch ? "New meal" : "Describe what you ate")
+        }
+        .toolbar {
             #if os(iOS)
-            .navigationBarTitleDisplayMode(.inline)
-            #else
-            .frame(minWidth: 460, idealWidth: 520, minHeight: 520, idealHeight: 640)
+            // Every number here is a decimal pad, and a decimal pad has no return key — without
+            // this bar the only way out of a calorie field is to guess at some inert pixel.
+            ToolbarItemGroup(placement: .keyboard) {
+                Button { focus = previousField() } label: { Image(systemName: "chevron.up") }
+                    .disabled(previousField() == nil)
+                Button { focus = nextField() } label: { Image(systemName: "chevron.down") }
+                    .disabled(nextField() == nil)
+                Spacer()
+                Button("Done") { focus = nil }
+            }
             #endif
-            .task {
-                if readsPhrase {
-                    usualNow = UsualFoods.foods(at: logDate, meals: wellness.meals, myFoods: MyFoodsStore.shared.foods)
-                }
-                guard parseOnOpen, !hasParsed else { return }
-                await parse()
+        }
+        .task {
+            if readsPhrase {
+                usualNow = UsualFoods.foods(at: logDate, meals: wellness.meals, myFoods: MyFoodsStore.shared.foods)
             }
-            // A sheet sits above the app's own toast; a scan's Undo has to show here.
-            .toastHost()
-            .onAppear { if startsByHand && rows.isEmpty { addBlankRow() } }
-            .sheet(isPresented: $showingRecentMeals) {
-                RecentMealsView(day: day ?? Date(), onLogged: { dismiss() }).environmentObject(wellness)
-            }
-            .sheet(item: $searchRequest, onDismiss: {
-                // Searched for nothing to start a meal with: there's no meal.
-                if startsWithSearch && rows.isEmpty { dismiss() }
-            }) { request in
-                let target = rows.first { $0.id == request.target }
-                FoodSearchView(initialQuery: target?.name ?? "", replacingGrams: target?.grams,
-                               onPick: { applySearch($0, replacing: request.target) },
-                               onManual: target == nil ? { addBlankRow() } : nil)
-                    .environmentObject(wellness)
-            }
-            .sheet(item: $scanRequest, onDismiss: {
-                // Scanned nothing to start a meal with: there's no meal.
-                if startsWithScan && rows.isEmpty { dismiss() }
-            }) { request in
-                ScanCorrectionSheet(items: rows.map { .init(id: $0.id, name: $0.name, grams: $0.grams) },
-                                    photos: photoIDs.prefix(2).compactMap { MealPhotoStore.shared.image($0) },
-                                    target: request.target,
-                                    onApply: applyScan)
-            }
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { Drafts.foodPhrase = ""; closeScanToast(); dismiss() }
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") { save() }.disabled(!canSave)
-                }
-                #if os(iOS)
-                // Every number here is a decimal pad, and a decimal pad has no return key — without
-                // this bar the only way out of a calorie field is to guess at some inert pixel.
-                ToolbarItemGroup(placement: .keyboard) {
-                    Button { focus = previousField() } label: { Image(systemName: "chevron.up") }
-                        .disabled(previousField() == nil)
-                    Button { focus = nextField() } label: { Image(systemName: "chevron.down") }
-                        .disabled(nextField() == nil)
-                    Spacer()
-                    Button("Done") { focus = nil }
-                }
-                #endif
-            }
+            guard parseOnOpen, !hasParsed else { return }
+            await parse()
+        }
+        // A sheet sits above the app's own toast; a scan's Undo has to show here.
+        .toastHost()
+        .alert("Couldn’t save meal", isPresented: Binding(get: { copySaveError != nil }, set: { if !$0 { copySaveError = nil } })) {
+            Button("OK") { copySaveError = nil }
+        } message: { Text(copySaveError ?? "") }
+        .onAppear { if startsByHand && rows.isEmpty { addBlankRow() } }
+        .sheet(isPresented: $showingRecentMeals) {
+            RecentMealsView(day: day ?? Date(), onLogged: { dismiss() }).environmentObject(wellness)
+        }
+        .sheet(item: $searchRequest, onDismiss: {
+            // Searched for nothing to start a meal with: there's no meal.
+            if !embedded && startsWithSearch && rows.isEmpty { dismiss() }
+        }) { request in
+            let target = rows.first { $0.id == request.target }
+            FoodSearchView(initialQuery: target?.name ?? "", replacingGrams: target?.grams,
+                           onPick: { applySearch($0, replacing: request.target) },
+                           onManual: target == nil ? { addBlankRow() } : nil)
+                .environmentObject(wellness)
+        }
+        .sheet(item: $scanRequest, onDismiss: {
+            // Scanned nothing to start a meal with: there's no meal.
+            if !embedded && startsWithScan && rows.isEmpty { dismiss() }
+        }) { request in
+            ScanCorrectionSheet(items: rows.map { .init(id: $0.id, name: $0.name, grams: $0.grams) },
+                                photos: photoIDs.prefix(2).compactMap { MealPhotoStore.shared.image($0) },
+                                target: request.target,
+                                onApply: applyScan)
+        }
+    }
+
+    @ViewBuilder private var editorFields: some View {
+        if !embedded && !isEditingExisting && !hasParsed {
+            Section { Button { showingRecentMeals = true } label: { Label("Recent meals", systemImage: "clock.arrow.circlepath") }.accessibilityIdentifier("capture.recentMeals") }
+        }
+        if editingMealID != nil {
+            Section { DatePicker("Ate at", selection: Binding(get: { eatenAt ?? Date() }, set: { eatenAt = $0 }), in: ...Date(), displayedComponents: [.date, .hourAndMinute]).accessibilityIdentifier("foodText.eatenAt") }
+        }
+        if readsPhrase { phraseSection }
+        if hasParsed {
+            nameSection
+            mealSummarySection
+            itemSections
+            // In the assistant's workspace the approval is the save button itself (one tap,
+            // still the person's): see `approvesOnSave`.
+            if (readsPhrase || copyingMeal) && !approvesOnSave { confirmSection }
         }
     }
 
@@ -307,13 +386,23 @@ struct FoodTextCaptureView: View {
                 .focused($focus, equals: .phrase)
                 .onSubmit { Task { await parse() } }
                 .accessibilityIdentifier("foodText.phrase")
-            Button {
-                Task { await parse() }
-            } label: {
-                Label(hasParsed ? "Estimate again" : "Estimate", systemImage: "sparkles")
+            // When it was eaten: now, or the part of the day the words name — set here for a meal
+            // described later, which otherwise lands at the time it was typed.
+            if !embedded {
+                TimeField("Time", selection: Binding(get: { logDate }, set: { eatenAt = $0 }))
+                    .accessibilityIdentifier("foodText.time")
             }
-            .disabled(!canParse)
-            .accessibilityIdentifier("foodText.parse")
+            // Standalone, Estimate is the sheet's verb (top right). Embedded there's no bar of
+            // its own, so the row stays.
+            if embedded {
+                Button {
+                    Task { await parse() }
+                } label: {
+                    WellnessTileLabel(hasParsed ? "Estimate again" : "Estimate", systemImage: "sparkles")
+                }
+                .disabled(!canParse)
+                .accessibilityIdentifier("foodText.parse")
+            }
             if thinking {
                 HStack { ProgressView(); Text(Intelligence.progressNote(for: parseRoute)) }
             }
@@ -324,16 +413,19 @@ struct FoodTextCaptureView: View {
     /// "Suggested": what you have around this time of day, and what you bought lately and haven't had yet, a tap each.
     @ViewBuilder private var usualRow: some View {
         let inMeal = Set(rows.map { MyFoods.key($0.name) })
-        let offered = usualNow.filter { !inMeal.contains($0.key) }.prefix(8)
+        // A chip with no name says nothing: left out, and with none left, so is "Suggested".
+        let offered = usualNow.filter {
+            !inMeal.contains($0.key) && !$0.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        }.prefix(8)
         if !offered.isEmpty {
             VStack(alignment: .leading, spacing: DS.Space.xs) {
                 Text("Suggested").font(.caption).foregroundStyle(.secondary)
                 // Wrapping, as a food's measures do: a name cut off at the edge reads as broken.
                 WorkoutFlowLayout(spacing: DS.Space.s, lineSpacing: DS.Space.xs, fitsWidth: true) {
                     ForEach(Array(offered), id: \.key) { food in
+                        // One Text, the + inside it: a Label here drew its icon alone.
                         Button { addUsual(food) } label: {
-                            Label(food.name, systemImage: "plus")
-                                .labelStyle(.titleAndIcon).lineLimit(1).fixedSize()
+                            Text("\(Image(systemName: "plus")) \(food.name)").lineLimit(1)
                         }
                         .buttonStyle(.secondarySmall)
                         .accessibilityIdentifier("foodText.usual")
@@ -357,6 +449,11 @@ struct FoodTextCaptureView: View {
 
     private var nameSection: some View {
         Section {
+            if embedded {
+                DatePicker("Eaten", selection: Binding(get: { reviewDay ?? day ?? Date() }, set: { reviewDay = $0 }),
+                           displayedComponents: approvesOnSave ? [.date, .hourAndMinute] : .date)
+                    .accessibilityIdentifier("foodText.day")
+            }
             // Labelled, so a filled name still says what it is.
             LabeledContent("Name") {
                 TextField("Name", text: $mealName, prompt: Text("Optional"))
@@ -374,7 +471,7 @@ struct FoodTextCaptureView: View {
     private var mealSummarySection: some View {
         Section {
             VStack(alignment: .leading, spacing: DS.Space.m) {
-                NutritionSummary(macros: mealTotals)
+                NutritionSummary(macros: mealTotals, size: .tile)
                     .accessibilityElement(children: .contain)
                     .accessibilityIdentifier("foodText.total")
                 if let saveBlockReason {
@@ -400,29 +497,25 @@ struct FoodTextCaptureView: View {
                 for index in offsets { openRows.remove(rows[index].id) }
                 rows.remove(atOffsets: offsets)
             }
+            // The two ways to add or correct an item, as rows under the items: by name, or from
+            // its package (a scan replaces the item it is, or adds one). Only one row opens by
+            // itself now, so these stay within reach; the scan was a link in the header.
             Button {
                 focus = nil
                 searchRequest = ItemRequest()
             } label: {
-                Label("Add item", systemImage: "plus")
+                WellnessTileLabel("Add item", systemImage: "plus")
             }
             .accessibilityIdentifier("foodText.addItem")
-        } header: {
-            HStack {
-                Text(rows.count == 1 ? "1 item" : "\(rows.count) items")
-                Spacer()
-                // Up here, beside the items: correcting one with its package is the usual reason
-                // to open a photo's estimate, and the bottom of the list is under open rows.
-                Button {
-                    focus = nil
-                    scanRequest = ItemRequest()
-                } label: {
-                    Label("Scan a package", systemImage: "barcode.viewfinder")
-                }
-                .buttonStyle(.inline)
-                .textCase(nil)
-                .accessibilityIdentifier("foodText.scan")
+            Button {
+                focus = nil
+                scanRequest = ItemRequest()
+            } label: {
+                WellnessTileLabel("Scan package", systemImage: "barcode.viewfinder")
             }
+            .accessibilityIdentifier("foodText.scan")
+        } header: {
+            Text(rows.count == 1 ? "1 item" : "\(rows.count) items")
         }
     }
 
@@ -437,15 +530,26 @@ struct FoodTextCaptureView: View {
         let id = row.wrappedValue.id
         let isOpen = openRows.contains(id)
         return VStack(alignment: .leading, spacing: 0) {
-            Button {
-                withAnimation(.snappy(duration: 0.2)) {
-                    if isOpen { openRows.remove(id) } else { openRows.insert(id) }
+            HStack {
+                Button {
+                    withAnimation(.snappy(duration: 0.2)) {
+                        if isOpen { openRows.remove(id) } else { openRows.insert(id) }
+                    }
+                } label: {
+                    collapsedLine(row.wrappedValue, isOpen: isOpen)
                 }
-            } label: {
-                collapsedLine(row.wrappedValue, isOpen: isOpen)
+                .buttonStyle(.plain)
+                .accessibilityHint(isOpen ? "Collapses this item" : "Opens this item for editing")
+                if embedded {
+                    Button(role: .destructive) {
+                        openRows.remove(id)
+                        rows.removeAll { $0.id == id }
+                    } label: { Image(systemName: "trash") }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Remove \(row.wrappedValue.name)")
+                    .accessibilityIdentifier("foodText.remove.\(id)")
+                }
             }
-            .buttonStyle(.plain)
-            .accessibilityHint(isOpen ? "Collapses this item" : "Opens this item for editing")
 
             if isOpen { editor(row).padding(.top, DS.Space.m) }
         }
@@ -455,22 +559,24 @@ struct FoodTextCaptureView: View {
     /// Name, what it cost, and — at a glance — whether anyone has vouched for that number.
     private func collapsedLine(_ row: EditableFoodRow, isOpen: Bool) -> some View {
         HStack(spacing: DS.Space.m) {
-            // Only an estimate is marked; a number someone vouched for needs no badge. The slot
-            // stays, so every name starts in one column.
-            Image(systemName: "exclamationmark.triangle.fill")
-                .font(.footnote)
-                .foregroundStyle(DS.Palette.warning)
-                .opacity(row.isConfident ? 0 : 1)
-                .accessibilityHidden(row.isConfident)
-                .accessibilityLabel(row.badgeText)
+            // Only an estimate is marked, and the mark says what's guessed ("Amount estimated"),
+            // in amber at the start of its line. Touching its amount or numbers clears it.
             VStack(alignment: .leading, spacing: DS.Space.hair) {
                 Text(row.name.isEmpty ? "New item" : row.name)
                     .foregroundStyle(row.name.isEmpty ? .secondary : .primary)
+                // Open, its numbers are the rows below: the line keeps only what's guessed.
                 if row.needsAmount {
                     Text("How much? Its package doesn\u{2019}t say").font(.caption).foregroundStyle(DS.Palette.warning)
                 } else if PortionScaling.isImplausible(row.macros) {
                     Text("Check the portion \u{2014} over 2,000 kcal").font(.caption).foregroundStyle(DS.Palette.warning)
-                } else {
+                } else if let reason = row.guessReason {
+                    if isOpen {
+                        Text(reason).font(.caption.weight(.semibold)).foregroundStyle(DS.Palette.warning)
+                    } else {
+                        Text("\(Text(reason).foregroundStyle(DS.Palette.warning).fontWeight(.semibold)) \u{00B7} \(row.macroLine)")
+                            .font(.caption).foregroundStyle(.secondary)
+                    }
+                } else if !isOpen {
                     Text(row.macroLine).font(.caption).foregroundStyle(.secondary)
                 }
             }
@@ -491,40 +597,17 @@ struct FoodTextCaptureView: View {
     @ViewBuilder
     private func editor(_ row: Binding<EditableFoodRow>) -> some View {
         let id = row.wrappedValue.id
+        // The amount is the open question (still to say, or guessed on a known food): it comes
+        // first, and touching it settles it.
+        let amountFirst = row.wrappedValue.needsAmount
+            || (row.wrappedValue.source == .database && !row.wrappedValue.isConfident)
         VStack(alignment: .leading, spacing: 10) {
-            // Labelled, as every field of the sheet is: a filled one still says what it is.
-            LabeledContent("Name") {
-                TextField("Food", text: row.name)
-                    .multilineTextAlignment(.trailing)
-                    .focused($focus, equals: .name(id))
-                    #if os(iOS)
-                    .textInputAutocapitalization(.never)
-                    #endif
-                    .accessibilityIdentifier("foodText.name")
-            }
-            if row.wrappedValue.isWeighed {
-                // Any number of any of its measures, grams or ounces: "1 regular" cucumber, 150 g,
-                // 1¼ servings of something scanned. The serving it comes to is written for you.
-                amountControl(row)
-                if row.wrappedValue.needsAmount {
-                    Text("Its package doesn\u{2019}t say a serving. How many grams did you have?")
-                        .font(.caption)
-                        .foregroundStyle(DS.Palette.accent)
-                        .accessibilityIdentifier("foodText.needsAmount")
-                } else {
-                    Text(row.wrappedValue.serving)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .accessibilityIdentifier("foodText.servingText")
-                }
+            if amountFirst {
+                amountBlock(row)
+                nameField(row)
             } else {
-                // No weight to go by: name the serving, then how many of it.
-                LabeledContent("Serving") {
-                    TextField("Serving", text: row.serving, prompt: Text("1 cup"))
-                        .multilineTextAlignment(.trailing)
-                        .focused($focus, equals: .serving(id))
-                }
-                amountControl(row)
+                nameField(row)
+                amountBlock(row)
             }
             if PortionScaling.isImplausible(row.wrappedValue.macros) {
                 Label("Over 2,000 kcal for one item \u{2014} check the portion.", systemImage: "exclamationmark.triangle.fill")
@@ -532,19 +615,74 @@ struct FoodTextCaptureView: View {
                     .foregroundStyle(DS.Palette.warning)
             }
             Divider()
-            nutritionField("Calories", value: row.macros.calories, suffix: "kcal", field: .calories(id))
-            nutritionField("Protein", value: row.macros.proteinGrams, suffix: "g", field: .protein(id))
-            nutritionField("Carbs", value: row.macros.carbohydrateGrams, suffix: "g", field: .carbs(id))
-            nutritionField("Fat", value: row.macros.fatGrams, suffix: "g", field: .fat(id))
-            rowActions(id, name: row.wrappedValue.name)
-            .buttonStyle(.inline)
-            .padding(.top, DS.Space.hair)
+            nutritionField("Calories", value: vouching(row, \.calories), suffix: "kcal", field: .calories(id))
+            nutritionField("Protein", value: vouching(row, \.proteinGrams), suffix: "g", field: .protein(id))
+            nutritionField("Carbs", value: vouching(row, \.carbohydrateGrams), suffix: "g", field: .carbs(id))
+            nutritionField("Fat", value: vouching(row, \.fatGrams), suffix: "g", field: .fat(id))
+            if embedded {
+                rowActions(id, name: row.wrappedValue.name)
+                    .buttonStyle(.inline)
+                    .padding(.top, DS.Space.hair)
+            } else {
+                HStack {
+                    Spacer()
+                    itemMenu(id, name: row.wrappedValue.name)
+                }
+            }
         }
         // One group per item, under its name: VoiceOver says whose amount this is, and a test
         // can reach the controls of one row among several open.
         .accessibilityElement(children: .contain)
         .accessibilityLabel(row.wrappedValue.name)
         .accessibilityIdentifier("foodText.editor")
+    }
+
+    /// Labelled, as every field of the sheet is: a filled one still says what it is.
+    private func nameField(_ row: Binding<EditableFoodRow>) -> some View {
+        LabeledContent("Name") {
+            TextField("Food", text: row.name)
+                .multilineTextAlignment(.trailing)
+                .focused($focus, equals: .name(row.wrappedValue.id))
+                #if os(iOS)
+                .textInputAutocapitalization(.never)
+                #endif
+                .accessibilityIdentifier("foodText.name")
+        }
+    }
+
+    /// How much: the amount control, and what it comes to.
+    @ViewBuilder private func amountBlock(_ row: Binding<EditableFoodRow>) -> some View {
+        if row.wrappedValue.isWeighed {
+            // Any number of any of its measures, grams or ounces: "1 regular" cucumber, 150 g,
+            // 1¼ servings of something scanned. The serving it comes to is written for you.
+            amountControl(row)
+            if row.wrappedValue.needsAmount {
+                Text("Its package doesn\u{2019}t say a serving. How many grams did you have?")
+                    .font(.caption)
+                    .foregroundStyle(DS.Palette.warning)
+                    .accessibilityIdentifier("foodText.needsAmount")
+            } else {
+                Text(row.wrappedValue.serving)
+                    .font(.caption)
+                    .foregroundStyle(row.wrappedValue.isConfident ? Color.secondary : DS.Palette.warning)
+                    .accessibilityIdentifier("foodText.servingText")
+            }
+        } else {
+            // No weight to go by: name the serving, then how many of it.
+            LabeledContent("Serving") {
+                TextField("Serving", text: row.serving, prompt: Text("1 cup"))
+                    .multilineTextAlignment(.trailing)
+                    .focused($focus, equals: .serving(row.wrappedValue.id))
+            }
+            amountControl(row)
+        }
+    }
+
+    /// The one row to open when a meal is opened: the one still to say an amount, else the first
+    /// estimate nobody has vouched for, else none.
+    private static func firstToOpen(_ rows: [EditableFoodRow]) -> Set<UUID> {
+        guard let row = rows.first(where: \.needsAmount) ?? rows.first(where: { !$0.isConfident }) else { return [] }
+        return [row.id]
     }
 
     /// Scan its package, search for it by name, delete it — short enough for one line on a phone;
@@ -584,10 +722,57 @@ struct FoodTextCaptureView: View {
         .lineLimit(1)
     }
 
+    /// Everything one item can do besides being edited, in one menu at its foot: put the right
+    /// food in its place (by name or from its package), or take it out. A swipe on its row
+    /// takes it out too.
+    private func itemMenu(_ id: UUID, name: String) -> some View {
+        Menu {
+            Button {
+                focus = nil
+                searchRequest = ItemRequest(target: id)
+            } label: {
+                Label("Replace by searching", systemImage: "magnifyingglass")
+            }
+            .accessibilityIdentifier("foodText.searchItem")
+            Button {
+                focus = nil
+                scanRequest = ItemRequest(target: id)
+            } label: {
+                Label("Replace by scanning", systemImage: "barcode.viewfinder")
+            }
+            .accessibilityIdentifier("foodText.scanItem")
+            Divider()
+            Button(role: .destructive) {
+                openRows.remove(id)
+                rows.removeAll { $0.id == id }
+            } label: {
+                Label("Delete item", systemImage: "trash")
+            }
+            .accessibilityIdentifier("foodText.deleteItem")
+        } label: {
+            Image(systemName: "ellipsis.circle")
+                .font(.title3)
+                .frame(minWidth: DS.Row.minHeight, minHeight: DS.Row.minHeight)
+                .contentShape(Rectangle())
+        }
+        .menuStyle(.borderlessButton)
+        .buttonStyle(.borderless)
+        .fixedSize()
+        .accessibilityLabel("Item actions")
+        .accessibilityValue(name)
+        .accessibilityIdentifier("foodText.itemMenu")
+    }
+
+    /// A number typed in: the person has now put their own number on the item.
+    private func vouching(_ row: Binding<EditableFoodRow>, _ key: WritableKeyPath<NutritionMacros, Double>) -> Binding<Double> {
+        Binding(get: { row.wrappedValue.macros[keyPath: key] },
+                set: { row.wrappedValue.macros[keyPath: key] = $0; row.wrappedValue.vouch() })
+    }
+
     /// How much of it: a count of one of its measures — the shared control (`FoodAmountControl`).
     private func amountControl(_ row: Binding<EditableFoodRow>) -> some View {
         FoodAmountControl(amount: Binding(get: { row.wrappedValue.amount },
-                                          set: { row.wrappedValue.setAmount($0) }),
+                                          set: { row.wrappedValue.setAmount($0); row.wrappedValue.vouch() }),
                           units: row.wrappedValue.units,
                           serving: row.wrappedValue.baseServing,
                           focus: $focus, field: .amount(row.wrappedValue.id), title: "Amount")
@@ -709,6 +894,9 @@ struct FoodTextCaptureView: View {
 
     private var phraseChanged: Bool { trimmedPhrase != parsedPhrase.trimmingCharacters(in: .whitespacesAndNewlines) }
 
+    /// A new meal's words not read yet (or changed since): Estimate is the verb, not Save.
+    private var needsEstimate: Bool { readsPhrase && (!hasParsed || phraseChanged) }
+
     private var canParse: Bool {
         !trimmedPhrase.isEmpty && !thinking && (!hasParsed || phraseChanged)
     }
@@ -721,8 +909,18 @@ struct FoodTextCaptureView: View {
     private var rowNeedingAmount: EditableFoodRow? { rows.first(where: \.needsAmount) }
 
     private var canSave: Bool {
-        hasParsed && confirmed && !thinking && hasNamedRow && rowNeedingAmount == nil
+        canApprove && confirmed
     }
+
+    /// Everything but the person's approval is in place.
+    private var canApprove: Bool {
+        hasParsed && !thinking && hasNamedRow && rowNeedingAmount == nil
+    }
+
+    /// A draft the assistant prepared, shown in its workspace: "Approve and save" is one explicit
+    /// tap that both vouches for the numbers and saves, instead of a switch, a hint and a button.
+    /// The model can never press it. Every other editor keeps "I reviewed this".
+    private var approvesOnSave: Bool { embedded && copyOperationID != nil }
 
     /// Why Save is greyed out. A disabled button with no reason beside it is the thing that makes
     /// a form feel broken rather than strict.
@@ -730,7 +928,7 @@ struct FoodTextCaptureView: View {
         guard hasParsed, !thinking, !canSave else { return nil }
         if !hasNamedRow { return "Give at least one item a name to save." }
         if let row = rowNeedingAmount { return "Say how much \(row.name) you had to save." }
-        if !confirmed { return "Check the numbers, then turn on “I reviewed this” to save." }
+        if !confirmed && !approvesOnSave { return "Check the numbers, then turn on “I reviewed this” to save." }
         return nil
     }
 
@@ -744,9 +942,9 @@ struct FoodTextCaptureView: View {
         let kept = rows.filter { usualRowIDs.contains($0.id) }
         rows = kept + resolved.map(EditableFoodRow.init)
         parsedItems = parsedItems.filter { usualRowIDs.contains($0.id) } + resolved
-        // Open exactly the rows that need a human. A catalog or learned match is a real number
-        // and needs no attention; a model guess does.
-        openRows = Set(resolved.filter { !$0.isConfident }.map(\.id))
+        // Open the first row that needs a human, one at a time, as everywhere. A catalog or
+        // learned match is a real number and needs no attention; a model guess does.
+        openRows = Set(resolved.first { !$0.isConfident }.map { [$0.id] } ?? [])
         parsedPhrase = phrase
         hasParsed = true
         confirmed = false
@@ -756,14 +954,33 @@ struct FoodTextCaptureView: View {
     /// When a new meal happened: now on today; on another day, at the time of the meal the phrase
     /// names ("…for lunch"), else noon (`MealLogTime`).
     private var logDate: Date {
-        guard let day else { return Date() }
+        // An assistant draft shows its time; what's shown is what's saved.
+        if approvesOnSave, let reviewDay { return reviewDay }
+        if readsPhrase, let eatenAt { return eatenAt }
+        guard let day = reviewDay ?? day else { return Date() }
         let pieces = MealTextSplitter.split(phrase)
         return MealLogTime.date(on: day, part: pieces.count == 1 ? pieces[0].part : nil)
+    }
+
+    private func approveAndSave() {
+        if approvesOnSave { confirmed = true }
+        save()
     }
 
     private func save() {
         let validRows = rows.filter { !$0.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
         guard !validRows.isEmpty else { return }
+        if let copyOperationID {
+            let meal = MealEntry(id: copyOperationID, date: logDate, items: validRows.map { $0.resolved().asMealItem() },
+                                 source: .manual, name: mealName)
+            do {
+                let saved = try wellness.addAssistantMeal(meal)
+                MealLoggedToast.offer(saved, in: wellness)
+                closeScanToast()
+                if !embedded { dismiss() }
+            } catch { copySaveError = error.localizedDescription }
+            return
+        }
 
         // Any row he edited away from a catalog match, AI estimate, or an already-saved value is
         // a correction candidate — WellnessStore only promotes it to a standing override after it
@@ -820,7 +1037,10 @@ private struct EditableFoodRow: Identifiable {
     /// How much, counted in one of `units` — what the amount control shows.
     var amount: FoodSearch.Amount
 
-    @MainActor init(_ resolved: ResolvedFoodItem) {
+    @MainActor init(_ given: ResolvedFoodItem) {
+        // A catalog food ("2 eggs") arrives with no weight; linked to its database food it can be
+        // counted in that food's measures, grams or ounces, not only "servings" (`CatalogFoodLink`).
+        let resolved = CatalogFoodLink.link(given)
         id = resolved.id
         original = resolved
         name = resolved.name
@@ -928,6 +1148,22 @@ private struct EditableFoodRow: Identifiable {
 
     var isConfident: Bool { confidence >= 0.9 }
     var badgeText: String { resolved().badgeText }
+
+    /// What's guessed, in a word or two, for an estimate nobody has vouched for yet: a USDA food
+    /// at a guessed weight is "Amount estimated"; the model's own figures are "Estimated"; a blank
+    /// row is "To fill in". Nil once confident.
+    var guessReason: String? {
+        guard !isConfident else { return nil }
+        switch source {
+        case .database: return "Amount estimated"
+        case .aiEstimate: return "Estimated"
+        case .manual: return name.isEmpty ? nil : "Check numbers"
+        default: return "Check this"
+        }
+    }
+
+    /// The person changed its amount or a number by hand: it's theirs now, no longer a guess.
+    mutating func vouch() { confidence = max(confidence, 1) }
     var isMyFood: Bool { reference?.id.hasPrefix(MyFoods.referencePrefix) == true }
 
     /// The collapsed line's second row: serving plus the three macros, short enough to read at a

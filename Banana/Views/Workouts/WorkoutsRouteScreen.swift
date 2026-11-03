@@ -148,8 +148,8 @@ struct HealthOnlyWorkoutCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
+            // The bar's title names the activity; when, and where it came from, under it.
             VStack(alignment: .leading, spacing: 2) {
-                Text(workout.activity).font(WorkoutType.heroActivity)
                 Text(workout.start.formatted(date: .complete, time: .shortened))
                     .font(WorkoutType.heroWhen)
                     .foregroundStyle(.secondary)
@@ -158,18 +158,18 @@ struct HealthOnlyWorkoutCard: View {
                 }
             }
             WorkoutFlowLayout(spacing: 20, lineSpacing: 12) {
-                WorkoutMetricTile(value: WorkoutComparisons.durationText(workout.duration), label: "Time", alignment: .leading)
+                WorkoutMetricTile(value: WorkoutComparisons.durationText(workout.duration), label: "Duration", alignment: .leading)
                 if let d = workout.distanceMeters, d > 0 {
                     WorkoutMetricTile(value: settings.distanceUnit.format(meters: d), label: "Distance", alignment: .leading)
                 }
                 if let hr = workout.avgHeartRate, hr > 0 {
-                    WorkoutMetricTile(value: "\(Int(hr.rounded()))", label: "Avg BPM", alignment: .leading)
+                    WorkoutMetricTile(value: "\(Int(hr.rounded())) bpm", label: "Heart rate", alignment: .leading)
                 }
                 if let mx = workout.maxHeartRate, mx > 0 {
-                    WorkoutMetricTile(value: "\(Int(mx.rounded()))", label: "Max BPM", alignment: .leading)
+                    WorkoutMetricTile(value: "\(Int(mx.rounded())) bpm", label: "Max heart rate", alignment: .leading)
                 }
                 if let e = workout.energyKcal, e > 0 {
-                    WorkoutMetricTile(value: "\(Int(e.rounded()))", label: "Calories", alignment: .leading)
+                    WorkoutMetricTile(value: "\(Int(e.rounded()).formatted()) kcal", label: "Energy", alignment: .leading)
                 }
             }
             WorkoutSectionNote(text: "Recorded outside Banana — no route, charts, or motion data to show.")

@@ -1,0 +1,181 @@
+{
+  "reviewer": "Assistant semantic review",
+  "scope": "Stratified exploratory sample, not exhaustive semantic validation. Pass means the inspected answer was reasonable, not that the underlying unavailable capability exists.",
+  "reviews": [
+    {
+      "id": "plan-time-only-4",
+      "verdict": "fail",
+      "reason": "Asks for an activity although Dinner was supplied."
+    },
+    {
+      "id": "plan-missing-time-1",
+      "verdict": "pass",
+      "reason": "Asks for the missing start time without claiming a draft."
+    },
+    {
+      "id": "plan-ambiguous-1",
+      "verdict": "fail",
+      "reason": "Clarifies identity but promises an updated calendar event despite no edit capability."
+    },
+    {
+      "id": "plan-delete-1",
+      "verdict": "pass",
+      "reason": "States the deletion limitation and offers the relevant page."
+    },
+    {
+      "id": "nutrition-missing-food-1",
+      "verdict": "pass",
+      "reason": "Asks for foods and amounts; does not invent them."
+    },
+    {
+      "id": "nutrition-missing-amount-1",
+      "verdict": "pass",
+      "reason": "Asks for the missing quantity."
+    },
+    {
+      "id": "nutrition-general-1",
+      "verdict": "partial",
+      "reason": "Answers the concept but is verbose and volunteers a dietary target that was not requested."
+    },
+    {
+      "id": "nutrition-delete-1",
+      "verdict": "pass",
+      "reason": "States the limitation and offers the correct page."
+    },
+    {
+      "id": "notes-ambiguous-1",
+      "verdict": "pass",
+      "reason": "Requests the missing text."
+    },
+    {
+      "id": "notes-conversation-1",
+      "verdict": "fail",
+      "reason": "Misunderstands conversational context as a request to retrieve a physical notebook."
+    },
+    {
+      "id": "notes-delete-3",
+      "verdict": "pass",
+      "reason": "Does not claim deletion; explains available reads."
+    },
+    {
+      "id": "notes-edit-2",
+      "verdict": "pass",
+      "reason": "Explains editing is unavailable; asks before offering a separately identified new note."
+    },
+    {
+      "id": "workouts-unclear-1",
+      "verdict": "partial",
+      "reason": "Clarifies safely but asks unnecessary project/date questions."
+    },
+    {
+      "id": "workouts-stop-5",
+      "verdict": "pass",
+      "reason": "Does not claim stopping; points to Workouts."
+    },
+    {
+      "id": "workouts-log-1",
+      "verdict": "partial",
+      "reason": "Honest limitation but a calendar event is an unhelpful substitute for logging a completed run."
+    },
+    {
+      "id": "workouts-edit-1",
+      "verdict": "fail",
+      "reason": "Claims it can add a workout entry, which is not an exposed capability."
+    },
+    {
+      "id": "routines-unclear-1",
+      "verdict": "pass",
+      "reason": "Asks for context without inventing it."
+    },
+    {
+      "id": "routines-create-3",
+      "verdict": "fail",
+      "reason": "Substitutes a calendar event for a routine and questions a valid user time."
+    },
+    {
+      "id": "routines-edit-2",
+      "verdict": "fail",
+      "reason": "Asks for an identifier without acknowledging that moving routines is unsupported."
+    },
+    {
+      "id": "routines-delete-1",
+      "verdict": "pass",
+      "reason": "Clear limitation and correct destination."
+    },
+    {
+      "id": "library-unclear-1",
+      "verdict": "pass",
+      "reason": "Asks for context."
+    },
+    {
+      "id": "library-pause-5",
+      "verdict": "pass",
+      "reason": "Clear playback limitation and correct page."
+    },
+    {
+      "id": "library-seek-1",
+      "verdict": "fail",
+      "reason": "Misinterprets skipping podcast audio as skipping time in a timeline."
+    },
+    {
+      "id": "library-speed-1",
+      "verdict": "partial",
+      "reason": "Honest limitation; destination may not be the actual player control."
+    },
+    {
+      "id": "review-unclear-1",
+      "verdict": "pass",
+      "reason": "Asks for missing context."
+    },
+    {
+      "id": "review-last-night-1",
+      "verdict": "pass",
+      "reason": "Does not invent sleep data; names the unavailable read capability."
+    },
+    {
+      "id": "review-sleep-week-2",
+      "verdict": "pass",
+      "reason": "Does not invent a weekly average; offers Review."
+    },
+    {
+      "id": "settings-unclear-1",
+      "verdict": "fail",
+      "reason": "Claims no notes were found without performing a read or having note data."
+    },
+    {
+      "id": "settings-connect-2",
+      "verdict": "pass",
+      "reason": "Correctly states account connection is unavailable."
+    },
+    {
+      "id": "settings-disconnect-1",
+      "verdict": "pass",
+      "reason": "Correctly states limitation and points to account settings."
+    },
+    {
+      "id": "settings-notifications-1",
+      "verdict": "pass",
+      "reason": "Distinguishes device notification settings from Banana navigation."
+    },
+    {
+      "id": "assistant-unclear-1",
+      "verdict": "partial",
+      "reason": "Asks for clarification but implies it inspected the current view without a data read."
+    },
+    {
+      "id": "assistant-greeting-2",
+      "verdict": "pass",
+      "reason": "Appropriate conversational reply without tools."
+    },
+    {
+      "id": "assistant-identity-1",
+      "verdict": "pass",
+      "reason": "Correct identity and no unnecessary tools."
+    },
+    {
+      "id": "assistant-capabilities-1",
+      "verdict": "pass",
+      "reason": "Describes available tools without inventing extra capabilities."
+    }
+  ]
+}

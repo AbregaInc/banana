@@ -1,0 +1,4431 @@
+{
+  "complete": true,
+  "scope": "22 synthetic development cases; inference/tool contracts only. No app tools execute; not held-out accuracy, real-app latency or production p95.",
+  "engine": "locals",
+  "runnerSha256": "df5e7013847b1bd43fb93c1f915eaeb2b370a028e0fa2523b57b8e00e466c9de",
+  "checkpoint": {
+    "repo": "LiquidAI/LFM2.5-2.6B-MLX-4bit",
+    "revision": "04efa23776ce61ec34ec95ec34c859854c89542b",
+    "files": {
+      "LICENSE": {
+        "bytes": 10574,
+        "sha256": "4d28ca14dedc0b3d0fcc2b3339f0e79931faa33874f3d24f522183a8fc70068c"
+      },
+      "README.md": {
+        "bytes": 2648,
+        "sha256": "0907976d22f77d4178e10d04002403a94a22ad965ad8431f754fb28a14885f6e"
+      },
+      "chat_template.jinja": {
+        "bytes": 5496,
+        "sha256": "aadd425edb1d42fe9288e5de3624c21c1c03099129b9cfea5978f1bc67222c0a"
+      },
+      "config.json": {
+        "bytes": 2202,
+        "sha256": "6ab5ad71687f6ca8d3811b9290ac06291f78e1e0f4f3ec504e6644032d58342b"
+      },
+      "generation_config.json": {
+        "bytes": 306,
+        "sha256": "e08c9a83f4bfe64468c9671a2b69b60549728e2a9481387f3555471f64e958bc"
+      },
+      "model.safetensors": {
+        "bytes": 1583152892,
+        "sha256": "ef350b75815752f8bff8c064c9fc8bd8b5709577d72943436852013d2bcd4691"
+      },
+      "model.safetensors.index.json": {
+        "bytes": 41983,
+        "sha256": "620f8efaf53e826757324852e999f6ba9a5d974e193589470a70951fd17a1543"
+      },
+      "tokenizer.json": {
+        "bytes": 17905598,
+        "sha256": "695be7802a0e4b8a81048f0ff5ebb7fc811a0ba5a6be63dbb24deb5a81096f41"
+      },
+      "tokenizer_config.json": {
+        "bytes": 363,
+        "sha256": "11f1de897317b489dd09199284528382eeb17f566398b16e2039bb2266d26b09"
+      }
+    }
+  },
+  "fixtureSha256": "65a850d931dc9038e49f71c0b92d1b7a49421c7eeebd9ab6f0afa63fa863a2de",
+  "fixtureVersion": 1,
+  "recipeNote": "LFM2.6 reasoning enabled with native template/parser. Recommended repetition_penalty=1.1 is NOT implemented by pinned Locals frontend; this is a labeled serving-configuration experiment, not native-preset equivalence.",
+  "settings": {
+    "thinking": true,
+    "context": 32768,
+    "maxTokens": 2048,
+    "temperature": 0.1,
+    "topP": 1.0,
+    "topK": 50,
+    "repetitionPenalty": 1.0,
+    "slots": 1,
+    "cacheGB": 2,
+    "repeats": 2,
+    "memoryBudgetGB": 4.0
+  },
+  "hostBefore": {
+    "utc": "2026-10-25T16:03:50.306032+00:00",
+    "chip": "Apple M1 Max",
+    "ramBytes": "68719476736",
+    "os": "27.0.1",
+    "swap": "vm.swapusage: total = 23552.00M  used = 22032.75M  free = 1519.25M  (encrypted)",
+    "paging": {
+      "Pageouts": 371919,
+      "Swapins": 5051941,
+      "Swapouts": 9298822
+    }
+  },
+  "results": [
+    {
+      "case": "identity",
+      "repeat": 0,
+      "milliseconds": 8130.1,
+      "raw": {
+        "id": "chatcmpl-07ca3ec11e09444d9b7c2e03",
+        "object": "chat.completion",
+        "created": 1792944242,
+        "model": "locals/lfm2600-thinking",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "I'm Banana, your helpful personal assistant. How can I help you today?",
+              "reasoning_content": "The user is asking for my name. According to my system instructions, I am \"Banana, a helpful personal assistant running on this device.\" I should respond directly with my name without needing to use any tools for this type of question."
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2023,
+          "completion_tokens": 67,
+          "total_tokens": 2090,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 0,
+            "passes": 68,
+            "constrained": true,
+            "wall_s": 8.121759042027406
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/lfm2600",
+        "uptime_s": 10.757815837860107,
+        "requests": 1,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 2432.669926,
+          "gpu_peak_mb": 3307.52227,
+          "gpu_cache_mb": 1070.30224,
+          "rss_mb": 5056.512
+        },
+        "engines": {
+          "locals": {
+            "requests": 1,
+            "prompt_tokens": 2023,
+            "cached_tokens": 0,
+            "completion_tokens": 67,
+            "forced_tokens": 0,
+            "passes": 68,
+            "decode_s": 7.872837416012771,
+            "tool_calls": 0,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 67,
+            "steps": 69,
+            "rows": 69,
+            "prefill_s": 1.2591453329659998,
+            "prefill_tokens": 2022,
+            "admissions": 1,
+            "idle_s": 6.189128166995943,
+            "prompt_cache_mb": 68.173824,
+            "prompt_cache_entries": 2,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 1,
+                "mb": 34
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 1,
+                "mb": 34
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "greeting",
+      "repeat": 0,
+      "milliseconds": 1920.8,
+      "raw": {
+        "id": "chatcmpl-7ef97372815040ce90bed420",
+        "object": "chat.completion",
+        "created": 1792944244,
+        "model": "locals/lfm2600-thinking",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "Hello! How can I help you today?",
+              "reasoning_content": "The user says \"Hello\" - this is a greeting. I should respond directly without tools for greetings and general conversation. I don't need to use any tools for this."
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2019,
+          "completion_tokens": 47,
+          "total_tokens": 2066,
+          "prompt_tokens_details": {
+            "cached_tokens": 2012
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 0,
+            "passes": 48,
+            "constrained": true,
+            "wall_s": 1.9128377919550985
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/lfm2600",
+        "uptime_s": 12.68054986000061,
+        "requests": 2,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 2470.56205,
+          "gpu_peak_mb": 3307.52227,
+          "gpu_cache_mb": 1064.052667,
+          "rss_mb": 5056.512
+        },
+        "engines": {
+          "locals": {
+            "requests": 2,
+            "prompt_tokens": 4042,
+            "cached_tokens": 2012,
+            "completion_tokens": 114,
+            "forced_tokens": 0,
+            "passes": 116,
+            "decode_s": 9.543048581923358,
+            "tool_calls": 0,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 114,
+            "steps": 118,
+            "rows": 118,
+            "prefill_s": 1.2837633749004453,
+            "prefill_tokens": 2028,
+            "admissions": 2,
+            "idle_s": 7.737854875042103,
+            "prompt_cache_mb": 102.219776,
+            "prompt_cache_entries": 3,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 2,
+                "mb": 68
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 1,
+                "mb": 34
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "monthly",
+      "repeat": 0,
+      "milliseconds": 2128.0,
+      "raw": {
+        "id": "chatcmpl-455f5a7a2d6345efa02c87d1",
+        "object": "chat.completion",
+        "created": 1792944246,
+        "model": "locals/lfm2600-thinking",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": "The user wants to see their protein intake for this month. I should use the nutrition_view tool with the \"protein\" metric and \"this_month\" period to get this information. Let me call the nutrition_view function with these parameters.",
+              "tool_calls": [
+                {
+                  "id": "call_c5a7ad9a6ff343beb167ba9f",
+                  "type": "function",
+                  "function": {
+                    "name": "nutrition_view",
+                    "arguments": "{\"metric\": \"protein\", \"period\": \"this_month\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2023,
+          "completion_tokens": 66,
+          "total_tokens": 2089,
+          "prompt_tokens_details": {
+            "cached_tokens": 2012
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 3,
+            "passes": 63,
+            "constrained": true,
+            "wall_s": 2.120212957961485
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/lfm2600",
+        "uptime_s": 14.810481786727905,
+        "requests": 3,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 2509.261862,
+          "gpu_peak_mb": 3307.52227,
+          "gpu_cache_mb": 1064.445116,
+          "rss_mb": 5056.512
+        },
+        "engines": {
+          "locals": {
+            "requests": 3,
+            "prompt_tokens": 6065,
+            "cached_tokens": 4024,
+            "completion_tokens": 180,
+            "forced_tokens": 3,
+            "passes": 179,
+            "decode_s": 11.40874170686584,
+            "tool_calls": 1,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 180,
+            "steps": 183,
+            "rows": 183,
+            "prefill_s": 1.3163674998795614,
+            "prefill_tokens": 2038,
+            "admissions": 3,
+            "idle_s": 9.347291916026734,
+            "prompt_cache_mb": 136.593408,
+            "prompt_cache_entries": 4,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 3,
+                "mb": 103
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 1,
+                "mb": 34
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "calories",
+      "repeat": 0,
+      "milliseconds": 2065.0,
+      "raw": {
+        "id": "chatcmpl-c29e5513475e427096a749bc",
+        "object": "chat.completion",
+        "created": 1792944248,
+        "model": "locals/lfm2600-thinking",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": "The user wants to see calories over the last seven days. I should use the nutrition_view tool with the \"last_7_days\" period parameter to get this information. This will show the nutrition chart or logged meals for the last week.",
+              "tool_calls": [
+                {
+                  "id": "call_5c575cd9b3b844ff84041534",
+                  "type": "function",
+                  "function": {
+                    "name": "nutrition_view",
+                    "arguments": "{\"period\": \"last_7_days\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2025,
+          "completion_tokens": 63,
+          "total_tokens": 2088,
+          "prompt_tokens_details": {
+            "cached_tokens": 2012
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 3,
+            "passes": 60,
+            "constrained": true,
+            "wall_s": 2.057505000033416
+          }
+        }
+      },
+      "passed": false,
+      "reason": "wrong_metric",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/lfm2600",
+        "uptime_s": 16.877311944961548,
+        "requests": 4,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 2546.55929,
+          "gpu_peak_mb": 3307.52227,
+          "gpu_cache_mb": 1065.265088,
+          "rss_mb": 5056.512
+        },
+        "engines": {
+          "locals": {
+            "requests": 4,
+            "prompt_tokens": 8090,
+            "cached_tokens": 6036,
+            "completion_tokens": 243,
+            "forced_tokens": 6,
+            "passes": 239,
+            "decode_s": 13.211957331863232,
+            "tool_calls": 2,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 243,
+            "steps": 245,
+            "rows": 245,
+            "prefill_s": 1.3499257918447256,
+            "prefill_tokens": 2050,
+            "admissions": 4,
+            "idle_s": 10.931941416114569,
+            "prompt_cache_mb": 170.950656,
+            "prompt_cache_entries": 5,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 4,
+                "mb": 137
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 1,
+                "mb": 34
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "food-search",
+      "repeat": 0,
+      "milliseconds": 3161.6,
+      "raw": {
+        "id": "chatcmpl-a4db50cd8e674e2d857dd898",
+        "object": "chat.completion",
+        "created": 1792944251,
+        "model": "locals/lfm2600-thinking",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": "The user wants to find logged meals containing yogurt. I should use the nutrition_view tool with foodName set to \"yogurt\" to search for logged meals with yogurt. This will show me the relevant meals from the nutrition view.",
+              "tool_calls": [
+                {
+                  "id": "call_788e981070e848d9852811a8",
+                  "type": "function",
+                  "function": {
+                    "name": "nutrition_view",
+                    "arguments": "{\"foodName\": \"yogurt\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2135,
+          "completion_tokens": 62,
+          "total_tokens": 2197,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 3,
+            "passes": 59,
+            "constrained": true,
+            "wall_s": 3.153825666056946
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/lfm2600",
+        "uptime_s": 20.040743827819824,
+        "requests": 5,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 2629.777754,
+          "gpu_peak_mb": 3681.270118,
+          "gpu_cache_mb": 1025.652668,
+          "rss_mb": 5056.512
+        },
+        "engines": {
+          "locals": {
+            "requests": 5,
+            "prompt_tokens": 10225,
+            "cached_tokens": 6036,
+            "completion_tokens": 305,
+            "forced_tokens": 9,
+            "passes": 298,
+            "decode_s": 16.11194674880244,
+            "tool_calls": 3,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 305,
+            "steps": 306,
+            "rows": 306,
+            "prefill_s": 2.6567238337593153,
+            "prefill_tokens": 4184,
+            "admissions": 5,
+            "idle_s": 12.336320916190743,
+            "prompt_cache_mb": 245.02272,
+            "prompt_cache_entries": 7,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 5,
+                "mb": 173
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 2,
+                "mb": 72
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "weekdays",
+      "repeat": 0,
+      "milliseconds": 1909.2,
+      "raw": {
+        "id": "chatcmpl-ad987520e20c48b38761fa21",
+        "object": "chat.completion",
+        "created": 1792944253,
+        "model": "locals/lfm2600-thinking",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": "The user wants to filter their schedule to only include weekdays. I should use the day_plan tool to get their schedule, and then filter for weekdays only. Let me first check what the day_plan returns for today (2026-10-25).",
+              "tool_calls": [
+                {
+                  "id": "call_5171bdb46a82463ca3061548",
+                  "type": "function",
+                  "function": {
+                    "name": "day_plan",
+                    "arguments": "{\"date\": \"2026-10-25\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2132,
+          "completion_tokens": 71,
+          "total_tokens": 2203,
+          "prompt_tokens_details": {
+            "cached_tokens": 2123
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 4,
+            "passes": 67,
+            "constrained": true,
+            "wall_s": 1.9013440000126138
+          }
+        }
+      },
+      "passed": false,
+      "reason": "wrong_tool",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/lfm2600",
+        "uptime_s": 21.951713800430298,
+        "requests": 6,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 2667.559282,
+          "gpu_peak_mb": 3681.270118,
+          "gpu_cache_mb": 1065.48224,
+          "rss_mb": 5056.512
+        },
+        "engines": {
+          "locals": {
+            "requests": 6,
+            "prompt_tokens": 12357,
+            "cached_tokens": 8159,
+            "completion_tokens": 376,
+            "forced_tokens": 13,
+            "passes": 365,
+            "decode_s": 17.758836123743095,
+            "tool_calls": 4,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 376,
+            "steps": 376,
+            "rows": 376,
+            "prefill_s": 2.6873167088488117,
+            "prefill_tokens": 4192,
+            "admissions": 6,
+            "idle_s": 13.70213300024625,
+            "prompt_cache_mb": 281.264128,
+            "prompt_cache_entries": 8,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 6,
+                "mb": 210
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 2,
+                "mb": 72
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "compare",
+      "repeat": 0,
+      "milliseconds": 3757.6,
+      "raw": {
+        "id": "chatcmpl-413e0c999b0d4b549e4b1137",
+        "object": "chat.completion",
+        "created": 1792944257,
+        "model": "locals/lfm2600-thinking",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": "The user wants to compare with the previous period. Looking at the nutrition_view tool, I can see it has a \"period\" parameter with options like \"this_month\", \"last_month\", \"last_7_days\", \"last_30_days\". The current revision shows \"selectedDay\": \"2026-10-23\" and the summary shows data for 2026-10-23.\n\nThe user is likely asking to compare the current period (which appears to be around 2026-10-23) with the previous period. I should use the filter_nutrition tool with \"compare_previous\" to get this comparison, or use nutrition_view with the appropriate period filter.\n\nLet me check what the current state is - the nutrition_view shows:\n- revision: 2\n- metric: protein\n- start: 2026-10-01\n- end: 2026-10-25\n- selectedDay: 2026-10-23\n\nThe user wants to compare with the previous period. I should use filter_nutrition with changes including \"compare_previous\" to get the comparison.\n\nActually, looking at the filter_nutrition tool more carefully:\n- It has \"changes\" parameter that can include \"compare_previous\"\n- This will show the comparison between current and previous period\n\nLet me call filter_nutrition with changes set to [\"compare_previous\"] to get the comparison.",
+              "tool_calls": [
+                {
+                  "id": "call_68fb58b11f6e4103b71042c3",
+                  "type": "function",
+                  "function": {
+                    "name": "filter_nutrition",
+                    "arguments": "{\"changes\": [{\"type\": \"compare_previous\"}]}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2134,
+          "completion_tokens": 312,
+          "total_tokens": 2446,
+          "prompt_tokens_details": {
+            "cached_tokens": 2123
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 5,
+            "passes": 307,
+            "constrained": true,
+            "wall_s": 3.7498417081078514
+          }
+        }
+      },
+      "passed": false,
+      "reason": "schema",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/lfm2600",
+        "uptime_s": 25.711338996887207,
+        "requests": 7,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 2709.928338,
+          "gpu_peak_mb": 3681.270118,
+          "gpu_cache_mb": 1053.935992,
+          "rss_mb": 5056.512
+        },
+        "engines": {
+          "locals": {
+            "requests": 7,
+            "prompt_tokens": 14491,
+            "cached_tokens": 10282,
+            "completion_tokens": 688,
+            "forced_tokens": 18,
+            "passes": 672,
+            "decode_s": 21.254229873768054,
+            "tool_calls": 5,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 688,
+            "steps": 685,
+            "rows": 685,
+            "prefill_s": 2.7200680838432163,
+            "prefill_tokens": 4202,
+            "admissions": 7,
+            "idle_s": 15.213073417195119,
+            "solo_steps": 1,
+            "prompt_cache_mb": 321.486848,
+            "prompt_cache_entries": 9,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 7,
+                "mb": 250
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 2,
+                "mb": 72
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "copy",
+      "repeat": 0,
+      "milliseconds": 3297.0,
+      "raw": {
+        "id": "chatcmpl-2b7a74f9411b4dd78c2f8fc2",
+        "object": "chat.completion",
+        "created": 1792944260,
+        "model": "locals/lfm2600-thinking",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": "The user wants me to prepare a copy of a Greek yogurt breakfast meal for tomorrow, without saving it. I need to find the selected Greek yogurt breakfast meal first. Let me look at the nutrition view to see what meals are logged, particularly looking for Greek yogurt breakfast.\n\nFrom the nutrition_view result, I can see there's a meal with ID \"BA5A4E11-0000-4000-8000-000202610231\" for \"Sample Greek yogurt breakfast\" on 2026-10-23. But the user wants it for tomorrow (2026-10-26).\n\nI should use prepare_meal_copy to copy this meal for tomorrow without saving. The required parameters are mealID and day. The mealID is \"BA5A4E11-0000-4000-8000-000202610231\" and day should be \"tomorrow\" (which would be 2026-10-26).\n\nLet me prepare the copy with these parameters.",
+              "tool_calls": [
+                {
+                  "id": "call_f3db05dfa2834feeb42fe1fd",
+                  "type": "function",
+                  "function": {
+                    "name": "prepare_meal_copy",
+                    "arguments": "{\"mealID\": \"BA5A4E11-0000-4000-8000-000202610231\", \"day\": \"tomorrow\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2145,
+          "completion_tokens": 241,
+          "total_tokens": 2386,
+          "prompt_tokens_details": {
+            "cached_tokens": 2123
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 2,
+            "passes": 239,
+            "constrained": true,
+            "wall_s": 3.289481124957092
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/lfm2600",
+        "uptime_s": 29.010265827178955,
+        "requests": 8,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 2751.97793,
+          "gpu_peak_mb": 3681.270118,
+          "gpu_cache_mb": 1055.287724,
+          "rss_mb": 5056.512
+        },
+        "engines": {
+          "locals": {
+            "requests": 8,
+            "prompt_tokens": 16636,
+            "cached_tokens": 12405,
+            "completion_tokens": 929,
+            "forced_tokens": 20,
+            "passes": 911,
+            "decode_s": 24.28922220680397,
+            "tool_calls": 6,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 929,
+            "steps": 925,
+            "rows": 925,
+            "prefill_s": 2.8291902088094503,
+            "prefill_tokens": 4223,
+            "admissions": 8,
+            "idle_s": 16.67252820916474,
+            "solo_steps": 1,
+            "prompt_cache_mb": 360.726528,
+            "prompt_cache_entries": 10,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 8,
+                "mb": 289
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 2,
+                "mb": 72
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "new-meal",
+      "repeat": 0,
+      "milliseconds": 4314.5,
+      "raw": {
+        "id": "chatcmpl-44b09607b90747a3a8864a78",
+        "object": "chat.completion",
+        "created": 1792944264,
+        "model": "locals/lfm2600-thinking",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": "The user wants to log a new meal for today with 2 eggs and 1 banana, and prepare a review (without saving). Looking at the available tools, I should use `prepare_meal` for creating a new meal that can be reviewed. The `prepare_meal` tool requires:\n- `foods`: array of food objects with `name` and `quantity`\n- `day`: optional, defaults to today\n- `title`: optional\n\nThe user specified:\n- 2 eggs\n- 1 banana\n- Today's date (2026-10-25)\n- Prepare for review (not save)\n\nI need to use `prepare_meal` with the foods array containing eggs and banana. Let me structure this properly.\n\nThe foods array should have:\n- name: \"egg\", quantity: \"2\" (or \"2 pieces\" - but the schema expects a string quantity)\n- name: \"banana\", quantity: \"1\"\n\nActually, looking at the prepare_meal function more carefully:\n- `foods` is required and is an array of objects with `name` (string) and `quantity` (string)\n- `day` is optional (defaults to today)\n- `title` is optional\n\nI'll create the meal with:\n- day: \"today\" (or omit since it defaults to today)\n- foods: [{\"name\": \"egg\", \"quantity\": \"2\"}, {\"name\": \"banana\", \"quantity\": \"1\"}]\n- title: \"Breakfast\" or something appropriate\n\nWait, the user said \"Prepare review, do not save\" - this means they want to use `prepare_meal` which creates a draft for review but doesn't save it. The `prepare_meal` tool description says \"Prepare a NEW meal for native review from foods and amounts the user supplied. Do not estimate nutrition or call this to copy an existing meal.\"\n\nThis is exactly what we need. Let me call it.",
+              "tool_calls": [
+                {
+                  "id": "call_fa410b76bb9b46449835710d",
+                  "type": "function",
+                  "function": {
+                    "name": "prepare_meal",
+                    "arguments": "{\"day\": \"today\", \"foods\": [{\"name\": \"egg\", \"quantity\": \"2\"}, {\"name\": \"banana\", \"quantity\": \"1\"}, {\"name\": \"egg\", \"quantity\": \"2\"}, {\"name\": \"banana\", \"quantity\": \"1\"}], \"title\": \"Breakfast\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2040,
+          "completion_tokens": 470,
+          "total_tokens": 2510,
+          "prompt_tokens_details": {
+            "cached_tokens": 2012
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 2,
+            "passes": 468,
+            "constrained": true,
+            "wall_s": 4.306620166986249
+          }
+        }
+      },
+      "passed": false,
+      "reason": "food_count",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/lfm2600",
+        "uptime_s": 33.326963901519775,
+        "requests": 9,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 2794.43709,
+          "gpu_peak_mb": 3681.270118,
+          "gpu_cache_mb": 1071.270108,
+          "rss_mb": 5056.512
+        },
+        "engines": {
+          "locals": {
+            "requests": 9,
+            "prompt_tokens": 18676,
+            "cached_tokens": 14417,
+            "completion_tokens": 1399,
+            "forced_tokens": 22,
+            "passes": 1379,
+            "decode_s": 28.3501643728232,
+            "tool_calls": 7,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1399,
+            "steps": 1394,
+            "rows": 1394,
+            "prefill_s": 2.871596166747622,
+            "prefill_tokens": 4250,
+            "admissions": 9,
+            "idle_s": 17.611304626218043,
+            "solo_steps": 1,
+            "prompt_cache_mb": 401.997824,
+            "prompt_cache_entries": 11,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 9,
+                "mb": 330
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 2,
+                "mb": 72
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "new-event",
+      "repeat": 0,
+      "milliseconds": 2481.0,
+      "raw": {
+        "id": "chatcmpl-0759d15989ef4f6d9a71c0eb",
+        "object": "chat.completion",
+        "created": 1792944267,
+        "model": "locals/lfm2600-thinking",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": "The user wants me to create a calendar event called \"Lunch\" for tomorrow at 13:00 (1:00 PM) for 30 minutes. They also want me to \"prepare review\" which means using the prepare_event tool without saving it (the tool description says \"Prepare a calendar event for native review, never save\").\n\nLet me use the prepare_event tool with:\n- title: \"Lunch\"\n- day: \"tomorrow\" (which would be 2026-10-26 based on the current date of 2026-10-25)\n- time: \"13:00\"\n- duration_minutes: 30\n- notes: (optional, not specified)\n\nThe prepare_event tool does not have a \"save\" parameter - it just prepares the event for review. The description says \"Prepare a calendar event for native review, never save.\" So this is exactly what the user wants.\n\nLet me call prepare_event with these parameters.",
+              "tool_calls": [
+                {
+                  "id": "call_88c7b8a990b142199599457a",
+                  "type": "function",
+                  "function": {
+                    "name": "prepare_event",
+                    "arguments": "{\"title\": \"Lunch\", \"day\": \"tomorrow\", \"time\": \"13:00\", \"durationMinutes\": 30}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2042,
+          "completion_tokens": 224,
+          "total_tokens": 2266,
+          "prompt_tokens_details": {
+            "cached_tokens": 2012
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 1,
+            "passes": 223,
+            "constrained": true,
+            "wall_s": 2.473115374916233
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/lfm2600",
+        "uptime_s": 35.81051802635193,
+        "requests": 10,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 2832.226818,
+          "gpu_peak_mb": 3681.270118,
+          "gpu_cache_mb": 1073.32619,
+          "rss_mb": 5056.512
+        },
+        "engines": {
+          "locals": {
+            "requests": 10,
+            "prompt_tokens": 20718,
+            "cached_tokens": 16429,
+            "completion_tokens": 1623,
+            "forced_tokens": 23,
+            "passes": 1602,
+            "decode_s": 30.56870041473303,
+            "tool_calls": 8,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1623,
+            "steps": 1618,
+            "rows": 1618,
+            "prefill_s": 2.9069695838261396,
+            "prefill_tokens": 4279,
+            "admissions": 10,
+            "idle_s": 18.445147001184523,
+            "solo_steps": 1,
+            "prompt_cache_mb": 439.287808,
+            "prompt_cache_entries": 12,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 10,
+                "mb": 368
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 2,
+                "mb": 72
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "explicit-event",
+      "repeat": 0,
+      "milliseconds": 2048.1,
+      "raw": {
+        "id": "chatcmpl-34cbf6fbd06c4b56b7e12ec2",
+        "object": "chat.completion",
+        "created": 1792944269,
+        "model": "locals/lfm2600-thinking",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": "The user wants to create a calendar event for a dentist appointment on 2026-11-03 at 09:15 for 45 minutes. I should use the prepare_event tool to create this event. The required parameters are:\n- title: \"Dentist\" (or similar)\n- day: \"2026-11-03\"\n- time: \"09:15\"\n- duration_minutes: 45\n\nLet me prepare the event with these details. The prepare_event tool doesn't require all parameters to be provided - title is required, and the others have defaults. I'll include the date, time, and duration.",
+              "tool_calls": [
+                {
+                  "id": "call_655073b1604b4941a31df798",
+                  "type": "function",
+                  "function": {
+                    "name": "prepare_event",
+                    "arguments": "{\"title\": \"Dentist\", \"day\": \"2026-11-03\", \"time\": \"09:15\", \"durationMinutes\": 45}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2042,
+          "completion_tokens": 160,
+          "total_tokens": 2202,
+          "prompt_tokens_details": {
+            "cached_tokens": 2012
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 1,
+            "passes": 159,
+            "constrained": true,
+            "wall_s": 2.0401662499643862
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/lfm2600",
+        "uptime_s": 37.86092495918274,
+        "requests": 11,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 2870.524442,
+          "gpu_peak_mb": 3681.270118,
+          "gpu_cache_mb": 1069.150465,
+          "rss_mb": 5056.512
+        },
+        "engines": {
+          "locals": {
+            "requests": 11,
+            "prompt_tokens": 22760,
+            "cached_tokens": 18441,
+            "completion_tokens": 1783,
+            "forced_tokens": 24,
+            "passes": 1761,
+            "decode_s": 32.35432895668782,
+            "tool_calls": 9,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1783,
+            "steps": 1778,
+            "rows": 1778,
+            "prefill_s": 2.941602708771825,
+            "prefill_tokens": 4308,
+            "admissions": 11,
+            "idle_s": 19.319486001273617,
+            "solo_steps": 1,
+            "prompt_cache_mb": 475.529216,
+            "prompt_cache_entries": 13,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 11,
+                "mb": 404
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 2,
+                "mb": 72
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "missing-time",
+      "repeat": 0,
+      "milliseconds": 7732.6,
+      "raw": {
+        "id": "chatcmpl-74c6f11fb3e94aef83b8adad",
+        "object": "chat.completion",
+        "created": 1792944277,
+        "model": "locals/lfm2600-thinking",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": "The user wants to create a dinner event but hasn't decided on the time. I should use the prepare_event tool to create this event. Since they haven't specified a time, I'll need to ask for clarification or use a default. However, looking at the prepare_event tool parameters, it requires a title (which I have - \"Dinner\") and other optional fields like day, duration, location, notes, time, etc.\n\nThe user said they haven't decided the time, so I should probably ask for more details or create a draft event. But actually, the prepare_event tool creates a draft (it says \"never save\" in the description - wait, that's confusing. Let me re-read: \"Prepare a calendar event for native review, never save.\" So it's a draft that doesn't get saved to the calendar. This seems to be what the user wants - they want to create an event but haven't decided on time yet.\n\nI should create the event with the title \"Dinner\" and ask for the time, or I could create it with a placeholder time. However, the time parameter is required unless it's an all-day event. Let me check the parameters more carefully:\n\n- title (required) - \"Dinner\"\n- day (optional) - can be today, tomorrow, etc.\n- durationMinutes (optional, default 60)\n- isAllDay (optional, boolean)\n- location (optional)\n- notes (optional)\n- time (required unless all-day)\n\nThe time parameter is described as \"Local 24-hour HH:mm; required unless explicitly all-day.\" So for a regular event, time is required. But the user hasn't decided the time.\n\nI think the best approach is to create the event with a reasonable default (like today at a common dinner time, e.g., 19:00) and note that the time can be adjusted. Or I could ask the user for their preferred time first.\n\nActually, looking more carefully at the tool description: \"Prepare a calendar event for native review, never save.\" This suggests it's just for review/drafting, not actually creating a calendar event. So I should create it with the information I have.\n\nSince the user hasn't decided the time, I should probably ask them what time they prefer. But I can also create a draft with a placeholder or ask first.\n\nLet me create the event with a reasonable default (today at 19:00) and see if that works. Actually, I should probably ask the user first since they explicitly said they haven't decided the time.\n\nBut wait - the instruction says \"For greetings and general conversation, reply directly without tools. Use tools only when the current request needs actual Banana notes, day-plan or nutrition data, or explicitly asks for an app action.\"\n\nCreating an event is an app action (calendar/event), so I should use the prepare_event tool. However, the time is required. I need to make a decision.\n\nI'll create the event with today's date and a reasonable time (19:00) as a draft, and mention that they can adjust it later. Or I could ask first.\n\nActually, looking at the user's message again: \"Create an event called Dinner. I have not decided the time.\" This is a clear request to create the event. The time is just not decided yet. I should create the event with a placeholder or ask for clarification.\n\nI think the safest approach is to create the event with today's date and a default time (like 19:00) since that's a common dinner time, and note that it can be adjusted. The prepare_event tool doesn't actually save to the calendar (it says \"never save\"), so it's just a draft.\n\nLet me create the event with:\n- title: \"Dinner\"\n- day: \"today\" (or I could omit and let it default to today)\n- time: \"19:00\" (as a reasonable default)\n- durationMinutes: 60 (default)\n- isAllDay: false (default)\n\nActually, looking at the parameters, \"day\" is not required but \"time\" is required unless it's all-day. Since I'm not all-day, time is required. I'll use today's date and 19:00.\n\nBut wait - I should check if there's a way to create an event without a time. The tool says time is \"required unless explicitly all-day\". So I must provide it.\n\nI'll proceed with creating the event. Let me use the prepare_event tool.",
+              "tool_calls": [
+                {
+                  "id": "call_627b9432d5c442a58adaf96d",
+                  "type": "function",
+                  "function": {
+                    "name": "prepare_event",
+                    "arguments": "{\"title\": \"Dinner\", \"day\": \"today\", \"time\": \"19:00\", \"durationMinutes\": 60}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2032,
+          "completion_tokens": 959,
+          "total_tokens": 2991,
+          "prompt_tokens_details": {
+            "cached_tokens": 2012
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 1,
+            "passes": 958,
+            "constrained": true,
+            "wall_s": 7.724829999962822
+          }
+        }
+      },
+      "passed": false,
+      "reason": "reply_contract",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/lfm2600",
+        "uptime_s": 45.5957236289978,
+        "requests": 12,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 2920.847906,
+          "gpu_peak_mb": 3681.270118,
+          "gpu_cache_mb": 1054.867657,
+          "rss_mb": 5056.512
+        },
+        "engines": {
+          "locals": {
+            "requests": 12,
+            "prompt_tokens": 24792,
+            "cached_tokens": 20453,
+            "completion_tokens": 2742,
+            "forced_tokens": 25,
+            "passes": 2719,
+            "decode_s": 39.82841945660766,
+            "tool_calls": 10,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 2742,
+            "steps": 2737,
+            "rows": 2737,
+            "prefill_s": 2.9762631667545065,
+            "prefill_tokens": 4327,
+            "admissions": 12,
+            "idle_s": 20.15062291827053,
+            "solo_steps": 1,
+            "prompt_cache_mb": 524.6976,
+            "prompt_cache_entries": 14,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 12,
+                "mb": 453
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 2,
+                "mb": 72
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "missing-food",
+      "repeat": 0,
+      "milliseconds": 2556.5,
+      "raw": {
+        "id": "chatcmpl-8b2c686f289a46218c2d665d",
+        "object": "chat.completion",
+        "created": 1792944279,
+        "model": "locals/lfm2600-thinking",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "I'd be happy to help you log a meal! Could you tell me what you ate? Please share the food items and quantities (e.g., \"chicken breast 150g, rice 200g, broccoli 100g\") so I can create the meal log for you.",
+              "reasoning_content": "The user wants to log a meal but hasn't specified what they ate yet. I should ask them what they ate so I can create a meal log for them. I'll need to use the prepare_meal tool to create a new meal entry, but first I need to know what foods and quantities they want to log.\n\nLet me ask them what they ate."
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2031,
+          "completion_tokens": 132,
+          "total_tokens": 2163,
+          "prompt_tokens_details": {
+            "cached_tokens": 2012
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 0,
+            "passes": 133,
+            "constrained": true,
+            "wall_s": 2.548913292004727
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/lfm2600",
+        "uptime_s": 48.15451979637146,
+        "requests": 13,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 2959.125058,
+          "gpu_peak_mb": 3681.270118,
+          "gpu_cache_mb": 1037.230225,
+          "rss_mb": 5056.512
+        },
+        "engines": {
+          "locals": {
+            "requests": 13,
+            "prompt_tokens": 26823,
+            "cached_tokens": 22465,
+            "completion_tokens": 2874,
+            "forced_tokens": 25,
+            "passes": 2852,
+            "decode_s": 42.12852874863893,
+            "tool_calls": 10,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 2874,
+            "steps": 2871,
+            "rows": 2871,
+            "prefill_s": 3.0113250417634845,
+            "prefill_tokens": 4345,
+            "admissions": 13,
+            "idle_s": 21.704459210275672,
+            "solo_steps": 1,
+            "prompt_cache_mb": 560.3328,
+            "prompt_cache_entries": 15,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 13,
+                "mb": 489
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 2,
+                "mb": 72
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "global-search",
+      "repeat": 0,
+      "milliseconds": 1874.1,
+      "raw": {
+        "id": "chatcmpl-686bfa5f56984834b46085b5",
+        "object": "chat.completion",
+        "created": 1792944281,
+        "model": "locals/lfm2600-thinking",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": "The user wants to search across Banana for \"clinic\". I should use the search_app tool with the query \"clinic\" to find relevant results. This is a cross-category search in Banana, so search_app is the appropriate tool.",
+              "tool_calls": [
+                {
+                  "id": "call_0662bfc84582416588662ab3",
+                  "type": "function",
+                  "function": {
+                    "name": "search_app",
+                    "arguments": "{\"query\": \"clinic\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2024,
+          "completion_tokens": 62,
+          "total_tokens": 2086,
+          "prompt_tokens_details": {
+            "cached_tokens": 2012
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 3,
+            "passes": 59,
+            "constrained": true,
+            "wall_s": 1.8664282080717385
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/lfm2600",
+        "uptime_s": 50.031094789505005,
+        "requests": 14,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 2996.533858,
+          "gpu_peak_mb": 3681.270118,
+          "gpu_cache_mb": 1043.009677,
+          "rss_mb": 5056.512
+        },
+        "engines": {
+          "locals": {
+            "requests": 14,
+            "prompt_tokens": 28847,
+            "cached_tokens": 24477,
+            "completion_tokens": 2936,
+            "forced_tokens": 28,
+            "passes": 2911,
+            "decode_s": 43.74043883266859,
+            "tool_calls": 11,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 2936,
+            "steps": 2932,
+            "rows": 2932,
+            "prefill_s": 3.044695707736537,
+            "prefill_tokens": 4356,
+            "admissions": 14,
+            "idle_s": 23.086676251259632,
+            "solo_steps": 1,
+            "prompt_cache_mb": 594.65728,
+            "prompt_cache_entries": 16,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 14,
+                "mb": 523
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 2,
+                "mb": 72
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "open-page",
+      "repeat": 0,
+      "milliseconds": 1484.5,
+      "raw": {
+        "id": "chatcmpl-99dd1bd47667477082c666ab",
+        "object": "chat.completion",
+        "created": 1792944283,
+        "model": "locals/lfm2600-thinking",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": "The user wants me to open the Notes page. I should use the open_page function with section \"notes\" to view the notes page.",
+              "tool_calls": [
+                {
+                  "id": "call_4e2943b3f0a3416081d77078",
+                  "type": "function",
+                  "function": {
+                    "name": "open_page",
+                    "arguments": "{\"section\": \"notes\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2022,
+          "completion_tokens": 40,
+          "total_tokens": 2062,
+          "prompt_tokens_details": {
+            "cached_tokens": 2012
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 3,
+            "passes": 37,
+            "constrained": true,
+            "wall_s": 1.4768219579709694
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/lfm2600",
+        "uptime_s": 51.51813769340515,
+        "requests": 15,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3034.753674,
+          "gpu_peak_mb": 3681.270118,
+          "gpu_cache_mb": 1052.967037,
+          "rss_mb": 5056.512
+        },
+        "engines": {
+          "locals": {
+            "requests": 15,
+            "prompt_tokens": 30869,
+            "cached_tokens": 26489,
+            "completion_tokens": 2976,
+            "forced_tokens": 31,
+            "passes": 2948,
+            "decode_s": 44.96628312463872,
+            "tool_calls": 12,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 2976,
+            "steps": 2971,
+            "rows": 2971,
+            "prefill_s": 3.0722073327051476,
+            "prefill_tokens": 4365,
+            "admissions": 15,
+            "idle_s": 24.25736966729164,
+            "solo_steps": 1,
+            "prompt_cache_mb": 628.588544,
+            "prompt_cache_entries": 17,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 15,
+                "mb": 557
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 2,
+                "mb": 72
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "notes",
+      "repeat": 0,
+      "milliseconds": 1453.4,
+      "raw": {
+        "id": "chatcmpl-053d61d50aac47ea80489629",
+        "object": "chat.completion",
+        "created": 1792944284,
+        "model": "locals/lfm2600-thinking",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": "The user wants to see their recent notes. I should use the list_notes tool to retrieve their notes. This is a straightforward request for information about their notes, which is exactly what list_notes is designed for. I don't need any parameters for this call since it has optional parameters and the user didn't specify any particular filter.",
+              "tool_calls": [
+                {
+                  "id": "call_13e362cecbbb4a659975dd98",
+                  "type": "function",
+                  "function": {
+                    "name": "list_notes",
+                    "arguments": "{}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2022,
+          "completion_tokens": 73,
+          "total_tokens": 2095,
+          "prompt_tokens_details": {
+            "cached_tokens": 2012
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 2,
+            "passes": 71,
+            "constrained": true,
+            "wall_s": 1.4454717080807313
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/lfm2600",
+        "uptime_s": 52.97420382499695,
+        "requests": 16,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3073.071778,
+          "gpu_peak_mb": 3681.270118,
+          "gpu_cache_mb": 1053.802625,
+          "rss_mb": 5056.512
+        },
+        "engines": {
+          "locals": {
+            "requests": 16,
+            "prompt_tokens": 32891,
+            "cached_tokens": 28501,
+            "completion_tokens": 3049,
+            "forced_tokens": 33,
+            "passes": 3019,
+            "decode_s": 46.16142291564029,
+            "tool_calls": 13,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 3049,
+            "steps": 3044,
+            "rows": 3044,
+            "prefill_s": 3.1003423327347264,
+            "prefill_tokens": 4374,
+            "admissions": 16,
+            "idle_s": 25.159534000209533,
+            "solo_steps": 1,
+            "prompt_cache_mb": 663.076864,
+            "prompt_cache_entries": 18,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 16,
+                "mb": 591
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 2,
+                "mb": 72
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "create-note",
+      "repeat": 0,
+      "milliseconds": 1281.0,
+      "raw": {
+        "id": "chatcmpl-678d9b58724c428185a8c50b",
+        "object": "chat.completion",
+        "created": 1792944285,
+        "model": "locals/lfm2600-thinking",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": "The user wants me to create a note with the exact text \"Bring the blue notebook\". I should use the create_note tool for this, as it's explicitly for creating written notes. The text parameter is required and should be set to \"Bring the blue notebook\".",
+              "tool_calls": [
+                {
+                  "id": "call_301a4fe44436458aab978630",
+                  "type": "function",
+                  "function": {
+                    "name": "create_note",
+                    "arguments": "{\"text\": \"Bring the blue notebook\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2030,
+          "completion_tokens": 69,
+          "total_tokens": 2099,
+          "prompt_tokens_details": {
+            "cached_tokens": 2012
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 4,
+            "passes": 65,
+            "constrained": true,
+            "wall_s": 1.2731570419855416
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/lfm2600",
+        "uptime_s": 54.25781583786011,
+        "requests": 17,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3110.492858,
+          "gpu_peak_mb": 3681.270118,
+          "gpu_cache_mb": 1067.802757,
+          "rss_mb": 5056.512
+        },
+        "engines": {
+          "locals": {
+            "requests": 17,
+            "prompt_tokens": 34921,
+            "cached_tokens": 30513,
+            "completion_tokens": 3118,
+            "forced_tokens": 37,
+            "passes": 3084,
+            "decode_s": 47.18428154068533,
+            "tool_calls": 14,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 3118,
+            "steps": 3112,
+            "rows": 3112,
+            "prefill_s": 3.136419291724451,
+            "prefill_tokens": 4391,
+            "admissions": 17,
+            "idle_s": 25.92385745816864,
+            "solo_steps": 1,
+            "prompt_cache_mb": 697.614336,
+            "prompt_cache_entries": 19,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 17,
+                "mb": 626
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 2,
+                "mb": 72
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "plan",
+      "repeat": 0,
+      "milliseconds": 1244.3,
+      "raw": {
+        "id": "chatcmpl-130fd1204c044676960792d2",
+        "object": "chat.completion",
+        "created": 1792944287,
+        "model": "locals/lfm2600-thinking",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": "The user is asking about their schedule for today. I should use the day_plan tool to get their schedule for today. The day_plan tool can read the person's Banana day plan when they ask about their schedule. I'll call it without a specific date to get today's plan.",
+              "tool_calls": [
+                {
+                  "id": "call_747a540df47142a6ba97a691",
+                  "type": "function",
+                  "function": {
+                    "name": "day_plan",
+                    "arguments": "{}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2025,
+          "completion_tokens": 68,
+          "total_tokens": 2093,
+          "prompt_tokens_details": {
+            "cached_tokens": 2012
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 3,
+            "passes": 65,
+            "constrained": true,
+            "wall_s": 1.2362071659881622
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/lfm2600",
+        "uptime_s": 55.50501585006714,
+        "requests": 18,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3148.692178,
+          "gpu_peak_mb": 3681.270118,
+          "gpu_cache_mb": 1070.809221,
+          "rss_mb": 5056.512
+        },
+        "engines": {
+          "locals": {
+            "requests": 18,
+            "prompt_tokens": 36946,
+            "cached_tokens": 32525,
+            "completion_tokens": 3186,
+            "forced_tokens": 40,
+            "passes": 3149,
+            "decode_s": 48.16961354063824,
+            "tool_calls": 15,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 3186,
+            "steps": 3180,
+            "rows": 3180,
+            "prefill_s": 3.169814041699283,
+            "prefill_tokens": 4403,
+            "admissions": 18,
+            "idle_s": 26.653041250188835,
+            "solo_steps": 1,
+            "prompt_cache_mb": 732.069888,
+            "prompt_cache_entries": 20,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 18,
+                "mb": 660
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 2,
+                "mb": 72
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "unsupported",
+      "repeat": 0,
+      "milliseconds": 3457.7,
+      "raw": {
+        "id": "chatcmpl-9dba504dc8b3471d97986124",
+        "object": "chat.completion",
+        "created": 1792944290,
+        "model": "locals/lfm2600-thinking",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": "The user wants to delete every meal in their history. I need to first check what meals are in their history before I can delete them. Let me look at the nutrition view to see what meals are logged, and then I can use the appropriate tool to delete them.\n\nHowever, I should note that the available tools don't include a direct \"delete meal\" function. Looking at the tools:\n- `prepare_meal` - creates a new meal\n- `prepare_meal_copy` - copies an existing meal\n- `nutrition_view` - shows nutrition charts and logged meals\n- `filter_nutrition` - updates filters\n- `read_note` - reads notes\n- `create_note` - creates a note\n\nThere's no direct \"delete meal\" function in the tool list. The closest would be modifying the nutrition view or perhaps using some other mechanism. But actually, looking more carefully at the tools, I don't see any deletion capability for meals.\n\nLet me first check what meals are in the history using `nutrition_view` to understand what we're dealing with. Then I can inform the user about the limitations.\n\nActually, wait - the user is asking me to delete every meal in their history. But based on the available tools, there's no deletion function for meals. The `nutrition_view` tool can show meals but doesn't have a delete parameter. The `prepare_meal` and `prepare_meal_copy` are for creating/previewing meals, not deleting.\n\nI should be honest with the user that I don't have the capability to delete meals from their history. The available tools don't include a deletion function for meals. I can show them what meals are in their history, but I cannot delete them.\n\nLet me first check their meal history to confirm what's there.",
+              "tool_calls": [
+                {
+                  "id": "call_874ac419a2bd454e902250af",
+                  "type": "function",
+                  "function": {
+                    "name": "nutrition_view",
+                    "arguments": "{}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2024,
+          "completion_tokens": 375,
+          "total_tokens": 2399,
+          "prompt_tokens_details": {
+            "cached_tokens": 2012
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 2,
+            "passes": 373,
+            "constrained": true,
+            "wall_s": 3.449886459042318
+          }
+        }
+      },
+      "passed": false,
+      "reason": "reply_contract",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/lfm2600",
+        "uptime_s": 58.96572685241699,
+        "requests": 19,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3190.520554,
+          "gpu_peak_mb": 3681.270118,
+          "gpu_cache_mb": 1069.314179,
+          "rss_mb": 5056.512
+        },
+        "engines": {
+          "locals": {
+            "requests": 19,
+            "prompt_tokens": 38970,
+            "cached_tokens": 34537,
+            "completion_tokens": 3561,
+            "forced_tokens": 42,
+            "passes": 3522,
+            "decode_s": 51.37215149856638,
+            "tool_calls": 16,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 3561,
+            "steps": 3555,
+            "rows": 3555,
+            "prefill_s": 3.2027844997355714,
+            "prefill_tokens": 4414,
+            "admissions": 19,
+            "idle_s": 27.40868904220406,
+            "solo_steps": 1,
+            "prompt_cache_mb": 771.538944,
+            "prompt_cache_entries": 21,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 19,
+                "mb": 700
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 2,
+                "mb": 72
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "explanation",
+      "repeat": 0,
+      "milliseconds": 4021.8,
+      "raw": {
+        "id": "chatcmpl-e96c08fcfa6c4b819e94288f",
+        "object": "chat.completion",
+        "created": 1792944294,
+        "model": "locals/lfm2600-thinking",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "Proteins are large biomolecules made of amino acids, which are the building blocks of life. Here's a general overview:\n\n**What are proteins?**\n- Proteins are organic compounds essential for all living organisms. They are composed of long chains of amino acids linked by peptide bonds.\n- There are 20 standard amino acids (with 19 being proteinogenic) that the body can use to build proteins.\n- Each amino acid contains a central carbon atom bonded to an amino group, a carboxyl group, and a side chain (R group) that gives the amino acid its unique properties.\n\n**Key functions of proteins:**\n- **Structural support** \u2013 e.g., collagen in skin and tendons, keratin in hair and nails\n- **Enzymatic activity** \u2013 proteins act as enzymes that catalyze chemical reactions\n- **Transport** \u2013 hemoglobin carries oxygen in blood; transport proteins move nutrients and gases\n- **Signaling** \u2013 hormones (like insulin) and neurotransmitters are proteins that regulate processes\n- **Immune defense** \u2013 antibodies (immunoglobulins) fight pathogens\n- **Storage** \u2013 proteins store energy and nutrients (e.g., glycogen is a carbohydrate, but proteins like casein store calcium)\n\n**Sources of protein:**\n- Animal-based: meat, fish, eggs, dairy, legumes, nuts\n- Plant-based: beans, lentils, tofu, quinoa, whole grains\n\n**Nutritional role:**\n- Proteins are classified as \"complete\" (contain all 9 essential amino acids) when they come from animal sources or certain plant sources (soy, quinoa, etc.)\n- The body can synthesize most amino acids, but the 9 \"essential\" ones must be obtained from diet\n- Protein is a macronutrient, typically providing 4 kcal per gram\n\nIn summary, proteins are fundamental to virtually every biological process\u2014from building and repairing tissues to regulating metabolism and immune function.",
+              "reasoning_content": "The user is asking me to explain what protein is, using general knowledge, not their app data. This is a straightforward informational request that doesn't require any tool usage from Banana's app. I should provide a clear, accurate explanation based on my training knowledge.\n\nLet me respond with a helpful explanation about proteins."
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2032,
+          "completion_tokens": 463,
+          "total_tokens": 2495,
+          "prompt_tokens_details": {
+            "cached_tokens": 2012
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 0,
+            "passes": 464,
+            "constrained": true,
+            "wall_s": 4.013927915948443
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/lfm2600",
+        "uptime_s": 62.99070596694946,
+        "requests": 20,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3232.967434,
+          "gpu_peak_mb": 3681.270118,
+          "gpu_cache_mb": 1072.742527,
+          "rss_mb": 5056.512
+        },
+        "engines": {
+          "locals": {
+            "requests": 20,
+            "prompt_tokens": 41002,
+            "cached_tokens": 36549,
+            "completion_tokens": 4024,
+            "forced_tokens": 42,
+            "passes": 3986,
+            "decode_s": 55.13771466561593,
+            "tool_calls": 16,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 4024,
+            "steps": 4020,
+            "rows": 4020,
+            "prefill_s": 3.2365110417595133,
+            "prefill_tokens": 4433,
+            "admissions": 20,
+            "idle_s": 28.084690167102963,
+            "solo_steps": 1,
+            "prompt_cache_mb": 812.613632,
+            "prompt_cache_entries": 22,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 20,
+                "mb": 741
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 2,
+                "mb": 72
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "ambiguous",
+      "repeat": 0,
+      "milliseconds": 3199.0,
+      "raw": {
+        "id": "chatcmpl-dccc2c4b541a4d5d9b9b00ab",
+        "object": "chat.completion",
+        "created": 1792944297,
+        "model": "locals/lfm2600-thinking",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": "The user is asking me to do \"that other thing\" - this is a reference to something previously discussed or mentioned. However, looking at the conversation history, there's no prior context about what \"that other thing\" refers to. The conversation started with me as Banana, a helpful personal assistant, and the user's first message was just \"Do that other thing\" with no prior context.\n\nSince I don't have any prior conversation history about what \"that other thing\" refers to, I should ask for clarification. But wait - the instructions say I should be helpful and use tools when needed. However, I don't have any context about what was previously discussed.\n\nActually, looking more carefully at the system prompt, I see that this is a fresh conversation turn. The user's message \"Do that other thing\" is ambiguous without context. I should ask for clarification about what they're referring to.\n\nBut let me check if there are any notes or other data that might give context... I can use the list_notes or read_note tools to see if there are any recent notes that might clarify what \"that other thing\" refers to.\n\nActually, the instructions say: \"For greetings and general conversation, reply directly without tools. Use tools only when the current request needs actual Banana notes, day-plan or nutrition data, or explicitly asks for an app action.\"\n\nThis is a general request (\"Do that other thing\") but without context. I should first try to understand what they're referring to by checking their notes or day plan. Let me check the notes first since that might have relevant information.",
+              "tool_calls": [
+                {
+                  "id": "call_4a08e7236b044ad4b3b84e52",
+                  "type": "function",
+                  "function": {
+                    "name": "list_notes",
+                    "arguments": "{}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2022,
+          "completion_tokens": 332,
+          "total_tokens": 2354,
+          "prompt_tokens_details": {
+            "cached_tokens": 2012
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 2,
+            "passes": 330,
+            "constrained": true,
+            "wall_s": 3.1915100830374286
+          }
+        }
+      },
+      "passed": false,
+      "reason": "reply_contract",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/lfm2600",
+        "uptime_s": 66.19273972511292,
+        "requests": 21,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3275.51261,
+          "gpu_peak_mb": 3681.270118,
+          "gpu_cache_mb": 1072.349327,
+          "rss_mb": 5056.512
+        },
+        "engines": {
+          "locals": {
+            "requests": 21,
+            "prompt_tokens": 43024,
+            "cached_tokens": 38561,
+            "completion_tokens": 4356,
+            "forced_tokens": 44,
+            "passes": 4316,
+            "decode_s": 58.07581854064483,
+            "tool_calls": 17,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 4356,
+            "steps": 4352,
+            "rows": 4352,
+            "prefill_s": 3.2604668757412583,
+            "prefill_tokens": 4442,
+            "admissions": 21,
+            "idle_s": 28.893455250072293,
+            "solo_steps": 1,
+            "prompt_cache_mb": 851.345408,
+            "prompt_cache_entries": 23,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 21,
+                "mb": 780
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 2,
+                "mb": 72
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "not-a-write",
+      "repeat": 0,
+      "milliseconds": 1673.4,
+      "raw": {
+        "id": "chatcmpl-18bea48d7b9a4cf19ae43254",
+        "object": "chat.completion",
+        "created": 1792944299,
+        "model": "locals/lfm2600-thinking",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "I've noted that you usually have eggs for breakfast. I won't log or save anything based on this information. Is there anything else I can help you with?",
+              "reasoning_content": "The user is informing me about their usual breakfast habit (eggs) and explicitly stating \"Do not log or save anything.\" This is a statement about their personal information, not a request to create a note or log anything. I should acknowledge this information without creating any notes or saving anything, as they've explicitly instructed not to do so.\n\nI should respond directly and helpfully, acknowledging their breakfast preference without taking any action that would violate their request."
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2036,
+          "completion_tokens": 125,
+          "total_tokens": 2161,
+          "prompt_tokens_details": {
+            "cached_tokens": 2012
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 0,
+            "passes": 126,
+            "constrained": true,
+            "wall_s": 1.665787374950014
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/lfm2600",
+        "uptime_s": 67.86971879005432,
+        "requests": 22,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3312.888634,
+          "gpu_peak_mb": 3681.270118,
+          "gpu_cache_mb": 1073.176803,
+          "rss_mb": 5056.512
+        },
+        "engines": {
+          "locals": {
+            "requests": 22,
+            "prompt_tokens": 45060,
+            "cached_tokens": 40573,
+            "completion_tokens": 4481,
+            "forced_tokens": 44,
+            "passes": 4442,
+            "decode_s": 59.49401758261956,
+            "tool_calls": 17,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 4481,
+            "steps": 4479,
+            "rows": 4479,
+            "prefill_s": 3.2949564167065546,
+            "prefill_tokens": 4465,
+            "admissions": 22,
+            "idle_s": 29.6375288751442,
+            "solo_steps": 1,
+            "prompt_cache_mb": 886.94784,
+            "prompt_cache_entries": 24,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 22,
+                "mb": 815
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 2,
+                "mb": 72
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "identity",
+      "repeat": 1,
+      "milliseconds": 1311.0,
+      "raw": {
+        "id": "chatcmpl-c5f2957a335e4074ad3458cb",
+        "object": "chat.completion",
+        "created": 1792944300,
+        "model": "locals/lfm2600-thinking",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "I'm Banana, your helpful personal assistant. How can I help you today?",
+              "reasoning_content": "The user is asking for my name. According to my system instructions, I am \"Banana, a helpful personal assistant\". I should respond directly with my name without needing to use any tools for this type of question. I should not invent app data or use tools for simple identity questions."
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2023,
+          "completion_tokens": 77,
+          "total_tokens": 2100,
+          "prompt_tokens_details": {
+            "cached_tokens": 2012
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 0,
+            "passes": 78,
+            "constrained": true,
+            "wall_s": 1.3030347090680152
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/lfm2600",
+        "uptime_s": 69.183917760849,
+        "requests": 23,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3351.137106,
+          "gpu_peak_mb": 3681.270118,
+          "gpu_cache_mb": 1073.561839,
+          "rss_mb": 5056.512
+        },
+        "engines": {
+          "locals": {
+            "requests": 23,
+            "prompt_tokens": 47083,
+            "cached_tokens": 42585,
+            "completion_tokens": 4558,
+            "forced_tokens": 44,
+            "passes": 4520,
+            "decode_s": 60.55188704072498,
+            "tool_calls": 17,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 4558,
+            "steps": 4558,
+            "rows": 4558,
+            "prefill_s": 3.3183542496990412,
+            "prefill_tokens": 4475,
+            "admissions": 23,
+            "idle_s": 30.36475945811253,
+            "solo_steps": 1,
+            "prompt_cache_mb": 921.550848,
+            "prompt_cache_entries": 25,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 23,
+                "mb": 850
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 2,
+                "mb": 72
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "greeting",
+      "repeat": 1,
+      "milliseconds": 1145.4,
+      "raw": {
+        "id": "chatcmpl-f8e0cbbb0ce441debfcf0803",
+        "object": "chat.completion",
+        "created": 1792944301,
+        "model": "locals/lfm2600-thinking",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "Hello! How can I help you today?",
+              "reasoning_content": "The user says \"Hello\" - this is a greeting. I should respond directly without tools for greetings and general conversation. I don't need to use any tools for this."
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2019,
+          "completion_tokens": 47,
+          "total_tokens": 2066,
+          "prompt_tokens_details": {
+            "cached_tokens": 2012
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 0,
+            "passes": 48,
+            "constrained": true,
+            "wall_s": 1.1377723750192672
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/lfm2600",
+        "uptime_s": 70.33271288871765,
+        "requests": 24,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3350.756202,
+          "gpu_peak_mb": 3681.270118,
+          "gpu_cache_mb": 1073.099025,
+          "rss_mb": 5056.512
+        },
+        "engines": {
+          "locals": {
+            "requests": 24,
+            "prompt_tokens": 49102,
+            "cached_tokens": 44597,
+            "completion_tokens": 4605,
+            "forced_tokens": 44,
+            "passes": 4568,
+            "decode_s": 61.44074291572906,
+            "tool_calls": 17,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 4605,
+            "steps": 4607,
+            "rows": 4607,
+            "prefill_s": 3.3375739586772397,
+            "prefill_tokens": 4481,
+            "admissions": 24,
+            "idle_s": 31.13981425005477,
+            "solo_steps": 1,
+            "prompt_cache_mb": 921.550848,
+            "prompt_cache_entries": 25,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 23,
+                "mb": 850
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 2,
+                "mb": 72
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "monthly",
+      "repeat": 1,
+      "milliseconds": 1168.4,
+      "raw": {
+        "id": "chatcmpl-e9340cec422946edb4781152",
+        "object": "chat.completion",
+        "created": 1792944303,
+        "model": "locals/lfm2600-thinking",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": "The user wants to see their protein intake for this month. I should use the nutrition_view tool with the \"protein\" metric and \"this_month\" period to get this information. Let me call the nutrition_view function with these parameters.",
+              "tool_calls": [
+                {
+                  "id": "call_75cf92a0df084c739ef6ee41",
+                  "type": "function",
+                  "function": {
+                    "name": "nutrition_view",
+                    "arguments": "{\"metric\": \"protein\", \"period\": \"this_month\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2023,
+          "completion_tokens": 66,
+          "total_tokens": 2089,
+          "prompt_tokens_details": {
+            "cached_tokens": 2012
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 3,
+            "passes": 63,
+            "constrained": true,
+            "wall_s": 1.1605419999687
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/lfm2600",
+        "uptime_s": 71.50474762916565,
+        "requests": 25,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3351.059338,
+          "gpu_peak_mb": 3681.270118,
+          "gpu_cache_mb": 1072.812305,
+          "rss_mb": 5056.512
+        },
+        "engines": {
+          "locals": {
+            "requests": 25,
+            "prompt_tokens": 51125,
+            "cached_tokens": 46609,
+            "completion_tokens": 4671,
+            "forced_tokens": 47,
+            "passes": 4631,
+            "decode_s": 62.346755624748766,
+            "tool_calls": 18,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 4671,
+            "steps": 4672,
+            "rows": 4672,
+            "prefill_s": 3.360973708680831,
+            "prefill_tokens": 4491,
+            "admissions": 25,
+            "idle_s": 31.81786725006532,
+            "solo_steps": 1,
+            "prompt_cache_mb": 921.550848,
+            "prompt_cache_entries": 25,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 23,
+                "mb": 850
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 2,
+                "mb": 72
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "calories",
+      "repeat": 1,
+      "milliseconds": 1260.0,
+      "raw": {
+        "id": "chatcmpl-bc28f9257eca4eac9835510e",
+        "object": "chat.completion",
+        "created": 1792944304,
+        "model": "locals/lfm2600-thinking",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": "The user wants to see calories over the last seven days. I should use the nutrition_view tool with the \"last_7_days\" period parameter to get this information. This will show the nutrition chart or logged meals for the last week.",
+              "tool_calls": [
+                {
+                  "id": "call_f0a5d26db467463cba88581a",
+                  "type": "function",
+                  "function": {
+                    "name": "nutrition_view",
+                    "arguments": "{\"period\": \"last_7_days\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2025,
+          "completion_tokens": 63,
+          "total_tokens": 2088,
+          "prompt_tokens_details": {
+            "cached_tokens": 2012
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 3,
+            "passes": 60,
+            "constrained": true,
+            "wall_s": 1.2522690830519423
+          }
+        }
+      },
+      "passed": false,
+      "reason": "wrong_metric",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/lfm2600",
+        "uptime_s": 72.76832675933838,
+        "requests": 26,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3351.477154,
+          "gpu_peak_mb": 3681.270118,
+          "gpu_cache_mb": 1072.394513,
+          "rss_mb": 5056.512
+        },
+        "engines": {
+          "locals": {
+            "requests": 26,
+            "prompt_tokens": 53150,
+            "cached_tokens": 48621,
+            "completion_tokens": 4734,
+            "forced_tokens": 50,
+            "passes": 4691,
+            "decode_s": 63.34464962466154,
+            "tool_calls": 19,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 4734,
+            "steps": 4734,
+            "rows": 4734,
+            "prefill_s": 3.391964791691862,
+            "prefill_tokens": 4503,
+            "admissions": 26,
+            "idle_s": 32.608099209028296,
+            "solo_steps": 1,
+            "prompt_cache_mb": 921.550848,
+            "prompt_cache_entries": 25,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 23,
+                "mb": 850
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 2,
+                "mb": 72
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "food-search",
+      "repeat": 1,
+      "milliseconds": 1258.0,
+      "raw": {
+        "id": "chatcmpl-394025a5297d4f1fa272c562",
+        "object": "chat.completion",
+        "created": 1792944305,
+        "model": "locals/lfm2600-thinking",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": "The user wants to find their logged meals containing yogurt. I should use the nutrition_view tool with the foodName parameter set to \"yogurt\" to find meals that contain yogurt. This will show me the logged meals with yogurt.",
+              "tool_calls": [
+                {
+                  "id": "call_a56b2bd32e9c426e82eec6af",
+                  "type": "function",
+                  "function": {
+                    "name": "nutrition_view",
+                    "arguments": "{\"foodName\": \"yogurt\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2135,
+          "completion_tokens": 62,
+          "total_tokens": 2197,
+          "prompt_tokens_details": {
+            "cached_tokens": 2123
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 3,
+            "passes": 59,
+            "constrained": true,
+            "wall_s": 1.2498579169623554
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/lfm2600",
+        "uptime_s": 74.02996373176575,
+        "requests": 27,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3388.808122,
+          "gpu_peak_mb": 3681.270118,
+          "gpu_cache_mb": 1035.063569,
+          "rss_mb": 5056.512
+        },
+        "engines": {
+          "locals": {
+            "requests": 27,
+            "prompt_tokens": 55285,
+            "cached_tokens": 50744,
+            "completion_tokens": 4796,
+            "forced_tokens": 53,
+            "passes": 4750,
+            "decode_s": 64.34010687458795,
+            "tool_calls": 20,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 4796,
+            "steps": 4795,
+            "rows": 4795,
+            "prefill_s": 3.424484374700114,
+            "prefill_tokens": 4514,
+            "admissions": 27,
+            "idle_s": 33.397033668123186,
+            "solo_steps": 1,
+            "prompt_cache_mb": 957.693952,
+            "prompt_cache_entries": 26,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 24,
+                "mb": 886
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 2,
+                "mb": 72
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "weekdays",
+      "repeat": 1,
+      "milliseconds": 1357.0,
+      "raw": {
+        "id": "chatcmpl-3f8dceeba204472093baa7bd",
+        "object": "chat.completion",
+        "created": 1792944306,
+        "model": "locals/lfm2600-thinking",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": "The user wants to filter their schedule to only include weekdays. I should use the day_plan tool to get their schedule, and then filter for weekdays only. Let me first check what the day_plan returns for today (2026-10-25).",
+              "tool_calls": [
+                {
+                  "id": "call_915ec7b69a62405791f6ca03",
+                  "type": "function",
+                  "function": {
+                    "name": "day_plan",
+                    "arguments": "{\"date\": \"2026-10-25\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2132,
+          "completion_tokens": 71,
+          "total_tokens": 2203,
+          "prompt_tokens_details": {
+            "cached_tokens": 2123
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 4,
+            "passes": 67,
+            "constrained": true,
+            "wall_s": 1.348698291927576
+          }
+        }
+      },
+      "passed": false,
+      "reason": "wrong_tool",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/lfm2600",
+        "uptime_s": 75.39065980911255,
+        "requests": 28,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3389.115346,
+          "gpu_peak_mb": 3681.270118,
+          "gpu_cache_mb": 1073.090901,
+          "rss_mb": 5056.512
+        },
+        "engines": {
+          "locals": {
+            "requests": 28,
+            "prompt_tokens": 57417,
+            "cached_tokens": 52867,
+            "completion_tokens": 4867,
+            "forced_tokens": 57,
+            "passes": 4817,
+            "decode_s": 65.43442316656001,
+            "tool_calls": 21,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 4867,
+            "steps": 4865,
+            "rows": 4865,
+            "prefill_s": 3.453456833725795,
+            "prefill_tokens": 4522,
+            "admissions": 28,
+            "idle_s": 34.22475087607745,
+            "solo_steps": 1,
+            "prompt_cache_mb": 957.693952,
+            "prompt_cache_entries": 26,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 24,
+                "mb": 886
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 2,
+                "mb": 72
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "compare",
+      "repeat": 1,
+      "milliseconds": 2083.7,
+      "raw": {
+        "id": "chatcmpl-aadea34026a8485296c88fe5",
+        "object": "chat.completion",
+        "created": 1792944309,
+        "model": "locals/lfm2600-thinking",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": "The user wants to compare with the previous period. Looking at the nutrition_view tool, I can see it has a \"period\" parameter with options like \"this_month\", \"last_month\", \"last_7_days\", \"last_30_days\". The current revision shows \"selectedDay\": \"2026-10-23\" and the summary shows \"loggedDays\": 1 for \"2026-10-23\".\n\nThe user is likely asking to compare the current period (which appears to be 2026-10-23 based on the nutrition_view) with the previous period. I should use the filter_nutrition tool with \"compare_previous\" to get this comparison.\n\nLet me call filter_nutrition with changes set to [\"compare_previous\"] to get the comparison.",
+              "tool_calls": [
+                {
+                  "id": "call_df758394252c46ae8bc22d81",
+                  "type": "function",
+                  "function": {
+                    "name": "filter_nutrition",
+                    "arguments": "{\"changes\": [{\"type\": \"compare_previous\"}]}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2134,
+          "completion_tokens": 181,
+          "total_tokens": 2315,
+          "prompt_tokens_details": {
+            "cached_tokens": 2123
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 5,
+            "passes": 176,
+            "constrained": true,
+            "wall_s": 2.075739459018223
+          }
+        }
+      },
+      "passed": false,
+      "reason": "schema",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/lfm2600",
+        "uptime_s": 77.47806167602539,
+        "requests": 29,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3430.857706,
+          "gpu_peak_mb": 3681.270118,
+          "gpu_cache_mb": 1072.939727,
+          "rss_mb": 5056.512
+        },
+        "engines": {
+          "locals": {
+            "requests": 29,
+            "prompt_tokens": 59551,
+            "cached_tokens": 54990,
+            "completion_tokens": 5048,
+            "forced_tokens": 62,
+            "passes": 4993,
+            "decode_s": 67.25671041663736,
+            "tool_calls": 22,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 5048,
+            "steps": 5043,
+            "rows": 5043,
+            "prefill_s": 3.4783212506445125,
+            "prefill_tokens": 4532,
+            "admissions": 29,
+            "idle_s": 35.00780987611506,
+            "solo_steps": 2,
+            "prompt_cache_mb": 995.770368,
+            "prompt_cache_entries": 27,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 25,
+                "mb": 924
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 2,
+                "mb": 72
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "copy",
+      "repeat": 1,
+      "milliseconds": 2415.0,
+      "raw": {
+        "id": "chatcmpl-ba70c38aeecb4fbd90676af2",
+        "object": "chat.completion",
+        "created": 1792944311,
+        "model": "locals/lfm2600-thinking",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": "The user wants me to prepare a copy of a Greek yogurt breakfast meal for tomorrow, without saving it. I need to find the selected Greek yogurt breakfast meal first. Let me look at the nutrition view to see what meals are logged, particularly looking for Greek yogurt breakfast.\n\nFrom the nutrition_view result, I can see there's a meal with ID \"BA5A4E11-0000-4000-8000-000202610231\" for \"Sample Greek yogurt breakfast\" on 2026-10-23. But the user wants it for tomorrow (2026-10-26).\n\nI should use prepare_meal_copy to copy this meal for tomorrow without saving. The required parameters are mealID and day. The mealID is \"BA5A4E11-0000-4000-8000-000202610231\" and day should be \"tomorrow\" (which would be 2026-10-26).\n\nLet me prepare the copy with these parameters.",
+              "tool_calls": [
+                {
+                  "id": "call_1cdc2baf5e4e4adb85e78db0",
+                  "type": "function",
+                  "function": {
+                    "name": "prepare_meal_copy",
+                    "arguments": "{\"mealID\": \"BA5A4E11-0000-4000-8000-000202610231\", \"day\": \"tomorrow\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2145,
+          "completion_tokens": 241,
+          "total_tokens": 2386,
+          "prompt_tokens_details": {
+            "cached_tokens": 2123
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 2,
+            "passes": 239,
+            "constrained": true,
+            "wall_s": 2.4073537080548704
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/lfm2600",
+        "uptime_s": 79.89675378799438,
+        "requests": 30,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3431.25505,
+          "gpu_peak_mb": 3725.718223,
+          "gpu_cache_mb": 1073.427135,
+          "rss_mb": 5056.512
+        },
+        "engines": {
+          "locals": {
+            "requests": 30,
+            "prompt_tokens": 61696,
+            "cached_tokens": 57113,
+            "completion_tokens": 5289,
+            "forced_tokens": 64,
+            "passes": 5232,
+            "decode_s": 69.40962254162878,
+            "tool_calls": 23,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 5289,
+            "steps": 5283,
+            "rows": 5283,
+            "prefill_s": 3.513404958648607,
+            "prefill_tokens": 4553,
+            "admissions": 30,
+            "idle_s": 35.678558709216304,
+            "solo_steps": 2,
+            "prompt_cache_mb": 995.770368,
+            "prompt_cache_entries": 27,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 25,
+                "mb": 924
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 2,
+                "mb": 72
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "new-meal",
+      "repeat": 1,
+      "milliseconds": 3671.1,
+      "raw": {
+        "id": "chatcmpl-e6c77a5d530a412a989ce1fe",
+        "object": "chat.completion",
+        "created": 1792944315,
+        "model": "locals/lfm2600-thinking",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": "The user wants to log a new meal for today with 2 eggs and 1 banana, and prepare a review (without saving). Looking at the available tools, I should use `prepare_meal` for creating a new meal that can be reviewed. The `prepare_meal` tool requires:\n- `foods`: array of food objects with `name` and `quantity`\n- `day`: optional, defaults to today\n- `title`: optional\n\nThe user specified:\n- 2 eggs\n- 1 banana\n- Today's date (2026-10-25)\n- Prepare for review (not save)\n\nI need to call `prepare_meal` with the appropriate parameters. The `foods` array should contain:\n- {name: \"egg\", quantity: \"2\"} or perhaps \"2 eggs\" - but looking at the schema, quantity is a string, so I should use \"2\" for eggs and \"1\" for banana\n- {name: \"banana\", quantity: \"1\"}\n\nLet me structure this properly. The `prepare_meal` function is for preparing a NEW meal for native review. This matches the user's request to \"Log a new meal... Prepare review, do not save.\"\n\nI'll use:\n- day: \"today\" (or omit since it defaults to today)\n- foods: [{\"name\": \"egg\", \"quantity\": \"2\"}, {\"name\": \"banana\", \"quantity\": \"1\"}]\n- title: optional, but I should add a title like \"Breakfast\" or \"Lunch\"\n\nActually, looking more carefully at the schema, `title` is not required (only `foods` is required). I'll include a simple title.\n\nLet me make the call.",
+              "tool_calls": [
+                {
+                  "id": "call_f5550dbe54f440c6b97d3115",
+                  "type": "function",
+                  "function": {
+                    "name": "prepare_meal",
+                    "arguments": "{\"day\": \"today\", \"foods\": [{\"name\": \"egg\", \"quantity\": \"2\"}, {\"name\": \"banana\", \"quantity\": \"1\"}], \"title\": \"Breakfast\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2040,
+          "completion_tokens": 401,
+          "total_tokens": 2441,
+          "prompt_tokens_details": {
+            "cached_tokens": 2012
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 2,
+            "passes": 399,
+            "constrained": true,
+            "wall_s": 3.663618625025265
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/lfm2600",
+        "uptime_s": 83.57179069519043,
+        "requests": 31,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3473.943586,
+          "gpu_peak_mb": 3726.115567,
+          "gpu_cache_mb": 1072.189965,
+          "rss_mb": 5056.512
+        },
+        "engines": {
+          "locals": {
+            "requests": 31,
+            "prompt_tokens": 63736,
+            "cached_tokens": 59125,
+            "completion_tokens": 5690,
+            "forced_tokens": 66,
+            "passes": 5631,
+            "decode_s": 72.82550079165958,
+            "tool_calls": 24,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 5690,
+            "steps": 5683,
+            "rows": 5683,
+            "prefill_s": 3.549308250658214,
+            "prefill_tokens": 4580,
+            "admissions": 31,
+            "idle_s": 36.47310900117736,
+            "solo_steps": 2,
+            "prompt_cache_mb": 1035.911168,
+            "prompt_cache_entries": 28,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 26,
+                "mb": 964
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 2,
+                "mb": 72
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "new-event",
+      "repeat": 1,
+      "milliseconds": 2275.1,
+      "raw": {
+        "id": "chatcmpl-b1ade19f30c54bc790fcd637",
+        "object": "chat.completion",
+        "created": 1792944317,
+        "model": "locals/lfm2600-thinking",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": "The user wants me to create a calendar event called \"Lunch\" for tomorrow at 13:00 (1:00 PM) for 30 minutes. They also want me to \"prepare review\" but not save it - this means I should use the prepare_event tool which creates a draft/preview event without saving it to the calendar.\n\nLet me use the prepare_event tool with:\n- title: \"Lunch\"\n- day: \"tomorrow\" (which would be 2026-10-26 based on the current date of 2026-10-25)\n- time: \"13:00\"\n- duration_minutes: 30\n- notes: (optional, but not specified)\n\nThe prepare_event tool is for preparing calendar events for native review - it doesn't save them. This matches what the user is asking for.\n\nI should call prepare_event with these parameters.",
+              "tool_calls": [
+                {
+                  "id": "call_44e5fbaa2bd8494eafc757fe",
+                  "type": "function",
+                  "function": {
+                    "name": "prepare_event",
+                    "arguments": "{\"title\": \"Lunch\", \"day\": \"tomorrow\", \"time\": \"13:00\", \"durationMinutes\": 30}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2042,
+          "completion_tokens": 207,
+          "total_tokens": 2249,
+          "prompt_tokens_details": {
+            "cached_tokens": 2012
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 1,
+            "passes": 206,
+            "constrained": true,
+            "wall_s": 2.2675762500148267
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/lfm2600",
+        "uptime_s": 85.85071992874146,
+        "requests": 32,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3511.241786,
+          "gpu_peak_mb": 3760.579335,
+          "gpu_cache_mb": 1070.952891,
+          "rss_mb": 5056.512
+        },
+        "engines": {
+          "locals": {
+            "requests": 32,
+            "prompt_tokens": 65778,
+            "cached_tokens": 61137,
+            "completion_tokens": 5897,
+            "forced_tokens": 67,
+            "passes": 5837,
+            "decode_s": 74.84790375072043,
+            "tool_calls": 25,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 5897,
+            "steps": 5890,
+            "rows": 5890,
+            "prefill_s": 3.5840599177172408,
+            "prefill_tokens": 4609,
+            "admissions": 32,
+            "idle_s": 37.219924376229756,
+            "solo_steps": 2,
+            "prompt_cache_mb": 1072.922624,
+            "prompt_cache_entries": 29,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 27,
+                "mb": 1001
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 2,
+                "mb": 72
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "explicit-event",
+      "repeat": 1,
+      "milliseconds": 2581.3,
+      "raw": {
+        "id": "chatcmpl-794ce6c976b1483f9d4de189",
+        "object": "chat.completion",
+        "created": 1792944320,
+        "model": "locals/lfm2600-thinking",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": "The user wants me to create a calendar event for a dentist appointment on 2026-11-03 at 09:15 for 45 minutes. I should use the prepare_event tool to create this event. Let me check the parameters:\n- title: \"Dentist\" (or similar)\n- day: \"2026-11-03\"\n- time: \"09:15\"\n- duration_minutes: 45\n- location: not specified, but I can leave it or ask\n- notes: not specified\n\nThe prepare_event tool requires a title parameter, and optionally day, duration_minutes, isAllDay, location, notes, time, and title. The time parameter is required unless it's an all-day event. Since this is a specific time (09:15), I should include it.\n\nLet me create the event with:\n- title: \"Dentist\"\n- day: \"2026-11-03\"\n- time: \"09:15\"\n- duration_minutes: 45\n\nI'll use the prepare_event tool since this is for calendar event creation.",
+              "tool_calls": [
+                {
+                  "id": "call_7f1f5acc105147719c63f0a3",
+                  "type": "function",
+                  "function": {
+                    "name": "prepare_event",
+                    "arguments": "{\"title\": \"Dentist\", \"day\": \"2026-11-03\", \"time\": \"09:15\", \"durationMinutes\": 45}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2042,
+          "completion_tokens": 254,
+          "total_tokens": 2296,
+          "prompt_tokens_details": {
+            "cached_tokens": 2012
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 1,
+            "passes": 253,
+            "constrained": true,
+            "wall_s": 2.5737905419664457
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/lfm2600",
+        "uptime_s": 88.43603777885437,
+        "requests": 33,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3549.588562,
+          "gpu_peak_mb": 3792.638784,
+          "gpu_cache_mb": 1072.468417,
+          "rss_mb": 5056.512
+        },
+        "engines": {
+          "locals": {
+            "requests": 33,
+            "prompt_tokens": 67820,
+            "cached_tokens": 63149,
+            "completion_tokens": 6151,
+            "forced_tokens": 68,
+            "passes": 6090,
+            "decode_s": 77.17410116677638,
+            "tool_calls": 26,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 6151,
+            "steps": 6144,
+            "rows": 6144,
+            "prefill_s": 3.618806750746444,
+            "prefill_tokens": 4638,
+            "admissions": 33,
+            "idle_s": 37.947406543185934,
+            "solo_steps": 2,
+            "prompt_cache_mb": 1110.704128,
+            "prompt_cache_entries": 30,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 28,
+                "mb": 1039
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 2,
+                "mb": 72
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "missing-time",
+      "repeat": 1,
+      "milliseconds": 4778.0,
+      "raw": {
+        "id": "chatcmpl-4d6419c8ab894c519f82ccb8",
+        "object": "chat.completion",
+        "created": 1792944324,
+        "model": "locals/lfm2600-thinking",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "I'll help you create a Dinner event. Since you haven't decided on the time yet, could you please let me know when you'd like to have dinner? I can set a default duration of 60 minutes once you provide a time.",
+              "reasoning_content": "The user wants to create a dinner event but hasn't decided on the time. I should use the prepare_event tool to create this event. Since they haven't specified a time, I'll need to ask for clarification or use a default. Looking at the prepare_event tool parameters, it requires a title (which is \"Dinner\") and has optional parameters for day, duration, isAllDay, location, notes, time, etc.\n\nThe user said they haven't decided the time, so I should either:\n1. Ask for the time first\n2. Create the event with a placeholder time or ask for clarification\n\nActually, looking at the tool more carefully - prepare_event is for preparing a calendar event for native review, and it doesn't actually save it (it says \"never save\" in the description). But the user is asking me to \"Create an event\" which suggests they want it saved.\n\nWait, let me re-read the tool descriptions:\n- prepare_meal_copy: \"Prepare a copy of an existing logged meal for native review. For repeat/add-again requests with no date, use today when the person asks to repeat a meal without specifying a date.\"\n- prepare_meal: \"Prepare a NEW meal for native review from foods and amounts the user supplied.\"\n- prepare_event: \"Prepare a calendar event for native review, never save. Use only requested title, date/time, duration and details. Ask if the start time is missing; default duration is 60 minutes.\"\n\nThe prepare_event description says \"never save\" - but this seems contradictory to the user's request. However, I should follow the tool's description. But actually, looking more carefully, the user is asking me to create an event, and the prepare_event tool is the one for calendar events.\n\nThe issue is that the user hasn't decided the time. I should ask for the time before creating the event. But I could also create it with a default time or ask first.\n\nActually, I think the best approach is to ask the user for the time since they explicitly said they haven't decided. I'll need to get the time before calling prepare_event.\n\nBut wait - the prepare_event tool says \"Ask if the start time is missing; default duration is 60 minutes.\" This suggests I should ask for the time first.\n\nLet me ask the user for the time before creating the event. I'll be polite and ask them to specify when they'd like the dinner."
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2032,
+          "completion_tokens": 554,
+          "total_tokens": 2586,
+          "prompt_tokens_details": {
+            "cached_tokens": 2012
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 0,
+            "passes": 555,
+            "constrained": true,
+            "wall_s": 4.770058125024661
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/lfm2600",
+        "uptime_s": 93.21808981895447,
+        "requests": 34,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3595.512938,
+          "gpu_peak_mb": 3851.797297,
+          "gpu_cache_mb": 1073.369463,
+          "rss_mb": 5056.512
+        },
+        "engines": {
+          "locals": {
+            "requests": 34,
+            "prompt_tokens": 69852,
+            "cached_tokens": 65161,
+            "completion_tokens": 6705,
+            "forced_tokens": 68,
+            "passes": 6645,
+            "decode_s": 81.70385108387563,
+            "tool_calls": 26,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 6705,
+            "steps": 6700,
+            "rows": 6700,
+            "prefill_s": 3.65436912572477,
+            "prefill_tokens": 4657,
+            "admissions": 34,
+            "idle_s": 38.723202501190826,
+            "solo_steps": 2,
+            "prompt_cache_mb": 1153.26976,
+            "prompt_cache_entries": 31,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 29,
+                "mb": 1082
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 2,
+                "mb": 72
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "missing-food",
+      "repeat": 1,
+      "milliseconds": 1653.9,
+      "raw": {
+        "id": "chatcmpl-65f537d9a46a42acaa124061",
+        "object": "chat.completion",
+        "created": 1792944326,
+        "model": "locals/lfm2600-thinking",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "I'd be happy to help you log a meal! Could you tell me what you ate? Please share the food items and quantities (e.g., \"chicken breast 150g, rice 100g, broccoli 200g\") so I can create the meal log for you.",
+              "reasoning_content": "The user wants to log a meal but hasn't specified what they ate yet. I should ask them what they ate so I can create a meal log for them. I'll need to use the prepare_meal tool to create a new meal entry, but first I need to know what foods and quantities they want to log.\n\nLet me ask them what they ate."
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2031,
+          "completion_tokens": 132,
+          "total_tokens": 2163,
+          "prompt_tokens_details": {
+            "cached_tokens": 2012
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 0,
+            "passes": 133,
+            "constrained": true,
+            "wall_s": 1.646063124993816
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/lfm2600",
+        "uptime_s": 94.87622666358948,
+        "requests": 35,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3633.859722,
+          "gpu_peak_mb": 3883.168591,
+          "gpu_cache_mb": 1073.461537,
+          "rss_mb": 5056.512
+        },
+        "engines": {
+          "locals": {
+            "requests": 35,
+            "prompt_tokens": 71883,
+            "cached_tokens": 67173,
+            "completion_tokens": 6837,
+            "forced_tokens": 68,
+            "passes": 6778,
+            "decode_s": 83.10849050083198,
+            "tool_calls": 26,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 6837,
+            "steps": 6834,
+            "rows": 6834,
+            "prefill_s": 3.688603000715375,
+            "prefill_tokens": 4675,
+            "admissions": 35,
+            "idle_s": 39.391779043129645,
+            "solo_steps": 2,
+            "prompt_cache_mb": 1188.90496,
+            "prompt_cache_entries": 32,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 30,
+                "mb": 1117
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 2,
+                "mb": 72
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "global-search",
+      "repeat": 1,
+      "milliseconds": 1170.7,
+      "raw": {
+        "id": "chatcmpl-f5f863cca7e14611bdedcaa5",
+        "object": "chat.completion",
+        "created": 1792944327,
+        "model": "locals/lfm2600-thinking",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": "The user wants me to search across Banana for \"clinic\". I should use the search_app tool with the query \"clinic\" to find relevant results in the Banana app.",
+              "tool_calls": [
+                {
+                  "id": "call_d5c02ee81caf4db48c1e8db6",
+                  "type": "function",
+                  "function": {
+                    "name": "search_app",
+                    "arguments": "{\"query\": \"clinic\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2024,
+          "completion_tokens": 49,
+          "total_tokens": 2073,
+          "prompt_tokens_details": {
+            "cached_tokens": 2012
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 3,
+            "passes": 46,
+            "constrained": true,
+            "wall_s": 1.162901624920778
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/lfm2600",
+        "uptime_s": 96.05123376846313,
+        "requests": 36,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3672.308898,
+          "gpu_peak_mb": 3913.652886,
+          "gpu_cache_mb": 1073.690923,
+          "rss_mb": 5056.512
+        },
+        "engines": {
+          "locals": {
+            "requests": 36,
+            "prompt_tokens": 73907,
+            "cached_tokens": 69185,
+            "completion_tokens": 6886,
+            "forced_tokens": 71,
+            "passes": 6824,
+            "decode_s": 84.01702604291495,
+            "tool_calls": 27,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 6886,
+            "steps": 6882,
+            "rows": 6882,
+            "prefill_s": 3.712004042812623,
+            "prefill_tokens": 4686,
+            "admissions": 36,
+            "idle_s": 40.18504658516031,
+            "solo_steps": 2,
+            "prompt_cache_mb": 1223.016448,
+            "prompt_cache_entries": 33,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 31,
+                "mb": 1151
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 2,
+                "mb": 72
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "open-page",
+      "repeat": 1,
+      "milliseconds": 1141.6,
+      "raw": {
+        "id": "chatcmpl-c2f3fdb5cd944f5abe01f399",
+        "object": "chat.completion",
+        "created": 1792944328,
+        "model": "locals/lfm2600-thinking",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": "The user wants me to open the Notes page. I should use the open_page function with section \"notes\" to view the notes page.",
+              "tool_calls": [
+                {
+                  "id": "call_2de85232ed8e427ca7b6228f",
+                  "type": "function",
+                  "function": {
+                    "name": "open_page",
+                    "arguments": "{\"section\": \"notes\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2022,
+          "completion_tokens": 40,
+          "total_tokens": 2062,
+          "prompt_tokens_details": {
+            "cached_tokens": 2012
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 3,
+            "passes": 37,
+            "constrained": true,
+            "wall_s": 1.133681375067681
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/lfm2600",
+        "uptime_s": 97.19720602035522,
+        "requests": 37,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3671.571642,
+          "gpu_peak_mb": 3951.532736,
+          "gpu_cache_mb": 1073.301549,
+          "rss_mb": 5056.512
+        },
+        "engines": {
+          "locals": {
+            "requests": 37,
+            "prompt_tokens": 75929,
+            "cached_tokens": 71197,
+            "completion_tokens": 6926,
+            "forced_tokens": 74,
+            "passes": 6861,
+            "decode_s": 84.89648154284805,
+            "tool_calls": 28,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 6926,
+            "steps": 6921,
+            "rows": 6921,
+            "prefill_s": 3.7431510847527534,
+            "prefill_tokens": 4695,
+            "admissions": 37,
+            "idle_s": 41.01620629406534,
+            "solo_steps": 2,
+            "prompt_cache_mb": 1223.016448,
+            "prompt_cache_entries": 33,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 31,
+                "mb": 1151
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 2,
+                "mb": 72
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "notes",
+      "repeat": 1,
+      "milliseconds": 1441.6,
+      "raw": {
+        "id": "chatcmpl-fdb44266e89a4556adb19f4b",
+        "object": "chat.completion",
+        "created": 1792944330,
+        "model": "locals/lfm2600-thinking",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": "The user wants to see their recent notes. I should use the list_notes tool to retrieve their notes. This is a straightforward request for information about their notes, which is exactly what list_notes is designed for. I don't need any parameters for this call since it has optional parameters and the user didn't specify any particular filter.",
+              "tool_calls": [
+                {
+                  "id": "call_94a7971e3b334c51b4f955ee",
+                  "type": "function",
+                  "function": {
+                    "name": "list_notes",
+                    "arguments": "{}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2022,
+          "completion_tokens": 73,
+          "total_tokens": 2095,
+          "prompt_tokens_details": {
+            "cached_tokens": 2012
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 2,
+            "passes": 71,
+            "constrained": true,
+            "wall_s": 1.4336835420690477
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/lfm2600",
+        "uptime_s": 98.64326786994934,
+        "requests": 38,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3671.907538,
+          "gpu_peak_mb": 3959.085983,
+          "gpu_cache_mb": 1072.203823,
+          "rss_mb": 5056.512
+        },
+        "engines": {
+          "locals": {
+            "requests": 38,
+            "prompt_tokens": 77951,
+            "cached_tokens": 73209,
+            "completion_tokens": 6999,
+            "forced_tokens": 76,
+            "passes": 6932,
+            "decode_s": 86.07596666784957,
+            "tool_calls": 29,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 6999,
+            "steps": 6994,
+            "rows": 6994,
+            "prefill_s": 3.7731325436616316,
+            "prefill_tokens": 4704,
+            "admissions": 38,
+            "idle_s": 41.90934037801344,
+            "solo_steps": 2,
+            "prompt_cache_mb": 1223.016448,
+            "prompt_cache_entries": 33,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 31,
+                "mb": 1151
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 2,
+                "mb": 72
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "create-note",
+      "repeat": 1,
+      "milliseconds": 1350.7,
+      "raw": {
+        "id": "chatcmpl-df2187e2a3db4abd8aacf335",
+        "object": "chat.completion",
+        "created": 1792944331,
+        "model": "locals/lfm2600-thinking",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": "The user wants me to create a note with the exact text \"Bring the blue notebook\". I should use the create_note tool for this, as it's explicitly for creating written notes. The text parameter is required and should be set to \"Bring the blue notebook\".",
+              "tool_calls": [
+                {
+                  "id": "call_f524591feaff4700b1c0c16c",
+                  "type": "function",
+                  "function": {
+                    "name": "create_note",
+                    "arguments": "{\"text\": \"Bring the blue notebook\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2030,
+          "completion_tokens": 69,
+          "total_tokens": 2099,
+          "prompt_tokens_details": {
+            "cached_tokens": 2012
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 4,
+            "passes": 65,
+            "constrained": true,
+            "wall_s": 1.34239070804324
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/lfm2600",
+        "uptime_s": 99.99842381477356,
+        "requests": 39,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3671.424234,
+          "gpu_peak_mb": 3959.269303,
+          "gpu_cache_mb": 1073.203113,
+          "rss_mb": 5056.512
+        },
+        "engines": {
+          "locals": {
+            "requests": 39,
+            "prompt_tokens": 79981,
+            "cached_tokens": 75221,
+            "completion_tokens": 7068,
+            "forced_tokens": 80,
+            "passes": 6997,
+            "decode_s": 87.16438970877789,
+            "tool_calls": 30,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 7068,
+            "steps": 7062,
+            "rows": 7062,
+            "prefill_s": 3.8173377526691183,
+            "prefill_tokens": 4721,
+            "admissions": 39,
+            "idle_s": 42.7276658359915,
+            "solo_steps": 2,
+            "prompt_cache_mb": 1223.016448,
+            "prompt_cache_entries": 33,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 31,
+                "mb": 1151
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 2,
+                "mb": 72
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "plan",
+      "repeat": 1,
+      "milliseconds": 1433.5,
+      "raw": {
+        "id": "chatcmpl-8b44c572b1ee4b4dbfa371bd",
+        "object": "chat.completion",
+        "created": 1792944333,
+        "model": "locals/lfm2600-thinking",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": "The user is asking about their schedule for today. I should use the day_plan tool to get their schedule for today. The day_plan tool can read the person's Banana day plan when they ask about their schedule. I'll call it without a specific date to get today's plan.",
+              "tool_calls": [
+                {
+                  "id": "call_d50773268ef743d692428e45",
+                  "type": "function",
+                  "function": {
+                    "name": "day_plan",
+                    "arguments": "{}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2025,
+          "completion_tokens": 68,
+          "total_tokens": 2093,
+          "prompt_tokens_details": {
+            "cached_tokens": 2012
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 3,
+            "passes": 65,
+            "constrained": true,
+            "wall_s": 1.4258876249659806
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/lfm2600",
+        "uptime_s": 101.43636679649353,
+        "requests": 40,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3671.858442,
+          "gpu_peak_mb": 3959.290831,
+          "gpu_cache_mb": 1073.559619,
+          "rss_mb": 5056.512
+        },
+        "engines": {
+          "locals": {
+            "requests": 40,
+            "prompt_tokens": 82006,
+            "cached_tokens": 77233,
+            "completion_tokens": 7136,
+            "forced_tokens": 83,
+            "passes": 7062,
+            "decode_s": 88.33588062471244,
+            "tool_calls": 31,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 7136,
+            "steps": 7130,
+            "rows": 7130,
+            "prefill_s": 3.848436752683483,
+            "prefill_tokens": 4733,
+            "admissions": 40,
+            "idle_s": 43.64369950303808,
+            "solo_steps": 2,
+            "prompt_cache_mb": 1223.016448,
+            "prompt_cache_entries": 33,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 31,
+                "mb": 1151
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 2,
+                "mb": 72
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "unsupported",
+      "repeat": 1,
+      "milliseconds": 1281.6,
+      "raw": {
+        "id": "chatcmpl-475eead5e20a45fc805b25fe",
+        "object": "chat.completion",
+        "created": 1792944334,
+        "model": "locals/lfm2600-thinking",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": "The user wants to delete every meal in their history. I need to first check what meals are in their history. I can use the nutrition_view tool to see logged meals, or search_app to find them. Let me start by checking the nutrition view to see what meals are logged.",
+              "tool_calls": [
+                {
+                  "id": "call_df16325ed964423087db82f1",
+                  "type": "function",
+                  "function": {
+                    "name": "nutrition_view",
+                    "arguments": "{}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2024,
+          "completion_tokens": 64,
+          "total_tokens": 2088,
+          "prompt_tokens_details": {
+            "cached_tokens": 2012
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 2,
+            "passes": 62,
+            "constrained": true,
+            "wall_s": 1.2740836669690907
+          }
+        }
+      },
+      "passed": false,
+      "reason": "reply_contract",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/lfm2600",
+        "uptime_s": 102.72303986549377,
+        "requests": 41,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3710.33629,
+          "gpu_peak_mb": 3959.300079,
+          "gpu_cache_mb": 1031.608365,
+          "rss_mb": 5056.512
+        },
+        "engines": {
+          "locals": {
+            "requests": 41,
+            "prompt_tokens": 84030,
+            "cached_tokens": 79245,
+            "completion_tokens": 7200,
+            "forced_tokens": 85,
+            "passes": 7124,
+            "decode_s": 89.35560249979608,
+            "tool_calls": 32,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 7200,
+            "steps": 7194,
+            "rows": 7194,
+            "prefill_s": 3.8721934617497027,
+            "prefill_tokens": 4744,
+            "admissions": 41,
+            "idle_s": 44.446665628114715,
+            "solo_steps": 2,
+            "prompt_cache_mb": 1257.39008,
+            "prompt_cache_entries": 34,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 32,
+                "mb": 1186
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 2,
+                "mb": 72
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "explanation",
+      "repeat": 1,
+      "milliseconds": 3580.6,
+      "raw": {
+        "id": "chatcmpl-489a00bbf9e241b9943ac65c",
+        "object": "chat.completion",
+        "created": 1792944337,
+        "model": "locals/lfm2600-thinking",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "Protein is a type of macronutrient (along with carbohydrates and fats) that your body uses to build and repair tissues, produce enzymes, hormones, and other essential molecules. Here's a breakdown:\n\n**What it is:**\n- Proteins are large molecules (polypeptides) made of amino acids linked together by peptide bonds.\n- There are 20 different \"amino acids\" that can be combined in various sequences to form different proteins.\n\n**Key functions:**\n- **Structural support** \u2013 proteins like collagen provide strength to skin, tendons, and connective tissues.\n- **Enzymatic activity** \u2013 many enzymes (which speed up chemical reactions in the body) are proteins.\n- **Hormonal regulation** \u2013 hormones like insulin, growth hormone, and thyroid hormone are proteins.\n- **Immune defense** \u2013 antibodies (immunoglobulins) are proteins that fight pathogens.\n- **Transport** \u2013 proteins like hemoglobin carry oxygen in the blood, and transport proteins move nutrients throughout the body.\n\n**Sources:**\n- Animal-based: meat, fish, eggs, dairy, legumes, nuts, and seeds.\n- Plant-based: beans, lentils, tofu, quinoa, and whole grains.\n\n**Nutritional role:**\n- Proteins are essential because the human body cannot synthesize them from scratch\u2014you must obtain them from food. Deficiencies can lead to muscle loss, weakened immunity, and other health issues.\n\nIn short, protein is the building block of life\u2014critical for growth, repair, and countless biochemical processes in your body.",
+              "reasoning_content": "The user is asking me to explain what protein is, using general knowledge, not their app data. This is a straightforward informational request that doesn't require any tool usage from Banana's app. I should provide a clear, accurate explanation of protein based on my general knowledge.\n\nLet me respond with a helpful explanation about what protein is."
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2032,
+          "completion_tokens": 384,
+          "total_tokens": 2416,
+          "prompt_tokens_details": {
+            "cached_tokens": 2012
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 0,
+            "passes": 385,
+            "constrained": true,
+            "wall_s": 3.572922541992739
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/lfm2600",
+        "uptime_s": 106.30832982063293,
+        "requests": 42,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3751.714106,
+          "gpu_peak_mb": 4005.166087,
+          "gpu_cache_mb": 1054.980209,
+          "rss_mb": 5056.512
+        },
+        "engines": {
+          "locals": {
+            "requests": 42,
+            "prompt_tokens": 86062,
+            "cached_tokens": 81257,
+            "completion_tokens": 7584,
+            "forced_tokens": 85,
+            "passes": 7509,
+            "decode_s": 92.67982837487943,
+            "tool_calls": 32,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 7584,
+            "steps": 7580,
+            "rows": 7580,
+            "prefill_s": 3.906769461813383,
+            "prefill_tokens": 4763,
+            "admissions": 42,
+            "idle_s": 45.20771233702544,
+            "solo_steps": 2,
+            "prompt_cache_mb": 1297.170432,
+            "prompt_cache_entries": 35,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 33,
+                "mb": 1226
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 2,
+                "mb": 72
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "ambiguous",
+      "repeat": 1,
+      "milliseconds": 3151.9,
+      "raw": {
+        "id": "chatcmpl-e7669f3556b24975aff7001b",
+        "object": "chat.completion",
+        "created": 1792944341,
+        "model": "locals/lfm2600-thinking",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": "The user is saying \"Do that other thing\" - this is a bit ambiguous. They might be referring to something mentioned earlier in the conversation, but looking at the conversation history, there's no prior context about what \"that other thing\" refers to. The conversation started with me being introduced as \"Banana, a helpful personal assistant\" and then I received a system prompt about my capabilities.\n\nSince there's no prior context about what \"that other thing\" refers to, I should ask for clarification. However, the instruction says I should use tools when needed and not invent app data. But in this case, I need to understand what the user is asking before I can take any action.\n\nLet me check if there are any notes or other information that might clarify what \"that other thing\" refers to. I can use the list_notes or read_note tools to see if there are any recent notes that might give context.\n\nActually, looking more carefully at the system prompt, it says \"For greetings and general conversation, reply directly without tools. Use tools only when the current request needs actual Banana notes, day-plan or nutrition data, or explicitly asks for an app action.\"\n\nThe user's message \"Do that other thing\" is somewhat vague but could be interpreted as a request to do something that was previously mentioned or expected. Since I don't have context about what \"that other thing\" refers to, I should ask for clarification.\n\nHowever, I should first check if there are any notes that might give me context. Let me list the notes to see if there's anything relevant.",
+              "tool_calls": [
+                {
+                  "id": "call_519ed655477943018771bb2e",
+                  "type": "function",
+                  "function": {
+                    "name": "list_notes",
+                    "arguments": "{}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2022,
+          "completion_tokens": 330,
+          "total_tokens": 2352,
+          "prompt_tokens_details": {
+            "cached_tokens": 2012
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 2,
+            "passes": 328,
+            "constrained": true,
+            "wall_s": 3.1431884160265326
+          }
+        }
+      },
+      "passed": false,
+      "reason": "reply_contract",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/lfm2600",
+        "uptime_s": 109.46558475494385,
+        "requests": 43,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3794.234706,
+          "gpu_peak_mb": 4046.998559,
+          "gpu_cache_mb": 1069.054069,
+          "rss_mb": 5056.512
+        },
+        "engines": {
+          "locals": {
+            "requests": 43,
+            "prompt_tokens": 88084,
+            "cached_tokens": 83269,
+            "completion_tokens": 7914,
+            "forced_tokens": 87,
+            "passes": 7837,
+            "decode_s": 95.56840349989943,
+            "tool_calls": 33,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 7914,
+            "steps": 7910,
+            "rows": 7910,
+            "prefill_s": 3.9303958368254825,
+            "prefill_tokens": 4772,
+            "admissions": 43,
+            "idle_s": 45.99381087895017,
+            "solo_steps": 2,
+            "prompt_cache_mb": 1335.86944,
+            "prompt_cache_entries": 36,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 34,
+                "mb": 1264
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 2,
+                "mb": 72
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "not-a-write",
+      "repeat": 1,
+      "milliseconds": 1690.5,
+      "raw": {
+        "id": "chatcmpl-986b4c46b16c483fb982378c",
+        "object": "chat.completion",
+        "created": 1792944342,
+        "model": "locals/lfm2600-thinking",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "I've noted that you usually have eggs for breakfast. I won't log or save anything based on this information. Is there anything else I can help you with?",
+              "reasoning_content": "The user is informing me about their usual breakfast habit (eggs) and explicitly stating \"Do not log or save anything.\" This is a statement about their preferences, not a request to create a note or log anything. I should acknowledge this information without creating any notes or saving anything, as they've explicitly instructed not to do so.\n\nI should respond directly and helpfully, acknowledging their breakfast preference without taking any action that would violate their request."
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2036,
+          "completion_tokens": 124,
+          "total_tokens": 2160,
+          "prompt_tokens_details": {
+            "cached_tokens": 2012
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 0,
+            "passes": 125,
+            "constrained": true,
+            "wall_s": 1.6830009169643745
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/lfm2600",
+        "uptime_s": 111.16056871414185,
+        "requests": 44,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3831.659882,
+          "gpu_peak_mb": 4081.785911,
+          "gpu_cache_mb": 1068.750935,
+          "rss_mb": 5056.512
+        },
+        "engines": {
+          "locals": {
+            "requests": 44,
+            "prompt_tokens": 90120,
+            "cached_tokens": 85281,
+            "completion_tokens": 8038,
+            "forced_tokens": 87,
+            "passes": 7962,
+            "decode_s": 97.00242416688707,
+            "tool_calls": 33,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 8038,
+            "steps": 8036,
+            "rows": 8036,
+            "prefill_s": 3.965374711784534,
+            "prefill_tokens": 4795,
+            "admissions": 44,
+            "idle_s": 46.76676471286919,
+            "solo_steps": 2,
+            "prompt_cache_mb": 1371.455488,
+            "prompt_cache_entries": 37,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 35,
+                "mb": 1300
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 2,
+                "mb": 72
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "versions": {
+    "mlx": "0.32.4",
+    "mlx-lm": "0.32.2",
+    "locals": "0.2.1"
+  },
+  "engineSourceCommit": "4f4d03f10232c9f2adeb1e96e2a7bd79a9e7fe19",
+  "engineSourceDirty": "",
+  "servingImplementation": "locals.server",
+  "command": [
+    "../pi-inference-upstream/locals-env/bin/python",
+    "-m",
+    "locals.server",
+    "--model",
+    "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/lfm2600",
+    "--engines",
+    "locals",
+    "--preload",
+    "locals",
+    "--host",
+    "127.0.0.1",
+    "--port",
+    "41790",
+    "--slots",
+    "1",
+    "--cache-gb",
+    "2",
+    "--max-context",
+    "32768",
+    "--max-tokens",
+    "2048",
+    "--temp",
+    "0.1",
+    "--top-p",
+    "1.0",
+    "--top-k",
+    "50",
+    "--seed",
+    "0"
+  ],
+  "serverReadySeconds": 2.73,
+  "loadSeconds": 2.73,
+  "serverModel": "locals/lfm2600-thinking",
+  "hostAfter": {
+    "utc": "2026-10-25T16:05:42.799802+00:00",
+    "chip": "Apple M1 Max",
+    "ramBytes": "68719476736",
+    "os": "27.0.1",
+    "swap": "vm.swapusage: total = 23552.00M  used = 22008.75M  free = 1543.25M  (encrypted)",
+    "paging": {
+      "Pageouts": 383986,
+      "Swapins": 5053868,
+      "Swapouts": 9298822
+    }
+  },
+  "ownedWorkerReleased": true,
+  "pagingDelta": {
+    "Pageouts": 12067,
+    "Swapins": 1927,
+    "Swapouts": 0
+  },
+  "cleanPerformanceRun": false,
+  "summary": {
+    "passes": 32,
+    "total": 44,
+    "warmMedianMilliseconds": 1437.55,
+    "firstRequestMilliseconds": 8130.1,
+    "gpuPeakMB": 4081.785911,
+    "rssMaxObservedMB": 5056.512
+  }
+}

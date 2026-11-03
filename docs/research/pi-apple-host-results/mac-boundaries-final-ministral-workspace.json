@@ -1,0 +1,218 @@
+{
+  "bundle": "com.boris.banana.mac.pi-development",
+  "clarificationToolErrors": 1,
+  "conversationIsolation": true,
+  "eventClarificationContinuation": true,
+  "eventDraftRestored": true,
+  "eventFromWords": true,
+  "eventMilliseconds": 1073,
+  "externalCalendarWritesAttempted": false,
+  "localSearchGrounded": true,
+  "mealDraftRestored": true,
+  "mealMilliseconds": 3542,
+  "missingTimeClarifiedWithoutDraft": true,
+  "model": "mac-local/ministral3-3b-4bit-verification",
+  "nativeDraftDismissed": true,
+  "nativeInvalidInputsRejected": 5,
+  "nativeMealResolution": true,
+  "newMealFromWords": true,
+  "newMealSaveDeduplicated": true,
+  "newMealSavePersisted": true,
+  "pageNavigation": true,
+  "passed": true,
+  "run": "5d8347fb-3202-4bf0-995e-6b07769c4f59",
+  "searchUsesAppNavigation": true,
+  "workspaceTransitions": true,
+  "driverTimedOut": false,
+  "wholeProcessMilliseconds": 14372.2,
+  "hostBefore": {
+    "vm": "Mach Virtual Memory Statistics: (page size of 16384 bytes)\nPages free:                                   712734.\nPages active:                                 597689.\nPages inactive:                               804222.\nPages speculative:                             31235.\nPages throttled:                                   0.\nPages wired down:                             353181.\nPages purgeable:                                3731.\n\"Translation faults\":                    53445641273.\nPages copy-on-write:                       727902881.\nPages zero filled:                       43748974459.\nPages reactivated:                        1114311214.\nPages purged:                              119734321.\nFile-backed pages:                            703547.\nAnonymous pages:                              729599.\nPages stored in compressor:                  2415195.\nPages occupied by compressor:                1638819.\nDecompressions:                           1134442305.\nCompressions:                             1320348543.\nPageins:                                   545484095.\nPageouts:                                     385846.\nSwapins:                                     5178319.\nSwapouts:                                    9396305.",
+    "swap": "vm.swapusage: total = 20480.00M  used = 19275.94M  free = 1204.06M  (encrypted)"
+  },
+  "hostAfter": {
+    "vm": "Mach Virtual Memory Statistics: (page size of 16384 bytes)\nPages free:                                   260729.\nPages active:                                 605508.\nPages inactive:                               923694.\nPages speculative:                             31363.\nPages throttled:                                   0.\nPages wired down:                             678017.\nPages purgeable:                                4519.\n\"Translation faults\":                    53446036839.\nPages copy-on-write:                       727927530.\nPages zero filled:                       43749999693.\nPages reactivated:                        1114311382.\nPages purged:                              119734327.\nFile-backed pages:                            822879.\nAnonymous pages:                              737686.\nPages stored in compressor:                  2414407.\nPages occupied by compressor:                1638569.\nDecompressions:                           1134443419.\nCompressions:                             1320348543.\nPageins:                                   545595973.\nPageouts:                                     385846.\nSwapins:                                     5178319.\nSwapouts:                                    9396305.",
+    "swap": "vm.swapusage: total = 20480.00M  used = 19275.94M  free = 1204.06M  (encrypted)"
+  },
+  "ownedWorkerReleasedOnExit": true,
+  "normalHistoryAndMealsUnchanged": true,
+  "normalSelectionAndDraftUnchanged": true,
+  "normalInferenceConfigurationUnchanged": true,
+  "inferenceConfigurationSha256": "764e5a9e223599fb6ceb3e65c764fbce44f26b2c3882513ffe0085e0a8a6b45e",
+  "inferenceTurns": [
+    {
+      "transportMilliseconds": 3330.958917,
+      "requestBytes": 8663,
+      "usage": {
+        "completion_tokens": 58,
+        "locals": {
+          "constrained": false,
+          "engine": "mlx",
+          "forced_tokens": 0,
+          "passes": 0,
+          "wall_s": 3.3144851659890264
+        },
+        "prompt_tokens": 2077,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "total_tokens": 2135
+      },
+      "tools": [
+        "prepare_meal"
+      ]
+    },
+    {
+      "transportMilliseconds": 860.593708,
+      "requestBytes": 8708,
+      "usage": {
+        "completion_tokens": 52,
+        "locals": {
+          "constrained": false,
+          "engine": "mlx",
+          "forced_tokens": 0,
+          "passes": 0,
+          "wall_s": 0.8547209589742124
+        },
+        "prompt_tokens": 2086,
+        "prompt_tokens_details": {
+          "cached_tokens": 2050
+        },
+        "total_tokens": 2138
+      },
+      "tools": [
+        "prepare_event"
+      ]
+    },
+    {
+      "transportMilliseconds": 510.971916,
+      "requestBytes": 8616,
+      "usage": {
+        "completion_tokens": 18,
+        "locals": {
+          "constrained": false,
+          "engine": "mlx",
+          "forced_tokens": 0,
+          "passes": 0,
+          "wall_s": 0.5041461669607088
+        },
+        "prompt_tokens": 2066,
+        "prompt_tokens_details": {
+          "cached_tokens": 2050
+        },
+        "total_tokens": 2084
+      },
+      "tools": [
+        "search_app"
+      ]
+    },
+    {
+      "transportMilliseconds": 408.92525,
+      "requestBytes": 8598,
+      "usage": {
+        "completion_tokens": 10,
+        "locals": {
+          "constrained": false,
+          "engine": "mlx",
+          "forced_tokens": 0,
+          "passes": 0,
+          "wall_s": 0.40264754195231944
+        },
+        "prompt_tokens": 2056,
+        "prompt_tokens_details": {
+          "cached_tokens": 2050
+        },
+        "total_tokens": 2066
+      },
+      "tools": [
+        "open_page"
+      ]
+    },
+    {
+      "transportMilliseconds": 3000.014333,
+      "requestBytes": 9234,
+      "usage": {
+        "completion_tokens": 24,
+        "locals": {
+          "constrained": false,
+          "engine": "mlx",
+          "forced_tokens": 0,
+          "passes": 0,
+          "wall_s": 2.99576083291322
+        },
+        "prompt_tokens": 2207,
+        "prompt_tokens_details": {
+          "cached_tokens": 183
+        },
+        "total_tokens": 2231
+      },
+      "tools": [
+        "nutrition_view"
+      ]
+    },
+    {
+      "transportMilliseconds": 582.253041,
+      "requestBytes": 8628,
+      "usage": {
+        "completion_tokens": 26,
+        "locals": {
+          "constrained": false,
+          "engine": "mlx",
+          "forced_tokens": 0,
+          "passes": 0,
+          "wall_s": 0.5763617500197142
+        },
+        "prompt_tokens": 2060,
+        "prompt_tokens_details": {
+          "cached_tokens": 2051
+        },
+        "total_tokens": 2086
+      },
+      "tools": [
+        "prepare_event"
+      ]
+    },
+    {
+      "transportMilliseconds": 696.786083,
+      "requestBytes": 9003,
+      "usage": {
+        "completion_tokens": 34,
+        "locals": {
+          "constrained": false,
+          "engine": "mlx",
+          "forced_tokens": 0,
+          "passes": 0,
+          "wall_s": 0.6917259999318048
+        },
+        "prompt_tokens": 2116,
+        "prompt_tokens_details": {
+          "cached_tokens": 2065
+        },
+        "total_tokens": 2150
+      },
+      "tools": []
+    },
+    {
+      "transportMilliseconds": 753.413625,
+      "requestBytes": 9225,
+      "usage": {
+        "completion_tokens": 44,
+        "locals": {
+          "constrained": false,
+          "engine": "mlx",
+          "forced_tokens": 0,
+          "passes": 0,
+          "wall_s": 0.7469522909959778
+        },
+        "prompt_tokens": 2166,
+        "prompt_tokens_details": {
+          "cached_tokens": 2151
+        },
+        "total_tokens": 2210
+      },
+      "tools": [
+        "prepare_event"
+      ]
+    }
+  ],
+  "processExitCode": 0
+}

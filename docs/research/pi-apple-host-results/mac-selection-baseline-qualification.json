@@ -1,0 +1,39 @@
+{
+  "scope": "Installed full isolated Mac app, programmatic real-model acceptance after component model testing. No new visual/mobile acceptance.",
+  "bundle": "com.boris.banana.mac.pi-development",
+  "build": "55",
+  "version": "1.0",
+  "appFilesSha256": {
+    "MacOS/Banana Pi": "c999e5f0ef89e1aae5be22bee5c25916a037ce45c1411384fda0493c7a4d38b6",
+    "MacOS/Banana Pi.debug.dylib": "829a7ad2665bb355819e07836430da88cfdc26b0a699f8bbd054f38323c8b7bd",
+    "Resources/pi-bootstrap.js": "2efd3d3e4918902a12a6fa9b5c76006f3a135b720b89c5d51df139489e72fc12",
+    "Resources/pi-agent.js": "835e750e2e2cf6e760a6816306af9e88480bcb48257a22e6cfba6781e3eeb0f7",
+    "Resources/pi-runtime-manifest.json": "5a7a1a256117ab98c1a7b5e69d4de7e20552f38cce60f0bdd20ea7315c2d8b01"
+  },
+  "configurationSha256": "9dd36ad74d1f9f47ae4accee3324223e33c44dacb18c619039f6850dc00f2aca",
+  "profile": {
+    "modelId": "qwen3.5-4b-4bit",
+    "serverModel": "locals/qwen35-4b",
+    "port": 41789
+  },
+  "reports": [
+    {
+      "file": "mac-selection-baseline-app.json",
+      "sha256": "73dc32109e73fdd490f575cc9ca06a4c4a4e7fd0a2940d2c5630f560bf3eb54b",
+      "passed": true
+    },
+    {
+      "file": "mac-selection-baseline-workspace.json",
+      "sha256": "fe5f8f3a8d307e0218db967a4e6d2c85f34d9033fc89185cbb03237061fc982c",
+      "passed": true
+    },
+    {
+      "file": "mac-selection-baseline-nutrition.json",
+      "sha256": "f889d348e5729170d97624dccc4b4cebac3670c555c1faa963047d6f70e9d6a0",
+      "passed": true
+    }
+  ],
+  "timingQualification": "Shared host observed about 62GB used, 21.9GB swap used during general acceptance; functional evidence, no clean speed or p95 claim.",
+  "appProfileChanged": false,
+  "piCoreChanged": false
+}

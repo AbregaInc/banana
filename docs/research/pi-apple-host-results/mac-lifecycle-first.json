@@ -1,0 +1,52 @@
+{
+  "mode": "lifecycle-first",
+  "passed": true,
+  "armCalls": 1,
+  "deliverCalls": 0,
+  "task": {
+    "id": 7,
+    "conversationId": 1,
+    "kind": "banana.lifecycle-sleeper",
+    "version": 1,
+    "input": {
+      "until": 1792807290089
+    },
+    "background": false,
+    "abortRequested": false,
+    "state": {
+      "status": "sleeping",
+      "checkpoint": {
+        "phase": "deliver"
+      },
+      "until": 1792807290089
+    },
+    "startedAt": 1792807230089
+  },
+  "hint": {
+    "at": 1792807290089,
+    "active": true
+  },
+  "wakes": [
+    {
+      "active": true
+    },
+    {
+      "active": true
+    },
+    {
+      "active": false
+    },
+    {
+      "active": true
+    },
+    {
+      "active": true,
+      "at": 1792807290089
+    },
+    {
+      "active": true,
+      "at": 1792807290089
+    }
+  ],
+  "errors": []
+}

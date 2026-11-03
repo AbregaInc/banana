@@ -1,0 +1,50 @@
+loading ~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/qwen35-4b on engine locals ...
+locals: MLX 0.32.4's attention kernel cannot run [8] query tokens at once on this GPU; those passes are split in two
+engine locals ready in 4.5s
+[locals] tool calls: qwen_xml; thinking: open
+locals serve: http://127.0.0.1:41790/v1  (models: locals/qwen35-4b, locals/qwen35-4b-thinking)
+  also: the Ollama API at http://127.0.0.1:41790/api
+[locals] prompt 2216 (0 cached)  out 8 tok  2 tok/s  0 call(s)  finish=stop
+[locals] prompt 2212 (2202 cached)  out 10 tok  57 tok/s  0 call(s)  finish=stop
+[locals] prompt 2216 (2202 cached)  out 40 tok  forced 14  95 tok/s  1 call(s)  finish=stop
+[locals] prompt 2218 (2202 cached)  out 43 tok  forced 14  96 tok/s  1 call(s)  finish=stop
+[locals] prompt 2357 (0 cached)  out 30 tok  forced 13  10 tok/s  1 call(s)  finish=stop
+[locals] prompt 2353 (1891 cached)  out 32 tok  forced 13  39 tok/s  1 call(s)  finish=stop
+[locals] prompt 2356 (1891 cached)  out 31 tok  forced 13  39 tok/s  1 call(s)  finish=stop
+[locals] prompt 2366 (1891 cached)  out 76 tok  forced 12  59 tok/s  1 call(s)  finish=stop
+[locals] prompt 2233 (2202 cached)  out 65 tok  forced 11  90 tok/s  1 call(s)  finish=stop
+[locals] prompt 2237 (2202 cached)  out 68 tok  forced 13  84 tok/s  1 call(s)  finish=stop
+[locals] prompt 2241 (2202 cached)  out 77 tok  forced 13  87 tok/s  1 call(s)  finish=stop
+[locals] prompt 2224 (2202 cached)  out 32 tok  73 tok/s  0 call(s)  finish=stop
+[locals] prompt 2224 (2202 cached)  out 27 tok  72 tok/s  0 call(s)  finish=stop
+[locals] prompt 2216 (2202 cached)  out 24 tok  forced 11  101 tok/s  1 call(s)  finish=stop
+[locals] prompt 2215 (2202 cached)  out 25 tok  forced 11  93 tok/s  1 call(s)  finish=stop
+[locals] prompt 2215 (2202 cached)  out 26 tok  forced 11  96 tok/s  1 call(s)  finish=stop
+[locals] prompt 2223 (2202 cached)  out 27 tok  forced 11  99 tok/s  1 call(s)  finish=stop
+[locals] prompt 2218 (2202 cached)  out 14 tok  forced 10  112 tok/s  1 call(s)  finish=stop
+[locals] prompt 2217 (2202 cached)  out 73 tok  forced 11  98 tok/s  1 call(s)  finish=stop
+[locals] prompt 2226 (2202 cached)  out 223 tok  91 tok/s  0 call(s)  finish=stop
+[locals] prompt 2215 (2202 cached)  out 25 tok  77 tok/s  0 call(s)  finish=stop
+[locals] prompt 2229 (2202 cached)  out 27 tok  72 tok/s  0 call(s)  finish=stop
+[locals] prompt 2216 (2202 cached)  out 12 tok  60 tok/s  0 call(s)  finish=stop
+[locals] prompt 2212 (2202 cached)  out 13 tok  forced 10  125 tok/s  1 call(s)  finish=stop
+[locals] prompt 2216 (2202 cached)  out 40 tok  forced 14  97 tok/s  1 call(s)  finish=stop
+[locals] prompt 2218 (2202 cached)  out 43 tok  forced 14  97 tok/s  1 call(s)  finish=stop
+[locals] prompt 2357 (1891 cached)  out 30 tok  forced 13  39 tok/s  1 call(s)  finish=stop
+[locals] prompt 2353 (1891 cached)  out 32 tok  forced 13  38 tok/s  1 call(s)  finish=stop
+[locals] prompt 2356 (1891 cached)  out 52 tok  forced 13  51 tok/s  1 call(s)  finish=stop
+[locals] prompt 2366 (1891 cached)  out 76 tok  forced 12  58 tok/s  1 call(s)  finish=stop
+[locals] prompt 2233 (2202 cached)  out 67 tok  forced 11  90 tok/s  1 call(s)  finish=stop
+[locals] prompt 2237 (2202 cached)  out 68 tok  forced 13  84 tok/s  1 call(s)  finish=stop
+[locals] prompt 2241 (2202 cached)  out 77 tok  forced 13  86 tok/s  1 call(s)  finish=stop
+[locals] prompt 2224 (2202 cached)  out 101 tok  87 tok/s  0 call(s)  finish=stop
+[locals] prompt 2224 (2202 cached)  out 41 tok  79 tok/s  0 call(s)  finish=stop
+[locals] prompt 2216 (2202 cached)  out 24 tok  forced 11  103 tok/s  1 call(s)  finish=stop
+[locals] prompt 2215 (2202 cached)  out 25 tok  forced 11  92 tok/s  1 call(s)  finish=stop
+[locals] prompt 2215 (2202 cached)  out 13 tok  forced 10  113 tok/s  1 call(s)  finish=stop
+[locals] prompt 2223 (2202 cached)  out 27 tok  forced 11  100 tok/s  1 call(s)  finish=stop
+[locals] prompt 2218 (2202 cached)  out 14 tok  forced 10  103 tok/s  1 call(s)  finish=stop
+[locals] prompt 2217 (2202 cached)  out 55 tok  85 tok/s  0 call(s)  finish=stop
+[locals] prompt 2226 (2202 cached)  out 292 tok  92 tok/s  0 call(s)  finish=stop
+[locals] prompt 2215 (2202 cached)  out 29 tok  79 tok/s  0 call(s)  finish=stop
+[locals] prompt 2229 (2202 cached)  out 14 tok  57 tok/s  0 call(s)  finish=stop

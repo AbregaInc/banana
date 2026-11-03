@@ -1,0 +1,52 @@
+loading ~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/lfm2600 on engine locals ...
+locals: MLX 0.32.4's attention kernel cannot run [8] query tokens at once on this GPU; those passes are split in two
+locals: no tuned kernels for this model on applegpu_g13s yet: serving now, and tuning 11 kernel shapes while the server is idle (cached afterwards). locals stop, then locals tune, does the full procedure at once (10-20 minutes, the best batched throughput).
+engine locals ready in 2.7s
+[locals] tool calls: lfm2_python; thinking: always
+locals serve: http://127.0.0.1:41790/v1  (models: locals/lfm2600, locals/lfm2600-thinking)
+  also: the Ollama API at http://127.0.0.1:41790/api
+[locals] prompt 2024 (2012 cached)  out 21 tok  4 tok/s  0 call(s)  finish=stop
+[locals] prompt 2020 (2012 cached)  out 9 tok  45 tok/s  0 call(s)  finish=stop
+[locals] prompt 2024 (2012 cached)  out 12 tok  forced 3  72 tok/s  1 call(s)  finish=stop
+locals: kernel tuning finished; batches now run on the tuned kernels
+[locals] prompt 2026 (2012 cached)  out 14 tok  forced 3  68 tok/s  1 call(s)  finish=stop
+[locals] prompt 2136 (2123 cached)  out 14 tok  forced 3  62 tok/s  1 call(s)  finish=stop
+[locals] prompt 2133 (2123 cached)  out 31 tok  forced 4  125 tok/s  1 call(s)  finish=stop
+[locals] prompt 2135 (2123 cached)  out 19 tok  forced 4  112 tok/s  1 call(s)  finish=stop
+[locals] prompt 2146 (2123 cached)  out 43 tok  forced 2  100 tok/s  1 call(s)  finish=stop
+[locals] prompt 2041 (2012 cached)  out 43 tok  forced 2  115 tok/s  1 call(s)  finish=stop
+[locals] prompt 2043 (2012 cached)  out 27 tok  forced 2  111 tok/s  1 call(s)  finish=stop
+[locals] prompt 2043 (2012 cached)  out 32 tok  forced 2  118 tok/s  1 call(s)  finish=stop
+[locals] prompt 2033 (2012 cached)  out 27 tok  forced 2  113 tok/s  1 call(s)  finish=stop
+[locals] prompt 2032 (2012 cached)  out 13 tok  forced 1  88 tok/s  1 call(s)  finish=stop
+[locals] prompt 2025 (2012 cached)  out 10 tok  forced 3  95 tok/s  1 call(s)  finish=stop
+[locals] prompt 2023 (2012 cached)  out 11 tok  forced 3  97 tok/s  1 call(s)  finish=stop
+[locals] prompt 2023 (2012 cached)  out 6 tok  forced 2  76 tok/s  1 call(s)  finish=stop
+[locals] prompt 2031 (2012 cached)  out 14 tok  forced 4  96 tok/s  1 call(s)  finish=stop
+[locals] prompt 2026 (2012 cached)  out 7 tok  forced 3  79 tok/s  1 call(s)  finish=stop
+[locals] prompt 2025 (2012 cached)  out 110 tok  forced 2  135 tok/s  1 call(s)  finish=stop
+[locals] prompt 2033 (2012 cached)  out 69 tok  forced 4  131 tok/s  1 call(s)  finish=stop
+[locals] prompt 2023 (2012 cached)  out 6 tok  forced 2  73 tok/s  1 call(s)  finish=stop
+[locals] prompt 2037 (2012 cached)  out 96 tok  128 tok/s  0 call(s)  finish=stop
+[locals] prompt 2024 (2022 cached)  out 35 tok  123 tok/s  0 call(s)  finish=stop
+[locals] prompt 2020 (2018 cached)  out 9 tok  88 tok/s  0 call(s)  finish=stop
+[locals] prompt 2024 (2022 cached)  out 12 tok  forced 3  113 tok/s  1 call(s)  finish=stop
+[locals] prompt 2026 (2024 cached)  out 14 tok  forced 3  119 tok/s  1 call(s)  finish=stop
+[locals] prompt 2136 (2134 cached)  out 14 tok  forced 3  114 tok/s  1 call(s)  finish=stop
+[locals] prompt 2133 (2131 cached)  out 31 tok  forced 4  127 tok/s  1 call(s)  finish=stop
+[locals] prompt 2135 (2133 cached)  out 19 tok  forced 4  120 tok/s  1 call(s)  finish=stop
+[locals] prompt 2146 (2144 cached)  out 43 tok  forced 2  131 tok/s  1 call(s)  finish=stop
+[locals] prompt 2041 (2039 cached)  out 43 tok  forced 2  133 tok/s  1 call(s)  finish=stop
+[locals] prompt 2043 (2041 cached)  out 27 tok  forced 2  126 tok/s  1 call(s)  finish=stop
+[locals] prompt 2043 (2041 cached)  out 32 tok  forced 2  131 tok/s  1 call(s)  finish=stop
+[locals] prompt 2033 (2031 cached)  out 27 tok  forced 2  129 tok/s  1 call(s)  finish=stop
+[locals] prompt 2032 (2030 cached)  out 13 tok  forced 1  106 tok/s  1 call(s)  finish=stop
+[locals] prompt 2025 (2023 cached)  out 10 tok  forced 3  112 tok/s  1 call(s)  finish=stop
+[locals] prompt 2023 (2021 cached)  out 11 tok  forced 3  109 tok/s  1 call(s)  finish=stop
+[locals] prompt 2023 (2021 cached)  out 6 tok  forced 2  80 tok/s  1 call(s)  finish=stop
+[locals] prompt 2031 (2029 cached)  out 14 tok  forced 4  119 tok/s  1 call(s)  finish=stop
+[locals] prompt 2026 (2024 cached)  out 7 tok  forced 3  90 tok/s  1 call(s)  finish=stop
+[locals] prompt 2025 (2023 cached)  out 343 tok  137 tok/s  0 call(s)  finish=stop
+[locals] prompt 2033 (2031 cached)  out 115 tok  forced 4  135 tok/s  1 call(s)  finish=stop
+[locals] prompt 2023 (2021 cached)  out 6 tok  forced 2  88 tok/s  1 call(s)  finish=stop
+[locals] prompt 2037 (2035 cached)  out 129 tok  134 tok/s  0 call(s)  finish=stop

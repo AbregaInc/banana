@@ -1,4 +1,8 @@
 name: Banana
+configs:
+  Debug: debug
+  Release: release
+  PiDevelopment: debug
 options:
   bundleIdPrefix: $(BANANA_BUNDLE_ID)
   createIntermediateGroups: true
@@ -32,6 +36,17 @@ schemes:
       config: Release
       targets:
         - BananaNativePerformanceUITests
+  BananaPi:
+    build:
+      targets:
+        BananaBeta: all
+        BananaAgentUITests: [test]
+    test:
+      config: PiDevelopment
+      targets:
+        - BananaAgentUITests
+    run:
+      config: PiDevelopment
   Banana:
     build:
       targets:
@@ -73,10 +88,21 @@ schemes:
         - BananaMacUITests
     run:
       config: Debug
+  BananaMacPi:
+    build:
+      targets:
+        BananaMacBeta: all
+    run:
+      config: PiDevelopment
   BananaBeta:
     build:
       targets:
         BananaBeta: all
+        BananaAgentUITests: [test]
+    test:
+      config: Debug
+      targets:
+        - BananaAgentUITests
     run:
       config: Debug
   BananaWatch:
@@ -98,6 +124,7 @@ schemes:
 configFiles:
   Debug: Config/Base.xcconfig
   Release: Config/Base.xcconfig
+  PiDevelopment: Config/Base.xcconfig
 
 settings:
   base:
@@ -149,6 +176,10 @@ targets:
     sources:
       - path: tools/calendar-library-benchmark/Shared/Fixtures.swift
       - path: Banana
+        excludes:
+          - Pi/Resources
+      - path: Banana/Pi/Resources
+        buildPhase: resources
       - path: Shared
         excludes:
           # The merge and protocol cases are the tests’ (BananaTests), not the app’s.
@@ -298,6 +329,10 @@ targets:
           # A normal Release build must be the public app; Debug retains test fixtures.
           BANANA_UNRELEASED: NO
     dependencies:
+      - sdk: JavaScriptCore.framework
+      - sdk: FoundationModels.framework
+      - sdk: Security.framework
+      - sdk: libsqlite3.tbd
       - package: FluidAudio
       - package: GoogleSignIn
       - package: GRDB
@@ -321,7 +356,10 @@ targets:
       - path: tools/calendar-library-benchmark/Shared/Fixtures.swift
       - path: Banana
         excludes:
+          - Pi/Resources
           - Info.plist
+      - path: Banana/Pi/Resources
+        buildPhase: resources
       - path: Shared
         excludes:
           # The merge and protocol cases are the tests’ (BananaTests), not the app’s.
@@ -337,7 +375,7 @@ targets:
         # Beta's own service and web client, never the production ones.
         BananaServiceHost: $(BANANA_SERVICE_HOST_BETA)
         BananaGoogleServerClient: $(BANANA_GOOGLE_SERVER_CLIENT_BETA)
-        CFBundleDisplayName: Banana Beta
+        CFBundleDisplayName: $(BANANA_BETA_DISPLAY_NAME)
         GIDClientID: $(BANANA_GOOGLE_CLIENT_BETA).apps.googleusercontent.com
         CFBundleURLTypes:
           - CFBundleTypeRole: Editor
@@ -403,27 +441,14 @@ targets:
         NSAppTransportSecurity:
           NSAllowsArbitraryLoads: true
         ITSAppUsesNonExemptEncryption: false
-    entitlements:
-      path: Banana/BananaBeta.entitlements
-      properties:
-        # Notifications that should reach you through a Focus: leave-by, commute, event alerts,
-        # bedtime, supplements. Without this entitlement `.timeSensitive` is silently downgraded.
-        com.apple.developer.usernotifications.time-sensitive: true
-        com.apple.developer.healthkit: true
-        com.apple.developer.healthkit.access: []
-        com.apple.developer.weatherkit: true
-        com.apple.developer.icloud-services: [CloudDocuments, CloudKit]
-        com.apple.developer.icloud-container-identifiers: [$(BANANA_ICLOUD_CONTAINER_BETA)]
-        com.apple.developer.ubiquity-container-identifiers: [$(BANANA_ICLOUD_CONTAINER_BETA)]
-        com.apple.developer.ubiquity-kvstore-identifier: $(TeamIdentifierPrefix)com.boris.banana.beta
-        # Silent pushes from the Beta's own Banana service (beta-api.bananatheapp.com).
-        aps-environment: development
-        # Beta uses only the staging iCloud namespace above. HealthKit is enabled under beta's
-        # distinct App ID so every permission flow can be tested; beta still embeds no Watch app.
+    # Versioned entitlements allow PiDevelopment to override signing without inheriting
+    # Beta's HealthKit/iCloud capabilities through XcodeGen's entitlements generator.
     settings:
       base:
+        CODE_SIGN_ENTITLEMENTS: Banana/BananaBeta.entitlements
         PRODUCT_BUNDLE_IDENTIFIER: $(BANANA_BUNDLE_ID).beta
         PRODUCT_NAME: Banana Beta
+        BANANA_BETA_DISPLAY_NAME: Banana Beta
         # One module name for both apps: code that says `Banana.calendarTint` to get past a
         # member of the same name didn't compile in Beta, whose module was "Banana_Beta".
         PRODUCT_MODULE_NAME: Banana
@@ -434,11 +459,40 @@ targets:
         # Neither production target has it, so production has no sample mail.
         BANANA_UNRELEASED: YES
         SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) BANANA_BETA MAIL_FIXTURES"
+      configs:
+        PiDevelopment:
+          PRODUCT_BUNDLE_IDENTIFIER: $(BANANA_BUNDLE_ID).pi-development
+          CODE_SIGN_ENTITLEMENTS: Config/PiDevelopment.entitlements
+          PRODUCT_NAME: Banana Pi
+          BANANA_BETA_DISPLAY_NAME: Banana Pi
+          SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) DEBUG BANANA_BETA PI_DEVELOPMENT"
     dependencies:
+      - sdk: JavaScriptCore.framework
+      - sdk: FoundationModels.framework
+      - sdk: Security.framework
+      - sdk: libsqlite3.tbd
       - package: FluidAudio
       - package: GoogleSignIn
       - package: GRDB
       - package: SwiftSoup
+
+  BananaAgentUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: BananaUITests/AssistantUITest.swift
+      - path: BananaUITests/Ready.swift
+      - path: BananaUITests/PiDesignTourUITest.swift
+    dependencies:
+      - target: BananaBeta
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: $(BANANA_BUNDLE_ID).agent-uitests
+        TEST_TARGET_NAME: BananaBeta
+        GENERATE_INFOPLIST_FILE: YES
+      configs:
+        PiDevelopment:
+          SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) DEBUG PI_DEVELOPMENT"
 
   BananaUITests:
     type: bundle.ui-testing
@@ -500,6 +554,11 @@ targets:
     sources:
       - path: BananaTests
       - path: Banana/Model/HealthAuthorization.swift
+      - path: Banana/Pi/AssistantNutrition.swift
+      - path: Banana/Pi/AssistantFailure.swift
+      - path: Banana/Pi/PiSampleMeals.swift
+      - path: Banana/Pi/LocalInferenceTransport.swift
+      - path: Banana/Pi/AssistantCalendarIdentity.swift
       # Snapshot decode-and-quarantine (the data-safety sweep across every on-disk JSON store) —
       # SnapshotPersistence.swift is the shared, store-agnostic loader; WellnessModels.swift now
       # builds on it. WatchAudioQuality.swift/Podcast.swift and ListenEvent.swift are the pure
@@ -915,6 +974,9 @@ targets:
       # Searching foods by name: yours, USDA's, products of a brand named; amounts; Open Food
       # Facts' answers. Pure; the network and iCloud aren't here.
       - path: Banana/Model/FoodSearch.swift
+      - path: Banana/Model/CatalogFoodLink.swift
+      - path: Banana/Model/EventWhere.swift
+      - path: Banana/Pi/PinnedModelFiles.swift
       - path: Banana/Model/PortionQuestion.swift
       - path: Banana/Model/EstimatorBenchScore.swift
       - path: BananaTests/GenericFoodCatalogTests.swift
@@ -1154,9 +1216,12 @@ targets:
       - path: tools/calendar-library-benchmark/Shared/Fixtures.swift
       - path: Banana
         excludes:
+          - Pi/Resources
           - Assets.xcassets
           - Info.plist
           - Banana.entitlements
+      - path: Banana/Pi/Resources
+        buildPhase: resources
       - path: Shared
         excludes:
           # The merge and protocol cases are the tests’ (BananaTests), not the app’s.
@@ -1232,6 +1297,10 @@ targets:
         Debug:
           CODE_SIGN_ENTITLEMENTS: BananaMac/BananaMacDebug.entitlements
     dependencies:
+      - sdk: JavaScriptCore.framework
+      - sdk: FoundationModels.framework
+      - sdk: Security.framework
+      - sdk: libsqlite3.tbd
       - package: FluidAudio
       - package: GoogleSignIn
       - package: GRDB
@@ -1249,9 +1318,12 @@ targets:
       - path: tools/calendar-library-benchmark/Shared/Fixtures.swift
       - path: Banana
         excludes:
+          - Pi/Resources
           - Assets.xcassets
           - Info.plist
           - Banana.entitlements
+      - path: Banana/Pi/Resources
+        buildPhase: resources
       - path: Shared
         excludes:
           # The merge and protocol cases are the tests’ (BananaTests), not the app’s.
@@ -1267,7 +1339,7 @@ targets:
         # Beta's own service and web client, never the production ones.
         BananaServiceHost: $(BANANA_SERVICE_HOST_BETA)
         BananaGoogleServerClient: $(BANANA_GOOGLE_SERVER_CLIENT_BETA)
-        CFBundleDisplayName: Banana Beta
+        CFBundleDisplayName: $(BANANA_BETA_DISPLAY_NAME)
         # The same bundle id and Google client as the iPhone Beta, as Stable shares one across
         # iPhone and Mac: one Google client, and its sign-in shared through iCloud Keychain.
         GIDClientID: $(BANANA_GOOGLE_CLIENT_BETA).apps.googleusercontent.com
@@ -1297,23 +1369,10 @@ targets:
           - _banana-beta._tcp
         NSAppTransportSecurity:
           NSAllowsArbitraryLoads: true
-    entitlements:
-      path: BananaMac/BananaMacBeta.entitlements
-      properties:
-        # Notifications that should reach you through a Focus: leave-by, commute, event alerts,
-        # bedtime, supplements. Without this entitlement `.timeSensitive` is silently downgraded.
-        com.apple.developer.usernotifications.time-sensitive: true
-        com.apple.developer.weatherkit: true
-        com.apple.developer.icloud-services: [CloudDocuments, CloudKit]
-        com.apple.developer.icloud-container-identifiers: [$(BANANA_ICLOUD_CONTAINER_BETA)]
-        com.apple.developer.ubiquity-container-identifiers: [$(BANANA_ICLOUD_CONTAINER_BETA)]
-        com.apple.developer.ubiquity-kvstore-identifier: $(TeamIdentifierPrefix)com.boris.banana.beta
-        keychain-access-groups: [$(AppIdentifierPrefix)$(CFBundleIdentifier)]
-        # Silent pushes from the Beta's own Banana service (beta-api.bananatheapp.com).
-        com.apple.developer.aps-environment: development
     settings:
       base:
-        # Was $(BANANA_BUNDLE_ID).mac.beta until 18 Oct 2026 (defaults carried over at launch).
+        CODE_SIGN_ENTITLEMENTS: BananaMac/BananaMacBeta.entitlements
+        BANANA_BETA_DISPLAY_NAME: Banana Beta
         PRODUCT_BUNDLE_IDENTIFIER: $(BANANA_BUNDLE_ID).beta
         PRODUCT_NAME: Banana Beta
         ENABLE_PREVIEWS: YES
@@ -1322,8 +1381,27 @@ targets:
         # MAIL_FIXTURES: as on BananaBeta. Neither production target has it.
         BANANA_UNRELEASED: YES
         SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) MAC_APP BANANA_BETA MAIL_FIXTURES"
+      configs:
+        PiDevelopment:
+          PRODUCT_BUNDLE_IDENTIFIER: $(BANANA_BUNDLE_ID).mac.pi-development
+          CODE_SIGN_ENTITLEMENTS: Config/PiDevelopment.entitlements
+          PRODUCT_NAME: Banana Pi
+          BANANA_BETA_DISPLAY_NAME: Banana Pi
+          SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) DEBUG MAC_APP BANANA_BETA PI_DEVELOPMENT"
+          # The embed step reads the runtime cache in ~/Library/Caches.
+          ENABLE_USER_SCRIPT_SANDBOXING: NO
     dependencies:
+      - sdk: JavaScriptCore.framework
+      - sdk: FoundationModels.framework
+      - sdk: Security.framework
+      - sdk: libsqlite3.tbd
       - package: FluidAudio
       - package: GoogleSignIn
       - package: GRDB
       - package: SwiftSoup
+    postBuildScripts:
+      # Banana Pi (PiDevelopment) carries its own Python, Locals and pinned packages, so its Mac
+      # model needs nothing installed (docs/design/PI-LOCAL-MODEL.md). Other configurations: no-op.
+      - name: Embed Banana Pi runtime
+        script: '"$SRCROOT/tools/pi-mac-inference/embed-runtime.sh"'
+        basedOnDependencyAnalysis: false

@@ -974,9 +974,13 @@ final class CalendarWriteBack: ObservableObject {
     nonisolated static let diagnosticArguments: Set<String> = ["--google-roundtrip", "--google-window", "--google-dump", "--google-sharing", "--snapshot-app-store",
                                                    "--adopt-legacy-blocks", "--google-sync", "--google-repeat",
                                                    // The offscreen key driver (MailKeyDriver.swift): no write, no hot key, no menu-bar item.
-                                                   "--mail-key-script"]
+                                                   "--mail-key-script", "--assistant-test", "--assistant-test-navigation", "--assistant-real-test"]
     nonisolated static var isDiagnosticLaunch: Bool {
+        #if PI_DEVELOPMENT
+        true
+        #else
         !diagnosticArguments.isDisjoint(with: ProcessInfo.processInfo.arguments)
+        #endif
     }
 
     // MARK: - Legacy blocks written through Apple Calendar

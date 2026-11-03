@@ -30,7 +30,13 @@ struct PlanPromptCard: View {
             switch PlanPrompt.current(calendarConnected: smart.calendarAuthorized,
                                       hasPlaceQuestion: PlaceQuestionCard.hasQuestion(smart), open: open) {
             case .connectCalendar:
+                #if PI_DEVELOPMENT
+                // With Pi, connecting is asked for where it's needed (an event draft's Calendar
+                // row) and lives in Settings; the plan leads with the day, not with setup.
+                EmptyView()
+                #else
                 calendarAccessCard.padding(.horizontal, DS.Space.m).padding(.vertical, DS.Space.s)
+                #endif
             case .placeQuestion:
                 PlaceQuestionCard().padding(.horizontal, DS.Space.m).padding(.vertical, DS.Space.s)
             case .busyCalendars:

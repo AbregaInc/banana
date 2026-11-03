@@ -173,9 +173,26 @@ enum EventPhrase {
 
     /// What follows the last " at " or " @ " — "Balthazar", "the office" — once the when is out.
     static func takeLocation(_ text: inout String) -> String? {
-        guard let range = text.range(of: #"\s(?:at|@)\s+([^,;]+?)\s*$"#, options: [.regularExpression, .caseInsensitive]) else {
+        // From the last "at" back: in "at 5 at Taco Bell" the first "at" is the time's, and
+        // reading from it gave "5 at Taco Bell", refused for starting with a number. (A regex
+        // search can't run backwards in Foundation, so every "at" is found and tried last first.)
+        var starts: [Range<String.Index>] = []
+        var from = text.startIndex
+        while let found = text.range(of: #"\s(?:at|@)\s+"#, options: [.regularExpression, .caseInsensitive],
+                                     range: from..<text.endIndex) {
+            starts.append(found)
+            from = found.upperBound
+        }
+        func tail(_ start: Range<String.Index>) -> String {
+            String(text[start.upperBound...]).trimmingCharacters(in: .whitespaces)
+        }
+        guard let chosen = starts.last(where: { start in
+            let rest = tail(start)
+            return !rest.isEmpty && rest.first?.isNumber == false && !rest.contains(",") && !rest.contains(";")
+        }) else {
             return nil
         }
+        let range = chosen.lowerBound..<text.endIndex
         var place = String(text[range])
         // "at  at Equinox", when the time's own "at" was left behind: every one goes.
         place = place.replacingOccurrences(of: #"^\s*(?:(?:at|@)\s+)+"#, with: "", options: [.regularExpression, .caseInsensitive])

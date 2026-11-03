@@ -15,7 +15,7 @@ struct RoutineStartButton: View {
     var body: some View {
         let summary = RoutineStart.summary(of: routine, library: library)
         if compact {
-            // A routine with nothing to play has no button: its row already says "Not set".
+            // A routine with nothing to play has no button (its row shows no source line).
             if summary != nil {
                 Button(action: start) {
                     Image(systemName: "play.circle.fill").font(.title2)

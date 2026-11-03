@@ -1,0 +1,27 @@
+~/orca/workspaces/gtfuwgth/pi-inference-upstream/locals-env/lib/python3.13/site-packages/mlx_lm/server.py:1894: UserWarning: mlx_lm.server is not recommended for production as it only implements basic security checks.
+  warnings.warn(
+2026-10-25 14:15:51,273 - INFO - Starting httpd at 127.0.0.1 on port 41790...
+127.0.0.1 - - [25/Oct/2026 14:15:51] "GET /v1/models HTTP/1.1" 200 -
+2026-10-25 14:15:52,197 - INFO - Prompt Cache: 0 sequences, 0.00 GB
+127.0.0.1 - - [25/Oct/2026 14:15:52] "POST /v1/chat/completions HTTP/1.1" 200 -
+2026-10-25 14:15:52,197 - INFO - - assistant: 0 sequences, 0.00 GB
+2026-10-25 14:15:52,198 - INFO - - user: 0 sequences, 0.00 GB
+2026-10-25 14:15:52,198 - INFO - - system: 0 sequences, 0.00 GB
+2026-10-25 14:15:52,199 - INFO - Prompt processing progress: 0/26
+2026-10-25 14:15:52,281 - INFO - Prompt processing progress: 25/26
+2026-10-25 14:15:52,371 - INFO - Prompt processing progress: 26/26
+127.0.0.1 - - [25/Oct/2026 14:15:52] "POST /v1/chat/completions HTTP/1.1" 200 -
+2026-10-25 14:15:52,392 - INFO - Prompt Cache: 1 sequences, 0.03 GB
+2026-10-25 14:15:52,392 - INFO - - assistant: 1 sequences, 0.03 GB
+2026-10-25 14:15:52,392 - INFO - - user: 0 sequences, 0.00 GB
+2026-10-25 14:15:52,392 - INFO - - system: 0 sequences, 0.00 GB
+2026-10-25 14:15:52,393 - INFO - Prompt processing progress: 0/33
+2026-10-25 14:15:52,443 - INFO - Prompt processing progress: 32/33
+2026-10-25 14:15:52,452 - INFO - Prompt processing progress: 33/33
+2026-10-25 14:16:16,266 - INFO - Prompt Cache: 1 sequences, 0.08 GB
+127.0.0.1 - - [25/Oct/2026 14:16:16] "POST /v1/chat/completions HTTP/1.1" 200 -
+2026-10-25 14:16:16,266 - INFO - - assistant: 1 sequences, 0.08 GB
+2026-10-25 14:16:16,267 - INFO - - user: 0 sequences, 0.00 GB
+2026-10-25 14:16:16,267 - INFO - - system: 0 sequences, 0.00 GB
+2026-10-25 14:16:16,268 - INFO - Prompt processing progress: 0/1
+2026-10-25 14:16:16,333 - INFO - Prompt processing progress: 1/1

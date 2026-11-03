@@ -17,15 +17,23 @@ enum TripZoneForGrid {
     }
 }
 
-/// The two zones' short names, stacked: this device's over the other's, as the hours below are.
+/// The two zones' names, stacked: this device's over the other's, as the hours below are. Both
+/// by city ("New York", "Berlin"): it was this device's abbreviation over the other's city
+/// ("EDT" over "Berlin"), two kinds of name, and the abbreviation read at midnight said EDT on
+/// the day clocks went back.
 struct TripZoneNames: View {
     let secondary: TimeZone
     let date: Date
 
+    static func city(_ zone: TimeZone) -> String {
+        zone.identifier.split(separator: "/").last.map { $0.replacingOccurrences(of: "_", with: " ") }
+            ?? zone.identifier
+    }
+
     var body: some View {
         VStack(alignment: .trailing, spacing: 0) {
-            Text(TripTimeZone.shortName(.current, at: date)).foregroundStyle(.secondary)
-            Text(TripTimeZone.shortName(secondary, at: date)).foregroundStyle(.tertiary)
+            Text(Self.city(.current)).foregroundStyle(.secondary)
+            Text(Self.city(secondary)).foregroundStyle(.tertiary)
         }
         .font(.system(size: 8, weight: .semibold))
         .lineLimit(1)

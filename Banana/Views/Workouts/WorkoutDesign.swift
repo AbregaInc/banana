@@ -185,9 +185,8 @@ enum WorkoutActivityKind {
 /// see either file's `scrollToDebugSection`. Shared here, not duplicated per platform, so the two
 /// screens can never drift on the flag's spelling or valid values.
 ///
-/// `signals` only exists on iOS (`WorkoutDetailScreen.capturedSignalsSection` — the Mac detail
-/// view has no equivalent section). Requesting it on the Mac finds no matching `.id(...)` in that
-/// screen's `ScrollViewReader`, which is simply a silent no-op, not a crash.
+/// `signals` no longer has a section on either screen (the counts moved to the iOS detail's More
+/// menu, "Recording details"). Requesting it finds no matching `.id(...)`, a silent no-op.
 enum WorkoutDetailSection: String {
     case hero, route, charts, splits, comparison, motion, signals
 

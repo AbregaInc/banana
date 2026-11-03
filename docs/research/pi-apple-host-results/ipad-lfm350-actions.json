@@ -1,0 +1,540 @@
+{
+  "backend": "lfm350",
+  "complete": true,
+  "correct": 12,
+  "device": "iPad",
+  "loadMilliseconds": 291,
+  "os": "Version 27.0.1 (Build 24A446)",
+  "results": [
+    {
+      "case": "monthly",
+      "correct": false,
+      "milliseconds": 3509,
+      "repeat": 0,
+      "response": {
+        "content": [
+          {
+            "arguments": {
+              "end": "2026-10-24",
+              "metric": "protein",
+              "revision": 2,
+              "start": "2026-10-01"
+            },
+            "id": "call_4917830d9066446282783649290a819c",
+            "name": "nutrition_view",
+            "type": "toolCall"
+          }
+        ]
+      },
+      "toolContractPass": true,
+      "toolContractReason": "contract_pass"
+    },
+    {
+      "case": "calories",
+      "correct": false,
+      "milliseconds": 1095,
+      "repeat": 0,
+      "response": {
+        "content": [
+          {
+            "arguments": {
+              "changes": {
+                "compare_previous": "last_7_days",
+                "metric": "calories",
+                "weekdays_only": "false"
+              },
+              "end": "2026-10-24",
+              "revision": 2,
+              "start": "2026-10-23"
+            },
+            "id": "call_d957ab3eedd747f48763303d789d7c53",
+            "name": "filter_nutrition",
+            "type": "toolCall"
+          }
+        ]
+      },
+      "toolContractPass": false,
+      "toolContractReason": "wrong_tool"
+    },
+    {
+      "case": "search",
+      "correct": false,
+      "milliseconds": 814,
+      "repeat": 0,
+      "response": {
+        "content": [
+          {
+            "text": "I can help you find meals containing yogurt. Could you please provide the current device date?",
+            "type": "text"
+          }
+        ]
+      },
+      "toolContractPass": false,
+      "toolContractReason": "wrong_tool"
+    },
+    {
+      "case": "weekdays",
+      "correct": false,
+      "milliseconds": 1046,
+      "repeat": 0,
+      "response": {
+        "content": [
+          {
+            "arguments": {
+              "end": "2026-10-24",
+              "foodName": "Greek yogurt",
+              "metric": "protein",
+              "period": "this_month",
+              "revision": 2,
+              "start": "2026-10-01"
+            },
+            "id": "call_e90acb4566eb49d8b20e91fc2fbd3aa9",
+            "name": "nutrition_view",
+            "type": "toolCall"
+          }
+        ]
+      },
+      "toolContractPass": false,
+      "toolContractReason": "wrong_tool"
+    },
+    {
+      "case": "compare",
+      "correct": false,
+      "milliseconds": 912,
+      "repeat": 0,
+      "response": {
+        "content": [
+          {
+            "arguments": {
+              "changes": {
+                "compare_previous": "2026-10-01",
+                "weekdays_only": "true"
+              }
+            },
+            "id": "call_4515c81b349043df960442852a0dcafd",
+            "name": "filter_nutrition",
+            "type": "toolCall"
+          }
+        ]
+      },
+      "toolContractPass": false,
+      "toolContractReason": "schema_invalid"
+    },
+    {
+      "case": "copy",
+      "correct": true,
+      "milliseconds": 966,
+      "repeat": 0,
+      "response": {
+        "content": [
+          {
+            "arguments": {
+              "day": "tomorrow",
+              "mealID": "BA5A4E11-0000-4000-8000-000202610231"
+            },
+            "id": "call_cf2daaab05444b79b61931eec6565df8",
+            "name": "prepare_meal_copy",
+            "type": "toolCall"
+          }
+        ]
+      },
+      "toolContractPass": true,
+      "toolContractReason": "contract_pass"
+    },
+    {
+      "case": "notes",
+      "correct": true,
+      "milliseconds": 753,
+      "repeat": 0,
+      "response": {
+        "content": [
+          {
+            "arguments": {},
+            "id": "call_ca748713f63448a895ea9e727713b5ed",
+            "name": "list_notes",
+            "type": "toolCall"
+          }
+        ]
+      },
+      "toolContractPass": true,
+      "toolContractReason": "contract_pass"
+    },
+    {
+      "case": "plan",
+      "correct": true,
+      "milliseconds": 753,
+      "repeat": 0,
+      "response": {
+        "content": [
+          {
+            "arguments": {},
+            "id": "call_528e62a230714561a103856eda39f2e1",
+            "name": "day_plan",
+            "type": "toolCall"
+          }
+        ]
+      },
+      "toolContractPass": true,
+      "toolContractReason": "contract_pass"
+    },
+    {
+      "case": "greeting",
+      "correct": true,
+      "milliseconds": 753,
+      "repeat": 0,
+      "response": {
+        "content": [
+          {
+            "text": "Hello! How can I assist you today?",
+            "type": "text"
+          }
+        ]
+      },
+      "toolContractPass": true,
+      "toolContractReason": "no_tool"
+    },
+    {
+      "case": "explanation",
+      "correct": true,
+      "milliseconds": 987,
+      "repeat": 0,
+      "response": {
+        "content": [
+          {
+            "text": "I don't have access to a nutrition database or general knowledge about proteins. My capabilities are limited to the tools provided, which are all currently empty. Would you like me to help with something else that falls within my available tools?",
+            "type": "text"
+          }
+        ]
+      },
+      "toolContractPass": true,
+      "toolContractReason": "no_tool"
+    },
+    {
+      "case": "unsupported",
+      "correct": true,
+      "milliseconds": 1195,
+      "repeat": 0,
+      "response": {
+        "content": [
+          {
+            "text": "I don't have the capability to delete meals from your history. The available tools only allow me to view, prepare, or update nutrition charts, log new meals, and read notes. To delete meals, I would need access to a database or file system that isn't available in my current toolset.\n\nWould you like me to help you find a specific meal or nutrition chart instead?",
+            "type": "text"
+          }
+        ]
+      },
+      "toolContractPass": true,
+      "toolContractReason": "no_tool"
+    },
+    {
+      "case": "ambiguous",
+      "correct": false,
+      "milliseconds": 891,
+      "repeat": 0,
+      "response": {
+        "content": [
+          {
+            "arguments": {
+              "id": "BA5A4E11-0000-4000-8000-000202610231"
+            },
+            "id": "call_332b85791d894c89ac4f1d468237467e",
+            "name": "read_note",
+            "type": "toolCall"
+          }
+        ]
+      },
+      "toolContractPass": false,
+      "toolContractReason": "no_tool"
+    },
+    {
+      "case": "monthly",
+      "correct": false,
+      "milliseconds": 1026,
+      "repeat": 1,
+      "response": {
+        "content": [
+          {
+            "arguments": {
+              "end": "2026-10-24",
+              "metric": "protein",
+              "revision": 2,
+              "start": "2026-10-01"
+            },
+            "id": "call_a09468cfd41044ca8a40dd3389c84ced",
+            "name": "nutrition_view",
+            "type": "toolCall"
+          }
+        ]
+      },
+      "toolContractPass": true,
+      "toolContractReason": "contract_pass"
+    },
+    {
+      "case": "calories",
+      "correct": false,
+      "milliseconds": 1090,
+      "repeat": 1,
+      "response": {
+        "content": [
+          {
+            "arguments": {
+              "changes": {
+                "compare_previous": "last_7_days",
+                "metric": "calories",
+                "weekdays_only": "false"
+              },
+              "end": "2026-10-24",
+              "revision": 2,
+              "start": "2026-10-23"
+            },
+            "id": "call_7772919a617c4e9b9f485445e27df30b",
+            "name": "filter_nutrition",
+            "type": "toolCall"
+          }
+        ]
+      },
+      "toolContractPass": false,
+      "toolContractReason": "wrong_tool"
+    },
+    {
+      "case": "search",
+      "correct": false,
+      "milliseconds": 811,
+      "repeat": 1,
+      "response": {
+        "content": [
+          {
+            "text": "I can help you find meals containing yogurt. Could you please provide the current device date?",
+            "type": "text"
+          }
+        ]
+      },
+      "toolContractPass": false,
+      "toolContractReason": "wrong_tool"
+    },
+    {
+      "case": "weekdays",
+      "correct": false,
+      "milliseconds": 1049,
+      "repeat": 1,
+      "response": {
+        "content": [
+          {
+            "arguments": {
+              "end": "2026-10-24",
+              "foodName": "Greek yogurt",
+              "metric": "protein",
+              "period": "this_month",
+              "revision": 2,
+              "start": "2026-10-01"
+            },
+            "id": "call_4be13bb16bdb402eafd191a1c1a26d2c",
+            "name": "nutrition_view",
+            "type": "toolCall"
+          }
+        ]
+      },
+      "toolContractPass": false,
+      "toolContractReason": "wrong_tool"
+    },
+    {
+      "case": "compare",
+      "correct": false,
+      "milliseconds": 912,
+      "repeat": 1,
+      "response": {
+        "content": [
+          {
+            "arguments": {
+              "changes": {
+                "compare_previous": "2026-10-01",
+                "weekdays_only": "true"
+              }
+            },
+            "id": "call_c966450d71f7425ca867f6d6fde360d8",
+            "name": "filter_nutrition",
+            "type": "toolCall"
+          }
+        ]
+      },
+      "toolContractPass": false,
+      "toolContractReason": "schema_invalid"
+    },
+    {
+      "case": "copy",
+      "correct": true,
+      "milliseconds": 958,
+      "repeat": 1,
+      "response": {
+        "content": [
+          {
+            "arguments": {
+              "day": "tomorrow",
+              "mealID": "BA5A4E11-0000-4000-8000-000202610231"
+            },
+            "id": "call_e9be2675cc8947f3a6cd6636c2597db4",
+            "name": "prepare_meal_copy",
+            "type": "toolCall"
+          }
+        ]
+      },
+      "toolContractPass": true,
+      "toolContractReason": "contract_pass"
+    },
+    {
+      "case": "notes",
+      "correct": true,
+      "milliseconds": 749,
+      "repeat": 1,
+      "response": {
+        "content": [
+          {
+            "arguments": {},
+            "id": "call_1dfb080ab8f04ab38d4b82a70044af9e",
+            "name": "list_notes",
+            "type": "toolCall"
+          }
+        ]
+      },
+      "toolContractPass": true,
+      "toolContractReason": "contract_pass"
+    },
+    {
+      "case": "plan",
+      "correct": true,
+      "milliseconds": 746,
+      "repeat": 1,
+      "response": {
+        "content": [
+          {
+            "arguments": {},
+            "id": "call_a086a65a6def42099c643b696cad521e",
+            "name": "day_plan",
+            "type": "toolCall"
+          }
+        ]
+      },
+      "toolContractPass": true,
+      "toolContractReason": "contract_pass"
+    },
+    {
+      "case": "greeting",
+      "correct": true,
+      "milliseconds": 751,
+      "repeat": 1,
+      "response": {
+        "content": [
+          {
+            "text": "Hello! How can I assist you today?",
+            "type": "text"
+          }
+        ]
+      },
+      "toolContractPass": true,
+      "toolContractReason": "no_tool"
+    },
+    {
+      "case": "explanation",
+      "correct": true,
+      "milliseconds": 996,
+      "repeat": 1,
+      "response": {
+        "content": [
+          {
+            "text": "I don't have access to a nutrition database or general knowledge about proteins. My capabilities are limited to the tools provided, which are all currently empty. Would you like me to help with something else that falls within my available tools?",
+            "type": "text"
+          }
+        ]
+      },
+      "toolContractPass": true,
+      "toolContractReason": "no_tool"
+    },
+    {
+      "case": "unsupported",
+      "correct": true,
+      "milliseconds": 1192,
+      "repeat": 1,
+      "response": {
+        "content": [
+          {
+            "text": "I don't have the capability to delete meals from your history. The available tools only allow me to view, prepare, or update nutrition charts, log new meals, and read notes. To delete meals, I would need access to a database or file system that isn't available in my current toolset.\n\nWould you like me to help you find a specific meal or nutrition chart instead?",
+            "type": "text"
+          }
+        ]
+      },
+      "toolContractPass": true,
+      "toolContractReason": "no_tool"
+    },
+    {
+      "case": "ambiguous",
+      "correct": false,
+      "milliseconds": 886,
+      "repeat": 1,
+      "response": {
+        "content": [
+          {
+            "arguments": {
+              "id": "BA5A4E11-0000-4000-8000-000202610231"
+            },
+            "id": "call_c9c6d394e3504accaad7092dd8f243c9",
+            "name": "read_note",
+            "type": "toolCall"
+          }
+        ]
+      },
+      "toolContractPass": false,
+      "toolContractReason": "no_tool"
+    }
+  ],
+  "run": "17e485d4-3d8a-4323-8ab2-a83a51fc2019",
+  "total": 24,
+  "physicalDeviceUDID": "<device-udid>",
+  "modelManifest": {
+    "repo": "LiquidAI/LFM2.5-350M-MLX-4bit",
+    "revision": "f6cb4e006bb7a2d8a6afa14ec0a53e0586f65a5b",
+    "files": {
+      "README.md": {
+        "sha256": "90060ba684dfe9716d391782396bf2084a3941b5bcdb31f1ef6d1b5a5934814e",
+        "bytes": 2329
+      },
+      "config.json": {
+        "sha256": "9a8d76fffac255e7aeba7f154fd493e5b42c55b8bf150cc3478484adec6a98ed",
+        "bytes": 1714
+      },
+      "generation_config.json": {
+        "sha256": "1c72d35bb46c5102537eb114fea9a5c10ef928cc813401c3c12aef399c1f8e5d",
+        "bytes": 132
+      },
+      "model.safetensors": {
+        "sha256": "f17b51362f7aa11a8dffafa6f44c625d5d695b2f76122eed11525104810ae809",
+        "bytes": 221809325
+      },
+      "model.safetensors.index.json": {
+        "sha256": "be372bf2e03a849a8f01821a2e35ffc44840a86d3132ad7e8f2cef5ea655b50f",
+        "bytes": 23413
+      },
+      "tokenizer.json": {
+        "sha256": "df1d8d5ec5d091b460562ffd545e4a5e91d17d4a0db7ebe733be34ed374377bd",
+        "bytes": 4733389
+      },
+      "tokenizer_config.json": {
+        "sha256": "75c287923e252b08b0a0f1c367bbe557ab23a681d0b71c5a34e0932ddbe2f5ee",
+        "bytes": 489
+      },
+      "chat_template.jinja": {
+        "sha256": "1a2d8281b5477abb5bb1cebd69d7d1ee389e074656ca5f5e0ef6ae56d6ae65c1",
+        "bytes": 2607
+      }
+    }
+  },
+  "semanticContractSummary": {
+    "backend": "lfm350",
+    "toolContractPasses": 14,
+    "total": 24,
+    "warmMedianMilliseconds": 935.0,
+    "warmRangeMilliseconds": [
+      746,
+      1192
+    ],
+    "scope": "Twelve synthetic independent fixed-clock requests, repeated. Tool/view contract checks only; conversational text quality not scored. Not production accuracy or p95."
+  }
+}

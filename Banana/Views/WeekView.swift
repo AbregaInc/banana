@@ -173,6 +173,12 @@ private struct TravelBand: View {
     }
     private var tint: Color { DS.Palette.travel }
 
+    /// "15 min": what a band too short for the place still says beside its mode. A band with
+    /// only a glyph read as broken drawing, and its length could not be checked.
+    private var minutesText: String {
+        "\(detail?.minutes ?? minutes) min"
+    }
+
     var body: some View {
         HStack(spacing: 3) {
             Image(systemName: icon)
@@ -182,6 +188,10 @@ private struct TravelBand: View {
                     .font(.system(size: 9, weight: .medium).monospacedDigit())
                     .lineLimit(1)
                     .truncationMode(.tail)
+            } else if height >= 11 {
+                Text(minutesText)
+                    .font(.system(size: 9, weight: .medium).monospacedDigit())
+                    .lineLimit(1)
             }
             Spacer(minLength: 0)
         }
@@ -615,6 +625,16 @@ struct MacWeekView: View {
                                  missed: NewTaskSheet.Missed(occurrence))
                 }
             }
+            .onAdd(.event, .reminder, .alarm) { kind in
+                switch kind {
+                case .event:
+                    newEventRequest = MacNewEventRequest(start: defaultNewEventStart(), durationMinutes: 60)
+                case .reminder:
+                    newTaskDue = defaultNewEventStart()
+                    showingNewTask = true
+                default: showingAlarms = true
+                }
+            }
             .sheet(item: $newEventRequest) { request in
                 NewCalendarEventSheet(
                     initialStart: request.start,
@@ -820,6 +840,10 @@ struct MacWeekView: View {
             .help("Share availability (S)")
         }
         ToolbarItem(placement: .primaryAction) {
+            #if PI_DEVELOPMENT
+            Button { PageChrome.shared.showAdd = true } label: { Label("Add", systemImage: "plus") }
+                .accessibilityIdentifier("mac.week.newEvent")
+            #else
             // A MENU, like Day's "+", not an event-only button: the calendar — where you can see
             // when you are free — is exactly where a reminder should be creatable too.
             Menu {
@@ -842,6 +866,7 @@ struct MacWeekView: View {
             }
             .help("Create an event (C), a reminder or an alarm")
             .accessibilityIdentifier("mac.week.newEvent")
+            #endif
         }
     }
 
@@ -4388,6 +4413,9 @@ struct WeekView: View {
     /// tick, so one too long to read in the line could only be read by completing it.
     private func reminderChip(_ reminder: Occurrence) -> some View {
         let overdue = reminder.overdue && !reminder.completed
+        // A dose that is due (a reminder that reads as something taken: "Creatine") is amber
+        // across the whole chip, as a due dose is in Taken; it was the grey of any reminder.
+        let dueDose = overdue && ReminderToTaken.readsAsTaken(reminder.title)
         return HStack(spacing: 0) {
             Button {
                 TaskTick.toggle(reminder)
@@ -4411,7 +4439,8 @@ struct WeekView: View {
                         .strikethrough(reminder.completed, color: .secondary)
                     if overdue {
                         Text(OutstandingReminders.since(Self.due(reminder)))
-                            .font(.caption2.weight(.semibold)).foregroundStyle(DS.Palette.danger)
+                            .font(.caption2.weight(.semibold))
+                            .foregroundStyle(dueDose ? DS.Palette.warning : DS.Palette.danger)
                     } else if let waiting = reminder.waitingFor, !reminder.completed {
                         // Tied to a moment that hasn't come: not due, not late.
                         Text(waiting).font(.caption2).foregroundStyle(.secondary).lineLimit(1)
@@ -4692,6 +4721,16 @@ struct WeekView: View {
                 mobileVisibleDayID = nil
                 await Task.yield()
                 mobileVisibleDayID = target
+                // Opened straight into Week, the columns could still be unlaid at this point and
+                // the week stayed on Monday with today off the right edge (atlas, Saturday). Once
+                // laid out, if the columns still sit at the start, ask again.
+                guard !dayMode, target > 0 else { return }
+                try? await Task.sleep(for: .milliseconds(300))
+                if headerOffset.x < 1 {
+                    mobileVisibleDayID = nil
+                    await Task.yield()
+                    mobileVisibleDayID = target
+                }
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -5670,6 +5709,11 @@ struct WeekView: View {
     /// Assign simultaneous items to deterministic side-by-side lanes. Previously every block
     /// occupied the same full-width x position, so overlapping meetings/reminders covered each
     /// other and only the topmost action could be used.
+
+    ///
+    /// (Widening a block into free lanes was tried on 1 Nov 2026 and reverted: a reminder is drawn
+    /// taller than its duration, so a widened neighbour covered its circle, and the empty slot
+    /// drag-to-create relies on disappeared.)
     private func gridPlacements(_ occurrences: [Occurrence]) -> [GridPlacement] {
         CalendarLaneAllocator.placements(occurrences)
     }

@@ -88,7 +88,7 @@ final class HealthKitStore: ObservableObject {
     /// Previously only --dummy-health did this, and the workout scene never passed it.
     private let dummyMode: Bool = {
         let a = ProcessInfo.processInfo.arguments
-        return a.contains("--dummy-health") || a.contains("--workout") || a.contains("--sleep")
+        return AppSupport.isPiSampleWorkspace || a.contains("--dummy-health") || a.contains("--workout") || a.contains("--sleep")
             || a.contains("--trends") || a.contains("--trend")
     }()
     #endif

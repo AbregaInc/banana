@@ -1,0 +1,42 @@
+{
+  "automaticContextCompaction": true,
+  "bundle": "com.boris.banana.mac.pi-development",
+  "conversationId": "7",
+  "error": "The local model failed during the long-conversation check",
+  "errorMessages": [],
+  "historyRestored": true,
+  "messageCount": 4,
+  "messages": [
+    {
+      "role": "user",
+      "text": "Hello"
+    },
+    {
+      "role": "activity",
+      "text": "Reading the day plan"
+    },
+    {
+      "role": "error",
+      "text": "<harness>\n[error] AssistantFailure(message: \"The day plan has not loaded yet. Open Plan and try again.\")\n</harness>"
+    },
+    {
+      "role": "activity",
+      "text": "Looking up notes"
+    },
+    {
+      "role": "assistant",
+      "text": "Hi! I see two recent notes:\n\n1. secret word: Blueberry (14:58:12 UTC)\n2. Pi integration note A1253A (14:58:02 UTC)\n\nWould you like me to create a new note for you?"
+    }
+  ],
+  "model": "apple-foundation/on-device",
+  "modelReadbackVerified": true,
+  "nativeNoteCount": 1,
+  "nativeNotePersisted": true,
+  "nativeOperationDeduplicated": true,
+  "noteReadAndListVerified": true,
+  "passed": false,
+  "recallAfterCompaction": true,
+  "testNoteCleanedUp": true,
+  "normalHistoryUnchanged": true,
+  "normalSelectionAndDraftUnchanged": true
+}

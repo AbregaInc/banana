@@ -1,0 +1,1736 @@
+{
+  "complete": true,
+  "queries": 185,
+  "scope": "900 synthetic development routing/argument contracts, 100 per module. 20 intent families \u00d7 5 variants; not empirical top-query rankings, not held-out accuracy, and not end-to-end action tests. Text-only responses require semantic review. Capability gaps are labeled explicitly.",
+  "scorerSha256": "25b00f6864811a23b083b2bae7e7389696dec849a242834e22d9a8fd79b34a81",
+  "fixtureSha256": "40d2a5063f1c9a3f56cd34ad6d218c69ba2b087be344ac6afbc59f4103dda8b0",
+  "oracleCorrections": {
+    "reason": "Oracle correction only: opening Assistant is supported by open_page, just like opening the other modules. Original inputs and raw replies remain frozen.",
+    "cases": {
+      "assistant-open-1": {
+        "capability": "supported",
+        "expected": {
+          "tools": {
+            "open_page": {
+              "section": "assistant"
+            }
+          },
+          "reply": false
+        }
+      },
+      "assistant-open-2": {
+        "capability": "supported",
+        "expected": {
+          "tools": {
+            "open_page": {
+              "section": "assistant"
+            }
+          },
+          "reply": false
+        }
+      },
+      "assistant-open-3": {
+        "capability": "supported",
+        "expected": {
+          "tools": {
+            "open_page": {
+              "section": "assistant"
+            }
+          },
+          "reply": false
+        }
+      },
+      "assistant-open-4": {
+        "capability": "supported",
+        "expected": {
+          "tools": {
+            "open_page": {
+              "section": "assistant"
+            }
+          },
+          "reply": false
+        }
+      },
+      "assistant-open-5": {
+        "capability": "supported",
+        "expected": {
+          "tools": {
+            "open_page": {
+              "section": "assistant"
+            }
+          },
+          "reply": false
+        }
+      }
+    }
+  },
+  "modules": {
+    "plan": {
+      "tested": 100,
+      "tool_contract_passes": 44,
+      "contract_failures": 36,
+      "text_requires_review": 20,
+      "capability_gap_cases": 45
+    },
+    "nutrition": {
+      "tested": 20,
+      "tool_contract_passes": 9,
+      "contract_failures": 6,
+      "text_requires_review": 5
+    },
+    "notes": {
+      "tested": 15,
+      "tool_contract_passes": 15
+    },
+    "workouts": {
+      "tested": 15,
+      "tool_contract_passes": 5,
+      "capability_gap_cases": 10,
+      "contract_failures": 5,
+      "navigation_fallbacks": 1,
+      "text_requires_review": 4
+    },
+    "routines": {
+      "tested": 15,
+      "tool_contract_passes": 5,
+      "capability_gap_cases": 10,
+      "contract_failures": 10
+    },
+    "library": {
+      "tested": 5,
+      "tool_contract_passes": 5
+    },
+    "review": {
+      "tested": 5,
+      "tool_contract_passes": 5
+    },
+    "settings": {
+      "tested": 5,
+      "tool_contract_passes": 5
+    },
+    "assistant": {
+      "tested": 5,
+      "tool_contract_passes": 5
+    }
+  },
+  "failures": [
+    {
+      "id": "plan-time-only-2",
+      "query": "Hi, Team lunch at 11:30",
+      "capability": "supported",
+      "reason": "invented_day",
+      "response": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+              {
+                "id": "call_416f189002f34176abfdbfbb",
+                "type": "function",
+                "function": {
+                  "name": "prepare_event",
+                  "arguments": "{\"title\": \"Team lunch\", \"day\": \"today\", \"time\": \"11:30\", \"durationMinutes\": 60}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ]
+    },
+    {
+      "id": "plan-missing-time-1",
+      "query": "Schedule Dentist, but I have not chosen a time",
+      "capability": "clarification",
+      "reason": "wrong_tool",
+      "response": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+              {
+                "id": "call_fad0d3f95cba4cd4b47d98ad",
+                "type": "function",
+                "function": {
+                  "name": "prepare_event",
+                  "arguments": "{\"title\": \"Dentist\"}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ]
+    },
+    {
+      "id": "plan-missing-time-2",
+      "query": "Hi, Schedule Team lunch, but I have not chosen a time",
+      "capability": "clarification",
+      "reason": "wrong_tool",
+      "response": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+              {
+                "id": "call_f8287c56b0b346d08f94ff69",
+                "type": "function",
+                "function": {
+                  "name": "prepare_event",
+                  "arguments": "{\"title\": \"Team lunch\"}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ]
+    },
+    {
+      "id": "plan-missing-time-3",
+      "query": "Please help with this: Schedule Design review, but I have not chosen a time",
+      "capability": "clarification",
+      "reason": "wrong_tool",
+      "response": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+              {
+                "id": "call_933bf2ab742b46a0afe9617f",
+                "type": "function",
+                "function": {
+                  "name": "prepare_event",
+                  "arguments": "{\"title\": \"Design review\"}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ]
+    },
+    {
+      "id": "plan-missing-time-4",
+      "query": "Schedule Dinner, but I have not chosen a time Thanks.",
+      "capability": "clarification",
+      "reason": "wrong_tool",
+      "response": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "I'll help you schedule Dinner. Since you didn't specify a time, I'll ask for it.",
+            "tool_calls": [
+              {
+                "id": "call_24b95d2e50224c9d83e84dc6",
+                "type": "function",
+                "function": {
+                  "name": "prepare_event",
+                  "arguments": "{\"title\": \"Dinner\"}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ]
+    },
+    {
+      "id": "plan-missing-time-5",
+      "query": "Quick question: Schedule Airport pickup, but I have not chosen a time",
+      "capability": "clarification",
+      "reason": "wrong_tool",
+      "response": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+              {
+                "id": "call_37ffe4b9c4184f009c3fb0ca",
+                "type": "function",
+                "function": {
+                  "name": "prepare_event",
+                  "arguments": "{\"title\": \"Airport pickup\"}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ]
+    },
+    {
+      "id": "plan-reschedule-1",
+      "query": "Move Dentist to 09:15",
+      "capability": "capability_gap",
+      "reason": "wrong_tool",
+      "response": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+              {
+                "id": "call_bea859de767345f993618df9",
+                "type": "function",
+                "function": {
+                  "name": "prepare_event",
+                  "arguments": "{\"title\": \"Dentist\", \"time\": \"09:15\"}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ]
+    },
+    {
+      "id": "plan-reschedule-2",
+      "query": "Hi, Move Team lunch to 11:30",
+      "capability": "capability_gap",
+      "reason": "wrong_tool",
+      "response": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+              {
+                "id": "call_f1027238cfee4b6081c29fd8",
+                "type": "function",
+                "function": {
+                  "name": "day_plan",
+                  "arguments": "{}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ]
+    },
+    {
+      "id": "plan-reschedule-3",
+      "query": "Please help with this: Move Design review to 14:00",
+      "capability": "capability_gap",
+      "reason": "wrong_tool",
+      "response": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "I'll help you move the Design review event to 14:00. Let me first check your calendar to find the event.",
+            "tool_calls": [
+              {
+                "id": "call_78d3a18cfb5f4d899ee92034",
+                "type": "function",
+                "function": {
+                  "name": "day_plan",
+                  "arguments": "{}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ]
+    },
+    {
+      "id": "plan-reschedule-4",
+      "query": "Move Dinner to 17:00 Thanks.",
+      "capability": "capability_gap",
+      "reason": "wrong_tool",
+      "response": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+              {
+                "id": "call_aa6370e907674dbb8d28c94b",
+                "type": "function",
+                "function": {
+                  "name": "day_plan",
+                  "arguments": "{\"date\": \"2026-10-25\"}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ]
+    },
+    {
+      "id": "plan-reschedule-5",
+      "query": "Quick question: Move Airport pickup to 20:45",
+      "capability": "capability_gap",
+      "reason": "wrong_tool",
+      "response": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+              {
+                "id": "call_9ebae998587d4247b5b60728",
+                "type": "function",
+                "function": {
+                  "name": "prepare_event",
+                  "arguments": "{\"title\": \"Move Airport pickup\", \"time\": \"20:45\"}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ]
+    },
+    {
+      "id": "plan-cancel-2",
+      "query": "Hi, Cancel Team lunch tomorrow",
+      "capability": "capability_gap",
+      "reason": "wrong_tool",
+      "response": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "I cannot cancel calendar events or make changes to your calendar. I can only view your current agenda.",
+            "tool_calls": [
+              {
+                "id": "call_135d8f14c92d4de3997c42ef",
+                "type": "function",
+                "function": {
+                  "name": "day_plan",
+                  "arguments": "{\"date\": \"tomorrow\"}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ]
+    },
+    {
+      "id": "plan-cancel-3",
+      "query": "Please help with this: Cancel Design review tomorrow",
+      "capability": "capability_gap",
+      "reason": "wrong_tool",
+      "response": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+              {
+                "id": "call_1d740d940ccf417bbaaafae2",
+                "type": "function",
+                "function": {
+                  "name": "prepare_event",
+                  "arguments": "{\"day\": \"tomorrow\", \"durationMinutes\": 60, \"location\": \"Design review\", \"notes\": \"Cancel this event\", \"revision\": 0, \"title\": \"Design review\"}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ]
+    },
+    {
+      "id": "plan-cancel-5",
+      "query": "Quick question: Cancel Airport pickup tmrw",
+      "capability": "capability_gap",
+      "reason": "wrong_tool",
+      "response": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "I'll check your calendar to find the airport pickup event scheduled for tomorrow.",
+            "tool_calls": [
+              {
+                "id": "call_44014fca85004b228667d43d",
+                "type": "function",
+                "function": {
+                  "name": "day_plan",
+                  "arguments": "{\"date\": \"tomorrow\"}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ]
+    },
+    {
+      "id": "plan-invite-4",
+      "query": "Invite Alex to Dinner Thanks.",
+      "capability": "capability_gap",
+      "reason": "wrong_tool",
+      "response": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+              {
+                "id": "call_04ebdca906244f9583270730",
+                "type": "function",
+                "function": {
+                  "name": "prepare_event",
+                  "arguments": "{\"title\": \"Invite Alex to Dinner Thanks\"}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ]
+    },
+    {
+      "id": "plan-invite-5",
+      "query": "Quick question: Invite Alex to Airport pickup",
+      "capability": "capability_gap",
+      "reason": "wrong_tool",
+      "response": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+              {
+                "id": "call_b974e3497a31411eb2b30242",
+                "type": "function",
+                "function": {
+                  "name": "prepare_event",
+                  "arguments": "{\"title\": \"Invite Alex to Airport pickup\"}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ]
+    },
+    {
+      "id": "plan-recurrence-1",
+      "query": "Schedule Dentist every second Tuesday at 09:15",
+      "capability": "capability_gap",
+      "reason": "wrong_tool",
+      "response": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "I'll help you schedule your dentist appointment for the second Tuesday. To do this, I need to determine which month you're referring to. Since today is October 25, 2026, the next second Tuesday of a month would be in November.\n\nLet me create this calendar event for you:",
+            "tool_calls": [
+              {
+                "id": "call_ae39eb0485404fb7b81c07ea",
+                "type": "function",
+                "function": {
+                  "name": "prepare_event",
+                  "arguments": "{\"day\": \"tomorrow\", \"durationMinutes\": 60, \"isAllDay\": false, \"location\": \"Dentist\", \"notes\": \"Second Tuesday appointment\", \"revision\": 0, \"time\": \"09:15\", \"title\": \"Dentist\"}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ]
+    },
+    {
+      "id": "plan-recurrence-2",
+      "query": "Hi, Schedule Team lunch every second Tuesday at 11:30",
+      "capability": "capability_gap",
+      "reason": "missing_capability_boundary",
+      "response": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "I'll help you schedule a team lunch. You mentioned \"every second Tuesday,\" but I need to know what month you'd like to start this recurring event. Could you please specify which month?"
+          },
+          "finish_reason": "stop"
+        }
+      ]
+    },
+    {
+      "id": "plan-recurrence-3",
+      "query": "Please help with this: Schedule Design review every second Tuesday at 14:00",
+      "capability": "capability_gap",
+      "reason": "wrong_tool",
+      "response": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+              {
+                "id": "call_cf517fa06d484f50b6629e20",
+                "type": "function",
+                "function": {
+                  "name": "prepare_event",
+                  "arguments": "{\"title\": \"Design review\", \"day\": \"tomorrow\", \"time\": \"14:00\", \"durationMinutes\": 60}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ]
+    },
+    {
+      "id": "plan-recurrence-4",
+      "query": "Schedule Dinner every second Tuesday at 17:00 Thanks.",
+      "capability": "capability_gap",
+      "reason": "wrong_tool",
+      "response": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "I'll help you schedule a recurring dinner event for every second Tuesday at 17:00. Let me create this calendar event for you.",
+            "tool_calls": [
+              {
+                "id": "call_67ae32dce98949bc9a8576cc",
+                "type": "function",
+                "function": {
+                  "name": "prepare_event",
+                  "arguments": "{\"title\": \"Dinner\", \"time\": \"17:00\"}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ]
+    },
+    {
+      "id": "plan-recurrence-5",
+      "query": "Quick question: Schedule Airport pickup every second Tuesday at 20:45",
+      "capability": "capability_gap",
+      "reason": "wrong_tool",
+      "response": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "I'll help you schedule an airport pickup event. Since you haven't specified which second Tuesday, I'll assume you mean the next second Tuesday. Let me set up this event with a default time of 20:45.",
+            "tool_calls": [
+              {
+                "id": "call_94a930367e9f4cc39a7c24a8",
+                "type": "function",
+                "function": {
+                  "name": "prepare_event",
+                  "arguments": "{\"day\": \"tomorrow\", \"durationMinutes\": 60, \"location\": \"Airport\", \"notes\": \"Second Tuesday pickup\", \"revision\": 0, \"time\": \"20:45\", \"title\": \"Airport pickup\"}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ]
+    },
+    {
+      "id": "plan-flight-1",
+      "query": "Add flight JFK to LHR on 2026-11-03, leaving 8pm New York and arriving 8am London next day",
+      "capability": "capability_gap",
+      "reason": "wrong_tool",
+      "response": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+              {
+                "id": "call_1cebd5e257ec4f9a819485a5",
+                "type": "function",
+                "function": {
+                  "name": "prepare_event",
+                  "arguments": "{\"title\": \"Flight JFK to LHR\", \"day\": \"2026-11-03\", \"time\": \"20:00\", \"durationMinutes\": 540, \"location\": \"JFK to LHR\"}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ]
+    },
+    {
+      "id": "plan-flight-2",
+      "query": "Hi, Add flight JFK to LHR on 2026-11-04, leaving 8pm New York and arriving 8am London next day",
+      "capability": "capability_gap",
+      "reason": "wrong_tool",
+      "response": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+              {
+                "id": "call_5cd100bed5a540a993787b35",
+                "type": "function",
+                "function": {
+                  "name": "prepare_event",
+                  "arguments": "{\"title\": \"Flight JFK to LHR\", \"day\": \"2026-11-04\", \"time\": \"20:00\", \"durationMinutes\": 600, \"location\": \"New York (JFK) to London (LHR)\"}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ]
+    },
+    {
+      "id": "plan-flight-3",
+      "query": "Please help with this: Add flight JFK to LHR on 2026-11-05, leaving 8pm New York and arriving 8am London next day",
+      "capability": "capability_gap",
+      "reason": "wrong_tool",
+      "response": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+              {
+                "id": "call_f6f1840713e7433d9711ea25",
+                "type": "function",
+                "function": {
+                  "name": "prepare_event",
+                  "arguments": "{\"day\": \"2026-11-05\", \"durationMinutes\": 0, \"isAllDay\": false, \"location\": \"JFK to LHR\", \"notes\": \"Leaving 8pm New York, arriving 8am London next day\", \"time\": \"20:00\", \"title\": \"Flight JFK to LHR\"}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ]
+    },
+    {
+      "id": "plan-flight-4",
+      "query": "Add flight JFK to LHR on 2026-11-06, leaving 8pm New York and arriving 8am London next day Thanks.",
+      "capability": "capability_gap",
+      "reason": "wrong_tool",
+      "response": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+              {
+                "id": "call_02be7a038187485785ee201d",
+                "type": "function",
+                "function": {
+                  "name": "prepare_event",
+                  "arguments": "{\"day\": \"2026-11-06\", \"title\": \"Flight JFK to LHR\", \"durationMinutes\": 600, \"location\": \"JFK to LHR\", \"notes\": \"Leaving 8pm New York, arriving 8am London next day\", \"time\": \"20:00\"}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ]
+    },
+    {
+      "id": "plan-flight-5",
+      "query": "Quick question: Add flight JFK to LHR on 2026-11-07, leaving 8pm New York and arriving 8am London next day",
+      "capability": "capability_gap",
+      "reason": "wrong_tool",
+      "response": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+              {
+                "id": "call_f11c30d42dda46bc9ec0e088",
+                "type": "function",
+                "function": {
+                  "name": "prepare_event",
+                  "arguments": "{\"title\": \"Flight JFK to LHR\", \"day\": \"2026-11-07\", \"durationMinutes\": 600, \"location\": \"JFK to LHR\", \"notes\": \"Leaving 8pm New York, arriving 8am London next day\"}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ]
+    },
+    {
+      "id": "plan-arrival-2",
+      "query": "Hi, What local time does my flight land in Tokyo?",
+      "capability": "capability_gap",
+      "reason": "wrong_tool",
+      "response": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "I don't have access to your flight schedules or travel information. I can only show you your local calendar events, which would include any flights you've scheduled.",
+            "tool_calls": [
+              {
+                "id": "call_24445c08ed794085bd7f287a",
+                "type": "function",
+                "function": {
+                  "name": "day_plan",
+                  "arguments": "{}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ]
+    },
+    {
+      "id": "plan-arrival-5",
+      "query": "Quick question: What local time does my flight land in Tokyo?",
+      "capability": "capability_gap",
+      "reason": "wrong_tool",
+      "response": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "I don't have access to your flight schedule or calendar events. You'll need to check your flight details directly with the airline or your travel itinerary.",
+            "tool_calls": [
+              {
+                "id": "call_066f24a0534e423b9836efae",
+                "type": "function",
+                "function": {
+                  "name": "day_plan",
+                  "arguments": "{}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ]
+    },
+    {
+      "id": "plan-timezone-2",
+      "query": "Hi, Change my calendar timezone to Europe/London",
+      "capability": "capability_gap",
+      "reason": "argument_section",
+      "response": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+              {
+                "id": "call_114df2136d5a43d881873495",
+                "type": "function",
+                "function": {
+                  "name": "open_page",
+                  "arguments": "{\"section\": \"settings\"}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ]
+    },
+    {
+      "id": "plan-timezone-3",
+      "query": "Please help with this: Change my calendar timezone to Europe/London",
+      "capability": "capability_gap",
+      "reason": "argument_section",
+      "response": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "I cannot change the device settings or timezone directly. However, I can open the settings page where you can make that change.",
+            "tool_calls": [
+              {
+                "id": "call_472f78a0037c4951af1c63c6",
+                "type": "function",
+                "function": {
+                  "name": "open_page",
+                  "arguments": "{\"section\": \"settings\"}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ]
+    },
+    {
+      "id": "plan-timezone-4",
+      "query": "Change my calendar timezone to Europe/London Thanks.",
+      "capability": "capability_gap",
+      "reason": "argument_section",
+      "response": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+              {
+                "id": "call_efaf6e5f022742ef8f19836b",
+                "type": "function",
+                "function": {
+                  "name": "open_page",
+                  "arguments": "{\"section\": \"settings\"}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ]
+    },
+    {
+      "id": "plan-alarm-1",
+      "query": "Set an alarm for 09:15 tomorrow",
+      "capability": "capability_gap",
+      "reason": "wrong_tool",
+      "response": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+              {
+                "id": "call_5d9f4ebe41f74691b240cf68",
+                "type": "function",
+                "function": {
+                  "name": "prepare_event",
+                  "arguments": "{\"day\": \"tomorrow\", \"time\": \"09:15\", \"title\": \"Alarm\"}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ]
+    },
+    {
+      "id": "plan-alarm-2",
+      "query": "Hi, Set an alarm for 11:30 tomorrow",
+      "capability": "capability_gap",
+      "reason": "wrong_tool",
+      "response": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+              {
+                "id": "call_af19e5c079e6443cbbe9d330",
+                "type": "function",
+                "function": {
+                  "name": "prepare_event",
+                  "arguments": "{\"day\": \"tomorrow\", \"time\": \"11:30\", \"title\": \"Alarm\"}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ]
+    },
+    {
+      "id": "plan-alarm-3",
+      "query": "Please help with this: Set an alarm for 14:00 tomorrow",
+      "capability": "capability_gap",
+      "reason": "wrong_tool",
+      "response": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+              {
+                "id": "call_6a4a6905fd574248badf804c",
+                "type": "function",
+                "function": {
+                  "name": "prepare_event",
+                  "arguments": "{\"day\": \"tomorrow\", \"durationMinutes\": 60, \"time\": \"14:00\", \"title\": \"Alarm\"}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ]
+    },
+    {
+      "id": "plan-alarm-4",
+      "query": "Set an alarm for 17:00 tomorrow Thanks.",
+      "capability": "capability_gap",
+      "reason": "wrong_tool",
+      "response": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+              {
+                "id": "call_df3b19c8fa954151a82a12c0",
+                "type": "function",
+                "function": {
+                  "name": "prepare_event",
+                  "arguments": "{\"day\": \"tomorrow\", \"durationMinutes\": 60, \"location\": \"Alarm\", \"notes\": \"Alarm set for 17:00\", \"revision\": 0, \"time\": \"17:00\", \"title\": \"Alarm\"}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ]
+    },
+    {
+      "id": "plan-alarm-5",
+      "query": "Quick question: Set an alarm for 20:45 tmrw",
+      "capability": "capability_gap",
+      "reason": "wrong_tool",
+      "response": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+              {
+                "id": "call_7cf0ba6c4e1944538eb36b43",
+                "type": "function",
+                "function": {
+                  "name": "prepare_event",
+                  "arguments": "{\"day\": \"tomorrow\", \"durationMinutes\": 60, \"location\": \"Device\", \"notes\": \"Alarm set for 20:45\", \"revision\": 0, \"time\": \"20:45\", \"title\": \"Alarm\"}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ]
+    },
+    {
+      "id": "nutrition-dated-5",
+      "query": "Quick question: Log 2 eggs and 1 banana for yesterday",
+      "capability": "supported",
+      "reason": "missing_tool",
+      "response": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "I can't log meals for a past date. I can only prepare new meal drafts for future dates or add existing logged meals.\n\nWould you like me to prepare a draft for today instead?"
+          },
+          "finish_reason": "stop"
+        }
+      ]
+    },
+    {
+      "id": "nutrition-missing-amount-1",
+      "query": "I had some yogurt; ask me the amount before making a meal",
+      "capability": "clarification",
+      "reason": "wrong_tool",
+      "response": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "I need to see what yogurt you logged to get the amount. Let me check your nutrition data.",
+            "tool_calls": [
+              {
+                "id": "call_c27cc23a1b4642d88b206a07",
+                "type": "function",
+                "function": {
+                  "name": "nutrition_view",
+                  "arguments": "{\"foodName\": \"yogurt\"}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ]
+    },
+    {
+      "id": "nutrition-missing-amount-2",
+      "query": "Hi, I had some chicken; ask me the amount before making a meal",
+      "capability": "clarification",
+      "reason": "wrong_tool",
+      "response": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+              {
+                "id": "call_4d4a2dc10b5d45f2bf2386ed",
+                "type": "function",
+                "function": {
+                  "name": "prepare_meal",
+                  "arguments": "{\"foods\": [{\"name\": \"chicken\", \"quantity\": \"unknown\"}]}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ]
+    },
+    {
+      "id": "nutrition-missing-amount-3",
+      "query": "Please help with this: I had some salmon; ask me the amount before making a meal",
+      "capability": "clarification",
+      "reason": "wrong_tool",
+      "response": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+              {
+                "id": "call_40721c07275b4eacba10a2fa",
+                "type": "function",
+                "function": {
+                  "name": "prepare_meal",
+                  "arguments": "{\"foods\": [{\"name\": \"salmon\", \"quantity\": \"\"}]}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ]
+    },
+    {
+      "id": "nutrition-missing-amount-4",
+      "query": "I had some tofu; ask me the amount before making a meal Thanks.",
+      "capability": "clarification",
+      "reason": "wrong_tool",
+      "response": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+              {
+                "id": "call_266b2cf7e7494faaab86766c",
+                "type": "function",
+                "function": {
+                  "name": "prepare_meal",
+                  "arguments": "{\"foods\": [{\"name\": \"Tofu\", \"quantity\": \"\"}]}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ]
+    },
+    {
+      "id": "nutrition-missing-amount-5",
+      "query": "Quick question: I had some oats; ask me the amount before making a meal",
+      "capability": "clarification",
+      "reason": "wrong_tool",
+      "response": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+              {
+                "id": "call_18f58555bba3455fb1e745b4",
+                "type": "function",
+                "function": {
+                  "name": "nutrition_view",
+                  "arguments": "{\"foodName\": \"oats\"}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ]
+    },
+    {
+      "id": "workouts-log-1",
+      "query": "Log a 30-minute run",
+      "capability": "capability_gap",
+      "reason": "wrong_tool",
+      "response": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+              {
+                "id": "call_b20b7fd84b734e68a3dfdfa1",
+                "type": "function",
+                "function": {
+                  "name": "prepare_event",
+                  "arguments": "{\"title\": \"30-minute run\", \"durationMinutes\": 30}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ]
+    },
+    {
+      "id": "workouts-log-2",
+      "query": "Hi, Log a 30-minute run",
+      "capability": "capability_gap",
+      "reason": "wrong_tool",
+      "response": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+              {
+                "id": "call_069d148af82340a6b60c8a27",
+                "type": "function",
+                "function": {
+                  "name": "prepare_event",
+                  "arguments": "{\"title\": \"30-minute run\", \"durationMinutes\": 30}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ]
+    },
+    {
+      "id": "workouts-log-3",
+      "query": "Please help with this: Log a 30-minute run",
+      "capability": "capability_gap",
+      "reason": "wrong_tool",
+      "response": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+              {
+                "id": "call_8f6f467241c242ac98ca6bf3",
+                "type": "function",
+                "function": {
+                  "name": "prepare_event",
+                  "arguments": "{\"title\": \"30-minute run\", \"durationMinutes\": 30}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ]
+    },
+    {
+      "id": "workouts-log-4",
+      "query": "Log a 30-minute run Thanks.",
+      "capability": "capability_gap",
+      "reason": "wrong_tool",
+      "response": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+              {
+                "id": "call_4003f3fb7e6640f093604f6b",
+                "type": "function",
+                "function": {
+                  "name": "prepare_event",
+                  "arguments": "{\"title\": \"30-minute run\", \"durationMinutes\": 30}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ]
+    },
+    {
+      "id": "workouts-log-5",
+      "query": "Quick question: Log a 30-minute run",
+      "capability": "capability_gap",
+      "reason": "missing_capability_boundary",
+      "response": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "I can help you prepare a calendar event for your 30-minute run. Since you didn't specify a time, I'll need to know when you'd like to schedule it. Would you like to set it for today or another day?"
+          },
+          "finish_reason": "stop"
+        }
+      ]
+    },
+    {
+      "id": "routines-create-1",
+      "query": "Create a bedtime routine at 09:15",
+      "capability": "capability_gap",
+      "reason": "wrong_tool",
+      "response": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+              {
+                "id": "call_11ddc0f764c14ffb98f361d2",
+                "type": "function",
+                "function": {
+                  "name": "prepare_event",
+                  "arguments": "{\"day\": \"today\", \"durationMinutes\": 60, \"isAllDay\": false, \"location\": \"\", \"notes\": \"\", \"revision\": 0, \"time\": \"09:15\", \"title\": \"Bedtime routine\"}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ]
+    },
+    {
+      "id": "routines-create-2",
+      "query": "Hi, Create a bedtime routine at 11:30",
+      "capability": "capability_gap",
+      "reason": "wrong_tool",
+      "response": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+              {
+                "id": "call_eebd57b60bab409888756027",
+                "type": "function",
+                "function": {
+                  "name": "prepare_event",
+                  "arguments": "{\"time\": \"23:30\", \"title\": \"Bedtime routine\"}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ]
+    },
+    {
+      "id": "routines-create-3",
+      "query": "Please help with this: Create a bedtime routine at 14:00",
+      "capability": "capability_gap",
+      "reason": "wrong_tool",
+      "response": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+              {
+                "id": "call_c67faed2a044400a8eece9aa",
+                "type": "function",
+                "function": {
+                  "name": "prepare_event",
+                  "arguments": "{\"title\": \"Bedtime routine\", \"time\": \"14:00\", \"durationMinutes\": 60}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ]
+    },
+    {
+      "id": "routines-create-4",
+      "query": "Create a bedtime routine at 17:00 Thanks.",
+      "capability": "capability_gap",
+      "reason": "wrong_tool",
+      "response": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+              {
+                "id": "call_97cda8b5e3074678b211b63a",
+                "type": "function",
+                "function": {
+                  "name": "prepare_event",
+                  "arguments": "{\"title\": \"Bedtime routine\", \"day\": \"today\", \"time\": \"17:00\", \"durationMinutes\": 60}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ]
+    },
+    {
+      "id": "routines-create-5",
+      "query": "Quick question: Create a bedtime routine at 20:45",
+      "capability": "capability_gap",
+      "reason": "wrong_tool",
+      "response": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+              {
+                "id": "call_b78d4cd4dcbe45cea8d844fc",
+                "type": "function",
+                "function": {
+                  "name": "prepare_event",
+                  "arguments": "{\"title\": \"Bedtime routine\", \"time\": \"20:45\", \"durationMinutes\": 60}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ]
+    },
+    {
+      "id": "routines-edit-1",
+      "query": "Move my morning routine to 09:15",
+      "capability": "capability_gap",
+      "reason": "wrong_tool",
+      "response": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "I need to check your current schedule to find the morning routine event. Let me look at your day plan first.",
+            "tool_calls": [
+              {
+                "id": "call_aaa0af6bf87f4464a9db4263",
+                "type": "function",
+                "function": {
+                  "name": "day_plan",
+                  "arguments": "{}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ]
+    },
+    {
+      "id": "routines-edit-2",
+      "query": "Hi, Move my morning routine to 11:30",
+      "capability": "capability_gap",
+      "reason": "wrong_tool",
+      "response": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "I need to find your current morning routine event to move it. Let me check your calendar agenda.",
+            "tool_calls": [
+              {
+                "id": "call_b9a9a881b1d047beb25ad0eb",
+                "type": "function",
+                "function": {
+                  "name": "day_plan",
+                  "arguments": "{}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ]
+    },
+    {
+      "id": "routines-edit-3",
+      "query": "Please help with this: Move my morning routine to 14:00",
+      "capability": "capability_gap",
+      "reason": "wrong_tool",
+      "response": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "I can help you with that. To move your morning routine to 14:00 (2:00 PM), I'll need to check your current calendar first to see what morning routine you have scheduled.",
+            "tool_calls": [
+              {
+                "id": "call_b2a86cc2605e468ba6a32760",
+                "type": "function",
+                "function": {
+                  "name": "day_plan",
+                  "arguments": "{\"date\": \"today\"}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ]
+    },
+    {
+      "id": "routines-edit-4",
+      "query": "Move my morning routine to 17:00 Thanks.",
+      "capability": "capability_gap",
+      "reason": "wrong_tool",
+      "response": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "I'll help you move your morning routine to 17:00. Let me first check your current schedule to see the event details.",
+            "tool_calls": [
+              {
+                "id": "call_7db7a079f0314173ad5470a1",
+                "type": "function",
+                "function": {
+                  "name": "day_plan",
+                  "arguments": "{}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ]
+    },
+    {
+      "id": "routines-edit-5",
+      "query": "Quick question: Move my morning routine to 20:45",
+      "capability": "capability_gap",
+      "reason": "missing_capability_boundary",
+      "response": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "I'll help you update your morning routine to 20:45. Could you clarify if you'd like me to:\n\n1. Find your existing event and modify the time, or\n2. Create a new event with that time?\n\nAlso, what day should this event be scheduled for?"
+          },
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  ],
+  "textReviewQueue": [
+    {
+      "id": "plan-ambiguous-1",
+      "query": "Move that to later",
+      "capability": "clarification",
+      "response": "I don't have any details about which event you're referring to or when it's currently scheduled. Could you please specify which event you'd like to move and to what time?"
+    },
+    {
+      "id": "plan-ambiguous-2",
+      "query": "Hi, Move that to later",
+      "capability": "clarification",
+      "response": "I can help you move that, but I need a bit more information:\n\n1. What would you like to move to later?\n2. What specific time or date do you have in mind?\n\nLet me know and I'll help you set that up!"
+    },
+    {
+      "id": "plan-ambiguous-3",
+      "query": "Please help with this: Move that to later",
+      "capability": "clarification",
+      "response": "I'd like to help you move something to a later time, but I need more details:\n\n1. What event or activity would you like to move?\n2. What time would you like to move it to?\n3. Is this for today or another date?\n\nCould you provide these details so I can help you update the calendar event?"
+    },
+    {
+      "id": "plan-ambiguous-4",
+      "query": "Move that to later Thanks.",
+      "capability": "clarification",
+      "response": "I need to find your calendar events to identify which one you'd like to move to a later time. Could you specify which event you're referring to, or tell me when it's scheduled?"
+    },
+    {
+      "id": "plan-ambiguous-5",
+      "query": "Quick question: Move that to later",
+      "capability": "clarification",
+      "response": "I can help you with that, but I need to know which event you're referring to and when you'd like to move it to. Could you provide:\n\n1. The name of the event you want to move\n2. The new date/time you'd like to move it to\n\nOr if you're referring to a recurring event, let me know the pattern you'd like to change."
+    },
+    {
+      "id": "plan-delete-1",
+      "query": "Delete all calendar events tomorrow",
+      "capability": "capability_gap",
+      "response": "I cannot delete calendar events. I can only create new event drafts for your review.\n\nIf you'd like, I can show you your current agenda or help you prepare a new event draft."
+    },
+    {
+      "id": "plan-delete-2",
+      "query": "Hi, Delete all calendar events tomorrow",
+      "capability": "capability_gap",
+      "response": "I can't delete calendar events. My tools allow me to view your agenda, prepare new event drafts, and save notes, but I don't have the ability to modify or delete existing calendar events.\n\nYou can manage your calendar events directly in the app. Would you like me to show your agenda for tomorrow instead?"
+    },
+    {
+      "id": "plan-delete-3",
+      "query": "Please help with this: Delete all calendar events tomorrow",
+      "capability": "capability_gap",
+      "response": "I understand you want to delete calendar events for tomorrow, but I don't have the capability to delete or modify calendar events. I can only view your upcoming schedule.\n\nWould you like me to:\n1. Show you what events are scheduled for tomorrow?\n2. Help you create a new calendar event?\n3. Do something else with your calendar?\n\nLet me know how I can assist!"
+    },
+    {
+      "id": "plan-delete-4",
+      "query": "Delete all calendar events tomorrow Thanks.",
+      "capability": "capability_gap",
+      "response": "I'm sorry, but I don't have the ability to delete calendar events. I can only show your agenda or help you prepare new event drafts. Would you like me to show you tomorrow's schedule?"
+    },
+    {
+      "id": "plan-delete-5",
+      "query": "Quick question: Delete all calendar events tmrw",
+      "capability": "capability_gap",
+      "response": "I cannot delete calendar events. I can only prepare event drafts for your review.\n\nIf you'd like, I can help you prepare a calendar event for tomorrow instead. Would you like to create a new event?"
+    },
+    {
+      "id": "plan-cancel-1",
+      "query": "Cancel Dentist tomorrow",
+      "capability": "capability_gap",
+      "response": "I'm not able to cancel or modify calendar events directly. I can only prepare new event drafts for your review.\n\nTo check your current schedule or manage your events, please open the **plan** page in the app."
+    },
+    {
+      "id": "plan-cancel-4",
+      "query": "Cancel Dinner tomorrow Thanks.",
+      "capability": "capability_gap",
+      "response": "I cannot cancel events or modify the calendar. Could you please provide the specific time of the event you'd like to cancel?"
+    },
+    {
+      "id": "plan-invite-1",
+      "query": "Invite Alex to Dentist",
+      "capability": "capability_gap",
+      "response": "I can't create calendar invitations or send invites directly. I can, however, help you prepare a calendar event for a dentist appointment.\n\nWould you like to add a calendar event for a dentist visit? If so, please let me know:\n- What date/time would you like?\n- Do you want to invite Alex specifically, or just note the appointment in your calendar?"
+    },
+    {
+      "id": "plan-invite-2",
+      "query": "Hi, Invite Alex to Team lunch",
+      "capability": "capability_gap",
+      "response": "I can't invite people to events or manage calendar invites directly. \n\nTo set up a Team lunch event, I can help you create a calendar draft. Could you provide:\n- What date is the lunch on?\n- What time does it start?\n- What's the title or description of the event?\n\nOnce you provide these details, I can prepare a calendar event for review."
+    },
+    {
+      "id": "plan-invite-3",
+      "query": "Please help with this: Invite Alex to Design review",
+      "capability": "capability_gap",
+      "response": "I can't create calendar events or send invitations directly. However, I can help you prepare a calendar event draft for \"Design review\" with Alex that you can review before saving.\n\nWould you like me to create a calendar event for the Design review? If so, please let me know:\n- What date?\n- What time?\n- Do you need it in a specific location?"
+    },
+    {
+      "id": "plan-arrival-1",
+      "query": "What local time does my flight land in Tokyo?",
+      "capability": "capability_gap",
+      "response": "I don't have access to your flight schedule or calendar events. You can view your upcoming events by checking your day plan."
+    },
+    {
+      "id": "plan-arrival-3",
+      "query": "Please help with this: What local time does my flight land in Tokyo?",
+      "capability": "capability_gap",
+      "response": "I don't have access to your flight schedule or calendar events. To see your upcoming flights, please check your calendar or agenda. Would you like me to open the plan page for you?"
+    },
+    {
+      "id": "plan-arrival-4",
+      "query": "What local time does my flight land in Tokyo? Thanks.",
+      "capability": "capability_gap",
+      "response": "I don't have access to your calendar or travel information. I can only see events that you've explicitly created in my system.\n\nCould you provide the date and time of your flight? I can help you prepare a calendar event for it if you'd like."
+    },
+    {
+      "id": "plan-timezone-1",
+      "query": "Change my calendar timezone to Europe/London",
+      "capability": "capability_gap",
+      "response": "I can't change your calendar timezone directly. You'll need to adjust your device settings or calendar app settings to Europe/London. Would you like me to open the settings page where you can make that change?"
+    },
+    {
+      "id": "plan-timezone-5",
+      "query": "Quick question: Change my calendar timezone to Europe/London",
+      "capability": "capability_gap",
+      "response": "I cannot change the device's timezone or calendar settings. I don't have the capability to modify system-level configuration. You'll need to adjust your timezone directly in your device settings or calendar app preferences.\n\nIf you'd like to see your current agenda or events regardless of the timezone, I can help with that."
+    },
+    {
+      "id": "nutrition-missing-food-1",
+      "query": "Log lunch, but I have not said what I ate",
+      "capability": "clarification",
+      "response": "I can't log a meal without knowing what you ate. Could you please tell me what you had for lunch?"
+    },
+    {
+      "id": "nutrition-missing-food-2",
+      "query": "Hi, Log lunch, but I have not said what I ate",
+      "capability": "clarification",
+      "response": "I'll help you log your lunch! Could you please tell me what you ate for lunch today?"
+    },
+    {
+      "id": "nutrition-missing-food-3",
+      "query": "Please help with this: Log lunch, but I have not said what I ate",
+      "capability": "clarification",
+      "response": "I can help you log your lunch, but I'll need to know what you ate. Could you please tell me:\n\n1. What foods you had for lunch?\n2. The amounts of each food (e.g., 1 cup of rice, 100g of chicken, etc.)\n\nOnce you provide this information, I can prepare a new meal entry for you to review."
+    },
+    {
+      "id": "nutrition-missing-food-4",
+      "query": "Log lunch, but I have not said what I ate Thanks.",
+      "capability": "clarification",
+      "response": "I'd be happy to help you log your lunch! However, I need to know what you ate to record it properly. Could you please tell me:\n\n1. What foods did you have for lunch?\n2. Approximately how much of each (e.g., 1/2 cup, 1 serving, etc.)?\n3. When was your lunch? (today, or a specific date?)\n\nOnce you provide these details, I can prepare a meal entry for your review."
+    },
+    {
+      "id": "nutrition-missing-food-5",
+      "query": "Quick question: Log lunch, but I have not said what I ate",
+      "capability": "clarification",
+      "response": "I can't log a meal without knowing what you ate. Could you tell me what foods you had for lunch?"
+    },
+    {
+      "id": "workouts-edit-2",
+      "query": "Hi, Change yesterday\u2019s run distance to 5km",
+      "capability": "capability_gap",
+      "response": "I cannot modify existing logged data. I can help you create a new event or note, but I cannot edit previous entries."
+    },
+    {
+      "id": "workouts-edit-3",
+      "query": "Please help with this: Change yesterday\u2019s run distance to 5km",
+      "capability": "capability_gap",
+      "response": "I don't have access to modify existing workout logs or edit past measurements. I can only view your current nutrition data, agenda, and notes.\n\nWould you like me to help you create a note about this change or prepare a new workout event for today?"
+    },
+    {
+      "id": "workouts-edit-4",
+      "query": "Change yesterday\u2019s run distance to 5km Thanks.",
+      "capability": "capability_gap",
+      "response": "I can't modify existing logged data. However, I can help you create a new meal or event draft for review. Would you like to do that instead?"
+    },
+    {
+      "id": "workouts-edit-5",
+      "query": "Quick question: Change yesterday\u2019s run distance to 5km",
+      "capability": "capability_gap",
+      "response": "I don't have the ability to modify or edit existing logged meals or workout data. I can only read nutrition charts and agenda information, or create new entries.\n\nYou can change that information directly in your nutrition or workouts module."
+    }
+  ]
+}

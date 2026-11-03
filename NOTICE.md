@@ -92,3 +92,17 @@ NVIDIA’s Parakeet model attribution is NVIDIA, parakeet-tdt-0.6b-v3,
 https://huggingface.co/nvidia/parakeet-tdt-0.6b-v3, licensed under
 https://creativecommons.org/licenses/by/4.0/. FluidAudio supplies the converted
 on-device model; the bundled app source does not relicense those model weights.
+
+## Local assistant runtime
+
+| Dependency | For | Licence |
+|---|---|---|
+| [Pi](https://github.com/earendil-works/pi) | durable agent engine, model provider API and task runtime | MIT |
+| [core-js](https://github.com/zloirock/core-js) | JavaScriptCore platform compatibility | MIT |
+| [Text Encoding](https://github.com/kayahr/text-encoding) | streaming text encoding and decoding | MIT |
+| [Abort Controller](https://github.com/mysticatea/abort-controller) | cancellation events | MIT |
+| [Event Target Shim](https://github.com/mysticatea/event-target-shim) | event dispatch | MIT |
+| [TypeBox](https://github.com/sinclairzx81/typebox) | tool schemas and validation | MIT |
+
+Exact bundled licence texts are included in `Banana/Pi/Resources/pi-notices.txt` and shown in
+Settings → Credits. The runtime manifest records the reviewed Pi commit and bundle hashes.

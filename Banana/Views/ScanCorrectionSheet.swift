@@ -75,7 +75,7 @@ struct ScanCorrectionSheet: View {
     var body: some View {
         NavigationStack {
             List { content }
-                .navigationTitle(targetName.map { "Scan for \($0)" } ?? "Scan a package")
+                .navigationTitle(targetName.map { "Scan for \($0)" } ?? "Scan package")
                 #if os(iOS)
                 .navigationBarTitleDisplayMode(.inline)
                 #else
@@ -200,19 +200,15 @@ struct ScanCorrectionSheet: View {
                         }
                     }
                 } label: {
-                    Label("Scan its barcode", systemImage: "barcode.viewfinder")
+                    WellnessTileLabel("Scan its barcode", systemImage: "barcode.viewfinder")
                 }
                 .accessibilityIdentifier("scan.barcode")
             }
             photoButtons(camera: "Photograph the Nutrition Facts", library: "Choose a photo of the package", for: .label)
-        } footer: {
-            Text("The barcode finds most packages. For one no database has, the label on the back has everything.")
         }
         #else
         Section {
             photoButtons(camera: nil, library: "Choose a photo of the package", for: .label)
-        } footer: {
-            Text("Its barcode or its Nutrition Facts.")
         }
         #endif
         // Correcting a meal: one you've had before is a tap. (Adding to the list: it's already there.)
@@ -238,13 +234,13 @@ struct ScanCorrectionSheet: View {
                     }
                 }
             } label: {
-                Label(camera, systemImage: "camera")
+                WellnessTileLabel(camera, systemImage: "camera.fill")
             }
             .accessibilityIdentifier(kind == .label ? "scan.labelPhoto" : "scan.frontPhoto")
         }
         #endif
         PhotosPicker(selection: Binding(get: { picked }, set: { capture = kind; picked = $0 }), matching: .images) {
-            Label(library, systemImage: "photo")
+            WellnessTileLabel(library, systemImage: "photo.fill")
         }
     }
 

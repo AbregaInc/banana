@@ -1,0 +1,4336 @@
+{
+  "complete": true,
+  "scope": "Development smoke corpus, not held-out or production accuracy. No capability executes. Prompt sections and schemas come from the real Banana extensions.",
+  "engine": "locals",
+  "runnerSha256": "feb5b07407dd209fa5d263126342a8d82b92b29a3a854b76ef5cb902563607e1",
+  "checkpoint": {
+    "repo": "mlx-community/MiniCPM5-2B-mlx-4Bit",
+    "revision": "86ad5182c5a8532a4681ab972011d34c3b89477a",
+    "files": {
+      "README.md": {
+        "bytes": 1251,
+        "sha256": "cf98b02b630215d7aa7e38f77a5f4d6cc48d3cccd762bbe16d967e0ced5075ba"
+      },
+      "chat_template.jinja": {
+        "bytes": 9060,
+        "sha256": "cc945752db555d60949b16989df4ccfeb52a313d6b4b5c5229dd786e2e9fcf1c"
+      },
+      "config.json": {
+        "bytes": 886,
+        "sha256": "deb9ca33e863cbc84a9ab7209cd924fc05505dc33270c807d47f1b78fbd53a50"
+      },
+      "generation_config.json": {
+        "bytes": 213,
+        "sha256": "9ac4f32e5f32358697a9f438a3ea89ef80e6ba786c72c49e932f9f21c122fdb1"
+      },
+      "model.safetensors": {
+        "bytes": 1416035480,
+        "sha256": "10162e41ac75b135f716a0bd01e04a3f030bae1f31e278acc9ec286a97f5609c"
+      },
+      "model.safetensors.index.json": {
+        "bytes": 68721,
+        "sha256": "ccf202e0a06fe3c7eb8f354cfb29412a5e64956ad895413d4d9267ae4b3a6045"
+      },
+      "tokenizer.json": {
+        "bytes": 9894271,
+        "sha256": "3e065a558a034185fe299917b398685c1facd0169a9eea1e629eb30c171fed81"
+      },
+      "tokenizer_config.json": {
+        "bytes": 406,
+        "sha256": "53ebae74bf014903b1ad5ec943749ee59b61e0756e80fc2b7ee09df3d84a2b42"
+      }
+    }
+  },
+  "fixtureSha256": "65a850d931dc9038e49f71c0b92d1b7a49421c7eeebd9ab6f0afa63fa863a2de",
+  "fixtureVersion": 1,
+  "recipeNote": "MiniCPM5 2B 4bit via curated Locals frontend/compute. Supported template enable_thinking=False for low-latency experiment; vendor sampling1.0/.95 with min_p neutral default0 and unspecified top_k disabled. Native XML tool parser, original checkpoint unchanged.",
+  "settings": {
+    "thinking": false,
+    "context": 32768,
+    "maxTokens": 2048,
+    "temperature": 1.0,
+    "topP": 0.95,
+    "topK": 0,
+    "repetitionPenalty": 1.0,
+    "templateToolsKey": "tools",
+    "slots": 1,
+    "cacheGB": 2,
+    "repeats": 2,
+    "memoryBudgetGB": 4.0,
+    "budgetMeaning": "Checkpoint preflight only; working memory is observed, not hard-limited by this option"
+  },
+  "hostBefore": {
+    "utc": "2026-10-25T18:01:00.642770+00:00",
+    "chip": "Apple M1 Max",
+    "ramBytes": "68719476736",
+    "os": "27.0.1",
+    "swap": "vm.swapusage: total = 23552.00M  used = 21936.75M  free = 1615.25M  (encrypted)",
+    "paging": {
+      "Pageouts": 384021,
+      "Swapins": 5059110,
+      "Swapouts": 9298822
+    }
+  },
+  "results": [
+    {
+      "case": "identity",
+      "repeat": 0,
+      "milliseconds": 9555.4,
+      "raw": {
+        "id": "chatcmpl-e6e56d6ddd984fd9abc936b4",
+        "object": "chat.completion",
+        "created": 1792951274,
+        "model": "locals/minicpm5-2b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "I'm Banana, a helpful personal assistant designed to handle tasks like nutrition tracking, meal planning, and productivity. How can I help you today?"
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2157,
+          "completion_tokens": 30,
+          "total_tokens": 2187,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 0,
+            "passes": 31,
+            "constrained": true,
+            "wall_s": 9.549604375031777
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/minicpm5-2b",
+        "uptime_s": 12.379493951797485,
+        "requests": 1,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 1587.382582,
+          "gpu_peak_mb": 2611.338004,
+          "gpu_cache_mb": 1071.284108,
+          "rss_mb": 2099.462144
+        },
+        "engines": {
+          "locals": {
+            "requests": 1,
+            "prompt_tokens": 2157,
+            "cached_tokens": 0,
+            "completion_tokens": 30,
+            "forced_tokens": 0,
+            "passes": 31,
+            "decode_s": 9.344990791985765,
+            "tool_calls": 0,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 30,
+            "steps": 32,
+            "rows": 32,
+            "prefill_s": 6.5575999999418855,
+            "prefill_tokens": 2156,
+            "admissions": 1,
+            "idle_s": 1.870985082932748,
+            "prompt_cache_mb": 94.101504,
+            "prompt_cache_entries": 1,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 1,
+                "mb": 94
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "greeting",
+      "repeat": 0,
+      "milliseconds": 7094.0,
+      "raw": {
+        "id": "chatcmpl-fe9a9aabca1a42908490bcc7",
+        "object": "chat.completion",
+        "created": 1792951281,
+        "model": "locals/minicpm5-2b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "Hello! How can I help you today?"
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2153,
+          "completion_tokens": 9,
+          "total_tokens": 2162,
+          "prompt_tokens_details": {
+            "cached_tokens": 2143
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 0,
+            "passes": 10,
+            "constrained": true,
+            "wall_s": 7.087663249927573
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/minicpm5-2b",
+        "uptime_s": 19.475446224212646,
+        "requests": 2,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 1687.267662,
+          "gpu_peak_mb": 2611.338004,
+          "gpu_cache_mb": 1073.739751,
+          "rss_mb": 2099.462144
+        },
+        "engines": {
+          "locals": {
+            "requests": 2,
+            "prompt_tokens": 4310,
+            "cached_tokens": 2143,
+            "completion_tokens": 39,
+            "forced_tokens": 0,
+            "passes": 41,
+            "decode_s": 16.22397941700183,
+            "tool_calls": 0,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 39,
+            "steps": 43,
+            "rows": 43,
+            "prefill_s": 6.8109459589468315,
+            "prefill_tokens": 2165,
+            "admissions": 2,
+            "idle_s": 8.3973317919299,
+            "prompt_cache_mb": 187.127808,
+            "prompt_cache_entries": 2,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 2,
+                "mb": 187
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "monthly",
+      "repeat": 0,
+      "milliseconds": 8611.6,
+      "raw": {
+        "id": "chatcmpl-8f1f7cdc3b504e2792d6719d",
+        "object": "chat.completion",
+        "created": 1792951290,
+        "model": "locals/minicpm5-2b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_c2349a32f864456f80a07e66",
+                  "type": "function",
+                  "function": {
+                    "name": "nutrition_view",
+                    "arguments": "{}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2157,
+          "completion_tokens": 9,
+          "total_tokens": 2166,
+          "prompt_tokens_details": {
+            "cached_tokens": 2143
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 3,
+            "passes": 6,
+            "constrained": true,
+            "wall_s": 8.60566987504717
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/minicpm5-2b",
+        "uptime_s": 28.088874101638794,
+        "requests": 3,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 1787.14455,
+          "gpu_peak_mb": 2611.338004,
+          "gpu_cache_mb": 1064.799714,
+          "rss_mb": 2099.462144
+        },
+        "engines": {
+          "locals": {
+            "requests": 3,
+            "prompt_tokens": 6467,
+            "cached_tokens": 4286,
+            "completion_tokens": 48,
+            "forced_tokens": 3,
+            "passes": 47,
+            "decode_s": 24.58448220801074,
+            "tool_calls": 1,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 48,
+            "steps": 51,
+            "rows": 51,
+            "prefill_s": 6.946954626007937,
+            "prefill_tokens": 2178,
+            "admissions": 3,
+            "idle_s": 16.697361458907835,
+            "prompt_cache_mb": 280.19712,
+            "prompt_cache_entries": 3,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 3,
+                "mb": 280
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "calories",
+      "repeat": 0,
+      "milliseconds": 9941.3,
+      "raw": {
+        "id": "chatcmpl-19db103f121247f28c039c8c",
+        "object": "chat.completion",
+        "created": 1792951299,
+        "model": "locals/minicpm5-2b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_a22412d6cd0c4e4b91fe5770",
+                  "type": "function",
+                  "function": {
+                    "name": "nutrition_view",
+                    "arguments": "{\"metric\": \"calories\", \"period\": \"last_7_days\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2159,
+          "completion_tokens": 26,
+          "total_tokens": 2185,
+          "prompt_tokens_details": {
+            "cached_tokens": 2144
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 3,
+            "passes": 23,
+            "constrained": true,
+            "wall_s": 9.935541333048604
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/minicpm5-2b",
+        "uptime_s": 38.03370499610901,
+        "requests": 4,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 1887.05421,
+          "gpu_peak_mb": 2611.338004,
+          "gpu_cache_mb": 1071.646547,
+          "rss_mb": 2099.462144
+        },
+        "engines": {
+          "locals": {
+            "requests": 4,
+            "prompt_tokens": 8626,
+            "cached_tokens": 6430,
+            "completion_tokens": 74,
+            "forced_tokens": 6,
+            "passes": 70,
+            "decode_s": 34.28968516609166,
+            "tool_calls": 2,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 74,
+            "steps": 78,
+            "rows": 78,
+            "prefill_s": 7.176397458999418,
+            "prefill_tokens": 2192,
+            "admissions": 4,
+            "idle_s": 25.47013920894824,
+            "prompt_cache_mb": 374.1696,
+            "prompt_cache_entries": 4,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 4,
+                "mb": 374
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "food-search",
+      "repeat": 0,
+      "milliseconds": 15094.3,
+      "raw": {
+        "id": "chatcmpl-ede52d46070944f2ad296787",
+        "object": "chat.completion",
+        "created": 1792951315,
+        "model": "locals/minicpm5-2b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_60fc4391645d44e6949b10b3",
+                  "type": "function",
+                  "function": {
+                    "name": "nutrition_view",
+                    "arguments": "{\"foodName\": \"yogurt\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2267,
+          "completion_tokens": 20,
+          "total_tokens": 2287,
+          "prompt_tokens_details": {
+            "cached_tokens": 169
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 5,
+            "passes": 15,
+            "constrained": true,
+            "wall_s": 15.077753917081282
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/minicpm5-2b",
+        "uptime_s": 53.132795095443726,
+        "requests": 5,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 1982.327194,
+          "gpu_peak_mb": 2910.3748,
+          "gpu_cache_mb": 1069.826081,
+          "rss_mb": 2099.462144
+        },
+        "engines": {
+          "locals": {
+            "requests": 5,
+            "prompt_tokens": 10893,
+            "cached_tokens": 6599,
+            "completion_tokens": 94,
+            "forced_tokens": 11,
+            "passes": 85,
+            "decode_s": 49.12624745804351,
+            "tool_calls": 3,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 94,
+            "steps": 97,
+            "rows": 97,
+            "prefill_s": 14.255420250934549,
+            "prefill_tokens": 4289,
+            "admissions": 5,
+            "idle_s": 32.916744375019334,
+            "prompt_cache_mb": 472.44288,
+            "prompt_cache_entries": 5,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 5,
+                "mb": 472
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "weekdays",
+      "repeat": 0,
+      "milliseconds": 2482.1,
+      "raw": {
+        "id": "chatcmpl-f3d026018c404760a49f2dca",
+        "object": "chat.completion",
+        "created": 1792951317,
+        "model": "locals/minicpm5-2b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_bc404958371b484cbd001fde",
+                  "type": "function",
+                  "function": {
+                    "name": "filter_nutrition",
+                    "arguments": "{\"changes\": [\"weekdays_only\"]}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2263,
+          "completion_tokens": 20,
+          "total_tokens": 2283,
+          "prompt_tokens_details": {
+            "cached_tokens": 2252
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 4,
+            "passes": 16,
+            "constrained": true,
+            "wall_s": 2.4776778750820085
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/minicpm5-2b",
+        "uptime_s": 55.616549015045166,
+        "requests": 6,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 2092.297142,
+          "gpu_peak_mb": 2910.3748,
+          "gpu_cache_mb": 1062.543079,
+          "rss_mb": 2099.462144
+        },
+        "engines": {
+          "locals": {
+            "requests": 6,
+            "prompt_tokens": 13156,
+            "cached_tokens": 8851,
+            "completion_tokens": 114,
+            "forced_tokens": 15,
+            "passes": 101,
+            "decode_s": 51.35450266697444,
+            "tool_calls": 4,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 114,
+            "steps": 116,
+            "rows": 116,
+            "prefill_s": 14.367710500955582,
+            "prefill_tokens": 4299,
+            "admissions": 6,
+            "idle_s": 34.98009087506216,
+            "solo_steps": 1,
+            "prompt_cache_mb": 570.630144,
+            "prompt_cache_entries": 6,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 6,
+                "mb": 571
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "compare",
+      "repeat": 0,
+      "milliseconds": 8939.9,
+      "raw": {
+        "id": "chatcmpl-ac536fc4bcc545e3add979d9",
+        "object": "chat.completion",
+        "created": 1792951326,
+        "model": "locals/minicpm5-2b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_d2517a0623604d728a50d80d",
+                  "type": "function",
+                  "function": {
+                    "name": "filter_nutrition",
+                    "arguments": "{\"changes\": [\"compare_previous\"]}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2266,
+          "completion_tokens": 23,
+          "total_tokens": 2289,
+          "prompt_tokens_details": {
+            "cached_tokens": 2252
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 7,
+            "passes": 16,
+            "constrained": true,
+            "wall_s": 8.934403083054349
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/minicpm5-2b",
+        "uptime_s": 64.55923104286194,
+        "requests": 7,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 2180.475338,
+          "gpu_peak_mb": 2910.3748,
+          "gpu_cache_mb": 1073.493232,
+          "rss_mb": 2099.462144
+        },
+        "engines": {
+          "locals": {
+            "requests": 7,
+            "prompt_tokens": 15422,
+            "cached_tokens": 11103,
+            "completion_tokens": 137,
+            "forced_tokens": 22,
+            "passes": 117,
+            "decode_s": 60.044646583963186,
+            "tool_calls": 5,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 137,
+            "steps": 136,
+            "rows": 136,
+            "prefill_s": 14.528392541920766,
+            "prefill_tokens": 4312,
+            "admissions": 7,
+            "idle_s": 43.317508791107684,
+            "solo_steps": 2,
+            "prompt_cache_mb": 668.98944,
+            "prompt_cache_entries": 7,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 7,
+                "mb": 669
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "copy",
+      "repeat": 0,
+      "milliseconds": 3504.3,
+      "raw": {
+        "id": "chatcmpl-561821ffcb5d45adb9fd8e92",
+        "object": "chat.completion",
+        "created": 1792951330,
+        "model": "locals/minicpm5-2b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_ace68657909e47c8a37b0227",
+                  "type": "function",
+                  "function": {
+                    "name": "nutrition_view",
+                    "arguments": "{\"foodName\": \"Greek yogurt\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2276,
+          "completion_tokens": 19,
+          "total_tokens": 2295,
+          "prompt_tokens_details": {
+            "cached_tokens": 2252
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 5,
+            "passes": 14,
+            "constrained": true,
+            "wall_s": 3.491692333947867
+          }
+        }
+      },
+      "passed": false,
+      "reason": "wrong_tool",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/minicpm5-2b",
+        "uptime_s": 68.06793308258057,
+        "requests": 8,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 2284.972538,
+          "gpu_peak_mb": 2910.3748,
+          "gpu_cache_mb": 1072.307416,
+          "rss_mb": 2099.462144
+        },
+        "engines": {
+          "locals": {
+            "requests": 8,
+            "prompt_tokens": 17698,
+            "cached_tokens": 13355,
+            "completion_tokens": 156,
+            "forced_tokens": 27,
+            "passes": 131,
+            "decode_s": 63.284363126032986,
+            "tool_calls": 6,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 156,
+            "steps": 154,
+            "rows": 154,
+            "prefill_s": 14.63138329202775,
+            "prefill_tokens": 4335,
+            "admissions": 8,
+            "idle_s": 46.500940083060414,
+            "solo_steps": 2,
+            "prompt_cache_mb": 767.606784,
+            "prompt_cache_entries": 8,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 8,
+                "mb": 768
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "new-meal",
+      "repeat": 0,
+      "milliseconds": 5966.6,
+      "raw": {
+        "id": "chatcmpl-fedb70e322df4337a39b6f24",
+        "object": "chat.completion",
+        "created": 1792951335,
+        "model": "locals/minicpm5-2b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_a61cb2b29422425a8e5f2d8f",
+                  "type": "function",
+                  "function": {
+                    "name": "prepare_meal",
+                    "arguments": "{\"day\": \"today\", \"foods\": \"[{'name': 'eggs', 'quantity': '2'}, {'name': 'banana', 'quantity': '1'}]\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2174,
+          "completion_tokens": 48,
+          "total_tokens": 2222,
+          "prompt_tokens_details": {
+            "cached_tokens": 2143
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 2,
+            "passes": 46,
+            "constrained": true,
+            "wall_s": 5.9556318749673665
+          }
+        }
+      },
+      "passed": false,
+      "reason": "schema",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/minicpm5-2b",
+        "uptime_s": 74.03910112380981,
+        "requests": 9,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 2378.689042,
+          "gpu_peak_mb": 2910.3748,
+          "gpu_cache_mb": 1072.094359,
+          "rss_mb": 2099.462144
+        },
+        "engines": {
+          "locals": {
+            "requests": 9,
+            "prompt_tokens": 19872,
+            "cached_tokens": 15498,
+            "completion_tokens": 204,
+            "forced_tokens": 29,
+            "passes": 177,
+            "decode_s": 69.0104567509843,
+            "tool_calls": 7,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 204,
+            "steps": 203,
+            "rows": 203,
+            "prefill_s": 14.921702667023055,
+            "prefill_tokens": 4365,
+            "admissions": 9,
+            "idle_s": 50.80015420797281,
+            "solo_steps": 2,
+            "prompt_cache_mb": 863.17056,
+            "prompt_cache_entries": 9,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 9,
+                "mb": 863
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "new-event",
+      "repeat": 0,
+      "milliseconds": 2674.2,
+      "raw": {
+        "id": "chatcmpl-2dca5ccb85a341a3a2972def",
+        "object": "chat.completion",
+        "created": 1792951338,
+        "model": "locals/minicpm5-2b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_656f5b921fab487798087822",
+                  "type": "function",
+                  "function": {
+                    "name": "prepare_event",
+                    "arguments": "{\"title\": \"Lunch\", \"time\": \"13:00\", \"day\": \"tomorrow\", \"durationMinutes\": 30}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2175,
+          "completion_tokens": 53,
+          "total_tokens": 2228,
+          "prompt_tokens_details": {
+            "cached_tokens": 2143
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 14,
+            "passes": 39,
+            "constrained": true,
+            "wall_s": 2.667232666979544
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/minicpm5-2b",
+        "uptime_s": 76.71641826629639,
+        "requests": 10,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 2483.939882,
+          "gpu_peak_mb": 2910.3748,
+          "gpu_cache_mb": 1070.288909,
+          "rss_mb": 2099.462144
+        },
+        "engines": {
+          "locals": {
+            "requests": 10,
+            "prompt_tokens": 22047,
+            "cached_tokens": 17641,
+            "completion_tokens": 257,
+            "forced_tokens": 43,
+            "passes": 216,
+            "decode_s": 71.43442575109657,
+            "tool_calls": 8,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 257,
+            "steps": 255,
+            "rows": 255,
+            "prefill_s": 15.052965458948165,
+            "prefill_tokens": 4396,
+            "admissions": 10,
+            "idle_s": 52.39150983293075,
+            "solo_steps": 2,
+            "prompt_cache_mb": 958.906368,
+            "prompt_cache_entries": 10,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 10,
+                "mb": 959
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "explicit-event",
+      "repeat": 0,
+      "milliseconds": 8310.4,
+      "raw": {
+        "id": "chatcmpl-eaebc411f80c460aabe8c2aa",
+        "object": "chat.completion",
+        "created": 1792951346,
+        "model": "locals/minicpm5-2b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_42262048f80c4760b4be4e9d",
+                  "type": "function",
+                  "function": {
+                    "name": "prepare_event",
+                    "arguments": "{\"title\": \"Dentist\", \"day\": \"2026-11-03\", \"time\": \"09:15\", \"durationMinutes\": 45, \"isAllDay\": false}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2175,
+          "completion_tokens": 65,
+          "total_tokens": 2240,
+          "prompt_tokens_details": {
+            "cached_tokens": 2143
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 12,
+            "passes": 53,
+            "constrained": true,
+            "wall_s": 8.30393275001552
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/minicpm5-2b",
+        "uptime_s": 85.03054118156433,
+        "requests": 11,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 2576.869954,
+          "gpu_peak_mb": 2910.3748,
+          "gpu_cache_mb": 1065.766935,
+          "rss_mb": 2099.462144
+        },
+        "engines": {
+          "locals": {
+            "requests": 11,
+            "prompt_tokens": 24222,
+            "cached_tokens": 19784,
+            "completion_tokens": 322,
+            "forced_tokens": 55,
+            "passes": 269,
+            "decode_s": 79.49799295910634,
+            "tool_calls": 9,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 322,
+            "steps": 319,
+            "rows": 319,
+            "prefill_s": 15.568816833896562,
+            "prefill_tokens": 4427,
+            "admissions": 11,
+            "idle_s": 57.92925474885851,
+            "solo_steps": 2,
+            "prompt_cache_mb": 1055.158272,
+            "prompt_cache_entries": 11,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 11,
+                "mb": 1055
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "missing-time",
+      "repeat": 0,
+      "milliseconds": 2552.9,
+      "raw": {
+        "id": "chatcmpl-f9c1923f7b994696bb83722c",
+        "object": "chat.completion",
+        "created": 1792951349,
+        "model": "locals/minicpm5-2b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "I can help create a calendar event, but I need a start time. Would you like me to ask for a time, or would you like to provide one?"
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2165,
+          "completion_tokens": 33,
+          "total_tokens": 2198,
+          "prompt_tokens_details": {
+            "cached_tokens": 2147
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 0,
+            "passes": 34,
+            "constrained": true,
+            "wall_s": 2.542654166929424
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/minicpm5-2b",
+        "uptime_s": 87.58833503723145,
+        "requests": 12,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 2682.90721,
+          "gpu_peak_mb": 2910.3748,
+          "gpu_cache_mb": 1070.501265,
+          "rss_mb": 2099.462144
+        },
+        "engines": {
+          "locals": {
+            "requests": 12,
+            "prompt_tokens": 26387,
+            "cached_tokens": 21931,
+            "completion_tokens": 355,
+            "forced_tokens": 55,
+            "passes": 303,
+            "decode_s": 81.80249270913191,
+            "tool_calls": 9,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 355,
+            "steps": 354,
+            "rows": 354,
+            "prefill_s": 15.671321208938025,
+            "prefill_tokens": 4444,
+            "admissions": 12,
+            "idle_s": 59.938500581891276,
+            "solo_steps": 2,
+            "prompt_cache_mb": 1149.732864,
+            "prompt_cache_entries": 12,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 12,
+                "mb": 1150
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "missing-food",
+      "repeat": 0,
+      "milliseconds": 7439.5,
+      "raw": {
+        "id": "chatcmpl-d7e2a802026b4fb1a487e2aa",
+        "object": "chat.completion",
+        "created": 1792951356,
+        "model": "locals/minicpm5-2b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "I need to know what you ate. Could you tell me the food names and quantities you consumed? If you're not sure, I can help search for food options."
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2165,
+          "completion_tokens": 34,
+          "total_tokens": 2199,
+          "prompt_tokens_details": {
+            "cached_tokens": 2145
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 0,
+            "passes": 35,
+            "constrained": true,
+            "wall_s": 7.43218470888678
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/minicpm5-2b",
+        "uptime_s": 95.03141403198242,
+        "requests": 13,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 2775.607902,
+          "gpu_peak_mb": 2919.726536,
+          "gpu_cache_mb": 1060.724631,
+          "rss_mb": 2099.462144
+        },
+        "engines": {
+          "locals": {
+            "requests": 13,
+            "prompt_tokens": 28552,
+            "cached_tokens": 24076,
+            "completion_tokens": 389,
+            "forced_tokens": 55,
+            "passes": 338,
+            "decode_s": 89.0126069590915,
+            "tool_calls": 9,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 389,
+            "steps": 390,
+            "rows": 390,
+            "prefill_s": 16.158059416920878,
+            "prefill_tokens": 4463,
+            "admissions": 13,
+            "idle_s": 65.85839453991503,
+            "solo_steps": 2,
+            "prompt_cache_mb": 1244.350464,
+            "prompt_cache_entries": 13,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 13,
+                "mb": 1244
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "global-search",
+      "repeat": 0,
+      "milliseconds": 2958.7,
+      "raw": {
+        "id": "chatcmpl-0c24f9adb83b43a392e591fa",
+        "object": "chat.completion",
+        "created": 1792951359,
+        "model": "locals/minicpm5-2b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_419e5e6c9d5f4128b5e3d771",
+                  "type": "function",
+                  "function": {
+                    "name": "search_app",
+                    "arguments": "{\"query\": \"clinic\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2158,
+          "completion_tokens": 16,
+          "total_tokens": 2174,
+          "prompt_tokens_details": {
+            "cached_tokens": 2143
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 3,
+            "passes": 13,
+            "constrained": true,
+            "wall_s": 2.9499386659590527
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/minicpm5-2b",
+        "uptime_s": 97.99461507797241,
+        "requests": 14,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 2874.23961,
+          "gpu_peak_mb": 2949.21366,
+          "gpu_cache_mb": 1067.480861,
+          "rss_mb": 2099.462144
+        },
+        "engines": {
+          "locals": {
+            "requests": 14,
+            "prompt_tokens": 30710,
+            "cached_tokens": 26219,
+            "completion_tokens": 405,
+            "forced_tokens": 58,
+            "passes": 351,
+            "decode_s": 91.71173920913134,
+            "tool_calls": 10,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 405,
+            "steps": 407,
+            "rows": 407,
+            "prefill_s": 16.259293750976212,
+            "prefill_tokens": 4477,
+            "admissions": 14,
+            "idle_s": 68.47361349791754,
+            "solo_steps": 2,
+            "prompt_cache_mb": 1337.849856,
+            "prompt_cache_entries": 14,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 14,
+                "mb": 1338
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "open-page",
+      "repeat": 0,
+      "milliseconds": 2982.6,
+      "raw": {
+        "id": "chatcmpl-236bead4e57c46e4b261510d",
+        "object": "chat.completion",
+        "created": 1792951362,
+        "model": "locals/minicpm5-2b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_134806e0b9844771879ffddf",
+                  "type": "function",
+                  "function": {
+                    "name": "open_page",
+                    "arguments": "{\"section\": \"notes\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2156,
+          "completion_tokens": 17,
+          "total_tokens": 2173,
+          "prompt_tokens_details": {
+            "cached_tokens": 2143
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 5,
+            "passes": 12,
+            "constrained": true,
+            "wall_s": 2.9767296669306234
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/minicpm5-2b",
+        "uptime_s": 100.98044919967651,
+        "requests": 15,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 2973.264538,
+          "gpu_peak_mb": 3036.753386,
+          "gpu_cache_mb": 1068.129553,
+          "rss_mb": 2099.462144
+        },
+        "engines": {
+          "locals": {
+            "requests": 15,
+            "prompt_tokens": 32866,
+            "cached_tokens": 28362,
+            "completion_tokens": 422,
+            "forced_tokens": 63,
+            "passes": 363,
+            "decode_s": 94.43587816820946,
+            "tool_calls": 11,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 422,
+            "steps": 423,
+            "rows": 423,
+            "prefill_s": 16.348442876012996,
+            "prefill_tokens": 4489,
+            "admissions": 15,
+            "idle_s": 71.19168433197774,
+            "solo_steps": 2,
+            "prompt_cache_mb": 1431.220224,
+            "prompt_cache_entries": 15,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 15,
+                "mb": 1431
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "notes",
+      "repeat": 0,
+      "milliseconds": 3144.8,
+      "raw": {
+        "id": "chatcmpl-59e03b3609f84452b9a0e6ca",
+        "object": "chat.completion",
+        "created": 1792951366,
+        "model": "locals/minicpm5-2b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_9885bce4c6cf4db1817640e3",
+                  "type": "function",
+                  "function": {
+                    "name": "list_notes",
+                    "arguments": "{\"limit\": 20}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2156,
+          "completion_tokens": 15,
+          "total_tokens": 2171,
+          "prompt_tokens_details": {
+            "cached_tokens": 2145
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 3,
+            "passes": 12,
+            "constrained": true,
+            "wall_s": 3.1389544169651344
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/minicpm5-2b",
+        "uptime_s": 104.12838816642761,
+        "requests": 16,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3080.05549,
+          "gpu_peak_mb": 3129.335298,
+          "gpu_cache_mb": 1063.238933,
+          "rss_mb": 2099.462144
+        },
+        "engines": {
+          "locals": {
+            "requests": 16,
+            "prompt_tokens": 35022,
+            "cached_tokens": 30507,
+            "completion_tokens": 437,
+            "forced_tokens": 66,
+            "passes": 375,
+            "decode_s": 97.32153054326773,
+            "tool_calls": 12,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 437,
+            "steps": 439,
+            "rows": 439,
+            "prefill_s": 16.426130543113686,
+            "prefill_tokens": 4499,
+            "admissions": 16,
+            "idle_s": 74.10115203994792,
+            "solo_steps": 2,
+            "prompt_cache_mb": 1524.590592,
+            "prompt_cache_entries": 16,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 16,
+                "mb": 1525
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "create-note",
+      "repeat": 0,
+      "milliseconds": 5851.0,
+      "raw": {
+        "id": "chatcmpl-5f141ee567fc4fcea1aa00fe",
+        "object": "chat.completion",
+        "created": 1792951371,
+        "model": "locals/minicpm5-2b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_a64b50966d1e4abd91107d59",
+                  "type": "function",
+                  "function": {
+                    "name": "create_note",
+                    "arguments": "{\"text\": \"Bring the blue notebook\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2164,
+          "completion_tokens": 20,
+          "total_tokens": 2184,
+          "prompt_tokens_details": {
+            "cached_tokens": 2144
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 5,
+            "passes": 15,
+            "constrained": true,
+            "wall_s": 5.845399957965128
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/minicpm5-2b",
+        "uptime_s": 109.98244404792786,
+        "requests": 17,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3172.03529,
+          "gpu_peak_mb": 3316.301312,
+          "gpu_cache_mb": 1058.762073,
+          "rss_mb": 2099.462144
+        },
+        "engines": {
+          "locals": {
+            "requests": 17,
+            "prompt_tokens": 37186,
+            "cached_tokens": 32651,
+            "completion_tokens": 457,
+            "forced_tokens": 71,
+            "passes": 390,
+            "decode_s": 102.92607583524659,
+            "tool_calls": 13,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 457,
+            "steps": 458,
+            "rows": 458,
+            "prefill_s": 16.90371562715154,
+            "prefill_tokens": 4518,
+            "admissions": 17,
+            "idle_s": 78.87207920697983,
+            "solo_steps": 2,
+            "prompt_cache_mb": 1618.434048,
+            "prompt_cache_entries": 17,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 17,
+                "mb": 1618
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "plan",
+      "repeat": 0,
+      "milliseconds": 1776.0,
+      "raw": {
+        "id": "chatcmpl-fd35687242f047ecabf11891",
+        "object": "chat.completion",
+        "created": 1792951373,
+        "model": "locals/minicpm5-2b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_c0f2fe6737ce4c2885ad2a10",
+                  "type": "function",
+                  "function": {
+                    "name": "day_plan",
+                    "arguments": "{\"date\": \"2026-10-25\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2159,
+          "completion_tokens": 23,
+          "total_tokens": 2182,
+          "prompt_tokens_details": {
+            "cached_tokens": 2145
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 6,
+            "passes": 17,
+            "constrained": true,
+            "wall_s": 1.7714913339586928
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/minicpm5-2b",
+        "uptime_s": 111.7613799571991,
+        "requests": 18,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3270.601466,
+          "gpu_peak_mb": 3352.284724,
+          "gpu_cache_mb": 1064.602929,
+          "rss_mb": 2099.462144
+        },
+        "engines": {
+          "locals": {
+            "requests": 18,
+            "prompt_tokens": 39345,
+            "cached_tokens": 34796,
+            "completion_tokens": 480,
+            "forced_tokens": 77,
+            "passes": 407,
+            "decode_s": 104.44735383521765,
+            "tool_calls": 14,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 480,
+            "steps": 480,
+            "rows": 480,
+            "prefill_s": 17.013985918136314,
+            "prefill_tokens": 4531,
+            "admissions": 18,
+            "idle_s": 80.22222954093013,
+            "solo_steps": 2,
+            "prompt_cache_mb": 1712.191488,
+            "prompt_cache_entries": 18,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 18,
+                "mb": 1712
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "unsupported",
+      "repeat": 0,
+      "milliseconds": 2523.1,
+      "raw": {
+        "id": "chatcmpl-2541b4ebe1114468ad7666da",
+        "object": "chat.completion",
+        "created": 1792951376,
+        "model": "locals/minicpm5-2b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "I don't have a function to delete meals from your history, and I can't perform actions outside of what's available through the tools provided. Is there something else I can help you with?"
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2158,
+          "completion_tokens": 39,
+          "total_tokens": 2197,
+          "prompt_tokens_details": {
+            "cached_tokens": 2143
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 0,
+            "passes": 40,
+            "constrained": true,
+            "wall_s": 2.514991750009358
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/minicpm5-2b",
+        "uptime_s": 114.28987097740173,
+        "requests": 19,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3369.675538,
+          "gpu_peak_mb": 3445.075556,
+          "gpu_cache_mb": 1072.733447,
+          "rss_mb": 2099.462144
+        },
+        "engines": {
+          "locals": {
+            "requests": 19,
+            "prompt_tokens": 41503,
+            "cached_tokens": 36939,
+            "completion_tokens": 519,
+            "forced_tokens": 77,
+            "passes": 447,
+            "decode_s": 106.723858002224,
+            "tool_calls": 14,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 519,
+            "steps": 521,
+            "rows": 521,
+            "prefill_s": 17.121461834060028,
+            "prefill_tokens": 4545,
+            "admissions": 19,
+            "idle_s": 82.07880083285272,
+            "solo_steps": 2,
+            "prompt_cache_mb": 1806.723072,
+            "prompt_cache_entries": 19,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 19,
+                "mb": 1807
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "explanation",
+      "repeat": 0,
+      "milliseconds": 4753.2,
+      "raw": {
+        "id": "chatcmpl-568db08a593949df8359c46a",
+        "object": "chat.completion",
+        "created": 1792951380,
+        "model": "locals/minicpm5-2b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "Protein is a macronutrient found in foods like meat, fish, eggs, legumes, and dairy. It's important for building and repairing tissues, supporting enzyme and hormone function, and maintaining muscle mass. Rather than relying on specific numbers, focusing on protein in terms of how your body uses it can help with nutrition awareness."
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2166,
+          "completion_tokens": 65,
+          "total_tokens": 2231,
+          "prompt_tokens_details": {
+            "cached_tokens": 2143
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 0,
+            "passes": 66,
+            "constrained": true,
+            "wall_s": 4.729518082924187
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/minicpm5-2b",
+        "uptime_s": 119.05330514907837,
+        "requests": 20,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3477.203754,
+          "gpu_peak_mb": 3636.461148,
+          "gpu_cache_mb": 1079.043881,
+          "rss_mb": 2099.462144
+        },
+        "engines": {
+          "locals": {
+            "requests": 20,
+            "prompt_tokens": 43669,
+            "cached_tokens": 39082,
+            "completion_tokens": 584,
+            "forced_tokens": 77,
+            "passes": 513,
+            "decode_s": 111.22237946023233,
+            "tool_calls": 14,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 584,
+            "steps": 588,
+            "rows": 588,
+            "prefill_s": 17.22420579206664,
+            "prefill_tokens": 4567,
+            "admissions": 20,
+            "idle_s": 84.65352516586427,
+            "solo_steps": 2,
+            "prompt_cache_mb": 1902.716928,
+            "prompt_cache_entries": 20,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 20,
+                "mb": 1903
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "ambiguous",
+      "repeat": 0,
+      "milliseconds": 6684.2,
+      "raw": {
+        "id": "chatcmpl-0d2819a80491457982fe5b85",
+        "object": "chat.completion",
+        "created": 1792951387,
+        "model": "locals/minicpm5-2b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "I don't have details on what \"the other thing\" refers to, but I'm happy to help with whatever you'd like done. Could you clarify what you'd like me to assist with?"
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2156,
+          "completion_tokens": 40,
+          "total_tokens": 2196,
+          "prompt_tokens_details": {
+            "cached_tokens": 2143
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 0,
+            "passes": 41,
+            "constrained": true,
+            "wall_s": 6.654633083031513
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/minicpm5-2b",
+        "uptime_s": 125.77177810668945,
+        "requests": 21,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3568.479042,
+          "gpu_peak_mb": 3653.544746,
+          "gpu_cache_mb": 1069.792603,
+          "rss_mb": 2099.462144
+        },
+        "engines": {
+          "locals": {
+            "requests": 21,
+            "prompt_tokens": 45825,
+            "cached_tokens": 41225,
+            "completion_tokens": 624,
+            "forced_tokens": 77,
+            "passes": 554,
+            "decode_s": 117.65208087617066,
+            "tool_calls": 14,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 624,
+            "steps": 630,
+            "rows": 630,
+            "prefill_s": 17.48837833304424,
+            "prefill_tokens": 4579,
+            "admissions": 21,
+            "idle_s": 90.03489233285654,
+            "solo_steps": 2,
+            "prompt_cache_mb": 1997.205504,
+            "prompt_cache_entries": 21,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 21,
+                "mb": 1997
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "not-a-write",
+      "repeat": 0,
+      "milliseconds": 3341.8,
+      "raw": {
+        "id": "chatcmpl-fbcd7c63dd6b451e8a80b0ae",
+        "object": "chat.completion",
+        "created": 1792951391,
+        "model": "locals/minicpm5-2b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "Understood \u2014 I won't log or save anything. If you ever need to check what's already logged (like ingredients, amounts, or dates) using the nutrition or review tools, just let me know and I can pull that data for you."
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2170,
+          "completion_tokens": 50,
+          "total_tokens": 2220,
+          "prompt_tokens_details": {
+            "cached_tokens": 2143
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 0,
+            "passes": 51,
+            "constrained": true,
+            "wall_s": 3.334819042007439
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/minicpm5-2b",
+        "uptime_s": 129.11969208717346,
+        "requests": 22,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3666.996066,
+          "gpu_peak_mb": 3866.553,
+          "gpu_cache_mb": 1071.447455,
+          "rss_mb": 2099.462144
+        },
+        "engines": {
+          "locals": {
+            "requests": 22,
+            "prompt_tokens": 47995,
+            "cached_tokens": 43368,
+            "completion_tokens": 674,
+            "forced_tokens": 77,
+            "passes": 605,
+            "decode_s": 120.8075266261585,
+            "tool_calls": 14,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 674,
+            "steps": 682,
+            "rows": 682,
+            "prefill_s": 17.635639667045325,
+            "prefill_tokens": 4605,
+            "admissions": 22,
+            "idle_s": 91.40442495793104,
+            "solo_steps": 2,
+            "prompt_cache_mb": 2092.726272,
+            "prompt_cache_entries": 22,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 22,
+                "mb": 2093
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "identity",
+      "repeat": 1,
+      "milliseconds": 2770.4,
+      "raw": {
+        "id": "chatcmpl-14c9095bbf5440d5b66452da",
+        "object": "chat.completion",
+        "created": 1792951393,
+        "model": "locals/minicpm5-2b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "You are **Banana**, a helpful personal assistant running on this device. You can ask me to help with your Banana notes, day plan, schedule, or nutrition data. Just let me know what you need!"
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2157,
+          "completion_tokens": 44,
+          "total_tokens": 2201,
+          "prompt_tokens_details": {
+            "cached_tokens": 2155
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 0,
+            "passes": 45,
+            "constrained": true,
+            "wall_s": 2.75750683399383
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/minicpm5-2b",
+        "uptime_s": 131.89757704734802,
+        "requests": 23,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3666.930554,
+          "gpu_peak_mb": 3866.553,
+          "gpu_cache_mb": 1072.609513,
+          "rss_mb": 2099.462144
+        },
+        "engines": {
+          "locals": {
+            "requests": 23,
+            "prompt_tokens": 50152,
+            "cached_tokens": 45523,
+            "completion_tokens": 718,
+            "forced_tokens": 77,
+            "passes": 650,
+            "decode_s": 123.33183300110977,
+            "tool_calls": 14,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 718,
+            "steps": 728,
+            "rows": 728,
+            "prefill_s": 17.670442167087458,
+            "prefill_tokens": 4606,
+            "admissions": 23,
+            "idle_s": 93.35390441690106,
+            "solo_steps": 2,
+            "prompt_cache_mb": 2093.328384,
+            "prompt_cache_entries": 22,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 22,
+                "mb": 2093
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "greeting",
+      "repeat": 1,
+      "milliseconds": 2490.4,
+      "raw": {
+        "id": "chatcmpl-aa61988a5cd44c6792acf952",
+        "object": "chat.completion",
+        "created": 1792951396,
+        "model": "locals/minicpm5-2b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "Hi! How can I help you today?"
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2153,
+          "completion_tokens": 9,
+          "total_tokens": 2162,
+          "prompt_tokens_details": {
+            "cached_tokens": 2151
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 0,
+            "passes": 10,
+            "constrained": true,
+            "wall_s": 2.4832999169593677
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/minicpm5-2b",
+        "uptime_s": 134.39263486862183,
+        "requests": 24,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3676.187538,
+          "gpu_peak_mb": 3866.553,
+          "gpu_cache_mb": 1069.790665,
+          "rss_mb": 2099.462144
+        },
+        "engines": {
+          "locals": {
+            "requests": 24,
+            "prompt_tokens": 52305,
+            "cached_tokens": 47674,
+            "completion_tokens": 727,
+            "forced_tokens": 77,
+            "passes": 660,
+            "decode_s": 125.57615329313558,
+            "tool_calls": 14,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 727,
+            "steps": 739,
+            "rows": 739,
+            "prefill_s": 17.709028667071834,
+            "prefill_tokens": 4607,
+            "admissions": 24,
+            "idle_s": 95.64603708381765,
+            "solo_steps": 2,
+            "prompt_cache_mb": 2093.328384,
+            "prompt_cache_entries": 22,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 22,
+                "mb": 2093
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "monthly",
+      "repeat": 1,
+      "milliseconds": 6315.6,
+      "raw": {
+        "id": "chatcmpl-cf5d537edec84c97a691891c",
+        "object": "chat.completion",
+        "created": 1792951402,
+        "model": "locals/minicpm5-2b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_3c2cb03d0c7f4aaabc9fb9b9",
+                  "type": "function",
+                  "function": {
+                    "name": "nutrition_view",
+                    "arguments": "{\"metric\": \"protein\", \"period\": \"this_month\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2157,
+          "completion_tokens": 27,
+          "total_tokens": 2184,
+          "prompt_tokens_details": {
+            "cached_tokens": 2155
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 7,
+            "passes": 20,
+            "constrained": true,
+            "wall_s": 6.309802333009429
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/minicpm5-2b",
+        "uptime_s": 140.71236896514893,
+        "requests": 25,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3667.635114,
+          "gpu_peak_mb": 3866.553,
+          "gpu_cache_mb": 1072.297727,
+          "rss_mb": 2099.462144
+        },
+        "engines": {
+          "locals": {
+            "requests": 25,
+            "prompt_tokens": 54462,
+            "cached_tokens": 49829,
+            "completion_tokens": 754,
+            "forced_tokens": 84,
+            "passes": 680,
+            "decode_s": 131.65194962604437,
+            "tool_calls": 15,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 754,
+            "steps": 765,
+            "rows": 765,
+            "prefill_s": 17.77250708406791,
+            "prefill_tokens": 4608,
+            "admissions": 25,
+            "idle_s": 101.18756008381024,
+            "solo_steps": 2,
+            "prompt_cache_mb": 2094.102528,
+            "prompt_cache_entries": 22,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 22,
+                "mb": 2094
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "calories",
+      "repeat": 1,
+      "milliseconds": 2304.9,
+      "raw": {
+        "id": "chatcmpl-777b64a3b66e403491cea347",
+        "object": "chat.completion",
+        "created": 1792951404,
+        "model": "locals/minicpm5-2b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_15bf6a845c6c407d81d451c1",
+                  "type": "function",
+                  "function": {
+                    "name": "nutrition_view",
+                    "arguments": "{\"metric\": \"calories\", \"period\": \"last_7_days\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2159,
+          "completion_tokens": 26,
+          "total_tokens": 2185,
+          "prompt_tokens_details": {
+            "cached_tokens": 2157
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 3,
+            "passes": 23,
+            "constrained": true,
+            "wall_s": 2.2989821669179946
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/minicpm5-2b",
+        "uptime_s": 143.0219750404358,
+        "requests": 26,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3666.99617,
+          "gpu_peak_mb": 3866.553,
+          "gpu_cache_mb": 1072.543435,
+          "rss_mb": 2099.462144
+        },
+        "engines": {
+          "locals": {
+            "requests": 26,
+            "prompt_tokens": 56621,
+            "cached_tokens": 51986,
+            "completion_tokens": 780,
+            "forced_tokens": 87,
+            "passes": 703,
+            "decode_s": 133.7159174589906,
+            "tool_calls": 16,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 780,
+            "steps": 792,
+            "rows": 792,
+            "prefill_s": 17.850091001135297,
+            "prefill_tokens": 4609,
+            "admissions": 26,
+            "idle_s": 102.66257662477437,
+            "solo_steps": 2,
+            "prompt_cache_mb": 2094.102528,
+            "prompt_cache_entries": 22,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 22,
+                "mb": 2094
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "food-search",
+      "repeat": 1,
+      "milliseconds": 2336.1,
+      "raw": {
+        "id": "chatcmpl-f5c0c89b5c1f4abb8237f0ce",
+        "object": "chat.completion",
+        "created": 1792951407,
+        "model": "locals/minicpm5-2b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_16b4f76cfcf340fd8a38ad24",
+                  "type": "function",
+                  "function": {
+                    "name": "nutrition_view",
+                    "arguments": "{\"foodName\": \"yogurt\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2267,
+          "completion_tokens": 20,
+          "total_tokens": 2287,
+          "prompt_tokens_details": {
+            "cached_tokens": 2265
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 5,
+            "passes": 15,
+            "constrained": true,
+            "wall_s": 2.300802499987185
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/minicpm5-2b",
+        "uptime_s": 145.37113404273987,
+        "requests": 27,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3666.947042,
+          "gpu_peak_mb": 3866.553,
+          "gpu_cache_mb": 1072.969425,
+          "rss_mb": 2099.462144
+        },
+        "engines": {
+          "locals": {
+            "requests": 27,
+            "prompt_tokens": 58888,
+            "cached_tokens": 54251,
+            "completion_tokens": 800,
+            "forced_tokens": 92,
+            "passes": 718,
+            "decode_s": 135.77346095908433,
+            "tool_calls": 17,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 800,
+            "steps": 811,
+            "rows": 811,
+            "prefill_s": 17.915932960109785,
+            "prefill_tokens": 4610,
+            "admissions": 27,
+            "idle_s": 104.54484191571828,
+            "solo_steps": 2,
+            "prompt_cache_mb": 2094.102528,
+            "prompt_cache_entries": 22,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 22,
+                "mb": 2094
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "weekdays",
+      "repeat": 1,
+      "milliseconds": 2298.8,
+      "raw": {
+        "id": "chatcmpl-18b16d5e61b640d1ab397225",
+        "object": "chat.completion",
+        "created": 1792951409,
+        "model": "locals/minicpm5-2b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_d0bc9fb93f844ef381deead6",
+                  "type": "function",
+                  "function": {
+                    "name": "filter_nutrition",
+                    "arguments": "{\"changes\": [\"weekdays_only\"]}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2263,
+          "completion_tokens": 20,
+          "total_tokens": 2283,
+          "prompt_tokens_details": {
+            "cached_tokens": 2261
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 4,
+            "passes": 16,
+            "constrained": true,
+            "wall_s": 2.268578666029498
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/minicpm5-2b",
+        "uptime_s": 147.706533908844,
+        "requests": 28,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3676.974074,
+          "gpu_peak_mb": 3866.553,
+          "gpu_cache_mb": 1073.624909,
+          "rss_mb": 2099.462144
+        },
+        "engines": {
+          "locals": {
+            "requests": 28,
+            "prompt_tokens": 61151,
+            "cached_tokens": 56512,
+            "completion_tokens": 820,
+            "forced_tokens": 96,
+            "passes": 734,
+            "decode_s": 137.7920573761221,
+            "tool_calls": 18,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 820,
+            "steps": 830,
+            "rows": 830,
+            "prefill_s": 17.960576960118487,
+            "prefill_tokens": 4611,
+            "admissions": 28,
+            "idle_s": 106.5678472496802,
+            "solo_steps": 3,
+            "prompt_cache_mb": 2094.102528,
+            "prompt_cache_entries": 22,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 22,
+                "mb": 2094
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "compare",
+      "repeat": 1,
+      "milliseconds": 7186.9,
+      "raw": {
+        "id": "chatcmpl-bb9842b4831a46b3ad4a4fee",
+        "object": "chat.completion",
+        "created": 1792951416,
+        "model": "locals/minicpm5-2b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_bde1c18d9bfb401cad5309f6",
+                  "type": "function",
+                  "function": {
+                    "name": "filter_nutrition",
+                    "arguments": "{\"changes\": [\"compare_previous\"]}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2266,
+          "completion_tokens": 20,
+          "total_tokens": 2286,
+          "prompt_tokens_details": {
+            "cached_tokens": 2264
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 4,
+            "passes": 16,
+            "constrained": true,
+            "wall_s": 7.175526625011116
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/minicpm5-2b",
+        "uptime_s": 154.90205192565918,
+        "requests": 29,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3667.749906,
+          "gpu_peak_mb": 3866.553,
+          "gpu_cache_mb": 1066.146751,
+          "rss_mb": 2099.462144
+        },
+        "engines": {
+          "locals": {
+            "requests": 29,
+            "prompt_tokens": 63417,
+            "cached_tokens": 58776,
+            "completion_tokens": 840,
+            "forced_tokens": 100,
+            "passes": 750,
+            "decode_s": 144.7291322920937,
+            "tool_calls": 19,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 840,
+            "steps": 849,
+            "rows": 849,
+            "prefill_s": 18.032853419193998,
+            "prefill_tokens": 4612,
+            "admissions": 29,
+            "idle_s": 113.01621470868122,
+            "solo_steps": 4,
+            "prompt_cache_mb": 2094.05952,
+            "prompt_cache_entries": 22,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 22,
+                "mb": 2094
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "copy",
+      "repeat": 1,
+      "milliseconds": 1786.4,
+      "raw": {
+        "id": "chatcmpl-813090b97205425a8294a889",
+        "object": "chat.completion",
+        "created": 1792951418,
+        "model": "locals/minicpm5-2b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_dfb5b24e598e477dbbae421c",
+                  "type": "function",
+                  "function": {
+                    "name": "nutrition_view",
+                    "arguments": "{\"foodName\": \"Greek yogurt\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2276,
+          "completion_tokens": 19,
+          "total_tokens": 2295,
+          "prompt_tokens_details": {
+            "cached_tokens": 2274
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 5,
+            "passes": 14,
+            "constrained": true,
+            "wall_s": 1.7805752500426024
+          }
+        }
+      },
+      "passed": false,
+      "reason": "wrong_tool",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/minicpm5-2b",
+        "uptime_s": 156.69283604621887,
+        "requests": 30,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3667.045426,
+          "gpu_peak_mb": 3866.553,
+          "gpu_cache_mb": 1066.605459,
+          "rss_mb": 2099.462144
+        },
+        "engines": {
+          "locals": {
+            "requests": 30,
+            "prompt_tokens": 65693,
+            "cached_tokens": 61050,
+            "completion_tokens": 859,
+            "forced_tokens": 105,
+            "passes": 764,
+            "decode_s": 146.2683007090818,
+            "tool_calls": 20,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 859,
+            "steps": 867,
+            "rows": 867,
+            "prefill_s": 18.071867752238177,
+            "prefill_tokens": 4613,
+            "admissions": 30,
+            "idle_s": 114.42877400061116,
+            "solo_steps": 4,
+            "prompt_cache_mb": 2094.05952,
+            "prompt_cache_entries": 22,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 22,
+                "mb": 2094
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "new-meal",
+      "repeat": 1,
+      "milliseconds": 3251.6,
+      "raw": {
+        "id": "chatcmpl-72449e1ccbc9470299878aae",
+        "object": "chat.completion",
+        "created": 1792951421,
+        "model": "locals/minicpm5-2b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_f0d9e6cb799d4e2481211538",
+                  "type": "function",
+                  "function": {
+                    "name": "prepare_meal",
+                    "arguments": "{\"day\": \"today\", \"foods\": \"[{'name': 'eggs', 'quantity': '2'}, {'name': 'banana', 'quantity': '1'}]\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2174,
+          "completion_tokens": 48,
+          "total_tokens": 2222,
+          "prompt_tokens_details": {
+            "cached_tokens": 2172
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 2,
+            "passes": 46,
+            "constrained": true,
+            "wall_s": 3.2232678750297055
+          }
+        }
+      },
+      "passed": false,
+      "reason": "schema",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/minicpm5-2b",
+        "uptime_s": 159.96271014213562,
+        "requests": 31,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3666.70136,
+          "gpu_peak_mb": 3866.553,
+          "gpu_cache_mb": 1074.420645,
+          "rss_mb": 2099.462144
+        },
+        "engines": {
+          "locals": {
+            "requests": 31,
+            "prompt_tokens": 67867,
+            "cached_tokens": 63222,
+            "completion_tokens": 907,
+            "forced_tokens": 107,
+            "passes": 810,
+            "decode_s": 149.40364245907404,
+            "tool_calls": 21,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 907,
+            "steps": 916,
+            "rows": 916,
+            "prefill_s": 18.11200275225565,
+            "prefill_tokens": 4614,
+            "admissions": 31,
+            "idle_s": 116.65172941761557,
+            "solo_steps": 4,
+            "prompt_cache_mb": 2094.05952,
+            "prompt_cache_entries": 22,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 22,
+                "mb": 2094
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "new-event",
+      "repeat": 1,
+      "milliseconds": 3319.4,
+      "raw": {
+        "id": "chatcmpl-86599fb84b1e4bb8b33d1713",
+        "object": "chat.completion",
+        "created": 1792951425,
+        "model": "locals/minicpm5-2b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_b8fcd70d3dae4837bdb5e71d",
+                  "type": "function",
+                  "function": {
+                    "name": "prepare_event",
+                    "arguments": "{\"day\": \"tomorrow\", \"time\": \"13:00\", \"title\": \"Lunch\", \"durationMinutes\": 30}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2175,
+          "completion_tokens": 49,
+          "total_tokens": 2224,
+          "prompt_tokens_details": {
+            "cached_tokens": 2173
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 10,
+            "passes": 39,
+            "constrained": true,
+            "wall_s": 3.230949917109683
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/minicpm5-2b",
+        "uptime_s": 163.44948506355286,
+        "requests": 32,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3677.76061,
+          "gpu_peak_mb": 3866.553,
+          "gpu_cache_mb": 1063.394205,
+          "rss_mb": 2099.462144
+        },
+        "engines": {
+          "locals": {
+            "requests": 32,
+            "prompt_tokens": 70042,
+            "cached_tokens": 65395,
+            "completion_tokens": 956,
+            "forced_tokens": 117,
+            "passes": 849,
+            "decode_s": 152.38569887611084,
+            "tool_calls": 22,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 956,
+            "steps": 964,
+            "rows": 964,
+            "prefill_s": 18.149246127228253,
+            "prefill_tokens": 4615,
+            "admissions": 32,
+            "idle_s": 119.25159054261167,
+            "solo_steps": 4,
+            "prompt_cache_mb": 2093.887488,
+            "prompt_cache_entries": 22,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 22,
+                "mb": 2094
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "explicit-event",
+      "repeat": 1,
+      "milliseconds": 9580.1,
+      "raw": {
+        "id": "chatcmpl-1713b69487be4e0f9b357396",
+        "object": "chat.completion",
+        "created": 1792951434,
+        "model": "locals/minicpm5-2b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_06810747e36949b6a9e0bdcb",
+                  "type": "function",
+                  "function": {
+                    "name": "prepare_event",
+                    "arguments": "{\"day\": \"2026-11-03\", \"time\": \"09:15\", \"durationMinutes\": 45, \"title\": \"Dentist\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2175,
+          "completion_tokens": 54,
+          "total_tokens": 2229,
+          "prompt_tokens_details": {
+            "cached_tokens": 2173
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 10,
+            "passes": 44,
+            "constrained": true,
+            "wall_s": 9.566450417041779
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/minicpm5-2b",
+        "uptime_s": 173.03994393348694,
+        "requests": 33,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3667.815546,
+          "gpu_peak_mb": 3866.553,
+          "gpu_cache_mb": 1071.963079,
+          "rss_mb": 2099.462144
+        },
+        "engines": {
+          "locals": {
+            "requests": 33,
+            "prompt_tokens": 72217,
+            "cached_tokens": 67568,
+            "completion_tokens": 1010,
+            "forced_tokens": 127,
+            "passes": 893,
+            "decode_s": 161.72724541812204,
+            "tool_calls": 23,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1010,
+            "steps": 1017,
+            "rows": 1017,
+            "prefill_s": 18.271731752203777,
+            "prefill_tokens": 4616,
+            "admissions": 33,
+            "idle_s": 126.04631770856213,
+            "solo_steps": 4,
+            "prompt_cache_mb": 2093.4144,
+            "prompt_cache_entries": 22,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 22,
+                "mb": 2093
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "missing-time",
+      "repeat": 1,
+      "milliseconds": 4038.9,
+      "raw": {
+        "id": "chatcmpl-2b5c226ad33048c1b8afc1e3",
+        "object": "chat.completion",
+        "created": 1792951439,
+        "model": "locals/minicpm5-2b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "I can't create the event with a missing start time. Could you provide a preferred time, or would you like me to ask you to specify when the event starts?"
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2165,
+          "completion_tokens": 34,
+          "total_tokens": 2199,
+          "prompt_tokens_details": {
+            "cached_tokens": 2163
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 0,
+            "passes": 35,
+            "constrained": true,
+            "wall_s": 4.013315208023414
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/minicpm5-2b",
+        "uptime_s": 177.09460520744324,
+        "requests": 34,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3667.061914,
+          "gpu_peak_mb": 3866.553,
+          "gpu_cache_mb": 1072.700309,
+          "rss_mb": 2099.462144
+        },
+        "engines": {
+          "locals": {
+            "requests": 34,
+            "prompt_tokens": 74382,
+            "cached_tokens": 69731,
+            "completion_tokens": 1044,
+            "forced_tokens": 127,
+            "passes": 928,
+            "decode_s": 165.5265721681062,
+            "tool_calls": 23,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1044,
+            "steps": 1053,
+            "rows": 1053,
+            "prefill_s": 18.316149502177723,
+            "prefill_tokens": 4617,
+            "admissions": 34,
+            "idle_s": 127.8906969166128,
+            "solo_steps": 4,
+            "prompt_cache_mb": 2093.457408,
+            "prompt_cache_entries": 22,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 22,
+                "mb": 2093
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "missing-food",
+      "repeat": 1,
+      "milliseconds": 3275.7,
+      "raw": {
+        "id": "chatcmpl-ef7931b80ac34829aa02d6b9",
+        "object": "chat.completion",
+        "created": 1792951442,
+        "model": "locals/minicpm5-2b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "I can log meals, but I need to know what you ate. Could you tell me what foods and quantities you consumed? If you'd like, I can also offer to open a relevant app page to make this easier."
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2165,
+          "completion_tokens": 45,
+          "total_tokens": 2210,
+          "prompt_tokens_details": {
+            "cached_tokens": 2163
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 0,
+            "passes": 46,
+            "constrained": true,
+            "wall_s": 3.256355707999319
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/minicpm5-2b",
+        "uptime_s": 180.38341116905212,
+        "requests": 35,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3667.012786,
+          "gpu_peak_mb": 3866.553,
+          "gpu_cache_mb": 1072.274351,
+          "rss_mb": 2099.462144
+        },
+        "engines": {
+          "locals": {
+            "requests": 35,
+            "prompt_tokens": 76547,
+            "cached_tokens": 71894,
+            "completion_tokens": 1089,
+            "forced_tokens": 127,
+            "passes": 974,
+            "decode_s": 168.5794039600296,
+            "tool_calls": 23,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1089,
+            "steps": 1100,
+            "rows": 1100,
+            "prefill_s": 18.350576669094153,
+            "prefill_tokens": 4618,
+            "admissions": 35,
+            "idle_s": 130.19253449956886,
+            "solo_steps": 4,
+            "prompt_cache_mb": 2093.930496,
+            "prompt_cache_entries": 22,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 22,
+                "mb": 2094
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "global-search",
+      "repeat": 1,
+      "milliseconds": 3453.4,
+      "raw": {
+        "id": "chatcmpl-686445bab917493b96137823",
+        "object": "chat.completion",
+        "created": 1792951445,
+        "model": "locals/minicpm5-2b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_2a47ca784d164ac19abeca6d",
+                  "type": "function",
+                  "function": {
+                    "name": "search_app",
+                    "arguments": "{\"query\": \"clinic\", \"revision\": \"\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2158,
+          "completion_tokens": 25,
+          "total_tokens": 2183,
+          "prompt_tokens_details": {
+            "cached_tokens": 2156
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 6,
+            "passes": 19,
+            "constrained": true,
+            "wall_s": 3.438904165988788
+          }
+        }
+      },
+      "passed": false,
+      "reason": "schema",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/minicpm5-2b",
+        "uptime_s": 183.84989714622498,
+        "requests": 36,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3678.547146,
+          "gpu_peak_mb": 3866.553,
+          "gpu_cache_mb": 1073.385847,
+          "rss_mb": 2099.462144
+        },
+        "engines": {
+          "locals": {
+            "requests": 36,
+            "prompt_tokens": 78705,
+            "cached_tokens": 74050,
+            "completion_tokens": 1114,
+            "forced_tokens": 133,
+            "passes": 993,
+            "decode_s": 171.77214004308917,
+            "tool_calls": 24,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1114,
+            "steps": 1126,
+            "rows": 1126,
+            "prefill_s": 18.391150211100467,
+            "prefill_tokens": 4619,
+            "admissions": 36,
+            "idle_s": 133.18892329162918,
+            "solo_steps": 4,
+            "prompt_cache_mb": 2094.317568,
+            "prompt_cache_entries": 22,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 22,
+                "mb": 2094
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "open-page",
+      "repeat": 1,
+      "milliseconds": 8152.1,
+      "raw": {
+        "id": "chatcmpl-8e5da511b12f40cf952761e0",
+        "object": "chat.completion",
+        "created": 1792951453,
+        "model": "locals/minicpm5-2b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_29106af6c55842748f4a123a",
+                  "type": "function",
+                  "function": {
+                    "name": "open_page",
+                    "arguments": "{\"section\": \"notes\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2156,
+          "completion_tokens": 17,
+          "total_tokens": 2173,
+          "prompt_tokens_details": {
+            "cached_tokens": 2154
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 5,
+            "passes": 12,
+            "constrained": true,
+            "wall_s": 8.138866040972061
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/minicpm5-2b",
+        "uptime_s": 192.01243090629578,
+        "requests": 37,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3667.881186,
+          "gpu_peak_mb": 3866.553,
+          "gpu_cache_mb": 1072.274377,
+          "rss_mb": 2099.462144
+        },
+        "engines": {
+          "locals": {
+            "requests": 37,
+            "prompt_tokens": 80861,
+            "cached_tokens": 76204,
+            "completion_tokens": 1131,
+            "forced_tokens": 138,
+            "passes": 1005,
+            "decode_s": 179.70192391809542,
+            "tool_calls": 25,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1131,
+            "steps": 1142,
+            "rows": 1142,
+            "prefill_s": 18.509185544098727,
+            "prefill_tokens": 4620,
+            "admissions": 37,
+            "idle_s": 140.3960888745496,
+            "solo_steps": 4,
+            "prompt_cache_mb": 2094.317568,
+            "prompt_cache_entries": 22,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 22,
+                "mb": 2094
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "notes",
+      "repeat": 1,
+      "milliseconds": 3648.2,
+      "raw": {
+        "id": "chatcmpl-d91432a210474ecdb7f2345f",
+        "object": "chat.completion",
+        "created": 1792951457,
+        "model": "locals/minicpm5-2b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_18ef25f12628468b8dcebfac",
+                  "type": "function",
+                  "function": {
+                    "name": "list_notes",
+                    "arguments": "{\"limit\": 20}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2156,
+          "completion_tokens": 15,
+          "total_tokens": 2171,
+          "prompt_tokens_details": {
+            "cached_tokens": 2154
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 3,
+            "passes": 12,
+            "constrained": true,
+            "wall_s": 3.6435141670517623
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/minicpm5-2b",
+        "uptime_s": 195.6649181842804,
+        "requests": 38,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3667.11117,
+          "gpu_peak_mb": 3866.553,
+          "gpu_cache_mb": 1073.241025,
+          "rss_mb": 2099.462144
+        },
+        "engines": {
+          "locals": {
+            "requests": 38,
+            "prompt_tokens": 83017,
+            "cached_tokens": 78358,
+            "completion_tokens": 1146,
+            "forced_tokens": 141,
+            "passes": 1017,
+            "decode_s": 183.13385125109926,
+            "tool_calls": 26,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1146,
+            "steps": 1158,
+            "rows": 1158,
+            "prefill_s": 18.628369419137016,
+            "prefill_tokens": 4621,
+            "admissions": 38,
+            "idle_s": 143.04860687453765,
+            "solo_steps": 4,
+            "prompt_cache_mb": 2094.317568,
+            "prompt_cache_entries": 22,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 22,
+                "mb": 2094
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "create-note",
+      "repeat": 1,
+      "milliseconds": 4219.5,
+      "raw": {
+        "id": "chatcmpl-9d57ada5130e4da7af83b569",
+        "object": "chat.completion",
+        "created": 1792951461,
+        "model": "locals/minicpm5-2b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_e97c7ecbbe914a999f336b94",
+                  "type": "function",
+                  "function": {
+                    "name": "create_note",
+                    "arguments": "{\"text\": \"Bring the blue notebook\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2164,
+          "completion_tokens": 20,
+          "total_tokens": 2184,
+          "prompt_tokens_details": {
+            "cached_tokens": 2162
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 5,
+            "passes": 15,
+            "constrained": true,
+            "wall_s": 4.21277979190927
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/minicpm5-2b",
+        "uptime_s": 199.8908941745758,
+        "requests": 39,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3667.01289,
+          "gpu_peak_mb": 3866.553,
+          "gpu_cache_mb": 1072.454591,
+          "rss_mb": 2099.462144
+        },
+        "engines": {
+          "locals": {
+            "requests": 39,
+            "prompt_tokens": 85181,
+            "cached_tokens": 80520,
+            "completion_tokens": 1166,
+            "forced_tokens": 146,
+            "passes": 1032,
+            "decode_s": 187.1463759180624,
+            "tool_calls": 27,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1166,
+            "steps": 1177,
+            "rows": 1177,
+            "prefill_s": 18.729692961089313,
+            "prefill_tokens": 4622,
+            "admissions": 39,
+            "idle_s": 145.82179933262523,
+            "solo_steps": 4,
+            "prompt_cache_mb": 2094.317568,
+            "prompt_cache_entries": 22,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 22,
+                "mb": 2094
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "plan",
+      "repeat": 1,
+      "milliseconds": 3129.9,
+      "raw": {
+        "id": "chatcmpl-4dac12872904468fa1d0aa5f",
+        "object": "chat.completion",
+        "created": 1792951464,
+        "model": "locals/minicpm5-2b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_e30edbd354da4025894ae7dc",
+                  "type": "function",
+                  "function": {
+                    "name": "day_plan",
+                    "arguments": "{\"date\": \"2026-10-25\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2159,
+          "completion_tokens": 23,
+          "total_tokens": 2182,
+          "prompt_tokens_details": {
+            "cached_tokens": 2157
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 6,
+            "passes": 17,
+            "constrained": true,
+            "wall_s": 3.1126328749815
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/minicpm5-2b",
+        "uptime_s": 203.03426790237427,
+        "requests": 40,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3679.317298,
+          "gpu_peak_mb": 3866.553,
+          "gpu_cache_mb": 1070.502269,
+          "rss_mb": 2099.462144
+        },
+        "engines": {
+          "locals": {
+            "requests": 40,
+            "prompt_tokens": 87340,
+            "cached_tokens": 82677,
+            "completion_tokens": 1189,
+            "forced_tokens": 152,
+            "passes": 1049,
+            "decode_s": 190.01643704308663,
+            "tool_calls": 28,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1189,
+            "steps": 1199,
+            "rows": 1199,
+            "prefill_s": 18.775487128063105,
+            "prefill_tokens": 4623,
+            "admissions": 40,
+            "idle_s": 148.50022741558496,
+            "solo_steps": 4,
+            "prompt_cache_mb": 2094.317568,
+            "prompt_cache_entries": 22,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 22,
+                "mb": 2094
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "unsupported",
+      "repeat": 1,
+      "milliseconds": 11133.5,
+      "raw": {
+        "id": "chatcmpl-1e166f306c0b4d43a9a71580",
+        "object": "chat.completion",
+        "created": 1792951476,
+        "model": "locals/minicpm5-2b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "I don't have a function to delete meals from history, and it's not something I can perform manually. If you'd like, I can show you your current logged meals via nutrition_view or search_app for cross-category views. Let me know how you'd like to proceed."
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2158,
+          "completion_tokens": 56,
+          "total_tokens": 2214,
+          "prompt_tokens_details": {
+            "cached_tokens": 2156
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 0,
+            "passes": 57,
+            "constrained": true,
+            "wall_s": 11.122536749928258
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/minicpm5-2b",
+        "uptime_s": 214.17853903770447,
+        "requests": 41,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3667.946826,
+          "gpu_peak_mb": 3867.438386,
+          "gpu_cache_mb": 1070.406591,
+          "rss_mb": 2099.462144
+        },
+        "engines": {
+          "locals": {
+            "requests": 41,
+            "prompt_tokens": 89498,
+            "cached_tokens": 84833,
+            "completion_tokens": 1245,
+            "forced_tokens": 152,
+            "passes": 1106,
+            "decode_s": 200.9645391270751,
+            "tool_calls": 28,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1245,
+            "steps": 1257,
+            "rows": 1257,
+            "prefill_s": 18.89509650308173,
+            "prefill_tokens": 4624,
+            "admissions": 41,
+            "idle_s": 156.0003614575835,
+            "solo_steps": 4,
+            "prompt_cache_mb": 2095.048704,
+            "prompt_cache_entries": 22,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 22,
+                "mb": 2095
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "explanation",
+      "repeat": 1,
+      "milliseconds": 6702.9,
+      "raw": {
+        "id": "chatcmpl-3b41b36dffaa4d148dd3da5e",
+        "object": "chat.completion",
+        "created": 1792951482,
+        "model": "locals/minicpm5-2b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "Protein is a essential nutrient that our body needs to build and repair tissues, muscles, skin, and vital organs. It also supports functions of the immune system, hormones, and hormonal balance. When you consume protein (in foods like meat, beans, nuts, and dairy), your body uses it to maintain and repair cellular components. Keeping adequate protein intake is important for overall health, especially when supporting growth and maintenance."
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2166,
+          "completion_tokens": 83,
+          "total_tokens": 2249,
+          "prompt_tokens_details": {
+            "cached_tokens": 2164
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 0,
+            "passes": 84,
+            "constrained": true,
+            "wall_s": 6.696750833070837
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/minicpm5-2b",
+        "uptime_s": 220.88740992546082,
+        "requests": 42,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3667.111274,
+          "gpu_peak_mb": 3867.438386,
+          "gpu_cache_mb": 1071.504311,
+          "rss_mb": 2099.462144
+        },
+        "engines": {
+          "locals": {
+            "requests": 42,
+            "prompt_tokens": 91664,
+            "cached_tokens": 86997,
+            "completion_tokens": 1328,
+            "forced_tokens": 152,
+            "passes": 1190,
+            "decode_s": 207.53177187708206,
+            "tool_calls": 28,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1328,
+            "steps": 1342,
+            "rows": 1342,
+            "prefill_s": 18.96454821107909,
+            "prefill_tokens": 4625,
+            "admissions": 42,
+            "idle_s": 158.4756984995911,
+            "solo_steps": 4,
+            "prompt_cache_mb": 2095.822848,
+            "prompt_cache_entries": 22,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 22,
+                "mb": 2096
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "ambiguous",
+      "repeat": 1,
+      "milliseconds": 3588.2,
+      "raw": {
+        "id": "chatcmpl-ff06eab31fcd40f299ea86a3",
+        "object": "chat.completion",
+        "created": 1792951486,
+        "model": "locals/minicpm5-2b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "I'm not sure what \"the other thing\" refers to\u2014could you clarify what you'd like me to do? If you have a specific request, please share more details."
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2156,
+          "completion_tokens": 35,
+          "total_tokens": 2191,
+          "prompt_tokens_details": {
+            "cached_tokens": 2154
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 0,
+            "passes": 36,
+            "constrained": true,
+            "wall_s": 3.5563319590874016
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/minicpm5-2b",
+        "uptime_s": 224.48735213279724,
+        "requests": 43,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3667.012994,
+          "gpu_peak_mb": 3867.438386,
+          "gpu_cache_mb": 1072.927673,
+          "rss_mb": 2099.462144
+        },
+        "engines": {
+          "locals": {
+            "requests": 43,
+            "prompt_tokens": 93820,
+            "cached_tokens": 89151,
+            "completion_tokens": 1363,
+            "forced_tokens": 152,
+            "passes": 1226,
+            "decode_s": 210.86006008507684,
+            "tool_calls": 28,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1363,
+            "steps": 1379,
+            "rows": 1379,
+            "prefill_s": 19.019278336083516,
+            "prefill_tokens": 4626,
+            "admissions": 43,
+            "idle_s": 160.74526908260304,
+            "solo_steps": 4,
+            "prompt_cache_mb": 2095.607808,
+            "prompt_cache_entries": 22,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 22,
+                "mb": 2096
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "not-a-write",
+      "repeat": 1,
+      "milliseconds": 3728.4,
+      "raw": {
+        "id": "chatcmpl-3f88cb8ee75c417a9ac71123",
+        "object": "chat.completion",
+        "created": 1792951490,
+        "model": "locals/minicpm5-2b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "Understood \u2014 no logging or saving will occur. If you need something else, just let me know."
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2170,
+          "completion_tokens": 21,
+          "total_tokens": 2191,
+          "prompt_tokens_details": {
+            "cached_tokens": 2168
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 0,
+            "passes": 22,
+            "constrained": true,
+            "wall_s": 3.682329999981448
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/minicpm5-2b",
+        "uptime_s": 228.2481391429901,
+        "requests": 44,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3771.559296,
+          "gpu_peak_mb": 3867.438386,
+          "gpu_cache_mb": 1072.288655,
+          "rss_mb": 2099.462144
+        },
+        "engines": {
+          "locals": {
+            "requests": 44,
+            "prompt_tokens": 95990,
+            "cached_tokens": 91319,
+            "completion_tokens": 1384,
+            "forced_tokens": 152,
+            "passes": 1248,
+            "decode_s": 214.3174811261706,
+            "tool_calls": 28,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1384,
+            "steps": 1402,
+            "rows": 1402,
+            "prefill_s": 19.066349878092296,
+            "prefill_tokens": 4627,
+            "admissions": 44,
+            "idle_s": 164.0134047496831,
+            "solo_steps": 4,
+            "prompt_cache_mb": 2094.360576,
+            "prompt_cache_entries": 22,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 22,
+                "mb": 2094
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "versions": {
+    "mlx": "0.32.4",
+    "mlx-lm": "0.32.2",
+    "locals": "0.2.1"
+  },
+  "engineSourceCommit": "4f4d03f10232c9f2adeb1e96e2a7bd79a9e7fe19",
+  "engineSourceDirty": "",
+  "servingImplementation": "locals.server",
+  "command": [
+    "../pi-inference-upstream/locals-env/bin/python",
+    "-m",
+    "locals.server",
+    "--model",
+    "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/minicpm5-2b",
+    "--engines",
+    "locals",
+    "--preload",
+    "locals",
+    "--host",
+    "127.0.0.1",
+    "--port",
+    "41790",
+    "--slots",
+    "1",
+    "--cache-gb",
+    "2",
+    "--max-context",
+    "32768",
+    "--max-tokens",
+    "2048",
+    "--temp",
+    "1.0",
+    "--top-p",
+    "0.95",
+    "--top-k",
+    "0",
+    "--seed",
+    "0"
+  ],
+  "serverReadySeconds": 2.927,
+  "loadSeconds": 2.927,
+  "serverModel": "locals/minicpm5-2b",
+  "hostAfter": {
+    "utc": "2026-10-25T18:04:51.838245+00:00",
+    "chip": "Apple M1 Max",
+    "ramBytes": "68719476736",
+    "os": "27.0.1",
+    "swap": "vm.swapusage: total = 23552.00M  used = 21936.75M  free = 1615.25M  (encrypted)",
+    "paging": {
+      "Pageouts": 384027,
+      "Swapins": 5059130,
+      "Swapouts": 9298822
+    }
+  },
+  "ownedWorkerReleased": true,
+  "pagingDelta": {
+    "Pageouts": 6,
+    "Swapins": 20,
+    "Swapouts": 0
+  },
+  "cleanPerformanceRun": false,
+  "summary": {
+    "passes": 39,
+    "total": 44,
+    "warmMedianMilliseconds": 3520.8,
+    "firstRequestMilliseconds": 9555.4,
+    "gpuPeakMB": 3867.438386,
+    "rssMaxObservedMB": 2099.462144
+  }
+}

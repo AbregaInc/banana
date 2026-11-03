@@ -139,11 +139,9 @@ struct NewTaskSheet: View {
                             }
                         }
                         .accessibilityIdentifier("task.list.destination")
-                    } else {
-                        LabeledContent("List") {
-                            Text("Default").foregroundStyle(.secondary)
-                        }
                     }
+                    // With no list to choose there is no List row: a grey "Default" read as a
+                    // control that didn't work, and named nothing.
                 } header: {
                     Text("Reminder")
                 }
@@ -188,13 +186,16 @@ struct NewTaskSheet: View {
                     }
                     if hasTime {
                         TimeField("Time", selection: $time)
-                    }
-                    Picker("Reserve", selection: $durationMinutes) {
-                        ForEach(TaskDurationStore.options, id: \.self) { minutes in
-                            Text("\(minutes) min").tag(minutes)
+                        // How long the calendar is blocked for it, when reminders block time
+                        // (Settings); otherwise how long it takes on the timeline. "Reserve" was
+                        // jargon, and it showed on a reminder with no time to reserve.
+                        Picker(smart.settings.reserveTaskTime ? "Block time" : "Takes", selection: $durationMinutes) {
+                            ForEach(TaskDurationStore.options, id: \.self) { minutes in
+                                Text("\(minutes) min").tag(minutes)
+                            }
                         }
+                        .accessibilityIdentifier("task.duration")
                     }
-                    .accessibilityIdentifier("task.duration")
                     Picker("Priority", selection: $priority) {
                         Text("None").tag(0)
                         Text("High").tag(1)
@@ -210,26 +211,18 @@ struct NewTaskSheet: View {
                     .accessibilityIdentifier("task.recurrence")
                 } header: {
                     Text("When")
-                } footer: {
-                    Text(
-                        hasTime
-                            ? (smart.settings.reserveTaskTime
-                                ? "Saved to Apple Reminders. Banana reserves every timed occurrence in your calendar by default."
-                                : "Saved to Apple Reminders. Shows on your Banana timeline only — calendar reservations for reminders are off in Settings.")
-                            : "Saved to Apple Reminders without a time. It waits in the line above today until you give it one."
-                    )
                 }
+                // No footer: three sentences on where it's saved and what reserving does. The
+                // List row says where; Block time says what it blocks.
 
                 if recurrence != .never {
                     Section {
                         TimingFields(anchor: $anchor, time: $time, others: anchorChoices, showsOwnTime: false)
                     } header: {
                         Text("Due around")
-                    } footer: {
-                        Text(anchor == nil
-                             ? "Tie it to a moment \u{2014} after your workout, before breakfast \u{2014} and it\u{2019}s due then, not late before."
-                             : "Its time above is when it\u{2019}s due on days the moment doesn\u{2019}t come. Banana moves it in Reminders on the day.")
                     }
+                    // The summary line in TimingFields says it in words; a grey paragraph under it
+                    // explained it again.
                 }
 
                 if !conflicts.isEmpty {

@@ -155,12 +155,24 @@ struct EventDetailView: View {
                 // An all-day event says so, as the Mac's inspector does: this read "12 AM–12 AM".
                 Text(meeting.isAllDay
                      ? AllDayEvents.timeText(from: meeting.start, to: meeting.end)
-                     : TimeRangeText.compact(meeting.start, meeting.end))
+                     : Self.timeText(meeting.start, meeting.end ?? meeting.start))
                     .foregroundStyle(.secondary)
                     .monospacedDigit()
             }
             .font(.body)
         }
+    }
+
+    /// "9:30–10:00 AM". Across a clock change each end says its zone: on the night clocks go
+    /// back, 1:29 EDT to 1:14 EST read "1:29–1:14 AM", an end before its start.
+    static func timeText(_ start: Date, _ end: Date, zone: TimeZone = .current) -> String {
+        guard zone.secondsFromGMT(for: start) != zone.secondsFromGMT(for: end),
+              let startZone = zone.abbreviation(for: start),
+              let endZone = zone.abbreviation(for: end) else {
+            return TimeRangeText.compact(start, end)
+        }
+        let clock = Date.FormatStyle(date: .omitted, time: .shortened, timeZone: zone)
+        return "\(start.formatted(clock)) \(startZone) \u{2013} \(end.formatted(clock)) \(endZone)"
     }
 
     /// The one thing you most likely came to do: join the call, or get directions.
@@ -170,6 +182,12 @@ struct EventDetailView: View {
                 Label(meeting.platform.map { "Join \($0.label)" } ?? "Join meeting", systemImage: "video.fill")
             }
             .buttonStyle(.primaryPage)
+            // The link's own row repeated this button; its copy lives here now.
+            .contextMenu {
+                Button { UIPasteboard.general.url = url } label: {
+                    Label("Copy link", systemImage: "doc.on.doc")
+                }
+            }
             .accessibilityIdentifier("eventDetail.join")
         } else if meeting.hasPhysicalLocation {
             Button { directions() } label: {
@@ -181,10 +199,10 @@ struct EventDetailView: View {
     }
 
     /// Where and how, one row each: the place (its name over its address) opens directions, the
-    /// link copies, the rest just says.
+    /// rest just says. The call's link is the Join button above, not a second row.
     @ViewBuilder private var facts: some View {
         let place = Self.place(meeting.address)
-        if place != nil || meeting.joinURL != nil || details?.recurrence.detailLine(start: meeting.start) != nil || meeting.showsAsFree {
+        if place != nil || details?.recurrence.detailLine(start: meeting.start) != nil || meeting.showsAsFree {
             Section {
                 if let place {
                     // Tappable even beside a Join button: a hybrid meeting has both.
@@ -195,17 +213,6 @@ struct EventDetailView: View {
                     .contextMenu {
                         Button { UIPasteboard.general.string = meeting.address } label: {
                             Label("Copy address", systemImage: "doc.on.doc")
-                        }
-                    }
-                }
-                if let url = meeting.joinURL {
-                    Button { openURL(url) } label: {
-                        row("link", title: url.host() ?? url.absoluteString, opens: true)
-                    }
-                    .buttonStyle(.plain)
-                    .contextMenu {
-                        Button { UIPasteboard.general.url = url } label: {
-                            Label("Copy link", systemImage: "doc.on.doc")
                         }
                     }
                 }
@@ -265,7 +272,7 @@ struct EventDetailView: View {
                 finish()
             }
         } label: {
-            Text("No").fontWeight(declined ? .semibold : .regular)
+            Text("No")
         }
         .buttonStyle(.secondarySmall)
         .tint(declined ? DS.Palette.accent : .primary)
@@ -281,7 +288,7 @@ struct EventDetailView: View {
             if let response { reply = response }
             Task { await respond(rsvp) }
         } label: {
-            Text(title).fontWeight(selected ? .semibold : .regular)
+            Text(title)
         }
         .buttonStyle(.secondarySmall)
         .tint(selected ? DS.Palette.accent : .primary)

@@ -19,7 +19,7 @@ final class NutritionEntryUITest: XCTestCase {
         let scan = app.buttons["wellness.barcodeMeal"]
         XCTAssertTrue(scan.waitForExistence(timeout: 4), app.debugDescription)
         scan.tap()
-        XCTAssertTrue(app.navigationBars["Scan a package"].waitForExistence(timeout: 5), app.debugDescription)
+        XCTAssertTrue(app.navigationBars["Scan package"].waitForExistence(timeout: 5), app.debugDescription)
         // The label can be photographed where the camera can't scan (a Simulator has no camera).
         XCTAssertTrue(app.buttons["scan.labelPhoto"].firstMatch.exists)
     }

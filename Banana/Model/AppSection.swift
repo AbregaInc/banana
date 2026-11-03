@@ -5,7 +5,7 @@ import Foundation
 /// "Workouts" on iOS happened). Each platform picks its own subset and order via `iOSTabs` /
 /// `macSidebar` rather than hand-listing cases at the call site.
 enum AppSection: String, Codable, CaseIterable, Identifiable {
-    case plan, mail, workouts, sleep, trends, nutrition, notes, routines, library, review, settings
+    case plan, mail, workouts, sleep, trends, nutrition, notes, routines, library, review, assistant, settings
     var id: String { rawValue }
 
     var title: String {
@@ -20,6 +20,7 @@ enum AppSection: String, Codable, CaseIterable, Identifiable {
         case .routines: "Routines"
         case .library: "Library"
         case .review: "Review"
+        case .assistant: "Assistant"
         case .settings: "Settings"
         }
     }
@@ -36,6 +37,7 @@ enum AppSection: String, Codable, CaseIterable, Identifiable {
         case .routines: "repeat"
         case .library: "square.stack.fill"
         case .review: "chart.bar.fill"
+        case .assistant: "bubble.left.and.bubble.right.fill"
         case .settings: "gearshape.fill"
         }
     }
@@ -50,7 +52,7 @@ enum AppSection: String, Codable, CaseIterable, Identifiable {
     var tabBarHome: AppSection {
         switch self {
         case .sleep, .trends, .review: .workouts
-        case .routines, .settings: .plan
+        case .routines, .assistant, .settings: .plan
         default: self
         }
     }
@@ -66,8 +68,15 @@ enum AppSection: String, Codable, CaseIterable, Identifiable {
 
     /// The sidebar on the Mac and the iPad, in list order: the pages for doing, then Review for
     /// looking back, then Settings.
-    static let sidebar: [AppSection] = [.plan, .mail, .workouts, .nutrition, .notes, .routines, .library, .review, .settings]
-    static var macSidebar: [AppSection] { sidebar.filter { $0 != .settings } }
+    static let sidebar: [AppSection] = [.plan, .mail, .workouts, .nutrition, .notes, .routines, .library, .review, .assistant, .settings]
+    /// The Mac's has no Settings: it is its own window there (⌘,), as in every Mac app.
+    static var macSidebar: [AppSection] {
+        #if PI_DEVELOPMENT
+        sidebar.filter { $0 != .settings && $0 != .assistant }
+        #else
+        sidebar.filter { $0 != .settings }
+        #endif
+    }
 
     /// The section a sidebar row stands for, from the id its List selected it by (rows are
     /// selected by their own ids, never a tag a later modifier can hide — see MacRootView). No

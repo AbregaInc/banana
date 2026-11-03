@@ -537,7 +537,7 @@ final class OccurrenceStore: ObservableObject {
         #if DEBUG
         // A visual-audit capture seeded the timeline; a live recompute would paint whatever the
         // build's own stores hold over it moments before the capture.
-        if previewPinned { return }
+        if previewPinned || AppSupport.isPiSampleWorkspace { return }
         #endif
         let completionGenerationAtStart = taskCompletionGeneration
         // A refresh must not race ahead of completion writes that are waiting for the burst
@@ -1527,6 +1527,11 @@ final class OccurrenceStore: ObservableObject {
         guard end > start else { return [] }
         let cal = Calendar.current
         let startDay = cal.startOfDay(for: start)
+        if AppSupport.isPiSampleWorkspace {
+            return occurrences.filter {
+                $0.start < end && ($0.hasScheduledTime ? $0.resolvedEnd > startDay : $0.start >= startDay)
+            }
+        }
         let key = Self.planningWindowKey(from: startDay, to: end)
         if let entry = planningWindows[key] {
             return renderedPlanningWindow(entry)
@@ -1561,6 +1566,9 @@ final class OccurrenceStore: ObservableObject {
     /// and replace only their own slices as each finishes. The cache is display-only and never
     /// drives alarm arming or calendar write-back.
     func refreshPlanningWindow(from start: Date, to end: Date) async {
+        // Sample grids and the agenda share the fixture snapshot. Real provider caches
+        // must not replace it with an empty result on launch or when navigating weeks.
+        guard !AppSupport.isPiSampleWorkspace else { return }
         guard end > start else { return }
         let startDay = Calendar.current.startOfDay(for: start)
         let key = Self.planningWindowKey(from: startDay, to: end)
@@ -2220,8 +2228,40 @@ final class OccurrenceStore: ObservableObject {
         let sorted = ExceptionStore.shared.apply(to: seeded).sorted { $0.start < $1.start }
         occurrences = sorted
         byDay = Dictionary(grouping: sorted) { cal.startOfDay(for: $0.start) }
+        lastComputed = now
         previewPinned = true
+        // Publish after the snapshot is assigned: $occurrences sends before assignment,
+        // while the calendar rebuild reads back through planningWindow().
+        planningWindowRevision &+= 1
     }
+
+    #if PI_DEVELOPMENT
+    func verifySampleCalendarWindows() async -> Bool {
+        guard AppSupport.isPiSampleWorkspace else { return false }
+        let cal = Calendar.current
+        let today = cal.startOfDay(for: Date())
+        var days = [today, cal.date(byAdding: .day, value: 1, to: today)!]
+        if let flight = occurrences.first(where: { $0.meeting?.eventID == "sample-flight-outbound" }), let end = flight.end {
+            days.append(cal.startOfDay(for: end)) // An overnight flight must also be on its arrival day.
+        }
+        for start in days {
+            let end = cal.date(byAdding: .day, value: 1, to: start)!
+            let key = Self.planningWindowKey(from: start, to: end)
+            let previous = planningWindows[key]
+            // Reproduce an empty provider cache taking precedence over populated fixtures.
+            planningWindows[key] = PlanningWindowEntry(start: start, end: end, base: [],
+                localMeetings: [], googleMeetings: [], localExtras: [])
+            let expected = Set(occurrences.filter { $0.meeting != nil && $0.start < end && $0.resolvedEnd > start }.map(\.id))
+            let before = Set(planningWindow(from: start, to: end).filter { $0.meeting != nil }.map(\.id))
+            await refreshPlanningWindow(from: start, to: end)
+            await recompute(reason: "sample calendar regression")
+            let after = Set(planningWindow(from: start, to: end).filter { $0.meeting != nil }.map(\.id))
+            planningWindows[key] = previous
+            guard !expected.isEmpty, expected.isSubset(of: before), before == after else { return false }
+        }
+        return true
+    }
+    #endif
 
     #if targetEnvironment(simulator) || os(macOS) || STRESS_DEVICE_AUDIT
     func injectStress(_ meetings: [MeetingInfo]) {

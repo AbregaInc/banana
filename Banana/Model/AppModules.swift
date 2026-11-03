@@ -126,7 +126,7 @@ extension AppSection {
         case .nutrition: .food
         case .notes: .notes
         case .library: .podcasts
-        case .plan, .routines, .settings, .review: nil
+        case .plan, .routines, .settings, .review, .assistant: nil
         }
     }
 

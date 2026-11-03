@@ -1,0 +1,706 @@
+{
+  "model": "kev-0.5b",
+  "release": "v0.1.0",
+  "sourceCommit": "ac67bf4e52d7bdc8420d8024c396df5585915d8c",
+  "sourceSHA256": "f11fba2114a354c99cfd4378599b6116131909c1d154f8543ec4050d6681a7e7",
+  "checkpointSHA256": "15639f791361258432fc954a68023bca95260dade61f731b4260eb60f06e12f8",
+  "packages": {
+    "torch": "2.14.0",
+    "transformers": "4.57.6",
+    "peft": "0.21.0",
+    "tokenizers": "0.22.2"
+  },
+  "device": "mps",
+  "machine": "arm64",
+  "chip": "Apple M1 Max",
+  "host": "27.0.1",
+  "temperature": 1.4741506576538086,
+  "loadMilliseconds": 1595.2734999591485,
+  "scope": "Synthetic tool routing only; no argument generation, app execution, or mobile measurement. Tokenization excluded from forward timings.",
+  "results": [
+    {
+      "case": "monthly",
+      "repeat": 0,
+      "milliseconds": 213.7,
+      "prediction": "nutrition_view",
+      "expected": "nutrition_view",
+      "correct": true,
+      "probabilities": {
+        "nutrition_view": 0.5236142873764038,
+        "filter_nutrition": 0.04676390811800957,
+        "prepare_meal_copy": 0.06028895452618599,
+        "list_notes": 0.050250131636857986,
+        "read_note": 0.04175898805260658,
+        "create_note": 0.040931813418865204,
+        "day_plan": 0.03994547575712204,
+        "no_tool": 0.196446493268013
+      },
+      "inputTokens": 355
+    },
+    {
+      "case": "calories",
+      "repeat": 0,
+      "milliseconds": 115.6,
+      "prediction": "nutrition_view",
+      "expected": "nutrition_view",
+      "correct": true,
+      "probabilities": {
+        "nutrition_view": 0.5417091250419617,
+        "filter_nutrition": 0.08000945299863815,
+        "prepare_meal_copy": 0.06975925713777542,
+        "list_notes": 0.04184195399284363,
+        "read_note": 0.03408825397491455,
+        "create_note": 0.026488225907087326,
+        "day_plan": 0.040060121566057205,
+        "no_tool": 0.16604362428188324
+      },
+      "inputTokens": 357
+    },
+    {
+      "case": "search",
+      "repeat": 0,
+      "milliseconds": 111.8,
+      "prediction": "nutrition_view",
+      "expected": "nutrition_view",
+      "correct": true,
+      "probabilities": {
+        "nutrition_view": 0.5974187254905701,
+        "filter_nutrition": 0.02205602638423443,
+        "prepare_meal_copy": 0.05350016802549362,
+        "list_notes": 0.051748670637607574,
+        "read_note": 0.036356858909130096,
+        "create_note": 0.03299885243177414,
+        "day_plan": 0.022539038211107254,
+        "no_tool": 0.18338166177272797
+      },
+      "inputTokens": 355
+    },
+    {
+      "case": "weekdays",
+      "repeat": 0,
+      "milliseconds": 120.8,
+      "prediction": "nutrition_view",
+      "expected": "filter_nutrition",
+      "correct": false,
+      "probabilities": {
+        "nutrition_view": 0.3933495283126831,
+        "filter_nutrition": 0.036616094410419464,
+        "prepare_meal_copy": 0.14707744121551514,
+        "list_notes": 0.05091359466314316,
+        "read_note": 0.03893333673477173,
+        "create_note": 0.038435667753219604,
+        "day_plan": 0.057432711124420166,
+        "no_tool": 0.2372417151927948
+      },
+      "inputTokens": 352
+    },
+    {
+      "case": "compare",
+      "repeat": 0,
+      "milliseconds": 110.0,
+      "prediction": "filter_nutrition",
+      "expected": "filter_nutrition",
+      "correct": true,
+      "probabilities": {
+        "nutrition_view": 0.058142438530921936,
+        "filter_nutrition": 0.8795509338378906,
+        "prepare_meal_copy": 0.01452154666185379,
+        "list_notes": 0.0075479247607290745,
+        "read_note": 0.00602686544880271,
+        "create_note": 0.005540426820516586,
+        "day_plan": 0.005344069097191095,
+        "no_tool": 0.023325789719820023
+      },
+      "inputTokens": 355
+    },
+    {
+      "case": "copy",
+      "repeat": 0,
+      "milliseconds": 119.9,
+      "prediction": "no_tool",
+      "expected": "prepare_meal_copy",
+      "correct": false,
+      "probabilities": {
+        "nutrition_view": 0.21723395586013794,
+        "filter_nutrition": 0.021105904132127762,
+        "prepare_meal_copy": 0.14687524735927582,
+        "list_notes": 0.06745904684066772,
+        "read_note": 0.04562855139374733,
+        "create_note": 0.17758695781230927,
+        "day_plan": 0.09873748570680618,
+        "no_tool": 0.22537283599376678
+      },
+      "inputTokens": 367
+    },
+    {
+      "case": "notes",
+      "repeat": 0,
+      "milliseconds": 129.1,
+      "prediction": "list_notes",
+      "expected": "list_notes",
+      "correct": true,
+      "probabilities": {
+        "nutrition_view": 0.19286301732063293,
+        "filter_nutrition": 0.014770745299756527,
+        "prepare_meal_copy": 0.015781044960021973,
+        "list_notes": 0.35037851333618164,
+        "read_note": 0.23658624291419983,
+        "create_note": 0.057192929089069366,
+        "day_plan": 0.02118414267897606,
+        "no_tool": 0.11124341934919357
+      },
+      "inputTokens": 354
+    },
+    {
+      "case": "plan",
+      "repeat": 0,
+      "milliseconds": 128.2,
+      "prediction": "nutrition_view",
+      "expected": "day_plan",
+      "correct": false,
+      "probabilities": {
+        "nutrition_view": 0.43080100417137146,
+        "filter_nutrition": 0.026473872363567352,
+        "prepare_meal_copy": 0.03481302410364151,
+        "list_notes": 0.07190912216901779,
+        "read_note": 0.039018869400024414,
+        "create_note": 0.053104106336832047,
+        "day_plan": 0.1323460191488266,
+        "no_tool": 0.2115340232849121
+      },
+      "inputTokens": 356
+    },
+    {
+      "case": "greeting",
+      "repeat": 0,
+      "milliseconds": 114.3,
+      "prediction": "nutrition_view",
+      "expected": "no_tool",
+      "correct": false,
+      "probabilities": {
+        "nutrition_view": 0.605988085269928,
+        "filter_nutrition": 0.014209617860615253,
+        "prepare_meal_copy": 0.04274946451187134,
+        "list_notes": 0.09436836838722229,
+        "read_note": 0.03386421874165535,
+        "create_note": 0.028946181759238243,
+        "day_plan": 0.02202179841697216,
+        "no_tool": 0.15785223245620728
+      },
+      "inputTokens": 351
+    },
+    {
+      "case": "explanation",
+      "repeat": 0,
+      "milliseconds": 108.3,
+      "prediction": "nutrition_view",
+      "expected": "no_tool",
+      "correct": false,
+      "probabilities": {
+        "nutrition_view": 0.6323898434638977,
+        "filter_nutrition": 0.020392784848809242,
+        "prepare_meal_copy": 0.04340841621160507,
+        "list_notes": 0.07435952126979828,
+        "read_note": 0.042318373918533325,
+        "create_note": 0.037028718739748,
+        "day_plan": 0.02490973472595215,
+        "no_tool": 0.12519268691539764
+      },
+      "inputTokens": 355
+    },
+    {
+      "case": "unsupported",
+      "repeat": 0,
+      "milliseconds": 106.4,
+      "prediction": "nutrition_view",
+      "expected": "no_tool",
+      "correct": false,
+      "probabilities": {
+        "nutrition_view": 0.3721441328525543,
+        "filter_nutrition": 0.04639556631445885,
+        "prepare_meal_copy": 0.054678913205862045,
+        "list_notes": 0.07299701869487762,
+        "read_note": 0.122679203748703,
+        "create_note": 0.055147625505924225,
+        "day_plan": 0.04134489968419075,
+        "no_tool": 0.23461268842220306
+      },
+      "inputTokens": 356
+    },
+    {
+      "case": "ambiguous",
+      "repeat": 0,
+      "milliseconds": 106.8,
+      "prediction": "no_tool",
+      "expected": "no_tool",
+      "correct": true,
+      "probabilities": {
+        "nutrition_view": 0.3510388731956482,
+        "filter_nutrition": 0.015626952052116394,
+        "prepare_meal_copy": 0.04084433615207672,
+        "list_notes": 0.05519014224410057,
+        "read_note": 0.03805642947554588,
+        "create_note": 0.0377202108502388,
+        "day_plan": 0.02447560429573059,
+        "no_tool": 0.4370475113391876
+      },
+      "inputTokens": 354
+    },
+    {
+      "case": "monthly",
+      "repeat": 1,
+      "milliseconds": 104.7,
+      "prediction": "nutrition_view",
+      "expected": "nutrition_view",
+      "correct": true,
+      "probabilities": {
+        "nutrition_view": 0.5236142873764038,
+        "filter_nutrition": 0.04676390811800957,
+        "prepare_meal_copy": 0.06028895452618599,
+        "list_notes": 0.050250131636857986,
+        "read_note": 0.04175898805260658,
+        "create_note": 0.040931813418865204,
+        "day_plan": 0.03994547575712204,
+        "no_tool": 0.196446493268013
+      },
+      "inputTokens": 355
+    },
+    {
+      "case": "calories",
+      "repeat": 1,
+      "milliseconds": 114.7,
+      "prediction": "nutrition_view",
+      "expected": "nutrition_view",
+      "correct": true,
+      "probabilities": {
+        "nutrition_view": 0.5417091250419617,
+        "filter_nutrition": 0.08000945299863815,
+        "prepare_meal_copy": 0.06975925713777542,
+        "list_notes": 0.04184195399284363,
+        "read_note": 0.03408825397491455,
+        "create_note": 0.026488225907087326,
+        "day_plan": 0.040060121566057205,
+        "no_tool": 0.16604362428188324
+      },
+      "inputTokens": 357
+    },
+    {
+      "case": "search",
+      "repeat": 1,
+      "milliseconds": 103.9,
+      "prediction": "nutrition_view",
+      "expected": "nutrition_view",
+      "correct": true,
+      "probabilities": {
+        "nutrition_view": 0.5974187254905701,
+        "filter_nutrition": 0.02205602638423443,
+        "prepare_meal_copy": 0.05350016802549362,
+        "list_notes": 0.051748670637607574,
+        "read_note": 0.036356858909130096,
+        "create_note": 0.03299885243177414,
+        "day_plan": 0.022539038211107254,
+        "no_tool": 0.18338166177272797
+      },
+      "inputTokens": 355
+    },
+    {
+      "case": "weekdays",
+      "repeat": 1,
+      "milliseconds": 107.8,
+      "prediction": "nutrition_view",
+      "expected": "filter_nutrition",
+      "correct": false,
+      "probabilities": {
+        "nutrition_view": 0.3933495283126831,
+        "filter_nutrition": 0.036616094410419464,
+        "prepare_meal_copy": 0.14707744121551514,
+        "list_notes": 0.05091359466314316,
+        "read_note": 0.03893333673477173,
+        "create_note": 0.038435667753219604,
+        "day_plan": 0.057432711124420166,
+        "no_tool": 0.2372417151927948
+      },
+      "inputTokens": 352
+    },
+    {
+      "case": "compare",
+      "repeat": 1,
+      "milliseconds": 106.3,
+      "prediction": "filter_nutrition",
+      "expected": "filter_nutrition",
+      "correct": true,
+      "probabilities": {
+        "nutrition_view": 0.058142438530921936,
+        "filter_nutrition": 0.8795509338378906,
+        "prepare_meal_copy": 0.01452154666185379,
+        "list_notes": 0.0075479247607290745,
+        "read_note": 0.00602686544880271,
+        "create_note": 0.005540426820516586,
+        "day_plan": 0.005344069097191095,
+        "no_tool": 0.023325789719820023
+      },
+      "inputTokens": 355
+    },
+    {
+      "case": "copy",
+      "repeat": 1,
+      "milliseconds": 116.3,
+      "prediction": "no_tool",
+      "expected": "prepare_meal_copy",
+      "correct": false,
+      "probabilities": {
+        "nutrition_view": 0.21723395586013794,
+        "filter_nutrition": 0.021105904132127762,
+        "prepare_meal_copy": 0.14687524735927582,
+        "list_notes": 0.06745904684066772,
+        "read_note": 0.04562855139374733,
+        "create_note": 0.17758695781230927,
+        "day_plan": 0.09873748570680618,
+        "no_tool": 0.22537283599376678
+      },
+      "inputTokens": 367
+    },
+    {
+      "case": "notes",
+      "repeat": 1,
+      "milliseconds": 117.8,
+      "prediction": "list_notes",
+      "expected": "list_notes",
+      "correct": true,
+      "probabilities": {
+        "nutrition_view": 0.19286301732063293,
+        "filter_nutrition": 0.014770745299756527,
+        "prepare_meal_copy": 0.015781044960021973,
+        "list_notes": 0.35037851333618164,
+        "read_note": 0.23658624291419983,
+        "create_note": 0.057192929089069366,
+        "day_plan": 0.02118414267897606,
+        "no_tool": 0.11124341934919357
+      },
+      "inputTokens": 354
+    },
+    {
+      "case": "plan",
+      "repeat": 1,
+      "milliseconds": 119.1,
+      "prediction": "nutrition_view",
+      "expected": "day_plan",
+      "correct": false,
+      "probabilities": {
+        "nutrition_view": 0.43080100417137146,
+        "filter_nutrition": 0.026473872363567352,
+        "prepare_meal_copy": 0.03481302410364151,
+        "list_notes": 0.07190912216901779,
+        "read_note": 0.039018869400024414,
+        "create_note": 0.053104106336832047,
+        "day_plan": 0.1323460191488266,
+        "no_tool": 0.2115340232849121
+      },
+      "inputTokens": 356
+    },
+    {
+      "case": "greeting",
+      "repeat": 1,
+      "milliseconds": 122.1,
+      "prediction": "nutrition_view",
+      "expected": "no_tool",
+      "correct": false,
+      "probabilities": {
+        "nutrition_view": 0.605988085269928,
+        "filter_nutrition": 0.014209617860615253,
+        "prepare_meal_copy": 0.04274946451187134,
+        "list_notes": 0.09436836838722229,
+        "read_note": 0.03386421874165535,
+        "create_note": 0.028946181759238243,
+        "day_plan": 0.02202179841697216,
+        "no_tool": 0.15785223245620728
+      },
+      "inputTokens": 351
+    },
+    {
+      "case": "explanation",
+      "repeat": 1,
+      "milliseconds": 124.6,
+      "prediction": "nutrition_view",
+      "expected": "no_tool",
+      "correct": false,
+      "probabilities": {
+        "nutrition_view": 0.6323898434638977,
+        "filter_nutrition": 0.020392784848809242,
+        "prepare_meal_copy": 0.04340841621160507,
+        "list_notes": 0.07435952126979828,
+        "read_note": 0.042318373918533325,
+        "create_note": 0.037028718739748,
+        "day_plan": 0.02490973472595215,
+        "no_tool": 0.12519268691539764
+      },
+      "inputTokens": 355
+    },
+    {
+      "case": "unsupported",
+      "repeat": 1,
+      "milliseconds": 100.2,
+      "prediction": "nutrition_view",
+      "expected": "no_tool",
+      "correct": false,
+      "probabilities": {
+        "nutrition_view": 0.3721441328525543,
+        "filter_nutrition": 0.04639556631445885,
+        "prepare_meal_copy": 0.054678913205862045,
+        "list_notes": 0.07299701869487762,
+        "read_note": 0.122679203748703,
+        "create_note": 0.055147625505924225,
+        "day_plan": 0.04134489968419075,
+        "no_tool": 0.23461268842220306
+      },
+      "inputTokens": 356
+    },
+    {
+      "case": "ambiguous",
+      "repeat": 1,
+      "milliseconds": 101.2,
+      "prediction": "no_tool",
+      "expected": "no_tool",
+      "correct": true,
+      "probabilities": {
+        "nutrition_view": 0.3510388731956482,
+        "filter_nutrition": 0.015626952052116394,
+        "prepare_meal_copy": 0.04084433615207672,
+        "list_notes": 0.05519014224410057,
+        "read_note": 0.03805642947554588,
+        "create_note": 0.0377202108502388,
+        "day_plan": 0.02447560429573059,
+        "no_tool": 0.4370475113391876
+      },
+      "inputTokens": 354
+    },
+    {
+      "case": "monthly",
+      "repeat": 2,
+      "milliseconds": 101.3,
+      "prediction": "nutrition_view",
+      "expected": "nutrition_view",
+      "correct": true,
+      "probabilities": {
+        "nutrition_view": 0.5236142873764038,
+        "filter_nutrition": 0.04676390811800957,
+        "prepare_meal_copy": 0.06028895452618599,
+        "list_notes": 0.050250131636857986,
+        "read_note": 0.04175898805260658,
+        "create_note": 0.040931813418865204,
+        "day_plan": 0.03994547575712204,
+        "no_tool": 0.196446493268013
+      },
+      "inputTokens": 355
+    },
+    {
+      "case": "calories",
+      "repeat": 2,
+      "milliseconds": 111.2,
+      "prediction": "nutrition_view",
+      "expected": "nutrition_view",
+      "correct": true,
+      "probabilities": {
+        "nutrition_view": 0.5417091250419617,
+        "filter_nutrition": 0.08000945299863815,
+        "prepare_meal_copy": 0.06975925713777542,
+        "list_notes": 0.04184195399284363,
+        "read_note": 0.03408825397491455,
+        "create_note": 0.026488225907087326,
+        "day_plan": 0.040060121566057205,
+        "no_tool": 0.16604362428188324
+      },
+      "inputTokens": 357
+    },
+    {
+      "case": "search",
+      "repeat": 2,
+      "milliseconds": 106.6,
+      "prediction": "nutrition_view",
+      "expected": "nutrition_view",
+      "correct": true,
+      "probabilities": {
+        "nutrition_view": 0.5974187254905701,
+        "filter_nutrition": 0.02205602638423443,
+        "prepare_meal_copy": 0.05350016802549362,
+        "list_notes": 0.051748670637607574,
+        "read_note": 0.036356858909130096,
+        "create_note": 0.03299885243177414,
+        "day_plan": 0.022539038211107254,
+        "no_tool": 0.18338166177272797
+      },
+      "inputTokens": 355
+    },
+    {
+      "case": "weekdays",
+      "repeat": 2,
+      "milliseconds": 111.9,
+      "prediction": "nutrition_view",
+      "expected": "filter_nutrition",
+      "correct": false,
+      "probabilities": {
+        "nutrition_view": 0.3933495283126831,
+        "filter_nutrition": 0.036616094410419464,
+        "prepare_meal_copy": 0.14707744121551514,
+        "list_notes": 0.05091359466314316,
+        "read_note": 0.03893333673477173,
+        "create_note": 0.038435667753219604,
+        "day_plan": 0.057432711124420166,
+        "no_tool": 0.2372417151927948
+      },
+      "inputTokens": 352
+    },
+    {
+      "case": "compare",
+      "repeat": 2,
+      "milliseconds": 111.4,
+      "prediction": "filter_nutrition",
+      "expected": "filter_nutrition",
+      "correct": true,
+      "probabilities": {
+        "nutrition_view": 0.058142438530921936,
+        "filter_nutrition": 0.8795509338378906,
+        "prepare_meal_copy": 0.01452154666185379,
+        "list_notes": 0.0075479247607290745,
+        "read_note": 0.00602686544880271,
+        "create_note": 0.005540426820516586,
+        "day_plan": 0.005344069097191095,
+        "no_tool": 0.023325789719820023
+      },
+      "inputTokens": 355
+    },
+    {
+      "case": "copy",
+      "repeat": 2,
+      "milliseconds": 116.5,
+      "prediction": "no_tool",
+      "expected": "prepare_meal_copy",
+      "correct": false,
+      "probabilities": {
+        "nutrition_view": 0.21723395586013794,
+        "filter_nutrition": 0.021105904132127762,
+        "prepare_meal_copy": 0.14687524735927582,
+        "list_notes": 0.06745904684066772,
+        "read_note": 0.04562855139374733,
+        "create_note": 0.17758695781230927,
+        "day_plan": 0.09873748570680618,
+        "no_tool": 0.22537283599376678
+      },
+      "inputTokens": 367
+    },
+    {
+      "case": "notes",
+      "repeat": 2,
+      "milliseconds": 122.3,
+      "prediction": "list_notes",
+      "expected": "list_notes",
+      "correct": true,
+      "probabilities": {
+        "nutrition_view": 0.19286301732063293,
+        "filter_nutrition": 0.014770745299756527,
+        "prepare_meal_copy": 0.015781044960021973,
+        "list_notes": 0.35037851333618164,
+        "read_note": 0.23658624291419983,
+        "create_note": 0.057192929089069366,
+        "day_plan": 0.02118414267897606,
+        "no_tool": 0.11124341934919357
+      },
+      "inputTokens": 354
+    },
+    {
+      "case": "plan",
+      "repeat": 2,
+      "milliseconds": 125.7,
+      "prediction": "nutrition_view",
+      "expected": "day_plan",
+      "correct": false,
+      "probabilities": {
+        "nutrition_view": 0.43080100417137146,
+        "filter_nutrition": 0.026473872363567352,
+        "prepare_meal_copy": 0.03481302410364151,
+        "list_notes": 0.07190912216901779,
+        "read_note": 0.039018869400024414,
+        "create_note": 0.053104106336832047,
+        "day_plan": 0.1323460191488266,
+        "no_tool": 0.2115340232849121
+      },
+      "inputTokens": 356
+    },
+    {
+      "case": "greeting",
+      "repeat": 2,
+      "milliseconds": 121.6,
+      "prediction": "nutrition_view",
+      "expected": "no_tool",
+      "correct": false,
+      "probabilities": {
+        "nutrition_view": 0.605988085269928,
+        "filter_nutrition": 0.014209617860615253,
+        "prepare_meal_copy": 0.04274946451187134,
+        "list_notes": 0.09436836838722229,
+        "read_note": 0.03386421874165535,
+        "create_note": 0.028946181759238243,
+        "day_plan": 0.02202179841697216,
+        "no_tool": 0.15785223245620728
+      },
+      "inputTokens": 351
+    },
+    {
+      "case": "explanation",
+      "repeat": 2,
+      "milliseconds": 130.7,
+      "prediction": "nutrition_view",
+      "expected": "no_tool",
+      "correct": false,
+      "probabilities": {
+        "nutrition_view": 0.6323898434638977,
+        "filter_nutrition": 0.020392784848809242,
+        "prepare_meal_copy": 0.04340841621160507,
+        "list_notes": 0.07435952126979828,
+        "read_note": 0.042318373918533325,
+        "create_note": 0.037028718739748,
+        "day_plan": 0.02490973472595215,
+        "no_tool": 0.12519268691539764
+      },
+      "inputTokens": 355
+    },
+    {
+      "case": "unsupported",
+      "repeat": 2,
+      "milliseconds": 136.7,
+      "prediction": "nutrition_view",
+      "expected": "no_tool",
+      "correct": false,
+      "probabilities": {
+        "nutrition_view": 0.3721441328525543,
+        "filter_nutrition": 0.04639556631445885,
+        "prepare_meal_copy": 0.054678913205862045,
+        "list_notes": 0.07299701869487762,
+        "read_note": 0.122679203748703,
+        "create_note": 0.055147625505924225,
+        "day_plan": 0.04134489968419075,
+        "no_tool": 0.23461268842220306
+      },
+      "inputTokens": 356
+    },
+    {
+      "case": "ambiguous",
+      "repeat": 2,
+      "milliseconds": 126.4,
+      "prediction": "no_tool",
+      "expected": "no_tool",
+      "correct": true,
+      "probabilities": {
+        "nutrition_view": 0.3510388731956482,
+        "filter_nutrition": 0.015626952052116394,
+        "prepare_meal_copy": 0.04084433615207672,
+        "list_notes": 0.05519014224410057,
+        "read_note": 0.03805642947554588,
+        "create_note": 0.0377202108502388,
+        "day_plan": 0.02447560429573059,
+        "no_tool": 0.4370475113391876
+      },
+      "inputTokens": 354
+    }
+  ]
+}

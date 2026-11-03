@@ -1,0 +1,182 @@
+{
+  "model": "qwen3.5-4b-4bit",
+  "scope": "Exact user wording, captured native view and current registered tool schemas; inference replay only, not a completed app action. No native tools execute.",
+  "results": [
+    {
+      "prompt": "What is your name",
+      "repeat": 0,
+      "model": "qwen3.5-4b-4bit",
+      "milliseconds": 3617,
+      "old27BObservedMilliseconds": 16275,
+      "raw": {
+        "id": "chatcmpl-ffbceda1f8c449468d077b71",
+        "object": "chat.completion",
+        "created": 1792890940,
+        "model": "locals/qwen35-4b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "My name is Banana. How can I help you today?"
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2363,
+          "completion_tokens": 12,
+          "total_tokens": 2375,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 0,
+            "passes": 13,
+            "constrained": true,
+            "wall_s": 3.5971659159986302
+          }
+        }
+      },
+      "contractPass": true
+    },
+    {
+      "prompt": "What is your name",
+      "repeat": 1,
+      "model": "qwen3.5-4b-4bit",
+      "milliseconds": 3044,
+      "old27BObservedMilliseconds": 16275,
+      "raw": {
+        "id": "chatcmpl-4ce0ebe0247848368c96d531",
+        "object": "chat.completion",
+        "created": 1792890943,
+        "model": "locals/qwen35-4b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "My name is Banana."
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2363,
+          "completion_tokens": 5,
+          "total_tokens": 2368,
+          "prompt_tokens_details": {
+            "cached_tokens": 2114
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 0,
+            "passes": 6,
+            "constrained": true,
+            "wall_s": 3.031309708021581
+          }
+        }
+      },
+      "contractPass": true
+    },
+    {
+      "prompt": "Can you add the salmon dinner again",
+      "repeat": 0,
+      "model": "qwen3.5-4b-4bit",
+      "milliseconds": 2994,
+      "old27BObservedMilliseconds": 22038,
+      "raw": {
+        "id": "chatcmpl-41890044ce2e4567968add0c",
+        "object": "chat.completion",
+        "created": 1792890946,
+        "model": "locals/qwen35-4b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "I can help you add the salmon dinner again. Based on your logged meals, I found a salmon dinner entry. Let me prepare a copy of that meal for today.",
+              "tool_calls": [
+                {
+                  "id": "call_a2d560fec9784681a4fa979b",
+                  "type": "function",
+                  "function": {
+                    "name": "prepare_meal_copy",
+                    "arguments": "{\"day\": \"today\", \"mealID\": \"BA5A4E11-0000-4000-8000-000202610042\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2405,
+          "completion_tokens": 110,
+          "total_tokens": 2515,
+          "prompt_tokens_details": {
+            "cached_tokens": 2114
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 14,
+            "passes": 96,
+            "constrained": true,
+            "wall_s": 2.970216542016715
+          }
+        }
+      },
+      "contractPass": true
+    },
+    {
+      "prompt": "Can you add the salmon dinner again",
+      "repeat": 1,
+      "model": "qwen3.5-4b-4bit",
+      "milliseconds": 2089,
+      "old27BObservedMilliseconds": 22038,
+      "raw": {
+        "id": "chatcmpl-ff6ae97158bc4c36b9305f46",
+        "object": "chat.completion",
+        "created": 1792890949,
+        "model": "locals/qwen35-4b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_bfc6750f9d3d4de7a1a162b9",
+                  "type": "function",
+                  "function": {
+                    "name": "prepare_meal_copy",
+                    "arguments": "{\"mealID\": \"BA5A4E11-0000-4000-8000-000202610042\", \"day\": \"today\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2405,
+          "completion_tokens": 75,
+          "total_tokens": 2480,
+          "prompt_tokens_details": {
+            "cached_tokens": 2386
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 14,
+            "passes": 61,
+            "constrained": true,
+            "wall_s": 2.068900499958545
+          }
+        }
+      },
+      "contractPass": true
+    }
+  ]
+}

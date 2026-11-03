@@ -1,0 +1,466 @@
+{
+  "backend": "lfm1200",
+  "complete": true,
+  "correct": 10,
+  "device": "iPad",
+  "loadMilliseconds": 357,
+  "os": "Version 27.0.1 (Build 24A446)",
+  "results": [
+    {
+      "case": "monthly",
+      "correct": false,
+      "milliseconds": 4430,
+      "repeat": 0,
+      "response": {
+        "content": [
+          {
+            "text": "I don't have a direct way to display your protein intake for this month without accessing your personal nutrition data. However, I can help you review your logged meals or prepare a summary if you'd like to share your meal IDs. Let me know how you'd like to proceed!",
+            "type": "text"
+          }
+        ]
+      },
+      "toolContractPass": false,
+      "toolContractReason": "wrong_tool"
+    },
+    {
+      "case": "calories",
+      "correct": false,
+      "milliseconds": 2969,
+      "repeat": 0,
+      "response": {
+        "content": [
+          {
+            "text": "I don't have a direct tool to display a full calorie summary for the last seven days. However, I can retrieve the nutrition data for each day and calculate the total calories for you. Would you like me to pull the daily calorie information and provide a summary?",
+            "type": "text"
+          }
+        ]
+      },
+      "toolContractPass": false,
+      "toolContractReason": "wrong_tool"
+    },
+    {
+      "case": "search",
+      "correct": false,
+      "milliseconds": 3020,
+      "repeat": 0,
+      "response": {
+        "content": [
+          {
+            "text": "I don't have a tool that can directly search for meals based on a specific food item like yogurt. However, I can help you review your logged meals or prepare a meal copy for a specific date if you provide the meal ID. Let me know how you'd like to proceed!",
+            "type": "text"
+          }
+        ]
+      },
+      "toolContractPass": false,
+      "toolContractReason": "wrong_tool"
+    },
+    {
+      "case": "weekdays",
+      "correct": false,
+      "milliseconds": 2415,
+      "repeat": 0,
+      "response": {
+        "content": [
+          {
+            "text": "I'll focus on the weekdays for you.",
+            "type": "text"
+          }
+        ]
+      },
+      "toolContractPass": false,
+      "toolContractReason": "wrong_tool"
+    },
+    {
+      "case": "compare",
+      "correct": false,
+      "milliseconds": 2996,
+      "repeat": 0,
+      "response": {
+        "content": [
+          {
+            "text": "I'm sorry, but I don't have the capability to directly compare the current period with the previous one. However, I can help you review your nutrition data or prepare a meal copy for another day if you'd like. Let me know how you'd like to proceed!",
+            "type": "text"
+          }
+        ]
+      },
+      "toolContractPass": false,
+      "toolContractReason": "wrong_tool"
+    },
+    {
+      "case": "copy",
+      "correct": true,
+      "milliseconds": 3662,
+      "repeat": 0,
+      "response": {
+        "content": [
+          {
+            "arguments": {
+              "day": "tomorrow",
+              "mealID": "BA5A4E11-0000-4000-8000-000202610231",
+              "revision": 2
+            },
+            "id": "call_4c947d4589ee4deca0e66047ff0f0fcf",
+            "name": "prepare_meal_copy",
+            "type": "toolCall"
+          }
+        ]
+      },
+      "toolContractPass": true,
+      "toolContractReason": "contract_pass"
+    },
+    {
+      "case": "notes",
+      "correct": false,
+      "milliseconds": 3097,
+      "repeat": 0,
+      "response": {
+        "content": [
+          {
+            "text": "I can see you have several recent notes. Here are the details:\n\n- Note ID: 2026-10-23\n- Short preview: \"Reviewed meal logs for the past week.\"\n\nLet me know if you'd like to read more about any specific note.",
+            "type": "text"
+          }
+        ]
+      },
+      "toolContractPass": false,
+      "toolContractReason": "wrong_tool"
+    },
+    {
+      "case": "plan",
+      "correct": false,
+      "milliseconds": 2750,
+      "repeat": 0,
+      "response": {
+        "content": [
+          {
+            "text": "Your schedule for today, 2026-10-24, includes a Greek yogurt breakfast with 20 grams of protein. No other meals are listed for this day.",
+            "type": "text"
+          }
+        ]
+      },
+      "toolContractPass": false,
+      "toolContractReason": "wrong_tool"
+    },
+    {
+      "case": "greeting",
+      "correct": true,
+      "milliseconds": 2496,
+      "repeat": 0,
+      "response": {
+        "content": [
+          {
+            "text": "Hello! I'm here to help. How can I assist you today?",
+            "type": "text"
+          }
+        ]
+      },
+      "toolContractPass": true,
+      "toolContractReason": "no_tool"
+    },
+    {
+      "case": "explanation",
+      "correct": true,
+      "milliseconds": 2937,
+      "repeat": 0,
+      "response": {
+        "content": [
+          {
+            "text": "Protein is a nutrient found in foods that provides the building blocks (amino acids) needed for growth, repair, and maintenance of the body. It plays a key role in muscle function, enzyme production, hormone creation, and immune health.",
+            "type": "text"
+          }
+        ]
+      },
+      "toolContractPass": true,
+      "toolContractReason": "no_tool"
+    },
+    {
+      "case": "unsupported",
+      "correct": true,
+      "milliseconds": 2768,
+      "repeat": 0,
+      "response": {
+        "content": [
+          {
+            "text": "I'm sorry, but I can't delete your meal history. The available functions allow me to view, prepare, or update notes, but not remove or modify past entries.",
+            "type": "text"
+          }
+        ]
+      },
+      "toolContractPass": true,
+      "toolContractReason": "no_tool"
+    },
+    {
+      "case": "ambiguous",
+      "correct": true,
+      "milliseconds": 2502,
+      "repeat": 0,
+      "response": {
+        "content": [
+          {
+            "text": "I\u2019m sorry, but I don\u2019t have the ability to perform that request.",
+            "type": "text"
+          }
+        ]
+      },
+      "toolContractPass": true,
+      "toolContractReason": "no_tool"
+    },
+    {
+      "case": "monthly",
+      "correct": false,
+      "milliseconds": 3031,
+      "repeat": 1,
+      "response": {
+        "content": [
+          {
+            "text": "I don't have a direct way to display your protein intake for this month without accessing your personal nutrition data. However, I can help you review your logged meals or prepare a summary if you'd like to share your meal IDs. Let me know how you'd like to proceed!",
+            "type": "text"
+          }
+        ]
+      },
+      "toolContractPass": false,
+      "toolContractReason": "wrong_tool"
+    },
+    {
+      "case": "calories",
+      "correct": false,
+      "milliseconds": 2968,
+      "repeat": 1,
+      "response": {
+        "content": [
+          {
+            "text": "I don't have a direct tool to display a full calorie summary for the last seven days. However, I can retrieve the nutrition data for each day and calculate the total calories for you. Would you like me to pull the daily calorie information and provide a summary?",
+            "type": "text"
+          }
+        ]
+      },
+      "toolContractPass": false,
+      "toolContractReason": "wrong_tool"
+    },
+    {
+      "case": "search",
+      "correct": false,
+      "milliseconds": 3026,
+      "repeat": 1,
+      "response": {
+        "content": [
+          {
+            "text": "I don't have a tool that can directly search for meals based on a specific food item like yogurt. However, I can help you review your logged meals or prepare a meal copy for a specific date if you provide the meal ID. Let me know how you'd like to proceed!",
+            "type": "text"
+          }
+        ]
+      },
+      "toolContractPass": false,
+      "toolContractReason": "wrong_tool"
+    },
+    {
+      "case": "weekdays",
+      "correct": false,
+      "milliseconds": 2418,
+      "repeat": 1,
+      "response": {
+        "content": [
+          {
+            "text": "I'll focus on the weekdays for you.",
+            "type": "text"
+          }
+        ]
+      },
+      "toolContractPass": false,
+      "toolContractReason": "wrong_tool"
+    },
+    {
+      "case": "compare",
+      "correct": false,
+      "milliseconds": 3038,
+      "repeat": 1,
+      "response": {
+        "content": [
+          {
+            "text": "I'm sorry, but I don't have the capability to directly compare the current period with the previous one. However, I can help you review your nutrition data or prepare a meal copy for another day if you'd like. Let me know how you'd like to proceed!",
+            "type": "text"
+          }
+        ]
+      },
+      "toolContractPass": false,
+      "toolContractReason": "wrong_tool"
+    },
+    {
+      "case": "copy",
+      "correct": true,
+      "milliseconds": 3618,
+      "repeat": 1,
+      "response": {
+        "content": [
+          {
+            "arguments": {
+              "day": "tomorrow",
+              "mealID": "BA5A4E11-0000-4000-8000-000202610231",
+              "revision": 2
+            },
+            "id": "call_eae080b9a6bd4690a74470d01f76aa72",
+            "name": "prepare_meal_copy",
+            "type": "toolCall"
+          }
+        ]
+      },
+      "toolContractPass": true,
+      "toolContractReason": "contract_pass"
+    },
+    {
+      "case": "notes",
+      "correct": false,
+      "milliseconds": 3039,
+      "repeat": 1,
+      "response": {
+        "content": [
+          {
+            "text": "I can see you have several recent notes. Here are the details:\n\n- Note ID: 2026-10-23\n- Short preview: \"Reviewed meal logs for the past week.\"\n\nLet me know if you'd like to read more about any specific note.",
+            "type": "text"
+          }
+        ]
+      },
+      "toolContractPass": false,
+      "toolContractReason": "wrong_tool"
+    },
+    {
+      "case": "plan",
+      "correct": false,
+      "milliseconds": 2742,
+      "repeat": 1,
+      "response": {
+        "content": [
+          {
+            "text": "Your schedule for today, 2026-10-24, includes a Greek yogurt breakfast with 20 grams of protein. No other meals are listed for this day.",
+            "type": "text"
+          }
+        ]
+      },
+      "toolContractPass": false,
+      "toolContractReason": "wrong_tool"
+    },
+    {
+      "case": "greeting",
+      "correct": true,
+      "milliseconds": 2486,
+      "repeat": 1,
+      "response": {
+        "content": [
+          {
+            "text": "Hello! I'm here to help. How can I assist you today?",
+            "type": "text"
+          }
+        ]
+      },
+      "toolContractPass": true,
+      "toolContractReason": "no_tool"
+    },
+    {
+      "case": "explanation",
+      "correct": true,
+      "milliseconds": 3037,
+      "repeat": 1,
+      "response": {
+        "content": [
+          {
+            "text": "Protein is a nutrient found in foods that provides the building blocks (amino acids) needed for growth, repair, and maintenance of the body. It plays a key role in muscle function, enzyme production, hormone creation, and immune health.",
+            "type": "text"
+          }
+        ]
+      },
+      "toolContractPass": true,
+      "toolContractReason": "no_tool"
+    },
+    {
+      "case": "unsupported",
+      "correct": true,
+      "milliseconds": 3107,
+      "repeat": 1,
+      "response": {
+        "content": [
+          {
+            "text": "I'm sorry, but I can't delete your meal history. The available functions allow me to view, prepare, or update notes, but not remove or modify past entries.",
+            "type": "text"
+          }
+        ]
+      },
+      "toolContractPass": true,
+      "toolContractReason": "no_tool"
+    },
+    {
+      "case": "ambiguous",
+      "correct": true,
+      "milliseconds": 2976,
+      "repeat": 1,
+      "response": {
+        "content": [
+          {
+            "text": "I\u2019m sorry, but I don\u2019t have the ability to perform that request.",
+            "type": "text"
+          }
+        ]
+      },
+      "toolContractPass": true,
+      "toolContractReason": "no_tool"
+    }
+  ],
+  "run": "39c3d672-9811-44ad-9d42-552b0ba95c34",
+  "total": 24,
+  "physicalDeviceUDID": "<device-udid>",
+  "modelManifest": {
+    "repo": "LiquidAI/LFM2.5-1.2B-Instruct-MLX-4bit",
+    "revision": "7ccafdb04c36936f4f1c4685198c6c9a40275932",
+    "files": {
+      "LICENSE": {
+        "bytes": 151190,
+        "sha256": "8452bb1959f63e62f0205241f16fde8cc0b4c49c224ace2483bfba6903af4aca"
+      },
+      "README.md": {
+        "bytes": 2220,
+        "sha256": "116777890bc3b8cdb8cee2356a3f7f30902b40d9fcabbff5d0914a2c3812618b"
+      },
+      "chat_template.jinja": {
+        "bytes": 1836,
+        "sha256": "3acb41f339d069a43037e6b9a9715cbeece8874eb25a7cabf1a33903d7724d6d"
+      },
+      "config.json": {
+        "bytes": 1572,
+        "sha256": "3201758c1b68e92a8102583626b0d76f70ff4c6fc2e2b99d32e96cdbe6788cea"
+      },
+      "generation_config.json": {
+        "bytes": 132,
+        "sha256": "5ffd97da1dec4308543894569662d96e923ed01f7a9d8c7ff5aea7f800738cbd"
+      },
+      "model.safetensors": {
+        "bytes": 658540250,
+        "sha256": "d837f243744bbdbe7dd032f90b482a1c45d5b6035b25c1d7804d0f4c74b5c004"
+      },
+      "model.safetensors.index.json": {
+        "bytes": 23414,
+        "sha256": "3074009e9be56358bf8edc25354572cbca2b5a625e02f8a2c2789a656f51f5a1"
+      },
+      "special_tokens_map.json": {
+        "bytes": 434,
+        "sha256": "742aefe2b7dec496e8caffdba03a75d0c1a9925d53bd3f3e0d388c96b591b6f4"
+      },
+      "tokenizer.json": {
+        "bytes": 4733389,
+        "sha256": "df1d8d5ec5d091b460562ffd545e4a5e91d17d4a0db7ebe733be34ed374377bd"
+      },
+      "tokenizer_config.json": {
+        "bytes": 92225,
+        "sha256": "2a52ec012d3df831ba434b081bef3726a6ee22501f062ad8353c557a0cfa0d01"
+      }
+    }
+  },
+  "semanticContractSummary": {
+    "backend": "lfm1200",
+    "toolContractPasses": 10,
+    "total": 24,
+    "warmMedianMilliseconds": 3028.5,
+    "warmRangeMilliseconds": [
+      2418,
+      3618
+    ],
+    "scope": "Twelve synthetic independent fixed-clock requests, repeated. Tool/view contract checks only; conversational text quality not scored. Not production accuracy or p95."
+  }
+}

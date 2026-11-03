@@ -1,0 +1,46 @@
+name: PiHostProof
+options:
+  deploymentTarget:
+    iOS: "26.1"
+configFiles:
+  Debug: ../../Config/Local.xcconfig
+  Release: ../../Config/Local.xcconfig
+settings:
+  base:
+    PRODUCT_BUNDLE_IDENTIFIER: $(BANANA_BUNDLE_ID).pi-host-proof
+    CODE_SIGN_STYLE: Automatic
+    SWIFT_VERSION: "5.0"
+    TARGETED_DEVICE_FAMILY: "1,2"
+    ENABLE_USER_SCRIPT_SANDBOXING: NO
+targets:
+  PiHostProof:
+    type: application
+    platform: iOS
+    sources:
+      - App.swift
+      - ProofHooks.swift
+      - ../../Banana/Pi/AppleRuntimeHost.swift
+      - ../../Banana/Pi/AppleFoundationModel.swift
+      - path: ../../.build/sim/pi-host-proof-sources/pi.js
+        buildPhase: resources
+      - path: ../../.build/sim/pi-host-proof-sources/bootstrap.js
+        buildPhase: resources
+    dependencies:
+      - sdk: JavaScriptCore.framework
+      - sdk: Security.framework
+      - sdk: FoundationModels.framework
+      - sdk: libsqlite3.tbd
+    info:
+      path: ../../.build/sim/pi-host-proof-sources/Info.plist
+      properties:
+        CFBundleDisplayName: Pi Host Proof
+        UILaunchScreen: {}
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+        UIRequiredDeviceCapabilities: [arm64]
+        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait, UIInterfaceOrientationPortraitUpsideDown, UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight]
+schemes:
+  PiHostProof:
+    build:
+      targets:
+        PiHostProof: all

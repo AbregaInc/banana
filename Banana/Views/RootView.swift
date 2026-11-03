@@ -37,6 +37,8 @@ struct RootView: View {
             OccurrenceStore.shared.requestRecompute(reason: "Google account added on another device")
         }
     }
+    #if PI_DEVELOPMENT
+    #endif
     @State private var showNowPlaying = false
     @State private var showMorningBriefing = false
     /// Remembers that the app went to the background, so only a real return runs the network
@@ -192,7 +194,8 @@ struct RootView: View {
             } else if let kind = MetricKind.launchArgument {
                 NavigationStack { TrendDetailView(kind: kind, window: .month) }   // `--trend steps`
             } else if ProcessInfo.processInfo.arguments.contains("--review") {
-                ReviewView(from: .workouts)   // Review, as the chart button on Workouts opens it
+                // Review, as the chart button on Workouts opens it: a sheet, with its Done.
+                ReviewView(from: .workouts, showsDoneButton: true)
             } else if ProcessInfo.processInfo.arguments.contains("--trends") {
                 NavigationStack { TrendsView() }   // every metric, two years of sample data
             } else if ProcessInfo.processInfo.arguments.contains("--dummy-health")
@@ -249,8 +252,23 @@ struct RootView: View {
         }
         .onAppear {
             LaunchClock.mark("root.appear")   // ≈ first frame on screen
+            #if !PI_DEVELOPMENT
             if scenePhase == .active {
                 downloads.setPeerServingAllowed(true)
+            }
+            #endif
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .assistantOpenSection)) { notice in
+            guard let raw = notice.object as? String, let section = AppSection(rawValue: raw) else { return }
+            if showsSidebarSections { shell.state.tab = section }
+            else {
+                switch section {
+                case .settings: PageChrome.shared.showSettings = true
+                case .routines: PageChrome.shared.showRoutines = true
+                case .review: PageChrome.shared.review = shell.state.tab
+                case .assistant: PageChrome.shared.showAssistant = true
+                default: shell.state.tab = section
+                }
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.didReceiveMemoryWarningNotification)) { _ in
@@ -276,6 +294,11 @@ struct RootView: View {
             if !alerting { handleWakeIfNeeded() }
         }
         .onChange(of: scenePhase) { previous, phase in
+            #if PI_DEVELOPMENT
+            // The local Pi build has no production service startup or cloud restore.
+            // Keep the drawing lifecycle without starting those services on foreground.
+            AppVisibility.shared.set(active: phase != .background)
+            #else
             #if DEBUG
             // Screenshot routes render the real screen but intentionally do not start the
             // production CloudKit/background graph (the unsigned Simulator cannot construct
@@ -386,6 +409,7 @@ struct RootView: View {
             @unknown default:
                 break
             }
+            #endif
         }
     }
 
@@ -405,7 +429,7 @@ struct RootView: View {
             Color.black.ignoresSafeArea()
         } else if Self.isOnboardingPreview {
             OnboardingView()
-        } else if onboarding.completed {
+        } else if Self.isLocalPiBuild || onboarding.completed {
             // No permission gates the app. Alarms are one feature of many, and blocking the
             // calendar timeline, tasks, notes, and the podcast library behind an alarm grant
             // means a person who simply doesn't want us setting alarms can never get in.
@@ -419,6 +443,14 @@ struct RootView: View {
         } else {
             OnboardingView()
         }
+    }
+
+    private static var isLocalPiBuild: Bool {
+        #if PI_DEVELOPMENT
+        true
+        #else
+        false
+        #endif
     }
 
     /// DEBUG: show onboarding regardless of whether it was completed (see OnboardingView).
@@ -486,7 +518,13 @@ struct RootView: View {
 
     /// Each tab hosts the toast itself (not the TabView): inside a tab the bottom safe area already
     /// clears the tab bar and the now-playing accessory, so the toast sits just above them.
-    private var mainTabs: some View {
+    @ViewBuilder private var mainTabs: some View {
+        // The fixed app is home in every build; the agent is a way in (the +) and out (Review),
+        // not a screen of its own.
+        browseTabs
+    }
+
+    private var browseTabs: some View {
         // One shell for every width: a tab bar when narrow (iPhone, a narrow iPad split, a folded
         // phone), a sidebar with every section when there's room (iPad, an unfolded phone) —
         // the sections the Mac sidebar lists, from the same `AppSection`. Each section measures
@@ -587,6 +625,12 @@ struct RootView: View {
                 .tabPlacement(.sidebarOnly)
             }
             if showsSidebarSections {
+                #if !PI_DEVELOPMENT
+                Tab(AppSection.assistant.title, systemImage: AppSection.assistant.symbol, value: ShellTab.section(.assistant)) {
+                    AssistantView().measuresLayoutClass()
+                }
+                .tabPlacement(.sidebarOnly)
+                #endif
                 Tab(AppSection.settings.title, systemImage: AppSection.settings.symbol, value: ShellTab.section(.settings)) {
                     SettingsView()
                         .measuresLayoutClass()
@@ -640,9 +684,7 @@ struct RootView: View {
         .overlay(alignment: .bottom) {
             SkipNoticeBar().padding(.bottom, 96)
         }
-        .sheet(isPresented: $showNowPlaying) {
-            NowPlayingView()
-        }
+        .sheet(isPresented: $showNowPlaying) { NowPlayingView() }
         .modifier(VoiceCaptureHost(playerOpen: showNowPlaying))
         .modifier(PageChromeHost(sidebar: showsSidebarSections))
     }
@@ -876,11 +918,29 @@ private struct PageChromeHost: ViewModifier {
     @ObservedObject private var chrome = PageChrome.shared
     @ObservedObject private var shell = ShellNavigation.shared
     @ObservedObject private var modules = ModuleStore.shared
+    @State private var agentDestination: AgentDestination?
+
+    /// With Pi, Review is where questions are asked and answers pushed: a sheet on every device,
+    /// so the iPad's tab strip stays as it is and each level has one way back.
+    private static var reviewIsASheet: Bool {
+        #if PI_DEVELOPMENT
+        true
+        #else
+        false
+        #endif
+    }
 
     func body(content: Content) -> some View {
         content
-            // Review only while something it looks back on is on (the chart button goes too).
-            .sheet(item: Binding(get: { sidebar || !AppSection.review.isShown(with: modules.choice) ? nil : chrome.review }, set: { chrome.review = $0 })) { from in
+            .sheet(isPresented: Binding(get: { !sidebar && chrome.showAssistant }, set: { chrome.showAssistant = $0 }), onDismiss: {
+                if let destination = chrome.assistantDestination {
+                    chrome.assistantDestination = nil
+                    AssistantWorkspace.open(destination)
+                }
+            }) {
+                AssistantView(showsDoneButton: true)
+            }
+            .sheet(item: Binding(get: { (sidebar && !Self.reviewIsASheet) || !AppSection.review.isShown(with: modules.choice) ? nil : chrome.review }, set: { chrome.review = $0 })) { from in
                 // Its own toast host, as Routines below: clearing the listening history offers Undo.
                 ReviewView(from: from, showsDoneButton: true).toastHost()
             }
@@ -893,13 +953,24 @@ private struct PageChromeHost: ViewModifier {
                 RoutinesView(showsDoneButton: true).toastHost()
             }
             .sheet(isPresented: $chrome.showAdd, onDismiss: startPicked) {
+                #if PI_DEVELOPMENT
+                // Words first: the agent is one way to add, beside every kind by hand.
+                AgentAddSheet(current: shell.state.tab.tabBarHome, pick: { kind in
+                    chrome.pickedAdd = kind
+                    chrome.showAdd = false
+                }, finished: { destination in
+                    agentDestination = destination
+                    chrome.showAdd = false
+                })
+                #else
                 AddList(current: shell.state.tab.tabBarHome) { kind in
                     chrome.pickedAdd = kind
                     chrome.showAdd = false
                 }
+                #endif
             }
             .onChange(of: chrome.review) { _, from in
-                guard sidebar, let from else { return }
+                guard sidebar, !Self.reviewIsASheet, let from else { return }
                 chrome.reviewFrom = from
                 chrome.review = nil
                 shell.state.tab = .review
@@ -914,10 +985,21 @@ private struct PageChromeHost: ViewModifier {
                 chrome.showRoutines = false
                 shell.state.tab = .routines
             }
+            .onChange(of: chrome.showAssistant) { _, show in
+                guard show, sidebar else { return }
+                chrome.showAssistant = false
+                shell.state.tab = .assistant
+            }
     }
 
     /// The list is gone: go to the page that owns what was picked, and hand it over.
     private func startPicked() {
+        if let destination = agentDestination {
+            // Saved through the agent: show it on its page (the toast there offers Undo).
+            agentDestination = nil
+            AssistantWorkspace.open(destination.section, itemID: destination.itemID)
+            return
+        }
         guard let kind = chrome.pickedAdd else { return }
         chrome.pickedAdd = nil
         if let half = kind.nutritionSection { shell.state.nutritionSection = half }

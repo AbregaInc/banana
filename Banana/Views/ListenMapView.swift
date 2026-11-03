@@ -10,33 +10,18 @@ func listenColor(_ title: String) -> Color {
     return palette[abs(hash) % palette.count]
 }
 
-/// A full map of where podcasts get listened to — color-coded by show, filterable by
-/// time and show, for spotting behavior patterns.
+/// A full map of where podcasts get listened to — color-coded by show, filterable by show, for
+/// spotting behavior patterns. The period is Review's (the app's one span switch): with one,
+/// this shows that period; without one, everything.
 struct ListenMapView: View {
     @EnvironmentObject var history: ListenHistoryStore
     @State private var hidden: Set<String> = []
-    @State private var range: Range = .month
-    /// The period Review is showing. With one, this map shows that period and has no switch of
-    /// its own (Review's is the app's one span switch).
+    /// The period Review is showing.
     var span: TrendSpan? = nil
     @State private var selected: UUID?
 
-    enum Range: String, CaseIterable, Identifiable {
-        case week = "Week", month = "Month", all = "All"
-        var id: String { rawValue }
-        var cutoff: Date? {
-            switch self {
-            case .week:  return Calendar.current.date(byAdding: .day, value: -7, to: Date())
-            case .month: return Calendar.current.date(byAdding: .day, value: -30, to: Date())
-            case .all:   return nil
-            }
-        }
-    }
-
     private func inRangeEvents() -> [ListenEvent] {
-        if let span { return history.events.filter { $0.coordinate != nil && span.contains($0.date) } }
-        let cutoff = range.cutoff
-        return history.events.filter { $0.coordinate != nil && (cutoff == nil || $0.date >= cutoff!) }
+        history.events.filter { $0.coordinate != nil && (span?.contains($0.date) ?? true) }
     }
     private var selectedEvent: ListenEvent? { selected.flatMap { id in history.events.first { $0.id == id } } }
 
@@ -68,18 +53,10 @@ struct ListenMapView: View {
                         }
                     }
                 }
-                .task(id: range) {
+                .task {
                     let ids = Set(events.map(\.id))
                     history.unloadRoutes(except: ids)
                     await history.loadRoutes(for: ids)
-                }
-                .safeAreaInset(edge: .top) {
-                    if span == nil {
-                        PageSwitch(label: "Range", selection: $range, choices: Range.allCases,
-                                   title: { $0.rawValue }, fills: true)
-                        .padding(DS.Space.s)
-                        .background(.ultraThinMaterial)
-                    }
                 }
                 .safeAreaInset(edge: .bottom) {
                     if let event = selectedEvent { selectionCard(event) } else { legend(shows) }
@@ -93,22 +70,20 @@ struct ListenMapView: View {
     private func legend(_ shows: [(name: String, count: Int)]) -> some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: DS.Space.s) {
+                // A filter per show, on or off: the system's toggle button on a solid backing
+                // (content controls sit on solid surfaces; glass is the navigation layer).
                 ForEach(shows, id: \.name) { show in
-                    let off = hidden.contains(show.name)
-                    Button {
-                        if off { hidden.remove(show.name) } else { hidden.insert(show.name) }
-                    } label: {
+                    ChoiceChip(isOn: Binding(get: { !hidden.contains(show.name) },
+                                             set: { on in
+                                                 if on { hidden.remove(show.name) } else { hidden.insert(show.name) }
+                                             })) {
                         HStack(spacing: 6) {
                             Circle().fill(listenColor(show.name)).frame(width: 10, height: 10)
+                            // The name alone: a count beside it read as a total, not a filter.
                             Text(show.name).lineLimit(1)
-                            Text("\(show.count)").foregroundStyle(.secondary)
                         }
-                        .font(.caption)
-                        .padding(.horizontal, DS.Space.m).padding(.vertical, DS.Space.s)
-                        .floatingCapsule()
-                        .opacity(off ? 0.4 : 1)
                     }
-                    .buttonStyle(.plain)
+                    .background(.background, in: Capsule())
                 }
             }
             .padding(.horizontal, DS.Space.m).padding(.vertical, DS.Space.s)
@@ -134,7 +109,7 @@ struct ListenMapView: View {
         }
         .padding(DS.Space.m)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: DS.Radius.card, style: .continuous))
+        .background(.background, in: RoundedRectangle(cornerRadius: DS.Radius.card, style: .continuous))
         .padding(DS.Space.m)
     }
 }

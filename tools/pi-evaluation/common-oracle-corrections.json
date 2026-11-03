@@ -1,0 +1,60 @@
+{
+  "reason": "Oracle correction only: opening Assistant is supported by open_page, just like opening the other modules. Original inputs and raw replies remain frozen.",
+  "cases": {
+    "assistant-open-1": {
+      "capability": "supported",
+      "expected": {
+        "tools": {
+          "open_page": {
+            "section": "assistant"
+          }
+        },
+        "reply": false
+      }
+    },
+    "assistant-open-2": {
+      "capability": "supported",
+      "expected": {
+        "tools": {
+          "open_page": {
+            "section": "assistant"
+          }
+        },
+        "reply": false
+      }
+    },
+    "assistant-open-3": {
+      "capability": "supported",
+      "expected": {
+        "tools": {
+          "open_page": {
+            "section": "assistant"
+          }
+        },
+        "reply": false
+      }
+    },
+    "assistant-open-4": {
+      "capability": "supported",
+      "expected": {
+        "tools": {
+          "open_page": {
+            "section": "assistant"
+          }
+        },
+        "reply": false
+      }
+    },
+    "assistant-open-5": {
+      "capability": "supported",
+      "expected": {
+        "tools": {
+          "open_page": {
+            "section": "assistant"
+          }
+        },
+        "reply": false
+      }
+    }
+  }
+}

@@ -1,0 +1,1624 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild test-without-building -collect-test-diagnostics never -project Banana.xcodeproj -scheme BananaPi -configuration PiDevelopment -destination "platform=iOS Simulator,id=22DDB577-4616-4E99-AF0F-6AC31A3753B7" -derivedDataPath .build/sim "-only-testing:BananaAgentUITests/AssistantUITest/testNewMealDraftIsInlineAndRestores" "-only-testing:BananaAgentUITests/AssistantUITest/testNewMealDraftSaveAppearsInExistingNutritionStore" "-only-testing:BananaAgentUITests/AssistantUITest/testNewEventDraftIsInlineAndRestores" "-only-testing:BananaAgentUITests/AssistantUITest/testNutritionMealCopyOpensExistingReviewEditor" "-only-testing:BananaAgentUITests/AssistantUITest/testGlobalMealSearchLinksThroughNormalAppShell" -parallel-testing-enabled NO -test-timeouts-enabled YES -default-test-execution-time-allowance 150 -maximum-test-execution-time-allowance 300
+
+Resolve Package Graph
+
+
+Resolved source packages:
+  GoogleSignIn: https://github.com/google/GoogleSignIn-iOS.git @ 9.1.0
+  Promises: https://github.com/google/promises.git @ 2.4.1
+  FluidAudio: https://github.com/FluidInference/FluidAudio.git @ 0.15.5
+  GTMAppAuth: https://github.com/google/GTMAppAuth.git @ 5.0.0
+  AppCheck: https://github.com/google/app-check.git @ 11.3.2
+  GTMSessionFetcher: https://github.com/google/gtm-session-fetcher.git @ 3.5.0
+  InteropForGoogle: https://github.com/google/interop-ios-for-google-sdks.git @ 101.0.0
+  AppAuth: https://github.com/openid/AppAuth-iOS.git @ 2.1.0
+  GoogleUtilities: https://github.com/google/GoogleUtilities.git @ 8.1.5
+
+2026-10-26 12:01:04.374 xcodebuild[66623:92378448] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-26 12:01:40.057956-0400 BananaAgentUITests-Runner[68271:92383834] [Default] Running tests...
+2026-10-26 12:01:40.107374-0400 BananaAgentUITests-Runner[68271:92383834] [UIKit App Config] Update the Info.plist: Launch screens will soon be required.
+objc[68271]: Class UIAccessibilityLoaderWebShared is implemented in both /Library/Developer/CoreSimulator/Volumes/iOS_23F77/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.5.simruntime/Contents/Resources/RuntimeRoot/System/Library/AccessibilityBundles/WebCore.axbundle/WebCore (0x10828c310) and /Library/Developer/CoreSimulator/Volumes/iOS_23F77/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.5.simruntime/Contents/Resources/RuntimeRoot/System/Library/AccessibilityBundles/WebKit.axbundle/WebKit (0x108328398). This may cause spurious casting failures and mysterious crashes. One of the duplicates must be removed or renamed.
+    t =      nans Interface orientation changed to Portrait
+Test Suite 'Selected tests' started at 2026-10-26 12:01:43.068.
+Test Suite 'BananaAgentUITests.xctest' started at 2026-10-26 12:01:43.068.
+Test Suite 'AssistantUITest' started at 2026-10-26 12:01:43.068.
+Test Case '-[BananaAgentUITests.AssistantUITest testGlobalMealSearchLinksThroughNormalAppShell]' started.
+    t =     0.00s Start Test at 2026-10-26 12:01:43.069
+    t =     0.23s Set Up
+    t =     0.24s Open com.boris.banana.pi-development
+    t =     0.24s     Launch com.boris.banana.pi-development
+2026-10-26 12:01:43.677 xcodebuild[66623:92378448] [MT] IDELaunchParametersSnapshot: debugger version lookup failed for path '<nil>': noURL
+2026-10-26 12:01:43.677 xcodebuild[66623:92378448] [MT] IDELaunchParametersSnapshot: no debugger version
+2026-10-26 12:01:43.829 xcodebuild[66623:92378448] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+    t =     2.94s         Setting up automation session
+    t =     4.16s         Wait for com.boris.banana.pi-development to idle
+    t =     7.65s Waiting 25.0s for "More" Button to exist
+    t =     8.69s     Checking `Expect predicate `existsNoRetry == 1` for object "More" Button`
+    t =     8.69s         Checking existence of `"More" Button`
+    t =     8.86s Tap "More" Button
+    t =     8.86s     Wait for com.boris.banana.pi-development to idle
+    t =     9.26s     Find the "More" Button
+    t =     9.35s     Check for interrupting elements affecting "mobile.week.more" Button
+    t =     9.44s         Wait for com.apple.springboard to idle
+    t =     9.51s     Synthesize event
+    t =     9.93s     Wait for com.boris.banana.pi-development to idle
+    t =    10.94s Waiting 5.0s for "page.more.assistant" Button to exist
+    t =    12.01s     Checking `Expect predicate `existsNoRetry == 1` for object "page.more.assistant" Button`
+    t =    12.01s         Checking existence of `"page.more.assistant" Button`
+    t =    12.10s Tap "page.more.assistant" Button
+    t =    12.10s     Wait for com.boris.banana.pi-development to idle
+    t =    12.10s     Find the "page.more.assistant" Button
+    t =    12.18s     Check for interrupting elements affecting "page.more.assistant" Button
+    t =    12.25s         Wait for com.apple.springboard to idle
+    t =    12.27s     Synthesize event
+    t =    12.57s     Wait for com.boris.banana.pi-development to idle
+    t =    14.13s Waiting 15.0s for "assistant.input" Any to exist
+    t =    15.16s     Checking `Expect predicate `existsNoRetry == 1` for object "assistant.input" Any`
+    t =    15.17s         Checking existence of `"assistant.input" Any`
+    t =    15.34s Tap "assistant.input" Any
+    t =    15.34s     Wait for com.boris.banana.pi-development to idle
+    t =    15.34s     Find the "assistant.input" Any
+    t =    15.48s     Check for interrupting elements affecting "assistant.input" TextField
+    t =    15.54s         Wait for com.apple.springboard to idle
+    t =    15.60s     Synthesize event
+    t =    15.90s     Wait for com.boris.banana.pi-development to idle
+    t =    16.63s Type 'Search Banana for ...' into "assistant.input" TextField
+    t =    16.64s     Wait for com.boris.banana.pi-development to idle
+    t =    17.01s     Find the "assistant.input" TextField
+    t =    17.58s     Check for interrupting elements affecting "assistant.input" TextField
+    t =    17.68s         Wait for com.apple.springboard to idle
+    t =    17.81s     Synthesize event
+    t =    18.42s     Wait for com.boris.banana.pi-development to idle
+    t =    18.43s Find the "assistant.send" Button
+    t =    18.52s Tap "assistant.send" Button
+    t =    18.52s     Wait for com.boris.banana.pi-development to idle
+    t =    18.52s     Find the "assistant.send" Button
+    t =    18.61s     Check for interrupting elements affecting "assistant.send" Button
+    t =    18.68s         Wait for com.apple.springboard to idle
+    t =    18.71s     Synthesize event
+    t =    19.01s     Wait for com.boris.banana.pi-development to idle
+    t =    19.02s Waiting 15.0s for Button (First Match) to exist
+    t =    20.07s     Checking `Expect predicate `existsNoRetry == 1` for object Button (First Match)`
+    t =    20.07s         Checking existence of `Button (First Match)`
+    t =    20.29s Tap Button (First Match)
+    t =    20.29s     Wait for com.boris.banana.pi-development to idle
+    t =    20.29s     Find the Button (First Match)
+    t =    20.54s     Check for interrupting elements affecting "assistant.workspace.result.meal:BA9A9A00-0000-4000-8000-000000000001" Button
+    t =    20.62s         Wait for com.apple.springboard to idle
+    t =    20.65s     Synthesize event
+    t =    20.96s     Wait for com.boris.banana.pi-development to idle
+    t =    22.34s Checking existence of `"nutrition.phrase" Any`
+    t =    22.67s Tear Down
+Test Case '-[BananaAgentUITests.AssistantUITest testGlobalMealSearchLinksThroughNormalAppShell]' passed (23.188 seconds).
+Test Case '-[BananaAgentUITests.AssistantUITest testNewEventDraftIsInlineAndRestores]' started.
+    t =     0.00s Start Test at 2026-10-26 12:02:06.258
+    t =     0.04s Set Up
+    t =     0.04s Open com.boris.banana.pi-development
+    t =     0.04s     Launch com.boris.banana.pi-development
+    t =     0.04s         Terminate com.boris.banana.pi-development:68696
+2026-10-26 12:02:06.335 xcodebuild[66623:92378448] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-26 12:02:06.336 xcodebuild[66623:92378448] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-26 12:02:07.331 xcodebuild[66623:92378448] [MT] IDELaunchParametersSnapshot: debugger version lookup failed for path '<nil>': noURL
+2026-10-26 12:02:07.331 xcodebuild[66623:92378448] [MT] IDELaunchParametersSnapshot: no debugger version
+2026-10-26 12:02:07.377 xcodebuild[66623:92378448] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+    t =     1.49s         Setting up automation session
+    t =     2.57s         Wait for com.boris.banana.pi-development to idle
+    t =     4.59s Waiting 25.0s for "assistant.input" Any to exist
+    t =     5.66s     Checking `Expect predicate `existsNoRetry == 1` for object "assistant.input" Any`
+    t =     5.66s         Checking existence of `"assistant.input" Any`
+    t =     5.77s Tap "assistant.input" Any
+    t =     5.77s     Wait for com.boris.banana.pi-development to idle
+    t =     5.78s     Find the "assistant.input" Any
+    t =     5.85s     Check for interrupting elements affecting "assistant.input" TextField
+    t =     5.88s         Wait for com.apple.springboard to idle
+    t =     5.93s     Synthesize event
+    t =     6.23s     Wait for com.boris.banana.pi-development to idle
+    t =     6.31s Type 'Create Pi UI Lunch...' into "assistant.input" TextField
+    t =     6.31s     Wait for com.boris.banana.pi-development to idle
+    t =     6.70s     Find the "assistant.input" TextField
+    t =     6.98s     Check for interrupting elements affecting "assistant.input" TextField
+    t =     7.04s         Wait for com.apple.springboard to idle
+    t =     7.08s     Synthesize event
+    t =     8.13s     Wait for com.boris.banana.pi-development to idle
+    t =     8.13s Find the "assistant.send" Button
+    t =     8.19s Tap "assistant.send" Button
+    t =     8.19s     Wait for com.boris.banana.pi-development to idle
+    t =     8.20s     Find the "assistant.send" Button
+    t =     8.25s     Check for interrupting elements affecting "assistant.send" Button
+    t =     8.29s         Wait for com.apple.springboard to idle
+    t =     8.32s     Synthesize event
+    t =     8.62s     Wait for com.boris.banana.pi-development to idle
+    t =     8.74s Waiting 15.0s for "event.title" TextField to exist
+    t =     9.78s     Checking `Expect predicate `existsNoRetry == 1` for object "event.title" TextField`
+    t =     9.78s         Checking existence of `"event.title" TextField`
+    t =     9.86s         Capturing element debug description
+    t =    10.77s     Checking `Expect predicate `existsNoRetry == 1` for object "event.title" TextField`
+    t =    10.77s         Checking existence of `"event.title" TextField`
+    t =    10.84s         Capturing element debug description
+    t =    11.78s     Checking `Expect predicate `existsNoRetry == 1` for object "event.title" TextField`
+    t =    11.78s         Checking existence of `"event.title" TextField`
+    t =    11.84s         Capturing element debug description
+    t =    12.79s     Checking `Expect predicate `existsNoRetry == 1` for object "event.title" TextField`
+    t =    12.79s         Checking existence of `"event.title" TextField`
+    t =    12.88s         Capturing element debug description
+    t =    13.81s     Checking `Expect predicate `existsNoRetry == 1` for object "event.title" TextField`
+    t =    13.81s         Checking existence of `"event.title" TextField`
+    t =    13.88s         Capturing element debug description
+    t =    14.83s     Checking `Expect predicate `existsNoRetry == 1` for object "event.title" TextField`
+    t =    14.83s         Checking existence of `"event.title" TextField`
+    t =    14.89s         Capturing element debug description
+    t =    15.75s     Checking `Expect predicate `existsNoRetry == 1` for object "event.title" TextField`
+    t =    15.75s         Checking existence of `"event.title" TextField`
+    t =    15.82s         Capturing element debug description
+    t =    16.83s     Checking `Expect predicate `existsNoRetry == 1` for object "event.title" TextField`
+    t =    16.83s         Checking existence of `"event.title" TextField`
+    t =    16.90s         Capturing element debug description
+    t =    17.74s     Checking `Expect predicate `existsNoRetry == 1` for object "event.title" TextField`
+    t =    17.75s         Checking existence of `"event.title" TextField`
+    t =    17.82s         Capturing element debug description
+    t =    18.78s     Checking `Expect predicate `existsNoRetry == 1` for object "event.title" TextField`
+    t =    18.79s         Checking existence of `"event.title" TextField`
+    t =    18.88s         Capturing element debug description
+    t =    19.81s     Checking `Expect predicate `existsNoRetry == 1` for object "event.title" TextField`
+    t =    19.81s         Checking existence of `"event.title" TextField`
+    t =    19.97s         Capturing element debug description
+    t =    20.82s     Checking `Expect predicate `existsNoRetry == 1` for object "event.title" TextField`
+    t =    20.83s         Checking existence of `"event.title" TextField`
+    t =    20.98s         Capturing element debug description
+    t =    21.81s     Checking `Expect predicate `existsNoRetry == 1` for object "event.title" TextField`
+    t =    21.81s         Checking existence of `"event.title" TextField`
+    t =    21.89s         Capturing element debug description
+    t =    22.84s     Checking `Expect predicate `existsNoRetry == 1` for object "event.title" TextField`
+    t =    22.84s         Checking existence of `"event.title" TextField`
+    t =    22.93s         Capturing element debug description
+    t =    23.75s     Checking `Expect predicate `existsNoRetry == 1` for object "event.title" TextField`
+    t =    23.75s         Checking existence of `"event.title" TextField`
+    t =    23.81s         Capturing element debug description
+    t =    23.81s     Checking existence of `"event.title" TextField`
+    t =    23.88s Collecting debug information to assist test failure triage
+    t =    23.88s     Requesting snapshot of accessibility hierarchy for app with pid 69619
+    t =    23.99s Requesting snapshot of accessibility hierarchy for app with pid 69619
+    t =    24.49s Requesting snapshot of accessibility hierarchy for app with pid 69619
+~/orca/workspaces/gtfuwgth/pi/BananaUITests/AssistantUITest.swift:297: error: -[BananaAgentUITests.AssistantUITest testNewEventDraftIsInlineAndRestores] : XCTAssertTrue failed - Attributes: Application, 0x107d21f40, pid: 69619, label: 'Banana Pi'
+Element subtree:
+ →Application, 0x107d21f40, pid: 69619, label: 'Banana Pi'
+    Window (Main), 0x107d22080, {{0.0, 0.0}, {1032.0, 1376.0}}
+      Other, 0x107d221c0, {{0.0, 0.0}, {1032.0, 1376.0}}
+        Other, 0x107d22300, {{0.0, 0.0}, {1032.0, 1376.0}}
+          Other, 0x107d22440, {{0.0, 0.0}, {1032.0, 1376.0}}
+            Other, 0x107d22580, {{0.0, 0.0}, {1032.0, 1376.0}}
+              Other, 0x107d226c0, {{0.0, 0.0}, {1032.0, 1376.0}}
+                Other, 0x107d22800, {{0.0, 0.0}, {1032.0, 1376.0}}
+                  NavigationBar, 0x107d22940, {{0.0, 32.0}, {1032.0, 106.0}}, identifier: 'Assistant'
+                    Other, 0x107d22a80, {{864.0, 36.0}, {41.0, 36.0}}, identifier: 'assistant.conversations', label: 'Conversations'
+                      Other, 0x107d22bc0, {{864.0, 36.0}, {41.0, 36.0}}
+                        Button, 0x107d22d00, {{864.0, 36.0}, {41.0, 36.0}}, identifier: 'assistant.conversations', label: 'Conversations'
+                    Other, 0x107d22e40, {{921.0, 36.0}, {41.0, 36.0}}, identifier: 'assistant.new', label: 'New conversation'
+                      Other, 0x107d22f80, {{921.0, 36.0}, {41.0, 36.0}}
+                        Button, 0x107d230c0, {{921.0, 36.0}, {41.0, 36.0}}, identifier: 'assistant.new', label: 'New conversation'
+                    Other, 0x107d23200, {{978.0, 36.0}, {40.0, 36.0}}, identifier: 'assistant.options', label: 'Assistant options'
+                      Other, 0x107d23340, {{978.0, 36.0}, {40.0, 36.0}}
+                        Button, 0x107d23480, {{978.0, 36.0}, {40.0, 36.0}}, identifier: 'assistant.options', label: 'Assistant options'
+                          Button, 0x107d235c0, {{978.0, 36.0}, {40.0, 36.0}}
+                            Image, 0x107d23700, {{987.0, 43.0}, {22.0, 22.0}}, identifier: 'ellipsis.circle', label: 'More'
+                    StaticText, 0x107d23840, {{20.0, 89.5}, {150.0, 41.0}}, label: 'Assistant'
+                  Other, 0x107d23980, {{0.0, 0.0}, {1032.0, 1376.0}}
+                    Other, 0x107d23ac0, {{0.0, 0.0}, {1032.0, 1376.0}}
+                      Other, 0x107d23c00, {{0.0, 0.0}, {1032.0, 1376.0}}
+                        Other, 0x107d23d40, {{0.0, 0.0}, {1032.0, 1376.0}}
+                          ScrollView, 0x107d23e80, {{0.0, 0.0}, {1032.0, 857.0}}, identifier: 'assistant.messages'
+                            Other, 0x107de4000, {{0.0, 0.0}, {1032.0, 857.0}}
+                              Other, 0x107de4140, {{0.0, 0.0}, {1032.0, 140.8}}
+                            Other, 0x107de4280, {{0.0, 0.0}, {1032.0, 857.0}}
+                            Other, 0x107de43c0, {{0.0, 138.0}, {1032.0, 634.0}}
+                              Other, 0x107de4500, {{156.0, 158.0}, {720.0, 573.0}}
+                                StaticText, 0x107de4640, {{156.0, 158.0}, {112.0, 26.5}}, label: 'Pi UI Lunch'
+                                Button, 0x107de4780, {{816.5, 161.0}, {59.5, 20.5}}, identifier: 'assistant.workspace.dismiss', label: 'Dismiss'
+                                StaticText, 0x107de48c0, {{156.0, 198.5}, {40.5, 18.0}}, identifier: 'assistant.workspace.eventEditor', label: 'Event'
+                                TextField, 0x107de4a00, {{156.0, 228.5}, {720.0, 34.0}}, identifier: 'assistant.workspace.eventEditor', placeholderValue: 'What’s happening?', value: Pi UI Lunch
+                                Button, 0x107de4b40, {{156.0, 274.5}, {168.5, 34.5}}, identifier: 'assistant.workspace.eventEditor', label: 'Calendar, Choose calendar'
+                                  StaticText, 0x107de4c80, {{168.0, 281.5}, {128.5, 20.5}}, label: 'Choose calendar'
+                                StaticText, 0x107de4dc0, {{156.0, 329.0}, {41.5, 18.0}}, identifier: 'assistant.workspace.eventEditor', label: 'When'
+                                Switch, 0x107de4f00, {{156.0, 359.0}, {720.0, 28.0}}, identifier: 'assistant.workspace.eventEditor', label: 'All-day', value: 0
+                                  StaticText, 0x107de5040, {{156.0, 362.8}, {54.0, 20.5}}, label: 'All-day'
+                                  Switch, 0x107de5180, {{815.0, 359.0}, {63.0, 28.0}}, value: 0
+                                StaticText, 0x107de52c0, {{156.0, 406.8}, {45.5, 20.5}}, label: 'Starts'
+                                DatePicker, 0x107de5400, {{156.0, 399.0}, {720.0, 36.0}}, identifier: 'assistant.workspace.eventEditor', label: 'Starts'
+                                  Button, 0x107de5540, {{662.5, 399.0}, {213.5, 36.0}}, label: 'Date and Time Picker', value: 1:00 PM, Oct 27, 2...
+                                    Button, 0x107de5680, {{662.5, 399.0}, {123.0, 36.0}}, label: 'Oct 27, 2026'
+                                    Button, 0x107de57c0, {{789.5, 399.0}, {86.5, 36.0}}, label: '1:00 PM'
+                                StaticText, 0x107de5900, {{156.0, 454.8}, {38.0, 20.5}}, label: 'Ends'
+                                DatePicker, 0x107de5a40, {{156.0, 447.0}, {720.0, 36.0}}, identifier: 'assistant.workspace.eventEditor', label: 'Ends'
+                                  Button, 0x107de5b80, {{662.5, 447.0}, {213.5, 36.0}}, label: 'Date and Time Picker', value: 1:30 PM, Oct 27, 2...
+                                    Button, 0x107de5cc0, {{662.5, 447.0}, {123.0, 36.0}}, label: 'Oct 27, 2026'
+                                    Button, 0x107de5e00, {{789.5, 447.0}, {86.5, 36.0}}, label: '1:30 PM'
+                                StaticText, 0x107de5f40, {{156.0, 495.0}, {111.5, 20.5}}, identifier: 'assistant.workspace.eventEditor', label: 'Quick duration'
+                                Button, 0x107de6080, {{756.0, 496.5}, {31.5, 18.0}}, identifier: 'assistant.workspace.eventEditor', label: '30m'
+                                Button, 0x107de61c0, {{795.5, 496.5}, {31.5, 18.0}}, identifier: 'assistant.workspace.eventEditor', label: '45m'
+                                Button, 0x107de6300, {{835.0, 496.5}, {15.5, 18.0}}, identifier: 'assistant.workspace.eventEditor', label: '1h'
+                                Button, 0x107de6440, {{858.5, 496.5}, {17.5, 18.0}}, identifier: 'assistant.workspace.eventEditor', label: '2h'
+                                Button, 0x107de6580, {{156.0, 535.5}, {720.0, 28.5}}, identifier: 'assistant.workspace.eventEditor', label: 'More details'
+                                  StaticText, 0x107de66c0, {{156.0, 535.5}, {720.0, 28.5}}, label: 'More details'
+                                  Image, 0x107de6800, {{868.0, 544.0}, {7.0, 12.0}}, identifier: 'collapsed'
+                                StaticText, 0x107de6940, {{156.0, 584.0}, {511.5, 16.0}}, identifier: 'assistant.workspace.eventEditor', label: 'Connect a writable Google calendar in Settings to save. Your draft stays in Assistant.'
+                                StaticText, 0x107de6a80, {{156.0, 612.0}, {331.5, 16.0}}, identifier: 'assistant.workspace.eventEditor', label: 'Banana saves directly to the selected Google calendar.'
+                                Button, 0x107de6bc0, {{156.0, 648.0}, {61.0, 34.5}}, identifier: 'assistant.workspace.eventEditor', label: 'Save', Disabled
+                                Button, 0x107de6d00, {{156.0, 702.5}, {720.0, 28.5}}, label: 'Conversation'
+                                  StaticText, 0x107de6e40, {{156.0, 702.5}, {720.0, 28.5}}, label: 'Conversation'
+                                  Image, 0x107de6f80, {{868.0, 711.0}, {7.0, 12.0}}, identifier: 'collapsed'
+                            Other, 0x107de70c0, {{999.0, 86.0}, {30.0, 771.0}}, label: 'Vertical scroll bar, 1 page', value: 0%
+                              Other, 0x107de7200, {{1026.0, 922.0}, {3.0, 315.0}}
+                            Other, 0x107de7340, {{999.0, 86.0}, {30.0, 771.0}}, label: 'Vertical scroll bar, 1 page', value: 0%
+                              Other, 0x107de7480, {{1026.0, 922.0}, {3.0, 315.0}}
+                          Image, 0x107de75c0, {{154.0, 874.5}, {17.0, 17.0}}, identifier: 'cpu', label: 'cpu'
+                          StaticText, 0x107de7700, {{181.0, 875.8}, {68.5, 14.5}}, label: 'On this iPad'
+                          StaticText, 0x107de7840, {{152.0, 902.5}, {79.0, 14.5}}, identifier: 'assistant.test.notes', label: '0 saved notes'
+                          TextField, 0x107de7980, {{158.0, 931.0}, {678.0, 22.0}}, identifier: 'assistant.input', placeholderValue: 'Message Banana', Keyboard Focused, Focused
+                            Other, 0x107de7ac0, {{158.0, 931.0}, {0.0, 0.0}}, identifier: '_UITextSelectionRangeAdjustmentContainerView'
+                              Other, 0x107de7c00, {{158.0, 931.0}, {0.0, 0.0}}, identifier: 'com.apple.text.grabber.leading'
+                                Other, 0x107de7d40, {{150.8, 917.5}, {16.5, 16.5}}
+                                Other, 0x107de7e80, {{158.0, 931.0}, {2.0, 0.0}}
+                              Other, 0x107de8000, {{158.0, 931.0}, {0.0, 0.0}}, identifier: 'com.apple.text.grabber.leading'
+                                Other, 0x107de8140, {{150.8, 917.5}, {16.5, 16.5}}
+                                Other, 0x107de8280, {{158.0, 931.0}, {2.0, 0.0}}
+                            Other, 0x107de83c0, {{158.0, 939.0}, {678.0, 11.0}}, label: 'Horizontal scroll bar, 1 page', value: 0%
+                              Other, 0x107de8500, {{161.0, 947.0}, {672.0, 3.0}}
+                          Button, 0x107de8640, {{856.0, 933.5}, {22.0, 22.0}}, identifier: 'assistant.send', label: 'Send message', Disabled
+                  Other, 0x107de8780, {{0.0, 0.0}, {1032.0, 1376.0}}
+                    Other, 0x107de88c0, {{0.0, 0.0}, {1032.0, 1376.0}}
+    Window, 0x107de8a00, {{0.0, 0.0}, {1032.0, 1376.0}}
+      Other, 0x107de8b40, {{0.0, 0.0}, {1032.0, 1376.0}}
+        Other, 0x107de8c80, {{0.0, 0.0}, {1032.0, 1376.0}}
+        Other, 0x107de8dc0, {{0.0, 973.0}, {1032.0, 403.0}}
+          Other, 0x107de8f00, {{0.0, 973.0}, {1032.0, 403.0}}, identifier: 'inputView'
+    Window, 0x107de9040, {{0.0, 0.0}, {1032.0, 1376.0}}
+      Other, 0x107de9180, {{0.0, 0.0}, {1032.0, 1376.0}}
+        Other, 0x107de92c0, {{0.0, 973.0}, {1032.0, 403.0}}
+          Other, 0x107de9400, {{0.0, 973.0}, {1032.0, 55.0}}, identifier: 'SystemInputAssistantView'
+            Other, 0x107de9540, {{0.0, 973.0}, {1032.0, 55.0}}
+              Other, 0x107de9680, {{0.0, 973.0}, {283.0, 49.0}}, identifier: 'LeftButtonBar'
+                Other, 0x107de97c0, {{28.0, 973.0}, {255.0, 49.0}}
+                  Other, 0x107de9900, {{28.0, 974.0}, {114.0, 49.0}}
+                    Other, 0x107de9a40, {{28.0, 974.0}, {22.0, 49.0}}
+                      Button, 0x107de9b80, {{28.0, 974.0}, {22.0, 49.0}}, identifier: 'assistantUndo', label: 'undo', Disabled
+                    Other, 0x107de9cc0, {{74.0, 974.0}, {22.0, 49.0}}
+                      Button, 0x107de9e00, {{74.0, 974.0}, {22.0, 49.0}}, identifier: 'assistantRedo', label: 'Redo', Disabled
+                    Other, 0x107de9f40, {{120.0, 974.0}, {22.0, 49.0}}
+                      Button, 0x107dea080, {{120.0, 974.0}, {22.0, 49.0}}, identifier: 'assistantPaste:forEvent:', label: 'Paste', Disabled
+              Other, 0x107dea1c0, {{283.0, 979.0}, {466.0, 49.0}}, identifier: 'CenterPageView'
+                Other, 0x107dea300, {{283.0, 379.0}, {466.0, 1249.0}}
+                  ScrollView, 0x107dea440, {{283.0, 979.0}, {466.0, 49.0}}
+                Other, 0x107dea580, {{283.0, 979.0}, {466.0, 49.0}}
+                  Other, 0x107dea6c0, {{283.0, 979.0}, {466.0, 49.0}}, label: 'Typing Predictions'
+                    Other, 0x107dea800, {{283.0, 979.0}, {466.0, 49.0}}
+                      Other, 0x107dea940, {{283.0, 979.0}, {466.0, 49.0}}
+                        Other, 0x107deaa80, {{283.0, 979.0}, {155.3, 49.0}}, label: 'I'
+                        Other, 0x107deabc0, {{438.3, 979.0}, {155.3, 49.0}}, label: 'The'
+                        Other, 0x107dead00, {{593.7, 979.0}, {155.3, 49.0}}, label: 'I’m'
+              Other, 0x107deae40, {{749.0, 973.0}, {283.0, 49.0}}, identifier: 'RightButtonBar'
+                Other, 0x107deaf80, {{749.0, 973.0}, {255.0, 49.0}}
+          Other, 0x107deb0c0, {{0.0, 973.0}, {1032.0, 403.0}}
+            Other, 0x107deb200, {{0.0, 973.0}, {1032.0, 403.0}}
+              Other, 0x107deb340, {{0.0, 973.0}, {1032.0, 403.0}}
+          Other, 0x107deb480, {{0.0, 1028.0}, {1032.0, 345.0}}
+            Keyboard, 0x107deb5c0, {{0.0, 1028.0}, {1032.0, 345.0}}
+              Other, 0x107deb700, {{0.0, 1028.0}, {1032.0, 345.0}}
+                Other, 0x107deb840, {{0.0, 1028.0}, {1032.0, 345.0}}, identifier: 'UIKeyboardLayoutStar Preview'
+                  Key, 0x107deb980, {{0.5, 1033.0}, {71.0, 52.5}}, label: '`'
+                  Key, 0x107debac0, {{71.5, 1033.0}, {71.0, 52.5}}, label: '1'
+                  Key, 0x107debc00, {{142.5, 1033.0}, {71.0, 52.5}}, label: '2'
+                  Key, 0x107debd40, {{213.5, 1033.0}, {71.0, 52.5}}, label: '3'
+                  Key, 0x107debe80, {{284.5, 1033.0}, {71.0, 52.5}}, label: '4'
+                  Key, 0x107dec000, {{355.5, 1033.0}, {71.0, 52.5}}, label: '5'
+                  Key, 0x107dec140, {{426.5, 1033.0}, {71.0, 52.5}}, label: '6'
+                  Key, 0x107dec280, {{497.5, 1033.0}, {71.0, 52.5}}, label: '7'
+                  Key, 0x107dec3c0, {{568.5, 1033.0}, {71.0, 52.5}}, label: '8'
+                  Key, 0x107dec500, {{639.5, 1033.0}, {71.0, 52.5}}, label: '9'
+                  Key, 0x107dec640, {{710.5, 1033.0}, {70.5, 52.5}}, label: '0'
+                  Key, 0x107dec780, {{781.0, 1033.0}, {71.0, 52.5}}, label: '-'
+                  Key, 0x107dec8c0, {{852.0, 1033.0}, {71.0, 52.5}}, label: '='
+                  Key, 0x107deca00, {{923.0, 1033.0}, {109.5, 52.5}}, identifier: 'delete', label: 'delete'
+                  Button, 0x107decb40, {{0.5, 1085.5}, {109.5, 68.0}}, identifier: 'tab', label: 'Tab'
+                  Key, 0x107decc80, {{110.0, 1085.5}, {71.0, 68.0}}, label: 'Q'
+                  Key, 0x107decdc0, {{181.0, 1085.5}, {71.0, 68.0}}, label: 'W'
+                  Key, 0x107decf00, {{252.0, 1085.5}, {70.5, 68.0}}, label: 'E'
+                  Key, 0x107ded040, {{322.5, 1085.5}, {71.0, 68.0}}, label: 'R'
+                  Key, 0x107ded180, {{393.5, 1085.5}, {71.0, 68.0}}, label: 'T'
+                  Key, 0x107ded2c0, {{464.5, 1085.5}, {71.0, 68.0}}, label: 'Y'
+                  Key, 0x107ded400, {{535.5, 1085.5}, {71.0, 68.0}}, label: 'U'
+                  Key, 0x107ded540, {{606.5, 1085.5}, {71.0, 68.0}}, label: 'I'
+                  Key, 0x107ded680, {{677.5, 1085.5}, {71.0, 68.0}}, label: 'O'
+                  Key, 0x107ded7c0, {{748.5, 1085.5}, {71.0, 68.0}}, label: 'P'
+                  Key, 0x107ded900, {{819.5, 1085.5}, {71.0, 68.0}}, label: '['
+                  Key, 0x107deda40, {{890.5, 1085.5}, {71.0, 68.0}}, label: ']'
+                  Key, 0x107dedb80, {{961.5, 1085.5}, {71.0, 68.0}}, label: '\'
+                  Key, 0x107dedcc0, {{0.5, 1153.5}, {125.5, 68.0}}, identifier: 'caps-lock', label: 'Caps Lock'
+                  Key, 0x107dede00, {{126.0, 1153.5}, {71.0, 68.0}}, label: 'A'
+                  Key, 0x107dedf40, {{197.0, 1153.5}, {71.0, 68.0}}, label: 'S'
+                  Key, 0x107dee080, {{268.0, 1153.5}, {71.0, 68.0}}, label: 'D'
+                  Key, 0x107dee1c0, {{339.0, 1153.5}, {71.0, 68.0}}, label: 'F'
+                  Key, 0x107dee300, {{410.0, 1153.5}, {71.0, 68.0}}, label: 'G'
+                  Key, 0x107dee440, {{481.0, 1153.5}, {71.0, 68.0}}, label: 'H'
+                  Key, 0x107dee580, {{552.0, 1153.5}, {71.0, 68.0}}, label: 'J'
+                  Key, 0x107dee6c0, {{623.0, 1153.5}, {71.0, 68.0}}, label: 'K'
+                  Key, 0x107dee800, {{694.0, 1153.5}, {71.0, 68.0}}, label: 'L'
+                  Key, 0x107dee940, {{765.0, 1153.5}, {71.0, 68.0}}, label: ';'
+                  Key, 0x107deea80, {{836.0, 1153.5}, {71.0, 68.0}}, label: '''
+                  Button, 0x107deebc0, {{907.0, 1153.5}, {125.5, 68.0}}, identifier: 'Send', label: 'send'
+                  Button, 0x107deed00, {{0.5, 1221.5}, {161.0, 68.5}}, identifier: 'shift', label: 'shift', Selected
+                  Key, 0x107deee40, {{161.5, 1221.5}, {71.0, 68.5}}, label: 'Z'
+                  Key, 0x107deef80, {{232.5, 1221.5}, {71.0, 68.5}}, label: 'X'
+                  Key, 0x107def0c0, {{303.5, 1221.5}, {71.0, 68.5}}, label: 'C'
+                  Key, 0x107def200, {{374.5, 1221.5}, {71.0, 68.5}}, label: 'V'
+                  Key, 0x107def340, {{445.5, 1221.5}, {71.0, 68.5}}, label: 'B'
+                  Key, 0x107def480, {{516.5, 1221.5}, {71.0, 68.5}}, label: 'N'
+                  Key, 0x107def5c0, {{587.5, 1221.5}, {71.0, 68.5}}, label: 'M'
+                  Key, 0x107def700, {{658.5, 1221.5}, {71.0, 68.5}}, label: ','
+                  Key, 0x107def840, {{729.5, 1221.5}, {71.0, 68.5}}, label: '.'
+                  Key, 0x107def980, {{800.5, 1221.5}, {71.0, 68.5}}, label: '/'
+                  Key, 0x107defac0, {{871.5, 1221.5}, {161.0, 68.5}}, label: 'shift', Selected
+                  Button, 0x107defc00, {{0.5, 1290.0}, {100.5, 68.0}}, identifier: 'emoji', label: 'Emoji'
+                  Key, 0x107defd40, {{101.0, 1290.0}, {100.5, 68.0}}, identifier: 'more', label: 'numbers'
+                  Button, 0x107defe80, {{201.5, 1290.0}, {101.0, 68.0}}, identifier: 'dictation', label: 'Dictate'
+                  Key, 0x107dfc000, {{302.5, 1290.0}, {426.5, 68.0}}, label: ' '
+                  Key, 0x107dfc140, {{729.0, 1290.0}, {152.0, 68.0}}, identifier: 'more', label: 'numbers'
+                  Button, 0x107dfc280, {{881.0, 1290.0}, {151.5, 68.0}}, label: 'Hide keyboard'
+Path to element:
+ →Application, 0x107d21f40, pid: 69619, label: 'Banana Pi'
+Query chain:
+ →Find: Target Application 'com.boris.banana.pi-development'
+  Output: {
+    Application, 0x107dfc3c0, pid: 69619, label: 'Banana Pi'
+  }
+
+    t =    24.91s Find the "event.title" TextField
+    t =    26.03s     Find the "event.title" TextField (retry 1)
+    t =    27.13s     Find the "event.title" TextField (retry 2)
+    t =    27.24s     Collecting debug information to assist test failure triage
+    t =    27.24s         Requesting snapshot of accessibility hierarchy for app with pid 69619
+    t =    27.36s     Requesting snapshot of accessibility hierarchy for app with pid 69619
+    t =    27.46s     Find: Descendants matching type TextField
+    t =    27.47s     Find: Elements matching predicate '"event.title" IN identifiers'
+    t =    27.48s     Requesting snapshot of accessibility hierarchy for app with pid 69619
+~/orca/workspaces/gtfuwgth/pi/BananaUITests/AssistantUITest.swift:298: error: -[BananaAgentUITests.AssistantUITest testNewEventDraftIsInlineAndRestores] : Failed to get matching snapshot: No matches found for Elements matching predicate '"event.title" IN identifiers' from input {(
+    TextField, identifier: 'assistant.input', placeholderValue: 'Message Banana', Keyboard Focused,
+    TextField, identifier: 'assistant.workspace.eventEditor', placeholderValue: 'What’s happening?', value: Pi UI Lunch
+)}
+Possibly caused by runtime issues:
+Automation type mismatch: computed TextField from legacy attributes vs TextView from modern attribute. Input attributes and values: {
+    "XC_kAXXCAttributeAutomationType" = 52;
+    "XC_kAXXCAttributeElementBaseType" = UITextView;
+    "XC_kAXXCAttributeElementType" = "SwiftUI.VerticalTextView";
+    "XC_kAXXCAttributeTraits" = 146031247360;
+}
+Automation type mismatch: computed Button from legacy attributes vs TextField from modern attribute. Input attributes and values: {
+    "XC_kAXXCAttributeAutomationType" = 49;
+    "XC_kAXXCAttributeElementBaseType" = "_UIDatePickerCompactTimeLabel";
+    "XC_kAXXCAttributeElementType" = "_UIDatePickerCompactTimeLabel";
+    "XC_kAXXCAttributeTraits" = 146028888065;
+}
+See test report attachments for more detail.
+    t =    27.61s Tear Down
+Test Case '-[BananaAgentUITests.AssistantUITest testNewEventDraftIsInlineAndRestores]' failed (27.880 seconds).
+Test Case '-[BananaAgentUITests.AssistantUITest testNewMealDraftIsInlineAndRestores]' started.
+    t =     0.00s Start Test at 2026-10-26 12:02:34.138
+    t =     0.04s Set Up
+    t =     0.04s     Open com.boris.banana.pi-development
+    t =     0.04s         Launch com.boris.banana.pi-development
+    t =     0.04s             Terminate com.boris.banana.pi-development:69619
+2026-10-26 12:02:34.262 xcodebuild[66623:92378448] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-26 12:02:34.263 xcodebuild[66623:92378448] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-26 12:02:35.222 xcodebuild[66623:92378448] [MT] IDELaunchParametersSnapshot: debugger version lookup failed for path '<nil>': noURL
+2026-10-26 12:02:35.222 xcodebuild[66623:92378448] [MT] IDELaunchParametersSnapshot: no debugger version
+2026-10-26 12:02:35.446 xcodebuild[66623:92378448] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+    t =     1.75s             Setting up automation session
+    t =     3.43s             Wait for com.boris.banana.pi-development to idle
+    t =     5.49s     Waiting 25.0s for "assistant.input" Any to exist
+    t =     6.64s         Checking `Expect predicate `existsNoRetry == 1` for object "assistant.input" Any`
+    t =     6.65s             Checking existence of `"assistant.input" Any`
+    t =     6.88s     Tap "assistant.input" Any
+    t =     6.88s         Wait for com.boris.banana.pi-development to idle
+    t =     6.89s         Find the "assistant.input" Any
+    t =     7.02s         Check for interrupting elements affecting "assistant.input" TextField
+    t =     7.07s             Wait for com.apple.springboard to idle
+    t =     7.15s         Synthesize event
+    t =     7.46s         Wait for com.boris.banana.pi-development to idle
+    t =     7.62s     Type 'Make a meal with 2...' into "assistant.input" TextField
+    t =     7.62s         Wait for com.boris.banana.pi-development to idle
+    t =     8.00s         Find the "assistant.input" TextField
+    t =     8.53s         Check for interrupting elements affecting "assistant.input" TextField
+    t =     8.60s             Wait for com.apple.springboard to idle
+    t =     8.68s         Synthesize event
+    t =     9.49s         Wait for com.boris.banana.pi-development to idle
+    t =     9.50s     Find the "assistant.send" Button
+    t =     9.58s     Tap "assistant.send" Button
+    t =     9.58s         Wait for com.boris.banana.pi-development to idle
+    t =     9.58s         Find the "assistant.send" Button
+    t =     9.67s         Check for interrupting elements affecting "assistant.send" Button
+    t =     9.74s             Wait for com.apple.springboard to idle
+    t =     9.77s         Synthesize event
+    t =    10.08s         Wait for com.boris.banana.pi-development to idle
+<unknown>:0: warning: -[BananaAgentUITests.AssistantUITest testNewMealDraftIsInlineAndRestores] : Invalid frame dimension (negative or non-finite).
+    t =    10.35s     Waiting 15.0s for "assistant.workspace.mealEditor" Any to exist
+    t =    11.38s         Checking `Expect predicate `existsNoRetry == 1` for object "assistant.workspace.mealEditor" Any`
+    t =    11.44s             Checking existence of `"assistant.workspace.mealEditor" Any`
+    t =    12.19s     Checking existence of `"foodText.total" Any`
+    t =    13.08s     Requesting snapshot of accessibility hierarchy for app with pid 71156
+    t =    13.85s     Requesting snapshot of accessibility hierarchy for app with pid 71156
+~/orca/workspaces/gtfuwgth/pi/BananaUITests/AssistantUITest.swift:242: error: -[BananaAgentUITests.AssistantUITest testNewMealDraftIsInlineAndRestores] : XCTAssertTrue failed - Attributes: Application, 0x11437f700, pid: 71156, label: 'Banana Pi'
+Element subtree:
+ →Application, 0x11437f700, pid: 71156, label: 'Banana Pi'
+    Window (Main), 0x11437f840, {{0.0, 0.0}, {1032.0, 1376.0}}
+      Other, 0x1143a0000, {{0.0, 0.0}, {1032.0, 1376.0}}
+        Other, 0x1143a0140, {{0.0, 0.0}, {1032.0, 1376.0}}
+          Other, 0x1143a0280, {{0.0, 0.0}, {1032.0, 1376.0}}
+            Other, 0x1143a03c0, {{0.0, 0.0}, {1032.0, 1376.0}}
+              Other, 0x1143a0500, {{0.0, 0.0}, {1032.0, 1376.0}}
+                Other, 0x1143a0640, {{0.0, 0.0}, {1032.0, 1376.0}}
+                  NavigationBar, 0x1143a0780, {{0.0, 32.0}, {1032.0, 106.0}}, identifier: 'Assistant'
+                    Other, 0x1143a08c0, {{864.0, 36.0}, {41.0, 36.0}}, identifier: 'assistant.conversations', label: 'Conversations'
+                      Other, 0x1143a0a00, {{864.0, 36.0}, {41.0, 36.0}}
+                        Button, 0x1143a0b40, {{864.0, 36.0}, {41.0, 36.0}}, identifier: 'assistant.conversations', label: 'Conversations'
+                    Other, 0x1143a0c80, {{921.0, 36.0}, {41.0, 36.0}}, identifier: 'assistant.new', label: 'New conversation'
+                      Other, 0x1143a0dc0, {{921.0, 36.0}, {41.0, 36.0}}
+                        Button, 0x1143a0f00, {{921.0, 36.0}, {41.0, 36.0}}, identifier: 'assistant.new', label: 'New conversation'
+                    Other, 0x1143a1040, {{978.0, 36.0}, {40.0, 36.0}}, identifier: 'assistant.options', label: 'Assistant options'
+                      Other, 0x1143a1180, {{978.0, 36.0}, {40.0, 36.0}}
+                        Button, 0x1143a12c0, {{978.0, 36.0}, {40.0, 36.0}}, identifier: 'assistant.options', label: 'Assistant options'
+                          Button, 0x1143a1400, {{978.0, 36.0}, {40.0, 36.0}}
+                            Image, 0x1143a1540, {{987.0, 43.0}, {22.0, 22.0}}, identifier: 'ellipsis.circle', label: 'More'
+                    StaticText, 0x1143a1680, {{20.0, 89.5}, {150.0, 41.0}}, label: 'Assistant'
+                  Other, 0x1143a17c0, {{0.0, 0.0}, {1032.0, 1376.0}}
+                    Other, 0x1143a1900, {{0.0, 0.0}, {1032.0, 1376.0}}
+                      Other, 0x1143a1a40, {{0.0, 0.0}, {1032.0, 1376.0}}
+                        Other, 0x1143a1b80, {{0.0, 0.0}, {1032.0, 1376.0}}
+                          ScrollView, 0x1143a1cc0, {{0.0, 0.0}, {1032.0, 813.0}}, identifier: 'assistant.messages'
+                            Other, 0x1143a1e00, {{0.0, 0.0}, {1032.0, 813.0}}
+                              Other, 0x1143a1f40, {{0.0, 0.0}, {1032.0, 140.8}}
+                            Other, 0x1143a2080, {{0.0, 0.0}, {1032.0, 813.0}}
+                            Other, 0x1143a21c0, {{0.0, 138.0}, {1032.0, 679.0}}
+                              Other, 0x1143a2300, {{156.0, 158.0}, {720.0, 617.0}}
+                                StaticText, 0x1143a2440, {{156.0, 158.0}, {145.0, 26.5}}, label: 'Pi UI breakfast'
+                                Button, 0x1143a2580, {{816.5, 161.0}, {59.5, 20.5}}, identifier: 'assistant.workspace.dismiss', label: 'Dismiss'
+                                StaticText, 0x1143a26c0, {{156.0, 205.5}, {36.0, 20.5}}, label: 'Date'
+                                DatePicker, 0x1143a2800, {{751.0, 198.5}, {125.0, 34.5}}, identifier: 'assistant.workspace.mealEditor'
+                                  Button, 0x1143a2940, {{751.0, 198.5}, {125.0, 34.5}}, label: 'Date Picker', value: Oct 26, 2026
+                                StaticText, 0x1143a2a80, {{156.0, 251.8}, {45.0, 20.5}}, label: 'Name'
+                                TextField, 0x1143a2bc0, {{156.0, 245.0}, {720.0, 34.0}}, identifier: 'assistant.workspace.mealEditor', label: 'Name', placeholderValue: 'Optional', value: Pi UI breakfast
+                                Other, 0x1143a2d00, {{156.0, 303.0}, {720.0, 118.0}}, identifier: 'assistant.workspace.mealEditor'
+                                  StaticText, 0x1143a2e40, {{156.0, 303.0}, {137.0, 53.0}}, label: '249, kcal'
+                                    StaticText, 0x1143a2f80, {{156.0, 303.0}, {86.5, 53.0}}, label: '249'
+                                    StaticText, 0x1143a30c0, {{246.5, 320.0}, {46.5, 31.5}}, label: 'kcal'
+                                  StaticText, 0x1143a3200, {{156.0, 368.0}, {234.5, 53.0}}, label: 'Protein, 14, g'
+                                    Image, 0x1143a3340, {{164.0, 380.5}, {28.0, 28.0}}, identifier: 'fork.knife', label: 'Food'
+                                    StaticText, 0x1143a3480, {{200.0, 376.0}, {40.5, 37.0}}, label: 'Protein, 14, g'
+                                      StaticText, 0x1143a35c0, {{200.0, 376.0}, {40.5, 14.5}}, label: 'Protein'
+                                      StaticText, 0x1143a3700, {{200.0, 392.5}, {21.5, 20.5}}, label: '14'
+                                      StaticText, 0x1143a3840, {{223.5, 399.0}, {6.5, 12.0}}, label: 'g'
+                                  StaticText, 0x1143a3980, {{398.5, 368.0}, {235.0, 53.0}}, label: 'Carbs, 28, g'
+                                    Image, 0x1143a3ac0, {{406.5, 380.5}, {28.0, 28.0}}, identifier: 'leaf.fill', label: 'Leaf'
+                                    StaticText, 0x1143a3c00, {{442.7, 376.0}, {33.5, 37.0}}, label: 'Carbs, 28, g'
+                                      StaticText, 0x1143a3d40, {{442.7, 376.0}, {33.5, 14.5}}, label: 'Carbs'
+                                      StaticText, 0x1143a3e80, {{442.7, 392.5}, {21.5, 20.5}}, label: '28'
+                                      StaticText, 0x1143a8000, {{466.2, 399.0}, {6.5, 12.0}}, label: 'g'
+                                  StaticText, 0x1143a8140, {{641.5, 368.0}, {234.5, 53.0}}, label: 'Fat, 10, g'
+                                    Image, 0x1143a8280, {{649.5, 380.5}, {28.0, 28.0}}, identifier: 'drop.fill', label: 'Water Drop'
+                                    StaticText, 0x1143a83c0, {{685.3, 376.0}, {30.0, 37.0}}, label: 'Fat, 10, g'
+                                      StaticText, 0x1143a8500, {{685.3, 376.0}, {17.5, 14.5}}, label: 'Fat'
+                                      StaticText, 0x1143a8640, {{685.3, 392.5}, {21.5, 20.5}}, label: '10'
+                                      StaticText, 0x1143a8780, {{708.8, 399.0}, {6.5, 12.0}}, label: 'g'
+                                Image, 0x1143a88c0, {{157.0, 434.0}, {12.0, 12.0}}, identifier: 'assistant.workspace.mealEditor', label: 'Info'
+                                StaticText, 0x1143a8a00, {{157.0, 433.0}, {351.0, 14.5}}, identifier: 'assistant.workspace.mealEditor', label: 'Check the numbers, then turn on “I reviewed this” to save.'
+                                StaticText, 0x1143a8b40, {{156.0, 471.5}, {52.5, 18.0}}, identifier: 'assistant.workspace.mealEditor', label: '2 items'
+                                Button, 0x1143a8c80, {{737.0, 471.5}, {139.0, 18.0}}, identifier: 'assistant.workspace.mealEditor', label: 'Scan a package'
+                                  Image, 0x1143a8dc0, {{739.0, 473.0}, {15.0, 15.0}}, identifier: 'barcode.viewfinder', label: 'Scan Barcode'
+                                  StaticText, 0x1143a8f00, {{737.0, 471.5}, {139.0, 18.0}}, label: 'Scan a package'
+                                Button, 0x1143a9040, {{156.0, 503.5}, {692.5, 37.0}}, identifier: 'assistant.workspace.mealEditor', label: 'eggs, 2 · P 13 g · C 1 g · F 10 g, 144, kcal'
+                                  Image, 0x1143a9180, {{157.5, 516.0}, {13.5, 12.5}}, identifier: 'exclamationmark.triangle.fill', label: 'From catalog'
+                                  StaticText, 0x1143a92c0, {{184.5, 503.5}, {38.0, 20.5}}, label: 'eggs'
+                                  StaticText, 0x1143a9400, {{184.5, 526.0}, {135.5, 14.5}}, label: '2 · P 13 g · C 1 g · F 10 g'
+                                  StaticText, 0x1143a9540, {{771.5, 511.8}, {32.5, 20.5}}, label: '144'
+                                  StaticText, 0x1143a9680, {{807.0, 517.3}, {21.0, 13.5}}, label: 'kcal'
+                                  Image, 0x1143a97c0, {{842.0, 517.0}, {6.0, 10.0}}, identifier: 'chevron.right', label: 'Forward'
+                                Button, 0x1143a9900, {{858.0, 513.0}, {16.5, 18.5}}, identifier: 'assistant.workspace.mealEditor', label: 'Remove eggs'
+                                Button, 0x1143a9a40, {{156.0, 556.5}, {692.5, 37.0}}, identifier: 'assistant.workspace.mealEditor', label: 'banana, 1 · P 1 g · C 27 g · F 0 g, 105, kcal'
+                                  Image, 0x1143a9b80, {{157.5, 569.0}, {13.5, 12.5}}, identifier: 'exclamationmark.triangle.fill', label: 'From catalog'
+                                  StaticText, 0x1143a9cc0, {{184.5, 556.5}, {56.0, 20.5}}, label: 'banana'
+                                  StaticText, 0x1143a9e00, {{184.5, 579.0}, {129.0, 14.5}}, label: '1 · P 1 g · C 27 g · F 0 g'
+                                  StaticText, 0x1143a9f40, {{771.5, 564.8}, {32.5, 20.5}}, label: '105'
+                                  StaticText, 0x1143aa080, {{807.0, 570.3}, {21.0, 13.5}}, label: 'kcal'
+                                  Image, 0x1143aa1c0, {{842.0, 570.0}, {6.0, 10.0}}, identifier: 'chevron.right', label: 'Forward'
+                                Button, 0x1143aa300, {{858.0, 566.0}, {16.5, 18.5}}, identifier: 'assistant.workspace.mealEditor', label: 'Remove banana'
+                                Button, 0x1143aa440, {{156.0, 607.5}, {94.0, 20.5}}, identifier: 'assistant.workspace.mealEditor', label: 'Add item'
+                                  Image, 0x1143aa580, {{158.0, 610.5}, {14.0, 14.0}}, identifier: 'plus', label: 'Add'
+                                  StaticText, 0x1143aa6c0, {{156.0, 607.5}, {94.0, 20.5}}, label: 'Add item'
+                                Switch, 0x1143aa800, {{156.0, 648.0}, {720.0, 28.0}}, identifier: 'assistant.workspace.mealEditor', label: 'I reviewed this', value: 0
+                                  StaticText, 0x1143aa940, {{156.0, 651.8}, {109.0, 20.5}}, label: 'I reviewed this'
+                                  Switch, 0x1143aaa80, {{815.0, 648.0}, {63.0, 28.0}}, value: 0
+                                Button, 0x1143aabc0, {{156.0, 692.0}, {102.0, 34.5}}, identifier: 'assistant.workspace.mealEditor', label: 'Save meal', Disabled
+                                Button, 0x1143aad00, {{156.0, 746.5}, {720.0, 28.5}}, label: 'Conversation'
+                                  StaticText, 0x1143aae40, {{156.0, 746.5}, {720.0, 28.5}}, label: 'Conversation'
+                                  Image, 0x1143aaf80, {{868.0, 755.0}, {7.0, 12.0}}, identifier: 'collapsed'
+                            Other, 0x1143ab0c0, {{999.0, 86.0}, {30.0, 727.0}}, label: 'Vertical scroll bar, 2 pages', value: 0%
+                              Other, 0x1143ab200, {{1026.0, 922.0}, {3.0, 315.0}}
+                            Other, 0x1143ab340, {{999.0, 86.0}, {30.0, 727.0}}, label: 'Vertical scroll bar, 2 pages', value: 0%
+                              Other, 0x1143ab480, {{1026.0, 922.0}, {3.0, 315.0}}
+                          Image, 0x1143ab5c0, {{154.0, 830.5}, {17.0, 17.0}}, identifier: 'cpu', label: 'cpu'
+                          StaticText, 0x1143ab700, {{181.0, 831.8}, {68.5, 14.5}}, label: 'On this iPad'
+                          StaticText, 0x1143ab840, {{152.0, 858.5}, {79.0, 14.5}}, identifier: 'assistant.test.notes', label: '0 saved notes'
+                          TextField, 0x1143ab980, {{158.0, 887.0}, {678.0, 22.0}}, identifier: 'assistant.input', placeholderValue: 'Message Banana', Keyboard Focused, Focused
+                            Other, 0x1143abac0, {{158.0, 887.0}, {0.0, 0.0}}, identifier: '_UITextSelectionRangeAdjustmentContainerView'
+                              Other, 0x1143abc00, {{158.0, 887.0}, {0.0, 0.0}}, identifier: 'com.apple.text.grabber.leading'
+                                Other, 0x1143abd40, {{150.8, 873.5}, {16.5, 16.5}}
+                                Other, 0x1143abe80, {{158.0, 887.0}, {2.0, 0.0}}
+                              Other, 0x1143ac000, {{158.0, 887.0}, {0.0, 0.0}}, identifier: 'com.apple.text.grabber.leading'
+                                Other, 0x1143ac140, {{150.8, 873.5}, {16.5, 16.5}}
+                                Other, 0x1143ac280, {{158.0, 887.0}, {2.0, 0.0}}
+                            Other, 0x1143ac3c0, {{158.0, 895.0}, {678.0, 11.0}}, label: 'Horizontal scroll bar, 1 page', value: 0%
+                              Other, 0x1143ac500, {{161.0, 903.0}, {672.0, 3.0}}
+                          Button, 0x1143ac640, {{856.0, 889.5}, {22.0, 22.0}}, identifier: 'assistant.send', label: 'Send message', Disabled
+                  Other, 0x1143ac780, {{0.0, 0.0}, {1032.0, 1376.0}}
+                    Other, 0x1143ac8c0, {{0.0, 0.0}, {1032.0, 1376.0}}
+    Window, 0x1143aca00, {{0.0, 0.0}, {1032.0, 1376.0}}
+      Other, 0x1143acb40, {{0.0, 0.0}, {1032.0, 1376.0}}
+        Other, 0x1143acc80, {{0.0, 0.0}, {1032.0, 1376.0}}
+        Other, 0x1143acdc0, {{0.0, 929.0}, {1032.0, 447.0}}
+          Other, 0x1143acf00, {{0.0, 929.0}, {1032.0, 44.0}}
+            Other, 0x1143ad040, {{0.0, 929.0}, {1032.0, 44.0}}
+              Other, 0x1143ad180, {{0.0, 929.0}, {1032.0, 44.0}}
+                Toolbar, 0x1143ad2c0, {{0.0, 929.0}, {1032.0, 44.0}}, identifier: 'Toolbar', label: 'Toolbar'
+                  Other, 0x1143ad400, {{0.0, 929.0}, {1032.0, 44.0}}
+                    Other, 0x1143ad540, {{20.0, 929.0}, {992.0, 44.0}}
+                      Other, 0x1143ad680, {{20.0, 929.0}, {992.0, 44.0}}
+                        Other, 0x1143ad7c0, {{20.0, 929.0}, {0.0, 0.0}}
+                          Other, 0x1143ad900, {{20.0, 929.0}, {100.0, 44.0}}
+                            Other, 0x1143ada40, {{20.0, 929.0}, {46.0, 44.0}}
+                              Other, 0x1143adb80, {{24.0, 933.0}, {38.0, 36.0}}
+                                Other, 0x1143adcc0, {{24.0, 933.0}, {38.0, 36.0}}
+                                  Other, 0x1143ade00, {{24.0, 933.0}, {38.0, 36.0}}, identifier: 'chevron.up', label: 'Go Up'
+                                    Other, 0x1143adf40, {{24.0, 933.0}, {38.0, 36.0}}
+                                      Button, 0x1143ae080, {{24.0, 933.0}, {38.0, 36.0}}, identifier: 'chevron.up', label: 'Go Up', Disabled
+                            Other, 0x1143ae1c0, {{74.0, 929.0}, {46.0, 44.0}}
+                              Other, 0x1143ae300, {{78.0, 933.0}, {38.0, 36.0}}
+                                Other, 0x1143ae440, {{78.0, 933.0}, {38.0, 36.0}}
+                                  Other, 0x1143ae580, {{78.0, 933.0}, {38.0, 36.0}}, identifier: 'chevron.down', label: 'Go Down'
+                                    Other, 0x1143ae6c0, {{78.0, 933.0}, {38.0, 36.0}}
+                                      Button, 0x1143ae800, {{78.0, 933.0}, {38.0, 36.0}}, identifier: 'chevron.down', label: 'Go Down', Disabled
+                          Other, 0x1143ae940, {{939.5, 929.0}, {72.5, 44.0}}
+                            Other, 0x1143aea80, {{939.5, 929.0}, {72.5, 44.0}}
+                              Other, 0x1143aebc0, {{943.5, 933.0}, {64.5, 36.0}}
+                                Other, 0x1143aed00, {{943.5, 933.0}, {64.5, 36.0}}
+                                  Other, 0x1143aee40, {{943.5, 933.0}, {64.5, 36.0}}, label: 'Done'
+                                    Other, 0x1143aef80, {{943.5, 933.0}, {64.5, 36.0}}
+                                      Button, 0x1143af0c0, {{943.5, 933.0}, {64.5, 36.0}}, label: 'Done'
+          Other, 0x1143af200, {{0.0, 973.0}, {1032.0, 403.0}}, identifier: 'inputView'
+    Window, 0x1143af340, {{0.0, 0.0}, {1032.0, 1376.0}}
+      Other, 0x1143af480, {{0.0, 0.0}, {1032.0, 1376.0}}
+        Other, 0x1143af5c0, {{0.0, 973.0}, {1032.0, 403.0}}
+          Other, 0x1143af700, {{0.0, 973.0}, {1032.0, 55.0}}, identifier: 'SystemInputAssistantView'
+            Other, 0x1143af840, {{0.0, 973.0}, {1032.0, 55.0}}
+              Other, 0x1143af980, {{0.0, 973.0}, {283.0, 49.0}}, identifier: 'LeftButtonBar'
+                Other, 0x1143afac0, {{28.0, 973.0}, {255.0, 49.0}}
+                  Other, 0x1143afc00, {{28.0, 974.0}, {114.0, 49.0}}
+                    Other, 0x1143afd40, {{28.0, 974.0}, {22.0, 49.0}}
+                      Button, 0x1143afe80, {{28.0, 974.0}, {22.0, 49.0}}, identifier: 'assistantUndo', label: 'undo', Disabled
+                    Other, 0x1143b0000, {{74.0, 974.0}, {22.0, 49.0}}
+                      Button, 0x1143b0140, {{74.0, 974.0}, {22.0, 49.0}}, identifier: 'assistantRedo', label: 'Redo', Disabled
+                    Other, 0x1143b0280, {{120.0, 974.0}, {22.0, 49.0}}
+                      Button, 0x1143b03c0, {{120.0, 974.0}, {22.0, 49.0}}, identifier: 'assistantPaste:forEvent:', label: 'Paste', Disabled
+              Other, 0x1143b0500, {{283.0, 979.0}, {466.0, 49.0}}, identifier: 'CenterPageView'
+                Other, 0x1143b0640, {{283.0, 379.0}, {466.0, 1249.0}}
+                  ScrollView, 0x1143b0780, {{283.0, 979.0}, {466.0, 49.0}}
+                Other, 0x1143b08c0, {{283.0, 979.0}, {466.0, 49.0}}
+                  Other, 0x1143b0a00, {{283.0, 979.0}, {466.0, 49.0}}, label: 'Typing Predictions'
+                    Other, 0x1143b0b40, {{283.0, 979.0}, {466.0, 49.0}}
+                      Other, 0x1143b0c80, {{283.0, 979.0}, {466.0, 49.0}}
+                        Other, 0x1143b0dc0, {{283.0, 979.0}, {155.3, 49.0}}, label: 'I'
+                        Other, 0x1143b0f00, {{438.3, 979.0}, {155.3, 49.0}}, label: 'The'
+                        Other, 0x1143b1040, {{593.7, 979.0}, {155.3, 49.0}}, label: 'I’m'
+              Other, 0x1143b1180, {{749.0, 973.0}, {283.0, 49.0}}, identifier: 'RightButtonBar'
+                Other, 0x1143b12c0, {{749.0, 973.0}, {255.0, 49.0}}
+          Other, 0x1143b1400, {{0.0, 973.0}, {1032.0, 403.0}}
+            Other, 0x1143b1540, {{0.0, 973.0}, {1032.0, 403.0}}
+              Other, 0x1143b1680, {{0.0, 973.0}, {1032.0, 403.0}}
+          Other, 0x1143b17c0, {{0.0, 1028.0}, {1032.0, 345.0}}
+            Keyboard, 0x1143b1900, {{0.0, 1028.0}, {1032.0, 345.0}}
+              Other, 0x1143b1a40, {{0.0, 1028.0}, {1032.0, 345.0}}
+                Other, 0x1143b1b80, {{0.0, 1028.0}, {1032.0, 345.0}}, identifier: 'UIKeyboardLayoutStar Preview'
+                  Key, 0x1143b1cc0, {{0.5, 1033.0}, {71.0, 52.5}}, label: '`'
+                  Key, 0x1143b1e00, {{71.5, 1033.0}, {71.0, 52.5}}, label: '1'
+                  Key, 0x1143b1f40, {{142.5, 1033.0}, {71.0, 52.5}}, label: '2'
+                  Key, 0x1143b2080, {{213.5, 1033.0}, {71.0, 52.5}}, label: '3'
+                  Key, 0x1143b21c0, {{284.5, 1033.0}, {71.0, 52.5}}, label: '4'
+                  Key, 0x1143b2300, {{355.5, 1033.0}, {71.0, 52.5}}, label: '5'
+                  Key, 0x1143b2440, {{426.5, 1033.0}, {71.0, 52.5}}, label: '6'
+                  Key, 0x1143b2580, {{497.5, 1033.0}, {71.0, 52.5}}, label: '7'
+                  Key, 0x1143b26c0, {{568.5, 1033.0}, {71.0, 52.5}}, label: '8'
+                  Key, 0x1143b2800, {{639.5, 1033.0}, {71.0, 52.5}}, label: '9'
+                  Key, 0x1143b2940, {{710.5, 1033.0}, {70.5, 52.5}}, label: '0'
+                  Key, 0x1143b2a80, {{781.0, 1033.0}, {71.0, 52.5}}, label: '-'
+                  Key, 0x1143b2bc0, {{852.0, 1033.0}, {71.0, 52.5}}, label: '='
+                  Key, 0x1143b2d00, {{923.0, 1033.0}, {109.5, 52.5}}, identifier: 'delete', label: 'delete'
+                  Button, 0x1143b2e40, {{0.5, 1085.5}, {109.5, 68.0}}, identifier: 'tab', label: 'Tab'
+                  Key, 0x1143b2f80, {{110.0, 1085.5}, {71.0, 68.0}}, label: 'Q'
+                  Key, 0x1143b30c0, {{181.0, 1085.5}, {71.0, 68.0}}, label: 'W'
+                  Key, 0x1143b3200, {{252.0, 1085.5}, {70.5, 68.0}}, label: 'E'
+                  Key, 0x1143b3340, {{322.5, 1085.5}, {71.0, 68.0}}, label: 'R'
+                  Key, 0x1143b3480, {{393.5, 1085.5}, {71.0, 68.0}}, label: 'T'
+                  Key, 0x1143b35c0, {{464.5, 1085.5}, {71.0, 68.0}}, label: 'Y'
+                  Key, 0x1143b3700, {{535.5, 1085.5}, {71.0, 68.0}}, label: 'U'
+                  Key, 0x1143b3840, {{606.5, 1085.5}, {71.0, 68.0}}, label: 'I'
+                  Key, 0x1143b3980, {{677.5, 1085.5}, {71.0, 68.0}}, label: 'O'
+                  Key, 0x1143b3ac0, {{748.5, 1085.5}, {71.0, 68.0}}, label: 'P'
+                  Key, 0x1143b3c00, {{819.5, 1085.5}, {71.0, 68.0}}, label: '['
+                  Key, 0x1143b3d40, {{890.5, 1085.5}, {71.0, 68.0}}, label: ']'
+                  Key, 0x1143b3e80, {{961.5, 1085.5}, {71.0, 68.0}}, label: '\'
+                  Key, 0x1143b4000, {{0.5, 1153.5}, {125.5, 68.0}}, identifier: 'caps-lock', label: 'Caps Lock'
+                  Key, 0x1143b4140, {{126.0, 1153.5}, {71.0, 68.0}}, label: 'A'
+                  Key, 0x1143b4280, {{197.0, 1153.5}, {71.0, 68.0}}, label: 'S'
+                  Key, 0x1143b43c0, {{268.0, 1153.5}, {71.0, 68.0}}, label: 'D'
+                  Key, 0x1143b4500, {{339.0, 1153.5}, {71.0, 68.0}}, label: 'F'
+                  Key, 0x1143b4640, {{410.0, 1153.5}, {71.0, 68.0}}, label: 'G'
+                  Key, 0x1143b4780, {{481.0, 1153.5}, {71.0, 68.0}}, label: 'H'
+                  Key, 0x1143b48c0, {{552.0, 1153.5}, {71.0, 68.0}}, label: 'J'
+                  Key, 0x1143b4a00, {{623.0, 1153.5}, {71.0, 68.0}}, label: 'K'
+                  Key, 0x1143b4b40, {{694.0, 1153.5}, {71.0, 68.0}}, label: 'L'
+                  Key, 0x1143b4c80, {{765.0, 1153.5}, {71.0, 68.0}}, label: ';'
+                  Key, 0x1143b4dc0, {{836.0, 1153.5}, {71.0, 68.0}}, label: '''
+                  Button, 0x1143b4f00, {{907.0, 1153.5}, {125.5, 68.0}}, identifier: 'Send', label: 'send'
+                  Button, 0x1143b5040, {{0.5, 1221.5}, {161.0, 68.5}}, identifier: 'shift', label: 'shift', Selected
+                  Key, 0x1143b5180, {{161.5, 1221.5}, {71.0, 68.5}}, label: 'Z'
+                  Key, 0x1143b52c0, {{232.5, 1221.5}, {71.0, 68.5}}, label: 'X'
+                  Key, 0x1143b5400, {{303.5, 1221.5}, {71.0, 68.5}}, label: 'C'
+                  Key, 0x1143b5540, {{374.5, 1221.5}, {71.0, 68.5}}, label: 'V'
+                  Key, 0x1143b5680, {{445.5, 1221.5}, {71.0, 68.5}}, label: 'B'
+                  Key, 0x1143b57c0, {{516.5, 1221.5}, {71.0, 68.5}}, label: 'N'
+                  Key, 0x1143b5900, {{587.5, 1221.5}, {71.0, 68.5}}, label: 'M'
+                  Key, 0x1143b5a40, {{658.5, 1221.5}, {71.0, 68.5}}, label: ','
+                  Key, 0x1143b5b80, {{729.5, 1221.5}, {71.0, 68.5}}, label: '.'
+                  Key, 0x1143b5cc0, {{800.5, 1221.5}, {71.0, 68.5}}, label: '/'
+                  Key, 0x1143b5e00, {{871.5, 1221.5}, {161.0, 68.5}}, label: 'shift', Selected
+                  Button, 0x1143b5f40, {{0.5, 1290.0}, {100.5, 68.0}}, identifier: 'emoji', label: 'Emoji'
+                  Key, 0x1143b6080, {{101.0, 1290.0}, {100.5, 68.0}}, identifier: 'more', label: 'numbers'
+                  Button, 0x1143b61c0, {{201.5, 1290.0}, {101.0, 68.0}}, identifier: 'dictation', label: 'Dictate'
+                  Key, 0x1143b6300, {{302.5, 1290.0}, {426.5, 68.0}}, label: ' '
+                  Key, 0x1143b6440, {{729.0, 1290.0}, {152.0, 68.0}}, identifier: 'more', label: 'numbers'
+                  Button, 0x1143b6580, {{881.0, 1290.0}, {151.5, 68.0}}, label: 'Hide keyboard'
+Path to element:
+ →Application, 0x11437f700, pid: 71156, label: 'Banana Pi'
+Query chain:
+ →Find: Target Application 'com.boris.banana.pi-development'
+  Output: {
+    Application, 0x1143b66c0, pid: 71156, label: 'Banana Pi'
+  }
+
+    t =    13.97s     Checking existence of `"foodText.confirmed" Switch`
+    t =    14.05s     Requesting snapshot of accessibility hierarchy for app with pid 71156
+    t =    14.81s     Requesting snapshot of accessibility hierarchy for app with pid 71156
+~/orca/workspaces/gtfuwgth/pi/BananaUITests/AssistantUITest.swift:243: error: -[BananaAgentUITests.AssistantUITest testNewMealDraftIsInlineAndRestores] : XCTAssertTrue failed - Attributes: Application, 0x1143b66c0, pid: 71156, label: 'Banana Pi'
+Element subtree:
+ →Application, 0x1143b66c0, pid: 71156, label: 'Banana Pi'
+    Window (Main), 0x1143b6800, {{0.0, 0.0}, {1032.0, 1376.0}}
+      Other, 0x1143b6940, {{0.0, 0.0}, {1032.0, 1376.0}}
+        Other, 0x1143b6a80, {{0.0, 0.0}, {1032.0, 1376.0}}
+          Other, 0x1143b6bc0, {{0.0, 0.0}, {1032.0, 1376.0}}
+            Other, 0x1143b6d00, {{0.0, 0.0}, {1032.0, 1376.0}}
+              Other, 0x1143b6e40, {{0.0, 0.0}, {1032.0, 1376.0}}
+                Other, 0x1143b6f80, {{0.0, 0.0}, {1032.0, 1376.0}}
+                  NavigationBar, 0x1143b70c0, {{0.0, 32.0}, {1032.0, 106.0}}, identifier: 'Assistant'
+                    Other, 0x1143b7980, {{864.0, 36.0}, {41.0, 36.0}}, identifier: 'assistant.conversations', label: 'Conversations'
+                      Other, 0x1143b7ac0, {{864.0, 36.0}, {41.0, 36.0}}
+                        Button, 0x1143b7c00, {{864.0, 36.0}, {41.0, 36.0}}, identifier: 'assistant.conversations', label: 'Conversations'
+                    Other, 0x1143b7d40, {{921.0, 36.0}, {41.0, 36.0}}, identifier: 'assistant.new', label: 'New conversation'
+                      Other, 0x1143b7e80, {{921.0, 36.0}, {41.0, 36.0}}
+                        Button, 0x1143b75c0, {{921.0, 36.0}, {41.0, 36.0}}, identifier: 'assistant.new', label: 'New conversation'
+                    Other, 0x1143b7700, {{978.0, 36.0}, {40.0, 36.0}}, identifier: 'assistant.options', label: 'Assistant options'
+                      Other, 0x1143b7840, {{978.0, 36.0}, {40.0, 36.0}}
+                        Button, 0x1143b7200, {{978.0, 36.0}, {40.0, 36.0}}, identifier: 'assistant.options', label: 'Assistant options'
+                          Button, 0x1143b7340, {{978.0, 36.0}, {40.0, 36.0}}
+                            Image, 0x1143b7480, {{987.0, 43.0}, {22.0, 22.0}}, identifier: 'ellipsis.circle', label: 'More'
+                    StaticText, 0x1146ec000, {{20.0, 89.5}, {150.0, 41.0}}, label: 'Assistant'
+                  Other, 0x1146ec140, {{0.0, 0.0}, {1032.0, 1376.0}}
+                    Other, 0x1146ec280, {{0.0, 0.0}, {1032.0, 1376.0}}
+                      Other, 0x1146ec3c0, {{0.0, 0.0}, {1032.0, 1376.0}}
+                        Other, 0x1146ec500, {{0.0, 0.0}, {1032.0, 1376.0}}
+                          ScrollView, 0x1146ec640, {{0.0, 0.0}, {1032.0, 813.0}}, identifier: 'assistant.messages'
+                            Other, 0x1146ec780, {{0.0, 0.0}, {1032.0, 813.0}}
+                              Other, 0x1146ec8c0, {{0.0, 0.0}, {1032.0, 140.8}}
+                            Other, 0x1146eca00, {{0.0, 0.0}, {1032.0, 813.0}}
+                            Other, 0x1146ecb40, {{0.0, 138.0}, {1032.0, 679.0}}
+                              Other, 0x1146ecc80, {{156.0, 158.0}, {720.0, 617.0}}
+                                StaticText, 0x1146ecdc0, {{156.0, 158.0}, {145.0, 26.5}}, label: 'Pi UI breakfast'
+                                Button, 0x1146ecf00, {{816.5, 161.0}, {59.5, 20.5}}, identifier: 'assistant.workspace.dismiss', label: 'Dismiss'
+                                StaticText, 0x1146ed040, {{156.0, 205.5}, {36.0, 20.5}}, label: 'Date'
+                                DatePicker, 0x1146ed180, {{751.0, 198.5}, {125.0, 34.5}}, identifier: 'assistant.workspace.mealEditor'
+                                  Button, 0x1146ed2c0, {{751.0, 198.5}, {125.0, 34.5}}, label: 'Date Picker', value: Oct 26, 2026
+                                StaticText, 0x1146ed400, {{156.0, 251.8}, {45.0, 20.5}}, label: 'Name'
+                                TextField, 0x1146ed540, {{156.0, 245.0}, {720.0, 34.0}}, identifier: 'assistant.workspace.mealEditor', label: 'Name', placeholderValue: 'Optional', value: Pi UI breakfast
+                                Other, 0x1146ed680, {{156.0, 303.0}, {720.0, 118.0}}, identifier: 'assistant.workspace.mealEditor'
+                                  StaticText, 0x1146ed7c0, {{156.0, 303.0}, {137.0, 53.0}}, label: '249, kcal'
+                                    StaticText, 0x1146ed900, {{156.0, 303.0}, {86.5, 53.0}}, label: '249'
+                                    StaticText, 0x1146eda40, {{246.5, 320.0}, {46.5, 31.5}}, label: 'kcal'
+                                  StaticText, 0x1146edb80, {{156.0, 368.0}, {234.5, 53.0}}, label: 'Protein, 14, g'
+                                    Image, 0x1146edcc0, {{164.0, 380.5}, {28.0, 28.0}}, identifier: 'fork.knife', label: 'Food'
+                                    StaticText, 0x1146ede00, {{200.0, 376.0}, {40.5, 37.0}}, label: 'Protein, 14, g'
+                                      StaticText, 0x1146edf40, {{200.0, 376.0}, {40.5, 14.5}}, label: 'Protein'
+                                      StaticText, 0x1146ee080, {{200.0, 392.5}, {21.5, 20.5}}, label: '14'
+                                      StaticText, 0x1146ee1c0, {{223.5, 399.0}, {6.5, 12.0}}, label: 'g'
+                                  StaticText, 0x1146ee300, {{398.5, 368.0}, {235.0, 53.0}}, label: 'Carbs, 28, g'
+                                    Image, 0x1146ee440, {{406.5, 380.5}, {28.0, 28.0}}, identifier: 'leaf.fill', label: 'Leaf'
+                                    StaticText, 0x1146ee580, {{442.7, 376.0}, {33.5, 37.0}}, label: 'Carbs, 28, g'
+                                      StaticText, 0x1146ee6c0, {{442.7, 376.0}, {33.5, 14.5}}, label: 'Carbs'
+                                      StaticText, 0x1146ee800, {{442.7, 392.5}, {21.5, 20.5}}, label: '28'
+                                      StaticText, 0x1146ee940, {{466.2, 399.0}, {6.5, 12.0}}, label: 'g'
+                                  StaticText, 0x1146eea80, {{641.5, 368.0}, {234.5, 53.0}}, label: 'Fat, 10, g'
+                                    Image, 0x1146eebc0, {{649.5, 380.5}, {28.0, 28.0}}, identifier: 'drop.fill', label: 'Water Drop'
+                                    StaticText, 0x1146eed00, {{685.3, 376.0}, {30.0, 37.0}}, label: 'Fat, 10, g'
+                                      StaticText, 0x1146eee40, {{685.3, 376.0}, {17.5, 14.5}}, label: 'Fat'
+                                      StaticText, 0x1146eef80, {{685.3, 392.5}, {21.5, 20.5}}, label: '10'
+                                      StaticText, 0x1146ef0c0, {{708.8, 399.0}, {6.5, 12.0}}, label: 'g'
+                                Image, 0x1146ef200, {{157.0, 434.0}, {12.0, 12.0}}, identifier: 'assistant.workspace.mealEditor', label: 'Info'
+                                StaticText, 0x1146ef340, {{157.0, 433.0}, {351.0, 14.5}}, identifier: 'assistant.workspace.mealEditor', label: 'Check the numbers, then turn on “I reviewed this” to save.'
+                                StaticText, 0x1146ef480, {{156.0, 471.5}, {52.5, 18.0}}, identifier: 'assistant.workspace.mealEditor', label: '2 items'
+                                Button, 0x1146ef5c0, {{737.0, 471.5}, {139.0, 18.0}}, identifier: 'assistant.workspace.mealEditor', label: 'Scan a package'
+                                  Image, 0x1146ef700, {{739.0, 473.0}, {15.0, 15.0}}, identifier: 'barcode.viewfinder', label: 'Scan Barcode'
+                                  StaticText, 0x1146ef840, {{737.0, 471.5}, {139.0, 18.0}}, label: 'Scan a package'
+                                Button, 0x1146ef980, {{156.0, 503.5}, {692.5, 37.0}}, identifier: 'assistant.workspace.mealEditor', label: 'eggs, 2 · P 13 g · C 1 g · F 10 g, 144, kcal'
+                                  Image, 0x1146efac0, {{157.5, 516.0}, {13.5, 12.5}}, identifier: 'exclamationmark.triangle.fill', label: 'From catalog'
+                                  StaticText, 0x1146efc00, {{184.5, 503.5}, {38.0, 20.5}}, label: 'eggs'
+                                  StaticText, 0x1146efd40, {{184.5, 526.0}, {135.5, 14.5}}, label: '2 · P 13 g · C 1 g · F 10 g'
+                                  StaticText, 0x1146efe80, {{771.5, 511.8}, {32.5, 20.5}}, label: '144'
+                                  StaticText, 0x1146f0000, {{807.0, 517.3}, {21.0, 13.5}}, label: 'kcal'
+                                  Image, 0x1146f0140, {{842.0, 517.0}, {6.0, 10.0}}, identifier: 'chevron.right', label: 'Forward'
+                                Button, 0x1146f0280, {{858.0, 513.0}, {16.5, 18.5}}, identifier: 'assistant.workspace.mealEditor', label: 'Remove eggs'
+                                Button, 0x1146f03c0, {{156.0, 556.5}, {692.5, 37.0}}, identifier: 'assistant.workspace.mealEditor', label: 'banana, 1 · P 1 g · C 27 g · F 0 g, 105, kcal'
+                                  Image, 0x1146f0500, {{157.5, 569.0}, {13.5, 12.5}}, identifier: 'exclamationmark.triangle.fill', label: 'From catalog'
+                                  StaticText, 0x1146f0640, {{184.5, 556.5}, {56.0, 20.5}}, label: 'banana'
+                                  StaticText, 0x1146f0780, {{184.5, 579.0}, {129.0, 14.5}}, label: '1 · P 1 g · C 27 g · F 0 g'
+                                  StaticText, 0x1146f08c0, {{771.5, 564.8}, {32.5, 20.5}}, label: '105'
+                                  StaticText, 0x1146f0a00, {{807.0, 570.3}, {21.0, 13.5}}, label: 'kcal'
+                                  Image, 0x1146f0b40, {{842.0, 570.0}, {6.0, 10.0}}, identifier: 'chevron.right', label: 'Forward'
+                                Button, 0x1146f0c80, {{858.0, 566.0}, {16.5, 18.5}}, identifier: 'assistant.workspace.mealEditor', label: 'Remove banana'
+                                Button, 0x1146f0dc0, {{156.0, 607.5}, {94.0, 20.5}}, identifier: 'assistant.workspace.mealEditor', label: 'Add item'
+                                  Image, 0x1146f0f00, {{158.0, 610.5}, {14.0, 14.0}}, identifier: 'plus', label: 'Add'
+                                  StaticText, 0x1146f1040, {{156.0, 607.5}, {94.0, 20.5}}, label: 'Add item'
+                                Switch, 0x1146f1180, {{156.0, 648.0}, {720.0, 28.0}}, identifier: 'assistant.workspace.mealEditor', label: 'I reviewed this', value: 0
+                                  StaticText, 0x1146f12c0, {{156.0, 651.8}, {109.0, 20.5}}, label: 'I reviewed this'
+                                  Switch, 0x1146f1400, {{815.0, 648.0}, {63.0, 28.0}}, value: 0
+                                Button, 0x1146f1540, {{156.0, 692.0}, {102.0, 34.5}}, identifier: 'assistant.workspace.mealEditor', label: 'Save meal', Disabled
+                                Button, 0x1146f1680, {{156.0, 746.5}, {720.0, 28.5}}, label: 'Conversation'
+                                  StaticText, 0x1146f17c0, {{156.0, 746.5}, {720.0, 28.5}}, label: 'Conversation'
+                                  Image, 0x1146f1900, {{868.0, 755.0}, {7.0, 12.0}}, identifier: 'collapsed'
+                            Other, 0x1146f1a40, {{999.0, 86.0}, {30.0, 727.0}}, label: 'Vertical scroll bar, 2 pages', value: 0%
+                              Other, 0x1146f1b80, {{1026.0, 922.0}, {3.0, 315.0}}
+                            Other, 0x1146f1cc0, {{999.0, 86.0}, {30.0, 727.0}}, label: 'Vertical scroll bar, 2 pages', value: 0%
+                              Other, 0x1146f1e00, {{1026.0, 922.0}, {3.0, 315.0}}
+                          Image, 0x1146f1f40, {{154.0, 830.5}, {17.0, 17.0}}, identifier: 'cpu', label: 'cpu'
+                          StaticText, 0x1146f2080, {{181.0, 831.8}, {68.5, 14.5}}, label: 'On this iPad'
+                          StaticText, 0x1146f21c0, {{152.0, 858.5}, {79.0, 14.5}}, identifier: 'assistant.test.notes', label: '0 saved notes'
+                          TextField, 0x1146f2300, {{158.0, 887.0}, {678.0, 22.0}}, identifier: 'assistant.input', placeholderValue: 'Message Banana', Keyboard Focused, Focused
+                            Other, 0x1146f2440, {{158.0, 887.0}, {0.0, 0.0}}, identifier: '_UITextSelectionRangeAdjustmentContainerView'
+                              Other, 0x1146f2580, {{158.0, 887.0}, {0.0, 0.0}}, identifier: 'com.apple.text.grabber.leading'
+                                Other, 0x1146f26c0, {{150.8, 873.5}, {16.5, 16.5}}
+                                Other, 0x1146f2800, {{158.0, 887.0}, {2.0, 0.0}}
+                              Other, 0x1146f2940, {{158.0, 887.0}, {0.0, 0.0}}, identifier: 'com.apple.text.grabber.leading'
+                                Other, 0x1146f2a80, {{150.8, 873.5}, {16.5, 16.5}}
+                                Other, 0x1146f2bc0, {{158.0, 887.0}, {2.0, 0.0}}
+                            Other, 0x1146f2d00, {{158.0, 895.0}, {678.0, 11.0}}, label: 'Horizontal scroll bar, 1 page', value: 0%
+                              Other, 0x1146f2e40, {{161.0, 903.0}, {672.0, 3.0}}
+                          Button, 0x1146f2f80, {{856.0, 889.5}, {22.0, 22.0}}, identifier: 'assistant.send', label: 'Send message', Disabled
+                  Other, 0x1146f30c0, {{0.0, 0.0}, {1032.0, 1376.0}}
+                    Other, 0x1146f3200, {{0.0, 0.0}, {1032.0, 1376.0}}
+    Window, 0x1146f3340, {{0.0, 0.0}, {1032.0, 1376.0}}
+      Other, 0x1146f3480, {{0.0, 0.0}, {1032.0, 1376.0}}
+        Other, 0x1146f35c0, {{0.0, 0.0}, {1032.0, 1376.0}}
+        Other, 0x1146f3700, {{0.0, 929.0}, {1032.0, 447.0}}
+          Other, 0x1146f3840, {{0.0, 929.0}, {1032.0, 44.0}}
+            Other, 0x1146f3980, {{0.0, 929.0}, {1032.0, 44.0}}
+              Other, 0x1146f3ac0, {{0.0, 929.0}, {1032.0, 44.0}}
+                Toolbar, 0x1146f3c00, {{0.0, 929.0}, {1032.0, 44.0}}, identifier: 'Toolbar', label: 'Toolbar'
+                  Other, 0x1146f3d40, {{0.0, 929.0}, {1032.0, 44.0}}
+                    Other, 0x1146f3e80, {{20.0, 929.0}, {992.0, 44.0}}
+                      Other, 0x1146f4000, {{20.0, 929.0}, {992.0, 44.0}}
+                        Other, 0x1146f4140, {{20.0, 929.0}, {0.0, 0.0}}
+                          Other, 0x1146f4280, {{20.0, 929.0}, {100.0, 44.0}}
+                            Other, 0x1146f43c0, {{20.0, 929.0}, {46.0, 44.0}}
+                              Other, 0x1146f4500, {{24.0, 933.0}, {38.0, 36.0}}
+                                Other, 0x1146f4640, {{24.0, 933.0}, {38.0, 36.0}}
+                                  Other, 0x1146f4780, {{24.0, 933.0}, {38.0, 36.0}}, identifier: 'chevron.up', label: 'Go Up'
+                                    Other, 0x1146f48c0, {{24.0, 933.0}, {38.0, 36.0}}
+                                      Button, 0x1146f4a00, {{24.0, 933.0}, {38.0, 36.0}}, identifier: 'chevron.up', label: 'Go Up', Disabled
+                            Other, 0x1146f4b40, {{74.0, 929.0}, {46.0, 44.0}}
+                              Other, 0x1146f4c80, {{78.0, 933.0}, {38.0, 36.0}}
+                                Other, 0x1146f4dc0, {{78.0, 933.0}, {38.0, 36.0}}
+                                  Other, 0x1146f4f00, {{78.0, 933.0}, {38.0, 36.0}}, identifier: 'chevron.down', label: 'Go Down'
+                                    Other, 0x1146f5040, {{78.0, 933.0}, {38.0, 36.0}}
+                                      Button, 0x1146f5180, {{78.0, 933.0}, {38.0, 36.0}}, identifier: 'chevron.down', label: 'Go Down', Disabled
+                          Other, 0x1146f52c0, {{939.5, 929.0}, {72.5, 44.0}}
+                            Other, 0x1146f5400, {{939.5, 929.0}, {72.5, 44.0}}
+                              Other, 0x1146f5540, {{943.5, 933.0}, {64.5, 36.0}}
+                                Other, 0x1146f5680, {{943.5, 933.0}, {64.5, 36.0}}
+                                  Other, 0x1146f57c0, {{943.5, 933.0}, {64.5, 36.0}}, label: 'Done'
+                                    Other, 0x1146f5900, {{943.5, 933.0}, {64.5, 36.0}}
+                                      Button, 0x1146f5a40, {{943.5, 933.0}, {64.5, 36.0}}, label: 'Done'
+          Other, 0x1146f5b80, {{0.0, 973.0}, {1032.0, 403.0}}, identifier: 'inputView'
+    Window, 0x1146f5cc0, {{0.0, 0.0}, {1032.0, 1376.0}}
+      Other, 0x1146f5e00, {{0.0, 0.0}, {1032.0, 1376.0}}
+        Other, 0x1146f5f40, {{0.0, 973.0}, {1032.0, 403.0}}
+          Other, 0x1146f6080, {{0.0, 973.0}, {1032.0, 55.0}}, identifier: 'SystemInputAssistantView'
+            Other, 0x1146f61c0, {{0.0, 973.0}, {1032.0, 55.0}}
+              Other, 0x1146f6300, {{0.0, 973.0}, {283.0, 49.0}}, identifier: 'LeftButtonBar'
+                Other, 0x1146f6440, {{28.0, 973.0}, {255.0, 49.0}}
+                  Other, 0x1146f6580, {{28.0, 974.0}, {114.0, 49.0}}
+                    Other, 0x1146f66c0, {{28.0, 974.0}, {22.0, 49.0}}
+                      Button, 0x1146f6800, {{28.0, 974.0}, {22.0, 49.0}}, identifier: 'assistantUndo', label: 'undo', Disabled
+                    Other, 0x1146f6940, {{74.0, 974.0}, {22.0, 49.0}}
+                      Button, 0x1146f6a80, {{74.0, 974.0}, {22.0, 49.0}}, identifier: 'assistantRedo', label: 'Redo', Disabled
+                    Other, 0x1146f6bc0, {{120.0, 974.0}, {22.0, 49.0}}
+                      Button, 0x1146f6d00, {{120.0, 974.0}, {22.0, 49.0}}, identifier: 'assistantPaste:forEvent:', label: 'Paste', Disabled
+              Other, 0x1146f6e40, {{283.0, 979.0}, {466.0, 49.0}}, identifier: 'CenterPageView'
+                Other, 0x1146f6f80, {{283.0, 379.0}, {466.0, 1249.0}}
+                  ScrollView, 0x1146f70c0, {{283.0, 979.0}, {466.0, 49.0}}
+                Other, 0x1146f7200, {{283.0, 979.0}, {466.0, 49.0}}
+                  Other, 0x1146f7340, {{283.0, 979.0}, {466.0, 49.0}}, label: 'Typing Predictions'
+                    Other, 0x1146f7480, {{283.0, 979.0}, {466.0, 49.0}}
+                      Other, 0x1146f75c0, {{283.0, 979.0}, {466.0, 49.0}}
+                        Other, 0x1146f7700, {{283.0, 979.0}, {155.3, 49.0}}, label: 'I'
+                        Other, 0x1146f7840, {{438.3, 979.0}, {155.3, 49.0}}, label: 'The'
+                        Other, 0x1146f7980, {{593.7, 979.0}, {155.3, 49.0}}, label: 'I’m'
+              Other, 0x1146f7ac0, {{749.0, 973.0}, {283.0, 49.0}}, identifier: 'RightButtonBar'
+                Other, 0x1146f7c00, {{749.0, 973.0}, {255.0, 49.0}}
+          Other, 0x1146f7d40, {{0.0, 973.0}, {1032.0, 403.0}}
+            Other, 0x1146f7e80, {{0.0, 973.0}, {1032.0, 403.0}}
+              Other, 0x1146f8000, {{0.0, 973.0}, {1032.0, 403.0}}
+          Other, 0x1146f8140, {{0.0, 1028.0}, {1032.0, 345.0}}
+            Keyboard, 0x1146f8280, {{0.0, 1028.0}, {1032.0, 345.0}}
+              Other, 0x1146f83c0, {{0.0, 1028.0}, {1032.0, 345.0}}
+                Other, 0x1146f8500, {{0.0, 1028.0}, {1032.0, 345.0}}, identifier: 'UIKeyboardLayoutStar Preview'
+                  Key, 0x1146f8640, {{0.5, 1033.0}, {71.0, 52.5}}, label: '`'
+                  Key, 0x1146f8780, {{71.5, 1033.0}, {71.0, 52.5}}, label: '1'
+                  Key, 0x1146f88c0, {{142.5, 1033.0}, {71.0, 52.5}}, label: '2'
+                  Key, 0x1146f8a00, {{213.5, 1033.0}, {71.0, 52.5}}, label: '3'
+                  Key, 0x1146f8b40, {{284.5, 1033.0}, {71.0, 52.5}}, label: '4'
+                  Key, 0x1146f8c80, {{355.5, 1033.0}, {71.0, 52.5}}, label: '5'
+                  Key, 0x1146f8dc0, {{426.5, 1033.0}, {71.0, 52.5}}, label: '6'
+                  Key, 0x1146f8f00, {{497.5, 1033.0}, {71.0, 52.5}}, label: '7'
+                  Key, 0x1146f9040, {{568.5, 1033.0}, {71.0, 52.5}}, label: '8'
+                  Key, 0x1146f9180, {{639.5, 1033.0}, {71.0, 52.5}}, label: '9'
+                  Key, 0x1146f92c0, {{710.5, 1033.0}, {70.5, 52.5}}, label: '0'
+                  Key, 0x1146f9400, {{781.0, 1033.0}, {71.0, 52.5}}, label: '-'
+                  Key, 0x1146f9540, {{852.0, 1033.0}, {71.0, 52.5}}, label: '='
+                  Key, 0x1146f9680, {{923.0, 1033.0}, {109.5, 52.5}}, identifier: 'delete', label: 'delete'
+                  Button, 0x1146f97c0, {{0.5, 1085.5}, {109.5, 68.0}}, identifier: 'tab', label: 'Tab'
+                  Key, 0x1146f9900, {{110.0, 1085.5}, {71.0, 68.0}}, label: 'Q'
+                  Key, 0x1146f9a40, {{181.0, 1085.5}, {71.0, 68.0}}, label: 'W'
+                  Key, 0x1146f9b80, {{252.0, 1085.5}, {70.5, 68.0}}, label: 'E'
+                  Key, 0x1146f9cc0, {{322.5, 1085.5}, {71.0, 68.0}}, label: 'R'
+                  Key, 0x1146f9e00, {{393.5, 1085.5}, {71.0, 68.0}}, label: 'T'
+                  Key, 0x1146f9f40, {{464.5, 1085.5}, {71.0, 68.0}}, label: 'Y'
+                  Key, 0x1146fa080, {{535.5, 1085.5}, {71.0, 68.0}}, label: 'U'
+                  Key, 0x1146fa1c0, {{606.5, 1085.5}, {71.0, 68.0}}, label: 'I'
+                  Key, 0x1146fa300, {{677.5, 1085.5}, {71.0, 68.0}}, label: 'O'
+                  Key, 0x1146fa440, {{748.5, 1085.5}, {71.0, 68.0}}, label: 'P'
+                  Key, 0x1146fa580, {{819.5, 1085.5}, {71.0, 68.0}}, label: '['
+                  Key, 0x1146fa6c0, {{890.5, 1085.5}, {71.0, 68.0}}, label: ']'
+                  Key, 0x1146fa800, {{961.5, 1085.5}, {71.0, 68.0}}, label: '\'
+                  Key, 0x1146fa940, {{0.5, 1153.5}, {125.5, 68.0}}, identifier: 'caps-lock', label: 'Caps Lock'
+                  Key, 0x1146faa80, {{126.0, 1153.5}, {71.0, 68.0}}, label: 'A'
+                  Key, 0x1146fabc0, {{197.0, 1153.5}, {71.0, 68.0}}, label: 'S'
+                  Key, 0x1146fad00, {{268.0, 1153.5}, {71.0, 68.0}}, label: 'D'
+                  Key, 0x1146fae40, {{339.0, 1153.5}, {71.0, 68.0}}, label: 'F'
+                  Key, 0x1146faf80, {{410.0, 1153.5}, {71.0, 68.0}}, label: 'G'
+                  Key, 0x1146fb0c0, {{481.0, 1153.5}, {71.0, 68.0}}, label: 'H'
+                  Key, 0x1146fb200, {{552.0, 1153.5}, {71.0, 68.0}}, label: 'J'
+                  Key, 0x1146fb340, {{623.0, 1153.5}, {71.0, 68.0}}, label: 'K'
+                  Key, 0x1146fb480, {{694.0, 1153.5}, {71.0, 68.0}}, label: 'L'
+                  Key, 0x1146fb5c0, {{765.0, 1153.5}, {71.0, 68.0}}, label: ';'
+                  Key, 0x1146fb700, {{836.0, 1153.5}, {71.0, 68.0}}, label: '''
+                  Button, 0x1146fb840, {{907.0, 1153.5}, {125.5, 68.0}}, identifier: 'Send', label: 'send'
+                  Button, 0x1146fb980, {{0.5, 1221.5}, {161.0, 68.5}}, identifier: 'shift', label: 'shift', Selected
+                  Key, 0x1146fbac0, {{161.5, 1221.5}, {71.0, 68.5}}, label: 'Z'
+                  Key, 0x1146fbc00, {{232.5, 1221.5}, {71.0, 68.5}}, label: 'X'
+                  Key, 0x1146fbd40, {{303.5, 1221.5}, {71.0, 68.5}}, label: 'C'
+                  Key, 0x1146fbe80, {{374.5, 1221.5}, {71.0, 68.5}}, label: 'V'
+                  Key, 0x114700000, {{445.5, 1221.5}, {71.0, 68.5}}, label: 'B'
+                  Key, 0x114700140, {{516.5, 1221.5}, {71.0, 68.5}}, label: 'N'
+                  Key, 0x114700280, {{587.5, 1221.5}, {71.0, 68.5}}, label: 'M'
+                  Key, 0x1147003c0, {{658.5, 1221.5}, {71.0, 68.5}}, label: ','
+                  Key, 0x114700500, {{729.5, 1221.5}, {71.0, 68.5}}, label: '.'
+                  Key, 0x114700640, {{800.5, 1221.5}, {71.0, 68.5}}, label: '/'
+                  Key, 0x114700780, {{871.5, 1221.5}, {161.0, 68.5}}, label: 'shift', Selected
+                  Button, 0x1147008c0, {{0.5, 1290.0}, {100.5, 68.0}}, identifier: 'emoji', label: 'Emoji'
+                  Key, 0x114700a00, {{101.0, 1290.0}, {100.5, 68.0}}, identifier: 'more', label: 'numbers'
+                  Button, 0x114700b40, {{201.5, 1290.0}, {101.0, 68.0}}, identifier: 'dictation', label: 'Dictate'
+                  Key, 0x114700c80, {{302.5, 1290.0}, {426.5, 68.0}}, label: ' '
+                  Key, 0x114700dc0, {{729.0, 1290.0}, {152.0, 68.0}}, identifier: 'more', label: 'numbers'
+                  Button, 0x114700f00, {{881.0, 1290.0}, {151.5, 68.0}}, label: 'Hide keyboard'
+Path to element:
+ →Application, 0x1143b66c0, pid: 71156, label: 'Banana Pi'
+Query chain:
+ →Find: Target Application 'com.boris.banana.pi-development'
+  Output: {
+    Application, 0x114701040, pid: 71156, label: 'Banana Pi'
+  }
+
+    t =    14.93s     Checking existence of `"assistant.workspace.reviewMeal" Button`
+    t =    15.03s     Get number of matches for: Descendants matching type Sheet
+    t =    15.10s     Terminate com.boris.banana.pi-development:71156
+2026-10-26 12:02:49.265 xcodebuild[66623:92378448] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-26 12:02:49.266 xcodebuild[66623:92378448] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+    t =    16.13s     Open com.boris.banana.pi-development
+    t =    16.13s         Launch com.boris.banana.pi-development
+2026-10-26 12:02:50.272 xcodebuild[66623:92378448] [MT] IDELaunchParametersSnapshot: debugger version lookup failed for path '<nil>': noURL
+2026-10-26 12:02:50.272 xcodebuild[66623:92378448] [MT] IDELaunchParametersSnapshot: no debugger version
+2026-10-26 12:02:50.328 xcodebuild[66623:92378448] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+    t =    16.38s             Setting up automation session
+    t =    17.57s             Wait for com.boris.banana.pi-development to idle
+    t =    19.83s     Waiting 25.0s for "assistant.input" Any to exist
+    t =    20.87s         Checking `Expect predicate `existsNoRetry == 1` for object "assistant.input" Any`
+    t =    20.87s             Checking existence of `"assistant.input" Any`
+    t =    21.02s     Waiting 20.0s for "assistant.workspace.mealEditor" Any to exist
+    t =    22.05s         Checking `Expect predicate `existsNoRetry == 1` for object "assistant.workspace.mealEditor" Any`
+    t =    22.05s             Checking existence of `"assistant.workspace.mealEditor" Any`
+    t =    22.18s     Checking existence of `"foodText.mealName" TextField`
+    t =    22.23s     Requesting snapshot of accessibility hierarchy for app with pid 71749
+    t =    22.47s     Requesting snapshot of accessibility hierarchy for app with pid 71749
+~/orca/workspaces/gtfuwgth/pi/BananaUITests/AssistantUITest.swift:249: error: -[BananaAgentUITests.AssistantUITest testNewMealDraftIsInlineAndRestores] : XCTAssertTrue failed - Attributes: Application, 0x1143b5900, pid: 71749, label: 'Banana Pi'
+Element subtree:
+ →Application, 0x1143b5900, pid: 71749, label: 'Banana Pi'
+    Window (Main), 0x1143b5680, {{0.0, 0.0}, {1032.0, 1376.0}}
+      Other, 0x1143b52c0, {{0.0, 0.0}, {1032.0, 1376.0}}
+        Other, 0x1143b5400, {{0.0, 0.0}, {1032.0, 1376.0}}
+          Other, 0x1143b5540, {{0.0, 0.0}, {1032.0, 1376.0}}
+            Other, 0x1143b57c0, {{0.0, 0.0}, {1032.0, 1376.0}}
+              Other, 0x1143b6080, {{0.0, 0.0}, {1032.0, 1376.0}}
+                Other, 0x1143b5e00, {{0.0, 0.0}, {1032.0, 1376.0}}
+                  NavigationBar, 0x1143b5a40, {{0.0, 32.0}, {1032.0, 106.0}}, identifier: 'Assistant'
+                    Other, 0x1143b5b80, {{864.0, 36.0}, {41.0, 36.0}}, identifier: 'assistant.conversations', label: 'Conversations'
+                      Other, 0x1143b5cc0, {{864.0, 36.0}, {41.0, 36.0}}
+                        Button, 0x1143b5f40, {{864.0, 36.0}, {41.0, 36.0}}, identifier: 'assistant.conversations', label: 'Conversations'
+                    Other, 0x1143b6440, {{921.0, 36.0}, {41.0, 36.0}}, identifier: 'assistant.new', label: 'New conversation'
+                      Other, 0x1143b61c0, {{921.0, 36.0}, {41.0, 36.0}}
+                        Button, 0x1143b6300, {{921.0, 36.0}, {41.0, 36.0}}, identifier: 'assistant.new', label: 'New conversation'
+                    Other, 0x107c0c500, {{978.0, 36.0}, {40.0, 36.0}}, identifier: 'assistant.options', label: 'Assistant options'
+                      Other, 0x107dedf40, {{978.0, 36.0}, {40.0, 36.0}}
+                        Button, 0x107dede00, {{978.0, 36.0}, {40.0, 36.0}}, identifier: 'assistant.options', label: 'Assistant options'
+                          Button, 0x107dedcc0, {{978.0, 36.0}, {40.0, 36.0}}
+                            Image, 0x107ded2c0, {{987.0, 43.0}, {22.0, 22.0}}, identifier: 'ellipsis.circle', label: 'More'
+                    StaticText, 0x107ded400, {{20.0, 89.5}, {150.0, 41.0}}, label: 'Assistant'
+                  Other, 0x107ded540, {{0.0, 0.0}, {1032.0, 1376.0}}
+                    Other, 0x11437fac0, {{0.0, 0.0}, {1032.0, 1376.0}}
+                      Other, 0x11437fc00, {{0.0, 0.0}, {1032.0, 1376.0}}
+                        Other, 0x11437fd40, {{0.0, 0.0}, {1032.0, 1376.0}}
+                          ScrollView, 0x11437fe80, {{0.0, 0.0}, {1032.0, 1240.0}}, identifier: 'assistant.messages'
+                            Other, 0x11437f980, {{0.0, 0.0}, {1032.0, 1240.0}}
+                              Other, 0x11437f200, {{0.0, 0.0}, {1032.0, 140.8}}
+                            Other, 0x11437f340, {{0.0, 0.0}, {1032.0, 1240.0}}
+                            Other, 0x11437f480, {{0.0, 138.0}, {1032.0, 679.0}}
+                              Other, 0x11437f5c0, {{156.0, 158.0}, {720.0, 617.0}}
+                                StaticText, 0x11437f700, {{156.0, 158.0}, {145.0, 26.5}}, label: 'Pi UI breakfast'
+                                Button, 0x114701040, {{816.5, 161.0}, {59.5, 20.5}}, identifier: 'assistant.workspace.dismiss', label: 'Dismiss'
+                                StaticText, 0x114701180, {{156.0, 205.5}, {36.0, 20.5}}, label: 'Date'
+                                DatePicker, 0x1147012c0, {{751.0, 198.5}, {125.0, 34.5}}, identifier: 'assistant.workspace.mealEditor'
+                                  Button, 0x114701400, {{751.0, 198.5}, {125.0, 34.5}}, label: 'Date Picker', value: Oct 26, 2026
+                                StaticText, 0x114701540, {{156.0, 251.8}, {45.0, 20.5}}, label: 'Name'
+                                TextField, 0x114701680, {{156.0, 245.0}, {720.0, 34.0}}, identifier: 'assistant.workspace.mealEditor', label: 'Name', placeholderValue: 'Optional', value: Pi UI breakfast
+                                Other, 0x1147017c0, {{156.0, 303.0}, {720.0, 118.0}}, identifier: 'assistant.workspace.mealEditor'
+                                  StaticText, 0x114701900, {{156.0, 303.0}, {137.0, 53.0}}, label: '249, kcal'
+                                    StaticText, 0x114702a80, {{156.0, 303.0}, {86.5, 53.0}}, label: '249'
+                                    StaticText, 0x114702bc0, {{246.5, 320.0}, {46.5, 31.5}}, label: 'kcal'
+                                  StaticText, 0x114702d00, {{156.0, 368.0}, {234.5, 53.0}}, label: 'Protein, 14, g'
+                                    Image, 0x114702e40, {{164.0, 380.5}, {28.0, 28.0}}, identifier: 'fork.knife', label: 'Food'
+                                    StaticText, 0x114702f80, {{200.0, 376.0}, {40.5, 37.0}}, label: 'Protein, 14, g'
+                                      StaticText, 0x114703480, {{200.0, 376.0}, {40.5, 14.5}}, label: 'Protein'
+                                      StaticText, 0x1147035c0, {{200.0, 392.5}, {21.5, 20.5}}, label: '14'
+                                      StaticText, 0x114703e80, {{223.5, 399.0}, {6.5, 12.0}}, label: 'g'
+                                  StaticText, 0x114703d40, {{398.5, 368.0}, {235.0, 53.0}}, label: 'Carbs, 28, g'
+                                    Image, 0x114703ac0, {{406.5, 380.5}, {28.0, 28.0}}, identifier: 'leaf.fill', label: 'Leaf'
+                                    StaticText, 0x114703c00, {{442.7, 376.0}, {33.5, 37.0}}, label: 'Carbs, 28, g'
+                                      StaticText, 0x114703980, {{442.7, 376.0}, {33.5, 14.5}}, label: 'Carbs'
+                                      StaticText, 0x114703840, {{442.7, 392.5}, {21.5, 20.5}}, label: '28'
+                                      StaticText, 0x114703700, {{466.2, 399.0}, {6.5, 12.0}}, label: 'g'
+                                  StaticText, 0x114703340, {{641.5, 368.0}, {234.5, 53.0}}, label: 'Fat, 10, g'
+                                    Image, 0x1147030c0, {{649.5, 380.5}, {28.0, 28.0}}, identifier: 'drop.fill', label: 'Water Drop'
+                                    StaticText, 0x114703200, {{685.3, 376.0}, {30.0, 37.0}}, label: 'Fat, 10, g'
+                                      StaticText, 0x114701a40, {{685.3, 376.0}, {17.5, 14.5}}, label: 'Fat'
+                                      StaticText, 0x114702940, {{685.3, 392.5}, {21.5, 20.5}}, label: '10'
+                                      StaticText, 0x114702300, {{708.8, 399.0}, {6.5, 12.0}}, label: 'g'
+                                Image, 0x114702440, {{157.0, 434.0}, {12.0, 12.0}}, identifier: 'assistant.workspace.mealEditor', label: 'Info'
+                                StaticText, 0x114702580, {{157.0, 433.0}, {351.0, 14.5}}, identifier: 'assistant.workspace.mealEditor', label: 'Check the numbers, then turn on “I reviewed this” to save.'
+                                StaticText, 0x1147026c0, {{156.0, 471.5}, {52.5, 18.0}}, identifier: 'assistant.workspace.mealEditor', label: '2 items'
+                                Button, 0x114702800, {{737.0, 471.5}, {139.0, 18.0}}, identifier: 'assistant.workspace.mealEditor', label: 'Scan a package'
+                                  Image, 0x114701f40, {{739.0, 473.0}, {15.0, 15.0}}, identifier: 'barcode.viewfinder', label: 'Scan Barcode'
+                                  StaticText, 0x114702080, {{737.0, 471.5}, {139.0, 18.0}}, label: 'Scan a package'
+                                Button, 0x1147021c0, {{156.0, 503.5}, {692.5, 37.0}}, identifier: 'assistant.workspace.mealEditor', label: 'eggs, 2 · P 13 g · C 1 g · F 10 g, 144, kcal'
+                                  Image, 0x114701b80, {{157.5, 516.0}, {13.5, 12.5}}, identifier: 'exclamationmark.triangle.fill', label: 'From catalog'
+                                  StaticText, 0x114701cc0, {{184.5, 503.5}, {38.0, 20.5}}, label: 'eggs'
+                                  StaticText, 0x114701e00, {{184.5, 526.0}, {135.5, 14.5}}, label: '2 · P 13 g · C 1 g · F 10 g'
+                                  StaticText, 0x1143a0000, {{771.5, 511.8}, {32.5, 20.5}}, label: '144'
+                                  StaticText, 0x1143a0140, {{807.0, 517.3}, {21.0, 13.5}}, label: 'kcal'
+                                  Image, 0x1143a0280, {{842.0, 517.0}, {6.0, 10.0}}, identifier: 'chevron.right', label: 'Forward'
+                                Button, 0x1143a03c0, {{858.0, 513.0}, {16.5, 18.5}}, identifier: 'assistant.workspace.mealEditor', label: 'Remove eggs'
+                                Button, 0x1143a0500, {{156.0, 556.5}, {692.5, 37.0}}, identifier: 'assistant.workspace.mealEditor', label: 'banana, 1 · P 1 g · C 27 g · F 0 g, 105, kcal'
+                                  Image, 0x1143a0640, {{157.5, 569.0}, {13.5, 12.5}}, identifier: 'exclamationmark.triangle.fill', label: 'From catalog'
+                                  StaticText, 0x1143a0780, {{184.5, 556.5}, {56.0, 20.5}}, label: 'banana'
+                                  StaticText, 0x1143a08c0, {{184.5, 579.0}, {129.0, 14.5}}, label: '1 · P 1 g · C 27 g · F 0 g'
+                                  StaticText, 0x1143a0a00, {{771.5, 564.8}, {32.5, 20.5}}, label: '105'
+                                  StaticText, 0x1143a0b40, {{807.0, 570.3}, {21.0, 13.5}}, label: 'kcal'
+                                  Image, 0x1143a0c80, {{842.0, 570.0}, {6.0, 10.0}}, identifier: 'chevron.right', label: 'Forward'
+                                Button, 0x1143a0dc0, {{858.0, 566.0}, {16.5, 18.5}}, identifier: 'assistant.workspace.mealEditor', label: 'Remove banana'
+                                Button, 0x1143a0f00, {{156.0, 607.5}, {94.0, 20.5}}, identifier: 'assistant.workspace.mealEditor', label: 'Add item'
+                                  Image, 0x1143a1040, {{158.0, 610.5}, {14.0, 14.0}}, identifier: 'plus', label: 'Add'
+                                  StaticText, 0x1143a1180, {{156.0, 607.5}, {94.0, 20.5}}, label: 'Add item'
+                                Switch, 0x1143a12c0, {{156.0, 648.0}, {720.0, 28.0}}, identifier: 'assistant.workspace.mealEditor', label: 'I reviewed this', value: 0
+                                  StaticText, 0x1143a1400, {{156.0, 651.8}, {109.0, 20.5}}, label: 'I reviewed this'
+                                  Switch, 0x1143a1540, {{815.0, 648.0}, {63.0, 28.0}}, value: 0
+                                Button, 0x1143a1680, {{156.0, 692.0}, {102.0, 34.5}}, identifier: 'assistant.workspace.mealEditor', label: 'Save meal', Disabled
+                                Button, 0x1143a17c0, {{156.0, 746.5}, {720.0, 28.5}}, label: 'Conversation'
+                                  StaticText, 0x1143a1900, {{156.0, 746.5}, {720.0, 28.5}}, label: 'Conversation'
+                                  Image, 0x1143a1a40, {{868.0, 755.0}, {7.0, 12.0}}, identifier: 'collapsed'
+                            Other, 0x1143a1b80, {{999.0, 138.0}, {30.0, 1102.0}}, label: 'Vertical scroll bar, 1 page', value: 0%
+                              Other, 0x1143a1cc0, {{1026.0, 564.0}, {3.0, 673.0}}
+                            Other, 0x1143a1e00, {{999.0, 138.0}, {30.0, 1102.0}}, label: 'Vertical scroll bar, 1 page', value: 0%
+                              Other, 0x1143a1f40, {{1026.0, 564.0}, {3.0, 673.0}}
+                          Image, 0x1143a2080, {{154.0, 1257.5}, {17.0, 17.0}}, identifier: 'cpu', label: 'cpu'
+                          StaticText, 0x1143a21c0, {{181.0, 1258.8}, {68.5, 14.5}}, label: 'On this iPad'
+                          StaticText, 0x1143a2300, {{152.0, 1285.5}, {79.0, 14.5}}, identifier: 'assistant.test.notes', label: '0 saved notes'
+                          TextField, 0x1143a2440, {{158.0, 1314.0}, {678.0, 22.0}}, identifier: 'assistant.input', placeholderValue: 'Message Banana'
+                            Other, 0x1143a2580, {{158.0, 1322.0}, {678.0, 11.0}}, label: 'Horizontal scroll bar, 1 page', value: 0%
+                              Other, 0x1143a26c0, {{161.0, 1330.0}, {672.0, 3.0}}
+                          Button, 0x1143a2800, {{856.0, 1316.5}, {22.0, 22.0}}, identifier: 'assistant.send', label: 'Send message', Disabled
+                  Other, 0x1143a2940, {{0.0, 0.0}, {1032.0, 1376.0}}
+                    Other, 0x1143a2a80, {{0.0, 0.0}, {1032.0, 1376.0}}
+Path to element:
+ →Application, 0x1143b5900, pid: 71749, label: 'Banana Pi'
+Query chain:
+ →Find: Target Application 'com.boris.banana.pi-development'
+  Output: {
+    Application, 0x1143a2bc0, pid: 71749, label: 'Banana Pi'
+  }
+
+    t =    22.53s     Tap "assistant.workspace.dismiss" Button
+    t =    22.53s         Wait for com.boris.banana.pi-development to idle
+    t =    22.54s         Find the "assistant.workspace.dismiss" Button
+    t =    22.58s         Check for interrupting elements affecting "assistant.workspace.dismiss" Button
+    t =    22.62s             Wait for com.apple.springboard to idle
+    t =    22.65s         Synthesize event
+    t =    22.96s         Wait for com.boris.banana.pi-development to idle
+    t =    22.97s     Checking existence of `"assistant.workspace.mealEditor" Any`
+    t =    23.10s     Checking existence of `"assistant.input" Any`
+    t =    23.18s Tear Down
+Test Case '-[BananaAgentUITests.AssistantUITest testNewMealDraftIsInlineAndRestores]' failed (23.443 seconds).
+Test Case '-[BananaAgentUITests.AssistantUITest testNewMealDraftSaveAppearsInExistingNutritionStore]' started.
+    t =     0.00s Start Test at 2026-10-26 12:02:57.581
+    t =     0.03s Set Up
+    t =     0.03s     Open com.boris.banana.pi-development
+    t =     0.03s         Launch com.boris.banana.pi-development
+    t =     0.03s             Terminate com.boris.banana.pi-development:71749
+2026-10-26 12:02:57.628 xcodebuild[66623:92378448] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-26 12:02:57.629 xcodebuild[66623:92378448] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-26 12:02:58.717 xcodebuild[66623:92378448] [MT] IDELaunchParametersSnapshot: debugger version lookup failed for path '<nil>': noURL
+2026-10-26 12:02:58.717 xcodebuild[66623:92378448] [MT] IDELaunchParametersSnapshot: no debugger version
+2026-10-26 12:02:58.749 xcodebuild[66623:92378448] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+    t =     1.35s             Setting up automation session
+    t =     2.43s             Wait for com.boris.banana.pi-development to idle
+    t =     4.31s     Waiting 25.0s for "assistant.input" Any to exist
+    t =     5.34s         Checking `Expect predicate `existsNoRetry == 1` for object "assistant.input" Any`
+    t =     5.34s             Checking existence of `"assistant.input" Any`
+    t =     5.43s     Tap "Show my protein this month" Button
+    t =     5.43s         Wait for com.boris.banana.pi-development to idle
+    t =     5.44s         Find the "Show my protein this month" Button
+    t =     5.47s         Check for interrupting elements affecting "Show my protein this month" Button
+    t =     5.50s             Wait for com.apple.springboard to idle
+    t =     5.53s         Synthesize event
+    t =     5.82s         Wait for com.boris.banana.pi-development to idle
+    t =     6.17s     Waiting 15.0s for "assistant.test.meals" StaticText to exist
+    t =     7.21s         Checking `Expect predicate `existsNoRetry == 1` for object "assistant.test.meals" StaticText`
+    t =     7.22s             Checking existence of `"assistant.test.meals" StaticText`
+    t =     7.28s     Find the "assistant.test.meals" StaticText
+    t =     7.31s     Tap "assistant.input" Any
+    t =     7.31s         Wait for com.boris.banana.pi-development to idle
+    t =     7.31s         Find the "assistant.input" Any
+    t =     7.37s         Check for interrupting elements affecting "assistant.input" TextField
+    t =     7.40s             Wait for com.apple.springboard to idle
+    t =     7.44s         Synthesize event
+    t =     7.74s         Wait for com.boris.banana.pi-development to idle
+    t =     7.79s     Type 'Make a meal with 2...' into "assistant.input" TextField
+    t =     7.79s         Wait for com.boris.banana.pi-development to idle
+    t =     8.17s         Find the "assistant.input" TextField
+    t =     8.43s         Check for interrupting elements affecting "assistant.input" TextField
+    t =     8.48s             Wait for com.apple.springboard to idle
+    t =     8.52s         Synthesize event
+    t =     9.33s         Wait for com.boris.banana.pi-development to idle
+    t =     9.34s     Find the "assistant.send" Button
+    t =     9.41s     Tap "assistant.send" Button
+    t =     9.41s         Wait for com.boris.banana.pi-development to idle
+    t =     9.42s         Find the "assistant.send" Button
+    t =     9.47s         Check for interrupting elements affecting "assistant.send" Button
+    t =     9.52s             Wait for com.apple.springboard to idle
+    t =     9.54s         Synthesize event
+    t =     9.84s         Wait for com.boris.banana.pi-development to idle
+<unknown>:0: warning: -[BananaAgentUITests.AssistantUITest testNewMealDraftSaveAppearsInExistingNutritionStore] : Invalid frame dimension (negative or non-finite).
+    t =    10.07s     Waiting 15.0s for "foodText.mealName" TextField to exist
+    t =    11.11s         Checking `Expect predicate `existsNoRetry == 1` for object "foodText.mealName" TextField`
+    t =    11.11s             Checking existence of `"foodText.mealName" TextField`
+    t =    11.20s             Capturing element debug description
+    t =    12.13s         Checking `Expect predicate `existsNoRetry == 1` for object "foodText.mealName" TextField`
+    t =    12.13s             Checking existence of `"foodText.mealName" TextField`
+    t =    12.22s             Capturing element debug description
+    t =    13.08s         Checking `Expect predicate `existsNoRetry == 1` for object "foodText.mealName" TextField`
+    t =    13.08s             Checking existence of `"foodText.mealName" TextField`
+    t =    13.17s             Capturing element debug description
+    t =    14.10s         Checking `Expect predicate `existsNoRetry == 1` for object "foodText.mealName" TextField`
+    t =    14.10s             Checking existence of `"foodText.mealName" TextField`
+    t =    14.18s             Capturing element debug description
+    t =    15.11s         Checking `Expect predicate `existsNoRetry == 1` for object "foodText.mealName" TextField`
+    t =    15.11s             Checking existence of `"foodText.mealName" TextField`
+    t =    15.20s             Capturing element debug description
+    t =    16.16s         Checking `Expect predicate `existsNoRetry == 1` for object "foodText.mealName" TextField`
+    t =    16.16s             Checking existence of `"foodText.mealName" TextField`
+    t =    16.26s             Capturing element debug description
+    t =    17.10s         Checking `Expect predicate `existsNoRetry == 1` for object "foodText.mealName" TextField`
+    t =    17.10s             Checking existence of `"foodText.mealName" TextField`
+    t =    17.17s             Capturing element debug description
+    t =    18.10s         Checking `Expect predicate `existsNoRetry == 1` for object "foodText.mealName" TextField`
+    t =    18.10s             Checking existence of `"foodText.mealName" TextField`
+    t =    18.18s             Capturing element debug description
+    t =    19.11s         Checking `Expect predicate `existsNoRetry == 1` for object "foodText.mealName" TextField`
+    t =    19.11s             Checking existence of `"foodText.mealName" TextField`
+    t =    19.18s             Capturing element debug description
+    t =    20.11s         Checking `Expect predicate `existsNoRetry == 1` for object "foodText.mealName" TextField`
+    t =    20.12s             Checking existence of `"foodText.mealName" TextField`
+    t =    20.21s             Capturing element debug description
+    t =    21.12s         Checking `Expect predicate `existsNoRetry == 1` for object "foodText.mealName" TextField`
+    t =    21.13s             Checking existence of `"foodText.mealName" TextField`
+    t =    21.20s             Capturing element debug description
+    t =    22.12s         Checking `Expect predicate `existsNoRetry == 1` for object "foodText.mealName" TextField`
+    t =    22.12s             Checking existence of `"foodText.mealName" TextField`
+    t =    22.18s             Capturing element debug description
+    t =    23.13s         Checking `Expect predicate `existsNoRetry == 1` for object "foodText.mealName" TextField`
+    t =    23.13s             Checking existence of `"foodText.mealName" TextField`
+    t =    23.20s             Capturing element debug description
+    t =    24.13s         Checking `Expect predicate `existsNoRetry == 1` for object "foodText.mealName" TextField`
+    t =    24.13s             Checking existence of `"foodText.mealName" TextField`
+    t =    24.20s             Capturing element debug description
+    t =    25.08s         Checking `Expect predicate `existsNoRetry == 1` for object "foodText.mealName" TextField`
+    t =    25.08s             Checking existence of `"foodText.mealName" TextField`
+    t =    25.14s             Capturing element debug description
+    t =    25.15s         Checking existence of `"foodText.mealName" TextField`
+    t =    25.21s     Collecting debug information to assist test failure triage
+    t =    25.21s         Requesting snapshot of accessibility hierarchy for app with pid 72006
+    t =    25.33s     Requesting snapshot of accessibility hierarchy for app with pid 72006
+    t =    25.80s     Requesting snapshot of accessibility hierarchy for app with pid 72006
+~/orca/workspaces/gtfuwgth/pi/BananaUITests/AssistantUITest.swift:264: error: -[BananaAgentUITests.AssistantUITest testNewMealDraftSaveAppearsInExistingNutritionStore] : XCTAssertTrue failed - Attributes: Application, 0x1146f2a80, pid: 72006, label: 'Banana Pi'
+Element subtree:
+ →Application, 0x1146f2a80, pid: 72006, label: 'Banana Pi'
+    Window (Main), 0x1146f2bc0, {{0.0, 0.0}, {1032.0, 1376.0}}
+      Other, 0x1146f2d00, {{0.0, 0.0}, {1032.0, 1376.0}}
+        Other, 0x1146f2e40, {{0.0, 0.0}, {1032.0, 1376.0}}
+          Other, 0x1146f2f80, {{0.0, 0.0}, {1032.0, 1376.0}}
+            Other, 0x1146f30c0, {{0.0, 0.0}, {1032.0, 1376.0}}
+              Other, 0x1146f3200, {{0.0, 0.0}, {1032.0, 1376.0}}
+                Other, 0x1146f3340, {{0.0, 0.0}, {1032.0, 1376.0}}
+                  NavigationBar, 0x1146f3480, {{0.0, 32.0}, {1032.0, 106.0}}, identifier: 'Assistant'
+                    Other, 0x1146f35c0, {{864.0, 36.0}, {41.0, 36.0}}, identifier: 'assistant.conversations', label: 'Conversations'
+                      Other, 0x1146f3700, {{864.0, 36.0}, {41.0, 36.0}}
+                        Button, 0x1146f3840, {{864.0, 36.0}, {41.0, 36.0}}, identifier: 'assistant.conversations', label: 'Conversations'
+                    Other, 0x1146f3980, {{921.0, 36.0}, {41.0, 36.0}}, identifier: 'assistant.new', label: 'New conversation'
+                      Other, 0x1146f3ac0, {{921.0, 36.0}, {41.0, 36.0}}
+                        Button, 0x1146f3c00, {{921.0, 36.0}, {41.0, 36.0}}, identifier: 'assistant.new', label: 'New conversation'
+                    Other, 0x1146f3d40, {{978.0, 36.0}, {40.0, 36.0}}, identifier: 'assistant.options', label: 'Assistant options'
+                      Other, 0x1146f3e80, {{978.0, 36.0}, {40.0, 36.0}}
+                        Button, 0x1146f4000, {{978.0, 36.0}, {40.0, 36.0}}, identifier: 'assistant.options', label: 'Assistant options'
+                          Button, 0x1146f4140, {{978.0, 36.0}, {40.0, 36.0}}
+                            Image, 0x1146f4280, {{987.0, 43.0}, {22.0, 22.0}}, identifier: 'ellipsis.circle', label: 'More'
+                    StaticText, 0x1146f43c0, {{20.0, 89.5}, {150.0, 41.0}}, label: 'Assistant'
+                  Other, 0x1146f4500, {{0.0, 0.0}, {1032.0, 1376.0}}
+                    Other, 0x1146f4640, {{0.0, 0.0}, {1032.0, 1376.0}}
+                      Other, 0x1146f4780, {{0.0, 0.0}, {1032.0, 1376.0}}
+                        Other, 0x1146f48c0, {{0.0, 0.0}, {1032.0, 1376.0}}
+                          ScrollView, 0x1146f4a00, {{0.0, 0.0}, {1032.0, 813.0}}, identifier: 'assistant.messages'
+                            Other, 0x1146f4b40, {{0.0, 0.0}, {1032.0, 813.0}}
+                              Other, 0x1146f4c80, {{0.0, 0.0}, {1032.0, 140.8}}
+                            Other, 0x1146f4dc0, {{0.0, 0.0}, {1032.0, 813.0}}
+                            Other, 0x1146f4f00, {{0.0, 138.0}, {1032.0, 679.0}}
+                              Other, 0x1146f5040, {{156.0, 158.0}, {720.0, 617.0}}
+                                StaticText, 0x1146f5180, {{156.0, 158.0}, {145.0, 26.5}}, label: 'Pi UI breakfast'
+                                Button, 0x1146f52c0, {{816.5, 161.0}, {59.5, 20.5}}, identifier: 'assistant.workspace.dismiss', label: 'Dismiss'
+                                StaticText, 0x1146f5400, {{156.0, 205.5}, {36.0, 20.5}}, label: 'Date'
+                                DatePicker, 0x1146f5540, {{751.0, 198.5}, {125.0, 34.5}}, identifier: 'assistant.workspace.mealEditor'
+                                  Button, 0x1146f5680, {{751.0, 198.5}, {125.0, 34.5}}, label: 'Date Picker', value: Oct 26, 2026
+                                StaticText, 0x1146f57c0, {{156.0, 251.8}, {45.0, 20.5}}, label: 'Name'
+                                TextField, 0x1146f5900, {{156.0, 245.0}, {720.0, 34.0}}, identifier: 'assistant.workspace.mealEditor', label: 'Name', placeholderValue: 'Optional', value: Pi UI breakfast
+                                Other, 0x1146f5a40, {{156.0, 303.0}, {720.0, 118.0}}, identifier: 'assistant.workspace.mealEditor'
+                                  StaticText, 0x1146f5b80, {{156.0, 303.0}, {137.0, 53.0}}, label: '249, kcal'
+                                    StaticText, 0x1146f5cc0, {{156.0, 303.0}, {86.5, 53.0}}, label: '249'
+                                    StaticText, 0x1146f5e00, {{246.5, 320.0}, {46.5, 31.5}}, label: 'kcal'
+                                  StaticText, 0x1146f5f40, {{156.0, 368.0}, {234.5, 53.0}}, label: 'Protein, 14, g'
+                                    Image, 0x1146f6080, {{164.0, 380.5}, {28.0, 28.0}}, identifier: 'fork.knife', label: 'Food'
+                                    StaticText, 0x1146f61c0, {{200.0, 376.0}, {40.5, 37.0}}, label: 'Protein, 14, g'
+                                      StaticText, 0x1146f6300, {{200.0, 376.0}, {40.5, 14.5}}, label: 'Protein'
+                                      StaticText, 0x1146f6440, {{200.0, 392.5}, {21.5, 20.5}}, label: '14'
+                                      StaticText, 0x1146f6580, {{223.5, 399.0}, {6.5, 12.0}}, label: 'g'
+                                  StaticText, 0x1146f66c0, {{398.5, 368.0}, {235.0, 53.0}}, label: 'Carbs, 28, g'
+                                    Image, 0x1146f6800, {{406.5, 380.5}, {28.0, 28.0}}, identifier: 'leaf.fill', label: 'Leaf'
+                                    StaticText, 0x1146f6940, {{442.7, 376.0}, {33.5, 37.0}}, label: 'Carbs, 28, g'
+                                      StaticText, 0x1146f6a80, {{442.7, 376.0}, {33.5, 14.5}}, label: 'Carbs'
+                                      StaticText, 0x1146f6bc0, {{442.7, 392.5}, {21.5, 20.5}}, label: '28'
+                                      StaticText, 0x1146f6d00, {{466.2, 399.0}, {6.5, 12.0}}, label: 'g'
+                                  StaticText, 0x1146f6e40, {{641.5, 368.0}, {234.5, 53.0}}, label: 'Fat, 10, g'
+                                    Image, 0x1146f6f80, {{649.5, 380.5}, {28.0, 28.0}}, identifier: 'drop.fill', label: 'Water Drop'
+                                    StaticText, 0x1146f70c0, {{685.3, 376.0}, {30.0, 37.0}}, label: 'Fat, 10, g'
+                                      StaticText, 0x1146f7200, {{685.3, 376.0}, {17.5, 14.5}}, label: 'Fat'
+                                      StaticText, 0x1146f7340, {{685.3, 392.5}, {21.5, 20.5}}, label: '10'
+                                      StaticText, 0x1146f7480, {{708.8, 399.0}, {6.5, 12.0}}, label: 'g'
+                                Image, 0x1146f75c0, {{157.0, 434.0}, {12.0, 12.0}}, identifier: 'assistant.workspace.mealEditor', label: 'Info'
+                                StaticText, 0x1146f7700, {{157.0, 433.0}, {351.0, 14.5}}, identifier: 'assistant.workspace.mealEditor', label: 'Check the numbers, then turn on “I reviewed this” to save.'
+                                StaticText, 0x1146f7840, {{156.0, 471.5}, {52.5, 18.0}}, identifier: 'assistant.workspace.mealEditor', label: '2 items'
+                                Button, 0x1146f7980, {{737.0, 471.5}, {139.0, 18.0}}, identifier: 'assistant.workspace.mealEditor', label: 'Scan a package'
+                                  Image, 0x1146f7ac0, {{739.0, 473.0}, {15.0, 15.0}}, identifier: 'barcode.viewfinder', label: 'Scan Barcode'
+                                  StaticText, 0x1146f7c00, {{737.0, 471.5}, {139.0, 18.0}}, label: 'Scan a package'
+                                Button, 0x1146f7d40, {{156.0, 503.5}, {692.5, 37.0}}, identifier: 'assistant.workspace.mealEditor', label: 'eggs, 2 · P 13 g · C 1 g · F 10 g, 144, kcal'
+                                  Image, 0x1146f7e80, {{157.5, 516.0}, {13.5, 12.5}}, identifier: 'exclamationmark.triangle.fill', label: 'From catalog'
+                                  StaticText, 0x1146f8000, {{184.5, 503.5}, {38.0, 20.5}}, label: 'eggs'
+                                  StaticText, 0x1146f8140, {{184.5, 526.0}, {135.5, 14.5}}, label: '2 · P 13 g · C 1 g · F 10 g'
+                                  StaticText, 0x1146f8280, {{771.5, 511.8}, {32.5, 20.5}}, label: '144'
+                                  StaticText, 0x1146f83c0, {{807.0, 517.3}, {21.0, 13.5}}, label: 'kcal'
+                                  Image, 0x1146f8500, {{842.0, 517.0}, {6.0, 10.0}}, identifier: 'chevron.right', label: 'Forward'
+                                Button, 0x1146f8640, {{858.0, 513.0}, {16.5, 18.5}}, identifier: 'assistant.workspace.mealEditor', label: 'Remove eggs'
+                                Button, 0x1146f8780, {{156.0, 556.5}, {692.5, 37.0}}, identifier: 'assistant.workspace.mealEditor', label: 'banana, 1 · P 1 g · C 27 g · F 0 g, 105, kcal'
+                                  Image, 0x1146f88c0, {{157.5, 569.0}, {13.5, 12.5}}, identifier: 'exclamationmark.triangle.fill', label: 'From catalog'
+                                  StaticText, 0x1146f8a00, {{184.5, 556.5}, {56.0, 20.5}}, label: 'banana'
+                                  StaticText, 0x1146f8b40, {{184.5, 579.0}, {129.0, 14.5}}, label: '1 · P 1 g · C 27 g · F 0 g'
+                                  StaticText, 0x1146f8c80, {{771.5, 564.8}, {32.5, 20.5}}, label: '105'
+                                  StaticText, 0x1146f8dc0, {{807.0, 570.3}, {21.0, 13.5}}, label: 'kcal'
+                                  Image, 0x1146f8f00, {{842.0, 570.0}, {6.0, 10.0}}, identifier: 'chevron.right', label: 'Forward'
+                                Button, 0x1146f9040, {{858.0, 566.0}, {16.5, 18.5}}, identifier: 'assistant.workspace.mealEditor', label: 'Remove banana'
+                                Button, 0x1146f9180, {{156.0, 607.5}, {94.0, 20.5}}, identifier: 'assistant.workspace.mealEditor', label: 'Add item'
+                                  Image, 0x1146f92c0, {{158.0, 610.5}, {14.0, 14.0}}, identifier: 'plus', label: 'Add'
+                                  StaticText, 0x1146f9400, {{156.0, 607.5}, {94.0, 20.5}}, label: 'Add item'
+                                Switch, 0x1146f9540, {{156.0, 648.0}, {720.0, 28.0}}, identifier: 'assistant.workspace.mealEditor', label: 'I reviewed this', value: 0
+                                  StaticText, 0x1146f9680, {{156.0, 651.8}, {109.0, 20.5}}, label: 'I reviewed this'
+                                  Switch, 0x1146f97c0, {{815.0, 648.0}, {63.0, 28.0}}, value: 0
+                                Button, 0x1146f9900, {{156.0, 692.0}, {102.0, 34.5}}, identifier: 'assistant.workspace.mealEditor', label: 'Save meal', Disabled
+                                Button, 0x1146f9a40, {{156.0, 746.5}, {720.0, 28.5}}, label: 'Conversation'
+                                  StaticText, 0x1146f9b80, {{156.0, 746.5}, {720.0, 28.5}}, label: 'Conversation'
+                                  Image, 0x1146f9cc0, {{868.0, 755.0}, {7.0, 12.0}}, identifier: 'collapsed'
+                            Other, 0x1146f9e00, {{999.0, 86.0}, {30.0, 727.0}}, label: 'Vertical scroll bar, 2 pages', value: 0%
+                              Other, 0x1146f9f40, {{1026.0, 922.0}, {3.0, 315.0}}
+                            Other, 0x1146fa080, {{999.0, 86.0}, {30.0, 727.0}}, label: 'Vertical scroll bar, 2 pages', value: 0%
+                              Other, 0x1146fa1c0, {{1026.0, 922.0}, {3.0, 315.0}}
+                          Image, 0x1146fa300, {{154.0, 830.5}, {17.0, 17.0}}, identifier: 'cpu', label: 'cpu'
+                          StaticText, 0x1146fa440, {{181.0, 831.8}, {68.5, 14.5}}, label: 'On this iPad'
+                          StaticText, 0x1146fa580, {{152.0, 858.5}, {79.0, 14.5}}, identifier: 'assistant.test.notes', label: '0 saved notes'
+                          TextField, 0x1146fa6c0, {{158.0, 887.0}, {678.0, 22.0}}, identifier: 'assistant.input', placeholderValue: 'Message Banana', Keyboard Focused, Focused
+                            Other, 0x1146fa800, {{158.0, 887.0}, {0.0, 0.0}}, identifier: '_UITextSelectionRangeAdjustmentContainerView'
+                              Other, 0x1146fa940, {{158.0, 887.0}, {0.0, 0.0}}, identifier: 'com.apple.text.grabber.leading'
+                                Other, 0x1146faa80, {{150.8, 873.5}, {16.5, 16.5}}
+                                Other, 0x1146fabc0, {{158.0, 887.0}, {2.0, 0.0}}
+                              Other, 0x1146fad00, {{158.0, 887.0}, {0.0, 0.0}}, identifier: 'com.apple.text.grabber.leading'
+                                Other, 0x1146fae40, {{150.8, 873.5}, {16.5, 16.5}}
+                                Other, 0x1146faf80, {{158.0, 887.0}, {2.0, 0.0}}
+                            Other, 0x1146fb0c0, {{158.0, 895.0}, {678.0, 11.0}}, label: 'Horizontal scroll bar, 1 page', value: 0%
+                              Other, 0x1146fb200, {{161.0, 903.0}, {672.0, 3.0}}
+                          Button, 0x1146fb340, {{856.0, 889.5}, {22.0, 22.0}}, identifier: 'assistant.send', label: 'Send message', Disabled
+                  Other, 0x1146fb480, {{0.0, 0.0}, {1032.0, 1376.0}}
+                    Other, 0x1146fb5c0, {{0.0, 0.0}, {1032.0, 1376.0}}
+    Window, 0x1146fb700, {{0.0, 0.0}, {1032.0, 1376.0}}
+      Other, 0x1146fb840, {{0.0, 0.0}, {1032.0, 1376.0}}
+        Other, 0x1146fb980, {{0.0, 0.0}, {1032.0, 1376.0}}
+        Other, 0x1146fbac0, {{0.0, 929.0}, {1032.0, 447.0}}
+          Other, 0x1146fbc00, {{0.0, 929.0}, {1032.0, 44.0}}
+            Other, 0x1146fbd40, {{0.0, 929.0}, {1032.0, 44.0}}
+              Other, 0x1146fbe80, {{0.0, 929.0}, {1032.0, 44.0}}
+                Toolbar, 0x1143a8000, {{0.0, 929.0}, {1032.0, 44.0}}, identifier: 'Toolbar', label: 'Toolbar'
+                  Other, 0x1143a8140, {{0.0, 929.0}, {1032.0, 44.0}}
+                    Other, 0x1143a8280, {{20.0, 929.0}, {992.0, 44.0}}
+                      Other, 0x1143a83c0, {{20.0, 929.0}, {992.0, 44.0}}
+                        Other, 0x1143a8500, {{20.0, 929.0}, {0.0, 0.0}}
+                          Other, 0x1143a8640, {{20.0, 929.0}, {100.0, 44.0}}
+                            Other, 0x1143a8780, {{20.0, 929.0}, {46.0, 44.0}}
+                              Other, 0x1143a88c0, {{24.0, 933.0}, {38.0, 36.0}}
+                                Other, 0x1143a8a00, {{24.0, 933.0}, {38.0, 36.0}}
+                                  Other, 0x1143a8b40, {{24.0, 933.0}, {38.0, 36.0}}, identifier: 'chevron.up', label: 'Go Up'
+                                    Other, 0x1143a8c80, {{24.0, 933.0}, {38.0, 36.0}}
+                                      Button, 0x1143a8dc0, {{24.0, 933.0}, {38.0, 36.0}}, identifier: 'chevron.up', label: 'Go Up', Disabled
+                            Other, 0x1143a8f00, {{74.0, 929.0}, {46.0, 44.0}}
+                              Other, 0x1143a9040, {{78.0, 933.0}, {38.0, 36.0}}
+                                Other, 0x1143a9180, {{78.0, 933.0}, {38.0, 36.0}}
+                                  Other, 0x1143a92c0, {{78.0, 933.0}, {38.0, 36.0}}, identifier: 'chevron.down', label: 'Go Down'
+                                    Other, 0x1143a9400, {{78.0, 933.0}, {38.0, 36.0}}
+                                      Button, 0x1143a9540, {{78.0, 933.0}, {38.0, 36.0}}, identifier: 'chevron.down', label: 'Go Down', Disabled
+                          Other, 0x1143a9680, {{939.5, 929.0}, {72.5, 44.0}}
+                            Other, 0x1143a97c0, {{939.5, 929.0}, {72.5, 44.0}}
+                              Other, 0x1143a9900, {{943.5, 933.0}, {64.5, 36.0}}
+                                Other, 0x1143a9a40, {{943.5, 933.0}, {64.5, 36.0}}
+                                  Other, 0x1143a9b80, {{943.5, 933.0}, {64.5, 36.0}}, label: 'Done'
+                                    Other, 0x1143a9cc0, {{943.5, 933.0}, {64.5, 36.0}}
+                                      Button, 0x1143a9e00, {{943.5, 933.0}, {64.5, 36.0}}, label: 'Done'
+          Other, 0x1143a9f40, {{0.0, 973.0}, {1032.0, 403.0}}, identifier: 'inputView'
+    Window, 0x1143aa080, {{0.0, 0.0}, {1032.0, 1376.0}}
+      Other, 0x1143aa1c0, {{0.0, 0.0}, {1032.0, 1376.0}}
+        Other, 0x1143aa300, {{0.0, 973.0}, {1032.0, 403.0}}
+          Other, 0x1143aa440, {{0.0, 973.0}, {1032.0, 55.0}}, identifier: 'SystemInputAssistantView'
+            Other, 0x1143aa580, {{0.0, 973.0}, {1032.0, 55.0}}
+              Other, 0x1143aa6c0, {{0.0, 973.0}, {283.0, 49.0}}, identifier: 'LeftButtonBar'
+                Other, 0x1143aa800, {{28.0, 973.0}, {255.0, 49.0}}
+                  Other, 0x1143aa940, {{28.0, 974.0}, {114.0, 49.0}}
+                    Other, 0x1143aaa80, {{28.0, 974.0}, {22.0, 49.0}}
+                      Button, 0x1143aabc0, {{28.0, 974.0}, {22.0, 49.0}}, identifier: 'assistantUndo', label: 'undo', Disabled
+                    Other, 0x1143aad00, {{74.0, 974.0}, {22.0, 49.0}}
+                      Button, 0x1143aae40, {{74.0, 974.0}, {22.0, 49.0}}, identifier: 'assistantRedo', label: 'Redo', Disabled
+                    Other, 0x1143aaf80, {{120.0, 974.0}, {22.0, 49.0}}
+                      Button, 0x1143ab0c0, {{120.0, 974.0}, {22.0, 49.0}}, identifier: 'assistantPaste:forEvent:', label: 'Paste', Disabled
+              Other, 0x1143ab200, {{283.0, 979.0}, {466.0, 49.0}}, identifier: 'CenterPageView'
+                Other, 0x1143ab340, {{283.0, 379.0}, {466.0, 1249.0}}
+                  ScrollView, 0x1143ab480, {{283.0, 979.0}, {466.0, 49.0}}
+                Other, 0x1143ab5c0, {{283.0, 979.0}, {466.0, 49.0}}
+                  Other, 0x1143ab700, {{283.0, 979.0}, {466.0, 49.0}}, label: 'Typing Predictions'
+                    Other, 0x1143ab840, {{283.0, 979.0}, {466.0, 49.0}}
+                      Other, 0x1143ab980, {{283.0, 979.0}, {466.0, 49.0}}
+                        Other, 0x1143abac0, {{283.0, 979.0}, {155.3, 49.0}}, label: 'I'
+                        Other, 0x1143abc00, {{438.3, 979.0}, {155.3, 49.0}}, label: 'The'
+                        Other, 0x1143abd40, {{593.7, 979.0}, {155.3, 49.0}}, label: 'I’m'
+              Other, 0x1143abe80, {{749.0, 973.0}, {283.0, 49.0}}, identifier: 'RightButtonBar'
+                Other, 0x1143ac000, {{749.0, 973.0}, {255.0, 49.0}}
+          Other, 0x1143ac140, {{0.0, 973.0}, {1032.0, 403.0}}
+            Other, 0x1143ac280, {{0.0, 973.0}, {1032.0, 403.0}}
+              Other, 0x1143ac3c0, {{0.0, 973.0}, {1032.0, 403.0}}
+          Other, 0x1143ac500, {{0.0, 1028.0}, {1032.0, 345.0}}
+            Keyboard, 0x1143ac640, {{0.0, 1028.0}, {1032.0, 345.0}}
+              Other, 0x1143ac780, {{0.0, 1028.0}, {1032.0, 345.0}}
+                Other, 0x1143ac8c0, {{0.0, 1028.0}, {1032.0, 345.0}}, identifier: 'UIKeyboardLayoutStar Preview'
+                  Key, 0x1143aca00, {{0.5, 1033.0}, {71.0, 52.5}}, label: '`'
+                  Key, 0x1143acb40, {{71.5, 1033.0}, {71.0, 52.5}}, label: '1'
+                  Key, 0x1143acc80, {{142.5, 1033.0}, {71.0, 52.5}}, label: '2'
+                  Key, 0x1143acdc0, {{213.5, 1033.0}, {71.0, 52.5}}, label: '3'
+                  Key, 0x1143acf00, {{284.5, 1033.0}, {71.0, 52.5}}, label: '4'
+                  Key, 0x1143ad040, {{355.5, 1033.0}, {71.0, 52.5}}, label: '5'
+                  Key, 0x1143ad180, {{426.5, 1033.0}, {71.0, 52.5}}, label: '6'
+                  Key, 0x1143ad2c0, {{497.5, 1033.0}, {71.0, 52.5}}, label: '7'
+                  Key, 0x1143ad400, {{568.5, 1033.0}, {71.0, 52.5}}, label: '8'
+                  Key, 0x1143ad540, {{639.5, 1033.0}, {71.0, 52.5}}, label: '9'
+                  Key, 0x1143ad680, {{710.5, 1033.0}, {70.5, 52.5}}, label: '0'
+                  Key, 0x1143ad7c0, {{781.0, 1033.0}, {71.0, 52.5}}, label: '-'
+                  Key, 0x1143ad900, {{852.0, 1033.0}, {71.0, 52.5}}, label: '='
+                  Key, 0x1143ada40, {{923.0, 1033.0}, {109.5, 52.5}}, identifier: 'delete', label: 'delete'
+                  Button, 0x1143adb80, {{0.5, 1085.5}, {109.5, 68.0}}, identifier: 'tab', label: 'Tab'
+                  Key, 0x1143adcc0, {{110.0, 1085.5}, {71.0, 68.0}}, label: 'Q'
+                  Key, 0x1143ade00, {{181.0, 1085.5}, {71.0, 68.0}}, label: 'W'
+                  Key, 0x1143adf40, {{252.0, 1085.5}, {70.5, 68.0}}, label: 'E'
+                  Key, 0x1143ae080, {{322.5, 1085.5}, {71.0, 68.0}}, label: 'R'
+                  Key, 0x1143ae1c0, {{393.5, 1085.5}, {71.0, 68.0}}, label: 'T'
+                  Key, 0x1143ae300, {{464.5, 1085.5}, {71.0, 68.0}}, label: 'Y'
+                  Key, 0x1143ae440, {{535.5, 1085.5}, {71.0, 68.0}}, label: 'U'
+                  Key, 0x1143ae580, {{606.5, 1085.5}, {71.0, 68.0}}, label: 'I'
+                  Key, 0x1143ae6c0, {{677.5, 1085.5}, {71.0, 68.0}}, label: 'O'
+                  Key, 0x1143ae800, {{748.5, 1085.5}, {71.0, 68.0}}, label: 'P'
+                  Key, 0x1143ae940, {{819.5, 1085.5}, {71.0, 68.0}}, label: '['
+                  Key, 0x1143aea80, {{890.5, 1085.5}, {71.0, 68.0}}, label: ']'
+                  Key, 0x1143aebc0, {{961.5, 1085.5}, {71.0, 68.0}}, label: '\'
+                  Key, 0x1143aed00, {{0.5, 1153.5}, {125.5, 68.0}}, identifier: 'caps-lock', label: 'Caps Lock'
+                  Key, 0x1143aee40, {{126.0, 1153.5}, {71.0, 68.0}}, label: 'A'
+                  Key, 0x1143aef80, {{197.0, 1153.5}, {71.0, 68.0}}, label: 'S'
+                  Key, 0x1143af0c0, {{268.0, 1153.5}, {71.0, 68.0}}, label: 'D'
+                  Key, 0x1143af200, {{339.0, 1153.5}, {71.0, 68.0}}, label: 'F'
+                  Key, 0x1143af340, {{410.0, 1153.5}, {71.0, 68.0}}, label: 'G'
+                  Key, 0x1143af480, {{481.0, 1153.5}, {71.0, 68.0}}, label: 'H'
+                  Key, 0x1143af5c0, {{552.0, 1153.5}, {71.0, 68.0}}, label: 'J'
+                  Key, 0x1143af700, {{623.0, 1153.5}, {71.0, 68.0}}, label: 'K'
+                  Key, 0x1143af840, {{694.0, 1153.5}, {71.0, 68.0}}, label: 'L'
+                  Key, 0x1143af980, {{765.0, 1153.5}, {71.0, 68.0}}, label: ';'
+                  Key, 0x1143afac0, {{836.0, 1153.5}, {71.0, 68.0}}, label: '''
+                  Button, 0x1143afc00, {{907.0, 1153.5}, {125.5, 68.0}}, identifier: 'Send', label: 'send'
+                  Button, 0x1143afd40, {{0.5, 1221.5}, {161.0, 68.5}}, identifier: 'shift', label: 'shift', Selected
+                  Key, 0x1143afe80, {{161.5, 1221.5}, {71.0, 68.5}}, label: 'Z'
+                  Key, 0x1143b0000, {{232.5, 1221.5}, {71.0, 68.5}}, label: 'X'
+                  Key, 0x1143b0140, {{303.5, 1221.5}, {71.0, 68.5}}, label: 'C'
+                  Key, 0x1143b0280, {{374.5, 1221.5}, {71.0, 68.5}}, label: 'V'
+                  Key, 0x1143b03c0, {{445.5, 1221.5}, {71.0, 68.5}}, label: 'B'
+                  Key, 0x1143b0500, {{516.5, 1221.5}, {71.0, 68.5}}, label: 'N'
+                  Key, 0x1143b0640, {{587.5, 1221.5}, {71.0, 68.5}}, label: 'M'
+                  Key, 0x1143b0780, {{658.5, 1221.5}, {71.0, 68.5}}, label: ','
+                  Key, 0x1143b08c0, {{729.5, 1221.5}, {71.0, 68.5}}, label: '.'
+                  Key, 0x1143b0a00, {{800.5, 1221.5}, {71.0, 68.5}}, label: '/'
+                  Key, 0x1143b0b40, {{871.5, 1221.5}, {161.0, 68.5}}, label: 'shift', Selected
+                  Button, 0x1143b0c80, {{0.5, 1290.0}, {100.5, 68.0}}, identifier: 'emoji', label: 'Emoji'
+                  Key, 0x1143b0dc0, {{101.0, 1290.0}, {100.5, 68.0}}, identifier: 'more', label: 'numbers'
+                  Button, 0x1143b0f00, {{201.5, 1290.0}, {101.0, 68.0}}, identifier: 'dictation', label: 'Dictate'
+                  Key, 0x1143b1040, {{302.5, 1290.0}, {426.5, 68.0}}, label: ' '
+                  Key, 0x1143b1180, {{729.0, 1290.0}, {152.0, 68.0}}, identifier: 'more', label: 'numbers'
+                  Button, 0x1143b12c0, {{881.0, 1290.0}, {151.5, 68.0}}, label: 'Hide keyboard'
+Path to element:
+ →Application, 0x1146f2a80, pid: 72006, label: 'Banana Pi'
+Query chain:
+ →Find: Target Application 'com.boris.banana.pi-development'
+  Output: {
+    Application, 0x1143b1400, pid: 72006, label: 'Banana Pi'
+  }
+
+    t =    25.90s     Tap "foodText.mealName" TextField
+    t =    25.90s         Wait for com.boris.banana.pi-development to idle
+    t =    25.91s         Find the "foodText.mealName" TextField
+    t =    26.98s             Find the "foodText.mealName" TextField (retry 1)
+    t =    28.05s             Find the "foodText.mealName" TextField (retry 2)
+    t =    28.12s     Requesting snapshot of accessibility hierarchy for app with pid 72006
+~/orca/workspaces/gtfuwgth/pi/BananaUITests/AssistantUITest.swift:265: error: -[BananaAgentUITests.AssistantUITest testNewMealDraftSaveAppearsInExistingNutritionStore] : Failed to tap "foodText.mealName" TextField: No matches found for Elements matching predicate '"foodText.mealName" IN identifiers' from input {(
+    TextField, identifier: 'assistant.input', placeholderValue: 'Message Banana', Keyboard Focused,
+    TextField, identifier: 'assistant.workspace.mealEditor', label: 'Name', placeholderValue: 'Optional', value: Pi UI breakfast
+)}
+Possibly caused by runtime issues:
+Automation type mismatch: computed TextField from legacy attributes vs TextView from modern attribute. Input attributes and values: {
+    "XC_kAXXCAttributeAutomationType" = 52;
+    "XC_kAXXCAttributeElementBaseType" = UITextView;
+    "XC_kAXXCAttributeElementType" = "SwiftUI.VerticalTextView";
+    "XC_kAXXCAttributeTraits" = 146031247360;
+}
+See test report attachments for more detail.
+    t =    28.24s Tear Down
+Test Case '-[BananaAgentUITests.AssistantUITest testNewMealDraftSaveAppearsInExistingNutritionStore]' failed (28.583 seconds).
+Test Case '-[BananaAgentUITests.AssistantUITest testNutritionMealCopyOpensExistingReviewEditor]' started.
+    t =     0.00s Start Test at 2026-10-26 12:03:26.165
+    t =     0.02s Set Up
+    t =     0.03s     Open com.boris.banana.pi-development
+    t =     0.03s         Launch com.boris.banana.pi-development
+    t =     0.03s             Terminate com.boris.banana.pi-development:72006
+2026-10-26 12:03:26.220 xcodebuild[66623:92378448] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-26 12:03:26.221 xcodebuild[66623:92378448] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-26 12:03:27.272 xcodebuild[66623:92378448] [MT] IDELaunchParametersSnapshot: debugger version lookup failed for path '<nil>': noURL
+2026-10-26 12:03:27.272 xcodebuild[66623:92378448] [MT] IDELaunchParametersSnapshot: no debugger version
+2026-10-26 12:03:27.302 xcodebuild[66623:92378448] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+    t =     1.53s             Setting up automation session
+    t =     2.41s             Wait for com.boris.banana.pi-development to idle
+    t =     4.28s     Waiting 25.0s for "assistant.input" Any to exist
+    t =     5.32s         Checking `Expect predicate `existsNoRetry == 1` for object "assistant.input" Any`
+    t =     5.33s             Checking existence of `"assistant.input" Any`
+    t =     5.45s     Tap "assistant.input" Any
+    t =     5.45s         Wait for com.boris.banana.pi-development to idle
+    t =     5.45s         Find the "assistant.input" Any
+    t =     5.51s         Check for interrupting elements affecting "assistant.input" TextField
+    t =     5.55s             Wait for com.apple.springboard to idle
+    t =     5.59s         Synthesize event
+    t =     5.88s         Wait for com.boris.banana.pi-development to idle
+    t =     5.94s     Type 'Show my protein th...' into "assistant.input" TextField
+    t =     5.94s         Wait for com.boris.banana.pi-development to idle
+    t =     6.33s         Find the "assistant.input" TextField
+    t =     6.57s         Check for interrupting elements affecting "assistant.input" TextField
+    t =     6.62s             Wait for com.apple.springboard to idle
+    t =     6.66s         Synthesize event
+    t =     7.30s         Wait for com.boris.banana.pi-development to idle
+    t =     7.30s     Find the "assistant.send" Button
+    t =     7.37s     Tap "assistant.send" Button
+    t =     7.37s         Wait for com.boris.banana.pi-development to idle
+    t =     7.37s         Find the "assistant.send" Button
+    t =     7.42s         Check for interrupting elements affecting "assistant.send" Button
+    t =     7.46s             Wait for com.apple.springboard to idle
+    t =     7.49s         Synthesize event
+    t =     7.78s         Wait for com.boris.banana.pi-development to idle
+    t =     7.89s     Waiting 20.0s for Button (First Match) to exist
+    t =     8.96s         Checking `Expect predicate `existsNoRetry == 1` for object Button (First Match)`
+    t =     8.96s             Checking existence of `Button (First Match)`
+    t =     9.10s     Find the "assistant.test.meals" StaticText
+    t =     9.15s     Tap Button (First Match)
+    t =     9.15s         Wait for com.boris.banana.pi-development to idle
+    t =     9.15s         Find the Button (First Match)
+    t =     9.27s         Check for interrupting elements affecting "assistant.nutrition.copy.BA9A9A00-0000-4000-8000-000000000001" Button
+    t =     9.31s             Wait for com.apple.springboard to idle
+    t =     9.34s         Synthesize event
+    t =     9.63s         Wait for com.boris.banana.pi-development to idle
+    t =     9.64s     Find the "assistant.nutrition.review" Button
+    t =     9.72s     Waiting 10.0s for "assistant.nutrition.review" Button to exist
+    t =    10.76s         Checking `Expect predicate `existsNoRetry == 1` for object "assistant.nutrition.review" Button`
+    t =    10.76s             Checking existence of `"assistant.nutrition.review" Button`
+    t =    10.84s     Tap "assistant.nutrition.review" Button
+    t =    10.84s         Wait for com.boris.banana.pi-development to idle
+    t =    10.85s         Find the "assistant.nutrition.review" Button
+    t =    10.91s         Check for interrupting elements affecting "assistant.nutrition.review" Button
+    t =    10.96s             Wait for com.apple.springboard to idle
+    t =    10.98s         Synthesize event
+    t =    11.28s         Wait for com.boris.banana.pi-development to idle
+    t =    11.63s     Waiting 10.0s for "Save" Button to exist
+    t =    12.67s         Checking `Expect predicate `existsNoRetry == 1` for object "Save" Button`
+    t =    12.67s             Checking existence of `"Save" Button`
+    t =    12.79s     Checking existence of `"Cancel" Button`
+    t =    12.87s     Tap "Cancel" Button
+    t =    12.87s         Wait for com.boris.banana.pi-development to idle
+    t =    12.87s         Find the "Cancel" Button
+    t =    12.95s         Check for interrupting elements affecting "Cancel" Button
+    t =    13.02s             Wait for com.apple.springboard to idle
+    t =    13.04s         Synthesize event
+    t =    13.35s         Wait for com.boris.banana.pi-development to idle
+    t =    14.10s     Checking existence of `"assistant.nutrition.review" Button`
+    t =    14.16s     Find the "assistant.test.meals" StaticText
+    t =    14.22s     Tap "assistant.nutrition.copy.BA9A9A00-0000-4000-8000-000000000001" Button
+    t =    14.22s         Wait for com.boris.banana.pi-development to idle
+    t =    14.22s         Find the "assistant.nutrition.copy.BA9A9A00-0000-4000-8000-000000000001" Button
+    t =    14.33s         Check for interrupting elements affecting "assistant.nutrition.copy.BA9A9A00-0000-4000-8000-000000000001" Button
+    t =    14.38s             Wait for com.apple.springboard to idle
+    t =    14.40s         Synthesize event
+    t =    14.70s         Wait for com.boris.banana.pi-development to idle
+    t =    14.70s     Waiting 10.0s for "assistant.nutrition.review" Button to exist
+    t =    15.76s         Checking `Expect predicate `existsNoRetry == 1` for object "assistant.nutrition.review" Button`
+    t =    15.77s             Checking existence of `"assistant.nutrition.review" Button`
+    t =    15.84s     Tap "assistant.nutrition.review" Button
+    t =    15.84s         Wait for com.boris.banana.pi-development to idle
+    t =    15.85s         Find the "assistant.nutrition.review" Button
+    t =    15.90s         Check for interrupting elements affecting "assistant.nutrition.review" Button
+    t =    15.96s             Wait for com.apple.springboard to idle
+    t =    15.98s         Synthesize event
+    t =    16.28s         Wait for com.boris.banana.pi-development to idle
+    t =    16.31s     Waiting 10.0s for "foodText.confirmed" Switch to exist
+    t =    17.38s         Checking `Expect predicate `existsNoRetry == 1` for object "foodText.confirmed" Switch`
+    t =    17.38s             Checking existence of `"foodText.confirmed" Switch`
+    t =    17.50s     Find the "foodText.confirmed" Switch
+    t =    17.57s     Checking existence of `Switch (First Match)`
+    t =    17.69s     Tap Switch (First Match)
+    t =    17.69s         Wait for com.boris.banana.pi-development to idle
+    t =    17.69s         Find the Switch (First Match)
+    t =    17.83s         Check for interrupting elements affecting "0" Switch
+    t =    17.90s             Wait for com.apple.springboard to idle
+    t =    17.92s         Synthesize event
+    t =    17.93s             Scroll element to visible
+    t =    17.93s             Find the "0" Switch
+    t =    18.09s             Computed hit point {736.5, 962} after scrolling to visible
+    t =    18.38s         Wait for com.boris.banana.pi-development to idle
+    t =    19.69s     Find the "foodText.confirmed" Switch
+    t =    19.78s     Find the "Save" Button
+    t =    19.86s     Tap "Save" Button
+    t =    19.86s         Wait for com.boris.banana.pi-development to idle
+    t =    19.86s         Find the "Save" Button
+    t =    19.94s         Check for interrupting elements affecting "Save" Button
+    t =    20.01s             Wait for com.apple.springboard to idle
+    t =    20.04s         Synthesize event
+    t =    20.34s         Wait for com.boris.banana.pi-development to idle
+    t =    21.15s     Checking existence of `"Save" Button`
+    t =    21.21s     Find the "assistant.test.meals" StaticText
+    t =    21.27s     Terminate com.boris.banana.pi-development:73188
+2026-10-26 12:03:47.452 xcodebuild[66623:92378448] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-26 12:03:47.452 xcodebuild[66623:92378448] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+    t =    22.36s     Open com.boris.banana.pi-development
+    t =    22.37s         Launch com.boris.banana.pi-development
+2026-10-26 12:03:48.534 xcodebuild[66623:92378448] [MT] IDELaunchParametersSnapshot: debugger version lookup failed for path '<nil>': noURL
+2026-10-26 12:03:48.534 xcodebuild[66623:92378448] [MT] IDELaunchParametersSnapshot: no debugger version
+2026-10-26 12:03:48.607 xcodebuild[66623:92378448] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+    t =    22.79s             Setting up automation session
+    t =    23.73s             Wait for com.boris.banana.pi-development to idle
+    t =    25.86s     Waiting 25.0s for "assistant.input" Any to exist
+    t =    26.89s         Checking `Expect predicate `existsNoRetry == 1` for object "assistant.input" Any`
+    t =    26.89s             Checking existence of `"assistant.input" Any`
+    t =    27.01s     Waiting 20.0s for "assistant.test.meals" StaticText to exist
+    t =    28.01s         Checking `Expect predicate `existsNoRetry == 1` for object "assistant.test.meals" StaticText`
+    t =    28.02s             Checking existence of `"assistant.test.meals" StaticText`
+    t =    28.08s     Find the "assistant.test.meals" StaticText
+    t =    28.12s Tear Down
+Test Case '-[BananaAgentUITests.AssistantUITest testNutritionMealCopyOpensExistingReviewEditor]' passed (28.428 seconds).
+Test Suite 'AssistantUITest' failed at 2026-10-26 12:03:54.594.
+	 Executed 5 tests, with 7 failures (0 unexpected) in 131.521 (131.526) seconds
+Test Suite 'BananaAgentUITests.xctest' failed at 2026-10-26 12:03:54.595.
+	 Executed 5 tests, with 7 failures (0 unexpected) in 131.521 (131.527) seconds
+Test Suite 'Selected tests' failed at 2026-10-26 12:03:54.596.
+	 Executed 5 tests, with 7 failures (0 unexpected) in 131.521 (131.528) seconds
+2026-10-26 12:03:54.655 xcodebuild[66623:92378448] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-26 12:03:54.656 xcodebuild[66623:92378448] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-26 12:03:54.702 xcodebuild[66623:92378448] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-26 12:03:54.702 xcodebuild[66623:92378448] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-26 12:03:54.971 xcodebuild[66623:92378448] [MT] IDETestOperationsObserverDebug: 174.238 elapsed -- Testing started completed.
+2026-10-26 12:03:54.971 xcodebuild[66623:92378448] [MT] IDETestOperationsObserverDebug: 0.000 sec, +0.000 sec -- start
+2026-10-26 12:03:54.971 xcodebuild[66623:92378448] [MT] IDETestOperationsObserverDebug: 174.238 sec, +174.238 sec -- end
+
+Test session results, code coverage, and logs:
+	~/orca/workspaces/gtfuwgth/pi/.build/sim/Logs/Test/Test-BananaPi-2026.10.26_12-01-00--0400.xcresult
+
+Failing tests:
+	AssistantUITest.testNewEventDraftIsInlineAndRestores()
+	AssistantUITest.testNewEventDraftIsInlineAndRestores()
+	AssistantUITest.testNewMealDraftIsInlineAndRestores()
+	AssistantUITest.testNewMealDraftIsInlineAndRestores()
+	AssistantUITest.testNewMealDraftIsInlineAndRestores()
+	AssistantUITest.testNewMealDraftSaveAppearsInExistingNutritionStore()
+	AssistantUITest.testNewMealDraftSaveAppearsInExistingNutritionStore()
+
+** TEST EXECUTE FAILED **
+
+Testing started

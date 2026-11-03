@@ -1,0 +1,18 @@
+{
+  "date": "2026-10-25",
+  "simulator": "22DDB577-4616-4E99-AF0F-6AC31A3753B7",
+  "passed": [
+    "PiLaunchUITest/testNormalColdLaunchReachesAssistantWithoutCloudSetup",
+    "AssistantUITest/testNewMealDraftUsesSharedEditorAndSurvivesCancel",
+    "AssistantUITest/testNewEventDraftUsesSharedEditorAndRestores",
+    "AssistantUITest/testGlobalMealSearchLinksThroughNormalAppShell"
+  ],
+  "regressionFound": "Meal save succeeds but workspace fails to recognize saved UUID because JavaScript/Swift UUID strings differ in letter casing.",
+  "fix": "Compare UUID values instead of uuidString text in AssistantWorkspaceView.",
+  "fixCompiledMacAndSimulator": true,
+  "fixedSaveUITestPassed": false,
+  "rerun": "0 test cases reached. Failed to install or launch XCTest runner: Mach error -308, server died. Bounded 300-second runner startup limit reached.",
+  "physicalUITest": "No cases reached; timed out enabling automation mode. Separate physical real Apple-model workspace verification passed.",
+  "externalCalendarWriteAttempted": false,
+  "simulatorShutDown": true
+}

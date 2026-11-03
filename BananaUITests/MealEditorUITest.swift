@@ -73,7 +73,7 @@ final class MealEditorUITest: XCTestCase {
         XCTAssertEqual(openRowCount(app), 1, "only the estimated row starts open")
 
         yogurt.tap()
-        XCTAssertTrue(app.buttons["Delete item"].firstMatch.waitForExistence(timeout: 3))
+        XCTAssertTrue(app.buttons["foodText.itemMenu"].firstMatch.waitForExistence(timeout: 3))
         XCTAssertEqual(openRowCount(app), 2, "tapping a row must open its editor")
 
         yogurt.tap()

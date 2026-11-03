@@ -93,7 +93,7 @@ final class EventGuestsUITest: XCTestCase {
 
     func testSomeoneElsesInvitationShowsItsGuestsWithoutControls() {
         let app = launch(["--event-editor", "--event-editor-invite"])
-        XCTAssertTrue(app.navigationBars["Edit event"].waitForExistence(timeout: 8))
+        XCTAssertTrue(app.navigationBars["Invitation"].waitForExistence(timeout: 8))
         let guest = element(app, "eventEditor.guest")
         reveal(guest, in: app)
         XCTAssertTrue(guest.exists)

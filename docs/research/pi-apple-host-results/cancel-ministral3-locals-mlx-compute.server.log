@@ -1,0 +1,9 @@
+loading ~/orca/workspaces/gtfuwgth/pi-inference-upstream/serving-views/ministral3-3b-fixed-tokenizer on engine mlx ...
+engine mlx ready in 1.7s
+[mlx] tool calls: mistral_v11; thinking: none
+locals serve: http://127.0.0.1:41790/v1  (models: mlx/ministral3-3b-fixed-tokenizer)
+  also: the Ollama API at http://127.0.0.1:41790/api
+[mlx] prompt 26 (0 cached)  out 1 tok  5 tok/s  0 call(s)  finish=stop
+[mlx] prompt 51 (18 cached)  out 512 tok  27 tok/s  0 call(s)  finish=length
+[mlx] client disconnected; cancelled
+[mlx] prompt 26 (24 cached)  out 1 tok  1 tok/s  0 call(s)  finish=stop

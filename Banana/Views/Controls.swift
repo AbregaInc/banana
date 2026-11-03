@@ -331,3 +331,43 @@ struct RowChevron: View {
             .accessibilityHidden(true)
     }
 }
+
+
+/// Shows the shared editor sections in the assistant's existing scroll surface.
+/// A second Form/NavigationStack here would add competing scrolling and toolbars.
+///
+/// Drawn as a grouped Form draws them, so a field reads the same here as in any sheet: each
+/// section a group on the page's grouped background, a header above it, plain fields with the
+/// value at the trailing edge. (Bordered fields here made four kinds of box on one screen.)
+/// The host scroll view sits on `DS.Palette.page`.
+struct InlineEditorSections<Content: View>: View {
+    @ViewBuilder var content: () -> Content
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: DS.Space.l) {
+            ForEach(sections: content()) { section in
+                VStack(alignment: .leading, spacing: DS.Space.s) {
+                    if !section.header.isEmpty {
+                        VStack(alignment: .leading) { section.header }
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                            .textCase(.uppercase)
+                            .padding(.horizontal, DS.Space.l)
+                    }
+                    VStack(alignment: .leading, spacing: DS.Space.m) { section.content }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, DS.Space.l)
+                        .padding(.vertical, DS.Space.m)
+                        .dsCard()
+                    if !section.footer.isEmpty {
+                        VStack(alignment: .leading) { section.footer }
+                            .font(.footnote).foregroundStyle(.secondary)
+                            .padding(.horizontal, DS.Space.l)
+                    }
+                }
+            }
+        }
+        .textFieldStyle(.plain)
+        .formControls()
+    }
+}

@@ -52,7 +52,7 @@ struct FoodSearchView: View {
                             dismiss()
                             onManual()
                         } label: {
-                            Label("Enter it by hand", systemImage: "square.and.pencil")
+                            WellnessTileLabel("Enter it by hand", systemImage: "square.and.pencil")
                         }
                         .accessibilityIdentifier("foodSearch.manual")
                     }
@@ -62,13 +62,13 @@ struct FoodSearchView: View {
             // The system's search field, always showing: searching is all this sheet does.
             #if os(iOS)
             .searchable(text: $query, placement: .navigationBarDrawer(displayMode: .always),
-                        prompt: "Search foods \u{2014} \u{201C}baby carrots\u{201D}")
+                        prompt: "Search foods")
             // The bar stays while the field is in use: its Cancel is the sheet's way out.
             .searchPresentationToolbarBehavior(.avoidHidingContent)
             .textInputAutocapitalization(.never)
             .navigationBarTitleDisplayMode(.inline)
             #else
-            .searchable(text: $query, prompt: "Search foods \u{2014} \u{201C}baby carrots\u{201D}")
+            .searchable(text: $query, prompt: "Search foods")
             .frame(minWidth: 460, idealWidth: 520, minHeight: 520, idealHeight: 640)
             #endif
             .searchFocused($fieldFocused)
@@ -254,16 +254,15 @@ struct FoodAmountView: View {
 
     var body: some View {
         Form {
+            // The same amount row as every item of a meal: labelled, stepped, its measures under it.
             Section {
                 FoodAmountControl(amount: $amount, units: units, serving: result.item.serving,
-                                  focus: $countFocused, field: true)
-            } header: {
-                Text("How much")
+                                  focus: $countFocused, field: true, title: "Amount")
             } footer: {
                 Text(item.serving)
             }
             Section {
-                NutritionSummary(macros: item.macros)
+                NutritionSummary(macros: item.macros, size: .tile)
                     .padding(.vertical, DS.Space.xs)
             }
         }

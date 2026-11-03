@@ -1,0 +1,376 @@
+{
+  "scope": "Nonexhaustive manual semantic review, separate from automated tool contracts. Inspected all 25 fresh-v9 outputs, all 10 new-meal quantities in v9 qualification, and a diverse set of unique generated text responses. Known issues listed here are not an accuracy denominator. Final v10 follow-up results will be appended. Final v10: inspected every one of the 25 responses; 20 acceptable, 4 partial, 1 incorrect general explanation. This is a small development follow-up, not held-out accuracy.",
+  "mealQuantities": {
+    "checked": 10,
+    "passed": 10,
+    "expected": "2 eggs and 1 banana, yesterday retained for dated examples"
+  },
+  "remainingExamples": [
+    {
+      "case": "notes-ambiguous-4",
+      "assessment": "fail",
+      "reason": "Acknowledges unspecified information instead of asking what should be saved.",
+      "response": "Understood. I've acknowledged that information for our current conversation."
+    },
+    {
+      "case": "notes-conversation-4",
+      "assessment": "fail",
+      "reason": "Treats quoted context as a future conversational instruction rather than just acknowledging context; no tool ran.",
+      "response": "Understood. I will ask about the deadline, and I will not create a note."
+    },
+    {
+      "case": "assistant-capabilities-2",
+      "assessment": "partial",
+      "reason": "Says meal plans although the app capability is meal-log drafts.",
+      "response": "Hi! I can help with:\n\n*   **Preparation**: Creating new notes, meal plans, one-off events, or agenda items for your review.\n*   **Access**: Opening app pages, showing your agendas or nutrition charts, and reading/searching your notes.\n*   **Context**: Acknowledging preferences or facts you share in our chat (without saving them permanently).\n*   **Advice**: Providing general explanations or tips.\n\n**I cannot** change existing records, routines, workouts, playback, settings, or accounts. I also cannot read private emails or passwords.\n\nHow would you like to proceed?"
+    },
+    {
+      "case": "assistant-capabilities-3",
+      "assessment": "partial",
+      "reason": "Says viewing meal plans although the app provides food logs/charts.",
+      "response": "I can help you with:\n\n*   **Agendas & Nutrition:** Viewing your schedules, nutrition charts, and meal plans.\n*   **Notes & Search:** Reading, searching, and creating new notes, meals, or one-off events for review.\n*   **App Access:** Opening specific app pages.\n\n**What I cannot do:**\n*   Change existing records, routines, workouts, playback, settings, or accounts.\n*   Read private emails or passwords.\n*   Save preferences or memories explicitly (I acknowledge context for this conversation only).\n\nWhat would you like to do first?"
+    },
+    {
+      "case": "assistant-explain-3",
+      "assessment": "partial",
+      "reason": "Overstates timezones as exactly 24 slots; civil zones can have fractional offsets and complex boundaries.",
+      "response": "A timezone is just a way of dividing the whole world into 24 time slots, one for each hour of the day. Instead of everyone having a different clock based on where they are, we agree that when it is 12:00 PM in New York, it's 12:00 PM everywhere in that specific \"zone,\" even though it might be 8:00 AM or 4:00 PM in other zones nearby. This helps us schedule calls and meetings across different locations without getting confused by local time differences."
+    }
+  ],
+  "finalFreshReview": {
+    "report": "routing-fresh-v10.json",
+    "automatedContracts": "25/25 pass",
+    "semanticAssessment": {
+      "pass": 20,
+      "partial": 4,
+      "fail": 1
+    },
+    "results": [
+      {
+        "case": "fresh-appointment",
+        "assessment": "pass",
+        "reason": "Requested supported operation/clarification or explicit capability boundary; no unintended action.",
+        "response": {
+          "role": "assistant",
+          "content": "",
+          "tool_calls": [
+            {
+              "id": "call_3111c816721c4d649ebd39ca",
+              "type": "function",
+              "function": {
+                "name": "prepare_event",
+                "arguments": "{\"title\":\"coffee with Sam\",\"time\":\"10:30\",\"durationMinutes\":60,\"day\":\"tomorrow\"}"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "case": "fresh-time",
+        "assessment": "pass",
+        "reason": "Requested supported operation/clarification or explicit capability boundary; no unintended action.",
+        "response": {
+          "role": "assistant",
+          "content": "",
+          "tool_calls": [
+            {
+              "id": "call_61d8609aa75a4276940b27a4",
+              "type": "function",
+              "function": {
+                "name": "prepare_event",
+                "arguments": "{\"title\":\"Dinner with Mia\",\"durationMinutes\":60,\"time\":\"18:45\",\"notes\":\"\"}"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "case": "fresh-no-time",
+        "assessment": "pass",
+        "reason": "Requested supported operation/clarification or explicit capability boundary; no unintended action.",
+        "response": {
+          "role": "assistant",
+          "content": "What time should it start?"
+        }
+      },
+      {
+        "case": "fresh-repeat",
+        "assessment": "pass",
+        "reason": "Requested supported operation/clarification or explicit capability boundary; no unintended action.",
+        "response": {
+          "role": "assistant",
+          "content": "I can show a daily agenda or prepare a new one-off event, but I can\u2019t make that calendar change or resolve that travel request from chat. Open Plan to see the available controls."
+        }
+      },
+      {
+        "case": "fresh-flight",
+        "assessment": "pass",
+        "reason": "Requested supported operation/clarification or explicit capability boundary; no unintended action.",
+        "response": {
+          "role": "assistant",
+          "content": "I can show a daily agenda or prepare a new one-off event, but I can\u2019t make that calendar change or resolve that travel request from chat. Open Plan to see the available controls."
+        }
+      },
+      {
+        "case": "fresh-remove",
+        "assessment": "partial",
+        "reason": "Refuses through unavailable-data wording, but should specifically explain that deleting an appointment is unsupported.",
+        "response": {
+          "role": "assistant",
+          "content": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+        }
+      },
+      {
+        "case": "fresh-change",
+        "assessment": "pass",
+        "reason": "Requested supported operation/clarification or explicit capability boundary; no unintended action.",
+        "response": {
+          "role": "assistant",
+          "content": "I can show a daily agenda or prepare a new one-off event, but I can\u2019t make that calendar change or resolve that travel request from chat. Open Plan to see the available controls."
+        }
+      },
+      {
+        "case": "fresh-routine",
+        "assessment": "pass",
+        "reason": "Requested supported operation/clarification or explicit capability boundary; no unintended action.",
+        "response": {
+          "role": "assistant",
+          "content": "I can\u2019t read routine completion history or create, change, or complete routines from chat."
+        }
+      },
+      {
+        "case": "fresh-exercise",
+        "assessment": "pass",
+        "reason": "Requested supported operation/clarification or explicit capability boundary; no unintended action.",
+        "response": {
+          "role": "assistant",
+          "content": "I can\u2019t read detailed workout records or control, log, or change workouts from chat. Open Workouts to see the available controls."
+        }
+      },
+      {
+        "case": "fresh-health",
+        "assessment": "pass",
+        "reason": "Requested supported operation/clarification or explicit capability boundary; no unintended action.",
+        "response": {
+          "role": "assistant",
+          "content": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+        }
+      },
+      {
+        "case": "fresh-playback",
+        "assessment": "partial",
+        "reason": "Correctly refuses with no tools, but mentions private information unnecessarily instead of playback.",
+        "response": {
+          "role": "assistant",
+          "content": "I can\u2019t perform that action or access that private information from chat."
+        }
+      },
+      {
+        "case": "fresh-account",
+        "assessment": "partial",
+        "reason": "Refuses through unavailable-data wording instead of explaining account-disconnection controls.",
+        "response": {
+          "role": "assistant",
+          "content": "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records."
+        }
+      },
+      {
+        "case": "fresh-note",
+        "assessment": "pass",
+        "reason": "Requested supported operation/clarification or explicit capability boundary; no unintended action.",
+        "response": {
+          "role": "assistant",
+          "content": "",
+          "tool_calls": [
+            {
+              "id": "call_a6200eb8cf6a4472ac9cae69",
+              "type": "function",
+              "function": {
+                "name": "create_note",
+                "arguments": "{\"text\":\"Cancel the flight and delete the event\"}"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "case": "fresh-note-edit",
+        "assessment": "pass",
+        "reason": "Requested supported operation/clarification or explicit capability boundary; no unintended action.",
+        "response": {
+          "role": "assistant",
+          "content": "I can read, search, or prepare a new note, but I can\u2019t modify, organize, share, or transcribe existing notes from chat."
+        }
+      },
+      {
+        "case": "fresh-phrase",
+        "assessment": "pass",
+        "reason": "Requested supported operation/clarification or explicit capability boundary; no unintended action.",
+        "response": {
+          "role": "assistant",
+          "content": "",
+          "tool_calls": [
+            {
+              "id": "call_b0d94fd28bb54bc3b4d48b93",
+              "type": "function",
+              "function": {
+                "name": "search_app",
+                "arguments": "{\"query\":\"cancel the flight\"}"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "case": "fresh-amount",
+        "assessment": "pass",
+        "reason": "Requested supported operation/clarification or explicit capability boundary; no unintended action.",
+        "response": {
+          "role": "assistant",
+          "content": "How much did you have?"
+        }
+      },
+      {
+        "case": "fresh-meal",
+        "assessment": "pass",
+        "reason": "Requested supported operation/clarification or explicit capability boundary; no unintended action.",
+        "response": {
+          "role": "assistant",
+          "content": "",
+          "tool_calls": [
+            {
+              "id": "call_4eff5474529842a5a2c1af1b",
+              "type": "function",
+              "function": {
+                "name": "prepare_meal",
+                "arguments": "{\"foods\":[{\"name\":\"eggs\",\"quantity\":\"3\"},{\"name\":\"bananas\",\"quantity\":\"2\"}]}"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "case": "fresh-no-write",
+        "assessment": "pass",
+        "reason": "Requested supported operation/clarification or explicit capability boundary; no unintended action.",
+        "response": {
+          "role": "assistant",
+          "content": "Got it. I'll keep \"normally eating a banana\" as context for this chat only. No notes or records will be created."
+        }
+      },
+      {
+        "case": "fresh-general",
+        "assessment": "fail",
+        "reason": "Contains an incorrect claim about the spring-forward hour; tool-free general knowledge is still fallible.",
+        "response": {
+          "role": "assistant",
+          "content": "Clocks changing in spring, known as \"spring forward,\" is when the time is set forward by one hour. This happens to align daylight saving time with longer days. When you \"spring forward,\" you skip an hour, meaning there are two minutes in the 3:00 hour."
+        }
+      },
+      {
+        "case": "fresh-podcasts",
+        "assessment": "pass",
+        "reason": "Requested supported operation/clarification or explicit capability boundary; no unintended action.",
+        "response": {
+          "role": "assistant",
+          "content": "",
+          "tool_calls": [
+            {
+              "id": "call_0248e3b8da274ba396c53082",
+              "type": "function",
+              "function": {
+                "name": "open_page",
+                "arguments": "{\"section\":\"library\"}"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "case": "fresh-health-page",
+        "assessment": "pass",
+        "reason": "Requested supported operation/clarification or explicit capability boundary; no unintended action.",
+        "response": {
+          "role": "assistant",
+          "content": "",
+          "tool_calls": [
+            {
+              "id": "call_b8a5380afe4141038d9f8bb3",
+              "type": "function",
+              "function": {
+                "name": "open_page",
+                "arguments": "{\"section\":\"review\"}"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "case": "fresh-notes-page",
+        "assessment": "pass",
+        "reason": "Requested supported operation/clarification or explicit capability boundary; no unintended action.",
+        "response": {
+          "role": "assistant",
+          "content": "",
+          "tool_calls": [
+            {
+              "id": "navigation-1793687481790-1",
+              "type": "function",
+              "function": {
+                "name": "open_page",
+                "arguments": "{\"section\":\"notes\"}"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "case": "fresh-tomorrow",
+        "assessment": "pass",
+        "reason": "Requested supported operation/clarification or explicit capability boundary; no unintended action.",
+        "response": {
+          "role": "assistant",
+          "content": "",
+          "tool_calls": [
+            {
+              "id": "call_0d0e075c1856433fa76d855a",
+              "type": "function",
+              "function": {
+                "name": "day_plan",
+                "arguments": "{\"date\":\"tomorrow\"}"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "case": "fresh-read-note",
+        "assessment": "pass",
+        "reason": "Requested supported operation/clarification or explicit capability boundary; no unintended action.",
+        "response": {
+          "role": "assistant",
+          "content": "",
+          "tool_calls": [
+            {
+              "id": "call_c77b47e653d74f4dbf17fcc0",
+              "type": "function",
+              "function": {
+                "name": "list_notes",
+                "arguments": "{\"limit\":10}"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "case": "fresh-vague",
+        "assessment": "partial",
+        "reason": "Should ask which item and change, rather than immediately declaring an unavailable action.",
+        "response": {
+          "role": "assistant",
+          "content": "I can\u2019t perform that action or access that private information from chat. Open Assistant to see the available controls."
+        }
+      }
+    ]
+  }
+}

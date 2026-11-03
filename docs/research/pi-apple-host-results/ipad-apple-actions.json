@@ -1,0 +1,503 @@
+{
+  "backend": "apple",
+  "complete": true,
+  "correct": 18,
+  "device": "iPad",
+  "os": "Version 27.0.1 (Build 24A446)",
+  "results": [
+    {
+      "case": "monthly",
+      "correct": true,
+      "milliseconds": 6349,
+      "repeat": 0,
+      "response": {
+        "content": [
+          {
+            "arguments": {
+              "end": "2026-10-24",
+              "metric": "protein",
+              "period": "this_month"
+            },
+            "id": "0FF012E3-AC06-42F9-BE90-B1FAB053B120",
+            "name": "nutrition_view",
+            "type": "toolCall"
+          }
+        ]
+      },
+      "toolContractPass": true,
+      "toolContractReason": "contract_pass"
+    },
+    {
+      "case": "calories",
+      "correct": true,
+      "milliseconds": 4512,
+      "repeat": 0,
+      "response": {
+        "content": [
+          {
+            "arguments": {
+              "end": "2026-10-24",
+              "metric": "calories",
+              "period": "last_7_days"
+            },
+            "id": "9E24FA93-5DF1-4A6C-BB8C-D6DAE70FFD78",
+            "name": "nutrition_view",
+            "type": "toolCall"
+          }
+        ]
+      },
+      "toolContractPass": true,
+      "toolContractReason": "contract_pass"
+    },
+    {
+      "case": "search",
+      "correct": false,
+      "milliseconds": 4366,
+      "repeat": 0,
+      "response": {
+        "content": [
+          {
+            "arguments": {
+              "metric": "protein",
+              "period": "this_month",
+              "revision": 2,
+              "start": "2026-10-01"
+            },
+            "id": "0755E525-12AC-4DDD-8AEF-BA97273E92C8",
+            "name": "nutrition_view",
+            "type": "toolCall"
+          }
+        ]
+      },
+      "toolContractPass": false,
+      "toolContractReason": "wrong_search"
+    },
+    {
+      "case": "weekdays",
+      "correct": true,
+      "milliseconds": 3910,
+      "repeat": 0,
+      "response": {
+        "content": [
+          {
+            "arguments": {
+              "changes": [
+                "weekdays_only"
+              ],
+              "revision": 2
+            },
+            "id": "4258C317-C5EA-4C83-82DF-ACF596E6D266",
+            "name": "filter_nutrition",
+            "type": "toolCall"
+          }
+        ]
+      },
+      "toolContractPass": true,
+      "toolContractReason": "contract_pass"
+    },
+    {
+      "case": "compare",
+      "correct": false,
+      "milliseconds": 4018,
+      "repeat": 0,
+      "response": {
+        "content": [
+          {
+            "arguments": {
+              "metric": "protein",
+              "period": "this_month"
+            },
+            "id": "E5044631-6CA3-4558-B429-32E1D66EADB0",
+            "name": "nutrition_view",
+            "type": "toolCall"
+          }
+        ]
+      },
+      "toolContractPass": false,
+      "toolContractReason": "wrong_tool"
+    },
+    {
+      "case": "copy",
+      "correct": true,
+      "milliseconds": 3590,
+      "repeat": 0,
+      "response": {
+        "content": [
+          {
+            "arguments": {
+              "day": "tomorrow",
+              "mealID": "BA5A4E11-0000-4000-8000-000202610231"
+            },
+            "id": "2E9AC97B-AFC5-4F2D-A2B3-579012CED4BB",
+            "name": "prepare_meal_copy",
+            "type": "toolCall"
+          }
+        ]
+      },
+      "toolContractPass": true,
+      "toolContractReason": "contract_pass"
+    },
+    {
+      "case": "notes",
+      "correct": true,
+      "milliseconds": 2717,
+      "repeat": 0,
+      "response": {
+        "content": [
+          {
+            "arguments": {
+              "limit": 10
+            },
+            "id": "A3774773-E2AB-4396-816D-C669F73F6825",
+            "name": "list_notes",
+            "type": "toolCall"
+          }
+        ]
+      },
+      "toolContractPass": true,
+      "toolContractReason": "contract_pass"
+    },
+    {
+      "case": "plan",
+      "correct": true,
+      "milliseconds": 3918,
+      "repeat": 0,
+      "response": {
+        "content": [
+          {
+            "arguments": {
+              "date": "2026-10-24"
+            },
+            "id": "A66C6B79-CB5D-41D0-8806-726ACE88CDEB",
+            "name": "day_plan",
+            "type": "toolCall"
+          }
+        ]
+      },
+      "toolContractPass": true,
+      "toolContractReason": "contract_pass"
+    },
+    {
+      "case": "greeting",
+      "correct": true,
+      "milliseconds": 3535,
+      "repeat": 0,
+      "response": {
+        "content": [
+          {
+            "text": "Hi! How can I help you today?",
+            "type": "text"
+          }
+        ]
+      },
+      "toolContractPass": true,
+      "toolContractReason": "no_tool"
+    },
+    {
+      "case": "explanation",
+      "correct": true,
+      "milliseconds": 5476,
+      "repeat": 0,
+      "response": {
+        "content": [
+          {
+            "text": "I\u2019m Banana, your helpful personal assistant. Protein is a macronutrient essential for building and repairing tissues, supporting immune function, and producing enzymes and hormones. However, I don\u2019t have access to external knowledge about definitions\u2014only your nutrition data. Would you like me to show you your protein intake for a specific period?",
+            "type": "text"
+          }
+        ]
+      },
+      "toolContractPass": true,
+      "toolContractReason": "no_tool"
+    },
+    {
+      "case": "unsupported",
+      "correct": false,
+      "milliseconds": 3887,
+      "repeat": 0,
+      "response": {
+        "content": [
+          {
+            "arguments": {
+              "period": "this_month"
+            },
+            "id": "5AF3A391-6F5A-4E7E-A36E-AAFDFA8D3084",
+            "name": "nutrition_view",
+            "type": "toolCall"
+          }
+        ]
+      },
+      "toolContractPass": false,
+      "toolContractReason": "no_tool"
+    },
+    {
+      "case": "ambiguous",
+      "correct": true,
+      "milliseconds": 4493,
+      "repeat": 0,
+      "response": {
+        "content": [
+          {
+            "text": "Could you clarify what \"that other thing\" refers to? For example, are you asking to review a meal, create a note, or adjust something in your nutrition view?",
+            "type": "text"
+          }
+        ]
+      },
+      "toolContractPass": true,
+      "toolContractReason": "no_tool"
+    },
+    {
+      "case": "monthly",
+      "correct": true,
+      "milliseconds": 3306,
+      "repeat": 1,
+      "response": {
+        "content": [
+          {
+            "arguments": {
+              "end": "2026-10-24",
+              "metric": "protein",
+              "period": "this_month"
+            },
+            "id": "9BB7735C-78E2-409B-A6CD-E9F24DF847DA",
+            "name": "nutrition_view",
+            "type": "toolCall"
+          }
+        ]
+      },
+      "toolContractPass": true,
+      "toolContractReason": "contract_pass"
+    },
+    {
+      "case": "calories",
+      "correct": true,
+      "milliseconds": 4356,
+      "repeat": 1,
+      "response": {
+        "content": [
+          {
+            "arguments": {
+              "end": "2026-10-24",
+              "metric": "calories",
+              "period": "last_7_days"
+            },
+            "id": "70C669B4-6E14-4A73-9BE2-FAEE24729C87",
+            "name": "nutrition_view",
+            "type": "toolCall"
+          }
+        ]
+      },
+      "toolContractPass": true,
+      "toolContractReason": "contract_pass"
+    },
+    {
+      "case": "search",
+      "correct": false,
+      "milliseconds": 4362,
+      "repeat": 1,
+      "response": {
+        "content": [
+          {
+            "arguments": {
+              "metric": "protein",
+              "period": "this_month",
+              "revision": 2,
+              "start": "2026-10-01"
+            },
+            "id": "50CB0C0D-E472-4838-B2E5-12B4B9BF51BE",
+            "name": "nutrition_view",
+            "type": "toolCall"
+          }
+        ]
+      },
+      "toolContractPass": false,
+      "toolContractReason": "wrong_search"
+    },
+    {
+      "case": "weekdays",
+      "correct": true,
+      "milliseconds": 2997,
+      "repeat": 1,
+      "response": {
+        "content": [
+          {
+            "arguments": {
+              "changes": [
+                "weekdays_only"
+              ],
+              "revision": 2
+            },
+            "id": "63AD1795-2E93-497B-BE47-E68E68ED4C0D",
+            "name": "filter_nutrition",
+            "type": "toolCall"
+          }
+        ]
+      },
+      "toolContractPass": true,
+      "toolContractReason": "contract_pass"
+    },
+    {
+      "case": "compare",
+      "correct": false,
+      "milliseconds": 3049,
+      "repeat": 1,
+      "response": {
+        "content": [
+          {
+            "arguments": {
+              "metric": "protein",
+              "period": "this_month"
+            },
+            "id": "99776377-344D-444F-8A44-3BFC2C5F89AE",
+            "name": "nutrition_view",
+            "type": "toolCall"
+          }
+        ]
+      },
+      "toolContractPass": false,
+      "toolContractReason": "wrong_tool"
+    },
+    {
+      "case": "copy",
+      "correct": true,
+      "milliseconds": 4504,
+      "repeat": 1,
+      "response": {
+        "content": [
+          {
+            "arguments": {
+              "day": "tomorrow",
+              "mealID": "BA5A4E11-0000-4000-8000-000202610231"
+            },
+            "id": "3A9044DB-0959-460D-8FF6-30F023779687",
+            "name": "prepare_meal_copy",
+            "type": "toolCall"
+          }
+        ]
+      },
+      "toolContractPass": true,
+      "toolContractReason": "contract_pass"
+    },
+    {
+      "case": "notes",
+      "correct": true,
+      "milliseconds": 2731,
+      "repeat": 1,
+      "response": {
+        "content": [
+          {
+            "arguments": {
+              "limit": 10
+            },
+            "id": "7FA813C5-6061-4E08-BF6C-1670D42ABD58",
+            "name": "list_notes",
+            "type": "toolCall"
+          }
+        ]
+      },
+      "toolContractPass": true,
+      "toolContractReason": "contract_pass"
+    },
+    {
+      "case": "plan",
+      "correct": true,
+      "milliseconds": 3864,
+      "repeat": 1,
+      "response": {
+        "content": [
+          {
+            "arguments": {
+              "date": "2026-10-24"
+            },
+            "id": "F625551E-4E70-483A-AF5D-FA830BA34CCC",
+            "name": "day_plan",
+            "type": "toolCall"
+          }
+        ]
+      },
+      "toolContractPass": true,
+      "toolContractReason": "contract_pass"
+    },
+    {
+      "case": "greeting",
+      "correct": true,
+      "milliseconds": 3533,
+      "repeat": 1,
+      "response": {
+        "content": [
+          {
+            "text": "Hi! How can I help you today?",
+            "type": "text"
+          }
+        ]
+      },
+      "toolContractPass": true,
+      "toolContractReason": "no_tool"
+    },
+    {
+      "case": "explanation",
+      "correct": true,
+      "milliseconds": 5489,
+      "repeat": 1,
+      "response": {
+        "content": [
+          {
+            "text": "I\u2019m Banana, your helpful personal assistant. Protein is a macronutrient essential for building and repairing tissues, supporting immune function, and producing enzymes and hormones. However, I don\u2019t have access to external knowledge about definitions\u2014only your nutrition data. Would you like me to show you your protein intake for a specific period?",
+            "type": "text"
+          }
+        ]
+      },
+      "toolContractPass": true,
+      "toolContractReason": "no_tool"
+    },
+    {
+      "case": "unsupported",
+      "correct": false,
+      "milliseconds": 2873,
+      "repeat": 1,
+      "response": {
+        "content": [
+          {
+            "arguments": {
+              "period": "this_month"
+            },
+            "id": "65BECA69-A739-40A0-A07C-5081A289B091",
+            "name": "nutrition_view",
+            "type": "toolCall"
+          }
+        ]
+      },
+      "toolContractPass": false,
+      "toolContractReason": "no_tool"
+    },
+    {
+      "case": "ambiguous",
+      "correct": true,
+      "milliseconds": 4482,
+      "repeat": 1,
+      "response": {
+        "content": [
+          {
+            "text": "Could you clarify what \"that other thing\" refers to? For example, are you asking to review a meal, create a note, or adjust something in your nutrition view?",
+            "type": "text"
+          }
+        ]
+      },
+      "toolContractPass": true,
+      "toolContractReason": "no_tool"
+    }
+  ],
+  "run": "b867d0e5-441b-4651-827b-c9f37e4831ef",
+  "total": 24,
+  "physicalDeviceUDID": "<device-udid>",
+  "semanticContractSummary": {
+    "backend": "apple",
+    "toolContractPasses": 18,
+    "total": 24,
+    "warmMedianMilliseconds": 3698.5,
+    "warmRangeMilliseconds": [
+      2731,
+      5489
+    ],
+    "scope": "Twelve synthetic independent fixed-clock requests, repeated. Tool/view contract checks only; conversational text quality not scored. Not production accuracy or p95."
+  }
+}
