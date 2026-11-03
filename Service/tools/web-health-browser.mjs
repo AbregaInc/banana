@@ -20,6 +20,9 @@ try{
   let account={email:'noor@plan.example',name:'Noor Haddad',consents:{health:true},counts:{'health.snapshot':1},lastSync:1,contentVersion:'initial',weekStartWeekday:2,preferences:{distanceUnit:'kilometers'}};
   const swift=s=>Date.parse(s)/1000-978307200;
   const payload={trends:{steps:[{date:swift('2026-11-02T05:00:00Z'),value:1000},{date:swift('2026-11-03T05:00:00Z'),value:2000}],sleepHours:[{date:swift('2026-11-03T05:00:00Z'),value:7}],nights:[{bedtime:swift('2026-11-03T04:50:00Z'),wake:swift('2026-11-03T12:00:00Z'),asleepMinutes:400,wakes:[{start:swift('2026-11-03T07:00:00Z'),end:swift('2026-11-03T07:10:00Z'),steps:20}]},{bedtime:swift('2026-11-02T05:10:00Z'),wake:swift('2026-11-02T12:30:00Z'),asleepMinutes:420,wakes:[]}]},workouts:[]};
+  payload.trends.bodyMassKg=[{date:swift('2026-11-03T05:00:00Z'),value:76},{date:swift('2026-11-04T05:00:00Z'),value:75}];
+  payload.trends.bodyFatPercentage=[{date:swift('2026-11-03T05:00:00Z'),value:.22},{date:swift('2026-11-04T05:00:00Z'),value:.21}];
+  payload.trends.heightMeters=[{date:swift('2026-11-03T05:00:00Z'),value:1.75}];
   let calls=0;const forbiddenReads=[];
   await page.route('**/app/api/**',async route=>{
     const url=new URL(route.request().url());
@@ -46,6 +49,16 @@ try{
     await context.close();
   }else{
   await page.getByRole('button',{name:/Steps.*1,500/}).waitFor();
+  const weight=page.locator('.metric-button').filter({hasText:'Weight'}),fat=page.locator('.metric-button').filter({hasText:'Body fat'});
+  assert.match(await weight.innerText(),/90-day average/);
+  assert.match(await weight.locator('.measure-value').innerText(),/76 kg/);
+  assert.match(await weight.locator('.metric-latest').innerText(),/75 kg.*Nov 4/);
+  assert.match(await fat.locator('.measure-value').innerText(),/22 %/);
+  assert.match(await fat.locator('.metric-latest').innerText(),/21 %.*Nov 4/);
+  assert.equal(await page.locator('.metric-button').filter({hasText:'Height'}).count(),0);
+  await weight.click();await page.getByRole('dialog').getByRole('heading',{name:'Latest daily reading'}).waitFor();
+  await page.getByRole('dialog').getByRole('button',{name:/Weight.*75 kg/}).click();await page.getByText('Daily value',{exact:true}).waitFor();
+  await page.getByRole('button',{name:'Close details'}).click();
   await page.getByRole('button',{name:/Steps.*1,500/}).click();
   await page.getByRole('dialog').getByRole('button',{name:/Steps.*1,000/}).click();
   await page.getByRole('dialog').getByRole('button',{name:/Steps.*1,000/}).click();
