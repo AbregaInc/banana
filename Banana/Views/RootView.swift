@@ -918,7 +918,6 @@ private struct PageChromeHost: ViewModifier {
     @ObservedObject private var chrome = PageChrome.shared
     @ObservedObject private var shell = ShellNavigation.shared
     @ObservedObject private var modules = ModuleStore.shared
-    @State private var agentDestination: AgentDestination?
 
     /// With Pi, Review is where questions are asked and answers pushed: a sheet on every device,
     /// so the iPad's tab strip stays as it is and each level has one way back.
@@ -932,13 +931,21 @@ private struct PageChromeHost: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .sheet(isPresented: Binding(get: { !sidebar && chrome.showAssistant }, set: { chrome.showAssistant = $0 }), onDismiss: {
+            .sheet(isPresented: Binding(get: { (Self.reviewIsASheet || !sidebar) && chrome.showAssistant }, set: { chrome.showAssistant = $0 }), onDismiss: {
                 if let destination = chrome.assistantDestination {
                     chrome.assistantDestination = nil
                     AssistantWorkspace.open(destination)
                 }
+                startPicked()
             }) {
+                #if PI_DEVELOPMENT
+                AssistantView(showsDoneButton: true, panelAddSection: shell.state.tab, pickAdd: { kind in
+                    chrome.pickedAdd = kind
+                    chrome.showAssistant = false
+                })
+                #else
                 AssistantView(showsDoneButton: true)
+                #endif
             }
             .sheet(item: Binding(get: { (sidebar && !Self.reviewIsASheet) || !AppSection.review.isShown(with: modules.choice) ? nil : chrome.review }, set: { chrome.review = $0 })) { from in
                 // Its own toast host, as Routines below: clearing the listening history offers Undo.
@@ -952,23 +959,20 @@ private struct PageChromeHost: ViewModifier {
             .sheet(isPresented: Binding(get: { !sidebar && chrome.showRoutines }, set: { chrome.showRoutines = $0 })) {
                 RoutinesView(showsDoneButton: true).toastHost()
             }
+            #if PI_DEVELOPMENT
+            .onChange(of: chrome.showAdd) { _, requested in
+                guard requested else { return }
+                chrome.showAdd = false
+                chrome.showAssistant = true
+            }
+            #else
             .sheet(isPresented: $chrome.showAdd, onDismiss: startPicked) {
-                #if PI_DEVELOPMENT
-                // Words first: the agent is one way to add, beside every kind by hand.
-                AgentAddSheet(current: shell.state.tab.tabBarHome, pick: { kind in
-                    chrome.pickedAdd = kind
-                    chrome.showAdd = false
-                }, finished: { destination in
-                    agentDestination = destination
-                    chrome.showAdd = false
-                })
-                #else
                 AddList(current: shell.state.tab.tabBarHome) { kind in
                     chrome.pickedAdd = kind
                     chrome.showAdd = false
                 }
-                #endif
             }
+            #endif
             .onChange(of: chrome.review) { _, from in
                 guard sidebar, !Self.reviewIsASheet, let from else { return }
                 chrome.reviewFrom = from
@@ -986,7 +990,7 @@ private struct PageChromeHost: ViewModifier {
                 shell.state.tab = .routines
             }
             .onChange(of: chrome.showAssistant) { _, show in
-                guard show, sidebar else { return }
+                guard show, sidebar, !Self.reviewIsASheet else { return }
                 chrome.showAssistant = false
                 shell.state.tab = .assistant
             }
@@ -994,12 +998,6 @@ private struct PageChromeHost: ViewModifier {
 
     /// The list is gone: go to the page that owns what was picked, and hand it over.
     private func startPicked() {
-        if let destination = agentDestination {
-            // Saved through the agent: show it on its page (the toast there offers Undo).
-            agentDestination = nil
-            AssistantWorkspace.open(destination.section, itemID: destination.itemID)
-            return
-        }
         guard let kind = chrome.pickedAdd else { return }
         chrome.pickedAdd = nil
         if let half = kind.nutritionSection { shell.state.nutritionSection = half }

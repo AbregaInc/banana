@@ -131,7 +131,6 @@ struct MacRootView: View {
 
     #if PI_DEVELOPMENT
     @ObservedObject private var chrome = PageChrome.shared
-    @State private var agentDestination: AgentDestination?
     #endif
     @ObservedObject private var nav = MacNavigator.shared
     @ObservedObject private var backup = CloudBackup.shared
@@ -224,9 +223,9 @@ struct MacRootView: View {
                         ToolbarItem(placement: .primaryAction) {
                             Button {
                                 nav.showsAssistant.toggle()
-                            } label: { Label("Ask Banana", systemImage: "bubble.left.and.bubble.right") }
+                            } label: { Label("Ask or add", systemImage: "bubble.left.and.bubble.right") }
                                 .keyboardShortcut("j", modifiers: .command)
-                                .help(nav.showsAssistant ? "Hide chat (⌘J)" : "Show chat (⌘J)")
+                                .help(nav.showsAssistant ? "Hide chat (⌘J)" : "Ask a question or add something (⌘J)")
                                 .accessibilityValue(nav.showsAssistant ? "Open" : "Closed")
                                 .accessibilityIdentifier("app.askBanana")
                         }
@@ -275,7 +274,7 @@ struct MacRootView: View {
                     #endif
                     if nav.showsAssistant {
                         Divider()
-                        AssistantView(panelClose: { nav.showsAssistant = false })
+                        AssistantView(panelClose: { nav.showsAssistant = false }, panelAddSection: nav.section)
                             .frame(width: 420)
                             .accessibilityIdentifier("assistant.panel")
                             .transition(.move(edge: .trailing))
@@ -310,15 +309,10 @@ struct MacRootView: View {
             .sheet(isPresented: $nav.showFullPlayer) { NowPlayingView() }
         }
         #if PI_DEVELOPMENT
-        .sheet(isPresented: $chrome.showAdd, onDismiss: finishAdd) {
-            AgentAddSheet(current: nav.section, pick: { kind in
-                chrome.pickedAdd = kind
-                chrome.showAdd = false
-            }, finished: { destination in
-                agentDestination = destination
-                chrome.showAdd = false
-            })
-            .frame(minWidth: 520, minHeight: 560)
+        .onChange(of: chrome.showAdd) { _, requested in
+            guard requested else { return }
+            chrome.showAdd = false
+            nav.showsAssistant = true
         }
         .onChange(of: chrome.review) { _, section in
             guard section != nil else { return }
@@ -369,19 +363,7 @@ struct MacRootView: View {
         #endif
         .onAppear { MacKeyMonitor.shared.install() }
     }
-    #if PI_DEVELOPMENT
-    private func finishAdd() {
-        if let destination = agentDestination {
-            agentDestination = nil
-            AssistantWorkspace.open(destination.section, itemID: destination.itemID)
-        } else if let kind = chrome.pickedAdd {
-            chrome.pickedAdd = nil
-            if let half = kind.nutritionSection { ShellNavigation.shared.state.nutritionSection = half }
-            nav.section = kind.section
-            chrome.pendingAdd = kind
-        }
-    }
-    #endif
+
 }
 
 /// Presents the morning briefing (Mac edition) and the post-workout review.

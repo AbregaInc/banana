@@ -7,7 +7,7 @@ final class PiLaunchUITest: XCTestCase {
     func testNormalColdLaunchReachesTheFixedAppWithoutCloudSetup() {
         let app = XCUIApplication()
         app.launch()
-        let add = app.buttons["Add"].firstMatch
+        let add = app.buttons["Ask or add"].firstMatch
         XCTAssertTrue(add.waitForExistence(timeout: 25), app.debugDescription)
         XCTAssertFalse(app.descendants(matching: .any)["assistant.input"].firstMatch.exists, app.debugDescription)
         XCTAssertFalse(app.otherElements["returning-user-check"].exists)
@@ -16,6 +16,32 @@ final class PiLaunchUITest: XCTestCase {
         app.launch()
         XCTAssertFalse(app.otherElements["returning-user-check"].exists)
         XCTAssertTrue(add.waitForExistence(timeout: 25), app.debugDescription)
+    }
+}
+
+final class UnifiedAssistantEntryUITest: XCTestCase {
+    func testDraftSurvivesClosingAndReopening() {
+        let app = XCUIApplication()
+        app.launchArguments = ["--ui-preview", "--assistant-test-navigation", "--assistant-reset", "--disable-icloud", "-onboardingCompleted", "YES"]
+        app.launch()
+        let entry = app.buttons["Ask or add"].firstMatch
+        XCTAssertTrue(entry.waitForExistence(timeout: 25), app.debugDescription)
+        entry.tap()
+        let input = app.descendants(matching: .any)["assistant.input"].firstMatch
+        XCTAssertTrue(input.waitForExistence(timeout: 15), app.debugDescription)
+        input.tap()
+        input.typeText("Plan tomorrow")
+        app.buttons["Done"].firstMatch.tap()
+        XCTAssertTrue(entry.waitForExistence(timeout: 10))
+        entry.tap()
+        XCTAssertTrue(input.waitForExistence(timeout: 10))
+        XCTAssertEqual(input.value as? String, "Plan tomorrow")
+        let forms = app.buttons["assistant.panel.addForm"]
+        XCTAssertTrue(forms.exists)
+        forms.tap()
+        app.buttons["Event"].firstMatch.tap()
+        XCTAssertTrue(app.textFields["event.title"].waitForExistence(timeout: 15), app.debugDescription)
+        XCTAssertFalse(input.exists)
     }
 }
 
@@ -29,15 +55,15 @@ final class AgentInputUITest: XCTestCase {
         return app
     }
     private func type(_ text: String, in app: XCUIApplication) {
-        let input = app.descendants(matching: .any)["agent.input"].firstMatch
+        let input = app.descendants(matching: .any)["assistant.input"].firstMatch
         XCTAssertTrue(input.waitForExistence(timeout: 15), app.debugDescription)
         input.tap(); input.typeText(text)
-        let send = app.buttons["agent.send"]
+        let send = app.buttons["assistant.send"]
         XCTAssertTrue(waitUntil(timeout: 15) { send.isEnabled }, app.debugDescription)
         send.tap()
     }
     private func openAdd(in app: XCUIApplication) {
-        let add = app.buttons["Add"].firstMatch
+        let add = app.buttons["Ask or add"].firstMatch
         XCTAssertTrue(add.waitForExistence(timeout: 25), app.debugDescription)
         add.tap()
     }
@@ -48,12 +74,14 @@ final class AgentInputUITest: XCTestCase {
         type("Make a meal with 2 eggs and 1 banana", in: app)
         let save = app.buttons["assistant.workspace.saveMeal"]
         XCTAssertTrue(save.waitForExistence(timeout: 20), app.debugDescription)
-        XCTAssertEqual(save.label, "Save", "In the sheet's toolbar; the tap is the approval")
         if !save.isHittable { app.swipeUp() }
         save.tap()
+        let show = app.buttons["assistant.workspace.showMeal"]
+        XCTAssertTrue(show.waitForExistence(timeout: 15), app.debugDescription)
+        show.tap()
         // Check the durable result. XCTest can wait for an animation notification long enough
         // after the tap that the temporary Undo toast has already expired.
-        XCTAssertTrue(waitUntil(timeout: 10) { !app.descendants(matching: .any)["agent.input"].firstMatch.exists }, app.debugDescription)
+        XCTAssertTrue(waitUntil(timeout: 10) { !app.descendants(matching: .any)["assistant.input"].firstMatch.exists }, app.debugDescription)
         let meal = app.buttons.matching(NSPredicate(format: "identifier == %@ AND label CONTAINS %@",
                                                     "nutrition.meal", "Pi UI breakfast")).firstMatch
         XCTAssertTrue(meal.waitForExistence(timeout: 10), app.debugDescription)
@@ -68,7 +96,7 @@ final class AgentInputUITest: XCTestCase {
         XCTAssertEqual(title.value as? String, "Pi UI Lunch")
         app.buttons["assistant.workspace.dismiss"].tap()
         XCTAssertTrue(waitUntil(timeout: 10) { !title.exists }, app.debugDescription)
-        XCTAssertTrue(app.descendants(matching: .any)["agent.input"].firstMatch.exists, app.debugDescription)
+        XCTAssertTrue(app.descendants(matching: .any)["assistant.input"].firstMatch.exists, app.debugDescription)
     }
 
     func testNutritionsLineHandsItsWordsToTheAddSheet() throws {
