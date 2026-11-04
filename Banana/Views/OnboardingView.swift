@@ -517,6 +517,7 @@ private struct AccountList: View {
 /// 2026 these were said, not asked: four rows to read. Still one path through the first run.)
 private struct ModuleChooser: View {
     @Binding var choice: ModuleChoice
+    @ObservedObject private var availableModules = ModuleStore.shared
 
     private struct Row {
         let module: AppModule
@@ -539,7 +540,7 @@ private struct ModuleChooser: View {
                  colour: DS.Palette.Brand.yellow, glyph: DS.Palette.Brand.ink, on: true, fixed: true)
                 .accessibilityElement(children: .combine)
                 .accessibilityValue("Always on")
-            ForEach(rows.filter { $0.module.isAvailable }, id: \.module) { row in
+            ForEach(rows.filter { availableModules.selectable.contains($0.module) }, id: \.module) { row in
                 let on = choice.includes(row.module)
                 Button {
                     choice = choice.setting(row.module, on: !on)

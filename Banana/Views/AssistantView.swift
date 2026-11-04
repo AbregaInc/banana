@@ -99,7 +99,7 @@ struct AssistantView: View {
         #if PI_DEVELOPMENT
         if let section = panelAddSection {
             Menu {
-                ForEach(AddKind.groups(for: section, with: modules.choice), id: \.section) { group in
+                ForEach(AddKind.groups(for: section, with: modules.effectiveChoice), id: \.section) { group in
                     Section(group.section.title) {
                         ForEach(group.kinds.filter { kind in
                             #if os(macOS)

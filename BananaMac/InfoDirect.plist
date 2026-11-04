@@ -2,8 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>BananaSourceCommit</key>
-	<string>$(BANANA_SOURCE_COMMIT)</string>
 	<key>BananaCloudContainer</key>
 	<string>$(BANANA_ICLOUD_CONTAINER)</string>
 	<key>BananaGoogleServerClient</key>
@@ -12,8 +10,12 @@
 	<string>$(BANANA_LEGACY_ICLOUD_CONTAINER)</string>
 	<key>BananaPrivateCloudCompute</key>
 	<false/>
+	<key>BananaReleaseChannel</key>
+	<string>$(BANANA_RELEASE_CHANNEL)</string>
 	<key>BananaServiceHost</key>
 	<string>$(BANANA_SERVICE_HOST)</string>
+	<key>BananaSourceCommit</key>
+	<string>$(BANANA_SOURCE_COMMIT)</string>
 	<key>BananaTeamID</key>
 	<string>$(DEVELOPMENT_TEAM)</string>
 	<key>CFBundleDevelopmentRegion</key>

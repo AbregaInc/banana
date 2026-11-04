@@ -30,7 +30,7 @@ struct SetupAccess: DynamicProperty {
     @ObservedObject private var modules = ModuleStore.shared
 
     var checklist: SetupChecklist {
-        SetupChecklist(items: SetupItem.list(isHub: DeviceRole.current.isHub, modules: modules.choice)) { state(of: $0) }
+        SetupChecklist(items: SetupItem.list(isHub: DeviceRole.current.isHub, modules: modules.effectiveChoice)) { state(of: $0) }
     }
 
     func state(of item: SetupItem) -> SetupState {

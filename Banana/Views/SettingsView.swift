@@ -236,7 +236,7 @@ struct SettingsView: View {
             pagePane
         }
         .navigationSplitViewStyle(.balanced)
-        .onChange(of: modules.choice) { leaveHiddenPage() }
+        .onChange(of: modules.effectiveChoice) { leaveHiddenPage() }
         .task { refreshWriteBack() }
         .onChange(of: scenePhase) { _, phase in
             if phase == .active { refreshWriteBack() }
@@ -264,7 +264,7 @@ struct SettingsView: View {
             }
         }
         .frame(minWidth: 640, idealWidth: 680, minHeight: 520, idealHeight: 620)
-        .onChange(of: modules.choice) { leaveHiddenPage() }
+        .onChange(of: modules.effectiveChoice) { leaveHiddenPage() }
         .task { refreshWriteBack() }
         .onChange(of: scenePhase) { _, phase in
             if phase == .active { refreshWriteBack() }
@@ -571,7 +571,7 @@ struct SettingsView: View {
 
     private var featuresSection: some View {
         Section("Features") {
-            featureRow(.modules, value: modules.choice.isEverything ? "All on" : "\(modules.choice.enabled.count) on")
+            featureRow(.modules, value: modules.effectiveChoice.isEverything ? "All on" : "\(modules.effectiveChoice.enabled.count) on")
             featureRow(.calendar, value: calendarWriteBack.enabled ? "Busy blocks on" : "Busy blocks off")
             featureRow(.booking, value: bookingSummary)
             featureRow(.travel, value: travelSummary)
@@ -597,7 +597,7 @@ struct SettingsView: View {
                 Spacer(minLength: DS.Space.s)
                 Text("Always on").foregroundStyle(.secondary)
             }
-            ForEach(AppModule.selectable) { module in
+            ForEach(modules.selectable) { module in
                 Toggle(isOn: Binding(get: { modules.includes(module) },
                                      set: { modules.set(module, on: $0) })) {
                     HStack(spacing: DS.Space.m) {

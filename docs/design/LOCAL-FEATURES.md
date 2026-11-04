@@ -11,7 +11,9 @@ compile-time settings, not preferences or remote flags:
 | `BANANA_LOCAL_EMAIL` | Existing `BANANA_UNRELEASED` email compilation gate | `BANANA_PUBLIC`: email implementation excluded |
 
 Both inherit `BANANA_UNRELEASED` for compatibility with local install scripts. Release defaults
-to `NO` on production and Beta targets. Debug and PiDevelopment opt in locally. Either switch
+to `NO` on production and ordinary Beta Release targets. The explicit `BetaRelease`
+configuration includes gated Email and excludes AI; see [feature access](FEATURE-ACCESS.md).
+Debug and PiDevelopment opt in locally. Either switch
 can be overridden independently on ordinary targets; PiDevelopment requires AI enabled.
 Standalone unit-test bundles explicitly enable both implementations, including in Release;
 they are not embedded in the distributed app.
@@ -32,11 +34,14 @@ email or the assistant when their build gate is off. `tools/local-feature-resour
 AI resources only when enabled and removes stale runtime resources when switching a build
 folder back to public. Local builds carry a resource marker naming their enabled features.
 
-All four application targets reject Archive (`ACTION=install`) when either feature is enabled.
-Public archives then run `tools/check-release.sh` against the built application. The Mac
-TestFlight script also forces both switches off and checks the entire archive before export.
-The checker rejects local resource markers, the Pi runtime/entry points, assistant binary
-markers and Gmail scopes/endpoints. Changing only a module preference cannot bypass this.
+Every application target rejects Archive (`ACTION=install`) with local AI enabled. Email is
+allowed only for the separate Beta bundle identity with `BananaReleaseChannel=beta`;
+Stable and Dev archives reject it. Archives run `tools/check-release.sh` against the built
+application. Existing Stable TestFlight scripts still force both switches off.
+The checker rejects Pi runtime/entry points and assistant binary markers in every channel;
+Gmail scopes/endpoints and Email markers also fail outside Beta. It checks the primary app,
+so a nested Beta bundle cannot authorize a Stable archive. A saved preference cannot bypass
+compile-time exclusion or the authenticated runtime eligibility gate.
 
 Run `tools/tests/local-feature-gates.sh` to test resource inclusion, stale cleanup, archive
 rejection and binary-marker checks. Also build the production Release and local PiDevelopment

@@ -161,7 +161,7 @@ struct MacRootView: View {
                 get: { nav.section.id },
                 set: { nav.section = AppSection.chosen($0, current: nav.section) }
             )) {
-                ForEach(AppSection.macSidebar(with: modules.choice)) { section in
+                ForEach(AppSection.macSidebar(with: modules.effectiveChoice)) { section in
                     Label(section.title, systemImage: section.symbol)
                         .badge(badgeCount(section)).tag(section.id)
                 }
@@ -185,7 +185,7 @@ struct MacRootView: View {
                 HStack(spacing: 0) {
                     Group {
                         // A section whose module is off shows Plan.
-                        switch nav.section.shown(with: modules.choice) {
+                        switch nav.section.shown(with: modules.effectiveChoice) {
                         case .plan:      PlannerTab()
                         // Mail measures its own column and chooses its columns for it; on a Mac it
                         // is never narrower than the regular class's threshold (MAIL-UX 2.2).
@@ -237,7 +237,7 @@ struct MacRootView: View {
                         #endif
                     }
                     // A module switched off (here or on another device) takes its section with it.
-                    .onChange(of: modules.choice, initial: true) { _, choice in
+                    .onChange(of: modules.effectiveChoice, initial: true) { _, choice in
                         if !nav.section.isShown(with: choice) { nav.section = .plan }
                     }
                     // One toast for every section, centred on the content, not the drawer.
@@ -508,7 +508,7 @@ struct MacCommands: Commands {
             // numbers come from that array's order, not a hand-typed list, so inserting a section
             // renumbers everything after it automatically.
             // Only the sections shown, numbered without gaps.
-            ForEach(Array(AppSection.macShortcuts.filter { $0.isShown(with: modules.choice) }.prefix(9).enumerated()), id: \.element) { index, section in
+            ForEach(Array(AppSection.macShortcuts.filter { $0.isShown(with: modules.effectiveChoice) }.prefix(9).enumerated()), id: \.element) { index, section in
                 Button(section.title) { nav.section = section }
                     .keyboardShortcut(KeyEquivalent(Character(String(index + 1))), modifiers: .command)
             }

@@ -21,6 +21,7 @@ BANANA_LEGACY_ICLOUD_CONTAINER =
 // Empty: the app has no Google sign-in.
 BANANA_GOOGLE_CLIENT =
 BANANA_GOOGLE_CLIENT_BETA =
+BANANA_GOOGLE_CLIENT_DEV =
 
 // The Banana service (Service/, docs/design/ACCOUNTS.md): accounts, calendar pushes, usage
 // counts. Its host name only (no "https://": xcconfig reads "//" as a comment). Empty: no
@@ -32,6 +33,9 @@ BANANA_GOOGLE_SERVER_CLIENT =
 // The Beta's own service and web client (Service/wrangler.toml, env beta). Empty: Beta has no account.
 BANANA_SERVICE_HOST_BETA =
 BANANA_GOOGLE_SERVER_CLIENT_BETA =
+BANANA_SERVICE_HOST_DEV =
+BANANA_GOOGLE_SERVER_CLIENT_DEV =
+BANANA_RELEASE_CHANNEL = stable
 
 // Unreleased modules (`#if BANANA_UNRELEASED`, see AppModules.swift): built into Debug and into
 // the author's own installs (tools/ios-install.sh, tools/mac-install.sh pass YES), and left out of

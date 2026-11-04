@@ -57,6 +57,7 @@ enum BananaService {
             /// with a code), so it can read events and send alerts itself. False after a sign-in by
             /// identity token: the person signs in once more. Nil from a service that doesn't say.
             var access: Bool?
+            var capabilities: GoogleAccountCapabilities? = nil
         }
         var id: String
         var google: [Google]
@@ -72,11 +73,12 @@ enum BananaService {
         var icloud: String? = nil
         /// Every device active in 30 days has flipped. Nil from a service that doesn't say.
         var flipped: Bool? = nil
+        var featureAccess: FeatureAccessPolicy? = nil
 
-        private enum CodingKeys: String, CodingKey { case id, google, devices, seeded, icloud, flipped }
+        private enum CodingKeys: String, CodingKey { case id, google, devices, seeded, icloud, flipped, featureAccess }
 
         init(id: String, google: [Google], devices: Int, seeded: [String]? = nil, hasIPhone: Bool? = nil,
-             icloud: String? = nil, flipped: Bool? = nil) {
+             icloud: String? = nil, flipped: Bool? = nil, featureAccess: FeatureAccessPolicy? = nil) {
             self.id = id
             self.google = google
             self.devices = devices
@@ -84,6 +86,7 @@ enum BananaService {
             self.hasIPhone = hasIPhone ?? seeded.map { _ in true }
             self.icloud = icloud
             self.flipped = flipped
+            self.featureAccess = featureAccess
         }
 
         init(from decoder: Decoder) throws {
@@ -95,6 +98,7 @@ enum BananaService {
             hasIPhone = c.contains(.seeded) ? seeded != nil : nil
             icloud = try c.decodeIfPresent(String.self, forKey: .icloud)
             flipped = try c.decodeIfPresent(Bool.self, forKey: .flipped)
+            featureAccess = try c.decodeIfPresent(FeatureAccessPolicy.self, forKey: .featureAccess)
         }
 
         func encode(to encoder: Encoder) throws {
@@ -105,6 +109,7 @@ enum BananaService {
             if let hasIPhone { if hasIPhone { try c.encode(seeded ?? [], forKey: .seeded) } else { try c.encodeNil(forKey: .seeded) } }
             try c.encodeIfPresent(icloud, forKey: .icloud)
             try c.encodeIfPresent(flipped, forKey: .flipped)
+            try c.encodeIfPresent(featureAccess, forKey: .featureAccess)
         }
     }
 

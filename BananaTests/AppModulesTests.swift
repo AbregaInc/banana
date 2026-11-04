@@ -60,8 +60,13 @@ final class AppModulesTests: XCTestCase {
         for section in [AppSection.plan, .routines, .settings] {
             XCTAssertTrue(section.isShown(with: .planOnly), "\(section)")
         }
+        #if BANANA_AI
+        XCTAssertEqual(AppSection.sidebar(with: .planOnly), [.plan, .routines, .assistant, .settings])
+        XCTAssertEqual(AppSection.macSidebar(with: .planOnly), [.plan, .routines, .assistant])
+        #else
         XCTAssertEqual(AppSection.sidebar(with: .planOnly), [.plan, .routines, .settings])
         XCTAssertEqual(AppSection.macSidebar(with: .planOnly), [.plan, .routines])
+        #endif
         XCTAssertEqual(AppSection.sidebar(with: .everything), AppSection.sidebar.filter { $0 != .mail || AppModule.email.isAvailable })
     }
 

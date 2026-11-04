@@ -3,18 +3,37 @@
 #
 #   tools/check-release.sh <path to .xcarchive, .app or .ipa folder>
 #
-# Local assistant and email must be absent from distribution artifacts. Check both
+# Local assistant is never distributed; gated Email requires the Beta identity. Check both
 # their copied resources and their native implementation markers before exporting.
 # Archives made in Xcode run this check from local-feature-resources.sh too.
 set -e
 target="${1:?usage: $0 <.xcarchive | .app | folder>}"
 [ -e "$target" ] || { echo "No such path: $target"; exit 2; }
 
+# Only the explicitly labeled Beta identity may distribute the Email implementation.
+# Never infer eligibility from a command-line allow flag or a public app's saved preference.
+email_allowed=0
+primary_apps=()
+while IFS= read -r -d '' app; do primary_apps+=("$app"); done < <(find "$target" -type d -name '*.app' -prune -print0)
+if [ "${#primary_apps[@]}" -eq 1 ]; then
+  info="${primary_apps[0]}/Info.plist"
+  [ -f "$info" ] || info="${primary_apps[0]}/Contents/Info.plist"
+  channel=$(/usr/libexec/PlistBuddy -c 'Print :BananaReleaseChannel' "$info" 2>/dev/null || true)
+  bundle=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$info" 2>/dev/null || true)
+  if [ "$channel" = beta ] && [[ "$bundle" == *.beta ]]; then email_allowed=1; fi
+fi
+
 # Runtime bundles, JS entry points and build markers must never reach distribution.
 while IFS= read -r -d '' resource; do
   echo "Not for Apple: local-only feature resource in $resource"
   exit 1
-done < <(find "$target" \( -name 'banana-local-features.txt' -o -name 'PiRuntime' -o -name 'pi-agent.js' -o -name 'pi-bootstrap.js' -o -name 'pi-local-model.json' -o -name 'pi-runtime-manifest.json' -o -name 'pi-inference-worker.py' \) -print0)
+done < <(find "$target" \( -name 'PiRuntime' -o -name 'pi-agent.js' -o -name 'pi-bootstrap.js' -o -name 'pi-local-model.json' -o -name 'pi-runtime-manifest.json' -o -name 'pi-inference-worker.py' \) -print0)
+
+while IFS= read -r -d '' marker; do
+  if [ "$email_allowed" -ne 1 ] || grep -qv '^EMAIL$' "$marker"; then
+    echo "Not for distribution: unexpected local feature marker"; exit 1
+  fi
+done < <(find "$target" -name banana-local-features.txt -print0)
 
 # Check nested apps and extensions before export. A global arm64 override also affects
 # Watch targets, which still need arm64_32 when supporting watchOS versions before 27.
@@ -54,11 +73,14 @@ done < <(find "$target" -type d \( -name '*.app' -o -name '*.appex' \) -print0)
 # What only an unreleased build carries.
 patterns='banana-local-ai-built-in
 AppleRuntimeHost
-AssistantStore
+AssistantStore'
+if [ "$email_allowed" -ne 1 ]; then
+patterns="$patterns
 banana-unreleased-modules-built-in
 gmail.googleapis.com
 https://www.googleapis.com/auth/gmail
-https://mail.google.com/'
+https://mail.google.com/"
+fi
 
 found=0
 checked=0
@@ -80,7 +102,7 @@ if [ "$checked" -eq 0 ]; then
   exit 2
 fi
 if [ "$found" -ne 0 ]; then
-  echo "Not for Apple: this build has unreleased modules in it. Archive with BANANA_LOCAL_AI=NO and BANANA_LOCAL_EMAIL=NO."
+  echo "Not for Apple: this build has unreleased modules in it. Exclude local AI; Email requires the separate Beta identity and channel."
   exit 1
 fi
 echo "OK: no unreleased module in $checked executable(s) under $target"

@@ -70,14 +70,24 @@ final class AppVariantTests: XCTestCase {
         for name in ["BananaBeta", "BananaMacBeta"] {
             let target = try XCTUnwrap(Self.target(name, in: project), name)
             XCTAssertTrue(target.contains("BANANA_BETA"), name)
-            XCTAssertTrue(target.contains("[$(BANANA_ICLOUD_CONTAINER_BETA)]"), name)
+            let entitlementPath = name == "BananaBeta" ? "Banana/BananaBeta.entitlements" : "BananaMac/BananaMacBeta.entitlements"
+            XCTAssertTrue(target.contains("CODE_SIGN_ENTITLEMENTS: \(entitlementPath)"), name)
+            let entitlementData = Data(try Self.text(entitlementPath).utf8)
+            let entitlements = try XCTUnwrap(PropertyListSerialization.propertyList(from: entitlementData, format: nil) as? [String: Any])
+            XCTAssertEqual(entitlements["com.apple.developer.icloud-container-identifiers"] as? [String], ["$(BANANA_ICLOUD_CONTAINER_BETA)"], name)
+            XCTAssertEqual(entitlements["com.apple.developer.ubiquity-container-identifiers"] as? [String], ["$(BANANA_ICLOUD_CONTAINER_BETA)"], name)
             XCTAssertFalse(target.contains("$(BANANA_ICLOUD_CONTAINER)"), "\(name) is entitled to Stable's iCloud")
             XCTAssertFalse(target.contains("_banana-audio._tcp"), "\(name) announces Stable's network service")
-            XCTAssertTrue(target.contains("_banana-beta._tcp"), name)
+            XCTAssertTrue(target.contains("_$(BANANA_PEER_SERVICE)._tcp"), name)
+            XCTAssertTrue(target.contains("BANANA_PEER_SERVICE: banana-beta"), name)
             XCTAssertFalse(target.contains("$(BANANA_GOOGLE_CLIENT)"), "\(name) signs in with Stable's Google client")
         }
         for name in ["Banana", "BananaMac"] {
-            let target = try XCTUnwrap(Self.target(name, in: project), name)
+            var target = try XCTUnwrap(Self.target(name, in: project), name)
+            if name == "BananaMac" {
+                XCTAssertTrue(target.contains("MacApplication"))
+                target += try XCTUnwrap(Self.target("MacApplication", in: project))
+            }
             XCTAssertFalse(target.contains("BANANA_BETA"), name)
             XCTAssertFalse(target.contains("banana.beta"), "\(name) names something of Beta's")
             XCTAssertTrue(target.contains("_banana-audio._tcp"), name)
@@ -87,7 +97,7 @@ final class AppVariantTests: XCTestCase {
     func testThePlistsOnDiskMatch() throws {
         for path in ["Banana/InfoBeta.plist", "BananaMac/InfoBeta.plist"] {
             let plist = try Self.text(path)
-            XCTAssertTrue(plist.contains("_banana-beta._tcp"), path)
+            XCTAssertTrue(plist.contains("_$(BANANA_PEER_SERVICE)._tcp"), path)
             XCTAssertFalse(plist.contains("_banana-audio._tcp"), path)
         }
         for path in ["Banana/BananaBeta.entitlements", "BananaMac/BananaMacBeta.entitlements"] {

@@ -8,6 +8,8 @@
 	<string>$(BANANA_GOOGLE_SERVER_CLIENT_BETA)</string>
 	<key>BananaPrivateCloudCompute</key>
 	<false/>
+	<key>BananaReleaseChannel</key>
+	<string>$(BANANA_RELEASE_CHANNEL)</string>
 	<key>BananaServiceHost</key>
 	<string>$(BANANA_SERVICE_HOST_BETA)</string>
 	<key>BananaTeamID</key>
@@ -55,7 +57,7 @@
 	<string>Banana Beta plays a playlist, album, or song from your Apple Music library when a routine starts.</string>
 	<key>NSBonjourServices</key>
 	<array>
-		<string>_banana-beta._tcp</string>
+		<string>_$(BANANA_PEER_SERVICE)._tcp</string>
 	</array>
 	<key>NSCameraUsageDescription</key>
 	<string>Banana Beta uses the camera only when you choose to photograph a meal or a supplement label, or scan a barcode.</string>

@@ -18,6 +18,29 @@ final class ModuleStore: ObservableObject {
     static let shared = ModuleStore()
 
     @Published private(set) var choice: ModuleChoice
+    @Published private var emailEligible = false
+    private var featureObservation: AnyCancellable?
+
+    /// Eligibility hides a module without changing the preference shared with other devices.
+    var effectiveChoice: ModuleChoice {
+        guard !emailVisible else { return choice }
+        switch choice {
+        case .everything: return .only(Set(AppModule.allCases.filter { $0 != .email }.map(\.rawValue)))
+        case .only(let names): return .only(names.subtracting(["email"]))
+        }
+    }
+    var selectable: [AppModule] { AppModule.selectable.filter { $0 != .email || emailVisible } }
+
+    // Fixture visibility never grants live provider access; the transport still checks policy.
+    private var emailVisible: Bool { emailEligible || Self.fixtureEmail }
+    private static let fixtureEmail: Bool = {
+        #if DEBUG || MAIL_FIXTURES
+        let arguments = Set(ProcessInfo.processInfo.arguments)
+        return !arguments.isDisjoint(with: ["--stress-days", "--mail", "--mail-fresh", "--mail-fixtures"])
+        #else
+        return false
+        #endif
+    }()
 
     private static let key = "modules"
     /// `--disable-icloud` (tests, pictures): no key-value store either. It outlives deleting the
@@ -39,6 +62,10 @@ final class ModuleStore: ObservableObject {
         LaunchClock.mark("banana-local-ai-built-in")
         #endif
         choice = Self.stored() ?? .everything
+        featureObservation = FeatureAccessStore.shared.$emailAvailable.removeDuplicates().sink { [weak self] allowed in
+            guard self?.emailEligible != allowed else { return }
+            self?.emailEligible = allowed
+        }
         #if DEBUG
         // `--modules everything|plan|food,notes`: open with these on, for pictures and tests.
         let arguments = ProcessInfo.processInfo.arguments
@@ -59,7 +86,7 @@ final class ModuleStore: ObservableObject {
         return Self.stored() != nil
     }
 
-    func includes(_ module: AppModule) -> Bool { choice.includes(module) }
+    func includes(_ module: AppModule) -> Bool { effectiveChoice.includes(module) }
 
     func set(_ choice: ModuleChoice) {
         #if DEBUG
@@ -104,7 +131,10 @@ final class ModuleStore: ObservableObject {
         set(choice)
     }
 
-    func set(_ module: AppModule, on: Bool) { set(choice.setting(module, on: on)) }
+    func set(_ module: AppModule, on: Bool) {
+        guard !on || selectable.contains(module) else { return }
+        set(choice.setting(module, on: on))
+    }
 
     /// A copy that finished its first run before modules existed: it has been showing everything,
     /// so that is its choice, said out loud for the other devices.

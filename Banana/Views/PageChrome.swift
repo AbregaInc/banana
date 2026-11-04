@@ -323,7 +323,7 @@ struct AddList: View {
 
     var body: some View {
         List {
-            ForEach(AddKind.groups(for: current, with: modules.choice), id: \.section) { group in
+            ForEach(AddKind.groups(for: current, with: modules.effectiveChoice), id: \.section) { group in
                 // Nutrition's page and tab say Food.
                 Section(group.section == .nutrition ? "Food" : group.section.title) {
                     ForEach(group.kinds) { kind in
@@ -360,7 +360,7 @@ struct BodySwitch: View {
     }
 
     var body: some View {
-        PageSwitch(label: "Body section", selection: selection, choices: BodyPage.choices(wide: wide, with: modules.choice), title: { page in
+        PageSwitch(label: "Body section", selection: selection, choices: BodyPage.choices(wide: wide, with: modules.effectiveChoice), title: { page in
             // What's waiting in each: meals to log, doses due and not marked.
             let count = wide ? 0 : page == .food ? badges.counts.food : page == .taken ? badges.counts.taken : 0
             return count > 0 ? "\(page.title(wide: wide)) · \(count)" : page.title(wide: wide)
@@ -379,7 +379,7 @@ private struct BodySwitchToolbar: ViewModifier {
         content.toolbar {
             // One page left (Workouts alone) has nothing to switch to: no principal item, so the
             // centre stays clear; the selected tab already names the page.
-            if inTabBar, BodyPage.choices(wide: wide, with: modules.choice).count > 1 {
+            if inTabBar, BodyPage.choices(wide: wide, with: modules.effectiveChoice).count > 1 {
                 ToolbarItem(placement: .principal) { BodySwitch(wide: wide) }
             }
         }
@@ -429,7 +429,7 @@ struct ReviewToolbarItem: ToolbarContent {
         #if os(iOS)
         ToolbarItem(placement: .topBarLeading) {
             // Nothing to look back on with every module that Review covers switched off.
-            if !ReviewSubject.shown(with: modules.choice).isEmpty {
+            if !ReviewSubject.shown(with: modules.effectiveChoice).isEmpty {
                 Button { PageChrome.shared.review = section } label: {
                     Image(systemName: "chart.bar.fill")
                 }

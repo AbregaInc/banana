@@ -26,6 +26,7 @@ final class BananaAccount: ObservableObject {
     /// its own for, so those show "Sign in again" where a signed-out account already does.
     @Published private(set) var account: BananaService.Account? {
         didSet {
+            if let account { FeatureAccessStore.shared.receive(account: account.id, policy: account.featureAccess) }
             let need = BananaService.accountsToSignInAgain(connected: GoogleCalendarService.shared.accounts.map(\.id), account: account)
             if need != GoogleCalendarService.shared.accountsNeedingServiceSignIn {
                 PlaybackDiagnostics.shared.log("☁️ account", need.isEmpty
@@ -65,12 +66,14 @@ final class BananaAccount: ObservableObject {
     private var passAgain: String?
     private var retry: Task<Void, Never>?
     private var keeping: Task<Void, Never>?
+    private var policyRefresh: Task<Void, Never>?
     /// A call didn't reach the service during the current pass.
     private var transportFailed = false
 
     private init() {
         session = SyncedKeychain.read(service: AppVariant.current.googleKeychainService,
                                       account: Self.keychainAccount) { String(data: $0, encoding: .utf8) }
+        FeatureAccessStore.shared.bind(session: session, host: BananaService.host)
     }
 
     /// At launch, and each time the app comes forward: pick up a session signed in on another
@@ -82,6 +85,7 @@ final class BananaAccount: ObservableObject {
             session = SyncedKeychain.read(service: AppVariant.current.googleKeychainService,
                                           account: Self.keychainAccount) { String(data: $0, encoding: .utf8) }
         }
+        FeatureAccessStore.shared.bind(session: session, host: BananaService.host)
         if !started {
             started = true
             // The Google accounts, their calendars, or the ones set not to count changed: join any
@@ -90,6 +94,13 @@ final class BananaAccount: ObservableObject {
                 .merge(with: SmartScheduleStore.shared.$settings.map(\.excludedCalendarIDs).removeDuplicates().map { _ in () })
                 .debounce(for: .seconds(3), scheduler: RunLoop.main)
                 .sink { [weak self] in self?.runPass(reason: "calendars changed") }
+            policyRefresh = Task { [weak self] in
+                while !Task.isCancelled {
+                    do { try await Task.sleep(for: .seconds(10 * 60)) } catch { return }
+                    guard let self else { return }
+                    await self.refresh()
+                }
+            }
             keeping = Task { [weak self] in
                 while !Task.isCancelled {
                     try? await Task.sleep(for: .seconds(Self.keepEvery))
@@ -216,7 +227,8 @@ final class BananaAccount: ObservableObject {
     /// True when the service answered with the account.
     @discardableResult
     func refresh() async -> Bool {
-        guard isSignedIn, case let (data, status)? = await send(.account) else { return false }
+        guard isSignedIn, let requestedSession = session,
+              case let (data, status)? = await send(.account), session == requestedSession else { return false }
         guard status == 200, let described = try? JSONDecoder().decode(BananaService.Account.self, from: data) else { return false }
         account = described
         return true
@@ -437,12 +449,14 @@ final class BananaAccount: ObservableObject {
 
     private func keep(session new: String) {
         session = new
+        FeatureAccessStore.shared.bind(session: new, host: BananaService.host)
         SyncedKeychain.write(Data(new.utf8), service: AppVariant.current.googleKeychainService,
                              account: Self.keychainAccount)
     }
 
     private func signedOut() {
         session = nil
+        FeatureAccessStore.shared.bind(session: nil, host: BananaService.host)
         account = nil
         pushRegistered = false
         reportedHeld = nil
@@ -456,11 +470,12 @@ final class BananaAccount: ObservableObject {
     /// account is gone (deleted on another device): this device signs out too.
     private func send(_ call: BananaService.Call) async -> (Data, Int)? {
         guard let host = BananaService.host else { return nil }
-        let request = BananaService.request(call, host: host, session: session)
+        let requestSession = session
+        let request = BananaService.request(call, host: host, session: requestSession)
         do {
             let (data, response) = try await URLSession.shared.data(for: request)
             let status = (response as? HTTPURLResponse)?.statusCode ?? 0
-            if status == 401, BananaService.failure(in: data) == "signed_out" { signedOut() }
+            if status == 401, session == requestSession, BananaService.failure(in: data) == "signed_out" { signedOut() }
             if status >= 400 {
                 PlaybackDiagnostics.shared.log("☁️ account", "\(request.httpMethod ?? "") \(request.url?.path ?? "") answered \(status) \(BananaService.failure(in: data) ?? "")")
             }

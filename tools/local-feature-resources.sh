@@ -7,9 +7,15 @@ for setting in BANANA_LOCAL_AI BANANA_LOCAL_EMAIL; do
     *) echo "error: $setting must be YES or NO"; exit 1 ;;
   esac
 done
-if [ "${ACTION:-}" = install ] && { [ "${BANANA_LOCAL_AI:-NO}" = YES ] || [ "${BANANA_LOCAL_EMAIL:-NO}" = YES ]; }; then
-  echo "error: Archives must exclude local AI and email. Set BANANA_LOCAL_AI=NO and BANANA_LOCAL_EMAIL=NO."
-  exit 1
+if [ "${ACTION:-}" = install ]; then
+  if [ "${BANANA_LOCAL_AI:-NO}" = YES ]; then
+    echo "error: Distributed archives must exclude local AI."; exit 1
+  fi
+  if [ "${BANANA_LOCAL_EMAIL:-NO}" = YES ]; then
+    if [ "${BANANA_RELEASE_CHANNEL:-stable}" != beta ] || [[ "${PRODUCT_BUNDLE_IDENTIFIER:-}" != *.beta ]]; then
+      echo "error: Email distribution requires the separate Beta identity and channel."; exit 1
+    fi
+  fi
 fi
 resources="$TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH"
 mkdir -p "$resources"

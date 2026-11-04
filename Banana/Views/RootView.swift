@@ -480,7 +480,7 @@ struct RootView: View {
         Binding(
             get: {
                 // A section whose module is off has no tab: it opens Plan.
-                let tab = shell.state.tab.shown(with: modules.choice)
+                let tab = shell.state.tab.shown(with: modules.effectiveChoice)
                 let home = showsSidebarSections ? tab.sidebarHome : tab.tabBarHome
                 return addOpensList && BodyPage.holds(home) ? .body : .section(home)
             },
@@ -547,7 +547,7 @@ struct RootView: View {
                 }
             }
             #endif
-            if addOpensList, BodyPage.isShown(with: modules.choice) {
+            if addOpensList, BodyPage.isShown(with: modules.effectiveChoice) {
                 // The + takes a place on the row and a phone's bar holds five: Workouts and
                 // Nutrition share one, with one switch across both at the top (`BodySwitch`).
                 Tab(bodyLabel.title, systemImage: bodyLabel.symbol, value: ShellTab.body) {
@@ -613,7 +613,7 @@ struct RootView: View {
                         .toastHost()
                 }
             }
-            if showsSidebarSections, AppSection.review.isShown(with: modules.choice) {
+            if showsSidebarSections, AppSection.review.isShown(with: modules.effectiveChoice) {
                 // Looking back, in the sidebar where there is one. (On a phone it opens from the
                 // chart button at the top left of every tab.) Sleep and Trends were rows here.
                 Tab(AppSection.review.title, systemImage: AppSection.review.symbol, value: ShellTab.section(.review)) {
@@ -644,7 +644,7 @@ struct RootView: View {
         }
         .environment(\.addOpensList, addOpensList)
         .onChange(of: shell.state.tab) { _, tab in
-            if BodyPage.holds(tab.tabBarHome), tab.tabBarHome.isShown(with: modules.choice) { lastBody = tab.tabBarHome }
+            if BodyPage.holds(tab.tabBarHome), tab.tabBarHome.isShown(with: modules.effectiveChoice) { lastBody = tab.tabBarHome }
         }
         .tabViewStyle(.sidebarAdaptable)
         #if DEBUG
@@ -949,7 +949,7 @@ private struct PageChromeHost: ViewModifier {
                 #endif
             }
             #endif
-            .sheet(item: Binding(get: { (sidebar && !Self.reviewIsASheet) || !AppSection.review.isShown(with: modules.choice) ? nil : chrome.review }, set: { chrome.review = $0 })) { from in
+            .sheet(item: Binding(get: { (sidebar && !Self.reviewIsASheet) || !AppSection.review.isShown(with: modules.effectiveChoice) ? nil : chrome.review }, set: { chrome.review = $0 })) { from in
                 // Its own toast host, as Routines below: clearing the listening history offers Undo.
                 ReviewView(from: from, showsDoneButton: true).toastHost()
             }

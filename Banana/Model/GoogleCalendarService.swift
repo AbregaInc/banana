@@ -2088,7 +2088,7 @@ final class GoogleCalendarService: ObservableObject {
     /// Sync only the email address needed to select the same Google account on another device.
     /// Access and refresh tokens intentionally stay in Google Sign-In's device-local keychain.
     private func observeAccountHint() {
-        #if PI_DEVELOPMENT
+        #if PI_DEVELOPMENT || BANANA_DEVELOPMENT
         return
         #endif
         applyAccountHint()
@@ -2107,14 +2107,14 @@ final class GoogleCalendarService: ObservableObject {
     }
 
     private func applyAccountHint() {
-        #if PI_DEVELOPMENT
+        #if PI_DEVELOPMENT || BANANA_DEVELOPMENT
         return
         #endif
         suggestedAccountEmail = Self.normalizedEmail(cloud.string(forKey: Self.accountHintKey))
     }
 
     private func publishAccountHint(_ email: String) {
-        #if PI_DEVELOPMENT
+        #if PI_DEVELOPMENT || BANANA_DEVELOPMENT
         return
         #endif
         guard let email = Self.normalizedEmail(email) else { return }
@@ -2125,7 +2125,7 @@ final class GoogleCalendarService: ObservableObject {
     }
 
     private func clearAccountHint() {
-        #if PI_DEVELOPMENT
+        #if PI_DEVELOPMENT || BANANA_DEVELOPMENT
         return
         #endif
         suggestedAccountEmail = nil

@@ -267,7 +267,7 @@ struct MacCommand: Identifiable {
                 .init(id: "maybe", title: "Reply Maybe to this invitation", symbol: "questionmark.circle", shortcut: "E M") { center.perform(.respond(.tentative)) },
             ], at: 3)
         }
-        for section in AppSection.macSidebar(with: ModuleStore.shared.choice) {
+        for section in AppSection.macSidebar(with: ModuleStore.shared.effectiveChoice) {
             commands.append(.init(id: "section-\(section.rawValue)", title: "Open \(section.title)",
                                   symbol: section.symbol, shortcut: nil) { nav.section = section })
         }

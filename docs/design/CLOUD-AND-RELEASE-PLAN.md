@@ -52,6 +52,17 @@ Private operational evidence stays outside the public tree. Source baseline: `22
 Calendar therefore has **parallel native and server paths**, not a missing backend integration.
 Reuse the web, notification and booking implementations when establishing a common provider layer.
 
+## Implementation checkpoint
+
+The first local increment adds versioned account eligibility, actual server-grant capabilities,
+short-lived native policy caching, Email presentation/transport gates, explicit Beta/Dev build
+presets and account-scoped administration. See [feature access](FEATURE-ACCESS.md).
+The service foundation is deployed to Beta at `985ee79b`, with migrations 0013–0014 applied
+and the public source offer verified. Clients are not distributed. Native provider consolidation,
+cloud Mail, isolated Dev infrastructure,
+signed distribution and end-to-end acceptance remain unfinished. The audit table above is the
+starting snapshot, not a claim about these new source changes.
+
 ## Target channel matrix
 
 | App | Intended use | Service/data environment | Distribution |
@@ -68,8 +79,8 @@ storage does not isolate two apps connected to the same real Google calendar or 
 
 ### 1. Establish a dependable baseline
 
-- [ ] Reconcile the failing native configuration/module/migration assertions against intended behavior.
-- [ ] Review and apply Beta's missing schema migration in the appropriate deployment order.
+- [x] Reconcile the failing native configuration/module/migration assertions against intended behavior.
+- [x] Review and apply Beta's missing schema migration before the compatible service update.
 - [ ] Establish Beta's server Google grant and verify the required scopes and token refresh.
 - [ ] Record the exact deployed source revision and schema version for every service environment.
 - [ ] Verify Google OAuth clients, redirects, publishing status and approved scopes; inspect Apple's
@@ -120,7 +131,7 @@ Lost acknowledgements and retries must not duplicate events, Meet requests or bu
 
 ### 5. Add controlled feature access
 
-- [ ] Extend the existing authenticated account response with feature eligibility and explicit policy versioning.
+- [x] Extend the existing authenticated account response with feature eligibility and explicit policy versioning (local implementation).
 - [ ] Define per-environment tester access; do not assume Stable and Beta account IDs are interchangeable.
 - [ ] Evaluate build support, tester eligibility, user module choice, account scopes and operation policy separately.
 - [ ] Apply gates to background jobs and service endpoints as well as visible controls.
@@ -189,7 +200,11 @@ supported or receive an explicit upgrade requirement; they must not silently bec
 Audit baseline: 315 service tests pass in each of two time zones; 53 Mail credential tests and
 20 distribution tests pass. The native audit ran 151 tests with six assertion failures across
 three methods (module visibility, literal build-configuration expectations and migration drain mode).
-These are unresolved checks, not permission to update expectations merely to turn a run green.
+These baseline failures were resolved against current inherited configuration, compiled module
+availability and the existing consent-preserving read-only migration mode. The focused native
+rerun passed 166 tests. The expanded service suite passes 320 tests in each time zone; archive
+and distribution checks pass 24 tests, plus resource-gate and account-administration checks.
+These checks do not establish signed-build or provider-migration acceptance.
 
 For each promoted increment, retain:
 

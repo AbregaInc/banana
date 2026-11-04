@@ -275,7 +275,7 @@ final class MoveOverTests: XCTestCase {
 
         XCTAssertEqual(phone.state.personal.phase, .flipped)
         XCTAssertEqual(health.drains, 1, "drained, consent or not")
-        XCTAssertEqual(health.modeAtDrain, [.readWrite])
+        XCTAssertEqual(health.modeAtDrain, [.readOnly], "the drain must not upload health data to iCloud, including before consent")
         XCTAssertEqual(phoneModes.mode(.health), .readOnly, "health never stays in iCloud")
         XCTAssertEqual(phone.state.health.phase, .held)
         XCTAssertNil(server.record(meal, "m"), "and isn't seeded without the consent")

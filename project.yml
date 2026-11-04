@@ -3,6 +3,8 @@ configs:
   Debug: debug
   Release: release
   PiDevelopment: debug
+  DevelopmentCloud: release
+  BetaRelease: release
 options:
   bundleIdPrefix: $(BANANA_BUNDLE_ID)
   createIntermediateGroups: true
@@ -11,6 +13,34 @@ options:
     macOS: "26.0"
 
 schemes:
+  BananaDev:
+    build:
+      targets:
+        BananaBeta: all
+    run:
+      config: DevelopmentCloud
+  BananaMacDev:
+    build:
+      targets:
+        BananaMacBeta: all
+    run:
+      config: DevelopmentCloud
+  BananaBetaDistribution:
+    build:
+      targets:
+        BananaBeta: all
+    run:
+      config: BetaRelease
+    archive:
+      config: BetaRelease
+  BananaMacBetaDistribution:
+    build:
+      targets:
+        BananaMacBeta: all
+    run:
+      config: BetaRelease
+    archive:
+      config: BetaRelease
   BananaMacInstallerTest:
     build:
       targets:
@@ -139,6 +169,8 @@ configFiles:
   Debug: Config/Base.xcconfig
   Release: Config/Base.xcconfig
   PiDevelopment: Config/Base.xcconfig
+  DevelopmentCloud: Config/Base.xcconfig
+  BetaRelease: Config/Base.xcconfig
 
 settings:
   base:
@@ -211,6 +243,7 @@ targets:
         BananaLegacyCloudContainer: $(BANANA_LEGACY_ICLOUD_CONTAINER)
         # The Banana service (Service/) and the Google client it signs in with; empty in any
         # build but the official app.
+        BananaReleaseChannel: $(BANANA_RELEASE_CHANNEL)
         BananaServiceHost: $(BANANA_SERVICE_HOST)
         BananaGoogleServerClient: $(BANANA_GOOGLE_SERVER_CLIENT)
         CFBundleDisplayName: Banana
@@ -393,6 +426,7 @@ targets:
         BananaTeamID: $(DEVELOPMENT_TEAM)
         BananaCloudContainer: $(BANANA_ICLOUD_CONTAINER_BETA)
         # Beta's own service and web client, never the production ones.
+        BananaReleaseChannel: $(BANANA_RELEASE_CHANNEL)
         BananaServiceHost: $(BANANA_SERVICE_HOST_BETA)
         BananaGoogleServerClient: $(BANANA_GOOGLE_SERVER_CLIENT_BETA)
         CFBundleDisplayName: $(BANANA_BETA_DISPLAY_NAME)
@@ -457,7 +491,7 @@ targets:
         NSContactsUsageDescription: "Banana Beta looks up the people you type when adding guests to an event, so \u201CLunch with Sam\u201D can invite the Sam you mean."
         NSLocalNetworkUsageDescription: "Banana Beta finds your other Banana devices on this Wi-Fi."
         NSBonjourServices:
-          - _banana-beta._tcp
+          - _$(BANANA_PEER_SERVICE)._tcp
         NSAppTransportSecurity:
           NSAllowsArbitraryLoads: true
         ITSAppUsesNonExemptEncryption: false
@@ -478,12 +512,37 @@ targets:
         # MAIL_FIXTURES supplies the sample mailbox only when local Email is compiled in.
         # Release defaults to public; local install scripts explicitly opt in.
         # Neither production target has it, so production has no sample mail.
+        BANANA_RELEASE_CHANNEL: beta
+        BANANA_PEER_SERVICE: banana-beta
         BANANA_UNRELEASED: YES
         SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) BANANA_BETA MAIL_FIXTURES"
       configs:
         Release:
           BANANA_UNRELEASED: NO
+        BetaRelease:
+          BANANA_RELEASE_CHANNEL: beta
+          BANANA_UNRELEASED: NO
+          BANANA_LOCAL_EMAIL: YES
+          BANANA_LOCAL_AI: NO
+          SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) BANANA_BETA"
+        DevelopmentCloud:
+          BANANA_RELEASE_CHANNEL: dev
+          BANANA_PEER_SERVICE: banana-dev
+          BANANA_UNRELEASED: NO
+          BANANA_LOCAL_EMAIL: YES
+          BANANA_LOCAL_AI: NO
+          PRODUCT_BUNDLE_IDENTIFIER: $(BANANA_BUNDLE_ID).dev
+          PRODUCT_NAME: Banana Dev
+          BANANA_BETA_DISPLAY_NAME: Banana Dev
+          BANANA_GOOGLE_CLIENT_BETA: $(BANANA_GOOGLE_CLIENT_DEV)
+          BANANA_GOOGLE_SERVER_CLIENT_BETA: $(BANANA_GOOGLE_SERVER_CLIENT_DEV)
+          BANANA_SERVICE_HOST_BETA: $(BANANA_SERVICE_HOST_DEV)
+          BANANA_ICLOUD_CONTAINER_BETA: ""
+          CODE_SIGN_ENTITLEMENTS: Config/DevelopmentIOS.entitlements
+          SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) BANANA_BETA BANANA_DEVELOPMENT"
         PiDevelopment:
+          BANANA_RELEASE_CHANNEL: dev
+          BANANA_PEER_SERVICE: banana-pi
           PRODUCT_BUNDLE_IDENTIFIER: $(BANANA_BUNDLE_ID).pi-development
           CODE_SIGN_ENTITLEMENTS: Config/PiDevelopment.entitlements
           PRODUCT_NAME: Banana Pi
@@ -989,6 +1048,7 @@ targets:
       - path: Banana/Model/PackagePhoto.swift
       # Its counts (`Telemetry`), which the label reader records, and the service they go to.
       - path: Banana/Model/Telemetry.swift
+      - path: Banana/Model/FeatureAccessPolicy.swift
       - path: Banana/Model/BananaService.swift
       # Crash, hang and performance reports for the service (the outbox and the batch).
       - path: Banana/Model/DiagnosticReports.swift
@@ -1269,6 +1329,7 @@ targets:
         CFBundleURLTypes:REPLACE: []
         BananaCloudContainer: ""
         BananaLegacyCloudContainer: ""
+        BananaReleaseChannel: $(BANANA_RELEASE_CHANNEL)
         BananaServiceHost: ""
         BananaGoogleServerClient: ""
         GIDClientID: ""
@@ -1315,6 +1376,7 @@ targets:
         BananaTeamID: $(DEVELOPMENT_TEAM)
         BananaCloudContainer: $(BANANA_ICLOUD_CONTAINER_BETA)
         # Beta's own service and web client, never the production ones.
+        BananaReleaseChannel: $(BANANA_RELEASE_CHANNEL)
         BananaServiceHost: $(BANANA_SERVICE_HOST_BETA)
         BananaGoogleServerClient: $(BANANA_GOOGLE_SERVER_CLIENT_BETA)
         CFBundleDisplayName: $(BANANA_BETA_DISPLAY_NAME)
@@ -1344,7 +1406,7 @@ targets:
         NSSpeechRecognitionUsageDescription: "Banana transcribes downloaded episodes on your device."
         NSLocalNetworkUsageDescription: "Banana finds your other Banana devices on this Wi-Fi so one downloaded podcast file can be reused without downloading it again."
         NSBonjourServices:
-          - _banana-beta._tcp
+          - _$(BANANA_PEER_SERVICE)._tcp
         NSAppTransportSecurity:
           NSAllowsArbitraryLoads: true
     settings:
@@ -1358,12 +1420,37 @@ targets:
         TARGETED_DEVICE_FAMILY: ""
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIconBeta
         # MAIL_FIXTURES: as on BananaBeta. Neither production target has it.
+        BANANA_RELEASE_CHANNEL: beta
+        BANANA_PEER_SERVICE: banana-beta
         BANANA_UNRELEASED: YES
         SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) MAC_APP BANANA_BETA MAIL_FIXTURES"
       configs:
         Release:
           BANANA_UNRELEASED: NO
+        BetaRelease:
+          BANANA_RELEASE_CHANNEL: beta
+          BANANA_UNRELEASED: NO
+          BANANA_LOCAL_EMAIL: YES
+          BANANA_LOCAL_AI: NO
+          SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) MAC_APP BANANA_BETA"
+        DevelopmentCloud:
+          BANANA_RELEASE_CHANNEL: dev
+          BANANA_PEER_SERVICE: banana-dev
+          BANANA_UNRELEASED: NO
+          BANANA_LOCAL_EMAIL: YES
+          BANANA_LOCAL_AI: NO
+          PRODUCT_BUNDLE_IDENTIFIER: $(BANANA_BUNDLE_ID).dev
+          PRODUCT_NAME: Banana Dev
+          BANANA_BETA_DISPLAY_NAME: Banana Dev
+          BANANA_GOOGLE_CLIENT_BETA: $(BANANA_GOOGLE_CLIENT_DEV)
+          BANANA_GOOGLE_SERVER_CLIENT_BETA: $(BANANA_GOOGLE_SERVER_CLIENT_DEV)
+          BANANA_SERVICE_HOST_BETA: $(BANANA_SERVICE_HOST_DEV)
+          BANANA_ICLOUD_CONTAINER_BETA: ""
+          CODE_SIGN_ENTITLEMENTS: Config/DevelopmentMac.entitlements
+          SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) MAC_APP BANANA_BETA BANANA_DEVELOPMENT"
         PiDevelopment:
+          BANANA_RELEASE_CHANNEL: dev
+          BANANA_PEER_SERVICE: banana-pi
           PRODUCT_BUNDLE_IDENTIFIER: $(BANANA_BUNDLE_ID).mac.pi-development
           CODE_SIGN_ENTITLEMENTS: Config/PiDevelopment.entitlements
           PRODUCT_NAME: Banana Pi
@@ -1417,6 +1504,7 @@ targetTemplates:
         BananaLegacyCloudContainer: $(BANANA_LEGACY_ICLOUD_CONTAINER)
         # The Banana service (Service/) and the Google client it signs in with; empty in any
         # build but the official app.
+        BananaReleaseChannel: $(BANANA_RELEASE_CHANNEL)
         BananaServiceHost: $(BANANA_SERVICE_HOST)
         BananaGoogleServerClient: $(BANANA_GOOGLE_SERVER_CLIENT)
         CFBundleDisplayName: Banana

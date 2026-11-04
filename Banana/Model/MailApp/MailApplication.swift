@@ -36,8 +36,8 @@ import Combine
                             try MailIntentStore(directories: directories))
                 }.value
                 let source = MailLiveSource(stores: stores, access: access,
-                    api: GmailHTTP(networkAllowed: { true }), deliveryAllowed: { account in
-                        AppVariant.current.mayCallGoogle(method: "POST", account: account, testAccounts: BetaTestAccounts.all)
+                    api: GmailHTTP(networkAllowed: { FeatureAccessStore.network.allows("email") }), deliveryAllowed: { account in
+                        FeatureAccessStore.shared.allows("email") && AppVariant.current.mayCallGoogle(method: "POST", account: account, testAccounts: BetaTestAccounts.all)
                     })
                 try await source.prepareActions(intent: intent)
                 session = MailSession.installLive(source)

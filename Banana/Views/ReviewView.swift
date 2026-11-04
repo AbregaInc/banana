@@ -38,7 +38,7 @@ struct ReviewView: View {
                 #endif
                 // One group, as the system's own lists of places to go are.
                 Section {
-                    ForEach(ReviewSubject.ordered(for: from, with: modules.choice)) { subject in
+                    ForEach(ReviewSubject.ordered(for: from, with: modules.effectiveChoice)) { subject in
                         NavigationLink(value: subject) { row(subject) }
                             .accessibilityIdentifier("review.\(subject.rawValue)")
                     }

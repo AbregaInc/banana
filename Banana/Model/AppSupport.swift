@@ -29,7 +29,7 @@ enum AppCloud {
     /// terminate the process instead of returning an error. Device builds are provisioned against
     /// their requested container at signing time; Simulator callers skip CloudKit separately.
     static var hasContainerEntitlement: Bool {
-        #if STRESS_DEVICE_AUDIT || PI_DEVELOPMENT
+        #if STRESS_DEVICE_AUDIT || PI_DEVELOPMENT || BANANA_DEVELOPMENT
         return false
         #elseif os(macOS)
         guard let task = SecTaskCreateFromSelf(nil),
@@ -126,6 +126,11 @@ enum AppSupport {
         let dir = base.appendingPathComponent(isPiVerification ? "Banana Pi Verification" : isPiUITest ? "Banana Pi UI Tests" : isPiSampleWorkspace ? (ProcessInfo.processInfo.arguments.contains("--pi-sample-check") ? "Banana Pi Sample Verification" : "Banana Pi Samples") : "Banana Pi", isDirectory: true)
         try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
         return dir
+        #elseif BANANA_DEVELOPMENT
+        let dir = base.appendingPathComponent("Banana Dev", isDirectory: true)
+        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        HealthFileProtection.protectLegacyFiles(in: dir)
+        return dir
         #elseif BANANA_BETA
         let dir = base.appendingPathComponent("Banana Beta", isDirectory: true)
         try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
@@ -183,6 +188,9 @@ enum AppVariant: Equatable {
     /// The nearby-devices service each app announces and looks for (1 to 15 characters). With
     /// one name for both, a Stable phone listed a Beta Mac as a peer.
     var peerServiceType: String {
+        #if BANANA_DEVELOPMENT
+        return "banana-dev"
+        #endif
         #if PI_DEVELOPMENT
         if self == .beta { return "banana-pi" }
         #endif
@@ -193,6 +201,9 @@ enum AppVariant: Equatable {
     /// doesn't separate apps by access group (a Mac build signed without one) the name is all
     /// that keeps Beta's "Disconnect" from deleting Stable's accounts.
     var googleKeychainService: String {
+        #if BANANA_DEVELOPMENT
+        return "banana.dev.google-accounts"
+        #endif
         #if PI_DEVELOPMENT
         if self == .beta { return "com.boris.banana.pi-development.google-accounts" }
         #endif
@@ -200,7 +211,7 @@ enum AppVariant: Equatable {
     }
 
     static var mayMigrateGoogleSDKSession: Bool {
-        #if PI_DEVELOPMENT
+        #if PI_DEVELOPMENT || BANANA_DEVELOPMENT
         false
         #else
         true
@@ -217,11 +228,19 @@ enum AppVariant: Equatable {
     }
 
     var mailKeychainService: String {
-        self == .beta ? "com.boris.banana.beta.google-mail" : "com.boris.banana.google-mail"
+        #if BANANA_DEVELOPMENT
+        return "banana.dev.google-mail"
+        #elseif PI_DEVELOPMENT
+        return "banana.pi.google-mail"
+        #else
+        return self == .beta ? "com.boris.banana.beta.google-mail" : "com.boris.banana.google-mail"
+        #endif
     }
 
     /// The one Reminders list Beta writes to, made the first time it needs one.
-    #if PI_DEVELOPMENT
+    #if BANANA_DEVELOPMENT
+    static let betaRemindersList = "Banana Dev"
+    #elseif PI_DEVELOPMENT
     static let betaRemindersList = "Banana Pi"
     #else
     static let betaRemindersList = "Banana Beta"

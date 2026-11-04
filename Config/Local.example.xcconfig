@@ -19,3 +19,8 @@ BANANA_BUNDLE_ID = com.yourname.banana
 // for none. The server client is a "Web application" OAuth client in the same Google project.
 // BANANA_SERVICE_HOST = banana-service.example.workers.dev
 // BANANA_GOOGLE_SERVER_CLIENT = 000000000000-yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy
+
+// Cloud-connected development has its own app identity and service. Never point it at production.
+// BANANA_GOOGLE_CLIENT_DEV =
+// BANANA_GOOGLE_SERVER_CLIENT_DEV =
+// BANANA_SERVICE_HOST_DEV = dev-api.example.com
