@@ -276,7 +276,7 @@ final class MealPhotoScanner: NSObject, ObservableObject {
         startObservingLibrary()
         // A backfill that stopped part way (the app went to the back), or a start date nothing has
         // looked from yet, goes straight away.
-        let due = force || state.remaining > 0 || state.countingFrom != prefs.effectiveSince()
+        let due = force || state.classifierVersion != MealPhotoClassifier.version || state.remaining > 0 || state.countingFrom != prefs.effectiveSince()
             || state.lastCheck.map { Date().timeIntervalSince($0) >= Self.activeThrottle } ?? true
         if due { startForegroundPass(reason: reason) }
     }
@@ -399,8 +399,10 @@ final class MealPhotoScanner: NSObject, ObservableObject {
 
         let startedAt = Date()
         let since = prefs.effectiveSince(now: startedAt)
-        // On battery while a Mac keeps up, only recent photos; the Mac does the rest.
-        let recentOnly = !Self.isMac && MealPhotoScanShare.macKeepingUp(
+        state.prepareClassifier(since: since, now: startedAt)
+        saveState() // Persist migration before a cancellation or process exit.
+        // Recovery must cover its whole bounded window, even while a Mac is active.
+        let recentOnly = state.recoveryFrom == nil && !Self.isMac && MealPhotoScanShare.macKeepingUp(
             MealPhotoScanReports.shared.all, except: MealInboxStore.installID, now: startedAt)
         let from = MealPhotoScanShare.windowStart(own: state.windowStart(since: since), onBattery: !Self.isMac,
                                                   macKeepingUp: recentOnly, now: startedAt)
@@ -463,7 +465,7 @@ final class MealPhotoScanner: NSObject, ObservableObject {
         PlaybackDiagnostics.shared.log(
             "meal photos: \(background ? "background" : "foreground") pass",
             "\(reason); classified \(read.classified.count), food \(read.food.count) (\(read.food.count - fresh.count) already found elsewhere), "
-                + "new meals \(newItems.count), \(read.remaining) left\(stopped ? ", stopped early" : "")\(recentOnly ? ", recent only" : "")")
+                + "new meals \(newItems.count), second looks \(read.secondLooks), recovered \(read.recovered), unreadable \(read.unreadable), \(read.remaining) left\(stopped ? ", stopped early" : "")\(recentOnly ? ", recent only" : "")")
         return Outcome(newItems: newItems, classified: read.classified.count, stopped: stopped)
     }
 
@@ -542,6 +544,9 @@ enum MealPhotoLibraryReader {
         var food: [Found] = []
         var remaining = 0
         var stopped = false
+        var secondLooks = 0
+        var recovered = 0
+        var unreadable = 0
     }
 
     /// The small copy Vision classifies.
@@ -576,13 +581,23 @@ enum MealPhotoLibraryReader {
             }
             guard let asset = byID[id], let taken = asset.creationDate else { continue }
             // Not readable right now (offline, iCloud slow): left unseen, so a later pass tries again.
-            guard let labels = await labels(for: asset, background: background) else { continue }
-            guard MealPhotoClassifier.isMeal(labels: labels) else {
+            guard let decision = await classify(asset, background: background) else {
+                read.unreadable += 1
+                read.remaining += 1
+                continue
+            }
+            if decision.secondLook { read.secondLooks += 1 }
+            if decision.recovered { read.recovered += 1 }
+            guard decision.meal else {
                 read.classified[id] = taken
                 continue
             }
             guard let data = await imageData(for: asset),
-                  let prepared = MealPhotoImage.prepare(data) else { continue }
+                  let prepared = MealPhotoImage.prepare(data) else {
+                read.unreadable += 1
+                read.remaining += 1
+                continue
+            }
             read.classified[id] = taken
             let depth = await depth(of: prepared, asset: asset)
             read.food.append(Found(ref: MealPhotoRef(takenAt: taken, assetID: id, depth: depth), jpeg: prepared.jpeg))
@@ -610,24 +625,38 @@ enum MealPhotoLibraryReader {
         return keys
     }
 
-    /// Vision's labels for a small copy of the photo, or nil when it can't be had.
-    static func labels(for asset: PHAsset, background: Bool) async -> [(String, Float)]? {
+    struct Classification {
+        var meal: Bool
+        var secondLook = false
+        var recovered = false
+    }
+
+    /// Reuse the same thumbnail for a narrowly gated second opinion, off the main actor.
+    static func classify(_ asset: PHAsset, background: Bool) async -> Classification? {
         guard let (image, orientation) = await smallImage(for: asset) else { return nil }
-        let request = VNClassifyImageRequest()
-        // The labels and thresholds in `MealPhotoClassifier` were measured against revision 2.
-        if VNClassifyImageRequest.supportedRevisions.contains(VNClassifyImageRequestRevision2) {
-            request.revision = VNClassifyImageRequestRevision2
+        let revisions = VNClassifyImageRequest.supportedRevisions
+        func labels(revision: Int) -> [(String, Float)]? {
+            let request = VNClassifyImageRequest()
+            request.revision = revision
+            request.preferBackgroundProcessing = background
+            do {
+                try VNImageRequestHandler(cgImage: image, orientation: orientation, options: [:]).perform([request])
+            } catch { return nil }
+            guard let results = request.results, !results.isEmpty else { return nil }
+            return results.map { ($0.identifier, $0.confidence) }
         }
-        request.preferBackgroundProcessing = background
-        do {
-            try VNImageRequestHandler(cgImage: image, orientation: orientation, options: [:]).perform([request])
-        } catch {
-            return nil
+        let primaryRevision = revisions.contains(VNClassifyImageRequestRevision2)
+            ? VNClassifyImageRequestRevision2 : VNClassifyImageRequest.defaultRevision
+        guard let primary = labels(revision: primaryRevision) else { return nil }
+        if MealPhotoClassifier.isMeal(labels: primary) { return Classification(meal: true) }
+        guard primaryRevision != VNClassifyImageRequestRevision1,
+              revisions.contains(VNClassifyImageRequestRevision1),
+              MealPhotoClassifier.needsSecondLook(primary) else { return Classification(meal: false) }
+        guard !Task.isCancelled, let secondary = labels(revision: VNClassifyImageRequestRevision1) else {
+            return nil // An interrupted second opinion is not a cached rejection.
         }
-        // A classifier that ran gives a confidence for every label it knows. None at all means it
-        // didn't run (the Simulator, for one, answers with nothing) — not that nothing is there.
-        guard let results = request.results, !results.isEmpty else { return nil }
-        return results.map { ($0.identifier, $0.confidence) }
+        let accepted = MealPhotoClassifier.acceptsSecondLook(secondary)
+        return Classification(meal: accepted, secondLook: true, recovered: accepted)
     }
 
     private static func smallImage(for asset: PHAsset) async -> (CGImage, CGImagePropertyOrientation)? {

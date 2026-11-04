@@ -322,7 +322,7 @@ struct NotesView: View {
             .listStyle(.insetGrouped)
             .safeAreaInset(edge: .top) { filterBar }
             .safeAreaInset(edge: .bottom, spacing: 0) { pagingControls }
-            .navigationTitle("Notes")
+            .pageNavigationTitle("Notes")
             .navigationDestination(for: UUID.self) { VoiceNoteDetailView(noteID: $0) }
             // Runs whether or not the list itself is on screen (a restored stack opens with the
             // note pushed), and again whenever notes change on another device.
@@ -434,7 +434,7 @@ struct NotesView: View {
                     }
                     pagingControls
                 }
-            .navigationTitle("Notes")
+            .pageNavigationTitle("Notes")
             .toolbar {
                 #if os(iOS)
                 ToolbarItem(placement: .primaryAction) {

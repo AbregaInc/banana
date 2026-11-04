@@ -37,6 +37,9 @@ while IFS= read -r -d '' app; do
   fi
   info="$app/Contents/Info.plist"
   [ -f "$info" ] || continue   # iOS and Watch apps have a flat bundle layout.
+  # Sparkle's upstream updater helper is universal; the first-party Mac app stays arm64.
+  bundle_id=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$info")
+  case "$bundle_id" in org.sparkle-project.Sparkle.Updater) continue ;; esac
   executable=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleExecutable' "$info")
   binary="$app/Contents/MacOS/$executable"
   architectures=$(xcrun lipo -archs "$binary")

@@ -41,7 +41,7 @@ struct FitnessView: View {
             }
         }
         .safeAreaInset(edge: .top) { LiveFilterSearch(scope: "workouts", filter: $filter).padding(.horizontal).padding(.vertical, 8).background(.background) }
-        .navigationTitle("Workouts")
+        .pageNavigationTitle("Workouts")
         // Value-based, so the stack is stored in ShellNavigation and survives the background
         // rebuild — including a guided workout left running while the phone was locked.
         .navigationDestination(for: ShellState.WorkoutsRoute.self) { destination($0) }

@@ -3,8 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Banana · Google Calendar planner for iPhone, iPad &amp; Mac</title>
-  <meta name="description" content="Plan across Google calendars with Banana. See events, reminders, routines, weather and travel time together on iPhone, iPad and Apple silicon Mac.">
+  <title>Preview · Banana downloads</title><meta name="description" content="Plan across Google calendars with Banana. See events, reminders, routines, weather and travel time together on iPhone, iPad and Apple silicon Mac.">
   <link rel="canonical" href="https://bananatheapp.com/">
   <meta name="theme-color" content="#fbf6ea">
   <meta property="og:type" content="website">
@@ -46,7 +45,7 @@
   .brand img { width: 36px; height: 36px; display: block; }
   .links { display: flex; align-items: center; gap: 22px; font-size: 14px; }
   .links a:not(.btn) { text-decoration: none; }
-  @media (max-width: 560px) { .links a[href="#how"], .links a[href="#faq"] { display: none; } .links { gap: 16px; } }
+  @media (max-width: 560px) { .links a[href="#how"], .links a[href="#faq"] { display: none; } .links { gap: 12px; flex-wrap: wrap; justify-content: flex-end; } }
 
   .btn { display: inline-block; font: 600 16px/1 var(--mono); text-decoration: none; background: var(--banana); color: var(--ink); cursor: pointer;
          padding: 13px 22px; border: 2px solid var(--ink); border-radius: 4px; box-shadow: 3px 3px 0 var(--ink); transition: transform .08s, box-shadow .08s; }
@@ -154,10 +153,19 @@
   .faq details p { margin: 0 0 18px; color: var(--dim); max-width: 64ch; }
   .fine { margin: 0; font-size: 12px; color: var(--dim); max-width: 60ch; text-wrap: balance; }
   .end .legal { max-width: 70ch; }
-  </style>
+
+.github-link{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}.github-link svg{flex:none;width:16px;height:16px}
+
+.download-actions{display:flex;flex-wrap:wrap;gap:14px;justify-content:center}.btn.secondary{background:transparent;box-shadow:none}.compatibility{font-size:12px;color:var(--dim);margin:18px 0 0}@media(max-width:560px){.hero .download-actions{flex-direction:column;align-items:stretch}.download-actions .btn{text-align:center}.links .small{font-size:12px;padding:8px 10px}}
+
+
+.screens-in-context{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,3fr);gap:42px;align-items:center;padding:48px 0 64px;scroll-margin-top:40px}.screens-in-context figure{margin:0;min-width:0}.screens-in-context a{display:block;cursor:zoom-in;border:2px solid var(--ink);border-radius:12px;background:#fff;box-shadow:6px 6px 0 #e4d9be;overflow:hidden}.screens-in-context img{display:block;width:100%;height:auto}.screens-in-context figcaption{font:500 13px var(--mono);text-align:center;margin-top:22px;min-height:30px}.phone-capture{padding-left:8px}.phone-capture a{border-radius:24px!important}.screen-switch{display:flex;justify-content:center;align-items:center;gap:14px}.screen-switch button{border:0;border-bottom:2px solid transparent;padding:0 0 5px;font:inherit;color:var(--dim);background:transparent;cursor:pointer}.screen-switch button[aria-pressed="true"]{color:var(--ink);border-bottom-color:var(--ink)}.screen-switch button:hover{color:var(--ink)}.screen-switch span{color:#bcb19d}.screens-in-context a:focus-visible,.screen-switch button:focus-visible{outline:3px solid var(--ink);outline-offset:6px}@media(max-width:650px){.screens-in-context{grid-template-columns:minmax(0,1fr);gap:32px;padding:32px 0 32px}.phone-capture{width:78%;max-width:290px;justify-self:center;padding:0}.screens-in-context figcaption{margin-top:18px}.screens-in-context a{box-shadow:4px 4px 0 #e4d9be}.wide-capture{width:100%}}
+
+.screenshot-dialog{border:0;padding:0;background:transparent;color:var(--ink);width:calc(100vw - 48px);max-width:1500px;max-height:calc(100dvh - 32px);overflow:visible}.screenshot-dialog::backdrop{background:rgba(34,29,56,.8)}.screenshot-dialog .lightbox-body{display:flex;flex-direction:column;align-items:center;gap:12px}.lightbox-controls{display:flex;justify-content:space-between;align-items:center;gap:24px;width:100%;color:var(--cream);font:500 14px var(--mono)}.lightbox-controls h2{font:inherit;margin:0}.lightbox-controls button{background:var(--banana);color:var(--ink);border:2px solid var(--ink);border-radius:4px;padding:10px 16px;font:600 13px var(--mono);cursor:pointer}.lightbox-controls button:focus-visible{outline:3px solid white;outline-offset:3px}.screenshot-dialog img{display:block;max-width:100%;max-height:calc(100dvh - 110px);width:auto;height:auto;object-fit:contain;border-radius:8px}@media(max-width:650px){.screenshot-dialog{width:calc(100vw - 24px)}}
+</style>
 <link rel="alternate" type="application/rss+xml" title="Banana blog" href="/blog/feed.xml">
 <meta property="og:image:alt" content="Work, personal and studio calendars brought together into one Banana daily plan.">
-<script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "Organization", "@id": "https://bananatheapp.com/#organization", "name": "Abrega, Inc.", "url": "https://bananatheapp.com/about", "logo": "https://bananatheapp.com/apple-touch-icon.png"}, {"@type": "WebSite", "@id": "https://bananatheapp.com/#website", "url": "https://bananatheapp.com/", "name": "Banana", "publisher": {"@id": "https://bananatheapp.com/#organization"}, "inLanguage": "en"}, {"@type": "SoftwareApplication", "@id": "https://bananatheapp.com/#application", "name": "Banana", "url": "https://bananatheapp.com/", "applicationCategory": "ProductivityApplication", "operatingSystem": "iOS 26.1+, iPadOS 26.1+, macOS 26+ (Apple silicon), watchOS 26+", "description": "A daily planner for Google calendars, reminders, routines, weather and travel time, with optional wellness, food, notes and podcast modules.", "publisher": {"@id": "https://bananatheapp.com/#organization"}, "downloadUrl": "https://testflight.apple.com/join/47yxmU8U"}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "Organization", "@id": "https://bananatheapp.com/#organization", "name": "Abrega, Inc.", "url": "https://bananatheapp.com/about", "logo": "https://bananatheapp.com/apple-touch-icon.png"}, {"@type": "WebSite", "@id": "https://bananatheapp.com/#website", "url": "https://bananatheapp.com/", "name": "Banana", "publisher": {"@id": "https://bananatheapp.com/#organization"}, "inLanguage": "en"}, {"@type": "SoftwareApplication", "@id": "https://bananatheapp.com/#application", "name": "Banana", "url": "https://bananatheapp.com/", "applicationCategory": "ProductivityApplication", "operatingSystem": "iOS 26.1+, iPadOS 26.1+, macOS 26+ (Apple silicon), watchOS 26+", "description": "A daily planner for Google calendars, reminders, routines, weather and travel time, with optional wellness, food, notes and podcast modules.", "publisher": {"@id": "https://bananatheapp.com/#organization"}, "downloadUrl": "https://bananatheapp.com/download/mac"}]}</script>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -167,8 +175,9 @@
     <nav class="links" aria-label="Sections">
       <a href="#how">How it works</a>
       <a href="/blog/">Blog</a>
+      <a class="github-link" href="https://github.com/AbregaInc/banana"><svg aria-hidden="true" focusable="false" fill="currentColor" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M6.766 11.328c-2.063-.25-3.516-1.734-3.516-3.656 0-.781.281-1.625.75-2.188-.203-.515-.172-1.609.063-2.062.625-.078 1.468.25 1.968.703.594-.187 1.219-.281 1.985-.281.765 0 1.39.094 1.953.265.484-.437 1.344-.765 1.969-.687.218.422.25 1.515.046 2.047.5.593.766 1.39.766 2.203 0 1.922-1.453 3.375-3.547 3.64.531.344.89 1.094.89 1.954v1.625c0 .468.391.734.86.547C13.781 14.359 16 11.53 16 8.03 16 3.61 12.406 0 7.984 0 3.563 0 0 3.61 0 8.031a7.88 7.88 0 0 0 5.172 7.422c.422.156.828-.125.828-.547v-1.25c-.219.094-.5.156-.75.156-1.031 0-1.64-.562-2.078-1.609-.172-.422-.36-.672-.719-.719-.187-.015-.25-.093-.25-.187 0-.188.313-.328.625-.328.453 0 .844.281 1.25.86.313.452.64.655 1.031.655s.641-.14 1-.5c.266-.265.47-.5.657-.656"/></svg><span>GitHub</span></a>
       <a href="#faq">FAQ</a>
-      <a class="btn small" href="https://testflight.apple.com/join/47yxmU8U">Join the beta</a>
+      <a class="btn small" href="/download/mac">Download for Mac</a>
     </nav>
   </header>
 </div>
@@ -178,8 +187,8 @@
     <h1>Many calendars. One you.</h1>
     <p class="sub">Your Google calendars, reminders and routines. One daily plan.</p>
     <p class="also">Busy blocks help keep your enabled calendars in step, travel time included.</p>
-    <a class="btn" href="https://testflight.apple.com/join/47yxmU8U">Join the beta</a>
-    <p class="also">Also on your plan: travel time · weather · reminders · routines</p>
+    <div class="download-actions"><a class="btn" href="/download/mac">Download for Mac</a><a class="btn secondary" href="https://testflight.apple.com/join/47yxmU8U">iPhone &amp; iPad beta</a></div>
+    <p class="compatibility">Apple silicon · macOS 26+</p>
   </div>
 </div>
 
@@ -210,6 +219,11 @@
     </div>
   </section>
 
+<section class="screens-in-context" id="screenshots" aria-label="Banana app screenshots">
+  <figure class="phone-capture"><a href="/assets/img/phone-plan.webp" aria-label="Enlarge iPhone screenshot"><img src="/assets/img/phone-plan.webp" width="780" height="1696" loading="lazy" alt="Banana on iPhone showing today’s reminders, travel time and meetings."></a><figcaption>iPhone</figcaption></figure>
+  <figure class="wide-capture"><a id="wide-shot-link" href="/assets/img/ipad-plan.webp" aria-label="Enlarge iPad screenshot"><img id="wide-shot" src="/assets/img/ipad-plan.webp" width="1500" height="1125" loading="lazy" alt="Banana on iPad showing a week of appointments, reminders and routines."></a><figcaption><div class="screen-switch" role="group" aria-label="Choose large screen"><button type="button" data-screen="ipad" aria-pressed="true">iPad</button><span aria-hidden="true">/</span><button type="button" data-screen="mac" aria-pressed="false">Mac</button></div></figcaption></figure>
+</section>
+
   <section class="block" id="soon">
     <h2>Make room for the rest</h2>
     <p class="lede">Switch on only what you want Banana to look after.</p>
@@ -225,7 +239,7 @@
     <h2>Good to know</h2>
     <div class="faq">
       <details><summary>Why does Banana ask for my Google account?</summary><p>To show your Google Calendar events in your plan, to save the events you make or change in Banana, and to add Busy blocks across your own calendars so one plan blocks the others. Banana uses what it reads from Google only for that, and never for advertising.</p></details>
-      <details><summary>Does it copy my events between calendars?</summary><p>No. The other calendars get a Busy block for the same hours, travel time included, without the title or details. It's on once you connect and can be turned off in Settings.</p></details>
+      <details><summary>Does it copy my events between calendars?</summary><p>Banana can add private Busy blocks without event titles or details. Choose which calendars block time in Settings. Other people’s calendars are visible but don’t block time by default.</p></details>
       <details><summary>Does Banana replace my calendar?</summary><p>No. Your events stay in Google Calendar. Banana shows them with your reminders, routines, travel and weather, and what you add in Banana is saved to Google Calendar.</p></details>
       <details><summary>Which calendars does it work with?</summary><p>Google Calendar, with as many Google accounts as you use. Calendars that live only in iCloud or Outlook aren't shown.</p></details>
       <details><summary>What else can I use in Banana?</summary><p>Workouts and sleep, food, notes and podcasts are optional modules you can switch on. Features and permissions vary by device. Meal estimates are approximate and use Apple Intelligence where your device supports it. Banana does not give medical advice.</p></details>
@@ -234,8 +248,8 @@
   </section>
 
   <section class="end">
-    <a class="btn" href="https://testflight.apple.com/join/47yxmU8U">Join the beta</a>
-    <p class="fine">Banana is in public beta on TestFlight: iPhone and iPad with iOS 26.1 or later, Mac with Apple silicon and macOS 26, and an Apple Watch app with watchOS 26. Calendar features need a Google account.</p>
+    <div class="download-actions"><a class="btn" href="/download/mac">Download for Mac</a><a class="btn secondary" href="https://testflight.apple.com/join/47yxmU8U">iPhone &amp; iPad beta</a></div>
+    <p class="fine">Mac: Apple silicon, macOS 26+. iPhone and iPad: iOS 26.1+ through TestFlight, with an Apple Watch companion on watchOS 26+. Calendar features need a Google account.</p>
     <small><a href="/blog/">Blog</a><a href="/about">About</a><a href="/privacy">Privacy Policy</a><a href="/terms">Terms</a><a href="/support">Support</a></small>
     <small class="legal">© 2026 Abrega, Inc. Apple, iPhone, iPad, Mac, Apple Watch, iCloud and TestFlight are trademarks of Apple Inc. Google Calendar is a trademark of Google LLC.</small>
   </section>
@@ -559,5 +573,6 @@ mini.querySelectorAll("svg[data-icon]").forEach(s => icon(s.dataset.icon, s));
 
 })();
 </script>
-</body>
+<script>(()=>{const img=document.querySelector('#wide-shot'),link=document.querySelector('#wide-shot-link');document.querySelectorAll('[data-screen]').forEach(button=>button.addEventListener('click',()=>{const mac=button.dataset.screen==='mac',label=mac?'Mac':'iPad';img.src=mac?'/assets/img/mac-plan.webp':'/assets/img/ipad-plan.webp';img.width=mac?1320:1500;img.height=mac?840:1125;img.alt='Banana on '+label+' showing appointments, reminders, routines and travel time.';link.href=img.getAttribute('src');link.setAttribute('aria-label','Enlarge '+label+' screenshot');document.querySelectorAll('[data-screen]').forEach(b=>b.setAttribute('aria-pressed',String(b===button)))}))})();</script><dialog class="screenshot-dialog" id="screenshot-dialog" aria-labelledby="screenshot-dialog-title"><div class="lightbox-body"><div class="lightbox-controls"><h2 id="screenshot-dialog-title">App screenshot</h2><form method="dialog"><button autofocus aria-label="Close screenshot">Close ×</button></form></div><img id="expanded-screenshot" src="/assets/img/phone-plan.webp" width="780" height="1696" loading="lazy" alt=""></div></dialog>
+<script>(()=>{const dialog=document.querySelector('#screenshot-dialog'),image=document.querySelector('#expanded-screenshot'),title=document.querySelector('#screenshot-dialog-title');let overflow;document.querySelectorAll('.screens-in-context a').forEach(link=>{link.removeAttribute('target');link.setAttribute('aria-haspopup','dialog');link.addEventListener('click',event=>{event.preventDefault();const source=link.querySelector('img');image.src=source.src;image.width=source.naturalWidth;image.height=source.naturalHeight;image.alt=source.alt;title.textContent=link.getAttribute('aria-label').replace('Enlarge ','');overflow=document.body.style.overflow;document.body.style.overflow='hidden';dialog.showModal()})});dialog.addEventListener('close',()=>{document.body.style.overflow=overflow||''});dialog.addEventListener('click',event=>{if(event.target!==dialog)return;const r=dialog.getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)dialog.close()})})();</script></body>
 </html>

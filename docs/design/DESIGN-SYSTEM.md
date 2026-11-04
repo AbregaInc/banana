@@ -235,6 +235,12 @@ thing opened least), a sidebar row on the iPad and the Mac. Review has the app's
 switch: Week · Month · Year. Workouts' period bar and trends, Sleep, Trends, listening history
 and its map, and Nutrition's logs-against-weight card all moved there.
 
+On iPhone and iPad, root pages use `pageNavigationTitle`: the selected tab or sidebar
+row names the page, so the toolbar does not repeat it. Put the page switch in the
+principal toolbar position on iPhone and with the iPad sidebar open. Use the leading
+toolbar position only when iPad’s floating top tab bar occupies the centre. Never add a second row below the toolbar. Presented sheets and
+editors keep their titles; Mac windows keep their native navigation titles.
+
 | Job | The one control | Where |
 |---|---|---|
 | Switch between a page's views | `PageSwitch`: a segmented switch, four words at most, remembered | The top bar, where the title would be. Plan: Day · Week. Nutrition: Food · Taken. Review: Week · Month · Year |

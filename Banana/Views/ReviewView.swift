@@ -42,7 +42,7 @@ struct ReviewView: View {
             // A small gap under the date line, not the grouped list's full top band.
             .contentMargins(.top, DS.Space.s, for: .scrollContent)
             .safeAreaInset(edge: .top, spacing: 0) { dateLine }
-            .navigationTitle("Review")
+            .pageNavigationTitle("Review", presented: showsDoneButton)
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
             #endif

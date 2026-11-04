@@ -406,6 +406,11 @@ struct MacCommands: Commands {
     @ObservedObject private var modules = ModuleStore.shared
 
     var body: some Commands {
+        #if BANANA_DIRECT
+        CommandGroup(after: .appInfo) {
+            DirectMacUpdateButton()
+        }
+        #endif
         // Replace the default "New Window" with real navigation — a single-window app doesn't want
         // ⌘N spawning empties.
         // ⌘, opens the Settings window: the `Settings` scene puts it in the app menu itself.

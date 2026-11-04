@@ -226,7 +226,7 @@ struct SettingsView: View {
         NavigationSplitView(columnVisibility: .constant(.all)) {
             List(selection: $macPage) { pageRows }
                 .listStyle(.insetGrouped)
-                .navigationTitle("Settings")
+                .pageNavigationTitle("Settings", presented: showsDoneButton)
                 .searchable(text: $settingsSearch, placement: .navigationBarDrawer(displayMode: .always),
                             prompt: "Search settings")
                 .navigationSplitViewColumnWidth(min: 300, ideal: 340, max: 400)
@@ -313,7 +313,7 @@ struct SettingsView: View {
             }
             .searchable(text: $settingsSearch, prompt: "Search settings")
             .settingsFormStyle()
-            .navigationTitle("Settings")
+            .pageNavigationTitle("Settings", presented: showsDoneButton)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 if showsDoneButton {
@@ -484,6 +484,9 @@ struct SettingsView: View {
             AnyView(Group {
                 Section { DemoEntryButton() }
                 versionsSection
+                #if os(macOS) && BANANA_DIRECT
+                DirectMacUpdateSettings()
+                #endif
                 privacySection
                 diagnosticsSection
                 creditsSection

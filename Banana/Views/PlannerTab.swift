@@ -130,9 +130,10 @@ struct MacPlannerViewMenu: View {
 /// The Day · Week switch, in the top bar: the page switch every main page uses (`PageSwitch`).
 struct PlanModePicker: View {
     var fills = false
+    var widest: CGFloat = 204
     @AppStorage("planMode") private var mode: PlanMode = .day
 
     var body: some View {
-        PageSwitch(label: "View", selection: $mode, choices: PlanMode.allCases, title: \.title, fills: fills)
+        PageSwitch(label: "View", selection: $mode, choices: PlanMode.allCases, title: \.title, fills: fills, widest: widest)
     }
 }

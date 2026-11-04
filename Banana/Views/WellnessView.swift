@@ -88,7 +88,7 @@ struct WellnessView: View {
         .background(Color(.systemGroupedBackground))
         // From the + on the tab bar's row, which has switched to Taken on the way.
         .onAdd(.supplement) { _ in addingSupplement = true }
-        .navigationTitle("Food")
+        .pageNavigationTitle("Food")
         .navigationBarTitleDisplayMode(.inline)
         // Anything logged on the Mac since, before you read the day.
         .onAppear {

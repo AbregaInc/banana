@@ -1,0 +1,79 @@
+#!/usr/bin/env python3
+"""Reserve a release identity locally from a clean commit and existing release numbers.
+
+Does not build, tag, publish, or delete anything. Run one release at a time.
+"""
+import argparse
+from datetime import datetime, timezone
+import json
+from pathlib import Path
+import re
+import subprocess
+
+ROOT = Path(__file__).resolve().parents[2]
+REPO = 'AbregaInc/banana'
+
+
+def run(*args):
+    return subprocess.run(args, cwd=ROOT, check=True, capture_output=True, text=True).stdout.strip()
+
+
+def clean_commit():
+    if run('git', 'status', '--porcelain', '--untracked-files=all'):
+        raise ValueError('Release from a clean committed checkout; preserve unfinished work in this workspace')
+    return run('git', 'rev-parse', 'HEAD')
+
+
+def make_plan(version, current_build, tags, commit):
+    if not re.fullmatch(r'\d+\.\d+\.\d+', version):
+        raise ValueError('Use a three-part user version, such as 1.0.1')
+    if not re.fullmatch(r'[0-9a-f]{40}', commit):
+        raise ValueError('Expected a full source commit')
+    builds = [int(current_build)]
+    for tag in tags:
+        match = re.fullmatch(r'mac-v[0-9.]+-(\d+)', tag)
+        if match:
+            builds.append(int(match[1]))
+    build = str(max(builds) + 1)
+    tag = f'mac-v{version}-{build}'
+    return {'shortVersion': version, 'version': build, 'sourceCommit': commit,
+            'tag': tag, 'baseURL': f'https://github.com/{REPO}/releases/download/{tag}'}
+
+
+def validate_plan(plan, commit):
+    expected = make_plan(plan['shortVersion'], int(plan['version']) - 1, [], commit)
+    for key, value in expected.items():
+        if plan.get(key) != value:
+            raise ValueError('Release plan differs from the source checkout or version identity: ' + key)
+    if int(plan['version']) < 1:
+        raise ValueError('Build must be positive')
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--version')
+    parser.add_argument('--out', type=Path)
+    parser.add_argument('--check', type=Path)
+    args = parser.parse_args()
+    commit = clean_commit()
+    if args.check:
+        plan = json.loads(args.check.read_text())
+        validate_plan(plan, commit)
+        print(plan['sourceCommit'], plan['shortVersion'], plan['version'])
+        return
+    if not args.version or not args.out:
+        parser.error('--version and --out are required to prepare a release')
+    pages = json.loads(run('gh', 'api', '--paginate', '--slurp', f'repos/{REPO}/releases?per_page=100'))
+    tags = [release['tag_name'] for page in pages for release in page]
+    tags += run('git', 'tag', '--list', 'mac-v*').splitlines()
+    current = re.search(r'CURRENT_PROJECT_VERSION:\s*"(\d+)"', (ROOT / 'project.yml').read_text())
+    plan = make_plan(args.version, current.group(1), tags, commit)
+    plan['preparedAt'] = datetime.now(timezone.utc).isoformat()
+    args.out.parent.mkdir(parents=True, exist_ok=True)
+    with args.out.open('x') as output:
+        output.write(json.dumps(plan, indent=2) + '\n')
+    print(plan['tag'] + ' from ' + commit[:12])
+
+
+if __name__ == '__main__':
+    main()

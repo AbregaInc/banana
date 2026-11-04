@@ -175,6 +175,15 @@ Built (30 Sep 2026): `MealPhotoScan.swift` (pure, tested), `MealPhotoScanner.swi
   photos: plated meals scored `food` 0.31–1.0, non-meals ≤ 0.18 (fridge, deli counter, market);
   drinks ≥ 0.26 on their own label, non-drinks ≤ 0.05. `table`, `plate`, `restaurant`, bare `drink`
   never count. The Simulator can't run the classifier (no labels at all): judge it on a device.
+- **Second look**: a revision-2 rejection with `food` ≥ 0.10 and `plate` ≥ 0.70 gets
+  revision 1 on the same thumbnail. A food label must score ≥ 0.80 to recover it. This narrowly
+  handles a reproduced plated-meal false negative without lowering the primary thresholds.
+  Food collages still need negative-control testing; this is not a general accuracy guarantee.
+- **Classifier upgrades**: version 2 rechecks recent negatives once over a persisted seven-day
+  window, bounded by the selected start date. This recovery is not shortened by Mac handoff.
+  Known photos, logged/dismissed meals and cloud deduplication remain intact. Unreadable images
+  count as remaining work, never a completed scan. Logs include second looks, recoveries and
+  unreadable counts.
 - **Memory** (`MealPhotoScanState`, meal-photo-scan.json, per device): a pass looks from a day before
   the last complete one (or the start date); photos already classified are skipped and forgotten
   once no window reaches them; photos that became meals are kept as long as the start date covers

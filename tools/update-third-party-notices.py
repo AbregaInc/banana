@@ -19,10 +19,11 @@ def render(resolved, checkouts):
         if not licenses:
             raise RuntimeError("Missing license text: " + pin["identity"])
         revision = pin["state"]["revision"]
-        sections.append(f"\n\n{folder.name}\n{'=' * len(folder.name)}\n\nSource: {pin['location']}\nRevision: {revision}\n"
+        sections.append(f"\n\n{folder.name}\n{'=' * max(8, len(folder.name))}\n\nSource: {pin['location']}\nRevision: {revision}\n"
                         + (f"Version: {pin['state']['version']}\n" if pin["state"].get("version") else ""))
         for license_file in licenses:
-            sections.append(f"\n{license_file.name}\n{'-' * len(license_file.name)}\n\n{license_file.read_text().rstrip()}\n")
+            license_text = "\n".join(line.rstrip() for line in license_file.read_text().splitlines()).rstrip()
+            sections.append(f"\n{license_file.name}\n{'-' * len(license_file.name)}\n\n{license_text}\n")
     return "".join(sections)
 
 if __name__ == "__main__":

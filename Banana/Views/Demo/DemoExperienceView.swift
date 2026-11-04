@@ -117,7 +117,7 @@ struct DemoExperienceView: View {
                     ContentUnavailableView("Demo could not open", systemImage: "externaldrive.badge.exclamationmark", description: Text(session.error ?? ""))
                 }
             }
-            .navigationTitle(section.rawValue)
+            .pageNavigationTitle(section.rawValue)
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
             #endif

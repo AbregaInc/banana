@@ -208,7 +208,7 @@ struct WideWorkoutsView: View {
             .addListButton(identifier: "workouts.add")
             #endif
         }
-        .navigationTitle("Workouts")
+        .pageNavigationTitle("Workouts")
     }
 
     // MARK: - Summary strip

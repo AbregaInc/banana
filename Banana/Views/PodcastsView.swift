@@ -124,7 +124,7 @@ struct PodcastsView: View {
                     }
                 }
             }
-            .navigationTitle("Library")
+            .pageNavigationTitle("Library")
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
             #endif

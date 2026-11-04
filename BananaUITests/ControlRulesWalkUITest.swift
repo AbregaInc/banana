@@ -25,10 +25,11 @@ final class ControlRulesWalkUITest: XCTestCase {
         try? shot.pngRepresentation.write(to: folder.appendingPathComponent(String(format: "%@-%02d-%@.png", device, step, name)))
     }
 
-    private func launch(tab: String) -> XCUIApplication {
+    private func launch(tab: String, fixedPlanMode: Bool = true) -> XCUIApplication {
         let app = XCUIApplication()
         app.launchArguments = ["--tab", tab, "--disable-icloud", "--no-space-sync", "--ui-audit", "-onboardingCompleted", "YES",
                                "-planMode", "day"]
+        if !fixedPlanMode { app.launchArguments.removeLast(2) }
         app.withoutSpaceSync()
         app.launch()
         return app
@@ -95,6 +96,37 @@ final class ControlRulesWalkUITest: XCTestCase {
             keep("\(tab)-more")
             closeMenu(app)
             app.terminate()
+        }
+    }
+
+    func testPlanSwitchUsesTheTitleRow() {
+        continueAfterFailure = false
+        let app = launch(tab: "plan", fixedPlanMode: false)
+        let day = app.segmentedControls.buttons["Day"].firstMatch
+        let week = app.segmentedControls.buttons["Week"].firstMatch
+        XCTAssertTrue(day.waitForExistence(timeout: 15))
+        XCTAssertTrue(week.exists)
+        let chart = app.buttons["page.review"].firstMatch
+        XCTAssertTrue(chart.exists)
+        XCTAssertEqual(day.frame.midY, chart.frame.midY, accuracy: 12)
+        XCTAssertFalse(app.navigationBars.staticTexts["Plan"].exists)
+        week.tap()
+        XCTAssertTrue(element(app, "plan.surface.week").waitForExistence(timeout: 8))
+        app.segmentedControls.buttons["Day"].firstMatch.tap()
+        XCTAssertTrue(element(app, "plan.surface.day").waitForExistence(timeout: 8))
+        keep("plan-title-row")
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            XCUIDevice.shared.orientation = .landscapeLeft
+            XCTAssertTrue(app.segmentedControls.buttons["Week"].waitForExistence(timeout: 8))
+            XCTAssertTrue(app.segmentedControls.buttons["Week"].isHittable)
+            app.segmentedControls.buttons["Week"].tap()
+            XCTAssertTrue(element(app, "plan.surface.week").waitForExistence(timeout: 8))
+            keep("plan-landscape-toolbar")
+            XCUIDevice.shared.orientation = .portrait
+            XCTAssertTrue(app.segmentedControls.buttons["Day"].waitForExistence(timeout: 8))
+            XCTAssertTrue(app.segmentedControls.buttons["Day"].isHittable)
+            app.segmentedControls.buttons["Day"].tap()
+            XCTAssertTrue(element(app, "plan.surface.day").waitForExistence(timeout: 8))
         }
     }
 

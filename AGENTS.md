@@ -1,5 +1,12 @@
 # Banana: rules for agents
 
+## Product and design decisions
+
+Cut taglines, helper text and secondary labels. If a screen needs them to make sense, fix the layout.
+
+Make the best decision that will elevate all three: the user experience (UX), developer experience
+(DX), and agent experience (AX) always, without breaking anything.
+
 ## Build output: clean up as you go
 
 Each xcodebuild derived-data folder is 1.5–3.5 GB. One session left 34 GB and filled the disk

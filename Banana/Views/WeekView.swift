@@ -3643,6 +3643,7 @@ private struct MobileDayHeaderStrip: View {
 
 #if os(iOS)
 struct WeekView: View {
+    @Environment(\.tabBarPlacement) private var tabBarPlacement
     /// Whether the top bar offers the booking link.
     @ObservedObject private var booking = BookingCenter.shared
     /// Calendar publications are observed explicitly below. Observing the entire store here made
@@ -3870,7 +3871,7 @@ struct WeekView: View {
             // safe area under the collapsible tab/menu chrome; the grouped background otherwise
             // leaks through as a solid gray strip when the chrome contracts.
             .background(Color(.systemBackground).ignoresSafeArea())
-            .navigationTitle("Plan")
+            .pageNavigationTitle("Plan")
             .confirmationDialog(
                 "This event repeats",
                 isPresented: Binding(get: { pendingRecurringMove != nil },
@@ -3908,6 +3909,13 @@ struct WeekView: View {
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+                // Only the floating top tabs occupy the centre. With the sidebar open,
+                // keep Day/Week in the title position instead of pushing it to the far left.
+                ToolbarItem(placement: tabBarPlacement == .topBar ? .topBarLeading : .principal) {
+                    PlanModePicker(widest: tabBarPlacement == .topBar ? 120 : 204)
+                        .controlSize(.small)
+                }
+                .sharedBackgroundVisibility(.hidden)
                 ReviewToolbarItem(section: .plan)
                 if booking.canShare {
                     ToolbarItem(placement: .automatic) { BookingShareButton() }
@@ -4200,13 +4208,6 @@ struct WeekView: View {
     /// exposes the rest of the week, while landscape naturally shows most or all seven.
     private var mobilePlanner: some View {
         VStack(spacing: 0) {
-            HStack {
-                Spacer(minLength: 0)
-                PlanModePicker(fills: true).frame(maxWidth: 320)
-                Spacer(minLength: 0)
-            }
-            .padding(.horizontal, DS.Space.m)
-            .padding(.vertical, DS.Space.s)
             PlanPromptCard()
             PlanAttentionBand()
             // A repeating reminder that follows a moment, offered it (`AnchorSuggestions`):

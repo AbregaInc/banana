@@ -51,7 +51,7 @@ struct SleepView: View {
         #endif
         // A column in the middle of an iPad or a wide window, not rows stretched across it.
         .readableColumn()
-        .navigationTitle("Sleep")
+        .pageNavigationTitle("Sleep")
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif

@@ -388,3 +388,53 @@ final class MealPhotoSharingTests: XCTestCase {
         XCTAssertEqual(ControlChannel.controls.zoneName, "Controls", "the zone everything else already lives in")
     }
 }
+
+final class MealPhotoRecoveryTests: XCTestCase {
+    func testAmbiguousPlateRequiresStrongIndependentFoodEvidence() {
+        let plate: [(String, Float)] = [("food", 0.132), ("plate", 0.89)]
+        XCTAssertFalse(MealPhotoClassifier.isMeal(labels: plate))
+        XCTAssertTrue(MealPhotoClassifier.needsSecondLook(plate))
+        XCTAssertTrue(MealPhotoClassifier.acceptsSecondLook([("food", 0.877), ("meatball", 0.876)]))
+        XCTAssertFalse(MealPhotoClassifier.acceptsSecondLook([("food", 0.599), ("taco", 0.597)]),
+                       "A food collage is not sufficient evidence for the fallback")
+        XCTAssertFalse(MealPhotoClassifier.acceptsSecondLook([("plate", 0.99), ("tableware", 0.99)]))
+        XCTAssertFalse(MealPhotoClassifier.needsSecondLook([("plate", 0.99), ("food", 0.01)]))
+        XCTAssertFalse(MealPhotoClassifier.needsSecondLook([("food", 0.95)]), "Don't repeat successful primary work")
+        XCTAssertFalse(MealPhotoClassifier.needsSecondLook([("food", 0.15), ("refrigerator", 0.9)]))
+    }
+
+    func testUpgradeRechecksRecentNegativesOnceAndPreservesKnownMeals() throws {
+        let now = Date(timeIntervalSince1970: 1_800_000_000)
+        let since = now.addingTimeInterval(-30 * 86_400)
+        let yesterday = now.addingTimeInterval(-86_400)
+        let old = now.addingTimeInterval(-10 * 86_400)
+        var state = MealPhotoScanState()
+        state.lastPass = now
+        state.coveredFrom = since
+        state.seen = ["missed": yesterday, "logged": yesterday, "old": old]
+        state.found = ["logged": yesterday, "dismissed": yesterday]
+        state.mealsFound = 20
+        state.prepareClassifier(since: since, now: now)
+        XCTAssertFalse(state.skipping.contains("missed"))
+        XCTAssertTrue(state.skipping.isSuperset(of: ["logged", "dismissed", "old"]))
+        XCTAssertEqual(state.mealsFound, 20)
+        XCTAssertEqual(state.windowStart(since: since), now.addingTimeInterval(-7 * 86_400))
+        state.record(.init(startedAt: now, classified: ["missed": yesterday], remaining: 1, complete: false), since: since)
+        let restored = try JSONDecoder().decode(MealPhotoScanState.self, from: JSONEncoder().encode(state))
+        XCTAssertEqual(restored.recoveryFrom, state.recoveryFrom, "Interrupted recovery survives relaunch")
+        state.prepareClassifier(since: since, now: now.addingTimeInterval(60))
+        XCTAssertTrue(state.skipping.contains("missed"), "No repeated invalidation")
+        state.record(.init(startedAt: now, complete: true), since: since)
+        XCTAssertNil(state.recoveryFrom)
+    }
+
+    func testOldStateDecodesAndRecoveryRespectsUserStartDate() throws {
+        let data = Data("{\"seen\":{},\"found\":{},\"mealsFound\":0,\"remaining\":0}".utf8)
+        var state = try JSONDecoder().decode(MealPhotoScanState.self, from: data)
+        XCTAssertNil(state.classifierVersion)
+        let now = Date(timeIntervalSince1970: 1_800_000_000)
+        let since = now.addingTimeInterval(-3_600)
+        state.prepareClassifier(since: since, now: now)
+        XCTAssertEqual(state.windowStart(since: since), since)
+    }
+}

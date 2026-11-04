@@ -34,7 +34,8 @@ SITE = Path(__file__).resolve().parent / "site"
 TESTFLIGHT = "https://testflight.apple.com/join/47yxmU8U"
 # Outside pages the Privacy Policy points to on purpose: Google's rules for its user data, and
 # where a Google account's access to Banana is taken away.
-OUTSIDE = {"https://developers.google.com/terms/api-services-user-data-policy",
+OUTSIDE = {"https://github.com/AbregaInc/banana",
+           "https://developers.google.com/terms/api-services-user-data-policy",
            "https://myaccount.google.com/permissions"}
 
 # Switched off or removed on 8 Oct 2026 (the list StoreListingTests keeps), plus what the
@@ -112,6 +113,12 @@ def local(ref: str) -> Path | None:
 
 def check() -> list[str]:
     faults: list[str] = []
+    from mac_release import validate as validate_mac_release
+    download_ready = False
+    try:
+        download_ready = validate_mac_release(SITE) is not None
+    except (AssertionError, ValueError, KeyError, OSError, TypeError) as error:
+        faults.append(f"Mac download configuration is invalid: {error}")
     css = (SITE / "styles.css").read_text(encoding="utf-8")
     css_files = [SITE / u.lstrip("/") for u in re.findall(r'url\("(/[^"]+)"\)', css)]
     for file in css_files:
@@ -154,6 +161,8 @@ def check() -> list[str]:
             elif link.startswith("/"):
                 # Cloudflare serves privacy.html at /privacy, and /#faq is the home page.
                 path = link.split("#")[0]
+                if path == "/download/mac" and download_ready:
+                    continue
                 if not (local(path).exists() or (path != "/" and local(path + ".html").exists())):
                     faults.append(f"{name}: {link} isn't a page of the site")
             elif "testflight.apple.com" in link:

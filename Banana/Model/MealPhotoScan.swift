@@ -49,7 +49,20 @@ struct MealPhotoScanPrefs: Equatable, Sendable {
 /// water is a drink) or ingredients that are mostly seen growing or in jars (`grain`, `herb`,
 /// `seasonings`, `honey`, `mushroom`).
 enum MealPhotoClassifier {
+    static let version = 2
     static let foodThreshold: Float = 0.3
+
+    /// Only ambiguous plated food gets a second opinion. Tableware alone is not food.
+    static func needsSecondLook(_ labels: [(String, Float)]) -> Bool {
+        !isMeal(labels: labels)
+            && labels.contains { $0.0 == "food" && $0.1 >= 0.10 }
+            && labels.contains { $0.0 == "plate" && $0.1 >= 0.70 }
+    }
+
+    /// A second model must be confident; don't lower the primary classifier's threshold.
+    static func acceptsSecondLook(_ labels: [(String, Float)]) -> Bool {
+        labels.contains { foodLabels.contains($0.0) && $0.1 >= 0.80 }
+    }
     static let drinkThreshold: Float = 0.25
 
     /// Food: the taxonomy's own parents, then dishes, desserts, baked goods, fruit and vegetables.
@@ -160,12 +173,27 @@ struct MealPhotoScanState: Codable, Equatable, Sendable {
     var countingFrom: Date?
     /// Photos left for the next pass when the last one hit its cap or its time.
     var remaining = 0
+    /// Optional for decoding state written before classifier versioning existed.
+    var classifierVersion: Int?
+    var recoveryFrom: Date?
+
+    /// Revisit recent negatives once, retaining accepted/dismissed identities and counters.
+    mutating func prepareClassifier(since: Date, now: Date) {
+        guard classifierVersion != MealPhotoClassifier.version else { return }
+        let from = max(since, now.addingTimeInterval(-7 * 86_400))
+        seen = seen.filter { $0.value < from || found[$0.key] != nil }
+        recoveryFrom = from
+        classifierVersion = MealPhotoClassifier.version
+    }
 
     /// Where the next pass starts looking: a little before the last complete pass, never before the
     /// start date — or right at the start date when it was moved earlier than anything looked at.
     func windowStart(since: Date) -> Date {
-        guard let lastPass, let coveredFrom, coveredFrom <= since else { return since }
-        return max(since, lastPass.addingTimeInterval(-MealPhotoScanSelection.overlap))
+        let normal: Date
+        if let lastPass, let coveredFrom, coveredFrom <= since {
+            normal = max(since, lastPass.addingTimeInterval(-MealPhotoScanSelection.overlap))
+        } else { normal = since }
+        return max(since, min(normal, recoveryFrom ?? normal))
     }
 
     /// Photos not to classify again.
@@ -203,6 +231,7 @@ struct MealPhotoScanState: Codable, Equatable, Sendable {
         if pass.complete {
             lastPass = pass.startedAt
             coveredFrom = since
+            recoveryFrom = nil
         }
         seen = Self.pruned(seen, before: windowStart(since: since))
         found = Self.pruned(found, before: since)

@@ -112,7 +112,7 @@ struct WideNutritionView: View {
             .padding(.vertical, DS.Space.l)
             .frame(maxWidth: .infinity)
         }
-        .navigationTitle("Food")
+        .pageNavigationTitle("Food")
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         // What the cards sit on, as a list's rows do (`dsCard` is the row colour on iOS).

@@ -7,6 +7,20 @@ options:
     macOS: "26.0"
 
 schemes:
+  BananaMacInstallerTest:
+    build:
+      targets:
+        BananaMacInstallerTest: all
+    run:
+      config: Release
+  BananaMacDirect:
+    build:
+      targets:
+        BananaMacDirect: all
+    run:
+      config: Debug
+    archive:
+      config: Release
   BananaUITests:
     build:
       targets:
@@ -104,7 +118,7 @@ settings:
     SWIFT_VERSION: "5.0"
     SWIFT_STRICT_CONCURRENCY: minimal
     MARKETING_VERSION: "1.0"
-    CURRENT_PROJECT_VERSION: "85"
+    CURRENT_PROJECT_VERSION: "86"
     CODE_SIGN_STYLE: Automatic
     # Native Mac apps and test hosts support Apple silicon only. iOS settings are unchanged.
     "ARCHS[sdk=macosx*]": arm64
@@ -112,6 +126,9 @@ settings:
     TARGETED_DEVICE_FAMILY: "1,2"
 
 packages:
+  Sparkle:
+    url: https://github.com/sparkle-project/Sparkle
+    exactVersion: 2.10.1
   FluidAudio:
     url: https://github.com/FluidInference/FluidAudio.git
     exactVersion: 0.15.5
@@ -1148,94 +1165,47 @@ targets:
         ENABLE_PREVIEWS: YES
 
   BananaMac:
-    type: application
-    platform: macOS
-    sources:
-      - path: tools/calendar-library-benchmark/Shared/Fixtures.swift
-      - path: Banana
-        excludes:
-          - Assets.xcassets
-          - Info.plist
-          - Banana.entitlements
-      - path: Shared
-        excludes:
-          # The merge and protocol cases are the tests’ (BananaTests), not the app’s.
-          - SyncMergeFixtures.json
-          - SyncProtocolFixtures.json
-      - path: BananaMac/Assets.xcassets
+    templates: [MacApplication]
+
+  # Sparkle is linked only by the direct-download target, never by TestFlight.
+  BananaMacDirect:
+    templates: [DirectMacApplication]
     info:
-      path: BananaMac/Info.plist
       properties:
-        # Read by the code; filled from Config (see README).
-        BananaTeamID: $(DEVELOPMENT_TEAM)
-        BananaCloudContainer: $(BANANA_ICLOUD_CONTAINER)
-        BananaLegacyCloudContainer: $(BANANA_LEGACY_ICLOUD_CONTAINER)
-        # The Banana service (Service/) and the Google client it signs in with; empty in any
-        # build but the official app.
-        BananaServiceHost: $(BANANA_SERVICE_HOST)
-        BananaGoogleServerClient: $(BANANA_GOOGLE_SERVER_CLIENT)
-        CFBundleDisplayName: Banana
-        GIDClientID: $(BANANA_GOOGLE_CLIENT).apps.googleusercontent.com
-        CFBundleURLTypes:
-          - CFBundleTypeRole: Editor
-            CFBundleURLSchemes:
-              - com.googleusercontent.apps.$(BANANA_GOOGLE_CLIENT)
-              - banananote
-        # Same standard-crypto-only declaration as iOS; without it every Mac upload
-        # re-asks the export-compliance question (build 7 was patched via API).
-        ITSAppUsesNonExemptEncryption: false
-        CFBundleShortVersionString: $(MARKETING_VERSION)
-        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
-        LSMinimumSystemVersion: "26.0"
-        LSApplicationCategoryType: public.app-category.productivity
-        NSAppleMusicUsageDescription: "Banana plays a playlist, album, or song from your Apple Music library when a routine starts."
-        NSHealthShareUsageDescription: "Banana reads your workouts and health metrics from Apple Health so it can show and analyze your fitness in one place."
-        NSHealthUpdateUsageDescription: "Banana saves workouts to Apple Health and updates them when you trim a workout."
-        NSMicrophoneUsageDescription: "Banana records quick voice notes when you ask it to."
-        NSCameraUsageDescription: "Banana uses the camera only when you choose to photograph a meal or a supplement label, or scan a barcode."
-        NSContactsUsageDescription: "Banana looks up the people you type when adding guests to an event, so \u201CLunch with Sam\u201D can invite the Sam you mean."
-        NSPhotoLibraryUsageDescription: "Banana looks for photos of meals — only when you turn on Find meal photos automatically — so it can ask what you ate and log it."
-        # Apple's cloud model needs com.apple.developer.private-cloud-compute; true only once granted
-        # and added to the entitlements (CloudModelGuard).
-        BananaPrivateCloudCompute: false
-        NSRemindersFullAccessUsageDescription: "Banana reads your reminders on-device so it can schedule tasks onto your day."
-        NSLocationWhenInUseUsageDescription: "Banana uses your location for your local forecast."
-        NSSpeechRecognitionUsageDescription: "Banana transcribes downloaded episodes on your device."
-        NSLocalNetworkUsageDescription: "Banana finds your other Banana devices on this Wi-Fi so one downloaded podcast file can be reused without downloading it again."
-        NSBonjourServices:
-          - _banana-audio._tcp
-        NSAppTransportSecurity:
-          NSAllowsArbitraryLoads: true
+        BananaSourceCommit: $(BANANA_SOURCE_COMMIT)
+    sources:
+      - path: BananaMac/container-migration.plist
+        buildPhase: resources
     settings:
       base:
-        # Same bundle id as iOS: shares the App Store record (universal purchase) and — key —
-        # the com.boris.banana App ID that already has the iCloud containers associated, which
-        # unblocks both Mac provisioning and a synced TestFlight build. The historical
-        # com.boris.banana.mac id is retired; defaults migrate in BananaApp, and macOS asks
-        # for calendar access once more under the new identity.
-        PRODUCT_BUNDLE_IDENTIFIER: $(BANANA_BUNDLE_ID)
-        # Without this the product is named after the TARGET, so CFBundleName becomes
-        # "BananaMac" -- and CFBundleName is what the menu bar, System Settings > Privacy
-        # and the App Store installer use. TestFlight installed it as
-        # /Applications/BananaMac.app, and the Privacy entry to grant was called BananaMac
-        # while Finder called it Banana.
-        PRODUCT_NAME: Banana
-        # Release is provisioned with iCloud so restore/settings sync work phone↔Mac.
-        CODE_SIGN_ENTITLEMENTS: BananaMac/BananaMac.entitlements
-        ENABLE_PREVIEWS: YES
-        TARGETED_DEVICE_FAMILY: ""
-        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
-        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) MAC_APP"
+        CODE_SIGN_STYLE: Manual
+        CODE_SIGN_IDENTITY: $(BANANA_DEVELOPER_ID_IDENTITY)
+        PROVISIONING_PROFILE_SPECIFIER: $(BANANA_DEVELOPER_ID_PROFILE)
+
+  BananaMacInstallerTest:
+    templates: [DirectMacApplication]
+    info:
+      path: BananaMac/InfoInstallerTest.plist
+      properties:
+        CFBundleDisplayName: Banana Installer Test
+        CFBundleURLTypes:REPLACE: []
+        BananaCloudContainer: ""
+        BananaLegacyCloudContainer: ""
+        BananaServiceHost: ""
+        BananaGoogleServerClient: ""
+        GIDClientID: ""
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: org.banana.installer-test
+        PRODUCT_NAME: Banana Installer Test
+        CURRENT_PROJECT_VERSION: "1"
+        CODE_SIGN_STYLE: Manual
+        CODE_SIGN_IDENTITY: "-"
+        CODE_SIGN_ENTITLEMENTS: BananaMac/InstallerTest.entitlements
+        PROVISIONING_PROFILE_SPECIFIER: ""
       configs:
-        # Local Mac builds should not require a developer-portal provisioning profile.
-        # Release retains BananaMac.entitlements so App Store builds keep iCloud sync.
         Debug:
-          CODE_SIGN_ENTITLEMENTS: BananaMac/BananaMacDebug.entitlements
-    dependencies:
-      - package: FluidAudio
-      - package: GoogleSignIn
-      - package: GRDB
-      - package: SwiftSoup
+          CODE_SIGN_ENTITLEMENTS: BananaMac/InstallerTest.entitlements
 
   # The test variant that coexists with prod on one Mac. Its own bundle id and display
   # name make macOS treat it as a separate app; BANANA_BETA diverts all local storage
@@ -1327,3 +1297,115 @@ targets:
       - package: GoogleSignIn
       - package: GRDB
       - package: SwiftSoup
+
+targetTemplates:
+  MacApplication:
+    type: application
+    platform: macOS
+    sources:
+      - path: tools/calendar-library-benchmark/Shared/Fixtures.swift
+      - path: Banana
+        excludes:
+          - Assets.xcassets
+          - Info.plist
+          - Banana.entitlements
+      - path: Shared
+        excludes:
+          # The merge and protocol cases are the tests’ (BananaTests), not the app’s.
+          - SyncMergeFixtures.json
+          - SyncProtocolFixtures.json
+      - path: BananaMac/Assets.xcassets
+    info:
+      path: BananaMac/Info.plist
+      properties:
+        # Read by the code; filled from Config (see README).
+        BananaTeamID: $(DEVELOPMENT_TEAM)
+        BananaCloudContainer: $(BANANA_ICLOUD_CONTAINER)
+        BananaLegacyCloudContainer: $(BANANA_LEGACY_ICLOUD_CONTAINER)
+        # The Banana service (Service/) and the Google client it signs in with; empty in any
+        # build but the official app.
+        BananaServiceHost: $(BANANA_SERVICE_HOST)
+        BananaGoogleServerClient: $(BANANA_GOOGLE_SERVER_CLIENT)
+        CFBundleDisplayName: Banana
+        GIDClientID: $(BANANA_GOOGLE_CLIENT).apps.googleusercontent.com
+        CFBundleURLTypes:
+          - CFBundleTypeRole: Editor
+            CFBundleURLSchemes:
+              - com.googleusercontent.apps.$(BANANA_GOOGLE_CLIENT)
+              - banananote
+        # Same standard-crypto-only declaration as iOS; without it every Mac upload
+        # re-asks the export-compliance question (build 7 was patched via API).
+        ITSAppUsesNonExemptEncryption: false
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        LSMinimumSystemVersion: "26.0"
+        LSApplicationCategoryType: public.app-category.productivity
+        NSAppleMusicUsageDescription: "Banana plays a playlist, album, or song from your Apple Music library when a routine starts."
+        NSHealthShareUsageDescription: "Banana reads your workouts and health metrics from Apple Health so it can show and analyze your fitness in one place."
+        NSHealthUpdateUsageDescription: "Banana saves workouts to Apple Health and updates them when you trim a workout."
+        NSMicrophoneUsageDescription: "Banana records quick voice notes when you ask it to."
+        NSCameraUsageDescription: "Banana uses the camera only when you choose to photograph a meal or a supplement label, or scan a barcode."
+        NSContactsUsageDescription: "Banana looks up the people you type when adding guests to an event, so \u201CLunch with Sam\u201D can invite the Sam you mean."
+        NSPhotoLibraryUsageDescription: "Banana looks for photos of meals — only when you turn on Find meal photos automatically — so it can ask what you ate and log it."
+        # Apple's cloud model needs com.apple.developer.private-cloud-compute; true only once granted
+        # and added to the entitlements (CloudModelGuard).
+        BananaPrivateCloudCompute: false
+        NSRemindersFullAccessUsageDescription: "Banana reads your reminders on-device so it can schedule tasks onto your day."
+        NSLocationWhenInUseUsageDescription: "Banana uses your location for your local forecast."
+        NSSpeechRecognitionUsageDescription: "Banana transcribes downloaded episodes on your device."
+        NSLocalNetworkUsageDescription: "Banana finds your other Banana devices on this Wi-Fi so one downloaded podcast file can be reused without downloading it again."
+        NSBonjourServices:
+          - _banana-audio._tcp
+        NSAppTransportSecurity:
+          NSAllowsArbitraryLoads: true
+    settings:
+      base:
+        # Same bundle id as iOS: shares the App Store record (universal purchase) and — key —
+        # the com.boris.banana App ID that already has the iCloud containers associated, which
+        # unblocks both Mac provisioning and a synced TestFlight build. The historical
+        # com.boris.banana.mac id is retired; defaults migrate in BananaApp, and macOS asks
+        # for calendar access once more under the new identity.
+        PRODUCT_BUNDLE_IDENTIFIER: $(BANANA_BUNDLE_ID)
+        # Without this the product is named after the TARGET, so CFBundleName becomes
+        # "BananaMac" -- and CFBundleName is what the menu bar, System Settings > Privacy
+        # and the App Store installer use. TestFlight installed it as
+        # /Applications/BananaMac.app, and the Privacy entry to grant was called BananaMac
+        # while Finder called it Banana.
+        PRODUCT_NAME: Banana
+        # Release is provisioned with iCloud so restore/settings sync work phone↔Mac.
+        CODE_SIGN_ENTITLEMENTS: BananaMac/BananaMac.entitlements
+        ENABLE_PREVIEWS: YES
+        TARGETED_DEVICE_FAMILY: ""
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) MAC_APP"
+      configs:
+        # Local Mac builds should not require a developer-portal provisioning profile.
+        # Release retains BananaMac.entitlements so App Store builds keep iCloud sync.
+        Debug:
+          CODE_SIGN_ENTITLEMENTS: BananaMac/BananaMacDebug.entitlements
+    dependencies:
+      - package: FluidAudio
+      - package: GoogleSignIn
+      - package: GRDB
+      - package: SwiftSoup
+  DirectMacApplication:
+    templates: [MacApplication]
+    info:
+      path: BananaMac/InfoDirect.plist
+      properties:
+        SUFeedURL: $(BANANA_UPDATE_FEED_URL)
+        SUPublicEDKey: $(BANANA_UPDATE_PUBLIC_KEY)
+        SUEnableInstallerLauncherService: true
+        SUEnableAutomaticChecks: true
+        SUAutomaticallyUpdate: true
+        SUScheduledCheckInterval: 21600
+    settings:
+      base:
+        ENABLE_HARDENED_RUNTIME: YES
+        CODE_SIGN_ENTITLEMENTS: BananaMac/BananaMacDirect.entitlements
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) MAC_APP BANANA_DIRECT"
+      configs:
+        Debug:
+          CODE_SIGN_ENTITLEMENTS: BananaMac/BananaMacDirect.entitlements
+    dependencies:
+      - package: Sparkle

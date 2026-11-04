@@ -3,6 +3,18 @@ import SwiftUI
 // The controls around a page: one of each, used by every page (`PageChromeRules.swift`).
 // A page never draws its own variant of one of these.
 
+extension View {
+    /// Tabs and the sidebar already name root pages. Keep titles for presented screens and
+    /// native Mac windows; iPhone/iPad root toolbars reserve the centre for page controls.
+    func pageNavigationTitle(_ title: String, presented: Bool = false) -> some View {
+        #if os(iOS)
+        navigationTitle(presented ? title : "")
+        #else
+        navigationTitle(title)
+        #endif
+    }
+}
+
 // MARK: - The switch in the top bar
 
 /// A page's views, in the top bar where its title would be. Plan: Day · Week. Nutrition: Food ·
@@ -348,7 +360,7 @@ private struct BodySwitchToolbar: ViewModifier {
         #if os(iOS)
         content.toolbar {
             // One page left (Workouts alone) has nothing to switch to: no principal item, so the
-            // page's own navigation title shows instead.
+            // centre stays clear; the selected tab already names the page.
             if inTabBar, BodyPage.choices(wide: wide, with: modules.choice).count > 1 {
                 ToolbarItem(placement: .principal) { BodySwitch(wide: wide) }
             }

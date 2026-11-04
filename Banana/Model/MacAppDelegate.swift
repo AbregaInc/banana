@@ -6,6 +6,9 @@ import AppKit
 /// Mac's App ID registration fails quietly, and the calendar poll carries on as before.
 final class MacAppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
+        #if BANANA_DIRECT
+        MainActor.assumeIsolated { DirectMacUpdater.shared.start() }
+        #endif
         guard BananaService.isAvailable else { return }
         NSApplication.shared.registerForRemoteNotifications()
         // At launch too, not only when the Mac is switched to: a Mac opened in the background, or

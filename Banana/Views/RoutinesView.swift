@@ -51,7 +51,7 @@ struct RoutinesView: View {
             .modifier(RoutinesAdd(inSheet: showsDoneButton) { pickingTemplate = true })
             // A column in the middle of an iPad or a wide window, not rows stretched across it.
             .readableColumn()
-            .navigationTitle("Routines")
+            .pageNavigationTitle("Routines", presented: showsDoneButton)
             .toolbar {
                 if showsDoneButton {
                     ToolbarItem(placement: .confirmationAction) {
