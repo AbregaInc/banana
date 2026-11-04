@@ -1,5 +1,7 @@
 # Banana accounts and the Banana service
 
+Current cross-platform consolidation and rollout plan: [Banana Cloud, feature access and release channels](CLOUD-AND-RELEASE-PLAN.md) (4 November 2026). Implementation status and acceptance criteria are tracked there.
+
 Decided 15 Oct 2026. Banana gets an account and a small service of its own. Slice 1 uses it for
 three things: calendar changes reach every device within seconds, usage is counted per account,
 and the account can be deleted from Settings. Mail stays on the device for now and moves onto the

@@ -1,5 +1,7 @@
 # Dev cycle — how to change this app without breaking the one the owner uses
 
+Current cross-platform consolidation and rollout plan: [Banana Cloud, feature access and release channels](design/CLOUD-AND-RELEASE-PLAN.md) (4 November 2026). Implementation status and acceptance criteria are tracked there.
+
 Written after a session that cost a day: a debug build was uninstalled from the production
 iPhone to clear a stale Shortcuts registration. That single command deleted the app's data
 container, revoked **every** permission grant, and removed the paired Watch app. Reinstalling

@@ -1,5 +1,7 @@
 # Local assistant and email builds
 
+Current cross-platform consolidation and rollout plan: [Banana Cloud, feature access and release channels](CLOUD-AND-RELEASE-PLAN.md) (4 November 2026). Implementation status and acceptance criteria are tracked there.
+
 Main can contain experimental code without putting it into TestFlight. The build switches are
 compile-time settings, not preferences or remote flags:
 

@@ -1,5 +1,7 @@
 # One data platform: every kind of Banana data in the person's own account
 
+Current cross-platform consolidation and rollout plan: [Banana Cloud, feature access and release channels](CLOUD-AND-RELEASE-PLAN.md) (4 November 2026). Implementation status and acceptance criteria are tracked there.
+
 Decided 19 Oct 2026, replacing the PowerSync + Postgres draft of 18 Oct. This builds on ACCOUNTS.md
 (the account, sessions, Google links, the service). DATA-INVENTORY.md lists what moves. A Fable
 review of the first version of this plan (19 Oct) found 16 defects. All are fixed below; §13 lists
