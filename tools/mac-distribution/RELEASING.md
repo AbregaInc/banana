@@ -72,3 +72,20 @@ when reverting to earlier source. Do not move a tag, replace signed asset bytes,
 expect Sparkle to downgrade an already updated installation.
 
 References: [Sparkle publishing and build numbering](https://sparkle-project.org/documentation/publishing/).
+
+## Installer appearance
+
+Production packaging uses `dmgbuild==1.6.7` (MIT; build-time dependency) to write
+Finder metadata without controlling Finder. `dmg-settings.py` positions the real
+app and Applications link over the branded background, hides toolbars, and badges
+this volume with the existing app icon. Test-rehearsal packages keep their plain layout.
+
+Edit `artwork/background.html`, then run
+`uv run tools/mac-distribution/render-background.py`. Commit both generated PNGs:
+`dmgbuild` combines the standard and `@2x` images into a Retina TIFF. Typography
+and colors come from the landing page; the app icon is never repainted into the
+background. Native Finder continues to supply the interactive icons and labels.
+
+A packaging-only design change still produces different signed DMG bytes. Never
+replace the current public asset in place: include the design in the next numbered
+release, notarize the new DMG, and promote its new signature and checksum together.

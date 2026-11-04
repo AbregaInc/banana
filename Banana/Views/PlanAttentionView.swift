@@ -147,6 +147,11 @@ private struct PlanAttentionList: View {
             .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } } }
             .sheet(item: $reviewing) { request in MealDayReviewView(day: request.day).environmentObject(wellness) }
         }
+        #if os(macOS)
+        // List has no useful intrinsic height. Give the desktop sheet a usable
+        // initial size while retaining room for resizing and scrolling.
+        .frame(minWidth: 520, idealWidth: 580, minHeight: 480, idealHeight: 600)
+        #endif
     }
 
     private func attentionRow(_ title: String, detail: String, icon: String, complete: @escaping () -> Void) -> some View {

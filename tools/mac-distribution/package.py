@@ -163,8 +163,16 @@ def main():
             ('LOCAL TEST ONLY. Separate app and data from Banana.\n'
              'Install this build, then use Banana Installer Test > Check for Updates for the next build.\n'
              if args.test else 'Updates are available from Banana > Check for Updates.\n'))
-        run('hdiutil', 'create', '-volname', 'Banana Installer Test' if args.test else 'Banana',
-            '-srcfolder', stage, '-format', 'UDZO', dmg)
+        if args.test:
+            run('hdiutil', 'create', '-volname', 'Banana Installer Test',
+                '-srcfolder', stage, '-format', 'UDZO', dmg)
+        else:
+            # Writes Finder metadata directly; no AppleScript or desktop interaction.
+            run('uv', 'tool', 'run', '--from', 'dmgbuild==1.6.7', 'dmgbuild',
+                '-s', ROOT / 'tools/mac-distribution/dmg-settings.py',
+                '-D', 'app=' + str(app),
+                '-D', 'background=' + str(ROOT / 'tools/mac-distribution/artwork/background.png'),
+                'Banana', dmg)
     if notarize:
         run('codesign', '--sign', args.identity, '--timestamp', dmg)
         run('xcrun', 'notarytool', 'submit', dmg, *notary_auth, '--wait')
