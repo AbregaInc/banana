@@ -31,6 +31,16 @@ final class FeatureAccessPolicyTests: XCTestCase {
         gate.update(nil, context: "beta-session")
         XCTAssertFalse(gate.allows("email", now: now))
     }
+    func testAnOlderRefreshCannotReplaceANewerRevocation() {
+        var revoked = cache()
+        revoked.policy.issuedAt = 100
+        revoked.policy.enabled = []
+        XCTAssertFalse(revoked.accepts(account: revoked.account, policy: cache().policy))
+        var fresh = cache().policy
+        fresh.issuedAt = 101
+        XCTAssertTrue(revoked.accepts(account: revoked.account, policy: fresh))
+    }
+
     func testOldAccountResponsesDecodeWithoutInventingAccess() throws {
         let old = Data(#"{"id":"account-1","google":[{"email":"noor@plan.example","status":"ok","watching":0,"access":true}],"devices":1}"#.utf8)
         let account = try JSONDecoder().decode(BananaService.Account.self, from: old)

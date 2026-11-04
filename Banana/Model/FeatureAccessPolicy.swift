@@ -21,6 +21,11 @@ struct FeatureAccessCache: Codable, Equatable {
     var policy: FeatureAccessPolicy
     var receivedAt: Date
 
+    func accepts(account nextAccount: String, policy nextPolicy: FeatureAccessPolicy) -> Bool {
+        // Concurrent foreground/background refreshes may finish in reverse order.
+        account != nextAccount || !policy.issuedAt.isFinite || nextPolicy.issuedAt >= policy.issuedAt
+    }
+
     func allows(_ feature: String, context expected: String?, now: Date) -> Bool {
         guard let expected, context == expected, !account.isEmpty,
               ["email", "calendarCloud"].contains(feature) else { return false }

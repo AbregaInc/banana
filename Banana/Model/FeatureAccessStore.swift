@@ -25,6 +25,7 @@ final class FeatureAccessStore: ObservableObject {
 
     func receive(account: String, policy: FeatureAccessPolicy?) {
         if let context, let policy {
+            guard cached?.accepts(account: account, policy: policy) != false else { return }
             cached = FeatureAccessCache(context: context, account: account, policy: policy, receivedAt: Date())
             if let data = try? JSONEncoder().encode(cached) { UserDefaults.standard.set(data, forKey: key) }
         } else { cached = nil; UserDefaults.standard.removeObject(forKey: key) }

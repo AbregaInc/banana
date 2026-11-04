@@ -63,6 +63,17 @@ cloud Mail, isolated Dev infrastructure,
 signed distribution and end-to-end acceptance remain unfinished. The audit table above is the
 starting snapshot, not a claim about these new source changes.
 
+The renewed Google CLI login confirms both configured projects are active. Calendar API is
+enabled in both; Gmail API is enabled only in Beta. OAuth clients, redirects, audience and
+verification status still need console inspection. The Beta App Store Connect record is
+awaiting Apple browser authentication; the API cannot create that record.
+
+The component regression run was retained as a failure: RSS limits were exceeded in five
+scenarios, and four scenarios had incomplete host monitoring (process enumeration timeouts;
+one monitor also failed to stop promptly). No baseline or budget was changed. Native UI,
+physical-device performance and signed coexistence acceptance remain outstanding. Passing
+unit tests or an unsigned optimized compile does not clear these release gates.
+
 ## Target channel matrix
 
 | App | Intended use | Service/data environment | Distribution |
