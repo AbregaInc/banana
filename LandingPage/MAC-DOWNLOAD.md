@@ -1,6 +1,6 @@
 # Direct Mac downloads
 
-Status: Mac 1.0.1 (87), tag `mac-v1.0.1-87`, is published on GitHub Releases.
+Status: Mac 1.0.2 (88), tag `mac-v1.0.2-88`, is published on GitHub Releases.
 The production website offers `/download/mac` and the matching signed update feed.
 The hosted DMG checksum, live feed and homepage have been verified. Production
 signing, notarization, Gatekeeper, release guards and tooling tests passed. Live
