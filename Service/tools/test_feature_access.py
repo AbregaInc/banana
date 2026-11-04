@@ -1,0 +1,29 @@
+import importlib.util
+import pathlib
+import sqlite3
+import unittest
+
+spec = importlib.util.spec_from_file_location('feature_access', pathlib.Path(__file__).with_name('feature-access.py'))
+module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(module)
+
+
+class FeatureAccessAdminTests(unittest.TestCase):
+    def test_existing_identity_required_and_revoke_is_retained(self):
+        db = sqlite3.connect(':memory:')
+        db.execute('CREATE TABLE accounts (id TEXT PRIMARY KEY)')
+        db.executescript((module.SERVICE / 'migrations/0014_feature_access.sql').read_text())
+        db.executescript(module.statement('absent', 'email', True, None, 100))
+        self.assertEqual(db.execute('SELECT count(*) FROM feature_access').fetchone()[0], 0)
+        db.execute("INSERT INTO accounts VALUES ('test-account')")
+        db.executescript(module.statement('test-account', 'email', True, 200, 100))
+        self.assertEqual(db.execute('SELECT enabled, expires_at FROM feature_access').fetchone(), (1, 200))
+        db.executescript(module.statement('test-account', 'email', False, None, 110))
+        self.assertEqual(db.execute('SELECT enabled, expires_at, updated_at FROM feature_access').fetchone(), (0, None, 110))
+
+    def test_invalid_input_rejected(self):
+        for args in [("a';DELETE FROM accounts;--", 'email', True, None, 100),
+                     ('account', 'anything', True, None, 100),
+                     ('account', 'email', True, 99, 100)]:
+            with self.subTest(args=args), self.assertRaises(ValueError):
+                module.statement(*args)

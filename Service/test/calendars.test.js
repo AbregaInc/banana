@@ -226,7 +226,7 @@ test("a device signs in by its Google identity token, with nothing for the perso
   const r = await identity(s, "t-ann", device("phone-0001", { push: pushToken(1) }));
   assert.equal(r.status, 200);
   assert.ok(r.json.session);
-  assert.deepEqual(r.json.account.google, [{ email: "ann@example.com", status: "ok", watching: 0, access: false }], "no Google access of the service's own yet");
+  assert.deepEqual(r.json.account.google, [{ email: "ann@example.com", status: "ok", watching: 0, access: false, capabilities: { calendarRead: false, calendarWrite: false, calendarList: false, mailRead: false, mailModify: false, mailSend: false } }], "no Google access of the service's own yet");
   // Her second Google account links to the same account from the signed-in device.
   const second = await identity(s, "t-work", device("phone-0001"), r.json.session);
   assert.deepEqual(second.json.account.google.map((g) => g.email), ["ann@example.com", "ann@work.example"]);

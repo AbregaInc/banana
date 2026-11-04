@@ -22,7 +22,7 @@ test("sign-in makes an account and a session", async () => {
   const r = await s.signIn("c1", device("phone-0001", { push: pushToken(1) }));
   assert.equal(r.status, 200);
   assert.match(r.json.session, /^[A-Za-z0-9_-]{43}$/);
-  assert.deepEqual(r.json.account, { id: r.json.account.id, google: [{ email: "ann@example.com", status: "ok", watching: 0, access: true }], devices: 1, seeded: [], flipped: false, icloud: "keep" });
+  assert.deepEqual(r.json.account, { id: r.json.account.id, google: [{ email: "ann@example.com", status: "ok", watching: 0, access: true, capabilities: { calendarRead: true, calendarWrite: true, calendarList: true, mailRead: false, mailModify: false, mailSend: false } }], devices: 1, featureAccess: { version: 1, issuedAt: s.deps.now(), expiresAt: s.deps.now() + 15 * 60 * 1000, enabled: [] }, seeded: [], flipped: false, icloud: "keep" });
   // Only the session's hash is kept.
   const row = await s.db.first("SELECT * FROM sessions");
   assert.equal(row.token_hash, await sha256Hex(r.json.session));
@@ -141,7 +141,7 @@ test("a session's last use is written at most once a day", async () => {
   assert.equal((await s.db.first("SELECT last_used_at FROM sessions")).last_used_at, first);
   s.advance(DAY);
   await s.call("GET", "/v1/account", { session });
-  assert.equal((await s.db.first("SELECT last_used_at FROM sessions")).last_used_at, s.now());
+  assert.equal((await s.db.first("SELECT last_used_at FROM sessions")).last_used_at, s.deps.now());
 });
 
 test("unlinking one Google account stops its watches, revokes its token, keeps the rest", async () => {

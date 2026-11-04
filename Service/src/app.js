@@ -1,3 +1,4 @@
+import { featurePolicy, googleCapabilities } from "./feature-access.js";
 // The Banana service's HTTP API (docs/design/ACCOUNTS.md). No platform code: everything outside
 // comes in through `deps`, so the same app runs on Workers (src/worker.js) and Node (src/node.js).
 //
@@ -197,7 +198,7 @@ export function createApp(deps) {
 
   async function summary(account) {
     const links = await db.all(
-      `SELECT g.email, g.status, g.refresh_token IS NOT NULL AS has_token,
+      `SELECT g.email, g.status, g.scopes, g.refresh_token IS NOT NULL AS has_token,
               (SELECT COUNT(*) FROM watches w WHERE w.google_sub = g.sub AND w.status = 'live' AND w.expires_at > ?) AS watching
        FROM google_links g WHERE g.account_id = ? AND g.status <> 'unlinked' ORDER BY g.created_at, g.email`, now(), account);
     const devices = await db.first("SELECT COUNT(*) AS n FROM devices WHERE account_id = ?", account);
@@ -206,8 +207,9 @@ export function createApp(deps) {
       // access: the service holds working Google access of its own for this link (a sealed
       // refresh token from a code sign-in, not refused). Without it the app asks the person to
       // sign in again, so the service can read events and send alerts itself.
-      google: links.map((l) => ({ email: l.email, status: l.status, watching: Number(l.watching), access: Boolean(l.has_token) && l.status === "ok" })),
+      google: links.map((l) => ({ email: l.email, status: l.status, watching: Number(l.watching), access: Boolean(l.has_token) && l.status === "ok", capabilities: googleCapabilities(l) })),
       devices: Number(devices?.n ?? 0),
+      featureAccess: await featurePolicy(deps, account),
       ...(await syncSummary(deps, account)),
     };
   }
