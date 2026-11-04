@@ -5,8 +5,6 @@ cd "$(dirname "$0")/../.."
 . tools/config.sh require
 mode=${1:-test}
 [[ "$mode" == test || "$mode" == release ]] || { echo 'Usage: build.sh test|release'; exit 2; }
-: "${BANANA_UPDATE_FEED_URL:?Set the HTTPS feed URL (Tailscale HTTP permitted for test only)}"
-: "${BANANA_UPDATE_PUBLIC_KEY:?Set the Sparkle public Ed25519 key}"
 mkdir -p private/mac-distribution .build/mac-distribution
 if [[ "$mode" == release ]]; then
   : "${BANANA_RELEASE_PLAN:?Prepare a release-plan.py JSON file from a clean commit}"
@@ -15,6 +13,20 @@ if [[ "$mode" == release ]]; then
 fi
 xcodegen generate
 scheme=BananaMacDirect
+app_name=Banana.app
+channel=stable
+if [[ "$mode" == release ]]; then
+  channel=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1])).get("channel", "stable"))' "$BANANA_RELEASE_PLAN")
+  if [[ "$channel" == beta ]]; then
+    scheme=BananaMacBetaDirect
+    app_name='Banana Beta.app'
+    BANANA_UPDATE_FEED_URL='https://bananatheapp.com/updates/mac-beta/appcast.xml'
+    BANANA_UPDATE_PUBLIC_KEY="${BANANA_UPDATE_PUBLIC_KEY_BETA:?Set the Beta Sparkle public key}"
+    BANANA_DEVELOPER_ID_PROFILE="${BANANA_DEVELOPER_ID_PROFILE_BETA:?Set the Beta Developer ID profile}"
+  fi
+fi
+: "${BANANA_UPDATE_FEED_URL:?Set the HTTPS feed URL (Tailscale HTTP permitted for test only)}"
+: "${BANANA_UPDATE_PUBLIC_KEY:?Set the Sparkle public Ed25519 key}"
 [[ "$mode" != test ]] || scheme=BananaMacInstallerTest
 args=(-project Banana.xcodeproj -scheme "$scheme" -configuration Release
   -destination 'generic/platform=macOS' -derivedDataPath .build/mac-distribution
@@ -33,6 +45,7 @@ else
   : "${BANANA_DEVELOPER_ID_IDENTITY:?Set Developer ID Application signing identity}"
   args+=("BANANA_DEVELOPER_ID_IDENTITY=$BANANA_DEVELOPER_ID_IDENTITY"
     "BANANA_DEVELOPER_ID_PROFILE=$BANANA_DEVELOPER_ID_PROFILE"
+    "BANANA_DEVELOPER_ID_PROFILE_BETA=$BANANA_DEVELOPER_ID_PROFILE"
     "BANANA_SOURCE_COMMIT=$source_commit"
     "MARKETING_VERSION=$release_version" "CURRENT_PROJECT_VERSION=$release_build")
   python3 tools/mac-distribution/release-plan.py --check "$BANANA_RELEASE_PLAN" >/dev/null
@@ -53,5 +66,5 @@ PY
     -exportOptionsPlist private/mac-distribution/ExportOptions.plist \
     > private/mac-distribution/export.log 2>&1
   python3 tools/mac-distribution/release-plan.py --check "$BANANA_RELEASE_PLAN" >/dev/null
-  echo 'private/mac-distribution/export/Banana.app'
+  echo "private/mac-distribution/export/$app_name"
 fi

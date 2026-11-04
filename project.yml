@@ -47,6 +47,14 @@ schemes:
         BananaMacInstallerTest: all
     run:
       config: Release
+  BananaMacBetaDirect:
+    build:
+      targets:
+        BananaMacBetaDirect: all
+    run:
+      config: Release
+    archive:
+      config: Release
   BananaMacDirect:
     build:
       targets:
@@ -422,6 +430,7 @@ targets:
     info:
       path: Banana/InfoBeta.plist
       properties:
+        BananaSourceCommit: $(BANANA_SOURCE_COMMIT)
         # Read by the code; filled from Config (see README).
         BananaTeamID: $(DEVELOPMENT_TEAM)
         BananaCloudContainer: $(BANANA_ICLOUD_CONTAINER_BETA)
@@ -1320,6 +1329,45 @@ targets:
         CODE_SIGN_IDENTITY: $(BANANA_DEVELOPER_ID_IDENTITY)
         PROVISIONING_PROFILE_SPECIFIER: $(BANANA_DEVELOPER_ID_PROFILE)
 
+  BananaMacBetaDirect:
+    templates: [DirectMacApplication]
+    info:
+      path: BananaMac/InfoBetaDirect.plist
+      properties:
+        CFBundleDisplayName: Banana Beta
+        BananaSourceCommit: $(BANANA_SOURCE_COMMIT)
+        BananaCloudContainer: $(BANANA_ICLOUD_CONTAINER_BETA)
+        BananaLegacyCloudContainer: ""
+        BananaServiceHost: $(BANANA_SERVICE_HOST_BETA)
+        BananaGoogleServerClient: $(BANANA_GOOGLE_SERVER_CLIENT_BETA)
+        GIDClientID: $(BANANA_GOOGLE_CLIENT_BETA).apps.googleusercontent.com
+        CFBundleURLTypes:REPLACE:
+          - CFBundleTypeRole: Editor
+            CFBundleURLSchemes:
+              - com.googleusercontent.apps.$(BANANA_GOOGLE_CLIENT_BETA)
+              - bananabeta
+        NSBonjourServices:REPLACE: [_banana-beta._tcp]
+    sources:
+      - path: BananaMac/Beta/container-migration.plist
+        buildPhase: resources
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: $(BANANA_BUNDLE_ID).beta
+        PRODUCT_NAME: Banana Beta
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIconBeta
+        BANANA_RELEASE_CHANNEL: beta
+        BANANA_UNRELEASED: NO
+        BANANA_LOCAL_EMAIL: YES
+        BANANA_LOCAL_AI: NO
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) MAC_APP BANANA_BETA BANANA_DIRECT"
+        CODE_SIGN_STYLE: Manual
+        CODE_SIGN_IDENTITY: $(BANANA_DEVELOPER_ID_IDENTITY)
+        PROVISIONING_PROFILE_SPECIFIER: $(BANANA_DEVELOPER_ID_PROFILE_BETA)
+        CODE_SIGN_ENTITLEMENTS: BananaMac/BananaMacBetaDirect.entitlements
+      configs:
+        Debug:
+          CODE_SIGN_ENTITLEMENTS: BananaMac/BananaMacBetaDirect.entitlements
+
   BananaMacInstallerTest:
     templates: [DirectMacApplication]
     info:
@@ -1372,6 +1420,7 @@ targets:
     info:
       path: BananaMac/InfoBeta.plist
       properties:
+        BananaSourceCommit: $(BANANA_SOURCE_COMMIT)
         # Read by the code; filled from Config (see README).
         BananaTeamID: $(DEVELOPMENT_TEAM)
         BananaCloudContainer: $(BANANA_ICLOUD_CONTAINER_BETA)

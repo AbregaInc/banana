@@ -5,6 +5,7 @@ Release mode requires Developer ID, hardened runtime, notarization and Gatekeepe
 Test mode only accepts the isolated installer-test app. --notarize-test signs and
 notarizes it with Developer ID; plain --test is only an ad-hoc development artifact.
 """
+from channels import channel_config, validate_identity
 import argparse
 import base64
 import hashlib
@@ -55,6 +56,7 @@ def write_feed(path, *, url, version, short_version, signature, length, notes):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('app', type=Path)
+    parser.add_argument('--channel', choices=['stable', 'beta'], default='stable')
     parser.add_argument('--out', type=Path, required=True)
     parser.add_argument('--base-url', required=True)
     parser.add_argument('--sparkle-bin', type=Path, required=True)
@@ -84,7 +86,8 @@ def main():
     else:
         if not re.fullmatch(r'[0-9a-f]{40}', info.get('BananaSourceCommit', '')):
             parser.error('Production app must carry its clean source commit; build using a release plan')
-        expected_base = f"https://github.com/AbregaInc/banana/releases/download/mac-v{info['CFBundleShortVersionString']}-{info['CFBundleVersion']}"
+        config = validate_identity(info, args.channel)
+        expected_base = f"https://github.com/AbregaInc/banana/releases/download/{config['tag']}{info['CFBundleShortVersionString']}-{info['CFBundleVersion']}"
         if args.base_url.rstrip('/') != expected_base:
             parser.error('Download URL must match the app version and build number')
         if args.test_version or info['CFBundleIdentifier'] == 'org.banana.installer-test':
@@ -191,7 +194,7 @@ def main():
     (out / 'release.json').write_text(json.dumps({
         'version': version, 'shortVersion': short, 'url': url, 'sha256': digest,
         'bytes': dmg.stat().st_size, 'testOnly': args.test, 'notarized': notarize,
-        'bundleIdentifier': info['CFBundleIdentifier'],
+        'bundleIdentifier': info['CFBundleIdentifier'], 'channel': args.channel,
         'sourceCommit': info.get('BananaSourceCommit'),
     }, indent=2) + '\n')
     print(dmg)

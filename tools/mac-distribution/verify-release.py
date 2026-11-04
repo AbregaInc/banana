@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Verify direct-release identity, capability coverage, and update configuration."""
+from channels import validate_identity
 import argparse
 import fnmatch
 import plistlib
@@ -41,7 +42,10 @@ def validate(info, entitlements, profile):
             assert fnmatch.fnmatchcase(value, grant), key
         else:
             assert value == grant, key
-    assert info.get('SUFeedURL') == 'https://bananatheapp.com/updates/mac/appcast.xml'
+    try:
+        validate_identity(info, info.get('BananaReleaseChannel', 'stable'))
+    except ValueError as error:
+        raise AssertionError(str(error)) from error
     assert info.get('SUPublicEDKey'), 'Missing update public key'
     assert info.get('SUEnableAutomaticChecks') and info.get('SUAutomaticallyUpdate')
     assert 'com.apple.security.cs.disable-library-validation' not in entitlements

@@ -3,6 +3,7 @@
 
 Writes to a review directory only. It does not publish GitHub assets or deploy the site.
 """
+from channels import channel_config
 import argparse
 import hashlib
 import json
@@ -20,6 +21,10 @@ a = p.parse_args()
 release = json.loads((a.release / 'release.json').read_text())
 if release['testOnly'] or not release.get('notarized'):
     p.error('A test installer cannot be staged for the public website')
+channel = release.get('channel', 'stable')
+config = channel_config(channel)
+if release.get('bundleIdentifier', '').endswith('.beta') != (channel == 'beta'):
+    p.error('Release channel and bundle identity differ')
 url = urllib.parse.urlparse(release['url'])
 if url.scheme != 'https' or url.hostname != 'github.com' or '/releases/download/' not in url.path:
     p.error('Expected an explicit HTTPS GitHub Releases asset URL')
@@ -39,19 +44,20 @@ if digest.hexdigest() != release['sha256'] or length != release['bytes']:
 if a.out.exists():
     p.error('Choose a new review directory; existing work is preserved')
 shutil.copytree(a.site, a.out)
-updates = a.out / 'updates/mac'
+updates = a.out / config['updates']
 updates.mkdir(parents=True, exist_ok=True)
 shutil.copyfile(a.release / 'appcast.xml', updates / 'appcast.xml')
 public_metadata = {key: value for key, value in release.items() if key != 'bundleIdentifier'}
 (updates / 'release.json').write_text(json.dumps(public_metadata, indent=2) + '\n')
 redirects = a.out / '_redirects'
 lines = redirects.read_text().splitlines() if redirects.exists() else []
-lines = [line for line in lines if not line.split() or line.split()[0] != '/download/mac']
-lines.append('/download/mac ' + release['url'] + ' 302')
+lines = [line for line in lines if not line.split() or line.split()[0] != config['download']]
+lines.append(config['download'] + ' ' + release['url'] + ' 302')
 redirects.write_text('\n'.join(lines) + '\n')
 headers = a.out / '_headers'
 text = headers.read_text() if headers.exists() else ''
-if '/updates/mac/appcast.xml' not in text:
-    text += '\n/updates/mac/appcast.xml\n  Cache-Control: no-cache\n/download/mac\n  Cache-Control: no-cache\n'
+feed_path = '/' + config['updates'] + '/appcast.xml'
+if feed_path not in text:
+    text += f'\n{feed_path}\n  Cache-Control: no-cache\n{config["download"]}\n  Cache-Control: no-cache\n'
 headers.write_text(text)
 print(f'Staged download redirect and update feed in {a.out}. Review before deployment.')

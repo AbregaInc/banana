@@ -89,3 +89,33 @@ background. Native Finder continues to supply the interactive icons and labels.
 A packaging-only design change still produces different signed DMG bytes. Never
 replace the current public asset in place: include the design in the next numbered
 release, notarize the new DMG, and promote its new signature and checksum together.
+
+
+## Separate Mac Beta channel
+
+The Beta direct target is `BananaMacBetaDirect`. It uses the Beta bundle, cloud settings,
+credentials, icon, write restrictions and data root. Its native sandbox migration moves only
+`Application Support/Banana Beta` and its own preferences. It must never use Stable's migration
+manifest. Signed migration/coexistence still requires a real install-over test before release.
+
+Prepare an explicit Beta plan from a clean checkout:
+
+```sh
+python3 tools/mac-distribution/release-plan.py --channel beta --version 1.0.3 \
+  --minimum-build 90 --out private/mac-distribution/beta-plan.json
+```
+
+`--minimum-build` is the highest already installed/uploaded build to exceed, including local
+builds not represented by release tags. Refresh that inventory before using the example number.
+Beta tags use `mac-beta-v…`; Stable retains `mac-v…`. Existing Stable plans remain valid.
+
+Set `BANANA_RELEASE_PLAN` to that plan, plus `BANANA_DEVELOPER_ID_PROFILE_BETA` and a dedicated
+`BANANA_UPDATE_PUBLIC_KEY_BETA`, then run the existing `build.sh release`. The Beta feed is
+`https://bananatheapp.com/updates/mac-beta/appcast.xml`. Package with `package.py --channel beta`
+and the corresponding Beta signing-key account/file, and pass the plan's base URL. Signing,
+notarization, artifact checks and source provenance remain mandatory.
+
+`stage-site.py` reads the verified release manifest's channel. Beta modifies only
+`/download/mac-beta` and `/updates/mac-beta/`; it preserves Stable's download and feed.
+Staging does not publish, deploy, install or promote an artifact. The current website has no
+Beta download button until a verified Beta release is explicitly staged and deployed.
