@@ -29,7 +29,7 @@ def run(*args, **kwargs):
     return subprocess.run([str(a) for a in args], check=True, **kwargs)
 
 
-def write_feed(path, *, url, version, short_version, signature, length, notes):
+def write_feed(path, *, url, version, short_version, signature, length, notes, app_name="Banana"):
     if not re.fullmatch(r'[0-9]+(?:\.[0-9]+)*', version):
         raise ValueError('Build version must be numeric')
     if len(base64.b64decode(signature, validate=True)) != 64:
@@ -38,9 +38,9 @@ def write_feed(path, *, url, version, short_version, signature, length, notes):
         raise ValueError('Expected an HTTP(S) download URL')
     rss = ET.Element('rss', version='2.0')
     channel = ET.SubElement(rss, 'channel')
-    ET.SubElement(channel, 'title').text = 'Banana updates'
+    ET.SubElement(channel, 'title').text = app_name + ' updates'
     item = ET.SubElement(channel, 'item')
-    ET.SubElement(item, 'title').text = f'Banana {short_version} ({version})'
+    ET.SubElement(item, 'title').text = f'{app_name} {short_version} ({version})'
     ET.SubElement(item, 'description').text = notes
     ET.SubElement(item, f'{{{SPARKLE}}}minimumSystemVersion').text = '26.0'
     ET.SubElement(item, 'enclosure', {
@@ -120,7 +120,7 @@ def main():
     short = info['CFBundleShortVersionString']
     out = args.out.resolve()
     out.mkdir(parents=True, exist_ok=True)
-    dmg = out / ('Banana-Installer-Test-' + version + '.dmg' if args.test else 'Banana.dmg')
+    dmg = out / ('Banana-Installer-Test-' + version + '.dmg' if args.test else 'Banana-Beta.dmg' if args.channel == 'beta' else 'Banana.dmg')
     if dmg.exists():
         parser.error('Refusing to overwrite an existing versioned installer')
     with tempfile.TemporaryDirectory(prefix='banana-dmg-') as tmp:
@@ -165,7 +165,7 @@ def main():
             'Drag the app to Applications, then open it.\n' +
             ('LOCAL TEST ONLY. Separate app and data from Banana.\n'
              'Install this build, then use Banana Installer Test > Check for Updates for the next build.\n'
-             if args.test else 'Updates are available from Banana > Check for Updates.\n'))
+             if args.test else f'Updates are available from {"Banana Beta" if args.channel == "beta" else "Banana"} > Check for Updates.\n'))
         if args.test:
             run('hdiutil', 'create', '-volname', 'Banana Installer Test',
                 '-srcfolder', stage, '-format', 'UDZO', dmg)
@@ -175,7 +175,7 @@ def main():
                 '-s', ROOT / 'tools/mac-distribution/dmg-settings.py',
                 '-D', 'app=' + str(app),
                 '-D', 'background=' + str(ROOT / 'tools/mac-distribution/artwork/background.png'),
-                'Banana', dmg)
+                'Banana Beta' if args.channel == 'beta' else 'Banana', dmg)
     if notarize:
         run('codesign', '--sign', args.identity, '--timestamp', dmg)
         run('xcrun', 'notarytool', 'submit', dmg, *notary_auth, '--wait')
@@ -188,7 +188,8 @@ def main():
     run(*sign, '--verify', dmg, signature)
     url = args.base_url.rstrip('/') + '/' + urllib.parse.quote(dmg.name)
     write_feed(out / 'appcast.xml', url=url, version=version, short_version=short,
-               signature=signature, length=dmg.stat().st_size, notes=args.notes)
+               signature=signature, length=dmg.stat().st_size, notes=args.notes,
+               app_name="Banana Beta" if args.channel == "beta" else "Banana")
     digest = hashlib.file_digest(dmg.open('rb'), 'sha256').hexdigest()
     (out / (dmg.name + '.sha256')).write_text(f'{digest}  {dmg.name}\n')
     (out / 'release.json').write_text(json.dumps({
