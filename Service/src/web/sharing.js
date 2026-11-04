@@ -1,3 +1,4 @@
+import { contentVersion } from "./status.js";
 import { CATALOG } from '../catalog.js';
 import { newId } from '../crypto.js';
 import { personalSpace } from '../sync-routes.js';
@@ -6,7 +7,7 @@ import { calendarSettings } from './calendar.js';
 import { GoogleRefused } from '../google.js';
 import { lzfseDecompress } from '../../public/app/assets/vendor/lzfse.js';
 const MOST_SNAPSHOT_BYTES = 8 * 1024 * 1024;   // a packed Health snapshot the Worker decodes
-import { allowedTypes, allowedViews, calendarKey, normalizePolicy, projectHealthSnapshot, sharedCalendar } from './sharing-policy.js';
+import { allowedTypes, allowedViews, calendarKey, normalizePolicy, policyExpired, projectHealthSnapshot, sharedCalendar } from './sharing-policy.js';
 
 const DAY = 86_400_000, HOUR = 3_600_000;
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -37,6 +38,7 @@ export function sharingRoutes(app, deps, { owner, signedIn, calendarChoices, vau
   }
   async function checkedPolicy(c, value) {
     const policy = normalizePolicy(value);
+    if (policyExpired(policy, now())) throw new Error('Choose today or a future access expiration date.');
     if (policy.calendars.length) {
       const choices = await calendarChoices(c);
       const available = new Set(choices.accounts.flatMap(a => a.calendars.map(cal => calendarKey(a.sub, cal.id))));
@@ -46,11 +48,11 @@ export function sharingRoutes(app, deps, { owner, signedIn, calendarChoices, vau
   }
   app.get('/app/api/session', signedIn, async c => {
     const who = c.get('web');
-    const shares = await db.all(`SELECT s.id, s.status, s.updated_at,
+    const shares = await db.all(`SELECT s.id, s.status, s.updated_at, s.policy,
       (SELECT COALESCE(g.name, g.email) FROM google_links g WHERE g.account_id = s.owner_id AND g.status <> 'unlinked' ORDER BY g.created_at LIMIT 1) AS owner
       FROM web_shares s WHERE s.status IN ('invited', 'active') AND s.policy IS NOT NULL
       AND (s.guest_sub = ? OR (s.guest_sub IS NULL AND s.email = ?)) ORDER BY s.updated_at DESC`, who.sub, who.authEmail);
-    return c.json({ kind: who.kind, email: who.authEmail, shares: shares.map(s => ({ ...s, owner: s.owner ?? 'A Banana member' })) });
+    return c.json({ kind: who.kind, email: who.authEmail, shares: shares.filter(s => !policyExpired(parse(s.policy), now())).map(({policy, ...s}) => ({ ...s, owner: s.owner ?? 'A Banana member' })) });
   });
   app.get('/app/api/shares', owner, async c => {
     const rows = await db.all('SELECT * FROM web_shares WHERE owner_id = ? ORDER BY created_at DESC', c.get('web').account);
@@ -96,6 +98,7 @@ export function sharingRoutes(app, deps, { owner, signedIn, calendarChoices, vau
     if (!row || row.status === 'revoked') return error(c, 'not_found', 404);
     if (input?.version !== row.draft_version || row.previewed_version !== row.draft_version || Number(row.previewed_at) <= now() - 30 * 60_000)
       return error(c, 'Preview the current permissions before publishing them.', 409);
+    if (policyExpired(parse(row.draft_policy), now())) return error(c, 'The access expiration date has passed. Update it and preview again.', 409);
     if (!sendEmail && !row.policy) return error(c, 'Send the invitation to publish it.', 409);
     if (sendEmail) {
       if (!deps.email?.enabled) return error(c, 'Email delivery is not configured. Your draft has been kept.', 503);
@@ -145,12 +148,17 @@ export function sharingRoutes(app, deps, { owner, signedIn, calendarChoices, vau
     const who = c.get('web'), row = await db.first('SELECT * FROM web_shares WHERE id = ?', c.req.param('id'));
     if (!row || row.status === 'revoked') return null;
     const preview = c.req.query('preview');
+    if (preview === 'published') {
+      if (who.kind !== 'person' || who.account !== row.owner_id || !row.policy) return null;
+      return { row, policy: normalizePolicy(parse(row.policy)), preview: true, publishedPreview: true };
+    }
     if (preview != null) {
       if (who.kind !== 'person' || who.account !== row.owner_id || String(row.draft_version) !== preview
         || row.previewed_version !== row.draft_version) return null;
       return { row, policy: normalizePolicy(parse(row.draft_policy)), preview: true };
     }
     if (!row.policy || !['invited', 'active'].includes(row.status)) return null;
+    if (policyExpired(parse(row.policy), now())) return null;
     if (row.guest_sub ? row.guest_sub !== who.sub : row.email !== who.authEmail) return null;
     if (!row.guest_sub) {
       const accepted = await db.run(`UPDATE web_shares SET guest_sub = ?, guest_name = ?, accepted_at = ?, status = 'active', updated_at = ?
@@ -170,13 +178,26 @@ export function sharingRoutes(app, deps, { owner, signedIn, calendarChoices, vau
     c.set('share', grant);
     return next();
   };
+  async function updateStatus(c,provided){
+    const {row,policy,preview,publishedPreview}=c.get('share');
+    const readable=[...allowedTypes(policy)];
+    const observed=[...readable,'core.appSettings',...(policy.calendars.length?['core.smartSettings']:[])];
+    const status=provided??await spaceFor(row.owner_id).webStatus(observed);
+    const types=readable.filter(type=>CATALOG.get(type)?.tier!=='T2'||status.consents.health);
+    return {shareVersion:preview&&!publishedPreview?row.draft_version:row.published_version,views:allowedViews(policy),allowedTypes:types,
+      consents:{health:Boolean(status.consents.health&&types.some(type=>CATALOG.get(type)?.tier==='T2')),transcripts:Boolean(status.consents.transcripts&&policy.sections.listening)},
+      contentVersion:await contentVersion(status,observed.filter(type=>CATALOG.get(type)?.tier!=='T2'||status.consents.health))};
+  }
+  app.get('/app/api/shared/:id/status',signedIn,shared,async c=>c.json(await updateStatus(c)));
   app.get('/app/api/shared/:id/account', signedIn, shared, async c => {
-    const { row, policy, preview } = c.get('share'), stub = spaceFor(row.owner_id);
-    const [consents, counts, smart, prefs, latest, name, phone] = await Promise.all([stub.consents(), stub.counts(), stub.read('core.smartSettings', 'smart-settings'),
+    const { row, policy, preview, publishedPreview } = c.get('share'), stub = spaceFor(row.owner_id);
+    const [statusState, counts, smart, prefs, latest, name, phone] = await Promise.all([stub.webStatus([...allowedTypes(policy),'core.appSettings',...(policy.calendars.length?['core.smartSettings']:[])]), stub.counts(), stub.read('core.smartSettings', 'smart-settings'),
       stub.read('core.appSettings', 'appSettings'), db.first('SELECT MAX(last_sync_at) AS at FROM devices WHERE account_id = ?', row.owner_id), ownerName(row.owner_id), db.first("SELECT bundle FROM devices WHERE account_id = ? AND platform = 'iphone' ORDER BY last_sync_at DESC, updated_at DESC, id LIMIT 1", row.owner_id)]);
+    const consents=statusState.consents;
     const types = [...allowedTypes(policy)].filter(type => CATALOG.get(type)?.tier !== 'T2' || consents.health);
-    return c.json({ email: c.get('web').authEmail, name, ownerName: name, shared: true, preview, audience: preview ? row.email : undefined,
-      shareVersion: preview ? row.draft_version : row.published_version, views: allowedViews(policy), allowedTypes: types,
+    const status=await updateStatus(c,statusState);
+    return c.json({ contentVersion:status.contentVersion,email: c.get('web').authEmail, name, ownerName: name, shared: true, preview, publishedPreview: Boolean(publishedPreview), expiresOn: policy.expiresOn ?? null, audience: preview ? row.email : undefined,
+      shareVersion: preview && !publishedPreview ? row.draft_version : row.published_version, views: allowedViews(policy), allowedTypes: types,
       consents: { health: Boolean(consents.health && types.some(type => CATALOG.get(type)?.tier === 'T2')), transcripts: Boolean(consents.transcripts && policy.sections.listening) },
       counts: Object.fromEntries(Object.entries(counts).filter(([type]) => types.includes(type))),
       preferences: { distanceUnit: prefs?.distanceUnit ?? null, ownBundleID: phone?.bundle ?? null }, weekStartWeekday: calendarSettings(smart).weekStartWeekday,

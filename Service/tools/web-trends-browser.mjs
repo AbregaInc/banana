@@ -1,0 +1,71 @@
+// End-to-end local preview test. Uses only the explicitly labeled fictional fixture.
+import assert from 'node:assert/strict';
+const {chromium}=await import(process.env.PLAYWRIGHT_MODULE||'playwright');
+const origin=process.env.PREVIEW_URL||'http://localhost:18999';
+const browser=await chromium.launch({headless:true,...(process.env.PLAYWRIGHT_CHANNEL?{channel:process.env.PLAYWRIGHT_CHANNEL}:{})});
+try{
+  const context=await browser.newContext(),page=await context.newPage(),errors=[];
+  page.on('pageerror',e=>errors.push(e.message));
+  await page.goto(origin+'/__preview/coach');
+  await page.waitForFunction(()=>document.querySelector('#content').getAttribute('aria-busy')==='false'&&document.querySelector('#content .summary'));
+  const guestCounts=await page.locator('#content .summary').evaluateAll(cards=>Object.fromEntries(cards.map(c=>[c.getAttribute('href'),c.querySelector('.summary-number').textContent])));
+  assert.match(guestCounts['#nutrition'],/^\d/);assert.match(guestCounts['#workouts'],/^\d/);
+  assert.deepEqual(Object.keys(guestCounts).sort(),['#health','#nutrition','#workouts']);
+  assert.equal(await page.locator('#content .summary-foot,#content .sharing-intro').count(),0);
+  await page.locator('a.nav-link[href="#health"]').click();
+  await page.locator('.metric-button').filter({hasText:'Steps'}).waitFor();
+  assert.match(page.url(),/\/share\//);
+  assert.equal(await page.locator('a[href="#taken"]').count(),0);
+  const id=new URL(page.url()).pathname.split('/').at(-1);
+  const denial=await page.evaluate(async id=>({
+    owner:(await fetch('/app/api/calendars')).status,
+    privateType:(await fetch('/app/api/shared/'+id+'/records?type=food.supplement')).status
+  }),id);
+  assert.deepEqual(denial,{owner:403,privateType:403});
+  let requests=0;page.on('request',r=>{if(r.url().includes('/app/api/'))requests++;});
+  await page.getByLabel('Visible range',{exact:true}).selectOption('90');
+  await page.getByLabel('Group by',{exact:true}).selectOption('month');
+  await page.waitForFunction(()=>document.querySelector('[data-trend-group]').value==='month'&&document.querySelector('#content').getAttribute('aria-busy')==='false');
+  assert.equal(requests,0,'changing range/grouping uses the loaded snapshot');
+  const step=page.locator('.metric-button').filter({hasText:'Steps'});
+  assert.ok(await step.locator('.trend-previous polyline').count()>0);
+  const headline=await step.locator('.measure-value').innerText();
+  await page.getByLabel('Group by',{exact:true}).selectOption('day');
+  await page.waitForFunction(()=>document.querySelector('#content').getAttribute('aria-busy')==='false');
+  assert.equal(await step.locator('.measure-value').innerText(),headline,'grouping must not change the range headline');
+  await step.click();
+  const dialog=page.getByRole('dialog');
+  await dialog.getByLabel('Group by',{exact:true}).selectOption('month');
+  await dialog.locator('.trend-chart').waitFor();
+  assert.ok(await dialog.locator('.trend-previous polyline').count()>0);
+  await dialog.locator('section').filter({has:page.getByRole('heading',{name:'Selected period',exact:true})}).locator('.record').first().click();
+  await dialog.locator('.record').first().waitFor();
+  await dialog.locator('.record').first().click();
+  await dialog.getByText('Daily value',{exact:true}).waitFor();
+  await page.getByRole('button',{name:'Close details'}).click();
+  await page.getByText('Choose metrics',{exact:true}).click();
+  await page.locator('[data-health-metric="steps"]').uncheck();
+  await page.waitForFunction(()=>!document.querySelector('[data-health-metric="steps"]').checked&&!Array.from(document.querySelectorAll('.metric-button')).some(b=>b.textContent.includes('Steps')));
+  await page.reload();await page.getByLabel('Group by',{exact:true}).waitFor();
+  assert.equal(await page.getByLabel('Group by',{exact:true}).inputValue(),'month');
+  assert.equal(await page.getByLabel('Visible range',{exact:true}).inputValue(),'90');
+  assert.equal(await page.locator('[data-health-metric="steps"]').isChecked(),false);
+  await page.locator('a[href="#nutrition"]').click();
+  await page.locator('#search').fill('yogurt');
+  await page.waitForFunction(()=>{try{return Object.keys(localStorage).some(k=>k.includes('banana.web.view')&&JSON.parse(localStorage[k]).filters.some(([view,v])=>view==='nutrition'&&v.query==='yogurt'));}catch{return false;}});
+  await page.reload();await page.waitForFunction(()=>document.querySelector('#search').value==='yogurt');
+  await page.goto(origin+'/__preview/login');
+  await page.locator('.metric-button').filter({hasText:'Steps'}).waitFor();
+  assert.equal(await page.getByLabel('Group by',{exact:true}).inputValue(),'day','guest preferences do not affect owner');
+  await page.locator('a.nav-link[href="#overview"]').click();
+  await page.waitForFunction(()=>document.querySelector('#content').getAttribute('aria-busy')==='false');
+  for(const key of ['#nutrition','#workouts'])assert.equal(await page.locator(`#content a[href="${key}"] .summary-number`).innerText(),guestCounts[key]);
+  await page.goto(origin+'/__preview/coach');await page.locator('a.nav-link[href="#health"]').click();
+  await page.getByLabel('Group by',{exact:true}).waitFor();
+  assert.equal(await page.getByLabel('Group by',{exact:true}).inputValue(),'month');
+  await page.setViewportSize({width:390,height:844});
+  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+  if(process.env.WEB_SCREENSHOT)await page.screenshot({path:process.env.WEB_SCREENSHOT,fullPage:true});
+  assert.deepEqual(errors,[]);
+  console.log(JSON.stringify({passed:true,checks:['guest overview counts match owner and exclude private sections','actual guest permissions','independent range and grouping','ghost trace in cards and detail','bucket to daily drilldown','no fetch for chart controls','saved metric/range/group/filter choices','owner/guest preference isolation','mobile width']},null,2));
+}finally{await browser.close();}

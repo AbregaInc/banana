@@ -1,0 +1,7 @@
+{
+  "mode" : "lifecycle-conformance",
+  "os" : "27.0.1",
+  "passed" : true,
+  "platform" : "iPhone",
+  "result" : "{\"mode\":\"lifecycle-conformance\",\"passed\":true,\"total\":5,\"failed\":[],\"results\":[{\"name\":\"duplicate activation shares one harness and repeated close is harmless\",\"passed\":true},{\"name\":\"rapid close\/open transitions join old work before opening the next harness\",\"passed\":true},{\"name\":\"failed wake publication closes the partially opened backend\",\"passed\":true},{\"name\":\"close cancels native model work; reopen resumes the persisted task checkpoint\",\"passed\":true},{\"name\":\"foreground wake delivers a sleeping task at its real deadline\",\"passed\":true}]}"
+}

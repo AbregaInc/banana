@@ -1,0 +1,1487 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild test-without-building -collect-test-diagnostics never -project Banana.xcodeproj -scheme BananaPi -configuration PiDevelopment -destination "platform=iOS Simulator,id=22DDB577-4616-4E99-AF0F-6AC31A3753B7" -derivedDataPath .build/sim "-only-testing:BananaAgentUITests/PiLaunchUITest/testNormalColdLaunchReachesAssistantWithoutCloudSetup" "-only-testing:BananaAgentUITests/AssistantUITest/testNewMealDraftUsesSharedEditorAndSurvivesCancel" "-only-testing:BananaAgentUITests/AssistantUITest/testNewMealDraftSaveAppearsInExistingNutritionStore" "-only-testing:BananaAgentUITests/AssistantUITest/testNewEventDraftUsesSharedEditorAndRestores" "-only-testing:BananaAgentUITests/AssistantUITest/testGlobalMealSearchLinksThroughNormalAppShell" -parallel-testing-enabled NO -test-timeouts-enabled YES -default-test-execution-time-allowance 150 -maximum-test-execution-time-allowance 300
+
+Resolve Package Graph
+
+
+Resolved source packages:
+  GTMAppAuth: https://github.com/google/GTMAppAuth.git @ 5.0.0
+  AppCheck: https://github.com/google/app-check.git @ 11.3.2
+  GoogleUtilities: https://github.com/google/GoogleUtilities.git @ 8.1.5
+  GoogleSignIn: https://github.com/google/GoogleSignIn-iOS.git @ 9.1.0
+  AppAuth: https://github.com/openid/AppAuth-iOS.git @ 2.1.0
+  FluidAudio: https://github.com/FluidInference/FluidAudio.git @ 0.15.5
+  InteropForGoogle: https://github.com/google/interop-ios-for-google-sdks.git @ 101.0.0
+  GTMSessionFetcher: https://github.com/google/gtm-session-fetcher.git @ 3.5.0
+  Promises: https://github.com/google/promises.git @ 2.4.1
+
+2026-10-25 10:12:57.846 xcodebuild[85576:83812219] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-25 10:16:40.721258-0400 BananaAgentUITests-Runner[96741:83842508] [Default] Running tests...
+2026-10-25 10:16:40.761889-0400 BananaAgentUITests-Runner[96741:83842508] [UIKit App Config] Update the Info.plist: Launch screens will soon be required.
+objc[96741]: Class UIAccessibilityLoaderWebShared is implemented in both /Library/Developer/CoreSimulator/Volumes/iOS_23F77/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.5.simruntime/Contents/Resources/RuntimeRoot/System/Library/AccessibilityBundles/WebCore.axbundle/WebCore (0x10aa10310) and /Library/Developer/CoreSimulator/Volumes/iOS_23F77/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.5.simruntime/Contents/Resources/RuntimeRoot/System/Library/AccessibilityBundles/WebKit.axbundle/WebKit (0x10aa8c398). This may cause spurious casting failures and mysterious crashes. One of the duplicates must be removed or renamed.
+Test Suite 'Selected tests' started at 2026-10-25 10:16:44.970.
+Test Suite 'BananaAgentUITests.xctest' started at 2026-10-25 10:16:44.972.
+Test Suite 'AssistantUITest' started at 2026-10-25 10:16:44.973.
+Test Case '-[BananaAgentUITests.AssistantUITest testGlobalMealSearchLinksThroughNormalAppShell]' started.
+    t =     0.01s Start Test at 2026-10-25 10:16:44.980
+    t =     0.27s Set Up
+    t =     0.37s Open com.boris.banana.pi-development
+    t =     0.37s     Launch com.boris.banana.pi-development
+2026-10-25 10:16:45.744 xcodebuild[85576:83812219] [MT] IDELaunchParametersSnapshot: debugger version lookup failed for path '<nil>': noURL
+2026-10-25 10:16:45.744 xcodebuild[85576:83812219] [MT] IDELaunchParametersSnapshot: no debugger version
+2026-10-25 10:16:45.927 xcodebuild[85576:83812219] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+    t =     3.11s         Setting up automation session
+    t =     4.17s         Wait for com.boris.banana.pi-development to idle
+    t =     7.85s Waiting 25.0s for "More" Button to exist
+    t =     8.93s     Checking `Expect predicate `existsNoRetry == 1` for object "More" Button`
+    t =     8.93s         Checking existence of `"More" Button`
+    t =     9.16s Tap "More" Button
+    t =     9.16s     Wait for com.boris.banana.pi-development to idle
+    t =     9.56s     Find the "More" Button
+    t =     9.69s     Check for interrupting elements affecting "mobile.week.more" Button
+    t =     9.82s         Wait for com.apple.springboard to idle
+    t =     9.91s     Synthesize event
+    t =    10.36s     Wait for com.boris.banana.pi-development to idle
+    t =    11.40s Waiting 5.0s for "page.more.assistant" Button to exist
+    t =    12.45s     Checking `Expect predicate `existsNoRetry == 1` for object "page.more.assistant" Button`
+    t =    12.45s         Checking existence of `"page.more.assistant" Button`
+    t =    12.55s Tap "page.more.assistant" Button
+    t =    12.55s     Wait for com.boris.banana.pi-development to idle
+    t =    12.56s     Find the "page.more.assistant" Button
+    t =    12.65s     Check for interrupting elements affecting "page.more.assistant" Button
+    t =    12.73s         Wait for com.apple.springboard to idle
+    t =    12.76s     Synthesize event
+    t =    13.07s     Wait for com.boris.banana.pi-development to idle
+    t =    14.75s Waiting 15.0s for "assistant.input" Any to exist
+    t =    15.78s     Checking `Expect predicate `existsNoRetry == 1` for object "assistant.input" Any`
+    t =    15.78s         Checking existence of `"assistant.input" Any`
+    t =    16.00s Tap "assistant.input" Any
+    t =    16.00s     Wait for com.boris.banana.pi-development to idle
+    t =    16.01s     Find the "assistant.input" Any
+    t =    16.21s     Check for interrupting elements affecting "assistant.input" TextField
+    t =    16.28s         Wait for com.apple.springboard to idle
+    t =    16.36s     Synthesize event
+    t =    16.67s     Wait for com.boris.banana.pi-development to idle
+    t =    17.55s Type 'Search Banana for ...' into "assistant.input" TextField
+    t =    17.55s     Wait for com.boris.banana.pi-development to idle
+    t =    17.93s     Find the "assistant.input" TextField
+    t =    18.52s     Check for interrupting elements affecting "assistant.input" TextField
+    t =    18.62s         Wait for com.apple.springboard to idle
+    t =    18.74s     Synthesize event
+    t =    19.31s     Wait for com.boris.banana.pi-development to idle
+    t =    19.32s Find the "assistant.send" Button
+    t =    19.42s Tap "assistant.send" Button
+    t =    19.42s     Wait for com.boris.banana.pi-development to idle
+    t =    19.43s     Find the "assistant.send" Button
+    t =    19.53s     Check for interrupting elements affecting "assistant.send" Button
+    t =    19.61s         Wait for com.apple.springboard to idle
+    t =    19.65s     Synthesize event
+    t =    19.97s     Wait for com.boris.banana.pi-development to idle
+    t =    20.00s Waiting 15.0s for Button (First Match) to exist
+    t =    21.09s     Checking `Expect predicate `existsNoRetry == 1` for object Button (First Match)`
+    t =    21.09s         Checking existence of `Button (First Match)`
+    t =    21.41s         Capturing element debug description
+    t =    22.03s     Checking `Expect predicate `existsNoRetry == 1` for object Button (First Match)`
+    t =    22.03s         Checking existence of `Button (First Match)`
+    t =    22.35s         Capturing element debug description
+    t =    23.07s     Checking `Expect predicate `existsNoRetry == 1` for object Button (First Match)`
+    t =    23.07s         Checking existence of `Button (First Match)`
+    t =    23.37s         Capturing element debug description
+    t =    24.09s     Checking `Expect predicate `existsNoRetry == 1` for object Button (First Match)`
+    t =    24.09s         Checking existence of `Button (First Match)`
+    t =    24.32s         Capturing element debug description
+    t =    25.05s     Checking `Expect predicate `existsNoRetry == 1` for object Button (First Match)`
+    t =    25.05s         Checking existence of `Button (First Match)`
+    t =    25.28s         Capturing element debug description
+    t =    26.00s     Checking `Expect predicate `existsNoRetry == 1` for object Button (First Match)`
+    t =    26.01s         Checking existence of `Button (First Match)`
+    t =    26.24s         Capturing element debug description
+    t =    27.07s     Checking `Expect predicate `existsNoRetry == 1` for object Button (First Match)`
+    t =    27.07s         Checking existence of `Button (First Match)`
+    t =    27.31s         Capturing element debug description
+    t =    28.04s     Checking `Expect predicate `existsNoRetry == 1` for object Button (First Match)`
+    t =    28.04s         Checking existence of `Button (First Match)`
+    t =    28.28s         Capturing element debug description
+    t =    29.01s     Checking `Expect predicate `existsNoRetry == 1` for object Button (First Match)`
+    t =    29.01s         Checking existence of `Button (First Match)`
+    t =    29.26s         Capturing element debug description
+    t =    30.09s     Checking `Expect predicate `existsNoRetry == 1` for object Button (First Match)`
+    t =    30.09s         Checking existence of `Button (First Match)`
+    t =    30.41s         Capturing element debug description
+    t =    31.03s     Checking `Expect predicate `existsNoRetry == 1` for object Button (First Match)`
+    t =    31.03s         Checking existence of `Button (First Match)`
+    t =    31.50s         Capturing element debug description
+    t =    32.01s     Checking `Expect predicate `existsNoRetry == 1` for object Button (First Match)`
+    t =    32.02s         Checking existence of `Button (First Match)`
+    t =    32.26s         Capturing element debug description
+    t =    33.09s     Checking `Expect predicate `existsNoRetry == 1` for object Button (First Match)`
+    t =    33.09s         Checking existence of `Button (First Match)`
+    t =    33.33s         Capturing element debug description
+    t =    34.06s     Checking `Expect predicate `existsNoRetry == 1` for object Button (First Match)`
+    t =    34.06s         Checking existence of `Button (First Match)`
+    t =    34.32s         Capturing element debug description
+    t =    35.00s     Checking `Expect predicate `existsNoRetry == 1` for object Button (First Match)`
+    t =    35.01s         Checking existence of `Button (First Match)`
+    t =    35.26s         Capturing element debug description
+    t =    35.26s     Checking existence of `Button (First Match)`
+    t =    35.50s Collecting debug information to assist test failure triage
+    t =    35.50s     Requesting snapshot of accessibility hierarchy for app with pid 96914
+    t =    35.61s Requesting snapshot of accessibility hierarchy for app with pid 96914
+    t =    36.10s Requesting snapshot of accessibility hierarchy for app with pid 96914
+~/orca/workspaces/gtfuwgth/pi/BananaUITests/AssistantUITest.swift:312: error: -[BananaAgentUITests.AssistantUITest testGlobalMealSearchLinksThroughNormalAppShell] : XCTAssertTrue failed - Attributes: Application, 0x10a54fd40, pid: 96914, label: 'Banana Pi'
+Element subtree:
+ →Application, 0x10a54fd40, pid: 96914, label: 'Banana Pi'
+    Window (Main), 0x10a54fe80, {{0.0, 0.0}, {1032.0, 1376.0}}
+      Other, 0x10a604000, {{0.0, 0.0}, {1032.0, 1376.0}}
+        Other, 0x10a604140, {{0.0, 0.0}, {1032.0, 1376.0}}
+          Other, 0x10a604280, {{0.0, 0.0}, {1032.0, 1376.0}}
+            Other, 0x10a6043c0, {{0.0, 0.0}, {1032.0, 1376.0}}
+              Other, 0x10a604500, {{0.0, 0.0}, {1032.0, 1376.0}}
+                Other, 0x10a604640, {{516.0, 502.5}, {0.0, 0.0}}
+                Other, 0x10a604780, {{0.0, 0.0}, {1032.0, 1376.0}}
+                  Other, 0x10a6048c0, {{0.0, 0.0}, {1032.0, 1376.0}}
+                    Other, 0x10a604a00, {{0.0, 32.0}, {1032.0, 44.0}}
+                      Button, 0x10a604b40, {{235.2, 36.0}, {26.5, 36.0}}, label: 'Previous Page'
+                      Button, 0x10a604c80, {{265.8, 36.0}, {56.0, 36.0}}, identifier: 'ToggleSideBar', label: 'Toggle sidebar'
+                      Button, 0x10a604dc0, {{321.8, 36.0}, {100.5, 36.0}}, identifier: 'fork.knife', label: 'Nutrition'
+                        Button, 0x10a604f00, {{321.8, 36.0}, {100.5, 36.0}}, identifier: 'fork.knife', label: 'Nutrition'
+                      Button, 0x10a605040, {{422.2, 36.0}, {78.5, 36.0}}, identifier: 'quote.bubble.fill', label: 'Notes'
+                        Button, 0x10a605180, {{422.2, 36.0}, {78.5, 36.0}}, identifier: 'quote.bubble.fill', label: 'Notes'
+                      Button, 0x10a6052c0, {{500.8, 36.0}, {100.5, 36.0}}, identifier: 'repeat', label: 'Routines'
+                        Button, 0x10a605400, {{500.8, 36.0}, {100.5, 36.0}}, identifier: 'repeat', label: 'Routines'
+                      Button, 0x10a605540, {{601.2, 36.0}, {87.0, 36.0}}, identifier: 'square.stack.fill', label: 'Library'
+                        Button, 0x10a605680, {{601.2, 36.0}, {87.0, 36.0}}, identifier: 'square.stack.fill', label: 'Library'
+                      Button, 0x10a6057c0, {{688.2, 36.0}, {104.5, 36.0}}, identifier: 'bubble.left.and.bubble.right.fill', label: 'Assistant', Selected
+                        Button, 0x10a605900, {{688.2, 36.0}, {104.5, 36.0}}, identifier: 'bubble.left.and.bubble.right.fill', label: 'Assistant', Selected
+                  Other, 0x10a605a40, {{0.0, 0.0}, {1032.0, 1376.0}}
+                    Other, 0x10a605b80, {{0.0, 0.0}, {1032.0, 1376.0}}
+                      Other, 0x10a605cc0, {{0.0, 0.0}, {1032.0, 1376.0}}
+                        Other, 0x10a605e00, {{0.0, 0.0}, {1032.0, 1376.0}}
+                          Other, 0x10a605f40, {{0.0, 0.0}, {1032.0, 1376.0}}
+                            Other, 0x10a606080, {{0.0, 0.0}, {1032.0, 1376.0}}
+                              NavigationBar, 0x10a6061c0, {{0.0, 32.0}, {1032.0, 106.0}}, identifier: 'Assistant'
+                                Other, 0x10a606300, {{864.0, 36.0}, {41.0, 36.0}}, identifier: 'assistant.conversations', label: 'Conversations'
+                                  Other, 0x10a606440, {{864.0, 36.0}, {41.0, 36.0}}
+                                    Button, 0x10a606580, {{864.0, 36.0}, {41.0, 36.0}}, identifier: 'assistant.conversations', label: 'Conversations'
+                                Other, 0x10a6066c0, {{921.0, 36.0}, {41.0, 36.0}}, identifier: 'assistant.new', label: 'New conversation'
+                                  Other, 0x10a606800, {{921.0, 36.0}, {41.0, 36.0}}
+                                    Button, 0x10a606940, {{921.0, 36.0}, {41.0, 36.0}}, identifier: 'assistant.new', label: 'New conversation'
+                                Other, 0x10a606a80, {{978.0, 36.0}, {40.0, 36.0}}, identifier: 'assistant.options', label: 'Assistant options'
+                                  Other, 0x10a606bc0, {{978.0, 36.0}, {40.0, 36.0}}
+                                    Button, 0x10a606d00, {{978.0, 36.0}, {40.0, 36.0}}, identifier: 'assistant.options', label: 'Assistant options'
+                                      Button, 0x10a606e40, {{978.0, 36.0}, {40.0, 36.0}}
+                                        Image, 0x10a606f80, {{987.0, 43.0}, {22.0, 22.0}}, identifier: 'ellipsis.circle', label: 'More'
+                                StaticText, 0x10a6070c0, {{20.0, 89.5}, {150.0, 41.0}}, label: 'Assistant'
+                              Other, 0x10a607200, {{0.0, 0.0}, {1032.0, 1376.0}}
+                                Other, 0x10a607340, {{0.0, 0.0}, {1032.0, 1376.0}}
+                                  Other, 0x10a607480, {{0.0, 0.0}, {1032.0, 1376.0}}
+                                    Other, 0x10a6075c0, {{0.0, 0.0}, {1032.0, 1376.0}}
+                                      ScrollView, 0x10a607700, {{0.0, 0.0}, {1032.0, 857.0}}, identifier: 'assistant.messages'
+                                        Other, 0x10a607840, {{0.0, 0.0}, {1032.0, 857.0}}
+                                          Other, 0x10a607980, {{0.0, 0.0}, {1032.0, 140.8}}
+                                        Other, 0x10a607ac0, {{0.0, 0.0}, {1032.0, 857.0}}
+                                        Other, 0x10a607c00, {{0.0, 138.0}, {1032.0, 199.0}}
+                                          Other, 0x10a607d40, {{156.0, 158.0}, {720.0, 138.0}}
+                                            StaticText, 0x10a607e80, {{156.0, 158.0}, {179.0, 26.5}}, identifier: 'assistant.workspace', label: 'Results for “eggs”'
+                                            Button, 0x10a608000, {{816.5, 161.0}, {59.5, 20.5}}, identifier: 'assistant.workspace', label: 'Dismiss'
+                                            StaticText, 0x10a608140, {{156.0, 198.5}, {235.5, 20.5}}, identifier: 'assistant.workspace', label: 'No matching local items found.'
+                                            StaticText, 0x10a608280, {{156.0, 233.0}, {705.5, 14.5}}, identifier: 'assistant.workspace', label: 'Searches local notes, meals, workouts, routines, podcast titles and the loaded plan. Up to six matches per category, 30 total.'
+                                            Button, 0x10a6083c0, {{156.0, 267.5}, {720.0, 28.5}}, label: 'Conversation'
+                                              StaticText, 0x10a608500, {{156.0, 267.5}, {720.0, 28.5}}, label: 'Conversation'
+                                              Image, 0x10a608640, {{868.0, 276.0}, {7.0, 12.0}}, identifier: 'collapsed'
+                                        Other, 0x10a608780, {{999.0, 86.0}, {30.0, 771.0}}, label: 'Vertical scroll bar, 1 page', value: 0%
+                                          Other, 0x10a6088c0, {{1026.0, 922.0}, {3.0, 315.0}}
+                                        Other, 0x10a608a00, {{999.0, 86.0}, {30.0, 771.0}}, label: 'Vertical scroll bar, 1 page', value: 0%
+                                          Other, 0x10a608b40, {{1026.0, 922.0}, {3.0, 315.0}}
+                                      Image, 0x10a608c80, {{154.0, 874.5}, {17.0, 17.0}}, identifier: 'cpu', label: 'cpu'
+                                      StaticText, 0x10a608dc0, {{181.0, 875.8}, {68.5, 14.5}}, label: 'On this iPad'
+                                      StaticText, 0x10a608f00, {{152.0, 902.5}, {79.0, 14.5}}, identifier: 'assistant.test.notes', label: '0 saved notes'
+                                      TextField, 0x10a609040, {{158.0, 931.0}, {678.0, 22.0}}, identifier: 'assistant.input', placeholderValue: 'Message Banana', Keyboard Focused, Focused
+                                        Other, 0x10a609180, {{158.0, 931.0}, {0.0, 0.0}}, identifier: '_UITextSelectionRangeAdjustmentContainerView'
+                                          Other, 0x10a6092c0, {{158.0, 931.0}, {0.0, 0.0}}, identifier: 'com.apple.text.grabber.leading'
+                                            Other, 0x10a609400, {{150.8, 917.5}, {16.5, 16.5}}
+                                            Other, 0x10a609540, {{158.0, 931.0}, {2.0, 0.0}}
+                                          Other, 0x10a609680, {{158.0, 931.0}, {0.0, 0.0}}, identifier: 'com.apple.text.grabber.leading'
+                                            Other, 0x10a6097c0, {{150.8, 917.5}, {16.5, 16.5}}
+                                            Other, 0x10a609900, {{158.0, 931.0}, {2.0, 0.0}}
+                                        Other, 0x10a609a40, {{158.0, 939.0}, {678.0, 11.0}}, label: 'Horizontal scroll bar, 1 page', value: 0%
+                                          Other, 0x10a609b80, {{161.0, 947.0}, {672.0, 3.0}}
+                                      Button, 0x10a609cc0, {{856.0, 933.5}, {22.0, 22.0}}, identifier: 'assistant.send', label: 'Send message', Disabled
+                              Other, 0x10a609e00, {{0.0, 0.0}, {1032.0, 1376.0}}
+                                Other, 0x10a609f40, {{0.0, 0.0}, {1032.0, 1376.0}}
+    Window, 0x10a60a080, {{0.0, 0.0}, {1032.0, 1376.0}}
+      Other, 0x10a60a1c0, {{0.0, 0.0}, {1032.0, 1376.0}}
+        Other, 0x10a60a300, {{0.0, 0.0}, {1032.0, 1376.0}}
+        Other, 0x10a60a440, {{0.0, 973.0}, {1032.0, 403.0}}
+          Other, 0x10a60a580, {{0.0, 973.0}, {1032.0, 403.0}}, identifier: 'inputView'
+    Window, 0x10a60a6c0, {{0.0, 0.0}, {1032.0, 1376.0}}
+      Other, 0x10a60a800, {{0.0, 0.0}, {1032.0, 1376.0}}
+        Other, 0x10a60a940, {{0.0, 973.0}, {1032.0, 403.0}}
+          Other, 0x10a60aa80, {{0.0, 973.0}, {1032.0, 55.0}}, identifier: 'SystemInputAssistantView'
+            Other, 0x10a60abc0, {{0.0, 973.0}, {1032.0, 55.0}}
+              Other, 0x10a60ad00, {{0.0, 973.0}, {283.0, 49.0}}, identifier: 'LeftButtonBar'
+                Other, 0x10a60ae40, {{28.0, 973.0}, {255.0, 49.0}}
+                  Other, 0x10a60af80, {{28.0, 974.0}, {114.0, 49.0}}
+                    Other, 0x10a60b0c0, {{28.0, 974.0}, {22.0, 49.0}}
+                      Button, 0x10a60b200, {{28.0, 974.0}, {22.0, 49.0}}, identifier: 'assistantUndo', label: 'undo', Disabled
+                    Other, 0x10a60b340, {{74.0, 974.0}, {22.0, 49.0}}
+                      Button, 0x10a60b480, {{74.0, 974.0}, {22.0, 49.0}}, identifier: 'assistantRedo', label: 'Redo', Disabled
+                    Other, 0x10a60b5c0, {{120.0, 974.0}, {22.0, 49.0}}
+                      Button, 0x10a60b700, {{120.0, 974.0}, {22.0, 49.0}}, identifier: 'assistantPaste:forEvent:', label: 'Paste', Disabled
+              Other, 0x10a60b840, {{283.0, 979.0}, {466.0, 49.0}}, identifier: 'CenterPageView'
+                Other, 0x10a60b980, {{283.0, 379.0}, {466.0, 1249.0}}
+                  ScrollView, 0x10a60bac0, {{283.0, 979.0}, {466.0, 49.0}}
+                Other, 0x10a60bc00, {{283.0, 979.0}, {466.0, 49.0}}
+                  Other, 0x10a60bd40, {{283.0, 979.0}, {466.0, 49.0}}, label: 'Typing Predictions'
+                    Other, 0x10a60be80, {{283.0, 979.0}, {466.0, 49.0}}
+                      Other, 0x10a60c000, {{283.0, 979.0}, {466.0, 49.0}}
+                        Other, 0x10a60c140, {{283.0, 979.0}, {155.3, 49.0}}, label: 'I'
+                        Other, 0x10a60c280, {{438.3, 979.0}, {155.3, 49.0}}, label: 'The'
+                        Other, 0x10a60c3c0, {{593.7, 979.0}, {155.3, 49.0}}, label: 'I’m'
+              Other, 0x10a60c500, {{749.0, 973.0}, {283.0, 49.0}}, identifier: 'RightButtonBar'
+                Other, 0x10a60c640, {{749.0, 973.0}, {255.0, 49.0}}
+          Other, 0x10a60c780, {{0.0, 973.0}, {1032.0, 403.0}}
+            Other, 0x10a60c8c0, {{0.0, 973.0}, {1032.0, 403.0}}
+              Other, 0x10a60ca00, {{0.0, 973.0}, {1032.0, 403.0}}
+          Other, 0x10a60cb40, {{0.0, 1028.0}, {1032.0, 345.0}}
+            Keyboard, 0x10a60cc80, {{0.0, 1028.0}, {1032.0, 345.0}}
+              Other, 0x10a60cdc0, {{0.0, 1028.0}, {1032.0, 345.0}}
+                Other, 0x10a60cf00, {{0.0, 1028.0}, {1032.0, 345.0}}, identifier: 'UIKeyboardLayoutStar Preview'
+                  Key, 0x10a60d040, {{0.5, 1033.0}, {71.0, 52.5}}, label: '`'
+                  Key, 0x10a60d180, {{71.5, 1033.0}, {71.0, 52.5}}, label: '1'
+                  Key, 0x10a60d2c0, {{142.5, 1033.0}, {71.0, 52.5}}, label: '2'
+                  Key, 0x10a60d400, {{213.5, 1033.0}, {71.0, 52.5}}, label: '3'
+                  Key, 0x10a60d540, {{284.5, 1033.0}, {71.0, 52.5}}, label: '4'
+                  Key, 0x10a60d680, {{355.5, 1033.0}, {71.0, 52.5}}, label: '5'
+                  Key, 0x10a60d7c0, {{426.5, 1033.0}, {71.0, 52.5}}, label: '6'
+                  Key, 0x10a60d900, {{497.5, 1033.0}, {71.0, 52.5}}, label: '7'
+                  Key, 0x10a60da40, {{568.5, 1033.0}, {71.0, 52.5}}, label: '8'
+                  Key, 0x10a60db80, {{639.5, 1033.0}, {71.0, 52.5}}, label: '9'
+                  Key, 0x10a60dcc0, {{710.5, 1033.0}, {70.5, 52.5}}, label: '0'
+                  Key, 0x10a60de00, {{781.0, 1033.0}, {71.0, 52.5}}, label: '-'
+                  Key, 0x10a60df40, {{852.0, 1033.0}, {71.0, 52.5}}, label: '='
+                  Key, 0x10a60e080, {{923.0, 1033.0}, {109.5, 52.5}}, identifier: 'delete', label: 'delete'
+                  Button, 0x10a60e1c0, {{0.5, 1085.5}, {109.5, 68.0}}, identifier: 'tab', label: 'Tab'
+                  Key, 0x10a60e300, {{110.0, 1085.5}, {71.0, 68.0}}, label: 'Q'
+                  Key, 0x10a60e440, {{181.0, 1085.5}, {71.0, 68.0}}, label: 'W'
+                  Key, 0x10a60e580, {{252.0, 1085.5}, {70.5, 68.0}}, label: 'E'
+                  Key, 0x10a60e6c0, {{322.5, 1085.5}, {71.0, 68.0}}, label: 'R'
+                  Key, 0x10a60e800, {{393.5, 1085.5}, {71.0, 68.0}}, label: 'T'
+                  Key, 0x10a60e940, {{464.5, 1085.5}, {71.0, 68.0}}, label: 'Y'
+                  Key, 0x10a60ea80, {{535.5, 1085.5}, {71.0, 68.0}}, label: 'U'
+                  Key, 0x10a60ebc0, {{606.5, 1085.5}, {71.0, 68.0}}, label: 'I'
+                  Key, 0x10a60ed00, {{677.5, 1085.5}, {71.0, 68.0}}, label: 'O'
+                  Key, 0x10a60ee40, {{748.5, 1085.5}, {71.0, 68.0}}, label: 'P'
+                  Key, 0x10a60ef80, {{819.5, 1085.5}, {71.0, 68.0}}, label: '['
+                  Key, 0x10a60f0c0, {{890.5, 1085.5}, {71.0, 68.0}}, label: ']'
+                  Key, 0x10a60f200, {{961.5, 1085.5}, {71.0, 68.0}}, label: '\'
+                  Key, 0x10a60f340, {{0.5, 1153.5}, {125.5, 68.0}}, identifier: 'caps-lock', label: 'Caps Lock'
+                  Key, 0x10a60f480, {{126.0, 1153.5}, {71.0, 68.0}}, label: 'A'
+                  Key, 0x10a60f5c0, {{197.0, 1153.5}, {71.0, 68.0}}, label: 'S'
+                  Key, 0x10a60f700, {{268.0, 1153.5}, {71.0, 68.0}}, label: 'D'
+                  Key, 0x10a60f840, {{339.0, 1153.5}, {71.0, 68.0}}, label: 'F'
+                  Key, 0x10a60f980, {{410.0, 1153.5}, {71.0, 68.0}}, label: 'G'
+                  Key, 0x10a60fac0, {{481.0, 1153.5}, {71.0, 68.0}}, label: 'H'
+                  Key, 0x10a60fc00, {{552.0, 1153.5}, {71.0, 68.0}}, label: 'J'
+                  Key, 0x10a60fd40, {{623.0, 1153.5}, {71.0, 68.0}}, label: 'K'
+                  Key, 0x10a60fe80, {{694.0, 1153.5}, {71.0, 68.0}}, label: 'L'
+                  Key, 0x10a614000, {{765.0, 1153.5}, {71.0, 68.0}}, label: ';'
+                  Key, 0x10a614140, {{836.0, 1153.5}, {71.0, 68.0}}, label: '''
+                  Button, 0x10a614280, {{907.0, 1153.5}, {125.5, 68.0}}, identifier: 'Send', label: 'send'
+                  Button, 0x10a6143c0, {{0.5, 1221.5}, {161.0, 68.5}}, identifier: 'shift', label: 'shift', Selected
+                  Key, 0x10a614500, {{161.5, 1221.5}, {71.0, 68.5}}, label: 'Z'
+                  Key, 0x10a614640, {{232.5, 1221.5}, {71.0, 68.5}}, label: 'X'
+                  Key, 0x10a614780, {{303.5, 1221.5}, {71.0, 68.5}}, label: 'C'
+                  Key, 0x10a6148c0, {{374.5, 1221.5}, {71.0, 68.5}}, label: 'V'
+                  Key, 0x10a614a00, {{445.5, 1221.5}, {71.0, 68.5}}, label: 'B'
+                  Key, 0x10a614b40, {{516.5, 1221.5}, {71.0, 68.5}}, label: 'N'
+                  Key, 0x10a614c80, {{587.5, 1221.5}, {71.0, 68.5}}, label: 'M'
+                  Key, 0x10a614dc0, {{658.5, 1221.5}, {71.0, 68.5}}, label: ','
+                  Key, 0x10a614f00, {{729.5, 1221.5}, {71.0, 68.5}}, label: '.'
+                  Key, 0x10a615040, {{800.5, 1221.5}, {71.0, 68.5}}, label: '/'
+                  Key, 0x10a615180, {{871.5, 1221.5}, {161.0, 68.5}}, label: 'shift', Selected
+                  Button, 0x10a6152c0, {{0.5, 1290.0}, {100.5, 68.0}}, identifier: 'emoji', label: 'Emoji'
+                  Key, 0x10a615400, {{101.0, 1290.0}, {100.5, 68.0}}, identifier: 'more', label: 'numbers'
+                  Button, 0x10a615540, {{201.5, 1290.0}, {101.0, 68.0}}, identifier: 'dictation', label: 'Dictate'
+                  Key, 0x10a615680, {{302.5, 1290.0}, {426.5, 68.0}}, label: ' '
+                  Key, 0x10a6157c0, {{729.0, 1290.0}, {152.0, 68.0}}, identifier: 'more', label: 'numbers'
+                  Button, 0x10a615900, {{881.0, 1290.0}, {151.5, 68.0}}, label: 'Hide keyboard'
+Path to element:
+ →Application, 0x10a54fd40, pid: 96914, label: 'Banana Pi'
+Query chain:
+ →Find: Target Application 'com.boris.banana.pi-development'
+  Output: {
+    Application, 0x10a615a40, pid: 96914, label: 'Banana Pi'
+  }
+
+    t =    36.47s Tap Button (First Match)
+    t =    36.47s     Wait for com.boris.banana.pi-development to idle
+    t =    36.48s     Find the Button (First Match)
+    t =    37.72s         Find the Button (First Match) (retry 1)
+    t =    38.98s         Find the Button (First Match) (retry 2)
+    t =    39.22s Requesting snapshot of accessibility hierarchy for app with pid 96914
+~/orca/workspaces/gtfuwgth/pi/BananaUITests/AssistantUITest.swift:313: error: -[BananaAgentUITests.AssistantUITest testGlobalMealSearchLinksThroughNormalAppShell] : Failed to tap Button (First Match): No matches found for first query match sequence: `Descendants matching type Button` -> `Elements matching predicate 'identifier BEGINSWITH "assistant.workspace.result.meal:"'`, given input App element pid: 96914
+Possibly caused by runtime issues:
+Automation type mismatch: computed Button from legacy attributes vs Other from modern attribute. Input attributes and values: {
+    "XC_kAXXCAttributeAutomationType" = 0;
+    "XC_kAXXCAttributeElementBaseType" = "_UIFloatingTabBarItemView";
+    "XC_kAXXCAttributeElementType" = "_UIFloatingTabBarItemView";
+    "XC_kAXXCAttributeTraits" = 8858370048;
+}
+Automation type mismatch: computed Button from legacy attributes vs Other from modern attribute. Input attributes and values: {
+    "XC_kAXXCAttributeAutomationType" = 0;
+    "XC_kAXXCAttributeElementBaseType" = "_UIFloatingTabBarItemView";
+    "XC_kAXXCAttributeElementType" = "_UIFloatingTabBarItemView";
+    "XC_kAXXCAttributeTraits" = 8858370056;
+}
+Automation type mismatch: computed Button from legacy attributes vs Key from modern attribute. Input attributes and values: {
+    "XC_kAXXCAttributeAutomationType" = 20;
+    "XC_kAXXCAttributeElementBaseType" = UIAccessibilityElement;
+    "XC_kAXXCAttributeElementType" = UIAccessibilityElementKBKey;
+    "XC_kAXXCAttributeTraits" = 8589934641;
+}
+Automation type mismatch: computed Button from legacy attributes vs Key from modern attribute. Input attributes and values: {
+    "XC_kAXXCAttributeAutomationType" = 20;
+    "XC_kAXXCAttributeElementBaseType" = UIAccessibilityElement;
+    "XC_kAXXCAttributeElementType" = UIAccessibilityElementKBKey;
+    "XC_kAXXCAttributeTraits" = 8589934649;
+}
+Automation type mismatch: computed Button from legacy attributes vs Key from modern attribute. Input attributes and values: {
+    "XC_kAXXCAttributeAutomationType" = 20;
+    "XC_kAXXCAttributeElementBaseType" = UIAccessibilityElement;
+    "XC_kAXXCAttributeElementType" = UIAccessibilityElementKBKey;
+    "XC_kAXXCAttributeTraits" = 8589936689;
+}
+Automation type mismatch: computed Button from legacy attributes vs PopUpButton from modern attribute. Input attributes and values: {
+    "XC_kAXXCAttributeAutomationType" = 14;
+    "XC_kAXXCAttributeElementBaseType" = UIResponder;
+    "XC_kAXXCAttributeElementType" = "SwiftUI.AccessibilityNode";
+    "XC_kAXXCAttributeTraits" = 1108101562369;
+}
+Automation type mismatch: computed Button from legacy attributes vs DisclosureTriangle from modern attribute. Input attributes and values: {
+    "XC_kAXXCAttributeAutomationType" = 13;
+    "XC_kAXXCAttributeElementBaseType" = UIResponder;
+    "XC_kAXXCAttributeElementType" = "SwiftUI.AccessibilityNode";
+    "XC_kAXXCAttributeTraits" = 8589934593;
+}
+Automation type mismatch: computed Button from legacy attributes vs Cell from modern attribute. Input attributes and values: {
+    "XC_kAXXCAttributeAutomationType" = 75;
+    "XC_kAXXCAttributeElementBaseType" = "_UIFloatingTabBarItemCell";
+    "XC_kAXXCAttributeElementType" = "_UIFloatingTabBarItemCell";
+    "XC_kAXXCAttributeTraits" = 146297323520;
+}
+Automation type mismatch: computed Button from legacy attributes vs Cell from modern attribute. Input attributes and values: {
+    "XC_kAXXCAttributeAutomationType" = 75;
+    "XC_kAXXCAttributeElementBaseType" = "_UIFloatingTabBarItemCell";
+    "XC_kAXXCAttributeElementType" = "_UIFloatingTabBarItemCell";
+    "XC_kAXXCAttributeTraits" = 146297323528;
+}
+See test report attachments for more detail.
+    t =    39.33s Tear Down
+Test Case '-[BananaAgentUITests.AssistantUITest testGlobalMealSearchLinksThroughNormalAppShell]' failed (39.759 seconds).
+Test Case '-[BananaAgentUITests.AssistantUITest testNewEventDraftUsesSharedEditorAndRestores]' started.
+    t =     0.00s Start Test at 2026-10-25 10:17:24.740
+    t =     0.03s Set Up
+    t =     0.03s Open com.boris.banana.pi-development
+    t =     0.03s     Launch com.boris.banana.pi-development
+    t =     0.04s         Terminate com.boris.banana.pi-development:96914
+2026-10-25 10:17:24.813 xcodebuild[85576:83812219] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-25 10:17:24.813 xcodebuild[85576:83812219] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-25 10:17:25.863 xcodebuild[85576:83812219] [MT] IDELaunchParametersSnapshot: debugger version lookup failed for path '<nil>': noURL
+2026-10-25 10:17:25.863 xcodebuild[85576:83812219] [MT] IDELaunchParametersSnapshot: no debugger version
+2026-10-25 10:17:25.896 xcodebuild[85576:83812219] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+    t =     1.54s         Setting up automation session
+    t =     2.59s         Wait for com.boris.banana.pi-development to idle
+    t =     4.62s Waiting 25.0s for "assistant.input" Any to exist
+    t =     5.67s     Checking `Expect predicate `existsNoRetry == 1` for object "assistant.input" Any`
+    t =     5.67s         Checking existence of `"assistant.input" Any`
+    t =     5.81s Tap "assistant.input" Any
+    t =     5.81s     Wait for com.boris.banana.pi-development to idle
+    t =     5.81s     Find the "assistant.input" Any
+    t =     5.91s     Check for interrupting elements affecting "assistant.input" TextField
+    t =     5.96s         Wait for com.apple.springboard to idle
+    t =     6.02s     Synthesize event
+    t =     6.33s     Wait for com.boris.banana.pi-development to idle
+    t =     6.43s Type 'Create Pi UI Lunch...' into "assistant.input" TextField
+    t =     6.43s     Wait for com.boris.banana.pi-development to idle
+    t =     6.80s     Find the "assistant.input" TextField
+    t =     7.22s     Check for interrupting elements affecting "assistant.input" TextField
+    t =     7.28s         Wait for com.apple.springboard to idle
+    t =     7.34s     Synthesize event
+    t =     8.39s     Wait for com.boris.banana.pi-development to idle
+    t =     8.39s Find the "assistant.send" Button
+    t =     8.47s Tap "assistant.send" Button
+    t =     8.47s     Wait for com.boris.banana.pi-development to idle
+    t =     8.47s     Find the "assistant.send" Button
+    t =     8.54s     Check for interrupting elements affecting "assistant.send" Button
+    t =     8.60s         Wait for com.apple.springboard to idle
+    t =     8.63s     Synthesize event
+    t =     8.94s     Wait for com.boris.banana.pi-development to idle
+    t =     8.94s Waiting 15.0s for "assistant.workspace.reviewEvent" Button to exist
+    t =     9.97s     Checking `Expect predicate `existsNoRetry == 1` for object "assistant.workspace.reviewEvent" Button`
+    t =     9.97s         Checking existence of `"assistant.workspace.reviewEvent" Button`
+    t =    10.05s         Capturing element debug description
+    t =    10.97s     Checking `Expect predicate `existsNoRetry == 1` for object "assistant.workspace.reviewEvent" Button`
+    t =    10.97s         Checking existence of `"assistant.workspace.reviewEvent" Button`
+    t =    11.04s         Capturing element debug description
+    t =    11.97s     Checking `Expect predicate `existsNoRetry == 1` for object "assistant.workspace.reviewEvent" Button`
+    t =    11.97s         Checking existence of `"assistant.workspace.reviewEvent" Button`
+    t =    12.07s         Capturing element debug description
+    t =    13.01s     Checking `Expect predicate `existsNoRetry == 1` for object "assistant.workspace.reviewEvent" Button`
+    t =    13.01s         Checking existence of `"assistant.workspace.reviewEvent" Button`
+    t =    13.10s         Capturing element debug description
+    t =    14.02s     Checking `Expect predicate `existsNoRetry == 1` for object "assistant.workspace.reviewEvent" Button`
+    t =    14.03s         Checking existence of `"assistant.workspace.reviewEvent" Button`
+    t =    14.10s         Capturing element debug description
+    t =    14.94s     Checking `Expect predicate `existsNoRetry == 1` for object "assistant.workspace.reviewEvent" Button`
+    t =    14.94s         Checking existence of `"assistant.workspace.reviewEvent" Button`
+    t =    15.03s         Capturing element debug description
+    t =    15.96s     Checking `Expect predicate `existsNoRetry == 1` for object "assistant.workspace.reviewEvent" Button`
+    t =    15.96s         Checking existence of `"assistant.workspace.reviewEvent" Button`
+    t =    16.04s         Capturing element debug description
+    t =    16.97s     Checking `Expect predicate `existsNoRetry == 1` for object "assistant.workspace.reviewEvent" Button`
+    t =    16.97s         Checking existence of `"assistant.workspace.reviewEvent" Button`
+    t =    17.04s         Capturing element debug description
+    t =    17.97s     Checking `Expect predicate `existsNoRetry == 1` for object "assistant.workspace.reviewEvent" Button`
+    t =    17.98s         Checking existence of `"assistant.workspace.reviewEvent" Button`
+    t =    18.04s         Capturing element debug description
+    t =    18.97s     Checking `Expect predicate `existsNoRetry == 1` for object "assistant.workspace.reviewEvent" Button`
+    t =    18.97s         Checking existence of `"assistant.workspace.reviewEvent" Button`
+    t =    19.05s         Capturing element debug description
+    t =    20.00s     Checking `Expect predicate `existsNoRetry == 1` for object "assistant.workspace.reviewEvent" Button`
+    t =    20.00s         Checking existence of `"assistant.workspace.reviewEvent" Button`
+    t =    20.07s         Capturing element debug description
+    t =    20.99s     Checking `Expect predicate `existsNoRetry == 1` for object "assistant.workspace.reviewEvent" Button`
+    t =    21.00s         Checking existence of `"assistant.workspace.reviewEvent" Button`
+    t =    21.07s         Capturing element debug description
+    t =    22.00s     Checking `Expect predicate `existsNoRetry == 1` for object "assistant.workspace.reviewEvent" Button`
+    t =    22.00s         Checking existence of `"assistant.workspace.reviewEvent" Button`
+    t =    22.06s         Capturing element debug description
+    t =    23.00s     Checking `Expect predicate `existsNoRetry == 1` for object "assistant.workspace.reviewEvent" Button`
+    t =    23.00s         Checking existence of `"assistant.workspace.reviewEvent" Button`
+    t =    23.06s         Capturing element debug description
+    t =    23.94s     Checking `Expect predicate `existsNoRetry == 1` for object "assistant.workspace.reviewEvent" Button`
+    t =    23.95s         Checking existence of `"assistant.workspace.reviewEvent" Button`
+    t =    24.06s         Capturing element debug description
+    t =    24.07s     Checking existence of `"assistant.workspace.reviewEvent" Button`
+    t =    24.17s Collecting debug information to assist test failure triage
+    t =    24.18s     Requesting snapshot of accessibility hierarchy for app with pid 97943
+    t =    24.34s Requesting snapshot of accessibility hierarchy for app with pid 97943
+    t =    24.93s Requesting snapshot of accessibility hierarchy for app with pid 97943
+~/orca/workspaces/gtfuwgth/pi/BananaUITests/AssistantUITest.swift:285: error: -[BananaAgentUITests.AssistantUITest testNewEventDraftUsesSharedEditorAndRestores] : XCTAssertTrue failed - Attributes: Application, 0x116b3e080, pid: 97943, label: 'Banana Pi'
+Element subtree:
+ →Application, 0x116b3e080, pid: 97943, label: 'Banana Pi'
+    Window (Main), 0x116b3e1c0, {{0.0, 0.0}, {1032.0, 1376.0}}
+      Other, 0x116b3e300, {{0.0, 0.0}, {1032.0, 1376.0}}
+        Other, 0x116b3e440, {{0.0, 0.0}, {1032.0, 1376.0}}
+          Other, 0x116b3e580, {{0.0, 0.0}, {1032.0, 1376.0}}
+            Other, 0x116b3e6c0, {{0.0, 0.0}, {1032.0, 1376.0}}
+              Other, 0x116b3e800, {{0.0, 0.0}, {1032.0, 1376.0}}
+                Other, 0x116b3e940, {{0.0, 0.0}, {1032.0, 1376.0}}
+                  NavigationBar, 0x116b3ea80, {{0.0, 32.0}, {1032.0, 106.0}}, identifier: 'Assistant'
+                    Other, 0x116b3ebc0, {{864.0, 36.0}, {41.0, 36.0}}, identifier: 'assistant.conversations', label: 'Conversations'
+                      Other, 0x116b3ed00, {{864.0, 36.0}, {41.0, 36.0}}
+                        Button, 0x116b3ee40, {{864.0, 36.0}, {41.0, 36.0}}, identifier: 'assistant.conversations', label: 'Conversations'
+                    Other, 0x116b3ef80, {{921.0, 36.0}, {41.0, 36.0}}, identifier: 'assistant.new', label: 'New conversation'
+                      Other, 0x116b3f0c0, {{921.0, 36.0}, {41.0, 36.0}}
+                        Button, 0x116b3f200, {{921.0, 36.0}, {41.0, 36.0}}, identifier: 'assistant.new', label: 'New conversation'
+                    Other, 0x116b3f340, {{978.0, 36.0}, {40.0, 36.0}}, identifier: 'assistant.options', label: 'Assistant options'
+                      Other, 0x116b3f480, {{978.0, 36.0}, {40.0, 36.0}}
+                        Button, 0x116b3f5c0, {{978.0, 36.0}, {40.0, 36.0}}, identifier: 'assistant.options', label: 'Assistant options'
+                          Button, 0x116b3f700, {{978.0, 36.0}, {40.0, 36.0}}
+                            Image, 0x116b3f840, {{987.0, 43.0}, {22.0, 22.0}}, identifier: 'ellipsis.circle', label: 'More'
+                    StaticText, 0x116b3f980, {{20.0, 89.5}, {150.0, 41.0}}, label: 'Assistant'
+                  Other, 0x116b3fac0, {{0.0, 0.0}, {1032.0, 1376.0}}
+                    Other, 0x116b3fc00, {{0.0, 0.0}, {1032.0, 1376.0}}
+                      Other, 0x116b3fd40, {{0.0, 0.0}, {1032.0, 1376.0}}
+                        Other, 0x116b3fe80, {{0.0, 0.0}, {1032.0, 1376.0}}
+                          ScrollView, 0x116b50000, {{0.0, 0.0}, {1032.0, 857.0}}, identifier: 'assistant.messages'
+                            Other, 0x116b50140, {{0.0, 0.0}, {1032.0, 857.0}}
+                              Other, 0x116b50280, {{0.0, 0.0}, {1032.0, 140.8}}
+                            Other, 0x116b503c0, {{0.0, 0.0}, {1032.0, 857.0}}
+                            Other, 0x116b50500, {{0.0, 138.0}, {1032.0, 268.0}}
+                              Other, 0x116b50640, {{156.0, 158.0}, {720.0, 207.0}}
+                                StaticText, 0x116b50780, {{156.0, 158.0}, {112.0, 26.5}}, identifier: 'assistant.workspace', label: 'Pi UI Lunch'
+                                Button, 0x116b508c0, {{816.5, 161.0}, {59.5, 20.5}}, identifier: 'assistant.workspace', label: 'Dismiss'
+                                Image, 0x116b50a00, {{158.0, 200.5}, {17.0, 15.5}}, identifier: 'assistant.workspace', label: 'Calendar'
+                                StaticText, 0x116b50b40, {{158.0, 198.5}, {110.5, 20.5}}, identifier: 'assistant.workspace', label: 'Event draft'
+                                StaticText, 0x116b50c80, {{156.0, 233.0}, {233.0, 20.5}}, identifier: 'assistant.workspace', label: '10/26/2026, 1:00 PM – 1:30 PM'
+                                StaticText, 0x116b50dc0, {{156.0, 267.5}, {360.5, 14.5}}, identifier: 'assistant.workspace', label: 'Review the time, details and destination calendar before saving.'
+                                Button, 0x116b50f00, {{156.0, 296.0}, {101.0, 20.5}}, identifier: 'assistant.workspace', label: 'Review event'
+                                Button, 0x116b51040, {{156.0, 336.5}, {720.0, 28.5}}, label: 'Conversation'
+                                  StaticText, 0x116b51180, {{156.0, 336.5}, {720.0, 28.5}}, label: 'Conversation'
+                                  Image, 0x116b512c0, {{868.0, 345.0}, {7.0, 12.0}}, identifier: 'collapsed'
+                            Other, 0x116b51400, {{999.0, 86.0}, {30.0, 771.0}}, label: 'Vertical scroll bar, 1 page', value: 0%
+                              Other, 0x116b51540, {{1026.0, 922.0}, {3.0, 315.0}}
+                            Other, 0x116b51680, {{999.0, 86.0}, {30.0, 771.0}}, label: 'Vertical scroll bar, 1 page', value: 0%
+                              Other, 0x116b517c0, {{1026.0, 922.0}, {3.0, 315.0}}
+                          Image, 0x116b51900, {{154.0, 874.5}, {17.0, 17.0}}, identifier: 'cpu', label: 'cpu'
+                          StaticText, 0x116b51a40, {{181.0, 875.8}, {68.5, 14.5}}, label: 'On this iPad'
+                          StaticText, 0x116b51b80, {{152.0, 902.5}, {79.0, 14.5}}, identifier: 'assistant.test.notes', label: '0 saved notes'
+                          TextField, 0x116b51cc0, {{158.0, 931.0}, {678.0, 22.0}}, identifier: 'assistant.input', placeholderValue: 'Message Banana', Keyboard Focused, Focused
+                            Other, 0x116b51e00, {{158.0, 931.0}, {0.0, 0.0}}, identifier: '_UITextSelectionRangeAdjustmentContainerView'
+                              Other, 0x116b51f40, {{158.0, 931.0}, {0.0, 0.0}}, identifier: 'com.apple.text.grabber.leading'
+                                Other, 0x116b52080, {{150.8, 917.5}, {16.5, 16.5}}
+                                Other, 0x116b521c0, {{158.0, 931.0}, {2.0, 0.0}}
+                              Other, 0x116b52300, {{158.0, 931.0}, {0.0, 0.0}}, identifier: 'com.apple.text.grabber.leading'
+                                Other, 0x116b52440, {{150.8, 917.5}, {16.5, 16.5}}
+                                Other, 0x116b52580, {{158.0, 931.0}, {2.0, 0.0}}
+                            Other, 0x116b526c0, {{158.0, 939.0}, {678.0, 11.0}}, label: 'Horizontal scroll bar, 1 page', value: 0%
+                              Other, 0x116b52800, {{161.0, 947.0}, {672.0, 3.0}}
+                          Button, 0x116b52940, {{856.0, 933.5}, {22.0, 22.0}}, identifier: 'assistant.send', label: 'Send message', Disabled
+                  Other, 0x116b52a80, {{0.0, 0.0}, {1032.0, 1376.0}}
+                    Other, 0x116b52bc0, {{0.0, 0.0}, {1032.0, 1376.0}}
+    Window, 0x116b52d00, {{0.0, 0.0}, {1032.0, 1376.0}}
+      Other, 0x116b52e40, {{0.0, 0.0}, {1032.0, 1376.0}}
+        Other, 0x116b52f80, {{0.0, 0.0}, {1032.0, 1376.0}}
+        Other, 0x116b530c0, {{0.0, 973.0}, {1032.0, 403.0}}
+          Other, 0x116b53200, {{0.0, 973.0}, {1032.0, 403.0}}, identifier: 'inputView'
+    Window, 0x116b53340, {{0.0, 0.0}, {1032.0, 1376.0}}
+      Other, 0x116b53480, {{0.0, 0.0}, {1032.0, 1376.0}}
+        Other, 0x116b535c0, {{0.0, 973.0}, {1032.0, 403.0}}
+          Other, 0x116b53700, {{0.0, 973.0}, {1032.0, 55.0}}, identifier: 'SystemInputAssistantView'
+            Other, 0x116b53840, {{0.0, 973.0}, {1032.0, 55.0}}
+              Other, 0x116b53980, {{0.0, 973.0}, {283.0, 49.0}}, identifier: 'LeftButtonBar'
+                Other, 0x116b53ac0, {{28.0, 973.0}, {255.0, 49.0}}
+                  Other, 0x116b53c00, {{28.0, 974.0}, {114.0, 49.0}}
+                    Other, 0x116b53d40, {{28.0, 974.0}, {22.0, 49.0}}
+                      Button, 0x116b53e80, {{28.0, 974.0}, {22.0, 49.0}}, identifier: 'assistantUndo', label: 'undo', Disabled
+                    Other, 0x116b54000, {{74.0, 974.0}, {22.0, 49.0}}
+                      Button, 0x116b54140, {{74.0, 974.0}, {22.0, 49.0}}, identifier: 'assistantRedo', label: 'Redo', Disabled
+                    Other, 0x116b54280, {{120.0, 974.0}, {22.0, 49.0}}
+                      Button, 0x116b543c0, {{120.0, 974.0}, {22.0, 49.0}}, identifier: 'assistantPaste:forEvent:', label: 'Paste', Disabled
+              Other, 0x116b54500, {{283.0, 979.0}, {466.0, 49.0}}, identifier: 'CenterPageView'
+                Other, 0x116b54640, {{283.0, 379.0}, {466.0, 1249.0}}
+                  ScrollView, 0x116b54780, {{283.0, 979.0}, {466.0, 49.0}}
+                Other, 0x116b548c0, {{283.0, 979.0}, {466.0, 49.0}}
+                  Other, 0x116b54a00, {{283.0, 979.0}, {466.0, 49.0}}, label: 'Typing Predictions'
+                    Other, 0x116b54b40, {{283.0, 979.0}, {466.0, 49.0}}
+                      Other, 0x116b54c80, {{283.0, 979.0}, {466.0, 49.0}}
+                        Other, 0x116b54dc0, {{283.0, 979.0}, {155.3, 49.0}}, label: 'I'
+                        Other, 0x116b54f00, {{438.3, 979.0}, {155.3, 49.0}}, label: 'The'
+                        Other, 0x116b55040, {{593.7, 979.0}, {155.3, 49.0}}, label: 'I’m'
+              Other, 0x116b55180, {{749.0, 973.0}, {283.0, 49.0}}, identifier: 'RightButtonBar'
+                Other, 0x116b552c0, {{749.0, 973.0}, {255.0, 49.0}}
+          Other, 0x116b55400, {{0.0, 973.0}, {1032.0, 403.0}}
+            Other, 0x116b55540, {{0.0, 973.0}, {1032.0, 403.0}}
+              Other, 0x116b55680, {{0.0, 973.0}, {1032.0, 403.0}}
+          Other, 0x116b557c0, {{0.0, 1028.0}, {1032.0, 345.0}}
+            Keyboard, 0x116b55900, {{0.0, 1028.0}, {1032.0, 345.0}}
+              Other, 0x116b55a40, {{0.0, 1028.0}, {1032.0, 345.0}}
+                Other, 0x116b55b80, {{0.0, 1028.0}, {1032.0, 345.0}}, identifier: 'UIKeyboardLayoutStar Preview'
+                  Key, 0x116b55cc0, {{0.5, 1033.0}, {71.0, 52.5}}, label: '`'
+                  Key, 0x116b55e00, {{71.5, 1033.0}, {71.0, 52.5}}, label: '1'
+                  Key, 0x116b55f40, {{142.5, 1033.0}, {71.0, 52.5}}, label: '2'
+                  Key, 0x116b56080, {{213.5, 1033.0}, {71.0, 52.5}}, label: '3'
+                  Key, 0x116b561c0, {{284.5, 1033.0}, {71.0, 52.5}}, label: '4'
+                  Key, 0x116b56300, {{355.5, 1033.0}, {71.0, 52.5}}, label: '5'
+                  Key, 0x116b56440, {{426.5, 1033.0}, {71.0, 52.5}}, label: '6'
+                  Key, 0x116b56580, {{497.5, 1033.0}, {71.0, 52.5}}, label: '7'
+                  Key, 0x116b566c0, {{568.5, 1033.0}, {71.0, 52.5}}, label: '8'
+                  Key, 0x116b56800, {{639.5, 1033.0}, {71.0, 52.5}}, label: '9'
+                  Key, 0x116b56940, {{710.5, 1033.0}, {70.5, 52.5}}, label: '0'
+                  Key, 0x116b56a80, {{781.0, 1033.0}, {71.0, 52.5}}, label: '-'
+                  Key, 0x116b56bc0, {{852.0, 1033.0}, {71.0, 52.5}}, label: '='
+                  Key, 0x116b56d00, {{923.0, 1033.0}, {109.5, 52.5}}, identifier: 'delete', label: 'delete'
+                  Button, 0x116b56e40, {{0.5, 1085.5}, {109.5, 68.0}}, identifier: 'tab', label: 'Tab'
+                  Key, 0x116b56f80, {{110.0, 1085.5}, {71.0, 68.0}}, label: 'Q'
+                  Key, 0x116b570c0, {{181.0, 1085.5}, {71.0, 68.0}}, label: 'W'
+                  Key, 0x116b57200, {{252.0, 1085.5}, {70.5, 68.0}}, label: 'E'
+                  Key, 0x116b57340, {{322.5, 1085.5}, {71.0, 68.0}}, label: 'R'
+                  Key, 0x116b57480, {{393.5, 1085.5}, {71.0, 68.0}}, label: 'T'
+                  Key, 0x116b575c0, {{464.5, 1085.5}, {71.0, 68.0}}, label: 'Y'
+                  Key, 0x116b57700, {{535.5, 1085.5}, {71.0, 68.0}}, label: 'U'
+                  Key, 0x116b57840, {{606.5, 1085.5}, {71.0, 68.0}}, label: 'I'
+                  Key, 0x116b57980, {{677.5, 1085.5}, {71.0, 68.0}}, label: 'O'
+                  Key, 0x116b57ac0, {{748.5, 1085.5}, {71.0, 68.0}}, label: 'P'
+                  Key, 0x116b57c00, {{819.5, 1085.5}, {71.0, 68.0}}, label: '['
+                  Key, 0x116b57d40, {{890.5, 1085.5}, {71.0, 68.0}}, label: ']'
+                  Key, 0x116b57e80, {{961.5, 1085.5}, {71.0, 68.0}}, label: '\'
+                  Key, 0x116b58000, {{0.5, 1153.5}, {125.5, 68.0}}, identifier: 'caps-lock', label: 'Caps Lock'
+                  Key, 0x116b58140, {{126.0, 1153.5}, {71.0, 68.0}}, label: 'A'
+                  Key, 0x116b58280, {{197.0, 1153.5}, {71.0, 68.0}}, label: 'S'
+                  Key, 0x116b583c0, {{268.0, 1153.5}, {71.0, 68.0}}, label: 'D'
+                  Key, 0x116b58500, {{339.0, 1153.5}, {71.0, 68.0}}, label: 'F'
+                  Key, 0x116b58640, {{410.0, 1153.5}, {71.0, 68.0}}, label: 'G'
+                  Key, 0x116b58780, {{481.0, 1153.5}, {71.0, 68.0}}, label: 'H'
+                  Key, 0x116b588c0, {{552.0, 1153.5}, {71.0, 68.0}}, label: 'J'
+                  Key, 0x116b58a00, {{623.0, 1153.5}, {71.0, 68.0}}, label: 'K'
+                  Key, 0x116b58b40, {{694.0, 1153.5}, {71.0, 68.0}}, label: 'L'
+                  Key, 0x116b58c80, {{765.0, 1153.5}, {71.0, 68.0}}, label: ';'
+                  Key, 0x116b58dc0, {{836.0, 1153.5}, {71.0, 68.0}}, label: '''
+                  Button, 0x116b58f00, {{907.0, 1153.5}, {125.5, 68.0}}, identifier: 'Send', label: 'send'
+                  Button, 0x116b59040, {{0.5, 1221.5}, {161.0, 68.5}}, identifier: 'shift', label: 'shift', Selected
+                  Key, 0x116b59180, {{161.5, 1221.5}, {71.0, 68.5}}, label: 'Z'
+                  Key, 0x116b592c0, {{232.5, 1221.5}, {71.0, 68.5}}, label: 'X'
+                  Key, 0x116b59400, {{303.5, 1221.5}, {71.0, 68.5}}, label: 'C'
+                  Key, 0x116b59540, {{374.5, 1221.5}, {71.0, 68.5}}, label: 'V'
+                  Key, 0x116b59680, {{445.5, 1221.5}, {71.0, 68.5}}, label: 'B'
+                  Key, 0x116b597c0, {{516.5, 1221.5}, {71.0, 68.5}}, label: 'N'
+                  Key, 0x116b59900, {{587.5, 1221.5}, {71.0, 68.5}}, label: 'M'
+                  Key, 0x116b59a40, {{658.5, 1221.5}, {71.0, 68.5}}, label: ','
+                  Key, 0x116b59b80, {{729.5, 1221.5}, {71.0, 68.5}}, label: '.'
+                  Key, 0x116b59cc0, {{800.5, 1221.5}, {71.0, 68.5}}, label: '/'
+                  Key, 0x116b59e00, {{871.5, 1221.5}, {161.0, 68.5}}, label: 'shift', Selected
+                  Button, 0x116b59f40, {{0.5, 1290.0}, {100.5, 68.0}}, identifier: 'emoji', label: 'Emoji'
+                  Key, 0x116b5a080, {{101.0, 1290.0}, {100.5, 68.0}}, identifier: 'more', label: 'numbers'
+                  Button, 0x116b5a1c0, {{201.5, 1290.0}, {101.0, 68.0}}, identifier: 'dictation', label: 'Dictate'
+                  Key, 0x116b5a300, {{302.5, 1290.0}, {426.5, 68.0}}, label: ' '
+                  Key, 0x116b5a440, {{729.0, 1290.0}, {152.0, 68.0}}, identifier: 'more', label: 'numbers'
+                  Button, 0x116b5a580, {{881.0, 1290.0}, {151.5, 68.0}}, label: 'Hide keyboard'
+Path to element:
+ →Application, 0x116b3e080, pid: 97943, label: 'Banana Pi'
+Query chain:
+ →Find: Target Application 'com.boris.banana.pi-development'
+  Output: {
+    Application, 0x116b5a6c0, pid: 97943, label: 'Banana Pi'
+  }
+
+    t =    25.04s Tap "assistant.workspace.reviewEvent" Button
+    t =    25.04s     Wait for com.boris.banana.pi-development to idle
+    t =    25.05s     Find the "assistant.workspace.reviewEvent" Button
+    t =    26.12s         Find the "assistant.workspace.reviewEvent" Button (retry 1)
+    t =    27.20s         Find the "assistant.workspace.reviewEvent" Button (retry 2)
+    t =    27.27s Requesting snapshot of accessibility hierarchy for app with pid 97943
+~/orca/workspaces/gtfuwgth/pi/BananaUITests/AssistantUITest.swift:286: error: -[BananaAgentUITests.AssistantUITest testNewEventDraftUsesSharedEditorAndRestores] : Failed to tap "assistant.workspace.reviewEvent" Button: No matches found for Elements matching predicate '"assistant.workspace.reviewEvent" IN identifiers' from input {(
+    Button, identifier: 'tab', label: 'Tab',
+    Button, identifier: 'Send', label: 'send',
+    Button, identifier: 'shift', label: 'shift', Selected,
+    Button, identifier: 'emoji', label: 'Emoji',
+    Button, identifier: 'dictation', label: 'Dictate',
+    Button, label: 'Hide keyboard',
+    Button, identifier: 'assistantUndo', label: 'undo', Disabled,
+    Button, identifier: 'assistantRedo', label: 'Redo', Disabled,
+    Button, identifier: 'assistantPaste:forEvent:', label: 'Paste', Disabled,
+    Button, identifier: 'assistant.conversations', label: 'Conversations',
+    Button, identifier: 'assistant.new', label: 'New conversation',
+    Button, identifier: 'assistant.options', label: 'Assistant options',
+    Button,
+    Button, identifier: 'assistant.send', label: 'Send message', Disabled,
+    Button, identifier: 'assistant.workspace', label: 'Dismiss',
+    Button, identifier: 'assistant.workspace', label: 'Review event',
+    Button, label: 'Conversation'
+)}
+Possibly caused by runtime issues:
+Automation type mismatch: computed Button from legacy attributes vs Key from modern attribute. Input attributes and values: {
+    "XC_kAXXCAttributeAutomationType" = 20;
+    "XC_kAXXCAttributeElementBaseType" = UIAccessibilityElement;
+    "XC_kAXXCAttributeElementType" = UIAccessibilityElementKBKey;
+    "XC_kAXXCAttributeTraits" = 8589936689;
+}
+Automation type mismatch: computed Button from legacy attributes vs Key from modern attribute. Input attributes and values: {
+    "XC_kAXXCAttributeAutomationType" = 20;
+    "XC_kAXXCAttributeElementBaseType" = UIAccessibilityElement;
+    "XC_kAXXCAttributeElementType" = UIAccessibilityElementKBKey;
+    "XC_kAXXCAttributeTraits" = 8589934641;
+}
+Automation type mismatch: computed Button from legacy attributes vs Key from modern attribute. Input attributes and values: {
+    "XC_kAXXCAttributeAutomationType" = 20;
+    "XC_kAXXCAttributeElementBaseType" = UIAccessibilityElement;
+    "XC_kAXXCAttributeElementType" = UIAccessibilityElementKBKey;
+    "XC_kAXXCAttributeTraits" = 8589934649;
+}
+Automation type mismatch: computed Button from legacy attributes vs PopUpButton from modern attribute. Input attributes and values: {
+    "XC_kAXXCAttributeAutomationType" = 14;
+    "XC_kAXXCAttributeElementBaseType" = UIResponder;
+    "XC_kAXXCAttributeElementType" = "SwiftUI.AccessibilityNode";
+    "XC_kAXXCAttributeTraits" = 1108101562369;
+}
+Automation type mismatch: computed Button from legacy attributes vs DisclosureTriangle from modern attribute. Input attributes and values: {
+    "XC_kAXXCAttributeAutomationType" = 13;
+    "XC_kAXXCAttributeElementBaseType" = UIResponder;
+    "XC_kAXXCAttributeElementType" = "SwiftUI.AccessibilityNode";
+    "XC_kAXXCAttributeTraits" = 8589934593;
+}
+See test report attachments for more detail.
+    t =    27.36s Tear Down
+Test Case '-[BananaAgentUITests.AssistantUITest testNewEventDraftUsesSharedEditorAndRestores]' failed (27.744 seconds).
+Test Case '-[BananaAgentUITests.AssistantUITest testNewMealDraftSaveAppearsInExistingNutritionStore]' started.
+    t =     0.00s Start Test at 2026-10-25 10:17:52.485
+    t =     0.03s Set Up
+    t =     0.03s Open com.boris.banana.pi-development
+    t =     0.03s     Launch com.boris.banana.pi-development
+    t =     0.03s         Terminate com.boris.banana.pi-development:97943
+2026-10-25 10:17:52.542 xcodebuild[85576:83812219] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-25 10:17:52.542 xcodebuild[85576:83812219] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-25 10:17:53.614 xcodebuild[85576:83812219] [MT] IDELaunchParametersSnapshot: debugger version lookup failed for path '<nil>': noURL
+2026-10-25 10:17:53.614 xcodebuild[85576:83812219] [MT] IDELaunchParametersSnapshot: no debugger version
+2026-10-25 10:17:53.646 xcodebuild[85576:83812219] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+    t =     1.55s         Setting up automation session
+    t =     2.89s         Wait for com.boris.banana.pi-development to idle
+    t =     4.91s Waiting 25.0s for "assistant.input" Any to exist
+    t =     5.93s     Checking `Expect predicate `existsNoRetry == 1` for object "assistant.input" Any`
+    t =     5.93s         Checking existence of `"assistant.input" Any`
+    t =     6.08s Tap "Show my protein this month" Button
+    t =     6.08s     Wait for com.boris.banana.pi-development to idle
+    t =     6.09s     Find the "Show my protein this month" Button
+    t =     6.14s     Check for interrupting elements affecting "Show my protein this month" Button
+    t =     6.18s         Wait for com.apple.springboard to idle
+    t =     6.22s     Synthesize event
+    t =     6.54s     Wait for com.boris.banana.pi-development to idle
+    t =     7.04s Waiting 15.0s for "assistant.test.meals" StaticText to exist
+    t =     8.06s     Checking `Expect predicate `existsNoRetry == 1` for object "assistant.test.meals" StaticText`
+    t =     8.06s         Checking existence of `"assistant.test.meals" StaticText`
+    t =     8.10s Find the "assistant.test.meals" StaticText
+    t =     8.14s Tap "assistant.input" Any
+    t =     8.14s     Wait for com.boris.banana.pi-development to idle
+    t =     8.15s     Find the "assistant.input" Any
+    t =     8.25s     Check for interrupting elements affecting "assistant.input" TextField
+    t =     8.29s         Wait for com.apple.springboard to idle
+    t =     8.35s     Synthesize event
+    t =     8.66s     Wait for com.boris.banana.pi-development to idle
+    t =     8.78s Type 'Make a meal with 2...' into "assistant.input" TextField
+    t =     8.78s     Wait for com.boris.banana.pi-development to idle
+    t =     9.15s     Find the "assistant.input" TextField
+    t =     9.71s     Check for interrupting elements affecting "assistant.input" TextField
+    t =     9.79s         Wait for com.apple.springboard to idle
+    t =     9.85s     Synthesize event
+    t =    10.66s     Wait for com.boris.banana.pi-development to idle
+    t =    10.66s Find the "assistant.send" Button
+    t =    10.74s Tap "assistant.send" Button
+    t =    10.74s     Wait for com.boris.banana.pi-development to idle
+    t =    10.74s     Find the "assistant.send" Button
+    t =    10.82s     Check for interrupting elements affecting "assistant.send" Button
+    t =    10.88s         Wait for com.apple.springboard to idle
+    t =    10.91s     Synthesize event
+    t =    11.21s     Wait for com.boris.banana.pi-development to idle
+    t =    11.24s Waiting 15.0s for "assistant.workspace.reviewMeal" Button to exist
+    t =    12.27s     Checking `Expect predicate `existsNoRetry == 1` for object "assistant.workspace.reviewMeal" Button`
+    t =    12.27s         Checking existence of `"assistant.workspace.reviewMeal" Button`
+    t =    12.34s         Capturing element debug description
+    t =    13.27s     Checking `Expect predicate `existsNoRetry == 1` for object "assistant.workspace.reviewMeal" Button`
+    t =    13.27s         Checking existence of `"assistant.workspace.reviewMeal" Button`
+    t =    13.34s         Capturing element debug description
+    t =    14.26s     Checking `Expect predicate `existsNoRetry == 1` for object "assistant.workspace.reviewMeal" Button`
+    t =    14.27s         Checking existence of `"assistant.workspace.reviewMeal" Button`
+    t =    14.35s         Capturing element debug description
+    t =    15.28s     Checking `Expect predicate `existsNoRetry == 1` for object "assistant.workspace.reviewMeal" Button`
+    t =    15.29s         Checking existence of `"assistant.workspace.reviewMeal" Button`
+    t =    15.35s         Capturing element debug description
+    t =    16.28s     Checking `Expect predicate `existsNoRetry == 1` for object "assistant.workspace.reviewMeal" Button`
+    t =    16.28s         Checking existence of `"assistant.workspace.reviewMeal" Button`
+    t =    16.35s         Capturing element debug description
+    t =    17.28s     Checking `Expect predicate `existsNoRetry == 1` for object "assistant.workspace.reviewMeal" Button`
+    t =    17.29s         Checking existence of `"assistant.workspace.reviewMeal" Button`
+    t =    17.35s         Capturing element debug description
+    t =    18.28s     Checking `Expect predicate `existsNoRetry == 1` for object "assistant.workspace.reviewMeal" Button`
+    t =    18.28s         Checking existence of `"assistant.workspace.reviewMeal" Button`
+    t =    18.35s         Capturing element debug description
+    t =    19.28s     Checking `Expect predicate `existsNoRetry == 1` for object "assistant.workspace.reviewMeal" Button`
+    t =    19.29s         Checking existence of `"assistant.workspace.reviewMeal" Button`
+    t =    19.35s         Capturing element debug description
+    t =    20.28s     Checking `Expect predicate `existsNoRetry == 1` for object "assistant.workspace.reviewMeal" Button`
+    t =    20.28s         Checking existence of `"assistant.workspace.reviewMeal" Button`
+    t =    20.35s         Capturing element debug description
+    t =    21.29s     Checking `Expect predicate `existsNoRetry == 1` for object "assistant.workspace.reviewMeal" Button`
+    t =    21.29s         Checking existence of `"assistant.workspace.reviewMeal" Button`
+    t =    21.35s         Capturing element debug description
+    t =    22.28s     Checking `Expect predicate `existsNoRetry == 1` for object "assistant.workspace.reviewMeal" Button`
+    t =    22.28s         Checking existence of `"assistant.workspace.reviewMeal" Button`
+    t =    22.35s         Capturing element debug description
+    t =    23.29s     Checking `Expect predicate `existsNoRetry == 1` for object "assistant.workspace.reviewMeal" Button`
+    t =    23.29s         Checking existence of `"assistant.workspace.reviewMeal" Button`
+    t =    23.36s         Capturing element debug description
+    t =    24.29s     Checking `Expect predicate `existsNoRetry == 1` for object "assistant.workspace.reviewMeal" Button`
+    t =    24.29s         Checking existence of `"assistant.workspace.reviewMeal" Button`
+    t =    24.37s         Capturing element debug description
+    t =    25.31s     Checking `Expect predicate `existsNoRetry == 1` for object "assistant.workspace.reviewMeal" Button`
+    t =    25.31s         Checking existence of `"assistant.workspace.reviewMeal" Button`
+    t =    25.38s         Capturing element debug description
+    t =    26.25s     Checking `Expect predicate `existsNoRetry == 1` for object "assistant.workspace.reviewMeal" Button`
+    t =    26.25s         Checking existence of `"assistant.workspace.reviewMeal" Button`
+    t =    26.33s         Capturing element debug description
+    t =    26.34s     Checking existence of `"assistant.workspace.reviewMeal" Button`
+    t =    26.40s Collecting debug information to assist test failure triage
+    t =    26.40s     Requesting snapshot of accessibility hierarchy for app with pid 99300
+    t =    26.49s Requesting snapshot of accessibility hierarchy for app with pid 99300
+    t =    26.91s Requesting snapshot of accessibility hierarchy for app with pid 99300
+~/orca/workspaces/gtfuwgth/pi/BananaUITests/AssistantUITest.swift:263: error: -[BananaAgentUITests.AssistantUITest testNewMealDraftSaveAppearsInExistingNutritionStore] : XCTAssertTrue failed - Attributes: Application, 0x116bd0500, pid: 99300, label: 'Banana Pi'
+Element subtree:
+ →Application, 0x116bd0500, pid: 99300, label: 'Banana Pi'
+    Window (Main), 0x116bd0640, {{0.0, 0.0}, {1032.0, 1376.0}}
+      Other, 0x116bd0780, {{0.0, 0.0}, {1032.0, 1376.0}}
+        Other, 0x116bd08c0, {{0.0, 0.0}, {1032.0, 1376.0}}
+          Other, 0x116bd0a00, {{0.0, 0.0}, {1032.0, 1376.0}}
+            Other, 0x116bd0b40, {{0.0, 0.0}, {1032.0, 1376.0}}
+              Other, 0x116bd0c80, {{0.0, 0.0}, {1032.0, 1376.0}}
+                Other, 0x116bd0dc0, {{0.0, 0.0}, {1032.0, 1376.0}}
+                  NavigationBar, 0x116bd0f00, {{0.0, 32.0}, {1032.0, 106.0}}, identifier: 'Assistant'
+                    Other, 0x116bd1040, {{864.0, 36.0}, {41.0, 36.0}}, identifier: 'assistant.conversations', label: 'Conversations'
+                      Other, 0x116bd1180, {{864.0, 36.0}, {41.0, 36.0}}
+                        Button, 0x116bd12c0, {{864.0, 36.0}, {41.0, 36.0}}, identifier: 'assistant.conversations', label: 'Conversations'
+                    Other, 0x116bd1400, {{921.0, 36.0}, {41.0, 36.0}}, identifier: 'assistant.new', label: 'New conversation'
+                      Other, 0x116bd1540, {{921.0, 36.0}, {41.0, 36.0}}
+                        Button, 0x116bd1680, {{921.0, 36.0}, {41.0, 36.0}}, identifier: 'assistant.new', label: 'New conversation'
+                    Other, 0x116bd17c0, {{978.0, 36.0}, {40.0, 36.0}}, identifier: 'assistant.options', label: 'Assistant options'
+                      Other, 0x116bd1900, {{978.0, 36.0}, {40.0, 36.0}}
+                        Button, 0x116bd1a40, {{978.0, 36.0}, {40.0, 36.0}}, identifier: 'assistant.options', label: 'Assistant options'
+                          Button, 0x116bd1b80, {{978.0, 36.0}, {40.0, 36.0}}
+                            Image, 0x116bd1cc0, {{987.0, 43.0}, {22.0, 22.0}}, identifier: 'ellipsis.circle', label: 'More'
+                    StaticText, 0x116bd1e00, {{20.0, 89.5}, {150.0, 41.0}}, label: 'Assistant'
+                  Other, 0x116bd1f40, {{0.0, 0.0}, {1032.0, 1376.0}}
+                    Other, 0x116bd2080, {{0.0, 0.0}, {1032.0, 1376.0}}
+                      Other, 0x116bd21c0, {{0.0, 0.0}, {1032.0, 1376.0}}
+                        Other, 0x116bd2300, {{0.0, 0.0}, {1032.0, 1376.0}}
+                          ScrollView, 0x116bd2440, {{0.0, 0.0}, {1032.0, 857.0}}, identifier: 'assistant.messages'
+                            Other, 0x116bd2580, {{0.0, 0.0}, {1032.0, 857.0}}
+                              Other, 0x116bd26c0, {{0.0, 0.0}, {1032.0, 140.8}}
+                            Other, 0x116bd2800, {{0.0, 0.0}, {1032.0, 857.0}}
+                            Other, 0x116bd2940, {{0.0, 138.0}, {1032.0, 304.0}}
+                              Other, 0x116bd2a80, {{156.0, 158.0}, {720.0, 243.0}}
+                                StaticText, 0x116bd2bc0, {{156.0, 158.0}, {145.0, 26.5}}, identifier: 'assistant.workspace', label: 'Pi UI breakfast'
+                                Button, 0x116bd2d00, {{816.5, 161.0}, {59.5, 20.5}}, identifier: 'assistant.workspace', label: 'Dismiss'
+                                Image, 0x116bd2e40, {{158.0, 199.5}, {11.5, 19.5}}, identifier: 'assistant.workspace', label: 'Food'
+                                StaticText, 0x116bd2f80, {{158.0, 199.5}, {205.5, 21.0}}, identifier: 'assistant.workspace', label: 'Meal draft · 2026-10-25'
+                                StaticText, 0x116bd30c0, {{156.0, 234.5}, {52.0, 20.5}}, identifier: 'assistant.workspace', label: '2 eggs'
+                                StaticText, 0x116bd3200, {{156.0, 269.0}, {68.0, 20.5}}, identifier: 'assistant.workspace', label: '1 banana'
+                                StaticText, 0x116bd3340, {{156.0, 303.5}, {661.5, 14.5}}, identifier: 'assistant.workspace', label: 'Nutrition comes from your corrections and the food catalog. Unknown foods need a lookup or manual entry in review.'
+                                Button, 0x116bd3480, {{156.0, 332.0}, {95.0, 20.5}}, identifier: 'assistant.workspace', label: 'Review meal'
+                                Button, 0x116bd35c0, {{156.0, 372.5}, {720.0, 28.5}}, label: 'Conversation'
+                                  StaticText, 0x116bd3700, {{156.0, 372.5}, {720.0, 28.5}}, label: 'Conversation'
+                                  Image, 0x116bd3840, {{868.0, 380.5}, {7.0, 12.0}}, identifier: 'collapsed'
+                            Other, 0x116bd3980, {{999.0, 86.0}, {30.0, 771.0}}, label: 'Vertical scroll bar, 1 page', value: 0%
+                              Other, 0x116bd3ac0, {{1026.0, 922.0}, {3.0, 315.0}}
+                            Other, 0x116bd3c00, {{999.0, 86.0}, {30.0, 771.0}}, label: 'Vertical scroll bar, 1 page', value: 0%
+                              Other, 0x116bd3d40, {{1026.0, 922.0}, {3.0, 315.0}}
+                          Image, 0x116bd3e80, {{154.0, 874.5}, {17.0, 17.0}}, identifier: 'cpu', label: 'cpu'
+                          StaticText, 0x116bdc000, {{181.0, 875.8}, {68.5, 14.5}}, label: 'On this iPad'
+                          StaticText, 0x116bdc140, {{152.0, 902.5}, {79.0, 14.5}}, identifier: 'assistant.test.notes', label: '0 saved notes'
+                          TextField, 0x116bdc280, {{158.0, 931.0}, {678.0, 22.0}}, identifier: 'assistant.input', placeholderValue: 'Message Banana', Keyboard Focused, Focused
+                            Other, 0x116bdc3c0, {{158.0, 931.0}, {0.0, 0.0}}, identifier: '_UITextSelectionRangeAdjustmentContainerView'
+                              Other, 0x116bdc500, {{158.0, 931.0}, {0.0, 0.0}}, identifier: 'com.apple.text.grabber.leading'
+                                Other, 0x116bdc640, {{150.8, 917.5}, {16.5, 16.5}}
+                                Other, 0x116bdc780, {{158.0, 931.0}, {2.0, 0.0}}
+                              Other, 0x116bdc8c0, {{158.0, 931.0}, {0.0, 0.0}}, identifier: 'com.apple.text.grabber.leading'
+                                Other, 0x116bdca00, {{150.8, 917.5}, {16.5, 16.5}}
+                                Other, 0x116bdcb40, {{158.0, 931.0}, {2.0, 0.0}}
+                            Other, 0x116bdcc80, {{158.0, 939.0}, {678.0, 11.0}}, label: 'Horizontal scroll bar, 1 page', value: 0%
+                              Other, 0x116bdcdc0, {{161.0, 947.0}, {672.0, 3.0}}
+                          Button, 0x116bdcf00, {{856.0, 933.5}, {22.0, 22.0}}, identifier: 'assistant.send', label: 'Send message', Disabled
+                  Other, 0x116bdd040, {{0.0, 0.0}, {1032.0, 1376.0}}
+                    Other, 0x116bdd180, {{0.0, 0.0}, {1032.0, 1376.0}}
+    Window, 0x116bdd2c0, {{0.0, 0.0}, {1032.0, 1376.0}}
+      Other, 0x116bdd400, {{0.0, 0.0}, {1032.0, 1376.0}}
+        Other, 0x116bdd540, {{0.0, 0.0}, {1032.0, 1376.0}}
+        Other, 0x116bdd680, {{0.0, 973.0}, {1032.0, 403.0}}
+          Other, 0x116bdd7c0, {{0.0, 973.0}, {1032.0, 403.0}}, identifier: 'inputView'
+    Window, 0x116bdd900, {{0.0, 0.0}, {1032.0, 1376.0}}
+      Other, 0x116bdda40, {{0.0, 0.0}, {1032.0, 1376.0}}
+        Other, 0x116bddb80, {{0.0, 973.0}, {1032.0, 403.0}}
+          Other, 0x116bddcc0, {{0.0, 973.0}, {1032.0, 55.0}}, identifier: 'SystemInputAssistantView'
+            Other, 0x116bdde00, {{0.0, 973.0}, {1032.0, 55.0}}
+              Other, 0x116bddf40, {{0.0, 973.0}, {283.0, 49.0}}, identifier: 'LeftButtonBar'
+                Other, 0x116bde080, {{28.0, 973.0}, {255.0, 49.0}}
+                  Other, 0x116bde1c0, {{28.0, 974.0}, {114.0, 49.0}}
+                    Other, 0x116bde300, {{28.0, 974.0}, {22.0, 49.0}}
+                      Button, 0x116bde440, {{28.0, 974.0}, {22.0, 49.0}}, identifier: 'assistantUndo', label: 'undo', Disabled
+                    Other, 0x116bde580, {{74.0, 974.0}, {22.0, 49.0}}
+                      Button, 0x116bde6c0, {{74.0, 974.0}, {22.0, 49.0}}, identifier: 'assistantRedo', label: 'Redo', Disabled
+                    Other, 0x116bde800, {{120.0, 974.0}, {22.0, 49.0}}
+                      Button, 0x116bde940, {{120.0, 974.0}, {22.0, 49.0}}, identifier: 'assistantPaste:forEvent:', label: 'Paste', Disabled
+              Other, 0x116bdea80, {{283.0, 979.0}, {466.0, 49.0}}, identifier: 'CenterPageView'
+                Other, 0x116bdebc0, {{283.0, 379.0}, {466.0, 1249.0}}
+                  ScrollView, 0x116bded00, {{283.0, 979.0}, {466.0, 49.0}}
+                Other, 0x116bdee40, {{283.0, 979.0}, {466.0, 49.0}}
+                  Other, 0x116bdef80, {{283.0, 979.0}, {466.0, 49.0}}, label: 'Typing Predictions'
+                    Other, 0x116bdf0c0, {{283.0, 979.0}, {466.0, 49.0}}
+                      Other, 0x116bdf200, {{283.0, 979.0}, {466.0, 49.0}}
+                        Other, 0x116bdf340, {{283.0, 979.0}, {155.3, 49.0}}, label: 'I'
+                        Other, 0x116bdf480, {{438.3, 979.0}, {155.3, 49.0}}, label: 'The'
+                        Other, 0x116bdf5c0, {{593.7, 979.0}, {155.3, 49.0}}, label: 'I’m'
+              Other, 0x116bdf700, {{749.0, 973.0}, {283.0, 49.0}}, identifier: 'RightButtonBar'
+                Other, 0x116bdf840, {{749.0, 973.0}, {255.0, 49.0}}
+          Other, 0x116bdf980, {{0.0, 973.0}, {1032.0, 403.0}}
+            Other, 0x116bdfac0, {{0.0, 973.0}, {1032.0, 403.0}}
+              Other, 0x116bdfc00, {{0.0, 973.0}, {1032.0, 403.0}}
+          Other, 0x116bdfd40, {{0.0, 1028.0}, {1032.0, 345.0}}
+            Keyboard, 0x116bdfe80, {{0.0, 1028.0}, {1032.0, 345.0}}
+              Other, 0x116be0000, {{0.0, 1028.0}, {1032.0, 345.0}}
+                Other, 0x116be0140, {{0.0, 1028.0}, {1032.0, 345.0}}, identifier: 'UIKeyboardLayoutStar Preview'
+                  Key, 0x116be0280, {{0.5, 1033.0}, {71.0, 52.5}}, label: '`'
+                  Key, 0x116be03c0, {{71.5, 1033.0}, {71.0, 52.5}}, label: '1'
+                  Key, 0x116be0500, {{142.5, 1033.0}, {71.0, 52.5}}, label: '2'
+                  Key, 0x116be0640, {{213.5, 1033.0}, {71.0, 52.5}}, label: '3'
+                  Key, 0x116be0780, {{284.5, 1033.0}, {71.0, 52.5}}, label: '4'
+                  Key, 0x116be08c0, {{355.5, 1033.0}, {71.0, 52.5}}, label: '5'
+                  Key, 0x116be0a00, {{426.5, 1033.0}, {71.0, 52.5}}, label: '6'
+                  Key, 0x116be0b40, {{497.5, 1033.0}, {71.0, 52.5}}, label: '7'
+                  Key, 0x116be0c80, {{568.5, 1033.0}, {71.0, 52.5}}, label: '8'
+                  Key, 0x116be0dc0, {{639.5, 1033.0}, {71.0, 52.5}}, label: '9'
+                  Key, 0x116be0f00, {{710.5, 1033.0}, {70.5, 52.5}}, label: '0'
+                  Key, 0x116be1040, {{781.0, 1033.0}, {71.0, 52.5}}, label: '-'
+                  Key, 0x116be1180, {{852.0, 1033.0}, {71.0, 52.5}}, label: '='
+                  Key, 0x116be12c0, {{923.0, 1033.0}, {109.5, 52.5}}, identifier: 'delete', label: 'delete'
+                  Button, 0x116be1400, {{0.5, 1085.5}, {109.5, 68.0}}, identifier: 'tab', label: 'Tab'
+                  Key, 0x116be1540, {{110.0, 1085.5}, {71.0, 68.0}}, label: 'Q'
+                  Key, 0x116be1680, {{181.0, 1085.5}, {71.0, 68.0}}, label: 'W'
+                  Key, 0x116be17c0, {{252.0, 1085.5}, {70.5, 68.0}}, label: 'E'
+                  Key, 0x116be1900, {{322.5, 1085.5}, {71.0, 68.0}}, label: 'R'
+                  Key, 0x116be1a40, {{393.5, 1085.5}, {71.0, 68.0}}, label: 'T'
+                  Key, 0x116be1b80, {{464.5, 1085.5}, {71.0, 68.0}}, label: 'Y'
+                  Key, 0x116be1cc0, {{535.5, 1085.5}, {71.0, 68.0}}, label: 'U'
+                  Key, 0x116be1e00, {{606.5, 1085.5}, {71.0, 68.0}}, label: 'I'
+                  Key, 0x116be1f40, {{677.5, 1085.5}, {71.0, 68.0}}, label: 'O'
+                  Key, 0x116be2080, {{748.5, 1085.5}, {71.0, 68.0}}, label: 'P'
+                  Key, 0x116be21c0, {{819.5, 1085.5}, {71.0, 68.0}}, label: '['
+                  Key, 0x116be2300, {{890.5, 1085.5}, {71.0, 68.0}}, label: ']'
+                  Key, 0x116be2440, {{961.5, 1085.5}, {71.0, 68.0}}, label: '\'
+                  Key, 0x116be2580, {{0.5, 1153.5}, {125.5, 68.0}}, identifier: 'caps-lock', label: 'Caps Lock'
+                  Key, 0x116be26c0, {{126.0, 1153.5}, {71.0, 68.0}}, label: 'A'
+                  Key, 0x116be2800, {{197.0, 1153.5}, {71.0, 68.0}}, label: 'S'
+                  Key, 0x116be2940, {{268.0, 1153.5}, {71.0, 68.0}}, label: 'D'
+                  Key, 0x116be2a80, {{339.0, 1153.5}, {71.0, 68.0}}, label: 'F'
+                  Key, 0x116be2bc0, {{410.0, 1153.5}, {71.0, 68.0}}, label: 'G'
+                  Key, 0x116be2d00, {{481.0, 1153.5}, {71.0, 68.0}}, label: 'H'
+                  Key, 0x116be2e40, {{552.0, 1153.5}, {71.0, 68.0}}, label: 'J'
+                  Key, 0x116be2f80, {{623.0, 1153.5}, {71.0, 68.0}}, label: 'K'
+                  Key, 0x116be30c0, {{694.0, 1153.5}, {71.0, 68.0}}, label: 'L'
+                  Key, 0x116be3200, {{765.0, 1153.5}, {71.0, 68.0}}, label: ';'
+                  Key, 0x116be3340, {{836.0, 1153.5}, {71.0, 68.0}}, label: '''
+                  Button, 0x116be3480, {{907.0, 1153.5}, {125.5, 68.0}}, identifier: 'Send', label: 'send'
+                  Button, 0x116be35c0, {{0.5, 1221.5}, {161.0, 68.5}}, identifier: 'shift', label: 'shift', Selected
+                  Key, 0x116be3700, {{161.5, 1221.5}, {71.0, 68.5}}, label: 'Z'
+                  Key, 0x116be3840, {{232.5, 1221.5}, {71.0, 68.5}}, label: 'X'
+                  Key, 0x116be3980, {{303.5, 1221.5}, {71.0, 68.5}}, label: 'C'
+                  Key, 0x116be3ac0, {{374.5, 1221.5}, {71.0, 68.5}}, label: 'V'
+                  Key, 0x116be3c00, {{445.5, 1221.5}, {71.0, 68.5}}, label: 'B'
+                  Key, 0x116be3d40, {{516.5, 1221.5}, {71.0, 68.5}}, label: 'N'
+                  Key, 0x116be3e80, {{587.5, 1221.5}, {71.0, 68.5}}, label: 'M'
+                  Key, 0x116be4000, {{658.5, 1221.5}, {71.0, 68.5}}, label: ','
+                  Key, 0x116be4140, {{729.5, 1221.5}, {71.0, 68.5}}, label: '.'
+                  Key, 0x116be4280, {{800.5, 1221.5}, {71.0, 68.5}}, label: '/'
+                  Key, 0x116be43c0, {{871.5, 1221.5}, {161.0, 68.5}}, label: 'shift', Selected
+                  Button, 0x116be4500, {{0.5, 1290.0}, {100.5, 68.0}}, identifier: 'emoji', label: 'Emoji'
+                  Key, 0x116be4640, {{101.0, 1290.0}, {100.5, 68.0}}, identifier: 'more', label: 'numbers'
+                  Button, 0x116be4780, {{201.5, 1290.0}, {101.0, 68.0}}, identifier: 'dictation', label: 'Dictate'
+                  Key, 0x116be48c0, {{302.5, 1290.0}, {426.5, 68.0}}, label: ' '
+                  Key, 0x116be4a00, {{729.0, 1290.0}, {152.0, 68.0}}, identifier: 'more', label: 'numbers'
+                  Button, 0x116be4b40, {{881.0, 1290.0}, {151.5, 68.0}}, label: 'Hide keyboard'
+Path to element:
+ →Application, 0x116bd0500, pid: 99300, label: 'Banana Pi'
+Query chain:
+ →Find: Target Application 'com.boris.banana.pi-development'
+  Output: {
+    Application, 0x116be4c80, pid: 99300, label: 'Banana Pi'
+  }
+
+    t =    27.00s Tap "assistant.workspace.reviewMeal" Button
+    t =    27.00s     Wait for com.boris.banana.pi-development to idle
+    t =    27.01s     Find the "assistant.workspace.reviewMeal" Button
+    t =    28.08s         Find the "assistant.workspace.reviewMeal" Button (retry 1)
+    t =    29.17s         Find the "assistant.workspace.reviewMeal" Button (retry 2)
+    t =    29.25s Requesting snapshot of accessibility hierarchy for app with pid 99300
+~/orca/workspaces/gtfuwgth/pi/BananaUITests/AssistantUITest.swift:264: error: -[BananaAgentUITests.AssistantUITest testNewMealDraftSaveAppearsInExistingNutritionStore] : Failed to tap "assistant.workspace.reviewMeal" Button: No matches found for Elements matching predicate '"assistant.workspace.reviewMeal" IN identifiers' from input {(
+    Button, identifier: 'tab', label: 'Tab',
+    Button, identifier: 'Send', label: 'send',
+    Button, identifier: 'shift', label: 'shift', Selected,
+    Button, identifier: 'emoji', label: 'Emoji',
+    Button, identifier: 'dictation', label: 'Dictate',
+    Button, label: 'Hide keyboard',
+    Button, identifier: 'assistantUndo', label: 'undo', Disabled,
+    Button, identifier: 'assistantRedo', label: 'Redo', Disabled,
+    Button, identifier: 'assistantPaste:forEvent:', label: 'Paste', Disabled,
+    Button, identifier: 'assistant.conversations', label: 'Conversations',
+    Button, identifier: 'assistant.new', label: 'New conversation',
+    Button, identifier: 'assistant.options', label: 'Assistant options',
+    Button,
+    Button, identifier: 'assistant.send', label: 'Send message', Disabled,
+    Button, identifier: 'assistant.workspace', label: 'Dismiss',
+    Button, identifier: 'assistant.workspace', label: 'Review meal',
+    Button, label: 'Conversation'
+)}
+Possibly caused by runtime issues:
+Automation type mismatch: computed Button from legacy attributes vs Key from modern attribute. Input attributes and values: {
+    "XC_kAXXCAttributeAutomationType" = 20;
+    "XC_kAXXCAttributeElementBaseType" = UIAccessibilityElement;
+    "XC_kAXXCAttributeElementType" = UIAccessibilityElementKBKey;
+    "XC_kAXXCAttributeTraits" = 8589936689;
+}
+Automation type mismatch: computed Button from legacy attributes vs Key from modern attribute. Input attributes and values: {
+    "XC_kAXXCAttributeAutomationType" = 20;
+    "XC_kAXXCAttributeElementBaseType" = UIAccessibilityElement;
+    "XC_kAXXCAttributeElementType" = UIAccessibilityElementKBKey;
+    "XC_kAXXCAttributeTraits" = 8589934641;
+}
+Automation type mismatch: computed Button from legacy attributes vs Key from modern attribute. Input attributes and values: {
+    "XC_kAXXCAttributeAutomationType" = 20;
+    "XC_kAXXCAttributeElementBaseType" = UIAccessibilityElement;
+    "XC_kAXXCAttributeElementType" = UIAccessibilityElementKBKey;
+    "XC_kAXXCAttributeTraits" = 8589934649;
+}
+Automation type mismatch: computed Button from legacy attributes vs PopUpButton from modern attribute. Input attributes and values: {
+    "XC_kAXXCAttributeAutomationType" = 14;
+    "XC_kAXXCAttributeElementBaseType" = UIResponder;
+    "XC_kAXXCAttributeElementType" = "SwiftUI.AccessibilityNode";
+    "XC_kAXXCAttributeTraits" = 1108101562369;
+}
+Automation type mismatch: computed Button from legacy attributes vs DisclosureTriangle from modern attribute. Input attributes and values: {
+    "XC_kAXXCAttributeAutomationType" = 13;
+    "XC_kAXXCAttributeElementBaseType" = UIResponder;
+    "XC_kAXXCAttributeElementType" = "SwiftUI.AccessibilityNode";
+    "XC_kAXXCAttributeTraits" = 8589934593;
+}
+See test report attachments for more detail.
+    t =    29.34s Tear Down
+Test Case '-[BananaAgentUITests.AssistantUITest testNewMealDraftSaveAppearsInExistingNutritionStore]' failed (29.672 seconds).
+Test Case '-[BananaAgentUITests.AssistantUITest testNewMealDraftUsesSharedEditorAndSurvivesCancel]' started.
+    t =     0.00s Start Test at 2026-10-25 10:18:22.160
+    t =     0.04s Set Up
+    t =     0.04s Open com.boris.banana.pi-development
+    t =     0.04s     Launch com.boris.banana.pi-development
+    t =     0.04s         Terminate com.boris.banana.pi-development:99300
+2026-10-25 10:18:22.231 xcodebuild[85576:83812219] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-25 10:18:22.233 xcodebuild[85576:83812219] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-25 10:18:23.225 xcodebuild[85576:83812219] [MT] IDELaunchParametersSnapshot: debugger version lookup failed for path '<nil>': noURL
+2026-10-25 10:18:23.225 xcodebuild[85576:83812219] [MT] IDELaunchParametersSnapshot: no debugger version
+2026-10-25 10:18:23.259 xcodebuild[85576:83812219] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+    t =     1.48s         Setting up automation session
+    t =     2.52s         Wait for com.boris.banana.pi-development to idle
+    t =     4.56s Waiting 25.0s for "assistant.input" Any to exist
+    t =     5.60s     Checking `Expect predicate `existsNoRetry == 1` for object "assistant.input" Any`
+    t =     5.60s         Checking existence of `"assistant.input" Any`
+    t =     5.76s Tap "assistant.input" Any
+    t =     5.76s     Wait for com.boris.banana.pi-development to idle
+    t =     5.77s     Find the "assistant.input" Any
+    t =     5.86s     Check for interrupting elements affecting "assistant.input" TextField
+    t =     5.90s         Wait for com.apple.springboard to idle
+    t =     5.97s     Synthesize event
+    t =     6.28s     Wait for com.boris.banana.pi-development to idle
+    t =     6.39s Type 'Make a meal with 2...' into "assistant.input" TextField
+    t =     6.39s     Wait for com.boris.banana.pi-development to idle
+    t =     6.77s     Find the "assistant.input" TextField
+    t =     7.17s     Check for interrupting elements affecting "assistant.input" TextField
+    t =     7.23s         Wait for com.apple.springboard to idle
+    t =     7.31s     Synthesize event
+    t =     8.12s     Wait for com.boris.banana.pi-development to idle
+    t =     8.12s Find the "assistant.send" Button
+    t =     8.20s Tap "assistant.send" Button
+    t =     8.20s     Wait for com.boris.banana.pi-development to idle
+    t =     8.20s     Find the "assistant.send" Button
+    t =     8.27s     Check for interrupting elements affecting "assistant.send" Button
+    t =     8.32s         Wait for com.apple.springboard to idle
+    t =     8.35s     Synthesize event
+    t =     8.65s     Wait for com.boris.banana.pi-development to idle
+    t =     8.65s Waiting 15.0s for "assistant.workspace.reviewMeal" Button to exist
+    t =     9.68s     Checking `Expect predicate `existsNoRetry == 1` for object "assistant.workspace.reviewMeal" Button`
+    t =     9.68s         Checking existence of `"assistant.workspace.reviewMeal" Button`
+    t =     9.75s         Capturing element debug description
+    t =    10.67s     Checking `Expect predicate `existsNoRetry == 1` for object "assistant.workspace.reviewMeal" Button`
+    t =    10.67s         Checking existence of `"assistant.workspace.reviewMeal" Button`
+    t =    10.74s         Capturing element debug description
+    t =    11.66s     Checking `Expect predicate `existsNoRetry == 1` for object "assistant.workspace.reviewMeal" Button`
+    t =    11.66s         Checking existence of `"assistant.workspace.reviewMeal" Button`
+    t =    11.73s         Capturing element debug description
+    t =    12.66s     Checking `Expect predicate `existsNoRetry == 1` for object "assistant.workspace.reviewMeal" Button`
+    t =    12.66s         Checking existence of `"assistant.workspace.reviewMeal" Button`
+    t =    12.73s         Capturing element debug description
+    t =    13.67s     Checking `Expect predicate `existsNoRetry == 1` for object "assistant.workspace.reviewMeal" Button`
+    t =    13.67s         Checking existence of `"assistant.workspace.reviewMeal" Button`
+    t =    13.75s         Capturing element debug description
+    t =    14.67s     Checking `Expect predicate `existsNoRetry == 1` for object "assistant.workspace.reviewMeal" Button`
+    t =    14.67s         Checking existence of `"assistant.workspace.reviewMeal" Button`
+    t =    14.74s         Capturing element debug description
+    t =    15.66s     Checking `Expect predicate `existsNoRetry == 1` for object "assistant.workspace.reviewMeal" Button`
+    t =    15.67s         Checking existence of `"assistant.workspace.reviewMeal" Button`
+    t =    15.73s         Capturing element debug description
+    t =    16.66s     Checking `Expect predicate `existsNoRetry == 1` for object "assistant.workspace.reviewMeal" Button`
+    t =    16.66s         Checking existence of `"assistant.workspace.reviewMeal" Button`
+    t =    16.73s         Capturing element debug description
+    t =    17.66s     Checking `Expect predicate `existsNoRetry == 1` for object "assistant.workspace.reviewMeal" Button`
+    t =    17.66s         Checking existence of `"assistant.workspace.reviewMeal" Button`
+    t =    17.73s         Capturing element debug description
+    t =    18.66s     Checking `Expect predicate `existsNoRetry == 1` for object "assistant.workspace.reviewMeal" Button`
+    t =    18.66s         Checking existence of `"assistant.workspace.reviewMeal" Button`
+    t =    18.74s         Capturing element debug description
+    t =    19.67s     Checking `Expect predicate `existsNoRetry == 1` for object "assistant.workspace.reviewMeal" Button`
+    t =    19.67s         Checking existence of `"assistant.workspace.reviewMeal" Button`
+    t =    19.74s         Capturing element debug description
+    t =    20.67s     Checking `Expect predicate `existsNoRetry == 1` for object "assistant.workspace.reviewMeal" Button`
+    t =    20.67s         Checking existence of `"assistant.workspace.reviewMeal" Button`
+    t =    20.75s         Capturing element debug description
+    t =    21.70s     Checking `Expect predicate `existsNoRetry == 1` for object "assistant.workspace.reviewMeal" Button`
+    t =    21.71s         Checking existence of `"assistant.workspace.reviewMeal" Button`
+    t =    21.81s         Capturing element debug description
+    t =    22.67s     Checking `Expect predicate `existsNoRetry == 1` for object "assistant.workspace.reviewMeal" Button`
+    t =    22.67s         Checking existence of `"assistant.workspace.reviewMeal" Button`
+    t =    22.77s         Capturing element debug description
+    t =    23.66s     Checking `Expect predicate `existsNoRetry == 1` for object "assistant.workspace.reviewMeal" Button`
+    t =    23.66s         Checking existence of `"assistant.workspace.reviewMeal" Button`
+    t =    23.77s         Capturing element debug description
+    t =    23.79s     Checking existence of `"assistant.workspace.reviewMeal" Button`
+    t =    23.88s Collecting debug information to assist test failure triage
+    t =    23.89s     Requesting snapshot of accessibility hierarchy for app with pid 1026
+    t =    24.05s Requesting snapshot of accessibility hierarchy for app with pid 1026
+    t =    25.38s Requesting snapshot of accessibility hierarchy for app with pid 1026
+~/orca/workspaces/gtfuwgth/pi/BananaUITests/AssistantUITest.swift:241: error: -[BananaAgentUITests.AssistantUITest testNewMealDraftUsesSharedEditorAndSurvivesCancel] : XCTAssertTrue failed - Attributes: Application, 0x116c25680, pid: 1026, label: 'Banana Pi'
+Element subtree:
+ →Application, 0x116c25680, pid: 1026, label: 'Banana Pi'
+    Window (Main), 0x116c257c0, {{0.0, 0.0}, {1032.0, 1376.0}}
+      Other, 0x116c25900, {{0.0, 0.0}, {1032.0, 1376.0}}
+        Other, 0x116c25a40, {{0.0, 0.0}, {1032.0, 1376.0}}
+          Other, 0x116c25b80, {{0.0, 0.0}, {1032.0, 1376.0}}
+            Other, 0x116c25cc0, {{0.0, 0.0}, {1032.0, 1376.0}}
+              Other, 0x116c25e00, {{0.0, 0.0}, {1032.0, 1376.0}}
+                Other, 0x116c25f40, {{0.0, 0.0}, {1032.0, 1376.0}}
+                  NavigationBar, 0x116c26080, {{0.0, 32.0}, {1032.0, 106.0}}, identifier: 'Assistant'
+                    Other, 0x116c261c0, {{864.0, 36.0}, {41.0, 36.0}}, identifier: 'assistant.conversations', label: 'Conversations'
+                      Other, 0x116c26300, {{864.0, 36.0}, {41.0, 36.0}}
+                        Button, 0x116c26440, {{864.0, 36.0}, {41.0, 36.0}}, identifier: 'assistant.conversations', label: 'Conversations'
+                    Other, 0x116c26580, {{921.0, 36.0}, {41.0, 36.0}}, identifier: 'assistant.new', label: 'New conversation'
+                      Other, 0x116c266c0, {{921.0, 36.0}, {41.0, 36.0}}
+                        Button, 0x116c26800, {{921.0, 36.0}, {41.0, 36.0}}, identifier: 'assistant.new', label: 'New conversation'
+                    Other, 0x116c26940, {{978.0, 36.0}, {40.0, 36.0}}, identifier: 'assistant.options', label: 'Assistant options'
+                      Other, 0x116c26a80, {{978.0, 36.0}, {40.0, 36.0}}
+                        Button, 0x116c26bc0, {{978.0, 36.0}, {40.0, 36.0}}, identifier: 'assistant.options', label: 'Assistant options'
+                          Button, 0x116c26d00, {{978.0, 36.0}, {40.0, 36.0}}
+                            Image, 0x116c26e40, {{987.0, 43.0}, {22.0, 22.0}}, identifier: 'ellipsis.circle', label: 'More'
+                    StaticText, 0x116c26f80, {{20.0, 89.5}, {150.0, 41.0}}, label: 'Assistant'
+                  Other, 0x116c270c0, {{0.0, 0.0}, {1032.0, 1376.0}}
+                    Other, 0x116c27200, {{0.0, 0.0}, {1032.0, 1376.0}}
+                      Other, 0x116c27340, {{0.0, 0.0}, {1032.0, 1376.0}}
+                        Other, 0x116c27480, {{0.0, 0.0}, {1032.0, 1376.0}}
+                          ScrollView, 0x116c275c0, {{0.0, 0.0}, {1032.0, 857.0}}, identifier: 'assistant.messages'
+                            Other, 0x116c27700, {{0.0, 0.0}, {1032.0, 857.0}}
+                              Other, 0x116c27840, {{0.0, 0.0}, {1032.0, 140.8}}
+                            Other, 0x116c27980, {{0.0, 0.0}, {1032.0, 857.0}}
+                            Other, 0x116c27ac0, {{0.0, 138.0}, {1032.0, 304.0}}
+                              Other, 0x116c27c00, {{156.0, 158.0}, {720.0, 243.0}}
+                                StaticText, 0x116c27d40, {{156.0, 158.0}, {145.0, 26.5}}, identifier: 'assistant.workspace', label: 'Pi UI breakfast'
+                                Button, 0x116c27e80, {{816.5, 161.0}, {59.5, 20.5}}, identifier: 'assistant.workspace', label: 'Dismiss'
+                                Image, 0x116c4c000, {{158.0, 199.5}, {11.5, 19.5}}, identifier: 'assistant.workspace', label: 'Food'
+                                StaticText, 0x116c4c140, {{158.0, 199.5}, {205.5, 21.0}}, identifier: 'assistant.workspace', label: 'Meal draft · 2026-10-25'
+                                StaticText, 0x116c4c280, {{156.0, 234.5}, {52.0, 20.5}}, identifier: 'assistant.workspace', label: '2 eggs'
+                                StaticText, 0x116c4c3c0, {{156.0, 269.0}, {68.0, 20.5}}, identifier: 'assistant.workspace', label: '1 banana'
+                                StaticText, 0x116c4c500, {{156.0, 303.5}, {661.5, 14.5}}, identifier: 'assistant.workspace', label: 'Nutrition comes from your corrections and the food catalog. Unknown foods need a lookup or manual entry in review.'
+                                Button, 0x116c4c640, {{156.0, 332.0}, {95.0, 20.5}}, identifier: 'assistant.workspace', label: 'Review meal'
+                                Button, 0x116c4c780, {{156.0, 372.5}, {720.0, 28.5}}, label: 'Conversation'
+                                  StaticText, 0x116c4c8c0, {{156.0, 372.5}, {720.0, 28.5}}, label: 'Conversation'
+                                  Image, 0x116c4ca00, {{868.0, 380.5}, {7.0, 12.0}}, identifier: 'collapsed'
+                            Other, 0x116c4cb40, {{999.0, 86.0}, {30.0, 771.0}}, label: 'Vertical scroll bar, 1 page', value: 0%
+                              Other, 0x116c4cc80, {{1026.0, 922.0}, {3.0, 315.0}}
+                            Other, 0x116c4cdc0, {{999.0, 86.0}, {30.0, 771.0}}, label: 'Vertical scroll bar, 1 page', value: 0%
+                              Other, 0x116c4cf00, {{1026.0, 922.0}, {3.0, 315.0}}
+                          Image, 0x116c4d040, {{154.0, 874.5}, {17.0, 17.0}}, identifier: 'cpu', label: 'cpu'
+                          StaticText, 0x116c4d180, {{181.0, 875.8}, {68.5, 14.5}}, label: 'On this iPad'
+                          StaticText, 0x116c4d2c0, {{152.0, 902.5}, {79.0, 14.5}}, identifier: 'assistant.test.notes', label: '0 saved notes'
+                          TextField, 0x116c4d400, {{158.0, 931.0}, {678.0, 22.0}}, identifier: 'assistant.input', placeholderValue: 'Message Banana', Keyboard Focused, Focused
+                            Other, 0x116c4d540, {{158.0, 931.0}, {0.0, 0.0}}, identifier: '_UITextSelectionRangeAdjustmentContainerView'
+                              Other, 0x116c4d680, {{158.0, 931.0}, {0.0, 0.0}}, identifier: 'com.apple.text.grabber.leading'
+                                Other, 0x116c4d7c0, {{150.8, 917.5}, {16.5, 16.5}}
+                                Other, 0x116c4d900, {{158.0, 931.0}, {2.0, 0.0}}
+                              Other, 0x116c4da40, {{158.0, 931.0}, {0.0, 0.0}}, identifier: 'com.apple.text.grabber.leading'
+                                Other, 0x116c4db80, {{150.8, 917.5}, {16.5, 16.5}}
+                                Other, 0x116c4dcc0, {{158.0, 931.0}, {2.0, 0.0}}
+                            Other, 0x116c4de00, {{158.0, 939.0}, {678.0, 11.0}}, label: 'Horizontal scroll bar, 1 page', value: 0%
+                              Other, 0x116c4df40, {{161.0, 947.0}, {672.0, 3.0}}
+                          Button, 0x116c4e080, {{856.0, 933.5}, {22.0, 22.0}}, identifier: 'assistant.send', label: 'Send message', Disabled
+                  Other, 0x116c4e1c0, {{0.0, 0.0}, {1032.0, 1376.0}}
+                    Other, 0x116c4e300, {{0.0, 0.0}, {1032.0, 1376.0}}
+    Window, 0x116c4e440, {{0.0, 0.0}, {1032.0, 1376.0}}
+      Other, 0x116c4e580, {{0.0, 0.0}, {1032.0, 1376.0}}
+        Other, 0x116c4e6c0, {{0.0, 0.0}, {1032.0, 1376.0}}
+        Other, 0x116c4e800, {{0.0, 973.0}, {1032.0, 403.0}}
+          Other, 0x116c4e940, {{0.0, 973.0}, {1032.0, 403.0}}, identifier: 'inputView'
+    Window, 0x116c4ea80, {{0.0, 0.0}, {1032.0, 1376.0}}
+      Other, 0x116c4ebc0, {{0.0, 0.0}, {1032.0, 1376.0}}
+        Other, 0x116c4ed00, {{0.0, 973.0}, {1032.0, 403.0}}
+          Other, 0x116c4ee40, {{0.0, 973.0}, {1032.0, 55.0}}, identifier: 'SystemInputAssistantView'
+            Other, 0x116c4ef80, {{0.0, 973.0}, {1032.0, 55.0}}
+              Other, 0x116c4f0c0, {{0.0, 973.0}, {283.0, 49.0}}, identifier: 'LeftButtonBar'
+                Other, 0x116c4f200, {{28.0, 973.0}, {255.0, 49.0}}
+                  Other, 0x116c4f340, {{28.0, 974.0}, {114.0, 49.0}}
+                    Other, 0x116c4f480, {{28.0, 974.0}, {22.0, 49.0}}
+                      Button, 0x116c4f5c0, {{28.0, 974.0}, {22.0, 49.0}}, identifier: 'assistantUndo', label: 'undo', Disabled
+                    Other, 0x116c4f700, {{74.0, 974.0}, {22.0, 49.0}}
+                      Button, 0x116c4f840, {{74.0, 974.0}, {22.0, 49.0}}, identifier: 'assistantRedo', label: 'Redo', Disabled
+                    Other, 0x116c4f980, {{120.0, 974.0}, {22.0, 49.0}}
+                      Button, 0x116c4fac0, {{120.0, 974.0}, {22.0, 49.0}}, identifier: 'assistantPaste:forEvent:', label: 'Paste', Disabled
+              Other, 0x116c4fc00, {{283.0, 979.0}, {466.0, 49.0}}, identifier: 'CenterPageView'
+                Other, 0x116c4fd40, {{283.0, 379.0}, {466.0, 1249.0}}
+                  ScrollView, 0x116c4fe80, {{283.0, 979.0}, {466.0, 49.0}}
+                Other, 0x116c50000, {{283.0, 979.0}, {466.0, 49.0}}
+                  Other, 0x116c50140, {{283.0, 979.0}, {466.0, 49.0}}, label: 'Typing Predictions'
+                    Other, 0x116c50280, {{283.0, 979.0}, {466.0, 49.0}}
+                      Other, 0x116c503c0, {{283.0, 979.0}, {466.0, 49.0}}
+                        Other, 0x116c50500, {{283.0, 979.0}, {155.3, 49.0}}, label: 'I'
+                        Other, 0x116c50640, {{438.3, 979.0}, {155.3, 49.0}}, label: 'The'
+                        Other, 0x116c50780, {{593.7, 979.0}, {155.3, 49.0}}, label: 'I’m'
+              Other, 0x116c508c0, {{749.0, 973.0}, {283.0, 49.0}}, identifier: 'RightButtonBar'
+                Other, 0x116c50a00, {{749.0, 973.0}, {255.0, 49.0}}
+          Other, 0x116c50b40, {{0.0, 973.0}, {1032.0, 403.0}}
+            Other, 0x116c50c80, {{0.0, 973.0}, {1032.0, 403.0}}
+              Other, 0x116c50dc0, {{0.0, 973.0}, {1032.0, 403.0}}
+          Other, 0x116c50f00, {{0.0, 1028.0}, {1032.0, 345.0}}
+            Keyboard, 0x116c51040, {{0.0, 1028.0}, {1032.0, 345.0}}
+              Other, 0x116c51180, {{0.0, 1028.0}, {1032.0, 345.0}}
+                Other, 0x116c512c0, {{0.0, 1028.0}, {1032.0, 345.0}}, identifier: 'UIKeyboardLayoutStar Preview'
+                  Key, 0x116c51400, {{0.5, 1033.0}, {71.0, 52.5}}, label: '`'
+                  Key, 0x116c51540, {{71.5, 1033.0}, {71.0, 52.5}}, label: '1'
+                  Key, 0x116c51680, {{142.5, 1033.0}, {71.0, 52.5}}, label: '2'
+                  Key, 0x116c517c0, {{213.5, 1033.0}, {71.0, 52.5}}, label: '3'
+                  Key, 0x116c51900, {{284.5, 1033.0}, {71.0, 52.5}}, label: '4'
+                  Key, 0x116c51a40, {{355.5, 1033.0}, {71.0, 52.5}}, label: '5'
+                  Key, 0x116c51b80, {{426.5, 1033.0}, {71.0, 52.5}}, label: '6'
+                  Key, 0x116c51cc0, {{497.5, 1033.0}, {71.0, 52.5}}, label: '7'
+                  Key, 0x116c51e00, {{568.5, 1033.0}, {71.0, 52.5}}, label: '8'
+                  Key, 0x116c51f40, {{639.5, 1033.0}, {71.0, 52.5}}, label: '9'
+                  Key, 0x116c52080, {{710.5, 1033.0}, {70.5, 52.5}}, label: '0'
+                  Key, 0x116c521c0, {{781.0, 1033.0}, {71.0, 52.5}}, label: '-'
+                  Key, 0x116c52300, {{852.0, 1033.0}, {71.0, 52.5}}, label: '='
+                  Key, 0x116c52440, {{923.0, 1033.0}, {109.5, 52.5}}, identifier: 'delete', label: 'delete'
+                  Button, 0x116c52580, {{0.5, 1085.5}, {109.5, 68.0}}, identifier: 'tab', label: 'Tab'
+                  Key, 0x116c526c0, {{110.0, 1085.5}, {71.0, 68.0}}, label: 'Q'
+                  Key, 0x116c52800, {{181.0, 1085.5}, {71.0, 68.0}}, label: 'W'
+                  Key, 0x116c52940, {{252.0, 1085.5}, {70.5, 68.0}}, label: 'E'
+                  Key, 0x116c52a80, {{322.5, 1085.5}, {71.0, 68.0}}, label: 'R'
+                  Key, 0x116c52bc0, {{393.5, 1085.5}, {71.0, 68.0}}, label: 'T'
+                  Key, 0x116c52d00, {{464.5, 1085.5}, {71.0, 68.0}}, label: 'Y'
+                  Key, 0x116c52e40, {{535.5, 1085.5}, {71.0, 68.0}}, label: 'U'
+                  Key, 0x116c52f80, {{606.5, 1085.5}, {71.0, 68.0}}, label: 'I'
+                  Key, 0x116c530c0, {{677.5, 1085.5}, {71.0, 68.0}}, label: 'O'
+                  Key, 0x116c53200, {{748.5, 1085.5}, {71.0, 68.0}}, label: 'P'
+                  Key, 0x116c53340, {{819.5, 1085.5}, {71.0, 68.0}}, label: '['
+                  Key, 0x116c53480, {{890.5, 1085.5}, {71.0, 68.0}}, label: ']'
+                  Key, 0x116c535c0, {{961.5, 1085.5}, {71.0, 68.0}}, label: '\'
+                  Key, 0x116c53700, {{0.5, 1153.5}, {125.5, 68.0}}, identifier: 'caps-lock', label: 'Caps Lock'
+                  Key, 0x116c53840, {{126.0, 1153.5}, {71.0, 68.0}}, label: 'A'
+                  Key, 0x116c53980, {{197.0, 1153.5}, {71.0, 68.0}}, label: 'S'
+                  Key, 0x116c53ac0, {{268.0, 1153.5}, {71.0, 68.0}}, label: 'D'
+                  Key, 0x116c53c00, {{339.0, 1153.5}, {71.0, 68.0}}, label: 'F'
+                  Key, 0x116c53d40, {{410.0, 1153.5}, {71.0, 68.0}}, label: 'G'
+                  Key, 0x116c53e80, {{481.0, 1153.5}, {71.0, 68.0}}, label: 'H'
+                  Key, 0x116c54000, {{552.0, 1153.5}, {71.0, 68.0}}, label: 'J'
+                  Key, 0x116c54140, {{623.0, 1153.5}, {71.0, 68.0}}, label: 'K'
+                  Key, 0x116c54280, {{694.0, 1153.5}, {71.0, 68.0}}, label: 'L'
+                  Key, 0x116c543c0, {{765.0, 1153.5}, {71.0, 68.0}}, label: ';'
+                  Key, 0x116c54500, {{836.0, 1153.5}, {71.0, 68.0}}, label: '''
+                  Button, 0x116c54640, {{907.0, 1153.5}, {125.5, 68.0}}, identifier: 'Send', label: 'send'
+                  Button, 0x116c54780, {{0.5, 1221.5}, {161.0, 68.5}}, identifier: 'shift', label: 'shift', Selected
+                  Key, 0x116c548c0, {{161.5, 1221.5}, {71.0, 68.5}}, label: 'Z'
+                  Key, 0x116c54a00, {{232.5, 1221.5}, {71.0, 68.5}}, label: 'X'
+                  Key, 0x116c54b40, {{303.5, 1221.5}, {71.0, 68.5}}, label: 'C'
+                  Key, 0x116c54c80, {{374.5, 1221.5}, {71.0, 68.5}}, label: 'V'
+                  Key, 0x116c54dc0, {{445.5, 1221.5}, {71.0, 68.5}}, label: 'B'
+                  Key, 0x116c54f00, {{516.5, 1221.5}, {71.0, 68.5}}, label: 'N'
+                  Key, 0x116c55040, {{587.5, 1221.5}, {71.0, 68.5}}, label: 'M'
+                  Key, 0x116c55180, {{658.5, 1221.5}, {71.0, 68.5}}, label: ','
+                  Key, 0x116c552c0, {{729.5, 1221.5}, {71.0, 68.5}}, label: '.'
+                  Key, 0x116c55400, {{800.5, 1221.5}, {71.0, 68.5}}, label: '/'
+                  Key, 0x116c55540, {{871.5, 1221.5}, {161.0, 68.5}}, label: 'shift', Selected
+                  Button, 0x116c55680, {{0.5, 1290.0}, {100.5, 68.0}}, identifier: 'emoji', label: 'Emoji'
+                  Key, 0x116c557c0, {{101.0, 1290.0}, {100.5, 68.0}}, identifier: 'more', label: 'numbers'
+                  Button, 0x116c55900, {{201.5, 1290.0}, {101.0, 68.0}}, identifier: 'dictation', label: 'Dictate'
+                  Key, 0x116c55a40, {{302.5, 1290.0}, {426.5, 68.0}}, label: ' '
+                  Key, 0x116c55b80, {{729.0, 1290.0}, {152.0, 68.0}}, identifier: 'more', label: 'numbers'
+                  Button, 0x116c55cc0, {{881.0, 1290.0}, {151.5, 68.0}}, label: 'Hide keyboard'
+Path to element:
+ →Application, 0x116c25680, pid: 1026, label: 'Banana Pi'
+Query chain:
+ →Find: Target Application 'com.boris.banana.pi-development'
+  Output: {
+    Application, 0x116c55e00, pid: 1026, label: 'Banana Pi'
+  }
+
+    t =    25.56s Tap "assistant.workspace.reviewMeal" Button
+    t =    25.60s     Wait for com.boris.banana.pi-development to idle
+    t =    25.69s     Find the "assistant.workspace.reviewMeal" Button
+    t =    26.80s         Find the "assistant.workspace.reviewMeal" Button (retry 1)
+    t =    27.91s         Find the "assistant.workspace.reviewMeal" Button (retry 2)
+    t =    28.07s Requesting snapshot of accessibility hierarchy for app with pid 1026
+~/orca/workspaces/gtfuwgth/pi/BananaUITests/AssistantUITest.swift:242: error: -[BananaAgentUITests.AssistantUITest testNewMealDraftUsesSharedEditorAndSurvivesCancel] : Failed to tap "assistant.workspace.reviewMeal" Button: No matches found for Elements matching predicate '"assistant.workspace.reviewMeal" IN identifiers' from input {(
+    Button, identifier: 'tab', label: 'Tab',
+    Button, identifier: 'Send', label: 'send',
+    Button, identifier: 'shift', label: 'shift', Selected,
+    Button, identifier: 'emoji', label: 'Emoji',
+    Button, identifier: 'dictation', label: 'Dictate',
+    Button, label: 'Hide keyboard',
+    Button, identifier: 'assistantUndo', label: 'undo', Disabled,
+    Button, identifier: 'assistantRedo', label: 'Redo', Disabled,
+    Button, identifier: 'assistantPaste:forEvent:', label: 'Paste', Disabled,
+    Button, identifier: 'assistant.conversations', label: 'Conversations',
+    Button, identifier: 'assistant.new', label: 'New conversation',
+    Button, identifier: 'assistant.options', label: 'Assistant options',
+    Button,
+    Button, identifier: 'assistant.send', label: 'Send message', Disabled,
+    Button, identifier: 'assistant.workspace', label: 'Dismiss',
+    Button, identifier: 'assistant.workspace', label: 'Review meal',
+    Button, label: 'Conversation'
+)}
+Possibly caused by runtime issues:
+Automation type mismatch: computed Button from legacy attributes vs Key from modern attribute. Input attributes and values: {
+    "XC_kAXXCAttributeAutomationType" = 20;
+    "XC_kAXXCAttributeElementBaseType" = UIAccessibilityElement;
+    "XC_kAXXCAttributeElementType" = UIAccessibilityElementKBKey;
+    "XC_kAXXCAttributeTraits" = 8589936689;
+}
+Automation type mismatch: computed Button from legacy attributes vs Key from modern attribute. Input attributes and values: {
+    "XC_kAXXCAttributeAutomationType" = 20;
+    "XC_kAXXCAttributeElementBaseType" = UIAccessibilityElement;
+    "XC_kAXXCAttributeElementType" = UIAccessibilityElementKBKey;
+    "XC_kAXXCAttributeTraits" = 8589934641;
+}
+Automation type mismatch: computed Button from legacy attributes vs Key from modern attribute. Input attributes and values: {
+    "XC_kAXXCAttributeAutomationType" = 20;
+    "XC_kAXXCAttributeElementBaseType" = UIAccessibilityElement;
+    "XC_kAXXCAttributeElementType" = UIAccessibilityElementKBKey;
+    "XC_kAXXCAttributeTraits" = 8589934649;
+}
+Automation type mismatch: computed Button from legacy attributes vs PopUpButton from modern attribute. Input attributes and values: {
+    "XC_kAXXCAttributeAutomationType" = 14;
+    "XC_kAXXCAttributeElementBaseType" = UIResponder;
+    "XC_kAXXCAttributeElementType" = "SwiftUI.AccessibilityNode";
+    "XC_kAXXCAttributeTraits" = 1108101562369;
+}
+Automation type mismatch: computed Button from legacy attributes vs DisclosureTriangle from modern attribute. Input attributes and values: {
+    "XC_kAXXCAttributeAutomationType" = 13;
+    "XC_kAXXCAttributeElementBaseType" = UIResponder;
+    "XC_kAXXCAttributeElementType" = "SwiftUI.AccessibilityNode";
+    "XC_kAXXCAttributeTraits" = 8589934593;
+}
+See test report attachments for more detail.
+    t =    28.19s Tear Down
+Test Case '-[BananaAgentUITests.AssistantUITest testNewMealDraftUsesSharedEditorAndSurvivesCancel]' failed (28.593 seconds).
+Test Suite 'AssistantUITest' failed at 2026-10-25 10:18:50.753.
+	 Executed 4 tests, with 8 failures (0 unexpected) in 125.768 (125.780) seconds
+Test Suite 'PiLaunchUITest' started at 2026-10-25 10:18:50.753.
+Test Case '-[BananaAgentUITests.PiLaunchUITest testNormalColdLaunchReachesAssistantWithoutCloudSetup]' started.
+    t =     0.00s Start Test at 2026-10-25 10:18:50.754
+    t =     0.04s Set Up
+    t =     0.04s Open com.boris.banana.pi-development
+    t =     0.04s     Launch com.boris.banana.pi-development
+    t =     0.04s         Terminate com.boris.banana.pi-development:1026
+2026-10-25 10:18:50.851 xcodebuild[85576:83812219] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-25 10:18:50.852 xcodebuild[85576:83812219] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-25 10:18:51.905 xcodebuild[85576:83812219] [MT] IDELaunchParametersSnapshot: debugger version lookup failed for path '<nil>': noURL
+2026-10-25 10:18:51.905 xcodebuild[85576:83812219] [MT] IDELaunchParametersSnapshot: no debugger version
+2026-10-25 10:18:51.989 xcodebuild[85576:83812219] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+    t =     1.67s         Setting up automation session
+    t =     2.81s         Wait for com.boris.banana.pi-development to idle
+    t =     5.41s Checking existence of `"More" Button`
+    t =     5.82s Checking existence of `"assistant.input" Any`
+    t =     6.18s Checking existence of `"returning-user-check" Other`
+    t =     6.25s Checking existence of `"onboarding.continue" Button`
+    t =     6.31s Checking existence of `"assistant.input" Any`
+    t =     6.57s Waiting 25.0s for "assistant.input" Any to exist
+    t =     7.60s     Checking `Expect predicate `existsNoRetry == 1` for object "assistant.input" Any`
+    t =     7.60s         Checking existence of `"assistant.input" Any`
+    t =     7.84s Terminate com.boris.banana.pi-development:2597
+2026-10-25 10:18:58.639 xcodebuild[85576:83812219] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-25 10:18:58.640 xcodebuild[85576:83812219] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+    t =     8.94s Open com.boris.banana.pi-development
+    t =     8.94s     Launch com.boris.banana.pi-development
+2026-10-25 10:18:59.698 xcodebuild[85576:83812219] [MT] IDELaunchParametersSnapshot: debugger version lookup failed for path '<nil>': noURL
+2026-10-25 10:18:59.698 xcodebuild[85576:83812219] [MT] IDELaunchParametersSnapshot: no debugger version
+2026-10-25 10:18:59.780 xcodebuild[85576:83812219] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+    t =     9.39s         Setting up automation session
+    t =    10.46s         Wait for com.boris.banana.pi-development to idle
+    t =    12.92s Checking existence of `"returning-user-check" Other`
+    t =    13.11s Waiting 25.0s for "More" Button to exist
+    t =    14.13s     Checking `Expect predicate `existsNoRetry == 1` for object "More" Button`
+    t =    14.13s         Checking existence of `"More" Button`
+    t =    14.32s         Capturing element debug description
+    t =    15.15s     Checking `Expect predicate `existsNoRetry == 1` for object "More" Button`
+    t =    15.15s         Checking existence of `"More" Button`
+    t =    15.40s         Capturing element debug description
+    t =    16.13s     Checking `Expect predicate `existsNoRetry == 1` for object "More" Button`
+    t =    16.13s         Checking existence of `"More" Button`
+    t =    16.34s         Capturing element debug description
+    t =    17.16s     Checking `Expect predicate `existsNoRetry == 1` for object "More" Button`
+    t =    17.16s         Checking existence of `"More" Button`
+    t =    17.34s         Capturing element debug description
+    t =    18.16s     Checking `Expect predicate `existsNoRetry == 1` for object "More" Button`
+    t =    18.16s         Checking existence of `"More" Button`
+    t =    18.35s         Capturing element debug description
+    t =    19.18s     Checking `Expect predicate `existsNoRetry == 1` for object "More" Button`
+    t =    19.18s         Checking existence of `"More" Button`
+    t =    19.34s         Capturing element debug description
+    t =    20.17s     Checking `Expect predicate `existsNoRetry == 1` for object "More" Button`
+    t =    20.17s         Checking existence of `"More" Button`
+    t =    20.38s         Capturing element debug description
+    t =    21.11s     Checking `Expect predicate `existsNoRetry == 1` for object "More" Button`
+    t =    21.11s         Checking existence of `"More" Button`
+    t =    21.27s         Capturing element debug description
+    t =    22.20s     Checking `Expect predicate `existsNoRetry == 1` for object "More" Button`
+    t =    22.20s         Checking existence of `"More" Button`
+    t =    22.38s         Capturing element debug description
+    t =    23.11s     Checking `Expect predicate `existsNoRetry == 1` for object "More" Button`
+    t =    23.11s         Checking existence of `"More" Button`
+    t =    23.27s         Capturing element debug description
+    t =    24.20s     Checking `Expect predicate `existsNoRetry == 1` for object "More" Button`
+    t =    24.20s         Checking existence of `"More" Button`
+    t =    24.37s         Capturing element debug description
+    t =    25.20s     Checking `Expect predicate `existsNoRetry == 1` for object "More" Button`
+    t =    25.20s         Checking existence of `"More" Button`
+    t =    25.36s         Capturing element debug description
+    t =    26.17s     Checking `Expect predicate `existsNoRetry == 1` for object "More" Button`
+    t =    26.17s         Checking existence of `"More" Button`
+    t =    26.35s         Capturing element debug description
+    t =    27.16s     Checking `Expect predicate `existsNoRetry == 1` for object "More" Button`
+    t =    27.16s         Checking existence of `"More" Button`
+    t =    27.31s         Capturing element debug description
+    t =    28.14s     Checking `Expect predicate `existsNoRetry == 1` for object "More" Button`
+    t =    28.14s         Checking existence of `"More" Button`
+    t =    28.31s         Capturing element debug description
+    t =    29.13s     Checking `Expect predicate `existsNoRetry == 1` for object "More" Button`
+    t =    29.13s         Checking existence of `"More" Button`
+    t =    29.29s         Capturing element debug description
+    t =    30.11s     Checking `Expect predicate `existsNoRetry == 1` for object "More" Button`
+    t =    30.11s         Checking existence of `"More" Button`
+    t =    30.28s         Capturing element debug description
+    t =    31.21s     Checking `Expect predicate `existsNoRetry == 1` for object "More" Button`
+    t =    31.21s         Checking existence of `"More" Button`
+    t =    31.37s         Capturing element debug description
+    t =    32.19s     Checking `Expect predicate `existsNoRetry == 1` for object "More" Button`
+    t =    32.19s         Checking existence of `"More" Button`
+    t =    32.36s         Capturing element debug description
+    t =    33.17s     Checking `Expect predicate `existsNoRetry == 1` for object "More" Button`
+    t =    33.17s         Checking existence of `"More" Button`
+    t =    33.33s         Capturing element debug description
+    t =    34.14s     Checking `Expect predicate `existsNoRetry == 1` for object "More" Button`
+    t =    34.14s         Checking existence of `"More" Button`
+    t =    34.31s         Capturing element debug description
+    t =    35.14s     Checking `Expect predicate `existsNoRetry == 1` for object "More" Button`
+    t =    35.14s         Checking existence of `"More" Button`
+    t =    35.29s         Capturing element debug description
+    t =    36.12s     Checking `Expect predicate `existsNoRetry == 1` for object "More" Button`
+    t =    36.12s         Checking existence of `"More" Button`
+    t =    36.30s         Capturing element debug description
+    t =    37.12s     Checking `Expect predicate `existsNoRetry == 1` for object "More" Button`
+    t =    37.12s         Checking existence of `"More" Button`
+    t =    37.29s         Capturing element debug description
+    t =    38.11s     Checking `Expect predicate `existsNoRetry == 1` for object "More" Button`
+    t =    38.11s         Checking existence of `"More" Button`
+    t =    38.27s         Capturing element debug description
+    t =    38.28s     Checking existence of `"More" Button`
+    t =    38.45s Collecting debug information to assist test failure triage
+    t =    38.45s     Requesting snapshot of accessibility hierarchy for app with pid 2987
+    t =    38.54s Checking existence of `"assistant.input" Any`
+    t =    38.75s Tear Down
+Test Case '-[BananaAgentUITests.PiLaunchUITest testNormalColdLaunchReachesAssistantWithoutCloudSetup]' passed (39.206 seconds).
+Test Suite 'PiLaunchUITest' passed at 2026-10-25 10:19:29.960.
+	 Executed 1 test, with 0 failures (0 unexpected) in 39.206 (39.206) seconds
+Test Suite 'BananaAgentUITests.xctest' failed at 2026-10-25 10:19:29.960.
+	 Executed 5 tests, with 8 failures (0 unexpected) in 164.974 (164.988) seconds
+Test Suite 'Selected tests' failed at 2026-10-25 10:19:29.960.
+	 Executed 5 tests, with 8 failures (0 unexpected) in 164.974 (164.990) seconds
+2026-10-25 10:19:30.001 xcodebuild[85576:83812219] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-25 10:19:30.002 xcodebuild[85576:83812219] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-25 10:19:30.042 xcodebuild[85576:83812219] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-25 10:19:30.043 xcodebuild[85576:83812219] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-25 10:19:30.315 xcodebuild[85576:83812219] [MT] IDETestOperationsObserverDebug: 396.492 elapsed -- Testing started completed.
+2026-10-25 10:19:30.315 xcodebuild[85576:83812219] [MT] IDETestOperationsObserverDebug: 0.000 sec, +0.000 sec -- start
+2026-10-25 10:19:30.315 xcodebuild[85576:83812219] [MT] IDETestOperationsObserverDebug: 396.492 sec, +396.492 sec -- end
+
+Test session results, code coverage, and logs:
+	~/orca/workspaces/gtfuwgth/pi/.build/sim/Logs/Test/Test-BananaPi-2026.10.25_10-12-53--0400.xcresult
+
+Failing tests:
+	AssistantUITest.testGlobalMealSearchLinksThroughNormalAppShell()
+	AssistantUITest.testGlobalMealSearchLinksThroughNormalAppShell()
+	AssistantUITest.testNewEventDraftUsesSharedEditorAndRestores()
+	AssistantUITest.testNewEventDraftUsesSharedEditorAndRestores()
+	AssistantUITest.testNewMealDraftSaveAppearsInExistingNutritionStore()
+	AssistantUITest.testNewMealDraftSaveAppearsInExistingNutritionStore()
+	AssistantUITest.testNewMealDraftUsesSharedEditorAndSurvivesCancel()
+	AssistantUITest.testNewMealDraftUsesSharedEditorAndSurvivesCancel()
+
+** TEST EXECUTE FAILED **

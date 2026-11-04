@@ -1,0 +1,169 @@
+{
+  "agendaTimezoneAndFlightChecks": true,
+  "assistantError": "",
+  "bundle": "com.boris.banana.mac.pi-development",
+  "error": "Dinner at 5pm must prepare the next future 5pm",
+  "eventDraftRestored": true,
+  "eventFromWords": true,
+  "eventMilliseconds": 4227,
+  "mealDraftRestored": true,
+  "mealMilliseconds": 6426,
+  "model": "mac-local/qwen3.5-4b-4bit",
+  "nativeDraftDismissed": true,
+  "nativeMealResolution": true,
+  "newMealFromWords": true,
+  "newMealSaveDeduplicated": true,
+  "newMealSavePersisted": true,
+  "passed": false,
+  "run": "b7c3fedd-e421-4bea-83ff-8f9022f371f7",
+  "timeOnlyEventUsesNextOccurrence": true,
+  "driverTimedOut": false,
+  "wholeProcessMilliseconds": 20183.4,
+  "hostBefore": {
+    "vm": "Mach Virtual Memory Statistics: (page size of 16384 bytes)\nPages free:                                   587971.\nPages active:                                1058213.\nPages inactive:                              1041429.\nPages speculative:                             19615.\nPages throttled:                                   0.\nPages wired down:                             754011.\nPages purgeable:                                6370.\n\"Translation faults\":                    63394885751.\nPages copy-on-write:                      1095657219.\nPages zero filled:                       48549136567.\nPages reactivated:                        1224692694.\nPages purged:                              161384984.\nFile-backed pages:                            941823.\nAnonymous pages:                             1177434.\nPages stored in compressor:                  1379396.\nPages occupied by compressor:                 676641.\nDecompressions:                           1196614368.\nCompressions:                             1395083087.\nPageins:                                   738318286.\nPageouts:                                     409787.\nSwapins:                                     6023183.\nSwapouts:                                   10626450.",
+    "swap": "vm.swapusage: total = 5120.00M  used = 3496.44M  free = 1623.56M  (encrypted)"
+  },
+  "hostAfter": {
+    "vm": "Mach Virtual Memory Statistics: (page size of 16384 bytes)\nPages free:                                   361026.\nPages active:                                1067599.\nPages inactive:                              1082765.\nPages speculative:                               282.\nPages throttled:                                   0.\nPages wired down:                             947267.\nPages purgeable:                                7307.\n\"Translation faults\":                    63395373669.\nPages copy-on-write:                      1095664535.\nPages zero filled:                       48550369538.\nPages reactivated:                        1224705604.\nPages purged:                              161387386.\nFile-backed pages:                            972904.\nAnonymous pages:                             1177742.\nPages stored in compressor:                  1381839.\nPages occupied by compressor:                 678941.\nDecompressions:                           1196616381.\nCompressions:                             1395086527.\nPageins:                                   738462039.\nPageouts:                                     409787.\nSwapins:                                     6023183.\nSwapouts:                                   10626450.",
+    "swap": "vm.swapusage: total = 5120.00M  used = 3496.44M  free = 1623.56M  (encrypted)"
+  },
+  "ownedWorkerReleasedOnExit": true,
+  "normalHistoryAndMealsUnchanged": true,
+  "normalSelectionAndDraftUnchanged": true,
+  "inferenceConfigurationSha256": "e55ba7f2cc4a897bdf9adf1c33820ce85c1311038465f70fb66fa12171054bb8",
+  "inferenceTurns": [
+    {
+      "transportMilliseconds": 3842.084125,
+      "requestBytes": 7121,
+      "usage": {
+        "completion_tokens": 94,
+        "locals": {
+          "constrained": true,
+          "engine": "locals",
+          "forced_tokens": 16,
+          "passes": 78,
+          "wall_s": 3.8120512920431793
+        },
+        "prompt_tokens": 1597,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "total_tokens": 1691
+      },
+      "tools": [
+        "select_capability"
+      ]
+    },
+    {
+      "transportMilliseconds": 2328.725,
+      "requestBytes": 2040,
+      "usage": {
+        "completion_tokens": 65,
+        "locals": {
+          "constrained": true,
+          "engine": "locals",
+          "forced_tokens": 15,
+          "passes": 50,
+          "wall_s": 2.3148417079355568
+        },
+        "prompt_tokens": 602,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "total_tokens": 667
+      },
+      "tools": [
+        "prepare_meal"
+      ]
+    },
+    {
+      "transportMilliseconds": 1208.952916,
+      "requestBytes": 7166,
+      "usage": {
+        "completion_tokens": 92,
+        "locals": {
+          "constrained": true,
+          "engine": "locals",
+          "forced_tokens": 16,
+          "passes": 76,
+          "wall_s": 1.1983050829730928
+        },
+        "prompt_tokens": 1605,
+        "prompt_tokens_details": {
+          "cached_tokens": 1562
+        },
+        "total_tokens": 1697
+      },
+      "tools": [
+        "select_capability"
+      ]
+    },
+    {
+      "transportMilliseconds": 2842.577375,
+      "requestBytes": 3014,
+      "usage": {
+        "completion_tokens": 96,
+        "locals": {
+          "constrained": true,
+          "engine": "locals",
+          "forced_tokens": 18,
+          "passes": 78,
+          "wall_s": 2.8132812918629497
+        },
+        "prompt_tokens": 816,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "total_tokens": 912
+      },
+      "tools": [
+        "prepare_event"
+      ]
+    },
+    {
+      "transportMilliseconds": 1003.915792,
+      "requestBytes": 7045,
+      "usage": {
+        "completion_tokens": 76,
+        "locals": {
+          "constrained": true,
+          "engine": "locals",
+          "forced_tokens": 16,
+          "passes": 60,
+          "wall_s": 0.992135375039652
+        },
+        "prompt_tokens": 1577,
+        "prompt_tokens_details": {
+          "cached_tokens": 1562
+        },
+        "total_tokens": 1653
+      },
+      "tools": [
+        "select_capability"
+      ]
+    },
+    {
+      "transportMilliseconds": 1846.297375,
+      "requestBytes": 2893,
+      "usage": {
+        "completion_tokens": 68,
+        "locals": {
+          "constrained": true,
+          "engine": "locals",
+          "forced_tokens": 16,
+          "passes": 52,
+          "wall_s": 1.8196281660348177
+        },
+        "prompt_tokens": 788,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "total_tokens": 856
+      },
+      "tools": [
+        "prepare_event"
+      ]
+    }
+  ],
+  "processExitCode": 1
+}

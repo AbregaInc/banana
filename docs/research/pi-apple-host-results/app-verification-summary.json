@@ -1,0 +1,66 @@
+{
+  "recordedAt": "2026-10-24T06:56:36.483969+00:00",
+  "upstreamCommit": "ede2c9b468d8e061c557d16957513715e6d49cd6",
+  "upstreamCoreUnmodified": true,
+  "bundledHashesVerified": true,
+  "installedIpadBundle": "com.boris.banana.pi-development",
+  "realIpadApp": "PASS: final installed build, create/read, persistence, native deduplication, cold reopen, automatic compaction and recall",
+  "realMacApp": "PASS: same real local-model checks in isolated Mac app",
+  "realIpadLifecycle": "PASS: resource close, effect once, same conversation, stop and next input",
+  "macNativeContracts": {
+    "passed": 57,
+    "failed": 0
+  },
+  "focusedUnitTests": {
+    "passed": 40,
+    "failed": 0
+  },
+  "ipadSimulator": {
+    "scenariosPassingAcrossRuns": 7,
+    "initialCleanSuitePassed": 7,
+    "laterSuitePassed": 6,
+    "laterSuiteFailed": 1,
+    "laterFailure": "XCTest event synthesis timed out while typing before send",
+    "focusedRerunPassed": 2,
+    "focusedRerunFailed": 0,
+    "focusedRerunIncludesCommittedCompaction": true
+  },
+  "phoneSimulatorShellEntry": {
+    "passed": 1,
+    "failed": 0
+  },
+  "physicalXCTest": "Runner failed before tests: timed out enabling automation mode; not claimed as passed",
+  "physicalPhoneAfterIpadFocus": "No operations",
+  "boundaries": {
+    "appleInferenceMinimumOS": 27,
+    "inference": "On-device Apple Foundation Models, no cloud fallback",
+    "histories": "Independent local stores per device",
+    "automaticCrossDeviceOwnershipOrSync": false,
+    "osScheduledBackgroundDelivery": false,
+    "forcedExpirationVerified": false
+  },
+  "appleSubmissionPerformed": false,
+  "normalLaunchRegression": {
+    "cause": "Local Pi shell waited for a production cloud restore check that is never started",
+    "fix": "PiDevelopment bypasses production first-run gates and root service startup",
+    "physicalIpad": "Installed fixed build, launched without arguments, app shell visually confirmed",
+    "screenshot": "ipad-normal-launch.png",
+    "test": "PiLaunchUITest/testNormalColdLaunchReachesAssistantWithoutCloudSetup",
+    "launchOverrides": [],
+    "simulator": {
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0
+    }
+  },
+  "qualityAndVerificationIsolation": {
+    "mac": "PASS",
+    "physicalIpad": "PASS",
+    "freshGreetingWithoutTools": true,
+    "naturalNotesRequestReturnsSavedContent": true,
+    "normalHistorySelectionAndDraftUnchanged": true,
+    "verificationFiles": "Banana Pi Verification",
+    "normalFiles": "Banana Pi",
+    "existingConversationsPreserved": true
+  }
+}

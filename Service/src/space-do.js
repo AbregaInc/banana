@@ -26,6 +26,7 @@ export class Space extends DurableObject {
   recordBlob(sha, size, at, type) { return space.recordBlob(this.port, sha, size, at, type); }
   consents() { return space.consents(this.port); }
   setConsent(kind, consent) { space.setConsent(this.port, kind, consent); }
+  webStatus(types) { return space.webStatus(this.port, types); }
   counts() { return space.counts(this.port); }
   setCalendarPreference(request) { return space.setCalendarPreference(this.port, request); }
   read(type, id) { return space.read(this.port, type, id); }
@@ -77,6 +78,7 @@ export function doSpaces(namespace) {
         consents: () => stub.consents(),
         setConsent: (kind, consent) => stub.setConsent(kind, consent),
         withdrawConsent: (kind) => stub.withdrawConsent(kind, id),
+        webStatus: (types) => stub.webStatus(types),
         counts: () => stub.counts(),
         setCalendarPreference: (request) => stub.setCalendarPreference(request),
         read: (type, recordId) => stub.read(type, recordId),

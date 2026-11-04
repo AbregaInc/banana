@@ -48,7 +48,7 @@ extension AppSection {
         case .sleep: .sleep
         case .nutrition: .food
         case .library: .listening
-        case .plan, .mail, .notes, .routines, .settings, .review: nil
+        case .plan, .mail, .notes, .routines, .settings, .review, .assistant: nil
         }
     }
 }

@@ -1,0 +1,231 @@
+{
+  "reviewedOn": "2026-10-25",
+  "status": "Shortlist for qualification, not a ranking or deployment recommendation",
+  "engines": [
+    {
+      "repo": "Generated-Computers/Locals",
+      "platforms": [
+        "macOS"
+      ],
+      "role": "Current serving frontend and custom MLX compute engine; batch-one claims must be measured separately from concurrent throughput"
+    },
+    {
+      "repo": "ml-explore/mlx-lm",
+      "platforms": [
+        "macOS"
+      ],
+      "role": "Stock MLX baseline; same checkpoint comparison through Locals' mlx engine"
+    },
+    {
+      "repo": "ml-explore/mlx-swift-lm",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "role": "Native app runtime; model/template/tool parity required, no Python on mobile"
+    },
+    {
+      "repo": "ggml-org/llama.cpp",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "role": "Native Metal/GGUF candidate; verify pinned model parser and function-calling template"
+    },
+    {
+      "repo": "google-ai-edge/LiteRT-LM",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "role": "Native Swift/LiteRT candidate, especially Gemma; compiled model assets and tool parity need qualification"
+    },
+    {
+      "repo": "mlc-ai/mlc-llm",
+      "platforms": [
+        "iOS",
+        "macOS"
+      ],
+      "role": "Compiled native candidate; assess per-model conversion/build and app packaging costs"
+    },
+    {
+      "repo": "ollama/ollama",
+      "platforms": [
+        "macOS"
+      ],
+      "role": "Mac serving/packaging candidate; record actual compute backend, template and resident-memory policy"
+    },
+    {
+      "repo": "cactus-compute/cactus",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "role": "Mobile runtime candidate; check current distribution/license conditions before qualification"
+    }
+  ],
+  "models": [
+    {
+      "repo": "mlx-community/Qwen3.5-2B-4bit",
+      "role": "Smaller fast candidate; compare against 4B with identical nonthinking settings"
+    },
+    {
+      "repo": "mlx-community/Qwen3.5-4B-4bit",
+      "role": "Current Mac fast incumbent, not proven best"
+    },
+    {
+      "repo": "mlx-community/Qwen3.5-9B-4bit",
+      "role": "Larger quality/latency tradeoff candidate"
+    },
+    {
+      "repo": "mlx-community/Qwen3.8-27B-4bit",
+      "role": "Preserved quality profile; previously too slow for everyday turns"
+    },
+    {
+      "repo": "mlx-community/Qwen3.6-35B-A3B-4bit",
+      "role": "Mac MoE candidate; resident 35B weights matter despite 3B active compute"
+    },
+    {
+      "repo": "google/gemma-4-E2B-it",
+      "role": "Mobile candidate; effective parameters do not equal resident weight size",
+      "testedArtifact": "mlx-community/gemma-4-E2B-it-4bit",
+      "testedManifest": "gemma4-e2b-manifest.json",
+      "qualificationState": "Mac development tool-contract testing performed with pinned 4-bit artifact/presets; not app/mobile qualified. See RESULTS-INDEPENDENT-2026-10-25.md"
+    },
+    {
+      "repo": "google/gemma-4-E4B-it",
+      "role": "Mobile/Mac candidate; qualify native tool template and memory",
+      "testedArtifact": "mlx-community/gemma-4-E4B-it-4bit",
+      "testedManifest": "gemma4-e4b-manifest.json",
+      "qualificationState": "Mac development tool-contract testing performed with pinned 4-bit artifact/presets; not app/mobile qualified. See RESULTS-INDEPENDENT-2026-10-25.md"
+    },
+    {
+      "repo": "LiquidAI/LFM2.5-2.6B-MLX-4bit",
+      "role": "Small model from Locals' curated catalog; qualify Banana behavior rather than adopting throughput claims",
+      "qualificationState": "Mac development tool-contract testing performed with recorded 4-bit checkpoint/presets; not app/mobile qualified. See RESULTS-LOCAL-FOLLOWUP-2026-10-25.md"
+    },
+    {
+      "repo": "LiquidAI/d1-omni-600M",
+      "role": "Optional decision/routing experiment, not a chat replacement"
+    },
+    {
+      "repo": "jaredpalmer/kev-0.8b",
+      "role": "Decision model; card excludes tool-call routing, not deployed"
+    },
+    {
+      "repo": "jaredpalmer/kev-4b",
+      "role": "Task-specific decision candidate; extra memory, calibration and total-workflow latency must be justified"
+    },
+    {
+      "repo": "LiquidAI/LFM2.5-1.2B-Instruct",
+      "role": "Efficient nonthinking instruction model; small mobile screening candidate, not previously qualified on current Banana workspace suite",
+      "efficiencyMechanism": "hybrid-small-instruct",
+      "qualificationState": "Mac development tool-contract testing performed with recorded 4-bit checkpoint/presets; not app/mobile qualified. See RESULTS-LOCAL-FOLLOWUP-2026-10-25.md"
+    },
+    {
+      "repo": "LiquidAI/LFM2.5-2.6B",
+      "role": "Agent-trained hybrid architecture; include supported reasoning/template and native recommended preset",
+      "efficiencyMechanism": "hybrid-agent",
+      "qualificationState": "Mac development tool-contract testing performed with recorded 4-bit checkpoint/presets; not app/mobile qualified. See RESULTS-LOCAL-FOLLOWUP-2026-10-25.md"
+    },
+    {
+      "repo": "LiquidAI/LFM2.5-8B-A1B",
+      "role": "8.3B total / 1.5B active hybrid MoE; candidate for Mac and larger mobile budgets, total residency still matters",
+      "efficiencyMechanism": "low-active-moe",
+      "qualificationState": "Mac development tool-contract testing performed with pinned 4-bit artifact/presets; not app/mobile qualified. See RESULTS-INDEPENDENT-2026-10-25.md",
+      "testedArtifact": "LiquidAI/LFM2.5-8B-A1B-MLX-4bit",
+      "testedManifest": "lfm25-8b-a1b-manifest.json"
+    },
+    {
+      "repo": "LiquidAI/LFM2.5-2.6B-DSpark",
+      "role": "Speculative drafter paired with target; first-party Apple Metal support, not an independent assistant or enabled in Banana",
+      "efficiencyMechanism": "speculative-drafter",
+      "qualificationState": "Discovery only; not Banana app qualified"
+    },
+    {
+      "repo": "HuggingFaceTB/SmolLM3-3B",
+      "role": "Tool-capable dense model with explicit thinking control; native tool-template mapping needs qualification",
+      "efficiencyMechanism": "small-tool-instruct",
+      "qualificationState": "Mac development tool-contract testing performed with pinned 4-bit artifact/presets; not app/mobile qualified. See RESULTS-INDEPENDENT-2026-10-25.md",
+      "testedArtifact": "mlx-community/SmolLM3-3B-4bit",
+      "testedManifest": "smollm3-3b-manifest.json"
+    },
+    {
+      "repo": "mistralai/Ministral-3-3B-Instruct-2512",
+      "role": "Efficient edge instruct model; compare complete turn and avoid paying for unused vision assets",
+      "efficiencyMechanism": "small-instruct",
+      "qualificationState": "Mac development tool-contract testing performed with pinned 4-bit artifact/presets; not app/mobile qualified. See RESULTS-INDEPENDENT-2026-10-25.md",
+      "testedArtifact": "mlx-community/Ministral-3-3B-Instruct-2512-4bit",
+      "testedManifest": "ministral3-3b-manifest.json"
+    },
+    {
+      "repo": "mistralai/Ministral-3-8B-Instruct-2512",
+      "role": "Larger efficient instruct control for Mac quality/latency tradeoff",
+      "efficiencyMechanism": "compact-instruct",
+      "qualificationState": "Discovery only; not Banana app qualified"
+    },
+    {
+      "repo": "ibm-granite/granite-4.0-h-tiny",
+      "role": "7B total / 1B active hybrid Mamba2 MoE; qualify native kernel/tool support, not just weight conversion",
+      "efficiencyMechanism": "hybrid-low-active-moe",
+      "qualificationState": "Discovery only; not Banana app qualified"
+    },
+    {
+      "repo": "inclusionAI/Ling-3.0-tiny",
+      "role": "Hybrid sparse model candidate; verify exact architecture and supported Apple runtime before benchmarking",
+      "efficiencyMechanism": "hybrid-low-active-moe",
+      "qualificationState": "Discovery only; not Banana app qualified"
+    },
+    {
+      "repo": "google/functiongemma-270m-it",
+      "role": "Task-specific function-calling specialist intended for customization; evaluate fine-tuning plus fallback, not general assistant replacement",
+      "efficiencyMechanism": "specialist",
+      "qualificationState": "Discovery only; not Banana app qualified"
+    },
+    {
+      "repo": "bottlecapai/ThinkingCap-gemma-4-26B-A4B-it",
+      "role": "Shorter-thinking Mac quality candidate; reduced generated reasoning does not reduce total weight residency",
+      "efficiencyMechanism": "shorter-thinking-moe",
+      "qualificationState": "Discovery only; not Banana app qualified"
+    },
+    {
+      "repo": "bottlecapai/ThinkingCap-gemma-4-26B-A4B-it-GGUF",
+      "role": "Published GGUF quantizations; select one exact artifact, do not sum alternate quantizations as required RAM",
+      "efficiencyMechanism": "shorter-thinking-moe",
+      "qualificationState": "Discovery only; not Banana app qualified"
+    },
+    {
+      "repo": "bottlecapai/ThinkingCap-Qwen3.8-27B",
+      "role": "Shorter-thinking dense Mac quality control; compare against same base with thinking on/off and native settings",
+      "efficiencyMechanism": "shorter-thinking-dense",
+      "qualificationState": "Discovery only; not Banana app qualified"
+    },
+    {
+      "repo": "openbmb/MiniCPM5-2B",
+      "role": "Small distilled tool-capable text model; pinned 4bit local testing with native/Locals XML parsers",
+      "efficiencyMechanism": "small-distilled-agent",
+      "qualificationState": "Mac development tool-contract testing performed with pinned 4-bit artifact/presets; not app/mobile qualified. See RESULTS-INDEPENDENT-2026-10-25.md",
+      "testedArtifact": "mlx-community/MiniCPM5-2B-mlx-4Bit",
+      "testedManifest": "minicpm5-2b-manifest.json"
+    }
+  ],
+  "discoveryAuthors": [
+    "Qwen",
+    "LiquidAI",
+    "google",
+    "mlx-community",
+    "bottlecapai",
+    "inclusionAI",
+    "ibm-granite",
+    "HuggingFaceTB",
+    "mistralai",
+    "nvidia",
+    "microsoft",
+    "openbmb",
+    "tiiuae"
+  ]
+}

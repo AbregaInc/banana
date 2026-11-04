@@ -44,7 +44,7 @@ final class VerifyTimelineUITest: XCTestCase {
         XCTAssertTrue(scan.waitForExistence(timeout: 4))
         scan.tap()
         // The one scan sheet every device opens; its barcode button starts the camera.
-        XCTAssertTrue(app.navigationBars["Scan a package"].waitForExistence(timeout: 3))
+        XCTAssertTrue(app.navigationBars["Scan package"].waitForExistence(timeout: 3))
         let scanner = app.buttons["scan.barcode"]
         XCTAssertTrue(scanner.waitForExistence(timeout: 5))
         scanner.tap()
@@ -73,7 +73,7 @@ final class VerifyTimelineUITest: XCTestCase {
         app.plus("wellness.addSupplement").tap()
         // From the top bar's + it is picked from the list.
         if app.buttons["add.supplement"].waitForExistence(timeout: 2) { app.buttons["add.supplement"].tap() }
-        XCTAssertTrue(app.buttons["wellness.scanSupplementBarcode"].waitForExistence(timeout: 1))
+        XCTAssertTrue(app.buttons["wellness.fillIn"].waitForExistence(timeout: 1))
         app.buttons["Cancel"].tap()
         XCTAssertTrue(app.staticTexts["Vitamin D"].waitForExistence(timeout: 3))
         keepScreenshot(of: app, named: "Wellness - supplement schedule")
@@ -142,10 +142,17 @@ final class VerifyTimelineUITest: XCTestCase {
         app.withoutSpaceSync()
         app.launch()
 
-        let settings = app.buttons["podcast.settings.button"]
-        XCTAssertTrue(settings.waitForExistence(timeout: 8))
+        // The show's settings are the first item in its "…" menu.
+        let more = app.buttons["podcast.more"]
+        XCTAssertTrue(more.waitForExistence(timeout: 8))
         XCTAssertFalse(app.descendants(matching: .any)["podcast.settings.autoSkip"].exists)
-        settings.tap()
+        func openSettings() {
+            more.tap()
+            let settings = app.buttons["podcast.settings.button"]
+            XCTAssertTrue(settings.waitForExistence(timeout: 3), app.debugDescription)
+            settings.tap()
+        }
+        openSettings()
 
         XCTAssertTrue(app.navigationBars["Podcast settings"].waitForExistence(timeout: 3))
         let autoSkip = app.descendants(matching: .any)["podcast.settings.autoSkip"]
@@ -161,7 +168,7 @@ final class VerifyTimelineUITest: XCTestCase {
         thirtySeconds.tap()
         XCTAssertTrue(app.staticTexts["30 seconds"].waitForExistence(timeout: 3))
         app.buttons["Done"].tap()
-        settings.tap()
+        openSettings()
         XCTAssertTrue(app.navigationBars["Podcast settings"].waitForExistence(timeout: 3))
         XCTAssertTrue(app.staticTexts["30 seconds"].exists)
         keepScreenshot(of: app, named: "Podcast - settings behind cog")
@@ -297,7 +304,7 @@ final class VerifyTimelineUITest: XCTestCase {
             app.navigationBars["New event"].waitForExistence(timeout: 4),
             "Long-pressing and dragging an empty Day slot did not create an event"
         )
-        XCTAssertTrue(app.textFields["What’s happening?"].exists)
+        XCTAssertTrue(app.textFields["event.title"].exists)
         keepScreenshot(of: app, named: "Day - long press drag creates event")
     }
 

@@ -1,0 +1,16 @@
+loading ~/Library/Application Support/Banana Pi/Models/Qwen3.5-4B-4bit@0e7ffd5c629e on engine locals ...
+locals: MLX 0.32.4's attention kernel cannot run [8] query tokens at once on this GPU; those passes are split in two
+engine locals ready in 4.3s
+[locals] tool calls: qwen_xml; thinking: open
+locals serve: http://127.0.0.1:41790/v1  (models: locals/qwen3.5-4b-4bit@0e7ffd5c629e, locals/qwen3.5-4b-4bit@0e7ffd5c629e-thinking)
+  also: the Ollama API at http://127.0.0.1:41790/api
+[locals] prompt 1784 (0 cached)  out 87 tok  forced 17  23 tok/s  1 call(s)  finish=stop
+[locals] prompt 585 (0 cached)  out 34 tok  forced 13  19 tok/s  1 call(s)  finish=stop
+[locals] prompt 1784 (1768 cached)  out 87 tok  forced 17  98 tok/s  1 call(s)  finish=stop
+[locals] prompt 585 (0 cached)  out 34 tok  forced 13  36 tok/s  1 call(s)  finish=stop
+[locals] prompt 1786 (1768 cached)  out 86 tok  forced 17  96 tok/s  1 call(s)  finish=stop
+[locals] prompt 587 (0 cached)  out 34 tok  forced 13  35 tok/s  1 call(s)  finish=stop
+[locals] prompt 1784 (0 cached)  out 87 tok  forced 17  31 tok/s  1 call(s)  finish=stop
+[locals] prompt 585 (0 cached)  out 34 tok  forced 13  36 tok/s  1 call(s)  finish=stop
+[locals] prompt 1787 (1633 cached)  out 87 tok  forced 17  78 tok/s  1 call(s)  finish=stop
+[locals] prompt 588 (0 cached)  out 34 tok  forced 13  35 tok/s  1 call(s)  finish=stop

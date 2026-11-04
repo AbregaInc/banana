@@ -60,6 +60,7 @@ enum GoogleEventWindowBuilder {
         var calendarOwner: String? = nil
         var iCalUID: String? = nil
         var originalStart: Date? = nil
+        var endTimeZone: String? = nil
 
         var copyKey: String? {
             guard let uid = iCalUID, !uid.isEmpty else { return nil }
@@ -132,7 +133,8 @@ enum GoogleEventWindowBuilder {
             originalStart: event.originalStartTime.flatMap { original in
                 original.dateTime.flatMap(GoogleCalendarDates.parseRFC3339)
                     ?? original.date.flatMap(GoogleCalendarDates.parseDate)
-            }
+            },
+            endTimeZone: event.end?.timeZone
         )
     }
 
@@ -415,7 +417,8 @@ enum GoogleEventWindowBuilder {
             myResponse: MeetingResponse(googleStatus: event.myResponse),
             othersAllDeclined: event.othersAllDeclined,
             alsoOnCalendarIDs: event.alsoOn.map(GoogleCalendarIDs.calendarInfoID),
-            isAvailabilityOnly: event.isSharedAvailability, calendarBlocksTime: event.calendarBlocksTime)
+            isAvailabilityOnly: event.isSharedAvailability, calendarBlocksTime: event.calendarBlocksTime,
+            startTimeZone: event.timeZone?.identifier, endTimeZone: event.endTimeZone)
     }
 
     private static func allDayInfo(_ event: Normalized) -> MeetingInfo {

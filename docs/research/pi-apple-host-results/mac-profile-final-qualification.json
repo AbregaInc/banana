@@ -1,0 +1,36 @@
+{
+  "scope": "Final isolated installed Mac Pi qualification; no new visible/mobile UI acceptance",
+  "appFilesSha256": {
+    "MacOS/Banana Pi": "bddf395800cb6574660da9b40e7dd2757efaf9add54a45e26286d90c5c8392a5",
+    "MacOS/Banana Pi.debug.dylib": "9b086ce9266793e6b22b034cabd141e4ff7c99e1d565edb5975d1e4454c9ef22",
+    "Resources/pi-agent.js": "835e750e2e2cf6e760a6816306af9e88480bcb48257a22e6cfba6781e3eeb0f7",
+    "Resources/pi-runtime-manifest.json": "5a7a1a256117ab98c1a7b5e69d4de7e20552f38cce60f0bdd20ea7315c2d8b01"
+  },
+  "architectures": {
+    "MacOS/Banana Pi": "arm64",
+    "MacOS/Banana Pi.debug.dylib": "arm64"
+  },
+  "signatureVerified": true,
+  "normalConfigurationSha256": "9dd36ad74d1f9f47ae4accee3324223e33c44dacb18c619039f6850dc00f2aca",
+  "nativeTests": {
+    "executed": 24,
+    "failures": 0
+  },
+  "reports": [
+    {
+      "file": "mac-boundaries-final-control-workspace.json",
+      "sha256": "8a0918ba9a2f9ecf1640fa364bdc65c4fa5f73e7de096dd26287ed6e2ba9ae6d",
+      "passed": true
+    },
+    {
+      "file": "mac-profile-final-control-app.json",
+      "sha256": "0dd82bdb945b0bd0525ff31ca3a2b2ea7d5c211f0d6a7f8cf08e0c9f7b9e47ef",
+      "passed": true
+    },
+    {
+      "file": "mac-profile-final-installed-nutrition.json",
+      "sha256": "8d8a533c1e35ad8161ae6deff6939c831132a18554bf4eb9c4fd0fbfc462bf4d",
+      "passed": true
+    }
+  ]
+}

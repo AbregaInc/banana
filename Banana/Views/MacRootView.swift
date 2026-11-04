@@ -24,19 +24,24 @@ final class MacNavigator: ObservableObject {
     static let shared = MacNavigator()
     @Published var section: AppSection = .plan
     @Published var showFullPlayer = false
+    @Published var showsAssistant = false {
+        didSet {
+            if showsAssistant { inspectedMeeting = nil; showsAvailability = false }
+        }
+    }
     /// Set by the Morning Briefing menu command (⌘⇧M) and by `MacPayoffPresenter`'s own schedule
     /// check, so both paths open the same sheet instead of each owning a separate `@State`.
     @Published var showMorningBriefing = false
     /// The meeting whose detail drawer (right-hand inspector) is open, if any. Set from any
     /// event row click; the desktop's spare width shows the full event instead of a sheet.
     @Published var inspectedMeeting: MeetingInfo? {
-        didSet { if inspectedMeeting != nil { showsAvailability = false } }
+        didSet { if inspectedMeeting != nil { showsAvailability = false; showsAssistant = false } }
     }
     /// The share-availability panel, in the same right-hand slot as the event drawer — the grid
     /// stays in view so the offered times can be seen in place (`offeredSlots`).
     @Published var showsAvailability = false {
         didSet {
-            if showsAvailability { inspectedMeeting = nil } else { offeredSlots = [] }
+            if showsAvailability { inspectedMeeting = nil; showsAssistant = false } else { offeredSlots = [] }
         }
     }
     @Published var offeredSlots: [DateInterval] = []
@@ -114,7 +119,9 @@ struct MacRootView: View {
 
     /// Offscreen drivers and visual audits must not start foreground sync.
     private static var isolatedPreview: Bool {
-        #if DEBUG
+        #if PI_DEVELOPMENT
+        true
+        #elseif DEBUG
         MailKeyDriver.requested || ProcessInfo.processInfo.arguments.contains("--ui-audit")
             || ProcessInfo.processInfo.arguments.contains("--snapshot-app-store")
         #else
@@ -122,6 +129,9 @@ struct MacRootView: View {
         #endif
     }
 
+    #if PI_DEVELOPMENT
+    @ObservedObject private var chrome = PageChrome.shared
+    #endif
     @ObservedObject private var nav = MacNavigator.shared
     @ObservedObject private var backup = CloudBackup.shared
     @ObservedObject private var commands = MacCommandCenter.shared
@@ -147,17 +157,26 @@ struct MacRootView: View {
             // It was `.tag(section)` with `.badge` after it: the badge hid the tag, the rows fell
             // back to their ids, and no click on the sidebar matched a section — it did nothing
             // anywhere, and nothing was ever highlighted.
-            List(AppSection.macSidebar(with: modules.choice), selection: Binding<AppSection.ID?>(
+            List(selection: Binding<AppSection.ID?>(
                 get: { nav.section.id },
                 set: { nav.section = AppSection.chosen($0, current: nav.section) }
-            )) { section in
-                Label(section.title, systemImage: section.symbol)
-                    .badge(badgeCount(section))
+            )) {
+                ForEach(AppSection.macSidebar(with: modules.choice)) { section in
+                    Label(section.title, systemImage: section.symbol)
+                        .badge(badgeCount(section)).tag(section.id)
+                }
             }
             .navigationSplitViewColumnWidth(min: 180, ideal: 210, max: 280)
             .navigationTitle("Banana")
+            .accessibilityIdentifier("app.sidebar")
         } detail: {
             VStack(spacing: 0) {
+                if AppSupport.isPiSampleWorkspace {
+                    Label("Sample workspace · Fictional data · Fixtures reset when reopened", systemImage: "flask")
+                        .font(.caption).foregroundStyle(.secondary)
+                        .frame(maxWidth: .infinity).padding(8)
+                        .background(.quaternary)
+                }
                 // The event drawer is a plain in-content panel, NOT `.inspector`: the system
                 // inspector splits the window toolbar (trailing items jump above the panel) and
                 // clips the content instead of re-laying it out, which threw the week grid's
@@ -181,6 +200,16 @@ struct MacRootView: View {
                         case .sleep, .trends, .review: macReview.syncWaitingNote(.fitness)
                         case .nutrition: WideNutritionView().syncWaitingNote(.wellness).onAppear { SpaceSyncQuestions.shared.healthUsed() }
                         case .notes:     NotesView()
+                        case .assistant:
+                            #if PI_DEVELOPMENT
+                            macReview
+                            #else
+                            #if BANANA_AI
+                            AssistantView()
+                            #else
+                            EmptyView()
+                            #endif
+                            #endif
                         case .routines:  RoutinesView()
                         // Told how much room it has, so a wide window gets the grid of shows.
                         case .library:   PodcastsView().measuresLayoutClass().syncWaitingNote(.controls)
@@ -190,6 +219,23 @@ struct MacRootView: View {
                         }
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .onReceive(NotificationCenter.default.publisher(for: .assistantOpenSection)) { notice in
+                        guard let raw = notice.object as? String, let section = AppSection(rawValue: raw) else { return }
+                        if section == .settings { openSettings() } else { nav.section = section }
+                    }
+                    .toolbar {
+                        #if BANANA_AI
+                        ToolbarItem(placement: .primaryAction) {
+                            Button {
+                                nav.showsAssistant.toggle()
+                            } label: { Label("Ask or add", systemImage: "bubble.left.and.bubble.right") }
+                                .keyboardShortcut("j", modifiers: .command)
+                                .help(nav.showsAssistant ? "Hide chat (⌘J)" : "Ask a question or add something (⌘J)")
+                                .accessibilityValue(nav.showsAssistant ? "Open" : "Closed")
+                                .accessibilityIdentifier("app.askBanana")
+                        }
+                        #endif
+                    }
                     // A module switched off (here or on another device) takes its section with it.
                     .onChange(of: modules.choice, initial: true) { _, choice in
                         if !nav.section.isShown(with: choice) { nav.section = .plan }
@@ -232,7 +278,16 @@ struct MacRootView: View {
                         }
                     }
                     #endif
-                    if let meeting = nav.inspectedMeeting {
+                    #if BANANA_AI
+                    if nav.showsAssistant {
+                        Divider()
+                        AssistantView(panelClose: { nav.showsAssistant = false }, panelAddSection: nav.section)
+                            .frame(width: 420)
+                            .accessibilityIdentifier("assistant.panel")
+                            .transition(.move(edge: .trailing))
+                    }
+                    #endif
+                    if !nav.showsAssistant, let meeting = nav.inspectedMeeting {
                         Divider()
                         MacEventInspectorView(meeting: meeting)
                             .frame(width: 350)
@@ -246,6 +301,7 @@ struct MacRootView: View {
                 }
                 .animation(.snappy(duration: 0.2), value: nav.inspectedMeeting != nil)
                 .animation(.snappy(duration: 0.2), value: nav.showsAvailability)
+                .animation(.snappy(duration: 0.2), value: nav.showsAssistant)
 
                 // Playback transport, always present while something is loaded — the iOS shell put
                 // this in the tab bar's bottom accessory; the Mac had NO transport at all, so you
@@ -261,6 +317,18 @@ struct MacRootView: View {
             }
             .sheet(isPresented: $nav.showFullPlayer) { NowPlayingView() }
         }
+        #if PI_DEVELOPMENT
+        .onChange(of: chrome.showAdd) { _, requested in
+            guard requested else { return }
+            chrome.showAdd = false
+            nav.showsAssistant = true
+        }
+        .onChange(of: chrome.review) { _, section in
+            guard section != nil else { return }
+            chrome.review = nil
+            nav.section = .review
+        }
+        #endif
         // The iCloud snapshot restore prompt only lived in the iOS RootView, so on the Mac a backup
         // found by checkForRestore() was detected but never offered — which is why nothing from the
         // phone carried over here. Mirror the prompt. Never applied without an explicit yes.
@@ -304,6 +372,7 @@ struct MacRootView: View {
         #endif
         .onAppear { MacKeyMonitor.shared.install() }
     }
+
 }
 
 /// Presents the morning briefing (Mac edition) and the post-workout review.

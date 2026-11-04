@@ -10,6 +10,8 @@ struct TranscriptView: View {
     var embedded = false
     @EnvironmentObject var player: PlayerController
     @EnvironmentObject var clock: PlaybackClock
+    @EnvironmentObject var library: PodcastLibrary
+    @EnvironmentObject var downloads: DownloadManager
     /// Observe the shared coordinator directly. Caching its status in @State meant the screen
     /// froze at whatever load() set — 0% — while the background task did the actual work.
     @ObservedObject private var coordinator = TranscriptCoordinator.shared
@@ -59,6 +61,12 @@ struct TranscriptView: View {
         .onChange(of: clock.time) { _, newValue in
             if !player.isPlaying { playhead = newValue }
         }
+        // Downloaded from the empty state: transcribe it now.
+        .onChange(of: downloads.state(episode.id)) { _, new in
+            if new == .downloaded, transcript == nil, case .unavailable = status {
+                Task { await load(force: true) }
+            }
+        }
         // The background task may finish while this screen is open — pick the transcript up then.
         .onChange(of: coordinator.status(for: episode.id)) { _, new in
             if case .ready = new, transcript == nil { Task { await showTranscript() } }
@@ -85,9 +93,9 @@ struct TranscriptView: View {
                             // Whose turn it is, over the first line of it. The transcript carried
                             // this (a publisher's names) and nothing showed it.
                             if phrase.startsTurn, let name = phrase.speaker.flatMap({ speakerLabels[$0] }) {
-                                Text(name.uppercased())
-                                    .font(DS.Typeface.eyebrow)
-                                    .tracking(DS.Typeface.eyebrowTracking)
+                                // Sentence case: "Speaker 2" in capitals read as a shouted label.
+                                Text(name)
+                                    .font(.footnote.weight(.semibold))
                                     .foregroundStyle(DS.Palette.accent)
                                     .padding(.top, DS.Space.s)
                                     .padding(.bottom, -DS.Space.s)
@@ -98,8 +106,9 @@ struct TranscriptView: View {
                                 .font(embedded ? .body : .title3)
                                 .fixedSize(horizontal: false, vertical: true)
                                 .frame(maxWidth: .infinity, alignment: .leading)
-                                // The current phrase at full strength, the rest well back.
-                                .opacity(phrase.contains(activeWordIndex) ? 1 : 0.4)
+                                // The current phrase at full strength, the rest back but still
+                                // readable (0.4 read as disabled text).
+                                .opacity(phrase.contains(activeWordIndex) ? 1 : 0.6)
                                 .id(phrase.id)
                                 .background(activeProbe(phrase, viewportHeight: outer.size.height))
                                 .onTapGesture { player.seek(to: max(0, phrase.start - 0.15)) }
@@ -206,9 +215,6 @@ struct TranscriptView: View {
             case .preparing:
                 ProgressView()
                 Text("Downloading the speech model…").font(.headline)
-                Text("One-off, a few hundred megabytes. It'll be instant next time.")
-                    .font(.subheadline).foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center).padding(.horizontal, 32)
             case .working(let p):
                 ProgressView(value: p) { Text("Transcribing on device…") }
                     .padding(.horizontal, 40)
@@ -218,18 +224,15 @@ struct TranscriptView: View {
                 } else {
                     Text("\(Int(p * 100))%").font(.caption).foregroundStyle(.secondary)
                 }
-                Text("Keeping the screen on so this can finish — leaving the app pauses it.")
-                    .font(.caption2).foregroundStyle(.tertiary)
-                    .multilineTextAlignment(.center).padding(.horizontal, 40)
             case .unavailable:
+                // One line and the action that fixes it: downloading lets the phone transcribe
+                // it. It explained that in two grey sentences and offered no way to do it
+                // (design climb round 1).
                 Image(systemName: "text.badge.xmark").font(.largeTitle).foregroundStyle(.secondary)
                 Text("No transcript available").font(.headline)
             case .deferredForPlayback:
                 Image(systemName: "moon.zzz").font(.largeTitle).foregroundStyle(.secondary)
                 Text("Queued until playback stops").font(.headline)
-                Text("Generating a transcript while audio is playing uses substantial power. Pause playback and try again, or Banana will process it on the charger.")
-                    .font(.subheadline).foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center).padding(.horizontal, 32)
                 Button("Try now") { Task { await load(force: true) } }
                     .buttonStyle(.secondary)
             case .failed:
@@ -242,6 +245,32 @@ struct TranscriptView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    /// The show this episode belongs to, for downloading it.
+    private var podcast: Podcast? {
+        library.podcasts.first { $0.episodes.contains { $0.id == episode.id } }
+    }
+
+    /// Download, then transcribe on the phone once the file is here (`onChange` below).
+    @ViewBuilder private var downloadToTranscribe: some View {
+        switch downloads.state(episode.id) {
+        case .downloading:
+            ProgressView("Downloading\u{2026}")
+        case .waitingForWiFi:
+            Text("Waiting for Wi-Fi").font(.subheadline).foregroundStyle(.secondary)
+        case .downloaded:
+            EmptyView()   // transcribing starts from the onChange; the status above takes over
+        default:
+            if let podcast {
+                // "Transcribe": the download it needs first is the app's job, not a second verb.
+                Button("Transcribe") {
+                    downloads.download(episode, podcast: podcast, allowCellular: NetworkMonitor.shared.isCheap)
+                }
+                .buttonStyle(.primary)
+                .accessibilityIdentifier("transcript.download")
+            }
+        }
     }
 
     // MARK: - Data

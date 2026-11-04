@@ -223,3 +223,62 @@ test('a share is read so many times a minute, and a Health snapshot far larger t
   for (let i = 0; i < 60; i++) status = (await f.call('GET', view(d.id, 'account', d.version))).status;
   assert.equal(status, 429);
 });
+
+test('sharing status excludes unshared record changes and enforces revocation',async()=>{
+  const f=await fixture(),d=await f.draft(policy('nutrition'));await f.send(d);
+  const guest=await f.login('trainer',d.id);
+  const read=async()=>{const r=await f.call('GET',view(d.id,'status'),null,guest.cookie);assert.equal(r.status,200);return r.json();};
+  const original=await read();
+  assert.match(original.contentVersion,/^[0-9a-f]{64}$/);
+  await f.put('food.supplement','private-one',{name:'Example private supplement'});
+  assert.equal((await read()).contentVersion,original.contentVersion);
+  await f.put('food.meal','meal-one',{name:'Lunch',items:[]});
+  const updated=await read();assert.notEqual(updated.contentVersion,original.contentVersion);
+  f.s.advance(1000);await f.put('food.meal','meal-one',{name:'Lunch',items:[]});
+  assert.equal((await read()).contentVersion,updated.contentVersion);
+  const metadata=await(await f.call('GET',view(d.id,'account'),null,guest.cookie)).json();
+  assert.equal(metadata.contentVersion,updated.contentVersion);
+  assert.equal((await f.call('POST','/app/api/shares/'+d.id+'/revoke',{})).status,200);
+  assert.equal((await f.call('GET',view(d.id,'status'),null,guest.cookie)).status,403);
+});
+
+test('sharing: expiration includes the UTC date, blocks guest endpoints and can be extended', async () => {
+  const f = await fixture(), expiresOn = new Date(f.s.now()).toISOString().slice(0, 10);
+  const d = await f.draft({ ...policy('nutrition'), expiresOn }); await f.send(d);
+  const guest = await f.login('trainer', d.id);
+  assert.equal((await f.call('GET', view(d.id, 'account'), null, guest.cookie)).status, 200);
+  f.s.advance(Date.parse(expiresOn) + DAY - f.s.now() - 1);
+  assert.equal((await f.call('GET', view(d.id, 'status'), null, guest.cookie)).status, 200);
+  f.s.advance(1);
+  for (const endpoint of ['account', 'status', 'records?type=food.meal', 'blob?type=food.meal&id=x&field=photo', 'calendar'])
+    assert.equal((await f.call('GET', view(d.id, endpoint), null, guest.cookie)).status, 403, endpoint);
+  assert.equal((await (await f.call('GET', '/app/api/session', null, guest.cookie)).json()).shares.length, 0);
+  const updated = await (await f.call('PUT', `/app/api/shares/${d.id}/draft`, { email: d.email, version: d.version, policy: policy('nutrition') })).json();
+  await f.preview(updated);
+  assert.equal((await f.call('POST', `/app/api/shares/${d.id}/publish`, { version: updated.version })).status, 200);
+  assert.equal((await f.call('GET', view(d.id, 'account'), null, guest.cookie)).status, 200);
+});
+
+test('sharing: invalid or elapsed expiration cannot be saved or published', async () => {
+  const f = await fixture();
+  for (const expiresOn of ['2026-02-30', 'not-a-date', '2020-01-01', 123])
+    assert.equal((await f.call('POST', '/app/api/shares', { email: 'trainer@example.com', policy: { ...policy('nutrition'), expiresOn } })).status, 400);
+  const expiresOn = new Date(f.s.now()).toISOString().slice(0, 10);
+  const d = await f.draft({ ...policy('nutrition'), expiresOn });
+  f.s.advance(Date.parse(expiresOn) + DAY - f.s.now()); await f.preview(d);
+  assert.equal((await f.call('POST', `/app/api/shares/${d.id}/send`, { version: d.version })).status, 409);
+  assert.equal(f.s.email.sent.length, 0);
+});
+
+test('sharing: list preview shows published access, not unpublished edits, and remains owner-only', async () => {
+  const f = await fixture(), d = await f.draft(policy('nutrition')); await f.send(d);
+  const guest = await f.login('trainer', d.id);
+  const changed = await (await f.call('PUT', `/app/api/shares/${d.id}/draft`, { email: d.email, version: d.version, policy: policy('health') })).json();
+  const result = await f.call('GET', view(d.id, 'account', 'published')); assert.equal(result.status, 200);
+  const account = await result.json(); assert.deepEqual(account.views, ['overview', 'nutrition']);
+  assert.equal(account.publishedPreview, true); assert.equal(account.shareVersion, d.version);
+  assert.equal((await f.call('GET', view(d.id, 'account', 'published'), null, guest.cookie)).status, 403);
+  assert.equal((await f.call('POST', `/app/api/shares/${d.id}/publish`, { version: changed.version })).status, 409);
+  await f.call('POST', `/app/api/shares/${d.id}/revoke`, {});
+  assert.equal((await f.call('GET', view(d.id, 'account', 'published'))).status, 403);
+});

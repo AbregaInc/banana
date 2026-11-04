@@ -80,7 +80,11 @@ final class MealPhotoViewerUITest: XCTestCase {
         let app = launch()
         let thumbs = app.descendants(matching: .any).matching(identifier: "mealPhoto.thumb")
         XCTAssertTrue(thumbs.firstMatch.waitForExistence(timeout: 10), app.debugDescription)
-        // The last one on screen is in "To log", below the day's logged meals.
+        // "To log" is a row a day; the waiting meals and their photos are in the day it opens.
+        let day = app.buttons["mealInbox.reviewDay"].firstMatch
+        XCTAssertTrue(day.waitForExistence(timeout: 10), app.debugDescription)
+        day.tap()
+        XCTAssertTrue(app.buttons["mealReview.logAll"].waitForExistence(timeout: 5), app.debugDescription)
         for _ in 0..<4 where !thumbs.allElementsBoundByIndex.contains(where: { $0.isHittable }) { app.swipeUp() }
         guard let thumb = thumbs.allElementsBoundByIndex.last(where: { $0.isHittable }) else {
             return XCTFail("no meal photo on screen\n\(app.debugDescription)")

@@ -1,6 +1,6 @@
 import XCTest
 
-/// After shopping: My foods › Scan what you bought keeps scanning, each package joins your foods
+/// After shopping: My foods › Scan groceries keeps scanning, each package joins your foods
 /// once however often it's read, and what you bought is suggested when you log a meal.
 /// `--grocery-codes` reads barcodes from the bundled catalog as the camera would (the Simulator
 /// has no camera): Trader Joe's Greek yogurt twice, and dried bananas.

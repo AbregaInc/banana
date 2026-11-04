@@ -1,0 +1,8 @@
+loading ~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/qwen35-4b on engine locals ...
+locals: MLX 0.32.4's attention kernel cannot run [8] query tokens at once on this GPU; those passes are split in two
+engine locals ready in 6.1s
+[locals] tool calls: qwen_xml; thinking: open
+locals serve: http://127.0.0.1:41790/v1  (models: locals/qwen35-4b, locals/qwen35-4b-thinking)
+  also: the Ollama API at http://127.0.0.1:41790/api
+[locals] prompt 38 (0 cached)  out 1 tok  3 tok/s  0 call(s)  finish=stop
+[locals] prompt 63 (0 cached)  out 1 tok  7 tok/s  0 call(s)  finish=stop

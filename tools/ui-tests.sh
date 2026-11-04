@@ -21,6 +21,10 @@ cd "$(dirname "$0")/.."
 . tools/config.sh || exit 1
 
 device="${1:-phone}"; [ $# -gt 0 ] && shift
+scheme="${SCHEME:-Banana}"
+test_config="${UI_CONFIG:-Debug}"
+test_target="${UI_TEST_TARGET:-BananaUITests}"
+physical="${PHYSICAL_DEVICE:-}"
 case "$device" in
   phone) udid=6DFFC0F9-AA09-41C8-B868-FB0D9CC28255;;
   pad)   udid=43EFC551-5368-4F79-9E52-E3DB87A72F48;;
@@ -28,6 +32,11 @@ case "$device" in
 esac
 # An existing simulator can be selected for runtime comparisons without creating one.
 udid="${SIMULATOR_UDID:-$udid}"
+if [ -n "$physical" ]; then
+  # Physical integration tests are confined to Beta. Never erase or uninstall hardware.
+  [ "$scheme" = BananaPi ] && [ "$test_config" = PiDevelopment ] && [ "$test_target" = BananaAgentUITests ] || { echo "Physical UI tests require isolated BananaPi / PiDevelopment / BananaAgentUITests"; exit 1; }
+  udid="$physical"
+fi
 
 timing=(${(f)"$(grep -hoE 'func test[A-Za-z0-9]*(Performance|Sustained|Responsive|DoesNotChain|RepeatedPagingPreservesExactTimePosition|AdjacentPageUsesCacheThenBackfillsWithoutJumping)[A-Za-z0-9]*' BananaUITests/VerifyTimelineUITest.swift | sed 's/func //')"})
 workers="${WORKERS:-2}"
@@ -37,15 +46,16 @@ packages=()
 if [ -n "${SOURCE_PACKAGES_DIR:-}" ]; then
   packages=(-clonedSourcePackagesDirPath "$SOURCE_PACKAGES_DIR" -disableAutomaticPackageResolution -onlyUsePackageVersionsFromResolvedFile -skipPackageUpdates)
 fi
+[ -n "$physical" ] && workers=1
 only=(); skip=()
 if [ "${1:-}" = timing ]; then
   workers=1
-  for t in $timing; do only+=(-only-testing:BananaUITests/VerifyTimelineUITest/$t); done
+  for t in $timing; do only+=(-only-testing:$test_target/VerifyTimelineUITest/$t); done
 elif [ $# -gt 0 ]; then
-  for t in "$@"; do only+=(-only-testing:BananaUITests/$t); done
+  for t in "$@"; do only+=(-only-testing:$test_target/$t); done
 else
-  only=(-only-testing:BananaUITests)
-  for t in $timing; do skip+=(-skip-testing:BananaUITests/VerifyTimelineUITest/$t); done
+  only=(-only-testing:$test_target)
+  for t in $timing; do skip+=(-skip-testing:$test_target/VerifyTimelineUITest/$t); done
 fi
 
 free_gb=$(( ($(vm_stat | awk '/Pages free|Pages inactive|Pages speculative/ {gsub("\\.",""); n+=$NF} END {print n}') * $(sysctl -n hw.pagesize)) / 1073741824 ))
@@ -54,19 +64,23 @@ if [ "$free_gb" -lt $(( workers * 4 )) ]; then
 fi
 
 log="${LOG:-.build/ui-tests-$device.log}"; mkdir -p .build
-# Only a successful UI build advances this stamp. A unit build also writes Products, so that
-# directory's mtime cannot tell whether the UI runner includes the latest test sources.
-stamp=.build/sim/ui-tests-built.stamp
+platform_key=simulator
+[ -n "$physical" ] && platform_key=device
+stamp=".build/sim/.ui-$scheme-$test_config-$platform_key"
 if [ ! -f "$stamp" ] || [ project.yml -nt "$stamp" ] ||
-   [ -n "$(find Banana BananaUITests Shared \( -name '*.swift' -o -name '*.json' \) -newer "$stamp" 2>/dev/null | head -1)" ]; then
+   [ -n "$(find Banana BananaUITests Shared -type f -newer "$stamp" 2>/dev/null | head -1)" ]; then
   echo "building…"
-  xcodebuild build-for-testing -jobs "${BUILD_JOBS:-2}" -project Banana.xcodeproj -scheme BananaUITests -destination 'generic/platform=iOS Simulator' ARCHS=arm64 ONLY_ACTIVE_ARCH=YES \
-    -derivedDataPath .build/sim "${packages[@]}" > .build/ui-tests-build.log 2>&1 || { grep -E ' error: ' .build/ui-tests-build.log | head; echo "build failed: .build/ui-tests-build.log"; exit 1; }
+  build_destination='generic/platform=iOS Simulator'
+  [ -n "$physical" ] && build_destination="platform=iOS,id=$udid"
+  xcodebuild build-for-testing -jobs "${BUILD_JOBS:-2}" -project Banana.xcodeproj -scheme "$scheme" -configuration "$test_config" -destination "$build_destination" \
+    -allowProvisioningUpdates ONLY_ACTIVE_ARCH=YES -derivedDataPath .build/sim "${packages[@]}" > .build/ui-tests-build.log 2>&1 || { grep -E ' error: ' .build/ui-tests-build.log | head; echo "build failed: .build/ui-tests-build.log"; exit 1; }
   touch "$stamp"
 fi
 
-xcrun simctl shutdown "$udid" 2>/dev/null
-xcrun simctl erase "$udid"
+if [ -z "$physical" ]; then
+  xcrun simctl shutdown "$udid" 2>/dev/null
+  xcrun simctl erase "$udid"
+fi
 parallel=(-parallel-testing-enabled NO)
 [ "$workers" -gt 1 ] && parallel=(-parallel-testing-enabled YES -parallel-testing-worker-count "$workers")
 started=$(date +%s)
@@ -74,18 +88,43 @@ started=$(date +%s)
 # prune an in-progress bundle there; always read this run's own bundle, never the newest one.
 mkdir -p .build/ui-results
 result="$PWD/.build/ui-results/${device}-$(date +%Y%m%d-%H%M%S).xcresult"
-xcodebuild test-without-building -collect-test-diagnostics never -project Banana.xcodeproj -scheme BananaUITests \
-  -destination "platform=iOS Simulator,id=$udid" -derivedDataPath .build/sim "${packages[@]}" -resultBundlePath "$result" "${only[@]}" "${skip[@]}" "${parallel[@]}" \
+test_destination="platform=iOS Simulator,id=$udid"
+[ -n "$physical" ] && test_destination="platform=iOS,id=$udid"
+xcodebuild test-without-building -collect-test-diagnostics never -project Banana.xcodeproj -scheme "$scheme" -configuration "$test_config" \
+  -destination "$test_destination" -derivedDataPath .build/sim "${packages[@]}" -resultBundlePath "$result" "${only[@]}" "${skip[@]}" "${parallel[@]}" \
   -test-timeouts-enabled YES -default-test-execution-time-allowance 150 -maximum-test-execution-time-allowance 300 \
   > "$log" 2>&1 &
 runner=$!
+hard_limit="${UI_HARD_TIMEOUT:-300}"
+case_started=$started
+last_case=""
+watchdog_failed=0
 # A finished run sometimes leaves xcodebuild waiting: stop it once the result is written.
 while kill -0 $runner 2>/dev/null; do
   LC_ALL=C grep -aqE '\*\* TEST (SUCCEEDED|FAILED|EXECUTE FAILED) \*\*|Testing failed:' "$log" && { sleep 2; kill $runner 2>/dev/null; break; }
+  latest_case=$(LC_ALL=C grep -a 'Test Case .*started\.' "$log" | tail -1)
+  if [ "$latest_case" != "$last_case" ]; then
+    last_case="$latest_case"
+    case_started=$(date +%s)
+  fi
+  # XCTest's own allowance does not bound a hung event-synthesis operation.
+  # Also bound runner startup, before the first case has begun.
+  # Parallel runners interleave case output; only a serial log identifies which
+  # individual case is active. Keep XCTest's own limits for parallel runs.
+  if [ "$workers" -eq 1 ] && [ $(( $(date +%s) - case_started )) -gt "$hard_limit" ]; then
+    echo "FAILED: UI runner exceeded ${hard_limit}s: ${last_case:-runner startup}" | tee -a "$log"
+    watchdog_failed=1
+    kill $runner 2>/dev/null
+    sleep 2
+    kill -KILL $runner 2>/dev/null
+    break
+  fi
   sleep 2
 done
-xcrun simctl shutdown "$udid" 2>/dev/null
-xcrun simctl --set testing shutdown all 2>/dev/null
+if [ -z "$physical" ]; then
+  xcrun simctl shutdown "$udid" 2>/dev/null
+  xcrun simctl --set testing shutdown all 2>/dev/null
+fi
 
 # What failed and why, from the result bundle (a parallel run's log has no reasons in it).
 xcrun xcresulttool get test-results summary --path "$result" 2>/dev/null | python3 -c '
@@ -96,5 +135,6 @@ for f in d.get("testFailures", []):
 print("%s: %s passed, %s failed, %s skipped" % (sys.argv[1], d.get("passedTests"), d.get("failedTests"), d.get("skippedTests")))
 sys.exit(0 if d.get("failedTests") == 0 and d.get("passedTests", 0) > 0 else 1)' "$device"
 ok=$?
+[ "$watchdog_failed" -eq 1 ] && ok=1
 echo "took $(( ($(date +%s) - started) / 60 )) min $(( ($(date +%s) - started) % 60 )) s  (log: $log, results: $result)"
 exit $ok

@@ -25,6 +25,14 @@ enum Credits {
             Entry("GRDB.swift · Gwendal Roué · MIT", "https://github.com/groue/GRDB.swift"),
             Entry("SwiftSoup · Jonathan Hedley and Nabil Chatbi · MIT", "https://github.com/scinfu/SwiftSoup"),
         ]),
+        Group(title: "Assistant", entries: [
+            Entry("Pi · MIT", "https://github.com/earendil-works/pi"),
+            Entry("core-js · MIT", "https://github.com/zloirock/core-js"),
+            Entry("Text Encoding · MIT", "https://github.com/kayahr/text-encoding"),
+            Entry("Abort Controller · MIT", "https://github.com/mysticatea/abort-controller"),
+            Entry("Event Target Shim · MIT", "https://github.com/mysticatea/event-target-shim"),
+            Entry("TypeBox · MIT", "https://github.com/sinclairzx81/typebox"),
+        ]),
         Group(title: "Transcription", entries: [
             Entry("Parakeet TDT v3 · NVIDIA · CC BY 4.0", "https://huggingface.co/nvidia/parakeet-tdt-0.6b-v3"),
             Entry("FluidAudio · Apache 2.0", "https://github.com/FluidInference/FluidAudio"),

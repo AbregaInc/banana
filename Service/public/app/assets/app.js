@@ -1,9 +1,11 @@
+import {healthTrend,trendSpans,trendChartHTML} from './health-trends.js';
 import { CalendarWindowCache } from './calendar-window-cache.js';
 import {parseFilters,filterTitle,filterInterval,prepareFilters,dateLabels} from './live-filters.js';
 import { lzfseDecompress } from './vendor/lzfse.js';
 import { activeSeconds, mergeWorkouts } from './workout-model.js';
 import { workoutHTML, recordingHTML, distanceText, exactDuration } from './workout-view.js';
 import { visibleDays, eventOnDay, layoutEvents, stepDay, authoredEvents } from './plan-model.js';
+import {metrics, period, inPeriod, readings, summary as metricSummary, nights, awakeMinutes, sleepVariation, refreshKind, doseInPeriod, displayMetric, latestReading, defaultHiddenMetrics, STATUS_INTERVAL_MS, shouldCheckStatus} from './health-model.js';
 import { sharingControls } from './sharing.js';
 
 const appHome = document.querySelector('meta[name="app-home"]').content;
@@ -39,18 +41,18 @@ const stat = (label, value, unit='') => `<div><dt>${escape(label)}</dt><dd>${esc
 const metric = (v, unit = '') => v == null ? '—' : `${num(v,1)}${unit ? ` ${unit}` : ''}`;
 const dayKey = (v) => {const d=new Date(v);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;};
 const pages = {
-  overview:{name:'Overview',kicker:'A LITTLE ROOM FOR EVERYTHING',description:'Your Banana, from all your devices.'},
-  calendars:{name:'Calendars',kicker:'YOUR ACCOUNTS & CALENDARS',description:'Choose what appears and which calendars notify you. Synced with iPhone and Mac.'},
-  plans:{name:'Plans',kicker:'THE SHAPE OF YOUR DAY',description:'Your day and week, across all your calendars.'},
-  nutrition:{name:'Food',kicker:'WHAT KEEPS YOU GOING',description:'Meals, photos and the foods you keep coming back to.'},
-  taken:{name:'Taken',kicker:'BODY · TAKEN',description:'Supplements, medications and dose history.'},
-  workouts:{name:'Workouts',kicker:'TIME WELL SPENT',description:'Your sessions and the details behind them.'},
-  health:{name:'Health',kicker:'THE LONGER VIEW',description:'Your Health trends, shared from your iPhone.'},
-  podcasts:{name:'Listening',kicker:'SOMETHING GOOD IN YOUR EARS',description:'Your shows, listening history and transcripts.'},
-  notes:{name:'Notes',kicker:'THOUGHTS WORTH KEEPING',description:'Your voice notes and the words that came with them.'},
-  sharing:{name:'Sharing',kicker:'GUEST ACCESS',description:'Choose what a guest can see. Preview it before inviting them.'},
+  overview:{name:'Overview'},
+  calendars:{name:'Calendars'},
+  plans:{name:'Plans'},
+  nutrition:{name:'Food'},
+  taken:{name:'Taken'},
+  workouts:{name:'Workouts'},
+  health:{name:'Health'},
+  podcasts:{name:'Listening'},
+  notes:{name:'Notes'},
+  sharing:{name:'Sharing'},
 };
-let renderId = 0;
+let renderId = 0, lastStatusCheck=0;
 let account, view = 'overview', generation = 0, refreshing = false, detailRecords = [], detailGeneration = 0;
 let query = '', podcastTab = 'history', planDay = dayKey(Date.now());
 const agendas = new CalendarWindowCache();
@@ -71,6 +73,51 @@ const calendarScroll = new Map();
 const cache = new Map(), pending = new Map();
 let workoutHistoryError='', healthSnapshot, snapshotPromise, workoutEntries=[], currentWorkout=null, recordingWorker=null;
 let guestHomeSession=null;
+let healthDay=dayKey(Date.now()), healthMode='week', hiddenMetrics=new Set();
+let trendThrough=stepDay(dayKey(Date.now()),-1),trendDays=90,trendGrouping='day',currentHealthMetric=null;
+const metricPreferenceKey=()=>JSON.stringify(['banana.health.metrics',account?.email,sharedContext?.id??'own']);
+function loadMetricPreferences(){try{const value=JSON.parse(localStorage.getItem(metricPreferenceKey()));hiddenMetrics=new Set(Array.isArray(value)?value.filter(v=>typeof v==='string'):defaultHiddenMetrics);}catch{hiddenMetrics=new Set(defaultHiddenMetrics);}}
+const viewPreferenceKey=()=>JSON.stringify(['banana.web.view',account?.email,sharedContext?.id??'own']);
+function saveViewPreferences(){
+  if(!account)return;
+  try{localStorage.setItem(viewPreferenceKey(),JSON.stringify({trendThrough,trendDays,trendGrouping,healthDay,healthMode,filters:[...filterStates]}));}
+  catch{showNotice('View choices apply for this visit. This browser could not save them.',true);}
+}
+function loadViewPreferences(){
+  trendThrough=stepDay(dayKey(Date.now()),-1);trendDays=90;trendGrouping='day';healthDay=dayKey(Date.now());healthMode='week';filterStates.clear();
+  try{
+    const saved=JSON.parse(localStorage.getItem(viewPreferenceKey()));if(!saved)return;
+    if([7,30,90,365].includes(saved.trendDays))trendDays=saved.trendDays;
+    if(['day','week','month'].includes(saved.trendGrouping))trendGrouping=saved.trendGrouping;
+    if(/^\d{4}-\d{2}-\d{2}$/.test(saved.trendThrough??''))trendThrough=saved.trendThrough;
+    if(/^\d{4}-\d{2}-\d{2}$/.test(saved.healthDay??''))healthDay=saved.healthDay;
+    if(['day','week'].includes(saved.healthMode))healthMode=saved.healthMode;
+    for(const [key,value]of Array.isArray(saved.filters)?saved.filters:[]){
+      if(Object.hasOwn(pages,key)&&typeof value?.query==='string'&&value?.filter?.version===1&&Array.isArray(value.filter.terms)&&Array.isArray(value.filter.issues))filterStates.set(key,value);
+    }
+  }catch{/* corrupt or unavailable browser storage leaves defaults */}
+}
+const healthWindow=()=>view==='health'?trendSpans(trendThrough,trendDays).current:period(healthDay,healthMode,account?.weekStartWeekday??2);
+function trendControls(){
+  const windows=trendSpans(trendThrough,trendDays),through=stepDay(windows.current.endDay,-1);
+  return `<div class="health-controls trend-controls"><label>Visible range <select data-trend-range aria-label="Visible range">${[[7,'7 days'],[30,'1 month (30 days)'],[90,'3 months (90 days)'],[365,'1 year (365 days)']].map(([n,label])=>`<option value="${n}" ${trendDays===n?'selected':''}>${label}</option>`).join('')}</select></label><label>Group by <select data-trend-group aria-label="Group by">${[['day','Day'],['week','Week'],['month','Month']].map(([value,label])=>`<option value="${value}" ${trendGrouping===value?'selected':''}>${label}</option>`).join('')}</select></label><label>Through <input type="date" aria-label="Through" data-trend-through value="${through}" max="${stepDay(dayKey(Date.now()),-1)}"></label><button class="text-button" data-trend-step="-1">← Previous range</button><button class="text-button" data-trend-step="1" ${through>=stepDay(dayKey(Date.now()),-1)?'disabled':''}>Next range →</button><button class="text-button" data-trend-latest>Latest</button></div><p class="chart-caption">Solid: ${date(windows.current.start)} – ${date(windows.current.end-1)} · Dashed: ${date(windows.previous.start)} – ${date(windows.previous.end-1)}. Finished days only.</p>`;
+}
+function metricRecord(key,data=healthSnapshot){
+  const definition=metrics.find(m=>m[0]===key);if(!definition)return null;
+  const [,label,rawUnit]=definition,{unit,factor}=displayMetric(key,rawUnit,account.preferences?.distanceUnit==='miles');
+  const trend=healthTrend(data,key,{through:trendThrough,days:trendDays,group:trendGrouping,factor});
+  return {type:'health.metric',id:key,fields:{key,label,unit,trend,latest:latestReading(data,key,factor)}};
+}
+function trendComparison(trend,unit){
+  if(trend.previous.value==null)return 'No preceding-period data';
+  const change=trend.change==null?'':` · ${trend.change>0?'+':''}${num(trend.change,1)}%`;
+  return `Previously ${metric(trend.previous.value,unit+(trend.isCumulative?'/day':''))}${change}`;
+}
+function trendCaption(trend){
+  return `${trend.current.kind} · ${trend.current.recorded} days recorded vs ${trend.previous.recorded} previously`;
+}
+function periodControls(){if(view==='health')return trendControls();const w=healthWindow();return `<div class="health-controls"><div class="tabs" aria-label="${pages[view].name} period">${['day','week'].map(m=>`<button data-health-mode="${m}" aria-pressed="${healthMode===m}">${m==='day'?'Day':'Week'}</button>`).join('')}</div><div class="period-stepper"><button class="text-button" data-health-step="-1" aria-label="Previous ${healthMode}">←</button><label>Date <input type="date" id="health-day" value="${healthDay}"></label><button class="text-button" data-health-step="1" aria-label="Next ${healthMode}">→</button></div><button class="text-button" data-health-today>Today</button><span>${date(w.start)}${healthMode==='week'?` – ${date(w.end-1)}`:''}</span></div>`;}
+
 const sharing=sharingControls({request,escape,notice:showNotice,rerender:render});
 const canView=id=>!account?.shared || account.views.includes(id);
 
@@ -140,7 +187,7 @@ function filterControls(){
   mount.hidden=$('#tools').hidden;
   mount.innerHTML=`<div class="filter-chips">${liveFilter.terms.map((t,i)=>`<span class="filter-chip"><button data-edit-filter="${i}" title="Edit filter">${escape(filterTitle(t))}</button><button data-remove-filter="${i}" aria-label="Remove ${escape(filterTitle(t))}">×</button></span>`).join('')}</div>${liveFilter.issues.map(s=>`<p class="filter-issue" role="status">${escape(s)}</p>`).join('')}`;
 }
-function rememberFilters(){filterStates.set(view,{query,filter:structuredClone(liveFilter)});}
+function rememberFilters(){filterStates.set(view,{query,filter:structuredClone(liveFilter)});saveViewPreferences();}
 function updateFilter(next){liveFilter=next;rememberFilters();render(true);}
 
 function sortDate(list,key='date') { return [...list].sort((a,b) => (Number(fields(b)[key]) || 0)-(Number(fields(a)[key]) || 0)); }
@@ -157,17 +204,29 @@ function listHTML(rows,renderer) { return `<div class="record-list">${rows.map(r
 function viewCount(n,word='records') { $('#result-count').textContent = `${num(n)} ${word}`; }
 
 async function overview() {
-  if(account.shared)return `<p class="sharing-intro">${escape(account.ownerName)} chose these parts of Banana to share with you. This view is read-only.</p><div class="summary-grid">${account.views.filter(id=>id!=='overview').map(id=>`<a class="summary" href="#${id}"><span class="summary-label">${pages[id].name}</span><span class="summary-arrow" aria-hidden="true">↗</span><span class="summary-number">Open</span><span class="summary-foot">${id==='plans'?'Shared calendars & availability':'Shared with you'}</span></a>`).join('')}</div>`;
+
   const counts=account.counts;
-  const definitions = [['plans','Routines',counts['plan.routine']??0,'Ready for your day'],['nutrition','Meals',counts['food.meal']??0,'Your food, remembered'],['workouts','Workouts',counts['health.workout']??0,'Every session counts'],['podcasts','Listening sessions',counts['podcast.listen']??0,'A little company'],['notes','Voice notes',counts['notes.voiceNote']??0,'Picked up along the way'],['health','Health','↗',account.consents.health ? 'The longer view' : 'Not shared yet']];
-  const summary=`<div class="summary-grid">${definitions.map(([id,label,n,foot])=>`<a class="summary" href="#${id}"><span class="summary-label">${label}</span><span class="summary-arrow" aria-hidden="true">↗</span><span class="summary-number">${typeof n==='number'?num(n):n}</span><span class="summary-foot">${foot}</span></a>`).join('')}</div><div class="overview-note"><span>Made on your devices. Ready here.</span><span>Viewing only · make changes in Banana.</span></div>`;
+  const definitions = [['plans',account.shared&&!account.allowedTypes.includes('plan.routine')?'Plans':'Routines',account.shared&&!account.allowedTypes.includes('plan.routine')?'↗':counts['plan.routine']??0],['nutrition','Meals',counts['food.meal']??0],['workouts','Workouts',counts['health.workout']??0],['podcasts','Listening sessions',counts['podcast.listen']??0],['notes','Voice notes',counts['notes.voiceNote']??0],['health','Health','↗',account.consents.health ? '' : 'Not shared yet'],...(account.shared?[['taken','Doses',counts['food.dose']??0]]:[])];
+  const summary=`<div class="summary-grid">${definitions.filter(([id])=>canView(id)).map(([id,label,n,foot])=>`<a class="summary" href="#${id}"><span class="summary-label">${label}</span><span class="summary-arrow" aria-hidden="true">↗</span><span class="summary-number">${typeof n==='number'?num(n):n}</span>${foot?`<span class="summary-foot">${foot}</span>`:''}</a>`).join('')}</div>`;
+  if(account.shared){
+    $('#content').innerHTML=summary;
+    const current=generation,pass=renderId;
+    if(canView('workouts')){
+      const workouts=await combinedWorkouts();
+      if(generation===current&&renderId===pass&&view==='overview'){
+        const count=$('#content a[href="#workouts"] .summary-number');
+        if(count)count.textContent=workoutHistoryError?'—':num(workouts.length);
+      }
+    }
+    return;
+  }
   $('#content').innerHTML=summary+`<div id="overview-recent" class="split"><p class="subtle">Reading your latest activity…</p></div>`;
   const current=generation;
   try {
     const [routines,meals,listens,workouts] = await Promise.all([records('plan.routine'),records('food.meal'),records('podcast.listen'),combinedWorkouts(),records('plan.override')]);
     if(view!=='overview' || generation!==current) return;
     const recent=$('#overview-recent');if(!recent)return;const count=$('#content a[href="#workouts"] .summary-number');if(count)count.textContent=num(workouts.length);
-    recent.innerHTML = `<div>${section('Your routines',routines.length ? listHTML(routines.filter(r=>fields(r).enabled!==false).sort((a,b)=>(fields(a).hour*60+fields(a).minute)-(fields(b).hour*60+fields(b).minute)).slice(0,4),routineRow) : empty('Room for a routine','The routines you make in Banana will appear here.'),'<a href="#plans">All plans ↗</a>')}</div><div>${section(meals.length?'Latest meals':'Latest listening',meals.length?listHTML(sortDate(meals).slice(0,3),mealRow):listens.length?listHTML(sortDate(listens).slice(0,3),listenRow):empty('Nothing here yet','Open Banana on a device to sync your data.'),`<a href="#${meals.length?'nutrition':'podcasts'}">View all ↗</a>`)}</div>`;
+    recent.innerHTML = `<div>${section('Your routines',routines.length ? listHTML(routines.filter(r=>fields(r).enabled!==false).sort((a,b)=>(fields(a).hour*60+fields(a).minute)-(fields(b).hour*60+fields(b).minute)).slice(0,4),routineRow) : empty('No routines','The routines you make in Banana will appear here.'),'<a href="#plans">All plans ↗</a>')}</div><div>${section(meals.length?'Latest meals':'Latest listening',meals.length?listHTML(sortDate(meals).slice(0,3),mealRow):listens.length?listHTML(sortDate(listens).slice(0,3),listenRow):empty('Nothing here yet','Open Banana on a device to sync your data.'),`<a href="#${meals.length?'nutrition':'podcasts'}">View all ↗</a>`)}</div>`;
   } catch(e) { if(view==='overview' && generation===current && $('#overview-recent')) $('#overview-recent').innerHTML=`<p class="subtle">${escape(e.message)}</p>`; }
 }
 function dayStep(key,by){return stepDay(key,by);}
@@ -243,16 +302,19 @@ async function plans() {
 }
 async function nutrition() {
   const [meals,saved]=await Promise.all(['food.meal','food.myFood'].map(records));
-  const shown=sortDate(meals.filter(matches));viewCount(shown.length,'meals');
-  let html=shown.length?listHTML(shown,mealRow):empty('Your meals belong here',query?'No meals match your search.':account.consents.health?'Log a meal in Banana and it will appear here.':'Turn on Sync Health in Banana to share your meals and Health data.');
+  const window=healthWindow();
+  const shown=sortDate(meals.filter(r=>matches(r)&&inPeriod(fields(r).date,window)));viewCount(shown.length,'meals');
+  let html=shown.length?listHTML(shown,mealRow):empty('No meals',query?'No meals match your search.':account.consents.health?'Log a meal in Banana and it will appear here.':'Turn on Sync Health in Banana to share your meals and Health data.');
   if(saved.filter(matches).length)html+=section('Saved foods',listHTML(saved.filter(matches),(r)=>{const f=fields(r);return row(r,f.name||'Saved food',f.servingLabel||'', '',`${num(f.per100g?.calories)} kcal`, 'per 100 g');}));
-  return html;
+  const totals=shown.reduce((sum,r)=>{const m=macros(fields(r));for(const k of Object.keys(sum))sum[k]+=m[k];return sum;},{calories:0,proteinGrams:0,carbohydrateGrams:0,fatGrams:0});
+  return periodControls()+`<dl class="detail-data">${stat('Logged energy',metric(totals.calories,'kcal'))}${stat('Protein',metric(totals.proteinGrams,'g'))}${stat('Carbohydrates',metric(totals.carbohydrateGrams,'g'))}${stat('Fat',metric(totals.fatGrams,'g'))}</dl>`+html;
 }
 async function taken() {
   const [supplements,doses]=await Promise.all(['food.supplement','food.dose'].map(records));
-  const sups=supplements.filter(matches),logs=sortDate(doses.filter(matches));viewCount(logs.length,'doses');
+  const window=healthWindow();
+  const sups=supplements.filter(matches),logs=sortDate(doses.filter(r=>matches(r)&&doseInPeriod(fields(r),window)));viewCount(logs.length,'doses');
   const names=new Map(supplements.map(r=>[r.id,fields(r).name]));
-  return (sups.length?section('Supplements & medications',listHTML(sups,r=>{const f=fields(r);return row(r,f.name||'Supplement',[f.dose,human(f.kind)].filter(Boolean).join(' · '),clock(f.hour,f.minute),f.enabled===false?'Off':'On');})):empty('Taken',query?'No entries match your search.':'No supplements or medications in this view.'))
+  return periodControls()+(sups.length?section('Supplements & medications',listHTML(sups,r=>{const f=fields(r);return row(r,f.name||'Supplement',[f.dose,human(f.kind)].filter(Boolean).join(' · '),clock(f.hour,f.minute),f.enabled===false?'Off':'On');})):empty('Taken',query?'No entries match your search.':'No supplements or medications in this view.'))
     +(logs.length?section('Dose history',listHTML(logs,r=>{const f=fields(r);return row(r,names.get(f.supplementID)||'Dose',human(f.status),date(f.date),time(f.date));})): '');
 }
 async function combinedWorkouts(){
@@ -266,10 +328,11 @@ async function workouts(){
   const pass=renderId,epoch=generation;
   const all=await combinedWorkouts();
   if(pass!==renderId||epoch!==generation)return undefined;
-  const rows=all.filter(matches);viewCount(rows.length,'workouts');
-  if(!rows.length)return empty('Your workouts',query?'No workouts match your search.':account.consents.health?'Your recordings and Apple Health history appear here after your iPhone syncs.':'Turn on Sync Health in Banana to see your workouts here.');
+  const window=healthWindow();
+  const rows=all.filter(r=>matches(r)&&inPeriod(fields(r).start,window));viewCount(rows.length,'workouts');
+  if(!rows.length)return periodControls()+empty('Your workouts',query?'No workouts match your search.':account.consents.health?'Your recordings and Apple Health history appear here after your iPhone syncs.':'Turn on Sync Health in Banana to see your workouts here.');
   const total=rows.reduce((n,r)=>n+r.fields.durationSeconds,0),recorded=rows.filter(r=>r.summary).length;
-  return (workoutHistoryError?`<p class="notice">Apple Health history could not be loaded. Showing available recordings. ${escape(workoutHistoryError)}</p>`:'')+`<div class="workout-readout"><span><strong>${num(rows.length)}</strong> workouts</span><span><strong>${duration(total)}</strong> active time</span><span><strong>${num(recorded)}</strong> with detailed recordings</span></div>`+listHTML(rows,workoutRow);
+  return periodControls()+(workoutHistoryError?`<p class="notice">Apple Health history could not be loaded. Showing available recordings. ${escape(workoutHistoryError)}</p>`:'')+`<div class="workout-readout"><span><strong>${num(rows.length)}</strong> workouts</span><span><strong>${duration(total)}</strong> active time</span><span><strong>${num(recorded)}</strong> with detailed recordings</span></div>`+listHTML(rows,workoutRow);
 }
 function spark(series, valueKey='value') {
   const a=series.map(x=>Number(x[valueKey])).filter(Number.isFinite);
@@ -279,20 +342,28 @@ function spark(series, valueKey='value') {
   return `<svg class="spark" viewBox="0 0 300 65" preserveAspectRatio="none" role="img" aria-label="${escape(`${a.length} readings, from ${num(a[0],1)} to ${num(a.at(-1),1)}`)}"><polyline points="${points}"/></svg>`;
 }
 async function health() {
-  if(!account.consents.health)return empty('Your Health stays with you','Turn on Sync Health in Banana on your iPhone to see your trends here.');
+  if(!account.consents.health)return empty('Health sync is off','Turn on Sync Health in Banana on your iPhone to see your trends here.');
   const data=await snapshot();
   if(!data)return empty('Waiting for your iPhone','Your Health snapshot will appear once your iPhone finishes syncing.');
-  // Snapshot blobs use JSONEncoder's 2001-epoch seconds; record fields use Unix milliseconds.
-  const swiftDate=(v)=> typeof v==='number'?(v+978307200)*1000:v;
-  const definitions=[['sleepHours','Sleep','hours'],['restingHR','Resting heart rate','bpm'],['hrv','Heart rate variability','ms'],['steps','Steps','steps'],['vo2Max','VO₂ max','mL/kg/min'],['respiratory','Respiratory rate','/min'],['bodyMassKg','Body mass','kg'],['bodyFatPercentage','Body fat','%'],['activeEnergyKcal','Active energy','kcal'],['exerciseMinutes','Exercise','min'],['walkingHeartRate','Walking heart rate','bpm'],['basalEnergyKcal','Resting energy','kcal'],['leanBodyMassKg','Lean body mass','kg'],['bodyMassIndex','Body mass index',''],['heightMeters','Height','m'],['flightsClimbed','Flights climbed','flights'],['walkingSpeedMetersPerSecond','Walking speed','m/s']];
-  const cards=definitions.filter(([key])=>data.trends?.[key]?.length).map(([key,label,unit])=>{
-    const a=[...data.trends[key]].filter(x=>Number.isFinite(x.value)).sort((a,b)=>a.date-b.date).slice(-30),last=a.at(-1);if(!last)return '';
-    return `<article class="measure"><p class="measure-label">${label}</p><p class="measure-value">${num(last.value,1)} <small>${unit}</small></p>${spark(a)}<p class="chart-caption">${date(swiftDate(a[0].date))} – ${date(swiftDate(last.date))} · ${a.length} readings</p></article>`;
+  const window=healthWindow();
+  const choices=[...metrics.map(([key,label])=>[key,label]),['nights','Sleep timing & wake-ups'],['variation','Sleep consistency'],...(canView('workouts')?[['workoutLog','Workout log']]:[])];
+  const chooser=`<details class="metric-choices"><summary>Choose metrics</summary><div class="metric-options">${choices.map(([key,label])=>`<label><input type="checkbox" data-health-metric="${key}" ${hiddenMetrics.has(key)?'':'checked'}> ${label}</label>`).join('')}</div></details>`;
+  const cards=metrics.filter(([key])=>!hiddenMetrics.has(key)).map(([key])=>{
+    const record=metricRecord(key,data),{label,unit,trend,latest}=record.fields;
+    if(trend.current.value==null&&trend.previous.value==null&&!latest)return '';
+    return `<button class="measure metric-button" ${openAttr(record)}><span class="measure-label">${label} · ${trendDays}-day average</span><span class="measure-value">${metric(trend.current.value)} <small>${unit}${trend.isCumulative?'/day':''}</small></span>${latest&&!trend.isCumulative?`<span class="metric-latest">Latest daily value: ${metric(latest.value,unit)} · ${date(latest.date)}</span>`:''}<span class="trend-comparison">${escape(trendComparison(trend,unit))}</span>${trendChartHTML(trend,label,unit)}<span class="chart-caption">${trendCaption(trend)} · Open trend ↗</span></button>`;
   }).join('');
-  let html=`<p class="health-intro">From Apple Health on your iPhone. Showing the latest reading and up to 30 points per trend.</p>${cards?`<div class="measure-grid">${cards}</div>`:empty('No trends shared yet','Open Banana on your iPhone to refresh your Health data.')}`;
-  const hidden=new Set(data.hiddenWorkoutIDs??[]);
-  const history=(data.workouts??[]).filter(w=>!hidden.has(w.id)).sort((a,b)=>b.start-a.start);
-  if(history.length)html+=section('From Apple Health',listHTML(history.slice(0,100).map(w=>({id:w.id,type:'health.history',fields:{...w,start:swiftDate(w.start),end:swiftDate(w.end)}})),r=>{const f=fields(r);return row(r,f.activity||'Workout',f.source||'',date(f.start),duration(f.duration),f.energyKcal==null?'':`${num(f.energyKcal)} kcal`);}));
+  let html=periodControls()+chooser+(cards?`<div class="measure-grid">${cards}</div>`:empty('No visible readings for these periods','Try another range or change your metric choices.'));
+  const sleep=nights(data,window);
+  if(!hiddenMetrics.has('nights'))html+=section('Sleep timing & wake-ups',sleep.length?listHTML(sleep.map(n=>({id:String(n.wake),type:'health.night',fields:n})),r=>row(r,'Sleep',`${time(r.fields.bedtime)} – ${time(r.fields.wake)} · ${duration(awakeMinutes(r.fields)*60)} awake`,date(r.fields.wake),duration(r.fields.asleepMinutes*60))):empty('No nights recorded','Detailed nights may cover a shorter history than sleep-duration trends.'));
+  if(!hiddenMetrics.has('variation')){
+    const v=sleepVariation(sleep);
+    html+=section('Sleep consistency',v?`<dl class="detail-data">${stat('Sleep onset spread',duration(v.bedtime*60))}${stat('Wake-time spread',duration(v.wake*60))}${stat('Duration spread',duration(v.duration*60))}</dl><p class="subtle">Across ${v.count} recorded nights in this period.</p>`:'<p class="subtle">Choose a range with at least two recorded nights to compare timing and duration.</p>');
+  }
+  if(canView('workouts')&&!hiddenMetrics.has('workoutLog')){
+    const rows=(await combinedWorkouts()).filter(r=>inPeriod(fields(r).start,window));
+    if(rows.length)html+=section('Workouts',listHTML(rows,workoutRow));
+  }
   return html;
 }
 async function podcasts() {
@@ -307,9 +378,9 @@ async function podcasts() {
   if(podcastTab==='shows')body=listHTML(shown.sort((a,b)=>String(fields(a).title).localeCompare(String(fields(b).title))),r=>{const f=fields(r);return row(r,f.title||'Podcast',f.author||'','','↗');});
   if(podcastTab==='transcripts')body=listHTML(shown,r=>row(r,episodeNames.get(r.id)||'Episode transcript',human(fields(r).source),'','Read ↗'));
   if(podcastTab==='progress')body=listHTML(sortDate(shown,'updatedAt'),r=>{const f=fields(r);return row(r,episodeNames.get(r.id)||'Episode progress',f.completed?'Finished':'In progress',date(f.updatedAt),duration(f.position));});
-  return tabs+(shown.length?body:empty('A little space for listening',query?'No listening matches your search.':'Your listening will appear after your devices sync.'));
+  return tabs+(shown.length?body:empty('No listening history',query?'No listening matches your search.':'Your listening will appear after your devices sync.'));
 }
-async function notes() { const pass=renderId,epoch=generation;const data=await records('notes.voiceNote');if(pass!==renderId||epoch!==generation)return undefined;const rows=sortDate(data.filter(matches),'createdAt');viewCount(rows.length,'notes');return rows.length?listHTML(rows,noteRow):empty('A thought can start anywhere',query?'No notes match your search.':'Capture a voice note in Banana and find it here, with its transcript.'); }
+async function notes() { const pass=renderId,epoch=generation;const data=await records('notes.voiceNote');if(pass!==renderId||epoch!==generation)return undefined;const rows=sortDate(data.filter(matches),'createdAt');viewCount(rows.length,'notes');return rows.length?listHTML(rows,noteRow):empty('No voice notes',query?'No notes match your search.':'Capture a voice note in Banana and find it here, with its transcript.'); }
 const renders={calendars,overview,plans,nutrition,taken,workouts,health,podcasts,notes,sharing:()=>sharing.render(location.hash.split('/')[1]||'')};
 
 async function calendars() {
@@ -325,7 +396,6 @@ async function render(keepContent=false) {
   const current=generation,selected=view,pass=++renderId;
   const info=pages[view];
   $('#page-title').textContent=view==='overview'?(account.shared?`Shared by ${account.ownerName}`:`Hello${account.name?`, ${account.name.split(' ')[0]}`:''}.`):info.name;
-  $('#page-kicker').textContent=info.kicker;$('#page-description').textContent=info.description;
   $('#page-date').textContent=date(Date.now(),{weekday:'short',month:'short',day:'numeric'});
   document.title=`Banana · ${info.name}`;
   $('#tools').hidden=['overview','health','calendars','sharing'].includes(view);
@@ -339,7 +409,7 @@ async function render(keepContent=false) {
   try {
     const html=await renders[view]();
     if(pass===renderId && current===generation && selected===view && html!==undefined){ $('#content').innerHTML=html; if(selected==='plans')applyCalendarLayout();if(selected==='sharing')sharing.mounted(); }
-  }catch(e){if(pass===renderId && current===generation && selected===view && account)$('#content').innerHTML=empty('A small pause',e.message)+'<button class="button error-action" data-retry>Try again</button>';}
+  }catch(e){if(pass===renderId && current===generation && selected===view && account)$('#content').innerHTML=empty('Could not load this view',e.message)+'<button class="button error-action" data-retry>Try again</button>';}
   finally{if(pass===renderId && current===generation && selected===view){$('#content').setAttribute('aria-busy','false');$('#content').inert=false;}}
 }
 function navigate() {
@@ -363,37 +433,50 @@ function updateAccount() {
   $('#sync-time').textContent=account.lastSync?`Last device sync: ${date(account.lastSync)} ${time(account.lastSync)}`:'Waiting for a device sync';
   $('#sync-source-label').textContent=account.shared?'Shared with you':'From your devices';
   $('#share-banner').hidden=!account.shared;
-  if(account.shared)$('#share-banner').innerHTML=account.preview?`<p><strong>Guest preview</strong> · What ${escape(account.audience)} will see. No invitation is sent from this preview.</p><a class="button secondary" href="${escape(account.previewBack)}">Back to invitation ↗</a>`:`<p>Shared by <strong>${escape(account.ownerName)}</strong> · Read only</p><a class="text-button" href="${appHome}">Other shared views ↗</a>`;
+  if(account.shared)$('#share-banner').innerHTML=account.preview?`<p><strong>Guest preview</strong> · What ${escape(account.audience)} ${account.publishedPreview?'can currently access':'will see with these draft permissions'}. No invitation is sent from this preview.</p><a class="button secondary" href="${escape(account.previewBack)}">Back to invitation ↗</a>`:`<p>Shared by <strong>${escape(account.ownerName)}</strong> · Read only${account.expiresOn?` · Access through ${escape(account.expiresOn)} (UTC)`:""}</p><a class="text-button" href="${appHome}">Other shared views ↗</a>`;
 }
 function signedOut() {
+  hiddenMetrics=new Set();$('#refresh').textContent='Refresh';$('#refresh').removeAttribute('aria-label');
   generation++;detailGeneration++;account=null;filterSources=[];filterSourcesPromise=null;filterSourcesLoaded=false;filterStates.clear();clearTimeout(searchTimer);query='';liveFilter=parseFilters('','text');livePredicate=prepareFilters(liveFilter);cache.clear();pending.clear();healthSnapshot=null;snapshotPromise=null;detailRecords=[];agendas.clear();workoutEntries=[];currentWorkout=null;recordingWorker?.terminate();recordingWorker=null;
   $('#detail').close();$('#detail-content').replaceChildren();$('#content').replaceChildren();
   $('#workspace').hidden=true;$('#account-controls').hidden=true;$('#login').hidden=false;
   guestHomeSession=null;$('#shared-home').hidden=true;$('#share-banner').hidden=true;
   $('#google-signin').href=`/app/auth/google${sharedContext?`?share=${sharedContext.id}`:''}`;
   $('#login-hint').textContent=sharedContext?'Sign in with the Google account this invitation was sent to.':'Use a Google account connected to Banana or invited to a shared view.';
-  if(sharedContext){$('#login-title').innerHTML='A shared view.<br>Just for you.';$('#login-kicker').textContent='AN INVITATION TO BANANA';$('#login-description').textContent='See the parts of Banana someone chose to share with you. Your access is read-only.';}
+  if(sharedContext){$('#login-title').textContent='Sign in to view shared data';$('#login-description').hidden=false;$('#login-description').textContent='See the parts of Banana someone chose to share with you. Your access is read-only.';}
   $('.skip').href='#welcome';
 }
 function showGuestHome(session) {
   signedOut();guestHomeSession=session;$('#login').hidden=true;$('#account-controls').hidden=false;$('#shared-home').hidden=false;
-  $('#shared-home').innerHTML=`<main class="shared-landing"><p class="eyebrow">SHARED WITH YOU</p><h1>A little room<br>to work together.</h1><p class="description">Signed in as ${escape(session.email)}. Choose a shared view.</p><div class="shared-views">${session.shares.length?session.shares.map(s=>`<a class="summary" href="/share/${s.id}"><span class="summary-label">${escape(s.owner)}</span><span class="summary-arrow" aria-hidden="true">↗</span><span class="summary-number">Open</span><span class="summary-foot">Read-only access</span></a>`).join(''):empty('No shared views','An invitation will appear here when someone shares with this Google account.')}</div></main>`;
+  $('#shared-home').innerHTML=`<main class="shared-landing"><h1>Shared with you</h1><p class="description">Signed in as ${escape(session.email)}. Choose a shared view.</p><div class="shared-views">${session.shares.length?session.shares.map(s=>`<a class="summary" href="/share/${s.id}"><span class="summary-label">${escape(s.owner)}</span><span class="summary-arrow" aria-hidden="true">↗</span><span class="summary-number">Open</span><span class="summary-foot">Read-only access</span></a>`).join(''):empty('No shared views','An invitation will appear here when someone shares with this Google account.')}</div></main>`;
   $('.skip').href='#shared-home';
 }
 function showAccessUnavailable() {
   signedOut();$('#login').hidden=true;$('#account-controls').hidden=false;$('#shared-home').hidden=false;
-  $('#shared-home').innerHTML=`<main class="shared-landing"><p class="eyebrow">GUEST ACCESS</p><h1>This view is<br>not available.</h1><p class="description">Access may have been removed, or the invitation belongs to another Google account.</p><a class="button" href="/app/auth/google?share=${sharedContext.id}">Switch Google account ↗</a><p><a href="${appHome}">Back to Banana</a></p></main>`;
+  $('#shared-home').innerHTML=`<main class="shared-landing"><h1>Access unavailable</h1><p class="description">Access may have expired, been removed, or belong to another Google account.</p><a class="button" href="/app/auth/google?share=${sharedContext.id}">Switch Google account ↗</a><p><a href="${appHome}">Back to Banana</a></p></main>`;
   $('.skip').href='#shared-home';
 }
 async function refresh({quiet=false}={}) {
   if(guestHomeSession)return boot();
-  if(refreshing)return;refreshing=true;$('#refresh').disabled=true;
+  if(refreshing||(quiet&&!shouldCheckStatus(Date.now(),lastStatusCheck,document.hidden)))return;lastStatusCheck=Date.now();refreshing=true;$('#refresh').disabled=true;
   try {
-    const next=applyPreferences(await(await request(dataURL('account'))).json());
+    let next;
+    if(quiet){
+      const status=await(await request(dataURL('status'))).json();
+      if(!account)return;
+      next={...account,...status};
+    }else next=applyPreferences(await(await request(dataURL('account'))).json());
     if(!account)return;
-    const changed=next.shareVersion!==account.shareVersion || next.calendarSettingsUpdatedAt!==account.calendarSettingsUpdatedAt || next.lastSync!==account.lastSync || JSON.stringify(next.counts)!==JSON.stringify(account.counts) || next.consents.health!==account.consents.health || next.weekStartWeekday!==account.weekStartWeekday || JSON.stringify(next.preferences)!==JSON.stringify(account.preferences);
-    account=next;if(!canView(view)){view="overview";location.hash="overview";}updateAccount();
-    if(!quiet || changed){generation++;detailGeneration++;$('#detail').close();$('#detail-content').replaceChildren();cache.clear();pending.clear();healthSnapshot=null;snapshotPromise=null;agendas.clear();filterSources=[];filterSourcesPromise=null;filterSourcesLoaded=false;await render();}
+    const kind=refreshKind(account,next);
+    if(quiet&&kind!=='access'){
+      if(kind==='data'){$('#refresh').textContent='Updates available · Refresh';$('#refresh').setAttribute('aria-label','Updates available. Refresh when ready');}
+      return;
+    }
+    if(quiet)next=applyPreferences(await(await request(dataURL('account'))).json());
+    if(!account)return;
+    account=next;loadMetricPreferences();if(!canView(view)){view="overview";location.hash="overview";}updateAccount();
+    generation++;detailGeneration++;$('#detail').close();$('#detail-content').replaceChildren();cache.clear();pending.clear();healthSnapshot=null;snapshotPromise=null;agendas.clear();filterSources=[];filterSourcesPromise=null;filterSourcesLoaded=false;await render();
+    $('#refresh').textContent='Refresh';$('#refresh').removeAttribute('aria-label');
     if(!quiet)showNotice(account.shared?'The shared view is up to date.':'Up to date. Changes made in Banana appear here after your devices sync.');
   }catch(e){if(!quiet&&account)showNotice(e.message,true);}
   finally{refreshing=false;$('#refresh').disabled=false;}
@@ -402,11 +485,28 @@ async function refresh({quiet=false}={}) {
 async function showDetail(r) {
   if(!r)return;
   const current=++detailGeneration;const f=fields(r),dialog=$('#detail');
+  currentHealthMetric=r.type==='health.metric'?f.key:null;
   currentWorkout=r.type==='workout.entry'?r:null;recordingWorker?.terminate();recordingWorker=null;dialog.classList.toggle('workout-detail',r.type==='workout.entry');
   $('#detail-kind').textContent=r.type==='workout.entry'?'WORKOUT':human(r.type.split('.').at(-1)).toUpperCase();
   const heading=(title,sub='')=>`<h2>${escape(title)}</h2>${sub?`<p class="muted">${escape(sub)}</p>`:''}`;
   let html='';
-  if(r.type==='workout.entry'){
+  if(r.type==='health.metric'){
+    const t=f.trend;
+    html=heading(f.label)+trendControls()+`<dl class="detail-data">${stat(t.current.kind,metric(t.current.value,f.unit+(t.isCumulative?'/day':'')))}${stat('Preceding period',metric(t.previous.value,f.unit+(t.isCumulative?'/day':'')))}</dl><p>${escape(trendComparison(t,f.unit))}</p>${trendChartHTML(t,f.label,f.unit)}<p class="subtle">${trendCaption(t)}.</p>`;
+    if(f.latest&&!t.isCumulative)html+=section('Latest daily reading',listHTML([{type:'health.reading',id:f.key,fields:{...f.latest,label:f.label,unit:f.unit}}],r=>row(r,f.label,'',date(r.fields.date),metric(r.fields.value,f.unit))));
+    const bucketRows=(buckets,points,previous)=>listHTML(buckets.filter(b=>b.value!=null).map((b,i)=>({id:String(i),type:'health.bucket',fields:{...b,label:f.label,unit:f.unit,points:points.filter(p=>p.date>=b.start&&p.date<b.end),previous}})),r=>row(r,f.label,r.fields.kind,date(r.fields.start)+(trendGrouping==='day'?'':` – ${date(r.fields.end-1)}`),metric(r.fields.value,f.unit)));
+    html+=section('Selected period',bucketRows(t.currentBuckets,t.points,false));
+    html+=`<details><summary>Preceding-period readings</summary>${bucketRows(t.previousBuckets,t.previousPoints,true)}</details>`;
+  }else if(r.type==='health.bucket'){
+    html=heading(f.label,`${f.previous?'Preceding period · ':''}${date(f.start)} – ${date(f.end-1)}`)+`<dl class="detail-data">${stat(f.kind,metric(f.value,f.unit))}</dl><p class="subtle">${f.recorded} days recorded.</p>`+listHTML(f.points.map((p,i)=>({id:String(i),type:'health.reading',fields:{...p,label:f.label,unit:f.unit}})),r=>row(r,f.label,'Daily summary',date(r.fields.date),metric(r.fields.value,f.unit)));
+  }else if(r.type==='health.reading'){
+    html=heading(f.label,date(f.date,{weekday:'long',year:'numeric',month:'long',day:'numeric'}))+`<dl class="detail-data">${stat('Daily value',metric(f.value,f.unit))}</dl>`;
+  }else if(r.type==='health.night'){
+    html=heading('Sleep',date(f.wake,{weekday:'long',year:'numeric',month:'long',day:'numeric'}))+`<dl class="detail-data">${stat('Asleep',duration(f.asleepMinutes*60))}${stat('Sleep onset',`${date(f.bedtime)} · ${time(f.bedtime)}`)}${stat('Final wake',`${date(f.wake)} · ${time(f.wake)}`)}${stat('Awake within the night',duration(awakeMinutes(f)*60))}</dl>`;
+    html+=f.wakes.length?`<h3>Recorded wake-ups</h3>`+listHTML(f.wakes.map((w,i)=>({id:String(i),type:'health.wake',fields:w})),r=>row(r,'Wake-up',`${time(r.fields.start)} – ${time(r.fields.end)}`,date(r.fields.start),duration((r.fields.end-r.fields.start)/1000))):'<p class="subtle">No wake-up records in this night.</p>';
+  }else if(r.type==='health.wake'){
+    html=heading('Recorded wake-up',`${date(f.start)} · ${time(f.start)} – ${time(f.end)}`)+`<dl class="detail-data">${stat('Duration',duration((f.end-f.start)/1000))}${stat('Steps',f.steps??'—')}</dl>`;
+  }else if(r.type==='workout.entry'){
     html=workoutHTML(r,{unit:account.preferences?.distanceUnit,entries:workoutEntries});
   }else if(r.type==='calendar.event'){
     const url=String(f.url||'');const allowed=/^https:\/\/(calendar\.google\.com|www\.google\.com)\//.test(url);
@@ -457,10 +557,14 @@ async function showDetail(r) {
     html=heading(f.name||'Saved food',f.servingLabel||'')+`<p class="subtle">Nutrition per 100 g</p><dl class="detail-data">${stat('Energy',metric(m.calories,'kcal'))}${stat('Protein',metric(m.proteinGrams,'g'))}${stat('Carbohydrates',metric(m.carbohydrateGrams,'g'))}${stat('Fat',metric(m.fatGrams,'g'))}${stat('Serving',metric(f.servingGrams,'g'))}</dl>`;
   }else if(r.type==='health.workoutPlan'){
     html=heading(f.title||'Workout plan',`${num(f.targetMinutes)} min · ${human(f.focus)}`)+(f.rationale?`<p class="detail-note">${escape(f.rationale)}</p>`:'')+`<table class="table"><thead><tr><th>Exercise</th><th>Sets</th><th>Reps / time</th></tr></thead><tbody>${(f.exercises??[]).map(e=>`<tr><td>${escape(human(e.exerciseID))}</td><td>${escape(e.sets)}</td><td>${escape(e.reps!=null?`${e.reps} reps`:e.durationSeconds!=null?`${e.durationSeconds} sec`:'—')}</td></tr>`).join('')}</tbody></table>`;
+  }else if(r.type==='food.dose'){
+    const supplement=(cache.get('food.supplement')??[]).find(s=>s.id===f.supplementID),name=supplement?fields(supplement).name:'Dose';
+    html=heading(name,human(f.status))+`<dl class="detail-data">${stat('Logged',`${date(f.date)} · ${time(f.date)}`)}${f.day?stat('Counts for day',String(f.day).replace(/^(\d{4})(\d{2})(\d{2})$/,'$1-$2-$3')):''}${supplement?stat('Dose',fields(supplement).dose||'—'):''}</dl>`;
   }else if(r.type==='food.supplement'){
     html=heading(f.name||'Supplement',human(f.kind))+`<dl class="detail-data">${stat('Dose',f.dose||'—')}${stat('Time',clock(f.hour,f.minute))}</dl>`+(f.note?`<p class="detail-note">${escape(f.note)}</p>`:'');
     const logs=(cache.get('food.dose')??[]).filter(d=>fields(d).supplementID===r.id).sort((a,b)=>String(fields(b).day).localeCompare(String(fields(a).day)));
-    if(logs.length)html+=`<h3>Recent doses</h3><p class="body-copy">${logs.slice(0,30).map(d=>escape(fields(d).day)).join(' · ')}</p>`;
+    if(f.ingredients?.length)html+=`<h3>Ingredients</h3><ul>${f.ingredients.map(i=>`<li>${escape(i)}</li>`).join('')}</ul>`;
+    if(logs.length)html+=`<h3>Recent doses</h3>`+listHTML(logs.slice(0,30),d=>row(d,human(fields(d).status),fields(d).day||'',date(fields(d).date),time(fields(d).date)));
   }else{
     html=heading(f.name||f.title||human(r.type.split('.').at(-1)))+(f.note||f.notes?`<p class="detail-note">${escape(f.note||f.notes)}</p>`:'');
     html+=`<dl class="detail-data">${Object.entries(f).filter(([k,v])=>!['id','name','title','note','notes'].includes(k)&&v!=null&&['string','number','boolean'].includes(typeof v)).map(([k,v])=>stat(human(k),typeof v==='boolean'?(v?'Yes':'No'):v)).join('')}</dl>`;
@@ -477,8 +581,32 @@ async function showDetail(r) {
   }
 }
 
+async function changeTrend(event){
+  const control=event.target.closest('[data-trend-range],[data-trend-group],[data-trend-through],[data-trend-step],[data-trend-latest]');
+  if(!control)return;
+  if(event.type==='click'&&control.tagName!=='BUTTON')return;
+  if(event.type==='change'&&control.tagName==='BUTTON')return;
+  if(control.hasAttribute('data-trend-range'))trendDays=Number(control.value);
+  if(control.hasAttribute('data-trend-group'))trendGrouping=control.value;
+  if(control.hasAttribute('data-trend-through')){if(!control.value||!control.checkValidity())return;trendThrough=control.value;}
+  if(control.hasAttribute('data-trend-step'))trendThrough=stepDay(trendThrough,Number(control.dataset.trendStep)*trendDays);
+  if(control.hasAttribute('data-trend-latest'))trendThrough=stepDay(dayKey(Date.now()),-1);
+  trendThrough=stepDay(trendSpans(trendThrough,trendDays).current.endDay,-1);
+  saveViewPreferences();
+  const key=currentHealthMetric,inDialog=Boolean(control.closest('#detail'));
+  const attribute=[...control.attributes].find(a=>a.name.startsWith('data-trend-'))?.name;
+  await render();
+  if(key&&$('#detail').open)await showDetail(metricRecord(key));
+  const mount=inDialog?$('#detail-content'):$('#content');mount.querySelector('['+attribute+']')?.focus();
+}
+for(const mount of [$('#content'),$('#detail-content')]){
+  mount.addEventListener('change',changeTrend);mount.addEventListener('click',changeTrend);
+}
 $('#content').addEventListener('click',(e)=>{
   if(view==='sharing'){sharing.click(e.target).catch(error=>showNotice(error.message,true));return;}
+  const healthModeButton=e.target.closest('[data-health-mode]');if(healthModeButton){healthMode=healthModeButton.dataset.healthMode;saveViewPreferences();render().then(()=>document.querySelector(`[data-health-mode="${healthMode}"]`)?.focus());return;}
+  const healthStep=e.target.closest('[data-health-step]');if(healthStep){const step=healthStep.dataset.healthStep;healthDay=stepDay(healthDay,Number(step)*(healthMode==='week'?7:1));saveViewPreferences();render().then(()=>document.querySelector(`[data-health-step="${step}"]`)?.focus());return;}
+  if(e.target.closest('[data-health-today]')){healthDay=dayKey(Date.now());saveViewPreferences();render().then(()=>document.querySelector('[data-health-today]')?.focus());return;}
   const open=e.target.closest('[data-open]');if(open){showDetail(detailRecords[Number(open.dataset.open)]);return;}
   const mode=e.target.closest('[data-plan-mode]');if(mode){saveCalendarScroll();planMode=mode.dataset.planMode;try{localStorage.setItem('banana.plan.mode',planMode);}catch{}render();return;}
   const selected=e.target.closest('[data-select-day]');if(selected){saveCalendarScroll();planDay=selected.dataset.selectDay;planMode='day';render();return;}
@@ -486,13 +614,20 @@ $('#content').addEventListener('click',(e)=>{
   const tab=e.target.closest('[data-podcast-tab]');if(tab){podcastTab=tab.dataset.podcastTab;render();return;}
   if(e.target.closest('[data-retry]'))render();
 });
+$('#content').addEventListener('change',async e=>{
+  if(e.target.id==='health-day'&&/^\d{4}-\d{2}-\d{2}$/.test(e.target.value)){healthDay=e.target.value;saveViewPreferences();await render();$('#health-day')?.focus();}
+  const input=e.target.closest('[data-health-metric]');if(!input)return;
+  const key=input.dataset.healthMetric;input.checked?hiddenMetrics.delete(key):hiddenMetrics.add(key);
+  try{localStorage.setItem(metricPreferenceKey(),JSON.stringify([...hiddenMetrics]));}catch{showNotice('Metric choices apply for this visit. This browser could not save them.',true);}
+  await render();const chooser=$('.metric-choices');if(chooser)chooser.open=true;document.querySelector(`[data-health-metric="${key}"]`)?.focus();
+});
 $('#content').addEventListener('change',async e => {
   const input=e.target.closest('[data-calendar-choice]');if(!input)return;
   const enabled=input.checked;
   const controls=[...$('#content').querySelectorAll('[data-calendar-choice]')];controls.forEach(c=>c.disabled=true);
   try {
     await request('/app/api/calendars',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({calendarID:input.dataset.calendarId,preference:input.dataset.calendarChoice,enabled})});
-    agendas.clear();await refresh({quiet:true});await render();showNotice('Saved across your devices.');
+    agendas.clear();await refresh();showNotice('Saved across your devices.');
   } catch(error) { await render();showNotice(error.message,true); }
 });
 $('#content').addEventListener('change',(e)=>{if(view==='sharing'&&sharing.change(e.target))return;if(e.target.id==='plan-day'&&/^\d{4}-\d{2}-\d{2}$/.test(e.target.value)){planDay=e.target.value;render();}});
@@ -510,7 +645,7 @@ $('#detail-content').addEventListener('click',async(e)=>{
   }catch(error){if(current===detailGeneration){button.disabled=false;button.textContent='Try loading again';const content=$('#recording-content');if(content)content.textContent=error.message;}}
 });
 $('#close-detail').addEventListener('click',()=>$('#detail').close());
-$('#detail').addEventListener('close',()=>{detailGeneration++;currentWorkout=null;recordingWorker?.terminate();recordingWorker=null;$('#detail-content').replaceChildren();});
+$('#detail').addEventListener('close',()=>{detailGeneration++;currentHealthMetric=null;currentWorkout=null;recordingWorker?.terminate();recordingWorker=null;$('#detail-content').replaceChildren();});
 $('#detail').addEventListener('click',(e)=>{if(e.target===$('#detail')){const b=$('#detail').getBoundingClientRect();if(e.clientX<b.left||e.clientX>b.right||e.clientY<b.top||e.clientY>b.bottom)$('#detail').close();}});
 $('#refresh').addEventListener('click',()=>refresh());
 $('#signout').addEventListener('click',async()=>{try{await request('/app/auth/logout',{method:'POST'});signedOut();}catch(e){if(account)showNotice(e.message,true);}});
@@ -541,14 +676,14 @@ $('#live-filters').addEventListener('click',event=>{
 window.addEventListener('hashchange',navigate);
 window.addEventListener('pageshow',(e)=>{if(e.persisted)location.reload();});
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&account)refresh({quiet:true});});
-setInterval(()=>{if(!document.hidden&&account&&!$('#detail').open)refresh({quiet:true});},60_000);
+setInterval(()=>{if(!document.hidden&&account)refresh({quiet:true});},STATUS_INTERVAL_MS);
 
 async function boot(){
   try{
-    account=applyPreferences(await(await request(dataURL('account'))).json());
+    account=applyPreferences(await(await request(dataURL('account'))).json());lastStatusCheck=Date.now();
     guestHomeSession=null;$('#shared-home').hidden=true;
     $('#login').hidden=true;$('#workspace').hidden=false;$('#account-controls').hidden=false;$('.skip').href='#main';
-    updateAccount();navigate();
+    loadMetricPreferences();loadViewPreferences();updateAccount();navigate();
   }catch(e){
     if(e.status===403){
       if(sharedContext)return;

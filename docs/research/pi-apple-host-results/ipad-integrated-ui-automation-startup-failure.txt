@@ -1,0 +1,42 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild test-without-building -collect-test-diagnostics never -project Banana.xcodeproj -scheme BananaPi -configuration PiDevelopment -destination platform=iOS,id=<device-udid> -derivedDataPath .build/sim "-only-testing:BananaAgentUITests/PiLaunchUITest/testNormalColdLaunchReachesAssistantWithoutCloudSetup" "-only-testing:BananaAgentUITests/AssistantUITest/testNewMealDraftUsesSharedEditorAndSurvivesCancel" "-only-testing:BananaAgentUITests/AssistantUITest/testNewMealDraftSaveAppearsInExistingNutritionStore" "-only-testing:BananaAgentUITests/AssistantUITest/testNewEventDraftUsesSharedEditorAndRestores" "-only-testing:BananaAgentUITests/AssistantUITest/testGlobalMealSearchLinksThroughNormalAppShell" -parallel-testing-enabled NO -test-timeouts-enabled YES -default-test-execution-time-allowance 150 -maximum-test-execution-time-allowance 300
+
+Resolve Package Graph
+
+
+Resolved source packages:
+  AppCheck: https://github.com/google/app-check.git @ 11.3.2
+  FluidAudio: https://github.com/FluidInference/FluidAudio.git @ 0.15.5
+  GTMSessionFetcher: https://github.com/google/gtm-session-fetcher.git @ 3.5.0
+  InteropForGoogle: https://github.com/google/interop-ios-for-google-sdks.git @ 101.0.0
+  Promises: https://github.com/google/promises.git @ 2.4.1
+  GoogleUtilities: https://github.com/google/GoogleUtilities.git @ 8.1.5
+  GTMAppAuth: https://github.com/google/GTMAppAuth.git @ 5.0.0
+  GoogleSignIn: https://github.com/google/GoogleSignIn-iOS.git @ 9.1.0
+  AppAuth: https://github.com/openid/AppAuth-iOS.git @ 2.1.0
+
+2026-10-25 09:34:23.914 xcodebuild[42848:83692248] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-25 09:34:26.115493-0400 BananaAgentUITests-Runner[52074:20178180] [Default] Running tests...
+2026-10-25 09:34:26.417483-0400 BananaAgentUITests-Runner[52074:20178180] [MC] Reading from public effective user settings.
+2026-10-25 09:34:26.435179-0400 BananaAgentUITests-Runner[52074:20178180] [UIKit App Config] Update the Info.plist: Launch screens will soon be required.
+2026-10-25 09:35:26.621354-0400 BananaAgentUITests-Runner[52074:20178180] [Default] Failed to initialize for UI testing: Error Domain=com.apple.dt.XCTest.XCTFuture Code=1000 "Timed out while enabling automation mode." UserInfo={NSLocalizedDescription=Timed out while enabling automation mode.}
+2026-10-25 09:35:26.663 xcodebuild[42848:83692248] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-25 09:35:26.664 xcodebuild[42848:83692248] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-25 09:35:26.666 xcodebuild[42848:83692248] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+
+
+*** If you believe this error represents a bug, please attach the result bundle at ~/orca/workspaces/gtfuwgth/pi/.build/sim/Logs/Test/Test-BananaPi-2026.10.25_09-34-21--0400.xcresult
+
+2026-10-25 09:35:27.090 xcodebuild[42848:83692248] [MT] IDETestOperationsObserverDebug: 65.239 elapsed -- Testing started completed.
+2026-10-25 09:35:27.090 xcodebuild[42848:83692248] [MT] IDETestOperationsObserverDebug: 0.000 sec, +0.000 sec -- start
+2026-10-25 09:35:27.090 xcodebuild[42848:83692248] [MT] IDETestOperationsObserverDebug: 65.239 sec, +65.239 sec -- end
+
+Test session results, code coverage, and logs:
+	~/orca/workspaces/gtfuwgth/pi/.build/sim/Logs/Test/Test-BananaPi-2026.10.25_09-34-21--0400.xcresult
+
+Testing failed:
+	BananaAgentUITests-Runner (52074) encountered an error (The test runner failed to initialize for UI testing. (Underlying Error: Timed out while enabling automation mode.))
+
+** TEST EXECUTE FAILED **
+
+Testing started

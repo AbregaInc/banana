@@ -111,6 +111,8 @@ struct CalendarEventInput: Codable {
     /// Guests' addresses. Google emails each an invitation when the event is made. Optional, so a
     /// pending write saved before guests existed still reads back.
     var attendees: [String]? = nil
+    /// Present only for a reviewed Pi draft; survives pending-write persistence/retry.
+    var assistantOperationID: UUID? = nil
 }
 
 /// A day's first qualifying meeting, with whatever location info it carries.
@@ -147,6 +149,9 @@ struct MeetingInfo: Identifiable {
     var isAvailabilityOnly: Bool = false
     var calendarBlocksTime: Bool = true
     var shouldMirrorBusyTime: Bool { calendarBlocksTime && !showsAsFree && !isAvailabilityOnly }
+    /// Source-local zones, when supplied (e.g. a flight's departure and arrival).
+    var startTimeZone: String? = nil
+    var endTimeZone: String? = nil
 
     var id: String { eventID ?? "\(Int(start.timeIntervalSince1970))-\(title)" }
     var hasPhysicalLocation: Bool {
@@ -174,7 +179,7 @@ enum MeetingResponse: String, Codable, Hashable {
 extension MeetingInfo: Codable {
     private enum CodingKeys: String, CodingKey {
         case start, end, lat, lon, address, isVirtual, title, eventID, joinURL, platform, calendarID
-        case calendarBlocksTime, showsAsFree, isRecurring, myResponse, othersAllDeclined, alsoOnCalendarIDs, isAllDay, isAvailabilityOnly
+        case calendarBlocksTime, showsAsFree, isRecurring, myResponse, othersAllDeclined, alsoOnCalendarIDs, isAllDay, isAvailabilityOnly, startTimeZone, endTimeZone
     }
 
     init(from decoder: Decoder) throws {
@@ -198,7 +203,9 @@ extension MeetingInfo: Codable {
                   alsoOnCalendarIDs: try c.decodeIfPresent([String].self, forKey: .alsoOnCalendarIDs) ?? [],
                   isAllDay: try c.decodeIfPresent(Bool.self, forKey: .isAllDay) ?? false,
                   isAvailabilityOnly: try c.decodeIfPresent(Bool.self, forKey: .isAvailabilityOnly) ?? false,
-                  calendarBlocksTime: try c.decodeIfPresent(Bool.self, forKey: .calendarBlocksTime) ?? true)
+                  calendarBlocksTime: try c.decodeIfPresent(Bool.self, forKey: .calendarBlocksTime) ?? true,
+                  startTimeZone: try c.decodeIfPresent(String.self, forKey: .startTimeZone),
+                  endTimeZone: try c.decodeIfPresent(String.self, forKey: .endTimeZone))
     }
 
     func encode(to encoder: Encoder) throws {
@@ -222,6 +229,8 @@ extension MeetingInfo: Codable {
         if !alsoOnCalendarIDs.isEmpty { try c.encode(alsoOnCalendarIDs, forKey: .alsoOnCalendarIDs) }
         if isAllDay { try c.encode(isAllDay, forKey: .isAllDay) }
         if isAvailabilityOnly { try c.encode(isAvailabilityOnly, forKey: .isAvailabilityOnly) }
+        try c.encodeIfPresent(startTimeZone, forKey: .startTimeZone)
+        try c.encodeIfPresent(endTimeZone, forKey: .endTimeZone)
     }
 }
 
@@ -242,6 +251,7 @@ extension MeetingInfo: Hashable {
             && a.isRecurring == b.isRecurring
             && a.myResponse == b.myResponse && a.othersAllDeclined == b.othersAllDeclined
             && a.alsoOnCalendarIDs == b.alsoOnCalendarIDs && a.isAllDay == b.isAllDay && a.isAvailabilityOnly == b.isAvailabilityOnly
+            && a.startTimeZone == b.startTimeZone && a.endTimeZone == b.endTimeZone
     }
 
     func hash(into hasher: inout Hasher) {
@@ -252,6 +262,7 @@ extension MeetingInfo: Hashable {
         hasher.combine(calendarBlocksTime); hasher.combine(calendarID); hasher.combine(showsAsFree); hasher.combine(isRecurring)
         hasher.combine(myResponse); hasher.combine(othersAllDeclined); hasher.combine(alsoOnCalendarIDs)
         hasher.combine(isAllDay); hasher.combine(isAvailabilityOnly)
+        hasher.combine(startTimeZone); hasher.combine(endTimeZone)
     }
 }
 

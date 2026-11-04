@@ -25,6 +25,7 @@ struct PlacePickerView: View {
     /// nil = automatic: walk if it's close, otherwise the default mode.
     @State private var mode: TransitMode?
     @State private var searchTask: Task<Void, Never>?
+    @State private var settingHome = false
 
     private var current: SavedPlace? { smart.settings.savedPlaces.place(for: locationText) }
 
@@ -32,25 +33,59 @@ struct PlacePickerView: View {
         NavigationStack {
             List {
                 Section {
+                    // The question and what it's for. A paragraph explained the rule beneath it.
+                    VStack(alignment: .leading, spacing: DS.Space.hair) {
+                        Text("Which \u{201C}\(locationText)\u{201D}?")
+                            .font(.headline)
+                        if let context {
+                            Text(context)
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                    .padding(.vertical, DS.Space.xs)
+                }
+
+                Section {
+                    // The places first, found near home or, with none set, near where you are.
+                    // With neither, nothing can be searched and Set home is the step.
                     if searching && results.isEmpty {
                         HStack(spacing: DS.Space.s) {
                             ProgressView()
-                            Text("Searching near home…").foregroundStyle(.secondary)
+                            Text("Searching…").foregroundStyle(.secondary)
                         }
-                    } else if results.isEmpty && searched {
-                        Text(smart.travelSearchCenter == nil ? "Set your home first" : "Nothing found")
-                            .foregroundStyle(.secondary)
+                    } else if results.isEmpty && searched && searchCenter != nil {
+                        Text("No places found").foregroundStyle(.secondary)
                     }
                     ForEach(results) { candidate in
                         Button { choose(candidate) } label: { row(candidate) }
                             .buttonStyle(.plain)
                             .accessibilityIdentifier("placePicker.result")
                     }
+                    if smart.travelSearchCenter == nil {
+                        // Places are found near home, so with none set it is offered here, after
+                        // any results: it sent the person to Settings › Travel › Home in a sentence.
+                        Button { settingHome = true } label: {
+                            HStack(spacing: DS.Space.m) {
+                                IconTile(systemImage: "house.fill", tint: DS.Palette.travel, style: .soft)
+                                Text("Set home").foregroundStyle(.primary)
+                                Spacer(minLength: DS.Space.s)
+                                Image(systemName: "chevron.forward")
+                                    .font(.caption.weight(.semibold))
+                                    .foregroundStyle(.tertiary)
+                            }
+                            .frame(minHeight: DS.Row.minHeight)
+                            .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityIdentifier("placePicker.setHome")
+                    }
                 } header: {
-                    Text(query == locationText ? "Near home" : "Results")
+                    Text(query == locationText && smart.travelSearchCenter != nil ? "Near home" : "Places")
                 }
 
                 Section {
+                    // The rule Automatic follows was a footer sentence; the menu says the modes.
                     Picker("Getting there", selection: $mode) {
                         Text("Automatic").tag(TransitMode?.none)
                         ForEach(TransitMode.allCases) { mode in
@@ -77,12 +112,15 @@ struct PlacePickerView: View {
                 startSearch()
             }
             .onDisappear { searchTask?.cancel() }
+            // Home set, the same question is searched near it at once.
+            .sheet(isPresented: $settingHome, onDismiss: { startSearch() }) {
+                HomeLocationPicker().environmentObject(smart)
+            }
         }
         #if os(macOS)
         .frame(minWidth: 440, idealWidth: 480, minHeight: 520, idealHeight: 600)
         #endif
     }
-
 
     private func row(_ candidate: PlaceCandidate) -> some View {
         HStack(spacing: DS.Space.m) {
@@ -115,6 +153,23 @@ struct PlacePickerView: View {
         return abs(current.latitude - candidate.latitude) < 1e-5 && abs(current.longitude - candidate.longitude) < 1e-5
     }
 
+    /// Where places are searched around: home (or work), else the last place this device knew
+    /// it was, if Location is allowed. Reading `location` asks nothing.
+    private var searchCenter: CLLocationCoordinate2D? {
+        smart.travelSearchCenter ?? CLLocationManager().location?.coordinate
+    }
+
+    /// Home's search, or the same search around where you are when no home is set: with no
+    /// home the sheet listed nothing to pick, only Set home.
+    private func candidates(for text: String, eventTitle: String?, useModel: Bool) async -> [PlaceCandidate] {
+        if smart.travelSearchCenter != nil {
+            return await smart.placeCandidates(for: text, eventTitle: eventTitle, useModel: useModel)
+        }
+        guard let here = searchCenter else { return [] }
+        let service = TravelService()
+        return await service.candidates(for: text, eventTitle: eventTitle, useModel: useModel, near: here)
+    }
+
     /// One search at a time: a slow earlier search must not land over a newer one's results.
     private func startSearch() {
         let text = query.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -125,12 +180,12 @@ struct PlacePickerView: View {
             // The hint only helps the original question; a typed search is taken as it is.
             let title = text == locationText ? eventTitle : nil
             // Keyword results at once, then Apple Intelligence's when it has read the event.
-            let quick = await smart.placeCandidates(for: text, eventTitle: title, useModel: false)
+            let quick = await candidates(for: text, eventTitle: title, useModel: false)
             guard !Task.isCancelled else { return }
             results = quick
             searched = true
             guard title != nil else { searching = false; return }
-            let full = await smart.placeCandidates(for: text, eventTitle: title, useModel: true)
+            let full = await candidates(for: text, eventTitle: title, useModel: true)
             guard !Task.isCancelled else { return }
             if !full.isEmpty { results = full }
             searching = false

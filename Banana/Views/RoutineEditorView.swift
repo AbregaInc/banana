@@ -9,6 +9,8 @@ struct RoutineEditorView: View {
 
     @State var draft: Routine
     let isNew: Bool
+    /// Off when opened from Wake & bedtime itself, so the page doesn't link to itself.
+    var showsScheduleLink = true
 
     private let icons = ["sunrise.fill", "figure.run", "car.fill", "scope", "figure.walk",
                          "moon.fill", "moon.zzz.fill", "cup.and.saucer.fill", "book.fill", "circle.fill"]
@@ -64,6 +66,22 @@ struct RoutineEditorView: View {
                         }
                         weekdayPicker
                     }
+                    if draft.cueType == .wake {
+                        // In Routines the Wake routine is the Wake & bedtime row, which has no
+                        // switch of its own for it: whether it plays at the wake is said here.
+                        Toggle("Play at wake", isOn: $draft.enabled)
+                    }
+                    if draft.triggerKind == .earliestMeeting && showsScheduleLink {
+                        // Its time comes from Wake & bedtime, so that page is one tap away here:
+                        // the Wake routine and Wake & bedtime are one automation, reached from
+                        // either (design climb round 1).
+                        NavigationLink {
+                            // From the Wake routine's own editor the page doesn't offer it again.
+                            SmartScheduleView()
+                        } label: {
+                            LabeledContent("Wake & bedtime", value: smart.settings.enabled ? "On" : "Off")
+                        }
+                    }
                     if draft.triggerKind == .workoutStart {
                         // How long you train is yours to say: it's the length the workout takes
                         // on your day when you give it a time.
@@ -85,10 +103,6 @@ struct RoutineEditorView: View {
                         }
                         if draft.triggerKind == .wakeUp {
                             Text(Self.wakeFollowingNote)
-                                .fixedSize(horizontal: false, vertical: true)
-                        }
-                        if draft.triggerKind == .earliestMeeting {
-                            Text("The exact time comes from Wake & bedtime: ~\(smart.settings.prepBufferMinutes) min before your first meeting, minus travel, never earlier than your earliest-wake floor, and held to a steady rhythm across the week. Change the offset in Routines → Smart wake schedule.")
                                 .fixedSize(horizontal: false, vertical: true)
                         }
                         if draft.triggerKind == .calendarMatch {

@@ -1,0 +1,2218 @@
+{
+  "complete": true,
+  "scope": "22 synthetic development cases; inference/tool contracts only. No app tools execute; not held-out accuracy, real-app latency or production p95.",
+  "engine": "mlx-server",
+  "checkpoint": {
+    "repo": "LiquidAI/LFM2.5-2.6B-MLX-4bit",
+    "revision": "04efa23776ce61ec34ec95ec34c859854c89542b",
+    "files": {
+      "LICENSE": {
+        "bytes": 10574,
+        "sha256": "4d28ca14dedc0b3d0fcc2b3339f0e79931faa33874f3d24f522183a8fc70068c"
+      },
+      "README.md": {
+        "bytes": 2648,
+        "sha256": "0907976d22f77d4178e10d04002403a94a22ad965ad8431f754fb28a14885f6e"
+      },
+      "chat_template.jinja": {
+        "bytes": 5496,
+        "sha256": "aadd425edb1d42fe9288e5de3624c21c1c03099129b9cfea5978f1bc67222c0a"
+      },
+      "config.json": {
+        "bytes": 2202,
+        "sha256": "6ab5ad71687f6ca8d3811b9290ac06291f78e1e0f4f3ec504e6644032d58342b"
+      },
+      "generation_config.json": {
+        "bytes": 306,
+        "sha256": "e08c9a83f4bfe64468c9671a2b69b60549728e2a9481387f3555471f64e958bc"
+      },
+      "model.safetensors": {
+        "bytes": 1583152892,
+        "sha256": "ef350b75815752f8bff8c064c9fc8bd8b5709577d72943436852013d2bcd4691"
+      },
+      "model.safetensors.index.json": {
+        "bytes": 41983,
+        "sha256": "620f8efaf53e826757324852e999f6ba9a5d974e193589470a70951fd17a1543"
+      },
+      "tokenizer.json": {
+        "bytes": 17905598,
+        "sha256": "695be7802a0e4b8a81048f0ff5ebb7fc811a0ba5a6be63dbb24deb5a81096f41"
+      },
+      "tokenizer_config.json": {
+        "bytes": 363,
+        "sha256": "11f1de897317b489dd09199284528382eeb17f566398b16e2039bb2266d26b09"
+      }
+    }
+  },
+  "fixtureSha256": "65a850d931dc9038e49f71c0b92d1b7a49421c7eeebd9ab6f0afa63fa863a2de",
+  "fixtureVersion": 1,
+  "recipeNote": "LFM2.6 native reasoning enabled, temperature/top-k/repetition penalty as card; top_p=1 unspecified by card; stock MLX Pythonic parser; serial one-cache serving.",
+  "settings": {
+    "thinking": true,
+    "context": 32768,
+    "maxTokens": 2048,
+    "temperature": 0.1,
+    "topP": 1.0,
+    "topK": 50,
+    "repetitionPenalty": 1.1,
+    "slots": 1,
+    "cacheGB": 2,
+    "repeats": 2,
+    "memoryBudgetGB": 4.0,
+    "contextEnforcement": "Fixture inputs/output bound; standalone server has no matching max-context flag",
+    "cachePolicy": "One retained prompt cache, 2GB cap; different implementation from Locals slots",
+    "serverSeed": "Per-request seed=0; standalone API rather than Locals server-global RNG"
+  },
+  "hostBefore": {
+    "utc": "2026-10-25T15:57:40.089764+00:00",
+    "chip": "Apple M1 Max",
+    "ramBytes": "68719476736",
+    "os": "27.0.1",
+    "swap": "vm.swapusage: total = 23552.00M  used = 22032.75M  free = 1519.25M  (encrypted)",
+    "paging": {
+      "Pageouts": 371912,
+      "Swapins": 5051750,
+      "Swapouts": 9298822
+    }
+  },
+  "results": [
+    {
+      "case": "identity",
+      "repeat": 0,
+      "milliseconds": 3288.1,
+      "raw": {
+        "id": "chatcmpl-5cef3ed4-6760-406e-b257-18bb0f77aaa6",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792943862,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "I'm Banana, your personal assistant. How can I help you today?",
+              "reasoning": "The user is asking for my name. According to the system prompt, I am \"Banana, a helpful personal assistant running on this device.\" So my name is Banana. I should respond directly without using tools for this type of question."
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2022,
+          "completion_tokens": 68,
+          "total_tokens": 2090,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 1977.745408
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "greeting",
+      "repeat": 0,
+      "milliseconds": 2195.4,
+      "raw": {
+        "id": "chatcmpl-4f8c31b9-0cf1-4569-8923-5bf686570507",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792943865,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "Hello! How can I help you today?",
+              "reasoning": "The user just said \"Hello\". This is a greeting. I should respond directly without using tools for this kind of general conversation. I'll greet them back and ask how I can help."
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2018,
+          "completion_tokens": 50,
+          "total_tokens": 2068,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 1978.712064
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "monthly",
+      "repeat": 0,
+      "milliseconds": 2608.1,
+      "raw": {
+        "id": "chatcmpl-0c4cc17b-a1cb-4ba7-8420-d64a90c840a3",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792943867,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "tool_calls",
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "reasoning": "The user wants to see their protein intake for this month. I should use the nutrition_view tool with the appropriate parameters to filter by period and metric. Let me check what parameters are available:\n- period: \"this_month\" (for this month's data)\n- metric: \"protein\" (to filter by protein)\n\nI should call nutrition_view with these parameters to get the protein data for this month.",
+              "tool_calls": [
+                {
+                  "function": {
+                    "name": "nutrition_view",
+                    "arguments": "{\"period\": \"this_month\", \"metric\": \"protein\"}"
+                  },
+                  "type": "function",
+                  "id": "aa3f8f1b-a354-4f90-953a-fdabdf767754"
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2022,
+          "completion_tokens": 101,
+          "total_tokens": 2123,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 1978.810368
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "calories",
+      "repeat": 0,
+      "milliseconds": 2306.7,
+      "raw": {
+        "id": "chatcmpl-9ce969c8-9969-4e39-9626-7bdc8bacd10b",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792943870,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "tool_calls",
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "reasoning": "The user wants to see their calorie intake over the last seven days. I should use the nutrition_view tool with the \"last_7_days\" period filter to get this information. Let me call that tool to retrieve the data.",
+              "tool_calls": [
+                {
+                  "function": {
+                    "name": "nutrition_view",
+                    "arguments": "{\"period\": \"last_7_days\"}"
+                  },
+                  "type": "function",
+                  "id": "64fd535b-8a6d-48ee-8cf8-584494c841a0"
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2024,
+          "completion_tokens": 62,
+          "total_tokens": 2086,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        }
+      },
+      "passed": false,
+      "reason": "wrong_metric",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 1978.908672
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "food-search",
+      "repeat": 0,
+      "milliseconds": 2418.4,
+      "raw": {
+        "id": "chatcmpl-fe2e9b77-ed82-458e-8e04-e3129b543f29",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792943872,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "tool_calls",
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "reasoning": "The user wants to find their logged meals containing yogurt. I should use the nutrition_view tool with foodName set to \"yogurt\" to find logged meals containing yogurt. This will show me the relevant meals from their nutrition log.",
+              "tool_calls": [
+                {
+                  "function": {
+                    "name": "nutrition_view",
+                    "arguments": "{\"foodName\": \"yogurt\"}"
+                  },
+                  "type": "function",
+                  "id": "d7a3cb88-966d-41a8-8247-2fb35e3931b9"
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2134,
+          "completion_tokens": 63,
+          "total_tokens": 2197,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 1979.039744
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "weekdays",
+      "repeat": 0,
+      "milliseconds": 2425.4,
+      "raw": {
+        "id": "chatcmpl-9095df8c-1ce0-4a0b-a7d7-ee9e970d311c",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792943874,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "tool_calls",
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "reasoning": "The user wants to filter their nutrition data to only include weekdays. I can use the `filter_nutrition` tool with the \"weekdays_only\" change to update the filter. Let me do that first.",
+              "tool_calls": [
+                {
+                  "function": {
+                    "name": "filter_nutrition",
+                    "arguments": "{\"changes\": [\"weekdays_only\"], \"revision\": 2}"
+                  },
+                  "type": "function",
+                  "id": "2886bfd6-54bf-4406-ae0a-221d9a7a139d"
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2131,
+          "completion_tokens": 66,
+          "total_tokens": 2197,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 1979.056128
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "compare",
+      "repeat": 0,
+      "milliseconds": 3196.7,
+      "raw": {
+        "id": "chatcmpl-2a105489-3f40-4a42-acd1-3660397b19f7",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792943877,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "tool_calls",
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "reasoning": "The user wants to compare their current nutrition data with the previous period. Looking at the nutrition_view tool result, I can see:\n- Current revision: 2\n- The period shows \"selectedDay\": \"2026-10-23\"\n- The summary shows loggedDays: 1, loggedTotal: 20, and the selectedDay is 2026-10-23\n\nThe user wants to compare with the previous period. I should use the filter_nutrition tool with \"compare_previous\" changes to get this comparison. This will show how the nutrition metrics have changed from the previous period.\n\nLet me call filter_nutrition with changes set to [\"compare_previous\"] to get the comparison.",
+              "tool_calls": [
+                {
+                  "function": {
+                    "name": "filter_nutrition",
+                    "arguments": "{\"changes\": [\"compare_previous\"]}"
+                  },
+                  "type": "function",
+                  "id": "4ec3d3cc-9740-412c-a9bb-2498bfba7f02"
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2133,
+          "completion_tokens": 161,
+          "total_tokens": 2294,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 1979.039744
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "copy",
+      "repeat": 0,
+      "milliseconds": 6556.3,
+      "raw": {
+        "id": "chatcmpl-8b7f5ad7-398b-4269-8014-13b09ff38592",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792943880,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "tool_calls",
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "reasoning": "The user wants me to prepare a copy of the \"selected Greek yogurt breakfast\" for tomorrow, without saving. This means I should use the `prepare_meal_copy` tool with:\n- mealID: The ID of the Greek yogurt breakfast meal\n- day: \"tomorrow\" (which would be 2026-10-26 based on today being 2026-10-25)\n- The user says \"without saving\" which aligns with `prepare_meal_copy` - this creates a draft copy for review but doesn't save it permanently.\n\nFirst, I need to find the meal ID for \"Greek yogurt breakfast\". Let me search for it using the nutrition_view or search_app tools, or I can try to find it in the meal logs.\n\nActually, looking at the nutrition_view result, I see there's a sample Greek yogurt breakfast with ID \"BA5A4E11-0000-4000-8000-000202610231\" for date 2026-10-23. But this is from a sample and might not be the \"selected\" one.\n\nLet me search for the Greek yogurt breakfast meal to get its current ID. I should use `prepare_meal_copy` which requires a mealID and day parameter.\n\nBut first, I need to find the correct meal ID. Let me use `search_app` or check the nutrition view more carefully.\n\nActually, looking at the nutrition_view output, it shows:\n- meal ID: \"BA5A4E11-0000-4000-8000-000202610231\" for date 2026-10-23 with name \"Sample Greek yogurt breakfast\"\n\nThis seems to be the Greek yogurt breakfast meal. The user wants a copy for tomorrow (2026-10-26).\n\nI should use `prepare_meal_copy` with:\n- mealID: \"BA5A4E11-0000-4000-8000-000202610231\"\n- day: \"tomorrow\" (which is 2026-10-26)\n\nWait, but the `day` parameter in prepare_meal_copy is described as \"Use today when the person asks to repeat a meal without specifying a date. Use tomorrow or date only when requested.\" So \"tomorrow\" should work.\n\nHowever, I need to be careful - the user said \"without saving\". The `prepare_meal_copy` tool description says it \"opens a draft and does not save or change chart filters\" - so this is exactly what they want.\n\nLet me proceed with preparing the copy.",
+              "tool_calls": [
+                {
+                  "function": {
+                    "name": "prepare_meal_copy",
+                    "arguments": "{\"day\": \"tomorrow\", \"mealID\": \"BA5A4E11-0000-4000-8000-000202610231\"}"
+                  },
+                  "type": "function",
+                  "id": "5aaddad9-7c30-4045-a5ea-d9d0b03634a0"
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2144,
+          "completion_tokens": 561,
+          "total_tokens": 2705,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 1979.072512
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "new-meal",
+      "repeat": 0,
+      "milliseconds": 5379.7,
+      "raw": {
+        "id": "chatcmpl-20863015-3615-447e-9fde-df1a5b50e320",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792943887,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "tool_calls",
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "reasoning": "The user wants to log a new meal for today with 2 eggs and 1 banana, and prepare a review (but do not save). This means I should use the `prepare_meal_copy` function which creates a draft/preview without saving. Let me check the parameters:\n\n- `mealID` (required) - but this is for copying an existing meal\n- `day` (required) - must be \"today\", \"tomorrow\", or a specific date\n- `foods` (required) - array of food objects with name and quantity\n\nSince this is a new meal being logged for today, I need to use `prepare_meal_copy` with:\n- day: \"today\" (or could be omitted but it's required)\n- foods: array with 2 eggs and 1 banana\n\nWait, looking at the function description more carefully:\n- `prepare_meal_copy` is for copying an existing logged meal (requires mealID)\n- `prepare_meal` is for preparing a NEW meal (does not save)\n\nThe user says \"Log a new meal\" and \"Prepare review, do not save.\" This suggests they want to create a draft/preview first. The `prepare_meal` function seems more appropriate for creating a new meal that hasn't been saved yet.\n\nLet me use `prepare_meal` with:\n- foods: [{\"name\": \"egg\", \"quantity\": \"2\"}, {\"name\": \"banana\", \"quantity\": \"1\"}]\n- day: \"today\" (since it's for today)\n\nActually, looking at the required parameters for `prepare_meal`:\n- foods (required) - array of food objects with name and quantity\n- day (required) - today, tomorrow, or explicit date\n\nSo I need both. Let me call `prepare_meal` with today's date and the two foods.",
+              "tool_calls": [
+                {
+                  "function": {
+                    "name": "prepare_meal",
+                    "arguments": "{\"day\": \"today\", \"foods\": [{\"name\": \"egg\", \"quantity\": \"2\"}, {\"name\": \"banana\", \"quantity\": \"1\"}], \"title\": \"Breakfast Meal\"}"
+                  },
+                  "type": "function",
+                  "id": "06dd9d52-1e96-4149-af3b-e022bd693592"
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2039,
+          "completion_tokens": 430,
+          "total_tokens": 2469,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 1979.121664
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "new-event",
+      "repeat": 0,
+      "milliseconds": 3737.7,
+      "raw": {
+        "id": "chatcmpl-1734e9d5-2bfe-4a18-98e4-525a1ad3f484",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792943892,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "tool_calls",
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "reasoning": "The user wants me to create a calendar event called \"Lunch\" for tomorrow at 13:00 (1:00 PM) for 30 minutes. They also mention \"Prepare review, do not save\" - this seems to be asking me to use the prepare_event tool which creates a draft/event that doesn't get saved automatically (it's just for review). Let me use the prepare_event tool with:\n- title: \"Lunch\"\n- day: \"tomorrow\" (which would be 2026-10-26 based on the current date of 2026-10-25)\n- duration_minutes: 30\n- time: \"13:00\"\n- isAllDay: false (default)\n- location: not specified, can omit\n- notes: not specified\n\nWait, the user says \"Prepare review, do not save\" - this is exactly what prepare_event does. It creates a draft event for review without saving it permanently.\n\nLet me call prepare_event with these parameters.",
+              "tool_calls": [
+                {
+                  "function": {
+                    "name": "prepare_event",
+                    "arguments": "{\"title\": \"Lunch\", \"day\": \"tomorrow\", \"durationMinutes\": 30, \"time\": \"13:00\"}"
+                  },
+                  "type": "function",
+                  "id": "7c265616-0480-44e7-ba01-a94d6325a59f"
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2041,
+          "completion_tokens": 236,
+          "total_tokens": 2277,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 1979.138048
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "explicit-event",
+      "repeat": 0,
+      "milliseconds": 3637.8,
+      "raw": {
+        "id": "chatcmpl-607c79a2-8ff7-4554-9455-c76cbbb8b9d0",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792943896,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "tool_calls",
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "reasoning": "The user wants to create a calendar event for a dentist appointment on 2026-11-03 at 09:15 for 45 minutes. I need to use the prepare_event tool to create this event. Let me check the parameters:\n\n- title: \"Dentist\" (or similar)\n- day: \"2026-11-03\"\n- time: \"09:15\"\n- duration_minutes: 45\n- isAllDay: false (not specified, so it's a regular event)\n- location: not specified\n- notes: can include the time and duration info\n\nThe prepare_event tool requires \"title\" as a required parameter. I'll set:\n- title: \"Dentist Appointment\"\n- day: \"2026-11-03\"\n- time: \"09:15\"\n- duration_minutes: 45\n\nThis should create the event. Let me call the tool.",
+              "tool_calls": [
+                {
+                  "function": {
+                    "name": "prepare_event",
+                    "arguments": "{\"title\": \"Dentist Appointment\", \"day\": \"2026-11-03\", \"time\": \"09:15\", \"durationMinutes\": 45}"
+                  },
+                  "type": "function",
+                  "id": "1ce39ba7-c388-4e10-941b-65aa1670fd68"
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2041,
+          "completion_tokens": 223,
+          "total_tokens": 2264,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 1979.1872
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "missing-time",
+      "repeat": 0,
+      "milliseconds": 7703.5,
+      "raw": {
+        "id": "chatcmpl-c0e412cb-f6c6-420e-ab65-16a86263f36a",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792943899,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "tool_calls",
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "reasoning": "The user wants to create a calendar event called \"Dinner\" but hasn't decided on the time yet. I should use the prepare_event tool to create this event. Since they haven't specified a time, I'll need to ask for clarification or use a default approach. Looking at the prepare_event tool parameters, it requires a title (which is \"Dinner\") and has optional fields for day, duration_minutes, isAllDay, location, notes, time, and title.\n\nThe user said they haven't decided the time, so I should either:\n1. Ask for the time first\n2. Create a draft event without a specific time\n\nHowever, looking at the tool description more carefully: \"prepare_event\" creates a draft event that is never saved. The required parameter is only \"title\". Other parameters like time are optional.\n\nSince the user hasn't decided on the time, I should probably create a draft event with just the title for now, or ask them to specify. But actually, looking at the tool description again - it says \"never save\" for draft tools. So I can create a draft without a time.\n\nBut wait - the user might expect me to actually schedule it. Let me create a draft event with just the title \"Dinner\" and see what happens. I'll need to provide at least a day (today or tomorrow) since that's required for the event creation.\n\nActually, looking more carefully at prepare_event:\n- \"title\" is required\n- \"day\" is not marked as required in the schema (only \"title\" is listed as required)\n- But for a calendar event to make sense, we need a date/time\n\nLet me try creating the event with just the title and see what happens. I'll use today's date (2026-10-25) as the day since that's the current device date.\n\nActually, I should ask the user for more details first - what day and time would they prefer? But the instruction says to be helpful and create notes/events when needed. Since this is a simple request, I'll create the draft event with the title \"Dinner\" and use today's date.\n\nWait - I need to check if there are any constraints. The tool says \"prepare_event\" is for native review and never saves. So I can create a draft.\n\nLet me create the event with:\n- title: \"Dinner\"\n- day: \"today\" (2026-10-25)\n- time: not specified (will be empty or default)\n\nActually, looking at the parameters more carefully:\n- day: \"today\", \"tomorrow\", \"yesterday\", or explicit YYYY-MM-DD\n- time: required unless all-day\n\nI should probably ask the user for their preferred day and time before creating the event, or create a draft with just the title. Since they said \"I have not decided the time\", I'll create a draft with just the title and today's date.\n\nBut actually, I think it's better to ask first - let me create a simple draft event with the title and today's date, then we can adjust if needed. The prepare_event tool creates a draft that doesn't save, so it's safe to try.\n\nActually, I'll just create the event with title \"Dinner\" and day \"today\". The time can be left unspecified or set to a default. Let me do that.",
+              "tool_calls": [
+                {
+                  "function": {
+                    "name": "prepare_event",
+                    "arguments": "{\"title\": \"Dinner\", \"day\": \"today\"}"
+                  },
+                  "type": "function",
+                  "id": "fd9b9ab2-577c-4fc9-8a63-1f53e2bfa699"
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2031,
+          "completion_tokens": 709,
+          "total_tokens": 2740,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        }
+      },
+      "passed": false,
+      "reason": "reply_contract",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 1979.006976
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "missing-food",
+      "repeat": 0,
+      "milliseconds": 2695.2,
+      "raw": {
+        "id": "chatcmpl-710aef61-d469-41e9-b19c-270d798b1c74",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792943907,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "I'd be happy to help you log a meal! Could you tell me what you ate? Please share the food items and quantities, and I'll create a meal log for you.",
+              "reasoning": "The user wants to log a meal but hasn't specified what they ate yet. I should ask them for the food details before creating a meal log. I can use the prepare_meal tool to create a new meal, but I need at least some food information from them first.\n\nLet me ask the user what they ate so I can properly log the meal."
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2030,
+          "completion_tokens": 111,
+          "total_tokens": 2141,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 1979.154432
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "global-search",
+      "repeat": 0,
+      "milliseconds": 2357.4,
+      "raw": {
+        "id": "chatcmpl-e7b798a2-842a-4793-afc0-414e3a1d2e6e",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792943910,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "tool_calls",
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "reasoning": "The user wants me to search across Banana for \"clinic\". I should use the search_app function with the query \"clinic\" to find relevant items in the app. This is a cross-category search, so I should use search_app rather than nutrition_view or other specific tools.",
+              "tool_calls": [
+                {
+                  "function": {
+                    "name": "search_app",
+                    "arguments": "{\"query\": \"clinic\"}"
+                  },
+                  "type": "function",
+                  "id": "2f683e3f-8ce2-4870-abd7-6af83d0ae46d"
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2023,
+          "completion_tokens": 71,
+          "total_tokens": 2094,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 1979.170816
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "open-page",
+      "repeat": 0,
+      "milliseconds": 2152.9,
+      "raw": {
+        "id": "chatcmpl-0dda928d-221a-4002-8b66-ea12405d6f76",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792943912,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "tool_calls",
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "reasoning": "The user wants to open the Notes page. I should use the open_page function with section \"notes\" to navigate to the notes page in the Banana app.",
+              "tool_calls": [
+                {
+                  "function": {
+                    "name": "open_page",
+                    "arguments": "{\"section\": \"notes\"}"
+                  },
+                  "type": "function",
+                  "id": "0c0f9d60-0dd9-4239-ad32-a9952124225d"
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2021,
+          "completion_tokens": 46,
+          "total_tokens": 2067,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 1979.203584
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "notes",
+      "repeat": 0,
+      "milliseconds": 2210.0,
+      "raw": {
+        "id": "chatcmpl-ee5d41df-e1c0-4d0d-819b-3340ea2dfcdd",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792943914,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "tool_calls",
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "reasoning": "The user wants to see their recent notes. I should use the list_notes tool to retrieve this information. This is a straightforward request for their notes, and I should provide the list of recent notes without creating any new ones.",
+              "tool_calls": [
+                {
+                  "function": {
+                    "name": "list_notes",
+                    "arguments": "{}"
+                  },
+                  "type": "function",
+                  "id": "67422e73-ec2a-447c-b553-f69f254a4951"
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2021,
+          "completion_tokens": 53,
+          "total_tokens": 2074,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 1979.252736
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "create-note",
+      "repeat": 0,
+      "milliseconds": 2433.1,
+      "raw": {
+        "id": "chatcmpl-18d9e80d-3638-4dbd-a4d0-d086d4077814",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792943917,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "tool_calls",
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "reasoning": "The user wants me to create a note with the exact text \"Bring the blue notebook\". I should use the create_note function for this, as it's explicitly asking to create a note with specific text. The create_note function requires a \"text\" parameter which is exactly what I need - the note content.",
+              "tool_calls": [
+                {
+                  "function": {
+                    "name": "create_note",
+                    "arguments": "{\"text\": \"Bring the blue notebook\"}"
+                  },
+                  "type": "function",
+                  "id": "5c77a079-a6e0-4238-80af-7fc0d010ae0c"
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2029,
+          "completion_tokens": 80,
+          "total_tokens": 2109,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 1979.334656
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "plan",
+      "repeat": 0,
+      "milliseconds": 2342.3,
+      "raw": {
+        "id": "chatcmpl-eb851947-b37f-48a1-858f-ba0259d9d6eb",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792943919,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "tool_calls",
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "reasoning": "The user is asking about their schedule for today. I should use the day_plan tool to get their daily schedule/plan for today (2026-10-25). This will show them what's on their calendar/plan for the day.",
+              "tool_calls": [
+                {
+                  "function": {
+                    "name": "day_plan",
+                    "arguments": "{\"date\": \"2026-10-25\"}"
+                  },
+                  "type": "function",
+                  "id": "d5cf68bb-ddcc-4ebe-a89a-9060d8a3ce6e"
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2024,
+          "completion_tokens": 68,
+          "total_tokens": 2092,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 1979.367424
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "unsupported",
+      "repeat": 0,
+      "milliseconds": 4714.5,
+      "raw": {
+        "id": "chatcmpl-d6053b67-8096-41a3-b51c-868b8cd053c8",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792943921,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "tool_calls",
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "reasoning": "The user wants to delete every meal in their history. I need to first check what meals are actually in their history before I can delete them. The nutrition_view tool can show logged meals, but it doesn't have a direct \"delete\" function. Let me first check what meals exist using nutrition_view, then I'll need to see if there's a way to delete them.\n\nActually, looking at the available tools:\n- nutrition_view: Shows nutrition charts or logged meals\n- prepare_meal_copy: Copies an existing meal (doesn't delete)\n- prepare_meal: Creates a new meal\n- day_plan, list_notes, read_note, create_note: Other functions\n\nThere doesn't appear to be a direct \"delete meal\" function in the available tools. The closest would be modifying or removing entries, but I don't see a delete_meal function.\n\nLet me first check what meals exist using nutrition_view to understand the scope of what needs to be deleted. Then I can inform the user about their options.\n\nActually, looking more carefully at the tools:\n- nutrition_view has a \"foodName\" parameter that can filter by food name\n- It returns meal IDs that could potentially be used for deletion if a delete function existed\n\nBut I don't see any tool for deleting meals. The prepare_meal_copy and prepare_meal are for creating/previewing, not deleting.\n\nI should check what meals exist first to give the user accurate information. Then I can explain the situation - if there's no delete function available, I may need to inform them that this isn't possible through the current interface.\n\nLet me start by viewing their nutrition history to see what meals are logged.",
+              "tool_calls": [
+                {
+                  "function": {
+                    "name": "nutrition_view",
+                    "arguments": "{}"
+                  },
+                  "type": "function",
+                  "id": "6a9ff5da-0c93-4c3f-94bd-2b2beb98dcef"
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2023,
+          "completion_tokens": 353,
+          "total_tokens": 2376,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        }
+      },
+      "passed": false,
+      "reason": "reply_contract",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 1979.482112
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "explanation",
+      "repeat": 0,
+      "milliseconds": 4797.5,
+      "raw": {
+        "id": "chatcmpl-64153811-8616-46b3-a408-d6979f0b325f",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792943926,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "**Protein** is an essential macronutrient (along with carbohydrates and fats) that your body needs to build and repair tissues, produce enzymes, hormones, and other vital molecules. \n\nHere's a breakdown:\n\n- **What it is**: Proteins are large biomolecules made of amino acids\u2014organic compounds that link together in long chains. There are 20 different \"standard\" amino acids, and your body can create most of them itself (non-essential), while the remaining 11 are called essential because you must obtain them from your diet.\n\n- **Functions**: Proteins serve as the building blocks for muscles, enzymes, antibodies, DNA/RNA (via nucleic acids), and many other cellular structures. They're crucial for growth, repair, immune function, and regulating metabolic processes.\n\n- **Sources**: High-protein foods include lean meats, poultry, fish, eggs, dairy, legumes, nuts, seeds, and tofu. Protein is often measured in grams per serving.\n\n- **Nutritional role**: The body breaks down proteins into amino acids, which are then used for energy (especially during intense exercise) or stored as muscle/other tissues. The \"protein\" in protein bars, shakes, and supplements refers to this amino acid building block.\n\nIn short: **protein is the fundamental nutrient your body uses to construct and maintain itself**, making it essential for health, recovery, and overall function.",
+              "reasoning": "The user is asking me to explain what protein is, using general knowledge (not their app data). This is a straightforward informational request that doesn't require any tool calls from the Banana app. I should provide a clear, accurate explanation of protein based on my general knowledge.\n\nLet me answer this directly without using any tools since it's a general knowledge question."
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2031,
+          "completion_tokens": 362,
+          "total_tokens": 2393,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 1979.449344
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "ambiguous",
+      "repeat": 0,
+      "milliseconds": 3571.8,
+      "raw": {
+        "id": "chatcmpl-aa540412-c119-4a6c-af8e-400fa3ecab53",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792943931,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "tool_calls",
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "reasoning": "The user is saying \"Do that other thing\" - this is a bit ambiguous. They might be referring to something previously discussed or mentioned. Let me check the context - there's no prior conversation history visible, but I should look at what's available in the system.\n\nLooking at the tools and context:\n- The user is \"Banana\" - a personal assistant\n- There are various tools available for nutrition, notes, calendar events, etc.\n- The current date is 2026-10-25\n\nSince the user says \"that other thing\" without specific context, I should first check what notes or recent activities might be relevant. Let me list the notes to see if there's something that was mentioned or created recently.\n\nActually, I should be careful - the instructions say to use tools when needed. Since this is a vague request, I should first try to understand what \"that other thing\" refers to by checking the notes or recent activity.\n\nLet me start by listing the notes to see if there's anything relevant.",
+              "tool_calls": [
+                {
+                  "function": {
+                    "name": "read_note",
+                    "arguments": "{\"id\": \"\"}"
+                  },
+                  "type": "function",
+                  "id": "2e61e3a9-cacf-4d94-af64-581f2895a649"
+                },
+                {
+                  "function": {
+                    "name": "list_notes",
+                    "arguments": "{}"
+                  },
+                  "type": "function",
+                  "id": "6123c8c2-0617-4f0b-b63b-433b527e3d0a"
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2021,
+          "completion_tokens": 222,
+          "total_tokens": 2243,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        }
+      },
+      "passed": false,
+      "reason": "reply_contract",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 1979.400192
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "not-a-write",
+      "repeat": 0,
+      "milliseconds": 3179.1,
+      "raw": {
+        "id": "chatcmpl-9099a248-2797-42ce-803b-d886130d32b9",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792943935,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "Understood! I've noted that you usually have eggs for breakfast, but as requested, I won't log or save anything. If you'd like to create a note about this preference for future reference, just let me know!",
+              "reasoning": "The user is informing me about their usual breakfast habit (eggs) and explicitly stating \"Do not log or save anything.\" This is a statement about their personal information, not a request to create a note or log something. I should acknowledge this information but not save anything as instructed.\n\nSince they're just sharing information and not asking me to do anything specific (like create a note, log something, etc.), I should simply acknowledge their statement. There's no need to call any tools for this - it's just a conversational response about their preferences.\n\nI'll respond directly without using any tools."
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2035,
+          "completion_tokens": 169,
+          "total_tokens": 2204,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 1979.400192
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "identity",
+      "repeat": 1,
+      "milliseconds": 2344.5,
+      "raw": {
+        "id": "chatcmpl-13290e2a-e485-4054-9bd9-1991274ada1e",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792943938,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "I'm Banana, your personal assistant. How can I help you today?",
+              "reasoning": "The user is asking for my name. According to the system prompt, I am \"Banana, a helpful personal assistant running on this device.\" So my name is Banana. I should respond directly without using tools for this type of question."
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2022,
+          "completion_tokens": 68,
+          "total_tokens": 2090,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 1979.400192
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "greeting",
+      "repeat": 1,
+      "milliseconds": 2188.6,
+      "raw": {
+        "id": "chatcmpl-8b88eba2-9b57-40e6-940a-283d999c6cd1",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792943940,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "Hello! How can I help you today?",
+              "reasoning": "The user just said \"Hello\". This is a greeting. I should respond directly without using tools for this kind of general conversation. I'll greet them back and ask how I can help."
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2018,
+          "completion_tokens": 50,
+          "total_tokens": 2068,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 1979.383808
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "monthly",
+      "repeat": 1,
+      "milliseconds": 2609.2,
+      "raw": {
+        "id": "chatcmpl-0bcb22b8-f265-4276-bb78-e62fed0f51da",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792943942,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "tool_calls",
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "reasoning": "The user wants to see their protein intake for this month. I should use the nutrition_view tool with the appropriate parameters to filter by period and metric. Let me check what parameters are available:\n- period: \"this_month\" (for this month's data)\n- metric: \"protein\" (to filter by protein)\n\nI should call nutrition_view with these parameters to get the protein data for this month.",
+              "tool_calls": [
+                {
+                  "function": {
+                    "name": "nutrition_view",
+                    "arguments": "{\"period\": \"this_month\", \"metric\": \"protein\"}"
+                  },
+                  "type": "function",
+                  "id": "4860acca-95b6-472b-89d5-5e2570198e21"
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2022,
+          "completion_tokens": 101,
+          "total_tokens": 2123,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 1979.416576
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "calories",
+      "repeat": 1,
+      "milliseconds": 2284.0,
+      "raw": {
+        "id": "chatcmpl-c05baed5-18e4-4cc2-8520-8bda86859061",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792943945,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "tool_calls",
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "reasoning": "The user wants to see their calorie intake over the last seven days. I should use the nutrition_view tool with the \"last_7_days\" period filter to get this information. Let me call that tool to retrieve the data.",
+              "tool_calls": [
+                {
+                  "function": {
+                    "name": "nutrition_view",
+                    "arguments": "{\"period\": \"last_7_days\"}"
+                  },
+                  "type": "function",
+                  "id": "de76770b-b9e3-4983-bf93-6350cdb7f70e"
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2024,
+          "completion_tokens": 62,
+          "total_tokens": 2086,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        }
+      },
+      "passed": false,
+      "reason": "wrong_metric",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 1979.400192
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "food-search",
+      "repeat": 1,
+      "milliseconds": 2397.1,
+      "raw": {
+        "id": "chatcmpl-1173ba1e-c827-4b67-b267-5ea61769db34",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792943947,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "tool_calls",
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "reasoning": "The user wants to find their logged meals containing yogurt. I should use the nutrition_view tool with foodName set to \"yogurt\" to find logged meals containing yogurt. This will show me the relevant meals from their nutrition log.",
+              "tool_calls": [
+                {
+                  "function": {
+                    "name": "nutrition_view",
+                    "arguments": "{\"foodName\": \"yogurt\"}"
+                  },
+                  "type": "function",
+                  "id": "28bc9968-13b2-47e7-b70c-c7934c75802d"
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2134,
+          "completion_tokens": 63,
+          "total_tokens": 2197,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 1979.35104
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "weekdays",
+      "repeat": 1,
+      "milliseconds": 2417.2,
+      "raw": {
+        "id": "chatcmpl-8dcad190-6e56-4954-8a11-28cabe6cdcfc",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792943950,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "tool_calls",
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "reasoning": "The user wants to filter their nutrition data to only include weekdays. I can use the `filter_nutrition` tool with the \"weekdays_only\" change to update the filter. Let me do that first.",
+              "tool_calls": [
+                {
+                  "function": {
+                    "name": "filter_nutrition",
+                    "arguments": "{\"changes\": [\"weekdays_only\"], \"revision\": 2}"
+                  },
+                  "type": "function",
+                  "id": "6f5584ad-4a80-42a1-93d7-902db63a172c"
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2131,
+          "completion_tokens": 66,
+          "total_tokens": 2197,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 1979.35104
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "compare",
+      "repeat": 1,
+      "milliseconds": 3220.0,
+      "raw": {
+        "id": "chatcmpl-676bf58f-859a-413b-b0ac-832613570973",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792943952,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "tool_calls",
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "reasoning": "The user wants to compare their current nutrition data with the previous period. Looking at the nutrition_view tool result, I can see:\n- Current revision: 2\n- The period shows \"selectedDay\": \"2026-10-23\"\n- The summary shows loggedDays: 1, loggedTotal: 20, and the selectedDay is 2026-10-23\n\nThe user wants to compare with the previous period. I should use the filter_nutrition tool with \"compare_previous\" changes to get this comparison. This will show how the nutrition metrics have changed from the previous period.\n\nLet me call filter_nutrition with changes set to [\"compare_previous\"] to get the comparison.",
+              "tool_calls": [
+                {
+                  "function": {
+                    "name": "filter_nutrition",
+                    "arguments": "{\"changes\": [\"compare_previous\"]}"
+                  },
+                  "type": "function",
+                  "id": "400f2c93-bd0a-4052-a5aa-07c5c1ccbb96"
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2133,
+          "completion_tokens": 161,
+          "total_tokens": 2294,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 1979.367424
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "copy",
+      "repeat": 1,
+      "milliseconds": 6540.6,
+      "raw": {
+        "id": "chatcmpl-45128f32-c1bd-4620-8aed-24a57f115a2b",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792943955,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "tool_calls",
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "reasoning": "The user wants me to prepare a copy of the \"selected Greek yogurt breakfast\" for tomorrow, without saving. This means I should use the `prepare_meal_copy` tool with:\n- mealID: The ID of the Greek yogurt breakfast meal\n- day: \"tomorrow\" (which would be 2026-10-26 based on today being 2026-10-25)\n- The user says \"without saving\" which aligns with `prepare_meal_copy` - this creates a draft copy for review but doesn't save it permanently.\n\nFirst, I need to find the meal ID for \"Greek yogurt breakfast\". Let me search for it using the nutrition_view or search_app tools, or I can try to find it in the meal logs.\n\nActually, looking at the nutrition_view result, I see there's a sample Greek yogurt breakfast with ID \"BA5A4E11-0000-4000-8000-000202610231\" for date 2026-10-23. But this is from a sample and might not be the \"selected\" one.\n\nLet me search for the Greek yogurt breakfast meal to get its current ID. I should use `prepare_meal_copy` which requires a mealID and day parameter.\n\nBut first, I need to find the correct meal ID. Let me use `search_app` or check the nutrition view more carefully.\n\nActually, looking at the nutrition_view output, it shows:\n- meal ID: \"BA5A4E11-0000-4000-8000-000202610231\" for date 2026-10-23 with name \"Sample Greek yogurt breakfast\"\n\nThis seems to be the Greek yogurt breakfast meal. The user wants a copy for tomorrow (2026-10-26).\n\nI should use `prepare_meal_copy` with:\n- mealID: \"BA5A4E11-0000-4000-8000-000202610231\"\n- day: \"tomorrow\" (which is 2026-10-26)\n\nWait, but the `day` parameter in prepare_meal_copy is described as \"Use today when the person asks to repeat a meal without specifying a date. Use tomorrow or date only when requested.\" So \"tomorrow\" should work.\n\nHowever, I need to be careful - the user said \"without saving\". The `prepare_meal_copy` tool description says it \"opens a draft and does not save or change chart filters\" - so this is exactly what they want.\n\nLet me proceed with preparing the copy.",
+              "tool_calls": [
+                {
+                  "function": {
+                    "name": "prepare_meal_copy",
+                    "arguments": "{\"day\": \"tomorrow\", \"mealID\": \"BA5A4E11-0000-4000-8000-000202610231\"}"
+                  },
+                  "type": "function",
+                  "id": "2fec932f-f6b4-44ec-80a4-e15afdbec0c8"
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2144,
+          "completion_tokens": 561,
+          "total_tokens": 2705,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 1979.367424
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "new-meal",
+      "repeat": 1,
+      "milliseconds": 5433.1,
+      "raw": {
+        "id": "chatcmpl-62533da1-b6ab-48ec-9220-c6afc671323e",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792943962,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "tool_calls",
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "reasoning": "The user wants to log a new meal for today with 2 eggs and 1 banana, and prepare a review (but do not save). This means I should use the `prepare_meal_copy` function which creates a draft/preview without saving. Let me check the parameters:\n\n- `mealID` (required) - but this is for copying an existing meal\n- `day` (required) - must be \"today\", \"tomorrow\", or a specific date\n- `foods` (required) - array of food objects with name and quantity\n\nSince this is a new meal being logged for today, I need to use `prepare_meal_copy` with:\n- day: \"today\" (or could be omitted but it's required)\n- foods: array with 2 eggs and 1 banana\n\nWait, looking at the function description more carefully:\n- `prepare_meal_copy` is for copying an existing logged meal (requires mealID)\n- `prepare_meal` is for preparing a NEW meal (does not save)\n\nThe user says \"Log a new meal\" and \"Prepare review, do not save.\" This suggests they want to create a draft/preview first. The `prepare_meal` function seems more appropriate for creating a new meal that hasn't been saved yet.\n\nLet me use `prepare_meal` with:\n- foods: [{\"name\": \"egg\", \"quantity\": \"2\"}, {\"name\": \"banana\", \"quantity\": \"1\"}]\n- day: \"today\" (since it's for today)\n\nActually, looking at the required parameters for `prepare_meal`:\n- foods (required) - array of food objects with name and quantity\n- day (required) - today, tomorrow, or explicit date\n\nSo I need both. Let me call `prepare_meal` with today's date and the two foods.",
+              "tool_calls": [
+                {
+                  "function": {
+                    "name": "prepare_meal",
+                    "arguments": "{\"day\": \"today\", \"foods\": [{\"name\": \"egg\", \"quantity\": \"2\"}, {\"name\": \"banana\", \"quantity\": \"1\"}], \"title\": \"Breakfast Meal\"}"
+                  },
+                  "type": "function",
+                  "id": "d9b0a288-a282-47f1-ba6b-5878722c3648"
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2039,
+          "completion_tokens": 430,
+          "total_tokens": 2469,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 1979.465728
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "new-event",
+      "repeat": 1,
+      "milliseconds": 3760.8,
+      "raw": {
+        "id": "chatcmpl-327eb77c-c345-48e0-b7ac-d5982907b5eb",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792943967,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "tool_calls",
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "reasoning": "The user wants me to create a calendar event called \"Lunch\" for tomorrow at 13:00 (1:00 PM) for 30 minutes. They also mention \"Prepare review, do not save\" - this seems to be asking me to use the prepare_event tool which creates a draft/event that doesn't get saved automatically (it's just for review). Let me use the prepare_event tool with:\n- title: \"Lunch\"\n- day: \"tomorrow\" (which would be 2026-10-26 based on the current date of 2026-10-25)\n- duration_minutes: 30\n- time: \"13:00\"\n- isAllDay: false (default)\n- location: not specified, can omit\n- notes: not specified\n\nWait, the user says \"Prepare review, do not save\" - this is exactly what prepare_event does. It creates a draft event for review without saving it permanently.\n\nLet me call prepare_event with these parameters.",
+              "tool_calls": [
+                {
+                  "function": {
+                    "name": "prepare_event",
+                    "arguments": "{\"title\": \"Lunch\", \"day\": \"tomorrow\", \"durationMinutes\": 30, \"time\": \"13:00\"}"
+                  },
+                  "type": "function",
+                  "id": "4d8a8ae2-3b5c-401c-b087-bbd9dcce583d"
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2041,
+          "completion_tokens": 236,
+          "total_tokens": 2277,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 1979.400192
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "explicit-event",
+      "repeat": 1,
+      "milliseconds": 3730.1,
+      "raw": {
+        "id": "chatcmpl-25a49181-d649-44bf-ad27-f47008b5bcc8",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792943971,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "tool_calls",
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "reasoning": "The user wants to create a calendar event for a dentist appointment on 2026-11-03 at 09:15 for 45 minutes. I need to use the prepare_event tool to create this event. Let me check the parameters:\n\n- title: \"Dentist\" (or similar)\n- day: \"2026-11-03\"\n- time: \"09:15\"\n- duration_minutes: 45\n- isAllDay: false (not specified, so it's a regular event)\n- location: not specified\n- notes: can include the time and duration info\n\nThe prepare_event tool requires \"title\" as a required parameter. I'll set:\n- title: \"Dentist Appointment\"\n- day: \"2026-11-03\"\n- time: \"09:15\"\n- duration_minutes: 45\n\nThis should create the event. Let me call the tool.",
+              "tool_calls": [
+                {
+                  "function": {
+                    "name": "prepare_event",
+                    "arguments": "{\"title\": \"Dentist Appointment\", \"day\": \"2026-11-03\", \"time\": \"09:15\", \"durationMinutes\": 45}"
+                  },
+                  "type": "function",
+                  "id": "54e3ddc0-b524-4a6a-8f38-8bd68d6330d0"
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2041,
+          "completion_tokens": 223,
+          "total_tokens": 2264,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 1979.43296
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "missing-time",
+      "repeat": 1,
+      "milliseconds": 7741.0,
+      "raw": {
+        "id": "chatcmpl-8a89a518-c04a-41ee-b0dd-0c3a52677675",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792943975,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "tool_calls",
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "reasoning": "The user wants to create a calendar event called \"Dinner\" but hasn't decided on the time yet. I should use the prepare_event tool to create this event. Since they haven't specified a time, I'll need to ask for clarification or use a default approach. Looking at the prepare_event tool parameters, it requires a title (which is \"Dinner\") and has optional fields for day, duration_minutes, isAllDay, location, notes, time, and title.\n\nThe user said they haven't decided the time, so I should either:\n1. Ask for the time first\n2. Create a draft event without a specific time\n\nHowever, looking at the tool description more carefully: \"prepare_event\" creates a draft event that is never saved. The required parameter is only \"title\". Other parameters like time are optional.\n\nSince the user hasn't decided on the time, I should probably create a draft event with just the title for now, or ask them to specify. But actually, looking at the tool description again - it says \"never save\" for draft tools. So I can create a draft without a time.\n\nBut wait - the user might expect me to actually schedule it. Let me create a draft event with just the title \"Dinner\" and see what happens. I'll need to provide at least a day (today or tomorrow) since that's required for the event creation.\n\nActually, looking more carefully at prepare_event:\n- \"title\" is required\n- \"day\" is not marked as required in the schema (only \"title\" is listed as required)\n- But for a calendar event to make sense, we need a date/time\n\nLet me try creating the event with just the title and see what happens. I'll use today's date (2026-10-25) as the day since that's the current device date.\n\nActually, I should ask the user for more details first - what day and time would they prefer? But the instruction says to be helpful and create notes/events when needed. Since this is a simple request, I'll create the draft event with the title \"Dinner\" and use today's date.\n\nWait - I need to check if there are any constraints. The tool says \"prepare_event\" is for native review and never saves. So I can create a draft.\n\nLet me create the event with:\n- title: \"Dinner\"\n- day: \"today\" (2026-10-25)\n- time: not specified (will be empty or default)\n\nActually, looking at the parameters more carefully:\n- day: \"today\", \"tomorrow\", \"yesterday\", or explicit YYYY-MM-DD\n- time: required unless all-day\n\nI should probably ask the user for their preferred day and time before creating the event, or create a draft with just the title. Since they said \"I have not decided the time\", I'll create a draft with just the title and today's date.\n\nBut actually, I think it's better to ask first - let me create a simple draft event with the title and today's date, then we can adjust if needed. The prepare_event tool creates a draft that doesn't save, so it's safe to try.\n\nActually, I'll just create the event with title \"Dinner\" and day \"today\". The time can be left unspecified or set to a default. Let me do that.",
+              "tool_calls": [
+                {
+                  "function": {
+                    "name": "prepare_event",
+                    "arguments": "{\"title\": \"Dinner\", \"day\": \"today\"}"
+                  },
+                  "type": "function",
+                  "id": "37327f01-30a0-4d47-8bb9-9a498a51a433"
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2031,
+          "completion_tokens": 709,
+          "total_tokens": 2740,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        }
+      },
+      "passed": false,
+      "reason": "reply_contract",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 1979.498496
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "missing-food",
+      "repeat": 1,
+      "milliseconds": 2685.7,
+      "raw": {
+        "id": "chatcmpl-2661f076-af58-4001-893a-3d1cf46ac91e",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792943982,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "I'd be happy to help you log a meal! Could you tell me what you ate? Please share the food items and quantities, and I'll create a meal log for you.",
+              "reasoning": "The user wants to log a meal but hasn't specified what they ate yet. I should ask them for the food details before creating a meal log. I can use the prepare_meal tool to create a new meal, but I need at least some food information from them first.\n\nLet me ask the user what they ate so I can properly log the meal."
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2030,
+          "completion_tokens": 111,
+          "total_tokens": 2141,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 1979.547648
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "global-search",
+      "repeat": 1,
+      "milliseconds": 2360.2,
+      "raw": {
+        "id": "chatcmpl-f54fbb33-5939-48f7-a5f7-4f44c199db33",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792943985,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "tool_calls",
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "reasoning": "The user wants me to search across Banana for \"clinic\". I should use the search_app function with the query \"clinic\" to find relevant items in the app. This is a cross-category search, so I should use search_app rather than nutrition_view or other specific tools.",
+              "tool_calls": [
+                {
+                  "function": {
+                    "name": "search_app",
+                    "arguments": "{\"query\": \"clinic\"}"
+                  },
+                  "type": "function",
+                  "id": "30d5726c-b33d-4800-838e-d7a3e3f12795"
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2023,
+          "completion_tokens": 71,
+          "total_tokens": 2094,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 1979.531264
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "open-page",
+      "repeat": 1,
+      "milliseconds": 2163.2,
+      "raw": {
+        "id": "chatcmpl-cbbce9fc-bd64-410d-8b1d-ad588f882c97",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792943988,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "tool_calls",
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "reasoning": "The user wants to open the Notes page. I should use the open_page function with section \"notes\" to navigate to the notes page in the Banana app.",
+              "tool_calls": [
+                {
+                  "function": {
+                    "name": "open_page",
+                    "arguments": "{\"section\": \"notes\"}"
+                  },
+                  "type": "function",
+                  "id": "a26939dd-952d-4759-961a-d4b1a8193fc7"
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2021,
+          "completion_tokens": 46,
+          "total_tokens": 2067,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 1979.531264
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "notes",
+      "repeat": 1,
+      "milliseconds": 2213.6,
+      "raw": {
+        "id": "chatcmpl-2697a98d-e74c-443e-b886-3bb72bf0905a",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792943990,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "tool_calls",
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "reasoning": "The user wants to see their recent notes. I should use the list_notes tool to retrieve this information. This is a straightforward request for their notes, and I should provide the list of recent notes without creating any new ones.",
+              "tool_calls": [
+                {
+                  "function": {
+                    "name": "list_notes",
+                    "arguments": "{}"
+                  },
+                  "type": "function",
+                  "id": "7e8c6115-c4e5-4ee9-8784-e5fec2f27852"
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2021,
+          "completion_tokens": 53,
+          "total_tokens": 2074,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 1979.547648
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "create-note",
+      "repeat": 1,
+      "milliseconds": 2447.2,
+      "raw": {
+        "id": "chatcmpl-11635c91-0246-428d-b268-4f3e2c121231",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792943992,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "tool_calls",
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "reasoning": "The user wants me to create a note with the exact text \"Bring the blue notebook\". I should use the create_note function for this, as it's explicitly asking to create a note with specific text. The create_note function requires a \"text\" parameter which is exactly what I need - the note content.",
+              "tool_calls": [
+                {
+                  "function": {
+                    "name": "create_note",
+                    "arguments": "{\"text\": \"Bring the blue notebook\"}"
+                  },
+                  "type": "function",
+                  "id": "60f65295-0a8e-40c1-828c-eebd5eb5cd8f"
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2029,
+          "completion_tokens": 80,
+          "total_tokens": 2109,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 1979.547648
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "plan",
+      "repeat": 1,
+      "milliseconds": 2339.1,
+      "raw": {
+        "id": "chatcmpl-03ff94a9-8b52-41e7-b266-d62ca7d0a81b",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792943994,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "tool_calls",
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "reasoning": "The user is asking about their schedule for today. I should use the day_plan tool to get their daily schedule/plan for today (2026-10-25). This will show them what's on their calendar/plan for the day.",
+              "tool_calls": [
+                {
+                  "function": {
+                    "name": "day_plan",
+                    "arguments": "{\"date\": \"2026-10-25\"}"
+                  },
+                  "type": "function",
+                  "id": "36c1e53f-288d-4bb2-aac1-bd23ca673fb6"
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2024,
+          "completion_tokens": 68,
+          "total_tokens": 2092,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 1979.531264
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "unsupported",
+      "repeat": 1,
+      "milliseconds": 4710.0,
+      "raw": {
+        "id": "chatcmpl-af90b063-f2c2-44cb-8491-5f86b3d1b52d",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792943997,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "tool_calls",
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "reasoning": "The user wants to delete every meal in their history. I need to first check what meals are actually in their history before I can delete them. The nutrition_view tool can show logged meals, but it doesn't have a direct \"delete\" function. Let me first check what meals exist using nutrition_view, then I'll need to see if there's a way to delete them.\n\nActually, looking at the available tools:\n- nutrition_view: Shows nutrition charts or logged meals\n- prepare_meal_copy: Copies an existing meal (doesn't delete)\n- prepare_meal: Creates a new meal\n- day_plan, list_notes, read_note, create_note: Other functions\n\nThere doesn't appear to be a direct \"delete meal\" function in the available tools. The closest would be modifying or removing entries, but I don't see a delete_meal function.\n\nLet me first check what meals exist using nutrition_view to understand the scope of what needs to be deleted. Then I can inform the user about their options.\n\nActually, looking more carefully at the tools:\n- nutrition_view has a \"foodName\" parameter that can filter by food name\n- It returns meal IDs that could potentially be used for deletion if a delete function existed\n\nBut I don't see any tool for deleting meals. The prepare_meal_copy and prepare_meal are for creating/previewing, not deleting.\n\nI should check what meals exist first to give the user accurate information. Then I can explain the situation - if there's no delete function available, I may need to inform them that this isn't possible through the current interface.\n\nLet me start by viewing their nutrition history to see what meals are logged.",
+              "tool_calls": [
+                {
+                  "function": {
+                    "name": "nutrition_view",
+                    "arguments": "{}"
+                  },
+                  "type": "function",
+                  "id": "0cc7b3dc-2a65-44d9-8ea1-538d382f00d7"
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2023,
+          "completion_tokens": 353,
+          "total_tokens": 2376,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        }
+      },
+      "passed": false,
+      "reason": "reply_contract",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 1979.613184
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "explanation",
+      "repeat": 1,
+      "milliseconds": 4795.3,
+      "raw": {
+        "id": "chatcmpl-b1d24a27-acd2-41de-ba36-6151ea97b1fd",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792944001,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "**Protein** is an essential macronutrient (along with carbohydrates and fats) that your body needs to build and repair tissues, produce enzymes, hormones, and other vital molecules. \n\nHere's a breakdown:\n\n- **What it is**: Proteins are large biomolecules made of amino acids\u2014organic compounds that link together in long chains. There are 20 different \"standard\" amino acids, and your body can create most of them itself (non-essential), while the remaining 11 are called essential because you must obtain them from your diet.\n\n- **Functions**: Proteins serve as the building blocks for muscles, enzymes, antibodies, DNA/RNA (via nucleic acids), and many other cellular structures. They're crucial for growth, repair, immune function, and regulating metabolic processes.\n\n- **Sources**: High-protein foods include lean meats, poultry, fish, eggs, dairy, legumes, nuts, seeds, and tofu. Protein is often measured in grams per serving.\n\n- **Nutritional role**: The body breaks down proteins into amino acids, which are then used for energy (especially during intense exercise) or stored as muscle/other tissues. The \"protein\" in protein bars, shakes, and supplements refers to this amino acid building block.\n\nIn short: **protein is the fundamental nutrient your body uses to construct and maintain itself**, making it essential for health, recovery, and overall function.",
+              "reasoning": "The user is asking me to explain what protein is, using general knowledge (not their app data). This is a straightforward informational request that doesn't require any tool calls from the Banana app. I should provide a clear, accurate explanation of protein based on my general knowledge.\n\nLet me answer this directly without using any tools since it's a general knowledge question."
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2031,
+          "completion_tokens": 362,
+          "total_tokens": 2393,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 1979.580416
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "ambiguous",
+      "repeat": 1,
+      "milliseconds": 3632.4,
+      "raw": {
+        "id": "chatcmpl-9cb5fe94-bca1-49d7-824a-cdd4565458f2",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792944006,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "tool_calls",
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "reasoning": "The user is saying \"Do that other thing\" - this is a bit ambiguous. They might be referring to something previously discussed or mentioned. Let me check the context - there's no prior conversation history visible, but I should look at what's available in the system.\n\nLooking at the tools and context:\n- The user is \"Banana\" - a personal assistant\n- There are various tools available for nutrition, notes, calendar events, etc.\n- The current date is 2026-10-25\n\nSince the user says \"that other thing\" without specific context, I should first check what notes or recent activities might be relevant. Let me list the notes to see if there's something that was mentioned or created recently.\n\nActually, I should be careful - the instructions say to use tools when needed. Since this is a vague request, I should first try to understand what \"that other thing\" refers to by checking the notes or recent activity.\n\nLet me start by listing the notes to see if there's anything relevant.",
+              "tool_calls": [
+                {
+                  "function": {
+                    "name": "read_note",
+                    "arguments": "{\"id\": \"\"}"
+                  },
+                  "type": "function",
+                  "id": "fe7f135e-4663-4347-afe0-94039fa12ab4"
+                },
+                {
+                  "function": {
+                    "name": "list_notes",
+                    "arguments": "{}"
+                  },
+                  "type": "function",
+                  "id": "ed6f508c-c0b7-4c76-b8fc-dcde75ab69df"
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2021,
+          "completion_tokens": 222,
+          "total_tokens": 2243,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        }
+      },
+      "passed": false,
+      "reason": "reply_contract",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 1979.531264
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    },
+    {
+      "case": "not-a-write",
+      "repeat": 1,
+      "milliseconds": 3174.3,
+      "raw": {
+        "id": "chatcmpl-f4881fe4-d110-4879-b0a9-a9f76871bfb3",
+        "system_fingerprint": "0.32.2-0.32.4-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g13s",
+        "object": "chat.completion",
+        "model": "default_model",
+        "created": 1792944010,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "Understood! I've noted that you usually have eggs for breakfast, but as requested, I won't log or save anything. If you'd like to create a note about this preference for future reference, just let me know!",
+              "reasoning": "The user is informing me about their usual breakfast habit (eggs) and explicitly stating \"Do not log or save anything.\" This is a statement about their personal information, not a request to create a note or log something. I should acknowledge this information but not save anything as instructed.\n\nSince they're just sharing information and not asking me to do anything specific (like create a note, log something, etc.), I should simply acknowledge their statement. There's no need to call any tools for this - it's just a conversational response about their preferences.\n\nI'll respond directly without using any tools."
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2035,
+          "completion_tokens": 169,
+          "total_tokens": 2204,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "memory": {
+          "rss_mb": 1979.531264
+        },
+        "note": "Observed process RSS; standalone server exposes no Locals /stats GPU counters"
+      }
+    }
+  ],
+  "versions": {
+    "mlx": "0.32.4",
+    "mlx-lm": "0.32.2",
+    "locals": "0.2.1"
+  },
+  "engineSourceCommit": "4f4d03f10232c9f2adeb1e96e2a7bd79a9e7fe19",
+  "engineSourceDirty": "",
+  "command": [
+    "../pi-inference-upstream/locals-env/bin/python",
+    "-m",
+    "mlx_lm.server",
+    "--model",
+    "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/lfm2600",
+    "--host",
+    "127.0.0.1",
+    "--port",
+    "41790",
+    "--temp",
+    "0.1",
+    "--top-p",
+    "1.0",
+    "--top-k",
+    "50",
+    "--max-tokens",
+    "2048",
+    "--decode-concurrency",
+    "1",
+    "--prompt-concurrency",
+    "1",
+    "--prompt-cache-size",
+    "1",
+    "--prompt-cache-bytes",
+    "2GB"
+  ],
+  "serverReadySeconds": 0.89,
+  "loadSeconds": null,
+  "readinessNote": "HTTP readiness is not a separate completed-model-load measurement; loading may overlap readiness/first response",
+  "serverModel": "default_model",
+  "hostAfter": {
+    "utc": "2026-10-25T16:00:13.588630+00:00",
+    "chip": "Apple M1 Max",
+    "ramBytes": "68719476736",
+    "os": "27.0.1",
+    "swap": "vm.swapusage: total = 23552.00M  used = 22032.75M  free = 1519.25M  (encrypted)",
+    "paging": {
+      "Pageouts": 371913,
+      "Swapins": 5051833,
+      "Swapouts": 9298822
+    }
+  },
+  "ownedWorkerReleased": true,
+  "pagingDelta": {
+    "Pageouts": 1,
+    "Swapins": 83,
+    "Swapouts": 0
+  },
+  "cleanPerformanceRun": false,
+  "summary": {
+    "passes": 36,
+    "total": 44,
+    "warmMedianMilliseconds": 2647.45,
+    "firstRequestMilliseconds": 3288.1,
+    "gpuPeakMB": null,
+    "rssMaxObservedMB": 1979.613184
+  },
+  "postRunFrontendQualification": "This run uses the installed mlx_lm.server 0.32.2 frontend. The recorded Locals git reference is an unused environment reference, not this frontend source. No GPU allocation counter is available from this API."
+}

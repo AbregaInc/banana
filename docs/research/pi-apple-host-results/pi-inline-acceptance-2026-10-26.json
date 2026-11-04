@@ -1,0 +1,122 @@
+{
+  "date": "2026-10-26",
+  "scope": "New meal/event inline editing and scoped regressions in isolated Pi; not all app features or physical-device acceptance.",
+  "iPadSimulator": "22DDB577-4616-4E99-AF0F-6AC31A3753B7",
+  "testProvider": "Faux fixture provider; UI correctness, not model quality",
+  "uiRuns": [
+    {
+      "label": "initial",
+      "xcresult": "Test-BananaPi-2026.10.26_12-01-00--0400.xcresult",
+      "passed": 2,
+      "failed": 3,
+      "skipped": 0,
+      "failures": [
+        "FAILED BananaAgentUITests AssistantUITest/testNewEventDraftIsInlineAndRestores() | XCTAssertTrue failed - Attributes: Application, 0x107d21f40, pid: 69619, label: 'Banana Pi' Element subtree: \u2192Application, 0x107d21f40, pid: 69619, label: 'Banana Pi' Window (Main), 0x107d22080, {{0.0, 0.0}, {1032.0, 1376.0}} Other, 0x107d221c0, {{0.0, 0.0}, {1032.0, 1376.0}} Other, 0x107d22300, {{0",
+        "FAILED BananaAgentUITests AssistantUITest/testNewMealDraftIsInlineAndRestores() | XCTAssertTrue failed - Attributes: Application, 0x11437f700, pid: 71156, label: 'Banana Pi' Element subtree: \u2192Application, 0x11437f700, pid: 71156, label: 'Banana Pi' Window (Main), 0x11437f840, {{0.0, 0.0}, {1032.0, 1376.0}} Other, 0x1143a0000, {{0.0, 0.0}, {1032.0, 1376.0}} Other, 0x1143a0140, {{0",
+        "FAILED BananaAgentUITests AssistantUITest/testNewMealDraftSaveAppearsInExistingNutritionStore() | XCTAssertTrue failed - Attributes: Application, 0x1146f2a80, pid: 72006, label: 'Banana Pi' Element subtree: \u2192Application, 0x1146f2a80, pid: 72006, label: 'Banana Pi' Window (Main), 0x1146f2bc0, {{0.0, 0.0}, {1032.0, 1376.0}} Other, 0x1146f2d00, {{0.0, 0.0}, {1032.0, 1376.0}} Other, 0x1146f2e40, {{0"
+      ],
+      "bundlePresentAtExport": false,
+      "qualification": "Xcode pruned the older xcresult; retained runner summary and full console log supply these counts/failures."
+    },
+    {
+      "label": "identifiers",
+      "xcresult": "Test-BananaPi-2026.10.26_12-06-49--0400.xcresult",
+      "passed": 4,
+      "failed": 1,
+      "skipped": 0,
+      "failures": [
+        "FAILED BananaAgentUITests AssistantUITest/testNutritionMealCopyOpensExistingReviewEditor() | Test exceeded execution time allowance of 3 minutes"
+      ],
+      "bundlePresentAtExport": false,
+      "qualification": "Xcode pruned the older xcresult; retained runner summary and full console log supply these counts/failures."
+    },
+    {
+      "label": "canvas",
+      "xcresult": "Test-BananaPi-2026.10.26_12-13-41--0400.xcresult",
+      "passed": 5,
+      "failed": 0,
+      "skipped": 0,
+      "failures": [],
+      "bundlePresentAtExport": true
+    },
+    {
+      "label": "name",
+      "xcresult": "Test-BananaPi-2026.10.26_12-17-21--0400.xcresult",
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "failures": [],
+      "bundlePresentAtExport": true
+    }
+  ],
+  "nativeTests": {
+    "passed": 24,
+    "failed": 0
+  },
+  "screenshots": {
+    "ipad-inline-meal-2026-10-26.png": "f4a7c419f26c6d72b43dd3d7edbe77d986b07d15f14a7fa207631f37897cc73a",
+    "ipad-inline-event-2026-10-26.png": "b84b95734c5691c2fa194be7efa9fc87ecd9231b72804a80e39fb5d320da60b7"
+  },
+  "installedMac": {
+    "bundle": "com.boris.banana.mac.pi-development",
+    "architectures": {
+      "Banana Pi": "arm64",
+      "Banana Pi.debug.dylib": "arm64"
+    },
+    "binarySha256": {
+      "Banana Pi": "eacdd1eddac45eab355100d3963254abd163be97073352db7816459e42d365d0",
+      "Banana Pi.debug.dylib": "bd226ffde9f434590eeaf242adcbe379b3b928aa3129a8ae69fceda35dde8bea"
+    },
+    "signatureVerified": true
+  },
+  "macRealModelReport": "mac-inline-installed-workspace.json",
+  "macRealModelPassed": true,
+  "macVisualProbe": {
+    "passed": false,
+    "reason": "CUA cgWindowNotFound; no visible Mac UI acceptance claimed",
+    "normalLaunchSideEffect": "A CUA auto-launch without diagnostic flags invoked normal Pi startup. Only routines.json changed its byte fingerprint afterwards; existing RoutineStore startup persists decoded/default state. No semantic before-image was retained, so this is not certified as a formatting-only change. No user commands were sent; other checked data/config/preferences retained their fingerprints.",
+    "diagnosticNamespaceNormalStateUnchanged": true,
+    "normalStateBefore": {
+      "files": {
+        "PiAssistant/agent.sqlite": "a0c9a31e5a0ffb98d5fb06747680e13f5cfe125e6c5c29f19479c79b4047b41f",
+        "PiAssistant/agent.sqlite-wal": "e89e8de3915522f3cdde0fe9c06e17006768bfe7a166faaecf550c32f8a819b4",
+        "PiAssistant/agent.sqlite.wake.json": "78b558bd2357fbe7ad52804fb3af1b8664b23db096b1deb22d215dde25b152bf",
+        "PiAssistant/pending-input.json": null,
+        "wellness.json": "823c2f47a8fff07c758fd154871817adbe51d597eea7a5f6456bb2545d4592f5",
+        "VoiceNotes/notes.json": "b3dd7d1fc0699cd58b40883393ef5613fd7e8ac15743d52818910f79369c732b",
+        "routines.json": "ac13fed8f5530ce844e43df82ec76b669af7479c46b83998268062b8c00b8f7d",
+        "pending-calendar-writes.json": null,
+        "LocalInference/configuration.json": "9dd36ad74d1f9f47ae4accee3324223e33c44dacb18c619039f6850dc00f2aca"
+      },
+      "preferences": {
+        "assistant.selection": "5e98d506b453d3c566ccad932369ff492324f4459e5704e1d31f4de11d5d7895",
+        "assistant.draft": "cf836f6e73cddad7e064e1ca4b1e1c0218a4b2db7dd5ddb0e0a985125f697182",
+        "shellState": "b7248e30f6fbc2e98dc053876ac11da143536e29b8cbb881b335ed32c3e85c08"
+      }
+    },
+    "normalStateAfterAutoLaunch": {
+      "files": {
+        "PiAssistant/agent.sqlite": "a0c9a31e5a0ffb98d5fb06747680e13f5cfe125e6c5c29f19479c79b4047b41f",
+        "PiAssistant/agent.sqlite-wal": "e89e8de3915522f3cdde0fe9c06e17006768bfe7a166faaecf550c32f8a819b4",
+        "PiAssistant/agent.sqlite.wake.json": "78b558bd2357fbe7ad52804fb3af1b8664b23db096b1deb22d215dde25b152bf",
+        "PiAssistant/pending-input.json": null,
+        "wellness.json": "823c2f47a8fff07c758fd154871817adbe51d597eea7a5f6456bb2545d4592f5",
+        "VoiceNotes/notes.json": "b3dd7d1fc0699cd58b40883393ef5613fd7e8ac15743d52818910f79369c732b",
+        "routines.json": "d6b8c01d6632d113da4aff22fa7a7cba24962c192cf0b237b99be0e9ab4e907f",
+        "pending-calendar-writes.json": null,
+        "LocalInference/configuration.json": "9dd36ad74d1f9f47ae4accee3324223e33c44dacb18c619039f6850dc00f2aca"
+      },
+      "preferences": {
+        "assistant.selection": "5e98d506b453d3c566ccad932369ff492324f4459e5704e1d31f4de11d5d7895",
+        "assistant.draft": "cf836f6e73cddad7e064e1ca4b1e1c0218a4b2db7dd5ddb0e0a985125f697182",
+        "shellState": "b7248e30f6fbc2e98dc053876ac11da143536e29b8cbb881b335ed32c3e85c08"
+      }
+    }
+  },
+  "remainingScope": [
+    "No live Google Calendar write tested",
+    "No physical iPad/iPhone run for the new inline presentation",
+    "Manual unsaved field edits remain view-local; original Pi-prepared descriptors persist",
+    "Meal-copy review still uses its shared sheet; search still opens app destinations"
+  ]
+}

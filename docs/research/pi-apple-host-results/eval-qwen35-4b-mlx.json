@@ -1,0 +1,4054 @@
+{
+  "complete": true,
+  "scope": "22 synthetic development cases; inference/tool contracts only. No app tools execute; not held-out accuracy, real-app latency or production p95.",
+  "engine": "mlx",
+  "checkpoint": {
+    "repo": "mlx-community/Qwen3.5-4B-4bit",
+    "revision": "0e7ffd5c629ef7719d4cbc04069232580bfa9d9c",
+    "files": {
+      "chat_template.jinja": {
+        "bytes": 7756,
+        "sha256": "a4aee8afcf2e0711942cf848899be66016f8d14a889ff9ede07bca099c28f715"
+      },
+      "config.json": {
+        "bytes": 3366,
+        "sha256": "f3efc81b2ea8d96a45301037d3ccccbcccdef44a961845c87f286aaddbc6eaaa"
+      },
+      "model.safetensors": {
+        "bytes": 3034300695,
+        "sha256": "5fb9acd0246866381cf8c5c354c6db1019f6498eec4ccb4f5edcc71ffeacb2db"
+      },
+      "model.safetensors.index.json": {
+        "bytes": 101944,
+        "sha256": "52e534c41f7b97708329c85f762e5882bf48bd5955a422c6ae74eba321e6048a"
+      },
+      "preprocessor_config.json": {
+        "bytes": 390,
+        "sha256": "27225450ac9c6529872ee1924fcb0962ff5634834f817040f444118116f4e516"
+      },
+      "processor_config.json": {
+        "bytes": 1300,
+        "sha256": "14932921ca485d458a04dafd8069fbb0a4505622a48208d19ed247115801385b"
+      },
+      "tokenizer.json": {
+        "bytes": 19989343,
+        "sha256": "87a7830d63fcf43bf241c3c5242e96e62dd3fdc29224ca26fed8ea333db72de4"
+      },
+      "tokenizer_config.json": {
+        "bytes": 1139,
+        "sha256": "e98f1901ac6f0adff67b1d540bfa0c36ac1a0cf59eb72ed78146ef89aafa1182"
+      },
+      "video_preprocessor_config.json": {
+        "bytes": 385,
+        "sha256": "7768af27c1fafa9cc9011c1dc20067e03f8915e03b63504550e11d5066986d13"
+      },
+      "vocab.json": {
+        "bytes": 6722759,
+        "sha256": "ce99b4cb2983d118806ce0a8b777a35b093e2000a503ebde25853284c9dfa003"
+      }
+    }
+  },
+  "fixtureSha256": "65a850d931dc9038e49f71c0b92d1b7a49421c7eeebd9ab6f0afa63fa863a2de",
+  "fixtureVersion": 1,
+  "settings": {
+    "thinking": false,
+    "context": 32768,
+    "maxTokens": 2048,
+    "temperature": 0.6,
+    "topP": 0.95,
+    "topK": 20,
+    "slots": 1,
+    "cacheGB": 2,
+    "repeats": 2,
+    "memoryBudgetGB": 6.0
+  },
+  "hostBefore": {
+    "utc": "2026-10-25T14:38:43.830941+00:00",
+    "chip": "Apple M1 Max",
+    "ramBytes": "68719476736",
+    "os": "27.0.1",
+    "swap": "vm.swapusage: total = 23552.00M  used = 22208.75M  free = 1343.25M  (encrypted)",
+    "paging": {
+      "Pageouts": 371487,
+      "Swapins": 5042411,
+      "Swapouts": 9298822
+    }
+  },
+  "results": [
+    {
+      "case": "identity",
+      "repeat": 0,
+      "milliseconds": 6478.5,
+      "raw": {
+        "id": "chatcmpl-cff9c1d70fdd47238369d2b7",
+        "object": "chat.completion",
+        "created": 1792939134,
+        "model": "mlx/qwen35-4b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "I'm Banana, your helpful personal assistant."
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2216,
+          "completion_tokens": 9,
+          "total_tokens": 2225,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 6.45531154202763
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/qwen35-4b",
+        "uptime_s": 9.073154926300049,
+        "requests": 1,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 2493.062716,
+          "gpu_peak_mb": 3441.79755,
+          "gpu_cache_mb": 290.410716,
+          "rss_mb": 2994.487296
+        },
+        "engines": {
+          "mlx": {
+            "requests": 1,
+            "prompt_tokens": 2216,
+            "cached_tokens": 0,
+            "completion_tokens": 9,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 6.249402667046525,
+            "tool_calls": 0,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 9,
+            "prompt_cache_mb": 124.452864,
+            "prompt_cache_entries": 1,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 1,
+                "mb": 124
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "greeting",
+      "repeat": 0,
+      "milliseconds": 3783.9,
+      "raw": {
+        "id": "chatcmpl-26a62c7218b84a78a6c9c4d3",
+        "object": "chat.completion",
+        "created": 1792939137,
+        "model": "mlx/qwen35-4b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_aadf3cbcc8c64fc88bb03aa1",
+                  "type": "function",
+                  "function": {
+                    "name": "list_notes",
+                    "arguments": "{\"limit\": 5}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2212,
+          "completion_tokens": 25,
+          "total_tokens": 2237,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 3.778839416918345
+          }
+        }
+      },
+      "passed": false,
+      "reason": "reply_contract",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/qwen35-4b",
+        "uptime_s": 12.85878586769104,
+        "requests": 2,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 2618.25286,
+          "gpu_peak_mb": 3567.331808,
+          "gpu_cache_mb": 243.697276,
+          "rss_mb": 2994.487296
+        },
+        "engines": {
+          "mlx": {
+            "requests": 2,
+            "prompt_tokens": 4428,
+            "cached_tokens": 0,
+            "completion_tokens": 34,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 9.802389834076166,
+            "tool_calls": 1,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 34,
+            "prompt_cache_mb": 249.298944,
+            "prompt_cache_entries": 2,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 2,
+                "mb": 249
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "monthly",
+      "repeat": 0,
+      "milliseconds": 3966.3,
+      "raw": {
+        "id": "chatcmpl-50cb2063b2e54ad08e4633c9",
+        "object": "chat.completion",
+        "created": 1792939141,
+        "model": "mlx/qwen35-4b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_7b831f780c27456fae98d2ee",
+                  "type": "function",
+                  "function": {
+                    "name": "nutrition_view",
+                    "arguments": "{\"metric\": \"protein\", \"period\": \"this_month\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2216,
+          "completion_tokens": 40,
+          "total_tokens": 2256,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 3.960917541058734
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/qwen35-4b",
+        "uptime_s": 16.829521894454956,
+        "requests": 3,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 2744.24582,
+          "gpu_peak_mb": 3692.620256,
+          "gpu_cache_mb": 245.3576,
+          "rss_mb": 2994.487296
+        },
+        "engines": {
+          "mlx": {
+            "requests": 3,
+            "prompt_tokens": 6644,
+            "cached_tokens": 0,
+            "completion_tokens": 74,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 13.541501918109134,
+            "tool_calls": 2,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 74,
+            "prompt_cache_mb": 374.767616,
+            "prompt_cache_entries": 3,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 3,
+                "mb": 375
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "calories",
+      "repeat": 0,
+      "milliseconds": 3997.9,
+      "raw": {
+        "id": "chatcmpl-0f25a37a1208415ea5ab4b42",
+        "object": "chat.completion",
+        "created": 1792939145,
+        "model": "mlx/qwen35-4b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_bfee2591d7db4755b2c39754",
+                  "type": "function",
+                  "function": {
+                    "name": "nutrition_view",
+                    "arguments": "{\"metric\": \"calories\", \"period\": \"last_7_days\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2218,
+          "completion_tokens": 43,
+          "total_tokens": 2261,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 3.9916291249683127
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/qwen35-4b",
+        "uptime_s": 20.830049991607666,
+        "requests": 4,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 2870.23878,
+          "gpu_peak_mb": 3818.580448,
+          "gpu_cache_mb": 246.223176,
+          "rss_mb": 2994.487296
+        },
+        "engines": {
+          "mlx": {
+            "requests": 4,
+            "prompt_tokens": 8862,
+            "cached_tokens": 0,
+            "completion_tokens": 117,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 17.311226126155816,
+            "tool_calls": 3,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 117,
+            "prompt_cache_mb": 500.400128,
+            "prompt_cache_entries": 4,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 4,
+                "mb": 500
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "food-search",
+      "repeat": 0,
+      "milliseconds": 4113.3,
+      "raw": {
+        "id": "chatcmpl-d7be072e921d4323ba1bfb05",
+        "object": "chat.completion",
+        "created": 1792939150,
+        "model": "mlx/qwen35-4b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_388799f9e68646e995524079",
+                  "type": "function",
+                  "function": {
+                    "name": "nutrition_view",
+                    "arguments": "{\"foodName\": \"yogurt\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2357,
+          "completion_tokens": 30,
+          "total_tokens": 2387,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 4.108169625047594
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/qwen35-4b",
+        "uptime_s": 24.94578194618225,
+        "requests": 5,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3000.426044,
+          "gpu_peak_mb": 3944.54064,
+          "gpu_cache_mb": 351.880594,
+          "rss_mb": 2994.487296
+        },
+        "engines": {
+          "mlx": {
+            "requests": 5,
+            "prompt_tokens": 11219,
+            "cached_tokens": 0,
+            "completion_tokens": 147,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 21.198519210214727,
+            "tool_calls": 4,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 147,
+            "prompt_cache_mb": 630.161408,
+            "prompt_cache_entries": 5,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 5,
+                "mb": 630
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "weekdays",
+      "repeat": 0,
+      "milliseconds": 4261.3,
+      "raw": {
+        "id": "chatcmpl-f6bde3017f764cbeb684b26e",
+        "object": "chat.completion",
+        "created": 1792939154,
+        "model": "mlx/qwen35-4b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_e5a239ffc99b4de7ae092586",
+                  "type": "function",
+                  "function": {
+                    "name": "filter_nutrition",
+                    "arguments": "{\"changes\": [\"weekdays_only\"]}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2353,
+          "completion_tokens": 32,
+          "total_tokens": 2385,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 4.255461833090521
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/qwen35-4b",
+        "uptime_s": 29.208990812301636,
+        "requests": 6,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3130.613308,
+          "gpu_peak_mb": 4074.727904,
+          "gpu_cache_mb": 333.691106,
+          "rss_mb": 2994.487296
+        },
+        "engines": {
+          "mlx": {
+            "requests": 6,
+            "prompt_tokens": 13572,
+            "cached_tokens": 0,
+            "completion_tokens": 179,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 25.226418001228012,
+            "tool_calls": 5,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 179,
+            "prompt_cache_mb": 759.857152,
+            "prompt_cache_entries": 6,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 6,
+                "mb": 760
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "compare",
+      "repeat": 0,
+      "milliseconds": 4353.4,
+      "raw": {
+        "id": "chatcmpl-df5ec4d257b84553b9e75daa",
+        "object": "chat.completion",
+        "created": 1792939158,
+        "model": "mlx/qwen35-4b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_1de0f68ab69a49b0b05fe095",
+                  "type": "function",
+                  "function": {
+                    "name": "filter_nutrition",
+                    "arguments": "{\"changes\": [\"compare_previous\"]}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2356,
+          "completion_tokens": 31,
+          "total_tokens": 2387,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 4.347617250052281
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/qwen35-4b",
+        "uptime_s": 33.56499767303467,
+        "requests": 7,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3260.800572,
+          "gpu_peak_mb": 4204.947936,
+          "gpu_cache_mb": 332.564652,
+          "rss_mb": 2994.487296
+        },
+        "engines": {
+          "mlx": {
+            "requests": 7,
+            "prompt_tokens": 15928,
+            "cached_tokens": 0,
+            "completion_tokens": 210,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 29.351448334171437,
+            "tool_calls": 6,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 210,
+            "prompt_cache_mb": 889.618432,
+            "prompt_cache_entries": 7,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 7,
+                "mb": 890
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "copy",
+      "repeat": 0,
+      "milliseconds": 4948.3,
+      "raw": {
+        "id": "chatcmpl-c08bc79598f64b0e924af49e",
+        "object": "chat.completion",
+        "created": 1792939163,
+        "model": "mlx/qwen35-4b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_dee3ff2785e442be9f5da967",
+                  "type": "function",
+                  "function": {
+                    "name": "prepare_meal_copy",
+                    "arguments": "{\"mealID\": \"BA5A4E11-0000-4000-8000-000202610231\", \"day\": \"tomorrow\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2366,
+          "completion_tokens": 76,
+          "total_tokens": 2442,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 4.943034708034247
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/qwen35-4b",
+        "uptime_s": 38.51788687705994,
+        "requests": 8,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3392.871996,
+          "gpu_peak_mb": 4335.151584,
+          "gpu_cache_mb": 329.030269,
+          "rss_mb": 2994.487296
+        },
+        "engines": {
+          "mlx": {
+            "requests": 8,
+            "prompt_tokens": 18294,
+            "cached_tokens": 0,
+            "completion_tokens": 286,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 34.072320042178035,
+            "tool_calls": 7,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 286,
+            "prompt_cache_mb": 1021.181952,
+            "prompt_cache_entries": 8,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 8,
+                "mb": 1021
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "new-meal",
+      "repeat": 0,
+      "milliseconds": 4782.8,
+      "raw": {
+        "id": "chatcmpl-4bc169a34ea943b9a6e528ce",
+        "object": "chat.completion",
+        "created": 1792939168,
+        "model": "mlx/qwen35-4b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_8c8c708cc6c24f9fbdcd882f",
+                  "type": "function",
+                  "function": {
+                    "name": "prepare_meal",
+                    "arguments": "{\"foods\": [{\"name\": \"eggs\", \"quantity\": \"2 eggs\"}, {\"name\": \"banana\", \"quantity\": \"1 banana\"}], \"day\": \"today\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2233,
+          "completion_tokens": 67,
+          "total_tokens": 2300,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 4.777111207949929
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/qwen35-4b",
+        "uptime_s": 43.304771900177,
+        "requests": 9,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3520.175676,
+          "gpu_peak_mb": 4467.157472,
+          "gpu_cache_mb": 242.961241,
+          "rss_mb": 2994.487296
+        },
+        "engines": {
+          "mlx": {
+            "requests": 9,
+            "prompt_tokens": 20527,
+            "cached_tokens": 0,
+            "completion_tokens": 353,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 38.62771862524096,
+            "tool_calls": 8,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 353,
+            "prompt_cache_mb": 1148.092416,
+            "prompt_cache_entries": 9,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 9,
+                "mb": 1148
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "new-event",
+      "repeat": 0,
+      "milliseconds": 4911.2,
+      "raw": {
+        "id": "chatcmpl-48db316fa7224c249866d063",
+        "object": "chat.completion",
+        "created": 1792939173,
+        "model": "mlx/qwen35-4b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_0fb158de689b48e6b8b0f4a1",
+                  "type": "function",
+                  "function": {
+                    "name": "prepare_event",
+                    "arguments": "{\"title\": \"Lunch\", \"day\": \"tomorrow\", \"time\": \"13:00\", \"durationMinutes\": 30}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2237,
+          "completion_tokens": 68,
+          "total_tokens": 2305,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 4.9060653750784695
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/qwen35-4b",
+        "uptime_s": 48.21965980529785,
+        "requests": 10,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3647.790652,
+          "gpu_peak_mb": 4594.477536,
+          "gpu_cache_mb": 362.507932,
+          "rss_mb": 2994.487296
+        },
+        "engines": {
+          "mlx": {
+            "requests": 10,
+            "prompt_tokens": 22764,
+            "cached_tokens": 0,
+            "completion_tokens": 421,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 43.305787417222746,
+            "tool_calls": 9,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 421,
+            "prompt_cache_mb": 1275.16672,
+            "prompt_cache_entries": 10,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 10,
+                "mb": 1275
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "explicit-event",
+      "repeat": 0,
+      "milliseconds": 5597.9,
+      "raw": {
+        "id": "chatcmpl-cdbab5f8090f4e8c9cdf0f73",
+        "object": "chat.completion",
+        "created": 1792939178,
+        "model": "mlx/qwen35-4b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_f775d17aac92408faa02f77a",
+                  "type": "function",
+                  "function": {
+                    "name": "prepare_event",
+                    "arguments": "{\"title\": \"Dentist\", \"day\": \"2026-11-03\", \"time\": \"09:15\", \"durationMinutes\": 45}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2241,
+          "completion_tokens": 77,
+          "total_tokens": 2318,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 5.591826417017728
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/qwen35-4b",
+        "uptime_s": 53.82061266899109,
+        "requests": 11,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3775.651388,
+          "gpu_peak_mb": 4722.141664,
+          "gpu_cache_mb": 371.762192,
+          "rss_mb": 2994.487296
+        },
+        "engines": {
+          "mlx": {
+            "requests": 11,
+            "prompt_tokens": 25005,
+            "cached_tokens": 0,
+            "completion_tokens": 498,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 48.675305792246945,
+            "tool_calls": 10,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 498,
+            "prompt_cache_mb": 1402.667008,
+            "prompt_cache_entries": 11,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 11,
+                "mb": 1403
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "missing-time",
+      "repeat": 0,
+      "milliseconds": 5227.7,
+      "raw": {
+        "id": "chatcmpl-534338dcf4a94c9096348c1e",
+        "object": "chat.completion",
+        "created": 1792939184,
+        "model": "mlx/qwen35-4b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "I'll help you create a calendar event for \"Dinner\". Since you haven't specified a time, I'll ask for the start time before creating the event.\n\nWhat time would you like to schedule the Dinner event? (Please provide the start time in 24-hour format, like \"19:00\")"
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2224,
+          "completion_tokens": 66,
+          "total_tokens": 2290,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 5.222382124979049
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/qwen35-4b",
+        "uptime_s": 59.0516939163208,
+        "requests": 12,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 3902.709308,
+          "gpu_peak_mb": 4850.0024,
+          "gpu_cache_mb": 134.122724,
+          "rss_mb": 2994.487296
+        },
+        "engines": {
+          "mlx": {
+            "requests": 12,
+            "prompt_tokens": 27229,
+            "cached_tokens": 0,
+            "completion_tokens": 564,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 53.67599595931824,
+            "tool_calls": 10,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 564,
+            "prompt_cache_mb": 1529.249792,
+            "prompt_cache_entries": 12,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 12,
+                "mb": 1529
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "missing-food",
+      "repeat": 0,
+      "milliseconds": 5411.1,
+      "raw": {
+        "id": "chatcmpl-81fa6716f5864208b2885827",
+        "object": "chat.completion",
+        "created": 1792939189,
+        "model": "mlx/qwen35-4b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "I'd be happy to help you log a meal! Could you please tell me:\n\n1. What foods you ate and in what amounts\n2. The date (if not today)\n\nFor example: \"I had 1 cup of oatmeal with 1 banana and 1 tbsp of honey\" or \"I ate 2 slices of toast with 1 tbsp of butter\""
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2224,
+          "completion_tokens": 78,
+          "total_tokens": 2302,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 5.404844166012481
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/qwen35-4b",
+        "uptime_s": 64.47316193580627,
+        "requests": 13,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4030.029372,
+          "gpu_peak_mb": 4977.027552,
+          "gpu_cache_mb": 220.421688,
+          "rss_mb": 2994.487296
+        },
+        "engines": {
+          "mlx": {
+            "requests": 13,
+            "prompt_tokens": 29453,
+            "cached_tokens": 0,
+            "completion_tokens": 642,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 58.859140459331684,
+            "tool_calls": 10,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 642,
+            "prompt_cache_mb": 1656.225792,
+            "prompt_cache_entries": 13,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 13,
+                "mb": 1656
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "global-search",
+      "repeat": 0,
+      "milliseconds": 4834.7,
+      "raw": {
+        "id": "chatcmpl-4b79061b6a704eeeb61c88d1",
+        "object": "chat.completion",
+        "created": 1792939194,
+        "model": "mlx/qwen35-4b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_c5101da5b7b8415391000743",
+                  "type": "function",
+                  "function": {
+                    "name": "search_app",
+                    "arguments": "{\"query\": \"clinic\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2216,
+          "completion_tokens": 24,
+          "total_tokens": 2240,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 4.829178166924976
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/qwen35-4b",
+        "uptime_s": 69.31259369850159,
+        "requests": 14,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4155.48166,
+          "gpu_peak_mb": 5104.396768,
+          "gpu_cache_mb": 251.700836,
+          "rss_mb": 2994.487296
+        },
+        "engines": {
+          "mlx": {
+            "requests": 14,
+            "prompt_tokens": 31669,
+            "cached_tokens": 0,
+            "completion_tokens": 666,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 63.46803616732359,
+            "tool_calls": 11,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 666,
+            "prompt_cache_mb": 1781.170176,
+            "prompt_cache_entries": 14,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 14,
+                "mb": 1781
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "open-page",
+      "repeat": 0,
+      "milliseconds": 4795.0,
+      "raw": {
+        "id": "chatcmpl-a8063c3d76f542bf9b29bbcc",
+        "object": "chat.completion",
+        "created": 1792939199,
+        "model": "mlx/qwen35-4b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_28b0b9a7226c4769abaebbb8",
+                  "type": "function",
+                  "function": {
+                    "name": "open_page",
+                    "arguments": "{\"section\": \"notes\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2215,
+          "completion_tokens": 25,
+          "total_tokens": 2240,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 4.789488333975896
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/qwen35-4b",
+        "uptime_s": 74.11282873153687,
+        "requests": 15,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4280.933948,
+          "gpu_peak_mb": 5229.78352,
+          "gpu_cache_mb": 244.90566,
+          "rss_mb": 2994.487296
+        },
+        "engines": {
+          "mlx": {
+            "requests": 15,
+            "prompt_tokens": 33884,
+            "cached_tokens": 0,
+            "completion_tokens": 691,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 68.03806312533561,
+            "tool_calls": 12,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 691,
+            "prompt_cache_mb": 1906.11456,
+            "prompt_cache_entries": 15,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 15,
+                "mb": 1906
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "notes",
+      "repeat": 0,
+      "milliseconds": 4986.8,
+      "raw": {
+        "id": "chatcmpl-30b897ea0e8b4cd39c06dde0",
+        "object": "chat.completion",
+        "created": 1792939204,
+        "model": "mlx/qwen35-4b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_06ec6d9a87dd446cafed5d3a",
+                  "type": "function",
+                  "function": {
+                    "name": "list_notes",
+                    "arguments": "{\"limit\": 10}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2215,
+          "completion_tokens": 26,
+          "total_tokens": 2241,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 4.981332291965373
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/qwen35-4b",
+        "uptime_s": 79.103266954422,
+        "requests": 16,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4406.386236,
+          "gpu_peak_mb": 5355.301344,
+          "gpu_cache_mb": 249.13691,
+          "rss_mb": 2994.487296
+        },
+        "engines": {
+          "mlx": {
+            "requests": 16,
+            "prompt_tokens": 36099,
+            "cached_tokens": 0,
+            "completion_tokens": 717,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 72.79874462529551,
+            "tool_calls": 13,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 717,
+            "prompt_cache_mb": 2031.091712,
+            "prompt_cache_entries": 16,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 16,
+                "mb": 2031
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "create-note",
+      "repeat": 0,
+      "milliseconds": 4948.4,
+      "raw": {
+        "id": "chatcmpl-bcf92d9dfd4745158381bb86",
+        "object": "chat.completion",
+        "created": 1792939209,
+        "model": "mlx/qwen35-4b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_11e5b1b0a601427cb6d9ee28",
+                  "type": "function",
+                  "function": {
+                    "name": "create_note",
+                    "arguments": "{\"text\": \"Bring the blue notebook\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2223,
+          "completion_tokens": 27,
+          "total_tokens": 2250,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 4.943027917062864
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/qwen35-4b",
+        "uptime_s": 84.05606603622437,
+        "requests": 17,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4407.090748,
+          "gpu_peak_mb": 5480.753632,
+          "gpu_cache_mb": 379.653078,
+          "rss_mb": 2994.487296
+        },
+        "engines": {
+          "mlx": {
+            "requests": 17,
+            "prompt_tokens": 38322,
+            "cached_tokens": 0,
+            "completion_tokens": 744,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 77.52268220926635,
+            "tool_calls": 14,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 744,
+            "prompt_cache_mb": 2031.910912,
+            "prompt_cache_entries": 16,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 16,
+                "mb": 2032
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "plan",
+      "repeat": 0,
+      "milliseconds": 5148.9,
+      "raw": {
+        "id": "chatcmpl-d53bc2d1dc0947b490579ade",
+        "object": "chat.completion",
+        "created": 1792939214,
+        "model": "mlx/qwen35-4b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_84ac1527ed864532a365f893",
+                  "type": "function",
+                  "function": {
+                    "name": "day_plan",
+                    "arguments": "{\"date\": \"2026-10-25\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2218,
+          "completion_tokens": 34,
+          "total_tokens": 2252,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 5.142629874986596
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/qwen35-4b",
+        "uptime_s": 89.20998501777649,
+        "requests": 18,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4407.615036,
+          "gpu_peak_mb": 5481.44176,
+          "gpu_cache_mb": 371.421716,
+          "rss_mb": 2994.487296
+        },
+        "engines": {
+          "mlx": {
+            "requests": 18,
+            "prompt_tokens": 40540,
+            "cached_tokens": 0,
+            "completion_tokens": 778,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 82.4455829593353,
+            "tool_calls": 15,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 778,
+            "prompt_cache_mb": 2032.402432,
+            "prompt_cache_entries": 16,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 16,
+                "mb": 2032
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "unsupported",
+      "repeat": 0,
+      "milliseconds": 5562.2,
+      "raw": {
+        "id": "chatcmpl-5dfe004ab7f5482d8facbf55",
+        "object": "chat.completion",
+        "created": 1792939219,
+        "model": "mlx/qwen35-4b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "I can't delete meals or any other data from your history. I don't have a tool available to remove logged meals. You'll need to do that directly in the Banana app itself.\n\nYou can navigate to your **nutrition** section or **review** section to manage and delete your logged meals."
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2217,
+          "completion_tokens": 61,
+          "total_tokens": 2278,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 5.5570199999492615
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/qwen35-4b",
+        "uptime_s": 94.77549266815186,
+        "requests": 19,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4408.155708,
+          "gpu_peak_mb": 5481.966048,
+          "gpu_cache_mb": 367.85044,
+          "rss_mb": 2994.487296
+        },
+        "engines": {
+          "mlx": {
+            "requests": 19,
+            "prompt_tokens": 42757,
+            "cached_tokens": 0,
+            "completion_tokens": 839,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 87.78614833427127,
+            "tool_calls": 15,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 839,
+            "prompt_cache_mb": 2033.123328,
+            "prompt_cache_entries": 16,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 16,
+                "mb": 2033
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "explanation",
+      "repeat": 0,
+      "milliseconds": 8141.0,
+      "raw": {
+        "id": "chatcmpl-c198020e46b5488bb94a3058",
+        "object": "chat.completion",
+        "created": 1792939228,
+        "model": "mlx/qwen35-4b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "Protein is one of the three main macronutrients (along with carbohydrates and fats) that your body needs to function properly. Here's what it is:\n\n**What proteins are:**\n- Proteins are made up of long chains of smaller units called amino acids.\n- There are 20 different amino acids, and your body uses them to build and repair tissues.\n\n**Why they're important:**\n- **Building and repairing tissues**: Proteins help build and repair muscles, bones, skin, and other body tissues.\n- **Enzyme production**: Many enzymes are proteins that help your body break down food and carry out chemical reactions.\n- **Hormone and neurotransmitter production**: Some hormones and brain chemicals are proteins.\n- **Immune function**: Proteins help your immune system fight off infections.\n\n**Protein sources:**\n- Animal sources: meat, fish, eggs, dairy products\n- Plant sources: beans, lentils, nuts, seeds, soy products\n\nThe recommended daily amount varies depending on age, weight, and activity level, but generally ranges from 0.8 to 1.6 grams per kilogram of body weight per day for most adults."
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2226,
+          "completion_tokens": 246,
+          "total_tokens": 2472,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 8.134393708896823
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/qwen35-4b",
+        "uptime_s": 102.92004990577698,
+        "requests": 20,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4415.3319,
+          "gpu_peak_mb": 5482.50672,
+          "gpu_cache_mb": 269.018686,
+          "rss_mb": 2994.487296
+        },
+        "engines": {
+          "mlx": {
+            "requests": 20,
+            "prompt_tokens": 44983,
+            "cached_tokens": 0,
+            "completion_tokens": 1085,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 95.71115650027059,
+            "tool_calls": 15,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1085,
+            "prompt_cache_mb": 2040.037376,
+            "prompt_cache_entries": 16,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 16,
+                "mb": 2040
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "ambiguous",
+      "repeat": 0,
+      "milliseconds": 5253.6,
+      "raw": {
+        "id": "chatcmpl-3f74cda298f144b89abfd842",
+        "object": "chat.completion",
+        "created": 1792939233,
+        "model": "mlx/qwen35-4b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "The request \"Do that other thing\" is ambiguous. Could you clarify what you'd like me to do?"
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2215,
+          "completion_tokens": 22,
+          "total_tokens": 2237,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 5.246747834025882
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/qwen35-4b",
+        "uptime_s": 108.17769169807434,
+        "requests": 21,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4410.33478,
+          "gpu_peak_mb": 5489.600992,
+          "gpu_cache_mb": 377.23893,
+          "rss_mb": 2994.487296
+        },
+        "engines": {
+          "mlx": {
+            "requests": 21,
+            "prompt_tokens": 47198,
+            "cached_tokens": 0,
+            "completion_tokens": 1107,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 100.73710900032893,
+            "tool_calls": 15,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1107,
+            "prompt_cache_mb": 2035.122176,
+            "prompt_cache_entries": 16,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 16,
+                "mb": 2035
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "not-a-write",
+      "repeat": 0,
+      "milliseconds": 4782.4,
+      "raw": {
+        "id": "chatcmpl-327e9b3bf8b540e695d3e81a",
+        "object": "chat.completion",
+        "created": 1792939238,
+        "model": "mlx/qwen35-4b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "I've noted that you typically have eggs for breakfast."
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2229,
+          "completion_tokens": 11,
+          "total_tokens": 2240,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 4.776196749997325
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/qwen35-4b",
+        "uptime_s": 112.96960186958313,
+        "requests": 22,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4405.567036,
+          "gpu_peak_mb": 5489.600992,
+          "gpu_cache_mb": 401.526226,
+          "rss_mb": 2994.487296
+        },
+        "engines": {
+          "mlx": {
+            "requests": 22,
+            "prompt_tokens": 49427,
+            "cached_tokens": 0,
+            "completion_tokens": 1118,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 105.29546695842873,
+            "tool_calls": 15,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1118,
+            "prompt_cache_mb": 2030.370816,
+            "prompt_cache_entries": 16,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 16,
+                "mb": 2030
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "identity",
+      "repeat": 1,
+      "milliseconds": 4648.4,
+      "raw": {
+        "id": "chatcmpl-b41adcc3a8704f5b80f2bb5a",
+        "object": "chat.completion",
+        "created": 1792939242,
+        "model": "mlx/qwen35-4b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "My name is Banana."
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2216,
+          "completion_tokens": 5,
+          "total_tokens": 2221,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 4.642891791998409
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/qwen35-4b",
+        "uptime_s": 117.62440276145935,
+        "requests": 23,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4400.029244,
+          "gpu_peak_mb": 5489.600992,
+          "gpu_cache_mb": 377.69512,
+          "rss_mb": 2994.487296
+        },
+        "engines": {
+          "mlx": {
+            "requests": 23,
+            "prompt_tokens": 51643,
+            "cached_tokens": 0,
+            "completion_tokens": 1123,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 109.71755675051827,
+            "tool_calls": 15,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1123,
+            "prompt_cache_mb": 2024.931328,
+            "prompt_cache_entries": 16,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 16,
+                "mb": 2025
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "greeting",
+      "repeat": 1,
+      "milliseconds": 4910.9,
+      "raw": {
+        "id": "chatcmpl-c6f4446c859d406fab89d5bb",
+        "object": "chat.completion",
+        "created": 1792939247,
+        "model": "mlx/qwen35-4b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_1cba7bf77ae14d4da32ea050",
+                  "type": "function",
+                  "function": {
+                    "name": "day_plan",
+                    "arguments": "{}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2212,
+          "completion_tokens": 14,
+          "total_tokens": 2226,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 4.905262417043559
+          }
+        }
+      },
+      "passed": false,
+      "reason": "reply_contract",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/qwen35-4b",
+        "uptime_s": 122.54317283630371,
+        "requests": 24,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4392.869436,
+          "gpu_peak_mb": 5489.600992,
+          "gpu_cache_mb": 375.74722,
+          "rss_mb": 2994.487296
+        },
+        "engines": {
+          "mlx": {
+            "requests": 24,
+            "prompt_tokens": 53855,
+            "cached_tokens": 0,
+            "completion_tokens": 1137,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 114.40460712555796,
+            "tool_calls": 16,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1137,
+            "prompt_cache_mb": 2017.85344,
+            "prompt_cache_entries": 16,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 16,
+                "mb": 2018
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "monthly",
+      "repeat": 1,
+      "milliseconds": 5045.5,
+      "raw": {
+        "id": "chatcmpl-1d73f6ae2b214968840685a2",
+        "object": "chat.completion",
+        "created": 1792939252,
+        "model": "mlx/qwen35-4b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_a6eca162df37450189c6d869",
+                  "type": "function",
+                  "function": {
+                    "name": "nutrition_view",
+                    "arguments": "{\"metric\": \"protein\", \"period\": \"this_month\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2216,
+          "completion_tokens": 40,
+          "total_tokens": 2256,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 5.040724917082116
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/qwen35-4b",
+        "uptime_s": 127.59205389022827,
+        "requests": 25,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4518.862396,
+          "gpu_peak_mb": 5489.600992,
+          "gpu_cache_mb": 239.093796,
+          "rss_mb": 2994.487296
+        },
+        "engines": {
+          "mlx": {
+            "requests": 25,
+            "prompt_tokens": 56071,
+            "cached_tokens": 0,
+            "completion_tokens": 1177,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 119.22547054255847,
+            "tool_calls": 17,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1177,
+            "prompt_cache_mb": 2143.322112,
+            "prompt_cache_entries": 17,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 17,
+                "mb": 2143
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "calories",
+      "repeat": 1,
+      "milliseconds": 5252.2,
+      "raw": {
+        "id": "chatcmpl-c8e7ead731a14a65afb83226",
+        "object": "chat.completion",
+        "created": 1792939257,
+        "model": "mlx/qwen35-4b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_a45ca37fb40a4f49a8d4234f",
+                  "type": "function",
+                  "function": {
+                    "name": "nutrition_view",
+                    "arguments": "{\"period\": \"last_7_days\", \"metric\": \"calories\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2218,
+          "completion_tokens": 43,
+          "total_tokens": 2261,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 5.243627000018023
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/qwen35-4b",
+        "uptime_s": 132.84824800491333,
+        "requests": 26,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4517.551676,
+          "gpu_peak_mb": 5593.229792,
+          "gpu_cache_mb": 375.687536,
+          "rss_mb": 2994.487296
+        },
+        "engines": {
+          "mlx": {
+            "requests": 26,
+            "prompt_tokens": 58289,
+            "cached_tokens": 0,
+            "completion_tokens": 1220,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 124.24920137564186,
+            "tool_calls": 18,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1220,
+            "prompt_cache_mb": 2142.04416,
+            "prompt_cache_entries": 17,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 17,
+                "mb": 2142
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "food-search",
+      "repeat": 1,
+      "milliseconds": 5286.1,
+      "raw": {
+        "id": "chatcmpl-18a614806aaa47fcb02dec5a",
+        "object": "chat.completion",
+        "created": 1792939263,
+        "model": "mlx/qwen35-4b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_50e44c12cd4547f39d47e7f9",
+                  "type": "function",
+                  "function": {
+                    "name": "nutrition_view",
+                    "arguments": "{\"foodName\": \"yogurt\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2357,
+          "completion_tokens": 30,
+          "total_tokens": 2387,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 5.27840708300937
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/qwen35-4b",
+        "uptime_s": 138.13861870765686,
+        "requests": 27,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4520.10758,
+          "gpu_peak_mb": 5593.229792,
+          "gpu_cache_mb": 483.22907,
+          "rss_mb": 2994.487296
+        },
+        "engines": {
+          "mlx": {
+            "requests": 27,
+            "prompt_tokens": 60646,
+            "cached_tokens": 0,
+            "completion_tokens": 1250,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 129.30404437566176,
+            "tool_calls": 19,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1250,
+            "prompt_cache_mb": 2144.731136,
+            "prompt_cache_entries": 17,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 17,
+                "mb": 2145
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "weekdays",
+      "repeat": 1,
+      "milliseconds": 5171.7,
+      "raw": {
+        "id": "chatcmpl-385e90b0d38e4f3fb58840d4",
+        "object": "chat.completion",
+        "created": 1792939268,
+        "model": "mlx/qwen35-4b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_d84052b335374f14a7789ad8",
+                  "type": "function",
+                  "function": {
+                    "name": "filter_nutrition",
+                    "arguments": "{\"changes\": [\"weekdays_only\"]}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2353,
+          "completion_tokens": 32,
+          "total_tokens": 2385,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 5.166503584012389
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/qwen35-4b",
+        "uptime_s": 143.3139898777008,
+        "requests": 28,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4522.417724,
+          "gpu_peak_mb": 5594.458592,
+          "gpu_cache_mb": 463.145198,
+          "rss_mb": 2994.487296
+        },
+        "engines": {
+          "mlx": {
+            "requests": 28,
+            "prompt_tokens": 62999,
+            "cached_tokens": 0,
+            "completion_tokens": 1282,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 134.2535840846831,
+            "tool_calls": 20,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1282,
+            "prompt_cache_mb": 2146.926592,
+            "prompt_cache_entries": 17,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 17,
+                "mb": 2147
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "compare",
+      "repeat": 1,
+      "milliseconds": 5273.3,
+      "raw": {
+        "id": "chatcmpl-a7b2663bfb3449aea8d9f6ab",
+        "object": "chat.completion",
+        "created": 1792939273,
+        "model": "mlx/qwen35-4b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_0980c733dc0d462f977d1ac6",
+                  "type": "function",
+                  "function": {
+                    "name": "filter_nutrition",
+                    "arguments": "{\"changes\": [\"compare_previous\"]}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2356,
+          "completion_tokens": 31,
+          "total_tokens": 2387,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 5.268061375012621
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/qwen35-4b",
+        "uptime_s": 148.59105587005615,
+        "requests": 29,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4398.227004,
+          "gpu_peak_mb": 5596.768736,
+          "gpu_cache_mb": 586.916032,
+          "rss_mb": 2994.487296
+        },
+        "engines": {
+          "mlx": {
+            "requests": 29,
+            "prompt_tokens": 65355,
+            "cached_tokens": 0,
+            "completion_tokens": 1313,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 139.29185162577778,
+            "tool_calls": 21,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1313,
+            "prompt_cache_mb": 2023.129088,
+            "prompt_cache_entries": 16,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 16,
+                "mb": 2023
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "copy",
+      "repeat": 1,
+      "milliseconds": 5770.0,
+      "raw": {
+        "id": "chatcmpl-9d22d2100422476fa013d319",
+        "object": "chat.completion",
+        "created": 1792939279,
+        "model": "mlx/qwen35-4b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_f16455621ee84857a62bc94f",
+                  "type": "function",
+                  "function": {
+                    "name": "prepare_meal_copy",
+                    "arguments": "{\"mealID\": \"BA5A4E11-0000-4000-8000-000202610231\", \"day\": \"tomorrow\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2366,
+          "completion_tokens": 76,
+          "total_tokens": 2442,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 5.764765667030588
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/qwen35-4b",
+        "uptime_s": 154.3647449016571,
+        "requests": 30,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4404.829756,
+          "gpu_peak_mb": 5596.768736,
+          "gpu_cache_mb": 458.683005,
+          "rss_mb": 2994.487296
+        },
+        "engines": {
+          "mlx": {
+            "requests": 30,
+            "prompt_tokens": 67721,
+            "cached_tokens": 0,
+            "completion_tokens": 1389,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 144.83734650083352,
+            "tool_calls": 22,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1389,
+            "prompt_cache_mb": 2029.748224,
+            "prompt_cache_entries": 16,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 16,
+                "mb": 2030
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "new-meal",
+      "repeat": 1,
+      "milliseconds": 5392.7,
+      "raw": {
+        "id": "chatcmpl-fdcc279de8674ec7b3b80672",
+        "object": "chat.completion",
+        "created": 1792939284,
+        "model": "mlx/qwen35-4b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_f6711d7c648246c4815b4b8d",
+                  "type": "function",
+                  "function": {
+                    "name": "prepare_meal",
+                    "arguments": "{\"foods\": [{\"name\": \"Eggs\", \"quantity\": \"2\"}, {\"name\": \"Banana\", \"quantity\": \"1\"}], \"day\": \"today\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2233,
+          "completion_tokens": 67,
+          "total_tokens": 2300,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 5.387803792022169
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/qwen35-4b",
+        "uptime_s": 159.7610149383545,
+        "requests": 31,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4406.697532,
+          "gpu_peak_mb": 5596.768736,
+          "gpu_cache_mb": 370.497554,
+          "rss_mb": 2994.487296
+        },
+        "engines": {
+          "mlx": {
+            "requests": 31,
+            "prompt_tokens": 69954,
+            "cached_tokens": 0,
+            "completion_tokens": 1456,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 150.0056802087929,
+            "tool_calls": 23,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1456,
+            "prompt_cache_mb": 2031.714304,
+            "prompt_cache_entries": 16,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 16,
+                "mb": 2032
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "new-event",
+      "repeat": 1,
+      "milliseconds": 5307.6,
+      "raw": {
+        "id": "chatcmpl-aee1bef9e7be46188c3a99ba",
+        "object": "chat.completion",
+        "created": 1792939290,
+        "model": "mlx/qwen35-4b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_750e2e15d4654bcaa07995b0",
+                  "type": "function",
+                  "function": {
+                    "name": "prepare_event",
+                    "arguments": "{\"title\": \"Lunch\", \"day\": \"tomorrow\", \"time\": \"13:00\", \"durationMinutes\": 30}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2237,
+          "completion_tokens": 68,
+          "total_tokens": 2305,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 5.302223000093363
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/qwen35-4b",
+        "uptime_s": 165.07225394248962,
+        "requests": 32,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4408.86022,
+          "gpu_peak_mb": 5596.768736,
+          "gpu_cache_mb": 348.667238,
+          "rss_mb": 2994.487296
+        },
+        "engines": {
+          "mlx": {
+            "requests": 32,
+            "prompt_tokens": 72191,
+            "cached_tokens": 0,
+            "completion_tokens": 1524,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 155.08892637572717,
+            "tool_calls": 24,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1524,
+            "prompt_cache_mb": 2033.811456,
+            "prompt_cache_entries": 16,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 16,
+                "mb": 2034
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "explicit-event",
+      "repeat": 1,
+      "milliseconds": 5547.1,
+      "raw": {
+        "id": "chatcmpl-e63e7414177d4d008165fbdb",
+        "object": "chat.completion",
+        "created": 1792939295,
+        "model": "mlx/qwen35-4b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_4eeeba53f71147e191bc4072",
+                  "type": "function",
+                  "function": {
+                    "name": "prepare_event",
+                    "arguments": "{\"day\": \"2026-11-03\", \"time\": \"09:15\", \"durationMinutes\": 45, \"title\": \"Dentist\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2241,
+          "completion_tokens": 77,
+          "total_tokens": 2318,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 5.541336541995406
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/qwen35-4b",
+        "uptime_s": 170.62462377548218,
+        "requests": 33,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4410.99014,
+          "gpu_peak_mb": 5596.768736,
+          "gpu_cache_mb": 495.379488,
+          "rss_mb": 2994.487296
+        },
+        "engines": {
+          "mlx": {
+            "requests": 33,
+            "prompt_tokens": 74432,
+            "cached_tokens": 0,
+            "completion_tokens": 1601,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 160.4102356256917,
+            "tool_calls": 25,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1601,
+            "prompt_cache_mb": 2036.03968,
+            "prompt_cache_entries": 16,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 16,
+                "mb": 2036
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "missing-time",
+      "repeat": 1,
+      "milliseconds": 4849.0,
+      "raw": {
+        "id": "chatcmpl-fbc062b37d0e4a6c9450f38a",
+        "object": "chat.completion",
+        "created": 1792939300,
+        "model": "mlx/qwen35-4b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "I'd be happy to help you create an event called \"Dinner\". Since you haven't decided on the time, could you please let me know what time you'd like the dinner to start?"
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2224,
+          "completion_tokens": 40,
+          "total_tokens": 2264,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 4.842827833024785
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/qwen35-4b",
+        "uptime_s": 175.4784278869629,
+        "requests": 34,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4411.547196,
+          "gpu_peak_mb": 5596.768736,
+          "gpu_cache_mb": 376.571016,
+          "rss_mb": 2994.487296
+        },
+        "engines": {
+          "mlx": {
+            "requests": 34,
+            "prompt_tokens": 76656,
+            "cached_tokens": 0,
+            "completion_tokens": 1641,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 165.03658250067383,
+            "tool_calls": 25,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1641,
+            "prompt_cache_mb": 2036.432896,
+            "prompt_cache_entries": 16,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 16,
+                "mb": 2036
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "missing-food",
+      "repeat": 1,
+      "milliseconds": 4494.6,
+      "raw": {
+        "id": "chatcmpl-b211addcb744496cab2e0afe",
+        "object": "chat.completion",
+        "created": 1792939305,
+        "model": "mlx/qwen35-4b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "I can help you log a meal! Could you please tell me what you ate and in what quantities?"
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2224,
+          "completion_tokens": 21,
+          "total_tokens": 2245,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 4.488494375022128
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/qwen35-4b",
+        "uptime_s": 179.97883677482605,
+        "requests": 35,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4410.465852,
+          "gpu_peak_mb": 5596.768736,
+          "gpu_cache_mb": 375.34354,
+          "rss_mb": 2994.487296
+        },
+        "engines": {
+          "mlx": {
+            "requests": 35,
+            "prompt_tokens": 78880,
+            "cached_tokens": 0,
+            "completion_tokens": 1662,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 169.3056457096245,
+            "tool_calls": 25,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1662,
+            "prompt_cache_mb": 2035.351552,
+            "prompt_cache_entries": 16,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 16,
+                "mb": 2035
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "global-search",
+      "repeat": 1,
+      "milliseconds": 4494.7,
+      "raw": {
+        "id": "chatcmpl-d8bf5090e9e64e6ca1f57d5b",
+        "object": "chat.completion",
+        "created": 1792939309,
+        "model": "mlx/qwen35-4b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_83437897a0f448a28dfae242",
+                  "type": "function",
+                  "function": {
+                    "name": "search_app",
+                    "arguments": "{\"query\": \"clinic\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2216,
+          "completion_tokens": 24,
+          "total_tokens": 2240,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 4.489023957983591
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/qwen35-4b",
+        "uptime_s": 184.4786958694458,
+        "requests": 36,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4402.748988,
+          "gpu_peak_mb": 5596.768736,
+          "gpu_cache_mb": 378.58876,
+          "rss_mb": 2994.487296
+        },
+        "engines": {
+          "mlx": {
+            "requests": 36,
+            "prompt_tokens": 81096,
+            "cached_tokens": 0,
+            "completion_tokens": 1686,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 173.57392137672286,
+            "tool_calls": 26,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1686,
+            "prompt_cache_mb": 2027.749376,
+            "prompt_cache_entries": 16,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 16,
+                "mb": 2028
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "open-page",
+      "repeat": 1,
+      "milliseconds": 4502.6,
+      "raw": {
+        "id": "chatcmpl-5a8542e116c64f32b782c9d4",
+        "object": "chat.completion",
+        "created": 1792939314,
+        "model": "mlx/qwen35-4b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_5ded492362b5430c94a2670c",
+                  "type": "function",
+                  "function": {
+                    "name": "open_page",
+                    "arguments": "{\"section\": \"notes\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2215,
+          "completion_tokens": 25,
+          "total_tokens": 2240,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 4.497708500013687
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/qwen35-4b",
+        "uptime_s": 188.98615288734436,
+        "requests": 37,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4403.011132,
+          "gpu_peak_mb": 5596.768736,
+          "gpu_cache_mb": 367.985151,
+          "rss_mb": 2994.487296
+        },
+        "engines": {
+          "mlx": {
+            "requests": 37,
+            "prompt_tokens": 83311,
+            "cached_tokens": 0,
+            "completion_tokens": 1711,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 177.85013137664646,
+            "tool_calls": 27,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1711,
+            "prompt_cache_mb": 2027.84768,
+            "prompt_cache_entries": 16,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 16,
+                "mb": 2028
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "notes",
+      "repeat": 1,
+      "milliseconds": 4414.8,
+      "raw": {
+        "id": "chatcmpl-ea74fd9578e84ac98c05a5ff",
+        "object": "chat.completion",
+        "created": 1792939318,
+        "model": "mlx/qwen35-4b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_3814aa671a224b83aba710b2",
+                  "type": "function",
+                  "function": {
+                    "name": "list_notes",
+                    "arguments": "{}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2215,
+          "completion_tokens": 13,
+          "total_tokens": 2228,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 4.406883083051071
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/qwen35-4b",
+        "uptime_s": 193.4073588848114,
+        "requests": 38,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4402.535996,
+          "gpu_peak_mb": 5596.768736,
+          "gpu_cache_mb": 386.04655,
+          "rss_mb": 2994.487296
+        },
+        "engines": {
+          "mlx": {
+            "requests": 38,
+            "prompt_tokens": 85526,
+            "cached_tokens": 0,
+            "completion_tokens": 1724,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 182.03652925160713,
+            "tool_calls": 28,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1724,
+            "prompt_cache_mb": 2027.454464,
+            "prompt_cache_entries": 16,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 16,
+                "mb": 2027
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "create-note",
+      "repeat": 1,
+      "milliseconds": 4403.7,
+      "raw": {
+        "id": "chatcmpl-d8ea88ace7864ff49336d9cb",
+        "object": "chat.completion",
+        "created": 1792939322,
+        "model": "mlx/qwen35-4b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_ab18bed7e13d4eb3825a970f",
+                  "type": "function",
+                  "function": {
+                    "name": "create_note",
+                    "arguments": "{\"text\": \"Bring the blue notebook\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2223,
+          "completion_tokens": 27,
+          "total_tokens": 2250,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 4.3946050000377
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/qwen35-4b",
+        "uptime_s": 197.8159728050232,
+        "requests": 39,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4403.600956,
+          "gpu_peak_mb": 5596.768736,
+          "gpu_cache_mb": 375.09321,
+          "rss_mb": 2994.487296
+        },
+        "engines": {
+          "mlx": {
+            "requests": 39,
+            "prompt_tokens": 87749,
+            "cached_tokens": 0,
+            "completion_tokens": 1751,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 186.21059608552605,
+            "tool_calls": 29,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1751,
+            "prompt_cache_mb": 2028.404736,
+            "prompt_cache_entries": 16,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 16,
+                "mb": 2028
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "plan",
+      "repeat": 1,
+      "milliseconds": 4238.5,
+      "raw": {
+        "id": "chatcmpl-b69e6e1bd12c4ac89f816467",
+        "object": "chat.completion",
+        "created": 1792939327,
+        "model": "mlx/qwen35-4b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_2be739bd200a46bdbdb80569",
+                  "type": "function",
+                  "function": {
+                    "name": "day_plan",
+                    "arguments": "{}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2218,
+          "completion_tokens": 14,
+          "total_tokens": 2232,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 4.2334719999926165
+          }
+        }
+      },
+      "passed": true,
+      "reason": "contract_pass",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/qwen35-4b",
+        "uptime_s": 202.0600266456604,
+        "requests": 40,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4403.8631,
+          "gpu_peak_mb": 5596.768736,
+          "gpu_cache_mb": 386.963176,
+          "rss_mb": 2994.487296
+        },
+        "engines": {
+          "mlx": {
+            "requests": 40,
+            "prompt_tokens": 89967,
+            "cached_tokens": 0,
+            "completion_tokens": 1765,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 190.2180872944882,
+            "tool_calls": 30,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1765,
+            "prompt_cache_mb": 2028.601344,
+            "prompt_cache_entries": 16,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 16,
+                "mb": 2029
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "unsupported",
+      "repeat": 1,
+      "milliseconds": 4798.2,
+      "raw": {
+        "id": "chatcmpl-bd53fb50e6ac4819804e62d9",
+        "object": "chat.completion",
+        "created": 1792939331,
+        "model": "mlx/qwen35-4b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "I can't delete meals from your history. The available tools I have access to don't include a function to remove or delete logged meals from your nutrition chart.\n\nFor that action, you'll need to do it directly through the Banana app interface, where you can typically delete individual meal entries from your logged meals."
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2217,
+          "completion_tokens": 63,
+          "total_tokens": 2280,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 4.79260704095941
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/qwen35-4b",
+        "uptime_s": 206.86388397216797,
+        "requests": 41,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4404.6823,
+          "gpu_peak_mb": 5596.768736,
+          "gpu_cache_mb": 371.737734,
+          "rss_mb": 2994.487296
+        },
+        "engines": {
+          "mlx": {
+            "requests": 41,
+            "prompt_tokens": 92184,
+            "cached_tokens": 0,
+            "completion_tokens": 1828,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 194.78837487846613,
+            "tool_calls": 30,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 1828,
+            "prompt_cache_mb": 2029.387776,
+            "prompt_cache_entries": 16,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 16,
+                "mb": 2029
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "explanation",
+      "repeat": 1,
+      "milliseconds": 7599.9,
+      "raw": {
+        "id": "chatcmpl-dddd63cc6b6d4333a6c88c63",
+        "object": "chat.completion",
+        "created": 1792939339,
+        "model": "mlx/qwen35-4b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "Protein is one of the three main macronutrients (along with carbohydrates and fats) that your body needs to function properly. Here's a breakdown of what it is and what it does:\n\n*   **Building Blocks:** Proteins are made up of long chains of smaller units called **amino acids**. Your body uses these amino acids to build and repair tissues, including muscles, bones, skin, and organs.\n*   **Essential Function:** Because your body cannot create all the amino acids it needs on its own, some are called \"essential.\" These must be obtained through your diet.\n*   **Health Benefits:**\n    *   **Muscle Repair & Growth:** Protein is crucial for building and repairing muscle tissue after exercise or daily activity.\n    *   **Satiety:** Protein is the most satiating macronutrient, often keeping you fuller longer than carbs or fats.\n    *   **Immune Function:** Proteins are essential for making antibodies that fight off infections.\n    *   **Enzyme & Hormone Production:** Many enzymes and hormones are proteins that help regulate bodily processes.\n\nIn terms of food, good sources include meat, fish, eggs, dairy, legumes, nuts, and seeds. The recommended daily intake generally ranges from 0.8 to 1.0 grams of protein per kilogram of body weight, though athletes or those with higher protein needs may require more."
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2226,
+          "completion_tokens": 293,
+          "total_tokens": 2519,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 7.593764250050299
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/qwen35-4b",
+        "uptime_s": 214.47014498710632,
+        "requests": 42,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4413.169212,
+          "gpu_peak_mb": 5596.768736,
+          "gpu_cache_mb": 269.02298,
+          "rss_mb": 2994.487296
+        },
+        "engines": {
+          "mlx": {
+            "requests": 42,
+            "prompt_tokens": 94410,
+            "cached_tokens": 0,
+            "completion_tokens": 2121,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 202.16015779448207,
+            "tool_calls": 30,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 2121,
+            "prompt_cache_mb": 2037.84192,
+            "prompt_cache_entries": 16,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 16,
+                "mb": 2038
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "ambiguous",
+      "repeat": 1,
+      "milliseconds": 4916.0,
+      "raw": {
+        "id": "chatcmpl-a3cb3d21f7254ad587309147",
+        "object": "chat.completion",
+        "created": 1792939344,
+        "model": "mlx/qwen35-4b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "I don't have context about what \"that other thing\" refers to. Could you clarify what you'd like me to do?\n\nAre you asking about a meal, event, note, or something else?"
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2215,
+          "completion_tokens": 42,
+          "total_tokens": 2257,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 4.910354666993953
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/qwen35-4b",
+        "uptime_s": 219.39331889152527,
+        "requests": 43,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4408.991292,
+          "gpu_peak_mb": 5596.768736,
+          "gpu_cache_mb": 375.086274,
+          "rss_mb": 2994.487296
+        },
+        "engines": {
+          "mlx": {
+            "requests": 43,
+            "prompt_tokens": 96625,
+            "cached_tokens": 0,
+            "completion_tokens": 2163,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 206.84100441948976,
+            "tool_calls": 30,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 2163,
+            "prompt_cache_mb": 2033.58208,
+            "prompt_cache_entries": 16,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 16,
+                "mb": 2034
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "not-a-write",
+      "repeat": 1,
+      "milliseconds": 4085.4,
+      "raw": {
+        "id": "chatcmpl-02640fc797e74850b48e75bf",
+        "object": "chat.completion",
+        "created": 1792939348,
+        "model": "mlx/qwen35-4b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "I understand that you usually have eggs for breakfast. I won't log or save anything. Is there anything else I can help you with?"
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2229,
+          "completion_tokens": 28,
+          "total_tokens": 2257,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "locals": {
+            "engine": "mlx",
+            "forced_tokens": 0,
+            "passes": 0,
+            "constrained": false,
+            "wall_s": 4.079664833028801
+          }
+        }
+      },
+      "passed": true,
+      "reason": "reply_contract",
+      "engineStats": {
+        "model": "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/qwen35-4b",
+        "uptime_s": 223.48489379882812,
+        "requests": 44,
+        "errors": 0,
+        "active": [],
+        "memory": {
+          "gpu_active_mb": 4404.796988,
+          "gpu_peak_mb": 5596.768736,
+          "gpu_cache_mb": 399.41713,
+          "rss_mb": 2994.487296
+        },
+        "engines": {
+          "mlx": {
+            "requests": 44,
+            "prompt_tokens": 98854,
+            "cached_tokens": 0,
+            "completion_tokens": 2191,
+            "forced_tokens": 0,
+            "passes": 0,
+            "decode_s": 210.69980516948272,
+            "tool_calls": 30,
+            "loaded": true,
+            "active": 0,
+            "tokens_out": 2191,
+            "prompt_cache_mb": 2029.387776,
+            "prompt_cache_entries": 16,
+            "prompt_cache_by_kind": {
+              "assistant": {
+                "entries": 16,
+                "mb": 2029
+              },
+              "user": {
+                "entries": 0,
+                "mb": 0
+              },
+              "system": {
+                "entries": 0,
+                "mb": 0
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "versions": {
+    "mlx": "0.32.4",
+    "mlx-lm": "0.32.2",
+    "locals": "0.2.1"
+  },
+  "engineSourceCommit": "4f4d03f10232c9f2adeb1e96e2a7bd79a9e7fe19",
+  "engineSourceDirty": "",
+  "command": [
+    "../pi-inference-upstream/locals-env/bin/python",
+    "-m",
+    "locals.server",
+    "--model",
+    "~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/qwen35-4b",
+    "--engines",
+    "mlx",
+    "--preload",
+    "mlx",
+    "--host",
+    "127.0.0.1",
+    "--port",
+    "41790",
+    "--slots",
+    "1",
+    "--cache-gb",
+    "2",
+    "--max-context",
+    "32768",
+    "--max-tokens",
+    "2048",
+    "--temp",
+    "0.6",
+    "--top-p",
+    "0.95",
+    "--top-k",
+    "20",
+    "--seed",
+    "0"
+  ],
+  "loadSeconds": 2.686,
+  "serverModel": "mlx/qwen35-4b",
+  "hostAfter": {
+    "utc": "2026-10-25T14:42:28.673116+00:00",
+    "chip": "Apple M1 Max",
+    "ramBytes": "68719476736",
+    "os": "27.0.1",
+    "swap": "vm.swapusage: total = 23552.00M  used = 22208.75M  free = 1343.25M  (encrypted)",
+    "paging": {
+      "Pageouts": 371489,
+      "Swapins": 5042467,
+      "Swapouts": 9298822
+    }
+  },
+  "ownedWorkerReleased": true,
+  "pagingDelta": {
+    "Pageouts": 2,
+    "Swapins": 56,
+    "Swapouts": 0
+  },
+  "cleanPerformanceRun": false,
+  "summary": {
+    "passes": 42,
+    "total": 44,
+    "warmMedianMilliseconds": 4913.45,
+    "firstRequestMilliseconds": 6478.5,
+    "gpuPeakMB": 5596.768736,
+    "rssMaxObservedMB": 2994.487296
+  }
+}

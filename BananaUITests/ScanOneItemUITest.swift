@@ -15,17 +15,21 @@ final class ScanOneItemUITest: XCTestCase {
             var swipes = 0
             while !(element.exists && element.isHittable), swipes < 6 { app.swipeUp(); swipes += 1 }
         }
-        let scanItem = app.buttons.matching(NSPredicate(format: "identifier == %@ AND value == %@",
-                                                        "foodText.scanItem", "Side salad")).firstMatch
-        reveal(scanItem)
-        if !scanItem.exists {
+        // The item's own menu (its "…"), then Replace by scanning in it.
+        let itemMenu = app.buttons.matching(NSPredicate(format: "identifier == %@ AND value == %@",
+                                                        "foodText.itemMenu", "Side salad")).firstMatch
+        reveal(itemMenu)
+        if !itemMenu.exists {
             // Closed: open the salad's row first.
             let salad = app.staticTexts["Side salad"]
             reveal(salad)
             salad.tap()
-            reveal(scanItem)
+            reveal(itemMenu)
         }
-        XCTAssertTrue(scanItem.waitForExistence(timeout: 3), "an open item can be scanned on its own\n\(app.debugDescription)")
+        XCTAssertTrue(itemMenu.waitForExistence(timeout: 3), "an open item can be scanned on its own\n\(app.debugDescription)")
+        itemMenu.tap()
+        let scanItem = app.buttons["foodText.scanItem"].firstMatch
+        XCTAssertTrue(scanItem.waitForExistence(timeout: 3), app.debugDescription)
         scanItem.tap()
 
         XCTAssertTrue(app.navigationBars["Scan for Side salad"].waitForExistence(timeout: 5), app.debugDescription)

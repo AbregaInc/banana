@@ -1,0 +1,182 @@
+{
+  "model": "qwen3.5-4b-4bit",
+  "scope": "Exact user wording, captured native view and current registered tool schemas; inference replay only, not a completed app action. No native tools execute.",
+  "results": [
+    {
+      "prompt": "What is your name",
+      "repeat": 0,
+      "model": "qwen3.5-4b-4bit",
+      "milliseconds": 3925,
+      "old27BObservedMilliseconds": 16275,
+      "raw": {
+        "id": "chatcmpl-84c34b1bd8df4d8cb606f297",
+        "object": "chat.completion",
+        "created": 1792890897,
+        "model": "locals/qwen35-4b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "My name is Banana!"
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2320,
+          "completion_tokens": 5,
+          "total_tokens": 2325,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 0,
+            "passes": 6,
+            "constrained": true,
+            "wall_s": 3.9014595829648897
+          }
+        }
+      },
+      "contractPass": true
+    },
+    {
+      "prompt": "What is your name",
+      "repeat": 1,
+      "model": "qwen3.5-4b-4bit",
+      "milliseconds": 1223,
+      "old27BObservedMilliseconds": 16275,
+      "raw": {
+        "id": "chatcmpl-53c424ef6c4b4f2fb398f66d",
+        "object": "chat.completion",
+        "created": 1792890898,
+        "model": "locals/qwen35-4b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "My name is Banana. How can I help you?"
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2320,
+          "completion_tokens": 11,
+          "total_tokens": 2331,
+          "prompt_tokens_details": {
+            "cached_tokens": 2307
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 0,
+            "passes": 12,
+            "constrained": true,
+            "wall_s": 1.2092397089581937
+          }
+        }
+      },
+      "contractPass": true
+    },
+    {
+      "prompt": "Can you add the salmon dinner again",
+      "repeat": 0,
+      "model": "qwen3.5-4b-4bit",
+      "milliseconds": 2023,
+      "old27BObservedMilliseconds": 22038,
+      "raw": {
+        "id": "chatcmpl-d607513135b641f7b65f3d54",
+        "object": "chat.completion",
+        "created": 1792890900,
+        "model": "locals/qwen35-4b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "I can't directly add meals to your logged data. To add the salmon dinner, I need a specific meal ID from your logged meals. Let me first show you the salmon dinner options from your logged meals.",
+              "tool_calls": [
+                {
+                  "id": "call_69a272101382467db1ec2bd5",
+                  "type": "function",
+                  "function": {
+                    "name": "nutrition_view",
+                    "arguments": "{\"foodName\": \"salmon\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2362,
+          "completion_tokens": 72,
+          "total_tokens": 2434,
+          "prompt_tokens_details": {
+            "cached_tokens": 2307
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 13,
+            "passes": 59,
+            "constrained": true,
+            "wall_s": 2.0070801669498906
+          }
+        }
+      },
+      "contractPass": false
+    },
+    {
+      "prompt": "Can you add the salmon dinner again",
+      "repeat": 1,
+      "model": "qwen3.5-4b-4bit",
+      "milliseconds": 1860,
+      "old27BObservedMilliseconds": 22038,
+      "raw": {
+        "id": "chatcmpl-911dfabd5c0341c391a419bc",
+        "object": "chat.completion",
+        "created": 1792890902,
+        "model": "locals/qwen35-4b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "I can help you add the salmon dinner again. To do this, I need to find the meal ID for the salmon dinner in your logged meals. Let me check your nutrition data first to locate it.",
+              "tool_calls": [
+                {
+                  "id": "call_88bf8aa46cf842d89f4393c5",
+                  "type": "function",
+                  "function": {
+                    "name": "nutrition_view",
+                    "arguments": "{\"foodName\": \"salmon\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2362,
+          "completion_tokens": 71,
+          "total_tokens": 2433,
+          "prompt_tokens_details": {
+            "cached_tokens": 2343
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 13,
+            "passes": 58,
+            "constrained": true,
+            "wall_s": 1.8441904580686241
+          }
+        }
+      },
+      "contractPass": false
+    }
+  ]
+}

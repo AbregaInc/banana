@@ -28,10 +28,10 @@ struct MyFoodsView: View {
                 Section {
                     #if os(iOS)
                     // After shopping: package after package, the camera staying open.
-                    Button { scanningGroceries = true } label: { Label("Scan what you bought", systemImage: "cart") }
+                    Button { scanningGroceries = true } label: { WellnessTileLabel("Scan groceries", systemImage: "cart.fill") }
                         .accessibilityIdentifier("myFoods.scan")
                     #else
-                    Button { adding = true } label: { Label("Scan to add", systemImage: "barcode.viewfinder") }
+                    Button { adding = true } label: { WellnessTileLabel("Scan to add", systemImage: "barcode.viewfinder") }
                         .accessibilityIdentifier("myFoods.scan")
                     #endif
                 }

@@ -1,0 +1,83 @@
+~/orca/workspaces/gtfuwgth/pi-inference-upstream/locals-env/lib/python3.13/site-packages/mlx_lm/server.py:1894: UserWarning: mlx_lm.server is not recommended for production as it only implements basic security checks.
+  warnings.warn(
+2026-10-25 14:20:10,229 - INFO - Starting httpd at 127.0.0.1 on port 41790...
+127.0.0.1 - - [25/Oct/2026 14:20:10] "GET /v1/models HTTP/1.1" 200 -
+2026-10-25 14:20:11,127 - INFO - Prompt Cache: 0 sequences, 0.00 GB
+127.0.0.1 - - [25/Oct/2026 14:20:11] "POST /v1/chat/completions HTTP/1.1" 200 -
+2026-10-25 14:20:11,128 - INFO - - assistant: 0 sequences, 0.00 GB
+2026-10-25 14:20:11,128 - INFO - - user: 0 sequences, 0.00 GB
+2026-10-25 14:20:11,128 - INFO - - system: 0 sequences, 0.00 GB
+2026-10-25 14:20:11,129 - INFO - Prompt processing progress: 0/26
+2026-10-25 14:20:11,205 - INFO - Prompt processing progress: 25/26
+2026-10-25 14:20:11,223 - INFO - Prompt processing progress: 26/26
+127.0.0.1 - - [25/Oct/2026 14:20:11] "POST /v1/chat/completions HTTP/1.1" 200 -
+2026-10-25 14:20:11,255 - INFO - Prompt Cache: 1 sequences, 0.03 GB
+2026-10-25 14:20:11,255 - INFO - - assistant: 1 sequences, 0.03 GB
+2026-10-25 14:20:11,255 - INFO - - user: 0 sequences, 0.00 GB
+2026-10-25 14:20:11,255 - INFO - - system: 0 sequences, 0.00 GB
+2026-10-25 14:20:11,256 - INFO - Prompt processing progress: 0/33
+2026-10-25 14:20:11,301 - INFO - Prompt processing progress: 32/33
+2026-10-25 14:20:11,310 - INFO - Prompt processing progress: 33/33
+127.0.0.1 - - [25/Oct/2026 14:20:15] "POST /v1/chat/completions HTTP/1.1" 200 -
+2026-10-25 14:20:15,885 - INFO - Prompt Cache: 1 sequences, 0.08 GB
+2026-10-25 14:20:15,885 - INFO - - assistant: 1 sequences, 0.08 GB
+2026-10-25 14:20:15,885 - INFO - - user: 0 sequences, 0.00 GB
+2026-10-25 14:20:15,885 - INFO - - system: 0 sequences, 0.00 GB
+2026-10-25 14:20:15,886 - INFO - Prompt processing progress: 0/1
+2026-10-25 14:20:15,895 - INFO - Prompt processing progress: 1/1
+----------------------------------------
+Exception occurred during processing of request from ('127.0.0.1', 50366)
+127.0.0.1 - - [25/Oct/2026 14:22:11] "POST /v1/chat/completions HTTP/1.1" 200 -
+2026-10-25 14:22:11,164 - INFO - Prompt Cache: 1 sequences, 0.25 GB
+2026-10-25 14:22:11,165 - INFO - - assistant: 1 sequences, 0.25 GB
+2026-10-25 14:22:11,165 - INFO - - user: 0 sequences, 0.00 GB
+2026-10-25 14:22:11,165 - INFO - - system: 0 sequences, 0.00 GB
+2026-10-25 14:22:11,172 - INFO - Prompt processing progress: 0/8
+Traceback (most recent call last):
+  File "~/.local/share/uv/python/cpython-3.13.13-macos-aarch64-none/lib/python3.13/socketserver.py", line 697, in process_request_thread
+    self.finish_request(request, client_address)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "~/.local/share/uv/python/cpython-3.13.13-macos-aarch64-none/lib/python3.13/socketserver.py", line 362, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "~/orca/workspaces/gtfuwgth/pi-inference-upstream/locals-env/lib/python3.13/site-packages/mlx_lm/server.py", line 1887, in <lambda>
+    lambda *args, **kwargs: handler_class(
+                            ~~~~~~~~~~~~~^
+        response_generator,
+        ^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        **kwargs,
+        ^^^^^^^^^
+    ),
+    ^
+  File "~/orca/workspaces/gtfuwgth/pi-inference-upstream/locals-env/lib/python3.13/site-packages/mlx_lm/server.py", line 1211, in __init__
+    super().__init__(*args, **kwargs)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "~/.local/share/uv/python/cpython-3.13.13-macos-aarch64-none/lib/python3.13/socketserver.py", line 766, in __init__
+    self.handle()
+    ~~~~~~~~~~~^^
+  File "~/.local/share/uv/python/cpython-3.13.13-macos-aarch64-none/lib/python3.13/http/server.py", line 447, in handle
+    self.handle_one_request()
+    ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "~/.local/share/uv/python/cpython-3.13.13-macos-aarch64-none/lib/python3.13/http/server.py", line 435, in handle_one_request
+    method()
+    ~~~~~~^^
+  File "~/orca/workspaces/gtfuwgth/pi-inference-upstream/locals-env/lib/python3.13/site-packages/mlx_lm/server.py", line 1352, in do_POST
+    self.handle_completion(request, stop_words)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "~/orca/workspaces/gtfuwgth/pi-inference-upstream/locals-env/lib/python3.13/site-packages/mlx_lm/server.py", line 1714, in handle_completion
+    self.end_headers()
+    ~~~~~~~~~~~~~~~~^^
+  File "~/.local/share/uv/python/cpython-3.13.13-macos-aarch64-none/lib/python3.13/http/server.py", line 549, in end_headers
+    self.flush_headers()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "~/.local/share/uv/python/cpython-3.13.13-macos-aarch64-none/lib/python3.13/http/server.py", line 553, in flush_headers
+    self.wfile.write(b"".join(self._headers_buffer))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "~/.local/share/uv/python/cpython-3.13.13-macos-aarch64-none/lib/python3.13/socketserver.py", line 845, in write
+    self._sock.sendall(b)
+    ~~~~~~~~~~~~~~~~~~^^^
+BrokenPipeError: [Errno 32] Broken pipe
+----------------------------------------
+2026-10-25 14:22:11,675 - INFO - Prompt processing progress: 7/8
+2026-10-25 14:22:11,752 - INFO - Prompt processing progress: 8/8

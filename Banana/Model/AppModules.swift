@@ -41,7 +41,13 @@ enum AppModule: String, CaseIterable, Identifiable, Sendable {
         #endif
     }
 
-    func isAvailable(inBeta: Bool) -> Bool { self != .email || inBeta }
+    func isAvailable(inBeta: Bool) -> Bool {
+        #if BANANA_UNRELEASED
+        self != .email || inBeta
+        #else
+        self != .email
+        #endif
+    }
     var isAvailable: Bool { isAvailable(inBeta: Self.isBetaBuild) }
     static func selectable(inBeta: Bool) -> [AppModule] { allCases.filter { $0.isAvailable(inBeta: inBeta) } }
     static var selectable: [AppModule] { selectable(inBeta: isBetaBuild) }
@@ -126,11 +132,14 @@ extension AppSection {
         case .nutrition: .food
         case .notes: .notes
         case .library: .podcasts
-        case .plan, .routines, .settings, .review: nil
+        case .plan, .routines, .settings, .review, .assistant: nil
         }
     }
 
     func isShown(with choice: ModuleChoice) -> Bool {
+        #if !BANANA_AI
+        if self == .assistant { return false }
+        #endif
         if self == .review { return !ReviewSubject.shown(with: choice).isEmpty }
         return module.map(choice.includes) ?? true
     }

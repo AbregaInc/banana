@@ -1,0 +1,20 @@
+[
+  {
+    "modelDirectory": "lfm1200",
+    "mlxToolCalling": true,
+    "mlxToolParser": "mlx_lm.tool_parsers.pythonic",
+    "localsFormat": "fallback"
+  },
+  {
+    "modelDirectory": "lfm2600",
+    "mlxToolCalling": true,
+    "mlxToolParser": "mlx_lm.tool_parsers.pythonic",
+    "localsFormat": "lfm2_python"
+  },
+  {
+    "modelDirectory": "qwen35-4b",
+    "mlxToolCalling": true,
+    "mlxToolParser": "mlx_lm.tool_parsers.qwen3_coder",
+    "localsFormat": "qwen_xml"
+  }
+]

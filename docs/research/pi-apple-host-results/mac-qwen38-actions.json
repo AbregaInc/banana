@@ -1,0 +1,1380 @@
+{
+  "backend": "qwen3.8-27b-4bit",
+  "reasoning": "medium",
+  "complete": true,
+  "results": [
+    {
+      "case": "monthly",
+      "repeat": 0,
+      "raw": {
+        "id": "chatcmpl-c39adf3a88a94384b5225752",
+        "object": "chat.completion",
+        "created": 1792875214,
+        "model": "locals/qwen38-27b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": "The user wants to see their protein this month. The current nutrition view already shows protein metric with start 2026-10-01 and end 2026-10-24. The period \"this_month\" matches. Let me call nutrition_view with metric \"protein\" and period \"this_month\" to show the chart.",
+              "tool_calls": [
+                {
+                  "id": "call_843afe12f53a4641af1c603f",
+                  "type": "function",
+                  "function": {
+                    "name": "nutrition_view",
+                    "arguments": "{\"metric\": \"protein\", \"period\": \"this_month\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 1407,
+          "completion_tokens": 117,
+          "total_tokens": 1524,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 14,
+            "passes": 104,
+            "constrained": true,
+            "wall_s": 24.045723958988674
+          }
+        }
+      },
+      "response": {
+        "content": [
+          {
+            "type": "toolCall",
+            "id": "call_843afe12f53a4641af1c603f",
+            "name": "nutrition_view",
+            "arguments": {
+              "metric": "protein",
+              "period": "this_month"
+            }
+          }
+        ]
+      },
+      "milliseconds": 24062.3,
+      "toolContractPass": true,
+      "toolContractReason": "contract_pass"
+    },
+    {
+      "case": "calories",
+      "repeat": 0,
+      "raw": {
+        "id": "chatcmpl-664e75c9f5d64086a03bd1a6",
+        "object": "chat.completion",
+        "created": 1792875221,
+        "model": "locals/qwen38-27b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": "The user wants to see calories over the last seven days. I need to use the nutrition_view tool with metric set to \"calories\" and period set to \"last_7_days\".",
+              "tool_calls": [
+                {
+                  "id": "call_762183a4ec75451995f93a7e",
+                  "type": "function",
+                  "function": {
+                    "name": "nutrition_view",
+                    "arguments": "{\"metric\": \"calories\", \"period\": \"last_7_days\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 1409,
+          "completion_tokens": 84,
+          "total_tokens": 1493,
+          "prompt_tokens_details": {
+            "cached_tokens": 1395
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 14,
+            "passes": 71,
+            "constrained": true,
+            "wall_s": 6.682730624917895
+          }
+        }
+      },
+      "response": {
+        "content": [
+          {
+            "type": "toolCall",
+            "id": "call_762183a4ec75451995f93a7e",
+            "name": "nutrition_view",
+            "arguments": {
+              "metric": "calories",
+              "period": "last_7_days"
+            }
+          }
+        ]
+      },
+      "milliseconds": 6690.2,
+      "toolContractPass": true,
+      "toolContractReason": "contract_pass"
+    },
+    {
+      "case": "search",
+      "repeat": 0,
+      "raw": {
+        "id": "chatcmpl-0e738ef3e20d4c809151bd46",
+        "object": "chat.completion",
+        "created": 1792875226,
+        "model": "locals/qwen38-27b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": "The user wants to find meals containing yogurt. I should use the nutrition_view tool with foodName set to \"yogurt\" since they explicitly named a food.",
+              "tool_calls": [
+                {
+                  "id": "call_79e1a1d2b1ba446cb41e4d12",
+                  "type": "function",
+                  "function": {
+                    "name": "nutrition_view",
+                    "arguments": "{\"foodName\": \"yogurt\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 1407,
+          "completion_tokens": 66,
+          "total_tokens": 1473,
+          "prompt_tokens_details": {
+            "cached_tokens": 1395
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 13,
+            "passes": 54,
+            "constrained": true,
+            "wall_s": 5.071650374913588
+          }
+        }
+      },
+      "response": {
+        "content": [
+          {
+            "type": "toolCall",
+            "id": "call_79e1a1d2b1ba446cb41e4d12",
+            "name": "nutrition_view",
+            "arguments": {
+              "foodName": "yogurt"
+            }
+          }
+        ]
+      },
+      "milliseconds": 5078.5,
+      "toolContractPass": true,
+      "toolContractReason": "contract_pass"
+    },
+    {
+      "case": "weekdays",
+      "repeat": 0,
+      "raw": {
+        "id": "chatcmpl-8abfa05a4c6844cf80c89204",
+        "object": "chat.completion",
+        "created": 1792875232,
+        "model": "locals/qwen38-27b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": "The user says \"Only weekdays\" - they want to filter the nutrition chart to show only weekdays. I should use the filter_nutrition tool with the \"weekdays_only\" change.",
+              "tool_calls": [
+                {
+                  "id": "call_a1ef2d09cef04cc1a036ac98",
+                  "type": "function",
+                  "function": {
+                    "name": "filter_nutrition",
+                    "arguments": "{\"changes\": [\"weekdays_only\"]}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 1404,
+          "completion_tokens": 73,
+          "total_tokens": 1477,
+          "prompt_tokens_details": {
+            "cached_tokens": 1395
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 13,
+            "passes": 61,
+            "constrained": true,
+            "wall_s": 5.660739665967412
+          }
+        }
+      },
+      "response": {
+        "content": [
+          {
+            "type": "toolCall",
+            "id": "call_a1ef2d09cef04cc1a036ac98",
+            "name": "filter_nutrition",
+            "arguments": {
+              "changes": [
+                "weekdays_only"
+              ]
+            }
+          }
+        ]
+      },
+      "milliseconds": 5669.2,
+      "toolContractPass": true,
+      "toolContractReason": "contract_pass"
+    },
+    {
+      "case": "compare",
+      "repeat": 0,
+      "raw": {
+        "id": "chatcmpl-2016554759484500aed5ff03",
+        "object": "chat.completion",
+        "created": 1792875236,
+        "model": "locals/qwen38-27b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": "The user wants to compare the current nutrition chart with the previous period. I need to use the filter_nutrition tool to enable the compare_previous option.",
+              "tool_calls": [
+                {
+                  "id": "call_5914245e23ba4348ab080bc6",
+                  "type": "function",
+                  "function": {
+                    "name": "filter_nutrition",
+                    "arguments": "{\"changes\": [\"compare_previous\"]}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 1407,
+          "completion_tokens": 65,
+          "total_tokens": 1472,
+          "prompt_tokens_details": {
+            "cached_tokens": 1395
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 13,
+            "passes": 53,
+            "constrained": true,
+            "wall_s": 4.633000666974112
+          }
+        }
+      },
+      "response": {
+        "content": [
+          {
+            "type": "toolCall",
+            "id": "call_5914245e23ba4348ab080bc6",
+            "name": "filter_nutrition",
+            "arguments": {
+              "changes": [
+                "compare_previous"
+              ]
+            }
+          }
+        ]
+      },
+      "milliseconds": 4639.8,
+      "toolContractPass": true,
+      "toolContractReason": "contract_pass"
+    },
+    {
+      "case": "copy",
+      "repeat": 0,
+      "raw": {
+        "id": "chatcmpl-c103db605d3549bda89e314b",
+        "object": "chat.completion",
+        "created": 1792875248,
+        "model": "locals/qwen38-27b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": "The user wants to prepare a copy of the selected Greek yogurt breakfast for tomorrow. The selected meal has ID \"BA5A4E11-0000-4000-8000-000202610231\" and the name is \"Sample \u00b7 Greek yogurt breakfast\". I need to use prepare_meal_copy with the mealID and day set to \"tomorrow\".",
+              "tool_calls": [
+                {
+                  "id": "call_595d6b90b06b4d52a2520d44",
+                  "type": "function",
+                  "function": {
+                    "name": "prepare_meal_copy",
+                    "arguments": "{\"mealID\": \"BA5A4E11-0000-4000-8000-000202610231\", \"day\": \"tomorrow\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 1420,
+          "completion_tokens": 168,
+          "total_tokens": 1588,
+          "prompt_tokens_details": {
+            "cached_tokens": 1395
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 14,
+            "passes": 155,
+            "constrained": true,
+            "wall_s": 11.079247000045143
+          }
+        }
+      },
+      "response": {
+        "content": [
+          {
+            "type": "toolCall",
+            "id": "call_595d6b90b06b4d52a2520d44",
+            "name": "prepare_meal_copy",
+            "arguments": {
+              "mealID": "BA5A4E11-0000-4000-8000-000202610231",
+              "day": "tomorrow"
+            }
+          }
+        ]
+      },
+      "milliseconds": 11085.9,
+      "toolContractPass": true,
+      "toolContractReason": "contract_pass"
+    },
+    {
+      "case": "notes",
+      "repeat": 0,
+      "raw": {
+        "id": "chatcmpl-52917b0fe7724ff689d4c795",
+        "object": "chat.completion",
+        "created": 1792875257,
+        "model": "locals/qwen38-27b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": "The user asks to show recent notes. Use list_notes tool.",
+              "tool_calls": [
+                {
+                  "id": "call_84830ebc75fb4598be2655cc",
+                  "type": "function",
+                  "function": {
+                    "name": "list_notes",
+                    "arguments": "{}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 1406,
+          "completion_tokens": 29,
+          "total_tokens": 1435,
+          "prompt_tokens_details": {
+            "cached_tokens": 1395
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 10,
+            "passes": 20,
+            "constrained": true,
+            "wall_s": 9.046446125023067
+          }
+        }
+      },
+      "response": {
+        "content": [
+          {
+            "type": "toolCall",
+            "id": "call_84830ebc75fb4598be2655cc",
+            "name": "list_notes",
+            "arguments": {}
+          }
+        ]
+      },
+      "milliseconds": 9053.1,
+      "toolContractPass": true,
+      "toolContractReason": "contract_pass"
+    },
+    {
+      "case": "plan",
+      "repeat": 0,
+      "raw": {
+        "id": "chatcmpl-4c452b56398d4d528e87086f",
+        "object": "chat.completion",
+        "created": 1792875261,
+        "model": "locals/qwen38-27b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": "The user asks about their schedule today. I should use the day_plan tool with no date (today).",
+              "tool_calls": [
+                {
+                  "id": "call_458bc252e78a4f67aed50692",
+                  "type": "function",
+                  "function": {
+                    "name": "day_plan",
+                    "arguments": "{}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 1409,
+          "completion_tokens": 38,
+          "total_tokens": 1447,
+          "prompt_tokens_details": {
+            "cached_tokens": 1395
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 10,
+            "passes": 29,
+            "constrained": true,
+            "wall_s": 4.532897666096687
+          }
+        }
+      },
+      "response": {
+        "content": [
+          {
+            "type": "toolCall",
+            "id": "call_458bc252e78a4f67aed50692",
+            "name": "day_plan",
+            "arguments": {}
+          }
+        ]
+      },
+      "milliseconds": 4539.2,
+      "toolContractPass": true,
+      "toolContractReason": "contract_pass"
+    },
+    {
+      "case": "greeting",
+      "repeat": 0,
+      "raw": {
+        "id": "chatcmpl-7e1b66d6f552476ea41ad649",
+        "object": "chat.completion",
+        "created": 1792875266,
+        "model": "locals/qwen38-27b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "Hi there! How can I help you today?",
+              "reasoning_content": "The user is greeting me. This is a simple greeting, so I should reply directly without tools."
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 1403,
+          "completion_tokens": 33,
+          "total_tokens": 1436,
+          "prompt_tokens_details": {
+            "cached_tokens": 1395
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 0,
+            "passes": 34,
+            "constrained": true,
+            "wall_s": 4.605107167037204
+          }
+        }
+      },
+      "response": {
+        "content": [
+          {
+            "type": "text",
+            "text": "Hi there! How can I help you today?"
+          }
+        ]
+      },
+      "milliseconds": 4612.0,
+      "toolContractPass": true,
+      "toolContractReason": "no_tool"
+    },
+    {
+      "case": "explanation",
+      "repeat": 0,
+      "raw": {
+        "id": "chatcmpl-20fdb695a8144b89be1b14d3",
+        "object": "chat.completion",
+        "created": 1792875283,
+        "model": "locals/qwen38-27b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "Protein is a macronutrient made up of chains of amino acids \u2014 often called the \"building blocks\" of the body. It's essential for:\n\n- **Building and repairing tissue** \u2013 muscles, skin, organs, and enzymes all rely on protein.\n- **Supporting immune function** \u2013 antibodies are proteins.\n- **Transporting molecules** \u2013 hemoglobin carries oxygen in the blood.\n- **Regulating processes** \u2013 hormones and enzymes (like those that digest food) are proteins.\n- **Providing energy** \u2013 about 4 calories per gram, though it's not the body's preferred fuel.\n\nThe body needs several *essential* amino acids that it can't make on its own, so you get them from food \u2014 meat, fish, eggs, dairy, legumes, nuts, and grains all contribute.\n\nA common rough target for adults is around 0.8 g per kilogram of body weight per day, though active people or those doing resistance training often aim higher (1.2\u20132.0 g/kg).\n\nIf you'd like, I can pull up your logged protein intake from the nutrition chart to see how your recent intake looks.",
+              "reasoning_content": "The user is asking a general knowledge question about what protein is. This is a general conversation/knowledge question, not a request for nutrition data, notes, or day plan. I should answer directly without using any tools."
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 1407,
+          "completion_tokens": 290,
+          "total_tokens": 1697,
+          "prompt_tokens_details": {
+            "cached_tokens": 1395
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 0,
+            "passes": 291,
+            "constrained": true,
+            "wall_s": 17.001649333979003
+          }
+        }
+      },
+      "response": {
+        "content": [
+          {
+            "type": "text",
+            "text": "Protein is a macronutrient made up of chains of amino acids \u2014 often called the \"building blocks\" of the body. It's essential for:\n\n- **Building and repairing tissue** \u2013 muscles, skin, organs, and enzymes all rely on protein.\n- **Supporting immune function** \u2013 antibodies are proteins.\n- **Transporting molecules** \u2013 hemoglobin carries oxygen in the blood.\n- **Regulating processes** \u2013 hormones and enzymes (like those that digest food) are proteins.\n- **Providing energy** \u2013 about 4 calories per gram, though it's not the body's preferred fuel.\n\nThe body needs several *essential* amino acids that it can't make on its own, so you get them from food \u2014 meat, fish, eggs, dairy, legumes, nuts, and grains all contribute.\n\nA common rough target for adults is around 0.8 g per kilogram of body weight per day, though active people or those doing resistance training often aim higher (1.2\u20132.0 g/kg).\n\nIf you'd like, I can pull up your logged protein intake from the nutrition chart to see how your recent intake looks."
+          }
+        ]
+      },
+      "milliseconds": 17008.2,
+      "toolContractPass": true,
+      "toolContractReason": "no_tool"
+    },
+    {
+      "case": "unsupported",
+      "repeat": 0,
+      "raw": {
+        "id": "chatcmpl-d8571701e5914d76b55c1cf6",
+        "object": "chat.completion",
+        "created": 1792875300,
+        "model": "locals/qwen38-27b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "I don't have a way to delete meals from your nutrition history \u2014 there's no remove or delete action available to me. You'd need to do that directly in the nutrition app (typically long-press or swipe a logged meal to remove it).\n\nIs there something else I can help with, like reviewing your logged meals or adjusting the chart?",
+              "reasoning_content": "The user is asking to \"delete every meal in my history.\" Let me think about what tools I have available:\n\n1. `nutrition_view` - Show a nutrition chart or find logged meals\n2. `filter_nutrition` - Update the current chart filters\n3. `prepare_meal_copy` - Prepare an existing logged meal for review on another day\n4. `list_notes` - List recent Banana notes\n5. `read_note` - Read one Banana note\n6. `create_note` - Create a written Banana note\n7. `day_plan` - Read the person's Banana day plan\n\nNone of these tools have a \"delete\" capability. There's no delete_meal, remove_meal, or similar function available. I cannot delete meals from the user's nutrition history because I don't have a tool that supports that operation.\n\nI should let the user know honestly that I don't have the ability to delete meals from their history, and suggest an alternative if one exists (like manually deleting in the app)."
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 1408,
+          "completion_tokens": 286,
+          "total_tokens": 1694,
+          "prompt_tokens_details": {
+            "cached_tokens": 1395
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 0,
+            "passes": 287,
+            "constrained": true,
+            "wall_s": 17.622610875056125
+          }
+        }
+      },
+      "response": {
+        "content": [
+          {
+            "type": "text",
+            "text": "I don't have a way to delete meals from your nutrition history \u2014 there's no remove or delete action available to me. You'd need to do that directly in the nutrition app (typically long-press or swipe a logged meal to remove it).\n\nIs there something else I can help with, like reviewing your logged meals or adjusting the chart?"
+          }
+        ]
+      },
+      "milliseconds": 17629.0,
+      "toolContractPass": true,
+      "toolContractReason": "no_tool"
+    },
+    {
+      "case": "ambiguous",
+      "repeat": 0,
+      "raw": {
+        "id": "chatcmpl-4761a0cec01748d89edb1c89",
+        "object": "chat.completion",
+        "created": 1792875307,
+        "model": "locals/qwen38-27b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "I'm not sure which \"other thing\" you're referring to \u2014 there's no prior context in our conversation for me to pick up on. Could you let me know what you'd like me to do?",
+              "reasoning_content": "The user says \"Do that other thing\" which is vague and doesn't reference any specific previous context. There's no prior conversation to reference \"that other thing.\" I should ask for clarification."
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 1406,
+          "completion_tokens": 84,
+          "total_tokens": 1490,
+          "prompt_tokens_details": {
+            "cached_tokens": 1395
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 0,
+            "passes": 85,
+            "constrained": true,
+            "wall_s": 6.805244082934223
+          }
+        }
+      },
+      "response": {
+        "content": [
+          {
+            "type": "text",
+            "text": "I'm not sure which \"other thing\" you're referring to \u2014 there's no prior context in our conversation for me to pick up on. Could you let me know what you'd like me to do?"
+          }
+        ]
+      },
+      "milliseconds": 6812.2,
+      "toolContractPass": true,
+      "toolContractReason": "no_tool"
+    },
+    {
+      "case": "monthly",
+      "repeat": 1,
+      "raw": {
+        "id": "chatcmpl-920f8d538eb24e1db92a9235",
+        "object": "chat.completion",
+        "created": 1792875322,
+        "model": "locals/qwen38-27b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": "The user wants to see their protein this month. The current nutrition view already has metric set to \"protein\" and the period covers 2026-10-01 to 2026-10-24. The period \"this_month\" would start on the first of this month. Let me use the nutrition_view tool with metric \"protein\" and period \"this_month\" to show the chart.",
+              "tool_calls": [
+                {
+                  "id": "call_b260510436c0481aad896b5e",
+                  "type": "function",
+                  "function": {
+                    "name": "nutrition_view",
+                    "arguments": "{\"metric\": \"protein\", \"period\": \"this_month\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 1407,
+          "completion_tokens": 131,
+          "total_tokens": 1538,
+          "prompt_tokens_details": {
+            "cached_tokens": 1395
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 14,
+            "passes": 118,
+            "constrained": true,
+            "wall_s": 15.147124625043944
+          }
+        }
+      },
+      "response": {
+        "content": [
+          {
+            "type": "toolCall",
+            "id": "call_b260510436c0481aad896b5e",
+            "name": "nutrition_view",
+            "arguments": {
+              "metric": "protein",
+              "period": "this_month"
+            }
+          }
+        ]
+      },
+      "milliseconds": 15154.4,
+      "toolContractPass": true,
+      "toolContractReason": "contract_pass"
+    },
+    {
+      "case": "calories",
+      "repeat": 1,
+      "raw": {
+        "id": "chatcmpl-fbddb5e69c394f7293e8a3a0",
+        "object": "chat.completion",
+        "created": 1792875329,
+        "model": "locals/qwen38-27b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": "The user wants to see calories over the last seven days. I need to use the nutrition_view tool with metric set to \"calories\" and period set to \"last_7_days\".",
+              "tool_calls": [
+                {
+                  "id": "call_318b1191085e48cbbbbfac47",
+                  "type": "function",
+                  "function": {
+                    "name": "nutrition_view",
+                    "arguments": "{\"metric\": \"calories\", \"period\": \"last_7_days\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 1409,
+          "completion_tokens": 84,
+          "total_tokens": 1493,
+          "prompt_tokens_details": {
+            "cached_tokens": 1395
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 14,
+            "passes": 71,
+            "constrained": true,
+            "wall_s": 7.003663499956019
+          }
+        }
+      },
+      "response": {
+        "content": [
+          {
+            "type": "toolCall",
+            "id": "call_318b1191085e48cbbbbfac47",
+            "name": "nutrition_view",
+            "arguments": {
+              "metric": "calories",
+              "period": "last_7_days"
+            }
+          }
+        ]
+      },
+      "milliseconds": 7010.2,
+      "toolContractPass": true,
+      "toolContractReason": "contract_pass"
+    },
+    {
+      "case": "search",
+      "repeat": 1,
+      "raw": {
+        "id": "chatcmpl-f69831f9be394f3288b3a186",
+        "object": "chat.completion",
+        "created": 1792875335,
+        "model": "locals/qwen38-27b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": "The user wants to find meals containing yogurt. I should use the nutrition_view tool with foodName set to \"yogurt\" since yogurt is an explicitly named food.",
+              "tool_calls": [
+                {
+                  "id": "call_73abce61317c4a1585107123",
+                  "type": "function",
+                  "function": {
+                    "name": "nutrition_view",
+                    "arguments": "{\"foodName\": \"yogurt\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 1407,
+          "completion_tokens": 67,
+          "total_tokens": 1474,
+          "prompt_tokens_details": {
+            "cached_tokens": 1395
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 13,
+            "passes": 55,
+            "constrained": true,
+            "wall_s": 6.05263025010936
+          }
+        }
+      },
+      "response": {
+        "content": [
+          {
+            "type": "toolCall",
+            "id": "call_73abce61317c4a1585107123",
+            "name": "nutrition_view",
+            "arguments": {
+              "foodName": "yogurt"
+            }
+          }
+        ]
+      },
+      "milliseconds": 6059.3,
+      "toolContractPass": true,
+      "toolContractReason": "contract_pass"
+    },
+    {
+      "case": "weekdays",
+      "repeat": 1,
+      "raw": {
+        "id": "chatcmpl-dbfbb750360a4ff6a1bf072c",
+        "object": "chat.completion",
+        "created": 1792875342,
+        "model": "locals/qwen38-27b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": "The user says \"Only weekdays\" \u2014 they want to filter the nutrition chart to weekdays only. This is a filter change on the current nutrition view. I should use the filter_nutrition tool with \"weekdays_only\" as the change.",
+              "tool_calls": [
+                {
+                  "id": "call_140fe50d84b24216801fa87f",
+                  "type": "function",
+                  "function": {
+                    "name": "filter_nutrition",
+                    "arguments": "{\"changes\": [\"weekdays_only\"]}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 1404,
+          "completion_tokens": 84,
+          "total_tokens": 1488,
+          "prompt_tokens_details": {
+            "cached_tokens": 1395
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 13,
+            "passes": 72,
+            "constrained": true,
+            "wall_s": 6.415289249969646
+          }
+        }
+      },
+      "response": {
+        "content": [
+          {
+            "type": "toolCall",
+            "id": "call_140fe50d84b24216801fa87f",
+            "name": "filter_nutrition",
+            "arguments": {
+              "changes": [
+                "weekdays_only"
+              ]
+            }
+          }
+        ]
+      },
+      "milliseconds": 6421.6,
+      "toolContractPass": true,
+      "toolContractReason": "contract_pass"
+    },
+    {
+      "case": "compare",
+      "repeat": 1,
+      "raw": {
+        "id": "chatcmpl-181907c1b4ed49e79cc49b4a",
+        "object": "chat.completion",
+        "created": 1792875347,
+        "model": "locals/qwen38-27b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": "The user wants to compare with the previous period. I should use the filter_nutrition tool with the \"compare_previous\" change.",
+              "tool_calls": [
+                {
+                  "id": "call_1577d8344b8b4e439163f8a0",
+                  "type": "function",
+                  "function": {
+                    "name": "filter_nutrition",
+                    "arguments": "{\"changes\": [\"compare_previous\"]}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 1407,
+          "completion_tokens": 61,
+          "total_tokens": 1468,
+          "prompt_tokens_details": {
+            "cached_tokens": 1395
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 13,
+            "passes": 49,
+            "constrained": true,
+            "wall_s": 5.142242624890059
+          }
+        }
+      },
+      "response": {
+        "content": [
+          {
+            "type": "toolCall",
+            "id": "call_1577d8344b8b4e439163f8a0",
+            "name": "filter_nutrition",
+            "arguments": {
+              "changes": [
+                "compare_previous"
+              ]
+            }
+          }
+        ]
+      },
+      "milliseconds": 5149.5,
+      "toolContractPass": true,
+      "toolContractReason": "contract_pass"
+    },
+    {
+      "case": "copy",
+      "repeat": 1,
+      "raw": {
+        "id": "chatcmpl-b0f65c25a8e84238a7223062",
+        "object": "chat.completion",
+        "created": 1792875358,
+        "model": "locals/qwen38-27b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": "The user wants to prepare a copy of the selected Greek yogurt breakfast for tomorrow. The selected meal ID is \"BA5A4E11-0000-4000-8000-000202610231\" and they want it for tomorrow. I should use prepare_meal_copy with the mealID and day set to \"tomorrow\".",
+              "tool_calls": [
+                {
+                  "id": "call_9d448bc1e4044fbcb07430c6",
+                  "type": "function",
+                  "function": {
+                    "name": "prepare_meal_copy",
+                    "arguments": "{\"mealID\": \"BA5A4E11-0000-4000-8000-000202610231\", \"day\": \"tomorrow\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 1420,
+          "completion_tokens": 163,
+          "total_tokens": 1583,
+          "prompt_tokens_details": {
+            "cached_tokens": 1395
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 14,
+            "passes": 150,
+            "constrained": true,
+            "wall_s": 11.07803504099138
+          }
+        }
+      },
+      "response": {
+        "content": [
+          {
+            "type": "toolCall",
+            "id": "call_9d448bc1e4044fbcb07430c6",
+            "name": "prepare_meal_copy",
+            "arguments": {
+              "mealID": "BA5A4E11-0000-4000-8000-000202610231",
+              "day": "tomorrow"
+            }
+          }
+        ]
+      },
+      "milliseconds": 11084.7,
+      "toolContractPass": true,
+      "toolContractReason": "contract_pass"
+    },
+    {
+      "case": "notes",
+      "repeat": 1,
+      "raw": {
+        "id": "chatcmpl-8dfee8dae51b4a73b84909f8",
+        "object": "chat.completion",
+        "created": 1792875367,
+        "model": "locals/qwen38-27b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": "The user wants to see their recent notes. I should use the list_notes tool.",
+              "tool_calls": [
+                {
+                  "id": "call_b0a23fad872f41bdaf697e49",
+                  "type": "function",
+                  "function": {
+                    "name": "list_notes",
+                    "arguments": "{}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 1406,
+          "completion_tokens": 33,
+          "total_tokens": 1439,
+          "prompt_tokens_details": {
+            "cached_tokens": 1395
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 10,
+            "passes": 24,
+            "constrained": true,
+            "wall_s": 8.508843666990288
+          }
+        }
+      },
+      "response": {
+        "content": [
+          {
+            "type": "toolCall",
+            "id": "call_b0a23fad872f41bdaf697e49",
+            "name": "list_notes",
+            "arguments": {}
+          }
+        ]
+      },
+      "milliseconds": 8516.1,
+      "toolContractPass": true,
+      "toolContractReason": "contract_pass"
+    },
+    {
+      "case": "plan",
+      "repeat": 1,
+      "raw": {
+        "id": "chatcmpl-6b29f8fd31e04b60a82071e9",
+        "object": "chat.completion",
+        "created": 1792875372,
+        "model": "locals/qwen38-27b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": "The user is asking about their schedule today. This is a request about their day plan, so I should use the day_plan tool. Since they're asking about today, I don't need to pass a date parameter.",
+              "tool_calls": [
+                {
+                  "id": "call_f1151368158d4338864af916",
+                  "type": "function",
+                  "function": {
+                    "name": "day_plan",
+                    "arguments": "{}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 1409,
+          "completion_tokens": 61,
+          "total_tokens": 1470,
+          "prompt_tokens_details": {
+            "cached_tokens": 1395
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 10,
+            "passes": 52,
+            "constrained": true,
+            "wall_s": 5.678081041900441
+          }
+        }
+      },
+      "response": {
+        "content": [
+          {
+            "type": "toolCall",
+            "id": "call_f1151368158d4338864af916",
+            "name": "day_plan",
+            "arguments": {}
+          }
+        ]
+      },
+      "milliseconds": 5685.1,
+      "toolContractPass": true,
+      "toolContractReason": "contract_pass"
+    },
+    {
+      "case": "greeting",
+      "repeat": 1,
+      "raw": {
+        "id": "chatcmpl-bac9698cf3324a3280e27395",
+        "object": "chat.completion",
+        "created": 1792875376,
+        "model": "locals/qwen38-27b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "Hi there! How can I help you today?",
+              "reasoning_content": "The user is just saying \"Hello\" - this is a greeting. I should reply directly without tools."
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 1403,
+          "completion_tokens": 34,
+          "total_tokens": 1437,
+          "prompt_tokens_details": {
+            "cached_tokens": 1395
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 0,
+            "passes": 35,
+            "constrained": true,
+            "wall_s": 4.128059334005229
+          }
+        }
+      },
+      "response": {
+        "content": [
+          {
+            "type": "text",
+            "text": "Hi there! How can I help you today?"
+          }
+        ]
+      },
+      "milliseconds": 4134.9,
+      "toolContractPass": true,
+      "toolContractReason": "no_tool"
+    },
+    {
+      "case": "explanation",
+      "repeat": 1,
+      "raw": {
+        "id": "chatcmpl-ebc5c56bfc484f98995d3807",
+        "object": "chat.completion",
+        "created": 1792875391,
+        "model": "locals/qwen38-27b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "Protein is a macronutrient made up of chains of amino acids. Your body uses it to:\n\n- **Build and repair tissues** \u2013 muscles, skin, organs, and enzymes are all constructed from protein.\n- **Support immune function** \u2013 antibodies are proteins that help fight infection.\n- **Carry out chemical reactions** \u2013 enzymes, hormones, and transport molecules (like hemoglobin) are all proteins.\n- **Provide energy** \u2013 about 4 calories per gram, though it's primarily a structural nutrient rather than a fuel source.\n\nThere are 20 amino acids; nine of them are \"essential,\" meaning your body can't make them and you must get them from food. Common protein sources include meat, fish, eggs, dairy, legumes, tofu, and nuts.\n\nIf you'd like, I can pull up your logged protein intake from your nutrition data.",
+              "reasoning_content": "The user is asking me to explain what protein is. This is a general knowledge question, not a request for nutrition data from their app. I should answer directly without using any tools."
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 1407,
+          "completion_tokens": 224,
+          "total_tokens": 1631,
+          "prompt_tokens_details": {
+            "cached_tokens": 1395
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 0,
+            "passes": 225,
+            "constrained": true,
+            "wall_s": 14.2937917499803
+          }
+        }
+      },
+      "response": {
+        "content": [
+          {
+            "type": "text",
+            "text": "Protein is a macronutrient made up of chains of amino acids. Your body uses it to:\n\n- **Build and repair tissues** \u2013 muscles, skin, organs, and enzymes are all constructed from protein.\n- **Support immune function** \u2013 antibodies are proteins that help fight infection.\n- **Carry out chemical reactions** \u2013 enzymes, hormones, and transport molecules (like hemoglobin) are all proteins.\n- **Provide energy** \u2013 about 4 calories per gram, though it's primarily a structural nutrient rather than a fuel source.\n\nThere are 20 amino acids; nine of them are \"essential,\" meaning your body can't make them and you must get them from food. Common protein sources include meat, fish, eggs, dairy, legumes, tofu, and nuts.\n\nIf you'd like, I can pull up your logged protein intake from your nutrition data."
+          }
+        ]
+      },
+      "milliseconds": 14301.3,
+      "toolContractPass": true,
+      "toolContractReason": "no_tool"
+    },
+    {
+      "case": "unsupported",
+      "repeat": 1,
+      "raw": {
+        "id": "chatcmpl-1d9af6406b7f4e1cad3d6bc3",
+        "object": "chat.completion",
+        "created": 1792875408,
+        "model": "locals/qwen38-27b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "I'm sorry, but I don't have the ability to delete meals from your nutrition history. My tools let me view and filter your logged meals, or prepare a copy of one for another day, but there's no delete function available to me.\n\nIf you need to remove meals, you'd have to do that directly in the app's meal history. Is there something else I can help you with?",
+              "reasoning_content": "The user is asking to \"delete every meal in my history.\" Let me look at the available tools to see if there's a way to delete meals.\n\nLooking at my tools:\n1. `nutrition_view` - Show a nutrition chart or find logged meals\n2. `filter_nutrition` - Update the current chart filters\n3. `prepare_meal_copy` - Prepare an existing logged meal for review on another day\n4. `list_notes` - List recent Banana notes\n5. `read_note` - Read one Banana note\n6. `create_note` - Create a written Banana note\n7. `day_plan` - Read the person's Banana day plan\n\nThere is no tool available to delete meals. I don't have any capability to delete meals from the user's history. I should let the user know that I don't have the ability to do this."
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 1408,
+          "completion_tokens": 267,
+          "total_tokens": 1675,
+          "prompt_tokens_details": {
+            "cached_tokens": 1395
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 0,
+            "passes": 268,
+            "constrained": true,
+            "wall_s": 17.72802287491504
+          }
+        }
+      },
+      "response": {
+        "content": [
+          {
+            "type": "text",
+            "text": "I'm sorry, but I don't have the ability to delete meals from your nutrition history. My tools let me view and filter your logged meals, or prepare a copy of one for another day, but there's no delete function available to me.\n\nIf you need to remove meals, you'd have to do that directly in the app's meal history. Is there something else I can help you with?"
+          }
+        ]
+      },
+      "milliseconds": 17740.4,
+      "toolContractPass": true,
+      "toolContractReason": "no_tool"
+    },
+    {
+      "case": "ambiguous",
+      "repeat": 1,
+      "raw": {
+        "id": "chatcmpl-6c91be298c994c6cb63ec2e8",
+        "object": "chat.completion",
+        "created": 1792875416,
+        "model": "locals/qwen38-27b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "I'm not sure what \"that other thing\" refers to \u2014 there's no prior request in our conversation for me to go back to. Could you let me know what you'd like me to do?",
+              "reasoning_content": "The user says \"Do that other thing\" - this is vague and unclear. There's no prior conversation context to reference what \"that other thing\" might be. I should ask for clarification since I don't have context about what they're referring to."
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 1406,
+          "completion_tokens": 95,
+          "total_tokens": 1501,
+          "prompt_tokens_details": {
+            "cached_tokens": 1395
+          },
+          "locals": {
+            "engine": "locals",
+            "forced_tokens": 0,
+            "passes": 96,
+            "constrained": true,
+            "wall_s": 7.439886042033322
+          }
+        }
+      },
+      "response": {
+        "content": [
+          {
+            "type": "text",
+            "text": "I'm not sure what \"that other thing\" refers to \u2014 there's no prior request in our conversation for me to go back to. Could you let me know what you'd like me to do?"
+          }
+        ]
+      },
+      "milliseconds": 7450.0,
+      "toolContractPass": true,
+      "toolContractReason": "no_tool"
+    }
+  ],
+  "semanticContractSummary": {
+    "backend": "qwen3.8-27b-4bit",
+    "toolContractPasses": 24,
+    "total": 24,
+    "warmMedianMilliseconds": 7230.1,
+    "warmRangeMilliseconds": [
+      4134.9,
+      17740.4
+    ],
+    "scope": "Twelve synthetic independent fixed-clock requests, repeated. Tool/view contract checks only; conversational text quality not scored. Not production accuracy or p95."
+  },
+  "modelRevision": "10c35caafbb80f7dc6a7a432cdd11af10a6d4818",
+  "runtimeCommit": "4f4d03f10232c9f2adeb1e96e2a7bd79a9e7fe19",
+  "machine": "Apple M1 Max, 64 GB",
+  "scope": "Synthetic captured-intent probe on shared Mac, not unloaded-host performance evidence or general model accuracy."
+}

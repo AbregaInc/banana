@@ -1,0 +1,19 @@
+{
+  "about": "What each PiDesignTourUITest picture shows and how the walk reached it. Judges read this beside the picture.",
+  "states": {
+    "01-plan": "Fresh launch. The fixed app's home: Plan. The + in the top bar is how anything is added. (No Google account in this run; connecting is offered where it's needed and in Settings.)",
+    "02-add-sheet": "Tapped + (same on iPad). The add sheet: a line to type what to add, then every kind of thing by hand.",
+    "03-add-typing": "Typing 'Lunch with Sam at noon tomorrow' into the add sheet's line, not sent yet.",
+    "04-meal-draft": "Sent 'Make a meal with 2 eggs and 1 banana' in the add sheet. The sheet became 'New meal': Pi's draft in the app's own meal editor, with the words it came from; Discard and Save in the sheet's toolbar (Save is the person's approval).",
+    "05-meal-draft-lower": "The same draft scrolled down.",
+    "06-meal-saved": "Tapped Save. The sheet closed onto the Nutrition page with the meal and an Undo toast.",
+    "07-event-draft": "Sent 'Create Pi UI Lunch tomorrow at 13:00 for 30 minutes': 'New event', Pi's draft in the app's own event editor, Discard and Save in the toolbar. This run has no Google account, so the Calendar row offers Connect Google (sign-in opens over the draft and returns to it); on the person's device their calendars are listed.",
+    "08-review": "Tapped the chart button (top left): Review opens as a sheet on every device, for looking back. Its first row is a line to ask a question.",
+    "09-answer-nutrition": "Asked 'Show my protein this month' in Review. The answer page: the nutrition view.",
+    "10-answer-search": "Asked 'Search Banana for yogurt' in Review. The answer page with results.",
+    "11-answer-search-detail": "Tapped the meal result: its details expand in place.",
+    "12-working": "Asked something the fixture model never finishes: the answer page while Pi works, with Stop.",
+    "13-notes": "The Notes tab of the fixed app.",
+    "14-review-recent": "Back from the search answer to Review: the question asked is listed under the ask line, to reopen its answer."
+  }
+}

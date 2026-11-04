@@ -29,7 +29,7 @@ enum AppCloud {
     /// terminate the process instead of returning an error. Device builds are provisioned against
     /// their requested container at signing time; Simulator callers skip CloudKit separately.
     static var hasContainerEntitlement: Bool {
-        #if STRESS_DEVICE_AUDIT
+        #if STRESS_DEVICE_AUDIT || PI_DEVELOPMENT
         return false
         #elseif os(macOS)
         guard let task = SecTaskCreateFromSelf(nil),
@@ -66,6 +66,49 @@ enum BuildConfig {
 /// share `~/Library/Application Support` (caches and per-bundle UserDefaults are already
 /// naturally separated; this covers the JSON stores, downloads, and recordings).
 enum AppSupport {
+    static var isPiHeadlessVerification: Bool {
+        #if os(macOS)
+        isPiVerification && ProcessInfo.processInfo.arguments.contains("--assistant-headless")
+        #else
+        false
+        #endif
+    }
+    /// Real-model acceptance checks use the real app graph with separate files
+    /// and Assistant preferences, so their prompts cannot become a user's chat.
+    static var isPiVerification: Bool {
+        #if DEBUG && PI_DEVELOPMENT
+        ProcessInfo.processInfo.arguments.contains("--assistant-verify")
+        #else
+        false
+        #endif
+    }
+    /// Photographs for the design climb (PiDesignTourUITest): test-only counters stay off screen.
+    static var isDesignCapture: Bool {
+        #if DEBUG
+        ProcessInfo.processInfo.arguments.contains("--design-capture")
+        #else
+        false
+        #endif
+    }
+    static var isPiUITest: Bool {
+        #if DEBUG && PI_DEVELOPMENT
+        let args = ProcessInfo.processInfo.arguments
+        return args.contains("--assistant-test") || args.contains("--assistant-test-navigation")
+        #else
+        false
+        #endif
+    }
+
+    /// Pi's demo is a separate workspace; fixtures never replace personal files.
+    static let isPiSampleWorkspace: Bool = {
+        #if DEBUG && PI_DEVELOPMENT
+        return !isPiVerification && !isPiUITest
+            && (UserDefaults.standard.object(forKey: "assistant.sampleWorkspace") as? Bool ?? true)
+        #else
+        return false
+        #endif
+    }()
+
     static let directory: URL = {
         HealthFileProtection.protectApplicationPreferences()
         #if STRESS_DEVICE_AUDIT
@@ -79,7 +122,11 @@ enum AppSupport {
         #endif
         let base = FileManager.default.urls(
             for: .applicationSupportDirectory, in: .userDomainMask)[0]
-        #if BANANA_BETA
+        #if PI_DEVELOPMENT
+        let dir = base.appendingPathComponent(isPiVerification ? "Banana Pi Verification" : isPiUITest ? "Banana Pi UI Tests" : isPiSampleWorkspace ? (ProcessInfo.processInfo.arguments.contains("--pi-sample-check") ? "Banana Pi Sample Verification" : "Banana Pi Samples") : "Banana Pi", isDirectory: true)
+        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        return dir
+        #elseif BANANA_BETA
         let dir = base.appendingPathComponent("Banana Beta", isDirectory: true)
         try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
         HealthFileProtection.protectLegacyFiles(in: dir)
@@ -136,14 +183,28 @@ enum AppVariant: Equatable {
     /// The nearby-devices service each app announces and looks for (1 to 15 characters). With
     /// one name for both, a Stable phone listed a Beta Mac as a peer.
     var peerServiceType: String {
-        self == .beta ? "banana-beta" : "banana-audio"
+        #if PI_DEVELOPMENT
+        if self == .beta { return "banana-pi" }
+        #endif
+        return self == .beta ? "banana-beta" : "banana-audio"
     }
 
     /// The keychain item holding Google sign-ins. A different name, because where the keychain
     /// doesn't separate apps by access group (a Mac build signed without one) the name is all
     /// that keeps Beta's "Disconnect" from deleting Stable's accounts.
     var googleKeychainService: String {
-        self == .beta ? "com.boris.banana.beta.google-accounts" : "com.boris.banana.google-accounts"
+        #if PI_DEVELOPMENT
+        if self == .beta { return "com.boris.banana.pi-development.google-accounts" }
+        #endif
+        return self == .beta ? "com.boris.banana.beta.google-accounts" : "com.boris.banana.google-accounts"
+    }
+
+    static var mayMigrateGoogleSDKSession: Bool {
+        #if PI_DEVELOPMENT
+        false
+        #else
+        true
+        #endif
     }
 
     /// The Mac's earlier bundle id for `bundleID`, whose saved settings are carried over once:
@@ -160,7 +221,11 @@ enum AppVariant: Equatable {
     }
 
     /// The one Reminders list Beta writes to, made the first time it needs one.
+    #if PI_DEVELOPMENT
+    static let betaRemindersList = "Banana Pi"
+    #else
     static let betaRemindersList = "Banana Beta"
+    #endif
 
     /// Whether a reminder in the list titled `list` may be saved or removed.
     func mayChangeReminder(inListTitled list: String?) -> Bool {

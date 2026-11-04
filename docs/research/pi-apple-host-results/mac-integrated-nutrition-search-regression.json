@@ -1,0 +1,94 @@
+{
+  "bundle": "com.boris.banana.mac.pi-development",
+  "conflictingMealRetryRejected": true,
+  "contextualMealDraft": true,
+  "error": "Timed out waiting for the nutrition view",
+  "failedSurface": {
+    "compare": true,
+    "draftDate": "2026-10-26",
+    "draftID": "95F42EB0-2162-C112-A753-F1C248F7D02E",
+    "draftMealID": "86C6D2B2-4C6E-4D31-A929-6C1DEBAAFD5E",
+    "end": "2026-10-25",
+    "metric": "protein",
+    "revision": 5,
+    "search": "",
+    "selectedDay": "2026-10-23",
+    "start": "2026-10-01",
+    "weekdaysOnly": true
+  },
+  "firstQueryTiming": {
+    "fullTurnMilliseconds": 2355,
+    "viewMilliseconds": 2355
+  },
+  "languageComparison": true,
+  "languageFilter": true,
+  "messages": [
+    {
+      "role": "user",
+      "text": "Show my protein this month"
+    },
+    {
+      "role": "activity",
+      "text": "Updating nutrition view"
+    },
+    {
+      "role": "user",
+      "text": "Only weekdays"
+    },
+    {
+      "role": "activity",
+      "text": "Updating nutrition view"
+    },
+    {
+      "role": "user",
+      "text": "Compare with the previous period"
+    },
+    {
+      "role": "activity",
+      "text": "Updating nutrition view"
+    },
+    {
+      "role": "user",
+      "text": "Prepare a copy of the Pi verification breakfast on the selected day for tomorrow. Do not save it yet."
+    },
+    {
+      "role": "activity",
+      "text": "Preparing meal draft"
+    },
+    {
+      "role": "user",
+      "text": "Find my logged meals containing Pi verification yogurt."
+    },
+    {
+      "role": "activity",
+      "text": "Searching Banana"
+    }
+  ],
+  "model": "mac-local/qwen3.5-4b-4bit",
+  "nativeDataGrounding": true,
+  "nativeMealSaveDeduplicated": true,
+  "nativeMealSavePersisted": true,
+  "nativeSelection": true,
+  "nativeSelectionMilliseconds": 33,
+  "naturalChartQuery": true,
+  "passed": false,
+  "run": "6fd6cc16-db34-4e56-b811-0ea4f5cd2335",
+  "surface": {
+    "compare": true,
+    "draftDate": "2026-10-26",
+    "draftID": "95F42EB0-2162-C112-A753-F1C248F7D02E",
+    "draftMealID": "86C6D2B2-4C6E-4D31-A929-6C1DEBAAFD5E",
+    "end": "2026-10-25",
+    "metric": "protein",
+    "revision": 5,
+    "search": "",
+    "selectedDay": "2026-10-23",
+    "start": "2026-10-01",
+    "weekdaysOnly": true
+  },
+  "surfaceRestored": true,
+  "ownedWorkerReleasedOnExit": true,
+  "normalHistoryAndMealsUnchanged": true,
+  "normalSelectionAndDraftUnchanged": true,
+  "processExitCode": 1
+}

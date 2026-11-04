@@ -436,6 +436,30 @@ final class VoiceNoteStore: ObservableObject {
 
     // MARK: - Written notes and edits
 
+    /// A Pi tool operation has a durable ID before it reaches this boundary. Replaying the same
+    /// operation returns the existing note; the atomic local save precedes publishing or upload.
+    @discardableResult
+    func addAssistantNote(id: UUID, text: String) throws -> UUID {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty, trimmed.count <= 4000 else {
+            throw AssistantFailure(message: "A note must contain between 1 and 4,000 characters.")
+        }
+        if let existing = self.note(id) {
+            guard existing.transcript == trimmed else {
+                throw AssistantFailure(message: "This note action has already been used for different text.")
+            }
+            return id
+        }
+        guard !saveIsUnsafe else { throw AssistantFailure(message: "Notes cannot be saved until the existing notes file is recovered.") }
+        let now = Date()
+        let note = VoiceNote(id: id, createdAt: now, updatedAt: now, audioFilename: "", transcript: trimmed,
+                             kind: .general, status: .transcribed)
+        guard persist(note) else {
+            throw AssistantFailure(message: storageError ?? "The note could not be saved. Your draft is still available.")
+        }
+        return id
+    }
+
     /// Where a podcast is playing, so a written note is anchored the same way a spoken one is.
     /// Nothing is paused: typing doesn't need the audio.
     func currentPodcastContext() -> VoiceNote.Context? {
@@ -962,7 +986,7 @@ private enum VoiceNoteCloudFiles {
         #if DEBUG && (targetEnvironment(simulator) || os(macOS) || STRESS_DEVICE_AUDIT)
         guard !ProcessInfo.processInfo.arguments.contains("--stress-days") else { return nil }
         #endif
-        guard LegacyCloud.mayRead(.personal), let container = FileManager.default.url(
+        guard AppCloud.mayUseCloud(arguments: ProcessInfo.processInfo.arguments, entitled: AppCloud.hasContainerEntitlement), LegacyCloud.mayRead(.personal), let container = FileManager.default.url(
             forUbiquityContainerIdentifier: CloudBackup.containerID) else { return nil }
         let directory = container
             .appendingPathComponent("Documents", isDirectory: true)

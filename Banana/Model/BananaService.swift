@@ -19,7 +19,13 @@ enum BananaService {
     }
 
     /// Whether this build has an account to offer: a service and a client to sign in to it with.
-    static var isAvailable: Bool { host != nil && googleServerClientID != nil }
+    static var isAvailable: Bool {
+        #if PI_DEVELOPMENT
+        false
+        #else
+        host != nil && googleServerClientID != nil
+        #endif
+    }
 
     static func configured(_ key: String, in bundle: Bundle = .main) -> String? {
         guard let value = (bundle.object(forInfoDictionaryKey: key) as? String)?

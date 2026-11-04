@@ -1,0 +1,15 @@
+Launched application with com.boris.banana.pi-host-proof bundle identifier.
+Waiting for the application to terminate…
+PASS public provider emits a valid text event sequence
+PASS Pi executes extension tools only after provider returns intent
+PASS upstream system/tool replay preserves updates and removes revoked tools
+PASS unsupported images fail before native inference
+PASS invalid generation options fail before native inference
+PASS toolChoice none removes tools and rejects unexpected native tool calls
+PASS native model errors are terminal provider errors
+PASS unknown tool names and duplicate call IDs fail closed
+PASS pre-aborted requests never enter native generation
+PASS RPC cancellation cancels native work and ignores a late callback
+PASS native schema translation accepts supported types and rejects lossy mappings
+PI_PROOF_PASS provider-conformance {"mode":"provider-conformance","passed":true,"total":11,"failed":[],"results":[{"name":"public provider emits a valid text event sequence","passed":true},{"name":"Pi executes extension tools only after provider returns intent","passed":true},{"name":"upstream system/tool replay preserves updates and removes revoked tools","passed":true},{"name":"unsupported images fail before native inference","passed":true},{"name":"invalid generation options fail before native inference","passed":true},{"name":"toolChoice none removes tools and rejects unexpected native tool calls","passed":true},{"name":"native model errors are terminal provider errors","passed":true},{"name":"unknown tool names and duplicate call IDs fail closed","passed":true},{"name":"pre-aborted requests never enter native generation","passed":true},{"name":"RPC cancellation cancels native work and ignores a late callback","passed":true},{"name":"native schema translation accepts supported types and rejects lossy mappings","passed":true}],"availability":{"available":true,"reason":"available","contextWindow":4096}}
+The app terminated with the exit code 0.

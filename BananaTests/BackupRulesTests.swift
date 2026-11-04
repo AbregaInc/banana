@@ -3,6 +3,16 @@ import XCTest
 /// The iCloud backup's rules (`BackupRules`): what of the settings it carries, what a restore
 /// leaves alone, and what the Settings row says.
 final class BackupRulesTests: XCTestCase {
+    func testAssistantStateStaysWithItsLocalConversationDatabase() {
+        let incoming: [String: Any] = ["assistant.selection": "7", "assistant.draft": "Other device", "planMode": "week"]
+        let local: [String: Any] = ["assistant.selection": "19", "assistant.draft": "Local draft"]
+        XCTAssertNil(BackupRules.portable(incoming)["assistant.selection"])
+        XCTAssertNil(BackupRules.portable(incoming)["assistant.draft"])
+        let restored = BackupRules.restored(from: incoming, over: local)
+        XCTAssertEqual(restored["assistant.selection"] as? String, "19")
+        XCTAssertEqual(restored["assistant.draft"] as? String, "Local draft")
+        XCTAssertEqual(restored["planMode"] as? String, "week")
+    }
     func testEverySyncEnginesStateStaysOutOfABackup() {
         // Only the podcast-progress engine's was kept out.
         for key in ["ckSyncEngine.progress.state", "ckSyncEngine.settings.state", "ckSyncEngine.settings.systemFields",

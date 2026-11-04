@@ -37,9 +37,13 @@ struct NoteComposer: View {
             VStack(alignment: .leading, spacing: DS.Space.m) {
                 if let context {
                     Toggle(isOn: $attachContext) {
-                        Label(Self.contextLine(context), systemImage: "headphones")
-                            .font(.subheadline)
-                            .lineLimit(2)
+                        // The symbol on its tile, as every symbol beside a line (owner call 14).
+                        HStack(spacing: DS.Space.s) {
+                            IconTile(systemImage: "headphones", tint: DS.Palette.Feature.podcasts)
+                            Text(Self.contextLine(context))
+                                .font(.subheadline)
+                                .lineLimit(2)
+                        }
                     }
                     .formControls()
                     .accessibilityHint("Keeps the episode and the moment with the note")

@@ -278,7 +278,7 @@ final class GoogleCalendarService: ObservableObject {
     @Published private(set) var isWorking = false
     @Published private(set) var lastError: String?
 
-    private let cloud = NSUbiquitousKeyValueStore.default
+    private lazy var cloud = NSUbiquitousKeyValueStore.default
     private var accountHintObserver: NSObjectProtocol?
     /// Minted access tokens per account, so a burst of calendar requests costs one refresh.
     private var tokenCache: [String: GoogleTokenMinter.MintedToken] = [:]
@@ -518,6 +518,7 @@ final class GoogleCalendarService: ObservableObject {
         lastError = nil
         defer { isWorking = false }
         for account in accounts { await BananaAccount.shared.googleDisconnected(email: account.email) }
+        #if !PI_DEVELOPMENT
         do {
             try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
                 GIDSignIn.sharedInstance.disconnect { error in
@@ -531,6 +532,7 @@ final class GoogleCalendarService: ObservableObject {
             GIDSignIn.sharedInstance.signOut()
             lastError = Self.friendlyMessage(for: error)
         }
+        #endif
         GoogleAccountStore.removeAll()
         accounts = []
         calendars = []
@@ -1284,12 +1286,27 @@ final class GoogleCalendarService: ObservableObject {
             .filter { $0.contains("@") }
         if !guests.isEmpty { body["attendees"] = guests.map { ["email": $0] } }
 
+        let assistantReceipt = try input.assistantOperationID.map { try AssistantCalendarIdentity.attach(to: &body, operation: $0) }
         let data = try JSONSerialization.data(withJSONObject: body)
         let escaped = Self.pathComponent(rawCalendarID)
         // With guests, Google sends them the invitation — what adding them was for.
         let url = URL(string: "https://www.googleapis.com/calendar/v3/calendars/\(escaped)/events"
                       + (guests.isEmpty ? "" : "?sendUpdates=all"))!
-        let response: GoogleEvent = try await request(url: url, method: "POST", body: data)
+        let response: GoogleEvent
+        do {
+            response = try await request(url: url, method: "POST", body: data)
+        } catch let error as GoogleCalendarError {
+            // A retry after a lost acknowledgement must not create a second event.
+            // Accept only our same draft AND same reviewed payload, never an arbitrary 409.
+            guard case .api(status: 409, message: _) = error, let assistantReceipt,
+                  let eventID = body["id"] as? String else { throw error }
+            let existingURL = URL(string: "https://www.googleapis.com/calendar/v3/calendars/\(escaped)/events/\(Self.pathComponent(eventID))")!
+            let existing: GoogleEvent = try await request(url: existingURL)
+            guard existing.status != "cancelled", AssistantCalendarIdentity.matches(existing.extendedProperties?.private, receipt: assistantReceipt) else {
+                throw GoogleCalendarError.changedElsewhere
+            }
+            response = existing
+        }
         guard let eventID = response.id else { throw GoogleCalendarError.malformedResponse }
         noteOwnWrite(eventID)
         lastError = nil
@@ -1940,7 +1957,7 @@ final class GoogleCalendarService: ObservableObject {
         guard isConfigured else { return }
         accounts = GoogleAccountStore.load()
 
-        if accounts.isEmpty, GIDSignIn.sharedInstance.hasPreviousSignIn() {
+        if AppVariant.mayMigrateGoogleSDKSession, accounts.isEmpty, GIDSignIn.sharedInstance.hasPreviousSignIn() {
             do {
                 let user: GIDGoogleUser = try await withCheckedThrowingContinuation { continuation in
                     GIDSignIn.sharedInstance.restorePreviousSignIn { user, error in
@@ -2039,6 +2056,9 @@ final class GoogleCalendarService: ObservableObject {
     /// Sync only the email address needed to select the same Google account on another device.
     /// Access and refresh tokens intentionally stay in Google Sign-In's device-local keychain.
     private func observeAccountHint() {
+        #if PI_DEVELOPMENT
+        return
+        #endif
         applyAccountHint()
         accountHintObserver = NotificationCenter.default.addObserver(
             forName: NSUbiquitousKeyValueStore.didChangeExternallyNotification,
@@ -2055,10 +2075,16 @@ final class GoogleCalendarService: ObservableObject {
     }
 
     private func applyAccountHint() {
+        #if PI_DEVELOPMENT
+        return
+        #endif
         suggestedAccountEmail = Self.normalizedEmail(cloud.string(forKey: Self.accountHintKey))
     }
 
     private func publishAccountHint(_ email: String) {
+        #if PI_DEVELOPMENT
+        return
+        #endif
         guard let email = Self.normalizedEmail(email) else { return }
         suggestedAccountEmail = email
         guard cloud.string(forKey: Self.accountHintKey) != email else { return }
@@ -2067,6 +2093,9 @@ final class GoogleCalendarService: ObservableObject {
     }
 
     private func clearAccountHint() {
+        #if PI_DEVELOPMENT
+        return
+        #endif
         suggestedAccountEmail = nil
         cloud.removeObject(forKey: Self.accountHintKey)
         cloud.synchronize()

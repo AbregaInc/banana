@@ -1,0 +1,50 @@
+loading ~/orca/workspaces/gtfuwgth/pi-inference-upstream/models/minicpm5-2b on engine locals ...
+locals: no tuned kernels for this model on applegpu_g13s yet: serving now, and tuning 47 kernel shapes while the server is idle (cached afterwards). locals stop, then locals tune, does the full procedure at once (10-20 minutes, the best batched throughput).
+engine locals ready in 2.8s
+[locals] tool calls: minicpm_xml; thinking: open
+locals serve: http://127.0.0.1:41790/v1  (models: locals/minicpm5-2b, locals/minicpm5-2b-thinking)
+  also: the Ollama API at http://127.0.0.1:41790/api
+[locals] prompt 2157 (0 cached)  out 30 tok  3 tok/s  0 call(s)  finish=stop
+[locals] prompt 2153 (2143 cached)  out 9 tok  1 tok/s  0 call(s)  finish=stop
+[locals] prompt 2157 (2143 cached)  out 9 tok  forced 3  1 tok/s  1 call(s)  finish=stop
+[locals] prompt 2159 (2144 cached)  out 26 tok  forced 3  3 tok/s  1 call(s)  finish=stop
+[locals] prompt 2267 (169 cached)  out 20 tok  forced 5  1 tok/s  1 call(s)  finish=stop
+[locals] prompt 2263 (2252 cached)  out 20 tok  forced 4  9 tok/s  1 call(s)  finish=stop
+[locals] prompt 2266 (2252 cached)  out 23 tok  forced 7  3 tok/s  1 call(s)  finish=stop
+[locals] prompt 2276 (2252 cached)  out 19 tok  forced 5  6 tok/s  1 call(s)  finish=stop
+[locals] prompt 2174 (2143 cached)  out 48 tok  forced 2  8 tok/s  1 call(s)  finish=stop
+[locals] prompt 2175 (2143 cached)  out 53 tok  forced 14  22 tok/s  1 call(s)  finish=stop
+[locals] prompt 2175 (2143 cached)  out 65 tok  forced 12  8 tok/s  1 call(s)  finish=stop
+[locals] prompt 2165 (2147 cached)  out 33 tok  14 tok/s  0 call(s)  finish=stop
+[locals] prompt 2165 (2145 cached)  out 34 tok  5 tok/s  0 call(s)  finish=stop
+[locals] prompt 2158 (2143 cached)  out 16 tok  forced 3  6 tok/s  1 call(s)  finish=stop
+[locals] prompt 2156 (2143 cached)  out 17 tok  forced 5  6 tok/s  1 call(s)  finish=stop
+[locals] prompt 2156 (2145 cached)  out 15 tok  forced 3  5 tok/s  1 call(s)  finish=stop
+[locals] prompt 2164 (2144 cached)  out 20 tok  forced 5  4 tok/s  1 call(s)  finish=stop
+[locals] prompt 2159 (2145 cached)  out 23 tok  forced 6  15 tok/s  1 call(s)  finish=stop
+[locals] prompt 2158 (2143 cached)  out 39 tok  17 tok/s  0 call(s)  finish=stop
+[locals] prompt 2166 (2143 cached)  out 65 tok  14 tok/s  0 call(s)  finish=stop
+[locals] prompt 2156 (2143 cached)  out 40 tok  6 tok/s  0 call(s)  finish=stop
+[locals] prompt 2170 (2143 cached)  out 50 tok  16 tok/s  0 call(s)  finish=stop
+[locals] prompt 2157 (2155 cached)  out 44 tok  17 tok/s  0 call(s)  finish=stop
+[locals] prompt 2153 (2151 cached)  out 9 tok  4 tok/s  0 call(s)  finish=stop
+[locals] prompt 2157 (2155 cached)  out 27 tok  forced 7  4 tok/s  1 call(s)  finish=stop
+[locals] prompt 2159 (2157 cached)  out 26 tok  forced 3  13 tok/s  1 call(s)  finish=stop
+[locals] prompt 2267 (2265 cached)  out 20 tok  forced 5  10 tok/s  1 call(s)  finish=stop
+[locals] prompt 2263 (2261 cached)  out 20 tok  forced 4  10 tok/s  1 call(s)  finish=stop
+[locals] prompt 2266 (2264 cached)  out 20 tok  forced 4  3 tok/s  1 call(s)  finish=stop
+[locals] prompt 2276 (2274 cached)  out 19 tok  forced 5  12 tok/s  1 call(s)  finish=stop
+[locals] prompt 2174 (2172 cached)  out 48 tok  forced 2  15 tok/s  1 call(s)  finish=stop
+[locals] prompt 2175 (2173 cached)  out 49 tok  forced 10  16 tok/s  1 call(s)  finish=stop
+[locals] prompt 2175 (2173 cached)  out 54 tok  forced 10  6 tok/s  1 call(s)  finish=stop
+[locals] prompt 2165 (2163 cached)  out 34 tok  9 tok/s  0 call(s)  finish=stop
+[locals] prompt 2165 (2163 cached)  out 45 tok  15 tok/s  0 call(s)  finish=stop
+[locals] prompt 2158 (2156 cached)  out 25 tok  forced 6  8 tok/s  1 call(s)  finish=stop
+[locals] prompt 2156 (2154 cached)  out 17 tok  forced 5  2 tok/s  1 call(s)  finish=stop
+[locals] prompt 2156 (2154 cached)  out 15 tok  forced 3  4 tok/s  1 call(s)  finish=stop
+[locals] prompt 2164 (2162 cached)  out 20 tok  forced 5  5 tok/s  1 call(s)  finish=stop
+[locals] prompt 2159 (2157 cached)  out 23 tok  forced 6  8 tok/s  1 call(s)  finish=stop
+[locals] prompt 2158 (2156 cached)  out 56 tok  5 tok/s  0 call(s)  finish=stop
+[locals] prompt 2166 (2164 cached)  out 83 tok  13 tok/s  0 call(s)  finish=stop
+[locals] prompt 2156 (2154 cached)  out 35 tok  11 tok/s  0 call(s)  finish=stop
+[locals] prompt 2170 (2168 cached)  out 21 tok  6 tok/s  0 call(s)  finish=stop

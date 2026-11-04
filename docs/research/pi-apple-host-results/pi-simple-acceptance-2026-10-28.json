@@ -1,0 +1,121 @@
+{
+  "recordedUTC": "2026-10-28T15:14:07.044196+00:00",
+  "baselineCommit": "8ab1faee6cc3d1038db6af85acabeb8aafa2af17",
+  "branch": "<redacted>/pi",
+  "sources": {
+    "Banana/Views/RootView.swift": "677a404782c064053751b9c68f758097d49ac4f0b41972ff9adb6922b15497e0",
+    "Banana/Views/MacRootView.swift": "a9349e23702753d425346185e307d368130efc298ba074f6e73c6d77457119b4",
+    "Banana/Views/AssistantView.swift": "e254c59e12a4fb0e0c16d17eba9549d0aa2e5dc053e3026856cbdcca7e3838da",
+    "Banana/Views/AssistantWorkspaceView.swift": "14e3fc04ce6b3d8a424691b69f5969ec0027225335b9187888af29227f8cf03a",
+    "Banana/Views/AssistantNutritionView.swift": "b3def98c080547b4506a14f90e7cebdf9035afa3a36334fe5d9c43ba8a6032cf",
+    "BananaUITests/AssistantUITest.swift": "16007dc17a69a23cc8040f6cf6e149af8ebe386b6c6a1bbfe2d8bef55985df83"
+  },
+  "uiRuns": {
+    "pi-simple-pad-acceptance-2026-10-28.summary.json": {
+      "passedTests": 7,
+      "failedTests": 0,
+      "skippedTests": 0,
+      "result": "Passed",
+      "runtimeWarnings": [
+        {
+          "issueType": "Runtime Warning",
+          "message": "Invalid frame dimension (negative or non-finite)."
+        }
+      ]
+    },
+    "pi-simple-pad-initial-2026-10-28.summary.json": {
+      "passedTests": 4,
+      "failedTests": 0,
+      "skippedTests": 0,
+      "result": "Passed",
+      "runtimeWarnings": [
+        {
+          "issueType": "Runtime Warning",
+          "message": "Invalid frame dimension (negative or non-finite)."
+        }
+      ]
+    },
+    "pi-simple-pad-inline-2026-10-28.summary.json": {
+      "passedTests": 5,
+      "failedTests": 0,
+      "skippedTests": 0,
+      "result": "Passed",
+      "runtimeWarnings": [
+        {
+          "issueType": "Runtime Warning",
+          "message": "Invalid frame dimension (negative or non-finite)."
+        },
+        {
+          "issueType": "Runtime Warning",
+          "message": "Invalid frame dimension (negative or non-finite)."
+        }
+      ]
+    },
+    "pi-simple-pad-search-final-2026-10-28.summary.json": {
+      "passedTests": 1,
+      "failedTests": 0,
+      "skippedTests": 0,
+      "result": "Passed",
+      "runtimeWarnings": []
+    },
+    "pi-simple-phone-acceptance-2026-10-28.summary.json": {
+      "passedTests": 7,
+      "failedTests": 0,
+      "skippedTests": 0,
+      "result": "Passed",
+      "runtimeWarnings": [
+        {
+          "issueType": "Runtime Warning",
+          "message": "Invalid frame dimension (negative or non-finite)."
+        }
+      ]
+    },
+    "pi-simple-phone-initial-2026-10-28.summary.json": {
+      "passedTests": 5,
+      "failedTests": 1,
+      "skippedTests": 0,
+      "result": "Failed",
+      "runtimeWarnings": [
+        {
+          "issueType": "Runtime Warning",
+          "message": "Invalid frame dimension (negative or non-finite)."
+        },
+        {
+          "issueType": "Runtime Warning",
+          "message": "Invalid frame dimension (negative or non-finite)."
+        }
+      ]
+    }
+  },
+  "installedMac": {
+    "bundle": "com.boris.banana.mac.pi-development",
+    "architectures": "arm64",
+    "executableSha256": "1746bab87a36b0477c567bbdeffca703451bd4bec3941579e4a9f6944d6e5e6a"
+  },
+  "signedMobileBuild": {
+    "bundle": "com.boris.banana.pi-development",
+    "architectures": "arm64",
+    "executableSha256": "dc4af847e9c8c43371b401a46ca12ccb05a3a87a9707c280ffbcac4d507275c1"
+  },
+  "macRealModelWorkspaceReport": "mac-simple-installed-workspace.json",
+  "modelUnchanged": "Qwen3.5-4B 4-bit / Locals / thinking off",
+  "coreChanged": false,
+  "macVisibleUIAcceptance": false,
+  "macVisualBlocker": "CUA cgWindowNotFound for foreground diagnostic and Launch Services diagnostic launches",
+  "macDiagnosticNormalStateUnchanged": true,
+  "physicalMobileInstalled": false,
+  "physicalStatus": "AyePad and primary iPhone unavailable; spare phone untouched",
+  "externalCalendarWriteAttempted": false,
+  "mainBetaTouched": false,
+  "submissionAttempted": false,
+  "manualUnsavedEditsPersistAcrossRestart": false,
+  "performanceClaim": false,
+  "scopeNotes": [
+    "UI fixtures are synthetic; they do not measure model quality.",
+    "Initial phone navigation assertion used wider-layout-only controls; retained AX dump shows correct Nutrition page and matching meal. Assertion now recognizes the phone meal list.",
+    "Final phone seven cases pass; iPad seven cases plus final search recheck pass.",
+    "Runtime frame-dimension warnings are retained in result summaries; no zero-warning claim.",
+    "Inline meal search details are UI-tested; note expansion is implemented but not separately exercised by these fixture UI tests.",
+    "Playback controls and toast/undo presenter are retained; no audio-playback acceptance run in this pass."
+  ]
+}
