@@ -1,5 +1,4 @@
 import XCTest
-@testable import Banana
 
 final class ScaleStressFixtureDirectoryTests: XCTestCase {
     private var root: URL!

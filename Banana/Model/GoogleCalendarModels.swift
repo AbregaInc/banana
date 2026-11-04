@@ -33,7 +33,7 @@ struct GoogleCalendar: Decodable, Identifiable, Hashable {
     /// calendar-list response fail to decode — reported as `malformedResponse`, seen as accounts
     /// that connect and then show no calendars at all.
     private enum CodingKeys: String, CodingKey {
-        case id, summary, summaryOverride, backgroundColor, accessRole, primary, hidden, deleted, dataOwner
+        case id, summary, summaryOverride, backgroundColor, accessRole, primary, hidden, deleted, dataOwner, conferenceProperties
     }
 
     let id: String
@@ -45,6 +45,13 @@ struct GoogleCalendar: Decodable, Identifiable, Hashable {
     let hidden: Bool?
     let deleted: Bool?
     var dataOwner: String? = nil
+    struct ConferenceProperties: Decodable, Hashable {
+        let allowedConferenceSolutionTypes: [String]?
+    }
+    var conferenceProperties: ConferenceProperties? = nil
+    var supportsGoogleMeet: Bool {
+        isWritable && conferenceProperties?.allowedConferenceSolutionTypes?.contains("hangoutsMeet") == true
+    }
 
     /// Manager permission can be shared too. Google's data owner identifies secondary calendars;
     /// primary calendars use their account email. Older secondary entries fall back to the role.
@@ -104,6 +111,11 @@ struct GoogleEvent: Codable {
     struct ConferenceData: Codable {
         struct EntryPoint: Codable { let entryPointType: String?; let uri: String? }
         let entryPoints: [EntryPoint]?
+        struct CreateRequest: Codable {
+            struct Status: Codable { let statusCode: String? }
+            let status: Status?
+        }
+        var createRequest: CreateRequest? = nil
     }
     struct Reminders: Codable {
         struct Override: Codable { let method: String?; let minutes: Int? }

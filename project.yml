@@ -873,6 +873,7 @@ targets:
       # pure; the network half stays in GoogleCalendarService.swift, out of this target.
       - path: Banana/Model/CalendarEventModels.swift
       - path: Banana/Model/GoogleCalendarModels.swift
+      - path: Banana/Model/GoogleMeetCreation.swift
       - path: Banana/Model/GoogleEventWindow.swift
       # All-day events: which calendars' show, which block their days, the days they cover.
       - path: Banana/Model/AllDayEvents.swift

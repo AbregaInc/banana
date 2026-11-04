@@ -1240,6 +1240,12 @@ final class GoogleCalendarService: ObservableObject {
             throw CalendarEventCreationError.calendarUnavailable
         }
 
+        if input.googleMeetRequestID != nil {
+            guard calendars.first(where: { $0.id == rawCalendarID })?.supportsGoogleMeet == true else {
+                throw GoogleMeetCreation.Failure.unsupported
+            }
+            guard input.url == nil else { throw GoogleMeetCreation.Failure.conflictingLink }
+        }
         let title = input.title.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !title.isEmpty else { throw CalendarEventCreationError.emptyTitle }
         guard input.end > input.start else { throw CalendarEventCreationError.invalidDuration }
@@ -1286,12 +1292,20 @@ final class GoogleCalendarService: ObservableObject {
             .filter { $0.contains("@") }
         if !guests.isEmpty { body["attendees"] = guests.map { ["email": $0] } }
 
-        let assistantReceipt = try input.assistantOperationID.map { try AssistantCalendarIdentity.attach(to: &body, operation: $0) }
+        if let requestID = input.googleMeetRequestID {
+            body["conferenceData"] = GoogleMeetCreation.conference(requestID: requestID)
+        }
+        let operationID = input.assistantOperationID ?? input.googleMeetRequestID
+        let assistantReceipt = try operationID.map { try AssistantCalendarIdentity.attach(to: &body, operation: $0) }
         let data = try JSONSerialization.data(withJSONObject: body)
         let escaped = Self.pathComponent(rawCalendarID)
         // With guests, Google sends them the invitation — what adding them was for.
-        let url = URL(string: "https://www.googleapis.com/calendar/v3/calendars/\(escaped)/events"
-                      + (guests.isEmpty ? "" : "?sendUpdates=all"))!
+        var components = URLComponents(string: "https://www.googleapis.com/calendar/v3/calendars/\(escaped)/events")!
+        var query: [URLQueryItem] = []
+        if !guests.isEmpty { query.append(.init(name: "sendUpdates", value: "all")) }
+        if input.googleMeetRequestID != nil { query.append(.init(name: "conferenceDataVersion", value: "1")) }
+        components.queryItems = query.isEmpty ? nil : query
+        let url = components.url!
         let response: GoogleEvent
         do {
             response = try await request(url: url, method: "POST", body: data)
@@ -1309,6 +1323,24 @@ final class GoogleCalendarService: ObservableObject {
         }
         guard let eventID = response.id else { throw GoogleCalendarError.malformedResponse }
         noteOwnWrite(eventID)
+        if input.googleMeetRequestID != nil {
+            let eventURL = URL(string: "https://www.googleapis.com/calendar/v3/calendars/\(escaped)/events/\(Self.pathComponent(eventID))")!
+            func status(_ event: GoogleEvent) -> GoogleMeetCreation.State {
+                let video = event.hangoutLink ?? event.conferenceData?.entryPoints?.first(where: { $0.entryPointType == "video" })?.uri
+                return GoogleMeetCreation.state(videoURL: video, statusCode: event.conferenceData?.createRequest?.status?.statusCode)
+            }
+            try await GoogleMeetCreation.complete(initial: status(response), retryCreation: {
+                var patch = URLComponents(url: eventURL, resolvingAgainstBaseURL: false)!
+                patch.queryItems = [.init(name: "conferenceDataVersion", value: "1")]
+                if !guests.isEmpty { patch.queryItems?.append(.init(name: "sendUpdates", value: "all")) }
+                let data = try JSONSerialization.data(withJSONObject: ["conferenceData": GoogleMeetCreation.conference(requestID: UUID())])
+                let updated: GoogleEvent = try await self.request(url: patch.url!, method: "PATCH", body: data)
+                return status(updated)
+            }, poll: {
+                let updated: GoogleEvent = try await self.request(url: eventURL)
+                return status(updated)
+            })
+        }
         lastError = nil
         return Self.eventInfoID(calendarID: rawCalendarID, eventID: eventID)
     }
@@ -2508,7 +2540,8 @@ final class GoogleCalendarService: ObservableObject {
             sourceID: "google-account:\(calendar.accountEmail.isEmpty ? "connected" : calendar.accountEmail)",
             sourceTitle: calendar.accountEmail.isEmpty ? "Google" : "Google · \(calendar.accountEmail)",
             isDefault: calendar.isPrimary,
-            provider: .google
+            provider: .google,
+            supportsGoogleMeet: calendar.supportsGoogleMeet
         )
     }
 

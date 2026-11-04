@@ -113,6 +113,8 @@ struct CalendarEventInput: Codable {
     var attendees: [String]? = nil
     /// Present only for a reviewed Pi draft; survives pending-write persistence/retry.
     var assistantOperationID: UUID? = nil
+    /// Durable conference request and event identity; nil for older saved drafts.
+    var googleMeetRequestID: UUID? = nil
 }
 
 /// A day's first qualifying meeting, with whatever location info it carries.
@@ -332,6 +334,7 @@ struct CalendarSourceInfo: Identifiable, Hashable {
     let sourceTitle: String
     let isDefault: Bool
     let provider: Provider
+    var supportsGoogleMeet: Bool = false
 }
 
 /// A frequent event shape, offered as autocomplete when creating an event.

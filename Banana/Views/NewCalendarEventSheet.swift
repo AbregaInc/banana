@@ -19,6 +19,7 @@ struct NewCalendarEventSheet: View {
     @State private var location = ""
     @State private var structuredLocation: CalendarEventLocation?
     @State private var videoCallLink = ""
+    @State private var googleMeetRequestID: UUID?
     @State private var notes = ""
     @AppStorage("eventAuthoringAvailability") private var availability: CalendarEventAvailability = .busy
     @AppStorage("eventAuthoringAlertMinutes") private var alertMinutesBefore = 10
@@ -137,7 +138,8 @@ struct NewCalendarEventSheet: View {
     }
 
     private var videoCallLinkIsValid: Bool {
-        videoCallLink.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        guard googleMeetRequestID == nil || (selectedCalendar?.supportsGoogleMeet == true && videoCallLink.isEmpty) else { return false }
+        return videoCallLink.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
             || cleanVideoCallURL != nil
     }
 
@@ -172,7 +174,7 @@ struct NewCalendarEventSheet: View {
             // The whole rule, end included: set here rather than by deleting later, since cutting
             // a series short has to reach every copy of the calendar.
             recurrenceRules: recurrence.repeatValue.map { [$0.rule(isAllDay: isAllDay)] },
-            attendees: guests.isEmpty ? nil : guests.map(\.email), assistantOperationID: assistantOperationID)
+            attendees: guests.isEmpty ? nil : guests.map(\.email), assistantOperationID: assistantOperationID, googleMeetRequestID: googleMeetRequestID)
     }
 
     private var selectedCalendar: CalendarSourceInfo? {
@@ -669,7 +671,24 @@ struct NewCalendarEventSheet: View {
     @ViewBuilder private var whereSection: some View {
         Section("Where") {
             EventLocationField(location: $location, structuredLocation: $structuredLocation,
-                               searchesGivenText: embedded, onLink: { videoCallLink = $0 })
+                               searchesGivenText: embedded, onLink: { videoCallLink = $0; googleMeetRequestID = nil })
+            if googleMeetRequestID != nil {
+                HStack {
+                    Label("Google Meet", systemImage: "video.fill")
+                    Spacer()
+                    Button("Remove", systemImage: "xmark.circle") { googleMeetRequestID = nil }
+                        .labelStyle(.iconOnly)
+                        .accessibilityLabel("Remove Google Meet")
+                }
+                .accessibilityIdentifier("event.googleMeet.selected")
+                if selectedCalendar?.supportsGoogleMeet != true {
+                    Text("Choose a Google calendar that supports Meet, or remove Google Meet.")
+                        .foregroundStyle(DS.Palette.danger)
+                }
+            } else if selectedCalendar?.supportsGoogleMeet == true && videoCallLink.isEmpty {
+                Button("Add Google Meet", systemImage: "video.badge.plus") { googleMeetRequestID = UUID() }
+                    .accessibilityIdentifier("event.googleMeet.add")
+            }
             if !videoCallLink.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                 HStack(spacing: DS.Space.m) {
                     Label(cleanVideoCallURL?.host ?? videoCallLink, systemImage: "video.fill")
@@ -681,7 +700,7 @@ struct NewCalendarEventSheet: View {
                 }
                 .accessibilityIdentifier("event.videoLink")
             }
-            if !videoCallLinkIsValid {
+            if !videoCallLinkIsValid && googleMeetRequestID == nil {
                 Text("Enter a valid web address, such as meet.google.com/…")
                     .font(.footnote)
                     .foregroundStyle(DS.Palette.danger)
