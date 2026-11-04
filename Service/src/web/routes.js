@@ -1,3 +1,4 @@
+import { readCalendarWindow, validCalendarWindow } from '../calendar-window.js';
 import { WEB_TYPES as TYPES, WEB_STATUS_TYPES } from "../web-types.js";
 // The cloud app is a read-only view of the same personal space the native apps sync.
 // Browser sessions are host-only HttpOnly cookies, isolated from person/guest API sessions.
@@ -9,7 +10,7 @@ import { canRead } from "../booking/busy.js";
 import { personalSpace } from "../sync-routes.js";
 import { contentVersion } from "./status.js";
 import { page } from "./page.js";
-import { calendarAgenda, calendarSettings, includesCalendar } from "./calendar.js";
+import { calendarSettings, includesCalendar } from "./calendar.js";
 import { guestAccount } from "../booking/guests.js";
 import { sharingRoutes } from "./sharing.js";
 
@@ -235,39 +236,10 @@ export function webRoutes(app, deps, { signer, onCalendarSettingsChanged = () =>
   // Calendar titles are fetched for this browser request, never retained on the server.
   app.get("/app/api/calendar", signedIn, async (c) => {
     const from = Number(c.req.query("from")), to = Number(c.req.query("to"));
-    if (!Number.isFinite(from) || !Number.isFinite(to) || from <= 0 || to <= from || to - from > 8 * DAY
-      || Math.abs(from - deps.now()) > 366 * DAY) return c.json({ error: "bad_request" }, 400);
-    const links = await deps.db.all("SELECT sub, email, refresh_token, scopes, status FROM google_links WHERE account_id = ? AND status <> 'unlinked' ORDER BY created_at, sub", c.get("web").account);
+    if (!validCalendarWindow(from, to, deps.now())) return c.json({ error: "bad_request" }, 400);
     const settings = await ownSpace(c).read("core.smartSettings", "smart-settings");
-    const results = await Promise.all(links.map(async (link) => {
-      const result = { events: [], unavailable: [] };
-      if (!link.refresh_token || link.status !== "ok" || !canRead(link.scopes)) {
-        result.unavailable.push({ email: link.email, reason: "reconnect" }); return result;
-      }
-      try {
-        const { accessToken } = await deps.google.refresh(await vault.open(link.sub, link.refresh_token));
-        const calendars = (await deps.google.calendarList(accessToken)).filter(cal => !cal.deleted && !cal.hidden && includesCalendar(cal, link.email, settings));
-        // In bounded groups so a large account does not exhaust the Worker's outgoing connections.
-        for (let i = 0; i < calendars.length; i += 4) {
-          const group = await Promise.all(calendars.slice(i, i + 4).map(async (cal) => {
-            try {
-              const { events } = await deps.google.listEvents(accessToken, cal.id, {
-                timeMin: new Date(from).toISOString(), timeMax: new Date(to).toISOString(),
-                fields: "items(id,iCalUID,originalStartTime,summary,start,end,status,location,description,htmlLink,transparency,attendees,organizer,attachments,extendedProperties,hangoutLink,conferenceData,eventType,recurrence,recurringEventId),nextPageToken,nextSyncToken",
-              });
-              return events.map(event => ({ event, calendar: cal, email: link.email }));
-            } catch { result.unavailable.push({ email: link.email, calendar: cal.summary || "Calendar", reason: "retry" }); return []; }
-          }));
-          result.events.push(...group.flat());
-        }
-      } catch (error) {
-        result.unavailable.push({ email: link.email, reason: error instanceof GoogleRefused ? "reconnect" : "retry" });
-      }
-      return result;
-    }));
-    return c.json({ events: calendarAgenda(results.flatMap(r => r.events), settings, { details: true, includeDeclined: c.req.query("filter") === "1", allDay: c.req.query("filter") === "1" }),
-      weekStartWeekday: calendarSettings(settings).weekStartWeekday,
-      unavailable: results.flatMap(r => r.unavailable) });
+    return c.json(await readCalendarWindow(deps, { vault, account: c.get("web").account, settings,
+      from, to, includeDeclined: c.req.query("filter") === "1" }));
   });
   app.get("/app/api/blob", signedIn, async (c) => {
     const type = c.req.query("type"), id = c.req.query("id"), field = c.req.query("field");

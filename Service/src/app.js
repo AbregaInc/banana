@@ -1,4 +1,5 @@
-import { featurePolicy, googleCapabilities } from "./feature-access.js";
+import { readCalendarWindow, validCalendarWindow } from './calendar-window.js';
+import { featureAllowed, featurePolicy, googleCapabilities } from "./feature-access.js";
 // The Banana service's HTTP API (docs/design/ACCOUNTS.md). No platform code: everything outside
 // comes in through `deps`, so the same app runs on Workers (src/worker.js) and Node (src/node.js).
 //
@@ -11,7 +12,7 @@ import { GoogleRefused } from "./google.js";
 import { constantTimeEqual, createVault, newId, newSecret, newSessionToken, sha256Hex, uuid } from "./crypto.js";
 import { audit, forget, forgetUnwatched, reconcile, WATCH_TTL_SECONDS } from "./calendar.js";
 import { clearAlert, syncCalendar } from "./events.js";
-import { syncRoutes, syncSummary, wipeSpaces } from "./sync-routes.js";
+import { personalSpace, syncRoutes, syncSummary, wipeSpaces } from "./sync-routes.js";
 import { bookingApp } from "./booking/routes.js";
 import { bookingApi, forgetHost } from "./booking/api.js";
 import { bookingContext, reconcile as reconcileBookings } from "./booking/jobs.js";
@@ -314,6 +315,19 @@ export function createApp(deps) {
   }
 
   app.get("/v1/account", signedIn, async (c) => c.json(await summary(c.get("account"))));
+
+  // No native client cutover is implied by eligibility. This is a read-only parity contract.
+  app.get("/v1/calendar/window", signedIn, async (c) => {
+    c.header("Cache-Control", "no-store");
+    const account = c.get("account");
+    if (!(await featureAllowed(deps, account, "calendarCloud"))) return c.json({ error: "feature_unavailable" }, 403);
+    const from = Number(c.req.query("from")), to = Number(c.req.query("to"));
+    if (!validCalendarWindow(from, to, now())) return c.json({ error: "bad_request" }, 400);
+    const settings = await deps.spaces.get(personalSpace(account)).read("core.smartSettings", "smart-settings");
+    const result = await readCalendarWindow(deps, { vault, account, settings, from, to,
+      includeDeclined: c.req.query("filter") === "1" });
+    return c.json({ version: 1, from, to, ...result });
+  });
 
   // Deleting needs a fresh Google sign-in: a one-time code (single use, minutes old at most) from a
   // Google account linked to the account, in the app or on the website. A session alone, however
