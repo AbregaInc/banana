@@ -1,7 +1,11 @@
 # Direct Mac downloads
 
-Status: production Developer ID archive/export and notarization passed. The signed
-DMG is in a private GitHub draft release. Live migration and service acceptance remain pending. The live site still links to TestFlight. Do not publish a placeholder download button.
+Status: Mac 1.0.1 (87), tag `mac-v1.0.1-87`, is published on GitHub Releases.
+The production website offers `/download/mac` and the matching signed update feed.
+The hosted DMG checksum, live feed and homepage have been verified. Production
+signing, notarization, Gatekeeper, release guards and tooling tests passed. Live
+service coverage is not implied by these checks; the installed local build's data
+migration was verified separately before publication.
 
 ## Landing page
 
