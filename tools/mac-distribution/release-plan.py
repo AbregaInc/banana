@@ -9,7 +9,6 @@ import json
 from pathlib import Path
 import re
 import subprocess
-from channels import channel_config
 
 ROOT = Path(__file__).resolve().parents[2]
 REPO = 'AbregaInc/banana'
@@ -25,27 +24,26 @@ def clean_commit():
     return run('git', 'rev-parse', 'HEAD')
 
 
-def make_plan(version, current_build, tags, commit, channel="stable"):
-    config = channel_config(channel)
+def make_plan(version, current_build, tags, commit):
     if not re.fullmatch(r'\d+\.\d+\.\d+', version):
         raise ValueError('Use a three-part user version, such as 1.0.1')
     if not re.fullmatch(r'[0-9a-f]{40}', commit):
         raise ValueError('Expected a full source commit')
     builds = [int(current_build)]
     for tag in tags:
-        match = re.fullmatch(re.escape(config['tag']) + r'[0-9.]+-(\d+)', tag)
+        match = re.fullmatch(r'mac-v[0-9.]+-(\d+)', tag)
         if match:
             builds.append(int(match[1]))
     build = str(max(builds) + 1)
-    tag = f"{config['tag']}{version}-{build}"
-    return {'channel': channel, 'shortVersion': version, 'version': build, 'sourceCommit': commit,
+    tag = f'mac-v{version}-{build}'
+    return {'shortVersion': version, 'version': build, 'sourceCommit': commit,
             'tag': tag, 'baseURL': f'https://github.com/{REPO}/releases/download/{tag}'}
 
 
 def validate_plan(plan, commit):
-    expected = make_plan(plan['shortVersion'], int(plan['version']) - 1, [], commit, plan.get('channel', 'stable'))
+    expected = make_plan(plan['shortVersion'], int(plan['version']) - 1, [], commit)
     for key, value in expected.items():
-        if (plan.get(key, 'stable') if key == 'channel' else plan.get(key)) != value:
+        if plan.get(key) != value:
             raise ValueError('Release plan differs from the source checkout or version identity: ' + key)
     if int(plan['version']) < 1:
         raise ValueError('Build must be positive')
@@ -54,9 +52,7 @@ def validate_plan(plan, commit):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--version')
-    parser.add_argument('--channel', choices=['stable', 'beta'], default='stable')
     parser.add_argument('--out', type=Path)
-    parser.add_argument('--minimum-build', type=int, default=0, help='Highest installed or uploaded build to exceed, including local Beta builds')
     parser.add_argument('--check', type=Path)
     args = parser.parse_args()
     commit = clean_commit()
@@ -69,9 +65,9 @@ def main():
         parser.error('--version and --out are required to prepare a release')
     pages = json.loads(run('gh', 'api', '--paginate', '--slurp', f'repos/{REPO}/releases?per_page=100'))
     tags = [release['tag_name'] for page in pages for release in page]
-    tags += run('git', 'tag', '--list', 'mac-*').splitlines()
+    tags += run('git', 'tag', '--list', 'mac-v*').splitlines()
     current = re.search(r'CURRENT_PROJECT_VERSION:\s*"(\d+)"', (ROOT / 'project.yml').read_text())
-    plan = make_plan(args.version, max(int(current.group(1)), args.minimum_build), tags, commit, args.channel)
+    plan = make_plan(args.version, current.group(1), tags, commit)
     plan['preparedAt'] = datetime.now(timezone.utc).isoformat()
     args.out.parent.mkdir(parents=True, exist_ok=True)
     with args.out.open('x') as output:

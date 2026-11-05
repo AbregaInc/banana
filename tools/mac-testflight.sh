@@ -19,8 +19,8 @@ build=$(grep 'CURRENT_PROJECT_VERSION' project.yml | head -1 | sed 's/[^0-9]//g'
 archive=".build/mac-testflight/BananaMac-$build.xcarchive"
 
 # shellcheck disable=SC2086
-xcodebuild -project Banana.xcodeproj -scheme BananaMac -configuration Release \
-  BANANA_UNRELEASED=NO BANANA_LOCAL_AI=NO BANANA_LOCAL_EMAIL=NO ARCHS=arm64 -destination 'generic/platform=macOS' -archivePath "$archive" \
+xcodebuild -project Banana.xcodeproj -scheme BananaMac -configuration TestFlight \
+  BANANA_UNRELEASED=NO BANANA_LOCAL_AI=NO BANANA_LOCAL_EMAIL=YES ARCHS=arm64 -destination 'generic/platform=macOS' -archivePath "$archive" \
   CODE_SIGN_ENTITLEMENTS=BananaMac/BananaMacAppStore.entitlements \
   -allowProvisioningUpdates $AUTH -quiet archive
 

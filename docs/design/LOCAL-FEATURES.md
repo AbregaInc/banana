@@ -11,7 +11,7 @@ compile-time settings, not preferences or remote flags:
 | `BANANA_LOCAL_EMAIL` | Existing `BANANA_UNRELEASED` email compilation gate | `BANANA_PUBLIC`: email implementation excluded |
 
 Both inherit `BANANA_UNRELEASED` for compatibility with local install scripts. Release defaults
-to `NO` on production and ordinary Beta Release targets. The explicit `BetaRelease`
+to `NO` on production and ordinary Beta Release targets. The explicit `TestFlight`
 configuration includes gated Email and excludes AI; see [feature access](FEATURE-ACCESS.md).
 Debug and PiDevelopment opt in locally. Either switch
 can be overridden independently on ordinary targets; PiDevelopment requires AI enabled.
@@ -35,12 +35,12 @@ AI resources only when enabled and removes stale runtime resources when switchin
 folder back to public. Local builds carry a resource marker naming their enabled features.
 
 Every application target rejects Archive (`ACTION=install`) with local AI enabled. Email is
-allowed only for the separate Beta bundle identity with `BananaReleaseChannel=beta`;
+allowed only for the primary app identity with `BananaReleaseChannel=testflight`;
 Stable and Dev archives reject it. Archives run `tools/check-release.sh` against the built
-application. Existing Stable TestFlight scripts still force both switches off.
+application. The Mac TestFlight script uses this configuration; public Release excludes both.
 The checker rejects Pi runtime/entry points and assistant binary markers in every channel;
-Gmail scopes/endpoints and Email markers also fail outside Beta. It checks the primary app,
-so a nested Beta bundle cannot authorize a Stable archive. A saved preference cannot bypass
+Gmail scopes/endpoints and Email markers also fail outside TestFlight. It checks the primary app,
+so a nested TestFlight bundle cannot authorize a Stable archive. A saved preference cannot bypass
 compile-time exclusion or the authenticated runtime eligibility gate.
 
 Run `tools/tests/local-feature-gates.sh` to test resource inclusion, stale cleanup, archive

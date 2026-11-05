@@ -4,7 +4,7 @@ configs:
   Release: release
   PiDevelopment: debug
   DevelopmentCloud: release
-  BetaRelease: release
+  TestFlight: release
 options:
   bundleIdPrefix: $(BANANA_BUNDLE_ID)
   createIntermediateGroups: true
@@ -25,35 +25,11 @@ schemes:
         BananaMacBeta: all
     run:
       config: DevelopmentCloud
-  BananaBetaDistribution:
-    build:
-      targets:
-        BananaBeta: all
-    run:
-      config: BetaRelease
-    archive:
-      config: BetaRelease
-  BananaMacBetaDistribution:
-    build:
-      targets:
-        BananaMacBeta: all
-    run:
-      config: BetaRelease
-    archive:
-      config: BetaRelease
   BananaMacInstallerTest:
     build:
       targets:
         BananaMacInstallerTest: all
     run:
-      config: Release
-  BananaMacBetaDirect:
-    build:
-      targets:
-        BananaMacBetaDirect: all
-    run:
-      config: Release
-    archive:
       config: Release
   BananaMacDirect:
     build:
@@ -178,7 +154,7 @@ configFiles:
   Release: Config/Base.xcconfig
   PiDevelopment: Config/Base.xcconfig
   DevelopmentCloud: Config/Base.xcconfig
-  BetaRelease: Config/Base.xcconfig
+  TestFlight: Config/Base.xcconfig
 
 settings:
   base:
@@ -252,6 +228,7 @@ targets:
         # The Banana service (Service/) and the Google client it signs in with; empty in any
         # build but the official app.
         BananaReleaseChannel: $(BANANA_RELEASE_CHANNEL)
+        BananaPrimaryBundleIdentifier: $(BANANA_BUNDLE_ID)
         BananaServiceHost: $(BANANA_SERVICE_HOST)
         BananaGoogleServerClient: $(BANANA_GOOGLE_SERVER_CLIENT)
         CFBundleDisplayName: Banana
@@ -382,6 +359,11 @@ targets:
         ENABLE_USER_SCRIPT_SANDBOXING: NO
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
       configs:
+        TestFlight:
+          BANANA_RELEASE_CHANNEL: testflight
+          BANANA_UNRELEASED: NO
+          BANANA_LOCAL_EMAIL: YES
+          BANANA_LOCAL_AI: NO
         Release:
           # A normal Release build must be the public app; Debug retains test fixtures.
           BANANA_UNRELEASED: NO
@@ -430,12 +412,12 @@ targets:
     info:
       path: Banana/InfoBeta.plist
       properties:
-        BananaSourceCommit: $(BANANA_SOURCE_COMMIT)
         # Read by the code; filled from Config (see README).
         BananaTeamID: $(DEVELOPMENT_TEAM)
         BananaCloudContainer: $(BANANA_ICLOUD_CONTAINER_BETA)
         # Beta's own service and web client, never the production ones.
         BananaReleaseChannel: $(BANANA_RELEASE_CHANNEL)
+        BananaPrimaryBundleIdentifier: $(BANANA_BUNDLE_ID)
         BananaServiceHost: $(BANANA_SERVICE_HOST_BETA)
         BananaGoogleServerClient: $(BANANA_GOOGLE_SERVER_CLIENT_BETA)
         CFBundleDisplayName: $(BANANA_BETA_DISPLAY_NAME)
@@ -528,12 +510,6 @@ targets:
       configs:
         Release:
           BANANA_UNRELEASED: NO
-        BetaRelease:
-          BANANA_RELEASE_CHANNEL: beta
-          BANANA_UNRELEASED: NO
-          BANANA_LOCAL_EMAIL: YES
-          BANANA_LOCAL_AI: NO
-          SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) BANANA_BETA"
         DevelopmentCloud:
           BANANA_RELEASE_CHANNEL: dev
           BANANA_PEER_SERVICE: banana-dev
@@ -1329,45 +1305,6 @@ targets:
         CODE_SIGN_IDENTITY: $(BANANA_DEVELOPER_ID_IDENTITY)
         PROVISIONING_PROFILE_SPECIFIER: $(BANANA_DEVELOPER_ID_PROFILE)
 
-  BananaMacBetaDirect:
-    templates: [DirectMacApplication]
-    info:
-      path: BananaMac/InfoBetaDirect.plist
-      properties:
-        CFBundleDisplayName: Banana Beta
-        BananaSourceCommit: $(BANANA_SOURCE_COMMIT)
-        BananaCloudContainer: $(BANANA_ICLOUD_CONTAINER_BETA)
-        BananaLegacyCloudContainer: ""
-        BananaServiceHost: $(BANANA_SERVICE_HOST_BETA)
-        BananaGoogleServerClient: $(BANANA_GOOGLE_SERVER_CLIENT_BETA)
-        GIDClientID: $(BANANA_GOOGLE_CLIENT_BETA).apps.googleusercontent.com
-        CFBundleURLTypes:REPLACE:
-          - CFBundleTypeRole: Editor
-            CFBundleURLSchemes:
-              - com.googleusercontent.apps.$(BANANA_GOOGLE_CLIENT_BETA)
-              - bananabeta
-        NSBonjourServices:REPLACE: [_banana-beta._tcp]
-    sources:
-      - path: BananaMac/Beta/container-migration.plist
-        buildPhase: resources
-    settings:
-      base:
-        PRODUCT_BUNDLE_IDENTIFIER: $(BANANA_BUNDLE_ID).beta
-        PRODUCT_NAME: Banana Beta
-        ASSETCATALOG_COMPILER_APPICON_NAME: AppIconBeta
-        BANANA_RELEASE_CHANNEL: beta
-        BANANA_UNRELEASED: NO
-        BANANA_LOCAL_EMAIL: YES
-        BANANA_LOCAL_AI: NO
-        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) MAC_APP BANANA_BETA BANANA_DIRECT"
-        CODE_SIGN_STYLE: Manual
-        CODE_SIGN_IDENTITY: $(BANANA_DEVELOPER_ID_IDENTITY)
-        PROVISIONING_PROFILE_SPECIFIER: $(BANANA_DEVELOPER_ID_PROFILE_BETA)
-        CODE_SIGN_ENTITLEMENTS: BananaMac/BananaMacBetaDirect.entitlements
-      configs:
-        Debug:
-          CODE_SIGN_ENTITLEMENTS: BananaMac/BananaMacBetaDirect.entitlements
-
   BananaMacInstallerTest:
     templates: [DirectMacApplication]
     info:
@@ -1378,6 +1315,7 @@ targets:
         BananaCloudContainer: ""
         BananaLegacyCloudContainer: ""
         BananaReleaseChannel: $(BANANA_RELEASE_CHANNEL)
+        BananaPrimaryBundleIdentifier: $(BANANA_BUNDLE_ID)
         BananaServiceHost: ""
         BananaGoogleServerClient: ""
         GIDClientID: ""
@@ -1420,12 +1358,12 @@ targets:
     info:
       path: BananaMac/InfoBeta.plist
       properties:
-        BananaSourceCommit: $(BANANA_SOURCE_COMMIT)
         # Read by the code; filled from Config (see README).
         BananaTeamID: $(DEVELOPMENT_TEAM)
         BananaCloudContainer: $(BANANA_ICLOUD_CONTAINER_BETA)
         # Beta's own service and web client, never the production ones.
         BananaReleaseChannel: $(BANANA_RELEASE_CHANNEL)
+        BananaPrimaryBundleIdentifier: $(BANANA_BUNDLE_ID)
         BananaServiceHost: $(BANANA_SERVICE_HOST_BETA)
         BananaGoogleServerClient: $(BANANA_GOOGLE_SERVER_CLIENT_BETA)
         CFBundleDisplayName: $(BANANA_BETA_DISPLAY_NAME)
@@ -1476,12 +1414,6 @@ targets:
       configs:
         Release:
           BANANA_UNRELEASED: NO
-        BetaRelease:
-          BANANA_RELEASE_CHANNEL: beta
-          BANANA_UNRELEASED: NO
-          BANANA_LOCAL_EMAIL: YES
-          BANANA_LOCAL_AI: NO
-          SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) MAC_APP BANANA_BETA"
         DevelopmentCloud:
           BANANA_RELEASE_CHANNEL: dev
           BANANA_PEER_SERVICE: banana-dev
@@ -1554,6 +1486,7 @@ targetTemplates:
         # The Banana service (Service/) and the Google client it signs in with; empty in any
         # build but the official app.
         BananaReleaseChannel: $(BANANA_RELEASE_CHANNEL)
+        BananaPrimaryBundleIdentifier: $(BANANA_BUNDLE_ID)
         BananaServiceHost: $(BANANA_SERVICE_HOST)
         BananaGoogleServerClient: $(BANANA_GOOGLE_SERVER_CLIENT)
         CFBundleDisplayName: Banana
@@ -1610,6 +1543,12 @@ targetTemplates:
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) MAC_APP"
       configs:
+        TestFlight:
+          BANANA_RELEASE_CHANNEL: testflight
+          BANANA_UNRELEASED: NO
+          BANANA_LOCAL_EMAIL: YES
+          BANANA_LOCAL_AI: NO
+          CODE_SIGN_ENTITLEMENTS: BananaMac/BananaMacAppStore.entitlements
         # Local Mac builds should not require a developer-portal provisioning profile.
         # Release retains BananaMac.entitlements so App Store builds keep iCloud sync.
         Debug:

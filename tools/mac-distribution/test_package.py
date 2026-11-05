@@ -2,6 +2,9 @@ import base64
 import importlib.util
 from pathlib import Path
 import tempfile
+import plistlib
+import subprocess
+import sys
 import unittest
 import xml.etree.ElementTree as ET
 
@@ -29,11 +32,19 @@ class FeedTests(unittest.TestCase):
             self.assertEqual(item.find('enclosure').get('{'+package.SPARKLE+'}version'), '2')
             self.assertEqual(item.findtext('{'+package.SPARKLE+'}minimumSystemVersion'), '26.0')
 
-    def test_beta_feed_is_named_separately(self):
+    def test_experimental_archive_cannot_be_public_installer(self):
         with tempfile.TemporaryDirectory() as root:
-            xml = self.write(root, app_name='Banana Beta')
-            self.assertEqual(xml.findtext('./channel/title'), 'Banana Beta updates')
-            self.assertTrue(xml.findtext('./channel/item/title').startswith('Banana Beta '))
+            app = Path(root) / 'Banana.app'
+            (app / 'Contents').mkdir(parents=True)
+            (app / 'Contents/Info.plist').write_bytes(plistlib.dumps({
+                'BananaReleaseChannel': 'testflight',
+                'CFBundleIdentifier': 'org.example.banana',
+            }))
+            result = subprocess.run([sys.executable, str(Path(package.__file__)), str(app),
+                                     '--out', root, '--base-url', 'https://example.org',
+                                     '--sparkle-bin', root], capture_output=True, text=True)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn('Public installers require a Stable Release build', result.stderr)
 
     def test_bad_metadata_is_rejected(self):
         with tempfile.TemporaryDirectory() as root:
@@ -44,15 +55,3 @@ class FeedTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-
-class DiskImageLayoutTests(unittest.TestCase):
-    def test_layout_uses_the_actual_beta_icon_and_app_name(self):
-        import plistlib, runpy
-        with tempfile.TemporaryDirectory() as path:
-            app = Path(path) / 'Banana Beta.app'
-            (app / 'Contents/Resources').mkdir(parents=True)
-            (app / 'Contents/Info.plist').write_bytes(plistlib.dumps({'CFBundleIconFile':'AppIconBeta'}))
-            settings = runpy.run_path(str(Path(__file__).with_name('dmg-settings.py')),
-                init_globals={'defines':{'app':str(app),'background':str(Path(path)/'background.png')}})
-            self.assertTrue(settings['icon'].endswith('AppIconBeta.icns'))
-            self.assertIn('Banana Beta.app',settings['icon_locations'])

@@ -1,7 +1,7 @@
 # Feature access
 
 Implementation status: the schema and account-policy service are deployed to Beta at
-`985ee79b`; client gates and build presets are local and under validation. Stable is unchanged.
+`d199ef76`; client gates and build presets are local and under validation. Stable is unchanged.
 Deploy service/schema support before the clients. This does not implement cloud Mail or
 Calendar provider migration; those remain in [the rollout plan](CLOUD-AND-RELEASE-PLAN.md).
 
@@ -50,7 +50,7 @@ Grants are not deployed as seeds, inferred from email addresses, or enabled for 
 | Scheme | Configuration | Purpose |
 |---|---|---|
 | Banana / BananaMac | Release | Stable; no Email or local AI |
-| BananaBetaDistribution / BananaMacBetaDistribution | BetaRelease | Separate Beta identity; gated Email, no local AI or Mail fixtures |
+| Banana / BananaMac | TestFlight | Primary identity and production service; gated Email, no local AI or Mail fixtures |
 | BananaDev / BananaMacDev | DevelopmentCloud | Separate `.dev` identity, explicit Dev OAuth/service settings, no legacy iCloud |
 | Existing local Beta/Pi presets | Existing local configuration | Fixtures and local experiments; not distribution archives |
 
@@ -61,6 +61,11 @@ The Dev credential services, local root, Bonjour service and Reminders list are 
 Google writes still use Beta's test-account safeguards. Signed coexistence remains a required
 acceptance check before distributing Dev builds.
 
-Archive checks inspect the primary app identity: Email requires both the Beta channel and a
-`.beta` bundle identifier. A nested Beta app cannot authorize a Stable archive. AI resources
+Stable and TestFlight share the existing app record, account and data. A TestFlight install
+replaces Stable; groups choose builds, not feature eligibility. The Beta service is staging.
+Production policy/schema deployment is still required before granting TestFlight users access.
+
+Archive checks inspect the primary app identity: Email requires the `testflight` channel and
+a bundle identifier equal to `BananaPrimaryBundleIdentifier`. A nested app cannot authorize
+a Stable archive. Build `Release` for public submission; do not promote experimental archives. AI resources
 and native markers remain forbidden. These checks do not constitute Apple/Google approval.

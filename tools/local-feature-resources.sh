@@ -12,8 +12,8 @@ if [ "${ACTION:-}" = install ]; then
     echo "error: Distributed archives must exclude local AI."; exit 1
   fi
   if [ "${BANANA_LOCAL_EMAIL:-NO}" = YES ]; then
-    if [ "${BANANA_RELEASE_CHANNEL:-stable}" != beta ] || [[ "${PRODUCT_BUNDLE_IDENTIFIER:-}" != *.beta ]]; then
-      echo "error: Email distribution requires the separate Beta identity and channel."; exit 1
+    if [ "${BANANA_RELEASE_CHANNEL:-stable}" != testflight ] || [ -z "${BANANA_BUNDLE_ID:-}" ] || [ "${PRODUCT_BUNDLE_IDENTIFIER:-}" != "$BANANA_BUNDLE_ID" ]; then
+      echo "error: Email distribution requires the primary app identity and TestFlight channel."; exit 1
     fi
   fi
 fi

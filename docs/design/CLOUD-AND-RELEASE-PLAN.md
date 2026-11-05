@@ -22,8 +22,9 @@ are a dated audit snapshot and must be refreshed before a release.
   Calendar and Email together if both are selected; request Gmail later if Email is enabled later.
   Additional or revoked permissions can still require consent.
 - Tester eligibility, enabled modules and provider permissions are separate decisions.
-- Stable, Beta and Dev coexist with explicit identities, data/credential isolation and environments.
-  Beta uses optimized builds. Developer builds support fixtures and a real development-cloud path.
+- Stable and TestFlight use the same app identity, Banana account and production service.
+  TestFlight replaces Stable on a device. Groups select builds; account grants select features.
+  Dev is a separate, isolated local install. Existing local Beta remains a developer tool.
 - Calendar consolidation ships incrementally. Email does not hold up Calendar fixes or Stable releases.
 
 ## Verified starting point
@@ -55,9 +56,9 @@ Reuse the web, notification and booking implementations when establishing a comm
 ## Implementation checkpoint
 
 The first local increment adds versioned account eligibility, actual server-grant capabilities,
-short-lived native policy caching, Email presentation/transport gates, explicit Beta/Dev build
+short-lived native policy caching, Email presentation/transport gates, explicit TestFlight/Dev build
 presets and account-scoped administration. See [feature access](FEATURE-ACCESS.md).
-The service foundation is deployed to Beta at `985ee79b`, with migrations 0013–0014 applied
+The service foundation and gated Calendar read endpoint are deployed to Beta at `d199ef76`, with migrations 0013–0014 applied
 and the public source offer verified. Clients are not distributed. Native provider consolidation,
 cloud Mail, isolated Dev infrastructure,
 signed distribution and end-to-end acceptance remain unfinished. The audit table above is the
@@ -65,8 +66,9 @@ starting snapshot, not a claim about these new source changes.
 
 The renewed Google CLI login confirms both configured projects are active. Calendar API is
 enabled in both; Gmail API is enabled only in Beta. OAuth clients, redirects, audience and
-verification status still need console inspection. The Beta App Store Connect record is
-awaiting Apple browser authentication; the API cannot create that record.
+verification status still need console inspection. No separate Beta App Store Connect record
+is needed. TestFlight uses the existing main app record. Production service/schema support
+and primary-account grants must be deployed before testing Email there; until then it is denied.
 
 The component regression run was retained as a failure: RSS limits were exceeded in five
 scenarios, and four scenarios had incomplete host monitoring (process enumeration timeouts;
@@ -79,11 +81,11 @@ unit tests or an unsigned optimized compile does not clear these release gates.
 | App | Intended use | Service/data environment | Distribution |
 |---|---|---|---|
 | Banana | Dependable daily use | Production | App Store on iPhone/iPad; signed/notarized direct Mac release with stable updates; Mac App Store route tracked separately |
-| Banana Beta | Upcoming releases and selected experiments | Isolated Beta | Separate TestFlight app on iPhone/iPad; separate Mac app and beta update feed |
+| Banana (TestFlight) | Upcoming releases and selected experiments | Production, same account and data | Existing app record on iPhone/iPad/Mac; tester groups select builds |
 | Banana Dev | Development, fixtures and integration tests | Explicit fixtures or development cloud | Local development installs with distinct identities |
 
-Keep credentials, local roots, caches, push topics, update feeds and any remaining cloud/keychain
-namespaces consistent with the selected channel. Also constrain external writes: separate app
+Stable and TestFlight share credentials, local roots, caches and push topics. Dev isolates these
+namespaces. The existing Beta service is staging, not the TestFlight backend. Also constrain external writes: separate app
 storage does not isolate two apps connected to the same real Google calendar or mailbox.
 
 ## Workstreams and acceptance criteria
@@ -148,7 +150,7 @@ Lost acknowledgements and retries must not duplicate events, Meet requests or bu
 - [ ] Apply gates to background jobs and service endpoints as well as visible controls.
 - [ ] Define cached/offline eligibility, expiry and revocation behavior. Missing policy must not grant new
   experimental access; disabling a feature must preserve user data and resolve pending actions explicitly.
-- [ ] Intentionally revise archive/resource gates for approved Beta features, preserving Stable exclusions.
+- [x] Revise archive/resource gates for primary-identity TestFlight Email, preserving Stable exclusions.
 
 Done when selected testers can enable Email across their devices without enabling it globally or
 requesting Gmail permissions before they choose Email. No new signup flow is required.
@@ -167,14 +169,15 @@ mailbox actions reconcile without lost changes or automatic duplicate sends. Rol
 
 ### 7. Establish repeatable distribution
 
-- [ ] Complete the separate Beta TestFlight app and signing/export configuration.
-- [ ] Add a distinct Mac Beta update feed and compatible signing/release path.
+- [x] Use an optimized TestFlight configuration on the existing primary iOS/Mac schemes.
+- [x] Remove the separate Beta distribution targets, installer and update feed tooling.
+- [ ] Verify signed TestFlight exports and configure tester groups on the existing app record.
 - [ ] Extend existing release tooling to cover the channel/platform matrix and artifact verification.
 - [ ] Record version, monotonic build number, source commit, environment and capabilities for each artifact.
 - [ ] Verify install-over upgrades, coexistence, data/permission retention and compatible cloud schemas.
 - [ ] Address the Mac App Store rejection separately from the already working direct-download route.
 
-Done when each channel can be installed and updated independently across iPhone, iPad and Mac,
+Done when Stable/TestFlight upgrades preserve data across iPhone, iPad and Mac and isolated Dev coexists,
 with traceable artifacts and retained symbols. Reuse the existing Mac release planner, immutable
 assets, signatures, staged promotion and retention rules; do not replace them with commit counts.
 
@@ -183,14 +186,16 @@ assets, signatures, staged promotion and retention rules; do not replace them wi
 The workstream numbers group work; they are not a requirement to finish Email before distribution.
 
 1. Baseline verification and representative Dev/Beta environments.
-2. Minimum Beta distribution path needed for integration testing, alongside auth/provider design.
+2. Existing-app TestFlight distribution, alongside auth/provider design. Keep staging tests in Dev.
 3. Calendar migration in Beta, with service and client compatibility established before cutover.
 4. Real-device acceptance and promotion of Calendar changes to Stable.
 5. Email cloud work behind tester access, promoted independently when ready.
 
 Ship validated fixes between milestones. A release uses the intended source commit plus recorded
 channel configuration; signing and channel identities mean the binaries need not be byte-identical.
-Deploy compatible service/schema support before clients that require it. Older clients must remain
+Experimental TestFlight artifacts are not public release candidates: build Release and run its
+exclusion checks before App Store submission or a public DMG. Deploy compatible service/schema
+support before clients that require it. Older clients must remain
 supported or receive an explicit upgrade requirement; they must not silently become competing writers.
 
 ## Migration invariants

@@ -15,19 +15,6 @@ class ReleasePlanTests(unittest.TestCase):
         self.assertTrue(value['baseURL'].endswith('/mac-v1.0.1-91'))
         plan.validate_plan(value, 'a' * 40)
 
-    def test_beta_release_identity_and_counter_are_separate(self):
-        value = plan.make_plan('1.0.3', '90', ['mac-v1.0.3-200', 'mac-beta-v1.0.3-95'], 'a' * 40, 'beta')
-        self.assertEqual(value['version'], '96')
-        self.assertEqual(value['tag'], 'mac-beta-v1.0.3-96')
-        plan.validate_plan(value, 'a' * 40)
-        value['channel'] = 'stable'
-        with self.assertRaises(ValueError): plan.validate_plan(value, 'a' * 40)
-
-    def test_legacy_stable_plan_still_validates(self):
-        value = plan.make_plan('1.0.3', '90', [], 'a' * 40)
-        del value['channel']
-        plan.validate_plan(value, 'a' * 40)
-
     def test_other_commit_cannot_reuse_plan(self):
         value = plan.make_plan('1.0.1', '86', [], 'a' * 40)
         with self.assertRaises(ValueError): plan.validate_plan(value, 'b' * 40)

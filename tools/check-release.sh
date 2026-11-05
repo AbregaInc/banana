@@ -3,14 +3,14 @@
 #
 #   tools/check-release.sh <path to .xcarchive, .app or .ipa folder>
 #
-# Local assistant is never distributed; gated Email requires the Beta identity. Check both
+# Local assistant is never distributed; gated Email requires the primary TestFlight app. Check both
 # their copied resources and their native implementation markers before exporting.
 # Archives made in Xcode run this check from local-feature-resources.sh too.
 set -e
 target="${1:?usage: $0 <.xcarchive | .app | folder>}"
 [ -e "$target" ] || { echo "No such path: $target"; exit 2; }
 
-# Only the explicitly labeled Beta identity may distribute the Email implementation.
+# Only the explicitly labeled primary TestFlight app may distribute the Email implementation.
 # Never infer eligibility from a command-line allow flag or a public app's saved preference.
 email_allowed=0
 primary_apps=()
@@ -20,7 +20,8 @@ if [ "${#primary_apps[@]}" -eq 1 ]; then
   [ -f "$info" ] || info="${primary_apps[0]}/Contents/Info.plist"
   channel=$(/usr/libexec/PlistBuddy -c 'Print :BananaReleaseChannel' "$info" 2>/dev/null || true)
   bundle=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$info" 2>/dev/null || true)
-  if [ "$channel" = beta ] && [[ "$bundle" == *.beta ]]; then email_allowed=1; fi
+  primary=$(/usr/libexec/PlistBuddy -c 'Print :BananaPrimaryBundleIdentifier' "$info" 2>/dev/null || true)
+  if [ "$channel" = testflight ] && [ -n "$primary" ] && [ "$bundle" = "$primary" ]; then email_allowed=1; fi
 fi
 
 # Runtime bundles, JS entry points and build markers must never reach distribution.
@@ -102,7 +103,7 @@ if [ "$checked" -eq 0 ]; then
   exit 2
 fi
 if [ "$found" -ne 0 ]; then
-  echo "Not for Apple: this build has unreleased modules in it. Exclude local AI; Email requires the separate Beta identity and channel."
+  echo "Not for Apple: this build has unreleased modules in it. Exclude local AI; Email requires the primary app identity and TestFlight channel."
   exit 1
 fi
 echo "OK: no unreleased module in $checked executable(s) under $target"

@@ -5,7 +5,6 @@ Release mode requires Developer ID, hardened runtime, notarization and Gatekeepe
 Test mode only accepts the isolated installer-test app. --notarize-test signs and
 notarizes it with Developer ID; plain --test is only an ad-hoc development artifact.
 """
-from channels import channel_config, validate_identity
 import argparse
 import base64
 import hashlib
@@ -29,7 +28,7 @@ def run(*args, **kwargs):
     return subprocess.run([str(a) for a in args], check=True, **kwargs)
 
 
-def write_feed(path, *, url, version, short_version, signature, length, notes, app_name="Banana"):
+def write_feed(path, *, url, version, short_version, signature, length, notes):
     if not re.fullmatch(r'[0-9]+(?:\.[0-9]+)*', version):
         raise ValueError('Build version must be numeric')
     if len(base64.b64decode(signature, validate=True)) != 64:
@@ -38,9 +37,9 @@ def write_feed(path, *, url, version, short_version, signature, length, notes, a
         raise ValueError('Expected an HTTP(S) download URL')
     rss = ET.Element('rss', version='2.0')
     channel = ET.SubElement(rss, 'channel')
-    ET.SubElement(channel, 'title').text = app_name + ' updates'
+    ET.SubElement(channel, 'title').text = 'Banana updates'
     item = ET.SubElement(channel, 'item')
-    ET.SubElement(item, 'title').text = f'{app_name} {short_version} ({version})'
+    ET.SubElement(item, 'title').text = f'Banana {short_version} ({version})'
     ET.SubElement(item, 'description').text = notes
     ET.SubElement(item, f'{{{SPARKLE}}}minimumSystemVersion').text = '26.0'
     ET.SubElement(item, 'enclosure', {
@@ -56,7 +55,6 @@ def write_feed(path, *, url, version, short_version, signature, length, notes, a
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('app', type=Path)
-    parser.add_argument('--channel', choices=['stable', 'beta'], default='stable')
     parser.add_argument('--out', type=Path, required=True)
     parser.add_argument('--base-url', required=True)
     parser.add_argument('--sparkle-bin', type=Path, required=True)
@@ -84,10 +82,11 @@ def main():
         if info['CFBundleIdentifier'] != 'org.banana.installer-test':
             parser.error('Test packaging only accepts the isolated installer-test bundle')
     else:
+        if info.get('BananaReleaseChannel', 'stable') != 'stable':
+            parser.error('Public installers require a Stable Release build, not an experimental archive')
         if not re.fullmatch(r'[0-9a-f]{40}', info.get('BananaSourceCommit', '')):
             parser.error('Production app must carry its clean source commit; build using a release plan')
-        config = validate_identity(info, args.channel)
-        expected_base = f"https://github.com/AbregaInc/banana/releases/download/{config['tag']}{info['CFBundleShortVersionString']}-{info['CFBundleVersion']}"
+        expected_base = f"https://github.com/AbregaInc/banana/releases/download/mac-v{info['CFBundleShortVersionString']}-{info['CFBundleVersion']}"
         if args.base_url.rstrip('/') != expected_base:
             parser.error('Download URL must match the app version and build number')
         if args.test_version or info['CFBundleIdentifier'] == 'org.banana.installer-test':
@@ -120,7 +119,7 @@ def main():
     short = info['CFBundleShortVersionString']
     out = args.out.resolve()
     out.mkdir(parents=True, exist_ok=True)
-    dmg = out / ('Banana-Installer-Test-' + version + '.dmg' if args.test else 'Banana-Beta.dmg' if args.channel == 'beta' else 'Banana.dmg')
+    dmg = out / ('Banana-Installer-Test-' + version + '.dmg' if args.test else 'Banana.dmg')
     if dmg.exists():
         parser.error('Refusing to overwrite an existing versioned installer')
     with tempfile.TemporaryDirectory(prefix='banana-dmg-') as tmp:
@@ -165,7 +164,7 @@ def main():
             'Drag the app to Applications, then open it.\n' +
             ('LOCAL TEST ONLY. Separate app and data from Banana.\n'
              'Install this build, then use Banana Installer Test > Check for Updates for the next build.\n'
-             if args.test else f'Updates are available from {"Banana Beta" if args.channel == "beta" else "Banana"} > Check for Updates.\n'))
+             if args.test else 'Updates are available from Banana > Check for Updates.\n'))
         if args.test:
             run('hdiutil', 'create', '-volname', 'Banana Installer Test',
                 '-srcfolder', stage, '-format', 'UDZO', dmg)
@@ -175,7 +174,7 @@ def main():
                 '-s', ROOT / 'tools/mac-distribution/dmg-settings.py',
                 '-D', 'app=' + str(app),
                 '-D', 'background=' + str(ROOT / 'tools/mac-distribution/artwork/background.png'),
-                'Banana Beta' if args.channel == 'beta' else 'Banana', dmg)
+                'Banana', dmg)
     if notarize:
         run('codesign', '--sign', args.identity, '--timestamp', dmg)
         run('xcrun', 'notarytool', 'submit', dmg, *notary_auth, '--wait')
@@ -188,14 +187,13 @@ def main():
     run(*sign, '--verify', dmg, signature)
     url = args.base_url.rstrip('/') + '/' + urllib.parse.quote(dmg.name)
     write_feed(out / 'appcast.xml', url=url, version=version, short_version=short,
-               signature=signature, length=dmg.stat().st_size, notes=args.notes,
-               app_name="Banana Beta" if args.channel == "beta" else "Banana")
+               signature=signature, length=dmg.stat().st_size, notes=args.notes)
     digest = hashlib.file_digest(dmg.open('rb'), 'sha256').hexdigest()
     (out / (dmg.name + '.sha256')).write_text(f'{digest}  {dmg.name}\n')
     (out / 'release.json').write_text(json.dumps({
         'version': version, 'shortVersion': short, 'url': url, 'sha256': digest,
         'bytes': dmg.stat().st_size, 'testOnly': args.test, 'notarized': notarize,
-        'bundleIdentifier': info['CFBundleIdentifier'], 'channel': args.channel,
+        'bundleIdentifier': info['CFBundleIdentifier'],
         'sourceCommit': info.get('BananaSourceCommit'),
     }, indent=2) + '\n')
     print(dmg)
