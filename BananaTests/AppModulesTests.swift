@@ -9,8 +9,7 @@ final class AppModulesTests: XCTestCase {
 
     func testChoosingEveryModuleIsEverythingSoOneAddedLaterIsOnToo() {
         XCTAssertEqual(ModuleChoice.choosing(Set(AppModule.allCases)), .everything)
-        XCTAssertEqual(ModuleChoice.planOnly.setting(.workouts, on: true).setting(.food, on: true)
-            .setting(.notes, on: true).setting(.podcasts, on: true), .everything)
+        XCTAssertEqual(AppModule.selectable.reduce(ModuleChoice.planOnly) { $0.setting($1, on: true) }, .everything)
         XCTAssertEqual(ModuleChoice.everything.setting(.notes, on: false),
                        .only(["workouts", "food", "podcasts", "email"]))
     }
@@ -32,14 +31,17 @@ final class AppModulesTests: XCTestCase {
         XCTAssertEqual(newer.setting(.notes, on: true), .only(["food", "mail", "notes"]))
     }
 
-    func testEmailAvailabilityIsLimitedToBetaAndSyncedChoicesArePreserved() throws {
-        XCTAssertEqual(AppModule.selectable(inBeta: false), [.workouts, .food, .notes, .podcasts])
-        XCTAssertEqual(AppModule.selectable(inBeta: true), AppModule.allCases)
-        XCTAssertEqual(AppModule.selectable, AppModule.selectable(inBeta: AppModule.isBetaBuild))
-        XCTAssertFalse(AppModule.email.isAvailable(inBeta: false))
-        XCTAssertTrue(AppModule.email.isAvailable(inBeta: true))
+    func testEmailAvailabilityFollowsCompiledSupportRatherThanAppIdentity() throws {
+        #if BANANA_UNRELEASED
+        XCTAssertTrue(AppModule.email.isAvailable)
+        XCTAssertEqual(AppModule.selectable, AppModule.allCases)
+        XCTAssertTrue(ModuleChoice.planOnly.setting(.email, on: true).includes(.email))
+        #else
+        XCTAssertFalse(AppModule.email.isAvailable)
+        XCTAssertEqual(AppModule.selectable, [.workouts, .food, .notes, .podcasts])
+        #endif
         for module in AppModule.allCases where module != .email {
-            XCTAssertTrue(module.isAvailable(inBeta: false))
+            XCTAssertTrue(module.isAvailable)
             XCTAssertNil(module.statusLabel(inBeta: false))
             XCTAssertEqual(module.statusLabel(inBeta: true), "Beta")
         }

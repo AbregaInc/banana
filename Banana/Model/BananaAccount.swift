@@ -449,6 +449,11 @@ final class BananaAccount: ObservableObject {
         return (data, status)
     }
 
+    private var providerOperationContext: String? {
+        guard let account, let host = BananaService.host else { return nil }
+        return CloudProviderOperationJournal.context(account: account.id, host: host)
+    }
+
     #if !BANANA_PUBLIC
     private static let mailJournal = CloudProviderOperationJournal(
         directory: AppSupport.directory.appendingPathComponent("mail-cloud-operations", isDirectory: true))
@@ -474,7 +479,10 @@ final class BananaAccount: ObservableObject {
         let envelope = try CloudMailRequest.body(path: path, email: route.email, query: query, method: method, body: body)
         let ticket: CloudProviderOperationJournal.Ticket?
         if method == "GET" { ticket = nil }
-        else { ticket = try await Self.mailJournal.prepare(envelope: envelope, context: route.context) }
+        else {
+            guard let operationContext = providerOperationContext else { throw GmailError.networkDisabled }
+            ticket = try await Self.mailJournal.prepare(envelope: envelope, context: operationContext)
+        }
         try Task.checkCancellation()
         guard session == requestSession, FeatureAccessStore.shared.mailContext == route.context else { throw GmailError.networkDisabled }
         let call: BananaService.Call = ticket.map { .mailOperation($0.body) } ?? .mailRead(envelope)
@@ -484,8 +492,8 @@ final class BananaAccount: ObservableObject {
             if let ticket { try? await Self.mailJournal.acknowledged(ticket) }
             return answer.0
         }
-        if [400, 401, 403, 404, 410, 412, 422].contains(answer.1), let ticket {
-            try? await Self.mailJournal.acknowledged(ticket) // explicit refusal, not an ambiguous write
+        if let ticket, CloudProviderOperationJournal.isTerminal(status: answer.1, response: answer.0, ticket: ticket) {
+            try? await Self.mailJournal.acknowledged(ticket)
         }
         throw GmailHTTPRules.failure(status: answer.1, data: answer.0, retryAfter: nil)
     }
@@ -507,8 +515,9 @@ final class BananaAccount: ObservableObject {
         }
         guard let host = BananaService.host else { throw CloudCalendarSnapshot.Failure.unavailable }
         try await Self.calendarJournal.claim(email: email, host: host)
+        guard let operationContext = providerOperationContext else { throw CloudCalendarSnapshot.Failure.contextChanged }
         let ticket = try await Self.calendarJournal.prepare(url: url, method: method, body: body,
-            ifMatch: ifMatch, email: email, context: context)
+            ifMatch: ifMatch, email: email, context: operationContext)
         try Task.checkCancellation()
         guard session == requestSession, FeatureAccessStore.shared.calendarReadContext == context else {
             throw CloudCalendarSnapshot.Failure.contextChanged
@@ -519,7 +528,7 @@ final class BananaAccount: ObservableObject {
         guard session == requestSession, FeatureAccessStore.shared.calendarReadContext == context else {
             throw CloudCalendarSnapshot.Failure.contextChanged
         }
-        if (200..<300).contains(answer.1) || [400, 401, 403, 404, 410, 412, 422].contains(answer.1) {
+        if CloudProviderOperationJournal.isTerminal(status: answer.1, response: answer.0, ticket: ticket) {
             try? await Self.calendarJournal.acknowledged(ticket)
         }
         return answer

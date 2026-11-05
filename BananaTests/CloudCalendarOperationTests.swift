@@ -22,6 +22,23 @@ final class CloudCalendarOperationTests: XCTestCase {
         XCTAssertNotEqual(first.body, next.body, "A later intentional action has a new operation identity")
     }
 
+    func testOnlyMatchingPersistedFailureReceiptCanForgetAnOperation() {
+        let ticket = CloudProviderOperationJournal.Ticket(key: "saved", body: Data(#"{"operationID":"original"}"#.utf8))
+        for status in [400, 401, 403, 404, 410, 412, 422, 502] {
+            XCTAssertFalse(CloudProviderOperationJournal.isTerminal(status: status,
+                response: Data(#"{"error":"access denied"}"#.utf8), ticket: ticket))
+        }
+        XCTAssertFalse(CloudProviderOperationJournal.isTerminal(status: 403,
+            response: Data(#"{"bananaOperation":{"id":"another","state":"done"}}"#.utf8), ticket: ticket))
+        XCTAssertTrue(CloudProviderOperationJournal.isTerminal(status: 403,
+            response: Data(#"{"bananaOperation":{"id":"original","state":"done"}}"#.utf8), ticket: ticket))
+        XCTAssertTrue(CloudProviderOperationJournal.isTerminal(status: 204, response: Data(), ticket: ticket))
+        XCTAssertNotEqual(CloudProviderOperationJournal.context(account: "one", host: "cloud.example"),
+                          CloudProviderOperationJournal.context(account: "two", host: "cloud.example"))
+        XCTAssertEqual(CloudProviderOperationJournal.context(account: "one", host: "CLOUD.example"),
+                       CloudProviderOperationJournal.context(account: "one", host: "cloud.example"))
+    }
+
     func testMoveAndConditionalEditKeepProviderSemanticsWithoutForwardingURL() async throws {
         let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         defer { try? FileManager.default.removeItem(at: root) }

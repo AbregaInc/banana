@@ -8,8 +8,8 @@ import Foundation
 /// looks after on the way in, Settings › Modules changes it after, and turning a module off only
 /// hides it. Its data stays and keeps syncing, so turning it back on loses nothing.
 ///
-/// Main builds list only released modules, without preview badges. The separate Beta build
-/// also lists Email and labels its optional modules Beta. Saved choices keep their names.
+/// Stable excludes Email at compile time. TestFlight and development can build it; ModuleStore
+/// separately checks account eligibility before offering it. Saved choices keep their names.
 enum AppModule: String, CaseIterable, Identifiable, Sendable {
     case workouts, food, notes, podcasts, email
     var id: String { rawValue }
@@ -41,16 +41,14 @@ enum AppModule: String, CaseIterable, Identifiable, Sendable {
         #endif
     }
 
-    func isAvailable(inBeta: Bool) -> Bool {
+    var isAvailable: Bool {
         #if BANANA_UNRELEASED
-        self != .email || inBeta
+        true
         #else
         self != .email
         #endif
     }
-    var isAvailable: Bool { isAvailable(inBeta: Self.isBetaBuild) }
-    static func selectable(inBeta: Bool) -> [AppModule] { allCases.filter { $0.isAvailable(inBeta: inBeta) } }
-    static var selectable: [AppModule] { selectable(inBeta: isBetaBuild) }
+    static var selectable: [AppModule] { allCases.filter(\.isAvailable) }
     func statusLabel(inBeta: Bool) -> String? { inBeta ? "Beta" : nil }
     var statusLabel: String? { statusLabel(inBeta: Self.isBetaBuild) }
 

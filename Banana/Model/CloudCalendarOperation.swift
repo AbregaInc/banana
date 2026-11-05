@@ -4,6 +4,21 @@ import Foundation
 /// A durable native delivery journal. It never falls back to direct Google writes after dispatch.
 actor CloudProviderOperationJournal {
     struct Ticket: Codable, Sendable { let key: String; let body: Data }
+    /// Sign-in sessions rotate; an outstanding operation belongs to the durable account.
+    nonisolated static func context(account: String, host: String) -> String {
+        let fields = [host.lowercased(), account]
+        return SHA256.hash(data: try! JSONEncoder().encode(fields)).map { String(format: "%02x", $0) }.joined()
+    }
+
+    nonisolated static func isTerminal(status: Int, response: Data, ticket: Ticket) -> Bool {
+        if (200..<300).contains(status) { return true }
+        guard let sent = try? JSONSerialization.jsonObject(with: ticket.body) as? [String: Any],
+              let received = try? JSONSerialization.jsonObject(with: response) as? [String: Any],
+              let receipt = received["bananaOperation"] as? [String: String],
+              receipt["state"] == "done", let id = sent["operationID"] as? String else { return false }
+        return receipt["id"] == id
+    }
+
     private let directory: URL
     init(directory: URL) { self.directory = directory }
 
