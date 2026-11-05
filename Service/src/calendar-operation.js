@@ -3,6 +3,7 @@
 import {providerOperation,operationFailure as failure} from './provider-operation.js';
 import {featureAllowed,googleCapabilities} from './feature-access.js';
 import {GoogleRefused} from './google.js';
+import {busyBlockIdentity,busyIdentity} from './busy-block-identity.js';
 const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const id=x=>typeof x==='string'&&x.length>0&&x.length<=2048&&!/[\x00-\x1f]/.test(x);
 const object=x=>x&&typeof x==='object'&&!Array.isArray(x);
@@ -33,6 +34,8 @@ export async function calendarOperation(deps,vault,account,request) {
  if(!await featureAllowed(deps,account,'calendarCloud'))return failure(403,'Calendar access is unavailable.');
  const link=await deps.db.first("SELECT sub,refresh_token,scopes,status FROM google_links WHERE account_id=? AND email=? AND status<>'unlinked'",account,request.email);
  if(!link||!googleCapabilities({...link,has_token:Boolean(link.refresh_token)}).calendarWrite)return failure(403,'Reconnect this Google account.');
+ const busy=await busyBlockIdentity(deps,vault,account,request);
+ const busyInsert=request.action==='insert'&&busyIdentity(request.body);
  const eventID=request.action==='insert'?(request.body.id??request.operationID.replaceAll('-','')):request.eventID;
  const outbound=structuredClone(request);
  if(['insert','patch'].includes(request.action)) {
@@ -41,8 +44,8 @@ export async function calendarOperation(deps,vault,account,request) {
   outbound.body.extendedProperties.private[marker]=request.operationID;
  }
  let accessToken;
- return providerOperation(deps,vault,{account,operationID:request.operationID,googleSub:link.sub,
-  provider:'calendar',resource:[request.calendarID==='primary'?request.email:request.calendarID,eventID],request,
+ const answer=await providerOperation(deps,vault,{account,operationID:request.operationID,googleSub:link.sub,
+  provider:'calendar',resource:busy?.resource??[request.calendarID==='primary'?request.email:request.calendarID,eventID],request,
   enabled:async()=>{
    if(!await featureAllowed(deps,account,'calendarCloud'))return false;
    const current=await deps.db.first('SELECT refresh_token,status FROM google_links WHERE account_id=? AND sub=?',account,link.sub);
@@ -52,14 +55,20 @@ export async function calendarOperation(deps,vault,account,request) {
    try {({accessToken}=await deps.google.refresh(await vault.open(link.sub,link.refresh_token)));return null;}
    catch(e){return failure(e instanceof GoogleRefused?403:502,e instanceof GoogleRefused?'Reconnect this Google account.':'Calendar temporarily unavailable.');}
   },
-  prepareDispatch:async()=>{
+  prepareDispatch:async(claim)=>{
+   if(busyInsert)return busy.prepare(accessToken,claim);
    if(request.action==='insert')return {};
    const event=await deps.google.getEvent(accessToken,request.calendarID,eventID);
    if(!event||event.status==='cancelled')return {absent:true};
+   if(busy&&(!busy.matches(event)||!busy.acceptsRequest))return {ownershipChanged:true};
+   if(busy&&!request.ifMatch)return {missingVersion:true};
    if(typeof event.etag!=='string'||!event.etag)throw new Error('missing provider version');
    return {ifMatch:request.ifMatch??event.etag,uid:event.iCalUID??null};
   },
   dispatch:async(context)=>{
+   if(busyInsert)return busy.dispatch(accessToken,context,outbound);
+   if(context.missingVersion)return failure(428,'Refresh this busy block before changing it.');
+   if(context.ownershipChanged)return failure(409,'Busy-block ownership changed. Refresh before changing it.');
    if(context.absent)return request.action==='delete'?{status:204,body:null}:failure(404,'This event no longer exists.');
    const answer=await deps.google.calendarMutation(accessToken,{...outbound,ifMatch:context.ifMatch??outbound.ifMatch});
    if(request.action==='delete'&&[404,410].includes(answer.status))return {status:204,body:null};
@@ -70,6 +79,9 @@ export async function calendarOperation(deps,vault,account,request) {
    return answer;
   },
   reconcile:async(context)=>{
+   if(busyInsert)return busy.reconcile(accessToken,context);
+   if(context.missingVersion)return failure(428,'Refresh this busy block before changing it.');
+   if(context.ownershipChanged)return failure(409,'Busy-block ownership changed. Refresh before changing it.');
    const event=await deps.google.getEvent(accessToken,request.calendarID,eventID);
    if(request.action==='delete'&&(!event||event.status==='cancelled'))return {status:204,body:null};
    if(['insert','patch'].includes(request.action)&&event?.extendedProperties?.private?.[marker]===request.operationID)
@@ -89,4 +101,5 @@ export async function calendarOperation(deps,vault,account,request) {
    return null;
   },
  });
+ return busy?busy.finish(answer):answer;
 }

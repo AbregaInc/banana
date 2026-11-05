@@ -50,7 +50,7 @@ export async function providerOperation(deps,vault,options) {
  }
  try {
   if(dispatchContext===null) {
-   dispatchContext=prepareDispatch?await prepareDispatch():{};
+   dispatchContext=prepareDispatch?await prepareDispatch({lease}):{};
    const persisted=await deps.db.run("UPDATE provider_operations SET dispatch_cipher=? WHERE account_id=? AND operation_id=? AND lease=? AND state='running'",
     await vault.seal(aad,JSON.stringify(dispatchContext)),...key,lease);
    if(!persisted.changes)return operationFailure(409,'Operation ownership changed before dispatch.');
