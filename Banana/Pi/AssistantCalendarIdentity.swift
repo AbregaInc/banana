@@ -1,7 +1,8 @@
 import Foundation
 import CryptoKit
 
-/// An explicit native review save keeps Pi's draft identity through a calendar retry.
+/// A durable event save keeps its draft identity through a calendar retry.
+/// The original Pi property keys remain compatible with events already created by older clients.
 /// Google accepts client-generated base32hex event IDs; UUID hex is a valid subset.
 enum AssistantCalendarIdentity {
     static let operationKey = "bananaPiOperation"

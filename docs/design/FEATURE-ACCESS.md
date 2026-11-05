@@ -1,8 +1,8 @@
 # Feature access
 
-Implementation status: production schema and account-policy service are deployed at `1d8901ec`
-(5 November 2026), with zero eligibility grants. Beta retains `d199ef76`. Native build validation
-is in progress.
+Implementation status: production and staging run `699153d7` with schema through 0014
+(5 November 2026). Production has zero eligibility grants. Primary iOS/iPad and Mac build 94
+exports are verified but not uploaded; live-provider and device acceptance remain open.
 Deploy service/schema support before the clients. This does not implement cloud Mail or
 Calendar provider migration; those remain in [the rollout plan](CLOUD-AND-RELEASE-PLAN.md).
 

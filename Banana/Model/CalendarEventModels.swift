@@ -113,6 +113,8 @@ struct CalendarEventInput: Codable {
     var attendees: [String]? = nil
     /// Present only for a reviewed Pi draft; survives pending-write persistence/retry.
     var assistantOperationID: UUID? = nil
+    /// Assigned before a new event draft is persisted; reused after a lost acknowledgement.
+    var clientOperationID: UUID? = nil
     /// Durable conference request and event identity; nil for older saved drafts.
     var googleMeetRequestID: UUID? = nil
 }

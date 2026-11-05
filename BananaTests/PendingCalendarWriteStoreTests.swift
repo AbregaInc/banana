@@ -37,6 +37,40 @@ final class PendingCalendarWriteStoreTests: XCTestCase {
         XCTAssertEqual(restored.calendarID, "test-calendar")
     }
 
+    func testLostAcknowledgementRetryKeepsEventIdentityAndPayloadReceipt() throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let first = PendingCalendarWriteStore(directory: root, now: now)
+        let ticket = try first.enqueue(input: input, calendarID: "test-calendar", now: now)
+        let original = try XCTUnwrap(first.entry(ticket)?.input.clientOperationID)
+        var providerBody: [String: Any] = ["summary": input.title]
+        let accepted = try AssistantCalendarIdentity.attach(to: &providerBody, operation: original)
+        // Google accepted it, but the app died before recording the response.
+        let relaunched = PendingCalendarWriteStore(directory: root, now: now.addingTimeInterval(1))
+        relaunched.markRetrying(ticket)
+        let retry = try XCTUnwrap(relaunched.entry(ticket)?.input.clientOperationID)
+        var retryBody: [String: Any] = ["summary": input.title]
+        let receipt = try AssistantCalendarIdentity.attach(to: &retryBody, operation: retry)
+        XCTAssertEqual(providerBody["id"] as? String, retryBody["id"] as? String)
+        XCTAssertTrue(AssistantCalendarIdentity.matches(accepted, receipt: receipt))
+        let anotherTicket = try relaunched.enqueue(input: input, calendarID: "test-calendar", now: now)
+        XCTAssertNotEqual(relaunched.entry(anotherTicket)?.input.clientOperationID, original,
+                          "Intentionally creating an identical event must remain a distinct operation")
+    }
+
+    func testLegacyDraftDoesNotReceiveAnIdentityAfterAnUnknownProviderOutcome() throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let legacy = PendingCalendarWrite(input: input, calendarID: "test-calendar", createdAt: now)
+        let data = try JSONEncoder().encode([legacy])
+        try data.write(to: root.appendingPathComponent("pending-calendar-writes.json"))
+        let store = PendingCalendarWriteStore(directory: root, now: now)
+        XCTAssertNil(store.entry(legacy.id)?.input.clientOperationID)
+        XCTAssertEqual(store.entry(legacy.id)?.state, .failed)
+    }
+
     func testEnqueueComponentCostAtRetainedBacklogSizes() throws {
         let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)

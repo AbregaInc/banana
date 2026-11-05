@@ -1332,7 +1332,7 @@ final class GoogleCalendarService: ObservableObject {
         if let requestID = input.googleMeetRequestID {
             body["conferenceData"] = GoogleMeetCreation.conference(requestID: requestID)
         }
-        let operationID = input.assistantOperationID ?? input.googleMeetRequestID
+        let operationID = input.assistantOperationID ?? input.googleMeetRequestID ?? input.clientOperationID
         let assistantReceipt = try operationID.map { try AssistantCalendarIdentity.attach(to: &body, operation: $0) }
         let data = try JSONSerialization.data(withJSONObject: body)
         let escaped = Self.pathComponent(rawCalendarID)

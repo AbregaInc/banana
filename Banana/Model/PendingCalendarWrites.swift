@@ -108,7 +108,10 @@ final class PendingCalendarWriteStore: ObservableObject {
     // MARK: - Lifecycle of one write
 
     func enqueue(input: CalendarEventInput, calendarID: String?, now: Date = Date()) throws -> UUID {
-        let entry = PendingCalendarWrite(input: input, calendarID: calendarID, createdAt: now)
+        var entry = PendingCalendarWrite(input: input, calendarID: calendarID, createdAt: now)
+        // Persist the identity before the first provider request. Do not invent one on recovery
+        // for legacy drafts: an earlier version may already have created an unmarked event.
+        if entry.input.clientOperationID == nil { entry.input.clientOperationID = entry.id }
         let next = pending + [entry]
         // A successful return permits the composer to dismiss and the provider write to begin.
         // Publish only after the atomic disk write succeeds; otherwise the draft remains its owner.

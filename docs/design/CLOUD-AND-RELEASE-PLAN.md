@@ -53,41 +53,41 @@ Private operational evidence stays outside the public tree. Source baseline: `22
 Calendar therefore has **parallel native and server paths**, not a missing backend integration.
 Reuse the web, notification and booking implementations when establishing a common provider layer.
 
-## Implementation checkpoint
+## Implementation checkpoint — 5 November
 
-The first local increment adds versioned account eligibility, actual server-grant capabilities,
-short-lived native policy caching, Email presentation/transport gates, explicit TestFlight/Dev build
-presets and account-scoped administration. See [feature access](FEATURE-ACCESS.md).
-The service foundation and gated Calendar read endpoint are deployed to Beta at `d199ef76`, with migrations 0013–0014 applied
-and the public source offer verified. Clients are not distributed. Native provider consolidation,
-cloud Mail, isolated Dev infrastructure,
-signed distribution and end-to-end acceptance remain unfinished. The audit table above is the
-starting snapshot, not a claim about these new source changes.
-
-The renewed Google CLI login confirms both configured projects are active. Calendar API is
-enabled in both; Gmail API is enabled only in Beta. OAuth clients, redirects, audience and
-verification status still need console inspection. No separate Beta App Store Connect record
-is needed. TestFlight uses the existing main app record. Production service/schema support is deployed at `1d8901ec` with zero grants. Primary-account
-grants and provider validation are still required before testing Email; until then it is denied.
-
-The component regression run was retained as a failure: RSS limits were exceeded in five
-scenarios, and four scenarios had incomplete host monitoring (process enumeration timeouts;
-one monitor also failed to stop promptly). No baseline or budget was changed. Native UI,
-physical-device performance and signed coexistence acceptance remain outstanding. Passing
-unit tests or an unsigned optimized compile does not clear these release gates.
-
-## 5 November implementation checkpoint
-
-- Production migration 0014 and policy service deployed at `1d8901ec`; health/source return 200,
-  anonymous account/Calendar reads return 401, and the feature table has zero grants.
-- Primary iOS TestFlight build 92 archived and exported successfully; its archive content gate
-  passed. It is not uploaded. This build predates the native snapshot transport added next.
-- Calendar snapshot service/native transport preserves provider edit fields and successful empty
-  reads. Automatic native cache/read/write cutover remains disabled pending reconciliation tests.
-- `tools/testflight.sh ios|mac BUILD_NUMBER [prepare|upload]` prepares by default, uses the existing
-  app identity, records source/build provenance and checks archives before export/upload.
-- Google OAuth client/redirect inspection still lacks browser access. No scopes or consent-screen
-  settings were changed. Earlier failed performance evidence remains a release blocker.
+- Both production and staging run `699153d7`, with migrations through 0014 and matching
+  public source offers verified. Health/source return 200 and anonymous Calendar reads 401.
+  Production has zero eligibility grants; no experimental access was enabled globally.
+- Account eligibility, actual stored-grant capabilities, expiring native policy caches and
+  Email presentation/transport gates are implemented. See [feature access](FEATURE-ACCESS.md).
+  Stored scopes/status are not a fresh live-token validation.
+- Primary iOS/iPad and Mac TestFlight build 94 archived and exported from `f04565af`.
+  Archive identities, channel, production host, versions, signatures and source provenance
+  were checked. No upload or device installation occurred. Existing internal/external tester
+  groups were inspected; a separate Beta app record is unnecessary.
+- `tools/testflight.sh ios|mac BUILD_NUMBER [prepare|upload]` prepares by default and records
+  provenance. Stable Release excludes experimental modules. TestFlight shares production identity.
+- Native incremental Calendar reads are implemented in `894364f8`, behind `calendarCloud`.
+  The transport preserves the existing cache/window behavior and uses encrypted account/grant
+  bound cursors. It passed 337 service tests per timezone, 79 focused native tests and the full
+  Mac TestFlight compile. This newer source is not in build 94 or the deployed service.
+  See [the read contract](CALENDAR-CLOUD-READ.md). Provider writes remain on their existing path.
+- Google CLI access works and both configured projects are active. Calendar API is enabled in
+  both; Gmail API is enabled only in staging. Actual OAuth clients, redirects, audience and
+  approval status remain unverified: the browser host is unavailable and the attempted client
+  inventory endpoint returned 404. There is no pending browser approval prompt. No consent or
+  scope settings were changed.
+- The persistent component run remains failed: RSS exceeded budgets and some scenarios lacked
+  complete host monitoring. Evidence is retained privately; no baseline or budget was changed.
+  Full UI, live-provider, physical-device performance and signed upgrade/coexistence acceptance
+  remain open. Unit tests, signed exports and health checks do not close those gates.
+- New ordinary event drafts now persist a client operation identity before their first write,
+  using the same lost-acknowledgement reconciliation as Meet/Pi events. Legacy drafts are not
+  assigned a new identity after an unknown provider outcome. All 13 focused draft/Meet/read
+  tests passed; evidence: `private/cloud-rollout/pending-event-identity.xcresult`.
+- Cloud-owned durable Calendar writes, busy-block writer fencing, cloud Mail and provisioned
+  cloud Dev infrastructure remain unfinished. The audit table above is the starting snapshot,
+  not a description of the current increment.
 
 ## Target channel matrix
 
@@ -108,7 +108,7 @@ storage does not isolate two apps connected to the same real Google calendar or 
 - [x] Reconcile the failing native configuration/module/migration assertions against intended behavior.
 - [x] Review and apply Beta's missing schema migration before the compatible service update.
 - [ ] Establish Beta's server Google grant and verify the required scopes and token refresh.
-- [ ] Record the exact deployed source revision and schema version for every service environment.
+- [x] Record the exact deployed source revision and schema version for production and staging.
 - [ ] Verify Google OAuth clients, redirects, publishing status and approved scopes; inspect Apple's
   rejection details and signing/profile readiness before planning distribution changes.
 
@@ -184,7 +184,7 @@ mailbox actions reconcile without lost changes or automatic duplicate sends. Rol
 
 - [x] Use an optimized TestFlight configuration on the existing primary iOS/Mac schemes.
 - [x] Remove the separate Beta distribution targets, installer and update feed tooling.
-- [ ] Verify signed TestFlight exports and configure tester groups on the existing app record.
+- [x] Verify signed TestFlight exports and the existing tester groups on the primary app record.
 - [ ] Extend existing release tooling to cover the channel/platform matrix and artifact verification.
 - [ ] Record version, monotonic build number, source commit, environment and capabilities for each artifact.
 - [ ] Verify install-over upgrades, coexistence, data/permission retention and compatible cloud schemas.
