@@ -306,7 +306,7 @@ final class BananaAccount: ObservableObject {
     private func device() -> BananaService.Device {
         BananaService.Device(id: deviceID, platform: Telemetry.platform, push: pushToken,
                              pushEnv: Telemetry.channel == "dev" ? "development" : "production",
-                             bundle: Bundle.main.bundleIdentifier ?? "com.boris.banana")
+                             bundle: Bundle.main.bundleIdentifier ?? "com.boris.banana", providerProtocol: 1)
     }
 
     // MARK: - Calendars to watch
@@ -338,6 +338,16 @@ final class BananaAccount: ObservableObject {
             calendars: google.calendars.filter { !$0.isDeleted }.map { ($0.accountEmail, $0.id, $0.isHidden) },
             excluded: SmartScheduleStore.shared.settings.excludedCalendarIDs.union(unwatchable))
             .filter { linked.contains($0.key) }
+        if FeatureAccessStore.shared.calendarReadContext != nil {
+            // Existing service watch reconciliation owns renewals and alert reads. Old native
+            // channels expire naturally; keeping them briefly avoids a notification gap.
+            for (email, ids) in wanted { _ = await send(.serverCalendars(email: email, ids: ids)) }
+            return
+        }
+        for email in wanted.keys {
+            // Revocation/sign-out cannot silently return provider ownership to this device.
+            if (try? await Self.requiresCloudCalendar(email: email)) != false { return }
+        }
         guard case let (data, status)? = await send(.channels), status == 200,
               let channels = try? JSONDecoder().decode(BananaService.ChannelsAnswer.self, from: data).channels else { return }
         let plan = BananaService.watchPlan(wanted: wanted, channels: channels, now: Date())
@@ -439,9 +449,90 @@ final class BananaAccount: ObservableObject {
         return (data, status)
     }
 
+    #if !BANANA_PUBLIC
+    private static let mailJournal = CloudProviderOperationJournal(
+        directory: AppSupport.directory.appendingPathComponent("mail-cloud-operations", isDirectory: true))
+
+    func mailConsent(email: String, code: String, context: String) async throws -> Int {
+        guard let requestSession = session, FeatureAccessStore.shared.mailContext == context else { throw GmailError.networkDisabled }
+        guard let answer = await send(.connectMail(email: email, code: code)) else { throw GmailError.unknownOutcome }
+        guard session == requestSession, FeatureAccessStore.shared.mailContext == context else { throw GmailError.networkDisabled }
+        if answer.1 == 200 { _ = await refresh() }
+        return answer.1
+    }
+
+    func disconnectMail(email: String) async throws {
+        guard let requestSession = session else { throw GmailError.unauthorized }
+        guard let answer = await send(.disconnectMail(email: email)), answer.1 == 204 else { throw GmailError.unknownOutcome }
+        guard session == requestSession else { throw GmailError.unauthorized }
+        _ = await refresh()
+    }
+
+    func mailRequest(path: [String], reference: String, query: [URLQueryItem], method: String, body: Data?) async throws -> Data {
+        let route = try CloudMailReference(value: reference)
+        guard let requestSession = session, FeatureAccessStore.shared.mailContext == route.context else { throw GmailError.networkDisabled }
+        let envelope = try CloudMailRequest.body(path: path, email: route.email, query: query, method: method, body: body)
+        let ticket: CloudProviderOperationJournal.Ticket?
+        if method == "GET" { ticket = nil }
+        else { ticket = try await Self.mailJournal.prepare(envelope: envelope, context: route.context) }
+        try Task.checkCancellation()
+        guard session == requestSession, FeatureAccessStore.shared.mailContext == route.context else { throw GmailError.networkDisabled }
+        let call: BananaService.Call = ticket.map { .mailOperation($0.body) } ?? .mailRead(envelope)
+        guard let answer = await send(call) else { throw GmailError.unknownOutcome }
+        guard session == requestSession, FeatureAccessStore.shared.mailContext == route.context else { throw GmailError.networkDisabled }
+        if (200..<300).contains(answer.1) {
+            if let ticket { try? await Self.mailJournal.acknowledged(ticket) }
+            return answer.0
+        }
+        if [400, 401, 403, 404, 410, 412, 422].contains(answer.1), let ticket {
+            try? await Self.mailJournal.acknowledged(ticket) // explicit refusal, not an ambiguous write
+        }
+        throw GmailHTTPRules.failure(status: answer.1, data: answer.0, retryAfter: nil)
+    }
+    #endif
+
+    private static let calendarJournal = CloudProviderOperationJournal(
+        directory: AppSupport.directory.appendingPathComponent("calendar-cloud-operations", isDirectory: true))
+
+    static func requiresCloudCalendar(email: String) async throws -> Bool {
+        guard let host = BananaService.host else { return false }
+        return try await calendarJournal.requiresCloud(email: email, host: host)
+    }
+
+    func calendarOperation(url: URL, method: String, body: Data?, ifMatch: String?,
+                           email: String, context: String) async throws -> (Data, Int) {
+        try Task.checkCancellation()
+        guard let requestSession = session, FeatureAccessStore.shared.calendarReadContext == context else {
+            throw CloudCalendarSnapshot.Failure.contextChanged
+        }
+        guard let host = BananaService.host else { throw CloudCalendarSnapshot.Failure.unavailable }
+        try await Self.calendarJournal.claim(email: email, host: host)
+        let ticket = try await Self.calendarJournal.prepare(url: url, method: method, body: body,
+            ifMatch: ifMatch, email: email, context: context)
+        try Task.checkCancellation()
+        guard session == requestSession, FeatureAccessStore.shared.calendarReadContext == context else {
+            throw CloudCalendarSnapshot.Failure.contextChanged
+        }
+        guard let answer = await send(.calendarOperation(ticket.body)) else {
+            throw CloudCalendarSnapshot.Failure.unavailable
+        }
+        guard session == requestSession, FeatureAccessStore.shared.calendarReadContext == context else {
+            throw CloudCalendarSnapshot.Failure.contextChanged
+        }
+        if (200..<300).contains(answer.1) || [400, 401, 403, 404, 410, 412, 422].contains(answer.1) {
+            try? await Self.calendarJournal.acknowledged(ticket)
+        }
+        return answer
+    }
+
     func calendarRead(url: URL, email: String, context: String) async throws -> (Data, Int) {
         try Task.checkCancellation()
         guard let requestSession = session, FeatureAccessStore.shared.calendarReadContext == context else {
+            throw CloudCalendarSnapshot.Failure.contextChanged
+        }
+        guard let host = BananaService.host else { throw CloudCalendarSnapshot.Failure.unavailable }
+        try await Self.calendarJournal.claim(email: email, host: host)
+        guard session == requestSession, FeatureAccessStore.shared.calendarReadContext == context else {
             throw CloudCalendarSnapshot.Failure.contextChanged
         }
         let read = try CloudCalendarRequest(url: url, email: email)
@@ -449,6 +540,9 @@ final class BananaAccount: ObservableObject {
         try Task.checkCancellation()
         guard session == requestSession, FeatureAccessStore.shared.calendarReadContext == context else {
             throw CloudCalendarSnapshot.Failure.contextChanged
+        }
+        if (200..<300).contains(answer.1) {
+            try GoogleCalendarService.shared.retireDirectAccessAfterCloudRead(email: email)
         }
         return answer
     }

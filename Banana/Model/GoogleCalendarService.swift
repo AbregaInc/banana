@@ -562,10 +562,27 @@ final class GoogleCalendarService: ObservableObject {
         let stored = GoogleAccountStore.load()
         let known = Set(accounts.map(\.id))
         let added = stored.filter { !known.contains($0.id) }
-        guard !added.isEmpty else { return false }
+        let retired = Set(stored.filter { $0.cloudOnly == true }.map(\.id))
+        let changed = accounts.contains { retired.contains($0.id) && $0.cloudOnly != true }
+        guard !added.isEmpty || changed else { return false }
+        for email in retired {
+            accounts = GoogleAccountStore.retiringDirectAccess(accounts, email: email)
+            tokenCache[email] = nil
+        }
         accounts = (accounts + added)
             .sorted { $0.email.localizedCaseInsensitiveCompare($1.email) == .orderedAscending }
         return true
+    }
+
+    func retireDirectAccessAfterCloudRead(email: String) throws {
+        guard accounts.contains(where: { $0.id == email.lowercased() && $0.cloudOnly != true }) else { return }
+        guard GoogleAccountStore.retireDirectAccess(email: email) else {
+            throw CalendarEventCreationError.saveFailed("Cloud is connected, but the old device credential could not be removed.")
+        }
+        accounts = GoogleAccountStore.retiringDirectAccess(accounts, email: email)
+        tokenCache[email.lowercased()] = nil
+        accountsNeedingReconnect.remove(email.lowercased())
+        reconnectReasons[email.lowercased()] = nil
     }
 
     func refresh() async {
@@ -1113,6 +1130,10 @@ final class GoogleCalendarService: ObservableObject {
     private func readAuthorization(calendar: GoogleCalendar) async throws -> GoogleCalendarReadAuthorization {
         if let context = FeatureAccessStore.shared.calendarReadContext {
             return .cloud(email: calendar.accountEmail, context: context)
+        }
+        guard accounts.first(where: { $0.id == calendar.accountEmail.lowercased() })?.cloudOnly != true,
+              !(try await BananaAccount.requiresCloudCalendar(email: calendar.accountEmail)) else {
+            throw CloudCalendarSnapshot.Failure.unavailable
         }
         return .direct(try await accessToken(forCalendarID: calendar.id))
     }
@@ -2447,9 +2468,24 @@ final class GoogleCalendarService: ObservableObject {
                                                testAccounts: BetaTestAccounts.all) else {
             throw GoogleCalendarError.betaReadOnly
         }
-        if method == "GET", let context = FeatureAccessStore.shared.calendarReadContext {
+        if let context = FeatureAccessStore.shared.calendarReadContext {
             guard let email = owner(of: url, account: account)?.id else { throw GoogleCalendarError.notConnected }
-            return try await Self.readData(url: url, authorization: .cloud(email: email, context: context))
+            if method == "GET" {
+                return try await Self.readData(url: url, authorization: .cloud(email: email, context: context))
+            }
+            let (data, status) = try await BananaAccount.shared.calendarOperation(url: url, method: method,
+                body: body, ifMatch: ifMatch, email: email, context: context)
+            if status == 412 { throw GoogleCalendarError.changedElsewhere }
+            guard (200..<300).contains(status) else {
+                let message = (try? JSONDecoder().decode(GoogleAPIErrorEnvelope.self, from: data))?.error.message
+                throw GoogleCalendarError.api(status: status, message: message)
+            }
+            coreFetchedAt = nil
+            return data
+        }
+        if let owner = owner(of: url, account: account) {
+            if owner.cloudOnly == true { throw CloudCalendarSnapshot.Failure.unavailable }
+            if try await BananaAccount.requiresCloudCalendar(email: owner.id) { throw CloudCalendarSnapshot.Failure.unavailable }
         }
         var attempt = 0
         while true {
@@ -2731,7 +2767,7 @@ extension GoogleCalendarService {
             guard let email = result.user.profile?.email else { throw GoogleConsentError.failed }
             return GoogleConsentResult(email: email,
                 refreshToken: result.user.refreshToken.tokenString,
-                grantedScopes: result.user.grantedScopes ?? [])
+                grantedScopes: result.user.grantedScopes ?? [], serverAuthCode: result.serverAuthCode)
         } catch is CancellationError { throw GoogleConsentError.cancelled }
         catch GoogleCalendarError.noPresentationContext { throw GoogleConsentError.noWindow }
         catch { throw GoogleConsentError.failed }

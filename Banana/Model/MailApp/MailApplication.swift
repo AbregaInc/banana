@@ -28,7 +28,8 @@ import Combine
         startup = Task {
             do {
                 await GoogleCalendarService.shared.restoreIfNeeded()
-                let access = try await MailGoogleAccess.configured()
+                _ = await BananaAccount.shared.refresh()
+                let access = MailCloudAccess()
                 let (stores, intent) = try await Task.detached(priority: .userInitiated) {
                     let root = AppSupport.directory.appendingPathComponent("BananaMail", isDirectory: true)
                     let directories = try MailDirectories(root: root)
@@ -36,7 +37,9 @@ import Combine
                             try MailIntentStore(directories: directories))
                 }.value
                 let source = MailLiveSource(stores: stores, access: access,
-                    api: GmailHTTP(networkAllowed: { FeatureAccessStore.network.allows("email") }), deliveryAllowed: { account in
+                    api: GmailHTTP(cloudTransport: { path, reference, query, method, body in
+                        try await BananaAccount.shared.mailRequest(path: path, reference: reference, query: query, method: method, body: body)
+                    }, networkAllowed: { FeatureAccessStore.network.allows("email") }), deliveryAllowed: { account in
                         FeatureAccessStore.shared.allows("email") && AppVariant.current.mayCallGoogle(method: "POST", account: account, testAccounts: BetaTestAccounts.all)
                     })
                 try await source.prepareActions(intent: intent)

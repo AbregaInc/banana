@@ -10,6 +10,7 @@ struct GoogleAccountCredential: Codable, Equatable, Identifiable, Sendable {
     var email: String
     var refreshToken: String
     var grantedScopes: [String]
+    var cloudOnly: Bool? = nil
 
     var id: String { email.lowercased() }
 }
@@ -50,6 +51,23 @@ enum GoogleAccountStore {
         all.sort { $0.email.localizedCaseInsensitiveCompare($1.email) == .orderedAscending }
         save(all)
         return all
+    }
+
+    static func retiringDirectAccess(_ credentials: [GoogleAccountCredential], email: String) -> [GoogleAccountCredential] {
+        credentials.map { credential in
+            guard credential.id == email.lowercased() else { return credential }
+            var identity = credential
+            identity.refreshToken = ""
+            identity.cloudOnly = true
+            return identity
+        }
+    }
+
+    /// Called only after an authenticated cloud provider read succeeds for this linked account.
+    static func retireDirectAccess(email: String) -> Bool {
+        let previous = load()
+        let next = retiringDirectAccess(previous, email: email)
+        return next == previous || save(next)
     }
 
     @discardableResult

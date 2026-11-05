@@ -921,6 +921,8 @@ targets:
       - path: Banana/Model/GoogleCalendarModels.swift
       - path: Banana/Model/CloudCalendarSnapshot.swift
       - path: Banana/Model/CloudCalendarRequest.swift
+      - path: Banana/Model/CloudCalendarOperation.swift
+      - path: Banana/Model/GoogleAccountStore.swift
       - path: Banana/Model/GoogleMeetCreation.swift
       - path: Banana/Model/GoogleEventWindow.swift
       # All-day events: which calendars' show, which block their days, the days they cover.
@@ -1149,6 +1151,7 @@ targets:
       - path: Banana/Model/MailApp/MailCredentialStore.swift
       - path: Banana/Model/MailApp/MailGoogleAccess.swift
       - path: Banana/Model/MailApp/GmailHTTP.swift
+      - path: Banana/Model/MailApp/CloudMailRequest.swift
       - path: Banana/Model/MailUI/Pure
         includes:
           - "**/*.swift"

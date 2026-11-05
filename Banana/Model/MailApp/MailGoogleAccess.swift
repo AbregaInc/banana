@@ -5,6 +5,7 @@ struct GoogleConsentResult: Sendable {
     var email: String
     var refreshToken: String
     var grantedScopes: [String]
+    var serverAuthCode: String? = nil
 }
 enum GoogleConsentError: Error { case noWindow, cancelled, notConfigured, failed }
 

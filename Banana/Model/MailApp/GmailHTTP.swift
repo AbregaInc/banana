@@ -9,12 +9,14 @@ final class GmailHTTP: GmailAPI, @unchecked Sendable {
                         willPerformHTTPRedirection response: HTTPURLResponse, newRequest request: URLRequest,
                         completionHandler: @escaping (URLRequest?) -> Void) { completionHandler(nil) }
     }
+    typealias CloudTransport = @Sendable ([String], String, [URLQueryItem], String, Data?) async throws -> Data
+    private let cloudTransport: CloudTransport?
     private let session: URLSession
     private let allowed: @Sendable () -> Bool
     private let maximumBytes: Int
 
     init(configuration: URLSessionConfiguration = .ephemeral, maximumBytes: Int = 40 * 1024 * 1024,
-         networkAllowed: @escaping @Sendable () -> Bool) {
+         cloudTransport: CloudTransport? = nil, networkAllowed: @escaping @Sendable () -> Bool) {
         precondition(maximumBytes > 0)
         let config = configuration.copy() as! URLSessionConfiguration
         config.urlCache = nil; config.urlCredentialStorage = nil; config.httpCookieStorage = nil
@@ -23,7 +25,7 @@ final class GmailHTTP: GmailAPI, @unchecked Sendable {
         config.waitsForConnectivity = false; config.httpMaximumConnectionsPerHost = 4
         config.tlsMinimumSupportedProtocolVersion = .TLSv12
         session = URLSession(configuration: config, delegate: NoRedirect(), delegateQueue: nil)
-        allowed = networkAllowed; self.maximumBytes = maximumBytes
+        allowed = networkAllowed; self.maximumBytes = maximumBytes; self.cloudTransport = cloudTransport
     }
     deinit { session.invalidateAndCancel() }
 
@@ -89,7 +91,7 @@ final class GmailHTTP: GmailAPI, @unchecked Sendable {
 
     static func request(_ path: [String], token: String, query: [URLQueryItem] = [],
                         method: String = "GET", body: Data? = nil) throws -> URLRequest {
-        guard !token.isEmpty, !path.isEmpty, path.allSatisfy({ !$0.isEmpty && $0 != "." && $0 != ".." }) else {
+        guard !token.isEmpty, !token.hasPrefix("banana-mail:"), !path.isEmpty, path.allSatisfy({ !$0.isEmpty && $0 != "." && $0 != ".." }) else {
             throw GmailError.refused(.invalidArgument)
         }
         let unreserved = CharacterSet(charactersIn: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._~")
@@ -109,6 +111,13 @@ final class GmailHTTP: GmailAPI, @unchecked Sendable {
                       method: String = "GET", body: Data? = nil) async throws -> Data {
         try Task.checkCancellation()
         guard allowed() else { throw GmailError.networkDisabled }
+        if let cloudTransport {
+            let data = try await cloudTransport(path, token, query, method, body)
+            guard data.count <= maximumBytes else { throw GmailError.responseTooLarge }
+            try Task.checkCancellation()
+            guard allowed() else { throw GmailError.networkDisabled }
+            return data
+        }
         let request = try Self.request(path, token: token, query: query, method: method, body: body)
         do {
             let (bytes, response) = try await session.bytes(for: request)

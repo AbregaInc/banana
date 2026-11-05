@@ -37,8 +37,10 @@ final class FeatureAccessStore: ObservableObject {
     }
 
     /// Opaque session/account binding for reads that may span several provider pages.
-    var calendarReadContext: String? {
-        guard allows("calendarCloud"), let cached else { return nil }
+    var calendarReadContext: String? { featureContext("calendarCloud") }
+    var mailContext: String? { featureContext("email") }
+    private func featureContext(_ feature: String) -> String? {
+        guard allows(feature), let cached else { return nil }
         return cached.context + ":" + cached.account
     }
 

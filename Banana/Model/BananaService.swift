@@ -45,6 +45,7 @@ enum BananaService {
         /// development for builds installed directly, production for TestFlight and the App Store.
         var pushEnv: String
         var bundle: String
+        var providerProtocol: Int? = nil
     }
 
     struct Account: Codable, Equatable {
@@ -151,6 +152,12 @@ enum BananaService {
         case account
         case calendarSnapshot(from: Int64, to: Int64)
         case calendarRead(CloudCalendarRequest)
+        case calendarOperation(Data)
+        case mailRead(Data)
+        case mailOperation(Data)
+        case connectMail(email: String, code: String)
+        case disconnectMail(email: String)
+        case serverCalendars(email: String, ids: [String])
         /// Deleting needs a fresh Google sign-in's one-time code: a session alone never deletes.
         case deleteAccount(code: String)
         case device(Device)
@@ -309,6 +316,14 @@ enum BananaService {
                 return ("POST", "/v1/google/identity", encode(["idToken": idToken, "device": deviceJSON(device)]))
             case .account:
                 return ("GET", "/v1/account", nil)
+            case .serverCalendars(let email, let ids):
+                return ("PUT", "/v1/google/calendars", encode(["email": email, "ids": ids]))
+            case .mailRead(let body): return ("POST", "/v1/mail/read", body)
+            case .mailOperation(let body): return ("POST", "/v1/mail/operation", body)
+            case .connectMail(let email, let code): return ("POST", "/v1/google/mail", encode(["email":email,"code":code]))
+            case .disconnectMail(let email): return ("DELETE", "/v1/google/mail", encode(["email":email]))
+            case .calendarOperation(let body):
+                return ("POST", "/v1/calendar/operation", body)
             case .calendarRead(let read):
                 return ("POST", "/v1/calendar/read", try? JSONEncoder().encode(read))
             case .calendarSnapshot(let from, let to):
@@ -387,6 +402,7 @@ enum BananaService {
         var json: [String: Any] = ["id": device.id, "platform": device.platform, "pushEnv": device.pushEnv,
                                    "bundle": device.bundle]
         json["push"] = device.push ?? NSNull()
+        if let providerProtocol = device.providerProtocol { json["providerProtocol"] = providerProtocol }
         return json
     }
 
