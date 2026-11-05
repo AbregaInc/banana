@@ -11,29 +11,40 @@
 # account (the key ids are in ~/.config/banana/release.env).
 set -e
 variant="${1:-beta}"
+config=Release
 case "$variant" in
   prod) unreleased=NO; scheme=BananaMac;     built="Banana.app";   installed="Banana.app";;
   beta) unreleased=YES; scheme=BananaMacBeta; built="Banana Beta.app"; installed="Banana Beta.app";;
-  *) echo "usage: $0 [prod|beta]"; exit 1;;
+  dev) unreleased=NO; scheme=BananaMacBeta; built="Banana Dev.app"; installed="Banana Dev.app"; config=DevelopmentCloud;;
+  *) echo "usage: $0 [prod|beta|dev]"; exit 1;;
 esac
 
 cd "$(dirname "$0")/.."
 # Your own team and bundle id, or stop: never the stand-in app over one you use.
 . tools/config.sh require
+[ "$variant" != dev ] || banana_require_dev
 xcodegen generate
 # NO_ICLOUD=1 signs prod locally with empty entitlements (no portal round-trip; matches
 # what Debug builds run with). Full-iCloud prod needs a Mac provisioning profile, which
 # the current API key cannot create — sign into Xcode once, then run without NO_ICLOUD.
 extra=""
-if [ "${NO_ICLOUD:-}" = "1" ]; then
+if [ "${NO_ICLOUD:-}" = "1" ] && [ "$variant" != dev ]; then
   extra="CODE_SIGN_ENTITLEMENTS=BananaMac/BananaMacDebug.entitlements"
 fi
 # Mac builds support Apple silicon only, including local installs and archives.
 # shellcheck disable=SC2086
-# Email is built only into the separate Beta app, including local installs.
-xcodebuild -jobs "${BUILD_JOBS:-2}" -project Banana.xcodeproj -scheme "$scheme" -configuration Release \
+# Dev uses its configured Email build gate; live access still requires account eligibility.
+xcodebuild -jobs "${BUILD_JOBS:-2}" -project Banana.xcodeproj -scheme "$scheme" -configuration "$config" \
   ARCHS=arm64 ONLY_ACTIVE_ARCH=YES BANANA_UNRELEASED="$unreleased" \
   -derivedDataPath .build/mac-install -allowProvisioningUpdates ${AUTH_ARGS:-} $extra -quiet build
+
+product=".build/mac-install/Build/Products/$config/$built"
+suffix=""
+[ "$variant" != beta ] || suffix=".beta"
+[ "$variant" != dev ] || suffix=".dev"
+expected="$(banana_setting BANANA_BUNDLE_ID)$suffix"
+made=$(/usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "$product/Contents/Info.plist")
+[ "$made" = "$expected" ] || { echo "Built the wrong app identity. Not installing."; exit 1; }
 
 target="/Applications/$installed"
 
@@ -47,6 +58,7 @@ if pgrep -f "$target/Contents/MacOS/" >/dev/null 2>&1; then
 fi
 
 rm -rf "$target"
-cp -R ".build/mac-install/Build/Products/Release/$built" "$target"
+cp -R "$product" "$target"
+touch .build/mac-install/.keep-build
 echo "Installed $target"
 echo "Relaunch it to pick this up (the old process, if any, has been quit)."

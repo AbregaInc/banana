@@ -130,3 +130,23 @@ Two failure modes to check for by hand, because both have shipped here more than
   observable, so a computed property never tells SwiftUI anything changed and the "not connected"
   card stays on screen after a successful grant. Mirror it in a stored `@Published`, and re-read
   it on foreground.
+
+## Cloud Dev
+
+Use the separate Dev identity when testing the staging cloud service:
+
+```sh
+tools/ios-install.sh dev <device-udid>
+tools/mac-install.sh dev
+```
+
+Both select `DevelopmentCloud`. Configure `BANANA_GOOGLE_CLIENT_DEV`,
+`BANANA_GOOGLE_SERVER_CLIENT_DEV`, and `BANANA_SERVICE_HOST_DEV` in the ignored local
+configuration. The installer refuses missing settings or settings shared with production.
+The native Dev client belongs to the staging Google project; its web client authorizes
+server access. Staging accepts that native audience through `GOOGLE_DEV_APP_CLIENT_ID`.
+Existing staging client audiences remain valid. Never add the Dev audience to production.
+
+Dev has separate app storage and credentials, uses Banana Cloud staging, and compiles Email.
+Email access still requires the existing Banana account's feature eligibility. Local Beta
+remains available for experimental features and fixtures; TestFlight uses the primary app identity.

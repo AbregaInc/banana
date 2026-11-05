@@ -34,3 +34,21 @@ banana_setting() {
 # ASC_KEY_ID, ASC_ISSUER_ID and optionally ASC_KEY_PATH, in the environment or in this file.
 _release="${BANANA_RELEASE_ENV:-$HOME/.config/banana/release.env}"
 if [ "${BANANA_NO_LOCAL_CONFIG:-0}" != 1 ] && [ -f "$_release" ]; then . "$_release"; fi
+
+# Cloud Dev must have its own native identity and staging provider/service configuration.
+banana_require_dev() {
+  for _dev_key in BANANA_SERVICE_HOST_DEV BANANA_GOOGLE_CLIENT_DEV BANANA_GOOGLE_SERVER_CLIENT_DEV; do
+    _dev_value=$(banana_setting "$_dev_key")
+    _stable_key=${_dev_key%_DEV}
+    _stable_value=$(banana_setting "$_stable_key")
+    if [ -z "$_dev_value" ] || [ "$_dev_value" = "$_stable_value" ]; then
+      echo "Cloud Dev requires a separate, configured $_dev_key. Not building or installing."
+      return 1
+    fi
+  done
+  case "$(banana_setting BANANA_SERVICE_HOST_DEV)" in
+    api.bananatheapp.com|app.bananatheapp.com|*://*|*/*)
+      echo "Cloud Dev requires an isolated service hostname. Not building or installing."
+      return 1;;
+  esac
+}

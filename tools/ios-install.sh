@@ -26,12 +26,14 @@ variant="${1:-beta}"
 case "$variant" in
   prod) unreleased=NO; scheme=Banana;     app="Banana.app";      suffix="";;
   beta) unreleased=YES; scheme=BananaBeta; app="Banana Beta.app"; suffix=".beta";;
-  *) echo "usage: $0 [beta|prod] [device-id]"; exit 1;;
+  dev) unreleased=NO; scheme=BananaBeta; app="Banana Dev.app"; suffix=".dev"; config=DevelopmentCloud;;
+  *) echo "usage: $0 [beta|prod|dev] [device-id]"; exit 1;;
 esac
 
 cd "$(dirname "$0")/.."
 # Your own team and bundle id, or stop: never the stand-in app over one you use.
 . tools/config.sh require
+[ "$variant" != dev ] || banana_require_dev
 bundle="$(banana_setting BANANA_BUNDLE_ID)$suffix"
 # Device selection is EXPLICIT-first and refuses to guess between several.
 #
@@ -69,7 +71,7 @@ if [ "$variant" = "prod" ]; then
 fi
 
 xcodegen generate
-# Email is built only into the separate Beta app, including local installs.
+# Dev uses its configured Email build gate; live access still requires account eligibility.
 xcodebuild -jobs "${BUILD_JOBS:-2}" -project Banana.xcodeproj -scheme "$scheme" -configuration "$config" BANANA_UNRELEASED="$unreleased" \
   -destination "id=$device" -derivedDataPath ".build/ios-$variant" \
   -allowProvisioningUpdates ${AUTH_ARGS:-} -quiet build
@@ -79,6 +81,7 @@ built=".build/ios-$variant/Build/Products/$config-iphoneos/$app"
 made=$(/usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "$built/Info.plist")
 [ "$made" = "$bundle" ] || { echo "Built $made, expected $bundle. Not installing."; exit 1; }
 xcrun devicectl device install app --device "$device" "$built"
+[ "$variant" = prod ] || touch ".build/ios-$variant/.keep-build"
 echo "Installed $app ($bundle) to $device"
 
 # The Watch is a SEPARATE install for a development build.
