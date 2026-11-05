@@ -144,6 +144,7 @@ final class CalendarWriteBack: ObservableObject {
         var eventIdentifier: String
         var calendarID: String
         var writtenHash: Int
+        var writtenETag: String? = nil
     }
 
     private static let variant: CalendarWriteBackVariant = {
@@ -432,24 +433,25 @@ final class CalendarWriteBack: ObservableObject {
         var removed = 0
         for calendar in google.writeBackCandidates {
             guard let raw = GoogleCalendarIDs.rawCalendarID(from: calendar.infoID) else { continue }
-            let owned: [String: [String]]
+            let owned: [String: [GoogleCalendarService.OwnedBlock]]
             do {
-                owned = try await google.ownedBusyBlocks(
+                owned = try await google.ownedBusyBlockDetails(
                     calendarID: raw, variant: Self.scheme, from: windowStart, to: windowEnd, allDates: true)
             } catch {
                 lastError = "Couldn’t read Banana’s blocks on \(calendar.titles.first ?? "a calendar"): \(error.localizedDescription)"
                 continue
             }
-            for (itemID, eventIDs) in owned {
+            for (itemID, blocks) in owned {
                 var removedAllCopies = true
-                for eventID in eventIDs {
+                for block in blocks {
+                    let eventID = block.eventID
                     // Shared manager access does not prove this account wrote a marked block.
                     // On someone else's calendar, only remove the exact locally recorded copy.
                     guard BusyBlockCleanupPolicy.mayDelete(calendarIsOwner: calendar.isOwner,
                         recordedEventID: ledger[ledgerKey(appItemID: itemID, calendarID: calendar.infoID)]?.eventIdentifier,
                         eventID: eventID) else { continue }
                     do {
-                        try await google.deleteBusyBlock(calendarID: raw, eventID: eventID)
+                        try await google.deleteBusyBlock(calendarID: raw, eventID: eventID, expectedETag: block.etag)
                         removed += 1
                     } catch {
                         removedAllCopies = false
@@ -664,7 +666,7 @@ final class CalendarWriteBack: ObservableObject {
 
         var writtenCount = 0
         var everyOwnedReadSucceeded = true
-        var unwanted: [String: (calendarID: String, eventIDs: [String])] = [:]
+        var unwanted: [String: (calendarID: String, blocks: [GoogleCalendarService.OwnedBlock])] = [:]
         var ownedTotal = 0
         let now = Date()
 
@@ -703,7 +705,8 @@ final class CalendarWriteBack: ObservableObject {
                 let keep = BusyBlockDuplicates.copyToKeep(ids)
                 for extra in ids where extra != keep {
                     do {
-                        try await google.deleteBusyBlock(calendarID: raw, eventID: extra)
+                        try await google.deleteBusyBlock(calendarID: raw, eventID: extra,
+                            expectedETag: ownedDetails[block.appItemID]?.first { $0.eventID == extra }?.etag)
                     } catch {
                         lastError = "Couldn’t remove a duplicate busy block: \(error.localizedDescription)"
                     }
@@ -711,20 +714,23 @@ final class CalendarWriteBack: ObservableObject {
                 do {
                     if let keep {
                         guard ledger[key]?.writtenHash != hash(block)
-                                || ledger[key]?.eventIdentifier != keep else { continue }
-                        try await google.updateBusyBlock(
+                                || ledger[key]?.eventIdentifier != keep
+                                || ledger[key]?.writtenETag != ownedDetails[block.appItemID]?.first(where: { $0.eventID == keep })?.etag
+                                else { continue }
+                        let writtenETag = try await google.updateBusyBlock(
                             calendarID: raw, eventID: keep,
                             title: block.title, start: block.start, end: block.end, isAllDay: block.isAllDay,
-                            appItemID: block.appItemID, variant: variant)
+                            appItemID: block.appItemID, variant: variant,
+                            expectedETag: ownedDetails[block.appItemID]?.first { $0.eventID == keep }?.etag)
                         ledger[key] = LedgerEntry(appItemID: block.appItemID, eventIdentifier: keep,
-                                                  calendarID: calendarID, writtenHash: hash(block))
+                                                  calendarID: calendarID, writtenHash: hash(block), writtenETag: writtenETag)
                     } else {
-                        let created = try await google.createBusyBlock(
+                        let created = try await google.createBusyBlockWithVersion(
                             calendarID: raw, title: block.title,
                             start: block.start, end: block.end, isAllDay: block.isAllDay,
                             appItemID: block.appItemID, variant: variant)
-                        ledger[key] = LedgerEntry(appItemID: block.appItemID, eventIdentifier: created,
-                                                  calendarID: calendarID, writtenHash: hash(block))
+                        ledger[key] = LedgerEntry(appItemID: block.appItemID, eventIdentifier: created.id,
+                                                  calendarID: calendarID, writtenHash: hash(block), writtenETag: created.etag)
                     }
                     writtenCount += 1
                     lastSelfCommit = Date()
@@ -736,7 +742,7 @@ final class CalendarWriteBack: ObservableObject {
             for (itemID, blocks) in ownedDetails where !stillWanted.contains(itemID) {
                 // A block that is over protects nothing and costs nothing; removing it is churn,
                 // and every removal is a chance to be wrong. Only current and future blocks go.
-                let current = blocks.filter { $0.end > now }.map(\.eventID)
+                let current = blocks.filter { $0.end > now }
                 guard !current.isEmpty else { continue }
                 unwanted[ledgerKey(appItemID: itemID, calendarID: calendarID)] = (calendarID, current)
             }
@@ -765,9 +771,9 @@ final class CalendarWriteBack: ObservableObject {
             guard let target = unwanted[key],
                   let raw = GoogleCalendarIDs.rawCalendarID(from: target.calendarID) else { continue }
             var allGone = true
-            for eventID in target.eventIDs {
+            for block in target.blocks {
                 do {
-                    try await google.deleteBusyBlock(calendarID: raw, eventID: eventID)
+                    try await google.deleteBusyBlock(calendarID: raw, eventID: block.eventID, expectedETag: block.etag)
                     lastSelfCommit = Date()
                 } catch {
                     allGone = false

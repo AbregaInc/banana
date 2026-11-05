@@ -1883,6 +1883,13 @@ final class GoogleCalendarService: ObservableObject {
     /// Create one busy block, returning its Google event id for the ledger.
     func createBusyBlock(calendarID: String, title: String, start: Date, end: Date, isAllDay: Bool = false,
                          appItemID: String, variant: String) async throws -> String {
+        try await createBusyBlockWithVersion(calendarID: calendarID, title: title, start: start,
+            end: end, isAllDay: isAllDay, appItemID: appItemID, variant: variant).id
+    }
+
+    func createBusyBlockWithVersion(calendarID: String, title: String, start: Date, end: Date,
+                                    isAllDay: Bool, appItemID: String, variant: String) async throws
+        -> (id: String, etag: String?) {
         let body = try JSONSerialization.data(withJSONObject: GoogleBusyBlocks.body(
             title: title, start: start, end: end, timeZoneID: TimeZone.current.identifier,
             appItemID: appItemID, variant: variant, isAllDay: isAllDay))
@@ -1890,28 +1897,50 @@ final class GoogleCalendarService: ObservableObject {
             url: Self.eventsURL(calendarID: calendarID), method: "POST", body: body)
         guard let id = created.id else { throw GoogleCalendarError.eventUnavailable }
         noteOwnWrite(id)
-        return id
+        return (id, created.etag)
     }
 
     /// Rewrite an existing block in place. PATCH rather than delete-and-recreate: a new event id
     /// every time a meeting moves five minutes would churn the ledger and re-notify anyone the
     /// calendar is shared with.
+    @discardableResult
     func updateBusyBlock(calendarID: String, eventID: String, title: String,
                          start: Date, end: Date, isAllDay: Bool = false,
-                         appItemID: String, variant: String) async throws {
+                         appItemID: String, variant: String, expectedETag: String? = nil) async throws -> String? {
+        let version: String
+        if let expectedETag { version = expectedETag }
+        else { version = try await busyBlockVersion(calendarID: calendarID, eventID: eventID) }
         let body = try JSONSerialization.data(withJSONObject: GoogleBusyBlocks.body(
             title: title, start: start, end: end, timeZoneID: TimeZone.current.identifier,
             appItemID: appItemID, variant: variant, isAllDay: isAllDay))
         noteOwnWrite(eventID)
-        let _: GoogleEvent = try await request(
-            url: Self.eventURL(calendarID: calendarID, eventID: eventID), method: "PATCH", body: body)
+        let updated: GoogleEvent = try await request(
+            url: Self.eventURL(calendarID: calendarID, eventID: eventID), method: "PATCH", body: body, ifMatch: version)
+        return updated.etag
     }
 
-    func deleteBusyBlock(calendarID: String, eventID: String) async throws {
+    private func busyBlockVersion(calendarID: String, eventID: String) async throws -> String {
+        let event: GoogleEvent = try await request(url: Self.eventURL(calendarID: calendarID, eventID: eventID))
+        #if BANANA_BETA
+        let variant = CalendarWriteBackVariant.beta
+        #else
+        let variant = CalendarWriteBackVariant.production
+        #endif
+        let properties = event.extendedProperties?.private
+        guard variant.owns(markerScheme: properties?[GoogleBusyBlocks.variantKey],
+                           appItemID: properties?[GoogleBusyBlocks.itemIDKey]),
+              let etag = event.etag, !etag.isEmpty else { throw GoogleCalendarError.eventUnavailable }
+        return etag
+    }
+
+    func deleteBusyBlock(calendarID: String, eventID: String, expectedETag: String? = nil) async throws {
         noteOwnWrite(eventID)
         do {
+            let version: String
+            if let expectedETag { version = expectedETag }
+            else { version = try await busyBlockVersion(calendarID: calendarID, eventID: eventID) }
             try await requestVoid(
-                url: Self.eventURL(calendarID: calendarID, eventID: eventID), method: "DELETE")
+                url: Self.eventURL(calendarID: calendarID, eventID: eventID), method: "DELETE", ifMatch: version)
         } catch GoogleCalendarError.api(status: 404, _), GoogleCalendarError.api(status: 410, _) {
             // Already gone — every device reconciles the same blocks, so another one got here
             // first. That's the outcome we wanted, not an error.
@@ -1990,6 +2019,7 @@ final class GoogleCalendarService: ObservableObject {
 
     /// One block Banana owns, with its span — so a caller can leave alone blocks that are over.
     struct OwnedBlock: Equatable {
+        let etag: String
         let eventID: String
         let start: Date
         let end: Date
@@ -2023,7 +2053,8 @@ final class GoogleCalendarService: ObservableObject {
                         fromPrivateProperties: event.extendedProperties?.private, variant: variant),
                       let span = GoogleCalendarDates.range(of: event)
                 else { continue }
-                found[itemID, default: []].append(OwnedBlock(eventID: id, start: span.start, end: span.end))
+                guard let etag = event.etag, !etag.isEmpty else { throw GoogleCalendarError.malformedResponse }
+                found[itemID, default: []].append(OwnedBlock(etag: etag, eventID: id, start: span.start, end: span.end))
             }
             pageToken = page.nextPageToken
         } while pageToken != nil
@@ -2454,8 +2485,8 @@ final class GoogleCalendarService: ObservableObject {
     }
 
     private func requestVoid(url: URL, method: String,
-                             account: GoogleAccountCredential? = nil) async throws {
-        _ = try await send(url: url, method: method, body: nil, account: account)
+                             account: GoogleAccountCredential? = nil, ifMatch: String? = nil) async throws {
+        _ = try await send(url: url, method: method, body: nil, account: account, ifMatch: ifMatch)
     }
 
     /// One Calendar API call. A 401 means the cached access token was refused — revoked early, or
