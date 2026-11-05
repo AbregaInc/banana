@@ -19,6 +19,9 @@ export async function providerOperation(deps,vault,options) {
  const preparation=await prepare();
  if(preparation)return preparation; // no provider mutation has begun; leave the pending intent intact
  const save=async(answer,lease)=>{
+  // Only a persisted terminal receipt can let a client forget an unsuccessful delivery.
+  // A preflight refusal (for example revoked eligibility) says nothing about an earlier write.
+  if(answer.status>=400)answer={...answer,body:{...answer.body,bananaOperation:{id:operationID,state:'done'}}};
   const result=await deps.db.run("UPDATE provider_operations SET state='done',response_status=?,response_cipher=?,updated_at=? WHERE account_id=? AND operation_id=? AND lease IS ?",
    answer.status,await vault.seal(aad,JSON.stringify(answer.body)),deps.now(),...key,lease);
   return result.changes?answer:operationFailure(409,'Outcome changed; read the operation again.');

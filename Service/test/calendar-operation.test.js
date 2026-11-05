@@ -127,3 +127,24 @@ test('lost move acknowledgement is recovered only from a unique destination UID 
  const result=await call(s,a,r);
  assert.equal(result.status,200);assert.equal(result.json.id,'moved-event');assert.equal(writes,1);
 });
+
+test('revocation after a lost response is not a terminal receipt for the original write',async()=>{
+ const s=setup(),a=await signed(s);let event,writes=0;
+ s.google.calendarMutation=async(token,r)=>{event=r.body;writes++;throw new Error('lost');};
+ s.google.getEvent=async()=>event;
+ assert.equal((await call(s,a)).status,502);
+ await s.db.run('UPDATE feature_access SET enabled=0 WHERE account_id=?',a.account.id);
+ const denied=await call(s,a);
+ assert.equal(denied.status,403);assert.equal(denied.json.bananaOperation,undefined);
+ await s.db.run('UPDATE feature_access SET enabled=1 WHERE account_id=?',a.account.id);
+ assert.equal((await call(s,a)).status,200);assert.equal(writes,1);
+});
+
+test('definitive provider refusal carries a persisted operation receipt',async()=>{
+ const s=setup(),a=await signed(s);let writes=0;
+ s.google.calendarMutation=async()=>{writes++;return {status:403,body:{error:{message:'Provider refused'}}};};
+ const answer=await call(s,a);
+ assert.equal(answer.status,403);
+ assert.deepEqual(answer.json.bananaOperation,{id,state:'done'});
+ assert.deepEqual((await call(s,a)).json,answer.json);assert.equal(writes,1);
+});
