@@ -55,8 +55,8 @@ Reuse the web, notification and booking implementations when establishing a comm
 
 ## Implementation checkpoint — 5 November
 
-- Both production and staging run `699153d7`, with migrations through 0014 and matching
-  public source offers verified. Health/source return 200 and anonymous Calendar reads 401.
+- Production runs `699153d7`; staging now runs `4db1a62a`. Both have migrations through
+  0014 and matching public source offers verified. Health/source return 200 and anonymous Calendar reads 401.
   Production has zero eligibility grants; no experimental access was enabled globally.
 - Account eligibility, actual stored-grant capabilities, expiring native policy caches and
   Email presentation/transport gates are implemented. See [feature access](FEATURE-ACCESS.md).
@@ -70,7 +70,7 @@ Reuse the web, notification and booking implementations when establishing a comm
 - Native incremental Calendar reads are implemented in `894364f8`, behind `calendarCloud`.
   The transport preserves the existing cache/window behavior and uses encrypted account/grant
   bound cursors. It passed 337 service tests per timezone, 79 focused native tests and the full
-  Mac TestFlight compile. This newer source is not in build 94 or the deployed service.
+  Mac TestFlight compile. This newer source is deployed to staging, but is not in build 94 or production.
   See [the read contract](CALENDAR-CLOUD-READ.md). Provider writes remain on their existing path.
 - Google CLI access works and both configured projects are active. Calendar API is enabled in
   both; Gmail API is enabled only in staging. Actual OAuth clients, redirects, audience and

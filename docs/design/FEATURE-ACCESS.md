@@ -1,6 +1,6 @@
 # Feature access
 
-Implementation status: production and staging run `699153d7` with schema through 0014
+Implementation status: production runs `699153d7` and staging `4db1a62a`, with schema through 0014
 (5 November 2026). Production has zero eligibility grants. Primary iOS/iPad and Mac build 94
 exports are verified but not uploaded; live-provider and device acceptance remain open.
 Deploy service/schema support before the clients. This does not implement cloud Mail or
