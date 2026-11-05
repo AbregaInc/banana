@@ -45,7 +45,7 @@ python3 Service/tools/feature-access.py --environment beta \
 ```
 
 Run the same command with `--apply` to execute using the operator's existing Wrangler
-credentials. Check `accounts_updated` is 1. Zero means the ID does not exist in that environment;
+credentials through the pinned Wrangler 4.158.0 CLI (`npx`). Check `accounts_updated` is 1. Zero means the ID does not exist in that environment;
 the command never creates an account. Revoke with `--access revoke --apply` and omit expiry.
 Grants are not deployed as seeds, inferred from email addresses, or enabled for every Beta user.
 

@@ -67,16 +67,20 @@ Reuse the web, notification and booking implementations when establishing a comm
 - Primary iOS/iPad and Mac TestFlight build 95 was archived, exported and uploaded from
   `55d675e6`. Archive identities, channel, production host, versions, signatures and source
   provenance passed verification. Apple accepted both platform builds as VALID / IN_BETA_TESTING
-  for internal testers. Existing internal access includes all builds. iOS/iPad has also entered
-  external beta testing; Mac is waiting for Beta App Review. Both builds are verified members
-  of the existing public beta group.
+  for internal testers. Existing internal access includes all builds. Both platform builds are
+  also IN_BETA_TESTING externally and verified members of the existing public beta group.
   No separate Beta app is needed.
+- Stable Mac 1.0.3 (96), source `a6cbf7c8`, is archived, exported, notarized and packaged.
+  Its Stable exclusions, primary identity, source, Sparkle signature, checksum and Tailscale
+  download pass verification. Symbols are retained. The GitHub release remains a draft; the
+  public installer/update feed still points to the accepted release. Live upgrade acceptance
+  and the existing performance failures remain open.
 - `tools/testflight.sh ios|mac BUILD_NUMBER [prepare|upload]` prepares by default and records
   provenance. Stable Release excludes experimental modules. TestFlight shares production identity.
 - Native incremental Calendar reads are implemented in `894364f8`, behind `calendarCloud`.
   The transport preserves the existing cache/window behavior and uses encrypted account/grant
   bound cursors. It passed 337 service tests per timezone, 79 focused native tests and the full
-  Mac TestFlight compile. The service read support is deployed to both environments, but native support is included in build 95.
+  Mac TestFlight compile. The service read support is deployed to both environments; native support is included in build 95.
   See [the read contract](CALENDAR-CLOUD-READ.md). Released clients still use their existing write path.
 - Google console verification completed on 5 November. Production is External/In production;
   branding and Calendar data access are verified. Its web origin and callback match production,

@@ -9,6 +9,8 @@ import tempfile
 import time
 
 SERVICE = pathlib.Path(__file__).resolve().parents[1]
+# Match the verified deployment CLI rather than an unrelated global installation.
+WRANGLER = ['npx', '--yes', 'wrangler@4.158.0']
 
 
 def statement(account, feature, enabled, expires_at, now):
@@ -52,7 +54,7 @@ def main():
         query.write(sql)
         query.flush()
         database = 'banana-service' if args.environment == 'stable' else 'banana-service-beta'
-        command = ['wrangler', 'd1', 'execute', database, '--remote', '--file', query.name]
+        command = [*WRANGLER, 'd1', 'execute', database, '--remote', '--file', query.name]
         if args.environment == 'beta':
             command += ['--env', 'beta']
         subprocess.run(command, cwd=SERVICE, check=True)
