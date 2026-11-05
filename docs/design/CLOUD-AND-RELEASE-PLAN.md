@@ -60,20 +60,23 @@ Reuse the web, notification and booking implementations when establishing a comm
 - Production and staging run `879e2709`, both with migrations through 0017. Exact public source
   offers were verified, health/source return 200, and unsigned Calendar/Mail operation and Mail
   read requests return 401. Production still has zero eligibility grants; the new provider
-  routes are not activated for users. The terminal-receipt correction is deployed to both environments; its native reconnect change remains under test.
+  routes are not activated for users. The terminal-receipt correction is deployed to both environments; its native reconnect change passes the focused 42-test suite.
 - Account eligibility, actual stored-grant capabilities, expiring native policy caches and
   Email presentation/transport gates are implemented. See [feature access](FEATURE-ACCESS.md).
   Stored scopes/status are not a fresh live-token validation.
-- Primary iOS/iPad and Mac TestFlight build 94 archived and exported from `f04565af`.
-  Archive identities, channel, production host, versions, signatures and source provenance
-  were checked. No upload or device installation occurred. Existing internal/external tester
-  groups were inspected; a separate Beta app record is unnecessary.
+- Primary iOS/iPad and Mac TestFlight build 95 was archived, exported and uploaded from
+  `55d675e6`. Archive identities, channel, production host, versions, signatures and source
+  provenance passed verification. Apple accepted both platform builds as VALID / IN_BETA_TESTING
+  for internal testers. Existing internal access includes all builds. iOS/iPad has also entered
+  external beta testing; Mac is waiting for Beta App Review. Both builds are verified members
+  of the existing public beta group.
+  No separate Beta app is needed.
 - `tools/testflight.sh ios|mac BUILD_NUMBER [prepare|upload]` prepares by default and records
   provenance. Stable Release excludes experimental modules. TestFlight shares production identity.
 - Native incremental Calendar reads are implemented in `894364f8`, behind `calendarCloud`.
   The transport preserves the existing cache/window behavior and uses encrypted account/grant
   bound cursors. It passed 337 service tests per timezone, 79 focused native tests and the full
-  Mac TestFlight compile. The service read support is deployed to both environments, but native support is not in build 94.
+  Mac TestFlight compile. The service read support is deployed to both environments, but native support is included in build 95.
   See [the read contract](CALENDAR-CLOUD-READ.md). Released clients still use their existing write path.
 - Google console verification completed on 5 November. Production is External/In production;
   branding and Calendar data access are verified. Its web origin and callback match production,
@@ -120,9 +123,8 @@ blindly replayed. Draft creation/sending and a user-visible resolution flow are 
 
 Validation: 364 service tests pass in each of UTC and America/New_York. New cases cover conditional
 Calendar retry, preservation of external edits, and recovery of a uniquely identified moved event.
-Earlier focused native runs passed 56 and 31 tests; the receipt/module follow-up passes 42 tests. The full iPhone UI run recorded 246 passes, 19 failures and 31 skips. Its original runner interrupted result finalization; the raw log remains. The runner is fixed and focused reruns preserve result bundles. All 19 original failures now have passing focused reruns; these are not a new full-suite run. Relevant iPad checks are in progress. The service
-increment is deployed to staging with exact public source provenance; native changes are committed
-in `ae40b8f2` but not yet distributed. Busy-block ownership across devices and live-provider
+Earlier focused native runs passed 56 and 31 tests; the receipt/module follow-up passes 42 tests. The full iPhone UI run recorded 246 passes, 19 failures and 31 skips. Its original runner interrupted result finalization; the raw log remains. The runner is fixed and focused reruns preserve result bundles. All 19 original failures now have passing focused reruns; these are not a new full-suite run. The three affected iPad checks pass (meal keyboard, image paste and top-bar picker). The service
+increment is deployed to staging with exact public source provenance; native changes from `ae40b8f2` and follow-up fixes are included in uploaded TestFlight build 95. Busy-block ownership across devices and live-provider
 acceptance remain open, so these transport changes do not establish completed Calendar cutover.
 
 ## Target channel matrix
@@ -145,7 +147,7 @@ storage does not isolate two apps connected to the same real Google calendar or 
 - [x] Review and apply Beta's missing schema migration before the compatible service update.
 - [ ] Establish Beta's server Google grant and verify the required scopes and token refresh.
 - [x] Record the exact deployed source revision and schema version for production and staging.
-- [ ] Verify Google OAuth clients, redirects, publishing status and approved scopes; inspect Apple's
+- [x] Verify Google OAuth clients, redirects, publishing status and approved scopes; inspect Apple's
   rejection details and signing/profile readiness before planning distribution changes.
 
 Done when the environment inventory is reproducible, relevant correctness checks pass, and every

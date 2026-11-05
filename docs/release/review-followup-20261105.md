@@ -1,11 +1,11 @@
 # App Review follow-up — 5 November 2026
 
 Verified directly in App Store Connect. Both platform submissions refer to build 83 and are
-rejected. This does not describe the newer locally prepared TestFlight archives.
+rejected. This does not describe the newer TestFlight build 95 uploads.
 
 | Platform / issue | Verified request | Work still required |
 |---|---|---|
-| iOS, login services 4.8 | An equivalent qualifying login option, or explanation of an applicable exception | Decide between adding Sign in with Apple to the existing account system and an appeal. Google is currently both provider access and Banana identity. Do not claim that renaming its button changes that. |
+| iOS, login services 4.8 | An equivalent qualifying login option, or explanation of an applicable exception | The owner chose an appeal first; the draft is prepared and remains unsubmitted. Google is currently both provider access and Banana identity. Do not claim that renaming its button changes that. |
 | iOS, background audio 2.5.4 | Physical-device recording showing audible playback after returning to the Home Screen | Exercise real podcast playback and retain the recording; the sample workspace is insufficient evidence. |
 | iOS, background location 2.5.4 | Physical-device recording showing the feature requiring continuous background location | Exercise actual workout recording, with consent; do not create a fake workout in the owner's Health data. |
 | iOS, WeatherKit 5.2.5 | Visible Apple Weather attribution and legal source link, shown on a physical device | Inspect the forecast UI, repair missing attribution if necessary, record the actual display. |

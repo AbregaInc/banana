@@ -1,10 +1,11 @@
 # Feature access
 
-Implementation status: production runs `699153d7` and staging `4db1a62a`, with schema through 0014
-(5 November 2026). Production has zero eligibility grants. Primary iOS/iPad and Mac build 94
-exports are verified but not uploaded; live-provider and device acceptance remain open.
-Deploy service/schema support before the clients. This does not implement cloud Mail or
-Calendar provider migration; those remain in [the rollout plan](CLOUD-AND-RELEASE-PLAN.md).
+Implementation status: production and staging run `879e2709`, with schema through 0017
+(5 November 2026). Production has zero eligibility grants at the last verified rollout check.
+Primary iOS/iPad and Mac build 95 use `55d675e6`; distribution evidence is recorded in
+[the rollout plan](CLOUD-AND-RELEASE-PLAN.md). Live-provider and device acceptance remain open.
+Deploy service/schema support before the clients. Guarded Calendar reads/writes and Mail
+reads/label operations exist; complete provider migration and cloud Mail remain unfinished.
 
 Eligibility belongs to the existing authenticated Banana account. The `feature_access` table
 is environment-local and defaults to no grants. A connected Google identity is sufficient to
@@ -26,8 +27,10 @@ new consent are denied when eligibility expires; queued work remains for later r
 An already dispatched request can finish. Fixture visibility does not enable live transport.
 
 Future cloud feature endpoints must call `featureAllowed` against current server state for
-each operation. A client's cached policy is never a server authorization credential. There
-are no cloud Mail endpoints in this increment.
+each operation. A client's cached policy is never a server authorization credential. Calendar
+and Mail endpoints enforce those gates against current account policy. The registered-device
+protocol guard rejects provider migration while a known older client remains; it does
+not revoke Google credentials held by an old installation.
 
 ## Administration
 
@@ -59,8 +62,9 @@ Dev settings are blank by default. Populate the `*_DEV` keys in ignored `Config/
 only after provisioning an isolated development backend, Google clients and signing profiles.
 These schemes do not provision those resources or silently fall back to Beta/production.
 The Dev credential services, local root, Bonjour service and Reminders list are separate.
-Google writes still use Beta's test-account safeguards. Signed coexistence remains a required
-acceptance check before distributing Dev builds.
+Google writes still use Beta's test-account safeguards. Signed Mac Dev is installed alongside the
+primary app. The signed iOS Dev build is prepared,
+but phone/iPad installation and fresh staging consent remain acceptance work.
 
 Stable and TestFlight share the existing app record, account and data. A TestFlight install
 replaces Stable; groups choose builds, not feature eligibility. The Beta service is staging.

@@ -11,9 +11,12 @@ the owner before it was found here.
 
 None of that was necessary. The Mac already had the answer and it wasn't used.
 
-## The rule
+## Choose the channel explicitly
 
-**The build you test is never the build you use.**
+Use isolated Dev for development. Stable and TestFlight deliberately share the primary app
+identity: TestFlight replaces Stable and retains its data. Tester groups choose builds; account
+eligibility controls experimental features. The table below describes the separate local Beta
+install, which remains available for fixtures and development.
 
 | | Production | Beta (test here) |
 |---|---|---|
@@ -21,8 +24,9 @@ None of that was necessary. The Mac already had the answer and it wasn't used.
 | Mac | `com.boris.banana` | `com.boris.banana.beta` — "Banana Beta" (was `.mac.beta` until 18 Oct 2026) |
 
 Separate bundle ids mean separate data containers, separate TCC permission grants, and separate
-Home Screen icons. Nothing beta does can reach production. This is why the Mac beta's calendar
-kept working all day while production's was broken.
+Home Screen icons. These isolate app storage, not external accounts: two apps connected to the
+same Google calendar can still affect the same provider data. The write safeguards below remain
+required.
 
 ```sh
 tools/ios-install.sh beta      # default; safe
@@ -32,10 +36,11 @@ tools/ios-install.sh prod      # prompts for confirmation
 tools/mac-install.sh prod
 ```
 
-**Where each comes from (the owner, 10 Oct 2026).** Beta is installed by hand from this Mac, with
-the two scripts above, on every device. TestFlight carries Stable only: nothing with the Beta
-bundle id is ever uploaded. (One script covers iPhone and iPad; with both attached, pass the
-device id.)
+**Distribution.** Stable uses the primary app identity. Upcoming builds use that same identity
+through TestFlight on iPhone, iPad and Mac. TestFlight compiles account-gated Email and excludes
+local AI; Stable excludes both. Neither a separate Beta app record nor a Beta TestFlight upload
+is required. Local Beta and Cloud Dev are installed with the local scripts; neither is a public
+release channel. See [build presets](design/FEATURE-ACCESS.md#build-presets).
 
 **Beta changes nothing Stable can see unless it was marked as Beta's** (`AppVariant` in
 `Banana/Model/AppSupport.swift`, held by `AppVariantTests`). Both apps are on the same devices
