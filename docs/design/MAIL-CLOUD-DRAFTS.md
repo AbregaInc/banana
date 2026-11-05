@@ -2,7 +2,8 @@
 
 This is an implementation increment behind the existing account Email gate. The native live
 composer is not connected yet; attachment upload and the user-facing resolution flow remain
-unfinished. No live email was sent during validation. Do not enable this as a complete Mail release.
+unfinished. Staging runs source `229c787c` with schema 0019 and no enabled Email grants.
+No live email was sent during validation. Do not enable this as a complete Mail release.
 
 `POST /v1/mail/draft` uses the existing Banana session, linked Google identity, feature eligibility
 and service-held Gmail grant. It never accepts a provider token from a device. Draft metadata and
@@ -54,7 +55,7 @@ References: [MailComposer](https://nodemailer.com/extras/mailcomposer),
 [Gmail draft send](https://developers.google.com/workspace/gmail/api/reference/rest/v1/users.drafts/send),
 [media uploads](https://developers.google.com/workspace/gmail/api/guides/uploads).
 
-Validation evidence remains in ignored `private/cloud-rollout/mail-*` files. Focused tests exercise
+Validation evidence remains in ignored `private/cloud-rollout/mail-*` files. The full service suite passes 399 tests in each timezone. Focused tests exercise
 concurrent saves/sends, cancellation, expired schedules, revocation, lost creation/send responses,
 missing drafts, account deletion, input validation and MIME output. Fake provider tests do not prove
 live Gmail behavior or complete native integration.

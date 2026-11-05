@@ -57,8 +57,8 @@ Reuse the web, notification and booking implementations when establishing a comm
 
 ## Implementation checkpoint — 5 November
 
-- Production runs `879e2709` through schema 0017. Staging now runs `0a953e6e` through schema
-  0018, adding busy-block identity fencing. Exact public source
+- Production runs `879e2709` through schema 0017. Staging now runs `229c787c` through schema
+  0019, adding busy-block identity fencing and gated Mail draft/handoff routes. Exact public source
   offers were verified, health/source return 200, and unsigned Calendar/Mail operation and Mail
   read requests return 401. Production still has zero eligibility grants; the new provider
   routes are not activated for users. The terminal-receipt correction is deployed to both environments; its native reconnect change passes the focused 42-test suite.
@@ -113,7 +113,10 @@ Reuse the web, notification and booking implementations when establishing a comm
   observed event versions through write-back and invalidates stale ledger skips. Service tests pass
   381 cases in each timezone, focused native tests pass 16 cases, and the full Mac target compiles.
   See [busy-block ownership](BUSY-BLOCK-CLOUD.md). Live cross-device acceptance remains unfinished.
-- The new encrypted [Mail draft and send handoff](MAIL-CLOUD-DRAFTS.md) increment is not yet
+- The new encrypted [Mail draft and send handoff](MAIL-CLOUD-DRAFTS.md) increment passes 399
+  service tests in each timezone, local Worker MIME execution and a full Worker bundle check.
+  Staging health, exact deployed source and unsigned draft refusal are verified. Fresh staging
+  inventory still has no Calendar/Mail provider grants and no feature eligibility. The increment is not yet
   connected to the native composer. Attachments and visible conflict/unknown-send resolution remain
   unfinished; this is not a complete Email rollout.
 - A fresh persistent component run completed all host monitoring and reported no latency failures.
