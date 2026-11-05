@@ -3,13 +3,29 @@
 Banana's iPhone app contains an iPhone widget, a Watch app, and a Watch complication.
 All four bundles must use the same marketing version and build number.
 
-The Mac app ships to TestFlight too, under the SAME bundle id (`com.boris.banana`,
-shared App Store record). Build and upload with `tools/mac-testflight.sh` — it
-archives sandboxed (`BananaMacAppStore.entitlements`), cloud-signs with the API key,
-and uploads. First Mac upload: `1.0 (6)` on July 24, 2026. In App Store Connect,
-confirm the macOS platform appears on the Banana app and add the build to the beta
-group; testers install via TestFlight for Mac. See docs/MAC-VARIANTS.md for the
-sandbox/data-location caveats.
+Stable and TestFlight use the same primary app identity, account and production service on
+iPhone, iPad and Mac. TestFlight replaces Stable on a device. Use existing tester groups to
+choose builds; account feature grants independently control experimental access.
+
+Prepare from a clean, reviewed commit, using a new monotonically increasing build number:
+
+```sh
+tools/testflight.sh ios BUILD_NUMBER prepare
+tools/testflight.sh mac BUILD_NUMBER prepare
+```
+
+Preparation archives, verifies and exports without uploading. The Mac configuration uses
+sandboxed App Store entitlements. Artifacts and source/build manifests stay under
+`.build/ios-testflight` and `.build/mac-testflight`. Once the required acceptance checks pass,
+run the same command with `upload`; it verifies and uploads the retained archive. Keep the
+same source checkout/commit when uploading. `tools/mac-testflight.sh BUILD_NUMBER prepare`
+is a compatibility wrapper.
+
+TestFlight includes account-gated Email, excludes local AI, and carries its source revision.
+Experimental TestFlight archives are not public App Store/DMG candidates: build `Release`
+and run its exclusion checks for public distribution. See [Mac variants](MAC-VARIANTS.md)
+for sandbox/data-location caveats. The historical records below are not a live build inventory;
+query `tools/asc-builds.py` for current App Store Connect state.
 
 ## Public beta
 

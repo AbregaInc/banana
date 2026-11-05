@@ -29,18 +29,16 @@ export_path="$root/$mode-$build"
   echo 'That build already has retained artifacts. Use a new build number.' >&2; exit 1;
 }
 scheme=Banana
-destination='generic/platform=iOS'
+platform_args=(-destination 'generic/platform=iOS')
 derived=.build/ios-prod
-extra=()
 if [[ "$platform" == mac ]]; then
   scheme=BananaMac
-  destination='generic/platform=macOS'
+  platform_args=(-destination 'generic/platform=macOS' ARCHS=arm64)
   derived=.build/mac-check
-  extra+=(ARCHS=arm64)
 fi
 mkdir -p "$root"
-options=$(mktemp -t banana-testflight).plist
-trap 'rm -f "$options"' EXIT
+options=$(mktemp -t banana-testflight)
+trap 'result=$?; rm -f "$options"; exit "$result"' EXIT
 python3 - "$options" "$team" "$mode" <<'PY'
 import plistlib, sys
 options = plistlib.load(open('TestFlightExportOptions.plist', 'rb'))
@@ -53,10 +51,10 @@ auth=(-allowProvisioningUpdates -authenticationKeyPath "$key_path"
 if [[ ! -d "$archive" ]]; then
 xcodegen generate
 xcodebuild -project Banana.xcodeproj -scheme "$scheme" -configuration TestFlight \
-  -destination "$destination" -derivedDataPath "$derived" -archivePath "$archive" -jobs 2 \
+  "${platform_args[@]}" -derivedDataPath "$derived" -archivePath "$archive" -jobs 2 \
   BANANA_UNRELEASED=NO BANANA_LOCAL_AI=NO BANANA_LOCAL_EMAIL=YES \
   "CURRENT_PROJECT_VERSION=$build" "BANANA_SOURCE_COMMIT=$revision" \
-  "${extra[@]}" "${auth[@]}" archive
+  "${auth[@]}" archive
 fi
 python3 - "$archive" "$revision" "$build" "$(banana_setting BANANA_BUNDLE_ID)" <<'PY'
 import pathlib, plistlib, sys
