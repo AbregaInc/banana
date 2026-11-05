@@ -248,3 +248,13 @@ test("google (booking): calendar list, events made, read, moved and deleted, fre
   assert.equal(who.name, "Ann Lee");
   assert.equal(new URLSearchParams(fetch.calls.at(-1).body).get("redirect_uri"), "https://book.example/b/connect/callback");
 });
+
+
+test("development OAuth audience extends existing clients without changing production defaults", async () => {
+  const {configFrom} = await import('../src/config.js');
+  const configured={GOOGLE_APP_CLIENT_IDS:'phone.example, mac.example'};
+  assert.deepEqual(configFrom(configured).googleAppClientIds,['phone.example','mac.example']);
+  assert.deepEqual(configFrom({...configured,GOOGLE_DEV_APP_CLIENT_ID:'dev.example'}).googleAppClientIds,
+    ['phone.example','mac.example','dev.example']);
+  assert.deepEqual(configFrom({}).googleAppClientIds,[]);
+});

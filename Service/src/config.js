@@ -19,7 +19,8 @@ export function configFrom(env) {
     googleRedirectUri: env.GOOGLE_REDIRECT_URI ?? "",
     /** The app's own OAuth clients (iOS, which the Mac shares), whose Google identity tokens sign
      * a device in without a sign-in sheet: full ids, comma-separated. Not secret. */
-    googleAppClientIds: String(env.GOOGLE_APP_CLIENT_IDS ?? "").split(",").map((s) => s.trim()).filter(Boolean),
+    googleAppClientIds: [...new Set([env.GOOGLE_APP_CLIENT_IDS, env.GOOGLE_DEV_APP_CLIENT_ID]
+      .filter(Boolean).flatMap(value => String(value).split(",")).map(value => value.trim()).filter(Boolean))],
     /** The .p8 key's PEM text, its key id, and the team id. */
     apnsKey: env.APNS_KEY ?? "",
     apnsKeyId: env.APNS_KEY_ID ?? "",

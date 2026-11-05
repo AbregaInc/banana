@@ -327,3 +327,11 @@ unconfigured offer returns503 rather than claiming to provide source. Do not dep
 a public AGPL release until the archive is available and these settings are supplied.
 Self-hosted mirrors may use a commit-pinned archive path too. No production source
 settings or deployment are changed by the publication preparation.
+
+### Isolated development OAuth client
+
+A staging deployment may set `GOOGLE_DEV_APP_CLIENT_ID` to the full native Dev client ID.
+It extends the existing `GOOGLE_APP_CLIENT_IDS` audience list without replacing it. Do not set
+this in production. Dev uses the staging web client for server authorization codes and the
+staging native client for identity-token sign-in. Keep actual client identifiers in deployment
+settings and private local configuration, never in tracked source.
