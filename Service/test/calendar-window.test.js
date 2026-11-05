@@ -69,3 +69,51 @@ test('one provider failure is explicit while the other linked account still retu
   assert.deepEqual(response.json.unavailable,[{email:'noor@plan.example',reason:'reconnect'}]);
   assert.equal(response.json.events[0].title,'Work event');
 });
+
+const snapshotPath = path.replace('/window?', '/snapshot?');
+
+test('native snapshot requires live account eligibility and bounds the requested window', async () => {
+  const s=setup(), auth=await person(s,'noor',false);
+  assert.equal((await s.call('GET',snapshotPath)).status,401);
+  assert.equal((await s.call('GET',snapshotPath,{session:auth.session})).status,403);
+  await s.db.run('INSERT INTO feature_access VALUES (?, ?, 1, ?, ?)',auth.account.id,'calendarCloud',s.now()+10,s.now());
+  assert.equal((await s.call('GET','/v1/calendar/snapshot?from=1&to=2',{session:auth.session})).status,400);
+  const response=await s.app.request(snapshotPath,{headers:{authorization:`Bearer ${auth.session}`}});
+  assert.equal(response.status,200);
+  assert.equal(response.headers.get('cache-control'),'no-store');
+  s.advance(10);
+  assert.equal((await s.call('GET',snapshotPath,{session:auth.session})).status,403);
+});
+
+test('native snapshot retains empty calendars and provider edit/recurrence fields without credentials', async () => {
+  const s=setup(), auth=await person(s), other=await person(s,'other');
+  s.google.calendars.set('refresh-sub-noor',[
+    {id:'work',accessRole:'owner',primary:true}, {id:'empty',accessRole:'reader'},
+    {id:'hidden',hidden:true}, {id:'deleted',deleted:true},
+  ]);
+  const source={...event('meeting','Meeting'),etag:'version-1',reminders:{useDefault:true},
+    recurringEventId:'series', originalStartTime:{dateTime:new Date(START).toISOString()}};
+  s.google.events.set('work',[source]);
+  const response=await s.call('GET',`${snapshotPath}&account=${other.account.id}`,{session:auth.session});
+  assert.equal(response.status,200);
+  assert.deepEqual(response.json.sources.map(s=>s.calendar.id),['work','empty']);
+  assert.deepEqual(response.json.sources[0].events,[source]);
+  assert.deepEqual(response.json.sources[1].events,[]);
+  assert.equal(response.json.sources[0].email,'noor@plan.example');
+  assert.deepEqual(response.json.unavailable,[]);
+  assert.match(s.google.listCalls[0].fields,/etag,reminders/);
+  const encoded=JSON.stringify(response.json);
+  assert.equal(encoded.includes('refresh-sub-'),false);
+  assert.equal(encoded.includes('syncToken'),false);
+  assert.deepEqual(s.google.booking,{insert:[],get:[],patch:[],delete:[]});
+});
+
+test('native snapshot names failed calendars and never marks them as successfully empty', async () => {
+  const s=setup(), auth=await person(s);
+  s.google.calendars.set('refresh-sub-noor',[{id:'ok',summary:'Work'},{id:'failed',summary:'Shared'}]);
+  const list=s.google.listEvents.bind(s.google);
+  s.google.listEvents=async (token,id,params)=> { if(id==='failed') throw new Error('offline'); return list(token,id,params); };
+  const response=await s.call('GET',snapshotPath,{session:auth.session});
+  assert.deepEqual(response.json.sources.map(s=>s.calendar.id),['ok']);
+  assert.deepEqual(response.json.unavailable,[{email:'noor@plan.example',calendar:'Shared',calendarID:'failed',reason:'retry'}]);
+});

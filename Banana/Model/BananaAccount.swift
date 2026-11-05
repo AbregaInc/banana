@@ -439,6 +439,27 @@ final class BananaAccount: ObservableObject {
         return (data, status)
     }
 
+    /// Read through the service's Google grant. This does not change native cache/write ownership.
+    /// A response from an earlier session must never enter the current account's calendar.
+    func calendarSnapshot(from: Date, to: Date) async throws -> CloudCalendarSnapshot {
+        let bounds = try CloudCalendarSnapshot.bounds(from: from, to: to)
+        guard let requestSession = session, let accountID = account?.id,
+              FeatureAccessStore.shared.allows("calendarCloud") else { throw CloudCalendarSnapshot.Failure.unavailable }
+        guard let (data, status) = await send(.calendarSnapshot(from: bounds.from, to: bounds.to)) else {
+            throw CloudCalendarSnapshot.Failure.unavailable
+        }
+        guard session == requestSession, account?.id == accountID,
+              FeatureAccessStore.shared.allows("calendarCloud") else { throw CloudCalendarSnapshot.Failure.contextChanged }
+        guard status == 200 else { throw CloudCalendarSnapshot.Failure.unavailable }
+        // Large weeks decode away from input/rendering. Recheck the session after suspension too.
+        let result = try await Task.detached(priority: .userInitiated) {
+            try CloudCalendarSnapshot.decode(data, from: bounds.from, to: bounds.to)
+        }.value
+        guard session == requestSession, account?.id == accountID,
+              FeatureAccessStore.shared.allows("calendarCloud") else { throw CloudCalendarSnapshot.Failure.contextChanged }
+        return result
+    }
+
     /// An alert dismissed, opened or answered here: the other devices stop showing it.
     func clearAlert(_ id: String) async {
         guard isSignedIn else { return }

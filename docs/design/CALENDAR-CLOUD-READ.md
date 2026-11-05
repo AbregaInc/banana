@@ -28,3 +28,25 @@ It must not treat eligibility as permission to activate a second event/write-bac
 Validation covers unauthenticated requests, default deny, expiration, linked-account failures,
 account isolation, invalid windows, no-store responses, provider-write absence and parity with
 the shared reader. Existing web calendar behavior remains covered by its integration tests.
+
+## Native cache contract
+
+`GET /v1/calendar/snapshot?from=<milliseconds>&to=<milliseconds>` uses the same authentication,
+current `calendarCloud` grant and eight-day bounds. It shares the provider reader with the web
+agenda, but returns `{version, from, to, sources, unavailable}`. Each source has the linked
+account email, calendar metadata and provider events. It preserves etags, reminders, recurrence
+identities and successful empty calendars. Hidden/deleted calendars are excluded; native
+visibility/blocking preferences are applied by the existing native normalizer, not by the web
+projection. No provider refresh, access or sync tokens are returned.
+
+A failed calendar is absent from `sources` and appears in `unavailable` with its raw calendar ID.
+An account-level failure has no calendar ID. Neither is evidence of deletion. A complete response
+with zero sources is different from a failed read. Duplicate calendar IDs across linked accounts
+still require the existing native ownership/deduplication policy before cache application.
+
+`BananaAccount.calendarSnapshot` implements the authenticated native call on all three native
+platforms. It validates request bounds, decodes off the main actor and rejects stale responses
+after session/account changes or eligibility expiry. The decoder checks version/window and
+retains the original provider models. This is a transport integration only: no automatic call,
+cache replacement, read cutover or write ownership change is enabled yet. Durable cache
+reconciliation and failure/offline acceptance are prerequisites for enabling native cloud reads.

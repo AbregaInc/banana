@@ -173,7 +173,7 @@ export function createGoogle(config, fetchImpl, now = Date.now) {
       const items = [];
       let pageToken = null;
       do {
-        const params = new URLSearchParams({ maxResults: "250", fields: "items(id,summary,summaryOverride,backgroundColor,timeZone,primary,hidden,deleted,accessRole,selected,dataOwner),nextPageToken" });
+        const params = new URLSearchParams({ maxResults: "250", fields: "items(id,summary,summaryOverride,backgroundColor,timeZone,primary,hidden,deleted,accessRole,selected,dataOwner,conferenceProperties),nextPageToken" });
         if (pageToken) params.set("pageToken", pageToken);
         const response = await fetch(`${CALENDAR}/users/me/calendarList?${params}`, { headers: { authorization: `Bearer ${accessToken}` } });
         const body = await readJson(response);

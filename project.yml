@@ -229,6 +229,7 @@ targets:
         # build but the official app.
         BananaReleaseChannel: $(BANANA_RELEASE_CHANNEL)
         BananaPrimaryBundleIdentifier: $(BANANA_BUNDLE_ID)
+        BananaSourceCommit: $(BANANA_SOURCE_COMMIT)
         BananaServiceHost: $(BANANA_SERVICE_HOST)
         BananaGoogleServerClient: $(BANANA_GOOGLE_SERVER_CLIENT)
         CFBundleDisplayName: Banana
@@ -418,6 +419,7 @@ targets:
         # Beta's own service and web client, never the production ones.
         BananaReleaseChannel: $(BANANA_RELEASE_CHANNEL)
         BananaPrimaryBundleIdentifier: $(BANANA_BUNDLE_ID)
+        BananaSourceCommit: $(BANANA_SOURCE_COMMIT)
         BananaServiceHost: $(BANANA_SERVICE_HOST_BETA)
         BananaGoogleServerClient: $(BANANA_GOOGLE_SERVER_CLIENT_BETA)
         CFBundleDisplayName: $(BANANA_BETA_DISPLAY_NAME)
@@ -917,6 +919,7 @@ targets:
       # pure; the network half stays in GoogleCalendarService.swift, out of this target.
       - path: Banana/Model/CalendarEventModels.swift
       - path: Banana/Model/GoogleCalendarModels.swift
+      - path: Banana/Model/CloudCalendarSnapshot.swift
       - path: Banana/Model/GoogleMeetCreation.swift
       - path: Banana/Model/GoogleEventWindow.swift
       # All-day events: which calendars' show, which block their days, the days they cover.
@@ -1316,6 +1319,7 @@ targets:
         BananaLegacyCloudContainer: ""
         BananaReleaseChannel: $(BANANA_RELEASE_CHANNEL)
         BananaPrimaryBundleIdentifier: $(BANANA_BUNDLE_ID)
+        BananaSourceCommit: $(BANANA_SOURCE_COMMIT)
         BananaServiceHost: ""
         BananaGoogleServerClient: ""
         GIDClientID: ""
@@ -1364,6 +1368,7 @@ targets:
         # Beta's own service and web client, never the production ones.
         BananaReleaseChannel: $(BANANA_RELEASE_CHANNEL)
         BananaPrimaryBundleIdentifier: $(BANANA_BUNDLE_ID)
+        BananaSourceCommit: $(BANANA_SOURCE_COMMIT)
         BananaServiceHost: $(BANANA_SERVICE_HOST_BETA)
         BananaGoogleServerClient: $(BANANA_GOOGLE_SERVER_CLIENT_BETA)
         CFBundleDisplayName: $(BANANA_BETA_DISPLAY_NAME)
@@ -1487,6 +1492,7 @@ targetTemplates:
         # build but the official app.
         BananaReleaseChannel: $(BANANA_RELEASE_CHANNEL)
         BananaPrimaryBundleIdentifier: $(BANANA_BUNDLE_ID)
+        BananaSourceCommit: $(BANANA_SOURCE_COMMIT)
         BananaServiceHost: $(BANANA_SERVICE_HOST)
         BananaGoogleServerClient: $(BANANA_GOOGLE_SERVER_CLIENT)
         CFBundleDisplayName: Banana

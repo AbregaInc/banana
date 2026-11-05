@@ -67,14 +67,27 @@ starting snapshot, not a claim about these new source changes.
 The renewed Google CLI login confirms both configured projects are active. Calendar API is
 enabled in both; Gmail API is enabled only in Beta. OAuth clients, redirects, audience and
 verification status still need console inspection. No separate Beta App Store Connect record
-is needed. TestFlight uses the existing main app record. Production service/schema support
-and primary-account grants must be deployed before testing Email there; until then it is denied.
+is needed. TestFlight uses the existing main app record. Production service/schema support is deployed at `1d8901ec` with zero grants. Primary-account
+grants and provider validation are still required before testing Email; until then it is denied.
 
 The component regression run was retained as a failure: RSS limits were exceeded in five
 scenarios, and four scenarios had incomplete host monitoring (process enumeration timeouts;
 one monitor also failed to stop promptly). No baseline or budget was changed. Native UI,
 physical-device performance and signed coexistence acceptance remain outstanding. Passing
 unit tests or an unsigned optimized compile does not clear these release gates.
+
+## 5 November implementation checkpoint
+
+- Production migration 0014 and policy service deployed at `1d8901ec`; health/source return 200,
+  anonymous account/Calendar reads return 401, and the feature table has zero grants.
+- Primary iOS TestFlight build 92 archived and exported successfully; its archive content gate
+  passed. It is not uploaded. This build predates the native snapshot transport added next.
+- Calendar snapshot service/native transport preserves provider edit fields and successful empty
+  reads. Automatic native cache/read/write cutover remains disabled pending reconciliation tests.
+- `tools/testflight.sh ios|mac BUILD_NUMBER [prepare|upload]` prepares by default, uses the existing
+  app identity, records source/build provenance and checks archives before export/upload.
+- Google OAuth client/redirect inspection still lacks browser access. No scopes or consent-screen
+  settings were changed. Earlier failed performance evidence remains a release blocker.
 
 ## Target channel matrix
 

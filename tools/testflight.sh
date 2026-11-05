@@ -1,0 +1,82 @@
+#!/bin/bash
+# Prepare a signed archive/export; upload only when explicitly requested.
+# Both platforms use the existing primary app identity and production service.
+set -euo pipefail
+cd "$(dirname "$0")/.."
+usage() { echo 'Usage: tools/testflight.sh ios|mac BUILD_NUMBER [prepare|upload]'; }
+if [[ "${1:-}" == --help ]]; then usage; exit 0; fi
+platform=${1:-}
+build=${2:-}
+mode=${3:-prepare}
+[[ "$platform" == ios || "$platform" == mac ]] || { usage >&2; exit 2; }
+[[ "$build" =~ ^[1-9][0-9]*$ ]] || { usage >&2; exit 2; }
+[[ "$mode" == prepare || "$mode" == upload ]] || { usage >&2; exit 2; }
+[[ $# -le 3 ]] || { usage >&2; exit 2; }
+[[ -z "$(git status --porcelain --untracked-files=normal)" ]] || {
+  echo 'Commit the reviewed source before preparing a traceable build.' >&2; exit 1;
+}
+. tools/config.sh require
+: "${ASC_KEY_ID:?Set ASC_KEY_ID}" "${ASC_ISSUER_ID:?Set ASC_ISSUER_ID}"
+key_path="${ASC_KEY_PATH:-$HOME/.appstoreconnect/private_keys/AuthKey_$ASC_KEY_ID.p8}"
+[[ -f "$key_path" ]] || { echo 'App Store Connect signing key is missing.' >&2; exit 1; }
+revision=$(git rev-parse HEAD)
+team=$(banana_setting DEVELOPMENT_TEAM)
+[[ -n "$team" ]] || { echo 'DEVELOPMENT_TEAM is missing.' >&2; exit 1; }
+root=".build/$platform-testflight"
+archive="$root/Banana-$build.xcarchive"
+export_path="$root/$mode-$build"
+[[ "$mode" == upload || ( ! -e "$archive" && ! -e "$export_path" ) ]] || {
+  echo 'That build already has retained artifacts. Use a new build number.' >&2; exit 1;
+}
+scheme=Banana
+destination='generic/platform=iOS'
+derived=.build/ios-prod
+extra=()
+if [[ "$platform" == mac ]]; then
+  scheme=BananaMac
+  destination='generic/platform=macOS'
+  derived=.build/mac-check
+  extra+=(ARCHS=arm64)
+fi
+mkdir -p "$root"
+options=$(mktemp -t banana-testflight).plist
+trap 'rm -f "$options"' EXIT
+python3 - "$options" "$team" "$mode" <<'PY'
+import plistlib, sys
+options = plistlib.load(open('TestFlightExportOptions.plist', 'rb'))
+options['teamID'] = sys.argv[2]
+options['destination'] = 'upload' if sys.argv[3] == 'upload' else 'export'
+with open(sys.argv[1], 'wb') as output: plistlib.dump(options, output)
+PY
+auth=(-allowProvisioningUpdates -authenticationKeyPath "$key_path"
+      -authenticationKeyID "$ASC_KEY_ID" -authenticationKeyIssuerID "$ASC_ISSUER_ID")
+if [[ ! -d "$archive" ]]; then
+xcodegen generate
+xcodebuild -project Banana.xcodeproj -scheme "$scheme" -configuration TestFlight \
+  -destination "$destination" -derivedDataPath "$derived" -archivePath "$archive" -jobs 2 \
+  BANANA_UNRELEASED=NO BANANA_LOCAL_AI=NO BANANA_LOCAL_EMAIL=YES \
+  "CURRENT_PROJECT_VERSION=$build" "BANANA_SOURCE_COMMIT=$revision" \
+  "${extra[@]}" "${auth[@]}" archive
+fi
+python3 - "$archive" "$revision" "$build" "$(banana_setting BANANA_BUNDLE_ID)" <<'PY'
+import pathlib, plistlib, sys
+root = pathlib.Path(sys.argv[1]) / "Products/Applications"
+apps = list(root.glob("*.app"))
+assert len(apps) == 1, "Archive must contain one primary app"
+p = apps[0] / "Info.plist"
+if not p.exists(): p = apps[0] / "Contents/Info.plist"
+info = plistlib.load(p.open("rb"))
+expected = {"BananaSourceCommit": sys.argv[2], "CFBundleVersion": sys.argv[3],
+            "CFBundleIdentifier": sys.argv[4], "BananaReleaseChannel": "testflight"}
+assert all(info.get(k) == v for k, v in expected.items()), "Archive identity, channel or source does not match"
+PY
+tools/check-release.sh "$archive"
+xcodebuild -exportArchive -archivePath "$archive" -exportPath "$export_path" \
+  -exportOptionsPlist "$options" "${auth[@]}"
+python3 - "$root/build-$build.json" "$platform" "$build" "$revision" "$mode" <<'PY'
+import json, sys
+with open(sys.argv[1], 'w') as output:
+    json.dump(dict(platform=sys.argv[2], build=sys.argv[3], revision=sys.argv[4],
+                   channel='testflight', environment='production', action=sys.argv[5]), output, indent=2)
+PY
+printf 'TestFlight %s complete: %s\n' "$mode" "$archive"

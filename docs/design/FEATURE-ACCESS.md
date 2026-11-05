@@ -1,7 +1,8 @@
 # Feature access
 
-Implementation status: the schema and account-policy service are deployed to Beta at
-`d199ef76`; client gates and build presets are local and under validation. Stable is unchanged.
+Implementation status: production schema and account-policy service are deployed at `1d8901ec`
+(5 November 2026), with zero eligibility grants. Beta retains `d199ef76`. Native build validation
+is in progress.
 Deploy service/schema support before the clients. This does not implement cloud Mail or
 Calendar provider migration; those remain in [the rollout plan](CLOUD-AND-RELEASE-PLAN.md).
 
@@ -63,7 +64,7 @@ acceptance check before distributing Dev builds.
 
 Stable and TestFlight share the existing app record, account and data. A TestFlight install
 replaces Stable; groups choose builds, not feature eligibility. The Beta service is staging.
-Production policy/schema deployment is still required before granting TestFlight users access.
+Production policy/schema support is deployed; explicit grants and provider validation remain.
 
 Archive checks inspect the primary app identity: Email requires the `testflight` channel and
 a bundle identifier equal to `BananaPrimaryBundleIdentifier`. A nested app cannot authorize
