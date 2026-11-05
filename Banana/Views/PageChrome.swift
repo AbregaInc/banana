@@ -463,6 +463,12 @@ struct MoreMenu<Items: View>: View {
                 }
                 .accessibilityIdentifier("page.more.routines")
             }
+            #if BANANA_AI && !PI_DEVELOPMENT
+            Button { PageChrome.shared.showAssistant = true } label: {
+                Label("Assistant", systemImage: "bubble.left.and.bubble.right")
+            }
+            .accessibilityIdentifier("page.more.assistant")
+            #endif
             Button { PageChrome.shared.showSettings = true } label: {
                 Label("Settings", systemImage: "gearshape")
             }

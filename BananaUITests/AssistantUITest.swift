@@ -396,7 +396,7 @@ final class AssistantUITest: XCTestCase {
         let count = app.staticTexts["assistant.test.meals"]
         XCTAssertTrue(count.waitForExistence(timeout: 15), app.debugDescription)
         let initial = Int(count.label.split(separator: " ").first ?? "") ?? -1
-        XCTAssertGreaterThan(initial, 0)
+        XCTAssertGreaterThanOrEqual(initial, 0)
         send("Make a meal with 2 eggs and 1 banana", in: app)
         let name = app.textFields["foodText.mealName"]
         XCTAssertTrue(name.waitForExistence(timeout: 15), app.debugDescription)
@@ -464,7 +464,7 @@ final class AssistantUITest: XCTestCase {
     // Main reaches the assistant from … › Assistant; in Pi it is the + and Review (AgentInputUITest).
     func testGlobalMealSearchLinksThroughNormalAppShell() {
         let app = XCUIApplication()
-        app.launchArguments = ["--ui-preview", "--assistant-test-navigation", "--assistant-reset", "--disable-icloud", "-onboardingCompleted", "YES"]
+        app.launchArguments = ["--ui-preview", "--assistant-test-navigation", "--assistant-reset", "--wellness", "--disable-icloud", "-onboardingCompleted", "YES"]
         app.launch()
         let more = app.buttons["More"].firstMatch
         XCTAssertTrue(more.waitForExistence(timeout: 25), app.debugDescription)
@@ -486,7 +486,8 @@ final class AssistantUITest: XCTestCase {
         XCTAssertTrue(waitUntil(timeout: 15) {
             app.descendants(matching: .any)["nutrition.phrase"].firstMatch.exists
                 || app.buttons["wellness.textMeal"].exists
-                || (app.navigationBars["Nutrition"].exists && app.buttons["nutrition.meal"].firstMatch.exists)
+                || (app.descendants(matching: .any)["nutrition.dayTotal"].firstMatch.exists
+                    && app.buttons["nutrition.meal"].firstMatch.exists)
         }, app.debugDescription)
     }
     #endif

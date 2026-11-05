@@ -246,6 +246,20 @@ struct FoodTextCaptureView: View {
     /// A new meal from a typed or dictated phrase: the phrase to read, and its estimate to vouch for.
     private var readsPhrase: Bool { !isEditingExisting && !startsWithSearch }
 
+    #if os(iOS)
+    // Install within the navigation container that owns the focused form.
+    @ToolbarContentBuilder private var keyboardControls: some ToolbarContent {
+        ToolbarItemGroup(placement: .keyboard) {
+            Button { focus = previousField() } label: { Image(systemName: "chevron.up") }
+                .disabled(previousField() == nil)
+            Button { focus = nextField() } label: { Image(systemName: "chevron.down") }
+                .disabled(nextField() == nil)
+            Spacer()
+            Button("Done") { focus = nil }
+        }
+    }
+    #endif
+
     var body: some View {
         Group {
             if embedded {
@@ -259,6 +273,9 @@ struct FoodTextCaptureView: View {
                     }
                 }
                 .toolbar {
+                    #if os(iOS)
+                    keyboardControls
+                    #endif
                     // In a sheet that is this draft: Save where every sheet's verb is, always in
                     // reach. The tap is the person's approval.
                     if workspaceChrome == .sheetToolbar {
@@ -288,6 +305,9 @@ struct FoodTextCaptureView: View {
                     .frame(minWidth: 460, idealWidth: 520, minHeight: 520, idealHeight: 640)
                     #endif
                     .toolbar {
+                        #if os(iOS)
+                        keyboardControls
+                        #endif
                         ToolbarItem(placement: .cancellationAction) {
                             Button("Cancel") { Drafts.foodPhrase = ""; closeScanToast(); dismiss() }
                         }
@@ -305,20 +325,6 @@ struct FoodTextCaptureView: View {
                     }
                 }
             }
-        }
-        .toolbar {
-            #if os(iOS)
-            // Every number here is a decimal pad, and a decimal pad has no return key — without
-            // this bar the only way out of a calorie field is to guess at some inert pixel.
-            ToolbarItemGroup(placement: .keyboard) {
-                Button { focus = previousField() } label: { Image(systemName: "chevron.up") }
-                    .disabled(previousField() == nil)
-                Button { focus = nextField() } label: { Image(systemName: "chevron.down") }
-                    .disabled(nextField() == nil)
-                Spacer()
-                Button("Done") { focus = nil }
-            }
-            #endif
         }
         .task {
             if readsPhrase {

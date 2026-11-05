@@ -86,10 +86,9 @@ struct MailComposerTools: View {
         Menu {
             Button { showsPhotos = true } label: { Label("Photos", systemImage: "photo.on.rectangle") }
             Button { showsFilePanel = true } label: { Label("Files", systemImage: "folder") }
-            // Paste, for a file or a picture on the pasteboard. A picture copied in another app
-            // asks once, as the system does, whether this app may read it.
-            Button { MailIncoming.pasteFromPasteboard(into: files) } label: {
-                Label("Paste", systemImage: "doc.on.clipboard")
+            // The system paste control grants access for this explicit user action.
+            PasteButton(supportedContentTypes: MailIncoming.types) { providers in
+                MailIncoming.receive(providers, into: files)
             }
         } label: { attachLabel }
         .accessibilityLabel("Attach")

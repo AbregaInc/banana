@@ -58,7 +58,7 @@ final class VerifyTimelineUITest: XCTestCase {
         app.withoutSpaceSync()
         app.launch()
 
-        XCTAssertTrue(app.navigationBars["Food"].waitForExistence(timeout: 8))
+        XCTAssertTrue(app.descendants(matching: .any)["nutrition.dayTotal"].firstMatch.waitForExistence(timeout: 8))
         let meal = app.buttons.matching(identifier: "nutrition.meal").matching(
             NSPredicate(format: "label CONTAINS[c] %@ AND label CONTAINS %@", "Chicken grain bowl", "800")).firstMatch
         XCTAssertTrue(scrollUntilHittable(meal, in: app),
@@ -73,7 +73,7 @@ final class VerifyTimelineUITest: XCTestCase {
         app.plus("wellness.addSupplement").tap()
         // From the top bar's + it is picked from the list.
         if app.buttons["add.supplement"].waitForExistence(timeout: 2) { app.buttons["add.supplement"].tap() }
-        XCTAssertTrue(app.buttons["wellness.fillIn"].waitForExistence(timeout: 1))
+        XCTAssertTrue(app.buttons["wellness.searchSupplementCatalog"].waitForExistence(timeout: 3))
         app.buttons["Cancel"].tap()
         XCTAssertTrue(app.staticTexts["Vitamin D"].waitForExistence(timeout: 3))
         keepScreenshot(of: app, named: "Wellness - supplement schedule")
@@ -97,7 +97,7 @@ final class VerifyTimelineUITest: XCTestCase {
         app.withoutSpaceSync()
         app.launch()
 
-        XCTAssertTrue(app.navigationBars["Workouts"].waitForExistence(timeout: 8))
+        XCTAssertTrue(app.descendants(matching: .any)["workouts.summaryStrip"].firstMatch.waitForExistence(timeout: 8))
         for _ in 0..<6 { app.swipeUp() }
         XCTAssertFalse(app.buttons["Guided plans"].exists)
         XCTAssertFalse(app.buttons["workouts.guidedPlans"].exists)
@@ -127,9 +127,9 @@ final class VerifyTimelineUITest: XCTestCase {
         let pages = app.segmentedControls["body.switch"]
         XCTAssertTrue(pages.waitForExistence(timeout: 4), app.debugDescription)
         pages.buttons["Workouts"].tap()
-        XCTAssertTrue(app.navigationBars["Workouts"].waitForExistence(timeout: 3))
+        XCTAssertTrue(app.plus("workouts.add").waitForExistence(timeout: 3), app.debugDescription)
         app.segmentedControls["body.switch"].buttons.element(boundBy: 1).tap()
-        XCTAssertTrue(app.navigationBars["Food"].waitForExistence(timeout: 3))
+        XCTAssertTrue(app.descendants(matching: .any)["nutrition.dayTotal"].firstMatch.waitForExistence(timeout: 3))
         keepScreenshot(of: app, named: "Shell - five tabs")
     }
 
@@ -142,13 +142,11 @@ final class VerifyTimelineUITest: XCTestCase {
         app.withoutSpaceSync()
         app.launch()
 
-        // The show's settings are the first item in its "…" menu.
-        let more = app.buttons["podcast.more"]
-        XCTAssertTrue(more.waitForExistence(timeout: 8))
+        // The show's settings have their own cog beside playback.
+        let settings = app.buttons["podcast.settings.button"]
+        XCTAssertTrue(settings.waitForExistence(timeout: 8))
         XCTAssertFalse(app.descendants(matching: .any)["podcast.settings.autoSkip"].exists)
         func openSettings() {
-            more.tap()
-            let settings = app.buttons["podcast.settings.button"]
             XCTAssertTrue(settings.waitForExistence(timeout: 3), app.debugDescription)
             settings.tap()
         }

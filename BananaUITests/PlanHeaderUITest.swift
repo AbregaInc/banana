@@ -3,7 +3,7 @@ import XCTest
 final class PlanHeaderUITest: XCTestCase {
     override func setUp() { continueAfterFailure = false }
 
-    func testViewSwitchHasItsOwnRowAndRemindersAreNotCountedTwice() {
+    func testViewSwitchUsesTheTopBarAndRemindersAreNotCountedTwice() {
         let app = XCUIApplication()
         app.launchArguments = ["--plan", "--outstanding-reminders", "--ui-audit", "--disable-icloud", "--no-space-sync",
                                "-onboardingCompleted", "YES", "-finishSetupDismissed", "YES", "-planMode", "day"]
@@ -13,7 +13,8 @@ final class PlanHeaderUITest: XCTestCase {
         let search = app.buttons["calendar.search.open"]
         XCTAssertTrue(day.waitForExistence(timeout: 15))
         XCTAssertTrue(search.exists)
-        XCTAssertGreaterThan(day.frame.minY, search.frame.maxY, "The view switch needs its own row below the actions")
+        XCTAssertLessThan(day.frame.minY, search.frame.maxY, "The view switch uses the top bar after removing the page title")
+        XCTAssertFalse(day.frame.intersects(search.frame), "The picker must not overlap search")
         XCTAssertTrue(app.buttons["Mark Call the plumber done"].exists)
         if app.buttons["plan.attention"].exists {
             XCTAssertFalse(app.buttons["plan.attention"].label.contains("reminder"), "Reminders already appear in their own actionable row")

@@ -12,7 +12,9 @@ are a dated audit snapshot and must be refreshed before a release.
 
 ## Decisions
 
-- Google sign-in remains the Banana identity. Use the existing Banana account; introduce no
+- The original plan uses Google sign-in as the Banana identity. Apple’s 5 November 4.8 rejection
+  now requires an equivalent qualifying login or an accepted explanation of an applicable exception.
+  This remains an unresolved release requirement. Use the existing Banana account; introduce no
   separate signup or invite-based identity merely to enable testing access.
 - Banana Cloud is the shared sync authority. Google remains the upstream record for its calendar
   and mail data. Devices keep durable caches and pending actions, with explicit reconciliation.
@@ -55,9 +57,10 @@ Reuse the web, notification and booking implementations when establishing a comm
 
 ## Implementation checkpoint — 5 November
 
-- Production runs `699153d7`; staging now runs `4db1a62a`. Both have migrations through
-  0014 and matching public source offers verified. Health/source return 200 and anonymous Calendar reads 401.
-  Production has zero eligibility grants; no experimental access was enabled globally.
+- Production and staging run `879e2709`, both with migrations through 0017. Exact public source
+  offers were verified, health/source return 200, and unsigned Calendar/Mail operation and Mail
+  read requests return 401. Production still has zero eligibility grants; the new provider
+  routes are not activated for users. The terminal-receipt correction is deployed to both environments; its native reconnect change remains under test.
 - Account eligibility, actual stored-grant capabilities, expiring native policy caches and
   Email presentation/transport gates are implemented. See [feature access](FEATURE-ACCESS.md).
   Stored scopes/status are not a fresh live-token validation.
@@ -70,13 +73,21 @@ Reuse the web, notification and booking implementations when establishing a comm
 - Native incremental Calendar reads are implemented in `894364f8`, behind `calendarCloud`.
   The transport preserves the existing cache/window behavior and uses encrypted account/grant
   bound cursors. It passed 337 service tests per timezone, 79 focused native tests and the full
-  Mac TestFlight compile. This newer source is deployed to staging, but is not in build 94 or production.
-  See [the read contract](CALENDAR-CLOUD-READ.md). Provider writes remain on their existing path.
-- Google CLI access works and both configured projects are active. Calendar API is enabled in
-  both; Gmail API is enabled only in staging. Actual OAuth clients, redirects, audience and
-  approval status remain unverified: the browser host is unavailable and the attempted client
-  inventory endpoint returned 404. There is no pending browser approval prompt. No consent or
-  scope settings were changed.
+  Mac TestFlight compile. The service read support is deployed to both environments, but native support is not in build 94.
+  See [the read contract](CALENDAR-CLOUD-READ.md). Released clients still use their existing write path.
+- Google console verification completed on 5 November. Production is External/In production;
+  branding and Calendar data access are verified. Its web origin and callback match production,
+  and both native/web client IDs match local configuration. No Gmail scope is configured there.
+  Staging is External/Testing with four test users, separate web/iOS/Mac clients, a staging
+  callback and `gmail.modify`. The authorized native Dev client has been created and added to staging without replacing existing audiences. Private local Dev configuration uses it and the staging web client. Fresh device sign-in remains unverified. Calendar API is enabled in both;
+  Gmail API is enabled only in staging. No consent or scope settings were changed.
+- Apple's Mac rejection is for the incoming-network entitlement on build 83. The existing owner
+  reply explains same-network podcast transfer. Source contains the matching Multipeer advertiser;
+  the same explanation is already in App Review notes. iOS build 83 was rejected on 5 November
+  for login services (4.8), background audio/location evidence (2.5.4), WeatherKit attribution
+  evidence (5.2.5), and HealthKit disclosure (2.5.1). Apple specifically requests recordings on
+  physical devices. Resubmission and approval remain outstanding; TestFlight is a separate gate.
+- The owner selected an appeal before adding another login provider. The [appeal draft](../release/login-appeal-draft-20261105.md) is prepared but not submitted; no Sign in with Apple change was made.
 - The persistent component run remains failed: RSS exceeded budgets and some scenarios lacked
   complete host monitoring. Evidence is retained privately; no baseline or budget was changed.
   Full UI, live-provider, physical-device performance and signed upgrade/coexistence acceptance
@@ -85,9 +96,34 @@ Reuse the web, notification and booking implementations when establishing a comm
   using the same lost-acknowledgement reconciliation as Meet/Pi events. Legacy drafts are not
   assigned a new identity after an unknown provider outcome. All 13 focused draft/Meet/read
   tests passed; evidence: `private/cloud-rollout/pending-event-identity.xcresult`.
-- Cloud-owned durable Calendar writes, busy-block writer fencing, cloud Mail and provisioned
-  cloud Dev infrastructure remain unfinished. The audit table above is the starting snapshot,
+- Signed cloud Dev builds now verify on iOS and Mac with explicit Dev profiles, staging host and
+  isolated identity. Mac Dev is installed alongside the primary app. The phone disconnected before
+  install; iPad hardware is unavailable. Fresh OAuth consent remains unverified. The install tools
+  now use the configured Apple signing key; 78 tooling tests pass.
+- Cloud-owned durable Calendar writes are implemented behind eligibility. Busy-block writer fencing,
+  complete cloud Mail and live cross-device acceptance remain unfinished. The audit table above is the starting snapshot,
   not a description of the current increment.
+
+## Provider implementation follow-up — 5 November
+
+The working increment adds service-owned Calendar mutations with encrypted intent/receipt storage,
+conditional writes, and lost-acknowledgement reconciliation. Native clients persist an operation
+identity before dispatch and retain cloud ownership after revocation. Native Calendar credentials
+are retired only after a successful service read. Watch-list updates use the existing service
+watch reconciler. A registered-device protocol guard prevents eligibility while known older clients
+remain; it does not remotely revoke credentials held by old installations.
+
+Mail reads and the currently implemented label/trash actions now have a cloud transport. Incremental
+Mail consent has its own encrypted grant, actual scopes and OAuth-client provenance, preserving
+Calendar access if Mail consent fails. Unknown Mail mutations remain unresolved rather than being
+blindly replayed. Draft creation/sending and a user-visible resolution flow are still outstanding.
+
+Validation: 364 service tests pass in each of UTC and America/New_York. New cases cover conditional
+Calendar retry, preservation of external edits, and recovery of a uniquely identified moved event.
+Earlier focused native runs passed 56 and 31 tests; the receipt/module follow-up passes 42 tests. The full iPhone UI run recorded 246 passes, 19 failures and 31 skips. Its original runner interrupted result finalization; the raw log remains. The runner is fixed and focused reruns preserve result bundles. All 19 original failures now have passing focused reruns; these are not a new full-suite run. Relevant iPad checks are in progress. The service
+increment is deployed to staging with exact public source provenance; native changes are committed
+in `ae40b8f2` but not yet distributed. Busy-block ownership across devices and live-provider
+acceptance remain open, so these transport changes do not establish completed Calendar cutover.
 
 ## Target channel matrix
 

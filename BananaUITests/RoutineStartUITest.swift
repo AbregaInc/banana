@@ -20,7 +20,7 @@ final class RoutineStartUITest: XCTestCase {
 
     func testTheRoutinesScreenSaysWhatEachKindDoes() {
         let app = launch(["--routines"])
-        XCTAssertTrue(app.navigationBars["Routines"].waitForExistence(timeout: 8))
+        XCTAssertTrue(app.staticTexts["Wake & bedtime"].waitForExistence(timeout: 8))
         // No footer paragraph and no capital kind tags: the trigger line says when it starts.
         XCTAssertFalse(app.staticTexts.containing(NSPredicate(format: "label CONTAINS 'start when you press Start'")).firstMatch.exists)
         XCTAssertFalse(app.staticTexts["SCHEDULED"].exists)
@@ -31,7 +31,7 @@ final class RoutineStartUITest: XCTestCase {
 
     func testARoutineWithNothingToPlayHasNoStartButton() {
         let app = launch(["--routines"])
-        XCTAssertTrue(app.navigationBars["Routines"].waitForExistence(timeout: 8))
+        XCTAssertTrue(app.staticTexts["Wake & bedtime"].waitForExistence(timeout: 8))
         // The sample routines have nothing set: a button that plays nothing is worse than none.
         XCTAssertFalse(app.buttons["Start Wake"].exists)
         XCTAssertFalse(app.buttons["Start Commute"].exists)
@@ -39,7 +39,7 @@ final class RoutineStartUITest: XCTestCase {
 
     func testAManualRoutineStartsFromItsRow() {
         let app = launch(["--routines", "--routine-start-sample"])
-        XCTAssertTrue(app.navigationBars["Routines"].waitForExistence(timeout: 8))
+        XCTAssertTrue(app.staticTexts["Wake & bedtime"].waitForExistence(timeout: 8))
         let start = app.buttons["Start Wind down walk"]
         for _ in 0..<5 where !(start.exists && start.isHittable) { app.swipeUp() }
         XCTAssertTrue(start.waitForExistence(timeout: 6), "a Manual routine had no button anywhere")

@@ -80,7 +80,10 @@ final class SectionsAdaptiveUITest: XCTestCase {
             workouts.tap()
             XCTAssertTrue(app.staticTexts["Pool length"].waitForExistence(timeout: 5))
         } else {
-            XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 20))
+            XCTAssertTrue(waitUntil(timeout: 20) {
+                app.descendants(matching: .any)["settings.accounts"].firstMatch.exists
+                    || app.descendants(matching: .any)["settings.page.accounts"].firstMatch.exists
+            }, app.debugDescription)
         }
         capture("settings-landscape")
     }
@@ -90,7 +93,10 @@ final class SectionsAdaptiveUITest: XCTestCase {
         XCTAssertTrue(app.buttons["routines.add"].waitForExistence(timeout: 20))
         capture("routines-portrait")
         XCUIDevice.shared.orientation = .landscapeLeft
-        XCTAssertTrue(app.buttons["routines.add"].isHittable)
+        XCTAssertTrue(waitUntil {
+            app.windows.firstMatch.frame.width > app.windows.firstMatch.frame.height
+                && app.buttons["routines.add"].isHittable
+        }, app.debugDescription)
         capture("routines-landscape")
     }
 }

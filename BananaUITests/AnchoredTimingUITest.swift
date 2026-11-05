@@ -21,7 +21,7 @@ final class AnchoredTimingUITest: XCTestCase {
         let atATime = app.buttons["At a time"]
         var back = 0
         // (`isHittable` is true for a control under the top bar, so go by where it is.)
-        let bar = app.navigationBars["Edit supplement"]
+        let bar = app.navigationBars["Edit"]
         while atATime.frame.minY < bar.frame.maxY + 8, back < 6 {
             app.swipeDown(velocity: .slow); back += 1
         }

@@ -82,7 +82,11 @@ final class ScanCorrectUITest: XCTestCase {
         count.tap()
         // Selected on a tap, so the number typed replaces the one there.
         count.typeText("140")
-        app.buttons["Done"].firstMatch.tap()
+        if app.keyboards.firstMatch.exists {
+            let done = app.buttons["Done"].firstMatch
+            XCTAssertTrue(done.waitForExistence(timeout: 5), app.debugDescription)
+            done.tap()
+        }
         XCTAssertEqual(amount.label, "140 g", "what you typed, in place of what was there")
 
 
@@ -103,7 +107,11 @@ final class ScanCorrectUITest: XCTestCase {
         let count = editor.textFields["foodAmount.count"]
         count.tap()
         count.typeText("5")
-        app.buttons["Done"].firstMatch.tap()
+        if app.keyboards.firstMatch.exists {
+            let done = app.buttons["Done"].firstMatch
+            XCTAssertTrue(done.waitForExistence(timeout: 5), app.debugDescription)
+            done.tap()
+        }
         XCTAssertEqual(editor.staticTexts["foodText.servingText"].label, "5 g")
         XCTAssertFalse(editor.staticTexts["foodText.needsAmount"].exists)
         XCTAssertTrue(save.isEnabled)
