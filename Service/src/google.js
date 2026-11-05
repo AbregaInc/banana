@@ -1,3 +1,4 @@
+import {mailGoogle} from './mail-google.js';
 // The Google port: trading the app's one-time code, access tokens, calendar watches, revoking, and
 // for booking (docs/design/BOOKING.md) the calendar list, events made, read, moved and deleted, and free/busy.
 // Errors never carry a token, a code, an email or a calendar id in their message.
@@ -138,6 +139,8 @@ export function createGoogle(config, fetchImpl, now = Date.now) {
       const body = await token({ refresh_token: refreshToken, grant_type: "refresh_token" });
       return remember(refreshToken, body);
     },
+
+    ...mailGoogle(fetch),
 
     async mailMessage(accessToken,id) {
       const response=await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${encodeURIComponent(id)}?format=minimal`,{

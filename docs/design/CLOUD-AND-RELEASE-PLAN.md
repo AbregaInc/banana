@@ -57,7 +57,8 @@ Reuse the web, notification and booking implementations when establishing a comm
 
 ## Implementation checkpoint — 5 November
 
-- Production and staging run `879e2709`, both with migrations through 0017. Exact public source
+- Production runs `879e2709` through schema 0017. Staging now runs `0a953e6e` through schema
+  0018, adding busy-block identity fencing. Exact public source
   offers were verified, health/source return 200, and unsigned Calendar/Mail operation and Mail
   read requests return 401. Production still has zero eligibility grants; the new provider
   routes are not activated for users. The terminal-receipt correction is deployed to both environments; its native reconnect change passes the focused 42-test suite.
@@ -107,8 +108,17 @@ Reuse the web, notification and booking implementations when establishing a comm
   isolated identity. Mac Dev is installed alongside the primary app. The phone disconnected before
   install; iPad hardware is unavailable. Fresh OAuth consent remains unverified. The install tools
   now use the configured Apple signing key; 78 tooling tests pass.
-- Cloud-owned durable Calendar writes are implemented behind eligibility. Busy-block writer fencing,
-  complete cloud Mail and live cross-device acceptance remain unfinished. The audit table above is the starting snapshot,
+- Cloud-owned durable Calendar writes and busy-block identity fencing are implemented behind
+  eligibility. Staging owns each logical busy-block provider identity; native `cb122791` preserves
+  observed event versions through write-back and invalidates stale ledger skips. Service tests pass
+  381 cases in each timezone, focused native tests pass 16 cases, and the full Mac target compiles.
+  See [busy-block ownership](BUSY-BLOCK-CLOUD.md). Live cross-device acceptance remains unfinished.
+- The new encrypted [Mail draft and send handoff](MAIL-CLOUD-DRAFTS.md) increment is not yet
+  connected to the native composer. Attachments and visible conflict/unknown-send resolution remain
+  unfinished; this is not a complete Email rollout.
+- A fresh persistent component run completed all host monitoring and reported no latency failures.
+  Six scenarios still exceed relative RSS budgets (363–502 MiB versus their retained references).
+  Evidence: `private/cloud-rollout/busy-components/gate.json`. Budgets and baselines are unchanged. The audit table above is the starting snapshot,
   not a description of the current increment.
 
 ## Provider implementation follow-up — 5 November

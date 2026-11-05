@@ -1,3 +1,4 @@
+import {deliverMailDrafts} from './mail-drafts.js';
 // Node 24 entry: the same app on @hono/node-server, Node's built-in SQLite, a timer for the job,
 // a SQLite file per space and blobs in a directory, under DATA_DIR.
 //   DATABASE_PATH=./banana.db DATA_DIR=./data PORT=8787 node src/node.js     (settings: see README.md)
@@ -61,6 +62,7 @@ async function job() {
   finally { running = false; }
 }
 setInterval(job, 15 * 60 * 1000);
+setInterval(() => deliverMailDrafts(deps).catch(error => console.log(`mail: ${error.name}`)), 60 * 1000);
 job();
 
 // Booking's scheduled work (src/booking/jobs.js): a minute's and a quarter hour's.

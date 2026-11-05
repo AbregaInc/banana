@@ -1,3 +1,4 @@
+import {deliverMailDrafts} from './mail-drafts.js';
 // Cloudflare Workers entry: D1 for the database, waitUntil for work after the response, a Cron
 // Trigger for the job, a Durable Object per space and R2 for blobs (wrangler.toml).
 
@@ -59,6 +60,7 @@ export default {
     const d = deps(env, ctx);
     // At a quarter hour both crons fire, as two invocations: the minute's work runs in one of them only.
     const minute = event.cron !== "*/15 * * * *";
+    if (minute) ctx.waitUntil(deliverMailDrafts(d));
     if (d.config.eventAlerts && minute) ctx.waitUntil(dispatchAlerts(d).then((r) => console.log(`alerts: ${JSON.stringify(r)}`)));
     if (event.cron === "*/15 * * * *") ctx.waitUntil(runJob(d).then((r) => console.log(`job: ${JSON.stringify(r)}`)));
     // Booking: every minute its retries, held invites and reminders; every quarter hour its snapshots and sweeps.

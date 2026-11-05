@@ -12,6 +12,7 @@
 name = "banana-service"
 main = "src/worker.js"
 compatibility_date = "2025-10-01"
+compatibility_flags = ["nodejs_compat"]
 
 # Two deployments of the same code, each with its own database, secrets and Google web client:
 #   wrangler deploy               → api.bananatheapp.com       (Banana, Google project 411369…)

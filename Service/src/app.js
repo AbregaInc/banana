@@ -1,3 +1,4 @@
+import {parseMailDraftRequest,mailDraft} from './mail-drafts.js';
 import {parseMailOperation,mailOperation} from "./mail-operation.js";
 import {parseMailRead,mailRead} from "./mail-read.js";
 import {connectMail} from "./mail-grant.js";
@@ -323,6 +324,14 @@ export function createApp(deps) {
   }
 
   app.get("/v1/account", signedIn, async (c) => c.json(await summary(c.get("account"))));
+
+  app.post("/v1/mail/draft", signedIn, async (c) => {
+    c.header("Cache-Control","no-store");
+    const request=parseMailDraftRequest(await readJson(c,520 * 1024));
+    if(!request)return c.json({error:"bad_request"},400);
+    const answer=await mailDraft(deps,vault,c.get("account"),request);
+    return c.json(answer.body,answer.status);
+  });
 
   app.post("/v1/mail/operation", signedIn, async (c) => {
     c.header("Cache-Control","no-store");
