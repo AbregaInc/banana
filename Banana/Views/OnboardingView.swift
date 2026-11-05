@@ -604,7 +604,7 @@ struct CalendarPrimer: View {
                    tint: DS.Palette.Brand.blue),
             Reason(symbol: "calendar.badge.plus", text: "Changes here save to Google",
                    tint: DS.Palette.Brand.green),
-            Reason(symbol: "lock.fill", text: "No Banana server in between",
+            Reason(symbol: "arrow.triangle.2.circlepath", text: "Sync through Banana Cloud",
                    tint: DS.Palette.Brand.purple),
         ])
     }
