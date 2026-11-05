@@ -25,7 +25,7 @@ export const HOUR = 60 * 60 * 1000;
 export const DAY = 24 * HOUR;
 
 export function device(id, overrides = {}) {
-  return { id, platform: "iphone", push: null, pushEnv: "production", bundle: "app.banana.Banana", ...overrides };
+  return { id, platform: "iphone", push: null, pushEnv: "production", bundle: "app.banana.Banana", providerProtocol: 1, ...overrides };
 }
 export const pushToken = (n) => String(n).repeat(64).slice(0, 64);
 

@@ -16,11 +16,12 @@ def statement(account, feature, enabled, expires_at, now):
         raise ValueError('Invalid account identifier')
     if feature not in ('email', 'calendarCloud'):
         raise ValueError('Unknown feature')
+    ready = " AND NOT EXISTS (SELECT 1 FROM devices WHERE account_id=accounts.id AND provider_protocol<1)" if enabled else ""
     expiry = 'NULL' if expires_at is None else str(int(expires_at))
     if enabled and expires_at is not None and expires_at <= now:
         raise ValueError('Grant expiry must be in the future')
     return f"""INSERT INTO feature_access (account_id, feature, enabled, expires_at, updated_at)
-SELECT id, '{feature}', {int(enabled)}, {expiry}, {int(now)} FROM accounts WHERE id = '{account}'
+SELECT id, '{feature}', {int(enabled)}, {expiry}, {int(now)} FROM accounts WHERE id = '{account}'{ready}
 ON CONFLICT(account_id, feature) DO UPDATE SET enabled=excluded.enabled,
 expires_at=excluded.expires_at, updated_at=excluded.updated_at;
 SELECT changes() AS accounts_updated;
@@ -55,7 +56,7 @@ def main():
         if args.environment == 'beta':
             command += ['--env', 'beta']
         subprocess.run(command, cwd=SERVICE, check=True)
-    print('Check accounts_updated is 1; 0 means this account does not exist in the selected environment.')
+    print('Check accounts_updated is 1; 0 means the account is missing or a registered device needs an upgrade.')
 
 
 if __name__ == '__main__':

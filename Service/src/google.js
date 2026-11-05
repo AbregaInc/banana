@@ -139,6 +139,72 @@ export function createGoogle(config, fetchImpl, now = Date.now) {
       return remember(refreshToken, body);
     },
 
+    async mailMessage(accessToken,id) {
+      const response=await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${encodeURIComponent(id)}?format=minimal`,{
+        headers:{authorization:`Bearer ${accessToken}`},redirect:'error',
+      });
+      if(!response.ok)throw new GoogleError('mail message unavailable',response.status);
+      const body=await response.json();
+      if(body?.id!==id||!Array.isArray(body.labelIds))throw new GoogleError('mail message invalid',502);
+      return body;
+    },
+
+    async mailMutation(accessToken,request) {
+      const response=await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${encodeURIComponent(request.id)}/${request.action}`,{
+        method:'POST',headers:{authorization:`Bearer ${accessToken}`,'content-type':'application/json'},redirect:'error',
+        body:request.action==='modify'?JSON.stringify({addLabelIds:request.add,removeLabelIds:request.remove}):undefined,
+      });
+      const body=await response.json();
+      if(!body||typeof body!=='object'||Array.isArray(body)||(response.ok&&(body.id!==request.id||!Array.isArray(body.labelIds))))throw new GoogleError('mail mutation response invalid',502);
+      return {status:response.status,body};
+    },
+
+    /** Typed Gmail reads use only the service grant; no provider token reaches a client. */
+    async mailRead(accessToken, request) {
+      const resource = {profile:'profile',labels:'labels',messages:'messages',history:'history',
+        message:'messages',thread:'threads',attachment:'messages'}[request.resource];
+      let path = resource;
+      if (request.id) path += '/' + encodeURIComponent(request.id);
+      if (request.attachmentID) path += '/attachments/' + encodeURIComponent(request.attachmentID);
+      const query = new URLSearchParams(request.query.map(({name,value}) => [name,value]));
+      const response = await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/${path}?${query}`, {
+        headers:{authorization:`Bearer ${accessToken}`},redirect:'error',
+      });
+      // Bound provider bodies before decoding; large attachments fail explicitly rather than
+      // exhausting the worker or returning a truncated success to the native cache.
+      const cap = response.ok ? 40 * 1024 * 1024 : 64 * 1024;
+      if (Number(response.headers.get('content-length')) > cap) throw new GoogleError('mail response too large',502);
+      let size=0;
+      const stream=response.body.pipeThrough(new TransformStream({
+        transform(chunk,controller) {
+          size+=chunk.byteLength;
+          if(size>cap)throw new GoogleError('mail response too large',502);
+          controller.enqueue(chunk);
+        },
+      }));
+      return {status:response.status,stream};
+    },
+
+    /** One journaled native mutation. The caller owns durability and ambiguous-outcome recovery. */
+    async calendarMutation(accessToken, request) {
+      let path = `/calendars/${encodeURIComponent(request.calendarID)}/events`;
+      if (request.eventID) path += `/${encodeURIComponent(request.eventID)}`;
+      if (request.action === 'move') path += '/move';
+      const query = new URLSearchParams(request.query.map(({name,value}) => [name,value]));
+      if (request.destination) query.set('destination', request.destination);
+      const headers = {authorization: `Bearer ${accessToken}`};
+      if (request.body) headers['content-type'] = 'application/json';
+      if (request.ifMatch) headers['if-match'] = request.ifMatch;
+      const response = await fetch(`${CALENDAR}${path}?${query}`, {
+        method: {insert:'POST',patch:'PATCH',delete:'DELETE',move:'POST'}[request.action],
+        headers, body: request.body ? JSON.stringify(request.body) : undefined, redirect:'error',
+      });
+      if (response.status === 204) return {status:204,body:null};
+      const body = await response.json();
+      if (!body || typeof body !== 'object' || Array.isArray(body) || (response.ok && (typeof body.id !== 'string' || !body.id))) throw new GoogleError('calendar mutation response invalid',502);
+      return {status:response.status,body};
+    },
+
     /** One typed native read. Preserve provider errors; malformed success must never clear a cache. */
     async calendarRead(accessToken, request) {
       let path;

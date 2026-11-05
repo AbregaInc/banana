@@ -1,6 +1,10 @@
+import {parseMailOperation,mailOperation} from "./mail-operation.js";
+import {parseMailRead,mailRead} from "./mail-read.js";
+import {connectMail} from "./mail-grant.js";
+import { parseCalendarOperation, calendarOperation } from "./calendar-operation.js";
 import { parseCalendarRead, calendarRead } from "./calendar-read.js";
 import { readCalendarWindow, readCalendarSnapshot, validCalendarWindow } from './calendar-window.js';
-import { featureAllowed, featurePolicy, googleCapabilities } from "./feature-access.js";
+import { featureAllowed, featurePolicy, linkedGoogleCapabilities } from "./feature-access.js";
 // The Banana service's HTTP API (docs/design/ACCOUNTS.md). No platform code: everything outside
 // comes in through `deps`, so the same app runs on Workers (src/worker.js) and Node (src/node.js).
 //
@@ -75,7 +79,9 @@ export function parseDevice(input, id = input?.id) {
   if (push !== null && (typeof push !== "string" || !/^[0-9A-Fa-f]{16,200}$/.test(push))) return null;
   if (!["development", "production"].includes(input.pushEnv)) return null;
   if (typeof input.bundle !== "string" || !/^[A-Za-z0-9.-]{3,100}$/.test(input.bundle)) return null;
-  return { id, platform: input.platform, push: push && push.toLowerCase(), pushEnv: input.pushEnv, bundle: input.bundle };
+  const providerProtocol = input.providerProtocol ?? 0;
+  if (!Number.isInteger(providerProtocol) || providerProtocol < 0 || providerProtocol > 100) return null;
+  return { id, platform: input.platform, push: push && push.toLowerCase(), pushEnv: input.pushEnv, bundle: input.bundle, providerProtocol };
 }
 
 /** A push to every device of the account (but `except`), recording what APNs said of each
@@ -185,13 +191,13 @@ export function createApp(deps) {
   function deviceStatements(device, account) {
     const t = now();
     const out = [{
-      sql: `INSERT INTO devices (id, account_id, platform, push_token, push_env, bundle, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)
+      sql: `INSERT INTO devices (id, account_id, platform, push_token, push_env, bundle, updated_at, provider_protocol) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT (id) DO UPDATE SET account_id = excluded.account_id, platform = excluded.platform,
-              push_token = excluded.push_token, push_env = excluded.push_env, bundle = excluded.bundle, updated_at = excluded.updated_at,
+              push_token = excluded.push_token, push_env = excluded.push_env, bundle = excluded.bundle, updated_at = excluded.updated_at, provider_protocol = excluded.provider_protocol,
               seeded_types = CASE WHEN devices.account_id = excluded.account_id THEN devices.seeded_types END,
               seeded_at = CASE WHEN devices.account_id = excluded.account_id THEN devices.seeded_at END,
               flipped_at = CASE WHEN devices.account_id = excluded.account_id THEN devices.flipped_at END`,
-      params: [device.id, account, device.platform, device.push, device.pushEnv, device.bundle, t],
+      params: [device.id, account, device.platform, device.push, device.pushEnv, device.bundle, t, device.providerProtocol],
     }];
     // A push token reaches one device: an older row holding it (a reinstall) lets go of it.
     if (device.push) out.push({ sql: "UPDATE devices SET push_token = NULL WHERE push_token = ? AND id <> ?", params: [device.push, device.id] });
@@ -201,15 +207,16 @@ export function createApp(deps) {
   async function summary(account) {
     const links = await db.all(
       `SELECT g.email, g.status, g.scopes, g.refresh_token IS NOT NULL AS has_token,
+              m.status AS mail_status, m.scopes AS mail_scopes, m.refresh_token IS NOT NULL AS mail_has_token,
               (SELECT COUNT(*) FROM watches w WHERE w.google_sub = g.sub AND w.status = 'live' AND w.expires_at > ?) AS watching
-       FROM google_links g WHERE g.account_id = ? AND g.status <> 'unlinked' ORDER BY g.created_at, g.email`, now(), account);
+       FROM google_links g LEFT JOIN mail_grants m ON m.google_sub = g.sub WHERE g.account_id = ? AND g.status <> 'unlinked' ORDER BY g.created_at, g.email`, now(), account);
     const devices = await db.first("SELECT COUNT(*) AS n FROM devices WHERE account_id = ?", account);
     return {
       id: account,
       // access: the service holds working Google access of its own for this link (a sealed
       // refresh token from a code sign-in, not refused). Without it the app asks the person to
       // sign in again, so the service can read events and send alerts itself.
-      google: links.map((l) => ({ email: l.email, status: l.status, watching: Number(l.watching), access: Boolean(l.has_token) && l.status === "ok", capabilities: googleCapabilities(l) })),
+      google: links.map((l) => ({ email: l.email, status: l.status, watching: Number(l.watching), access: Boolean(l.has_token) && l.status === "ok", capabilities: linkedGoogleCapabilities(l) })),
       devices: Number(devices?.n ?? 0),
       featureAccess: await featurePolicy(deps, account),
       ...(await syncSummary(deps, account)),
@@ -317,7 +324,51 @@ export function createApp(deps) {
 
   app.get("/v1/account", signedIn, async (c) => c.json(await summary(c.get("account"))));
 
-  // No native client cutover is implied by eligibility. This is a read-only parity contract.
+  app.post("/v1/mail/operation", signedIn, async (c) => {
+    c.header("Cache-Control","no-store");
+    const request = parseMailOperation(await readJson(c,64 * 1024));
+    if (!request) return c.json({error:"bad_request"},400);
+    const answer = await mailOperation(deps,vault,c.get("account"),request);
+    return c.json(answer.body,answer.status);
+  });
+
+  app.post("/v1/mail/read", signedIn, async (c) => {
+    c.header("Cache-Control","no-store");
+    const request = parseMailRead(await readJson(c,64 * 1024));
+    if (!request) return c.json({error:"bad_request"},400);
+    const answer = await mailRead(deps,vault,c.get("account"),request);
+    return answer.stream ? c.body(answer.stream,answer.status,{"Content-Type":"application/json"}) : c.json(answer.body,answer.status);
+  });
+
+  app.post("/v1/google/mail", signedIn, async (c) => {
+    const body = await readJson(c,4096);
+    if (typeof body?.code !== "string" || !body.code || body.code.length > 2048 || typeof body.email !== "string")
+      return c.json({error:"bad_request"},400);
+    const answer = await connectMail(deps,vault,c.get("account"),body.code,body.email);
+    c.header("Cache-Control","no-store");
+    return c.json(answer,answer.status);
+  });
+
+  app.delete("/v1/google/mail", signedIn, async (c) => {
+    const body = await readJson(c,4096);
+    if (typeof body?.email !== "string") return c.json({error:"bad_request"},400);
+    const link = await linkByEmail(c.get("account"),body.email);
+    if (!link) return c.json({error:"unknown_google"},404);
+    // Forget Mail access only. Revoking at Google could also revoke working Calendar consent.
+    await db.run(`INSERT INTO mail_grants(google_sub,refresh_token,scopes,client_id,status,granted_at,updated_at)
+      VALUES (?,NULL,'','','unlinked',?,?) ON CONFLICT(google_sub) DO UPDATE SET refresh_token=NULL,status='unlinked',updated_at=excluded.updated_at`,link.sub,now(),now());
+    return c.body(null,204);
+  });
+
+  app.post("/v1/calendar/operation", signedIn, async (c) => {
+    c.header("Cache-Control", "no-store");
+    const request = parseCalendarOperation(await readJson(c, 256 * 1024));
+    if (!request) return c.json({error:"bad_request"},400);
+    const answer = await calendarOperation(deps, vault, c.get("account"), request);
+    return answer.status === 204 ? c.body(null,204) : c.json(answer.body,answer.status);
+  });
+
+  // Provider reads use the current account grant; writes have a separate durable operation route.
   app.post("/v1/calendar/read", signedIn, async (c) => {
     c.header("Cache-Control", "no-store");
     const account = c.get("account");
