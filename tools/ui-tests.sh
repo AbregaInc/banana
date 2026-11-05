@@ -99,9 +99,18 @@ hard_limit="${UI_HARD_TIMEOUT:-300}"
 case_started=$started
 last_case=""
 watchdog_failed=0
-# A finished run sometimes leaves xcodebuild waiting: stop it once the result is written.
+# A completion banner can precede result-bundle finalization. Give Xcode time to flush it.
+finished_at=0
 while kill -0 $runner 2>/dev/null; do
-  LC_ALL=C grep -aqE '\*\* TEST (SUCCEEDED|FAILED|EXECUTE FAILED) \*\*|Testing failed:' "$log" && { sleep 2; kill $runner 2>/dev/null; break; }
+  if LC_ALL=C grep -aqE '\*\* TEST (SUCCEEDED|FAILED|EXECUTE FAILED) \*\*|Testing failed:' "$log"; then
+    [ "$finished_at" -ne 0 ] || finished_at=$(date +%s)
+    if [ $(( $(date +%s) - finished_at )) -gt 60 ]; then
+      echo "FAILED: Xcode did not exit after result finalization grace period" | tee -a "$log"
+      watchdog_failed=1
+      kill $runner 2>/dev/null
+      break
+    fi
+  fi
   latest_case=$(LC_ALL=C grep -a 'Test Case .*started\.' "$log" | tail -1)
   if [ "$latest_case" != "$last_case" ]; then
     last_case="$latest_case"
@@ -111,7 +120,7 @@ while kill -0 $runner 2>/dev/null; do
   # Also bound runner startup, before the first case has begun.
   # Parallel runners interleave case output; only a serial log identifies which
   # individual case is active. Keep XCTest's own limits for parallel runs.
-  if [ "$workers" -eq 1 ] && [ $(( $(date +%s) - case_started )) -gt "$hard_limit" ]; then
+  if [ "$finished_at" -eq 0 ] && [ "$workers" -eq 1 ] && [ $(( $(date +%s) - case_started )) -gt "$hard_limit" ]; then
     echo "FAILED: UI runner exceeded ${hard_limit}s: ${last_case:-runner startup}" | tee -a "$log"
     watchdog_failed=1
     kill $runner 2>/dev/null
