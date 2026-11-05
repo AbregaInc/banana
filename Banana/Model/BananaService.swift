@@ -150,6 +150,7 @@ enum BananaService {
         case identity(idToken: String, device: Device)
         case account
         case calendarSnapshot(from: Int64, to: Int64)
+        case calendarRead(CloudCalendarRequest)
         /// Deleting needs a fresh Google sign-in's one-time code: a session alone never deletes.
         case deleteAccount(code: String)
         case device(Device)
@@ -308,6 +309,8 @@ enum BananaService {
                 return ("POST", "/v1/google/identity", encode(["idToken": idToken, "device": deviceJSON(device)]))
             case .account:
                 return ("GET", "/v1/account", nil)
+            case .calendarRead(let read):
+                return ("POST", "/v1/calendar/read", try? JSONEncoder().encode(read))
             case .calendarSnapshot(let from, let to):
                 return ("GET", "/v1/calendar/snapshot?from=\(from)&to=\(to)", nil)
             case .channels:

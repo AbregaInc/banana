@@ -439,6 +439,20 @@ final class BananaAccount: ObservableObject {
         return (data, status)
     }
 
+    func calendarRead(url: URL, email: String, context: String) async throws -> (Data, Int) {
+        try Task.checkCancellation()
+        guard let requestSession = session, FeatureAccessStore.shared.calendarReadContext == context else {
+            throw CloudCalendarSnapshot.Failure.contextChanged
+        }
+        let read = try CloudCalendarRequest(url: url, email: email)
+        guard let answer = await send(.calendarRead(read)) else { throw CloudCalendarSnapshot.Failure.unavailable }
+        try Task.checkCancellation()
+        guard session == requestSession, FeatureAccessStore.shared.calendarReadContext == context else {
+            throw CloudCalendarSnapshot.Failure.contextChanged
+        }
+        return answer
+    }
+
     /// Read through the service's Google grant. This does not change native cache/write ownership.
     /// A response from an earlier session must never enter the current account's calendar.
     func calendarSnapshot(from: Date, to: Date) async throws -> CloudCalendarSnapshot {

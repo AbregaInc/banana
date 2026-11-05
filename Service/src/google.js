@@ -139,6 +139,28 @@ export function createGoogle(config, fetchImpl, now = Date.now) {
       return remember(refreshToken, body);
     },
 
+    /** One typed native read. Preserve provider errors; malformed success must never clear a cache. */
+    async calendarRead(accessToken, request) {
+      let path;
+      if (request.resource === 'calendarList') path = '/users/me/calendarList';
+      else if (request.resource === 'acl') path = `/calendars/${encodeURIComponent(request.calendarID)}/acl`;
+      else {
+        path = `/calendars/${encodeURIComponent(request.calendarID)}/events`;
+        if (request.eventID) path += `/${encodeURIComponent(request.eventID)}`;
+        if (request.resource === 'instances') path += '/instances';
+      }
+      const query = new URLSearchParams(request.query.map(item => [item.name, item.value]));
+      if (!query.has('maxResults') && ['events','instances','calendarList'].includes(request.resource))
+        query.set('maxResults', request.resource === 'calendarList' ? '250' : '2500');
+      const response = await fetch(`${CALENDAR}${path}?${query}`, {
+        headers: { authorization: `Bearer ${accessToken}` }, redirect: 'error',
+      });
+      let body;
+      try { body = await response.json(); } catch { throw new GoogleError('calendar response unreadable', 502); }
+      if (!body || typeof body !== 'object' || Array.isArray(body)) throw new GoogleError('calendar response invalid', 502);
+      return { status: response.status, body };
+    },
+
     /**
      * The events of a calendar: a full read between `timeMin` and `timeMax`, or only what changed
      * since `syncToken` (deletions included, as cancelled events). Every page. The parameters match

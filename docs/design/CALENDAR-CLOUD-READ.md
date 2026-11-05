@@ -50,3 +50,31 @@ after session/account changes or eligibility expiry. The decoder checks version/
 retains the original provider models. This is a transport integration only: no automatic call,
 cache replacement, read cutover or write ownership change is enabled yet. Durable cache
 reconciliation and failure/offline acceptance are prerequisites for enabling native cloud reads.
+
+
+## Native incremental transport
+
+`POST /v1/calendar/read` is the native incremental read path. It accepts a typed resource
+(`calendarList`, `events`, `event`, `instances`, or `acl`), linked Google email, resource IDs
+and allowlisted query items. The Banana session selects the account; the current service
+feature grant authorizes each request. URLs, HTTP methods and provider credentials are not
+accepted from clients. Provider requests remain fixed to Google's Calendar API.
+
+For eligible accounts, `GoogleCalendarService` uses this transport for calendar lists, details,
+searches and incremental event reads. Existing native windows, caches, normalization and failed
+read retention remain in place. This avoids splitting the native 114-day working window into
+many eight-day snapshots. `/snapshot` and `/window` remain separate bounded contracts.
+
+Page and sync tokens are encrypted, expire, and are bound to the Banana account, Google grant,
+calendar, resource and applicable query parameters. Reconnecting invalidates old cursors.
+A direct/cloud transition rejects the previous transport's cursor and performs a full read;
+Google's 410 response does the same. Partial or malformed responses do not become empty-success
+reads. Responses arriving after the captured account/session/eligibility context changes are
+rejected before application. Provider write ownership is unchanged.
+
+Validation: 337 service tests pass in each of UTC and America/New_York; the focused native
+read/policy/sync suite passed 79 tests; the complete Mac TestFlight configuration compiled.
+Evidence is retained privately under `private/cloud-rollout/calendar-read-*`. The earlier
+persistent component run remains failed, with resource-monitor gaps and RSS budget failures;
+no performance baseline or gate was changed. Live Google reads, device integration and complete
+write ownership migration remain unverified. No production grant is enabled by this change.

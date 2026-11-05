@@ -752,8 +752,15 @@ final class GoogleCalendarService: ObservableObject {
         let task = Task { @MainActor [weak self] in
             guard let self else { return }
             let startedAt = Date()
+            let readContext = FeatureAccessStore.shared.calendarReadContext
             await self.loadDiskSnapshots(for: readable.map(\.id))
             let results = await self.syncCalendars(readable, window: window)
+            guard readContext == FeatureAccessStore.shared.calendarReadContext else {
+                self.coreFailures = Dictionary(uniqueKeysWithValues: readable.map { ($0.id, "Account changed during Calendar read") })
+                self.coreFetchedAt = nil
+                self.coreRead = nil
+                return
+            }
             var failures: [String: String] = [:]
             var toSave: [(String, GoogleEventSync.Snapshot)] = []
             var news = false
@@ -947,12 +954,13 @@ final class GoogleCalendarService: ObservableObject {
     private func readCalendars(_ calendars: [GoogleCalendar], from start: Date,
                                to end: Date) async -> [String: Result<[GoogleEvent], Error>] {
         var results: [String: Result<[GoogleEvent], Error>] = [:]
-        var requests: [(id: String, url: URL, token: String)] = []
+        let readContext = FeatureAccessStore.shared.calendarReadContext
+        var requests: [(id: String, url: URL, authorization: GoogleCalendarReadAuthorization)] = []
         for calendar in calendars {
             do {
-                let token = try await accessToken(forCalendarID: calendar.id)
+                let authorization = try await readAuthorization(calendar: calendar)
                 requests.append((calendar.id, Self.eventsListURL(calendarID: calendar.id,
-                                                                 from: start, to: end), token))
+                                                                 from: start, to: end), authorization))
             } catch {
                 results[calendar.id] = .failure(error)
             }
@@ -962,7 +970,7 @@ final class GoogleCalendarService: ObservableObject {
             (request.id, Task.detached(priority: .userInitiated) { () -> Result<[GoogleEvent], Error> in
                 do {
                     return .success(try await Self.fetchAllEvents(firstPage: request.url,
-                                                                 token: request.token))
+                                                                 authorization: request.authorization))
                 } catch {
                     return .failure(error)
                 }
@@ -971,6 +979,9 @@ final class GoogleCalendarService: ObservableObject {
         var fetched: [(String, Result<[GoogleEvent], Error>)] = []
         for (id, task) in running {
             fetched.append((id, await task.value))
+        }
+        guard readContext == FeatureAccessStore.shared.calendarReadContext else {
+            return Dictionary(uniqueKeysWithValues: calendars.map { ($0.id, .failure(CloudCalendarSnapshot.Failure.contextChanged)) })
         }
         lastReadTrace = "calendars \(calendars.count), token failures \(results.count), requests \(requests.count), answers \(fetched.count)"
         for (id, result) in fetched {
@@ -1069,13 +1080,13 @@ final class GoogleCalendarService: ObservableObject {
 
     /// Every page of an events list, off the main actor — a busy calendar is thousands of events
     /// of JSON, and decoding it is not work the UI should wait behind.
-    nonisolated private static func fetchAllEvents(firstPage: URL, token: String) async throws -> [GoogleEvent] {
-        try await fetchAllPages(firstPage: firstPage, token: token).events
+    nonisolated private static func fetchAllEvents(firstPage: URL, authorization: GoogleCalendarReadAuthorization) async throws -> [GoogleEvent] {
+        try await fetchAllPages(firstPage: firstPage, authorization: authorization).events
     }
 
     /// Every page of a list, and the sync token the last page carries (if the request can be
     /// continued incrementally).
-    nonisolated private static func fetchAllPages(firstPage: URL, token: String) async throws
+    nonisolated private static func fetchAllPages(firstPage: URL, authorization: GoogleCalendarReadAuthorization) async throws
         -> (events: [GoogleEvent], syncToken: String?) {
         var events: [GoogleEvent] = []
         var syncToken: String?
@@ -1088,14 +1099,7 @@ final class GoogleCalendarService: ObservableObject {
                     + [URLQueryItem(name: "pageToken", value: pageToken)]
                 url = components.url ?? firstPage
             }
-            var request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData)
-            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-            let (data, response) = try await URLSession.shared.data(for: request)
-            guard let http = response as? HTTPURLResponse else { throw GoogleCalendarError.malformedResponse }
-            guard (200..<300).contains(http.statusCode) else {
-                let message = (try? JSONDecoder().decode(GoogleAPIErrorEnvelope.self, from: data))?.error.message
-                throw GoogleCalendarError.api(status: http.statusCode, message: message)
-            }
+            let data = try await readData(url: url, authorization: authorization)
             guard let page = try? JSONDecoder().decode(GoogleEventsResponse.self, from: data) else {
                 throw GoogleCalendarError.malformedResponse
             }
@@ -1104,6 +1108,35 @@ final class GoogleCalendarService: ObservableObject {
             syncToken = page.nextSyncToken ?? syncToken
         } while pageToken != nil
         return (events, syncToken)
+    }
+
+    private func readAuthorization(calendar: GoogleCalendar) async throws -> GoogleCalendarReadAuthorization {
+        if let context = FeatureAccessStore.shared.calendarReadContext {
+            return .cloud(email: calendar.accountEmail, context: context)
+        }
+        return .direct(try await accessToken(forCalendarID: calendar.id))
+    }
+
+    nonisolated private static func readData(url: URL, authorization: GoogleCalendarReadAuthorization) async throws -> Data {
+        try Task.checkCancellation()
+        let data: Data
+        let status: Int
+        switch authorization {
+        case .cloud(let email, let context):
+            (data, status) = try await BananaAccount.shared.calendarRead(url: url, email: email, context: context)
+        case .direct(let token):
+            var request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData)
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+            let answer = try await URLSession.shared.data(for: request)
+            guard let http = answer.1 as? HTTPURLResponse else { throw GoogleCalendarError.malformedResponse }
+            data = answer.0; status = http.statusCode
+        }
+        guard (200..<300).contains(status) else {
+            let message = (try? JSONDecoder().decode(GoogleAPIErrorEnvelope.self, from: data))?.error.message
+            throw GoogleCalendarError.api(status: status, message: message)
+        }
+        try Task.checkCancellation()
+        return data
     }
 
     // MARK: - Incremental sync
@@ -1136,10 +1169,11 @@ final class GoogleCalendarService: ObservableObject {
     private func syncCalendars(_ calendars: [GoogleCalendar],
                                window: (start: Date, end: Date)) async -> [String: Result<SyncOutcome, Error>] {
         var results: [String: Result<SyncOutcome, Error>] = [:]
-        var requests: [(id: String, token: String, previous: GoogleEventSync.Snapshot?)] = []
+        let readContext = FeatureAccessStore.shared.calendarReadContext
+        var requests: [(id: String, authorization: GoogleCalendarReadAuthorization, previous: GoogleEventSync.Snapshot?)] = []
         for calendar in calendars {
             do {
-                requests.append((calendar.id, try await accessToken(forCalendarID: calendar.id),
+                requests.append((calendar.id, try await readAuthorization(calendar: calendar),
                                  eventCache[calendar.id]))
             } catch {
                 results[calendar.id] = .failure(error)
@@ -1149,7 +1183,7 @@ final class GoogleCalendarService: ObservableObject {
         let running = requests.map { request in
             (request.id, Task.detached(priority: .userInitiated) { () -> Result<SyncOutcome, Error> in
                 do {
-                    return .success(try await Self.sync(calendarID: request.id, token: request.token,
+                    return .success(try await Self.sync(calendarID: request.id, authorization: request.authorization,
                                                         previous: request.previous, window: window, now: now))
                 } catch {
                     return .failure(error)
@@ -1174,18 +1208,21 @@ final class GoogleCalendarService: ObservableObject {
             }
             results[id] = result
         }
+        guard readContext == FeatureAccessStore.shared.calendarReadContext else {
+            return Dictionary(uniqueKeysWithValues: calendars.map { ($0.id, .failure(CloudCalendarSnapshot.Failure.contextChanged)) })
+        }
         lastSyncTrace = trace
         return results
     }
 
-    nonisolated private static func sync(calendarID: String, token: String,
+    nonisolated private static func sync(calendarID: String, authorization: GoogleCalendarReadAuthorization,
                                          previous: GoogleEventSync.Snapshot?,
                                          window: (start: Date, end: Date), now: Date) async throws -> SyncOutcome {
         if let previous, GoogleEventSync.canContinue(previous, window: window, now: now),
-           let syncToken = previous.syncToken {
+           let syncToken = previous.syncToken, authorization.accepts(cursor: syncToken) {
             do {
                 let page = try await fetchAllPages(firstPage: incrementalURL(calendarID: calendarID, syncToken: syncToken),
-                                                   token: token)
+                                                   authorization: authorization)
                 var snapshot = previous
                 snapshot.events = GoogleEventSync.apply(page.events, to: previous.events)
                 snapshot.fetchedAt = now
@@ -1197,7 +1234,7 @@ final class GoogleCalendarService: ObservableObject {
             }
         }
         let page = try await fetchAllPages(firstPage: syncListURL(calendarID: calendarID, from: window.start, to: window.end),
-                                           token: token)
+                                           authorization: authorization)
         let live = page.events.filter { $0.status != "cancelled" }
         let snapshot = GoogleEventSync.Snapshot(start: window.start, end: window.end, fetchedAt: now,
                                                 fullReadAt: now, syncToken: page.syncToken, events: live)
@@ -2166,6 +2203,7 @@ final class GoogleCalendarService: ObservableObject {
             Task.detached(priority: .utility) { GoogleEventDiskCache.prune(keeping: []) }
             return
         }
+        let readContext = FeatureAccessStore.shared.calendarReadContext
         var merged: [GoogleCalendar] = []
         var failures: [String] = []
         var unreadable: Set<String> = []
@@ -2191,6 +2229,9 @@ final class GoogleCalendarService: ObservableObject {
                 // read as empty — the first step of every mass deletion so far.
                 merged += calendars.filter { $0.accountEmail.lowercased() == account.id }
             }
+        }
+        guard readContext == FeatureAccessStore.shared.calendarReadContext else {
+            throw CloudCalendarSnapshot.Failure.contextChanged
         }
         accountsWithUnreadableCalendars = unreadable
         calendarsLoadedAt = Date()
@@ -2405,6 +2446,10 @@ final class GoogleCalendarService: ObservableObject {
         guard AppVariant.current.mayCallGoogle(method: method, account: owner(of: url, account: account)?.id,
                                                testAccounts: BetaTestAccounts.all) else {
             throw GoogleCalendarError.betaReadOnly
+        }
+        if method == "GET", let context = FeatureAccessStore.shared.calendarReadContext {
+            guard let email = owner(of: url, account: account)?.id else { throw GoogleCalendarError.notConnected }
+            return try await Self.readData(url: url, authorization: .cloud(email: email, context: context))
         }
         var attempt = 0
         while true {

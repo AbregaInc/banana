@@ -1,3 +1,4 @@
+import { parseCalendarRead, calendarRead } from "./calendar-read.js";
 import { readCalendarWindow, readCalendarSnapshot, validCalendarWindow } from './calendar-window.js';
 import { featureAllowed, featurePolicy, googleCapabilities } from "./feature-access.js";
 // The Banana service's HTTP API (docs/design/ACCOUNTS.md). No platform code: everything outside
@@ -317,6 +318,16 @@ export function createApp(deps) {
   app.get("/v1/account", signedIn, async (c) => c.json(await summary(c.get("account"))));
 
   // No native client cutover is implied by eligibility. This is a read-only parity contract.
+  app.post("/v1/calendar/read", signedIn, async (c) => {
+    c.header("Cache-Control", "no-store");
+    const account = c.get("account");
+    if (!(await featureAllowed(deps, account, "calendarCloud"))) return c.json({ error: "feature_unavailable" }, 403);
+    const request = parseCalendarRead(await readJson(c, 64 * 1024));
+    if (!request) return c.json({ error: "bad_request" }, 400);
+    const answer = await calendarRead(deps, vault, account, request);
+    return c.json(answer.body, answer.status);
+  });
+
   app.get("/v1/calendar/window", signedIn, async (c) => {
     c.header("Cache-Control", "no-store");
     const account = c.get("account");

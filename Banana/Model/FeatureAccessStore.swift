@@ -36,6 +36,12 @@ final class FeatureAccessStore: ObservableObject {
         cached?.allows(feature, context: context, now: Date()) == true
     }
 
+    /// Opaque session/account binding for reads that may span several provider pages.
+    var calendarReadContext: String? {
+        guard allows("calendarCloud"), let cached else { return nil }
+        return cached.context + ":" + cached.account
+    }
+
     private func publish() {
         Self.network.update(cached, context: context)
         expiry?.cancel()
