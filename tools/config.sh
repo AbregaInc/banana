@@ -52,3 +52,19 @@ banana_require_dev() {
       return 1;;
   esac
 }
+
+# Use the configured signing key when Xcode has no interactive developer login.
+# Explicit AUTH_ARGS remains available to existing callers.
+banana_xcodebuild() {
+  if [ -n "${AUTH_ARGS:-}" ]; then
+    # Legacy callers supply an argument list, not executable shell code.
+    command xcodebuild $AUTH_ARGS "$@"
+  elif [ -n "${ASC_KEY_ID:-}" ] && [ -n "${ASC_ISSUER_ID:-}" ]; then
+    _banana_signing_key="${ASC_KEY_PATH:-$HOME/.appstoreconnect/private_keys/AuthKey_$ASC_KEY_ID.p8}"
+    [ -f "$_banana_signing_key" ] || { echo "Configured Apple signing key is missing." >&2; return 1; }
+    command xcodebuild -authenticationKeyPath "$_banana_signing_key" \
+      -authenticationKeyID "$ASC_KEY_ID" -authenticationKeyIssuerID "$ASC_ISSUER_ID" "$@"
+  else
+    command xcodebuild "$@"
+  fi
+}

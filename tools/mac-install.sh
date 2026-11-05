@@ -34,9 +34,9 @@ fi
 # Mac builds support Apple silicon only, including local installs and archives.
 # shellcheck disable=SC2086
 # Dev uses its configured Email build gate; live access still requires account eligibility.
-xcodebuild -jobs "${BUILD_JOBS:-2}" -project Banana.xcodeproj -scheme "$scheme" -configuration "$config" \
+banana_xcodebuild -jobs "${BUILD_JOBS:-2}" -project Banana.xcodeproj -scheme "$scheme" -configuration "$config" \
   ARCHS=arm64 ONLY_ACTIVE_ARCH=YES BANANA_UNRELEASED="$unreleased" \
-  -derivedDataPath .build/mac-install -allowProvisioningUpdates ${AUTH_ARGS:-} $extra -quiet build
+  -derivedDataPath .build/mac-install -allowProvisioningUpdates $extra -quiet build
 
 product=".build/mac-install/Build/Products/$config/$built"
 suffix=""

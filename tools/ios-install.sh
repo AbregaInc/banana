@@ -72,9 +72,9 @@ fi
 
 xcodegen generate
 # Dev uses its configured Email build gate; live access still requires account eligibility.
-xcodebuild -jobs "${BUILD_JOBS:-2}" -project Banana.xcodeproj -scheme "$scheme" -configuration "$config" BANANA_UNRELEASED="$unreleased" \
+banana_xcodebuild -jobs "${BUILD_JOBS:-2}" -project Banana.xcodeproj -scheme "$scheme" -configuration "$config" BANANA_UNRELEASED="$unreleased" \
   -destination "id=$device" -derivedDataPath ".build/ios-$variant" \
-  -allowProvisioningUpdates ${AUTH_ARGS:-} -quiet build
+  -allowProvisioningUpdates -quiet build
 
 built=".build/ios-$variant/Build/Products/$config-iphoneos/$app"
 # What was built is what was meant: the id inside the app, not the one this script expects.
@@ -138,9 +138,9 @@ if [ "$variant" = "prod" ]; then
     esac
     [ -n "$watchUDID" ] && echo "Building the Watch app for $watchUDID…"
     [ -n "$watchUDID" ] \
-      && xcodebuild -jobs "${BUILD_JOBS:-2}" -project Banana.xcodeproj -scheme BananaWatch -configuration "$config" \
+      && banana_xcodebuild -jobs "${BUILD_JOBS:-2}" -project Banana.xcodeproj -scheme BananaWatch -configuration "$config" \
       -destination "id=$watchUDID" -derivedDataPath ".build/ios-$variant-watch" \
-      -allowProvisioningUpdates ${AUTH_ARGS:-} -quiet build \
+      -allowProvisioningUpdates -quiet build \
       && xcrun devicectl device install app --device "$watch" \
            ".build/ios-$variant-watch/Build/Products/$config-watchos/BananaWatch.app" \
       && watch_ok=1
