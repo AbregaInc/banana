@@ -26,3 +26,11 @@ does not introduce a shared cloud mailbox cache or backfill checkpoint.
 
 See [release instructions](../../tools/mac-distribution/RELEASING.md) for identity,
 notarization, channel isolation, CloudKit environment and retention rules.
+
+The same native source was also built as local iOS Beta 1.0.4 (99), with Email
+included and local AI excluded. Installation, launch and the installed version were
+verified on the phone and iPad. This was a direct device installation, not a new
+TestFlight upload. After opening Mail on the iPad, the diagnostic index showed the
+Inbox verification bookmark completed and stale Inbox memberships removed while
+the historical scan remained in progress. No full mailbox catch-up or cross-device
+shared-cache completion is claimed. Device-specific evidence remains private.
