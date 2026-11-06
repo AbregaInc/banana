@@ -3,9 +3,10 @@
 Implementation status: production and staging run `83e7e0f6` with schema 0020.
 Production has no eligibility grants. On 6 November, the existing owner account in staging
 received Calendar Cloud and Email testing access until 13 November, after every registered
-device reported protocol 1. Staging still needs fresh provider consent; eligibility does not
-grant Google permissions or establish a working provider token.
-Primary iOS/iPad and Mac build 95 use `55d675e6`; distribution evidence is recorded in
+device reported protocol 1. The existing Beta account was reconnected on 6 November: staging
+now has a Calendar server token with list/event scopes and status `ok`. Gmail consent and live-provider acceptance
+remain outstanding; eligibility alone does not grant Google permissions.
+Primary iOS/iPad and Mac TestFlight build 97 uses `11ec3140`; distribution evidence is recorded in
 [the rollout plan](CLOUD-AND-RELEASE-PLAN.md). Live-provider and device acceptance remain open.
 Deploy service/schema support before the clients. Guarded Calendar reads/writes and Mail
 reads/label operations exist; complete provider migration and cloud Mail remain unfinished.
@@ -70,7 +71,7 @@ These schemes do not provision those resources or silently fall back to Beta/pro
 The Dev credential services, local root, Bonjour service and Reminders list are separate.
 Google writes still use Beta's test-account safeguards. Signed Mac Dev is installed alongside the
 primary app. Signed Dev `11692682` is installed on both phones, iPad and Mac, with coexistence
-verified. Fresh staging consent and live-provider acceptance remain open.
+verified. Staging Calendar consent is stored; Gmail consent and live-provider acceptance remain open.
 
 Stable and TestFlight share the existing app record, account and data. A TestFlight install
 replaces Stable; groups choose builds, not feature eligibility. The Beta service is staging.

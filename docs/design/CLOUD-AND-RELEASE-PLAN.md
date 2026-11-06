@@ -68,9 +68,10 @@ Reuse the web, notification and booking implementations when establishing a comm
   in place on all three mobile devices and Mac. After the phone became available, staging
   confirmed protocol-1 registrations for all three registered device families. Installing
   Dev beside Beta does not migrate Beta's registration. No device row is removed to bypass this gate.
-- Staging still has no Calendar or Mail provider grant. Fresh interactive consent and live
-  cross-device acceptance remain outstanding. Installation and automated fixture tests do not
-  establish that acceptance.
+- The owner reconnected the existing account in Beta on 6 November. Staging now stores a
+  Calendar server token with Calendar-list and event scopes, status `ok`. Mail still has no
+  provider grant. Live reads and cross-device acceptance remain outstanding; a stored token
+  and automated fixtures do not establish them.
 - The existing owner account in staging has Calendar Cloud and Email testing eligibility until
   13 November. The account was identified from the upgraded Mac's actual device registration;
   no account was created and production eligibility remains off. The administration tool uses
@@ -95,7 +96,7 @@ Reuse the web, notification and booking implementations when establishing a comm
   delivery/timing still requires live acceptance.
 - The seven relative-RSS component failures and missing physical-device performance evidence
   remain open. No baseline or budget has changed. App Store review requirements and fresh
-  staging provider consent remain separate outstanding work; TestFlight availability does not
+  staging Gmail consent remain separate outstanding work; TestFlight availability does not
   establish either acceptance.
 
 The dated checkpoints below preserve earlier stages. This checkpoint supersedes their deployment

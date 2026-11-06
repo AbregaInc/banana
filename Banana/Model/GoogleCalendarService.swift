@@ -395,9 +395,10 @@ final class GoogleCalendarService: ObservableObject {
             let result = try await interactiveSignIn(
                 hint: accounts.isEmpty ? suggestedAccountEmail : nil)
             try accept(result.user)
+            // Cloud reads need the newly granted server credential before the first list request.
+            await BananaAccount.shared.googleSignedIn(code: result.serverAuthCode)
             try await loadCalendars()
             Telemetry.shared.record(.feature(.calendarConnected))
-            await BananaAccount.shared.googleSignedIn(code: result.serverAuthCode)
         } catch is CancellationError {
             // Closing Google's sign-in sheet is not an error worth persisting in Settings.
         } catch {
@@ -436,8 +437,8 @@ final class GoogleCalendarService: ObservableObject {
             accountsNeedingReconnect.remove(email.lowercased())
             reconnectReasons[email.lowercased()] = nil
             tokenCache[email.lowercased()] = nil
-            try await loadCalendars()
             await BananaAccount.shared.googleSignedIn(code: result.serverAuthCode)
+            try await loadCalendars()
         } catch is CancellationError {
         } catch {
             lastError = Self.friendlyMessage(for: error)
