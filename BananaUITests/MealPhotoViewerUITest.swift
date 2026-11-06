@@ -27,7 +27,11 @@ final class MealPhotoViewerUITest: XCTestCase {
     private func tapLoggedMealPhoto(_ app: XCUIApplication) {
         // Below "To log" in a lazy list: scroll until the row exists.
         let row = app.descendants(matching: .any)
-            .matching(NSPredicate(format: "label CONTAINS %@", "Chicken grain bowl")).firstMatch
+            .matching(identifier: "nutrition.meal")
+            // Other tests can leave a logged meal with the same words and no photos.
+            // Choose the photo fixture, not the first meal with its title.
+            .matching(NSPredicate(format: "label CONTAINS %@ AND label CONTAINS %@",
+                                  "Chicken grain bowl", "Photo 1 of 2")).firstMatch
         _ = app.descendants(matching: .any).matching(identifier: "mealPhoto.thumb").firstMatch.waitForExistence(timeout: 10)
         for _ in 0..<6 where !(row.exists && row.isHittable) { app.swipeUp() }
         XCTAssertTrue(row.exists, app.debugDescription)
