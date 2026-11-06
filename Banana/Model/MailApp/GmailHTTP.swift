@@ -3,20 +3,22 @@ import Foundation
 
 /// Native URLSession transport; uses existing forgiving wire decoders without inventing a new HTTP stack.
 /// Streaming limits are enforced before decoding. No automatic retries, cookies or redirects.
-final class GmailHTTP: GmailAPI, @unchecked Sendable {
+final class GmailHTTP: GmailAPI, GmailDraftAPI, @unchecked Sendable {
     final class NoRedirect: NSObject, URLSessionTaskDelegate, @unchecked Sendable {
         func urlSession(_ session: URLSession, task: URLSessionTask,
                         willPerformHTTPRedirection response: HTTPURLResponse, newRequest request: URLRequest,
                         completionHandler: @escaping (URLRequest?) -> Void) { completionHandler(nil) }
     }
     typealias CloudTransport = @Sendable ([String], String, [URLQueryItem], String, Data?) async throws -> Data
+    typealias DraftTransport = @Sendable (String, Data) async throws -> Data
+    private let draftTransport: DraftTransport?
     private let cloudTransport: CloudTransport?
     private let session: URLSession
     private let allowed: @Sendable () -> Bool
     private let maximumBytes: Int
 
     init(configuration: URLSessionConfiguration = .ephemeral, maximumBytes: Int = 40 * 1024 * 1024,
-         cloudTransport: CloudTransport? = nil, networkAllowed: @escaping @Sendable () -> Bool) {
+         cloudTransport: CloudTransport? = nil, draftTransport: DraftTransport? = nil, networkAllowed: @escaping @Sendable () -> Bool) {
         precondition(maximumBytes > 0)
         let config = configuration.copy() as! URLSessionConfiguration
         config.urlCache = nil; config.urlCredentialStorage = nil; config.httpCookieStorage = nil
@@ -25,7 +27,7 @@ final class GmailHTTP: GmailAPI, @unchecked Sendable {
         config.waitsForConnectivity = false; config.httpMaximumConnectionsPerHost = 4
         config.tlsMinimumSupportedProtocolVersion = .TLSv12
         session = URLSession(configuration: config, delegate: NoRedirect(), delegateQueue: nil)
-        allowed = networkAllowed; self.maximumBytes = maximumBytes; self.cloudTransport = cloudTransport
+        allowed = networkAllowed; self.maximumBytes = maximumBytes; self.cloudTransport = cloudTransport; self.draftTransport = draftTransport
     }
     deinit { session.invalidateAndCancel() }
 
@@ -81,6 +83,26 @@ final class GmailHTTP: GmailAPI, @unchecked Sendable {
     }
     func untrash(token: String, id: String) async throws {
         _ = try await send(["messages", id, "untrash"], token: token, method: "POST")
+    }
+
+    func drafts(token: String, pageToken: String?) async throws -> GmailDraftPage {
+        var query = [URLQueryItem(name: "maxResults", value: "100")]
+        if let pageToken { query.append(.init(name: "pageToken", value: pageToken)) }
+        return try await get(["drafts"], token: token, query: query)
+    }
+    func draft(token: String, id: String) async throws -> GmailDraftValue {
+        try await get(["drafts", id], token: token, query: [.init(name: "format", value: "full")])
+    }
+    func mutateDraft(token: String, request: GmailDraftMutation) async throws -> Data {
+        try Task.checkCancellation()
+        guard allowed(), let draftTransport else { throw GmailError.networkDisabled }
+        let body = try JSONEncoder().encode(request)
+        guard body.count <= 520 * 1024 else { throw GmailError.responseTooLarge }
+        let result = try await draftTransport(token, body)
+        try Task.checkCancellation()
+        guard allowed() else { throw GmailError.networkDisabled }
+        guard result.count <= maximumBytes else { throw GmailError.responseTooLarge }
+        return result
     }
 
     private func get<T: Decodable>(_ path: [String], token: String, query: [URLQueryItem] = []) async throws -> T {

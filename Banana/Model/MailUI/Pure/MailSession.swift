@@ -282,8 +282,12 @@ final class MailSession {
                 showToast(MailToast(text: MailToastText.reason(for: failure), action: nil)); return
             }
             revert(entry, because: .refused(failure))
+        case .draftNotSaved(_, let problem):
+            showToast(MailToastText.notSaved(on: deviceName, problem: problem))
+        case .sendFailed(_, let failure):
+            showToast(MailToast(text: MailToastText.reason(for: failure), action: nil))
         default:
-            break // Composer/send lifecycle is integrated separately.
+            break
         }
     }
 

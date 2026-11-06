@@ -473,6 +473,24 @@ final class BananaAccount: ObservableObject {
         _ = await refresh()
     }
 
+    func mailDraftRequest(reference: String, body: Data) async throws -> Data {
+        let route = try CloudMailReference(value: reference)
+        let request = try JSONDecoder().decode(GmailDraftMutation.self, from: body)
+        guard request.email.lowercased() == route.email,
+              let requestSession = session, FeatureAccessStore.shared.mailContext == route.context else {
+            throw GmailError.networkDisabled
+        }
+        try Task.checkCancellation()
+        guard let answer = await send(.mailDraft(body)) else { throw GmailError.unknownOutcome }
+        guard session == requestSession, FeatureAccessStore.shared.mailContext == route.context else {
+            throw GmailError.networkDisabled
+        }
+        guard (200..<300).contains(answer.1) else {
+            throw GmailDraftRejection(status: answer.1, body: answer.0)
+        }
+        return answer.0
+    }
+
     func mailRequest(path: [String], reference: String, query: [URLQueryItem], method: String, body: Data?) async throws -> Data {
         let route = try CloudMailReference(value: reference)
         guard let requestSession = session, FeatureAccessStore.shared.mailContext == route.context else { throw GmailError.networkDisabled }

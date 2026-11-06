@@ -91,6 +91,19 @@ import GRDB
     private var deliveryDirty = false
     private var deliveryRetryAt: [String: Int64] = [:]
     private var refusalTask: Task<Void, Never>?
+    private var draftDriver: MailDraftDriver?
+    private var draftWork: Task<Void, Never>?
+    private var draftWake: Task<Void, Never>?
+    private var draftDeliveryTask: Task<Void, Never>?
+    private var draftDeliveryDirty = false
+    private var draftReadTask: Task<Void, Never>?
+    private var draftCache: [MailDraftID: MailDraft] = [:]
+    private var draftStates: [MailDraftID: MailDraftRecord.State] = [:]
+    private var draftUndo: [UInt64: MailDraftID] = [:]
+    private var draftSaveFailures = Set<MailDraftID>()
+    private var draftGenerations: [MailDraftID: Int] = [:]
+    private var draftCacheOrder: [MailDraftID] = []
+    private var durablePendingDraftSends = false
     private let deliveryAllowed: @MainActor @Sendable (String) -> Bool
 
     init(stores: MailStores, access: any MailAccountAccess, api: any GmailAPI,
@@ -115,7 +128,7 @@ import GRDB
             }
             return MailAccount(id: account, shortName: account.components(separatedBy: "@").first ?? account,
                 wantsMail: !disabled.contains(account), state: state, health: syncHealth[account] ?? (failures.contains(account) ? .offline : .catchingUp),
-                lastSyncAt: lastSync[account], identities: [], keptAfterRemoval: keptCounts[account] ?? 0)
+                lastSyncAt: lastSync[account], identities: [MailIdentity(account: account, address: account, name: nil, isDefault: true, hasSignature: false)], keptAfterRemoval: keptCounts[account] ?? 0)
         }
     }
     func activate() {
@@ -131,6 +144,8 @@ import GRDB
             for task in pageTasks.values { task.cancel() }
             pageTasks.removeAll(); cancelDownloads(); access.cancelMailTokenRequests()
             active = false
+            draftWake?.cancel(); draftWake = nil
+            draftReadTask?.cancel()
             for task in labelTasks.values { task.cancel() }
             labelTasks.removeAll(); labelReadTask?.cancel()
             deliveryTask?.cancel(); deliveryWake?.cancel(); deliveryWake = nil
@@ -174,6 +189,14 @@ import GRDB
         do {
             var value = try await MailConversationReader(stores: stores).conversation(id)
             value?.appliedThrough = through
+            if let record = try await draftDriver?.forConversation(id) {
+                let draft = record.snapshot.value
+                if value == nil {
+                    value = MailConversation(id: id, subject: draft.subject, labels: [], inInbox: false,
+                        isStarred: false, isImportant: false, isMuted: false, snoozedUntil: nil, system: nil,
+                        messages: [], invite: nil, unsubscribe: nil, draft: draft.id, newestIsMine: true, appliedThrough: through)
+                } else { value?.draft = draft.id }
+            }
             return value
         }
         catch { if !Task.isCancelled { status.value.store = .unavailable(.unavailable) }; return nil }
@@ -185,21 +208,15 @@ import GRDB
     private func refreshConversation(_ token: UUID) {
         guard let subscription = conversationSubscriptions[token] else { return }
         conversationSubscriptions[token]?.task?.cancel()
-        let reader = MailConversationReader(stores: stores)
         let through = actionThrough
         conversationSubscriptions[token]?.task = Task { [weak self] in
-            do {
-                var value = try await reader.conversation(subscription.id)
-                value?.appliedThrough = through
-                guard !Task.isCancelled, let self, let current = self.conversationSubscriptions[token] else { return }
-                guard !current.delivered || current.last != value else { return }
-                self.conversationSubscriptions[token]?.last = value
-                self.conversationSubscriptions[token]?.delivered = true
-                current.callback(value)
-            } catch {
-                guard !Task.isCancelled, let self else { return }
-                self.status.value.store = .unavailable(.unavailable)
-            }
+            var value = await self?.conversation(subscription.id)
+            value?.appliedThrough = through
+            guard !Task.isCancelled, let self, let current = self.conversationSubscriptions[token] else { return }
+            guard !current.delivered || current.last != value else { return }
+            self.conversationSubscriptions[token]?.last = value
+            self.conversationSubscriptions[token]?.delivered = true
+            current.callback(value)
         }
     }
 
@@ -212,6 +229,22 @@ import GRDB
             let scope = subscription.scope
             // Capture before the read; never tag old rows with a newer action's receipt.
             let through = self.actionThrough
+            if let driver = self.draftDriver, scope.place == .mailbox(.drafts) || scope.place == .mailbox(.outbox) {
+                do {
+                    let records = try await driver.page(account: scope.account, outbox: scope.place == .mailbox(.outbox), before: scope.before, limit: subscription.limit + 1)
+                    guard !Task.isCancelled else { return }
+                    let shown = Array(records.prefix(subscription.limit))
+                    let rows = scope.filters.isEmpty ? shown.map(Self.draftRow) : []
+                    self.deliver(MailListSnapshot(scope: scope, rows: rows,
+                        total: MailCount(value: rows.count, isAtLeast: records.count > subscription.limit || scope.before != nil),
+                        hasMore: records.count > subscription.limit, stillLoading: 0, isRebuilding: false,
+                        remote: nil, coverage: nil, appliedThrough: through), to: id)
+                } catch {
+                    self.deliver(MailListSnapshot(scope: scope, rows: [], total: MailCount(value: 0, isAtLeast: true),
+                        hasMore: false, stillLoading: 0, isRebuilding: false, remote: .failed, coverage: nil, appliedThrough: through), to: id)
+                }
+                return
+            }
             if case .search(let text) = scope.place {
                 do {
                     let rows = try await reader.search(MailLocalSearchQuery(text: text, account: scope.account,
@@ -282,6 +315,8 @@ import GRDB
         for id in subscriptions.keys { refresh(id) }
     }
     func checkNow() {
+        refreshDrafts()
+        resumeDraftDelivery()
         refreshRemovalStatus()
         refreshLabelCatalog()
         repairActionProjection()
@@ -654,6 +689,14 @@ extension MailLiveSource {
     }
 
     @discardableResult func undo(_ original: MailReceipt) -> MailReceipt {
+        if let id = draftUndo.removeValue(forKey: original.sequence), let driver = draftDriver {
+            let receipt = draftReceipt()
+            enqueueDraftWork { [weak self] in
+                do { try await driver.restore(id); self?.emit(.applied(receipt, count: 1)); try await driver.flush(id) }
+                catch { self?.emit(.notSaved(receipt, .unavailable)) }
+            }
+            return receipt
+        }
         guard (pendingActions.contains(original.sequence) || savedActions[original.sequence] != nil),
               !undoRequested.contains(original.sequence), nextActionSequence > 0, nextActionSequence < Int64.max else {
             return MailReceipt(sequence: 0, count: 0)
@@ -1055,9 +1098,270 @@ extension MailLiveSource {
     }
 
     func answer(_ question: MailQuestion.ID, _ choice: MailChoice) {
+        if question.raw.hasPrefix("draft:"), let driver = draftDriver {
+            let id = MailDraftID(raw: String(question.raw.dropFirst(6)))
+            enqueueDraftWork { [weak self] in
+                do {
+                    switch choice {
+                    case .checkAgain: try await driver.flush(id)
+                    case .keepMine, .useOther:
+                        try await driver.resolveConflict(id, keepMine: choice == .keepMine)
+                        self?.resumeDraftDelivery()
+                    default: return
+                    }
+                } catch { self?.emit(.draftNotSaved(id, .unavailable)) }
+            }
+            return
+        }
         // Review handles refer to exact staged ids; an account-level notice is not
         // enough authority to include messages that arrived after it was displayed.
         Task { [weak self] in try? await self?.applyRemovalAnswer(question.raw, choice: choice) }
+    }
+}
+
+extension MailLiveSource {
+    func prepareDrafts(intent: MailIntentStore, scope: String, api: any GmailDraftAPI,
+                       contextAllowed: @escaping @Sendable () async -> Bool,
+                       compose: @escaping @Sendable (MailDraftRecord.Snapshot) throws -> GmailDraftComposition) async throws {
+        guard draftDriver == nil else { return }
+        let driver = MailDraftDriver(scope: scope, store: intent, api: api,
+            token: { [access] account in try await access.mailAccessToken(accountID: account).value },
+            allowed: { [weak self] account in
+                guard await contextAllowed() else { return false }
+                return await self?.canDeliver(account) ?? false
+            }, compose: compose, changed: { [weak self] record in
+                Task { @MainActor in self?.draftChanged(record) }
+            })
+        draftDriver = driver
+        durablePendingDraftSends = try await driver.hasPendingSends()
+        // Bounded startup window. Additional records remain in the durable store.
+        for record in try await driver.records() { draftChanged(record) }
+        refreshDrafts()
+    }
+    private func enqueueDraftWork(_ work: @escaping @MainActor () async -> Void) {
+        let previous = draftWork
+        draftWork = Task { await previous?.value; await work() }
+    }
+    private static func draftRow(_ record: MailDraftRecord) -> MailRow {
+        let draft = record.snapshot, snippet = draft.body.blocks.flatMap(\.runs).map(\.text).joined(separator: " ")
+        return MailRow(id: draft.conversation, key: MailOrderKey(group: 0,
+            sortKey: Int64(draft.editedAt.timeIntervalSince1970 * 1000), tie: MailMessageImporter.tie(account: draft.account, thread: draft.conversation.thread)),
+            date: draft.editedAt, people: draft.to, peopleTotal: draft.to.count, messageCount: 1,
+            subject: draft.subject, snippet: String(snippet.prefix(300)), isUnread: false, isStarred: false,
+            isImportant: false, hasAttachment: !draft.attachments.isEmpty, isInvitation: false,
+            inInbox: false, isMuted: false, hasPendingChange: record.needsDelivery, fromGmailSearch: false,
+            labels: [], reason: .draft(firstLine: String(snippet.prefix(100))))
+    }
+    private func draftReceipt() -> MailReceipt {
+        let sequence = nextActionSequence; nextActionSequence += 1
+        return MailReceipt(sequence: UInt64(sequence), count: 1)
+    }
+    private func draftChanged(_ record: MailDraftRecord) {
+        let id = record.snapshot.id, previous = draftStates[id]
+        if let generation = draftGenerations[id], generation > record.generation { return }
+        draftGenerations[id] = record.generation
+        draftCacheOrder.removeAll { $0 == id }; draftCacheOrder.append(id)
+        while draftCacheOrder.count > 100 {
+            guard let victim = draftCacheOrder.first(where: { !draftSaveFailures.contains($0) && $0 != id }) else { break }
+            draftCacheOrder.removeAll { $0 == victim }
+            draftCache.removeValue(forKey: victim); draftStates.removeValue(forKey: victim); draftGenerations.removeValue(forKey: victim)
+        }
+        if let driver = draftDriver {
+            Task { [weak self] in
+                if let pending = try? await driver.hasPendingSends() { self?.durablePendingDraftSends = pending }
+            }
+        }
+        var draft = record.snapshot.value
+        switch record.state {
+        case .held: draft.delivery = .held(until: record.sendAt ?? Date())
+        case .sending: draft.delivery = .sending
+        case .uncertain: draft.delivery = .checking
+        case .failed: draft.delivery = .failed(.other)
+        default: break
+        }
+        if let cached = draftCache[id], cached.editedAt > draft.editedAt {
+            var newer = cached; newer.delivery = draft.delivery; draftCache[id] = newer
+        } else { draftCache[id] = draft }
+        draftStates[id] = record.state
+        let questionID = MailQuestion.ID(raw: "draft:" + id.raw)
+        status.value.questions.removeAll { $0.id == questionID }
+        if record.conflict {
+            status.value.questions.append(MailQuestion(id: questionID, kind: .draftChangedElsewhere(id), choices: [.keepMine, .useOther]))
+        } else if record.state == .uncertain {
+            status.value.questions.append(MailQuestion(id: questionID, kind: .sendUnconfirmed(id, draftStillInGmail: nil), choices: [.checkAgain]))
+        }
+        if record.state == .sent && previous != nil && previous != .sent {
+            emit(.sent(id, draft.conversation))
+            if record.thenDone { _ = apply(.done, to: .conversations([draft.conversation])) }
+        }
+        if record.state == .failed && previous != nil && previous != .failed { emit(.sendFailed(id, .other)) }
+        for (token, subscription) in conversationSubscriptions where subscription.id == draft.conversation { refreshConversation(token) }
+        for token in subscriptions.keys { refresh(token) }
+    }
+    func newDraft(_ kind: MailDraftKind) async -> MailDraft {
+        let account: String
+        switch kind {
+        case .new(let selected): account = selected ?? accounts.first(where: { $0.state == .connected })?.id ?? ""
+        case .reply(let message), .replyAll(let message), .forward(let message): account = message.account
+        case .toAddress: account = accounts.first(where: { $0.state == .connected })?.id ?? ""
+        }
+        let id = MailDraftID(raw: UUID().uuidString.lowercased())
+        var draft = MailDraft(id: id, conversation: .init(account: account, thread: "local:" + id.raw), account: account,
+            isReply: false, isForward: false, from: .init(account: account, address: account, name: nil, isDefault: true, hasSignature: false),
+            to: [], cc: [], bcc: [], subject: "", body: .init(blocks: []), signature: nil, quote: nil, attachments: [],
+            format: .banana, schedule: nil, remindIfNoReply: nil, delivery: nil, encodedBytes: 0, editedAt: Date())
+        var replyID: String?
+        do {
+            guard let driver = draftDriver, !account.isEmpty else { throw MailDraftDriver.Failure.notFound }
+            switch kind {
+            case .new: break
+            case .toAddress(let addresses, let subject):
+                draft.to = addresses.map { MailPerson(name: nil, address: $0, isMe: false, isKnown: false, fromTheirMail: false) }
+                draft.subject = subject ?? ""
+            case .reply(let message), .replyAll(let message), .forward(let message):
+                let identity = try await stores.index.read { db -> (String, String?)? in
+                    guard let row = try Row.fetchOne(db, sql: "SELECT t.gmail_id,m.rfc_message_id FROM message m JOIN thread t ON t.thread_pk=m.thread_pk JOIN account a ON a.account_pk=m.account_pk WHERE a.email=? AND m.gmail_id=?", arguments: [account, message.message]) else { return nil }
+                    return (row[0], row[1])
+                }
+                guard let identity, let conversation = await conversation(.init(account: account, thread: identity.0)),
+                      var original = conversation.messages.first(where: { $0.id == message }) else { throw MailDraftDriver.Failure.notFound }
+                let forward: Bool; if case .forward = kind { forward = true } else { forward = false }
+                if !forward, let existing = try await driver.forConversation(conversation.id), existing.state == .editing { return existing.snapshot.value }
+                try await conversationLoader.body(message)
+                if let hydrated = await self.conversation(conversation.id)?.messages.first(where: { $0.id == message }) { original = hydrated }
+                let originalBody = await body(message)
+                draft.conversation = conversation.id; draft.isReply = !forward; draft.isForward = forward
+                let recipients = MailReplyRules.recipients(for: kind, original: original, myAddresses: Set(accounts.map { $0.id.lowercased() }))
+                draft.to = recipients.to; draft.cc = recipients.cc
+                draft.subject = MailReplyRules.subject(for: kind, original: conversation.subject)
+                draft.quote = MailReplyRules.quote(message: original, body: originalBody, subject: conversation.subject, forward: forward)
+                replyID = forward ? nil : identity.1
+                if forward {
+                    // Carry every attachment reference; missing bytes must block sending, never drop a file.
+                    let accessToken = try await access.mailAccessToken(accountID: account).value
+                    let wire = try await api.message(token: accessToken, id: message.message, format: .full)
+                    if let payload = wire.payload {
+                        draft.attachments = MIMEStructure.extract(payload).structure.attachments.map {
+                            MailDraftAttachment(id: $0.partID, name: $0.name, bytes: $0.size ?? 0, file: nil, isExecutable: false)
+                        }
+                    }
+                }
+            }
+            try await driver.create(draft, inReplyTo: replyID)
+            draftCache[id] = draft; draftStates[id] = .editing
+        } catch {
+            // The composer retains this value and receives an explicit save failure.
+            draftCache[id] = draft; status.value.store = .cannotSave(.unavailable); emit(.draftNotSaved(id, .unavailable))
+        }
+        return draft
+    }
+    func draft(_ id: MailDraftID) async -> MailDraft? {
+        if let cached = draftCache[id] { return cached }
+        guard let record = try? await draftDriver?.record(id) else { return nil }
+        draftChanged(record); return draftCache[id]
+    }
+    func save(_ draft: MailDraft) {
+        draftCache[draft.id] = draft
+        guard let driver = draftDriver else { emit(.draftNotSaved(draft.id, .unavailable)); return }
+        enqueueDraftWork { [weak self] in
+            do { try await driver.save(draft); self?.draftSaveFailures.remove(draft.id) }
+            catch { self?.draftCache[draft.id] = draft; self?.draftSaveFailures.insert(draft.id); self?.status.value.store = .cannotSave(.unavailable); self?.emit(.draftNotSaved(draft.id, .unavailable)); return }
+            self?.resumeDraftDelivery()
+        }
+    }
+    @discardableResult func send(_ id: MailDraftID, _ options: MailSendOptions) -> MailReceipt {
+        guard let driver = draftDriver else { return MailReceipt(sequence: 0, count: 0) }
+        let receipt = draftReceipt()
+        enqueueDraftWork { [weak self] in
+            guard self?.draftSaveFailures.contains(id) == false else { self?.emit(.notSaved(receipt, .unavailable)); return }
+            do { try await driver.queueSend(id, options: options); self?.emit(.applied(receipt, count: 1)) }
+            catch { self?.emit(.notSaved(receipt, .unavailable)); return }
+            self?.resumeDraftDelivery()
+        }
+        return receipt
+    }
+    func cancelSend(_ id: MailDraftID) async -> Bool {
+        await draftWork?.value
+        return (try? await draftDriver?.cancelSend(id)) ?? false
+    }
+    func retrySend(_ id: MailDraftID) { guard let driver = draftDriver else { return }; enqueueDraftWork { try? await driver.retry(id) } }
+    @discardableResult func discard(_ id: MailDraftID) -> MailReceipt {
+        guard let driver = draftDriver else { return MailReceipt(sequence: 0, count: 0) }
+        let receipt = draftReceipt(); draftUndo[receipt.sequence] = id
+        enqueueDraftWork { [weak self] in
+            do { try await driver.discard(id); self?.emit(.applied(receipt, count: 1)); try await driver.flush(id) }
+            catch { self?.emit(.notSaved(receipt, .unavailable)) }
+        }
+        return receipt
+    }
+    var hasUnfinishedSends: Bool { durablePendingDraftSends || draftStates.values.contains { [.held, .sending, .uncertain].contains($0) } }
+    func finishSends(within limit: TimeInterval) async {
+        await draftWork?.value
+        guard let driver = draftDriver else { return }
+        await withTaskGroup(of: Void.self) { group in
+            group.addTask {
+                var cursor = ""
+                repeat {
+                    guard !Task.isCancelled else { return }
+                    let records = (try? await driver.pendingRecords(after: cursor)) ?? []
+                    guard let last = records.last else { return }
+                    for record in records where [.held, .sending, .uncertain].contains(record.state) {
+                        guard !Task.isCancelled else { return }
+                        try? await driver.flush(record.snapshot.id, now: Date())
+                    }
+                    cursor = last.snapshot.id.raw
+                } while true
+            }
+            group.addTask { try? await Task.sleep(for: .seconds(max(0, limit))) }
+            await group.next(); group.cancelAll()
+        }
+    }
+
+    private func refreshDrafts() {
+        guard active, draftReadTask == nil, let driver = draftDriver else { return }
+        let connected = accounts.filter { $0.state == .connected }.map(\.id)
+        draftReadTask = Task { [weak self] in
+            defer { self?.draftReadTask = nil }
+            for account in connected {
+                let scan = UUID().uuidString
+                var cursor: String?, seen = Set<String>(), complete = true
+                repeat {
+                    guard !Task.isCancelled, self?.active == true else { return }
+                    do { cursor = try await driver.syncPage(account: account, pageToken: cursor, scan: scan) }
+                    catch { complete = false; break } // Preserve cached drafts and local intent on incomplete reads.
+                    if let cursor, !seen.insert(cursor).inserted { complete = false; break }
+                } while cursor != nil
+                if complete { try? await driver.finishScan(account: account, scan: scan) }
+            }
+        }
+    }
+    private func resumeDraftDelivery() {
+        guard active, let driver = draftDriver else { return }
+        if draftDeliveryTask != nil { draftDeliveryDirty = true; return }
+        draftWake?.cancel(); draftWake = nil
+        draftDeliveryTask = Task { [weak self] in
+            var cursor = "", nextWake = Date().addingTimeInterval(30)
+            repeat {
+                guard !Task.isCancelled else { break }
+                let records = (try? await driver.pendingRecords(after: cursor)) ?? []
+                guard let last = records.last else { break }
+                for record in records {
+                    if record.state == .held, let due = record.sendAt, due > Date() { nextWake = min(nextWake, due) }
+                    try? await driver.flush(record.snapshot.id)
+                }
+                cursor = last.snapshot.id.raw
+            } while true
+            guard let self else { return }
+            self.draftDeliveryTask = nil
+            if self.draftDeliveryDirty { self.draftDeliveryDirty = false; self.resumeDraftDelivery(); return }
+            guard self.active else { return }
+            let delay = max(0.1, nextWake.timeIntervalSinceNow)
+            self.draftWake = Task { [weak self] in
+                try? await Task.sleep(for: .seconds(delay))
+                guard !Task.isCancelled else { return }
+                self?.resumeDraftDelivery()
+            }
+        }
     }
 }
 

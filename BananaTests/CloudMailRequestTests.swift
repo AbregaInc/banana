@@ -9,6 +9,13 @@ final class CloudMailRequestTests: XCTestCase {
         XCTAssertThrowsError(try CloudMailReference(value: "provider-access-token"))
         XCTAssertThrowsError(try GmailHTTP.request(["profile"], token: reference.value))
     }
+    func testDraftReadsStayBehindTheAccountScopedCloudTransport() throws {
+        for (path, resource) in [(["drafts"], "drafts"), (["drafts", "gmail-draft"], "draft")] {
+            let data = try CloudMailRequest.body(path: path, email: "noor@plan.example", query: [], method: "GET", body: nil)
+            let body = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
+            XCTAssertEqual(body["resource"] as? String, resource)
+        }
+    }
     func testReadAndModifyEnvelopesRetainNativeSemantics() throws {
         let read = try CloudMailRequest.body(path: ["messages", "m1", "attachments", "a1"], email: "noor@plan.example", query: [], method: "GET", body: nil)
         let r = try XCTUnwrap(JSONSerialization.jsonObject(with: read) as? [String: Any])

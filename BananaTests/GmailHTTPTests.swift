@@ -19,6 +19,29 @@ final class GmailHTTPTests: XCTestCase {
         config.protocolClasses = [ResponseProtocol.self]
         return GmailHTTP(configuration: config, maximumBytes: cap, networkAllowed: { allowed })
     }
+    func testDraftWritesUseOnlyCloudTransportAndPreserveTheDurableIdentity() async throws {
+        let request = GmailDraftMutation(operationID: "10000000-0000-4000-8000-000000000001", email: "noor@plan.example", action: .send, id: "draft", expectedMessageID: "version", content: nil)
+        let api = GmailHTTP(draftTransport: { reference, body in
+            XCTAssertEqual(reference, "opaque-route")
+            XCTAssertEqual(try JSONDecoder().decode(GmailDraftMutation.self, from: body), request)
+            return Data(#"{"id":"sent"}"#.utf8)
+        }, networkAllowed: { true })
+        let answer = try await api.mutateDraft(token: "opaque-route", request: request)
+        XCTAssertEqual(answer, Data(#"{"id":"sent"}"#.utf8))
+        do { _ = try await transport().mutateDraft(token: "provider-token", request: request); XCTFail("Draft bypassed cloud") }
+        catch { XCTAssertEqual(error as? GmailError, .networkDisabled) }
+    }
+    func testDraftReadsPreserveProviderIdentityAndContinuation() async throws {
+        ResponseProtocol.response = { request in
+            if request.url!.path.hasSuffix("/drafts") { return (200, Data(#"{"drafts":[{"id":"draft","message":{"id":"version"}}],"nextPageToken":"next"}"#.utf8)) }
+            return (200, Data(#"{"id":"draft","message":{"id":"version","threadId":"thread"}}"#.utf8))
+        }
+        let api = transport(), page = try await api.drafts(token: "fixture", pageToken: nil)
+        XCTAssertEqual(page.nextPageToken, "next"); XCTAssertEqual(page.drafts?.first?.id, "draft")
+        let draft = try await api.draft(token: "fixture", id: "draft")
+        XCTAssertEqual(draft.message.id, "version"); XCTAssertEqual(draft.message.labelIds, [])
+    }
+
     func testMissingLabelDirectoryIsNotAnEmptySuccess() async throws {
         ResponseProtocol.response = { _ in (200, Data("{}".utf8)) }
         do { _ = try await transport().labels(token: "fixture"); XCTFail("Missing directory accepted") }

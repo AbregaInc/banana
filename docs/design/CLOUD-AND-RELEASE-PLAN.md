@@ -57,8 +57,8 @@ Reuse the web, notification and booking implementations when establishing a comm
 
 ## Implementation checkpoint — 5 November
 
-- Production runs `879e2709` through schema 0017. Staging now runs `229c787c` through schema
-  0019, adding busy-block identity fencing and gated Mail draft/handoff routes. Exact public source
+- Production runs `879e2709` through schema 0017. Staging now runs `b40a95ac` through schema
+  0019, with busy-block identity fencing and gated Gmail-owned draft operations. Exact public source
   offers were verified, health/source return 200, and unsigned Calendar/Mail operation and Mail
   read requests return 401. Production still has zero eligibility grants; the new provider
   routes are not activated for users. The terminal-receipt correction is deployed to both environments; its native reconnect change passes the focused 42-test suite.
@@ -151,7 +151,23 @@ send operations across devices, preserving pending local edits and reconciling u
 The schema-0019 Banana-owned editable store and timed send queue were an overextension; the corrected
 implementation no longer uses them or runs their cron dispatcher. Successful draft content is
 removed from the operation journal, leaving compact receipts. See [the corrected contract](MAIL-CLOUD-DRAFTS.md).
-Native composer/outbox integration and live-provider acceptance remain separate unfinished work.
+Native durable draft operations, Gmail draft imports, conflict choices and unknown-send retries
+are now implemented in the working tree. The Mac Dev compile and 30 focused correctness checks
+pass. Live composing is still disabled; attachment uploads, imported-draft editing, scheduling and live-provider acceptance remain unfinished. See the Mail
+contract for retained failures and evidence. This is not a completed Email rollout.
+
+## Native and distribution follow-up — 5 November
+
+- The prepared signed Dev app is installed on the spare physical iPhone, and a subsequent app
+  inventory confirms Dev and the primary app coexist. This is installation evidence, not fresh
+  OAuth or cross-device convergence evidence. The primary phone and iPad did not answer inventory
+  requests. Device identifiers and install records stay in `private/cloud-rollout/`.
+- iOS install tooling now checks CoreDevice's structured physical/simulated field, including for
+  explicit destinations. Local iOS/Mac installs stamp their source commit and mark dirty trees.
+  All 81 tooling checks pass. The already prepared Dev artifact predates source stamping.
+- Native Mail's focused draft/live-source checks pass 30 tests; composer/cloud request model
+  checks pass 68 tests; the final Mac Dev compile passes. The component run retained seven RSS
+  failures and no latency failures, before the external-deletion follow-up. No baseline changed.
 
 ## Target channel matrix
 

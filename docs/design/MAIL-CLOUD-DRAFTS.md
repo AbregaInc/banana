@@ -44,11 +44,19 @@ The preflight message-ID check detects already-observed external changes, but a 
 still edit between that check and the mutation. Banana's journal serializes Banana clients only;
 it must not be described as an atomic lock on Gmail or as complete protection against external races.
 
-The native live composer/outbox integration and conflict/unknown-outcome controls remain unfinished.
+The native driver now persists editor state and exact pending operation identities in the existing
+GRDB intent store. Draft listing imports Gmail IDs/versions without rewriting original MIME;
+concurrent local edits are retained for explicit Keep mine / Use other resolution. A complete
+provider listing followed by a structured not-found response removes a clean cached draft;
+local changes survive a disappearance and require an explicit choice. Unknown sends
+reuse their original operation identity. Cached draft views are bounded and backed by disk pages.
+The live composer remains disabled while the remaining integration is completed.
 The service accepts bounded structured text compositions and explicitly refuses attachment upload
 references until that path exists. Existing Gmail drafts, including attachments, can be read and
 sent without reconstructing their MIME. This increment is not a complete Email rollout and grants
-remain disabled pending native and live-provider acceptance.
+remain disabled pending native and live-provider acceptance. Outstanding native work includes new
+attachment uploads, editable round-tripping of imported rich drafts, scheduled-send ownership, and live multi-device acceptance. These controls must
+not be advertised as available before their provider path is implemented and tested.
 
 ## Implementation and evidence
 
@@ -61,6 +69,15 @@ Focused tests cover immediate Gmail persistence, successful-content cleanup, con
 updates, external revision conflicts, lost create/update/send/delete acknowledgements, delayed
 provider reads, account gates and existing Gmail drafts. API adapter tests verify PUT to the existing
 draft and ID-only send. Evidence is retained under `private/cloud-rollout/gmail-draft-*`.
+
+Native focused correctness evidence: `private/cloud-rollout/native-draft-focused-9/` (30 passing
+tests), transport evidence: `private/cloud-rollout/native-draft-http/` (18 passing tests), and the
+Mac Dev compile: `private/cloud-rollout/native-draft-mac-build-2.log`. Broader Mail index run 7
+retains 244 tests and failing HTML preparation timing assertions; it is not a passing gate.
+The iOS composer/cloud mapping run passes 68 tests (`native-draft-model-tests-2.xcresult`).
+The component run (`native-draft-components/gate.json`) retains seven RSS failures and no latency
+failures; it preceded the external-deletion follow-up and does not certify that follow-up.
+Live-provider and physical Mail interaction results remain missing.
 
 References: [Gmail drafts](https://developers.google.com/workspace/gmail/api/guides/drafts),
 [draft update](https://developers.google.com/workspace/gmail/api/reference/rest/v1/users.drafts/update),

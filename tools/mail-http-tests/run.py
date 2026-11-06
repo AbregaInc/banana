@@ -16,7 +16,7 @@ out = args.out.resolve()
 out.mkdir(parents=True, exist_ok=False)
 target = out / 'Tests'
 target.mkdir()
-sources = ['Banana/Model/Mail/GmailReadWire.swift', 'Banana/Model/Mail/GmailWire.swift', 'Banana/Model/Mail/GmailAPI.swift',
+sources = ['Banana/Model/Mail/GmailDraftAPI.swift', 'Banana/Model/Mail/GmailReadWire.swift', 'Banana/Model/Mail/GmailWire.swift', 'Banana/Model/Mail/GmailAPI.swift',
            'Banana/Model/MailApp/GmailHTTP.swift', 'BananaTests/GmailHTTPTests.swift']
 identities = {}
 for name in sources:

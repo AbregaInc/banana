@@ -60,8 +60,95 @@ final class MailIntentStore: MailWriterLog, @unchecked Sendable {
                 CREATE UNIQUE INDEX removal_review_pending_account ON removal_review(account) WHERE state=1;
                 """)
         }
+        migrations.registerMigration("v6-draft-outbox") { db in
+            try db.execute(sql: """
+                CREATE TABLE draft_outbox(scope TEXT NOT NULL,local_id TEXT NOT NULL,
+                    account TEXT NOT NULL,remote_id TEXT,last_seen_scan TEXT,generation INTEGER NOT NULL,payload BLOB NOT NULL,
+                    state TEXT NOT NULL,dirty INTEGER NOT NULL,conversation TEXT NOT NULL,sort_key INTEGER NOT NULL,tie INTEGER NOT NULL,
+                    PRIMARY KEY(scope,local_id)) WITHOUT ROWID;
+                CREATE UNIQUE INDEX draft_outbox_remote ON draft_outbox(scope,account,remote_id) WHERE remote_id IS NOT NULL;
+                CREATE INDEX draft_outbox_account ON draft_outbox(scope,account,local_id);
+                CREATE INDEX draft_outbox_page ON draft_outbox(scope,state,sort_key DESC,tie DESC);
+                CREATE INDEX draft_outbox_pending ON draft_outbox(scope,local_id) WHERE dirty=1;
+                """)
+        }
         guard try queue.read({ try !migrations.hasBeenSuperseded($0) }) else { throw Failure.newerSchema }
         try migrations.migrate(queue)
+    }
+
+    func draftRecord(scope: String, id: MailDraftID) async throws -> MailDraftRecord? {
+        try await queue.read { db in
+            guard let data = try Data.fetchOne(db, sql: "SELECT payload FROM draft_outbox WHERE scope=? AND local_id=?", arguments: [scope, id.raw]) else { return nil }
+            return try JSONDecoder().decode(MailDraftRecord.self, from: data)
+        }
+    }
+    func draftRecord(scope: String, account: String, remoteID: String) async throws -> MailDraftRecord? {
+        try await queue.read { db in
+            guard let data = try Data.fetchOne(db, sql: "SELECT payload FROM draft_outbox WHERE scope=? AND account=? AND remote_id=?", arguments: [scope, account, remoteID]) else { return nil }
+            return try JSONDecoder().decode(MailDraftRecord.self, from: data)
+        }
+    }
+    func markDraftSeen(scope: String, account: String, remoteID: String, scan: String) async throws {
+        try await queue.write { db in
+            try db.execute(sql: "UPDATE draft_outbox SET last_seen_scan=? WHERE scope=? AND account=? AND remote_id=?", arguments: [scan, scope, account, remoteID])
+        }
+    }
+    func unseenDraftRecords(scope: String, account: String, scan: String, after: String) async throws -> [MailDraftRecord] {
+        try await queue.read { db in
+            try Data.fetchAll(db, sql: "SELECT payload FROM draft_outbox WHERE scope=? AND account=? AND remote_id IS NOT NULL AND (last_seen_scan IS NULL OR last_seen_scan<>?) AND local_id>? AND state NOT IN ('sent','deleted') ORDER BY local_id LIMIT 50", arguments: [scope, account, scan, after]).map { try JSONDecoder().decode(MailDraftRecord.self, from: $0) }
+        }
+    }
+    func hasPendingDraftSends(scope: String) async throws -> Bool {
+        try await queue.read { db in
+            try Bool.fetchOne(db, sql: "SELECT EXISTS(SELECT 1 FROM draft_outbox WHERE scope=? AND state IN ('held','sending','uncertain'))", arguments: [scope]) ?? false
+        }
+    }
+    func draftRecords(scope: String, after: String = "", limit: Int = 50) async throws -> [MailDraftRecord] {
+        try await queue.read { db in
+            try Data.fetchAll(db, sql: "SELECT payload FROM draft_outbox WHERE scope=? AND local_id>? ORDER BY local_id LIMIT ?", arguments: [scope, after, min(100, max(1, limit))]).map { try JSONDecoder().decode(MailDraftRecord.self, from: $0) }
+        }
+    }
+    func pendingDraftRecords(scope: String, after: String = "") async throws -> [MailDraftRecord] {
+        try await queue.read { db in
+            try Data.fetchAll(db, sql: "SELECT payload FROM draft_outbox WHERE scope=? AND dirty=1 AND local_id>? ORDER BY local_id LIMIT 50", arguments: [scope, after]).map { try JSONDecoder().decode(MailDraftRecord.self, from: $0) }
+        }
+    }
+    func draftForConversation(scope: String, conversation: MailConversationID) async throws -> MailDraftRecord? {
+        try await queue.read { db in
+            guard let data = try Data.fetchOne(db, sql: "SELECT payload FROM draft_outbox WHERE scope=? AND account=? AND conversation=? AND state NOT IN ('sent','deleted') ORDER BY sort_key DESC,local_id DESC LIMIT 1", arguments: [scope, conversation.account, conversation.thread]) else { return nil }
+            return try JSONDecoder().decode(MailDraftRecord.self, from: data)
+        }
+    }
+    func draftPage(scope: String, account: String?, outbox: Bool, before: MailOrderKey?, limit: Int) async throws -> [MailDraftRecord] {
+        try await queue.read { db in
+            let states = outbox ? "('held','sending','uncertain','failed')" : "('editing','failed')"
+            var sql = "SELECT d.payload FROM draft_outbox d WHERE d.scope=? AND d.state IN " + states
+            var arguments: [DatabaseValueConvertible] = [scope]
+            if let account { sql += " AND d.account=?"; arguments.append(account) }
+            // A conversation has one row; retain all its draft records, selecting the latest one.
+            sql += " AND d.local_id=(SELECT other.local_id FROM draft_outbox other WHERE other.scope=d.scope AND other.account=d.account AND other.conversation=d.conversation AND other.state IN " + states + " ORDER BY other.sort_key DESC,other.local_id DESC LIMIT 1)"
+            if let before { sql += " AND (d.sort_key<? OR (d.sort_key=? AND d.tie<?))"; arguments += [before.sortKey, before.sortKey, before.tie] }
+            sql += " ORDER BY d.sort_key DESC,d.tie DESC LIMIT ?"; arguments.append(min(201, max(1, limit)))
+            return try Data.fetchAll(db, sql: sql, arguments: StatementArguments(arguments)).map { try JSONDecoder().decode(MailDraftRecord.self, from: $0) }
+        }
+    }
+    /// CAS covers both the editor snapshot and exact network request; a stale callback cannot
+    /// erase edits committed while it was waiting for Gmail. GRDB's existing FULL fsync policy applies.
+    func putDraftRecord(_ record: MailDraftRecord, expectedGeneration: Int?) async throws -> Bool {
+        var updated = record
+        updated.generation = (expectedGeneration ?? -1) + 1
+        let next = updated
+        return try await queue.write { db in
+            let data = try JSONEncoder().encode(next)
+            if let expectedGeneration {
+                try db.execute(sql: "UPDATE draft_outbox SET remote_id=?,generation=?,payload=?,state=?,dirty=?,conversation=?,sort_key=?,tie=? WHERE scope=? AND local_id=? AND generation=?",
+                    arguments: [next.remote?.id, next.generation, data, next.state.rawValue, next.needsDelivery, next.snapshot.conversation.thread, Int64(next.snapshot.editedAt.timeIntervalSince1970 * 1000), MailMessageImporter.tie(account: next.snapshot.account, thread: next.snapshot.conversation.thread), next.scope, next.snapshot.id.raw, expectedGeneration])
+            } else {
+                try db.execute(sql: "INSERT OR IGNORE INTO draft_outbox(scope,local_id,account,remote_id,generation,payload,state,dirty,conversation,sort_key,tie) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+                    arguments: [next.scope, next.snapshot.id.raw, next.snapshot.account, next.remote?.id, next.generation, data, next.state.rawValue, next.needsDelivery, next.snapshot.conversation.thread, Int64(next.snapshot.editedAt.timeIntervalSince1970 * 1000), MailMessageImporter.tie(account: next.snapshot.account, thread: next.snapshot.conversation.thread)])
+            }
+            return db.changesCount == 1
+        }
     }
 
     func checkpointIfDue() {

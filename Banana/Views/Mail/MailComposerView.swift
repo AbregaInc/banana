@@ -23,17 +23,19 @@ struct MailComposerView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: DS.Space.s) {
-            MailSampleChip(text: "Sample \u{2014} nothing is really sent")
-                .accessibilityIdentifier(MailID.composerSampleNote)
+            if session.isSample {
+                MailSampleChip(text: "Sample \u{2014} nothing is really sent")
+                    .accessibilityIdentifier(MailID.composerSampleNote)
+            }
             if frame == .sheet {
                 Text(model.title).font(.headline)
             }
-            MailRecipientsView(model: model, focused: $focused)
-            MailSubjectRow(model: model, focused: $focused)
+            MailRecipientsView(model: model, focused: $focused).disabled(model.isForeign)
+            MailSubjectRow(model: model, focused: $focused).disabled(model.isForeign)
             MailDivider(axis: .horizontal)
             MailComposerBodyArea(session: session, model: model, focused: $focused,
-                                 linking: $linking, toolsBelow: !footerHasRoom)
-            MailSignatureBlock(model: model)
+                                 linking: $linking, toolsBelow: !footerHasRoom).disabled(model.isForeign)
+            MailSignatureBlock(model: model).disabled(model.isForeign)
             if let quote = model.quote {
                 MailQuotedBlock(part: quote)
             }

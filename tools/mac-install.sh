@@ -36,6 +36,7 @@ fi
 # Dev uses its configured Email build gate; live access still requires account eligibility.
 banana_xcodebuild -jobs "${BUILD_JOBS:-2}" -project Banana.xcodeproj -scheme "$scheme" -configuration "$config" \
   ARCHS=arm64 ONLY_ACTIVE_ARCH=YES BANANA_UNRELEASED="$unreleased" \
+  BANANA_SOURCE_COMMIT="$(banana_source_revision)" \
   -derivedDataPath .build/mac-install -allowProvisioningUpdates $extra -quiet build
 
 product=".build/mac-install/Build/Products/$config/$built"

@@ -37,6 +37,60 @@ import GRDB
         return (stores, intent, source, row)
     }
 
+    private struct DraftProvider: GmailDraftAPI {
+        func drafts(token: String, pageToken: String?) async throws -> GmailDraftPage { throw GmailError.networkDisabled }
+        func draft(token: String, id: String) async throws -> GmailDraftValue { throw GmailError.networkDisabled }
+        func mutateDraft(token: String, request: GmailDraftMutation) async throws -> Data { throw GmailError.networkDisabled }
+    }
+    private func prepareDrafts(_ source: MailLiveSource, _ intent: MailIntentStore) async throws {
+        try await source.prepareDrafts(intent: intent, scope: "test-account", api: DraftProvider(), contextAllowed: { true }, compose: { snapshot in
+            GmailDraftComposition(from: .init(address: snapshot.account), to: [], cc: [], bcc: [], subject: snapshot.subject,
+                plain: snapshot.subject, html: "", attachments: [], inReplyTo: nil, references: nil, threadID: nil)
+        })
+    }
+    func testLiveComposerDraftIsDurableAndListedAfterReopening() async throws {
+        let (stores, intent, source, _) = try await actionSource()
+        try await prepareDrafts(source, intent)
+        var draft = await source.newDraft(.new(account: "a@example.com"))
+        let first = try await intent.draftRecord(scope: "test-account", id: draft.id)
+        XCTAssertNotNil(first, "newDraft must commit before returning")
+        draft.subject = "Kept across relaunch"; draft.editedAt = Date()
+        let saved = expectation(description: "Saved draft appears in Drafts")
+        var seen = false
+        let observation = source.observeList(MailScope(place: .mailbox(.drafts)), limit: 10) { value in
+            if !seen, value.rows.first?.subject == "Kept across relaunch" { seen = true; saved.fulfill() }
+        }
+        source.save(draft)
+        await fulfillment(of: [saved], timeout: 5); observation.cancel()
+        let reopened = MailLiveSource(stores: stores, access: Access(), api: GmailPageLoaderTests.Provider(count: 0))
+        try await reopened.prepareActions(intent: intent); try await prepareDrafts(reopened, intent)
+        let recovered = await reopened.draft(draft.id)
+        XCTAssertEqual(recovered?.subject, "Kept across relaunch")
+        let conversation = await reopened.conversation(draft.conversation)
+        XCTAssertEqual(conversation?.draft, draft.id)
+    }
+
+    func testFailedEditorSaveCannotSendAnOlderPersistedDraft() async throws {
+        let (_, intent, source, _) = try await actionSource()
+        try await prepareDrafts(source, intent)
+        var draft = await source.newDraft(.new(account: "a@example.com"))
+        let originalID = draft.id
+        // A stale editor from another account is refused by the durable store.
+        draft.account = "different@plan.example"; draft.subject = "Unsaved edit"
+        let refused = expectation(description: "Send refuses after save failure")
+        let events = source.observeEvents { event in
+            if case .notSaved = event { refused.fulfill() }
+            if case .applied = event { XCTFail("An old saved draft must not be queued") }
+        }
+        source.save(draft)
+        _ = source.send(originalID, .init(hold: 0, thenDone: false))
+        await fulfillment(of: [refused], timeout: 5); events.cancel()
+        let stored = try await intent.draftRecord(scope: "test-account", id: originalID)
+        XCTAssertEqual(stored?.state, .editing); XCTAssertNil(stored?.sendAt)
+        let retained = await source.draft(originalID)
+        XCTAssertEqual(retained?.subject, "Unsaved edit")
+    }
+
     func testCachedLabelDirectoryReachesLivePlacesAndMessageRows() async throws {
         let (stores, _, source, _) = try await actionSource()
         _ = try await MailWriter(stores: stores, sink: nil).transact { db in

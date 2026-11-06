@@ -35,32 +35,15 @@ cd "$(dirname "$0")/.."
 . tools/config.sh require
 [ "$variant" != dev ] || banana_require_dev
 bundle="$(banana_setting BANANA_BUNDLE_ID)$suffix"
-# Device selection is EXPLICIT-first and refuses to guess between several.
-#
-# The old auto-detect matched /connected/ && /iPhone/ and took the first hit. The author's phone
-# reports "available (paired)" while a second, borrowed phone reported "connected" — so the
-# guess would have installed onto someone else's device. Names contain spaces too, so the old
-# positional $(NF-2) was not the identifier either. Match the UUID by shape, and when more than
-# one iPhone is present, stop and make the caller name it.
-device="${2:-}"
-if [ -z "$device" ]; then
-  uuid='[0-9A-Fa-f]\{8\}-[0-9A-Fa-f]\{4\}-[0-9A-Fa-f]\{4\}-[0-9A-Fa-f]\{4\}-[0-9A-Fa-f]\{12\}'
-  phones=$(xcrun devicectl list devices 2>/dev/null \
-    | grep -E "iPhone|iPad" | grep -Ev "unavailable" | grep -o "$uuid")
-  count=$(printf '%s\n' "$phones" | grep -c . || true)
-  if [ "$count" -gt 1 ]; then
-    echo "More than one iPhone or iPad is present. Name the one you mean:"
-    echo "  $0 $variant <device-id>"
-    echo
-    xcrun devicectl list devices | grep -E "Identifier|iPhone|iPad"
-    exit 1
-  fi
-  device=$(printf '%s\n' "$phones" | head -1)
-fi
-if [ -z "$device" ]; then
-  echo "No iPhone or iPad found. Pass a device id: $0 $variant <device-id>"
-  xcrun devicectl list devices
-  exit 1
+# Xcode can include Simulators in CoreDevice's inventory. Inspect the structured reality
+# field even for an explicit destination, before building or installing a device binary.
+inventory=$(mktemp "${TMPDIR:-/tmp}/banana-ios-devices.XXXXXX")
+trap 'rm -f "$inventory"' EXIT HUP INT TERM
+xcrun devicectl list devices --json-output "$inventory" >/dev/null
+if [ -n "${2:-}" ]; then
+  device=$(python3 tools/select-ios-device.py "$inventory" --device "$2")
+else
+  device=$(python3 tools/select-ios-device.py "$inventory")
 fi
 
 if [ "$variant" = "prod" ]; then
@@ -73,6 +56,7 @@ fi
 xcodegen generate
 # Dev uses its configured Email build gate; live access still requires account eligibility.
 banana_xcodebuild -jobs "${BUILD_JOBS:-2}" -project Banana.xcodeproj -scheme "$scheme" -configuration "$config" BANANA_UNRELEASED="$unreleased" \
+  BANANA_SOURCE_COMMIT="$(banana_source_revision)" \
   -destination "id=$device" -derivedDataPath ".build/ios-$variant" \
   -allowProvisioningUpdates -quiet build
 

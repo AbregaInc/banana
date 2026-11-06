@@ -117,6 +117,7 @@ final class MailComposerModel: ObservableObject {
             }
         }
     }
+    var isForeign: Bool { draft?.format == .foreign }
     private var richNotificationPending = false
     /// The text without its formatting. Setting it puts plain text in.
     var body: String {
@@ -242,7 +243,8 @@ final class MailComposerModel: ObservableObject {
         case .reply(let id), .replyAll(let id), .forward(let id):
             guard let conversation = await source.conversation(id) else { return nil }
             // A reply he has begun is the one he comes back to.
-            if let kept = conversation.draft, let draft = await source.draft(kept) { return (draft, false) }
+            let forward: Bool; if case .forward = start { forward = true } else { forward = false }
+            if !forward, let kept = conversation.draft, let draft = await source.draft(kept) { return (draft, false) }
             guard let original = MailReplyRules.original(in: conversation) else { return nil }
             let kind: MailDraftKind
             switch start {
@@ -540,6 +542,7 @@ final class MailComposerModel: ObservableObject {
     /// The draft as he has it now, to hand to the source.
     func currentDraft() -> MailDraft? {
         guard var draft else { return nil }
+        if draft.format == .foreign { return draft }
         draft.to = to
         draft.cc = cc
         draft.bcc = bcc

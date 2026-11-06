@@ -21,6 +21,21 @@ enum MailReplyRules {
         conversation.messages.last
     }
 
+    static func quote(message: MailMessage, body: MailBody, subject: String, forward: Bool) -> MailDraftPart {
+        let text: MailText
+        switch body {
+        case .text(let value, _, _), .designed(_, _, _, let value, _): text = value
+        case .notOnDevice: return MailDraftPart(fragment: MailFragment(html: ""), body: .notOnDevice)
+        }
+        let heading = forward ? "Forwarded: " + subject + " — " + message.from.address : message.from.address + " wrote:"
+        let blocks = [MailTextBlock(kind: .paragraph, runs: [MailTextRun(text: heading)])] + text.blocks
+        func escaped(_ value: String) -> String {
+            value.replacingOccurrences(of: "&", with: "&amp;").replacingOccurrences(of: "<", with: "&lt;").replacingOccurrences(of: ">", with: "&gt;")
+        }
+        let html = blocks.map { "<p>" + escaped($0.runs.map(\.text).joined()) + "</p>" }.joined()
+        return MailDraftPart(fragment: MailFragment(html: "<blockquote>" + html + "</blockquote>"), body: .text(MailText(blocks: blocks), quoteStartsAt: nil, notices: []))
+    }
+
     // MARK: Who it goes to
 
     /// - **Reply** goes to the sender, or to the address the sender asked for replies at; to a

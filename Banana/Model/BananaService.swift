@@ -154,6 +154,7 @@ enum BananaService {
         case calendarRead(CloudCalendarRequest)
         case calendarOperation(Data)
         case mailRead(Data)
+        case mailDraft(Data)
         case mailOperation(Data)
         case connectMail(email: String, code: String)
         case disconnectMail(email: String)
@@ -319,6 +320,7 @@ enum BananaService {
             case .serverCalendars(let email, let ids):
                 return ("PUT", "/v1/google/calendars", encode(["email": email, "ids": ids]))
             case .mailRead(let body): return ("POST", "/v1/mail/read", body)
+            case .mailDraft(let body): return ("POST", "/v1/mail/draft", body)
             case .mailOperation(let body): return ("POST", "/v1/mail/operation", body)
             case .connectMail(let email, let code): return ("POST", "/v1/google/mail", encode(["email":email,"code":code]))
             case .disconnectMail(let email): return ("DELETE", "/v1/google/mail", encode(["email":email]))

@@ -77,6 +77,21 @@ final class MailComposerTests: XCTestCase {
         }
     }
 
+    func testForeignDraftHandoffPreservesOriginalSnapshot() async throws {
+        let h = Harness()
+        var draft = await h.source.newDraft(.new(account: nil))
+        draft.format = .foreign; draft.subject = "From Gmail"
+        draft.body = MailText(blocks: [MailTextBlock(kind: .paragraph, runs: [MailTextRun(text: "Original", link: nil)])])
+        h.source.save(draft)
+        h.session.begin(.continuing(draft.id))
+        let composer = try XCTUnwrap(h.composer); await composer.waitForDraft()
+        XCTAssertTrue(composer.isForeign)
+        // Even stale keyboard callbacks must not turn the read-only preview into new MIME.
+        composer.subject = "Stale callback"; composer.body = "Do not send this"
+        XCTAssertEqual(composer.currentDraft()?.subject, "From Gmail")
+        XCTAssertEqual(composer.currentDraft()?.body, draft.body)
+    }
+
     func testRichEditKeepsLatestDraftWithoutReenteringEditorCallback() async throws {
         let h = Harness()
         let composer = await h.reply()

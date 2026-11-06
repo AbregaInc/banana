@@ -53,6 +53,13 @@ banana_require_dev() {
   esac
 }
 
+# Local installs must identify the source too; a dirty tree must not claim to be the commit.
+banana_source_revision() {
+  _banana_revision=$(git rev-parse HEAD) || return 1
+  [ -z "$(git status --porcelain)" ] || _banana_revision="$_banana_revision-dirty"
+  printf '%s\n' "$_banana_revision"
+}
+
 # Use the configured signing key when Xcode has no interactive developer login.
 # Explicit AUTH_ARGS remains available to existing callers.
 banana_xcodebuild() {

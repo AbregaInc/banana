@@ -22,9 +22,9 @@ enum CloudMailRequest {
         if method == "GET" {
             let resource: String
             switch path.count {
-            case 1 where ["profile", "labels", "messages", "history"].contains(path[0]): resource = path[0]
-            case 2 where path[0] == "messages" || path[0] == "threads":
-                resource = path[0] == "messages" ? "message" : "thread"; request["id"] = path[1]
+            case 1 where ["profile", "labels", "messages", "history", "drafts"].contains(path[0]): resource = path[0]
+            case 2 where path[0] == "messages" || path[0] == "threads" || path[0] == "drafts":
+                resource = path[0] == "messages" ? "message" : path[0] == "drafts" ? "draft" : "thread"; request["id"] = path[1]
             case 4 where path[0] == "messages" && path[2] == "attachments":
                 resource = "attachment"; request["id"] = path[1]; request["attachmentID"] = path[3]
             default: throw GmailError.refused(.invalidArgument)
