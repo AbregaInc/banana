@@ -2,13 +2,13 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {mailGoogle} from '../src/mail-google.js';
 const json=x=>new Response(JSON.stringify(x),{headers:{'content-type':'application/json'}});
-test('Gmail upload streams MIME and frozen draft metadata only to the draft endpoint',async()=>{
- const calls=[];const api=mailGoogle(async(url,options)=>{calls.push({url,options,raw:await new Response(options.body).text()});return json({id:'sent',labelIds:['SENT']});});
- const answer=await api.mailDraftUpload('token','send',{id:'draft',threadID:'thread'},new Response('From: noor@plan.example\r\n\r\nMessage').body);
- assert.equal(answer.status,200);assert.match(calls[0].url,/\/upload\/gmail\/v1\/users\/me\/drafts\/send\?uploadType=multipart$/);
- assert.match(calls[0].raw,/"id":"draft","message":\{"threadId":"thread"\}/);assert.match(calls[0].raw,/Content-Type: message\/rfc822/);
- assert.equal(calls[0].options.redirect,'error');assert.equal(calls[0].options.duplex,'half');
- await assert.rejects(api.mailDraftUpload('token','messages.send',{},new Response('').body));assert.equal(calls.length,1);
+test('Gmail updates stream to the existing draft; sends contain only its ID',async()=>{
+ const calls=[];const api=mailGoogle(async(url,options)=>{calls.push({url,options,raw:typeof options.body==='string'?options.body:await new Response(options.body).text()});return json(url.includes('/drafts/send')?{id:'sent',labelIds:['SENT']}:{id:'draft',message:{id:'updated'}});});
+ assert.equal((await api.mailDraftUpload('token','update',{id:'draft',threadID:'thread'},new Response('From: noor@plan.example\r\n\r\nMessage').body)).status,200);
+ assert.match(calls[0].url,/\/upload\/gmail\/v1\/users\/me\/drafts\/draft\?uploadType=multipart$/);assert.equal(calls[0].options.method,'PUT');
+ assert.match(calls[0].raw,/Content-Type: message\/rfc822/);assert.equal(calls[0].options.redirect,'error');
+ assert.equal((await api.mailDraftSend('token','draft')).status,200);assert.deepEqual(JSON.parse(calls[1].raw),{id:'draft'});
+ await assert.rejects(api.mailDraftUpload('token','send',{},new Response('').body));assert.equal(calls.length,2);
 });
 test('Sent reconciliation verifies label and exact Message-ID; partial or duplicate listings stay unresolved',async()=>{
  let listing={messages:[{id:'sent'}]},message={id:'sent',labelIds:['SENT'],payload:{headers:[{name:'Message-ID',value:'<stable@plan.example>'}]}};
@@ -27,6 +27,13 @@ test('draft reconciliation requires one complete owned Message-ID match',async()
 });
 test('unreadable provider bodies and false send success remain uncertain',async()=>{
  const api=mailGoogle(async()=>json({id:'wrong',labelIds:['DRAFT']}));
- await assert.rejects(api.mailDraftUpload('token','send',{id:'draft'},new Response('x').body));
+ await assert.rejects(api.mailDraftSend('token','draft'));
  await assert.rejects(mailGoogle(async()=>new Response('x'.repeat(300000))).mailFindSent('token','<x@plan.example>'));
+});
+test('only a structured Gmail not-found response establishes draft absence',async()=>{
+ for(const response of [()=>new Response('<html>proxy failure</html>',{status:404}),()=>new Response('{}',{status:404})]) {
+  const api=mailGoogle(async()=>response());await assert.rejects(api.mailDraftGet('token','draft'));await assert.rejects(api.mailDraftDelete('token','draft'));
+ }
+ const api=mailGoogle(async()=>new Response(JSON.stringify({error:{code:404,status:'NOT_FOUND'}}),{status:404}));
+ assert.equal(await api.mailDraftGet('token','draft'),null);assert.equal((await api.mailDraftDelete('token','draft')).body.deleted,true);
 });

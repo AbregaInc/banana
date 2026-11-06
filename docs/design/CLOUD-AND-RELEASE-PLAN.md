@@ -144,6 +144,15 @@ Earlier focused native runs passed 56 and 31 tests; the receipt/module follow-up
 increment is deployed to staging with exact public source provenance; native changes from `ae40b8f2` and follow-up fixes are included in uploaded TestFlight build 95. Busy-block ownership across devices and live-provider
 acceptance remain open, so these transport changes do not establish completed Calendar cutover.
 
+## Draft ownership correction
+
+Gmail stores editable drafts. Banana Cloud coordinates their reads and durable create/update/delete/
+send operations across devices, preserving pending local edits and reconciling unknown outcomes.
+The schema-0019 Banana-owned editable store and timed send queue were an overextension; the corrected
+implementation no longer uses them or runs their cron dispatcher. Successful draft content is
+removed from the operation journal, leaving compact receipts. See [the corrected contract](MAIL-CLOUD-DRAFTS.md).
+Native composer/outbox integration and live-provider acceptance remain separate unfinished work.
+
 ## Target channel matrix
 
 | App | Intended use | Service/data environment | Distribution |

@@ -1,61 +1,68 @@
-# Cloud Mail drafts and handoffs
+# Gmail drafts, coordinated by Banana Cloud
 
-This is an implementation increment behind the existing account Email gate. The native live
-composer is not connected yet; attachment upload and the user-facing resolution flow remain
-unfinished. Staging runs source `229c787c` with schema 0019 and no enabled Email grants.
-No live email was sent during validation. Do not enable this as a complete Mail release.
+Gmail owns draft content and stable draft IDs. Banana Cloud authenticates clients, holds provider
+grants, serializes operations on each Gmail draft, and retains encrypted pending edits plus compact
+operation receipts. Native clients own the composer, local cache and offline outbox. There is no
+second Banana mailbox or server-owned editable draft store.
 
-`POST /v1/mail/draft` uses the existing Banana session, linked Google identity, feature eligibility
-and service-held Gmail grant. It never accepts a provider token from a device. Draft metadata and
-content are encrypted with account/draft-bound authenticated encryption. Revision checks preserve
-concurrent edits instead of silently choosing a device's copy. Clients must retain a conflicting
-local revision for the user to resolve.
+## Contract
 
-A save accepts at most 512 KiB of composition data. There are at most 200 active drafts per account;
-list pages contain ten records. Discard replaces the content with an encrypted null and leaves a
-revision tombstone, preventing an old offline create from resurrecting discarded content. Account
-deletion cascades through drafts, handoff identities and provider receipts.
+- `/v1/mail/read` supports `drafts` (paginated Gmail listing) and `draft` (Gmail minimal, metadata,
+  full or raw content). These reads include drafts created outside Banana. The existing Gmail
+  history transport remains the incremental mailbox change source for native caches; a history
+  change is followed by a fresh draft read/list through Banana, not a read of a shadow mailbox.
+- `/v1/mail/draft` supports `create`, `update`, `delete` and `send`. Every mutation carries a durable
+  `operationID`. The client persists one create identity with its local draft before delivery and
+  retains the returned Gmail draft ID across edits/devices. A retry uses the identical request.
+- Create and update write Gmail immediately. Each acknowledged response carries the stable Gmail
+  draft ID and current message ID. Update, delete and send require that observed message ID.
+  Gmail replaces a draft's message ID when its content changes.
+- Banana serializes mutations on `(Google identity, Gmail draft ID)`. A second device working from
+  an old message ID gets a conflict. Its encrypted pending edit remains recoverable, and its local
+  outbox must retain the copy for the user to resolve.
+- Send calls `drafts.send` with the existing draft ID. It does not upload another copy or reconstruct
+  a separate Banana draft at send time. The removed queue/scheduling endpoints are refused; no Mail
+  cron dispatch remains. This change does not implement a replacement scheduling feature.
 
-Queue freezes the exact saved revision. A separate durable handoff identity survives cancellation,
-so an old request cannot be reused for a later incarnation of that draft. Cancellation succeeds only
-before dispatch claims the handoff. Queued work is drained by the service's minute job even when
-apps are closed. A queue more than thirty minutes late requires a new explicit user decision.
+A stable RFC Message-ID identifies each create/update operation. Unknown creation is reconciled
+against one complete draft-search match; unknown update against the draft's exact header. Unknown
+send is reconciled against Sent and the exact header captured before dispatch. Missing, duplicate,
+incomplete or unreadable evidence never authorizes another write. A 404 after dispatching send is
+ambiguous, since the draft could have been sent already. Unknown deletion resolves only after a
+successful Gmail read confirms the draft is absent.
 
-The provider journal first creates a Gmail draft with a stable RFC Message-ID, then sends that
-specific draft with the frozen MIME. This adapts the earlier device-owned design in MAIL-ENGINE:
-the service now owns the queue; ordinary editing copies remain Banana drafts, not Gmail drafts.
-The frozen content accompanies `drafts.send`, so an external Gmail edit cannot substitute different
-recipients or text for the revision reviewed in Banana. Gmail-side editable-draft interoperability
-has not been implemented by this increment.
+After a successful mutation, the journal retains request identity/hash and a compact receipt,
+without the saved composition. Failed and uncertain writes retain encrypted pending content for
+recovery. Account deletion removes the journal. The unused schema-0019 tables remain for safe
+migration/rollback; current code neither reads nor writes them. Any old staging content must be
+inspected and migrated explicitly before those tables are removed, never silently discarded.
 
-Unknown creation is reconciled against one complete Gmail draft search and an exact Message-ID
-header. Unknown sending is reconciled against Sent plus the exact header. Missing, duplicate,
-incomplete or unreadable search results never authorize a new create/send. A missing Gmail draft
-is also ambiguous, because it might already have been sent. A terminal provider refusal retains the
-Banana draft and receipt. Later native controls must distinguish reconnect, conflict, refusal,
-late schedule and unknown outcome; none should silently create a replacement send.
+## Provider limits and remaining integration
 
-## MIME implementation
+Gmail's documented draft update/send API has no atomic compare-and-swap revision parameter.
+The preflight message-ID check detects already-observed external changes, but a Gmail client can
+still edit between that check and the mutation. Banana's journal serializes Banana clients only;
+it must not be described as an atomic lock on Gmail or as complete protection against external races.
 
-The implementation uses Nodemailer's maintained MIT-0 MailComposer, without an SMTP transport.
-File and URL access are disabled. Input is a whitelisted composition, not arbitrary MIME headers or
-library options. Bcc is deliberately retained in the Gmail upload: Gmail derives recipients from
-MIME headers. Binary attachment streaming was tested at the composer boundary, but the API refuses
-attachment references until the authenticated storage/upload path is implemented.
+The native live composer/outbox integration and conflict/unknown-outcome controls remain unfinished.
+The service accepts bounded structured text compositions and explicitly refuses attachment upload
+references until that path exists. Existing Gmail drafts, including attachments, can be read and
+sent without reconstructing their MIME. This increment is not a complete Email rollout and grants
+remain disabled pending native and live-provider acceptance.
 
-The library comparison used fresh Node processes for 2,000 small messages and one 25 MiB attachment.
-MIMEText was faster for small messages (p95 0.018 ms versus 0.36 ms). Nodemailer's streamed large
-attachment used about 74 MiB peak RSS versus 156 MiB for the buffered candidate, at 44 ms versus
-12 ms. These are local process measurements, not Worker heap limits or UI performance evidence.
-The selected composer also passed an actual local Workers runtime check with Unicode-capable MIME,
-Bcc, stable Message-ID and a binary attachment. Worker production/live-provider acceptance remains.
+## Implementation and evidence
 
-References: [MailComposer](https://nodemailer.com/extras/mailcomposer),
-[Gmail drafts](https://developers.google.com/workspace/gmail/api/guides/drafts),
-[Gmail draft send](https://developers.google.com/workspace/gmail/api/reference/rest/v1/users.drafts/send),
-[media uploads](https://developers.google.com/workspace/gmail/api/guides/uploads).
+Nodemailer's MIT-0 MailComposer streams create/update MIME without an SMTP transport. File and URL
+access are disabled, input fields are whitelisted, and Bcc is retained for Gmail's envelope handling.
+The previous local Worker-runtime and large-attachment composer measurements remain valid only for
+that MIME component; they are not proof of end-to-end native sync or physical-device performance.
 
-Validation evidence remains in ignored `private/cloud-rollout/mail-*` files. The full service suite passes 399 tests in each timezone. Focused tests exercise
-concurrent saves/sends, cancellation, expired schedules, revocation, lost creation/send responses,
-missing drafts, account deletion, input validation and MIME output. Fake provider tests do not prove
-live Gmail behavior or complete native integration.
+Focused tests cover immediate Gmail persistence, successful-content cleanup, concurrent device
+updates, external revision conflicts, lost create/update/send/delete acknowledgements, delayed
+provider reads, account gates and existing Gmail drafts. API adapter tests verify PUT to the existing
+draft and ID-only send. Evidence is retained under `private/cloud-rollout/gmail-draft-*`.
+
+References: [Gmail drafts](https://developers.google.com/workspace/gmail/api/guides/drafts),
+[draft update](https://developers.google.com/workspace/gmail/api/reference/rest/v1/users.drafts/update),
+[draft send](https://developers.google.com/workspace/gmail/api/reference/rest/v1/users.drafts/send),
+[MailComposer](https://nodemailer.com/extras/mailcomposer).

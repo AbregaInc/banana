@@ -1,107 +1,98 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {setup,device} from './helpers.js';
-import {deliverMailDrafts} from '../src/mail-drafts.js';
-const id='10000000-0000-4000-8000-000000000001',sendID='20000000-0000-4000-8000-000000000002';
+import {createVault} from '../src/crypto.js';
+const first='10000000-0000-4000-8000-000000000001',second='20000000-0000-4000-8000-000000000002',third='30000000-0000-4000-8000-000000000003';
 const content=()=>({from:{address:'noor@plan.example',name:'Noor'},to:[{address:'reader@plan.example'}],cc:[],bcc:[],subject:'Private draft',plain:'Private body',html:'<p>Private body</p>',attachments:[]});
 async function ready(){
  const s=setup();s.google.person('signin','sub-noor','noor@plan.example','refresh',{scopes:'https://www.googleapis.com/auth/gmail.modify'});
  const a=(await s.signIn('signin',device('device-noor'))).json;
  await s.db.run('INSERT INTO feature_access VALUES (?,?,1,NULL,?)',a.account.id,'email',s.now());
- const call=(action,extra={})=>s.call('POST','/v1/mail/draft',{session:a.session,body:{email:'noor@plan.example',id,action,...extra}});
- let creates=0,sends=0;const uploads=[];
+ const call=(action,extra={})=>s.call('POST','/v1/mail/draft',{session:a.session,body:{email:'noor@plan.example',operationID:first,action,...extra}});
+ let writes=0,sends=0,deletes=0;const drafts=new Map(),sent=new Map();
  s.google.mailDraftUpload=async(token,action,metadata,mime)=>{
-  uploads.push({action,metadata,raw:await new Response(mime).text()});
-  if(action==='create'){creates++;return {status:200,body:{id:'gmail-draft',message:{id:'draft-message',labelIds:['DRAFT']}}};}
-  sends++;return {status:200,body:{id:'sent-message',labelIds:['SENT']}};
+  const raw=await new Response(mime).text();writes++;
+  const id=action==='create'?'gmail-draft':metadata.id;
+  const draft={id,message:{id:`message-${writes}`,threadId:'thread',labelIds:['DRAFT'],payload:{headers:[{name:'Message-ID',value:raw.match(/Message-ID:\s*(<[^>]+>)/)[1]}]}},snapshot:{raw}};
+  drafts.set(id,draft);return {status:200,body:structuredClone(draft)};
  };
- s.google.mailFindDraft=async()=>null;s.google.mailFindSent=async()=>null;
- return {s,a,call,uploads,counts:()=>({creates,sends})};
+ s.google.mailDraftGet=async(token,id)=>structuredClone(drafts.get(id)??null);
+ s.google.mailFindDraft=async(token,messageID)=>{const d=[...drafts.values()].filter(x=>x.message.payload.headers[0].value===messageID);return d.length===1?{status:200,body:structuredClone(d[0])}:null;};
+ s.google.mailDraftSend=async(token,id)=>{sends++;const d=drafts.get(id);if(!d)return {status:404,body:{error:'missing'}};drafts.delete(id);const message={id:'sent-message',threadId:'thread',labelIds:['SENT']};sent.set(d.message.payload.headers[0].value,message);return {status:200,body:message};};
+ s.google.mailDraftDelete=async(token,id)=>{deletes++;drafts.delete(id);return {status:200,body:{deleted:true}};};
+ s.google.mailFindSent=async(token,id)=>sent.has(id)?{status:200,body:sent.get(id)}:null;
+ return {s,a,call,drafts,sent,counts:()=>({writes,sends,deletes})};
 }
-async function queue(t){assert.equal((await t.call('save',{revision:0,content:content()})).status,200);return t.call('queue',{revision:1,sendID,sendAt:t.s.now()});}
-test('draft saves are encrypted, account scoped, replayable and compare-and-swap across devices',async()=>{
- const t=await ready();let r=await t.call('save',{revision:0,content:content()});assert.equal(r.json.revision,1);
- assert.equal((await t.call('save',{revision:0,content:content()})).json.revision,1);
- const changed={...content(),plain:'Edited elsewhere'};
- assert.equal((await t.call('save',{revision:1,content:changed})).json.revision,2);
- r=await t.call('save',{revision:1,content:{...content(),subject:'Stale edit'}});assert.equal(r.status,409);assert.equal(r.json.draft.content.plain,'Edited elsewhere');
- const row=await t.s.db.first('SELECT * FROM mail_drafts');assert.ok(!JSON.stringify(row).includes('Private body'));assert.ok(!JSON.stringify(row).includes('reader@'));
- t.s.google.person('other','sub-other','other@plan.example');const other=(await t.s.signIn('other',device('device-other'))).json;
- await t.s.db.run('INSERT INTO feature_access VALUES (?,?,1,NULL,?)',other.account.id,'email',t.s.now());
- assert.equal((await t.s.call('POST','/v1/mail/draft',{session:other.session,body:{action:'get',email:'noor@plan.example',id}})).status,403);
- assert.equal((await t.call('list')).json.drafts.length,1);
-});
-test('queue freezes a revision and two deliverers create/send exactly once',async()=>{
- const t=await ready();assert.equal((await queue(t)).json.state,'queued');
- assert.equal((await t.call('save',{revision:2,content:{...content(),subject:'Too late'}})).status,409);
- await Promise.all([t.call('deliver',{sendID}),t.call('deliver',{sendID})]);
- const result=await t.call('deliver',{sendID});assert.equal(result.json.state,'sent');assert.deepEqual(t.counts(),{creates:1,sends:1});
- assert.match(t.uploads[0].raw,/Private body/);assert.match(t.uploads[1].raw,/Private body/);
- assert.equal(t.uploads[1].metadata.id,'gmail-draft');
- assert.equal(t.uploads[0].raw.match(/Message-ID:\s*(<[^>]+>)/)[1],t.uploads[1].raw.match(/Message-ID:\s*(<[^>]+>)/)[1]);
- assert.equal((await t.call('cancel',{sendID})).status,409);
-});
-test('lost draft creation is reconciled without creating a replacement',async()=>{
- const t=await ready();await queue(t);const upload=t.s.google.mailDraftUpload;let found=false;
- t.s.google.mailDraftUpload=async(...args)=>{const result=await upload(...args);if(args[1]==='create'){found=true;throw new Error('lost');}return result;};
- assert.equal((await t.call('deliver',{sendID})).json.state,'uncertain');
- t.s.google.mailFindDraft=async()=>found?{status:200,body:{id:'gmail-draft'}}:null;
- assert.equal((await t.call('deliver',{sendID})).json.state,'sent');assert.deepEqual(t.counts(),{creates:1,sends:1});
-});
-test('an unknown send never repeats even when Sent search is delayed; later evidence resolves it',async()=>{
- const t=await ready();await queue(t);const upload=t.s.google.mailDraftUpload;
- t.s.google.mailDraftUpload=async(...args)=>{const result=await upload(...args);if(args[1]==='send')throw new Error('lost');return result;};
- assert.equal((await t.call('deliver',{sendID})).json.state,'uncertain');
- assert.equal((await t.call('deliver',{sendID})).json.state,'uncertain');assert.deepEqual(t.counts(),{creates:1,sends:1});
- assert.equal((await t.call('queue',{revision:2,sendID:'30000000-0000-4000-8000-000000000003',sendAt:t.s.now()})).status,409);
- t.s.google.mailFindSent=async()=>({status:200,body:{id:'sent-message',labelIds:['SENT']}});
- assert.equal((await t.call('deliver',{sendID})).json.state,'sent');assert.deepEqual(t.counts(),{creates:1,sends:1});
-});
-test('cancel before handoff wins durably; a future schedule is not sent early',async()=>{
- const t=await ready();await t.call('save',{revision:0,content:content()});
- const sendAt=t.s.now()+60_000;
- assert.equal((await t.call('queue',{revision:1,sendID,sendAt})).status,200);
- assert.equal((await t.call('deliver',{sendID})).status,202);
- assert.equal((await t.call('cancel',{sendID})).json.state,'editing');
- assert.equal((await t.call('deliver',{sendID})).status,409);assert.deepEqual(t.counts(),{creates:0,sends:0});
-});
-test('cron handoff obeys revocation and resumes with the same identity after access returns',async()=>{
- const t=await ready();await queue(t);await t.s.db.run('UPDATE feature_access SET enabled=0');
- await deliverMailDrafts(t.s.deps);assert.deepEqual(t.counts(),{creates:0,sends:0});
- await t.s.db.run('UPDATE feature_access SET enabled=1');await deliverMailDrafts(t.s.deps);
- assert.equal((await t.call('get')).json.state,'sent');assert.deepEqual(t.counts(),{creates:1,sends:1});
-});
-test('draft deletion, missing recipients and unsupported attachments fail explicitly',async()=>{
- const t=await ready();assert.equal((await t.call('save',{revision:0,content:{...content(),to:[]}})).status,200);
- assert.equal((await t.call('queue',{revision:1,sendID,sendAt:t.s.now()})).status,422);
- assert.equal((await t.call('save',{revision:1,content:{...content(),attachments:[{name:'file',mimeType:'text/plain',bytes:1,chunks:['a'.repeat(64)]}]}})).status,422);
- assert.equal((await t.call('delete',{revision:1})).json.state,'deleted');assert.equal((await t.call('save',{revision:2,content:content()})).status,409);
-});
-test('cancelled identities cannot be reused after subsequent edits and cancellation cycles',async()=>{
- const t=await ready();await queue(t);await t.call('cancel',{sendID});
- const second='30000000-0000-4000-8000-000000000003';
- assert.equal((await t.call('queue',{revision:3,sendID:second,sendAt:t.s.now()})).status,200);
- await t.call('cancel',{sendID:second});
- assert.equal((await t.call('queue',{revision:5,sendID,sendAt:t.s.now()})).status,409);
- assert.deepEqual(t.counts(),{creates:0,sends:0});
-});
-test('a schedule over thirty minutes late asks instead of unexpectedly sending after reconnect',async()=>{
- const t=await ready();await queue(t);t.s.advance(31*60_000);
- assert.equal((await t.call('deliver',{sendID})).json.state,'late');assert.deepEqual(t.counts(),{creates:0,sends:0});
- await deliverMailDrafts(t.s.deps);assert.deepEqual(t.counts(),{creates:0,sends:0});
- assert.equal((await t.call('cancel',{sendID})).json.state,'editing');
-});
-test('a missing Gmail draft is an unknown send outcome, not evidence that nothing was sent',async()=>{
- const t=await ready();await queue(t);const upload=t.s.google.mailDraftUpload;
- t.s.google.mailDraftUpload=async(...args)=>args[1]==='send'?{status:404,body:{error:{message:'not found'}}}:upload(...args);
- assert.equal((await t.call('deliver',{sendID})).json.state,'uncertain');
- assert.equal((await t.call('deliver',{sendID})).json.state,'uncertain');
-});
-test('discard erases draft content but retains a tombstone against stale offline recreation',async()=>{
- const t=await ready();await t.call('save',{revision:0,content:content()});
- assert.equal((await t.call('delete',{revision:1})).json.content,null);
- assert.equal((await t.call('save',{revision:0,content:content()})).status,409);
- t.s.google.person('delete','sub-noor','noor@plan.example');assert.equal((await t.s.call('DELETE','/v1/account',{session:t.a.session,body:{code:'delete'}})).status,204);
+const create=t=>t.call('create',{content:content()});
+const edit=(t,extra={})=>t.call('update',{operationID:second,id:'gmail-draft',expectedMessageID:'message-1',content:{...content(),plain:'Edited'},...extra});
+test('save creates a real Gmail draft immediately; acknowledged content is not a Banana draft store',async()=>{
+ const t=await ready();const r=await create(t);assert.equal(r.status,200);assert.equal(r.json.id,'gmail-draft');
+ assert.match(t.drafts.get('gmail-draft').snapshot.raw,/Private body/);
  assert.equal((await t.s.db.first('SELECT count(*) AS n FROM mail_drafts')).n,0);
- assert.equal((await t.s.db.first('SELECT count(*) AS n FROM mail_handoffs')).n,0);
+ const row=await t.s.db.first('SELECT * FROM provider_operations');
+ const vault=createVault(t.s.deps.config.tokenKey,t.s.deps.random);
+ assert.equal(JSON.parse(await vault.open('provider-operation:'+t.a.account.id,row.request_cipher)).content,undefined);
+ assert.equal(r.json.snapshot,undefined);assert.equal(r.json.message.payload,undefined);
+ assert.equal((await create(t)).status,200);assert.equal(t.counts().writes,1);
+});
+test('two devices updating one observed Gmail revision cannot overwrite each other',async()=>{
+ const t=await ready();await create(t);
+ const results=await Promise.all([edit(t),edit(t,{operationID:third,content:{...content(),plain:'Other device'}})]);
+ assert.equal(results.filter(x=>x.status===200).length,1);assert.equal(results.filter(x=>x.status===409).length,1);assert.equal(t.counts().writes,2);
+ const loser=results[0].status===409?{}:{operationID:third,content:{...content(),plain:'Other device'}};
+ assert.equal((await edit(t,loser)).status,409);
+ assert.equal(t.counts().writes,2);
+});
+test('external Gmail edit is detected before dispatch and failed local content stays recoverable',async()=>{
+ const t=await ready();await create(t);t.drafts.get('gmail-draft').message.id='external-version';
+ assert.equal((await edit(t)).status,409);assert.equal(t.counts().writes,1);
+ const row=await t.s.db.first('SELECT request_cipher FROM provider_operations WHERE operation_id=?',second);
+ const vault=createVault(t.s.deps.config.tokenKey,t.s.deps.random);
+ assert.equal(JSON.parse(await vault.open('provider-operation:'+t.a.account.id,row.request_cipher)).content.plain,'Edited');
+});
+test('lost create and update replies reconcile through Gmail without writing another copy',async()=>{
+ const t=await ready();const upload=t.s.google.mailDraftUpload;
+ t.s.google.mailDraftUpload=async(...args)=>{await upload(...args);throw new Error('lost acknowledgement');};
+ assert.equal((await create(t)).status,502);assert.equal((await create(t)).status,200);assert.equal(t.counts().writes,1);
+ assert.equal((await edit(t)).status,502);assert.equal((await edit(t)).status,200);assert.equal(t.counts().writes,2);
+});
+test('an uncertain update fences later device writes even if Gmail reads are delayed',async()=>{
+ const t=await ready();await create(t);t.s.google.mailDraftUpload=async()=>{throw new Error('unknown');};
+ assert.equal((await edit(t)).status,502);assert.equal((await edit(t)).status,409);
+ assert.equal((await edit(t,{operationID:third})).status,409);assert.equal(t.counts().writes,1);
+});
+test('send consumes the existing Gmail draft without creating or uploading another draft',async()=>{
+ const t=await ready();await create(t);
+ const r=await t.call('send',{operationID:second,id:'gmail-draft',expectedMessageID:'message-1'});
+ assert.equal(r.status,200);assert.equal(r.json.id,'sent-message');assert.deepEqual(t.counts(),{writes:1,sends:1,deletes:0});
+ assert.equal((await t.call('send',{operationID:second,id:'gmail-draft',expectedMessageID:'message-1'})).status,200);assert.equal(t.counts().sends,1);
+});
+test('lost send replies never resend; delayed Sent evidence leaves a durable unknown outcome',async()=>{
+ const t=await ready();await create(t);const send=t.s.google.mailDraftSend,find=t.s.google.mailFindSent;
+ t.s.google.mailDraftSend=async(...args)=>{await send(...args);throw new Error('lost');};t.s.google.mailFindSent=async()=>null;
+ const request={operationID:second,id:'gmail-draft',expectedMessageID:'message-1'};
+ assert.equal((await t.call('send',request)).status,502);assert.equal((await t.call('send',request)).status,409);
+ assert.equal((await t.call('send',{...request,operationID:third})).status,409);assert.equal(t.counts().sends,1);
+ t.s.google.mailFindSent=find;assert.equal((await t.call('send',request)).status,200);assert.equal(t.counts().sends,1);
+});
+test('delete removes the Gmail draft and recovers a lost reply without another delete',async()=>{
+ const t=await ready();await create(t);const remove=t.s.google.mailDraftDelete;
+ t.s.google.mailDraftDelete=async(...args)=>{await remove(...args);throw new Error('lost');};
+ const request={operationID:second,id:'gmail-draft',expectedMessageID:'message-1'};
+ assert.equal((await t.call('delete',request)).status,502);assert.equal((await t.call('delete',request)).status,200);
+ assert.equal(t.drafts.size,0);assert.equal(t.counts().deletes,1);
+});
+test('reads use Gmail including drafts created outside Banana',async()=>{
+ const t=await ready();t.s.google.mailRead=async(token,request)=>({status:200,body:request.resource==='drafts'?{drafts:[{id:'external'}]}:{id:'external',message:{id:'outside',raw:'body'}}});
+ const read=body=>t.s.call('POST','/v1/mail/read',{session:t.a.session,body:{email:'noor@plan.example',query:[],...body}});
+ assert.equal((await read({resource:'drafts'})).json.drafts[0].id,'external');
+ assert.equal((await read({resource:'draft',id:'external',query:[{name:'format',value:'raw'}]})).json.message.raw,'body');
+});
+test('no timer-owned mailbox, no attachment loss, no unversioned mutation or other-account access',async()=>{
+ const t=await ready();
+ for(const action of ['save','queue','cancel','deliver'])assert.equal((await t.call(action)).status,400);
+ assert.equal((await t.call('update',{id:'gmail-draft',content:content()})).status,400);
+ assert.equal((await t.call('create',{email:'other@plan.example',content:{...content(),from:{address:'other@plan.example'}}})).status,403);
+ assert.equal((await t.call('create',{content:{...content(),attachments:[{name:'file',mimeType:'text/plain',bytes:1,chunks:['a'.repeat(64)]}]}})).status,422);
+ await t.s.db.run('UPDATE feature_access SET enabled=0');assert.equal((await create(t)).status,403);assert.equal(t.counts().writes,0);
 });

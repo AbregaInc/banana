@@ -164,7 +164,7 @@ export function createGoogle(config, fetchImpl, now = Date.now) {
 
     /** Typed Gmail reads use only the service grant; no provider token reaches a client. */
     async mailRead(accessToken, request) {
-      const resource = {profile:'profile',labels:'labels',messages:'messages',history:'history',
+      const resource = {drafts:'drafts',draft:'drafts',profile:'profile',labels:'labels',messages:'messages',history:'history',
         message:'messages',thread:'threads',attachment:'messages'}[request.resource];
       let path = resource;
       if (request.id) path += '/' + encodeURIComponent(request.id);

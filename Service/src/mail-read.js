@@ -2,11 +2,11 @@ import {mailLink} from './mail-grant.js';
 import {featureAllowed,googleCapabilities} from './feature-access.js';
 import {GoogleRefused} from './google.js';
 const id=x=>typeof x==='string'&&x.length>0&&x.length<=2048&&!['.','..'].includes(x)&&!/[\x00-\x1f]/.test(x);
-const rules={profile:[],labels:[],messages:['labelIds','q','includeSpamTrash','pageToken','maxResults'],
+const rules={drafts:['q','includeSpamTrash','pageToken','maxResults'],draft:['format'],profile:[],labels:[],messages:['labelIds','q','includeSpamTrash','pageToken','maxResults'],
  history:['startHistoryId','pageToken','maxResults'],message:['format','metadataHeaders'],thread:['format','metadataHeaders'],attachment:[]};
 export function parseMailRead(x) {
  if(!x||!Object.hasOwn(rules,x.resource)||!id(x.email)||!Array.isArray(x.query)||x.query.length>40)return null;
- const needsID=['message','thread','attachment'].includes(x.resource);
+ const needsID=['draft','message','thread','attachment'].includes(x.resource);
  if(needsID?!id(x.id):x.id!=null)return null;
  if(x.resource==='attachment'?!id(x.attachmentID):x.attachmentID!=null)return null;
  const seen=new Set();
