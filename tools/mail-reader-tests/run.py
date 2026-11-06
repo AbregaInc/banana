@@ -21,6 +21,6 @@ let package=Package(name:"MailReaderChecks",platforms:[.macOS(.v14)],targets:[.t
 cmd=['swift','test','--package-path',str(a.out.resolve()),'-c','release','--jobs','2','--scratch-path',str(root/'.build/mail-reader')]
 with (a.out/'test.log').open('w') as f: r=subprocess.run(cmd,stdout=f,stderr=subprocess.STDOUT)
 log=(a.out/'test.log').read_text()
-passed=r.returncode == 0 and 'Executed 8 tests, with 0 failures' in log and not re.search(r'Test Case .* skipped',log)
+passed=r.returncode == 0 and 'Executed 9 tests, with 0 failures' in log and not re.search(r'Test Case .* skipped',log)
 (a.out/'status.json').write_text(json.dumps({'command':cmd,'exitCode':r.returncode,'passed':passed,'scope':'Reader correctness, not app or device performance acceptance'},indent=2))
 print(f'Reader checks exited {r.returncode}: {a.out}/test.log');raise SystemExit(0 if passed else 1)

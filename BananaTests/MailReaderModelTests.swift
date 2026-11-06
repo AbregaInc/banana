@@ -112,4 +112,18 @@ import XCTest
         XCTAssertTrue(source.fetched.isEmpty)
     }
 
+    func testVisibleBeforeCacheReadFinishesStillFetchesMissingBody() async {
+        let source = Source(); source.suspendFirst = true
+        let began = expectation(description: "Cache read started")
+        source.began = { began.fulfill() }
+        let reader = MailReaderModel(id: id, source: source)
+        source.onChange?(conversation(body: .text))
+        await fulfillment(of: [began], timeout: 2)
+        reader.revealBody(messageID)
+        XCTAssertTrue(source.fetched.isEmpty)
+        source.waiting?.resume(returning: .notOnDevice); source.waiting = nil
+        await reader.waitForBodies()
+        XCTAssertEqual(source.fetched, [messageID])
+    }
+
 }

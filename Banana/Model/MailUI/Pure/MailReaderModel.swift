@@ -33,6 +33,7 @@ final class MailReaderModel: ObservableObject {
     private var loading: Task<Void, Never>?
     private var bodyGeneration: UInt64 = 0
     private var revealed = Set<MailMessageID>()
+    private var automaticallyRequested = Set<MailMessageID>()
     private var bodyStates: [MailMessageID: MailBodyState] = [:]
 
     init(id: MailConversationID, source: MailSource) {
@@ -52,9 +53,15 @@ final class MailReaderModel: ObservableObject {
     /// A visible card gets one priority fetch automatically. Reappearing does not
     /// retry-loop offline failures; explicit retry remains available.
     func revealBody(_ message: MailMessageID) {
-        guard conversation?.messages.contains(where: { $0.id == message }) == true,
-              revealed.insert(message).inserted else { return }
-        if bodies[message] == nil || bodies[message] == .notOnDevice { source.fetchBody(message) }
+        guard conversation?.messages.contains(where: { $0.id == message }) == true else { return }
+        revealed.insert(message)
+        requestMissingBody(message)
+    }
+
+    private func requestMissingBody(_ message: MailMessageID) {
+        guard revealed.contains(message), bodies[message] == .notOnDevice,
+              automaticallyRequested.insert(message).inserted else { return }
+        source.fetchBody(message)
     }
 
     func fetchBody(_ message: MailMessageID) {
@@ -91,6 +98,7 @@ final class MailReaderModel: ObservableObject {
             guard !Task.isCancelled, let self, self.bodyGeneration == generation else { return }
             let updated = self.bodies.merging(arrived) { _, new in new }
             if self.bodies != updated { self.bodies = updated }
+            for message in arrived.keys { self.requestMissingBody(message) }
         }
     }
 }
