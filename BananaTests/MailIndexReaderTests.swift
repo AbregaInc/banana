@@ -35,6 +35,21 @@ final class MailIndexReaderTests: XCTestCase {
         PageRequest(view: .unified(.inbox), account: account, filters: filters, before: before, limit: limit)
     }
 
+    func testCachedSnippetsDecodeExactlyOnceWithoutChangingSubjectsOrStorage() async throws {
+        let reader = try await reader(count: 2)
+        try await reader.stores.index.write { db in
+            try db.execute(sql: "UPDATE thread SET subject=?, snippet=? WHERE thread_pk=1", arguments: ["Literal &#39; subject", "We&#39;ve &amp; you&#x2019;ve &quot;quoted&quot; &lt;b&gt;text&lt;/b&gt; &amp;#39; &unknown;"])
+            try db.execute(sql: "UPDATE thread SET snippet=? WHERE thread_pk=2", arguments: ["AT&T &notebook"])
+        }
+        let rows = try await reader.page(request())
+        let row = try XCTUnwrap(rows.first { $0.threadPK == 1 })
+        XCTAssertEqual(row.snippet, "We've & you’ve \"quoted\" <b>text</b> &#39; &unknown;")
+        XCTAssertEqual(row.subject, "Literal &#39; subject")
+        XCTAssertEqual(rows.first { $0.threadPK == 2 }?.snippet, "AT&T &notebook")
+        let stored = try await reader.stores.index.read { try String.fetchOne($0, sql: "SELECT snippet FROM thread WHERE thread_pk=1") }
+        XCTAssertTrue(stored?.contains("We&#39;ve") == true)
+    }
+
     func testSnapshotScopePagingRetainsSelectionAcrossConcurrentChanges() async throws {
         let reader = try await reader(count: 6001)
         let snapshot = try await Task.detached { try reader.stores.index.makeSnapshot() }.value

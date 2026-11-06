@@ -43,7 +43,7 @@ struct MailConversationReader: Sendable {
                     to: fact.toAddresses.map { person($0) }, cc: fact.ccAddresses.map { person($0) },
                     bcc: (bcc[fact.gmailID] ?? []).map { person($0) }, replyTo: [], deliveredTo: nil,
                     listName: fact.listID, date: Date(timeIntervalSince1970: Double(fact.internalDate) / 1000),
-                    isUnread: fact.labels.contains("UNREAD"), isMine: fact.isFromMe, firstLine: fact.snippet,
+                    isUnread: fact.labels.contains("UNREAD"), isMine: fact.isFromMe, firstLine: MailSnippet.display(fact.snippet),
                     body: states[fact.gmailID] == 1 ? .preparing : .notOnDevice,
                     attachments: [], delivery: nil, draft: nil)
             }

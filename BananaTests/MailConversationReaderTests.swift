@@ -17,6 +17,14 @@ final class MailConversationReaderTests: XCTestCase {
             try MailMessageImporter.apply(fetched, account: "a@example.com", myAddresses: ["a@example.com"], in: db)
         }
     }
+    func testCachedPreviewDecodesEntitiesBeforeTheBodyArrives() async throws {
+        let stores = try await stores()
+        var wire = try message(); wire.snippet = "We&#39;ve got tea &amp; coffee"
+        try await importMessage(wire, stores: stores)
+        let value = try await MailConversationReader(stores: stores).conversation(MailConversationID(account: "a@example.com", thread: "t1"))
+        XCTAssertEqual(value?.messages.first?.firstLine, "We've got tea & coffee")
+    }
+
     func testCachedHeadersAreReadableBeforeBodyAndAccountIsIsolated() async throws {
         let stores = try await stores(), wire = try message()
         try await importMessage(wire, stores: stores)

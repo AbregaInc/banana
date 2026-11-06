@@ -105,7 +105,7 @@ struct MailIndexReader: Sendable {
         }
         return IndexRow(threadPK: row[0], account: row[1], thread: row[2], sortKey: row[3],
             tie: row[4], unread: row[5], messageCount: row[6], flags: MailThreadFlags(rawValue: row[7]),
-            subject: row[8] ?? "", snippet: row[9] ?? "", people: try people(10), peopleTotal: row[11],
+            subject: row[8] ?? "", snippet: MailSnippet.display(row[9] ?? ""), people: try people(10), peopleTotal: row[11],
             labelPKs: labelPKs, wakeAt: row[13], returnedAt: row[14], waitingUntil: row[15], pending: row[16],
             lastDate: row[17], recipients: try people(18), recipientsTotal: row[19],
             actionBoundary: row.count > 20 ? row[20] : nil)
