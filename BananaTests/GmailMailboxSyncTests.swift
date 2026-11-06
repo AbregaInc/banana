@@ -4,6 +4,7 @@ import GRDB
 final class GmailMailboxSyncTests: XCTestCase {
     actor Provider: GmailAPI {
         var account = "a@example.com"
+        var position: UInt64 = 10
         var operations: [String] = []
         var historyFailure: GmailError?
         var incompleteOnce = false
@@ -12,7 +13,7 @@ final class GmailMailboxSyncTests: XCTestCase {
             if let account { self.account = account }
             historyFailure = failure
         }
-        func profile(token: String) async throws -> GmailProfile { GmailProfile(emailAddress: account, historyId: 10) }
+        func profile(token: String) async throws -> GmailProfile { GmailProfile(emailAddress: account, historyId: position) }
         func labels(token: String) async throws -> [GmailLabel] {
             ["INBOX", "SENT", "DRAFT", "TRASH", "SPAM", "UNREAD", "STARRED"].map { GmailLabel(id: $0, name: $0, type: "system") }
         }
@@ -20,10 +21,10 @@ final class GmailMailboxSyncTests: XCTestCase {
             operations.append("history")
             if let historyFailure { throw historyFailure }
             if incompleteOnce {
-                incompleteOnce = false
-                return GmailHistoryPage(history: [GmailHistoryRecord(id: 11)], historyId: 11)
+                incompleteOnce = false; position = 20
+                return GmailHistoryPage(history: [GmailHistoryRecord(id: 11)], historyId: position)
             }
-            return GmailHistoryPage(historyId: 10)
+            return GmailHistoryPage(historyId: position)
         }
         func listMessages(token: String, labelIDs: [String], query: String?, includeSpamTrash: Bool, pageToken: String?, maxResults: Int) async throws -> GmailIDPage {
             operations.append("list")
@@ -97,6 +98,8 @@ final class GmailMailboxSyncTests: XCTestCase {
             }
         }
         XCTAssertTrue(complete, "Reconciliation must finish instead of retrying the rejected delta")
+        let checkpoint = try await stores.index.read { try String.fetchOne($0, sql: "SELECT checkpoint FROM account") }
+        XCTAssertEqual(checkpoint, "20")
     }
 
     func testWrongAccountCannotStartAnyListing() async throws {

@@ -39,3 +39,17 @@ scenarios but failed seven RSS comparisons and the seven-day Notes search p95 co
 (8.493 ms versus an 8.389 ms limit). Results are retained privately in
 `private/cloud-rollout/mail-legacy-performance`; no baseline or limit changed. Physical UI
 performance was not measured. The Mac build is prepared, not installed over the running app.
+
+## History replay recovery
+
+A subsequent device diagnostic identified `MailHistoryRules.Failure.incomplete`: successful
+provider responses reached the client, but a rejected history batch retried indefinitely.
+The sync worker now rolls back an unusable history page and conditionally expires only its
+own saved checkpoint. The existing bounded reconciliation then reacquires a current mailbox
+position and verifies message state. It does not infer deletion from incomplete history or
+clear cached mail, drafts, pending actions or removal holds. Transport failures retain their
+existing retry behavior. This recovery can require a full mailbox scan; it is not a speedup.
+
+The targeted history, checkpoint, reconciliation and verification suite passes 37 tests,
+including partial-page recovery and convergence to a newer checkpoint. Private results:
+`private/cloud-rollout/mail-history-recovery-final`.
