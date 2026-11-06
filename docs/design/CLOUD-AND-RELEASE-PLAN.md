@@ -84,7 +84,8 @@ Reuse the web, notification and booking implementations when establishing a comm
   group. They include the gated native Gmail draft/attachment increment; no separate Beta app
   record was created and production feature eligibility remains off.
 - Stable Mac 1.0.3 (98), source `981f0321`, is signed, notarized and published on GitHub.
-  Its website download and signed updater feed are being promoted. An actual upgrade from
+  Its live website download, checksum and signed updater feed are verified; a native URLSession
+  request using the updater user agent also returns the build-98 feed. An actual upgrade from
   direct build 87 retained the device identity and every checked meal, dose, supplement, food,
   workout-plan and routine ID. The Health cache adopted a newer cloud snapshot; its workout
   records match that exact hash-verified upstream snapshot. The previous app/data remain backed up.
