@@ -64,6 +64,7 @@ import Combine
                                 threadID: snapshot.isReply ? snapshot.conversation.thread : nil)
                         })
                 }
+                source.reportReadFailure = { PlaybackDiagnostics.shared.log("mail read", $0) }
                 session = MailSession.installLive(source)
             } catch {
                 // Preserve all files and credentials. Log no SQL, account, subject or payload.

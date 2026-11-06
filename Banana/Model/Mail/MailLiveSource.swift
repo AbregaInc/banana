@@ -28,6 +28,7 @@ import GRDB
     let stores: MailStores
     let access: any MailAccountAccess
     let api: any GmailAPI
+    var reportReadFailure: (String) -> Void = { _ in }
     private lazy var writer = MailWriter(stores: stores, sink: Sink { [weak self] change in
         Task { @MainActor in self?.committed(change) }
     })
@@ -893,6 +894,12 @@ extension MailLiveSource {
     /// In-flight readers can finish out of order. No later error may shorten a
     /// provider deadline already installed by another reader for this account.
     private func recordReadFailure(_ error: Error, account: String, minimumDelay: TimeInterval? = nil) {
+        // Never log account identifiers, SQL, provider bodies or message content.
+        let detail: String
+        if let gmail = error as? GmailError { detail = String(describing: gmail) }
+        else if let database = error as? DatabaseError { detail = "sqlite code=\(database.extendedResultCode.rawValue)" }
+        else { detail = "\(String(reflecting: type(of: error))); code=\((error as NSError).code)" }
+        reportReadFailure(detail)
         failures.insert(account)
         if error as? GmailError == .unauthorized { access.dropMailAccessToken(accountID: account) }
         let rateLimited: Bool
