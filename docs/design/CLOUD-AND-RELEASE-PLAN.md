@@ -55,6 +55,35 @@ Private operational evidence stays outside the public tree. Source baseline: `22
 Calendar therefore has **parallel native and server paths**, not a missing backend integration.
 Reuse the web, notification and booking implementations when establishing a common provider layer.
 
+## Current checkpoint — 6 November
+
+- Production and staging run `83e7e0f6`, schema 0020. Source provenance, unauthenticated
+  operation refusal and web entry-point smoke checks pass. Production has no enabled feature
+  grants. The production recovery bookmark and previous deployment IDs are retained privately.
+- Calendar maintenance now continues if temporary Mail upload cleanup fails. The failed upload
+  stays available for a later cleanup retry. The service suite passes 405 tests in each of UTC
+  and America/New_York with serial test execution and no competing builds. The earlier parallel
+  run's booking-horizon timing failure remains retained; its limit was not changed.
+- Dev `11692682` is installed on both phones, iPad and Mac. Legacy Beta `83e7e0f6` is installed
+  in place on all three mobile devices and Mac. Staging confirms protocol-1 registrations for
+  iPad and Mac. The known phone registration remains old: its upgrade installed, but launch was
+  refused while locked. Installing
+  Dev beside Beta does not migrate Beta's registration. No device row is removed to bypass this gate.
+- Staging still has no Calendar or Mail provider grant. Fresh interactive consent and live
+  cross-device acceptance remain outstanding. Installation and automated fixture tests do not
+  establish that acceptance.
+- The full phone UI suite is in progress. TestFlight 95 remains the latest valid uploaded build
+  for iOS and Mac. The native draft/attachment increment is not yet in that build. Stable Mac 96
+  remains a draft release. The seven relative-RSS component failures and missing physical-device
+  performance evidence remain open; no baseline or budget has changed.
+- `52c4030b` corrects direct-Mac push routing: a Developer ID app can have an embedded profile
+  and a production APNs entitlement. Registration now uses that signed entitlement instead of
+  inferring the push environment from the telemetry channel. Three focused tests pass. A new
+  signed artifact and live notification delivery still require verification.
+
+The dated checkpoints below preserve earlier stages. This checkpoint supersedes their deployment
+and installation inventories; unchecked acceptance items still require their stated evidence.
+
 ## Implementation checkpoint — 5 November
 
 - Production runs `879e2709` through schema 0017. Staging now runs `b40a95ac` through schema

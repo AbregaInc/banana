@@ -1,7 +1,7 @@
 # Feature access
 
-Implementation status: production runs `879e2709` with schema 0017; staging runs `0d53d787`
-with schema 0020. Both have zero eligibility grants at the last verified rollout check.
+Implementation status: production and staging run `83e7e0f6` with schema 0020.
+Both have zero eligibility grants at the last verified rollout check on 6 November.
 Primary iOS/iPad and Mac build 95 use `55d675e6`; distribution evidence is recorded in
 [the rollout plan](CLOUD-AND-RELEASE-PLAN.md). Live-provider and device acceptance remain open.
 Deploy service/schema support before the clients. Guarded Calendar reads/writes and Mail
