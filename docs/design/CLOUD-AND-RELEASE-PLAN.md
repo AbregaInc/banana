@@ -57,9 +57,17 @@ Reuse the web, notification and booking implementations when establishing a comm
 
 ## Current checkpoint — 6 November
 
-- Production and staging run `83e7e0f6`, schema 0020. Source provenance, unauthenticated
+- Production and staging run `20a230c3`, schema 0020. Source provenance, unauthenticated
   operation refusal and web entry-point smoke checks pass. Production has no enabled feature
   grants. The production recovery bookmark and previous deployment IDs are retained privately.
+- The live Beta Calendar read failure after consent was a Workers transport incompatibility:
+  Workers rejects `redirect: "error"` before sending the request, whereas Node accepts it.
+  The Google adapter now uses manual redirect handling and rejects every redirect response.
+  This preserves credential protection for Calendar and Mail. The original runtime failure is
+  retained; six actual Workers-runtime cases and 408 service tests per timezone pass.
+  After deployment, 40 live Beta Calendar reads returned 200, with no failed reads in that
+  observation window. Stored consent alone had not established this; live reads now do.
+  See [the runtime regression](../../Service/tools/google-worker-check/README.md).
 - Calendar maintenance now continues if temporary Mail upload cleanup fails. The failed upload
   stays available for a later cleanup retry. The service suite passes 405 tests in each of UTC
   and America/New_York with serial test execution and no competing builds. The earlier parallel

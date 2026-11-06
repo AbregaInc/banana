@@ -1,11 +1,11 @@
 # Feature access
 
-Implementation status: production and staging run `83e7e0f6` with schema 0020.
+Implementation status: production and staging run `20a230c3` with schema 0020.
 Production has no eligibility grants. On 6 November, the existing owner account in staging
 received Calendar Cloud and Email testing access until 13 November, after every registered
 device reported protocol 1. The existing Beta account was reconnected on 6 November: staging
-now has a Calendar server token with list/event scopes and status `ok`. Gmail consent and live-provider acceptance
-remain outstanding; eligibility alone does not grant Google permissions.
+now has a Calendar server token with list/event scopes and status `ok`. Live Beta Calendar reads now succeed after the Workers transport fix. Gmail consent and
+remaining cross-device acceptance remain outstanding; eligibility alone does not grant Google permissions.
 Primary iOS/iPad and Mac TestFlight build 97 uses `11ec3140`; distribution evidence is recorded in
 [the rollout plan](CLOUD-AND-RELEASE-PLAN.md). Live-provider and device acceptance remain open.
 Deploy service/schema support before the clients. Guarded Calendar reads/writes and Mail
