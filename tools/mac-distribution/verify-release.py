@@ -69,7 +69,7 @@ def main():
     subprocess.run(['codesign', '--verify', '--deep', '--strict', str(app)], capture_output=True, check=True)
     if info.get('BananaReleaseChannel', 'stable') == 'stable':
         assert (app / 'Contents/Resources/container-migration.plist').is_file(), 'Missing native migration manifest'
-    print('PASS: Developer ID profile, app identity, sandbox, keychain group, production cloud/push, WeatherKit, updater and migration manifest')
+    print('PASS: Developer ID profile, app identity, capability coverage, keychain, cloud/push, WeatherKit and channel-specific updater/storage configuration')
 
 
 if __name__ == '__main__':

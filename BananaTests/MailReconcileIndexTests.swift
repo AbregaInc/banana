@@ -93,6 +93,36 @@ final class MailReconcileIndexTests: XCTestCase {
         XCTAssertEqual(labels, 0); XCTAssertEqual(pending, [3])
     }
 
+    func testAdvancedCheckpointDoesNotMakeOldListingNewEvidence() throws {
+        let queue = try setup(), state = try queue.write { try begin($0) }
+        // History has already archived m3 at 20 while this scan started at 10.
+        // A continuation from that scan still names it in INBOX.
+        _ = try queue.write { db in
+            try db.execute(sql: "UPDATE account SET checkpoint='20' WHERE account_pk=1")
+            return try MailReconcileIndex.apply(
+                GmailIDPage(messages: [GmailMessageRef(id: "m3", threadId: "t3")]),
+                account: account, expected: state, floor: 20, nowMS: 1, in: db)
+        }
+        XCTAssertEqual(try queue.read { try Int.fetchOne($0,
+            sql: "SELECT count(*) FROM message_label WHERE msg_pk=3") }, 0)
+        XCTAssertEqual(try queue.read { try Int64.fetchAll($0,
+            sql: "SELECT msg_pk FROM verify_queue") }, [3])
+    }
+
+    func testNewListingStubKeepsScanFloorAfterHistoryAdvances() throws {
+        let queue = try setup(), state = try queue.write { try begin($0) }
+        _ = try queue.write { db in
+            try db.execute(sql: "UPDATE account SET checkpoint='20' WHERE account_pk=1")
+            return try MailReconcileIndex.apply(
+                GmailIDPage(messages: [GmailMessageRef(id: "new", threadId: "new-thread")]),
+                account: account, expected: state, floor: 20, nowMS: 1, in: db)
+        }
+        XCTAssertEqual(try queue.read { try String.fetchOne($0,
+            sql: "SELECT history_id FROM message WHERE gmail_id='new'") }, "10")
+        XCTAssertEqual(try queue.read { try Int.fetchOne($0,
+            sql: "SELECT count(*) FROM message_label ml JOIN message m USING(msg_pk) WHERE m.gmail_id='new'") }, 1)
+    }
+
     func testCloseFindsMissingMembershipEvenWhenMessageWasListed() throws {
         let queue = try setup(), state = try queue.write { try begin($0) }
         try queue.write { db in

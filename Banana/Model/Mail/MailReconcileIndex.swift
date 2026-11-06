@@ -82,7 +82,7 @@ enum MailReconcileIndex {
                 arguments: [pk, threadID, MailMessageImporter.tie(account: account, thread: threadID)])
             let thread = try Int64.fetchOne(statement("SELECT thread_pk FROM thread WHERE account_pk=? AND gmail_id=?"), arguments: [pk, threadID])!
             try statement("INSERT OR IGNORE INTO message(account_pk,gmail_id,thread_pk,history_id,fetch_class) VALUES(?,?,?,?,?)").execute(
-                arguments: [pk, id, thread, String(floor), expected.label == "INBOX" ? 0 : 2])
+                arguments: [pk, id, thread, String(expected.startedAt), expected.label == "INBOX" ? 0 : 2])
             let row = try Row.fetchOne(statement("SELECT msg_pk,thread_pk,history_id,vis FROM message WHERE account_pk=? AND gmail_id=?"), arguments: [pk, id])!
             let message: Int64 = row[0], storedThread: Int64 = row[1], version: String? = row[2], visibility: Int = row[3]
             guard storedThread == thread else { throw Failure.invalidPage }
@@ -92,7 +92,10 @@ enum MailReconcileIndex {
             }
             guard visibility != 4 else { continue }
             if labelPK != 0 {
-                if (version.flatMap(GmailNumber.unsigned) ?? 0) > floor {
+                // A continuation belongs to the scan's original observation, not
+                // the checkpoint advanced by intervening history polls. Otherwise
+                // a stale INBOX page can undo a newer archive at that checkpoint.
+                if (version.flatMap(GmailNumber.unsigned) ?? 0) > expected.startedAt {
                     try queue(message, generation: expected.generation, nowMS: nowMS, in: db)
                 } else {
                     try statement("INSERT OR IGNORE INTO message_label(msg_pk,label_pk) VALUES(?,?)").execute(arguments: [message, labelPK])

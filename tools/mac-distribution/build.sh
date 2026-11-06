@@ -58,5 +58,5 @@ PY
     -exportOptionsPlist private/mac-distribution/ExportOptions.plist \
     > private/mac-distribution/export.log 2>&1
   python3 tools/mac-distribution/release-plan.py --check "$BANANA_RELEASE_PLAN" >/dev/null
-  echo 'private/mac-distribution/export/Banana.app'
+  if [[ "$channel" == beta ]]; then echo 'private/mac-distribution/export/Banana Beta.app'; else echo 'private/mac-distribution/export/Banana.app'; fi
 fi
