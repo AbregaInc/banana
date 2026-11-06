@@ -2,6 +2,8 @@ import importlib.util
 import pathlib
 import sqlite3
 import unittest
+from unittest.mock import patch
+from types import SimpleNamespace
 
 spec = importlib.util.spec_from_file_location('feature_access', pathlib.Path(__file__).with_name('feature-access.py'))
 module = importlib.util.module_from_spec(spec)
@@ -9,6 +11,17 @@ spec.loader.exec_module(module)
 
 
 class FeatureAccessAdminTests(unittest.TestCase):
+    def test_remote_update_uses_query_mode_that_returns_the_receipt(self):
+        result = SimpleNamespace(returncode=0, stdout='[{"success":true,"results":[{"accounts_updated":1}]}]')
+        with patch('sys.argv', ['feature-access.py', '--environment', 'beta', '--account',
+                               'test-account', '--feature', 'email', '--access', 'grant', '--apply']), \
+             patch.object(module.subprocess, 'run', return_value=result) as run, patch('builtins.print'):
+            module.main()
+        command = run.call_args.args[0]
+        self.assertNotIn('--file', command, 'remote imports omit the update receipt')
+        self.assertIn('SELECT changes()', command[command.index('--command') + 1])
+        self.assertEqual(command[command.index('--env') + 1], 'beta')
+
     def test_existing_identity_required_and_revoke_is_retained(self):
         db = sqlite3.connect(':memory:')
         db.execute('CREATE TABLE accounts (id TEXT PRIMARY KEY)')

@@ -6,7 +6,6 @@ import json
 import pathlib
 import re
 import subprocess
-import tempfile
 import time
 
 SERVICE = pathlib.Path(__file__).resolve().parents[1]
@@ -70,21 +69,19 @@ def main():
     if not args.apply:
         print(f'Validated {args.access} for {args.feature} in {args.environment}; no changes made.')
         return
-    # Temporary files have owner-only access and are removed on both success and failure.
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.sql') as query:
-        query.write(sql)
-        query.flush()
-        database = 'banana-service' if args.environment == 'stable' else 'banana-service-beta'
-        command = [*WRANGLER, 'd1', 'execute', database, '--remote', '--file', query.name, '--json']
-        if args.environment == 'beta':
-            command += ['--env', 'beta']
-        result = subprocess.run(command, cwd=SERVICE, capture_output=True, text=True)
-        if result.returncode:
-            parser.exit(1, 'The service request failed; the update is not confirmed.\n')
-        try:
-            verify_result(json.loads(result.stdout))
-        except (ValueError, TypeError, AttributeError) as error:
-            parser.exit(1, str(error) + '\n')
+    # Remote --file uses D1's import flow and does not return the SELECT receipt.
+    # Pass this small statement as an argv value, never through a shell.
+    database = 'banana-service' if args.environment == 'stable' else 'banana-service-beta'
+    command = [*WRANGLER, 'd1', 'execute', database, '--remote', '--command', sql, '--json']
+    if args.environment == 'beta':
+        command += ['--env', 'beta']
+    result = subprocess.run(command, cwd=SERVICE, capture_output=True, text=True)
+    if result.returncode:
+        parser.exit(1, 'The service request failed; the update is not confirmed.\n')
+    try:
+        verify_result(json.loads(result.stdout))
+    except (ValueError, TypeError, AttributeError) as error:
+        parser.exit(1, str(error) + '\n')
     print(f'Confirmed {args.access} for {args.feature} in {args.environment}.')
 
 
