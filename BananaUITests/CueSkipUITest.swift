@@ -32,6 +32,11 @@ final class CueSkipUITest: XCTestCase {
 
         // Skipped, it reads as skipped the moment it's opened again; Restore says so too.
         app.buttons["Skip this one"].tap()
+        XCTAssertTrue(toast.waitForExistence(timeout: 2))
+        // At the bottom of the grid the toast overlaps the cue. XCTest can report
+        // the underlying tile as hittable even though the pill receives its tap.
+        app.buttons["Dismiss"].tap()
+        XCTAssertTrue(toast.waitForNonExistence(timeout: 3))
         cue = try revealCalendarButton("Wind", in: app)
         cue.tap()
         XCTAssertTrue(app.buttons["Restore"].waitForExistence(timeout: 3), "the moment is skipped at once")

@@ -307,8 +307,11 @@ final class DeleteUndoUITest: XCTestCase {
             .filter { $0.frame.minY <= asking.frame.minY }
             .max { $0.frame.minY < $1.frame.minY }
         let more = try XCTUnwrap(mine, app.debugDescription)
-        sleep(1)
-        let place = asking.frame
+        // XCTest may scroll the menu into view when tapping it. Compare the restored
+        // field with the first meal's menu, so a viewport shift is not mistaken for
+        // a reordered meal. A move to another card still changes this distance.
+        let firstMeal = app.buttons.matching(identifier: "mealInbox.more").firstMatch
+        let place = asking.frame.minY - firstMeal.frame.minY
 
         more.tap()
         let button = app.buttons["Not a meal"].firstMatch
@@ -320,8 +323,9 @@ final class DeleteUndoUITest: XCTestCase {
 
         undo.tap()
         if asking.waitForExistence(timeout: 4) {
-            sleep(1)
-            XCTAssertEqual(asking.frame.minY, place.minY, accuracy: 2, "the meal came back somewhere else")
+            XCTAssertTrue(waitUntil {
+                abs((asking.frame.minY - firstMeal.frame.minY) - place) <= 2
+            }, "the meal came back somewhere else")
         } else {
             // It was its day's only meal: the review closed with it, and Undo puts the day back.
             openDay(holding: asking, in: app)
