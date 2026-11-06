@@ -95,7 +95,10 @@ upload endpoint rejects an unauthenticated request. Native draft/source checks p
 (`native-attachment-focused-final/`), HTTP transport checks pass 19 (`native-attachment-http/`),
 and the Mac compile passes (`native-attachment-mac-final.log`). The final iOS model run passes
 70 tests (`native-attachment-model-final.xcresult`). These are automated checks, not live-provider
-or physical-device acceptance; production Email eligibility is unchanged.
+or physical-device acceptance; production Email eligibility is unchanged. The current component
+run retains seven memory failures and no latency failures (`native-attachment-components/gate.json`).
+Signed Dev commit `11692682` is installed on both reachable phones and Mac. The iPad remains
+unreachable, and live-provider acceptance is still missing.
 
 References: [Gmail drafts](https://developers.google.com/workspace/gmail/api/guides/drafts),
 [draft update](https://developers.google.com/workspace/gmail/api/reference/rest/v1/users.drafts/update),

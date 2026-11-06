@@ -160,15 +160,15 @@ acceptance remain unfinished; see the Mail contract for retained failures and ev
 ## Native and distribution follow-up — 5 November
 
 - Signed Dev commit `11692682` is installed over the existing Dev app on the spare physical
-  iPhone. The primary app still coexists, and the built source stamp matches the commit. This is
-  installation evidence, not fresh OAuth or cross-device convergence evidence. The primary phone
-  and iPad did not answer earlier inventory requests. Identifiers stay in `private/cloud-rollout/`.
+  iPhone and the primary phone. The primary app still coexists on both. Mac Dev is also installed
+  with its signature and source stamp verified. This is
+  installation evidence, not fresh OAuth or cross-device convergence evidence. The iPad remains unreachable. Identifiers stay in `private/cloud-rollout/`.
 - Install tooling checks CoreDevice's structured physical/simulated field, including for explicit
   destinations. Local iOS/Mac installs stamp their source commit and mark dirty trees.
   All 81 tooling checks pass.
 - Native draft/live-source checks pass 35 tests, HTTP transport passes 19, composer/cloud request
-  checks pass 70, and the final Mac compile passes. The earlier component run retained seven RSS
-  failures; a current run is required. No baseline or budget changed.
+  checks pass 70, and the final Mac compile passes. The current component run retains seven RSS
+  failures and no latency failures (`native-attachment-components/gate.json`). No baseline or budget changed.
 - Service commit `0d53d787` is deployed to staging with schema 0020 after 404 tests passed in each
   timezone. The source endpoint matches and unauthenticated uploads are refused. A fresh staging
   inventory still shows zero Calendar grants, Mail grants and enabled feature rows.
