@@ -5,7 +5,7 @@ format = 'UDZO'
 files = [str(application)]
 symlinks = {'Applications': '/Applications'}
 background = str(Path(defines['background']).resolve())
-icon = str(application / 'Contents/Resources/AppIcon.icns')
+icon = str(application / ('Contents/Resources/AppIconBeta.icns' if application.stem == 'Banana Beta' else 'Contents/Resources/AppIcon.icns'))
 hide_extensions = [application.name]
 window_rect = ((120, 120), (720, 480))
 default_view = 'icon-view'

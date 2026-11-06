@@ -45,6 +45,20 @@ class FeatureArchiveTests(unittest.TestCase):
             with self.subTest(channel=channel, bundle=bundle), tempfile.TemporaryDirectory() as path:
                 self.check(self.app(pathlib.Path(path), channel, bundle), allowed)
 
+    def test_beta_email_requires_beta_feed_and_identity(self):
+        for channel, bundle, feed, allowed in [
+            ('beta', 'org.example.banana.beta', 'mac-beta', True),
+            ('beta', 'org.example.banana.beta', 'mac', False),
+            ('stable', 'org.example.banana', 'mac-beta', False),
+            ('beta', 'org.example.other', 'mac-beta', False),
+        ]:
+            with self.subTest(channel=channel, bundle=bundle, feed=feed), tempfile.TemporaryDirectory() as path:
+                app = self.app(pathlib.Path(path), channel, bundle)
+                info = app / 'Info.plist'; values = plistlib.loads(info.read_bytes())
+                values['SUFeedURL'] = f'https://bananatheapp.com/updates/{feed}/appcast.xml'
+                info.write_bytes(plistlib.dumps(values))
+                self.check(app, allowed)
+
     def test_missing_primary_identity_fails_closed(self):
         with tempfile.TemporaryDirectory() as path:
             app = self.app(pathlib.Path(path), 'testflight')

@@ -43,6 +43,24 @@ class ReleaseEntitlementTests(unittest.TestCase):
         del profile['Entitlements']['com.apple.developer.weatherkit']
         with self.assertRaises(AssertionError): release.validate(info, ent, profile)
 
+    def test_beta_requires_own_identity_service_and_feed(self):
+        info, ent, profile = self.fixtures()
+        info.update(BananaReleaseChannel='beta', BananaPrimaryBundleIdentifier='org.example',
+                    BananaServiceHost='staging.example.test',
+                    SUFeedURL='https://bananatheapp.com/updates/mac-beta/appcast.xml')
+        info['BananaPrimaryBundleIdentifier'] = 'org.example.banana'
+        info['CFBundleIdentifier'] += '.beta'
+        for key in ['com.apple.application-identifier']:
+            ent[key] += '.beta'; profile['Entitlements'][key] += '.beta'
+        ent['keychain-access-groups'] = [ent['com.apple.application-identifier']]
+        release.validate(info, ent, profile)
+        for key, bad in [('SUFeedURL', 'https://bananatheapp.com/updates/mac/appcast.xml'),
+                         ('BananaServiceHost', 'api.bananatheapp.com'),
+                         ('BananaPrimaryBundleIdentifier', 'org.wrong')]:
+            wrong = dict(info); wrong[key] = bad
+            with self.subTest(key=key), self.assertRaises(AssertionError):
+                release.validate(wrong, ent, profile)
+
     def test_test_feed_cannot_be_released(self):
         info, ent, profile = self.fixtures(); info['SUFeedURL'] = 'http://example.test/appcast.xml'
         with self.assertRaises(AssertionError): release.validate(info, ent, profile)

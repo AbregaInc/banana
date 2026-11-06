@@ -39,19 +39,22 @@ if digest.hexdigest() != release['sha256'] or length != release['bytes']:
 if a.out.exists():
     p.error('Choose a new review directory; existing work is preserved')
 shutil.copytree(a.site, a.out)
-updates = a.out / 'updates/mac'
+channel = release.get('channel', 'stable')
+assert channel in ('stable', 'beta')
+route = 'mac-beta' if channel == 'beta' else 'mac'
+updates = a.out / ('updates/' + route)
 updates.mkdir(parents=True, exist_ok=True)
 shutil.copyfile(a.release / 'appcast.xml', updates / 'appcast.xml')
 public_metadata = {key: value for key, value in release.items() if key != 'bundleIdentifier'}
 (updates / 'release.json').write_text(json.dumps(public_metadata, indent=2) + '\n')
 redirects = a.out / '_redirects'
 lines = redirects.read_text().splitlines() if redirects.exists() else []
-lines = [line for line in lines if not line.split() or line.split()[0] != '/download/mac']
-lines.append('/download/mac ' + release['url'] + ' 302')
+lines = [line for line in lines if not line.split() or line.split()[0] != '/download/' + route]
+lines.append('/download/' + route + ' ' + release['url'] + ' 302')
 redirects.write_text('\n'.join(lines) + '\n')
 headers = a.out / '_headers'
 text = headers.read_text() if headers.exists() else ''
-if '/updates/mac/appcast.xml' not in text:
-    text += '\n/updates/mac/appcast.xml\n  Cache-Control: no-cache\n/download/mac\n  Cache-Control: no-cache\n'
+if '/updates/' + route + '/appcast.xml' not in text:
+    text += f'\n/updates/{route}/appcast.xml\n  Cache-Control: no-cache\n/download/{route}\n  Cache-Control: no-cache\n'
 headers.write_text(text)
 print(f'Staged download redirect and update feed in {a.out}. Review before deployment.')

@@ -13,6 +13,12 @@ options:
     macOS: "26.0"
 
 schemes:
+  BananaMacBetaDirect:
+    build:
+      targets:
+        BananaMacBetaDirect: all
+    archive:
+      config: Release
   BananaDev:
     build:
       targets:
@@ -1349,6 +1355,36 @@ targets:
   # system calendars, reminders, and notifications are still the real ones.
 
   BananaMacBeta:
+    templates: [BetaMacApplication]
+
+  BananaMacBetaDirect:
+    templates: [BetaMacApplication]
+    info:
+      path: BananaMac/InfoBetaDirect.plist
+      properties:
+        SUFeedURL: $(BANANA_UPDATE_FEED_URL)
+        SUPublicEDKey: $(BANANA_UPDATE_PUBLIC_KEY)
+        SUEnableInstallerLauncherService: true
+        SUEnableAutomaticChecks: true
+        SUAutomaticallyUpdate: true
+        SUScheduledCheckInterval: 21600
+    settings:
+      base:
+        CODE_SIGN_STYLE: Manual
+        CODE_SIGN_IDENTITY: $(BANANA_DEVELOPER_ID_IDENTITY)
+        PROVISIONING_PROFILE_SPECIFIER: $(BANANA_DEVELOPER_ID_PROFILE)
+        CODE_SIGN_ENTITLEMENTS: BananaMac/BananaMacBetaDirect.entitlements
+        ENABLE_HARDENED_RUNTIME: YES
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) MAC_APP BANANA_BETA BANANA_DIRECT"
+      configs:
+        Release:
+          BANANA_LOCAL_EMAIL: YES
+          BANANA_LOCAL_AI: NO
+    dependencies:
+      - package: Sparkle
+
+targetTemplates:
+  BetaMacApplication:
     type: application
     platform: macOS
     sources:
@@ -1469,7 +1505,6 @@ targets:
         script: '"$SRCROOT/tools/pi-mac-inference/embed-runtime.sh"'
         basedOnDependencyAnalysis: false
 
-targetTemplates:
   MacApplication:
     type: application
     platform: macOS

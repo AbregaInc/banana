@@ -12,6 +12,10 @@ def validate(info, entitlements, profile):
     identifier = info['CFBundleIdentifier']
     app_id = team + '.' + identifier
     allowed = profile['Entitlements']
+    beta = info.get('BananaReleaseChannel') == 'beta'
+    if beta:
+        assert identifier == info['BananaPrimaryBundleIdentifier'] + '.beta'
+        assert info.get('BananaServiceHost') and info['BananaServiceHost'] != 'api.bananatheapp.com'
     assert profile.get('ProvisionsAllDevices') is True, 'Not a Developer ID distribution profile'
     assert team in profile['TeamIdentifier'], 'Signing team mismatch'
     assert entitlements['com.apple.application-identifier'] == app_id, 'Application identity mismatch'
@@ -25,6 +29,8 @@ def validate(info, entitlements, profile):
         'com.apple.developer.aps-environment': 'production',
         'com.apple.developer.icloud-container-environment': 'Production',
     }.items():
+        if beta and key.startswith('com.apple.security.'):
+            continue  # Preserve the existing unsandboxed Beta data location.
         assert entitlements.get(key) == expected, 'Missing or wrong capability: ' + key
     assert app_id in entitlements['keychain-access-groups'], 'Primary keychain group missing'
     assert info['BananaCloudContainer'] in entitlements['com.apple.developer.icloud-container-identifiers']
@@ -41,7 +47,7 @@ def validate(info, entitlements, profile):
             assert fnmatch.fnmatchcase(value, grant), key
         else:
             assert value == grant, key
-    assert info.get('SUFeedURL') == 'https://bananatheapp.com/updates/mac/appcast.xml'
+    assert info.get('SUFeedURL') == f"https://bananatheapp.com/updates/{'mac-beta' if beta else 'mac'}/appcast.xml"
     assert info.get('SUPublicEDKey'), 'Missing update public key'
     assert info.get('SUEnableAutomaticChecks') and info.get('SUAutomaticallyUpdate')
     assert 'com.apple.security.cs.disable-library-validation' not in entitlements
@@ -61,7 +67,8 @@ def main():
         capture_output=True, check=True).stdout)
     validate(info, entitlements, profile)
     subprocess.run(['codesign', '--verify', '--deep', '--strict', str(app)], capture_output=True, check=True)
-    assert (app / 'Contents/Resources/container-migration.plist').is_file(), 'Missing native migration manifest'
+    if info.get('BananaReleaseChannel', 'stable') == 'stable':
+        assert (app / 'Contents/Resources/container-migration.plist').is_file(), 'Missing native migration manifest'
     print('PASS: Developer ID profile, app identity, sandbox, keychain group, production cloud/push, WeatherKit, updater and migration manifest')
 
 

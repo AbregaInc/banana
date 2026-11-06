@@ -21,7 +21,11 @@ if [ "${#primary_apps[@]}" -eq 1 ]; then
   channel=$(/usr/libexec/PlistBuddy -c 'Print :BananaReleaseChannel' "$info" 2>/dev/null || true)
   bundle=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$info" 2>/dev/null || true)
   primary=$(/usr/libexec/PlistBuddy -c 'Print :BananaPrimaryBundleIdentifier' "$info" 2>/dev/null || true)
-  if [ "$channel" = testflight ] && [ -n "$primary" ] && [ "$bundle" = "$primary" ]; then email_allowed=1; fi
+  if [ -n "$primary" ]; then
+    if [ "$channel" = testflight ] && [ "$bundle" = "$primary" ]; then email_allowed=1; fi
+    feed=$(/usr/libexec/PlistBuddy -c 'Print :SUFeedURL' "$info" 2>/dev/null || true)
+    if [ "$channel" = beta ] && [ "$bundle" = "$primary.beta" ] && [ "$feed" = 'https://bananatheapp.com/updates/mac-beta/appcast.xml' ]; then email_allowed=1; fi
+  fi
 fi
 
 # Runtime bundles, JS entry points and build markers must never reach distribution.

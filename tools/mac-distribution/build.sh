@@ -4,6 +4,8 @@ set -euo pipefail
 cd "$(dirname "$0")/../.."
 . tools/config.sh require
 mode=${1:-test}
+channel=${BANANA_DISTRIBUTION_CHANNEL:-stable}
+[[ "$channel" == stable || "$channel" == beta ]] || exit 2
 [[ "$mode" == test || "$mode" == release ]] || { echo 'Usage: build.sh test|release'; exit 2; }
 : "${BANANA_UPDATE_FEED_URL:?Set the HTTPS feed URL (Tailscale HTTP permitted for test only)}"
 : "${BANANA_UPDATE_PUBLIC_KEY:?Set the Sparkle public Ed25519 key}"
@@ -15,6 +17,7 @@ if [[ "$mode" == release ]]; then
 fi
 xcodegen generate
 scheme=BananaMacDirect
+[[ "$channel" != beta ]] || scheme=BananaMacBetaDirect
 [[ "$mode" != test ]] || scheme=BananaMacInstallerTest
 args=(-project Banana.xcodeproj -scheme "$scheme" -configuration Release
   -destination 'generic/platform=macOS' -derivedDataPath .build/mac-distribution
@@ -31,6 +34,8 @@ else
   [[ "$BANANA_UPDATE_FEED_URL" == https://* ]] || { echo 'Release feed requires HTTPS'; exit 1; }
   : "${BANANA_DEVELOPER_ID_PROFILE:?Set Developer ID provisioning profile name}"
   : "${BANANA_DEVELOPER_ID_IDENTITY:?Set Developer ID Application signing identity}"
+  planned_channel=$(python3 -c 'import json,os; print(json.load(open(os.environ["BANANA_RELEASE_PLAN"])).get("channel","stable"))')
+  [[ "$channel" == "$planned_channel" ]] || { echo 'Plan channel mismatch'; exit 1; }
   args+=("BANANA_DEVELOPER_ID_IDENTITY=$BANANA_DEVELOPER_ID_IDENTITY"
     "BANANA_DEVELOPER_ID_PROFILE=$BANANA_DEVELOPER_ID_PROFILE"
     "BANANA_SOURCE_COMMIT=$source_commit"

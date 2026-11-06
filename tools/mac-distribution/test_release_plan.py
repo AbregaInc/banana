@@ -15,6 +15,15 @@ class ReleasePlanTests(unittest.TestCase):
         self.assertTrue(value['baseURL'].endswith('/mac-v1.0.1-91'))
         plan.validate_plan(value, 'a' * 40)
 
+    def test_beta_tag_and_shared_monotonic_build_numbers(self):
+        value = plan.make_plan('1.0.4', '95', ['mac-v1.0.3-98', 'mac-beta-v1.0.4-101'], 'a' * 40, 'beta')
+        value['channel'] = 'beta'
+        self.assertEqual(value['version'], '102')
+        self.assertTrue(value['baseURL'].endswith('/mac-beta-v1.0.4-102'))
+        plan.validate_plan(value, 'a' * 40)
+        value['channel'] = 'stable'
+        with self.assertRaises(ValueError): plan.validate_plan(value, 'a' * 40)
+
     def test_other_commit_cannot_reuse_plan(self):
         value = plan.make_plan('1.0.1', '86', [], 'a' * 40)
         with self.assertRaises(ValueError): plan.validate_plan(value, 'b' * 40)

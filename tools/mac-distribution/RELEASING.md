@@ -89,3 +89,28 @@ background. Native Finder continues to supply the interactive icons and labels.
 A packaging-only design change still produces different signed DMG bytes. Never
 replace the current public asset in place: include the design in the next numbered
 release, notarize the new DMG, and promote its new signature and checksum together.
+
+## Beta direct downloads
+
+`BananaMacBetaDirect` shares the existing Beta sources and identity. It includes
+feature-gated Email, excludes local AI and test fixtures, and uses the staging
+service. It preserves Beta's unsandboxed local storage; no stable data is imported.
+Developer ID requires production push and the Production database of the separate
+Beta CloudKit container. Local development builds can use a different CloudKit
+environment; this installer does not migrate between those databases.
+
+Prepare with `release-plan.py --channel beta --version VERSION --out PLAN` and
+build with `BANANA_DISTRIBUTION_CHANNEL=beta`, the Beta Developer ID profile and
+`BANANA_UPDATE_FEED_URL=https://bananatheapp.com/updates/mac-beta/appcast.xml`.
+The update signing key must match the embedded public key. The same notarization,
+profile coverage and signature checks apply. Publish as a GitHub prerelease with
+`--latest=false`, tagged `mac-beta-vVERSION-BUILD`. Stage with `stage-site.py`;
+it writes only `/download/mac-beta` and `/updates/mac-beta/`. Stable stays on its
+own feed. Retention is one current full installer **per channel**, with the same
+24-hour grace for superseded downloads.
+
+The first Beta installer adds Sparkle to existing local Beta builds. It cannot
+update those older builds automatically because they have no updater; install the
+DMG once. Subsequent direct Beta releases use this feed. A first release cannot
+prove a future live upgrade; report that acceptance separately from signing and
+feed validation.

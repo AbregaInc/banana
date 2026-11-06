@@ -82,11 +82,12 @@ def main():
         if info['CFBundleIdentifier'] != 'org.banana.installer-test':
             parser.error('Test packaging only accepts the isolated installer-test bundle')
     else:
-        if info.get('BananaReleaseChannel', 'stable') != 'stable':
+        channel = info.get('BananaReleaseChannel', 'stable')
+        if channel not in ('stable', 'beta'):
             parser.error('Public installers require a Stable Release build, not an experimental archive')
         if not re.fullmatch(r'[0-9a-f]{40}', info.get('BananaSourceCommit', '')):
             parser.error('Production app must carry its clean source commit; build using a release plan')
-        expected_base = f"https://github.com/AbregaInc/banana/releases/download/mac-v{info['CFBundleShortVersionString']}-{info['CFBundleVersion']}"
+        expected_base = f"https://github.com/AbregaInc/banana/releases/download/mac{'-beta' if channel == 'beta' else ''}-v{info['CFBundleShortVersionString']}-{info['CFBundleVersion']}"
         if args.base_url.rstrip('/') != expected_base:
             parser.error('Download URL must match the app version and build number')
         if args.test_version or info['CFBundleIdentifier'] == 'org.banana.installer-test':
@@ -194,6 +195,7 @@ def main():
         'version': version, 'shortVersion': short, 'url': url, 'sha256': digest,
         'bytes': dmg.stat().st_size, 'testOnly': args.test, 'notarized': notarize,
         'bundleIdentifier': info['CFBundleIdentifier'],
+        'channel': info.get('BananaReleaseChannel', 'stable'),
         'sourceCommit': info.get('BananaSourceCommit'),
     }, indent=2) + '\n')
     print(dmg)
