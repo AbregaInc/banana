@@ -46,7 +46,7 @@ test('Google Mail transport streams a bounded body and encodes individual resour
  const google=createGoogle({},async(url,init)=>{captured={url,init};return Response.json({id:'message'});});
  const answer=await google.mailRead('access',{resource:'message',id:'a/b',query:[]});
  assert.equal(captured.url,'https://gmail.googleapis.com/gmail/v1/users/me/messages/a%2Fb?');
- assert.equal(captured.init.redirect,'error');
+ assert.equal(captured.init.redirect,'manual');
  assert.deepEqual(await new Response(answer.stream).json(),{id:'message'});
  const oversized=createGoogle({},async()=>new Response('small',{headers:{'content-length':String(41*1024*1024)}}));
  await assert.rejects(oversized.mailRead('access',{resource:'profile',query:[]}),{name:'GoogleError'});

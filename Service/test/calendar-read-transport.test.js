@@ -11,7 +11,7 @@ test('Calendar transport fixes the provider host and encodes IDs as individual p
  assert.equal(url.origin,'https://www.googleapis.com');
  assert.equal(url.pathname,'/calendar/v3/calendars/shared%2Fcalendar%40plan.example/events');
  assert.equal(url.searchParams.get('maxResults'),'2500');
- assert.equal(captured.init.redirect,'error');
+ assert.equal(captured.init.redirect,'manual');
  assert.equal(captured.init.headers.authorization,'Bearer provider-access');
  assert.equal(url.searchParams.has('access_token'),false);
 });

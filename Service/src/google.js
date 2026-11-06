@@ -36,7 +36,17 @@ export function createGoogle(config, fetchImpl, now = Date.now) {
   /** @type {Map<string, {accessToken: string, expiresAt: number}>} keyed by refresh token, memory only */
   const cache = new Map();
   // No call waits on Google for longer than this: a hung read must not run a cron loop into the platform's limit.
-  const fetch = (url, init = {}) => fetchImpl(url, { ...init, signal: AbortSignal.timeout(FETCH_TIMEOUT) });
+  const fetch = async (url, init = {}) => {
+    // Workers rejects redirect:"error" while constructing the request. Use its supported
+    // manual mode and reject redirects ourselves; never forward Google credentials elsewhere.
+    const rejectRedirect = init.redirect === "error";
+    const response = await fetchImpl(url, { ...init,
+      ...(rejectRedirect ? { redirect: "manual" } : {}), signal: AbortSignal.timeout(FETCH_TIMEOUT) });
+    if (rejectRedirect && response.status >= 300 && response.status < 400) {
+      throw new GoogleError("google redirect refused", 502);
+    }
+    return response;
+  };
 
   async function token(fields) {
     const response = await fetch(TOKEN_URL, {
