@@ -85,7 +85,7 @@ test('delete removes the Gmail draft and recovers a lost reply without another d
  assert.equal(t.drafts.size,0);assert.equal(t.counts().deletes,1);
 });
 test('reads use Gmail including drafts created outside Banana',async()=>{
- const t=await ready();t.s.google.mailRead=async(token,request)=>({status:200,body:request.resource==='drafts'?{drafts:[{id:'external'}]}:{id:'external',message:{id:'outside',raw:'body'}}});
+ const t=await ready();t.s.deps.sleep=async ms=>t.s.advance(ms);t.s.google.mailRead=async(token,request)=>({status:200,body:request.resource==='drafts'?{drafts:[{id:'external'}]}:{id:'external',message:{id:'outside',raw:'body'}}});
  const read=body=>t.s.call('POST','/v1/mail/read',{session:t.a.session,body:{email:'noor@plan.example',query:[],...body}});
  assert.equal((await read({resource:'drafts'})).json.drafts[0].id,'external');
  assert.equal((await read({resource:'draft',id:'external',query:[{name:'format',value:'raw'}]})).json.message.raw,'body');

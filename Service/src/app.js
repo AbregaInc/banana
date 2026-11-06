@@ -355,6 +355,7 @@ export function createApp(deps) {
     const request = parseMailRead(await readJson(c,64 * 1024));
     if (!request) return c.json({error:"bad_request"},400);
     const answer = await mailRead(deps,vault,c.get("account"),request);
+    if(answer.retryAfter)c.header("Retry-After",String(answer.retryAfter));
     return answer.stream ? c.body(answer.stream,answer.status,{"Content-Type":"application/json"}) : c.json(answer.body,answer.status);
   });
 

@@ -1,0 +1,8 @@
+{
+ "name":"banana-mail-pacing-check",
+ "main":"worker.js",
+ "compatibility_date":"2025-10-01",
+ "compatibility_flags":["nodejs_compat"],
+ "rules":[{"type":"Text","globs":["**/*.sql"],"fallthrough":true}],
+ "d1_databases":[{"binding":"DB","database_name":"mail-pacing-fixture","database_id":"00000000-0000-0000-0000-000000000001"}]
+}

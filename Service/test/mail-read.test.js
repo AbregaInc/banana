@@ -5,6 +5,7 @@ import {GoogleRefused,createGoogle} from '../src/google.js';
 import {parseMailRead} from '../src/mail-read.js';
 const request=(extra={})=>({email:'noor@plan.example',resource:'messages',query:[],...extra});
 async function signed(s,name='noor') {
+ s.deps.sleep=async ms=>s.advance(ms);
  s.google.person(name,'sub-'+name,name+'@plan.example');
  const a=(await s.signIn(name,device('device-'+name))).json;
  await s.db.run('INSERT INTO feature_access VALUES (?,?,1,NULL,?)',a.account.id,'email',s.now());
@@ -50,4 +51,19 @@ test('Google Mail transport streams a bounded body and encodes individual resour
  assert.deepEqual(await new Response(answer.stream).json(),{id:'message'});
  const oversized=createGoogle({},async()=>new Response('small',{headers:{'content-length':String(41*1024*1024)}}));
  await assert.rejects(oversized.mailRead('access',{resource:'profile',query:[]}),{name:'GoogleError'});
+});
+test('queued reads recheck revoked grants before contacting Gmail',async()=>{
+ const s=setup(),a=await signed(s);let reads=0;
+ s.google.mailRead=async()=>{reads++;return {status:200,body:{}};};
+ assert.equal((await call(s,a)).status,200);
+ s.deps.sleep=async ms=>{s.advance(ms);await s.db.run("UPDATE mail_grants SET status='unlinked'");};
+ assert.equal((await call(s,a)).status,403);
+ assert.equal(reads,1);
+});
+test('excess queued reads return retry guidance without contacting Gmail',async()=>{
+ const s=setup(),a=await signed(s);let reads=0;
+ s.google.mailRead=async()=>{reads++;return {status:200,body:{}};};
+ await s.db.run('INSERT INTO mail_read_pacing VALUES (?,?)','sub-noor',s.now()+20_000);
+ const response=await s.app.request('/v1/mail/read',{method:'POST',headers:{authorization:'Bearer '+a.session,'content-type':'application/json'},body:JSON.stringify(request())});
+ assert.equal(response.status,429);assert.equal(response.headers.get('retry-after'),'1');assert.equal(reads,0);
 });

@@ -1,3 +1,4 @@
+import {reserveMailRead} from './mail-read-pacing.js';
 import {mailLink} from './mail-grant.js';
 import {featureAllowed,googleCapabilities} from './feature-access.js';
 import {GoogleRefused} from './google.js';
@@ -27,6 +28,15 @@ export async function mailRead(deps,vault,account,request) {
  if(!link||!googleCapabilities({...link,has_token:Boolean(link.refresh_token)}).mailRead)return fail(403,'Connect Email for this Google account.');
  if(link.client_id&&link.client_id!==deps.config.googleClientId)return fail(403,'Reconnect Email for this service.');
  try {
+  const reservation=await reserveMailRead(deps,link.sub,request);
+  if(!reservation)return {...fail(429,'Mail reads are queued. Retry shortly.'),retryAfter:1};
+  if(reservation.waitMS>0) {
+   await deps.sleep(reservation.waitMS);
+   const current=await mailLink(deps,account,request.email);
+   if(!await featureAllowed(deps,account,'email')||!current||current.refresh_token!==link.refresh_token||
+      !googleCapabilities({...current,has_token:Boolean(current.refresh_token)}).mailRead||
+      (current.client_id&&current.client_id!==deps.config.googleClientId))return fail(403,'Email access changed.');
+  }
   const {accessToken}=await deps.google.refresh(await vault.open(link.sub,link.refresh_token));
   return await deps.google.mailRead(accessToken,request);
  } catch(error) {
