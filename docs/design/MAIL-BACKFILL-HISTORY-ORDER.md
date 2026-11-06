@@ -94,3 +94,17 @@ fixture with only the oldest 50 threads linked returned the correct page and cou
 in 94.73, 93.22 and 93.43 ms, within the unchanged 100 ms component limit.
 This is correctness/budget evidence, not a speed improvement or physical UI
 measurement. Evidence: `private/cloud-rollout/account-scope-final`.
+
+Build 100 (`3b66ffa7`) was installed on the phone and iPad, and both reported the
+expected installed version. The iPad launched; the phone installed successfully
+but its lock prevented launch. Remote screenshot capture was unavailable, so visible
+Inbox acceptance remains pending. Installation and a changed database count must
+not be reported as proof that the screen matches Gmail. Private device evidence:
+`private/mac-distribution/beta-100-*-apps.json`.
+
+The build-100 persistent component gate failed its unchanged memory comparisons:
+scale-1d 362.77 MB, scale-7d 364.52 MB, scale-90d 703.98 MB, Library redraw
+485.80 MB, Plan redraw 503.56 MB and Mail redraw 484.97 MB. The 1-day case
+also lacked clean host-monitoring evidence. No latency failures were reported.
+All samples remain in `private/cloud-rollout/account-scope-performance/gate.json`;
+this is not a passing performance gate or physical-device UI acceptance.
