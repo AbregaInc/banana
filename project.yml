@@ -1041,6 +1041,8 @@ targets:
       - path: Banana/Model/Telemetry.swift
       - path: Banana/Model/FeatureAccessPolicy.swift
       - path: Banana/Model/BananaService.swift
+      - path: Banana/Model/PushEnvironment.swift
+      - path: BananaTests/PushEnvironmentTests.swift
       # Crash, hang and performance reports for the service (the outbox and the batch).
       - path: Banana/Model/DiagnosticReports.swift
       - path: Banana/Model/MyFoodsStore.swift

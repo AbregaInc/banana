@@ -42,7 +42,7 @@ enum BananaService {
         var platform: String
         /// The push token in hex, once iOS or macOS has given one.
         var push: String?
-        /// development for builds installed directly, production for TestFlight and the App Store.
+        /// The signed APNs environment; direct-download Mac releases also use production.
         var pushEnv: String
         var bundle: String
         var providerProtocol: Int? = nil

@@ -279,7 +279,7 @@ final class BananaAccount: ObservableObject {
         guard hex != pushToken else { return }
         pushToken = hex
         pushRegistered = false
-        PlaybackDiagnostics.shared.log("☁️ push", "token from Apple (\(Telemetry.channel == "dev" ? "development" : "production"))")
+        PlaybackDiagnostics.shared.log("☁️ push", "token from Apple (\(pushEnvironment))")
         Task { await registerDevice() }
     }
 
@@ -303,9 +303,13 @@ final class BananaAccount: ObservableObject {
         return id
     }
 
+    private var pushEnvironment: String {
+        PushEnvironment.current(isDevelopmentInstall: Telemetry.channel == "dev")
+    }
+
     private func device() -> BananaService.Device {
         BananaService.Device(id: deviceID, platform: Telemetry.platform, push: pushToken,
-                             pushEnv: Telemetry.channel == "dev" ? "development" : "production",
+                             pushEnv: pushEnvironment,
                              bundle: Bundle.main.bundleIdentifier ?? "com.boris.banana", providerProtocol: 1)
     }
 
