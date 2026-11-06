@@ -30,3 +30,30 @@ has already been downloaded for offline use or introduce shared cloud body cachi
 References: [Apple attributed Text](https://developer.apple.com/documentation/swiftui/text/init(_:)),
 [WebKit script policy](https://developer.apple.com/documentation/webkit/wkwebpagepreferences/allowscontentjavascript).
 Functional tests and native builds are separate from physical UI/frame acceptance.
+
+## Build 101 validation
+
+Source `73756fff`: nine reader/link tests passed, including visibility before a cache
+read completes, one automatic request per missing body, explicit retries and safe
+link attributes. Twelve original-layout/body-store/loader checks passed. Original
+view UI journeys passed on phone and iPad simulators; both screenshots were inspected.
+Evidence: `private/cloud-rollout/mail-reader-101-cache-race`, `mail-original-101`,
+`mail-reader-101-evidence`, and the matching phone/pad UI logs. The first reader
+harness attempts exposed stale conditional-compilation extraction and a missing
+SwiftUI link dependency; those runner issues were fixed and failed logs retained.
+
+Beta 1.0.4 (101) installed and launched successfully on both physical devices, and
+their installed versions were queried afterward. Remote physical screenshot capture
+remains unavailable. The Mac archive compiled successfully; no visible Mac UI or
+physical input/frame acceptance is claimed.
+
+The build-101 component run was superseded by the subsequently reported encoded
+snippet bug; its output and interruption reason remain in
+`private/cloud-rollout/mail-reader-101-performance/superseded.json`. It is not
+a passing gate. The final component run targets the snippet correction too.
+
+Gmail preview entities are decoded once with the pinned SwiftSoup entity decoder
+at the bounded index/conversation read boundary, off the UI thread. Stored snippets
+remain provider-encoded. This fixes old cached previews without a migration or
+re-download, covers search through the shared row decoder, and leaves subjects and
+literal HTML-looking text intact.
