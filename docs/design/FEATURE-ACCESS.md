@@ -1,7 +1,7 @@
 # Feature access
 
-Implementation status: production and staging run `879e2709`, with schema through 0017
-(5 November 2026). Production has zero eligibility grants at the last verified rollout check.
+Implementation status: production runs `879e2709` with schema 0017; staging runs `0d53d787`
+with schema 0020. Both have zero eligibility grants at the last verified rollout check.
 Primary iOS/iPad and Mac build 95 use `55d675e6`; distribution evidence is recorded in
 [the rollout plan](CLOUD-AND-RELEASE-PLAN.md). Live-provider and device acceptance remain open.
 Deploy service/schema support before the clients. Guarded Calendar reads/writes and Mail
@@ -45,8 +45,11 @@ python3 Service/tools/feature-access.py --environment beta \
 ```
 
 Run the same command with `--apply` to execute using the operator's existing Wrangler
-credentials through the pinned Wrangler 4.158.0 CLI (`npx`). Check `accounts_updated` is 1. Zero means the ID does not exist in that environment;
-the command never creates an account. Revoke with `--access revoke --apply` and omit expiry.
+credentials through the pinned Wrangler 4.158.0 CLI (`npx`). The tool requires an explicit receipt
+confirming exactly one updated account. Missing accounts, incompatible registered devices and
+ambiguous responses return a nonzero exit status. It never creates an account or removes an old
+device to bypass the migration guard. Installing Dev beside legacy Beta does not upgrade Beta’s
+registration: the existing app must run a compatible build. Revoke with `--access revoke --apply` and omit expiry.
 Grants are not deployed as seeds, inferred from email addresses, or enabled for every Beta user.
 
 ## Build presets
@@ -63,8 +66,8 @@ only after provisioning an isolated development backend, Google clients and sign
 These schemes do not provision those resources or silently fall back to Beta/production.
 The Dev credential services, local root, Bonjour service and Reminders list are separate.
 Google writes still use Beta's test-account safeguards. Signed Mac Dev is installed alongside the
-primary app. The signed iOS Dev build is prepared,
-but phone/iPad installation and fresh staging consent remain acceptance work.
+primary app. Signed Dev `11692682` is installed on both phones, iPad and Mac, with coexistence
+verified. Fresh staging consent and live-provider acceptance remain open.
 
 Stable and TestFlight share the existing app record, account and data. A TestFlight install
 replaces Stable; groups choose builds, not feature eligibility. The Beta service is staging.

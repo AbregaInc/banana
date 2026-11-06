@@ -41,3 +41,16 @@ class FeatureAccessAdminTests(unittest.TestCase):
                      ('account', 'email', True, 99, 100)]:
             with self.subTest(args=args), self.assertRaises(ValueError):
                 module.statement(*args)
+
+    def test_update_receipt_refuses_missing_accounts_and_old_devices(self):
+        def receipt(**row):
+            return [{'success': True, 'results': [row]}]
+        module.verify_result(receipt(accounts_updated=1, account_exists=1, outdated_devices=0))
+        with self.assertRaisesRegex(ValueError, 'does not exist'):
+            module.verify_result(receipt(accounts_updated=0, account_exists=0, outdated_devices=0))
+        with self.assertRaisesRegex(ValueError, '3 registered device'):
+            module.verify_result(receipt(accounts_updated=0, account_exists=1, outdated_devices=3))
+        for payload in [[], [{'success': False}], receipt(accounts_updated=2),
+                        receipt(accounts_updated=0, account_exists=1, outdated_devices=0)]:
+            with self.subTest(payload=payload), self.assertRaises(ValueError):
+                module.verify_result(payload)

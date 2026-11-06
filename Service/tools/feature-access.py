@@ -2,6 +2,7 @@
 """Set eligibility for an existing Banana account in an explicitly selected deployment."""
 import argparse
 import datetime
+import json
 import pathlib
 import re
 import subprocess
@@ -26,8 +27,28 @@ def statement(account, feature, enabled, expires_at, now):
 SELECT id, '{feature}', {int(enabled)}, {expiry}, {int(now)} FROM accounts WHERE id = '{account}'{ready}
 ON CONFLICT(account_id, feature) DO UPDATE SET enabled=excluded.enabled,
 expires_at=excluded.expires_at, updated_at=excluded.updated_at;
-SELECT changes() AS accounts_updated;
+SELECT changes() AS accounts_updated,
+ EXISTS(SELECT 1 FROM accounts WHERE id = '{account}') AS account_exists,
+ (SELECT COUNT(*) FROM devices WHERE account_id = '{account}' AND provider_protocol<1) AS outdated_devices;
 """
+
+
+def verify_result(payload):
+    """A refused grant is a failure, not a successful command with a zero buried in its output."""
+    if not isinstance(payload, list) or any(item.get('success') is not True for item in payload):
+        raise ValueError('The service did not confirm the update.')
+    rows = [row for item in payload for row in item.get('results', []) if 'accounts_updated' in row]
+    if len(rows) != 1:
+        raise ValueError('The service returned no unambiguous update receipt.')
+    row = rows[0]
+    if row['accounts_updated'] == 1:
+        return
+    if row.get('account_exists') == 0:
+        raise ValueError('No update: this account does not exist in the selected environment.')
+    count = row.get('outdated_devices', 0)
+    if isinstance(count, int) and count > 0:
+        raise ValueError(f'No update: {count} registered device(s) must run a compatible build before access can be granted.')
+    raise ValueError('The service did not update exactly one account.')
 
 
 def main():
@@ -54,11 +75,17 @@ def main():
         query.write(sql)
         query.flush()
         database = 'banana-service' if args.environment == 'stable' else 'banana-service-beta'
-        command = [*WRANGLER, 'd1', 'execute', database, '--remote', '--file', query.name]
+        command = [*WRANGLER, 'd1', 'execute', database, '--remote', '--file', query.name, '--json']
         if args.environment == 'beta':
             command += ['--env', 'beta']
-        subprocess.run(command, cwd=SERVICE, check=True)
-    print('Check accounts_updated is 1; 0 means the account is missing or a registered device needs an upgrade.')
+        result = subprocess.run(command, cwd=SERVICE, capture_output=True, text=True)
+        if result.returncode:
+            parser.exit(1, 'The service request failed; the update is not confirmed.\n')
+        try:
+            verify_result(json.loads(result.stdout))
+        except (ValueError, TypeError, AttributeError) as error:
+            parser.exit(1, str(error) + '\n')
+    print(f'Confirmed {args.access} for {args.feature} in {args.environment}.')
 
 
 if __name__ == '__main__':
