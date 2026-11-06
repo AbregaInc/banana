@@ -39,7 +39,11 @@ final class GmailReconcileSyncTests: XCTestCase {
     }
     func testHandshakeThenEveryListingStopsAtVerification() async throws {
         let stores = try await stores(), api = Provider(stores: stores)
-        let result = try await worker(stores, api).enumerate(account: "a@example.com", nowMS: 1)
+        let first = try await worker(stores, api).enumerate(account: "a@example.com", nowMS: 1)
+        guard case .more(let inbox) = first else { return XCTFail("Inbox check must yield before older labels") }
+        XCTAssertEqual(inbox.listing, 1)
+        XCTAssertTrue(inbox.inboxClosed == true)
+        let result = try await worker(stores, api).enumerate(account: "a@example.com", nowMS: 2)
         guard case .needsVerification(let state) = result else { return XCTFail("Did not complete all listings") }
         XCTAssertEqual(state.phase, .verifying)
         let requests = await api.requests

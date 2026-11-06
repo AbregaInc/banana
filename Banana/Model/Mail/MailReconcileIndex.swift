@@ -13,10 +13,17 @@ enum MailReconcileIndex {
         var pageToken: String?
         var maxPKAtStart: Int64
         var startedAt: UInt64
+        // Optional fields decode older saved scans without restarting them.
+        var inboxCloseAfterPK: Int64?
+        var inboxClosed: Bool?
         var closeAfterPK: Int64 = 0
         var phase: Phase = .listing
         enum Phase: String, Codable, Sendable { case listing, closing, verifying }
         var label: String? { labels.indices.contains(listing) ? labels[listing] : nil }
+        var needsInboxCheck: Bool {
+            phase != .verifying && inboxClosed != true &&
+                labels.firstIndex(of: "INBOX").map { listing > $0 } == true
+        }
     }
 
     static func state(account: String, in db: Database) throws -> State? {
@@ -115,6 +122,33 @@ enum MailReconcileIndex {
             change.formUnion(try MailIndexWriter.rebuildThread(thread, facts: MailMessageImporter.facts(threadPK: thread, in: db), myAddresses: [account], reuseStatements: reuseProjectionStatements, in: db))
         }
         return (next, change)
+    }
+
+    /// Finish Inbox membership before scanning older labels. Absence only schedules
+    /// a provider read; it never removes a local label or a message by itself.
+    static func closeInboxBatch(account: String, expected: State, nowMS: Int64,
+                                in db: Database) throws -> State {
+        let pk = try owner(account: account, expected: expected, in: db)
+        guard expected.needsInboxCheck, nowMS >= 0 else { throw Failure.invalidState }
+        let rows = try Row.fetchAll(db, sql: """
+            SELECT m.msg_pk,m.history_id,m.vis,l.label_pk FROM message_label ml
+            JOIN label l ON l.label_pk=ml.label_pk JOIN message m ON m.msg_pk=ml.msg_pk
+            WHERE l.account_pk=? AND l.gmail_id='INBOX' AND m.msg_pk>? AND m.msg_pk<=?
+            ORDER BY m.msg_pk LIMIT 100
+            """, arguments: [pk, expected.inboxCloseAfterPK ?? 0, expected.maxPKAtStart])
+        var next = expected
+        for row in rows {
+            let message: Int64 = row[0], raw: String? = row[1], visibility: Int = row[2], label: Int64 = row[3]
+            next.inboxCloseAfterPK = message
+            guard visibility != 4, (raw.flatMap(GmailNumber.unsigned) ?? 0) <= expected.startedAt else { continue }
+            let seen = try Bool.fetchOne(db, sql: """
+                SELECT EXISTS(SELECT 1 FROM enum_mark WHERE account_pk=? AND generation=? AND label_pk=? AND msg_pk=?)
+                """, arguments: [pk, expected.generation, label, message]) == true
+            if !seen { try queue(message, generation: expected.generation, nowMS: nowMS, in: db) }
+        }
+        if rows.count < 100 { next.inboxClosed = true }
+        try save(next, account: account, in: db)
+        return next
     }
 
     /// A rejected continuation restarts only its listing. Already observed marks

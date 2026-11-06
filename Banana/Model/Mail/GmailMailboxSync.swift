@@ -45,7 +45,16 @@ actor GmailMailboxSync {
         let unfinished = try await stores.index.read { try MailReconcileIndex.state(account: account, in: $0) != nil }
         if needsReconcile || unfinished {
             switch try await reconcile.enumerate(account: account, nowMS: nowMS, maximumSteps: 2) {
-            case .more: return Progress(hasMore: true, checkpoint: checkpoint)
+            case .more:
+                let pending = try await stores.index.read { db in
+                    try Bool.fetchOne(db, sql: """
+                        SELECT EXISTS(SELECT 1 FROM verify_queue q JOIN message m ON m.msg_pk=q.msg_pk
+                        JOIN account a ON a.account_pk=m.account_pk
+                        WHERE a.email=? AND q.generation=a.enum_generation AND q.outcome IS NULL AND m.vis!=4)
+                        """, arguments: [account]) == true
+                }
+                if pending { _ = try await verification.verify(account: account, nowMS: nowMS, maximumBatches: 1) }
+                return Progress(hasMore: true, checkpoint: checkpoint)
             case .needsVerification:
                 let outcome = try await verification.verify(account: account, nowMS: nowMS, maximumBatches: 1)
                 return Progress(hasMore: moreHistory || outcome == .more, checkpoint: checkpoint)

@@ -8,6 +8,8 @@ final class GmailMailboxSyncTests: XCTestCase {
         var operations: [String] = []
         var historyFailure: GmailError?
         var incompleteOnce = false
+        var messageReplies: [String: GmailMessage] = [:]
+        func reply(_ message: GmailMessage) { messageReplies[message.id!] = message }
         func injectIncompleteHistory() { incompleteOnce = true }
         func configure(account: String? = nil, failure: GmailError? = nil) {
             if let account { self.account = account }
@@ -30,7 +32,11 @@ final class GmailMailboxSyncTests: XCTestCase {
             operations.append("list")
             return GmailIDPage()
         }
-        func message(token: String, id: String, format: GmailFormat) async throws -> GmailMessage { throw GmailError.notFound }
+        func message(token: String, id: String, format: GmailFormat) async throws -> GmailMessage {
+            operations.append("get:" + id)
+            guard let message = messageReplies[id] else { throw GmailError.notFound }
+            return message
+        }
         func thread(token: String, id: String, format: GmailFormat) async throws -> GmailThread { throw GmailError.malformed }
         func attachment(token: String, messageID: String, attachmentID: String) async throws -> GmailPartBody { throw GmailError.malformed }
         func modify(token: String, id: String, add: [String], remove: [String]) async throws { XCTFail("Sync may not mutate Gmail"); throw GmailError.malformed }
@@ -57,13 +63,35 @@ final class GmailMailboxSyncTests: XCTestCase {
         }
         XCTAssertTrue(finished)
         let operations = await api.operations
-        XCTAssertEqual(Array(operations.prefix(5)), ["list", "list", "history", "list", "list"])
+        XCTAssertEqual(Array(operations.prefix(4)), ["list", "history", "list", "list"])
         XCTAssertEqual(operations.filter { $0 == "list" }.count, 8)
         let state = try await stores.index.read { try MailReconcileIndex.state(account: "a@example.com", in: $0) }
         XCTAssertNil(state)
         let settled = try await worker.pass(account: "a@example.com", nowMS: 11)
         XCTAssertFalse(settled.hasMore)
         XCTAssertEqual(settled.checkpoint, 10)
+    }
+
+    func testArchivedInboxEntryIsVerifiedBeforeOlderMailboxBackfill() async throws {
+        let api = Provider(), (stores, worker) = try await setup(api)
+        try await stores.index.write { db in
+            _ = try MailMessageImporter.apply(FetchedMessage(
+                wire: GmailMessage(id: "archived", threadId: "thread", labelIds: ["INBOX"], historyId: 1),
+                floor: 1, headers: MessageHeaders(payload: nil), structure: nil),
+                account: "a@example.com", myAddresses: ["a@example.com"], in: db)
+        }
+        await api.reply(GmailMessage(id: "archived", threadId: "thread", labelIds: [], historyId: 9))
+        let result = try await worker.pass(account: "a@example.com", nowMS: 1)
+        XCTAssertTrue(result.hasMore)
+        let operations = await api.operations
+        XCTAssertEqual(operations, ["list", "get:archived"])
+        let state = try await stores.index.read { try MailReconcileIndex.state(account: "a@example.com", in: $0) }
+        XCTAssertEqual(state?.listing, 1)
+        XCTAssertEqual(state?.phase, .listing)
+        let membership = try await stores.index.read { try Int.fetchOne($0, sql: "SELECT count(*) FROM message_label") }
+        XCTAssertEqual(membership, 0)
+        let retained = try await stores.index.read { try Int.fetchOne($0, sql: "SELECT count(*) FROM message") }
+        XCTAssertEqual(retained, 1)
     }
 
     func testHistoryFailureStopsBackfillWithoutLosingContinuation() async throws {
@@ -76,7 +104,7 @@ final class GmailMailboxSyncTests: XCTestCase {
         let after = try await stores.index.read { try MailReconcileIndex.state(account: "a@example.com", in: $0) }
         XCTAssertEqual(before, after)
         let operations = await api.operations
-        XCTAssertEqual(operations, ["list", "list", "history"])
+        XCTAssertEqual(operations, ["list", "history"])
         await api.configure()
         _ = try await worker.pass(account: "a@example.com", nowMS: 3)
     }

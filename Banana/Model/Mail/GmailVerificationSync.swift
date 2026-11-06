@@ -34,9 +34,10 @@ actor GmailVerificationSync {
         try await recover(account)
         for _ in 0..<maximumBatches {
             try Task.checkCancellation()
-            guard try await stores.index.read({ try MailReconcileIndex.state(account: account, in: $0) }) != nil else { return .finished }
+            guard let state = try await stores.index.read({ try MailReconcileIndex.state(account: account, in: $0) }) else { return .finished }
             let requests = try await stores.index.read { try MailVerificationIndex.requests(account: account, in: $0) }
             if requests.isEmpty {
+                guard state.phase == .verifying else { return .more }
                 let applied = try await writer.transactValue { db in
                     let result = try MailVerificationIndex.resolveBatch(account: account, nowMS: nowMS, in: db)
                     return (result, result.change)

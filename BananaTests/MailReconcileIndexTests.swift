@@ -123,6 +123,47 @@ final class MailReconcileIndexTests: XCTestCase {
             sql: "SELECT count(*) FROM message_label ml JOIN message m USING(msg_pk) WHERE m.gmail_id='new'") }, 1)
     }
 
+    func testInboxAbsenceQueuesReadWithoutRemovingMembershipOrCompletingScan() throws {
+        let queue = try setup(), state = try queue.write { try begin($0) }
+        let listed = try queue.write { db in
+            try db.execute(sql: "INSERT INTO message_label(msg_pk,label_pk) SELECT 1,label_pk FROM label WHERE account_pk=1 AND gmail_id='INBOX'")
+            return try MailReconcileIndex.apply(GmailIDPage(), account: account,
+                expected: state, floor: 10, nowMS: 1, in: db).0
+        }
+        let closed = try queue.write { try MailReconcileIndex.closeInboxBatch(account: account, expected: listed, nowMS: 2, in: $0) }
+        XCTAssertTrue(closed.inboxClosed == true)
+        XCTAssertEqual(closed.phase, .listing)
+        XCTAssertEqual(try queue.read { try Int.fetchOne($0, sql: "SELECT count(*) FROM message_label WHERE msg_pk=1") }, 1)
+        XCTAssertEqual(try queue.read { try Int64.fetchAll($0, sql: "SELECT msg_pk FROM verify_queue") }, [1])
+        XCTAssertThrowsError(try queue.write { try MailVerificationIndex.resolveBatch(account: account, nowMS: 3, in: $0) })
+        // Older persisted JSON has neither Inbox bookmark, and must resume safely.
+        var object = try JSONSerialization.jsonObject(with: JSONEncoder().encode(listed)) as! [String: Any]
+        object.removeValue(forKey: "inboxCloseAfterPK"); object.removeValue(forKey: "inboxClosed")
+        let restored = try JSONDecoder().decode(MailReconcileIndex.State.self, from: JSONSerialization.data(withJSONObject: object))
+        XCTAssertTrue(restored.needsInboxCheck)
+    }
+
+    func testInboxRepairIsBoundedAndResumesFromBookmark() throws {
+        let queue = try setup()
+        try queue.write { db in
+            for id in 5...254 {
+                try db.execute(sql: "INSERT INTO message(msg_pk,account_pk,gmail_id,thread_pk,history_id) VALUES(?,1,?,1,'1')", arguments: [id, "bulk-\(id)"])
+            }
+        }
+        let state = try queue.write { try begin($0) }
+        var next = try queue.write { db in
+            try db.execute(sql: "INSERT INTO message_label(msg_pk,label_pk) SELECT m.msg_pk,l.label_pk FROM message m JOIN label l ON l.account_pk=m.account_pk WHERE m.msg_pk>=5 AND l.gmail_id='INBOX'")
+            return try MailReconcileIndex.apply(GmailIDPage(), account: account, expected: state, floor: 10, nowMS: 1, in: db).0
+        }
+        for expectedCount in [100, 200, 250] {
+            let expected = next
+            next = try queue.write { try MailReconcileIndex.closeInboxBatch(account: account, expected: expected, nowMS: 2, in: $0) }
+            XCTAssertEqual(try queue.read { try Int.fetchOne($0, sql: "SELECT count(*) FROM verify_queue") }, expectedCount)
+            XCTAssertEqual(next.inboxClosed == true, expectedCount == 250)
+        }
+        XCTAssertEqual(next.inboxCloseAfterPK, 254)
+    }
+
     func testCloseFindsMissingMembershipEvenWhenMessageWasListed() throws {
         let queue = try setup(), state = try queue.write { try begin($0) }
         try queue.write { db in

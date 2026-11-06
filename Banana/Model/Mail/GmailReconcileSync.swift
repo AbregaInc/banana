@@ -43,6 +43,12 @@ actor GmailReconcileSync {
         for _ in 0..<maximumSteps {
             try Task.checkCancellation()
             let expected = state
+            if state.needsInboxCheck {
+                state = try await writer.transactValue { db in
+                    (try MailReconcileIndex.closeInboxBatch(account: account, expected: expected, nowMS: nowMS, in: db), MailStoreChange())
+                }
+                return .more(state) // Let the coordinator verify before older listings.
+            }
             switch state.phase {
             case .verifying: return .needsVerification(state)
             case .closing:

@@ -74,6 +74,7 @@ enum MailVerificationIndex {
     static func resolveBatch(account: String, nowMS: Int64, in db: Database) throws -> Applied {
         guard db.isInsideTransaction else { throw Failure.transactionRequired }
         let state = try generation(account: account, in: db)
+        guard state.phase == .verifying else { throw Failure.staleGeneration }
         guard nowMS >= 0, let owner = try Row.fetchOne(db, sql: "SELECT account_pk,removals FROM account WHERE email=?", arguments: [account]) else { throw Failure.staleGeneration }
         let pk: Int64 = owner[0], rawHistory: String? = owner[1]
         let key = "reconcile-removal:" + account
@@ -159,7 +160,7 @@ enum MailVerificationIndex {
     }
 
     private static func generation(account: String, in db: Database) throws -> MailReconcileIndex.State {
-        guard let state = try MailReconcileIndex.state(account: account, in: db), state.phase == .verifying else { throw Failure.staleGeneration }
+        guard let state = try MailReconcileIndex.state(account: account, in: db) else { throw Failure.staleGeneration }
         return state
     }
     private static func pending(_ request: Request, account: String, in db: Database) throws -> Bool {
