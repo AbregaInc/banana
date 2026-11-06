@@ -53,3 +53,16 @@ existing retry behavior. This recovery can require a full mailbox scan; it is no
 The targeted history, checkpoint, reconciliation and verification suite passes 37 tests,
 including partial-page recovery and convergence to a newer checkpoint. Private results:
 `private/cloud-rollout/mail-history-recovery-final`.
+
+The recovery build was installed and launched on the iPad. Retained device snapshots show
+its checkpoint and successful-sync time advancing, a single reconciliation restart, and
+subsequent enumeration progress. Later logs contain project-rate-limit responses instead of
+the original history-rule failure. Full mailbox catch-up is not yet confirmed. Quota inspection
+requires renewed Google admin verification; the saved CLI credential was rejected and the
+native console displayed a password-verification screen.
+
+The recovery component run completed all eight workloads. Seven RSS comparisons failed;
+two workloads also have incomplete host-monitor evidence because `ps` timed out. Latency
+comparisons did not fail in this run, but it is not a clean performance acceptance result.
+Evidence: `private/cloud-rollout/mail-history-recovery-performance`. No baseline was changed;
+physical UI performance remains unmeasured.
