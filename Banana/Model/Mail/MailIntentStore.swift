@@ -62,6 +62,7 @@ final class MailIntentStore: MailWriterLog, @unchecked Sendable {
                 CREATE UNIQUE INDEX removal_review_pending_account ON removal_review(account) WHERE state=1;
                 """)
         }
+        MailLegacySchema.registerIntent(in: &migrations)
         migrations.registerMigration("v6-draft-outbox") { db in
             try db.execute(sql: """
                 CREATE TABLE draft_outbox(scope TEXT NOT NULL,local_id TEXT NOT NULL,
@@ -74,8 +75,46 @@ final class MailIntentStore: MailWriterLog, @unchecked Sendable {
                 CREATE INDEX draft_outbox_pending ON draft_outbox(scope,local_id) WHERE dirty=1;
                 """)
         }
+        migrations.registerMigration("v7-legacy-beta-import") { db in
+            try db.execute(sql: "CREATE TABLE legacy_draft_import(id TEXT PRIMARY KEY,scope TEXT NOT NULL) WITHOUT ROWID")
+        }
         guard try queue.read({ try !migrations.hasBeenSuperseded($0) }) else { throw Failure.newerSchema }
         try migrations.migrate(queue)
+    }
+
+    /// Import once, only for connected identities. Keep original rows and attachment files intact.
+    func importLegacyDrafts(scope: String, accounts: Set<String>) async throws {
+        guard !accounts.isEmpty else { return }
+        let directory = attachmentDirectory
+        var after = ""
+        while true {
+            let cursor = after
+            let ids = try await queue.write { db -> [String] in
+                let rows = try Row.fetchAll(db, sql: """
+                    SELECT id,account,state,record FROM draft WHERE id>?
+                    AND NOT EXISTS(SELECT 1 FROM legacy_draft_import i WHERE i.id=draft.id)
+                    ORDER BY id LIMIT 50
+                    """, arguments: [cursor])
+                for row in rows {
+                    let id: String = row["id"], account: String = row["account"]
+                    guard accounts.contains(account.lowercased()) else { continue }
+                    let legacy = try JSONDecoder().decode(MailLegacyDraft.self, from: row["record"] as Data)
+                    guard legacy.content.localID == id, legacy.content.account == account else { throw Failure.invalidGroup }
+                    let record = try legacy.recovered(scope: scope, state: row["state"], attachmentsDirectory: directory)
+                    let payload = try JSONEncoder().encode(record)
+                    try db.execute(sql: """
+                        INSERT OR IGNORE INTO draft_outbox(scope,local_id,account,remote_id,generation,payload,state,dirty,conversation,sort_key,tie)
+                        VALUES (?,?,?,?,?,?,?,?,?,?,?)
+                        """, arguments: [scope,id,account,record.remote?.id,0,payload,record.state.rawValue,record.needsDelivery,
+                            record.snapshot.conversation.thread,Int64(record.snapshot.editedAt.timeIntervalSince1970 * 1000),
+                            MailMessageImporter.tie(account: account, thread: record.snapshot.conversation.thread)])
+                    try db.execute(sql: "INSERT INTO legacy_draft_import VALUES (?,?)", arguments: [id,scope])
+                }
+                return rows.map { $0["id"] as String }
+            }
+            guard let last = ids.last else { return }
+            after = last
+        }
     }
 
     func draftRecord(scope: String, id: MailDraftID) async throws -> MailDraftRecord? {

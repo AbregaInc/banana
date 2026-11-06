@@ -66,7 +66,10 @@ import Combine
                 }
                 session = MailSession.installLive(source)
             } catch {
-                // Preserve all files and credentials. Retry never deletes a damaged/newer store.
+                // Preserve all files and credentials. Log no SQL, account, subject or payload.
+                let reason = (error as? MailStoreError).map(String.init(describing:))
+                    ?? "\(String(reflecting: type(of: error))); code=\((error as NSError).code)"
+                PlaybackDiagnostics.shared.log("mail startup", "failed: \(reason)")
                 failed = true
             }
             loading = false; startup = nil

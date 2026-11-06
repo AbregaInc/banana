@@ -147,6 +147,13 @@ actor MailDraftDriver {
         value.generation = (existing?.generation ?? -1) + 1
         changed(value)
     }
+    func keepLegacyAsDraft(_ id: MailDraftID) async throws {
+        _ = try await mutate(id) { value in
+            guard value.legacyReview == true else { throw Failure.notEditable }
+            value.legacyReview = nil; value.state = .editing; value.sendAt = nil
+            value.revision += 1
+        }
+    }
     func resolveConflict(_ id: MailDraftID, keepMine: Bool) async throws {
         guard let before = try await record(id), before.conflict, let remote = before.remote,
               before.pending == nil || before.state == .failed,
@@ -184,7 +191,7 @@ actor MailDraftDriver {
     func save(_ draft: MailDraft) async throws {
         if try await record(draft.id) == nil { try await create(draft); return }
         _ = try await mutate(draft.id) { value in
-            guard value.state == .editing || value.state == .failed || (value.pending?.action != .send && value.state == .uncertain) else { throw Failure.notEditable }
+            guard value.legacyReview != true, value.state == .editing || value.state == .failed || (value.pending?.action != .send && value.state == .uncertain) else { throw Failure.notEditable }
             if value.state == .failed {
                 // Only a terminal provider refusal enters failed; unknown operations retain identity.
                 value.pending = nil; value.pendingRevision = nil; value.pendingFiles = nil; value.state = .editing; value.sendAt = nil
@@ -345,7 +352,7 @@ actor MailDraftDriver {
         defer { running.remove(id) }
         for _ in 0..<20 {
             try Task.checkCancellation()
-            guard var value = try await record(id), ![.sent, .deleted, .failed].contains(value.state), !value.conflict else { return }
+            guard var value = try await record(id), value.legacyReview != true, ![.sent, .deleted, .failed].contains(value.state), !value.conflict else { return }
             guard await allowed(value.snapshot.account) else { return }
             if value.pending == nil {
                 let action: GmailDraftMutation.Action

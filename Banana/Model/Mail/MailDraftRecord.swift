@@ -56,6 +56,8 @@ struct MailDraftRecord: Codable, Equatable, Sendable {
     var pendingRevision: Int?
     var pendingFiles: [MailDraftAttachment]?
     var deliveryFailed: Bool?
+    /// An older Beta may have submitted this message. Require an explicit keep-as-draft decision.
+    var legacyReview: Bool?
     var state: State = .editing
     var sendAt: Date?
     var wantsDelete = false
@@ -63,7 +65,7 @@ struct MailDraftRecord: Codable, Equatable, Sendable {
     var conflict = false
     var generation: Int = 0
     var needsDelivery: Bool {
-        ![.sent, .deleted, .failed].contains(state) && !conflict &&
+        legacyReview != true && ![.sent, .deleted, .failed].contains(state) && !conflict &&
         (pending != nil || acknowledgedRevision < revision || state == .held || state == .uncertain || wantsDelete)
     }
 }

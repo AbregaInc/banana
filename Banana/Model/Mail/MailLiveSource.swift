@@ -1104,6 +1104,7 @@ extension MailLiveSource {
         await draftWork?.value
         guard let driver = draftDriver else { throw MailDraftDriver.Failure.notFound }
         switch choice {
+        case .keepAsDraft: try await driver.keepLegacyAsDraft(id)
         case .checkAgain: try await driver.flush(id)
         case .keepMine, .useOther: try await driver.resolveConflict(id, keepMine: choice == .keepMine)
         default: throw MailDraftDriver.Failure.notEditable
@@ -1121,6 +1122,7 @@ extension MailLiveSource {
             enqueueDraftWork { [weak self] in
                 do {
                     switch choice {
+                    case .keepAsDraft: try await driver.keepLegacyAsDraft(id)
                     case .checkAgain: try await driver.flush(id)
                     case .keepMine, .useOther:
                         try await driver.resolveConflict(id, keepMine: choice == .keepMine)
@@ -1142,6 +1144,7 @@ extension MailLiveSource {
                        contextAllowed: @escaping @Sendable () async -> Bool,
                        compose: @escaping @Sendable (MailDraftRecord.Snapshot) throws -> GmailDraftComposition) async throws {
         guard draftDriver == nil else { return }
+        try await intent.importLegacyDrafts(scope: scope, accounts: Set(access.connectedAccountIDs))
         let driver = MailDraftDriver(scope: scope, store: intent, api: api,
             token: { [access] account in try await access.mailAccessToken(accountID: account).value },
             allowed: { [weak self] account in
@@ -1207,7 +1210,7 @@ extension MailLiveSource {
         if record.conflict {
             status.value.questions.append(MailQuestion(id: questionID, kind: .draftChangedElsewhere(id), choices: [.keepMine, .useOther]))
         } else if record.state == .uncertain {
-            status.value.questions.append(MailQuestion(id: questionID, kind: .sendUnconfirmed(id, draftStillInGmail: nil), choices: [.checkAgain]))
+            status.value.questions.append(MailQuestion(id: questionID, kind: .sendUnconfirmed(id, draftStillInGmail: nil), choices: record.legacyReview == true ? [.keepAsDraft] : [.checkAgain]))
         }
         if record.state == .sent && previous != nil && previous != .sent {
             emit(.sent(id, draft.conversation))

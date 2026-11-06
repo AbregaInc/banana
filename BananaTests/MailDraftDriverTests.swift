@@ -285,3 +285,28 @@ final class MailDraftDriverTests: XCTestCase {
         let result = try await source.record(value.id); XCTAssertEqual(result?.state, .sent)
     }
 }
+
+
+extension MailDraftDriverTests {
+    func testLegacyUnknownSendWaitsForExplicitKeepAsDraftAndNeverResends() async throws {
+        let (_, store, api) = try await setup()
+        let value = draft()
+        var record = MailDraftRecord(scope: "account-context", snapshot: .init(value))
+        record.state = .uncertain; record.legacyReview = true
+        let saved = try await store.putDraftRecord(record, expectedGeneration: nil)
+        XCTAssertTrue(saved)
+        let source = driver(store, api)
+        try await source.flush(value.id)
+        let before = await api.requests
+        XCTAssertTrue(before.isEmpty)
+        do { try await source.save(value); XCTFail("Unconfirmed legacy send became editable") }
+        catch { XCTAssertTrue(error is MailDraftDriver.Failure) }
+        try await source.keepLegacyAsDraft(value.id)
+        try await source.flush(value.id)
+        let actions = await api.requests.map(\.action)
+        XCTAssertEqual(actions, [.create])
+        let recovered = try await source.record(value.id)
+        XCTAssertEqual(recovered?.state, .editing)
+        XCTAssertNil(recovered?.legacyReview)
+    }
+}

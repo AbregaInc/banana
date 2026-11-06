@@ -151,7 +151,7 @@ struct StoredLabel: Equatable, Sendable { var labelPK: Int64; var account: Strin
 // MailStoreChange — what one index transaction touched — is declared in M/MailWriter.swift (P02; 18.4).
 
 /// A draft as MIMEBuilder and the send driver see it: the row of 4.8, decoded.
-struct StoredDraft: Equatable, Sendable {
+struct StoredDraft: Equatable, Codable, Sendable {
     var localID: String, account: String, fromAlias: String?
     var kind: String                   // new, reply, replyAll, forward
     var to: [MailPerson], cc: [MailPerson], bcc: [MailPerson]
@@ -164,7 +164,7 @@ struct StoredDraft: Equatable, Sendable {
     var contentRev: Int
     var attachments: [StoredDraftAttachment]
 }
-struct StoredDraftAttachment: Equatable, Sendable {
+struct StoredDraftAttachment: Equatable, Codable, Sendable {
     var id: String, filename: String, mime: String; var size: Int
     var contentID: String?; var source: String?      // nil: a file in Intent/Attachments; else "forward:<msg>:<part>"
 }
