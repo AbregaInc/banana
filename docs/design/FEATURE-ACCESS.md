@@ -1,7 +1,10 @@
 # Feature access
 
 Implementation status: production and staging run `83e7e0f6` with schema 0020.
-Both have zero eligibility grants at the last verified rollout check on 6 November.
+Production has no eligibility grants. On 6 November, the existing owner account in staging
+received Calendar Cloud and Email testing access until 13 November, after every registered
+device reported protocol 1. Staging still needs fresh provider consent; eligibility does not
+grant Google permissions or establish a working provider token.
 Primary iOS/iPad and Mac build 95 use `55d675e6`; distribution evidence is recorded in
 [the rollout plan](CLOUD-AND-RELEASE-PLAN.md). Live-provider and device acceptance remain open.
 Deploy service/schema support before the clients. Guarded Calendar reads/writes and Mail
