@@ -29,3 +29,13 @@ The repair passed 51 targeted Mail tests. Separate checks against retained Mac a
 Beta data reproduced the refusal and opened both stores successfully; the Mac fixture also
 verified saved-draft recovery. Device installation and live provider consent are separate
 acceptance steps.
+
+The repaired iPad Beta was installed and launched. A post-install copy of its intent database
+confirmed `v7-legacy-beta-import` was applied; its copied startup log contained no Mail startup
+failure. Gmail consent and live inbox sync remain separate, unconfirmed steps.
+
+Both iOS and Mac Release builds passed. The component regression suite completed all eight
+scenarios but failed seven RSS comparisons and the seven-day Notes search p95 comparison
+(8.493 ms versus an 8.389 ms limit). Results are retained privately in
+`private/cloud-rollout/mail-legacy-performance`; no baseline or limit changed. Physical UI
+performance was not measured. The Mac build is prepared, not installed over the running app.
