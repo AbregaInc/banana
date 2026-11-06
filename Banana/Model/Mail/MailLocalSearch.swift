@@ -10,6 +10,7 @@ struct MailLocalSearchQuery: Equatable, Sendable {
     var filters: Set<MailFilter> = []
     var before: MailOrderKey?
     var limit: Int = 50
+    var allowedAccounts: Set<String>? = nil
 
     var definition: LiveFilter? { LiveFilter.fromSearchExpression(text, scope: "mail") }
     var match: String? {
@@ -76,6 +77,7 @@ extension MailIndexReader {
                 predicates.append("(t.flags & ?) \(term.value == "true" ? "!=" : "=") 0"); arguments.append(flag.rawValue)
             }
         }
+        constrainAccounts(query.allowedAccounts, predicates: &predicates, arguments: &arguments)
         if let account = query.account { predicates.append("a.email=?"); arguments.append(account.lowercased()) }
         if query.filters.contains(.unread) { predicates.append("t.unread_count > 0") }
         for (filter, flag) in [(MailFilter.starred, MailThreadFlags.starred), (.important, .important), (.noReply, .lastIsMine)] where query.filters.contains(filter) {

@@ -111,6 +111,7 @@ import GRDB
          deliveryAllowed: @escaping @MainActor @Sendable (String) -> Bool = { _ in false }) {
         self.stores = stores; self.access = access; self.api = api
         self.deliveryAllowed = deliveryAllowed
+        self.observedReadAccounts = Set(access.connectedAccountIDs.map { $0.lowercased() })
         status.value.store = .ready
     }
     var syncLimit: MailSyncLimit { .everything }
@@ -167,9 +168,14 @@ import GRDB
         MailPlaces(splits: [MailSplit(id: MailSplit.importantID, name: "Important", query: nil),
                            MailSplit(id: MailSplit.calendarID, name: "Calendar", query: nil),
                            MailSplit(id: MailSplit.otherID, name: "Other", query: nil)],
-            splitCounts: [:], mailboxCounts: [:], outboxNeedsAnswer: false, labels: labelCatalog.places)
+            splitCounts: [:], mailboxCounts: [:], outboxNeedsAnswer: false, labels: labelCatalog.places.filter { readAccounts.contains($0.key.lowercased()) })
     }
-    func cachedFirstPage(_ scope: MailScope) -> MailListSnapshot? { firstPages[scope] }
+    private var observedReadAccounts: Set<String>?
+    private var readAccounts: Set<String> { Set(access.connectedAccountIDs.map { $0.lowercased() }) }
+    func cachedFirstPage(_ scope: MailScope) -> MailListSnapshot? {
+        guard observedReadAccounts == readAccounts else { return nil }
+        return firstPages[scope]
+    }
     func observeList(_ scope: MailScope, limit: Int, _ onChange: @escaping @MainActor (MailListSnapshot) -> Void) -> MailObservation {
         let id = UUID()
         subscriptions[id] = Subscription(scope: scope, limit: min(MailTuning.listCap, max(1, limit)), callback: onChange)
@@ -231,6 +237,7 @@ import GRDB
         subscriptions[id]?.task = Task { [weak self] in
             guard let self else { return }
             let scope = subscription.scope
+            let allowedAccounts = self.readAccounts
             // Capture before the read; never tag old rows with a newer action's receipt.
             let through = self.actionThrough
             if let driver = self.draftDriver, scope.place == .mailbox(.drafts) || scope.place == .mailbox(.outbox) {
@@ -252,8 +259,9 @@ import GRDB
             if case .search(let text) = scope.place {
                 do {
                     let rows = try await reader.search(MailLocalSearchQuery(text: text, account: scope.account,
-                        filters: scope.filters, before: scope.before, limit: subscription.limit))
+                        filters: scope.filters, before: scope.before, limit: subscription.limit, allowedAccounts: allowedAccounts))
                     guard !Task.isCancelled else { return }
+                    guard allowedAccounts == self.readAccounts else { return }
                     self.deliver(MailListSnapshot(scope: scope,
                         rows: rows.map { row in MailRowMapper.row(row, labels: row.labelPKs.compactMap { self.labelCatalog.refs[$0] }, reason: nil, in: scope) },
                         total: MailCount(value: rows.count, isAtLeast: rows.count == subscription.limit),
@@ -272,7 +280,7 @@ import GRDB
                 return
             }
             do {
-                let request = PageRequest(view: view, account: Self.account(for: scope), filters: scope.filters, before: scope.before, limit: subscription.limit)
+                let request = PageRequest(view: view, account: Self.account(for: scope), filters: scope.filters, before: scope.before, limit: subscription.limit, allowedAccounts: allowedAccounts)
                 let rows = try await reader.page(request)
                 let counts = try await reader.counts(request)
                 let localMore: Bool
@@ -280,10 +288,10 @@ import GRDB
                     if rows.count == subscription.limit, let last = rows.last {
                         localMore = !(try await reader.page(PageRequest(view: view, account: request.account,
                             filters: scope.filters,
-                            before: MailOrderKey(group: 0, sortKey: last.sortKey, tie: last.tie), limit: 1))).isEmpty
+                            before: MailOrderKey(group: 0, sortKey: last.sortKey, tie: last.tie), limit: 1, allowedAccounts: allowedAccounts))).isEmpty
                     } else { localMore = false }
                 } else { localMore = rows.count < counts.total.value }
-                guard !Task.isCancelled else { return }
+                guard !Task.isCancelled, allowedAccounts == self.readAccounts else { return }
                 let connected = self.accounts.filter { $0.state == .connected && (Self.account(for: scope) == nil || Self.account(for: scope) == $0.id) }
                 let pending = connected.contains { self.pageTasks[$0.id] != nil }
                 let more = connected.contains { !self.completed.contains($0.id) }
@@ -319,6 +327,7 @@ import GRDB
         for id in subscriptions.keys { refresh(id) }
     }
     func checkNow() {
+        publishAccounts()
         refreshDrafts()
         resumeDraftDelivery()
         refreshRemovalStatus()
@@ -500,7 +509,18 @@ import GRDB
         publishAccounts()
         kickDelivery()
     }
-    private func publishAccounts() { let value = accounts; for callback in accountObservers.values { callback(value) } }
+    private func publishAccounts() {
+        let current = readAccounts
+        if observedReadAccounts != current {
+            observedReadAccounts = current
+            firstPages.removeAll(); firstPageOrder.removeAll()
+            for id in subscriptions.keys { refresh(id) }
+            let value = places
+            for callback in placeObservers.values { callback(value) }
+        }
+        let value = accounts
+        for callback in accountObservers.values { callback(value) }
+    }
 
     private static func account(for scope: MailScope) -> String? {
         if case .label(let account, _) = scope.place { return account }

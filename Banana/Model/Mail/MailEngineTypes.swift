@@ -133,7 +133,7 @@ enum AccountSyncChange: Sendable {
 }
 
 // Reads and change notices
-struct PageRequest: Sendable { var view: MailViewKey; var account: String?; var filters: Set<MailFilter>; var before: MailOrderKey?; var limit: Int }
+struct PageRequest: Sendable { var view: MailViewKey; var account: String?; var filters: Set<MailFilter>; var before: MailOrderKey?; var limit: Int; var allowedAccounts: Set<String>? = nil }
 struct IndexRow: Sendable {            // the page query's columns, decoded by index
     var threadPK: Int64; var account: String, thread: String
     var sortKey: Int64, tie: Int64; var unread: Bool

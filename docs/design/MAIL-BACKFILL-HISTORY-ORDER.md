@@ -71,3 +71,26 @@ The 1-day sample also had incomplete host monitoring or competing-workload evide
 There were no reported latency failures. Retained gate:
 `private/cloud-rollout/inbox-priority-performance/gate.json`. No physical 120 Hz or
 input-to-visible UI acceptance is claimed. These remain experimental Beta builds.
+
+## Linked accounts define the unified mailbox
+
+A repaired provider account does not prove the unified Inbox is current. Legacy
+local indexes can retain accounts that are no longer linked to Banana Cloud. Those
+accounts have no sync worker, so including their cached rows shows indefinitely
+stale membership. Both devices exhibited this after the Inbox-first repair.
+
+The live source now supplies the current linked-account set to list, count and
+search SQL before pagination. An empty set returns no rows. Sidebar labels use the
+same set, and account changes invalidate cached first pages and refresh observers.
+Mail grant availability is deliberately separate: a still-linked account keeps its
+cached mail readable when its grant is unavailable. Unlinked caches are preserved
+on disk; this change neither archives provider mail nor deletes retained data.
+
+Regression coverage includes newer orphaned rows crowding out a linked account,
+search, counts, account removal, empty scope and retained cache preservation.
+
+Account-scope validation passed 38 focused tests. A disk-backed 180,000-thread
+fixture with only the oldest 50 threads linked returned the correct page and count
+in 94.73, 93.22 and 93.43 ms, within the unchanged 100 ms component limit.
+This is correctness/budget evidence, not a speed improvement or physical UI
+measurement. Evidence: `private/cloud-rollout/account-scope-final`.

@@ -67,6 +67,7 @@ struct MailIndexReader: Sendable {
 
     private static func filters(_ request: PageRequest, predicates: inout [String],
                                 arguments: inout [(any DatabaseValueConvertible)?]) {
+        constrainAccounts(request.allowedAccounts, predicates: &predicates, arguments: &arguments)
         if let account = request.account {
             predicates.append("a.email = ?"); arguments.append(account.lowercased())
         }
@@ -76,6 +77,17 @@ struct MailIndexReader: Sendable {
                 predicates.append("(t.flags & ?) != 0"); arguments.append(flag.rawValue)
             }
         }
+    }
+
+    /// Apply account scope before paging/counting, never by filtering an already
+    /// limited result. An explicit empty set means no accounts, not all accounts.
+    static func constrainAccounts(_ accounts: Set<String>?, predicates: inout [String],
+                                  arguments: inout [(any DatabaseValueConvertible)?]) {
+        guard let accounts else { return }
+        let ids = Set(accounts.map { $0.lowercased() }).sorted()
+        guard !ids.isEmpty else { predicates.append("0"); return }
+        predicates.append("a.email IN (" + Array(repeating: "?", count: ids.count).joined(separator: ",") + ")")
+        arguments.append(contentsOf: ids.map { $0 as (any DatabaseValueConvertible)? })
     }
 
     static func decode(_ row: Row) throws -> IndexRow {

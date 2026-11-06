@@ -134,6 +134,28 @@ final class MailIndexReaderTests: XCTestCase {
         catch { XCTAssertTrue(error is MailIndexReader.Failure) }
     }
 
+    func testAccountScopeBeforeLimitAndCountsWithLargeUnlinkedCache() async throws {
+        let reader = try await reader(count: 180000)
+        try await reader.stores.index.write { db in
+            try db.execute(sql: "UPDATE thread SET account_pk=CASE WHEN thread_pk<=50 THEN 1 ELSE 2 END")
+        }
+        var samples: [Double] = []
+        for _ in 0..<3 {
+            var query = request(limit: 50)
+            query.allowedAccounts = ["A@EXAMPLE.COM"]
+            let start = DispatchTime.now().uptimeNanoseconds
+            let rows = try await reader.page(query), counts = try await reader.counts(query)
+            samples.append(Double(DispatchTime.now().uptimeNanoseconds - start) / 1e6)
+            XCTAssertEqual(rows.map(\.threadPK), Array((1...50).reversed()).map(Int64.init))
+            XCTAssertEqual(counts.total.value, 50)
+            query.allowedAccounts = []
+            let empty = try await reader.page(query)
+            XCTAssertTrue(empty.isEmpty)
+        }
+        print("ACCOUNT_SCOPED_PAGE_AND_COUNTS_180000_MS", samples)
+        for ms in samples { XCTAssertLessThan(ms, 100) }
+    }
+
     func testKeysetCostAgainstOffsetWithRetainedHistory() async throws {
         // 90 days at 2,000 messages/day, deliberately one conversation per message.
         // A native component comparison, not frame/input evidence or the full app workload.

@@ -552,6 +552,42 @@ import GRDB
         }
     }
 
+    func testUnlinkedCachedAccountsCannotFillUnifiedInboxOrSearchPages() async throws {
+        let stores = try await stores(), access = Access()
+        try await stores.index.write { db in
+            for index in 0..<30 {
+                let owner = index == 0 ? "a@example.com" : "old@plan.example"
+                let wire = GmailMessage(id: "scope-\(index)", threadId: "scope-\(index)", labelIds: ["INBOX"],
+                    historyId: 1, internalDate: Int64(1000 + index),
+                    payload: GmailPart(headers: [GmailHeader(name: "Subject", value: "Needle \(index)")]))
+                _ = try MailMessageImporter.apply(FetchedMessage(wire: wire, floor: 1,
+                    headers: MessageHeaders(payload: wire.payload), structure: nil), account: owner, myAddresses: [owner], in: db)
+            }
+        }
+        let source = MailLiveSource(stores: stores, access: access, api: GmailPageLoaderTests.Provider(count: 0))
+        for place in [MailPlace.mailbox(.inbox), .search("Needle")] {
+            let done = expectation(description: "Only linked account reaches unified page")
+            let observation = source.observeList(MailScope(place: place), limit: 1) { value in
+                XCTAssertEqual(value.rows.map { $0.id.account }, ["a@example.com"])
+                XCTAssertEqual(value.total.value, 1)
+                if place == .mailbox(.inbox) { XCTAssertFalse(value.hasMore) }
+                done.fulfill()
+            }
+            await fulfillment(of: [done], timeout: 5); observation.cancel()
+        }
+        let retained = try await stores.index.read { try Int.fetchOne($0, sql: "SELECT count(*) FROM message") }
+        XCTAssertEqual(retained, 30, "Account scoping must not delete retained mail")
+        access.connectedAccountIDs = []
+        let scope = MailScope(place: .mailbox(.inbox))
+        XCTAssertNil(source.cachedFirstPage(scope), "A cached page from the old identity cannot flash on screen")
+        source.checkNow()
+        let empty = expectation(description: "Explicit empty account set is empty")
+        let observation = source.observeList(scope, limit: 1) { value in
+            XCTAssertTrue(value.rows.isEmpty); XCTAssertEqual(value.total.value, 0); empty.fulfill()
+        }
+        await fulfillment(of: [empty], timeout: 5); observation.cancel(); source.setVisible(false)
+    }
+
     func testEmptyLocalSearchDoesNotPretendInboxIsSearchResults() async throws {
         let source = MailLiveSource(stores: try await stores(), access: Access(), api: GmailPageLoaderTests.Provider(count: 1))
         let arrived = expectation(description: "Local search result")
