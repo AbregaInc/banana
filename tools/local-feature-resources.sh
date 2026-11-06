@@ -18,7 +18,7 @@ if [ "${ACTION:-}" = install ]; then
       if [ "${BANANA_RELEASE_CHANNEL:-}" = beta ] && [ "${PRODUCT_BUNDLE_IDENTIFIER:-}" = "$BANANA_BUNDLE_ID.beta" ] && [ "${TARGET_NAME:-}" = BananaMacBetaDirect ]; then email_distribution=YES; fi
     fi
     if [ "$email_distribution" != YES ]; then
-      echo "error: Email distribution requires the primary app identity and TestFlight channel."; exit 1
+      echo "error: Email distribution requires primary TestFlight or the dedicated direct Beta target."; exit 1
     fi
   fi
 fi

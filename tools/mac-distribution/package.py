@@ -28,7 +28,7 @@ def run(*args, **kwargs):
     return subprocess.run([str(a) for a in args], check=True, **kwargs)
 
 
-def write_feed(path, *, url, version, short_version, signature, length, notes):
+def write_feed(path, *, url, version, short_version, signature, length, notes, name="Banana"):
     if not re.fullmatch(r'[0-9]+(?:\.[0-9]+)*', version):
         raise ValueError('Build version must be numeric')
     if len(base64.b64decode(signature, validate=True)) != 64:
@@ -37,9 +37,9 @@ def write_feed(path, *, url, version, short_version, signature, length, notes):
         raise ValueError('Expected an HTTP(S) download URL')
     rss = ET.Element('rss', version='2.0')
     channel = ET.SubElement(rss, 'channel')
-    ET.SubElement(channel, 'title').text = 'Banana updates'
+    ET.SubElement(channel, 'title').text = name + ' updates'
     item = ET.SubElement(channel, 'item')
-    ET.SubElement(item, 'title').text = f'Banana {short_version} ({version})'
+    ET.SubElement(item, 'title').text = f'{name} {short_version} ({version})'
     ET.SubElement(item, 'description').text = notes
     ET.SubElement(item, f'{{{SPARKLE}}}minimumSystemVersion').text = '26.0'
     ET.SubElement(item, 'enclosure', {
@@ -84,7 +84,7 @@ def main():
     else:
         channel = info.get('BananaReleaseChannel', 'stable')
         if channel not in ('stable', 'beta'):
-            parser.error('Public installers require a Stable Release build, not an experimental archive')
+            parser.error('Public installers require a Stable or Beta direct build, not another archive channel')
         if not re.fullmatch(r'[0-9a-f]{40}', info.get('BananaSourceCommit', '')):
             parser.error('Production app must carry its clean source commit; build using a release plan')
         expected_base = f"https://github.com/AbregaInc/banana/releases/download/mac{'-beta' if channel == 'beta' else ''}-v{info['CFBundleShortVersionString']}-{info['CFBundleVersion']}"
@@ -175,7 +175,7 @@ def main():
                 '-s', ROOT / 'tools/mac-distribution/dmg-settings.py',
                 '-D', 'app=' + str(app),
                 '-D', 'background=' + str(ROOT / 'tools/mac-distribution/artwork/background.png'),
-                'Banana', dmg)
+                'Banana Beta' if info.get('BananaReleaseChannel') == 'beta' else 'Banana', dmg)
     if notarize:
         run('codesign', '--sign', args.identity, '--timestamp', dmg)
         run('xcrun', 'notarytool', 'submit', dmg, *notary_auth, '--wait')
@@ -188,7 +188,8 @@ def main():
     run(*sign, '--verify', dmg, signature)
     url = args.base_url.rstrip('/') + '/' + urllib.parse.quote(dmg.name)
     write_feed(out / 'appcast.xml', url=url, version=version, short_version=short,
-               signature=signature, length=dmg.stat().st_size, notes=args.notes)
+               signature=signature, length=dmg.stat().st_size, notes=args.notes,
+               name='Banana Beta' if info.get('BananaReleaseChannel') == 'beta' else 'Banana')
     digest = hashlib.file_digest(dmg.open('rb'), 'sha256').hexdigest()
     (out / (dmg.name + '.sha256')).write_text(f'{digest}  {dmg.name}\n')
     (out / 'release.json').write_text(json.dumps({

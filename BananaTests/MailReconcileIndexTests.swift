@@ -261,6 +261,36 @@ final class MailReconcileIndexTests: XCTestCase {
         }
     }
 
+    func testInboxRepairCostOnDiskWithLargeRetainedInbox() async throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent("inbox-repair-cost-" + UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let stores = try await Task.detached { try MailStores.open(MailDirectories(root: root), migrations: MailSlices.migrations()) }.value
+        let initial = try await stores.index.write { db in
+            _ = try self.begin(db)
+            try db.execute(sql: "INSERT INTO thread(thread_pk,account_pk,gmail_id,tie) SELECT 1,account_pk,'fixture-thread',1 FROM account WHERE email=?", arguments: [self.account])
+            try db.execute(sql: """
+                WITH RECURSIVE ids(n) AS (SELECT 1 UNION ALL SELECT n+1 FROM ids WHERE n<100000)
+                INSERT INTO message(account_pk,gmail_id,thread_pk,history_id)
+                SELECT a.account_pk,'fixture-'||n,1,'1' FROM ids JOIN account a ON a.email=?
+                """, arguments: [self.account])
+            try db.execute(sql: "INSERT INTO message_label SELECT m.msg_pk,l.label_pk FROM message m JOIN label l ON l.account_pk=m.account_pk WHERE l.gmail_id='INBOX'")
+            // Start a fresh scan after seeding the retained cache.
+            try db.execute(sql: "UPDATE account SET enum_state=NULL WHERE email=?", arguments: [self.account])
+            let state = try self.begin(db)
+            return try MailReconcileIndex.apply(GmailIDPage(), account: self.account, expected: state, floor: 10, nowMS: 1, in: db).0
+        }
+        var current = initial, samples: [Double] = []
+        for _ in 0..<3 {
+            let expected = current, start = ContinuousClock.now
+            current = try await stores.index.write { try MailReconcileIndex.closeInboxBatch(account: self.account, expected: expected, nowMS: 2, in: $0) }
+            let elapsed = start.duration(to: .now).components
+            samples.append(Double(elapsed.seconds) * 1000 + Double(elapsed.attoseconds) / 1e15)
+        }
+        print("INBOX_REPAIR_100_OF_100000_MS", samples)
+        XCTAssertEqual(current.inboxCloseAfterPK, 300)
+        for ms in samples { XCTAssertLessThan(ms, 100) }
+    }
+
     func testEnumerationPageCostOnDisk() async throws {
         let root = FileManager.default.temporaryDirectory.appendingPathComponent("reconcile-cost-" + UUID().uuidString)
         defer { try? FileManager.default.removeItem(at: root) }

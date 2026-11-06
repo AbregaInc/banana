@@ -3,14 +3,14 @@
 #
 #   tools/check-release.sh <path to .xcarchive, .app or .ipa folder>
 #
-# Local assistant is never distributed; gated Email requires the primary TestFlight app. Check both
+# Local assistant is never distributed; gated Email requires primary TestFlight or the dedicated direct Beta app. Check both
 # their copied resources and their native implementation markers before exporting.
 # Archives made in Xcode run this check from local-feature-resources.sh too.
 set -e
 target="${1:?usage: $0 <.xcarchive | .app | folder>}"
 [ -e "$target" ] || { echo "No such path: $target"; exit 2; }
 
-# Only the explicitly labeled primary TestFlight app may distribute the Email implementation.
+# Email distribution requires the primary TestFlight identity or the Beta identity and Beta feed.
 # Never infer eligibility from a command-line allow flag or a public app's saved preference.
 email_allowed=0
 primary_apps=()
@@ -107,7 +107,7 @@ if [ "$checked" -eq 0 ]; then
   exit 2
 fi
 if [ "$found" -ne 0 ]; then
-  echo "Not for Apple: this build has unreleased modules in it. Exclude local AI; Email requires the primary app identity and TestFlight channel."
+  echo "Not for Apple: this build has unreleased modules in it. Exclude local AI; Email requires primary TestFlight or the dedicated direct Beta identity and feed."
   exit 1
 fi
 echo "OK: no unreleased module in $checked executable(s) under $target"

@@ -58,3 +58,16 @@ no private fixture was supplied to that run. Retained evidence:
 `private/cloud-rollout/inbox-priority-verified`. The initial focused run also retained
 two failed expectations for the old listing order; those tests were updated to assert
 the new explicit Inbox yield and resume behavior, without changing time budgets.
+
+Final focused validation passed 50 tests, including the new on-disk Inbox case:
+100 entries per transaction from a retained 100,000-entry Inbox took 11.31, 11.70
+and 11.68 ms. This measures that bounded transaction, not UI input latency or an
+optimization comparison. Evidence: `private/cloud-rollout/inbox-priority-final-check`.
+
+The persistent Simulator component gate ran with unchanged budgets and failed:
+RSS exceeded the baseline/ceiling for scale-1d (362.84 MB), scale-7d (402.48 MB),
+Library redraw (485.77 MB), Plan redraw (503.27 MB), and Mail redraw (484.80 MB).
+The 1-day sample also had incomplete host monitoring or competing-workload evidence.
+There were no reported latency failures. Retained gate:
+`private/cloud-rollout/inbox-priority-performance/gate.json`. No physical 120 Hz or
+input-to-visible UI acceptance is claimed. These remain experimental Beta builds.

@@ -44,7 +44,7 @@ class FeedTests(unittest.TestCase):
                                      '--out', root, '--base-url', 'https://example.org',
                                      '--sparkle-bin', root], capture_output=True, text=True)
             self.assertNotEqual(result.returncode, 0)
-            self.assertIn('Public installers require a Stable Release build', result.stderr)
+            self.assertIn('Public installers require a Stable or Beta direct build', result.stderr)
 
     def test_bad_metadata_is_rejected(self):
         with tempfile.TemporaryDirectory() as root:
