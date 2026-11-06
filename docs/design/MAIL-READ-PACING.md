@@ -27,3 +27,14 @@ Validation includes weighted/default-format costs, concurrent shared reservation
 identities, bounded queues, idle recovery, revoked permission while waiting, and retry headers.
 `Service/tools/mail-pacing-check` verifies the actual migration and atomic RETURNING operation
 under local workerd/D1, using synthetic identities and no Google calls.
+
+The full service suite passes 413 tests in each of UTC and America/New_York. The real
+workerd/D1 check passed with the pinned Wrangler 4.158.0 runtime. The initial full run caught
+an outdated migration-list assertion; both expected lists were updated and the run retained.
+
+Migration 0021 and the pacing code are deployed to Beta and production. Both source endpoints
+identify the tested source commit. A retained Beta observation captured 179 Mail reads over
+203 seconds, all HTTP 200, with no quota refusals. A later device snapshot shows continued
+reconciliation progress. Full mailbox catch-up remains unconfirmed; this observation is not a
+claim of sustained capacity or native UI performance. Native code was unchanged in this fix.
+Private evidence lives under `private/cloud-rollout/mail-pacing-*`.
