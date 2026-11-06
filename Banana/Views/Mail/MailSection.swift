@@ -20,7 +20,7 @@ struct MailSection: View {
             if let session = application.session {
                 VStack(spacing: 0) {
                     if let source = session.source as? MailLiveSource {
-                        MailConnectionBar(source: source)
+                        MailConnectionBar(source: source, session: session)
                     }
                     MailScreen(session: session)
                 }
@@ -42,6 +42,7 @@ struct MailSection: View {
 
 private struct MailConnectionBar: View {
     let source: MailLiveSource
+    let session: MailSession
     @State private var accounts: [MailAccount] = []
     @State private var observation: MailObservation?
     @State private var busy = false
@@ -88,6 +89,7 @@ private struct MailConnectionBar: View {
             .disabled(busy)
             MailRefusalNotice(source: source, status: source.status)
             MailRemovalNotice(source: source, status: source.status)
+            MailDraftNotice(session: session, status: source.status)
             if busy { ProgressView() }
             if failed { Text("Mail access wasn’t granted. Try Allow Mail again.").font(.caption) }
         }

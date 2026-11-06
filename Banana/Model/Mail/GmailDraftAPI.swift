@@ -47,9 +47,13 @@ struct GmailDraftRejection: Error, Sendable {
     }
 }
 protocol GmailDraftAPI: Sendable {
+    func uploadDraftPart(token: String, operationID: String, hash: String, data: Data) async throws
     func drafts(token: String, pageToken: String?) async throws -> GmailDraftPage
     func draft(token: String, id: String) async throws -> GmailDraftValue
     /// The caller must persist this exact operation before dispatch and reuse it after a lost reply.
     func mutateDraft(token: String, request: GmailDraftMutation) async throws -> Data
+}
+extension GmailDraftAPI {
+    func uploadDraftPart(token: String, operationID: String, hash: String, data: Data) async throws { throw GmailError.networkDisabled }
 }
 #endif

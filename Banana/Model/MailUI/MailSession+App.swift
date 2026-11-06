@@ -58,7 +58,7 @@ extension MailSession {
         if let made { return made }
         var toastID: UUID?
         let session = MailSession(source: source, now: Date(), deviceName: DeviceRole.current.name,
-                                  defaults: .standard, allowsChanges: true, allowsComposing: false,
+                                  defaults: .standard, allowsChanges: true, allowsComposing: true,
                                   supportsAction: { $0.isIntegratedGmailAction },
                                   allowsTarget: { [weak source] in source?.permitsChanges(to: $0) ?? false },
                                   targetRestriction: "This account is read only in Beta. Mark it as a test account in Settings to enable changes.",

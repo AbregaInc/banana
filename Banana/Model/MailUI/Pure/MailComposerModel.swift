@@ -117,7 +117,10 @@ final class MailComposerModel: ObservableObject {
             }
         }
     }
+    var allowsScheduling: Bool { source.supportsScheduledSend }
+    private let preferredAccount: String?
     var isForeign: Bool { draft?.format == .foreign }
+    @Published var isResolving = false
     private var richNotificationPending = false
     /// The text without its formatting. Setting it puts plain text in.
     var body: String {
@@ -181,7 +184,8 @@ final class MailComposerModel: ObservableObject {
     }
 
     init(start: MailComposeStart, source: MailSource, timers: MailTimers, clock: @escaping () -> Date,
-         device: String, requestFocus: Bool = true) {
+         device: String, requestFocus: Bool = true, preferredAccount: String? = nil) {
+        self.preferredAccount = preferredAccount
         self.start = start
         self.source = source
         self.timers = timers
@@ -234,10 +238,22 @@ final class MailComposerModel: ObservableObject {
         await loading?.value
     }
 
+    func rewriteAsText() async {
+        guard isForeign, !isResolving, let id = draftID else { return }
+        isResolving = true; defer { isResolving = false }
+        if let value = await source.rewriteAsText(id) { replaceAfterResolution(value) }
+    }
+
+    func replaceAfterResolution(_ value: MailDraft) {
+        cancelSave?(); cancelSave = nil
+        isSettingText = true; rich = AttributedString()
+        adopt(value, fresh: false)
+    }
+
     private func fetch() async -> (draft: MailDraft, fresh: Bool)? {
         switch start {
         case .new:
-            return (await source.newDraft(.new(account: nil)), true)
+            return (await source.newDraft(.new(account: preferredAccount)), true)
         case .continuing(let id):
             return await source.draft(id).map { ($0, false) }
         case .reply(let id), .replyAll(let id), .forward(let id):
@@ -262,6 +278,7 @@ final class MailComposerModel: ObservableObject {
         isSettingText = true
         defer { isSettingText = false }
         self.draft = draft
+        if !source.supportsAccountSwitching { identities = source.accounts.first(where: { $0.id == draft.account })?.identities ?? [] }
         draftID = draft.id
         let isOwn = draft.conversation.thread.hasPrefix("local:")
         host = isOwn ? nil : draft.conversation

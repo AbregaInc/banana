@@ -76,6 +76,9 @@ import Foundation
 }
 
 extension MailSource {
+    var canCompose: Bool { true }
+    var supportsScheduledSend: Bool { true }
+    var supportsAccountSwitching: Bool { true }
 
     // MARK: - Life
 
@@ -273,6 +276,10 @@ extension MailSource {
 
     func removeAttachment(_ id: String, from draft: MailDraftID) {
         MailNotYet.reached(#function)
+    }
+
+    func resolveDraftQuestion(_ draft: MailDraftID, choice: MailChoice) async throws -> MailDraft? {
+        throw MailDraftResolutionFailure.unavailable
     }
 
     func rewriteAsText(_ draft: MailDraftID) async -> MailDraft? {

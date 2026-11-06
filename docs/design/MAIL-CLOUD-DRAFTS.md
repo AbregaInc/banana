@@ -50,13 +50,23 @@ concurrent local edits are retained for explicit Keep mine / Use other resolutio
 provider listing followed by a structured not-found response removes a clean cached draft;
 local changes survive a disappearance and require an explicit choice. Unknown sends
 reuse their original operation identity. Cached draft views are bounded and backed by disk pages.
-The live composer remains disabled while the remaining integration is completed.
-The service accepts bounded structured text compositions and explicitly refuses attachment upload
-references until that path exists. Existing Gmail drafts, including attachments, can be read and
-sent without reconstructing their MIME. This increment is not a complete Email rollout and grants
-remain disabled pending native and live-provider acceptance. Outstanding native work includes new
-attachment uploads, editable round-tripping of imported rich drafts, scheduled-send ownership, and live multi-device acceptance. These controls must
-not be advertised as available before their provider path is implemented and tested.
+The live composer is wired behind both Email eligibility and a connected provider grant. It supports
+new drafts, replies, forwarding, attachments and explicit conflict recovery. Imported Gmail MIME is
+read-only until the user chooses Edit as text; that conversion downloads and retains attachments.
+An editor baseline token prevents an old open editor from silently overwriting a background import.
+Scheduled send and cross-account From switching are unavailable in live Mail. A new draft uses the
+selected account; fixture-only controls do not imply provider support.
+
+Attachment uploads are temporary operation parts, not another draft store. The authenticated binary
+endpoint accepts SHA-256-addressed parts up to 1 MiB, reserves a 100 MiB per-account quota, and checks
+all parts before streaming MIME to Gmail. An acknowledged operation removes its temporary objects;
+unresolved operations retain them. Unreferenced parts expire after 24 hours. The native client keeps
+immutable synced copies and persists the exact file/hash snapshot with the pending operation.
+Local attachment copies referenced by recoverable draft records remain retained; automatic local
+attachment garbage collection is not yet implemented.
+
+Email grants remain disabled pending live-provider and multi-device acceptance. The implementation
+and automated checks do not establish successful Google consent or physical-device interaction.
 
 ## Implementation and evidence
 
@@ -78,6 +88,14 @@ The iOS composer/cloud mapping run passes 68 tests (`native-draft-model-tests-2.
 The component run (`native-draft-components/gate.json`) retains seven RSS failures and no latency
 failures; it preceded the external-deletion follow-up and does not certify that follow-up.
 Live-provider and physical Mail interaction results remain missing.
+
+Attachment integration evidence: service commit `0d53d787` passes 404 tests in each timezone and
+is deployed to staging with schema 0020. The source endpoint matches that commit and the binary
+upload endpoint rejects an unauthenticated request. Native draft/source checks pass 35 tests
+(`native-attachment-focused-final/`), HTTP transport checks pass 19 (`native-attachment-http/`),
+and the Mac compile passes (`native-attachment-mac-final.log`). The first iOS model run passes
+69 tests (`native-attachment-model-tests.xcresult`). These are automated checks, not live-provider
+or physical-device acceptance; production Email eligibility is unchanged.
 
 References: [Gmail drafts](https://developers.google.com/workspace/gmail/api/guides/drafts),
 [draft update](https://developers.google.com/workspace/gmail/api/reference/rest/v1/users.drafts/update),

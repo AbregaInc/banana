@@ -30,6 +30,9 @@ struct MailComposerView: View {
             if frame == .sheet {
                 Text(model.title).font(.headline)
             }
+            if model.isForeign {
+                Button("Edit as text") { Task { await model.rewriteAsText() } }
+            }
             MailRecipientsView(model: model, focused: $focused).disabled(model.isForeign)
             MailSubjectRow(model: model, focused: $focused).disabled(model.isForeign)
             MailDivider(axis: .horizontal)
@@ -40,12 +43,13 @@ struct MailComposerView: View {
                 MailQuotedBlock(part: quote)
             }
             MailDivider(axis: .horizontal)
-            MailSendLaterPanel(model: model)
+            if model.allowsScheduling { MailSendLaterPanel(model: model) }
             MailComposerFooter(session: session, model: model, showsTools: footerHasRoom)
             #if os(macOS)
             MailKeyHints()
             #endif
         }
+        .disabled(model.isResolving)
         .padding(DS.Space.m)
         .onGeometryChange(for: Bool.self) { $0.size.width >= MailComposerTools.footerRoom } action: { footerHasRoom = $0 }
         .modifier(MailComposerChrome(frame: frame))
@@ -222,7 +226,7 @@ private struct MailComposerFooter: View {
             .help("Discard draft (\u{21E7}\u{2318},)")
             // Where there is room the paperclip and Aa sit here; in a narrow card they have a row of
             // their own under the body (`MailComposerBodyArea`), for the footer is full without them.
-            if showsTools { MailComposerTools(files: model.files, chords: model.chords) }
+            if showsTools { MailComposerTools(files: model.files, chords: model.chords).disabled(model.isForeign) }
             Spacer(minLength: DS.Space.s)
             // A message that waits for a time is not marked Done with it.
             if model.canSendAndDone, model.schedule == nil {
@@ -232,7 +236,7 @@ private struct MailComposerFooter: View {
                     .accessibilityIdentifier(MailID.sendAndDone)
                     .help("Send, and mark the conversation Done (\u{21E7}\u{2318}Return)")
             }
-            MailSendLaterButton(model: model)
+            if model.allowsScheduling { MailSendLaterButton(model: model) }
             Button(model.schedule == nil ? "Send" : MailScheduleCopy.schedule) { session.sendComposer() }
                 .buttonStyle(.borderedProminent)
                 .composerShortcut(.return, .command)

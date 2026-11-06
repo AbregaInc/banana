@@ -11,6 +11,8 @@ final class GmailHTTP: GmailAPI, GmailDraftAPI, @unchecked Sendable {
     }
     typealias CloudTransport = @Sendable ([String], String, [URLQueryItem], String, Data?) async throws -> Data
     typealias DraftTransport = @Sendable (String, Data) async throws -> Data
+    typealias PartTransport = @Sendable (String, String, String, Data) async throws -> Void
+    private let partTransport: PartTransport?
     private let draftTransport: DraftTransport?
     private let cloudTransport: CloudTransport?
     private let session: URLSession
@@ -18,7 +20,7 @@ final class GmailHTTP: GmailAPI, GmailDraftAPI, @unchecked Sendable {
     private let maximumBytes: Int
 
     init(configuration: URLSessionConfiguration = .ephemeral, maximumBytes: Int = 40 * 1024 * 1024,
-         cloudTransport: CloudTransport? = nil, draftTransport: DraftTransport? = nil, networkAllowed: @escaping @Sendable () -> Bool) {
+         cloudTransport: CloudTransport? = nil, draftTransport: DraftTransport? = nil, partTransport: PartTransport? = nil, networkAllowed: @escaping @Sendable () -> Bool) {
         precondition(maximumBytes > 0)
         let config = configuration.copy() as! URLSessionConfiguration
         config.urlCache = nil; config.urlCredentialStorage = nil; config.httpCookieStorage = nil
@@ -27,7 +29,7 @@ final class GmailHTTP: GmailAPI, GmailDraftAPI, @unchecked Sendable {
         config.waitsForConnectivity = false; config.httpMaximumConnectionsPerHost = 4
         config.tlsMinimumSupportedProtocolVersion = .TLSv12
         session = URLSession(configuration: config, delegate: NoRedirect(), delegateQueue: nil)
-        allowed = networkAllowed; self.maximumBytes = maximumBytes; self.cloudTransport = cloudTransport; self.draftTransport = draftTransport
+        allowed = networkAllowed; self.maximumBytes = maximumBytes; self.cloudTransport = cloudTransport; self.draftTransport = draftTransport; self.partTransport = partTransport
     }
     deinit { session.invalidateAndCancel() }
 
@@ -92,6 +94,15 @@ final class GmailHTTP: GmailAPI, GmailDraftAPI, @unchecked Sendable {
     }
     func draft(token: String, id: String) async throws -> GmailDraftValue {
         try await get(["drafts", id], token: token, query: [.init(name: "format", value: "full")])
+    }
+    func uploadDraftPart(token: String, operationID: String, hash: String, data: Data) async throws {
+        try Task.checkCancellation()
+        guard allowed(), let partTransport else { throw GmailError.networkDisabled }
+        guard data.count <= 1024 * 1024, UUID(uuidString: operationID) != nil,
+              hash.count == 64, hash.allSatisfy({ $0.isASCII && ("0123456789abcdef".contains($0)) }) else { throw GmailError.refused(.invalidArgument) }
+        try await partTransport(token, operationID, hash, data)
+        try Task.checkCancellation()
+        guard allowed() else { throw GmailError.networkDisabled }
     }
     func mutateDraft(token: String, request: GmailDraftMutation) async throws -> Data {
         try Task.checkCancellation()

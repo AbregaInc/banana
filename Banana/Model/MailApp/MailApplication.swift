@@ -40,6 +40,8 @@ import Combine
                         try await BananaAccount.shared.mailRequest(path: path, reference: reference, query: query, method: method, body: body)
                     }, draftTransport: { reference, body in
                         try await BananaAccount.shared.mailDraftRequest(reference: reference, body: body)
+                    }, partTransport: { reference, operation, hash, data in
+                        try await BananaAccount.shared.mailAttachmentRequest(reference: reference, operation: operation, hash: hash, data: data)
                     }, networkAllowed: { FeatureAccessStore.network.allows("email") })
                 let source = MailLiveSource(stores: stores, access: access, api: api, deliveryAllowed: { account in
                         FeatureAccessStore.shared.allows("email") && AppVariant.current.mayCallGoogle(method: "POST", account: account, testAccounts: BetaTestAccounts.all)
@@ -50,7 +52,7 @@ import Combine
                         contextAllowed: { await MainActor.run { FeatureAccessStore.shared.mailContext == scope } },
                         compose: { snapshot in
                             guard snapshot.format == .banana, snapshot.signature?.complete != false,
-                                  snapshot.quote?.complete != false, snapshot.attachments.isEmpty else {
+                                  snapshot.quote?.complete != false else {
                                 throw MailDraftDriver.Failure.attachmentsNotReady
                             }
                             let rendered = MailBodyHTML.message(body: snapshot.body, signature: snapshot.signature?.value, quote: snapshot.quote?.value)

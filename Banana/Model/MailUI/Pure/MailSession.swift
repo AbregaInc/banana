@@ -99,7 +99,8 @@ final class MailSession {
 
     let isSample: Bool
     let allowsChanges: Bool
-    let allowsComposing: Bool
+    private let composingEnabled: Bool
+    var allowsComposing: Bool { composingEnabled && source.canCompose }
     private let supportsAction: @MainActor (MailAction) -> Bool
     private let allowsTarget: @MainActor (MailTarget) -> Bool
     private let targetRestriction: String
@@ -160,7 +161,7 @@ final class MailSession {
          present: @escaping @MainActor (MailToast, @escaping @MainActor () -> Void) -> Void) {
         self.isSample = isSample
         self.allowsChanges = allowsChanges
-        self.allowsComposing = allowsChanges && (allowsComposing ?? true)
+        self.composingEnabled = allowsChanges && (allowsComposing ?? true)
         self.supportsAction = supportsAction
         self.allowsTarget = allowsTarget
         self.targetRestriction = targetRestriction
@@ -394,7 +395,7 @@ final class MailSession {
     }
 
     func explainComposingUnavailable() {
-        present(MailToast(text: "Gmail composing is still being integrated.", action: nil, lasts: nil), {})
+        present(MailToast(text: "Connect an account with Email access to write a message.", action: nil, lasts: nil), {})
     }
 
     /// A tap or click on a row, with no pane to show it in: the cursor goes there and the

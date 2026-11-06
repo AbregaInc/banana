@@ -19,6 +19,19 @@ struct PendingSend: Equatable, Sendable {
 /// the order things happen in: a key opens a composer, a send pushes one undo entry, a close keeps
 /// or drops a draft.
 extension MailSession {
+    func resolveDraftQuestion(_ id: MailDraftID, choice: MailChoice) async {
+        let editor = composer?.draftID == id ? composer : nil
+        editor?.flush(); editor?.isResolving = true
+        defer { editor?.isResolving = false }
+        do {
+            let replacement = try await source.resolveDraftQuestion(id, choice: choice)
+            if choice == .useOther, let editor, composer === editor {
+                if let replacement { editor.replaceAfterResolution(replacement) }
+                else { navigation.setComposer(nil) }
+            }
+        } catch { showToast(MailToast(text: "Could not save this choice", action: nil)) }
+    }
+
 
     /// The undo hold, until Settings says otherwise (6.3.7): how long a send's toast stays, and
     /// when the entry it makes stops being a send that can be taken back. The composer does not
@@ -73,8 +86,13 @@ extension MailSession {
     /// The composer is on screen in the frame after the key; what the draft says arrives after.
     func begin(_ start: MailComposeStart, requestFocus: Bool = true) {
         guard allowsComposing else { explainComposingUnavailable(); return }
+        let preferredAccount: String?
+        switch scope.place {
+        case .label(let account, _), .heldRemoval(let account): preferredAccount = account
+        default: preferredAccount = scope.account
+        }
         let composer = MailComposerModel(start: start, source: source, timers: timers, clock: clock,
-                                         device: deviceName, requestFocus: requestFocus)
+                                         device: deviceName, requestFocus: requestFocus, preferredAccount: preferredAccount)
         navigation.setComposer(composer)
         composer.load()
     }

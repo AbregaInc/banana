@@ -9,6 +9,16 @@ final class CloudMailRequestTests: XCTestCase {
         XCTAssertThrowsError(try CloudMailReference(value: "provider-access-token"))
         XCTAssertThrowsError(try GmailHTTP.request(["profile"], token: reference.value))
     }
+    func testAttachmentRequestCarriesBinaryBodyAndAccountHeader() {
+        let operation = "10000000-0000-4000-8000-000000000001", hash = String(repeating: "a", count: 64)
+        let request = BananaService.request(.mailAttachment(email: "noor@plan.example", operation: operation, hash: hash, data: Data([0, 1, 255])), host: "service.example", session: "session")
+        XCTAssertEqual(request.httpMethod, "PUT")
+        XCTAssertEqual(request.httpBody, Data([0, 1, 255]))
+        XCTAssertEqual(request.value(forHTTPHeaderField: "Content-Type"), "application/octet-stream")
+        XCTAssertEqual(request.value(forHTTPHeaderField: "X-Banana-Mail-Account"), "noor@plan.example")
+        XCTAssertEqual(request.url?.path, "/v1/mail/attachment/" + operation + "/" + hash)
+    }
+
     func testDraftReadsStayBehindTheAccountScopedCloudTransport() throws {
         for (path, resource) in [(["drafts"], "drafts"), (["drafts", "gmail-draft"], "draft")] {
             let data = try CloudMailRequest.body(path: path, email: "noor@plan.example", query: [], method: "GET", body: nil)

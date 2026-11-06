@@ -7,6 +7,7 @@ import Foundation
 extension MailComposerModel {
 
     func chooseSchedule(_ date: Date) {
+        guard allowsScheduling else { return }
         schedule = date
         timePicker = nil
         edited()
@@ -14,6 +15,7 @@ extension MailComposerModel {
 
     /// The picker, open: ⇧⌘L, or the clock beside Send. Shut by the same.
     func toggleTimePicker() {
+        guard allowsScheduling else { return }
         timePicker = timePicker == nil ? MailTimePickerModel(now: clock, holder: .thisDevice(name: device)) : nil
     }
 

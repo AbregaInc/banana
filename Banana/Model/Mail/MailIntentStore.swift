@@ -8,8 +8,10 @@ final class MailIntentStore: MailWriterLog, @unchecked Sendable {
     private let queue: DatabaseQueue
     private let checkpointer: MailLogCheckpointer
     private let checkpointLock = NSLock()
+    let attachmentDirectory: URL
 
     init(directories: MailDirectories) throws {
+        attachmentDirectory = directories.intentAttachments
         queue = try MailStores.openIntentQueue(at: directories.intentDatabase)
         checkpointer = MailLogCheckpointer(logPath: directories.intentDatabase.path + "-wal")
         var migrations = DatabaseMigrator()

@@ -155,6 +155,7 @@ enum BananaService {
         case calendarOperation(Data)
         case mailRead(Data)
         case mailDraft(Data)
+        case mailAttachment(email: String, operation: String, hash: String, data: Data)
         case mailOperation(Data)
         case connectMail(email: String, code: String)
         case disconnectMail(email: String)
@@ -321,6 +322,7 @@ enum BananaService {
                 return ("PUT", "/v1/google/calendars", encode(["email": email, "ids": ids]))
             case .mailRead(let body): return ("POST", "/v1/mail/read", body)
             case .mailDraft(let body): return ("POST", "/v1/mail/draft", body)
+            case .mailAttachment(_, let operation, let hash, let data): return ("PUT", "/v1/mail/attachment/\(operation)/\(hash)", data)
             case .mailOperation(let body): return ("POST", "/v1/mail/operation", body)
             case .connectMail(let email, let code): return ("POST", "/v1/google/mail", encode(["email":email,"code":code]))
             case .disconnectMail(let email): return ("DELETE", "/v1/google/mail", encode(["email":email]))
@@ -395,6 +397,10 @@ enum BananaService {
         if let body {
             request.httpBody = body
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        }
+        if case .mailAttachment(let email, _, _, _) = call {
+            request.setValue("application/octet-stream", forHTTPHeaderField: "Content-Type")
+            request.setValue(email, forHTTPHeaderField: "X-Banana-Mail-Account")
         }
         if let session { request.setValue("Bearer \(session)", forHTTPHeaderField: "Authorization") }
         return request

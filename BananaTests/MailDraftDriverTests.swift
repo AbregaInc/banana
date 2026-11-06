@@ -1,12 +1,19 @@
 import XCTest
 
 final class MailDraftDriverTests: XCTestCase {
-    private actor Provider: GmailDraftAPI {
+    private actor Provider: GmailDraftAPI, GmailAPI {
         var requests: [GmailDraftMutation] = []
         var loseReply = false
         var fetched: GmailDraftValue?
         var listing: GmailDraftPage?
         var reads = 0
+        var parts: [(String, String, Int)] = []
+        var losePart = false
+        func setLostPart(_ value: Bool) { losePart = value }
+        func uploadDraftPart(token: String, operationID: String, hash: String, data: Data) async throws {
+            parts.append((operationID, hash, data.count))
+            if losePart { throw GmailError.unknownOutcome }
+        }
         var missing = false
         func setMissing(_ value: Bool) { missing = value }
         func setListing(_ value: GmailDraftPage) { listing = value }
@@ -16,12 +23,22 @@ final class MailDraftDriverTests: XCTestCase {
         func setHook(_ value: @escaping @Sendable () async throws -> Void) { onWrite = value }
         func drafts(token: String, pageToken: String?) async throws -> GmailDraftPage { guard let listing else { throw GmailError.networkDisabled }; return listing }
         func draft(token: String, id: String) async throws -> GmailDraftValue { if missing { throw GmailError.notFound }; guard let fetched else { throw GmailError.networkDisabled }; reads += 1; return fetched }
+        func profile(token: String) async throws -> GmailProfile { GmailProfile(emailAddress: "noor@plan.example") }
+        func labels(token: String) async throws -> [GmailLabel] { [] }
+        func listMessages(token: String, labelIDs: [String], query: String?, includeSpamTrash: Bool, pageToken: String?, maxResults: Int) async throws -> GmailIDPage { GmailIDPage(messages: []) }
+        func history(token: String, start: String, pageToken: String?, maxResults: Int) async throws -> GmailHistoryPage { throw GmailError.networkDisabled }
+        func message(token: String, id: String, format: GmailFormat) async throws -> GmailMessage { guard let fetched else { throw GmailError.networkDisabled }; return fetched.message }
+        func thread(token: String, id: String, format: GmailFormat) async throws -> GmailThread { throw GmailError.networkDisabled }
+        func attachment(token: String, messageID: String, attachmentID: String) async throws -> GmailPartBody { GmailPartBody(size: 42, data: Data(repeating: 7, count: 42).base64EncodedString()) }
+        func modify(token: String, id: String, add: [String], remove: [String]) async throws { throw GmailError.networkDisabled }
+        func trash(token: String, id: String) async throws { throw GmailError.networkDisabled }
+        func untrash(token: String, id: String) async throws { throw GmailError.networkDisabled }
         func mutateDraft(token: String, request: GmailDraftMutation) async throws -> Data {
             requests.append(request)
             if let hook = onWrite { onWrite = nil; try await hook() }
             if loseReply { throw GmailError.unknownOutcome }
             if request.action == .send { return Data(#"{"id":"sent","labelIds":["SENT"]}"#.utf8) }
-            return try JSONEncoder().encode(GmailDraftReference(id: "gmail-draft", message: .init(id: request.operationID, threadId: "thread")))
+            return try JSONEncoder().encode(GmailDraftReference(id: request.id ?? "gmail-draft", message: .init(id: request.operationID, threadId: "thread")))
         }
     }
     private func draft() -> MailDraft {
@@ -140,6 +157,86 @@ final class MailDraftDriverTests: XCTestCase {
         try await source.importDraft(remote("v1", subject: "Still kept"), account: "noor@plan.example")
         do { try await source.finishScan(account: "noor@plan.example", scan: "complete-list"); XCTFail("Read unavailable") } catch {}
         let records = try await source.records(); XCTAssertEqual(records.first?.state, .editing)
+    }
+
+    func testAttachmentCopyAndPendingPartsSurviveSourceRemovalAndNewerEdits() async throws {
+        let (directories, store, api) = try await setup(); let source = driver(store, api); let local = draft()
+        try await source.create(local)
+        let original = directories.root.appendingPathComponent("notes.txt")
+        try Data(repeating: 42, count: MailDraftFiles.chunkBytes + 3).write(to: original)
+        let kept = try await source.addAttachment(original, to: local.id)
+        XCTAssertNotEqual(kept.file, original)
+        try FileManager.default.removeItem(at: original)
+        await api.setLostPart(true)
+        do { try await source.flush(local.id); XCTFail("Part acknowledgement lost") } catch {}
+        let pending = try await source.record(local.id)
+        XCTAssertEqual(pending?.pending?.content?.attachments.first?.chunks.count, 2)
+        XCTAssertEqual(pending?.pendingFiles?.first?.id, kept.id)
+        try await source.removeAttachment(kept.id, from: local.id)
+        await api.setLostPart(false); try await source.flush(local.id)
+        let writes = await api.requests, parts = await api.parts
+        XCTAssertEqual(writes.map(\.action), [.create, .update])
+        XCTAssertEqual(writes.first?.operationID, pending?.pending?.operationID)
+        XCTAssertEqual(writes.first?.content?.attachments.count, 1)
+        XCTAssertEqual(writes.last?.content?.attachments.count, 0)
+        XCTAssertEqual(parts.map { $0.2 }, [MailDraftFiles.chunkBytes, MailDraftFiles.chunkBytes, 3])
+        XCTAssertEqual(parts[0].0, parts[1].0); XCTAssertEqual(parts[0].1, parts[1].1)
+        let saved = try await source.record(local.id)
+        XCTAssertNil(saved?.pendingFiles); XCTAssertNil(saved?.deliveryFailed)
+    }
+
+    func testStaleOpenEditorCannotSilentlyOverwriteARefreshedProviderBaseline() async throws {
+        let (_, store, api) = try await setup(); let source = driver(store, api); var opened = draft()
+        try await source.create(opened); try await source.flush(opened.id)
+        var external = remote("new-version", subject: "Edited on another device"); external.id = "gmail-draft"
+        try await source.importDraft(external, account: opened.account)
+        opened.subject = "Typing in the still-open editor"
+        try await source.save(opened)
+        let retained = try await source.record(opened.id)
+        XCTAssertEqual(retained?.snapshot.subject, opened.subject)
+        XCTAssertEqual(retained?.remote?.message.id, "new-version")
+        XCTAssertEqual(retained?.conflict, true)
+        try await source.flush(opened.id)
+        let requests = await api.requests; XCTAssertEqual(requests.count, 1)
+    }
+    func testStaleForeignPreviewCannotSendTheNewerUnseenDraft() async throws {
+        let (_, store, api) = try await setup(); let source = driver(store, api)
+        try await source.importDraft(remote("v1", subject: "Seen"), account: "noor@plan.example")
+        let values = try await source.records(); let opened = try XCTUnwrap(values.first?.snapshot.value)
+        try await source.importDraft(remote("v2", subject: "Not seen"), account: opened.account)
+        do { try await source.queueSend(opened.id, options: .init(hold: 0, thenDone: false), expectedEditToken: opened.editToken); XCTFail("Sent unseen content") } catch {}
+        let requests = await api.requests; XCTAssertTrue(requests.isEmpty)
+    }
+
+    func testExplicitTextRewritePreservesProviderAttachments() async throws {
+        let (_, store, api) = try await setup(); let source = driver(store, api)
+        let wire = remote("v1", subject: "Imported", attachment: true); await api.setFetched(wire)
+        try await source.importDraft(wire, account: "noor@plan.example")
+        let records = try await source.records(); let id = try XCTUnwrap(records.first?.snapshot.id)
+        let editable = try await source.rewriteAsText(id)
+        XCTAssertEqual(editable.format, .banana); XCTAssertEqual(editable.attachments.count, 1)
+        let file = try XCTUnwrap(editable.attachments.first?.file)
+        XCTAssertEqual(try Data(contentsOf: file), Data(repeating: 7, count: 42))
+        try await source.flush(id)
+        let requests = await api.requests, parts = await api.parts
+        XCTAssertEqual(requests.map(\.action), [.update]); XCTAssertEqual(requests.first?.id, "remote-draft")
+        XCTAssertEqual(requests.first?.content?.attachments.first?.bytes, 42)
+        XCTAssertEqual(parts.count, 1)
+    }
+    func testForwardMaterializesAttachmentsBeforeCreatingTheGmailDraft() async throws {
+        let (_, store, api) = try await setup(); let source = driver(store, api)
+        await api.setFetched(remote("original", subject: "Original", attachment: true))
+        var local = draft(); local.isForward = true
+        local.attachments = [.init(id: "file", name: "notes.pdf", bytes: 42, file: nil, isExecutable: false)]
+        try await source.create(local, forwardMessageID: "original")
+        try await source.flush(local.id)
+        let requests = await api.requests
+        XCTAssertEqual(requests.map(\.action), [.create])
+        XCTAssertEqual(requests.first?.content?.attachments.first?.bytes, 42)
+        // A later autosave from the original UI snapshot must not erase the materialized file.
+        local.subject = "Later edit"; try await source.save(local)
+        let saved = try await source.record(local.id)
+        XCTAssertNotNil(saved?.snapshot.attachments.first?.file)
     }
 
     func testDraftAndUnknownCreateIdentitySurviveReopeningWithoutCrossAccountReads() async throws {

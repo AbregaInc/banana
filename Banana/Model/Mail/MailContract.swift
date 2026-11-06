@@ -474,6 +474,8 @@ struct MailSchedule: Equatable, Codable, Sendable {
 }
 
 struct MailDraft: Identifiable, Equatable, Sendable {
+    /// Changes only when a provider refresh replaces the local editor baseline.
+    var editToken: String = "local"
     /// `banana`: written here, as text. `foreign`: written elsewhere in a form the text editor
     /// cannot hold; shown and sendable as it is (7.1).
     enum Format: String, Codable, Sendable {
@@ -854,6 +856,8 @@ struct MailQuestion: Identifiable, Equatable, Sendable {
     var choices: [MailChoice]
 }
 
+enum MailDraftResolutionFailure: Error, Sendable { case unavailable }
+
 enum MailChoice: String, Codable, Sendable {
     /// `removalHeld`.
     case remove, keepHere
@@ -953,6 +957,9 @@ enum MailLinkRules {}
     // MARK: Reads
 
     var accounts: [MailAccount] { get }
+    var canCompose: Bool { get }
+    var supportsScheduledSend: Bool { get }
+    var supportsAccountSwitching: Bool { get }
     /// This device's history policy, independent of the provider's retained mail.
     var syncLimit: MailSyncLimit { get }
     /// Returns at once: raising fetches more; lowering releases local cached conversations.
@@ -1032,6 +1039,7 @@ enum MailLinkRules {}
     /// True: it is a draft again, durably. False: it has left.
     func cancelSend(_ draft: MailDraftID) async -> Bool
     func retrySend(_ draft: MailDraftID)
+    func resolveDraftQuestion(_ draft: MailDraftID, choice: MailChoice) async throws -> MailDraft?
     /// Whether leaving now would strand a message (the Mac's quit; 7.5).
     var hasUnfinishedSends: Bool { get }
     /// Ends every undo hold and sends. Returns when nothing is left to hand over, or after

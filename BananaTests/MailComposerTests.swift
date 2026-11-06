@@ -1122,5 +1122,21 @@ final class MailComposerTests: XCTestCase {
         XCTAssertEqual(heard, 2)
         withExtendedLifetime(watching) {}
     }
+    func testConflictReplacementReplacesEditorTextRatherThanAppendingIt() async throws {
+        let h = Harness()
+        let model = await h.reply()
+        model.rich = AttributedString("Unsaved local text")
+        let draftID = try XCTUnwrap(model.draftID)
+        let stored = await h.source.draft(draftID)
+        var remote = try XCTUnwrap(stored)
+        remote.body = MailPlainText.text("Chosen Gmail text")
+        remote.editToken = "replacement-baseline"
+        model.replaceAfterResolution(remote)
+        XCTAssertEqual(String(model.rich.characters), "Chosen Gmail text")
+        model.flush()
+        let saved = await h.source.draft(remote.id)
+        XCTAssertEqual(saved?.editToken, "replacement-baseline")
+    }
+
 }
 #endif

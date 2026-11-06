@@ -21,12 +21,15 @@ struct MailDraftRecord: Codable, Equatable, Sendable {
     struct Snapshot: Codable, Equatable, Sendable {
         var id: MailDraftID; var conversation: MailConversationID; var account: String
         var inReplyTo: String?
+        var editToken: String?
+        var forwardMessageID: String?
         var isReply: Bool; var isForward: Bool; var from: MailIdentity
         var to: [MailPerson]; var cc: [MailPerson]; var bcc: [MailPerson]
         var subject: String; var body: MailText; var signature: Part?; var quote: Part?
         var attachments: [MailDraftAttachment]; var format: MailDraft.Format
         var schedule: MailSchedule?; var remindIfNoReply: Date?; var encodedBytes: Int; var editedAt: Date
         init(_ draft: MailDraft) {
+            editToken = draft.editToken
             id = draft.id; conversation = draft.conversation; account = draft.account
             isReply = draft.isReply; isForward = draft.isForward; from = draft.from
             to = draft.to; cc = draft.cc; bcc = draft.bcc; subject = draft.subject; body = draft.body
@@ -35,11 +38,13 @@ struct MailDraftRecord: Codable, Equatable, Sendable {
             remindIfNoReply = draft.remindIfNoReply; encodedBytes = draft.encodedBytes; editedAt = draft.editedAt
         }
         var value: MailDraft {
-            MailDraft(id: id, conversation: conversation, account: account, isReply: isReply,
+            var draft = MailDraft(id: id, conversation: conversation, account: account, isReply: isReply,
                 isForward: isForward, from: from, to: to, cc: cc, bcc: bcc, subject: subject, body: body,
                 signature: signature?.value, quote: quote?.value, attachments: attachments, format: format,
                 schedule: schedule, remindIfNoReply: remindIfNoReply, delivery: nil,
                 encodedBytes: encodedBytes, editedAt: editedAt)
+            draft.editToken = editToken ?? "local"
+            return draft
         }
     }
     var scope: String
@@ -49,6 +54,8 @@ struct MailDraftRecord: Codable, Equatable, Sendable {
     var remote: GmailDraftReference?
     var pending: GmailDraftMutation?
     var pendingRevision: Int?
+    var pendingFiles: [MailDraftAttachment]?
+    var deliveryFailed: Bool?
     var state: State = .editing
     var sendAt: Date?
     var wantsDelete = false

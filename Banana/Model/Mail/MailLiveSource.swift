@@ -113,6 +113,9 @@ import GRDB
         status.value.store = .ready
     }
     var syncLimit: MailSyncLimit { .everything }
+    var canCompose: Bool { draftDriver != nil && accounts.contains { $0.state == .connected && deliveryAllowed($0.id) } }
+    var supportsScheduledSend: Bool { false }
+    var supportsAccountSwitching: Bool { false }
     var accounts: [MailAccount] {
         access.connectedAccountIDs.map { account in
             let grant = access.mailGrant(accountID: account)
@@ -1097,6 +1100,21 @@ extension MailLiveSource {
         try? await intentStore?.discardRemovalReview(id)
     }
 
+    func resolveDraftQuestion(_ id: MailDraftID, choice: MailChoice) async throws -> MailDraft? {
+        await draftWork?.value
+        guard let driver = draftDriver else { throw MailDraftDriver.Failure.notFound }
+        switch choice {
+        case .checkAgain: try await driver.flush(id)
+        case .keepMine, .useOther: try await driver.resolveConflict(id, keepMine: choice == .keepMine)
+        default: throw MailDraftDriver.Failure.notEditable
+        }
+        guard let record = try await driver.record(id) else { return nil }
+        draftCache.removeValue(forKey: id)
+        draftChanged(record)
+        resumeDraftDelivery()
+        return [.sent, .deleted].contains(record.state) ? nil : draftCache[id]
+    }
+
     func answer(_ question: MailQuestion.ID, _ choice: MailChoice) {
         if question.raw.hasPrefix("draft:"), let driver = draftDriver {
             let id = MailDraftID(raw: String(question.raw.dropFirst(6)))
@@ -1179,6 +1197,7 @@ extension MailLiveSource {
         case .failed: draft.delivery = .failed(.other)
         default: break
         }
+        if record.deliveryFailed == true, record.state != .uncertain { draft.delivery = .failed(.other) }
         if let cached = draftCache[id], cached.editedAt > draft.editedAt {
             var newer = cached; newer.delivery = draft.delivery; draftCache[id] = newer
         } else { draftCache[id] = draft }
@@ -1201,16 +1220,16 @@ extension MailLiveSource {
     func newDraft(_ kind: MailDraftKind) async -> MailDraft {
         let account: String
         switch kind {
-        case .new(let selected): account = selected ?? accounts.first(where: { $0.state == .connected })?.id ?? ""
+        case .new(let selected): account = selected ?? accounts.first(where: { $0.state == .connected && deliveryAllowed($0.id) })?.id ?? ""
         case .reply(let message), .replyAll(let message), .forward(let message): account = message.account
-        case .toAddress: account = accounts.first(where: { $0.state == .connected })?.id ?? ""
+        case .toAddress: account = accounts.first(where: { $0.state == .connected && deliveryAllowed($0.id) })?.id ?? ""
         }
         let id = MailDraftID(raw: UUID().uuidString.lowercased())
         var draft = MailDraft(id: id, conversation: .init(account: account, thread: "local:" + id.raw), account: account,
             isReply: false, isForward: false, from: .init(account: account, address: account, name: nil, isDefault: true, hasSignature: false),
             to: [], cc: [], bcc: [], subject: "", body: .init(blocks: []), signature: nil, quote: nil, attachments: [],
             format: .banana, schedule: nil, remindIfNoReply: nil, delivery: nil, encodedBytes: 0, editedAt: Date())
-        var replyID: String?
+        var replyID: String?, forwardMessageID: String?
         do {
             guard let driver = draftDriver, !account.isEmpty else { throw MailDraftDriver.Failure.notFound }
             switch kind {
@@ -1237,17 +1256,13 @@ extension MailLiveSource {
                 draft.quote = MailReplyRules.quote(message: original, body: originalBody, subject: conversation.subject, forward: forward)
                 replyID = forward ? nil : identity.1
                 if forward {
-                    // Carry every attachment reference; missing bytes must block sending, never drop a file.
-                    let accessToken = try await access.mailAccessToken(accountID: account).value
-                    let wire = try await api.message(token: accessToken, id: message.message, format: .full)
-                    if let payload = wire.payload {
-                        draft.attachments = MIMEStructure.extract(payload).structure.attachments.map {
-                            MailDraftAttachment(id: $0.partID, name: $0.name, bytes: $0.size ?? 0, file: nil, isExecutable: false)
-                        }
+                    forwardMessageID = message.message
+                    draft.attachments = original.attachments.map {
+                        MailDraftAttachment(id: $0.id.part, name: $0.name, bytes: $0.bytes, file: nil, isExecutable: $0.isExecutable)
                     }
                 }
             }
-            try await driver.create(draft, inReplyTo: replyID)
+            try await driver.create(draft, inReplyTo: replyID, forwardMessageID: forwardMessageID)
             draftCache[id] = draft; draftStates[id] = .editing
         } catch {
             // The composer retains this value and receives an explicit save failure.
@@ -1271,10 +1286,10 @@ extension MailLiveSource {
     }
     @discardableResult func send(_ id: MailDraftID, _ options: MailSendOptions) -> MailReceipt {
         guard let driver = draftDriver else { return MailReceipt(sequence: 0, count: 0) }
-        let receipt = draftReceipt()
+        let receipt = draftReceipt(), expectedEditToken = draftCache[id]?.editToken
         enqueueDraftWork { [weak self] in
             guard self?.draftSaveFailures.contains(id) == false else { self?.emit(.notSaved(receipt, .unavailable)); return }
-            do { try await driver.queueSend(id, options: options); self?.emit(.applied(receipt, count: 1)) }
+            do { try await driver.queueSend(id, options: options, expectedEditToken: expectedEditToken); self?.emit(.applied(receipt, count: 1)) }
             catch { self?.emit(.notSaved(receipt, .unavailable)); return }
             self?.resumeDraftDelivery()
         }
@@ -1283,6 +1298,26 @@ extension MailLiveSource {
     func cancelSend(_ id: MailDraftID) async -> Bool {
         await draftWork?.value
         return (try? await draftDriver?.cancelSend(id)) ?? false
+    }
+    func rewriteAsText(_ id: MailDraftID) async -> MailDraft? {
+        await draftWork?.value
+        do {
+            let value = try await draftDriver?.rewriteAsText(id)
+            if let value { draftCache[id] = value; resumeDraftDelivery() }
+            return value
+        } catch { emit(.draftNotSaved(id, .unavailable)); return nil }
+    }
+    func addAttachment(_ file: URL, to id: MailDraftID) async -> MailDraftAttachment? {
+        await draftWork?.value
+        do { return try await draftDriver?.addAttachment(file, to: id) }
+        catch { emit(.draftNotSaved(id, .unavailable)); return nil }
+    }
+    func removeAttachment(_ attachment: String, from id: MailDraftID) {
+        guard let driver = draftDriver else { return }
+        enqueueDraftWork { [weak self] in
+            do { try await driver.removeAttachment(attachment, from: id) }
+            catch { self?.emit(.draftNotSaved(id, .unavailable)) }
+        }
     }
     func retrySend(_ id: MailDraftID) { guard let driver = draftDriver else { return }; enqueueDraftWork { try? await driver.retry(id) } }
     @discardableResult func discard(_ id: MailDraftID) -> MailReceipt {

@@ -31,6 +31,19 @@ final class GmailHTTPTests: XCTestCase {
         do { _ = try await transport().mutateDraft(token: "provider-token", request: request); XCTFail("Draft bypassed cloud") }
         catch { XCTAssertEqual(error as? GmailError, .networkDisabled) }
     }
+    func testAttachmentChunksUseOnlyBoundedCloudTransport() async throws {
+        let operation = "10000000-0000-4000-8000-000000000001", hash = String(repeating: "a", count: 64)
+        let api = GmailHTTP(partTransport: { token, identity, digest, data in
+            XCTAssertEqual(token, "route"); XCTAssertEqual(identity, operation)
+            XCTAssertEqual(digest, hash); XCTAssertEqual(data, Data([1, 2, 3]))
+        }, networkAllowed: { true })
+        try await api.uploadDraftPart(token: "route", operationID: operation, hash: hash, data: Data([1, 2, 3]))
+        do { try await api.uploadDraftPart(token: "route", operationID: operation, hash: hash, data: Data(count: 1024 * 1024 + 1)); XCTFail("Unbounded upload") }
+        catch { XCTAssertEqual(error as? GmailError, .refused(.invalidArgument)) }
+        do { try await transport().uploadDraftPart(token: "provider-token", operationID: operation, hash: hash, data: Data()); XCTFail("Direct provider upload") }
+        catch { XCTAssertEqual(error as? GmailError, .networkDisabled) }
+    }
+
     func testDraftReadsPreserveProviderIdentityAndContinuation() async throws {
         ResponseProtocol.response = { request in
             if request.url!.path.hasSuffix("/drafts") { return (200, Data(#"{"drafts":[{"id":"draft","message":{"id":"version"}}],"nextPageToken":"next"}"#.utf8)) }
