@@ -96,7 +96,9 @@ final class MailLegacyMigrationTests: XCTestCase {
             let accounts = try await stores.index.read { try String.fetchAll($0, sql: "SELECT email FROM account") }
             try await intent.importLegacyDrafts(scope: "installed-copy", accounts: Set(accounts))
             let records = try await intent.draftRecords(scope: "installed-copy")
-            XCTAssertFalse(records.isEmpty, "Installed fixture has a saved draft")
+            let legacyQueue = try DatabaseQueue(path: directories.intentDatabase.path)
+            let legacyAccounts = try await legacyQueue.read { try String.fetchAll($0, sql: "SELECT account FROM draft") }
+            XCTAssertEqual(records.count, legacyAccounts.filter { accounts.contains($0) }.count)
             let integrity = try await stores.index.read { try String.fetchOne($0, sql: "PRAGMA quick_check") }
             XCTAssertEqual(integrity, "ok")
         }.value

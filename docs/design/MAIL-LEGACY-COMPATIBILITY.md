@@ -24,3 +24,8 @@ Validation covers old-schema reopening, retained rows, owner filtering, idempote
 future-schema refusal, interrupted sends and explicit keep-as-draft behavior. An optional private
 SQLite backup of an installed Beta reproduces the original refusal and verifies the corrected
 opening and saved-draft recovery. No user database is modified by these tests.
+
+The repair passed 51 targeted Mail tests. Separate checks against retained Mac and iPad
+Beta data reproduced the refusal and opened both stores successfully; the Mac fixture also
+verified saved-draft recovery. Device installation and live provider consent are separate
+acceptance steps.
