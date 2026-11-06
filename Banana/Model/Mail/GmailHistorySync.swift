@@ -77,10 +77,23 @@ actor GmailHistorySync {
             }
             let expected = checkpoint
             let finishesNonemptyPass = pages > 0
-            let applied = try await writer.transactValue { db in
-                let value = try MailHistoryIndex.apply(page, account: account, after: expected,
-                    nowMS: nowMS, finishesNonemptyPass: finishesNonemptyPass, in: db)
-                return (value, value.change)
+            let applied: MailHistoryIndex.Applied
+            do {
+                applied = try await writer.transactValue { db in
+                    let value = try MailHistoryIndex.apply(page, account: account, after: expected,
+                        nowMS: nowMS, finishesNonemptyPass: finishesNonemptyPass, in: db)
+                    return (value, value.change)
+                }
+            } catch is MailHistoryRules.Failure {
+                // An unusable delta cannot become deletion/label evidence. Retrying the
+                // same history position cannot repair it either. Roll back that page and
+                // use the existing bounded full reconciliation, preserving local intent.
+                let expectedPosition = rawPosition
+                _ = try await writer.transact { db in
+                    try MailSyncCheckpoint.expire(account: account, expected: expectedPosition, in: db)
+                    return MailStoreChange()
+                }
+                return .needsReconcile
             }
             checkpoint = applied.checkpoint; rawPosition = String(checkpoint); pages += 1
             try await committed(account, applied)

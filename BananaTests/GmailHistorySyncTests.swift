@@ -76,6 +76,24 @@ final class GmailHistorySyncTests: XCTestCase {
         }
     }
 
+    func testUnusableHistoryReconcilesWithoutDroppingCommittedMail() async throws {
+        // First page commits a new cached message. The next page has a history
+        // record without actionable change fields, as rejected on the device.
+        let incomplete = GmailHistoryPage(history: [GmailHistoryRecord(id: 3)], historyId: 10)
+        let stores = try await stores(), api = Provider([.success(first), .success(incomplete)])
+        let result = try await worker(stores, api).poll(account: "a@example.com", nowMS: 101)
+        XCTAssertEqual(result, .needsReconcile)
+        let saved = try await checkpoint(stores)
+        XCTAssertNil(saved)
+        let cached = try await stores.index.read { try String.fetchAll($0, sql: "SELECT gmail_id FROM message") }
+        XCTAssertEqual(cached, ["m"])
+        let next = Provider([])
+        let resumed = try await worker(stores, next).poll(account: "a@example.com", nowMS: 102)
+        XCTAssertEqual(resumed, .needsReconcile)
+        let requests = await next.requests
+        XCTAssertTrue(requests.isEmpty, "Never retry the unusable history position")
+    }
+
     func testWrongAccountAndMissingCheckpointNeverReadHistory() async throws {
         let stores = try await stores(), wrong = Provider([], account: "other@example.com")
         do { _ = try await worker(stores, wrong).poll(account: "a@example.com", nowMS: 101); XCTFail() }

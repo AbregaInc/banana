@@ -6,6 +6,8 @@ final class GmailMailboxSyncTests: XCTestCase {
         var account = "a@example.com"
         var operations: [String] = []
         var historyFailure: GmailError?
+        var incompleteOnce = false
+        func injectIncompleteHistory() { incompleteOnce = true }
         func configure(account: String? = nil, failure: GmailError? = nil) {
             if let account { self.account = account }
             historyFailure = failure
@@ -17,6 +19,10 @@ final class GmailMailboxSyncTests: XCTestCase {
         func history(token: String, start: String, pageToken: String?, maxResults: Int) async throws -> GmailHistoryPage {
             operations.append("history")
             if let historyFailure { throw historyFailure }
+            if incompleteOnce {
+                incompleteOnce = false
+                return GmailHistoryPage(history: [GmailHistoryRecord(id: 11)], historyId: 11)
+            }
             return GmailHistoryPage(historyId: 10)
         }
         func listMessages(token: String, labelIDs: [String], query: String?, includeSpamTrash: Bool, pageToken: String?, maxResults: Int) async throws -> GmailIDPage {
@@ -72,6 +78,24 @@ final class GmailMailboxSyncTests: XCTestCase {
         XCTAssertEqual(operations, ["list", "list", "history"])
         await api.configure()
         _ = try await worker.pass(account: "a@example.com", nowMS: 3)
+    }
+
+    func testIncompleteHistoryRestartsReconciliationAndEventuallySettles() async throws {
+        let api = Provider(), (stores, worker) = try await setup(api)
+        _ = try await worker.pass(account: "a@example.com", nowMS: 1)
+        let old = try await stores.index.read { try MailReconcileIndex.state(account: "a@example.com", in: $0) }
+        await api.injectIncompleteHistory()
+        let recovered = try await worker.pass(account: "a@example.com", nowMS: 2)
+        XCTAssertTrue(recovered.hasMore)
+        let restarted = try await stores.index.read { try MailReconcileIndex.state(account: "a@example.com", in: $0) }
+        XCTAssertEqual(restarted?.generation, (old?.generation ?? 0) + 1)
+        var complete = false
+        for tick in 3...12 {
+            if try await !worker.pass(account: "a@example.com", nowMS: Int64(tick)).hasMore {
+                complete = true; break
+            }
+        }
+        XCTAssertTrue(complete, "Reconciliation must finish instead of retrying the rejected delta")
     }
 
     func testWrongAccountCannotStartAnyListing() async throws {
