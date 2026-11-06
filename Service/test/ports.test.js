@@ -151,7 +151,7 @@ test("sqlite: migrations apply once, and a database exported from D1 isn't migra
     const path = join(dir, "a.db");
     sqlite(path).close();
     const again = sqlite(path);
-    assert.deepEqual(again.raw.prepare("SELECT name FROM migrations_applied").all().map((r) => r.name), ["0001_init.sql", "0002_link_lifecycle.sql", "0003_device_channels.sql", "0004_push_record.sql", "0005_event_alerts.sql", "0006_alert_devices.sql", "0007_plan_ahead.sql", "0008_diagnostics.sql", "0009_spaces.sql", "0010_booking.sql", "0011_web_sharing.sql", "0012_series_invites.sql", "0013_booking_hardening.sql", "0014_feature_access.sql", "0015_provider_operations.sql", "0016_mail_grants.sql", "0017_provider_protocol.sql", "0018_busy_block_identity.sql", "0019_mail_drafts.sql"]);
+    assert.deepEqual(again.raw.prepare("SELECT name FROM migrations_applied").all().map((r) => r.name), ["0001_init.sql", "0002_link_lifecycle.sql", "0003_device_channels.sql", "0004_push_record.sql", "0005_event_alerts.sql", "0006_alert_devices.sql", "0007_plan_ahead.sql", "0008_diagnostics.sql", "0009_spaces.sql", "0010_booking.sql", "0011_web_sharing.sql", "0012_series_invites.sql", "0013_booking_hardening.sql", "0014_feature_access.sql", "0015_provider_operations.sql", "0016_mail_grants.sql", "0017_provider_protocol.sql", "0018_busy_block_identity.sql", "0019_mail_drafts.sql", "0020_mail_uploads.sql"]);
     again.close();
 
     // As `wrangler d1 export` leaves it: the tables and wrangler's own record of the migration.
@@ -167,7 +167,7 @@ test("sqlite: migrations apply once, and a database exported from D1 isn't migra
     raw.close();
     const moved = sqlite(exported);
     // 0001 came with the export; 0002 to 0004 are applied here.
-    assert.deepEqual(moved.raw.prepare("SELECT name FROM migrations_applied").all().map((r) => r.name), ["0001_init.sql", "0002_link_lifecycle.sql", "0003_device_channels.sql", "0004_push_record.sql", "0005_event_alerts.sql", "0006_alert_devices.sql", "0007_plan_ahead.sql", "0008_diagnostics.sql", "0009_spaces.sql", "0010_booking.sql", "0011_web_sharing.sql", "0012_series_invites.sql", "0013_booking_hardening.sql", "0014_feature_access.sql", "0015_provider_operations.sql", "0016_mail_grants.sql", "0017_provider_protocol.sql", "0018_busy_block_identity.sql", "0019_mail_drafts.sql"]);
+    assert.deepEqual(moved.raw.prepare("SELECT name FROM migrations_applied").all().map((r) => r.name), ["0001_init.sql", "0002_link_lifecycle.sql", "0003_device_channels.sql", "0004_push_record.sql", "0005_event_alerts.sql", "0006_alert_devices.sql", "0007_plan_ahead.sql", "0008_diagnostics.sql", "0009_spaces.sql", "0010_booking.sql", "0011_web_sharing.sql", "0012_series_invites.sql", "0013_booking_hardening.sql", "0014_feature_access.sql", "0015_provider_operations.sql", "0016_mail_grants.sql", "0017_provider_protocol.sql", "0018_busy_block_identity.sql", "0019_mail_drafts.sql", "0020_mail_uploads.sql"]);
     moved.close();
   } finally {
     rmSync(dir, { recursive: true, force: true });

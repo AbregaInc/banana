@@ -1,4 +1,5 @@
 import {parseMailDraftRequest,mailDraft} from './mail-drafts.js';
+import {uploadMailPart,removeMailParts} from './mail-uploads.js';
 import {parseMailOperation,mailOperation} from "./mail-operation.js";
 import {parseMailRead,mailRead} from "./mail-read.js";
 import {connectMail} from "./mail-grant.js";
@@ -325,6 +326,14 @@ export function createApp(deps) {
 
   app.get("/v1/account", signedIn, async (c) => c.json(await summary(c.get("account"))));
 
+  app.put("/v1/mail/attachment/:operation/:hash", signedIn, async (c) => {
+    c.header("Cache-Control","no-store");
+    if(Number(c.req.header("content-length")||0)>1024*1024)return c.body(null,413);
+    const status=await uploadMailPart(deps,c.get("account"),c.req.header("X-Banana-Mail-Account"),
+      c.req.param("operation"),c.req.param("hash"),c.req.raw.body);
+    return c.body(null,status);
+  });
+
   app.post("/v1/mail/draft", signedIn, async (c) => {
     c.header("Cache-Control","no-store");
     const request=parseMailDraftRequest(await readJson(c,520 * 1024));
@@ -429,6 +438,8 @@ export function createApp(deps) {
     for (const link of links) await forget(deps, vault, link);
     // The data first (the space empties at once; its blobs follow to the trash), then the rows.
     const spaces = await wipeSpaces(deps, account);
+    const uploads=await db.all('SELECT DISTINCT operation_id FROM mail_uploads WHERE account_id=?',account);
+    for(const upload of uploads)await removeMailParts(deps,account,upload.operation_id);
     await db.batch([
       ...spaces,
       { sql: "DELETE FROM watches WHERE account_id = ?", params: [account] },

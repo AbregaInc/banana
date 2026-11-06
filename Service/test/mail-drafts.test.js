@@ -1,4 +1,6 @@
 import test from 'node:test';
+import {createHash} from 'node:crypto';
+import {sweepMailParts} from '../src/mail-uploads.js';
 import assert from 'node:assert/strict';
 import {setup,device} from './helpers.js';
 import {createVault} from '../src/crypto.js';
@@ -93,6 +95,61 @@ test('no timer-owned mailbox, no attachment loss, no unversioned mutation or oth
  for(const action of ['save','queue','cancel','deliver'])assert.equal((await t.call(action)).status,400);
  assert.equal((await t.call('update',{id:'gmail-draft',content:content()})).status,400);
  assert.equal((await t.call('create',{email:'other@plan.example',content:{...content(),from:{address:'other@plan.example'}}})).status,403);
- assert.equal((await t.call('create',{content:{...content(),attachments:[{name:'file',mimeType:'text/plain',bytes:1,chunks:['a'.repeat(64)]}]}})).status,422);
+ assert.equal((await t.call('create',{content:{...content(),attachments:[{name:'file',mimeType:'text/plain',bytes:1,chunks:['a'.repeat(64)]}]}})).status,409);
  await t.s.db.run('UPDATE feature_access SET enabled=0');assert.equal((await create(t)).status,403);assert.equal(t.counts().writes,0);
+});
+
+const hash=bytes=>createHash('sha256').update(bytes).digest('hex');
+const upload=(t,operation,bytes,sha=hash(bytes),email='noor@plan.example')=>t.s.app.request(`/v1/mail/attachment/${operation}/${sha}`,{
+ method:'PUT',headers:{authorization:`Bearer ${t.a.session}`,'X-Banana-Mail-Account':email},body:bytes});
+test('attachment parts are verified, streamed to Gmail, and removed after acknowledgement',async()=>{
+ const t=await ready(),bytes=Buffer.from('Private attachment bytes');
+ assert.equal((await upload(t,first,bytes,'a'.repeat(64))).status,400);
+ assert.equal((await upload(t,first,bytes,hash(bytes),'other@plan.example')).status,403);
+ assert.equal((await upload(t,first,Buffer.alloc(1024*1024+1))).status,413);
+ assert.equal((await upload(t,first,bytes)).status,204);
+ assert.equal((await upload(t,first,bytes)).status,204);
+ const composition={...content(),attachments:[{name:'notes.txt',mimeType:'text/plain',bytes:bytes.length,chunks:[hash(bytes)]}]};
+ const saved=await t.call('create',{content:composition});assert.equal(saved.status,200);
+ const raw=t.drafts.get('gmail-draft').snapshot.raw;
+ assert.match(raw,/filename=notes.txt/);assert.ok(raw.includes(bytes.toString('base64')));
+ assert.equal((await t.s.db.first('SELECT count(*) AS n FROM mail_uploads')).n,0);
+ assert.equal((await t.s.deps.blobs.list('mail-pending/')).length,0);
+ assert.equal((await upload(t,first,bytes)).status,204); // A late retry cannot recreate discarded parts.
+ assert.equal((await t.s.deps.blobs.list('mail-pending/')).length,0);
+});
+test('unknown Gmail writes retain attachment parts until read-only reconciliation',async()=>{
+ const t=await ready(),bytes=Buffer.from('Keep until confirmed');await upload(t,first,bytes);
+ const composition={...content(),attachments:[{name:'notes.txt',mimeType:'text/plain',bytes:bytes.length,chunks:[hash(bytes)]}]};
+ const original=t.s.google.mailDraftUpload;t.s.google.mailDraftUpload=async(...args)=>{await original(...args);throw new Error('lost reply');};
+ assert.equal((await t.call('create',{content:composition})).status,502);
+ t.s.advance(2*24*60*60*1000);await sweepMailParts(t.s.deps);
+ assert.equal((await t.s.deps.blobs.list('mail-pending/')).length,1);
+ assert.equal((await t.call('create',{content:composition})).status,200);
+ assert.equal(t.counts().writes,1);assert.equal((await t.s.deps.blobs.list('mail-pending/')).length,0);
+});
+test('orphan attachment parts expire and cannot be used by another operation',async()=>{
+ const t=await ready(),bytes=Buffer.from('Abandoned');await upload(t,first,bytes);
+ const composition={...content(),attachments:[{name:'notes.txt',mimeType:'text/plain',bytes:bytes.length,chunks:[hash(bytes)]}]};
+ assert.equal((await t.call('create',{operationID:second,content:composition})).status,409);
+ assert.equal(t.counts().writes,0);
+ t.s.advance(2*24*60*60*1000);await sweepMailParts(t.s.deps);
+ assert.equal((await t.s.deps.blobs.list('mail-pending/')).length,0);
+ assert.equal((await t.s.db.first('SELECT count(*) AS n FROM mail_uploads')).n,0);
+});
+test('an upload finishing after cleanup cannot leave an untracked object',async()=>{
+ const t=await ready(),bytes=Buffer.from('Interrupted upload');
+ const put=t.s.deps.blobs.put.bind(t.s.deps.blobs);
+ t.s.deps.blobs.put=async(...args)=>{
+  await t.s.db.run('DELETE FROM mail_uploads');
+  return put(...args);
+ };
+ assert.equal((await upload(t,first,bytes)).status,409);
+ assert.equal((await t.s.deps.blobs.list('mail-pending/')).length,0);
+});
+test('attachment reservations enforce the account quota before writing objects',async()=>{
+ const t=await ready(),bytes=Buffer.from('Over quota');
+ for(let i=0;i<100;i++) await t.s.db.run("INSERT INTO mail_uploads VALUES (?,?,?,?, 'uploading',?)",t.a.account.id,second,i.toString(16).padStart(64,'0'),1024*1024,t.s.now());
+ assert.equal((await upload(t,first,bytes)).status,413);
+ assert.equal((await t.s.deps.blobs.list('mail-pending/')).length,0);
 });

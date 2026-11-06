@@ -6,6 +6,7 @@
 import { GoogleRefused } from "./google.js";
 import { createVault } from "./crypto.js";
 import { accessToken, addWatch, forgetUnwatched, postpone, stopWatch } from "./calendar.js";
+import {sweepMailParts} from "./mail-uploads.js";
 import { KEEP as KEEP_DIAGNOSTICS } from "./diagnostics.js";
 
 const RENEW_BEFORE = 24 * 60 * 60 * 1000;
@@ -19,6 +20,7 @@ const MOST_RENEWALS_PER_RUN = 200;   // Google calls a minute from the job; the 
 export async function runJob(deps) {
   const vault = createVault(deps.config.tokenKey, deps.random);
   const t = deps.now();
+  await sweepMailParts(deps);
   const due = await deps.db.all(
     `SELECT w.*, g.refresh_token AS link_refresh_token, g.status AS link_status, g.account_id AS link_account_id
      FROM watches w JOIN google_links g ON g.sub = w.google_sub

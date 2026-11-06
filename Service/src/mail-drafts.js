@@ -1,5 +1,5 @@
-import {mailLink} from './mail-grant.js';
-import {featureAllowed,googleCapabilities} from './feature-access.js';
+import {mailWriteLink} from './mail-grant.js';
+import {mailPartsReady,mailAttachment,removeMailParts} from './mail-uploads.js';
 import {providerOperation,operationFailure as fail} from './provider-operation.js';
 import {sha256Hex} from './crypto.js';
 import {GoogleRefused} from './google.js';
@@ -18,30 +18,23 @@ export function parseMailDraftRequest(x) {
  } else if(x.content!=null)return null;
  return request;
 }
-async function authorization(deps,account,email) {
- if(!await featureAllowed(deps,account,'email'))return null;
- const link=await mailLink(deps,account,email);
- if(!link||!googleCapabilities({...link,has_token:Boolean(link.refresh_token)}).mailModify)return null;
- if(link.client_id&&link.client_id!==deps.config.googleClientId)return null;
- return link;
-}
 const metadata=draft=>({id:draft.id,message:{id:draft.message.id,threadId:draft.message.threadId}});
 const header=(draft,name)=>draft?.message?.payload?.headers?.find(h=>h.name?.toLowerCase()===name)?.value?.trim();
 /** Gmail holds editable drafts. Banana holds encrypted pending operations and compact receipts. */
 export async function mailDraft(deps,vault,account,request) {
- const link=await authorization(deps,account,request.email);
+ const link=await mailWriteLink(deps,account,request.email);
  if(!link)return fail(403,'Connect Email with draft access for this account.');
- if(request.content?.attachments.length)return fail(422,'Attachment upload is not available yet. Your draft has not been changed.');
  const {action,operationID}=request;
  const messageID=`<${await sha256Hex(`${account}:${operationID}`)}@mail.banana.app>`;
  let token;
  const read=()=>deps.google.mailDraftGet(token,request.id);
- const enabled=async()=>{const current=await authorization(deps,account,request.email);return current?.sub===link.sub&&current?.refresh_token===link.refresh_token;};
+ const enabled=async()=>{const current=await mailWriteLink(deps,account,request.email);return current?.sub===link.sub&&current?.refresh_token===link.refresh_token;};
  const answer=await providerOperation(deps,vault,{account,operationID,googleSub:link.sub,provider:'mail-draft',
   // Clients persist one create identity with their local draft before first delivery. Subsequent
   // edits, deletes and sends from every device serialize on the resulting Gmail draft ID.
   resource:[link.sub,request.id??operationID],request,enabled,
   prepare:async()=>{
+   if(request.content&&!await mailPartsReady(deps,account,operationID,request.content.attachments))return fail(409,'Upload all attachment parts before saving this draft.');
    try{token=(await deps.google.refresh(await vault.open(link.sub,link.refresh_token))).accessToken;return null;}
    catch(e){return fail(e instanceof GoogleRefused?403:502,'Reconnect Email or retry when the service is available.');}
   },
@@ -61,7 +54,7 @@ export async function mailDraft(deps,vault,account,request) {
     if(answer.status===404)throw new Error('draft disappearance does not prove non-delivery');
     return answer;
    }
-   const mime=composeMail(request.content,{messageID:context.messageID,date:context.date,attachment:async function*(){throw new Error('attachments unavailable');}});
+   const mime=composeMail(request.content,{messageID:context.messageID,date:context.date,attachment:a=>mailAttachment(deps,account,operationID,a)});
    const result=await deps.google.mailDraftUpload(token,action,{id:request.id,threadID:request.content.threadID},mime);
    return result.status>=200&&result.status<300?{status:result.status,body:metadata(result.body)}:result;
   },
@@ -82,6 +75,7 @@ export async function mailDraft(deps,vault,account,request) {
  if(answer.status>=200&&answer.status<300) {
   await deps.db.run("UPDATE provider_operations SET request_cipher=? WHERE account_id=? AND operation_id=? AND state='done' AND response_status BETWEEN 200 AND 299",
    await vault.seal('provider-operation:'+account,JSON.stringify({action,id:request.id??null,operationID})),account,operationID);
+  await removeMailParts(deps,account,operationID).catch(()=>{}); // The retention job retries object cleanup.
  }
  return answer;
 }

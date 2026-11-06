@@ -6,6 +6,13 @@ export async function mailLink(deps,account,email) {
  const mail=await deps.db.first('SELECT * FROM mail_grants WHERE google_sub=?',link.sub);
  return mail?{...link,refresh_token:mail.refresh_token,scopes:mail.scopes,status:mail.status,client_id:mail.client_id,mailGrant:true}:link;
 }
+export async function mailWriteLink(deps,account,email) {
+ if(!await featureAllowed(deps,account,'email'))return null;
+ const link=await mailLink(deps,account,email);
+ if(!link||!googleCapabilities({...link,has_token:Boolean(link.refresh_token)}).mailModify)return null;
+ if(link.client_id&&link.client_id!==deps.config.googleClientId)return null;
+ return link;
+}
 export async function connectMail(deps,vault,account,code,email) {
  if(!await featureAllowed(deps,account,'email'))return {status:403,error:'feature_unavailable'};
  const link=await deps.db.first("SELECT * FROM google_links WHERE account_id=? AND email=? AND status<>'unlinked'",account,email.toLowerCase());
