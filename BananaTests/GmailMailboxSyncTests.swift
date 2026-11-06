@@ -91,7 +91,8 @@ final class GmailMailboxSyncTests: XCTestCase {
         XCTAssertEqual(restarted?.generation, (old?.generation ?? 0) + 1)
         var complete = false
         for tick in 3...12 {
-            if try await !worker.pass(account: "a@example.com", nowMS: Int64(tick)).hasMore {
+            let progress = try await worker.pass(account: "a@example.com", nowMS: Int64(tick))
+            if !progress.hasMore {
                 complete = true; break
             }
         }
