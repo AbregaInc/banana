@@ -5,9 +5,7 @@ import Foundation
 /// maps it to attributed text with its own type styles, in one place"). No HTML is parsed here
 /// or anywhere in a screen; the engine has already said what the message means.
 ///
-/// A link's address is kept off the result on purpose: the slice shows a link as underlined text
-/// and opens nothing. Links open through `MailLinkRules` (MAIL-UX 10.7), which a later package
-/// brings.
+/// Safe links use the system URL action on iOS, iPadOS and macOS.
 enum MailAttributedText {
 
     /// One block's runs, with their styles.
@@ -20,7 +18,8 @@ enum MailAttributedText {
             if run.style.contains(.italic) { intent.insert(.emphasized) }
             if run.style.contains(.code) { intent.insert(.code) }
             if !intent.isEmpty { piece.inlinePresentationIntent = intent }
-            if run.style.contains(.underline) || run.link != nil { piece.underlineStyle = .single }
+            if let link = MailBodyHTML.safeLink(run.link) { piece.link = link }
+            if run.style.contains(.underline) { piece.underlineStyle = .single }
             if run.style.contains(.strikethrough) { piece.strikethroughStyle = .single }
             out.append(piece)
         }

@@ -154,7 +154,7 @@ final class MailRowDisplayTests: XCTestCase {
 
     // MARK: Styled text
 
-    func testStylesBecomeAttributesAndALinkIsUnderlinedButOpensNothing() {
+    func testStylesBecomeAttributesAndSafeLinksRemainInteractive() {
         let runs = [
             MailTextRun(text: "plain "),
             MailTextRun(text: "bold", style: [.bold]),
@@ -166,13 +166,12 @@ final class MailRowDisplayTests: XCTestCase {
         XCTAssertEqual(MailAttributedText.plain(runs), "plain bold ital link")
 
         var intents: [InlinePresentationIntent] = []
-        var underlined = false
+        var links: [URL] = []
         for run in made.runs {
             if let intent = run.inlinePresentationIntent { intents.append(intent) }
-            if run.underlineStyle != nil { underlined = true }
-            XCTAssertNil(run.link, "a link's address is kept off: the slice opens nothing")
+            if let link = run.link { links.append(link) }
         }
         XCTAssertEqual(intents, [.stronglyEmphasized, .emphasized])
-        XCTAssertTrue(underlined)
+        XCTAssertEqual(links, [URL(string: "https://example.com")!])
     }
 }

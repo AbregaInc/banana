@@ -147,6 +147,8 @@ extension MailSource {
         return nil
     }
 
+    func originalHTML(_ id: MailMessageID) async throws -> String? { nil }
+
     func body(_ id: MailMessageID) async -> MailBody {
         MailNotYet.reached(#function)
         return .notOnDevice

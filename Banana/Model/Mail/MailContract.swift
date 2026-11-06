@@ -988,6 +988,8 @@ enum MailLinkRules {}
     func conversation(_ id: MailConversationID) async -> MailConversation?
     /// A message's body, ready-made. Never fetches; `.notOnDevice` when it is not here.
     func body(_ id: MailMessageID) async -> MailBody
+    /// Sanitized original layout, prepared on demand off the UI thread.
+    func originalHTML(_ id: MailMessageID) async throws -> String?
     /// A picture a designed body refers to (10.5). Nil: answer 404. Fetches a remote picture
     /// only when `presentation == .onScreen` and the picture rules allow it.
     func resource(_ url: URL, for message: MailMessageID,

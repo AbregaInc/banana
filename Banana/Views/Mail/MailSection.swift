@@ -49,44 +49,40 @@ private struct MailConnectionBar: View {
     @State private var failed = false
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Gmail · Reading, search and mail actions available. Composing and snoozing are still being integrated.")
-                .font(.caption).foregroundStyle(.secondary)
-            ScrollView(.horizontal) {
-                HStack {
+            HStack {
+                Spacer()
+                Menu {
                     ForEach(accounts, id: \.id) { account in
-                        if account.state == .connected {
-                            VStack(alignment: .leading, spacing: 2) {
-                                Label(account.id + (source.permitsAccountChanges(account.id) ? "" : " · Read only"),
-                                      systemImage: source.permitsAccountChanges(account.id) ? "checkmark.circle" : "eye")
-                                if let text = healthText(account.health) {
-                                    Text(text).font(.caption).foregroundStyle(.secondary)
-                                        .accessibilityIdentifier("mail.sync.status")
+                        Section(account.id) {
+                            if account.state != .connected {
+                                Button("Allow Mail") {
+                                    busy = true; failed = false
+                                    Task {
+                                        let result = await source.requestPermission(account: account.id)
+                                        failed = result != .granted && result != .cancelled
+                                        busy = false
+                                    }
                                 }
-                            }
-                        } else {
-                            Button("Allow Mail · " + account.id) {
-                                busy = true; failed = false
-                                Task {
-                                    let result = await source.requestPermission(account: account.id)
-                                    failed = result != .granted && result != .cancelled
-                                    busy = false
-                                }
+                            } else {
+                                Text(source.permitsAccountChanges(account.id) ? "Connected" : "Read only")
+                                if let text = healthText(account.health) { Text(text) }
                             }
                         }
                     }
-                    Button(accounts.isEmpty ? "Connect Google account" : "Add account") {
+                    Button("Add account") {
                         busy = true; failed = false
                         Task {
                             await GoogleCalendarService.shared.connect()
-                            source.checkNow()
-                            accounts = source.accounts
-                            busy = false
+                            source.checkNow(); accounts = source.accounts; busy = false
                         }
                     }
                     Button("Check mail") { source.checkNow() }
+                } label: {
+                    Label(accounts.isEmpty ? "Connect Mail" : "Accounts", systemImage: "person.crop.circle")
                 }
+                .disabled(busy)
+                .accessibilityIdentifier("mail.accounts")
             }
-            .disabled(busy)
             MailRefusalNotice(source: source, status: source.status)
             MailRemovalNotice(source: source, status: source.status)
             MailDraftNotice(session: session, status: source.status)

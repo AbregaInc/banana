@@ -32,6 +32,7 @@ final class MailReaderModel: ObservableObject {
     private var observation: MailObservation?
     private var loading: Task<Void, Never>?
     private var bodyGeneration: UInt64 = 0
+    private var revealed = Set<MailMessageID>()
     private var bodyStates: [MailMessageID: MailBodyState] = [:]
 
     init(id: MailConversationID, source: MailSource) {
@@ -46,6 +47,14 @@ final class MailReaderModel: ObservableObject {
     /// Finishes when every body asked for so far has arrived. For tests.
     func waitForBodies() async {
         await loading?.value
+    }
+
+    /// A visible card gets one priority fetch automatically. Reappearing does not
+    /// retry-loop offline failures; explicit retry remains available.
+    func revealBody(_ message: MailMessageID) {
+        guard conversation?.messages.contains(where: { $0.id == message }) == true,
+              revealed.insert(message).inserted else { return }
+        if bodies[message] == nil || bodies[message] == .notOnDevice { source.fetchBody(message) }
     }
 
     func fetchBody(_ message: MailMessageID) {

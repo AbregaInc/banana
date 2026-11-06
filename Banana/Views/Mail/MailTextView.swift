@@ -2,8 +2,7 @@
 import SwiftUI
 
 /// A message's text, drawn natively from its meaning (`MailText`): paragraphs, quotes, lists,
-/// headings, preformatted lines and rules. No web view, no remote picture, and no link that
-/// opens: the slice shows plain-text bodies and nothing else (MAIL-UX 6.2).
+/// headings, preformatted lines and rules, with system link handling.
 struct MailTextView: View {
     let text: MailText
 

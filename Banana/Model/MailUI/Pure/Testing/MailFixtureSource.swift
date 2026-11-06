@@ -194,6 +194,12 @@ final class MailFixtureSource: MailSource {
         conversationValue(id)
     }
 
+    func originalHTML(_ id: MailMessageID) async throws -> String? {
+        guard case .text(let text, _, let notices)? = bodies[id], notices.contains(.shownAsText) else { return nil }
+        return "<style>.newsletter{max-width:600px;margin:auto;background:#fff7c2;padding:24px;font:18px Georgia}</style><article class='newsletter'><h1>Dispatch</h1>"
+            + MailBodyHTML.html(text) + "<a href='https://example.com/event'>View event</a></article>"
+    }
+
     func body(_ id: MailMessageID) async -> MailBody {
         bodies[id] ?? draftBody(id) ?? .notOnDevice
     }

@@ -54,6 +54,7 @@ struct MailConversationContent: View {
                             ForEach(reader.messages) { message in
                                 MailMessageCard(message: message, text: reader.bodies[message.id], opener: reader.opener,
                                                 load: { reader.fetchBody(message.id) })
+                                    .onAppear { reader.revealBody(message.id) }
                             }
                         }
                         // Not in the lazy stack: it must exist to be scrolled to, however far down.
@@ -167,6 +168,16 @@ struct MailMessageCard: View {
     let opener: MailAttachmentOpener
 
     var load: () -> Void = {}
+    @Environment(\.mailSession) private var session
+    @State private var showsOriginal = false
+
+    private var hasOriginal: Bool {
+        switch text {
+        case .text(_, _, let notices)?: return notices.contains(.shownAsText)
+        case .designed?: return true
+        default: return false
+        }
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: DS.Space.s) {
@@ -179,8 +190,16 @@ struct MailMessageCard: View {
                     .font(.caption).foregroundStyle(.secondary).monospacedDigit()
                     .lineLimit(1)
             }
-            Text(message.recipients)
-                .font(.caption).foregroundStyle(.secondary).lineLimit(1)
+            HStack {
+                Text(message.recipients)
+                    .font(.caption).foregroundStyle(.secondary).lineLimit(1)
+                Spacer()
+                if hasOriginal {
+                    Button("Original") { showsOriginal = true }
+                        .font(.caption)
+                        .accessibilityIdentifier("mail.body.original." + message.id.message)
+                }
+            }
             if let note = message.sampleNote {
                 MailSampleChip(text: note)
             }
@@ -196,6 +215,11 @@ struct MailMessageCard: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color.primary.opacity(DS.Tint.wash),
                     in: RoundedRectangle(cornerRadius: DS.Radius.card, style: .continuous))
+        .sheet(isPresented: $showsOriginal) {
+            MailOriginalSheet {
+                try await session?.source.originalHTML(message.id)
+            }
+        }
     }
 
     @ViewBuilder private var content: some View {
@@ -208,7 +232,7 @@ struct MailMessageCard: View {
             // Never a spinner: what the row said, until the body is here.
             VStack(alignment: .leading, spacing: DS.Space.s) {
                 Text(message.firstLine).font(.body).foregroundStyle(.secondary)
-                Button("Load message", action: load)
+                Button("Retry loading", action: load)
                     .accessibilityIdentifier("mail.body.load." + message.id.message)
             }
         }

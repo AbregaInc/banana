@@ -41,6 +41,26 @@ final class MailHTMLPreparerTests: XCTestCase {
         XCTAssertEqual(prepared.text.blocks.filter { if case .item = $0.kind { return true }; return false }.count, 2)
         XCTAssertTrue(prepared.safeHTML?.contains("<table>") ?? false)
     }
+    func testOriginalRetainsLayoutAndLinksButRemovesActiveContent() throws {
+        let html = #"<html><head><style>.card{color:red}</style><script>steal()</script><meta http-equiv="refresh" content="0;url=https://evil.example"></head><body><table class="card" style="width:600px" cellpadding="12"><tr><td><a href="https://example.com/invite?a=1&amp;b=2" onclick="steal()">Accept</a></td></tr></table><iframe src="https://evil.example"></iframe><form action="https://evil.example"><input name="x"></form><img src="https://example.com/image.png"></body></html>"#
+        let fragment = try MailOriginalDocument.prepare(html)
+        XCTAssertTrue(fragment.contains(".card{color:red}"))
+        XCTAssertTrue(fragment.contains("width:600px"))
+        XCTAssertTrue(fragment.contains("cellpadding=\"12\""))
+        XCTAssertTrue(fragment.contains("https://example.com/invite?a=1&amp;b=2"))
+        for value in ["<script", "onclick", "<iframe", "<form", "<input", "http-equiv"] {
+            XCTAssertFalse(fragment.contains(value), value)
+        }
+        let blocked = MailOriginalDocument.page(fragment)
+        XCTAssertTrue(blocked.contains("default-src 'none'"))
+        XCTAssertTrue(blocked.contains("img-src 'none'"))
+        XCTAssertTrue(blocked.contains("form-action 'none'"))
+        XCTAssertTrue(MailOriginalDocument.page(fragment, remoteImages: true).contains("img-src https:"))
+    }
+    func testOriginalRejectsOversizedAndDeepDocuments() {
+        XCTAssertThrowsError(try MailOriginalDocument.prepare(String(repeating: "x", count: MailHTMLPreparer.maximumBytes + 1)))
+        XCTAssertThrowsError(try MailOriginalDocument.prepare(String(repeating: "<div>", count: 100) + "body" + String(repeating: "</div>", count: 100)))
+    }
     func testPreparationCostForGeneratedHTML() throws {
         var samples: [[String: Any]] = []
         let block = "<p>Message text with <b>emphasis</b> and <a href='https://example.com'>a link</a>.</p>"

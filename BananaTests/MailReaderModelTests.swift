@@ -5,6 +5,8 @@ import XCTest
         var value = MailBody.notOnDevice
         var onChange: (@MainActor (MailConversation?) -> Void)?
         var reads = 0
+        var fetched: [MailMessageID] = []
+        func fetchBody(_ id: MailMessageID) { fetched.append(id) }
         var suspendFirst = false
         var waiting: CheckedContinuation<MailBody, Never>?
         var began: (() -> Void)?
@@ -85,4 +87,29 @@ import XCTest
         XCTAssertNil(reader.conversation)
         XCTAssertTrue(reader.bodies.isEmpty)
     }
+    func testVisibleMissingBodyFetchesOnceAndExplicitRetryStillWorks() async {
+        let source = Source()
+        let observed = MailReaderModel(id: id, source: source)
+        source.onChange?(conversation(body: .notOnDevice))
+        await observed.waitForBodies()
+        XCTAssertTrue(source.fetched.isEmpty, "Offscreen messages do not start downloads")
+        observed.revealBody(messageID)
+        observed.revealBody(messageID)
+        XCTAssertEqual(source.fetched, [messageID])
+        observed.fetchBody(messageID)
+        XCTAssertEqual(source.fetched, [messageID, messageID])
+        source.value = text
+        source.onChange?(conversation(body: .text))
+        await observed.waitForBodies()
+        XCTAssertEqual(observed.bodies[messageID], text)
+    }
+    func testVisibleReadyBodyDoesNotDownloadAgain() async {
+        let source = Source(); source.value = text
+        let reader = MailReaderModel(id: id, source: source)
+        source.onChange?(conversation(body: .text))
+        await reader.waitForBodies()
+        reader.revealBody(messageID)
+        XCTAssertTrue(source.fetched.isEmpty)
+    }
+
 }

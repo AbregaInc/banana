@@ -211,6 +211,9 @@ import GRDB
         }
         catch { if !Task.isCancelled { status.value.store = .unavailable(.unavailable) }; return nil }
     }
+    func originalHTML(_ id: MailMessageID) async throws -> String? {
+        try await MailOriginalDocument.load(stores: stores, id: id)
+    }
     func body(_ id: MailMessageID) async -> MailBody {
         do { return try await MailBlobStore(stores: stores).prepared(account: id.account, messageID: id.message)?.body ?? .notOnDevice }
         catch { if !Task.isCancelled { status.value.store = .unavailable(.unavailable) }; return .notOnDevice }
