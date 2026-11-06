@@ -393,3 +393,23 @@ test("refused calendars: a flood of unreadable ids leaves one audit row an hour,
   await runJob(s.deps);
   assert.equal(s.google.calls.watch.length, before);
 });
+
+test("attachment cleanup failure cannot stop Calendar watch renewal and retries later", async () => {
+  const s = setup();
+  s.google.person("cleanup-signin", "sub-noor", "noor@plan.example");
+  const {session, account} = (await s.signIn("cleanup-signin", device("cleanup-device"))).json;
+  await calendars(s, session, ["primary"], "noor@plan.example");
+  await s.settle();
+  s.advance(6.5 * DAY);
+  await s.db.run("INSERT INTO mail_uploads VALUES (?,?,?,?, 'ready',?)", account.id,
+    "10000000-0000-4000-8000-000000000001", "a".repeat(64), 1, s.now() - 2 * DAY);
+  const remove = s.deps.blobs.delete;
+  s.deps.blobs.delete = async () => { throw new Error("storage unavailable"); };
+  const result = await runJob(s.deps);
+  assert.equal(result.renewed, 1);
+  assert.equal(result.mailCleanupFailed, true);
+  assert.equal((await s.db.first("SELECT state FROM mail_uploads")).state, "deleting");
+  s.deps.blobs.delete = remove;
+  assert.equal((await runJob(s.deps)).mailCleanupFailed, undefined);
+  assert.equal((await s.db.first("SELECT count(*) AS n FROM mail_uploads")).n, 0);
+});

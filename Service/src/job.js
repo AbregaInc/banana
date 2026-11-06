@@ -20,7 +20,6 @@ const MOST_RENEWALS_PER_RUN = 200;   // Google calls a minute from the job; the 
 export async function runJob(deps) {
   const vault = createVault(deps.config.tokenKey, deps.random);
   const t = deps.now();
-  await sweepMailParts(deps);
   const due = await deps.db.all(
     `SELECT w.*, g.refresh_token AS link_refresh_token, g.status AS link_status, g.account_id AS link_account_id
      FROM watches w JOIN google_links g ON g.sub = w.google_sub
@@ -81,5 +80,9 @@ export async function runJob(deps) {
   // Crash and performance reports go after 90 days; usage totals after 400 days.
   await deps.db.run("DELETE FROM diagnostics WHERE received_at < ?", t - KEEP_DIAGNOSTICS);
   await deps.db.run("DELETE FROM counts WHERE day < ?", new Date(t - KEEP_COUNTS).toISOString().slice(0, 10));
+  // Optional Mail storage cleanup must not interrupt Calendar watch renewal or link checks.
+  // Failed object deletion leaves its row for the next sweep.
+  try { await sweepMailParts(deps); }
+  catch { result.mailCleanupFailed = true; }
   return result;
 }
