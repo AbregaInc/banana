@@ -76,14 +76,26 @@ Reuse the web, notification and booking implementations when establishing a comm
   no account was created and production eligibility remains off. The administration tool uses
   D1 query mode so its update receipt is returned; remote file-import mode did not return it.
   Five administration tests pass, and both live staging grants returned confirmed receipts.
-- The full phone UI suite is in progress. TestFlight 95 remains the latest valid uploaded build
-  for iOS and Mac. The native draft/attachment increment is not yet in that build. Stable Mac 96
-  remains a draft release. The seven relative-RSS component failures and missing physical-device
-  performance evidence remain open; no baseline or budget has changed.
-- `52c4030b` corrects direct-Mac push routing: a Developer ID app can have an embedded profile
-  and a production APNs entitlement. Registration now uses that signed entitlement instead of
-  inferring the push environment from the telemetry channel. Three focused tests pass. A new
-  signed artifact and live notification delivery still require verification.
+- The full phone UI run completed: 261 passed, four failed and 31 skipped. The four failures
+  were test targeting/geometry issues; the focused rerun passed all five selected tests after
+  correcting those selectors and waits. Original failures and the successful rerun are retained.
+- Primary-identity TestFlight 97, source `11ec3140`, is VALID and IN_BETA_TESTING internally
+  and externally on iOS and macOS. Both builds are verified members of the existing public beta
+  group. They include the gated native Gmail draft/attachment increment; no separate Beta app
+  record was created and production feature eligibility remains off.
+- Stable Mac 1.0.3 (98), source `981f0321`, is signed, notarized and published on GitHub.
+  Its website download and signed updater feed are being promoted. An actual upgrade from
+  direct build 87 retained the device identity and every checked meal, dose, supplement, food,
+  workout-plan and routine ID. The Health cache adopted a newer cloud snapshot; its workout
+  records match that exact hash-verified upstream snapshot. The previous app/data remain backed up.
+- `52c4030b` corrects direct-Mac push routing using the signed APNs entitlement. Three focused
+  tests pass. The upgraded Mac now registers protocol 1, production APNs and a push token;
+  before the upgrade it registered protocol 0, development APNs and no token. Actual notification
+  delivery/timing still requires live acceptance.
+- The seven relative-RSS component failures and missing physical-device performance evidence
+  remain open. No baseline or budget has changed. App Store review requirements and fresh
+  staging provider consent remain separate outstanding work; TestFlight availability does not
+  establish either acceptance.
 
 The dated checkpoints below preserve earlier stages. This checkpoint supersedes their deployment
 and installation inventories; unchecked acceptance items still require their stated evidence.
