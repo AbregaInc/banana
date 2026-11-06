@@ -152,22 +152,28 @@ The schema-0019 Banana-owned editable store and timed send queue were an overext
 implementation no longer uses them or runs their cron dispatcher. Successful draft content is
 removed from the operation journal, leaving compact receipts. See [the corrected contract](MAIL-CLOUD-DRAFTS.md).
 Native durable draft operations, Gmail draft imports, conflict choices and unknown-send retries
-are now implemented in the working tree. The Mac Dev compile and 30 focused correctness checks
-pass. Live composing is still disabled; attachment uploads, imported-draft editing, scheduling and live-provider acceptance remain unfinished. See the Mail
-contract for retained failures and evidence. This is not a completed Email rollout.
+are committed. The gated live composer supports durable attachment upload, forwarding and explicit
+text conversion of imported rich drafts while preserving their attachments. Scheduled send and
+cross-account From switching are unavailable in live Mail. Fresh provider and cross-device
+acceptance remain unfinished; see the Mail contract for retained failures and evidence.
 
 ## Native and distribution follow-up — 5 November
 
-- The prepared signed Dev app is installed on the spare physical iPhone, and a subsequent app
-  inventory confirms Dev and the primary app coexist. This is installation evidence, not fresh
-  OAuth or cross-device convergence evidence. The primary phone and iPad did not answer inventory
-  requests. Device identifiers and install records stay in `private/cloud-rollout/`.
-- iOS install tooling now checks CoreDevice's structured physical/simulated field, including for
-  explicit destinations. Local iOS/Mac installs stamp their source commit and mark dirty trees.
-  All 81 tooling checks pass. The already prepared Dev artifact predates source stamping.
-- Native Mail's focused draft/live-source checks pass 30 tests; composer/cloud request model
-  checks pass 68 tests; the final Mac Dev compile passes. The component run retained seven RSS
-  failures and no latency failures, before the external-deletion follow-up. No baseline changed.
+- Signed Dev commit `11692682` is installed over the existing Dev app on the spare physical
+  iPhone. The primary app still coexists, and the built source stamp matches the commit. This is
+  installation evidence, not fresh OAuth or cross-device convergence evidence. The primary phone
+  and iPad did not answer earlier inventory requests. Identifiers stay in `private/cloud-rollout/`.
+- Install tooling checks CoreDevice's structured physical/simulated field, including for explicit
+  destinations. Local iOS/Mac installs stamp their source commit and mark dirty trees.
+  All 81 tooling checks pass.
+- Native draft/live-source checks pass 35 tests, HTTP transport passes 19, composer/cloud request
+  checks pass 70, and the final Mac compile passes. The earlier component run retained seven RSS
+  failures; a current run is required. No baseline or budget changed.
+- Service commit `0d53d787` is deployed to staging with schema 0020 after 404 tests passed in each
+  timezone. The source endpoint matches and unauthenticated uploads are refused. A fresh staging
+  inventory still shows zero Calendar grants, Mail grants and enabled feature rows.
+- App Store Connect still reports iOS/Mac TestFlight 95 as valid and unexpired. This does not mean
+  the new native draft commit is in TestFlight. Stable 96 remains a draft release.
 
 ## Target channel matrix
 

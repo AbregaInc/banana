@@ -93,8 +93,8 @@ Attachment integration evidence: service commit `0d53d787` passes 404 tests in e
 is deployed to staging with schema 0020. The source endpoint matches that commit and the binary
 upload endpoint rejects an unauthenticated request. Native draft/source checks pass 35 tests
 (`native-attachment-focused-final/`), HTTP transport checks pass 19 (`native-attachment-http/`),
-and the Mac compile passes (`native-attachment-mac-final.log`). The first iOS model run passes
-69 tests (`native-attachment-model-tests.xcresult`). These are automated checks, not live-provider
+and the Mac compile passes (`native-attachment-mac-final.log`). The final iOS model run passes
+70 tests (`native-attachment-model-final.xcresult`). These are automated checks, not live-provider
 or physical-device acceptance; production Email eligibility is unchanged.
 
 References: [Gmail drafts](https://developers.google.com/workspace/gmail/api/guides/drafts),
