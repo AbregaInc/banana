@@ -57,3 +57,25 @@ at the bounded index/conversation read boundary, off the UI thread. Stored snipp
 remain provider-encoded. This fixes old cached previews without a migration or
 re-download, covers search through the shared row decoder, and leaves subjects and
 literal HTML-looking text intact.
+
+Build 102 (`21dac33a`) adds preview decoding. Twenty index, conversation and search
+tests passed, including cached entity decoding, literal ampersands, encoded text
+that must decode only once and unchanged subjects/storage. Evidence:
+`private/cloud-rollout/mail-snippet-102`. The unchanged 180,000-thread page/count
+budget case took 92.46, 91.42 and 94.59 ms (not UI or optimization evidence).
+
+Build 102 installed on both physical devices; both reported version 102 afterward.
+The iPad launched. The phone's lock prevented automatic launch. The Mac archive
+also compiled successfully with the same source commit.
+
+The final build-102 component gate failed unchanged memory comparisons in all eight
+workloads: scale-1d 363.39 MB, scale-7d 365.53 MB, scale-30d 483.34 MB, scale-90d
+704.33 MB, Notes redraw 482.86 MB, Library redraw 486.06 MB, Plan redraw 502.53 MB
+and Mail redraw 484.95 MB. The 1-day and 30-day samples also lacked clean host
+evidence. Read-only cache inspection and release publication overlapped part of
+the run; it is not a clean isolated comparison. No latency failures were reported.
+All results remain in `private/cloud-rollout/mail-reader-102-performance/gate.json`;
+no baseline or budget was changed, and no physical UI performance acceptance is claimed.
+
+The signed/notarized Mac Beta 102 installer, website redirect and signed update
+feed were published and verified. The stable download/feed remains build 98.
