@@ -28,7 +28,30 @@ final class OnboardingStore: NSObject, ObservableObject {
     // moment after the app backgrounds, and signing in to Google often means a trip to another
     // app (a 2FA prompt, an authenticator). The page and the pending calendar question have to
     // be here when the person comes back.
-    @Published var step: OnboardingStep = .welcome
+    @Published var step: OnboardingStep = OnboardingStore.savedStep ?? .welcome {
+        didSet { if step != oldValue { UserDefaults.standard.set(step.rawValue, forKey: Self.stepKey) } }
+    }
+    /// The page last shown, kept across launches: a relaunch, or a sign-in that went to another
+    /// app, comes back to it (`OnboardingFlow.resume` checks it still applies).
+    static var savedStep: OnboardingStep? {
+        UserDefaults.standard.string(forKey: stepKey).flatMap(OnboardingStep.init(rawValue:))
+    }
+    private static let stepKey = "onboardingStep"
+
+    /// Where the copies page stands. Held here, not in the view, so a failure stays on screen
+    /// until it is retried, whatever the view tree does meanwhile.
+    enum CopiesState: Equatable {
+        case idle
+        case loading
+        /// The plan to show. `updated`: it changed between being shown and the yes, so it is
+        /// shown again and nothing was turned on.
+        case ready(BusyCopyPreview, updated: Bool)
+        case applying(BusyCopyPreview)
+        case failed(String)
+    }
+    @Published private(set) var copies: CopiesState = .idle
+    /// The answer given on the copies page, for the receipt.
+    @Published private(set) var copiesAnswer: OnboardingReceipt.Copies?
     /// When the person's day starts and winds down, as answered on the way in.
     @Published var anchors = DayAnchors()
     /// What Banana looks after, as ticked on the welcome: the choice already made on another
@@ -54,6 +77,42 @@ final class OnboardingStore: NSObject, ObservableObject {
     func finish() {
         completed = true
         UserDefaults.standard.set(true, forKey: key)
+        UserDefaults.standard.removeObject(forKey: Self.stepKey)
+    }
+
+    // MARK: - Busy copies
+
+    /// Plan copies with the pass that would write them (`CalendarWriteBack.previewCopies`).
+    func loadCopyPreview() async {
+        if case .applying = copies { return }
+        copies = .loading
+        switch await CalendarWriteBack.shared.previewCopies() {
+        case .success(let preview): copies = .ready(preview, updated: false)
+        case .failure(let failure): copies = .failed(failure.message)
+        }
+    }
+
+    /// The yes. True once copies are on; otherwise the page shows why, or the changed plan.
+    func turnOnCopies() async -> Bool {
+        guard case .ready(let shown, _) = copies else { return false }
+        copies = .applying(shown)
+        switch await CalendarWriteBack.shared.turnOnCopies(shown: shown) {
+        case .enabled:
+            copiesAnswer = .on(count: shown.creates, to: shown.changing.map(\.title))
+            copies = .ready(shown, updated: false)
+            return true
+        case .changed(let fresh):
+            copies = .ready(fresh, updated: true)
+            return false
+        case .failed(let message):
+            copies = .failed(message)
+            return false
+        }
+    }
+
+    func keepViewingOnly() {
+        CalendarWriteBack.shared.keepViewingOnly()
+        copiesAnswer = .off
     }
 
     /// Put the answers on the plan: the Wake and Wind down routines take those times, and the

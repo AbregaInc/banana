@@ -528,6 +528,9 @@ final class CalendarWriteBack: ObservableObject {
         /// The copy of a day blocked all day: written as an all-day Busy event on its date, not
         /// a 24-hour bar.
         var isAllDay = false
+        /// The calendar the copied meeting is on; nil for Banana's own work. Not written: it only
+        /// names the source on the first run's preview.
+        var sourceCalendarID: String? = nil
 
         var ledgerKey: String { "\(appItemID)\u{1F}\(calendarID)" }
     }
@@ -549,6 +552,11 @@ final class CalendarWriteBack: ObservableObject {
         sourcesHealthy: Bool
     ) async -> Int {
         self.reserveTaskTime = reserveTaskTime
+        // What a pass would plan from, kept whether or not it writes: the first run's preview
+        // plans from exactly these (`previewCopies`).
+        capture(PlanInputs(occurrences: occurrences, existingBusyIntervals: existingBusyIntervals,
+                           excluded: excludedCalendarIDs, includedShared: includedSharedCalendarIDs,
+                           reserveTaskTime: reserveTaskTime, sourcesHealthy: sourcesHealthy))
         guard enabled else { return 0 }
         // A diagnostic launch reads; it never writes to a real calendar as a side effect.
         guard !Self.isDiagnosticLaunch else { return 0 }
@@ -689,48 +697,48 @@ final class CalendarWriteBack: ObservableObject {
                 lastError = "Couldn’t read Banana’s blocks on a Google calendar: \(error.localizedDescription)"
                 continue
             }
-            let owned = ownedDetails.mapValues { $0.map(\.eventID) }
             // The share a removal is measured against: blocks still protecting time.
             ownedTotal += ownedDetails.values.reduce(0) { $0 + $1.filter { $0.end > now }.count }
 
-            var stillWanted = Set<String>()
-            for block in byCalendar[calendarID] ?? [] {
-                stillWanted.insert(block.appItemID)
-                let key = block.ledgerKey
-                let ids = owned[block.appItemID] ?? []
-                // Any others are duplicates of the same block — two devices writing it at once, or
-                // copies adopted from Apple Calendar — and go. Every device keeps the SAME copy:
-                // keeping "the one my ledger knows" let the phone keep A and delete B while the
-                // iPad kept B and deleted A, and the block vanished.
-                let keep = BusyBlockDuplicates.copyToKeep(ids)
-                for extra in ids where extra != keep {
-                    do {
-                        try await google.deleteBusyBlock(calendarID: raw, eventID: extra,
-                            expectedETag: ownedDetails[block.appItemID]?.first { $0.eventID == extra }?.etag)
-                    } catch {
-                        lastError = "Couldn’t remove a duplicate busy block: \(error.localizedDescription)"
-                    }
-                }
+            // What to do here comes from the planner the first run's preview uses too
+            // (`BusyCopyPlanner`), so what a person was shown is what a pass does.
+            let wanted = byCalendar[calendarID] ?? []
+            let plan = BusyCopyPlanner.plan(
+                desired: wanted.map { BusyCopyPlanner.Desired(appItemID: $0.appItemID, ledgerKey: $0.ledgerKey,
+                                                              fingerprint: Self.hash($0)) },
+                owned: ownedDetails.mapValues { $0.map { BusyCopyPlanner.Owned(eventID: $0.eventID, etag: $0.etag, end: $0.end) } },
+                recorded: recordedWrites(on: calendarID),
+                now: now)
+            // Any extra copies of a wanted block — two devices writing it at once, or copies
+            // adopted from Apple Calendar — go. Every device keeps the SAME copy: keeping "the one
+            // my ledger knows" let the phone keep A and delete B while the iPad kept B and
+            // deleted A, and the block vanished.
+            for extra in plan.duplicates {
                 do {
-                    if let keep {
-                        guard ledger[key]?.writtenHash != hash(block)
-                                || ledger[key]?.eventIdentifier != keep
-                                || ledger[key]?.writtenETag != ownedDetails[block.appItemID]?.first(where: { $0.eventID == keep })?.etag
-                                else { continue }
+                    try await google.deleteBusyBlock(calendarID: raw, eventID: extra.eventID, expectedETag: extra.etag)
+                } catch {
+                    lastError = "Couldn’t remove a duplicate busy block: \(error.localizedDescription)"
+                }
+            }
+            for write in plan.writes {
+                do {
+                    switch write {
+                    case .update(let index, let keep, let etag):
+                        let block = wanted[index]
                         let writtenETag = try await google.updateBusyBlock(
                             calendarID: raw, eventID: keep,
                             title: block.title, start: block.start, end: block.end, isAllDay: block.isAllDay,
-                            appItemID: block.appItemID, variant: variant,
-                            expectedETag: ownedDetails[block.appItemID]?.first { $0.eventID == keep }?.etag)
-                        ledger[key] = LedgerEntry(appItemID: block.appItemID, eventIdentifier: keep,
-                                                  calendarID: calendarID, writtenHash: hash(block), writtenETag: writtenETag)
-                    } else {
+                            appItemID: block.appItemID, variant: variant, expectedETag: etag)
+                        ledger[block.ledgerKey] = LedgerEntry(appItemID: block.appItemID, eventIdentifier: keep,
+                                                              calendarID: calendarID, writtenHash: Self.hash(block), writtenETag: writtenETag)
+                    case .create(let index):
+                        let block = wanted[index]
                         let created = try await google.createBusyBlockWithVersion(
                             calendarID: raw, title: block.title,
                             start: block.start, end: block.end, isAllDay: block.isAllDay,
                             appItemID: block.appItemID, variant: variant)
-                        ledger[key] = LedgerEntry(appItemID: block.appItemID, eventIdentifier: created.id,
-                                                  calendarID: calendarID, writtenHash: hash(block), writtenETag: created.etag)
+                        ledger[block.ledgerKey] = LedgerEntry(appItemID: block.appItemID, eventIdentifier: created.id,
+                                                              calendarID: calendarID, writtenHash: Self.hash(block), writtenETag: created.etag)
                     }
                     writtenCount += 1
                     lastSelfCommit = Date()
@@ -739,10 +747,9 @@ final class CalendarWriteBack: ObservableObject {
                 }
             }
 
-            for (itemID, blocks) in ownedDetails where !stillWanted.contains(itemID) {
-                // A block that is over protects nothing and costs nothing; removing it is churn,
-                // and every removal is a chance to be wrong. Only current and future blocks go.
-                let current = blocks.filter { $0.end > now }
+            // Only current and future blocks go: every removal is a chance to be wrong.
+            for itemID in plan.unwanted.keys {
+                let current = (ownedDetails[itemID] ?? []).filter { $0.end > now }
                 guard !current.isEmpty else { continue }
                 unwanted[ledgerKey(appItemID: itemID, calendarID: calendarID)] = (calendarID, current)
             }
@@ -798,7 +805,7 @@ final class CalendarWriteBack: ObservableObject {
         return writtenCount
     }
 
-    private func hash(_ block: DesiredBlock) -> Int {
+    private static func hash(_ block: DesiredBlock) -> Int {
         // Swift's Hasher is randomized per process; FNV-1a gives a stable cross-launch fingerprint.
         let fingerprint = [
             block.title,
@@ -814,6 +821,176 @@ final class CalendarWriteBack: ObservableObject {
         return Int(bitPattern: UInt(value))
     }
 
+    /// What this device last wrote on `calendarID`, by ledger key, as the planner reads it.
+    private func recordedWrites(on calendarID: String) -> [String: BusyCopyPlanner.Recorded] {
+        var recorded: [String: BusyCopyPlanner.Recorded] = [:]
+        for (key, entry) in ledger where entry.calendarID == calendarID {
+            recorded[key] = BusyCopyPlanner.Recorded(eventID: entry.eventIdentifier,
+                                                     fingerprint: entry.writtenHash, etag: entry.writtenETag)
+        }
+        return recorded
+    }
+
+    // MARK: - The first run's preview
+
+    /// The inputs of a pass, whether or not it wrote: what `previewCopies` plans from.
+    struct PlanInputs {
+        let occurrences: [Occurrence]
+        let existingBusyIntervals: [CalendarBusyInterval]
+        let excluded: Set<String>
+        let includedShared: Set<String>
+        let reserveTaskTime: Bool
+        let sourcesHealthy: Bool
+    }
+
+    /// Why there is no preview, in the words the consent screen shows. Each comes with Retry.
+    enum PreviewFailure: Error, Equatable {
+        case notConnected, noCalendars, notReady, unreadable
+
+        var message: String {
+            switch self {
+            case .notConnected: "Connect a Google calendar first."
+            case .noCalendars: "None of your calendars can take copies."
+            case .notReady: "Your calendars are still loading."
+            case .unreadable: "Some calendars couldn\u{2019}t be read."
+            }
+        }
+    }
+
+    enum CopyAnswer: Equatable {
+        /// Copies are on: the next pass writes what the preview showed.
+        case enabled
+        /// The plan changed since it was shown: show this one and ask again.
+        case changed(BusyCopyPreview)
+        case failed(String)
+    }
+
+    private var waitingForInputs: [UUID: CheckedContinuation<PlanInputs?, Never>] = [:]
+
+    private func capture(_ inputs: PlanInputs) {
+        guard !waitingForInputs.isEmpty else { return }
+        let waiting = waitingForInputs
+        waitingForInputs = [:]
+        for continuation in waiting.values { continuation.resume(returning: inputs) }
+    }
+
+    /// The inputs of the next pass, after asking for one: the settings just chosen on the
+    /// calendar step (which calendars show and count as busy) are in them. Nil after `timeout`.
+    private func nextInputs(timeout: Duration) async -> PlanInputs? {
+        let id = UUID()
+        return await withCheckedContinuation { continuation in
+            waitingForInputs[id] = continuation
+            OccurrenceStore.shared.requestRecompute(reason: "busy copy preview")
+            Task { @MainActor [weak self] in
+                try? await Task.sleep(for: timeout)
+                self?.waitingForInputs.removeValue(forKey: id)?.resume(returning: nil)
+            }
+        }
+    }
+
+    /// What turning copies on would do now, planned by the pass that would do it
+    /// (`BusyCopyPlanner` over `desiredBlocks`, against what Google says Banana owns on each
+    /// calendar). Reads Google; writes nothing.
+    func previewCopies() async -> Result<BusyCopyPreview, PreviewFailure> {
+        #if DEBUG
+        if let sample = Self.samplePreview { return .success(sample) }
+        #endif
+        refreshCalendars()
+        guard calendarAuthorized else { return .failure(.notConnected) }
+        guard let inputs = await nextInputs(timeout: .seconds(20)) else { return .failure(.notReady) }
+        guard inputs.sourcesHealthy else { return .failure(.unreadable) }
+        // Copies are written live once on: plan for that, not for the test calendar.
+        let destinations = targetCalendarIDs(excluding: inputs.excluded, includingShared: inputs.includedShared, live: true)
+        guard !destinations.isEmpty else { return .failure(.noCalendars) }
+        let desired = desiredBlocks(from: inputs.occurrences, destinations: destinations,
+                                    existingBusyIntervals: inputs.existingBusyIntervals)
+        let byCalendar = Dictionary(grouping: desired, by: \.calendarID)
+        let google = GoogleCalendarService.shared
+        let titles = Dictionary(google.allCalendarInfos.map { ($0.id, $0.title) }, uniquingKeysWith: { first, _ in first })
+        let (windowStart, windowEnd) = Self.ownershipWindow()
+        let now = Date()
+        var preview = BusyCopyPreview(destinations: [], sources: [])
+        var sourceIDs: [String?] = []
+        for calendarID in Set(destinations).union(google.writeBackCandidates.map(\.infoID)).sorted() {
+            guard let raw = GoogleCalendarIDs.rawCalendarID(from: calendarID) else { continue }
+            let owned: [String: [GoogleCalendarService.OwnedBlock]]
+            do {
+                owned = try await google.ownedBusyBlockDetails(calendarID: raw, variant: Self.scheme,
+                                                               from: windowStart, to: windowEnd)
+            } catch where GoogleCalendarService.isCalendarGone(error) {
+                continue
+            } catch {
+                return .failure(.unreadable)
+            }
+            let wanted = byCalendar[calendarID] ?? []
+            let plan = BusyCopyPlanner.plan(
+                desired: wanted.map { BusyCopyPlanner.Desired(appItemID: $0.appItemID, ledgerKey: $0.ledgerKey,
+                                                              fingerprint: Self.hash($0)) },
+                owned: owned.mapValues { $0.map { BusyCopyPlanner.Owned(eventID: $0.eventID, etag: $0.etag, end: $0.end) } },
+                recorded: recordedWrites(on: calendarID),
+                now: now)
+            for write in plan.writes {
+                let block: DesiredBlock
+                switch write {
+                case .create(let index), .update(let index, _, _): block = wanted[index]
+                }
+                preview.start = min(preview.start ?? block.start, block.start)
+                preview.end = max(preview.end ?? block.end, block.end)
+                if !sourceIDs.contains(block.sourceCalendarID) { sourceIDs.append(block.sourceCalendarID) }
+            }
+            guard destinations.contains(calendarID) || plan.removals > 0 else { continue }
+            preview.destinations.append(BusyCopyPreview.Destination(
+                id: calendarID, title: titles[calendarID] ?? "Calendar",
+                creates: plan.creates, updates: plan.updates, removals: plan.removals))
+        }
+        preview.sources = sourceIDs.map { $0.flatMap { titles[$0] } ?? "Banana" }
+        return .success(preview)
+    }
+
+    /// The yes on the consent screen. The plan is made again first; if it is not what was
+    /// shown, nothing is turned on and the new plan comes back to be shown.
+    func turnOnCopies(shown: BusyCopyPreview) async -> CopyAnswer {
+        #if DEBUG
+        if Self.samplePreview != nil { questionAnswered = true; return .enabled }
+        #endif
+        switch await previewCopies() {
+        case .failure(let failure):
+            return .failed(failure.message)
+        case .success(let fresh):
+            guard shown.agrees(with: fresh) else { return .changed(fresh) }
+        }
+        guard setEnabled(true) else { return .failed(lastError ?? PreviewFailure.noCalendars.message) }
+        answerQuestion()
+        return .enabled
+    }
+
+    /// "Keep viewing only": an answer, and a success. Nothing was ever written here, so there is
+    /// nothing to withdraw; copies that are already on elsewhere are turned off the usual way.
+    func keepViewingOnly() {
+        if enabled {
+            setEnabled(false)
+        } else {
+            recordUserPreference()
+            if SmartScheduleStore.shared.settings.writeBackEnabled != false {
+                SmartScheduleStore.shared.settings.writeBackEnabled = false
+            }
+        }
+        answerQuestion()
+    }
+
+    #if DEBUG
+    /// A simulator has no Google account: `--onboarding-sample` shows the consent screen with
+    /// this plan, labelled as the sample it is everywhere it is used.
+    static var samplePreview: BusyCopyPreview? {
+        guard ProcessInfo.processInfo.arguments.contains("--onboarding-sample") else { return nil }
+        let start = Calendar.current.startOfDay(for: Date())
+        return BusyCopyPreview(
+            destinations: [.init(id: "sample-work", title: "Work", creates: 12)],
+            sources: ["Personal"], start: start,
+            end: Calendar.current.date(byAdding: .day, value: 28, to: start))
+    }
+    #endif
+
     // MARK: - Coverage plan and target calendars
 
     static let testCalendarTitles: Set<String> = [
@@ -824,9 +1001,10 @@ final class CalendarWriteBack: ObservableObject {
 
     /// Google calendar info ids blocks are written to this pass.
     private func targetCalendarIDs(excluding excludedCalendarIDs: Set<String>,
-                                   includingShared includedShared: Set<String>) -> [String] {
+                                   includingShared includedShared: Set<String>,
+                                   live: Bool? = nil) -> [String] {
         let candidates = GoogleCalendarService.shared.writeBackCandidates
-        if !goLive {
+        if !(live ?? goLive) {
             return candidates
                 .filter { $0.titles.contains(where: Self.testCalendarTitles.contains) }
                 .map(\.infoID)
@@ -929,7 +1107,8 @@ final class CalendarWriteBack: ObservableObject {
                     title: keepsTaskTitle ? occurrence.title : "Busy",
                     start: occurrence.start,
                     end: end,
-                    isAllDay: isBlockedDay
+                    isAllDay: isBlockedDay,
+                    sourceCalendarID: sourceCalendarID
                 )
                 let slotKey = [
                     calendarID,

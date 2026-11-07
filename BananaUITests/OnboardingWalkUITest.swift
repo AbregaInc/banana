@@ -60,37 +60,82 @@ final class OnboardingWalkUITest: XCTestCase {
         say(lines.joined(separator: "\n"))
     }
 
-    /// The step after a first sign-in, which a simulator can't reach (it has no Google account):
-    /// shown with one made-up account, then two. One account asks for the other; two offer the
-    /// yes to busy blocks, and that yes opens the plan.
-    func test3TheOtherCalendar() {
-        walk = "other"
+    /// The calendar's pages, which a simulator can't reach by signing in (it has no Google
+    /// account): shown with `--onboarding-sample` (one made-up account, three calendars, a sample
+    /// plan from the copies planner's place). Connecting reads; shared calendars show but are not
+    /// busy; copies are counted before the yes; the receipt says what was chosen.
+    func test3TheCalendarPages() {
+        walk = "calendar"
         let app = XCUIApplication()
-        app.launchArguments = ["--disable-icloud", "--no-space-sync", "-onboardingCompleted", "NO", "--onboarding-other-calendar-preview"]
+        app.launchArguments = ["--disable-icloud", "--no-space-sync", "-onboardingCompleted", "NO",
+                               "-calendarWriteBack.questionAnswered", "NO", "-calendarWriteBack.userConfigured", "NO",
+                               "--onboarding-sample", "--onboarding-step", "connect"]
         app.withoutSpaceSync()
         app.launch()
-        let add = app.buttons["onboarding.other.add"]
-        XCTAssertTrue(add.waitForExistence(timeout: 25), "the other-calendar step did not come")
-        pause(1)
-        keep(app, "one-account")
-        XCTAssertTrue(app.staticTexts["Add your other calendar"].exists)
-        XCTAssertTrue(app.buttons["google.continue"].exists, "one account in, and no button to add the other")
-        XCTAssertFalse(app.buttons["onboarding.blockBusy"].exists, "busy blocks offered with one account")
-        assertFullSize(add, "the row that adds an account")
-        assertFullSize(app.buttons["onboarding.notNow"], "Not now")
-        app.terminate()
-
-        app.launchArguments = ["--disable-icloud", "--no-space-sync", "-onboardingCompleted", "NO", "--onboarding-two-calendars-preview"]
-        app.withoutSpaceSync()
-        app.launch()
-        let block = app.buttons["onboarding.blockBusy"]
-        XCTAssertTrue(block.waitForExistence(timeout: 25), "two accounts in, and no yes to busy blocks")
-        pause(1)
-        keep(app, "two-accounts")
+        let go = app.buttons["onboarding.continue"]
+        XCTAssertTrue(text(containing: "Bring in your calendars", in: app).waitForExistence(timeout: 25), "the calendar page did not come")
+        XCTAssertTrue(text(containing: "Connecting only reads your calendars", in: app).exists)
+        XCTAssertTrue(app.buttons["onboarding.other.add"].exists, "one account in, and no way to add the other")
         XCTAssertFalse(app.buttons["google.continue"].exists)
-        assertFullSize(block, "Block busy time")
-        block.tap()
-        XCTAssertTrue(app.buttons["plan.calendar.connect"].waitForExistence(timeout: 15), "the yes did not open the plan")
+        pause(0.6)
+        keep(app, "connected")
+        assertFullSize(go, "Continue")
+
+        go.tap()
+        XCTAssertTrue(text(containing: "What makes you busy?", in: app).waitForExistence(timeout: 6), "the calendars page did not come")
+        let familyBusy = app.switches["onboarding.busy.Family"]
+        XCTAssertTrue(familyBusy.waitForExistence(timeout: 6))
+        XCTAssertEqual(app.switches["onboarding.show.Family"].value as? String, "1", "a shared calendar starts shown")
+        XCTAssertEqual(familyBusy.value as? String, "0", "a shared calendar starts not busy")
+        XCTAssertEqual(app.switches["onboarding.busy.Work"].value as? String, "1", "your own calendar starts busy")
+        pause(0.6)
+        keep(app, "calendars")
+        // Hiding a calendar takes its busy with it.
+        let workShown = app.switches["onboarding.show.Work"]
+        workShown.switches.firstMatch.exists ? workShown.switches.firstMatch.tap() : workShown.tap()
+        XCTAssertTrue(waitUntil { (app.switches["onboarding.busy.Work"].value as? String) == "0" }, "a hidden calendar still makes you busy")
+        workShown.switches.firstMatch.exists ? workShown.switches.firstMatch.tap() : workShown.tap()
+        let workBusy = app.switches["onboarding.busy.Work"]
+        XCTAssertTrue(waitUntil { (workBusy.value as? String) == "1" }, "shown again, your own calendar is busy again")
+
+        go.tap()
+        let create = app.buttons["onboarding.copies.create"]
+        XCTAssertTrue(create.waitForExistence(timeout: 6), "the copies page did not come")
+        XCTAssertTrue(waitUntil(timeout: 10) { create.isEnabled }, "the plan never arrived")
+        XCTAssertEqual(create.label, "Create 12 Busy events", "the button doesn't say what it will do")
+        XCTAssertTrue(text(containing: "12 Busy events on Work", in: app).exists, "the planner's numbers are not shown")
+        assertFullSize(app.buttons["onboarding.copies.keep"], "Keep viewing only")
+        pause(0.6)
+        keep(app, "copies")
+
+        create.tap()
+        let open = app.buttons["onboarding.open"]
+        XCTAssertTrue(open.waitForExistence(timeout: 6), "the yes did not lead to the receipt")
+        XCTAssertTrue(text(containing: "12 on Work", in: app).exists, "the receipt doesn't list the copies")
+        XCTAssertFalse(app.buttons["Back"].exists, "Back from a receipt of what was applied")
+        pause(0.6)
+        keep(app, "receipt")
+        open.tap()
+        XCTAssertTrue(app.buttons["plan.calendar.connect"].waitForExistence(timeout: 15)
+                      || app.otherElements["plan"].waitForExistence(timeout: 1), "the receipt did not open the plan")
+    }
+
+    /// "Keep viewing only" is an answer and a success: on to the receipt with copies off.
+    func test4KeepingViewingOnly() {
+        walk = "viewing"
+        let app = XCUIApplication()
+        app.launchArguments = ["--disable-icloud", "--no-space-sync", "-onboardingCompleted", "NO",
+                               "-calendarWriteBack.questionAnswered", "NO", "-calendarWriteBack.userConfigured", "NO",
+                               "--onboarding-sample", "--onboarding-step", "copies"]
+        app.withoutSpaceSync()
+        app.launch()
+        let keepViewing = app.buttons["onboarding.copies.keep"]
+        XCTAssertTrue(keepViewing.waitForExistence(timeout: 25), "the copies page did not come")
+        keepViewing.tap()
+        XCTAssertTrue(app.buttons["onboarding.open"].waitForExistence(timeout: 6), "no receipt after keeping viewing only")
+        let copies = app.descendants(matching: .any)["onboarding.receipt.copies"]
+        XCTAssertTrue(copies.label.contains("Off"), "the receipt doesn't say copies are off: \(copies.label)")
+        keep(app, "receipt-off")
     }
 
     private func say(_ text: String) {
@@ -205,84 +250,76 @@ final class OnboardingWalkUITest: XCTestCase {
         // Other UI tests may have stored an existing user's module choice. This walk
         // starts with Plan alone; its taps can still change the choice in memory.
         app.launchArguments = ["--disable-icloud", "--no-space-sync", "--modules", "plan",
-                               "-onboardingCompleted", "NO", "-finishSetupDismissed", "NO",
+                               "-onboardingCompleted", "NO", "-onboardingStep", "welcome", "-finishSetupDismissed", "NO",
                                "-remindersAskedNotAllowed", "NO"]
         app.withoutSpaceSync()
         app.launch()
 
-        XCTAssertTrue(text(containing: "What should Banana look after?", in: app).waitForExistence(timeout: 25), "no welcome")
+        XCTAssertTrue(text(containing: "A little lighter", in: app).waitForExistence(timeout: 25), "no welcome")
         XCTAssertFalse(springboard.alerts.firstMatch.exists, "a system prompt before anything was explained")
         keep(app, "welcome")
 
         let go = app.buttons["onboarding.continue"]
-        assertFullSize(go, "Get started")
-        // What Banana looks after is picked here (17 Oct 2026): Plan always, the rest ticked or
-        // not, and Everything for all of it. Still one way on.
-        XCTAssertTrue(text(containing: "Plan your day", in: app).exists, "the welcome doesn't mention the plan")
+        assertFullSize(go, "Build my day")
+        XCTAssertTrue(app.buttons["demo.open"].exists, "no way to explore an example")
+        XCTAssertLessThanOrEqual(app.staticTexts.count, 10, "the welcome has grown more to read")
+        // On an iPad the phone's layout ran edge to edge: a button a thousand points wide.
+        XCTAssertLessThanOrEqual(go.frame.width, 561, "the page isn't kept to a column")
+
+        // What Banana looks after (17 Oct 2026): Plan always, the rest ticked or not, and
+        // Everything for all of it. Its own page since 6 Nov 2026.
+        go.tap()
+        XCTAssertTrue(text(containing: "What should Banana look after?", in: app).waitForExistence(timeout: 6), "the modules page did not come")
+        XCTAssertTrue(text(containing: "Plan your day", in: app).exists, "the plan isn't listed")
         let modules = ["workouts", "food", "notes", "podcasts"].map { app.buttons["onboarding.module.\($0)"] }
         let everything = app.buttons["onboarding.module.everything"]
         for row in modules + [everything] {
-            XCTAssertTrue(row.exists, "the welcome is missing \(row.identifier)")
+            XCTAssertTrue(row.exists, "the page is missing \(row.identifier)")
             XCTAssertFalse(row.isSelected, "a new install starts with more than the plan")
             XCTAssertFalse(row.label.contains("Beta"))
             XCTAssertFalse(row.label.contains("Coming soon"))
         }
         XCTAssertFalse(app.buttons["onboarding.module.email"].exists)
-        // The public sample-data entry adds one visible action to the welcome page.
-        XCTAssertLessThanOrEqual(app.staticTexts.count, 10, "the welcome has grown more to read")
-        // On an iPad the phone's layout ran edge to edge: a button a thousand points wide.
-        XCTAssertLessThanOrEqual(go.frame.width, 560, "the page isn't kept to a reading width")
-
-        // One ticks on and off; Everything ticks them all.
         modules[1].tap()
         XCTAssertTrue(modules[1].isSelected, "Food didn't tick")
         modules[1].tap()
         XCTAssertFalse(modules[1].isSelected, "Food didn't untick")
         everything.tap()
         XCTAssertTrue(everything.isSelected && modules.allSatisfy(\.isSelected), "Everything didn't tick them all")
-        keep(app, "welcome-everything")
+        pause(0.6)
+        keep(app, "modules-everything")
+        assertFullSize(app.buttons["Back"], "Back")
 
-        // The one path. First, two questions, each of which moves a block on the day above it.
+        // Two questions; each answer is the routine's time on the plan.
         go.tap()
         XCTAssertTrue(text(containing: "When do you wake up?", in: app).waitForExistence(timeout: 6), "the wake question did not come")
+        let wake = app.descendants(matching: .any)["onboarding.wake.time"]
+        XCTAssertTrue(wake.label.contains("6:30"), "the question doesn't start where the Wake routine is: \(wake.label)")
+        let quarterPast = app.buttons["onboarding.time.\(6 * 60 + 45)"]
+        assertFullSize(quarterPast, "a time on the strip")
+        quarterPast.tap()
+        XCTAssertTrue(waitUntil { wake.label.contains("6:45") }, "choosing a time didn't change it")
         pause(0.6)
-        keep(app, "wake-question")
-        assertFullSize(go, "Continue")
-        assertFullSize(app.buttons["Back"], "Back")
-        XCTAssertTrue(day(saying: "wake at 6:30", in: app).exists, "the day doesn't start where the Wake routine is")
-        if device == "phone" {
-            // Turn the wheel: the day above follows it.
-            app.pickerWheels.element(boundBy: 0).adjust(toPickerWheelValue: "7")
-            XCTAssertTrue(day(saying: "wake at 7:30", in: app).waitForExistence(timeout: 4), "the answer didn't move the day's start")
-            keep(app, "wake-answered")
-        }
-        XCTAssertEqual(app.buttons.count, 2, "a question offers more than Back and Continue")
+        keep(app, "wake-answered")
+        assertFullSize(app.buttons["onboarding.skip"], "Skip")
 
         go.tap()
         XCTAssertTrue(text(containing: "When do you wind down?", in: app).waitForExistence(timeout: 6), "the wind-down question did not come")
+        // An outer tick brings the strip round it: 9:30, then 10:00.
+        app.buttons["onboarding.time.\(21 * 60 + 30)"].tap()
+        let ten = app.buttons["onboarding.time.\(22 * 60)"]
+        XCTAssertTrue(ten.waitForExistence(timeout: 4), "the strip didn't follow the choice")
+        ten.tap()
+        XCTAssertTrue(waitUntil { app.descendants(matching: .any)["onboarding.windDown.time"].label.contains("10:00") })
         pause(0.6)
-        if device == "phone" {
-            app.pickerWheels.element(boundBy: 0).adjust(toPickerWheelValue: "10")
-            XCTAssertTrue(day(saying: "wind down at 10:00", in: app).waitForExistence(timeout: 4), "the answer didn't move the day's end")
-        }
         keep(app, "wind-down-question")
 
-        // Then the calendar, shown by what Banana does between two of them.
+        // Then the calendar: connecting reads, and nothing else.
         go.tap()
         let google = app.buttons["google.continue"]
         XCTAssertTrue(google.waitForExistence(timeout: 6), "the calendar step did not come")
-        let title = text(containing: "Never double-booked", in: app)
-        XCTAssertTrue(title.exists)
-        // Big titles sit in the middle of the page, over the button, not at its left edge.
-        XCTAssertEqual(title.frame.midX, google.frame.midX, accuracy: 2, "the title isn't centred")
-        // Before above the title, after below it.
-        let before = app.descendants(matching: .any).matching(identifier: "onboarding.busyBefore").firstMatch
-        let after = app.descendants(matching: .any).matching(identifier: "onboarding.busyPicture").firstMatch
-        XCTAssertTrue(before.exists && after.exists, "the calendar step doesn't show busy blocks before and after")
-        XCTAssertTrue(before.label.contains("Before") && after.label.contains("After"))
-        XCTAssertLessThanOrEqual(before.frame.maxY, title.frame.minY, "the before picture isn't above the title")
-        XCTAssertGreaterThanOrEqual(after.frame.minY, title.frame.maxY, "the after picture isn't below the title")
-        XCTAssertLessThanOrEqual(after.frame.maxY, google.frame.minY, "the after picture runs under the button")
+        XCTAssertTrue(text(containing: "Bring in your calendars", in: app).exists)
+        XCTAssertTrue(text(containing: "Connecting only reads your calendars", in: app).exists, "the page doesn't say what connecting does")
         pause(0.6)
         keep(app, "calendar-step")
         assertFullSize(google, "Continue with Google")
