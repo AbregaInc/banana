@@ -601,6 +601,9 @@ private struct PageTitleLabel: View {
     let subtitle: String?
     let badge: Int
     let chevron: Bool
+    /// A page with room (an iPad upright) has the dates beside the name on one line ("This week
+    /// ⌄ Nov 2–8"); a phone has them under it.
+    @Environment(\.layoutClass) private var layoutClass
 
     var body: some View {
         HStack(spacing: DS.Space.s) {
@@ -608,7 +611,7 @@ private struct PageTitleLabel: View {
                 Text(title)
                     .font(.title3.weight(.bold))
                     .foregroundStyle(.primary)
-                if let subtitle {
+                if let subtitle, layoutClass == .compact {
                     Text(subtitle).font(.caption).foregroundStyle(.secondary)
                 }
             }
@@ -617,6 +620,9 @@ private struct PageTitleLabel: View {
                 Image(systemName: "chevron.down")
                     .font(.footnote.weight(.bold))
                     .foregroundStyle(.secondary)
+            }
+            if let subtitle, layoutClass == .regular {
+                Text(subtitle).font(.title3).foregroundStyle(.secondary).lineLimit(1)
             }
             if badge > 0 {
                 Text("\(badge)")

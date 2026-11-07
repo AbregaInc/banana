@@ -135,10 +135,10 @@ struct MailPaneMoreMenu: View {
                     if let id = session.model.cursor { session.open(id) }
                 } label: { Label("Open full width", systemImage: "arrow.up.left.and.arrow.down.right") }
                     .accessibilityIdentifier(MailID.expand)
-                Button { session.toggleDetails() } label: {
-                    Label(navigation.showsDetails ? "Hide details" : "Show details", systemImage: "info.circle")
+                Button { session.askForDetails(toggles: true) } label: {
+                    Label("Details", systemImage: "info.circle")
                 }
-                .accessibilityIdentifier(MailID.toggleDetails)
+                .accessibilityIdentifier("mail.more.details")
             }
         } label: {
             Image(systemName: "ellipsis")

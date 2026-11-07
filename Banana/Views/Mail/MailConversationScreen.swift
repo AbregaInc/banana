@@ -177,6 +177,8 @@ private struct MailConversationHeader: View {
                         .disabled(!session.canPerform(.done))
                         .accessibilityIdentifier(MailID.done)
                 }
+                Button { session.askForDetails(toggles: true) } label: { Label("Details", systemImage: "info.circle") }
+                    .accessibilityIdentifier("mail.more.details")
             } label: {
                 Image(systemName: "ellipsis")
                     .font(.body.weight(.semibold))
@@ -257,9 +259,17 @@ struct MailMessageCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: DS.Space.s) {
             HStack(alignment: .firstTextBaseline) {
-                Text(message.sender)
-                    .font(.subheadline.weight(.semibold))
-                    .lineLimit(1)
+                // The sender opens the conversation's Details, as "…" › Details does.
+                Button { session?.askForDetails(toggles: false) } label: {
+                    Text(message.sender)
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(.primary)
+                        .lineLimit(1)
+                }
+                .buttonStyle(.plain)
+                .disabled(session == nil)
+                .accessibilityHint("Shows the details")
+                .accessibilityIdentifier("mail.sender." + message.id.message)
                 Spacer(minLength: DS.Space.s)
                 Text(message.date)
                     .font(.caption).foregroundStyle(.secondary).monospacedDigit()

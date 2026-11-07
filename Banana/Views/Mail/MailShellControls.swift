@@ -55,6 +55,8 @@ struct MailActionsMenu: View {
                     .disabled(!session.canPerform(.toggleRead))
             }
             Section {
+                Button { session.askForDetails(toggles: true) } label: { Label("Details", systemImage: "info.circle") }
+                    .accessibilityIdentifier("mail.more.details")
                 Button { session.compose() } label: { Label("New message", systemImage: "square.and.pencil") }
                     .disabled(!session.allowsComposing)
             }

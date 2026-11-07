@@ -24,6 +24,44 @@ final class BottomBarShellUITest: XCTestCase {
         app.descendants(matching: .any).matching(identifier: id).firstMatch
     }
 
+    /// `TEST_RUNNER_SHELL_SHOTS=<folder>` keeps a picture for the compare page.
+    private func shot(_ name: String) {
+        guard let path = ProcessInfo.processInfo.environment["SHELL_SHOTS"] else { return }
+        let folder = URL(fileURLWithPath: path)
+        try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        try? XCUIScreen.main.screenshot().pngRepresentation.write(to: folder.appendingPathComponent("\(name).png"))
+    }
+
+    // MARK: Details
+
+    /// "…" › Details and a tap on a sender open the conversation's Details as a sheet on a phone
+    /// (`MailArrangement.detailsPlacement`), half height, with Done.
+    func testDetailsOpenAsASheetFromMoreAndFromTheSender() throws {
+        let app = try launch(["--tab", "mail", "--mail-fresh"])
+        let row = app.collectionViews.cells.firstMatch
+        XCTAssertTrue(row.waitForExistence(timeout: 15), app.debugDescription)
+        row.tap()
+        let more = app.buttons["mail.reader.more"]
+        XCTAssertTrue(more.waitForExistence(timeout: 5), "the reader's \u{2026}")
+        more.tap()
+        let item = app.buttons["mail.more.details"].firstMatch
+        XCTAssertTrue(item.waitForExistence(timeout: 5), "\u{2026} \u{203A} Details: \(app.debugDescription)")
+        item.tap()
+        let close = app.buttons["mail.details.close"].firstMatch
+        XCTAssertTrue(close.waitForExistence(timeout: 5), "the sheet: \(app.debugDescription)")
+        let people = app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH[c] 'People'")).firstMatch
+        XCTAssertTrue(people.waitForExistence(timeout: 5), "the details: \(app.debugDescription)")
+        XCTAssertGreaterThan(people.frame.minY, app.windows.firstMatch.frame.height * 0.3, "it opens at half height")
+        shot("phone-details")
+        close.tap()
+        XCTAssertTrue(close.waitForNonExistence(timeout: 5), "Done closes it")
+
+        let sender = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH 'mail.sender.'")).firstMatch
+        XCTAssertTrue(sender.waitForExistence(timeout: 5), "the sender is a button: \(app.debugDescription)")
+        sender.tap()
+        XCTAssertTrue(close.waitForExistence(timeout: 5), "a tap on the sender opens Details too")
+    }
+
     // MARK: Switcher
 
     func testTheSwitcherOpensUpwardsClosesAndOpensEachPage() throws {

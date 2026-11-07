@@ -121,4 +121,21 @@ final class MailArrangementTests: XCTestCase {
         XCTAssertFalse(MailArrangement.choose(width: edge - 1, controlColumn: false).canShowDetails)
         XCTAssertEqual(MailArrangement.choose(width: 1_200, wantsPane: false, controlColumn: false).listColumnWidth, 1_200)
     }
+
+    /// Details: one rule for every layout. A column beside the pane only where the page lays out
+    /// beside itself and has the room; a sheet everywhere else, and over a conversation open full
+    /// width.
+    func testDetailsOpenAsAColumnBesideThePaneOnlyWhereThereIsRoomElseAsASheet() {
+        let wide = MailArrangement.choose(width: 1_300, controlColumn: false)
+        XCTAssertEqual(wide.detailsPlacement(besidePage: true, readerFullWidth: false), .column, "an iPad on its side, the Mac")
+        XCTAssertEqual(wide.detailsPlacement(besidePage: true, readerFullWidth: true), .sheet, "a conversation open full width")
+        XCTAssertEqual(wide.detailsPlacement(besidePage: false, readerFullWidth: false), .sheet, "the bottom-bar layout")
+        let upright = MailArrangement.choose(width: 1_032, controlColumn: false)
+        XCTAssertEqual(upright.detailsPlacement(besidePage: false, readerFullWidth: false), .sheet, "an iPad upright")
+        let phone = MailArrangement.choose(width: 402, controlColumn: false)
+        XCTAssertEqual(phone.detailsPlacement(besidePage: false, readerFullWidth: true), .sheet, "a phone")
+        XCTAssertEqual(phone.detailsPlacement(besidePage: true, readerFullWidth: true), .sheet, "no pane, no column")
+        let noPane = MailArrangement.choose(width: 1_300, wantsPane: false, controlColumn: false)
+        XCTAssertEqual(noPane.detailsPlacement(besidePage: true, readerFullWidth: false), .sheet, "pane hidden")
+    }
 }

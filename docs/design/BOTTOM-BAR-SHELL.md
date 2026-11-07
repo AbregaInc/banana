@@ -49,7 +49,7 @@ player and the top row only. Results, rows and the page stay solid.
 | Now-playing bar (`tabViewBottomAccessory`) | A glass capsule just above the bar: artwork, show and episode, play/pause, a chevron that hides it. Hidden, it is a round artwork with a progress ring at the left end of the field: tap brings it back, a swipe left stops playback (VoiceOver: "Stop playback" action) |
 | Apple Music wake bar | The same place, as a glass capsule |
 | **Plan** Day · Week switch | Under the title's chevron ("Today ⌄") |
-| **Plan** date line (back, name, Today, weather, forward) | The title is the name ("Today", "Wed, Nov 4", "This week" with its dates under it); the date and weather sit beside it; back, forward and Today are under the chevron. Swiping the day sideways still steps days |
+| **Plan** date line (back, name, Today, weather, forward) | The title is the name ("Today", "Wed, Nov 4", "This week" with its dates under it on a phone and beside it on an iPad upright); the date and weather sit beside it; back, forward and Today are under the chevron. Swiping the day sideways still steps days |
 | **Plan** "Needs attention" row | A count beside the title; the first item under its chevron opens the same list |
 | **Plan** magnifier (Google Calendar search) | The field. Plan results come from the timeline on the device; "Search all calendars" under them opens the same calendar search with the words in it |
 | **Plan** booking share button | "…" |
@@ -80,6 +80,15 @@ mail"), and narrowed on 7 Nov to an iPad on its side and the Mac. No bottom bar 
 | **Body** switch (Workouts · Food) | "Workouts ⌄" title menu |
 | **Mail** (iPad on its side): search row, accounts row, the column of places, the place's name over the list | One row: "Inbox ⌄" (places, accounts), the field, the sparkle, "…" (reply, reply to all, forward, archive, star, unread, new message); then the list and the reader, with the details closed until `]`. Swipes and keys unchanged |
 | **Mail** (Mac) | "Inbox ⌄" and "…" in the window toolbar, beside the window's field and sparkle |
+
+## Mail's Details
+
+One rule for every layout (`MailArrangement.detailsPlacement`): Details open as the column at the
+right of the reading pane where the page lays out beside itself and has room for it (an iPad on
+its side, the Mac), and as a sheet everywhere else (a phone, an iPad upright, a conversation open
+full width): half height to start, pulled to full, with Done. Two ways in, the same everywhere:
+"…" › Details (the reader's "…", or Mail's "…" in the toolbar), and a tap on a message's sender.
+`]` and the reader's icon row still toggle the column on its side.
 
 What the field finds hangs under the toolbar's middle (`ShellWideResults`), a solid panel; a
 click beside it puts it away, and Esc does on the Mac.

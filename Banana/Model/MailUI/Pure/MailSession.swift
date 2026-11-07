@@ -14,6 +14,11 @@ final class MailNavigation: ObservableObject {
 
     @Published fileprivate(set) var reader: MailReaderModel?
     @Published fileprivate(set) var scope: MailScope
+    /// Each ask for the conversation's Details ("…" › Details, a tap on a sender). The screen
+    /// answers it by `MailArrangement.detailsPlacement`: the column, or a sheet.
+    @Published fileprivate(set) var detailsAsks = 0
+    /// Whether the last ask toggles (a menu's Details) or only opens (a tap on a sender).
+    fileprivate(set) var detailsAskToggles = false
     /// The reading pane, when there is room for one.
     @Published fileprivate(set) var showsPane: Bool
     /// The details column, when there is a pane and room for both.
@@ -357,6 +362,11 @@ final class MailSession {
 
     func togglePane() { navigation.setPane(!navigation.showsPane) }
     func toggleDetails() { navigation.setDetails(!navigation.showsDetails) }
+    /// "…" › Details (`toggles`) and a tap on a sender: the screen decides where they open.
+    func askForDetails(toggles: Bool) {
+        navigation.detailsAskToggles = toggles
+        navigation.detailsAsks &+= 1
+    }
 
     /// Whether a reading pane is on screen. The view says so when its arrangement changes.
     func setPaneVisible(_ visible: Bool) { pane.setActive(visible) }

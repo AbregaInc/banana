@@ -287,6 +287,9 @@ private struct MailScreen: View {
     @Environment(\.bottomBarShell) private var bottomBarShell
     @Environment(\.wideShell) private var wideShell
 
+    /// The conversation whose Details are open as a sheet.
+    @State private var detailsSheet: MailReaderModel?
+
     init(session: MailSession) {
         self.session = session
         _navigation = ObservedObject(wrappedValue: session.navigation)
@@ -294,9 +297,10 @@ private struct MailScreen: View {
 
     var body: some View {
         GeometryReader { proxy in
+            // The bottom-bar layout keeps its two columns: Details are its sheet.
             let arrangement = MailArrangement.choose(width: proxy.size.width,
                                                      wantsPane: navigation.showsPane,
-                                                     wantsDetails: navigation.showsDetails,
+                                                     wantsDetails: navigation.showsDetails && !bottomBarShell,
                                                      controlColumn: !(bottomBarShell || wideShell))
             ZStack {
                 MailColumns(session: session, arrangement: arrangement, scope: navigation.scope)
@@ -313,6 +317,19 @@ private struct MailScreen: View {
             .onChange(of: arrangement.showsPane, initial: true) { _, shows in
                 session.setPaneVisible(shows)
             }
+            // "…" › Details and a tap on a sender, wherever they were asked from: one rule
+            // (`MailArrangement.detailsPlacement`) says the column or a sheet.
+            .onChange(of: navigation.detailsAsks) { _, _ in
+                let placement = arrangement.detailsPlacement(besidePage: !bottomBarShell,
+                                                             readerFullWidth: navigation.reader != nil)
+                switch placement {
+                case .column:
+                    if navigation.detailsAskToggles { session.toggleDetails() }
+                    else if !navigation.showsDetails { session.toggleDetails() }
+                case .sheet:
+                    detailsSheet = navigation.reader ?? session.pane.reader
+                }
+            }
             .sheet(isPresented: sheetBinding(for: arrangement)) {
                 if let composer = navigation.composer {
                     MailComposerSheet(session: session, model: composer)
@@ -320,6 +337,9 @@ private struct MailScreen: View {
             }
         }
         .background(Color.mailBackground)
+        .sheet(isPresented: Binding(get: { detailsSheet != nil }, set: { if !$0 { detailsSheet = nil } })) {
+            if let reader = detailsSheet { MailDetailsSheet(reader: reader) }
+        }
         .onAppear {
             session.enter()
             session.finishLaunch()

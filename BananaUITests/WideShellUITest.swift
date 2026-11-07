@@ -81,6 +81,46 @@ final class WideShellUITest: XCTestCase {
         XCTAssertTrue(found, app.debugDescription)
     }
 
+    /// Details: on its side the column beside the reader ("…" › Details toggles it, a tap on the
+    /// sender opens it); upright a sheet, as on a phone (`MailArrangement.detailsPlacement`).
+    func testDetailsAreAColumnOnItsSideAndASheetUpright() throws {
+        XCUIDevice.shared.orientation = .landscapeLeft
+        let app = try launch(["--tab", "mail", "--mail-fresh"])
+        let column = app.descendants(matching: .any)["mail.details"]
+        let sender = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH 'mail.sender.'")).firstMatch
+        XCTAssertTrue(sender.waitForExistence(timeout: 15), app.debugDescription)
+        XCTAssertFalse(column.exists, "closed to start")
+        app.buttons["mail.more"].tap()
+        tapDetailsItem(app)
+        XCTAssertTrue(column.waitForExistence(timeout: 5), "\u{2026} \u{203A} Details opens the column")
+        shot("pad-land-details")
+        app.buttons["mail.more"].tap()
+        tapDetailsItem(app)
+        XCTAssertTrue(column.waitForNonExistence(timeout: 5), "and closes it")
+        sender.tap()
+        XCTAssertTrue(column.waitForExistence(timeout: 5), "a tap on the sender opens it")
+
+        XCUIDevice.shared.orientation = .portrait
+        XCTAssertTrue(app.buttons["shell.switcher"].waitForExistence(timeout: 8))
+        XCTAssertFalse(column.exists, "upright, no column")
+        app.buttons["mail.pane.more"].firstMatch.tap()
+        tapDetailsItem(app)
+        let sheet = app.buttons["mail.details.close"].firstMatch
+        XCTAssertTrue(sheet.waitForExistence(timeout: 5), "upright, a sheet")
+        shot("pad-portrait-details")
+        sheet.tap()
+        XCTAssertTrue(sheet.waitForNonExistence(timeout: 5))
+        sender.tap()
+        XCTAssertTrue(sheet.waitForExistence(timeout: 5), "the sender opens the sheet upright")
+    }
+
+    /// "Details" in an open "…" menu (a toolbar's menu on the iPad drops its items' identifiers).
+    private func tapDetailsItem(_ app: XCUIApplication) {
+        let item = app.buttons.matching(NSPredicate(format: "identifier == 'mail.more.details' OR label == 'Details'")).firstMatch
+        XCTAssertTrue(item.waitForExistence(timeout: 5), "\u{2026} \u{203A} Details: \(app.debugDescription)")
+        item.tap()
+    }
+
     func testMailHasItsPlaceMenuTheFieldAndMoreInOneRow() throws {
         XCUIDevice.shared.orientation = .landscapeLeft
         let app = try launch(["--tab", "mail", "--mail-fresh"])

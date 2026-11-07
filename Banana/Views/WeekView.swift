@@ -4245,7 +4245,8 @@ struct WeekView: View {
                                           isCurrent: mobileWeekOffset == 0)
         return PlanTitleMenu(
             title: words.name,
-            // A week's dates go under its name; a day's beside it (`mobileTitleAside`).
+            // A week's dates go with its name (under it on a phone, beside it with room); a day's
+            // date beside it (`mobileTitleAside`).
             subtitle: dayMode ? nil : words.dates,
             dayMode: dayMode,
             isCurrent: mobileWeekOffset == 0,
