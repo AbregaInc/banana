@@ -203,6 +203,20 @@ until the feed sets it again. A pull is applied like a per-message read at the c
 retry time. An account whose service has no mailbox keeps the per-message fill, now newest
 first (`MailSyncFill`, keyset on `(internal_date, msg_pk)`).
 
+**Prepared ahead, too.** Every message pulled is prepared (`MailHTMLPreparer`) as it is stored,
+in the same background batch, at utility priority and at the work pace of MAIL-ENGINE invariant
+31 (`MailPaceGauge`: paused four times the work on a phone with Mail on screen, stopped when warm
+or in Low Power Mode; a push's short window counts as Mail in use, so new mail is prepared
+before the next open). A new `MailHTMLPreparer.version` makes every prepared body stale at once:
+`MailReprepare` walks the stored originals newest first (`content_by_date`, blobs migration v3),
+a piece of 64 at a time, and prepares what is missing or stale at the same pace; an opened
+conversation's stale messages are prepared first. An open reads prepared output only; it
+prepares on request only when nothing current is stored (counted:
+`GmailConversationLoader.preparedOnRequest`). The reader styles each body's blocks off the main
+thread as it arrives (`MailAttributedText.blocks`), so drawing builds no attributed text; fonts
+are applied by the view, so nothing depends on the pane width. Layout of the text for the width
+still happens on the main thread, in SwiftUI.
+
 ## 6. Device actions
 
 The outbox is unchanged: shown at once, durable in `intent.sqlite`, delivered through
