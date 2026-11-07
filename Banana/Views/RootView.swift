@@ -518,8 +518,9 @@ struct RootView: View {
         (rootLayout ?? (horizontalSizeClass == .regular ? .regular : .compact)) == .compact
     }
 
-    /// The tab bar or sidebar with its bottom accessory: wherever the bar at the bottom isn't.
-    private var classicShell: Bool { !bottomBarShell }
+    /// The tab bar or sidebar with its bottom accessory: no width has it now (the bar at the
+    /// bottom, or the rail); kept as the one switch should a width go back to it.
+    private var classicShell: Bool { false }
 
     /// The pages the switcher lists: only the modules that are on.
     private var shellPages: [ShellPage] {
@@ -607,9 +608,16 @@ struct RootView: View {
     /// clears the tab bar and the now-playing accessory, so the toast sits just above them.
     @ViewBuilder private var mainTabs: some View {
         // The fixed app is home in every build; the agent is a way in (the +) and out (Review),
-        // not a screen of its own. Where the room is a phone's, the bar at the bottom
-        // (docs/design/BOTTOM-BAR-SHELL.md); where there is more, the tab bar or sidebar.
-        browseTabs
+        // not a screen of its own. Where there is room, the rail of pages at the left edge
+        // (docs/design/BOTTOM-BAR-SHELL.md, Wide); where there isn't, the bar at the bottom.
+        HStack(spacing: 0) {
+            if !bottomBarShell {
+                ShellRail(pages: shellPages, current: currentShellPage, open: openShellPage)
+            }
+            browseTabs
+        }
+        // The whole shell's width, rail included: measured inside it, the rail's own width would
+        // flip the class back and forth at the line.
         .onGeometryChange(for: LayoutClass.self) { LayoutClass(width: $0.size.width) } action: { layout in
             if rootLayout != layout { rootLayout = layout }
         }
@@ -802,6 +810,29 @@ struct RootView: View {
             if bottomBarShell {
                 ShellResultsOverlay(section: shell.state.tab.tabBarHome)
                 ShellSwitcherOverlay(pages: shellPages, current: currentShellPage, open: openShellPage)
+            }
+        }
+        // Wide: the player at the foot of the page, as the Mac has it (no bar to sit above).
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            if !bottomBarShell, player.currentEpisode != nil || music.wakePlaying != nil {
+                Group {
+                    if player.currentEpisode != nil {
+                        NowPlayingBar(onExpand: { showNowPlaying = true })
+                    } else {
+                        MusicWakeBar()
+                    }
+                }
+                .padding(.vertical, DS.Space.xs)
+                .frame(maxWidth: 560)
+                .glassEffect(.regular, in: .capsule)
+                .padding(.bottom, DS.Space.s)
+            }
+        }
+        // Wide: what the field in a page's toolbar found, hanging under the toolbar.
+        .overlay(alignment: .top) {
+            if !bottomBarShell {
+                ShellWideResults(section: shell.state.tab.tabBarHome)
+                    .padding(.top, 52)
             }
         }
         // Floats just above the bottom accessory: visible without covering anything, and it

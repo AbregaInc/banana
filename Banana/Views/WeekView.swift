@@ -787,9 +787,11 @@ struct MacWeekView: View {
         return weekOffset == 0 ? "NEXT \(weekSpan.rawValue) DAYS" : "\(weekSpan.rawValue) DAYS FROM"
     }
 
-    /// Everything that acts on the planner, in the window toolbar, in the places every Mac page
-    /// uses (DESIGN-SYSTEM.md, the standard, 5): back, forward and Today leading, beside the
-    /// title; the view switch in the middle; the forecast, availability and + trailing.
+    /// Everything that acts on the planner, in the window's one toolbar (docs/design/
+    /// BOTTOM-BAR-SHELL.md, Wide): back, forward and Today, then Day, several days or Week under
+    /// the title with the forecast beside it; "Search or ask" and the assistant are the window's;
+    /// "…" holds sharing and Refresh. Adding is the field's (focused with nothing typed), and C,
+    /// S and ⇧⌘L still create, share availability and copy the booking link.
     @ToolbarContentBuilder private var plannerToolbar: some ToolbarContent {
         ToolbarItemGroup(placement: .navigation) {
             // Plain buttons, as the date line's (`DateLine`): a ControlGroup was moved to the far end.
@@ -804,69 +806,32 @@ struct MacWeekView: View {
                 .help("Go to today (T)")
             if loadingWeek { ProgressView().controlSize(.small) }
         }
-        ToolbarItem(placement: .automatic) {
-            ControlGroup {
-                Button { moveWeek(-1) } label: { Image(systemName: "chevron.left") }
-                    .help(dayMode ? "Previous day (K)" : (weekSpan.isAlignedWeek ? "Previous week (K)" : "Back \(weekSpan.rawValue) days (K)"))
-                    .accessibilityLabel("Earlier")
-                Button("Today") { moveToCurrentWeek() }
-                    .disabled(weekOffset == 0)
-                    .help("Go to today (T)")
-                Button { moveWeek(1) } label: { Image(systemName: "chevron.right") }
-                    .help(dayMode ? "Next day (J)" : (weekSpan.isAlignedWeek ? "Next week (J)" : "Forward \(weekSpan.rawValue) days (J)"))
-                    .accessibilityLabel("Later")
-            }
-        }
-        ToolbarItem(placement: .automatic) { MacPlannerViewMenu() }
-        ToolbarItem(placement: .automatic) { CalendarSearchButton() }
-        // The forecast: the day shown in Day, today while it is in view.
-        ToolbarItem(placement: .automatic) {
+        ToolbarItem(placement: .navigation) { MacPlannerTitleMenu() }
+        // The forecast beside the title: the day shown in Day, today while it is in view.
+        ToolbarItem(placement: .navigation) {
             if dayMode, let day = days.first?.date {
                 WeatherChip(day: day)
             } else if days.contains(where: \.isToday) {
                 WeatherChip(day: Date())
             }
         }
-        // The booking link: the system's share menu (⇧⌘L copies it). Only with a link.
-        if booking.canShare {
-            ToolbarItem(placement: .automatic) {
-                BookingShareButton()
-            }
-        }
-        ToolbarItem(placement: .automatic) {
-            Button { MacNavigator.shared.showsAvailability.toggle() } label: {
-                Image(systemName: "calendar.badge.checkmark")
-            }
-            .help("Share availability (S)")
-        }
         ToolbarItem(placement: .primaryAction) {
-            #if PI_DEVELOPMENT
-            Button { PageChrome.shared.showAdd = true } label: { Label("Add", systemImage: "plus") }
-                .accessibilityIdentifier("mac.week.newEvent")
-            #else
-            // A MENU, like Day's "+", not an event-only button: the calendar — where you can see
-            // when you are free — is exactly where a reminder should be creatable too.
             Menu {
-                Button {
-                    newEventRequest = MacNewEventRequest(start: defaultNewEventStart(), durationMinutes: 60)
-                } label: {
-                    Label("Event", systemImage: "calendar.badge.plus")
+                BookingShareButton()
+                Button { MacNavigator.shared.showsAvailability.toggle() } label: {
+                    Label("Share availability", systemImage: "calendar.badge.checkmark")
                 }
-                Button {
-                    newTaskDue = defaultNewEventStart()
-                    showingNewTask = true
-                } label: {
-                    Label("Reminder", systemImage: "checklist")
-                }
-                Button { showingAlarms = true } label: {
-                    Label("Alarm", systemImage: "alarm")
+                .help("Share availability (S)")
+                Button { NotificationCenter.default.post(name: .macForceRefreshRequested, object: nil) } label: {
+                    Label("Refresh", systemImage: "arrow.clockwise")
                 }
             } label: {
-                Label("Add", systemImage: "plus")
+                Image(systemName: "ellipsis")
             }
-            .help("Create an event (C), a reminder or an alarm")
-            .accessibilityIdentifier("mac.week.newEvent")
-            #endif
+            .menuIndicator(.hidden)
+            .help("Share and refresh")
+            .accessibilityLabel("More")
+            .accessibilityIdentifier("mac.planner.more")
         }
     }
 

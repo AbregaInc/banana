@@ -12,7 +12,8 @@ dismissable". The same evening: "ipad rail plus top bar B and Mac also same. sam
 By width (`LayoutClass`, measured at the root of the shell), never by device:
 
 - **Compact** (an iPhone; an iPad narrowed into a split): the bottom-bar shell.
-- **Regular** (an iPad, a phone on its side, the Mac): unchanged in this step.
+- **Regular** (an iPad in either orientation, the Mac): the rail and one top toolbar (*Wide*,
+  below). Rotation does not swap shells: an iPad upright is regular too.
 
 The standalone screenshot and test routes (`--plan`, `--wellness`, `--mail`, …) draw a page
 without the shell and keep its own controls; `--ui-preview` draws the shell.
@@ -55,6 +56,27 @@ player and the top row only. Results, rows and the page stay solid.
 
 The bar steps away while a keyboard is up for anything but the field (a note, a form), and the
 switcher and sparkle step aside while the field is in use so it is as wide as the bar.
+
+## Wide: the rail and one toolbar (iPad, Mac)
+
+Approved the same evening as direction B ("ipad rail plus top bar B and Mac also same. same for
+mail"). No bottom bar on a wide screen.
+
+| Before | Now |
+|---|---|
+| iPad sidebar / floating top tab strip; Mac source list | The rail (`ShellRail`, 72 pt) pinned to the left edge: round page buttons, no labels, only the modules that are on, Settings at its foot. On the Mac it is the split view's sidebar column, fixed, under the traffic lights, with no sidebar toggle |
+| Review row | A rail button (the page Review, as before) |
+| Routines row / tab | "…" on every page (`MoreMenu`), and the menu bar's section commands |
+| Assistant row (iPad) / "Ask or add" toolbar button (Mac) | The round sparkle button beside the field (⌘J kept on the Mac) |
+| The +, top right | The field, focused with nothing typed (as on the phone). C still creates on the Mac |
+| **Plan** (iPad) Day · Week switch | Back, forward and Today at the left, then "Day ⌄"/"Week ⌄"; the field in the middle; the sparkle and "…" (booking share, refresh, briefing, availability, setup, Routines). The date line row stays under the toolbar, with the weather |
+| **Plan** (Mac) toolbar: back/forward/Today, a second back/Today/forward group, Day · 3 · 5 · Week switch, magnifier, weather, share, availability, + | Back, forward and Today; "Week ⌄" (Day, 3 days, 5 days, Week) with the weather beside it; the field; the sparkle; "…" with Share booking link, Share availability and Refresh. ⇧⌘L (copy the booking link), S (availability), C (new event) and D, 2–7, W (spans) are unchanged |
+| **Body** switch (Workouts · Food) | "Workouts ⌄" title menu |
+| **Mail** (iPad): search row, accounts row, the place's name over the list | One row: "Inbox ⌄" (places, accounts), the field, the sparkle, "…" (reply, reply to all, forward, archive, star, unread, new message). Swipes and keys unchanged |
+| **Mail** (Mac) | "Inbox ⌄" and "…" in the window toolbar, beside the window's field and sparkle |
+
+What the field finds hangs under the toolbar's middle (`ShellWideResults`), a solid panel; a
+click beside it puts it away, and Esc does on the Mac.
 
 ## Search or ask
 

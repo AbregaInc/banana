@@ -100,8 +100,7 @@ final class ControlRulesWalkUITest: XCTestCase {
         }
     }
 
-    func testPlanSwitchUsesTheTitleRow() throws {
-        try XCTSkipIf(UIDevice.current.userInterfaceIdiom == .pad, "the iPad's title row comes with the wide shell")
+    func testPlanSwitchUsesTheTitleRow() {
         continueAfterFailure = false
         let app = launch(tab: "plan", fixedPlanMode: false)
         let pad = UIDevice.current.userInterfaceIdiom == .pad
@@ -198,7 +197,7 @@ final class ControlRulesWalkUITest: XCTestCase {
     }
 
     func testTheWidePagesFollowTheSameRules() throws {
-        throw XCTSkip("the wide shell's rules come with it")
+        guard UIDevice.current.userInterfaceIdiom == .pad else { throw XCTSkip("the iPad's pages") }
         for tab in ["plan", "workouts", "nutrition", "notes", "library", "routines"] {
             let app = launch(tab: tab)
             XCTAssertTrue(element(app, "shell.rail").waitForExistence(timeout: 15), "\(tab) has no rail")

@@ -235,19 +235,20 @@ thing opened least), a sidebar row on the iPad and the Mac. Review has the app's
 switch: Week · Month · Year. Workouts' period bar and trends, Sleep, Trends, listening history
 and its map, and Nutrition's logs-against-weight card all moved there.
 
-On iPhone and iPad, root pages use `pageNavigationTitle`: the selected tab or sidebar
-row names the page, so the toolbar does not repeat it. Put the page switch in the
-principal toolbar position on iPhone and with the iPad sidebar open. Use the leading
-toolbar position only when iPad’s floating top tab bar occupies the centre. Never add a second row below the toolbar. Presented sheets and
-editors keep their titles; Mac windows keep their native navigation titles.
+On iPhone and iPad (6 Nov 2026, docs/design/BOTTOM-BAR-SHELL.md) a root page's top row is its
+title menu (`PageTitleMenu`) at the left and "…" at the right: the page switch is under the title's
+chevron, not a segmented control. On a wide screen "Search or ask" and the assistant sit in the
+middle and at the right of the same toolbar. Never add a second row of buttons below it. Presented
+sheets and editors keep their titles; Mac windows keep their native navigation titles.
 
 | Job | The one control | Where |
 |---|---|---|
 | Switch between a page's views | `PageSwitch`: a segmented switch, four words at most, remembered | The top bar, where the title would be. Plan: Day · Week. Nutrition: Food · Taken. Review: Week · Month · Year |
 | Step through dates | `DateLine`: back, name and dates, a pill home when away, forward. Swiping left goes forward; tapping the name goes home | The row under the top bar. Plan, Nutrition, Review |
-| Add | `.addButton` / `.addMenu` / `.addListButton`: the top bar's +, beside "…". On a phone it opens the one list of everything (`AddList`), this page's own first; on an iPad and the Mac the page's own (one kind at once, several a short menu) | Top right of every main page, on every device (16 Oct 2026: as the tab bar's search slot it stuttered, iOS treating it as a page). In a sheet, adding is the last row of its list |
-| Look back | `ReviewToolbarItem` | Top left of every main page |
-| More | `MoreMenu`: "…", ending with Routines and Settings | Top right of every main page. On a detail page "…" holds Edit, Share, Delete |
+| Add | "Search or ask" (`ShellSearch`), tapped with nothing typed: the one list of everything, this page's own first. `.addButton` / `.addMenu` / `.addListButton` declare a page's kinds and draw a + only outside the shells (standalone routes) | The bottom bar's field on a phone, the toolbar's on an iPad and the Mac (6 Nov 2026, docs/design/BOTTOM-BAR-SHELL.md). Mail's inbox keeps its compose. In a sheet, adding is the last row of its list |
+| Look back | Review in the switcher (phone) or the rail (iPad, Mac); `ReviewToolbarItem` puts the field and the assistant in a wide toolbar | |
+| More | `MoreMenu`: "…", with Routines; Settings is in the switcher or at the foot of the rail | Top right of every main page. On a detail page "…" holds Edit, Share, Delete |
+| Page title | `PageTitleMenu`: the page's name with what it switches between under its chevron (Plan: Day and Week; Body: Workouts, Food, Taken; Mail: places and accounts) | Top left; the only other thing in the top row is "…" |
 | Close or save a sheet | Changes something: Cancel left, a verb right. Only looked at: Done right, plain weight. A list to pick from: Cancel left | |
 | Act on a row | Tap opens. Swipe left deletes. Press-and-hold offers the same. No extra icons on rows | |
 | An empty page | One line, and one button that does what + does | |

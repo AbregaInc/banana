@@ -16,7 +16,6 @@ final class AdaptiveShellUITest: XCTestCase {
     }
 
     func testTheRailOrSwitcherShowsTheRightPages() throws {
-        try XCTSkipIf(UIDevice.current.userInterfaceIdiom == .pad, "the iPad's rail comes with the wide shell")
         let app = launch()
         if UIDevice.current.userInterfaceIdiom != .pad {
             app.buttons["shell.switcher"].tap()

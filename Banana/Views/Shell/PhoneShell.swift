@@ -512,8 +512,8 @@ private struct ShellPlaybackRing: View {
 // MARK: - Page content under the bar
 
 extension View {
-    /// A page in the shell's tab view: with the bar at the bottom (`bottomBar`) the tab bar is
-    /// gone and the pages are the switcher's; where there is room the tab bar or sidebar stays.
+    /// A page in the shell's tab view: the bar at the bottom (`bottomBar`) or the rail and one
+    /// toolbar (wide). Either way the tab bar is gone; the pages are the switcher's or the rail's.
     func shellPage(bottomBar: Bool) -> some View {
         modifier(ShellPageModifier(bottomBar: bottomBar))
     }
@@ -524,10 +524,11 @@ private struct ShellPageModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
             .environment(\.bottomBarShell, bottomBar)
-            .toolbarVisibility(bottomBar ? .hidden : .automatic, for: .tabBar)
-            // An iPad narrowed into a split ignores the SwiftUI setting: the tab bar controller
-            // hides its bar itself.
-            .background { if bottomBar { TabBarHider() } }
+            .environment(\.wideShell, !bottomBar)
+            .toolbarVisibility(.hidden, for: .tabBar)
+            // An iPad's floating tab strip and sidebar ignore the SwiftUI setting: the tab bar
+            // controller hides them itself.
+            .background(TabBarHider())
     }
 }
 
