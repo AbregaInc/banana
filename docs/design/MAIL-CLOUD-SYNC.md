@@ -180,3 +180,13 @@ release.
   there yet: one is made by the first client that reads the feed. Production is unchanged.
 - Not yet shown: a real mailbox through the feed, devices against staging, push of feed changes,
   and physical-device performance.
+
+## Beta 103 rollout — 6 November
+
+Release source `510dd8f0` (this branch merged into `release/banana-ready` with the mail
+preparation and thread-facts speedups). The full Mail engine suite passed on the merged tree:
+273 cases, 0 failures (the runner's summary mislabels a run containing a skipped case).
+Mac Beta 1.0.4 (103) was signed, notarized and published as the GitHub prerelease
+`mac-beta-v1.0.4-103`; the Beta update feed and download redirect name build 103. iOS Beta
+103 was installed and launched on the owner's phone and iPad. These clients now use the
+staging shared mailbox feed; real-mailbox acceptance is in progress, not yet claimed.
