@@ -41,7 +41,7 @@ final class MailHTMLPreparerTests: XCTestCase {
     }
     func testTablesAndListsRemainReadable() throws {
         let prepared = try MailHTMLPreparer.prepare(plain: nil, html: "<table><tr><td>Left</td><td>Right</td></tr></table><ol><li>First</li><li>Second</li></ol>")
-        XCTAssertTrue(text(prepared).contains("Left\tRight"))
+        XCTAssertTrue(text(prepared).contains("Left\u{2003}\u{2003}Right"))
         XCTAssertEqual(prepared.text.blocks.filter { if case .item = $0.kind { return true }; return false }.count, 2)
     }
     func testOriginalRetainsLayoutAndLinksButRemovesActiveContent() throws {
@@ -64,6 +64,72 @@ final class MailHTMLPreparerTests: XCTestCase {
         XCTAssertThrowsError(try MailOriginalDocument.prepare(String(repeating: "x", count: MailHTMLPreparer.maximumBytes + 1)))
         XCTAssertThrowsError(try MailOriginalDocument.prepare(String(repeating: "<div>", count: 100) + "body" + String(repeating: "</div>", count: 100)))
     }
+    // MARK: Renderer climb fixtures (synthetic: each reproduces a pattern, none is a real message)
+
+    private func blockTexts(_ prepared: MailPreparedBody) -> [String] { prepared.text.blocks.map { $0.runs.map(\.text).joined() } }
+
+    func testPreviewLinePaddingAndHiddenTextAreNotShown() throws {
+        let pad = String(repeating: "\u{034F}\u{200B}\u{00A0}\u{00AD}", count: 40)
+        let html = "<div style=\"display:none;max-height:0;overflow:hidden\">Secret preview</div><div style=\"font-size:0\">hidden \(pad)</div>"
+            + "<span class=\"mcnPreviewText\">Preheader words</span><p>Hello\(pad) there</p><p hidden>attr hidden</p>"
+        let prepared = try MailHTMLPreparer.prepare(plain: nil, html: html)
+        XCTAssertEqual(blockTexts(prepared), ["Hello there"])
+    }
+
+    func testWhitespaceIsCollapsedAndBlocksAreTrimmed() throws {
+        let html = "<table><tr><td>\n   <p>\u{00A0} One \n  two\u{00A0}\u{00A0}three  </p>\n</td></tr></table><div>   </div><p><br><br>Four<br><br><br>Five<br></p>"
+        let prepared = try MailHTMLPreparer.prepare(plain: nil, html: html)
+        XCTAssertEqual(blockTexts(prepared), ["One two three", "Four", "Five"])
+    }
+
+    func testFloatedLabelAndValueShareALine() throws {
+        let html = "<div><span style=\"float:left\">When</span><span style=\"float:right\">Today 10:00</span></div><div><span style=\"display:block\">A</span><span style=\"display:block\">B</span></div>"
+        let prepared = try MailHTMLPreparer.prepare(plain: nil, html: html)
+        XCTAssertEqual(blockTexts(prepared), ["When\u{2003}\u{2003}Today 10:00", "A", "B"])
+    }
+
+    func testContainerWithZeroFontSizeIsStillShown() throws {
+        let html = "<div style=\"font-size:0px\"><table><tr><td style=\"font-size:16px\">Column text</td></tr></table></div>"
+        XCTAssertEqual(blockTexts(try MailHTMLPreparer.prepare(plain: nil, html: html)), ["Column text"])
+    }
+
+    func testImageLinkKeepsItsDescriptionAndTrackingAddressIsShortened() throws {
+        let long = "https://click.example.net/track/" + String(repeating: "a1b2", count: 20)
+        let html = "<p><a href=\"https://example.com/get\"><img alt=\"Get the app\" src=\"https://example.com/b.png\"></a></p><p><a href=\"https://example.com/logo\"><img alt=\"\" src=\"https://example.com/l.png\"></a></p><p><a href=\"\(long)\">\(long)</a></p>"
+        let prepared = try MailHTMLPreparer.prepare(plain: nil, html: html)
+        XCTAssertEqual(blockTexts(prepared).first, "Get the app")
+        XCTAssertTrue(blockTexts(prepared)[1].hasPrefix("click.example.net/track/a1b2"))
+        XCTAssertLessThanOrEqual(blockTexts(prepared)[1].count, 37)
+        XCTAssertEqual(prepared.text.blocks[0].runs.first?.link?.absoluteString, "https://example.com/get")
+        XCTAssertEqual(prepared.text.blocks[1].runs.first?.link?.absoluteString, long)
+    }
+
+    func testListsKeepNumbersAndDepth() throws {
+        let html = "<ol start=\"3\"><li>Three<ul><li>Inner</li></ul></li><li>Four</li></ol><ul><li>Dot</li></ul>"
+        let kinds = try MailHTMLPreparer.prepare(plain: nil, html: html).text.blocks.map(\.kind)
+        XCTAssertEqual(kinds, [.item(ordered: true, depth: 0, number: 3), .item(ordered: false, depth: 1, number: nil),
+                               .item(ordered: true, depth: 0, number: 4), .item(ordered: false, depth: 0, number: nil)])
+    }
+
+    func testReplyQuotesFromEveryClientAreQuotes() throws {
+        let gmail = "<div>Thanks!</div><div class=\"gmail_quote\"><div class=\"gmail_attr\">On Tue, Ann wrote:<br></div><blockquote class=\"gmail_quote\">Original</blockquote></div>"
+        let apple = "<div>Yes</div><div>On Nov 3, 2026, at 9:00, Ann &lt;ann@example.com&gt; wrote:</div><blockquote type=\"cite\">Original</blockquote>"
+        let outlook = "<div>Fine</div><hr><div id=\"divRplyFwdMsg\"><b>From:</b> Ann<br><b>Sent:</b> Monday</div><div>Original body</div>"
+        for html in [gmail, apple, outlook] {
+            let blocks = try MailHTMLPreparer.prepare(plain: nil, html: html).text.blocks
+            XCTAssertEqual(blocks.first?.kind, .paragraph)
+            XCTAssertTrue(blocks.dropFirst().contains { if case .quote = $0.kind { return true }; return false })
+            XCTAssertFalse(blocks.dropFirst().contains { $0.kind == .paragraph }, html)
+        }
+    }
+
+    func testPreparedBodyRecordsWhereTheQuoteStarts() throws {
+        let prepared = try MailHTMLPreparer.prepare(plain: nil, html: "<p>New</p><p>More</p><blockquote>Old</blockquote>")
+        XCTAssertEqual(prepared.quoteStartsAt, 2)
+        let none = try MailHTMLPreparer.prepare(plain: nil, html: "<p>New</p>")
+        XCTAssertNil(none.quoteStartsAt)
+    }
+
     func testPreparationCostForGeneratedHTML() throws {
         var samples: [[String: Any]] = []
         let block = "<p>Message text with <b>emphasis</b> and <a href='https://example.com'>a link</a>.</p>"

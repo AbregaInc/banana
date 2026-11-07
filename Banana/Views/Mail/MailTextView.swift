@@ -5,11 +5,23 @@ import SwiftUI
 /// headings, preformatted lines and rules, with system link handling.
 struct MailTextView: View {
     let text: MailText
+    /// The prepared body's `quoteStartsAt`: the quoted tail waits behind one button.
+    var foldFrom: Int? = nil
+    @State private var showsQuote = false
 
     var body: some View {
+        let folded = foldFrom != nil && !showsQuote
+        let shown = folded ? Array(text.blocks.prefix(foldFrom ?? 0)) : text.blocks
         VStack(alignment: .leading, spacing: DS.Space.s) {
-            ForEach(Array(text.blocks.enumerated()), id: \.offset) { _, block in
+            ForEach(Array(shown.enumerated()), id: \.offset) { _, block in
                 MailBlockView(block: block)
+            }
+            if folded {
+                Button { showsQuote = true } label: {
+                    Label("Show quoted text", systemImage: "ellipsis").labelStyle(.iconOnly)
+                }
+                .buttonStyle(.bordered).controlSize(.small)
+                .accessibilityIdentifier("mail.body.quote")
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -44,6 +56,8 @@ private struct MailBlockView: View {
             Text(MailAttributedText.make(block.runs)).font(.system(.callout, design: .monospaced))
         case .rule:
             Divider()
+        case .fineprint:
+            Text(MailAttributedText.make(block.runs)).font(.caption).foregroundStyle(.secondary)
         }
     }
 }

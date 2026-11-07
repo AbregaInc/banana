@@ -6,13 +6,26 @@ struct MailPreparedBody: Codable, Equatable, Sendable {
     var version: Int
     var text: MailText
     var shownAsText: Bool
+    /// Index of the first block of the quoted tail: every block from here on is quoted. Nil when the
+    /// message does not end in a quote. Made with the text, so opening a message costs nothing.
+    var quoteStartsAt: Int? = nil
 
-    var body: MailBody { .text(text, quoteStartsAt: nil, notices: shownAsText ? [.shownAsText] : []) }
+    var body: MailBody { .text(text, quoteStartsAt: quoteStartsAt, notices: shownAsText ? [.shownAsText] : []) }
+
+    static func quoteStart(of blocks: [MailTextBlock]) -> Int? {
+        var start: Int?
+        for (index, block) in blocks.enumerated().reversed() {
+            guard case .quote = block.kind else { break }
+            start = index
+        }
+        // A message that is only a quote (a forward) has nothing to fold it under.
+        return start == 0 ? nil : start
+    }
 }
 
 /// Runs on the preparation worker, before opening. Uses the pinned library's parser.
 enum MailHTMLPreparer {
-    static let version = 1
+    static let version = 2
     static let maximumBytes = 2 * 1024 * 1024
     enum Failure: Error { case tooLarge, tooComplex }
 
@@ -40,9 +53,9 @@ enum MailHTMLPreparer {
             // links, so it walks the parsed tree directly. Script and style content are data nodes and are
             // never read. The Original view prepares its own cleaned document (MailOriginalDocument).
             guard let body = source.body() else { return plainBody(plain ?? "", shownAsText: true) }
-            let native = try nativeText(body)
+            let native = try nativeText(body, needs: DocNeeds(html))
             mark("nativeText")
-            return MailPreparedBody(version: version, text: native, shownAsText: true)
+            return MailPreparedBody(version: version, text: native, shownAsText: true, quoteStartsAt: MailPreparedBody.quoteStart(of: native.blocks))
         }
         guard (plain?.utf8.count ?? 0) <= maximumBytes else { throw Failure.tooLarge }
         return plainBody(plain ?? "", shownAsText: false)
@@ -54,58 +67,453 @@ enum MailHTMLPreparer {
             shownAsText: shownAsText)
     }
 
-    private static func nativeText(_ root: Element) throws -> MailText {
+    // MARK: Native text
+
+    /// Characters that take no room on screen: zero-width and joiner characters, soft hyphens, the
+    /// combining grapheme joiner and byte-order marks. Newsletters pad their preview line with them.
+    @inline(__always) private static func isInvisible(_ v: UInt32) -> Bool {
+        switch v {
+        case 0x00AD, 0x034F, 0x061C, 0x180E, 0x200B...0x200F, 0x202A...0x202E, 0x2060...0x2064, 0x2066...0x206F, 0xFEFF: return true
+        default: return false
+        }
+    }
+
+    @inline(__always) private static func isSpace(_ v: UInt32) -> Bool {
+        switch v {
+        case 0x20, 0x09, 0x0A, 0x0D, 0x0C, 0xA0, 0x1680, 0x2000...0x200A, 0x2028, 0x2029, 0x202F, 0x205F, 0x3000: return true
+        default: return false
+        }
+    }
+
+    /// Text as a browser lays it out: invisible characters gone, every run of white space one space.
+    static func collapse(_ value: String) -> String {
+        var out = String.UnicodeScalarView()
+        var lastSpace = false
+        for scalar in value.unicodeScalars {
+            let v = scalar.value
+            if v == 0 || isInvisible(v) { continue }
+            if isSpace(v) {
+                if !lastSpace { out.append(" ") }
+                lastSpace = true
+            } else {
+                out.append(scalar)
+                lastSpace = false
+            }
+        }
+        return String(out)
+    }
+
+    private static func stripInvisible(_ value: String) -> String {
+        var out = String.UnicodeScalarView()
+        for scalar in value.unicodeScalars where scalar.value != 0 && !isInvisible(scalar.value) { out.append(scalar) }
+        return String(out)
+    }
+
+    private enum Bytes {
+        static let k_0 = Array("0".utf8)
+        static let k_0_0 = Array("0.0".utf8)
+        static let k_block = Array("block".utf8)
+        static let k_class = Array("class".utf8)
+        static let k_display = Array("display".utf8)
+        static let k_divRplyFwdMsg = Array("divRplyFwdMsg".utf8)
+        static let k_flex = Array("flex".utf8)
+        static let k_float = Array("float".utf8)
+        static let k_font_size = Array("font-size".utf8)
+        static let k_grid = Array("grid".utf8)
+        static let k_hidden = Array("hidden".utf8)
+        static let k_id = Array("id".utf8)
+        static let k_inline_block = Array("inline-block".utf8)
+        static let k_left = Array("left".utf8)
+        static let k_mail_editor_reference_message_container = Array("mail-editor-reference-message-container".utf8)
+        static let k_max_height = Array("max-height".utf8)
+        static let k_none = Array("none".utf8)
+        static let k_opacity = Array("opacity".utf8)
+        static let k_overflow = Array("overflow".utf8)
+        static let k_right = Array("right".utf8)
+        static let k_style = Array("style".utf8)
+        static let k_visibility = Array("visibility".utf8)
+    }
+
+    /// Which attributes the message could possibly use that matter here, found in one pass over its bytes. Reading an
+    /// attribute through the parser is the slowest thing the walk does, so a message that cannot use one never pays for it.
+    struct DocNeeds {
+        var style = false, hidden = false, quote = false, outlook = false, preview = false
+
+        init(_ html: String) {
+            var copy = html
+            copy.withUTF8 { b in
+                let n = b.count
+                func match(_ i: Int, _ word: StaticString) -> Bool {
+                    let len = word.utf8CodeUnitCount
+                    guard i + len <= n else { return false }
+                    return word.withUTF8Buffer { w in
+                        for j in 0..<len { var c = b[i + j]; if c >= 65 && c <= 90 { c += 32 }; if c != w[j] { return false } }
+                        return true
+                    }
+                }
+                var i = 0
+                while i < n {
+                    var c = b[i]; if c >= 65 && c <= 90 { c += 32 }
+                    switch c {
+                    case UInt8(ascii: "d"):
+                        if match(i, "display") { style = true } else if match(i, "divrplyfwdmsg") { outlook = true }
+                    case UInt8(ascii: "f"):
+                        if match(i, "float") { style = true }
+                        else if match(i, "font-size") {
+                            var j = i + 9
+                            while j < n, b[j] == 32 { j += 1 }
+                            if j < n, b[j] == 58 { j += 1; while j < n, b[j] == 32 { j += 1 }; if j < n, b[j] == 48 { style = true } }
+                        }
+                    case UInt8(ascii: "v"): if match(i, "visibility") { style = true }
+                    case UInt8(ascii: "o"): if match(i, "opacity") { style = true }
+                    case UInt8(ascii: "m"):
+                        if match(i, "max-height") { style = true }
+                        else if match(i, "mcnpreviewtext") { preview = true }
+                        else if match(i, "moz-cite-prefix") { quote = true }
+                        else if match(i, "mail-editor-reference-message-container") { outlook = true }
+                    case UInt8(ascii: "h"):
+                        // The attribute (` hidden>` or ` hidden=`), not the CSS value (`overflow: hidden;`).
+                        if match(i, "hidden"), i > 0, b[i - 1] == 32, i + 6 < n, b[i + 6] == 62 || b[i + 6] == 61 || b[i + 6] == 32 || b[i + 6] == 47 { hidden = true }
+                    case UInt8(ascii: "g"): if match(i, "gmail_attr") { quote = true }
+                    case UInt8(ascii: "y"): if match(i, "yahoo_quoted") { quote = true }
+                    default: break
+                    }
+                    i += 1
+                }
+            }
+        }
+    }
+
+    /// What an element's own attributes say about layout, read in one pass over the bytes (no lower-cased copy
+    /// of the style, no Character walks: preparation runs on every message that arrives).
+    struct Look: OptionSet {
+        let rawValue: Int
+        static let hidden = Look(rawValue: 1)
+        static let zeroFont = Look(rawValue: 2)
+        static let sideBySide = Look(rawValue: 4)
+        static let block = Look(rawValue: 8)
+        static let quoteHeader = Look(rawValue: 16)
+        static let outlookReply = Look(rawValue: 32)
+    }
+
+    private static func contains(_ hay: [UInt8], _ needle: StaticString) -> Bool {
+        let n = needle.utf8CodeUnitCount
+        guard hay.count >= n else { return false }
+        return needle.withUTF8Buffer { pattern in
+            var i = 0
+            while i + n <= hay.count {
+                var j = 0
+                while j < n {
+                    var c = hay[i + j]
+                    if c >= 65 && c <= 90 { c += 32 }
+                    if c != pattern[j] { break }
+                    j += 1
+                }
+                if j == n { return true }
+                i += 1
+            }
+            return false
+        }
+    }
+
+    private static let looksAt: Set<String> = ["div", "span", "p", "td", "th", "tr", "table", "li", "ul", "ol", "section", "center", "blockquote",
+        "h1", "h2", "h3", "h4", "h5", "h6", "a", "article", "header", "footer", "main", "figure"]
+
+    private static func look(of element: Element, tag: String, needs: DocNeeds) -> Look {
+        var look: Look = []
+        switch tag {
+        case "head", "title", "template", "meta", "link", "base", "object", "embed", "canvas", "audio", "video": return .hidden
+        default: break
+        }
+        // Each attribute read costs a weak-reference load inside the parser: look only where layout or hiding is decided.
+        guard looksAt.contains(tag) else { return look }
+        // `attr` on an element that has no attributes allocates nothing; `getAttributes()` would.
+        if needs.style, let style = try? element.attr(Bytes.k_style), !style.isEmpty { look.formUnion(styleLook(style)) }
+        if needs.preview || needs.quote, let value = try? element.attr(Bytes.k_class), !value.isEmpty {
+            if contains(value, "mcnpreviewtext") { look.insert(.hidden) }
+            if contains(value, "gmail_attr") || contains(value, "moz-cite-prefix") || contains(value, "yahoo_quoted") { look.insert(.quoteHeader) }
+        }
+        if needs.hidden, element.hasAttr(Bytes.k_hidden) { look.insert(.hidden) }
+        if needs.outlook, tag == "div", let value = try? element.attr(Bytes.k_id), !value.isEmpty,
+           value == Bytes.k_divRplyFwdMsg || value == Bytes.k_mail_editor_reference_message_container { look.insert(.outlookReply) }
+        // Zero font size hides a leaf (preview padding). On a container it is a layout trick: its cells set their own size.
+        if look.contains(.zeroFont) {
+            if !element.getChildNodes().contains(where: { $0 is Element }) { look.insert(.hidden) }
+        }
+        return look
+    }
+
+    /// `display`, `visibility`, `opacity`, `max-height`/`overflow`, `font-size` and `float`: what decides whether text is
+    /// seen and whether boxes stand beside each other. Names and values are compared lower-cased without white space.
+    private static func styleLook(_ style: [UInt8]) -> Look {
+        var look: Look = []
+        var name: [UInt8] = [], value: [UInt8] = []
+        var inValue = false
+        var maxHeightZero = false, overflowHidden = false
+        func finish() {
+            defer { name.removeAll(keepingCapacity: true); value.removeAll(keepingCapacity: true); inValue = false }
+            guard inValue else { return }
+            switch name.count {
+            case 7 where name == Bytes.k_display:
+                if value == Bytes.k_none { look.insert(.hidden) }
+                else if value == Bytes.k_block || value == Bytes.k_flex || value == Bytes.k_grid { look.insert(.block) }
+                else if value == Bytes.k_inline_block { look.insert(.sideBySide) }
+            case 10 where name == Bytes.k_visibility:
+                if value == Bytes.k_hidden { look.insert(.hidden) }
+            case 7 where name == Bytes.k_opacity:
+                if value == Bytes.k_0 || value == Bytes.k_0_0 { look.insert(.hidden) }
+            case 10 where name == Bytes.k_max_height:
+                if value.first == 48, value.dropFirst().allSatisfy({ !($0 >= 49 && $0 <= 57) && $0 != 46 }) { maxHeightZero = true }
+            case 8 where name == Bytes.k_overflow:
+                if value == Bytes.k_hidden { overflowHidden = true }
+            case 9 where name == Bytes.k_font_size:
+                if value.first == 48, value.dropFirst().allSatisfy({ !($0 >= 49 && $0 <= 57) && $0 != 46 }) { look.insert(.zeroFont) }
+            case 5 where name == Bytes.k_float:
+                if value == Bytes.k_left || value == Bytes.k_right { look.insert(.sideBySide) }
+            default: break
+            }
+        }
+        for byte in style {
+            switch byte {
+            case 0x20, 0x09, 0x0A, 0x0D: continue
+            case 0x3A: if inValue { value.append(byte) } else { inValue = true }
+            case 0x3B: finish()
+            default:
+                let c = (byte >= 65 && byte <= 90) ? byte + 32 : byte
+                if inValue { value.append(c) } else { name.append(c) }
+            }
+        }
+        finish()
+        if maxHeightZero && overflowHidden { look.insert(.hidden) }
+        return look
+    }
+
+    private static let blockTags: Set<String> = ["p", "div", "blockquote", "li", "pre", "h1", "h2", "h3", "h4", "h5", "h6", "tr",
+        "table", "ul", "ol", "section", "article", "header", "footer", "main", "aside", "nav", "address", "figure", "figcaption", "dl", "dt", "dd", "form", "center", "hr"]
+    private static let cellSeparator = "\u{2003}\u{2003}"
+
+    /// A link shown as its own address: where it goes, without scheme, tracking query or length. A search
+    /// engine's redirect shows the page it redirects to.
+    static func displayAddress(_ text: String) -> String {
+        guard text.count > 40, let url = URL(string: text), let host = url.host else { return text }
+        var target = url
+        if let items = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems,
+           host.hasSuffix("google.com"), url.path == "/url",
+           let value = items.first(where: { $0.name == "q" || $0.name == "url" })?.value, let inner = URL(string: value), inner.host != nil { target = inner }
+        var shown = (target.host ?? host).replacingOccurrences(of: "www.", with: "", options: .anchored)
+        let path = target.path
+        if path.count > 1 { shown += path }
+        if shown.count > 36 { shown = String(shown.prefix(35)) + "\u{2026}" }
+        return shown
+    }
+
+    /// A picture's description that works as a link's label ("Get the app"), not a caption of the picture or a logo's name.
+    private static func isLabel(_ alt: String) -> Bool {
+        guard !alt.isEmpty, alt.count <= 40, alt.split(separator: " ").count <= 6 else { return false }
+        return alt.range(of: "logo", options: .caseInsensitive) == nil
+    }
+
+    // MARK: Fine print
+
+    private static let finePrintNeedles: [StaticString] = ["unsubscribe", "manage preferences", "manage your preferences", "email preferences", "update your preferences",
+        "update preferences", "privacy policy", "all rights reserved", "\u{00A9}", "you are receiving", "you're receiving", "you received this", "you are subscribed",
+        "you're subscribed", "opt out", "opt-out", "this email was sent", "this message was sent", "view in browser", "view this email", "terms of service"]
+
+    private static func isFinePrint(_ block: MailTextBlock) -> Bool {
+        var length = 0
+        for run in block.runs { length += run.text.utf8.count }
+        guard length <= 600 else { return false }
+        var bytes: [UInt8] = []
+        bytes.reserveCapacity(length)
+        for run in block.runs { bytes.append(contentsOf: run.text.utf8) }
+        for needle in finePrintNeedles where contains(bytes, needle) { return true }
+        return false
+    }
+
+    /// From the first piece of boilerplate in the last part of a sender's message to its end. Replies people write
+    /// have none of these words in their closing lines; a newsletter's footer starts with them.
+    private static func markingFinePrint(_ blocks: [MailTextBlock]) -> [MailTextBlock] {
+        guard blocks.count >= 3 else { return blocks }
+        let earliest = max(1, blocks.count / 2)
+        var start: Int?
+        for index in earliest..<blocks.count {
+            if case .paragraph = blocks[index].kind, isFinePrint(blocks[index]) { start = index; break }
+        }
+        guard var first = start else { return blocks }
+        // The line or two above it that only name the sender or give its address belong with it.
+        while first > earliest, case .paragraph = blocks[first - 1].kind, blocks[first - 1].runs.reduce(0, { $0 + $1.text.utf8.count }) <= 80,
+              blocks[first - 1].runs.allSatisfy({ $0.link == nil }) { first -= 1 }
+        var out = blocks
+        for index in first..<out.count {
+            switch out[index].kind {
+            case .paragraph, .heading: out[index].kind = .fineprint
+            default: break
+            }
+        }
+        return out
+    }
+
+    private static func nativeText(_ root: Element, needs: DocNeeds) throws -> MailText {
         var blocks: [MailTextBlock] = [], runs: [MailTextRun] = []
         var kind = MailTextBlock.Kind.paragraph
-        let blockTags: Set<String> = ["p", "div", "blockquote", "li", "pre", "h1", "h2", "h3", "h4", "h5", "h6", "tr"]
+        var hasVisible = false
+        var lists: [(ordered: Bool, count: Int)] = []
+        var outlookQuote = false
+        // A list item whose text sits in a div or p (Outlook, Apple Mail): the first block inside it is the item.
+        var pendingItem: MailTextBlock.Kind?
+
         func flush() {
-            if !runs.isEmpty && runs.contains(where: { !$0.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }) {
-                blocks.append(MailTextBlock(kind: kind, runs: runs))
+            defer { runs.removeAll(keepingCapacity: true); hasVisible = false }
+            guard hasVisible else { return }
+            // Trim the block, and keep one space between runs, never two.
+            var cleaned: [MailTextRun] = []
+            cleaned.reserveCapacity(runs.count)
+            var atStart = true
+            for var run in runs {
+                if run.text == "\n" {
+                    while let last = cleaned.last, last.text == " " { cleaned.removeLast() }
+                    if !atStart { cleaned.append(run) }
+                    atStart = true
+                    continue
+                }
+                if atStart { run.text = String(run.text.drop(while: { $0 == " " })) }
+                else if run.text.hasPrefix(" "), let last = cleaned.last, last.text.hasSuffix(" ") || last.text.hasSuffix("\n") { run.text = String(run.text.dropFirst()) }
+                if run.text.isEmpty { continue }
+                atStart = false
+                cleaned.append(run)
             }
-            runs.removeAll(keepingCapacity: true)
+            while let last = cleaned.last, last.text == "\n" || last.text.allSatisfy({ $0 == " " }) { cleaned.removeLast() }
+            if var last = cleaned.last, last.text.hasSuffix(" ") { while last.text.hasSuffix(" ") { last.text.removeLast() }; cleaned[cleaned.count - 1] = last }
+            guard cleaned.contains(where: { !$0.text.isEmpty }) else { return }
+            var k = kind
+            if let item = pendingItem, case .paragraph = k { k = item }
+            pendingItem = nil
+            if outlookQuote, case .quote = k {} else if outlookQuote { k = .quote(depth: 1) }
+            blocks.append(MailTextBlock(kind: k, runs: cleaned))
         }
+
+        func append(_ text: String, style: MailTextStyle, link: URL?) {
+            guard !text.isEmpty else { return }
+            if text != " " && text != "\n" { hasVisible = hasVisible || text.contains(where: { $0 != " " }) }
+            if let last = runs.last, last.style == style, last.link == link, text != "\n", last.text != "\n" {
+                runs[runs.count - 1].text += text
+            } else {
+                runs.append(MailTextRun(text: text, style: style, link: link))
+            }
+        }
+
+        func shortened(_ text: String) -> String { displayAddress(text) }
+
         func walk(_ node: Node, style: MailTextStyle, link: URL?, quote: Int, pre: Bool) throws {
             if let text = node as? TextNode {
-                let value = (pre ? text.getWholeText() : text.text()).replacingOccurrences(of: "\0", with: "")
-                if !value.isEmpty { runs.append(MailTextRun(text: value, style: style, link: link)) }
+                if pre {
+                    let value = stripInvisible(text.getWholeText())
+                    if !value.isEmpty { append(value, style: style, link: link) }
+                } else {
+                    var value = collapse(text.getWholeText())
+                    if link != nil, value.hasPrefix("http") || value.hasPrefix(" http") { value = shortened(value.trimmingCharacters(in: .whitespaces)) }
+                    if !value.isEmpty { append(value, style: style, link: link) }
+                }
                 return
             }
             guard let element = node as? Element else { return }
             let tag = element.tagNameNormal()
+            let traits = look(of: element, tag: tag, needs: needs)
+            if traits.contains(.hidden) { return }
             let previous = kind
-            let isBlock = blockTags.contains(tag)
+            // Floated and inline-block boxes sit side by side (a label and its value): one line, a gap between.
+            let sideBySide = traits.contains(.sideBySide)
+            let isBlock = blockTags.contains(tag) || (traits.contains(.block) && !sideBySide)
+            if sideBySide, hasVisible { append(cellSeparator, style: [], link: nil) }
+            var quote = quote
+            let isAttribution = traits.contains(.quoteHeader)
+            if traits.contains(.outlookReply) { outlookQuote = true }
+            if tag == "hr" { flush(); blocks.append(MailTextBlock(kind: .rule, runs: [])); return }
+            if tag == "img" {
+                // A picture that is the only content of a link stands for the link: its description is the link's text.
+                if link != nil, let alt = try? element.attr("alt") {
+                    let value = collapse(alt).trimmingCharacters(in: .whitespaces)
+                    if isLabel(value) { append(value, style: style, link: link) }
+                }
+                return
+            }
             if isBlock {
                 flush()
-                if tag == "blockquote" { kind = .quote(depth: min(5, quote + 1)) }
+                if tag == "blockquote" { quote += 1 }
+                else if isAttribution { quote = max(quote, 1) }
+                if tag == "blockquote" || isAttribution { kind = .quote(depth: min(5, quote)) }
                 else if tag == "pre" { kind = .preformatted }
-                else if tag == "li" { kind = .item(ordered: element.parent()?.tagNameNormal() == "ol", depth: 0, number: nil) }
-                else if tag.count == 2 && tag.hasPrefix("h"), let level = Int(tag.dropFirst()) { kind = .heading(level: level) }
+                else if tag == "li" {
+                    let top = lists.count - 1
+                    if top >= 0 { lists[top].count += 1 }
+                    kind = .item(ordered: top >= 0 && lists[top].ordered, depth: max(0, lists.count - 1), number: top >= 0 && lists[top].ordered ? lists[top].count : nil)
+                    pendingItem = kind
+                }
+                else if tag.count == 2 && tag.hasPrefix("h"), let level = Int(tag.dropFirst()), level >= 1, level <= 6 { kind = .heading(level: level) }
+                else if tag == "ul" || tag == "ol" {
+                    var start = 0
+                    if tag == "ol", let s = try? element.attr("start"), let n = Int(s) { start = n - 1 }
+                    lists.append((tag == "ol", start))
+                    kind = quote > 0 ? .quote(depth: min(5, quote)) : .paragraph
+                }
                 else { kind = quote > 0 ? .quote(depth: min(5, quote)) : .paragraph }
-            }
+            } else if isAttribution { quote = max(quote, 1) }
             var nextStyle = style
-            if ["b", "strong"].contains(tag) { nextStyle.insert(.bold) }
-            if ["i", "em"].contains(tag) { nextStyle.insert(.italic) }
-            if tag == "u" { nextStyle.insert(.underline) }
-            if tag == "strike" { nextStyle.insert(.strikethrough) }
-            if tag == "code" { nextStyle.insert(.code) }
+            switch tag {
+            case "b", "strong": nextStyle.insert(.bold)
+            case "i", "em", "cite": nextStyle.insert(.italic)
+            case "u", "ins": nextStyle.insert(.underline)
+            case "strike", "s", "del": nextStyle.insert(.strikethrough)
+            case "code", "tt", "kbd", "samp": nextStyle.insert(.code)
+            case "th": nextStyle.insert(.bold)
+            default: break
+            }
+            if tag == "h1" || tag == "h2" || tag == "h3" || tag == "h4" || tag == "h5" || tag == "h6" { nextStyle = style }
             var nextLink = link
             if tag == "a" {
-                let href = try element.attr("href")
+                let href = try element.attr("href").trimmingCharacters(in: .whitespacesAndNewlines)
                 let url = URL(string: href)
                 if let url, ["http", "https", "mailto"].contains(url.scheme?.lowercased() ?? ""),
                    !href.unicodeScalars.contains(where: { $0.value < 32 || $0.value == 127 }) { nextLink = url }
                 else { nextLink = nil }
             }
-            if tag == "br" { runs.append(MailTextRun(text: "\n", style: style, link: link)) }
-            if ["td", "th"].contains(tag), !runs.isEmpty { runs.append(MailTextRun(text: "\t", link: nil)) }
-            for child in element.getChildNodes() {
-                try walk(child, style: nextStyle, link: nextLink, quote: quote + (tag == "blockquote" ? 1 : 0), pre: pre || tag == "pre")
+            if tag == "br" {
+                if let last = runs.last, last.text == "\n" { flush() } else if hasVisible { append("\n", style: style, link: nil) }
             }
-            if isBlock { flush(); kind = previous }
+            if tag == "td" || tag == "th", hasVisible { append(cellSeparator, style: [], link: nil) }
+            for child in element.getChildNodes() {
+                try walk(child, style: nextStyle, link: nextLink, quote: quote, pre: pre || tag == "pre")
+            }
+            if isBlock {
+                flush()
+                kind = previous
+                if tag == "li" { pendingItem = nil }
+                if tag == "ul" || tag == "ol" { _ = lists.popLast() }
+            }
         }
         try walk(root, style: [], link: nil, quote: 0, pre: false)
         flush()
-        return MailText(blocks: blocks)
+        return MailText(blocks: markingFinePrint(attributionsJoinedToTheirQuotes(blocks)))
+    }
+
+    /// "On Tue, Nov 3, Ann wrote:" that a client wrote as a plain line above its quote belongs to the quote.
+    private static func attributionsJoinedToTheirQuotes(_ blocks: [MailTextBlock]) -> [MailTextBlock] {
+        var out = blocks
+        var i = 0
+        while i + 1 < out.count {
+            if case .paragraph = out[i].kind, case .quote(let depth) = out[i + 1].kind, looksLikeAttribution(out[i]) {
+                out[i].kind = .quote(depth: depth)
+            }
+            i += 1
+        }
+        return out
+    }
+
+    private static func looksLikeAttribution(_ block: MailTextBlock) -> Bool {
+        let text = block.runs.map(\.text).joined().trimmingCharacters(in: .whitespaces)
+        guard text.count < 300, text.count > 8 else { return false }
+        for suffix in [" wrote:", " schrieb:", " a \u{00E9}crit :", " a \u{00E9}crit:", " escribi\u{00F3}:", " ha scritto:", " skrev:", " schreef:"] where text.hasSuffix(suffix) { return true }
+        return text.hasPrefix("-------") || text.hasPrefix("From:") && text.contains("Sent:")
     }
 }
 

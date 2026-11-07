@@ -155,6 +155,8 @@ struct MailTextBlock: Equatable, Codable, Sendable {
         case heading(level: Int)
         case preformatted
         case rule
+        /// Boilerplate a sender puts under its message: unsubscribe lines, postal address, legal text.
+        case fineprint
     }
     var kind: Kind
     var runs: [MailTextRun]

@@ -309,8 +309,8 @@ struct MailMessageCard: View {
 
     @ViewBuilder private var content: some View {
         switch text {
-        case .text(let content, _, _)?:
-            MailTextView(text: content)
+        case .text(let content, let quoteStart, _)?:
+            MailTextView(text: content, foldFrom: quoteStart)
         case .designed(_, _, _, let plain, _)?:
             MailTextView(text: plain)
         case .notOnDevice?, nil:
