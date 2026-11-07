@@ -25,14 +25,16 @@ export async function existingMailbox(deps, sub) {
 }
 
 export function parseFeedQuery(query) {
-  const raw = query.after === undefined || query.after === "" ? null : query.after;
+  if (!query || typeof query !== "object") return null;
+  const raw = query.after === undefined || query.after === null || query.after === "" ? null : query.after;
+  if (raw !== null && typeof raw !== "string") return null;
   const cursor = raw === null ? null : /^(\d{1,15})(?:-(\d{1,9}))?$/.exec(raw);
   if (raw !== null && !cursor) return null;
   const after = cursor ? cursor[1] : null, era = cursor?.[2] ? Number(cursor[2]) : 0;
-  const limit = query.limit === undefined ? 500 : Number(query.limit);
+  const limit = query.limit === undefined ? 500 : query.limit;
   if (!Number.isInteger(limit) || limit < 1 || limit > 1000) return null;
   if (typeof query.email !== "string") return null;
-  return { email: query.email.toLowerCase(), after: after === null ? null : Number(after), era, limit, fresh: query.fresh === "1" };
+  return { email: query.email.toLowerCase(), after: after === null ? null : Number(after), era, limit, fresh: query.fresh === true };
 }
 
 export async function mailFeed(deps, account, request) {

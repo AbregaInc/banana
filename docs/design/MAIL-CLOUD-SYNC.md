@@ -85,7 +85,7 @@ every five minutes, which keeps the checkpoint inside Gmail's history retention.
 
 ## 4. The device feed
 
-`GET /v1/mail/feed?email=&after=&limit=&fresh=1` returns, in `seq` order, every message whose
+`POST /v1/mail/feed {email, after, limit, fresh}` (a POST, so no address sits in a URL) returns, in `seq` order, every message whose
 published state changed after the cursor: `{id, thread, history, date, labels}`, or
 `{id, history, deleted:true}`. Each message has one row and one `seq`, so the feed is
 compacted: catching up from zero (`after` absent) is a snapshot of the whole known mailbox, and

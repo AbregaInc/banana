@@ -363,9 +363,10 @@ export function createApp(deps) {
   });
 
   // The shared cloud mailbox's feed and catch-up check (docs/design/MAIL-CLOUD-SYNC.md §4).
-  app.get("/v1/mail/feed", signedIn, async (c) => {
+  // A POST, so the address never sits in a URL (MAIL-ENGINE invariant 21).
+  app.post("/v1/mail/feed", signedIn, async (c) => {
     c.header("Cache-Control","no-store");
-    const request = parseFeedQuery(c.req.query());
+    const request = parseFeedQuery(await readJson(c,4096));
     if (!request) return c.json({error:"bad_request"},400);
     const answer = await mailFeed(deps,c.get("account"),request);
     if (answer.retryAfter) c.header("Retry-After",String(answer.retryAfter));

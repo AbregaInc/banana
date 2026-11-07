@@ -25,10 +25,8 @@ async function mailbox({ count = 0, labels } = {}) {
   s.google.person("mail-noor", "sub-noor", EMAIL, "mail-noor", { scopes: "https://www.googleapis.com/auth/gmail.modify" });
   assert.equal((await s.call("POST", "/v1/google/mail", { session: phone.session, body: { email: EMAIL, code: "mail-noor" } })).status, 200);
   for (let i = 1; i <= count; i++) gmail.add(`m${i}`, labels?.(i) ?? (i % 3 ? ["INBOX", "UNREAD"] : ["Label_1"]));
-  const feed = async (who, { after = null, limit = 500, fresh = false } = {}) => {
-    const query = new URLSearchParams({ email: EMAIL, limit: String(limit), ...(after === null ? {} : { after }), ...(fresh ? { fresh: "1" } : {}) });
-    return s.call("GET", `/v1/mail/feed?${query}`, { session: who.session });
-  };
+  const feed = async (who, { after = null, limit = 500, fresh = false } = {}) =>
+    s.call("POST", "/v1/mail/feed", { session: who.session, body: { email: EMAIL, limit, ...(after === null ? {} : { after }), ...(fresh ? { fresh: true } : {}) } });
   const read = (who, id, format = "full", extra = {}) => s.call("POST", "/v1/mail/read", { session: who.session,
     body: { email: EMAIL, resource: "message", id, query: [{ name: "format", value: format }], ...extra } });
   const status = () => s.mailboxes.get("sub-noor").status();
@@ -289,6 +287,18 @@ test("every Google read the mailbox makes is paced, and backfill never queues ah
   t.gmail.oldest = 0;
   await t.drain(t.settled);
   assert.ok(await pacing() > before);
+});
+
+test("the feed answers only an eligible account's own Mail link, and refuses what it cannot parse", async () => {
+  const t = await mailbox({ count: 1 });
+  for (const body of [{}, { email: EMAIL, after: "x" }, { email: EMAIL, limit: 0 }, { email: EMAIL, limit: 5000 }, { email: EMAIL, after: 5 }])
+    assert.equal((await t.s.call("POST", "/v1/mail/feed", { session: t.phone.session, body })).status, 400, JSON.stringify(body));
+  assert.equal((await t.s.call("POST", "/v1/mail/feed", { body: { email: EMAIL } })).status, 401);
+  assert.equal((await t.s.call("POST", "/v1/mail/feed", { session: t.phone.session, body: { email: "someone@plan.example" } })).status, 403);
+  assert.equal((await t.s.call("POST", "/v1/mail/check", { session: t.phone.session, body: { email: EMAIL, ids: ["m1"] } })).status, 409);
+  await t.s.db.run("UPDATE feature_access SET expires_at=? WHERE feature='email'", t.s.now() - 1);
+  assert.equal((await t.feed(t.phone)).status, 403);
+  assert.equal(t.gmail.calls.length, 0);
 });
 
 test("listings add and never remove; a read older than what is stored changes nothing", () => {
