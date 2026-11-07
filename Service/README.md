@@ -146,6 +146,12 @@ Migrations: D1 is migrated only by `wrangler d1 migrations apply` (its table `d1
 the SQLite adapter applies the same files itself on open (its table `migrations_applied`). A new
 migration is a new numbered file in `migrations/`, never an edit to an applied one.
 
+The shared cloud mailbox ([MAIL-CLOUD-SYNC.md](../docs/design/MAIL-CLOUD-SYNC.md)) adds the
+`MAILBOXES` Durable Object namespace (class `Mailbox`, migration tag `v2`, made by the deploy that
+first carries it) and D1 migration `0022_mail_mailboxes.sql`, applied before that Worker. Its
+content lives in the existing blob bucket under `mail/`. `tools/mailbox-check` runs it on local
+workerd with the fake Gmail.
+
 Usage report: `tools/telemetry/report.py` (`--local` reads `Service/.wrangler`).
 
 ### Deploy order for the data platform (each step with the author's yes)

@@ -1,7 +1,7 @@
 # Shared cloud mailbox
 
-Status: built on branch `mail/cloud-shared-sync`, staging only, behind per-account `email`
-eligibility. Recorded 6 November 2026. Extends [the cloud plan](CLOUD-AND-RELEASE-PLAN.md)
+Status: built on branch `mail/cloud-shared-sync`; the service runs on staging only, behind
+per-account `email` eligibility; no client build carrying it is installed anywhere. Recorded 6 November 2026. Extends [the cloud plan](CLOUD-AND-RELEASE-PLAN.md)
 workstream 6 and keeps every invariant of [the Mail engine](MAIL-ENGINE.md) §2.
 
 Before this change each device listed, polled and downloaded the same Gmail mailbox through
@@ -153,9 +153,24 @@ release.
 
 ## 10. Verification
 
-Service tests (`Service/test/mail-mailbox.test.js`) cover two devices with one Google download
-per message, archive-after-backfill ordering, Inbox verification before backfill, catch-up from
-zero and from a cursor, an action on one device reaching another, the content miss path,
-deletion on disconnect, and pacing. Client tests (`BananaTests/MailCloudFeedTests.swift`) cover
-feed application, stale entries, deletions through the removal hold, catch-up checks and the
-fallback, with fakes only.
+- Service: `Service/test/mail-mailbox.test.js` (12 tests) covers two devices with one Google
+  download per message, archive-after-backfill ordering under a lagging listing, the Inbox head
+  before other labels, the Inbox check repairing a skipped listing, catch-up from zero and from a
+  cursor (and after the horizon), an action on one device reaching another with Gmail's own
+  position, the content miss path and sealed storage, the catch-up check, wipe on Mail off /
+  unlink / account deletion / lost eligibility, and pacing (backfill takes no busy slot). The
+  full suite passed 424 tests in each of UTC and America/New_York.
+- `Service/tools/mailbox-check` passed on local workerd: a real Durable Object with SQLite
+  storage and alarms, local D1 with every migration, local R2, the fake Gmail.
+- Client: `BananaTests/MailCloudFeedTests.swift` (7 tests, fakes only) covers catch-up from zero
+  then the cursor with no Google request, stale entries, deletions through the bulk hold, the
+  catch-up check waiting for a complete cloud mailbox, a new epoch or expired cursor, the
+  fallback for a service without the feed, and the transport. The Mail engine classes ran
+  together: 862 tests, 10 failing methods, none in a file this change touches (timing budgets
+  on a host at load average above 100, and four existing source-rule tests). The Mac Beta
+  scheme compiles.
+- Staging (`banana-service-beta`) runs this service with migration 0022; anonymous checks
+  answer 401 on the Mail routes and `/v1/source` names the deployed commit. No mailbox exists
+  there yet: one is made by the first client that reads the feed. Production is unchanged.
+- Not yet shown: a real mailbox through the feed, devices against staging, push of feed changes,
+  and physical-device performance.
