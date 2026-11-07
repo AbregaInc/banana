@@ -98,5 +98,19 @@ export function createVault(tokenKey, random) {
         await getKey(), fromBase64(data));
       return decoder.decode(plain);
     },
+    /** Bytes at rest (cached mail content): `1 | iv(12) | ciphertext`, the same key, `aad` as given. */
+    async sealBytes(aad, bytes) {
+      const iv = random(12);
+      const sealed = new Uint8Array(await subtle.encrypt({ name: "AES-GCM", iv, additionalData: encoder.encode(aad) }, await getKey(), bytes));
+      const out = new Uint8Array(13 + sealed.length);
+      out[0] = 1; out.set(iv, 1); out.set(sealed, 13);
+      return out;
+    },
+    /** @param {string} aad @param {Uint8Array} bytes */
+    async openBytes(aad, bytes) {
+      if (!(bytes instanceof Uint8Array) || bytes.length < 29 || bytes[0] !== 1) throw new Error("unknown sealed value");
+      return new Uint8Array(await subtle.decrypt({ name: "AES-GCM", iv: bytes.slice(1, 13), additionalData: encoder.encode(aad) },
+        await getKey(), bytes.slice(13)));
+    },
   };
 }

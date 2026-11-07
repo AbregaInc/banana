@@ -14,12 +14,19 @@ export function mailReadUnits(request) {
  default: throw new Error('unsupported mail read');
  }
 }
-export async function reserveMailRead(deps,sub,request) {
+// `maxWait` 0 is the background lane (the cloud mailbox's backfill): it takes only a slot that is
+// free now, so it never queues ahead of a read someone is waiting for.
+export async function reserveMailRead(deps,sub,request,{maxWait=10_000}={}) {
  const now=deps.now(), interval=Math.ceil(mailReadUnits(request)*1000/75);
  const row=await deps.db.first(`INSERT INTO mail_read_pacing(google_sub,next_at) VALUES(?,?)
  ON CONFLICT(google_sub) DO UPDATE SET next_at=MAX(mail_read_pacing.next_at,?)+?
  WHERE mail_read_pacing.next_at<=?
- RETURNING next_at`,sub,now+interval,now,interval,now+10_000);
+ RETURNING next_at`,sub,now+interval,now,interval,now+maxWait);
  // Bound pending request lifetime. Rejected requests consume no reservation.
  return row?{waitMS:Math.max(0,row.next_at-interval-now)}:null;
+}
+/** When the identity's next read slot frees (ms epoch); now when none is reserved. */
+export async function nextMailReadAt(deps,sub) {
+ const row=await deps.db.first('SELECT next_at FROM mail_read_pacing WHERE google_sub=?',sub);
+ return Math.max(deps.now(),Number(row?.next_at??0));
 }

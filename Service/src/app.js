@@ -3,6 +3,7 @@ import {uploadMailPart,removeMailParts} from './mail-uploads.js';
 import {parseMailOperation,mailOperation} from "./mail-operation.js";
 import {parseMailRead,mailRead} from "./mail-read.js";
 import {connectMail} from "./mail-grant.js";
+import {parseFeedQuery,mailFeed,parseMailCheck,mailCheck,wipeMailbox} from "./mail-sync.js";
 import { parseCalendarOperation, calendarOperation } from "./calendar-operation.js";
 import { parseCalendarRead, calendarRead } from "./calendar-read.js";
 import { readCalendarWindow, readCalendarSnapshot, validCalendarWindow } from './calendar-window.js';
@@ -57,6 +58,8 @@ import { sourceRoutes } from "./source-offer.js";
  *   pageCache?: {get: Function, put: Function, delete: Function} | null,
  * }} Deps
  *
+ * mailboxes (optional): one shared cloud mailbox per Google identity (src/mailbox-do.js on Workers,
+ * src/adapters/mailboxes-sqlite.js on Node; docs/design/MAIL-CLOUD-SYNC.md); without it, no feed.
  * spaces: one database per space (src/space-do.js on Workers, src/adapters/spaces-sqlite.js on
  * Node); blobs: R2 (src/adapters/r2.js) or a directory (src/adapters/blobs-fs.js); changes: the
  * optional Pipeline the change stream goes to (DATA-PLATFORM.md §9).
@@ -359,6 +362,24 @@ export function createApp(deps) {
     return answer.stream ? c.body(answer.stream,answer.status,{"Content-Type":"application/json"}) : c.json(answer.body,answer.status);
   });
 
+  // The shared cloud mailbox's feed and catch-up check (docs/design/MAIL-CLOUD-SYNC.md §4).
+  app.get("/v1/mail/feed", signedIn, async (c) => {
+    c.header("Cache-Control","no-store");
+    const request = parseFeedQuery(c.req.query());
+    if (!request) return c.json({error:"bad_request"},400);
+    const answer = await mailFeed(deps,c.get("account"),request);
+    if (answer.retryAfter) c.header("Retry-After",String(answer.retryAfter));
+    return c.json(answer.body,answer.status);
+  });
+
+  app.post("/v1/mail/check", signedIn, async (c) => {
+    c.header("Cache-Control","no-store");
+    const request = parseMailCheck(await readJson(c,64 * 1024));
+    if (!request) return c.json({error:"bad_request"},400);
+    const answer = await mailCheck(deps,c.get("account"),request);
+    return c.json(answer.body,answer.status);
+  });
+
   app.post("/v1/google/mail", signedIn, async (c) => {
     const body = await readJson(c,4096);
     if (typeof body?.code !== "string" || !body.code || body.code.length > 2048 || typeof body.email !== "string")
@@ -376,6 +397,8 @@ export function createApp(deps) {
     // Forget Mail access only. Revoking at Google could also revoke working Calendar consent.
     await db.run(`INSERT INTO mail_grants(google_sub,refresh_token,scopes,client_id,status,granted_at,updated_at)
       VALUES (?,NULL,'','','unlinked',?,?) ON CONFLICT(google_sub) DO UPDATE SET refresh_token=NULL,status='unlinked',updated_at=excluded.updated_at`,link.sub,now(),now());
+    // Mail turned off: the shared mailbox and every stored message go with it.
+    await wipeMailbox(deps,link.sub);
     return c.body(null,204);
   });
 
@@ -439,6 +462,8 @@ export function createApp(deps) {
     for (const link of links) await forget(deps, vault, link);
     // The data first (the space empties at once; its blobs follow to the trash), then the rows.
     const spaces = await wipeSpaces(deps, account);
+    const mailboxes=await db.all('SELECT google_sub FROM mail_mailboxes WHERE account_id=?',account);
+    for(const sub of new Set([...links.map(l=>l.sub),...mailboxes.map(m=>m.google_sub)]))await wipeMailbox(deps,sub);
     const uploads=await db.all('SELECT DISTINCT operation_id FROM mail_uploads WHERE account_id=?',account);
     for(const upload of uploads)await removeMailParts(deps,account,upload.operation_id);
     await db.batch([
@@ -500,6 +525,7 @@ export function createApp(deps) {
     const link = await linkByEmail(account, body.email);
     if (!link) return c.body(null, 204); // already gone
     await forget(deps, vault, link);
+    await wipeMailbox(deps, link.sub);
     // The sub and email stay (status 'unlinked'), so this Google account can sign in to the same
     // account again, and delete it.
     await db.batch([

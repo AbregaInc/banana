@@ -4,6 +4,7 @@ import { createApp } from "../src/app.js";
 import { sqlite } from "../src/adapters/sqlite.js";
 import { fsBlobs } from "../src/adapters/blobs-fs.js";
 import { spacesSqlite } from "../src/adapters/spaces-sqlite.js";
+import { mailboxesSqlite } from "../src/adapters/mailboxes-sqlite.js";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -188,6 +189,9 @@ export function setup(options = {}) {
     random: (n) => crypto.getRandomValues(new Uint8Array(n)),
     ...(options.deps ?? {}),
   };
+  // Mailbox alarms run when a test says so (s.mailboxes.due()), on the test clock.
+  const mailboxes = deps.mailboxes ?? mailboxesSqlite(join(dir, "mailboxes"), { deps, blobs, timers: false });
+  deps.mailboxes = mailboxes;
   const app = createApp(deps);
 
   async function call(method, path, { body, session, headers = {} } = {}) {
@@ -202,7 +206,7 @@ export function setup(options = {}) {
   }
 
   return {
-    app, db, google, apns, deps, call,
+    app, db, google, apns, deps, call, mailboxes,
     advance(ms) { clock += ms; },
     now: () => clock,
     dir, sleeps,

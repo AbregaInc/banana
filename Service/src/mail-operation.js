@@ -2,6 +2,7 @@ import {mailLink} from './mail-grant.js';
 import {featureAllowed,googleCapabilities} from './feature-access.js';
 import {providerOperation,operationFailure as failure} from './provider-operation.js';
 import {GoogleRefused} from './google.js';
+import {noteMailAction} from './mail-sync.js';
 const id=x=>typeof x==='string'&&x.length>0&&x.length<=2048&&!['.','..'].includes(x)&&!/[\x00-\x1f]/.test(x);
 const labels=x=>Array.isArray(x)&&x.length<=100&&x.every(id)&&new Set(x).size===x.length;
 export function parseMailOperation(x) {
@@ -20,7 +21,7 @@ export async function mailOperation(deps,vault,account,request) {
  let token;
  const matches=event=>Array.isArray(event?.labelIds)&&request.add.every(x=>event.labelIds.includes(x))&&request.remove.every(x=>!event.labelIds.includes(x));
  const read=()=>deps.google.mailMessage(token,request.id);
- return providerOperation(deps,vault,{account,operationID:request.operationID,googleSub:link.sub,
+ const answer=await providerOperation(deps,vault,{account,operationID:request.operationID,googleSub:link.sub,
   provider:'mail',resource:[link.sub,request.id],request,
   enabled:async()=>{
    if(!await featureAllowed(deps,account,'email'))return false;
@@ -38,4 +39,7 @@ export async function mailOperation(deps,vault,account,request) {
   },
   reconcile:async()=>{const event=await read();return matches(event)?{status:200,body:event}:null;},
  });
+ // The shared mailbox reads the message back, so every other device gets the result in order.
+ if(answer.status>=200&&answer.status<300)await noteMailAction(deps,link.sub,[request.id]);
+ return answer;
 }

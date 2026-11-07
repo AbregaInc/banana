@@ -16,6 +16,7 @@ import { sqlite } from "./adapters/sqlite.js";
 import { http2Fetch } from "./adapters/http2.js";
 import { fsBlobs } from "./adapters/blobs-fs.js";
 import { spacesSqlite } from "./adapters/spaces-sqlite.js";
+import { mailboxesSqlite } from "./adapters/mailboxes-sqlite.js";
 import { join } from "node:path";
 import { memoryEmail } from "./booking/email.js";
 import { memoryLimits, memoryPageCache } from "./booking/guard.js";
@@ -45,6 +46,7 @@ const deps = {
   sleep: (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
   random: (n) => crypto.getRandomValues(new Uint8Array(n)),
 };
+deps.mailboxes = mailboxesSqlite(join(dataDir, "mailboxes"), { deps, blobs });
 
 const app = createApp(deps);
 app.get("/app/assets/*", serveStatic({ root: "./public" }));

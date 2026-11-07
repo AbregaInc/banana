@@ -4,6 +4,7 @@ import {providerOperation,operationFailure as fail} from './provider-operation.j
 import {sha256Hex} from './crypto.js';
 import {GoogleRefused} from './google.js';
 import {parseMailComposition,composeMail} from './mail-compose.js';
+import {pokeMailbox} from './mail-sync.js';
 const uuid=x=>typeof x==='string'&&/^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(x);
 const id=x=>typeof x==='string'&&/^[a-zA-Z0-9_-]{1,200}$/.test(x);
 export function parseMailDraftRequest(x) {
@@ -76,6 +77,7 @@ export async function mailDraft(deps,vault,account,request) {
   await deps.db.run("UPDATE provider_operations SET request_cipher=? WHERE account_id=? AND operation_id=? AND state='done' AND response_status BETWEEN 200 AND 299",
    await vault.seal('provider-operation:'+account,JSON.stringify({action,id:request.id??null,operationID})),account,operationID);
   await removeMailParts(deps,account,operationID).catch(()=>{}); // The retention job retries object cleanup.
+  await pokeMailbox(deps,link.sub);
  }
  return answer;
 }

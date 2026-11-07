@@ -84,5 +84,13 @@ export async function runJob(deps) {
   // Failed object deletion leaves its row for the next sweep.
   try { await sweepMailParts(deps); }
   catch { result.mailCleanupFailed = true; }
+  // Shared mailboxes a device read this week: their alarm is set (an alarm that was lost is set again).
+  if (deps.mailboxes) {
+    try {
+      const boxes = await deps.db.all("SELECT google_sub FROM mail_mailboxes WHERE read_at > ? ORDER BY read_at DESC LIMIT 500", t - 7 * 24 * 60 * 60 * 1000);
+      for (const b of boxes) await deps.mailboxes.get(b.google_sub).arm();
+      if (boxes.length) result.mailboxes = boxes.length;
+    } catch { result.mailboxesFailed = true; }
+  }
   return result;
 }

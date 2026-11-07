@@ -2,6 +2,7 @@ import {reserveMailRead} from './mail-read-pacing.js';
 import {mailLink} from './mail-grant.js';
 import {featureAllowed,googleCapabilities} from './feature-access.js';
 import {GoogleRefused} from './google.js';
+import {mailboxRead} from './mail-sync.js';
 const id=x=>typeof x==='string'&&x.length>0&&x.length<=2048&&!['.','..'].includes(x)&&!/[\x00-\x1f]/.test(x);
 const rules={drafts:['q','includeSpamTrash','pageToken','maxResults'],draft:['format'],profile:[],labels:[],messages:['labelIds','q','includeSpamTrash','pageToken','maxResults'],
  history:['startHistoryId','pageToken','maxResults'],message:['format','metadataHeaders'],thread:['format','metadataHeaders'],attachment:[]};
@@ -28,6 +29,9 @@ export async function mailRead(deps,vault,account,request) {
  if(!link||!googleCapabilities({...link,has_token:Boolean(link.refresh_token)}).mailRead)return fail(403,'Connect Email for this Google account.');
  if(link.client_id&&link.client_id!==deps.config.googleClientId)return fail(403,'Reconnect Email for this service.');
  try {
+  // An account with a shared cloud mailbox reads content and its profile from there (MAIL-CLOUD-SYNC.md §5).
+  const served=await mailboxRead(deps,vault,link,request);
+  if(served)return served;
   const reservation=await reserveMailRead(deps,link.sub,request);
   if(!reservation)return {...fail(429,'Mail reads are queued. Retry shortly.'),retryAfter:1};
   if(reservation.waitMS>0) {

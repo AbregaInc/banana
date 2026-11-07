@@ -10,12 +10,14 @@ import { dispatchAlerts } from "./events.js";
 import { d1 } from "./adapters/d1.js";
 import { r2Blobs } from "./adapters/r2.js";
 import { doSpaces } from "./space-do.js";
+import { doMailboxes } from "./mailbox-do.js";
 import { cloudflareEmail, memoryEmail } from "./booking/email.js";
 import { createTurnstile, workersLimits, workersPageCache } from "./booking/guard.js";
 import { bookingContext, bookingMinute, bookingQuarter } from "./booking/jobs.js";
 import { createSigner } from "./booking/sign.js";
 
 export { Space } from "./space-do.js";
+export { Mailbox } from "./mailbox-do.js";
 
 // Ports live as long as the isolate, so Google access tokens and the APNs JWT are reused.
 let ports;
@@ -41,6 +43,8 @@ function deps(env, ctx) {
     limit: workersLimits(env),
     pageCache: typeof caches !== "undefined" ? workersPageCache(caches.default) : null,
     spaces: doSpaces(env.SPACES),
+    // The shared cloud mailboxes, one per Google identity (docs/design/MAIL-CLOUD-SYNC.md); absent: no feed.
+    mailboxes: env.MAILBOXES ? doMailboxes(env.MAILBOXES) : undefined,
     blobs: r2Blobs(env.BLOBS),
     changes: env.CHANGES ?? null,   // the Pipeline, once it exists
     defer: (work) => ctx.waitUntil(Promise.resolve(work).catch((error) => console.log(`deferred: ${error.name}`))),
