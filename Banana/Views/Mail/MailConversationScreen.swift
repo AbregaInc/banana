@@ -311,7 +311,8 @@ struct MailMessageCard: View {
     private var pictureContext: MailPictureContext {
         let source = session?.source, id = message.id
         return MailPictureContext(account: id.account) { part in
-            guard let url = URL(string: "cid:" + part), let source else { return nil }
+            let safe = part.addingPercentEncoding(withAllowedCharacters: CharacterSet.alphanumerics.union(CharacterSet(charactersIn: "@.-_+=")))
+            guard let safe, let url = URL(string: "cid:" + safe), let source else { return nil }
             return await source.resource(url, for: id, presentation: .onScreen)?.data
         }
     }

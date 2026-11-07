@@ -9,6 +9,16 @@ struct MailPictureContext: Sendable {
     var part: @Sendable (String) async -> Data? = { _ in nil }
 }
 
+extension MailPicture {
+    /// What a linked picture says when the picture itself cannot be shown: its description, if that is a label
+    /// ("Get the app") and not a caption of the picture or a logo's name.
+    var label: String? {
+        guard link != nil, !alt.isEmpty, alt.count <= 40, alt.split(separator: " ").count <= 6,
+              alt.range(of: "logo", options: .caseInsensitive) == nil else { return nil }
+        return alt
+    }
+}
+
 /// Decodes pictures off the main thread, at the size they are shown, and keeps a bounded number of them.
 /// Two decodes at a time; about 24 MB of pixels in the cache.
 actor MailPictureLoader {
