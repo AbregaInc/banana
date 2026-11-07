@@ -230,6 +230,11 @@ extension ToastCenter {
 
 // MARK: - View
 
+extension EnvironmentValues {
+    /// What a page's toast stands clear of at its foot: the bottom bar, where there is one.
+    @Entry var toastBottomInset: CGFloat = 0
+}
+
 extension View {
     /// Shows `ToastCenter`'s toast at the bottom of this view, above its safe area — on iOS that
     /// is above the tab bar and the now-playing accessory, so apply it to each tab's content,
@@ -241,6 +246,12 @@ extension View {
 
 struct ToastView: View {
     @ObservedObject private var center = ToastCenter.shared
+    /// On a page under the bottom bar, the toast stands above the bar (and the player on it): the
+    /// shell hands its measured height down (`toastBottomInset`). A sheet (`isPresented`) has no
+    /// bar under it.
+    @Environment(\.toastBottomInset) private var pageInset
+    @Environment(\.isPresented) private var isPresented
+    private var barInset: CGFloat { isPresented ? 0 : pageInset }
 
     var body: some View {
         ZStack {
@@ -274,7 +285,9 @@ struct ToastView: View {
                 .padding(.horizontal, DS.Space.l)
                 .padding(.vertical, DS.Space.m)
                 .floatingCapsule()
-                .padding(.bottom, 18)
+                .accessibilityElement(children: .contain)
+                .accessibilityIdentifier("toast")
+                .padding(.bottom, barInset > 0 ? barInset + DS.Space.s : 18)
                 .padding(.horizontal, DS.Space.l)
                 .transition(.move(edge: .bottom).combined(with: .opacity))
                 .id(toast.id)

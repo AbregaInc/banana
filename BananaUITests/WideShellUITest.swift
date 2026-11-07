@@ -81,11 +81,59 @@ final class WideShellUITest: XCTestCase {
         XCTAssertTrue(found, app.debugDescription)
     }
 
+    /// Badges: upright the switcher adds the pages' counts up; on its side each rail circle has
+    /// its own, Plan's from the overdue reminders.
+    func testBadgesOnTheSwitcherUprightAndTheRailOnItsSide() throws {
+        XCUIDevice.shared.orientation = .portrait
+        let app = try launch(["--tab", "plan", "--plan", "--outstanding-reminders"])
+        let switcher = app.buttons["shell.switcher"]
+        XCTAssertTrue(switcher.waitForExistence(timeout: 15))
+        XCTAssertTrue(waitUntil(timeout: 10) { switcher.label.contains("need") }, switcher.label)
+        XCUIDevice.shared.orientation = .landscapeLeft
+        let plan = app.buttons["shell.page.plan"]
+        XCTAssertTrue(app.descendants(matching: .any)["shell.rail"].waitForExistence(timeout: 8))
+        XCTAssertTrue(waitUntil(timeout: 5) { (plan.value as? String)?.contains("need") == true }, "\(plan.value ?? "")")
+        XCTAssertEqual(app.buttons["shell.page.settings"].value as? String ?? "", "")
+        shot("pad-land-rail-badge")
+    }
+
+    /// Paging: upright "‹ ›" in the top row with Today beside the title away from now; on its side
+    /// the toolbar's own back, forward and Today (direction B).
+    func testPagingUprightAndOnItsSide() throws {
+        XCUIDevice.shared.orientation = .portrait
+        let app = try launch(["--tab", "plan", "--plan", "-planMode", "week"])
+        let title = app.descendants(matching: .any)["plan.title"].firstMatch
+        XCTAssertTrue(title.waitForExistence(timeout: 15))
+        XCTAssertTrue(app.buttons["shell.switcher"].waitForExistence(timeout: 10))
+        let start = title.value as? String
+        XCTAssertTrue(app.buttons["plan.previous"].exists && app.buttons["plan.next"].exists)
+        XCTAssertFalse(app.buttons["plan.today"].exists)
+        XCTAssertFalse(app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'Show all'")).firstMatch.exists,
+                       "no list icon beside the day numbers")
+        app.buttons["plan.next"].tap()
+        XCTAssertTrue(app.buttons["plan.today"].waitForExistence(timeout: 5))
+        XCTAssertTrue(waitUntil(timeout: 5) { (title.value as? String) != start })
+        shot("pad-portrait-plan-next")
+        app.buttons["plan.today"].tap()
+        XCTAssertTrue(waitUntil(timeout: 5) { (title.value as? String) == start && title.label.hasPrefix("This week") })
+
+        XCUIDevice.shared.orientation = .landscapeLeft
+        XCTAssertTrue(app.descendants(matching: .any)["shell.rail"].waitForExistence(timeout: 8))
+        let next = app.buttons["plan.next"], today = app.buttons["plan.today"]
+        XCTAssertTrue(next.waitForExistence(timeout: 5) && app.buttons["plan.previous"].exists, "back and forward on its side")
+        XCTAssertEqual(next.label, "Next week")
+        XCTAssertTrue(today.exists && !today.isEnabled, "Today, idle on this week")
+        next.tap()
+        XCTAssertTrue(waitUntil(timeout: 5) { today.isEnabled })
+        today.tap()
+        XCTAssertTrue(waitUntil(timeout: 5) { !today.isEnabled })
+    }
+
     /// Details: on its side the column beside the reader ("…" › Details toggles it, a tap on the
     /// sender opens it); upright a sheet, as on a phone (`MailArrangement.detailsPlacement`).
     func testDetailsAreAColumnOnItsSideAndASheetUpright() throws {
         XCUIDevice.shared.orientation = .landscapeLeft
-        let app = try launch(["--tab", "mail", "--mail-fresh"])
+        let app = try launch(["--tab", "mail", "--mail-fresh", "-mailShowsDetails", "NO"])
         let column = app.descendants(matching: .any)["mail.details"]
         let sender = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH 'mail.sender.'")).firstMatch
         XCTAssertTrue(sender.waitForExistence(timeout: 15), app.debugDescription)
@@ -123,7 +171,7 @@ final class WideShellUITest: XCTestCase {
 
     func testMailHasItsPlaceMenuTheFieldAndMoreInOneRow() throws {
         XCUIDevice.shared.orientation = .landscapeLeft
-        let app = try launch(["--tab", "mail", "--mail-fresh"])
+        let app = try launch(["--tab", "mail", "--mail-fresh", "-mailShowsDetails", "NO"])
         XCTAssertTrue(app.buttons["shell.page.mail"].waitForExistence(timeout: 10))
         XCTAssertTrue(app.descendants(matching: .any)["mail.list.placeMenu"].firstMatch.waitForExistence(timeout: 15), app.debugDescription)
         XCTAssertTrue(app.textFields["shell.field"].exists)

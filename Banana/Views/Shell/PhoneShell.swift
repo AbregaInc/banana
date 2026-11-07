@@ -35,6 +35,14 @@ final class ShellChrome: ObservableObject {
         })
     }
 
+    /// Whether the bar is on screen (it steps away for a keyboard that isn't the field's): what
+    /// sits over the page clears it only while it is there (`ShellToastInset`).
+    @Published private(set) var barShown = true
+
+    func setBarShown(_ shown: Bool) {
+        if barShown != shown { barShown = shown }
+    }
+
     func setBarHeight(_ height: CGFloat) {
         let rounded = height.rounded()
         if abs(rounded - barHeight) >= 1 { barHeight = rounded }
@@ -70,6 +78,8 @@ struct ShellBarHost: View {
     var body: some View {
         if !chrome.keyboardUp || search.focused {
             ShellBottomBar(section: section, pages: pages, open: open, expandPlayer: expandPlayer)
+                .onAppear { chrome.setBarShown(true) }
+                .onDisappear { chrome.setBarShown(false) }
         }
     }
 }
@@ -84,6 +94,8 @@ struct ShellBottomBar: View {
 
     @ObservedObject private var chrome = ShellChrome.shared
     @ObservedObject private var search = ShellSearch.shared
+    /// The switcher's badge. Publishes only when a count moves (`ActionBadges`).
+    @ObservedObject private var badges = ActionBadges.shared
     @EnvironmentObject private var player: PlayerController
     @EnvironmentObject private var music: MusicController
 
@@ -128,12 +140,16 @@ struct ShellBottomBar: View {
         .accessibilityIdentifier("shell.bar")
     }
 
+    /// The circle's badge: what the pages' own badges add up to (`ShellBadge`), while closed.
     private var switcherButton: some View {
-        roundButton(chrome.switcherOpen ? "xmark" : "circle.grid.3x3.fill",
-                    label: chrome.switcherOpen ? "Close pages" : "Pages",
-                    identifier: "shell.switcher") {
+        let waiting = chrome.switcherOpen ? 0 : ShellBadge.total(pages, badges.counts)
+        return roundButton(chrome.switcherOpen ? "xmark" : "circle.grid.3x3.fill",
+                           label: chrome.switcherOpen ? "Close pages"
+                               : ["Pages", ShellBadge.spoken(waiting)].compactMap { $0 }.joined(separator: ", "),
+                           identifier: "shell.switcher") {
             withAnimation(.snappy(duration: 0.28)) { chrome.switcherOpen.toggle() }
         }
+        .overlay(alignment: .topTrailing) { ShellBadgeMark(count: waiting).offset(x: 2, y: -2) }
         .accessibilityValue(chrome.switcherOpen ? "Open" : "Closed")
     }
 
@@ -294,6 +310,7 @@ struct ShellSwitcherOverlay: View {
     let current: ShellPage?
     let open: (ShellPage) -> Void
     @ObservedObject private var chrome = ShellChrome.shared
+    @ObservedObject private var badges = ActionBadges.shared
 
     var body: some View {
         if chrome.switcherOpen {
@@ -317,6 +334,9 @@ struct ShellSwitcherOverlay: View {
                                     .frame(width: ShellMetrics.control, height: ShellMetrics.control)
                                     .glassEffect(page == current ? .regular.tint(DS.Palette.accent.opacity(0.25)).interactive()
                                                                  : .regular.interactive(), in: .circle)
+                                    .overlay(alignment: .topTrailing) {
+                                        ShellBadgeMark(count: ShellBadge.count(page, badges.counts)).offset(x: 4, y: -4)
+                                    }
                                 Text(page.title)
                                     .font(.body.weight(page == current ? .semibold : .regular))
                                     .foregroundStyle(page == current ? DS.Palette.accent : Color.primary)
@@ -328,6 +348,7 @@ struct ShellSwitcherOverlay: View {
                         }
                         .buttonStyle(.plain)
                         .accessibilityLabel(page.title)
+                        .accessibilityValue(ShellBadge.spoken(ShellBadge.count(page, badges.counts)) ?? "")
                         .accessibilityAddTraits(page == current ? .isSelected : [])
                         .accessibilityIdentifier("shell.page.\(page.rawValue)")
                     }
@@ -525,6 +546,7 @@ private struct ShellPageModifier: ViewModifier {
         content
             .environment(\.bottomBarShell, bottomBar)
             .environment(\.wideShell, !bottomBar)
+            .modifier(ShellToastInsetProvider(bottomBar: bottomBar))
             .toolbarVisibility(.hidden, for: .tabBar)
             // An iPad's floating tab strip and sidebar ignore the SwiftUI setting: the tab bar
             // controller hides them itself.
@@ -567,4 +589,16 @@ private struct TabBarHider: UIViewControllerRepresentable {
         }
     }
 }
+/// Hands a page's toasts the bar's measured height to stand above (`ShellToastInset`). Its own
+/// small view, so the bar's height and presence redraw the toast and not the page.
+private struct ShellToastInsetProvider: ViewModifier {
+    let bottomBar: Bool
+    @ObservedObject private var chrome = ShellChrome.shared
+
+    func body(content: Content) -> some View {
+        content.environment(\.toastBottomInset, CGFloat(ShellToastInset.bottom(
+            barHeight: Double(chrome.barHeight), barShown: chrome.barShown, onPage: bottomBar)))
+    }
+}
+
 #endif

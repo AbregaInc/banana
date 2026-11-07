@@ -199,6 +199,10 @@ struct MacRootView: View {
             ShellRail(pages: railPages, current: railCurrent, open: openRailPage)
                 .navigationSplitViewColumnWidth(min: ShellRail.width, ideal: ShellRail.width, max: ShellRail.width)
                 .toolbar(removing: .sidebarToggle)
+                // The column widths above are only a request: AppKit's sidebar kept its own
+                // minimum (and a width saved from before), ~200 pt in Beta 105. Pin the split
+                // view's sidebar item itself.
+                .background(MacRailColumnPin(width: ShellRail.width))
                 .accessibilityIdentifier("app.sidebar")
         } detail: {
             VStack(spacing: 0) {
@@ -610,4 +614,42 @@ extension Notification.Name {
     static let macNewEventRequested = Notification.Name("macNewEventRequested")
     static let macNewTaskRequested = Notification.Name("macNewTaskRequested")
 }
+/// Holds the window's sidebar column at the rail's width: no wider, no narrower, no collapsing,
+/// whatever AppKit's sidebar defaults or a saved divider position say (`ShellLayout.railColumn`).
+private struct MacRailColumnPin: NSViewRepresentable {
+    let width: CGFloat
+
+    func makeNSView(context: Context) -> NSView { Probe(width: width) }
+    func updateNSView(_ view: NSView, context: Context) {
+        (view as? Probe)?.width = width
+        (view as? Probe)?.pin()
+    }
+
+    final class Probe: NSView {
+        var width: CGFloat
+        init(width: CGFloat) { self.width = width; super.init(frame: .zero) }
+        required init?(coder: NSCoder) { nil }
+
+        override func viewDidMoveToWindow() {
+            super.viewDidMoveToWindow()
+            DispatchQueue.main.async { [weak self] in self?.pin() }
+        }
+
+        func pin() {
+            var ancestor = superview
+            while let view = ancestor, !(view is NSSplitView) { ancestor = view.superview }
+            guard let split = ancestor as? NSSplitView,
+                  let controller = split.delegate as? NSSplitViewController,
+                  let sidebar = controller.splitViewItems.first else { return }
+            if sidebar.minimumThickness != width { sidebar.minimumThickness = width }
+            if sidebar.maximumThickness != width { sidebar.maximumThickness = width }
+            if sidebar.canCollapse { sidebar.canCollapse = false }
+            if sidebar.isCollapsed { sidebar.isCollapsed = false }
+            if let column = split.arrangedSubviews.first, abs(column.frame.width - width) > 0.5 {
+                split.setPosition(width, ofDividerAt: 0)
+            }
+        }
+    }
+}
+
 #endif
