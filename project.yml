@@ -950,6 +950,8 @@ targets:
       # the setup list shows and what each state means, and the rule that Banana never shows
       # the system's location question by itself.
       - path: Banana/Model/OnboardingFlow.swift
+      # The one planner for Busy copies: the pass that writes and the first run's preview.
+      - path: Banana/Model/BusyCopyPlanner.swift
       - path: Banana/Model/SetupChecklist.swift
       - path: Banana/Model/LocationUse.swift
       - path: Banana/Model/WeatherGlance.swift

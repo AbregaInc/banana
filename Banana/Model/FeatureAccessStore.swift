@@ -7,6 +7,8 @@ final class FeatureAccessStore: ObservableObject {
     static let shared = FeatureAccessStore()
     nonisolated static let network = FeatureAccessGate()
     @Published private(set) var emailAvailable = false
+    /// A policy for this session has arrived, so `emailAvailable` is an answer, not a default.
+    @Published private(set) var policyLoaded = false
     private let key = "featureAccess.sessionPolicy.v1"
     private var context: String?
     private var cached: FeatureAccessCache?
@@ -49,6 +51,8 @@ final class FeatureAccessStore: ObservableObject {
         expiry?.cancel()
         let available = allows("email")
         if emailAvailable != available { emailAvailable = available }
+        let loaded = cached != nil
+        if policyLoaded != loaded { policyLoaded = loaded }
         guard let cached else { return }
         let remaining = cached.policy.lifetime - Date().timeIntervalSince(cached.receivedAt)
         guard remaining > 0, remaining <= 15 * 60 else { return }

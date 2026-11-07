@@ -155,33 +155,49 @@ page. A filled symbol, white; ink (`glyph:`) only on the brand's yellow and on t
 where the page's main button is ink on the accent too. Never a bare outline in the accent:
 three of those in a column are thin, one colour, and easy to pass over.
 
-## First run — `OnboardingView`, `OnboardingFlow`
-The same on a phone, an iPad and a Mac, and **one path** for everyone: a welcome (the mark, the
-headline, what Banana does as four lines of a few words, one button), then two questions that
-build a day in front of the person ("When do you wake up?", "When do you wind down?"), then the
-calendar, shown by what Banana does between two of them (`BusyBeforeAfter`: a meeting on Work
-leaves that hour "Looks free" on Personal before, "Busy" after), then the other calendar (the
-account that is in, ticked, and a dashed row for "Work or personal"), then the app on the plan.
-Nothing to choose between on the way. Nothing is required on any device, and no screen exists only to say it is
-over.
+## First run — `OnboardingView`, `OnboardingFlow`, `OnboardingScenes`
+Since 6 Nov 2026, led by Banana (the mascot) on every page, and built from artwork the owner
+accepted (`output/imagegen/onboarding-v12`, outside the tree): the welcome, what Banana looks
+after, "When do you wake up?", "When do you wind down?", then the calendar's pages: connect
+(one Google screen for Calendar and, in builds with Email, Email too: two rows, both on; Email
+starts only if Gmail was granted and the account is offered Email, otherwise it stays off quietly
+and the service forgets the unused Mail grant; Stable reads as Calendar alone and "Connecting only
+reads your calendars"), what makes you busy (Show and Busy per calendar, two system switches;
+shared calendars start shown and not busy), copy busy time (only with a calendar of your own and
+no answer yet; the numbers come from `BusyCopyPlanner`, the planner the write-back pass uses, and
+are planned again before the yes is applied), and a receipt (Shown, Busy, Copies). Without a
+calendar the app opens after the connect page. "Keep viewing only" is a success, not a skip.
+The page is saved as it shows, so a relaunch or a trip to Google's sign-in comes back to it.
 
-Changed 17 Oct 2026: the welcome asks "What should Banana look after?" instead of listing the
-four areas. Plan is always on (a fixed tick); Workouts and sleep, Food, Notes and Podcasts are
-rows to tick, and a last "Everything" row ticks them all. It starts at Plan alone, since the
-calendar is the way in; the author, an integrator, picks Everything. Still one path: the choice
-only decides what is shown. Settings › Modules changes it later, and off only hides.
+Look: the ivory page (`Brand.ivory`), the website's ink (`Brand.night`) for type and the main
+button (a rounded rectangle, `Radius.panel`), the brand's yellow band, three pastel calendar
+colours. A 40-pt heavy rounded headline, left-aligned. The pictures sit in `ArtCanvas`, placed
+in the artwork's own pixels, so each page can be laid beside its artwork and compared; the mascot
+is one image per page (`Mascot…` in Brand.xcassets) with that page's pose and gaze, an ivory rim
+where it overlaps colour, rising above the band, never sunk into it. Banana is a rounded square
+(about 1:1, never stretched; the image is always aspect-fit), drawn last in every picture: nothing
+covers him, and he stays inside the picture so no words or controls reach him (`FirstRunArt`,
+checked by `OnboardingFlowTests`). The modules page no longer offers Email; the receipt lists
+Calendar and, where the build has it, Email. Words and controls are
+never in a picture. An iPad or a Mac window gets the same page in a 560-pt column, the bands
+running out to the window's edges. Debug routes: `--onboarding-step <name>`, and
+`--onboarding-sample` for the calendar pages (a simulator has no Google account).
+
+Until 6 Nov 2026 the route was welcome, two questions, the calendar ("Never double-booked") and
+"Add your other calendar", whose button was the yes to busy blocks. A calendar was then flooded
+with hundreds of Busy copies nobody had understood they were agreeing to; the pages above
+separate connecting, showing, counting as busy and writing copies, and count the copies first.
 
 What the flow is built on (research of 9 Oct 2026: published results, 43 flows read on Mobbin):
 1. **Count the outcome first.** The measure is daily active users, with a connected calendar
    as the least that counts as activated. A flow can win the next tap and change nothing.
 2. **The connection is the onboarding.** Google Calendar is the one step that makes the plan
    work; the first run leads to it.
-3. **One step between the sign-in and the person's own day, and only this one: the other
-   calendar.** Busy blocks between work and personal are the reason to connect at all (the author,
-   10 Oct 2026), and they need two accounts. With two in, that step's button ("Block busy
-   time") is the yes; with one, the plan's card asks later. Nothing is written to a calendar
-   until there is a yes (`WriteBackStart`). This costs a screen where the research says people
-   are lost; count it.
+3. **Between the sign-in and the person's own day, only what decides what Banana will do to
+   their calendars** (6 Nov 2026; it was one step, "the other calendar"): what shows, what makes
+   them busy, and whether copies are written, with the real count. Nothing is written to a
+   calendar until there is a yes (`WriteBackStart`). These pages cost taps where the research
+   says people are lost; count them.
 4. **Ask only what changes the next screen, and show it changing.** Each of the two questions
    moves a block on the day above it (`DayDraft`) and is a starter routine's time when the app
    opens (`DayAnchors`). A question whose answer the person cannot see on the plan is not asked.

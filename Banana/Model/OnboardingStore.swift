@@ -28,7 +28,48 @@ final class OnboardingStore: NSObject, ObservableObject {
     // moment after the app backgrounds, and signing in to Google often means a trip to another
     // app (a 2FA prompt, an authenticator). The page and the pending calendar question have to
     // be here when the person comes back.
-    @Published var step: OnboardingStep = .welcome
+    @Published var step: OnboardingStep = OnboardingStore.savedStep ?? .welcome {
+        didSet { if step != oldValue { UserDefaults.standard.set(step.rawValue, forKey: Self.stepKey) } }
+    }
+    /// The page last shown, kept across launches: a relaunch, or a sign-in that went to another
+    /// app, comes back to it (`OnboardingFlow.resume` checks it still applies).
+    static var savedStep: OnboardingStep? {
+        UserDefaults.standard.string(forKey: stepKey).flatMap(OnboardingStep.init(rawValue:))
+    }
+    private static let stepKey = "onboardingStep"
+
+    /// Where the copies page stands. Held here, not in the view, so a failure stays on screen
+    /// until it is retried, whatever the view tree does meanwhile.
+    enum CopiesState: Equatable {
+        case idle
+        case loading
+        /// The plan to show. `updated`: it changed between being shown and the yes, so it is
+        /// shown again and nothing was turned on.
+        case ready(BusyCopyPreview, updated: Bool)
+        case applying(BusyCopyPreview)
+        case failed(String)
+    }
+    @Published private(set) var copies: CopiesState = .idle
+
+    /// Email on the calendar page: on unless turned off there. Only in builds that have Email.
+    @Published var emailWanted = true
+    /// Why the last "Continue with Google" didn't connect, kept until a try succeeds.
+    @Published private(set) var connectProblem: String?
+    /// Working out Email after a sign-in (waiting for the account's feature access).
+    @Published private(set) var settlingEmail = false
+    /// What became of Email on the calendar page, for the receipt.
+    @Published private(set) var emailOutcome: EmailSetup.Outcome?
+
+    /// Whether this build has Email (Beta, development); Stable compiles it out. Debug's
+    /// `--onboarding-stable` shows the Stable page in a build that has it.
+    static var emailInBuild: Bool {
+        #if DEBUG
+        if ProcessInfo.processInfo.arguments.contains("--onboarding-stable") { return false }
+        #endif
+        return AppModule.email.isAvailable
+    }
+    /// The answer given on the copies page, for the receipt.
+    @Published private(set) var copiesAnswer: OnboardingReceipt.Copies?
     /// When the person's day starts and winds down, as answered on the way in.
     @Published var anchors = DayAnchors()
     /// What Banana looks after, as ticked on the welcome: the choice already made on another
@@ -54,6 +95,127 @@ final class OnboardingStore: NSObject, ObservableObject {
     func finish() {
         completed = true
         UserDefaults.standard.set(true, forKey: key)
+        UserDefaults.standard.removeObject(forKey: Self.stepKey)
+    }
+
+    // MARK: - Calendar and email
+
+    /// "Continue with Google": one consent for the calendar and, when wanted, Gmail. Then Email is
+    /// settled from what Google granted and what the account is offered.
+    func connectCalendarAndEmail() async -> ConnectAttempt {
+        connectProblem = nil
+        let extra = EmailSetup.extraScopes(inBuild: Self.emailInBuild, wanted: emailWanted)
+        let google = GoogleCalendarService.shared
+        await google.restoreIfNeeded()
+        let granted = await google.connect(extraScopes: extra)
+        tick += 1
+        guard granted != nil, calendarGranted else {
+            let attempt: ConnectAttempt = google.lastError.map { .failed($0) } ?? .cancelled
+            connectProblem = attempt.problem
+            return attempt
+        }
+        CalendarWriteBack.shared.refreshCalendars()
+        Log.sync.notice("google calendar connect finished connected=true")
+        await settleEmail()
+        return .connected
+    }
+
+    /// Email from what is connected now: on when Gmail was granted and the account is offered
+    /// Email, off otherwise, quietly. Also what Continue does after a relaunch mid-consent.
+    func settleEmail(waiting timeout: Duration = .seconds(6)) async {
+        settlingEmail = true
+        defer { settlingEmail = false }
+        let gmailGranted = Self.gmailGrantedAccounts.isEmpty == false
+        var eligible: Bool? = Self.sampleEligibility
+        if eligible == nil, Self.emailInBuild, emailWanted, gmailGranted {
+            let access = FeatureAccessStore.shared
+            let deadline = ContinuousClock.now + timeout
+            while !access.policyLoaded, ContinuousClock.now < deadline {
+                try? await Task.sleep(for: .milliseconds(200))
+            }
+            eligible = access.policyLoaded ? access.emailAvailable : nil
+        }
+        let outcome = EmailSetup.outcome(inBuild: Self.emailInBuild, wanted: emailWanted,
+                                         gmailGranted: gmailGranted, eligible: eligible)
+        emailOutcome = outcome
+        if Self.emailInBuild {
+            let on = outcome == .on
+            if modules.includes(.email) != on || ModuleStore.shared.choice.includes(.email) != on {
+                modules = modules.setting(.email, on: on)
+                ModuleStore.shared.set(modules)
+            }
+        }
+        if EmailSetup.releasesGrant(outcome, gmailGranted: gmailGranted) { releaseMailGrants() }
+    }
+
+    /// Accounts whose Google grant on this device includes Gmail.
+    private static var gmailGrantedAccounts: [String] {
+        #if DEBUG
+        if ProcessInfo.processInfo.arguments.contains("--onboarding-sample") {
+            return ProcessInfo.processInfo.arguments.contains("--onboarding-gmail-unticked") ? [] : ["noor@plan.example"]
+        }
+        #endif
+        return GoogleCalendarService.shared.accounts
+            .filter { $0.grantedScopes.contains(EmailSetup.gmailScope) }.map(\.email)
+    }
+
+    /// Debug sample accounts say whether they are offered Email; real ones ask the service.
+    private static var sampleEligibility: Bool? {
+        #if DEBUG
+        let arguments = ProcessInfo.processInfo.arguments
+        if arguments.contains("--onboarding-sample") { return arguments.contains("--onboarding-email-eligible") }
+        #endif
+        return nil
+    }
+
+    /// An account not offered Email keeps no Mail grant: the service forgets it (Mail only; its
+    /// Google consent is not revoked, which would take the calendar with it).
+    private func releaseMailGrants() {
+        #if !BANANA_PUBLIC
+        guard Self.sampleEligibility == nil else { return }
+        for email in Self.gmailGrantedAccounts {
+            Task {
+                do { try await BananaAccount.shared.disconnectMail(email: email) } catch {
+                    Log.sync.notice("first run: unused Mail grant not released yet: \(error.localizedDescription, privacy: .public)")
+                }
+            }
+        }
+        #endif
+    }
+
+    // MARK: - Busy copies
+
+    /// Plan copies with the pass that would write them (`CalendarWriteBack.previewCopies`).
+    func loadCopyPreview() async {
+        if case .applying = copies { return }
+        copies = .loading
+        switch await CalendarWriteBack.shared.previewCopies() {
+        case .success(let preview): copies = .ready(preview, updated: false)
+        case .failure(let failure): copies = .failed(failure.message)
+        }
+    }
+
+    /// The yes. True once copies are on; otherwise the page shows why, or the changed plan.
+    func turnOnCopies() async -> Bool {
+        guard case .ready(let shown, _) = copies else { return false }
+        copies = .applying(shown)
+        switch await CalendarWriteBack.shared.turnOnCopies(shown: shown) {
+        case .enabled:
+            copiesAnswer = .on(count: shown.creates, to: shown.changing.map(\.title))
+            copies = .ready(shown, updated: false)
+            return true
+        case .changed(let fresh):
+            copies = .ready(fresh, updated: true)
+            return false
+        case .failed(let message):
+            copies = .failed(message)
+            return false
+        }
+    }
+
+    func keepViewingOnly() {
+        CalendarWriteBack.shared.keepViewingOnly()
+        copiesAnswer = .off
     }
 
     /// Put the answers on the plan: the Wake and Wind down routines take those times, and the

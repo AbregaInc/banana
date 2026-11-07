@@ -3,9 +3,16 @@ import Charts
 import AVFoundation
 
 struct DemoEntryButton: View {
+    /// The first run says it as plain words under its main button ("Explore an example").
+    var plainTitle: String? = nil
     @State private var showing = false
     var body: some View {
-        Button { showing = true } label: { Label("Try with sample data", systemImage: "play.rectangle").frame(minHeight: 44) }
+        Button { showing = true } label: {
+            Group {
+                if let plainTitle { Text(plainTitle) } else { Label("Try with sample data", systemImage: "play.rectangle") }
+            }
+            .frame(minHeight: 44)
+        }
             .accessibilityIdentifier("demo.open")
             .demoPresentation(isPresented: $showing)
     }

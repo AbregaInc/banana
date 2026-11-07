@@ -1,28 +1,24 @@
 import SwiftUI
 
-/// The first run, the same on a phone, an iPad and a Mac: a welcome that asks what Banana should
-/// look after, two questions that build a day in front of the person (when it starts, when it
-/// winds down), the calendar, shown by what Banana does between two of them, the other calendar,
-/// then the app. One path (`OnboardingFlow`): the welcome's choice only decides what is shown.
+/// The first run, led by Banana, the same on a phone, an iPad and a Mac (`OnboardingFlow`).
 ///
-/// The welcome used to say the four areas, not ask (17 Oct 2026 changed it): the author wants a
-/// new person to start with what they came for, Plan alone unless they tick more (the calendar is
-/// the way in), and himself to have everything. Settings › Modules changes it later; off only
-/// hides.
+/// Each page is the artwork the owner accepted (output/imagegen/onboarding-v12, edited from the
+/// welcome he called "better" on 3 Nov 2026) built natively: the mascot is a picture per page,
+/// posed and looking where the art has it look; the band, the calendar cards, the sun and the
+/// moon are drawn here; every word and control is text and a system control, so it reads,
+/// scales and translates. The pictures sit in an `ArtCanvas`, which places them in the art's own
+/// coordinates, so a page and its artwork can be laid side by side and compared.
 ///
-/// Nothing here is required and nothing gates the app. Whatever is skipped is on the setup list
-/// (`SetupSheet`), which the plan offers whether or not a calendar is connected.
-///
-/// What it was, and why it changed (review of 9 Oct 2026): three screens whose way forward was
-/// 20-point text in a corner, page dots that didn't swipe, a red button for Google, a last card
-/// that only said "Banana is ready", the phone's layout stretched across an iPad, and on the Mac
-/// a different screen altogether that could not be passed without a Google account.
+/// What it teaches, one page each: connecting reads; which calendars show and which count as
+/// busy (shared ones show but are not busy); Busy copies to Google only on a yes given in front
+/// of the real plan's numbers; and a receipt. Nothing gates the app: every page can be skipped,
+/// and finishing without copies is a success.
 struct OnboardingView: View {
     @EnvironmentObject private var onboarding: OnboardingStore
     @ObservedObject private var google = GoogleCalendarService.shared
     @ObservedObject private var writeBack = CalendarWriteBack.shared
+    @ObservedObject private var smart = SmartScheduleStore.shared
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @Environment(\.horizontalSizeClass) private var widthClass
     @State private var connecting = false
     @State private var problem: String?
 
@@ -30,225 +26,296 @@ struct OnboardingView: View {
         Group {
             switch onboarding.step {
             case .welcome: welcome
-            case .wake: wake
-            case .windDown: windDown
-            case .calendar: calendar
-            case .otherCalendar: otherCalendar
+            case .modules: modules
+            case .wake: dayQuestion(.wake)
+            case .windDown: dayQuestion(.windDown)
+            case .connect: connect
+            case .calendars: calendars
+            case .copies: copies
+            case .done: done
             }
         }
         .transition(reduceMotion ? .opacity : .asymmetric(
             insertion: .move(edge: .trailing).combined(with: .opacity),
             removal: .move(edge: .leading).combined(with: .opacity)))
         .animation(reduceMotion ? nil : .spring(response: 0.42, dampingFraction: 0.88), value: onboarding.step)
+        .background(FirstRun.page.ignoresSafeArea())
+        .tint(FirstRun.ink)
         .task {
             #if DEBUG
-            // Straight to one step, for a picture of it.
-            let arguments = ProcessInfo.processInfo.arguments
-            if arguments.contains("--onboarding-wake-preview") { onboarding.step = .wake }
-            if arguments.contains("--onboarding-winddown-preview") { onboarding.step = .windDown }
-            if arguments.contains("--onboarding-calendar-preview") { onboarding.step = .calendar }
-            if !Self.previewAccounts.isEmpty { onboarding.step = .otherCalendar }
+            if let step = Self.routedStep { onboarding.step = step }
             #endif
             await onboarding.refresh()
+            // Back where it was, unless what that page needs has gone meanwhile.
+            onboarding.step = OnboardingFlow.resume(onboarding.step, in: situation)
         }
-        // An account that arrives by itself (signed in on another device, carried over by
-        // iCloud Keychain) while this step is showing: straight in, as after a sign-in here.
+        // An account that arrives by itself (signed in on another device) while the calendar
+        // page is up: on, as after a sign-in here.
         .onChange(of: google.isConnected) { _, connected in
-            if connected, onboarding.step == .calendar, !connecting { advance() }
+            if connected, onboarding.step == .connect, !connecting { writeBack.refreshCalendars() }
         }
-        // How far a first run gets (`Telemetry`): each step as it comes up.
         .onChange(of: onboarding.step, initial: true) { _, step in
-            Telemetry.shared.record(.onboarding(Self.counted(step), .shown))
+            if let counted = Self.counted(step) { Telemetry.shared.record(.onboarding(counted, .shown)) }
+            // Planned afresh each time the page comes up: the calendars page before it may have
+            // changed what counts as busy.
+            if step == .copies { Task { await onboarding.loadCopyPreview() } }
         }
     }
 
-    private static func counted(_ step: OnboardingStep) -> Telemetry.Signal.Step {
+    /// The service counts the steps it knows (`Service/src/usage.js`); the pages added on
+    /// 6 Nov 2026 report as the nearest of those, or not at all, until it learns their names.
+    private static func counted(_ step: OnboardingStep) -> Telemetry.Signal.Step? {
         switch step {
         case .welcome: .welcome
+        case .modules, .copies: nil
         case .wake: .wake
         case .windDown: .winddown
-        case .calendar: .calendar
-        case .otherCalendar: .otherCalendar
+        case .connect: .calendar
+        case .calendars: .otherCalendar
+        case .done: .done
         }
+    }
+
+    private var situation: OnboardingFlow.Situation {
+        OnboardingFlow.Situation(accounts: accountEmails.count,
+                                 copiesSettled: writeBack.questionSettled,
+                                 ownsWritableCalendar: Self.isSample || writeBack.writableCalendars.contains(where: \.isOwner))
     }
 
     // MARK: - Welcome
 
-    /// A whole iPad screen or a Mac window, where the page sits in the middle.
-    private var roomy: Bool {
-        #if os(macOS)
-        true
-        #else
-        widthClass == .regular
-        #endif
-    }
-
     private var welcome: some View {
-        OnePage(centred: roomy) {
-            BrandMark()
-                .padding(.top, DS.Space.l)
-                .frame(maxWidth: .infinity)
-            Text("What should Banana look after?")
-                .font(.largeTitle.bold())
-                .pageTitle()
-                .accessibilityAddTraits(.isHeader)
-            ModuleChooser(choice: $onboarding.modules)
-        } actions: {
-            Button("Get started") {
-                ModuleStore.shared.set(onboarding.modules)
-                advance()
+        FirstRunPage(title: "Your day.\nA little lighter.", wordmark: true) {
+            ArtCanvas(top: FirstRunArt.welcome.top, bottom: FirstRunArt.welcome.bottom) { art in
+                WelcomeScene(art: art)
             }
-                .buttonStyle(.primaryCapsule)
+        } actions: {
+            Button("Build my day") { advance() }
+                .buttonStyle(FirstRun.primary)
                 .accessibilityIdentifier("onboarding.continue")
-            DemoEntryButton().buttonStyle(.plain).font(.callout)
+            DemoEntryButton(plainTitle: "Explore an example")
+                .buttonStyle(.plain)
+                .font(FirstRun.bodyFont)
+                .foregroundStyle(FirstRun.ink)
             // Getting started is agreeing to them: the one place they're asked for.
             Text("By continuing you agree to the [Terms](\(Telemetry.termsURL.absoluteString)) and [Privacy Policy](\(Telemetry.privacyURL.absoluteString)).")
                 .font(.footnote)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(FirstRun.secondaryInk)
                 .multilineTextAlignment(.center)
                 .accessibilityIdentifier("onboarding.terms")
         }
     }
 
-    // MARK: - The two questions
+    // MARK: - What Banana looks after
 
-    // Each answer moves a block on the day above it, and is on the plan when the app opens:
-    // these are two of the few things a new person can say that change the plan at once.
-
-    private var wake: some View {
-        question("When do you wake up?", stage: .wake, minutes: \.wakeMinutes,
-                 range: DayAnchors.wakeRange, id: "onboarding.wake.time")
-    }
-
-    private var windDown: some View {
-        question("When do you wind down?", stage: .windDown, minutes: \.windDownMinutes,
-                 range: DayAnchors.windDownRange, id: "onboarding.windDown.time")
-    }
-
-    private func question(_ title: String, stage: DayDraft.Stage, minutes: WritableKeyPath<DayAnchors, Int>,
-                          range: ClosedRange<Int>, id: String) -> some View {
-        OnePage(onBack: { back() }, centred: roomy) {
-            DayDraft(anchors: onboarding.anchors, stage: stage)
-            Text(title)
-                .font(.title.bold())
-                .pageTitle()
-                .accessibilityAddTraits(.isHeader)
-            timePicker(title, minutes: minutes, range: range)
-                .accessibilityIdentifier(id)
+    private var modules: some View {
+        FirstRunPage(title: "What should Banana look after?", onBack: back, titlePoints: 34) {
+            ModuleChooser(choice: $onboarding.modules)
         } actions: {
-            Button("Continue") { advance() }
-                .buttonStyle(.primaryCapsule)
-                .accessibilityIdentifier("onboarding.continue")
+            Button("Continue") {
+                ModuleStore.shared.set(onboarding.modules)
+                advance()
+            }
+            .buttonStyle(FirstRun.primary)
+            .accessibilityIdentifier("onboarding.continue")
+        } corner: {
+            ArtCanvas(top: FirstRunArt.modules.top, bottom: FirstRunArt.modules.bottom) { art in ModulesScene(art: art) }
         }
     }
 
-    private func timePicker(_ title: String, minutes: WritableKeyPath<DayAnchors, Int>,
-                            range: ClosedRange<Int>) -> some View {
-        let stored = Binding<Int>(
-            get: { onboarding.anchors[keyPath: minutes] },
-            set: { onboarding.anchors[keyPath: minutes] = $0 })
-        return TimeField(title, selection: ClockTime.binding(stored, in: range), in: ClockTime.range(range))
-            .wheels()
-            .labelsHidden()
-            .frame(maxWidth: .infinity)
+    // MARK: - The two questions
+
+    private enum DayEnd { case wake, windDown }
+
+    private func dayQuestion(_ end: DayEnd) -> some View {
+        let minutes: WritableKeyPath<DayAnchors, Int> = end == .wake ? \.wakeMinutes : \.windDownMinutes
+        let range = end == .wake ? DayAnchors.wakeRange : DayAnchors.windDownRange
+        return FirstRunPage(title: end == .wake ? "When do you wake up?" : "When do you wind down?", onBack: back) {
+            TimeChooser(minutes: Binding(get: { onboarding.anchors[keyPath: minutes] },
+                                         set: { onboarding.anchors[keyPath: minutes] = $0 }),
+                        range: range, track: end == .wake ? FirstRun.yellow : FirstRun.lilacTrack,
+                        id: end == .wake ? "onboarding.wake.time" : "onboarding.windDown.time")
+            ArtCanvas(top: (end == .wake ? FirstRunArt.wake : FirstRunArt.windDown).top,
+                      bottom: (end == .wake ? FirstRunArt.wake : FirstRunArt.windDown).bottom) { art in
+                if end == .wake { SunriseScene(art: art) } else { MoonriseScene(art: art) }
+            }
+            Text(end == .wake ? "Adds a Wake routine to your plan." : "Adds a Wind down routine to your plan.")
+                .font(FirstRun.bodyFont)
+                .foregroundStyle(FirstRun.ink)
+                .frame(maxWidth: .infinity)
+                .multilineTextAlignment(.center)
+        } actions: {
+            Button(end == .wake ? "That\u{2019}s my morning" : "That\u{2019}s my evening") {
+                onboarding.applyAnchors()   // on the plan as soon as it is answered
+                advance()
+            }
+            .buttonStyle(FirstRun.primary)
+            .accessibilityIdentifier("onboarding.continue")
+            Button("Skip") { skip() }
+                .buttonStyle(FirstRun.quiet)
+                .accessibilityIdentifier("onboarding.skip")
+        }
     }
 
     // MARK: - Calendar
 
-    private var calendar: some View {
-        OnePage(onBack: { back() }, centred: roomy) {
-            // What connecting is for, drawn: a meeting on one calendar leaves the other looking
-            // free, and with Banana it doesn't. (This was the day with an empty middle under
-            // "Add your meetings", which showed one calendar and nothing Banana does with two.)
-            // Before sits above the title and after below it (the author, 10 Oct 2026): the title is
-            // what turns one into the other.
-            BusyBeforeAfter(stage: .before, captioned: true)
-            Text("Never double-booked")
-                .font(.title.bold())
-                .pageTitle()
-                .accessibilityAddTraits(.isHeader)
-            BusyBeforeAfter(stage: .after, captioned: true)
-        } actions: {
-            if let problem {
-                Text(problem)
-                    .font(.footnote)
-                    .foregroundStyle(DS.Palette.danger)
+    /// Calendar and, where the build has it, Email: one Google screen for both. Which of them
+    /// starts is settled after sign-in (`OnboardingStore.settleEmail`).
+    private var connect: some View {
+        let emails = accountEmails
+        let withEmail = OnboardingStore.emailInBuild
+        return FirstRunPage(title: withEmail ? "Bring in your calendar and email" : "Bring in your calendars", onBack: back) {
+            ArtCanvas(top: FirstRunArt.connect.top, bottom: FirstRunArt.connect.bottom) { art in
+                ConnectScene(art: art, mail: withEmail && onboarding.emailWanted)
+            }
+            if withEmail {
+                ConnectRows(emailWanted: $onboarding.emailWanted, locked: !emails.isEmpty)
+            } else {
+                Text("Connecting only reads your calendars.")
+                    .font(FirstRun.bodyFont)
+                    .foregroundStyle(FirstRun.ink)
+                    .frame(maxWidth: .infinity)
                     .multilineTextAlignment(.center)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .accessibilityIdentifier("onboarding.calendar.problem")
             }
-            GoogleButton(working: connecting) { Task { await connect() } }
-            Button("Not now") {
-                Telemetry.shared.record(.onboarding(Self.counted(onboarding.step), .skipped))
-                finish()
+            if !emails.isEmpty {
+                AccountRows(emails: emails, adding: connecting) { Task { await addAccount() } }
             }
-                .buttonStyle(.quiet)
-                .accessibilityIdentifier("onboarding.notNow")
-        }
-    }
-
-    // MARK: - The other calendar
-
-    /// After the first sign-in: the account that is in, and a place for the other one. Work and
-    /// personal is the pair this is for. With two in, the main button is the yes to busy blocks.
-    private var otherCalendar: some View {
-        let emails = connectedEmails
-        let action = OnboardingFlow.otherCalendarAction(accounts: emails.count)
-        return OnePage(centred: roomy) {
-            BusyBeforeAfter(stage: .after)
-            Text(action == .addAccount ? "Add your other calendar" : "Keep them in step")
-                .font(.title.bold())
-                .pageTitle()
-                .accessibilityAddTraits(.isHeader)
-            AccountList(emails: emails, adding: connecting) { Task { await addAccount() } }
         } actions: {
-            if let problem {
-                Text(problem)
-                    .font(.footnote)
-                    .foregroundStyle(DS.Palette.danger)
-                    .multilineTextAlignment(.center)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .accessibilityIdentifier("onboarding.calendar.problem")
+            if let problem = problem ?? onboarding.connectProblem {
+                ProblemLine(text: problem, id: "onboarding.calendar.problem")
             }
-            switch action {
-            case .addAccount:
-                GoogleButton(working: connecting) { Task { await addAccount() } }
-            case .blockBusyTime:
-                // The yes: busy blocks start only now, on the calendars the person owns.
-                Button("Block busy time") {
-                    writeBack.answerQuestion()
+            if emails.isEmpty {
+                GoogleButton(working: connecting, cornerRadius: FirstRun.buttonRadius) { Task { await connectGoogle() } }
+                Button("Not now") {
+                    Telemetry.shared.record(.onboarding(.calendar, .skipped))
                     finish()
                 }
-                .buttonStyle(.primaryCapsule)
-                .accessibilityIdentifier("onboarding.blockBusy")
-            }
-            Button("Not now") {
-                Telemetry.shared.record(.onboarding(Self.counted(onboarding.step), .skipped))
-                finish()
-            }
-                .buttonStyle(.quiet)
+                .buttonStyle(FirstRun.quiet)
                 .accessibilityIdentifier("onboarding.notNow")
+            } else {
+                Button {
+                    // After a relaunch mid-consent too: Email is settled from what is connected.
+                    Task {
+                        await onboarding.settleEmail()
+                        advance()
+                    }
+                } label: {
+                    if onboarding.settlingEmail { ProgressView() } else { Text("Continue") }
+                }
+                .buttonStyle(FirstRun.primary)
+                .disabled(connecting || onboarding.settlingEmail)
+                .accessibilityIdentifier("onboarding.continue")
+            }
         }
     }
 
-    private var connectedEmails: [String] {
-        #if DEBUG
-        if !Self.previewAccounts.isEmpty { return Self.previewAccounts }
-        #endif
-        return google.accounts.map(\.email)
+    private var calendarRows: [CalendarChoice] {
+        CalendarChoices.rows(Self.isSample ? Self.sampleCalendars : google.calendars, settings: smart.settings)
     }
 
-    #if DEBUG
-    /// A simulator has no Google account: the step is shown with one or two made-up ones.
-    private static var previewAccounts: [String] {
-        let arguments = ProcessInfo.processInfo.arguments
-        if arguments.contains("--onboarding-two-calendars-preview") { return ["sam@work.example", "sam@home.example"] }
-        if arguments.contains("--onboarding-other-calendar-preview") { return ["sam@work.example"] }
-        return []
+    private var calendars: some View {
+        let rows = calendarRows
+        return FirstRunPage(title: "What makes you busy?", onBack: back) {
+            ArtCanvas(top: FirstRunArt.calendars.top, bottom: FirstRunArt.calendars.bottom) { art in
+                // The panels are the list's own calendars, in the list's own colours.
+                let busy = rows.first(where: \.busy)
+                let notBusy = rows.first(where: { $0.shown && !$0.busy })
+                CalendarsScene(art: art,
+                               busy: busy?.title ?? "Work",
+                               busyColour: busy?.colorHex.map { calendarTint($0) } ?? FirstRun.lilac.dot,
+                               notBusy: notBusy?.title,
+                               notBusyColour: notBusy?.colorHex.map { calendarTint($0) } ?? FirstRun.coral.dot)
+            }
+            if rows.isEmpty { ProgressView().frame(maxWidth: .infinity, minHeight: 120) }
+            CalendarChoiceList(rows: rows) { change in
+                var settings = smart.settings
+                change(&settings)
+                smart.settings = settings
+            }
+        } actions: {
+            Button("Continue") { advance() }
+                .buttonStyle(FirstRun.primary)
+                .accessibilityIdentifier("onboarding.continue")
+        }
     }
-    #else
-    private static let previewAccounts: [String] = []
-    #endif
+
+    // MARK: - Busy copies
+
+    private var copies: some View {
+        let shown: BusyCopyPreview? = switch onboarding.copies {
+        case .ready(let preview, _), .applying(let preview): preview
+        default: nil
+        }
+        let applying = { if case .applying = onboarding.copies { true } else { false } }()
+        return FirstRunPage(title: "Copy busy time?", onBack: back) {
+            ArtCanvas(top: FirstRunArt.copies.top, bottom: FirstRunArt.copies.bottom) { art in
+                CopiesScene(art: art,
+                            source: shown?.sources.first ?? "Personal",
+                            destination: shown?.changing.first?.title ?? shown?.destinations.first?.title ?? "Work")
+            }
+            CopySummary(state: onboarding.copies) { Task { await onboarding.loadCopyPreview() } }
+        } actions: {
+            Button(Self.createTitle(shown)) {
+                Task {
+                    if await onboarding.turnOnCopies() {
+                        Telemetry.shared.record(.onboarding(.otherCalendar, .continued))
+                        advance()
+                    }
+                }
+            }
+            .buttonStyle(FirstRun.primary)
+            .disabled(shown == nil || applying)
+            .accessibilityIdentifier("onboarding.copies.create")
+            Button("Keep viewing only") {
+                onboarding.keepViewingOnly()
+                advance()
+            }
+            .buttonStyle(FirstRun.quiet)
+            .disabled(applying)
+            .accessibilityIdentifier("onboarding.copies.keep")
+        }
+    }
+
+    static func createTitle(_ preview: BusyCopyPreview?) -> String {
+        guard let preview, preview.creates > 0 else { return "Turn on copies" }
+        return preview.creates == 1 ? "Create 1 Busy event" : "Create \(preview.creates) Busy events"
+    }
+
+    // MARK: - Receipt
+
+    private var done: some View {
+        let receipt = OnboardingReceipt(
+            choices: calendarRows,
+            copies: onboarding.copiesAnswer ?? (writeBack.enabled ? .on(count: nil, to: []) : .off),
+            accounts: accountEmails,
+            email: OnboardingStore.emailInBuild ? ModuleStore.shared.choice.includes(.email) : nil)
+        return FirstRunPage(title: "Your day is ready") {
+            ArtCanvas(top: FirstRunArt.done.top, bottom: FirstRunArt.done.bottom) { art in DoneScene(art: art) }
+            ReceiptRows(receipt: receipt, copyProblem: writeBack.enabled ? writeBack.lastError : nil)
+        } actions: {
+            Button("Open my day") { finish() }
+                .buttonStyle(FirstRun.primary)
+                .accessibilityIdentifier("onboarding.open")
+        }
+    }
+
+    // MARK: - Accounts
+
+    private var accountEmails: [String] {
+        Self.isSample ? ["noor@plan.example"] : google.accounts.map(\.email)
+    }
+
+    @MainActor
+    private func connectGoogle() async {
+        guard !connecting else { return }
+        connecting = true
+        problem = nil
+        let attempt = await onboarding.connectCalendarAndEmail()
+        connecting = false
+        // Closing Google's page leaves no message, and needs none; a failure stays on the page
+        // (`OnboardingStore.connectProblem`) with the button to try again.
+        if attempt == .connected { advance() }
+    }
 
     @MainActor
     private func addAccount() async {
@@ -264,257 +331,377 @@ struct OnboardingView: View {
     // MARK: - Moving on
 
     private func advance() {
-        Telemetry.shared.record(.onboarding(Self.counted(onboarding.step), .continued))
-        // An answer is on the plan as soon as its question is left.
-        if onboarding.step == .wake || onboarding.step == .windDown { onboarding.applyAnchors() }
-        if let next = OnboardingFlow.next(after: onboarding.step, accounts: google.accounts.count,
-                                          busySettled: writeBack.questionSettled) {
+        if let counted = Self.counted(onboarding.step) { Telemetry.shared.record(.onboarding(counted, .continued)) }
+        if let next = OnboardingFlow.next(after: onboarding.step, in: situation) {
             onboarding.step = next
         } else {
             finish()
         }
     }
 
-    private func back() {
-        if let previous = OnboardingFlow.previous(before: onboarding.step) { onboarding.step = previous }
+    /// A day question passed over: its routine keeps the time it has.
+    private func skip() {
+        if let counted = Self.counted(onboarding.step) { Telemetry.shared.record(.onboarding(counted, .skipped)) }
+        if let next = OnboardingFlow.next(after: onboarding.step, in: situation) { onboarding.step = next }
     }
 
-    @MainActor
-    private func connect() async {
-        guard !connecting else { return }
-        connecting = true
-        problem = nil
-        let connected = await onboarding.requestCalendar()
-        connecting = false
-        if connected {
-            // On to the other calendar, or the plan when busy blocks already have an answer.
-            advance()
-        } else {
-            // Closing Google's page leaves no message, and needs none. Anything else is said:
-            // on a phone it wasn't, and the button simply went back to how it was.
-            problem = onboarding.calendarErrorMessage
-        }
+    private func back() {
+        if let previous = OnboardingFlow.previous(before: onboarding.step) { onboarding.step = previous }
     }
 
     /// Into the app, on the plan.
     private func finish() {
         Telemetry.shared.record(.onboarding(.done, .shown))
-        onboarding.applyAnchors()
         onboarding.finish()
+    }
+
+    // MARK: - Routes and samples for pictures
+
+    #if DEBUG
+    /// `--onboarding-step <name>`: straight to one page, for a picture of it.
+    static var routedStep: OnboardingStep? {
+        let arguments = ProcessInfo.processInfo.arguments
+        guard let index = arguments.firstIndex(of: "--onboarding-step"), index + 1 < arguments.count else { return nil }
+        return OnboardingStep(rawValue: arguments[index + 1])
+    }
+    #endif
+
+    /// A simulator has no Google account: `--onboarding-sample` (Debug only) shows the calendar
+    /// pages with one made-up account and three calendars, and the copies page with a sample
+    /// plan (`CalendarWriteBack.samplePreview`).
+    static var isSample: Bool {
+        #if DEBUG
+        ProcessInfo.processInfo.arguments.contains("--onboarding-sample")
+        #else
+        false
+        #endif
+    }
+
+    static let sampleCalendars: [GoogleCalendar] = [
+        GoogleCalendar(accountEmail: "noor@plan.example", id: "noor@plan.example", summary: "Work", summaryOverride: nil,
+                       backgroundColor: "#8E62DE", accessRole: "owner", primary: true, hidden: nil, deleted: nil),
+        GoogleCalendar(accountEmail: "noor@plan.example", id: "personal@group.calendar.google.com", summary: "Personal",
+                       summaryOverride: nil, backgroundColor: "#52B188", accessRole: "owner", primary: nil, hidden: nil,
+                       deleted: nil, dataOwner: "noor@plan.example"),
+        GoogleCalendar(accountEmail: "noor@plan.example", id: "family@group.calendar.google.com", summary: "Family",
+                       summaryOverride: nil, backgroundColor: "#FD6F5B", accessRole: "writer", primary: nil, hidden: nil,
+                       deleted: nil, dataOwner: "sam@plan.example"),
+    ]
+}
+
+// MARK: - Look
+
+/// The first run's look, from the accepted artwork: ivory page, the website's ink, the brand's
+/// yellow, and three pastel calendar colours. Dark appearance keeps the yellow and the pastels
+/// and turns the page and the ink round.
+enum FirstRun {
+    /// The artwork is 1024 wide at a phone's width; `ArtCanvas` places pictures in those units.
+    static let artWidth: CGFloat = 1024
+    static let margin: CGFloat = DS.Space.xxl + DS.Space.xs
+    static let buttonRadius: CGFloat = DS.Radius.panel
+    static let columnWidth: CGFloat = 560
+
+    static let page = adaptive(light: DS.Palette.Brand.ivory, dark: rgb(0x17151F))
+    static let ink = adaptive(light: DS.Palette.Brand.night, dark: rgb(0xF6F1E6))
+    static let secondaryInk = adaptive(light: rgb(0x6C687A), dark: rgb(0xB5B0C0))
+    static let card = adaptive(light: rgb(0xFFFDF8), dark: rgb(0x262330))
+    static let cardLine = adaptive(light: rgb(0xE9E3D6), dark: rgb(0x3A3646))
+    static let grid = adaptive(light: rgb(0xEFEAE0), dark: rgb(0x332F3E))
+    static let yellow = DS.Palette.Brand.yellow
+
+    static let lilac = (fill: rgb(0xEDE4FE), dot: rgb(0x8E62DE), text: rgb(0x5B37C8), block: rgb(0xB6A2E6))
+    static let mint = (fill: rgb(0xE5F4E8), dot: rgb(0x52B188), text: rgb(0x2E8A5E), block: rgb(0x6FBF9D))
+    static let coral = (fill: rgb(0xFFE5DE), dot: rgb(0xFD6F5B), text: rgb(0xE5533F), block: rgb(0xF97F6B))
+    static let lilacShape = rgb(0xC9B8EC)
+    static let lilacTrack = rgb(0xC3B1EA)
+    static let busyGrey = rgb(0xDADADF)
+
+    static var primary: AppButtonStyle {
+        AppButtonStyle(kind: .primary, size: .page, fill: ink, label: page, cornerRadius: buttonRadius)
+    }
+    static var quiet: QuietStyle { QuietStyle() }
+
+    /// The quiet choice under the main button, in the page's ink (the art's), on a finger's target.
+    struct QuietStyle: PrimitiveButtonStyle {
+        func makeBody(configuration: Configuration) -> some View {
+            Button(role: configuration.role, action: configuration.trigger) {
+                configuration.label.frame(maxWidth: .infinity, minHeight: DS.Row.minHeight)
+            }
+            .buttonStyle(.borderless)
+            .font(.body)
+            .foregroundStyle(FirstRun.ink)
+        }
+    }
+
+    static let bodyFont = Font.body
+    static func title(_ size: CGFloat) -> Font { .system(size: size, weight: .heavy).leading(.tight) }
+
+    static func rgb(_ hex: UInt32) -> Color {
+        Color(red: Double((hex >> 16) & 255) / 255, green: Double((hex >> 8) & 255) / 255, blue: Double(hex & 255) / 255)
+    }
+
+    static func adaptive(light: Color, dark: Color) -> Color {
+        #if os(iOS)
+        Color(uiColor: UIColor { $0.userInterfaceStyle == .dark ? UIColor(dark) : UIColor(light) })
+        #else
+        Color(nsColor: NSColor(name: nil) { appearance in
+            appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua ? NSColor(dark) : NSColor(light)
+        })
+        #endif
     }
 }
 
-// MARK: - The day being built
+// MARK: - A page
 
-/// The day the first run builds: its two ends as the person sets them, and a middle that is
-/// faint until the calendar step, where it is drawn empty for the calendar to fill.
-struct DayDraft: View {
-    enum Stage { case wake, windDown, calendar }
-    let anchors: DayAnchors
-    let stage: Stage
+/// One page of the first run: Back, the headline, the picture and what to choose, and the
+/// actions at the bottom (a phone) or under the column (an iPad or a Mac window).
+struct FirstRunPage<Content: View, Actions: View, Corner: View>: View {
+    let title: String
+    var wordmark = false
+    var onBack: (() -> Void)?
+    /// Room kept at the headline's trailing edge for a picture beside it, as a share of the width.
+    var titleTrailingRoom: CGFloat = 0
+    /// How far a corner picture rises into the headline's last line.
+    var cornerOverlap: CGFloat = 0
+    /// The headline's size in points, before Dynamic Type (the art's are 40 to 46).
+    var titlePoints: CGFloat = 42
+    @ViewBuilder var content: Content
+    @ViewBuilder var actions: Actions
+    @ViewBuilder var corner: Corner
+    @ScaledMetric(relativeTo: .largeTitle) private var titleScale: CGFloat = 1
+    @Environment(\.horizontalSizeClass) private var widthClass
+
+    private var roomy: Bool {
+        #if os(macOS)
+        true
+        #else
+        widthClass == .regular
+        #endif
+    }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: DS.Space.s) {
-            end("Wake", symbol: "sunrise.fill", tint: DS.Palette.Feature.wake, glyph: DS.Palette.onAccent,
-                minutes: anchors.wakeMinutes, faint: false)
-            middle
-            end("Wind down", symbol: "moon.fill", tint: DS.Palette.Brand.purple, glyph: nil,
-                minutes: anchors.windDownMinutes, faint: stage == .wake)
-        }
-        .padding(DS.Space.l)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .dsCard()
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel("Your day: wake at \(Self.label(anchors.wakeMinutes)), wind down at \(Self.label(anchors.windDownMinutes)).")
-    }
-
-    private func end(_ title: String, symbol: String, tint: Color, glyph: Color?, minutes: Int, faint: Bool) -> some View {
-        HStack(spacing: DS.Space.m) {
-            IconTile(systemImage: symbol, tint: tint, glyph: glyph)
-            Text(title).font(.headline)
-            Spacer(minLength: DS.Space.s)
-            Text(Self.label(minutes))
-                .font(.headline.monospacedDigit())
-                .contentTransition(.numericText())
-                .animation(.snappy(duration: 0.2), value: minutes)
-        }
-        .opacity(faint ? 0.35 : 1)
-    }
-
-    /// The hours between: three slots where meetings will sit. Faint while the ends are being
-    /// set; outlined and empty once the calendar is what is being asked for.
-    private var middle: some View {
-        VStack(alignment: .leading, spacing: DS.Space.xs) {
-            ForEach([0.82, 0.58, 0.7], id: \.self) { width in
-                let slot = RoundedRectangle(cornerRadius: DS.Radius.block, style: .continuous)
-                Group {
-                    if stage == .calendar {
-                        slot.strokeBorder(Color.secondary.opacity(0.55), style: StrokeStyle(lineWidth: 1.5, dash: [5, 4]))
+        GeometryReader { window in
+            let column = min(window.size.width, roomy ? FirstRun.columnWidth : window.size.width)
+            let bleed = max(0, (window.size.width - column) / 2)
+            ScrollView {
+                VStack(alignment: .leading, spacing: 0) {
+                    // Spare height on a phone: a quarter above the page, the rest above the buttons.
+                    Spacer(minLength: 0)
+                    VStack(alignment: .leading, spacing: DS.Space.l) {
+                        header
+                        if Corner.self != EmptyView.self {
+                            VStack(spacing: 0) { corner }.padding(.top, -cornerOverlap)
+                        }
+                        VStack(alignment: .leading, spacing: DS.Space.l) { content }
+                    }
+                    if roomy {
+                        // A window: the page and its buttons as one block in the middle.
+                        actionStack.padding(.top, DS.Space.xxl)
+                        Spacer(minLength: 0)
                     } else {
-                        slot.fill(Color.primary.opacity(DS.Tint.wash))
+                        Spacer(minLength: DS.Space.xl)
+                        Spacer(minLength: 0)
+                        Spacer(minLength: 0)
+                        actionStack
                     }
                 }
-                .frame(height: 26)
-                .containerRelativeFrame(.horizontal) { length, _ in length * width * 0.7 }
+                .environment(\.firstRunBleed, bleed)
+                .environment(\.firstRunFullBleed, !roomy)
+                .padding(.horizontal, roomy ? 0 : FirstRun.margin)
+                .frame(width: column)
+                .padding(.bottom, DS.Space.s)
+                .frame(maxWidth: .infinity, minHeight: window.size.height)
             }
+            .scrollBounceBehavior(.basedOnSize)
         }
-        .padding(.leading, DS.Row.iconTile + DS.Space.m)
+        .background(FirstRun.page.ignoresSafeArea())
     }
 
-    static func date(at minutes: Int) -> Date {
+    private var actionStack: some View {
+        VStack(spacing: DS.Space.xs) { actions }
+            .frame(maxWidth: .infinity)
+    }
+
+    private var header: some View {
+        VStack(alignment: .leading, spacing: DS.Space.s) {
+            if let onBack {
+                Button(action: onBack) {
+                    Image(systemName: "chevron.backward")
+                        .font(.title3.weight(.semibold))
+                        .foregroundStyle(FirstRun.ink)
+                        .frame(width: DS.Row.minHeight, height: DS.Row.minHeight, alignment: .leading)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Back")
+            } else if wordmark {
+                Text(verbatim: "banana")
+                    .font(.system(size: 26, weight: .heavy, design: .rounded))
+                    .foregroundStyle(FirstRun.ink)
+                    .padding(.top, DS.Space.s)
+                    .accessibilityHidden(true)
+            } else {
+                Color.clear.frame(height: DS.Space.l)
+            }
+            Text(title)
+                .font(FirstRun.title(titlePoints * titleScale))
+                .tracking(-0.6)
+                .foregroundStyle(FirstRun.ink)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.trailing, titleTrailingRoom)
+                .accessibilityAddTraits(.isHeader)
+        }
+    }
+}
+
+extension FirstRunPage where Corner == EmptyView {
+    init(title: String, wordmark: Bool = false, onBack: (() -> Void)? = nil, titlePoints: CGFloat = 42,
+         @ViewBuilder content: () -> Content, @ViewBuilder actions: () -> Actions) {
+        self.init(title: title, wordmark: wordmark, onBack: onBack, titlePoints: titlePoints,
+                  content: content, actions: actions, corner: { EmptyView() })
+    }
+}
+
+private struct FirstRunBleedKey: EnvironmentKey { static let defaultValue: CGFloat = 0 }
+private struct FirstRunFullBleedKey: EnvironmentKey { static let defaultValue = true }
+extension EnvironmentValues {
+    /// How far the pictures' bands may run past the column on each side, in points.
+    var firstRunBleed: CGFloat {
+        get { self[FirstRunBleedKey.self] }
+        set { self[FirstRunBleedKey.self] = newValue }
+    }
+    /// The canvas spans the whole screen (a phone), not a column.
+    var firstRunFullBleed: Bool {
+        get { self[FirstRunFullBleedKey.self] }
+        set { self[FirstRunFullBleedKey.self] = newValue }
+    }
+}
+
+/// Something that went wrong, said once over the buttons.
+private struct ProblemLine: View {
+    let text: String
+    let id: String
+    var body: some View {
+        Text(text)
+            .font(.footnote)
+            .foregroundStyle(DS.Palette.danger)
+            .multilineTextAlignment(.center)
+            .fixedSize(horizontal: false, vertical: true)
+            .accessibilityIdentifier(id)
+    }
+}
+
+// MARK: - The time
+
+/// The big time and the strip of half-hours under it. Each tick is a button; choosing an outer
+/// one brings the strip round it, so any time in the range is a few taps away. VoiceOver adjusts
+/// the time a quarter of an hour at a time.
+private struct TimeChooser: View {
+    @Binding var minutes: Int
+    let range: ClosedRange<Int>
+    let track: Color
+    let id: String
+    @ScaledMetric(relativeTo: .largeTitle) private var clockSize: CGFloat = 80
+    @ScaledMetric(relativeTo: .title2) private var periodSize: CGFloat = 24
+
+    var body: some View {
+        VStack(spacing: DS.Space.m) {
+            clock
+                .frame(maxWidth: .infinity)
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel(DayClock.label(minutes))
+                .accessibilityIdentifier(id)
+                .accessibilityAdjustableAction { direction in
+                    let step = direction == .increment ? 15 : direction == .decrement ? -15 : 0
+                    minutes = min(max(minutes + step, range.lowerBound), range.upperBound)
+                }
+            strip
+        }
+    }
+
+    private var clock: some View {
+        let parts = DayClock.parts(minutes)
+        return HStack(alignment: .firstTextBaseline, spacing: DS.Space.xs) {
+            Text(parts.time)
+                .font(.system(size: clockSize, weight: .heavy, design: .rounded).monospacedDigit())
+                .contentTransition(.numericText())
+            if let period = parts.period {
+                Text(period).font(.system(size: periodSize, weight: .semibold, design: .rounded))
+            }
+        }
+        .foregroundStyle(FirstRun.ink)
+        .animation(.snappy(duration: 0.2), value: minutes)
+        .lineLimit(1)
+        .minimumScaleFactor(0.6)
+    }
+
+    private var strip: some View {
+        let ticks = TimeTicks.around(minutes, in: range)
+        return ZStack {
+            Capsule().fill(track).frame(height: 3).padding(.horizontal, -DS.Space.s)
+            HStack(spacing: 0) {
+                ForEach(ticks, id: \.self) { tick in
+                    let chosen = tick == (minutes / TimeTicks.step) * TimeTicks.step
+                    Button {
+                        minutes = tick
+                    } label: {
+                        VStack(spacing: DS.Space.s) {
+                            Circle()
+                                .fill(chosen ? FirstRun.ink : track)
+                                .frame(width: chosen ? 18 : 9, height: chosen ? 18 : 9)
+                                .frame(height: 18)
+                            Text(DayClock.parts(tick).time)
+                                .font(chosen ? .callout.weight(.bold) : .callout)
+                                .monospacedDigit()
+                                .foregroundStyle(FirstRun.ink)
+                        }
+                        .frame(maxWidth: .infinity, minHeight: DS.Row.minHeight)
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(DayClock.label(tick))
+                    .accessibilityAddTraits(chosen ? .isSelected : [])
+                    .accessibilityIdentifier("onboarding.time.\(tick)")
+                }
+            }
+            .alignmentGuide(VerticalAlignment.center) { $0[VerticalAlignment.top] + 9 }
+        }
+        .animation(.snappy(duration: 0.2), value: ticks)
+    }
+}
+
+/// A time of day as the person's clock writes it, split so the period can be set smaller.
+enum DayClock {
+    static func date(_ minutes: Int) -> Date {
         Calendar.current.date(bySettingHour: minutes / 60, minute: minutes % 60, second: 0, of: Date()) ?? Date()
     }
 
-    static func label(_ minutes: Int) -> String {
-        date(at: minutes).formatted(date: .omitted, time: .shortened)
+    static func label(_ minutes: Int) -> String { date(minutes).formatted(date: .omitted, time: .shortened) }
+
+    /// An hour on its own, "2" or "3 PM" (or "14", "15" on a 24-hour clock).
+    static func hour(_ hour: Int, withPeriod: Bool = false) -> String {
+        let parts = parts(hour * 60)
+        let time = parts.time.hasSuffix(":00") ? String(parts.time.dropLast(3)) : parts.time
+        return withPeriod ? [time, parts.period].compactMap { $0 }.joined(separator: " ") : time
+    }
+
+    static func parts(_ minutes: Int) -> (time: String, period: String?) {
+        let formatter = DateFormatter()
+        formatter.locale = .current
+        formatter.setLocalizedDateFormatFromTemplate("jmm")
+        let full = formatter.string(from: date(minutes))
+        let symbols = [formatter.amSymbol, formatter.pmSymbol].compactMap { $0 }
+        for symbol in symbols where full.contains(symbol) {
+            let time = full.replacingOccurrences(of: symbol, with: "").trimmingCharacters(in: .whitespaces.union(.init(charactersIn: "\u{202F}")))
+            return (time, symbol)
+        }
+        return (full, nil)
     }
 }
 
-// MARK: - Two calendars, before and after
+// MARK: - Lists
 
-/// What Banana does between two calendars, as a small pair of columns: before, a meeting on one
-/// leaves the same hour looking free on the other; after, that hour reads Busy there.
-struct BusyBeforeAfter: View {
-    enum Stage { case before, after }
-    var stage = Stage.after
-    /// Whether the card says which of the two it is: only where both are on the page.
-    var captioned = false
-
-    var body: some View {
-        pair(captioned ? (stage == .before ? "Before" : "After") : nil, blocked: stage == .after)
-            .padding(DS.Space.l)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .dsCard()
-            .accessibilityElement(children: .ignore)
-            .accessibilityLabel(stage == .before
-                ? "Before: a meeting on Work leaves that hour free on Personal, and the other way round."
-                : "\(captioned ? "After: a" : "A") meeting on Work shows as Busy on Personal, and the other way round.")
-            .accessibilityIdentifier(stage == .before ? "onboarding.busyBefore" : "onboarding.busyPicture")
-    }
-
-    private func pair(_ caption: String?, blocked: Bool) -> some View {
-        VStack(alignment: .leading, spacing: DS.Space.s) {
-            if let caption {
-                Text(caption)
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(.secondary)
-            }
-            HStack(alignment: .top, spacing: DS.Space.m) {
-                column("Work", symbol: "briefcase.fill", tint: DS.Palette.Brand.blue,
-                       first: .meeting("Design review", DS.Palette.Brand.blue), second: blocked ? .busy : .free)
-                column("Personal", symbol: "house.fill", tint: DS.Palette.Brand.green,
-                       first: blocked ? .busy : .free, second: .meeting("Dentist", DS.Palette.Brand.green))
-            }
-        }
-    }
-
-    private enum Slot {
-        case meeting(String, Color), busy, free
-    }
-
-    private func column(_ title: String, symbol: String, tint: Color, first: Slot, second: Slot) -> some View {
-        VStack(alignment: .leading, spacing: DS.Space.xs) {
-            HStack(spacing: DS.Space.s) {
-                IconTile(systemImage: symbol, tint: tint, size: 22)
-                Text(title).font(.footnote.weight(.semibold))
-            }
-            .padding(.bottom, DS.Space.hair)
-            slot(first)
-            slot(second)
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-    }
-
-    @ViewBuilder
-    private func slot(_ slot: Slot) -> some View {
-        let shape = RoundedRectangle(cornerRadius: DS.Radius.block, style: .continuous)
-        switch slot {
-        case .meeting(let title, let tint):
-            block(title, tint: tint)
-        case .busy:
-            block("Busy", tint: .secondary)
-                .transition(.opacity)
-        case .free:
-            Text("Looks free")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .padding(.horizontal, DS.Space.s)
-                .frame(maxWidth: .infinity, minHeight: 30, alignment: .leading)
-                .overlay(shape.strokeBorder(Color.secondary.opacity(0.45), style: StrokeStyle(lineWidth: 1.5, dash: [5, 4])))
-        }
-    }
-
-    private func block(_ title: String, tint: Color) -> some View {
-        HStack(spacing: 0) {
-            Text(title)
-                .font(.caption.weight(.semibold))
-                .lineLimit(1)
-                .padding(.horizontal, DS.Space.s)
-            Spacer(minLength: 0)
-        }
-        .frame(maxWidth: .infinity, minHeight: 30, alignment: .leading)
-        .background(tint.opacity(DS.Event.fill))
-        .clipShape(RoundedRectangle(cornerRadius: DS.Radius.block, style: .continuous))
-    }
-}
-
-/// The Google accounts that are in, each ticked, and a dashed row that adds one.
-private struct AccountList: View {
-    let emails: [String]
-    let adding: Bool
-    let add: () -> Void
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: DS.Space.s) {
-            ForEach(emails, id: \.self) { email in
-                HStack(spacing: DS.Space.m) {
-                    Image(systemName: "checkmark.circle.fill")
-                        .font(.title3)
-                        .foregroundStyle(DS.Palette.success)
-                        .accessibilityHidden(true)
-                    Text(email)
-                        .font(.subheadline.weight(.medium))
-                        .lineLimit(1)
-                        .truncationMode(.middle)
-                    Spacer(minLength: 0)
-                }
-                .frame(minHeight: DS.Row.minHeight)
-                .accessibilityElement(children: .combine)
-                .accessibilityLabel("\(email), connected")
-            }
-            Button(action: add) {
-                HStack(spacing: DS.Space.m) {
-                    Image(systemName: "plus.circle")
-                        .font(.title3)
-                        .accessibilityHidden(true)
-                    Text(emails.count < 2 ? "Work or personal" : "Another account")
-                        .font(.subheadline.weight(.medium))
-                    Spacer(minLength: 0)
-                }
-                .foregroundStyle(.secondary)
-                .padding(.horizontal, DS.Space.m)
-                .frame(minHeight: DS.Row.minHeight)
-                .overlay(RoundedRectangle(cornerRadius: DS.Radius.control, style: .continuous)
-                    .strokeBorder(Color.secondary.opacity(0.45), style: StrokeStyle(lineWidth: 1.5, dash: [5, 4])))
-                .contentShape(Rectangle())
-            }
-            .buttonStyle(.plain)
-            .disabled(adding)
-            .accessibilityLabel(emails.count < 2 ? "Add your work or personal Google account" : "Add another Google account")
-            .accessibilityIdentifier("onboarding.other.add")
-        }
-        .padding(DS.Space.l)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .dsCard()
-    }
-}
-
-// MARK: - What Banana looks after
-
-/// What Banana looks after, chosen on the way in: Plan, always on, then each module, then
-/// Everything. Rows in the look the read-only list had, so the welcome still reads as a picture
-/// of the app; the choice is held by `OnboardingStore`, which outlives the view. (Before 17 Oct
-/// 2026 these were said, not asked: four rows to read. Still one path through the first run.)
+/// What Banana looks after: Plan always, then each module, then Everything.
 private struct ModuleChooser: View {
     @Binding var choice: ModuleChoice
     @ObservedObject private var availableModules = ModuleStore.shared
@@ -522,20 +709,23 @@ private struct ModuleChooser: View {
     private struct Row {
         let module: AppModule
         let title: String
-        let colour: Color
     }
 
     private let rows = [
-        Row(module: .workouts, title: "Track workouts and sleep", colour: AppModule.workouts.tint),
-        Row(module: .food, title: "Log your meals", colour: AppModule.food.tint),
-        Row(module: .notes, title: "Keep notes", colour: AppModule.notes.tint),
-        Row(module: .podcasts, title: "Listen to podcasts", colour: AppModule.podcasts.tint),
-        Row(module: .email, title: "Email", colour: AppModule.email.tint),
+        Row(module: .workouts, title: "Track workouts and sleep"),
+        Row(module: .food, title: "Log your meals"),
+        Row(module: .notes, title: "Keep notes"),
+        Row(module: .podcasts, title: "Listen to podcasts"),
+        // Email isn't chosen here: the calendar page brings it in with the calendar.
     ]
 
+    /// Everything this page offers is on.
+    private var everything: Bool {
+        rows.filter { availableModules.selectable.contains($0.module) }.allSatisfy { choice.includes($0.module) }
+    }
+
     var body: some View {
-        VStack(alignment: .leading, spacing: DS.Space.m) {
-            // Plan is the app: shown ticked, not a choice.
+        VStack(alignment: .leading, spacing: DS.Space.s) {
             line(title: "Plan your day", symbol: AppSection.plan.symbol,
                  colour: DS.Palette.Brand.yellow, glyph: DS.Palette.Brand.ink, on: true, fixed: true)
                 .accessibilityElement(children: .combine)
@@ -546,7 +736,7 @@ private struct ModuleChooser: View {
                     choice = choice.setting(row.module, on: !on)
                 } label: {
                     line(title: row.module.statusLabel.map { "\(row.title) · \($0)" } ?? row.title,
-                         symbol: row.module.symbol, colour: row.colour, on: on)
+                         symbol: row.module.symbol, colour: row.module.tint, on: on)
                 }
                 .buttonStyle(.plain)
                 .accessibilityAddTraits(on ? .isSelected : [])
@@ -554,16 +744,17 @@ private struct ModuleChooser: View {
                 .accessibilityIdentifier("onboarding.module.\(row.module.rawValue)")
             }
             Button {
-                choice = choice.isEverything ? .planOnly : .everything
+                // Every module this page offers; Email keeps whatever the calendar page decides.
+                let email = choice.includes(.email)
+                choice = (everything ? ModuleChoice.planOnly : .everything).setting(.email, on: email)
             } label: {
-                line(title: "Everything", symbol: "square.grid.2x2.fill",
-                     colour: DS.Palette.Brand.ink, glyph: DS.Palette.Brand.yellow, on: choice.isEverything)
+                line(title: "Everything", symbol: "infinity",
+                     colour: FirstRun.ink, glyph: FirstRun.page, on: everything)
             }
             .buttonStyle(.plain)
-            .accessibilityAddTraits(choice.isEverything ? .isSelected : [])
+            .accessibilityAddTraits(everything ? .isSelected : [])
             .accessibilityIdentifier("onboarding.module.everything")
         }
-        .padding(.top, DS.Space.xs)
     }
 
     private func line(title: String, symbol: String, colour: Color, glyph: Color? = nil,
@@ -571,17 +762,341 @@ private struct ModuleChooser: View {
         HStack(spacing: DS.Space.l) {
             IconTile(systemImage: symbol, tint: colour, size: DS.Row.glyphTile, glyph: glyph)
             Text(title)
-                .font(.title3.weight(.semibold))
-                .foregroundStyle(.primary)
+                .font(.title3)
+                .foregroundStyle(FirstRun.ink)
                 .fixedSize(horizontal: false, vertical: true)
             Spacer(minLength: 0)
             Image(systemName: on ? "checkmark.circle.fill" : "circle")
-                .font(.title2)
-                .foregroundStyle(on ? AnyShapeStyle(DS.Palette.accent) : AnyShapeStyle(.secondary))
-                .opacity(fixed ? 0.6 : 1)
+                .font(.title)
+                .foregroundStyle(FirstRun.ink)
+                .opacity(fixed ? 0.85 : 1)
                 .accessibilityHidden(true)
         }
+        .frame(minHeight: 52)
         .contentShape(Rectangle())
+    }
+}
+
+/// What the one Google sign-in brings in: Calendar, always, and Email, on unless turned off.
+/// Once an account is in, Email is already decided and the switch only shows it.
+private struct ConnectRows: View {
+    @Binding var emailWanted: Bool
+    let locked: Bool
+
+    var body: some View {
+        VStack(spacing: 0) {
+            // Always brought in: a tick, not a switch that cannot be switched.
+            row("Calendar", symbol: "calendar", tint: FirstRun.lilac.dot) {
+                Image(systemName: "checkmark.circle.fill")
+                    .font(.title2)
+                    .foregroundStyle(FirstRun.ink)
+                    .accessibilityLabel("Always on")
+            }
+            Divider()
+            row("Email", symbol: "envelope", tint: FirstRun.mint.dot) {
+                Toggle("Email", isOn: $emailWanted).labelsHidden().disabled(locked)
+                    .accessibilityIdentifier("onboarding.email")
+            }
+        }
+        .tint(FirstRun.ink)
+    }
+
+    private func row<Control: View>(_ title: String, symbol: String, tint: Color,
+                                    @ViewBuilder control: () -> Control) -> some View {
+        HStack(spacing: DS.Space.m) {
+            Image(systemName: symbol)
+                .font(.title3)
+                .foregroundStyle(tint)
+                .frame(width: DS.Row.iconTile)
+                .accessibilityHidden(true)
+            Text(title).font(.body).foregroundStyle(FirstRun.ink)
+            Spacer(minLength: DS.Space.s)
+            control()
+        }
+        .frame(minHeight: 52)
+    }
+}
+
+/// The Google accounts that are in, each ticked, and a row that adds another.
+private struct AccountRows: View {
+    let emails: [String]
+    let adding: Bool
+    let add: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            ForEach(emails, id: \.self) { email in
+                HStack(spacing: DS.Space.m) {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.title3)
+                        .foregroundStyle(DS.Palette.success)
+                        .accessibilityHidden(true)
+                    Text(email)
+                        .font(.body)
+                        .foregroundStyle(FirstRun.ink)
+                        .lineLimit(1)
+                        .truncationMode(.middle)
+                    Spacer(minLength: 0)
+                }
+                .frame(minHeight: DS.Row.minHeight)
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("\(email), connected")
+                Divider()
+            }
+            Button(action: add) {
+                HStack(spacing: DS.Space.m) {
+                    if adding { ProgressView().controlSize(.small) } else {
+                        Image(systemName: "plus.circle").font(.title3).accessibilityHidden(true)
+                    }
+                    Text("Add another account").font(.body)
+                    Spacer(minLength: 0)
+                }
+                .foregroundStyle(FirstRun.ink)
+                .frame(minHeight: DS.Row.minHeight)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .disabled(adding)
+            .accessibilityIdentifier("onboarding.other.add")
+        }
+    }
+}
+
+/// Every calendar, with whether it shows and whether it makes the person busy: two system
+/// switches under two column labels.
+private struct CalendarChoiceList: View {
+    let rows: [CalendarChoice]
+    let change: ((inout SmartScheduleSettings) -> Void) -> Void
+    @ScaledMetric(relativeTo: .body) private var column: CGFloat = 64
+    @Environment(\.dynamicTypeSize) private var typeSize
+
+    var body: some View {
+        if typeSize.isAccessibilitySize { stacked } else { table }
+    }
+
+    /// The largest text sizes: each calendar's name on its own line, its two switches labelled
+    /// under it (side by side, the name was squeezed to nothing).
+    private var stacked: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            ForEach(rows) { row in
+                VStack(alignment: .leading, spacing: DS.Space.xs) {
+                    name(row)
+                    Toggle("Show", isOn: shown(row)).accessibilityIdentifier("onboarding.show.\(row.title)")
+                    Toggle("Busy", isOn: busy(row)).accessibilityIdentifier("onboarding.busy.\(row.title)")
+                }
+                .font(.body)
+                .foregroundStyle(FirstRun.ink)
+                .tint(FirstRun.ink)
+                .padding(.vertical, DS.Space.s)
+                Divider()
+            }
+        }
+    }
+
+    private func name(_ row: CalendarChoice) -> some View {
+        HStack(spacing: DS.Space.m) {
+            Circle()
+                .fill(row.colorHex.map { calendarTint($0) } ?? FirstRun.secondaryInk)
+                .frame(width: 16, height: 16)
+                .accessibilityHidden(true)
+            Text(row.title)
+                .font(.body)
+                .foregroundStyle(FirstRun.ink)
+                .lineLimit(2)
+                .layoutPriority(1)
+            if !row.isOwner {
+                Text("Shared")
+                    .font(.caption)
+                    .foregroundStyle(FirstRun.secondaryInk)
+                    .fixedSize()
+                    .padding(.horizontal, DS.Space.s - 2)
+                    .padding(.vertical, DS.Space.hair)
+                    .background(Color.primary.opacity(DS.Tint.subtle), in: RoundedRectangle(cornerRadius: DS.Radius.chip))
+            }
+        }
+    }
+
+    private func shown(_ row: CalendarChoice) -> Binding<Bool> {
+        Binding(get: { row.shown }, set: { on in change { CalendarChoices.setShown(on, for: row, in: &$0) } })
+    }
+
+    private func busy(_ row: CalendarChoice) -> Binding<Bool> {
+        Binding(get: { row.busy }, set: { on in change { CalendarChoices.setBusy(on, for: row, in: &$0) } })
+    }
+
+    private var table: some View {
+        VStack(spacing: 0) {
+            HStack(spacing: 0) {
+                Spacer(minLength: 0)
+                Text("Show").frame(width: column)
+                Text("Busy").frame(width: column)
+            }
+            .font(.subheadline)
+            .foregroundStyle(FirstRun.secondaryInk)
+            .padding(.bottom, DS.Space.xs)
+            .accessibilityHidden(true)
+            Divider()
+            ForEach(rows) { row in
+                HStack(spacing: DS.Space.m) {
+                    Circle()
+                        .fill(row.colorHex.map { calendarTint($0) } ?? FirstRun.secondaryInk)
+                        .frame(width: 16, height: 16)
+                        .accessibilityHidden(true)
+                    Text(row.title)
+                        .font(.body)
+                        .foregroundStyle(FirstRun.ink)
+                        .lineLimit(1)
+                        .layoutPriority(1)
+                    if !row.isOwner {
+                        Text("Shared")
+                            .font(.caption)
+                            .foregroundStyle(FirstRun.secondaryInk)
+                            .fixedSize()
+                            .padding(.horizontal, DS.Space.s - 2)
+                            .padding(.vertical, DS.Space.hair)
+                            .background(Color.primary.opacity(DS.Tint.subtle), in: RoundedRectangle(cornerRadius: DS.Radius.chip))
+                    }
+                    Spacer(minLength: DS.Space.s)
+                    Toggle("Show \(row.title)", isOn: Binding(
+                        get: { row.shown },
+                        set: { on in change { CalendarChoices.setShown(on, for: row, in: &$0) } }))
+                        .labelsHidden()
+                        .frame(width: column)
+                        .accessibilityIdentifier("onboarding.show.\(row.title)")
+                    Toggle("\(row.title) makes you busy", isOn: Binding(
+                        get: { row.busy },
+                        set: { on in change { CalendarChoices.setBusy(on, for: row, in: &$0) } }))
+                        .labelsHidden()
+                        .frame(width: column)
+                        .accessibilityIdentifier("onboarding.busy.\(row.title)")
+                }
+                .tint(FirstRun.ink)
+                .frame(minHeight: 52)
+                Divider()
+            }
+        }
+    }
+}
+
+/// The consent's numbers, from the planner, and what is happening to them.
+private struct CopySummary: View {
+    let state: OnboardingStore.CopiesState
+    let retry: () -> Void
+
+    var body: some View {
+        VStack(spacing: DS.Space.xs) {
+            switch state {
+            case .idle, .loading:
+                ProgressView().frame(minHeight: 56)
+                    .accessibilityLabel("Working out what would be copied")
+            case .ready(let preview, let updated):
+                numbers(preview, updated: updated)
+            case .applying(let preview):
+                numbers(preview, updated: false)
+            case .failed(let message):
+                Text(message)
+                    .font(.body)
+                    .foregroundStyle(DS.Palette.danger)
+                    .multilineTextAlignment(.center)
+                    .accessibilityIdentifier("onboarding.copies.problem")
+                Button("Retry", action: retry)
+                    .buttonStyle(AppButtonStyle(kind: .secondary))
+                    .accessibilityIdentifier("onboarding.copies.retry")
+            }
+        }
+        .padding(DS.Space.l)
+        .frame(maxWidth: .infinity)
+        .background(FirstRun.card, in: RoundedRectangle(cornerRadius: DS.Radius.panel, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: DS.Radius.panel, style: .continuous).strokeBorder(FirstRun.cardLine))
+        .accessibilityElement(children: .combine)
+        .accessibilityIdentifier("onboarding.copies.summary")
+    }
+
+    @ViewBuilder private func numbers(_ preview: BusyCopyPreview, updated: Bool) -> some View {
+        headline(preview)
+        Text(detail(preview))
+            .font(.subheadline)
+            .foregroundStyle(FirstRun.secondaryInk)
+            .multilineTextAlignment(.center)
+        if updated {
+            Text("Updated")
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(DS.Palette.Brand.night)
+                .padding(.horizontal, DS.Space.s)
+                .padding(.vertical, DS.Space.hair)
+                .background(FirstRun.yellow, in: Capsule())
+                .accessibilityIdentifier("onboarding.copies.updated")
+        }
+    }
+
+    private func headline(_ preview: BusyCopyPreview) -> some View {
+        let names = preview.changing.map(\.title)
+        let text = preview.creates == 0
+            ? "Nothing to copy yet"
+            : "\(preview.creates) Busy event\(preview.creates == 1 ? "" : "s") on \(OnboardingReceipt.line(names))"
+        return Text(text)
+            .font(.title3.weight(.bold))
+            .foregroundStyle(FirstRun.ink)
+            .multilineTextAlignment(.center)
+    }
+
+    private func detail(_ preview: BusyCopyPreview) -> String {
+        var parts = ["From \(OnboardingReceipt.line(preview.sources))"]
+        if let start = preview.start, let end = preview.end {
+            parts.append((start..<max(end, start)).formatted(.interval.month(.abbreviated).day()))
+        }
+        if preview.updates > 0 { parts.append("\(preview.updates) updated") }
+        if preview.removals > 0 { parts.append("\(preview.removals) removed") }
+        return parts.joined(separator: " \u{00B7} ")
+    }
+}
+
+/// The receipt: Shown, Busy and Copies, each one line.
+private struct ReceiptRows: View {
+    let receipt: OnboardingReceipt
+    let copyProblem: String?
+
+    var body: some View {
+        VStack(spacing: 0) {
+            row("Calendar", receipt.calendarLine)
+            Divider()
+            if let email = receipt.emailLine {
+                row("Email", email)
+                Divider()
+            }
+            row("Shown", OnboardingReceipt.line(receipt.shown))
+            Divider()
+            row("Busy", OnboardingReceipt.line(receipt.busy))
+            Divider()
+            row("Copies", receipt.copiesLine)
+            if let copyProblem {
+                HStack(alignment: .firstTextBaseline) {
+                    Text(copyProblem)
+                        .font(.footnote)
+                        .foregroundStyle(DS.Palette.danger)
+                        .fixedSize(horizontal: false, vertical: true)
+                    Spacer(minLength: DS.Space.s)
+                    Button("Retry") { OccurrenceStore.shared.requestRecompute(reason: "first run copy retry") }
+                        .buttonStyle(AppButtonStyle(kind: .secondary, size: .small))
+                        .accessibilityIdentifier("onboarding.copies.retry")
+                }
+                .padding(.vertical, DS.Space.s)
+            }
+        }
+    }
+
+    private func row(_ label: String, _ value: String) -> some View {
+        HStack(alignment: .firstTextBaseline, spacing: DS.Space.l) {
+            Text(label).foregroundStyle(FirstRun.secondaryInk)
+            Spacer(minLength: DS.Space.s)
+            Text(value)
+                .foregroundStyle(FirstRun.ink)
+                .multilineTextAlignment(.trailing)
+        }
+        .font(.body)
+        .frame(minHeight: 50)
+        .accessibilityElement(children: .combine)
+        .accessibilityIdentifier("onboarding.receipt.\(label.lowercased())")
     }
 }
 
