@@ -24,11 +24,21 @@ const BACKOFF = MINUTE;
 // once; polling stays as the safety net, at a slower pace.
 const POLL_ACTIVE_WATCHED = MINUTE, POLL_RECENT_WATCHED = 10 * MINUTE, POLL_IDLE_WATCHED = 2 * 60 * MINUTE;
 export const WATCH_RENEW_BEFORE = DAY;         // Gmail ends a watch after 7 days
-// The content fill: every message inside the window, newest first, at half of the identity's read
-// pace (37.5 of 75 units a second: one full read every 1.6 s), on the background lane only.
+// The content fill: every message inside the window, newest first, on the background lane only.
+// It uses whatever of the identity's read budget nobody else is using, up to the 4,500 units a
+// minute ceiling (mail-read-pacing.js) less one full-read slot a minute kept for a person: 74
+// units a second, one full read every 811 ms. A background read only takes a slot that is free
+// now, so a person's read never waits behind it for more than one slot (800 ms).
 export const FILL_DAYS = 183;                   // six months, the engine's default sync limit
-export const FILL_UNITS_PER_SECOND = 37.5;
+export const FILL_CEILING_UNITS_PER_MINUTE = 4500;
+export const FILL_RESERVE_UNITS = 60;           // one full read a minute, for interactive reads only
+export const FILL_UNITS_PER_SECOND = (FILL_CEILING_UNITS_PER_MINUTE - FILL_RESERVE_UNITS) / 60;
 const FILL_READ_UNITS = 60;                     // a full message read (mail-read-pacing.js)
+// When Google says "too many" (429, rateLimitExceeded), the fill halves its rate for five
+// minutes (again for each further limit, to an eighth), then ramps back to full over five more.
+export const FILL_BACKOFF = 5 * MINUTE;
+export const FILL_RAMP = 5 * MINUTE;
+const FILL_FLOOR = 0.125;
 const FILL_OLD_STOP = 20;                       // this many in a row older than the window: done
 const FILL_AGAIN = 6 * 60 * MINUTE;             // a finished fill looks again (skipped, new rows)
 // "New mail is here" to the devices: one silent push for a burst, at most one per this gap.
@@ -124,8 +134,23 @@ export function createMailbox({ port, deps, vault, blobs, alarm, destroy }) {
       const { bytes } = await answerBytes(answer, 64 * 1024);
       refused(answer.status, bytes && parse(bytes));
     }
-    if (answer.status === 429 || answer.status >= 500) throw new Retry(now() + BACKOFF);
+    if (answer.status === 429) { noteLimited(); throw new Retry(now() + BACKOFF); }
+    if (answer.status >= 500) throw new Retry(now() + BACKOFF);
     return answer;
+  }
+  /** The fill's share of the budget now: 1, halved for FILL_BACKOFF after each limit Google
+   * stated (to FILL_FLOOR), then ramping back to 1 over FILL_RAMP. */
+  function fillFactor(at = now()) {
+    const limited = box.getMeta(port, "fill_limited_at");
+    if (limited === null) return 1;
+    const base = Number(box.getMeta(port, "fill_factor") ?? 1), t = at - Number(limited);
+    if (t < FILL_BACKOFF) return base;
+    if (t < FILL_BACKOFF + FILL_RAMP) return base + (1 - base) * (t - FILL_BACKOFF) / FILL_RAMP;
+    return 1;
+  }
+  function noteLimited() {
+    box.setMeta(port, "fill_factor", Math.max(FILL_FLOOR, fillFactor() / 2));
+    box.setMeta(port, "fill_limited_at", now());
   }
   async function gmailJSON(who, request, options) {
     const answer = await gmail(who, request, options);
@@ -138,6 +163,7 @@ export function createMailbox({ port, deps, vault, blobs, alarm, destroy }) {
   function refused(status, body) {
     const reasons = body?.error?.errors?.map((e) => e?.reason) ?? [];
     if (status === 401 || reasons.some((r) => ["insufficientPermissions", "authError"].includes(r))) throw new Unauthorized();
+    if (reasons.some((r) => ["rateLimitExceeded", "userRateLimitExceeded"].includes(r))) noteLimited();
     throw new Retry(now() + BACKOFF);
   }
   /** A Gmail write takes its share of the identity's pacing like any read. */
@@ -396,7 +422,15 @@ export function createMailbox({ port, deps, vault, blobs, alarm, destroy }) {
     let answer;
     try { answer = await content(who, next.id, null, { background: true }); }
     catch (error) {
-      if (error instanceof Retry) return Math.max(now() + 100, await nextMailReadAt(deps, who.sub));   // no free slot
+      if (error instanceof Retry) {
+        // No free slot (or Google said wait): the next free slot, and the fill's own pace.
+        const paced = now() + Math.ceil(FILL_READ_UNITS * 1000 / (FILL_UNITS_PER_SECOND * fillFactor()));
+        if (box.getMeta(port, "fill_limited_at") !== null && now() - Number(box.getMeta(port, "fill_limited_at")) < 1000) {
+          box.setMeta(port, "fill_next_at", paced);
+          return paced;
+        }
+        return Math.max(now() + 100, await nextMailReadAt(deps, who.sub));
+      }
       throw error;
     }
     const date = box.contentState(port, next.id)?.date ?? null;
@@ -404,7 +438,7 @@ export function createMailbox({ port, deps, vault, blobs, alarm, destroy }) {
     // The watermark moves past it whatever the answer (too large, refused, gone): a later walk
     // tries again; a device that opens it asks for it itself.
     box.setFillState(port, { after: next.id, old, done: old >= FILL_OLD_STOP ? now() : null });
-    box.setMeta(port, "fill_next_at", now() + Math.ceil(FILL_READ_UNITS * 1000 / FILL_UNITS_PER_SECOND));
+    box.setMeta(port, "fill_next_at", now() + Math.ceil(FILL_READ_UNITS * 1000 / (FILL_UNITS_PER_SECOND * fillFactor())));
     if (answer?.fetched) box.setMeta(port, "filled", Number(box.getMeta(port, "filled") ?? 0) + 1);
     return now();
   }

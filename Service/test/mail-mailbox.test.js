@@ -378,7 +378,7 @@ test("the fill stops at its window and resumes from its watermark after a restar
   assert.equal(fullReads(t.gmail, quiet).length, 0);
 });
 
-test("the fill takes only free background slots, at half the identity's pace, and a person's read goes first", async () => {
+test("the fill takes only free background slots, at the ceiling less the reserve, and a person's read goes first", async () => {
   const t = await mailbox({ count: 20, labels: () => ["Label_1"] });
   assert.equal((await t.feed(t.phone)).status, 200);
   await t.drain(t.settled);
@@ -395,7 +395,7 @@ test("the fill takes only free background slots, at half the identity's pace, an
   await fillDone(t);
   assert.ok(times[0].at >= reserved, "no fill read while a person's slot is reserved");
   assert.equal(times.length, 20);
-  for (let i = 1; i < times.length; i++) assert.ok(times[i].at - times[i - 1].at >= 1600, `read ${i} ${times[i].at - times[i - 1].at} ms after the last`);
+  for (let i = 1; i < times.length; i++) assert.ok(times[i].at - times[i - 1].at >= 811, `read ${i} ${times[i].at - times[i - 1].at} ms after the last`);
   // A device's read in the middle of a fill is served at once (its own lane), from the store.
   const answer = await t.read(t.phone, "m3");
   assert.equal(answer.status, 200);
@@ -583,4 +583,90 @@ test("the quarter-hour job renews a watch a day before it ends, and turning Mail
   assert.equal((await t.s.call("DELETE", "/v1/google/mail", { session: t.phone.session, body: { email: EMAIL } })).status, 204);
   assert.equal(t.s.google.mailStops.length, 1, "stopped while the grant still worked");
   assert.equal(await t.s.count("mail_mailboxes"), 0);
+});
+
+
+// ---- the fill uses the free budget (MAIL-CLOUD-SYNC §5a) ----
+
+/** Times of the mailbox's full reads, and of every sleep a read made waiting for its slot. */
+function recordReads(t) {
+  const reads = [], waits = [];
+  const real = t.gmail.mailRead;
+  t.s.google.mailRead = async (token, request) => {
+    if (request.resource === "message" && (request.query.find((q) => q.name === "format")?.value ?? "full") === "full") reads.push(t.s.now());
+    return t.answer ? t.answer(token, request, real) : real(token, request);
+  };
+  const sleep = t.s.deps.sleep;
+  t.s.deps.sleep = async (ms) => { waits.push(ms); return sleep(ms); };
+  return { reads, waits };
+}
+
+test("in a quiet minute the fill reads at the ceiling less the reserve: 4,440 units, 74 full reads", async () => {
+  const t = await mailbox({ count: 200, labels: () => ["Label_1"] });
+  assert.equal((await t.feed(t.phone)).status, 200);
+  await t.drain(t.settled);
+  const { reads } = recordReads(t);
+  const start = t.s.now();
+  await t.drain(async () => t.s.now() - start >= 60_000, 5000);
+  const inMinute = reads.filter((at) => at - start < 60_000).length;
+  assert.ok(inMinute >= 73 && inMinute <= 75, `${inMinute} full reads in a quiet minute`);
+  assert.ok(inMinute * 60 <= 4500 - 60 + 60, "never above the ceiling");
+});
+
+test("a person's read arriving during a fill burst gets a slot within one slot interval", async () => {
+  const t = await mailbox({ count: 120, labels: () => ["Label_1"] });
+  assert.equal((await t.feed(t.phone)).status, 200);
+  await t.drain(t.settled);
+  const { reads, waits } = recordReads(t);
+  const start = t.s.now();
+  await t.drain(async () => reads.length >= 10, 2000);   // the fill is running flat out
+  t.gmail.add("fresh", ["Label_1"]);
+  t.s.advance(11_000);
+  await t.feed(t.phone, { fresh: true });                // knows "fresh"; not stored
+  waits.length = 0;
+  const answer = await t.read(t.phone, "fresh");         // a person opens it: an interactive read
+  assert.equal(answer.status, 200);
+  assert.ok(waits.every((ms) => ms <= 800), `waited ${waits} ms`);
+  assert.ok(reads.length >= 10 && start <= t.s.now());
+});
+
+test("Google's limit halves the fill for five minutes, then it ramps back to full", async () => {
+  const t = await mailbox({ count: 900, labels: () => ["Label_1"] });
+  assert.equal((await t.feed(t.phone)).status, 200);
+  await t.drain(t.settled);
+  const { reads } = recordReads(t);
+  await t.drain(async () => reads.length >= 5, 2000);
+  let limitOnce = true;
+  t.answer = async (token, request, real) => {
+    if (limitOnce && request.resource === "message") { limitOnce = false; return { status: 429, body: { error: { code: 429, errors: [{ reason: "rateLimitExceeded" }] } } }; }
+    return real(token, request);
+  };
+  await t.drain(async () => !limitOnce, 200);
+  const limitedAt = t.s.now();
+  const count = (from, to) => reads.filter((at) => at >= limitedAt + from && at < limitedAt + to).length;
+  await t.drain(async () => t.s.now() - limitedAt >= 11 * 60_000, 20_000);
+  const halved = count(60_000, 120_000), ramping = count(7 * 60_000, 8 * 60_000), full = count(10 * 60_000, 11 * 60_000);
+  assert.ok(halved >= 36 && halved <= 38, `${halved} reads a minute while backed off (37 is half)`);
+  assert.ok(ramping > halved && ramping < full, `ramping: ${ramping}`);
+  assert.ok(full >= 73 && full <= 75, `${full} reads a minute after the ramp`);
+});
+
+test("listings and verification go before the fill", async () => {
+  const t = await mailbox({ count: 60, labels: () => ["Label_1"] });
+  assert.equal((await t.feed(t.phone)).status, 200);
+  await t.drain(t.settled);
+  const before = t.gmail.calls.length;
+  // A device asks the mailbox to check five messages (verification), and Gmail's history expires
+  // (a new scan): both run ahead of any fill read.
+  await t.s.call("POST", "/v1/mail/check", { session: t.phone.session, body: { email: EMAIL, ids: ["m1", "m2", "m3", "m4", "m5"] } });
+  t.gmail.oldest = Number.MAX_SAFE_INTEGER;
+  t.s.advance(11_000);
+  await t.feed(t.phone, { fresh: true });   // the poll's 404 expires the position: a new scan
+  t.gmail.oldest = 0;
+  await t.drain(async () => (await t.status()).fill.done !== null, 3000);
+  const calls = t.gmail.calls.slice(before).map((c, i) => ({ ...c, i }));
+  const firstFill = calls.find((c) => c.resource === "message" && c.format === "full")?.i ?? Infinity;
+  const lastListing = Math.max(...calls.filter((c) => c.resource === "messages").map((c) => c.i));
+  assert.ok(Number.isFinite(lastListing), "a scan ran");
+  assert.ok(lastListing < firstFill, `every listing before the first fill read: ${calls.slice(0, 30).map((c) => c.resource + (c.format ? ":" + c.format : "")).join(" ")}`);
 });

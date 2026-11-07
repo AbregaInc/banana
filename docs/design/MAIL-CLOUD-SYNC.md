@@ -56,7 +56,7 @@ the agreed priority order:
 7. **Backfill**: listings of every label, `INBOX` first, then the unlabelled listing
    (`includeSpamTrash`, 500 ids a page, 5 units), then the close.
 8. **The content fill** (§5a): every message without content, newest first, on the
-   background lane only and at half the identity's pace.
+   background lane only, with whatever of the identity's budget is free.
 
 Steps 1–6 use the existing pacing reservation and may wait up to ten seconds. Backfill asks for
 a **background** reservation: it only takes a slot that is free *now*, so a device's
@@ -170,16 +170,22 @@ messages in a row dated before the window (one imported old message cannot stop 
 Trash are skipped. Its watermark (`meta.fill`: the last id taken) survives alarm restarts and
 Durable Object eviction; a closing scan, or six hours after a finished walk, starts it again
 from the newest (cheap: the index holds only rows still without content). It reads on the
-background lane only — a slot that is free now, never one a person's read reserved — and at
-most one full read every 1.6 s (37.5 of the identity's 75 units a second), so a device's own
-read waits at most one slot. Content inside the window is not dropped as "unused for 90 days".
+background lane only — a slot that is free now, never one a person's read reserved — so it
+uses whatever of the identity's budget nobody else is using, up to the 4,500-units-a-minute
+ceiling less one full-read slot a minute kept for interactive reads: 74 units a second, one full
+read every 811 ms. A person's read arriving during a fill burst waits at most one slot (800 ms).
+When Google says "too many" (a 429, or `rateLimitExceeded` on any of the mailbox's reads), the
+fill halves its rate for five minutes — again for each further limit, to an eighth — then ramps
+back to full over five more; interactive reads keep their existing behaviour. Listings,
+verification, history and new mail's content all run before it in the step order. Content inside the window is not dropped as "unused for 90 days".
 Storing content publishes the message again with `content: true`, so the devices learn from
 the feed what they can pull.
 
-Cost per account during the fill: **2,250 messages and 135,000 Gmail units an hour** (a
-quarter of the 6,000-units-a-minute per-user quota; the other half of the paced budget stays
-free for devices and history). Six months at the engine's assumed 110 messages a day (≈ 20,000
-messages) is about **nine hours**, once; afterwards only new mail. R2: Gmail's `full` JSON
+Cost per account during the fill, in a quiet period: **4,440 messages and 266,400 Gmail units an
+hour** (74% of the 6,000-units-a-minute per-user quota; the ceiling is not raised). Whatever a
+person or a device reads in that time comes out of the fill's share. Six months at the engine's
+assumed 110 messages a day (≈ 20,000 messages) is about **four and a half hours**, once;
+afterwards only new mail. R2: Gmail's `full` JSON
 (base64 bodies, ≈ 1.35× the raw message) sealed; at an ASSUMED 50–75 KB a message, **1.0–1.5 GB
 a mailbox** for six months (≈ $0.015–0.02 a month at R2's storage price). Content over 16 MB is
 never stored.
