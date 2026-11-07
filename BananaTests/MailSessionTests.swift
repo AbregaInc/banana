@@ -963,11 +963,11 @@ final class MailSessionTests: XCTestCase {
         XCTAssertTrue(h.press("\\"))
         XCTAssertTrue(h.session.navigation.showsPane)
 
-        XCTAssertTrue(h.session.navigation.showsDetails)
+        XCTAssertFalse(h.session.navigation.showsDetails, "the details start closed")
         XCTAssertTrue(h.press("]"))
-        XCTAssertFalse(h.session.navigation.showsDetails)
+        XCTAssertTrue(h.session.navigation.showsDetails)
         XCTAssertTrue(h.press("]", repeating: true), "held down it acts once")
-        XCTAssertFalse(h.session.navigation.showsDetails)
+        XCTAssertTrue(h.session.navigation.showsDetails)
     }
 
     func testTheTogglesWorkWithAConversationOpen() {

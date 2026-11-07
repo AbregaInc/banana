@@ -33,7 +33,8 @@ final class WideShellUITest: XCTestCase {
 
     func testTheRailAndTheToolbarFieldInBothOrientations() throws {
         XCUIDevice.shared.orientation = .portrait
-        let app = try launch(["--tab", "plan", "-planMode", "week"])
+        // `--plan` loads the sample plan, so the week has its events and the weather to compare.
+        let app = try launch(["--tab", "plan", "--plan", "-planMode", "week"])
         XCTAssertFalse(app.buttons["shell.switcher"].exists, "no bottom bar on a wide screen")
         XCTAssertTrue(app.buttons["shell.page.plan"].isSelected)
         XCTAssertTrue(app.textFields["shell.field"].waitForExistence(timeout: 10), "the field is in the toolbar")
@@ -82,6 +83,9 @@ final class WideShellUITest: XCTestCase {
         XCTAssertTrue(app.descendants(matching: .any)["mail.list.placeMenu"].firstMatch.waitForExistence(timeout: 15), app.debugDescription)
         XCTAssertTrue(app.textFields["shell.field"].exists)
         XCTAssertTrue(app.buttons["mail.more"].exists)
+        // Rail, list, reader: the places are the title's menu, and the details start closed.
+        XCTAssertFalse(app.descendants(matching: .any)["mail.control"].exists, "no column of places")
+        XCTAssertFalse(app.descendants(matching: .any)["mail.details"].exists, "no details column until asked")
         shot("pad-land-mail")
         XCUIDevice.shared.orientation = .portrait
         XCTAssertTrue(app.descendants(matching: .any)["shell.rail"].waitForExistence(timeout: 5))

@@ -227,7 +227,9 @@ final class MailHostileUITest: MailUITestCase {
         snap("01-landscape-composer")
         XCTAssertTrue(body.waitForExistence(timeout: 5), "the composer survived the turn")
         XCTAssertTrue(bodyText.contains("Turning"), bodyText)
-        XCTAssertTrue(element(MailID.details).exists, "landscape has room for the details column")
+        // Room for the details column in landscape, but it starts closed (direction B).
+        XCTAssertFalse(element(MailID.details).exists, "the details start closed")
+        XCTAssertFalse(element(MailID.control).exists, "the places are the title's menu, not a column")
         // The picker open, then turn back.
         hideKeyboard()
         button(MailID.composerSendLater).tap()

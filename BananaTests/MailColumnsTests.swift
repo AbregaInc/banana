@@ -111,7 +111,7 @@ final class MailColumnsTests: XCTestCase {
 
     // MARK: The toggles
 
-    func testTheTogglesStartOnAndAreKeptWhenHeMakesThem() throws {
+    func testThePaneStartsOnTheDetailsOffAndBothAreKeptWhenHeMakesThem() throws {
         let suite = "MailColumnsTests.toggles"
         let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
         defaults.removePersistentDomain(forName: suite)
@@ -119,13 +119,13 @@ final class MailColumnsTests: XCTestCase {
 
         let first = MailNavigation(scope: MailSession.inbox, defaults: defaults)
         XCTAssertTrue(first.showsPane)
-        XCTAssertTrue(first.showsDetails)
+        XCTAssertFalse(first.showsDetails, "the details start closed")
 
         first.setPane(false)
-        first.setDetails(false)
+        first.setDetails(true)
         let later = MailNavigation(scope: MailSession.inbox, defaults: defaults)
         XCTAssertFalse(later.showsPane, "kept for the next launch")
-        XCTAssertFalse(later.showsDetails)
+        XCTAssertTrue(later.showsDetails)
     }
 
     func testAToggleALaunchRouteMakesIsNotKept() throws {

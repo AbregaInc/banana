@@ -109,4 +109,16 @@ final class MailArrangementTests: XCTestCase {
         // An iPad in portrait, 820 points: a pane and no more.
         XCTAssertEqual(columns(820), "list pane")
     }
+
+    /// In the shells the places are the title's menu: no control column at any width, and the
+    /// details join as soon as the list and the pane have room beside them.
+    func testTheShellsHaveNoControlColumn() {
+        for width in [700.0, 900.0, 1_200.0, 1_600.0] {
+            XCTAssertFalse(MailArrangement.choose(width: width, controlColumn: false).showsControl, "\(width)")
+        }
+        let edge = MailArrangement.paneAt + MailArrangement.detailsWidth
+        XCTAssertTrue(MailArrangement.choose(width: edge, controlColumn: false).canShowDetails)
+        XCTAssertFalse(MailArrangement.choose(width: edge - 1, controlColumn: false).canShowDetails)
+        XCTAssertEqual(MailArrangement.choose(width: 1_200, wantsPane: false, controlColumn: false).listColumnWidth, 1_200)
+    }
 }

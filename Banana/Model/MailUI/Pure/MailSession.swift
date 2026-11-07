@@ -30,7 +30,8 @@ final class MailNavigation: ObservableObject {
         self.scope = scope
         self.defaults = defaults
         showsPane = defaults?.object(forKey: Self.paneKey) as? Bool ?? true
-        showsDetails = defaults?.object(forKey: Self.detailsKey) as? Bool ?? true
+        // Closed until asked for (approved direction B, 6 Nov 2026): `]` or the pane's button.
+        showsDetails = defaults?.object(forKey: Self.detailsKey) as? Bool ?? false
     }
 
     var open: MailConversationID? { reader?.id }

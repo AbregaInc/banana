@@ -53,11 +53,16 @@ struct MailArrangement: Equatable, Sendable {
     /// `wantsPane` and `wantsDetails` are his two toggles. A pane he has hidden leaves the list
     /// wide, with the control column beside it where there is room; details are about what the
     /// pane shows, so with no pane there are none.
-    static func choose(width: Double, wantsPane: Bool = true, wantsDetails: Bool = true) -> MailArrangement {
+    ///
+    /// `controlColumn` false: the shell's title menu ("Inbox ⌄") holds the places, so there is no
+    /// control column at any width and the details need only the list and the pane beside them
+    /// (docs/design/BOTTOM-BAR-SHELL.md).
+    static func choose(width: Double, wantsPane: Bool = true, wantsDetails: Bool = true,
+                       controlColumn: Bool = true) -> MailArrangement {
         let canShowPane = width >= paneAt
-        let canShowDetails = width >= detailsAt
+        let canShowDetails = width >= (controlColumn ? detailsAt : detailsAt - controlWidth)
         let showsPane = wantsPane && canShowPane
-        return MailArrangement(width: width, showsControl: width >= controlAt, showsPane: showsPane,
+        return MailArrangement(width: width, showsControl: controlColumn && width >= controlAt, showsPane: showsPane,
                                showsDetails: showsPane && wantsDetails && canShowDetails,
                                canShowPane: canShowPane, canShowDetails: canShowDetails)
     }

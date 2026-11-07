@@ -278,6 +278,9 @@ private struct MailRefusalSheet: View {
 private struct MailScreen: View {
     let session: MailSession
     @ObservedObject private var navigation: MailNavigation
+    /// The shells have the places in the title's menu: no control column beside the list.
+    @Environment(\.bottomBarShell) private var bottomBarShell
+    @Environment(\.wideShell) private var wideShell
 
     init(session: MailSession) {
         self.session = session
@@ -288,7 +291,8 @@ private struct MailScreen: View {
         GeometryReader { proxy in
             let arrangement = MailArrangement.choose(width: proxy.size.width,
                                                      wantsPane: navigation.showsPane,
-                                                     wantsDetails: navigation.showsDetails)
+                                                     wantsDetails: navigation.showsDetails,
+                                                     controlColumn: !(bottomBarShell || wideShell))
             ZStack {
                 MailColumns(session: session, arrangement: arrangement, scope: navigation.scope)
                     .accessibilityHidden(navigation.reader != nil)
