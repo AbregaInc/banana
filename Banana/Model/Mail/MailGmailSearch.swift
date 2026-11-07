@@ -152,8 +152,11 @@ import GRDB
             for account in session.accounts where !session.exhausted.contains(account) {
                 try Task.checkCancellation()
                 let token = try await deps.token(account)
-                let page = try await deps.api.listMessages(token: token, labelIDs: [], query: session.query,
-                    includeSpamTrash: false, pageToken: session.cursors[account], maxResults: pageSize)
+                let api = deps.api, query = session.query, cursor = session.cursors[account], size = pageSize
+                let page = try await Self.paced {
+                    try await api.listMessages(token: token, labelIDs: [], query: query,
+                        includeSpamTrash: false, pageToken: cursor, maxResults: size)
+                }
                 try Task.checkCancellation()
                 for reference in page.messages ?? [] {
                     guard let id = reference.id, !id.isEmpty, let thread = reference.threadId, !thread.isEmpty,
@@ -205,7 +208,7 @@ import GRDB
                     group.addTask {
                         try Task.checkCancellation()
                         do {
-                            let value = try await api.message(token: access[hit.account]!, id: hit.message, format: .header)
+                            let value = try await paced { try await api.message(token: access[hit.account]!, id: hit.message, format: .header) }
                             guard value.id == hit.message, value.threadId == hit.thread else { throw GmailError.malformed }
                             return (index, value)
                         } catch GmailError.notFound { return (index, nil) }
@@ -224,8 +227,22 @@ import GRDB
         return try await withTaskCancellationHandler { try await work.value } onCancel: { work.cancel() }
     }
 
+    /// The service paces reads per Google identity and refuses one it cannot place soon (429):
+    /// wait as it asks, a few times, before calling the search failed.
+    nonisolated static func paced<T>(_ attempt: () async throws -> T) async throws -> T {
+        var wait: TimeInterval = 1
+        for _ in 0..<3 {
+            do { return try await attempt() }
+            catch GmailError.limited(_, let after) {
+                try await Task.sleep(for: .milliseconds(Int(min(5, after ?? wait) * 1000)))
+                wait *= 2
+            }
+        }
+        return try await attempt()
+    }
+
     static func isOffline(_ error: Error) -> Bool {
-        if let error = error as? GmailError { return error == .networkDisabled || error == .unknownOutcome }
+        if let error = error as? GmailError { return [.neverLeft, .networkDisabled, .unknownOutcome].contains(error) }
         if let error = error as? URLError {
             return [.notConnectedToInternet, .networkConnectionLost, .cannotConnectToHost, .cannotFindHost,
                     .dnsLookupFailed, .timedOut, .dataNotAllowed, .internationalRoamingOff].contains(error.code)

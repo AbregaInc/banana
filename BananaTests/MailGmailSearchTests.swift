@@ -276,6 +276,20 @@ import GRDB
         again.cancel(); observation.cancel()
     }
 
+    func testAPacedRefusalIsWaitedOutAndOnlyNetworkFailuresCountAsOffline() async throws {
+        var attempts = 0
+        let value = try await MailGmailSearch.paced { () async throws -> Int in
+            attempts += 1
+            if attempts < 3 { throw GmailError.limited(.user, retryAfter: 0.01) }
+            return 7
+        }
+        XCTAssertEqual(value, 7); XCTAssertEqual(attempts, 3)
+        XCTAssertTrue(MailGmailSearch.isOffline(GmailError.neverLeft))
+        XCTAssertTrue(MailGmailSearch.isOffline(URLError(.notConnectedToInternet)))
+        XCTAssertFalse(MailGmailSearch.isOffline(GmailError.limited(.user, retryAfter: nil)))
+        XCTAssertFalse(MailGmailSearch.isOffline(GmailError.server(503)))
+    }
+
     func testOnlyConnectedAccountsAreAskedAndNothingIsAskedWithoutText() async throws {
         let gmail = Gmail()
         let (source, _) = try await source(gmail, held: [("t-local", "Budget review", 5000)])
