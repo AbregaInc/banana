@@ -169,6 +169,12 @@ release.
   together: 862 tests, 10 failing methods, none in a file this change touches (timing budgets
   on a host at load average above 100, and four existing source-rule tests). The Mac Beta
   scheme compiles.
+- Component gate (Simulator, unchanged budgets): fails its memory comparisons on this branch and
+  on the base commit alike. Same host, same hour, peak RSS in MB, branch / base: scale-1d
+  363.7, 362.2 / 362.2; scale-7d 401.9, 403.3 / 403.2; scale-30d 482.2, 481.9 / 480.9; scale-90d
+  703.3, 702.8 / 703.3; redraw notes 482.3, 482.4 / 482.0; library 485.9, 485.6 / 484.7; plan
+  503.6, 505.4 / 504.4; mail 484.0, 484.2 / 484.6. No latency metric over budget. The fixture
+  runs no cloud feed, so this shows no regression, not the feed's cost on a device.
 - Staging (`banana-service-beta`) runs this service with migration 0022; anonymous checks
   answer 401 on the Mail routes and `/v1/source` names the deployed commit. No mailbox exists
   there yet: one is made by the first client that reads the feed. Production is unchanged.
