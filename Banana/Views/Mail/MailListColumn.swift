@@ -139,12 +139,23 @@ private struct MailEmptyState: View {
     var body: some View {
         if case .search = scope.place {
             if !feed.shown.hasDelivered {
-                ProgressView("Searching downloaded mail…")
+                ProgressView("Searching…")
             } else if feed.shown.remote == .failed {
                 VStack { Text("Mail search couldn’t finish."); Button("Retry", action: retry) }
             } else if feed.shown.rows.isEmpty {
-                ContentUnavailableView("No matches", systemImage: "magnifyingglass",
-                    description: Text("Try another word. Only downloaded headers and snippets are searched."))
+                switch feed.shown.remote {
+                case .pending?:
+                    ProgressView("Searching Gmail…")
+                case .offline?:
+                    VStack(spacing: DS.Space.xs) {
+                        Text("No matches on this device")
+                        Text("Gmail couldn’t be reached").font(.subheadline).foregroundStyle(.secondary)
+                        Button("Retry", action: retry)
+                    }
+                    .accessibilityIdentifier(MailID.searchOffline)
+                default:
+                    ContentUnavailableView("No matches", systemImage: "magnifyingglass")
+                }
             }
         } else if feed.shown.hasDelivered, feed.shown.rows.isEmpty, !isSample {
             if feed.shown.remote == .pending {

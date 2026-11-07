@@ -22,6 +22,11 @@ struct MailLocalSearchQuery: Equatable, Sendable {
         }
         return parts.isEmpty ? nil : parts.joined(separator: " AND ")
     }
+    /// The words alone, for the body index, which has no sender column.
+    var bodyMatch: String? {
+        let words = (definition?.text ?? text).components(separatedBy: CharacterSet.alphanumerics.inverted).filter { !$0.isEmpty }
+        return words.isEmpty ? nil : words.map { "\"" + $0 + "\"*" }.joined(separator: " AND ")
+    }
 }
 
 enum MailLocalSearchSchema {
@@ -67,22 +72,7 @@ extension MailIndexReader {
         var predicates = ["t.last_date > 0"]
         var arguments: [(any DatabaseValueConvertible)?] = []
         if let match = query.match { predicates.append("mail_header_search MATCH ?"); arguments.append(match) }
-        if let interval = definition?.interval() {
-            predicates.append("t.last_date >= ? AND t.last_date < ?")
-            arguments += [Int64(interval.start.timeIntervalSince1970 * 1000), Int64(interval.end.timeIntervalSince1970 * 1000)]
-        }
-        for term in definition?.terms ?? [] {
-            if term.field == "unread" { predicates.append(term.value == "true" ? "t.unread_count > 0" : "t.unread_count = 0") }
-            if let flag = ["starred": MailThreadFlags.starred, "important": .important][term.field] {
-                predicates.append("(t.flags & ?) \(term.value == "true" ? "!=" : "=") 0"); arguments.append(flag.rawValue)
-            }
-        }
-        constrainAccounts(query.allowedAccounts, predicates: &predicates, arguments: &arguments)
-        if let account = query.account { predicates.append("a.email=?"); arguments.append(account.lowercased()) }
-        if query.filters.contains(.unread) { predicates.append("t.unread_count > 0") }
-        for (filter, flag) in [(MailFilter.starred, MailThreadFlags.starred), (.important, .important), (.noReply, .lastIsMine)] where query.filters.contains(filter) {
-            predicates.append("(t.flags & ?) != 0"); arguments.append(flag.rawValue)
-        }
+        conditions(query, predicates: &predicates, arguments: &arguments)
         if let before = query.before {
             predicates.append("(t.last_date,t.tie) \(includingBoundary ? "<=" : "<") (?,?)"); arguments += [before.sortKey, before.tie]
         }
@@ -105,6 +95,29 @@ extension MailIndexReader {
             JOIN account a ON a.account_pk=t.account_pk
             ORDER BY t.last_date DESC,t.tie DESC
             """, arguments: StatementArguments(arguments)).map(Self.decode)
+    }
+
+    /// What a search asks of a conversation besides its words — dates, flags, accounts and the
+    /// list's filters — on `t` (thread) and `a` (account). Shared by the header and body indexes.
+    static func conditions(_ query: MailLocalSearchQuery, predicates: inout [String],
+                           arguments: inout [(any DatabaseValueConvertible)?]) {
+        let definition = query.definition
+        if let interval = definition?.interval() {
+            predicates.append("t.last_date >= ? AND t.last_date < ?")
+            arguments += [Int64(interval.start.timeIntervalSince1970 * 1000), Int64(interval.end.timeIntervalSince1970 * 1000)]
+        }
+        for term in definition?.terms ?? [] {
+            if term.field == "unread" { predicates.append(term.value == "true" ? "t.unread_count > 0" : "t.unread_count = 0") }
+            if let flag = ["starred": MailThreadFlags.starred, "important": .important][term.field] {
+                predicates.append("(t.flags & ?) \(term.value == "true" ? "!=" : "=") 0"); arguments.append(flag.rawValue)
+            }
+        }
+        constrainAccounts(query.allowedAccounts, predicates: &predicates, arguments: &arguments)
+        if let account = query.account { predicates.append("a.email=?"); arguments.append(account.lowercased()) }
+        if query.filters.contains(.unread) { predicates.append("t.unread_count > 0") }
+        for (filter, flag) in [(MailFilter.starred, MailThreadFlags.starred), (.important, .important), (.noReply, .lastIsMine)] where query.filters.contains(filter) {
+            predicates.append("(t.flags & ?) != 0"); arguments.append(flag.rawValue)
+        }
     }
 }
 
