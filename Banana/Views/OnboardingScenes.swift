@@ -105,13 +105,17 @@ struct MascotPicture: View {
     var rim: CGFloat = 3
 
     var body: some View {
+        // Always scaled as one: Banana is a rounded square (about 1:1, Brand/BananaMascotReference),
+        // and a frame of another shape only leaves space around it, never stretches it.
         Image(name)
             .resizable()
             .interpolation(.high)
+            .aspectRatio(contentMode: .fit)
             .background {
                 Image(name)
                     .resizable()
                     .renderingMode(.template)
+                    .aspectRatio(contentMode: .fit)
                     .foregroundStyle(FirstRun.page)
                     .padding(-rim)
             }
@@ -199,7 +203,7 @@ struct WelcomeScene: View {
                   bottom: [CGPoint(x: 1024, y: 985), CGPoint(x: 820, y: 878), CGPoint(x: 330, y: 885), CGPoint(x: 0, y: 968)],
                   art: art)
             .fill(FirstRun.yellow)
-        MascotPicture(name: "MascotWelcome", rect: art.rect(509, 408, 977, 982))
+        MascotPicture(name: "MascotWelcome", rect: art.rect(547, 455, 978, 895))
         let card = art.rect(110, 527, 578, 942)
         RoundedRectangle(cornerRadius: art.length(26), style: .continuous)
             .fill(FirstRun.card)
@@ -237,7 +241,7 @@ struct ModulesScene: View {
             Ellipse()
                 .fill(FirstRun.yellow)
                 .placed(art.rect(880, 420, 1174, 560))
-            MascotPicture(name: "MascotModules", rect: art.rect(796, 250, 1026, 490))
+            MascotPicture(name: "MascotModules", rect: art.rect(852, 281, 1017, 449))
         }
         .mask(alignment: .topLeading) { Rectangle().frame(width: art.length(1024), height: art.y(600)) }
     }
@@ -264,7 +268,7 @@ struct SunriseScene: View {
             path.closeSubpath()
         }
         .fill(FirstRun.yellow)
-        MascotPicture(name: "MascotWake", rect: art.rect(0, 838, 386, 1275))
+        MascotPicture(name: "MascotWake", rect: art.rect(50, 838, 410, 1198))
             .mask(alignment: .topLeading) {
                 Rectangle().frame(width: art.length(1024), height: art.y(1150))
             }
@@ -296,7 +300,7 @@ struct MoonriseScene: View {
                 .foregroundStyle(FirstRun.lilacShape)
                 .placed(art.rect(star.0 - star.2, star.1 - star.2, star.0 + star.2, star.1 + star.2))
         }
-        MascotPicture(name: "MascotWindDown", rect: art.rect(603, 768, 940, 1201))
+        MascotPicture(name: "MascotWindDown", rect: art.rect(679, 857, 915, 1097))
         BandShape(top: [CGPoint(x: 0, y: 1185), CGPoint(x: 300, y: 1040), CGPoint(x: 720, y: 1045), CGPoint(x: 1024, y: 1180)],
                   bottom: [CGPoint(x: 1024, y: 1250), CGPoint(x: 700, y: 1250), CGPoint(x: 300, y: 1250), CGPoint(x: 0, y: 1250)],
                   art: art)
@@ -316,7 +320,7 @@ struct ConnectScene: View {
                   bottom: [CGPoint(x: 1024, y: 968), CGPoint(x: 850, y: 878), CGPoint(x: 300, y: 900), CGPoint(x: 0, y: 975)],
                   art: art)
             .fill(FirstRun.yellow)
-        MascotPicture(name: "MascotConnect", rect: art.rect(648, 418, 1024, 978))
+        MascotPicture(name: "MascotConnect", rect: art.rect(725, 585, 1025, 891))
         CalendarPanel(title: "Work", dot: FirstRun.lilac.dot, text: FirstRun.lilac.text, art: art,
                       frame: art.rect(58, 597, 398, 985)) {
             PanelBlock(art: art, rect: art.local(59, 144, 230, 205), fill: FirstRun.lilac.block)
@@ -344,7 +348,7 @@ struct CalendarsScene: View {
             .mask(alignment: .topLeading) { Rectangle().frame(width: art.length(1024), height: art.y(700)) }
         Capsule().fill(FirstRun.lilacShape).placed(art.rect(772, 428, 855, 442))
         Capsule().fill(FirstRun.lilacShape).placed(art.rect(835, 476, 890, 490))
-        MascotPicture(name: "MascotCalendars", rect: art.rect(62, 400, 449, 898))
+        MascotPicture(name: "MascotCalendars", rect: art.rect(67, 431, 377, 745))
         CalendarPanel(title: busy, dot: FirstRun.lilac.dot, text: FirstRun.lilac.text, art: art,
                       frame: art.rect(264, 582, 565, 950)) {
             PanelBlock(art: art, rect: art.local(48, 193, 200, 265), fill: FirstRun.lilac.block)
@@ -365,12 +369,11 @@ struct CopiesScene: View {
     let destination: String
 
     var body: some View {
+        // Behind the field, its head well above the field's edge, as in the art.
+        MascotPicture(name: "MascotCopies", rect: art.rect(655, 252, 975, 578))
         RoundedRectangle(cornerRadius: art.length(70), style: .continuous)
             .fill(FirstRun.yellow)
             .placed(art.rect(62, 497, 962, 988))
-        // In front of the field, its lower body lost in the field's yellow, as in the art.
-        MascotPicture(name: "MascotCopies", rect: art.rect(627, 287, 938, 618))
-            .mask(alignment: .topLeading) { Rectangle().frame(width: art.length(1024), height: art.y(540)) }
         let from = DayClock.hour(14), to = DayClock.hour(15, withPeriod: true)
         CalendarPanel(title: source, dot: FirstRun.mint.dot, text: FirstRun.mint.text, art: art,
                       frame: art.rect(124, 558, 442, 942)) {
@@ -396,14 +399,14 @@ struct DoneScene: View {
     let art: ArtSpace
 
     var body: some View {
-        BandShape(top: [CGPoint(x: 0, y: 600), CGPoint(x: 300, y: 545), CGPoint(x: 700, y: 700), CGPoint(x: 1024, y: 650)],
+        BandShape(top: [CGPoint(x: 0, y: 665), CGPoint(x: 350, y: 640), CGPoint(x: 700, y: 575), CGPoint(x: 1024, y: 560)],
                   bottom: [CGPoint(x: 1024, y: 845), CGPoint(x: 700, y: 845), CGPoint(x: 300, y: 845), CGPoint(x: 0, y: 845)],
                   art: art)
             .fill(FirstRun.yellow)
         confetti(432, 544, FirstRun.lilacShape, -30)
         confetti(928, 477, FirstRun.lilacShape, 25)
         confetti(896, 568, FirstRun.mint.block, 20)
-        MascotPicture(name: "MascotDone", rect: art.rect(552, 308, 848, 835))
+        MascotPicture(name: "MascotDone", rect: art.rect(537, 449, 902, 821))
     }
 
     private func confetti(_ x: CGFloat, _ y: CGFloat, _ colour: Color, _ angle: Double) -> some View {
