@@ -85,7 +85,7 @@ final class WideShellUITest: XCTestCase {
     /// its own, Plan's from the overdue reminders.
     func testBadgesOnTheSwitcherUprightAndTheRailOnItsSide() throws {
         XCUIDevice.shared.orientation = .portrait
-        let app = try launch(["--tab", "plan", "--plan", "--outstanding-reminders"])
+        let app = try launch(["--tab", "plan", "--plan", "--outstanding-reminders", "--mail-fresh"])
         let switcher = app.buttons["shell.switcher"]
         XCTAssertTrue(switcher.waitForExistence(timeout: 15))
         XCTAssertTrue(waitUntil(timeout: 10) { switcher.label.contains("need") }, switcher.label)
@@ -94,6 +94,8 @@ final class WideShellUITest: XCTestCase {
         XCTAssertTrue(app.descendants(matching: .any)["shell.rail"].waitForExistence(timeout: 8))
         XCTAssertTrue(waitUntil(timeout: 5) { (plan.value as? String)?.contains("need") == true }, "\(plan.value ?? "")")
         XCTAssertEqual(app.buttons["shell.page.settings"].value as? String ?? "", "")
+        XCTAssertTrue(waitUntil(timeout: 5) { (app.buttons["shell.page.mail"].value as? String)?.contains("need") == true },
+                      "Mail's rail circle carries the Inbox count")
         shot("pad-land-rail-badge")
     }
 

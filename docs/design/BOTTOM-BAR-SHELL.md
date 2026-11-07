@@ -86,12 +86,16 @@ mail"), and narrowed on 7 Nov to an iPad on its side and the Mac. No bottom bar 
 ## Badges
 
 The old tab bar's badges, from the same counts (`ActionItems.Counts`, kept by `ActionBadges`),
-none new (`ShellBadge`):
+plus Mail's (`ShellBadge`):
 
 - **Plan**: overdue reminders.
 - **Body**: meals to log or check, and doses due and not yet marked (the old Body tab's count).
-- **Mail, Notes, Library, Review, Settings**: none; Mail had no badge. (If it gets one, the
-  Inbox's unread count is the obvious candidate.)
+- **Mail**: the Inbox count its title shows ("Inbox 40": conversations in the Inbox, across
+  accounts in the unified Inbox), as the mail source publishes it (`MailListSnapshot.total`,
+  observed with one row by `MailSession`'s badge watch, read off the main thread, kept in
+  `ActionBadges.mailInbox`). Mail's store opens two seconds after launch when Mail is on, so
+  the badge is there before Mail is opened. Not on the app icon.
+- **Notes, Library, Review, Settings**: none.
 
 The closed switcher circle carries the pages that are on, added up; open, each page's circle
 carries its own. On the rail (iPad on its side, Mac), always in view, each circle carries its

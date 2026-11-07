@@ -83,10 +83,11 @@ final class BottomBarShellUITest: XCTestCase {
 
     // MARK: Badges
 
-    /// Overdue reminders badge Plan; the closed switcher carries the pages' counts added up and
+    /// Overdue reminders badge Plan and the sample Inbox badges Mail; the closed switcher carries
+    /// the pages' counts added up and
     /// says so to VoiceOver; open, each page carries its own.
     func testTheSwitcherBadgeAddsUpThePagesCounts() throws {
-        let app = try launch(["--tab", "plan", "--plan", "--outstanding-reminders"])
+        let app = try launch(["--tab", "plan", "--plan", "--outstanding-reminders", "--mail-fresh"])
         let switcher = app.buttons["shell.switcher"]
         XCTAssertTrue(waitUntil(timeout: 10) { switcher.label.contains("need") }, "Pages, N need attention: \(switcher.label)")
         XCTAssertTrue(switcher.label.hasPrefix("Pages, "))
@@ -96,6 +97,8 @@ final class BottomBarShellUITest: XCTestCase {
         XCTAssertTrue(plan.waitForExistence(timeout: 5))
         XCTAssertTrue((plan.value as? String)?.contains("need") == true, "Plan carries its own count: \(plan.value ?? "")")
         XCTAssertEqual(app.buttons["shell.page.settings"].value as? String ?? "", "", "a page with nothing waiting has no count")
+        let mail = app.buttons["shell.page.mail"]
+        XCTAssertTrue(mail.exists && (mail.value as? String)?.contains("need") == true, "Mail carries the Inbox count: \(mail.value ?? "")")
         shot("switcher-open")
     }
 

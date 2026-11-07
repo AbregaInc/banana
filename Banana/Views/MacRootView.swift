@@ -313,6 +313,15 @@ struct MacRootView: View {
                         CloudSyncPoll.resume()
                     }
                     .task { if !Self.isolatedPreview { CloudSyncPoll.resume() } }
+                    // Mail's badge on the rail (the Inbox count) needs Mail's store open: open it
+                    // a moment after launch when Mail is on.
+                    .task {
+                        #if BANANA_UNRELEASED
+                        guard !Self.isolatedPreview else { return }
+                        try? await Task.sleep(for: .seconds(2))
+                        if ModuleStore.shared.includes(.email) { MailApplication.shared.start() }
+                        #endif
+                    }
                     #if DEBUG
                     // `--open-settings`: the Settings window open beside the main one, to look at
                     // and to photograph (it has no sidebar row to open it by).

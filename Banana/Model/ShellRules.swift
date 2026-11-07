@@ -199,19 +199,22 @@ enum PlanTopRow {
 
 /// The pages' badges: what the old tab bar badged, page by page, from the same counts
 /// (`ActionItems.Counts`); their sum on the closed switcher circle. Plan: overdue reminders.
-/// Body: meals to log or check and doses due (the old Body tab's count). No other page had one.
+/// Body: meals to log or check and doses due (the old Body tab's count). Mail: the Inbox count
+/// its title shows (the owner's ruling of 7 Nov 2026). No other page has one.
 enum ShellBadge {
-    static func count(_ page: ShellPage, _ counts: ActionItems.Counts) -> Int {
+    /// `mail`: the Inbox count its title shows (`ActionBadges.mailInbox`).
+    static func count(_ page: ShellPage, _ counts: ActionItems.Counts, mail: Int = 0) -> Int {
         switch page {
         case .plan: counts.plan
         case .body: counts.nutrition
-        case .mail, .notes, .library, .review, .settings: 0
+        case .mail: mail
+        case .notes, .library, .review, .settings: 0
         }
     }
 
     /// The closed switcher's badge: the pages that are on, added up.
-    static func total(_ pages: [ShellPage], _ counts: ActionItems.Counts) -> Int {
-        pages.reduce(0) { $0 + count($1, counts) }
+    static func total(_ pages: [ShellPage], _ counts: ActionItems.Counts, mail: Int = 0) -> Int {
+        pages.reduce(0) { $0 + count($1, counts, mail: mail) }
     }
 
     /// What the red capsule says: nothing at zero, "99+" past 99.

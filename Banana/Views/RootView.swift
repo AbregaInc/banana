@@ -70,6 +70,14 @@ struct RootView: View {
                 // for real — the path that used to lose the tab and the open note.
                 if visibility.rendersContent {
                     mainTabs
+                        // Mail's badge (the Inbox count) needs Mail's store open; open it a moment
+                        // after launch, off the first frame, when Mail is on.
+                        .task {
+                            #if BANANA_UNRELEASED
+                            try? await Task.sleep(for: .seconds(2))
+                            if ModuleStore.shared.includes(.email) { MailApplication.shared.start() }
+                            #endif
+                        }
                         .task {
                             // Where the shared toast sits above the tab bar and accessory.
                             if ProcessInfo.processInfo.arguments.contains("--toast-preview") {

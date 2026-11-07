@@ -61,11 +61,11 @@ struct ShellRail: View {
         .buttonStyle(.plain)
         .glassEffect(selected ? .regular.tint(DS.Palette.accent).interactive() : .regular.interactive(), in: .circle)
         .overlay(alignment: .topTrailing) {
-            ShellBadgeMark(count: ShellBadge.count(page, badges.counts)).offset(x: 4, y: -4)
+            ShellBadgeMark(count: ShellBadge.count(page, badges.counts, mail: badges.mailInbox)).offset(x: 4, y: -4)
         }
         .help(page.title)
         .accessibilityLabel(page.title)
-        .accessibilityValue(ShellBadge.spoken(ShellBadge.count(page, badges.counts)) ?? "")
+        .accessibilityValue(ShellBadge.spoken(ShellBadge.count(page, badges.counts, mail: badges.mailInbox)) ?? "")
         .accessibilityAddTraits(selected ? .isSelected : [])
         .accessibilityIdentifier("shell.page.\(page.rawValue)")
     }

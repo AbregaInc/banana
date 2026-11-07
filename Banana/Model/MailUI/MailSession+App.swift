@@ -6,7 +6,18 @@ import Foundation
 /// (`Pure/MailSession.swift`) knows none of them.
 extension MailSession {
 
-    @MainActor private static var made: MailSession?
+    @MainActor private static var made: MailSession? {
+        didSet { if let made { watchInboxForBadge(made) } }
+    }
+    @MainActor private static var inboxBadgeWatch: MailObservation?
+
+    /// Mail's badge in the shell: the Inbox count its title shows, as the source publishes it
+    /// (the read happens off the main thread; one row is asked for, the count is what is kept).
+    @MainActor private static func watchInboxForBadge(_ session: MailSession) {
+        inboxBadgeWatch = session.source.observeList(MailSession.inbox, limit: 1) { snapshot in
+            ActionBadges.shared.setMailInbox(snapshot.total.value)
+        }
+    }
     @MainActor private static var launched = false
 
     /// Synchronous fixture route or an already-open live session. Normal first use opens

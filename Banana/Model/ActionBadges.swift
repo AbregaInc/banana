@@ -15,6 +15,13 @@ final class ActionBadges: ObservableObject {
     static let shared = ActionBadges()
 
     @Published private(set) var counts = ActionItems.Counts()
+    /// Mail's badge in the shell: the Inbox count its title shows, as the mail source publishes
+    /// it (`MailListSnapshot.total`, read off the main thread). Not on the app icon.
+    @Published private(set) var mailInbox = 0
+
+    func setMailInbox(_ count: Int) {
+        if mailInbox != count { mailInbox = count }
+    }
     private var watches: Set<AnyCancellable> = []
     private var minute: Timer?
     private var started = false
@@ -59,8 +66,16 @@ final class ActionBadges: ObservableObject {
             return ActionItems.routineDueSince(start: occurrence.start, hasTime: occurrence.hasScheduledTime,
                 completed: occurrence.completed, skipped: occurrence.skipped, now: now) != nil
         }.count
+        var plan = OccurrenceStore.shared.occurrences.filter(\.isOverdueReminder).count + dueRoutines
+        #if DEBUG
+        // `--badge-count N` (Debug): Plan's badge held at N, to photograph the badge at 1, 2 and 3
+        // digits and at 99+.
+        if let index = ProcessInfo.processInfo.arguments.firstIndex(of: "--badge-count"),
+           ProcessInfo.processInfo.arguments.indices.contains(index + 1),
+           let forced = Int(ProcessInfo.processInfo.arguments[index + 1]) { plan = forced }
+        #endif
         let next = ActionItems.Counts(
-            plan: OccurrenceStore.shared.occurrences.filter(\.isOverdueReminder).count + dueRoutines,
+            plan: plan,
             food: food ? ActionItems.food(MealInboxStore.shared.items) : 0,
             taken: food ? ActionItems.dosesDue(wellness.supplements,
                                                marked: { wellness.supplementStatus($0, on: now) != nil },
