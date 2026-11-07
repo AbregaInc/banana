@@ -1,0 +1,10 @@
+{
+ "name":"banana-mailbox-check",
+ "main":"worker.js",
+ "compatibility_date":"2025-10-01",
+ "compatibility_flags":["nodejs_compat"],
+ "d1_databases":[{"binding":"DB","database_name":"mailbox-fixture","database_id":"00000000-0000-0000-0000-000000000002","migrations_dir":"../../migrations"}],
+ "r2_buckets":[{"binding":"BLOBS","bucket_name":"mailbox-fixture"}],
+ "durable_objects":{"bindings":[{"name":"MAILBOXES","class_name":"CheckMailbox"}]},
+ "migrations":[{"tag":"v1","new_sqlite_classes":["CheckMailbox"]}]
+}
