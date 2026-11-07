@@ -317,23 +317,24 @@ final class MailCloudPullTests: XCTestCase {
         func median(_ values: [Double]) -> Double { values.sorted()[values.count / 2] }
         let opened = ["m5", "m6", "m7", "m8", "m9"]
 
-        // Before: no cloud content; the rows are known (as the feed or a listing leaves them) and
-        // opening reads the conversation and its body from Gmail.
+        // Before: the open's critical path as it was, a thread read then the body read (each a
+        // modelled round trip plus the profile check), timed on the loader directly. (Timed
+        // through a live source, the fake mailbox's sync backoff also held the per-message queue,
+        // which would overstate it.)
         let gmail = MailCloudPullTests.Gmail()
         await gmail.hold(messages); await gmail.slow(latency)
-        let (beforeStores, before) = try await source(cloud: nil, gmail: gmail)
-        _ = try await MailWriter(stores: beforeStores, sink: nil).transact { db in
-            var change = MailStoreChange()
-            for m in messages {
-                change.formUnion(try MailMessageImporter.apply(FetchedMessage(wire: GmailMessage(id: m.id, threadId: m.threadId, labelIds: ["INBOX"], historyId: 100, internalDate: m.internalDate),
-                    floor: 100, headers: MessageHeaders(payload: nil), structure: nil), account: MailCloudPullTests.account, myAddresses: [MailCloudPullTests.account], in: db))
-            }
-            return change
-        }
-        before.setVisible(true)
+        let (beforeStores, _) = try await source(cloud: nil, gmail: gmail)
+        let loader = GmailConversationLoader(stores: beforeStores, writer: MailWriter(stores: beforeStores, sink: nil), api: gmail, token: { _ in "fixture" })
         var beforeMS: [Double] = []
-        for m in opened { beforeMS.append(await openToText(before, m)) }
-        before.setVisible(false)
+        for m in opened {
+            let start = ContinuousClock.now
+            let ids = try await loader.thread(MailConversationID(account: MailCloudPullTests.account, thread: "t-" + m))
+            for message in ids { try await loader.body(message) }
+            let readable = try await MailBlobStore(stores: beforeStores).prepared(account: MailCloudPullTests.account, messageID: m)
+            XCTAssertNotNil(readable)
+            let d = start.duration(to: .now).components
+            beforeMS.append(Double(d.seconds) * 1000 + Double(d.attoseconds) / 1e15)
+        }
 
         // After: the cloud holds the text; the rows are on screen for a moment before the tap.
         let cloud = MailCloudPullTests.Cloud(), quiet = MailCloudPullTests.Gmail()
@@ -344,20 +345,244 @@ final class MailCloudPullTests: XCTestCase {
         XCTAssertEqual(early, .notOnDevice, "nothing pulled before the row is shown")
         after.setVisible(true)
         after.onScreen(opened.map { MailConversationID(account: MailCloudPullTests.account, thread: "t-" + $0) })
-        try await Task.sleep(for: .milliseconds(600))   // the rows on screen for 0.6 s
-        for m in opened {
-            let here = await after.body(id(m))
-            XCTAssertNotEqual(here, .notOnDevice, "\(m)'s text is on the device before it is opened")
+        // The rows stay on screen until their text is here (a person reading the list), timed.
+        let shown = ContinuousClock.now
+        var ready = false
+        while !ready, ContinuousClock.now - shown < .seconds(10) {
+            ready = true
+            for m in opened { if await after.body(id(m)) == .notOnDevice { ready = false } }
+            if !ready { try await Task.sleep(for: .milliseconds(10)) }
         }
+        let shownToReady = shown.duration(to: .now).components
+        let readyMS = Double(shownToReady.seconds) * 1000 + Double(shownToReady.attoseconds) / 1e15
+        XCTAssertTrue(ready, "the visible rows' text arrived while they were on screen")
         var afterMS: [Double] = []
         for m in opened { afterMS.append(await openToText(after, m)) }
         after.setVisible(false)
-        let report = "MAIL_OPEN_TO_TEXT_MS latency=150 before=\(beforeMS.map { String(format: "%.1f", $0) }) median=\(String(format: "%.1f", median(beforeMS))) after=\(afterMS.map { String(format: "%.1f", $0) }) median=\(String(format: "%.1f", median(afterMS)))"
+        let report = "MAIL_OPEN_TO_TEXT_MS latency=150 shown_to_ready=\(String(format: "%.0f", readyMS)) before=\(beforeMS.map { String(format: "%.1f", $0) }) median=\(String(format: "%.1f", median(beforeMS))) after=\(afterMS.map { String(format: "%.1f", $0) }) median=\(String(format: "%.1f", median(afterMS)))"
         print(report)
         let attachment = XCTAttachment(string: report); attachment.name = "open-to-text"; attachment.lifetime = .keepAlways; add(attachment)
         XCTAssertLessThan(median(afterMS) * 3, median(beforeMS), report)
         XCTAssertGreaterThan(median(beforeMS), 300, "a thread read and a body read, each a round trip")
         let gmailCalls = await quiet.calls
         XCTAssertEqual(gmailCalls.filter { $0.hasPrefix("message:") || $0.hasPrefix("thread:") }, [], "no Gmail read of a message or thread on the cloud path")
+    }
+}
+
+/// Preparation happens ahead: on arrival from the cloud, after a preparer change, and an open
+/// reads prepared output (MAIL-ENGINE 10.2). Fakes only.
+@MainActor final class MailPrepareAheadTests: XCTestCase {
+    typealias Entry = MailCloudFeedPage.Entry
+    static let account = MailCloudPullTests.account
+
+    /// A newsletter-sized HTML message (about 60 KB): paragraphs, links, emphasis, a table.
+    static func html(_ id: String, date: Int64) -> GmailMessage {
+        var html = "<html><body><table><tr><td><h1>Issue \(id)</h1></td></tr></table>"
+        for n in 0..<220 {
+            html += "<p>Paragraph \(n) with <b>bold</b>, <i>italic</i> and <a href=\"https://example.com/\(id)/\(n)\">a link</a>. "
+            html += String(repeating: "Some ordinary words in a sentence. ", count: 6) + "</p>"
+        }
+        html += "</body></html>"
+        let data = Data(html.utf8).base64EncodedString().replacingOccurrences(of: "+", with: "-").replacingOccurrences(of: "/", with: "_").replacingOccurrences(of: "=", with: "")
+        let json = """
+        {"id":"\(id)","threadId":"t-\(id)","historyId":"100","internalDate":"\(date)","labelIds":["INBOX"],
+         "payload":{"partId":"0","mimeType":"text/html","headers":[{"name":"From","value":"news@example.com"},{"name":"Subject","value":"Issue \(id)"}],
+         "body":{"size":\(html.utf8.count),"data":"\(data)"}}}
+        """
+        return try! JSONDecoder().decode(GmailMessage.self, from: Data(json.utf8))
+    }
+
+    private final class Access: MailAccountAccess {
+        var connectedAccountIDs = [MailPrepareAheadTests.account]
+        func mailGrant(accountID: String) -> MailGrant { .granted }
+        func mailAccessToken(accountID: String) async throws -> MailAccessToken { MailAccessToken(value: "fixture", scopes: [MailScopes.gmailModify]) }
+        func dropMailAccessToken(accountID: String) {}
+        func requestMailAccess(accountID: String) async -> MailAccessOutcome { .granted }
+        func forgetMailAccess(accountID: String) async throws {}
+        func cancelMailTokenRequests() {}
+    }
+    private func id(_ m: String) -> MailMessageID { MailMessageID(account: Self.account, message: m) }
+    private func conversation(_ m: String) -> MailConversationID { MailConversationID(account: Self.account, thread: "t-" + m) }
+
+    /// Originals stored through the cloud pull, prepared as they arrive.
+    private func stored(_ messages: [GmailMessage]) async throws -> (MailStores, GmailConversationLoader, MailCloudPull) {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent("prepare-ahead-" + UUID().uuidString)
+        addTeardownBlock { try? FileManager.default.removeItem(at: root) }
+        let stores = try await Task.detached { try MailStores.open(MailDirectories(root: root), migrations: MailSlices.migrations()) }.value
+        let cloud = MailCloudPullTests.Cloud()
+        await cloud.set(messages.map { Entry(id: $0.id!, thread: $0.threadId, history: "100", date: $0.internalDate, labels: ["INBOX"], deleted: nil, content: true) })
+        await cloud.hold(messages)
+        let writer = MailWriter(stores: stores, sink: nil)
+        let feed = MailCloudFeedSync(stores: stores, writer: writer, source: cloud, recover: { _ in })
+        var progress = try await feed.pass(account: Self.account, nowMS: 1)
+        while progress?.hasMore == true { progress = try await feed.pass(account: Self.account, nowMS: 1) }
+        let loader = GmailConversationLoader(stores: stores, writer: writer, api: MailCloudPullTests.Gmail(), token: { _ in "fixture" })
+        let pull = MailCloudPull(stores: stores, loader: loader, source: cloud)
+        while try await pull.step(fill: true).worked {}
+        return (stores, loader, pull)
+    }
+    /// Marks every prepared body as made by the previous preparer: what a version change does.
+    private func bumpVersion(_ stores: MailStores) async throws {
+        try await stores.blobs.write { try $0.execute(sql: "UPDATE prepared SET prep_version=?", arguments: [MailHTMLPreparer.version - 1]) }
+    }
+    private func current(_ stores: MailStores, _ m: String) async throws -> Bool {
+        try await MailBlobStore(stores: stores).prepared(account: Self.account, messageID: m) != nil
+    }
+
+    func testCloudContentIsPreparedAsItArrives() async throws {
+        let (stores, loader, _) = try await stored((1...6).map { Self.html("m\($0)", date: Int64($0) * 1000) })
+        for n in 1...6 { let ok = try await current(stores, "m\(n)"); XCTAssertTrue(ok, "m\(n)") }
+        let ahead = await loader.preparedAhead, onRequest = await loader.preparedOnRequest
+        XCTAssertEqual(ahead, 6)
+        XCTAssertEqual(onRequest, 0)
+        let states = try await stores.index.read { try Int.fetchAll($0, sql: "SELECT prep_state FROM message ORDER BY gmail_id") }
+        XCTAssertEqual(states, Array(repeating: 2, count: 6))
+    }
+
+    func testAPreparerChangeIsMadeGoodNewestFirstAPieceAtATime() async throws {
+        let count = MailReprepare.piece + 6
+        let (stores, loader, _) = try await stored((1...count).map { MailCloudPullTests.full("m\($0)", date: Int64($0) * 1000) })
+        try await bumpVersion(stores)
+        let stale = try await current(stores, "m\(count)")
+        XCTAssertFalse(stale, "a new preparer makes every stored body stale")
+        final class Pauses: @unchecked Sendable { let lock = NSLock(); var values: [TimeInterval] = [] }
+        let recorded = Pauses()
+        let pass = MailReprepare(stores: stores, loader: loader, pace: { .paced(share: 0.2) },
+                                 sleep: { value in recorded.lock.withLock { recorded.values.append(value) } })
+        let first = try await pass.step()
+        XCTAssertEqual(first.prepared, MailReprepare.piece)
+        XCTAssertTrue(first.more)
+        let newest = try await current(stores, "m\(count)"), oldest = try await current(stores, "m1")
+        XCTAssertTrue(newest, "the newest first")
+        XCTAssertFalse(oldest, "the oldest waits for the next piece")
+        XCTAssertEqual(recorded.lock.withLock { recorded.values.count }, MailReprepare.piece, "paced: a pause after each")
+        let second = try await pass.step()
+        XCTAssertEqual(second.prepared, 6)
+        XCTAssertFalse(second.more)
+        for n in 1...count { let ok = try await current(stores, "m\(n)"); XCTAssertTrue(ok, "m\(n)") }
+        let idle = try await pass.step()
+        XCTAssertEqual(idle, MailReprepare.Step())
+        // Stopped (warm, Low Power, Mail not in use): nothing runs.
+        try await bumpVersion(stores)
+        let stopped = MailReprepare(stores: stores, loader: loader, pace: { .stopped })
+        let none = try await stopped.step()
+        XCTAssertEqual(none.prepared, 0)
+    }
+
+    func testAnOpenedConversationWithAStaleBodyIsNamedFirst() async throws {
+        let (stores, loader, _) = try await stored((1...3).map { MailCloudPullTests.full("m\($0)", date: Int64($0) * 1000) })
+        try await bumpVersion(stores)
+        let pass = MailReprepare(stores: stores, loader: loader, pace: { .full })
+        let named = try await pass.stale(in: conversation("m2"))
+        XCTAssertEqual(named, [id("m2")])
+        let fresh = try await loader.prepareStored(id("m2"))
+        XCTAssertTrue(fresh)
+        let none = try await pass.stale(in: conversation("m2"))
+        XCTAssertEqual(none, [])
+    }
+
+    /// The live source: an open reads what is prepared and never calls the preparer; it prepares
+    /// on open only when nothing current is there. Also measures open → text readable, p50/p95.
+    func testOpeningReadsPreparedOutputAndMeasuresTheOpen() async throws {
+        let messages = (1...24).map { Self.html("m\($0)", date: Int64($0) * 1000) }
+        let (stores, _, _) = try await stored(messages)
+        let intent = try await Task.detached { try MailIntentStore(directories: stores.directories) }.value
+        let source = MailLiveSource(stores: stores, access: Access(), api: MailCloudPullTests.Gmail())
+        try await source.prepareActions(intent: intent)
+
+        func percentile(_ values: [Double], _ p: Double) -> Double { let s = values.sorted(); return s[min(s.count - 1, Int((Double(s.count - 1) * p).rounded()))] }
+        func ms(_ d: Duration) -> Double { Double(d.components.seconds) * 1000 + Double(d.components.attoseconds) / 1e15 }
+        /// Open → the reader has the body and its styled blocks (the conversation read, the body
+        /// read and decode, styling off the main thread; not SwiftUI layout). `styling` is that
+        /// styling's own cost, which no longer runs on the main thread.
+        func open(_ m: String) async -> (total: Double, styling: Double) {
+            let start = ContinuousClock.now
+            let reader = MailReaderModel(id: conversation(m), source: source)
+            while ContinuousClock.now - start < .seconds(10) {
+                if let body = reader.bodies[id(m)], body != .notOnDevice, reader.styled[id(m)] != nil { break }
+                if reader.conversation != nil { reader.revealBody(id(m)) }
+                try? await Task.sleep(for: .milliseconds(1))
+            }
+            let total = ms(start.duration(to: .now))
+            var styling = 0.0
+            if let body = reader.bodies[id(m)] {
+                let s0 = ContinuousClock.now
+                _ = MailAttributedText.blocks(body)
+                styling = ms(s0.duration(to: .now))
+            }
+            return (total, styling)
+        }
+
+        /// As it was: the body read, then styled on the main thread when the card is drawn.
+        func openStyledOnMain(_ m: String) async -> (total: Double, main: Double) {
+            let start = ContinuousClock.now
+            let observation = source.observeConversation(conversation(m)) { _ in }
+            defer { observation.cancel() }
+            var body = await source.body(id(m))
+            while body == .notOnDevice, ContinuousClock.now - start < .seconds(10) {
+                try? await Task.sleep(for: .milliseconds(1)); body = await source.body(id(m))
+            }
+            let s0 = ContinuousClock.now
+            _ = MailAttributedText.blocks(body)
+            return (ms(start.duration(to: .now)), ms(s0.duration(to: .now)))
+        }
+
+        // Prepared ahead: no preparation on open at all.
+        source.setVisible(true)
+        var oldTotal: [Double] = [], oldMain: [Double] = []
+        for n in 1...12 { let r = await openStyledOnMain("m\(n)"); oldTotal.append(r.total); oldMain.append(r.main) }
+        var prepared: [Double] = [], styling: [Double] = []
+        for n in 1...12 { let r = await open("m\(n)"); prepared.append(r.total); styling.append(r.styling) }
+        var counts = await source.preparationCounts()
+        XCTAssertEqual(counts.onRequest, 0, "an open with a prepared body never calls the preparer")
+
+        // A preparer change with no walk (as before this change): each open prepares on request.
+        // Timed on the path an open's body request takes (`GmailConversationLoader.body`), then
+        // the reader's read and styling. Counted: every one is a preparation on request.
+        source.setVisible(false)
+        try await bumpVersion(stores)
+        let staleNow = try await current(stores, "m1")
+        XCTAssertFalse(staleNow, "the change made m1 stale")
+        let shownStale = await source.body(id("m1"))
+        XCTAssertEqual(shownStale, .notOnDevice, "a stale prepared body is not shown")
+        let unwalked = GmailConversationLoader(stores: stores, writer: MailWriter(stores: stores, sink: nil), api: MailCloudPullTests.Gmail(), token: { _ in "fixture" })
+        var stale: [Double] = []
+        for n in 1...12 {
+            let start = ContinuousClock.now
+            try await unwalked.body(id("m\(n)"))
+            let body = await source.body(id("m\(n)"))
+            _ = MailAttributedText.blocks(body)
+            stale.append(ms(start.duration(to: .now)))
+        }
+        let onOpen = await unwalked.preparedOnRequest
+        XCTAssertEqual(onOpen, 12, "without the walk, every stale open prepared on request")
+
+        // With the walk: a preparer change is made good newest first while Mail is open.
+        try await bumpVersion(stores)
+        let aheadBefore = await source.preparationCounts().ahead
+        source.setVisible(true)
+        // After the walk: every body current again; opens prepare nothing.
+        let walkStart = ContinuousClock.now
+        while ContinuousClock.now - walkStart < .seconds(60) {
+            var all = true
+            for n in 13...24 { if try await !current(stores, "m\(n)") { all = false } }
+            if all { break }
+            try await Task.sleep(for: .milliseconds(20))
+        }
+        let walkEnd = ContinuousClock.now
+        let walkedDuring = await source.preparationCounts().ahead - aheadBefore
+        let before = await source.preparationCounts().onRequest
+        var rewalked: [Double] = []
+        for n in 13...24 { rewalked.append(await open("m\(n)").total) }
+        let after = await source.preparationCounts().onRequest
+        source.setVisible(false)
+        XCTAssertEqual(after, before, "after the walk, opens prepare nothing")
+
+        let fmt = { (v: Double) in String(format: "%.1f", v) }
+        let report = "STYLED_ON_MAIN_BEFORE_MS p50=\(fmt(percentile(oldTotal, 0.5))) p95=\(fmt(percentile(oldTotal, 0.95))) main_thread_styling_p50=\(fmt(percentile(oldMain, 0.5))) p95=\(fmt(percentile(oldMain, 0.95))) | MAIL_OPEN_PREPARED_MS p50=\(fmt(percentile(prepared, 0.5))) p95=\(fmt(percentile(prepared, 0.95))) styling_off_main_p50=\(fmt(percentile(styling, 0.5))) styling_off_main_p95=\(fmt(percentile(styling, 0.95))) | STALE_PREPARE_ON_OPEN_MS p50=\(fmt(percentile(stale, 0.5))) p95=\(fmt(percentile(stale, 0.95))) prepared_on_request=\(onOpen)/12 | WALK prepared=\(walkedDuring) walk_ms=\(fmt(ms(walkStart.duration(to: walkEnd)))) | AFTER_WALK_MS p50=\(fmt(percentile(rewalked, 0.5))) p95=\(fmt(percentile(rewalked, 0.95)))"
+        print(report)
+        let attachment = XCTAttachment(string: report); attachment.name = "open-prepared"; attachment.lifetime = .keepAlways; add(attachment)
+        XCTAssertEqual(walkedDuring, 24, "the walk re-prepared every stored body")
+        XCTAssertLessThan(percentile(prepared, 0.5), percentile(stale, 0.5), report)
     }
 }

@@ -13,6 +13,9 @@ final class MailReaderModel: ObservableObject {
     let id: MailConversationID
     @Published private(set) var conversation: MailConversation?
     @Published private(set) var bodies: [MailMessageID: MailBody] = [:]
+    /// Each body's blocks already styled (`MailAttributedText.blocks`), made off the main thread
+    /// as the body arrives and published with it: drawing never styles text.
+    private(set) var styled: [MailMessageID: [AttributedString]] = [:]
     /// What the details column says about it, prepared when the conversation arrives.
     @Published private(set) var facts: MailConversationFacts?
     /// What each message's card says above its text, and the subject as a row says it. Prepared
@@ -78,6 +81,7 @@ final class MailReaderModel: ObservableObject {
         bodyStates.removeAll(keepingCapacity: true)
         for message in conversation?.messages ?? [] { bodyStates[message.id] = message.body }
         let retained = bodies.filter { id, _ in bodyStates[id] != nil && bodyStates[id] == oldStates[id] }
+        styled = styled.filter { retained[$0.key] != nil }
         if bodies != retained { bodies = retained }
         self.conversation = conversation
         facts = conversation.map(MailConversationFacts.init)
@@ -95,7 +99,12 @@ final class MailReaderModel: ObservableObject {
                 guard !Task.isCancelled else { return }
                 arrived[message] = await source.body(message)
             }
+            let ready = arrived
+            let styledNow = await Task.detached(priority: .userInitiated) {
+                ready.compactMapValues { MailAttributedText.blocks($0) }
+            }.value
             guard !Task.isCancelled, let self, self.bodyGeneration == generation else { return }
+            self.styled.merge(styledNow) { _, new in new }
             let updated = self.bodies.merging(arrived) { _, new in new }
             if self.bodies != updated { self.bodies = updated }
             for message in arrived.keys { self.requestMissingBody(message) }

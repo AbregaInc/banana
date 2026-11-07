@@ -64,7 +64,7 @@ struct MailConversationContent: View {
                             }
                             .padding(.bottom, DS.Space.xs)
                             ForEach(reader.messages) { message in
-                                MailMessageCard(message: message, text: reader.bodies[message.id], opener: reader.opener,
+                                MailMessageCard(message: message, text: reader.bodies[message.id], styled: reader.styled[message.id], opener: reader.opener,
                                                 load: { reader.fetchBody(message.id) })
                                     .onAppear { reader.revealBody(message.id) }
                             }
@@ -242,6 +242,7 @@ struct MailMessageCard: View {
     let message: MailMessageDisplay
     /// Nil until the body has arrived.
     let text: MailBody?
+    var styled: [AttributedString]? = nil
     let opener: MailAttachmentOpener
 
     var load: () -> Void = {}
@@ -310,9 +311,9 @@ struct MailMessageCard: View {
     @ViewBuilder private var content: some View {
         switch text {
         case .text(let content, _, _)?:
-            MailTextView(text: content)
+            MailTextView(text: content, styled: styled)
         case .designed(_, _, _, let plain, _)?:
-            MailTextView(text: plain)
+            MailTextView(text: plain, styled: styled)
         case .notOnDevice?, nil:
             // Never a spinner: what the row said, until the body is here.
             VStack(alignment: .leading, spacing: DS.Space.s) {

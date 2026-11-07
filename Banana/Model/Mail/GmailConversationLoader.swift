@@ -10,6 +10,11 @@ actor GmailConversationLoader {
     let api: any GmailAPI
     let token: @Sendable (String) async throws -> String
     enum Failure: Error, Equatable { case wrongAccount, malformed, missingMessage, incompleteBody }
+    /// Preparations made because someone asked for the body (an open, a Load control) while its
+    /// original was here and its prepared form was not: the cases where an open waits on the
+    /// preparer. Everything else is prepared ahead (`preparedAhead`).
+    private(set) var preparedOnRequest = 0
+    private(set) var preparedAhead = 0
 
     init(stores: MailStores, writer: MailWriter, api: any GmailAPI,
          token: @escaping @Sendable (String) async throws -> String) {
@@ -64,6 +69,7 @@ actor GmailConversationLoader {
                               arguments: [account, id.message]) ?? false
         }
         if hasOriginal {
+            preparedOnRequest += 1
             guard try await blobs.prepare(account: account, messageID: id.message, at: Int64(Date().timeIntervalSince1970 * 1000)) != nil else { throw Failure.incompleteBody }
             try await promoteCached(id, thread: identity.0, rowID: identity.1)
             return
@@ -159,6 +165,7 @@ actor GmailConversationLoader {
         let at = Int64(Date().timeIntervalSince1970 * 1000)
         try await blobs.put(message, account: account, extraction: extraction, ftsRowID: rowID, at: at)
         guard try await blobs.prepare(account: account, messageID: id.message, at: at) != nil else { throw Failure.incompleteBody }
+        preparedAhead += 1
         return FetchedMessage(wire: message, floor: floor, headers: MessageHeaders(payload: message.payload), structure: extraction.structure)
     }
 
@@ -177,6 +184,25 @@ actor GmailConversationLoader {
             return change
         }
     }
+    /// Prepares an original this device already stores whose prepared form is missing or was made
+    /// by an older preparer (`MailReprepare`), and tells open screens. False when there is no
+    /// stored original, or it cannot be prepared.
+    func prepareStored(_ id: MailMessageID) async throws -> Bool {
+        let account = id.account.lowercased()
+        guard let identity = try await stores.index.read({ db -> (String, Int64)? in
+            guard let row = try Row.fetchOne(db, sql: """
+                SELECT t.gmail_id,m.msg_pk FROM message m JOIN thread t ON t.thread_pk=m.thread_pk
+                JOIN account a ON a.account_pk=m.account_pk WHERE a.email=? AND m.gmail_id=?
+                """, arguments: [account, id.message]) else { return nil }
+            return (row[0], row[1])
+        }) else { return false }
+        guard try await MailBlobStore(stores: stores).prepare(account: account, messageID: id.message,
+                                                              at: Int64(Date().timeIntervalSince1970 * 1000)) != nil else { return false }
+        preparedAhead += 1
+        try await promoteCached(id, thread: identity.0, rowID: identity.1)
+        return true
+    }
+
     private func promoteCached(_ id: MailMessageID, thread: String, rowID: Int64) async throws {
         try Task.checkCancellation()
         let account = id.account.lowercased()

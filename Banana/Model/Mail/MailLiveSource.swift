@@ -47,7 +47,20 @@ import GRDB
     private var downloadQueue: [Download] = []
     private var downloads: [Download: Task<Void, Never>] = [:]
     /// Content from Banana Cloud in bulk (MAIL-CLOUD-SYNC §5a); nil without a cloud feed.
-    private lazy var cloudPull: MailCloudPull? = cloudFeed.map { MailCloudPull(stores: stores, loader: conversationLoader, source: $0) }
+    /// Whether local CPU work may run now, and how fast (invariant 31).
+    let paceGauge = MailPaceGauge()
+    private lazy var cloudPull: MailCloudPull? = cloudFeed.map { [paceGauge] in
+        MailCloudPull(stores: stores, loader: conversationLoader, source: $0, pace: { paceGauge.pace() })
+    }
+    /// Re-prepares stored originals whose prepared body is missing or stale, newest first.
+    private lazy var reprepare = MailReprepare(stores: stores, loader: conversationLoader, pace: { [paceGauge] in paceGauge.pace() })
+    private var reprepareTask: Task<Void, Never>?
+    private var reprepareToken = UUID()
+    private var cloudToken = UUID()
+    /// What the open path had to prepare because nothing prepared was here (tests, diagnostics).
+    func preparationCounts() async -> (onRequest: Int, ahead: Int) {
+        (await conversationLoader.preparedOnRequest, await conversationLoader.preparedAhead)
+    }
     private var cloudTask: Task<Void, Never>?
     private var screenWork: Task<Void, Never>?
     private var pushCatchUp = 0
@@ -151,15 +164,47 @@ import GRDB
         wants(conversationSubscriptions.values.map(\.id))
         startDownloads()
         kickCloud()
+        kickReprepare(restart: true)
+    }
+
+    /// Walks stored originals newest first, preparing what the current preparer has not, at the
+    /// work pace: after a `MailHTMLPreparer.version` change no open has to wait for it.
+    private func kickReprepare(restart: Bool = false) {
+        guard reprepareTask == nil, active || pushCatchUp > 0 else { return }
+        let pass = reprepare, token = UUID()
+        reprepareToken = token
+        reprepareTask = Task(priority: .utility) { [weak self] in
+            if restart { await pass.restart() }
+            while !Task.isCancelled {
+                guard let step = try? await pass.step(), step.more else { break }
+            }
+            // A walk cancelled by hiding Mail must not clear the one started when it came back.
+            if self?.reprepareToken == token { self?.reprepareTask = nil }
+        }
+    }
+
+    /// An open: the conversation's stored originals that have no current prepared body are
+    /// prepared now, ahead of the walk (counted as preparations on request).
+    private func prepareOpened(_ id: MailConversationID) {
+        let pass = reprepare
+        Task(priority: .userInitiated) { [weak self] in
+            let stale = (try? await pass.stale(in: id)) ?? []
+            guard let self else { return }
+            for message in stale { self.enqueue(.body(message), priority: true) }
+        }
     }
     func setVisible(_ visible: Bool) {
+        paceGauge.setVisible(visible)
         if visible { activate() }
         else {
             stopSync()
             for task in pageTasks.values { task.cancel() }
             pageTasks.removeAll(); cancelDownloads(); access.cancelMailTokenRequests()
             screenWork?.cancel(); screenWork = nil
-            if pushCatchUp == 0 { cloudTask?.cancel(); cloudTask = nil }
+            if pushCatchUp == 0 {
+                cloudTask?.cancel(); cloudTask = nil
+                reprepareTask?.cancel(); reprepareTask = nil
+            }
             active = false
             draftWake?.cancel(); draftWake = nil
             draftReadTask?.cancel()
@@ -424,6 +469,7 @@ import GRDB
         for id in subscriptions.keys { refresh(id) }
     }
     func wants(_ ids: [MailConversationID]) {
+        for id in ids.prefix(8) { prepareOpened(id) }
         guard let pull = cloudPull else {
             for id in ids.prefix(8) { enqueue(.thread(id), priority: true) }
             return
@@ -440,6 +486,9 @@ import GRDB
                 guard cloud, holds else { self.enqueue(.thread(id), priority: true); return }
                 let fallback = (try? await pull.open(id)) ?? []
                 for item in fallback { self.enqueue(.body(item.id), priority: true) }
+                // The opened conversation's pull runs now, at the person's priority, beside any
+                // utility-priority batch already in flight.
+                Task(priority: .userInitiated) { _ = try? await pull.step(fill: false) }
                 self.kickCloud()
             }
         }
@@ -486,7 +535,9 @@ import GRDB
     /// in use or a push's window is open) the rest newest first. One request at a time.
     private func kickCloud() {
         guard let pull = cloudPull, cloudTask == nil, active || pushCatchUp > 0 else { return }
-        cloudTask = Task { [weak self] in
+        let token = UUID()
+        cloudToken = token
+        cloudTask = Task(priority: .utility) { [weak self] in
             while !Task.isCancelled {
                 guard let self else { return }
                 let step: MailCloudPull.Step
@@ -496,7 +547,7 @@ import GRDB
                 for item in step.fallback { self.enqueue(.body(item.id), priority: item.urgent) }
                 if !step.worked { break }
             }
-            self?.cloudTask = nil
+            if self?.cloudToken == token { self?.cloudTask = nil }
         }
     }
 
@@ -506,7 +557,8 @@ import GRDB
     func catchUpFromPush(budget: Duration = .seconds(20)) async -> Bool {
         guard let sync = mailboxSync else { return false }
         pushCatchUp += 1
-        defer { pushCatchUp -= 1 }
+        paceGauge.enterWindow()
+        defer { pushCatchUp -= 1; paceGauge.leaveWindow() }
         let start = ContinuousClock.now
         var ok = false
         for account in accounts where account.state == .connected {

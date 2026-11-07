@@ -9,6 +9,10 @@ enum MailBlobSchema {
             try db.execute(sql: "ALTER TABLE content ADD COLUMN content_rev INTEGER NOT NULL DEFAULT 1")
             try db.execute(sql: "ALTER TABLE prepared ADD COLUMN source_rev INTEGER NOT NULL DEFAULT 0")
         }
+        migrator.registerMigration("v3-content-by-date") { db in
+            // The re-preparation pass walks stored originals newest first (`MailReprepare`).
+            try db.execute(sql: "CREATE INDEX content_by_date ON content(internal_date DESC, account DESC, gmail_id DESC) WHERE level=2")
+        }
     }
     static let schema = """
     CREATE TABLE content(

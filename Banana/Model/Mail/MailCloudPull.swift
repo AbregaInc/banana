@@ -38,15 +38,23 @@ actor MailCloudPull {
     private let loader: GmailConversationLoader
     private let source: any MailCloudFeedSource
     private let clock: @Sendable () -> Int64
+    private let pace: @Sendable () -> MailWorkPace
+    private let sleep: @Sendable (TimeInterval) async throws -> Void
     private var opened: [MailMessageID] = []
     private var screen: [MailMessageID] = []
     private var inFlight = Set<MailMessageID>()
     private var retryAt: [String: Int64] = [:]          // per account, after a limit or an outage
     private var noCloud: [String: Int64] = [:]          // per account: the service has no bulk content until
 
+    /// `pace`: the work pace of invariant 31. Every message pulled is prepared as it is stored
+    /// (`GmailConversationLoader.storeCloud`), so screen and fill batches pause after it as the pace
+    /// says, and do not run while it says stop; an opened conversation is never held back.
     init(stores: MailStores, loader: GmailConversationLoader, source: any MailCloudFeedSource,
-         clock: @escaping @Sendable () -> Int64 = { Int64(Date().timeIntervalSince1970 * 1000) }) {
+         clock: @escaping @Sendable () -> Int64 = { Int64(Date().timeIntervalSince1970 * 1000) },
+         pace: @escaping @Sendable () -> MailWorkPace = { .full },
+         sleep: @escaping @Sendable (TimeInterval) async throws -> Void = { try await Task.sleep(for: .seconds($0)) }) {
         self.stores = stores; self.loader = loader; self.source = source; self.clock = clock
+        self.pace = pace; self.sleep = sleep
     }
 
     /// Whether the account syncs from the cloud mailbox (its feed has answered) and the service
@@ -157,9 +165,10 @@ actor MailCloudPull {
     func step(fill: Bool) async throws -> Step {
         let now = clock()
         let blocked = Set(retryAt.filter { $0.value > now }.keys).union(noCloud.filter { $0.value > now }.keys)
+        let stopped = pace().pause(afterWorking: 0) == nil
         var candidates: [MailMessageID] = []
-        if fill { candidates = try await fillCandidates(limit: Self.batch * 2, blocked: blocked) }
-        guard let plan = Self.plan(opened: opened, screen: screen, fill: candidates, inFlight: inFlight, blocked: blocked) else {
+        if fill && !stopped { candidates = try await fillCandidates(limit: Self.batch * 2, blocked: blocked) }
+        guard let plan = Self.plan(opened: opened, screen: stopped ? [] : screen, fill: candidates, inFlight: inFlight, blocked: blocked) else {
             return Step(tier: nil)
         }
         let account = plan.ids[0].account
@@ -195,7 +204,12 @@ actor MailCloudPull {
             case .later: break
             }
         }
+        let started = ContinuousClock.now
         let stored = try await loader.storeCloud(messages, account: account).map { MailMessageID(account: account, message: $0) }
+        if plan.tier != .opened {
+            let work = started.duration(to: .now).components
+            if let pause = pace().pause(afterWorking: Double(work.seconds) + Double(work.attoseconds) / 1e18), pause > 0 { try await sleep(pause) }
+        }
         step.stored = stored
         done.formUnion(stored)
         // A message the cloud sent that could not be stored here (malformed, too large) goes the
