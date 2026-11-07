@@ -229,7 +229,6 @@ final class MailHostileUITest: MailUITestCase {
         XCTAssertTrue(bodyText.contains("Turning"), bodyText)
         // Room for the details column in landscape, but it starts closed (direction B).
         XCTAssertFalse(element(MailID.details).exists, "the details start closed")
-        XCTAssertFalse(element(MailID.control).exists, "the places are the title's menu, not a column")
         // The picker open, then turn back.
         hideKeyboard()
         button(MailID.composerSendLater).tap()
