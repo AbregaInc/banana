@@ -93,15 +93,67 @@ final class MailHTMLPreparerTests: XCTestCase {
         XCTAssertEqual(blockTexts(try MailHTMLPreparer.prepare(plain: nil, html: html)), ["Column text"])
     }
 
-    func testImageLinkKeepsItsDescriptionAndTrackingAddressIsShortened() throws {
+    func testTrackingAddressTextIsShortened() throws {
         let long = "https://click.example.net/track/" + String(repeating: "a1b2", count: 20)
-        let html = "<p><a href=\"https://example.com/get\"><img alt=\"Get the app\" src=\"https://example.com/b.png\"></a></p><p><a href=\"https://example.com/logo\"><img alt=\"\" src=\"https://example.com/l.png\"></a></p><p><a href=\"\(long)\">\(long)</a></p>"
+        let prepared = try MailHTMLPreparer.prepare(plain: nil, html: "<p><a href=\"\(long)\">\(long)</a></p>")
+        let shown = blockTexts(prepared)[0]
+        XCTAssertTrue(shown.hasPrefix("click.example.net/track/a1b2"))
+        XCTAssertLessThanOrEqual(shown.count, 37)
+        XCTAssertEqual(prepared.text.blocks[0].runs.first?.link?.absoluteString, long)
+    }
+
+    private func pictures(_ prepared: MailPreparedBody) -> [MailPicture] {
+        prepared.text.blocks.compactMap { if case .picture(let picture) = $0.kind { return picture }; return nil }
+    }
+
+    func testPicturesStayInReadingOrderWithSizeAltAndLink() throws {
+        let html = "<p>Before <img src=\"https://img.example.com/a.png\" width=\"600\" height=\"300\" alt=\"Chart\"> after</p>"
+            + "<p><a href=\"https://example.com/go\"><img src=\"https://img.example.com/b.png\" style=\"width: 320px; height:80px\" alt=\"\"></a></p>"
         let prepared = try MailHTMLPreparer.prepare(plain: nil, html: html)
-        XCTAssertEqual(blockTexts(prepared).first, "Get the app")
-        XCTAssertTrue(blockTexts(prepared)[1].hasPrefix("click.example.net/track/a1b2"))
-        XCTAssertLessThanOrEqual(blockTexts(prepared)[1].count, 37)
-        XCTAssertEqual(prepared.text.blocks[0].runs.first?.link?.absoluteString, "https://example.com/get")
-        XCTAssertEqual(prepared.text.blocks[1].runs.first?.link?.absoluteString, long)
+        XCTAssertEqual(prepared.text.blocks.map(\.kind).map { if case .picture = $0 { return "pic" }; return "text" }, ["text", "pic", "text", "pic"])
+        XCTAssertEqual(blockTexts(prepared).filter { !$0.isEmpty }, ["Before", "after"])
+        let found = pictures(prepared)
+        XCTAssertEqual(found[0], MailPicture(source: .remote(URL(string: "https://img.example.com/a.png")!), width: 600, height: 300, alt: "Chart", link: nil))
+        XCTAssertEqual(found[1].width, 320)
+        XCTAssertEqual(found[1].height, 80)
+        XCTAssertEqual(found[1].link?.absoluteString, "https://example.com/go")
+    }
+
+    func testTrackersSpacersAndIconsAreNotPictures() throws {
+        let html = "<img src=\"https://t.example.com/x.gif\" width=\"1\" height=\"1\">"
+            + "<img src=\"https://t.example.com/y.gif\" style=\"width:2px;height:2px\">"
+            + "<img src=\"https://t.example.com/z.png\" style=\"display:none\" width=\"300\" height=\"100\">"
+            + "<img src=\"https://t.example.com/wf/open?upn=abc\">"
+            + "<img src=\"https://t.example.com/spacer.gif\">"
+            + "<img src=\"https://t.example.com/line.png\" width=\"600\" height=\"2\">"
+            + "<img src=\"https://t.example.com/icon.png\" width=\"24\" height=\"24\" alt=\"Follow us\">"
+            + "<img src=\"data:image/png;base64,AAAA\" width=\"200\" height=\"100\">"
+            + "<img src=\"/relative.png\" width=\"200\" height=\"100\">"
+            + "<p>Text</p>"
+        let prepared = try MailHTMLPreparer.prepare(plain: nil, html: html)
+        XCTAssertEqual(pictures(prepared), [])
+        XCTAssertEqual(blockTexts(prepared), ["Text"])
+    }
+
+    func testMessagePartsAreCidPictures() throws {
+        let prepared = try MailHTMLPreparer.prepare(plain: nil, html: "<p><img src=\"cid:part-1@example\" width=\"200\" height=\"100\" alt=\"Photo\"></p>")
+        XCTAssertEqual(pictures(prepared).first?.source, .cid("part-1@example"))
+    }
+
+    func testQuotedAndFinePrintPicturesAreDropped() throws {
+        let html = "<img src=\"https://img.example.com/logo.png\" width=\"120\" height=\"40\" alt=\"Sender\"><p>Hello</p><p>Body</p>"
+            + "<img src=\"https://img.example.com/hero.png\" width=\"600\" height=\"300\">"
+            + "<blockquote><img src=\"https://img.example.com/sig.png\" width=\"100\" height=\"50\">Old</blockquote>"
+            + "<p>Closing words</p><p>Click to unsubscribe</p><img src=\"https://img.example.com/badge.png\" width=\"140\" height=\"40\" alt=\"App\">"
+        let prepared = try MailHTMLPreparer.prepare(plain: nil, html: html)
+        XCTAssertEqual(pictures(prepared).map(\.alt), ["Sender", ""])
+    }
+
+    func testRepeatedAndExcessPicturesAreLimited() throws {
+        let same = String(repeating: "<img src=\"https://img.example.com/a.png\" width=\"200\" height=\"100\">", count: 3)
+        XCTAssertEqual(pictures(try MailHTMLPreparer.prepare(plain: nil, html: same + "<p>x</p>")).count, 1)
+        let many = (0..<60).map { "<p>t\($0)</p><img src=\"https://img.example.com/\($0).png\" width=\"200\" height=\"100\">" }.joined()
+        XCTAssertEqual(pictures(try MailHTMLPreparer.prepare(plain: nil, html: many)).count, MailHTMLPreparer.maximumPictures)
     }
 
     func testListsKeepNumbersAndDepth() throws {

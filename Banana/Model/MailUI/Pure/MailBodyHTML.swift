@@ -102,7 +102,7 @@ enum MailBodyHTML {
                 }
                 // An item with nothing in it is not a line of the list.
                 if !empty { out += "<li>" + inline(block.runs) + "</li>" }
-            case .paragraph, .heading, .preformatted, .rule, .fineprint:
+            case .paragraph, .heading, .preformatted, .rule, .fineprint, .picture:
                 if quoteDepth > 0 { closeQuote() }
                 closeList()
                 if empty {

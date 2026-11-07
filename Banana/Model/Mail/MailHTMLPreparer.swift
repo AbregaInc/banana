@@ -25,7 +25,7 @@ struct MailPreparedBody: Codable, Equatable, Sendable {
 
 /// Runs on the preparation worker, before opening. Uses the pinned library's parser.
 enum MailHTMLPreparer {
-    static let version = 2
+    static let version = 3
     static let maximumBytes = 2 * 1024 * 1024
     enum Failure: Error { case tooLarge, tooComplex }
 
@@ -53,8 +53,11 @@ enum MailHTMLPreparer {
             // links, so it walks the parsed tree directly. Script and style content are data nodes and are
             // never read. The Original view prepares its own cleaned document (MailOriginalDocument).
             guard let body = source.body() else { return plainBody(plain ?? "", shownAsText: true) }
-            let native = try nativeText(body, needs: DocNeeds(html))
+            let (native, pictures) = try nativeText(body, needs: DocNeeds(html))
             mark("nativeText")
+            if let measure {
+                for (name, count) in pictures.named { measure("pictures." + name, Double(count)) }
+            }
             return MailPreparedBody(version: version, text: native, shownAsText: true, quoteStartsAt: MailPreparedBody.quoteStart(of: native.blocks))
         }
         guard (plain?.utf8.count ?? 0) <= maximumBytes else { throw Failure.tooLarge }
@@ -216,7 +219,7 @@ enum MailHTMLPreparer {
         }
     }
 
-    private static let looksAt: Set<String> = ["div", "span", "p", "td", "th", "tr", "table", "li", "ul", "ol", "section", "center", "blockquote",
+    private static let looksAt: Set<String> = ["img", "div", "span", "p", "td", "th", "tr", "table", "li", "ul", "ol", "section", "center", "blockquote",
         "h1", "h2", "h3", "h4", "h5", "h6", "a", "article", "header", "footer", "main", "figure"]
 
     private static func look(of element: Element, tag: String, needs: DocNeeds) -> Look {
@@ -307,10 +310,75 @@ enum MailHTMLPreparer {
         return shown
     }
 
-    /// A picture's description that works as a link's label ("Get the app"), not a caption of the picture or a logo's name.
-    private static func isLabel(_ alt: String) -> Bool {
-        guard !alt.isEmpty, alt.count <= 40, alt.split(separator: " ").count <= 6 else { return false }
-        return alt.range(of: "logo", options: .caseInsensitive) == nil
+
+    // MARK: Pictures
+
+    static let maximumPictures = 40
+
+    struct PictureCounts {
+        var kept = 0, tracker = 0, decorative = 0, quoted = 0, fineprint = 0, capped = 0, unsupported = 0, cid = 0
+        var named: [(String, Int)] { [("kept", kept), ("tracker", tracker), ("decorative", decorative), ("quoted", quoted),
+                                      ("fineprint", fineprint), ("capped", capped), ("unsupported", unsupported), ("cid", cid)] }
+    }
+
+    /// Path pieces that name a tracking pixel when the picture says nothing about its size.
+    private static let trackerPaths: [StaticString] = ["/open", "/o/", "/e/o", "pixel", "beacon", "/track", "/imp/", "impression", "spacer", "blank.gif", "clear.gif", "transparent.gif"]
+
+    /// A number of CSS pixels from an attribute or a style value: `120`, `120px`; not `100%` or `auto`.
+    private static func pixels(_ value: String) -> Int? {
+        let text = value.trimmingCharacters(in: .whitespaces).lowercased()
+        let digits = text.hasSuffix("px") ? String(text.dropLast(2)) : text
+        guard let number = Double(digits), number >= 0, number < 10_000 else { return nil }
+        return Int(number.rounded())
+    }
+
+    private static func declaredSize(_ style: [UInt8]) -> (width: Int?, height: Int?) {
+        var width: Int?, height: Int?
+        for declaration in String(decoding: style, as: UTF8.self).split(separator: ";") {
+            let parts = declaration.split(separator: ":", maxSplits: 1)
+            guard parts.count == 2 else { continue }
+            let name = parts[0].trimmingCharacters(in: .whitespaces).lowercased()
+            if name == "width" { width = pixels(String(parts[1])) } else if name == "height" { height = pixels(String(parts[1])) }
+        }
+        return (width, height)
+    }
+
+    /// The picture an `img` stands for, or nil when it is a tracker, a spacer, an icon or something that cannot be shown.
+    private static func picture(of element: Element, link: URL?, counts: inout PictureCounts) -> MailPicture? {
+        let raw = ((try? element.attr("src")) ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !raw.isEmpty else { counts.unsupported += 1; return nil }
+        var width = (try? element.attr("width")).flatMap(pixels)
+        var height = (try? element.attr("height")).flatMap(pixels)
+        if width == nil || height == nil, let style = try? element.attr(Bytes.k_style), !style.isEmpty {
+            let declared = declaredSize(style)
+            width = width ?? declared.width
+            height = height ?? declared.height
+        }
+        // One to three pixels is a pixel or a spacer, whatever its address.
+        if let width, width <= 3 { counts.tracker += 1; return nil }
+        if let height, height <= 3 { counts.tracker += 1; return nil }
+        let source: MailPicture.Source
+        let lower = raw.lowercased()
+        if lower.hasPrefix("cid:") {
+            let id = String(raw.dropFirst(4)).trimmingCharacters(in: CharacterSet(charactersIn: "<> "))
+            guard !id.isEmpty else { counts.unsupported += 1; return nil }
+            source = .cid(id)
+        } else if lower.hasPrefix("http://") || lower.hasPrefix("https://"), let url = URL(string: raw), url.host != nil,
+                  !raw.unicodeScalars.contains(where: { $0.value < 32 || $0.value == 127 }) {
+            if width == nil && height == nil {
+                let bytes = Array(lower.utf8)
+                for needle in trackerPaths where contains(bytes, needle) { counts.tracker += 1; return nil }
+            }
+            source = .remote(url)
+        } else {
+            counts.unsupported += 1
+            return nil
+        }
+        // A small icon (social buttons, bullets, check marks) is decoration.
+        if let width, let height, width <= 32, height <= 32 { counts.decorative += 1; return nil }
+        if case .cid = source { counts.cid += 1 }
+        let alt = collapse((try? element.attr("alt")) ?? "").trimmingCharacters(in: .whitespaces)
+        return MailPicture(source: source, width: width, height: height, alt: String(alt.prefix(200)), link: MailBodyHTML.safeLink(link))
     }
 
     // MARK: Fine print
@@ -332,7 +400,7 @@ enum MailHTMLPreparer {
 
     /// From the first piece of boilerplate in the last part of a sender's message to its end. Replies people write
     /// have none of these words in their closing lines; a newsletter's footer starts with them.
-    private static func markingFinePrint(_ blocks: [MailTextBlock]) -> [MailTextBlock] {
+    private static func markingFinePrint(_ blocks: [MailTextBlock], counts: inout PictureCounts) -> [MailTextBlock] {
         guard blocks.count >= 3 else { return blocks }
         let earliest = max(1, blocks.count / 2)
         var start: Int?
@@ -350,10 +418,15 @@ enum MailHTMLPreparer {
             default: break
             }
         }
+        // Pictures under the boilerplate are its social icons, badges and logos.
+        let before = out.count
+        out = Array(out[..<first]) + out[first...].filter { if case .picture = $0.kind { return false }; return true }
+        counts.fineprint += before - out.count
+        counts.kept -= before - out.count
         return out
     }
 
-    private static func nativeText(_ root: Element, needs: DocNeeds) throws -> MailText {
+    private static func nativeText(_ root: Element, needs: DocNeeds) throws -> (MailText, PictureCounts) {
         var blocks: [MailTextBlock] = [], runs: [MailTextRun] = []
         var kind = MailTextBlock.Kind.paragraph
         var hasVisible = false
@@ -361,6 +434,7 @@ enum MailHTMLPreparer {
         var outlookQuote = false
         // A list item whose text sits in a div or p (Outlook, Apple Mail): the first block inside it is the item.
         var pendingItem: MailTextBlock.Kind?
+        var counts = PictureCounts()
 
         func flush() {
             defer { runs.removeAll(keepingCapacity: true); hasVisible = false }
@@ -430,11 +504,13 @@ enum MailHTMLPreparer {
             if traits.contains(.outlookReply) { outlookQuote = true }
             if tag == "hr" { flush(); blocks.append(MailTextBlock(kind: .rule, runs: [])); return }
             if tag == "img" {
-                // A picture that is the only content of a link stands for the link: its description is the link's text.
-                if link != nil, let alt = try? element.attr("alt") {
-                    let value = collapse(alt).trimmingCharacters(in: .whitespaces)
-                    if isLabel(value) { append(value, style: style, link: link) }
-                }
+                guard let picture = picture(of: element, link: link, counts: &counts) else { return }
+                if quote > 0 || outlookQuote { counts.quoted += 1; return }
+                if case .picture(let last)? = blocks.last?.kind, last.source == picture.source { return }
+                if counts.kept >= maximumPictures { counts.capped += 1; return }
+                counts.kept += 1
+                flush()
+                blocks.append(MailTextBlock(kind: .picture(picture), runs: []))
                 return
             }
             if isBlock {
@@ -493,7 +569,8 @@ enum MailHTMLPreparer {
         }
         try walk(root, style: [], link: nil, quote: 0, pre: false)
         flush()
-        return MailText(blocks: markingFinePrint(attributionsJoinedToTheirQuotes(blocks)))
+        let marked = markingFinePrint(attributionsJoinedToTheirQuotes(blocks), counts: &counts)
+        return (MailText(blocks: marked), counts)
     }
 
     /// "On Tue, Nov 3, Ann wrote:" that a client wrote as a plain line above its quote belongs to the quote.

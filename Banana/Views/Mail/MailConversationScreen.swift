@@ -77,9 +77,9 @@ struct MailConversationContent: View {
                         }
                         .id(Self.foot)
                     }
-                    .frame(maxWidth: DS.Mail.readingMeasure, alignment: .leading)
+                    // Message text fills the pane, as in Apple Mail and Gmail: no reading-measure cap.
+                    .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(DS.Space.l)
-                    .frame(maxWidth: .infinity)
                 } else if !reader.isLoading {
                     Text("This conversation is no longer here.")
                         .foregroundStyle(.secondary)
@@ -307,10 +307,20 @@ struct MailMessageCard: View {
         }
     }
 
+    /// A picture that is a part of this message loads from the stored parts.
+    private var pictureContext: MailPictureContext {
+        let source = session?.source, id = message.id
+        return MailPictureContext(account: id.account) { part in
+            guard let url = URL(string: "cid:" + part), let source else { return nil }
+            return await source.resource(url, for: id, presentation: .onScreen)?.data
+        }
+    }
+
     @ViewBuilder private var content: some View {
         switch text {
         case .text(let content, let quoteStart, _)?:
             MailTextView(text: content, foldFrom: quoteStart)
+                .environment(\.mailPictureContext, pictureContext)
         case .designed(_, _, _, let plain, _)?:
             MailTextView(text: plain)
         case .notOnDevice?, nil:

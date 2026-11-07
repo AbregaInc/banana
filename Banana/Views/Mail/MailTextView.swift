@@ -56,6 +56,8 @@ private struct MailBlockView: View {
             Text(MailAttributedText.make(block.runs)).font(.system(.callout, design: .monospaced))
         case .rule:
             Divider()
+        case .picture(let picture):
+            MailPictureView(picture: picture)
         case .fineprint:
             Text(MailAttributedText.make(block.runs)).font(.caption).foregroundStyle(.secondary)
         }
