@@ -119,7 +119,7 @@ enum MailReconcileIndex {
         try save(next, account: account, in: db)
         var change = MailStoreChange()
         for thread in touched {
-            change.formUnion(try MailIndexWriter.rebuildThread(thread, facts: MailMessageImporter.facts(threadPK: thread, in: db), myAddresses: [account], reuseStatements: reuseProjectionStatements, in: db))
+            change.formUnion(try MailIndexWriter.rebuildThread(thread, facts: MailMessageImporter.facts(threadPK: thread, reuseStatements: reuseProjectionStatements, in: db), myAddresses: [account], reuseStatements: reuseProjectionStatements, in: db))
         }
         return (next, change)
     }
