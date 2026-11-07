@@ -1104,6 +1104,17 @@ its cursor type and its "show around" call (E-32). MEASURED, through `DatabasePo
 Five times the rows cost 4.8 times the time: the cap is a choice about the UI's list, not
 about the store, and prototype P1 decides whether it can rise.
 
+**Past the cap the list slides, and nobody pages** (the owner, 6 November 2026: "when im
+looking at emails i dont want to manually page through results"). The list is a window of at
+most `listCap` rows from a boundary down (`MailScope.before`, the page query's `?2, ?3`).
+`MailPaging` decides, on every position the list reports, while about one screen of rows (at
+least 30) is still to come: a step more rows below the cap; past it, the window slides older,
+keeping half a window above the screen and letting go of the rest; near the top of a slid
+window it slides newer through the boundaries it came down (keys only); where the device holds
+no more, `askGmail` once per answer. The rows on screen do not move: the host puts the first of
+them back where it was. The last row says loading, "No more", or Retry after a failure. A
+search scrolls the same way. Older/Newer buttons and an explicit "next fifty" are gone.
+
 **Unread counts need no counter.** `SELECT count(*) FROM view_thread WHERE view_pk = ?1 AND
 unread = 1` runs on the partial index (plan: `SEARCH … USING COVERING INDEX
 view_thread_unread`). MEASURED: 0.35 ms p50 for 10,323 unread; all twelve counts a sidebar

@@ -66,9 +66,20 @@ final class MailListCoordinator: NSObject, NSTableViewDataSource, NSTableViewDel
     private var rows: [MailConversationID: MailRow] = [:]
     private var displays: [MailConversationID: MailRowDisplay] = [:]
     private var subscriptions: Set<AnyCancellable> = []
+    /// The window the rows were last applied for (`MailListShown.windowBefore`).
+    private var shownWindow: MailOrderKey?
+    /// The status row after the last conversation, made once (`MailListStatusRow`).
+    private lazy var statusCell: NSView = {
+        let session = self.session
+        let view = NSHostingView(rootView: MailListStatusRow(feed: session.feed) { session.retryPaging() })
+        view.sizingOptions = []
+        view.identifier = Self.statusID
+        return view
+    }()
     private var pendingViewport: MailViewport?
     private var viewportDeliveryScheduled = false
     private static let cellID = NSUserInterfaceItemIdentifier("mail.row")
+    private static let statusID = NSUserInterfaceItemIdentifier("mail.status")
 
     init(session: MailSession, style: MailRowStyle, opensOnTap: Bool) {
         self.session = session
@@ -101,10 +112,11 @@ final class MailListCoordinator: NSObject, NSTableViewDataSource, NSTableViewDel
                                                name: NSView.boundsDidChangeNotification,
                                                object: scrollView.contentView)
 
+        shownWindow = session.feed.shown.windowBefore
         load(session.feed.shown.rows)
         table.reloadData()
         session.feed.$shown.dropFirst().sink { [weak self] shown in
-            self?.apply(shown.rows)
+            self?.show(shown)
         }.store(in: &subscriptions)
         session.hostCommands.sink { [weak self] command in
             switch command {
@@ -163,6 +175,25 @@ final class MailListCoordinator: NSObject, NSTableViewDataSource, NSTableViewDel
         if !stale.isEmpty { table.reloadData(forRowIndexes: stale, columnIndexes: IndexSet(integer: 0)) }
     }
 
+    /// A publication of the feed. When the window has slid, rows came and went far above or
+    /// below the visible ones: the first row in view is put back exactly where it was, so
+    /// nothing he is looking at moves (`MailPaging`). Rows are one height, so this is exact.
+    private func show(_ shown: MailListShown) {
+        guard shown.windowBefore != shownWindow else { return apply(shown.rows) }
+        shownWindow = shown.windowBefore
+        let visible = table.visibleRect
+        let range = table.rows(in: visible)
+        let anchor = order.indices.contains(range.location)
+            ? (id: order[range.location], fromTop: table.rect(ofRow: range.location).minY - visible.minY) : nil
+        apply(shown.rows)
+        guard let anchor, let row = order.firstIndex(of: anchor.id) else { return }
+        let y = table.rect(ofRow: row).minY - anchor.fromTop
+        if abs(y - visible.minY) > 0.5 {
+            scrollView.contentView.scroll(to: NSPoint(x: scrollView.contentView.bounds.minX, y: y))
+            scrollView.reflectScrolledClipView(scrollView.contentView)
+        }
+    }
+
     func setStyle(_ new: MailRowStyle) {
         guard new != style else { return }
         style = new
@@ -172,9 +203,11 @@ final class MailListCoordinator: NSObject, NSTableViewDataSource, NSTableViewDel
 
     // MARK: Data source and delegate
 
-    func numberOfRows(in tableView: NSTableView) -> Int { order.count }
+    /// The conversations, and the status row after them.
+    func numberOfRows(in tableView: NSTableView) -> Int { order.count + 1 }
 
     func tableView(_ tableView: NSTableView, viewFor tableColumn: NSTableColumn?, row: Int) -> NSView? {
+        if row == order.count { return statusCell }
         guard order.indices.contains(row), let display = displays[order[row]] else { return nil }
         let cell = (tableView.makeView(withIdentifier: Self.cellID, owner: nil) as? MailHostingCell) ?? {
             let made = MailHostingCell()
@@ -207,7 +240,8 @@ final class MailListCoordinator: NSObject, NSTableViewDataSource, NSTableViewDel
         guard range.length > 0, order.indices.contains(range.location),
               let row = rows[order[range.location]] else { return }
         pendingViewport = MailViewport(firstRow: row.id, key: row.key,
-                                       offset: Int((table.rect(ofRow: range.location).minY - visible.minY).rounded()))
+                                       offset: Int((table.rect(ofRow: range.location).minY - visible.minY).rounded()),
+                                       rowsOnScreen: min(range.length, order.count - range.location))
         guard !viewportDeliveryScheduled else { return }
         viewportDeliveryScheduled = true
         let scope = session.scope

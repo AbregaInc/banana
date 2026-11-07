@@ -141,54 +141,138 @@ final class MailSessionTests: XCTestCase {
         XCTAssertEqual(session.model.viewport?.offset, 7)
     }
 
-    func testHistoryNavigationReachesBeyondCapWithoutRetainingOldModels() throws {
-        let source = MailFixtureSource(samples: MailFixtureConversations.stress(days: 2), defaults: nil)
-        let session = MailSession(source: source, now: source.now, deviceName: "Test",
-            timers: MailTimers { _, _ in {} }, present: { _, _ in })
-        session.enter(); session.show(.all)
-        defer { session.leave() }
-        var seen = Set<MailConversationID>()
-        var firstIDs: [MailConversationID] = []
-        for page in 0..<25 {
+    /// Scrolls the way the host reports it while flinging: the screen a dozen rows from the end
+    /// of what is loaded, until the place's oldest conversation is in. Returns every row seen.
+    private func scrollThrough(_ session: MailSession, window: Int,
+                               file: StaticString = #filePath, line: UInt = #line) -> [MailConversationID] {
+        var seen: [MailConversationID] = []
+        var seenSet = Set<MailConversationID>()
+        for _ in 0..<2_000 {
+            for row in session.model.rows where seenSet.insert(row.id).inserted { seen.append(row.id) }
             let rows = session.model.rows
-            XCTAssertEqual(rows.count, MailTuning.listStep)
-            firstIDs.append(try XCTUnwrap(rows.first).id)
-            for row in rows { XCTAssertTrue(seen.insert(row.id).inserted, "Paging duplicated a conversation") }
-            if page < 24 {
-                weak var previous = session.model
-                session.showOlderHistory()
-                XCTAssertNil(previous, "Paging must release the previous list model and its rows")
-            }
+            let at = max(0, rows.count - 12)
+            let shown = MailViewport(firstRow: rows[at].id, key: rows[at].key, offset: 0, rowsOnScreen: 12)
+            session.send(.scrolled(shown))
+            XCTAssertTrue(session.model.rows.contains { $0.id == shown.firstRow },
+                          "the row on screen stays", file: file, line: line)
+            XCTAssertLessThanOrEqual(session.model.rows.count, window, "the window is bounded", file: file, line: line)
+            if !session.feed.shown.hasMore, session.model.rows.count - 1 - at <= MailPaging.minimumLead { break }
         }
-        XCTAssertGreaterThan(seen.count, MailTuning.listCap)
-        session.showNewerHistory()
-        XCTAssertEqual(session.model.rows.first?.id, firstIDs[23])
-        session.show(.all)
-        XCTAssertNil(session.scope.before)
-        XCTAssertEqual(session.model.rows.first?.id, firstIDs[0])
+        for row in session.model.rows where seenSet.insert(row.id).inserted { seen.append(row.id) }
+        return seen
     }
 
-    func testHistorySearchAndFilterChangesResetTheWindow() throws {
+    func testScrollingWalksAWholeMailboxInABoundedWindowWithoutButtons() throws {
         let source = MailFixtureSource(samples: MailFixtureConversations.stress(days: 2), defaults: nil)
         let session = MailSession(source: source, now: source.now, deviceName: "Test",
-            timers: MailTimers { _, _ in {} }, present: { _, _ in })
+            timers: MailTimers { _, _ in {} }, windowRows: 500, present: { _, _ in })
+        session.enter(); session.show(.all)
+        defer { session.leave() }
+        let newest = try XCTUnwrap(session.model.rows.first)
+        let seen = scrollThrough(session, window: 500)
+        XCTAssertEqual(seen.count, 4_000, "every conversation is reached by scrolling alone")
+        XCTAssertEqual(Set(seen).count, seen.count)
+        XCTAssertNotNil(session.model.windowBefore, "the window slid")
+        XCTAssertEqual(session.feed.shown.paging, .end)
+        XCTAssertNil(session.scope.before, "the place is the same place; only its window moved")
+
+        // Back up to the newest by scrolling.
+        for _ in 0..<2_000 where session.model.windowBefore != nil {
+            let rows = session.model.rows
+            let at = min(10, rows.count - 1)
+            session.send(.scrolled(MailViewport(firstRow: rows[at].id, key: rows[at].key, offset: 0, rowsOnScreen: 12)))
+            XCTAssertLessThanOrEqual(session.model.rows.count, 500)
+        }
+        XCTAssertNil(session.model.windowBefore)
+        XCTAssertEqual(session.model.rows.first?.id, newest.id)
+        // Leaving and coming back keeps the model, its cursor and its window.
+        weak var model = session.model
+        session.show(.inbox); session.show(.all)
+        XCTAssertTrue(model === session.model)
+    }
+
+    func testScrollingThroughSearchResultsLoadsTheirPagesAndASearchChangeStartsAgain() throws {
+        let source = MailFixtureSource(samples: MailFixtureConversations.stress(days: 2), defaults: nil)
+        let session = MailSession(source: source, now: source.now, deviceName: "Test",
+            timers: MailTimers { _, _ in {} }, windowRows: 500, present: { _, _ in })
         session.enter()
         defer { session.leave() }
         session.switchTo(MailScope(place: .search("Stress")))
         let first = try XCTUnwrap(session.model.rows.first)
-        session.showOlderHistory()
-        XCTAssertNotNil(session.scope.before)
-        XCTAssertLessThan(try XCTUnwrap(session.model.rows.first).key, first.key)
-        session.showNewerHistory()
-        XCTAssertEqual(session.model.rows.first?.id, first.id)
-        session.showOlderHistory()
+        let seen = scrollThrough(session, window: 500)
+        XCTAssertEqual(seen.count, 4_000, "every match is reached by scrolling alone")
+        XCTAssertNotNil(session.model.windowBefore)
         let filtered = MailListModel.scope(toggling: .unread, in: session.scope)
-        XCTAssertNil(filtered.before)
         session.switchTo(filtered)
+        XCTAssertNil(session.model.windowBefore, "a new search or filter starts at the newest")
         XCTAssertTrue(session.model.rows.allSatisfy(\.isUnread))
-        session.show(.inbox)
-        XCTAssertNil(session.scope.before)
-        XCTAssertEqual(session.historyBackTitle, "Newest")
+        session.switchTo(MailScope(place: .search("Stress")))
+        XCTAssertEqual(session.model.rows.first?.id, first.id)
+    }
+
+    /// A place the device holds part of: the rest comes from the edge, a page per ask.
+    @MainActor
+    private final class EdgeSource: MailSource {
+        let scope = MailScope(place: .mailbox(.inbox))
+        var held = 60
+        let total = 260
+        var asks = 0
+        var failNext = false
+        var failed = false
+        private var observers: [UUID: (limit: Int, MailScope, @MainActor (MailListSnapshot) -> Void)] = [:]
+        func activate() {}
+        func setVisible(_ visible: Bool) {}
+        func observeList(_ scope: MailScope, limit: Int,
+                         _ onChange: @escaping @MainActor (MailListSnapshot) -> Void) -> MailObservation {
+            let token = UUID()
+            observers[token] = (limit, scope, onChange)
+            onChange(snapshot(scope, limit: limit))
+            // Let go at once, as the in-memory source does: no reading of an old limit follows.
+            return MailObservation { [weak self] in
+                MainActor.assumeIsolated { self?.observers[token] = nil }
+            }
+        }
+        func askGmail(_ scope: MailScope) {
+            asks += 1
+            if failNext { failNext = false; failed = true } else { failed = false; held = min(total, held + 50) }
+            for (limit, scope, callback) in observers.values { callback(snapshot(scope, limit: limit)) }
+        }
+        func snapshot(_ scope: MailScope, limit: Int) -> MailListSnapshot {
+            let rows = (0..<held).map { TriageHarness.row("E\($0)", rank: $0) }
+                .filter { row in scope.before.map { row.key < $0 } ?? true }
+            let shown = Array(rows.prefix(limit))
+            return MailListSnapshot(scope: scope, rows: shown, total: MailCount(value: held, isAtLeast: held < total),
+                                    hasMore: shown.count < rows.count || held < total, stillLoading: 0,
+                                    isRebuilding: false, remote: failed ? .failed : nil, coverage: nil, appliedThrough: 0)
+        }
+    }
+
+    func testTheEdgeIsAskedAheadOfTheScreenUntilItHasNoMoreAndRetryFollowsAFailure() throws {
+        let source = EdgeSource()
+        let session = MailSession(source: source, now: TriageHarness.now, deviceName: "Test",
+                                  timers: MailTimers { _, _ in {} }, present: { _, _ in })
+        session.enter()
+        defer { session.leave() }
+        XCTAssertEqual(session.model.rows.count, 60)
+        func scrollToEnd() {
+            let rows = session.model.rows
+            let at = max(0, rows.count - 10)
+            session.send(.scrolled(MailViewport(firstRow: rows[at].id, key: rows[at].key, offset: 0, rowsOnScreen: 10)))
+        }
+        scrollToEnd()
+        XCTAssertEqual(source.asks, 1, "the device had no more: the edge was asked, without a button")
+        XCTAssertEqual(session.model.rows.count, 100)
+        source.failNext = true
+        scrollToEnd()
+        XCTAssertEqual(session.feed.shown.paging, .failed)
+        let asked = source.asks
+        scrollToEnd()
+        XCTAssertEqual(source.asks, asked, "after a failure only Retry asks")
+        session.retryPaging()
+        XCTAssertEqual(source.asks, asked + 1)
+        for _ in 0..<40 where session.feed.shown.hasMore { scrollToEnd() }
+        XCTAssertEqual(session.model.rows.count, 260, "everything the edge had is in")
+        XCTAssertEqual(session.feed.shown.paging, .end)
     }
 
     /// Holds replacement delivery so the observation handoff is tested asynchronously.

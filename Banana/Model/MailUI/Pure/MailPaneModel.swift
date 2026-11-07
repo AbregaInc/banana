@@ -74,7 +74,8 @@ final class MailPaneModel: ObservableObject {
     private func showCursor() {
         cancelDwell?()
         cancelDwell = nil
-        guard let model, let id = model.cursor else {
+        // `cursorConversation`: a window that slid past the cursor's row leaves the pane as it was.
+        guard let model, let id = model.cursorConversation else {
             reader = nil
             return
         }

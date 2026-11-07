@@ -60,6 +60,7 @@ final class MailFixtureSource: MailSource {
     private var memberCache: [MailScope: [MailRow]] = [:]
     private struct PageKey: Hashable { let scope: MailScope; let limit: Int }
     private var pageCache: [PageKey: (rows: [MailRow], total: Int)] = [:]
+    private var searchDefinitions: [String: LiveFilter?] = [:]
     var bodies: [MailMessageID: MailBody] = [:]
     /// Every conversation, as a change last left it.
     var sequence: UInt64 = 0
@@ -350,7 +351,14 @@ final class MailFixtureSource: MailSource {
         case .mailbox(.starred): inPlace = row.isStarred
         case .mailbox(.all): inPlace = true
         case .search(let text):
-            let definition = LiveFilter.fromSearchExpression(text, scope: "mail")
+            // Parsed once per text, not once per conversation: a search over the stress mailbox
+            // reads every conversation for each page it is scrolled to.
+            let definition: LiveFilter?
+            if let parsed = searchDefinitions[text] { definition = parsed } else {
+                definition = LiveFilter.fromSearchExpression(text, scope: "mail")
+                if searchDefinitions.count > 8 { searchDefinitions.removeAll() }
+                searchDefinitions[text] = .some(definition)
+            }
             if let definition {
                 guard definition.canRun else { return false }
                 if let interval = definition.interval(), !(row.date >= interval.start && row.date < interval.end) { return false }

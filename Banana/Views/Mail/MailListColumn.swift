@@ -2,7 +2,9 @@
 import SwiftUI
 
 /// The list column: its header, and the list under it. The list host is made again when the
-/// place changes, because it is built on that place's feed (`.id(scope)`).
+/// place changes, because it is built on that place's feed (`.id(scope)`). The list scrolls on
+/// through the whole place: older mail is asked for ahead of the screen, and its last row says
+/// whether more is coming (`MailPaging`, `MailListStatusRow`).
 struct MailListColumn: View {
     let session: MailSession
     let arrangement: MailArrangement
@@ -27,36 +29,6 @@ struct MailListColumn: View {
                         else { session.source.checkNow() }
                     }.id(scope)
                 }
-            MailHistoryNavigation(session: session, feed: session.feed, scope: scope)
-        }
-    }
-}
-
-private struct MailHistoryNavigation: View {
-    let session: MailSession
-    @ObservedObject var feed: MailListFeed
-    let scope: MailScope
-
-    var body: some View {
-        if !scope.isWriting && (scope.before != nil || feed.shown.hasMore) {
-            Divider()
-            HStack {
-                Button { session.showNewerHistory() } label: {
-                    Label(session.historyBackTitle, systemImage: "chevron.left")
-                        .frame(minHeight: DS.Row.minHeight)
-                }
-                .disabled(scope.before == nil)
-                .accessibilityIdentifier("mail.history.newer")
-                Spacer()
-                Button { session.showOlderHistory() } label: {
-                    Label("Older", systemImage: "chevron.right")
-                        .frame(minHeight: DS.Row.minHeight)
-                }
-                .disabled(!session.canShowOlderHistory)
-                .accessibilityIdentifier("mail.history.older")
-            }
-            .buttonStyle(.borderless)
-            .padding(.horizontal, DS.Space.l)
         }
     }
 }
@@ -166,7 +138,7 @@ private struct MailEmptyState: View {
             } else if feed.shown.remote == .failed {
                 VStack { Text("Mail search couldn’t finish."); Button("Retry", action: retry) }
             } else if feed.shown.rows.isEmpty {
-                ContentUnavailableView(scope.before == nil ? "No matches" : "No older matches", systemImage: "magnifyingglass",
+                ContentUnavailableView("No matches", systemImage: "magnifyingglass",
                     description: Text("Try another word. Only downloaded headers and snippets are searched."))
             }
         } else if feed.shown.hasDelivered, feed.shown.rows.isEmpty, !isSample {
@@ -174,9 +146,6 @@ private struct MailEmptyState: View {
                 ProgressView("Downloading mail…")
             } else if feed.shown.remote == .failed {
                 VStack { Text("Mail couldn’t download."); Button("Retry", action: retry) }
-            } else if scope.before != nil {
-                ContentUnavailableView("No older downloaded mail", systemImage: "tray",
-                    description: Text("Return to newer messages or check mail for updates."))
             } else {
                 ContentUnavailableView("No downloaded mail", systemImage: "tray",
                     description: Text("Connect Google and allow Mail above. Downloaded messages will appear here."))

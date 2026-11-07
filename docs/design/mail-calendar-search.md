@@ -1,5 +1,20 @@
 # Mail and Calendar search
 
+### Continuous scrolling replaces Older/Newer — November 7
+
+The owner asked not to page manually. The Older and Newer buttons, and the repeated
+ask for Gmail's next search page, are gone. Mailboxes and searches scroll on: while
+about one screen of rows (at least 30) is still to come, the list asks for a step
+more, slides a full 2,000-row window older (keeping 1,000 rows above the screen), slides
+it newer near its top, or asks Gmail once per answer when the device holds no more
+(`MailPaging`, `MailListModel.pageIfNeeded`). The hosts keep the first row on screen
+where it was when the window moves. A status row at the end shows a spinner, "No more"
+after a list that paged, or Retry after a failure. Unit cases walk 6,000 rows by screen
+and by J/K without exceeding the window; `--mail-window-rows 100` lets the UI cases
+cross several slides in a few flings. Simulator results only: no device frame timing,
+and live Gmail edge paging was not exercised (the live source's search `askGmail` is
+still a no-op).
+
 ### Bounded history navigation — October 11, 07:47
 
 Mail now provides Older and Newer/Newest navigation for downloaded mail and search

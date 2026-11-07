@@ -19,6 +19,9 @@ import Foundation
 enum MailID {
     /// The conversation list itself.
     static let list = "mail.list"
+    /// The row after the last conversation: loading, the end, or Retry (`MailListStatusRow`).
+    static let listStatus = "mail.list.status"
+    static let listRetry = "mail.list.retry"
 
     /// One row of the list. `key` is the conversation's fixture key in a UI test (`q3`), and
     /// the conversation id's `text` otherwise.

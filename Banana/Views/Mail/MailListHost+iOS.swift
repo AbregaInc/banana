@@ -92,6 +92,8 @@ final class MailListCoordinator: NSObject, UICollectionViewDelegate {
     private var snapshotGeneration: UInt64 = 0
     private var retiredRows: [MailConversationID: UInt64] = [:]
     private var subscriptions: Set<AnyCancellable> = []
+    /// The window the rows were last applied for (`MailListShown.windowBefore`).
+    private var shownWindow: MailOrderKey?
     private var pendingViewport: MailViewport?
     private var viewportDeliveryScheduled = false
 
@@ -107,9 +109,18 @@ final class MailListCoordinator: NSObject, UICollectionViewDelegate {
         var config = UICollectionLayoutListConfiguration(appearance: .plain)
         config.showsSeparators = false
         config.backgroundColor = .clear
+        // The status row after the last conversation (`MailListStatusRow`).
+        config.footerMode = .supplementary
         config.leadingSwipeActionsConfigurationProvider = { path in swipes.coordinator?.leadingSwipes(at: path) }
         config.trailingSwipeActionsConfigurationProvider = { path in swipes.coordinator?.trailingSwipes(at: path) }
-        let layout = UICollectionViewCompositionalLayout.list(using: config)
+        // A plain list pins its footer to the bottom of the screen; the status row belongs after
+        // the last conversation, so it scrolls with them.
+        let listConfig = config
+        let layout = UICollectionViewCompositionalLayout { _, environment in
+            let section = NSCollectionLayoutSection.list(using: listConfig, layoutEnvironment: environment)
+            for item in section.boundarySupplementaryItems { item.pinToVisibleBounds = false }
+            return section
+        }
         collectionView = MailRestoringCollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.backgroundColor = .clear
         collectionView.alwaysBounceVertical = true
@@ -131,13 +142,26 @@ final class MailListCoordinator: NSObject, UICollectionViewDelegate {
             collectionView: collectionView) { view, path, id in
             view.dequeueConfiguredReusableCell(using: registration, for: path, item: id)
         }
+        // Made once and kept: it observes the feed itself, at a fixed height.
+        let status = UICollectionView.SupplementaryRegistration<UICollectionViewListCell>(
+            elementKind: UICollectionView.elementKindSectionFooter) { [unowned self] cell, _, _ in
+            let session = self.session
+            cell.contentConfiguration = UIHostingConfiguration {
+                MailListStatusRow(feed: session.feed) { session.retryPaging() }
+            }.margins(.all, 0)
+            cell.backgroundConfiguration = .clear()
+        }
+        dataSource.supplementaryViewProvider = { view, _, path in
+            view.dequeueConfiguredReusableSupplementary(using: status, for: path)
+        }
 
+        shownWindow = session.feed.shown.windowBefore
         apply(session.feed.shown.rows, animated: false)
         // `@Published` hands over the new value before it is stored: applying here is synchronous
         // with the model's publish, which is what keeps a row's removal and the cursor's move in
         // one turn (prototype P1).
         session.feed.$shown.dropFirst().sink { [weak self] shown in
-            self?.apply(shown.rows, animated: true)
+            self?.show(shown)
         }.store(in: &subscriptions)
         session.hostCommands.sink { [weak self] command in
             switch command {
@@ -162,6 +186,36 @@ final class MailListCoordinator: NSObject, UICollectionViewDelegate {
     }
 
     // MARK: Rows
+
+    /// A publication of the feed. When the window has slid, rows came and went far above or
+    /// below the screen: they are applied without animation and the first row on screen is put
+    /// back exactly where it was, so nothing he is looking at moves (`MailPaging`).
+    private func show(_ shown: MailListShown) {
+        guard shown.windowBefore != shownWindow else { return apply(shown.rows, animated: true) }
+        shownWindow = shown.windowBefore
+        let anchor = firstRowOnScreen()
+        apply(shown.rows, animated: false)
+        guard let anchor else { return }
+        collectionView.layoutIfNeeded()
+        guard let path = dataSource.indexPath(for: anchor.id),
+              let frame = collectionView.layoutAttributesForItem(at: path)?.frame else { return }
+        let target = frame.minY - anchor.fromTop
+        // Assigned, not animated: a fling in progress goes on from the same place on screen.
+        if abs(target - collectionView.contentOffset.y) > 0.5 {
+            collectionView.contentOffset = CGPoint(x: collectionView.contentOffset.x, y: target)
+        }
+    }
+
+    /// The first row at least partly on screen, and how far its top is from the scroll offset.
+    private func firstRowOnScreen() -> (id: MailConversationID, fromTop: CGFloat)? {
+        let top = collectionView.contentOffset.y + collectionView.adjustedContentInset.top
+        let visible = collectionView.indexPathsForVisibleItems.filter {
+            (collectionView.layoutAttributesForItem(at: $0)?.frame.maxY ?? -.infinity) > top
+        }
+        guard let path = visible.min(), let id = dataSource.itemIdentifier(for: path),
+              let frame = collectionView.layoutAttributesForItem(at: path)?.frame else { return nil }
+        return (id, frame.minY - collectionView.contentOffset.y)
+    }
 
     private func apply(_ shown: [MailRow], animated: Bool) {
         snapshotGeneration &+= 1
@@ -223,7 +277,8 @@ final class MailListCoordinator: NSObject, UICollectionViewDelegate {
         }
         guard let path = visible.min(), let id = dataSource.itemIdentifier(for: path),
               let row = rows[id], let frame = collectionView.layoutAttributesForItem(at: path)?.frame else { return }
-        pendingViewport = MailViewport(firstRow: id, key: row.key, offset: Int((frame.minY - top).rounded()))
+        pendingViewport = MailViewport(firstRow: id, key: row.key, offset: Int((frame.minY - top).rounded()),
+                                       rowsOnScreen: visible.count)
         guard !viewportDeliveryScheduled else { return }
         viewportDeliveryScheduled = true
         let scope = session.scope
