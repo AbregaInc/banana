@@ -753,10 +753,27 @@ final class MailObservation: @unchecked Sendable {
     init(_ value: MailBadgeCounts) { self.value = value }
 }
 
-/// A leaf: one attachment's download, 0 to 1.
+/// A leaf: one attachment's download, 0 to 1, and where it is: asked for, coming, here, or why it is not.
 @MainActor final class MailProgress: ObservableObject {
+    enum State: Equatable, Sendable {
+        case idle, queued, downloading, done
+        case failed(MailAttachmentFailure)
+    }
     @Published var fraction: Double = 0
+    @Published var state: State = .idle
+    /// Bytes received so far; 0 until the first answer.
+    @Published var bytes: Int = 0
     init() {}
+}
+
+/// Why an attachment is not here, in words a screen can choose from.
+enum MailAttachmentFailure: Equatable, Sendable {
+    /// No answer in time, or no connection, or the service said not now: trying again may work.
+    case unavailable, timedOut
+    /// Bigger than 25 MB, or not something that is ever opened (a program): trying again will not help.
+    case tooLarge, notAllowed
+    /// The message or the part is not on this device any more.
+    case missing
 }
 
 enum MailSuggestion: Equatable, Sendable {

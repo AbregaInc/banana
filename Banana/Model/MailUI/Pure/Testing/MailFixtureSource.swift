@@ -79,6 +79,7 @@ final class MailFixtureSource: MailSource {
     var sentParts: [MailMessageID: (html: String, plain: String)] = [:]
     /// A file taken off a draft, until the launch ends, so that Undo can put it back as it was.
     var removedFiles: [MailDraftID: [MailDraftAttachment]] = [:]
+    var attachmentProgresses: [MailAttachmentID: MailProgress] = [:]
     var draftNumber = 0
     /// What time it is, for the undo hold. Not the sample mail's clock, which stands still.
     let clock: () -> Date

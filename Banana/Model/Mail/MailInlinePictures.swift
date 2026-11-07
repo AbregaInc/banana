@@ -28,7 +28,7 @@ struct MailInlinePictures: Sendable {
               let part = Self.find(wanted, in: content.structure.root),
               part.mimeType.hasPrefix("image/"), part.mimeType != "image/svg+xml",
               (part.size ?? 0) <= Self.maximumBytes else { return nil }
-        guard let data = await bytes(of: part, account: account, message: message.message),
+        guard let data = await bytes(of: part, account: account, message: message.message, limit: Self.maximumBytes),
               data.count <= Self.maximumBytes, let mime = Self.sniff(data) else { return nil }
         try? await store(data, mime: mime, part: part, contentID: wanted, account: account, message: message.message)
         return MailResource(data: data, mimeType: mime)
@@ -99,17 +99,17 @@ struct MailInlinePictures: Sendable {
 
     // MARK: Mailbox
 
-    private func bytes(of part: MIMEStructure.Part, account: String, message: String) async -> Data? {
+    func bytes(of part: MIMEStructure.Part, account: String, message: String, limit: Int) async -> Data? {
         guard let access = try? await token(account) else { return nil }
         if let id = part.attachmentID,
-           let body = try? await api.attachment(token: access, messageID: message, attachmentID: id), let data = Self.decode(body.data) { return data }
+           let body = try? await api.attachment(token: access, messageID: message, attachmentID: id), let data = Self.decode(body.data, limit: limit) { return data }
         // The stored attachment id is stale or refused: read the message again for this part's current one.
         guard let full = try? await api.message(token: access, id: message, format: .full), let payload = full.payload,
               let current = Self.find(partID: part.partID, in: payload, path: "0") else { return nil }
-        if let data = Self.decode(current.body?.data) { return data }
+        if let data = Self.decode(current.body?.data, limit: limit) { return data }
         guard let id = current.body?.attachmentId,
               let body = try? await api.attachment(token: access, messageID: message, attachmentID: id) else { return nil }
-        return Self.decode(body.data)
+        return Self.decode(body.data, limit: limit)
     }
 
     private static func find(partID: String, in part: GmailPart, path: String) -> GmailPart? {
@@ -120,8 +120,8 @@ struct MailInlinePictures: Sendable {
         return nil
     }
 
-    private static func decode(_ encoded: String?) -> Data? {
-        guard var text = encoded, !text.isEmpty, text.utf8.count <= maximumBytes * 2 else { return nil }
+    static func decode(_ encoded: String?, limit: Int) -> Data? {
+        guard var text = encoded, !text.isEmpty, text.utf8.count <= limit * 4 / 3 + 8 else { return nil }
         text = text.replacingOccurrences(of: "-", with: "+").replacingOccurrences(of: "_", with: "/")
         text += String(repeating: "=", count: (4 - text.utf8.count % 4) % 4)
         return Data(base64Encoded: text)
