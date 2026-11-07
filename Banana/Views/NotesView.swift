@@ -228,6 +228,7 @@ struct NotesView: View {
     private var padLayout: some View {
         NavigationSplitView(columnVisibility: .constant(.all)) {
             notesList
+                .environment(\.shellFieldInDetail, true)
                 // The grouped page's own white rows on grey, not the sidebar's grey tint, which
                 // made every note look selected or disabled.
                 .scrollContentBackground(.hidden)
@@ -240,11 +241,14 @@ struct NotesView: View {
                 .toolbar(removing: .sidebarToggle)
         } detail: {
             NavigationStack {
-                if let id = shell.state.notes.last, store.note(id) != nil {
-                    VoiceNoteDetailView(noteID: id).id(id)
-                } else {
-                    ContentUnavailableView("No note open", systemImage: "note.text")
+                Group {
+                    if let id = shell.state.notes.last, store.note(id) != nil {
+                        VoiceNoteDetailView(noteID: id).id(id)
+                    } else {
+                        ContentUnavailableView("No note open", systemImage: "note.text")
+                    }
                 }
+                .shellDetailToolbar()
             }
         }
         .navigationSplitViewStyle(.balanced)
@@ -323,6 +327,7 @@ struct NotesView: View {
             .safeAreaInset(edge: .top) { filterBar }
             .safeAreaInset(edge: .bottom, spacing: 0) { pagingControls }
             .pageNavigationTitle("Notes")
+            .shellPageTitle("Notes")
             .navigationDestination(for: UUID.self) { VoiceNoteDetailView(noteID: $0) }
             // Runs whether or not the list itself is on screen (a restored stack opens with the
             // note pushed), and again whenever notes change on another device.

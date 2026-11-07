@@ -13,12 +13,17 @@ import SwiftUI
 /// in the background and the Mac's sidebar leaving Mail and coming back.
 struct MailSection: View {
     @ObservedObject private var application = MailApplication.shared
+    /// The wide shell: Mail's place menu, the field and "…" are its one toolbar.
+    @Environment(\.wideShell) private var wideShell
 
     var body: some View {
         let _ = RenderStats.note("MailSection")
         Group {
             if let session = application.session {
                 VStack(spacing: 0) {
+                    #if os(iOS)
+                    if wideShell { MailWideTopRow(session: session) }
+                    #endif
                     if let source = session.source as? MailLiveSource {
                         MailConnectionBar(source: source, session: session)
                     }
@@ -37,6 +42,61 @@ struct MailSection: View {
             }
         }
         .task { application.start() }
+        #if os(macOS)
+        .toolbar {
+            if wideShell, let session = application.session {
+                ToolbarItem(placement: .navigation) { MailPlaceTitleMenu(session: session) }
+                ToolbarItem(placement: .primaryAction) { MailActionsMenu(session: session) }
+            }
+        }
+        #endif
+    }
+}
+
+/// Asking for an account's mail, or adding one: shared by the accounts menu at the top of Mail
+/// and the place menu of the bottom-bar shell's title, so either shows what is happening.
+@MainActor
+final class MailAccountActions: ObservableObject {
+    static let shared = MailAccountActions()
+    @Published var busy = false
+    @Published var failed = false
+
+    func allow(_ account: String, source: MailLiveSource) {
+        busy = true; failed = false
+        Task {
+            let result = await source.requestPermission(account: account)
+            failed = result != .granted && result != .cancelled
+            busy = false
+        }
+    }
+
+    func add(source: MailLiveSource) {
+        busy = true; failed = false
+        Task {
+            await GoogleCalendarService.shared.connect()
+            source.checkNow(); busy = false
+        }
+    }
+}
+
+/// Each account, what it can do, and adding one: the items of an accounts menu.
+struct MailAccountsMenuItems: View {
+    let source: MailLiveSource
+    let accounts: [MailAccount]
+
+    var body: some View {
+        ForEach(accounts, id: \.id) { account in
+            Section(account.id) {
+                if account.state != .connected {
+                    Button("Allow Mail") { MailAccountActions.shared.allow(account.id, source: source) }
+                } else {
+                    Text(source.permitsAccountChanges(account.id) ? "Connected" : "Read only")
+                    if let text = MailConnectionBar.healthText(account.health) { Text(text) }
+                }
+            }
+        }
+        Button("Add account") { MailAccountActions.shared.add(source: source) }
+        Button("Check mail") { source.checkNow() }
     }
 }
 
@@ -45,56 +105,37 @@ private struct MailConnectionBar: View {
     let session: MailSession
     @State private var accounts: [MailAccount] = []
     @State private var observation: MailObservation?
-    @State private var busy = false
-    @State private var failed = false
+    @ObservedObject private var actions = MailAccountActions.shared
+    /// The new shells have the accounts in the title's menu: no row of their own.
+    @Environment(\.bottomBarShell) private var bottomBarShellOnly
+    @Environment(\.wideShell) private var wideShell
+    private var bottomBarShell: Bool { bottomBarShellOnly || wideShell }
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Spacer()
-                Menu {
-                    ForEach(accounts, id: \.id) { account in
-                        Section(account.id) {
-                            if account.state != .connected {
-                                Button("Allow Mail") {
-                                    busy = true; failed = false
-                                    Task {
-                                        let result = await source.requestPermission(account: account.id)
-                                        failed = result != .granted && result != .cancelled
-                                        busy = false
-                                    }
-                                }
-                            } else {
-                                Text(source.permitsAccountChanges(account.id) ? "Connected" : "Read only")
-                                if let text = healthText(account.health) { Text(text) }
-                            }
-                        }
+            if !bottomBarShell {
+                HStack {
+                    Spacer()
+                    Menu {
+                        MailAccountsMenuItems(source: source, accounts: accounts)
+                    } label: {
+                        Label(accounts.isEmpty ? "Connect Mail" : "Accounts", systemImage: "person.crop.circle")
                     }
-                    Button("Add account") {
-                        busy = true; failed = false
-                        Task {
-                            await GoogleCalendarService.shared.connect()
-                            source.checkNow(); accounts = source.accounts; busy = false
-                        }
-                    }
-                    Button("Check mail") { source.checkNow() }
-                } label: {
-                    Label(accounts.isEmpty ? "Connect Mail" : "Accounts", systemImage: "person.crop.circle")
+                    .disabled(actions.busy)
+                    .accessibilityIdentifier("mail.accounts")
                 }
-                .disabled(busy)
-                .accessibilityIdentifier("mail.accounts")
             }
             MailRefusalNotice(source: source, status: source.status)
             MailRemovalNotice(source: source, status: source.status)
             MailDraftNotice(session: session, status: source.status)
-            if busy { ProgressView() }
-            if failed { Text("Mail access wasn’t granted. Try Allow Mail again.").font(.caption) }
+            if actions.busy { ProgressView() }
+            if actions.failed { Text("Mail access wasn’t granted. Try Allow Mail again.").font(.caption) }
         }
-        .padding(.horizontal).padding(.vertical, 8)
+        .padding(.horizontal).padding(.vertical, bottomBarShell ? 0 : 8)
         .onAppear { observation = source.observeAccounts { accounts = $0 } }
         .onDisappear { observation?.cancel(); observation = nil }
     }
 
-    private func healthText(_ health: MailSyncHealth) -> String? {
+    static func healthText(_ health: MailSyncHealth) -> String? {
         switch health {
         case .live: return nil
         case .firstSync, .catchingUp: return "Downloading and syncing mail…"

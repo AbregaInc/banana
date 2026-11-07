@@ -100,14 +100,18 @@ final class BookingSettingsUITest: XCTestCase {
 
     /// The Plan's top bar: one tap on Share opens the share sheet with the link (then the person, then
     /// Send: three taps).
-    func testThePlansShareButtonOpensTheShareSheetInOneTap() throws {
+    func testThePlansShareItemOpensTheShareSheet() throws {
         let app = XCUIApplication()
         app.launchArguments = ["--ui-preview", "--booking-preview", "--booking-linked", "--tab", "plan", "--disable-icloud",
                                "-onboardingCompleted", "YES", "-planMode", "day"]
         app.withoutSpaceSync()
         app.launch()
+        // In the plan's "…" (docs/design/BOTTOM-BAR-SHELL.md): one tap opens the menu, one shares.
+        let more = element(app, "mobile.week.more")
+        XCTAssertTrue(more.waitForExistence(timeout: 30))
+        more.tap()
         let share = element(app, "booking.share")
-        XCTAssertTrue(share.waitForExistence(timeout: 30))
+        XCTAssertTrue(share.waitForExistence(timeout: 5))
         keep("plan-share-button")
         share.tap()
         let sheet = app.otherElements["ActivityListView"]

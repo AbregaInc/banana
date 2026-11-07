@@ -8,12 +8,30 @@ extension View {
     /// native Mac windows; iPhone/iPad root toolbars reserve the centre for page controls.
     func pageNavigationTitle(_ title: String, presented: Bool = false) -> some View {
         #if os(iOS)
-        navigationTitle(presented ? title : "")
+        modifier(PageNavigationTitle(title: title, presented: presented))
         #else
         navigationTitle(title)
         #endif
     }
 }
+
+#if os(iOS)
+/// A root page's title, and in the new shells (docs/design/BOTTOM-BAR-SHELL.md) no tab bar: the
+/// switcher or the rail chooses the page. Set here, inside the page's navigation stack, because
+/// an iPad's floating tab strip ignores the setting from outside it.
+private struct PageNavigationTitle: ViewModifier {
+    let title: String
+    let presented: Bool
+    @Environment(\.bottomBarShell) private var bottomBarShell
+    @Environment(\.wideShell) private var wideShell
+
+    func body(content: Content) -> some View {
+        content
+            .navigationTitle(presented ? title : "")
+            .toolbarVisibility(bottomBarShell || wideShell ? .hidden : .automatic, for: .tabBar)
+    }
+}
+#endif
 
 // MARK: - The switch in the top bar
 
@@ -208,8 +226,19 @@ private struct AddButton<Items: View>: ViewModifier {
 
     /// A phone's shell: one list of every kind of thing, behind every page's +.
     @Environment(\.addOpensList) private var phoneShell
+    /// Both new shells add from their field (focused with nothing typed): no + in the top row.
+    @Environment(\.bottomBarShell) private var bottomBarShell
+    @Environment(\.wideShell) private var wideShell
 
     func body(content: Content) -> some View {
+        if bottomBarShell || wideShell {
+            content
+        } else {
+            classic(content)
+        }
+    }
+
+    @ViewBuilder private func classic(_ content: Content) -> some View {
         #if os(macOS) && PI_DEVELOPMENT
         // The window's Ask or add control owns the single desktop entry point.
         content
@@ -286,6 +315,15 @@ extension EnvironmentValues {
     /// Whether every page's + opens the one list of everything (`AddList`): a shell with its tab
     /// bar at the bottom of the screen (a phone, an iPad narrowed into a split), not a sidebar.
     @Entry var addOpensList = false
+    /// The page is in the bottom-bar shell (docs/design/BOTTOM-BAR-SHELL.md): its top row is a
+    /// title menu and "…", Review and Settings are in the switcher, and adding is in the field.
+    @Entry var bottomBarShell = false
+    /// The page is in the wide shell (the rail and one toolbar): its toolbar is its title menu,
+    /// "Search or ask" in the middle, the assistant and "…"; Review and Settings are in the rail.
+    @Entry var wideShell = false
+    /// A split view's list column in the wide shell: its narrow bar drops a centre item, so the
+    /// field and the assistant go on the detail column's bar (`shellDetailToolbar`).
+    @Entry var shellFieldInDetail = false
 }
 
 /// A page's answer to the list a + opens: the kinds it starts, and how.
@@ -372,14 +410,19 @@ struct BodySwitch: View {
 private struct BodySwitchToolbar: ViewModifier {
     let wide: Bool
     @Environment(\.addOpensList) private var inTabBar
+    @Environment(\.bottomBarShell) private var bottomBarShell
+    @Environment(\.wideShell) private var wideShell
     @ObservedObject private var modules = ModuleStore.shared
 
     func body(content: Content) -> some View {
         #if os(iOS)
         content.toolbar {
-            // One page left (Workouts alone) has nothing to switch to: no principal item, so the
-            // centre stays clear; the selected tab already names the page.
-            if inTabBar, BodyPage.choices(wide: wide, with: modules.effectiveChoice).count > 1 {
+            if bottomBarShell || wideShell {
+                // The page's name, with the other Body pages under its chevron.
+                ToolbarItem(placement: .topBarLeading) { BodyTitleMenu(wide: wide) }
+            } else if inTabBar, BodyPage.choices(wide: wide, with: modules.effectiveChoice).count > 1 {
+                // One page left (Workouts alone) has nothing to switch to: no principal item, so
+                // the centre stays clear; the selected tab already names the page.
                 ToolbarItem(placement: .principal) { BodySwitch(wide: wide) }
             }
         }
@@ -424,12 +467,23 @@ final class PageChrome: ObservableObject {
 struct ReviewToolbarItem: ToolbarContent {
     let section: AppSection
     @ObservedObject private var modules = ModuleStore.shared
+    /// In the bottom-bar shell Review is in the switcher.
+    @Environment(\.bottomBarShell) private var bottomBarShell
+    /// In the wide shell Review is in the rail, and every page's toolbar has the field and the
+    /// assistant in its place: this item, which every main page has, puts them there.
+    @Environment(\.wideShell) private var wideShell
+    @Environment(\.shellFieldInDetail) private var fieldInDetail
 
     var body: some ToolbarContent {
         #if os(iOS)
+        if wideShell, !fieldInDetail {
+            ToolbarItem(placement: .principal) { ShellToolbarField() }
+                .sharedBackgroundVisibility(.hidden)
+            ToolbarItem(placement: .topBarTrailing) { ShellAIButton() }
+        }
         ToolbarItem(placement: .topBarLeading) {
             // Nothing to look back on with every module that Review covers switched off.
-            if !ReviewSubject.shown(with: modules.effectiveChoice).isEmpty {
+            if !bottomBarShell, !wideShell, !ReviewSubject.shown(with: modules.effectiveChoice).isEmpty {
                 Button { PageChrome.shared.review = section } label: {
                     Image(systemName: "chart.bar.fill")
                 }
@@ -451,28 +505,43 @@ struct MoreMenu<Items: View>: View {
     @ViewBuilder var items: Items
     /// A sidebar shell has Routines as a tab of its own.
     @Environment(\.addOpensList) private var tabBarShell
+    /// The bottom-bar shell has Settings in the switcher and the assistant on the bar; the wide
+    /// shell has them in the rail and the toolbar, and Routines here (it has no rail button).
+    @Environment(\.bottomBarShell) private var bottomBarShell
+    @Environment(\.wideShell) private var wideShell
 
     var body: some View {
         Menu {
             items
             #if os(iOS)
             Divider()
-            if tabBarShell {
+            if tabBarShell || wideShell {
                 Button { PageChrome.shared.showRoutines = true } label: {
                     Label("Routines", systemImage: "repeat")
                 }
                 .accessibilityIdentifier("page.more.routines")
             }
-            #if BANANA_AI && !PI_DEVELOPMENT
-            Button { PageChrome.shared.showAssistant = true } label: {
-                Label("Assistant", systemImage: "bubble.left.and.bubble.right")
+            if !bottomBarShell && !wideShell {
+                #if BANANA_AI && !PI_DEVELOPMENT
+                Button { PageChrome.shared.showAssistant = true } label: {
+                    Label("Assistant", systemImage: "bubble.left.and.bubble.right")
+                }
+                .accessibilityIdentifier("page.more.assistant")
+                #endif
+                Button { PageChrome.shared.showSettings = true } label: {
+                    Label("Settings", systemImage: "gearshape")
+                }
+                .accessibilityIdentifier("page.more.settings")
             }
-            .accessibilityIdentifier("page.more.assistant")
-            #endif
-            Button { PageChrome.shared.showSettings = true } label: {
-                Label("Settings", systemImage: "gearshape")
+            #else
+            // The rail has no Routines button: it is here, as on a phone.
+            if wideShell {
+                Divider()
+                Button { MacNavigator.shared.section = .routines } label: {
+                    Label("Routines", systemImage: "repeat")
+                }
+                .accessibilityIdentifier("page.more.routines")
             }
-            .accessibilityIdentifier("page.more.settings")
             #endif
         } label: {
             // The plain glyph: the bar draws the glass circle around it, as the system's own do.
@@ -486,5 +555,139 @@ struct MoreMenu<Items: View>: View {
 extension MoreMenu where Items == EmptyView {
     init(identifier: String = "page.more") {
         self.init(identifier: identifier) { EmptyView() }
+    }
+}
+
+
+// MARK: - The bottom-bar shell's top row
+
+/// A page's one top row in the bottom-bar shell: its name, and under the chevron what the page
+/// switches between (Plan: Day and Week; Mail: places and accounts; Body: its pages). A count
+/// beside it says what is waiting. The bar draws the glass around it.
+struct PageTitleMenu<Items: View>: View {
+    let title: String
+    var subtitle: String? = nil
+    var badge = 0
+    var identifier = "page.title"
+    @ViewBuilder var items: Items
+
+    var body: some View {
+        Menu { items } label: {
+            PageTitleLabel(title: title, subtitle: subtitle, badge: badge, chevron: true)
+        }
+        .menuIndicator(.hidden)
+        // The name in ink, as the approved design has it: a toolbar tints its items' labels.
+        .tint(.primary)
+        .accessibilityLabel(badge > 0 ? "\(title), \(badge) waiting" : title)
+        .accessibilityIdentifier(identifier)
+    }
+}
+
+/// A page name with nothing under it (Notes, Library): the same words, no chevron.
+struct PageTitleText: View {
+    let title: String
+    var identifier = "page.title"
+
+    var body: some View {
+        PageTitleLabel(title: title, subtitle: nil, badge: 0, chevron: false)
+            .accessibilityElement(children: .combine)
+            .accessibilityAddTraits(.isHeader)
+            .accessibilityIdentifier(identifier)
+    }
+}
+
+private struct PageTitleLabel: View {
+    let title: String
+    let subtitle: String?
+    let badge: Int
+    let chevron: Bool
+
+    var body: some View {
+        HStack(spacing: DS.Space.s) {
+            VStack(alignment: .leading, spacing: 0) {
+                Text(title)
+                    .font(.title3.weight(.bold))
+                    .foregroundStyle(.primary)
+                if let subtitle {
+                    Text(subtitle).font(.caption).foregroundStyle(.secondary)
+                }
+            }
+            .lineLimit(1)
+            if chevron {
+                Image(systemName: "chevron.down")
+                    .font(.footnote.weight(.bold))
+                    .foregroundStyle(.secondary)
+            }
+            if badge > 0 {
+                Text("\(badge)")
+                    .font(.footnote.weight(.semibold).monospacedDigit())
+                    .foregroundStyle(DS.Palette.accent)
+                    .padding(.horizontal, 7)
+                    .padding(.vertical, 2)
+                    .background(DS.Palette.accent.opacity(DS.Tint.soft), in: Capsule())
+            }
+        }
+        .padding(.horizontal, DS.Space.xs)
+        .fixedSize()
+    }
+}
+
+extension View {
+    /// The page's name at the left of its top row in the bottom-bar shell (a page with nothing
+    /// to switch between). Nothing elsewhere: the tab or the sidebar names it there.
+    func shellPageTitle(_ title: String) -> some View {
+        modifier(ShellPageTitle(title: title))
+    }
+}
+
+private struct ShellPageTitle: ViewModifier {
+    let title: String
+    @Environment(\.bottomBarShell) private var bottomBarShell
+    @Environment(\.wideShell) private var wideShell
+
+    func body(content: Content) -> some View {
+        #if os(iOS)
+        content.toolbar {
+            if bottomBarShell || wideShell {
+                ToolbarItem(placement: .topBarLeading) { PageTitleText(title: title) }
+            }
+        }
+        #else
+        content
+        #endif
+    }
+}
+
+/// Body's title in the bottom-bar shell: the page showing (Workouts, Food or Taken), and the
+/// others under its chevron, with what is waiting in each.
+struct BodyTitleMenu: View {
+    /// Workouts and Food alone (a wide screen keeps Taken inside Food).
+    var wide = false
+    @ObservedObject private var shell = ShellNavigation.shared
+    @ObservedObject private var badges = ActionBadges.shared
+    @ObservedObject private var modules = ModuleStore.shared
+
+    var body: some View {
+        let current = BodyPage(section: shell.state.tab, nutritionSection: shell.state.nutritionSection, wide: wide)
+        let choices = BodyPage.choices(wide: wide, with: modules.effectiveChoice)
+        let waiting = badges.counts.food + badges.counts.taken
+        if choices.count > 1 {
+            PageTitleMenu(title: current.title(wide: wide), badge: waiting, identifier: "body.title") {
+                Picker("Body section", selection: Binding(
+                    get: { current },
+                    set: { page in
+                        if !wide, let half = page.nutritionSection { shell.state.nutritionSection = half }
+                        shell.state.tab = page.section
+                    })) {
+                    ForEach(choices, id: \.self) { page in
+                        let count = page == .food ? badges.counts.food : page == .taken ? badges.counts.taken : 0
+                        Text(count > 0 ? "\(page.title(wide: wide)) · \(count)" : page.title(wide: wide)).tag(page)
+                    }
+                }
+                .pickerStyle(.inline)
+            }
+        } else {
+            PageTitleText(title: current.title(wide: wide), identifier: "body.title")
+        }
     }
 }

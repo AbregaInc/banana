@@ -26,9 +26,10 @@ final class LandscapeUITest: XCTestCase {
                                "-onboardingCompleted", "YES"]
         app.withoutSpaceSync()
         app.launch()
-        XCTAssertTrue(app.tabBars.buttons["Plan"].waitForExistence(timeout: 15), app.debugDescription)
+        XCTAssertTrue(app.buttons["shell.switcher"].waitForExistence(timeout: 15), app.debugDescription)
 
         XCUIDevice.shared.orientation = .landscapeLeft
+        XCTAssertTrue(app.tabBars.buttons["Plan"].waitForExistence(timeout: 15), app.debugDescription)
         sleep(2)
         // Still the app: its tabs, and the day's grid.
         for tab in ["Plan", "Body", "Notes", "Library"] {
@@ -42,8 +43,8 @@ final class LandscapeUITest: XCTestCase {
         XCTAssertTrue(app.descendants(matching: .any).matching(identifier: "mobile.week.timeGrid").firstMatch
             .waitForExistence(timeout: 5), "the day's grid is there on its side")
 
-        // And back upright, the same app.
+        // And back upright: the phone's bar at the bottom (docs/design/BOTTOM-BAR-SHELL.md).
         XCUIDevice.shared.orientation = .portrait
-        XCTAssertTrue(app.tabBars.buttons["Plan"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["shell.switcher"].waitForExistence(timeout: 8))
     }
 }

@@ -204,9 +204,8 @@ final class DeleteUndoUITest: XCTestCase {
 
     func testClearedListeningHistoryComesBackWithUndo() {
         let app = launch(tab: "library", samples: ["--listenmap"])
-        let chart = app.buttons["page.review"].firstMatch
-        XCTAssertTrue(chart.waitForExistence(timeout: 20), app.debugDescription)
-        chart.tap()
+        XCTAssertTrue(app.waitForShell(), app.debugDescription)
+        app.openPage("review")
         let listening = app.descendants(matching: .any).matching(identifier: "review.listening").firstMatch
         XCTAssertTrue(listening.waitForExistence(timeout: 6), app.debugDescription)
         listening.tap()

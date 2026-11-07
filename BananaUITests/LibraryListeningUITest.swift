@@ -12,13 +12,13 @@ final class LibraryListeningUITest: XCTestCase {
         return app
     }
 
-    func testListeningOpensFromTheLibrarysChartButton() throws {
-        guard UIDevice.current.userInterfaceIdiom == .phone else { throw XCTSkip("a sidebar lists Review itself") }
+    func testListeningOpensFromTheLibrarysReview() throws {
+        guard UIDevice.current.userInterfaceIdiom == .phone else { throw XCTSkip("the rail lists Review itself") }
         let app = launch()
-        let chart = app.buttons["page.review"].firstMatch
-        XCTAssertTrue(chart.waitForExistence(timeout: 10), "the Library has no chart button")
+        XCTAssertTrue(app.waitForShell(), app.debugDescription)
         XCTAssertFalse(app.buttons["library.listening"].exists, "the Library still has its own listening menu")
-        chart.tap()
+        // Review, from the switcher, on the subject of the page showing.
+        app.openPage("review")
         // Opened from the Library, Review leads with Listening.
         let listening = app.descendants(matching: .any)["review.listening"].firstMatch
         let fitness = app.descendants(matching: .any)["review.fitness"].firstMatch

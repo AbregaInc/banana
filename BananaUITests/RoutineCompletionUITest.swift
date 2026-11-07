@@ -7,8 +7,15 @@ final class RoutineCompletionUITest: XCTestCase {
                                "--custom-routine-completion-preview", "--reset-routine-completion",
                                "--disable-icloud", "--no-space-sync", "-onboardingCompleted", "YES"]
         app.launch()
+        // What needs attention is under the plan's title (docs/design/BOTTOM-BAR-SHELL.md); a
+        // standalone plan has it as a row of its own.
+        let title = app.descendants(matching: .any)["plan.title"].firstMatch
         let attention = app.buttons["plan.attention"]
-        XCTAssertTrue(attention.waitForExistence(timeout: 20), app.debugDescription)
+        func openAttention() -> Bool {
+            if title.waitForExistence(timeout: 20) { title.tap() }
+            return attention.waitForExistence(timeout: 5)
+        }
+        XCTAssertTrue(openAttention(), app.debugDescription)
         attention.tap()
         // SwiftUI can expose the restored row as PopUpButton after List reconciliation.
         let complete = app.descendants(matching: .any)
@@ -28,7 +35,7 @@ final class RoutineCompletionUITest: XCTestCase {
         XCTAssertTrue(app.buttons["mobile.week.more"].waitForExistence(timeout: 20), app.debugDescription)
         // Other walks can leave due reminders/routines. Their attention row must remain;
         // check this occurrence rather than assuming the entire attention list is empty.
-        if attention.waitForExistence(timeout: 3) {
+        if openAttention() {
             attention.tap()
             XCTAssertFalse(complete.waitForExistence(timeout: 3),
                            "therapy completion survives relaunch\n\(app.debugDescription)")

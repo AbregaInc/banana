@@ -116,8 +116,71 @@ struct MailReplyMenu: View {
 /// (T15).
 private struct MailConversationHeader: View {
     let session: MailSession
+    /// The bottom-bar shell: Back, and the rest under one "…"; Archive and Reply are on the bar.
+    @Environment(\.bottomBarShell) private var bottomBarShell
 
     var body: some View {
+        if bottomBarShell { shellRow } else { classicRow }
+    }
+
+    /// Back with the place's name, and "…": older and newer, reply, star, unread, archive.
+    private var shellRow: some View {
+        HStack(spacing: 0) {
+            Button { session.close() } label: {
+                Label(MailPlacesModel.title(of: session.scope), systemImage: "chevron.backward")
+                    .font(.body.weight(.medium))
+                    .lineLimit(1)
+                    .padding(.horizontal, DS.Space.m)
+                    .frame(minHeight: DS.Row.minHeight)
+                    .contentShape(Capsule())
+            }
+            .buttonStyle(.plain)
+            .foregroundStyle(DS.Palette.accent)
+            .glassEffect(.regular.interactive(), in: .capsule)
+            .accessibilityIdentifier(MailID.back)
+            Spacer(minLength: DS.Space.s)
+            Menu {
+                Section {
+                    Button { session.step(.newer) } label: { Label("Newer", systemImage: "chevron.up") }
+                        .disabled(!session.model.canStep(.newer))
+                        .accessibilityIdentifier(MailID.newer)
+                    Button { session.step(.older) } label: { Label("Older", systemImage: "chevron.down") }
+                        .disabled(!session.model.canStep(.older))
+                        .accessibilityIdentifier(MailID.older)
+                }
+                Section {
+                    Button { session.reply(.reply) } label: { Label("Reply", systemImage: "arrowshape.turn.up.left") }
+                    Button { session.reply(.replyAll) } label: { Label("Reply to all", systemImage: "arrowshape.turn.up.left.2") }
+                    Button { session.reply(.forward) } label: { Label("Forward", systemImage: "arrowshape.turn.up.right") }
+                }
+                .disabled(!session.allowsComposing)
+                Section {
+                    Button { session.act(.toggleStar) } label: { Label("Star", systemImage: "star") }
+                        .disabled(!session.canPerform(.toggleStar))
+                        .accessibilityIdentifier(MailID.star)
+                    Button { session.act(.toggleRead) } label: { Label("Mark unread", systemImage: "envelope.badge") }
+                        .disabled(!session.canPerform(.toggleRead))
+                        .accessibilityIdentifier(MailID.unread)
+                    Button { session.act(.done) } label: { Label("Archive", systemImage: "checkmark") }
+                        .disabled(!session.canPerform(.done))
+                        .accessibilityIdentifier(MailID.done)
+                }
+            } label: {
+                Image(systemName: "ellipsis")
+                    .font(.body.weight(.semibold))
+                    .frame(width: DS.Row.minHeight, height: DS.Row.minHeight)
+                    .contentShape(Circle())
+            }
+            .menuIndicator(.hidden)
+            .glassEffect(.regular.interactive(), in: .circle)
+            .accessibilityLabel("More")
+            .accessibilityIdentifier("mail.reader.more")
+        }
+        .padding(.horizontal, DS.Space.l)
+        .padding(.vertical, DS.Space.xs)
+    }
+
+    private var classicRow: some View {
         // No spacing of its own: each action is already a 44-point target, and at a phone's width
         // the six of them with gaps between left Back no room for the place's name, which wrapped
         // to "In-/…". The name is one line, and truncates before it wraps.

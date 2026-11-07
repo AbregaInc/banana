@@ -7,10 +7,15 @@ struct MailListColumn: View {
     let session: MailSession
     let arrangement: MailArrangement
     let scope: MailScope
+    /// The new shells search from their field: no search row of the page's own.
+    @Environment(\.bottomBarShell) private var bottomBarShell
+    @Environment(\.wideShell) private var wideShell
 
     var body: some View {
         VStack(spacing: 0) {
-            MailSearchField(session: session, scope: scope)
+            if !bottomBarShell && !wideShell {
+                MailSearchField(session: session, scope: scope)
+            }
             MailListHeader(session: session, feed: session.feed, arrangement: arrangement, scope: scope)
             MailListHost(session: session, style: MailRowStyle(arrangement),
                          opensOnTap: arrangement.tapOpens)
@@ -64,10 +69,23 @@ private struct MailListHeader: View {
     @ObservedObject var feed: MailListFeed
     let arrangement: MailArrangement
     let scope: MailScope
+    /// The bottom-bar shell's one top row: a large name whose menu holds places and accounts.
+    @Environment(\.bottomBarShell) private var bottomBarShell
+    /// The wide shell has the place's name in its toolbar: not again over the list.
+    @Environment(\.wideShell) private var wideShell
 
     var body: some View {
         HStack(alignment: .firstTextBaseline, spacing: DS.Space.s) {
-            title
+            if !wideShell { title }
+            if bottomBarShell, case .search = scope.place {
+                // A search the field opened: the way back to the inbox, beside its name.
+                Button { session.show(.inbox) } label: {
+                    Image(systemName: "xmark.circle.fill").foregroundStyle(.secondary)
+                }
+                .buttonStyle(.borderless)
+                .accessibilityLabel("Close search")
+                .accessibilityIdentifier("mail.search.close")
+            }
             if feed.shown.hasDelivered {
                 Text(MailToastText.number(feed.shown.total.value) + (feed.shown.total.isAtLeast ? "+" : ""))
                     .font(.subheadline).monospacedDigit().foregroundStyle(.secondary)
@@ -101,7 +119,8 @@ private struct MailListHeader: View {
     }
 
     @ViewBuilder private var title: some View {
-        let name = Text(MailPlacesModel.title(of: scope)).font(.title3.weight(.semibold))
+        let name = Text(MailPlacesModel.title(of: scope))
+            .font(bottomBarShell ? .title.weight(.bold) : .title3.weight(.semibold))
         if arrangement.showsControl {
             name
         } else {
@@ -112,6 +131,14 @@ private struct MailListHeader: View {
                     } label: {
                         Label(place.title, systemImage: place.mailbox == scope.mailbox ? "checkmark" : place.symbol)
                     }
+                }
+                if bottomBarShell, let source = session.source as? MailLiveSource {
+                    Menu {
+                        MailAccountsMenuItems(source: source, accounts: source.accounts)
+                    } label: {
+                        Label("Accounts", systemImage: "person.crop.circle")
+                    }
+                    .accessibilityIdentifier("mail.accounts")
                 }
             } label: {
                 HStack(spacing: DS.Space.xs) {

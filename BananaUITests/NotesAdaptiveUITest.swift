@@ -50,12 +50,15 @@ final class NotesAdaptiveUITest: XCTestCase {
         shot("notes-portrait-detail")
 
         if UIDevice.current.userInterfaceIdiom == .pad {
-            let add = app.buttons["notes.add"]
+            // Adding is the toolbar's field, tapped with nothing typed (BOTTOM-BAR-SHELL.md).
+            let add = app.plus("notes.add")
             XCTAssertTrue(add.isHittable)
             add.tap()
             XCTAssertTrue(app.buttons["notes.write"].waitForExistence(timeout: 3))
             XCTAssertTrue(app.buttons["notes.capture"].exists)
-            XCTAssertTrue(app.dismissNativeMenu(item: app.buttons["notes.write"]))
+            app.buttons["shell.field.clear"].firstMatch.tap()
+            if app.buttons["notes.write"].exists { app.buttons["shell.field.clear"].firstMatch.tap() }
+            XCTAssertTrue(app.buttons["notes.write"].waitForNonExistence(timeout: 3))
             XCUIDevice.shared.orientation = .landscapeLeft
             let landscape = NSPredicate { _, _ in
                 self.app.frame.width > self.app.frame.height && detail.exists
@@ -63,12 +66,12 @@ final class NotesAdaptiveUITest: XCTestCase {
             expectation(for: landscape, evaluatedWith: app)
             waitForExpectations(timeout: 10)
             XCTAssertTrue(waitUntil { row.isHittable }, app.debugDescription)
-            XCTAssertTrue(waitUntil { self.app.buttons["notes.add"].isHittable }, app.debugDescription)
+            XCTAssertTrue(waitUntil { self.app.plus("notes.add").isHittable }, app.debugDescription)
             shot("notes-landscape-detail")
         } else {
             app.navigationBars.buttons["BackButton"].firstMatch.tap()
             XCTAssertTrue(row.waitForExistence(timeout: 5))
-            let add = app.buttons["notes.add"]
+            let add = app.plus("notes.add")
             XCTAssertTrue(add.isHittable)
             add.tap()
             XCTAssertTrue(app.buttons["notes.write"].waitForExistence(timeout: 3))
@@ -78,7 +81,7 @@ final class NotesAdaptiveUITest: XCTestCase {
     }
 
     func testWrittenNoteUsesSharedTextEditorAndSaves() {
-        let add = app.buttons["notes.add"]
+        let add = app.plus("notes.add")
         XCTAssertTrue(add.waitForExistence(timeout: 20)); add.tap()
         let write = app.buttons["notes.write"]
         XCTAssertTrue(write.waitForExistence(timeout: 5)); write.tap()
