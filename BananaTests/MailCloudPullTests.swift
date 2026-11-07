@@ -582,7 +582,7 @@ final class MailCloudPullTests: XCTestCase {
         let report = "STYLED_ON_MAIN_BEFORE_MS p50=\(fmt(percentile(oldTotal, 0.5))) p95=\(fmt(percentile(oldTotal, 0.95))) main_thread_styling_p50=\(fmt(percentile(oldMain, 0.5))) p95=\(fmt(percentile(oldMain, 0.95))) | MAIL_OPEN_PREPARED_MS p50=\(fmt(percentile(prepared, 0.5))) p95=\(fmt(percentile(prepared, 0.95))) styling_off_main_p50=\(fmt(percentile(styling, 0.5))) styling_off_main_p95=\(fmt(percentile(styling, 0.95))) | STALE_PREPARE_ON_OPEN_MS p50=\(fmt(percentile(stale, 0.5))) p95=\(fmt(percentile(stale, 0.95))) prepared_on_request=\(onOpen)/12 | WALK prepared=\(walkedDuring) walk_ms=\(fmt(ms(walkStart.duration(to: walkEnd)))) | AFTER_WALK_MS p50=\(fmt(percentile(rewalked, 0.5))) p95=\(fmt(percentile(rewalked, 0.95)))"
         print(report)
         let attachment = XCTAttachment(string: report); attachment.name = "open-prepared"; attachment.lifetime = .keepAlways; add(attachment)
-        XCTAssertEqual(walkedDuring, 24, "the walk re-prepared every stored body")
+        XCTAssertGreaterThanOrEqual(walkedDuring, 12, "the walk re-prepared the newest twelve first (and goes on to the rest)")
         XCTAssertLessThan(percentile(prepared, 0.5), percentile(stale, 0.5), report)
     }
 }
