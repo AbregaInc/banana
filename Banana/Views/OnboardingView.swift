@@ -217,9 +217,14 @@ struct OnboardingView: View {
         let rows = calendarRows
         return FirstRunPage(title: "What makes you busy?", onBack: back) {
             ArtCanvas(top: FirstRunArt.calendars.top, bottom: FirstRunArt.calendars.bottom) { art in
+                // The panels are the list's own calendars, in the list's own colours.
+                let busy = rows.first(where: \.busy)
+                let notBusy = rows.first(where: { $0.shown && !$0.busy })
                 CalendarsScene(art: art,
-                               busy: rows.first(where: \.busy)?.title ?? "Work",
-                               notBusy: rows.first(where: { $0.shown && !$0.busy })?.title)
+                               busy: busy?.title ?? "Work",
+                               busyColour: busy?.colorHex.map { calendarTint($0) } ?? FirstRun.lilac.dot,
+                               notBusy: notBusy?.title,
+                               notBusyColour: notBusy?.colorHex.map { calendarTint($0) } ?? FirstRun.coral.dot)
             }
             if rows.isEmpty { ProgressView().frame(maxWidth: .infinity, minHeight: 120) }
             CalendarChoiceList(rows: rows) { change in

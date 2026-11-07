@@ -385,7 +385,9 @@ struct MailPanel: View {
 struct CalendarsScene: View {
     let art: ArtSpace
     let busy: String
+    var busyColour: Color = FirstRun.lilac.dot
     let notBusy: String?
+    var notBusyColour: Color = FirstRun.coral.dot
 
     var body: some View {
         Circle()
@@ -394,14 +396,14 @@ struct CalendarsScene: View {
             .mask(alignment: .topLeading) { Rectangle().frame(width: art.length(1024), height: art.y(760)) }
         Capsule().fill(FirstRun.lilacShape).placed(art.rect(773, 425, 858, 439))
         Capsule().fill(FirstRun.lilacShape).placed(art.rect(832, 476, 896, 490))
-        CalendarPanel(title: busy, dot: FirstRun.lilac.dot, text: FirstRun.lilac.text, art: art,
+        CalendarPanel(title: busy, dot: busyColour, text: busyColour, art: art,
                       frame: art.rect(371, 605, 653, 955)) {
-            PanelBlock(art: art, rect: art.local(45, 180, 190, 250), fill: FirstRun.lilac.block)
+            PanelBlock(art: art, rect: art.local(45, 180, 190, 250), fill: busyColour.opacity(DS.Tint.strong))
         }
         if let notBusy {
-            CalendarPanel(title: notBusy, dot: FirstRun.coral.dot, text: FirstRun.coral.text, art: art,
+            CalendarPanel(title: notBusy, dot: notBusyColour, text: notBusyColour, art: art,
                           frame: art.rect(673, 605, 973, 955)) {
-                PanelBlock(art: art, rect: art.local(42, 175, 205, 235), stroke: FirstRun.coral.dot)
+                PanelBlock(art: art, rect: art.local(42, 175, 205, 235), stroke: notBusyColour)
             }
         }
         MascotPicture(name: "MascotCalendars", rect: art.rect(FirstRunArt.calendars.mascot))
