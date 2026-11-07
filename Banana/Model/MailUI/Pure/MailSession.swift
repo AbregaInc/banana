@@ -516,10 +516,31 @@ final class MailSession {
         defer {
             isDraining = false
             while !registeringUndo && !pendingEvents.isEmpty { received(pendingEvents.removeFirst()) }
+            noteOnScreen()
         }
         while !queue.isEmpty {
             carry(queue.removeFirst())
         }
+    }
+
+    private var lastOnScreen: [MailConversationID] = []
+    private var lastScreenInputs: ScreenInputs?
+    private struct ScreenInputs: Equatable {
+        var viewport: MailViewport?, count: Int, first: MailConversationID?, last: MailConversationID?, direction: MailDirection
+    }
+    /// Tells the source which rows are on screen and next, when that changed (a new snapshot, a
+    /// scroll that moved the first row). The source debounces and does its reading off this thread.
+    private func noteOnScreen() {
+        guard isEntered else { return }
+        // Most drains (a key, a cursor move) change none of this: skip the walk of the rows.
+        let inputs = ScreenInputs(viewport: model.viewport, count: model.rows.count, first: model.rows.first?.id,
+                                  last: model.rows.last?.id, direction: model.direction)
+        guard inputs != lastScreenInputs else { return }
+        lastScreenInputs = inputs
+        let ids = model.screenRows()
+        guard ids != lastOnScreen else { return }
+        lastOnScreen = ids
+        source.onScreen(ids)
     }
 
     private func carry(_ effect: MailListEffect) {

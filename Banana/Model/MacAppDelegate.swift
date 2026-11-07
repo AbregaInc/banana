@@ -37,6 +37,10 @@ final class MacAppDelegate: NSObject, NSApplicationDelegate {
             Task { @MainActor in EventAlerts.cleared(id, tellService: false) }
             return
         }
+        if BananaService.isMailPush(userInfo) {
+            Task { @MainActor in _ = await MailPushWake.catchUp() }
+            return
+        }
         guard BananaService.isCalendarPush(userInfo) else { return }
         Task { @MainActor in
             PlaybackDiagnostics.shared.log("☁️ push", "calendar changed (\(NSApplication.shared.isActive ? "in front" : "behind"))")

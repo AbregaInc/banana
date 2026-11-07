@@ -28,6 +28,15 @@ enum MailCloudFeedIndex {
             // Rows the running catch-up has seen named by the feed (or already checked).
             try db.execute(sql: "CREATE TABLE cloud_seen(msg_pk INTEGER PRIMARY KEY) WITHOUT ROWID")
         }
+        migrator.registerMigration("v15-cloud-content") { db in
+            // The feed said the cloud holds this message's content (MAIL-CLOUD-SYNC §5a). The pull
+            // walks what is not here yet, newest first; a pull that finds it missing clears it.
+            try db.execute(sql: "ALTER TABLE message ADD COLUMN cloud_content INTEGER NOT NULL DEFAULT 0")
+            try db.execute(sql: """
+                CREATE INDEX message_cloud_pull ON message(account_pk, internal_date DESC, msg_pk DESC)
+                WHERE cloud_content = 1 AND (fetch_state < 2 OR prep_state = 0) AND vis != 4
+                """)
+        }
     }
 
     static func key(_ account: String) -> String { "cloud-feed:" + account.lowercased() }
@@ -88,6 +97,10 @@ enum MailCloudFeedIndex {
                     headers: MessageHeaders(payload: nil), structure: nil), account: account, myAddresses: [account], in: db))
             } catch MailMessageImporter.Failure.changedThread {
                 // Gmail never moves a message between threads; a row that disagrees is left to a read.
+            }
+            if entry.content == true {
+                try db.execute(sql: "UPDATE message SET cloud_content=1 WHERE account_pk=? AND gmail_id=? AND cloud_content=0",
+                               arguments: [owner, entry.id])
             }
             try seen(entry.id)
         }

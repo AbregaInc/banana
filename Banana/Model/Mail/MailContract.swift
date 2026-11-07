@@ -1063,6 +1063,10 @@ enum MailLinkRules {}
     /// The cursor rests here: have these ready. Never fetches anything from a sender.
     /// A conversation not held here is fetched whole from Gmail and then retained.
     func wants(_ ids: [MailConversationID])
+    /// The rows on screen, then the ones the scroll is heading to: have their text ready, below
+    /// anything opened. Each call replaces the last; rows that scrolled away are no longer wanted.
+    /// A hint: nothing is waited on, and nothing is fetched from a sender.
+    func onScreen(_ ids: [MailConversationID])
     func fetchBody(_ id: MailMessageID)
     func fetchAttachment(_ id: MailAttachmentID)
     /// Nil means this message only; otherwise the explicit persistent permission chosen.

@@ -46,6 +46,11 @@ import GRDB
     }
     private var downloadQueue: [Download] = []
     private var downloads: [Download: Task<Void, Never>] = [:]
+    /// Content from Banana Cloud in bulk (MAIL-CLOUD-SYNC §5a); nil without a cloud feed.
+    private lazy var cloudPull: MailCloudPull? = cloudFeed.map { MailCloudPull(stores: stores, loader: conversationLoader, source: $0) }
+    private var cloudTask: Task<Void, Never>?
+    private var screenWork: Task<Void, Never>?
+    private var pushCatchUp = 0
     let status = MailStatus(MailNotYet.emptyStatus)
     let badges = MailBadges(MailBadgeCounts(unreadInFirstSplit: 0, needsAnswer: 0))
     private var subscriptions: [UUID: Subscription] = [:]
@@ -69,7 +74,7 @@ import GRDB
     private var syncRetryAt: [String: Date] = [:]
     private var syncHealth: [String: MailSyncHealth] = [:]
     private var lastSync: [String: Date] = [:]
-    private var fillAfter: [String: Int64] = [:]
+    private var fillAfter: [String: MailSyncFill.Cursor] = [:]
     private var actionCoordinator: MailActionCoordinator?
     private var nextActionSequence: Int64 = 1
     private var actionThrough: UInt64 = 0
@@ -145,6 +150,7 @@ import GRDB
         publishAccounts(); checkNow()
         wants(conversationSubscriptions.values.map(\.id))
         startDownloads()
+        kickCloud()
     }
     func setVisible(_ visible: Bool) {
         if visible { activate() }
@@ -152,6 +158,8 @@ import GRDB
             stopSync()
             for task in pageTasks.values { task.cancel() }
             pageTasks.removeAll(); cancelDownloads(); access.cancelMailTokenRequests()
+            screenWork?.cancel(); screenWork = nil
+            if pushCatchUp == 0 { cloudTask?.cancel(); cloudTask = nil }
             active = false
             draftWake?.cancel(); draftWake = nil
             draftReadTask?.cancel()
@@ -416,7 +424,108 @@ import GRDB
         for id in subscriptions.keys { refresh(id) }
     }
     func wants(_ ids: [MailConversationID]) {
-        for id in ids.prefix(8) { enqueue(.thread(id), priority: true) }
+        guard let pull = cloudPull else {
+            for id in ids.prefix(8) { enqueue(.thread(id), priority: true) }
+            return
+        }
+        for id in ids.prefix(8) {
+            Task { [weak self] in
+                // A conversation this device holds, on an account the cloud mailbox serves: its
+                // text comes from the cloud first, ahead of everything else. The feed keeps its
+                // messages current, so no thread read is needed; anything the cloud lacks comes
+                // the per-message way at once.
+                let cloud = (try? await pull.isCloud(id.account)) ?? false
+                let holds = cloud ? ((try? await pull.holds(id)) ?? false) : false
+                guard let self else { return }
+                guard cloud, holds else { self.enqueue(.thread(id), priority: true); return }
+                let fallback = (try? await pull.open(id)) ?? []
+                for item in fallback { self.enqueue(.body(item.id), priority: true) }
+                self.kickCloud()
+            }
+        }
+    }
+
+    func onScreen(_ ids: [MailConversationID]) {
+        // Rows change at scroll speed; the reading happens once things settle, off this thread.
+        screenWork?.cancel()
+        let pull = cloudPull
+        screenWork = Task { [weak self] in
+            try? await Task.sleep(for: .milliseconds(150))
+            guard !Task.isCancelled else { return }
+            if let pull {
+                let fallback = (try? await pull.onScreen(ids)) ?? []
+                guard !Task.isCancelled, let self else { return }
+                for item in fallback.prefix(16) { self.enqueue(.body(item.id), priority: false) }
+                self.kickCloud()
+            } else {
+                // No cloud: the newest message of each visible conversation, the per-message way,
+                // below anything opened. Ids already here cost a local read only.
+                guard let self else { return }
+                let newest = (try? await self.stores.index.read { db in try Self.newestMissing(ids, in: db) }) ?? []
+                guard !Task.isCancelled else { return }
+                for id in newest.prefix(16) { self.enqueue(.body(id), priority: false) }
+            }
+        }
+    }
+
+    /// The newest message of each conversation, where its text is not here.
+    nonisolated private static func newestMissing(_ ids: [MailConversationID], in db: Database) throws -> [MailMessageID] {
+        try ids.compactMap { conversation in
+            let account = conversation.account.lowercased()
+            guard let row = try Row.fetchOne(db, sql: """
+                SELECT m.gmail_id, (m.fetch_state<2 OR m.prep_state=0) FROM message m JOIN thread t ON t.thread_pk=m.thread_pk
+                JOIN account a ON a.account_pk=t.account_pk
+                WHERE a.email=? AND t.gmail_id=? AND m.vis!=4 ORDER BY m.internal_date DESC, m.msg_pk DESC LIMIT 1
+                """, arguments: [account, conversation.thread]) else { return nil }
+            let owed: Bool = row[1]
+            return owed ? MailMessageID(account: account, message: row[0]) : nil
+        }
+    }
+
+    /// Runs bulk pulls until there is nothing to pull: opened, then on screen, then (while Mail is
+    /// in use or a push's window is open) the rest newest first. One request at a time.
+    private func kickCloud() {
+        guard let pull = cloudPull, cloudTask == nil, active || pushCatchUp > 0 else { return }
+        cloudTask = Task { [weak self] in
+            while !Task.isCancelled {
+                guard let self else { return }
+                let step: MailCloudPull.Step
+                do { step = try await pull.step(fill: self.active || self.pushCatchUp > 0) }
+                catch { break }
+                guard !Task.isCancelled else { break }
+                for item in step.fallback { self.enqueue(.body(item.id), priority: item.urgent) }
+                if !step.worked { break }
+            }
+            self?.cloudTask = nil
+        }
+    }
+
+    /// A silent push said new mail is here (MAIL-CLOUD-SYNC §2a): one feed pass for each account,
+    /// then the new messages' text, within `budget`. Runs inside the push's background window;
+    /// returns whether the pass got through.
+    func catchUpFromPush(budget: Duration = .seconds(20)) async -> Bool {
+        guard let sync = mailboxSync else { return false }
+        pushCatchUp += 1
+        defer { pushCatchUp -= 1 }
+        let start = ContinuousClock.now
+        var ok = false
+        for account in accounts where account.state == .connected {
+            do {
+                _ = try await sync.pass(account: account.id, nowMS: Int64(Date().timeIntervalSince1970 * 1000))
+                ok = true
+            } catch GmailMailboxSync.Failure.busy {
+                ok = true   // a pass is running already; it brings the same
+            } catch {
+                recordReadFailure(error, account: account.id)
+            }
+        }
+        guard let pull = cloudPull else { return ok }
+        while ContinuousClock.now - start < budget, !Task.isCancelled {
+            guard let step = try? await pull.step(fill: true), step.worked else { break }
+            for item in step.fallback where item.urgent { enqueue(.body(item.id), priority: true) }
+        }
+        publishAccounts()
+        return ok
     }
     func fetchBody(_ id: MailMessageID) { enqueue(.body(id), priority: true) }
     private func enqueue(_ item: Download, priority: Bool) {
@@ -440,8 +549,15 @@ import GRDB
                     case .thread(let id):
                         let messages = try await loader.thread(id)
                         guard !Task.isCancelled, let self else { return }
-                        // Older bodies remain reachable through explicit Load message controls.
-                        for message in messages.suffix(8) { self.enqueue(.body(message), priority: false) }
+                        if let pull = self.cloudPull, (try? await pull.isCloud(id.account)) == true {
+                            // The conversation is here now: its text from the cloud, first in line.
+                            let fallback = (try? await pull.open(id)) ?? []
+                            for item in fallback { self.enqueue(.body(item.id), priority: true) }
+                            self.kickCloud()
+                        } else {
+                            // Older bodies remain reachable through explicit Load message controls.
+                            for message in messages.suffix(8) { self.enqueue(.body(message), priority: false) }
+                        }
                     case .body(let id): try await loader.body(id)
                     }
                 } catch {
@@ -1024,13 +1140,16 @@ extension MailLiveSource {
     }
 
     private func queueSyncFill(_ account: String) async throws -> Bool {
-        let after = fillAfter[account] ?? 0
+        // An account on the cloud mailbox is filled by the cloud and pulled in bulk; the
+        // per-message fill below is for a service without it.
+        if let pull = cloudPull, try await pull.isCloud(account) { kickCloud(); return false }
+        let after = fillAfter[account]
         var rows = try await stores.index.read { try MailSyncFill.page(account: account, after: after, in: $0) }
-        if rows.isEmpty, after != 0 {
-            rows = try await stores.index.read { try MailSyncFill.page(account: account, after: 0, in: $0) }
+        if rows.isEmpty, after != nil {
+            rows = try await stores.index.read { try MailSyncFill.page(account: account, after: nil, in: $0) }
         }
         try Task.checkCancellation()
-        fillAfter[account] = rows.last?.key ?? 0
+        fillAfter[account] = rows.last?.cursor
         for row in rows { enqueue(.body(row.id), priority: false) }
         return !rows.isEmpty
     }

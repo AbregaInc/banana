@@ -357,6 +357,9 @@ extension MailSource {
         MailNotYet.reached(#function)
     }
 
+    /// A hint; a source that keeps every body (the fixture) has nothing to do.
+    func onScreen(_ ids: [MailConversationID]) {}
+
     func fetchBody(_ id: MailMessageID) {
         MailNotYet.reached(#function)
     }

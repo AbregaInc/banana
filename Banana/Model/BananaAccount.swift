@@ -514,7 +514,8 @@ final class BananaAccount: ObservableObject {
             throw GmailError.networkDisabled
         }
         try Task.checkCancellation()
-        guard let answer = await send(kind == "check" ? .mailCheck(body) : .mailFeed(body)) else { throw GmailError.unknownOutcome }
+        let call: BananaService.Call = kind == "check" ? .mailCheck(body) : kind == "content" ? .mailContent(body) : .mailFeed(body)
+        guard let answer = await send(call) else { throw GmailError.unknownOutcome }
         guard session == requestSession, FeatureAccessStore.shared.mailContext == route.context else { throw GmailError.networkDisabled }
         return answer
     }

@@ -91,6 +91,12 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
             }
             return
         }
+        if BananaService.isMailPush(userInfo) {
+            // A cloud mailbox stored new mail: one feed pull and its text, under a background task.
+            let done = UncheckedSendableBox(completionHandler)
+            MainActor.assumeIsolated { MailPushWake.handle { done.value($0) } }
+            return
+        }
         if BananaService.isCalendarPush(userInfo) {
             // The Banana service: a Google calendar changed.
             let inFront = application.applicationState == .active

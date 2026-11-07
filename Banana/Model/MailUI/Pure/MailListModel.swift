@@ -1254,6 +1254,19 @@ final class MailListModel {
         }
     }
 
+    /// The rows on screen, then `lead` more in the direction of travel: what the source should
+    /// have text for next (`MailSource.onScreen`). Before the host reports a viewport, the top
+    /// `minimumScreen` rows count as on screen.
+    func screenRows(lead: Int = 10, minimumScreen: Int = 8) -> [MailConversationID] {
+        guard !rows.isEmpty else { return [] }
+        let start = viewport.flatMap { place in rows.firstIndex { $0.id == place.firstRow } } ?? 0
+        let end = min(rows.count, start + max(viewport?.rowsOnScreen ?? 0, minimumScreen))
+        var ids = rows[start..<end].map(\.id)
+        if direction == .older { ids += rows[end..<min(rows.count, end + lead)].map(\.id) }
+        else { ids += rows[max(0, start - lead)..<start].reversed().map(\.id) }
+        return ids
+    }
+
     private var viewportIsAtTop: Bool {
         guard let viewport, let first = rows.first else { return true }
         return viewport.firstRow == first.id || viewport.key >= first.key
