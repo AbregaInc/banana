@@ -108,6 +108,12 @@ BOOK_URL = "https://book.bananatheapp.com"    # the booking pages; their host is
 TURNSTILE_SITE_KEY = "0x4AAAAAAFdxjumd7I23GhCt"                       # Turnstile's site key for the booking pages (public)
 EVENT_ALERTS = "on"                           # the privacy policy says so since 19 Oct 2026; "off" stops all reading
 GOOGLE_REDIRECT_URI = ""                                    # empty for iOS serverAuthCode (to confirm at the first real sign-in)
+# Gmail push for the shared cloud mailboxes (MAIL-CLOUD-SYNC §2a; tools/gmail-push-setup.md). Not
+# secret, but set per deployment once the Pub/Sub topic and subscription exist; unset = polling only.
+# MAIL_PUSH_TOPIC = ""                 # projects/<PROJECT_ID>/topics/<TOPIC>
+# MAIL_PUSH_SERVICE_ACCOUNT = ""       # the push subscription's OIDC service account
+# MAIL_PUSH_AUDIENCE = ""              # optional; default <PUBLIC_URL>/v1/mail/push
+# MAIL_FILL_DAYS = ""                  # optional; days of mail the mailbox fills with content (183)
 
 # The booking pages' fonts, served as they are from public/book/; the Worker answers every other path.
 [assets]
@@ -199,6 +205,12 @@ BOOK_URL = "https://beta-book.bananatheapp.com"
 TURNSTILE_SITE_KEY = "0x4AAAAAAFdxjumd7I23GhCt"
 EVENT_ALERTS = "on"
 GOOGLE_REDIRECT_URI = ""
+# Gmail push for the shared cloud mailboxes (MAIL-CLOUD-SYNC §2a; tools/gmail-push-setup.md). Not
+# secret, but set per deployment once the Pub/Sub topic and subscription exist; unset = polling only.
+# MAIL_PUSH_TOPIC = ""                 # projects/<PROJECT_ID>/topics/<TOPIC>
+# MAIL_PUSH_SERVICE_ACCOUNT = ""       # the push subscription's OIDC service account
+# MAIL_PUSH_AUDIENCE = ""              # optional; default <PUBLIC_URL>/v1/mail/push
+# MAIL_FILL_DAYS = ""                  # optional; days of mail the mailbox fills with content (183)
 
 [env.beta.assets]
 directory = "./public"

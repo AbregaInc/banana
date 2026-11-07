@@ -25,6 +25,15 @@ export function configFrom(env) {
     apnsKey: env.APNS_KEY ?? "",
     apnsKeyId: env.APNS_KEY_ID ?? "",
     apnsTeamId: env.APNS_TEAM_ID ?? "",
+    /** Gmail push (MAIL-CLOUD-SYNC §2a; Service/tools/gmail-push-setup.md): the Pub/Sub topic each
+     * mailbox's users.watch names (projects/PROJECT/topics/TOPIC). Unset: no watch, polling only. */
+    mailPushTopic: env.MAIL_PUSH_TOPIC ?? "",
+    /** The push subscription's OIDC token: the audience it is minted for (unset: this service's own
+     * `${PUBLIC_URL}/v1/mail/push`) and the service account it is signed as. Both must match. */
+    mailPushAudience: env.MAIL_PUSH_AUDIENCE ?? "",
+    mailPushServiceAccount: String(env.MAIL_PUSH_SERVICE_ACCOUNT ?? "").toLowerCase(),
+    /** Days of mail the cloud mailbox fills with content ahead of any device (default 183). */
+    mailFillDays: Number.isFinite(Number(env.MAIL_FILL_DAYS)) && Number(env.MAIL_FILL_DAYS) > 0 ? Number(env.MAIL_FILL_DAYS) : undefined,
     /** Event alerts from the service (docs/design/EVENT-ALERTS.md): "on" reads calendars and rings.
      * Off, the service reads no event and sends no alert; the devices' own alerts carry on. */
     eventAlerts: env.EVENT_ALERTS === "on",

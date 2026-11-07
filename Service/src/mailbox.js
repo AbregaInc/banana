@@ -10,6 +10,7 @@ import { mailLink } from "./mail-grant.js";
 import { featureAllowed, googleCapabilities } from "./feature-access.js";
 import { GoogleRefused } from "./google.js";
 import { sha256Hex, hex } from "./crypto.js";
+import { pushTo } from "./push.js";
 
 const SECOND = 1000, MINUTE = 60 * SECOND, DAY = 24 * 60 * MINUTE;
 export const CACHE_MOST = 16 * 1024 * 1024;   // larger content is passed through, not stored
@@ -18,6 +19,20 @@ const POLL_ACTIVE = 10 * SECOND, POLL_RECENT = 2 * MINUTE, POLL_IDLE = 30 * MINU
 const LABEL_CHECK_EVERY = 10 * MINUTE;
 const STEPS_PER_ALARM = 25;
 const BACKOFF = MINUTE;
+// With a live Gmail watch (users.watch → Pub/Sub → /v1/mail/push) a change wakes the mailbox at
+// once; polling stays as the safety net, at a slower pace.
+const POLL_ACTIVE_WATCHED = MINUTE, POLL_RECENT_WATCHED = 10 * MINUTE, POLL_IDLE_WATCHED = 2 * 60 * MINUTE;
+export const WATCH_RENEW_BEFORE = DAY;         // Gmail ends a watch after 7 days
+// The content fill: every message inside the window, newest first, at half of the identity's read
+// pace (37.5 of 75 units a second: one full read every 1.6 s), on the background lane only.
+export const FILL_DAYS = 183;                   // six months, the engine's default sync limit
+export const FILL_UNITS_PER_SECOND = 37.5;
+const FILL_READ_UNITS = 60;                     // a full message read (mail-read-pacing.js)
+const FILL_OLD_STOP = 20;                       // this many in a row older than the window: done
+const FILL_AGAIN = 6 * 60 * MINUTE;             // a finished fill looks again (skipped, new rows)
+// "New mail is here" to the devices: one silent push for a burst, at most one per this gap.
+export const PUSH_GAP = 15 * SECOND;
+export const MAIL_PUSH = { aps: { "content-available": 1 }, b: { k: "mail" } };
 
 class Retry extends Error { constructor(at) { super("retry"); this.at = at; } }
 class Unauthorized extends Error {}
@@ -216,9 +231,11 @@ export function createMailbox({ port, deps, vault, blobs, alarm, destroy }) {
     return true;
   }
 
+  const watched = () => deps.config.mailPushTopic && Number(box.getMeta(port, "watch_expires") ?? 0) > now();
   function pollEvery() {
-    const read = Number(box.getMeta(port, "read_at") ?? 0);
-    return now() - read < ACTIVE ? POLL_ACTIVE : now() - read < DAY ? POLL_RECENT : POLL_IDLE;
+    const read = Number(box.getMeta(port, "read_at") ?? 0), w = watched();
+    return now() - read < ACTIVE ? (w ? POLL_ACTIVE_WATCHED : POLL_ACTIVE)
+      : now() - read < DAY ? (w ? POLL_RECENT_WATCHED : POLL_RECENT) : (w ? POLL_IDLE_WATCHED : POLL_IDLE);
   }
   const pollDue = () => box.getMeta(port, "poll") !== null || now() - Number(box.getMeta(port, "polled_at") ?? 0) >= pollEvery();
 
@@ -227,6 +244,12 @@ export function createMailbox({ port, deps, vault, blobs, alarm, destroy }) {
     const who = await access();
     if (!who) { await wipe(); return null; }
     if (box.checkpoint(port) === null) { await handshake(who); return now(); }
+    if (deps.config.mailPushTopic && Number(box.getMeta(port, "watch_expires") ?? 0) - now() < WATCH_RENEW_BEFORE
+        && now() - Number(box.getMeta(port, "watch_tried_at") ?? 0) >= 60 * MINUTE) {
+      box.setMeta(port, "watch_tried_at", now());
+      try { await watch(who); } catch (error) { if (!(error instanceof Retry)) throw error; }   // polling carries on; tried again in an hour
+      return now();
+    }
     if (await verifyBatch(who, { prio: 0 })) return now();
     if (pollDue()) { await poll(who); return now(); }
     const fetch = box.fetchNext(port, 4);
@@ -234,14 +257,98 @@ export function createMailbox({ port, deps, vault, blobs, alarm, destroy }) {
       for (const id of fetch) { await content(who, id); box.fetchDone(port, id); }
       return now();
     }
+    // New mail's content is here: tell the devices (one push for a burst; null once sent).
+    const pushAt = await pushIfDue();
     if (box.complete(port) && now() - Number(box.getMeta(port, "label_check_at") ?? 0) >= LABEL_CHECK_EVERY
         && now() - Number(box.getMeta(port, "read_at") ?? 0) < DAY) { await labelCheck(who); return now(); }
     if (await verifyBatch(who)) return now();
     const scan = box.scanState(port);
     if (scan) return (await scanStep(who, scan)) ? now() : Math.max(now() + 100, await nextMailReadAt(deps, who.sub));
-    const dropped = box.maintain(port, { now: now() });
+    const fillAt = await fillStep(who);
+    if (fillAt !== null && fillAt <= now()) return now();
+    const dropped = box.maintain(port, { now: now(), keepSince: fillSince() });
     if (dropped.length) await dropContent(dropped);
-    return Number(box.getMeta(port, "polled_at") ?? now()) + pollEvery();
+    return Math.min(Number(box.getMeta(port, "polled_at") ?? now()) + pollEvery(), fillAt ?? Infinity, pushAt ?? Infinity);
+  }
+
+  const fillSince = () => now() - (deps.config.mailFillDays ?? FILL_DAYS) * DAY;
+
+  /** One read of the content fill. Returns when the fill can go on (now: at once), or null when it
+   * has nothing to do. It takes only a background slot and at most half the pace, so a device's
+   * read is never queued behind it, and stops once it walks out of its window. */
+  async function fillStep(who) {
+    const state = box.fillState(port);
+    if (state.done !== null) {
+      if (now() - state.done < FILL_AGAIN) return state.done + FILL_AGAIN;
+      box.setFillState(port, { after: null, old: 0, done: null });
+      return now();
+    }
+    const nextAt = Number(box.getMeta(port, "fill_next_at") ?? 0);
+    if (nextAt > now()) return nextAt;
+    const since = fillSince();
+    // Rows already known to be out of the window or in Spam/Trash are passed without a read.
+    let after = state.after, old = state.old;
+    for (let i = 0; i < 50; i++) {
+      const [r] = box.fillNext(port, { after, limit: 1 });
+      if (!r) { box.setFillState(port, { after, old, done: now() }); return null; }
+      if (!box.fillSkips(r, since)) break;
+      after = r.id;
+      if (r.date !== null && r.date < since && ++old >= FILL_OLD_STOP) { box.setFillState(port, { after, old, done: now() }); return null; }
+    }
+    if (after !== state.after) { box.setFillState(port, { after, old, done: null }); return now(); }
+    const [next] = box.fillNext(port, { after, limit: 1 });
+    let answer;
+    try { answer = await content(who, next.id, null, { background: true }); }
+    catch (error) {
+      if (error instanceof Retry) return Math.max(now() + 100, await nextMailReadAt(deps, who.sub));   // no free slot
+      throw error;
+    }
+    const date = box.contentState(port, next.id)?.date ?? null;
+    old = date !== null && date < since ? old + 1 : 0;
+    // The watermark moves past it whatever the answer (too large, refused, gone): a later walk
+    // tries again; a device that opens it asks for it itself.
+    box.setFillState(port, { after: next.id, old, done: old >= FILL_OLD_STOP ? now() : null });
+    box.setMeta(port, "fill_next_at", now() + Math.ceil(FILL_READ_UNITS * 1000 / FILL_UNITS_PER_SECOND));
+    if (answer?.fetched) box.setMeta(port, "filled", Number(box.getMeta(port, "filled") ?? 0) + 1);
+    return now();
+  }
+
+  /** A silent push to the account's devices when new mail's content was stored and none went out
+   * in the last PUSH_GAP. Returns when one is next due, or null. */
+  async function pushIfDue() {
+    const due = box.getMeta(port, "push_due");
+    if (due === null) return null;
+    const last = Number(box.getMeta(port, "pushed_at") ?? 0);
+    if (now() - last < PUSH_GAP) return last + PUSH_GAP;
+    box.setMeta(port, "push_due", null);
+    box.setMeta(port, "pushed_at", now());
+    const { account } = box.identity(port);
+    if (account && deps.apns) {
+      try { await pushTo(deps, account, { payload: MAIL_PUSH, collapseId: "mail", label: "push(mail)" }); }
+      catch (error) { console.log(`mailbox: push failed (${error.name})`); }
+    }
+    return null;
+  }
+
+  /** users.watch: Gmail tells Pub/Sub, Pub/Sub tells /v1/mail/push. No label filter: an include
+   * filter is evaluated on the message's labels after the change, so an archive (INBOX removed), a
+   * label added to mail outside the Inbox, or a message sent from another client would never wake
+   * the mailbox. Every change wakes it; the wake is one history read, coalesced by the lock. */
+  async function watch(who) {
+    const topic = deps.config.mailPushTopic;
+    if (!topic || !deps.google.mailWatch) return null;
+    let answer;
+    try { answer = await deps.google.mailWatch(who.token, { topicName: topic }); }
+    catch (error) {
+      // A refused watch is a setup problem (topic, publisher grant), not lost access: keep syncing by polling.
+      console.log(`mailbox: watch failed (${error.status ?? error.name})`);
+      throw new Retry(now() + BACKOFF);
+    }
+    const expires = Number(answer?.expiration);
+    if (!Number.isFinite(expires) || expires <= now()) throw new Retry(now() + BACKOFF);
+    box.setMeta(port, "watch_expires", expires);
+    await deps.db.run("UPDATE mail_mailboxes SET watch_expires_at = ? WHERE google_sub = ?", expires, who.sub);
+    return expires;
   }
 
   /** Steps until there is nothing to do now, then the alarm for the next. */
@@ -264,7 +371,7 @@ export function createMailbox({ port, deps, vault, blobs, alarm, destroy }) {
   }
 
   /** The content of one message (Gmail `full`), or one attachment: stored once, from Google once. */
-  async function content(who, id, attachmentID = null) {
+  async function content(who, id, attachmentID = null, { background = false } = {}) {
     const key = await contentKey(who.sub, id, attachmentID);
     const state = box.contentState(port, id);
     if (state?.gone) return { status: 404, body: { error: { code: 404, status: "NOT_FOUND", message: "Not Found" } } };
@@ -276,7 +383,7 @@ export function createMailbox({ port, deps, vault, blobs, alarm, destroy }) {
     const work = (async () => {
       const request = attachmentID ? { resource: "attachment", id, attachmentID, query: [] } : { resource: "message", id, query: q({ format: "full" }) };
       const floor = box.checkpoint(port) ?? 0;   // before the request leaves (applyRead)
-      const answer = await gmail(who, request);
+      const answer = await gmail(who, request, { background });
       const { bytes, tooLarge } = await answerBytes(answer, CACHE_MOST);
       if (tooLarge) return { passthrough: true };
       const body = parse(bytes);
@@ -294,7 +401,9 @@ export function createMailbox({ port, deps, vault, blobs, alarm, destroy }) {
       const sealed = await vault.sealBytes(contentAAD(who.sub, id, attachmentID), bytes);
       const sha = hex(new Uint8Array(await crypto.subtle.digest("SHA-256", sealed)));
       if (!(await blobs.put(key, new Blob([sealed]).stream(), { sha256: sha }))) throw new Error("content store refused");
-      box.markCached(port, id, sealed.length, now());
+      const published = box.markCached(port, id, sealed.length, now());
+      // New mail (the fetch queue's prio 1) is worth waking the devices for; the fill is not.
+      if (published && !background && box.isNewMail(port, id)) box.setMeta(port, "push_due", now());
       return { key, aad: contentAAD(who.sub, id, attachmentID), fetched: true, ...box.contentState(port, id) };
     })();
     inflight.set(key, work);
@@ -373,6 +482,47 @@ export function createMailbox({ port, deps, vault, blobs, alarm, destroy }) {
         if (error instanceof Unauthorized) return { status: 403, body: { error: { code: 403, message: "Reconnect Email for this Google account." } } };
         throw error;
       }
+    },
+    /** Many messages' stored content at once, for a device's bulk pull: the R2 key of each that is
+     * stored, `gone` for one Gmail deleted, `missing` for the rest. Never asks Google: a pull costs
+     * no Gmail quota, and what is missing a device reads one by one (or waits for the fill). */
+    async contents(ids) {
+      setup();
+      const who = box.identity(port);
+      if (!who.sub) return [];
+      const out = [];
+      for (const { id, state } of box.contentStates(port, ids)) {
+        if (state?.gone) out.push({ id, gone: true });
+        else if (state?.cached > 0) {
+          box.touch(port, id, now());
+          out.push({ id, key: await contentKey(who.sub, id), aad: contentAAD(who.sub, id), known: state.known, labels: state.labels, history: state.history });
+        } else out.push({ id, missing: true });
+      }
+      return out;
+    },
+    /** Gmail's push (via Pub/Sub) says something changed: read history now. The notice's own
+     * historyId is not trusted for anything; the walk starts from the stored checkpoint. */
+    async wake() { setup(); if (!box.identity(port).sub) return false; box.setMeta(port, "poll", 1); box.setMeta(port, "woken_at", now()); await arm(); return true; },
+    /** Starts or renews the Gmail watch (the quarter-hour job, a day before it ends). */
+    async watch() {
+      setup();
+      if (!box.identity(port).sub || !deps.config.mailPushTopic) return null;
+      const who = await access();
+      if (!who) { await wipe(); return null; }
+      try { return await lock(() => watch(who)); }
+      catch (error) { if (error instanceof Retry) return null; throw error; }
+    },
+    /** Ends the Gmail watch, before Mail access is forgotten. Best effort: an unstopped watch ends
+     * within 7 days, and a notice for a mailbox that is gone is dropped. */
+    async stopWatch() {
+      setup();
+      if (!box.identity(port).sub || box.getMeta(port, "watch_expires") === null || !deps.google.mailStopWatch) return false;
+      try {
+        const who = await access();
+        if (who) await deps.google.mailStopWatch(who.token);
+      } catch (error) { console.log(`mailbox: watch stop failed (${error.name})`); }
+      box.setMeta(port, "watch_expires", null);
+      return true;
     },
     /** A stored copy that could not be read back: forget it; the next read fetches it again. */
     async lost(id) { setup(); box.uncache(port, id); },

@@ -10,6 +10,7 @@ import {sweepMailParts} from "./mail-uploads.js";
 import { KEEP as KEEP_DIAGNOSTICS } from "./diagnostics.js";
 
 const RENEW_BEFORE = 24 * 60 * 60 * 1000;
+const MAIL_WATCH_RENEW_BEFORE = 24 * 60 * 60 * 1000;
 const CHECK_EVERY = 24 * 60 * 60 * 1000;
 const CHECKS_PER_RUN = 200;
 const STALE_DEVICE = 30 * 24 * 60 * 60 * 1000;
@@ -91,6 +92,17 @@ export async function runJob(deps) {
       for (const b of boxes) await deps.mailboxes.get(b.google_sub).arm();
       if (boxes.length) result.mailboxes = boxes.length;
     } catch { result.mailboxesFailed = true; }
+    // Gmail watches (MAIL-CLOUD-SYNC §2a) end after 7 days: each is renewed a day before, and one
+    // that never started (or failed) is started. A mailbox whose access is gone wipes itself.
+    if (deps.config.mailPushTopic) {
+      try {
+        const due = await deps.db.all(`SELECT google_sub FROM mail_mailboxes WHERE watch_expires_at IS NULL OR watch_expires_at < ?
+          ORDER BY COALESCE(watch_expires_at, 0), google_sub LIMIT ?`, t + MAIL_WATCH_RENEW_BEFORE, MOST_RENEWALS_PER_RUN);
+        let renewed = 0;
+        for (const b of due) if (await deps.mailboxes.get(b.google_sub).watch()) renewed++;
+        if (due.length) result.mailWatches = { due: due.length, renewed };
+      } catch { result.mailWatchesFailed = true; }
+    }
   }
   return result;
 }

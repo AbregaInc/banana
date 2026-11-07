@@ -31,6 +31,9 @@ const SCHEMA = [
   "CREATE INDEX IF NOT EXISTS msg_seq ON msg (seq) WHERE seq > 0",
   "CREATE INDEX IF NOT EXISTS msg_gone ON msg (gone_at) WHERE gone = 1",
   "CREATE INDEX IF NOT EXISTS msg_cached ON msg (used_at) WHERE cached > 0",
+  // The content fill walks what has no content yet, newest first. Gmail's ids grow with time, so
+  // (length, id) descending is newest first without a date (which a listing does not give).
+  "CREATE INDEX IF NOT EXISTS msg_fill ON msg (length(id), id) WHERE cached = 0 AND gone = 0",
   // (label, id) pairs the running scan listed; label '' is the listing of every message.
   "CREATE TABLE IF NOT EXISTS mark (label TEXT NOT NULL, id TEXT NOT NULL, PRIMARY KEY (label, id)) WITHOUT ROWID",
   // Messages to read one by one (minimal). prio 0: a device just changed it; 1: everything else.
@@ -132,6 +135,8 @@ export function verifyNext(port, { limit, prio = null }) {
 export function verifyDone(port, id) { port.exec("DELETE FROM verify WHERE id = ?", id); }
 export function fetchNext(port, limit) { return port.exec("SELECT id FROM fetch ORDER BY prio, at, id LIMIT ?", limit).map((r) => r.id); }
 export function fetchDone(port, id) { port.exec("DELETE FROM fetch WHERE id = ?", id); }
+/** New mail (history added it) whose content is still owed. */
+export function isNewMail(port, id) { return port.exec("SELECT 1 AS x FROM fetch WHERE id = ? AND prio = 1", id).length > 0; }
 
 /** One page of Gmail history, applied from `start` (the stored checkpoint), which moves to the
  * page's last record, or to the response's own position after the final page. Returns the ids
@@ -261,6 +266,7 @@ export function closeBatch(port, { scan, now, limit = 500 }) {
     port.exec("DELETE FROM mark");
     setMeta(port, "scan", null);
     setMeta(port, "complete", scan.gen);
+    setMeta(port, "fill", null);   // the scan may have found more: the fill walks again from the newest
     return true;
   });
 }
@@ -341,7 +347,7 @@ export function check(port, ids, now) {
 export function feed(port, { after, era = 0, limit }) {
   const horizon = Number(getMeta(port, "horizon") ?? 0), current = Number(getMeta(port, "era") ?? 0);
   if (after !== null && era < current && after < horizon) return { expired: true };
-  const rows = port.exec("SELECT id, thread, hist, labels, date, gone, seq FROM msg WHERE seq > ? ORDER BY seq LIMIT ?", after ?? 0, limit);
+  const rows = port.exec("SELECT id, thread, hist, labels, date, gone, seq, cached FROM msg WHERE seq > ? ORDER BY seq LIMIT ?", after ?? 0, limit);
   const seq = rows.length ? rows.at(-1).seq : after ?? 0;
   return {
     epoch: getMeta(port, "epoch"),
@@ -350,30 +356,41 @@ export function feed(port, { after, era = 0, limit }) {
     complete: complete(port),
     entries: rows.map((r) => r.gone
       ? { id: r.id, history: String(r.hist), deleted: true }
-      : { id: r.id, thread: r.thread, history: String(r.hist), date: r.date, labels: labelsOf(r) }),
+      : { id: r.id, thread: r.thread, history: String(r.hist), date: r.date, labels: labelsOf(r), ...(r.cached > 0 ? { content: true } : {}) }),
   };
 }
 
 /** What a content request needs to know of one message. */
 export function contentState(port, id) {
   const r = row(port, id);
-  return r && { gone: Boolean(r.gone), cached: r.cached, known: Boolean(r.known), labels: labelsOf(r), history: r.hist, thread: r.thread };
+  return r && { gone: Boolean(r.gone), cached: r.cached, known: Boolean(r.known), labels: labelsOf(r), history: r.hist, thread: r.thread, date: r.date };
 }
+/** Content is stored. A known message is published again, so the devices learn from the feed that
+ * its content can be pulled from here (MAIL-CLOUD-SYNC §5). Returns whether it was published. */
 export function markCached(port, id, bytes, now) {
-  port.exec("UPDATE msg SET cached = MAX(cached, ?), used_at = ? WHERE id = ?", bytes, now, id);
+  return port.transaction(() => {
+    const r = row(port, id);
+    port.exec("UPDATE msg SET cached = MAX(cached, ?), used_at = ? WHERE id = ?", bytes, now, id);
+    if (!r || r.gone || r.cached > 0 || !r.known) return false;
+    publish(port, id);
+    return true;
+  });
 }
 export function touch(port, id, now) { port.exec("UPDATE msg SET used_at = ? WHERE id = ? AND cached > 0", now, id); }
 export function uncache(port, id) { port.exec("UPDATE msg SET cached = 0, used_at = NULL WHERE id = ?", id); }
 
 /** Tombstones older than RETAIN_GONE go; a cursor from before them can't be served (410). Content
  * nobody has read for `unusedFor` is dropped. Returns the ids whose stored content must go. */
-export function maintain(port, { now, unusedFor = 90 * DAY, limit = 500 }) {
+export function maintain(port, { now, unusedFor = 90 * DAY, limit = 500, keepSince = null }) {
   return port.transaction(() => {
     const gone = port.exec("SELECT id, seq, cached FROM msg WHERE gone = 1 AND gone_at < ? ORDER BY gone_at LIMIT ?", now - RETAIN_GONE, limit);
     const horizon = Math.max(Number(getMeta(port, "horizon") ?? 0), ...gone.map((r) => r.seq));
     for (const r of gone) port.exec("DELETE FROM msg WHERE id = ?", r.id);
     if (gone.length) { setMeta(port, "horizon", horizon); setMeta(port, "era", Number(getMeta(port, "era") ?? 0) + 1); }
-    const unused = port.exec("SELECT id FROM msg WHERE cached > 0 AND used_at < ? ORDER BY used_at LIMIT ?", now - unusedFor, limit);
+    // Content the fill keeps (dated inside its window) is not "unused": dropping it would only
+    // fetch it again. Older content nobody has read goes.
+    const unused = port.exec(`SELECT id FROM msg WHERE cached > 0 AND used_at < ?
+      AND NOT (? IS NOT NULL AND date IS NOT NULL AND date >= ?) ORDER BY used_at LIMIT ?`, now - unusedFor, keepSince, keepSince, limit);
     for (const r of unused) uncache(port, r.id);
     return [...gone.filter((r) => r.cached).map((r) => r.id), ...unused.map((r) => r.id)];
   });
@@ -391,11 +408,37 @@ export function checkLabelAbsence(port, { label, listed, floor, now }) {
 }
 
 export function status(port) {
-  const counts = port.exec(`SELECT COUNT(*) AS messages, SUM(known) AS known, SUM(gone) AS gone, SUM(cached > 0) AS cached,
+  const counts = port.exec(`SELECT COUNT(*) AS messages, SUM(known) AS known, SUM(gone) AS gone, SUM(cached > 0) AS cached, SUM(cached) AS bytes,
     (SELECT COUNT(*) FROM verify) AS verify, (SELECT COUNT(*) FROM fetch) AS fetch FROM msg`)[0];
   const scan = scanState(port);
   return { ...identity(port), checkpoint: checkpoint(port), complete: complete(port), scanning: scan ? scan.phase : null,
-    head: Number(getMeta(port, "seq") ?? 0), counts: Object.fromEntries(Object.entries(counts).map(([k, v]) => [k, Number(v ?? 0)])) };
+    head: Number(getMeta(port, "seq") ?? 0), fill: fillState(port), watchExpires: num(getMeta(port, "watch_expires")), counts: Object.fromEntries(Object.entries(counts).map(([k, v]) => [k, Number(v ?? 0)])) };
+}
+
+// ---- the content fill (MAIL-CLOUD-SYNC §5) ----
+
+/** Where the fill stands: `after` the last id it took (it walks down from there), `old` how many
+ * in a row it read that were older than its window, `done` when it last reached the end. */
+export function fillState(port) {
+  const s = getMeta(port, "fill");
+  return s ? JSON.parse(s) : { after: null, old: 0, done: null };
+}
+export function setFillState(port, state) { setMeta(port, "fill", JSON.stringify(state)); }
+
+/** The next messages without content, newest first, below the watermark. Spam and Trash are not
+ * filled; a message already dated before `since` is passed over without a read. */
+export function fillNext(port, { after = null, limit = 1 }) {
+  const below = after === null ? "" : "AND (length(id), id) < (length(?), ?)";
+  const args = after === null ? [limit] : [after, after, limit];
+  return port.exec(`SELECT id, date, labels FROM msg INDEXED BY msg_fill WHERE cached = 0 AND gone = 0 ${below}
+    ORDER BY length(id) DESC, id DESC LIMIT ?`, ...args);
+}
+export const fillSkips = (r, since) =>
+  (r.labels !== null && (labelsOf(r).includes("SPAM") || labelsOf(r).includes("TRASH"))) || (since !== null && r.date !== null && r.date < since);
+
+/** Stored content for each id, as the bulk pull needs it: only messages this mailbox holds. */
+export function contentStates(port, ids) {
+  return ids.map((id) => ({ id, state: contentState(port, id) }));
 }
 
 /** Everything goes: the caller has removed the content first. */

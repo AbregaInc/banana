@@ -113,3 +113,89 @@ export async function wipeMailbox(deps, sub) {
   await deps.mailboxes.get(sub).wipe();
   await deps.db.run("DELETE FROM mail_mailboxes WHERE google_sub = ?", sub);
 }
+
+// ---- bulk content (MAIL-CLOUD-SYNC §5a) ----
+
+export const CONTENT_IDS_MOST = 50;
+export const CONTENT_BYTES_MOST = 8 * 1024 * 1024;   // a response stops here; the rest is "later"
+
+export function parseMailContent(x) {
+  if (!x || typeof x.email !== "string" || x.email.length > 320 || !Array.isArray(x.ids) || x.ids.length < 1
+      || x.ids.length > CONTENT_IDS_MOST || !x.ids.every(ID)) return null;
+  return { email: x.email.toLowerCase(), ids: [...new Set(x.ids)] };
+}
+
+/** Many messages' stored content in one answer, for a device's pull. Only from the store: nothing
+ * here asks Google, so a pull costs no Gmail quota. Each entry is the stored Gmail `full` message
+ * with the mailbox's current labels and position, or `{id, missing}` (not stored yet: read it one
+ * by one, or wait for the fill), `{id, gone}` (Gmail deleted it) or `{id, later}` (the answer is
+ * full: ask again). An account reads only its own mailbox: the session's account must hold this
+ * address's Mail link, and the content opens only with its own sub and id (the AAD). */
+export async function mailContent(deps, vault, account, request) {
+  const { link, refusal } = await readableLink(deps, account, request.email);
+  if (refusal) return refusal;
+  const mailbox = await existingMailbox(deps, link.sub);
+  if (!mailbox) return fail(409, "Read the feed first.");
+  const states = await mailbox.contents(request.ids);
+  const messages = [];
+  let bytes = 0;
+  for (const state of states) {
+    if (!state.key) { messages.push(state.gone ? { id: state.id, gone: true } : { id: state.id, missing: true }); continue; }
+    if (bytes >= CONTENT_BYTES_MOST) { messages.push({ id: state.id, later: true }); continue; }
+    const object = await deps.blobs.get(state.key);
+    let body;
+    try {
+      if (!object) throw new Error("content missing");
+      const plain = await vault.openBytes(state.aad, new Uint8Array(await new Response(object.body).arrayBuffer()));
+      bytes += plain.length;
+      body = JSON.parse(new TextDecoder().decode(plain));
+    } catch {
+      await mailbox.lost(state.id);
+      messages.push({ id: state.id, missing: true });
+      continue;
+    }
+    if (state.known) { body.labelIds = state.labels; body.historyId = String(state.history); }
+    messages.push({ id: state.id, message: body });
+  }
+  return { status: 200, body: { version: 1, messages } };
+}
+
+// ---- Gmail push (MAIL-CLOUD-SYNC §2a) ----
+
+/** The Pub/Sub push body's notice: `{emailAddress, historyId}` in base64 `message.data`. Only the
+ * address is used, to find the mailbox; the historyId wakes nothing beyond "read history now". */
+export function parsePushNotice(x) {
+  const data = x?.message?.data;
+  if (typeof data !== "string" || data.length > 4096) return null;
+  try {
+    const notice = JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(data), (c) => c.charCodeAt(0))));
+    const email = notice?.emailAddress;
+    return typeof email === "string" && email.length <= 320 && email.includes("@") ? { email: email.toLowerCase() } : null;
+  } catch { return null; }
+}
+
+/** Pub/Sub's push: verified (its OIDC token, our audience, our service account), then the mailbox
+ * of that address is woken. Unknown addresses and malformed notices are acknowledged (204) so
+ * Pub/Sub does not retry them; a bad or missing token is refused (401). */
+export async function mailPush(deps, authorization, body) {
+  const audience = deps.config.mailPushAudience || `${deps.config.publicUrl}/v1/mail/push`;
+  const serviceAccount = deps.config.mailPushServiceAccount;
+  if (!deps.mailboxes || !deps.config.mailPushTopic || !serviceAccount) return { status: 404 };
+  const match = /^Bearer ([A-Za-z0-9._-]{20,8192})$/.exec(authorization ?? "");
+  if (!match) return { status: 401 };
+  try { await deps.google.verifyPushToken(match[1], { audience, serviceAccount }); }
+  catch (error) { console.log(`mail push: refused (${error.message})`); return { status: 401 }; }
+  const notice = parsePushNotice(body);
+  if (!notice) return { status: 204 };
+  const row = await deps.db.first(`SELECT m.google_sub FROM mail_mailboxes m JOIN google_links g ON g.sub = m.google_sub
+    WHERE g.email = ? AND g.status <> 'unlinked' LIMIT 1`, notice.email);
+  if (!row) return { status: 204 };
+  await deps.mailboxes.get(row.google_sub).wake();
+  return { status: 204, woke: true };
+}
+
+/** Before Mail access is forgotten: end the mailbox's Gmail watch while a token still works. */
+export async function stopMailWatch(deps, sub) {
+  try { await (await existingMailbox(deps, sub))?.stopWatch(); }
+  catch (error) { console.log(`mailbox: watch stop failed (${error.name})`); }
+}

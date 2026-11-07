@@ -3,7 +3,7 @@ import {uploadMailPart,removeMailParts} from './mail-uploads.js';
 import {parseMailOperation,mailOperation} from "./mail-operation.js";
 import {parseMailRead,mailRead} from "./mail-read.js";
 import {connectMail} from "./mail-grant.js";
-import {parseFeedQuery,mailFeed,parseMailCheck,mailCheck,wipeMailbox} from "./mail-sync.js";
+import {parseFeedQuery,mailFeed,parseMailCheck,mailCheck,wipeMailbox,parseMailContent,mailContent,mailPush,stopMailWatch} from "./mail-sync.js";
 import { parseCalendarOperation, calendarOperation } from "./calendar-operation.js";
 import { parseCalendarRead, calendarRead } from "./calendar-read.js";
 import { readCalendarWindow, readCalendarSnapshot, validCalendarWindow } from './calendar-window.js';
@@ -30,6 +30,7 @@ import { memoryEmail } from "./booking/email.js";
 import { createTurnstile, memoryLimits } from "./booking/guard.js";
 import { webRoutes } from "./web/routes.js";
 import { sourceRoutes } from "./source-offer.js";
+import { pushTo } from "./push.js";
 
 /**
  * @typedef {{
@@ -89,30 +90,7 @@ export function parseDevice(input, id = input?.id) {
   return { id, platform: input.platform, push: push && push.toLowerCase(), pushEnv: input.pushEnv, bundle: input.bundle, providerProtocol };
 }
 
-/** A push to every device of the account (but `except`), recording what APNs said of each
- * (`devices.pushed_at`, `push_status`): the evidence that a push went out, and where. Silent unless
- * `pushType` is "alert" (a booking's news to its host). */
-export async function pushTo(deps, account, { payload, collapseId, except = null, label = "push", pushType, priority }) {
-  const { db, now } = deps;
-  const devices = await db.all(
-    "SELECT id, platform, push_token, push_env, bundle FROM devices WHERE account_id = ? AND push_token IS NOT NULL AND id <> ?", account, except ?? "");
-  const outcomes = await Promise.all(devices.map(async (d) => {
-    let status;
-    try {
-      const answer = await deps.apns.send({ token: d.push_token, env: d.push_env, topic: d.bundle, payload, collapseId,
-        ...(pushType ? { pushType } : {}), ...(priority ? { priority } : {}) });
-      status = `${answer.status}${answer.reason ? ` ${answer.reason}` : ""}`;
-      const gone = answer.status === 410
-        || (answer.status === 400 && (answer.reason === "BadDeviceToken" || answer.reason === "DeviceTokenNotForTopic"));
-      if (gone) await db.run("UPDATE devices SET push_token = NULL WHERE id = ? AND push_token = ?", d.id, d.push_token);
-    } catch (error) {
-      status = `failed ${error.name}`;
-    }
-    await db.run("UPDATE devices SET pushed_at = ?, push_status = ? WHERE id = ?", now(), status, d.id);
-    return `${d.platform ?? ""}${d.push_env === "development" ? "(dev)" : ""} ${status}`.trim();
-  }));
-  console.log(`${label}: ${devices.length} device(s): ${outcomes.join(", ") || "none"}`);
-}
+export { pushTo } from "./push.js";
 
 /** @param {Deps} deps */
 export function createApp(deps) {
@@ -381,6 +359,23 @@ export function createApp(deps) {
     return c.json(answer.body,answer.status);
   });
 
+  // Many messages' stored content at once (MAIL-CLOUD-SYNC §5a): no Gmail request, no quota.
+  app.post("/v1/mail/content", signedIn, async (c) => {
+    c.header("Cache-Control","no-store");
+    const request = parseMailContent(await readJson(c,16 * 1024));
+    if (!request) return c.json({error:"bad_request"},400);
+    const answer = await mailContent(deps,vault,c.get("account"),request);
+    return c.json(answer.body,answer.status);
+  });
+
+  // Gmail's push, through Cloud Pub/Sub (MAIL-CLOUD-SYNC §2a). Not a session route: the OIDC
+  // token Pub/Sub signs is the authentication.
+  app.post("/v1/mail/push", async (c) => {
+    const body = await readJson(c,16 * 1024);
+    const answer = await mailPush(deps,c.req.header("authorization"),body === TOO_LARGE || body === BAD ? null : body);
+    return c.body(null,answer.status);
+  });
+
   app.post("/v1/google/mail", signedIn, async (c) => {
     const body = await readJson(c,4096);
     if (typeof body?.code !== "string" || !body.code || body.code.length > 2048 || typeof body.email !== "string")
@@ -395,6 +390,7 @@ export function createApp(deps) {
     if (typeof body?.email !== "string") return c.json({error:"bad_request"},400);
     const link = await linkByEmail(c.get("account"),body.email);
     if (!link) return c.json({error:"unknown_google"},404);
+    await stopMailWatch(deps,link.sub);   // while the grant still works
     // Forget Mail access only. Revoking at Google could also revoke working Calendar consent.
     await db.run(`INSERT INTO mail_grants(google_sub,refresh_token,scopes,client_id,status,granted_at,updated_at)
       VALUES (?,NULL,'','','unlinked',?,?) ON CONFLICT(google_sub) DO UPDATE SET refresh_token=NULL,status='unlinked',updated_at=excluded.updated_at`,link.sub,now(),now());
@@ -460,11 +456,12 @@ export function createApp(deps) {
     if (current && current !== owner.account_id) return c.json({ error: "other_account" }, 409);
     const account = owner.account_id;
     const links = await db.all("SELECT * FROM google_links WHERE account_id = ?", account);
+    for (const link of links) await stopMailWatch(deps, link.sub);   // while the grants still work
     for (const link of links) await forget(deps, vault, link);
     // The data first (the space empties at once; its blobs follow to the trash), then the rows.
     const spaces = await wipeSpaces(deps, account);
     const mailboxes=await db.all('SELECT google_sub FROM mail_mailboxes WHERE account_id=?',account);
-    for(const sub of new Set([...links.map(l=>l.sub),...mailboxes.map(m=>m.google_sub)]))await wipeMailbox(deps,sub);
+    for(const sub of new Set([...links.map(l=>l.sub),...mailboxes.map(m=>m.google_sub)])){await stopMailWatch(deps,sub);await wipeMailbox(deps,sub);}
     const uploads=await db.all('SELECT DISTINCT operation_id FROM mail_uploads WHERE account_id=?',account);
     for(const upload of uploads)await removeMailParts(deps,account,upload.operation_id);
     await db.batch([
@@ -525,6 +522,7 @@ export function createApp(deps) {
     const account = c.get("account");
     const link = await linkByEmail(account, body.email);
     if (!link) return c.body(null, 204); // already gone
+    await stopMailWatch(deps, link.sub);
     await forget(deps, vault, link);
     await wipeMailbox(deps, link.sub);
     // The sub and email stay (status 'unlinked'), so this Google account can sign in to the same
