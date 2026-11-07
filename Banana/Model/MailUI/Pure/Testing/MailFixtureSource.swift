@@ -88,6 +88,12 @@ final class MailFixtureSource: MailSource {
     /// Where scheduled messages are kept, so that one whose time passes while the app is not
     /// running is still there to be shown late. Nil keeps nothing, as for every other sample change.
     let defaults: UserDefaults?
+    /// The sample's Gmail: conversations a search finds only by asking (`+GmailSearch`), and
+    /// how long it takes to answer. Nil: Gmail is never asked.
+    let gmailDelay: Duration?
+    var gmailOnly: [MailConversationID: Stored] = [:]
+    var asked = Set<GmailSearchKey>()
+    var answered = Set<GmailSearchKey>()
     /// The drafts he has written something into: only these are a Drafts place's.
     var kept: Set<MailDraftID> = []
     /// What a draft's row says, as last told, so a save that changes nothing it says tells no one.
@@ -110,10 +116,18 @@ final class MailFixtureSource: MailSource {
 
     init(samples: [MailFixtureConversations.Sample] = MailFixtureConversations.threads(),
          clock: @escaping () -> Date = Date.init, wakeClock: MailClock = SystemMailClock(),
-         defaults: UserDefaults? = nil) {
+         defaults: UserDefaults? = nil, gmailDelay: Duration? = nil) {
         self.clock = clock
+        self.gmailDelay = gmailDelay
         self.wakeClock = wakeClock
         self.defaults = defaults
+        if gmailDelay != nil {
+            for sample in Self.gmailOnlySamples() {
+                let built = Self.build(sample)
+                gmailOnly[built.stored.row.id] = built.stored
+                for (id, body) in built.bodies { bodies[id] = body }
+            }
+        }
         // Files the last launch left are gone with it: the sample's staging is this launch's own.
         Task { await MailSampleFiles.sweepPreviousLaunches() }
         for sample in samples {
@@ -166,7 +180,7 @@ final class MailFixtureSource: MailSource {
                      _ onChange: @escaping @MainActor (MailListSnapshot) -> Void) -> MailObservation {
         let token = UUID()
         listObservers[token] = (scope, limit, onChange)
-        onChange(snapshot(for: scope, limit: limit))
+        onChange(withGmail(snapshot(for: scope, limit: limit), limit: limit))
         return forgetting { $0.listObservers[token] = nil }
     }
 
@@ -463,7 +477,7 @@ final class MailFixtureSource: MailSource {
     /// promise 2): the lists, the conversations, the counts.
     func publish() {
         for observer in Array(listObservers.values) {
-            observer.onChange(snapshot(for: observer.scope, limit: observer.limit))
+            observer.onChange(withGmail(snapshot(for: observer.scope, limit: observer.limit), limit: observer.limit))
         }
         for observer in Array(conversationObservers.values) {
             observer.onChange(conversationValue(observer.id))

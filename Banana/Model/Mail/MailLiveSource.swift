@@ -38,6 +38,29 @@ import GRDB
     private lazy var conversationLoader = GmailConversationLoader(stores: stores, writer: writer, api: api) { [access] account in
         try await access.mailAccessToken(accountID: account).value
     }
+    /// Gmail's half of a search (MAIL-ENGINE 9.4), and the body index local search reads.
+    private lazy var gmailSearch = MailGmailSearch(stores: stores, dependencies: .init(
+        api: api, token: { [access] account in try await access.mailAccessToken(accountID: account).value },
+        store: { [writer] fetched, account in
+            _ = try await writer.transact { db in
+                var change = MailStoreChange()
+                for message in fetched {
+                    change.formUnion(try MailMessageImporter.apply(message, account: account, myAddresses: [account], in: db))
+                }
+                return change
+            }
+        },
+        accounts: { [weak self] in
+            guard let self, self.active else { return [] }
+            return self.accounts.filter { $0.state == .connected }.map(\.id)
+        },
+        changed: { [weak self] in self?.refreshSearches() }))
+    private lazy var searchIndexer = MailSearchIndexer(stores: stores) { [writer] messages in
+        _ = try await writer.transact { try MailSearchIndexer.mark(messages, in: $0) }
+    }
+    private lazy var inlinePictures = MailInlinePictures(stores: stores, api: api) { [access] account in
+        try await access.mailAccessToken(accountID: account).value
+    }
     private enum Download: Hashable {
         case thread(MailConversationID), body(MailMessageID)
         var account: String {
@@ -165,6 +188,7 @@ import GRDB
         startDownloads()
         kickCloud()
         kickReprepare(restart: true)
+        searchIndexer.kick()
     }
 
     /// Walks stored originals newest first, preparing what the current preparer has not, at the
@@ -200,6 +224,7 @@ import GRDB
             stopSync()
             for task in pageTasks.values { task.cancel() }
             pageTasks.removeAll(); cancelDownloads(); access.cancelMailTokenRequests()
+            gmailSearch.cancelAll(); searchIndexer.stop()
             screenWork?.cancel(); screenWork = nil
             if pushCatchUp == 0 {
                 cloudTask?.cancel(); cloudTask = nil
@@ -238,7 +263,9 @@ import GRDB
         subscriptions[id] = Subscription(scope: scope, limit: min(MailTuning.listCap, max(1, limit)), callback: onChange)
         refresh(id)
         return MailObservation { [weak self] in Task { @MainActor in
-            self?.subscriptions[id]?.task?.cancel(); self?.subscriptions[id] = nil
+            guard let self else { return }
+            self.subscriptions[id]?.task?.cancel(); self.subscriptions[id] = nil
+            self.gmailSearch.keep(self.subscriptions.values.map(\.scope))
         } }
     }
     func observeConversation(_ id: MailConversationID, _ onChange: @escaping @MainActor (MailConversation?) -> Void) -> MailObservation {
@@ -270,6 +297,12 @@ import GRDB
     }
     func originalHTML(_ id: MailMessageID) async throws -> String? {
         try await MailOriginalDocument.load(stores: stores, id: id)
+    }
+    /// A picture that is a part of the message (`cid:`), from the stored parts. Nothing else is a resource here:
+    /// remote pictures are `MailImageSource`'s.
+    func resource(_ url: URL, for message: MailMessageID, presentation: MailPresentation) async -> MailResource? {
+        guard presentation == .onScreen, url.scheme?.lowercased() == "cid" else { return nil }
+        return await inlinePictures.resource(contentID: String(url.absoluteString.dropFirst(4)), message: message)
     }
     func body(_ id: MailMessageID) async -> MailBody {
         do { return try await MailBlobStore(stores: stores).prepared(account: id.account, messageID: id.message)?.body ?? .notOnDevice }
@@ -316,17 +349,16 @@ import GRDB
                 }
                 return
             }
-            if case .search(let text) = scope.place {
+            if case .search = scope.place {
                 do {
-                    let rows = try await reader.search(MailLocalSearchQuery(text: text, account: scope.account,
-                        filters: scope.filters, before: scope.before, limit: subscription.limit, allowedAccounts: allowedAccounts))
+                    let snapshot = try await self.gmailSearch.snapshot(scope, limit: subscription.limit,
+                        fresh: subscription.last == nil, allowedAccounts: allowedAccounts, through: through) { row in
+                        MailRowMapper.row(row, labels: row.labelPKs.compactMap { self.labelCatalog.refs[$0] }, reason: nil, in: scope)
+                    }
                     guard !Task.isCancelled else { return }
                     guard allowedAccounts == self.readAccounts else { return }
-                    self.deliver(MailListSnapshot(scope: scope,
-                        rows: rows.map { row in MailRowMapper.row(row, labels: row.labelPKs.compactMap { self.labelCatalog.refs[$0] }, reason: nil, in: scope) },
-                        total: MailCount(value: rows.count, isAtLeast: rows.count == subscription.limit),
-                        hasMore: rows.count == subscription.limit, stillLoading: 0, isRebuilding: false,
-                        remote: nil, coverage: nil, appliedThrough: through), to: id)
+                    self.deliver(snapshot, to: id)
+                    self.gmailSearch.delivered(snapshot)
                 } catch {
                     guard !Task.isCancelled else { return }
                     self.deliver(MailListSnapshot(scope: scope, rows: [], total: MailCount(value: 0, isAtLeast: true),
@@ -377,8 +409,14 @@ import GRDB
         while firstPageOrder.count > 8 { firstPages[firstPageOrder.removeFirst()] = nil }
         subscription.callback(snapshot)
     }
+    private func refreshSearches() {
+        for (id, subscription) in subscriptions {
+            if case .search = subscription.scope.place { refresh(id) }
+        }
+    }
     private func committed(_ change: MailStoreChange) {
         if change.labelsChanged { refreshLabelCatalog() }
+        if active, !change.conversations.isEmpty { searchIndexer.kick() }
         guard !change.viewKeys.isEmpty || !change.conversations.isEmpty else { return }
         for (token, subscription) in conversationSubscriptions where change.conversations.contains(subscription.id) {
             refreshConversation(token)
@@ -404,8 +442,7 @@ import GRDB
         }
     }
     func askGmail(_ scope: MailScope) {
-        // Search-specific membership is not wired yet; never pass an unrelated page off as a search.
-        if case .search = scope.place { return }
+        if case .search = scope.place { gmailSearch.ask(scope); return }
         for account in accounts where account.state == .connected && (Self.account(for: scope) == nil || Self.account(for: scope) == account.id) {
             loadPage(account.id)
         }

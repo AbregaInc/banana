@@ -1942,7 +1942,7 @@ final class MailListModel {
 
     /// Retry on the last row: the window is read again and, outside a search, the edge asked.
     private func retryPaging(_ fx: inout [MailListEffect]) {
-        guard edge == .failed || meta.remote == .failed else { return }
+        guard edge == .failed || meta.remote == .failed || meta.remote == .offline else { return }
         requestInFlight = true
         fx.append(.growTo(limit: limit))
         if case .search = scope.place {} else {

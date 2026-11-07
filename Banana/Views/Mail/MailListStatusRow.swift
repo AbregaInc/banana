@@ -13,6 +13,17 @@ struct MailListStatusRow: View {
     var body: some View {
         Group {
             switch feed.shown.paging {
+            case .hidden where feed.shown.remote == .offline, .end where feed.shown.remote == .offline:
+                // A search the device answered alone: said once, small, at the end.
+                HStack(spacing: DS.Space.s) {
+                    Text("Gmail couldn’t be reached").foregroundStyle(.secondary)
+                    Button("Retry", action: retry)
+                        .buttonStyle(.borderless)
+                        .accessibilityIdentifier(MailID.listRetry)
+                }
+                .font(.footnote)
+                .accessibilityElement(children: .contain)
+                .accessibilityIdentifier(MailID.searchOffline)
             case .hidden:
                 Color.clear
                     .accessibilityHidden(true)

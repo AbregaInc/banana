@@ -1,12 +1,13 @@
 #if !BANANA_PUBLIC
 import SwiftUI
 
-/// The foot of a conversation (MAIL-UX 6.2.2, 6.3): the composer, when he is writing a reply in
-/// it; the mark of a draft he has set aside, when he has one; or nothing.
+/// Under a conversation's subject, above its newest message (MAIL-UX 6.2.2, 6.3, read newest first
+/// since 7 Nov 2026): the composer, when he is writing a reply in it; the mark of a draft he has
+/// set aside, when he has one; or nothing.
 ///
 /// It observes the session's navigation for the composer opening and closing, and for nothing
 /// else: what he types is the composer's own (`MailComposerView` observes its model), so a
-/// keystroke re-evaluates the card and not this slot, the conversation above it, or the list.
+/// keystroke re-evaluates the card and not this slot, the conversation below it, or the list.
 struct MailReplySlot: View {
     let session: MailSession
     @ObservedObject var navigation: MailNavigation
@@ -15,7 +16,7 @@ struct MailReplySlot: View {
     let draft: MailDraftID?
     /// False at a phone's width, where the composer is a sheet and this holds nothing for it.
     let inline: Bool
-    /// Scroll the conversation to the foot, where the card is.
+    /// Scroll the conversation to the card, under the subject.
     let reveal: () -> Void
 
     var body: some View {

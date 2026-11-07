@@ -78,8 +78,8 @@ struct MailAttachmentID: Hashable, Codable, Sendable {
 /// a search's match — so the UI compares and stores keys and never builds or interprets one.
 /// It contains nothing local to one device's store.
 struct MailOrderKey: Hashable, Comparable, Codable, Sendable {
-    /// 0, or 1 for rows only Gmail found in a search: they sort after everything this device
-    /// found itself.
+    /// 0, or 1 for rows to sort after everything in group 0. A search places what Gmail found
+    /// by date with the device's own rows (group 0; MAIL-ENGINE 9.4 as built).
     let group: Int
     let sortKey: Int64
     /// A stable hash of the conversation id, so two rows with one `sortKey` still have an order
@@ -155,9 +155,30 @@ struct MailTextBlock: Equatable, Codable, Sendable {
         case heading(level: Int)
         case preformatted
         case rule
+        /// Boilerplate a sender puts under its message: unsubscribe lines, postal address, legal text.
+        case fineprint
+        /// A picture of the message's own content, in reading order. Its `runs` are empty.
+        case picture(MailPicture)
     }
     var kind: Kind
     var runs: [MailTextRun]
+}
+
+/// A content picture: where it comes from, the size its sender declared (so the layout does not jump
+/// when it arrives), what it says in words, and where tapping it goes.
+struct MailPicture: Equatable, Codable, Hashable, Sendable {
+    enum Source: Equatable, Codable, Hashable, Sendable {
+        /// An `http` or `https` address. Loaded only through `MailImageSource`.
+        case remote(URL)
+        /// A part of the message itself (`Content-ID`, without the angle brackets).
+        case cid(String)
+    }
+    var source: Source
+    var width: Int? = nil
+    var height: Int? = nil
+    var alt: String = ""
+    /// `http`, `https` or `mailto` only.
+    var link: URL? = nil
 }
 
 struct MailTextRun: Equatable, Codable, Sendable {

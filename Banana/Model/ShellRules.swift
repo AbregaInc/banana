@@ -22,16 +22,18 @@ enum ShellPage: String, CaseIterable, Identifiable, Sendable {
         }
     }
 
-    /// Outline symbols: the switcher and the rail draw them on round glass buttons.
+    /// Outline symbols: the switcher and the rail draw them on round glass buttons. Taken from
+    /// the sections' own table (`AppSection.outlineSymbol`; Body's from `BodyPage`), never a
+    /// table of their own.
     var symbol: String {
         switch self {
-        case .plan: "sun.max"
-        case .mail: "envelope"
-        case .body: "heart"
-        case .notes: "doc.text"
-        case .library: "mic"
-        case .review: "chart.bar"
-        case .settings: "gearshape"
+        case .plan: AppSection.plan.outlineSymbol
+        case .mail: AppSection.mail.outlineSymbol
+        case .body: BodyPage.symbol.replacingOccurrences(of: ".fill", with: "")
+        case .notes: AppSection.notes.outlineSymbol
+        case .library: AppSection.library.outlineSymbol
+        case .review: AppSection.review.outlineSymbol
+        case .settings: AppSection.settings.outlineSymbol
         }
     }
 
@@ -75,6 +77,16 @@ enum ShellLayout: Equatable, Sendable {
     static let railWidth: Double = 1_100
 
     static func of(width: Double) -> Self { width >= railWidth ? .rail : .bottomBar }
+
+    /// The rail's own width, on an iPad on its side and on the Mac alike: its round buttons with
+    /// room either side, and on the Mac the window's three buttons above it (they end about 76 pt
+    /// from the edge), so the toolbar starts right after both. Fixed: the Mac's sidebar column is
+    /// pinned to it and cannot be dragged wider or collapsed.
+    static let railColumn: Double = 80
+    /// A rail button's circle.
+    static let railButton: Double = 48
+    /// Where the Mac window's close, minimise and zoom buttons end, from the window's left edge.
+    static let macWindowButtonsEnd: Double = 76
 }
 
 /// What the "Search or ask" field has under it.
@@ -164,5 +176,60 @@ enum ShellPlayerPlacement: Equatable, Sendable {
     static func hiddenAfterLoad(previous: String?, current: String?, hidden: Bool) -> Bool {
         guard let previous else { return hidden }
         return previous == current ? hidden : false
+    }
+}
+
+/// Plan's top row in the bottom-bar layout: the title (with today's date and the weather beside
+/// it on the current period), then "‹ ›" with Today between them away from now, then "…". On a
+/// narrow phone the weather gives way first, then Today's word for its icon, and only then the
+/// title's size (WeekView's `mobileTopRow`).
+enum PlanTopRow {
+    /// Today sits between "‹" and "›" while the view is away from the current period.
+    static func showsToday(isCurrent: Bool) -> Bool { !isCurrent }
+
+    /// What "‹" and "›" say to VoiceOver: the period they step.
+    static func stepLabels(days: Int) -> (previous: String, next: String) {
+        switch days {
+        case 1: ("Previous day", "Next day")
+        case 7: ("Previous week", "Next week")
+        default: ("Previous \(days) days", "Next \(days) days")
+        }
+    }
+}
+
+/// The pages' badges: what the old tab bar badged, page by page, from the same counts
+/// (`ActionItems.Counts`); their sum on the closed switcher circle. Plan: overdue reminders.
+/// Body: meals to log or check and doses due (the old Body tab's count). No other page had one.
+enum ShellBadge {
+    static func count(_ page: ShellPage, _ counts: ActionItems.Counts) -> Int {
+        switch page {
+        case .plan: counts.plan
+        case .body: counts.nutrition
+        case .mail, .notes, .library, .review, .settings: 0
+        }
+    }
+
+    /// The closed switcher's badge: the pages that are on, added up.
+    static func total(_ pages: [ShellPage], _ counts: ActionItems.Counts) -> Int {
+        pages.reduce(0) { $0 + count($1, counts) }
+    }
+
+    /// What the red capsule says: nothing at zero, "99+" past 99.
+    static func text(_ count: Int) -> String? {
+        count <= 0 ? nil : count > 99 ? "99+" : "\(count)"
+    }
+
+    /// What VoiceOver adds: "3 need attention".
+    static func spoken(_ count: Int) -> String? {
+        count <= 0 ? nil : count == 1 ? "1 needs attention" : "\(count) need attention"
+    }
+}
+
+/// How far a toast stands off the bottom of a page: above the bottom bar (and the player on it)
+/// while the bar is there, on the pages it lies over; in a sheet, on the iPad on its side and on
+/// the Mac there is no bar under it, and it keeps its own place.
+enum ShellToastInset {
+    static func bottom(barHeight: Double, barShown: Bool, onPage: Bool) -> Double {
+        barShown && onPage ? barHeight : 0
     }
 }

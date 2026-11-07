@@ -33,7 +33,11 @@ extension MailSession {
         if ScaleStress.days != nil {
             source = MailFixtureSource(samples: MailFixtureConversations.stress(days: ScaleStress.mailDays), defaults: nil)
         } else {
-            source = MailFixtureSource(defaults: kept)
+            // `--mail-gmail-delay <seconds>` (Debug): searches also ask the sample's Gmail.
+            var delay: Duration?
+            if let index = arguments.firstIndex(of: "--mail-gmail-delay"), arguments.indices.contains(index + 1),
+               let seconds = Double(arguments[index + 1]) { delay = .milliseconds(Int(seconds * 1000)) }
+            source = MailFixtureSource(defaults: kept, gmailDelay: delay)
         }
         #else
         let source = MailFixtureSource(defaults: kept)
@@ -98,7 +102,7 @@ extension MailSession {
     }
 
     #if DEBUG
-    /// `--mail-place inbox|starred|done`, `--mail-cursor <key>`, `--mail-open <key>`,
+    /// `--mail-place inbox|starred|done`, `--mail-search <text>`, `--mail-cursor <key>`, `--mail-open <key>`,
     /// `--mail-pane off`, `--mail-details off` and `--mail-state <state>`: the states a screenshot is
     /// of, since the Simulator cannot press a key (MAIL-UX 13.1). Keys are the fixtures' keys. The
     /// two toggles are for this launch only: a route must not change what the next real launch
@@ -123,6 +127,7 @@ extension MailSession {
            let mailbox = MailPlacesModel.all.first(where: { $0.title.lowercased() == name })?.mailbox {
             show(mailbox)
         }
+        if let text = value(after: "--mail-search") { switchTo(MailScope(place: .search(text))) }
         if let key = value(after: "--mail-cursor") { send(.place(conversation(key))) }
         if let key = value(after: "--mail-open") { send(.open(conversation(key))) }
         guard let state = value(after: "--mail-state") else { return }

@@ -32,9 +32,8 @@ final class MailComposeUITest: MailUITestCase {
         snap("02-left")
         XCTAssertFalse(body.exists, "the composer is gone")
         // On the phone the conversation is still open under where the sheet was: the draft's mark
-        // is at its foot, and Back is the way to the places.
+        // is under the subject, above the newest message, and Back is the way to the places.
         if element(MailID.back).exists {
-            app.swipeUp()
             XCTAssertTrue(element(MailID.draftMarker).waitForExistence(timeout: 5), "the conversation shows the kept draft (6.3.8)")
             snap("02b-draft-marker")
             element(MailID.back).tap()
@@ -89,7 +88,7 @@ final class MailComposeUITest: MailUITestCase {
             row("q3").tap()
             Thread.sleep(forTimeInterval: 0.8)
         }
-        // The message is the last card of the conversation, marked as a sample.
+        // The message is the first card of the conversation (newest first), marked as a sample.
         XCTAssertTrue(conversationShows("Thanks, tonight. More tomorrow.", timeout: 3)
                       || { app.swipeUp(); return conversationShows("Thanks, tonight. More tomorrow.", timeout: 3) }(),
                       "the sent message is in the conversation")

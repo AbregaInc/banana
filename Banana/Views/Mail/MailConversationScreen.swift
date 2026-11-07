@@ -7,7 +7,7 @@ import SwiftUI
 struct MailConversationScreen: View {
     let session: MailSession
     @ObservedObject var reader: MailReaderModel
-    /// A reply is written under the last message; false at a phone's width, where it is a sheet.
+    /// A reply is written above the newest message; false at a phone's width, where it is a sheet.
     let inlineComposer: Bool
     @Environment(\.bottomBarShell) private var bottomBarShell
     @Environment(\.wideShell) private var wideShell
@@ -26,11 +26,12 @@ struct MailConversationScreen: View {
     }
 }
 
-/// The subject and each message, scrolling: what the full-width screen and the reading pane both
-/// show. It is made again for each conversation (`.id`), so a new one opens at its top.
+/// The subject and each message, newest first (`MailReadingOrder`), scrolling: what the
+/// full-width screen and the reading pane both show. It is made again for each conversation
+/// (`.id`), so a new one opens at its top, on the newest message.
 struct MailConversationContent: View {
-    /// Where a reply is written: under the last message.
-    private static let foot = "mail.conversation.foot"
+    /// Where a reply is written: under the subject, above the newest message it answers.
+    private static let replySlot = "mail.conversation.replySlot"
 
     let session: MailSession
     @ObservedObject var reader: MailReaderModel
@@ -52,34 +53,35 @@ struct MailConversationContent: View {
             ScrollView {
                 if reader.conversation != nil {
                     VStack(alignment: .leading, spacing: DS.Space.m) {
-                        LazyVStack(alignment: .leading, spacing: DS.Space.m) {
-                            HStack(alignment: .firstTextBaseline, spacing: DS.Space.s) {
-                                Text(reader.title)
-                                    .font(.title3.weight(.semibold))
-                                    .accessibilityIdentifier(MailID.conversationTitle)
-                                if titleMenu {
-                                    Spacer(minLength: DS.Space.s)
-                                    MailPaneMoreMenu(session: session)
-                                }
+                        HStack(alignment: .firstTextBaseline, spacing: DS.Space.s) {
+                            Text(reader.title)
+                                .font(.title3.weight(.semibold))
+                                .accessibilityIdentifier(MailID.conversationTitle)
+                            if titleMenu {
+                                Spacer(minLength: DS.Space.s)
+                                MailPaneMoreMenu(session: session)
                             }
-                            .padding(.bottom, DS.Space.xs)
+                        }
+                        .padding(.bottom, DS.Space.xs)
+                        // A reply (or the draft left here) above the newest message, which it
+                        // answers and which is read first.
+                        MailReplySlot(session: session, navigation: session.navigation,
+                                      conversation: reader.id, draft: reader.conversation?.draft,
+                                      inline: inlineComposer) {
+                            proxy.scrollTo(Self.replySlot, anchor: .top)
+                        }
+                        .id(Self.replySlot)
+                        LazyVStack(alignment: .leading, spacing: DS.Space.m) {
                             ForEach(reader.messages) { message in
                                 MailMessageCard(message: message, text: reader.bodies[message.id], styled: reader.styled[message.id], opener: reader.opener,
                                                 load: { reader.fetchBody(message.id) })
                                     .onAppear { reader.revealBody(message.id) }
                             }
                         }
-                        // Not in the lazy stack: it must exist to be scrolled to, however far down.
-                        MailReplySlot(session: session, navigation: session.navigation,
-                                      conversation: reader.id, draft: reader.conversation?.draft,
-                                      inline: inlineComposer) {
-                            proxy.scrollTo(Self.foot, anchor: .bottom)
-                        }
-                        .id(Self.foot)
                     }
-                    .frame(maxWidth: DS.Mail.readingMeasure, alignment: .leading)
+                    // Message text fills the pane, as in Apple Mail and Gmail: no reading-measure cap.
+                    .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(DS.Space.l)
-                    .frame(maxWidth: .infinity)
                 } else if !reader.isLoading {
                     Text("This conversation is no longer here.")
                         .foregroundStyle(.secondary)
@@ -309,10 +311,21 @@ struct MailMessageCard: View {
         }
     }
 
+    /// A picture that is a part of this message loads from the stored parts.
+    private var pictureContext: MailPictureContext {
+        let source = session?.source, id = message.id
+        return MailPictureContext(account: id.account) { part in
+            let safe = part.addingPercentEncoding(withAllowedCharacters: CharacterSet.alphanumerics.union(CharacterSet(charactersIn: "@.-_+=")))
+            guard let safe, let url = URL(string: "cid:" + safe), let source else { return nil }
+            return await source.resource(url, for: id, presentation: .onScreen)?.data
+        }
+    }
+
     @ViewBuilder private var content: some View {
         switch text {
-        case .text(let content, _, _)?:
-            MailTextView(text: content, styled: styled)
+        case .text(let content, let quoteStart, _)?:
+            MailTextView(text: content, styled: styled, foldFrom: quoteStart)
+                .environment(\.mailPictureContext, pictureContext)
         case .designed(_, _, _, let plain, _)?:
             MailTextView(text: plain, styled: styled)
         case .notOnDevice?, nil:

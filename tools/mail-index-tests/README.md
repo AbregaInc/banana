@@ -59,8 +59,9 @@ The known HTML preparation budget failures remain part of this suite's verdict.
 Live-source adapter checks use controlled consent/provider implementations and
 real disk stores to verify permission-to-list publication, first-page caching and
 label-account precedence. They are not real OAuth or installed-app UI checks.
-Unsupported search is explicitly failed rather than populated with unrelated rows;
-search implementation and normal app source replacement remain integration work.
+Search checks (`MailGmailSearchTests`) cover Gmail's `q` from typed text and structured
+filters, the merged list's order, de-duplication and held rows, Gmail paging by page token,
+cancellation of a superseded query, offline, and the body index against real disk stores.
 
 Metadata importer cases exercise provider JSON through the real database reader:
 unknown versus explicitly empty labels, stale responses, incomplete headers,

@@ -1267,6 +1267,12 @@ cache. So:
 strip. ASSUMED for real mail: 1.5–2.5 KB a message, so 0.4–0.75 GB at 200,000. The first Mac
 fill measures the real figure (owner run 3).
 
+**As built (November 2026).** `search.sqlite` holds only bodies (`msg_fts(body)` plus
+`body_doc(rowid, msg_pk)`); subject, sender, recipients and snippet are indexed in `index.sqlite`
+by trigger (`mail_header_search`), atomically with the message. The queue is
+`prep_state = 2 AND fts_state < 2` (a partial index), not `fts_dirty`, so a body that arrives by
+any path is indexed. A match counts only while its message has `fts_state = 2`.
+
 **Indexing is a queue, not part of sync.** A message is marked `fts_dirty` when its header is
 stored and again when its body is prepared. `MailSearchIndexer` takes dirty rows newest first,
 50 at a time, at the pace of 4.12, writes one `search.sqlite` transaction (MEASURED: 41 ms p50,
@@ -3312,6 +3318,20 @@ Gmail for what a list does not hold:
 Gmail's search differs from the local one: it does not expand aliases, and its API form matches
 messages, not conversations (DOCUMENTED §11). It may also match attachment contents and quoted
 text, which the local index leaves out (UNVERIFIED; the probe checks).
+
+**As built (November 2026), and where it departs from the above.** `MailGmailSearch` runs Gmail's
+half through `/v1/mail/read` (`messages.list` with `q`, then `message` at `metadata`), so the
+service's interactive pacing applies; no new route. `MailGmailQuery` passes typed text as typed and
+turns a structured filter into operators; flags alone are not sent. The owner asked for one list,
+newest first, so `MailSearchMerge` places Gmail's rows by date with the device's (group 0 for
+both) instead of in a group below; rows already shown are never taken away, and what joins above
+them is the list's to place under its rest rules (MailListModel T7–T9). Rows past what is known —
+the device's next page, or below the oldest row Gmail has added while it may add more — wait, and
+the list's `askGmail` at its end asks for the next step: ten header reads, then Gmail's next
+`pageToken`. The live source keeps no sync limit yet (`.everything`), so a header Gmail's search
+brings is stored as the fill would store it, and is in the local index from then on; when a limit
+arrives, rows outside it must stay in the search's memory as this section says. Offline the list
+is the device's, with `.offline` said once at its end.
 
 ### 9.5 Recipients
 

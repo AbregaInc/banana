@@ -85,12 +85,14 @@ final class MailReaderModel: ObservableObject {
         if bodies != retained { bodies = retained }
         self.conversation = conversation
         facts = conversation.map(MailConversationFacts.init)
-        messages = conversation?.messages.map { MailMessageDisplay($0) } ?? []
+        messages = MailReadingOrder.newestFirst(conversation?.messages ?? []).map { MailMessageDisplay($0) }
         opener.update(messages)
         title = conversation.map { MailToastText.cleanSubject($0.subject) } ?? ""
         isLoading = false
         guard let conversation else { return }
-        let missing = conversation.messages.map(\.id).filter { bodies[$0] == nil || bodies[$0] == .notOnDevice }
+        // In the order they are read: the newest first.
+        let missing = MailReadingOrder.newestFirst(conversation.messages).map(\.id)
+            .filter { bodies[$0] == nil || bodies[$0] == .notOnDevice }
         guard !missing.isEmpty else { return }
         let source = self.source
         loading = Task { @MainActor [weak self] in
@@ -109,6 +111,17 @@ final class MailReaderModel: ObservableObject {
             if self.bodies != updated { self.bodies = updated }
             for message in arrived.keys { self.requestMissingBody(message) }
         }
+    }
+}
+
+/// The order an open conversation is read in: the newest message at the top, then the older ones
+/// going down (the owner's ruling of 7 Nov 2026). By date, newest first; messages sent at the same
+/// moment keep the later-arrived one above.
+enum MailReadingOrder {
+    static func newestFirst(_ messages: [MailMessage]) -> [MailMessage] {
+        messages.enumerated()
+            .sorted { $0.element.date != $1.element.date ? $0.element.date > $1.element.date : $0.offset > $1.offset }
+            .map(\.element)
     }
 }
 

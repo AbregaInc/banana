@@ -797,10 +797,10 @@ struct MacWeekView: View {
             // Plain buttons, as the date line's (`DateLine`): a ControlGroup was moved to the far end.
             Button { moveWeek(-1) } label: { Image(systemName: "chevron.left") }
                 .help(dayMode ? "Previous day (K)" : (weekSpan.isAlignedWeek ? "Previous week (K)" : "Back \(weekSpan.rawValue) days (K)"))
-                .accessibilityLabel("Earlier")
+                .accessibilityLabel(PlanTopRow.stepLabels(days: visibleDayCount).previous)
             Button { moveWeek(1) } label: { Image(systemName: "chevron.right") }
                 .help(dayMode ? "Next day (J)" : (weekSpan.isAlignedWeek ? "Next week (J)" : "Forward \(weekSpan.rawValue) days (J)"))
-                .accessibilityLabel("Later")
+                .accessibilityLabel(PlanTopRow.stepLabels(days: visibleDayCount).next)
             Button("Today") { moveToCurrentWeek() }
                 .disabled(weekOffset == 0)
                 .help("Go to today (T)")
@@ -3575,9 +3575,11 @@ private struct MobileDayHeaderStrip: View {
             LazyHStack(spacing: 0) {
                 ForEach(days) { day in
                     let selected = Calendar.current.isDate(day.date, inSameDayAs: selectedDay)
-                    ZStack(alignment: .trailing) {
+                    // The day's letter and number select it and, with anything on it, open its
+                    // whole list (the list icon beside each number did that before).
                     Button {
                         onSelect(day)
+                        if !day.items.isEmpty { onShowItems(day) }
                     } label: {
                         VStack(spacing: 1) {
                             Text(day.letter.uppercased())
@@ -3602,18 +3604,9 @@ private struct MobileDayHeaderStrip: View {
                     }
                     .buttonStyle(.plain)
                     .accessibilityLabel("\(day.weekday) \(day.dayNum), \(day.items.count) items")
-                    if !day.items.isEmpty {
-                        Button { onShowItems(day) } label: {
-                            Image(systemName: "list.bullet")
-                                .font(.system(size: 11, weight: .semibold))
-                                .frame(width: 32, height: 44)
-                                .contentShape(Rectangle())
-                        }
-                        .buttonStyle(.plain)
-                        .accessibilityLabel("Show all \(day.items.count) items for \(day.weekday) \(day.dayNum)")
-                        .accessibilityIdentifier("calendar.day.items.\(Occurrence.dayKey(day.date))")
-                    }
-                    }
+                    .accessibilityHint(day.items.isEmpty ? "" : "Shows all of the day\u{2019}s items")
+                    .accessibilityIdentifier(day.items.isEmpty ? "calendar.day.\(Occurrence.dayKey(day.date))"
+                                                               : "calendar.day.items.\(Occurrence.dayKey(day.date))")
                     .id(day.id)
                 }
             }
@@ -3904,26 +3897,22 @@ struct WeekView: View {
                 Text(moveError ?? "")
             }
             .navigationBarTitleDisplayMode(.inline)
+            .toolbarVisibility(bottomBarShell ? .hidden : .automatic, for: .navigationBar)
+            .safeAreaInset(edge: .top, spacing: 0) {
+                if bottomBarShell { mobileTopRow }
+            }
             .toolbar {
-                if bottomBarShell {
-                    // One row: the title, whose menu switches Day and Week and steps the dates,
-                    // the day's date and weather beside it, and "…". Search, + and Review are
-                    // the bar's (the field and the switcher).
-                    ToolbarItem(placement: .topBarLeading) { mobileTitleMenu }
-                    ToolbarItem(placement: .topBarLeading) { mobileTitleAside }
-                        .sharedBackgroundVisibility(.hidden)
-                    ToolbarItem(placement: .topBarTrailing) {
-                        MoreMenu(identifier: "mobile.week.more") {
-                            if booking.canShare { BookingShareButton() }
-                            planMoreItems
-                        }
-                    }
-                } else if wideShell {
+                // The bottom-bar layout draws its own top row (`mobileTopRow`): the bar moved
+                // its items into an overflow menu, with room to spare, once Today joined "‹ ›",
+                // and the row has to fit a 13 mini.
+                if wideShell {
                     ToolbarItemGroup(placement: .topBarLeading) {
                         Button { moveMobileWeek(-1) } label: { Image(systemName: "chevron.left") }
                             .accessibilityLabel(dayMode ? "Previous day" : "Previous week")
+                            .accessibilityIdentifier("plan.previous")
                         Button { moveMobileWeek(1) } label: { Image(systemName: "chevron.right") }
                             .accessibilityLabel(dayMode ? "Next day" : "Next week")
+                            .accessibilityIdentifier("plan.next")
                     }
                     ToolbarItem(placement: .topBarLeading) {
                         Button("Today") { moveMobileWeekToCurrent() }
@@ -3938,7 +3927,7 @@ struct WeekView: View {
                             planMoreItems
                         }
                     }
-                } else {
+                } else if !bottomBarShell {
                     // Only the floating top tabs occupy the centre. With the sidebar open,
                     // keep Day/Week in the title position instead of pushing it to the far left.
                     ToolbarItem(placement: tabBarPlacement == .topBar ? .topBarLeading : .principal) {
@@ -4256,20 +4245,94 @@ struct WeekView: View {
     }
 
     /// Beside the title: today's date and the weather, as the date line had them.
-    private var mobileTitleAside: some View {
-        HStack(spacing: DS.Space.m) {
-            if dayMode, mobileWeekOffset == 0 {
+    /// The bottom-bar layout's one top row: the title menu, today's date (in Day) and the weather
+    /// beside it on the current period, then "‹ ›" (Today between them away from now) and "…".
+    /// What gives way on a narrow phone, in order: the weather, then Today's word for its icon,
+    /// and only then the title's size (`PlanTopRow`).
+    private var mobileTopRow: some View {
+        HStack(spacing: DS.Space.s) {
+            // First call on the room; it scales down a little only when even the narrowest
+            // pager leaves too little (a week across two months on a 13 mini).
+            mobileTitleMenu
+                .minimumScaleFactor(0.8)
+                .padding(.horizontal, DS.Space.m)
+                .frame(minHeight: 44)
+                .glassEffect(.regular.interactive(), in: .capsule)
+                .layoutPriority(2)
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: DS.Space.s) {
+                    mobileTitleAside(weather: true)
+                    Spacer(minLength: 0)
+                    mobilePager(todayWord: true)
+                }
+                HStack(spacing: DS.Space.s) {
+                    mobileTitleAside(weather: false)
+                    Spacer(minLength: 0)
+                    mobilePager(todayWord: true)
+                }
+                HStack(spacing: DS.Space.s) {
+                    Spacer(minLength: 0)
+                    mobilePager(todayWord: false)
+                }
+            }
+            MoreMenu(identifier: "mobile.week.more") {
+                if booking.canShare { BookingShareButton() }
+                planMoreItems
+            }
+            .font(.title3)
+            .frame(width: 44, height: 44)
+            .glassEffect(.regular.interactive(), in: .circle)
+        }
+        .padding(.horizontal, DS.Space.l)
+        .padding(.vertical, DS.Space.xs)
+    }
+
+    /// Beside the title on the current period: today's date in Day and the weather.
+    private func mobileTitleAside(weather: Bool) -> some View {
+        let isCurrent = mobileWeekOffset == 0
+        return HStack(spacing: DS.Space.m) {
+            if dayMode, isCurrent {
                 Text(mobileVisibleWeekStart.formatted(.dateTime.weekday(.abbreviated).month(.abbreviated).day()))
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
-            if dayMode {
-                WeatherChip(day: mobileVisibleWeekStart)
-            } else if mobileWeekOffset == 0 {
-                WeatherChip(day: Date())
-            }
+            if weather, isCurrent { WeatherChip(day: Date()) }
             if mobileWeekLoading { ProgressView().controlSize(.mini) }
         }
+        .fixedSize()
+    }
+
+    /// "‹ ›", a day in Day and a week in Week, with Today between them away from now. Swiping
+    /// the grid still steps too.
+    private func mobilePager(todayWord: Bool) -> some View {
+        let labels = PlanTopRow.stepLabels(days: dayMode ? 1 : 7)
+        return HStack(spacing: 0) {
+            Button { moveMobileWeek(-1) } label: {
+                Image(systemName: "chevron.left").frame(width: 36, height: 44).contentShape(Rectangle())
+            }
+            .accessibilityLabel(labels.previous)
+            .accessibilityIdentifier("plan.previous")
+            if PlanTopRow.showsToday(isCurrent: mobileWeekOffset == 0) {
+                Button { moveMobileWeekToCurrent() } label: {
+                    Group {
+                        if todayWord { Text("Today").padding(.horizontal, DS.Space.xs) }
+                        else { Image(systemName: "arrow.uturn.backward").frame(width: 32) }
+                    }
+                    .frame(height: 44)
+                    .contentShape(Rectangle())
+                }
+                .accessibilityLabel("Today")
+                .accessibilityIdentifier("plan.today")
+            }
+            Button { moveMobileWeek(1) } label: {
+                Image(systemName: "chevron.right").frame(width: 36, height: 44).contentShape(Rectangle())
+            }
+            .accessibilityLabel(labels.next)
+            .accessibilityIdentifier("plan.next")
+        }
+        .font(.body.weight(.medium))
+        .padding(.horizontal, DS.Space.xs)
+        .glassEffect(.regular.interactive(), in: .capsule)
         .fixedSize()
     }
 

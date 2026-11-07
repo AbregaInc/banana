@@ -35,12 +35,17 @@ enum AppSection: String, Codable, CaseIterable, Identifiable {
         case .nutrition: "fork.knife"
         case .notes: "quote.bubble.fill"
         case .routines: "repeat"
-        case .library: "square.stack.fill"
+        // Listening: the podcasts module's and the listening chrome's symbol.
+        case .library: "headphones"
         case .review: "chart.bar.fill"
         case .assistant: "bubble.left.and.bubble.right.fill"
         case .settings: "gearshape.fill"
         }
     }
+
+    /// The same symbol without its fill, for the shell's round glass buttons
+    /// (`ShellPage.symbol`): one table, so the two can't drift apart.
+    var outlineSymbol: String { symbol.replacingOccurrences(of: ".fill", with: "") }
 
     /// Mail is reachable in the normal phone UI. The system provides overflow when
     /// the compact tab bar cannot display every primary section at once.

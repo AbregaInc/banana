@@ -5,13 +5,34 @@ import SwiftUI
 // ask" in the middle, the assistant and "…" at the right. An iPad in either orientation and the
 // Mac. The field, its results and the assistant are the phone's (`ShellSearch`).
 
-/// The rail: the pages that are on, as round buttons with no labels; Settings at its foot.
+/// The red capsule on a page's circle (`ShellBadge`): the system's badge colours, "99+" past 99.
+struct ShellBadgeMark: View {
+    let count: Int
+
+    var body: some View {
+        if let text = ShellBadge.text(count) {
+            Text(text)
+                .font(.caption2.weight(.bold))
+                .monospacedDigit()
+                .foregroundStyle(.white)
+                .padding(.horizontal, 5)
+                .frame(minWidth: 18, minHeight: 18)
+                .background(Capsule().fill(Color.red))
+                .fixedSize()
+                .accessibilityHidden(true)
+        }
+    }
+}
+
+/// The rail: the pages that are on, as round buttons with no labels; Settings at its foot. Each
+/// carries its own badge (the rail is always in view, so nothing is added up).
 struct ShellRail: View {
     let pages: [ShellPage]
     let current: ShellPage?
     let open: (ShellPage) -> Void
+    @ObservedObject private var badges = ActionBadges.shared
 
-    static let width: CGFloat = 72
+    static let width = CGFloat(ShellLayout.railColumn)
 
     var body: some View {
         VStack(spacing: DS.Space.m) {
@@ -34,13 +55,17 @@ struct ShellRail: View {
             Image(systemName: page.symbol)
                 .font(.title3.weight(.medium))
                 .foregroundStyle(selected ? DS.Palette.onAccent : Color.primary)
-                .frame(width: 48, height: 48)
+                .frame(width: CGFloat(ShellLayout.railButton), height: CGFloat(ShellLayout.railButton))
                 .contentShape(Circle())
         }
         .buttonStyle(.plain)
         .glassEffect(selected ? .regular.tint(DS.Palette.accent).interactive() : .regular.interactive(), in: .circle)
+        .overlay(alignment: .topTrailing) {
+            ShellBadgeMark(count: ShellBadge.count(page, badges.counts)).offset(x: 4, y: -4)
+        }
         .help(page.title)
         .accessibilityLabel(page.title)
+        .accessibilityValue(ShellBadge.spoken(ShellBadge.count(page, badges.counts)) ?? "")
         .accessibilityAddTraits(selected ? .isSelected : [])
         .accessibilityIdentifier("shell.page.\(page.rawValue)")
     }

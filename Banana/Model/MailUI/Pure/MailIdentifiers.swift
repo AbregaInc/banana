@@ -22,6 +22,8 @@ enum MailID {
     /// The row after the last conversation: loading, the end, or Retry (`MailListStatusRow`).
     static let listStatus = "mail.list.status"
     static let listRetry = "mail.list.retry"
+    /// A search the device answered alone: Gmail could not be reached.
+    static let searchOffline = "mail.search.offline"
 
     /// One row of the list. `key` is the conversation's fixture key in a UI test (`q3`), and
     /// the conversation id's `text` otherwise.

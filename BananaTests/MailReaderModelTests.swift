@@ -126,4 +126,17 @@ import XCTest
         XCTAssertEqual(source.fetched, [messageID])
     }
 
+
+    /// Newest first, by date; two at the same moment keep the later-arrived one above.
+    func testAConversationIsReadNewestFirst() {
+        let person = MailPerson(name: "Sender", address: "sender@example.com", isMe: false, isKnown: false, fromTheirMail: false)
+        func at(_ name: String, _ seconds: TimeInterval) -> MailMessage {
+            MailMessage(id: MailMessageID(account: id.account, message: name), from: person, to: [], cc: [], bcc: [],
+                replyTo: [], deliveredTo: nil, listName: nil, date: Date(timeIntervalSince1970: seconds), isUnread: false,
+                isMine: false, firstLine: "", body: .text, attachments: [], delivery: nil, draft: nil)
+        }
+        let order = MailReadingOrder.newestFirst([at("a", 10), at("b", 30), at("c", 20), at("d", 30)])
+        XCTAssertEqual(order.map(\.id.message), ["d", "b", "c", "a"])
+        XCTAssertTrue(MailReadingOrder.newestFirst([]).isEmpty)
+    }
 }
