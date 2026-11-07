@@ -98,34 +98,34 @@
     {
       "id": "first-run/welcome",
       "area": "first-run",
-      "title": "What should Banana look after?",
+      "title": "Your day. A little lighter.",
       "args": [
         "-onboardingCompleted",
-        "NO"
+        "NO",
+        "--onboarding-step",
+        "welcome"
       ],
-      "nobase_onboarding": true,
       "to": [
         [
-          "first-run/wake",
-          "Get started"
+          "first-run/modules",
+          "Build my day"
         ]
       ]
     },
     {
-      "id": "first-run/welcome-everything",
+      "id": "first-run/modules",
       "area": "first-run",
-      "title": "What should Banana look after? · Everything",
+      "title": "What should Banana look after?",
       "args": [
         "-onboardingCompleted",
         "NO",
-        "--modules",
-        "everything"
+        "--onboarding-step",
+        "modules"
       ],
-      "nobase_onboarding": true,
       "to": [
         [
           "first-run/wake",
-          "Get started"
+          "Continue"
         ]
       ]
     },
@@ -136,12 +136,13 @@
       "args": [
         "-onboardingCompleted",
         "NO",
-        "--onboarding-wake-preview"
+        "--onboarding-step",
+        "wake"
       ],
       "to": [
         [
           "first-run/winddown",
-          "Continue"
+          "That’s my morning"
         ]
       ]
     },
@@ -152,25 +153,29 @@
       "args": [
         "-onboardingCompleted",
         "NO",
-        "--onboarding-winddown-preview"
+        "--onboarding-step",
+        "windDown"
       ],
       "to": [
         [
-          "first-run/calendar",
-          "Continue"
+          "first-run/connect",
+          "That’s my evening"
         ]
       ]
     },
     {
-      "id": "first-run/calendar",
+      "id": "first-run/connect",
       "area": "first-run",
-      "title": "Never double-booked",
+      "title": "Bring in your calendars",
       "args": [
-        "--onboarding-calendar-preview"
+        "-onboardingCompleted",
+        "NO",
+        "--onboarding-step",
+        "connect"
       ],
       "to": [
         [
-          "first-run/other-calendar",
+          "first-run/calendars",
           "Continue with Google"
         ],
         [
@@ -180,36 +185,60 @@
       ]
     },
     {
-      "id": "first-run/other-calendar",
+      "id": "first-run/calendars",
       "area": "first-run",
-      "title": "Add your other calendar",
+      "title": "What makes you busy?",
       "args": [
-        "--onboarding-calendar-preview",
-        "--onboarding-other-calendar-preview"
+        "-onboardingCompleted",
+        "NO",
+        "--onboarding-step",
+        "calendars",
+        "--onboarding-sample"
       ],
       "to": [
         [
-          "first-run/two-calendars",
-          "Add"
-        ],
-        [
-          "plan/day",
-          "Done"
+          "first-run/copies",
+          "Continue"
         ]
       ]
     },
     {
-      "id": "first-run/two-calendars",
+      "id": "first-run/copies",
       "area": "first-run",
-      "title": "Keep them in step",
+      "title": "Copy busy time?",
       "args": [
-        "--onboarding-calendar-preview",
-        "--onboarding-two-calendars-preview"
+        "-onboardingCompleted",
+        "NO",
+        "--onboarding-step",
+        "copies",
+        "--onboarding-sample"
+      ],
+      "to": [
+        [
+          "first-run/done",
+          "Create 12 Busy events"
+        ],
+        [
+          "first-run/done",
+          "Keep viewing only"
+        ]
+      ]
+    },
+    {
+      "id": "first-run/done",
+      "area": "first-run",
+      "title": "Your day is ready",
+      "args": [
+        "-onboardingCompleted",
+        "NO",
+        "--onboarding-step",
+        "done",
+        "--onboarding-sample"
       ],
       "to": [
         [
           "plan/day",
-          "Block busy time"
+          "Open my day"
         ]
       ]
     },

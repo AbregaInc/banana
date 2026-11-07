@@ -427,7 +427,8 @@ struct RootView: View {
             // `rendersContent`, not `isActive`: this lags backgrounding by a beat so iOS's
             // app-switcher snapshot catches the real screen instead of this black rectangle.
             Color.black.ignoresSafeArea()
-        } else if Self.isOnboardingPreview {
+        } else if Self.isOnboardingPreview && !onboarding.completed {
+            // A routed page shows until the first run is finished from it, then the app.
             OnboardingView()
         } else if Self.isLocalPiBuild || onboarding.completed {
             // No permission gates the app. Alarms are one feature of many, and blocking the
@@ -457,7 +458,7 @@ struct RootView: View {
     private static var isOnboardingPreview: Bool {
         #if DEBUG
         let arguments = ProcessInfo.processInfo.arguments
-        return arguments.contains("--onboarding-calendar-preview")
+        return arguments.contains("--onboarding-step")
             || arguments.contains("--writeback-setup-preview")
         #else
         return false

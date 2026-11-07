@@ -29,8 +29,9 @@ extension DS.Palette {
 typealias PrimaryCapsuleButtonStyle = AppButtonStyle
 
 extension AppButtonStyle {
-    init(fill: Color = DS.Palette.accent, label: Color = DS.Palette.onAccent, outline: Color? = nil) {
-        self.init(kind: .primary, size: .page, fill: fill, label: label, outline: outline)
+    init(fill: Color = DS.Palette.accent, label: Color = DS.Palette.onAccent, outline: Color? = nil,
+         cornerRadius: CGFloat? = nil) {
+        self.init(kind: .primary, size: .page, fill: fill, label: label, outline: outline, cornerRadius: cornerRadius)
     }
 }
 
@@ -212,6 +213,8 @@ struct ReasonCard: View {
 /// mark is unchanged, on white or near-black, with one of its own phrases.
 struct GoogleButton: View {
     var working = false
+    /// The first run's rounded rectangle; nil keeps the capsule every other page uses.
+    var cornerRadius: CGFloat? = nil
     let action: () -> Void
     @Environment(\.colorScheme) private var scheme
 
@@ -229,7 +232,8 @@ struct GoogleButton: View {
         .buttonStyle(PrimaryCapsuleButtonStyle(
             fill: scheme == .dark ? Color(red: 0.075, green: 0.075, blue: 0.078) : .white,
             label: scheme == .dark ? Color(red: 0.89, green: 0.89, blue: 0.89) : Color(red: 0.12, green: 0.12, blue: 0.12),
-            outline: scheme == .dark ? Color(red: 0.56, green: 0.57, blue: 0.56) : Color(red: 0.455, green: 0.467, blue: 0.459)))
+            outline: scheme == .dark ? Color(red: 0.56, green: 0.57, blue: 0.56) : Color(red: 0.455, green: 0.467, blue: 0.459),
+            cornerRadius: cornerRadius))
         .disabled(working)
         .accessibilityIdentifier("google.continue")
     }

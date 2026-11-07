@@ -139,6 +139,8 @@ enum DS {
             static let blue = Color(red: 0.204, green: 0.498, blue: 0.91)      // #347FE8
             static let ink = Color(red: 0.09, green: 0.09, blue: 0.075)        // #171713
             static let ivory = Color(red: 1.0, green: 0.973, blue: 0.918)      // #FFF8EA
+            /// The website's ink: deep purple-black, the first run's type and main button.
+            static let night = Color(red: 0.133, green: 0.114, blue: 0.22)     // #221D38
         }
 
         /// A label or glyph on the accent: white, as on the system's own prominent button.

@@ -29,6 +29,8 @@ struct AppButtonStyle: PrimitiveButtonStyle {
     var label: Color = DS.Palette.onAccent
     /// A hairline, for a button that is the colour of the page (Google's white one).
     var outline: Color?
+    /// A rounded rectangle of this radius instead of the capsule (the first run's buttons).
+    var cornerRadius: CGFloat? = nil
 
     @ViewBuilder func makeBody(configuration: Configuration) -> some View {
         let destructive = configuration.role == .destructive
@@ -41,7 +43,7 @@ struct AppButtonStyle: PrimitiveButtonStyle {
                 .frame(minHeight: labelHeight)
         }
         .controlSize(size == .page ? .large : size == .small ? .small : .regular)
-        .buttonBorderShape(.capsule)
+        .buttonBorderShape(cornerRadius.map { ButtonBorderShape.roundedRectangle(radius: $0) } ?? .capsule)
 
         switch kind {
         case .primary:
@@ -50,7 +52,12 @@ struct AppButtonStyle: PrimitiveButtonStyle {
                 .tint(destructive ? DS.Palette.danger : fill)
                 .foregroundStyle(destructive ? Color.white : label)
                 .fontWeight(.semibold)
-                .overlay { if let outline { Capsule().strokeBorder(outline, lineWidth: 1).allowsHitTesting(false) } }
+                .overlay {
+                    if let outline {
+                        RoundedRectangle(cornerRadius: cornerRadius ?? 1_000, style: .continuous)
+                            .strokeBorder(outline, lineWidth: 1).allowsHitTesting(false)
+                    }
+                }
         case .secondary:
             button.buttonStyle(.bordered)
         case .quiet:
