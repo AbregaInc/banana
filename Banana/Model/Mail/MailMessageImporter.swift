@@ -81,21 +81,25 @@ enum MailMessageImporter {
         return change
     }
 
-    static func facts(threadPK: Int64, in db: Database) throws -> [MessageFacts] {
-        let rows = try Row.fetchAll(db, sql: "SELECT * FROM message WHERE thread_pk=? ORDER BY internal_date,gmail_id", arguments: [threadPK])
-        let labelRows = try Row.fetchAll(db, sql: """
+    static func facts(threadPK: Int64, reuseStatements: Bool = true, in db: Database) throws -> [MessageFacts] {
+        func statement(_ sql: String) throws -> Statement {
+            try reuseStatements ? db.cachedStatement(sql: sql) : db.makeStatement(sql: sql)
+        }
+        // Fixed SQL, so the connection's statement cache stays bounded; a page rebuilds hundreds of threads.
+        let rows = try Row.fetchAll(statement("SELECT * FROM message WHERE thread_pk=? ORDER BY internal_date,gmail_id"), arguments: [threadPK])
+        let labelRows = try Row.fetchAll(statement("""
             SELECT ml.msg_pk,l.gmail_id,l.name FROM message_label ml
             JOIN message m ON m.msg_pk=ml.msg_pk JOIN label l ON l.label_pk=ml.label_pk WHERE m.thread_pk=?
-            """, arguments: [threadPK])
+            """), arguments: [threadPK])
         var labels: [Int64: Set<String>] = [:], names: [String: String] = [:]
         for row in labelRows {
             let pk: Int64 = row[0], id: String = row[1], name: String = row[2]
             labels[pk, default: []].insert(id); names[id] = name
         }
-        let overlays = try Row.fetchAll(db, sql: """
+        let overlays = try Row.fetchAll(statement("""
             SELECT o.msg_pk,l.gmail_id,l.name,o.want,o.refused FROM overlay o
             JOIN message m ON m.msg_pk=o.msg_pk JOIN label l ON l.label_pk=o.label_pk WHERE m.thread_pk=?
-            """, arguments: [threadPK])
+            """), arguments: [threadPK])
         var pending = Set<Int64>(), refused = Set<Int64>()
         for row in overlays {
             let pk: Int64 = row[0], id: String = row[1], name: String = row[2], want: Bool = row[3]
@@ -106,12 +110,13 @@ enum MailMessageImporter {
             pending.insert(pk); names[id] = name
             if wasRefused { refused.insert(pk) }
         }
+        let decoder = JSONDecoder()
         return try rows.map { row in
             let pk: Int64 = row["msg_pk"], flags = MailMessageFlags(rawValue: row["flags"])
             let json: String? = row["recipients"]
             var recipients = Recipients(to: [], cc: [], bcc: [])
             if let json {
-                guard let decoded = try? JSONDecoder().decode(Recipients.self, from: Data(json.utf8)) else { throw Failure.corruptRecipients }
+                guard let decoded = try? decoder.decode(Recipients.self, from: Data(json.utf8)) else { throw Failure.corruptRecipients }
                 recipients = decoded
             }
             let effective = labels[pk] ?? []

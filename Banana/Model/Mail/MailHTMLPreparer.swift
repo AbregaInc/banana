@@ -5,14 +5,12 @@ import SwiftSoup
 struct MailPreparedBody: Codable, Equatable, Sendable {
     var version: Int
     var text: MailText
-    /// Inert fragment retained for the designed reader. Never load original HTML into a view.
-    var safeHTML: String?
     var shownAsText: Bool
 
     var body: MailBody { .text(text, quoteStartsAt: nil, notices: shownAsText ? [.shownAsText] : []) }
 }
 
-/// Runs on the preparation worker, before opening. Uses the pinned library's parser and cleaner.
+/// Runs on the preparation worker, before opening. Uses the pinned library's parser.
 enum MailHTMLPreparer {
     static let version = 1
     static let maximumBytes = 2 * 1024 * 1024
@@ -38,20 +36,13 @@ enum MailHTMLPreparer {
                 for child in node.getChildNodes() { stack.append((child, depth + 1)) }
             }
             mark("bounds")
-            let whitelist = try Whitelist.relaxed().removeTags("img")
-                .removeProtocols("a", "href", "ftp")
-                .removeAttributes("blockquote", "cite").removeAttributes("q", "cite")
-                .removeAttributes("col", "width").removeAttributes("colgroup", "width")
-                .removeAttributes("table", "width").removeAttributes("td", "width").removeAttributes("th", "width")
-            let clean = try Cleaner(headWhitelist: nil, bodyWhitelist: whitelist).clean(source)
-            mark("clean")
-            guard let body = clean.body() else { return plainBody(plain ?? "", shownAsText: true) }
-            let safe = try body.html()
-            guard safe.utf8.count <= maximumBytes else { throw Failure.tooLarge }
-            mark("serialize")
+            // Native text reads only text nodes, the listed formatting tags and checked http/https/mailto
+            // links, so it walks the parsed tree directly. Script and style content are data nodes and are
+            // never read. The Original view prepares its own cleaned document (MailOriginalDocument).
+            guard let body = source.body() else { return plainBody(plain ?? "", shownAsText: true) }
             let native = try nativeText(body)
             mark("nativeText")
-            return MailPreparedBody(version: version, text: native, safeHTML: safe, shownAsText: true)
+            return MailPreparedBody(version: version, text: native, shownAsText: true)
         }
         guard (plain?.utf8.count ?? 0) <= maximumBytes else { throw Failure.tooLarge }
         return plainBody(plain ?? "", shownAsText: false)
@@ -60,7 +51,7 @@ enum MailHTMLPreparer {
     private static func plainBody(_ value: String, shownAsText: Bool) -> MailPreparedBody {
         MailPreparedBody(version: version, text: MailText(blocks: [MailTextBlock(kind: .preformatted,
             runs: [MailTextRun(text: value.replacingOccurrences(of: "\0", with: ""), link: nil)])]),
-            safeHTML: nil, shownAsText: shownAsText)
+            shownAsText: shownAsText)
     }
 
     private static func nativeText(_ root: Element) throws -> MailText {
