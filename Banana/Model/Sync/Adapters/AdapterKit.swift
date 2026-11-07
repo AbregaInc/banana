@@ -203,6 +203,17 @@ private extension String {
     var nilIfEmpty: String? { isEmpty ? nil : self }
 }
 
+// MARK: - Times
+
+/// Times as the space keeps them: whole milliseconds (`CanonicalJSON`). A store that weighs its own
+/// time against one that came through the space weighs them at this grain. At a finer one, its own
+/// copy, a fraction of a millisecond later than the same edit come back, beats it every time and
+/// goes up again: two devices holding that edit sent it back and forth for good.
+enum SyncStamp {
+    static func ms(_ date: Date) -> Int64 { Int64((date.timeIntervalSince1970 * 1000).rounded()) }
+    static func isLater(_ date: Date, than other: Date) -> Bool { ms(date) > ms(other) }
+}
+
 // MARK: - Common bindings
 
 /// Record ids for the keys of a former key-value dictionary.
@@ -322,5 +333,24 @@ extension SyncBinding {
         }
         if let seedClock { binding.seedClock = { $0 == id ? seedClock() : nil } }
         return binding
+    }
+
+    /// The one record of a store that is one value kept at its own time, the later standing
+    /// (Smart Schedule's settings). `ownStamp` is the store's time, nil when it has none;
+    /// `adopt` is handed every record that isn't older and applies it by the store's rule.
+    static func stamped<Value: Codable>(
+        _ type: String, id: String, shape: SyncShape = .wrapped,
+        value: @escaping @MainActor () -> Value?,
+        stamp: @escaping @MainActor (Value) -> Date,
+        ownStamp: @escaping @MainActor () -> Date?,
+        adopt: @escaping @MainActor (Value) -> Void
+    ) -> SyncBinding {
+        .single(type, id: id, shape: shape, value: value,
+                apply: { incoming, _ in
+                    if let own = ownStamp(), SyncStamp.isLater(own, than: stamp(incoming)) { return .keptOwn }
+                    adopt(incoming)
+                    return .taken
+                },
+                seedClock: ownStamp)
     }
 }

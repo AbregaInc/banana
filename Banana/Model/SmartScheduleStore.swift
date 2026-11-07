@@ -1903,12 +1903,10 @@ final class SmartScheduleStore: ObservableObject {
 
     var syncSettingsUpdatedAt: Date? { settingsUpdatedAt == .distantPast ? nil : settingsUpdatedAt }
 
-    /// Another device's settings, by the same rule as iCloud's and the peer channel's (the later
-    /// one stands). False when this device's are later.
-    func adoptSyncedSettings(_ snapshot: CloudSettingsSnapshot) -> Bool {
-        guard snapshot.updatedAt >= settingsUpdatedAt else { return false }
+    /// Another device's settings, no older than this device's (`SyncBinding.stamped` keeps this
+    /// device's when they are), by the same rule as iCloud's and the peer channel's.
+    func adoptSyncedSettings(_ snapshot: CloudSettingsSnapshot) {
         adopt(snapshot, source: "space")
-        return true
     }
 
     /// The wake plan the phone last published.
@@ -1938,8 +1936,10 @@ final class SmartScheduleStore: ObservableObject {
     /// The single adoption path for remote settings snapshots — KVS and peer channel both
     /// land here; only a newer snapshot or a safe schema enrichment is applied.
     private func adopt(_ snapshot: CloudSettingsSnapshot, source: String) {
-        let isNewer = snapshot.updatedAt > settingsUpdatedAt
-        let addsWriteBackIdentity = snapshot.updatedAt == settingsUpdatedAt
+        // At the space's grain (`SyncStamp`): the same edit, back from the space a fraction of a
+        // millisecond off, is the same edit.
+        let isNewer = SyncStamp.isLater(snapshot.updatedAt, than: settingsUpdatedAt)
+        let addsWriteBackIdentity = SyncStamp.ms(snapshot.updatedAt) == SyncStamp.ms(settingsUpdatedAt)
             && remoteWriteBackExcludedCalendars == nil
             && snapshot.writeBackExcludedCalendars != nil
         guard isNewer || addsWriteBackIdentity else { return }

@@ -30,14 +30,11 @@ enum SettingsAdapters {
                         return .taken
                     },
                     defaultValue: { ModuleChoice.everything }),
-            .single(SmartScheduleStore.syncSettingsType, id: SmartScheduleStore.syncSettingsID, shape: .wrapped,
-                    value: { [weak smart] in smart?.syncSettingsSnapshot },
-                    apply: { [weak smart] (value: SmartScheduleStore.CloudSettingsSnapshot, _) in
-                        guard let smart else { return .notYet }
-                        if smart.adoptSyncedSettings(value) { return .taken }
-                        return smart.syncSettingsSnapshot == value ? .taken : .keptOwn
-                    },
-                    seedClock: { [weak smart] in smart?.syncSettingsUpdatedAt }),
+            .stamped(SmartScheduleStore.syncSettingsType, id: SmartScheduleStore.syncSettingsID,
+                     value: { [weak smart] in smart?.syncSettingsSnapshot },
+                     stamp: { (value: SmartScheduleStore.CloudSettingsSnapshot) in value.updatedAt },
+                     ownStamp: { [weak smart] in smart?.syncSettingsUpdatedAt },
+                     adopt: { [weak smart] value in smart?.adoptSyncedSettings(value) }),
             .single(SmartScheduleStore.syncWakePlanType, id: SmartScheduleStore.syncWakePlanID, shape: .wrapped,
                     value: { [weak smart] in smart?.syncWakePlan },
                     apply: { [weak smart] (value: SmartScheduleStore.CloudWakePlanSnapshot, _) in

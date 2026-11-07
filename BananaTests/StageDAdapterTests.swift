@@ -188,6 +188,80 @@ final class FakeSettingsStore {
     }
 }
 
+/// Smart Schedule's settings as `SmartScheduleStore` keeps them for `core.smartSettings`: one value
+/// at the time it was edited, the later standing. The excluded calendars travel as Google ids (the
+/// same on every device) and as names this device works out from its own calendar list (nil when
+/// it can't name them all), as `portableSettingsSnapshotData` does. What the store does after
+/// adopting is here too: names another device sent are matched against this device's calendars
+/// the next time its list is read (`migrateCalendarExclusionsToGoogle`), and a match it didn't
+/// have is a new edit, at a new time, that goes up.
+struct FakeSmartSnapshot: Codable, Equatable {
+    var updatedAt: Date
+    var enabled: Bool
+    var excludedIDs: Set<String>
+    var excludedNames: Set<String>?
+}
+
+@MainActor
+final class FakeSmartSettings {
+    static let type = "core.smartSettings", id = "smart-settings"
+    var enabled = false
+    var excludedIDs: Set<String> = []
+    var updatedAt = Date.distantPast
+    /// This device's calendar list: id → name.
+    let calendars: [String: String]
+    /// Names another device sent, not matched here yet.
+    private var remoteNames: Set<String>?
+    /// Edits the store made on its own after adopting.
+    private(set) var ownEdits = 0
+    var engine: SpaceSync?
+    var now: () -> Date = { Date() }
+
+    init(calendars: [String: String]) { self.calendars = calendars }
+
+    func edit(enabled: Bool, excluding: Set<String>? = nil, at: Date) {
+        self.enabled = enabled
+        if let excluding { excludedIDs = excluding }
+        updatedAt = at
+    }
+
+    var snapshot: FakeSmartSnapshot {
+        let names = excludedIDs.compactMap { calendars[$0] }
+        return FakeSmartSnapshot(updatedAt: updatedAt, enabled: enabled, excludedIDs: excludedIDs,
+                                 excludedNames: names.count == excludedIDs.count ? Set(names) : nil)
+    }
+
+    /// `SmartScheduleStore.adopt`: only a later snapshot is applied.
+    func adopt(_ incoming: FakeSmartSnapshot) {
+        guard SyncStamp.isLater(incoming.updatedAt, than: updatedAt) else { return }
+        enabled = incoming.enabled
+        excludedIDs = incoming.excludedIDs
+        remoteNames = incoming.excludedNames
+        updatedAt = incoming.updatedAt
+    }
+
+    /// The calendar list was read again (`refreshCalendarColors`, `refreshCalendarAuthorization`):
+    /// names another device sent become exclusions here, additively; a change is this device's edit.
+    func calendarListRead() {
+        defer { remoteNames = nil }
+        guard let names = remoteNames else { return }
+        let matched = excludedIDs.union(calendars.filter { names.contains($0.value) }.keys)
+        guard matched != excludedIDs else { return }
+        excludedIDs = matched
+        updatedAt = now()
+        ownEdits += 1
+        engine?.changed(type: Self.type, ids: [Self.id])
+    }
+
+    func binding() -> SyncBinding {
+        .stamped(Self.type, id: Self.id,
+                 value: { [unowned self] in self.snapshot },
+                 stamp: { $0.updatedAt },
+                 ownStamp: { [unowned self] in self.updatedAt == .distantPast ? nil : self.updatedAt },
+                 adopt: { [unowned self] in self.adopt($0) })
+    }
+}
+
 // MARK: - The tests
 
 @MainActor
@@ -554,6 +628,85 @@ final class StageDAdapterTests: XCTestCase {
         await m.syncNow(reason: "test")
         await p.syncNow(reason: "test")
         XCTAssertNil(phone.value.mapsProvider)
+    }
+
+    // MARK: Smart Schedule's settings: one value at its own time
+
+    private func sentChanges(_ type: String) -> Int {
+        server.with { $0.requests.flatMap(\.changes).filter { $0.type == type }.count }
+    }
+
+    /// Two devices that differ in their calendar lists: the phone has a calendar the Mac doesn't, so
+    /// they name the excluded calendars differently.
+    private func smartPair() -> (phone: FakeSmartSettings, mac: FakeSmartSettings) {
+        (FakeSmartSettings(calendars: ["g-work": "Work", "g-holidays": "Holidays"]),
+         FakeSmartSettings(calendars: ["g-work": "Work"]))
+    }
+
+    /// A round as the devices run it: each syncs, then reads its calendar list again.
+    private func smartRound(_ first: (SpaceSync, FakeSmartSettings), _ second: (SpaceSync, FakeSmartSettings)) async {
+        for (engine, store) in [first, second] {
+            await engine.syncNow(reason: "test")
+            store.calendarListRead()
+        }
+    }
+
+    /// Both devices hold the same edit at its full time (one made it, the other had it from the
+    /// peer channel or iCloud), a fraction of a millisecond the space doesn't keep, and name its
+    /// calendars differently. Each used to take the space's copy as older than its own, keep its
+    /// own and send it: the two sent it back and forth for ever.
+    func testSmartSettingsAtTheSameTimeSettleAfterOneExchange() async throws {
+        let edited = Date(timeIntervalSince1970: 1_760_000_000.0004)   // rounds down to the millisecond
+        let (phone, mac) = smartPair()
+        phone.edit(enabled: true, excluding: ["g-work", "g-holidays"], at: edited)
+        mac.edit(enabled: true, excluding: ["g-work", "g-holidays"], at: edited)
+        XCTAssertNotEqual(phone.snapshot.excludedNames, mac.snapshot.excludedNames)
+        let (p, m) = try await phoneThenIPad([FakeSmartSettings.type], phone: [BoundAdapter("settings", [phone.binding()])],
+                                             iPad: [BoundAdapter("settings", [mac.binding()])])
+        phone.engine = p
+        mac.engine = m
+        let before = sentChanges(FakeSmartSettings.type)
+        for _ in 0..<6 { await smartRound((m, mac), (p, phone)) }
+        XCTAssertLessThanOrEqual(sentChanges(FakeSmartSettings.type) - before, 1, "settled after at most one exchange")
+        let settled = sentChanges(FakeSmartSettings.type)
+        for _ in 0..<3 { await smartRound((m, mac), (p, phone)) }
+        XCTAssertEqual(sentChanges(FakeSmartSettings.type), settled, "an unchanged record is never sent again")
+        XCTAssertEqual([phone.ownEdits, mac.ownEdits], [0, 0], "adopting made no new edit")
+        XCTAssertEqual([phone.enabled, mac.enabled], [true, true])
+        XCTAssertEqual(phone.excludedIDs, mac.excludedIDs)
+    }
+
+    /// A real change still stands everywhere, whichever device made it; adopting it and reading
+    /// the calendar list again makes no new edit, and then the record rests.
+    func testASmartSettingsChangeStandsOnBothDevicesThenRests() async throws {
+        let edited = Date(timeIntervalSince1970: 1_760_000_000.0004)
+        let (phone, mac) = smartPair()
+        phone.edit(enabled: true, excluding: ["g-work"], at: edited)
+        mac.edit(enabled: true, excluding: ["g-work"], at: edited)
+        let (p, m) = try await phoneThenIPad([FakeSmartSettings.type], phone: [BoundAdapter("settings", [phone.binding()])],
+                                             iPad: [BoundAdapter("settings", [mac.binding()])])
+        phone.engine = p
+        mac.engine = m
+        for _ in 0..<2 { await smartRound((m, mac), (p, phone)) }
+
+        mac.edit(enabled: false, at: edited.addingTimeInterval(60.0007))
+        m.changed(type: FakeSmartSettings.type, ids: [FakeSmartSettings.id])
+        // Before the phone hears of it, it sends its own older copy again.
+        p.changed(type: FakeSmartSettings.type, ids: [FakeSmartSettings.id])
+        for _ in 0..<2 { await smartRound((m, mac), (p, phone)) }
+        XCTAssertEqual([phone.enabled, mac.enabled], [false, false], "the later change stands on both")
+
+        // The phone excludes a calendar the Mac doesn't have.
+        phone.edit(enabled: true, excluding: ["g-work", "g-holidays"], at: edited.addingTimeInterval(120.0002))
+        p.changed(type: FakeSmartSettings.type, ids: [FakeSmartSettings.id])
+        for _ in 0..<2 { await smartRound((p, phone), (m, mac)) }
+        XCTAssertEqual([phone.enabled, mac.enabled], [true, true])
+        XCTAssertEqual(mac.excludedIDs, ["g-work", "g-holidays"])
+
+        let settled = sentChanges(FakeSmartSettings.type)
+        for _ in 0..<3 { await smartRound((m, mac), (p, phone)) }
+        XCTAssertEqual(sentChanges(FakeSmartSettings.type), settled, "an unchanged record is never sent again")
+        XCTAssertEqual([phone.ownEdits, mac.ownEdits], [0, 0], "adopting made no new edit")
     }
 
     func testPerKeyDictionaryEntriesFromTwoDevicesBothStand() async throws {
