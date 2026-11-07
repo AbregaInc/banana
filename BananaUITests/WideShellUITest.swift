@@ -1,8 +1,8 @@
 import XCTest
 
-/// The wide shell on an iPad (docs/design/BOTTOM-BAR-SHELL.md, Wide): the rail of pages at the
-/// left edge and one toolbar with "Search or ask", in both orientations — rotation never swaps it
-/// for the phone's bar. `TEST_RUNNER_SHELL_SHOTS=<folder>` keeps a picture of each screen.
+/// An iPad's two layouts (docs/design/BOTTOM-BAR-SHELL.md): upright, the phone's bar at the bottom
+/// with wider pages; on its side, the rail of pages and one toolbar with "Search or ask".
+/// `TEST_RUNNER_SHELL_SHOTS=<folder>` keeps a picture of each screen.
 final class WideShellUITest: XCTestCase {
     private let folder = ProcessInfo.processInfo.environment["SHELL_SHOTS"].map { URL(fileURLWithPath: $0) }
 
@@ -21,7 +21,8 @@ final class WideShellUITest: XCTestCase {
                                 "-finishSetupDismissed", "YES", "-onboardingCompleted", "YES", "--modules", "everything"] + extra
         app.withoutSpaceSync()
         app.launch()
-        XCTAssertTrue(app.descendants(matching: .any)["shell.rail"].waitForExistence(timeout: 30), app.debugDescription)
+        let rail = app.descendants(matching: .any)["shell.rail"], switcher = app.buttons["shell.switcher"]
+        XCTAssertTrue(waitUntil(timeout: 30) { rail.exists || switcher.exists }, app.debugDescription)
         return app
     }
 
@@ -31,20 +32,24 @@ final class WideShellUITest: XCTestCase {
         try? XCUIScreen.main.screenshot().pngRepresentation.write(to: folder.appendingPathComponent("\(name).png"))
     }
 
-    func testTheRailAndTheToolbarFieldInBothOrientations() throws {
+    func testTheBarUprightAndTheRailOnItsSide() throws {
         XCUIDevice.shared.orientation = .portrait
         // `--plan` loads the sample plan, so the week has its events and the weather to compare.
         let app = try launch(["--tab", "plan", "--plan", "-planMode", "week"])
-        XCTAssertFalse(app.buttons["shell.switcher"].exists, "no bottom bar on a wide screen")
-        XCTAssertTrue(app.buttons["shell.page.plan"].isSelected)
-        XCTAssertTrue(app.textFields["shell.field"].waitForExistence(timeout: 10), "the field is in the toolbar")
+        // Upright: the phone's layout, with the plan's title row at the top and the bar below.
+        XCTAssertTrue(app.buttons["shell.switcher"].waitForExistence(timeout: 10), "the bar at the bottom upright")
+        XCTAssertFalse(app.descendants(matching: .any)["shell.rail"].exists, "no rail upright")
+        let title = app.descendants(matching: .any)["plan.title"].firstMatch
+        XCTAssertTrue(title.waitForExistence(timeout: 10))
+        XCTAssertGreaterThan(app.textFields["shell.field"].frame.midY, app.windows.firstMatch.frame.height * 0.8)
         shot("pad-portrait-plan")
 
         XCUIDevice.shared.orientation = .landscapeLeft
         XCTAssertTrue(waitUntil(timeout: 5) { app.windows.firstMatch.frame.width > app.windows.firstMatch.frame.height })
         XCTAssertTrue(app.descendants(matching: .any)["shell.rail"].waitForExistence(timeout: 5),
-                      "turning the iPad keeps the rail")
-        XCTAssertFalse(app.buttons["shell.switcher"].exists)
+                      "on its side the rail")
+        XCTAssertTrue(waitUntil(timeout: 5) { !app.buttons["shell.switcher"].exists })
+        XCTAssertTrue(app.buttons["shell.page.plan"].isSelected)
         // And no sidebar comes back with the turn (it lists Routines, which the rail doesn't).
         XCTAssertTrue(waitUntil(timeout: 3) { !app.staticTexts["Routines"].firstMatch.exists },
                       "the sidebar came back on turning")
@@ -88,7 +93,14 @@ final class WideShellUITest: XCTestCase {
         XCTAssertFalse(app.descendants(matching: .any)["mail.details"].exists, "no details column until asked")
         shot("pad-land-mail")
         XCUIDevice.shared.orientation = .portrait
-        XCTAssertTrue(app.descendants(matching: .any)["shell.rail"].waitForExistence(timeout: 5))
+        // Upright: the bar, one top row over the list and the reader, and the subject with one "…".
+        XCTAssertTrue(app.buttons["shell.switcher"].waitForExistence(timeout: 8), app.debugDescription)
+        XCTAssertFalse(app.descendants(matching: .any)["shell.rail"].exists)
+        XCTAssertTrue(app.descendants(matching: .any)["mail.list.placeMenu"].firstMatch.exists)
+        XCTAssertTrue(app.descendants(matching: .any)["mail.pane"].firstMatch.exists, "list and reader side by side")
+        XCTAssertFalse(app.buttons["mail.done"].exists && app.buttons["mail.done"].isHittable,
+                       "the reader's row of icons is under its \u{2026}")
+        XCTAssertFalse(app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH 'Sample mail'")).firstMatch.exists)
         shot("pad-portrait-mail")
     }
 }

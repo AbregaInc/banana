@@ -104,8 +104,8 @@ final class ControlRulesWalkUITest: XCTestCase {
         continueAfterFailure = false
         let app = launch(tab: "plan", fixedPlanMode: false)
         let pad = UIDevice.current.userInterfaceIdiom == .pad
-        // Day and Week under the title (the phone's "Today ⌄"; the iPad's "Day ⌄").
-        let title = element(app, pad ? "plan.mode" : "plan.title")
+        // Day and Week under the title ("Today ⌄"; an iPad upright has the phone's layout).
+        let title = element(app, "plan.title")
         XCTAssertTrue(title.waitForExistence(timeout: 15), app.debugDescription)
         let more = app.buttons.matching(NSPredicate(format: "label == 'More'")).firstMatch
         XCTAssertEqual(title.frame.midY, more.frame.midY, accuracy: 12, "the title isn't in the top row")
@@ -113,14 +113,15 @@ final class ControlRulesWalkUITest: XCTestCase {
         title.tap()
         app.buttons["Week"].firstMatch.tap()
         XCTAssertTrue(element(app, "plan.surface.week").waitForExistence(timeout: 8))
-        element(app, pad ? "plan.mode" : "plan.title").tap()
+        element(app, "plan.title").tap()
         app.buttons["Day"].firstMatch.tap()
         XCTAssertTrue(element(app, "plan.surface.day").waitForExistence(timeout: 8))
         keep("plan-title-row")
         if pad {
+            // On its side: the rail, and Day or Week as the toolbar's "Week ⌄".
             XCUIDevice.shared.orientation = .landscapeLeft
             XCTAssertTrue(element(app, "plan.mode").waitForExistence(timeout: 8))
-            XCTAssertTrue(element(app, "shell.rail").exists, "turning keeps the rail")
+            XCTAssertTrue(element(app, "shell.rail").exists, "on its side the rail")
             keep("plan-landscape-toolbar")
             XCUIDevice.shared.orientation = .portrait
         }
@@ -198,6 +199,9 @@ final class ControlRulesWalkUITest: XCTestCase {
 
     func testTheWidePagesFollowTheSameRules() throws {
         guard UIDevice.current.userInterfaceIdiom == .pad else { throw XCTSkip("the iPad's pages") }
+        // The rail and one toolbar are an iPad's on its side; upright it has the phone's bar.
+        XCUIDevice.shared.orientation = .landscapeLeft
+        defer { XCUIDevice.shared.orientation = .portrait }
         for tab in ["plan", "workouts", "nutrition", "notes", "library", "routines"] {
             let app = launch(tab: tab)
             XCTAssertTrue(element(app, "shell.rail").waitForExistence(timeout: 15), "\(tab) has no rail")

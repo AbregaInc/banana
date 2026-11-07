@@ -17,9 +17,8 @@ final class AdaptiveShellUITest: XCTestCase {
 
     func testTheRailOrSwitcherShowsTheRightPages() throws {
         let app = launch()
-        if UIDevice.current.userInterfaceIdiom != .pad {
-            app.buttons["shell.switcher"].tap()
-        }
+        // The bar's switcher (a phone, an iPad upright) or the rail (an iPad on its side).
+        if app.buttons["shell.switcher"].exists { app.buttons["shell.switcher"].tap() }
         for page in ["plan", "body", "notes", "library", "review", "settings"] {
             XCTAssertTrue(app.buttons["shell.page.\(page)"].waitForExistence(timeout: 5), "\(page) missing")
         }

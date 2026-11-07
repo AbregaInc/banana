@@ -63,6 +63,20 @@ enum ShellPage: String, CaseIterable, Identifiable, Sendable {
     var opensOver: Bool { self == .review || self == .settings }
 }
 
+/// Which navigation layer the shell has, by its width alone: the bar at the bottom wherever the
+/// room is portrait-like (a phone either way, an iPad upright, any split or Slide Over), the rail
+/// and one toolbar only where a landscape iPad's room is (the Mac's window always has the rail).
+/// The approved images: an iPad upright is the phone's layout with wider pages.
+enum ShellLayout: Equatable, Sendable {
+    case bottomBar, rail
+
+    /// Narrower than any iPad on its side (an iPad mini's is 1133 pt), wider than any upright
+    /// iPad (a 13-inch is 1032 pt) and any phone on its side.
+    static let railWidth: Double = 1_100
+
+    static func of(width: Double) -> Self { width >= railWidth ? .rail : .bottomBar }
+}
+
 /// What the "Search or ask" field has under it.
 enum ShellFieldMode: Equatable, Sendable {
     /// Nothing: the page.

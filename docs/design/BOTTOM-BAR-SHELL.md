@@ -9,11 +9,17 @@ dismissable". The same evening: "ipad rail plus top bar B and Mac also same. sam
 
 ## Where it applies
 
-By width (`LayoutClass`, measured at the root of the shell), never by device:
+By width (`ShellLayout`, measured at the root of the shell), never by device:
 
-- **Compact** (an iPhone; an iPad narrowed into a split): the bottom-bar shell.
-- **Regular** (an iPad in either orientation, the Mac): the rail and one top toolbar (*Wide*,
-  below). Rotation does not swap shells: an iPad upright is regular too.
+- **Under 1,100 pt** (a phone either way up, an iPad upright, any split or Slide Over): the
+  bottom-bar shell. An iPad upright is the phone's layout with wider pages: Plan shows its week,
+  Mail its list and reader side by side under one top row ("Inbox ⌄ 40" … "•••"), and the reader
+  has the subject with one "•••" in place of the row of icons (approved images, 7 Nov 2026).
+- **1,100 pt and up** (an iPad on its side) and the Mac's window: the rail and one top toolbar
+  (*Wide*, below).
+
+In the shells Mail has no sample-mail strip and no rule under its top rows; the standalone
+`--mail` page keeps both.
 
 The standalone screenshot and test routes (`--plan`, `--wellness`, `--mail`, …) draw a page
 without the shell and keep its own controls; `--ui-preview` draws the shell.
@@ -60,7 +66,7 @@ switcher and sparkle step aside while the field is in use so it is as wide as th
 ## Wide: the rail and one toolbar (iPad, Mac)
 
 Approved the same evening as direction B ("ipad rail plus top bar B and Mac also same. same for
-mail"). No bottom bar on a wide screen.
+mail"), and narrowed on 7 Nov to an iPad on its side and the Mac. No bottom bar there.
 
 | Before | Now |
 |---|---|
@@ -72,7 +78,7 @@ mail"). No bottom bar on a wide screen.
 | **Plan** (iPad) Day · Week switch | Back, forward and Today at the left, then "Day ⌄"/"Week ⌄"; the field in the middle; the sparkle and "…" (booking share, refresh, briefing, availability, setup, Routines). The date line row stays under the toolbar, with the weather |
 | **Plan** (Mac) toolbar: back/forward/Today, a second back/Today/forward group, Day · 3 · 5 · Week switch, magnifier, weather, share, availability, + | Back, forward and Today; "Week ⌄" (Day, 3 days, 5 days, Week) with the weather beside it; the field; the sparkle; "…" with Share booking link, Share availability and Refresh. ⇧⌘L (copy the booking link), S (availability), C (new event) and D, 2–7, W (spans) are unchanged |
 | **Body** switch (Workouts · Food) | "Workouts ⌄" title menu |
-| **Mail** (iPad): search row, accounts row, the place's name over the list | One row: "Inbox ⌄" (places, accounts), the field, the sparkle, "…" (reply, reply to all, forward, archive, star, unread, new message). Swipes and keys unchanged |
+| **Mail** (iPad on its side): search row, accounts row, the column of places, the place's name over the list | One row: "Inbox ⌄" (places, accounts), the field, the sparkle, "…" (reply, reply to all, forward, archive, star, unread, new message); then the list and the reader, with the details closed until `]`. Swipes and keys unchanged |
 | **Mail** (Mac) | "Inbox ⌄" and "…" in the window toolbar, beside the window's field and sparkle |
 
 What the field finds hangs under the toolbar's middle (`ShellWideResults`), a solid panel; a

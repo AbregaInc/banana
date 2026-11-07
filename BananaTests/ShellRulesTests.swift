@@ -68,4 +68,13 @@ final class ShellRulesTests: XCTestCase {
         XCTAssertEqual(groups.nonEmpty, [.plan, .notes])
         XCTAssertEqual(groups.items(.plan).map(\.id), ["p"])
     }
+
+    func testTheRailIsForALandscapeIPadsRoomAndEverythingNarrowerHasTheBar() {
+        XCTAssertEqual(ShellLayout.of(width: 402), .bottomBar, "a phone")
+        XCTAssertEqual(ShellLayout.of(width: 956), .bottomBar, "a phone on its side")
+        XCTAssertEqual(ShellLayout.of(width: 744), .bottomBar, "an iPad mini upright")
+        XCTAssertEqual(ShellLayout.of(width: 1_032), .bottomBar, "a 13-inch iPad upright")
+        XCTAssertEqual(ShellLayout.of(width: 1_133), .rail, "an iPad mini on its side")
+        XCTAssertEqual(ShellLayout.of(width: 1_376), .rail, "a 13-inch iPad on its side")
+    }
 }

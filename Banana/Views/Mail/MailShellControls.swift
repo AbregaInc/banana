@@ -68,6 +68,41 @@ struct MailActionsMenu: View {
 }
 
 #if os(iOS)
+/// An upright iPad's one top row for Mail, over the list and the reader: the place and its count,
+/// and "…" (the field and the assistant are on the bar at the bottom).
+struct MailShellTopRow: View {
+    let session: MailSession
+
+    var body: some View {
+        HStack(spacing: DS.Space.s) {
+            MailPlaceTitleMenu(session: session)
+            MailFeedCount(feed: session.feed)
+            Spacer(minLength: DS.Space.m)
+            MailActionsMenu(session: session)
+                .font(.title3)
+                .frame(width: 44, height: 44)
+        }
+        .padding(.leading, DS.Space.m)
+        .padding(.trailing, DS.Space.xs)
+        .frame(minHeight: 52)
+        .glassEffect(.regular, in: .capsule)
+        .padding(.horizontal, DS.Space.l)
+        .padding(.vertical, DS.Space.xs)
+    }
+}
+
+/// How many the place holds, beside its name; it watches the feed and nothing else.
+private struct MailFeedCount: View {
+    @ObservedObject var feed: MailListFeed
+
+    var body: some View {
+        if feed.shown.hasDelivered {
+            Text(MailToastText.number(feed.shown.total.value) + (feed.shown.total.isAtLeast ? "+" : ""))
+                .font(.title3).monospacedDigit().foregroundStyle(.secondary)
+        }
+    }
+}
+
 /// The wide shell's toolbar for Mail on an iPad, which draws its own: the place's title menu,
 /// "Search or ask", the assistant and "…".
 struct MailWideTopRow: View {

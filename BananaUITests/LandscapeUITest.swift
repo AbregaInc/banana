@@ -28,13 +28,17 @@ final class LandscapeUITest: XCTestCase {
         app.launch()
         XCTAssertTrue(app.buttons["shell.switcher"].waitForExistence(timeout: 15), app.debugDescription)
 
-        // On its side a phone is as wide as a small iPad: the rail and one toolbar, by width
-        // (docs/design/BOTTOM-BAR-SHELL.md), never a bedside clock.
+        // On its side a phone keeps the bar (the rail is a landscape iPad's room,
+        // docs/design/BOTTOM-BAR-SHELL.md), never a bedside clock.
         XCUIDevice.shared.orientation = .landscapeLeft
-        XCTAssertTrue(app.descendants(matching: .any)["shell.rail"].waitForExistence(timeout: 8), app.debugDescription)
+        XCTAssertTrue(waitUntil(timeout: 8) { app.windows.firstMatch.frame.width > app.windows.firstMatch.frame.height })
+        XCTAssertTrue(app.buttons["shell.switcher"].waitForExistence(timeout: 8), app.debugDescription)
+        XCTAssertFalse(app.descendants(matching: .any)["shell.rail"].exists)
         for page in ["plan", "body", "notes", "library"] {
             app.openPage(page)
+            app.buttons["shell.switcher"].tap()
             XCTAssertTrue(waitUntil(timeout: 5) { app.buttons["shell.page.\(page)"].isSelected }, "\(page) didn't open on its side")
+            app.buttons["shell.switcher"].tap()
             keep(app, "landscape-\(page)")
         }
         app.openPage("plan")

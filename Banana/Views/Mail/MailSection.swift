@@ -111,7 +111,9 @@ private struct MailConnectionBar: View {
     @Environment(\.wideShell) private var wideShell
     private var bottomBarShell: Bool { bottomBarShellOnly || wideShell }
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        // In the shells it takes no room of its own: each notice brings its own margin, and with
+        // nothing to say there is nothing here at all (no padding, no gap).
+        VStack(alignment: .leading, spacing: bottomBarShell ? 0 : 8) {
             if !bottomBarShell {
                 HStack {
                     Spacer()
@@ -124,11 +126,14 @@ private struct MailConnectionBar: View {
                     .accessibilityIdentifier("mail.accounts")
                 }
             }
-            MailRefusalNotice(source: source, status: source.status)
-            MailRemovalNotice(source: source, status: source.status)
-            MailDraftNotice(session: session, status: source.status)
-            if actions.busy { ProgressView() }
-            if actions.failed { Text("Mail access wasn’t granted. Try Allow Mail again.").font(.caption) }
+            Group {
+                MailRefusalNotice(source: source, status: source.status)
+                MailRemovalNotice(source: source, status: source.status)
+                MailDraftNotice(session: session, status: source.status)
+                if actions.busy { ProgressView() }
+                if actions.failed { Text("Mail access wasn’t granted. Try Allow Mail again.").font(.caption) }
+            }
+            .padding(.vertical, bottomBarShell ? DS.Space.xs : 0)
         }
         .padding(.horizontal).padding(.vertical, bottomBarShell ? 0 : 8)
         .onAppear { observation = source.observeAccounts { accounts = $0 } }
@@ -343,10 +348,18 @@ private struct MailColumns: View {
     let session: MailSession
     let arrangement: MailArrangement
     let scope: MailScope
+    @Environment(\.bottomBarShell) private var bottomBarShell
+    @Environment(\.wideShell) private var wideShell
 
     var body: some View {
         VStack(spacing: 0) {
-            if session.isSample { MailSampleNote(); MailDivider(axis: .horizontal) }
+            // The approved shells go straight from the status bar to "Inbox ⌄": the sample note is
+            // the standalone page's.
+            if session.isSample && !bottomBarShell && !wideShell { MailSampleNote(); MailDivider(axis: .horizontal) }
+            // An upright iPad: one top row over the list and the reader, as the approved image has.
+            #if os(iOS)
+            if bottomBarShell && arrangement.showsPane { MailShellTopRow(session: session) }
+            #endif
             HStack(spacing: 0) {
                 if arrangement.showsControl {
                     MailControlColumn(session: session, places: session.places, navigation: session.navigation)

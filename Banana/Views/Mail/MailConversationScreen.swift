@@ -9,11 +9,14 @@ struct MailConversationScreen: View {
     @ObservedObject var reader: MailReaderModel
     /// A reply is written under the last message; false at a phone's width, where it is a sheet.
     let inlineComposer: Bool
+    @Environment(\.bottomBarShell) private var bottomBarShell
+    @Environment(\.wideShell) private var wideShell
 
     var body: some View {
         VStack(spacing: 0) {
             MailConversationHeader(session: session)
-            MailDivider(axis: .horizontal)
+            // The shells' top row floats on glass with no rule under it (the approved images).
+            if !bottomBarShell && !wideShell { MailDivider(axis: .horizontal) }
             MailConversationContent(session: session, reader: reader, inlineComposer: inlineComposer)
         }
         // A container of its own, so that its identifier is its own: set on a bare stack it is
@@ -32,12 +35,15 @@ struct MailConversationContent: View {
     let session: MailSession
     @ObservedObject var reader: MailReaderModel
     let inlineComposer: Bool
+    /// "…" beside the subject, in place of the pane's row of icons (an upright iPad's reader).
+    var titleMenu = false
     @State private var position: ScrollPosition
 
-    init(session: MailSession, reader: MailReaderModel, inlineComposer: Bool) {
+    init(session: MailSession, reader: MailReaderModel, inlineComposer: Bool, titleMenu: Bool = false) {
         self.session = session
         self.reader = reader
         self.inlineComposer = inlineComposer
+        self.titleMenu = titleMenu
         _position = State(initialValue: ScrollPosition(y: reader.scrollOffset))
     }
 
@@ -47,10 +53,16 @@ struct MailConversationContent: View {
                 if reader.conversation != nil {
                     VStack(alignment: .leading, spacing: DS.Space.m) {
                         LazyVStack(alignment: .leading, spacing: DS.Space.m) {
-                            Text(reader.title)
-                                .font(.title3.weight(.semibold))
-                                .padding(.bottom, DS.Space.xs)
-                                .accessibilityIdentifier(MailID.conversationTitle)
+                            HStack(alignment: .firstTextBaseline, spacing: DS.Space.s) {
+                                Text(reader.title)
+                                    .font(.title3.weight(.semibold))
+                                    .accessibilityIdentifier(MailID.conversationTitle)
+                                if titleMenu {
+                                    Spacer(minLength: DS.Space.s)
+                                    MailPaneMoreMenu(session: session)
+                                }
+                            }
+                            .padding(.bottom, DS.Space.xs)
                             ForEach(reader.messages) { message in
                                 MailMessageCard(message: message, text: reader.bodies[message.id], opener: reader.opener,
                                                 load: { reader.fetchBody(message.id) })

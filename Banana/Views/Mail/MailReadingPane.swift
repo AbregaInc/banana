@@ -9,11 +9,17 @@ struct MailReadingPane: View {
     @ObservedObject var pane: MailPaneModel
     @ObservedObject var navigation: MailNavigation
     let arrangement: MailArrangement
+    /// An upright iPad: the subject and one "…" (`MailPaneMoreMenu`), not the row of icons.
+    @Environment(\.bottomBarShell) private var bottomBarShell
+    @Environment(\.wideShell) private var wideShell
 
     var body: some View {
         VStack(spacing: 0) {
-            MailPaneHeader(session: session, arrangement: arrangement, hasConversation: pane.reader != nil)
-            MailDivider(axis: .horizontal)
+            if !bottomBarShell {
+                MailPaneHeader(session: session, arrangement: arrangement, hasConversation: pane.reader != nil)
+                // No rule under it in the shells: the approved images have none.
+                if !wideShell { MailDivider(axis: .horizontal) }
+            }
             if let composer = navigation.composer, composer.host == nil {
                 // A new message is written here, alone, with the list beside it.
                 ScrollView {
@@ -27,7 +33,8 @@ struct MailReadingPane: View {
                 // A reply is written in the pane — unless a conversation is open full width over
                 // it, which then holds the one composer: two editors on one draft, one of them
                 // covered, were found doubling the work and taking the caret.
-                MailConversationContent(session: session, reader: reader, inlineComposer: navigation.reader == nil)
+                MailConversationContent(session: session, reader: reader, inlineComposer: navigation.reader == nil,
+                                        titleMenu: bottomBarShell)
                     .id(reader.id)
             } else {
                 MailPaneEmpty()
@@ -90,6 +97,58 @@ private struct MailPaneHeader: View {
         .accessibilityLabel(label)
         .accessibilityIdentifier(identifier)
         .help(label)
+    }
+}
+
+/// The reader's "…" beside the subject, on an upright iPad: what the pane's icons do (the keys do
+/// the same), with the details column's toggle where there is room for it.
+struct MailPaneMoreMenu: View {
+    let session: MailSession
+    @ObservedObject private var navigation: MailNavigation
+
+    init(session: MailSession) {
+        self.session = session
+        _navigation = ObservedObject(wrappedValue: session.navigation)
+    }
+
+    var body: some View {
+        Menu {
+            Section {
+                Button { session.reply(.reply) } label: { Label("Reply", systemImage: "arrowshape.turn.up.left") }
+                Button { session.reply(.replyAll) } label: { Label("Reply to all", systemImage: "arrowshape.turn.up.left.2") }
+                Button { session.reply(.forward) } label: { Label("Forward", systemImage: "arrowshape.turn.up.right") }
+            }
+            .disabled(!session.allowsComposing)
+            Section {
+                Button { session.act(.done) } label: { Label("Archive", systemImage: "checkmark") }
+                    .disabled(!session.canPerform(.done))
+                    .accessibilityIdentifier(MailID.done)
+                Button { session.act(.toggleStar) } label: { Label("Star", systemImage: "star") }
+                    .disabled(!session.canPerform(.toggleStar))
+                    .accessibilityIdentifier(MailID.star)
+                Button { session.act(.toggleRead) } label: { Label("Mark unread", systemImage: "envelope.badge") }
+                    .disabled(!session.canPerform(.toggleRead))
+                    .accessibilityIdentifier(MailID.unread)
+            }
+            Section {
+                Button {
+                    if let id = session.model.cursor { session.open(id) }
+                } label: { Label("Open full width", systemImage: "arrow.up.left.and.arrow.down.right") }
+                    .accessibilityIdentifier(MailID.expand)
+                Button { session.toggleDetails() } label: {
+                    Label(navigation.showsDetails ? "Hide details" : "Show details", systemImage: "info.circle")
+                }
+                .accessibilityIdentifier(MailID.toggleDetails)
+            }
+        } label: {
+            Image(systemName: "ellipsis")
+                .font(.body.weight(.semibold))
+                .frame(width: DS.Row.minHeight, height: DS.Row.minHeight)
+                .contentShape(Rectangle())
+        }
+        .menuIndicator(.hidden)
+        .accessibilityLabel("More")
+        .accessibilityIdentifier("mail.pane.more")
     }
 }
 

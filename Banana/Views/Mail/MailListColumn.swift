@@ -47,6 +47,11 @@ private struct MailListHeader: View {
     @Environment(\.wideShell) private var wideShell
 
     var body: some View {
+        // An upright iPad's top row (`MailShellTopRow`) names the place over both columns.
+        if !(bottomBarShell && arrangement.showsPane) { header }
+    }
+
+    private var header: some View {
         HStack(alignment: .firstTextBaseline, spacing: DS.Space.s) {
             if !wideShell { title }
             if bottomBarShell, case .search = scope.place {

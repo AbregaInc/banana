@@ -515,7 +515,7 @@ struct MoreMenu<Items: View>: View {
             items
             #if os(iOS)
             Divider()
-            if tabBarShell || wideShell {
+            if tabBarShell || wideShell || bottomBarShell {
                 Button { PageChrome.shared.showRoutines = true } label: {
                     Label("Routines", systemImage: "repeat")
                 }

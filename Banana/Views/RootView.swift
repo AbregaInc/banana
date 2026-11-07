@@ -510,13 +510,14 @@ struct RootView: View {
         horizontalSizeClass == .regular && DeviceRole.current != .phone
     }
 
-    /// The room the whole shell has, measured (`LayoutClass`); nil until the first layout.
-    @State private var rootLayout: LayoutClass?
+    /// Which navigation layer the shell's width calls for (`ShellLayout`); nil until measured.
+    @State private var rootShell: ShellLayout?
 
-    /// The bottom-bar shell (docs/design/BOTTOM-BAR-SHELL.md): wherever the shell is compact — an
-    /// iPhone, an iPad narrowed into a split. Decided by width, never by device.
+    /// The bottom-bar shell (docs/design/BOTTOM-BAR-SHELL.md): a phone either way up, an iPad
+    /// upright, any split or Slide Over. The rail only where a landscape iPad's room is. Decided
+    /// by width, never by device.
     private var bottomBarShell: Bool {
-        (rootLayout ?? (horizontalSizeClass == .regular ? .regular : .compact)) == .compact
+        (rootShell ?? ShellLayout.of(width: Double(UIScreen.main.bounds.width))) == .bottomBar
     }
 
     /// The tab bar or sidebar with its bottom accessory: no width has it now (the bar at the
@@ -609,8 +610,8 @@ struct RootView: View {
     /// clears the tab bar and the now-playing accessory, so the toast sits just above them.
     @ViewBuilder private var mainTabs: some View {
         // The fixed app is home in every build; the agent is a way in (the +) and out (Review),
-        // not a screen of its own. Where there is room, the rail of pages at the left edge
-        // (docs/design/BOTTOM-BAR-SHELL.md, Wide); where there isn't, the bar at the bottom.
+        // not a screen of its own. Where a landscape iPad's room is, the rail of pages at the left
+        // edge (docs/design/BOTTOM-BAR-SHELL.md, Wide); anywhere narrower, the bar at the bottom.
         HStack(spacing: 0) {
             if !bottomBarShell {
                 ShellRail(pages: shellPages, current: currentShellPage, open: openShellPage)
@@ -619,8 +620,8 @@ struct RootView: View {
         }
         // The whole shell's width, rail included: measured inside it, the rail's own width would
         // flip the class back and forth at the line.
-        .onGeometryChange(for: LayoutClass.self) { LayoutClass(width: $0.size.width) } action: { layout in
-            if rootLayout != layout { rootLayout = layout }
+        .onGeometryChange(for: ShellLayout.self) { ShellLayout.of(width: Double($0.size.width)) } action: { layout in
+            if rootShell != layout { rootShell = layout }
         }
     }
 
