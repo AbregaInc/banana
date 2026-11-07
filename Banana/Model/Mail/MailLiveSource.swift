@@ -58,6 +58,9 @@ import GRDB
     private lazy var searchIndexer = MailSearchIndexer(stores: stores) { [writer] messages in
         _ = try await writer.transact { try MailSearchIndexer.mark(messages, in: $0) }
     }
+    private lazy var inlinePictures = MailInlinePictures(stores: stores, api: api) { [access] account in
+        try await access.mailAccessToken(accountID: account).value
+    }
     private enum Download: Hashable {
         case thread(MailConversationID), body(MailMessageID)
         var account: String {
@@ -241,6 +244,12 @@ import GRDB
     }
     func originalHTML(_ id: MailMessageID) async throws -> String? {
         try await MailOriginalDocument.load(stores: stores, id: id)
+    }
+    /// A picture that is a part of the message (`cid:`), from the stored parts. Nothing else is a resource here:
+    /// remote pictures are `MailImageSource`'s.
+    func resource(_ url: URL, for message: MailMessageID, presentation: MailPresentation) async -> MailResource? {
+        guard presentation == .onScreen, url.scheme?.lowercased() == "cid" else { return nil }
+        return await inlinePictures.resource(contentID: String(url.absoluteString.dropFirst(4)), message: message)
     }
     func body(_ id: MailMessageID) async -> MailBody {
         do { return try await MailBlobStore(stores: stores).prepared(account: id.account, messageID: id.message)?.body ?? .notOnDevice }

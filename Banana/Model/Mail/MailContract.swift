@@ -155,9 +155,30 @@ struct MailTextBlock: Equatable, Codable, Sendable {
         case heading(level: Int)
         case preformatted
         case rule
+        /// Boilerplate a sender puts under its message: unsubscribe lines, postal address, legal text.
+        case fineprint
+        /// A picture of the message's own content, in reading order. Its `runs` are empty.
+        case picture(MailPicture)
     }
     var kind: Kind
     var runs: [MailTextRun]
+}
+
+/// A content picture: where it comes from, the size its sender declared (so the layout does not jump
+/// when it arrives), what it says in words, and where tapping it goes.
+struct MailPicture: Equatable, Codable, Hashable, Sendable {
+    enum Source: Equatable, Codable, Hashable, Sendable {
+        /// An `http` or `https` address. Loaded only through `MailImageSource`.
+        case remote(URL)
+        /// A part of the message itself (`Content-ID`, without the angle brackets).
+        case cid(String)
+    }
+    var source: Source
+    var width: Int? = nil
+    var height: Int? = nil
+    var alt: String = ""
+    /// `http`, `https` or `mailto` only.
+    var link: URL? = nil
 }
 
 struct MailTextRun: Equatable, Codable, Sendable {
