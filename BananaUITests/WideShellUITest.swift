@@ -44,6 +44,9 @@ final class WideShellUITest: XCTestCase {
         XCTAssertTrue(app.descendants(matching: .any)["shell.rail"].waitForExistence(timeout: 5),
                       "turning the iPad keeps the rail")
         XCTAssertFalse(app.buttons["shell.switcher"].exists)
+        // And no sidebar comes back with the turn (it lists Routines, which the rail doesn't).
+        XCTAssertTrue(waitUntil(timeout: 3) { !app.staticTexts["Routines"].firstMatch.exists },
+                      "the sidebar came back on turning")
         shot("pad-land-plan")
 
         // Typing in the toolbar's field hangs what it finds under it.

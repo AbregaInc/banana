@@ -551,6 +551,15 @@ private struct TabBarHider: UIViewControllerRepresentable {
             super.viewWillAppear(animated)
             hide()
         }
+        // Turning an iPad brings the sidebar back: hidden again as the turn ends.
+        override func viewWillTransition(to size: CGSize, with coordinator: any UIViewControllerTransitionCoordinator) {
+            super.viewWillTransition(to: size, with: coordinator)
+            coordinator.animate(alongsideTransition: { _ in self.hide() }, completion: { _ in self.hide() })
+        }
+        override func traitCollectionDidChange(_ previous: UITraitCollection?) {
+            super.traitCollectionDidChange(previous)
+            hide()
+        }
         func hide() {
             guard let tabs = tabBarController else { return }
             if !tabs.isTabBarHidden { tabs.setTabBarHidden(true, animated: false) }
