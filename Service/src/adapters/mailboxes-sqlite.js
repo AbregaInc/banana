@@ -58,7 +58,7 @@ export function mailboxesSqlite(dir, { deps, blobs, timers = true }) {
   const call = (sub, name) => async (...args) => (await get(sub)).mailbox[name](...args);
   return {
     get(sub) {
-      return Object.fromEntries(["ensure", "feed", "check", "noteAction", "poke", "profile", "content", "lost", "status", "wipe", "arm"]
+      return Object.fromEntries(["ensure", "feed", "check", "noteAction", "noteLabel", "poke", "profile", "content", "lost", "status", "wipe", "arm"]
         .map((name) => [name, call(sub, name)]));
     },
     /** Runs every alarm that is due now, until none is (tests; `limit` bounds a runaway). */

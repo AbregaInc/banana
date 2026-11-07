@@ -129,6 +129,7 @@ struct MailPaneMoreMenu: View {
                 Button { session.act(.toggleRead) } label: { Label("Mark unread", systemImage: "envelope.badge") }
                     .disabled(!session.canPerform(.toggleRead))
                     .accessibilityIdentifier(MailID.unread)
+                MailSnoozeMenu(session: session)
             }
             Section {
                 Button {

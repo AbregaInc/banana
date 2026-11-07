@@ -31,6 +31,12 @@ enum CloudMailRequest {
             }
             request["resource"] = resource
             request["query"] = query.map { ["name": $0.name, "value": $0.value ?? ""] }
+        } else if method == "POST", path == ["labels"], query.isEmpty {
+            // Banana's own hidden labels only (the service refuses any other name); the service
+            // returns the label that already has the name, or makes it.
+            guard let body, let label = try JSONSerialization.jsonObject(with: body) as? [String: Any],
+                  let name = label["name"] as? String, name.hasPrefix("Banana/") else { throw GmailError.refused(.invalidArgument) }
+            request["action"] = "createLabel"; request["name"] = name
         } else {
             guard method == "POST", path.count == 3, path[0] == "messages",
                   ["modify", "trash", "untrash"].contains(path[2]), query.isEmpty else { throw GmailError.refused(.invalidArgument) }

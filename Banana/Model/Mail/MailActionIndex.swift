@@ -48,8 +48,12 @@ enum MailActionIndex {
             let value = stored.assertion
             // A deleted/rebuilding cache may not yet contain this durable message.
             guard let (message, owner) = found[value.messageID] else { continue }
-            let kind = SystemLabel(rawValue: value.labelRef) == nil ? 1 : 0
-            try db.execute(sql: "INSERT OR IGNORE INTO label(account_pk,gmail_id,name,kind) VALUES(?,?,?,?)", arguments: [owner, value.labelRef, value.labelRef, kind])
+            // A label named, not yet created (6.5 step 2): a row of its own until delivery has its id,
+            // under its real name, so Banana's own labels read as themselves at once (section 8).
+            let named = value.labelRef.hasPrefix(BananaLabelRules.namePrefix)
+            let name = named ? String(value.labelRef.dropFirst(BananaLabelRules.namePrefix.count)) : value.labelRef
+            let kind = named && name.hasPrefix(BananaLabelRules.prefix) ? 2 : SystemLabel(rawValue: value.labelRef) == nil ? 1 : 0
+            try db.execute(sql: "INSERT OR IGNORE INTO label(account_pk,gmail_id,name,kind) VALUES(?,?,?,?)", arguments: [owner, value.labelRef, name, kind])
             labelsChanged = labelsChanged || db.changesCount > 0
             try db.execute(sql: """
                 INSERT INTO overlay(msg_pk,label_pk,want,derived,refused)
@@ -63,6 +67,23 @@ enum MailActionIndex {
         }
         return change
     }
+    /// Delivery has Gmail's id for a label the outbox named (6.5 step 2): the label's own row, as
+    /// `labels` would have written it, and the stand-in row dropped once no overlay holds it.
+    static func adopt(account: String, name: String, id: String, in db: Database) throws {
+        guard db.isInsideTransaction else { throw Failure.transactionRequired }
+        guard let owner = try Int64.fetchOne(db, sql: "SELECT account_pk FROM account WHERE email=?", arguments: [account]) else { return }
+        let kind = name.hasPrefix(BananaLabelRules.prefix) ? 2 : 1
+        try db.execute(sql: """
+            INSERT INTO label(account_pk,gmail_id,name,kind) VALUES(?,?,?,?)
+            ON CONFLICT(account_pk,gmail_id) DO UPDATE SET name=excluded.name,kind=excluded.kind
+            """, arguments: [owner, id, name, kind])
+        try db.execute(sql: """
+            DELETE FROM label WHERE account_pk=? AND gmail_id=?
+            AND NOT EXISTS(SELECT 1 FROM overlay o WHERE o.label_pk=label.label_pk)
+            AND NOT EXISTS(SELECT 1 FROM message_label ml WHERE ml.label_pk=label.label_pk)
+            """, arguments: [owner, BananaLabelRules.namePrefix + name])
+    }
+
     static func rebuild(account: String, messages: [String], through: UInt64, in db: Database) throws -> MailStoreChange {
         guard db.isInsideTransaction else { throw Failure.transactionRequired }
         var threads = Set<Int64>()

@@ -36,6 +36,8 @@ final class OutboxRulesTests: XCTestCase {
         let foreign = try OutboxRules.assertions(for: .label(account: "other@example.com", add: ["label"], remove: []), account: "a@example.com", messages: values, asOf: 2)
         XCTAssertTrue(foreign.isEmpty)
         XCTAssertThrowsError(try OutboxRules.assertions(for: .label(account: "a@example.com", add: ["label"], remove: ["label"]), account: "a@example.com", messages: values, asOf: 2))
-        XCTAssertThrowsError(try OutboxRules.assertions(for: .snooze(until: Date(), ifNoReply: false), account: "a@example.com", messages: values, asOf: 2))
+        // Mute and "if no reply" need rules that are not built: never a success-shaped nothing.
+        XCTAssertThrowsError(try OutboxRules.assertions(for: .mute(true), account: "a@example.com", messages: values, asOf: 2))
+        XCTAssertThrowsError(try OutboxRules.assertions(for: .snooze(until: Date(), ifNoReply: true), account: "a@example.com", messages: values, asOf: 2))
     }
 }

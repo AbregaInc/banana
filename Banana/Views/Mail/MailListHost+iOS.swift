@@ -358,7 +358,7 @@ final class MailListCoordinator: NSObject, UICollectionViewDelegate {
         return configuration
     }
 
-    /// Read or unread, and star, from the leading edge. They mark and nothing moves.
+    /// Snooze, read or unread, and star, from the leading edge. Read and star mark and nothing moves.
     fileprivate func leadingSwipes(at path: IndexPath) -> UISwipeActionsConfiguration? {
         guard let id = dataSource.itemIdentifier(for: path), let row = rows[id] else { return nil }
         let reading = UIContextualAction(style: .normal, title: row.isUnread ? "Read" : "Unread") {
@@ -375,7 +375,18 @@ final class MailListCoordinator: NSObject, UICollectionViewDelegate {
         }
         star.image = UIImage(systemName: row.isStarred ? "star.slash" : "star")
         star.backgroundColor = UIColor(DS.Palette.accent)
-        let configuration = UISwipeActionsConfiguration(actions: [reading, star])
+        // Snooze first, nearest the thumb (MAIL-UX 5.3): it opens the picker for this row. The row
+        // is made the cursor first, as Done does, so the toast's Undo and the cursor agree.
+        let snooze = UIContextualAction(style: .normal, title: "Snooze") { [weak self] _, _, finished in
+            self?.session.send(.place(id))
+            self?.session.askToSnooze(id)
+            finished(true)
+        }
+        snooze.image = UIImage(systemName: "clock")
+        snooze.backgroundColor = UIColor(DS.Palette.warning)
+        let actions = session.canPerform(.snooze(until: .distantFuture, ifNoReply: false), on: id) && !session.scope.isWriting
+            ? [snooze, reading, star] : [reading, star]
+        let configuration = UISwipeActionsConfiguration(actions: actions)
         configuration.performsFirstActionWithFullSwipe = false
         return configuration
     }

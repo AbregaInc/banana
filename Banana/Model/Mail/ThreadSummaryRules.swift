@@ -50,11 +50,14 @@ enum ThreadSummaryRules {
             if message.hasUndeliveredIntent || message.hasRefusedIntent { claims.insert(.pendingChange) }
             if message.vis == 4 { claims.insert(.keptAfterRemoval) }
         }
+        // Section 8: when it comes back, or came back, read off Banana's labels.
+        let banana = BananaLabelRules.state(messages)
         return ThreadSummary(lastDate: fetched.last?.internalDate ?? 0,
             messageCount: visible.count, fetchedCount: fetched.count, unreadCount: unread,
             flags: flags, subject: fetched.first?.subject ?? "", snippet: fetched.last?.snippet ?? "",
             people: authors.values, peopleTotal: authors.total, labels: labels,
-            wakeAt: nil, returnedAt: nil, waitingUntil: nil, pending: pending,
+            wakeAt: banana.isSnoozed || banana.isBack ? banana.wakeAt : nil,
+            returnedAt: banana.isBack ? banana.returnedAt : nil, waitingUntil: nil, pending: pending,
             recipients: recipients.values, recipientsTotal: recipients.total, claims: claims)
     }
 

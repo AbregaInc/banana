@@ -523,6 +523,85 @@ final class MailIntentStore: MailWriterLog, @unchecked Sendable {
         }
     }
 
+    // MARK: Labels named before Gmail has them (MAIL-ENGINE 6.5 step 2)
+
+    /// The `name:` references still waiting to be delivered for an account.
+    func namedLabelRefs(account: String) async throws -> [String] {
+        try await queue.read { db in
+            try String.fetchAll(db, sql: "SELECT DISTINCT label_ref FROM label_intent WHERE account=? AND state=0 AND label_ref LIKE 'name:%' ORDER BY label_ref", arguments: [account])
+        }
+    }
+
+    /// Every row naming `from` is rewritten to Gmail's id, in one transaction, with the inverses that
+    /// undo it. Where a row for the id already exists the newer intent (higher seq) is kept: one key,
+    /// one desired state. Returns the messages whose intent changed, for the overlay.
+    func rewriteLabelRef(account: String, from: String, to: String) async throws -> [String] {
+        guard from.hasPrefix("name:"), !to.isEmpty, !to.hasPrefix("name:") else { throw Failure.invalidGroup }
+        return try await queue.write { db in
+            let messages = try String.fetchAll(db, sql: "SELECT gmail_msg_id FROM label_intent WHERE account=? AND label_ref=? ORDER BY gmail_msg_id", arguments: [account, from])
+            var groups = Set<Int64>()
+            for message in messages {
+                let named = try Row.fetchOne(db, sql: "SELECT seq,group_seq FROM label_intent WHERE account=? AND gmail_msg_id=? AND label_ref=?", arguments: [account, message, from])!
+                let namedSeq: Int64 = named["seq"], namedGroup: Int64 = named["group_seq"]
+                if let existing = try Row.fetchOne(db, sql: "SELECT seq,group_seq FROM label_intent WHERE account=? AND gmail_msg_id=? AND label_ref=?", arguments: [account, message, to]) {
+                    let existingSeq: Int64 = existing["seq"], existingGroup: Int64 = existing["group_seq"]
+                    if existingSeq > namedSeq {
+                        try db.execute(sql: "DELETE FROM label_intent WHERE account=? AND gmail_msg_id=? AND label_ref=?", arguments: [account, message, from])
+                        groups.insert(namedGroup); continue
+                    }
+                    // A row in flight for the id is the delivery's; the named one waits behind it.
+                    if try Bool.fetchOne(db, sql: "SELECT state<>0 FROM label_intent WHERE account=? AND gmail_msg_id=? AND label_ref=?", arguments: [account, message, to]) == true { continue }
+                    try db.execute(sql: "DELETE FROM label_intent WHERE account=? AND gmail_msg_id=? AND label_ref=?", arguments: [account, message, to])
+                    groups.insert(existingGroup)
+                }
+                try db.execute(sql: "UPDATE label_intent SET label_ref=? WHERE account=? AND gmail_msg_id=? AND label_ref=?", arguments: [to, account, message, from])
+            }
+            for table in ["action_inverse", "action_stage"] {
+                try db.execute(sql: "UPDATE OR IGNORE \(table) SET label_ref=? WHERE account=? AND label_ref=?", arguments: [to, account, from])
+                try db.execute(sql: "DELETE FROM \(table) WHERE account=? AND label_ref=?", arguments: [account, from])
+            }
+            for group in groups { try Self.removeEmptyGroup(group, db: db) }
+            return messages
+        }
+    }
+
+    /// A label Gmail does not have is on no message: an assertion that it be absent is already true.
+    /// Those rows go, rather than a label being made only to take it off (an undo before delivery).
+    /// Returns the messages, and whether any row still names the label.
+    func discardNamedRemovals(account: String, ref: String) async throws -> (messages: [String], remaining: Bool) {
+        try await queue.write { db in
+            let messages = try String.fetchAll(db, sql: "SELECT gmail_msg_id FROM label_intent WHERE account=? AND label_ref=? AND want=0 AND state=0 ORDER BY gmail_msg_id", arguments: [account, ref])
+            let groups = try Int64.fetchAll(db, sql: "SELECT DISTINCT group_seq FROM label_intent WHERE account=? AND label_ref=? AND want=0 AND state=0", arguments: [account, ref])
+            try db.execute(sql: "DELETE FROM label_intent WHERE account=? AND label_ref=? AND want=0 AND state=0", arguments: [account, ref])
+            for group in groups { try Self.removeEmptyGroup(group, db: db) }
+            let remaining = try Bool.fetchOne(db, sql: "SELECT EXISTS(SELECT 1 FROM label_intent WHERE account=? AND label_ref=? AND state=0)", arguments: [account, ref]) ?? false
+            return (messages, remaining)
+        }
+    }
+
+    /// A label that can never be made (a name Banana does not own, Gmail's label limit): its rows
+    /// fail like any refused change (6.9) and stop overlaying.
+    func refuseNamed(account: String, ref: String, failure: MailFailure) async throws {
+        try await queue.write { db in
+            try db.execute(sql: "UPDATE label_intent SET state=3,failure=?,sent_seq=seq WHERE account=? AND label_ref=? AND state=0",
+                           arguments: [failure.rawValue, account, ref])
+        }
+    }
+
+    // MARK: What a rule made (MAIL-ENGINE 8.3)
+
+    /// Every undelivered assertion a rule made for the account goes before the rules run again on
+    /// fresh state: what they no longer produce is never sent (invariant 24). Returns the messages.
+    func discardUndeliveredRuleAssertions(account: String) async throws -> [String] {
+        try await queue.write { db in
+            let messages = try String.fetchAll(db, sql: "SELECT DISTINCT gmail_msg_id FROM label_intent WHERE account=? AND origin=1 AND state=0 ORDER BY gmail_msg_id", arguments: [account])
+            let groups = try Int64.fetchAll(db, sql: "SELECT DISTINCT group_seq FROM label_intent WHERE account=? AND origin=1 AND state=0", arguments: [account])
+            try db.execute(sql: "DELETE FROM label_intent WHERE account=? AND origin=1 AND state=0", arguments: [account])
+            for group in groups { try Self.removeEmptyGroup(group, db: db) }
+            return messages
+        }
+    }
+
     func recoverInterruptedDelivery() async throws {
         try await queue.write { db in
             try db.execute(sql: "UPDATE label_intent SET state=0,sent_seq=NULL WHERE state IN (1,2)")

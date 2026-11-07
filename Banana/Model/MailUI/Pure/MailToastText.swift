@@ -119,7 +119,7 @@ enum MailToastText {
             }
             let names = remove.map(\.name).joined(separator: ", ")
             return one.map { "Removed \($0) from \(names)" } ?? "\(many) removed from \(names)"
-        case .backToInbox, .notSpam, .notDone:
+        case .backToInbox, .notSpam, .notDone, .unsnooze:
             return one.map { "\($0) is back in the inbox" } ?? "\(many) are back in the inbox"
         case .restore:
             // Where a restored conversation returns to is Gmail's to say: it may not be the inbox.
@@ -151,7 +151,7 @@ enum MailToastText {
             base = add.isEmpty
                 ? "Removed from \(remove.map(\.name).joined(separator: ", "))"
                 : "Labelled \(add.map(\.name).joined(separator: ", "))"
-        case .backToInbox, .notSpam, .notDone: base = "Back in the inbox"
+        case .backToInbox, .notSpam, .notDone, .unsnooze: base = "Back in the inbox"
         case .restore: base = "Restored"
         case .snooze: base = "Snoozed"
         case .mute: base = "Muted"
@@ -212,7 +212,7 @@ enum MailToastText {
             verb = add.isEmpty && !remove.isEmpty
                 ? "take \(remove.map(\.name).joined(separator: ", ")) off \(what)"
                 : "label \(what)"
-        case .backToInbox, .notSpam, .notDone: verb = "move \(what) back to the inbox"
+        case .backToInbox, .notSpam, .notDone, .unsnooze: verb = "move \(what) back to the inbox"
         case .restore: verb = "restore \(what)"
         case .snooze: verb = "snooze \(what)"
         case .mute: verb = "mute \(what)"

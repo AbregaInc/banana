@@ -97,10 +97,16 @@ export async function mailboxRead(deps, vault, link, request) {
   return { status: 200, body };
 }
 
-/** After a device's label change reached Gmail: the mailbox reads it, so other devices see it. */
-export async function noteMailAction(deps, sub, ids) {
-  try { await (await existingMailbox(deps, sub))?.noteAction(ids); }
+/** After a device's label change reached Gmail: the mailbox reads it, so other devices see it.
+ * `labels`: the ids it added, so a label the mailbox has no name for is read again. */
+export async function noteMailAction(deps, sub, ids, labels = []) {
+  try { await (await existingMailbox(deps, sub))?.noteAction(ids, labels); }
   catch (error) { console.log(`mailbox: action note failed (${error.name})`); }
+}
+/** A label a device had Gmail make (Banana's snooze labels): the mailbox knows its name at once. */
+export async function noteMailLabel(deps, sub, label) {
+  try { await (await existingMailbox(deps, sub))?.noteLabel(label); }
+  catch (error) { console.log(`mailbox: label note failed (${error.name})`); }
 }
 /** After a draft or a send: the mailbox polls history now. */
 export async function pokeMailbox(deps, sub) {

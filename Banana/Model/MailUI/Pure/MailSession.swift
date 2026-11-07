@@ -27,6 +27,9 @@ final class MailNavigation: ObservableObject {
     /// the iOS tree is rebuilt, and so that only a composer opening or closing changes what the
     /// screen observes: never a keystroke (that is the composer's own).
     @Published private(set) var composer: MailComposerModel?
+    /// The snooze time picker, while it is open: a sheet on a phone, and on a Mac or an iPad when it
+    /// was asked for by `H` or "Pick a date and time…" (the "…" menus list the times themselves).
+    @Published fileprivate(set) var snoozeAsk: MailSnoozeAsk?
 
     private let defaults: UserDefaults?
 
@@ -59,6 +62,17 @@ final class MailNavigation: ObservableObject {
         showsDetails = on
         if persist { defaults?.set(on, forKey: Self.detailsKey) }
     }
+}
+
+/// The snooze picker, asked for: for which conversation, and whether straight to a date and time.
+struct MailSnoozeAsk: Identifiable, Equatable {
+    let id = UUID()
+    /// The swiped or chosen conversation; nil is the one open, or under the cursor (T15).
+    var target: MailConversationID?
+    /// "Pick a date and time…": the calendar and clock first.
+    var custom: Bool
+    /// Snoozed already (it is in Snoozed): the picker offers Unsnooze as well.
+    var isSnoozed: Bool
 }
 
 /// What the triage model asks the list host to do with its scroll position.
@@ -368,6 +382,35 @@ final class MailSession {
         navigation.detailsAsks &+= 1
     }
 
+    // MARK: Snooze (MAIL-ENGINE 8, MAIL-UX 6.5)
+
+    /// `H`, a swipe, "…" › Snooze…, "Pick a date and time…": the picker opens over the screen.
+    func askToSnooze(_ id: MailConversationID? = nil, custom: Bool = false) {
+        guard !scope.isWriting else { return }
+        let probe = MailAction.snooze(until: .distantFuture, ifNoReply: false)
+        guard allowsChanges, supportsAction(probe) else { explainChangesUnavailable(); return }
+        guard canPerform(probe, on: id) else {
+            present(MailToast(text: targetRestriction, action: nil, lasts: nil), {})
+            return
+        }
+        scheduleIdle()
+        navigation.snoozeAsk = MailSnoozeAsk(target: id, custom: custom, isSnoozed: scope.place == .mailbox(.snoozed))
+    }
+
+    /// A time was chosen: the conversation leaves the inbox until then, with the toast and its Undo.
+    func snooze(until: Date, on id: MailConversationID? = nil) {
+        navigation.snoozeAsk = nil
+        act(.snooze(until: until, ifNoReply: false), on: id)
+    }
+
+    /// Back to the inbox now, and the snooze is over.
+    func unsnooze(_ id: MailConversationID? = nil) {
+        navigation.snoozeAsk = nil
+        act(.unsnooze, on: id)
+    }
+
+    func closeSnoozePicker() { navigation.snoozeAsk = nil }
+
     /// Whether a reading pane is on screen. The view says so when its arrangement changes.
     func setPaneVisible(_ visible: Bool) { pane.setActive(visible) }
 
@@ -460,6 +503,7 @@ final class MailSession {
         case .replyAll: reply(.replyAll)
         case .forward: reply(.forward)
         case .compose: compose()
+        case .snooze: askToSnooze()
         }
         return true
     }
