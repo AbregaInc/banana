@@ -64,6 +64,62 @@ final class BottomBarShellUITest: XCTestCase {
 
     // MARK: Switcher
 
+    // MARK: Plan paging
+
+    /// "‹ ›" step a week in Week and a day in Day; away from now Today appears beside the title
+    /// and brings it back. The title reads "This week"/"Today" again.
+    func testThePagingButtonsStepEachModeAndTodayReturns() throws {
+        for (mode, current, previousLabel) in [("week", "This week", "Previous week"), ("day", "Today", "Previous day")] {
+            let app = try launch(["--tab", "plan", "--plan", "-planMode", mode])
+            let title = any(app, "plan.title")
+            XCTAssertTrue(title.waitForExistence(timeout: 15), app.debugDescription)
+            XCTAssertTrue(title.label.hasPrefix(current), "\(mode): \(title.label)")
+            let start = title.value as? String
+            let previous = app.buttons["plan.previous"], next = app.buttons["plan.next"]
+            XCTAssertTrue(next.exists && previous.exists, "\u{2039} \u{203A} in the top row: \(app.debugDescription)")
+            XCTAssertEqual(previous.label, previousLabel)
+            XCTAssertFalse(app.buttons["plan.today"].exists, "no Today on the current \(mode)")
+            let more = app.buttons["mobile.week.more"]
+            XCTAssertLessThanOrEqual(next.frame.maxX, more.frame.minX, "\u{203A} sits before \u{2026}")
+            XCTAssertLessThan(title.frame.maxX, previous.frame.minX, "nothing overlaps on the row")
+            XCTAssertTrue(more.isHittable, "nothing went into the toolbar's overflow")
+            if mode == "week" { shot("plan-week") } else { shot("plan-day") }
+
+            next.tap()
+            let today = app.buttons["plan.today"]
+            if !today.waitForExistence(timeout: 5) { shot("plan-\(mode)-no-today") }
+            XCTAssertTrue(today.exists, "Today appears away from now: \(app.debugDescription)")
+            XCTAssertTrue(waitUntil(timeout: 5) { (title.value as? String) != start }, "it stepped")
+            XCTAssertFalse(title.label.hasPrefix(current))
+            XCTAssertTrue(previous.frame.maxX <= today.frame.minX && today.frame.maxX <= next.frame.minX,
+                          "Today between \u{2039} and \u{203A}")
+            XCTAssertTrue(more.isHittable, "nothing went into the toolbar's overflow")
+            if mode == "week" { shot("plan-week-next") }
+            today.tap()
+            XCTAssertTrue(today.waitForNonExistence(timeout: 5))
+            XCTAssertTrue(waitUntil(timeout: 5) { (title.value as? String) == start && title.label.hasPrefix(current) })
+
+            previous.tap()
+            XCTAssertTrue(waitUntil(timeout: 5) { (title.value as? String) != start }, "back a \(mode)")
+            XCTAssertTrue(app.buttons["plan.today"].waitForExistence(timeout: 5))
+            app.terminate()
+        }
+    }
+
+    /// The week's day headings: no list icon beside the numbers; the letter and number open the
+    /// day's whole list.
+    func testTheDayHeadingOpensTheDaysListWithoutAnIcon() throws {
+        let app = try launch(["--tab", "plan", "--plan", "-planMode", "week"])
+        XCTAssertTrue(any(app, "plan.title").waitForExistence(timeout: 15))
+        XCTAssertFalse(app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'Show all'")).firstMatch.exists,
+                       "no list icon beside the day numbers")
+        XCTAssertFalse(app.images["list.bullet"].exists)
+        let day = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH 'calendar.day.items.'")).firstMatch
+        XCTAssertTrue(day.waitForExistence(timeout: 5), app.debugDescription)
+        day.tap()
+        XCTAssertTrue(any(app, "calendar.day.items.list").waitForExistence(timeout: 5), "the day's list")
+    }
+
     func testTheSwitcherOpensUpwardsClosesAndOpensEachPage() throws {
         let app = try launch(["--tab", "plan"])
         XCTAssertFalse(app.tabBars.firstMatch.exists, "the tab bar is gone")

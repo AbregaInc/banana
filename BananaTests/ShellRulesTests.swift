@@ -77,4 +77,13 @@ final class ShellRulesTests: XCTestCase {
         XCTAssertEqual(ShellLayout.of(width: 1_133), .rail, "an iPad mini on its side")
         XCTAssertEqual(ShellLayout.of(width: 1_376), .rail, "a 13-inch iPad on its side")
     }
+
+    /// Plan's top row: Today shows away from now, and "‹ ›" say what they step.
+    func testPlanTopRowOffersTodayAwayFromNowAndNamesTheStep() {
+        XCTAssertTrue(PlanTopRow.showsToday(isCurrent: false))
+        XCTAssertFalse(PlanTopRow.showsToday(isCurrent: true))
+        XCTAssertEqual(PlanTopRow.stepLabels(days: 1).previous, "Previous day")
+        XCTAssertEqual(PlanTopRow.stepLabels(days: 7).next, "Next week")
+        XCTAssertEqual(PlanTopRow.stepLabels(days: 3).next, "Next 3 days")
+    }
 }

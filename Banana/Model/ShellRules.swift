@@ -166,3 +166,21 @@ enum ShellPlayerPlacement: Equatable, Sendable {
         return previous == current ? hidden : false
     }
 }
+
+/// Plan's top row in the bottom-bar layout: the title (with today's date and the weather beside
+/// it on the current period), then "‹ ›" with Today between them away from now, then "…". On a
+/// narrow phone the weather gives way first, then Today's word for its icon, and only then the
+/// title's size (WeekView's `mobileTopRow`).
+enum PlanTopRow {
+    /// Today sits between "‹" and "›" while the view is away from the current period.
+    static func showsToday(isCurrent: Bool) -> Bool { !isCurrent }
+
+    /// What "‹" and "›" say to VoiceOver: the period they step.
+    static func stepLabels(days: Int) -> (previous: String, next: String) {
+        switch days {
+        case 1: ("Previous day", "Next day")
+        case 7: ("Previous week", "Next week")
+        default: ("Previous \(days) days", "Next \(days) days")
+        }
+    }
+}
