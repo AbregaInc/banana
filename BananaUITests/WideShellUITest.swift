@@ -81,6 +81,22 @@ final class WideShellUITest: XCTestCase {
         XCTAssertTrue(found, app.debugDescription)
     }
 
+    /// Badges: upright the switcher adds the pages' counts up; on its side each rail circle has
+    /// its own, Plan's from the overdue reminders.
+    func testBadgesOnTheSwitcherUprightAndTheRailOnItsSide() throws {
+        XCUIDevice.shared.orientation = .portrait
+        let app = try launch(["--tab", "plan", "--plan", "--outstanding-reminders"])
+        let switcher = app.buttons["shell.switcher"]
+        XCTAssertTrue(switcher.waitForExistence(timeout: 15))
+        XCTAssertTrue(waitUntil(timeout: 10) { switcher.label.contains("need") }, switcher.label)
+        XCUIDevice.shared.orientation = .landscapeLeft
+        let plan = app.buttons["shell.page.plan"]
+        XCTAssertTrue(app.descendants(matching: .any)["shell.rail"].waitForExistence(timeout: 8))
+        XCTAssertTrue(waitUntil(timeout: 5) { (plan.value as? String)?.contains("need") == true }, "\(plan.value ?? "")")
+        XCTAssertEqual(app.buttons["shell.page.settings"].value as? String ?? "", "")
+        shot("pad-land-rail-badge")
+    }
+
     /// Paging: upright "‹ ›" in the top row with Today beside the title away from now; on its side
     /// the toolbar's own back, forward and Today (direction B).
     func testPagingUprightAndOnItsSide() throws {

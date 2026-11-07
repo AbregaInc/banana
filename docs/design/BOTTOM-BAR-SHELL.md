@@ -60,6 +60,7 @@ player and the top row only. Results, rows and the page stay solid.
 | **Mail** search row | The field; Mail's results open the conversation inside Mail's own search of the same words, so Back and the cursor work; an × beside the place's name returns to the inbox |
 | **Mail** Accounts menu row | The place menu under the title ("Inbox ⌄") › Accounts |
 | **Mail** conversation: Back and six icons | Back with the place's name, and "…" (newer, older, reply, reply to all, forward, star, unread, archive). On the bar the field reads "Reply or ask" and starts a reply; a round Archive sits beside it |
+| **Mail** conversation read oldest first, reply under the last message | Newest first on every layout (`MailReadingOrder`): it opens at the top on the latest message, older ones going down; bodies load in that order. A reply being written, or the mark of a kept draft, sits under the subject, above the newest message it answers. The sender of each message opens Details |
 
 The bar steps away while a keyboard is up for anything but the field (a note, a form), and the
 switcher and sparkle step aside while the field is in use so it is as wide as the bar.
@@ -81,6 +82,21 @@ mail"), and narrowed on 7 Nov to an iPad on its side and the Mac. No bottom bar 
 | **Body** switch (Workouts · Food) | "Workouts ⌄" title menu |
 | **Mail** (iPad on its side): search row, accounts row, the column of places, the place's name over the list | One row: "Inbox ⌄" (places, accounts), the field, the sparkle, "…" (reply, reply to all, forward, archive, star, unread, new message); then the list and the reader, with the details closed until `]`. Swipes and keys unchanged |
 | **Mail** (Mac) | "Inbox ⌄" and "…" in the window toolbar, beside the window's field and sparkle |
+
+## Badges
+
+The old tab bar's badges, from the same counts (`ActionItems.Counts`, kept by `ActionBadges`),
+none new (`ShellBadge`):
+
+- **Plan**: overdue reminders.
+- **Body**: meals to log or check, and doses due and not yet marked (the old Body tab's count).
+- **Mail, Notes, Library, Review, Settings**: none; Mail had no badge. (If it gets one, the
+  Inbox's unread count is the obvious candidate.)
+
+The closed switcher circle carries the pages that are on, added up; open, each page's circle
+carries its own. On the rail (iPad on its side, Mac), always in view, each circle carries its
+own and nothing is added up. A red capsule, "99+" past 99. VoiceOver: "Pages, 3 need attention"
+on the switcher, "3 need attention" as a page's value.
 
 ## Mail's Details
 

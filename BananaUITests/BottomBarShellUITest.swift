@@ -64,6 +64,41 @@ final class BottomBarShellUITest: XCTestCase {
 
     // MARK: Switcher
 
+    // MARK: Toasts
+
+    /// A toast stands above the bar, and above the player on it, never under the glass.
+    func testAToastStandsAboveTheBarAndThePlayer() throws {
+        for extra in [[String](), ["--sample-episode"]] {
+            let app = try launch(["--tab", "plan", "--plan", "--toast-preview"] + extra)
+            let toast = any(app, "toast"), bar = any(app, "shell.bar")
+            XCTAssertTrue(toast.waitForExistence(timeout: 10), app.debugDescription)
+            XCTAssertTrue(bar.exists)
+            XCTAssertTrue(waitUntil(timeout: 3) { toast.frame.maxY <= bar.frame.minY },
+                          "toast \(toast.frame) overlaps the bar \(bar.frame)")
+            XCTAssertFalse(toast.frame.intersects(app.buttons["shell.switcher"].frame))
+            shot(extra.isEmpty ? "toast-above-bar" : "toast-above-player")
+            app.terminate()
+        }
+    }
+
+    // MARK: Badges
+
+    /// Overdue reminders badge Plan; the closed switcher carries the pages' counts added up and
+    /// says so to VoiceOver; open, each page carries its own.
+    func testTheSwitcherBadgeAddsUpThePagesCounts() throws {
+        let app = try launch(["--tab", "plan", "--plan", "--outstanding-reminders"])
+        let switcher = app.buttons["shell.switcher"]
+        XCTAssertTrue(waitUntil(timeout: 10) { switcher.label.contains("need") }, "Pages, N need attention: \(switcher.label)")
+        XCTAssertTrue(switcher.label.hasPrefix("Pages, "))
+        shot("switcher-badge")
+        switcher.tap()
+        let plan = app.buttons["shell.page.plan"]
+        XCTAssertTrue(plan.waitForExistence(timeout: 5))
+        XCTAssertTrue((plan.value as? String)?.contains("need") == true, "Plan carries its own count: \(plan.value ?? "")")
+        XCTAssertEqual(app.buttons["shell.page.settings"].value as? String ?? "", "", "a page with nothing waiting has no count")
+        shot("switcher-open")
+    }
+
     // MARK: Plan paging
 
     /// "‹ ›" step a week in Week and a day in Day; away from now Today appears beside the title

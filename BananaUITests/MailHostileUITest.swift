@@ -83,7 +83,8 @@ final class MailHostileUITest: MailUITestCase {
         XCTAssertTrue(element(MailID.conversation).exists || element(MailID.pane).exists, "still on the conversation")
         XCTAssertFalse(body.exists, "no second composer")
         let sentCards = app.staticTexts.matching(NSPredicate(format: "label CONTAINS 'nothing is really sent' OR label CONTAINS 'nothing was really sent'"))
-        app.swipeUp(); app.swipeUp()
+        // Newest first: what was sent is at the top, under the subject.
+        app.swipeDown()
         let count = sentCards.count
         note("sample-sent cards after a double tap on Send: \(count)")
         XCTAssertEqual(count, 1, "exactly one message was sent")

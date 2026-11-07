@@ -86,4 +86,48 @@ final class ShellRulesTests: XCTestCase {
         XCTAssertEqual(PlanTopRow.stepLabels(days: 7).next, "Next week")
         XCTAssertEqual(PlanTopRow.stepLabels(days: 3).next, "Next 3 days")
     }
+
+    /// One rail width for the iPad and the Mac: the circles with room either side, clear of the
+    /// Mac window's buttons, and slim (the Mac's first build drew a ~200 pt sidebar).
+    func testTheRailIsSlimHoldsItsCirclesAndClearsTheWindowButtons() {
+        XCTAssertGreaterThanOrEqual(ShellLayout.railColumn, ShellLayout.railButton + 2 * 12)
+        XCTAssertGreaterThanOrEqual(ShellLayout.railColumn, ShellLayout.macWindowButtonsEnd)
+        XCTAssertLessThanOrEqual(ShellLayout.railColumn, 88)
+    }
+
+    /// The switcher's badge adds up what the old tab bar badged, page by page, for the pages
+    /// that are on; Mail had none.
+    func testBadgesAreTheOldTabCountsAddedUpOnTheSwitcher() {
+        var counts = ActionItems.Counts()
+        counts.plan = 2; counts.food = 1; counts.taken = 3
+        XCTAssertEqual(ShellBadge.count(.plan, counts), 2)
+        XCTAssertEqual(ShellBadge.count(.body, counts), 4)
+        XCTAssertEqual(ShellBadge.count(.mail, counts), 0)
+        XCTAssertEqual(ShellBadge.total([.plan, .mail, .body, .settings], counts), 6)
+        XCTAssertEqual(ShellBadge.total([.plan, .mail, .settings], counts), 2, "Body off: its count is not added")
+        XCTAssertNil(ShellBadge.text(0))
+        XCTAssertEqual(ShellBadge.text(7), "7")
+        XCTAssertEqual(ShellBadge.text(99), "99")
+        XCTAssertEqual(ShellBadge.text(100), "99+")
+        XCTAssertEqual(ShellBadge.spoken(1), "1 needs attention")
+        XCTAssertEqual(ShellBadge.spoken(3), "3 need attention")
+        XCTAssertNil(ShellBadge.spoken(0))
+    }
+
+    /// A toast clears the bar on a page while the bar is there; in a sheet, or with the bar away
+    /// for a keyboard, it keeps its own place.
+    func testAToastStandsAboveTheBarOnlyWhereTheBarIs() {
+        XCTAssertEqual(ShellToastInset.bottom(barHeight: 120, barShown: true, onPage: true), 120)
+        XCTAssertEqual(ShellToastInset.bottom(barHeight: 120, barShown: false, onPage: true), 0, "keyboard up for a note")
+        XCTAssertEqual(ShellToastInset.bottom(barHeight: 120, barShown: true, onPage: false), 0, "in a sheet")
+    }
+
+    /// The shell's symbols are the sections' own, without their fill: Library is headphones.
+    func testPageSymbolsComeFromTheSectionsTable() {
+        XCTAssertEqual(ShellPage.library.symbol, "headphones")
+        XCTAssertEqual(ShellPage.plan.symbol, "sun.max")
+        XCTAssertEqual(ShellPage.notes.symbol, AppSection.notes.outlineSymbol)
+        XCTAssertEqual(ShellPage.body.symbol, "heart")
+        for page in ShellPage.allCases { XCTAssertFalse(page.symbol.contains(".fill"), page.rawValue) }
+    }
 }
