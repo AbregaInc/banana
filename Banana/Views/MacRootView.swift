@@ -151,24 +151,55 @@ struct MacRootView: View {
     @EnvironmentObject private var player: PlayerController
     @Environment(\.openSettings) private var openSettings
 
+    /// Which Body page the rail's Body opens: the one looked at last.
+    @State private var lastBody: AppSection = .workouts
+
+    /// The rail's pages: only the modules that are on (docs/design/BOTTOM-BAR-SHELL.md, Wide).
+    private var railPages: [ShellPage] {
+        var on = ShellPage.Modules()
+        #if BANANA_UNRELEASED
+        on.mail = modules.includes(.email)
+        #endif
+        on.workouts = modules.includes(.workouts)
+        on.food = modules.includes(.food)
+        on.notes = modules.includes(.notes)
+        on.library = modules.includes(.podcasts)
+        on.review = AppSection.review.isShown(with: modules.effectiveChoice)
+        return ShellPage.listed(on)
+    }
+
+    private var railCurrent: ShellPage? {
+        switch nav.section {
+        case .plan: .plan
+        case .mail: .mail
+        case .workouts, .nutrition: .body
+        case .notes: .notes
+        case .library: .library
+        case .review, .sleep, .trends: .review
+        default: nil
+        }
+    }
+
+    private func openRailPage(_ page: ShellPage) {
+        switch page {
+        case .plan: nav.section = .plan
+        case .mail: nav.section = .mail
+        case .body: nav.section = modules.includes(.workouts) && (lastBody == .workouts || !modules.includes(.food)) ? .workouts : .nutrition
+        case .notes: nav.section = .notes
+        case .library: nav.section = .library
+        case .review: nav.section = .review
+        case .settings: openSettings()
+        }
+    }
+
     var body: some View {
         NavigationSplitView {
-            // Selected by the rows' own ids, which a List gives them whatever modifiers follow.
-            // It was `.tag(section)` with `.badge` after it: the badge hid the tag, the rows fell
-            // back to their ids, and no click on the sidebar matched a section — it did nothing
-            // anywhere, and nothing was ever highlighted.
-            List(selection: Binding<AppSection.ID?>(
-                get: { nav.section.id },
-                set: { nav.section = AppSection.chosen($0, current: nav.section) }
-            )) {
-                ForEach(AppSection.macSidebar(with: modules.effectiveChoice)) { section in
-                    Label(section.title, systemImage: section.symbol)
-                        .badge(badgeCount(section)).tag(section.id)
-                }
-            }
-            .navigationSplitViewColumnWidth(min: 180, ideal: 210, max: 280)
-            .navigationTitle("Banana")
-            .accessibilityIdentifier("app.sidebar")
+            // The rail: round page buttons under the traffic lights, in place of the source list.
+            // Routines, which had a row, is in each page's "…" (`MoreMenu`).
+            ShellRail(pages: railPages, current: railCurrent, open: openRailPage)
+                .navigationSplitViewColumnWidth(min: ShellRail.width, ideal: ShellRail.width, max: ShellRail.width)
+                .toolbar(removing: .sidebarToggle)
+                .accessibilityIdentifier("app.sidebar")
         } detail: {
             VStack(spacing: 0) {
                 if AppSupport.isPiSampleWorkspace {
@@ -223,18 +254,30 @@ struct MacRootView: View {
                         guard let raw = notice.object as? String, let section = AppSection(rawValue: raw) else { return }
                         if section == .settings { openSettings() } else { nav.section = section }
                     }
+                    // The window's one toolbar: "Search or ask" in the middle and the assistant beside
+                    // it, on every page; each page adds its title menu and "…".
                     .toolbar {
+                        ToolbarItem(placement: .principal) { ShellToolbarField() }
                         #if BANANA_AI
                         ToolbarItem(placement: .primaryAction) {
                             Button {
                                 nav.showsAssistant.toggle()
-                            } label: { Label("Ask or add", systemImage: "bubble.left.and.bubble.right") }
+                            } label: { Label("Ask Banana", systemImage: "sparkle") }
                                 .keyboardShortcut("j", modifiers: .command)
                                 .help(nav.showsAssistant ? "Hide chat (⌘J)" : "Ask a question or add something (⌘J)")
                                 .accessibilityValue(nav.showsAssistant ? "Open" : "Closed")
                                 .accessibilityIdentifier("app.askBanana")
                         }
                         #endif
+                    }
+                    .environment(\.wideShell, true)
+                    // What the field found, hanging under the toolbar's middle.
+                    .overlay(alignment: .top) { ShellWideResults(section: nav.section) }
+                    .onReceive(NotificationCenter.default.publisher(for: .shellOpenAssistant)) { _ in
+                        nav.showsAssistant = true
+                    }
+                    .onChange(of: nav.section) { _, section in
+                        if section == .workouts || section == .nutrition { lastBody = section }
                     }
                     // A module switched off (here or on another device) takes its section with it.
                     .onChange(of: modules.effectiveChoice, initial: true) { _, choice in

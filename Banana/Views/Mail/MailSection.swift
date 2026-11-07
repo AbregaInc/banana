@@ -13,12 +13,17 @@ import SwiftUI
 /// in the background and the Mac's sidebar leaving Mail and coming back.
 struct MailSection: View {
     @ObservedObject private var application = MailApplication.shared
+    /// The wide shell: Mail's place menu, the field and "…" are its one toolbar.
+    @Environment(\.wideShell) private var wideShell
 
     var body: some View {
         let _ = RenderStats.note("MailSection")
         Group {
             if let session = application.session {
                 VStack(spacing: 0) {
+                    #if os(iOS)
+                    if wideShell { MailWideTopRow(session: session) }
+                    #endif
                     if let source = session.source as? MailLiveSource {
                         MailConnectionBar(source: source, session: session)
                     }
@@ -37,6 +42,61 @@ struct MailSection: View {
             }
         }
         .task { application.start() }
+        #if os(macOS)
+        .toolbar {
+            if wideShell, let session = application.session {
+                ToolbarItem(placement: .navigation) { MailPlaceTitleMenu(session: session) }
+                ToolbarItem(placement: .primaryAction) { MailActionsMenu(session: session) }
+            }
+        }
+        #endif
+    }
+}
+
+/// Asking for an account's mail, or adding one: shared by the accounts menu at the top of Mail
+/// and the place menu of the bottom-bar shell's title, so either shows what is happening.
+@MainActor
+final class MailAccountActions: ObservableObject {
+    static let shared = MailAccountActions()
+    @Published var busy = false
+    @Published var failed = false
+
+    func allow(_ account: String, source: MailLiveSource) {
+        busy = true; failed = false
+        Task {
+            let result = await source.requestPermission(account: account)
+            failed = result != .granted && result != .cancelled
+            busy = false
+        }
+    }
+
+    func add(source: MailLiveSource) {
+        busy = true; failed = false
+        Task {
+            await GoogleCalendarService.shared.connect()
+            source.checkNow(); busy = false
+        }
+    }
+}
+
+/// Each account, what it can do, and adding one: the items of an accounts menu.
+struct MailAccountsMenuItems: View {
+    let source: MailLiveSource
+    let accounts: [MailAccount]
+
+    var body: some View {
+        ForEach(accounts, id: \.id) { account in
+            Section(account.id) {
+                if account.state != .connected {
+                    Button("Allow Mail") { MailAccountActions.shared.allow(account.id, source: source) }
+                } else {
+                    Text(source.permitsAccountChanges(account.id) ? "Connected" : "Read only")
+                    if let text = MailConnectionBar.healthText(account.health) { Text(text) }
+                }
+            }
+        }
+        Button("Add account") { MailAccountActions.shared.add(source: source) }
+        Button("Check mail") { source.checkNow() }
     }
 }
 
@@ -45,56 +105,42 @@ private struct MailConnectionBar: View {
     let session: MailSession
     @State private var accounts: [MailAccount] = []
     @State private var observation: MailObservation?
-    @State private var busy = false
-    @State private var failed = false
+    @ObservedObject private var actions = MailAccountActions.shared
+    /// The new shells have the accounts in the title's menu: no row of their own.
+    @Environment(\.bottomBarShell) private var bottomBarShellOnly
+    @Environment(\.wideShell) private var wideShell
+    private var bottomBarShell: Bool { bottomBarShellOnly || wideShell }
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Spacer()
-                Menu {
-                    ForEach(accounts, id: \.id) { account in
-                        Section(account.id) {
-                            if account.state != .connected {
-                                Button("Allow Mail") {
-                                    busy = true; failed = false
-                                    Task {
-                                        let result = await source.requestPermission(account: account.id)
-                                        failed = result != .granted && result != .cancelled
-                                        busy = false
-                                    }
-                                }
-                            } else {
-                                Text(source.permitsAccountChanges(account.id) ? "Connected" : "Read only")
-                                if let text = healthText(account.health) { Text(text) }
-                            }
-                        }
+        // In the shells it takes no room of its own: each notice brings its own margin, and with
+        // nothing to say there is nothing here at all (no padding, no gap).
+        VStack(alignment: .leading, spacing: bottomBarShell ? 0 : 8) {
+            if !bottomBarShell {
+                HStack {
+                    Spacer()
+                    Menu {
+                        MailAccountsMenuItems(source: source, accounts: accounts)
+                    } label: {
+                        Label(accounts.isEmpty ? "Connect Mail" : "Accounts", systemImage: "person.crop.circle")
                     }
-                    Button("Add account") {
-                        busy = true; failed = false
-                        Task {
-                            await GoogleCalendarService.shared.connect()
-                            source.checkNow(); accounts = source.accounts; busy = false
-                        }
-                    }
-                    Button("Check mail") { source.checkNow() }
-                } label: {
-                    Label(accounts.isEmpty ? "Connect Mail" : "Accounts", systemImage: "person.crop.circle")
+                    .disabled(actions.busy)
+                    .accessibilityIdentifier("mail.accounts")
                 }
-                .disabled(busy)
-                .accessibilityIdentifier("mail.accounts")
             }
-            MailRefusalNotice(source: source, status: source.status)
-            MailRemovalNotice(source: source, status: source.status)
-            MailDraftNotice(session: session, status: source.status)
-            if busy { ProgressView() }
-            if failed { Text("Mail access wasn’t granted. Try Allow Mail again.").font(.caption) }
+            Group {
+                MailRefusalNotice(source: source, status: source.status)
+                MailRemovalNotice(source: source, status: source.status)
+                MailDraftNotice(session: session, status: source.status)
+                if actions.busy { ProgressView() }
+                if actions.failed { Text("Mail access wasn’t granted. Try Allow Mail again.").font(.caption) }
+            }
+            .padding(.vertical, bottomBarShell ? DS.Space.xs : 0)
         }
-        .padding(.horizontal).padding(.vertical, 8)
+        .padding(.horizontal).padding(.vertical, bottomBarShell ? 0 : 8)
         .onAppear { observation = source.observeAccounts { accounts = $0 } }
         .onDisappear { observation?.cancel(); observation = nil }
     }
 
-    private func healthText(_ health: MailSyncHealth) -> String? {
+    static func healthText(_ health: MailSyncHealth) -> String? {
         switch health {
         case .live: return nil
         case .firstSync, .catchingUp: return "Downloading and syncing mail…"
@@ -237,6 +283,12 @@ private struct MailRefusalSheet: View {
 private struct MailScreen: View {
     let session: MailSession
     @ObservedObject private var navigation: MailNavigation
+    /// The shells have the places in the title's menu: no control column beside the list.
+    @Environment(\.bottomBarShell) private var bottomBarShell
+    @Environment(\.wideShell) private var wideShell
+
+    /// The conversation whose Details are open as a sheet.
+    @State private var detailsSheet: MailReaderModel?
 
     init(session: MailSession) {
         self.session = session
@@ -245,9 +297,11 @@ private struct MailScreen: View {
 
     var body: some View {
         GeometryReader { proxy in
+            // The bottom-bar layout keeps its two columns: Details are its sheet.
             let arrangement = MailArrangement.choose(width: proxy.size.width,
                                                      wantsPane: navigation.showsPane,
-                                                     wantsDetails: navigation.showsDetails)
+                                                     wantsDetails: navigation.showsDetails && !bottomBarShell,
+                                                     controlColumn: !(bottomBarShell || wideShell))
             ZStack {
                 MailColumns(session: session, arrangement: arrangement, scope: navigation.scope)
                     .accessibilityHidden(navigation.reader != nil)
@@ -263,6 +317,19 @@ private struct MailScreen: View {
             .onChange(of: arrangement.showsPane, initial: true) { _, shows in
                 session.setPaneVisible(shows)
             }
+            // "…" › Details and a tap on a sender, wherever they were asked from: one rule
+            // (`MailArrangement.detailsPlacement`) says the column or a sheet.
+            .onChange(of: navigation.detailsAsks) { _, _ in
+                let placement = arrangement.detailsPlacement(besidePage: !bottomBarShell,
+                                                             readerFullWidth: navigation.reader != nil)
+                switch placement {
+                case .column:
+                    if navigation.detailsAskToggles { session.toggleDetails() }
+                    else if !navigation.showsDetails { session.toggleDetails() }
+                case .sheet:
+                    detailsSheet = navigation.reader ?? session.pane.reader
+                }
+            }
             .sheet(isPresented: sheetBinding(for: arrangement)) {
                 if let composer = navigation.composer {
                     MailComposerSheet(session: session, model: composer)
@@ -270,6 +337,9 @@ private struct MailScreen: View {
             }
         }
         .background(Color.mailBackground)
+        .sheet(isPresented: Binding(get: { detailsSheet != nil }, set: { if !$0 { detailsSheet = nil } })) {
+            if let reader = detailsSheet { MailDetailsSheet(reader: reader) }
+        }
         .onAppear {
             session.enter()
             session.finishLaunch()
@@ -298,10 +368,18 @@ private struct MailColumns: View {
     let session: MailSession
     let arrangement: MailArrangement
     let scope: MailScope
+    @Environment(\.bottomBarShell) private var bottomBarShell
+    @Environment(\.wideShell) private var wideShell
 
     var body: some View {
         VStack(spacing: 0) {
-            if session.isSample { MailSampleNote(); MailDivider(axis: .horizontal) }
+            // The approved shells go straight from the status bar to "Inbox ⌄": the sample note is
+            // the standalone page's.
+            if session.isSample && !bottomBarShell && !wideShell { MailSampleNote(); MailDivider(axis: .horizontal) }
+            // An upright iPad: one top row over the list and the reader, as the approved image has.
+            #if os(iOS)
+            if bottomBarShell && arrangement.showsPane { MailShellTopRow(session: session) }
+            #endif
             HStack(spacing: 0) {
                 if arrangement.showsControl {
                     MailControlColumn(session: session, places: session.places, navigation: session.navigation)

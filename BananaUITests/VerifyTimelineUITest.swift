@@ -103,34 +103,37 @@ final class VerifyTimelineUITest: XCTestCase {
         XCTAssertFalse(app.buttons["workouts.guidedPlans"].exists)
     }
 
-    /// Five tabs, no "More" overflow: Rhythm is gone and Routines moved under Plan's "…" menu.
-    func testTabBarIsPlanWorkoutsNutritionNotesLibrary() throws {
-        // An iPad's sections are its sidebar's: `AdaptiveShellUITest`.
-        try XCTSkipUnless(UIDevice.current.userInterfaceIdiom == .phone, "the phone's tab bar")
+    /// The switcher lists Plan, Body, Notes and Library (and Review, Settings), no "More" overflow:
+    /// Rhythm is gone and Routines is under "…" (docs/design/BOTTOM-BAR-SHELL.md).
+    func testTheSwitcherIsPlanBodyNotesLibrary() throws {
+        // An iPad's pages are its rail's: `AdaptiveShellUITest`.
+        try XCTSkipUnless(UIDevice.current.userInterfaceIdiom == .phone, "the phone's switcher")
         let app = XCUIApplication()
         app.launchArguments = ["--ui-preview", "--ui-audit", "-onboardingCompleted", "YES"]
         app.withoutSpaceSync()
         app.launch()
 
-        let tabBar = app.tabBars.firstMatch
-        XCTAssertTrue(tabBar.waitForExistence(timeout: 8))
-        for tab in ["Plan", "Body", "Notes", "Library"] {
-            XCTAssertTrue(tabBar.buttons[tab].exists, "Missing tab: \(tab)")
+        XCTAssertTrue(app.buttons["shell.switcher"].waitForExistence(timeout: 8))
+        XCTAssertFalse(app.tabBars.firstMatch.exists)
+        app.buttons["shell.switcher"].tap()
+        for page in ["plan", "body", "notes", "library"] {
+            XCTAssertTrue(app.buttons["shell.page.\(page)"].waitForExistence(timeout: 3), "Missing page: \(page)")
         }
-        for gone in ["Rhythm", "Routines", "More", "Workouts", "Nutrition", "Add"] {
-            XCTAssertFalse(tabBar.buttons[gone].exists, "Tab should be gone: \(gone)")
+        for gone in ["rhythm", "routines", "workouts", "nutrition"] {
+            XCTAssertFalse(app.buttons["shell.page.\(gone)"].exists, "Page should be gone: \(gone)")
         }
 
-        // Workouts and Nutrition share Body, with one switch across both. It launches on Plan:
-        // the switch is Body's, so open Body first.
-        tabBar.buttons["Body"].tap()
-        let pages = app.segmentedControls["body.switch"]
-        XCTAssertTrue(pages.waitForExistence(timeout: 4), app.debugDescription)
-        pages.buttons["Workouts"].tap()
-        XCTAssertTrue(app.plus("workouts.add").waitForExistence(timeout: 3), app.debugDescription)
-        app.segmentedControls["body.switch"].buttons.element(boundBy: 1).tap()
+        // Workouts and Nutrition share Body, with the others under its title.
+        app.buttons["shell.page.body"].tap()
+        let title = app.descendants(matching: .any)["body.title"].firstMatch
+        XCTAssertTrue(title.waitForExistence(timeout: 4), app.debugDescription)
+        title.tap()
+        app.buttons["Workouts"].firstMatch.tap()
+        XCTAssertTrue(waitUntil(timeout: 3) { title.label.hasPrefix("Workouts") }, title.label)
+        title.tap()
+        app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'Food'")).firstMatch.tap()
         XCTAssertTrue(app.descendants(matching: .any)["nutrition.dayTotal"].firstMatch.waitForExistence(timeout: 3))
-        keepScreenshot(of: app, named: "Shell - five tabs")
+        keepScreenshot(of: app, named: "Shell - switcher pages")
     }
 
     func testPodcastConfigurationLivesBehindCog() {

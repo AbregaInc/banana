@@ -73,15 +73,19 @@ struct PodcastsView: View {
         WorkspaceColumns {
             podcastList(wide: true)
                 .navigationSplitViewColumnWidth(min: 260, ideal: 320, max: 400)
+                .environment(\.shellFieldInDetail, true)
         } detail: {
             NavigationStack {
-                if let id = shell.state.library.last, library.podcast(id) != nil {
-                    PodcastDetailView(podcastID: id)
-                        .id(id)
-                } else {
-                    ContentUnavailableView("Select a podcast", systemImage: "headphones",
-                        description: Text("Choose a show to browse its episodes."))
+                Group {
+                    if let id = shell.state.library.last, library.podcast(id) != nil {
+                        PodcastDetailView(podcastID: id)
+                            .id(id)
+                    } else {
+                        ContentUnavailableView("Select a podcast", systemImage: "headphones",
+                            description: Text("Choose a show to browse its episodes."))
+                    }
                 }
+                .shellDetailToolbar()
             }
         }
     }
@@ -125,6 +129,7 @@ struct PodcastsView: View {
                 }
             }
             .pageNavigationTitle("Library")
+            .shellPageTitle("Library")
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
             #endif

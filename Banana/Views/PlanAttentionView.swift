@@ -39,6 +39,67 @@ struct PlanAttentionBand: View {
     }
 }
 
+/// Plan's title in the bottom-bar shell (`WeekView`): what is showing, with what needs attention
+/// as a count beside it. Under the chevron: what needs attention, Day and Week, and the steps
+/// through dates the date line had. Watches the same stores the attention row did, so the plan
+/// itself never redraws for a count.
+struct PlanTitleMenu: View {
+    let title: String
+    let subtitle: String?
+    let dayMode: Bool
+    let isCurrent: Bool
+    /// The day or week showing, for tests and VoiceOver ("2026-11-06").
+    let titleValue: String
+    let step: (Int) -> Void
+    let toCurrent: () -> Void
+
+    @AppStorage("planMode") private var mode: PlanMode = .day
+    @ObservedObject private var timeline = OccurrenceStore.shared
+    @ObservedObject private var routines = RoutineStore.shared
+    @ObservedObject private var inbox = MealInboxStore.shared
+    @ObservedObject private var wellness = WellnessStore.shared
+    @ObservedObject private var modules = ModuleStore.shared
+    @ObservedObject private var timing = AnchoredTimingHub.shared
+    @State private var showingAttention = false
+
+    var body: some View {
+        TimelineView(.periodic(from: .now, by: 60)) { _ in
+            let items = PlanAttentionSnapshot.make()
+            PageTitleMenu(title: title, subtitle: subtitle, badge: items.count, identifier: "plan.title") {
+                if items.count > 0 {
+                    Button { showingAttention = true } label: {
+                        Label("Needs attention", systemImage: "tray.full")
+                        Text(items.summary)
+                    }
+                    .accessibilityIdentifier("plan.attention")
+                }
+                Picker("View", selection: $mode) {
+                    ForEach(PlanMode.allCases) { Text($0.title).tag($0) }
+                }
+                .pickerStyle(.inline)
+                Section {
+                    Button { step(-1) } label: {
+                        Label(dayMode ? "Previous day" : "Previous week", systemImage: "chevron.left")
+                    }
+                    .accessibilityIdentifier("plan.title.previous")
+                    Button { step(1) } label: {
+                        Label(dayMode ? "Next day" : "Next week", systemImage: "chevron.right")
+                    }
+                    .accessibilityIdentifier("plan.title.next")
+                    if !isCurrent {
+                        Button { toCurrent() } label: {
+                            Label(dayMode ? "Today" : "This week", systemImage: "arrow.uturn.backward")
+                        }
+                        .accessibilityIdentifier("dateLine.home")
+                    }
+                }
+            }
+            .accessibilityValue(titleValue)
+        }
+        .sheet(isPresented: $showingAttention) { PlanAttentionList().toastHost() }
+    }
+}
+
 @MainActor
 private struct PlanAttentionSnapshot {
     struct RoutineItem: Identifiable {

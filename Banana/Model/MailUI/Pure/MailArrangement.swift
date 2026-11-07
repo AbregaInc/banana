@@ -21,6 +21,14 @@ import Foundation
 /// The widths are the columns' own: a list column of 320 is three-line rows; a pane never
 /// narrower than 340; the control column 168; the details 248. They are the rule, so they are
 /// here and tested, and the views use them by name.
+/// Where Details open (`MailArrangement.detailsPlacement`).
+enum MailDetailsPlacement: Equatable, Sendable {
+    /// The column at the right of the reading pane (toggled; `]` toggles the same column).
+    case column
+    /// A sheet over the page, half height to start and pulled to full.
+    case sheet
+}
+
 struct MailArrangement: Equatable, Sendable {
 
     // MARK: The columns
@@ -53,11 +61,16 @@ struct MailArrangement: Equatable, Sendable {
     /// `wantsPane` and `wantsDetails` are his two toggles. A pane he has hidden leaves the list
     /// wide, with the control column beside it where there is room; details are about what the
     /// pane shows, so with no pane there are none.
-    static func choose(width: Double, wantsPane: Bool = true, wantsDetails: Bool = true) -> MailArrangement {
+    ///
+    /// `controlColumn` false: the shell's title menu ("Inbox ⌄") holds the places, so there is no
+    /// control column at any width and the details need only the list and the pane beside them
+    /// (docs/design/BOTTOM-BAR-SHELL.md).
+    static func choose(width: Double, wantsPane: Bool = true, wantsDetails: Bool = true,
+                       controlColumn: Bool = true) -> MailArrangement {
         let canShowPane = width >= paneAt
-        let canShowDetails = width >= detailsAt
+        let canShowDetails = width >= (controlColumn ? detailsAt : detailsAt - controlWidth)
         let showsPane = wantsPane && canShowPane
-        return MailArrangement(width: width, showsControl: width >= controlAt, showsPane: showsPane,
+        return MailArrangement(width: width, showsControl: controlColumn && width >= controlAt, showsPane: showsPane,
                                showsDetails: showsPane && wantsDetails && canShowDetails,
                                canShowPane: canShowPane, canShowDetails: canShowDetails)
     }
@@ -74,6 +87,18 @@ struct MailArrangement: Equatable, Sendable {
     /// A tap or click on a row opens the conversation full width only when there is no pane to
     /// show it in; with a pane it places the cursor, and the pane follows.
     var tapOpens: Bool { !showsPane }
+
+    /// Where the conversation's Details open when asked for ("…" › Details, a tap on a sender):
+    /// the column beside the reading pane where the page lays out beside itself and has room for
+    /// it, and otherwise a sheet over whatever is showing. The one rule for every layout.
+    ///
+    /// `besidePage`: the page may grow a column beside the reader (the rail's layout, the Mac,
+    /// the standalone page); the bottom-bar layout keeps its two columns and uses the sheet.
+    /// `readerFullWidth`: a conversation is open over the list, where there is no pane to sit
+    /// beside.
+    func detailsPlacement(besidePage: Bool, readerFullWidth: Bool) -> MailDetailsPlacement {
+        besidePage && !readerFullWidth && showsPane && canShowDetails ? .column : .sheet
+    }
 
     /// A phone's width, and a narrow window's: the list stands alone and a composer is a sheet.
     static let compactBelow = 600.0

@@ -149,9 +149,13 @@ final class TriageHarness {
         mailbox.filter { belongs($0, to: scope) }.sorted { $0.key > $1.key }
     }
 
+    /// A reading of a scope, as `observeList` gives it: from the scope's `before` down, at most
+    /// the place's limit. A slid window (`MailPaging`) is the same place from another boundary.
     func snapshot(for scope: MailScope, appliedThrough: UInt64? = nil) -> MailListSnapshot {
-        let all = members(of: scope)
-        let rows = Array(all.prefix(limit(for: scope)))
+        var place = scope
+        place.before = nil
+        let all = members(of: place).filter { row in scope.before.map { row.key < $0 } ?? true }
+        let rows = Array(all.prefix(limit(for: place)))
         return MailListSnapshot(scope: scope, rows: rows,
                                 total: MailCount(value: all.count, isAtLeast: false),
                                 hasMore: all.count > rows.count, stillLoading: 0,
@@ -162,7 +166,7 @@ final class TriageHarness {
     /// Hands every observed list a reading that carries the mailbox as it is.
     func deliver() {
         for (scope, model) in models where observesWhileAway || scope == showing {
-            model.handle(.snapshot(snapshot(for: scope)))
+            model.handle(.snapshot(snapshot(for: model.windowScope)))
         }
     }
 
@@ -316,7 +320,7 @@ final class TriageHarness {
     /// answer to that entry, and the model takes it whole.
     func answerEntry() {
         entriesAnswered += 1
-        model.handle(.snapshot(snapshot(for: showing), answersEntry: true))
+        model.handle(.snapshot(snapshot(for: model.windowScope), answersEntry: true))
     }
 
     /// The session's other fact: the check he asked for has answered.
@@ -359,6 +363,10 @@ final class TriageHarness {
         case .growTo(let newLimit):
             // Observing again with a larger limit: the first value arrives at once.
             if model.arrivals > 0 { growthsWithAChip += 1 }
+            limits[showing] = newLimit
+            deliver()
+        case .moveWindow(_, let newLimit):
+            // Observing the place from another boundary: the first value arrives at once.
             limits[showing] = newLimit
             deliver()
         default:
@@ -2202,12 +2210,17 @@ extension MailListModelTests {
         XCTAssertFalse(h.model.hasWaitingReading)
     }
 
-    func testP1_oneStepIsAskedForOnceUpToTheCapAndNoFurther() {
+    func testP1_oneStepIsAskedForOnceUpToTheCapThenTheWindowSlides() {
         let h = TriageHarness(rows: 2_500, limit: 100)
         for _ in 0..<40 { h.send(.jumpToOldest) }
         XCTAssertEqual(h.growths, Array(stride(from: 200, through: 2_000, by: 100)))
-        XCTAssertEqual(h.model.rows.count, 2_000)
         XCTAssertEqual(h.model.limit, MailTuning.listCap)
+        // Past the cap the window slides instead of growing: never more rows than the cap, and
+        // the cursor's row is the mailbox's last (MailPaging).
+        XCTAssertLessThanOrEqual(h.model.rows.count, MailTuning.listCap)
+        XCTAssertNotNil(h.model.windowBefore)
+        XCTAssertEqual(h.model.rows.last?.id.thread, TriageHarness.letter(2_499))
+        XCTAssertEqual(h.cursor, TriageHarness.letter(2_499))
     }
 
     func testP1_aStepIsNotAskedForAgainUntilTheLastOneIsTakenIn() {

@@ -19,6 +19,9 @@ struct MailViewport: Equatable, Sendable {
     var firstRow: MailConversationID
     var key: MailOrderKey
     var offset: Int
+    /// How many rows the screen shows, partly or whole: what "about one screen of rows is still
+    /// to come" is counted in (`MailPaging`). Zero when the host did not say.
+    var rowsOnScreen: Int = 0
 }
 
 /// The rows wholly on screen, first and last, after the host has scrolled a page.
@@ -113,6 +116,12 @@ struct MailListShown {
     var hasDelivered: Bool
     /// One more for every publication.
     var generation: Int
+    /// What the row after the last one says (`MailPaging.Status`).
+    var paging: MailPaging.Status = .hidden
+    /// The window's boundary: the rows shown are older than this key; nil is the newest mail.
+    /// It changes when the window slides, and the host then keeps the rows on screen where
+    /// they are while rows come and go far above or below them.
+    var windowBefore: MailOrderKey? = nil
 }
 
 /// The one thing the list observes. It publishes once per applied change — the person's own
@@ -180,6 +189,11 @@ enum MailListEffect: Equatable, Sendable {
     case markReadAfter(MailConversationID, delay: TimeInterval)
     /// Observe the list again with a larger limit (6.1.7).
     case growTo(limit: Int)
+    /// Observe `windowScope` from now on: the window has slid to a new boundary (`MailPaging`).
+    /// Its first reading is the answer, and is marked so.
+    case moveWindow(before: MailOrderKey?, limit: Int)
+    /// The device holds no more here: ask the source's edge (`MailSource.askGmail`).
+    case askGmail
     /// Check for mail now (a pull, ⌘R).
     case checkNow
     /// `Esc` in a search: leave it for the place it was started from (K9).
@@ -208,7 +222,10 @@ enum MailListInput {
     /// that one reading `answersEntry: true`, and no other; the model takes it whole. A cached
     /// page shown first, on a cold launch, is not the answer and is not marked: the
     /// observation's first value is, and replaces it.
-    case snapshot(MailListSnapshot, answersEntry: Bool = false)
+    ///
+    /// **`answersRequest`.** The first value of an observation started for `growTo` or
+    /// `moveWindow`: what the source holds for the limit asked for, however few rows that is.
+    case snapshot(MailListSnapshot, answersEntry: Bool = false, answersRequest: Bool = false)
     /// **Check finished** — the second thing only the session knows. When he asked for a check
     /// (`refresh`: ⌘R, a pull, "Check mail now") what it finds is his to have at once. Send this,
     /// once, when the check has answered: when `status.asked` becomes `.finished` — at once if it
@@ -279,6 +296,8 @@ enum MailListInput {
     /// Undo has taken this entry off the stack and the source has answered with a receipt of
     /// sequence `through`: put the screen back (T26). Give it after `undo` returns.
     case restore(MailUndoEntry, through: UInt64)
+    /// Retry on the list's last row, after a failure: read the window again and ask the edge.
+    case retryPaging
 
     fileprivate var isThePersons: Bool {
         switch self {
@@ -331,8 +350,9 @@ final class MailListModel {
 
     /// A conversation must have been showing this long before it is read (T10).
     static let readDelay: TimeInterval = 0.4
-    /// The model asks for a step more when the cursor is this close to the last row (6.1.7).
-    static let growMargin = 30
+    /// The model asks for a step more when the cursor is this close to the last row (6.1.7);
+    /// scrolling asks a screen ahead, and never less than this (`MailPaging.lead`).
+    static let growMargin = MailPaging.minimumLead
 
     let scope: MailScope
     /// The rows, for the list to observe.
@@ -357,6 +377,17 @@ final class MailListModel {
     private(set) var appliedThrough: UInt64 = 0
     /// How many rows the model has asked the source for.
     private(set) var limit = MailTuning.listStep
+    /// The most rows one window holds (`MailTuning.listCap`; smaller in a test).
+    let cap: Int
+    /// The window's boundary: the rows are older than this key; nil is the newest mail
+    /// (`MailPaging`). The place itself is `scope`; what is observed is `windowScope`.
+    private(set) var windowBefore: MailOrderKey?
+    /// The scope the source is asked for: the place, from the window's boundary down.
+    var windowScope: MailScope {
+        var window = scope
+        window.before = windowBefore
+        return window
+    }
     /// The conversation that has the cursor, even when it is the open one and has left the list
     /// (T13). `cursor` is the same, for a row that is shown.
     private(set) var cursorID: MailConversationID?
@@ -412,6 +443,12 @@ final class MailListModel {
 
     /// How many rows the newest reading holds, which is what growing is decided from.
     var rowsInNewestReading: Int { readingCount }
+
+    /// The conversation the cursor is on, also when the window has slid away from its row: the
+    /// pane goes on showing it while he scrolls (`MailPaging`).
+    var cursorConversation: MailConversationID? {
+        cursorIsOutsideWindow ? cursorID : cursor
+    }
 
     /// Whether the open conversation can go to the next older or newer one (T12, T42).
     func canStep(_ direction: MailDirection) -> Bool {
@@ -483,13 +520,45 @@ final class MailListModel {
     private var dirty = false
     private var generation = 0
 
+    // MARK: The window (MailPaging)
+
+    /// The boundaries the window slid down from, oldest first: sliding newer walks back up them.
+    /// Keys only, so a walk through a whole mailbox keeps a few hundred keys and no rows.
+    private var windowTrail: [MailOrderKey?] = []
+    /// A growth or a slide was asked for and its reading has not come.
+    private var requestInFlight = false
+    /// The next reading of `windowScope` is the first of a new window, from this boundary.
+    private var adoptingFrom: MailOrderKey??
+    /// ⌘↑ in a slid window: once the newest rows are in, the cursor and the list go to the top.
+    private var toTopAfterWindow = false
+    private var edge: MailPaging.Edge = .idle
+    /// The keyboard moved the cursor more recently than the list was scrolled: paging follows
+    /// the cursor's row, not the screen.
+    private var cursorMovedLast = false
+    /// The window slid past the cursor's row. The cursor stays on that conversation (the pane
+    /// goes on showing it) until a key moves it or the window comes back to it.
+    private var cursorIsOutsideWindow = false
+    /// The window whose rows the model holds, and what was last published of it.
+    private var shownWindow: MailOrderKey?
+    private var publishedWindow: MailOrderKey?
+    private var publishedPaging = MailPaging.Status.hidden
+    /// The edge was asked for more at least once.
+    private var askedEdge = false
+    private var hasPaged: Bool {
+        limit > MailTuning.listStep || windowBefore != nil || !windowTrail.isEmpty || askedEdge
+    }
+
     /// `deviceName` is how the screens call this device ("iPhone", "iPad", "Mac"), for "this
     /// iPhone is full"; `timePhrase` words a snooze's time for its toast ("Thu 8 AM"). Neither
     /// has a default: a default would say the wrong thing on another device, in another
     /// language, and nobody would be told.
     init(scope: MailScope, carrying hint: MailCursorHint? = nil, deviceName: String,
-         timePhrase: @escaping (Date) -> String) {
+         cap: Int = MailTuning.listCap, timePhrase: @escaping (Date) -> String) {
         self.scope = scope
+        self.cap = max(MailTuning.listStep, cap)
+        self.windowBefore = scope.before
+        self.shownWindow = scope.before
+        self.publishedWindow = scope.before
         self.hint = hint
         self.cursorWasCarried = hint != nil
         self.deviceName = deviceName
@@ -497,7 +566,7 @@ final class MailListModel {
         self.list = MailListFeed(MailListShown(
             rows: [], dimmed: [], arrivals: 0, total: MailCount(value: 0, isAtLeast: false),
             hasMore: false, stillLoading: 0, isRebuilding: false, remote: nil, coverage: nil,
-            hasDelivered: false, generation: 0))
+            hasDelivered: false, generation: 0, windowBefore: scope.before))
     }
 
     // MARK: - The one entry point
@@ -509,9 +578,15 @@ final class MailListModel {
         var fx: [MailListEffect] = []
         if input.isThePersons { isIdle = false }
         if input.endsARun { endRun() }
+        switch input {
+        case .scrolled, .pagedTo: cursorMovedLast = false
+        case .move, .step, .jumpToOldest, .jumpToNewest, .place, .extendSelection: cursorMovedLast = true
+        default: break
+        }
 
         switch input {
-        case .snapshot(let snapshot, let answersEntry): receive(snapshot, answersEntry: answersEntry)
+        case .snapshot(let snapshot, let answersEntry, let answersRequest):
+            receive(snapshot, answersEntry: answersEntry, answersRequest: answersRequest, &fx)
         case .checkFinished: awaitingCheck = false
         case .performed(let token, let receipt): performed(token, receipt, &fx)
         case .reverted(let entry, let why): reverted(entry, why, &fx)
@@ -543,10 +618,11 @@ final class MailListModel {
         case .act(let action, let id): act(action, on: id, &fx)
         case .chipUsed: chipUsed(&fx)
         case .restore(let entry, let through): restore(entry, through: through, &fx)
+        case .retryPaging: retryPaging(&fx)
         }
 
         ensureACursor()
-        growIfNeeded(&fx)
+        pageIfNeeded(&fx)
         commit()
         return fx
     }
@@ -558,6 +634,9 @@ final class MailListModel {
     /// and its place is known, it is the nearest row to that place; otherwise the first.
     private func ensureACursor() {
         guard open == nil else { return }
+        if cursorIsOutsideWindow {
+            if cursorIndex() != nil { cursorIsOutsideWindow = false } else if cursorID != nil { return }
+        }
         if rows.isEmpty {
             if cursorID != nil { moveCursor(to: nil) }
             cursorKey = nil
@@ -570,14 +649,30 @@ final class MailListModel {
 
     // MARK: - Readings (T7, T8, T9)
 
-    private func receive(_ snapshot: MailListSnapshot, answersEntry: Bool) {
-        guard snapshot.scope == scope, snapshot.appliedThrough >= appliedThrough else { return }
+    private func receive(_ snapshot: MailListSnapshot, answersEntry: Bool, answersRequest: Bool,
+                         _ fx: inout [MailListEffect]) {
+        // A reading of the window before it slid is of rows no longer asked for.
+        guard snapshot.scope == windowScope, snapshot.appliedThrough >= appliedThrough else { return }
         appliedThrough = snapshot.appliedThrough
         latest = snapshot
         updateMeta(snapshot)
+        if answersRequest || snapshot.rows.count >= limit || adoptingFrom != nil { requestInFlight = false }
+        if snapshot.remote == .failed { edge = .failed }
+        else if snapshot.remote != .pending { edge = .idle }
         guard hasHadAReading else {
+            adoptingFrom = nil
             firstReading(snapshot)
             return
+        }
+        if let from = adoptingFrom {
+            adoptingFrom = nil
+            adoptWindow(snapshot, from: from)
+            if toTopAfterWindow {
+                toTopAfterWindow = false
+                direction = .older
+                if let first = rows.first { moveCursor(to: first.id, at: 0) }
+                fx.append(.scrollToTop)
+            }
         }
         // Only a change from elsewhere waits for rest. This is not one when the session says it
         // answers entering the place, or the check he asked for is still out, or when a
@@ -859,6 +954,7 @@ final class MailListModel {
     private func moveCursor(to id: MailConversationID?, at index: Int? = nil, keepingPlace: Bool = false) {
         let old = cursorID
         cursorID = id
+        cursorIsOutsideWindow = false
         if let id {
             let found = index ?? indexOf(id)
             cursorIndexCache = found
@@ -877,6 +973,9 @@ final class MailListModel {
             if let index = indexOf(id) {
                 cursorIndexCache = index
                 cursorKey = rows[index].key
+                cursorIsOutsideWindow = false
+            } else if cursorIsOutsideWindow {
+                // The window slid past it: the cursor stays where it was (MailPaging).
             } else if open?.id == id {
                 // The open conversation left the list. It stays open and the cursor keeps its
                 // place; the next step, close or action is worked out against the list as it
@@ -994,7 +1093,15 @@ final class MailListModel {
 
     private func move(_ direction: MailDirection, _ fx: inout [MailListEffect]) {
         if open != nil { return step(direction, &fx) }
-        guard let current = cursorIndex() else { return }
+        guard let current = cursorIndex() else {
+            // The window slid away from the cursor: a key brings it to the first row on screen,
+            // as paging does (T4).
+            guard cursorIsOutsideWindow, !rows.isEmpty else { return }
+            let at = viewport.flatMap { indexByKey($0.key) } ?? 0
+            moveCursor(to: rows[at].id, at: at)
+            fx.append(.reveal(rows[at].id, beyond: nil))
+            return
+        }
         let target = direction == .older ? current + 1 : current - 1
         // At either end nothing happens: no wrap, no beep.
         guard rows.indices.contains(target) else { return }
@@ -1015,6 +1122,15 @@ final class MailListModel {
     /// ⌘↑: the top, what waits above it, and the cursor on the first row (T9).
     private func jumpToNewest(_ fx: inout [MailListEffect]) {
         guard open == nil else { return }
+        if windowBefore != nil {
+            // The newest rows are not in a slid window: it goes back to the top, and the cursor
+            // and the list follow once they are in.
+            windowTrail.removeAll()
+            limit = MailTuning.listStep
+            toTopAfterWindow = true
+            moveWindow(to: nil, &fx)
+            return
+        }
         if let pending { merge(pending, structure: true, top: true) }
         direction = .older
         if let first = rows.first { moveCursor(to: first.id, at: 0) }
@@ -1700,34 +1816,147 @@ final class MailListModel {
         rowsLeft()
     }
 
-    // MARK: - Asking for more (6.1.7)
+    // MARK: - Asking for more (6.1.7, MailPaging)
 
-    /// The model asks for a step more rows when the cursor, or the first row on screen, comes
-    /// within `growMargin` rows of the last one it has, up to the cap — and only once the reading
-    /// for the limit it last asked for has arrived, so one step is asked for once. That is the
-    /// reading's count, not the rows shown: a row held back in the chip is in the reading and
-    /// not on screen (MAIL-UX 6.1.7). The first row on screen is found
-    /// by its key: this runs on every input, and a held `J` must not scan the list.
-    private func growIfNeeded(_ fx: inout [MailListEffect]) {
-        guard meta.hasMore, readingCount >= limit, limit < MailTuning.listCap else { return }
-        var nearest = cursorIndex()
-        if let viewport, let top = indexByKey(viewport.key) { nearest = max(nearest ?? 0, top) }
-        guard let nearest, rows.count - nearest <= Self.growMargin else { return }
-        limit = min(MailTuning.listCap, limit + MailTuning.listStep)
+    /// Asks for what scrolling is about to reach, before it is reached (`MailPaging.decide`):
+    /// a step more rows, the window slid older or newer, or the source's edge. The position is
+    /// the screen's — the rows on it, from the host — or the cursor's row when a key moved it
+    /// last; growing older also follows the cursor wherever it is. One request is out at a
+    /// time, and the one asked for is not asked again until its reading has come. The rows on
+    /// screen are found by key: this runs on every input, and a held `J` must not scan the list.
+    private func pageIfNeeded(_ fx: inout [MailListEffect]) {
+        guard hasHadAReading, !rows.isEmpty else { return }
+        let cursorAt = cursorIndex()
+        let top = viewport.flatMap { indexByKey($0.key) }
+        let screen = viewport?.rowsOnScreen ?? 0
+        let first: Int
+        if cursorMovedLast, let cursorAt { first = cursorAt }
+        else if let top { first = top }
+        else if let cursorAt { first = cursorAt }
+        else { return }
+        var last = first
+        if let top { last = max(last, top + max(screen, 1) - 1) }
+        if let cursorAt { last = max(last, cursorAt) }
+        let state = MailPaging.State(
+            firstVisible: first, lastVisible: min(last, rows.count - 1), screenRows: screen,
+            loaded: rows.count, reading: readingCount, limit: limit, inFlight: requestInFlight,
+            hasMore: sourceHasMore, isSlid: windowBefore != nil, edge: edge, cap: cap)
+        switch MailPaging.decide(state) {
+        case .none:
+            break
+        case .grow(let next):
+            limit = next
+            requestInFlight = true
+            fx.append(.growTo(limit: limit))
+        case .slideOlder(let keep):
+            guard keep > 0, keep < rows.count else { return }
+            windowTrail.append(windowBefore)
+            moveWindow(to: rows[keep - 1].key, &fx)
+        case .slideNewer:
+            moveWindow(to: windowTrail.popLast() ?? nil, &fx)
+        case .askEdge:
+            edge = .asked
+            askedEdge = true
+            fx.append(.askGmail)
+        }
+    }
+
+    /// More beyond the window's last row: on the device, or at Gmail for a search that said so.
+    private var sourceHasMore: Bool {
+        if case .done(_, true)? = meta.remote { return true }
+        return meta.hasMore
+    }
+
+    private func moveWindow(to before: MailOrderKey?, _ fx: inout [MailListEffect]) {
+        if adoptingFrom == nil { adoptingFrom = .some(windowBefore) }
+        windowBefore = before
+        requestInFlight = true
+        edge = .idle
+        fx.append(.moveWindow(before: before, limit: limit))
+    }
+
+    /// The first reading of a slid window. The rows that stay in it are kept exactly as they
+    /// are — what they say and where they are is the next merge's, which waits for rest like
+    /// any other — and the rows the window brings join above or below them. What it let go
+    /// goes without any rule of T7 to T9: those rows are far from the screen, and the host
+    /// keeps the rows on screen where they are.
+    private func adoptWindow(_ snapshot: MailListSnapshot, from oldBefore: MailOrderKey?) {
+        endRun()
+        let reading = snapshot.rows
+        // A full reading ends the window at its last row; a short one is all there is.
+        let bottom = reading.count >= limit ? reading.last?.key : nil
+        var above: [MailRow] = []
+        if let oldBefore {
+            for row in reading {
+                guard row.key >= oldBefore else { break }
+                above.append(row)
+            }
+        }
+        let aboveIDs = Set(above.lazy.map(\.id))
+        let middle = rows.filter { row in
+            !aboveIDs.contains(row.id)
+                && (windowBefore.map { row.key < $0 } ?? true)
+                && (bottom.map { row.key >= $0 } ?? true)
+        }
+        let middleIDs = Set(middle.lazy.map(\.id))
+        var next = above
+        next.reserveCapacity(reading.count + middle.count)
+        next.append(contentsOf: middle)
+        if let lastKey = middle.last?.key {
+            next.append(contentsOf: reading.lazy.filter { $0.key < lastKey && !middleIDs.contains($0.id) })
+        } else {
+            next.append(contentsOf: reading.lazy.filter { !aboveIDs.contains($0.id) })
+        }
+        rows = next
+        dirty = true
+        shownWindow = windowBefore
+        pending = nil
+        setArrivals(0)
+        unresolved = unresolved.filter { id in rows.contains { $0.id == id } }
+        if let id = cursorID, open?.id != id, indexOf(id) == nil, let key = cursorKey, !windowHolds(key, bottom: bottom) {
+            cursorIsOutsideWindow = true
+            cursorIndexCache = nil
+        }
+        rowsLeft()
+    }
+
+    /// Whether a key is inside the window's bounds, loaded or not.
+    private func windowHolds(_ key: MailOrderKey, bottom: MailOrderKey?) -> Bool {
+        if let windowBefore, key >= windowBefore { return false }
+        if let bottom, key < bottom { return false }
+        return true
+    }
+
+    /// Retry on the last row: the window is read again and, outside a search, the edge asked.
+    private func retryPaging(_ fx: inout [MailListEffect]) {
+        guard edge == .failed || meta.remote == .failed else { return }
+        requestInFlight = true
         fx.append(.growTo(limit: limit))
+        if case .search = scope.place {} else {
+            edge = .asked
+            fx.append(.askGmail)
+        }
     }
 
     // MARK: - Publishing
 
     private func commit() {
+        // Worked out on every input, a held `J` included: a few comparisons, and the published
+        // value is not read (that would retain its rows).
+        let paging = scope.isWriting ? MailPaging.Status.hidden : MailPaging.status(
+            loaded: rows.count, hasMore: sourceHasMore, failed: edge == .failed, hasPaged: hasPaged)
+        if paging != publishedPaging || shownWindow != publishedWindow { dirty = true }
         guard dirty else { return }
         dirty = false
+        publishedPaging = paging
+        publishedWindow = shownWindow
         generation += 1
         list.shown = MailListShown(
             rows: rows, dimmed: Set(kept.filter { $0.value }.map { $0.key }), arrivals: arrivals,
             total: meta.total, hasMore: meta.hasMore, stillLoading: meta.stillLoading,
             isRebuilding: meta.isRebuilding, remote: meta.remote, coverage: meta.coverage,
-            hasDelivered: meta.delivered, generation: generation)
+            hasDelivered: meta.delivered, generation: generation, paging: paging,
+            windowBefore: shownWindow)
     }
 }
 

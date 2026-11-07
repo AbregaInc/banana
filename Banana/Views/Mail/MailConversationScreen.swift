@@ -9,11 +9,14 @@ struct MailConversationScreen: View {
     @ObservedObject var reader: MailReaderModel
     /// A reply is written under the last message; false at a phone's width, where it is a sheet.
     let inlineComposer: Bool
+    @Environment(\.bottomBarShell) private var bottomBarShell
+    @Environment(\.wideShell) private var wideShell
 
     var body: some View {
         VStack(spacing: 0) {
             MailConversationHeader(session: session)
-            MailDivider(axis: .horizontal)
+            // The shells' top row floats on glass with no rule under it (the approved images).
+            if !bottomBarShell && !wideShell { MailDivider(axis: .horizontal) }
             MailConversationContent(session: session, reader: reader, inlineComposer: inlineComposer)
         }
         // A container of its own, so that its identifier is its own: set on a bare stack it is
@@ -32,12 +35,15 @@ struct MailConversationContent: View {
     let session: MailSession
     @ObservedObject var reader: MailReaderModel
     let inlineComposer: Bool
+    /// "…" beside the subject, in place of the pane's row of icons (an upright iPad's reader).
+    var titleMenu = false
     @State private var position: ScrollPosition
 
-    init(session: MailSession, reader: MailReaderModel, inlineComposer: Bool) {
+    init(session: MailSession, reader: MailReaderModel, inlineComposer: Bool, titleMenu: Bool = false) {
         self.session = session
         self.reader = reader
         self.inlineComposer = inlineComposer
+        self.titleMenu = titleMenu
         _position = State(initialValue: ScrollPosition(y: reader.scrollOffset))
     }
 
@@ -47,10 +53,16 @@ struct MailConversationContent: View {
                 if reader.conversation != nil {
                     VStack(alignment: .leading, spacing: DS.Space.m) {
                         LazyVStack(alignment: .leading, spacing: DS.Space.m) {
-                            Text(reader.title)
-                                .font(.title3.weight(.semibold))
-                                .padding(.bottom, DS.Space.xs)
-                                .accessibilityIdentifier(MailID.conversationTitle)
+                            HStack(alignment: .firstTextBaseline, spacing: DS.Space.s) {
+                                Text(reader.title)
+                                    .font(.title3.weight(.semibold))
+                                    .accessibilityIdentifier(MailID.conversationTitle)
+                                if titleMenu {
+                                    Spacer(minLength: DS.Space.s)
+                                    MailPaneMoreMenu(session: session)
+                                }
+                            }
+                            .padding(.bottom, DS.Space.xs)
                             ForEach(reader.messages) { message in
                                 MailMessageCard(message: message, text: reader.bodies[message.id], opener: reader.opener,
                                                 load: { reader.fetchBody(message.id) })
@@ -116,8 +128,73 @@ struct MailReplyMenu: View {
 /// (T15).
 private struct MailConversationHeader: View {
     let session: MailSession
+    /// The bottom-bar shell: Back, and the rest under one "…"; Archive and Reply are on the bar.
+    @Environment(\.bottomBarShell) private var bottomBarShell
 
     var body: some View {
+        if bottomBarShell { shellRow } else { classicRow }
+    }
+
+    /// Back with the place's name, and "…": older and newer, reply, star, unread, archive.
+    private var shellRow: some View {
+        HStack(spacing: 0) {
+            Button { session.close() } label: {
+                Label(MailPlacesModel.title(of: session.scope), systemImage: "chevron.backward")
+                    .font(.body.weight(.medium))
+                    .lineLimit(1)
+                    .padding(.horizontal, DS.Space.m)
+                    .frame(minHeight: DS.Row.minHeight)
+                    .contentShape(Capsule())
+            }
+            .buttonStyle(.plain)
+            .foregroundStyle(DS.Palette.accent)
+            .glassEffect(.regular.interactive(), in: .capsule)
+            .accessibilityIdentifier(MailID.back)
+            Spacer(minLength: DS.Space.s)
+            Menu {
+                Section {
+                    Button { session.step(.newer) } label: { Label("Newer", systemImage: "chevron.up") }
+                        .disabled(!session.model.canStep(.newer))
+                        .accessibilityIdentifier(MailID.newer)
+                    Button { session.step(.older) } label: { Label("Older", systemImage: "chevron.down") }
+                        .disabled(!session.model.canStep(.older))
+                        .accessibilityIdentifier(MailID.older)
+                }
+                Section {
+                    Button { session.reply(.reply) } label: { Label("Reply", systemImage: "arrowshape.turn.up.left") }
+                    Button { session.reply(.replyAll) } label: { Label("Reply to all", systemImage: "arrowshape.turn.up.left.2") }
+                    Button { session.reply(.forward) } label: { Label("Forward", systemImage: "arrowshape.turn.up.right") }
+                }
+                .disabled(!session.allowsComposing)
+                Section {
+                    Button { session.act(.toggleStar) } label: { Label("Star", systemImage: "star") }
+                        .disabled(!session.canPerform(.toggleStar))
+                        .accessibilityIdentifier(MailID.star)
+                    Button { session.act(.toggleRead) } label: { Label("Mark unread", systemImage: "envelope.badge") }
+                        .disabled(!session.canPerform(.toggleRead))
+                        .accessibilityIdentifier(MailID.unread)
+                    Button { session.act(.done) } label: { Label("Archive", systemImage: "checkmark") }
+                        .disabled(!session.canPerform(.done))
+                        .accessibilityIdentifier(MailID.done)
+                }
+                Button { session.askForDetails(toggles: true) } label: { Label("Details", systemImage: "info.circle") }
+                    .accessibilityIdentifier("mail.more.details")
+            } label: {
+                Image(systemName: "ellipsis")
+                    .font(.body.weight(.semibold))
+                    .frame(width: DS.Row.minHeight, height: DS.Row.minHeight)
+                    .contentShape(Circle())
+            }
+            .menuIndicator(.hidden)
+            .glassEffect(.regular.interactive(), in: .circle)
+            .accessibilityLabel("More")
+            .accessibilityIdentifier("mail.reader.more")
+        }
+        .padding(.horizontal, DS.Space.l)
+        .padding(.vertical, DS.Space.xs)
+    }
+
+    private var classicRow: some View {
         // No spacing of its own: each action is already a 44-point target, and at a phone's width
         // the six of them with gaps between left Back no room for the place's name, which wrapped
         // to "In-/…". The name is one line, and truncates before it wraps.
@@ -182,9 +259,17 @@ struct MailMessageCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: DS.Space.s) {
             HStack(alignment: .firstTextBaseline) {
-                Text(message.sender)
-                    .font(.subheadline.weight(.semibold))
-                    .lineLimit(1)
+                // The sender opens the conversation's Details, as "…" › Details does.
+                Button { session?.askForDetails(toggles: false) } label: {
+                    Text(message.sender)
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(.primary)
+                        .lineLimit(1)
+                }
+                .buttonStyle(.plain)
+                .disabled(session == nil)
+                .accessibilityHint("Shows the details")
+                .accessibilityIdentifier("mail.sender." + message.id.message)
                 Spacer(minLength: DS.Space.s)
                 Text(message.date)
                     .font(.caption).foregroundStyle(.secondary).monospacedDigit()

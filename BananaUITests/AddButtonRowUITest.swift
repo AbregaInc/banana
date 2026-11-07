@@ -1,21 +1,20 @@
 import XCTest
 
-/// On a phone the + is the tab bar's own, at the end of its row: the system keeps it there as the
-/// bar shrinks, and it opens one list of everything that can be added. It takes one of the bar's
-/// five places, so Workouts and Nutrition share the Body tab.
+/// On a phone adding is the bottom bar's field (docs/design/BOTTOM-BAR-SHELL.md): tapped with
+/// nothing typed it lists everything that can be added, this page's first. Workouts and
+/// Nutrition are one page, Body, with the others under its title.
 final class AddButtonRowUITest: XCTestCase {
     override func setUp() { continueAfterFailure = false }
 
-    /// The + is the page's, in its top bar, and opens the one list of everything. It was the tab
-    /// bar's search slot: iOS took a tap there as going to a page, slid the selection across,
-    /// flashed that empty page and snapped back before the list came up.
-    func testThePlusIsInThePagesBarAndOpensOneList() throws {
+    /// The field at the bottom lists what can be added, and a pick opens it. The + was in the top
+    /// bar before; the tab bar's search slot before that stuttered (iOS took it for a page).
+    func testTheFieldListsWhatCanBeAddedAndAPickOpensIt() throws {
         try XCTSkipIf(UIDevice.current.userInterfaceIdiom == .pad, "the phone's shell")
         let app = launch()
-        let add = app.buttons["wellness.add"].firstMatch
-        XCTAssertTrue(add.waitForExistence(timeout: 20), app.debugDescription)
-        XCTAssertFalse(app.tabBars.buttons["Add"].exists, "the tab bar has no + of its own")
-        XCTAssertLessThan(add.frame.midY, app.windows.firstMatch.frame.height * 0.2, "the + is in the top bar")
+        let add = app.plus("wellness.add")
+        XCTAssertTrue(add.exists, app.debugDescription)
+        XCTAssertFalse(app.buttons["wellness.add"].exists, "no + in the top bar any more")
+        XCTAssertGreaterThan(add.frame.midY, app.windows.firstMatch.frame.height * 0.8, "the field is at the bottom")
 
         add.tap()
         XCTAssertTrue(app.descendants(matching: .any).matching(identifier: "page.add.list").firstMatch.waitForExistence(timeout: 5))
@@ -27,8 +26,6 @@ final class AddButtonRowUITest: XCTestCase {
         if typingIntroduction.waitForExistence(timeout: 3) {
             app.buttons["Continue"].tap()
         }
-        // Wait for each destination control independently: after Apple's keyboard introduction,
-        // querying both full hierarchies in one five-second predicate can consume its deadline.
         XCTAssertTrue(app.navigationBars["New meal"].waitForExistence(timeout: 5))
         XCTAssertFalse(app.descendants(matching: .any).matching(identifier: "page.add.list").firstMatch.exists)
         XCTAssertTrue(app.textFields["foodText.name"].waitForExistence(timeout: 5), app.debugDescription)
@@ -37,9 +34,7 @@ final class AddButtonRowUITest: XCTestCase {
     func testDescribeOpensThePhraseEditor() throws {
         try XCTSkipIf(UIDevice.current.userInterfaceIdiom == .pad, "the phone's global Add list")
         let app = launch()
-        let add = app.buttons["wellness.add"].firstMatch
-        XCTAssertTrue(add.waitForExistence(timeout: 20))
-        add.tap()
+        app.plus("wellness.add").tap()
         let describe = app.buttons["wellness.textMeal"]
         XCTAssertTrue(describe.waitForExistence(timeout: 5))
         describe.tap()
@@ -48,35 +43,34 @@ final class AddButtonRowUITest: XCTestCase {
         XCTAssertTrue(app.buttons["capture.recentMeals"].exists)
     }
 
-    func testWorkoutsAndNutritionShareTheBodyTab() throws {
-        try XCTSkipIf(UIDevice.current.userInterfaceIdiom == .pad, "an iPad's tab bar is at the top")
+    func testWorkoutsAndNutritionShareBody() throws {
+        try XCTSkipIf(UIDevice.current.userInterfaceIdiom == .pad, "the iPad has the rail")
         let app = launch()
-        let bar = app.tabBars.firstMatch
-        XCTAssertTrue(bar.buttons["Body"].waitForExistence(timeout: 20), app.debugDescription)
-        for tab in ["Plan", "Notes", "Library"] {
-            XCTAssertTrue(bar.buttons[tab].exists, "\(tab) has its own place: \(bar.debugDescription)")
+        let switcher = app.buttons["shell.switcher"]
+        XCTAssertTrue(switcher.waitForExistence(timeout: 20), app.debugDescription)
+        switcher.tap()
+        XCTAssertTrue(app.buttons["shell.page.body"].waitForExistence(timeout: 3))
+        XCTAssertTrue(app.buttons["shell.page.body"].isSelected, "Food is under Body")
+        for gone in ["workouts", "nutrition"] {
+            XCTAssertFalse(app.buttons["shell.page.\(gone)"].exists, "\(gone) is not a page of its own")
         }
-        for gone in ["Browse", "Workouts", "Nutrition", "More", "Add"] {
-            XCTAssertFalse(bar.buttons[gone].exists, "\(gone) is not on the bar")
-        }
+        switcher.tap()
 
-        // One switch across both pages, where the title was.
-        let pages = app.segmentedControls["body.switch"]
-        XCTAssertTrue(pages.waitForExistence(timeout: 5), app.debugDescription)
-        XCTAssertEqual(pages.buttons.count, 3)
-        XCTAssertTrue(pages.buttons.element(boundBy: 1).isSelected, "opened on Food")
-        pages.buttons["Workouts"].tap()
-        wait("Workouts shows, under the same tab") {
-            app.segmentedControls["body.switch"].buttons["Workouts"].isSelected && bar.buttons["Body"].isSelected
-        }
-        app.segmentedControls["body.switch"].buttons.element(boundBy: 2).tap()
-        wait("Taken shows") { app.segmentedControls["body.switch"].buttons.element(boundBy: 2).isSelected }
+        // The title names the page, with the others under its chevron.
+        let title = app.descendants(matching: .any)["body.title"].firstMatch
+        XCTAssertTrue(title.waitForExistence(timeout: 5), app.debugDescription)
+        XCTAssertTrue(title.label.hasPrefix("Food"), title.label)
+        title.tap()
+        app.buttons["Workouts"].firstMatch.tap()
+        wait("Workouts shows, under Body") { title.label.hasPrefix("Workouts") }
 
-        // The tab comes back to the page last looked at.
-        bar.buttons["Notes"].tap()
-        wait("Notes opens") { bar.buttons["Notes"].isSelected }
-        bar.buttons["Body"].tap()
-        wait("Body is back on Taken") { app.segmentedControls["body.switch"].buttons.element(boundBy: 2).isSelected }
+        // Body comes back to the page last looked at.
+        switcher.tap()
+        app.buttons["shell.page.notes"].tap()
+        wait("Notes opens") { app.descendants(matching: .any)["page.title"].firstMatch.label == "Notes" }
+        switcher.tap()
+        app.buttons["shell.page.body"].tap()
+        wait("Body is back on Workouts") { title.label.hasPrefix("Workouts") }
     }
 
     private func launch() -> XCUIApplication {

@@ -523,20 +523,18 @@ final class OnboardingWalkUITest: XCTestCase {
         app.buttons["Done"].firstMatch.tap()
         pause(1)
 
-        // Each tab, as it is the first time it is opened. None of them asks the system anything.
-        let tabs = app.tabBars.buttons.allElementsBoundByIndex.map(\.label).filter { !$0.isEmpty }
-        say("tabs: \(tabs)")
-        // Not Add: it isn't a tab but the + beside them, and its sheet left covering Plan stopped
-        // the walk from coming back.
-        for name in tabs.dropFirst() where name != "Add" {
-            let tab = app.tabBars.buttons[name].firstMatch
-            guard tab.exists, tab.isHittable else { continue }
-            tab.tap()
+        // Each page, as it is the first time it is opened. None of them asks the system anything.
+        // (Review and Settings open over the page; they are not pages to walk.)
+        for name in ["mail", "body", "notes", "library"] {
+            let button = app.buttons["shell.page.\(name)"]
+            if !(button.exists && button.isHittable) { app.buttons["shell.switcher"].firstMatch.tap(); pause(0.5) }
+            guard button.exists, button.isHittable else { continue }
+            button.tap()
             pause(2)
-            keep(app, "tab-\(name.lowercased().replacingOccurrences(of: " ", with: "-"))")
+            keep(app, "tab-\(name)")
             XCTAssertFalse(springboard.alerts.firstMatch.exists, "\(name) asked the system for something by itself")
         }
-        if let first = tabs.first { app.tabBars.buttons[first].firstMatch.tap(); pause(1) }
+        app.openPage("plan"); pause(1)
 
         // The plan's menu keeps the setup list within reach.
         let more = app.buttons["mobile.week.more"].firstMatch

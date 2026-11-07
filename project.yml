@@ -632,6 +632,8 @@ targets:
     platform: iOS
     sources:
       - path: BananaTests
+      # The navigation layer's decisions (docs/design/BOTTOM-BAR-SHELL.md).
+      - path: Banana/Model/ShellRules.swift
       - path: Banana/Model/HealthAuthorization.swift
       - path: Banana/Pi/AssistantNutrition.swift
       - path: Banana/Pi/AssistantFailure.swift

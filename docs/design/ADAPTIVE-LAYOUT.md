@@ -43,7 +43,7 @@ build started.
 | `LayoutClass` (`Banana/Views/AdaptiveLayout.swift`) | `compact` / `regular` from a width; `EnvironmentValues.layoutClass`; `.measuresLayoutClass()`. |
 | `DeviceRole` (`Banana/Model/DeviceRole.swift`) | `phone` / `pad` / `mac`; `isHub`; `name` for copy ("stays on this iPad"). |
 | `AppSection` | The app's sections — one list for the phone tab bar, the iPad sidebar and the Mac sidebar. |
-| The shell (`RootView.mainTabs`) | One `TabView`, `.sidebarAdaptable`: a tab bar when narrow, a sidebar with every section when there's room. Phone tabs: Plan, Workouts, Nutrition, Notes, Library; Sleep, Trends, Routines and Settings are sidebar-only (reached from inside those tabs on a phone). |
+| The shell (`RootView.mainTabs`) | One `TabView` whose bar is hidden, with one navigation layer by width (docs/design/BOTTOM-BAR-SHELL.md): compact, the bar at the bottom (page switcher, "Search or ask", the assistant) and a title row per page; regular, a rail of page buttons at the left edge and one toolbar per page. The Mac's `MacRootView` has the same rail and toolbar. |
 | `DS` tokens (`Shared/BananaDesign.swift`) | Spacing, type, colour roles — the same on every device; never hard-coded per device. |
 
 ## Views: one per feature, adapting

@@ -39,8 +39,15 @@ extension MailSession {
         let source = MailFixtureSource(defaults: kept)
         #endif
         var toastID: UUID?
+        // `--mail-window-rows N` (Debug): a smaller list window, so a UI test crosses several
+        // slides of it in a few flings. The rule is the same at any size (`MailPaging`).
+        var windowRows = MailTuning.listCap
+        #if DEBUG
+        if let index = arguments.firstIndex(of: "--mail-window-rows"), arguments.indices.contains(index + 1),
+           let rows = Int(arguments[index + 1]) { windowRows = rows }
+        #endif
         let session = MailSession(source: source, now: source.now, deviceName: DeviceRole.current.name,
-                                  defaults: .standard, isSample: true,
+                                  defaults: .standard, isSample: true, windowRows: windowRows,
                                   dismissToast: { if let toastID { ToastCenter.shared.dismiss(ifMatching: toastID) } }) { toast, undo in
             ToastCenter.shared.present(toast.text, actionTitle: toast.action?.title ?? "",
                                        window: toast.lasts.map { .seconds($0) },

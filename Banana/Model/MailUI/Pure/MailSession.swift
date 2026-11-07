@@ -14,6 +14,11 @@ final class MailNavigation: ObservableObject {
 
     @Published fileprivate(set) var reader: MailReaderModel?
     @Published fileprivate(set) var scope: MailScope
+    /// Each ask for the conversation's Details ("…" › Details, a tap on a sender). The screen
+    /// answers it by `MailArrangement.detailsPlacement`: the column, or a sheet.
+    @Published fileprivate(set) var detailsAsks = 0
+    /// Whether the last ask toggles (a menu's Details) or only opens (a tap on a sender).
+    fileprivate(set) var detailsAskToggles = false
     /// The reading pane, when there is room for one.
     @Published fileprivate(set) var showsPane: Bool
     /// The details column, when there is a pane and room for both.
@@ -30,7 +35,8 @@ final class MailNavigation: ObservableObject {
         self.scope = scope
         self.defaults = defaults
         showsPane = defaults?.object(forKey: Self.paneKey) as? Bool ?? true
-        showsDetails = defaults?.object(forKey: Self.detailsKey) as? Bool ?? true
+        // Closed until asked for (approved direction B, 6 Nov 2026): `]` or the pane's button.
+        showsDetails = defaults?.object(forKey: Self.detailsKey) as? Bool ?? false
     }
 
     var open: MailConversationID? { reader?.id }
@@ -60,6 +66,16 @@ enum MailHostCommand: Equatable, Sendable {
     /// Show the row whole, and one more beyond it in `beyond` when there is one.
     case reveal(MailConversationID, beyond: MailDirection?)
     case scrollToTop
+}
+
+/// True once, for an observation's first value: the one that answers what it was started for.
+@MainActor
+private final class FirstReading {
+    private var pending = true
+    func take() -> Bool {
+        defer { pending = false }
+        return pending
+    }
 }
 
 /// The clocks the session runs on, so a test sets them by hand.
@@ -136,8 +152,8 @@ final class MailSession {
 
     /// One model for each place he has visited, kept with its cursor marks.
     private var lists: [MailScope: (model: MailListModel, marks: MailRowMarks)] = [:]
-    // Only small cursors survive paging; old list models and observations do not.
-    private var historyPages: [MailOrderKey?] = []
+    /// The most rows one list window holds (`MailPaging`): `MailTuning.listCap`, smaller in a test.
+    let windowRows: Int
     private var observation: MailObservation?
     private var eventObservation: MailObservation?
     private var pendingEvents: [MailEvent] = []
@@ -153,6 +169,7 @@ final class MailSession {
 
     init(source: MailSource, now: Date, deviceName: String, defaults: UserDefaults? = nil,
          timers: MailTimers = .live, clock: @escaping () -> Date = Date.init, isSample: Bool = false, allowsChanges: Bool = true,
+         windowRows: Int = MailTuning.listCap,
          allowsComposing: Bool? = nil,
          supportsAction: @escaping @MainActor (MailAction) -> Bool = { _ in true },
          allowsTarget: @escaping @MainActor (MailTarget) -> Bool = { _ in true },
@@ -161,6 +178,7 @@ final class MailSession {
          present: @escaping @MainActor (MailToast, @escaping @MainActor () -> Void) -> Void) {
         self.isSample = isSample
         self.allowsChanges = allowsChanges
+        self.windowRows = windowRows
         self.composingEnabled = allowsChanges && (allowsComposing ?? true)
         self.supportsAction = supportsAction
         self.allowsTarget = allowsTarget
@@ -197,7 +215,8 @@ final class MailSession {
 
     private func list(for scope: MailScope) -> (model: MailListModel, marks: MailRowMarks) {
         if let existing = lists[scope] { return existing }
-        let model = MailListModel(scope: scope, deviceName: deviceName, timePhrase: { MailDateText.full($0) })
+        let model = MailListModel(scope: scope, deviceName: deviceName, cap: windowRows,
+                                  timePhrase: { MailDateText.full($0) })
         let made = (model, MailRowMarks(model: model))
         lists[scope] = made
         return made
@@ -226,8 +245,11 @@ final class MailSession {
     private func begin() {
         send(.enter)
         answersEntry = true
-        observation = source.observeList(scope, limit: model.limit) { [weak self] snapshot in
-            self?.received(snapshot)
+        let first = FirstReading()
+        // The window, which may have slid; its first value also answers a request left out
+        // when the place was left.
+        observation = source.observeList(model.windowScope, limit: model.limit) { [weak self] snapshot in
+            self?.received(snapshot, answersRequest: first.take())
         }
     }
 
@@ -244,10 +266,10 @@ final class MailSession {
         send(.open(id))
     }
 
-    private func received(_ snapshot: MailListSnapshot) {
+    private func received(_ snapshot: MailListSnapshot, answersRequest: Bool = false) {
         let marked = answersEntry
         answersEntry = false
-        run(model.handle(.snapshot(snapshot, answersEntry: marked)))
+        run(model.handle(.snapshot(snapshot, answersEntry: marked, answersRequest: answersRequest)))
     }
 
     private func received(_ event: MailEvent) {
@@ -313,27 +335,7 @@ final class MailSession {
     /// observation go and keeps its model; the one chosen is entered, and its cursor is where
     /// he left it. A conversation open over the old place is closed first.
     func show(_ place: MailMailbox) {
-        historyPages.removeAll()
         switchTo(MailScope(place: .mailbox(place)))
-    }
-
-    var historyBackTitle: String { historyPages.isEmpty ? "Newest" : "Newer" }
-    var canShowOlderHistory: Bool {
-        !scope.isWriting && feed.shown.hasDelivered && feed.shown.hasMore && !model.rows.isEmpty
-    }
-    func showOlderHistory() {
-        guard canShowOlderHistory, let last = model.rows.last else { return }
-        historyPages.append(scope.before)
-        var next = scope
-        next.before = last.key
-        switchTo(next)
-    }
-    func showNewerHistory() {
-        guard scope.before != nil else { return }
-        var next = scope
-        if let previous = historyPages.popLast() { next.before = previous }
-        else { next.before = nil }
-        switchTo(next)
     }
 
     func switchTo(_ target: MailScope) {
@@ -341,10 +343,8 @@ final class MailSession {
         closeComposer()
         if model.open != nil { run(model.handle(.close)) }
         if isEntered { end() }
-        var oldPlace = scope, newPlace = target
-        oldPlace.before = nil; newPlace.before = nil
-        if oldPlace != newPlace { historyPages.removeAll() }
-        if scope.before != nil || target.before != nil { lists.removeValue(forKey: scope) }
+        // A search's model and rows go with it; a mailbox keeps its model, cursor and window.
+        if scope.before != nil { lists.removeValue(forKey: scope) }
         else if case .search = scope.place { lists.removeValue(forKey: scope) }
         scope = target
         navigation.scope = target
@@ -357,8 +357,16 @@ final class MailSession {
         end(); begin()
     }
 
+    /// Retry on the list's last row, after a failure to load more.
+    func retryPaging() { send(.retryPaging) }
+
     func togglePane() { navigation.setPane(!navigation.showsPane) }
     func toggleDetails() { navigation.setDetails(!navigation.showsDetails) }
+    /// "…" › Details (`toggles`) and a tap on a sender: the screen decides where they open.
+    func askForDetails(toggles: Bool) {
+        navigation.detailsAskToggles = toggles
+        navigation.detailsAsks &+= 1
+    }
 
     /// Whether a reading pane is on screen. The view says so when its arrangement changes.
     func setPaneVisible(_ visible: Bool) { pane.setActive(visible) }
@@ -547,20 +555,25 @@ final class MailSession {
             }
         case .settled(let entry):
             finishSendAndDone(entry)
-        case .growTo(let limit):
+        case .growTo(let limit), .moveWindow(_, let limit):
             guard isEntered else { break }
             let previous = observation
-            let next = source.observeList(scope, limit: limit) { [weak self] snapshot in
+            let first = FirstReading()
+            // A slid window is observed at its new boundary; the model drops readings of the old.
+            let next = source.observeList(model.windowScope, limit: limit) { [weak self] snapshot in
                 // Keep live updates until the replacement's first reading, as the source
                 // contract requires. Growing is not a new entry: retain cursor and viewport.
                 previous?.cancel()
-                self?.received(snapshot)
+                self?.received(snapshot, answersRequest: first.take())
             }
             observation = MailObservation {
                 // Leaving before that first reading must also cancel the old subscription.
                 previous?.cancel()
                 next.cancel()
             }
+        case .askGmail:
+            guard isEntered else { break }
+            source.askGmail(model.scope)
         case .scrollPage, .restoreViewport, .checkNow, .leaveSearch, .clearFilters:
             // Paging, a saved scroll position, checking for mail and leaving a
             // search belong to screens this slice does not have.

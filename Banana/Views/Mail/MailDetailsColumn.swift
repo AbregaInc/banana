@@ -28,7 +28,34 @@ struct MailDetailsColumn: View {
     }
 }
 
-private struct MailDetailsContent: View {
+/// Details as a sheet: the bottom-bar layout's, and over a conversation open full width
+/// (`MailArrangement.detailsPlacement`). Half height to start, pulled to full.
+struct MailDetailsSheet: View {
+    @ObservedObject var reader: MailReaderModel
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationStack {
+            MailDetailsContent(reader: reader)
+                .navigationTitle("Details")
+                #if os(iOS)
+                .navigationBarTitleDisplayMode(.inline)
+                #endif
+                .toolbar {
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button("Done") { dismiss() }
+                            .accessibilityIdentifier("mail.details.close")
+                    }
+                }
+        }
+        .presentationDetents([.medium, .large])
+        .presentationDragIndicator(.visible)
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("mail.details.sheet")
+    }
+}
+
+struct MailDetailsContent: View {
     @ObservedObject var reader: MailReaderModel
 
     var body: some View {

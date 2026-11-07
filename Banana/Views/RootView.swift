@@ -75,6 +75,41 @@ struct RootView: View {
                             if ProcessInfo.processInfo.arguments.contains("--toast-preview") {
                                 ToastCenter.shared.showPreview("Deleted \u{201C}Lunch with Sam\u{201D}")
                             }
+                            // `--sample-episode`: a sample episode loaded (not playing), for the
+                            // player above the bar; `--player-hidden` starts it folded away.
+                            let args = ProcessInfo.processInfo.arguments
+                            if args.contains("--sample-episode") {
+                                let library = WakeCoordinator.shared.library
+                                library.injectSampleForPreview()
+                                if let podcast = library.podcasts.first, let episode = podcast.ordered().first {
+                                    player.loadForPreview(episode, in: podcast)
+                                    player.duration = max(player.duration, 2_400)
+                                    player.currentTime = player.duration * 0.42
+                                }
+                                if args.contains("--player-hidden") { ShellChrome.shared.playerHidden = true }
+                            }
+                            // `--shell-switcher-open`, `--shell-query <words>`: the switcher open, or
+                            // the field with words in it, for screenshots of the bottom-bar shell.
+                            if args.contains("--shell-switcher-open") { ShellChrome.shared.switcherOpen = true }
+                            if let i = args.firstIndex(of: "--shell-query"), i + 1 < args.count {
+                                let words = args[i + 1]
+                                Task { @MainActor in
+                                    try? await Task.sleep(for: .seconds(1.5))
+                                    ShellSearch.shared.text = words
+                                    ShellSearch.shared.focusRequests.send(true)
+                                    ShellSearch.shared.textChanged()
+                                }
+                            }
+                            // `--shell-tick`: the playhead moves once a second, as in playback,
+                            // so a test can count what that redraws (`RenderStats`).
+                            if args.contains("--shell-tick") {
+                                Task { @MainActor in
+                                    while !Task.isCancelled {
+                                        try? await Task.sleep(for: .seconds(1))
+                                        player.currentTime += 1
+                                    }
+                                }
+                            }
                         }
                 } else {
                     Color.black.ignoresSafeArea()
@@ -475,6 +510,60 @@ struct RootView: View {
         horizontalSizeClass == .regular && DeviceRole.current != .phone
     }
 
+    /// Which navigation layer the shell's width calls for (`ShellLayout`); nil until measured.
+    @State private var rootShell: ShellLayout?
+
+    /// The bottom-bar shell (docs/design/BOTTOM-BAR-SHELL.md): a phone either way up, an iPad
+    /// upright, any split or Slide Over. The rail only where a landscape iPad's room is. Decided
+    /// by width, never by device.
+    private var bottomBarShell: Bool {
+        (rootShell ?? ShellLayout.of(width: Double(UIScreen.main.bounds.width))) == .bottomBar
+    }
+
+    /// The tab bar or sidebar with its bottom accessory: no width has it now (the bar at the
+    /// bottom, or the rail); kept as the one switch should a width go back to it.
+    private var classicShell: Bool { false }
+
+    /// The pages the switcher lists: only the modules that are on.
+    private var shellPages: [ShellPage] {
+        var on = ShellPage.Modules()
+        #if BANANA_UNRELEASED
+        on.mail = modules.includes(.email)
+        #endif
+        on.workouts = modules.includes(.workouts)
+        on.food = modules.includes(.food)
+        on.notes = modules.includes(.notes)
+        on.library = modules.includes(.podcasts)
+        on.review = AppSection.review.isShown(with: modules.effectiveChoice)
+        return ShellPage.listed(on)
+    }
+
+    /// The switcher's page for the section showing.
+    private var currentShellPage: ShellPage? {
+        if shell.state.tab == .settings { return .settings }
+        if shell.state.tab == .review, showsSidebarSections { return .review }
+        return switch shell.state.tab.tabBarHome {
+        case .plan: .plan
+        case .mail: .mail
+        case .workouts, .nutrition: .body
+        case .notes: .notes
+        case .library: .library
+        default: nil
+        }
+    }
+
+    private func openShellPage(_ page: ShellPage) {
+        switch page {
+        case .plan: shell.state.tab = .plan
+        case .mail: shell.state.tab = .mail
+        case .body: shell.state.tab = bodyShowing
+        case .notes: shell.state.tab = .notes
+        case .library: shell.state.tab = .library
+        case .review: PageChrome.shared.review = shell.state.tab.tabBarHome
+        case .settings: PageChrome.shared.showSettings = true
+        }
+    }
+
     /// A sidebar-only section open when the sidebar goes (an iPad narrowed into a split) shows
     /// the tab it lives under instead of nothing.
     private var tabSelection: Binding<ShellTab> {
@@ -521,11 +610,22 @@ struct RootView: View {
     /// clears the tab bar and the now-playing accessory, so the toast sits just above them.
     @ViewBuilder private var mainTabs: some View {
         // The fixed app is home in every build; the agent is a way in (the +) and out (Review),
-        // not a screen of its own.
-        browseTabs
+        // not a screen of its own. Where a landscape iPad's room is, the rail of pages at the left
+        // edge (docs/design/BOTTOM-BAR-SHELL.md, Wide); anywhere narrower, the bar at the bottom.
+        HStack(spacing: 0) {
+            if !bottomBarShell {
+                ShellRail(pages: shellPages, current: currentShellPage, open: openShellPage)
+            }
+            browseTabs
+        }
+        // The whole shell's width, rail included: measured inside it, the rail's own width would
+        // flip the class back and forth at the line.
+        .onGeometryChange(for: ShellLayout.self) { ShellLayout.of(width: Double($0.size.width)) } action: { layout in
+            if rootShell != layout { rootShell = layout }
+        }
     }
 
-    private var browseTabs: some View {
+    private var tabs: some View {
         // One shell for every width: a tab bar when narrow (iPhone, a narrow iPad split, a folded
         // phone), a sidebar with every section when there's room (iPad, an unfolded phone) —
         // the sections the Mac sidebar lists, from the same `AppSection`. Each section measures
@@ -538,6 +638,7 @@ struct RootView: View {
                 PlannerTab().equatable()
                     .measuresLayoutClass()
                     .toastHost()
+                    .shellPage(bottomBar: bottomBarShell)
             }
             // Overdue reminders.
             .badge(badges.counts.plan)
@@ -545,6 +646,7 @@ struct RootView: View {
             if modules.includes(.email) {
                 Tab(AppSection.mail.title, systemImage: AppSection.mail.symbol, value: ShellTab.section(.mail)) {
                     MailSection().measuresLayoutClass().toastHost()
+                        .shellPage(bottomBar: bottomBarShell)
                 }
             }
             #endif
@@ -552,17 +654,20 @@ struct RootView: View {
                 // The + takes a place on the row and a phone's bar holds five: Workouts and
                 // Nutrition share one, with one switch across both at the top (`BodySwitch`).
                 Tab(bodyLabel.title, systemImage: bodyLabel.symbol, value: ShellTab.body) {
-                    if bodyShowing == .nutrition {
-                        NutritionSection()
-                            .measuresLayoutClass()
-                            .syncWaitingNote(.wellness)
-                            .toastHost()
-                    } else {
-                        WorkoutsSection(path: $shell.state.workouts)
-                            .measuresLayoutClass()
-                            .syncWaitingNote(.fitness)
-                            .toastHost()
+                    Group {
+                        if bodyShowing == .nutrition {
+                            NutritionSection()
+                                .measuresLayoutClass()
+                                .syncWaitingNote(.wellness)
+                                .toastHost()
+                        } else {
+                            WorkoutsSection(path: $shell.state.workouts)
+                                .measuresLayoutClass()
+                                .syncWaitingNote(.fitness)
+                                .toastHost()
+                        }
                     }
+                    .shellPage(bottomBar: bottomBarShell)
                 }
                 // Meals to log or check, and doses due and not yet marked.
                 .badge(badges.counts.nutrition)
@@ -577,6 +682,7 @@ struct RootView: View {
                             .measuresLayoutClass()
                             .syncWaitingNote(.fitness)
                             .toastHost()
+                            .shellPage(bottomBar: bottomBarShell)
                     }
                 }
                 if modules.includes(.food) {
@@ -585,6 +691,7 @@ struct RootView: View {
                             .measuresLayoutClass()
                             .syncWaitingNote(.wellness)
                             .toastHost()
+                            .shellPage(bottomBar: bottomBarShell)
                     }
                     // Meals to log or check, and doses due and not yet marked.
                     .badge(badges.counts.nutrition)
@@ -595,6 +702,7 @@ struct RootView: View {
                     NotesView()
                         .measuresLayoutClass()
                         .toastHost()
+                        .shellPage(bottomBar: bottomBarShell)
                 }
             }
             if showsSidebarSections {
@@ -604,6 +712,7 @@ struct RootView: View {
                     RoutinesView()
                         .measuresLayoutClass()
                         .toastHost()
+                        .shellPage(bottomBar: bottomBarShell)
                 }
             }
             if modules.includes(.podcasts) {
@@ -612,6 +721,7 @@ struct RootView: View {
                         .measuresLayoutClass()
                         .syncWaitingNote(.controls)
                         .toastHost()
+                        .shellPage(bottomBar: bottomBarShell)
                 }
             }
             if showsSidebarSections, AppSection.review.isShown(with: modules.effectiveChoice) {
@@ -622,6 +732,7 @@ struct RootView: View {
                         .measuresLayoutClass()
                         .syncWaitingNote(.fitness)
                         .toastHost()
+                        .shellPage(bottomBar: bottomBarShell)
                 }
                 .tabPlacement(.sidebarOnly)
             }
@@ -629,6 +740,7 @@ struct RootView: View {
                 #if BANANA_AI && !PI_DEVELOPMENT
                 Tab(AppSection.assistant.title, systemImage: AppSection.assistant.symbol, value: ShellTab.section(.assistant)) {
                     AssistantView().measuresLayoutClass()
+                        .shellPage(bottomBar: bottomBarShell)
                 }
                 .tabPlacement(.sidebarOnly)
                 #endif
@@ -636,6 +748,7 @@ struct RootView: View {
                     SettingsView()
                         .measuresLayoutClass()
                         .toastHost()
+                        .shellPage(bottomBar: bottomBarShell)
                 }
                 .tabPlacement(.sidebarOnly)
             }
@@ -643,11 +756,27 @@ struct RootView: View {
             // the selection across, showed that empty page for a moment and snapped back before
             // the list came up. The + is each page's own, in its top bar (`PageChrome`).
         }
+        .tabViewStyle(.sidebarAdaptable)
+        .tabBarMinimizeBehavior(.onScrollDown)   // collapse to a pill on scroll, tap to expand
+        .tabViewBottomAccessory(isEnabled: classicShell && (player.currentEpisode != nil || music.wakePlaying != nil)) {
+            // An Apple Music wake plays in the Music app, so the podcast bar has nothing to
+            // show — without this branch the ONLY way to stop wake music was the Lock Screen.
+            if player.currentEpisode != nil {
+                NowPlayingBar(onExpand: { showNowPlaying = true })
+            } else {
+                MusicWakeBar()
+            }
+        }
+    }
+
+    /// The tab view, with what both shells add around it: the bar or the rail's results, the
+    /// player, the sheets, the toast and the voice note host.
+    private var browseTabs: some View {
+        tabs
         .environment(\.addOpensList, addOpensList)
         .onChange(of: shell.state.tab) { _, tab in
             if BodyPage.holds(tab.tabBarHome), tab.tabBarHome.isShown(with: modules.effectiveChoice) { lastBody = tab.tabBarHome }
         }
-        .tabViewStyle(.sidebarAdaptable)
         #if DEBUG
         // `--tab <section>`: open on that section (layout audits on any device).
         .task {
@@ -670,14 +799,42 @@ struct RootView: View {
         }
         #endif
         .tint(DS.Palette.accent)
-        .tabBarMinimizeBehavior(.onScrollDown)   // collapse to a pill on scroll, tap to expand
-        .tabViewBottomAccessory(isEnabled: player.currentEpisode != nil || music.wakePlaying != nil) {
-            // An Apple Music wake plays in the Music app, so the podcast bar has nothing to
-            // show — without this branch the ONLY way to stop wake music was the Lock Screen.
-            if player.currentEpisode != nil {
-                NowPlayingBar(onExpand: { showNowPlaying = true })
-            } else {
-                MusicWakeBar()
+        // The bottom-bar shell: one bar for every page, with the player above it. The pages
+        // scroll under it (it is their bottom safe area), and it rides up with the keyboard.
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            if bottomBarShell {
+                ShellBarHost(section: shell.state.tab.tabBarHome, pages: shellPages,
+                             open: openShellPage, expandPlayer: { showNowPlaying = true })
+            }
+        }
+        // What the field found, over the page; then the switcher's column over everything.
+        .overlay {
+            if bottomBarShell {
+                ShellResultsOverlay(section: shell.state.tab.tabBarHome)
+                ShellSwitcherOverlay(pages: shellPages, current: currentShellPage, open: openShellPage)
+            }
+        }
+        // Wide: the player at the foot of the page, as the Mac has it (no bar to sit above).
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            if !bottomBarShell, player.currentEpisode != nil || music.wakePlaying != nil {
+                Group {
+                    if player.currentEpisode != nil {
+                        NowPlayingBar(onExpand: { showNowPlaying = true })
+                    } else {
+                        MusicWakeBar()
+                    }
+                }
+                .padding(.vertical, DS.Space.xs)
+                .frame(maxWidth: 560)
+                .glassEffect(.regular, in: .capsule)
+                .padding(.bottom, DS.Space.s)
+            }
+        }
+        // Wide: what the field in a page's toolbar found, hanging under the toolbar.
+        .overlay(alignment: .top) {
+            if !bottomBarShell {
+                ShellWideResults(section: shell.state.tab.tabBarHome)
+                    .padding(.top, 52)
             }
         }
         // Floats just above the bottom accessory: visible without covering anything, and it
@@ -759,7 +916,11 @@ private struct DayPerformanceRenderProbe: View {
         ("calendar.performance.appearances", "Calendar.appear"),
         ("notes.performance.renderCount", "NotesView"),
         ("notes.performance.loads", "Notes.loadPage"),
-        ("notes.performance.appearances", "Notes.appear")
+        ("notes.performance.appearances", "Notes.appear"),
+        ("shell.performance.bar", "ShellBottomBar"),
+        ("shell.performance.capsule", "ShellPlayerCapsule"),
+        ("shell.performance.line", "ShellPlaybackLine"),
+        ("shell.performance.root", "RootView")
     ]
 
     var body: some View {

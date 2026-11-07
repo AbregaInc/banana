@@ -1,25 +1,30 @@
 import XCTest
 
-/// The control column's five places, and the two keys that hide a column (`\` the reading pane,
-/// `]` the details column). Both toggles are written to the Beta's preferences by the app; every case
+/// The five places under the window's "Inbox ⌄" title menu (the control column went with the rail
+/// and one toolbar, docs/design/BOTTOM-BAR-SHELL.md), and the two keys that toggle a column (`\`
+/// the reading pane, `]` the details column, which starts closed). Both toggles are written to the Beta's preferences by the app; every case
 /// here puts back what it changes, and `tools/mac-mail-uitest.sh` restores the keys afterwards.
 final class MailPlacesAndColumnsTests: MacMailTestCase {
 
-    func testEachPlaceInTheControlColumnShowsItsList() {
+    func testEachPlaceInTheTitleMenuShowsItsList() {
         launchMail()
-        place("Starred").click()
-        eventually("Starred to list its two") { self.row("q3").exists && self.placeCount("Starred") == 2 }
+        XCTAssertFalse(has(MailID.control), "no control column beside the list")
+        func show(_ title: String) {
+            app.descendants(matching: .any)[MailID.placeMenu].firstMatch.click()
+            app.menuItems[title].firstMatch.click()
+        }
+        show("Starred")
+        eventually("Starred to list q3") { self.row("q3").exists }
         shot("Starred")
-        place("Drafts").click()
+        show("Drafts")
         eventually("Drafts to say it is empty") { self.app.staticTexts["Nothing in Drafts"].exists }
         shot("Drafts")
-        place("Scheduled").click()
+        show("Scheduled")
         eventually("Scheduled to say it is empty") { self.app.staticTexts["Nothing in Scheduled"].exists }
-        place("Done").click()
+        show("Done")
         eventually("Done to say it is empty") { self.app.staticTexts["Nothing in Done"].exists }
-        place("Inbox").click()
+        show("Inbox")
         eventually("the Inbox rows") { self.row("q3").exists }
-        XCTAssertEqual(placeCount("Inbox"), 40)
         shot("Inbox again")
     }
 
@@ -36,14 +41,15 @@ final class MailPlacesAndColumnsTests: MacMailTestCase {
 
     func testBracketHidesAndShowsTheDetailsColumn() throws {
         launchMail(size: CGSize(width: 1500, height: 780))
-        guard let width = mailWidth(), width >= MailArrangement.detailsAt else {
-            throw XCTSkip("The screen is too small for four columns (Mail is \(String(describing: mailWidth())) wide; it needs \(MailArrangement.detailsAt)).")
+        let needed = MailArrangement.detailsAt - MailArrangement.controlWidth
+        guard let width = mailWidth(), width >= needed else {
+            throw XCTSkip("The screen is too small for the details column (Mail is \(String(describing: mailWidth())) wide; it needs \(needed)).")
         }
-        XCTAssertTrue(has(MailID.details), "all four columns at this width")
+        XCTAssertFalse(has(MailID.details), "the details start closed")
         press("]")
-        eventually("the details column to go") { !self.has(MailID.details) }
-        shot("details hidden")
+        eventually("the details column to open") { self.has(MailID.details) }
+        shot("details shown")
         press("]")
-        eventually("the details column to come back") { self.has(MailID.details) }
+        eventually("the details column to close") { !self.has(MailID.details) }
     }
 }

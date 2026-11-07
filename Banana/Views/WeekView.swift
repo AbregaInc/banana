@@ -787,9 +787,11 @@ struct MacWeekView: View {
         return weekOffset == 0 ? "NEXT \(weekSpan.rawValue) DAYS" : "\(weekSpan.rawValue) DAYS FROM"
     }
 
-    /// Everything that acts on the planner, in the window toolbar, in the places every Mac page
-    /// uses (DESIGN-SYSTEM.md, the standard, 5): back, forward and Today leading, beside the
-    /// title; the view switch in the middle; the forecast, availability and + trailing.
+    /// Everything that acts on the planner, in the window's one toolbar (docs/design/
+    /// BOTTOM-BAR-SHELL.md, Wide): back, forward and Today, then Day, several days or Week under
+    /// the title with the forecast beside it; "Search or ask" and the assistant are the window's;
+    /// "…" holds sharing and Refresh. Adding is the field's (focused with nothing typed), and C,
+    /// S and ⇧⌘L still create, share availability and copy the booking link.
     @ToolbarContentBuilder private var plannerToolbar: some ToolbarContent {
         ToolbarItemGroup(placement: .navigation) {
             // Plain buttons, as the date line's (`DateLine`): a ControlGroup was moved to the far end.
@@ -804,69 +806,32 @@ struct MacWeekView: View {
                 .help("Go to today (T)")
             if loadingWeek { ProgressView().controlSize(.small) }
         }
-        ToolbarItem(placement: .automatic) {
-            ControlGroup {
-                Button { moveWeek(-1) } label: { Image(systemName: "chevron.left") }
-                    .help(dayMode ? "Previous day (K)" : (weekSpan.isAlignedWeek ? "Previous week (K)" : "Back \(weekSpan.rawValue) days (K)"))
-                    .accessibilityLabel("Earlier")
-                Button("Today") { moveToCurrentWeek() }
-                    .disabled(weekOffset == 0)
-                    .help("Go to today (T)")
-                Button { moveWeek(1) } label: { Image(systemName: "chevron.right") }
-                    .help(dayMode ? "Next day (J)" : (weekSpan.isAlignedWeek ? "Next week (J)" : "Forward \(weekSpan.rawValue) days (J)"))
-                    .accessibilityLabel("Later")
-            }
-        }
-        ToolbarItem(placement: .automatic) { MacPlannerViewMenu() }
-        ToolbarItem(placement: .automatic) { CalendarSearchButton() }
-        // The forecast: the day shown in Day, today while it is in view.
-        ToolbarItem(placement: .automatic) {
+        ToolbarItem(placement: .navigation) { MacPlannerTitleMenu() }
+        // The forecast beside the title: the day shown in Day, today while it is in view.
+        ToolbarItem(placement: .navigation) {
             if dayMode, let day = days.first?.date {
                 WeatherChip(day: day)
             } else if days.contains(where: \.isToday) {
                 WeatherChip(day: Date())
             }
         }
-        // The booking link: the system's share menu (⇧⌘L copies it). Only with a link.
-        if booking.canShare {
-            ToolbarItem(placement: .automatic) {
-                BookingShareButton()
-            }
-        }
-        ToolbarItem(placement: .automatic) {
-            Button { MacNavigator.shared.showsAvailability.toggle() } label: {
-                Image(systemName: "calendar.badge.checkmark")
-            }
-            .help("Share availability (S)")
-        }
         ToolbarItem(placement: .primaryAction) {
-            #if PI_DEVELOPMENT
-            Button { PageChrome.shared.showAdd = true } label: { Label("Add", systemImage: "plus") }
-                .accessibilityIdentifier("mac.week.newEvent")
-            #else
-            // A MENU, like Day's "+", not an event-only button: the calendar — where you can see
-            // when you are free — is exactly where a reminder should be creatable too.
             Menu {
-                Button {
-                    newEventRequest = MacNewEventRequest(start: defaultNewEventStart(), durationMinutes: 60)
-                } label: {
-                    Label("Event", systemImage: "calendar.badge.plus")
+                BookingShareButton()
+                Button { MacNavigator.shared.showsAvailability.toggle() } label: {
+                    Label("Share availability", systemImage: "calendar.badge.checkmark")
                 }
-                Button {
-                    newTaskDue = defaultNewEventStart()
-                    showingNewTask = true
-                } label: {
-                    Label("Reminder", systemImage: "checklist")
-                }
-                Button { showingAlarms = true } label: {
-                    Label("Alarm", systemImage: "alarm")
+                .help("Share availability (S)")
+                Button { NotificationCenter.default.post(name: .macForceRefreshRequested, object: nil) } label: {
+                    Label("Refresh", systemImage: "arrow.clockwise")
                 }
             } label: {
-                Label("Add", systemImage: "plus")
+                Image(systemName: "ellipsis")
             }
-            .help("Create an event (C), a reminder or an alarm")
-            .accessibilityIdentifier("mac.week.newEvent")
-            #endif
+            .menuIndicator(.hidden)
+            .help("Share and refresh")
+            .accessibilityLabel("More")
+            .accessibilityIdentifier("mac.planner.more")
         }
     }
 
@@ -3669,6 +3634,12 @@ private struct MobileDayHeaderStrip: View {
 #if os(iOS)
 struct WeekView: View {
     @Environment(\.tabBarPlacement) private var tabBarPlacement
+    /// The bottom-bar shell: one top row (the title menu and "…"), and the untimed items as one
+    /// sideways row (docs/design/BOTTOM-BAR-SHELL.md).
+    @Environment(\.bottomBarShell) private var bottomBarShell
+    /// The wide shell (the rail, one toolbar): back, forward and Today, then Day or Week under a
+    /// title, "Search or ask" in the middle (`ReviewToolbarItem`), the assistant and "…".
+    @Environment(\.wideShell) private var wideShell
     /// Whether the top bar offers the booking link.
     @ObservedObject private var booking = BookingCenter.shared
     /// Calendar publications are observed explicitly below. Observing the entire store here made
@@ -3934,40 +3905,54 @@ struct WeekView: View {
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                // Only the floating top tabs occupy the centre. With the sidebar open,
-                // keep Day/Week in the title position instead of pushing it to the far left.
-                ToolbarItem(placement: tabBarPlacement == .topBar ? .topBarLeading : .principal) {
-                    PlanModePicker(widest: tabBarPlacement == .topBar ? 120 : 204)
-                        .controlSize(.small)
-                }
-                .sharedBackgroundVisibility(.hidden)
-                ReviewToolbarItem(section: .plan)
-                if booking.canShare {
-                    ToolbarItem(placement: .automatic) { BookingShareButton() }
-                }
-                ToolbarItem(placement: .automatic) { CalendarSearchButton() }
-                ToolbarItem(placement: .automatic) {
-                    MoreMenu(identifier: "mobile.week.more") {
-                        // The plan had no way to ask for fresh data: pull-to-refresh was on the
-                        // retired Today screen. The Mac has ⌘R.
-                        Button {
-                            Task { await smart.refreshCalendar(); await occurrences.recompute() }
-                        } label: {
-                            Label("Refresh", systemImage: "arrow.clockwise")
+                if bottomBarShell {
+                    // One row: the title, whose menu switches Day and Week and steps the dates,
+                    // the day's date and weather beside it, and "…". Search, + and Review are
+                    // the bar's (the field and the switcher).
+                    ToolbarItem(placement: .topBarLeading) { mobileTitleMenu }
+                    ToolbarItem(placement: .topBarLeading) { mobileTitleAside }
+                        .sharedBackgroundVisibility(.hidden)
+                    ToolbarItem(placement: .topBarTrailing) {
+                        MoreMenu(identifier: "mobile.week.more") {
+                            if booking.canShare { BookingShareButton() }
+                            planMoreItems
                         }
-                        .accessibilityIdentifier("mobile.week.refresh")
-                        Button { showBriefing = true } label: {
-                            Label("Morning briefing", systemImage: "sunrise.fill")
+                    }
+                } else if wideShell {
+                    ToolbarItemGroup(placement: .topBarLeading) {
+                        Button { moveMobileWeek(-1) } label: { Image(systemName: "chevron.left") }
+                            .accessibilityLabel(dayMode ? "Previous day" : "Previous week")
+                        Button { moveMobileWeek(1) } label: { Image(systemName: "chevron.right") }
+                            .accessibilityLabel(dayMode ? "Next day" : "Next week")
+                    }
+                    ToolbarItem(placement: .topBarLeading) {
+                        Button("Today") { moveMobileWeekToCurrent() }
+                            .disabled(mobileWeekOffset == 0)
+                            .accessibilityIdentifier("plan.today")
+                    }
+                    ToolbarItem(placement: .topBarLeading) { PlanModeTitleMenu() }
+                    ReviewToolbarItem(section: .plan)
+                    ToolbarItem(placement: .topBarTrailing) {
+                        MoreMenu(identifier: "mobile.week.more") {
+                            if booking.canShare { BookingShareButton() }
+                            planMoreItems
                         }
-                        .accessibilityIdentifier("mobile.week.briefing")
-                        CopyBookingLinkButton()
-                        Button { showingAvailability = true } label: {
-                            Label("Share availability", systemImage: "calendar.badge.checkmark")
-                        }
-                        .accessibilityIdentifier("mobile.week.availability")
-                        // The setup list, while anything on it has never been asked for: the
-                        // way back to it once its line above the plan has been hidden.
-                        SetupMenuItem()
+                    }
+                } else {
+                    // Only the floating top tabs occupy the centre. With the sidebar open,
+                    // keep Day/Week in the title position instead of pushing it to the far left.
+                    ToolbarItem(placement: tabBarPlacement == .topBar ? .topBarLeading : .principal) {
+                        PlanModePicker(widest: tabBarPlacement == .topBar ? 120 : 204)
+                            .controlSize(.small)
+                    }
+                    .sharedBackgroundVisibility(.hidden)
+                    ReviewToolbarItem(section: .plan)
+                    if booking.canShare {
+                        ToolbarItem(placement: .automatic) { BookingShareButton() }
+                    }
+                    ToolbarItem(placement: .automatic) { CalendarSearchButton() }
+                    ToolbarItem(placement: .automatic) {
+                        MoreMenu(identifier: "mobile.week.more") { planMoreItems }
                     }
                 }
             }
@@ -4229,17 +4214,80 @@ struct WeekView: View {
 
     // MARK: - Mobile calendar
 
+    /// What "…" holds on the phone, whichever shell it is in.
+    @ViewBuilder private var planMoreItems: some View {
+        // The plan had no way to ask for fresh data: pull-to-refresh was on the
+        // retired Today screen. The Mac has ⌘R.
+        Button {
+            Task { await smart.refreshCalendar(); await occurrences.recompute() }
+        } label: {
+            Label("Refresh", systemImage: "arrow.clockwise")
+        }
+        .accessibilityIdentifier("mobile.week.refresh")
+        Button { showBriefing = true } label: {
+            Label("Morning briefing", systemImage: "sunrise.fill")
+        }
+        .accessibilityIdentifier("mobile.week.briefing")
+        CopyBookingLinkButton()
+        Button { showingAvailability = true } label: {
+            Label("Share availability", systemImage: "calendar.badge.checkmark")
+        }
+        .accessibilityIdentifier("mobile.week.availability")
+        // The setup list, while anything on it has never been asked for: the
+        // way back to it once its line above the plan has been hidden.
+        SetupMenuItem()
+    }
+
+    /// The title of the bottom-bar shell's one top row: what is showing ("Today", "This week",
+    /// "Wed, Nov 4"), with Day and Week, the steps through dates, and what needs attention under it.
+    private var mobileTitleMenu: some View {
+        let words = DateLineWording.parts(current: dayMode ? "Today" : "This week", dates: mobileWeekRangeTitle,
+                                          isCurrent: mobileWeekOffset == 0)
+        return PlanTitleMenu(
+            title: words.name,
+            // A week's dates go with its name (under it on a phone, beside it with room); a day's
+            // date beside it (`mobileTitleAside`).
+            subtitle: dayMode ? nil : words.dates,
+            dayMode: dayMode,
+            isCurrent: mobileWeekOffset == 0,
+            titleValue: dayMode ? Occurrence.dayKey(mobileVisibleWeekStart) : mobileWeekRangeTitle,
+            step: { moveMobileWeek($0) },
+            toCurrent: { moveMobileWeekToCurrent() })
+    }
+
+    /// Beside the title: today's date and the weather, as the date line had them.
+    private var mobileTitleAside: some View {
+        HStack(spacing: DS.Space.m) {
+            if dayMode, mobileWeekOffset == 0 {
+                Text(mobileVisibleWeekStart.formatted(.dateTime.weekday(.abbreviated).month(.abbreviated).day()))
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
+            if dayMode {
+                WeatherChip(day: mobileVisibleWeekStart)
+            } else if mobileWeekOffset == 0 {
+                WeatherChip(day: Date())
+            }
+            if mobileWeekLoading { ProgressView().controlSize(.mini) }
+        }
+        .fixedSize()
+    }
+
     /// A real shared time axis. Three readable columns fit in portrait; horizontal scrolling
     /// exposes the rest of the week, while landscape naturally shows most or all seven.
     private var mobilePlanner: some View {
         VStack(spacing: 0) {
             PlanPromptCard()
-            PlanAttentionBand()
+            // In the bottom-bar shell what needs attention is a count on the title, and the
+            // dates are the title's: no rows of their own.
+            if !bottomBarShell { PlanAttentionBand() }
             // A repeating reminder that follows a moment, offered it (`AnchorSuggestions`):
             // above the day, where Plan's List had it.
             if dayMode { ReminderTimingOffers().padding(.bottom, DS.Space.xs) }
-            mobileWeekChrome
-            Divider()
+            if !bottomBarShell {
+                mobileWeekChrome
+                Divider()
+            }
             mobileCalendarGrid
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
@@ -4383,6 +4431,39 @@ struct WeekView: View {
             .background(Color(.systemBackground))
             // Its own container, as the sideways scroll it replaced was: without one, the grid's
             // identifier lands on every chip in place of the chip's own.
+            .accessibilityElement(children: .contain)
+            .accessibilityIdentifier("mobile.plan.todo")
+            Divider()
+        }
+    }
+
+    /// The bottom-bar shell's one row of untimed items: the day's all-day events (in Day; Week
+    /// has them under each column), its routines with no time, and its reminders, scrolling
+    /// sideways. Every one of them is in the row; none waits behind "+N more".
+    @ViewBuilder private func mobileUntimedRow(_ day: DayData?) -> some View {
+        let events = dayMode ? AllDayEvents.busyFirst((day?.items ?? []).filter { $0.behavior == .allDay },
+                                                      blocks: \.blocksWholeDay) : []
+        let untimed = (day?.items ?? [])
+            .filter { $0.behavior == .task && !$0.hasScheduledTime }
+            .sorted { ($0.overdue ? 0 : 1, $0.title) < ($1.overdue ? 0 : 1, $1.title) }
+        let reminders = OutstandingReminders.line(untimed: untimed, overdue: overdueTasks,
+                                                  isToday: day?.isToday ?? false, id: \.id, due: Self.due)
+        let moments = (day?.items ?? []).filter {
+            untimedMomentIsDue($0, routines: routines.routines, signals: signals)
+        }
+        if !events.isEmpty || !reminders.isEmpty || !moments.isEmpty {
+            ScrollView(.horizontal) {
+                HStack(spacing: DS.Space.s) {
+                    ForEach(events) { allDayEventChip($0) }
+                    ForEach(moments) { untimedCueChip($0) }
+                    ForEach(reminders) { reminderChip($0) }
+                }
+                .padding(.horizontal, DS.Space.m)
+                .padding(.vertical, DS.Space.xs + 2)
+            }
+            .scrollIndicators(.hidden)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Color(.systemBackground))
             .accessibilityElement(children: .contain)
             .accessibilityIdentifier("mobile.plan.todo")
             Divider()
@@ -4540,8 +4621,12 @@ struct WeekView: View {
                 let bandDay = dayMode
                     ? calendarDays.first(where: { $0.id == 1 })
                     : calendarDays.first(where: { Calendar.current.isDate($0.date, inSameDayAs: mobileSelectedDay) })
-                if dayMode { mobileAllDayBand(bandDay) }
-                mobileRemindersBand(bandDay)
+                if bottomBarShell {
+                    mobileUntimedRow(bandDay)
+                } else {
+                    if dayMode { mobileAllDayBand(bandDay) }
+                    mobileRemindersBand(bandDay)
+                }
                 if dayMode, let currentDay = calendarDays.first(where: { $0.id == 1 }) {
                     DirectionalDayScrollView(
                         resetToken: Occurrence.dayKey(currentDay.date),

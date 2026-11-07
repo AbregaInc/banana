@@ -2,15 +2,22 @@
 import SwiftUI
 
 /// The list column: its header, and the list under it. The list host is made again when the
-/// place changes, because it is built on that place's feed (`.id(scope)`).
+/// place changes, because it is built on that place's feed (`.id(scope)`). The list scrolls on
+/// through the whole place: older mail is asked for ahead of the screen, and its last row says
+/// whether more is coming (`MailPaging`, `MailListStatusRow`).
 struct MailListColumn: View {
     let session: MailSession
     let arrangement: MailArrangement
     let scope: MailScope
+    /// The new shells search from their field: no search row of the page's own.
+    @Environment(\.bottomBarShell) private var bottomBarShell
+    @Environment(\.wideShell) private var wideShell
 
     var body: some View {
         VStack(spacing: 0) {
-            MailSearchField(session: session, scope: scope)
+            if !bottomBarShell && !wideShell {
+                MailSearchField(session: session, scope: scope)
+            }
             MailListHeader(session: session, feed: session.feed, arrangement: arrangement, scope: scope)
             MailListHost(session: session, style: MailRowStyle(arrangement),
                          opensOnTap: arrangement.tapOpens)
@@ -22,36 +29,6 @@ struct MailListColumn: View {
                         else { session.source.checkNow() }
                     }.id(scope)
                 }
-            MailHistoryNavigation(session: session, feed: session.feed, scope: scope)
-        }
-    }
-}
-
-private struct MailHistoryNavigation: View {
-    let session: MailSession
-    @ObservedObject var feed: MailListFeed
-    let scope: MailScope
-
-    var body: some View {
-        if !scope.isWriting && (scope.before != nil || feed.shown.hasMore) {
-            Divider()
-            HStack {
-                Button { session.showNewerHistory() } label: {
-                    Label(session.historyBackTitle, systemImage: "chevron.left")
-                        .frame(minHeight: DS.Row.minHeight)
-                }
-                .disabled(scope.before == nil)
-                .accessibilityIdentifier("mail.history.newer")
-                Spacer()
-                Button { session.showOlderHistory() } label: {
-                    Label("Older", systemImage: "chevron.right")
-                        .frame(minHeight: DS.Row.minHeight)
-                }
-                .disabled(!session.canShowOlderHistory)
-                .accessibilityIdentifier("mail.history.older")
-            }
-            .buttonStyle(.borderless)
-            .padding(.horizontal, DS.Space.l)
         }
     }
 }
@@ -64,10 +41,28 @@ private struct MailListHeader: View {
     @ObservedObject var feed: MailListFeed
     let arrangement: MailArrangement
     let scope: MailScope
+    /// The bottom-bar shell's one top row: a large name whose menu holds places and accounts.
+    @Environment(\.bottomBarShell) private var bottomBarShell
+    /// The wide shell has the place's name in its toolbar: not again over the list.
+    @Environment(\.wideShell) private var wideShell
 
     var body: some View {
+        // An upright iPad's top row (`MailShellTopRow`) names the place over both columns.
+        if !(bottomBarShell && arrangement.showsPane) { header }
+    }
+
+    private var header: some View {
         HStack(alignment: .firstTextBaseline, spacing: DS.Space.s) {
-            title
+            if !wideShell { title }
+            if bottomBarShell, case .search = scope.place {
+                // A search the field opened: the way back to the inbox, beside its name.
+                Button { session.show(.inbox) } label: {
+                    Image(systemName: "xmark.circle.fill").foregroundStyle(.secondary)
+                }
+                .buttonStyle(.borderless)
+                .accessibilityLabel("Close search")
+                .accessibilityIdentifier("mail.search.close")
+            }
             if feed.shown.hasDelivered {
                 Text(MailToastText.number(feed.shown.total.value) + (feed.shown.total.isAtLeast ? "+" : ""))
                     .font(.subheadline).monospacedDigit().foregroundStyle(.secondary)
@@ -101,7 +96,8 @@ private struct MailListHeader: View {
     }
 
     @ViewBuilder private var title: some View {
-        let name = Text(MailPlacesModel.title(of: scope)).font(.title3.weight(.semibold))
+        let name = Text(MailPlacesModel.title(of: scope))
+            .font(bottomBarShell ? .title.weight(.bold) : .title3.weight(.semibold))
         if arrangement.showsControl {
             name
         } else {
@@ -112,6 +108,14 @@ private struct MailListHeader: View {
                     } label: {
                         Label(place.title, systemImage: place.mailbox == scope.mailbox ? "checkmark" : place.symbol)
                     }
+                }
+                if bottomBarShell, let source = session.source as? MailLiveSource {
+                    Menu {
+                        MailAccountsMenuItems(source: source, accounts: source.accounts)
+                    } label: {
+                        Label("Accounts", systemImage: "person.crop.circle")
+                    }
+                    .accessibilityIdentifier("mail.accounts")
                 }
             } label: {
                 HStack(spacing: DS.Space.xs) {
@@ -139,7 +143,7 @@ private struct MailEmptyState: View {
             } else if feed.shown.remote == .failed {
                 VStack { Text("Mail search couldn’t finish."); Button("Retry", action: retry) }
             } else if feed.shown.rows.isEmpty {
-                ContentUnavailableView(scope.before == nil ? "No matches" : "No older matches", systemImage: "magnifyingglass",
+                ContentUnavailableView("No matches", systemImage: "magnifyingglass",
                     description: Text("Try another word. Only downloaded headers and snippets are searched."))
             }
         } else if feed.shown.hasDelivered, feed.shown.rows.isEmpty, !isSample {
@@ -147,9 +151,6 @@ private struct MailEmptyState: View {
                 ProgressView("Downloading mail…")
             } else if feed.shown.remote == .failed {
                 VStack { Text("Mail couldn’t download."); Button("Retry", action: retry) }
-            } else if scope.before != nil {
-                ContentUnavailableView("No older downloaded mail", systemImage: "tray",
-                    description: Text("Return to newer messages or check mail for updates."))
             } else {
                 ContentUnavailableView("No downloaded mail", systemImage: "tray",
                     description: Text("Connect Google and allow Mail above. Downloaded messages will appear here."))

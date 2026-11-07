@@ -41,16 +41,18 @@ final class WideLayoutsUITest: XCTestCase {
 
     func testNotesShowsTheListBesideTheNote() {
         let app = launch(tab: "notes")
-        // The list's one + sits in its own column, beside the note and not over it. (A capture
-        // card and a "write instead" row were here: four ways in to two things.)
-        let add = app.buttons["notes.add"]
-        XCTAssertTrue(add.waitForExistence(timeout: 10), "Notes has no + button")
+        // Adding is the toolbar's field (BOTTOM-BAR-SHELL.md); the list sits in its own column,
+        // beside the note and not over it. (A capture card and a "write instead" row were here:
+        // four ways in to two things.)
+        XCTAssertTrue(app.plus("notes.add").waitForExistence(timeout: 10), "Notes has no way to add")
         XCTAssertFalse(app.staticTexts["Capture a thought"].exists)
         // No empty pane with a second "New note" button: the newest note is open beside the list.
         XCTAssertFalse(app.staticTexts["No note open"].exists)
         XCTAssertFalse(app.buttons["New note"].exists)
+        let row = app.descendants(matching: .any).matching(NSPredicate(format: "identifier BEGINSWITH 'notes.row.'")).firstMatch
+        XCTAssertTrue(row.waitForExistence(timeout: 10))
         let screen = app.windows.firstMatch.frame.width
-        XCTAssertLessThan(add.frame.maxX, screen * 0.5, "the list is beside the note, not over it")
+        XCTAssertLessThan(row.frame.maxX, screen * 0.5, "the list is beside the note, not over it")
     }
 
     func testTheLibraryIsAGridOfShows() {

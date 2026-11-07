@@ -167,45 +167,109 @@ final class ScaleStressUITests: XCTestCase {
         capture("mail")
     }
 
-    func testMailHistoryNavigationCrossesTwoThousandRowsAndOpens() {
-        let app = launch("--mail")
-        let older = app.buttons["mail.history.older"]
-        XCTAssertTrue(older.waitForExistence(timeout: 10))
-        let rows = app.descendants(matching: .any).matching(
-            NSPredicate(format: "identifier BEGINSWITH %@", "mail.list.row.stress-"))
-        var priorFirst = ""
-        var currentFirst = ""
-        for _ in 0..<21 {
-            guard let first = rows.allElementsBoundByIndex.first(where: \.isHittable) else {
-                return XCTFail("A history page must have a visible row")
-            }
-            priorFirst = first.identifier
-            XCTAssertTrue(older.isEnabled)
-            older.tap()
-            let retired = app.descendants(matching: .any)[priorFirst].firstMatch
-            XCTAssertTrue(retired.waitForNonExistence(timeout: 5), "Older must replace the previous bounded window")
+    private static let stressRow = "mail.list.row.stress-"
+
+    /// The first stress row on screen whose number is in `numbers`, found by one query.
+    private func stressRow(in numbers: [Int], of app: XCUIApplication) -> XCUIElement {
+        app.descendants(matching: .any)
+            .matching(NSPredicate(format: "identifier IN %@", numbers.map { Self.stressRow + String($0) }))
+            .firstMatch
+    }
+
+    /// Day zero's hour 21 (rows 1764...1847) lies 152 to 236 rows below the newest mail: with a
+    /// 100-row window (`--mail-window-rows 100`) reaching it crosses at least two slides.
+    private static let hour21 = Array(1764...1847)
+
+    /// No buttons page the list: flinging alone goes down through several slides of the window,
+    /// and flinging back up brings the newest mail back.
+    func testMailScrollCrossesSlidingWindowsAndComesBack() {
+        executionTimeAllowance = 300
+        let app = launch("--mail", extra: ["--mail-window-rows", "100"])
+        let list = app.descendants(matching: .any)[MailID.list].firstMatch
+        XCTAssertTrue(list.waitForExistence(timeout: 10))
+        let rows = app.descendants(matching: .any)
+            .matching(NSPredicate(format: "identifier BEGINSWITH %@", Self.stressRow))
+        XCTAssertTrue(rows.firstMatch.waitForExistence(timeout: 10))
+        let newest = rows.allElementsBoundByIndex.prefix(3).map {
+            Int($0.identifier.dropFirst(Self.stressRow.count)) ?? -1
         }
-        guard let first = rows.allElementsBoundByIndex.first(where: \.isHittable) else {
-            return XCTFail("No row after crossing the previous history cap")
-        }
-        currentFirst = first.identifier
-        let prefix = "mail.list.row.stress-"
-        guard let index = Int(currentFirst.dropFirst(prefix.count)) else { return XCTFail("Unexpected fixture row identity") }
-        XCTAssertGreaterThanOrEqual(index, 2000, "Day-zero's 2,000 messages must all be behind this window")
-        app.buttons["mail.history.newer"].tap()
-        XCTAssertTrue(app.descendants(matching: .any)[priorFirst].firstMatch.waitForExistence(timeout: 5))
-        older.tap()
-        let target = app.descendants(matching: .any)[currentFirst].firstMatch
-        XCTAssertTrue(target.waitForExistence(timeout: 5))
-        XCTAssertTrue(target.isHittable)
-        target.tap()
+        XCTAssertFalse(app.buttons["mail.history.older"].exists, "There is no Older button")
+        let deep = stressRow(in: Self.hour21, of: app)
+        for _ in 0..<60 where !deep.exists { list.swipeUp(velocity: .fast) }
+        capture("mail-scroll-deep")
+        XCTAssertTrue(deep.exists, "Flinging alone must reach mail 150 rows down, past two slides")
+        let top = stressRow(in: newest, of: app)
+        for _ in 0..<60 where !top.exists { list.swipeDown(velocity: .fast) }
+        XCTAssertTrue(top.exists, "Flinging back up must bring the newest mail back")
+        capture("mail-scroll-back")
+    }
+
+    /// A search's results keep coming as they are scrolled, past several windows, with no Again
+    /// or Older, and a result found that way opens.
+    func testMailSearchScrollsThroughItsPagesAndOpens() {
+        executionTimeAllowance = 300
+        let app = launch("--mail", extra: ["--mail-window-rows", "100"])
+        let field = app.textFields["mail.search.query"]
+        XCTAssertTrue(field.waitForExistence(timeout: 10))
+        field.tap(); field.typeText("Stress email 1\n")
+        let list = app.descendants(matching: .any)[MailID.list].firstMatch
+        let anyRow = app.descendants(matching: .any)
+            .matching(NSPredicate(format: "identifier BEGINSWITH %@", Self.stressRow)).firstMatch
+        XCTAssertTrue(anyRow.waitForExistence(timeout: 20))
+        // Every row of day zero's hours 21 to 23 matches "1"; hour 21 is 152 results down.
+        let deep = stressRow(in: Self.hour21, of: app)
+        for _ in 0..<60 where !deep.exists { list.swipeUp(velocity: .fast) }
+        capture("mail-search-scroll-deep")
+        XCTAssertTrue(deep.exists, "Scrolling a search must load its later pages")
+        guard deep.exists, let number = Int(deep.identifier.dropFirst(Self.stressRow.count)) else { return }
+        deep.tap()
         if UIDevice.current.userInterfaceIdiom == .pad {
             let expand = app.descendants(matching: .any)[MailID.expand].firstMatch
             XCTAssertTrue(expand.waitForExistence(timeout: 5)); expand.tap()
         }
         XCTAssertTrue(app.descendants(matching: .any)[MailID.conversation].firstMatch.waitForExistence(timeout: 5))
-        XCTAssertTrue(app.staticTexts["Stress email \(index)"].firstMatch.exists)
-        capture("mail-history-beyond-cap")
+        XCTAssertTrue(app.staticTexts["Stress email \(number)"].firstMatch.exists)
+    }
+
+    /// Frame hitches while flinging down through pages of older mail: every iteration goes on
+    /// from where the last one stopped, so the list appends pages under the fling. Simulator
+    /// evidence for comparison only, not 120 Hz acceptance.
+    func testMailScrollThroughPagesHitches() {
+        let app = launch("--mail")
+        let list = app.descendants(matching: .any)[MailID.list].firstMatch
+        XCTAssertTrue(list.waitForExistence(timeout: 10))
+        let rows = app.descendants(matching: .any).matching(
+            NSPredicate(format: "identifier BEGINSWITH %@", "mail.list.row.stress-"))
+        XCTAssertTrue(rows.firstMatch.waitForExistence(timeout: 10))
+        let first = Set(rows.allElementsBoundByIndex.filter(\.isHittable).map(\.identifier))
+        let options = XCTMeasureOptions()
+        options.iterationCount = 5
+        measure(metrics: [XCTOSSignpostMetric.scrollingAndDecelerationMetric], options: options) {
+            for _ in 0..<4 { list.swipeUp(velocity: .fast) }
+        }
+        let last = Set(rows.allElementsBoundByIndex.filter(\.isHittable).map(\.identifier))
+        XCTAssertFalse(last.isEmpty, "Rows must still be on screen after flinging through pages")
+        XCTAssertTrue(first.isDisjoint(with: last), "The flings must have travelled through pages")
+    }
+
+    /// The same flings through a 300-row window, so the list also slides under them
+    /// (`--mail-window-rows`; the commit before continuous scrolling ignores the argument).
+    func testMailScrollThroughSlidingWindowsHitches() {
+        let app = launch("--mail", extra: ["--mail-window-rows", "300"])
+        let list = app.descendants(matching: .any)[MailID.list].firstMatch
+        XCTAssertTrue(list.waitForExistence(timeout: 10))
+        let rows = app.descendants(matching: .any).matching(
+            NSPredicate(format: "identifier BEGINSWITH %@", "mail.list.row.stress-"))
+        XCTAssertTrue(rows.firstMatch.waitForExistence(timeout: 10))
+        let first = Set(rows.allElementsBoundByIndex.filter(\.isHittable).map(\.identifier))
+        let options = XCTMeasureOptions()
+        options.iterationCount = 5
+        measure(metrics: [XCTOSSignpostMetric.scrollingAndDecelerationMetric], options: options) {
+            for _ in 0..<4 { list.swipeUp(velocity: .fast) }
+        }
+        let last = Set(rows.allElementsBoundByIndex.filter(\.isHittable).map(\.identifier))
+        XCTAssertFalse(last.isEmpty, "Rows must still be on screen after flinging through windows")
+        XCTAssertTrue(first.isDisjoint(with: last), "The flings must have travelled through windows")
     }
 
     func testMailScrollLoadsOlderThanFirstPage() {

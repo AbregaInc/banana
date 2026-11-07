@@ -87,6 +87,29 @@ struct PlannerTab: View, Equatable {
 #if os(macOS)
 /// The Mac planner's one view control: Day, a few days or Week. The same two modes as the phone's switch (`PlanMode`), with
 /// the Mac's choice of how many days Week shows.
+/// Day, several days or Week as the Mac toolbar's title with a chevron (the wide shell).
+struct MacPlannerTitleMenu: View {
+    @AppStorage("planMode") private var mode: PlanMode = .day
+    @AppStorage("macWeekSpan") private var span: MacWeekSpan = .sevenDays
+
+    private var title: String {
+        switch mode {
+        case .day: PlanMode.day.title
+        case .week: span.isAlignedWeek ? PlanMode.week.title : "\(span.rawValue) days"
+        }
+    }
+
+    var body: some View {
+        PageTitleMenu(title: title, identifier: "mac.planner.view") {
+            Button(PlanMode.day.title) { mode = .day }
+            Button("3 days") { mode = .week; span = MacWeekSpan(rawValue: 3) ?? .sevenDays }
+            Button("5 days") { mode = .week; span = MacWeekSpan(rawValue: 5) ?? .sevenDays }
+            Button(PlanMode.week.title) { mode = .week; span = .sevenDays }
+        }
+        .help("Day, several days or week (D, 2–7, W)")
+    }
+}
+
 struct MacPlannerViewMenu: View {
     @AppStorage("planMode") private var mode: PlanMode = .day
     @AppStorage("macWeekSpan") private var span: MacWeekSpan = .sevenDays
@@ -128,6 +151,20 @@ struct MacPlannerViewMenu: View {
 #endif
 
 /// The Day · Week switch, in the top bar: the page switch every main page uses (`PageSwitch`).
+/// Day or Week as a title with a chevron: the wide shell's toolbar (`WeekView`).
+struct PlanModeTitleMenu: View {
+    @AppStorage("planMode") private var mode: PlanMode = .day
+
+    var body: some View {
+        PageTitleMenu(title: mode.title, identifier: "plan.mode") {
+            Picker("View", selection: $mode) {
+                ForEach(PlanMode.allCases) { Text($0.title).tag($0) }
+            }
+            .pickerStyle(.inline)
+        }
+    }
+}
+
 struct PlanModePicker: View {
     var fills = false
     var widest: CGFloat = 204

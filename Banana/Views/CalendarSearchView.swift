@@ -11,6 +11,13 @@ struct CalendarSearchButton: View {
     }
 }
 
+/// The calendar search with words already typed: what "Search all calendars" under the shell's
+/// field opens.
+struct CalendarSearchSheet: View {
+    let text: String
+    var body: some View { CalendarSearchView(initialText: text) }
+}
+
 /// One provider page stays in memory. Going forward/back refetches that page, so
 /// opening an edited event never turns a retained result cache into a second truth.
 private struct CalendarSearchView: View {
@@ -27,6 +34,11 @@ private struct CalendarSearchView: View {
     @State private var failed = false
     @State private var revision = 0
     @State private var selected: CalendarEventSheet?
+
+    init(initialText: String = "") {
+        let words = initialText.trimmingCharacters(in: .whitespacesAndNewlines)
+        _filter = State(initialValue: words.isEmpty ? LiveFilter(scope: "plan") : LiveFilterParser.parse(words, scope: "plan"))
+    }
 
     private var query: CalendarSearchQuery {
         CalendarSearchQuery(text: filter.text, start: filter.interval(calendar: .app)?.start ?? Calendar.current.startOfDay(for: start),

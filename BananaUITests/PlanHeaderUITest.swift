@@ -37,8 +37,7 @@ final class PlanHeaderUITest: XCTestCase {
             if reference { app.launchArguments += ["--calendar-reprepare-on-appear", "--notes-reload-on-appear"] }
             app.withoutSpaceSync()
             app.launch()
-            let tabs = app.tabBars.firstMatch
-            XCTAssertTrue(tabs.buttons["Plan"].waitForExistence(timeout: 20))
+            XCTAssertTrue(app.waitForShell())
             func count(_ metric: String) -> Int {
                 Int(app.descendants(matching: .any)[metric].firstMatch.value as? String ?? "") ?? -1
             }
@@ -47,9 +46,9 @@ final class PlanHeaderUITest: XCTestCase {
                 XCTAssertEqual(XCTWaiter.wait(for: [ready], timeout: 10), .completed, metric)
             }
             awaitCount("calendar.performance.preparations", atLeast: 1)
-            tabs.buttons["Notes"].tap()
+            app.openPage("notes")
             awaitCount("notes.performance.loads", atLeast: 1)
-            tabs.buttons["Plan"].tap()
+            app.openPage("plan")
             awaitCount("calendar.performance.appearances", atLeast: 2)
             let beforeCalendar = count("calendar.performance.preparations")
             let beforeNotes = count("notes.performance.loads")
@@ -57,9 +56,9 @@ final class PlanHeaderUITest: XCTestCase {
             let beforeNotesRenders = count("notes.performance.renderCount")
             let began = Date()
             for visit in 2...3 {
-                tabs.buttons["Notes"].tap()
+                app.openPage("notes")
                 awaitCount("notes.performance.appearances", atLeast: visit)
-                tabs.buttons["Plan"].tap()
+                app.openPage("plan")
                 awaitCount("calendar.performance.appearances", atLeast: visit + 1)
             }
             let result = ["calendarPreparations": count("calendar.performance.preparations") - beforeCalendar,

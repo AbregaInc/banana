@@ -18,7 +18,7 @@ final class LandscapeUITest: XCTestCase {
             .write(to: URL(fileURLWithPath: folder).appendingPathComponent("\(name).png"))
     }
 
-    func testEveryTabOpensOnItsSide() throws {
+    func testEveryPageOpensOnItsSide() throws {
         try XCTSkipUnless(UIDevice.current.userInterfaceIdiom == .phone, "an iPad was never replaced by the clock")
         let app = XCUIApplication()
         app.launchArguments = ["--ui-preview", "--tab", "plan", "--plan", "-planMode", "day", "--dummy-health",
@@ -26,24 +26,28 @@ final class LandscapeUITest: XCTestCase {
                                "-onboardingCompleted", "YES"]
         app.withoutSpaceSync()
         app.launch()
-        XCTAssertTrue(app.tabBars.buttons["Plan"].waitForExistence(timeout: 15), app.debugDescription)
+        XCTAssertTrue(app.buttons["shell.switcher"].waitForExistence(timeout: 15), app.debugDescription)
 
+        // On its side a phone keeps the bar (the rail is a landscape iPad's room,
+        // docs/design/BOTTOM-BAR-SHELL.md), never a bedside clock.
         XCUIDevice.shared.orientation = .landscapeLeft
-        sleep(2)
-        // Still the app: its tabs, and the day's grid.
-        for tab in ["Plan", "Body", "Notes", "Library"] {
-            let button = app.tabBars.buttons[tab]
-            XCTAssertTrue(button.waitForExistence(timeout: 5), "no \(tab) tab on its side")
-            button.tap()
-            sleep(2)
-            keep(app, "landscape-\(tab.lowercased())")
+        XCTAssertTrue(waitUntil(timeout: 8) { app.windows.firstMatch.frame.width > app.windows.firstMatch.frame.height })
+        XCTAssertTrue(app.buttons["shell.switcher"].waitForExistence(timeout: 8), app.debugDescription)
+        XCTAssertFalse(app.descendants(matching: .any)["shell.rail"].exists)
+        for page in ["plan", "body", "notes", "library"] {
+            app.openPage(page)
+            app.buttons["shell.switcher"].tap()
+            XCTAssertTrue(waitUntil(timeout: 5) { app.buttons["shell.page.\(page)"].isSelected }, "\(page) didn't open on its side")
+            app.buttons["shell.switcher"].tap()
+            keep(app, "landscape-\(page)")
         }
-        app.tabBars.buttons["Plan"].tap()
+        app.openPage("plan")
         XCTAssertTrue(app.descendants(matching: .any).matching(identifier: "mobile.week.timeGrid").firstMatch
-            .waitForExistence(timeout: 5), "the day's grid is there on its side")
+            .waitForExistence(timeout: 5) || app.collectionViews.firstMatch.waitForExistence(timeout: 2),
+                      "the day's grid is there on its side")
 
-        // And back upright, the same app.
+        // And back upright, the bar again.
         XCUIDevice.shared.orientation = .portrait
-        XCTAssertTrue(app.tabBars.buttons["Plan"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["shell.switcher"].waitForExistence(timeout: 8))
     }
 }

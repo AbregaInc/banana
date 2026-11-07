@@ -67,6 +67,7 @@ struct WellnessView: View {
     @State private var addingSupplement = false
     @ObservedObject private var badges = ActionBadges.shared
     @Environment(\.addOpensList) private var addOpensList
+    @Environment(\.bottomBarShell) private var bottomBarShell
 
     /// What you eat, and what you take — supplements and prescriptions share the second tab
     /// because they share a schedule, a log, and a reminder. The guided plans ("Coach") moved to
@@ -102,6 +103,10 @@ struct WellnessView: View {
             ReviewToolbarItem(section: .nutrition)
             // The page's switch, in the top bar like Plan's (`PageSwitch`). It was a full-width
             // row under the bar.
+            if bottomBarShell {
+                // The bottom-bar shell's one top row: the page's name, the others under it.
+                ToolbarItem(placement: .topBarLeading) { BodyTitleMenu() }
+            } else {
             ToolbarItem(placement: .principal) {
                 // Sharing a tab with Workouts, the one switch covers all three (`BodySwitch`).
                 if addOpensList {
@@ -114,6 +119,7 @@ struct WellnessView: View {
                         return count > 0 ? "\(item.rawValue) · \(count)" : item.rawValue
                     }
                 }
+            }
             }
             ToolbarItem(placement: .automatic) { MoreMenu() }
         }

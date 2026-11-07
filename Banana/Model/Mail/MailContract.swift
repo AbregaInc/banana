@@ -972,7 +972,8 @@ enum MailLinkRules {}
     /// or nil. It never touches a database.
     func cachedFirstPage(_ scope: MailScope) -> MailListSnapshot?
     /// The first `limit` rows of a scope, kept current. To show more, observe again with a
-    /// larger limit (`listStep` more each time, up to `listCap`); the new observation's first
+    /// larger limit (`listStep` more each time, up to `listCap`), or, past the cap, the same place
+    /// from an older `before` (the window slides; `MailPaging`); the new observation's first
     /// value arrives before the old one is let go.
     func observeList(_ scope: MailScope, limit: Int,
                      _ onChange: @escaping @MainActor (MailListSnapshot) -> Void) -> MailObservation
@@ -1056,7 +1057,8 @@ enum MailLinkRules {}
 
     func checkNow()
     /// Ask Gmail for search matches or a place's mail older than the local edge (9.4).
-    /// Again requests the next page or retries. Bounded-history searches also ask automatically.
+    /// Again requests the next page or retries. A list asks by itself as it is scrolled toward
+    /// its end, once per answer (`MailPaging`); after a failure only the list's Retry asks.
     func askGmail(_ scope: MailScope)
     /// The cursor rests here: have these ready. Never fetches anything from a sender.
     /// A conversation not held here is fetched whole from Gmail and then retained.

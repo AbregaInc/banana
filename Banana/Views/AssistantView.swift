@@ -8,6 +8,8 @@ struct AssistantView: View {
     @State private var showingConversations = false
     @State private var confirmingClear = false
     @State private var showingHistory = false
+    /// Words handed over by the shell's "Ask Banana" row, sent once the model is ready.
+    @State private var sendWhenReady = false
     #if PI_DEVELOPMENT
     @ObservedObject private var wellness = WellnessStore.shared
     #endif
@@ -86,6 +88,12 @@ struct AssistantView: View {
         .task {
             draft = UserDefaults.standard.string(forKey: draftKey) ?? ""
             assistant.activate()
+            // "Ask Banana: …" under the shell's field: the words are the question, asked at once.
+            if let words = PageChrome.shared.agentPrefill {
+                PageChrome.shared.agentPrefill = nil
+                draft = words
+                if assistant.available { send() } else { sendWhenReady = true }
+            }
             if panelClose != nil { composerFocused = true }
             #if DEBUG
             await AssistantVerification.runIfRequested(assistant)
@@ -93,6 +101,9 @@ struct AssistantView: View {
             #endif
         }
         .onChange(of: draft) { _, value in UserDefaults.standard.set(value, forKey: draftKey) }
+        .onChange(of: assistant.available) { _, ready in
+            if ready && sendWhenReady { sendWhenReady = false; send() }
+        }
     }
 
     @ViewBuilder private var addFormMenu: some View {

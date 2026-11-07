@@ -1,8 +1,9 @@
 import XCTest
 
 /// Which columns show at which width of Mail's own area (`MailArrangement`: the list alone below 660,
-/// a pane from 660, the control column from 828, the details from 1076). Mail's area is the window's
-/// less the sidebar, so the cases measure it rather than assume it.
+/// a pane from 660; in the window's shell the places are the title's menu, so no control column,
+/// and the details start closed). Mail's area is the window's less the rail, so the cases measure
+/// it rather than assume it.
 final class MailWindowSizeTests: MacMailTestCase {
 
     private func expectTheColumnsTheWidthCalls(for context: String, file: StaticString = #filePath, line: UInt = #line) {
@@ -11,7 +12,7 @@ final class MailWindowSizeTests: MacMailTestCase {
         for edge in [MailArrangement.paneAt, MailArrangement.controlAt, MailArrangement.detailsAt] where abs(width - edge) < 14 {
             return
         }
-        let expected = MailArrangement.choose(width: width)
+        let expected = MailArrangement.choose(width: width, wantsDetails: false, controlColumn: false)
         let said = "at \(Int(width)) points of Mail \(context)"
         XCTAssertEqual(has(MailID.control), expected.showsControl, "the control column \(said)", file: file, line: line)
         XCTAssertEqual(paneIsShowing, expected.showsPane, "the reading pane \(said)", file: file, line: line)
@@ -53,7 +54,7 @@ final class MailWindowSizeTests: MacMailTestCase {
             resizeWindow(to: CGSize(width: width, height: 780))
             eventually("the columns to follow a window of \(Int(width))", timeout: 4, report: false) {
                 guard let mail = self.mailWidth() else { return false }
-                let expected = MailArrangement.choose(width: mail)
+                let expected = MailArrangement.choose(width: mail, wantsDetails: false, controlColumn: false)
                 return self.has(MailID.control) == expected.showsControl && self.paneIsShowing == expected.showsPane
             }
             expectTheColumnsTheWidthCalls(for: "after resizing to \(Int(width))")
