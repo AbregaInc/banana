@@ -506,6 +506,19 @@ final class BananaAccount: ObservableObject {
         return answer.0
     }
 
+    /// The shared cloud mailbox's feed or catch-up check (`kind` "feed" or "check"); its status is the caller's.
+    func mailFeedRequest(kind: String, reference: String, body: Data) async throws -> (Data, Int) {
+        let route = try CloudMailReference(value: reference)
+        guard let requestSession = session, FeatureAccessStore.shared.mailContext == route.context,
+              (try? JSONSerialization.jsonObject(with: body) as? [String: Any])?["email"] as? String == route.email else {
+            throw GmailError.networkDisabled
+        }
+        try Task.checkCancellation()
+        guard let answer = await send(kind == "check" ? .mailCheck(body) : .mailFeed(body)) else { throw GmailError.unknownOutcome }
+        guard session == requestSession, FeatureAccessStore.shared.mailContext == route.context else { throw GmailError.networkDisabled }
+        return answer
+    }
+
     func mailRequest(path: [String], reference: String, query: [URLQueryItem], method: String, body: Data?) async throws -> Data {
         let route = try CloudMailReference(value: reference)
         guard let requestSession = session, FeatureAccessStore.shared.mailContext == route.context else { throw GmailError.networkDisabled }

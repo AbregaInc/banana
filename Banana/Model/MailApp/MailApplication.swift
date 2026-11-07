@@ -43,7 +43,12 @@ import Combine
                     }, partTransport: { reference, operation, hash, data in
                         try await BananaAccount.shared.mailAttachmentRequest(reference: reference, operation: operation, hash: hash, data: data)
                     }, networkAllowed: { FeatureAccessStore.network.allows("email") })
-                let source = MailLiveSource(stores: stores, access: access, api: api, deliveryAllowed: { account in
+                let feed = CloudMailFeed(reference: { account in try await access.mailAccessToken(accountID: account).value },
+                    transport: { kind, reference, body in
+                        guard FeatureAccessStore.network.allows("email") else { throw GmailError.networkDisabled }
+                        return try await BananaAccount.shared.mailFeedRequest(kind: kind, reference: reference, body: body)
+                    })
+                let source = MailLiveSource(stores: stores, access: access, api: api, cloudFeed: feed, deliveryAllowed: { account in
                         FeatureAccessStore.shared.allows("email") && AppVariant.current.mayCallGoogle(method: "POST", account: account, testAccounts: BetaTestAccounts.all)
                     })
                 try await source.prepareActions(intent: intent)

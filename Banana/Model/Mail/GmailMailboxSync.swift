@@ -14,12 +14,17 @@ actor GmailMailboxSync {
     private let history: GmailHistorySync
     private let reconcile: GmailReconcileSync
     private let verification: GmailVerificationSync
+    private let feed: MailCloudFeedSync?
     private var running = Set<String>()
 
+    /// With `feed`, an account whose service offers Banana Cloud's shared mailbox syncs from it and
+    /// nothing else (MAIL-CLOUD-SYNC §8); the Gmail path below stays for a service without one.
     init(stores: MailStores, writer: MailWriter, api: any GmailAPI,
-         token: @escaping GmailPageLoader.Token, recovery: MailRemovalRecovery) {
+         token: @escaping GmailPageLoader.Token, recovery: MailRemovalRecovery,
+         feed source: (any MailCloudFeedSource)? = nil) {
         self.stores = stores
         let recover: GmailHistorySync.Recover = { account in _ = try await recovery.recover(account: account) }
+        feed = source.map { MailCloudFeedSync(stores: stores, writer: writer, source: $0, recover: recover) }
         history = GmailHistorySync(stores: stores, writer: writer, api: api, token: token,
             recover: recover, committed: { account, value in
                 if !value.deleted.isEmpty { try await recover(account) }
@@ -34,6 +39,7 @@ actor GmailMailboxSync {
     func pass(account: String, nowMS: Int64) async throws -> Progress {
         guard running.insert(account).inserted else { throw Failure.busy }
         defer { running.remove(account) }
+        if let feed, let progress = try await feed.pass(account: account, nowMS: nowMS) { return progress }
         let result = try await history.poll(account: account, nowMS: nowMS, maximumPages: 2)
         var needsReconcile = false
         var moreHistory = false

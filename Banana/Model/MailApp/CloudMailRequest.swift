@@ -46,4 +46,45 @@ enum CloudMailRequest {
         return try JSONSerialization.data(withJSONObject: request, options: .sortedKeys)
     }
 }
+/// Banana Cloud's shared mailbox feed and catch-up check (MAIL-CLOUD-SYNC §4), over the same
+/// account-scoped routing reference as every other cloud Mail request. A service without the
+/// route (404) is `unavailable`; a cursor past the feed's horizon (410) is `expired`.
+struct CloudMailFeed: MailCloudFeedSource {
+    /// (path, routing reference, JSON body) → (body, status). Throws when the request never got an answer.
+    typealias Transport = @Sendable (String, String, Data) async throws -> (Data, Int)
+    let reference: @Sendable (String) async throws -> String
+    let transport: Transport
+
+    static func pageBody(email: String, after: String?, limit: Int, fresh: Bool) throws -> Data {
+        var body: [String: Any] = ["email": email.lowercased(), "limit": limit]
+        if let after { body["after"] = after }
+        if fresh { body["fresh"] = true }
+        return try JSONSerialization.data(withJSONObject: body, options: .sortedKeys)
+    }
+
+    func page(account: String, after: String?, limit: Int, fresh: Bool) async throws -> MailCloudFeedPage {
+        guard (1...1000).contains(limit) else { throw GmailError.refused(.invalidArgument) }
+        let route = try await reference(account)
+        let (data, status) = try await transport("feed", route, try Self.pageBody(email: account, after: after, limit: limit, fresh: fresh))
+        switch status {
+        case 200:
+            do { return try JSONDecoder().decode(MailCloudFeedPage.self, from: data) }
+            catch { throw GmailError.malformed }
+        case 404: throw MailCloudFeedError.unavailable
+        case 410: throw MailCloudFeedError.expired
+        default: throw GmailHTTPRules.failure(status: status, data: data, retryAfter: nil)
+        }
+    }
+
+    func check(account: String, ids: [String]) async throws {
+        guard !ids.isEmpty, ids.count <= 100 else { throw GmailError.refused(.invalidArgument) }
+        let route = try await reference(account)
+        let body = try JSONSerialization.data(withJSONObject: ["email": account.lowercased(), "ids": ids], options: .sortedKeys)
+        let (data, status) = try await transport("check", route, body)
+        guard status == 200 else {
+            if status == 404 || status == 409 { throw MailCloudFeedError.unavailable }
+            throw GmailHTTPRules.failure(status: status, data: data, retryAfter: nil)
+        }
+    }
+}
 #endif

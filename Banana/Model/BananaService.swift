@@ -157,6 +157,9 @@ enum BananaService {
         case mailDraft(Data)
         case mailAttachment(email: String, operation: String, hash: String, data: Data)
         case mailOperation(Data)
+        /// The shared cloud mailbox: its feed, and the catch-up check (MAIL-CLOUD-SYNC §4).
+        case mailFeed(Data)
+        case mailCheck(Data)
         case connectMail(email: String, code: String)
         case disconnectMail(email: String)
         case serverCalendars(email: String, ids: [String])
@@ -324,6 +327,8 @@ enum BananaService {
             case .mailDraft(let body): return ("POST", "/v1/mail/draft", body)
             case .mailAttachment(_, let operation, let hash, let data): return ("PUT", "/v1/mail/attachment/\(operation)/\(hash)", data)
             case .mailOperation(let body): return ("POST", "/v1/mail/operation", body)
+            case .mailFeed(let body): return ("POST", "/v1/mail/feed", body)
+            case .mailCheck(let body): return ("POST", "/v1/mail/check", body)
             case .connectMail(let email, let code): return ("POST", "/v1/google/mail", encode(["email":email,"code":code]))
             case .disconnectMail(let email): return ("DELETE", "/v1/google/mail", encode(["email":email]))
             case .calendarOperation(let body):

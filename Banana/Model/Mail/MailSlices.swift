@@ -25,6 +25,7 @@ enum MailSlices {
         MailVerificationIndex.register(in: &migrations.index)
         MailSyncFill.register(in: &migrations.index)
         MailLegacySchema.registerIndex(in: &migrations.index)
+        MailCloudFeedIndex.register(in: &migrations.index)
         MailBlobSchema.register(in: &migrations.blobs)
         return migrations
     }

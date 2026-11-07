@@ -86,30 +86,9 @@ enum MailHistoryIndex {
             threads.insert(row["thread_pk"])
         }
         if !plan.delete.isEmpty {
-            let cached = try Int.fetchOne(db, sql: "SELECT count(*) FROM message WHERE account_pk=? AND vis != 4", arguments: [accountPK])!
-            let unresolved = try Bool.fetchOne(db, sql: "SELECT EXISTS(SELECT 1 FROM held_removal h JOIN message m ON m.msg_pk=h.msg_pk WHERE m.account_pk=? AND h.kept=0)", arguments: [accountPK])!
-            let saved: String? = owner["removals"]
-            let history = try saved.map { try JSONDecoder().decode([MailRemovalRules.Hour].self, from: Data($0.utf8)) } ?? []
-            let decision = try MailRemovalRules.decide(removals: plan.delete.count, cachedMessages: cached,
-                previous: history, hasUnresolvedHold: unresolved, nowMS: nowMS)
-            for id in plan.delete {
-                guard let row = rows[id] else { throw Failure.invalidPage }
-                let message: Int64 = row["msg_pk"]
-                threads.insert(row["thread_pk"])
-                if decision.hold {
-                    try db.execute(sql: "INSERT OR IGNORE INTO held_removal(msg_pk,evidence,found_at) VALUES(?,1,?)", arguments: [message, nowMS])
-                    result.held.append(id)
-                } else {
-                    try db.execute(sql: "INSERT OR REPLACE INTO tombstone(account_pk,gmail_id,at) VALUES(?,?,?)", arguments: [accountPK, id, nowMS])
-                    for table in ["message_label", "overlay", "enum_mark", "verify_queue", "held_removal"] {
-                        try db.execute(sql: "DELETE FROM \(table) WHERE msg_pk=?", arguments: [message])
-                    }
-                    try db.execute(sql: "DELETE FROM message WHERE msg_pk=?", arguments: [message])
-                    result.deleted.append(id)
-                }
-            }
-            let encoded = String(decoding: try JSONEncoder().encode(decision.history), as: UTF8.self)
-            try db.execute(sql: "UPDATE account SET removals=? WHERE account_pk=?", arguments: [encoded, accountPK])
+            let removed = try removeStated(plan.delete, rows: rows, accountPK: accountPK, removals: owner["removals"],
+                                           evidence: 1, nowMS: nowMS, threads: &threads, in: db)
+            result.deleted = removed.deleted; result.held = removed.held
         }
         for thread in threads {
             result.change.formUnion(try MailIndexWriter.rebuildThread(thread,
@@ -118,6 +97,39 @@ enum MailHistoryIndex {
         try db.execute(sql: "UPDATE account SET checkpoint=?,last_sync_at=? WHERE account_pk=?", arguments: [String(next), nowMS, accountPK])
         result.checkpoint = next; result.fetch = plan.fetch; result.echoes = plan.echoes
         return result
+    }
+    /// Gmail's positive statements of deletion (`messagesDeleted`, or the cloud feed's deletion,
+    /// which stands on one), under invariant 3: held as a whole when the count trips the hold,
+    /// otherwise deleted with a tombstone. `rows` are the stored rows by Gmail id.
+    static func removeStated(_ ids: [String], rows: [String: Row], accountPK: Int64, removals saved: String?,
+                             evidence: Int, nowMS: Int64, threads: inout Set<Int64>,
+                             in db: Database) throws -> (deleted: [String], held: [String]) {
+        guard db.isInsideTransaction else { throw Failure.transactionRequired }
+        var deleted: [String] = [], held: [String] = []
+        let cached = try Int.fetchOne(db, sql: "SELECT count(*) FROM message WHERE account_pk=? AND vis != 4", arguments: [accountPK])!
+        let unresolved = try Bool.fetchOne(db, sql: "SELECT EXISTS(SELECT 1 FROM held_removal h JOIN message m ON m.msg_pk=h.msg_pk WHERE m.account_pk=? AND h.kept=0)", arguments: [accountPK])!
+        let history = try saved.map { try JSONDecoder().decode([MailRemovalRules.Hour].self, from: Data($0.utf8)) } ?? []
+        let decision = try MailRemovalRules.decide(removals: ids.count, cachedMessages: cached,
+            previous: history, hasUnresolvedHold: unresolved, nowMS: nowMS)
+        for id in ids {
+            guard let row = rows[id] else { throw Failure.invalidPage }
+            let message: Int64 = row["msg_pk"]
+            threads.insert(row["thread_pk"])
+            if decision.hold {
+                try db.execute(sql: "INSERT OR IGNORE INTO held_removal(msg_pk,evidence,found_at) VALUES(?,?,?)", arguments: [message, evidence, nowMS])
+                held.append(id)
+            } else {
+                try db.execute(sql: "INSERT OR REPLACE INTO tombstone(account_pk,gmail_id,at) VALUES(?,?,?)", arguments: [accountPK, id, nowMS])
+                for table in ["message_label", "overlay", "enum_mark", "verify_queue", "held_removal"] {
+                    try db.execute(sql: "DELETE FROM \(table) WHERE msg_pk=?", arguments: [message])
+                }
+                try db.execute(sql: "DELETE FROM message WHERE msg_pk=?", arguments: [message])
+                deleted.append(id)
+            }
+        }
+        let encoded = String(decoding: try JSONEncoder().encode(decision.history), as: UTF8.self)
+        try db.execute(sql: "UPDATE account SET removals=? WHERE account_pk=?", arguments: [encoded, accountPK])
+        return (deleted, held)
     }
 }
 

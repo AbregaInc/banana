@@ -107,9 +107,13 @@ import GRDB
     private var durablePendingDraftSends = false
     private let deliveryAllowed: @MainActor @Sendable (String) -> Bool
 
+    /// Banana Cloud's shared mailbox feed, when this app's service offers one (MAIL-CLOUD-SYNC).
+    let cloudFeed: (any MailCloudFeedSource)?
+
     init(stores: MailStores, access: any MailAccountAccess, api: any GmailAPI,
+         cloudFeed: (any MailCloudFeedSource)? = nil,
          deliveryAllowed: @escaping @MainActor @Sendable (String) -> Bool = { _ in false }) {
-        self.stores = stores; self.access = access; self.api = api
+        self.stores = stores; self.access = access; self.api = api; self.cloudFeed = cloudFeed
         self.deliveryAllowed = deliveryAllowed
         self.observedReadAccounts = Set(access.connectedAccountIDs.map { $0.lowercased() })
         status.value.store = .ready
@@ -571,7 +575,7 @@ extension MailLiveSource {
         intentStore = intent
         mailboxSync = GmailMailboxSync(stores: stores, writer: writer, api: api,
             token: { [access] account in try await access.mailAccessToken(accountID: account).value },
-            recovery: MailRemovalRecovery(stores: stores, intents: intent))
+            recovery: MailRemovalRecovery(stores: stores, intents: intent), feed: cloudFeed)
         let writer = self.writer
         delivery = GmailIntentDelivery(store: intent, api: api, token: { [access] account in
             try await access.mailAccessToken(accountID: account).value
