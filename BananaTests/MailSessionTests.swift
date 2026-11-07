@@ -76,7 +76,7 @@ final class MailSessionTests: XCTestCase {
         session.leave()
     }
 
-    func testLiveCapabilitiesAllowTriageWithoutOpeningComposerOrSnoozing() {
+    func testLiveCapabilitiesAllowTriageAndSnoozeButNotMuteOrTheComposer() {
         let source = MailFixtureSource()
         var explanations: [MailToast] = []
         let session = MailSession(source: source, now: source.now, deviceName: "Test",
@@ -88,15 +88,19 @@ final class MailSessionTests: XCTestCase {
         let before = first.isStarred
         session.act(.toggleStar, on: first.id)
         XCTAssertEqual(session.model.rows.first { $0.id == first.id }?.isStarred, !before)
-        let rows = session.model.rows
+        // Snooze reaches Gmail now (MAIL-ENGINE 8): the row leaves the inbox at once.
         session.act(.snooze(until: source.now.addingTimeInterval(3600), ifNoReply: false), on: first.id)
-        XCTAssertEqual(session.model.rows, rows)
+        XCTAssertNil(session.model.rows.first { $0.id == first.id })
+        let rows = session.model.rows
+        session.act(.mute, on: rows[0].id)
+        XCTAssertEqual(session.model.rows, rows, "mute is not built: nothing moves")
         session.compose(requestFocus: false)
         session.reply(.reply)
         XCTAssertNil(session.composer)
         XCTAssertFalse(session.allowsComposing)
         XCTAssertFalse(session.canPerform(.mute))
-        XCTAssertTrue(session.canPerform(.toggleRead, on: first.id))
+        XCTAssertTrue(session.canPerform(.snooze(until: source.now, ifNoReply: false), on: rows[0].id))
+        XCTAssertTrue(session.canPerform(.toggleRead, on: rows[0].id))
         XCTAssertGreaterThanOrEqual(explanations.count, 3)
         session.leave()
     }

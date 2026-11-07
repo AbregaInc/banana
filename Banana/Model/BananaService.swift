@@ -471,7 +471,8 @@ enum BananaService {
     }
 
     /// A silent push from a shared cloud mailbox (`MAIL_PUSH` in `Service/src/mailbox.js`): new
-    /// mail's text is stored there. `{"aps": {"content-available": 1}, "b": {"k": "mail"}}`.
+    /// mail's text is stored there, or a snooze woke a conversation. Either way one feed pull
+    /// brings it. `{"aps": {"content-available": 1}, "b": {"k": "mail"}}`.
     static func isMailPush(_ userInfo: [AnyHashable: Any]) -> Bool {
         (userInfo["b"] as? [String: Any])?["k"] as? String == "mail"
     }

@@ -292,3 +292,44 @@ Mac Beta 1.0.4 (103) was signed, notarized and published as the GitHub prereleas
 `mac-beta-v1.0.4-103`; the Beta update feed and download redirect name build 103. iOS Beta
 103 was installed and launched on the owner's phone and iPad. These clients now use the
 staging shared mailbox feed; real-mailbox acceptance is in progress, not yet claimed.
+
+## 11. Snooze wakes in the cloud mailbox
+
+Built on branch `mail/snooze`, not deployed. [MAIL-ENGINE](MAIL-ENGINE.md) §8 had whichever
+device was awake wake a snooze. The mailbox now owns the wake, so a snoozed conversation returns
+on time in Gmail with every device asleep. Devices may still wake overdue snoozes: each change is
+a desired end state, so two wakes make one change.
+
+- **Labels.** `/v1/mail/operation` takes `{email, action: "createLabel", name, operationID}` for
+  `Banana/Snoozed/<yyyyMMdd'T'HHmm'Z'>`, `Banana/Returned` and `Banana/Muted` only. It answers
+  Gmail's label (`id`, `name`, …). A label that already has the name is the answer, so a second
+  device gets the same id. New labels are created with `labelHide`/`hide`. The mailbox keeps label
+  names (table `label`), from the handshake, from each createLabel, and from a reread of the
+  labels. That reread runs when a `modify` added an id it cannot name, and with every Inbox check.
+- **Schedule.** Every conversation with a Banana label on a live message has a `snooze` row,
+  updated after each write to its labels: due at its latest Snoozed time (rule 1); a minute after
+  it was first seen when a reply or a Gmail move brought it back early (rule 2), when it left the
+  Inbox after returning (rule 5), or when every snoozed message is in the bin; none once it has
+  returned and stays in the Inbox. The minute is for a device still delivering a snooze one
+  message at a time, which for a moment reads as "came back early".
+- **The wake** (`src/mailbox.js`, after the device-action reads and the history poll): for each
+  due conversation, a fresh `threads.get` (minimal, paced), then `src/mail-snooze.js` on what Gmail
+  says now, then one `modify` per message: `INBOX`, `UNREAD` and `Returned` on the last message
+  that is not a draft, first; then `Returned` on the other snoozed messages. `Banana/Returned` is
+  created first when needed. Writes take 5 units of the identity's pacing each. Each changed
+  message is read back like a device action, so the feed carries Gmail's `historyId`. One silent
+  push (`b.k = "mail"`) follows each step that woke a conversation.
+- **Alarm.** Each run sets the alarm to the sooner of its next step and the earliest due wake,
+  and stores that wake in D1 (`mail_mailboxes.wake_at`, migration 0024). The quarter-hour job sets
+  the alarm again for every mailbox with a `wake_at`, at that time, as well as for every mailbox a
+  device read this week. A conversation whose change keeps failing waits 1, 2, 4… minutes, up to
+  an hour, between tries. A read-only grant wakes nothing. Losing the Email feature or the grant
+  wipes the mailbox before anything is woken.
+- **Verification.** `Service/test/mail-snooze.test.js` (13 tests, fake Gmail): the label names and
+  rules; createLabel (made once and hidden, a lost race, other names refused); a wake with no device
+  reading; two snoozes in order; a conversation a device already woke; one write per message;
+  restart and the job's re-arm; the Email feature or grant lost before the wake; a reply during
+  the snooze; an archive after the wake; failing writes backing off; a snooze half delivered. The full service suite passed
+  438 tests in both UTC and America/New_York. `tools/mailbox-check` passed on local workerd with
+  migration 0024 (the Worker bundle with the new modules loads; its checks do not snooze). Not
+  shown: a real Gmail account (probe W5).

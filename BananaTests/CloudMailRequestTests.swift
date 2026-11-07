@@ -26,6 +26,20 @@ final class CloudMailRequestTests: XCTestCase {
             XCTAssertEqual(body["resource"] as? String, resource)
         }
     }
+    /// Snooze's hidden labels (MAIL-ENGINE 8): the service's createLabel operation, for Banana's
+    /// names only — the shape Service/src/mail-operation.js accepts, nothing more.
+    func testCreatingALabelIsTheServicesCreateLabelOperationForBananasNamesOnly() throws {
+        let body = try JSONSerialization.data(withJSONObject: ["name": "Banana/Snoozed/20261107T0900Z",
+            "labelListVisibility": "labelHide", "messageListVisibility": "hide"])
+        let data = try CloudMailRequest.body(path: ["labels"], email: "Noor@plan.example", query: [], method: "POST", body: body)
+        let envelope = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
+        XCTAssertEqual(envelope as NSDictionary, ["email": "noor@plan.example", "action": "createLabel",
+                                                   "name": "Banana/Snoozed/20261107T0900Z"] as NSDictionary)
+        let his = try JSONSerialization.data(withJSONObject: ["name": "Receipts"])
+        XCTAssertThrowsError(try CloudMailRequest.body(path: ["labels"], email: "noor@plan.example", query: [], method: "POST", body: his))
+        XCTAssertThrowsError(try CloudMailRequest.body(path: ["labels"], email: "noor@plan.example", query: [], method: "POST", body: nil))
+    }
+
     func testReadAndModifyEnvelopesRetainNativeSemantics() throws {
         let read = try CloudMailRequest.body(path: ["messages", "m1", "attachments", "a1"], email: "noor@plan.example", query: [], method: "GET", body: nil)
         let r = try XCTUnwrap(JSONSerialization.jsonObject(with: read) as? [String: Any])

@@ -176,6 +176,7 @@ private struct MailConversationHeader: View {
                     Button { session.act(.done) } label: { Label("Archive", systemImage: "checkmark") }
                         .disabled(!session.canPerform(.done))
                         .accessibilityIdentifier(MailID.done)
+                    MailSnoozeMenu(session: session)
                 }
                 Button { session.askForDetails(toggles: true) } label: { Label("Details", systemImage: "info.circle") }
                     .accessibilityIdentifier("mail.more.details")

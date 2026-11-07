@@ -16,6 +16,13 @@ protocol GmailAPI: Sendable {
     func modify(token: String, id: String, add: [String], remove: [String]) async throws
     func trash(token: String, id: String) async throws
     func untrash(token: String, id: String) async throws
+    /// One of Banana's own labels, hidden from Gmail's label list and message list (MAIL-ENGINE 8.1).
+    func createLabel(token: String, name: String) async throws -> GmailLabel
+}
+
+extension GmailAPI {
+    /// A reader that cannot write labels refuses, rather than pretending a label was made.
+    func createLabel(token: String, name: String) async throws -> GmailLabel { throw GmailError.refused(.invalidArgument) }
 }
 
 enum GmailError: Error, Equatable, Sendable {

@@ -326,6 +326,7 @@ final class MailFixtureSource: MailSource {
         conversation.isStarred = stored.row.isStarred
         conversation.isImportant = stored.row.isImportant
         conversation.isMuted = stored.row.isMuted
+        if case .snoozed(let until, _) = stored.row.reason { conversation.snoozedUntil = until } else { conversation.snoozedUntil = nil }
         if stored.row.isUnread {
             // Marked unread: the newest message is the one he has not read.
             if !conversation.messages.contains(where: \.isUnread), !conversation.messages.isEmpty {
@@ -349,6 +350,8 @@ final class MailFixtureSource: MailSource {
         case .mailbox(.inbox): inPlace = row.inInbox
         case .mailbox(.done): inPlace = !row.inInbox
         case .mailbox(.starred): inPlace = row.isStarred
+        case .mailbox(.snoozed):
+            if case .snoozed = row.reason { inPlace = true } else { inPlace = false }
         case .mailbox(.all): inPlace = true
         case .search(let text):
             // Parsed once per text, not once per conversation: a search over the stress mailbox

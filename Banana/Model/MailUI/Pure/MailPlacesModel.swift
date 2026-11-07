@@ -35,6 +35,8 @@ final class MailPlacesModel: ObservableObject {
         Place(mailbox: .inbox, title: "Inbox", symbol: "tray"),
         Place(mailbox: .starred, title: "Starred", symbol: "star"),
         Place(mailbox: .drafts, title: "Drafts", symbol: "square.and.pencil"),
+        // Snoozed, soonest back first (MAIL-ENGINE 8): what is away, and when it comes back.
+        Place(mailbox: .snoozed, title: "Snoozed", symbol: "alarm"),
         Place(mailbox: .outbox, title: "Scheduled", symbol: "clock"),
         Place(mailbox: .done, title: "Done", symbol: "checkmark.circle"),
     ]

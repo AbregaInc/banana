@@ -760,7 +760,16 @@ extension MailLiveSource {
             }
         }, settled: { [weak self] account, message, keys, outcome in
             await self?.deliverySettled(account: account, message: message, keys: keys, outcome: outcome)
+        }, relabeled: { [weak self] account, name, id, messages in
+            await self?.labelResolved(account: account, name: name, id: id, messages: messages)
         })
+        // What a rule made in an earlier run was derived on state that is no longer fresh: it is
+        // never sent; the rules run again after this run's first pass (MAIL-ENGINE 8.3).
+        for account in access.connectedAccountIDs {
+            if let purged = try? await intent.discardUndeliveredRuleAssertions(account: account), !purged.isEmpty {
+                try? await coordinator.refresh(account: account, messages: purged)
+            }
+        }
         refreshRefusals()
         // Publish recovered review state before this source is handed to the UI.
         // A background refresh here races the caller's initial status read and activation.
@@ -1021,6 +1030,56 @@ extension MailLiveSource {
         }
     }
 
+    private func labelResolved(account: String, name: String, id: String, messages: [String]) async {
+        guard let coordinator = actionCoordinator else { return }
+        do {
+            try await coordinator.adopt(account: account, name: name, id: id, messages: messages)
+            refreshAfterAction()
+        } catch {
+            projectionNeedsRepair = true
+            status.value.store = .unavailable(.unavailable)
+        }
+    }
+
+    /// How long past its time a snooze is left to the cloud mailbox, which wakes it on time with every
+    /// device asleep, before a device that finds it still asleep wakes it itself.
+    static let snoozeFallbackGrace: Int64 = 2 * 60 * 1000
+
+    /// After a pass that caught up: the snooze rules on what it left (8.3), and Banana's labels named
+    /// in Gmail's directory if a label this device has no name for has appeared.
+    private func afterCaughtUpPass(_ account: String) async {
+        guard let coordinator = actionCoordinator, nextActionSequence > 0, nextActionSequence < Int64.max else { return }
+        let sequence = nextActionSequence
+        nextActionSequence += 1
+        let now = Int64(Date().timeIntervalSince1970 * 1000)
+        // In line with his actions, so sequences reach the intent store in the order they were taken.
+        let prior = actionTask
+        let derived = Task { () -> Int in
+            await prior?.value
+            return (try? await coordinator.deriveRules(account: account, now: now - Self.snoozeFallbackGrace,
+                                                        sequence: sequence, at: now)) ?? -1
+        }
+        actionTask = Task { _ = await derived.value }
+        let changed = await derived.value
+        do {
+            if changed < 0 { throw MailIntentStore.Failure.invalidGroup }
+            if changed > 0 {
+                refreshAfterAction()
+                kickDelivery()
+            }
+            let unnamed = try await stores.index.read { db in
+                try Bool.fetchOne(db, sql: """
+                    SELECT EXISTS(SELECT 1 FROM label l JOIN account a ON a.account_pk=l.account_pk
+                    WHERE a.email=? AND l.kind=1 AND l.listed=0 AND l.name=l.gmail_id AND l.gmail_id NOT LIKE 'name:%'
+                    AND coalesce(a.labels_at,0) < ?)
+                    """, arguments: [account, now - 10 * 60 * 1000]) ?? false
+            }
+            if unnamed { loadLabels(account) }
+        } catch {
+            projectionNeedsRepair = true
+        }
+    }
+
     private func refreshRefusals() {
         guard let intentStore else { return }
         refusalTask?.cancel()
@@ -1166,6 +1225,7 @@ extension MailLiveSource {
                     self.failures.remove(account)
                     self.lastSync[account] = Date()
                     let more = progress.hasMore || moreFill
+                    if !progress.hasMore { await self.afterCaughtUpPass(account) }
                     self.syncHealth[account] = more ? .catchingUp : .live
                     try await self.loadRemovalStatus()
                     self.publishAccounts()

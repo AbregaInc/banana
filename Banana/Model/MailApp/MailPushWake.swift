@@ -4,7 +4,7 @@ import UIKit
 #endif
 
 /// A silent push from Banana Cloud's mailbox (`b.k == "mail"`, MAIL-CLOUD-SYNC §2a): new mail's
-/// text is stored there. One feed pass and a bulk pull of the new messages, inside the window the
+/// text is stored there, or a snooze woke a conversation (its labels changed in the feed). One feed pass and a bulk pull of the new messages, inside the window the
 /// push gives (no new background mode: the app's existing `remote-notification` handling).
 /// Nothing runs on a device where Mail was never opened (MAIL-ENGINE invariant 16), and nothing is
 /// shown: a visible new-mail notice is the owner's product decision, not made here.

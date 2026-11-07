@@ -59,10 +59,12 @@ struct MailSendLaterPanel: View {
 /// a few times to take without typing, each saying when it is. Here it is a panel in the composer,
 /// not an overlay: the same under a keyboard on a phone as on a Mac. `↑` `↓` move, `↵` takes the
 /// highlighted time, `Esc` shuts the picker and nothing else.
-struct MailTimePickerPanel: View {
+struct MailTimePickerPanel<Extra: View>: View {
     @ObservedObject var picker: MailTimePickerModel
     let choose: (Date) -> Void
     let close: () -> Void
+    /// Rows a job adds under the times: a snooze's "Pick a date and time…" and Unsnooze.
+    @ViewBuilder var extra: Extra
 
     @Environment(\.layoutClass) private var layoutClass
     @FocusState private var isTyping: Bool
@@ -97,7 +99,7 @@ struct MailTimePickerPanel: View {
                         close()
                         return .handled
                     }
-                    .accessibilityLabel(MailScheduleCopy.pickerTitle)
+                    .accessibilityLabel(picker.title)
                     .accessibilityIdentifier(MailID.timePickerField)
                 Button(action: close) {
                     Image(systemName: "xmark.circle.fill").foregroundStyle(.secondary)
@@ -131,12 +133,16 @@ struct MailTimePickerPanel: View {
                 .buttonStyle(.plain)
                 .accessibilityIdentifier(MailID.timePickerRow(row.id))
             }
-            MailDivider(axis: .horizontal)
+            extra
             // Who sends it, and when: `MailScheduleCopy` says, for the time under the highlight.
-            Text(picker.note)
-                .font(.caption).foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
-                .padding(DS.Space.m)
+            // A snooze has no one to name: every device and Banana Cloud bring it back.
+            if !picker.note.isEmpty {
+                MailDivider(axis: .horizontal)
+                Text(picker.note)
+                    .font(.caption).foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(DS.Space.m)
+            }
         }
         .background(Color.primary.opacity(DS.Tint.wash),
                     in: RoundedRectangle(cornerRadius: DS.Radius.card, style: .continuous))
@@ -154,6 +160,12 @@ struct MailTimePickerPanel: View {
         }
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier(MailID.timePicker)
+    }
+}
+
+extension MailTimePickerPanel where Extra == EmptyView {
+    init(picker: MailTimePickerModel, choose: @escaping (Date) -> Void, close: @escaping () -> Void) {
+        self.init(picker: picker, choose: choose, close: close) { EmptyView() }
     }
 }
 

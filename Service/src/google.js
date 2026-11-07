@@ -227,6 +227,28 @@ export function createGoogle(config, fetchImpl, now = Date.now) {
       if (!response.ok && response.status !== 404) throw new GoogleError(`mail stop ${response.status}`, response.status);
     },
 
+    /** Every label of the mailbox (system and user), as Gmail describes them. */
+    async mailLabels(accessToken) {
+      const response=await fetch('https://gmail.googleapis.com/gmail/v1/users/me/labels',{
+        headers:{authorization:`Bearer ${accessToken}`},redirect:'error',
+      });
+      if(!response.ok)throw new GoogleError('mail labels unavailable',response.status);
+      const body=await response.json();
+      if(!Array.isArray(body?.labels))throw new GoogleError('mail labels invalid',502);
+      return body.labels;
+    },
+
+    /** Makes a label; 409 when one of that name exists. */
+    async mailCreateLabel(accessToken,label) {
+      const response=await fetch('https://gmail.googleapis.com/gmail/v1/users/me/labels',{
+        method:'POST',headers:{authorization:`Bearer ${accessToken}`,'content-type':'application/json'},redirect:'error',
+        body:JSON.stringify(label),
+      });
+      const body=await response.json();
+      if(!body||typeof body!=='object'||Array.isArray(body)||(response.ok&&(typeof body.id!=='string'||body.name!==label.name)))throw new GoogleError('mail label response invalid',502);
+      return {status:response.status,body};
+    },
+
     /** Typed Gmail reads use only the service grant; no provider token reaches a client. */
     async mailRead(accessToken, request) {
       const resource = {drafts:'drafts',draft:'drafts',profile:'profile',labels:'labels',messages:'messages',history:'history',

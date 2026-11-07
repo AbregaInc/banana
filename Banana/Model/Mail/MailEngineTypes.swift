@@ -29,6 +29,9 @@ struct MessageFacts: Equatable, Sendable {      // one message as the rules see 
     var hasAttachment: Bool, hasInvite: Bool
     var listID: String?
     var hasUndeliveredIntent: Bool, hasRefusedIntent: Bool
+    /// Banana's labels on it, name → the id it carries them by (a Gmail id, or `name:<name>` until
+    /// delivery has one). What a snooze change takes off, by id (section 8).
+    var bananaLabelIDs: [String: String] = [:]
 }
 struct SummaryPerson: Equatable, Codable, Sendable {
     var n: String?; var a: String; var u: Bool

@@ -53,6 +53,7 @@ struct MailActionsMenu: View {
                     .disabled(!session.canPerform(.toggleStar))
                 Button { session.act(.toggleRead) } label: { Label("Mark unread", systemImage: "envelope.badge") }
                     .disabled(!session.canPerform(.toggleRead))
+                MailSnoozeMenu(session: session)
             }
             Section {
                 Button { session.askForDetails(toggles: true) } label: { Label("Details", systemImage: "info.circle") }

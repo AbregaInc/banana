@@ -48,11 +48,14 @@ actor MailActionCoordinator {
             let prepared = try await stores.index.read { db -> ([Assertion], [Assertion], Int) in
                 var desired: [Assertion] = [], before: [Assertion] = [], count = 0
                 var seen = Set<MailConversationID>()
+                var banana: [String: [String: String]] = [:]
                 for target in targets where seen.insert(target.id).inserted {
                     let id = target.id
                     guard let pk = try Int64.fetchOne(db, sql: "SELECT t.thread_pk FROM thread t JOIN account a ON a.account_pk=t.account_pk WHERE a.email=? AND t.gmail_id=?", arguments: [id.account, id.thread]) else { throw Failure.missingConversation }
                     let facts = try MailMessageImporter.facts(threadPK: pk, in: db).filter { $0.arrivalSequence <= target.messageArrivalCeiling }
-                    let assertions = try OutboxRules.assertions(for: change, account: id.account, messages: facts, asOf: target.asOf)
+                    if banana[id.account] == nil { banana[id.account] = try Self.bananaLabelIDs(account: id.account, in: db) }
+                    let assertions = try OutboxRules.assertions(for: change, account: id.account, messages: facts, asOf: target.asOf,
+                                                                bananaLabelIDs: banana[id.account] ?? [:])
                     if !assertions.isEmpty { count += 1 }
                     let labels = Dictionary(uniqueKeysWithValues: facts.map { ($0.gmailID, $0.labels) })
                     desired += assertions
@@ -117,7 +120,8 @@ actor MailActionCoordinator {
                         let prepared = try await snapshot.read { db -> [MailIntentStore.StagedAssertion] in
                             let facts = try MailMessageImporter.facts(threadPK: row.threadPK, in: db)
                             let labels = Dictionary(uniqueKeysWithValues: facts.map { ($0.gmailID, $0.labels) })
-                            return try OutboxRules.assertions(for: change, account: row.account, messages: facts, asOf: row.lastDate).map {
+                            return try OutboxRules.assertions(for: change, account: row.account, messages: facts, asOf: row.lastDate,
+                                                              bananaLabelIDs: try Self.bananaLabelIDs(account: row.account, in: db)).map {
                                 MailIntentStore.StagedAssertion(thread: row.thread, assertion: $0,
                                     previous: labels[$0.messageID]?.contains($0.labelRef) == true)
                             }
@@ -267,6 +271,89 @@ actor MailActionCoordinator {
         tail = Task { _ = try? await work.value }
         try await work.value
     }
+    /// 8.3: the rules run again on the state the last sync pass left. Undelivered assertions a rule
+    /// made earlier go first (invariant 24); then every conversation with something of a snooze on it
+    /// is read, and what `BananaLabelRules.due` produces is committed as one change with
+    /// `origin: .rule`. A conversation with a change of his still undelivered is left alone: his
+    /// change is the newer word. `now` is the moment a wake may be due by. Returns the number of
+    /// conversations changed (nil sequence consumed when 0).
+    func deriveRules(account: String, now: Int64, sequence: Int64, at: Int64) async throws -> Int {
+        let prior = tail, stores = stores, intent = intent, writer = writer
+        let work = Task<Int, Error> {
+            await prior?.value
+            let purged = try await intent.discardUndeliveredRuleAssertions(account: account)
+            if !purged.isEmpty {
+                for offset in stride(from: 0, to: purged.count, by: 100) {
+                    try await Self.project(account: account, messages: Array(purged[offset..<min(offset + 100, purged.count)]), through: 0, intent: intent, writer: writer)
+                }
+            }
+            let (assertions, count) = try await stores.index.read { db -> ([Assertion], Int) in
+                let ids = try Self.bananaLabelIDs(account: account, in: db)
+                // Only where a rule can be due: a snooze whose time has come, or one that is neither
+                // away nor back (came back early, left after coming back, in the bin). Away until
+                // later and back in the inbox are the summary's wake_at, and are not read every pass.
+                let threads = try Int64.fetchAll(db, sql: """
+                    SELECT DISTINCT m.thread_pk FROM message m JOIN account a ON a.account_pk=m.account_pk
+                    JOIN message_label ml ON ml.msg_pk=m.msg_pk JOIN label l ON l.label_pk=ml.label_pk
+                    JOIN thread t ON t.thread_pk=m.thread_pk
+                    WHERE a.email=? AND l.kind=2 AND (l.name LIKE 'Banana/Snoozed/%' OR l.name=?)
+                    AND (t.wake_at IS NULL OR (t.wake_at<=? AND t.returned_at IS NULL))
+                    ORDER BY m.thread_pk LIMIT 500
+                    """, arguments: [account, BananaLabelRules.returned, now])
+                var result: [Assertion] = [], count = 0
+                for thread in threads {
+                    let facts = try MailMessageImporter.facts(threadPK: thread, in: db)
+                    guard !facts.contains(where: { $0.hasUndeliveredIntent || $0.hasRefusedIntent }) else { continue }
+                    let due = BananaLabelRules.due(facts, account: account, ids: ids, now: now)
+                    if !due.isEmpty { result += due; count += 1 }
+                }
+                return (result, count)
+            }
+            guard !assertions.isEmpty else { return 0 }
+            _ = try await intent.record(.unsnooze, account: account, assertions: assertions, conversations: count, at: at, sequence: sequence)
+            let messages = Array(Set(assertions.map(\.messageID))).sorted()
+            for offset in stride(from: 0, to: messages.count, by: 100) {
+                try await Self.project(account: account, messages: Array(messages[offset..<min(offset + 100, messages.count)]), through: 0, intent: intent, writer: writer)
+            }
+            _ = try await writer.transact { _ in MailStoreChange(through: UInt64(sequence)) }
+            return count
+        }
+        tail = Task { _ = try? await work.value }
+        return try await work.value
+    }
+
+    /// Delivery has Gmail's id for a label the outbox named: the label's row, then the overlay of
+    /// every message whose intent now names it by id, then the stand-in row goes.
+    func adopt(account: String, name: String, id: String, messages: [String]) async throws {
+        let prior = tail, intent = intent, writer = writer
+        let work = Task {
+            await prior?.value
+            _ = try await writer.transact { db in
+                try MailActionIndex.adopt(account: account, name: name, id: id, in: db)
+                return MailStoreChange(labelsChanged: true)
+            }
+            for offset in stride(from: 0, to: messages.count, by: 100) {
+                try await Self.project(account: account, messages: Array(messages[offset..<min(offset + 100, messages.count)]), through: 0, intent: intent, writer: writer)
+            }
+            _ = try await writer.transact { db in
+                try MailActionIndex.adopt(account: account, name: name, id: id, in: db)
+                return MailStoreChange(labelsChanged: true)
+            }
+        }
+        tail = Task { _ = try? await work.value }
+        try await work.value
+    }
+
+    /// The account's own labels Gmail has made, name → id: what a snooze names by id (section 8).
+    static func bananaLabelIDs(account: String, in db: Database) throws -> [String: String] {
+        var result: [String: String] = [:]
+        for row in try Row.fetchAll(db, sql: """
+            SELECT l.name,l.gmail_id FROM label l JOIN account a ON a.account_pk=l.account_pk
+            WHERE a.email=? AND l.kind=2 AND l.gmail_id NOT LIKE 'name:%'
+            """, arguments: [account]) { result[row[0]] = row[1] }
+        return result
+    }
+
     private static func project(account: String, messages: [String], through: UInt64, intent: MailIntentStore, writer: MailWriter) async throws {
         for offset in stride(from: 0, to: messages.count, by: 20) {
             let batch = Array(messages[offset..<min(offset + 20, messages.count)])

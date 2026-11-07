@@ -33,6 +33,22 @@ enum MailTimePresets {
         return rows
     }
 
+    /// Snooze's four (MAIL-UX 6.5.1): the same times, with Monday morning called what it is for a
+    /// snooze, "Next week". The time zone is the calendar's: his. Morning is `MailTimePhrase.morningHour`.
+    static func snoozeRows(now: Date, calendar: Calendar = .current) -> [Preset] {
+        var rows = Self.rows(now: now, calendar: calendar).map { row -> Preset in
+            var row = row
+            if row.id == "monday" { row.title = "Next week" }
+            return row
+        }
+        // On a Sunday Monday is tomorrow, and Send later's rows drop it as a repeat. A snooze keeps
+        // all four in their places, so a thumb finds Next week where it always is.
+        if !rows.contains(where: { $0.id == "monday" }) {
+            rows.append(Preset(id: "monday", title: "Next week", date: nextMonday(after: now, calendar: calendar)))
+        }
+        return rows
+    }
+
     static func laterToday(now: Date, calendar: Calendar) -> Date? {
         let rounded = Self.roundedUpToHalfHour(now.addingTimeInterval(3 * 3_600), calendar: calendar)
         guard calendar.isDate(rounded, inSameDayAs: now),
@@ -94,9 +110,12 @@ final class MailTimePickerModel: ObservableObject {
     @Published private(set) var note = ""
 
     private let now: () -> Date
-    private let holder: MailScheduleCopy.Holder
+    /// Who sends it, for Send later; nil for a snooze, which every device and Banana Cloud bring back.
+    private let holder: MailScheduleCopy.Holder?
     private let calendar: Calendar
     private let locale: Locale
+    /// What the field says it is for: "Send later…", "Snooze until…".
+    let title: String
 
     init(now: @escaping () -> Date, holder: MailScheduleCopy.Holder, calendar: Calendar = .current,
          locale: Locale = .current) {
@@ -104,6 +123,17 @@ final class MailTimePickerModel: ObservableObject {
         self.holder = holder
         self.calendar = calendar
         self.locale = locale
+        title = MailScheduleCopy.pickerTitle
+        read()
+    }
+
+    /// The same picker for a snooze (MAIL-UX 6.5): its four presets, typed times, and no note.
+    init(snoozingAt now: @escaping () -> Date, calendar: Calendar = .current, locale: Locale = .current) {
+        self.now = now
+        holder = nil
+        self.calendar = calendar
+        self.locale = locale
+        title = "Snooze until\u{2026}"
         read()
     }
 
@@ -121,7 +151,9 @@ final class MailTimePickerModel: ObservableObject {
             made.append(Row(id: "typed", title: text.trimmingCharacters(in: .whitespaces), date: date,
                             time: MailScheduleCopy.when(date, now: current, calendar: calendar, locale: locale)))
         }
-        for preset in MailTimePresets.rows(now: current, calendar: calendar) {
+        let presets = holder == nil ? MailTimePresets.snoozeRows(now: current, calendar: calendar)
+            : MailTimePresets.rows(now: current, calendar: calendar)
+        for preset in presets {
             made.append(Row(id: preset.id, title: preset.title, date: preset.date,
                             time: MailScheduleCopy.when(preset.date, now: current, calendar: calendar, locale: locale)))
         }
@@ -131,6 +163,7 @@ final class MailTimePickerModel: ObservableObject {
     }
 
     private func updateNote() {
+        guard let holder else { note = ""; return }
         let date = isPast || !rows.indices.contains(highlighted) ? nil : rows[highlighted].date
         note = MailScheduleCopy.pickerNote(holder: holder, at: date, now: now(), calendar: calendar, locale: locale)
     }

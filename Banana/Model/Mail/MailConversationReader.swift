@@ -47,7 +47,10 @@ struct MailConversationReader: Sendable {
                     body: states[fact.gmailID] == 1 ? .preparing : .notOnDevice,
                     attachments: [], delivery: nil, draft: nil)
             }
-            let wake: Int64? = thread["wake_at"]
+            // Snoozed until: only while it is away. A conversation back from its snooze keeps the time
+            // in `wake_at` for its row ("Back from snooze") and is not snoozed.
+            let returned: Int64? = thread["returned_at"]
+            let wake: Int64? = returned == nil && !flags.contains(.inInbox) ? thread["wake_at"] : nil
             return MailConversation(id: MailConversationID(account: account, thread: id.thread), subject: thread["subject"] ?? "",
                 labels: refs, inInbox: flags.contains(.inInbox), isStarred: flags.contains(.starred),
                 isImportant: flags.contains(.important), isMuted: flags.contains(.muted),

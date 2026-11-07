@@ -11,6 +11,7 @@ import { featureAllowed, googleCapabilities } from "./feature-access.js";
 import { GoogleRefused } from "./google.js";
 import { sha256Hex, hex } from "./crypto.js";
 import { pushTo } from "./push.js";
+import { snoozeAssertions } from "./mail-snooze.js";
 
 const SECOND = 1000, MINUTE = 60 * SECOND, DAY = 24 * 60 * MINUTE;
 export const CACHE_MOST = 16 * 1024 * 1024;   // larger content is passed through, not stored
@@ -33,6 +34,7 @@ const FILL_AGAIN = 6 * 60 * MINUTE;             // a finished fill looks again (
 // "New mail is here" to the devices: one silent push for a burst, at most one per this gap.
 export const PUSH_GAP = 15 * SECOND;
 export const MAIL_PUSH = { aps: { "content-available": 1 }, b: { k: "mail" } };
+const SNOOZE_THREADS = 5;                        // conversations a step wakes at most
 
 class Retry extends Error { constructor(at) { super("retry"); this.at = at; } }
 class Unauthorized extends Error {}
@@ -96,11 +98,12 @@ export function createMailbox({ port, deps, vault, blobs, alarm, destroy }) {
     if (!who.sub || !who.account) return null;
     if (!(await featureAllowed(deps, who.account, "email"))) return null;
     const link = await mailLink(deps, who.account, who.email);
-    if (!link || link.sub !== who.sub || !googleCapabilities({ ...link, has_token: Boolean(link.refresh_token) }).mailRead) return null;
+    const can = link && googleCapabilities({ ...link, has_token: Boolean(link.refresh_token) });
+    if (!link || link.sub !== who.sub || !can.mailRead) return null;
     if (link.client_id && link.client_id !== deps.config.googleClientId) return null;
     try {
       const { accessToken } = await deps.google.refresh(await vault.open(link.sub, link.refresh_token));
-      return { token: accessToken, sub: link.sub, email: who.email };
+      return { token: accessToken, sub: link.sub, email: who.email, account: who.account, modify: can.mailModify };
     } catch (error) {
       if (error instanceof GoogleRefused) {
         if (link.mailGrant) await deps.db.run("UPDATE mail_grants SET status='refused',updated_at=? WHERE google_sub=? AND refresh_token=?", now(), link.sub, link.refresh_token);
@@ -119,10 +122,7 @@ export function createMailbox({ port, deps, vault, blobs, alarm, destroy }) {
     const answer = await deps.google.mailRead(who.token, request);
     if ([401, 403].includes(answer.status)) {
       const { bytes } = await answerBytes(answer, 64 * 1024);
-      const body = bytes && parse(bytes);
-      const reasons = body?.error?.errors?.map((e) => e?.reason) ?? [];
-      if (answer.status === 401 || reasons.some((r) => ["insufficientPermissions", "authError"].includes(r))) throw new Unauthorized();
-      throw new Retry(now() + BACKOFF);
+      refused(answer.status, bytes && parse(bytes));
     }
     if (answer.status === 429 || answer.status >= 500) throw new Retry(now() + BACKOFF);
     return answer;
@@ -132,6 +132,19 @@ export function createMailbox({ port, deps, vault, blobs, alarm, destroy }) {
     const { bytes, tooLarge } = await answerBytes(answer, 8 * 1024 * 1024);
     if (tooLarge) throw new Retry(now() + BACKOFF);
     return { status: answer.status, body: parse(bytes) };
+  }
+  /** A 401, or a 403 for permission: the grant is gone (the mailbox is wiped). Any other 403 is a
+   * rate limit: later. */
+  function refused(status, body) {
+    const reasons = body?.error?.errors?.map((e) => e?.reason) ?? [];
+    if (status === 401 || reasons.some((r) => ["insufficientPermissions", "authError"].includes(r))) throw new Unauthorized();
+    throw new Retry(now() + BACKOFF);
+  }
+  /** A Gmail write takes its share of the identity's pacing like any read. */
+  async function pace(who, resource) {
+    const reservation = await reserveMailRead(deps, who.sub, { resource, query: [] });
+    if (!reservation) throw new Retry(await nextMailReadAt(deps, who.sub));
+    if (reservation.waitMS > 0) await deps.sleep(reservation.waitMS);
   }
   const q = (pairs) => Object.entries(pairs).filter(([, v]) => v !== null && v !== undefined).map(([name, value]) => ({ name, value: String(value) }));
 
@@ -155,6 +168,87 @@ export function createMailbox({ port, deps, vault, blobs, alarm, destroy }) {
     const labels = await gmailJSON(who, { resource: "labels", query: [] });
     if (labels.status !== 200 || !Array.isArray(labels.body?.labels)) throw new Retry(now() + BACKOFF);
     box.begin(port, { historyId, labels: labels.body.labels.map((l) => l?.id).filter((id) => typeof id === "string" && id), now: now() });
+    box.replaceLabels(port, labels.body.labels);
+  }
+
+  async function refreshLabels(who) {
+    const labels = await gmailJSON(who, { resource: "labels", query: [] });
+    if (labels.status !== 200 || !Array.isArray(labels.body?.labels)) throw new Retry(now() + BACKOFF);
+    box.replaceLabels(port, labels.body.labels);
+  }
+
+  // ---- snooze (MAIL-ENGINE §8): the mailbox wakes a conversation on time, every device asleep ----
+
+  /** Banana's hidden label `name`, made in Gmail (a device may have made it meanwhile: 409). */
+  async function ensureLabel(who, name) {
+    await pace(who, "createLabel");
+    let answer;
+    try { answer = await deps.google.mailCreateLabel(who.token, { name, labelListVisibility: "labelHide", messageListVisibility: "hide" }); }
+    catch { throw new Retry(now() + BACKOFF); }
+    if (answer.status === 200 && typeof answer.body?.id === "string") return box.noteLabel(port, answer.body);
+    if (answer.status === 409) return refreshLabels(who);
+    if ([401, 403].includes(answer.status)) refused(answer.status, answer.body);
+    throw new Retry(now() + BACKOFF);
+  }
+
+  async function modify(who, change) {
+    await pace(who, "modify");
+    let answer;
+    try { answer = await deps.google.mailMutation(who.token, { id: change.id, action: "modify", add: change.add, remove: change.remove }); }
+    catch { throw new Retry(now() + BACKOFF); }
+    if (answer.status === 200) return true;
+    if ([401, 403].includes(answer.status)) refused(answer.status, answer.body);
+    if (answer.status === 404) return false;   // deleted meanwhile: its read says so
+    if (answer.status === 400) box.setMeta(port, "labels_due", 1);   // a label Gmail no longer has
+    throw new Retry(now() + BACKOFF);
+  }
+
+  /** One conversation: read fresh, the rules run on what Gmail says now, the changes made in order.
+   * Returns true when it was woken into the Inbox. */
+  async function settleThread(who, thread) {
+    const floor = box.checkpoint(port);   // before the request leaves (applyRead)
+    const answer = await gmailJSON(who, { resource: "thread", id: thread, query: q({ format: "minimal" }) });
+    if (answer.status === 404 && notFound(answer.body)) { box.noteAction(port, box.threadMessages(port, thread), now()); return false; }
+    if (answer.status !== 200 || !Array.isArray(answer.body?.messages)) throw new Retry(now() + BACKOFF);
+    const messages = answer.body.messages.filter((m) => typeof m?.id === "string" && m.threadId === thread);
+    for (const m of messages) box.applyRead(port, m, { floor, now: now() });
+    const facts = messages.map((m) => ({ id: m.id, labels: m.labelIds ?? [], internalDate: m.internalDate }));
+    let result = snoozeAssertions(facts, box.labelNames(port), now());
+    if (result.missing) {
+      await ensureLabel(who, result.missing);
+      result = snoozeAssertions(facts, box.labelNames(port), now());
+      if (result.missing) throw new Retry(now() + BACKOFF);
+    }
+    const changed = [];
+    try {
+      for (const change of result.changes) if (await modify(who, change)) changed.push(change.id);
+    } finally {
+      // Read back like a device's action, so the feed carries Gmail's own position for each.
+      if (changed.length) box.noteAction(port, changed, now());
+    }
+    // The first change of a wake is the one that puts it in the Inbox.
+    return result.rule === "wake" && changed[0] === result.changes[0]?.id;
+  }
+
+  /** The conversations a snooze rule is due on now. False when there are none. */
+  async function snoozeStep(who) {
+    const due = box.snoozeDue(port, { now: now(), limit: SNOOZE_THREADS });
+    if (!due.length) return false;
+    if (!who.modify) {   // a read-only grant: nothing can be woken; they wait instead of spinning
+      for (const thread of due) box.snoozeSettled(port, thread, now());
+      return false;
+    }
+    let woke = false;
+    try {
+      for (const thread of due) {
+        try { if (await settleThread(who, thread)) woke = true; }
+        finally { box.snoozeSettled(port, thread, now()); }
+      }
+    } finally {
+      // The same coalesced "mail changed" push as new mail (pushIfDue): the devices read the feed.
+      if (woke) box.setMeta(port, "push_due", now());
+    }
+    return true;
   }
 
   async function poll(who, { pages = 5 } = {}) {
@@ -252,6 +346,8 @@ export function createMailbox({ port, deps, vault, blobs, alarm, destroy }) {
     }
     if (await verifyBatch(who, { prio: 0 })) return now();
     if (pollDue()) { await poll(who); return now(); }
+    if (box.getMeta(port, "labels_due") !== null) { await refreshLabels(who); return now(); }
+    if (await snoozeStep(who)) return now();
     const fetch = box.fetchNext(port, 4);
     if (fetch.length) {
       for (const id of fetch) { await content(who, id); box.fetchDone(port, id); }
@@ -260,7 +356,7 @@ export function createMailbox({ port, deps, vault, blobs, alarm, destroy }) {
     // New mail's content is here: tell the devices (one push for a burst; null once sent).
     const pushAt = await pushIfDue();
     if (box.complete(port) && now() - Number(box.getMeta(port, "label_check_at") ?? 0) >= LABEL_CHECK_EVERY
-        && now() - Number(box.getMeta(port, "read_at") ?? 0) < DAY) { await labelCheck(who); return now(); }
+        && now() - Number(box.getMeta(port, "read_at") ?? 0) < DAY) { await refreshLabels(who); await labelCheck(who); return now(); }
     if (await verifyBatch(who)) return now();
     const scan = box.scanState(port);
     if (scan) return (await scanStep(who, scan)) ? now() : Math.max(now() + 100, await nextMailReadAt(deps, who.sub));
@@ -313,8 +409,9 @@ export function createMailbox({ port, deps, vault, blobs, alarm, destroy }) {
     return now();
   }
 
-  /** A silent push to the account's devices when new mail's content was stored and none went out
-   * in the last PUSH_GAP. Returns when one is next due, or null. */
+  /** The one silent push to the account's devices: new mail's content was stored, or a snooze
+   * woke a conversation. At most one per PUSH_GAP; a burst sends one. Returns when one is next
+   * due, or null. */
   async function pushIfDue() {
     const due = box.getMeta(port, "push_due");
     if (due === null) return null;
@@ -365,9 +462,23 @@ export function createMailbox({ port, deps, vault, blobs, alarm, destroy }) {
           if (!(error instanceof Retry)) console.log(`mailbox: step failed (${error.name})`);
         }
       }
-      if (next !== null) await alarm.set(Math.max(next, now()));
+      if (next === null) return null;
+      // A snooze due before the next step: the alarm is set for it, idle or not.
+      const wake = box.snoozeNext(port, { now: now() });
+      await alarm.set(Math.max(wake === null ? next : Math.min(next, wake), now()));
+      await recordWake(wake);
       return next;
     });
+  }
+
+  /** The earliest pending wake, in D1 too: the quarter-hour job sets an alarm that was lost again. */
+  async function recordWake(wake) {
+    const stored = box.getMeta(port, "wake_at");
+    if ((stored === null ? null : Number(stored)) === wake) return;
+    try {
+      await deps.db.run("UPDATE mail_mailboxes SET wake_at = ? WHERE google_sub = ?", wake, box.identity(port).sub);
+      box.setMeta(port, "wake_at", wake);
+    } catch (error) { console.log(`mailbox: wake record failed (${error.name})`); }
   }
 
   /** The content of one message (Gmail `full`), or one attachment: stored once, from Google once. */
@@ -460,7 +571,9 @@ export function createMailbox({ port, deps, vault, blobs, alarm, destroy }) {
       return { ready: true, ...box.feed(port, { after, era, limit: Math.min(Math.max(1, limit), box.FEED_MAX) }) };
     },
     async check(ids) { setup(); const result = box.check(port, ids, now()); await arm(); return result; },
-    async noteAction(ids) { setup(); if (!box.identity(port).sub) return; box.noteAction(port, ids, now()); await arm(); },
+    async noteAction(ids, labels = []) { setup(); if (!box.identity(port).sub) return; box.noteAction(port, ids, now(), labels); await arm(); },
+    /** A label a device had Gmail make (the createLabel operation). */
+    async noteLabel(label) { setup(); if (!box.identity(port).sub) return; box.noteLabel(port, label); await arm(); },
     async poke() { setup(); if (!box.identity(port).sub) return; box.setMeta(port, "poll", 1); await arm(); },
     /** The mailbox's own position as Gmail's profile: never newer than Gmail's, so a device's
      * floors stay conservative. Null before the handshake. */

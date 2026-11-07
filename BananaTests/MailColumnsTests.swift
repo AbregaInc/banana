@@ -87,7 +87,7 @@ final class MailColumnsTests: XCTestCase {
     func testThePlacesAndTheirCountsFollowTheMailbox() {
         let source = MailFixtureSource()
         let places = MailPlacesModel(source: source)
-        XCTAssertEqual(MailPlacesModel.all.map(\.title), ["Inbox", "Starred", "Drafts", "Scheduled", "Done"])
+        XCTAssertEqual(MailPlacesModel.all.map(\.title), ["Inbox", "Starred", "Drafts", "Snoozed", "Scheduled", "Done"])
         XCTAssertEqual(places.total(of: .inbox), 40)
         XCTAssertEqual(places.total(of: .done), 0)
         let starred = places.total(of: .starred) ?? 0

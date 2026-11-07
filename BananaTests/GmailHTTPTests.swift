@@ -55,6 +55,22 @@ final class GmailHTTPTests: XCTestCase {
         XCTAssertEqual(draft.message.id, "version"); XCTAssertEqual(draft.message.labelIds, [])
     }
 
+    /// Snooze's labels (MAIL-ENGINE 8.1) are made hidden from Gmail's label list and message list,
+    /// and an answer naming another label is not taken for it.
+    func testCreatingALabelAsksForItHiddenAndChecksTheAnswer() async throws {
+        let api = GmailHTTP(cloudTransport: { path, reference, query, method, body in
+            XCTAssertEqual(path, ["labels"]); XCTAssertEqual(method, "POST"); XCTAssertTrue(query.isEmpty)
+            let sent = try XCTUnwrap(JSONSerialization.jsonObject(with: try XCTUnwrap(body)) as? [String: String])
+            XCTAssertEqual(sent, ["name": "Banana/Returned", "labelListVisibility": "labelHide", "messageListVisibility": "hide"])
+            return Data(#"{"id":"Label_9","name":"Banana/Returned","type":"user"}"#.utf8)
+        }, networkAllowed: { true })
+        let label = try await api.createLabel(token: "opaque-route", name: "Banana/Returned")
+        XCTAssertEqual(label.id, "Label_9")
+        let wrong = GmailHTTP(cloudTransport: { _, _, _, _, _ in Data(#"{"id":"Label_9","name":"Receipts"}"#.utf8) }, networkAllowed: { true })
+        do { _ = try await wrong.createLabel(token: "opaque-route", name: "Banana/Returned"); XCTFail("another label accepted") }
+        catch { XCTAssertEqual(error as? GmailError, .malformed) }
+    }
+
     func testMissingLabelDirectoryIsNotAnEmptySuccess() async throws {
         ResponseProtocol.response = { _ in (200, Data("{}".utf8)) }
         do { _ = try await transport().labels(token: "fixture"); XCTFail("Missing directory accepted") }

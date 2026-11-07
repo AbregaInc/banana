@@ -37,8 +37,14 @@ enum MailLabelCatalog {
         let pk = try Int64.fetchOne(db, sql: "SELECT account_pk FROM account WHERE email=?", arguments: [owner])!
         // Absence from a directory is not deletion evidence. Keep prior entries until
         // an account-verified, per-label request confirms notFound (MAIL-ENGINE 5.3).
+        var named: [String] = []
         for label in labels {
             let kind = label.type == "system" ? 0 : label.name!.hasPrefix("Banana/") ? 2 : 1
+            // A Banana label first seen on messages, by id, before the directory named it: its
+            // conversations are summarised again once it reads as what it is (section 8).
+            if kind == 2, try Int.fetchOne(db, sql: "SELECT kind FROM label WHERE account_pk=? AND gmail_id=?", arguments: [pk, label.id]) ?? 2 != 2 {
+                named.append(label.id!)
+            }
             try db.execute(sql: """
                 INSERT INTO label(account_pk,gmail_id,name,kind,list_visibility,message_visibility,text_color,background_color,listed)
                 VALUES(?,?,?,?,?,?,?,?,1) ON CONFLICT(account_pk,gmail_id) DO UPDATE SET
@@ -49,7 +55,18 @@ enum MailLabelCatalog {
                     label.messageListVisibility, label.color?.textColor, label.color?.backgroundColor])
         }
         try db.execute(sql: "UPDATE account SET labels_at=? WHERE account_pk=?", arguments: [Int64(Date().timeIntervalSince1970 * 1000), pk])
-        return MailStoreChange(labelsChanged: true)
+        var change = MailStoreChange(labelsChanged: true)
+        for id in named {
+            let threads = try Int64.fetchAll(db, sql: """
+                SELECT DISTINCT m.thread_pk FROM message_label ml JOIN label l ON l.label_pk=ml.label_pk
+                JOIN message m ON m.msg_pk=ml.msg_pk WHERE l.account_pk=? AND l.gmail_id=?
+                """, arguments: [pk, id])
+            for thread in threads {
+                change.formUnion(try MailIndexWriter.rebuildThread(thread, facts: try MailMessageImporter.facts(threadPK: thread, in: db),
+                                                                   myAddresses: [owner], in: db))
+            }
+        }
+        return change
     }
 
     static func read(in db: Database) throws -> Reading {
