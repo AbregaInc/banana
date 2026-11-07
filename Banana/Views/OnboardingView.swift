@@ -86,7 +86,7 @@ struct OnboardingView: View {
 
     private var welcome: some View {
         FirstRunPage(title: "Your day.\nA little lighter.", wordmark: true) {
-            ArtCanvas(top: 400, bottom: 990) { art in
+            ArtCanvas(top: FirstRunArt.welcome.top, bottom: FirstRunArt.welcome.bottom) { art in
                 WelcomeScene(art: art)
             }
         } actions: {
@@ -109,7 +109,7 @@ struct OnboardingView: View {
     // MARK: - What Banana looks after
 
     private var modules: some View {
-        FirstRunPage(title: "What should Banana look after?", onBack: back, cornerOverlap: 44, titlePoints: 34) {
+        FirstRunPage(title: "What should Banana look after?", onBack: back, titlePoints: 34) {
             ModuleChooser(choice: $onboarding.modules)
         } actions: {
             Button("Continue") {
@@ -119,7 +119,7 @@ struct OnboardingView: View {
             .buttonStyle(FirstRun.primary)
             .accessibilityIdentifier("onboarding.continue")
         } corner: {
-            ArtCanvas(top: 200, bottom: 530) { art in ModulesScene(art: art) }
+            ArtCanvas(top: FirstRunArt.modules.top, bottom: FirstRunArt.modules.bottom) { art in ModulesScene(art: art) }
         }
     }
 
@@ -135,7 +135,8 @@ struct OnboardingView: View {
                                          set: { onboarding.anchors[keyPath: minutes] = $0 }),
                         range: range, track: end == .wake ? FirstRun.yellow : FirstRun.lilacTrack,
                         id: end == .wake ? "onboarding.wake.time" : "onboarding.windDown.time")
-            ArtCanvas(top: end == .wake ? 790 : 760, bottom: end == .wake ? 1160 : 1240) { art in
+            ArtCanvas(top: (end == .wake ? FirstRunArt.wake : FirstRunArt.windDown).top,
+                      bottom: (end == .wake ? FirstRunArt.wake : FirstRunArt.windDown).bottom) { art in
                 if end == .wake { SunriseScene(art: art) } else { MoonriseScene(art: art) }
             }
             Text(end == .wake ? "Adds a Wake routine to your plan." : "Adds a Wind down routine to your plan.")
@@ -158,20 +159,31 @@ struct OnboardingView: View {
 
     // MARK: - Calendar
 
+    /// Calendar and, where the build has it, Email: one Google screen for both. Which of them
+    /// starts is settled after sign-in (`OnboardingStore.settleEmail`).
     private var connect: some View {
         let emails = accountEmails
-        return FirstRunPage(title: "Bring in your calendars", onBack: back) {
-            ArtCanvas(top: 420, bottom: 1000) { art in ConnectScene(art: art) }
-            Text("Connecting only reads your calendars.")
-                .font(FirstRun.bodyFont)
-                .foregroundStyle(FirstRun.ink)
-                .frame(maxWidth: .infinity)
-                .multilineTextAlignment(.center)
+        let withEmail = OnboardingStore.emailInBuild
+        return FirstRunPage(title: withEmail ? "Bring in your calendar and email" : "Bring in your calendars", onBack: back) {
+            ArtCanvas(top: FirstRunArt.connect.top, bottom: FirstRunArt.connect.bottom) { art in
+                ConnectScene(art: art, mail: withEmail && onboarding.emailWanted)
+            }
+            if withEmail {
+                ConnectRows(emailWanted: $onboarding.emailWanted, locked: !emails.isEmpty)
+            } else {
+                Text("Connecting only reads your calendars.")
+                    .font(FirstRun.bodyFont)
+                    .foregroundStyle(FirstRun.ink)
+                    .frame(maxWidth: .infinity)
+                    .multilineTextAlignment(.center)
+            }
             if !emails.isEmpty {
                 AccountRows(emails: emails, adding: connecting) { Task { await addAccount() } }
             }
         } actions: {
-            if let problem { ProblemLine(text: problem, id: "onboarding.calendar.problem") }
+            if let problem = problem ?? onboarding.connectProblem {
+                ProblemLine(text: problem, id: "onboarding.calendar.problem")
+            }
             if emails.isEmpty {
                 GoogleButton(working: connecting, cornerRadius: FirstRun.buttonRadius) { Task { await connectGoogle() } }
                 Button("Not now") {
@@ -181,10 +193,18 @@ struct OnboardingView: View {
                 .buttonStyle(FirstRun.quiet)
                 .accessibilityIdentifier("onboarding.notNow")
             } else {
-                Button("Continue") { advance() }
-                    .buttonStyle(FirstRun.primary)
-                    .disabled(connecting)
-                    .accessibilityIdentifier("onboarding.continue")
+                Button {
+                    // After a relaunch mid-consent too: Email is settled from what is connected.
+                    Task {
+                        await onboarding.settleEmail()
+                        advance()
+                    }
+                } label: {
+                    if onboarding.settlingEmail { ProgressView() } else { Text("Continue") }
+                }
+                .buttonStyle(FirstRun.primary)
+                .disabled(connecting || onboarding.settlingEmail)
+                .accessibilityIdentifier("onboarding.continue")
             }
         }
     }
@@ -196,7 +216,7 @@ struct OnboardingView: View {
     private var calendars: some View {
         let rows = calendarRows
         return FirstRunPage(title: "What makes you busy?", onBack: back) {
-            ArtCanvas(top: 400, bottom: 960) { art in
+            ArtCanvas(top: FirstRunArt.calendars.top, bottom: FirstRunArt.calendars.bottom) { art in
                 CalendarsScene(art: art,
                                busy: rows.first(where: \.busy)?.title ?? "Work",
                                notBusy: rows.first(where: { $0.shown && !$0.busy })?.title)
@@ -223,7 +243,7 @@ struct OnboardingView: View {
         }
         let applying = { if case .applying = onboarding.copies { true } else { false } }()
         return FirstRunPage(title: "Copy busy time?", onBack: back) {
-            ArtCanvas(top: 280, bottom: 1000) { art in
+            ArtCanvas(top: FirstRunArt.copies.top, bottom: FirstRunArt.copies.bottom) { art in
                 CopiesScene(art: art,
                             source: shown?.sources.first ?? "Personal",
                             destination: shown?.changing.first?.title ?? shown?.destinations.first?.title ?? "Work")
@@ -261,9 +281,11 @@ struct OnboardingView: View {
     private var done: some View {
         let receipt = OnboardingReceipt(
             choices: calendarRows,
-            copies: onboarding.copiesAnswer ?? (writeBack.enabled ? .on(count: nil, to: []) : .off))
+            copies: onboarding.copiesAnswer ?? (writeBack.enabled ? .on(count: nil, to: []) : .off),
+            accounts: accountEmails,
+            email: OnboardingStore.emailInBuild ? ModuleStore.shared.choice.includes(.email) : nil)
         return FirstRunPage(title: "Your day is ready") {
-            ArtCanvas(top: 230, bottom: 880) { art in DoneScene(art: art) }
+            ArtCanvas(top: FirstRunArt.done.top, bottom: FirstRunArt.done.bottom) { art in DoneScene(art: art) }
             ReceiptRows(receipt: receipt, copyProblem: writeBack.enabled ? writeBack.lastError : nil)
         } actions: {
             Button("Open my day") { finish() }
@@ -283,14 +305,11 @@ struct OnboardingView: View {
         guard !connecting else { return }
         connecting = true
         problem = nil
-        let connected = await onboarding.requestCalendar()
+        let attempt = await onboarding.connectCalendarAndEmail()
         connecting = false
-        if connected {
-            advance()
-        } else {
-            // Closing Google's page leaves no message, and needs none.
-            problem = onboarding.calendarErrorMessage
-        }
+        // Closing Google's page leaves no message, and needs none; a failure stays on the page
+        // (`OnboardingStore.connectProblem`) with the button to try again.
+        if attempt == .connected { advance() }
     }
 
     @MainActor
@@ -692,8 +711,13 @@ private struct ModuleChooser: View {
         Row(module: .food, title: "Log your meals"),
         Row(module: .notes, title: "Keep notes"),
         Row(module: .podcasts, title: "Listen to podcasts"),
-        Row(module: .email, title: "Email"),
+        // Email isn't chosen here: the calendar page brings it in with the calendar.
     ]
+
+    /// Everything this page offers is on.
+    private var everything: Bool {
+        rows.filter { availableModules.selectable.contains($0.module) }.allSatisfy { choice.includes($0.module) }
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: DS.Space.s) {
@@ -715,13 +739,15 @@ private struct ModuleChooser: View {
                 .accessibilityIdentifier("onboarding.module.\(row.module.rawValue)")
             }
             Button {
-                choice = choice.isEverything ? .planOnly : .everything
+                // Every module this page offers; Email keeps whatever the calendar page decides.
+                let email = choice.includes(.email)
+                choice = (everything ? ModuleChoice.planOnly : .everything).setting(.email, on: email)
             } label: {
                 line(title: "Everything", symbol: "infinity",
-                     colour: FirstRun.ink, glyph: FirstRun.page, on: choice.isEverything)
+                     colour: FirstRun.ink, glyph: FirstRun.page, on: everything)
             }
             .buttonStyle(.plain)
-            .accessibilityAddTraits(choice.isEverything ? .isSelected : [])
+            .accessibilityAddTraits(everything ? .isSelected : [])
             .accessibilityIdentifier("onboarding.module.everything")
         }
     }
@@ -743,6 +769,46 @@ private struct ModuleChooser: View {
         }
         .frame(minHeight: 52)
         .contentShape(Rectangle())
+    }
+}
+
+/// What the one Google sign-in brings in: Calendar, always, and Email, on unless turned off.
+/// Once an account is in, Email is already decided and the switch only shows it.
+private struct ConnectRows: View {
+    @Binding var emailWanted: Bool
+    let locked: Bool
+
+    var body: some View {
+        VStack(spacing: 0) {
+            // Always brought in: a tick, not a switch that cannot be switched.
+            row("Calendar", symbol: "calendar", tint: FirstRun.lilac.dot) {
+                Image(systemName: "checkmark.circle.fill")
+                    .font(.title2)
+                    .foregroundStyle(FirstRun.ink)
+                    .accessibilityLabel("Always on")
+            }
+            Divider()
+            row("Email", symbol: "envelope", tint: FirstRun.mint.dot) {
+                Toggle("Email", isOn: $emailWanted).labelsHidden().disabled(locked)
+                    .accessibilityIdentifier("onboarding.email")
+            }
+        }
+        .tint(FirstRun.ink)
+    }
+
+    private func row<Control: View>(_ title: String, symbol: String, tint: Color,
+                                    @ViewBuilder control: () -> Control) -> some View {
+        HStack(spacing: DS.Space.m) {
+            Image(systemName: symbol)
+                .font(.title3)
+                .foregroundStyle(tint)
+                .frame(width: DS.Row.iconTile)
+                .accessibilityHidden(true)
+            Text(title).font(.body).foregroundStyle(FirstRun.ink)
+            Spacer(minLength: DS.Space.s)
+            control()
+        }
+        .frame(minHeight: 52)
     }
 }
 
@@ -797,8 +863,63 @@ private struct CalendarChoiceList: View {
     let rows: [CalendarChoice]
     let change: ((inout SmartScheduleSettings) -> Void) -> Void
     @ScaledMetric(relativeTo: .body) private var column: CGFloat = 64
+    @Environment(\.dynamicTypeSize) private var typeSize
 
     var body: some View {
+        if typeSize.isAccessibilitySize { stacked } else { table }
+    }
+
+    /// The largest text sizes: each calendar's name on its own line, its two switches labelled
+    /// under it (side by side, the name was squeezed to nothing).
+    private var stacked: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            ForEach(rows) { row in
+                VStack(alignment: .leading, spacing: DS.Space.xs) {
+                    name(row)
+                    Toggle("Show", isOn: shown(row)).accessibilityIdentifier("onboarding.show.\(row.title)")
+                    Toggle("Busy", isOn: busy(row)).accessibilityIdentifier("onboarding.busy.\(row.title)")
+                }
+                .font(.body)
+                .foregroundStyle(FirstRun.ink)
+                .tint(FirstRun.ink)
+                .padding(.vertical, DS.Space.s)
+                Divider()
+            }
+        }
+    }
+
+    private func name(_ row: CalendarChoice) -> some View {
+        HStack(spacing: DS.Space.m) {
+            Circle()
+                .fill(row.colorHex.map { calendarTint($0) } ?? FirstRun.secondaryInk)
+                .frame(width: 16, height: 16)
+                .accessibilityHidden(true)
+            Text(row.title)
+                .font(.body)
+                .foregroundStyle(FirstRun.ink)
+                .lineLimit(2)
+                .layoutPriority(1)
+            if !row.isOwner {
+                Text("Shared")
+                    .font(.caption)
+                    .foregroundStyle(FirstRun.secondaryInk)
+                    .fixedSize()
+                    .padding(.horizontal, DS.Space.s - 2)
+                    .padding(.vertical, DS.Space.hair)
+                    .background(Color.primary.opacity(DS.Tint.subtle), in: RoundedRectangle(cornerRadius: DS.Radius.chip))
+            }
+        }
+    }
+
+    private func shown(_ row: CalendarChoice) -> Binding<Bool> {
+        Binding(get: { row.shown }, set: { on in change { CalendarChoices.setShown(on, for: row, in: &$0) } })
+    }
+
+    private func busy(_ row: CalendarChoice) -> Binding<Bool> {
+        Binding(get: { row.busy }, set: { on in change { CalendarChoices.setBusy(on, for: row, in: &$0) } })
+    }
+
+    private var table: some View {
         VStack(spacing: 0) {
             HStack(spacing: 0) {
                 Spacer(minLength: 0)
@@ -820,10 +941,12 @@ private struct CalendarChoiceList: View {
                         .font(.body)
                         .foregroundStyle(FirstRun.ink)
                         .lineLimit(1)
+                        .layoutPriority(1)
                     if !row.isOwner {
                         Text("Shared")
                             .font(.caption)
                             .foregroundStyle(FirstRun.secondaryInk)
+                            .fixedSize()
                             .padding(.horizontal, DS.Space.s - 2)
                             .padding(.vertical, DS.Space.hair)
                             .background(Color.primary.opacity(DS.Tint.subtle), in: RoundedRectangle(cornerRadius: DS.Radius.chip))
@@ -930,6 +1053,12 @@ private struct ReceiptRows: View {
 
     var body: some View {
         VStack(spacing: 0) {
+            row("Calendar", receipt.calendarLine)
+            Divider()
+            if let email = receipt.emailLine {
+                row("Email", email)
+                Divider()
+            }
             row("Shown", OnboardingReceipt.line(receipt.shown))
             Divider()
             row("Busy", OnboardingReceipt.line(receipt.busy))

@@ -69,12 +69,11 @@ final class OnboardingWalkUITest: XCTestCase {
         let app = XCUIApplication()
         app.launchArguments = ["--disable-icloud", "--no-space-sync", "-onboardingCompleted", "NO",
                                "-calendarWriteBack.questionAnswered", "NO", "-calendarWriteBack.userConfigured", "NO",
-                               "--onboarding-sample", "--onboarding-step", "connect"]
+                               "--onboarding-sample", "--onboarding-email-eligible", "--onboarding-step", "connect"]
         app.withoutSpaceSync()
         app.launch()
         let go = app.buttons["onboarding.continue"]
-        XCTAssertTrue(text(containing: "Bring in your calendars", in: app).waitForExistence(timeout: 25), "the calendar page did not come")
-        XCTAssertTrue(text(containing: "Connecting only reads your calendars", in: app).exists)
+        XCTAssertTrue(text(containing: "Bring in your calendar and email", in: app).waitForExistence(timeout: 25), "the calendar page did not come")
         XCTAssertTrue(app.buttons["onboarding.other.add"].exists, "one account in, and no way to add the other")
         XCTAssertFalse(app.buttons["google.continue"].exists)
         pause(0.6)
@@ -112,6 +111,8 @@ final class OnboardingWalkUITest: XCTestCase {
         let open = app.buttons["onboarding.open"]
         XCTAssertTrue(open.waitForExistence(timeout: 6), "the yes did not lead to the receipt")
         XCTAssertTrue(text(containing: "12 on Work", in: app).exists, "the receipt doesn't list the copies")
+        let email = app.descendants(matching: .any)["onboarding.receipt.email"]
+        XCTAssertTrue(email.label.contains("On"), "an eligible account with Gmail granted doesn't get Email: \(email.label)")
         XCTAssertFalse(app.buttons["Back"].exists, "Back from a receipt of what was applied")
         pause(0.6)
         keep(app, "receipt")
@@ -136,6 +137,43 @@ final class OnboardingWalkUITest: XCTestCase {
         let copies = app.descendants(matching: .any)["onboarding.receipt.copies"]
         XCTAssertTrue(copies.label.contains("Off"), "the receipt doesn't say copies are off: \(copies.label)")
         keep(app, "receipt-off")
+    }
+
+    /// An account not offered Email: the same one Google screen, then Email off, quietly.
+    func test5AnAccountWithoutEmail() {
+        walk = "no-email"
+        let app = XCUIApplication()
+        app.launchArguments = ["--disable-icloud", "--no-space-sync", "-onboardingCompleted", "NO",
+                               "-calendarWriteBack.questionAnswered", "NO", "-calendarWriteBack.userConfigured", "NO",
+                               "--onboarding-sample", "--onboarding-step", "connect"]
+        app.withoutSpaceSync()
+        app.launch()
+        let go = app.buttons["onboarding.continue"]
+        XCTAssertTrue(go.waitForExistence(timeout: 25), "the calendar page did not come")
+        go.tap()
+        XCTAssertTrue(text(containing: "What makes you busy?", in: app).waitForExistence(timeout: 10))
+        XCTAssertFalse(app.staticTexts["onboarding.calendar.problem"].exists, "not being offered Email was shown as a problem")
+        app.buttons["onboarding.continue"].tap()
+        app.buttons["onboarding.copies.keep"].firstMatch.waitForExistence(timeout: 6) ? app.buttons["onboarding.copies.keep"].tap() : ()
+        XCTAssertTrue(app.buttons["onboarding.open"].waitForExistence(timeout: 6))
+        let email = app.descendants(matching: .any)["onboarding.receipt.email"]
+        XCTAssertTrue(email.label.contains("Off"), "Email came on for an account not offered it: \(email.label)")
+        keep(app, "receipt-without-email")
+    }
+
+    /// Stable has no Email: the page is the calendar's alone.
+    func test6AStableBuildIsCalendarOnly() {
+        walk = "stable"
+        let app = XCUIApplication()
+        app.launchArguments = ["--disable-icloud", "--no-space-sync", "-onboardingCompleted", "NO",
+                               "--onboarding-stable", "--onboarding-step", "connect"]
+        app.withoutSpaceSync()
+        app.launch()
+        XCTAssertTrue(text(containing: "Bring in your calendars", in: app).waitForExistence(timeout: 25), "the calendar page did not come")
+        XCTAssertTrue(text(containing: "Connecting only reads your calendars", in: app).exists)
+        XCTAssertFalse(app.switches["onboarding.email"].exists, "Stable mentions Email")
+        XCTAssertFalse(text(containing: "mail", in: app).exists, "Stable mentions Email")
+        keep(app, "stable-connect")
     }
 
     private func say(_ text: String) {
@@ -318,8 +356,10 @@ final class OnboardingWalkUITest: XCTestCase {
         go.tap()
         let google = app.buttons["google.continue"]
         XCTAssertTrue(google.waitForExistence(timeout: 6), "the calendar step did not come")
-        XCTAssertTrue(text(containing: "Bring in your calendars", in: app).exists)
-        XCTAssertTrue(text(containing: "Connecting only reads your calendars", in: app).exists, "the page doesn't say what connecting does")
+        // A build with Email brings it in with the calendar: one Google screen, Email on unless
+        // turned off here. (Debug builds have Email; Stable's page is test6.)
+        XCTAssertTrue(text(containing: "Bring in your calendar and email", in: app).exists)
+        XCTAssertEqual(app.switches["onboarding.email"].value as? String, "1", "Email doesn't start on")
         pause(0.6)
         keep(app, "calendar-step")
         assertFullSize(google, "Continue with Google")

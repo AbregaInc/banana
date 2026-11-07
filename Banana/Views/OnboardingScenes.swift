@@ -194,7 +194,14 @@ struct PanelBlock: View {
 
 // MARK: - The pages' pictures
 
-/// Welcome: a day of three events on a card, Banana leaning in from the right and looking at it.
+// Every scene draws Banana LAST, at its `FirstRunArt` frame: nothing is drawn in front of him
+// (7 Nov 2026). `FirstRunArt.Scene.drawnAbove` stays empty to say so, and the tests check it.
+
+extension ArtSpace {
+    func rect(_ frame: CGRect) -> CGRect { rect(frame.minX, frame.minY, frame.maxX, frame.maxY) }
+}
+
+/// Welcome: a day of three events on a card, Banana beside it, looking at it.
 struct WelcomeScene: View {
     let art: ArtSpace
 
@@ -203,15 +210,14 @@ struct WelcomeScene: View {
                   bottom: [CGPoint(x: 1024, y: 985), CGPoint(x: 820, y: 878), CGPoint(x: 330, y: 885), CGPoint(x: 0, y: 968)],
                   art: art)
             .fill(FirstRun.yellow)
-        MascotPicture(name: "MascotWelcome", rect: art.rect(547, 455, 978, 895))
-        let card = art.rect(110, 527, 578, 942)
         RoundedRectangle(cornerRadius: art.length(26), style: .continuous)
             .fill(FirstRun.card)
             .shadow(color: .black.opacity(0.08), radius: 8, y: 4)
-            .placed(card)
+            .placed(art.rect(110, 527, 578, 942))
         row("Team meeting", minutes: 9 * 60, colours: FirstRun.lilac, top: 548)
         row("Lunch", minutes: 12 * 60 + 30, colours: FirstRun.mint, top: 676)
         row("Time for you", minutes: 16 * 60, colours: FirstRun.coral, top: 804)
+        MascotPicture(name: "MascotWelcome", rect: art.rect(FirstRunArt.welcome.mascot))
     }
 
     private func row(_ title: String, minutes: Int, colours: (fill: Color, dot: Color, text: Color, block: Color),
@@ -230,24 +236,22 @@ struct WelcomeScene: View {
     }
 }
 
-/// What Banana looks after: Banana peeks in at the right, over a small yellow quarter, looking
+/// What Banana looks after: Banana at the right, whole, over a small yellow quarter, looking
 /// down at the list.
 struct ModulesScene: View {
     let art: ArtSpace
 
     var body: some View {
-        // Cut at the art's right edge: the screen's on a phone, the column's in a window.
-        ZStack(alignment: .topLeading) {
-            Ellipse()
-                .fill(FirstRun.yellow)
-                .placed(art.rect(880, 420, 1174, 560))
-            MascotPicture(name: "MascotModules", rect: art.rect(852, 281, 1017, 449))
-        }
-        .mask(alignment: .topLeading) { Rectangle().frame(width: art.length(1024), height: art.y(600)) }
+        // The quarter is cut at the art's right edge: the screen's on a phone, the column's in a window.
+        Ellipse()
+            .fill(FirstRun.yellow)
+            .placed(art.rect(880, 420, 1174, 560))
+            .mask(alignment: .topLeading) { Rectangle().frame(width: art.length(1024), height: art.y(600)) }
+        MascotPicture(name: "MascotModules", rect: art.rect(FirstRunArt.modules.mascot))
     }
 }
 
-/// Wake: a flat sun rising, Banana beside it looking up at the time.
+/// Wake: a flat sun rising, Banana in front of it, whole, looking up at the time.
 struct SunriseScene: View {
     let art: ArtSpace
     private let centre = CGPoint(x: 590, y: 1145)
@@ -268,14 +272,11 @@ struct SunriseScene: View {
             path.closeSubpath()
         }
         .fill(FirstRun.yellow)
-        MascotPicture(name: "MascotWake", rect: art.rect(50, 838, 410, 1198))
-            .mask(alignment: .topLeading) {
-                Rectangle().frame(width: art.length(1024), height: art.y(1150))
-            }
+        MascotPicture(name: "MascotWake", rect: art.rect(FirstRunArt.wake.mascot))
     }
 }
 
-/// Wind down: a flat crescent moon and stars, Banana rising behind a lilac hill, looking up.
+/// Wind down: a flat crescent moon and stars, Banana in front of a lilac hill, looking up.
 struct MoonriseScene: View {
     let art: ArtSpace
 
@@ -300,42 +301,87 @@ struct MoonriseScene: View {
                 .foregroundStyle(FirstRun.lilacShape)
                 .placed(art.rect(star.0 - star.2, star.1 - star.2, star.0 + star.2, star.1 + star.2))
         }
-        MascotPicture(name: "MascotWindDown", rect: art.rect(679, 857, 915, 1097))
-        BandShape(top: [CGPoint(x: 0, y: 1185), CGPoint(x: 300, y: 1040), CGPoint(x: 720, y: 1045), CGPoint(x: 1024, y: 1180)],
+        BandShape(top: [CGPoint(x: 0, y: 1185), CGPoint(x: 300, y: 1060), CGPoint(x: 720, y: 1080), CGPoint(x: 1024, y: 1170)],
                   bottom: [CGPoint(x: 1024, y: 1250), CGPoint(x: 700, y: 1250), CGPoint(x: 300, y: 1250), CGPoint(x: 0, y: 1250)],
                   art: art)
             .fill(LinearGradient(stops: [.init(color: FirstRun.lilacShape, location: 0),
                                          .init(color: FirstRun.lilacShape, location: 0.8),
                                          .init(color: FirstRun.lilacShape.opacity(0), location: 1)],
                                  startPoint: .top, endPoint: .bottom))
+        MascotPicture(name: "MascotWindDown", rect: art.rect(FirstRunArt.windDown.mascot))
     }
 }
 
-/// The calendar: two calendars, Work and Personal, Banana rising from the band beside them.
+/// The calendar page: a Work calendar and, where Email comes in too, an inbox (else a Personal
+/// calendar), Banana beside them, whole, looking at them.
 struct ConnectScene: View {
     let art: ArtSpace
+    var mail = false
 
     var body: some View {
-        BandShape(top: [CGPoint(x: 0, y: 590), CGPoint(x: 250, y: 478), CGPoint(x: 600, y: 470), CGPoint(x: 1024, y: 640)],
-                  bottom: [CGPoint(x: 1024, y: 968), CGPoint(x: 850, y: 878), CGPoint(x: 300, y: 900), CGPoint(x: 0, y: 975)],
+        BandShape(top: [CGPoint(x: 0, y: 590), CGPoint(x: 250, y: 470), CGPoint(x: 650, y: 470), CGPoint(x: 1024, y: 690)],
+                  bottom: [CGPoint(x: 1024, y: 1060), CGPoint(x: 850, y: 990), CGPoint(x: 300, y: 930), CGPoint(x: 0, y: 985)],
                   art: art)
             .fill(FirstRun.yellow)
-        MascotPicture(name: "MascotConnect", rect: art.rect(725, 585, 1025, 891))
         CalendarPanel(title: "Work", dot: FirstRun.lilac.dot, text: FirstRun.lilac.text, art: art,
-                      frame: art.rect(58, 597, 398, 985)) {
-            PanelBlock(art: art, rect: art.local(59, 144, 230, 205), fill: FirstRun.lilac.block)
-            PanelBlock(art: art, rect: art.local(132, 253, 283, 311), fill: FirstRun.lilac.block)
+                      frame: art.rect(58, 592, 397, 990)) {
+            PanelBlock(art: art, rect: art.local(59, 146, 230, 208), fill: FirstRun.lilac.block)
+            PanelBlock(art: art, rect: art.local(132, 257, 283, 317), fill: FirstRun.lilac.block)
         }
-        CalendarPanel(title: "Personal", dot: FirstRun.mint.dot, text: FirstRun.mint.text, art: art,
-                      frame: art.rect(407, 597, 723, 985)) {
-            PanelBlock(art: art, rect: art.local(60, 166, 210, 221), fill: FirstRun.mint.block)
-            PanelBlock(art: art, rect: art.local(110, 276, 260, 331), fill: FirstRun.coral.block)
+        if mail {
+            MailPanel(art: art, frame: art.rect(405, 592, 724, 990))
+        } else {
+            CalendarPanel(title: "Personal", dot: FirstRun.mint.dot, text: FirstRun.mint.text, art: art,
+                          frame: art.rect(405, 592, 724, 990)) {
+                PanelBlock(art: art, rect: art.local(60, 166, 210, 221), fill: FirstRun.mint.block)
+                PanelBlock(art: art, rect: art.local(110, 276, 260, 331), fill: FirstRun.coral.block)
+            }
+        }
+        MascotPicture(name: "MascotConnect", rect: art.rect(FirstRunArt.connect.mascot))
+    }
+}
+
+/// An inbox drawn like a calendar panel: an envelope, "Email", three messages as lines.
+struct MailPanel: View {
+    let art: ArtSpace
+    let frame: CGRect
+
+    var body: some View {
+        ZStack(alignment: .topLeading) {
+            RoundedRectangle(cornerRadius: art.length(24), style: .continuous)
+                .fill(FirstRun.card)
+                .overlay(RoundedRectangle(cornerRadius: art.length(24), style: .continuous).strokeBorder(FirstRun.cardLine, lineWidth: 1))
+                .shadow(color: .black.opacity(0.06), radius: 6, y: 3)
+            HStack(spacing: art.length(16)) {
+                Image(systemName: "envelope").font(art.font(34)).foregroundStyle(FirstRun.mint.text)
+                Text("Email").font(art.font(38)).foregroundStyle(FirstRun.mint.text).lineLimit(1).minimumScaleFactor(0.6)
+            }
+            .padding(.top, art.length(36))
+            .padding(.horizontal, art.length(36))
+            VStack(alignment: .leading, spacing: art.length(48)) {
+                message(FirstRun.mint.dot)
+                message(DS.Palette.Brand.yellow)
+                message(FirstRun.coral.dot)
+            }
+            .padding(.top, art.length(124))
+            .padding(.leading, art.length(44))
+        }
+        .placed(frame)
+    }
+
+    private func message(_ colour: Color) -> some View {
+        HStack(alignment: .center, spacing: art.length(16)) {
+            Circle().fill(colour).frame(width: art.length(40), height: art.length(40))
+            VStack(alignment: .leading, spacing: art.length(14)) {
+                Capsule().fill(FirstRun.busyGrey).frame(width: art.length(104), height: art.length(8))
+                Capsule().fill(FirstRun.busyGrey).frame(width: art.length(136), height: art.length(8))
+            }
         }
     }
 }
 
 /// Which calendars make you busy: a busy one filled, one that only shows outlined, Banana
-/// peeking from the left at the outline.
+/// beside them at the left, whole, looking at the outline.
 struct CalendarsScene: View {
     let art: ArtSpace
     let busy: String
@@ -344,33 +390,31 @@ struct CalendarsScene: View {
     var body: some View {
         Circle()
             .fill(FirstRun.lilacShape)
-            .placed(art.rect(330, 428, 860, 958))
-            .mask(alignment: .topLeading) { Rectangle().frame(width: art.length(1024), height: art.y(700)) }
-        Capsule().fill(FirstRun.lilacShape).placed(art.rect(772, 428, 855, 442))
-        Capsule().fill(FirstRun.lilacShape).placed(art.rect(835, 476, 890, 490))
-        MascotPicture(name: "MascotCalendars", rect: art.rect(67, 431, 377, 745))
+            .placed(art.rect(230, 418, 882, 1070))
+            .mask(alignment: .topLeading) { Rectangle().frame(width: art.length(1024), height: art.y(760)) }
+        Capsule().fill(FirstRun.lilacShape).placed(art.rect(773, 425, 858, 439))
+        Capsule().fill(FirstRun.lilacShape).placed(art.rect(832, 476, 896, 490))
         CalendarPanel(title: busy, dot: FirstRun.lilac.dot, text: FirstRun.lilac.text, art: art,
-                      frame: art.rect(264, 582, 565, 950)) {
-            PanelBlock(art: art, rect: art.local(48, 193, 200, 265), fill: FirstRun.lilac.block)
+                      frame: art.rect(371, 605, 653, 955)) {
+            PanelBlock(art: art, rect: art.local(45, 180, 190, 250), fill: FirstRun.lilac.block)
         }
         if let notBusy {
             CalendarPanel(title: notBusy, dot: FirstRun.coral.dot, text: FirstRun.coral.text, art: art,
-                          frame: art.rect(590, 582, 937, 950)) {
-                PanelBlock(art: art, rect: art.local(49, 185, 236, 248), stroke: FirstRun.coral.dot)
+                          frame: art.rect(673, 605, 973, 955)) {
+                PanelBlock(art: art, rect: art.local(42, 175, 205, 235), stroke: FirstRun.coral.dot)
             }
         }
+        MascotPicture(name: "MascotCalendars", rect: art.rect(FirstRunArt.calendars.mascot))
     }
 }
 
-/// Copies: an event on one calendar becomes "Busy" on the other, Banana watching over the field.
+/// Copies: an event on one calendar becomes "Busy" on the other, Banana in front of the field.
 struct CopiesScene: View {
     let art: ArtSpace
     let source: String
     let destination: String
 
     var body: some View {
-        // Behind the field, its head well above the field's edge, as in the art.
-        MascotPicture(name: "MascotCopies", rect: art.rect(655, 252, 975, 578))
         RoundedRectangle(cornerRadius: art.length(70), style: .continuous)
             .fill(FirstRun.yellow)
             .placed(art.rect(62, 497, 962, 988))
@@ -391,6 +435,7 @@ struct CopiesScene: View {
             PanelBlock(art: art, rect: art.local(26, 188, 296, 310), fill: FirstRun.busyGrey,
                        title: "Busy", detail: "\(from)\u{2013}\(to)", textColour: DS.Palette.Brand.night.opacity(0.75))
         }
+        MascotPicture(name: "MascotCopies", rect: art.rect(FirstRunArt.copies.mascot))
     }
 }
 
@@ -406,7 +451,7 @@ struct DoneScene: View {
         confetti(432, 544, FirstRun.lilacShape, -30)
         confetti(928, 477, FirstRun.lilacShape, 25)
         confetti(896, 568, FirstRun.mint.block, 20)
-        MascotPicture(name: "MascotDone", rect: art.rect(537, 449, 902, 821))
+        MascotPicture(name: "MascotDone", rect: art.rect(FirstRunArt.done.mascot))
     }
 
     private func confetti(_ x: CGFloat, _ y: CGFloat, _ colour: Color, _ angle: Double) -> some View {

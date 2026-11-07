@@ -380,10 +380,15 @@ final class GoogleCalendarService: ObservableObject {
         restorationTask = nil
     }
 
-    func connect() async {
+    /// Connect a Google account. `extraScopes` joins further scopes to the calendar's in the same
+    /// Google screen (the first run asks for Gmail with Calendar, `EmailSetup`); the calendar is
+    /// accepted on its own scopes, so unticking the others on Google's screen still connects it.
+    /// - Returns: the scopes Google granted, or nil when nothing was connected.
+    @discardableResult
+    func connect(extraScopes: [String] = []) async -> Set<String>? {
         guard isConfigured else {
             lastError = "Google Calendar isn’t configured for this Banana build."
-            return
+            return nil
         }
         isWorking = true
         lastError = nil
@@ -393,18 +398,21 @@ final class GoogleCalendarService: ObservableObject {
             // Only hint when there is nothing connected yet: that is the case the hint helps,
             // and the case where preselecting cannot hide an account you are trying to add.
             let result = try await interactiveSignIn(
-                hint: accounts.isEmpty ? suggestedAccountEmail : nil)
+                hint: accounts.isEmpty ? suggestedAccountEmail : nil,
+                scopes: extraScopes.isEmpty ? nil : Self.requiredScopes + extraScopes)
             try accept(result.user)
             // Cloud reads need the newly granted server credential before the first list request.
             await BananaAccount.shared.googleSignedIn(code: result.serverAuthCode)
             try await loadCalendars()
             Telemetry.shared.record(.feature(.calendarConnected))
+            return Set(result.user.grantedScopes ?? [])
         } catch is CancellationError {
             // Closing Google's sign-in sheet is not an error worth persisting in Settings.
         } catch {
             lastError = Self.friendlyMessage(for: error)
             Telemetry.shared.record(.failure(.googleSignIn))
         }
+        return nil
     }
 
     /// Re-run consent for ONE account that is already connected.

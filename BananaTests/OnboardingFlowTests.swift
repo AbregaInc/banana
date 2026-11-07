@@ -136,6 +136,84 @@ final class OnboardingFlowTests: XCTestCase {
         XCTAssertTrue(TimeTicks.around(21 * 60, in: DayAnchors.windDownRange).contains(21 * 60))
     }
 
+    // MARK: - Calendar and email, one consent
+
+    func testBothGrantedAndEligibleTurnsEmailOn() {
+        XCTAssertEqual(EmailSetup.extraScopes(inBuild: true, wanted: true), [EmailSetup.gmailScope], "one Google screen for both")
+        let outcome = EmailSetup.outcome(inBuild: true, wanted: true, gmailGranted: true, eligible: true)
+        XCTAssertEqual(outcome, .on)
+        XCTAssertFalse(EmailSetup.releasesGrant(outcome, gmailGranted: true))
+    }
+
+    func testBothGrantedButNotEligibleLeavesEmailOffQuietlyAndHandsTheGrantBack() {
+        let outcome = EmailSetup.outcome(inBuild: true, wanted: true, gmailGranted: true, eligible: false)
+        XCTAssertEqual(outcome, .off(.notEligible))
+        XCTAssertTrue(EmailSetup.releasesGrant(outcome, gmailGranted: true), "an unused Gmail grant is not kept")
+    }
+
+    func testGmailUntickedIsACalendarSuccessWithEmailOff() {
+        let outcome = EmailSetup.outcome(inBuild: true, wanted: true, gmailGranted: false, eligible: true)
+        XCTAssertEqual(outcome, .off(.notGranted))
+        XCTAssertFalse(EmailSetup.releasesGrant(outcome, gmailGranted: false))
+    }
+
+    func testEligibilityNotLoadedSkipsRatherThanBlocks() {
+        let outcome = EmailSetup.outcome(inBuild: true, wanted: true, gmailGranted: true, eligible: nil)
+        XCTAssertEqual(outcome, .off(.eligibilityUnknown))
+        XCTAssertFalse(EmailSetup.releasesGrant(outcome, gmailGranted: true), "the account may yet be offered Email")
+    }
+
+    func testEmailTurnedOffAsksForTheCalendarAlone() {
+        XCTAssertEqual(EmailSetup.extraScopes(inBuild: true, wanted: false), [])
+        XCTAssertEqual(EmailSetup.outcome(inBuild: true, wanted: false, gmailGranted: false, eligible: true), .off(.notWanted))
+    }
+
+    func testAStableBuildNeverAsksForOrMentionsEmail() {
+        XCTAssertEqual(EmailSetup.extraScopes(inBuild: false, wanted: true), [])
+        XCTAssertEqual(EmailSetup.outcome(inBuild: false, wanted: true, gmailGranted: true, eligible: true), .off(.notInBuild))
+        XCTAssertNil(OnboardingReceipt(choices: [], copies: .off, accounts: ["noor@plan.example"], email: nil).emailLine,
+                     "no Email line in a build without Email")
+    }
+
+    func testAFailedConsentStaysOnThePageAndACancelSaysNothing() {
+        XCTAssertEqual(ConnectAttempt.failed("Google couldn\u{2019}t be reached.").problem, "Google couldn\u{2019}t be reached.")
+        XCTAssertNil(ConnectAttempt.cancelled.problem)
+        XCTAssertNil(ConnectAttempt.connected.problem)
+    }
+
+    func testTheReceiptNamesTheCalendarAndEmail() {
+        let receipt = OnboardingReceipt(choices: [], copies: .off, accounts: ["noor@plan.example"], email: true)
+        XCTAssertEqual(receipt.calendarLine, "noor@plan.example")
+        XCTAssertEqual(receipt.emailLine, "On")
+        XCTAssertEqual(OnboardingReceipt(choices: [], copies: .off, accounts: [], email: false).emailLine, "Off")
+    }
+
+    // MARK: - Nothing over Banana
+
+    func testNothingIsDrawnOverBananaOnAnyPage() {
+        XCTAssertEqual(FirstRunArt.all.count, OnboardingStep.allCases.count)
+        for (page, scene) in FirstRunArt.all {
+            XCTAssertEqual(scene.coveredArea, 0, "\(page): something is drawn over Banana")
+            XCTAssertTrue(scene.drawnAbove.isEmpty, "\(page): Banana is not drawn last")
+            // Inside the picture, so the words and controls above and below it never reach him,
+            // whatever the width or text size.
+            XCTAssertTrue(scene.mascotInsideCanvas, "\(page): Banana leaves the picture")
+        }
+    }
+
+    func testBananaFramesAreRoughlySquare() {
+        for (page, scene) in FirstRunArt.all {
+            let ratio = scene.mascot.height / scene.mascot.width
+            XCTAssertTrue((0.85...1.2).contains(ratio), "\(page): Banana's frame is \(ratio) tall to wide")
+        }
+    }
+
+    func testCoverageIsMeasured() {
+        var scene = FirstRunArt.calendars
+        scene.drawnAbove = [FirstRunArt.rect(300, 600, 400, 700)]
+        XCTAssertEqual(scene.coveredArea, 65 * 80, accuracy: 0.001, "a card over Banana's edge is counted")
+    }
+
     // MARK: - The two answers
 
     func testTheAnswersStartWhereTheStarterRoutinesAre() {

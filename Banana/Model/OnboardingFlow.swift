@@ -1,3 +1,4 @@
+import CoreGraphics
 import Foundation
 
 /// The first run's pages, in order. Saved as each one shows (`OnboardingStore`), so a sign-in that
@@ -141,15 +142,24 @@ struct OnboardingReceipt: Equatable {
         case on(count: Int?, to: [String])
     }
 
+    /// The Google accounts whose calendars came in.
+    var calendar: [String]
+    /// Email on or off; nil in a build without Email, where the line isn't shown.
+    var email: Bool?
     var shown: [String]
     var busy: [String]
     var copies: Copies
 
-    init(choices: [CalendarChoice], copies: Copies) {
+    init(choices: [CalendarChoice], copies: Copies, accounts: [String] = [], email: Bool? = nil) {
+        calendar = accounts
+        self.email = email
         shown = choices.filter(\.shown).map(\.title)
         busy = choices.filter(\.busy).map(\.title)
         self.copies = copies
     }
+
+    var calendarLine: String { Self.line(calendar) }
+    var emailLine: String? { email.map { $0 ? "On" : "Off" } }
 
     /// A list of names as one line ("Work, Personal"), or "None".
     static func line(_ names: [String]) -> String {
@@ -210,4 +220,115 @@ struct DayAnchors: Equatable {
         DayAnchors(wakeMinutes: min(max(wakeMinutes, Self.wakeRange.lowerBound), Self.wakeRange.upperBound),
                    windDownMinutes: min(max(windDownMinutes, Self.windDownRange.lowerBound), Self.windDownRange.upperBound))
     }
+}
+
+// MARK: - Calendar and email in one consent
+
+/// The calendar page brings in Calendar and, where the build has Email, Email too: one Google
+/// screen for both (6 Nov 2026, the owner: "calendar + Email should be a single onboarding").
+/// Whether Email then starts is the account's eligibility, which is known only after sign-in.
+enum EmailSetup {
+    /// What Mail reads and acts with (`MailScopes.gmailModify`).
+    static let gmailScope = "https://www.googleapis.com/auth/gmail.modify"
+
+    /// What the one consent asks for beyond the calendar's own scopes.
+    static func extraScopes(inBuild: Bool, wanted: Bool) -> [String] {
+        inBuild && wanted ? [gmailScope] : []
+    }
+
+    enum Outcome: Equatable {
+        case on
+        case off(Reason)
+    }
+
+    enum Reason: Equatable {
+        /// A build without Email (Stable): nothing about it is shown.
+        case notInBuild
+        /// Turned off on the calendar page.
+        case notWanted
+        /// Gmail unticked on Google's screen: Calendar alone, a success.
+        case notGranted
+        /// The account isn't offered Email. Never shown as an error.
+        case notEligible
+        /// Eligibility didn't arrive in time: Email stays off and stays offered in Settings.
+        case eligibilityUnknown
+    }
+
+    /// `eligible`: nil while feature access hasn't loaded.
+    static func outcome(inBuild: Bool, wanted: Bool, gmailGranted: Bool, eligible: Bool?) -> Outcome {
+        guard inBuild else { return .off(.notInBuild) }
+        guard wanted else { return .off(.notWanted) }
+        guard gmailGranted else { return .off(.notGranted) }
+        switch eligible {
+        case true?: return .on
+        case false?: return .off(.notEligible)
+        case nil: return .off(.eligibilityUnknown)
+        }
+    }
+
+    /// A Gmail grant that will not be used is handed back (the service forgets its Mail grant).
+    /// Not while eligibility is unknown: the account may yet be offered Email.
+    static func releasesGrant(_ outcome: Outcome, gmailGranted: Bool) -> Bool {
+        gmailGranted && outcome == .off(.notEligible)
+    }
+}
+
+/// How a "Continue with Google" ended, and what the page then says. Closing Google's page needs
+/// no message; anything else stays on the page, with the button to try again, until it works.
+enum ConnectAttempt: Equatable {
+    case connected
+    case cancelled
+    case failed(String)
+
+    var problem: String? {
+        if case .failed(let message) = self { return message }
+        return nil
+    }
+}
+
+// MARK: - Where the pictures sit
+
+/// Each page's picture in the artwork's own pixels (1024 wide): the stretch of art its canvas
+/// shows, Banana's frame, and the frames drawn after Banana. Since 7 Nov 2026 nothing is drawn
+/// in front of Banana on any page (the owner: "the mascot has something over him"), so every
+/// `drawnAbove` is empty and every scene draws Banana last; `FirstRunArtTests` holds both to
+/// that, and keeps Banana inside its canvas, so the page's words and controls, laid out above and
+/// below the canvas, can never cover him at any width or text size.
+enum FirstRunArt {
+    struct Scene: Equatable {
+        let top: CGFloat
+        let bottom: CGFloat
+        let mascot: CGRect
+        var drawnAbove: [CGRect] = []
+
+        /// The part of Banana covered by what is drawn after him, in art pixels squared.
+        var coveredArea: CGFloat {
+            drawnAbove.reduce(0) { total, frame in
+                let overlap = frame.intersection(mascot)
+                return total + (overlap.isNull ? 0 : overlap.width * overlap.height)
+            }
+        }
+
+        /// Banana stays within the canvas, so nothing outside the picture overlaps him.
+        var mascotInsideCanvas: Bool {
+            mascot.minX >= 0 && mascot.maxX <= 1024 && mascot.minY >= top && mascot.maxY <= bottom
+        }
+    }
+
+    static func rect(_ x0: CGFloat, _ y0: CGFloat, _ x1: CGFloat, _ y1: CGFloat) -> CGRect {
+        CGRect(x: x0, y: y0, width: x1 - x0, height: y1 - y0)
+    }
+
+    static let welcome = Scene(top: 400, bottom: 990, mascot: rect(597, 490, 991, 950))
+    static let modules = Scene(top: 270, bottom: 530, mascot: rect(800, 285, 1015, 510))
+    static let wake = Scene(top: 790, bottom: 1200, mascot: rect(127, 810, 482, 1185))
+    static let windDown = Scene(top: 760, bottom: 1240, mascot: rect(612, 820, 912, 1145))
+    static let connect = Scene(top: 440, bottom: 1000, mascot: rect(733, 672, 1008, 985))
+    static let calendars = Scene(top: 400, bottom: 960, mascot: rect(50, 620, 365, 945))
+    static let copies = Scene(top: 230, bottom: 1000, mascot: rect(667, 240, 975, 525))
+    static let done = Scene(top: 230, bottom: 880, mascot: rect(537, 449, 902, 821))
+
+    static let all: [(String, Scene)] = [("welcome", welcome), ("modules", modules), ("wake", wake),
+                                         ("windDown", windDown), ("connect", connect), ("calendars", calendars),
+                                         ("copies", copies), ("done", done)]
 }

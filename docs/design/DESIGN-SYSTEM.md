@@ -159,7 +159,10 @@ three of those in a column are thin, one colour, and easy to pass over.
 Since 6 Nov 2026, led by Banana (the mascot) on every page, and built from artwork the owner
 accepted (`output/imagegen/onboarding-v12`, outside the tree): the welcome, what Banana looks
 after, "When do you wake up?", "When do you wind down?", then the calendar's pages: connect
-(connecting only reads), what makes you busy (Show and Busy per calendar, two system switches;
+(one Google screen for Calendar and, in builds with Email, Email too: two rows, both on; Email
+starts only if Gmail was granted and the account is offered Email, otherwise it stays off quietly
+and the service forgets the unused Mail grant; Stable reads as Calendar alone and "Connecting only
+reads your calendars"), what makes you busy (Show and Busy per calendar, two system switches;
 shared calendars start shown and not busy), copy busy time (only with a calendar of your own and
 no answer yet; the numbers come from `BusyCopyPlanner`, the planner the write-back pass uses, and
 are planned again before the yes is applied), and a receipt (Shown, Busy, Copies). Without a
@@ -171,7 +174,11 @@ button (a rounded rectangle, `Radius.panel`), the brand's yellow band, three pas
 colours. A 40-pt heavy rounded headline, left-aligned. The pictures sit in `ArtCanvas`, placed
 in the artwork's own pixels, so each page can be laid beside its artwork and compared; the mascot
 is one image per page (`Mascot…` in Brand.xcassets) with that page's pose and gaze, an ivory rim
-where it overlaps colour, rising above the band, never sunk into it. Words and controls are
+where it overlaps colour, rising above the band, never sunk into it. Banana is a rounded square
+(about 1:1, never stretched; the image is always aspect-fit), drawn last in every picture: nothing
+covers him, and he stays inside the picture so no words or controls reach him (`FirstRunArt`,
+checked by `OnboardingFlowTests`). The modules page no longer offers Email; the receipt lists
+Calendar and, where the build has it, Email. Words and controls are
 never in a picture. An iPad or a Mac window gets the same page in a 560-pt column, the bands
 running out to the window's edges. Debug routes: `--onboarding-step <name>`, and
 `--onboarding-sample` for the calendar pages (a simulator has no Google account).
