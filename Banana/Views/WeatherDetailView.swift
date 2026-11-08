@@ -226,26 +226,32 @@ struct WeatherDetailView: View {
             .clipShape(Capsule())
     }
 
-    /// Apple Weather's mark and its legal page, as Apple requires wherever its forecast shows.
+    /// Apple Weather's mark and its legal page, as Apple requires wherever its forecast shows:
+    /// always both, with the mark as text until WeatherKit has handed over its images
+    /// (`WeatherAttributionFooter`).
     @ViewBuilder private var footer: some View {
-        if let a = weather.attribution {
-            VStack(spacing: 6) {
-                AsyncImage(url: colorScheme == .dark ? a.markDark : a.markLight) { image in
+        let a = weather.attribution
+        let footer = WeatherAttributionFooter.resolve(markLight: a?.markLight, markDark: a?.markDark,
+                                                      legalPage: a?.legalPage, name: a?.serviceName)
+        VStack(spacing: 6) {
+            switch footer {
+            case let .mark(light, dark, _, name):
+                AsyncImage(url: colorScheme == .dark ? dark : light) { image in
                     image.resizable().scaledToFit()
                 } placeholder: {
-                    Text(a.serviceName).font(.caption2).foregroundStyle(.secondary)
+                    Text(WeatherAttributionFooter.markText).font(.caption2.weight(.semibold))
                 }
                 .frame(height: 14)
-                .accessibilityLabel(a.serviceName)
-                Link("Other data sources", destination: a.legalPage)
-                    .font(.caption2)
+                .accessibilityLabel(name)
+            case let .text(mark, _):
+                Text(mark).font(.caption2.weight(.semibold))
+                    .accessibilityLabel("Apple Weather")
             }
-            .padding(.top, 4).padding(.bottom, 16)
-        } else {
-            Text(weather.source.isEmpty ? "" : "Forecast by \(weather.source)")
-                .font(.caption2).foregroundStyle(.tertiary)
-                .padding(.top, 4).padding(.bottom, 16)
+            Link("Other data sources", destination: footer.legalPage)
+                .font(.caption2)
         }
+        .padding(.top, 4).padding(.bottom, 16)
+        .accessibilityIdentifier("weather.attribution")
     }
 
     // MARK: - Helpers

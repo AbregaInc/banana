@@ -39,3 +39,28 @@ final class WeatherGlanceTests: XCTestCase {
         XCTAssertNil(WeatherGlance.hourIndex(of: [], on: at(8, 0), now: at(8, 15), calendar: calendar))
     }
 }
+
+/// The forecast is never on screen without Apple Weather's mark and legal link (App Review 5.2.5).
+final class WeatherAttributionFooterTests: XCTestCase {
+    private let light = URL(string: "https://weatherkit.apple.com/assets/branding/combined-mark-light.png")!
+    private let dark = URL(string: "https://weatherkit.apple.com/assets/branding/combined-mark-dark.png")!
+    private let legal = URL(string: "https://weatherkit.apple.com/legal-attribution.html")!
+
+    func testWeatherKitsOwnMarkAndPageWhenItHasHandedThemOver() {
+        XCTAssertEqual(WeatherAttributionFooter.resolve(markLight: light, markDark: dark, legalPage: legal, name: "Apple Weather"),
+                       .mark(light: light, dark: dark, legalPage: legal, name: "Apple Weather"))
+    }
+
+    func testWithoutWeatherKitsAttributionTheMarkIsTextAndTheLegalLinkStays() {
+        let footer = WeatherAttributionFooter.resolve(markLight: nil, markDark: nil, legalPage: nil, name: nil)
+        XCTAssertEqual(footer, .text("\u{F8FF}\u{00A0}Weather", legalPage: WeatherAttributionFooter.legalPage))
+        XCTAssertEqual(footer.legalPage.host, "weatherkit.apple.com")
+    }
+
+    func testAnEmptyServiceNameStillLabelsTheMark() {
+        guard case let .mark(_, _, _, name) = WeatherAttributionFooter.resolve(markLight: light, markDark: dark, legalPage: legal, name: "") else {
+            return XCTFail("expected WeatherKit's mark")
+        }
+        XCTAssertEqual(name, WeatherAttributionFooter.markText)
+    }
+}

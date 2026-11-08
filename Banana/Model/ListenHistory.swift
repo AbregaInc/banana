@@ -1,6 +1,9 @@
 import Foundation
 import MapKit
 import CoreLocation
+#if os(iOS)
+import UIKit
+#endif
 import os
 
 /// A log of bounded podcast listening sessions, persisted on-device. Location is
@@ -445,6 +448,12 @@ private final class ListenRouteRecorder: NSObject, CLLocationManagerDelegate {
     private let manager = CLLocationManager()
     private let onLocation: (CLLocation) -> Void
     private var wantsUpdates = false
+    #if os(iOS)
+    /// Keeps When-In-Use location effective after Banana leaves the screen and shows the blue
+    /// location pill; must be created while the app is on screen (the play tap).
+    private var backgroundSession: CLBackgroundActivitySession?
+    private var diagnosticsTask: Task<Void, Never>?
+    #endif
 
     init(onLocation: @escaping (CLLocation) -> Void) {
         self.onLocation = onLocation
@@ -453,7 +462,9 @@ private final class ListenRouteRecorder: NSObject, CLLocationManagerDelegate {
         manager.activityType = .otherNavigation
         manager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
         manager.distanceFilter = 50
-        manager.pausesLocationUpdatesAutomatically = true
+        // iOS can't restart paused updates while Banana is in the background, so never let it
+        // pause; recording already ends when playback pauses.
+        manager.pausesLocationUpdatesAutomatically = false
         #if os(iOS)
         manager.showsBackgroundLocationIndicator = true
         manager.allowsBackgroundLocationUpdates = true
@@ -462,9 +473,10 @@ private final class ListenRouteRecorder: NSObject, CLLocationManagerDelegate {
 
     func start() {
         wantsUpdates = true
+        PlaybackDiagnostics.shared.log("ROUTE", "start auth=\(manager.authorizationStatus.rawValue) precise=\(manager.accuracyAuthorization == .fullAccuracy)")
         switch manager.authorizationStatus {
         case .authorizedAlways, .authorizedWhenInUse:
-            manager.startUpdatingLocation()
+            beginUpdates()
         case .notDetermined:
             manager.requestWhenInUseAuthorization()
         case .denied, .restricted:
@@ -474,9 +486,52 @@ private final class ListenRouteRecorder: NSObject, CLLocationManagerDelegate {
         }
     }
 
+    private func beginUpdates() {
+        #if os(iOS)
+        if backgroundSession == nil {
+            let session = CLBackgroundActivitySession()
+            backgroundSession = session
+            // Says why iOS would suspend the session (e.g. "not sufficiently in use").
+            diagnosticsTask = Task { @MainActor in
+                do {
+                    for try await d in session.diagnostics {
+                        PlaybackDiagnostics.shared.log("ROUTE", "session denied=\(d.authorizationDenied) global=\(d.authorizationDeniedGlobally) restricted=\(d.authorizationRestricted) notInUse=\(d.insufficientlyInUse)")
+                    }
+                } catch {}
+            }
+        }
+        #endif
+        manager.startUpdatingLocation()
+        PlaybackDiagnostics.shared.log("ROUTE", "updating bg=\(Self.backgroundAllowed(manager))")
+    }
+
+    private static func backgroundAllowed(_ m: CLLocationManager) -> Bool {
+        #if os(iOS)
+        m.allowsBackgroundLocationUpdates
+        #else
+        false
+        #endif
+    }
+
+    nonisolated func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        let text = "\(error)"
+        Task { @MainActor in PlaybackDiagnostics.shared.log("ROUTE", "error \(text)") }
+    }
+
+    nonisolated func locationManagerDidPauseLocationUpdates(_ manager: CLLocationManager) {
+        Task { @MainActor in PlaybackDiagnostics.shared.log("ROUTE", "paused by iOS") }
+    }
+
     func stop() {
+        if wantsUpdates { PlaybackDiagnostics.shared.log("ROUTE", "stop") }
         wantsUpdates = false
         manager.stopUpdatingLocation()
+        #if os(iOS)
+        diagnosticsTask?.cancel()
+        diagnosticsTask = nil
+        backgroundSession?.invalidate()
+        backgroundSession = nil
+        #endif
     }
 
     nonisolated func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
@@ -484,7 +539,7 @@ private final class ListenRouteRecorder: NSObject, CLLocationManagerDelegate {
             guard let self, wantsUpdates else { return }
             switch manager.authorizationStatus {
             case .authorizedAlways, .authorizedWhenInUse:
-                manager.startUpdatingLocation()
+                beginUpdates()
             default:
                 break
             }
@@ -492,9 +547,19 @@ private final class ListenRouteRecorder: NSObject, CLLocationManagerDelegate {
     }
 
     nonisolated func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        guard let newest = locations.last, newest.horizontalAccuracy >= 0,
-              newest.horizontalAccuracy <= 150 else { return }
-        Task { @MainActor [weak self] in self?.onLocation(newest) }
+        guard let newest = locations.last else { return }
+        let accuracy = Int(newest.horizontalAccuracy)
+        Task { @MainActor [weak self] in
+            #if os(iOS)
+            let state = UIApplication.shared.applicationState == .background ? "background" : "foreground"
+            #else
+            let state = "foreground"
+            #endif
+            let kept = accuracy >= 0 && accuracy <= 150
+            PlaybackDiagnostics.shared.log("ROUTE", "point \(state) ±\(accuracy)m \(kept ? "kept" : "dropped")")
+            guard kept, let self else { return }
+            onLocation(newest)
+        }
     }
 }
 
