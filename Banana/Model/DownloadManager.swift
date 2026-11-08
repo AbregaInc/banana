@@ -536,7 +536,7 @@ final class DownloadManager: NSObject, ObservableObject {
                 }
                 self.peerTasks[episodeID] = nil
                 if let staged {
-                    PlaybackDiagnostics.shared.log("peer audio: cache hit", episode.title)
+                    PlaybackDiagnostics.shared.log("peer audio: cache hit", PlaybackDiagnostics.personal(episode.title))
                     let ext = episode.audioURL.pathExtension.isEmpty
                         ? "mp3" : episode.audioURL.pathExtension
                     self.finishDownload(
@@ -546,7 +546,7 @@ final class DownloadManager: NSObject, ObservableObject {
                         ext: ext
                     )
                 } else {
-                    PlaybackDiagnostics.shared.log("peer audio: web fallback", episode.title)
+                    PlaybackDiagnostics.shared.log("peer audio: web fallback", PlaybackDiagnostics.personal(episode.title))
                     self.startNetworkDownload(
                         episode,
                         podcast: podcast,
@@ -1458,7 +1458,7 @@ private final class PodcastPeerTransfer: NSObject {
         guard let nonce = challenges.removeValue(forKey: peer), let proof = message.payload,
               HMAC<SHA256>.isValidAuthenticationCode(proof, authenticating: Self.proofMessage(nonce: nonce, challenger: peerID, responder: peer), using: groupKey)
         else {
-            PlaybackDiagnostics.shared.log("peer audio: peer failed the token check", peer.displayName)
+            PlaybackDiagnostics.shared.log("peer audio: peer failed the token check", PlaybackDiagnostics.personal(peer.displayName))
             session.cancelConnectPeer(peer)
             return
         }

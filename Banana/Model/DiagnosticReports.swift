@@ -23,8 +23,14 @@ final class DiagnosticReports: NSObject, MXMetricManagerSubscriber {
 
     nonisolated func didReceive(_ payloads: [MXDiagnosticPayload]) {
         let reports = payloads.flatMap(Self.reports(from:))
-        Task { @MainActor in self.add(reports) }
+        Task { @MainActor in
+            self.add(reports)
+            Self.onDiagnostics?(reports)
+        }
     }
+
+    /// Told of each delivery of diagnostics: `ProblemReporter` sends each with the log around it.
+    static var onDiagnostics: (([Report]) -> Void)?
 
     nonisolated func didReceive(_ payloads: [MXMetricPayload]) {
         let reports = payloads.map { Report(kind: "metrics", signature: nil, payload: $0.jsonRepresentation()) }

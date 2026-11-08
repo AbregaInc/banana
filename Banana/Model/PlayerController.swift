@@ -264,7 +264,7 @@ final class PlayerController: ObservableObject {
 
         let url = downloads?.localURL(for: episode.id) ?? episode.audioURL
         loadSkipPlan(for: episode, in: podcast, streaming: !url.isFileURL)
-        PlaybackDiagnostics.shared.log("PLAY \"\(episode.title)\"",
+        PlaybackDiagnostics.shared.log("PLAY \"\(PlaybackDiagnostics.personal(episode.title))\"",
                                        "\(url.isFileURL ? "local" : "STREAM") \(PlaybackDiagnostics.sessionSummary())")
         let item = AVPlayerItem(url: url)
         // Preserve pitch when playing faster/slower (tuned for speech).
@@ -409,7 +409,7 @@ final class PlayerController: ObservableObject {
         onStateChange?()
         PlaybackDiagnostics.shared.log(
             "RESTORED PAUSED",
-            "\"\(episode.title)\" t=\(Int(position))s \(url.isFileURL ? "local" : "STREAM")")
+            "\"\(PlaybackDiagnostics.personal(episode.title))\" t=\(Int(position))s \(url.isFileURL ? "local" : "STREAM")")
         return true
     }
 

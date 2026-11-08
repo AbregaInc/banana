@@ -448,7 +448,7 @@ final class OccurrenceStore: ObservableObject {
             guard rolled.missed > 0, reminders.moveDue(task.id, to: rolled.due, commit: true) else { return task }
             let earlier = missed.count(externalID: task.externalID, title: task.title, on: stored) ?? 0
             missed.record(earlier + rolled.missed, standingAt: rolled.due, externalID: task.externalID, title: task.title)
-            PlaybackDiagnostics.shared.log("↻ missed", "\(task.title): moved on to \(rolled.due.formatted(date: .abbreviated, time: .shortened)), \(earlier + rolled.missed) missed")
+            PlaybackDiagnostics.shared.log("↻ missed", "\(PlaybackDiagnostics.personal(task.title)): moved on to \(rolled.due.formatted(date: .abbreviated, time: .shortened)), \(earlier + rolled.missed) missed")
             var moved = task
             moved.due = rolled.due
             return moved
@@ -475,7 +475,7 @@ final class OccurrenceStore: ObservableObject {
             let toMoment: Bool
             if case .at(let moment)? = today { toMoment = moment == target } else { toMoment = false }
             if toMoment { Self.ring(task.title, label: AnchoredTiming.label(anchor), at: target, now: now) }
-            PlaybackDiagnostics.shared.log("⏱ anchored", "\(task.title): \(toMoment ? "due at its moment" : "back to its own time"), \(target.formatted(date: .abbreviated, time: .shortened))")
+            PlaybackDiagnostics.shared.log("⏱ anchored", "\(PlaybackDiagnostics.personal(task.title)): \(toMoment ? "due at its moment" : "back to its own time"), \(target.formatted(date: .abbreviated, time: .shortened))")
         }
     }
 
@@ -1224,7 +1224,7 @@ final class OccurrenceStore: ObservableObject {
         // (`planningWindow`): tell them, whether or not the timeline itself held this item.
         planningWindowRevision &+= 1
         let title = updated.first(where: { $0.reminderID == reminderID })?.title ?? reminderID
-        PlaybackDiagnostics.shared.log("☑️ tick", "\(title) → \(completed ? "done" : "not done")\(changed ? "" : " (not in the timeline)") · overdue \(overdueBefore) → \(updated.filter(\.isOverdueReminder).count)")
+        PlaybackDiagnostics.shared.log("☑️ tick", "\(PlaybackDiagnostics.personal(title)) → \(completed ? "done" : "not done")\(changed ? "" : " (not in the timeline)") · overdue \(overdueBefore) → \(updated.filter(\.isOverdueReminder).count)")
 
         if holdingWrite {
             // Shown, not written: `commitHeldTick` writes it, `undoHeldTick` takes it back.
@@ -1284,7 +1284,7 @@ final class OccurrenceStore: ObservableObject {
         let title = occurrence.title, externalID = occurrence.reminderExternalID
         let earlier = occurrence.missed?.count
         ledger.record((earlier ?? 0) + 1, standingAt: moved.now, externalID: externalID, title: title)
-        PlaybackDiagnostics.shared.log("↻ missed", "\(title): marked missed, on to \(moved.now.formatted(date: .abbreviated, time: .shortened))")
+        PlaybackDiagnostics.shared.log("↻ missed", "\(PlaybackDiagnostics.personal(title)): marked missed, on to \(moved.now.formatted(date: .abbreviated, time: .shortened))")
         await recompute()
         await ToastCenter.shared.offerUndo(TaskTicks.missedMessage(title: title)) { [weak self] in
             guard let self, self.reminders.restoreDue(id, to: moved.before) else {

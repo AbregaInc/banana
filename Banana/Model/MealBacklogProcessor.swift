@@ -218,7 +218,7 @@ final class MealBacklogProcessor: ObservableObject {
             }
             return nil
         }
-        PlaybackDiagnostics.shared.log("🍽 estimate", "photo looks like \"\(found.meal.name)\" of "
+        PlaybackDiagnostics.shared.log("🍽 estimate", "photo looks like \"\(PlaybackDiagnostics.personal(found.meal.name))\" of "
                                         + "\(found.meal.date.formatted(date: .abbreviated, time: .shortened)), distance "
                                         + "\(String(format: "%.3f", found.distance)): its numbers, no model")
         return RepeatPhotoMeal.proposal(copying: found.meal)

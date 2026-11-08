@@ -79,7 +79,7 @@ enum ScannedNumbersRepair {
             inbox.editProposal(item.id, items: items, name: proposal.name)
             estimates += 1
         }
-        let names = changed.map { "\($0.new.name) \(Int($0.old.per100g.calories.rounded()))\u{2192}\(Int($0.new.per100g.calories.rounded()))" }
+        let names = changed.map { "\(PlaybackDiagnostics.personal($0.new.name)) \(Int($0.old.per100g.calories.rounded()))\u{2192}\(Int($0.new.per100g.calories.rounded()))" }
         PlaybackDiagnostics.shared.log(
             "\u{1F9EE} scanned numbers",
             "brought into line with their source: \(names.joined(separator: "; ")) \u{2014} \(meals) meal(s), \(estimates) waiting")

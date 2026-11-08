@@ -825,6 +825,8 @@ struct MacWeekView: View {
                 Button { NotificationCenter.default.post(name: .macForceRefreshRequested, object: nil) } label: {
                     Label("Refresh", systemImage: "arrow.clockwise")
                 }
+                Divider()
+                ReportProblemMenuItem()
             } label: {
                 Image(systemName: "ellipsis")
             }
@@ -2029,6 +2031,11 @@ struct MacWeekView: View {
                 })
             }
             days = nextDays
+            // What Report a problem says of the calendar: the days in view and their items' ids.
+            ProblemReportCenter.shared.noteCalendar(
+                start: nextDays.first?.date,
+                end: nextDays.last.flatMap { calendar.date(byAdding: .day, value: 1, to: $0.date) },
+                ids: nextDays.flatMap { $0.items.map(\.id) })
         }
         updateSecondaryZone()
     }

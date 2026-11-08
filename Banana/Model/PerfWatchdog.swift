@@ -278,6 +278,8 @@ enum PerfWatchdog {
             MainActor.assumeIsolated { logPowerRollup(now: now) }
         }
 
+        checkMemory()
+
         if ProcessInfo.processInfo.arguments.contains("--perf-trace") {
             let all = counts.prefix(6).map { "\($0.view)×\($0.count)" }.joined(separator: " ")
             PlaybackDiagnostics.shared.log("perf \(Int(percent))%",
@@ -313,6 +315,10 @@ enum PerfWatchdog {
                     "cpu_percent": String(format: "%.1f", percent),
                     "window_seconds": String(Int(elapsed)),
                 ]) { _, new in new })
+            ProblemReporter.shared.spike(.storm, signature: storm.view, numbers: [
+                "rate": .number(Double(rate)), "cpu": .number(percent.rounded()), "window": .number(elapsed.rounded()),
+                "activity": .text(others),
+            ])
             return
         }
 
@@ -329,6 +335,48 @@ enum PerfWatchdog {
                 "window_seconds": String(Int(elapsed)),
                 "activity": worst,
             ]) { _, new in new })
+        ProblemReporter.shared.spike(.cpu, signature: counts.first?.view ?? "none", numbers: [
+            "cpu": .number(percent.rounded()), "window": .number(elapsed.rounded()), "activity": .text(worst),
+            "foreground": .flag(isForeground),
+        ])
+    }
+
+    /// Whether the app is in front, as far as the watchdog cares.
+    @MainActor private static var isForeground: Bool {
+        #if os(iOS)
+        AppVisibility.shared.isActive
+        #else
+        true
+        #endif
+    }
+
+    /// The footprint past which a report goes: a quarter of the device's memory on iOS (jetsam
+    /// ends a foreground app near half), 4 GB on the Mac. Once over, it reports again only after
+    /// falling back under 80% of it.
+    private static let memoryAlarmMB: Double = {
+        #if os(iOS)
+        max(1200, Double(ProcessInfo.processInfo.physicalMemory) / 1_048_576 / 4)
+        #else
+        4096
+        #endif
+    }()
+    nonisolated(unsafe) private static var memoryAlarmed = false
+
+    @MainActor
+    private static func checkMemory() {
+        let footprint = MemoryLog.footprintMB()
+        if memoryAlarmed {
+            if footprint < memoryAlarmMB * 0.8 { memoryAlarmed = false }
+            return
+        }
+        guard footprint >= memoryAlarmMB else { return }
+        memoryAlarmed = true
+        PlaybackDiagnostics.shared.log("🧠 HIGH MEMORY \(Int(footprint))MB", "activity=\(latestActivity)")
+        ProblemReporter.shared.spike(.memory, signature: latestActivity, numbers: [
+            "footprintMB": .number(footprint.rounded()), "alarmMB": .number(memoryAlarmMB.rounded()),
+            "physicalMB": .number((Double(ProcessInfo.processInfo.physicalMemory) / 1_048_576).rounded()),
+            "foreground": .flag(isForeground),
+        ])
     }
 
     /// Diagnostics must not become the battery problem they are diagnosing. A five-second
@@ -481,6 +529,22 @@ enum PerfWatchdog {
                    average, powerCPUMax, MemoryLog.footprintMB(), wakeups, syscalls, switches,
                    thermal, ProcessInfo.processInfo.isLowPowerModeEnabled ? "yes" : "no",
                    context, PowerTrace.drainSummary(), latestActivity))
+
+        let foreground = isForeground
+        // A minute that burns the battery: a core's worth sustained in front, or a tenth of one
+        // in a pocket, or the device running hot.
+        let alarming = average >= (foreground ? 30 : 10)
+            || [.serious, .critical].contains(ProcessInfo.processInfo.thermalState)
+        if alarming {
+            ProblemReporter.shared.spike(.power, signature: average >= (foreground ? 30 : 10) ? "cpu \(foreground ? "front" : "back")" : "thermal \(thermal)", numbers: [
+                "cpuAvg": .number((average * 10).rounded() / 10), "cpuMax": .number(powerCPUMax.rounded()),
+                "seconds": .number(seconds.rounded()), "wakeups": .number(Double(wakeups)),
+                "syscalls": .number(Double(syscalls)), "contextSwitches": .number(Double(switches)),
+                "thermal": .text(thermal), "lowPower": .flag(ProcessInfo.processInfo.isLowPowerModeEnabled),
+                "memMB": .number(MemoryLog.footprintMB().rounded()), "foreground": .flag(foreground),
+                "work": .text(context), "activity": .text(latestActivity),
+            ])
+        }
 
         powerCPUSum = 0
         powerCPUMax = 0

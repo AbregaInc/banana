@@ -187,6 +187,8 @@ enum BananaService {
         case usage(Data)
         /// Crash, hang and performance reports (`DiagnosticReports`), anonymous.
         case diagnostics(Data)
+        /// A problem report (`ProblemReport.body`), anonymous: a spike, Report a problem, a rating.
+        case problemReport(Data)
         /// The data platform's one sync call (docs/design/DATA-PLATFORM.md §4), its body made by
         /// `SyncRequest.body()`.
         case sync(Data)
@@ -368,6 +370,8 @@ enum BananaService {
                 return ("POST", "/v1/usage", batch)
             case .diagnostics(let batch):
                 return ("POST", "/v1/diagnostics", batch)
+            case .problemReport(let body):
+                return ("POST", "/v1/reports", body)
             case .sync(let body):
                 return ("POST", "/v2/sync", body)
             case .blob(let method, let sha256):

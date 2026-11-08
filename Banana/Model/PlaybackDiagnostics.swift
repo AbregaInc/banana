@@ -105,6 +105,32 @@ final class PlaybackDiagnostics: @unchecked Sendable {
         }
     }
 
+    /// The newest `count` lines, read from the file's end only (a report wants the last few
+    /// hundred, not the whole 512 KB), on the queue that writes it.
+    func tail(_ count: Int = 200) async -> [String] {
+        await withCheckedContinuation { continuation in
+            queue.async {
+                guard let url = Self.logURL, let handle = try? FileHandle(forReadingFrom: url) else {
+                    return continuation.resume(returning: [])
+                }
+                defer { try? handle.close() }
+                let size = (try? handle.seekToEnd()) ?? 0
+                // Lines run to a few hundred bytes; 400 per line leaves room for long ones.
+                let want = UInt64(min(Int(size), count * 400))
+                try? handle.seek(toOffset: size - want)
+                let data = (try? handle.readToEnd()) ?? Data()
+                var lines = String(decoding: data, as: UTF8.self).split(separator: "\n").map(String.init)
+                // The first line may start mid-way: drop it unless the read began at the top.
+                if want < size, !lines.isEmpty { lines.removeFirst() }
+                continuation.resume(returning: Array(lines.suffix(count)))
+            }
+        }
+    }
+
+    /// Marks a value that is the person's own (a title, a name, words typed) so it reads as it is
+    /// here and is taken out of a problem report (`ReportScrubber`).
+    static func personal(_ value: String) -> String { ReportScrubber.mark(value) }
+
     func clear() {
         guard let url = Self.logURL else { return }
         queue.async { try? FileManager.default.removeItem(at: url) }

@@ -51,6 +51,7 @@ struct AssistantView: View {
                 }
             }
         }
+        .onAppear { ProblemReportCenter.shared.provide(.assistant) { ProblemReportPageContext.assistant() } }
         .sheet(isPresented: $showingConversations) {
             NavigationStack {
                 List {
@@ -157,6 +158,7 @@ struct AssistantView: View {
 
             }
             #endif
+            ReportProblemMenuItem()
             Divider()
             Button("Delete all conversations…", systemImage: "trash", role: .destructive) { confirmingClear = true }
         } label: { Image(systemName: "ellipsis") }
@@ -465,6 +467,7 @@ struct AssistantView: View {
                     options: .init(interpretedSyntax: .inlineOnlyPreservingWhitespace))) ?? AttributedString(message.text) : AttributedString(message.text))
                     .textSelection(.enabled)
                     .foregroundStyle(message.role == "error" ? Color.red : Color.primary)
+                if message.role == "assistant" { AnswerRating(messageID: message.id) }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(message.role == "user" ? 14 : 0)

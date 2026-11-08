@@ -308,6 +308,7 @@ struct MacRootView: View {
                         BananaAccount.shared.start()
                         Telemetry.shared.cameForward()
                         DiagnosticReports.shared.send()                 // crash and performance reports waiting
+                        ProblemReporter.shared.flush()                  // problem reports waiting
                         // Now, then every minute — and it keeps going in the background: a Mac
                         // left open should keep up with the phone too.
                         CloudSyncPoll.resume()
@@ -604,6 +605,11 @@ struct MacCommands: Commands {
             Button("Join Next Meeting") {
                 MacCommandCenter.shared.perform(.joinNextMeeting)
             }
+        }
+        // Report a problem (docs/design/PROBLEM-REPORTS.md): Help, and ⌘⇧R from anywhere.
+        CommandGroup(after: .help) {
+            Button("Report a Problem\u{2026}") { ProblemReportCenter.shared.open() }
+                .keyboardShortcut("r", modifiers: [.command, .shift])
         }
         // The calendar's sharing: the booking link (copied, with the shortcut BOOKING.md §12 names)
         // and the availability panel.

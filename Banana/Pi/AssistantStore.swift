@@ -224,6 +224,19 @@ final class AssistantStore: ObservableObject {
             self.recordSavedNote(request)
             return result
         }
+        // The calls and what they returned, for a 👎 on an answer (Report a problem).
+        if let tools = host.toolHandler {
+            host.toolHandler = { [weak self] request in
+                do {
+                    let result = try await tools(request)
+                    self?.noteToolCall(request, result: result)
+                    return result
+                } catch {
+                    self?.noteToolCall(request, result: "failed: \(Self.message(error))")
+                    throw error
+                }
+            }
+        }
         host.eventHandler = { [weak self] event in self?.receive(event) }
         var configuration: [String: Any] = ["testModel": diagnostic]
         #if os(macOS) && PI_DEVELOPMENT
@@ -316,6 +329,7 @@ final class AssistantStore: ObservableObject {
             conversations = state.conversations; messages = state.messages; selected = state.selected
             surface = state.surface; workspace = state.workspace
             busy = state.busy; available = state.availability.available
+            modelName = state.availability.modelName
             if state.availability.available {
                 availabilityReason = state.availability.modelName.map { "\($0) · On this Mac" } ?? "On this \(DeviceRole.current.name)"
             } else if state.availability.modelName != nil {
@@ -382,6 +396,30 @@ final class AssistantStore: ObservableObject {
         _ = try await call("select", ["id": input.conversation])
         _ = try await call("send", ["text": input.text, "requestId": input.requestId])
         try FileManager.default.removeItem(at: pendingURL)
+    }
+
+    /// The newest tool calls, per conversation, with what they returned: what a report on an
+    /// answer carries. Only in memory, never written anywhere; each cut to 16 KB.
+    struct ToolCall: Encodable, Equatable {
+        var request: String
+        var result: String
+        var at: Date
+    }
+    private(set) var toolCalls: [String: [ToolCall]] = [:]
+    /// The model answering, when it isn't Apple's (the Mac's own).
+    private(set) var modelName: String?
+
+    private func noteToolCall(_ request: String, result: String) {
+        guard let conversation = selected else { return }
+        let cut = { (text: String) in text.count <= 16_384 ? text : String(text.prefix(16_384)) + "…" }
+        var calls = toolCalls[conversation, default: []]
+        calls.append(ToolCall(request: cut(request), result: cut(result), at: Date()))
+        toolCalls[conversation] = Array(calls.suffix(20))
+    }
+
+    /// The conversation in front, its model, and the tool calls made in it.
+    var reportFacts: (conversation: String?, model: String?, tools: [ToolCall]) {
+        (selected, modelName, selected.flatMap { toolCalls[$0] } ?? [])
     }
 
     struct SavedNote: Equatable {

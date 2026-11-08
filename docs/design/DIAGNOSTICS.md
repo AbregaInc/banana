@@ -42,3 +42,9 @@ COUNT(*) FROM diagnostics GROUP BY 1, 2, 3 ORDER BY 4 DESC"` from `Service/`. A 
 
 App Privacy: Crash Data and Performance Data, Analytics, not linked, no tracking. The privacy
 policy's "Crash and performance reports" section goes live with the first build that sends them.
+
+## Problem reports
+
+Spikes caught in the app (storms, CPU, power, memory, hangs), each MetricKit diagnostic again with
+the log around it, Report a problem and ratings on answers go to `POST /v1/reports`
+([PROBLEM-REPORTS.md](PROBLEM-REPORTS.md)).
