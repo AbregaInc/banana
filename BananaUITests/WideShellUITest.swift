@@ -39,7 +39,7 @@ final class WideShellUITest: XCTestCase {
         // Upright: the phone's layout, with the plan's title row at the top and the bar below.
         XCTAssertTrue(app.buttons["shell.switcher"].waitForExistence(timeout: 10), "the bar at the bottom upright")
         XCTAssertFalse(app.descendants(matching: .any)["shell.rail"].exists, "no rail upright")
-        let title = app.descendants(matching: .any)["plan.title"].firstMatch
+        let title = app.descendants(matching: .any)["plan.mode"].firstMatch
         XCTAssertTrue(title.waitForExistence(timeout: 10))
         XCTAssertGreaterThan(app.textFields["shell.field"].frame.midY, app.windows.firstMatch.frame.height * 0.8)
         shot("pad-portrait-plan")
@@ -103,29 +103,40 @@ final class WideShellUITest: XCTestCase {
         shot("pad-land-rail-badge")
     }
 
-    /// Paging: upright "‹ ›" in the top row with Today beside the title away from now; on its side
-    /// the toolbar's own back, forward and Today (direction B).
+    /// Paging: the same group upright (the top row) and on its side (the toolbar): "‹", the period
+    /// picker, "›", Today, idle on the current period. One of each upright too.
     func testPagingUprightAndOnItsSide() throws {
         XCUIDevice.shared.orientation = .portrait
         let app = try launch(["--tab", "plan", "--plan", "-planMode", "week"])
-        let title = app.descendants(matching: .any)["plan.title"].firstMatch
+        let title = app.descendants(matching: .any)["plan.mode"].firstMatch
         XCTAssertTrue(title.waitForExistence(timeout: 15))
         XCTAssertTrue(app.buttons["shell.switcher"].waitForExistence(timeout: 10))
         let start = title.value as? String
-        XCTAssertTrue(app.buttons["plan.previous"].exists && app.buttons["plan.next"].exists)
-        XCTAssertFalse(app.buttons["plan.today"].exists)
+        let previous = app.buttons["plan.previous"], next = app.buttons["plan.next"], today = app.buttons["plan.today"]
+        XCTAssertTrue(previous.exists && next.exists && today.exists)
+        XCTAssertEqual(app.descendants(matching: .any).matching(identifier: "plan.mode").count, 1, "one period picker")
+        XCTAssertFalse(app.descendants(matching: .any)["plan.title"].exists, "no title menu beside it")
+        XCTAssertEqual(app.buttons.matching(NSPredicate(format: "label == 'Previous week'")).count, 1)
+        XCTAssertEqual(app.buttons.matching(NSPredicate(format: "label == 'Next week'")).count, 1)
+        XCTAssertEqual(app.buttons.matching(NSPredicate(format: "label == 'Today' OR label BEGINSWITH 'Return to'")).count, 1)
+        XCTAssertLessThanOrEqual(previous.frame.maxX, title.frame.minX + 1)
+        XCTAssertLessThanOrEqual(title.frame.maxX, next.frame.minX + 1)
+        XCTAssertLessThanOrEqual(next.frame.maxX, today.frame.minX + 1)
+        XCTAssertEqual(title.value as? String ?? "", start ?? "")
+        XCTAssertTrue((title.value as? String)?.contains("\u{2013}") == true, "the week's dates: \(title.value ?? "")")
+        XCTAssertFalse(today.isEnabled, "Today, idle on this week")
         XCTAssertFalse(app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'Show all'")).firstMatch.exists,
                        "no list icon beside the day numbers")
-        app.buttons["plan.next"].tap()
-        XCTAssertTrue(app.buttons["plan.today"].waitForExistence(timeout: 5))
-        XCTAssertTrue(waitUntil(timeout: 5) { (title.value as? String) != start })
+        shot("pad-portrait-plan-week")
+        next.tap()
+        XCTAssertTrue(waitUntil(timeout: 5) { today.isEnabled && (title.value as? String) != start })
         shot("pad-portrait-plan-next")
-        app.buttons["plan.today"].tap()
-        XCTAssertTrue(waitUntil(timeout: 5) { (title.value as? String) == start && title.label.hasPrefix("This week") })
+        today.tap()
+        XCTAssertTrue(waitUntil(timeout: 5) { (title.value as? String) == start && !today.isEnabled && title.label.hasPrefix("Week") })
 
         XCUIDevice.shared.orientation = .landscapeLeft
         XCTAssertTrue(app.descendants(matching: .any)["shell.rail"].waitForExistence(timeout: 8))
-        let next = app.buttons["plan.next"], today = app.buttons["plan.today"]
+
         XCTAssertTrue(next.waitForExistence(timeout: 5) && app.buttons["plan.previous"].exists, "back and forward on its side")
         XCTAssertEqual(next.label, "Next week")
         XCTAssertTrue(today.exists && !today.isEnabled, "Today, idle on this week")

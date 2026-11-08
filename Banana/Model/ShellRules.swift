@@ -179,14 +179,8 @@ enum ShellPlayerPlacement: Equatable, Sendable {
     }
 }
 
-/// Plan's top row in the bottom-bar layout: the title (with today's date and the weather beside
-/// it on the current period), then "‹ ›" with Today between them away from now, then "…". On a
-/// narrow phone the weather gives way first, then Today's word for its icon, and only then the
-/// title's size (WeekView's `mobileTopRow`).
+/// What Plan's "‹" and "›" are called (`PlanStepButton`).
 enum PlanTopRow {
-    /// Today sits between "‹" and "›" while the view is away from the current period.
-    static func showsToday(isCurrent: Bool) -> Bool { !isCurrent }
-
     /// What "‹" and "›" say to VoiceOver: the period they step.
     static func stepLabels(days: Int) -> (previous: String, next: String) {
         switch days {
@@ -197,12 +191,13 @@ enum PlanTopRow {
     }
 }
 
-/// Where Plan's paging is, by shell: one place each for "‹ ›", the period and Today. The wide
-/// toolbar (an iPad on its side, the Mac) has one group, the Mac's (8 Nov 2026): "‹", the period
-/// picker, "›", then Today, idle on the current period (`PlanPagingToolbar`). The bottom-bar shell
-/// (a phone, an iPad upright) has its own top row (`PlanTopRow`). Only outside both shells is
-/// there a date line under the bar: an iPad on its side had it under the toolbar's group, a second
-/// "‹ ›", a second Today and the period named twice.
+/// Where Plan's paging is, by shell: one place each for "‹ ›", the period and Today. Both shells
+/// have the same group, the Mac's (8 Nov 2026): "‹", the period picker, "›", then Today, always
+/// there and idle on the current period. The wide toolbar (an iPad on its side, the Mac) holds it
+/// (`PlanPagingToolbar`); the bottom-bar shell (a phone, an iPad upright) draws it as its top row
+/// (`PlanPagingRow`); where the row is narrow the forecast goes first, then the dates move under
+/// the period's name, and only then go. Only outside both shells is there a date line under the bar: an iPad on its side
+/// had it under the toolbar's group, a second "‹ ›", a second Today and the period named twice.
 enum PlanPaging {
     enum Shell: Equatable, Sendable { case classic, bottomBar, wide }
     enum Control: Equatable, Sendable { case previous, period, next, today, dateLine }
@@ -214,8 +209,7 @@ enum PlanPaging {
     /// What a shell's Plan pages with, left to right.
     static func controls(_ shell: Shell, isCurrent: Bool) -> [Control] {
         switch shell {
-        case .wide: [.previous, .period, .next, .today]
-        case .bottomBar: [.period, .previous] + (PlanTopRow.showsToday(isCurrent: isCurrent) ? [.today] : []) + [.next]
+        case .wide, .bottomBar: [.previous, .period, .next, .today]
         case .classic: [.period, .dateLine]
         }
     }
@@ -225,8 +219,17 @@ enum PlanPaging {
         controls(shell, isCurrent: true).contains(.dateLine)
     }
 
-    /// The wide group's Today is always there, so the group never shifts; it acts away from now.
+    /// Today is always there, so the group never shifts; it acts away from now.
     static func todayEnabled(isCurrent: Bool) -> Bool { !isCurrent }
+
+    /// A pointer's tooltip; on the Mac with the key that does the same.
+    static func help(_ text: String, key: String) -> String {
+        #if os(macOS)
+        "\(text) (\(key))"
+        #else
+        text
+        #endif
+    }
 
     /// The dates beside the period's name: "Wed, Nov 4" for a day; "Nov 2–8", "Oct 30–Nov 5" or
     /// "Dec 29, 2026–Jan 4, 2027" for more.

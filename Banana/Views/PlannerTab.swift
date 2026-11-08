@@ -85,11 +85,19 @@ struct PlannerTab: View, Equatable {
 }
 
 /// Plan's period picker: the period's name with a chevron and its dates beside it; under the
-/// chevron Day and Week (the Mac adds 3 and 5 days). The middle of the wide toolbar's paging
-/// group (`PlanPagingToolbar`): one view on an iPad on its side and the Mac, so they can't drift.
+/// chevron Day and Week (the Mac adds 3 and 5 days). The middle of Plan's paging group in every
+/// shell (`PlanPagingToolbar`, `PlanPagingRow`), so no two of them can drift.
 struct PlanPeriodMenu: View {
-    /// The dates on screen (`PlanPaging.dates`): beside the name, and its spoken value.
+    /// The dates on screen (`PlanPaging.dates`): its spoken value, and shown beside the name, or
+    /// under it and then not at all where the row is narrow (`datesPlace`).
     let dates: String
+    var datesPlace = DatesPlace.beside
+    enum DatesPlace: Hashable { case beside, under, hidden }
+    /// What needs attention (the bottom-bar shell, which has no row for it): a count beside the
+    /// name and the list first under the chevron (`PlanAttentivePeriodMenu`).
+    var attentionCount = 0
+    var attentionSummary = ""
+    var openAttention: (() -> Void)? = nil
     @AppStorage("planMode") private var mode: PlanMode = .day
     #if os(macOS)
     @AppStorage("macWeekSpan") private var span: MacWeekSpan = .sevenDays
@@ -129,19 +137,67 @@ struct PlanPeriodMenu: View {
     }
 
     var body: some View {
-        PageTitleMenu(title: name(choice.wrappedValue), subtitle: dates.isEmpty ? nil : dates,
-                      identifier: Self.identifier) {
+        PageTitleMenu(title: name(choice.wrappedValue), subtitle: datesPlace != .hidden && !dates.isEmpty ? dates : nil,
+                      badge: attentionCount, identifier: Self.identifier) {
+            if attentionCount > 0, let openAttention {
+                Button { openAttention() } label: {
+                    Label("Needs attention", systemImage: "tray.full")
+                    Text(attentionSummary)
+                }
+                .accessibilityIdentifier("plan.attention")
+            }
             Picker("View", selection: choice) {
                 ForEach(Self.choices, id: \.self) { Text(name($0)).tag($0) }
             }
             .pickerStyle(.inline)
         }
-        // The dates beside the name on one line, whatever width class the toolbar reports.
-        .environment(\.layoutClass, .regular)
+        // Beside or under the name as asked, whatever width class the bar reports.
+        .environment(\.layoutClass, datesPlace == .under ? .compact : .regular)
         .accessibilityValue(dates)
         #if os(macOS)
         .help("Day, several days or week (D, 2–7, W)")
         #endif
+    }
+}
+
+/// "‹" or "›" of Plan's paging group: a day in Day, the span in Week. `framed` gives it a 44-point
+/// target of its own where no toolbar sizes it (`PlanPagingRow`).
+struct PlanStepButton: View {
+    let delta: Int
+    let days: Int
+    var framed = false
+    let step: (Int) -> Void
+
+    var body: some View {
+        let labels = PlanTopRow.stepLabels(days: days)
+        let name = delta < 0 ? labels.previous : labels.next
+        Button { step(delta) } label: {
+            Image(systemName: delta < 0 ? "chevron.left" : "chevron.right")
+                .frame(width: framed ? 44 : nil, height: framed ? 44 : nil)
+                .contentShape(Rectangle())
+        }
+        .help(PlanPaging.help(name, key: delta < 0 ? "K" : "J"))
+        .accessibilityLabel(name)
+        .accessibilityIdentifier(delta < 0 ? "plan.previous" : "plan.next")
+    }
+}
+
+/// Today of Plan's paging group: always there, so the group never shifts; idle on the current period.
+struct PlanTodayButton: View {
+    let isCurrent: Bool
+    var framed = false
+    let toCurrent: () -> Void
+
+    var body: some View {
+        Button { toCurrent() } label: {
+            Text("Today")
+                .padding(.horizontal, framed ? DS.Space.m : 0)
+                .frame(minHeight: framed ? 44 : nil)
+                .contentShape(Rectangle())
+        }
+        .disabled(!PlanPaging.todayEnabled(isCurrent: isCurrent))
+        .help(PlanPaging.help("Go to today", key: "T"))
+        .accessibilityIdentifier("plan.today")
     }
 }
 
@@ -163,34 +219,15 @@ struct PlanPagingToolbar<Accessory: View>: ToolbarContent {
     private static var leading: ToolbarItemPlacement { .topBarLeading }
     #endif
 
-    /// A pointer's tooltip; on the Mac with the key that does the same.
-    private static func help(_ text: String, key: String) -> String {
-        #if os(macOS)
-        "\(text) (\(key))"
-        #else
-        text
-        #endif
-    }
-
     var body: some ToolbarContent {
-        let labels = PlanTopRow.stepLabels(days: days)
         ToolbarItemGroup(placement: Self.leading) {
-            Button { step(-1) } label: { Image(systemName: "chevron.left") }
-                .help(Self.help(labels.previous, key: "K"))
-                .accessibilityLabel(labels.previous)
-                .accessibilityIdentifier("plan.previous")
+            PlanStepButton(delta: -1, days: days, step: step)
             PlanPeriodMenu(dates: dates)
-            Button { step(1) } label: { Image(systemName: "chevron.right") }
-                .help(Self.help(labels.next, key: "J"))
-                .accessibilityLabel(labels.next)
-                .accessibilityIdentifier("plan.next")
+            PlanStepButton(delta: 1, days: days, step: step)
         }
         ToolbarSpacer(.fixed, placement: Self.leading)
         ToolbarItem(placement: Self.leading) {
-            Button("Today") { toCurrent() }
-                .disabled(!PlanPaging.todayEnabled(isCurrent: isCurrent))
-                .help(Self.help("Go to today", key: "T"))
-                .accessibilityIdentifier("plan.today")
+            PlanTodayButton(isCurrent: isCurrent, toCurrent: toCurrent)
         }
         ToolbarItem(placement: Self.leading) {
             HStack(spacing: DS.Space.s) { accessory }.fixedSize()
@@ -198,6 +235,36 @@ struct PlanPagingToolbar<Accessory: View>: ToolbarContent {
         .sharedBackgroundVisibility(.hidden)
     }
 }
+
+#if os(iOS)
+/// The same group as a row of its own: the bottom-bar shell's top row (a phone, an iPad upright),
+/// whose hidden bar would fold it into an overflow menu. Glass capsules, as the bar's would be;
+/// the period picker carries what needs attention there (`PlanAttentivePeriodMenu`).
+struct PlanPagingRow: View {
+    let days: Int
+    let dates: String
+    let isCurrent: Bool
+    var datesPlace = PlanPeriodMenu.DatesPlace.beside
+    let step: (Int) -> Void
+    let toCurrent: () -> Void
+
+    var body: some View {
+        HStack(spacing: DS.Space.s) {
+            HStack(spacing: 0) {
+                PlanStepButton(delta: -1, days: days, framed: true, step: step)
+                PlanAttentivePeriodMenu(dates: dates, datesPlace: datesPlace)
+                    .frame(minHeight: 44)
+                PlanStepButton(delta: 1, days: days, framed: true, step: step)
+            }
+            .font(.body.weight(.medium))
+            .glassEffect(.regular.interactive(), in: .capsule)
+            PlanTodayButton(isCurrent: isCurrent, framed: true, toCurrent: toCurrent)
+                .glassEffect(.regular.interactive(), in: .capsule)
+        }
+        .fixedSize()
+    }
+}
+#endif
 
 /// The Day · Week switch outside both shells: the page switch every main page uses (`PageSwitch`).
 struct PlanModePicker: View {

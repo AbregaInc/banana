@@ -3936,12 +3936,7 @@ struct WeekView: View {
                                       dates: PlanPaging.dates(start: mobileVisibleWeekStart, days: dayMode ? 1 : 7),
                                       isCurrent: mobileWeekOffset == 0,
                                       step: { moveMobileWeek($0) }, toCurrent: { moveMobileWeekToCurrent() }) {
-                        // The forecast: the day shown in Day, today in this week.
-                        if dayMode {
-                            WeatherChip(day: mobileVisibleWeekStart)
-                        } else if mobileWeekOffset == 0 {
-                            WeatherChip(day: Date())
-                        }
+                        mobileForecast
                         if mobileWeekLoading { ProgressView().controlSize(.mini) }
                     }
                     ReviewToolbarItem(section: .plan)
@@ -4259,53 +4254,38 @@ struct WeekView: View {
         SetupMenuItem()
     }
 
-    /// The title of the bottom-bar shell's one top row: what is showing ("Today", "This week",
-    /// "Wed, Nov 4"), with Day and Week, the steps through dates, and what needs attention under it.
-    private var mobileTitleMenu: some View {
-        let words = DateLineWording.parts(current: dayMode ? "Today" : "This week", dates: mobileWeekRangeTitle,
-                                          isCurrent: mobileWeekOffset == 0)
-        return PlanTitleMenu(
-            title: words.name,
-            // A week's dates go with its name (under it on a phone, beside it with room); a day's
-            // date beside it (`mobileTitleAside`).
-            subtitle: dayMode ? nil : words.dates,
-            dayMode: dayMode,
-            isCurrent: mobileWeekOffset == 0,
-            titleValue: dayMode ? Occurrence.dayKey(mobileVisibleWeekStart) : mobileWeekRangeTitle,
-            step: { moveMobileWeek($0) },
-            toCurrent: { moveMobileWeekToCurrent() })
+    /// The forecast beside Plan's paging group: the day shown in Day, today in this week.
+    @ViewBuilder private var mobileForecast: some View {
+        if dayMode {
+            WeatherChip(day: mobileVisibleWeekStart)
+        } else if mobileWeekOffset == 0 {
+            WeatherChip(day: Date())
+        }
     }
 
-    /// Beside the title: today's date and the weather, as the date line had them.
-    /// The bottom-bar layout's one top row: the title menu, today's date (in Day) and the weather
-    /// beside it on the current period, then "‹ ›" (Today between them away from now) and "…".
-    /// What gives way on a narrow phone, in order: the weather, then Today's word for its icon,
-    /// and only then the title's size (`PlanTopRow`).
+    /// The bottom-bar layout's one top row: the paging group every shell has (`PlanPagingRow`:
+    /// "‹", the period picker with its dates, "›", then Today), the forecast, and "…". What gives
+    /// way on a narrow phone, in order: the forecast, then the dates move under the period's name
+    /// (where the old title had them), and only on the narrowest go.
     private var mobileTopRow: some View {
-        HStack(spacing: DS.Space.s) {
-            // First call on the room; it scales down a little only when even the narrowest
-            // pager leaves too little (a week across two months on a 13 mini).
-            mobileTitleMenu
-                .minimumScaleFactor(0.8)
-                .padding(.horizontal, DS.Space.m)
-                .frame(minHeight: 44)
-                .glassEffect(.regular.interactive(), in: .capsule)
-                .layoutPriority(2)
+        let days = dayMode ? 1 : 7
+        let dates = PlanPaging.dates(start: mobileVisibleWeekStart, days: days)
+        func row(dates place: PlanPeriodMenu.DatesPlace, forecast: Bool) -> some View {
+            HStack(spacing: DS.Space.s) {
+                PlanPagingRow(days: days, dates: dates, isCurrent: mobileWeekOffset == 0, datesPlace: place,
+                              step: { moveMobileWeek($0) }, toCurrent: { moveMobileWeekToCurrent() })
+                if forecast { mobileForecast.fixedSize() }
+                if mobileWeekLoading { ProgressView().controlSize(.mini) }
+                Spacer(minLength: 0)
+            }
+        }
+        return HStack(spacing: DS.Space.s) {
             ViewThatFits(in: .horizontal) {
-                HStack(spacing: DS.Space.s) {
-                    mobileTitleAside(weather: true)
-                    Spacer(minLength: 0)
-                    mobilePager(todayWord: true)
-                }
-                HStack(spacing: DS.Space.s) {
-                    mobileTitleAside(weather: false)
-                    Spacer(minLength: 0)
-                    mobilePager(todayWord: true)
-                }
-                HStack(spacing: DS.Space.s) {
-                    Spacer(minLength: 0)
-                    mobilePager(todayWord: false)
-                }
+                row(dates: .beside, forecast: true)
+                row(dates: .beside, forecast: false)
+                row(dates: .under, forecast: true)
+                row(dates: .under, forecast: false)
+                row(dates: .hidden, forecast: false)
             }
             MoreMenu(identifier: "mobile.week.more") {
                 if booking.canShare { BookingShareButton() }
@@ -4317,55 +4297,6 @@ struct WeekView: View {
         }
         .padding(.horizontal, DS.Space.l)
         .padding(.vertical, DS.Space.xs)
-    }
-
-    /// Beside the title on the current period: today's date in Day and the weather.
-    private func mobileTitleAside(weather: Bool) -> some View {
-        let isCurrent = mobileWeekOffset == 0
-        return HStack(spacing: DS.Space.m) {
-            if dayMode, isCurrent {
-                Text(mobileVisibleWeekStart.formatted(.dateTime.weekday(.abbreviated).month(.abbreviated).day()))
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-            }
-            if weather, isCurrent { WeatherChip(day: Date()) }
-            if mobileWeekLoading { ProgressView().controlSize(.mini) }
-        }
-        .fixedSize()
-    }
-
-    /// "‹ ›", a day in Day and a week in Week, with Today between them away from now. Swiping
-    /// the grid still steps too.
-    private func mobilePager(todayWord: Bool) -> some View {
-        let labels = PlanTopRow.stepLabels(days: dayMode ? 1 : 7)
-        return HStack(spacing: 0) {
-            Button { moveMobileWeek(-1) } label: {
-                Image(systemName: "chevron.left").frame(width: 36, height: 44).contentShape(Rectangle())
-            }
-            .accessibilityLabel(labels.previous)
-            .accessibilityIdentifier("plan.previous")
-            if PlanTopRow.showsToday(isCurrent: mobileWeekOffset == 0) {
-                Button { moveMobileWeekToCurrent() } label: {
-                    Group {
-                        if todayWord { Text("Today").padding(.horizontal, DS.Space.xs) }
-                        else { Image(systemName: "arrow.uturn.backward").frame(width: 32) }
-                    }
-                    .frame(height: 44)
-                    .contentShape(Rectangle())
-                }
-                .accessibilityLabel("Today")
-                .accessibilityIdentifier("plan.today")
-            }
-            Button { moveMobileWeek(1) } label: {
-                Image(systemName: "chevron.right").frame(width: 36, height: 44).contentShape(Rectangle())
-            }
-            .accessibilityLabel(labels.next)
-            .accessibilityIdentifier("plan.next")
-        }
-        .font(.body.weight(.medium))
-        .padding(.horizontal, DS.Space.xs)
-        .glassEffect(.regular.interactive(), in: .capsule)
-        .fixedSize()
     }
 
     /// A real shared time axis. Three readable columns fit in portrait; horizontal scrolling

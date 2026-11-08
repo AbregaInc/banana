@@ -78,35 +78,26 @@ final class ShellRulesTests: XCTestCase {
         XCTAssertEqual(ShellLayout.of(width: 1_376), .rail, "a 13-inch iPad on its side")
     }
 
-    /// Plan's top row: Today shows away from now, and "‹ ›" say what they step.
-    func testPlanTopRowOffersTodayAwayFromNowAndNamesTheStep() {
-        XCTAssertTrue(PlanTopRow.showsToday(isCurrent: false))
-        XCTAssertFalse(PlanTopRow.showsToday(isCurrent: true))
+    /// "‹ ›" say what they step.
+    func testPlanStepButtonsNameTheStep() {
         XCTAssertEqual(PlanTopRow.stepLabels(days: 1).previous, "Previous day")
         XCTAssertEqual(PlanTopRow.stepLabels(days: 7).next, "Next week")
         XCTAssertEqual(PlanTopRow.stepLabels(days: 3).next, "Next 3 days")
     }
 
-    /// Plan pages from one place in each shell: on an iPad on its side and the Mac one toolbar
-    /// group, "‹", the period, "›", then Today (always there, idle on the current period); in the
-    /// bottom-bar shell its top row; a date line under the bar only outside both.
+    /// Plan pages from one place in each shell, the same group in both new ones: "‹", the period,
+    /// "›", then Today (always there, idle on the current period). A date line under the bar only
+    /// outside both.
     func testPlanPagesFromOnePlacePerShell() {
-        XCTAssertEqual(PlanPaging.controls(.wide, isCurrent: true), [.previous, .period, .next, .today])
-        XCTAssertEqual(PlanPaging.controls(.wide, isCurrent: false), [.previous, .period, .next, .today],
-                       "the group doesn't shift when Today wakes")
-        XCTAssertFalse(PlanPaging.todayEnabled(isCurrent: true))
-        XCTAssertTrue(PlanPaging.todayEnabled(isCurrent: false))
-        XCTAssertEqual(PlanPaging.controls(.bottomBar, isCurrent: true), [.period, .previous, .next])
-        XCTAssertEqual(PlanPaging.controls(.bottomBar, isCurrent: false), [.period, .previous, .today, .next])
         for shell in [PlanPaging.Shell.wide, .bottomBar] {
             for isCurrent in [true, false] {
-                let controls = PlanPaging.controls(shell, isCurrent: isCurrent)
-                XCTAssertEqual(controls.count, Set(controls.map { "\($0)" }).count, "one of each in \(shell)")
-                XCTAssertFalse(controls.contains(.dateLine), "no date line under \(shell)'s bar")
+                XCTAssertEqual(PlanPaging.controls(shell, isCurrent: isCurrent), [.previous, .period, .next, .today],
+                               "\(shell): the group doesn't shift when Today wakes")
             }
+            XCTAssertFalse(PlanPaging.drawsDateLine(shell), "no date line under \(shell)'s bar")
         }
-        XCTAssertFalse(PlanPaging.drawsDateLine(.wide))
-        XCTAssertFalse(PlanPaging.drawsDateLine(.bottomBar))
+        XCTAssertFalse(PlanPaging.todayEnabled(isCurrent: true))
+        XCTAssertTrue(PlanPaging.todayEnabled(isCurrent: false))
         XCTAssertTrue(PlanPaging.drawsDateLine(.classic))
         XCTAssertEqual(PlanPaging.shell(bottomBar: false, wide: true), .wide)
         XCTAssertEqual(PlanPaging.shell(bottomBar: true, wide: false), .bottomBar)
