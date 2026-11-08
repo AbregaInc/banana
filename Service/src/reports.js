@@ -127,8 +127,6 @@ async function sha256(bytes) {
   return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
-const stream = (bytes) => new ReadableStream({ start(c) { c.enqueue(bytes); c.close(); } });
-
 /**
  * Keeps one report: its objects first, then its row, so a row never names an object that isn't
  * there. The same id twice (a retry whose answer was lost) is taken without keeping it again.
@@ -143,7 +141,8 @@ export async function keepReport(deps, parsed, now) {
   const bytes = parsed.blobs.reduce((sum, b) => sum + b.bytes.length, 0) + row.context.length + row.numbers.length + (row.note?.length ?? 0);
   if (Number(today?.n) + 1 > MOST_PER_DAY || Number(today?.bytes) + bytes > MOST_BYTES_PER_DAY) return 429;
   for (const b of parsed.blobs) {
-    if (!(await blobs.put(blobKey(row.id, b.name), stream(b.bytes), { sha256: await sha256(b.bytes) }))) return 500;
+    // The bytes themselves, not a stream: R2 refuses a stream of unknown length.
+    if (!(await blobs.put(blobKey(row.id, b.name), b.bytes, { sha256: await sha256(b.bytes) }))) return 500;
   }
   await db.run(
     `INSERT OR IGNORE INTO problem_reports (id, received_at, kind, detector, signature, rating, platform, channel, variant,

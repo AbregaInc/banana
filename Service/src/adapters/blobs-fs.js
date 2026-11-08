@@ -23,6 +23,8 @@ export function fsBlobs(dir) {
   return {
     /** @param {ReadableStream|AsyncIterable<Uint8Array>} body */
     async put(key, body, { sha256 }) {
+      // Bytes in hand (a problem report's files) as one chunk, as R2 takes them.
+      if (body instanceof Uint8Array) body = [body];
       const file = path(key);
       mkdirSync(dirname(file), { recursive: true });
       const part = `${file}.part-${process.pid}-${++temp}`;
