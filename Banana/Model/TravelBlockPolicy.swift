@@ -16,6 +16,28 @@ enum TravelBlockPolicy {
         return max(increment, ceil(duration / increment) * increment)
     }
 
+    /// The trip to reserve, given a fresh route's rounded duration and what this variant already
+    /// reserved for the same trip on the calendar.
+    ///
+    /// A route whose time sits on a rounding edge (4:58 one minute, 5:03 the next, or on two
+    /// devices) rounds to 5 minutes, then 10, then 5 again. Each answer rewrote the block and its
+    /// Busy copies, every copy was news to every device, and every device re-planned and redrew —
+    /// for a trip that had not changed. So the reservation grows whenever the route does, but
+    /// shrinks only when the route is shorter by more than one step. Every device reading the same
+    /// calendar settles on the same answer, and it is never less than the route needs.
+    static func settledDuration(computed: TimeInterval, written: TimeInterval?) -> TimeInterval {
+        guard let written, written > 0, computed < written else { return computed }
+        return written - computed <= increment ? written : computed
+    }
+
+    /// Per trip (travel item id), the span the given variant's copies on the calendar cover.
+    static func writtenSpans(_ blocks: [CalendarSyncedTravelBlock],
+                             variant: CalendarWriteBackVariant) -> [String: DateInterval] {
+        Dictionary(blocks.compactMap { block in
+            block.spansByVariant[variant.markerScheme].map { (block.appItemID, $0) }
+        }, uniquingKeysWith: { first, _ in first })
+    }
+
     static func returnHomeInterval(
         departingAt departure: Date,
         routeSeconds: TimeInterval?,

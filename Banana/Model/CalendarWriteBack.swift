@@ -71,6 +71,8 @@ final class CalendarWriteBack: ObservableObject {
     @Published private(set) var adoption: AdoptionState = .notStarted
 
     private var approveHeldRemovalsOnNextPass = false
+    /// Writes the service refused, not sent again until something changed (`BusyCopyRefusals`).
+    private var refusals = BusyCopyRefusals()
     /// One pass at a time. Google calls suspend, so without this a recompute arriving mid-pass
     /// would run a second reconcile against the same server state — both see a block missing and
     /// both create it. (The EventKit path was synchronous and could not overlap.)
@@ -147,13 +149,7 @@ final class CalendarWriteBack: ObservableObject {
         var writtenETag: String? = nil
     }
 
-    private static let variant: CalendarWriteBackVariant = {
-        #if BANANA_BETA
-        .beta
-        #else
-        .production
-        #endif
-    }()
+    private static let variant = CalendarWriteBackVariant.current
     private static var scheme: String { variant.markerScheme }
     private static let coverageTolerance: TimeInterval = 60
 
@@ -703,12 +699,7 @@ final class CalendarWriteBack: ObservableObject {
             // What to do here comes from the planner the first run's preview uses too
             // (`BusyCopyPlanner`), so what a person was shown is what a pass does.
             let wanted = byCalendar[calendarID] ?? []
-            let plan = BusyCopyPlanner.plan(
-                desired: wanted.map { BusyCopyPlanner.Desired(appItemID: $0.appItemID, ledgerKey: $0.ledgerKey,
-                                                              fingerprint: Self.hash($0)) },
-                owned: ownedDetails.mapValues { $0.map { BusyCopyPlanner.Owned(eventID: $0.eventID, etag: $0.etag, end: $0.end) } },
-                recorded: recordedWrites(on: calendarID),
-                now: now)
+            let plan = Self.plan(wanted, owned: ownedDetails, recorded: recordedWrites(on: calendarID), now: now)
             // Any extra copies of a wanted block — two devices writing it at once, or copies
             // adopted from Apple Calendar — go. Every device keeps the SAME copy: keeping "the one
             // my ledger knows" let the phone keep A and delete B while the iPad kept B and
@@ -720,7 +711,24 @@ final class CalendarWriteBack: ObservableObject {
                     lastError = "Couldn’t remove a duplicate busy block: \(error.localizedDescription)"
                 }
             }
+            // Already as wanted: remember the version so a later pass need not read it again.
+            for match in plan.matches {
+                let block = wanted[match.index]
+                let known = ledger[block.ledgerKey]
+                if known?.eventIdentifier == match.eventID, known?.writtenETag == match.etag,
+                   known?.writtenHash == Self.hash(block) { continue }
+                ledger[block.ledgerKey] = LedgerEntry(appItemID: block.appItemID, eventIdentifier: match.eventID,
+                                                      calendarID: calendarID, writtenHash: Self.hash(block),
+                                                      writtenETag: match.etag)
+            }
             for write in plan.writes {
+                let (index, versionWritten): (Int, String?) = switch write {
+                case .update(let index, _, let etag): (index, etag)
+                case .create(let index): (index, nil)
+                }
+                let refusalKey = wanted[index].ledgerKey
+                let fingerprint = Self.hash(wanted[index])
+                if refusals.holds(refusalKey, fingerprint: fingerprint, etag: versionWritten, now: now) { continue }
                 do {
                     switch write {
                     case .update(let index, let keep, let etag):
@@ -742,7 +750,11 @@ final class CalendarWriteBack: ObservableObject {
                     }
                     writtenCount += 1
                     lastSelfCommit = Date()
+                    refusals.clear(refusalKey)
                 } catch {
+                    if let status = GoogleCalendarService.refusalStatus(error), BusyCopyRefusals.isRefusal(status: status) {
+                        refusals.refuse(refusalKey, fingerprint: fingerprint, etag: versionWritten, now: now)
+                    }
                     lastError = "Couldn’t write a busy block to a Google calendar: \(error.localizedDescription)"
                 }
             }
@@ -803,6 +815,23 @@ final class CalendarWriteBack: ObservableObject {
         }
         saveLedger()
         return writtenCount
+    }
+
+    /// The planner's view of one calendar: what is wanted there, what Google says Banana owns
+    /// there (with what each copy says), and what this device last wrote.
+    private static func plan(_ wanted: [DesiredBlock], owned: [String: [GoogleCalendarService.OwnedBlock]],
+                             recorded: [String: BusyCopyPlanner.Recorded], now: Date) -> BusyCopyPlanner.CalendarPlan {
+        BusyCopyPlanner.plan(
+            desired: wanted.map {
+                BusyCopyPlanner.Desired(appItemID: $0.appItemID, ledgerKey: $0.ledgerKey, fingerprint: hash($0),
+                                        content: GoogleBusyBlocks.content(title: $0.title, start: $0.start,
+                                                                          end: $0.end, isAllDay: $0.isAllDay))
+            },
+            owned: owned.mapValues {
+                $0.map { BusyCopyPlanner.Owned(eventID: $0.eventID, etag: $0.etag, end: $0.end, content: $0.content) }
+            },
+            recorded: recorded,
+            now: now)
     }
 
     private static func hash(_ block: DesiredBlock) -> Int {
@@ -923,12 +952,7 @@ final class CalendarWriteBack: ObservableObject {
                 return .failure(.unreadable)
             }
             let wanted = byCalendar[calendarID] ?? []
-            let plan = BusyCopyPlanner.plan(
-                desired: wanted.map { BusyCopyPlanner.Desired(appItemID: $0.appItemID, ledgerKey: $0.ledgerKey,
-                                                              fingerprint: Self.hash($0)) },
-                owned: owned.mapValues { $0.map { BusyCopyPlanner.Owned(eventID: $0.eventID, etag: $0.etag, end: $0.end) } },
-                recorded: recordedWrites(on: calendarID),
-                now: now)
+            let plan = Self.plan(wanted, owned: owned, recorded: recordedWrites(on: calendarID), now: now)
             for write in plan.writes {
                 let block: DesiredBlock
                 switch write {

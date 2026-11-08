@@ -16,6 +16,8 @@ enum BusyCopyPlanner {
         let ledgerKey: String
         /// A stable fingerprint of what would be written (title, times, calendar).
         let fingerprint: Int
+        /// What the copy says once written, as Google stores it (`GoogleBusyBlocks.content`).
+        var content: String? = nil
     }
 
     /// A copy Google says Banana owns on this calendar.
@@ -23,6 +25,9 @@ enum BusyCopyPlanner {
         let eventID: String
         let etag: String
         let end: Date
+        /// What the copy says on the server now, in the same terms as `Desired.content`. Nil when
+        /// unknown: then only this device's own record can show it is unchanged.
+        var content: String? = nil
     }
 
     /// What this device last wrote for a ledger key.
@@ -39,8 +44,17 @@ enum BusyCopyPlanner {
         case update(index: Int, eventID: String, etag: String?)
     }
 
+    /// A wanted copy that already says what this pass would write, whoever wrote it.
+    struct Match: Equatable {
+        let index: Int
+        let eventID: String
+        let etag: String
+    }
+
     struct CalendarPlan: Equatable {
         var writes: [Write] = []
+        /// Copies already as wanted: nothing is written, the ledger only learns their version.
+        var matches: [Match] = []
         /// Extra copies of a wanted block (two devices wrote it at once): every device keeps the
         /// same one (`BusyBlockDuplicates.copyToKeep`) and removes the rest.
         var duplicates: [Owned] = []
@@ -66,7 +80,20 @@ enum BusyCopyPlanner {
                 plan.writes.append(.create(index: index))
                 continue
             }
-            let etag = copies.first { $0.eventID == keep }?.etag
+            let copy = copies.first { $0.eventID == keep }
+            let etag = copy?.etag
+            // What the server holds decides, not who wrote it: a copy another device wrote with the
+            // same content is left alone. Comparing versions instead had every device rewrite
+            // whatever another had just written, each write changing the version again — forever,
+            // as long as two devices were running.
+            if let have = copy?.content, let want = block.content {
+                if have == want {
+                    if let etag { plan.matches.append(Match(index: index, eventID: keep, etag: etag)) }
+                    continue
+                }
+                plan.writes.append(.update(index: index, eventID: keep, etag: etag))
+                continue
+            }
             let last = recorded[block.ledgerKey]
             if last?.fingerprint == block.fingerprint, last?.eventID == keep, last?.etag == etag { continue }
             plan.writes.append(.update(index: index, eventID: keep, etag: etag))
@@ -77,6 +104,45 @@ enum BusyCopyPlanner {
             if !current.isEmpty { plan.unwanted[itemID] = current }
         }
         return plan
+    }
+}
+
+/// Writes the service refused as a conflict ("an earlier operation on this item is still
+/// unresolved", "ownership changed"), held back until something could have changed the answer.
+///
+/// A refusal is not cleared by asking again: one iPad sent the same few dozen refused writes on
+/// every pass, about twelve seconds of requests each time, every time any calendar changed. The
+/// same write is tried again once the copy on the server has changed, the write itself has changed,
+/// or `quiet` has passed.
+struct BusyCopyRefusals {
+    static let quiet: TimeInterval = 30 * 60
+
+    private struct Refusal {
+        let fingerprint: Int
+        let etag: String?
+        let at: Date
+    }
+
+    private var refused: [String: Refusal] = [:]
+
+    /// Whether to skip writing `fingerprint` over the copy at `etag` (nil: no copy yet) now.
+    func holds(_ key: String, fingerprint: Int, etag: String?, now: Date) -> Bool {
+        guard let refusal = refused[key] else { return false }
+        return refusal.fingerprint == fingerprint && refusal.etag == etag
+            && now.timeIntervalSince(refusal.at) < Self.quiet
+    }
+
+    mutating func refuse(_ key: String, fingerprint: Int, etag: String?, now: Date) {
+        refused[key] = Refusal(fingerprint: fingerprint, etag: etag, at: now)
+    }
+
+    mutating func clear(_ key: String) {
+        refused[key] = nil
+    }
+
+    /// Statuses that are an answer about this write, not a passing failure.
+    static func isRefusal(status: Int) -> Bool {
+        status == 409 || status == 428
     }
 }
 

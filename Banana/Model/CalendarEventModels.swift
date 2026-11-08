@@ -308,6 +308,10 @@ struct CalendarSyncedTravelBlock {
     let title: String
     let start: Date
     let end: Date
+    /// The span each Banana variant's copies cover, by marker scheme: what that variant already
+    /// reserved, which a fresh route only replaces when it really differs
+    /// (`TravelBlockPolicy.settledDuration`).
+    var spansByVariant: [String: DateInterval] = [:]
 }
 
 struct CalendarEventWindow {
