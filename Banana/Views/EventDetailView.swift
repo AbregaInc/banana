@@ -202,7 +202,8 @@ struct EventDetailView: View {
     /// rest just says. The call's link is the Join button above, not a second row.
     @ViewBuilder private var facts: some View {
         let place = Self.place(meeting.address)
-        if place != nil || details?.recurrence.detailLine(start: meeting.start) != nil || meeting.showsAsFree {
+        let busyOn = GoogleCalendarService.shared.busyOnLine(meeting)
+        if place != nil || details?.recurrence.detailLine(start: meeting.start) != nil || meeting.showsAsFree || busyOn != nil {
             Section {
                 if let place {
                     // Tappable even beside a Join button: a hybrid meeting has both.
@@ -222,6 +223,10 @@ struct EventDetailView: View {
                 }
                 if meeting.showsAsFree {
                     row("circle.dashed", title: "Shown as free")
+                }
+                if let busyOn {
+                    row("calendar.badge.clock", title: busyOn)
+                        .accessibilityIdentifier("eventDetail.busyOn")
                 }
             }
         }

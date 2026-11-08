@@ -267,3 +267,89 @@ enum BusyBlockCleanupPolicy {
         return accountEmails.contains { $0.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() == creator }
     }
 }
+
+// MARK: - Taking over blocks written through Apple Calendar
+
+enum LegacyAdoptionDecision {
+    /// Whether a clean dry run would change nothing on Google, so there is nothing to ask.
+    static func isNothingToConfirm(_ preview: LegacyAdoptionReport) -> Bool {
+        preview.errors.isEmpty && preview.adopted == 0
+    }
+}
+
+/// What adopting Apple-Calendar-written blocks found. Every block ends up in exactly one bucket.
+struct LegacyAdoptionReport: Codable, Equatable {
+    var dryRun = false
+    var examined = 0
+    /// Tagged as Banana's (or, in a dry run, would be).
+    var adopted = 0
+    /// Another device had already tagged the same event.
+    var alreadyAdopted = 0
+    /// Apple Calendar no longer has the event: it was deleted, so there is nothing to adopt.
+    var goneFromAppleCalendar = 0
+    /// The block is on a calendar that is not a connected Google calendar.
+    var notOnGoogle = 0
+    /// Google has no event with that UID starting at the same time.
+    var notFoundInGoogle = 0
+    /// Written by the other build (production vs beta); left for it.
+    var otherVariant = 0
+    /// Failed a safety check (has attendees, no UID) and was left alone.
+    var failedChecks = 0
+    var errors: [String] = []
+
+    var summary: String {
+        "\(dryRun ? "DRY RUN — " : "")examined \(examined): adopted \(adopted), already adopted \(alreadyAdopted), gone \(goneFromAppleCalendar), not on Google \(notOnGoogle), not found in Google \(notFoundInGoogle), other build \(otherVariant), failed checks \(failedChecks), errors \(errors.count)"
+    }
+}
+
+// MARK: - Copies whose source no longer qualifies, at any date
+
+/// The Busy copies a set of events calls for, named as the writer names them
+/// (`GoogleBusyBlocks.mirrorID` over the occurrence's title, start and end): each timed event that
+/// is copied (`MeetingInfo.shouldMirrorBusyTime`) and each day of an all-day event that blocks it.
+enum MirrorSources {
+    static func qualifying(meetings: [MeetingInfo], allDay: [MeetingInfo], calendar: Calendar = .current) -> Set<String> {
+        var ids = Set<String>()
+        for meeting in meetings where meeting.shouldMirrorBusyTime {
+            // `Occurrence.resolvedEnd`, as the writer has it.
+            let end = meeting.end ?? meeting.start.addingTimeInterval(1800)
+            guard end > meeting.start else { continue }
+            ids.insert(GoogleBusyBlocks.mirrorID(title: meeting.title, start: meeting.start, end: end))
+        }
+        for event in allDay where !event.showsAsFree && event.calendarBlocksTime {
+            let end = event.end ?? calendar.date(byAdding: .day, value: 1, to: event.start) ?? event.start
+            for day in AllDayEvents.days(from: event.start, to: end, calendar: calendar) {
+                let next = calendar.date(byAdding: .day, value: 1, to: day) ?? day
+                ids.insert(GoogleBusyBlocks.mirrorID(title: event.title, start: day, end: next))
+            }
+        }
+        return ids
+    }
+}
+
+/// A copy that should never have been written is wrong data whether its event is over or not.
+/// The write-back pass judges current and future copies against what it plans; this judges the
+/// rest of this person's Busy copies, at every date, against the events they copy.
+///
+/// Only copies of events (`mirror-…`) are judged here: their source is an event that can be read
+/// back for any date. A past travel or task copy came from a route or a reminder that can no
+/// longer be re-derived, so it is left. Copies that are current or ahead belong to the pass.
+enum BusyCopySweep {
+    /// The copies, by app item, whose event no longer calls for them. `copies` must already be
+    /// only this person's (`BusyBlockCleanupPolicy`).
+    static func unwanted(copies: [String: [BusyCopyPlanner.Owned]], qualifying: Set<String>,
+                         now: Date) -> [String: [BusyCopyPlanner.Owned]] {
+        var result: [String: [BusyCopyPlanner.Owned]] = [:]
+        for (itemID, blocks) in copies where itemID.hasPrefix("mirror-") && !qualifying.contains(itemID) {
+            let over = blocks.filter { $0.end <= now }
+            if !over.isEmpty { result[itemID] = over }
+        }
+        return result
+    }
+
+    /// How far back the sources have to be read: the start of the earliest copy judged.
+    static func earliestStart(copies: [String: [BusyCopyPlanner.Owned]], now: Date) -> Date? {
+        copies.filter { $0.key.hasPrefix("mirror-") }.values.joined()
+            .filter { $0.end <= now }.compactMap(\.start).min()
+    }
+}

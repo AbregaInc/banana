@@ -18,6 +18,8 @@ enum BusyCopyPlanner {
         let fingerprint: Int
         /// What the copy says once written, as Google stores it (`GoogleBusyBlocks.content`).
         var content: String? = nil
+        /// The source events it stands for (`GoogleBusyBlocks.sourceKey`).
+        var sources: Set<String> = []
     }
 
     /// A copy Google says Banana owns on this calendar.
@@ -28,6 +30,9 @@ enum BusyCopyPlanner {
         /// What the copy says on the server now, in the same terms as `Desired.content`. Nil when
         /// unknown: then only this device's own record can show it is unchanged.
         var content: String? = nil
+        var start: Date? = nil
+        /// The sources it names on the server; empty on a copy written before copies named them.
+        var sources: Set<String> = []
     }
 
     /// What this device last wrote for a ledger key.
@@ -87,7 +92,12 @@ enum BusyCopyPlanner {
             // whatever another had just written, each write changing the version again — forever,
             // as long as two devices were running.
             if let have = copy?.content, let want = block.content {
-                if have == want {
+                // Says the same and names at least one of its sources: as wanted. A copy that names
+                // none (written before copies named them) is rewritten once, so its readers can
+                // trace it. Overlap rather than equality: two devices that see slightly different
+                // sources must not rewrite each other's copy forever.
+                let traced = block.sources.isEmpty || !(copy?.sources ?? []).isDisjoint(with: block.sources)
+                if have == want, traced {
                     if let etag { plan.matches.append(Match(index: index, eventID: keep, etag: etag)) }
                     continue
                 }

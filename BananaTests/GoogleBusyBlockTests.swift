@@ -17,11 +17,16 @@ final class GoogleBusyBlockTests: XCTestCase {
                appItemID: item, variant: variant)
     }
 
-    /// A block that doesn't mark you busy protects nothing.
-    func testABlockIsOpaqueAndPrivate() {
+    /// A block that doesn't mark you busy protects nothing. A "Busy" copy is readable by the
+    /// calendar's readers, so they can trace it to its source; a titled copy stays private.
+    func testABlockIsOpaqueAndOnlyATitledOneIsPrivate() {
         let body = self.body()
         XCTAssertEqual(body["transparency"] as? String, "opaque")
-        XCTAssertEqual(body["visibility"] as? String, "private")
+        XCTAssertEqual(body["visibility"] as? String, "default")
+        let titled = B.body(title: "Travel home", start: start, end: end, timeZoneID: "America/New_York",
+                            appItemID: "travel-1", variant: "banana")
+        XCTAssertEqual(titled["visibility"] as? String, "private")
+        XCTAssertNil((body["extendedProperties"] as? [String: Any])?["shared"], "no sources, no shared properties")
     }
 
     /// Eight calendars all alerting for the same hold is what makes people switch the feature off.

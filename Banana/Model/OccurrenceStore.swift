@@ -864,7 +864,9 @@ final class OccurrenceStore: ObservableObject {
                 // An account Google has signed out, a calendar list or a calendar read that
                 // failed: each contributes no meetings, which must never be read as "those
                 // blocks are unwanted".
-                sourcesHealthy: calendarSourcesHealthy
+                sourcesHealthy: calendarSourcesHealthy,
+                // What the agenda reads from: the sweep of past copies judges them by the same events.
+                sourceExcluding: excludedCalendarIDs
             )
             phases.mark("write-back")
 

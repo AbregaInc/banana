@@ -15,6 +15,31 @@ enum GoogleBusyBlocks {
     /// Which build wrote it, so the beta cannot delete the production app's blocks or vice versa.
     static let variantKey = "bananaVariant"
 
+    /// Where a copy came from: the source events' keys (`sourceKey`), comma-separated, stored in
+    /// the copy's `shared` and `private` extended properties. A copy is written with default
+    /// visibility, so anyone who can see event details on its calendar reads them; a free/busy-only
+    /// reader sees a busy interval and nothing else.
+    static let sourceKeyName = "bananaSource"
+
+    /// A source event's key: a stable hash of its calendar and event ids, so a copy names its
+    /// source without spelling out a calendar id (often an address). Any reader that can see the
+    /// source computes the same key from what Google returns and hides the copy.
+    static func sourceKey(calendarID: String, eventID: String) -> String {
+        "src-" + String(fnv1a([calendarID, eventID].joined(separator: "\u{1F}")), radix: 16)
+    }
+
+    /// The source keys a copy carries, from either property set.
+    static func sources(of properties: GoogleEvent.ExtendedProperties?) -> Set<String> {
+        let raw = properties?.shared?[sourceKeyName] ?? properties?.private?[sourceKeyName] ?? ""
+        return Set(raw.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }.filter { $0.hasPrefix("src-") })
+    }
+
+    private static func fnv1a(_ text: String) -> UInt64 {
+        var hash: UInt64 = 14_695_981_039_346_656_037
+        for byte in text.utf8 { hash ^= UInt64(byte); hash &*= 1_099_511_628_211 }
+        return hash
+    }
+
     /// The legacy mirror identity, shared by the writer and display reconciliation.
     static func mirrorID(title: String, start: Date, end: Date) -> String {
         let fingerprint = [title.lowercased().trimmingCharacters(in: .whitespacesAndNewlines),
@@ -28,8 +53,9 @@ enum GoogleBusyBlocks {
     /// The request body for creating or updating one block.
     ///
     /// `transparency: opaque` is the entire point — a block that does not mark you busy protects
-    /// nothing. `visibility: private` keeps the title off shared views of the calendar; anyone the
-    /// calendar is shared with sees a busy interval rather than what it is for.
+    /// nothing. A copy titled "Busy" has default visibility, so readers of the calendar can read
+    /// where it came from (`sources`) and hide it when they can see the original; a titled copy
+    /// (a task on the task calendar) stays private, so its title stays off shared views.
     ///
     /// `isAllDay`: the copy of a day blocked all day — dates, not times, so it reads as an
     /// all-day Busy event; the other form is cleared (null) so a PATCH can't leave both.
@@ -39,8 +65,12 @@ enum GoogleBusyBlocks {
                      timeZoneID: String,
                      appItemID: String,
                      variant: String,
-                     isAllDay: Bool = false) -> [String: Any] {
-        [
+                     isAllDay: Bool = false,
+                     sources: [String] = []) -> [String: Any] {
+        var properties: [String: Any] = ["private": [itemIDKey: appItemID, variantKey: variant]
+            .merging(sources.isEmpty ? [:] : [sourceKeyName: sources.joined(separator: ",")]) { $1 }]
+        if !sources.isEmpty { properties["shared"] = [sourceKeyName: sources.joined(separator: ",")] }
+        return [
             "summary": title,
             "start": isAllDay
                 ? ["date": GoogleCalendarDates.dateString(start), "dateTime": NSNull()] as [String: Any]
@@ -49,12 +79,16 @@ enum GoogleBusyBlocks {
                 ? ["date": GoogleCalendarDates.dateString(end), "dateTime": NSNull()] as [String: Any]
                 : ["dateTime": rfc3339(end), "timeZone": timeZoneID] as [String: Any],
             "transparency": "opaque",
-            "visibility": "private",
+            "visibility": isPlaceholderTitle(title) ? "default" : "private",
             // Deliberately empty: a busy block is scaffolding, and a reminder storm across eight
             // calendars is what made people turn the feature off.
             "reminders": ["useDefault": false, "overrides": []],
-            "extendedProperties": ["private": [itemIDKey: appItemID, variantKey: variant]],
+            "extendedProperties": properties,
         ]
+    }
+
+    private static func isPlaceholderTitle(_ title: String) -> Bool {
+        title.trimmingCharacters(in: .whitespacesAndNewlines).caseInsensitiveCompare("Busy") == .orderedSame
     }
 
     /// What a block says, in the terms Google keeps it: the title, and the times at the
