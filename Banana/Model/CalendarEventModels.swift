@@ -156,6 +156,11 @@ struct MeetingInfo: Identifiable {
     /// Source-local zones, when supplied (e.g. a flight's departure and arrival).
     var startTimeZone: String? = nil
     var endTimeZone: String? = nil
+    /// This event's keys as a source of Busy copies (`GoogleBusyBlocks.sourceKey`): its own and
+    /// those of the same event merged in from other calendars. Written into each copy.
+    var copySources: [String] = []
+    /// Calendars (info ids) holding a Busy copy of this event, hidden because this is shown.
+    var blockingCalendarIDs: [String] = []
 
     var id: String { eventID ?? "\(Int(start.timeIntervalSince1970))-\(title)" }
     var hasPhysicalLocation: Bool {
@@ -184,6 +189,7 @@ extension MeetingInfo: Codable {
     private enum CodingKeys: String, CodingKey {
         case start, end, lat, lon, address, isVirtual, title, eventID, joinURL, platform, calendarID
         case calendarBlocksTime, showsAsFree, isRecurring, myResponse, othersAllDeclined, alsoOnCalendarIDs, isAllDay, isAvailabilityOnly, startTimeZone, endTimeZone
+        case copySources, blockingCalendarIDs
     }
 
     init(from decoder: Decoder) throws {
@@ -209,7 +215,9 @@ extension MeetingInfo: Codable {
                   isAvailabilityOnly: try c.decodeIfPresent(Bool.self, forKey: .isAvailabilityOnly) ?? false,
                   calendarBlocksTime: try c.decodeIfPresent(Bool.self, forKey: .calendarBlocksTime) ?? true,
                   startTimeZone: try c.decodeIfPresent(String.self, forKey: .startTimeZone),
-                  endTimeZone: try c.decodeIfPresent(String.self, forKey: .endTimeZone))
+                  endTimeZone: try c.decodeIfPresent(String.self, forKey: .endTimeZone),
+                  copySources: try c.decodeIfPresent([String].self, forKey: .copySources) ?? [],
+                  blockingCalendarIDs: try c.decodeIfPresent([String].self, forKey: .blockingCalendarIDs) ?? [])
     }
 
     func encode(to encoder: Encoder) throws {
@@ -235,6 +243,8 @@ extension MeetingInfo: Codable {
         if isAvailabilityOnly { try c.encode(isAvailabilityOnly, forKey: .isAvailabilityOnly) }
         try c.encodeIfPresent(startTimeZone, forKey: .startTimeZone)
         try c.encodeIfPresent(endTimeZone, forKey: .endTimeZone)
+        if !copySources.isEmpty { try c.encode(copySources, forKey: .copySources) }
+        if !blockingCalendarIDs.isEmpty { try c.encode(blockingCalendarIDs, forKey: .blockingCalendarIDs) }
     }
 }
 
@@ -256,6 +266,7 @@ extension MeetingInfo: Hashable {
             && a.myResponse == b.myResponse && a.othersAllDeclined == b.othersAllDeclined
             && a.alsoOnCalendarIDs == b.alsoOnCalendarIDs && a.isAllDay == b.isAllDay && a.isAvailabilityOnly == b.isAvailabilityOnly
             && a.startTimeZone == b.startTimeZone && a.endTimeZone == b.endTimeZone
+            && a.copySources == b.copySources && a.blockingCalendarIDs == b.blockingCalendarIDs
     }
 
     func hash(into hasher: inout Hasher) {
@@ -267,6 +278,7 @@ extension MeetingInfo: Hashable {
         hasher.combine(myResponse); hasher.combine(othersAllDeclined); hasher.combine(alsoOnCalendarIDs)
         hasher.combine(isAllDay); hasher.combine(isAvailabilityOnly)
         hasher.combine(startTimeZone); hasher.combine(endTimeZone)
+        hasher.combine(copySources); hasher.combine(blockingCalendarIDs)
     }
 }
 

@@ -1056,6 +1056,107 @@ final class SharedCalendarBusyCopyTests: XCTestCase {
         XCTAssertEqual(BusyCopySweep.earliestStart(copies: copies, now: later), over.addingTimeInterval(-3600))
     }
 
+    /// The copy as the writer writes it, read back as Google returns it to a reader who can see
+    /// event details.
+    private func writtenCopy(id: String, sources: [String]) throws -> GoogleEvent {
+        let start = ISO8601DateFormatter().date(from: "2026-10-05T15:00:00Z")!
+        var body = GoogleBusyBlocks.body(title: "Busy", start: start, end: start.addingTimeInterval(3600),
+                                         timeZoneID: "UTC", appItemID: "mirror-anything", variant: "banana",
+                                         sources: sources)
+        body["id"] = id
+        body["status"] = "confirmed"
+        return try JSONDecoder().decode(GoogleEvent.self, from: JSONSerialization.data(withJSONObject: body))
+    }
+
+    /// Each person chooses per calendar: blocking or visibility. The household calendar blocks
+    /// the partner's time and is only visibility for Noor. The partner's Banana copies Noor's walk
+    /// into the partner's calendars naming its source; Noor, who can see the walk, sees only the
+    /// walk, and the walk says where it blocks time. A free/busy-only reader still sees Busy.
+    func testBlockingForOneVisibilityForTheOtherAndCopiesTraceToTheirSource() throws {
+        let partnerList = try calendars("""
+        [{"id":"partner@plan.example","summary":"partner@plan.example","accessRole":"owner","primary":true},
+         {"id":"\(partnerPersonal)","summary":"Personal","accessRole":"owner","dataOwner":"partner@plan.example"},
+         {"id":"\(household)","summary":"Household","accessRole":"owner"}]
+        """, account: "partner@plan.example")
+        let writer = window(partnerList, [(household, walk)], overrides: [household: true])
+        let source = try XCTUnwrap(writer.meetings.first)
+        XCTAssertTrue(source.shouldMirrorBusyTime, "blocking for the partner: copied into the partner's calendars")
+        XCTAssertEqual(source.copySources, [GoogleBusyBlocks.sourceKey(calendarID: household, eventID: "walk")])
+
+        let body = GoogleBusyBlocks.body(title: "Busy", start: source.start, end: source.end!, timeZoneID: "UTC",
+                                         appItemID: "mirror-x", variant: "banana", sources: source.copySources)
+        XCTAssertEqual(body["visibility"] as? String, "default", "readers with details can read where it came from")
+        let properties = try XCTUnwrap(body["extendedProperties"] as? [String: Any])
+        XCTAssertEqual((properties["shared"] as? [String: String])?[GoogleBusyBlocks.sourceKeyName], source.copySources.first)
+        XCTAssertEqual((properties["private"] as? [String: String])?[GoogleBusyBlocks.sourceKeyName], source.copySources.first)
+        let titled = GoogleBusyBlocks.body(title: "Write report", start: source.start, end: source.end!, timeZoneID: "UTC",
+                                           appItemID: "task:1", variant: "banana")
+        XCTAssertEqual(titled["visibility"] as? String, "private", "a titled task copy keeps its title off shared views")
+
+        let noorList = try calendars("""
+        [{"id":"noor@plan.example","summary":"noor@plan.example","accessRole":"owner","primary":true},
+         {"id":"\(household)","summary":"Household","accessRole":"owner"},
+         {"id":"\(partnerPersonal)","summary":"Personal","accessRole":"reader","dataOwner":"partner@plan.example"},
+         {"id":"partner@plan.example","summary":"partner@plan.example","accessRole":"reader"}]
+        """, account: "noor@plan.example")
+        let copies = [(partnerPersonal, try writtenCopy(id: "copy-1", sources: source.copySources)),
+                      ("partner@plan.example", try writtenCopy(id: "copy-2", sources: source.copySources))]
+        let viewer = window(noorList, [(household, walk)] + copies)
+        XCTAssertEqual(viewer.meetings.map(\.title), ["Walk in the park"], "only the original is listed")
+        XCTAssertFalse(viewer.meetings[0].shouldMirrorBusyTime, "visibility for Noor: never copied by her")
+        XCTAssertEqual(Set(viewer.meetings[0].blockingCalendarIDs),
+                       Set([partnerPersonal, "partner@plan.example"].map(GoogleCalendarIDs.calendarInfoID)))
+        let bytes = try JSONEncoder().encode(viewer.meetings)
+        XCTAssertEqual(try JSONDecoder().decode([MeetingInfo].self, from: bytes), viewer.meetings, "survives the saved window")
+
+        // Free/busy only: Google returns the times and nothing else, so the Busy stays.
+        let opaque = googleEvent(id: "opaque", summary: nil)
+        let freeBusy = window(noorList, [(household, walk), ("partner@plan.example", opaque)])
+        XCTAssertEqual(freeBusy.meetings.count, 2)
+        // A traced copy whose source the viewer can't see stays: it is all she knows (the two
+        // copies of one item on the same person's calendars show as one Busy).
+        XCTAssertEqual(window(noorList, copies).meetings.map(\.title), ["Busy"])
+    }
+
+    func testSourceKeysMatchTheService() {
+        XCTAssertEqual(GoogleBusyBlocks.sourceKey(calendarID: "household@group.calendar.google.com", eventID: "walk"),
+                       "src-c7561de64aec65e9")
+    }
+
+    /// Blocking turned off: the copy is no longer called for, upcoming (the pass) or over (the sweep).
+    func testTurningBlockingOffRemovesCopiesAtAnyDate() throws {
+        let partnerList = try calendars("""
+        [{"id":"partner@plan.example","summary":"partner@plan.example","accessRole":"owner","primary":true},
+         {"id":"\(household)","summary":"Household","accessRole":"owner"}]
+        """, account: "partner@plan.example")
+        let on = window(partnerList, [(household, walk)], overrides: [household: true])
+        let off = window(partnerList, [(household, walk)], overrides: [household: false])
+        XCTAssertEqual(MirrorSources.qualifying(meetings: on.meetings, allDay: [], calendar: utc), [walkMirror])
+        XCTAssertTrue(MirrorSources.qualifying(meetings: off.meetings, allDay: [], calendar: utc).isEmpty)
+        let now = ISO8601DateFormatter().date(from: "2026-10-05T17:00:00Z")!
+        let past = BusyCopyPlanner.Owned(eventID: "past", etag: "e", end: now.addingTimeInterval(-3600), start: now.addingTimeInterval(-7200))
+        let ahead = BusyCopyPlanner.Owned(eventID: "ahead", etag: "e", end: now.addingTimeInterval(86_400))
+        XCTAssertEqual(BusyCopySweep.unwanted(copies: [walkMirror: [past, ahead]], qualifying: [], now: now)[walkMirror]?.map(\.eventID), ["past"])
+        XCTAssertEqual(BusyCopyPlanner.plan(desired: [], owned: [walkMirror: [past, ahead]], recorded: [:], now: now)
+                        .unwanted[walkMirror]?.map(\.eventID), ["ahead"])
+    }
+
+    /// A copy that already says the same thing is rewritten once if it names none of its sources
+    /// (written before copies named them), and left alone once it names any of them.
+    func testUntracedCopiesAreRewrittenOnceThenLeft() {
+        let now = Date(timeIntervalSince1970: 0)
+        func plan(want: Set<String>, have: Set<String>) -> BusyCopyPlanner.CalendarPlan {
+            BusyCopyPlanner.plan(
+                desired: [.init(appItemID: "a", ledgerKey: "a|c", fingerprint: 1, content: "Busy", sources: want)],
+                owned: ["a": [.init(eventID: "x", etag: "e", end: now.addingTimeInterval(60), content: "Busy", sources: have)]],
+                recorded: [:], now: now)
+        }
+        XCTAssertEqual(plan(want: ["src-1"], have: []).updates, 1)
+        XCTAssertEqual(plan(want: ["src-1", "src-2"], have: ["src-2"]).matches.count, 1, "overlap: no rewrite war between devices")
+        XCTAssertEqual(plan(want: ["src-1"], have: ["src-9"]).updates, 1)
+        XCTAssertEqual(plan(want: [], have: []).matches.count, 1)
+    }
+
     /// The viewer's side: a copy already written (before this build) folds into the walk it
     /// mirrors, keeping the Personal calendar as one of the walk's calendars.
     func testNoorSeesOneWalkNotTheWalkAndThePartnersBusyCopy() throws {

@@ -61,6 +61,16 @@ enum GoogleEventWindowBuilder {
         var iCalUID: String? = nil
         var originalStart: Date? = nil
         var endTimeZone: String? = nil
+        /// Where this Busy copy came from (`GoogleBusyBlocks.sources`): empty for anything else.
+        var copySources: Set<String> = []
+        /// Keys of copies of this event merged into it by `dedupe` (the same invitation on other
+        /// calendars): with its own `sourceKey`, what a copy of it records as its source.
+        var alsoOnKeys: [String] = []
+        /// Calendars holding a Busy copy of this event that is hidden because this is visible.
+        var blocksOn: [String] = []
+
+        /// This event's key as a source (`GoogleBusyBlocks.sourceKey`).
+        var sourceKey: String { GoogleBusyBlocks.sourceKey(calendarID: calendarID, eventID: eventID) }
 
         var copyKey: String? {
             guard let uid = iCalUID, !uid.isEmpty else { return nil }
@@ -154,7 +164,8 @@ enum GoogleEventWindowBuilder {
                 original.dateTime.flatMap(GoogleCalendarDates.parseRFC3339)
                     ?? original.date.flatMap(GoogleCalendarDates.parseDate)
             },
-            endTimeZone: event.end?.timeZone
+            endTimeZone: event.end?.timeZone,
+            copySources: GoogleBusyBlocks.sources(of: event.extendedProperties)
         )
     }
 
@@ -185,7 +196,40 @@ enum GoogleEventWindowBuilder {
             return $0.eventID < $1.eventID
         }
 
-        let busyIntervals = events.compactMap { event -> CalendarBusyInterval? in
+        let busyIntervals = Self.busyIntervals(events, allDayCalendarIDs: allDayCalendarIDs, allDayChoice: allDayChoice)
+        // Only the original is listed: a Busy copy whose source this read can see is hidden, whoever
+        // wrote it and whoever owns either calendar, and the source records where it blocks time.
+        // A copy whose source is out of sight (a free/busy-only calendar) stays: it is all the
+        // viewer knows. Busy coverage above is unchanged.
+        let shown = Self.hidingVisibleCopies(events)
+        return Self.window(events: shown, busyIntervals: busyIntervals, calendar: calendar,
+                           allDayCalendarIDs: allDayCalendarIDs, allDayChoice: allDayChoice,
+                           hiddenSharedAvailabilityCalendarIDs: hiddenSharedAvailabilityCalendarIDs)
+    }
+
+    /// Every copy whose source is among `events` is removed; each source gains the copy's
+    /// calendar in `blocksOn`.
+    static func hidingVisibleCopies(_ events: [Normalized]) -> [Normalized] {
+        var sourceIndex: [String: Int] = [:]
+        for (index, event) in events.enumerated() where event.copySources.isEmpty {
+            sourceIndex[event.sourceKey] = sourceIndex[event.sourceKey] ?? index
+        }
+        var result = events
+        var hidden = Set<Int>()
+        for (index, event) in events.enumerated() where !event.copySources.isEmpty {
+            let sources = event.copySources.sorted().compactMap { sourceIndex[$0] }
+            guard !sources.isEmpty else { continue }
+            hidden.insert(index)
+            for source in sources where !result[source].blocksOn.contains(event.calendarID) {
+                result[source].blocksOn.append(event.calendarID)
+            }
+        }
+        return result.enumerated().filter { !hidden.contains($0.offset) }.map(\.element)
+    }
+
+    private static func busyIntervals(_ events: [Normalized], allDayCalendarIDs: Set<String>,
+                                      allDayChoice: AllDayEvents.Choice) -> [CalendarBusyInterval] {
+        events.compactMap { event -> CalendarBusyInterval? in
             guard blocksTime(event) || blocksDays(event, shown: allDayCalendarIDs, choice: allDayChoice) else { return nil }
             return CalendarBusyInterval(
                 calendarID: GoogleCalendarIDs.calendarInfoID(event.calendarID),
@@ -195,7 +239,11 @@ enum GoogleEventWindowBuilder {
                 appMarkerScheme: event.isAppWritten ? event.ownership?.variant : nil,
                 appItemID: event.isAppWritten ? event.ownership?.appItemID : nil)
         }
+    }
 
+    private static func window(events: [Normalized], busyIntervals: [CalendarBusyInterval], calendar: Calendar,
+                               allDayCalendarIDs: Set<String>, allDayChoice: AllDayEvents.Choice,
+                               hiddenSharedAvailabilityCalendarIDs: Set<String>) -> CalendarEventWindow {
         let meetings = perDay(events.filter { qualifiesAsMeeting($0) && !($0.isSharedAvailability && hiddenSharedAvailabilityCalendarIDs.contains($0.calendarID)) }, calendar: calendar)
             .map(meetingInfo)
             .sorted { $0.start < $1.start }
@@ -293,7 +341,7 @@ enum GoogleEventWindowBuilder {
             let role = byID[event.calendarID]?.accessRole ?? "missing"
             let fingerprint = event.isSharedAvailability ? event.ownership?.appItemID
                 : GoogleBusyBlocks.mirrorID(title: event.title, start: event.start, end: event.end)
-            lines.append("\(event.start.ISO8601Format())–\(event.end.ISO8601Format()) allDay=\(event.isAllDay) calendar=\(label(event.calendarID, kind: "c")) role=\(role) owner=\(label(event.calendarOwner, kind: "p")) availability=\(event.isSharedAvailability) free=\(event.isFree) uid=\(label(event.copyKey, kind: "u")) mirror=\(label(fingerprint, kind: "m")) marker=\(event.ownership != nil)")
+            lines.append("\(event.start.ISO8601Format())–\(event.end.ISO8601Format()) allDay=\(event.isAllDay) calendar=\(label(event.calendarID, kind: "c")) role=\(role) owner=\(label(event.calendarOwner, kind: "p")) availability=\(event.isSharedAvailability) free=\(event.isFree) uid=\(label(event.copyKey, kind: "u")) mirror=\(label(fingerprint, kind: "m")) marker=\(event.ownership != nil) traced=\(!event.copySources.isEmpty)")
         }
         lines.append("Shared availability entries: \(events.filter(\.isSharedAvailability).count)")
         return lines.joined(separator: "\n")
@@ -347,6 +395,10 @@ enum GoogleEventWindowBuilder {
                 for id in [loser.calendarID] + loser.alsoOn where id != winner.calendarID && !winner.alsoOn.contains(id) {
                     winner.alsoOn.append(id)
                 }
+                for key in [loser.sourceKey] + loser.alsoOnKeys where key != winner.sourceKey && !winner.alsoOnKeys.contains(key) {
+                    winner.alsoOnKeys.append(key)
+                }
+                for id in loser.blocksOn where !winner.blocksOn.contains(id) { winner.blocksOn.append(id) }
                 merged[key] = winner
             }
             for event in candidates where !event.isSharedAvailability {
@@ -455,7 +507,9 @@ enum GoogleEventWindowBuilder {
             othersAllDeclined: event.othersAllDeclined,
             alsoOnCalendarIDs: event.alsoOn.map(GoogleCalendarIDs.calendarInfoID),
             isAvailabilityOnly: event.isSharedAvailability, calendarBlocksTime: event.calendarBlocksTime,
-            startTimeZone: event.timeZone?.identifier, endTimeZone: event.endTimeZone)
+            startTimeZone: event.timeZone?.identifier, endTimeZone: event.endTimeZone,
+            copySources: event.isSharedAvailability ? [] : [event.sourceKey] + event.alsoOnKeys,
+            blockingCalendarIDs: event.blocksOn.map(GoogleCalendarIDs.calendarInfoID))
     }
 
     private static func allDayInfo(_ event: Normalized) -> MeetingInfo {
@@ -473,7 +527,9 @@ enum GoogleEventWindowBuilder {
             myResponse: MeetingResponse(googleStatus: event.myResponse),
             othersAllDeclined: event.othersAllDeclined,
             alsoOnCalendarIDs: event.alsoOn.map(GoogleCalendarIDs.calendarInfoID),
-            isAllDay: true, calendarBlocksTime: event.calendarBlocksTime)
+            isAllDay: true, calendarBlocksTime: event.calendarBlocksTime,
+            copySources: [event.sourceKey] + event.alsoOnKeys,
+            blockingCalendarIDs: event.blocksOn.map(GoogleCalendarIDs.calendarInfoID))
     }
 
     private static func looksVirtual(_ address: String?) -> Bool {

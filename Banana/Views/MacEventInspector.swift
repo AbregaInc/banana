@@ -79,6 +79,11 @@ struct MacEventInspectorView: View {
                             Text("Shown as free").foregroundStyle(.secondary)
                         }
                     }
+                    if let busyOn = GoogleCalendarService.shared.busyOnLine(meeting) {
+                        infoRow("calendar.badge.clock") {
+                            Text(busyOn).foregroundStyle(.secondary)
+                        }
+                    }
                 }
                 .font(.system(size: 13))
 

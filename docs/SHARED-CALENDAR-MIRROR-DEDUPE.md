@@ -223,3 +223,27 @@ start of the earliest copy judged. It runs every six hours, and on the next pass
 for their second look. Safety is the pass's: nothing is removed unless every read was complete, two
 reads at least 90 seconds apart agree, and a removal that is a large share of every copy is held for
 confirmation. Past travel and task copies are left: their routes and reminders can't be re-derived.
+
+## The model: blocking or visibility, traced copies, only the original listed
+
+Every calendar is, for each person, either blocking or visibility: Blocks my time, an explicit
+choice in Settings, defaulting to the ownership rule above. A blocking calendar's events are copied
+as Busy into that person's other calendars, whoever put the event there; that is the feature, not
+a bug.
+
+Every Busy copy names its source: `bananaSource`, the source events' keys (a stable hash of
+calendar id and event id, `GoogleBusyBlocks.sourceKey`, the same hash in the service), in the
+copy's `shared` and `private` extended properties. A "Busy" copy is written with default
+visibility (it was private), because private visibility hides details from everyone but
+attendees; a titled task copy stays private. Copies written before this name no source and are
+rewritten once by the next pass (the planner rewrites a copy that names none of its sources, and
+leaves one that names any of them, so devices that see slightly different sources don't fight).
+
+Any Banana reader hides a Busy copy whose source is in its read, whoever wrote it and whoever owns
+either calendar (`GoogleEventWindowBuilder.hidingVisibleCopies`, and the same in the web
+calendar). The source lists where it blocks time ("Busy on Personal, Fitness" in its detail).
+Search leaves out copies whose source is in the page or the shared read. A copy whose source the
+reader can't see (a free/busy-only calendar, which returns times and nothing else) stays. Copies
+without a source fall back to the fingerprint match above. Google documents private extended
+properties as belonging to one calendar's copy and does not say what a reader with "See all event
+details" receives; the troubleshooting report's `traced=` field shows whether a reader gets them.

@@ -67,10 +67,28 @@ export function mirrorID(title,start,end){
   return `mirror-${hash.toString(16)}`;
 }
 const calendarOwner=cal=>trim(cal.dataOwner).toLowerCase()||(String(cal.id).includes('@')&&!String(cal.id).endsWith('.calendar.google.com')?String(cal.id).toLowerCase():null);
+// A source event's key, as a Busy copy records it (GoogleBusyBlocks.sourceKey): FNV-1a over the calendar and event ids.
+export function sourceKey(calendarID,eventID){
+  let hash=14695981039346656037n;
+  for(const byte of new TextEncoder().encode(`${calendarID}\u001f${eventID}`))hash=BigInt.asUintN(64,(hash^BigInt(byte))*1099511628211n);
+  return `src-${hash.toString(16)}`;
+}
+const copySources=e=>new Set(String(e.extendedProperties?.shared?.bananaSource??e.extendedProperties?.private?.bananaSource??'').split(',').map(x=>x.trim()).filter(x=>x.startsWith('src-')));
 export function calendarAgenda(fetched,record,options={}){
   const {settings}=calendarSettings(record),events=[];
+  // Only the original is listed: a Busy copy whose source is in this read is hidden, whoever wrote
+  // it, and the source names the calendars it blocks (GoogleEventWindowBuilder.hidingVisibleCopies).
+  const visible=new Set(),blocksOn=new Map(),hidden=new Set();
+  for(const {event:e,calendar:cal} of fetched)if(e.status!=='cancelled'&&e.id&&!copySources(e).size)visible.add(sourceKey(cal.id,e.id));
+  for(const {event:e,calendar:cal} of fetched){
+    if(e.status==='cancelled'||!e.id)continue;
+    const seen=[...copySources(e)].filter(k=>visible.has(k));if(!seen.length)continue;
+    hidden.add(`${cal.id}\u001f${e.id}`);
+    for(const k of seen){if(!blocksOn.has(k))blocksOn.set(k,new Map());blocksOn.get(k).set(cal.id,{calendarID:cal.id,calendar:cal.summaryOverride||cal.summary||'Calendar'});}
+  }
   for(const {event:e,calendar:cal,email} of fetched){
     if(e.status==='cancelled'||!e.id)continue;
+    if(hidden.has(`${cal.id}\u001f${e.id}`))continue;
     const allDay=Boolean(e.start?.date),start=Date.parse(e.start?.dateTime??`${e.start?.date}T00:00:00Z`),end=Date.parse(e.end?.dateTime??`${e.end?.date}T00:00:00Z`);
     if(!Number.isFinite(start)||!Number.isFinite(end)||end<=start)continue;
     const me=e.attendees?.find(a=>a.self===true);if(!options.includeDeclined&&me?.responseStatus==='declined')continue;
@@ -89,7 +107,7 @@ export function calendarAgenda(fetched,record,options={}){
       ...(options.details?{attendees:(sharedAvailability?[]:e.attendees??[]).map(a=>({email:a.email??'',name:a.displayName??'',response:a.responseStatus??'',organizer:Boolean(a.organizer),self:Boolean(a.self)})),
         organizer:!sharedAvailability&&e.organizer?{email:e.organizer.email??'',name:e.organizer.displayName??''}:null,
         attachments:(sharedAvailability?[]:e.attachments??[]).map(a=>({title:a.title??'Attachment',url:a.fileUrl??''}))}:{}),
-      alsoOn:[],_ownCalendar:ownCalendar,_uid:e.iCalUID?`uid:${e.iCalUID}\u001f${e.originalStartTime?Date.parse(e.originalStartTime.dateTime??e.originalStartTime.date):''}`:null,_owner:calendarOwner(cal),_mirror:markers.has(p?.bananaVariant)?p?.bananaItemID:null,_start:start,_end:end,_attendees:e.attendees?.length??0,_sharedAvailability:sharedAvailability,_placeholder:ownCalendar&&placeholders.has(title.toLowerCase())&&others.length===0});
+      alsoOn:[],blocksOn:[...(blocksOn.get(sourceKey(cal.id,e.id))?.values()??[])],_ownCalendar:ownCalendar,_uid:e.iCalUID?`uid:${e.iCalUID}\u001f${e.originalStartTime?Date.parse(e.originalStartTime.dateTime??e.originalStartTime.date):''}`:null,_owner:calendarOwner(cal),_mirror:markers.has(p?.bananaVariant)?p?.bananaItemID:null,_start:start,_end:end,_attendees:e.attendees?.length??0,_sharedAvailability:sharedAvailability,_placeholder:ownCalendar&&placeholders.has(title.toLowerCase())&&others.length===0});
   }
   events.sort((a,b)=>a._start-b._start||(a.calendarID<b.calendarID?-1:a.calendarID>b.calendarID?1:a.id<b.id?-1:a.id>b.id?1:0));
   const groups=new Map();for(const e of events){const key=`${e._start}-${e._end}-${e.allDay}`;if(!groups.has(key))groups.set(key,[]);groups.get(key).push(e);}
@@ -104,6 +122,7 @@ export function calendarAgenda(fetched,record,options={}){
       const preferNew=(existing._sharedAvailability&&!e._sharedAvailability)||(existing._sharedAvailability===e._sharedAvailability&&richness(e)>richness(existing));
       const winner=preferNew?e:existing,loser=preferNew?existing:e;
       winner.alsoOn=[...new Map([...winner.alsoOn,{calendarID:loser.calendarID,calendar:loser.calendar,email:loser.email},...loser.alsoOn].filter(c=>c.calendarID!==winner.calendarID).map(c=>[c.calendarID,c])).values()];
+      winner.blocksOn=[...new Map([...winner.blocksOn,...loser.blocksOn].map(c=>[c.calendarID,c])).values()];
       merged.set(key,winner);
     };
     for(const e of candidates.filter(e=>!e._sharedAvailability)){

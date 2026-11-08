@@ -344,6 +344,15 @@ final class GoogleCalendarService: ObservableObject {
         }
     }
 
+    /// "Busy on Personal, Fitness": the calendars holding this event's hidden Busy copies, for
+    /// its detail. Nil when there are none.
+    func busyOnLine(_ meeting: MeetingInfo) -> String? {
+        guard !meeting.blockingCalendarIDs.isEmpty else { return nil }
+        let titles = Dictionary(allCalendarInfos.map { ($0.id, $0.title) }, uniquingKeysWith: { first, _ in first })
+        let names = meeting.blockingCalendarIDs.compactMap { titles[$0] }
+        return names.isEmpty ? nil : "Busy on " + names.joined(separator: ", ")
+    }
+
     var allCalendarInfos: [CalendarSourceInfo] {
         calendars.map { calendarInfo(for: $0) }.sorted(by: Self.calendarInfoSort)
     }
@@ -1903,11 +1912,12 @@ final class GoogleCalendarService: ObservableObject {
     }
 
     func createBusyBlockWithVersion(calendarID: String, title: String, start: Date, end: Date,
-                                    isAllDay: Bool, appItemID: String, variant: String) async throws
+                                    isAllDay: Bool, appItemID: String, variant: String,
+                                    sources: [String] = []) async throws
         -> (id: String, etag: String?) {
         let body = try JSONSerialization.data(withJSONObject: GoogleBusyBlocks.body(
             title: title, start: start, end: end, timeZoneID: TimeZone.current.identifier,
-            appItemID: appItemID, variant: variant, isAllDay: isAllDay))
+            appItemID: appItemID, variant: variant, isAllDay: isAllDay, sources: sources))
         let created: GoogleEvent = try await request(
             url: Self.eventsURL(calendarID: calendarID), method: "POST", body: body)
         guard let id = created.id else { throw GoogleCalendarError.eventUnavailable }
@@ -1921,13 +1931,14 @@ final class GoogleCalendarService: ObservableObject {
     @discardableResult
     func updateBusyBlock(calendarID: String, eventID: String, title: String,
                          start: Date, end: Date, isAllDay: Bool = false,
-                         appItemID: String, variant: String, expectedETag: String? = nil) async throws -> String? {
+                         appItemID: String, variant: String, expectedETag: String? = nil,
+                         sources: [String] = []) async throws -> String? {
         let version: String
         if let expectedETag { version = expectedETag }
         else { version = try await busyBlockVersion(calendarID: calendarID, eventID: eventID) }
         let body = try JSONSerialization.data(withJSONObject: GoogleBusyBlocks.body(
             title: title, start: start, end: end, timeZoneID: TimeZone.current.identifier,
-            appItemID: appItemID, variant: variant, isAllDay: isAllDay))
+            appItemID: appItemID, variant: variant, isAllDay: isAllDay, sources: sources))
         noteOwnWrite(eventID)
         let updated: GoogleEvent = try await request(
             url: Self.eventURL(calendarID: calendarID, eventID: eventID), method: "PATCH", body: body, ifMatch: version)
@@ -2043,6 +2054,8 @@ final class GoogleCalendarService: ObservableObject {
         var content: String? = nil
         /// The account that created it (`BusyBlockCleanupPolicy`).
         var creatorEmail: String? = nil
+        /// The sources it names (`GoogleBusyBlocks.sources`); empty on a copy written before them.
+        var sources: Set<String> = []
     }
 
     func ownedBusyBlockDetails(calendarID: String, variant: String,
@@ -2080,7 +2093,8 @@ final class GoogleCalendarService: ObservableObject {
                     content: event.summary.map {
                         GoogleBusyBlocks.content(title: $0, start: span.start, end: span.end, isAllDay: span.isAllDay)
                     },
-                    creatorEmail: event.creator?.email))
+                    creatorEmail: event.creator?.email,
+                    sources: GoogleBusyBlocks.sources(of: event.extendedProperties)))
             }
             pageToken = page.nextPageToken
         } while pageToken != nil
@@ -2886,8 +2900,20 @@ extension GoogleCalendarService {
         } else if index + 1 < ids.count {
             next = CalendarSearchCursor(query: query, calendarIDs: ids, calendarIndex: index + 1, pageToken: nil)
         } else { next = nil }
+        // Only the original is listed (as in Day and Week): a Busy copy whose source this device
+        // can see, in this page or in the shared read of every calendar, is left out.
+        var visibleSources = Set((page.items ?? []).compactMap { event -> String? in
+            guard let eventID = event.id, GoogleBusyBlocks.sources(of: event.extendedProperties).isEmpty else { return nil }
+            return GoogleBusyBlocks.sourceKey(calendarID: id, eventID: eventID)
+        })
+        for (calendarID, cached) in eventCache {
+            for event in cached.events {
+                if let eventID = event.id { visibleSources.insert(GoogleBusyBlocks.sourceKey(calendarID: calendarID, eventID: eventID)) }
+            }
+        }
         return SearchPage(events: (page.items ?? []).filter { event in
             guard event.status != "cancelled" else { return false }
+            guard GoogleBusyBlocks.sources(of: event.extendedProperties).isDisjoint(with: visibleSources) else { return false }
             return query.filter.terms.allSatisfy { term in
                 switch term.field {
                 case "text": return ([event.summary, event.location, event.description].compactMap { $0 }.joined(separator: "\n") as NSString).localizedCaseInsensitiveContains(term.value)

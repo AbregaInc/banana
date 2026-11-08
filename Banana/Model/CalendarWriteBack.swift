@@ -541,6 +541,8 @@ final class CalendarWriteBack: ObservableObject {
         /// The calendar the copied meeting is on; nil for Banana's own work. Not written: it only
         /// names the source on the first run's preview.
         var sourceCalendarID: String? = nil
+        /// The source events' keys, written into the copy so its readers can trace it.
+        var sources: [String] = []
 
         var ledgerKey: String { "\(appItemID)\u{1F}\(calendarID)" }
     }
@@ -855,7 +857,8 @@ final class CalendarWriteBack: ObservableObject {
                         let writtenETag = try await google.updateBusyBlock(
                             calendarID: raw, eventID: keep,
                             title: block.title, start: block.start, end: block.end, isAllDay: block.isAllDay,
-                            appItemID: block.appItemID, variant: variant, expectedETag: etag)
+                            appItemID: block.appItemID, variant: variant, expectedETag: etag,
+                            sources: block.sources)
                         ledger[block.ledgerKey] = LedgerEntry(appItemID: block.appItemID, eventIdentifier: keep,
                                                               calendarID: calendarID, writtenHash: Self.hash(block), writtenETag: writtenETag)
                     case .create(let index):
@@ -863,7 +866,7 @@ final class CalendarWriteBack: ObservableObject {
                         let created = try await google.createBusyBlockWithVersion(
                             calendarID: raw, title: block.title,
                             start: block.start, end: block.end, isAllDay: block.isAllDay,
-                            appItemID: block.appItemID, variant: variant)
+                            appItemID: block.appItemID, variant: variant, sources: block.sources)
                         ledger[block.ledgerKey] = LedgerEntry(appItemID: block.appItemID, eventIdentifier: created.id,
                                                               calendarID: calendarID, writtenHash: Self.hash(block), writtenETag: created.etag)
                     }
@@ -962,10 +965,12 @@ final class CalendarWriteBack: ObservableObject {
             desired: wanted.map {
                 BusyCopyPlanner.Desired(appItemID: $0.appItemID, ledgerKey: $0.ledgerKey, fingerprint: hash($0),
                                         content: GoogleBusyBlocks.content(title: $0.title, start: $0.start,
-                                                                          end: $0.end, isAllDay: $0.isAllDay))
+                                                                          end: $0.end, isAllDay: $0.isAllDay),
+                                        sources: Set($0.sources))
             },
             owned: owned.mapValues {
-                $0.map { BusyCopyPlanner.Owned(eventID: $0.eventID, etag: $0.etag, end: $0.end, content: $0.content) }
+                $0.map { BusyCopyPlanner.Owned(eventID: $0.eventID, etag: $0.etag, end: $0.end, content: $0.content,
+                                               sources: $0.sources) }
             },
             recorded: recorded,
             now: now)
@@ -979,6 +984,7 @@ final class CalendarWriteBack: ObservableObject {
             String(block.end.timeIntervalSinceReferenceDate.bitPattern),
             block.calendarID,
         ].joined(separator: "\u{1F}") + (block.isAllDay ? "\u{1F}allDay" : "")
+            + (block.sources.isEmpty ? "" : "\u{1F}" + block.sources.joined(separator: ","))
         var value: UInt64 = 14_695_981_039_346_656_037
         for byte in fingerprint.utf8 {
             value ^= UInt64(byte)
@@ -1269,7 +1275,8 @@ final class CalendarWriteBack: ObservableObject {
                     start: occurrence.start,
                     end: end,
                     isAllDay: isBlockedDay,
-                    sourceCalendarID: sourceCalendarID
+                    sourceCalendarID: sourceCalendarID,
+                    sources: isExternalMeeting || isBlockedDay ? (occurrence.meeting?.copySources ?? []).sorted() : []
                 )
                 let slotKey = [
                     calendarID,
@@ -1279,12 +1286,16 @@ final class CalendarWriteBack: ObservableObject {
                 if let existing = byExactSlot[slotKey] {
                     // One block covers simultaneous commitments. Prefer the titled task on its
                     // task calendar; every other exact duplicate remains a single private Busy.
+                    var kept = existing
                     if existing.title == "Busy", block.title != "Busy" {
-                        byExactSlot[slotKey] = block
+                        kept = block
                     } else if existing.title == block.title,
                               block.appItemID < existing.appItemID {
-                        byExactSlot[slotKey] = block
+                        kept = block
                     }
+                    // The one copy names every commitment it stands for.
+                    kept.sources = Array(Set(existing.sources).union(block.sources)).sorted()
+                    byExactSlot[slotKey] = kept
                 } else {
                     byExactSlot[slotKey] = block
                 }

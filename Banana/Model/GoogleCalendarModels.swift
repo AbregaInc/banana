@@ -150,6 +150,8 @@ struct GoogleEvent: Codable {
     /// round-tripped through Google.
     struct ExtendedProperties: Codable {
         let `private`: [String: String]?
+        /// Shared properties: where a Busy copy came from (`GoogleBusyBlocks.sourceKeyName`).
+        var shared: [String: String]? = nil
     }
 
     let id: String?

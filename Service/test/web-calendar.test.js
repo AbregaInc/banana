@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {calendarAgenda,calendarSettings,includesCalendar,normalizedTitle,flightDestination,mirrorID} from '../src/web/calendar.js';
+import {calendarAgenda,calendarSettings,includesCalendar,normalizedTitle,flightDestination,mirrorID,sourceKey} from '../src/web/calendar.js';
 import {visibleDays,eventOnDay,layoutEvents} from '../public/app/assets/plan-model.js';
 // The viewer's own secondary calendar, as Google lists it: owner role and the viewer as data owner.
 const cal=(id='personal',overrides={})=>{const accessRole=overrides.accessRole??'owner';return {id,summary:id,accessRole,...(accessRole==='owner'?{dataOwner:'me@example.com'}:{}),...overrides};};
@@ -178,4 +178,27 @@ test('moved recurring occurrences keep originalStartTime identity even at identi
   const a=fetched(instance('a','2026-10-04T15:00:00Z'),ownerCal('personal'));
   assert.equal(build([a,fetched(instance('b','2026-10-05T15:00:00Z'),ownerCal('work')),fetched(mirror(),ownerCal('fitness'))]).length,3);
   assert.equal(build([a,fetched(instance('copy','2026-10-04T11:00:00-04:00'),ownerCal('work'))]).length,1);
+});
+
+test('two people: copies of a blocking calendar’s event are hidden wherever the viewer can see the source, and the source names where it blocks',()=>{
+  // The household calendar blocks time for the partner, not for Noor. The partner’s Banana copied
+  // Noor’s walk as Busy into the partner’s Personal and primary calendars, naming the source.
+  const household=cal('household@group.calendar.google.com',{summary:'Household',accessRole:'owner',dataOwner:undefined});
+  const walk=event('walk',{summary:'Walk in the park'});
+  const traced=(id,extra={})=>event(id,{summary:'Busy',extendedProperties:{private:{bananaVariant:'banana',bananaItemID:'mirror-0'},shared:{bananaSource:sourceKey(household.id,'walk')}},...extra});
+  const personal=cal('partner-personal@group.calendar.google.com',{summary:'Personal',accessRole:'reader',dataOwner:'partner@plan.example'});
+  const primary=cal('partner@plan.example',{summary:'partner@plan.example',accessRole:'reader'});
+  const noor=email=>({email:'noor@plan.example'});
+  const rows=calendarAgenda([{event:walk,calendar:household,...noor()},{event:traced('copy-1'),calendar:personal,...noor()},{event:traced('copy-2'),calendar:primary,...noor()}],null);
+  assert.equal(rows.length,1);assert.equal(rows[0].title,'Walk in the park');
+  assert.deepEqual(rows[0].blocksOn.map(c=>c.calendar).sort(),['Personal','partner@plan.example']);
+  // Free/busy only: Google returns times and nothing else, so the Busy stays.
+  const freeBusy=cal('partner-work@group.calendar.google.com',{accessRole:'freeBusyReader'});
+  const opaque=event('opaque',{summary:undefined});
+  assert.equal(calendarAgenda([{event:walk,calendar:household,...noor()},{event:opaque,calendar:freeBusy,...noor()}],null).length,2);
+  // A traced copy whose source isn’t in the read stays: it is all the viewer knows.
+  assert.equal(calendarAgenda([{event:traced('copy-1'),calendar:personal,...noor()}],null).length,1);
+});
+test('source keys match the native writer’s',()=>{
+  assert.equal(sourceKey('household@group.calendar.google.com','walk'),'src-c7561de64aec65e9');
 });
