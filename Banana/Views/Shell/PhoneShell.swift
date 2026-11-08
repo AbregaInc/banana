@@ -353,7 +353,8 @@ private struct ShellMailComposer: View {
             guard wasUp, !isUp else { return }
             Task { @MainActor in
                 try? await Task.sleep(for: .milliseconds(350))
-                if !chrome.keyboardUp { session.dock(.keyboardHidden) }
+                // A caret on its way to another row (Cc asked for) is not him putting the keyboard away.
+                if !chrome.keyboardUp, !model.awaitingFocus { session.dock(.keyboardHidden) }
             }
         }
     }

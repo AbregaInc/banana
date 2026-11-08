@@ -61,7 +61,7 @@ enum MailCorrespondents {
         // their keys (a word and the address) is one candidate.
         let rows = try Row.fetchAll(db.cachedStatement(sql: """
             SELECT c.addr,c.name,c.sent,c.received,c.last_date FROM correspondent_key k
-            JOIN correspondent c ON c.addr=k.addr WHERE k.key>=? AND k.key<? LIMIT 400
+            CROSS JOIN correspondent c ON c.addr=k.addr WHERE k.key>=? AND k.key<? LIMIT 400
             """), arguments: [needle, needle + "\u{FFFF}"])
         var seen = Set<String>()
         let nowMS = now.timeIntervalSince1970 * 1000
