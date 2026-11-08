@@ -108,42 +108,57 @@ final class BottomBarShellUITest: XCTestCase {
 
     // MARK: Plan paging
 
-    /// "‹ ›" step a week in Week and a day in Day; away from now Today appears beside the title
-    /// and brings it back. The title reads "This week"/"Today" again.
+    /// The top row is the paging group every shell has: "‹", the period picker, "›", then Today
+    /// (always there, idle on the current period), and "…" at the end. One of each; "‹ ›" step a
+    /// week in Week and a day in Day, and Today brings it back.
     func testThePagingButtonsStepEachModeAndTodayReturns() throws {
-        for (mode, current, previousLabel) in [("week", "This week", "Previous week"), ("day", "Today", "Previous day")] {
+        for (mode, name, unit) in [("week", "Week", "week"), ("day", "Day", "day")] {
             let app = try launch(["--tab", "plan", "--plan", "-planMode", mode])
-            let title = any(app, "plan.title")
-            XCTAssertTrue(title.waitForExistence(timeout: 15), app.debugDescription)
-            XCTAssertTrue(title.label.hasPrefix(current), "\(mode): \(title.label)")
-            let start = title.value as? String
-            let previous = app.buttons["plan.previous"], next = app.buttons["plan.next"]
-            XCTAssertTrue(next.exists && previous.exists, "\u{2039} \u{203A} in the top row: \(app.debugDescription)")
-            XCTAssertEqual(previous.label, previousLabel)
-            XCTAssertFalse(app.buttons["plan.today"].exists, "no Today on the current \(mode)")
+            let period = any(app, "plan.mode")
+            XCTAssertTrue(period.waitForExistence(timeout: 15), app.debugDescription)
+            XCTAssertTrue(period.label.hasPrefix(name), "\(mode): \(period.label)")
+            let previous = app.buttons["plan.previous"], next = app.buttons["plan.next"], today = app.buttons["plan.today"]
             let more = app.buttons["mobile.week.more"]
-            XCTAssertLessThanOrEqual(next.frame.maxX, more.frame.minX, "\u{203A} sits before \u{2026}")
-            XCTAssertLessThan(title.frame.maxX, previous.frame.minX, "nothing overlaps on the row")
-            XCTAssertTrue(more.isHittable, "nothing went into the toolbar's overflow")
-            if mode == "week" { shot("plan-week") } else { shot("plan-day") }
+            func count(_ predicate: String) -> Int {
+                app.descendants(matching: .any).matching(NSPredicate(format: predicate)).count
+            }
+            XCTAssertEqual(count("identifier == 'plan.mode'"), 1, "one period picker")
+            XCTAssertEqual(count("identifier == 'plan.title'"), 0, "no title menu beside it")
+            XCTAssertEqual(app.buttons.matching(NSPredicate(format: "label == %@", "Previous \(unit)")).count, 1, "one \u{2039}")
+            XCTAssertEqual(app.buttons.matching(NSPredicate(format: "label == %@", "Next \(unit)")).count, 1, "one \u{203A}")
+            XCTAssertEqual(count("label == 'Today' OR label BEGINSWITH 'Return to'"), 1, "one Today")
+            // ‹ picker › Today … on one line, all in reach.
+            XCTAssertLessThanOrEqual(previous.frame.maxX, period.frame.minX + 1)
+            XCTAssertLessThanOrEqual(period.frame.maxX, next.frame.minX + 1)
+            XCTAssertLessThanOrEqual(next.frame.maxX, today.frame.minX + 1)
+            XCTAssertLessThanOrEqual(today.frame.maxX, more.frame.minX + 1)
+            for control in [period, next, today, more] {
+                XCTAssertEqual(control.frame.midY, previous.frame.midY, accuracy: 12, "on the top row")
+            }
+            for control in [previous, next, today] {
+                XCTAssertGreaterThanOrEqual(control.frame.height, 43, "a full-size target")
+            }
+            XCTAssertTrue(more.isHittable)
+            XCTAssertFalse(today.isEnabled, "Today, idle on the current \(mode)")
+            shot("plan-\(mode)")
 
+            let start = period.value as? String
+            let dayText = { (offset: Int) -> String in
+                Calendar.current.date(byAdding: .day, value: offset, to: Date())!
+                    .formatted(.dateTime.weekday(.abbreviated).month(.abbreviated).day())
+            }
+            if mode == "day" { XCTAssertEqual(start, dayText(0), "the picker names the day") }
             next.tap()
-            let today = app.buttons["plan.today"]
-            if !today.waitForExistence(timeout: 5) { shot("plan-\(mode)-no-today") }
-            XCTAssertTrue(today.exists, "Today appears away from now: \(app.debugDescription)")
-            XCTAssertTrue(waitUntil(timeout: 5) { (title.value as? String) != start }, "it stepped")
-            XCTAssertFalse(title.label.hasPrefix(current))
-            XCTAssertTrue(previous.frame.maxX <= today.frame.minX && today.frame.maxX <= next.frame.minX,
-                          "Today between \u{2039} and \u{203A}")
-            XCTAssertTrue(more.isHittable, "nothing went into the toolbar's overflow")
+            XCTAssertTrue(waitUntil(timeout: 5) { (period.value as? String) != start && today.isEnabled }, "it stepped")
+            if mode == "day" { XCTAssertEqual(period.value as? String, dayText(1), "\u{203A} steps one day") }
+            XCTAssertEqual(count("label == 'Today' OR label BEGINSWITH 'Return to'"), 1, "still one Today")
+            XCTAssertTrue(period.label.hasPrefix(name), "the period's name stays")
             if mode == "week" { shot("plan-week-next") }
             today.tap()
-            XCTAssertTrue(today.waitForNonExistence(timeout: 5))
-            XCTAssertTrue(waitUntil(timeout: 5) { (title.value as? String) == start && title.label.hasPrefix(current) })
-
+            XCTAssertTrue(waitUntil(timeout: 5) { (period.value as? String) == start && !today.isEnabled }, "Today returns")
             previous.tap()
-            XCTAssertTrue(waitUntil(timeout: 5) { (title.value as? String) != start }, "back a \(mode)")
-            XCTAssertTrue(app.buttons["plan.today"].waitForExistence(timeout: 5))
+            XCTAssertTrue(waitUntil(timeout: 5) { (period.value as? String) != start && today.isEnabled }, "back a \(mode)")
+            if mode == "day" { XCTAssertEqual(period.value as? String, dayText(-1)) }
             app.terminate()
         }
     }
@@ -152,7 +167,7 @@ final class BottomBarShellUITest: XCTestCase {
     /// day's whole list.
     func testTheDayHeadingOpensTheDaysListWithoutAnIcon() throws {
         let app = try launch(["--tab", "plan", "--plan", "-planMode", "week"])
-        XCTAssertTrue(any(app, "plan.title").waitForExistence(timeout: 15))
+        XCTAssertTrue(any(app, "plan.mode").waitForExistence(timeout: 15))
         XCTAssertFalse(app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'Show all'")).firstMatch.exists,
                        "no list icon beside the day numbers")
         XCTAssertFalse(app.images["list.bullet"].exists)

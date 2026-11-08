@@ -7,9 +7,9 @@ final class RoutineCompletionUITest: XCTestCase {
                                "--custom-routine-completion-preview", "--reset-routine-completion",
                                "--disable-icloud", "--no-space-sync", "-onboardingCompleted", "YES"]
         app.launch()
-        // What needs attention is under the plan's title (docs/design/BOTTOM-BAR-SHELL.md); a
-        // standalone plan has it as a row of its own.
-        let title = app.descendants(matching: .any)["plan.title"].firstMatch
+        // What needs attention is under the period picker's chevron (docs/design/BOTTOM-BAR-SHELL.md);
+        // a standalone plan has it as a row of its own.
+        let title = app.descendants(matching: .any)["plan.mode"].firstMatch
         let attention = app.buttons["plan.attention"]
         func openAttention() -> Bool {
             if title.waitForExistence(timeout: 20) { title.tap() }

@@ -52,7 +52,7 @@ final class ControlRulesWalkUITest: XCTestCase {
         guard UIDevice.current.userInterfaceIdiom == .phone else { throw XCTSkip("the phone's bar; the iPad walk is below") }
         // page, its title's identifier, and what the field offers first there: the page's own
         let pages: [(String, String, String, [String])] = [
-            ("plan", "Plan", "plan.title", ["mobile.week.add.event", "mobile.week.newTask", "mobile.week.add.alarm"]),
+            ("plan", "Plan", "plan.mode", ["mobile.week.add.event", "mobile.week.newTask", "mobile.week.add.alarm"]),
             ("workouts", "Workouts", "body.title", ["mobile.week.add.event"]),
             ("nutrition", "Food", "body.title",
              ["wellness.textMeal", "wellness.searchFood", "wellness.barcodeMeal", "wellness.photoMeal", "wellness.manualMeal",
@@ -105,7 +105,7 @@ final class ControlRulesWalkUITest: XCTestCase {
         let app = launch(tab: "plan", fixedPlanMode: false)
         let pad = UIDevice.current.userInterfaceIdiom == .pad
         // Day and Week under the title ("Today ⌄"; an iPad upright has the phone's layout).
-        let title = element(app, "plan.title")
+        let title = element(app, "plan.mode")
         XCTAssertTrue(title.waitForExistence(timeout: 15), app.debugDescription)
         let more = app.buttons.matching(NSPredicate(format: "label == 'More'")).firstMatch
         XCTAssertEqual(title.frame.midY, more.frame.midY, accuracy: 12, "the title isn't in the top row")
@@ -113,7 +113,7 @@ final class ControlRulesWalkUITest: XCTestCase {
         title.tap()
         app.buttons["Week"].firstMatch.tap()
         XCTAssertTrue(element(app, "plan.surface.week").waitForExistence(timeout: 8))
-        element(app, "plan.title").tap()
+        element(app, "plan.mode").tap()
         app.buttons["Day"].firstMatch.tap()
         XCTAssertTrue(element(app, "plan.surface.day").waitForExistence(timeout: 8))
         keep("plan-title-row")
