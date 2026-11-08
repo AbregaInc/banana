@@ -27,7 +27,7 @@ enum AppSection: String, Codable, CaseIterable, Identifiable {
 
     var symbol: String {
         switch self {
-        case .plan: "sun.max.fill"
+        case .plan: "calendar"
         case .mail: "envelope.fill"
         case .workouts: "figure.run"
         case .sleep: "bed.double.fill"
