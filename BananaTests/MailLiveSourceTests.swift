@@ -117,6 +117,106 @@ import GRDB
         places.cancel(); rows.cancel()
     }
 
+    // MARK: The Inbox's unread, for the shell's Mail badge
+
+    private func arrive(_ stores: MailStores, id: String, thread: String, labels: [String], date: Int64) async throws {
+        let wire = GmailMessage(id: id, threadId: thread, labelIds: labels, historyId: 2, internalDate: date,
+            payload: GmailPart(headers: [GmailHeader(name: "Subject", value: "Arrival")]))
+        _ = try await MailWriter(stores: stores, sink: nil).transact {
+            try MailMessageImporter.apply(FetchedMessage(wire: wire, floor: 2, headers: MessageHeaders(payload: wire.payload), structure: nil),
+                                          account: "a@example.com", myAddresses: ["a@example.com"], in: $0)
+        }
+    }
+
+    /// The live source publishes the unified Inbox's unread conversations with the places, and
+    /// keeps them current: a new unread arrival, marking read and unread, archiving while unread.
+    func testInboxUnreadFollowsArrivalReadUnreadAndArchive() async throws {
+        let (stores, _, source, _) = try await actionSource()   // one read conversation
+        var latest: MailPlaceCount?
+        let places = source.observePlaces { latest = $0.mailboxCounts[.inbox] }
+        func settle(_ unread: Int, _ why: String) async {
+            for _ in 0..<80 where latest?.unread.value != unread { try? await Task.sleep(for: .milliseconds(50)) }
+            XCTAssertEqual(latest?.unread.value, unread, why)
+        }
+        await settle(0, "a read conversation is not counted")
+        XCTAssertEqual(latest?.total.value, 1)
+
+        try await arrive(stores, id: "m2", thread: "t2", labels: ["INBOX", "UNREAD"], date: 2000)
+        source.checkNow()
+        await settle(1, "a new unread arrival")
+        XCTAssertEqual(source.badges.value.unreadInFirstSplit, 1)
+        XCTAssertEqual(MailBadgeCounts.mirrored(in: .standard)?.unreadInFirstSplit, 1, "the launch mirror")
+
+        // As the screen acts: on the row as read from the Inbox.
+        func shown() async throws -> MailTarget {
+            let rows = try await MailIndexReader(stores: stores).page(PageRequest(view: .unified(.inbox), account: nil, filters: [], before: nil, limit: 50))
+            let row = try XCTUnwrap(rows.first { $0.thread == "t2" })
+            return .asShown([MailRowMapper.row(row, labels: [], reason: nil, in: MailScope(place: .mailbox(.inbox)))])
+        }
+        source.apply(.read(true), to: try await shown())
+        await settle(0, "marked read")
+        source.apply(.read(false), to: try await shown())
+        await settle(1, "marked unread")
+        source.apply(.done, to: try await shown())
+        await settle(0, "archived while unread: out of the Inbox")
+        XCTAssertEqual(latest?.total.value, 1)
+        places.cancel()
+    }
+
+    /// The launch's read-only count reads the same number, and makes nothing.
+    func testTheLaunchCountReadsTheInboxReadOnly() async throws {
+        let stores = try await stores()
+        try await arrive(stores, id: "m1", thread: "t1", labels: ["INBOX", "UNREAD"], date: 1000)
+        try await arrive(stores, id: "m2", thread: "t2", labels: ["INBOX"], date: 2000)
+        let url = stores.directories.indexDatabase
+        XCTAssertEqual(MailDirectories.indexDatabase(under: stores.directories.root), url)
+        let unread = try await Task.detached {
+            let queue = try MailStores.openIndexForCounting(at: url)
+            let counts = try queue.read { try MailIndexReader.counts(PageRequest(view: .unified(.inbox), account: nil, filters: [],
+                before: nil, limit: 1, allowedAccounts: ["a@example.com"]), in: $0) }
+            return counts.unread
+        }.value
+        XCTAssertEqual(unread, 1)
+        let missing = stores.directories.root.appendingPathComponent("nowhere.sqlite")
+        let refused = await Task.detached { (try? MailStores.openIndexForCounting(at: missing)) == nil }.value
+        XCTAssertTrue(refused, "read only: a missing store is not made")
+        XCTAssertFalse(FileManager.default.fileExists(atPath: missing.path))
+    }
+
+    /// What the launch's count costs on a full Inbox, off the main thread: 2,000 conversations,
+    /// half unread. Printed for the launch report; bounded loosely so a regression shows.
+    func testTheLaunchCountOfALargeInboxIsQuick() async throws {
+        let stores = try await stores()
+        _ = try await MailWriter(stores: stores, sink: nil).transact { db in
+            var changes = MailStoreChange()
+            for n in 0..<2000 {
+                let wire = GmailMessage(id: "big-\(n)", threadId: "big-\(n)", labelIds: n % 2 == 0 ? ["INBOX", "UNREAD"] : ["INBOX"],
+                    historyId: 1, internalDate: Int64(1000 + n), payload: GmailPart(headers: [GmailHeader(name: "Subject", value: "Big \(n)")]))
+                changes.formUnion(try MailMessageImporter.apply(FetchedMessage(wire: wire, floor: 1, headers: MessageHeaders(payload: wire.payload), structure: nil),
+                    account: "a@example.com", myAddresses: ["a@example.com"], in: db))
+            }
+            return changes
+        }
+        let url = stores.directories.indexDatabase
+        let (unread, ms) = try await Task.detached { () -> (Int, Double) in
+            let began = Date()
+            let queue = try MailStores.openIndexForCounting(at: url)
+            let counts = try queue.read { try MailIndexReader.counts(PageRequest(view: .unified(.inbox), account: nil, filters: [],
+                before: nil, limit: 1, allowedAccounts: ["a@example.com"]), in: $0) }
+            return (counts.unread, Date().timeIntervalSince(began) * 1000)
+        }.value
+        print("mail-badge launch count: \(unread) unread of 2000 in \(Int(ms.rounded())) ms (open + count, read only)")
+        XCTAssertEqual(unread, 1000)
+        XCTAssertLessThan(ms, 500)
+    }
+
+    func testInboxCountCapsAtTenThousand() {
+        let place = MailInboxCount.place(unread: 12_000, total: MailCount(value: 10_000, isAtLeast: true))
+        XCTAssertEqual(place.unread, MailCount(value: 10_000, isAtLeast: true))
+        XCTAssertEqual(MailInboxCount.place(unread: 3, total: MailCount(value: 9, isAtLeast: false)).unread,
+                       MailCount(value: 3, isAtLeast: false))
+    }
+
     func testActionSetupPublishesInitialRemovalStatusBeforeReturning() async throws {
         let (stores, intent, _, _) = try await actionSource()
         try await stores.index.write { db in

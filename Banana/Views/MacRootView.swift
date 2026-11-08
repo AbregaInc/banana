@@ -313,13 +313,17 @@ struct MacRootView: View {
                         CloudSyncPoll.resume()
                     }
                     .task { if !Self.isolatedPreview { CloudSyncPoll.resume() } }
-                    // Mail's badge on the rail (the Inbox count) needs Mail's store open: open it
-                    // a moment after launch when Mail is on.
+                    // Mail's badge on the rail (unread in the Inbox) before Mail has started: the
+                    // launch mirror, then one read-only count (`MailBadgeLaunchRead`).
                     .task {
                         #if BANANA_UNRELEASED
-                        guard !Self.isolatedPreview else { return }
+                        guard !Self.isolatedPreview, ModuleStore.shared.includes(.email) else { return }
+                        if let mirrored = MailBadgeLaunchRead.mirrored() { ActionBadges.shared.setMailInbox(mirrored) }
                         try? await Task.sleep(for: .seconds(2))
-                        if ModuleStore.shared.includes(.email) { MailApplication.shared.start() }
+                        guard MailApplication.shared.session == nil else { return }
+                        if let unread = await MailBadgeLaunchRead.read(), MailApplication.shared.session == nil {
+                            ActionBadges.shared.setMailInbox(unread)
+                        }
                         #endif
                     }
                     #if DEBUG

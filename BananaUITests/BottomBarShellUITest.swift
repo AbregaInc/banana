@@ -97,9 +97,13 @@ final class BottomBarShellUITest: XCTestCase {
         XCTAssertTrue(plan.waitForExistence(timeout: 5))
         XCTAssertTrue((plan.value as? String)?.contains("need") == true, "Plan carries its own count: \(plan.value ?? "")")
         XCTAssertEqual(app.buttons["shell.page.settings"].value as? String ?? "", "", "a page with nothing waiting has no count")
+        // Mail: unread in the Inbox, not every conversation in it (the title's number).
         let mail = app.buttons["shell.page.mail"]
-        XCTAssertTrue(mail.exists && (mail.value as? String)?.contains("need") == true, "Mail carries the Inbox count: \(mail.value ?? "")")
+        let unread = Int((mail.value as? String ?? "").split(separator: " ").first ?? "") ?? 0
+        XCTAssertGreaterThan(unread, 0, "Mail carries the Inbox's unread: \(mail.value ?? "")")
         shot("switcher-open")
+        // The sample Inbox holds 40 conversations (its title's number); the badge is fewer.
+        XCTAssertLessThan(unread, 40, "the badge is unread (\(unread)), not every conversation")
     }
 
     // MARK: Plan paging

@@ -11,11 +11,12 @@ extension MailSession {
     }
     @MainActor private static var inboxBadgeWatch: MailObservation?
 
-    /// Mail's badge in the shell: the Inbox count its title shows, as the source publishes it
-    /// (the read happens off the main thread; one row is asked for, the count is what is kept).
+    /// Mail's badge in the shell: the unified Inbox's unread conversations, as the source
+    /// publishes them with the places (`mailboxCounts[.inbox].unread`, counted off the main
+    /// thread at most once a second).
     @MainActor private static func watchInboxForBadge(_ session: MailSession) {
-        inboxBadgeWatch = session.source.observeList(MailSession.inbox, limit: 1) { snapshot in
-            ActionBadges.shared.setMailInbox(snapshot.total.value)
+        inboxBadgeWatch = session.source.observePlaces { places in
+            ActionBadges.shared.setMailInbox(places.mailboxCounts[.inbox]?.unread.value ?? 0)
         }
     }
     @MainActor private static var launched = false

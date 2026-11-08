@@ -15,8 +15,9 @@ final class ActionBadges: ObservableObject {
     static let shared = ActionBadges()
 
     @Published private(set) var counts = ActionItems.Counts()
-    /// Mail's badge in the shell: the Inbox count its title shows, as the mail source publishes
-    /// it (`MailListSnapshot.total`, read off the main thread). Not on the app icon.
+    /// Mail's badge in the shell: the unified Inbox's unread conversations, as the mail source
+    /// publishes them (`MailPlaces.mailboxCounts[.inbox].unread`, counted off the main thread).
+    /// Not on the app icon.
     @Published private(set) var mailInbox = 0
 
     func setMailInbox(_ count: Int) {

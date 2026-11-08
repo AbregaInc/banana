@@ -90,11 +90,14 @@ plus Mail's (`ShellBadge`):
 
 - **Plan**: overdue reminders.
 - **Body**: meals to log or check, and doses due and not yet marked (the old Body tab's count).
-- **Mail**: the Inbox count its title shows ("Inbox 40": conversations in the Inbox, across
-  accounts in the unified Inbox), as the mail source publishes it (`MailListSnapshot.total`,
-  observed with one row by `MailSession`'s badge watch, read off the main thread, kept in
-  `ActionBadges.mailInbox`). Mail's store opens two seconds after launch when Mail is on, so
-  the badge is there before Mail is opened. Not on the app icon.
+- **Mail**: the unified Inbox's unread conversations (across accounts), as the mail source
+  publishes them with the places (`MailPlaces.mailboxCounts[.inbox].unread`, a `MailCount`):
+  the live source counts them on the index's queue (`unread = 1` on the view's partial index,
+  capped at 10,000 with "+"), at most once a second and after each commit that touches a view,
+  only while the places are observed; kept in `ActionBadges.mailInbox`. The Inbox title keeps
+  its own number (conversations, read or not). Mail's store opens two seconds after launch when
+  Mail is on, so the badge is there before Mail is opened: it opens the index and reads; no
+  network, no sync starts until Mail is shown. Not on the app icon.
 - **Notes, Library, Review, Settings**: none.
 
 The closed switcher circle carries the pages that are on, added up; open, each page's circle

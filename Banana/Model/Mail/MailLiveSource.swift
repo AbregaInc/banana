@@ -74,6 +74,13 @@ import GRDB
     private var subscriptions: [UUID: Subscription] = [:]
     private var accountObservers: [UUID: @MainActor ([MailAccount]) -> Void] = [:]
     private var placeObservers: [UUID: @MainActor (MailPlaces) -> Void] = [:]
+    /// The unified Inbox's unread and total, for `places.mailboxCounts[.inbox]` (the shell's Mail
+    /// badge): read off the main thread on the index's queue, at most once a second
+    /// (`refreshInboxCount`), only while someone observes the places.
+    private var inboxCount: MailPlaceCount?
+    private var inboxCountTask: Task<Void, Never>?
+    private var inboxCountAgain = false
+    private var inboxCountReadAt = Date.distantPast
     private var labelCatalog = MailLabelCatalog.Reading()
     private var labelTasks: [String: Task<Void, Never>] = [:]
     private var labelReadTask: Task<Void, Never>?
@@ -191,13 +198,49 @@ import GRDB
     }
     func observePlaces(_ onChange: @escaping @MainActor (MailPlaces) -> Void) -> MailObservation {
         let id = UUID(); placeObservers[id] = onChange; onChange(places)
+        refreshInboxCount()
         return MailObservation { [weak self] in Task { @MainActor in self?.placeObservers[id] = nil } }
     }
     private var places: MailPlaces {
         MailPlaces(splits: [MailSplit(id: MailSplit.importantID, name: "Important", query: nil),
                            MailSplit(id: MailSplit.calendarID, name: "Calendar", query: nil),
                            MailSplit(id: MailSplit.otherID, name: "Other", query: nil)],
-            splitCounts: [:], mailboxCounts: [:], outboxNeedsAnswer: false, labels: labelCatalog.places.filter { readAccounts.contains($0.key.lowercased()) })
+            splitCounts: [:], mailboxCounts: inboxCount.map { [.inbox: $0] } ?? [:], outboxNeedsAnswer: false,
+            labels: labelCatalog.places.filter { readAccounts.contains($0.key.lowercased()) })
+    }
+
+    /// Reads the unified Inbox's counts again: no sooner than a second after the last reading,
+    /// and once more after it if anything changed while it ran. The read is the index's
+    /// (`MailIndexReader.counts`, `unread = 1` on its partial index); the main thread only
+    /// compares and publishes.
+    private func refreshInboxCount() {
+        guard !placeObservers.isEmpty else { return }
+        guard inboxCountTask == nil else { inboxCountAgain = true; return }
+        inboxCountAgain = false
+        let wait = max(0, 1 - Date().timeIntervalSince(inboxCountReadAt))
+        inboxCountTask = Task { [weak self] in
+            if wait > 0 { try? await Task.sleep(for: .seconds(wait)) }
+            guard let self, !Task.isCancelled else { return }
+            self.inboxCountReadAt = Date()
+            let request = PageRequest(view: .unified(.inbox), account: nil, filters: [], before: nil, limit: 1,
+                                      allowedAccounts: self.readAccounts)
+            let counts = try? await MailIndexReader(stores: self.stores).counts(request)
+            self.inboxCountTask = nil
+            if let counts {
+                let value = MailInboxCount.place(unread: counts.unread, total: counts.total)
+                if value != self.inboxCount {
+                    self.inboxCount = value
+                    if self.badges.value.unreadInFirstSplit != value.unread.value {
+                        self.badges.value.unreadInFirstSplit = value.unread.value
+                        // The launch mirror (12.4): the badge has a number before any store opens.
+                        self.badges.value.mirror(to: .standard)
+                    }
+                    let places = self.places
+                    for callback in self.placeObservers.values { callback(places) }
+                }
+            }
+            if self.inboxCountAgain { self.refreshInboxCount() }
+        }
     }
     private var observedReadAccounts: Set<String>?
     private var readAccounts: Set<String> { Set(access.connectedAccountIDs.map { $0.lowercased() }) }
@@ -365,6 +408,7 @@ import GRDB
         if change.labelsChanged { refreshLabelCatalog() }
         if active, !change.conversations.isEmpty { searchIndexer.kick() }
         guard !change.viewKeys.isEmpty || !change.conversations.isEmpty else { return }
+        refreshInboxCount()
         for (token, subscription) in conversationSubscriptions where change.conversations.contains(subscription.id) {
             refreshConversation(token)
         }
@@ -373,6 +417,7 @@ import GRDB
     }
     func checkNow() {
         publishAccounts()
+        refreshInboxCount()
         refreshDrafts()
         resumeDraftDelivery()
         refreshRemovalStatus()
@@ -559,6 +604,7 @@ import GRDB
             observedReadAccounts = current
             firstPages.removeAll(); firstPageOrder.removeAll()
             for id in subscriptions.keys { refresh(id) }
+            refreshInboxCount()
             let value = places
             for callback in placeObservers.values { callback(value) }
         }
@@ -1474,4 +1520,15 @@ extension MailLiveSource {
     }
 }
 
+/// The Inbox's counts as a place's (`MailPlaceCount`): unread conversations and all of them,
+/// each capped where the index stops counting, "10,000+".
+enum MailInboxCount {
+    static let cap = 10_000
+
+    static func place(unread: Int, total: MailCount) -> MailPlaceCount {
+        MailPlaceCount(unread: MailCount(value: min(cap, unread), isAtLeast: unread > cap), total: total)
+    }
+}
+
 #endif
+

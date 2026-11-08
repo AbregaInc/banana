@@ -94,8 +94,12 @@ final class WideShellUITest: XCTestCase {
         XCTAssertTrue(app.descendants(matching: .any)["shell.rail"].waitForExistence(timeout: 8))
         XCTAssertTrue(waitUntil(timeout: 5) { (plan.value as? String)?.contains("need") == true }, "\(plan.value ?? "")")
         XCTAssertEqual(app.buttons["shell.page.settings"].value as? String ?? "", "")
-        XCTAssertTrue(waitUntil(timeout: 5) { (app.buttons["shell.page.mail"].value as? String)?.contains("need") == true },
-                      "Mail's rail circle carries the Inbox count")
+        let mail = app.buttons["shell.page.mail"]
+        XCTAssertTrue(waitUntil(timeout: 5) { (mail.value as? String)?.contains("need") == true },
+                      "Mail's rail circle carries the Inbox's unread")
+        let unread = Int((mail.value as? String ?? "").split(separator: " ").first ?? "") ?? 0
+        // The sample Inbox holds 40 conversations (its title's number); the badge is fewer.
+        XCTAssertLessThan(unread, 40, "unread, not the title's every conversation")
         shot("pad-land-rail-badge")
     }
 

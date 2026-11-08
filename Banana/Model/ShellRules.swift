@@ -199,10 +199,10 @@ enum PlanTopRow {
 
 /// The pages' badges: what the old tab bar badged, page by page, from the same counts
 /// (`ActionItems.Counts`); their sum on the closed switcher circle. Plan: overdue reminders.
-/// Body: meals to log or check and doses due (the old Body tab's count). Mail: the Inbox count
-/// its title shows (the owner's ruling of 7 Nov 2026). No other page has one.
+/// Body: meals to log or check and doses due (the old Body tab's count). Mail: the unified
+/// Inbox's unread conversations (the owner's ruling of 7 Nov 2026). No other page has one.
 enum ShellBadge {
-    /// `mail`: the Inbox count its title shows (`ActionBadges.mailInbox`).
+    /// `mail`: the unified Inbox's unread conversations (`ActionBadges.mailInbox`).
     static func count(_ page: ShellPage, _ counts: ActionItems.Counts, mail: Int = 0) -> Int {
         switch page {
         case .plan: counts.plan
