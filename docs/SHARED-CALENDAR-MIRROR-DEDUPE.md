@@ -171,9 +171,8 @@ Two rules made it:
   family group, so `GoogleCalendar.isOwnedByAccount` called it the owner's own. Its events then
   blocked the owner's time by default (Blocks my time defaults to ownership since build 107) and
   were mirrored into every calendar the owner writes to, Personal included, which the partner can
-  read. A family calendar is now never one account's own (`GoogleCalendar.isFamilyCalendar`, and
-  `isFamilyCalendar` in the service): its events block time only when Blocks my time is switched on
-  for it, and copies go to it only when it is opted in.
+  read. Build 113 special-cased the family calendar's id; that is replaced by the rule below
+  ("Ownership is the primary or the data owner").
 - **Display.** A shared Busy mirror folded into its source only when both calendars had the same
   data owner. A writer copies what it can see, calendars shared with it included, so the copy's
   owner (the owner) and the source's calendar (the family's) differ. A mirror now folds into the
@@ -187,9 +186,40 @@ calendar as this person's only when the ledger recorded it or one of this person
 accounts created it (`BusyBlockCleanupPolicy.isOurs`); it never updates, deduplicates or removes
 another person's copy.
 
-Cleanup: once every device of the writer runs this build, the copies of current and future family
-events are unwanted and removed after `BlockRemovalGate`'s two healthy passes. Copies of past
-events stay: a pass never removes a block that is over. On the partner's side they fold into the
-event only if Google returns the copy's private properties to her; whether it does is still
-unknown (the troubleshooting report's `marker=` field shows it). A device on an older build keeps
-writing the copies until it updates.
+## November 8, later: ownership is the primary or the data owner
+
+The rule the family case broke: a calendar is the account's own only if it is the account's
+primary calendar, or Google names the account as its data owner (`dataOwner`). The owner role is
+not ownership (it is also what "make changes and manage sharing" grants), and an id that looks like
+the account's address is not the primary flag. A secondary calendar Google names no data owner for
+(a group's, the family calendar among them) is no one account's. A calendar that isn't the
+account's own blocks time only when Blocks my time is on for it, and receives Busy copies only when
+opted in. The same rule is `isAccountOwnedCalendar` in the service, for the web reader and booking
+availability. When a calendar is listed by several connected accounts, the owning account's entry
+is the one kept (`GoogleCalendar.onePerCalendar`). Each load notes in the playback journal which
+owner-role calendars are not the account's own, so the cost of the rule shows on real lists.
+
+## Why the copies stayed after build 113
+
+- Both Mac apps had written and removed nothing since the direct build replaced the App Store one
+  on 3 Nov: legacy adoption's dry run found nothing to tag (every Apple-Calendar-era block already
+  gone from Google) and still waited for a confirmation nobody was shown. A dry run that would tag
+  nothing now finishes on its own (`LegacyAdoptionDecision`).
+- The phone's first pass on 113 found the upcoming copies unwanted; `BlockRemovalGate` removes
+  them on a second complete pass at least 90 seconds later, and that pass had not yet run.
+- Copies of events that are over were never judged: the pass plans from today.
+
+## Copies whose source no longer qualifies, at any date
+
+A copy that should never have been written is wrong data whether its event is over or not. The
+pass judges current and future copies against what it plans. A sweep (`sweepCopiesIfDue`,
+`BusyCopySweep`, `MirrorSources`) judges the rest: every Busy copy of an event (`mirror-…`) that is
+this person's (the calendar is the account's own, the ledger recorded it, or one of the person's
+accounts created it) and whose event is over is removed unless an event read back over that time
+still calls for it, the same way the writer decides (`MeetingInfo.shouldMirrorBusyTime`, or an
+all-day event that blocks the day). There is no date limit: copies are found with one query per
+calendar filtered by Banana's private property over all dates, and events are read back from the
+start of the earliest copy judged. It runs every six hours, and on the next pass while removals wait
+for their second look. Safety is the pass's: nothing is removed unless every read was complete, two
+reads at least 90 seconds apart agree, and a removal that is a large share of every copy is held for
+confirmation. Past travel and task copies are left: their routes and reminders can't be re-derived.

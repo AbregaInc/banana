@@ -2,7 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {calendarAgenda,calendarSettings,includesCalendar,normalizedTitle,flightDestination,mirrorID} from '../src/web/calendar.js';
 import {visibleDays,eventOnDay,layoutEvents} from '../public/app/assets/plan-model.js';
-const cal=(id='personal',overrides={})=>({id,summary:id,accessRole:'owner',...overrides});
+// The viewer's own secondary calendar, as Google lists it: owner role and the viewer as data owner.
+const cal=(id='personal',overrides={})=>{const accessRole=overrides.accessRole??'owner';return {id,summary:id,accessRole,...(accessRole==='owner'?{dataOwner:'me@example.com'}:{}),...overrides};};
 const event=(id='one',overrides={})=>({id,summary:'Design review',start:{dateTime:'2026-10-05T15:00:00Z'},end:{dateTime:'2026-10-05T16:00:00Z'},...overrides});
 const fetched=(e,calendar=cal())=>({event:e,calendar,email:'me@example.com'});
 const build=(events,settings)=>calendarAgenda(events,settings);
@@ -101,7 +102,7 @@ test('shared calendars retain another person’s private Busy mirrors; ownership
     assert.equal(rows.length,1,`${role} ${marker}`);assert.equal(rows[0].title,'Busy');assert.equal(rows[0].showsAsFree,false);
     assert.equal(rows[0].calendarID,'person-one@gmail.com');assert.equal(rows[0].location,'');assert.equal(rows[0].description,'');assert.equal(rows[0].joinURL,'');
     assert.deepEqual(rows[0].attachments,[]);assert.equal(rows[0].organizer,null);
-    assert.equal(build([{event:e,calendar:cal('person-one@gmail.com',{accessRole:'owner'}),email:'person-one@gmail.com'}]).length,0,'the owner’s mirror remains hidden');
+    assert.equal(build([{event:e,calendar:cal('person-one@gmail.com',{accessRole:'owner',primary:true,dataOwner:undefined}),email:'person-one@gmail.com'}]).length,0,'the owner’s mirror remains hidden');
   }
 });
 test('shared privacy availability stays separate from unrelated simultaneous meetings and other people’s availability',()=>{
@@ -140,8 +141,9 @@ test('a mirror folds into its one visible source whoever owns either calendar; a
   }
   for(const e of [event('busy',{summary:'Busy'}),mirror('b',{extendedProperties:{private:{bananaVariant:'banana',bananaItemID:'travel-other'}}})])assert.equal(build([fetched(dinner(),ownerCal('personal')),fetched(e,ownerCal('fitness'))]).length,2);
 });
-test('a family calendar event and the partner’s Busy copy of it are one entry for the viewer',()=>{
-  const family=cal('family00000000000000000001@group.calendar.google.com',{summary:'Family',accessRole:'owner'});
+test('an event on a shared calendar and another person’s Busy copy of it are one entry for the viewer',()=>{
+  // A household calendar: owner role for every member, no data owner, so it is no one account’s own.
+  const family=cal('household@group.calendar.google.com',{summary:'Household',accessRole:'owner',dataOwner:undefined});
   const walk=event('walk',{summary:'Walk in the park'});
   const copy=event('copy',{summary:'Busy',extendedProperties:{private:{bananaVariant:'banana',bananaItemID:mirrorID('Walk in the park',Date.parse(walk.start.dateTime),Date.parse(walk.end.dateTime))}}});
   const partnerPersonal=cal('partner-personal@group.calendar.google.com',{summary:'Personal',accessRole:'reader',dataOwner:'partner@plan.example'});

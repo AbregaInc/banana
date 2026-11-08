@@ -759,6 +759,7 @@ final class GoogleCalendarService: ObservableObject {
     }
 
     private var lastJournaledProblems = ""
+    private var lastUnownedOwnerRoleTitles: [String] = []
 
     /// Why each calendar failed in the last core read, if it did.
     private var coreFailures: [String: String] = [:]
@@ -2318,8 +2319,17 @@ final class GoogleCalendarService: ObservableObject {
         // same id — "Holidays in United States" and the transferred dewey calendars all do.
         // Downstream code reasonably assumes a calendar id identifies one calendar, and two
         // entries sharing one id crashed a settings write outright.
-        var seen = Set<String>()
-        merged = merged.filter { seen.insert($0.id).inserted }
+        // The entry kept is the owning account's, when one of them owns it: ownership is decided
+        // per account (`isOwnedByAccount`), and keeping another account's entry would turn the
+        // person's own calendar into one merely shared with them.
+        merged = GoogleCalendar.onePerCalendar(merged)
+        let unowned = merged.filter { $0.accessRole == "owner" && !$0.isOwnedByAccount }.map(\.displayTitle).sorted()
+        if unowned != lastUnownedOwnerRoleTitles {
+            lastUnownedOwnerRoleTitles = unowned
+            if !unowned.isEmpty {
+                PlaybackDiagnostics.shared.log("calendars", "owner role but not this account's own (no primary flag, data owner absent or someone else): \(PlaybackDiagnostics.personal(unowned.joined(separator: ", ")))")
+            }
+        }
         calendars = merged.sorted {
             if $0.accountEmail != $1.accountEmail {
                 return $0.accountEmail.localizedCaseInsensitiveCompare($1.accountEmail) == .orderedAscending

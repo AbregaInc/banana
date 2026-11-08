@@ -1,6 +1,6 @@
 // Port of GoogleEventWindowBuilder, CalendarEventTitlePolicy and AllDayEvents.
 // Keep these decisions aligned with Banana/Model; web-calendar.test.js mirrors their native cases.
-import { calendarSettings, isFamilyCalendar } from '../calendar-preferences.js';
+import { calendarSettings, isAccountOwnedCalendar } from '../calendar-preferences.js';
 export { calendarSettings } from '../calendar-preferences.js';
 import flightData from './flight-data.json' with { type:'json' };
 const markers=new Set(['banana','banana-beta','quarters']);
@@ -56,12 +56,7 @@ export function includesCalendar(cal,email,record){
   return !excludedCalendars.some(c=>titles.includes(trim(c.calendarTitle).toLowerCase())&&trim(c.sourceTitle).toLowerCase().includes(email.toLowerCase()));
 }
 export function isViewerOwnedCalendar(cal,email){
-  if(cal.accessRole!=='owner'||isFamilyCalendar(cal.id))return false;
-  const viewer=trim(email).toLowerCase();
-  if(trim(cal.dataOwner))return trim(cal.dataOwner).toLowerCase()===viewer;
-  if(cal.primary)return true;
-  if(String(cal.id).includes('@')&&!String(cal.id).endsWith('.calendar.google.com'))return String(cal.id).toLowerCase()===viewer;
-  return true;
+  return isAccountOwnedCalendar(cal,email);
 }
 // Keep the writer's exact legacy FNV fingerprint, including Foundation's reference-date bits.
 export function mirrorID(title,start,end){

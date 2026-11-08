@@ -86,6 +86,15 @@ final class CalendarWriteBack: ObservableObject {
         }
     }
 
+    /// The same two-pass rule for the sweep of copies at every date (`sweepCopies`).
+    private var sweepRemovalGate: BlockRemovalGate {
+        didSet {
+            if let data = try? JSONEncoder().encode(sweepRemovalGate) {
+                defaults.set(data, forKey: DefaultsKey.sweepRemovalGate)
+            }
+        }
+    }
+
     private let defaults = UserDefaults.standard
     private nonisolated static let log = Logger(subsystem: "com.boris.banana", category: "calendarWriteBack")
     private var ledger: [AppItemID: LedgerEntry] = [:] { didSet { ledgerDirty = true } }
@@ -162,6 +171,8 @@ final class CalendarWriteBack: ObservableObject {
         static let questionAnswered = "calendarWriteBack.questionAnswered"
         static let excludedCalendarIdentities = "calendarWriteBack.excludedCalendarIdentities"
         static let removalGate = "calendarWriteBack.removalGate.v1"
+        static let sweepRemovalGate = "calendarWriteBack.sweepRemovalGate.v1"
+        static let lastSweep = "calendarWriteBack.lastSweep.v1"
         static let adoption = "calendarWriteBack.legacyAdoption.v1"
         static let adoptionCalendars = "calendarWriteBack.legacyAdoption.calendars.v1"
         /// Set the moment the person confirms. Adoption that is interrupted — the app suspended or
@@ -178,6 +189,8 @@ final class CalendarWriteBack: ObservableObject {
         goLive = defaults.bool(forKey: DefaultsKey.goLive)
         liveCalendarID = storedCalendarID
         removalGate = defaults.data(forKey: DefaultsKey.removalGate)
+            .flatMap { try? JSONDecoder().decode(BlockRemovalGate.self, from: $0) } ?? BlockRemovalGate()
+        sweepRemovalGate = defaults.data(forKey: DefaultsKey.sweepRemovalGate)
             .flatMap { try? JSONDecoder().decode(BlockRemovalGate.self, from: $0) } ?? BlockRemovalGate()
         loadLedger()
         adoption = loadAdoptionState()
@@ -546,7 +559,8 @@ final class CalendarWriteBack: ObservableObject {
         excluding excludedCalendarIDs: Set<String> = [],
         includingShared includedSharedCalendarIDs: Set<String> = [],
         reserveTaskTime: Bool = true,
-        sourcesHealthy: Bool
+        sourcesHealthy: Bool,
+        sourceExcluding sourceExcludedCalendarIDs: Set<String>? = nil
     ) async -> Int {
         self.reserveTaskTime = reserveTaskTime
         // What a pass would plan from, kept whether or not it writes: the first run's preview
@@ -624,7 +638,111 @@ final class CalendarWriteBack: ObservableObject {
                 : "write_back_failed",
             attributes: ["written": String(written), "error": lastError ?? ""])
         if lastError == nil { lastSyncDate = Date() }
+        if lastError == nil, sourcesHealthy, goLive, let sourceExcludedCalendarIDs {
+            await sweepCopiesIfDue(sourceExcluding: sourceExcludedCalendarIDs)
+        }
         return written
+    }
+
+    // MARK: - Copies whose source no longer qualifies, at any date
+
+    /// How often the whole history is swept when nothing is waiting for a second look.
+    private static let sweepInterval: TimeInterval = 6 * 3600
+
+    /// Removes this person's Busy copies of events, at every date, whose event no longer calls for
+    /// a copy (`BusyCopySweep`): a calendar that stopped blocking time, an event made Free,
+    /// deleted or renamed. The pass already does this for copies that are current or ahead; this
+    /// covers the ones whose event is over, which the pass never judges because it plans from
+    /// today on.
+    ///
+    /// Same safety as the pass: only this person's copies (`ours`), only after two complete reads
+    /// at least `BlockRemovalGate.confirmationDelay` apart agree, and a removal that is a large
+    /// share of every copy is held for the person to confirm (`MassRemovalGuard`). No date limit:
+    /// copies are found with one filtered query per calendar over all dates, and the events are
+    /// read back to the earliest copy judged. It runs every `sweepInterval`, and on the next pass
+    /// while removals wait for their second look.
+    private func sweepCopiesIfDue(sourceExcluding excluded: Set<String>) async {
+        let now = Date()
+        let last = defaults.object(forKey: DefaultsKey.lastSweep) as? Date
+        guard !sweepRemovalGate.pendingSince.isEmpty || last.map({ now.timeIntervalSince($0) >= Self.sweepInterval }) ?? true
+        else { return }
+        let google = GoogleCalendarService.shared
+        var copies: [String: [BusyCopyPlanner.Owned]] = [:]
+        var calendarOf: [String: String] = [:]   // event id → calendar info id
+        var ownedTotal = 0
+        for calendarID in google.writeBackCandidates.map(\.infoID).sorted() {
+            guard let raw = GoogleCalendarIDs.rawCalendarID(from: calendarID) else { continue }
+            let owned: [String: [GoogleCalendarService.OwnedBlock]]
+            do {
+                owned = try await ours(google.ownedBusyBlockDetails(calendarID: raw, variant: Self.scheme,
+                                                                    from: now, to: now, allDates: true), on: calendarID)
+            } catch where GoogleCalendarService.isCalendarGone(error) {
+                continue
+            } catch {
+                Log.writeBack.notice("[writeback] sweep skipped: a calendar's copies could not be read")
+                return
+            }
+            for (itemID, blocks) in owned {
+                ownedTotal += blocks.count
+                for block in blocks {
+                    calendarOf[block.eventID] = calendarID
+                    copies[itemID, default: []].append(BusyCopyPlanner.Owned(
+                        eventID: block.eventID, etag: block.etag, end: block.end, start: block.start))
+                }
+            }
+        }
+        var qualifying = Set<String>()
+        if let earliest = BusyCopySweep.earliestStart(copies: copies, now: now) {
+            let read = await google.windowFetch(from: Calendar.current.startOfDay(for: earliest), to: now,
+                                                excluding: excluded,
+                                                allDay: SmartScheduleStore.shared.settings.allDayChoice)
+            // A calendar that could not be read would make its events' copies look unwanted.
+            guard read.isComplete else {
+                Log.writeBack.notice("[writeback] sweep skipped: the events could not all be read")
+                return
+            }
+            qualifying = MirrorSources.qualifying(meetings: read.window.meetings, allDay: read.window.allDayEvents)
+        }
+        let unwanted = BusyCopySweep.unwanted(copies: copies, qualifying: qualifying, now: now)
+        var byKey: [String: (calendarID: String, blocks: [BusyCopyPlanner.Owned])] = [:]
+        for (itemID, blocks) in unwanted {
+            for block in blocks {
+                guard let calendarID = calendarOf[block.eventID] else { continue }
+                byKey[ledgerKey(appItemID: itemID, calendarID: calendarID), default: (calendarID, [])].blocks.append(block)
+            }
+        }
+        var confirmed = sweepRemovalGate.review(unwanted: Set(byKey.keys), sourcesHealthy: true, now: now)
+        if !confirmed.isEmpty, MassRemovalGuard.shouldHold(removing: confirmed.count, owned: ownedTotal),
+           !approveHeldRemovalsOnNextPass {
+            heldRemovalCount = confirmed.count
+            Log.writeBack.notice("[writeback] sweep HOLDING \(confirmed.count, privacy: .public) removal(s) of \(ownedTotal, privacy: .public) copies — waiting for confirmation")
+            confirmed = []
+        } else if !confirmed.isEmpty {
+            approveHeldRemovalsOnNextPass = false
+        }
+        var removed = 0
+        for key in confirmed.sorted() {
+            guard let target = byKey[key], let raw = GoogleCalendarIDs.rawCalendarID(from: target.calendarID) else { continue }
+            var allGone = true
+            for block in target.blocks {
+                do {
+                    try await google.deleteBusyBlock(calendarID: raw, eventID: block.eventID, expectedETag: block.etag)
+                    removed += 1
+                    lastSelfCommit = Date()
+                } catch {
+                    allGone = false
+                    lastError = "Couldn’t remove a busy block from a Google calendar: \(error.localizedDescription)"
+                }
+            }
+            if allGone { ledger[key] = nil }
+        }
+        sweepRemovalGate.forget(confirmed)
+        saveLedger()
+        if !byKey.isEmpty || removed > 0 {
+            Log.writeBack.notice("[writeback] sweep: \(byKey.count, privacy: .public) unwanted at any date, removed \(removed, privacy: .public), awaiting confirmation \(self.sweepRemovalGate.pendingSince.count, privacy: .public)")
+            PlaybackDiagnostics.shared.log("writeback: sweep", "\(byKey.count) copies no longer called for, removed \(removed), \(sweepRemovalGate.pendingSince.count) waiting for a second look")
+        }
+        if sweepRemovalGate.pendingSince.isEmpty { defaults.set(now, forKey: DefaultsKey.lastSweep) }
     }
 
     /// The window blocks are looked for in: a week back to beyond the travel horizon. Must cover
@@ -1286,7 +1404,17 @@ final class CalendarWriteBack: ObservableObject {
         // First time: a dry run only. Nothing is tagged until the person has seen what would be.
         adoption = .running(done: 0, total: 0)
         let preview = await adoptLegacyBlocks(dryRun: true)
-        adoption = preview.errors.isEmpty ? .awaitingConfirmation(preview) : .notStarted
+        guard preview.errors.isEmpty else { adoption = .notStarted; return }
+        // A question is only for something a yes would change. A dry run that would tag nothing
+        // (every old block already gone from Google) is finished: asking about it kept both Macs
+        // paused, writing and removing nothing, from 3 Nov 2026 until someone found the prompt.
+        if LegacyAdoptionDecision.isNothingToConfirm(preview) {
+            defaults.set(signature, forKey: DefaultsKey.adoptionCalendars)
+            adoption = .finished(preview)
+            saveAdoptionState()
+            return
+        }
+        adoption = .awaitingConfirmation(preview)
     }
 
     /// Find the Google copy of every block written through Apple Calendar, and tag it with
@@ -1467,30 +1595,5 @@ final class CalendarWriteBack: ObservableObject {
         } catch {
             // Leave ledgerDirty set so the next sync retries the write.
         }
-    }
-}
-
-/// What adopting Apple-Calendar-written blocks found. Every block ends up in exactly one bucket.
-struct LegacyAdoptionReport: Codable, Equatable {
-    var dryRun = false
-    var examined = 0
-    /// Tagged as Banana's (or, in a dry run, would be).
-    var adopted = 0
-    /// Another device had already tagged the same event.
-    var alreadyAdopted = 0
-    /// Apple Calendar no longer has the event: it was deleted, so there is nothing to adopt.
-    var goneFromAppleCalendar = 0
-    /// The block is on a calendar that is not a connected Google calendar.
-    var notOnGoogle = 0
-    /// Google has no event with that UID starting at the same time.
-    var notFoundInGoogle = 0
-    /// Written by the other build (production vs beta); left for it.
-    var otherVariant = 0
-    /// Failed a safety check (has attendees, no UID) and was left alone.
-    var failedChecks = 0
-    var errors: [String] = []
-
-    var summary: String {
-        "\(dryRun ? "DRY RUN — " : "")examined \(examined): adopted \(adopted), already adopted \(alreadyAdopted), gone \(goneFromAppleCalendar), not on Google \(notOnGoogle), not found in Google \(notFoundInGoogle), other build \(otherVariant), failed checks \(failedChecks), errors \(errors.count)"
     }
 }

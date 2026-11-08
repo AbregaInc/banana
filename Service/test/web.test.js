@@ -285,7 +285,7 @@ test('calendar choices apply to booking availability too; muting does not change
   const {s,who}=await fixture();
   s.google.person('ann-grant','ann-sub','ann@example.com','ann-refresh');
   await s.signIn('ann-grant',device('phone-ann-0001'));
-  s.google.calendars.set('ann-refresh',[{id:'mine',summary:'Personal',accessRole:'owner'},{id:'wife',summary:'Family',accessRole:'reader'}]);
+  s.google.calendars.set('ann-refresh',[{id:'mine',summary:'Personal',accessRole:'owner',dataOwner:'ann@example.com'},{id:'wife',summary:'Family',accessRole:'reader'}]);
   for(const id of ['mine','wife']) s.google.events.set(id,[{id:'event',start:{dateTime:new Date(s.now()+3600000).toISOString()},end:{dateTime:new Date(s.now()+7200000).toISOString()}}]);
   const vault=createVault(s.deps.config.tokenKey,s.deps.random);
   const read=settings=>readBusy(s.deps,vault,who.account.id,{from:s.now(),to:s.now()+DAY,settings:{v:settings}});

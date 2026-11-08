@@ -28,6 +28,7 @@ enum BusyCopyPlanner {
         /// What the copy says on the server now, in the same terms as `Desired.content`. Nil when
         /// unknown: then only this device's own record can show it is unchanged.
         var content: String? = nil
+        var start: Date? = nil
     }
 
     /// What this device last wrote for a ledger key.

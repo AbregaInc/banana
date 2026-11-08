@@ -11,20 +11,19 @@ export function calendarNotifies(record, calendarID) {
     && !(settings.excludedCalendarIDs ?? []).some(id => id === calendarID || id === calendarInfoID(calendarID));
 }
 
-// Google's family calendar: every family member manages it, so its "owner" role is everyone's.
-// Mirrors GoogleCalendar.isFamilyCalendarID.
-export const isFamilyCalendar = id => /^family[0-9]+@group\.calendar\.google\.com$/i.test(String(id ?? ''));
+// The account's own calendar: its primary, or one whose Google data owner is the account. The owner
+// role alone is not ownership (manage-sharing access grants it, group calendars have no data owner).
+// Mirrors GoogleCalendar.isOwnedByAccount.
+export function isAccountOwnedCalendar(calendar, accountEmail) {
+  if (calendar?.primary === true) return true;
+  const viewer = String(accountEmail ?? '').trim().toLowerCase();
+  const owner = String(calendar?.dataOwner ?? '').trim().toLowerCase();
+  return Boolean(owner) && Boolean(viewer) && owner === viewer;
+}
 
-// Manager permission alone does not establish personal ownership.
 export function calendarBlocksTime(record, calendar, accountEmail) {
   const {settings} = calendarSettings(record);
   const override = settings.calendarBlockingOverrides?.[calendar.id];
   if (typeof override === 'boolean') return override;
-  if (calendar.accessRole !== 'owner' || isFamilyCalendar(calendar.id)) return false;
-  const viewer = String(accountEmail ?? '').trim().toLowerCase();
-  const owner = String(calendar.dataOwner ?? '').trim().toLowerCase();
-  if (owner) return owner === viewer;
-  if (calendar.primary) return true;
-  if (calendar.id.includes('@') && !calendar.id.endsWith('.calendar.google.com')) return calendar.id.toLowerCase() === viewer;
-  return true;
+  return isAccountOwnedCalendar(calendar, accountEmail);
 }
