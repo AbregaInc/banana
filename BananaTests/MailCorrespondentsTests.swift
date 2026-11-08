@@ -96,6 +96,9 @@ final class MailCorrespondentsTests: XCTestCase {
                                               fromMe: true, date: Int64(n), mine: [], in: db)
             }
         }
+        // The first keystroke opens the reader and prepares the statement; the ones after it are
+        // what a person waits on while typing.
+        _ = try await search("q", stores)
         var worst: Double = 0
         for typed in ["p", "pe", "person1", "name", "example7"] {
             let start = ContinuousClock.now

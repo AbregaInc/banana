@@ -316,7 +316,8 @@ final class BottomBarShellUITest: XCTestCase {
                       || app.textViews.firstMatch.waitForExistence(timeout: 3), "Reply opened no composer")
         // The composer is the bar grown into a box (direction A): pulling the thread down folds it
         // into the field, and "…" › Discard draft puts it away; then the bar has Archive again.
-        app.swipeDown(velocity: .fast)
+        let pull = any(app, "mail.conversation.title").coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
+        pull.press(forDuration: 0.05, thenDragTo: pull.withOffset(CGVector(dx: 0, dy: 220)))
         XCTAssertTrue(any(app, "mail.composer.folded").waitForExistence(timeout: 5), "the box folded into the field")
         more.tap()
         let discard = app.buttons["mail.more.discardDraft"].firstMatch

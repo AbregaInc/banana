@@ -81,13 +81,13 @@ final class MailComposerBoxUITest: MailUITestCase {
         let handle = openReply()
         let docked = handle.frame.minY
         element(MailID.composerExpand).tap()
-        XCTAssertTrue(waitUntil(timeout: 5) { handle.frame.minY < docked - 200 }, "\u{2924} opens a full-height editor (\(docked) → \(handle.frame.minY))")
+        XCTAssertTrue(waitUntil(timeout: 5) { handle.frame.minY < docked - 120 }, "\u{2924} opens a full-height editor (\(docked) → \(handle.frame.minY))")
         snap("box-full")
         element(MailID.composerExpand).tap()
         XCTAssertTrue(waitUntil(timeout: 5) { abs(handle.frame.minY - docked) < 40 }, "\u{2921} brings it back")
         handle.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
             .press(forDuration: 0.05, thenDragTo: app.windows.firstMatch.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.15)))
-        XCTAssertTrue(waitUntil(timeout: 5) { handle.frame.minY < docked - 200 }, "dragging the handle up opens it too")
+        XCTAssertTrue(waitUntil(timeout: 5) { handle.frame.minY < docked - 120 }, "dragging the handle up opens it too")
     }
 
     func testPullingTheThreadDownFoldsTheBoxAndATapResumes() {

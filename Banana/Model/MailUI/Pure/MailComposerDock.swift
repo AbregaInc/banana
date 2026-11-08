@@ -30,6 +30,8 @@ struct MailComposerDock: Equatable, Sendable {
         case none
         /// The caret goes back into the body.
         case focusBody
+        /// The box changed size under the caret: it stays where it was, and so does the keyboard.
+        case keepFocus
         /// Put away, the draft kept: the session closes the composer as Back does.
         case putAway
     }
@@ -49,20 +51,20 @@ struct MailComposerDock: Equatable, Sendable {
     mutating func handle(_ event: Event) -> Effect {
         switch (event, mode) {
         case (.expand, .docked):
-            mode = .full; return .none
+            mode = .full; return .keepFocus
         case (.expand, .folded):
             mode = .full; return .focusBody
         case (.collapse, .full):
-            mode = .docked; return .none
+            mode = .docked; return .keepFocus
         case (.dragEnded(let dy), .docked):
-            if dy <= -Self.dragThreshold { mode = .full; return .none }
+            if dy <= -Self.dragThreshold { mode = .full; return .keepFocus }
             if dy >= Self.awayDistance { return .putAway }
             if dy >= Self.dragThreshold { mode = .folded }
             return .none
         case (.dragEnded(let dy), .full):
             // From the full height a long pull goes past the docked box and away.
             if dy >= Self.awayDistance * 2 { return .putAway }
-            if dy >= Self.dragThreshold { mode = .docked }
+            if dy >= Self.dragThreshold { mode = .docked; return .keepFocus }
             return .none
         case (.dragEnded(let dy), .folded):
             if dy <= -Self.dragThreshold { mode = .docked; return .focusBody }

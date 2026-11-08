@@ -397,6 +397,7 @@ final class MailSession {
         switch effect {
         case .none: break
         case .focusBody: composer.askForFocus(.body)
+        case .keepFocus: composer.askForFocus()
         case .putAway: closeComposer()
         }
     }

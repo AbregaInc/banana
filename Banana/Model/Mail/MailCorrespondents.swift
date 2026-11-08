@@ -57,16 +57,19 @@ enum MailCorrespondents {
     static func search(_ text: String, limit: Int, mine: Set<String>, now: Date = Date(), in db: Database) throws -> [MailPerson] {
         let needle = text.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         guard !needle.isEmpty, limit > 0 else { return [] }
-        let rows = try Row.fetchAll(db, sql: """
-            SELECT c.addr,c.name,c.sent,c.received,c.last_date FROM correspondent c
-            WHERE c.addr IN (SELECT addr FROM correspondent_key WHERE key>=? AND key<? LIMIT 400)
-            """, arguments: [needle, needle + "\u{FFFF}"])
+        // One indexed range of the keys, joined to the people it names; a person found by two of
+        // their keys (a word and the address) is one candidate.
+        let rows = try Row.fetchAll(db.cachedStatement(sql: """
+            SELECT c.addr,c.name,c.sent,c.received,c.last_date FROM correspondent_key k
+            JOIN correspondent c ON c.addr=k.addr WHERE k.key>=? AND k.key<? LIMIT 400
+            """), arguments: [needle, needle + "\u{FFFF}"])
+        var seen = Set<String>()
         let nowMS = now.timeIntervalSince1970 * 1000
         struct Candidate { var person: MailPerson; var score: Double }
         var candidates: [Candidate] = []
         for row in rows {
             let address: String = row[0]
-            guard !mine.contains(address) else { continue }
+            guard !mine.contains(address), seen.insert(address).inserted else { continue }
             let sent: Int = row[2], received: Int = row[3], last: Int64 = row[4]
             let name: String? = row[1]
             // Frequency, damped by how long ago: a month away halves it.
