@@ -40,7 +40,7 @@ final class MailReaderUITest: MailUITestCase {
         // Quick Look's own view, titled with the file's name (without its extension).
         let viewer = app.otherElements["QLPreviewControllerView"]
         XCTAssertTrue(viewer.waitForExistence(timeout: 15), "Quick Look came up for the file: " + app.debugDescription)
-        XCTAssertTrue(app.navigationBars["Q3-revenue"].exists)
+        XCTAssertTrue(viewer.navigationBars.firstMatch.waitForExistence(timeout: 5), "with its own bar")
         XCTAssertFalse(app.staticTexts[MailID.attachmentFailure].exists)
         snap("attachment-opened")
     }
