@@ -23,7 +23,9 @@ images didn't show, meets it:
    items and reminders belong to the calendar: on its white, not on the header.
 4. **Real thumbnails.** A workout with a route shows the route; a meal with a photo shows it.
 5. **The Mac has one toolbar.** Every page in the main window: back, forward and Today, then the
-   title with its day or period (pages that show a time); the page's switch in the middle;
+   title with its day or period (pages that show a time). Plan's is one group, the same on an
+   iPad on its side: "‹", the period's name and dates under a chevron, "›", then Today
+   (`PlanPagingToolbar`); the page's switch in the middle;
    search, + and … at the right. Pages without dates keep the same places. Settings is its own
    window (⌘,), a `Settings` scene with its sections as toolbar icons.
 6. **Judge at real size.** A design is right only at a real phone width and a real window size.

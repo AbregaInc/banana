@@ -87,6 +87,50 @@ final class ShellRulesTests: XCTestCase {
         XCTAssertEqual(PlanTopRow.stepLabels(days: 3).next, "Next 3 days")
     }
 
+    /// Plan pages from one place in each shell: on an iPad on its side and the Mac one toolbar
+    /// group, "‹", the period, "›", then Today (always there, idle on the current period); in the
+    /// bottom-bar shell its top row; a date line under the bar only outside both.
+    func testPlanPagesFromOnePlacePerShell() {
+        XCTAssertEqual(PlanPaging.controls(.wide, isCurrent: true), [.previous, .period, .next, .today])
+        XCTAssertEqual(PlanPaging.controls(.wide, isCurrent: false), [.previous, .period, .next, .today],
+                       "the group doesn't shift when Today wakes")
+        XCTAssertFalse(PlanPaging.todayEnabled(isCurrent: true))
+        XCTAssertTrue(PlanPaging.todayEnabled(isCurrent: false))
+        XCTAssertEqual(PlanPaging.controls(.bottomBar, isCurrent: true), [.period, .previous, .next])
+        XCTAssertEqual(PlanPaging.controls(.bottomBar, isCurrent: false), [.period, .previous, .today, .next])
+        for shell in [PlanPaging.Shell.wide, .bottomBar] {
+            for isCurrent in [true, false] {
+                let controls = PlanPaging.controls(shell, isCurrent: isCurrent)
+                XCTAssertEqual(controls.count, Set(controls.map { "\($0)" }).count, "one of each in \(shell)")
+                XCTAssertFalse(controls.contains(.dateLine), "no date line under \(shell)'s bar")
+            }
+        }
+        XCTAssertFalse(PlanPaging.drawsDateLine(.wide))
+        XCTAssertFalse(PlanPaging.drawsDateLine(.bottomBar))
+        XCTAssertTrue(PlanPaging.drawsDateLine(.classic))
+        XCTAssertEqual(PlanPaging.shell(bottomBar: false, wide: true), .wide)
+        XCTAssertEqual(PlanPaging.shell(bottomBar: true, wide: false), .bottomBar)
+        XCTAssertEqual(PlanPaging.shell(bottomBar: false, wide: false), .classic)
+    }
+
+    /// The dates beside the period's name.
+    func testThePeriodPickerNamesTheDatesOnScreen() {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(identifier: "UTC")!
+        let locale = Locale(identifier: "en_US")
+        func date(_ y: Int, _ m: Int, _ d: Int) -> Date {
+            calendar.date(from: DateComponents(year: y, month: m, day: d))!
+        }
+        func dates(_ start: Date, _ days: Int) -> String {
+            PlanPaging.dates(start: start, days: days, calendar: calendar, locale: locale)
+        }
+        XCTAssertEqual(dates(date(2026, 11, 4), 1), "Wed, Nov 4")
+        XCTAssertEqual(dates(date(2026, 11, 2), 7), "Nov 2\u{2013}8")
+        XCTAssertEqual(dates(date(2026, 11, 8), 3), "Nov 8\u{2013}10")
+        XCTAssertEqual(dates(date(2026, 10, 30), 7), "Oct 30\u{2013}Nov 5")
+        XCTAssertEqual(dates(date(2026, 12, 29), 7), "Dec 29, 2026\u{2013}Jan 4, 2027")
+    }
+
     /// One rail width for the iPad and the Mac: the circles with room either side, clear of the
     /// Mac window's buttons, and slim (the Mac's first build drew a ~200 pt sidebar).
     func testTheRailIsSlimHoldsItsCirclesAndClearsTheWindowButtons() {

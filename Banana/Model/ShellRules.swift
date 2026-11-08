@@ -197,6 +197,57 @@ enum PlanTopRow {
     }
 }
 
+/// Where Plan's paging is, by shell: one place each for "‹ ›", the period and Today. The wide
+/// toolbar (an iPad on its side, the Mac) has one group, the Mac's (8 Nov 2026): "‹", the period
+/// picker, "›", then Today, idle on the current period (`PlanPagingToolbar`). The bottom-bar shell
+/// (a phone, an iPad upright) has its own top row (`PlanTopRow`). Only outside both shells is
+/// there a date line under the bar: an iPad on its side had it under the toolbar's group, a second
+/// "‹ ›", a second Today and the period named twice.
+enum PlanPaging {
+    enum Shell: Equatable, Sendable { case classic, bottomBar, wide }
+    enum Control: Equatable, Sendable { case previous, period, next, today, dateLine }
+
+    static func shell(bottomBar: Bool, wide: Bool) -> Shell {
+        wide ? .wide : bottomBar ? .bottomBar : .classic
+    }
+
+    /// What a shell's Plan pages with, left to right.
+    static func controls(_ shell: Shell, isCurrent: Bool) -> [Control] {
+        switch shell {
+        case .wide: [.previous, .period, .next, .today]
+        case .bottomBar: [.period, .previous] + (PlanTopRow.showsToday(isCurrent: isCurrent) ? [.today] : []) + [.next]
+        case .classic: [.period, .dateLine]
+        }
+    }
+
+    /// The date line under the bar: only where the bar does not page.
+    static func drawsDateLine(_ shell: Shell) -> Bool {
+        controls(shell, isCurrent: true).contains(.dateLine)
+    }
+
+    /// The wide group's Today is always there, so the group never shifts; it acts away from now.
+    static func todayEnabled(isCurrent: Bool) -> Bool { !isCurrent }
+
+    /// The dates beside the period's name: "Wed, Nov 4" for a day; "Nov 2–8", "Oct 30–Nov 5" or
+    /// "Dec 29, 2026–Jan 4, 2027" for more.
+    static func dates(start: Date, days: Int, calendar: Calendar = .current, locale: Locale = .current) -> String {
+        let style = Date.FormatStyle(locale: locale, calendar: calendar, timeZone: calendar.timeZone)
+        guard days > 1, let last = calendar.date(byAdding: .day, value: days - 1, to: start) else {
+            return start.formatted(style.weekday(.abbreviated).month(.abbreviated).day())
+        }
+        let sameYear = calendar.component(.year, from: start) == calendar.component(.year, from: last)
+        let sameMonth = sameYear && calendar.component(.month, from: start) == calendar.component(.month, from: last)
+        if sameMonth {
+            return "\(start.formatted(style.month(.abbreviated).day()))\u{2013}\(last.formatted(style.day()))"
+        }
+        if sameYear {
+            return "\(start.formatted(style.month(.abbreviated).day()))\u{2013}\(last.formatted(style.month(.abbreviated).day()))"
+        }
+        let full = style.year().month(.abbreviated).day()
+        return "\(start.formatted(full))\u{2013}\(last.formatted(full))"
+    }
+}
+
 /// The pages' badges: what the old tab bar badged, page by page, from the same counts
 /// (`ActionItems.Counts`); their sum on the closed switcher circle. Plan: overdue reminders.
 /// Body: meals to log or check and doses due (the old Body tab's count). Mail: the unified

@@ -84,87 +84,122 @@ struct PlannerTab: View, Equatable {
     }
 }
 
-#if os(macOS)
-/// The Mac planner's one view control: Day, a few days or Week. The same two modes as the phone's switch (`PlanMode`), with
-/// the Mac's choice of how many days Week shows.
-/// Day, several days or Week as the Mac toolbar's title with a chevron (the wide shell).
-struct MacPlannerTitleMenu: View {
+/// Plan's period picker: the period's name with a chevron and its dates beside it; under the
+/// chevron Day and Week (the Mac adds 3 and 5 days). The middle of the wide toolbar's paging
+/// group (`PlanPagingToolbar`): one view on an iPad on its side and the Mac, so they can't drift.
+struct PlanPeriodMenu: View {
+    /// The dates on screen (`PlanPaging.dates`): beside the name, and its spoken value.
+    let dates: String
     @AppStorage("planMode") private var mode: PlanMode = .day
+    #if os(macOS)
     @AppStorage("macWeekSpan") private var span: MacWeekSpan = .sevenDays
-
-    private var title: String {
-        switch mode {
-        case .day: PlanMode.day.title
-        case .week: span.isAlignedWeek ? PlanMode.week.title : "\(span.rawValue) days"
-        }
-    }
-
-    var body: some View {
-        PageTitleMenu(title: title, identifier: "mac.planner.view") {
-            Button(PlanMode.day.title) { mode = .day }
-            Button("3 days") { mode = .week; span = MacWeekSpan(rawValue: 3) ?? .sevenDays }
-            Button("5 days") { mode = .week; span = MacWeekSpan(rawValue: 5) ?? .sevenDays }
-            Button(PlanMode.week.title) { mode = .week; span = .sevenDays }
-        }
-        .help("Day, several days or week (D, 2–7, W)")
-    }
-}
-
-struct MacPlannerViewMenu: View {
-    @AppStorage("planMode") private var mode: PlanMode = .day
-    @AppStorage("macWeekSpan") private var span: MacWeekSpan = .sevenDays
+    static let identifier = "mac.planner.view"
+    static let choices: [Choice] = [.day, .days(3), .days(5), .week]
+    #else
+    static let identifier = "plan.mode"
+    static let choices: [Choice] = [.day, .week]
+    #endif
 
     enum Choice: Hashable { case day, days(Int), week }
 
     private var choice: Binding<Choice> {
         Binding {
-            switch mode {
-            case .day: return .day
-            case .week: return span.isAlignedWeek ? .week : .days(span.rawValue)
-            }
+            #if os(macOS)
+            if mode == .week, !span.isAlignedWeek { return .days(span.rawValue) }
+            #endif
+            return mode == .day ? .day : .week
         } set: { new in
+            mode = new == .day ? .day : .week
+            #if os(macOS)
             switch new {
-            case .day: mode = .day
-            case .days(let n): mode = .week; span = MacWeekSpan(rawValue: n) ?? .sevenDays
-            case .week: mode = .week; span = .sevenDays
+            case .day: break
+            case .days(let n): span = MacWeekSpan(rawValue: n) ?? .sevenDays
+            case .week: span = .sevenDays
             }
+            #endif
+        }
+    }
+
+    private func name(_ choice: Choice) -> String {
+        switch choice {
+        case .day: PlanMode.day.title
+        case .days(let n): "\(n) days"
+        case .week: PlanMode.week.title
         }
     }
 
     var body: some View {
-        // The page's switch, in the top bar, as on every device (`PageSwitch`): it was a menu
-        // here, with the choice hidden until opened.
-        PageSwitch(label: "View", selection: choice,
-                   choices: [Choice.day, .days(3), .days(5), .week]) { choice in
-            switch choice {
-            case .day: PlanMode.day.title
-            case .days(let n): "\(n) days"
-            case .week: PlanMode.week.title
-            }
-        }
-        .help("Day, several days or week (D, 2–7, W)")
-        .accessibilityIdentifier("mac.planner.view")
-    }
-
-
-}
-#endif
-
-/// The Day · Week switch, in the top bar: the page switch every main page uses (`PageSwitch`).
-/// Day or Week as a title with a chevron: the wide shell's toolbar (`WeekView`).
-struct PlanModeTitleMenu: View {
-    @AppStorage("planMode") private var mode: PlanMode = .day
-
-    var body: some View {
-        PageTitleMenu(title: mode.title, identifier: "plan.mode") {
-            Picker("View", selection: $mode) {
-                ForEach(PlanMode.allCases) { Text($0.title).tag($0) }
+        PageTitleMenu(title: name(choice.wrappedValue), subtitle: dates.isEmpty ? nil : dates,
+                      identifier: Self.identifier) {
+            Picker("View", selection: choice) {
+                ForEach(Self.choices, id: \.self) { Text(name($0)).tag($0) }
             }
             .pickerStyle(.inline)
         }
+        // The dates beside the name on one line, whatever width class the toolbar reports.
+        .environment(\.layoutClass, .regular)
+        .accessibilityValue(dates)
+        #if os(macOS)
+        .help("Day, several days or week (D, 2–7, W)")
+        #endif
     }
 }
 
+/// Plan's paging in a wide toolbar (an iPad on its side, the Mac; docs/design/BOTTOM-BAR-SHELL.md):
+/// "‹", the period picker and "›" as one group, then Today on its own, idle on the current period
+/// (`PlanPaging`). `accessory` follows: the forecast, and a spinner while the dates load.
+struct PlanPagingToolbar<Accessory: View>: ToolbarContent {
+    /// The days on screen: 1 in Day, the span in Week.
+    let days: Int
+    let dates: String
+    let isCurrent: Bool
+    let step: (Int) -> Void
+    let toCurrent: () -> Void
+    @ViewBuilder let accessory: Accessory
+
+    #if os(macOS)
+    private static var leading: ToolbarItemPlacement { .navigation }
+    #else
+    private static var leading: ToolbarItemPlacement { .topBarLeading }
+    #endif
+
+    /// A pointer's tooltip; on the Mac with the key that does the same.
+    private static func help(_ text: String, key: String) -> String {
+        #if os(macOS)
+        "\(text) (\(key))"
+        #else
+        text
+        #endif
+    }
+
+    var body: some ToolbarContent {
+        let labels = PlanTopRow.stepLabels(days: days)
+        ToolbarItemGroup(placement: Self.leading) {
+            Button { step(-1) } label: { Image(systemName: "chevron.left") }
+                .help(Self.help(labels.previous, key: "K"))
+                .accessibilityLabel(labels.previous)
+                .accessibilityIdentifier("plan.previous")
+            PlanPeriodMenu(dates: dates)
+            Button { step(1) } label: { Image(systemName: "chevron.right") }
+                .help(Self.help(labels.next, key: "J"))
+                .accessibilityLabel(labels.next)
+                .accessibilityIdentifier("plan.next")
+        }
+        ToolbarSpacer(.fixed, placement: Self.leading)
+        ToolbarItem(placement: Self.leading) {
+            Button("Today") { toCurrent() }
+                .disabled(!PlanPaging.todayEnabled(isCurrent: isCurrent))
+                .help(Self.help("Go to today", key: "T"))
+                .accessibilityIdentifier("plan.today")
+        }
+        ToolbarItem(placement: Self.leading) {
+            HStack(spacing: DS.Space.s) { accessory }.fixedSize()
+        }
+        .sharedBackgroundVisibility(.hidden)
+    }
+}
+
+/// The Day · Week switch outside both shells: the page switch every main page uses (`PageSwitch`).
 struct PlanModePicker: View {
     var fills = false
     var widest: CGFloat = 204

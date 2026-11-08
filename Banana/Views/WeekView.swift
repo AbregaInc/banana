@@ -474,6 +474,9 @@ struct MacWeekView: View {
             // The period is the window title, so the content gets its full height: there is no
             // second header row under the toolbar any more.
             .navigationTitle(dateRangeTitle)
+            // The dates are the period picker's, in the paging group: the window keeps its title
+            // (the Window menu) without a second one in the toolbar.
+            .toolbar(removing: .title)
             .toolbar { plannerToolbar }
             .sheet(item: $editing) { RoutineEditorView(draft: $0, isNew: false) }
             .sheet(item: $eventSheet) {
@@ -799,32 +802,23 @@ struct MacWeekView: View {
     }
 
     /// Everything that acts on the planner, in the window's one toolbar (docs/design/
-    /// BOTTOM-BAR-SHELL.md, Wide): back, forward and Today, then Day, several days or Week under
-    /// the title with the forecast beside it; "Search or ask" and the assistant are the window's;
-    /// "…" holds sharing and Refresh. Adding is the field's (focused with nothing typed), and C,
-    /// S and ⇧⌘L still create, share availability and copy the booking link.
+    /// BOTTOM-BAR-SHELL.md, Wide): "‹", Day, several days or Week with the dates beside it, "›",
+    /// then Today and the forecast (`PlanPagingToolbar`, an iPad's on its side too); "Search or
+    /// ask" and the assistant are the window's; "…" holds sharing and Refresh. Adding is the
+    /// field's (focused with nothing typed), and C, S and ⇧⌘L still create, share availability
+    /// and copy the booking link.
     @ToolbarContentBuilder private var plannerToolbar: some ToolbarContent {
-        ToolbarItemGroup(placement: .navigation) {
-            // Plain buttons, as the date line's (`DateLine`): a ControlGroup was moved to the far end.
-            Button { moveWeek(-1) } label: { Image(systemName: "chevron.left") }
-                .help(dayMode ? "Previous day (K)" : (weekSpan.isAlignedWeek ? "Previous week (K)" : "Back \(weekSpan.rawValue) days (K)"))
-                .accessibilityLabel(PlanTopRow.stepLabels(days: visibleDayCount).previous)
-            Button { moveWeek(1) } label: { Image(systemName: "chevron.right") }
-                .help(dayMode ? "Next day (J)" : (weekSpan.isAlignedWeek ? "Next week (J)" : "Forward \(weekSpan.rawValue) days (J)"))
-                .accessibilityLabel(PlanTopRow.stepLabels(days: visibleDayCount).next)
-            Button("Today") { moveToCurrentWeek() }
-                .disabled(weekOffset == 0)
-                .help("Go to today (T)")
-            MacWeekLoadingSpinner(loading: loading)
-        }
-        ToolbarItem(placement: .navigation) { MacPlannerTitleMenu() }
-        // The forecast beside the title: the day shown in Day, today while it is in view.
-        ToolbarItem(placement: .navigation) {
+        PlanPagingToolbar(days: visibleDayCount,
+                          dates: days.first.map { PlanPaging.dates(start: $0.date, days: visibleDayCount) } ?? "",
+                          isCurrent: weekOffset == 0,
+                          step: { moveWeek($0) }, toCurrent: { moveToCurrentWeek() }) {
+            // The forecast: the day shown in Day, today while it is in view.
             if dayMode, let day = days.first?.date {
                 WeatherChip(day: day)
             } else if days.contains(where: \.isToday) {
                 WeatherChip(day: Date())
             }
+            MacWeekLoadingSpinner(loading: loading)
         }
         ToolbarItem(placement: .primaryAction) {
             Menu {
@@ -3662,8 +3656,8 @@ struct WeekView: View {
     /// The bottom-bar shell: one top row (the title menu and "…"), and the untimed items as one
     /// sideways row (docs/design/BOTTOM-BAR-SHELL.md).
     @Environment(\.bottomBarShell) private var bottomBarShell
-    /// The wide shell (the rail, one toolbar): back, forward and Today, then Day or Week under a
-    /// title, "Search or ask" in the middle (`ReviewToolbarItem`), the assistant and "…".
+    /// The wide shell (the rail, one toolbar): the Mac's paging group (`PlanPagingToolbar`) at the
+    /// left, "Search or ask" in the middle (`ReviewToolbarItem`), the assistant and "…".
     @Environment(\.wideShell) private var wideShell
     /// Whether the top bar offers the booking link.
     @ObservedObject private var booking = BookingCenter.shared
@@ -3938,20 +3932,18 @@ struct WeekView: View {
                 // its items into an overflow menu, with room to spare, once Today joined "‹ ›",
                 // and the row has to fit a 13 mini.
                 if wideShell {
-                    ToolbarItemGroup(placement: .topBarLeading) {
-                        Button { moveMobileWeek(-1) } label: { Image(systemName: "chevron.left") }
-                            .accessibilityLabel(dayMode ? "Previous day" : "Previous week")
-                            .accessibilityIdentifier("plan.previous")
-                        Button { moveMobileWeek(1) } label: { Image(systemName: "chevron.right") }
-                            .accessibilityLabel(dayMode ? "Next day" : "Next week")
-                            .accessibilityIdentifier("plan.next")
+                    PlanPagingToolbar(days: dayMode ? 1 : 7,
+                                      dates: PlanPaging.dates(start: mobileVisibleWeekStart, days: dayMode ? 1 : 7),
+                                      isCurrent: mobileWeekOffset == 0,
+                                      step: { moveMobileWeek($0) }, toCurrent: { moveMobileWeekToCurrent() }) {
+                        // The forecast: the day shown in Day, today in this week.
+                        if dayMode {
+                            WeatherChip(day: mobileVisibleWeekStart)
+                        } else if mobileWeekOffset == 0 {
+                            WeatherChip(day: Date())
+                        }
+                        if mobileWeekLoading { ProgressView().controlSize(.mini) }
                     }
-                    ToolbarItem(placement: .topBarLeading) {
-                        Button("Today") { moveMobileWeekToCurrent() }
-                            .disabled(mobileWeekOffset == 0)
-                            .accessibilityIdentifier("plan.today")
-                    }
-                    ToolbarItem(placement: .topBarLeading) { PlanModeTitleMenu() }
                     ReviewToolbarItem(section: .plan)
                     ToolbarItem(placement: .topBarTrailing) {
                         MoreMenu(identifier: "mobile.week.more") {
@@ -4387,7 +4379,8 @@ struct WeekView: View {
             // A repeating reminder that follows a moment, offered it (`AnchorSuggestions`):
             // above the day, where Plan's List had it.
             if dayMode { ReminderTimingOffers().padding(.bottom, DS.Space.xs) }
-            if !bottomBarShell {
+            // Only outside both shells: their bars page (`PlanPaging`).
+            if PlanPaging.drawsDateLine(PlanPaging.shell(bottomBar: bottomBarShell, wide: wideShell)) {
                 mobileWeekChrome
                 Divider()
             }
