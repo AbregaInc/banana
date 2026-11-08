@@ -57,6 +57,12 @@ struct MailDirectories: Sendable {
     /// called on the main thread. 4.11 has the first frame read that one small file there, before
     /// anything else of mail's has started, and making a `MailDirectories` is file work that traps
     /// on the main thread; this is the way to the file's path that does not.
+    /// Where `index.sqlite` is under `root`: path arithmetic only, as `firstPage(under:)`, for the
+    /// launch's one read-only count (`MailStores.openIndexForCounting`).
+    static func indexDatabase(under root: URL) -> URL {
+        root.appendingPathComponent("Cache", isDirectory: true).appendingPathComponent("index.sqlite")
+    }
+
     static func firstPage(under root: URL) -> URL {
         root.appendingPathComponent("Cache", isDirectory: true).appendingPathComponent("first-page.json")
     }

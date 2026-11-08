@@ -70,6 +70,17 @@ struct RootView: View {
                 // for real — the path that used to lose the tab and the open note.
                 if visibility.rendersContent {
                     mainTabs
+                        // Mail's badge (unread in the Inbox) before Mail has started: the engine's
+                        // launch mirror at once, then one read-only count a moment later, off the
+                        // first frame (`MailBadgeLaunchRead`). Mail itself starts when it is shown.
+                        .task {
+                            #if DEBUG
+                            LaunchTiming.firstFrame()
+                            #endif
+                            #if BANANA_UNRELEASED
+                            await Self.readMailBadge()
+                            #endif
+                        }
                         .task {
                             // Where the shared toast sits above the tab bar and accessory.
                             if ProcessInfo.processInfo.arguments.contains("--toast-preview") {
@@ -516,6 +527,29 @@ struct RootView: View {
     /// The bottom-bar shell (docs/design/BOTTOM-BAR-SHELL.md): a phone either way up, an iPad
     /// upright, any split or Slide Over. The rail only where a landscape iPad's room is. Decided
     /// by width, never by device.
+    #if BANANA_UNRELEASED
+    /// The shell's Mail badge before Mail has started (`MailBadgeLaunchRead`); the sample mailbox
+    /// (`--mail-fresh`) is its own session and badges itself.
+    static func readMailBadge() async {
+        // `--no-mail-badge-read`: none of this, for a launch comparison.
+        guard ModuleStore.shared.includes(.email),
+              !ProcessInfo.processInfo.arguments.contains("--no-mail-badge-read") else { return }
+        if MailSession.shared != nil { return }
+        if let mirrored = MailBadgeLaunchRead.mirrored() { ActionBadges.shared.setMailInbox(mirrored) }
+        try? await Task.sleep(for: .seconds(2))
+        guard MailApplication.shared.session == nil else { return }
+        #if DEBUG
+        let began = Date()
+        #endif
+        if let unread = await MailBadgeLaunchRead.read(), MailApplication.shared.session == nil {
+            ActionBadges.shared.setMailInbox(unread)
+        }
+        #if DEBUG
+        LaunchTiming.note("mail_badge_read_ms", Date().timeIntervalSince(began) * 1000)
+        #endif
+    }
+    #endif
+
     private var bottomBarShell: Bool {
         (rootShell ?? ShellLayout.of(width: Double(UIScreen.main.bounds.width))) == .bottomBar
     }
@@ -1267,4 +1301,42 @@ extension MeetingInfo {
         return meeting
     }
 }
+
+#if DEBUG
+
+/// `--launch-timing <file>` (Debug): when the first frame came, in milliseconds from the
+/// process's start, and what came after it, one `name value` line each, for launch comparisons.
+enum LaunchTiming {
+    static var file: String? {
+        let args = ProcessInfo.processInfo.arguments
+        guard let index = args.firstIndex(of: "--launch-timing"), args.indices.contains(index + 1) else { return nil }
+        return args[index + 1]
+    }
+
+    static func processStart() -> Date? {
+        var info = kinfo_proc(), size = MemoryLayout<kinfo_proc>.stride
+        var mib: [Int32] = [CTL_KERN, KERN_PROC, KERN_PROC_PID, getpid()]
+        guard sysctl(&mib, 4, &info, &size, nil, 0) == 0 else { return nil }
+        let start = info.kp_proc.p_un.__p_starttime
+        return Date(timeIntervalSince1970: Double(start.tv_sec) + Double(start.tv_usec) / 1_000_000)
+    }
+
+    /// From the root's first appearance, on the next turn of the run loop: the frame is drawn.
+    static func firstFrame() {
+        guard file != nil, let start = processStart() else { return }
+        DispatchQueue.main.async { note("first_frame_ms", Date().timeIntervalSince(start) * 1000) }
+    }
+
+    static func note(_ name: String, _ value: Double) {
+        guard let file else { return }
+        let line = "\(name) \(Int(value.rounded()))\n"
+        if let handle = FileHandle(forWritingAtPath: file) {
+            handle.seekToEndOfFile(); handle.write(Data(line.utf8)); try? handle.close()
+        } else {
+            try? line.write(toFile: file, atomically: true, encoding: .utf8)
+        }
+    }
+}
+#endif
+
 #endif

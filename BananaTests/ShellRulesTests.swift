@@ -95,14 +95,17 @@ final class ShellRulesTests: XCTestCase {
         XCTAssertLessThanOrEqual(ShellLayout.railColumn, 88)
     }
 
-    /// The switcher's badge adds up what the old tab bar badged, page by page, for the pages
-    /// that are on; Mail had none.
+    /// The switcher's badge adds up the pages' own counts, for the pages that are on: the old tab
+    /// bar's, and Mail's unread in the Inbox.
     func testBadgesAreTheOldTabCountsAddedUpOnTheSwitcher() {
         var counts = ActionItems.Counts()
         counts.plan = 2; counts.food = 1; counts.taken = 3
         XCTAssertEqual(ShellBadge.count(.plan, counts), 2)
         XCTAssertEqual(ShellBadge.count(.body, counts), 4)
         XCTAssertEqual(ShellBadge.count(.mail, counts), 0)
+        XCTAssertEqual(ShellBadge.count(.mail, counts, mail: 12), 12, "Mail: the Inbox\u{2019}s unread")
+        XCTAssertEqual(ShellBadge.total([.plan, .mail, .body], counts, mail: 12), 18)
+        XCTAssertEqual(ShellBadge.total([.plan, .body], counts, mail: 12), 6, "Mail off: not added")
         XCTAssertEqual(ShellBadge.total([.plan, .mail, .body, .settings], counts), 6)
         XCTAssertEqual(ShellBadge.total([.plan, .mail, .settings], counts), 2, "Body off: its count is not added")
         XCTAssertNil(ShellBadge.text(0))
