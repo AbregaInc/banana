@@ -430,6 +430,14 @@ enum BananaService {
         (try? JSONSerialization.jsonObject(with: data) as? [String: Any])?["error"] as? String
     }
 
+    /// For the journal: the service's own words for a refusal — a code, or a provider operation's
+    /// fixed message (`{"error": {"message": …}}`), which says which of several 409s it was.
+    static func failureForLog(in data: Data) -> String? {
+        if let code = failure(in: data) { return code }
+        let error = (try? JSONSerialization.jsonObject(with: data) as? [String: Any])?["error"] as? [String: Any]
+        return (error?["message"] as? String).map { String($0.prefix(120)) }
+    }
+
     // MARK: - Pushes
 
     /// A silent push from the service saying the account's data changed on another device:

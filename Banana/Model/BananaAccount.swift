@@ -662,7 +662,7 @@ final class BananaAccount: ObservableObject {
             let status = (response as? HTTPURLResponse)?.statusCode ?? 0
             if status == 401, session == requestSession, BananaService.failure(in: data) == "signed_out" { signedOut() }
             if status >= 400 {
-                PlaybackDiagnostics.shared.log("☁️ account", "\(request.httpMethod ?? "") \(request.url?.path ?? "") answered \(status) \(BananaService.failure(in: data) ?? "")")
+                PlaybackDiagnostics.shared.log("☁️ account", "\(request.httpMethod ?? "") \(request.url?.path ?? "") answered \(status) \(BananaService.failureForLog(in: data) ?? "")")
             }
             return (data, status)
         } catch {

@@ -64,6 +64,10 @@ final class SmartScheduleStore: ObservableObject {
     @Published private(set) var todayMeetings: [MeetingInfo] = []
     @Published private(set) var tomorrowMeetings: [MeetingInfo] = []
     @Published private(set) var commuteLegs: [NotificationService.CommuteLeg] = []
+    /// What this build's variant has already reserved on the calendar for each trip, by travel
+    /// occurrence id: a fresh route only replaces it when it really differs
+    /// (`TravelBlockPolicy.settledDuration`). Refreshed from every calendar read that plans travel.
+    private var writtenTravel: [String: DateInterval] = [:]
     @Published private(set) var flightLegs: [FlightLeg] = []
 
     /// Answer "where is this?" for a calendar location: remembered (and synced) for every event
@@ -920,6 +924,8 @@ final class SmartScheduleStore: ObservableObject {
         fallingBackTo syncedBlocks: [CalendarSyncedTravelBlock] = []
     ) async -> [Occurrence] {
         guard settings.blockTravelTime else { return [] }
+        // An incomplete read hands over fewer blocks; what is missing just isn't held to.
+        writtenTravel = TravelBlockPolicy.writtenSpans(syncedBlocks, variant: .current)
 
         let regularLegs = await computedCommuteLegs(
             for: meetings,
@@ -1121,10 +1127,18 @@ final class SmartScheduleStore: ObservableObject {
                 }
                 // Round upward to five minutes: defend enough time and avoid calendar/network churn
                 // when traffic changes an ETA by a few seconds between devices.
-                guard let seconds = TravelBlockPolicy.blockDuration(
+                guard let routed = TravelBlockPolicy.blockDuration(
                     routeSeconds: estimate.duration,
                     fallbackMinutes: nil
                 ) else { continue }
+                // Held to what is already reserved unless the route really changed: an ETA on a
+                // rounding edge must not rewrite the block, and its copies, on every refresh.
+                let tripID = Self.travelOccurrenceID(
+                    kind: "meeting", identity: "\(meeting.title)|\(meeting.start.timeIntervalSinceReferenceDate)")
+                let written = writtenTravel[tripID].flatMap {
+                    abs($0.end.timeIntervalSince(meeting.start)) < 1 ? $0.duration : nil
+                }
+                let seconds = TravelBlockPolicy.settledDuration(computed: routed, written: written)
                 // The minutes shown are the minutes reserved, so "Leave by 2:35 · 10 min" adds up.
                 var detail = estimate.detail
                 detail.minutes = Int(seconds / 60)
@@ -1238,13 +1252,19 @@ final class SmartScheduleStore: ObservableObject {
                 } else {
                     routedSeconds = nil
                 }
-                guard let interval = TravelBlockPolicy.returnHomeInterval(
+                guard let routedInterval = TravelBlockPolicy.returnHomeInterval(
                     departingAt: departure,
                     routeSeconds: routedSeconds,
                     fallbackMinutes: outboundMinutes
                 )
                 else { continue }
                 let identity = "\(meeting.eventID ?? meeting.id)|\(departure.timeIntervalSinceReferenceDate)"
+                let written = writtenTravel[Self.travelOccurrenceID(kind: "return-home", identity: identity)].flatMap {
+                    abs($0.start.timeIntervalSince(departure)) < 1 ? $0.duration : nil
+                }
+                let interval = DateInterval(
+                    start: departure,
+                    duration: TravelBlockPolicy.settledDuration(computed: routedInterval.duration, written: written))
                 let detail = TravelLegDetail(
                     mode: mode,
                     minutes: Int(interval.duration / 60),   // what's reserved, as the band shows
@@ -1282,7 +1302,7 @@ final class SmartScheduleStore: ObservableObject {
         detail: TravelLegDetail? = nil
     ) -> Occurrence {
         var occurrence = Occurrence(
-            id: "travel-\(stableHash("\(kind)|\(identity)"))",
+            id: Self.travelOccurrenceID(kind: kind, identity: identity),
             seriesID: nil, slotID: nil,
             source: .derived, behavior: .block,
             schedule: OccurrenceSchedule(mode: .derived, moveable: false),
@@ -1294,7 +1314,12 @@ final class SmartScheduleStore: ObservableObject {
         return occurrence
     }
 
-    private func stableHash(_ value: String) -> String {
+    /// A travel occurrence's id, which is also its write-back item id on every calendar.
+    nonisolated static func travelOccurrenceID(kind: String, identity: String) -> String {
+        "travel-\(stableHash("\(kind)|\(identity)"))"
+    }
+
+    private nonisolated static func stableHash(_ value: String) -> String {
         var hash: UInt64 = 14_695_981_039_346_656_037
         for byte in value.utf8 {
             hash ^= UInt64(byte)

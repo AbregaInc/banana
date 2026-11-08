@@ -466,8 +466,14 @@ enum GoogleEventWindowBuilder {
                 let value = $0.lowercased()
                 return !value.isEmpty && value != "busy"
             }
+            let byVariant = Dictionary(grouping: copies) { $0.ownership!.variant }
+                .compactMapValues { copies -> DateInterval? in
+                    guard let start = copies.map(\.start).min(), let end = copies.map(\.end).max(),
+                          end > start else { return nil }
+                    return DateInterval(start: start, end: end)
+                }
             return CalendarSyncedTravelBlock(appItemID: id, title: informative ?? "Travel time",
-                                             start: start, end: end)
+                                             start: start, end: end, spansByVariant: byVariant)
         }.sorted { $0.start < $1.start }
     }
 }

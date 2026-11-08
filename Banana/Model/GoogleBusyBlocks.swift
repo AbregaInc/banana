@@ -57,6 +57,25 @@ enum GoogleBusyBlocks {
         ]
     }
 
+    /// What a block says, in the terms Google keeps it: the title, and the times at the
+    /// precision they are written (whole seconds; dates for an all-day copy). Two devices that want
+    /// the same block produce the same content, and a block read back from Google produces the
+    /// content it was written with — so "already says this" is a string comparison, never a
+    /// comparison of a sub-second `Date` with the second Google stored.
+    static func content(title: String, start: Date, end: Date, isAllDay: Bool) -> String {
+        let span = isAllDay
+            ? [GoogleCalendarDates.dateString(start), GoogleCalendarDates.dateString(end)]
+            : [String(wholeSecond(start)), String(wholeSecond(end))]
+        // Surrounding whitespace is not a difference worth a write, whichever side keeps it.
+        let title = title.trimmingCharacters(in: .whitespacesAndNewlines)
+        return ([title, isAllDay ? "day" : "time"] + span).joined(separator: "\u{1F}")
+    }
+
+    /// The second a time is written as. The writer drops the fraction the same way.
+    static func wholeSecond(_ date: Date) -> Int64 {
+        Int64(floor(date.timeIntervalSince1970))
+    }
+
     /// The `privateExtendedProperty` filter that finds this app's blocks server-side.
     ///
     /// Google matches these as `key=value` strings. Filtering on the server rather than listing a
@@ -85,6 +104,7 @@ enum GoogleBusyBlocks {
     private static func rfc3339(_ date: Date) -> String {
         let formatter = ISO8601DateFormatter()
         formatter.formatOptions = [.withInternetDateTime]
-        return formatter.string(from: date)
+        // Whole seconds, dropped the way `content` drops them, so what is written reads back equal.
+        return formatter.string(from: Date(timeIntervalSince1970: TimeInterval(wholeSecond(date))))
     }
 }

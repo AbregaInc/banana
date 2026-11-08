@@ -1841,6 +1841,26 @@ final class OccurrenceStore: ObservableObject {
     }
 
     #if DEBUG
+    /// `--offscreen-recompute-regression`: what a recompute publishes while another device keeps
+    /// rewriting a travel block weeks away — a new timeline and a new planning-window revision, with
+    /// nothing on the days in view any different. The grids must not draw again for it.
+    func republishWithOffscreenChange(round: Int) {
+        let id = "travel-offscreen-regression"
+        let cal = Calendar.current
+        guard let far = cal.date(byAdding: .day, value: 30, to: cal.startOfDay(for: Date()))?
+            .addingTimeInterval(15 * 3_600) else { return }
+        let minutes: TimeInterval = round.isMultiple(of: 2) ? 10 : 5
+        let block = Occurrence(
+            id: id, seriesID: nil, slotID: nil, source: .derived, behavior: .block,
+            schedule: OccurrenceSchedule(mode: .derived, moveable: false), writePolicy: .busy,
+            title: "Travel to Regression", icon: "car.fill", tint: .orange,
+            start: far.addingTimeInterval(-minutes * 60), end: far, hasScheduledTime: true)
+        let next = (occurrences.filter { $0.id != id } + [block]).sorted { $0.start < $1.start }
+        occurrences = next
+        byDay = Dictionary(grouping: next) { cal.startOfDay(for: $0.start) }
+        planningWindowRevision &+= 1
+    }
+
     private var selfCheckRunning = false
 
     /// `--tick-self-check <file>`: ticking a reminder, through the store itself — the cached

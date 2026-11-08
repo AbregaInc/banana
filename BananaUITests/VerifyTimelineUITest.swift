@@ -759,6 +759,42 @@ final class VerifyTimelineUITest: XCTestCase {
         )
     }
 
+    /// Another device rewriting a travel block weeks away made every device recompute about once
+    /// a second; each recompute published a new timeline and planning-window revision with the days
+    /// in view unchanged, and the Mac week drew all seven days again for each. The phone and iPad
+    /// grid may look at each publication (`Calendar.prepareDays`), but must not draw (`WeekView`)
+    /// for one that changes nothing it shows.
+    func testCalendarDoesNotRedrawForAnOffscreenRecompute() {
+        for mode in ["day", "week"] {
+            let app = XCUIApplication()
+            app.launchArguments = [
+                "--ui-preview", "--ui-audit", "--offscreen-recompute-regression",
+                "-planMode", mode, "-onboardingCompleted", "YES"
+            ]
+            app.withoutSpaceSync()
+            app.launch()
+            XCTAssertTrue(timeGrid(app).waitForExistence(timeout: 8), mode)
+            func count(_ id: String) -> Int {
+                Int(app.descendants(matching: .any)[id].firstMatch.value as? String ?? "") ?? -1
+            }
+            XCTAssertTrue(waitUntil(timeout: 5) { count("day.performance.renderCount") > 0 }, mode)
+            let renders = count("day.performance.renderCount")
+            let preparations = count("calendar.performance.preparations")
+            // Twenty publications, 150 ms apart, four seconds after the grid's task starts.
+            let examined = waitUntil(timeout: 20) {
+                count("calendar.performance.preparations") - preparations >= 10
+            }
+            XCTAssertTrue(examined, "\(mode): the publications never reached the grid, so this measured nothing")
+            // The rest of the rounds (fewer, if some ran before the first count was read).
+            _ = waitUntil(timeout: 6) { count("calendar.performance.preparations") - preparations >= 20 }
+            let redrawn = count("day.performance.renderCount") - renders
+            print("offscreen-recompute \(mode): redrawn \(redrawn) for \(count("calendar.performance.preparations") - preparations) publications examined")
+            XCTAssertLessThanOrEqual(redrawn, 2,
+                "\(mode): an offscreen recompute redrew the calendar \(redrawn) times")
+            app.terminate()
+        }
+    }
+
     /// Unlike the deterministic audit routes, this starts the complete production object graph,
     /// exercises the visible calendar after launch work has settled, backgrounds the app, and
     /// verifies the reconstructed tree returns to the saved time. Run on a test phone, never a simulator.

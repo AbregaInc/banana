@@ -264,6 +264,12 @@ final class GoogleCalendarService: ObservableObject {
         return false
     }
 
+    /// The HTTP status of a refused Calendar call, if that is what `error` is.
+    nonisolated static func refusalStatus(_ error: Error) -> Int? {
+        if case GoogleCalendarError.api(let status, _) = error { return status }
+        return nil
+    }
+
     /// A calendar turned out not to exist: reload the list on the next read rather than in ten
     /// minutes, so it stops being asked about.
     func noteCalendarGone() {
@@ -2032,6 +2038,9 @@ final class GoogleCalendarService: ObservableObject {
         let eventID: String
         let start: Date
         let end: Date
+        /// What it says on the server (`GoogleBusyBlocks.content`): how a pass knows a copy is
+        /// already as wanted, whichever device wrote it.
+        var content: String? = nil
     }
 
     func ownedBusyBlockDetails(calendarID: String, variant: String,
@@ -2063,7 +2072,12 @@ final class GoogleCalendarService: ObservableObject {
                       let span = GoogleCalendarDates.range(of: event)
                 else { continue }
                 guard let etag = event.etag, !etag.isEmpty else { throw GoogleCalendarError.malformedResponse }
-                found[itemID, default: []].append(OwnedBlock(etag: etag, eventID: id, start: span.start, end: span.end))
+                found[itemID, default: []].append(OwnedBlock(
+                    etag: etag, eventID: id, start: span.start, end: span.end,
+                    // A title Google withheld is not a different title: unknown, not a mismatch.
+                    content: event.summary.map {
+                        GoogleBusyBlocks.content(title: $0, start: span.start, end: span.end, isAllDay: span.isAllDay)
+                    }))
             }
             pageToken = page.nextPageToken
         } while pageToken != nil

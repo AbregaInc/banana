@@ -270,6 +270,7 @@ struct RootView: View {
             if ProcessInfo.processInfo.arguments.contains("--library-publish-regression")
                 || ProcessInfo.processInfo.arguments.contains("--storm-selftest")
                 || ProcessInfo.processInfo.arguments.contains("--smart-publish-regression")
+                || ProcessInfo.processInfo.arguments.contains("--offscreen-recompute-regression")
                 || ProcessInfo.processInfo.arguments.contains("--calendar-move-render-probe")
                 || ProcessInfo.processInfo.arguments.contains("--calendar-artwork-test-probe")
                 || ProcessInfo.processInfo.arguments.contains("--tab-reentry-probe")
