@@ -50,6 +50,26 @@ final class ProblemReportUITest: XCTestCase {
         XCTAssertTrue(app.staticTexts["Report sent"].waitForExistence(timeout: 4), "no confirmation")
     }
 
+    /// The mail reader's "…": the sheet offers the email, on in the Beta, off in Stable.
+    func testTheMailReaderOffersTheEmail() throws {
+        let app = try launch(["--ui-preview", "--dummy-health", "--modules", "everything", "--tab", "mail", "--mail-fresh"])
+        let row = app.collectionViews.cells.firstMatch
+        XCTAssertTrue(row.waitForExistence(timeout: 20), app.debugDescription)
+        row.tap()
+        let more = app.buttons["mail.reader.more"]
+        XCTAssertTrue(more.waitForExistence(timeout: 6), "the reader's \u{2026}")
+        more.tap()
+        let item = app.buttons["report.problem"].firstMatch
+        XCTAssertTrue(item.waitForExistence(timeout: 4), "\u{2026} has no Report a Problem: \(app.debugDescription)")
+        item.tap()
+        let email = app.switches["report.page"]
+        XCTAssertTrue(email.waitForExistence(timeout: 6), "the email isn't offered: \(app.debugDescription)")
+        XCTAssertTrue(app.switches["report.screenshot"].exists)
+        shot("mail-sheet")
+        app.buttons["report.cancel"].tap()
+        XCTAssertTrue(waitUntil(timeout: 5) { !email.exists }, "Cancel didn't close the sheet")
+    }
+
     func testTheLaunchRouteOpensTheSheetAndCancelCloses() throws {
         let app = try launch(["--tab", "plan", "--report-problem"])
         let note = app.descendants(matching: .any)["report.note"].firstMatch

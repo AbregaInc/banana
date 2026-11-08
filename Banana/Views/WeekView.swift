@@ -5716,7 +5716,14 @@ struct WeekView: View {
         }
         // Every occurrence publish lands here — a launch sends several, most changing nothing
         // on these days. Assigning an equal list still redrew the whole grid each time.
-        if rebuilt != calendarDays { calendarDays = rebuilt }
+        if rebuilt != calendarDays {
+            calendarDays = rebuilt
+            // What Report a problem says of the calendar: the days built and their items' ids.
+            ProblemReportCenter.shared.noteCalendar(
+                start: rebuilt.first?.date,
+                end: rebuilt.last.flatMap { calendar.date(byAdding: .day, value: 1, to: $0.date) },
+                ids: rebuilt.flatMap { $0.items.map(\.id) })
+        }
         if mobileVisibleDayID == nil {
             let selectedIndex = calendarDays.firstIndex {
                 calendar.isDate($0.date, inSameDayAs: mobileSelectedDay)

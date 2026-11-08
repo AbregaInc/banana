@@ -30,7 +30,7 @@ struct ProblemReportSheet: View {
                     if let context = draft.pageContext {
                         switch context.row {
                         case .toggle(let title, _):
-                            Toggle(title, isOn: $draft.includePage)
+                            Toggle(isOn: $draft.includePage) { Label(title, systemImage: "envelope") }
                                 .accessibilityIdentifier("report.page")
                         case .fixed(let title):
                             Label(title, systemImage: "info.circle")
