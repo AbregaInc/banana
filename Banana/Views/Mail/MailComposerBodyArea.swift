@@ -27,7 +27,11 @@ struct MailComposerBodyArea: View {
     /// How many lines the body has, so that the editor grows with them, to the most it may.
     @State private var lines = 1
     /// The bar is shown until it is hidden; a sheet and a card remember it alike.
-    @AppStorage("mailFormatBarShown") private var showsBar = true
+    @AppStorage("mailFormatBarShown") private var showsCardBar = true
+    /// In the box (direction A) it is hidden until Aa asks for it.
+    @AppStorage(MailComposerBoxStyle.formatBarKey) private var showsBoxBar = false
+    @Environment(\.mailComposerBox) private var box
+    private var showsBar: Bool { box == nil ? showsCardBar : showsBoxBar }
     @Binding var linking: Bool
     @State private var linkText = ""
     @State private var linkTarget = AttributedTextSelection()
@@ -230,6 +234,10 @@ private struct MailRichEditor: View {
     @Binding var selection: AttributedTextSelection
     let lines: Int
     @ScaledMetric(relativeTo: .body) private var lineHeight = DS.Space.xl
+    @Environment(\.mailComposerBox) private var box
+    /// The height the body's text takes at this width, four lines at most: the docked box grows
+    /// with what he types, wrapped lines included, to that and no further.
+    @State private var written: CGFloat = 0
 
     /// Ignore selection-only writes. The model retains changed text immediately and defers
     /// its view notification until the native editor's storage callback has unwound.
@@ -244,17 +252,41 @@ private struct MailRichEditor: View {
     }
 
     var body: some View {
-        TextEditor(text: text, selection: $selection)
+        sized(TextEditor(text: text, selection: $selection)
             .attributedTextFormattingDefinition(MailBodyFormatting())
             .focused(focused, equals: .body)
             .font(.body)
-            .scrollContentBackground(.hidden)
-            .frame(minHeight: height, maxHeight: DS.Mail.composerBodyMax)
+            .scrollContentBackground(.hidden))
             .accessibilityLabel("Message")
             .accessibilityIdentifier(MailID.composerBody)
             .onChange(of: model.rich) { old, _ in
                 MailFormatting.continueAfterReturn(from: old, text: &model.rich, selection: &selection)
             }
+    }
+
+    /// The card's editor grows by lines to its most; the docked box's by what the text takes, one
+    /// line to four; the box at full height gives it all the room there is.
+    @ViewBuilder private func sized(_ editor: some View) -> some View {
+        switch box {
+        case nil:
+            editor.frame(minHeight: height, maxHeight: DS.Mail.composerBodyMax)
+        case .full?:
+            editor.frame(minHeight: lineHeight * 3, maxHeight: .infinity)
+        case .docked?:
+            editor
+                .frame(height: max(lineHeight + MailComposerBoxStyle.editorInset, written))
+                .background(alignment: .topLeading) {
+                    Text(String(model.rich.characters) + " ")
+                        .font(.body)
+                        .lineLimit(MailComposerBoxStyle.dockedLines)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .padding(.horizontal, MailComposerBoxStyle.editorInset / 2)
+                        .padding(.vertical, MailComposerBoxStyle.editorInset / 2)
+                        .hidden()
+                        .accessibilityHidden(true)
+                        .onGeometryChange(for: CGFloat.self) { $0.size.height.rounded() } action: { written = $0 }
+                }
+        }
     }
 }
 

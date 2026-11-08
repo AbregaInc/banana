@@ -352,7 +352,11 @@ private struct MailScreen: View {
     /// draft (6.3.8).
     private func sheetBinding(for arrangement: MailArrangement) -> Binding<Bool> {
         let needsSheet: Bool
-        if let composer = navigation.composer {
+        if bottomBarShell || wideShell {
+            // The shells write in the box: the bar's on a phone and an upright iPad, the reader's
+            // on an iPad on its side and the Mac (`MailComposerBox`). Never a sheet.
+            needsSheet = false
+        } else if let composer = navigation.composer {
             needsSheet = composer.host == nil ? !arrangement.showsPane : arrangement.isCompact
         } else {
             needsSheet = false

@@ -110,6 +110,38 @@ full width): half height to start, pulled to full, with Done. Two ways in, the s
 What the field finds hangs under the toolbar's middle (`ShellWideResults`), a solid panel; a
 click beside it puts it away, and Esc does on the Mac.
 
+## Mail's composer (direction A, 7 Nov 2026)
+
+The owner chose direction A: the bottom field grows into the composer. `MailComposerBox`
+(`Banana/Views/Mail/MailComposerBox.swift`) is the one box; `MailComposerDock` (pure,
+`Banana/Model/MailUI/Pure`) says where it is, and `MailNavigation.dock` holds it.
+
+- **Reply** ("Reply or ask", or "…" › Reply): a solid box docked over the keyboard, To and the text
+  growing to four lines, then the tools (paperclip, photo, Aa, sparkle) and Send. The thread scrolls
+  on its own above it, newest message first and whole where it fits. On a phone the switcher and
+  the sparkle step away; on an upright iPad the switcher stays and the box takes the field's place
+  beside it, growing upward.
+- **Reply all is the default.** A small "Reply all ⌄" at the start of To switches to Reply or
+  Forward (the source makes the draft again by `MailReplyRules`; the text and anyone added by hand
+  stay). With one other person on the thread it reads "Reply" and offers Reply and Forward. `R`
+  stays Reply and Return Reply all, as `MailKeymap` had them.
+- **Expand**: the grab handle up, or ⤢: the box at full height over the thread; ⤡ or a pull down
+  brings it back. A new message opens at full height, To first, with a Subject row.
+- **Folded while reading**: pulling the thread down, or putting the keyboard away, folds the box into
+  the bottom field: the switcher back at its left, the draft on one line and Send in the field. A tap
+  resumes. Pulled all the way down the box goes away and the draft is kept (the conversation's mark).
+  No Cancel, no "Delete draft?": discard is "…" › Discard draft.
+- **Recipients**: To only, with one "Cc" at its end that brings Cc and Bcc. From, with several
+  addresses, is in the To line's menu.
+- **Send** is one split button: the word sends (⌘↩), the chevron opens send later (⇧⌘L).
+- **The sparkle** (only where the assistant is, `ShellAssistant.isAvailable`) turns the tools row
+  into one line ("say yes, Friday instead"); the draft is written into the body with one Undo,
+  through the on-device model the assistant runs on (`MailDraftAssistant`).
+- **Wide** (an iPad on its side, the Mac): the same box docked at the foot of the reader, or filling
+  it at full height; the same keys.
+- The standalone `--mail` route keeps the card and the sheet (`MailComposerView`), without the
+  colour stripe it had.
+
 ## Search or ask
 
 Typing waits 120 ms for a burst of keys, then runs the searches the pages already have:

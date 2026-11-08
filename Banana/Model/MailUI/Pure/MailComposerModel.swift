@@ -121,6 +121,14 @@ final class MailComposerModel: ObservableObject {
     private let preferredAccount: String?
     var isForeign: Bool { draft?.format == .foreign }
     @Published var isResolving = false
+    /// A reply's kind, which the box's switch at the start of To changes (Reply all by default);
+    /// nil for a new message.
+    @Published private(set) var replyStyle: MailReplyStyle?
+    /// Only one other person on the thread: Reply all would go to the same people as Reply.
+    @Published private(set) var replyAllIsReply = false
+    private var switching: Task<Void, Never>?
+    /// The assistant's last draft and the body before it: its one Undo (`MailAssistantUndo`).
+    @Published private(set) var assistantUndo: MailAssistantUndo?
     private var richNotificationPending = false
     /// The text without its formatting. Setting it puts plain text in.
     var body: String {
@@ -199,6 +207,12 @@ final class MailComposerModel: ObservableObject {
         case .replyAll: title = "Reply to all"
         case .forward: title = "Forward"
         }
+        switch start {
+        case .reply: replyStyle = .reply
+        case .replyAll: replyStyle = .replyAll
+        case .forward: replyStyle = .forward
+        case .new, .continuing: replyStyle = nil
+        }
         if case .reply(let id) = start { host = id }
         if case .replyAll(let id) = start { host = id }
         if case .forward(let id) = start { host = id }
@@ -229,6 +243,7 @@ final class MailComposerModel: ObservableObject {
             self.adopt(fetched.draft, fresh: fetched.fresh)
             // Text typed while it was coming is his, and is kept like any other.
             self.edited()
+            await self.refreshReplyChoices()
             if self.isClosed { _ = self.finishClosing() }
         }
     }
@@ -300,6 +315,9 @@ final class MailComposerModel: ObservableObject {
                                     bcc: draft.bcc.map(Self.key), subject: draft.subject) : .blank
         if !fresh {
             if draft.isForward { title = "Forward" } else if draft.isReply { title = "Reply" } else { title = "New message" }
+            // A reply he comes back to: to everyone if it goes to more than one person.
+            if draft.isForward { replyStyle = .forward }
+            else if draft.isReply { replyStyle = draft.cc.isEmpty && draft.to.count <= 1 ? .reply : .replyAll }
         }
         isReady = true
     }
@@ -461,6 +479,34 @@ final class MailComposerModel: ObservableObject {
     func reveal(_ field: MailRecipientField) {
         revealed.insert(field)
         askForFocus(field.field)
+    }
+
+    /// The box's one "Cc" (direction A): Cc and Bcc both, the caret in Cc.
+    func revealCopies() {
+        revealed.insert(.bcc)
+        reveal(.cc)
+    }
+
+    // MARK: The assistant's draft
+
+    /// What the assistant wrote goes into the body, ready to edit; what was there is kept for one Undo.
+    func writeAssistantDraft(_ text: String) {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        let before = rich
+        rich = AttributedString(trimmed)
+        assistantUndo = MailAssistantUndo(before: before, written: rich)
+        askForFocus(.body)
+    }
+
+    /// Whether Undo still means "put back what was there": not once he has changed the draft.
+    var canUndoAssistantDraft: Bool { assistantUndo?.isCurrent(rich) == true }
+
+    func undoAssistantDraft() {
+        guard let undo = assistantUndo, undo.isCurrent(rich) else { assistantUndo = nil; return }
+        rich = undo.before
+        assistantUndo = nil
+        askForFocus(.body)
     }
 
     private func add(_ person: MailPerson, to field: MailRecipientField) {
@@ -639,6 +685,65 @@ final class MailComposerModel: ObservableObject {
     }
 
     /// The address as two of them are compared.
+    // MARK: Reply all, Reply, Forward
+
+    /// His own addresses: what no reply is ever sent to (`MailReplyRules`).
+    private var myAddresses: Set<String> {
+        Set(source.accounts.map { $0.id.lowercased() } + identities.map { $0.address.lowercased() })
+    }
+
+    /// Whether Reply all and Reply would go to the same people, worked out by the same rules the
+    /// draft is made by: the switch then offers Reply and Forward only.
+    func refreshReplyChoices() async {
+        guard let host, replyStyle != nil, let conversation = await source.conversation(host),
+              let original = MailReplyRules.original(in: conversation) else { return }
+        let all = MailReplyRules.recipients(for: .replyAll(to: original.id), original: original, myAddresses: myAddresses)
+        let one = MailReplyRules.recipients(for: .reply(to: original.id), original: original, myAddresses: myAddresses)
+        let same = Set((all.to + all.cc).map(Self.key)) == Set((one.to + one.cc).map(Self.key))
+        if replyAllIsReply != same { replyAllIsReply = same }
+    }
+
+    /// The switch at the start of To: the draft is made again as that kind of answer by the source
+    /// (the same rules as when it was opened), the text he typed is kept, and anyone he added by
+    /// hand stays where he put them. A forward goes to nobody and carries the original's files.
+    func switchReply(to style: MailReplyStyle) {
+        guard let host, let current = replyStyle, current != style, isReady else { return }
+        switching?.cancel()
+        switching = Task { @MainActor [weak self] in
+            guard let self else { return }
+            guard let conversation = await self.source.conversation(host),
+                  let original = MailReplyRules.original(in: conversation), !Task.isCancelled else { return }
+            let kind: MailDraftKind
+            switch style {
+            case .reply: kind = .reply(to: original.id)
+            case .replyAll: kind = .replyAll(to: original.id)
+            case .forward: kind = .forward(original.id)
+            }
+            let made = Set(self.baseline.to + self.baseline.cc + self.baseline.bcc)
+            var byHand: [(MailRecipientField, MailPerson)] = []
+            for (field, people) in [(MailRecipientField.to, self.to), (.cc, self.cc), (.bcc, self.bcc)] {
+                for person in people where !made.contains(Self.key(person)) { byHand.append((field, person)) }
+            }
+            let old = self.draftID
+            let fresh = await self.source.newDraft(kind)
+            guard !Task.isCancelled, !self.isClosed else { _ = self.source.discard(fresh.id); return }
+            // What the source made comes in under the text he typed, which `adopt` keeps.
+            self.adopt(fresh, fresh: true)
+            for (field, person) in byHand where self.field(of: person) == nil { self.add(person, to: field) }
+            self.replyStyle = style
+            switch style {
+            case .reply: self.title = "Reply"
+            case .replyAll: self.title = "Reply to all"
+            case .forward: self.title = "Forward"
+            }
+            if let old, old != fresh.id { _ = self.source.discard(old) }
+            self.edited()
+        }
+    }
+
+    /// Finishes when a switch has been made. For tests.
+    func waitForSwitch() async { await switching?.value }
+
     private static func key(_ person: MailPerson) -> String {
         person.address.lowercased()
     }

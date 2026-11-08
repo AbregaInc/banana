@@ -307,7 +307,14 @@ final class BottomBarShellUITest: XCTestCase {
         app.buttons["shell.reply"].tap()
         XCTAssertTrue(any(app, "mail.composer.body").waitForExistence(timeout: 5)
                       || app.textViews.firstMatch.waitForExistence(timeout: 3), "Reply opened no composer")
+        // The composer is the bar grown into a box (direction A): pulling the thread down folds it
+        // into the field, and "…" › Discard draft puts it away; then the bar has Archive again.
         app.swipeDown(velocity: .fast)
+        XCTAssertTrue(any(app, "mail.composer.folded").waitForExistence(timeout: 5), "the box folded into the field")
+        more.tap()
+        let discard = app.buttons["mail.more.discardDraft"].firstMatch
+        XCTAssertTrue(discard.waitForExistence(timeout: 3) || app.buttons["Discard draft"].waitForExistence(timeout: 2))
+        (discard.exists ? discard : app.buttons["Discard draft"].firstMatch).tap()
 
         XCTAssertTrue(app.buttons["shell.archive"].waitForExistence(timeout: 5))
         let title = any(app, "mail.conversation.title")

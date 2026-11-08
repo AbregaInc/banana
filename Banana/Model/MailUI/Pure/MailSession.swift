@@ -27,6 +27,9 @@ final class MailNavigation: ObservableObject {
     /// the iOS tree is rebuilt, and so that only a composer opening or closing changes what the
     /// screen observes: never a keystroke (that is the composer's own).
     @Published private(set) var composer: MailComposerModel?
+    /// Where the composer's box is in the shells (`MailComposerDock`): docked above the keyboard,
+    /// at full height, or folded into the bottom field. Nil with no composer open.
+    @Published fileprivate(set) var dock: MailComposerDock?
 
     private let defaults: UserDefaults?
 
@@ -42,8 +45,9 @@ final class MailNavigation: ObservableObject {
     var open: MailConversationID? { reader?.id }
 
     /// The session's: it opens and closes composers and nothing else does.
-    func setComposer(_ model: MailComposerModel?) {
+    func setComposer(_ model: MailComposerModel?, full: Bool = false) {
         composer = model
+        dock = model.map { _ in MailComposerDock(new: full) }
     }
 
     /// A toggle he made is kept; one a launch route asked for is not, or a screenshot would
@@ -366,6 +370,21 @@ final class MailSession {
     func askForDetails(toggles: Bool) {
         navigation.detailsAskToggles = toggles
         navigation.detailsAsks &+= 1
+    }
+
+    // MARK: The composer's box (direction A)
+
+    /// A gesture, a button or the keyboard moved the box. What the dock says to do is done here:
+    /// the caret back in the body, or the box put away with the draft kept.
+    func dock(_ event: MailComposerDock.Event) {
+        guard var dock = navigation.dock, let composer else { return }
+        let effect = dock.handle(event)
+        if navigation.dock != dock { navigation.dock = dock }
+        switch effect {
+        case .none: break
+        case .focusBody: composer.askForFocus(.body)
+        case .putAway: closeComposer()
+        }
     }
 
     /// Whether a reading pane is on screen. The view says so when its arrangement changes.

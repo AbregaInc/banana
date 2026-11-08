@@ -11,13 +11,38 @@ struct MailConversationScreen: View {
     let inlineComposer: Bool
     @Environment(\.bottomBarShell) private var bottomBarShell
     @Environment(\.wideShell) private var wideShell
+    @ObservedObject private var navigation: MailNavigation
+
+    init(session: MailSession, reader: MailReaderModel, inlineComposer: Bool) {
+        self.session = session
+        self.reader = reader
+        self.inlineComposer = inlineComposer
+        _navigation = ObservedObject(wrappedValue: session.navigation)
+    }
 
     var body: some View {
         VStack(spacing: 0) {
             MailConversationHeader(session: session)
             // The shells' top row floats on glass with no rule under it (the approved images).
             if !bottomBarShell && !wideShell { MailDivider(axis: .horizontal) }
-            MailConversationContent(session: session, reader: reader, inlineComposer: inlineComposer)
+            if wideShell, let composer = navigation.composer, composer.host == reader.id {
+                // The box at the foot of the conversation (direction A), or over it at full height.
+                if navigation.dock?.mode != .full {
+                    MailConversationContent(session: session, reader: reader, inlineComposer: inlineComposer)
+                }
+                Group {
+                    if navigation.dock?.isFolded == true {
+                        MailComposerFoldedField(session: session, model: composer)
+                    } else {
+                        MailComposerBox(session: session, model: composer, navigation: navigation)
+                    }
+                }
+                .id(ObjectIdentifier(composer))
+                .padding(.horizontal, DS.Space.m)
+                .padding(.bottom, DS.Space.m)
+            } else {
+                MailConversationContent(session: session, reader: reader, inlineComposer: inlineComposer)
+            }
         }
         // A container of its own, so that its identifier is its own: set on a bare stack it is
         // handed down to every control in it, and Back, Done and the rest lose theirs.
@@ -39,6 +64,10 @@ struct MailConversationContent: View {
     /// "…" beside the subject, in place of the pane's row of icons (an upright iPad's reader).
     var titleMenu = false
     @State private var position: ScrollPosition
+    /// Where the thread was when his finger went down on it, while it is down.
+    @State private var pullStart: CGFloat?
+    /// In the bar's shells, pulling the thread down to read folds the composer's box into the field.
+    @Environment(\.bottomBarShell) private var bottomBarShell
 
     init(session: MailSession, reader: MailReaderModel, inlineComposer: Bool, titleMenu: Bool = false) {
         self.session = session
@@ -95,6 +124,19 @@ struct MailConversationContent: View {
             } action: { _, offset in
                 reader.scrollOffset = offset
             }
+            #if os(iOS)
+            .scrollDismissesKeyboard(bottomBarShell ? .interactively : .automatic)
+            .onScrollPhaseChange { _, phase, context in
+                pullStart = phase == .interacting ? context.geometry.contentOffset.y : nil
+            }
+            .onScrollGeometryChange(for: CGFloat.self) { $0.contentOffset.y } action: { _, y in
+                // His finger pulled the thread down (towards its top, or past it): the box folds.
+                // Reading on, up the thread, leaves it where it is.
+                guard bottomBarShell, let start = pullStart, start - y > 24 else { return }
+                pullStart = nil
+                session.dock(.threadDraggedDown)
+            }
+            #endif
         }
         .modifier(MailAttachmentPreviewHost(opener: reader.opener))
     }
@@ -179,6 +221,7 @@ private struct MailConversationHeader: View {
                         .disabled(!session.canPerform(.done))
                         .accessibilityIdentifier(MailID.done)
                 }
+                MailDiscardDraftItem(session: session)
                 Button { session.askForDetails(toggles: true) } label: { Label("Details", systemImage: "info.circle") }
                     .accessibilityIdentifier("mail.more.details")
             } label: {

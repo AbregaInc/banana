@@ -24,7 +24,14 @@ struct MailComposerTools: View {
     /// took plain ⌘A, Select All, for it.
     let chords: MailComposerChords
     /// The bar is shown until it is hidden; a sheet and a card remember it alike.
-    @AppStorage("mailFormatBarShown") private var showsBar = true
+    @AppStorage("mailFormatBarShown") private var showsCardBar = true
+    /// In the box (direction A) it is hidden until Aa asks for it.
+    @AppStorage(MailComposerBoxStyle.formatBarKey) private var showsBoxBar = false
+    @Environment(\.mailComposerBox) private var box
+    private var showsBar: Bool {
+        get { box == nil ? showsCardBar : showsBoxBar }
+        nonmutating set { if box == nil { showsCardBar = newValue } else { showsBoxBar = newValue } }
+    }
     @State private var showsFilePanel = false
     @State private var chordOwner = UUID()
     #if os(iOS)
@@ -35,6 +42,8 @@ struct MailComposerTools: View {
     var body: some View {
         HStack(spacing: 0) {
             attachControl
+            // The box (direction A): a photo is one tap of its own, beside the paperclip.
+            if box != nil { photoControl }
             formatToggle
         }
         .background {
@@ -107,6 +116,24 @@ struct MailComposerTools: View {
         .accessibilityIdentifier(MailID.attach)
         .help("Attach files (\u{21E7}\u{2318}A)")
         #endif
+    }
+
+    /// Photos straight away on a touch device; on the Mac, the file panel for pictures.
+    @ViewBuilder private var photoControl: some View {
+        Button {
+            #if os(iOS)
+            showsPhotos = true
+            #else
+            showsFilePanel = true
+            #endif
+        } label: {
+            Image(systemName: "photo")
+                .frame(width: DS.Row.minHeight, height: DS.Mail.header)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.borderless)
+        .accessibilityLabel("Photo")
+        .accessibilityIdentifier(MailID.composerPhoto)
     }
 
     private var attachLabel: some View {

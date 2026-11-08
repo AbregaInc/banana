@@ -10,6 +10,9 @@ import SwiftUI
 struct MailRecipientsView: View {
     @ObservedObject var model: MailComposerModel
     var focused: FocusState<MailComposerModel.Field?>.Binding
+    /// The box (direction A): one "Cc" at the end of To that brings Cc and Bcc, and From folded into
+    /// To's own menu, shown only when there is more than one address to send as.
+    var compact = false
 
     @State private var toSelection: TextSelection?
     @State private var ccSelection: TextSelection?
@@ -19,13 +22,13 @@ struct MailRecipientsView: View {
         VStack(alignment: .leading, spacing: DS.Space.xs) {
             ForEach(MailRecipientField.all, id: \.self) { field in
                 if model.shows(field) {
-                    MailRecipientRow(model: model, field: field, focused: focused, selection: selection(field))
+                    MailRecipientRow(model: model, field: field, focused: focused, selection: selection(field), compact: compact)
                     if model.suggestionField == field, !model.suggestions.isEmpty {
                         MailSuggestionList(model: model)
                     }
                 }
             }
-            if model.showsFrom {
+            if model.showsFrom, !compact {
                 MailFromRow(model: model)
             }
         }
@@ -99,10 +102,17 @@ private struct MailRecipientRow: View {
     let field: MailRecipientField
     var focused: FocusState<MailComposerModel.Field?>.Binding
     @Binding var selection: TextSelection?
+    var compact = false
 
     var body: some View {
         HStack(alignment: .firstTextBaseline, spacing: DS.Space.s) {
-            MailRowLabel(text: field.label)
+            if compact, field == .to, model.replyStyle != nil {
+                MailReplyStyleMenu(model: model)
+            } else if compact, field == .to, model.showsFrom {
+                MailFromInToMenu(model: model)
+            } else {
+                MailRowLabel(text: field.label)
+            }
             MailFlowLayout(spacing: DS.Space.xs) {
                 ForEach(model.people(in: field), id: \.address) { person in
                     MailRecipientChip(model: model, person: person)
@@ -110,7 +120,18 @@ private struct MailRecipientRow: View {
                 typing
             }
             if field == .to, !model.hiddenRows.isEmpty {
-                MailRevealWords(model: model)
+                if compact {
+                    Button("Cc") { model.revealCopies() }
+                        .buttonStyle(.plain)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .fixedSize()
+                        .accessibilityLabel("Add Cc and Bcc")
+                        .accessibilityIdentifier(MailID.composerReveal("Cc"))
+                        .help("Cc and Bcc (\u{21E7}\u{2318}C)")
+                } else {
+                    MailRevealWords(model: model)
+                }
             }
         }
     }
@@ -151,6 +172,92 @@ private struct MailRecipientRow: View {
         case .cc: MailID.composerCc
         case .bcc: MailID.composerBcc
         }
+    }
+}
+
+/// The start of a reply's To line in the box: "Reply all ⌄", and the menu switches between Reply
+/// all, Reply and Forward without losing the text (`MailComposerModel.switchReply`). With one other
+/// person on the thread Reply all and Reply are the same answer, so it says Reply and offers only
+/// Reply and Forward. Several addresses to send as add From to the same menu.
+struct MailReplyStyleMenu: View {
+    @ObservedObject var model: MailComposerModel
+
+    static func label(_ style: MailReplyStyle, same: Bool) -> String { style.label(sameAsReply: same) }
+
+    var body: some View {
+        let style = model.replyStyle ?? .replyAll
+        let same = model.replyAllIsReply
+        Menu {
+            Section {
+                if !same {
+                    choice("Reply all", .replyAll, current: style)
+                    choice("Reply", .reply, current: style)
+                } else {
+                    // One answer for both: Reply, whichever of the two the draft was made as.
+                    choice("Reply", style == .forward ? .replyAll : style, current: style == .forward ? .forward : style)
+                }
+                choice("Forward", .forward, current: style)
+            }
+            if model.showsFrom {
+                Section("From") {
+                    ForEach(model.identities, id: \.address) { identity in
+                        Button { model.changeFrom(to: identity) } label: {
+                            if identity == model.from { Label(identity.address, systemImage: "checkmark") }
+                            else { Text(identity.address) }
+                        }
+                    }
+                }
+            }
+        } label: {
+            HStack(spacing: DS.Space.hair) {
+                Text(Self.label(style, same: same)).font(.subheadline.weight(.medium))
+                Image(systemName: "chevron.down").font(.caption2.weight(.semibold))
+            }
+            .foregroundStyle(.secondary)
+        }
+        .menuIndicator(.hidden)
+        .fixedSize()
+        .disabled(!model.isReady)
+        .accessibilityLabel(Self.label(style, same: same))
+        .accessibilityIdentifier(MailID.composerReplyStyle)
+    }
+
+    private func choice(_ title: String, _ value: MailReplyStyle, current: MailReplyStyle) -> some View {
+        Button { model.switchReply(to: value) } label: {
+            if value == current { Label(title, systemImage: "checkmark") } else { Text(title) }
+        }
+        .accessibilityIdentifier(MailID.composerReplyStyleChoice(title))
+    }
+}
+
+/// The box's To label when there are several addresses to send as: a menu of them, the one in use
+/// ticked, so From takes no row of its own.
+private struct MailFromInToMenu: View {
+    @ObservedObject var model: MailComposerModel
+
+    var body: some View {
+        Menu {
+            Section("From") {
+                ForEach(model.identities, id: \.address) { identity in
+                    Button { model.changeFrom(to: identity) } label: {
+                        if identity == model.from {
+                            Label(identity.address, systemImage: "checkmark")
+                        } else {
+                            Text(identity.address)
+                        }
+                    }
+                }
+            }
+        } label: {
+            HStack(spacing: DS.Space.hair) {
+                Text("To").font(.subheadline).foregroundStyle(.secondary)
+                Image(systemName: "chevron.down").font(.caption2.weight(.semibold)).foregroundStyle(.secondary)
+            }
+        }
+        .menuIndicator(.hidden)
+        .fixedSize()
+        .accessibilityLabel(model.from.map { "From \($0.address)" } ?? "From")
+        .accessibilityIdentifier(MailID.composerFrom)
     }
 }
 

@@ -20,7 +20,7 @@ struct MailReadingPane: View {
                 // No rule under it in the shells: the approved images have none.
                 if !wideShell { MailDivider(axis: .horizontal) }
             }
-            if let composer = navigation.composer, composer.host == nil {
+            if let composer = navigation.composer, composer.host == nil, !bottomBarShell, !wideShell {
                 // A new message is written here, alone, with the list beside it.
                 ScrollView {
                     MailComposerView(session: session, model: composer, frame: .card)
@@ -29,20 +29,47 @@ struct MailReadingPane: View {
                         .padding(DS.Space.l)
                         .frame(maxWidth: .infinity)
                 }
-            } else if let reader = pane.reader {
-                // A reply is written in the pane — unless a conversation is open full width over
-                // it, which then holds the one composer: two editors on one draft, one of them
-                // covered, were found doubling the work and taking the caret.
-                MailConversationContent(session: session, reader: reader, inlineComposer: navigation.reader == nil,
-                                        titleMenu: bottomBarShell)
-                    .id(reader.id)
+            } else if let composer = boxComposer, navigation.dock?.mode == .full {
+                // The box at full height: the editor over the conversation.
+                box(composer)
             } else {
-                MailPaneEmpty()
+                if let reader = pane.reader {
+                    // A reply is written in the pane — unless a conversation is open full width over
+                    // it, which then holds the one composer: two editors on one draft, one of them
+                    // covered, were found doubling the work and taking the caret.
+                    MailConversationContent(session: session, reader: reader, inlineComposer: navigation.reader == nil,
+                                            titleMenu: bottomBarShell)
+                        .id(reader.id)
+                } else {
+                    MailPaneEmpty()
+                }
+                if let composer = boxComposer { box(composer) }
             }
         }
         // A container, so the header's buttons keep their own identifiers under this one.
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier(MailID.pane)
+    }
+
+    /// On an iPad on its side and the Mac the box docks at the foot of the reader (direction A): a
+    /// new message, or a reply to the conversation shown, unless one is open full width over it.
+    private var boxComposer: MailComposerModel? {
+        guard wideShell, navigation.reader == nil, let composer = navigation.composer else { return nil }
+        return composer.host == nil || composer.host == pane.reader?.id ? composer : nil
+    }
+
+    @ViewBuilder private func box(_ composer: MailComposerModel) -> some View {
+        Group {
+            if navigation.dock?.isFolded == true {
+                MailComposerFoldedField(session: session, model: composer)
+            } else {
+                MailComposerBox(session: session, model: composer, navigation: navigation)
+                    .frame(maxWidth: DS.Mail.readingMeasure + 2 * DS.Space.l)
+            }
+        }
+        .id(ObjectIdentifier(composer))
+        .padding(.horizontal, DS.Space.m)
+        .padding(.bottom, DS.Space.m)
     }
 }
 
@@ -139,6 +166,7 @@ struct MailPaneMoreMenu: View {
                     Label("Details", systemImage: "info.circle")
                 }
                 .accessibilityIdentifier("mail.more.details")
+                MailDiscardDraftItem(session: session)
             }
         } label: {
             Image(systemName: "ellipsis")

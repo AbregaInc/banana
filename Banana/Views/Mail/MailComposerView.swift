@@ -2,8 +2,9 @@
 import SwiftUI
 
 /// The composer (MAIL-UX 6.3): who it goes to, what it is called, its text, the original folded
-/// beneath it, and Send. One view in two frames: a **card** with an accent spine, written in the
-/// conversation or alone in the pane; and a **sheet** at a phone's width.
+/// beneath it, and Send. One view in two frames: a **card**, written in the
+/// conversation or alone in the pane; and a **sheet** at a phone's width. These are the standalone
+/// routes' frames; in the app's shells the composer is the box (`MailComposerBox`).
 ///
 /// It observes its model and nothing else. A keystroke changes `MailComposerModel` and re-evaluates
 /// this view; nothing the list or the reading pane reads changes, because nothing there observes the
@@ -98,22 +99,15 @@ struct MailComposerView: View {
     }
 }
 
-/// The card's edge: a washed card with the accent spine down its leading side; or nothing for a
-/// sheet, which is its own surface.
+/// The card's edge: a washed card; or nothing for a sheet, which is its own surface.
 private struct MailComposerChrome: ViewModifier {
     let frame: MailComposerView.Frame
 
     func body(content: Content) -> some View {
         switch frame {
         case .card:
-            content
-                .dsCard()
-                .overlay(alignment: .leading) {
-                    Capsule()
-                        .fill(DS.Palette.accent)
-                        .frame(width: DS.Mail.cursorSpine)
-                        .padding(.vertical, DS.Space.xs)
-                }
+            // No colour stripe on any edge (the owner, 16 Oct 2026): the card is its surface alone.
+            content.dsCard()
         case .sheet:
             content
         }
@@ -152,7 +146,7 @@ struct MailSampleChip: View {
     }
 }
 
-private struct MailSubjectRow: View {
+struct MailSubjectRow: View {
     @ObservedObject var model: MailComposerModel
     var focused: FocusState<MailComposerModel.Field?>.Binding
 
@@ -173,7 +167,7 @@ private struct MailSubjectRow: View {
 
 /// The quoted original: its first line, "On Mon 5 Oct, 9:12 AM, Sam Lee wrote:", behind three dots,
 /// and the whole of it when opened. Never part of what he types.
-private struct MailQuotedBlock: View {
+struct MailQuotedBlock: View {
     let part: MailDraftPart
     @State private var isOpen = false
 

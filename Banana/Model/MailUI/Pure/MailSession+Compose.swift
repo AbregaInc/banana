@@ -93,7 +93,14 @@ extension MailSession {
         }
         let composer = MailComposerModel(start: start, source: source, timers: timers, clock: clock,
                                          device: deviceName, requestFocus: requestFocus, preferredAccount: preferredAccount)
-        navigation.setComposer(composer)
+        // A new message opens at full height, To first; a reply, docked over the keyboard.
+        var isNew = false
+        switch start {
+        case .new: isNew = true
+        case .continuing(let id): isNew = id == keptNewDraft
+        default: break
+        }
+        navigation.setComposer(composer, full: isNew)
         composer.load()
     }
 

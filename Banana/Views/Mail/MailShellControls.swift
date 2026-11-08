@@ -59,6 +59,7 @@ struct MailActionsMenu: View {
                     .accessibilityIdentifier("mail.more.details")
                 Button { session.compose() } label: { Label("New message", systemImage: "square.and.pencil") }
                     .disabled(!session.allowsComposing)
+                MailDiscardDraftItem(session: session)
             }
         } label: {
             Image(systemName: "ellipsis")

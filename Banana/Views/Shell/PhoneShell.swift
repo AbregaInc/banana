@@ -21,6 +21,18 @@ final class ShellChrome: ObservableObject {
     @Published private(set) var keyboardUp = false
     /// The height of the bar and the player above it, for what is laid out over the page.
     @Published private(set) var barHeight: CGFloat = 76
+    /// How much of the window the keyboard covers (0 with none, or a hardware keyboard).
+    @Published private(set) var keyboardHeight: CGFloat = 0
+    /// Mail's composer is open in the bar (`ShellMailComposer`): the sparkle and the player step away.
+    @Published private(set) var mailComposing = false
+    /// …and it is the box, docked or at full height, not the folded field: on a phone the switcher
+    /// steps away too.
+    @Published private(set) var mailBoxOpen = false
+
+    func setMailComposer(composing: Bool, boxOpen: Bool) {
+        if mailComposing != composing { mailComposing = composing }
+        if mailBoxOpen != boxOpen { mailBoxOpen = boxOpen }
+    }
 
     private var loadedEpisode: String?
     private var observers: [NSObjectProtocol] = []
@@ -33,6 +45,29 @@ final class ShellChrome: ObservableObject {
         observers.append(center.addObserver(forName: UIResponder.keyboardWillHideNotification, object: nil, queue: .main) { _ in
             MainActor.assumeIsolated { if ShellChrome.shared.keyboardUp { ShellChrome.shared.keyboardUp = false } }
         })
+        observers.append(center.addObserver(forName: UIResponder.keyboardWillChangeFrameNotification, object: nil, queue: .main) { note in
+            let end = (note.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue ?? .zero
+            MainActor.assumeIsolated {
+                let height = ShellChrome.windowHeight.map { max(0, $0 - end.minY) } ?? end.height
+                if abs(ShellChrome.shared.keyboardHeight - height) >= 1 { ShellChrome.shared.keyboardHeight = height }
+            }
+        })
+    }
+
+    /// The key window, for what the bar must size against the screen (the box at full height).
+    static var keyWindow: UIWindow? {
+        UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
+            .flatMap(\.windows).first { $0.isKeyWindow }
+    }
+    static var windowHeight: CGFloat? { keyWindow?.bounds.height }
+
+    /// The composer's box at full height: from under the top row to the keyboard (or the home
+    /// indicator), over the thread.
+    var fullComposerHeight: CGFloat {
+        guard let window = Self.keyWindow else { return 520 }
+        let top = window.safeAreaInsets.top + 52
+        let bottom = keyboardHeight > 0 ? keyboardHeight : window.safeAreaInsets.bottom
+        return max(240, window.bounds.height - top - bottom - DS.Space.s)
     }
 
     /// Whether the bar is on screen (it steps away for a keyboard that isn't the field's): what
@@ -76,7 +111,8 @@ struct ShellBarHost: View {
     @ObservedObject private var search = ShellSearch.shared
 
     var body: some View {
-        if !chrome.keyboardUp || search.focused {
+        // Mail's composer is the bar's own: the keyboard is up for it, and the bar holds the box.
+        if !chrome.keyboardUp || search.focused || (section == .mail && chrome.mailComposing) {
             ShellBottomBar(section: section, pages: pages, open: open, expandPlayer: expandPlayer)
                 .onAppear { chrome.setBarShown(true) }
                 .onDisappear { chrome.setBarShown(false) }
@@ -98,29 +134,34 @@ struct ShellBottomBar: View {
     @ObservedObject private var badges = ActionBadges.shared
     @EnvironmentObject private var player: PlayerController
     @EnvironmentObject private var music: MusicController
+    /// A phone (compact) gives the box the whole width; an upright iPad keeps the switcher beside it.
+    @Environment(\.horizontalSizeClass) private var widthClass
 
     var body: some View {
         let _ = RenderStats.note("ShellBottomBar")
         let mode = search.mode
+        let composing = section == .mail && chrome.mailComposing
         let placement = ShellPlayerPlacement.of(loaded: player.currentEpisode != nil,
                                                 hidden: chrome.playerHidden,
-                                                fieldInUse: mode.hidesSideButtons)
+                                                fieldInUse: mode.hidesSideButtons || composing)
+        let switcherShown = !mode.hidesSideButtons && !(composing && chrome.mailBoxOpen && widthClass != .regular)
         VStack(spacing: DS.Space.s) {
             if placement == .capsule {
                 ShellPlayerCapsule(expand: expandPlayer)
                     .transition(.move(edge: .bottom).combined(with: .opacity))
-            } else if player.currentEpisode == nil, music.wakePlaying != nil, !mode.hidesSideButtons {
+            } else if player.currentEpisode == nil, music.wakePlaying != nil, !mode.hidesSideButtons, !composing {
                 MusicWakeBar()
                     .frame(height: ShellMetrics.control)
                     .glassEffect(.regular, in: .capsule)
             }
             GlassEffectContainer(spacing: ShellMetrics.spacing) {
-                HStack(spacing: ShellMetrics.spacing) {
-                    if !mode.hidesSideButtons {
+                // Bottom-aligned: the box grows upward from the switcher's line.
+                HStack(alignment: .bottom, spacing: ShellMetrics.spacing) {
+                    if switcherShown {
                         switcherButton
                     }
                     ShellFieldRow(section: section, search: search, showsChip: placement == .chip)
-                    if !mode.hidesSideButtons, ShellAssistant.isAvailable {
+                    if !mode.hidesSideButtons, !composing, ShellAssistant.isAvailable {
                         roundButton("sparkle", label: "Ask Banana", identifier: "shell.ai") {
                             chrome.switcherOpen = false
                             ShellAssistant.open()
@@ -134,6 +175,7 @@ struct ShellBottomBar: View {
         .padding(.bottom, DS.Space.xs)
         .animation(.snappy(duration: 0.25), value: placement)
         .animation(.snappy(duration: 0.25), value: mode.hidesSideButtons)
+        .animation(.snappy(duration: 0.25), value: switcherShown)
         .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { chrome.setBarHeight($0) }
         .onChange(of: player.currentEpisode?.id, initial: true) { _, id in chrome.episodeChanged(id.map { "\($0)" }) }
         .accessibilityElement(children: .contain)
@@ -179,11 +221,17 @@ private struct ShellFieldRow: View {
     var body: some View {
         #if BANANA_UNRELEASED
         if section == .mail {
-            MailReaderAware { reader in
-                if let reader {
-                    replyField(reader)
+            MailComposerAware { (composing: MailComposing?) in
+                if let composing {
+                    ShellMailComposer(session: composing.session, model: composing.model, navigation: composing.session.navigation)
                 } else {
-                    ShellField(search: search, showsChip: showsChip)
+                    MailReaderAware { reader in
+                        if let reader {
+                            replyField(reader)
+                        } else {
+                            ShellField(search: search, showsChip: showsChip)
+                        }
+                    }
                 }
             }
         } else {
@@ -197,7 +245,8 @@ private struct ShellFieldRow: View {
     #if BANANA_UNRELEASED
     /// In an open conversation the field starts a reply, and Archive sits beside it.
     @ViewBuilder private func replyField(_ session: MailSession) -> some View {
-        Button { session.reply(.reply) } label: {
+        // Reply all by default (the owner, 7 Nov 2026); the box's switch makes it a Reply.
+        Button { session.reply(.replyAll) } label: {
             HStack(spacing: DS.Space.s) {
                 if showsChip { ShellPlayerChip() }
                 Image(systemName: "arrowshape.turn.up.left").foregroundStyle(.secondary)
@@ -230,6 +279,63 @@ private struct ShellFieldRow: View {
 }
 
 #if BANANA_UNRELEASED
+/// Hands its content Mail's open composer, else nil.
+/// Mail's open composer, and the session it belongs to.
+struct MailComposing { let session: MailSession; let model: MailComposerModel }
+
+struct MailComposerAware<Content: View>: View {
+    @ObservedObject private var application = MailApplication.shared
+    @ViewBuilder let content: (MailComposing?) -> Content
+
+    var body: some View {
+        if let session = application.session {
+            Watching(navigation: session.navigation, session: session, content: content)
+        } else {
+            content(nil)
+        }
+    }
+
+    private struct Watching: View {
+        @ObservedObject var navigation: MailNavigation
+        let session: MailSession
+        let content: (MailComposing?) -> Content
+        var body: some View { content(navigation.composer.map { MailComposing(session: session, model: $0) }) }
+    }
+}
+
+/// Mail's composer in the bar (direction A): the box over the keyboard, docked or at full height,
+/// or the draft folded into the field while he reads. It tells the bar which, so the switcher and
+/// the sparkle step aside, and folds the box when the keyboard is put away.
+private struct ShellMailComposer: View {
+    let session: MailSession
+    @ObservedObject var model: MailComposerModel
+    @ObservedObject var navigation: MailNavigation
+    @ObservedObject private var chrome = ShellChrome.shared
+
+    var body: some View {
+        let folded = navigation.dock?.isFolded ?? false
+        Group {
+            if folded {
+                MailComposerFoldedField(session: session, model: model, height: ShellMetrics.control)
+            } else {
+                MailComposerBox(session: session, model: model, navigation: navigation,
+                                fullHeight: chrome.fullComposerHeight)
+            }
+        }
+        .onChange(of: folded, initial: true) { _, folded in chrome.setMailComposer(composing: true, boxOpen: !folded) }
+        .onDisappear { chrome.setMailComposer(composing: false, boxOpen: false) }
+        // The keyboard put away by him folds the box. A moment's wait: the caret moving from the text
+        // to Cc can hide the keyboard for an instant, and that is not him putting it away.
+        .onChange(of: chrome.keyboardUp) { wasUp, isUp in
+            guard wasUp, !isUp else { return }
+            Task { @MainActor in
+                try? await Task.sleep(for: .milliseconds(350))
+                if !chrome.keyboardUp { session.dock(.keyboardHidden) }
+            }
+        }
+    }
+}
+
 /// Hands its content the Mail session while a conversation is open over the list, else nil.
 struct MailReaderAware<Content: View>: View {
     @ObservedObject private var application = MailApplication.shared

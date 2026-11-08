@@ -18,10 +18,13 @@ struct MailReplySlot: View {
     let inline: Bool
     /// Scroll the conversation to the card, under the subject.
     let reveal: () -> Void
+    /// The shells write in the box (`MailComposerBox`), never in a card here.
+    @Environment(\.bottomBarShell) private var bottomBarShell
+    @Environment(\.wideShell) private var wideShell
 
     var body: some View {
         if let composer = navigation.composer {
-            if composer.host == conversation, inline {
+            if composer.host == conversation, inline, !bottomBarShell, !wideShell {
                 MailComposerView(session: session, model: composer, frame: .card)
                     .id(ObjectIdentifier(composer))
                     .onAppear { DispatchQueue.main.async(execute: reveal) }
