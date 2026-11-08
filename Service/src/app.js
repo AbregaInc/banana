@@ -32,6 +32,7 @@ import { createTurnstile, memoryLimits } from "./booking/guard.js";
 import { webRoutes } from "./web/routes.js";
 import { sourceRoutes } from "./source-offer.js";
 import { pushTo } from "./push.js";
+import { capabilitiesColumn, parseCapabilities } from "./device-features.js";
 
 /**
  * @typedef {{
@@ -88,7 +89,10 @@ export function parseDevice(input, id = input?.id) {
   if (typeof input.bundle !== "string" || !/^[A-Za-z0-9.-]{3,100}$/.test(input.bundle)) return null;
   const providerProtocol = input.providerProtocol ?? 0;
   if (!Number.isInteger(providerProtocol) || providerProtocol < 0 || providerProtocol > 100) return null;
-  return { id, platform: input.platform, push: push && push.toLowerCase(), pushEnv: input.pushEnv, bundle: input.bundle, providerProtocol };
+  // What the device can take pushes about (src/device-features.js); undefined from older builds.
+  const capabilities = parseCapabilities(input.capabilities);
+  if (capabilities === null) return null;
+  return { id, platform: input.platform, push: push && push.toLowerCase(), pushEnv: input.pushEnv, bundle: input.bundle, providerProtocol, capabilities };
 }
 
 export { pushTo } from "./push.js";
@@ -175,13 +179,14 @@ export function createApp(deps) {
   function deviceStatements(device, account) {
     const t = now();
     const out = [{
-      sql: `INSERT INTO devices (id, account_id, platform, push_token, push_env, bundle, updated_at, provider_protocol) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      sql: `INSERT INTO devices (id, account_id, platform, push_token, push_env, bundle, updated_at, provider_protocol, capabilities) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT (id) DO UPDATE SET account_id = excluded.account_id, platform = excluded.platform,
               push_token = excluded.push_token, push_env = excluded.push_env, bundle = excluded.bundle, updated_at = excluded.updated_at, provider_protocol = excluded.provider_protocol,
+              capabilities = excluded.capabilities,
               seeded_types = CASE WHEN devices.account_id = excluded.account_id THEN devices.seeded_types END,
               seeded_at = CASE WHEN devices.account_id = excluded.account_id THEN devices.seeded_at END,
               flipped_at = CASE WHEN devices.account_id = excluded.account_id THEN devices.flipped_at END`,
-      params: [device.id, account, device.platform, device.push, device.pushEnv, device.bundle, t, device.providerProtocol],
+      params: [device.id, account, device.platform, device.push, device.pushEnv, device.bundle, t, device.providerProtocol, capabilitiesColumn(device.capabilities)],
     }];
     // A push token reaches one device: an older row holding it (a reinstall) lets go of it.
     if (device.push) out.push({ sql: "UPDATE devices SET push_token = NULL WHERE push_token = ? AND id <> ?", params: [device.push, device.id] });

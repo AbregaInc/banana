@@ -81,8 +81,8 @@ async function mailbox() {
   const gmail = fakeGmail();
   for (const name of ["mailRead", "mailMessage", "mailMutation", "mailLabels", "mailCreateLabel"]) s.google[name] = gmail[name];
   s.google.person("noor", SUB, EMAIL);
-  const phone = (await s.signIn("noor", device("device-phone", { push: pushToken(1) }))).json;
-  const mac = (await s.signIn("noor", device("device-mac1", { platform: "mac", push: pushToken(2) }))).json;
+  const phone = (await s.signIn("noor", device("device-phone", { push: pushToken(1), capabilities: ["mail"] }))).json;
+  const mac = (await s.signIn("noor", device("device-mac1", { platform: "mac", push: pushToken(2), capabilities: ["mail"] }))).json;
   await s.db.run("INSERT INTO feature_access VALUES (?,?,1,NULL,?)", phone.account.id, "email", s.now());
   s.google.person("mail-noor", SUB, EMAIL, "mail-noor", { scopes: "https://www.googleapis.com/auth/gmail.modify" });
   assert.equal((await s.call("POST", "/v1/google/mail", { session: phone.session, body: { email: EMAIL, code: "mail-noor" } })).status, 200);

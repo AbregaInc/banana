@@ -18,8 +18,8 @@ async function mailbox({ count = 0, labels, config = {}, push = false } = {}) {
   const gmail = fakeGmail();
   Object.assign(s.google, { mailRead: gmail.mailRead, mailMessage: gmail.mailMessage, mailMutation: gmail.mailMutation });
   s.google.person("noor", "sub-noor", EMAIL);
-  const phone = (await s.signIn("noor", device("device-phone", push ? { push: pushToken(1) } : {}))).json;
-  const mac = (await s.signIn("noor", device("device-mac1", { platform: "mac", ...(push ? { push: pushToken(2) } : {}) }))).json;
+  const phone = (await s.signIn("noor", device("device-phone", { capabilities: ["mail"], ...(push ? { push: pushToken(1) } : {}) }))).json;
+  const mac = (await s.signIn("noor", device("device-mac1", { platform: "mac", capabilities: ["mail"], ...(push ? { push: pushToken(2) } : {}) }))).json;
   assert.equal(phone.account.id, mac.account.id);
   await s.db.run("INSERT INTO feature_access VALUES (?,?,1,NULL,?)", phone.account.id, "email", s.now());
   s.google.person("mail-noor", "sub-noor", EMAIL, "mail-noor", { scopes: "https://www.googleapis.com/auth/gmail.modify" });
@@ -511,6 +511,9 @@ test("Gmail's push wakes the right mailbox, which reads history, stores the new 
   assert.equal(t.s.google.mailWatches.length, 1, "the mailbox started its watch");
   assert.equal(t.s.google.mailWatches[0].topicName, PUSH_CONFIG.mailPushTopic);
   assert.ok((await t.status()).watchExpires > t.s.now() + 6 * DAY, "recorded");
+  // A third device on the account whose build has no Mail (Stable): it takes no mail push.
+  const stable = device("device-stable", { platform: "ipad", push: pushToken(3), capabilities: [] });
+  assert.equal((await t.s.signIn("noor", stable, t.phone.session)).status, 200);
   t.s.apns.sends.length = 0;
   // A burst of new mail, a notice for each.
   for (const id of ["n1", "n2", "n3"]) t.gmail.add(id, ["INBOX", "UNREAD"]);
@@ -519,7 +522,8 @@ test("Gmail's push wakes the right mailbox, which reads history, stores the new 
   await t.s.mailboxes.due();
   for (const id of ["n1", "n2", "n3"]) assert.equal(t.gmail.reads("message", id, "full"), 1, id);
   const mailPushes = t.s.apns.sends.filter((p) => p.collapseId === "mail");
-  assert.equal(mailPushes.length, 2, "one push to each of the two devices");
+  assert.equal(mailPushes.length, 2, "one push to each of the two devices with Mail");
+  assert.ok(!mailPushes.some((p) => p.token === stable.push), "none to the device without Mail");
   assert.deepEqual(mailPushes[0].payload, { aps: { "content-available": 1 }, b: { k: "mail" } });
   assert.ok(!JSON.stringify(mailPushes[0].payload).includes("@"), "no address in a push");
   // More mail right after: coalesced, the next push waits out the gap.

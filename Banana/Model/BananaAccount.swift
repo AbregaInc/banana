@@ -62,6 +62,8 @@ final class BananaAccount: ObservableObject {
     private var pushToken: String?
     private var started = false
     private var watching: AnyCancellable?
+    /// Re-registers the device when what it takes pushes about changes (a module switched).
+    private var capabilityWatch: AnyCancellable?
     private var pass: Task<Void, Never>?
     private var passAgain: String?
     private var retry: Task<Void, Never>?
@@ -94,6 +96,11 @@ final class BananaAccount: ObservableObject {
                 .merge(with: SmartScheduleStore.shared.$settings.map(\.excludedCalendarIDs).removeDuplicates().map { _ in () })
                 .debounce(for: .seconds(3), scheduler: RunLoop.main)
                 .sink { [weak self] in self?.runPass(reason: "calendars changed") }
+            // Email switched on or off here or on another device: the service hears it at once, so
+            // its mail pushes reach only the devices that show Mail.
+            capabilityWatch = ModuleStore.shared.$choice.map(BananaService.deviceCapabilities(modules:))
+                .removeDuplicates().dropFirst()
+                .sink { [weak self] _ in Task { await self?.registerDevice() } }
             policyRefresh = Task { [weak self] in
                 while !Task.isCancelled {
                     do { try await Task.sleep(for: .seconds(10 * 60)) } catch { return }
@@ -310,7 +317,8 @@ final class BananaAccount: ObservableObject {
     private func device() -> BananaService.Device {
         BananaService.Device(id: deviceID, platform: Telemetry.platform, push: pushToken,
                              pushEnv: pushEnvironment,
-                             bundle: Bundle.main.bundleIdentifier ?? "com.boris.banana", providerProtocol: 1)
+                             bundle: Bundle.main.bundleIdentifier ?? "com.boris.banana", providerProtocol: 1,
+                             capabilities: BananaService.deviceCapabilities(modules: ModuleStore.shared.choice))
     }
 
     // MARK: - Calendars to watch

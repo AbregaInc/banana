@@ -41,6 +41,31 @@ final class BananaServiceTests: XCTestCase {
         XCTAssertEqual(body["push"] as? String, "a1b2")
     }
 
+    func testADeviceSaysWhatItTakesPushesAboutAtEveryRegistration() throws {
+        // Service/src/device-features.js: an empty list is an answer (none), so it is sent too.
+        for (capabilities, expected) in [(["mail"], ["mail"]), ([String](), [String]())] {
+            var reporting = device
+            reporting.capabilities = capabilities
+            let put = try json(BananaService.request(.device(reporting), host: "service.example", session: "abc"))
+            XCTAssertEqual(put["capabilities"] as? [String], expected)
+            let signIn = try json(BananaService.request(.signIn(code: "c", device: reporting), host: "service.example", session: nil))
+            XCTAssertEqual((signIn["device"] as? [String: Any])?["capabilities"] as? [String], expected)
+            let identity = try json(BananaService.request(.identity(idToken: "t", device: reporting), host: "service.example", session: nil))
+            XCTAssertEqual((identity["device"] as? [String: Any])?["capabilities"] as? [String], expected)
+        }
+    }
+
+    func testMailIsReportedOnlyWhileTheEmailModuleIsOn() {
+        // This test bundle builds Email in (BANANA_LOCAL_EMAIL=YES); a Stable build reports [] for
+        // every choice, because ModuleChoice.includes is false for a module the build lacks.
+        XCTAssertTrue(AppModule.email.isAvailable)
+        XCTAssertEqual(BananaService.deviceCapabilities(modules: .everything), ["mail"])
+        XCTAssertEqual(BananaService.deviceCapabilities(modules: .only(["email", "notes"])), ["mail"])
+        XCTAssertEqual(BananaService.deviceCapabilities(modules: .only(["notes"])), [])
+        XCTAssertEqual(BananaService.deviceCapabilities(modules: .only([])), [])
+        XCTAssertEqual(BananaService.deviceCapabilities(modules: ModuleChoice.everything.setting(.email, on: false)), [])
+    }
+
     func testGoogleAccountsAreNamedByLowercasedEmail() throws {
         let open = BananaService.request(.openChannel(email: "Noor@Example.com", calendarID: "a"),
                                          host: "service.example", session: "abc")

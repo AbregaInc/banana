@@ -455,7 +455,7 @@ export function createMailbox({ port, deps, vault, blobs, alarm, destroy }) {
     box.setMeta(port, "pushed_at", now());
     const { account } = box.identity(port);
     if (account && deps.apns) {
-      try { await pushTo(deps, account, { payload: MAIL_PUSH, collapseId: "mail", label: "push(mail)" }); }
+      try { await pushTo(deps, account, { payload: MAIL_PUSH, collapseId: "mail", label: "push(mail)", feature: "mail" }); }
       catch (error) { console.log(`mailbox: push failed (${error.name})`); }
     }
     return null;

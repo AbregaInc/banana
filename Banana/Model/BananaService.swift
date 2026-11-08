@@ -46,6 +46,16 @@ enum BananaService {
         var pushEnv: String
         var bundle: String
         var providerProtocol: Int? = nil
+        /// What this device takes pushes about (`Service/src/device-features.js`): a feature built
+        /// into this build and switched on. Always sent by current builds, `[]` for none; nil only
+        /// in older request shapes.
+        var capabilities: [String]? = nil
+    }
+
+    /// The features this device reports (`Device.capabilities`): Mail when this build has it and
+    /// the person's module choice has it on. Account eligibility is the service's own to know.
+    static func deviceCapabilities(modules: ModuleChoice) -> [String] {
+        modules.includes(.email) ? ["mail"] : []
     }
 
     struct Account: Codable, Equatable {
@@ -422,6 +432,7 @@ enum BananaService {
                                    "bundle": device.bundle]
         json["push"] = device.push ?? NSNull()
         if let providerProtocol = device.providerProtocol { json["providerProtocol"] = providerProtocol }
+        if let capabilities = device.capabilities { json["capabilities"] = capabilities }
         return json
     }
 

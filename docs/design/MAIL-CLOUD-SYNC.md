@@ -94,8 +94,9 @@ the account calls `users.stop` first, while the grant still works. Setup: `Servi
 
 **The service to the devices.** When new mail's content (history's `messagesAdded`, fetch
 queue prio 1) is stored and published, the mailbox sends one silent push to the account's
-devices through the existing `pushTo`: `{"aps":{"content-available":1},"b":{"k":"mail"}}`,
-collapse id `mail`, no address or content in it. A burst sends one; the next waits out 15 s.
+devices that have Mail (`pushTo` with `feature: "mail"`: the build has Mail and the Email module
+is on, as each device reports in `capabilities` when it registers; `Service/src/device-features.js`):
+`{"aps":{"content-available":1},"b":{"k":"mail"}}`, collapse id `mail`, no address or content in it. A burst sends one; the next waits out 15 s.
 The fill and the Inbox head never push. On iOS the app handles `k: "mail"` like `calendar` and
 `sync`: within the push's background window (about 30 s; no new background mode — the app's
 existing `remote-notification`), one feed pass for each account and a bulk pull of the new
