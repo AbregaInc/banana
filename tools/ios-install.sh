@@ -13,6 +13,9 @@
 # AUTH_ARGS: optional App Store Connect API key arguments, as in mac-install.sh — lets a new
 # capability be added to the App ID and the profile regenerated when Xcode has no signed-in account.
 #
+# BUILD_NUMBER: the build number to stamp (CFBundleVersion), e.g. the TestFlight build made from the
+# same commit. Unset: project.yml's CURRENT_PROJECT_VERSION.
+#
 # CONFIG: Release by default — optimized, as the Mac already is. The phone ran Debug builds for
 # months, which is unoptimized Swift: every SwiftUI body (the Day grid above all) and every
 # recompute several times slower than shipping code, on the app used all day. Release is signed
@@ -56,7 +59,7 @@ fi
 xcodegen generate
 # Dev uses its configured Email build gate; live access still requires account eligibility.
 banana_xcodebuild -jobs "${BUILD_JOBS:-2}" -project Banana.xcodeproj -scheme "$scheme" -configuration "$config" BANANA_UNRELEASED="$unreleased" \
-  BANANA_SOURCE_COMMIT="$(banana_source_revision)" \
+  BANANA_SOURCE_COMMIT="$(banana_source_revision)" ${BUILD_NUMBER:+"CURRENT_PROJECT_VERSION=$BUILD_NUMBER"} \
   -destination "id=$device" -derivedDataPath ".build/ios-$variant" \
   -allowProvisioningUpdates -quiet build
 
@@ -122,7 +125,7 @@ if [ "$variant" = "prod" ]; then
     esac
     [ -n "$watchUDID" ] && echo "Building the Watch app for $watchUDID…"
     [ -n "$watchUDID" ] \
-      && banana_xcodebuild -jobs "${BUILD_JOBS:-2}" -project Banana.xcodeproj -scheme BananaWatch -configuration "$config" \
+      && banana_xcodebuild -jobs "${BUILD_JOBS:-2}" -project Banana.xcodeproj -scheme BananaWatch -configuration "$config" ${BUILD_NUMBER:+"CURRENT_PROJECT_VERSION=$BUILD_NUMBER"} \
       -destination "id=$watchUDID" -derivedDataPath ".build/ios-$variant-watch" \
       -allowProvisioningUpdates -quiet build \
       && xcrun devicectl device install app --device "$watch" \
