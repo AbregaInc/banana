@@ -3,7 +3,7 @@
 Decided 19 Oct 2026, for the App Store release. Apple's Organizer shows crashes, hangs and energy
 only for people who opted in to sharing with developers, a day or two late. Banana sends its own
 copy of the same MetricKit reports to the Banana service, anonymously, only after the person enables
-Settings › About › Share usage. An absent setting is off.
+Settings › About › Share usage. It is on until turned off.
 
 ## What goes
 

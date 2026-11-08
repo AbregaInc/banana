@@ -1,6 +1,7 @@
 #!/bin/bash
 # Prepare a signed archive/export; upload only when explicitly requested.
 # Both platforms use the existing primary app identity and production service.
+# TestFlight is the Stable channel: Email and local AI are compiled out.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 usage() { echo 'Usage: tools/testflight.sh ios|mac BUILD_NUMBER [prepare|upload]'; }
@@ -52,7 +53,7 @@ if [[ ! -d "$archive" ]]; then
 xcodegen generate
 xcodebuild -project Banana.xcodeproj -scheme "$scheme" -configuration TestFlight \
   "${platform_args[@]}" -derivedDataPath "$derived" -archivePath "$archive" -jobs 2 \
-  BANANA_UNRELEASED=NO BANANA_LOCAL_AI=NO BANANA_LOCAL_EMAIL=YES \
+  BANANA_UNRELEASED=NO BANANA_LOCAL_AI=NO BANANA_LOCAL_EMAIL=NO \
   "CURRENT_PROJECT_VERSION=$build" "BANANA_SOURCE_COMMIT=$revision" \
   "${auth[@]}" archive
 fi

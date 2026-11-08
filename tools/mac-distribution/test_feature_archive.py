@@ -36,8 +36,8 @@ class FeatureArchiveTests(unittest.TestCase):
         result = subprocess.run(['bash', str(ROOT / 'tools/check-release.sh'), str(target)], capture_output=True, text=True)
         self.assertEqual(result.returncode == 0, allowed, result.stdout + result.stderr)
 
-    def test_email_requires_testflight_channel_and_primary_identity(self):
-        for channel, bundle, allowed in [('testflight', 'org.example.banana', True),
+    def test_stable_channels_never_carry_email(self):
+        for channel, bundle, allowed in [('testflight', 'org.example.banana', False),
                                          ('stable', 'org.example.banana', False),
                                          ('beta', 'org.example.banana.beta', False),
                                          ('testflight', 'org.example.banana.beta', False),
@@ -74,7 +74,7 @@ class FeatureArchiveTests(unittest.TestCase):
             self.app(app / 'Nested', 'testflight', 'org.example.banana')
             self.check(app, False)
 
-    def test_testflight_cannot_ship_ai(self):
+    def test_testflight_cannot_ship_email_or_ai(self):
         with tempfile.TemporaryDirectory() as path:
             self.check(self.app(pathlib.Path(path), 'testflight', 'org.example.banana', 'EMAIL\nAI\n'), False)
 

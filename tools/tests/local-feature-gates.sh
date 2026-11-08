@@ -23,6 +23,13 @@ grep -qx EMAIL "$scratch/Resources/banana-local-features.txt"
 if tools/check-release.sh "$scratch" > "$scratch/check.log" 2>&1; then echo 'Email marker accepted'; exit 1; fi
 export ACTION=install
 if tools/local-feature-resources.sh > "$scratch/archive.log" 2>&1; then echo 'Local feature archive accepted'; exit 1; fi
+# TestFlight is Stable: the primary identity may not archive Email. Only the direct Beta target may.
+export BANANA_BUNDLE_ID=org.example.banana
+if BANANA_RELEASE_CHANNEL=testflight PRODUCT_BUNDLE_IDENTIFIER=org.example.banana TARGET_NAME=Banana \
+  tools/local-feature-resources.sh > "$scratch/testflight.log" 2>&1; then echo 'TestFlight Email archive accepted'; exit 1; fi
+BANANA_RELEASE_CHANNEL=beta PRODUCT_BUNDLE_IDENTIFIER=org.example.banana.beta TARGET_NAME=BananaMacBetaDirect \
+  tools/local-feature-resources.sh
+unset BANANA_BUNDLE_ID
 export BANANA_LOCAL_EMAIL=NO
 tools/local-feature-resources.sh
 [ ! -e "$scratch/Resources/banana-local-features.txt" ]

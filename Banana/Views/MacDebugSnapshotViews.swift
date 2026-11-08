@@ -65,11 +65,13 @@ enum MacDebugSnapshotViews {
             return AnyView(MacPlayerPreviewHost().frame(width: 480, height: 720))
         case "workout-charts":
             return AnyView(MacChartsPreviewHost().frame(width: 720, height: 900))
+        #if !BANANA_PUBLIC
         case "mail":
             // The sample mail at the harness's width, which chooses its columns. `--mail-open`,
             // `--mail-cursor`, `--mail-place`, `--mail-pane off` and `--mail-state done`
             // (MailSession+App) pick the state.
             return AnyView(MailSection().toastHost())
+        #endif
         case "undo-toast":
             ToastCenter.shared.showPreview("Deleted \u{201C}Client review\u{201D}")
             return AnyView(ToastView())

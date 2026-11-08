@@ -3,7 +3,7 @@ import MetricKit
 
 /// Crash, hang and performance reports from MetricKit, sent to the Banana service with nothing that
 /// says whose they are (docs/design/DIAGNOSTICS.md). Apple shares these with developers only for
-/// people who opted in to it; this copy sends reports only after Share usage is enabled,
+/// people who opted in to it; this copy sends reports while Share usage is on (the default),
 /// on the iPhone, iPad and Mac alike. The journal's own reading of them stays in `Metrics` (iOS).
 ///
 /// Reports wait in a small outbox file until the service has them, so one that arrives offline,

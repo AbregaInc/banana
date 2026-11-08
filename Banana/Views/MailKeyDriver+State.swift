@@ -1,4 +1,4 @@
-#if DEBUG && os(macOS)
+#if DEBUG && os(macOS) && !BANANA_PUBLIC
 import AppKit
 import CoreGraphics
 

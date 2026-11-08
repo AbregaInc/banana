@@ -1,4 +1,4 @@
-#if DEBUG && os(macOS)
+#if DEBUG && os(macOS) && !BANANA_PUBLIC
 import AppKit
 
 // How the driver makes a key, and how it gets to the app.

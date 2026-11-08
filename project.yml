@@ -366,10 +366,11 @@ targets:
         ENABLE_USER_SCRIPT_SANDBOXING: NO
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
       configs:
+        # TestFlight is Stable: no Email and no local AI (tools/check-release.sh refuses both).
         TestFlight:
           BANANA_RELEASE_CHANNEL: testflight
           BANANA_UNRELEASED: NO
-          BANANA_LOCAL_EMAIL: YES
+          BANANA_LOCAL_EMAIL: NO
           BANANA_LOCAL_AI: NO
         Release:
           # A normal Release build must be the public app; Debug retains test fixtures.
@@ -591,6 +592,9 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: $(BANANA_BUNDLE_ID).uitests
         TEST_TARGET_NAME: Banana
         GENERATE_INFOPLIST_FILE: YES
+        # Mail's identifiers are plain strings and always compile here, so the same bundle can
+        # test an app built with Email off (Stable); there its Mail tests find no Mail.
+        OTHER_SWIFT_FLAGS: "-DBANANA_UNRELEASED"
 
   # Mac UI tests: they press real keys and drag real windows in the Beta (BananaMacBeta), so they
   # only run through the BananaMacBetaUITests scheme, by tools/mac-mail-uitest.sh, with the owner's
@@ -1594,10 +1598,11 @@ targetTemplates:
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) MAC_APP"
       configs:
+        # TestFlight is Stable: no Email and no local AI (tools/check-release.sh refuses both).
         TestFlight:
           BANANA_RELEASE_CHANNEL: testflight
           BANANA_UNRELEASED: NO
-          BANANA_LOCAL_EMAIL: YES
+          BANANA_LOCAL_EMAIL: NO
           BANANA_LOCAL_AI: NO
           CODE_SIGN_ENTITLEMENTS: BananaMac/BananaMacAppStore.entitlements
         # Local Mac builds should not require a developer-portal provisioning profile.

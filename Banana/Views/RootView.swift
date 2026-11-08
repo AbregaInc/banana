@@ -195,9 +195,11 @@ struct RootView: View {
                 // exactly as it does for real: what he was writing, the open conversation and the
                 // cursor must all come back from the session, never from a view.
                 if visibility.rendersContent {
+                    #if !BANANA_PUBLIC
                     MailSection()
                         .measuresLayoutClass()
                         .toastHost()
+                    #endif
                 } else {
                     Color.black.ignoresSafeArea()
                 }
@@ -364,7 +366,9 @@ struct RootView: View {
                 // Simulator build can't construct. Mail's own backgrounding note is what the
                 // shell does too, and it writes nothing of the production graph.
                 AppVisibility.shared.set(active: phase != .background)
+                #if !BANANA_PUBLIC
                 if phase == .background { MailSession.noteBackgrounding() }
+                #endif
             }
             guard !VisualAuditRoute.matches() else { return }
             #endif

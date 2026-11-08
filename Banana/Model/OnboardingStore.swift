@@ -155,6 +155,7 @@ final class OnboardingStore: NSObject, ObservableObject {
             return ProcessInfo.processInfo.arguments.contains("--onboarding-gmail-unticked") ? [] : ["noor@plan.example"]
         }
         #endif
+        guard !EmailSetup.gmailScope.isEmpty else { return [] }
         return GoogleCalendarService.shared.accounts
             .filter { $0.grantedScopes.contains(EmailSetup.gmailScope) }.map(\.email)
     }

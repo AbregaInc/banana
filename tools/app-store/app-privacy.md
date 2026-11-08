@@ -72,8 +72,11 @@ App Store Connect actually shows before editing.
   Other Data Types, Crash Data, Performance Data.
 - The privacy policy URL (bananatheapp.com/privacy) carries the 23 October 2026 disclosure for
   account/service sync, approved guest sharing and the separate Beta-only Gmail preview.
-- Optional analytics require explicit consent in the candidate. The collection categories still
-  need disclosure where applicable; an opt-in switch alone does not make linked analytics exempt.
+- Share usage is on by default from build 110 (8 Nov 2026); Settings turns it off. The answers
+  above already declare what it sends (Product Interaction, Other Diagnostic Data and Other Data
+  Types for Analytics, linked; Crash and Performance Data, not linked), so the default changes
+  no answer. Apple's optional-disclosure exemption never applied: collection is ongoing, not
+  a per-submission choice.
 - Source checks and the embedded manifest do not update the live App Privacy questionnaire.
   Follow [Apple’s App Privacy definitions](https://developer.apple.com/app-store/app-privacy-details/)
   when reconciling the final answers.

@@ -105,7 +105,7 @@ final class ScaleStress: ObservableObject {
     func prepare(library: PodcastLibrary, clock: PlaybackClock, smart: SmartScheduleStore) async {
         guard !prepared, let days = Self.days else { return }
         prepared = true
-        #if targetEnvironment(simulator)
+        #if targetEnvironment(simulator) && !BANANA_PUBLIC
         if MailRemovalReviewFixture.enabled {
             // This supplementary screen test supplies its own disk-backed mail.
             // Never emit stress measurements for a different workload.
@@ -227,11 +227,14 @@ final class ScaleStress: ObservableObject {
             }
         }
         OccurrenceStore.shared.injectStress(meetings)
+        #if !BANANA_PUBLIC
         guard let mail = MailSession.shared?.source as? MailFixtureSource else {
             fatalError("Stress route requires the fixture mail source")
         }
+        #endif
         // Every section is loaded together, even when only one tab is visible.
         if ProcessInfo.processInfo.arguments.contains("--stress-measure") {
+            #if !BANANA_PUBLIC
             measure("mail.firstPage", budget: 50) {
                 mail.cachedFirstPage(MailScope(place: .mailbox(.inbox)))!.rows.count
             }
@@ -242,6 +245,7 @@ final class ScaleStress: ObservableObject {
                 _ = mail.apply(.read(read), to: .conversations([target]))
                 return mail.cachedFirstPage(MailScope(place: .mailbox(.inbox)))!.rows.count
             }
+            #endif
             measure("calendar.visibleWeek", budget: 16) {
                 OccurrenceStore.shared.planningWindow(from: now, to: now.addingTimeInterval(7 * 86400)).count
             }

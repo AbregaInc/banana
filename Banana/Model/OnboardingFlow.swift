@@ -228,12 +228,17 @@ struct DayAnchors: Equatable {
 /// screen for both (6 Nov 2026, the owner: "calendar + Email should be a single onboarding").
 /// Whether Email then starts is the account's eligibility, which is known only after sign-in.
 enum EmailSetup {
+    #if BANANA_PUBLIC
+    /// Stable has no Email, so it carries no Gmail scope (tools/check-release.sh refuses one).
+    static let gmailScope = ""
+    #else
     /// What Mail reads and acts with (`MailScopes.gmailModify`).
     static let gmailScope = "https://www.googleapis.com/auth/gmail.modify"
+    #endif
 
     /// What the one consent asks for beyond the calendar's own scopes.
     static func extraScopes(inBuild: Bool, wanted: Bool) -> [String] {
-        inBuild && wanted ? [gmailScope] : []
+        inBuild && wanted && !gmailScope.isEmpty ? [gmailScope] : []
     }
 
     enum Outcome: Equatable {

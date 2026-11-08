@@ -11,8 +11,8 @@ import UIKit
 /// batch carries the session and is also counted for the account (docs/design/ACCOUNTS.md).
 ///
 /// Only the official app sends: the service's host comes from the private config
-/// (`BANANA_SERVICE_HOST`), so a build without it sends nothing. Usage and diagnostic uploads
-/// require an affirmative Share usage choice in Settings; an absent choice means no consent.
+/// (`BANANA_SERVICE_HOST`), so a build without it sends nothing. Share usage in Settings is on
+/// until it is turned off; turned off, nothing is counted or sent, diagnostics included.
 @MainActor
 final class Telemetry {
     static let shared = Telemetry()
@@ -111,10 +111,12 @@ final class Telemetry {
     /// Whether this build has a collector to send to: the official app.
     var canSend: Bool { host != nil }
 
-    /// An untouched install has not consented to optional analytics. Shared by usage and
-    /// diagnostic sending through `enabled`; account/Health sync has separate consent.
+    /// Share usage is on unless it was turned off: an untouched install shares, a `false` stored
+    /// by the switch stays off. Shared by usage and diagnostic sending through `enabled`;
+    /// account/Health sync has separate consent.
+    static let sharesUsageByDefault = true
     static func hasUsageConsent(in defaults: UserDefaults) -> Bool {
-        defaults.object(forKey: shareUsageKey) as? Bool == true
+        defaults.object(forKey: shareUsageKey) as? Bool ?? sharesUsageByDefault
     }
 
     /// Whether this copy counts anything at all.

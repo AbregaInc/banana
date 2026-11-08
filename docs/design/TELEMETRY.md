@@ -51,10 +51,10 @@ tests or `--ui-audit` launches. Developer installs are marked `dev` and left out
 
 ## Consent
 
-Usage counts and diagnostic uploads require an affirmative Share usage setting. An absent
-choice is off, in both the collector and Settings. Agreeing to onboarding terms does not enable
-analytics. Settings › About › Share usage withdraws consent and throws away anything waiting
-(App Store Review Guideline 5.1.1).
+Share usage is on by default (8 Nov 2026, the owner): an absent choice counts as on, in both
+the collector and Settings (`Telemetry.sharesUsageByDefault`). Someone who turned it off stays off.
+Settings › About › Share usage turns it off and throws away anything waiting; the privacy policy
+says it is on until turned off.
 
 ## Reading it
 

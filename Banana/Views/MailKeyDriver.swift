@@ -1,4 +1,4 @@
-#if DEBUG && os(macOS)
+#if DEBUG && os(macOS) && !BANANA_PUBLIC
 import AppKit
 import SwiftUI
 import CoreGraphics
@@ -347,5 +347,17 @@ final class MailKeyDriverWindow: NSWindow {
         NotificationCenter.default.post(name: NSWindow.didBecomeKeyNotification, object: self)
         NotificationCenter.default.post(name: NSWindow.didBecomeMainNotification, object: self)
     }
+}
+#endif
+
+#if DEBUG && os(macOS) && BANANA_PUBLIC
+import SwiftUI
+
+/// Email compiled out (a Stable configuration): there is no Mail for the key driver to drive.
+@MainActor
+enum MailKeyDriver {
+    static var requested: Bool { false }
+    static func prepareProcess() {}
+    static func startIfNeeded(root: AnyView) {}
 }
 #endif

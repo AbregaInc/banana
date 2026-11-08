@@ -136,7 +136,7 @@ struct SettingsView: View {
     /// Permissions whose Connect came back without a yes: their button becomes Open Settings.
     @State private var askedWithoutAnswer: Set<String> = []
     @Environment(\.openURL) private var openURL
-    @AppStorage(Telemetry.shareUsageKey) private var sharesUsage = false
+    @AppStorage(Telemetry.shareUsageKey) private var sharesUsage = Telemetry.sharesUsageByDefault
     #if os(macOS)
     @AppStorage(MenuBarAgendaSetting.key) private var showsMenuBarAgenda = true
     @AppStorage(TripTimeZone.enabledKey) private var showsTripTimeZone = true
@@ -1296,7 +1296,7 @@ struct SettingsView: View {
                 Text("If audio stops on its own, open this straight after.")
             }
     }
-    /// Optional usage counts (`Telemetry`): off until enabled here. Only the official app has
+    /// Optional usage counts (`Telemetry`): on until turned off here. Only the official app has
     /// anywhere to send them, so a build without one doesn't show the switch.
     @ViewBuilder private var privacySection: some View {
         Section {

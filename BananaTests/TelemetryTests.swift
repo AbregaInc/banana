@@ -3,17 +3,27 @@ import XCTest
 /// Banana's own usage counts (`Telemetry`, docs/design/TELEMETRY.md).
 @MainActor
 final class TelemetryTests: XCTestCase {
-    func testUsageAndDiagnosticsNeedAnAffirmativeChoice() {
+    func testShareUsageIsOnUntilTurnedOff() {
         let name = "telemetry-consent-\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: name)!
         defer { defaults.removePersistentDomain(forName: name) }
-        XCTAssertFalse(Telemetry.hasUsageConsent(in: defaults))
+        XCTAssertTrue(Telemetry.hasUsageConsent(in: defaults), "an untouched install shares")
+        defaults.set(false, forKey: Telemetry.shareUsageKey)
+        XCTAssertFalse(Telemetry.hasUsageConsent(in: defaults), "turned off stays off")
         defaults.set(true, forKey: Telemetry.shareUsageKey)
         XCTAssertTrue(Telemetry.hasUsageConsent(in: defaults))
-        defaults.set(false, forKey: Telemetry.shareUsageKey)
-        XCTAssertFalse(Telemetry.hasUsageConsent(in: defaults))
         defaults.removeObject(forKey: Telemetry.shareUsageKey)
-        XCTAssertFalse(Telemetry.hasUsageConsent(in: defaults))
+        XCTAssertTrue(Telemetry.hasUsageConsent(in: defaults))
+    }
+
+    /// Settings' switch reads the same default the collector does, so an untouched switch shows on.
+    func testTheSwitchAndTheCollectorAgreeOnAnUntouchedInstall() {
+        let name = "telemetry-switch-\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: name)!
+        defer { defaults.removePersistentDomain(forName: name) }
+        XCTAssertNil(defaults.object(forKey: Telemetry.shareUsageKey))
+        XCTAssertEqual(Telemetry.hasUsageConsent(in: defaults), Telemetry.sharesUsageByDefault)
+        XCTAssertTrue(Telemetry.sharesUsageByDefault)
     }
 
     private let utc = TelemetryBatch.utc
