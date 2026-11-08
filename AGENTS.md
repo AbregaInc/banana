@@ -72,7 +72,10 @@ A simulator is 1–2 GB once it has booted, and a new one per run piles up.
   Never one per run, per test or per agent.
 - A simulator another agent has booted is in use: wait for it or ask, don't take it and don't
   make a second one.
-- Shut a simulator down when the run ends.
+- Keep the test simulator booted between runs; `tools/ui-tests.sh` resets its apps, keychain and
+  privacy grants instead of erasing, and shuts it down after 30 idle minutes. Erasing or cloning
+  means a first boot: hundreds of iOS services that loaded the Mac past 800 and, when killed at
+  shutdown, showed "Family quit unexpectedly" (8 Nov 2026). `FRESH=1` erases when a test needs it.
 
 ## UI tests: run what the change touches, in parallel, with time limits
 
@@ -80,7 +83,7 @@ A full UI run was 37 minutes clean and 70 with failures, and was run as the gate
 change (11 Oct 2026). The owner waited a day for four fixes.
 
 - `tools/ui-tests.sh [phone|pad] [Class[/test] ...]` is the one way to run them: copies of the
-  simulator share the classes (`WORKERS`, 2 by default), every test has a time limit, and what
+  simulator share the classes (`WORKERS`, 1 by default; more only for a whole suite), every test has a time limit, and what
   failed is printed with its reason. `tools/ui-tests.sh phone timing` runs the tests that
   measure the clock, one at a time; they are not part of the everyday run.
 - After a change, run the classes it touches. The whole suite is for before a build goes to

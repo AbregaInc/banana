@@ -6,12 +6,16 @@
 #   tools/ui-tests.sh phone timing          # the timing tests, one at a time
 #   tools/ui-tests.sh phone ScanOneItemUITest MealEditorUITest/testTheUnconfirmedRowIsAlreadyOpen
 #
-# WORKERS=3 tools/ui-tests.sh               # how many copies of the simulator share the work
+# WORKERS=3 tools/ui-tests.sh               # copies of the simulator sharing the work (default 1)
+# FRESH=1 tools/ui-tests.sh                 # erase the simulator first (a first boot: slow and heavy)
 #
 # Why it is shaped this way (11 Oct 2026: a full run took 37 minutes clean and 70 with failures):
-#   - Classes run side by side on copies of the simulator (Xcode makes and reuses the copies).
-#     Two by default: each copy needs about 4 GB, and a Mac that is swapping makes every test
-#     time out. The script says so when memory is short.
+#   - One simulator by default, kept booted between runs (8 Nov 2026). Erasing it, or letting
+#     Xcode clone copies for WORKERS>1, means a first boot each run: hundreds of iOS services
+#     (posters, asset downloads, Siri) loaded the Mac to 800+, and their kill at shutdown showed
+#     "Family quit unexpectedly". Between runs the apps are uninstalled and the keychain and
+#     privacy grants reset instead; the simulator shuts itself down after 30 idle minutes.
+#     Each extra worker needs about 4 GB; the script says so when memory is short.
 #   - Every test has a time limit, so one that hangs is stopped and the run goes on.
 #   - The timing tests (scrolling speed, a quiet minute, a minute in the background) measure the
 #     clock, so they run alone, one at a time, and only when asked for.
@@ -39,7 +43,7 @@ if [ -n "$physical" ]; then
 fi
 
 timing=(${(f)"$(grep -hoE 'func test[A-Za-z0-9]*(Performance|Sustained|Responsive|DoesNotChain|RepeatedPagingPreservesExactTimePosition|AdjacentPageUsesCacheThenBackfillsWithoutJumping)[A-Za-z0-9]*' BananaUITests/VerifyTimelineUITest.swift | sed 's/func //')"})
-workers="${WORKERS:-2}"
+workers="${WORKERS:-1}"
 packages=()
 # Optional local dependency cache for clean/offline source-release checks.
 # Normal development keeps Xcode's default resolution behavior.
@@ -78,8 +82,18 @@ if [ ! -f "$stamp" ] || [ project.yml -nt "$stamp" ] ||
 fi
 
 if [ -z "$physical" ]; then
-  xcrun simctl shutdown "$udid" 2>/dev/null
-  xcrun simctl erase "$udid"
+  if [ -n "${FRESH:-}" ]; then
+    xcrun simctl shutdown "$udid" 2>/dev/null
+    xcrun simctl erase "$udid"
+  fi
+  # Boot once and keep it; a clean slate comes from removing what earlier runs left.
+  xcrun simctl bootstatus "$udid" -b > /dev/null 2>&1
+  for app in ${(f)"$(xcrun simctl listapps "$udid" 2>/dev/null | plutil -convert json -o - - 2>/dev/null |
+      python3 -c 'import json,sys; [print(k) for k,v in json.load(sys.stdin).items() if v.get("ApplicationType")=="User"]' 2>/dev/null)"}; do
+    xcrun simctl privacy "$udid" reset all "$app" 2>/dev/null
+    xcrun simctl uninstall "$udid" "$app" 2>/dev/null
+  done
+  xcrun simctl keychain "$udid" reset 2>/dev/null
 fi
 parallel=(-parallel-testing-enabled NO)
 [ "$workers" -gt 1 ] && parallel=(-parallel-testing-enabled YES -parallel-testing-worker-count "$workers")
@@ -131,8 +145,12 @@ while kill -0 $runner 2>/dev/null; do
   sleep 2
 done
 if [ -z "$physical" ]; then
-  xcrun simctl shutdown "$udid" 2>/dev/null
-  xcrun simctl --set testing shutdown all 2>/dev/null
+  [ "$workers" -gt 1 ] && xcrun simctl --set testing shutdown all 2>/dev/null
+  # Shut the simulator down after 30 minutes with no further run (a later run moves the mark).
+  mark="${TMPDIR:-/tmp}/banana-ui-sim-$udid"; date +%s > "$mark"; stamp_now=$(cat "$mark")
+  ( sleep "${UI_IDLE_SHUTDOWN:-1800}"
+    [ "$(cat "$mark" 2>/dev/null)" = "$stamp_now" ] && ! pgrep -f "xcodebuild.*$udid" > /dev/null &&
+      xcrun simctl shutdown "$udid" 2>/dev/null ) > /dev/null 2>&1 &!
 fi
 
 # What failed and why, from the result bundle (a parallel run's log has no reasons in it).
