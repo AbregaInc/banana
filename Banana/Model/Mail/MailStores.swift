@@ -99,6 +99,17 @@ struct MailStores: Sendable {
                           searchReader: searchReader, directories: directories)
     }
 
+    /// `index.sqlite`, read only, for one count at launch — the shell's Mail badge before Mail has
+    /// started (`MailBadgeLaunchRead`). No migrations, no writes, no file made: a store that is
+    /// missing or older than the code is not read, and the badge waits for Mail's own start.
+    /// Blocking, and not for the main thread.
+    static func openIndexForCounting(at url: URL) throws -> DatabaseQueue {
+        MailMainQueueGuard.requireOffMainQueue("MailStores.openIndexForCounting", store: .index)
+        return try opening(.index) {
+            try DatabaseQueue(path: url.path, configuration: configuration(Settings.indexCount))
+        }
+    }
+
     /// Opens `intent.sqlite`, and sets what makes a commit to it durable.
     ///
     /// **Only `MailIntentStore` (P14a) calls this**, and it keeps what it returns private
@@ -166,6 +177,9 @@ struct MailStores: Sendable {
         static let searchReaderBlobsCacheKiB = 1024
         static let searchReader = Settings(label: "mail.search.read", file: .search, qos: .userInitiated,
                                            cacheKiB: 4096, readonly: true)
+        /// The launch's one count of the Inbox (`openIndexForCounting`): read only, a small cache.
+        static let indexCount = Settings(label: "mail.index.count", file: .index, qos: .utility, cacheKiB: 256,
+                                         readonly: true)
         static let intent = Settings(label: "mail.intent", file: .intent, qos: .userInitiated, cacheKiB: 1024,
                                      fullSync: true)
     }

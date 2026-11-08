@@ -160,6 +160,7 @@ enum BananaService {
         /// The shared cloud mailbox: its feed, and the catch-up check (MAIL-CLOUD-SYNC §4).
         case mailFeed(Data)
         case mailCheck(Data)
+        case mailContent(Data)
         case connectMail(email: String, code: String)
         case disconnectMail(email: String)
         case serverCalendars(email: String, ids: [String])
@@ -329,6 +330,7 @@ enum BananaService {
             case .mailOperation(let body): return ("POST", "/v1/mail/operation", body)
             case .mailFeed(let body): return ("POST", "/v1/mail/feed", body)
             case .mailCheck(let body): return ("POST", "/v1/mail/check", body)
+            case .mailContent(let body): return ("POST", "/v1/mail/content", body)
             case .connectMail(let email, let code): return ("POST", "/v1/google/mail", encode(["email":email,"code":code]))
             case .disconnectMail(let email): return ("DELETE", "/v1/google/mail", encode(["email":email]))
             case .calendarOperation(let body):
@@ -466,6 +468,13 @@ enum BananaService {
     /// A silent push from the service saying a Google calendar changed: `{"b": {"k": "calendar"}}`.
     static func isCalendarPush(_ userInfo: [AnyHashable: Any]) -> Bool {
         (userInfo["b"] as? [String: Any])?["k"] as? String == "calendar"
+    }
+
+    /// A silent push from a shared cloud mailbox (`MAIL_PUSH` in `Service/src/mailbox.js`): new
+    /// mail's text is stored there, or a snooze woke a conversation. Either way one feed pull
+    /// brings it. `{"aps": {"content-available": 1}, "b": {"k": "mail"}}`.
+    static func isMailPush(_ userInfo: [AnyHashable: Any]) -> Bool {
+        (userInfo["b"] as? [String: Any])?["k"] as? String == "mail"
     }
 
     /// The shared id of a planned local alert (docs/design/EVENT-ALERTS.md): the plan's

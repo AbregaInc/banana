@@ -169,6 +169,20 @@ struct ShellBottomBar: View {
                     }
                 }
             }
+            // The switcher's badge over the circle's top-right edge, like an app icon's. Drawn here,
+            // outside the glass container: inside it, glass is composited over everything else
+            // and the badge sat behind the circle (Beta 106).
+            .overlayPreferenceValue(ShellSwitcherAnchor.self) { anchor in
+                GeometryReader { proxy in
+                    if let anchor, !chrome.switcherOpen {
+                        let circle = proxy[anchor]
+                        ShellBadgeMark(count: ShellBadge.total(pages, badges.counts, mail: badges.mailInbox))
+                            .fixedSize()
+                            .position(x: circle.maxX - 8, y: circle.minY + 8)
+                    }
+                }
+                .allowsHitTesting(false)
+            }
         }
         .padding(.horizontal, ShellMetrics.gutter)
         .padding(.top, DS.Space.s)
@@ -184,14 +198,15 @@ struct ShellBottomBar: View {
 
     /// The circle's badge: what the pages' own badges add up to (`ShellBadge`), while closed.
     private var switcherButton: some View {
-        let waiting = chrome.switcherOpen ? 0 : ShellBadge.total(pages, badges.counts)
+        let waiting = chrome.switcherOpen ? 0 : ShellBadge.total(pages, badges.counts, mail: badges.mailInbox)
         return roundButton(chrome.switcherOpen ? "xmark" : "circle.grid.3x3.fill",
                            label: chrome.switcherOpen ? "Close pages"
                                : ["Pages", ShellBadge.spoken(waiting)].compactMap { $0 }.joined(separator: ", "),
                            identifier: "shell.switcher") {
             withAnimation(.snappy(duration: 0.28)) { chrome.switcherOpen.toggle() }
         }
-        .overlay(alignment: .topTrailing) { ShellBadgeMark(count: waiting).offset(x: 2, y: -2) }
+        // Where the badge goes: drawn outside the glass container, over it (`switcherBadge`).
+        .anchorPreference(key: ShellSwitcherAnchor.self, value: .bounds) { $0 }
         .accessibilityValue(chrome.switcherOpen ? "Open" : "Closed")
     }
 
@@ -208,6 +223,14 @@ struct ShellBottomBar: View {
         .tint(DS.Palette.accent)
         .accessibilityLabel(label)
         .accessibilityIdentifier(identifier)
+    }
+}
+
+/// Where the switcher circle is, for its badge (drawn outside the glass container).
+private struct ShellSwitcherAnchor: PreferenceKey {
+    static var defaultValue: Anchor<CGRect>? { nil }
+    static func reduce(value: inout Anchor<CGRect>?, nextValue: () -> Anchor<CGRect>?) {
+        value = value ?? nextValue()
     }
 }
 
@@ -441,7 +464,7 @@ struct ShellSwitcherOverlay: View {
                                     .glassEffect(page == current ? .regular.tint(DS.Palette.accent.opacity(0.25)).interactive()
                                                                  : .regular.interactive(), in: .circle)
                                     .overlay(alignment: .topTrailing) {
-                                        ShellBadgeMark(count: ShellBadge.count(page, badges.counts)).offset(x: 4, y: -4)
+                                        ShellBadgeMark(count: ShellBadge.count(page, badges.counts, mail: badges.mailInbox)).offset(x: 4, y: -4)
                                     }
                                 Text(page.title)
                                     .font(.body.weight(page == current ? .semibold : .regular))
@@ -454,7 +477,7 @@ struct ShellSwitcherOverlay: View {
                         }
                         .buttonStyle(.plain)
                         .accessibilityLabel(page.title)
-                        .accessibilityValue(ShellBadge.spoken(ShellBadge.count(page, badges.counts)) ?? "")
+                        .accessibilityValue(ShellBadge.spoken(ShellBadge.count(page, badges.counts, mail: badges.mailInbox)) ?? "")
                         .accessibilityAddTraits(page == current ? .isSelected : [])
                         .accessibilityIdentifier("shell.page.\(page.rawValue)")
                     }

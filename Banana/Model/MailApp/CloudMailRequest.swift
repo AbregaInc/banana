@@ -31,6 +31,12 @@ enum CloudMailRequest {
             }
             request["resource"] = resource
             request["query"] = query.map { ["name": $0.name, "value": $0.value ?? ""] }
+        } else if method == "POST", path == ["labels"], query.isEmpty {
+            // Banana's own hidden labels only (the service refuses any other name); the service
+            // returns the label that already has the name, or makes it.
+            guard let body, let label = try JSONSerialization.jsonObject(with: body) as? [String: Any],
+                  let name = label["name"] as? String, name.hasPrefix("Banana/") else { throw GmailError.refused(.invalidArgument) }
+            request["action"] = "createLabel"; request["name"] = name
         } else {
             guard method == "POST", path.count == 3, path[0] == "messages",
                   ["modify", "trash", "untrash"].contains(path[2]), query.isEmpty else { throw GmailError.refused(.invalidArgument) }
@@ -72,6 +78,40 @@ struct CloudMailFeed: MailCloudFeedSource {
             catch { throw GmailError.malformed }
         case 404: throw MailCloudFeedError.unavailable
         case 410: throw MailCloudFeedError.expired
+        default: throw GmailHTTPRules.failure(status: status, data: data, retryAfter: nil)
+        }
+    }
+
+    /// The answer of `/v1/mail/content`: one entry per id asked.
+    struct ContentAnswer: Decodable {
+        struct Item: Decodable {
+            var id: String
+            var message: GmailMessage?
+            var missing: Bool?
+            var gone: Bool?
+            var later: Bool?
+        }
+        var messages: [Item]
+    }
+
+    func contents(account: String, ids: [String]) async throws -> [MailCloudContent] {
+        guard !ids.isEmpty, ids.count <= 50 else { throw GmailError.refused(.invalidArgument) }
+        let route = try await reference(account)
+        let body = try JSONSerialization.data(withJSONObject: ["email": account.lowercased(), "ids": ids], options: .sortedKeys)
+        let (data, status) = try await transport("content", route, body)
+        switch status {
+        case 200:
+            let answer: ContentAnswer
+            do { answer = try JSONDecoder().decode(ContentAnswer.self, from: data) } catch { throw GmailError.malformed }
+            let asked = Set(ids)
+            return answer.messages.compactMap { item in
+                guard asked.contains(item.id) else { return nil }
+                if let message = item.message { return message.id == item.id ? .message(message) : .missing(item.id) }
+                if item.gone == true { return .gone(item.id) }
+                if item.later == true { return .later(item.id) }
+                return .missing(item.id)
+            }
+        case 404, 409: throw MailCloudFeedError.unavailable
         default: throw GmailHTTPRules.failure(status: status, data: data, retryAfter: nil)
         }
     }

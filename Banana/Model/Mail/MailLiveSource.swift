@@ -69,11 +69,36 @@ import GRDB
     }
     private var downloadQueue: [Download] = []
     private var downloads: [Download: Task<Void, Never>] = [:]
+    /// Content from Banana Cloud in bulk (MAIL-CLOUD-SYNC §5a); nil without a cloud feed.
+    /// Whether local CPU work may run now, and how fast (invariant 31).
+    let paceGauge = MailPaceGauge()
+    private lazy var cloudPull: MailCloudPull? = cloudFeed.map { [paceGauge] in
+        MailCloudPull(stores: stores, loader: conversationLoader, source: $0, pace: { paceGauge.pace() })
+    }
+    /// Re-prepares stored originals whose prepared body is missing or stale, newest first.
+    private lazy var reprepare = MailReprepare(stores: stores, loader: conversationLoader, pace: { [paceGauge] in paceGauge.pace() })
+    private var reprepareTask: Task<Void, Never>?
+    private var reprepareToken = UUID()
+    private var cloudToken = UUID()
+    /// What the open path had to prepare because nothing prepared was here (tests, diagnostics).
+    func preparationCounts() async -> (onRequest: Int, ahead: Int) {
+        (await conversationLoader.preparedOnRequest, await conversationLoader.preparedAhead)
+    }
+    private var cloudTask: Task<Void, Never>?
+    private var screenWork: Task<Void, Never>?
+    private var pushCatchUp = 0
     let status = MailStatus(MailNotYet.emptyStatus)
     let badges = MailBadges(MailBadgeCounts(unreadInFirstSplit: 0, needsAnswer: 0))
     private var subscriptions: [UUID: Subscription] = [:]
     private var accountObservers: [UUID: @MainActor ([MailAccount]) -> Void] = [:]
     private var placeObservers: [UUID: @MainActor (MailPlaces) -> Void] = [:]
+    /// The unified Inbox's unread and total, for `places.mailboxCounts[.inbox]` (the shell's Mail
+    /// badge): read off the main thread on the index's queue, at most once a second
+    /// (`refreshInboxCount`), only while someone observes the places.
+    private var inboxCount: MailPlaceCount?
+    private var inboxCountTask: Task<Void, Never>?
+    private var inboxCountAgain = false
+    private var inboxCountReadAt = Date.distantPast
     private var labelCatalog = MailLabelCatalog.Reading()
     private var labelTasks: [String: Task<Void, Never>] = [:]
     private var labelReadTask: Task<Void, Never>?
@@ -92,7 +117,7 @@ import GRDB
     private var syncRetryAt: [String: Date] = [:]
     private var syncHealth: [String: MailSyncHealth] = [:]
     private var lastSync: [String: Date] = [:]
-    private var fillAfter: [String: Int64] = [:]
+    private var fillAfter: [String: MailSyncFill.Cursor] = [:]
     private var actionCoordinator: MailActionCoordinator?
     private var nextActionSequence: Int64 = 1
     private var actionThrough: UInt64 = 0
@@ -168,15 +193,50 @@ import GRDB
         publishAccounts(); checkNow()
         wants(conversationSubscriptions.values.map(\.id))
         startDownloads()
+        kickCloud()
+        kickReprepare(restart: true)
         searchIndexer.kick()
     }
+
+    /// Walks stored originals newest first, preparing what the current preparer has not, at the
+    /// work pace: after a `MailHTMLPreparer.version` change no open has to wait for it.
+    private func kickReprepare(restart: Bool = false) {
+        guard reprepareTask == nil, active || pushCatchUp > 0 else { return }
+        let pass = reprepare, token = UUID()
+        reprepareToken = token
+        reprepareTask = Task(priority: .utility) { [weak self] in
+            if restart { await pass.restart() }
+            while !Task.isCancelled {
+                guard let step = try? await pass.step(), step.more else { break }
+            }
+            // A walk cancelled by hiding Mail must not clear the one started when it came back.
+            if self?.reprepareToken == token { self?.reprepareTask = nil }
+        }
+    }
+
+    /// An open: the conversation's stored originals that have no current prepared body are
+    /// prepared now, ahead of the walk (counted as preparations on request).
+    private func prepareOpened(_ id: MailConversationID) {
+        let pass = reprepare
+        Task(priority: .userInitiated) { [weak self] in
+            let stale = (try? await pass.stale(in: id)) ?? []
+            guard let self else { return }
+            for message in stale { self.enqueue(.body(message), priority: true) }
+        }
+    }
     func setVisible(_ visible: Bool) {
+        paceGauge.setVisible(visible)
         if visible { activate() }
         else {
             stopSync()
             for task in pageTasks.values { task.cancel() }
             pageTasks.removeAll(); cancelDownloads(); access.cancelMailTokenRequests()
             gmailSearch.cancelAll(); searchIndexer.stop()
+            screenWork?.cancel(); screenWork = nil
+            if pushCatchUp == 0 {
+                cloudTask?.cancel(); cloudTask = nil
+                reprepareTask?.cancel(); reprepareTask = nil
+            }
             active = false
             draftWake?.cancel(); draftWake = nil
             draftReadTask?.cancel()
@@ -191,13 +251,49 @@ import GRDB
     }
     func observePlaces(_ onChange: @escaping @MainActor (MailPlaces) -> Void) -> MailObservation {
         let id = UUID(); placeObservers[id] = onChange; onChange(places)
+        refreshInboxCount()
         return MailObservation { [weak self] in Task { @MainActor in self?.placeObservers[id] = nil } }
     }
     private var places: MailPlaces {
         MailPlaces(splits: [MailSplit(id: MailSplit.importantID, name: "Important", query: nil),
                            MailSplit(id: MailSplit.calendarID, name: "Calendar", query: nil),
                            MailSplit(id: MailSplit.otherID, name: "Other", query: nil)],
-            splitCounts: [:], mailboxCounts: [:], outboxNeedsAnswer: false, labels: labelCatalog.places.filter { readAccounts.contains($0.key.lowercased()) })
+            splitCounts: [:], mailboxCounts: inboxCount.map { [.inbox: $0] } ?? [:], outboxNeedsAnswer: false,
+            labels: labelCatalog.places.filter { readAccounts.contains($0.key.lowercased()) })
+    }
+
+    /// Reads the unified Inbox's counts again: no sooner than a second after the last reading,
+    /// and once more after it if anything changed while it ran. The read is the index's
+    /// (`MailIndexReader.counts`, `unread = 1` on its partial index); the main thread only
+    /// compares and publishes.
+    private func refreshInboxCount() {
+        guard !placeObservers.isEmpty else { return }
+        guard inboxCountTask == nil else { inboxCountAgain = true; return }
+        inboxCountAgain = false
+        let wait = max(0, 1 - Date().timeIntervalSince(inboxCountReadAt))
+        inboxCountTask = Task { [weak self] in
+            if wait > 0 { try? await Task.sleep(for: .seconds(wait)) }
+            guard let self, !Task.isCancelled else { return }
+            self.inboxCountReadAt = Date()
+            let request = PageRequest(view: .unified(.inbox), account: nil, filters: [], before: nil, limit: 1,
+                                      allowedAccounts: self.readAccounts)
+            let counts = try? await MailIndexReader(stores: self.stores).counts(request)
+            self.inboxCountTask = nil
+            if let counts {
+                let value = MailInboxCount.place(unread: counts.unread, total: counts.total)
+                if value != self.inboxCount {
+                    self.inboxCount = value
+                    if self.badges.value.unreadInFirstSplit != value.unread.value {
+                        self.badges.value.unreadInFirstSplit = value.unread.value
+                        // The launch mirror (12.4): the badge has a number before any store opens.
+                        self.badges.value.mirror(to: .standard)
+                    }
+                    let places = self.places
+                    for callback in self.placeObservers.values { callback(places) }
+                }
+            }
+            if self.inboxCountAgain { self.refreshInboxCount() }
+        }
     }
     private var observedReadAccounts: Set<String>?
     private var readAccounts: Set<String> { Set(access.connectedAccountIDs.map { $0.lowercased() }) }
@@ -365,6 +461,7 @@ import GRDB
         if change.labelsChanged { refreshLabelCatalog() }
         if active, !change.conversations.isEmpty { searchIndexer.kick() }
         guard !change.viewKeys.isEmpty || !change.conversations.isEmpty else { return }
+        refreshInboxCount()
         for (token, subscription) in conversationSubscriptions where change.conversations.contains(subscription.id) {
             refreshConversation(token)
         }
@@ -373,6 +470,7 @@ import GRDB
     }
     func checkNow() {
         publishAccounts()
+        refreshInboxCount()
         refreshDrafts()
         resumeDraftDelivery()
         refreshRemovalStatus()
@@ -453,7 +551,115 @@ import GRDB
         for id in subscriptions.keys { refresh(id) }
     }
     func wants(_ ids: [MailConversationID]) {
-        for id in ids.prefix(8) { enqueue(.thread(id), priority: true) }
+        for id in ids.prefix(8) { prepareOpened(id) }
+        guard let pull = cloudPull else {
+            for id in ids.prefix(8) { enqueue(.thread(id), priority: true) }
+            return
+        }
+        for id in ids.prefix(8) {
+            Task { [weak self] in
+                // A conversation this device holds, on an account the cloud mailbox serves: its
+                // text comes from the cloud first, ahead of everything else. The feed keeps its
+                // messages current, so no thread read is needed; anything the cloud lacks comes
+                // the per-message way at once.
+                let cloud = (try? await pull.isCloud(id.account)) ?? false
+                let holds = cloud ? ((try? await pull.holds(id)) ?? false) : false
+                guard let self else { return }
+                guard cloud, holds else { self.enqueue(.thread(id), priority: true); return }
+                let fallback = (try? await pull.open(id)) ?? []
+                for item in fallback { self.enqueue(.body(item.id), priority: true) }
+                // The opened conversation's pull runs now, at the person's priority, beside any
+                // utility-priority batch already in flight.
+                Task(priority: .userInitiated) { _ = try? await pull.step(fill: false) }
+                self.kickCloud()
+            }
+        }
+    }
+
+    func onScreen(_ ids: [MailConversationID]) {
+        // Rows change at scroll speed; the reading happens once things settle, off this thread.
+        screenWork?.cancel()
+        let pull = cloudPull
+        screenWork = Task { [weak self] in
+            try? await Task.sleep(for: .milliseconds(150))
+            guard !Task.isCancelled else { return }
+            if let pull {
+                let fallback = (try? await pull.onScreen(ids)) ?? []
+                guard !Task.isCancelled, let self else { return }
+                for item in fallback.prefix(16) { self.enqueue(.body(item.id), priority: false) }
+                self.kickCloud()
+            } else {
+                // No cloud: the newest message of each visible conversation, the per-message way,
+                // below anything opened. Ids already here cost a local read only.
+                guard let self else { return }
+                let newest = (try? await self.stores.index.read { db in try Self.newestMissing(ids, in: db) }) ?? []
+                guard !Task.isCancelled else { return }
+                for id in newest.prefix(16) { self.enqueue(.body(id), priority: false) }
+            }
+        }
+    }
+
+    /// The newest message of each conversation, where its text is not here.
+    nonisolated private static func newestMissing(_ ids: [MailConversationID], in db: Database) throws -> [MailMessageID] {
+        try ids.compactMap { conversation in
+            let account = conversation.account.lowercased()
+            guard let row = try Row.fetchOne(db, sql: """
+                SELECT m.gmail_id, (m.fetch_state<2 OR m.prep_state=0) FROM message m JOIN thread t ON t.thread_pk=m.thread_pk
+                JOIN account a ON a.account_pk=t.account_pk
+                WHERE a.email=? AND t.gmail_id=? AND m.vis!=4 ORDER BY m.internal_date DESC, m.msg_pk DESC LIMIT 1
+                """, arguments: [account, conversation.thread]) else { return nil }
+            let owed: Bool = row[1]
+            return owed ? MailMessageID(account: account, message: row[0]) : nil
+        }
+    }
+
+    /// Runs bulk pulls until there is nothing to pull: opened, then on screen, then (while Mail is
+    /// in use or a push's window is open) the rest newest first. One request at a time.
+    private func kickCloud() {
+        guard let pull = cloudPull, cloudTask == nil, active || pushCatchUp > 0 else { return }
+        let token = UUID()
+        cloudToken = token
+        cloudTask = Task(priority: .utility) { [weak self] in
+            while !Task.isCancelled {
+                guard let self else { return }
+                let step: MailCloudPull.Step
+                do { step = try await pull.step(fill: self.active || self.pushCatchUp > 0) }
+                catch { break }
+                guard !Task.isCancelled else { break }
+                for item in step.fallback { self.enqueue(.body(item.id), priority: item.urgent) }
+                if !step.worked { break }
+            }
+            if self?.cloudToken == token { self?.cloudTask = nil }
+        }
+    }
+
+    /// A silent push said new mail is here (MAIL-CLOUD-SYNC §2a): one feed pass for each account,
+    /// then the new messages' text, within `budget`. Runs inside the push's background window;
+    /// returns whether the pass got through.
+    func catchUpFromPush(budget: Duration = .seconds(20)) async -> Bool {
+        guard let sync = mailboxSync else { return false }
+        pushCatchUp += 1
+        paceGauge.enterWindow()
+        defer { pushCatchUp -= 1; paceGauge.leaveWindow() }
+        let start = ContinuousClock.now
+        var ok = false
+        for account in accounts where account.state == .connected {
+            do {
+                _ = try await sync.pass(account: account.id, nowMS: Int64(Date().timeIntervalSince1970 * 1000))
+                ok = true
+            } catch GmailMailboxSync.Failure.busy {
+                ok = true   // a pass is running already; it brings the same
+            } catch {
+                recordReadFailure(error, account: account.id)
+            }
+        }
+        guard let pull = cloudPull else { return ok }
+        while ContinuousClock.now - start < budget, !Task.isCancelled {
+            guard let step = try? await pull.step(fill: true), step.worked else { break }
+            for item in step.fallback where item.urgent { enqueue(.body(item.id), priority: true) }
+        }
+        publishAccounts()
+        return ok
     }
     func fetchBody(_ id: MailMessageID) { enqueue(.body(id), priority: true) }
     private func enqueue(_ item: Download, priority: Bool) {
@@ -477,8 +683,15 @@ import GRDB
                     case .thread(let id):
                         let messages = try await loader.thread(id)
                         guard !Task.isCancelled, let self else { return }
-                        // Older bodies remain reachable through explicit Load message controls.
-                        for message in messages.suffix(8) { self.enqueue(.body(message), priority: false) }
+                        if let pull = self.cloudPull, (try? await pull.isCloud(id.account)) == true {
+                            // The conversation is here now: its text from the cloud, first in line.
+                            let fallback = (try? await pull.open(id)) ?? []
+                            for item in fallback { self.enqueue(.body(item.id), priority: true) }
+                            self.kickCloud()
+                        } else {
+                            // Older bodies remain reachable through explicit Load message controls.
+                            for message in messages.suffix(8) { self.enqueue(.body(message), priority: false) }
+                        }
                     case .body(let id): try await loader.body(id)
                     }
                 } catch {
@@ -559,6 +772,7 @@ import GRDB
             observedReadAccounts = current
             firstPages.removeAll(); firstPageOrder.removeAll()
             for id in subscriptions.keys { refresh(id) }
+            refreshInboxCount()
             let value = places
             for callback in placeObservers.values { callback(value) }
         }
@@ -629,7 +843,16 @@ extension MailLiveSource {
             }
         }, settled: { [weak self] account, message, keys, outcome in
             await self?.deliverySettled(account: account, message: message, keys: keys, outcome: outcome)
+        }, relabeled: { [weak self] account, name, id, messages in
+            await self?.labelResolved(account: account, name: name, id: id, messages: messages)
         })
+        // What a rule made in an earlier run was derived on state that is no longer fresh: it is
+        // never sent; the rules run again after this run's first pass (MAIL-ENGINE 8.3).
+        for account in access.connectedAccountIDs {
+            if let purged = try? await intent.discardUndeliveredRuleAssertions(account: account), !purged.isEmpty {
+                try? await coordinator.refresh(account: account, messages: purged)
+            }
+        }
         refreshRefusals()
         // Publish recovered review state before this source is handed to the UI.
         // A background refresh here races the caller's initial status read and activation.
@@ -890,6 +1113,56 @@ extension MailLiveSource {
         }
     }
 
+    private func labelResolved(account: String, name: String, id: String, messages: [String]) async {
+        guard let coordinator = actionCoordinator else { return }
+        do {
+            try await coordinator.adopt(account: account, name: name, id: id, messages: messages)
+            refreshAfterAction()
+        } catch {
+            projectionNeedsRepair = true
+            status.value.store = .unavailable(.unavailable)
+        }
+    }
+
+    /// How long past its time a snooze is left to the cloud mailbox, which wakes it on time with every
+    /// device asleep, before a device that finds it still asleep wakes it itself.
+    static let snoozeFallbackGrace: Int64 = 2 * 60 * 1000
+
+    /// After a pass that caught up: the snooze rules on what it left (8.3), and Banana's labels named
+    /// in Gmail's directory if a label this device has no name for has appeared.
+    private func afterCaughtUpPass(_ account: String) async {
+        guard let coordinator = actionCoordinator, nextActionSequence > 0, nextActionSequence < Int64.max else { return }
+        let sequence = nextActionSequence
+        nextActionSequence += 1
+        let now = Int64(Date().timeIntervalSince1970 * 1000)
+        // In line with his actions, so sequences reach the intent store in the order they were taken.
+        let prior = actionTask
+        let derived = Task { () -> Int in
+            await prior?.value
+            return (try? await coordinator.deriveRules(account: account, now: now - Self.snoozeFallbackGrace,
+                                                        sequence: sequence, at: now)) ?? -1
+        }
+        actionTask = Task { _ = await derived.value }
+        let changed = await derived.value
+        do {
+            if changed < 0 { throw MailIntentStore.Failure.invalidGroup }
+            if changed > 0 {
+                refreshAfterAction()
+                kickDelivery()
+            }
+            let unnamed = try await stores.index.read { db in
+                try Bool.fetchOne(db, sql: """
+                    SELECT EXISTS(SELECT 1 FROM label l JOIN account a ON a.account_pk=l.account_pk
+                    WHERE a.email=? AND l.kind=1 AND l.listed=0 AND l.name=l.gmail_id AND l.gmail_id NOT LIKE 'name:%'
+                    AND coalesce(a.labels_at,0) < ?)
+                    """, arguments: [account, now - 10 * 60 * 1000]) ?? false
+            }
+            if unnamed { loadLabels(account) }
+        } catch {
+            projectionNeedsRepair = true
+        }
+    }
+
     private func refreshRefusals() {
         guard let intentStore else { return }
         refusalTask?.cancel()
@@ -1035,6 +1308,7 @@ extension MailLiveSource {
                     self.failures.remove(account)
                     self.lastSync[account] = Date()
                     let more = progress.hasMore || moreFill
+                    if !progress.hasMore { await self.afterCaughtUpPass(account) }
                     self.syncHealth[account] = more ? .catchingUp : .live
                     try await self.loadRemovalStatus()
                     self.publishAccounts()
@@ -1061,13 +1335,16 @@ extension MailLiveSource {
     }
 
     private func queueSyncFill(_ account: String) async throws -> Bool {
-        let after = fillAfter[account] ?? 0
+        // An account on the cloud mailbox is filled by the cloud and pulled in bulk; the
+        // per-message fill below is for a service without it.
+        if let pull = cloudPull, try await pull.isCloud(account) { kickCloud(); return false }
+        let after = fillAfter[account]
         var rows = try await stores.index.read { try MailSyncFill.page(account: account, after: after, in: $0) }
-        if rows.isEmpty, after != 0 {
-            rows = try await stores.index.read { try MailSyncFill.page(account: account, after: 0, in: $0) }
+        if rows.isEmpty, after != nil {
+            rows = try await stores.index.read { try MailSyncFill.page(account: account, after: nil, in: $0) }
         }
         try Task.checkCancellation()
-        fillAfter[account] = rows.last?.key ?? 0
+        fillAfter[account] = rows.last?.cursor
         for row in rows { enqueue(.body(row.id), priority: false) }
         return !rows.isEmpty
     }
@@ -1474,4 +1751,15 @@ extension MailLiveSource {
     }
 }
 
+/// The Inbox's counts as a place's (`MailPlaceCount`): unread conversations and all of them,
+/// each capped where the index stops counting, "10,000+".
+enum MailInboxCount {
+    static let cap = 10_000
+
+    static func place(unread: Int, total: MailCount) -> MailPlaceCount {
+        MailPlaceCount(unread: MailCount(value: min(cap, unread), isAtLeast: unread > cap), total: total)
+    }
+}
+
 #endif
+

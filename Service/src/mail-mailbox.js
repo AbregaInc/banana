@@ -11,6 +11,12 @@
 // - a listing adds a membership only on a message with nothing newer than the scan's floor,
 //   and never removes one: absence is a reason to read, never a removal;
 // - a label set reaches the devices only once it is exact.
+//
+// Snooze (MAIL-ENGINE §8, src/mail-snooze.js): label names are kept, and every conversation that
+// carries a Banana label has a `snooze` row saying when a rule is due on it, kept current from
+// each label write, so the mailbox's alarm can wake it on time with every device asleep.
+
+import { snoozeState, SNOOZED_PREFIX, RETURNED } from "./mail-snooze.js";
 
 const DAY = 24 * 60 * 60 * 1000;
 export const RETAIN_GONE = 30 * DAY;
@@ -31,12 +37,27 @@ const SCHEMA = [
   "CREATE INDEX IF NOT EXISTS msg_seq ON msg (seq) WHERE seq > 0",
   "CREATE INDEX IF NOT EXISTS msg_gone ON msg (gone_at) WHERE gone = 1",
   "CREATE INDEX IF NOT EXISTS msg_cached ON msg (used_at) WHERE cached > 0",
+  // The content fill walks what has no content yet, newest first. Gmail's ids grow with time, so
+  // (length, id) descending is newest first without a date (which a listing does not give).
+  "CREATE INDEX IF NOT EXISTS msg_fill ON msg (length(id), id) WHERE cached = 0 AND gone = 0",
   // (label, id) pairs the running scan listed; label '' is the listing of every message.
   "CREATE TABLE IF NOT EXISTS mark (label TEXT NOT NULL, id TEXT NOT NULL, PRIMARY KEY (label, id)) WITHOUT ROWID",
   // Messages to read one by one (minimal). prio 0: a device just changed it; 1: everything else.
   "CREATE TABLE IF NOT EXISTS verify (id TEXT PRIMARY KEY, prio INTEGER NOT NULL, reason TEXT NOT NULL, at INTEGER NOT NULL) WITHOUT ROWID",
   // Content to download before anyone asks: 0 the Inbox head, 1 new mail.
   "CREATE TABLE IF NOT EXISTS fetch (id TEXT PRIMARY KEY, prio INTEGER NOT NULL, at INTEGER NOT NULL) WITHOUT ROWID",
+  "CREATE INDEX IF NOT EXISTS msg_thread ON msg (thread)",
+  // Gmail's labels by id: the snooze rules read Banana's by name.
+  "CREATE TABLE IF NOT EXISTS label (id TEXT PRIMARY KEY, name TEXT NOT NULL) WITHOUT ROWID",
+  // A conversation with a Banana label on a live message. due: when a rule applies (0: now), NULL
+  // when none does (snoozed for later is a time; woken and still in the Inbox is NULL). tries and
+  // retry_at hold back a conversation whose change keeps failing, so it can't spin the alarm.
+  // rule: which rule the due time is for ("wake" at its time; the clean-ups a settle later).
+  `CREATE TABLE IF NOT EXISTS snooze (thread TEXT PRIMARY KEY, due INTEGER, tries INTEGER NOT NULL DEFAULT 0,
+     retry_at INTEGER, rule TEXT) WITHOUT ROWID`,
+  "CREATE INDEX IF NOT EXISTS snooze_due ON snooze (due) WHERE due IS NOT NULL",
+  // Conversations whose labels changed since their snooze row was worked out.
+  "CREATE TABLE IF NOT EXISTS snooze_dirty (thread TEXT PRIMARY KEY) WITHOUT ROWID",
 ];
 
 export function migrate(port) { for (const sql of SCHEMA) port.exec(sql); }
@@ -132,6 +153,8 @@ export function verifyNext(port, { limit, prio = null }) {
 export function verifyDone(port, id) { port.exec("DELETE FROM verify WHERE id = ?", id); }
 export function fetchNext(port, limit) { return port.exec("SELECT id FROM fetch ORDER BY prio, at, id LIMIT ?", limit).map((r) => r.id); }
 export function fetchDone(port, id) { port.exec("DELETE FROM fetch WHERE id = ?", id); }
+/** New mail (history added it) whose content is still owed. */
+export function isNewMail(port, id) { return port.exec("SELECT 1 AS x FROM fetch WHERE id = ? AND prio = 1", id).length > 0; }
 
 /** One page of Gmail history, applied from `start` (the stored checkpoint), which moves to the
  * page's last record, or to the response's own position after the final page. Returns the ids
@@ -155,6 +178,7 @@ export function applyHistory(port, page, { start, now }) {
           port.exec("INSERT INTO msg (id, thread, hist, labels, first_gen) VALUES (?, ?, ?, ?, ?)",
             m.id, m.threadId, h, Array.isArray(m.labelIds) ? json(m.labelIds) : null, gen);
           queueFetch(port, m.id, 1, now);
+          labelsWritten(port, m.threadId, Array.isArray(m.labelIds) ? m.labelIds : []);
         }
       }
       for (const deleted of record.messagesDeleted ?? []) {
@@ -167,6 +191,7 @@ export function applyHistory(port, page, { start, now }) {
           publish(port, m.id);
         } else if (!r.gone && h > r.hist) {
           port.exec("UPDATE msg SET gone = 1, gone_at = ?, hist = ? WHERE id = ?", now, h, m.id);
+          labelsWritten(port, r.thread, labelsOf(r));
           port.exec("DELETE FROM verify WHERE id = ?", m.id);
           port.exec("DELETE FROM fetch WHERE id = ?", m.id);
           if (r.cached) dropContent.push(m.id);
@@ -185,12 +210,14 @@ export function applyHistory(port, page, { start, now }) {
             port.exec("INSERT INTO msg (id, thread, hist, labels, first_gen) VALUES (?, ?, ?, ?, ?)",
               m.id, m.threadId, h, json(add ? ids.filter(validID) : []), gen);
             queueVerify(port, m.id, "history", now);
+            labelsWritten(port, m.threadId, ids);
             continue;
           }
           if (r.gone || h <= r.hist) continue;
           const labels = new Set(labelsOf(r));
           for (const l of ids) if (validID(l)) add ? labels.add(l) : labels.delete(l);
           port.exec("UPDATE msg SET labels = ?, hist = ? WHERE id = ?", json(labels), h, m.id);
+          labelsWritten(port, r.thread, ids, labelsOf(r));
           if (r.known) publish(port, m.id);
         }
       }
@@ -216,6 +243,7 @@ export function applyListing(port, { label, ids, floor, now, mark = true, verify
         port.exec("INSERT INTO msg (id, thread, hist, labels, first_gen) VALUES (?, ?, ?, ?, ?)",
           listed.id, listed.threadId, floor, json(label && !verifyOnly ? [label] : []), gen);
         if (verifyOnly) queueVerify(port, listed.id, "listing", now);
+        else if (label) labelsWritten(port, listed.threadId, [label]);
         continue;
       }
       if (r.gone || !label) continue;
@@ -223,6 +251,7 @@ export function applyListing(port, { label, ids, floor, now, mark = true, verify
       if (labels.includes(label)) continue;
       if (r.hist <= floor && !verifyOnly) {
         port.exec("UPDATE msg SET labels = ? WHERE id = ?", json([...labels, label]), listed.id);
+        labelsWritten(port, r.thread, labels, [label]);
         if (r.known) publish(port, listed.id);
       } else {
         // Something newer than this listing has spoken for the message: read it, don't guess.
@@ -261,6 +290,7 @@ export function closeBatch(port, { scan, now, limit = 500 }) {
     port.exec("DELETE FROM mark");
     setMeta(port, "scan", null);
     setMeta(port, "complete", scan.gen);
+    setMeta(port, "fill", null);   // the scan may have found more: the fill walks again from the newest
     return true;
   });
 }
@@ -283,6 +313,7 @@ export function applyRead(port, message, { floor, now }) {
       port.exec("INSERT INTO msg (id, thread, hist, labels, known, date, first_gen) VALUES (?, ?, ?, ?, 1, ?, ?)",
         message.id, message.threadId, h, json(labels), date, generation(port));
       publish(port, message.id);
+      labelsWritten(port, message.threadId, labels);
       return { stale: false };
     }
     if (h < r.hist) {
@@ -295,7 +326,7 @@ export function applyRead(port, message, { floor, now }) {
     const next = json(labels);
     const changed = !r.known || r.labels !== next || (date !== null && r.date !== date);
     port.exec("UPDATE msg SET labels = ?, known = 1, hist = ?, date = COALESCE(?, date) WHERE id = ?", next, h, date, message.id);
-    if (changed) publish(port, message.id);
+    if (changed) { publish(port, message.id); labelsWritten(port, r.thread, labels, labelsOf(r)); }
     return { stale: false };
   });
 }
@@ -308,7 +339,7 @@ export function applyGone(port, id, { now }) {
     const r = row(port, id);
     if (r?.gone) return { cached: false };
     if (!r) port.exec("INSERT INTO msg (id, thread, gone, gone_at, first_gen) VALUES (?, '', 1, ?, ?)", id, now, generation(port));
-    else port.exec("UPDATE msg SET gone = 1, gone_at = ? WHERE id = ?", now, id);
+    else { port.exec("UPDATE msg SET gone = 1, gone_at = ? WHERE id = ?", now, id); labelsWritten(port, r.thread, labelsOf(r)); }
     publish(port, id);
     return { cached: Boolean(r?.cached) };
   });
@@ -316,8 +347,12 @@ export function applyGone(port, id, { now }) {
 
 /** After a device's action: read the message first, so the result reaches the other devices with
  * Gmail's own position for it. */
-export function noteAction(port, ids, now) {
-  port.transaction(() => { for (const id of ids) if (validID(id)) queueVerify(port, id, "action", now, 0); });
+export function noteAction(port, ids, now, labels = []) {
+  port.transaction(() => {
+    for (const id of ids) if (validID(id)) queueVerify(port, id, "action", now, 0);
+    // A label this mailbox has no name for (a device made it): read the labels again.
+    if (labels.some((l) => validID(l) && !port.exec("SELECT 1 AS x FROM label WHERE id = ?", l).length)) setMeta(port, "labels_due", 1);
+  });
 }
 
 /** A device catching up from zero names what it holds that the feed never did: each is published
@@ -341,7 +376,7 @@ export function check(port, ids, now) {
 export function feed(port, { after, era = 0, limit }) {
   const horizon = Number(getMeta(port, "horizon") ?? 0), current = Number(getMeta(port, "era") ?? 0);
   if (after !== null && era < current && after < horizon) return { expired: true };
-  const rows = port.exec("SELECT id, thread, hist, labels, date, gone, seq FROM msg WHERE seq > ? ORDER BY seq LIMIT ?", after ?? 0, limit);
+  const rows = port.exec("SELECT id, thread, hist, labels, date, gone, seq, cached FROM msg WHERE seq > ? ORDER BY seq LIMIT ?", after ?? 0, limit);
   const seq = rows.length ? rows.at(-1).seq : after ?? 0;
   return {
     epoch: getMeta(port, "epoch"),
@@ -350,30 +385,41 @@ export function feed(port, { after, era = 0, limit }) {
     complete: complete(port),
     entries: rows.map((r) => r.gone
       ? { id: r.id, history: String(r.hist), deleted: true }
-      : { id: r.id, thread: r.thread, history: String(r.hist), date: r.date, labels: labelsOf(r) }),
+      : { id: r.id, thread: r.thread, history: String(r.hist), date: r.date, labels: labelsOf(r), ...(r.cached > 0 ? { content: true } : {}) }),
   };
 }
 
 /** What a content request needs to know of one message. */
 export function contentState(port, id) {
   const r = row(port, id);
-  return r && { gone: Boolean(r.gone), cached: r.cached, known: Boolean(r.known), labels: labelsOf(r), history: r.hist, thread: r.thread };
+  return r && { gone: Boolean(r.gone), cached: r.cached, known: Boolean(r.known), labels: labelsOf(r), history: r.hist, thread: r.thread, date: r.date };
 }
+/** Content is stored. A known message is published again, so the devices learn from the feed that
+ * its content can be pulled from here (MAIL-CLOUD-SYNC §5). Returns whether it was published. */
 export function markCached(port, id, bytes, now) {
-  port.exec("UPDATE msg SET cached = MAX(cached, ?), used_at = ? WHERE id = ?", bytes, now, id);
+  return port.transaction(() => {
+    const r = row(port, id);
+    port.exec("UPDATE msg SET cached = MAX(cached, ?), used_at = ? WHERE id = ?", bytes, now, id);
+    if (!r || r.gone || r.cached > 0 || !r.known) return false;
+    publish(port, id);
+    return true;
+  });
 }
 export function touch(port, id, now) { port.exec("UPDATE msg SET used_at = ? WHERE id = ? AND cached > 0", now, id); }
 export function uncache(port, id) { port.exec("UPDATE msg SET cached = 0, used_at = NULL WHERE id = ?", id); }
 
 /** Tombstones older than RETAIN_GONE go; a cursor from before them can't be served (410). Content
  * nobody has read for `unusedFor` is dropped. Returns the ids whose stored content must go. */
-export function maintain(port, { now, unusedFor = 90 * DAY, limit = 500 }) {
+export function maintain(port, { now, unusedFor = 90 * DAY, limit = 500, keepSince = null }) {
   return port.transaction(() => {
     const gone = port.exec("SELECT id, seq, cached FROM msg WHERE gone = 1 AND gone_at < ? ORDER BY gone_at LIMIT ?", now - RETAIN_GONE, limit);
     const horizon = Math.max(Number(getMeta(port, "horizon") ?? 0), ...gone.map((r) => r.seq));
     for (const r of gone) port.exec("DELETE FROM msg WHERE id = ?", r.id);
     if (gone.length) { setMeta(port, "horizon", horizon); setMeta(port, "era", Number(getMeta(port, "era") ?? 0) + 1); }
-    const unused = port.exec("SELECT id FROM msg WHERE cached > 0 AND used_at < ? ORDER BY used_at LIMIT ?", now - unusedFor, limit);
+    // Content the fill keeps (dated inside its window) is not "unused": dropping it would only
+    // fetch it again. Older content nobody has read goes.
+    const unused = port.exec(`SELECT id FROM msg WHERE cached > 0 AND used_at < ?
+      AND NOT (? IS NOT NULL AND date IS NOT NULL AND date >= ?) ORDER BY used_at LIMIT ?`, now - unusedFor, keepSince, keepSince, limit);
     for (const r of unused) uncache(port, r.id);
     return [...gone.filter((r) => r.cached).map((r) => r.id), ...unused.map((r) => r.id)];
   });
@@ -391,14 +437,160 @@ export function checkLabelAbsence(port, { label, listed, floor, now }) {
 }
 
 export function status(port) {
-  const counts = port.exec(`SELECT COUNT(*) AS messages, SUM(known) AS known, SUM(gone) AS gone, SUM(cached > 0) AS cached,
+  const counts = port.exec(`SELECT COUNT(*) AS messages, SUM(known) AS known, SUM(gone) AS gone, SUM(cached > 0) AS cached, SUM(cached) AS bytes,
     (SELECT COUNT(*) FROM verify) AS verify, (SELECT COUNT(*) FROM fetch) AS fetch FROM msg`)[0];
   const scan = scanState(port);
   return { ...identity(port), checkpoint: checkpoint(port), complete: complete(port), scanning: scan ? scan.phase : null,
-    head: Number(getMeta(port, "seq") ?? 0), counts: Object.fromEntries(Object.entries(counts).map(([k, v]) => [k, Number(v ?? 0)])) };
+    head: Number(getMeta(port, "seq") ?? 0), fill: fillState(port), watchExpires: num(getMeta(port, "watch_expires")), counts: Object.fromEntries(Object.entries(counts).map(([k, v]) => [k, Number(v ?? 0)])) };
+}
+
+// ---- the content fill (MAIL-CLOUD-SYNC §5) ----
+
+/** Where the fill stands: `after` the last id it took (it walks down from there), `old` how many
+ * in a row it read that were older than its window, `done` when it last reached the end. */
+export function fillState(port) {
+  const s = getMeta(port, "fill");
+  return s ? JSON.parse(s) : { after: null, old: 0, done: null };
+}
+export function setFillState(port, state) { setMeta(port, "fill", JSON.stringify(state)); }
+
+/** The next messages without content, newest first, below the watermark. Spam and Trash are not
+ * filled; a message already dated before `since` is passed over without a read. */
+export function fillNext(port, { after = null, limit = 1 }) {
+  const below = after === null ? "" : "AND (length(id), id) < (length(?), ?)";
+  const args = after === null ? [limit] : [after, after, limit];
+  return port.exec(`SELECT id, date, labels FROM msg INDEXED BY msg_fill WHERE cached = 0 AND gone = 0 ${below}
+    ORDER BY length(id) DESC, id DESC LIMIT ?`, ...args);
+}
+export const fillSkips = (r, since) =>
+  (r.labels !== null && (labelsOf(r).includes("SPAM") || labelsOf(r).includes("TRASH"))) || (since !== null && r.date !== null && r.date < since);
+
+/** Stored content for each id, as the bulk pull needs it: only messages this mailbox holds. */
+export function contentStates(port, ids) {
+  return ids.map((id) => ({ id, state: contentState(port, id) }));
 }
 
 /** Everything goes: the caller has removed the content first. */
 export function drop(port) {
-  for (const table of ["meta", "msg", "mark", "verify", "fetch"]) port.exec(`DROP TABLE IF EXISTS ${table}`);
+  for (const table of ["meta", "msg", "mark", "verify", "fetch", "label", "snooze", "snooze_dirty"]) port.exec(`DROP TABLE IF EXISTS ${table}`);
+  banana.delete(port);
 }
+
+// ---- labels and the snooze schedule ----
+
+// Banana's Snoozed and Returned labels by id → name, per port: read on every label write, so kept
+// in memory and dropped whenever the label table changes.
+const banana = new WeakMap();
+function bananaNames(port) {
+  let names = banana.get(port);
+  if (!names) {
+    names = new Map(port.exec("SELECT id, name FROM label WHERE name = ? OR name LIKE ?", RETURNED, `${SNOOZED_PREFIX}%`).map((r) => [r.id, r.name]));
+    banana.set(port, names);
+  }
+  return names;
+}
+const isBanana = (name) => name === RETURNED || (typeof name === "string" && name.startsWith(SNOOZED_PREFIX));
+
+/** A message of `thread` had its labels written: its conversation's snooze row is worked out again
+ * if a Banana label is involved, or the conversation already has one (a reply arriving, an
+ * archive after the wake). */
+function labelsWritten(port, thread, ...lists) {
+  if (!validID(thread)) return;
+  const names = bananaNames(port);
+  if (lists.some((l) => l.some((id) => names.has(id))) || port.exec("SELECT 1 AS x FROM snooze WHERE thread = ?", thread).length)
+    port.exec("INSERT OR IGNORE INTO snooze_dirty (thread) VALUES (?)", thread);
+}
+
+/** Every conversation carrying one of these (new to the table) Banana labels is worked out again:
+ * one pass over the messages per 50 labels. (LIKE's `_` matches any character: a few extra
+ * conversations are worked out for nothing, never one too few.) */
+function markCarriers(port, ids) {
+  for (let i = 0; i < ids.length; i += 50) {
+    const chunk = ids.slice(i, i + 50);
+    const rows = port.exec(`SELECT DISTINCT thread FROM msg WHERE gone = 0 AND (${chunk.map(() => "labels LIKE ?").join(" OR ")})`,
+      ...chunk.map((id) => `%${JSON.stringify(id)}%`));
+    for (const r of rows) port.exec("INSERT OR IGNORE INTO snooze_dirty (thread) VALUES (?)", r.thread);
+  }
+}
+
+/** One label Gmail made or named (the createLabel operation, the mailbox's own). */
+export function noteLabel(port, label) {
+  if (!validID(label?.id) || typeof label.name !== "string") return;
+  port.transaction(() => {
+    const before = port.exec("SELECT name FROM label WHERE id = ?", label.id)[0]?.name;
+    port.exec("INSERT INTO label (id, name) VALUES (?, ?) ON CONFLICT (id) DO UPDATE SET name = excluded.name", label.id, label.name);
+    banana.delete(port);
+    if (before !== label.name && isBanana(label.name)) markCarriers(port, [label.id]);
+  });
+}
+
+/** Gmail's whole label list (the handshake, a refresh): replaces what is stored. */
+export function replaceLabels(port, labels) {
+  const list = (Array.isArray(labels) ? labels : []).filter((l) => validID(l?.id) && typeof l.name === "string");
+  port.transaction(() => {
+    const before = new Map(port.exec("SELECT id, name FROM label").map((r) => [r.id, r.name]));
+    port.exec("DELETE FROM label");
+    for (const l of list) port.exec("INSERT OR REPLACE INTO label (id, name) VALUES (?, ?)", l.id, l.name);
+    banana.delete(port);
+    markCarriers(port, list.filter((l) => isBanana(l.name) && before.get(l.id) !== l.name).map((l) => l.id));
+    setMeta(port, "labels_due", null);
+  });
+}
+export function labelNames(port) { return new Map(port.exec("SELECT id, name FROM label").map((r) => [r.id, r.name])); }
+
+/** A clean-up (rules 2 and 5, the bin) waits this long after the state that called for it was
+ * first seen. A device delivers a snooze one message at a time, so for a moment one message is
+ * snoozed and another still in the Inbox, which reads as "came back early"; the settle lets the
+ * device finish. A wake is never held: it is due at its time. */
+export const SNOOZE_SETTLE = 60_000;
+
+/** Works one conversation's snooze row out from the stored state. */
+function rescheduleThread(port, thread, now) {
+  const rows = port.exec("SELECT id, labels, date FROM msg WHERE thread = ? AND gone = 0", thread);
+  const state = snoozeState(rows.map((r) => ({ id: r.id, labels: labelsOf(r), internalDate: r.date })), bananaNames(port));
+  const before = port.exec("SELECT due, rule FROM snooze WHERE thread = ?", thread)[0];
+  if (!state.facts.some((f) => f.snoozed.length || f.returned)) port.exec("DELETE FROM snooze WHERE thread = ?", thread);
+  else if (state.due === null) port.exec(`INSERT INTO snooze (thread, due, rule) VALUES (?, NULL, NULL)
+    ON CONFLICT (thread) DO UPDATE SET due = NULL, rule = NULL, tries = 0, retry_at = NULL`, thread);
+  else {
+    // The same clean-up still called for keeps the time it was first due at.
+    const due = state.rule === "wake" ? state.due
+      : before?.rule === state.rule && before.due !== null ? Number(before.due) : now + SNOOZE_SETTLE;
+    port.exec("INSERT INTO snooze (thread, due, rule) VALUES (?, ?, ?) ON CONFLICT (thread) DO UPDATE SET due = excluded.due, rule = excluded.rule",
+      thread, due, state.rule);
+  }
+  port.exec("DELETE FROM snooze_dirty WHERE thread = ?", thread);
+}
+function flushDirty(port, now, limit = 500) {
+  for (const r of port.exec("SELECT thread FROM snooze_dirty LIMIT ?", limit)) rescheduleThread(port, r.thread, now);
+}
+const EFFECTIVE = "MAX(due, COALESCE(retry_at, 0))";
+
+/** The earliest time a snooze rule is due on any conversation (held-back ones at their retry), or null. */
+export function snoozeNext(port, { now }) {
+  return port.transaction(() => {
+    flushDirty(port, now);
+    return num(port.exec(`SELECT MIN(${EFFECTIVE}) AS at FROM snooze WHERE due IS NOT NULL`)[0]?.at);
+  });
+}
+/** The conversations due at `now`, soonest first. */
+export function snoozeDue(port, { now, limit }) {
+  return port.transaction(() => {
+    flushDirty(port, now);
+    return port.exec(`SELECT thread FROM snooze WHERE due IS NOT NULL AND ${EFFECTIVE} <= ? ORDER BY ${EFFECTIVE}, thread LIMIT ?`, now, limit).map((r) => r.thread);
+  });
+}
+/** After the mailbox worked on a conversation: if the stored state still says it is due, it waits,
+ * twice as long each time (a minute, up to an hour). A successful change clears that as soon as
+ * the reads of it come back. */
+export function snoozeSettled(port, thread, now) {
+  port.transaction(() => {
+    rescheduleThread(port, thread, now);
+    const r = port.exec("SELECT due, tries FROM snooze WHERE thread = ?", thread)[0];
+    if (!r || r.due === null || r.due > now) return;
+    const tries = Number(r.tries) + 1;
+    port.exec("UPDATE snooze SET tries = ?, retry_at = ? WHERE thread = ?", tries, now + Math.min(60_000 * 2 ** (tries - 1), 60 * 60_000), thread);
+  });
+}
+/** The stored messages of a conversation (a thread Gmail says is gone: each is read). */
+export function threadMessages(port, thread) { return port.exec("SELECT id FROM msg WHERE thread = ? AND gone = 0", thread).map((r) => r.id); }

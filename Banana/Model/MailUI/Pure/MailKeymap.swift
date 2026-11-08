@@ -34,6 +34,9 @@ enum MailKeyCommand: Equatable, Sendable {
     case replyAll
     case forward
     case compose
+    /// `H` (MAIL-UX 4.2; Gmail's `B` is Banana's Add to plan): the time picker, for the
+    /// conversation under the cursor or open.
+    case snooze
 }
 
 /// The keymap as data, so a test holds every key against the document (MAIL-UX 4.2, K3, K7).
@@ -69,6 +72,7 @@ enum MailKeymap {
         case .character("r"): command = .reply
         case .character("f"): command = .forward
         case .character("c"): command = .compose
+        case .character("h"): command = .snooze
         case .character("\\"): command = .togglePane
         case .character("]"): command = .toggleDetails
         case .character, .delete: return nil

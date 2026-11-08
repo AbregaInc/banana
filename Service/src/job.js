@@ -10,6 +10,7 @@ import {sweepMailParts} from "./mail-uploads.js";
 import { KEEP as KEEP_DIAGNOSTICS } from "./diagnostics.js";
 
 const RENEW_BEFORE = 24 * 60 * 60 * 1000;
+const MAIL_WATCH_RENEW_BEFORE = 24 * 60 * 60 * 1000;
 const CHECK_EVERY = 24 * 60 * 60 * 1000;
 const CHECKS_PER_RUN = 200;
 const STALE_DEVICE = 30 * 24 * 60 * 60 * 1000;
@@ -85,12 +86,29 @@ export async function runJob(deps) {
   try { await sweepMailParts(deps); }
   catch { result.mailCleanupFailed = true; }
   // Shared mailboxes a device read this week: their alarm is set (an alarm that was lost is set again).
+  // And any other with a snooze to wake: its alarm is set for that time, so it returns with every
+  // device asleep.
   if (deps.mailboxes) {
     try {
-      const boxes = await deps.db.all("SELECT google_sub FROM mail_mailboxes WHERE read_at > ? ORDER BY read_at DESC LIMIT 500", t - 7 * 24 * 60 * 60 * 1000);
+      const week = t - 7 * 24 * 60 * 60 * 1000;
+      const boxes = await deps.db.all("SELECT google_sub FROM mail_mailboxes WHERE read_at > ? ORDER BY read_at DESC LIMIT 500", week);
       for (const b of boxes) await deps.mailboxes.get(b.google_sub).arm();
-      if (boxes.length) result.mailboxes = boxes.length;
+      const waking = await deps.db.all(
+        "SELECT google_sub, wake_at FROM mail_mailboxes WHERE wake_at IS NOT NULL AND (read_at IS NULL OR read_at <= ?) ORDER BY wake_at LIMIT 500", week);
+      for (const b of waking) await deps.mailboxes.get(b.google_sub).arm(Math.max(t, Number(b.wake_at)));
+      if (boxes.length + waking.length) result.mailboxes = boxes.length + waking.length;
     } catch { result.mailboxesFailed = true; }
+    // Gmail watches (MAIL-CLOUD-SYNC §2a) end after 7 days: each is renewed a day before, and one
+    // that never started (or failed) is started. A mailbox whose access is gone wipes itself.
+    if (deps.config.mailPushTopic) {
+      try {
+        const due = await deps.db.all(`SELECT google_sub FROM mail_mailboxes WHERE watch_expires_at IS NULL OR watch_expires_at < ?
+          ORDER BY COALESCE(watch_expires_at, 0), google_sub LIMIT ?`, t + MAIL_WATCH_RENEW_BEFORE, MOST_RENEWALS_PER_RUN);
+        let renewed = 0;
+        for (const b of due) if (await deps.mailboxes.get(b.google_sub).watch()) renewed++;
+        if (due.length) result.mailWatches = { due: due.length, renewed };
+      } catch { result.mailWatchesFailed = true; }
+    }
   }
   return result;
 }

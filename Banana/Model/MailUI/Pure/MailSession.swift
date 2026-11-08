@@ -30,6 +30,9 @@ final class MailNavigation: ObservableObject {
     /// Where the composer's box is in the shells (`MailComposerDock`): docked above the keyboard,
     /// at full height, or folded into the bottom field. Nil with no composer open.
     @Published fileprivate(set) var dock: MailComposerDock?
+    /// The snooze time picker, while it is open: a sheet on a phone, and on a Mac or an iPad when it
+    /// was asked for by `H` or "Pick a date and time…" (the "…" menus list the times themselves).
+    @Published fileprivate(set) var snoozeAsk: MailSnoozeAsk?
 
     private let defaults: UserDefaults?
 
@@ -63,6 +66,17 @@ final class MailNavigation: ObservableObject {
         showsDetails = on
         if persist { defaults?.set(on, forKey: Self.detailsKey) }
     }
+}
+
+/// The snooze picker, asked for: for which conversation, and whether straight to a date and time.
+struct MailSnoozeAsk: Identifiable, Equatable {
+    let id = UUID()
+    /// The swiped or chosen conversation; nil is the one open, or under the cursor (T15).
+    var target: MailConversationID?
+    /// "Pick a date and time…": the calendar and clock first.
+    var custom: Bool
+    /// Snoozed already (it is in Snoozed): the picker offers Unsnooze as well.
+    var isSnoozed: Bool
 }
 
 /// What the triage model asks the list host to do with its scroll position.
@@ -387,6 +401,35 @@ final class MailSession {
         }
     }
 
+    // MARK: Snooze (MAIL-ENGINE 8, MAIL-UX 6.5)
+
+    /// `H`, a swipe, "…" › Snooze…, "Pick a date and time…": the picker opens over the screen.
+    func askToSnooze(_ id: MailConversationID? = nil, custom: Bool = false) {
+        guard !scope.isWriting else { return }
+        let probe = MailAction.snooze(until: .distantFuture, ifNoReply: false)
+        guard allowsChanges, supportsAction(probe) else { explainChangesUnavailable(); return }
+        guard canPerform(probe, on: id) else {
+            present(MailToast(text: targetRestriction, action: nil, lasts: nil), {})
+            return
+        }
+        scheduleIdle()
+        navigation.snoozeAsk = MailSnoozeAsk(target: id, custom: custom, isSnoozed: scope.place == .mailbox(.snoozed))
+    }
+
+    /// A time was chosen: the conversation leaves the inbox until then, with the toast and its Undo.
+    func snooze(until: Date, on id: MailConversationID? = nil) {
+        navigation.snoozeAsk = nil
+        act(.snooze(until: until, ifNoReply: false), on: id)
+    }
+
+    /// Back to the inbox now, and the snooze is over.
+    func unsnooze(_ id: MailConversationID? = nil) {
+        navigation.snoozeAsk = nil
+        act(.unsnooze, on: id)
+    }
+
+    func closeSnoozePicker() { navigation.snoozeAsk = nil }
+
     /// Whether a reading pane is on screen. The view says so when its arrangement changes.
     func setPaneVisible(_ visible: Bool) { pane.setActive(visible) }
 
@@ -479,6 +522,7 @@ final class MailSession {
         case .replyAll: reply(.replyAll)
         case .forward: reply(.forward)
         case .compose: compose()
+        case .snooze: askToSnooze()
         }
         return true
     }
@@ -535,10 +579,31 @@ final class MailSession {
         defer {
             isDraining = false
             while !registeringUndo && !pendingEvents.isEmpty { received(pendingEvents.removeFirst()) }
+            noteOnScreen()
         }
         while !queue.isEmpty {
             carry(queue.removeFirst())
         }
+    }
+
+    private var lastOnScreen: [MailConversationID] = []
+    private var lastScreenInputs: ScreenInputs?
+    private struct ScreenInputs: Equatable {
+        var viewport: MailViewport?, count: Int, first: MailConversationID?, last: MailConversationID?, direction: MailDirection
+    }
+    /// Tells the source which rows are on screen and next, when that changed (a new snapshot, a
+    /// scroll that moved the first row). The source debounces and does its reading off this thread.
+    private func noteOnScreen() {
+        guard isEntered else { return }
+        // Most drains (a key, a cursor move) change none of this: skip the walk of the rows.
+        let inputs = ScreenInputs(viewport: model.viewport, count: model.rows.count, first: model.rows.first?.id,
+                                  last: model.rows.last?.id, direction: model.direction)
+        guard inputs != lastScreenInputs else { return }
+        lastScreenInputs = inputs
+        let ids = model.screenRows()
+        guard ids != lastOnScreen else { return }
+        lastOnScreen = ids
+        source.onScreen(ids)
     }
 
     private func carry(_ effect: MailListEffect) {

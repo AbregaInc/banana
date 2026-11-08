@@ -83,10 +83,11 @@ final class BottomBarShellUITest: XCTestCase {
 
     // MARK: Badges
 
-    /// Overdue reminders badge Plan; the closed switcher carries the pages' counts added up and
+    /// Overdue reminders badge Plan and the sample Inbox badges Mail; the closed switcher carries
+    /// the pages' counts added up and
     /// says so to VoiceOver; open, each page carries its own.
     func testTheSwitcherBadgeAddsUpThePagesCounts() throws {
-        let app = try launch(["--tab", "plan", "--plan", "--outstanding-reminders"])
+        let app = try launch(["--tab", "plan", "--plan", "--outstanding-reminders", "--mail-fresh"])
         let switcher = app.buttons["shell.switcher"]
         XCTAssertTrue(waitUntil(timeout: 10) { switcher.label.contains("need") }, "Pages, N need attention: \(switcher.label)")
         XCTAssertTrue(switcher.label.hasPrefix("Pages, "))
@@ -96,7 +97,13 @@ final class BottomBarShellUITest: XCTestCase {
         XCTAssertTrue(plan.waitForExistence(timeout: 5))
         XCTAssertTrue((plan.value as? String)?.contains("need") == true, "Plan carries its own count: \(plan.value ?? "")")
         XCTAssertEqual(app.buttons["shell.page.settings"].value as? String ?? "", "", "a page with nothing waiting has no count")
+        // Mail: unread in the Inbox, not every conversation in it (the title's number).
+        let mail = app.buttons["shell.page.mail"]
+        let unread = Int((mail.value as? String ?? "").split(separator: " ").first ?? "") ?? 0
+        XCTAssertGreaterThan(unread, 0, "Mail carries the Inbox's unread: \(mail.value ?? "")")
         shot("switcher-open")
+        // The sample Inbox holds 40 conversations (its title's number); the badge is fewer.
+        XCTAssertLessThan(unread, 40, "the badge is unread (\(unread)), not every conversation")
     }
 
     // MARK: Plan paging

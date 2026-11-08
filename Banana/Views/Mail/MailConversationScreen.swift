@@ -102,7 +102,7 @@ struct MailConversationContent: View {
                         .id(Self.replySlot)
                         LazyVStack(alignment: .leading, spacing: DS.Space.m) {
                             ForEach(reader.messages) { message in
-                                MailMessageCard(message: message, text: reader.bodies[message.id], opener: reader.opener,
+                                MailMessageCard(message: message, text: reader.bodies[message.id], styled: reader.styled[message.id], opener: reader.opener,
                                                 load: { reader.fetchBody(message.id) })
                                     .onAppear { reader.revealBody(message.id) }
                             }
@@ -220,6 +220,7 @@ private struct MailConversationHeader: View {
                     Button { session.act(.done) } label: { Label("Archive", systemImage: "checkmark") }
                         .disabled(!session.canPerform(.done))
                         .accessibilityIdentifier(MailID.done)
+                    MailSnoozeMenu(session: session)
                 }
                 MailDiscardDraftItem(session: session)
                 Button { session.askForDetails(toggles: true) } label: { Label("Details", systemImage: "info.circle") }
@@ -287,6 +288,7 @@ struct MailMessageCard: View {
     let message: MailMessageDisplay
     /// Nil until the body has arrived.
     let text: MailBody?
+    var styled: [AttributedString]? = nil
     let opener: MailAttachmentOpener
 
     var load: () -> Void = {}
@@ -365,10 +367,10 @@ struct MailMessageCard: View {
     @ViewBuilder private var content: some View {
         switch text {
         case .text(let content, let quoteStart, _)?:
-            MailTextView(text: content, foldFrom: quoteStart)
+            MailTextView(text: content, styled: styled, foldFrom: quoteStart)
                 .environment(\.mailPictureContext, pictureContext)
         case .designed(_, _, _, let plain, _)?:
-            MailTextView(text: plain)
+            MailTextView(text: plain, styled: styled)
         case .notOnDevice?, nil:
             // Never a spinner: what the row said, until the body is here.
             VStack(alignment: .leading, spacing: DS.Space.s) {

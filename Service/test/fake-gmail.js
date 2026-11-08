@@ -1,6 +1,6 @@
 // An in-memory Gmail for the shared mailbox tests: messages, labels, a history log and the read
 // resources /v1/mail/read and the mailbox use, answering as Google does ({status, body}). It
-// counts every read, so a test can say how many times a message was downloaded.
+// counts every read, so a test can say how many times a message was downloaded, and every write.
 
 const SYSTEM = ["INBOX", "UNREAD", "STARRED", "DRAFT", "SENT", "IMPORTANT", "TRASH", "SPAM", "CATEGORY_PERSONAL"];
 const notFound = { error: { code: 404, status: "NOT_FOUND", errors: [{ reason: "notFound" }], message: "Not Found" } };
@@ -8,16 +8,25 @@ const notFound = { error: { code: 404, status: "NOT_FOUND", errors: [{ reason: "
 export function fakeGmail({ email = "noor@plan.example", userLabels = ["Label_1"] } = {}) {
   const messages = new Map();
   const history = [];
-  let hist = 1000, date = Date.UTC(2026, 8, 1);
+  let hist = 1000, date = Date.UTC(2026, 8, 1), nextLabel = 100;
+  // Labels by id: system labels are named by their id; user labels have their own names.
+  const labels = new Map([...SYSTEM, ...userLabels].map((id) => [id, { id, name: id, type: SYSTEM.includes(id) ? "system" : "user" }]));
   const gmail = {
-    email, messages, history, calls: [], oldest: 0,
+    email, messages, history, labels, calls: [], writes: [], created: [], oldest: 0,
+    /** A user label with a name (Gmail picks the id); returns the id. */
+    label(name, extra = {}) {
+      const id = `Label_${nextLabel++}`;
+      labels.set(id, { id, name, type: "user", ...extra });
+      return id;
+    },
+    labelID(name) { return [...labels.values()].find((l) => l.name === name)?.id ?? null; },
     /** Listing hooks: `skip` hides ids from a label's listing; `stale` answers from a saved copy. */
     skip: new Map(), stale: new Map(), afterList: null,
     get historyId() { return hist; },
-    add(id, labels = ["INBOX", "UNREAD"], thread = `t-${id}`) {
+    add(id, ids = ["INBOX", "UNREAD"], thread = `t-${id}`) {
       hist++; date += 60_000;
-      messages.set(id, { id, threadId: thread, labels: new Set(labels), internalDate: date, hist, subject: `Subject ${id}` });
-      history.push({ id: String(hist), messagesAdded: [{ message: { id, threadId: thread, labelIds: [...labels] } }] });
+      messages.set(id, { id, threadId: thread, labels: new Set(ids), internalDate: date, hist, subject: `Subject ${id}` });
+      history.push({ id: String(hist), messagesAdded: [{ message: { id, threadId: thread, labelIds: [...ids] } }] });
       return hist;
     },
     modify(id, add = [], remove = []) {
@@ -52,7 +61,7 @@ export function fakeGmail({ email = "noor@plan.example", userLabels = ["Label_1"
       gmail.calls.push({ resource: request.resource, id: request.id ?? null, format, label: query.labelIds ?? null, token, pageToken: query.pageToken ?? null });
       switch (request.resource) {
       case "profile": return { status: 200, body: { emailAddress: email, historyId: String(hist), messagesTotal: messages.size } };
-      case "labels": return { status: 200, body: { labels: [...SYSTEM, ...userLabels].map((id) => ({ id, name: id })) } };
+      case "labels": return { status: 200, body: { labels: [...labels.values()].map((l) => ({ ...l })) } };
       case "messages": {
         const label = query.labelIds ?? null, size = Number(query.maxResults ?? 100), offset = Number(query.pageToken ?? 0);
         const spamTrash = query.includeSpamTrash === "true";
@@ -84,6 +93,11 @@ export function fakeGmail({ email = "noor@plan.example", userLabels = ["Label_1"
         const m = messages.get(request.id);
         return m ? { status: 200, body: gmail.wire(m, format) } : { status: 404, body: notFound };
       }
+      case "thread": {
+        const list = [...messages.values()].filter((m) => m.threadId === request.id).sort((a, b) => a.internalDate - b.internalDate);
+        if (!list.length) return { status: 404, body: notFound };
+        return { status: 200, body: { id: request.id, historyId: String(Math.max(...list.map((m) => m.hist))), messages: list.map((m) => gmail.wire(m, format)) } };
+      }
       case "attachment": {
         const m = messages.get(request.id);
         return m ? { status: 200, body: { size: 3, data: "YWJj" } } : { status: 404, body: notFound };
@@ -99,12 +113,27 @@ export function fakeGmail({ email = "noor@plan.example", userLabels = ["Label_1"
       return gmail.wire(m, "minimal");
     },
     async mailMutation(token, request) {
+      gmail.writes.push({ id: request.id, action: request.action, add: request.add ?? [], remove: request.remove ?? [] });
       const m = messages.get(request.id);
       if (!m) return { status: 404, body: notFound };
+      if ([...(request.add ?? []), ...(request.remove ?? [])].some((l) => !labels.has(l)))
+        return { status: 400, body: { error: { code: 400, message: "Invalid label", errors: [{ reason: "invalidArgument" }] } } };
       if (request.action === "trash") gmail.modify(request.id, ["TRASH"], ["INBOX"]);
       else if (request.action === "untrash") gmail.modify(request.id, [], ["TRASH"]);
       else gmail.modify(request.id, request.add, request.remove);
       return { status: 200, body: { id: m.id, threadId: m.threadId, labelIds: [...m.labels].sort() } };
+    },
+    // Labels for the createLabel operation and the mailbox (google.js mailLabels, mailCreateLabel).
+    async mailLabels(token) {
+      gmail.calls.push({ resource: "labels", id: null, format: null, token });
+      return [...labels.values()].map((l) => ({ ...l }));
+    },
+    async mailCreateLabel(token, body) {
+      gmail.created.push({ ...body });
+      if ([...labels.values()].some((l) => l.name === body.name))
+        return { status: 409, body: { error: { code: 409, message: "Label name exists or conflicts", status: "ALREADY_EXISTS" } } };
+      const id = gmail.label(body.name, { labelListVisibility: body.labelListVisibility, messageListVisibility: body.messageListVisibility });
+      return { status: 200, body: { ...labels.get(id) } };
     },
   };
   return gmail;

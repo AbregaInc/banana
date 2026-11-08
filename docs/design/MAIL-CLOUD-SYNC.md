@@ -55,6 +55,8 @@ the agreed priority order:
 6. **Verification** reads.
 7. **Backfill**: listings of every label, `INBOX` first, then the unlabelled listing
    (`includeSpamTrash`, 500 ids a page, 5 units), then the close.
+8. **The content fill** (§5a): every message without content, newest first, on the
+   background lane only, with whatever of the identity's budget is free.
 
 Steps 1–6 use the existing pacing reservation and may wait up to ten seconds. Backfill asks for
 a **background** reservation: it only takes a slot that is free *now*, so a device's
@@ -64,7 +66,47 @@ the worker (4,500 units a minute).
 
 While a device has read the feed in the last two minutes, history is polled at most every
 ten seconds and any feed request asks for a poll if the last one is older than that; otherwise
-every five minutes, which keeps the checkpoint inside Gmail's history retention.
+every two minutes for a day after a device last read, then every 30 minutes, which keeps the
+checkpoint inside Gmail's history retention. With a live Gmail watch (§2a) polling is the
+safety net only: every minute while a device reads, every 10 minutes for a day, then every two
+hours.
+
+## 2a. Gmail push, and the push to the devices
+
+Built 7 November 2026 on branch `mail/body-prefetch`; not deployed.
+
+**Gmail to the service.** Each mailbox calls `users.watch` (100 units) with the topic in
+`MAIL_PUSH_TOPIC`, at its first alarm and then from the quarter-hour job a day before the
+watch's 7 days end (`mail_mailboxes.watch_expires_at`, migration 0023). The watch has **no
+label filter**: an include filter is evaluated on the message's labels after the change, so an
+archive (INBOX removed), a label added on the web outside the Inbox, or a message sent from
+another client would never notify; each notice costs only a coalesced history read (2 units).
+Pub/Sub pushes each notice to `POST /v1/mail/push` with an OIDC token. The route verifies
+Google's signature (Google's published keys), issuer, audience (`MAIL_PUSH_AUDIENCE`, default
+`<PUBLIC_URL>/v1/mail/push`), expiry, and that it was minted for `MAIL_PUSH_SERVICE_ACCOUNT`,
+verified; anything else is 401. The notice's `emailAddress` finds the mailbox through
+`mail_mailboxes` ⋈ `google_links`; its `historyId` is not used for anything but "wake up": the
+mailbox polls history from its own checkpoint at once, which queues new mail's content (step 4).
+An unknown address or a malformed notice is acknowledged (204) so Pub/Sub does not retry it.
+A refused `users.watch` (a missing topic grant) is not lost access: the mailbox logs it, polls
+at the unwatched cadence and tries again hourly. Turning Mail off, unlinking Google or deleting
+the account calls `users.stop` first, while the grant still works. Setup: `Service/tools/gmail-push-setup.md`.
+
+**The service to the devices.** When new mail's content (history's `messagesAdded`, fetch
+queue prio 1) is stored and published, the mailbox sends one silent push to the account's
+devices through the existing `pushTo`: `{"aps":{"content-available":1},"b":{"k":"mail"}}`,
+collapse id `mail`, no address or content in it. A burst sends one; the next waits out 15 s.
+The fill and the Inbox head never push. On iOS the app handles `k: "mail"` like `calendar` and
+`sync`: within the push's background window (about 30 s; no new background mode — the app's
+existing `remote-notification`), one feed pass for each account and a bulk pull of the new
+messages' text (`MailPushWake`), on a device where Mail was ever opened (MAIL-ENGINE invariant
+16). On the Mac the same pull runs when the push arrives. No visible new-mail notification is
+sent: that is the owner's product decision.
+
+End to end: Gmail → Pub/Sub (Google states seconds) → `/v1/mail/push` (verify, one D1 read,
+one DO call) → history read (one paced 2-unit read, normally no wait) → content (one paced
+60-unit read; ≤ 0.8 s queueing) → R2 → APNs (silent; iOS may delay or coalesce background
+pushes, especially on low battery) → device feed page + one bulk content request.
 
 ## 3. Order: newer always wins
 
@@ -114,6 +156,72 @@ fetch), stores it, and applies the read under the stale-read rule. `attachment` 
 cached the same way. `profile` is answered from the mailbox (its checkpoint, never newer than
 Gmail's), which the device's floors treat as conservative. `minimal`/`metadata` reads, thread
 reads, listings and history still go to Google: they are verification and must be fresh.
+
+### 5a. The content fill, and bulk content for the devices
+
+Built 7 November 2026 on branch `mail/body-prefetch`; not deployed.
+
+**The fill.** After the scan has closed, the alarm stores content for every message without
+it, **newest first**, until it walks out of its window (`MAIL_FILL_DAYS`, default 183: the
+engine's default sync limit). Listings carry no dates, so the walk orders by the Gmail id —
+`(length(id), id)` descending, a partial index `msg_fill` over rows with no content — which
+Gmail assigns in time order (ASSUMED of real ids; true of the fake's). It stops after 20
+messages in a row dated before the window (one imported old message cannot stop it). Spam and
+Trash are skipped. Its watermark (`meta.fill`: the last id taken) survives alarm restarts and
+Durable Object eviction; a closing scan, or six hours after a finished walk, starts it again
+from the newest (cheap: the index holds only rows still without content). It reads on the
+background lane only — a slot that is free now, never one a person's read reserved — so it
+uses whatever of the identity's budget nobody else is using, up to the 4,500-units-a-minute
+ceiling less one full-read slot a minute kept for interactive reads: 74 units a second, one full
+read every 811 ms. A person's read arriving during a fill burst waits at most one slot (800 ms).
+When Google says "too many" (a 429, or `rateLimitExceeded` on any of the mailbox's reads), the
+fill halves its rate for five minutes — again for each further limit, to an eighth — then ramps
+back to full over five more; interactive reads keep their existing behaviour. Listings,
+verification, history and new mail's content all run before it in the step order. Content inside the window is not dropped as "unused for 90 days".
+Storing content publishes the message again with `content: true`, so the devices learn from
+the feed what they can pull.
+
+Cost per account during the fill, in a quiet period: **4,440 messages and 266,400 Gmail units an
+hour** (74% of the 6,000-units-a-minute per-user quota; the ceiling is not raised). Whatever a
+person or a device reads in that time comes out of the fill's share. Six months at the engine's
+assumed 110 messages a day (≈ 20,000 messages) is about **four and a half hours**, once;
+afterwards only new mail. R2: Gmail's `full` JSON
+(base64 bodies, ≈ 1.35× the raw message) sealed; at an ASSUMED 50–75 KB a message, **1.0–1.5 GB
+a mailbox** for six months (≈ $0.015–0.02 a month at R2's storage price). Content over 16 MB is
+never stored.
+
+**Bulk content.** `POST /v1/mail/content {email, ids ≤ 50}` answers, for each id, the stored
+`full` message with the mailbox's current labels and position, `missing` (not stored yet),
+`gone`, or `later` (the answer reached 8 MB). It never asks Google: a pull costs no Gmail quota.
+It is answered only for the session's own Mail link (the same checks as the feed), and each
+object opens only with its own sub and id as AAD; an object that does not open is forgotten and
+answered `missing`.
+
+**On the device** (`MailCloudPull`), one bulk request of up to 25 at a time, in three tiers: a
+conversation being opened (every message of it not here, newest first, at most 8 — and no thread
+read when the feed already holds the conversation); the rows on screen and ten ahead in the
+scroll direction (`MailSource.onScreen`, debounced 150 ms, replaced as the list scrolls); then,
+while Mail is in use or a push's window is open, every message the feed flagged, newest first.
+What the cloud lacks comes the per-message way at once for the first two tiers (for an account
+on the cloud mailbox that read is itself stored by the cloud); for the fill the flag is cleared
+until the feed sets it again. A pull is applied like a per-message read at the cloud's position
+(invariant 23), in one index transaction per batch. A `429` backs the account off until its
+retry time. An account whose service has no mailbox keeps the per-message fill, now newest
+first (`MailSyncFill`, keyset on `(internal_date, msg_pk)`).
+
+**Prepared ahead, too.** Every message pulled is prepared (`MailHTMLPreparer`) as it is stored,
+in the same background batch, at utility priority and at the work pace of MAIL-ENGINE invariant
+31 (`MailPaceGauge`: paused four times the work on a phone with Mail on screen, stopped when warm
+or in Low Power Mode; a push's short window counts as Mail in use, so new mail is prepared
+before the next open). A new `MailHTMLPreparer.version` makes every prepared body stale at once:
+`MailReprepare` walks the stored originals newest first (`content_by_date`, blobs migration v3),
+a piece of 64 at a time, and prepares what is missing or stale at the same pace; an opened
+conversation's stale messages are prepared first. An open reads prepared output only; it
+prepares on request only when nothing current is stored (counted:
+`GmailConversationLoader.preparedOnRequest`). The reader styles each body's blocks off the main
+thread as it arrives (`MailAttributedText.blocks`), so drawing builds no attributed text; fonts
+are applied by the view, so nothing depends on the pane width. Layout of the text for the width
+still happens on the main thread, in SwiftUI.
 
 ## 6. Device actions
 
@@ -190,3 +298,44 @@ Mac Beta 1.0.4 (103) was signed, notarized and published as the GitHub prereleas
 `mac-beta-v1.0.4-103`; the Beta update feed and download redirect name build 103. iOS Beta
 103 was installed and launched on the owner's phone and iPad. These clients now use the
 staging shared mailbox feed; real-mailbox acceptance is in progress, not yet claimed.
+
+## 11. Snooze wakes in the cloud mailbox
+
+Built on branch `mail/snooze`, not deployed. [MAIL-ENGINE](MAIL-ENGINE.md) §8 had whichever
+device was awake wake a snooze. The mailbox now owns the wake, so a snoozed conversation returns
+on time in Gmail with every device asleep. Devices may still wake overdue snoozes: each change is
+a desired end state, so two wakes make one change.
+
+- **Labels.** `/v1/mail/operation` takes `{email, action: "createLabel", name, operationID}` for
+  `Banana/Snoozed/<yyyyMMdd'T'HHmm'Z'>`, `Banana/Returned` and `Banana/Muted` only. It answers
+  Gmail's label (`id`, `name`, …). A label that already has the name is the answer, so a second
+  device gets the same id. New labels are created with `labelHide`/`hide`. The mailbox keeps label
+  names (table `label`), from the handshake, from each createLabel, and from a reread of the
+  labels. That reread runs when a `modify` added an id it cannot name, and with every Inbox check.
+- **Schedule.** Every conversation with a Banana label on a live message has a `snooze` row,
+  updated after each write to its labels: due at its latest Snoozed time (rule 1); a minute after
+  it was first seen when a reply or a Gmail move brought it back early (rule 2), when it left the
+  Inbox after returning (rule 5), or when every snoozed message is in the bin; none once it has
+  returned and stays in the Inbox. The minute is for a device still delivering a snooze one
+  message at a time, which for a moment reads as "came back early".
+- **The wake** (`src/mailbox.js`, after the device-action reads and the history poll): for each
+  due conversation, a fresh `threads.get` (minimal, paced), then `src/mail-snooze.js` on what Gmail
+  says now, then one `modify` per message: `INBOX`, `UNREAD` and `Returned` on the last message
+  that is not a draft, first; then `Returned` on the other snoozed messages. `Banana/Returned` is
+  created first when needed. Writes take 5 units of the identity's pacing each. Each changed
+  message is read back like a device action, so the feed carries Gmail's `historyId`. One silent
+  push (`b.k = "mail"`) follows each step that woke a conversation.
+- **Alarm.** Each run sets the alarm to the sooner of its next step and the earliest due wake,
+  and stores that wake in D1 (`mail_mailboxes.wake_at`, migration 0024). The quarter-hour job sets
+  the alarm again for every mailbox with a `wake_at`, at that time, as well as for every mailbox a
+  device read this week. A conversation whose change keeps failing waits 1, 2, 4… minutes, up to
+  an hour, between tries. A read-only grant wakes nothing. Losing the Email feature or the grant
+  wipes the mailbox before anything is woken.
+- **Verification.** `Service/test/mail-snooze.test.js` (13 tests, fake Gmail): the label names and
+  rules; createLabel (made once and hidden, a lost race, other names refused); a wake with no device
+  reading; two snoozes in order; a conversation a device already woke; one write per message;
+  restart and the job's re-arm; the Email feature or grant lost before the wake; a reply during
+  the snooze; an archive after the wake; failing writes backing off; a snooze half delivered. The full service suite passed
+  438 tests in both UTC and America/New_York. `tools/mailbox-check` passed on local workerd with
+  migration 0024 (the Worker bundle with the new modules loads; its checks do not snooze). Not
+  shown: a real Gmail account (probe W5).

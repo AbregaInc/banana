@@ -120,15 +120,18 @@ enum MailMessageImporter {
                 recipients = decoded
             }
             let effective = labels[pk] ?? []
+            var banana: [String: String] = [:]
+            for id in effective { if let name = names[id], name.hasPrefix("Banana/") { banana[name] = id } }
             let storedVis: Int = row["vis"]
             let vis = storedVis >= 3 ? storedVis : effective.contains("TRASH") ? 1 : effective.contains("SPAM") ? 2 : 0
             return MessageFacts(gmailID: row["gmail_id"], rowID: pk, arrivalSequence: row["arrival_seq"], internalDate: row["internal_date"],
                 fetchState: row["fetch_state"], vis: vis, labels: effective, labelsKnown: flags.contains(.labelsKnown),
-                bananaLabels: effective.compactMap { names[$0] }.filter { $0.hasPrefix("Banana/") },
+                bananaLabels: banana.keys.sorted(),
                 fromName: row["from_name"], fromAddress: row["from_addr"] ?? "", isFromMe: flags.contains(.fromMe),
                 toAddresses: recipients.to, ccAddresses: recipients.cc, subject: row["subject"] ?? "",
                 snippet: row["snippet"] ?? "", hasAttachment: flags.contains(.hasAttachment), hasInvite: flags.contains(.hasInvite),
-                listID: row["list_id"], hasUndeliveredIntent: pending.contains(pk), hasRefusedIntent: refused.contains(pk))
+                listID: row["list_id"], hasUndeliveredIntent: pending.contains(pk), hasRefusedIntent: refused.contains(pk),
+                bananaLabelIDs: banana)
         }
     }
 

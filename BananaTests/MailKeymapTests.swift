@@ -81,6 +81,12 @@ final class MailKeymapTests: XCTestCase {
         XCTAssertNil(command(.character("]"), repeating: true))
     }
 
+    func testHSnoozesInTheListAndInAnOpenConversationAndActsOnceWhenHeld() {
+        XCTAssertEqual(command(.character("h")), .snooze)
+        XCTAssertEqual(command(.character("h"), open: true), .snooze)
+        XCTAssertNil(command(.character("h"), repeating: true))
+    }
+
     func testAKeyMailDoesNotKnowIsNotTaken() {
         for key in ["t", "d", "w", "n", "b", "1", "?", "/"] {
             XCTAssertNil(command(.character(Character(key))), key)

@@ -7,6 +7,7 @@ import { DurableObject } from "cloudflare:workers";
 import { createMailbox } from "./mailbox.js";
 import { configFrom } from "./config.js";
 import { createGoogle } from "./google.js";
+import { createApns } from "./apns.js";
 import { createVault } from "./crypto.js";
 import { d1 } from "./adapters/d1.js";
 import { r2Blobs } from "./adapters/r2.js";
@@ -18,6 +19,7 @@ export class Mailbox extends DurableObject {
     const random = (n) => crypto.getRandomValues(new Uint8Array(n));
     const deps = {
       config, db: d1(env.DB), google: createGoogle(config, (...args) => fetch(...args)),
+      apns: createApns(config, (...args) => fetch(...args)),   // silent pushes: new mail, a snooze woken
       now: Date.now, random, sleep: (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
     };
     this.mailbox = createMailbox({
@@ -39,14 +41,19 @@ export class Mailbox extends DurableObject {
   ensure(who) { return this.mailbox.ensure(who); }
   feed(request) { return this.mailbox.feed(request); }
   check(ids) { return this.mailbox.check(ids); }
-  noteAction(ids) { return this.mailbox.noteAction(ids); }
+  noteAction(ids, labels) { return this.mailbox.noteAction(ids, labels); }
+  noteLabel(label) { return this.mailbox.noteLabel(label); }
   poke() { return this.mailbox.poke(); }
   profile() { return this.mailbox.profile(); }
   content(request) { return this.mailbox.content(request); }
+  contents(ids) { return this.mailbox.contents(ids); }
+  wake() { return this.mailbox.wake(); }
+  watch() { return this.mailbox.watch(); }
+  stopWatch() { return this.mailbox.stopWatch(); }
   lost(id) { return this.mailbox.lost(id); }
   status() { return this.mailbox.status(); }
   wipe() { return this.mailbox.wipe(); }
-  arm() { return this.mailbox.arm(); }
+  arm(at) { return this.mailbox.arm(at); }
   async alarm() { await this.mailbox.run(); }
 }
 
@@ -57,9 +64,12 @@ export function doMailboxes(namespace) {
       const stub = namespace.get(namespace.idFromName(`mail:${sub}`));
       return {
         ensure: (who) => stub.ensure(who), feed: (request) => stub.feed(request), check: (ids) => stub.check(ids),
-        noteAction: (ids) => stub.noteAction(ids), poke: () => stub.poke(), profile: () => stub.profile(),
-        content: (request) => stub.content(request), lost: (id) => stub.lost(id), status: () => stub.status(),
-        wipe: () => stub.wipe(), arm: () => stub.arm(),
+        noteAction: (ids, labels) => stub.noteAction(ids, labels), noteLabel: (label) => stub.noteLabel(label),
+        poke: () => stub.poke(), profile: () => stub.profile(),
+        content: (request) => stub.content(request), contents: (ids) => stub.contents(ids), wake: () => stub.wake(),
+        watch: () => stub.watch(), stopWatch: () => stub.stopWatch(),
+        lost: (id) => stub.lost(id), status: () => stub.status(),
+        wipe: () => stub.wipe(), arm: (at) => stub.arm(at),
       };
     },
   };

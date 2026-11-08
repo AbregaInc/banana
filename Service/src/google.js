@@ -17,6 +17,21 @@ export class GoogleRefused extends Error {
 }
 
 /** Anything else that went wrong talking to Google: worth trying again later. */
+/** What is wrong with a Pub/Sub push token's claims, or null: Google's issuer, exactly our audience,
+ * not expired (a minute's skew), not issued in the future, and the one service account the
+ * subscription signs as, verified. Pure, so the rules have their own tests. */
+export function pushTokenProblem(claims, { audience, serviceAccount, now }) {
+  const skew = 60_000;
+  if (!claims || typeof claims !== "object") return "claims";
+  if (claims.iss !== "https://accounts.google.com" && claims.iss !== "accounts.google.com") return "issuer";
+  if (!audience || claims.aud !== audience) return "audience";
+  if (!(Number(claims.exp) * 1000 > now - skew)) return "expired";
+  if (Number(claims.iat) * 1000 > now + skew) return "not yet valid";
+  if (!serviceAccount || typeof claims.email !== "string" || claims.email.toLowerCase() !== serviceAccount.toLowerCase()) return "service account";
+  if (claims.email_verified !== true && claims.email_verified !== "true") return "email not verified";
+  return null;
+}
+
 export class GoogleError extends Error {
   constructor(message, status) { super(message); this.name = "GoogleError"; this.status = status; }
 }
@@ -116,6 +131,28 @@ export function createGoogle(config, fetchImpl, now = Date.now) {
     },
 
     /**
+     * Checks the OIDC token a Pub/Sub push subscription sends with each Gmail notice
+     * (MAIL-CLOUD-SYNC §2a): Google's signature, then the claims (`pushTokenProblem`).
+     * @returns {Promise<{email: string}>} the service account it was minted for
+     */
+    async verifyPushToken(jwt, { audience, serviceAccount }) {
+      const parts = String(jwt).split(".");
+      if (parts.length !== 3) throw new GoogleRefused("push token shape");
+      let header, claims;
+      try {
+        header = JSON.parse(new TextDecoder().decode(fromBase64(parts[0])));
+        claims = JSON.parse(new TextDecoder().decode(fromBase64(parts[1])));
+      } catch { throw new GoogleRefused("push token unreadable"); }
+      if (header?.alg !== "RS256" || typeof header.kid !== "string") throw new GoogleRefused("push token alg");
+      const ok = await crypto.subtle.verify("RSASSA-PKCS1-v1_5", await signingKey(header.kid),
+        fromBase64(parts[2]), new TextEncoder().encode(`${parts[0]}.${parts[1]}`));
+      if (!ok) throw new GoogleRefused("push token signature");
+      const problem = pushTokenProblem(claims, { audience, serviceAccount, now: now() });
+      if (problem) throw new GoogleRefused(`push token ${problem}`);
+      return { email: claims.email.toLowerCase() };
+    },
+
+    /**
      * Trades the app's serverAuthCode for the service's own refresh token.
      * @param {string} code
      * @returns {Promise<{sub: string, email: string, refreshToken: string|null, scopes: string}>}
@@ -169,6 +206,46 @@ export function createGoogle(config, fetchImpl, now = Date.now) {
       });
       const body=await response.json();
       if(!body||typeof body!=='object'||Array.isArray(body)||(response.ok&&(body.id!==request.id||!Array.isArray(body.labelIds))))throw new GoogleError('mail mutation response invalid',502);
+      return {status:response.status,body};
+    },
+
+    /** users.watch: Gmail publishes this mailbox's changes to the Pub/Sub topic (MAIL-CLOUD-SYNC §2a).
+     * Answers Google's {historyId, expiration}; any refusal is an error (the caller tries again). */
+    async mailWatch(accessToken, { topicName }) {
+      const response = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/watch", {
+        method: "POST", headers: { authorization: `Bearer ${accessToken}`, "content-type": "application/json" }, redirect: "error",
+        body: JSON.stringify({ topicName }),
+      });
+      if (!response.ok) throw new GoogleError(`mail watch ${response.status}`, response.status);
+      return await response.json();
+    },
+    /** users.stop: no more notices for this mailbox. */
+    async mailStopWatch(accessToken) {
+      const response = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/stop", {
+        method: "POST", headers: { authorization: `Bearer ${accessToken}` }, redirect: "error",
+      });
+      if (!response.ok && response.status !== 404) throw new GoogleError(`mail stop ${response.status}`, response.status);
+    },
+
+    /** Every label of the mailbox (system and user), as Gmail describes them. */
+    async mailLabels(accessToken) {
+      const response=await fetch('https://gmail.googleapis.com/gmail/v1/users/me/labels',{
+        headers:{authorization:`Bearer ${accessToken}`},redirect:'error',
+      });
+      if(!response.ok)throw new GoogleError('mail labels unavailable',response.status);
+      const body=await response.json();
+      if(!Array.isArray(body?.labels))throw new GoogleError('mail labels invalid',502);
+      return body.labels;
+    },
+
+    /** Makes a label; 409 when one of that name exists. */
+    async mailCreateLabel(accessToken,label) {
+      const response=await fetch('https://gmail.googleapis.com/gmail/v1/users/me/labels',{
+        method:'POST',headers:{authorization:`Bearer ${accessToken}`,'content-type':'application/json'},redirect:'error',
+        body:JSON.stringify(label),
+      });
+      const body=await response.json();
+      if(!body||typeof body!=='object'||Array.isArray(body)||(response.ok&&(typeof body.id!=='string'||body.name!==label.name)))throw new GoogleError('mail label response invalid',502);
       return {status:response.status,body};
     },
 

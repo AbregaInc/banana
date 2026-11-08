@@ -3098,6 +3098,20 @@ conversation sits at its original date; in Banana it sorts at the time it was du
 Muting is weaker than Gmail's own: a reply to a muted conversation is in the inbox, in Gmail's
 apps, until some Banana device archives it. Gmail's mute is not in the API (UNVERIFIED).
 
+**As built (branch `mail/snooze`, 7 November 2026).** The shared cloud mailbox owns the wake
+([MAIL-CLOUD-SYNC](MAIL-CLOUD-SYNC.md) §11): an alarm at the earliest wake reads the conversation
+fresh, applies rules 1, 2 and 5 (`Service/src/mail-snooze.js`), writes through the identity's
+pacing and sends the silent `k: "mail"` push, so a snooze returns on time in Gmail with every
+device asleep. On a device (`BananaLabelRules`, `MailActionCoordinator.deriveRules`) the same
+three rules run after every pass that caught up, as a fallback: a wake only once it is two minutes
+overdue, so Banana Cloud has made it first; every earlier rule assertion is discarded before they
+run again; a conversation with a change of his still undelivered is left alone; at launch every
+undelivered rule assertion is discarded unsent. Google's clock offset and the enumeration gate are
+not used: the cloud feed has no enumeration of the device's own, and the grace stands in for the
+clock. Delivery resolves `name:` references before it claims (6.5 step 2), and drops an absence
+assertion for a label Gmail does not have rather than make one. Not built: rules 3, 4 and 6
+(Waiting, "if no reply", mute), the local wake notification, and the weekly janitor.
+
 ### 8.4 If the labels are tampered with
 
 Deleting `Banana/Snoozed/…` in Gmail's settings removes it from its messages: the conversation

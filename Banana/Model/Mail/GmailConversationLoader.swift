@@ -10,6 +10,11 @@ actor GmailConversationLoader {
     let api: any GmailAPI
     let token: @Sendable (String) async throws -> String
     enum Failure: Error, Equatable { case wrongAccount, malformed, missingMessage, incompleteBody }
+    /// Preparations made because someone asked for the body (an open, a Load control) while its
+    /// original was here and its prepared form was not: the cases where an open waits on the
+    /// preparer. Everything else is prepared ahead (`preparedAhead`).
+    private(set) var preparedOnRequest = 0
+    private(set) var preparedAhead = 0
 
     init(stores: MailStores, writer: MailWriter, api: any GmailAPI,
          token: @escaping @Sendable (String) async throws -> String) {
@@ -64,6 +69,7 @@ actor GmailConversationLoader {
                               arguments: [account, id.message]) ?? false
         }
         if hasOriginal {
+            preparedOnRequest += 1
             guard try await blobs.prepare(account: account, messageID: id.message, at: Int64(Date().timeIntervalSince1970 * 1000)) != nil else { throw Failure.incompleteBody }
             try await promoteCached(id, thread: identity.0, rowID: identity.1)
             return
@@ -73,11 +79,57 @@ actor GmailConversationLoader {
         let profile = try await api.profile(token: access)
         guard profile.emailAddress?.lowercased() == account else { throw Failure.wrongAccount }
         guard let floor = profile.historyId else { throw Failure.malformed }
-        var message = try await api.message(token: access, id: id.message, format: .full)
-        guard message.id == id.message, message.threadId == identity.0, let payload = message.payload, let mime = payload.mimeType, !mime.isEmpty else { throw Failure.malformed }
+        let message = try await api.message(token: access, id: id.message, format: .full)
+        let fetched = try await complete(message, id: id, thread: identity.0, rowID: identity.1, floor: floor, access: { access })
+        try await commit([(fetched, identity.1, identity.0)], account: account)
+    }
+
+    /// Messages Banana Cloud already holds (MAIL-CLOUD-SYNC §5a), stored as `body` stores a read:
+    /// content and its prepared form first, then one index transaction for all of them. Each is
+    /// applied at its own `historyId` (the cloud's position for its labels), so the stale-read rule
+    /// holds. Returns the ids stored; a message this device holds no row for, or one in another
+    /// thread, is skipped and left to the per-message path.
+    func storeCloud(_ messages: [GmailMessage], account rawAccount: String) async throws -> [String] {
+        let account = rawAccount.lowercased()
+        let ids = messages.compactMap(\.id)
+        let rows = try await stores.index.read { db -> [String: (String, Int64)] in
+            var out: [String: (String, Int64)] = [:]
+            for id in ids {
+                if let row = try Row.fetchOne(db, sql: """
+                    SELECT t.gmail_id,m.msg_pk FROM message m JOIN thread t ON t.thread_pk=m.thread_pk
+                    JOIN account a ON a.account_pk=m.account_pk WHERE a.email=? AND m.gmail_id=?
+                    """, arguments: [account, id]) { out[id] = (row[0], row[1]) }
+            }
+            return out
+        }
+        var ready: [(FetchedMessage, Int64, String)] = []
+        for message in messages {
+            try Task.checkCancellation()
+            guard let messageID = message.id, let row = rows[messageID], let floor = message.historyId else { continue }
+            let id = MailMessageID(account: account, message: messageID)
+            do {
+                let fetched = try await complete(message, id: id, thread: row.0, rowID: row.1, floor: floor,
+                                                 access: { [token] in try await token(account) })
+                ready.append((fetched, row.1, row.0))
+            } catch let failure as Failure where failure == .malformed || failure == .incompleteBody {
+                continue   // left to the per-message path, which has its own rules for these
+            }
+        }
+        try await commit(ready, account: account)
+        return ready.compactMap(\.0.wire.id)
+    }
+
+    /// A `full` message made whole (external body parts read through `attachment`), its content and
+    /// prepared form committed to `blobs.sqlite`.
+    private func complete(_ fetched: GmailMessage, id: MailMessageID, thread: String, rowID: Int64, floor: UInt64,
+                          access: () async throws -> String) async throws -> FetchedMessage {
+        let account = id.account.lowercased(), blobs = MailBlobStore(stores: stores)
+        var message = fetched
+        guard message.id == id.message, message.threadId == thread, let payload = message.payload, let mime = payload.mimeType, !mime.isEmpty else { throw Failure.malformed }
         var extraction = MIMEStructure.extract(payload)
         guard extraction.structure.cut == nil, !extraction.bodyTooLarge, !extraction.malformedBody else { throw Failure.incompleteBody }
         if !extraction.missingBodyPartIDs.isEmpty {
+            let access = try await access()
             var parts: [String: MIMEStructure.Part] = [:]
             func visit(_ part: MIMEStructure.Part) {
                 parts[part.partID] = part
@@ -111,17 +163,46 @@ actor GmailConversationLoader {
               extraction.missingBodyPartIDs.isEmpty else { throw Failure.incompleteBody }
         try Task.checkCancellation()
         let at = Int64(Date().timeIntervalSince1970 * 1000)
-        try await blobs.put(message, account: account, extraction: extraction, ftsRowID: identity.1, at: at)
+        try await blobs.put(message, account: account, extraction: extraction, ftsRowID: rowID, at: at)
         guard try await blobs.prepare(account: account, messageID: id.message, at: at) != nil else { throw Failure.incompleteBody }
+        preparedAhead += 1
+        return FetchedMessage(wire: message, floor: floor, headers: MessageHeaders(payload: message.payload), structure: extraction.structure)
+    }
+
+    /// One index transaction for messages whose content is committed: rows, labels (stale-read
+    /// rule), `fetch_state = 2, prep_state = 2`.
+    private func commit(_ ready: [(fetched: FetchedMessage, rowID: Int64, thread: String)], account: String) async throws {
+        guard !ready.isEmpty else { return }
         try Task.checkCancellation()
-        let fetched = FetchedMessage(wire: message, floor: floor, headers: MessageHeaders(payload: message.payload), structure: extraction.structure)
         _ = try await writer.transact { db in
-            var change = try MailMessageImporter.apply(fetched, account: account, myAddresses: [account], in: db)
-            try db.execute(sql: "UPDATE message SET fetch_state=2,prep_state=2 WHERE msg_pk=? AND gmail_id=? AND account_pk=(SELECT account_pk FROM account WHERE email=?)", arguments: [identity.1, id.message, account])
-            change.conversations.insert(MailConversationID(account: account, thread: identity.0))
+            var change = MailStoreChange()
+            for item in ready {
+                change.formUnion(try MailMessageImporter.apply(item.fetched, account: account, myAddresses: [account], in: db))
+                try db.execute(sql: "UPDATE message SET fetch_state=2,prep_state=2 WHERE msg_pk=? AND gmail_id=? AND account_pk=(SELECT account_pk FROM account WHERE email=?)", arguments: [item.rowID, item.fetched.wire.id, account])
+                change.conversations.insert(MailConversationID(account: account, thread: item.thread))
+            }
             return change
         }
     }
+    /// Prepares an original this device already stores whose prepared form is missing or was made
+    /// by an older preparer (`MailReprepare`), and tells open screens. False when there is no
+    /// stored original, or it cannot be prepared.
+    func prepareStored(_ id: MailMessageID) async throws -> Bool {
+        let account = id.account.lowercased()
+        guard let identity = try await stores.index.read({ db -> (String, Int64)? in
+            guard let row = try Row.fetchOne(db, sql: """
+                SELECT t.gmail_id,m.msg_pk FROM message m JOIN thread t ON t.thread_pk=m.thread_pk
+                JOIN account a ON a.account_pk=m.account_pk WHERE a.email=? AND m.gmail_id=?
+                """, arguments: [account, id.message]) else { return nil }
+            return (row[0], row[1])
+        }) else { return false }
+        guard try await MailBlobStore(stores: stores).prepare(account: account, messageID: id.message,
+                                                              at: Int64(Date().timeIntervalSince1970 * 1000)) != nil else { return false }
+        preparedAhead += 1
+        try await promoteCached(id, thread: identity.0, rowID: identity.1)
+        return true
+    }
+
     private func promoteCached(_ id: MailMessageID, thread: String, rowID: Int64) async throws {
         try Task.checkCancellation()
         let account = id.account.lowercased()

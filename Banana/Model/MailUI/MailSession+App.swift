@@ -6,7 +6,19 @@ import Foundation
 /// (`Pure/MailSession.swift`) knows none of them.
 extension MailSession {
 
-    @MainActor private static var made: MailSession?
+    @MainActor private static var made: MailSession? {
+        didSet { if let made { watchInboxForBadge(made) } }
+    }
+    @MainActor private static var inboxBadgeWatch: MailObservation?
+
+    /// Mail's badge in the shell: the unified Inbox's unread conversations, as the source
+    /// publishes them with the places (`mailboxCounts[.inbox].unread`, counted off the main
+    /// thread at most once a second).
+    @MainActor private static func watchInboxForBadge(_ session: MailSession) {
+        inboxBadgeWatch = session.source.observePlaces { places in
+            ActionBadges.shared.setMailInbox(places.mailboxCounts[.inbox]?.unread.value ?? 0)
+        }
+    }
     @MainActor private static var launched = false
 
     /// Synchronous fixture route or an already-open live session. Normal first use opens

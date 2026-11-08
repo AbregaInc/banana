@@ -41,7 +41,9 @@ final class MailIndexWriterTests: XCTestCase {
         XCTAssertEqual(rows.first?.subject, "Real subject")
         XCTAssertEqual(rows.first?.people.first?.a, "sender@example.com")
         XCTAssertEqual(rows.first?.recipients.first?.a, "a@example.com")
-        XCTAssertEqual(rows.first?.wakeAt, 99)
+        // The snooze time is the labels' (MAIL-ENGINE 8): a conversation with none has no wake time,
+        // whatever an older summary held. Attention is his, and is kept.
+        XCTAssertNil(rows.first?.wakeAt)
         let attention = try await reopened.index.read { try Int.fetchOne($0, sql: "SELECT attended_at FROM thread WHERE thread_pk=1") }
         XCTAssertEqual(attention, 42)
     }
@@ -91,18 +93,28 @@ final class MailIndexWriterTests: XCTestCase {
         let count = try await stores.index.read { try Int.fetchOne($0, sql: "SELECT message_count FROM thread WHERE thread_pk=1") }
         XCTAssertEqual(count, 0)
     }
-    func testRefreshPreservesSchedulerMembershipAndExistingLabelMetadata() async throws {
-        let stores = try await stores(), facts = [fact()]
-        let snoozed = try MailIndexReader.viewKey(.snoozed)
+    /// Snoozed is the labels' to say (MAIL-ENGINE 8): a refresh that finds the Snoozed label and no
+    /// INBOX lists it there with its time, and one that finds it back in the inbox takes it out.
+    func testSnoozedMembershipFollowsTheLabelsAndLabelMetadataIsKept() async throws {
+        let stores = try await stores()
+        let name = BananaLabelRules.snoozedName(until: Date(timeIntervalSince1970: 1_794_042_000))
+        var away = fact(labels: ["Label_7"])
+        away.bananaLabels = [name]; away.bananaLabelIDs = [name: "Label_7"]
         try await stores.index.write { db in
-            try db.execute(sql: "INSERT INTO view(view_pk,key,kind) VALUES (10,?,4)", arguments: [snoozed])
-            try db.execute(sql: "INSERT INTO view_thread VALUES (10,99,1,1,0)")
             try db.execute(sql: "INSERT INTO label(account_pk,gmail_id,name,kind,background_color) VALUES (1,'INBOX','Inbox',0,'#123456')")
-            try MailIndexWriter.rebuildThread(1, facts: facts, myAddresses: [], in: db)
+            try MailIndexWriter.rebuildThread(1, facts: [away], myAddresses: [], in: db)
         }
-        let rows = try await MailIndexReader(stores: stores).page(page(.snoozed))
-        XCTAssertEqual(rows.map(\.threadPK), [1])
-        XCTAssertEqual(rows.first?.sortKey, 99)
+        let reader = MailIndexReader(stores: stores)
+        let snoozed = try await reader.page(page(.snoozed))
+        XCTAssertEqual(snoozed.map(\.threadPK), [1])
+        XCTAssertEqual(snoozed.first?.wakeAt, 1_794_042_000_000)
+        var back = away
+        back.labels.insert("INBOX")
+        try await stores.index.write { db in
+            try MailIndexWriter.rebuildThread(1, facts: [back], myAddresses: [], in: db)
+        }
+        let after = try await reader.page(page(.snoozed))
+        XCTAssertTrue(after.isEmpty, "back in the inbox early, it is not away")
         let color = try await stores.index.read { try String.fetchOne($0, sql: "SELECT background_color FROM label WHERE gmail_id='INBOX'") }
         XCTAssertEqual(color, "#123456")
     }

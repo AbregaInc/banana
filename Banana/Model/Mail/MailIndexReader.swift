@@ -44,25 +44,27 @@ struct MailIndexReader: Sendable {
     }
 
     func counts(_ request: PageRequest) async throws -> ViewCounts {
+        try await stores.index.read { try Self.counts(request, in: $0) }
+    }
+
+    static func counts(_ request: PageRequest, in db: Database) throws -> ViewCounts {
         let key = try Self.viewKey(request.view)
-        return try await stores.index.read { db in
-            guard let viewPK = try Int64.fetchOne(db, sql: "SELECT view_pk FROM view WHERE key=?", arguments: [key]) else {
-                return ViewCounts(unread: 0, total: MailCount(value: 0, isAtLeast: false), stillLoading: 0)
-            }
-            var predicates = ["v.view_pk = ?"]
-            var arguments: [(any DatabaseValueConvertible)?] = [viewPK]
-            Self.filters(request, predicates: &predicates, arguments: &arguments)
-            let base = """
-                FROM view_thread v JOIN thread t ON t.thread_pk=v.thread_pk
-                JOIN account a ON a.account_pk=t.account_pk
-                WHERE \(predicates.joined(separator: " AND "))
-                """
-            let values = StatementArguments(arguments)
-            let total = try Int.fetchOne(db, sql: "SELECT count(*) FROM (SELECT 1 \(base) AND v.sort_key > 0 LIMIT 10001)", arguments: values) ?? 0
-            let unread = try Int.fetchOne(db, sql: "SELECT count(*) \(base) AND v.unread=1", arguments: values) ?? 0
-            let loading = try Int.fetchOne(db, sql: "SELECT count(*) \(base) AND v.sort_key <= 0", arguments: values) ?? 0
-            return ViewCounts(unread: unread, total: MailCount(value: min(10000, total), isAtLeast: total > 10000), stillLoading: loading)
+        guard let viewPK = try Int64.fetchOne(db, sql: "SELECT view_pk FROM view WHERE key=?", arguments: [key]) else {
+            return ViewCounts(unread: 0, total: MailCount(value: 0, isAtLeast: false), stillLoading: 0)
         }
+        var predicates = ["v.view_pk = ?"]
+        var arguments: [(any DatabaseValueConvertible)?] = [viewPK]
+        Self.filters(request, predicates: &predicates, arguments: &arguments)
+        let base = """
+            FROM view_thread v JOIN thread t ON t.thread_pk=v.thread_pk
+            JOIN account a ON a.account_pk=t.account_pk
+            WHERE \(predicates.joined(separator: " AND "))
+            """
+        let values = StatementArguments(arguments)
+        let total = try Int.fetchOne(db, sql: "SELECT count(*) FROM (SELECT 1 \(base) AND v.sort_key > 0 LIMIT 10001)", arguments: values) ?? 0
+        let unread = try Int.fetchOne(db, sql: "SELECT count(*) \(base) AND v.unread=1", arguments: values) ?? 0
+        let loading = try Int.fetchOne(db, sql: "SELECT count(*) \(base) AND v.sort_key <= 0", arguments: values) ?? 0
+        return ViewCounts(unread: unread, total: MailCount(value: min(10000, total), isAtLeast: total > 10000), stillLoading: loading)
     }
 
     private static func filters(_ request: PageRequest, predicates: inout [String],

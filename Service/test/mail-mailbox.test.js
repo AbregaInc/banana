@@ -3,7 +3,7 @@
 
 import test from "node:test";
 import assert from "node:assert/strict";
-import { setup, device, DAY } from "./helpers.js";
+import { setup, device, DAY, pushToken } from "./helpers.js";
 import { fakeGmail } from "./fake-gmail.js";
 import { sha256Hex } from "../src/crypto.js";
 import * as box from "../src/mail-mailbox.js";
@@ -12,14 +12,14 @@ import { DatabaseSync } from "node:sqlite";
 
 const EMAIL = "noor@plan.example";
 
-async function mailbox({ count = 0, labels } = {}) {
-  const s = setup();
+async function mailbox({ count = 0, labels, config = {}, push = false } = {}) {
+  const s = setup({ config });
   s.deps.sleep = async (ms) => s.advance(ms);
   const gmail = fakeGmail();
   Object.assign(s.google, { mailRead: gmail.mailRead, mailMessage: gmail.mailMessage, mailMutation: gmail.mailMutation });
   s.google.person("noor", "sub-noor", EMAIL);
-  const phone = (await s.signIn("noor", device("device-phone"))).json;
-  const mac = (await s.signIn("noor", device("device-mac1", { platform: "mac" }))).json;
+  const phone = (await s.signIn("noor", device("device-phone", push ? { push: pushToken(1) } : {}))).json;
+  const mac = (await s.signIn("noor", device("device-mac1", { platform: "mac", ...(push ? { push: pushToken(2) } : {}) }))).json;
   assert.equal(phone.account.id, mac.account.id);
   await s.db.run("INSERT INTO feature_access VALUES (?,?,1,NULL,?)", phone.account.id, "email", s.now());
   s.google.person("mail-noor", "sub-noor", EMAIL, "mail-noor", { scopes: "https://www.googleapis.com/auth/gmail.modify" });
@@ -324,4 +324,349 @@ test("listings add and never remove; a read older than what is stored changes no
   box.applyGone(port, "a", { now: 5 });
   assert.equal(box.applyRead(port, { id: "a", threadId: "t", labelIds: ["INBOX"], historyId: "200" }, { now: 6 }).gone, true);
   assert.equal(box.feed(port, { after: null, limit: 10 }).entries[0].deleted, true);
+});
+
+// ---- the content fill, the bulk pull, Gmail push (MAIL-CLOUD-SYNC §2a, §5) ----
+
+/** Full reads made after `from` (an index into gmail.calls), in order. */
+const fullReads = (gmail, from = 0) => gmail.calls.slice(from).filter((c) => c.resource === "message" && c.format === "full").map((c) => c.id);
+/** Runs alarms until the fill says it is done. */
+async function fillDone(t) { await t.drain(async () => (await t.status()).fill.done !== null, 2000); }
+
+test("the fill stores every message's content newest first after the scan, and skips Spam and Trash", async () => {
+  const t = await mailbox({ count: 40, labels: (i) => (i === 7 ? ["SPAM"] : i === 8 ? ["TRASH"] : i % 4 ? ["Label_1"] : ["INBOX"]) });
+  assert.equal((await t.feed(t.phone)).status, 200);
+  await t.drain(t.settled);
+  const from = t.gmail.calls.length;
+  await fillDone(t);
+  const filled = fullReads(t.gmail, from);
+  const expected = Array.from({ length: 40 }, (_, i) => `m${40 - i}`).filter((id) => !["m7", "m8"].includes(id) && Number(id.slice(1)) % 4 !== 0);
+  assert.deepEqual(filled, expected, "newest first, each once, the Inbox head already there");
+  const st = await t.status();
+  assert.equal(st.counts.cached, 38);
+  // The devices learn it from the feed: every stored message says so.
+  const entries = t.latest((await t.all(t.mac)).entries);
+  for (const [id, e] of entries) assert.equal(e.content === true, !["m7", "m8"].includes(id), id);
+});
+
+test("the fill stops at its window and resumes from its watermark after a restart", async () => {
+  // The fake's mail is dated 1 September; the clock is 15 October; a 30-day window holds none of it.
+  const t = await mailbox({ count: 60, labels: () => ["Label_1"], config: { mailFillDays: 30 } });
+  assert.equal((await t.feed(t.phone)).status, 200);
+  await t.drain(t.settled);
+  let from = t.gmail.calls.length;
+  // A few reads, then the process goes (the Durable Object is evicted) and comes back.
+  for (let i = 0; i < 6; i++) { await t.s.mailboxes.due(); t.s.advance(2000); }
+  const before = fullReads(t.gmail, from);
+  assert.ok(before.length >= 3 && before.length < 20, String(before.length));
+  const mark = (await t.status()).fill.after;
+  assert.equal(mark, before.at(-1));
+  t.s.mailboxes.close();
+  assert.equal((await t.feed(t.phone)).status, 200);   // arms the alarm again
+  from = t.gmail.calls.length;
+  await fillDone(t);
+  const after = fullReads(t.gmail, from);
+  assert.equal(new Set([...before, ...after]).size, before.length + after.length, "nothing read twice");
+  assert.equal(after[0], `m${Number(mark.slice(1)) - 1}`, "the walk goes on below the watermark");
+  assert.equal(before.length + after.length, 20, "twenty in a row older than the window end it");
+  const done = (await t.status()).fill;
+  assert.ok(done.done !== null);
+  // Done is done: hours later nothing more is read until the next walk is due.
+  const quiet = t.gmail.calls.length;
+  t.s.advance(60 * 60 * 1000);
+  await t.s.mailboxes.due();
+  assert.equal(fullReads(t.gmail, quiet).length, 0);
+});
+
+test("the fill takes only free background slots, at the ceiling less the reserve, and a person's read goes first", async () => {
+  const t = await mailbox({ count: 20, labels: () => ["Label_1"] });
+  assert.equal((await t.feed(t.phone)).status, 200);
+  await t.drain(t.settled);
+  const times = [];
+  const real = t.gmail.mailRead;
+  t.s.google.mailRead = async (token, request) => {
+    if (request.resource === "message") times.push({ at: t.s.now(), id: request.id });
+    return real(token, request);
+  };
+  // Someone's read holds the identity's next slot 5 s ahead: the fill reads nothing until it frees.
+  const reserved = t.s.now() + 5000;
+  await t.s.db.run("UPDATE mail_read_pacing SET next_at = ? WHERE google_sub = 'sub-noor'", reserved);
+  await t.s.mailboxes.due();
+  await fillDone(t);
+  assert.ok(times[0].at >= reserved, "no fill read while a person's slot is reserved");
+  assert.equal(times.length, 20);
+  for (let i = 1; i < times.length; i++) assert.ok(times[i].at - times[i - 1].at >= 811, `read ${i} ${times[i].at - times[i - 1].at} ms after the last`);
+  // A device's read in the middle of a fill is served at once (its own lane), from the store.
+  const answer = await t.read(t.phone, "m3");
+  assert.equal(answer.status, 200);
+});
+
+test("content the fill keeps inside its window is not dropped as unused", () => {
+  const db = new DatabaseSync(":memory:");
+  const port = sqlitePort(db);
+  box.migrate(port);
+  const now = Date.UTC(2026, 9, 15);
+  for (const [id, date] of [["new", now - 10 * DAY], ["old", now - 300 * DAY]]) {
+    port.exec("INSERT INTO msg (id, thread, known, date, cached, used_at, labels) VALUES (?, 't', 1, ?, 100, ?, '[]')", id, date, now - 120 * DAY);
+  }
+  const dropped = box.maintain(port, { now, keepSince: now - 183 * DAY });
+  assert.deepEqual(dropped, ["old"]);
+});
+
+test("a device pulls many messages' content at once, from the store only, and only its own", async () => {
+  const t = await mailbox({ count: 6, labels: () => ["INBOX"] });
+  assert.equal((await t.feed(t.phone)).status, 200);
+  await t.drain(t.settled);   // the Inbox head: all six stored
+  t.gmail.add("m7", ["Label_1"]);
+  t.s.advance(11_000);
+  await t.feed(t.phone, { fresh: true });   // m7 is known; its content is owed
+  await t.s.db.run("UPDATE mail_read_pacing SET next_at = ? WHERE google_sub = 'sub-noor'", t.s.now() + 60_000);
+  const reads = t.gmail.calls.length;
+  const pull = await t.s.call("POST", "/v1/mail/content", { session: t.mac.session, body: { email: EMAIL, ids: ["m6", "m2", "m7", "nope"] } });
+  assert.equal(pull.status, 200, pull.text);
+  assert.equal(t.gmail.calls.length, reads, "a pull asks Google nothing");
+  const byID = Object.fromEntries(pull.json.messages.map((m) => [m.id, m]));
+  assert.equal(byID.m6.message.id, "m6");
+  assert.deepEqual(byID.m6.message.labelIds, ["INBOX"]);
+  assert.ok(byID.m6.message.payload, "the full message");
+  assert.equal(byID.m7.missing, true);
+  assert.equal(byID.nope.missing, true);
+  // Sealed: the stored bytes are not the message, and one message's object does not open as another's.
+  const keyOf = async (id) => `mail/${await sha256Hex("sub-noor")}/${await sha256Hex(id)}/m`;
+  const sealed = await t.s.deps.blobs.get(await keyOf("m6"));
+  const bytes = new Uint8Array(await new Response(sealed.body).arrayBuffer());
+  assert.ok(!new TextDecoder().decode(bytes).includes("Subject m6"));
+  const sha = Buffer.from(await crypto.subtle.digest("SHA-256", bytes)).toString("hex");
+  assert.ok(await t.s.deps.blobs.put(await keyOf("m2"), new Blob([bytes]).stream(), { sha256: sha }));
+  const swapped = await t.s.call("POST", "/v1/mail/content", { session: t.mac.session, body: { email: EMAIL, ids: ["m2"] } });
+  assert.equal(swapped.json.messages[0].missing, true, "m6's object does not open as m2");
+  // Another person's session cannot read this address.
+  t.s.google.person("other", "sub-other", "other@plan.example");
+  const other = (await t.s.signIn("other", device("device-other"))).json;
+  const refused = await t.s.call("POST", "/v1/mail/content", { session: other.session, body: { email: EMAIL, ids: ["m6"] } });
+  assert.equal(refused.status, 403);
+  assert.equal((await t.s.call("POST", "/v1/mail/content", { body: { email: EMAIL, ids: ["m6"] } })).status, 401);
+  assert.equal((await t.s.call("POST", "/v1/mail/content", { session: t.mac.session, body: { email: EMAIL, ids: Array.from({ length: 51 }, (_, i) => `x${i}`) } })).status, 400);
+});
+
+// Pub/Sub's OIDC token, checked for real: an RSA key of the test's own stands in for Google's.
+async function pushSigner() {
+  const pair = await crypto.subtle.generateKey({ name: "RSASSA-PKCS1-v1_5", modulusLength: 2048, publicExponent: new Uint8Array([1, 0, 1]), hash: "SHA-256" }, true, ["sign", "verify"]);
+  const jwk = { ...(await crypto.subtle.exportKey("jwk", pair.publicKey)), kid: "k1", alg: "RS256", use: "sig" };
+  const b64 = (bytes) => Buffer.from(bytes).toString("base64url");
+  const sign = async (claims, header = { alg: "RS256", kid: "k1", typ: "JWT" }) => {
+    const input = `${b64(Buffer.from(JSON.stringify(header)))}.${b64(Buffer.from(JSON.stringify(claims)))}`;
+    return `${input}.${b64(new Uint8Array(await crypto.subtle.sign("RSASSA-PKCS1-v1_5", pair.privateKey, new TextEncoder().encode(input))))}`;
+  };
+  return { jwk, sign };
+}
+
+test("a Pub/Sub push token is accepted only from Google, for our audience and service account, in date", async () => {
+  const { createGoogle } = await import("../src/google.js");
+  const { GoogleRefused } = await import("../src/google.js");
+  const signer = await pushSigner();
+  const now = Date.UTC(2026, 9, 15);
+  const google = createGoogle({}, async () => new Response(JSON.stringify({ keys: [signer.jwk] }), { headers: { "cache-control": "max-age=3600" } }), () => now);
+  const audience = "https://service.test/v1/mail/push", serviceAccount = "push@project.iam.gserviceaccount.com";
+  const good = { iss: "https://accounts.google.com", aud: audience, email: serviceAccount, email_verified: true, iat: now / 1000 - 10, exp: now / 1000 + 3600 };
+  assert.deepEqual(await google.verifyPushToken(await signer.sign(good), { audience, serviceAccount }), { email: serviceAccount });
+  for (const [why, claims] of [
+    ["audience", { ...good, aud: "https://elsewhere.test/v1/mail/push" }],
+    ["issuer", { ...good, iss: "https://evil.test" }],
+    ["expired", { ...good, exp: now / 1000 - 120 }],
+    ["future", { ...good, iat: now / 1000 + 600 }],
+    ["service account", { ...good, email: "someone@project.iam.gserviceaccount.com" }],
+    ["unverified", { ...good, email_verified: false }],
+  ]) await assert.rejects(google.verifyPushToken(await signer.sign(claims), { audience, serviceAccount }), GoogleRefused, why);
+  const forged = (await signer.sign(good)).split(".");
+  forged[1] = Buffer.from(JSON.stringify({ ...good, aud: audience, email: serviceAccount, exp: now / 1000 + 99999 })).toString("base64url");
+  await assert.rejects(google.verifyPushToken(forged.join("."), { audience, serviceAccount }), GoogleRefused, "signature");
+  await assert.rejects(google.verifyPushToken(await signer.sign(good, { alg: "none", kid: "k1" }), { audience, serviceAccount }), GoogleRefused, "alg");
+});
+
+const PUSH_CONFIG = { mailPushTopic: "projects/PROJECT/topics/gmail", mailPushServiceAccount: "push@project.iam.gserviceaccount.com" };
+const notice = (email, historyId = "1") => ({ message: { data: Buffer.from(JSON.stringify({ emailAddress: email, historyId })).toString("base64"), messageId: "1" }, subscription: "projects/PROJECT/subscriptions/gmail" });
+
+/** A mailbox with a push topic: the fake Google takes watches and accepts `token-good` as Pub/Sub's. */
+async function pushed(options = {}) {
+  const t = await mailbox({ ...options, config: { ...PUSH_CONFIG, ...(options.config ?? {}) }, push: true });
+  const g = t.s.google;
+  g.mailWatches = []; g.mailStops = [];
+  g.mailWatch = async (token, body) => { g.mailWatches.push({ token, ...body }); return { historyId: String(t.gmail.historyId), expiration: String(t.s.now() + 7 * DAY) }; };
+  g.mailStopWatch = async (token) => { g.mailStops.push(token); };
+  g.verifyPushToken = async (jwt, expected) => {
+    if (jwt !== "token-good-0123456789abcdef") { const { GoogleRefused } = await import("../src/google.js"); throw new GoogleRefused("push token signature"); }
+    assert.equal(expected.audience, "https://service.test/v1/mail/push");
+    assert.equal(expected.serviceAccount, PUSH_CONFIG.mailPushServiceAccount);
+    return { email: expected.serviceAccount };
+  };
+  const post = (body, token = "token-good-0123456789abcdef") => t.s.call("POST", "/v1/mail/push", { body, headers: token ? { authorization: `Bearer ${token}` } : {} });
+  return { ...t, post };
+}
+
+test("Gmail's push wakes the right mailbox, which reads history, stores the new mail, and pushes the devices once", async () => {
+  const t = await pushed({ count: 3, labels: () => ["INBOX"] });
+  assert.equal((await t.feed(t.phone)).status, 200);
+  await t.drain(t.settled);
+  assert.equal(t.s.google.mailWatches.length, 1, "the mailbox started its watch");
+  assert.equal(t.s.google.mailWatches[0].topicName, PUSH_CONFIG.mailPushTopic);
+  assert.ok((await t.status()).watchExpires > t.s.now() + 6 * DAY, "recorded");
+  t.s.apns.sends.length = 0;
+  // A burst of new mail, a notice for each.
+  for (const id of ["n1", "n2", "n3"]) t.gmail.add(id, ["INBOX", "UNREAD"]);
+  t.s.advance(1000);   // well inside every poll interval: only the push can wake it now
+  for (let i = 0; i < 3; i++) assert.equal((await t.post(notice(EMAIL, "99999999"))).status, 204);
+  await t.s.mailboxes.due();
+  for (const id of ["n1", "n2", "n3"]) assert.equal(t.gmail.reads("message", id, "full"), 1, id);
+  const mailPushes = t.s.apns.sends.filter((p) => p.collapseId === "mail");
+  assert.equal(mailPushes.length, 2, "one push to each of the two devices");
+  assert.deepEqual(mailPushes[0].payload, { aps: { "content-available": 1 }, b: { k: "mail" } });
+  assert.ok(!JSON.stringify(mailPushes[0].payload).includes("@"), "no address in a push");
+  // More mail right after: coalesced, the next push waits out the gap.
+  t.gmail.add("n4", ["INBOX"]);
+  await t.post(notice(EMAIL));
+  await t.s.mailboxes.due();
+  assert.equal(t.s.apns.sends.filter((p) => p.collapseId === "mail").length, 2, "not yet");
+  t.s.advance(15_000);
+  await t.s.mailboxes.due();
+  assert.equal(t.s.apns.sends.filter((p) => p.collapseId === "mail").length, 4);
+  // The new entries reach a device with their content stored.
+  const entries = t.latest((await t.all(t.phone)).entries);
+  for (const id of ["n1", "n2", "n3", "n4"]) assert.equal(entries.get(id).content, true, id);
+});
+
+test("the push endpoint refuses a bad token and ignores what it cannot place", async () => {
+  const t = await pushed({ count: 1 });
+  assert.equal((await t.feed(t.phone)).status, 200);
+  await t.drain(t.settled);
+  const polls = t.gmail.reads("history");
+  assert.equal((await t.post(notice(EMAIL), null)).status, 401);
+  assert.equal((await t.post(notice(EMAIL), "token-bad-0123456789abcdef")).status, 401);
+  assert.equal((await t.post(notice("stranger@plan.example"))).status, 204);
+  assert.equal((await t.post({ message: { data: "not base64 json" } })).status, 204);
+  await t.s.mailboxes.due();
+  assert.equal(t.gmail.reads("history"), polls, "nothing woke");
+  // Without push configured the route does not exist.
+  const plain = await mailbox({ count: 1 });
+  assert.equal((await plain.s.call("POST", "/v1/mail/push", { body: notice(EMAIL), headers: { authorization: "Bearer token-good-0123456789abcdef" } })).status, 404);
+});
+
+test("with a live watch the idle poll is stretched; without one it is not", async () => {
+  const run = async (config) => {
+    const t = config ? await pushed({ count: 1 }) : await mailbox({ count: 1 });
+    assert.equal((await t.feed(t.phone)).status, 200);
+    await t.drain(t.settled);
+    t.s.advance(2 * DAY);   // nobody read the feed for two days: the idle cadence
+    await t.s.mailboxes.due();
+    const before = t.gmail.reads("history");
+    t.s.advance(60 * 60 * 1000);
+    await t.s.mailboxes.due();
+    return t.gmail.reads("history") - before;
+  };
+  assert.ok((await run(false)) >= 1, "polled within the hour");
+  assert.equal(await run(true), 0, "a watched mailbox waits for the push (and polls every two hours)");
+});
+
+test("the quarter-hour job renews a watch a day before it ends, and turning Mail off stops it", async () => {
+  const { runJob } = await import("../src/job.js");
+  const t = await pushed({ count: 1 });
+  assert.equal((await t.feed(t.phone)).status, 200);
+  await t.drain(t.settled);
+  assert.equal(t.s.google.mailWatches.length, 1);
+  assert.equal((await runJob(t.s.deps)).mailWatches, undefined, "nothing due");
+  t.s.advance(6 * DAY + 60_000);
+  const result = await runJob(t.s.deps);
+  assert.deepEqual(result.mailWatches, { due: 1, renewed: 1 });
+  assert.equal(t.s.google.mailWatches.length, 2);
+  const row = await t.s.db.first("SELECT watch_expires_at FROM mail_mailboxes WHERE google_sub = 'sub-noor'");
+  assert.equal(Number(row.watch_expires_at), t.s.now() + 7 * DAY);
+  assert.equal((await t.s.call("DELETE", "/v1/google/mail", { session: t.phone.session, body: { email: EMAIL } })).status, 204);
+  assert.equal(t.s.google.mailStops.length, 1, "stopped while the grant still worked");
+  assert.equal(await t.s.count("mail_mailboxes"), 0);
+});
+
+
+// ---- the fill uses the free budget (MAIL-CLOUD-SYNC §5a) ----
+
+/** Times of the mailbox's full reads, and of every sleep a read made waiting for its slot. */
+function recordReads(t) {
+  const reads = [], waits = [];
+  const real = t.gmail.mailRead;
+  t.s.google.mailRead = async (token, request) => {
+    if (request.resource === "message" && (request.query.find((q) => q.name === "format")?.value ?? "full") === "full") reads.push(t.s.now());
+    return t.answer ? t.answer(token, request, real) : real(token, request);
+  };
+  const sleep = t.s.deps.sleep;
+  t.s.deps.sleep = async (ms) => { waits.push(ms); return sleep(ms); };
+  return { reads, waits };
+}
+
+test("in a quiet minute the fill reads at the ceiling less the reserve: 4,440 units, 74 full reads", async () => {
+  const t = await mailbox({ count: 200, labels: () => ["Label_1"] });
+  assert.equal((await t.feed(t.phone)).status, 200);
+  await t.drain(t.settled);
+  const { reads } = recordReads(t);
+  const start = t.s.now();
+  await t.drain(async () => t.s.now() - start >= 60_000, 5000);
+  const inMinute = reads.filter((at) => at - start < 60_000).length;
+  assert.ok(inMinute >= 73 && inMinute <= 75, `${inMinute} full reads in a quiet minute`);
+  assert.ok(inMinute * 60 <= 4500 - 60 + 60, "never above the ceiling");
+});
+
+test("a person's read arriving during a fill burst gets a slot within one slot interval", async () => {
+  const t = await mailbox({ count: 120, labels: () => ["Label_1"] });
+  assert.equal((await t.feed(t.phone)).status, 200);
+  await t.drain(t.settled);
+  const { reads, waits } = recordReads(t);
+  const start = t.s.now();
+  await t.drain(async () => reads.length >= 10, 2000);   // the fill is running flat out
+  t.gmail.add("fresh", ["Label_1"]);
+  t.s.advance(11_000);
+  await t.feed(t.phone, { fresh: true });                // knows "fresh"; not stored
+  waits.length = 0;
+  const answer = await t.read(t.phone, "fresh");         // a person opens it: an interactive read
+  assert.equal(answer.status, 200);
+  assert.ok(waits.every((ms) => ms <= 800), `waited ${waits} ms`);
+  assert.ok(reads.length >= 10 && start <= t.s.now());
+});
+
+test("Google's limit halves the fill for five minutes, then it ramps back to full", async () => {
+  const t = await mailbox({ count: 900, labels: () => ["Label_1"] });
+  assert.equal((await t.feed(t.phone)).status, 200);
+  await t.drain(t.settled);
+  const { reads } = recordReads(t);
+  await t.drain(async () => reads.length >= 5, 2000);
+  let limitOnce = true;
+  t.answer = async (token, request, real) => {
+    if (limitOnce && request.resource === "message") { limitOnce = false; return { status: 429, body: { error: { code: 429, errors: [{ reason: "rateLimitExceeded" }] } } }; }
+    return real(token, request);
+  };
+  await t.drain(async () => !limitOnce, 200);
+  const limitedAt = t.s.now();
+  const count = (from, to) => reads.filter((at) => at >= limitedAt + from && at < limitedAt + to).length;
+  await t.drain(async () => t.s.now() - limitedAt >= 11 * 60_000, 20_000);
+  const halved = count(60_000, 120_000), ramping = count(7 * 60_000, 8 * 60_000), full = count(10 * 60_000, 11 * 60_000);
+  assert.ok(halved >= 36 && halved <= 38, `${halved} reads a minute while backed off (37 is half)`);
+  assert.ok(ramping > halved && ramping < full, `ramping: ${ramping}`);
+  assert.ok(full >= 73 && full <= 75, `${full} reads a minute after the ramp`);
+});
+
+test("listings and verification go before the fill", async () => {
+  const t = await mailbox({ count: 60, labels: () => ["Label_1"] });
+  assert.equal((await t.feed(t.phone)).status, 200);
+  await t.drain(t.settled);
+  const before = t.gmail.calls.length;
+  // A device asks the mailbox to check five messages (verification), and Gmail's history expires
+  // (a new scan): both run ahead of any fill read.
+  await t.s.call("POST", "/v1/mail/check", { session: t.phone.session, body: { email: EMAIL, ids: ["m1", "m2", "m3", "m4", "m5"] } });
+  t.gmail.oldest = Number.MAX_SAFE_INTEGER;
+  t.s.advance(11_000);
+  await t.feed(t.phone, { fresh: true });   // the poll's 404 expires the position: a new scan
+  t.gmail.oldest = 0;
+  await t.drain(async () => (await t.status()).fill.done !== null, 3000);
+  const calls = t.gmail.calls.slice(before).map((c, i) => ({ ...c, i }));
+  const firstFill = calls.find((c) => c.resource === "message" && c.format === "full")?.i ?? Infinity;
+  const lastListing = Math.max(...calls.filter((c) => c.resource === "messages").map((c) => c.i));
+  assert.ok(Number.isFinite(lastListing), "a scan ran");
+  assert.ok(lastListing < firstFill, `every listing before the first fill read: ${calls.slice(0, 30).map((c) => c.resource + (c.format ? ":" + c.format : "")).join(" ")}`);
 });

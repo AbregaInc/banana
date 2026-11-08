@@ -52,9 +52,25 @@ export class CheckMailbox extends DurableObject {
     await this.mailbox.poke(); await this.mailbox.run();
     const m1 = (await this.mailbox.feed({ after: Number(feed.cursor), limit: 10 })).entries.find((e) => e.id === "m1");
     results.historyApplied = Boolean(m1) && !m1.labels.includes("UNREAD") && m1.history === String(this.gmail.messages.get("m1").hist);
+    // The content fill on real Durable Object SQLite (its expression index and keyset walk), then
+    // the bulk pull. The pace gap and the read slot are cleared between runs to finish quickly.
+    const before = this.gmail.calls.length;
+    for (let i = 0; i < 200; i++) {
+      await db.prepare("UPDATE mail_read_pacing SET next_at = 0").run();
+      this.ctx.storage.sql.exec("DELETE FROM meta WHERE key = 'fill_next_at'");
+      await this.mailbox.run({ steps: 5 });
+      if ((await this.mailbox.status()).fill.done !== null) break;
+    }
+    const filled = await this.mailbox.status();
+    const fillReads = this.gmail.calls.slice(before).filter((c) => c.resource === "message" && c.format === "full").map((c) => Number(c.id.slice(1)));
+    results.filled = filled.counts.cached === 40 && filled.fill.done !== null;
+    results.fillNewestFirst = fillReads.length > 0 && fillReads.every((n, i) => i === 0 || n < fillReads[i - 1]);
+    results.feedSaysContent = (await this.mailbox.feed({ after: null, limit: 1000 })).entries.filter((e) => e.content).length === 40;
+    const bulk = await this.mailbox.contents(["m40", "m1", "nope"]);
+    results.bulk = Boolean(bulk[0].key && bulk[1].key && bulk[2].missing);
     await this.mailbox.wipe();
     results.wiped = (await this.env.BLOBS.list({ prefix: "mail/" })).objects.length === 0 && (await db.prepare("SELECT COUNT(*) AS n FROM mail_mailboxes").first()).n === 0;
-    results.passed = results.handshake && results.entries === 40 && results.complete && results.alarm && results.contentStoredOnce && results.contentOpens && results.historyApplied && results.wiped;
+    results.passed = results.handshake && results.entries === 40 && results.complete && results.alarm && results.contentStoredOnce && results.contentOpens && results.historyApplied && results.filled && results.fillNewestFirst && results.feedSaysContent && results.bulk && results.wiped;
     return results;
   }
 }

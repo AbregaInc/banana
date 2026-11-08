@@ -45,6 +45,8 @@ enum MailAction: Equatable, Sendable {
     case notSpam
     /// `⇧E` in Trash: Restore.
     case restore
+    /// `⇧E` in Snoozed, and the picker's Unsnooze: back to the inbox now, and the snooze is over.
+    case unsnooze
     /// After the first release.
     case mute
     case addToPlan
@@ -71,15 +73,15 @@ enum MailAction: Equatable, Sendable {
     var isIntegratedGmailAction: Bool {
         switch self {
         case .done, .trash, .spam, .move, .removeLabel, .backToInbox, .notSpam,
-             .restore, .toggleRead, .toggleStar, .label, .notDone: return true
-        case .sendAndDone, .snooze, .mute, .addToPlan, .unsubscribe, .answerInvitation: return false
+             .restore, .toggleRead, .toggleStar, .label, .notDone, .snooze, .unsnooze: return true
+        case .sendAndDone, .mute, .addToPlan, .unsubscribe, .answerInvitation: return false
         }
     }
 
     var kind: MailActionKind {
         switch self {
         case .done, .trash, .spam, .move, .removeLabel, .sendAndDone, .snooze, .backToInbox,
-             .notSpam, .restore, .mute, .addToPlan, .unsubscribe:
+             .notSpam, .restore, .unsnooze, .mute, .addToPlan, .unsubscribe:
             return .disposing
         case .toggleRead, .toggleStar, .label, .notDone:
             return .marking
@@ -98,7 +100,7 @@ enum MailAction: Equatable, Sendable {
         case .removeLabel: return "Y"
         case .sendAndDone: return "⌘⇧↩"
         case .snooze: return "H"
-        case .backToInbox, .notSpam, .restore, .notDone: return "⇧E"
+        case .backToInbox, .notSpam, .restore, .unsnooze, .notDone: return "⇧E"
         case .mute: return "⇧M"
         case .addToPlan: return "A"
         case .unsubscribe: return "⌘U"
@@ -134,6 +136,7 @@ enum MailAction: Equatable, Sendable {
         case .mailbox(.done): return .backToInbox
         case .mailbox(.spam): return .notSpam
         case .mailbox(.trash): return .restore
+        case .mailbox(.snoozed): return .unsnooze
         default: return .notDone
         }
     }
@@ -164,6 +167,8 @@ enum MailAction: Equatable, Sendable {
             return .notSpam
         case .restore:
             return .restore
+        case .unsnooze:
+            return .unsnooze
         case .mute:
             return .mute(true)
         case .toggleRead:

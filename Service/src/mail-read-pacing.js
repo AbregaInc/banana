@@ -11,6 +11,8 @@ export function mailReadUnits(request) {
  case 'attachment': return 20;
  case 'message': case 'draft': return ['full','raw','html'].includes(format)?60:20;
  case 'thread': return format==='full'?120:40;
+ // The shared mailbox's own writes (a snooze waking) take their share of the same budget.
+ case 'modify': case 'createLabel': return 5;
  default: throw new Error('unsupported mail read');
  }
 }

@@ -86,6 +86,14 @@ final class GmailHTTP: GmailAPI, GmailDraftAPI, @unchecked Sendable {
     func untrash(token: String, id: String) async throws {
         _ = try await send(["messages", id, "untrash"], token: token, method: "POST")
     }
+    func createLabel(token: String, name: String) async throws -> GmailLabel {
+        let body = try JSONSerialization.data(withJSONObject: ["name": name, "labelListVisibility": "labelHide",
+                                                               "messageListVisibility": "hide"], options: .sortedKeys)
+        let data = try await send(["labels"], token: token, method: "POST", body: body)
+        guard let label = try? JSONDecoder().decode(GmailLabel.self, from: data), label.id?.isEmpty == false,
+              label.name == name else { throw GmailError.malformed }
+        return label
+    }
 
     func drafts(token: String, pageToken: String?) async throws -> GmailDraftPage {
         var query = [URLQueryItem(name: "maxResults", value: "100")]

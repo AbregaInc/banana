@@ -28,8 +28,22 @@ enum MailRowMapper {
             isInvitation: stored.flags.contains(.hasInvite), inInbox: stored.flags.contains(.inInbox),
             isMuted: stored.flags.contains(.muted), hasPendingChange: stored.pending != 0,
             fromGmailSearch: false, labels: labels,
-            reason: reason ?? (stored.pending == 2 ? .changeRefused(.other) : stored.flags.contains(.keptAfterRemoval) ? .keptAfterRemoval : nil),
+            reason: reason ?? (stored.pending == 2 ? .changeRefused(.other) : stored.flags.contains(.keptAfterRemoval) ? .keptAfterRemoval
+                : snoozeReason(stored)),
             isOnDevice: true, actionBoundary: stored.actionBoundary)
+    }
+
+    /// "Until Thu 8 AM" while snoozed, "Back from snooze" once it has come back to the inbox (8.1).
+    /// The summary holds a wake time only for those two states.
+    private static func snoozeReason(_ stored: IndexRow) -> MailRowReason? {
+        func date(_ ms: Int64) -> Date { Date(timeIntervalSince1970: Double(ms) / 1_000) }
+        if let returned = stored.returnedAt, returned > 0, stored.flags.contains(.inInbox) {
+            return .backFromSnooze(due: date(returned), wasIfNoReply: false)
+        }
+        if let wake = stored.wakeAt, stored.returnedAt == nil, !stored.flags.contains(.inInbox) {
+            return .snoozed(until: date(wake), ifNoReply: false)
+        }
+        return nil
     }
 }
 

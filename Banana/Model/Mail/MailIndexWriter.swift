@@ -44,19 +44,18 @@ enum MailIndexWriter {
         let people = String(decoding: try encoder.encode(summary.people), as: UTF8.self)
         let recipients = String(decoding: try encoder.encode(summary.recipients), as: UTF8.self)
         let labels = labelPKs.sorted().map(String.init).joined(separator: ",")
-        // Timed/attention fields are independently owned; summarising mail must not erase them.
+        // Attention is independently owned; summarising mail must not erase it. The snooze times
+        // are the labels' (section 8), so they are summarised with everything else.
         try statement("""
             UPDATE thread SET last_date=?,message_count=?,fetched_count=?,unread_count=?,flags=?,
-              subject=?,snippet=?,people=?,people_total=?,recipients=?,recipients_total=?,labels=?,pending=?
+              subject=?,snippet=?,people=?,people_total=?,recipients=?,recipients_total=?,labels=?,pending=?,
+              wake_at=?,returned_at=?
             WHERE thread_pk=?
             """).execute(arguments: [summary.lastDate, summary.messageCount, summary.fetchedCount,
                 summary.unreadCount, summary.flags.rawValue, summary.subject, summary.snippet,
-                people, summary.peopleTotal, recipients, summary.recipientsTotal, labels, summary.pending, threadPK])
-        // Only memberships owned by the ordinary message rules are replaced. Timed snooze
-        // memberships belong to their scheduler and must survive a header refresh.
-        let snoozed = try MailIndexReader.viewKey(.snoozed)
-        try statement("DELETE FROM view_thread WHERE thread_pk=? AND view_pk IN (SELECT view_pk FROM view WHERE key != ?)").execute(
-                       arguments: [threadPK, snoozed])
+                people, summary.peopleTotal, recipients, summary.recipientsTotal, labels, summary.pending,
+                summary.wakeAt, summary.returnedAt, threadPK])
+        try statement("DELETE FROM view_thread WHERE thread_pk=?").execute(arguments: [threadPK])
         for membership in memberships {
             let key = try MailIndexReader.viewKey(membership.view)
             changedViews.insert(key)

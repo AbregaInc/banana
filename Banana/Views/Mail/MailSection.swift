@@ -340,6 +340,7 @@ private struct MailScreen: View {
         .sheet(isPresented: Binding(get: { detailsSheet != nil }, set: { if !$0 { detailsSheet = nil } })) {
             if let reader = detailsSheet { MailDetailsSheet(reader: reader) }
         }
+        .modifier(MailSnoozeSheetHost(session: session, navigation: navigation))
         .onAppear {
             session.enter()
             session.finishLaunch()
