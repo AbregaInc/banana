@@ -427,6 +427,21 @@ final class GoogleEventWindowTests: XCTestCase {
         XCTAssertEqual(result.syncedTravelBlocks[0].title, "Travel home")
     }
 
+    /// Each variant's reservation is kept apart: a fresh route is held to what this build already
+    /// reserved, never to another build's copy of the same trip.
+    func testSyncedTravelBlocksKeepEachVariantsSpan() {
+        let stable = googleEvent(id: "s", summary: "Travel to Gym", start: "2026-10-05T15:40:00Z",
+                                 end: "2026-10-05T15:45:00Z", ownedBy: "banana", itemID: "travel-7")
+        let beta = googleEvent(id: "b", summary: "Busy", start: "2026-10-05T15:35:00Z",
+                               end: "2026-10-05T15:45:00Z", ownedBy: "banana-beta", itemID: "travel-7")
+        let block = window([("a@example.com", stable), ("b@example.com", beta)]).syncedTravelBlocks[0]
+        XCTAssertEqual(block.spansByVariant["banana"]?.duration, 5 * 60)
+        XCTAssertEqual(block.spansByVariant["banana-beta"]?.duration, 10 * 60)
+        XCTAssertEqual(block.end.timeIntervalSince(block.start), 10 * 60, "occupancy is still the union")
+        XCTAssertEqual(TravelBlockPolicy.writtenSpans([block], variant: .beta)["travel-7"]?.duration, 10 * 60)
+        XCTAssertEqual(TravelBlockPolicy.writtenSpans([block], variant: .production)["travel-7"]?.duration, 5 * 60)
+    }
+
     func testAnEventWithoutUsableTimesIsDropped() {
         let broken = googleEvent(id: "z", start: "2026-10-05T16:00:00Z", end: "2026-10-05T15:00:00Z")
         XCTAssertNil(GoogleEventWindowBuilder.normalize(

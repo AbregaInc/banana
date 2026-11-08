@@ -4,6 +4,15 @@ enum CalendarWriteBackVariant {
     case production
     case beta
 
+    /// The variant this build writes as.
+    static var current: CalendarWriteBackVariant {
+        #if BANANA_BETA
+        .beta
+        #else
+        .production
+        #endif
+    }
+
     var markerScheme: String {
         switch self {
         case .production: "banana"

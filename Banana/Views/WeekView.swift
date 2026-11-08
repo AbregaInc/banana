@@ -345,7 +345,8 @@ struct MacWeekView: View {
     @State private var showingAlarms = false
     @State private var draftSelection: MacGridSelection?
     @State private var weekOffset = 0
-    @State private var loadingWeek = false
+    /// Not observed here: only the toolbar spinner reads it (`MacWeekLoadingSpinner`).
+    @State private var loading = MacWeekLoading()
     private static let nativeViewport: Bool = {
         #if DEBUG
         !ProcessInfo.processInfo.arguments.contains("--calendar-reference-mac")
@@ -664,6 +665,16 @@ struct MacWeekView: View {
             async let windowRefresh: Void = refreshVisibleWeek()
             _ = await (rollingRefresh, windowRefresh)
         }
+        #if DEBUG
+        .task {
+            guard ProcessInfo.processInfo.arguments.contains("--offscreen-recompute-regression") else { return }
+            try? await Task.sleep(for: .seconds(4))
+            for round in 0..<20 where !Task.isCancelled {
+                occurrences.republishWithOffscreenChange(round: round)
+                try? await Task.sleep(for: .milliseconds(150))
+            }
+        }
+        #endif
         // @Published emits before the store installs its new interval index. Rebuild on the
         // next run-loop turn so the range query and its source snapshot agree.
         .onReceive(occurrences.$occurrences.receive(on: RunLoop.main)) { _ in
@@ -804,7 +815,7 @@ struct MacWeekView: View {
             Button("Today") { moveToCurrentWeek() }
                 .disabled(weekOffset == 0)
                 .help("Go to today (T)")
-            if loadingWeek { ProgressView().controlSize(.small) }
+            MacWeekLoadingSpinner(loading: loading)
         }
         ToolbarItem(placement: .navigation) { MacPlannerTitleMenu() }
         // The forecast beside the title: the day shown in Day, today while it is in view.
@@ -2414,11 +2425,11 @@ struct MacWeekView: View {
         #endif
         let visibleStart = visibleWeekStart
         let request = planningWindowRange(visibleStart: visibleStart)
-        loadingWeek = true
+        loading.set(true)
         await occurrences.refreshPlanningWindow(from: request.start, to: request.end)
         if visibleStart == visibleWeekStart {
             rebuild(occurrences.occurrences)
-            loadingWeek = false
+            loading.set(false)
         }
     }
 
@@ -2558,6 +2569,27 @@ struct MacWeekView: View {
 
 private final class MacGridScrollBookkeeping {
     var offset: CGFloat = 0
+}
+
+/// Whether the Mac week is fetching the page on screen. Its own object, read only by the toolbar
+/// spinner: the refresh that follows every timeline publication used to set view state on and off
+/// again, and each write re-laid out all seven days though nothing on them had changed — about
+/// once a second while another device kept rewriting a block weeks away.
+@MainActor
+final class MacWeekLoading: ObservableObject {
+    @Published private(set) var active = false
+
+    func set(_ value: Bool) {
+        if active != value { active = value }
+    }
+}
+
+private struct MacWeekLoadingSpinner: View {
+    @ObservedObject var loading: MacWeekLoading
+
+    var body: some View {
+        if loading.active { ProgressView().controlSize(.small) }
+    }
 }
 
 private struct MacWeekDay: Identifiable, Equatable {
@@ -4136,6 +4168,14 @@ struct WeekView: View {
             await weather.refreshIfStale()   // Week needs the whole week's forecast, not just today's
         }
         #if DEBUG
+        .task {
+            guard ProcessInfo.processInfo.arguments.contains("--offscreen-recompute-regression") else { return }
+            try? await Task.sleep(for: .seconds(4))
+            for round in 0..<20 where !Task.isCancelled {
+                occurrences.republishWithOffscreenChange(round: round)
+                try? await Task.sleep(for: .milliseconds(150))
+            }
+        }
         .task {
             guard ProcessInfo.processInfo.arguments.contains("--smart-publish-regression")
             else { return }

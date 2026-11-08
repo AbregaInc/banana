@@ -8,6 +8,36 @@ final class TravelBlockPolicyTests: XCTestCase {
         )
     }
 
+    func testAReservationGrowsWithTheRouteButShrinksOnlyByMoreThanAStep() {
+        let five: TimeInterval = 5 * 60, ten: TimeInterval = 10 * 60, fifteen: TimeInterval = 15 * 60
+        XCTAssertEqual(TravelBlockPolicy.settledDuration(computed: ten, written: nil), ten, "nothing written yet")
+        XCTAssertEqual(TravelBlockPolicy.settledDuration(computed: fifteen, written: ten), fifteen, "longer: grow")
+        XCTAssertEqual(TravelBlockPolicy.settledDuration(computed: five, written: ten), ten,
+                       "one step shorter is an ETA on a rounding edge, not a shorter trip")
+        XCTAssertEqual(TravelBlockPolicy.settledDuration(computed: five, written: fifteen), five, "really shorter")
+        XCTAssertEqual(TravelBlockPolicy.settledDuration(computed: ten, written: ten), ten)
+    }
+
+    /// A route of about five minutes rounds to 5 on one device and 10 on another (or on the same
+    /// device a minute later). Each answer used to rewrite the block and its copies; with the
+    /// calendar's reservation as the reference, both devices settle on 10 and stop writing.
+    func testTwoDevicesOnARoundingEdgeSettleOnOneReservation() {
+        let routes: [[TimeInterval]] = [[299, 301], [301, 299], [298, 302], [302, 297]]   // seconds, per round
+        var written: TimeInterval?
+        var writes: [Int] = []
+        for round in routes {
+            var count = 0
+            for route in round {
+                let computed = TravelBlockPolicy.blockDuration(routeSeconds: route, fallbackMinutes: nil)!
+                let wanted = TravelBlockPolicy.settledDuration(computed: computed, written: written)
+                if wanted != written { written = wanted; count += 1 }
+            }
+            writes.append(count)
+        }
+        XCTAssertEqual(written, 10 * 60)
+        XCTAssertEqual(writes, [2, 0, 0, 0], "written once at 5, once grown to 10, then never again")
+    }
+
     func testReturnHomeFallsBackToKnownOutboundDuration() {
         XCTAssertEqual(
             TravelBlockPolicy.blockDuration(routeSeconds: nil, fallbackMinutes: 10),
