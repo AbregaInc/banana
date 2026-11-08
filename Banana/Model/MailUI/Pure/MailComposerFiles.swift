@@ -182,17 +182,30 @@ final class MailComposerFiles: ObservableObject {
 
 /// Opening an attachment of a received message: Quick Look on the file when it is here, a request
 /// for it when it is not, and a word when it is a program, which is never opened.
+///
+/// **It never waits for ever.** A request ends in the file, or in `failed`: the source's own failure
+/// (`MailProgress.state`), or, when the source says nothing at all, `timeout` seconds after the tap.
+/// A failed attachment is asked for again by opening it again.
 @MainActor
 final class MailAttachmentOpener: ObservableObject {
     @Published var preview: URL?
     @Published private(set) var notice: String?
     @Published private(set) var waiting: MailAttachmentID?
+    /// Attachments that did not come: the chip says so and offers another try.
+    @Published private(set) var failed: Set<MailAttachmentID> = []
 
     private let source: MailSource
+    private let timeout: Duration
+    private var deadline: Task<Void, Never>?
+    private var watching: AnyCancellable?
 
-    init(source: MailSource) {
+    /// 45 s: the source's own limit is 30 s without bytes; this is the backstop for a source that never answers.
+    init(source: MailSource, timeout: Duration = .seconds(45)) {
         self.source = source
+        self.timeout = timeout
     }
+
+    func progress(for id: MailAttachmentID) -> MailProgress { source.attachmentProgress(id) }
 
     func open(_ file: MailAttachmentDisplay) {
         notice = nil
@@ -200,12 +213,36 @@ final class MailAttachmentOpener: ObservableObject {
             notice = "\u{201C}\(file.name)\u{201D} \u{2014} " + MailAttachmentText.program
             return
         }
+        failed.remove(file.id)
         if let url = file.localFile {
             preview = url
         } else {
-            waiting = file.id
-            source.fetchAttachment(file.id)
+            request(file.id)
         }
+    }
+
+    private func request(_ id: MailAttachmentID) {
+        waiting = id
+        let progress = source.attachmentProgress(id)
+        watching = progress.$state.dropFirst().sink { [weak self] state in
+            guard case .failed = state else { return }
+            Task { @MainActor in self?.fail(id) }
+        }
+        deadline?.cancel()
+        let timeout = self.timeout
+        deadline = Task { [weak self] in
+            try? await Task.sleep(for: timeout)
+            guard !Task.isCancelled else { return }
+            self?.fail(id)
+        }
+        source.fetchAttachment(id)
+    }
+
+    private func fail(_ id: MailAttachmentID) {
+        guard waiting == id else { return }
+        waiting = nil
+        failed.insert(id)
+        deadline?.cancel(); watching = nil
     }
 
     /// The conversation changed: a file that was asked for may be here now.
@@ -214,6 +251,8 @@ final class MailAttachmentOpener: ObservableObject {
               let file = messages.flatMap(\.files).first(where: { $0.id == waiting }),
               let url = file.localFile else { return }
         self.waiting = nil
+        deadline?.cancel(); watching = nil
+        failed.remove(waiting)
         preview = url
     }
 }

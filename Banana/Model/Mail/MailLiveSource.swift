@@ -61,6 +61,9 @@ import GRDB
     private lazy var inlinePictures = MailInlinePictures(stores: stores, api: api) { [access] account in
         try await access.mailAccessToken(accountID: account).value
     }
+    private lazy var attachmentFetcher = MailAttachmentFetcher(pictures: inlinePictures)
+    private var attachmentProgressByID: [MailAttachmentID: MailProgress] = [:]
+    private var attachmentTasks: [MailAttachmentID: Task<Void, Never>] = [:]
     private enum Download: Hashable {
         case thread(MailConversationID), body(MailMessageID)
         var account: String {
@@ -341,6 +344,52 @@ import GRDB
     func originalHTML(_ id: MailMessageID) async throws -> String? {
         try await MailOriginalDocument.load(stores: stores, id: id)
     }
+    /// One progress object for each attachment, for as long as the app runs: the chip watches it.
+    func attachmentProgress(_ id: MailAttachmentID) -> MailProgress {
+        if let existing = attachmentProgressByID[id] { return existing }
+        let created = MailProgress()
+        attachmentProgressByID[id] = created
+        return created
+    }
+
+    /// Fetches a received attachment now. It is a person waiting for it, so it does not go through the download
+    /// queue: not behind body prefetch, not held by its two slots or by a read backoff. Asked twice, it is one fetch.
+    func fetchAttachment(_ id: MailAttachmentID) {
+        let progress = attachmentProgress(id)
+        guard attachmentTasks[id] == nil else { return }
+        let account = id.message.account.lowercased()
+        guard access.mailGrant(accountID: account) == .granted, !forgettingAccess.contains(account) else {
+            progress.state = .failed(.unavailable)
+            return
+        }
+        progress.state = .queued; progress.fraction = 0; progress.bytes = 0
+        let fetcher = attachmentFetcher
+        attachmentTasks[id] = Task(priority: .userInitiated) { [weak self] in
+            var outcome: MailProgress.State = .done
+            do {
+                _ = try await fetcher.file(for: id) { phase in
+                    guard case .downloading(let bytes, let total) = phase else { return }
+                    Task { @MainActor in
+                        progress.state = .downloading; progress.bytes = bytes
+                        progress.fraction = total > 0 ? min(1, Double(bytes) / Double(total)) : 0
+                    }
+                }
+            } catch let failure as MailAttachmentFetcher.Failure {
+                outcome = .failed(failure.reason)
+            } catch {
+                outcome = .failed(.unavailable)
+            }
+            guard let self else { return }
+            self.attachmentTasks[id] = nil
+            progress.state = outcome
+            if outcome == .done {
+                progress.fraction = 1
+                // The conversation says where the file is now; the chip that asked is waiting for that.
+                for token in self.conversationSubscriptions.keys { self.refreshConversation(token) }
+            }
+        }
+    }
+
     /// A picture that is a part of the message (`cid:`), from the stored parts. Nothing else is a resource here:
     /// remote pictures are `MailImageSource`'s.
     func resource(_ url: URL, for message: MailMessageID, presentation: MailPresentation) async -> MailResource? {
