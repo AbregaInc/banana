@@ -120,6 +120,24 @@ final class MailIndexReaderTests: XCTestCase {
         XCTAssertEqual(counts.total.value, 9); XCTAssertEqual(counts.stillLoading, 1)
     }
 
+    /// The badge and the Inbox's unread number count what the list shows. An unread conversation
+    /// known only by id (key <= 0) is not listed, so it is not counted (Beta 108: a badge of 4 over
+    /// an Inbox that showed none of them).
+    func testUnreadCountsOnlyWhatTheListShows() async throws {
+        let reader = try await reader(count: 10)   // unread: threads 3, 6 and 9
+        try await reader.stores.index.write { db in
+            try db.execute(sql: "UPDATE view_thread SET sort_key=-9 WHERE thread_pk=9")
+        }
+        let rows = try await reader.page(request())
+        XCTAssertFalse(rows.contains { $0.threadPK == 9 })
+        let counts = try await reader.counts(request())
+        XCTAssertEqual(counts.unread, rows.filter(\.unread).count)
+        XCTAssertEqual(counts.unread, 2)
+        XCTAssertEqual(counts.stillLoading, 1)
+        let unreadOnly = try await reader.counts(request(filters: [.unread]))
+        XCTAssertEqual(unreadOnly.unread, 2)
+    }
+
     func testNewerInsertionDoesNotRepeatPreviousPage() async throws {
         let reader = try await reader(count: 100)
         let first = try await reader.page(request(limit: 10))

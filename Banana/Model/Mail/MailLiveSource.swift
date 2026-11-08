@@ -88,6 +88,8 @@ import GRDB
         (await conversationLoader.preparedOnRequest, await conversationLoader.preparedAhead)
     }
     private var cloudTask: Task<Void, Never>?
+    /// The pull's next try, when something waits on a retry time (MailCloudPull.nextRetry).
+    private var cloudWake: Task<Void, Never>?
     private var screenWork: Task<Void, Never>?
     private var pushCatchUp = 0
     let status = MailStatus(MailNotYet.emptyStatus)
@@ -238,6 +240,7 @@ import GRDB
             screenWork?.cancel(); screenWork = nil
             if pushCatchUp == 0 {
                 cloudTask?.cancel(); cloudTask = nil
+                cloudWake?.cancel(); cloudWake = nil
                 reprepareTask?.cancel(); reprepareTask = nil
             }
             active = false
@@ -664,6 +667,9 @@ import GRDB
 
     /// Runs bulk pulls until there is nothing to pull: opened, then on screen, then (while Mail is
     /// in use or a push's window is open) the rest newest first. One request at a time.
+    /// When something waits on a retry time (an account after a failure, an arrival not here yet),
+    /// the pull comes back then, for as long as Mail is in use: new mail is not left until the next
+    /// push or the next time Mail is opened.
     private func kickCloud() {
         guard let pull = cloudPull, cloudTask == nil, active || pushCatchUp > 0 else { return }
         let token = UUID()
@@ -673,13 +679,36 @@ import GRDB
                 guard let self else { return }
                 let step: MailCloudPull.Step
                 do { step = try await pull.step(fill: self.active || self.pushCatchUp > 0) }
-                catch { break }
+                catch {
+                    if !Task.isCancelled { self.reportReadFailure("cloud pull " + Self.failureDetail(error)) }
+                    break
+                }
                 guard !Task.isCancelled else { break }
+                self.reportPullProblems(step)
                 for item in step.fallback { self.enqueue(.body(item.id), priority: item.urgent) }
                 if !step.worked { break }
             }
-            if self?.cloudToken == token { self?.cloudTask = nil }
+            guard let self, self.cloudToken == token else { return }
+            self.cloudTask = nil
+            if !Task.isCancelled, let at = await pull.nextRetry() { self.wakeCloud(at: at) }
         }
+    }
+    private func wakeCloud(at: Int64) {
+        guard active || pushCatchUp > 0 else { return }
+        cloudWake?.cancel()
+        let delay = max(0.1, Double(at - Int64(Date().timeIntervalSince1970 * 1000)) / 1000)
+        cloudWake = Task { [weak self] in
+            try? await Task.sleep(for: .seconds(delay))
+            guard !Task.isCancelled, let self else { return }
+            self.cloudWake = nil
+            self.kickCloud()
+        }
+    }
+    /// A batch the pull could not store whole: the kinds of failure, never ids or content.
+    private func reportPullProblems(_ step: MailCloudPull.Step) {
+        guard !step.problems.isEmpty else { return }
+        let kinds = Dictionary(grouping: step.problems, by: { $0 }).map { "\($0.key)×\($0.value.count)" }.sorted()
+        reportReadFailure("cloud pull " + kinds.joined(separator: ", "))
     }
 
     /// A silent push said new mail is here (MAIL-CLOUD-SYNC §2a): one feed pass for each account,
@@ -696,7 +725,7 @@ import GRDB
             do {
                 _ = try await sync.pass(account: account.id, nowMS: Int64(Date().timeIntervalSince1970 * 1000))
                 ok = true
-            } catch GmailMailboxSync.Failure.busy {
+            } catch GmailMailboxSync.Failure.busy, MailCloudFeedSync.Failure.busy {
                 ok = true   // a pass is running already; it brings the same
             } catch {
                 recordReadFailure(error, account: account.id)
@@ -704,8 +733,18 @@ import GRDB
         }
         guard let pull = cloudPull else { return ok }
         while ContinuousClock.now - start < budget, !Task.isCancelled {
-            guard let step = try? await pull.step(fill: true), step.worked else { break }
+            let step: MailCloudPull.Step
+            do { step = try await pull.step(fill: true) }
+            catch { reportReadFailure("cloud pull " + Self.failureDetail(error)); break }
+            reportPullProblems(step)
             for item in step.fallback where item.urgent { enqueue(.body(item.id), priority: true) }
+            if step.worked { continue }
+            // Nothing to ask now. Something waiting on a retry time (a pull the network dropped, an
+            // arrival not here yet) is tried again inside the window when its time comes in it.
+            guard let at = await pull.nextRetry() else { break }
+            let wait = Duration.milliseconds(max(0, at - Int64(Date().timeIntervalSince1970 * 1000)))
+            guard ContinuousClock.now + wait - start < budget else { break }
+            try? await Task.sleep(for: wait)
         }
         publishAccounts()
         return ok
@@ -1280,12 +1319,7 @@ extension MailLiveSource {
     /// In-flight readers can finish out of order. No later error may shorten a
     /// provider deadline already installed by another reader for this account.
     private func recordReadFailure(_ error: Error, account: String, minimumDelay: TimeInterval? = nil) {
-        // Never log account identifiers, SQL, provider bodies or message content.
-        let detail: String
-        if let gmail = error as? GmailError { detail = String(describing: gmail) }
-        else if let database = error as? DatabaseError { detail = "sqlite code=\(database.extendedResultCode.rawValue)" }
-        else { detail = "\(String(reflecting: type(of: error))); code=\((error as NSError).code)" }
-        reportReadFailure(detail)
+        reportReadFailure(Self.failureDetail(error))
         failures.insert(account)
         if error as? GmailError == .unauthorized { access.dropMailAccessToken(accountID: account) }
         let rateLimited: Bool
@@ -1313,6 +1347,13 @@ extension MailLiveSource {
         if case .limited = health { health = .limited(until: retry) }
         syncRetryAt[account] = retry
         syncHealth[account] = health
+    }
+
+    /// A failure for the log. Never account identifiers, SQL, provider bodies or message content.
+    nonisolated static func failureDetail(_ error: Error) -> String {
+        if let gmail = error as? GmailError { return String(describing: gmail) }
+        if let database = error as? DatabaseError { return "sqlite code=\(database.extendedResultCode.rawValue)" }
+        return "\(String(reflecting: type(of: error))); code=\((error as NSError).code)"
     }
 
     private func stopSync(account: String? = nil) {
@@ -1362,6 +1403,11 @@ extension MailLiveSource {
                     try await self.loadRemovalStatus()
                     self.publishAccounts()
                     try await Task.sleep(for: .seconds(more ? 2 : 30))
+                } catch GmailMailboxSync.Failure.busy, MailCloudFeedSync.Failure.busy {
+                    // A push's catch-up is running this account's pass: it brings the same. Not a
+                    // failure: no backoff, the account is not marked offline, its reads go on.
+                    guard !Task.isCancelled else { return }
+                    try? await Task.sleep(for: .seconds(2))
                 } catch {
                     guard !Task.isCancelled else { return }
                     switch error {

@@ -19,16 +19,24 @@ final class MailCloudPullTests: XCTestCase {
     /// The cloud: a feed, and the content it holds. Records each bulk request.
     actor Cloud: MailCloudFeedSource {
         var entries: [Entry] = []
+        var accountEntries: [String: [Entry]] = [:]
         var held: [String: GmailMessage] = [:]
         var asked: [[String]] = []
+        var askedAccounts: [String] = []
+        /// Every bulk request, failed ones included.
+        var attempts = 0
         var failure: Error?
+        /// Fail only this many requests, then answer again (a dropped connection that comes back).
+        var failuresLeft = Int.max
         var latency: Duration = .zero
         func set(_ entries: [Entry]) { self.entries = entries }
+        func set(_ entries: [Entry], for account: String) { accountEntries[account] = entries }
         func hold(_ messages: [GmailMessage]) { for m in messages { held[m.id!] = m } }
-        func fail(_ error: Error?) { failure = error }
+        func fail(_ error: Error?, times: Int = Int.max) { failure = error; failuresLeft = times }
         func slow(_ value: Duration) { latency = value }
         func page(account: String, after: String?, limit: Int, fresh: Bool) async throws -> MailCloudFeedPage {
             if latency > .zero { try await Task.sleep(for: latency) }
+            let entries = accountEntries[account] ?? entries
             let start = after.flatMap(Int.init) ?? 0
             let slice = Array(entries[min(start, entries.count)..<min(start + limit, entries.count)])
             return MailCloudFeedPage(epoch: "e1", cursor: String(start + slice.count), more: start + slice.count < entries.count,
@@ -37,8 +45,9 @@ final class MailCloudPullTests: XCTestCase {
         func check(account: String, ids: [String]) async throws {}
         func contents(account: String, ids: [String]) async throws -> [MailCloudContent] {
             if latency > .zero { try await Task.sleep(for: latency) }
-            if let failure { throw failure }
-            asked.append(ids)
+            attempts += 1
+            if let failure, failuresLeft > 0 { failuresLeft -= 1; throw failure }
+            asked.append(ids); askedAccounts.append(account)
             return ids.map { held[$0].map(MailCloudContent.message) ?? .missing($0) }
         }
     }
@@ -75,26 +84,46 @@ final class MailCloudPullTests: XCTestCase {
         func untrash(token: String, id: String) async throws { XCTFail("no writes") }
     }
 
-    final class Clock: @unchecked Sendable { var now: Int64 = 1_000_000 }
+    /// Thirty days after the epoch: the fixtures' small dates are old mail, not new arrivals.
+    final class Clock: @unchecked Sendable { var now: Int64 = 30 * 86_400_000 }
 
     private func stores() async throws -> MailStores {
         let root = FileManager.default.temporaryDirectory.appendingPathComponent("cloud-pull-" + UUID().uuidString)
         addTeardownBlock { try? FileManager.default.removeItem(at: root) }
         return try await Task.detached { try MailStores.open(MailDirectories(root: root), migrations: MailSlices.migrations()) }.value
     }
-    private func entry(_ id: String, date: Int64, content: Bool = true, thread: String? = nil) -> Entry {
-        Entry(id: id, thread: thread ?? "t-" + id, history: "100", date: date, labels: ["INBOX"], deleted: nil, content: content)
+    private func entry(_ id: String, date: Int64, content: Bool = true, thread: String? = nil,
+                       labels: [String] = ["INBOX"]) -> Entry {
+        Entry(id: id, thread: thread ?? "t-" + id, history: "100", date: date, labels: labels, deleted: nil, content: content)
     }
 
     /// The feed applied (as a sync pass does), and a pull over it.
-    private func setup(_ cloud: Cloud, gmail: Gmail = Gmail(), clock: Clock = Clock()) async throws -> (MailStores, MailCloudPull) {
+    private func setup(_ cloud: Cloud, gmail: Gmail = Gmail(), clock: Clock = Clock(), accounts: [String] = [account],
+                       pace: @escaping @Sendable () -> MailWorkPace = { .full }) async throws -> (MailStores, MailCloudPull) {
         let stores = try await stores()
         let writer = MailWriter(stores: stores, sink: nil)
         let feed = MailCloudFeedSync(stores: stores, writer: writer, source: cloud, recover: { _ in })
-        var progress = try await feed.pass(account: Self.account, nowMS: 1)
-        while progress?.hasMore == true { progress = try await feed.pass(account: Self.account, nowMS: 1) }
+        for account in accounts {
+            var progress = try await feed.pass(account: account, nowMS: 1)
+            while progress?.hasMore == true { progress = try await feed.pass(account: account, nowMS: 1) }
+        }
         let loader = GmailConversationLoader(stores: stores, writer: writer, api: gmail, token: { _ in "fixture" })
-        return (stores, MailCloudPull(stores: stores, loader: loader, source: cloud, clock: { clock.now }))
+        return (stores, MailCloudPull(stores: stores, loader: loader, source: cloud, clock: { clock.now }, pace: pace, sleep: { _ in }))
+    }
+
+    /// An HTML message nested deeper than the preparer takes (`MailHTMLPreparer.Failure.tooComplex`).
+    static func tooDeep(_ id: String, date: Int64, labels: [String] = ["INBOX"]) -> GmailMessage {
+        let html = "<html><body>" + String(repeating: "<div>", count: 80) + "deep" + String(repeating: "</div>", count: 80) + "</body></html>"
+        let data = Data(html.utf8).base64EncodedString().replacingOccurrences(of: "+", with: "-").replacingOccurrences(of: "/", with: "_").replacingOccurrences(of: "=", with: "")
+        let json = """
+        {"id":"\(id)","threadId":"t-\(id)","historyId":"100","internalDate":"\(date)","labelIds":\(String(decoding: try! JSONEncoder().encode(labels), as: UTF8.self)),
+         "payload":{"partId":"0","mimeType":"text/html","headers":[{"name":"From","value":"news@example.com"},{"name":"Subject","value":"Deep \(id)"}],
+         "body":{"size":\(html.utf8.count),"data":"\(data)"}}}
+        """
+        return try! JSONDecoder().decode(GmailMessage.self, from: Data(json.utf8))
+    }
+    static func full(_ id: String, date: Int64, labels: [String]) -> GmailMessage {
+        var m = full(id, date: date); m.labelIds = labels; return m
     }
     private func id(_ m: String) -> MailMessageID { MailMessageID(account: Self.account, message: m) }
     private func conversation(_ m: String) -> MailConversationID { MailConversationID(account: Self.account, thread: "t-" + m) }
@@ -244,6 +273,138 @@ final class MailCloudPullTests: XCTestCase {
         let ok = try await here(stores, "a")
         XCTAssertTrue(ok)
     }
+
+    // MARK: New Inbox mail known only by id (Beta 108: a badge of 4, an Inbox without them)
+
+    private func fetchState(_ stores: MailStores, _ m: String) async throws -> Int? {
+        try await stores.index.read { try Int.fetchOne($0, sql: "SELECT fetch_state FROM message WHERE gmail_id=?", arguments: [m]) }
+    }
+
+    /// One message in the batch whose HTML the preparer refuses used to fail the whole batch, and
+    /// the same newest-first batch was asked again on every kick: nothing in it, nor in any later
+    /// account, was ever stored. Now the others are stored and it is listed with its headers.
+    func testOneMessageThatCannotBePreparedDoesNotHoldBackItsBatch() async throws {
+        let cloud = Cloud()
+        await cloud.set((1...5).map { entry("m\($0)", date: Int64($0) * 1000) })
+        await cloud.hold([1, 2, 4, 5].map { Self.full("m\($0)", date: Int64($0) * 1000) } + [Self.tooDeep("m3", date: 3000)])
+        let (stores, pull) = try await setup(cloud)
+        let step = try await pull.step(fill: true)
+        XCTAssertEqual(step.tier, .fill)
+        XCTAssertEqual(Set(step.stored), Set([5, 4, 2, 1].map { id("m\($0)") }))
+        XCTAssertTrue(step.problems.contains { $0.contains("tooComplex") }, "\(step.problems)")
+        for n in [1, 2, 4, 5] { let ok = try await here(stores, "m\(n)"); XCTAssertTrue(ok, "m\(n)") }
+        let deep = try await stores.index.read { try Row.fetchOne($0, sql: "SELECT fetch_state, subject, cloud_content FROM message WHERE gmail_id='m3'") }
+        XCTAssertEqual(deep?[0] as Int?, 1, "its headers are in: the row is listed")
+        XCTAssertEqual(deep?[1] as String?, "Deep m3")
+        XCTAssertEqual(deep?[2] as Int?, 0, "the fill does not ask for it again")
+        let idle = try await pull.step(fill: true)
+        XCTAssertFalse(idle.worked, "no batch is asked again and again")
+    }
+
+    /// New Inbox mail known only by id is not listed until its headers arrive, so it comes first,
+    /// newest first, even while the work pace stops the screen and the fill (a warm device, Low
+    /// Power Mode). Archived new mail and old mail wait for the fill.
+    func testNewInboxArrivalsComeFirstWhateverThePace() async throws {
+        let cloud = Cloud(), clock = Clock()
+        let old = (1...30).map { entry("o\($0)", date: Int64($0) * 1000) }
+        let fresh = [entry("n1", date: clock.now - 120_000, labels: ["INBOX", "UNREAD"]),
+                     entry("n2", date: clock.now - 60_000, labels: ["INBOX", "UNREAD"]),
+                     entry("arch", date: clock.now - 30_000, labels: ["UNREAD"])]
+        await cloud.set(old + fresh)
+        await cloud.hold((1...30).map { Self.full("o\($0)", date: Int64($0) * 1000) }
+                         + [Self.full("n1", date: clock.now - 120_000, labels: ["INBOX", "UNREAD"]),
+                            Self.full("n2", date: clock.now - 60_000, labels: ["INBOX", "UNREAD"]),
+                            Self.full("arch", date: clock.now - 30_000, labels: ["UNREAD"])])
+        let (stores, pull) = try await setup(cloud, clock: clock, pace: { .stopped })
+        let reader = MailIndexReader(stores: stores)
+        let inbox = PageRequest(view: .unified(.inbox), account: nil, filters: [], before: nil, limit: 50)
+        let before = try await reader.counts(inbox)
+        XCTAssertEqual(before.unread, 0, "nothing listed, nothing counted")
+        _ = try await pull.onScreen((1...5).map { conversation("o\($0)") })
+        let step = try await pull.step(fill: true)
+        XCTAssertEqual(step.tier, .arrivals)
+        XCTAssertEqual(step.stored, [id("n2"), id("n1")], "newest first")
+        let asked = await cloud.asked
+        XCTAssertEqual(asked, [["n2", "n1"]])
+        let next = try await pull.step(fill: true)
+        XCTAssertFalse(next.worked, "paced to a stop: the screen and the fill wait")
+        let rows = try await reader.page(inbox)
+        XCTAssertEqual(rows.prefix(2).map(\.thread), ["t-n2", "t-n1"], "listed at the top of the Inbox")
+        let after = try await reader.counts(inbox)
+        XCTAssertEqual(after.unread, rows.filter(\.unread).count, "the count is what the list shows")
+        XCTAssertEqual(after.unread, 2)
+        let archived = try await fetchState(stores, "arch")
+        XCTAssertEqual(archived, 0, "not in the Inbox: left to the fill")
+    }
+
+    /// An arrival the network dropped goes the per-message way at once and is asked again after the
+    /// retry time, without another push and without asking in a loop meanwhile.
+    func testAnArrivalTheNetworkDroppedIsAskedAgainAfterItsRetryTime() async throws {
+        let cloud = Cloud(), clock = Clock()
+        await cloud.set([entry("n1", date: clock.now - 60_000, labels: ["INBOX", "UNREAD"])])
+        await cloud.hold([Self.full("n1", date: clock.now - 60_000, labels: ["INBOX", "UNREAD"])])
+        await cloud.fail(URLError(.networkConnectionLost), times: 1)
+        let (stores, pull) = try await setup(cloud, clock: clock)
+        let dropped = try await pull.step(fill: true)
+        XCTAssertEqual(dropped.tier, .arrivals)
+        XCTAssertEqual(dropped.fallback, [MailCloudPull.Fallback(id: id("n1"), urgent: true)], "Gmail directly, at once")
+        XCTAssertFalse(dropped.problems.isEmpty, "the failure is reported")
+        let retry = await pull.nextRetry()
+        XCTAssertEqual(retry, clock.now + MailCloudPull.transientRetryMS)
+        let waiting = try await pull.step(fill: true)
+        XCTAssertFalse(waiting.worked)
+        let attempts = await cloud.attempts
+        XCTAssertEqual(attempts, 1, "nothing asked before the retry time")
+        clock.now += MailCloudPull.transientRetryMS
+        let again = try await pull.step(fill: true)
+        XCTAssertEqual(again.stored, [id("n1")])
+        let state = try await fetchState(stores, "n1")
+        XCTAssertEqual(state, 2)
+        let none = await pull.nextRetry()
+        XCTAssertNil(none, "nothing left waiting")
+    }
+
+    /// An arrival the cloud does not hold yet: the per-message way at once, then asked again later,
+    /// each wait longer than the last, never in a loop.
+    func testAnArrivalTheCloudLacksIsAskedAgainLaterNotInALoop() async throws {
+        let cloud = Cloud(), clock = Clock()
+        await cloud.set([entry("n1", date: clock.now - 60_000, content: false, labels: ["INBOX", "UNREAD"])])
+        let (stores, pull) = try await setup(cloud, clock: clock)
+        let first = try await pull.step(fill: true)
+        XCTAssertEqual(first.fallback, [MailCloudPull.Fallback(id: id("n1"), urgent: true)])
+        let idle = try await pull.step(fill: true)
+        XCTAssertFalse(idle.worked, "not asked again at once")
+        clock.now += MailCloudPull.transientRetryMS
+        let second = try await pull.step(fill: true)
+        XCTAssertEqual(second.tier, .arrivals)
+        let retry = await pull.nextRetry()
+        XCTAssertEqual(retry, clock.now + 2 * MailCloudPull.transientRetryMS, "the wait doubles")
+        await cloud.hold([Self.full("n1", date: clock.now - 60_000, labels: ["INBOX", "UNREAD"])])
+        clock.now += 2 * MailCloudPull.transientRetryMS
+        let third = try await pull.step(fill: true)
+        XCTAssertEqual(third.stored, [id("n1")])
+        let state = try await fetchState(stores, "n1")
+        XCTAssertEqual(state, 2)
+        let asked = await cloud.asked
+        XCTAssertEqual(asked.count, 3)
+    }
+
+    /// One account's long backlog no longer keeps another account's newer mail waiting: the fill
+    /// takes the newest across accounts (it used to take the first account that had any).
+    func testTheFillGoesNewestFirstAcrossAccounts() async throws {
+        let cloud = Cloud(), other = "b@example.com"
+        await cloud.set((1...40).map { entry("a\($0)", date: Int64($0) * 1000) }, for: Self.account)
+        await cloud.set([entry("b1", date: 90_000)], for: other)
+        await cloud.hold((1...40).map { Self.full("a\($0)", date: Int64($0) * 1000) } + [Self.full("b1", date: 90_000)])
+        let (stores, pull) = try await setup(cloud, accounts: [Self.account, other])
+        let first = try await pull.step(fill: true)
+        XCTAssertEqual(first.stored, [MailMessageID(account: other, message: "b1")])
+        let accounts = await cloud.askedAccounts
+        XCTAssertEqual(accounts, [other])
+        while try await pull.step(fill: true).worked {}
+        let owed = try await stores.index.read { try Int.fetchOne($0, sql: "SELECT count(*) FROM message WHERE fetch_state<2") }
+        XCTAssertEqual(owed, 0)
+    }
 }
 
 /// The live source with the cloud: a push catches up; a row on screen opens with its text here.
@@ -293,6 +454,55 @@ final class MailCloudPullTests: XCTestCase {
         XCTAssertEqual(state, 2)
     }
     typealias Entry = MailCloudFeedPage.Entry
+
+    /// Mail on screen, the cloud pull dropped by the network: the new message is asked again at its
+    /// retry time and listed, with no push and no reopening of Mail. The badge's count follows the list.
+    func testANewArrivalTheNetworkDroppedLoadsWhileMailIsOpenWithoutAnotherPush() async throws {
+        let cloud = MailCloudPullTests.Cloud(), gmail = MailCloudPullTests.Gmail()
+        let date = Int64(Date().timeIntervalSince1970 * 1000) - 60_000
+        await cloud.set([Entry(id: "n1", thread: "t-n1", history: "100", date: date, labels: ["INBOX", "UNREAD"], deleted: nil, content: true)])
+        await cloud.hold([MailCloudPullTests.full("n1", date: date, labels: ["INBOX", "UNREAD"])])
+        await cloud.fail(URLError(.networkConnectionLost), times: 1)
+        let (stores, source) = try await source(cloud: cloud, gmail: gmail)
+        _ = await source.catchUpFromPush(budget: .zero)   // the feed only: n1 known by id
+        var unread: [Int] = []
+        let places = source.observePlaces { unread.append($0.mailboxCounts[.inbox]?.unread.value ?? 0) }
+        defer { places.cancel() }
+        let start = ContinuousClock.now
+        source.setVisible(true)
+        defer { source.setVisible(false) }
+        var state: Int?
+        while ContinuousClock.now - start < .seconds(15) {
+            state = try await stores.index.read { try Int.fetchOne($0, sql: "SELECT fetch_state FROM message WHERE gmail_id='n1'") }
+            if state == 2 { break }
+            try await Task.sleep(for: .milliseconds(50))
+        }
+        let elapsed = start.duration(to: .now)
+        XCTAssertEqual(state, 2, "loaded after the retry time")
+        XCTAssertLessThan(elapsed, .seconds(10))
+        let attempts = await cloud.attempts
+        XCTAssertGreaterThanOrEqual(attempts, 2, "asked again after the drop")
+        while ContinuousClock.now - start < .seconds(15), unread.last != 1 { try await Task.sleep(for: .milliseconds(50)) }
+        XCTAssertEqual(unread.first, 0, "not counted while not listed")
+        XCTAssertEqual(unread.last, 1, "counted once listed")
+    }
+
+    /// Inside a push's window: a pull the network dropped is tried again when its retry time
+    /// comes inside the window.
+    func testAPushRetriesAPullTheNetworkDroppedInsideItsWindow() async throws {
+        let cloud = MailCloudPullTests.Cloud(), gmail = MailCloudPullTests.Gmail()
+        let date = Int64(Date().timeIntervalSince1970 * 1000) - 60_000
+        await cloud.set([Entry(id: "n1", thread: "t-n1", history: "100", date: date, labels: ["INBOX", "UNREAD"], deleted: nil, content: true)])
+        await cloud.hold([MailCloudPullTests.full("n1", date: date, labels: ["INBOX", "UNREAD"])])
+        await cloud.fail(URLError(.networkConnectionLost), times: 1)
+        let (stores, source) = try await source(cloud: cloud, gmail: gmail)
+        let ok = await source.catchUpFromPush(budget: .seconds(12))
+        XCTAssertTrue(ok)
+        let state = try await stores.index.read { try Int.fetchOne($0, sql: "SELECT fetch_state FROM message WHERE gmail_id='n1'") }
+        XCTAssertEqual(state, 2)
+        let attempts = await cloud.attempts
+        XCTAssertEqual(attempts, 2)
+    }
 
     /// The user-visible effect, measured honestly on the component: the time from opening a
     /// conversation to its text being readable, with a modelled 150 ms per network request.
