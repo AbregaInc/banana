@@ -31,7 +31,7 @@ private extension View {
 private enum DemoSection: String, CaseIterable, Identifiable {
     case plan = "Plan", body = "Body", notes = "Notes", library = "Library"
     var id: String { rawValue }
-    var symbol: String { switch self { case .plan: "sun.max"; case .body: "heart"; case .notes: "quote.bubble"; case .library: "books.vertical" } }
+    var symbol: String { switch self { case .plan: AppSection.plan.outlineSymbol; case .body: "heart"; case .notes: AppSection.notes.outlineSymbol; case .library: AppSection.library.outlineSymbol } }
 }
 
 struct DemoExperienceView: View {

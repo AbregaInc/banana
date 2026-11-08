@@ -128,7 +128,7 @@ final class ShellRulesTests: XCTestCase {
     /// The shell's symbols are the sections' own, without their fill: Library is headphones.
     func testPageSymbolsComeFromTheSectionsTable() {
         XCTAssertEqual(ShellPage.library.symbol, "headphones")
-        XCTAssertEqual(ShellPage.plan.symbol, "sun.max")
+        XCTAssertEqual(ShellPage.plan.symbol, "calendar")
         XCTAssertEqual(ShellPage.notes.symbol, AppSection.notes.outlineSymbol)
         XCTAssertEqual(ShellPage.body.symbol, "heart")
         for page in ShellPage.allCases { XCTAssertFalse(page.symbol.contains(".fill"), page.rawValue) }
