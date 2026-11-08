@@ -5,8 +5,7 @@ import XCTest
 /// subtitle already hold, a screenshot set for every device the app runs on, and a Mac capture
 /// that can't touch the data of the Banana installed on the Mac.
 final class StoreListingTests: XCTestCase {
-    private static let tool = URL(fileURLWithPath: #filePath)
-        .deletingLastPathComponent().deletingLastPathComponent()
+    private static let tool = SourceTree.root
         .appendingPathComponent("tools/app-store")
 
     private func field(_ name: String) throws -> String {

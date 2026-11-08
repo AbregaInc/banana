@@ -59,7 +59,7 @@ let package = Package(name: "MailIndexChecks", platforms: [.macOS(.v14)],
     targets: [.testTarget(name: "MailIndexChecks", dependencies: [.product(name: "GRDB", package: "GRDB.swift"), .product(name: "SwiftSoup", package: "SwiftSoup")],
         path: "Tests", swiftSettings: [.swiftLanguageMode(.v5)])])
 '''.replace('SOUP_DEPENDENCY', soup_dependency).replace('DEPENDENCY', dependency))
-command = ['swift', 'test', '--package-path', str(out), '-c', 'release', '--jobs', '2']
+command = ['swift', 'test', '--package-path', str(out), '-c', 'release', '--jobs', os.environ.get('BUILD_JOBS') or str(os.cpu_count() or 4)]
 if args.scratch_path:
     command += ['--scratch-path', str(args.scratch_path.resolve())]
 # Compilation is part of preparation, not a competing measurement workload.

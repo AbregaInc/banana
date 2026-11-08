@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Test the actual reader's asynchronous body handoff without the app service graph."""
-import argparse, hashlib, json, shutil, subprocess, re
+import argparse, hashlib, json, os, shutil, subprocess, re
 from pathlib import Path
 root=Path(__file__).resolve().parents[2]
 p=argparse.ArgumentParser(description=__doc__);p.add_argument('--out',required=True,type=Path);a=p.parse_args()
@@ -18,7 +18,7 @@ opener=root/'Banana/Model/MailUI/Pure/MailComposerFiles.swift';s=opener.read_tex
 import PackageDescription
 let package=Package(name:"MailReaderChecks",platforms:[.macOS(.v14)],targets:[.testTarget(name:"MailReaderChecks",path:"Tests",swiftSettings:[.swiftLanguageMode(.v5)],linkerSettings:[.linkedFramework("SwiftUI")])])
 ''')
-cmd=['swift','test','--package-path',str(a.out.resolve()),'-c','release','--jobs','2','--scratch-path',str(root/'.build/mail-reader')]
+cmd=['swift','test','--package-path',str(a.out.resolve()),'-c','release','--jobs',os.environ.get('BUILD_JOBS') or str(os.cpu_count() or 4),'--scratch-path',str(root/'.build/mail-reader')]
 with (a.out/'test.log').open('w') as f: r=subprocess.run(cmd,stdout=f,stderr=subprocess.STDOUT)
 log=(a.out/'test.log').read_text()
 passed=r.returncode == 0 and 'Executed 9 tests, with 0 failures' in log and not re.search(r'Test Case .* skipped',log)

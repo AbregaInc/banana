@@ -3,6 +3,7 @@
 import argparse
 import hashlib
 import json
+import os
 import re
 from pathlib import Path
 import shutil
@@ -30,7 +31,7 @@ let package = Package(name: "MailHTTPChecks", platforms: [.macOS(.v14)],
     targets: [.testTarget(name: "MailHTTPChecks", path: "Tests",
         swiftSettings: [.swiftLanguageMode(.v5)])])
 ''')
-command = ['swift', 'test', '--package-path', str(out), '-c', 'release', '--jobs', '2']
+command = ['swift', 'test', '--package-path', str(out), '-c', 'release', '--jobs', os.environ.get('BUILD_JOBS') or str(os.cpu_count() or 4)]
 with (out / 'test.log').open('w') as log:
     result = subprocess.run(command, cwd=root, stdout=log, stderr=subprocess.STDOUT)
 log = (out / 'test.log').read_text()

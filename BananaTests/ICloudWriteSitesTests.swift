@@ -22,7 +22,7 @@ import XCTest
 /// - `purge`: `ICloudPurge`, which deletes only behind its gate, never while a tier writes;
 /// - `local`: a local file written by code that also holds a ubiquity URL.
 final class ICloudWriteSitesTests: XCTestCase {
-    private static let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
+    private static let root = SourceTree.root
     private static let directories = ["Banana", "Shared", "BananaMac", "BananaWatch", "BananaWidget", "BananaWatchWidget"]
     private static let listURL = root.appendingPathComponent("tools/icloud-write-sites.tsv")
 

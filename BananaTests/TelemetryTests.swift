@@ -74,7 +74,7 @@ final class TelemetryTests: XCTestCase {
     /// Every word the app can send is one the service takes (Service/src/usage.js), so nothing
     /// counted on a phone is dropped on arrival.
     func testEveryWordTheAppSendsIsOnTheCollectorsList() throws {
-        let source = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
+        let source = SourceTree.root
             .appendingPathComponent("Service/src/usage.js")
         let list = try String(contentsOf: source, encoding: .utf8)
         func listed(_ word: String) -> Bool { word.isEmpty || list.contains("\"\(word)\"") || list.contains("\(word):") }

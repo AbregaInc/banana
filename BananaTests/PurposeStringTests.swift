@@ -19,7 +19,7 @@ final class PurposeStringTests: XCTestCase {
         ("NWBrowser(", "NSLocalNetworkUsageDescription"),
     ]
 
-    private static let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
+    private static let root = SourceTree.root
 
     /// The keys the iPhone app's sources call for: `Banana/` and `Shared/` are what it compiles.
     private func keysTheSourcesNeed() throws -> [String: String] {

@@ -106,7 +106,7 @@ final class AppVariantTests: XCTestCase {
     }
 
     private static func text(_ path: String) throws -> String {
-        let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
+        let root = SourceTree.root
         return try String(contentsOf: root.appendingPathComponent(path), encoding: .utf8)
     }
 

@@ -4,6 +4,13 @@ Keep one current public installer. Keep lightweight Git tags, release notes, sou
 commits and checksums as history. Do not overwrite an asset at an existing versioned
 URL: a cached Sparkle feed binds that URL to a specific signature and byte length.
 
+## The scripts
+
+`tools/release/ship-beta.sh N` and `tools/release/ship-stable.sh N` carry out every step below
+for their channel, after `tools/preflight.sh` passes; `--dry-run` prints them. The rest of this
+page is what those scripts do and why, for review and for a step that must be redone by hand.
+Configuration names are in `tools/release/README.md`. Don't copy a script per build.
+
 ## Identity
 
 - User version: `1.0.1` (major/minor/patch).
@@ -34,8 +41,11 @@ for a competing release before creating the draft. Never reuse a shipped build.
    ```
 
    Supply the existing signing/profile/feed settings described in
-   `LandingPage/MAC-DOWNLOAD.md`. The builder uses the plan's version/build/commit and
-   checks the clean checkout again after export. It never installs or publishes.
+   `LandingPage/MAC-DOWNLOAD.md` (`tools/release/lib.sh` `mac_direct_env` sets them from
+   configuration). The builder uses the plan's version/build/commit and checks the clean
+   checkout again after export. It never installs or publishes. `build.sh check` is the same
+   archive and export without a plan (`tools/preflight.sh` runs it); `release` adopts that archive
+   instead of archiving again when it is the planned commit, version, build and feed.
 3. Package using `package.py` and the plan's `baseURL`. Notarization, Gatekeeper and
    update signing must pass. Retain dSYMs for installed builds before build cleanup.
    Test the candidate, including an actual upgrade from the previous direct build

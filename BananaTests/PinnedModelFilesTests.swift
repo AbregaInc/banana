@@ -26,8 +26,7 @@ final class PinnedModelFilesTests: XCTestCase {
     }
 
     func testTheShippedPinDecodesWithEveryFileHashedAndAServingProfile() throws {
-        let url = URL(fileURLWithPath: #filePath).deletingLastPathComponent()
-            .appendingPathComponent("../Banana/Pi/Resources/pi-local-model.json").standardized
+        let url = SourceTree.root.appendingPathComponent("Banana/Pi/Resources/pi-local-model.json")
         let pin = try JSONDecoder().decode(PinnedModelFiles.Manifest.self, from: Data(contentsOf: url))
         XCTAssertEqual(pin.revision.count, 40, "a full commit, never a branch")
         XCTAssertNotNil(pin.files["model.safetensors"])

@@ -15,7 +15,7 @@ import XCTest
 final class MailBodyRulesTests: XCTestCase {
 
     private func repositoryRoot() throws -> URL {
-        let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
+        let root = SourceTree.root
         try XCTSkipUnless(FileManager.default.fileExists(atPath: root.appendingPathComponent("Banana/Model/Mail/MailContract.swift").path),
                           "the source tree is not on this machine")
         return root

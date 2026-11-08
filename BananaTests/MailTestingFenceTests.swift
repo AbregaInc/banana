@@ -20,8 +20,7 @@ final class MailTestingFenceTests: XCTestCase {
     private static let fence = "#if DEBUG || MAIL_FIXTURES"
 
     private func testingFolder() throws -> URL {
-        let root = URL(fileURLWithPath: #filePath)
-            .deletingLastPathComponent().deletingLastPathComponent()
+        let root = SourceTree.root
         let contract = root.appendingPathComponent("Banana/Model/Mail/MailContract.swift")
         try XCTSkipUnless(FileManager.default.fileExists(atPath: contract.path),
                           "the source tree is not on this machine")

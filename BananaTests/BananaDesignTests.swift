@@ -110,7 +110,7 @@ final class PlaceholderTests: XCTestCase {
     /// app or Mac asset catalog may carry an AccentColor that would override it.
     func testTheAccentIsTheSystems() {
         XCTAssertEqual(DS.Palette.accent, Color.accentColor)
-        let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
+        let root = SourceTree.root
         for catalog in ["Banana/Assets.xcassets", "BananaMac/Assets.xcassets"] {
             let asset = root.appendingPathComponent(catalog).appendingPathComponent("AccentColor.colorset")
             XCTAssertFalse(FileManager.default.fileExists(atPath: asset.path), catalog)

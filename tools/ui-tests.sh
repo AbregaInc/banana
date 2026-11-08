@@ -20,7 +20,12 @@
 #   - The timing tests (scrolling speed, a quiet minute, a minute in the background) measure the
 #     clock, so they run alone, one at a time, and only when asked for.
 # Builds .build/sim first when the sources are newer than it.
+#
+# Locks (tools/agents/xcode-lock.sh), taken here, so don't wrap this script in one: the build
+# holds `build` and the .build/sim guard; the run holds the simulator's lock (`sim-phone`,
+# `sim-pad`) and the guard, not `build`, so another agent can compile while these tests run.
 set -u
+self=${0:A}
 cd "$(dirname "$0")/.."
 . tools/config.sh || exit 1
 
@@ -30,8 +35,8 @@ test_config="${UI_CONFIG:-Debug}"
 test_target="${UI_TEST_TARGET:-BananaUITests}"
 physical="${PHYSICAL_DEVICE:-}"
 case "$device" in
-  phone) udid=6DFFC0F9-AA09-41C8-B868-FB0D9CC28255;;
-  pad)   udid=43EFC551-5368-4F79-9E52-E3DB87A72F48;;
+  phone) udid=$BANANA_SIM_PHONE;;
+  pad)   udid=$BANANA_SIM_PAD;;
   *) echo "usage: $0 [phone|pad] [timing | Class[/test] ...]"; exit 1;;
 esac
 # An existing simulator can be selected for runtime comparisons without creating one.
@@ -71,14 +76,26 @@ log="${LOG:-.build/ui-tests-$device.log}"; mkdir -p .build
 platform_key=simulator
 [ -n "$physical" ] && platform_key=device
 stamp=".build/sim/.ui-$scheme-$test_config-$platform_key"
-if [ ! -f "$stamp" ] || [ project.yml -nt "$stamp" ] ||
-   [ -n "$(find Banana BananaUITests Shared -type f -newer "$stamp" 2>/dev/null | head -1)" ]; then
+if [ -z "${UI_TESTS_RUN:-}" ] && { [ ! -f "$stamp" ] || [ project.yml -nt "$stamp" ] ||
+   [ -n "$(find Banana BananaUITests Shared -type f -newer "$stamp" 2>/dev/null | head -1)" ]; }; then
   echo "building…"
+  # Apple-silicon simulators only: a generic simulator destination otherwise compiles every file a
+  # second time for x86_64 (175-188 s clean against 89-100 s, 8 Nov 2026).
   build_destination='generic/platform=iOS Simulator'
-  [ -n "$physical" ] && build_destination="platform=iOS,id=$udid"
-  xcodebuild build-for-testing -jobs "${BUILD_JOBS:-2}" -project Banana.xcodeproj -scheme "$scheme" -configuration "$test_config" -destination "$build_destination" \
-    -allowProvisioningUpdates ONLY_ACTIVE_ARCH=YES -derivedDataPath .build/sim "${packages[@]}" > .build/ui-tests-build.log 2>&1 || { grep -E ' error: ' .build/ui-tests-build.log | head; echo "build failed: .build/ui-tests-build.log"; exit 1; }
+  arch=(ARCHS=arm64)
+  [ -n "$physical" ] && { build_destination="platform=iOS,id=$udid"; arch=(); }
+  banana_xcode build-for-testing -project Banana.xcodeproj -scheme "$scheme" -configuration "$test_config" -destination "$build_destination" \
+    -allowProvisioningUpdates ONLY_ACTIVE_ARCH=YES "${arch[@]}" -derivedDataPath .build/sim "${packages[@]}" > .build/ui-tests-build.log 2>&1 || { grep -E ' error: ' .build/ui-tests-build.log | head; echo "build failed: .build/ui-tests-build.log"; exit 1; }
   touch "$stamp"
+fi
+
+# The run: the simulator's lock and the .build/sim guard, held from boot to shutdown mark.
+sim_lock="sim-$device"
+[ -n "$physical" ] && sim_lock="device-$udid"
+if [[ ":${BANANA_LOCKS_HELD:-}:" != *":$sim_lock:"* ]]; then
+  # The run never builds (UI_TESTS_RUN): waiting for `build` while holding a simulator could
+  # deadlock against a caller that holds `build` and waits for that simulator.
+  UI_TESTS_RUN=1 exec tools/agents/xcode-lock.sh -l "$sim_lock" -d .build/sim zsh "$self" "$device" "$@"
 fi
 
 if [ -z "$physical" ]; then
@@ -148,9 +165,11 @@ if [ -z "$physical" ]; then
   [ "$workers" -gt 1 ] && xcrun simctl --set testing shutdown all 2>/dev/null
   # Shut the simulator down after 30 minutes with no further run (a later run moves the mark).
   mark="${TMPDIR:-/tmp}/banana-ui-sim-$udid"; date +%s > "$mark"; stamp_now=$(cat "$mark")
+  # The check and the shutdown hold the simulator's lock, so they never land inside another run.
   ( sleep "${UI_IDLE_SHUTDOWN:-1800}"
-    [ "$(cat "$mark" 2>/dev/null)" = "$stamp_now" ] && ! pgrep -f "xcodebuild.*$udid" > /dev/null &&
-      xcrun simctl shutdown "$udid" 2>/dev/null ) > /dev/null 2>&1 &!
+    env -u BANANA_LOCKS_HELD tools/agents/xcode-lock.sh -l "$sim_lock" zsh -c \
+      '[ "$(cat "$1" 2>/dev/null)" = "$2" ] && ! pgrep -f "xcodebuild.*$3" > /dev/null && xcrun simctl shutdown "$3"' \
+      _ "$mark" "$stamp_now" "$udid" 2>/dev/null ) > /dev/null 2>&1 &!
 fi
 
 # What failed and why, from the result bundle (a parallel run's log has no reasons in it).

@@ -21,8 +21,7 @@ final class MailSourceTreeTests: XCTestCase {
 
     private func repositoryRoot() throws -> URL {
         // BananaTests/<this file> — the root is two levels up.
-        let root = URL(fileURLWithPath: #filePath)
-            .deletingLastPathComponent().deletingLastPathComponent()
+        let root = SourceTree.root
         let contract = root.appendingPathComponent("Banana/Model/Mail/MailContract.swift")
         try XCTSkipUnless(FileManager.default.fileExists(atPath: contract.path),
                           "the source tree is not on this machine")

@@ -25,16 +25,20 @@ fi
 python3 - "$mode" "$device" "$demo_udid" "$out" <<'PY'
 import os, signal, subprocess, sys
 mode, device, udid, out = sys.argv[1:]
+jobs = os.environ.get('BUILD_JOBS') or str(os.cpu_count() or 4)
 if mode == 'ui':
     command = ['tools/ui-tests.sh', device, 'DemoModeUITest', 'ModuleAvailabilityUITest', 'NotesAdaptiveUITest/testWrittenNoteUsesSharedTextEditorAndSaves']
 else:
-    command = ['xcodebuild', 'test', '-scheme', 'BananaModelTests', '-configuration', 'Debug',
+    # `xcodebuild test` compiles and then uses the simulator: the build lock, that simulator's lock
+    # and the .build/sim guard (tools/agents/xcode-lock.sh), all together.
+    command = ['tools/agents/xcode-lock.sh', '-l', 'build', '-l', 'sim-' + device, '-d', '.build/sim',
+        'xcodebuild', 'test', '-scheme', 'BananaModelTests', '-configuration', 'Debug',
         '-destination', f'platform=iOS Simulator,id={udid}', '-derivedDataPath', '.build/sim',
-        'ARCHS=arm64', 'ONLY_ACTIVE_ARCH=YES', '-jobs', '2',
+        'ARCHS=arm64', 'ONLY_ACTIVE_ARCH=YES', '-jobs', jobs,
         '-only-testing:BananaTests/DemoWorkspaceTests', '-resultBundlePath', out + '/models.xcresult',
         '-test-timeouts-enabled', 'YES', '-default-test-execution-time-allowance', '60',
         '-maximum-test-execution-time-allowance', '120']
-env = dict(os.environ, WORKERS='1', BUILD_JOBS='2', LOG=out + '/ui.log')
+env = dict(os.environ, WORKERS='1', BUILD_JOBS=jobs, LOG=out + '/ui.log')
 with open(out + '/driver.log', 'w') as log:
     process = subprocess.Popen(command, stdout=log, stderr=subprocess.STDOUT, env=env, start_new_session=True)
     try:

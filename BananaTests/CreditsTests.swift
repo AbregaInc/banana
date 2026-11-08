@@ -3,7 +3,7 @@ import XCTest
 /// Settings credits everything `NOTICE.md` lists, and nothing it doesn't.
 final class CreditsTests: XCTestCase {
     func testSettingsAndTheNoticesFileListTheSameSources() throws {
-        let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
+        let root = SourceTree.root
         let notice = try String(contentsOf: root.appendingPathComponent("NOTICE.md"), encoding: .utf8)
         let links = try NSRegularExpression(pattern: #"\]\((https?://[^)\s]+)\)"#)
         let listed = Set(links.matches(in: notice, range: NSRange(notice.startIndex..., in: notice)).map {
@@ -17,7 +17,7 @@ final class CreditsTests: XCTestCase {
 
     /// Apple Weather is the one forecast source: the Open-Meteo fallback stays out.
     func testNoSourceAsksOpenMeteo() throws {
-        let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
+        let root = SourceTree.root
         for folder in ["Banana", "Shared", "BananaMac"] {
             let files = FileManager.default.enumerator(at: root.appendingPathComponent(folder), includingPropertiesForKeys: nil)
             for case let file as URL in files! where file.pathExtension == "swift" {

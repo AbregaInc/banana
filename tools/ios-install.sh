@@ -58,7 +58,7 @@ fi
 
 xcodegen generate
 # Dev uses its configured Email build gate; live access still requires account eligibility.
-banana_xcodebuild -jobs "${BUILD_JOBS:-2}" -project Banana.xcodeproj -scheme "$scheme" -configuration "$config" BANANA_UNRELEASED="$unreleased" \
+banana_xcodebuild -project Banana.xcodeproj -scheme "$scheme" -configuration "$config" BANANA_UNRELEASED="$unreleased" \
   BANANA_SOURCE_COMMIT="$(banana_source_revision)" ${BUILD_NUMBER:+"CURRENT_PROJECT_VERSION=$BUILD_NUMBER"} \
   -destination "id=$device" -derivedDataPath ".build/ios-$variant" \
   -allowProvisioningUpdates -quiet build
@@ -125,7 +125,7 @@ if [ "$variant" = "prod" ]; then
     esac
     [ -n "$watchUDID" ] && echo "Building the Watch app for $watchUDID…"
     [ -n "$watchUDID" ] \
-      && banana_xcodebuild -jobs "${BUILD_JOBS:-2}" -project Banana.xcodeproj -scheme BananaWatch -configuration "$config" ${BUILD_NUMBER:+"CURRENT_PROJECT_VERSION=$BUILD_NUMBER"} \
+      && banana_xcodebuild -project Banana.xcodeproj -scheme BananaWatch -configuration "$config" ${BUILD_NUMBER:+"CURRENT_PROJECT_VERSION=$BUILD_NUMBER"} \
       -destination "id=$watchUDID" -derivedDataPath ".build/ios-$variant-watch" \
       -allowProvisioningUpdates -quiet build \
       && xcrun devicectl device install app --device "$watch" \

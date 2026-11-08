@@ -27,6 +27,12 @@ TOOL = Path(__file__).resolve().parent
 MANIFEST = TOOL / "manifest.json"
 DERIVED = ROOT / ".build/sim"
 MAC_DERIVED = ROOT / ".build/mac-check"
+# Every core, and the shared build lock and derived-data guard (tools/config.sh, tools/agents/).
+JOBS = os.environ.get("BUILD_JOBS") or str(os.cpu_count() or 4)
+
+
+def xcodebuild(derived: Path) -> list[str]:
+    return [str(ROOT / "tools/agents/xcode-lock.sh"), "-l", "build", "-d", str(derived), "xcodebuild"]
 def _bundle_id() -> str:
     """The bundle id the simulator build was made with: yours (Config/Local.xcconfig), else the stand-in."""
     import re
@@ -131,10 +137,9 @@ def write_demo_audio(data_container: Path) -> None:
 def build_iphone(udid: str) -> Path:
     run(
         [
-            "xcodebuild", "-project", "Banana.xcodeproj", "-scheme", "Banana",
+            *xcodebuild(DERIVED), "-project", "Banana.xcodeproj", "-scheme", "Banana",
             "-configuration", "Debug", "-destination", f"id={udid}",
-            "-derivedDataPath", str(DERIVED), "-jobs", "2",
-            "OTHER_SWIFT_FLAGS=$(inherited) -j2", "build",
+            "-derivedDataPath", str(DERIVED), "-jobs", JOBS, "build",
         ]
     )
     return DERIVED / "Build/Products/Debug-iphonesimulator/Banana.app"
@@ -143,10 +148,9 @@ def build_iphone(udid: str) -> Path:
 def build_watch(udid: str) -> Path:
     run(
         [
-            "xcodebuild", "-project", "Banana.xcodeproj", "-scheme", "BananaWatch",
+            *xcodebuild(DERIVED), "-project", "Banana.xcodeproj", "-scheme", "BananaWatch",
             "-configuration", "Debug", "-destination", f"id={udid}",
-            "-derivedDataPath", str(DERIVED), "-jobs", "2",
-            "OTHER_SWIFT_FLAGS=$(inherited) -j2", "build",
+            "-derivedDataPath", str(DERIVED), "-jobs", JOBS, "build",
         ]
     )
     return DERIVED / "Build/Products/Debug-watchsimulator/BananaWatch.app"
@@ -163,11 +167,10 @@ def build_mac() -> Path:
     """
     run(
         [
-            "xcodebuild", "-project", "Banana.xcodeproj", "-scheme", "BananaMacBeta",
+            *xcodebuild(MAC_DERIVED), "-project", "Banana.xcodeproj", "-scheme", "BananaMacBeta",
             "-configuration", "Debug", "ONLY_ACTIVE_ARCH=YES",
             "-derivedDataPath", str(MAC_DERIVED), "-allowProvisioningUpdates",
-            *shlex.split(os.environ.get("AUTH_ARGS", "")), "-jobs", "2",
-            "OTHER_SWIFT_FLAGS=$(inherited) -j2", "build",
+            *shlex.split(os.environ.get("AUTH_ARGS", "")), "-jobs", JOBS, "build",
         ]
     )
     return MAC_DERIVED / "Build/Products/Debug" / MAC_APP

@@ -29,6 +29,51 @@ Each xcodebuild derived-data folder is 1.5–3.5 GB. One session left 34 GB and 
   arguments). It keeps what symbolicates the installed builds and anything in use.
 - A worktree's sources stay; its `.build` is build output and goes. The worktree a Beta was
   installed from keeps its build: put a `.keep-build` file in each folder to keep.
+- `tools/clean-builds.sh --worktrees` also clears the `.build` of every idle worktree (no program
+  working in it, no `.agent-owner`, nothing built for 6 hours) and Xcode's default DerivedData
+  folders untouched for 3 days. It keeps the symbol folders and `.keep-build` folders, and caps
+  the shared compilation cache (below) at 30 GB.
+
+## Builds: every core, one shared cache, named locks
+
+- Build through the scripts or `banana_xcode` / `banana_xcodebuild` (`tools/config.sh`), never a
+  bare `xcodebuild`: they pass `-jobs $BUILD_JOBS` (every core; 8 Nov 2026 a clean Debug build
+  took 560–598 s at the old `-jobs 2` and 175–188 s with all ten cores), the compilation cache
+  settings, and take the locks. Simulator builds pass `ARCHS=arm64` (89–100 s): a generic
+  simulator destination otherwise compiles everything a second time for x86_64.
+- Debug and test builds share one compilation cache, `~/Library/Caches/banana-xcode-cas`, keyed
+  by source relative to the checkout, so a fresh worktree compiles only what no worktree compiled
+  before (a clean simulator build in a second worktree: 39.5 s, against 99.6 s). Release,
+  TestFlight and archive builds are not cached. Figures and the proof that cached products are
+  correct: `docs/performance/build-pipeline.md`.
+- Under that cache `#filePath` reads `/^src/…`. A test that reads the repository's files uses
+  `SourceTree.root` (BananaTests/SourceTree.swift), never `#filePath`.
+- Locks (`tools/agents/xcode-lock.sh`, installed to `~/.config/banana-agents/` by
+  `tools/agents/install.sh`): `build` for any compile (one at a time: a build uses every core),
+  `sim-phone` / `sim-pad` for a test run on that simulator, and a guard per derived-data folder so
+  two xcodebuilds never write one folder. `banana_xcode` and `tools/ui-tests.sh` take what they
+  need themselves; don't wrap them. A bare command that compiles: `tools/agents/xcode-lock.sh
+  CMD` (the build lock). `tools/agents/xcode-lock.sh --status` shows who holds what.
+- Two agents can now build in one worktree and run UI tests in another at the same time; two
+  compiles still queue on `build`.
+
+## Worktrees: a small pool, reused
+
+A new worktree starts with an empty `.build`: 15–25 minutes of cold builds, and 24 worktrees
+held tens of GB (8 Nov 2026). Reuse instead of creating:
+
+- The pool is `Banana-work-1` … `Banana-work-4`, beside the other worktrees. Take an
+  idle one: it is idle when it has no `.agent-owner` file. When every existing one is taken and
+  there are fewer than four, add the next (`git worktree add --detach ../Banana-work-N`). Write yours
+  (`echo "$$ <task> $(date)" > .agent-owner`), then `git switch -c <branch> origin/<base>` (or
+  `git switch <branch>`). Remove `.agent-owner` when you finish; leave the build in place.
+- Commit or stash before you leave a pool worktree; the next agent switches branches in it.
+- Create a worktree outside the pool only when all four exist and are taken, and say so in your
+  report.
+- With the shared cache a pool worktree's build stays warm across branches: switching branches
+  recompiles what changed, not everything.
+- The release worktree (`Banana-release`, branch `release/banana-ready`) and `Banana-stable` are
+  not pool worktrees.
 
 ## Instruments captures: each one leaves 1–2.5 GB behind, on both ends
 
@@ -107,6 +152,21 @@ change (11 Oct 2026). The owner waited a day for four fixes.
   every test times out and no number of workers helps; say so instead of rerunning.
 - Tests that depend on the time of day (a meeting still ahead, late-evening reminders, events
   made near midnight) must say so and skip or adapt; better, give them a fixed clock.
+
+## Releases: preflight, then one script per channel
+
+- `tools/preflight.sh` must pass before any rollout: clean tree, xcodegen, the iOS Beta Release
+  build, the Stable iOS archive with `tools/check-release.sh`, the Mac Beta direct archive and
+  export, unit tests, and the Service tests when `Service/` changed since the last release tag.
+  The rollout reuses its work: the iOS build is incremental and the archives are adopted when
+  they are the same commit, version and build (an archive is never incremental).
+  Debug builds and simulator tests alone missed Release-only and Mac-only failures (a `RootView`
+  helper inside the wrong `#if`, stray files failing the clean-tree check).
+- `tools/release/ship-beta.sh N --notes-file F` and `tools/release/ship-stable.sh N …` are the
+  rollouts; `tools/release/deploy-service.sh beta|prod` deploys the service (prod needs
+  `--yes-prod`). Every one has `--dry-run`. Private values come from `~/.config/banana/`
+  (`tools/release/README.md` lists them); never copy a rollout script per build.
+- Stable, TestFlight and production deploys run only on the owner's word for that build.
 
 # Workspace preservation
 

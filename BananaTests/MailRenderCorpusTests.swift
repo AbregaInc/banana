@@ -14,7 +14,7 @@ final class MailRenderCorpusTests: XCTestCase {
         var blocksAtMost: Int?
     }
 
-    private static let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
+    private static let root = SourceTree.root
 
     private func cases(in folder: URL) -> [URL] {
         let found = (try? FileManager.default.contentsOfDirectory(at: folder, includingPropertiesForKeys: nil)) ?? []

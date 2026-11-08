@@ -654,8 +654,7 @@ final class MailStoresTests: MailStoreTestCase {
     }
 
     func testNoMailSourceFileNamesWhatErasesADatabaseHoldsATransactionOrShowsBoundValues() throws {
-        let folder = URL(fileURLWithPath: #filePath)
-            .deletingLastPathComponent().deletingLastPathComponent()
+        let folder = SourceTree.root
             .appendingPathComponent("Banana/Model/Mail")
         try XCTSkipUnless(FileManager.default.fileExists(atPath: folder.path),
                           "the source tree is not on this machine")

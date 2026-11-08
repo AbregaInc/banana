@@ -1189,6 +1189,8 @@ targets:
         BANANA_LOCAL_EMAIL: YES
         PRODUCT_BUNDLE_IDENTIFIER: $(BANANA_BUNDLE_ID).tests
         GENERATE_INFOPLIST_FILE: YES
+        # Merged into the generated plist: BananaSourceRoot, the checkout (BananaTests/SourceTree.swift).
+        INFOPLIST_FILE: BananaTests/Info.plist
 
   BananaWatch:
     type: application
