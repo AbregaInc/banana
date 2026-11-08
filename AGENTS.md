@@ -7,6 +7,14 @@ Cut taglines, helper text and secondary labels. If a screen needs them to make s
 Make the best decision that will elevate all three: the user experience (UX), developer experience
 (DX), and agent experience (AX) always, without breaking anything.
 
+## Every fix is general
+
+Fix the rule that was broken, not the case that was reported (the owner's policy, 8 Nov 2026). No
+special cases keyed on a calendar id or address pattern, an account, a name, a device or one
+reported example. Name the invariant the bug violated, make the code hold it for every input, and
+show the reported case passing as one instance of it. When a general fix has a cost (behaviour
+changes for other users or data), say what changes and measure it; don't narrow the fix to dodge it.
+
 ## Build output: clean up as you go
 
 Each xcodebuild derived-data folder is 1.5–3.5 GB. One session left 34 GB and filled the disk
