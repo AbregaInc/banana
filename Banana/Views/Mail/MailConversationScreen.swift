@@ -25,7 +25,7 @@ struct MailConversationScreen: View {
             MailConversationHeader(session: session)
             // The shells' top row floats on glass with no rule under it (the approved images).
             if !bottomBarShell && !wideShell { MailDivider(axis: .horizontal) }
-            if wideShell, let composer = navigation.composer, composer.host == reader.id {
+            if wideShell, let composer = navigation.composer, composer.answers == reader.id {
                 // The box at the foot of the conversation (direction A), or over it at full height.
                 if navigation.dock?.mode != .full {
                     MailConversationContent(session: session, reader: reader, inlineComposer: inlineComposer)
@@ -66,6 +66,8 @@ struct MailConversationContent: View {
     @State private var position: ScrollPosition
     /// Where the thread was when his finger went down on it, while it is down.
     @State private var pullStart: CGFloat?
+    /// He moved the thread himself while the box was open: it stays where he put it.
+    @State private var movedWhileAnswering = false
     /// In the bar's shells, pulling the thread down to read folds the composer's box into the field.
     @Environment(\.bottomBarShell) private var bottomBarShell
 
@@ -105,6 +107,7 @@ struct MailConversationContent: View {
                                 MailMessageCard(message: message, text: reader.bodies[message.id], styled: reader.styled[message.id], opener: reader.opener,
                                                 load: { reader.fetchBody(message.id) })
                                     .onAppear { reader.revealBody(message.id) }
+                                    .id(message.id)
                             }
                         }
                     }
@@ -124,11 +127,23 @@ struct MailConversationContent: View {
             } action: { _, offset in
                 reader.scrollOffset = offset
             }
+            // The box answering this conversation takes the foot of the pane (and the keyboard
+            // more of it): the thread is inset by both, and the message answered — the newest, at
+            // the top — is brought up to show as much of itself as fits above the box, its top first.
+            .onScrollGeometryChange(for: CGFloat.self) {
+                ($0.containerSize.height - $0.contentInsets.top - $0.contentInsets.bottom).rounded()
+            } action: { _, _ in
+                showAnswered(proxy)
+            }
+            .onAppear { DispatchQueue.main.async { showAnswered(proxy) } }
+            .onScrollPhaseChange { _, phase, context in
+                if phase == .interacting, answering { movedWhileAnswering = true }
+                #if os(iOS)
+                pullStart = phase == .interacting ? context.geometry.contentOffset.y : nil
+                #endif
+            }
             #if os(iOS)
             .scrollDismissesKeyboard(bottomBarShell ? .interactively : .automatic)
-            .onScrollPhaseChange { _, phase, context in
-                pullStart = phase == .interacting ? context.geometry.contentOffset.y : nil
-            }
             .onScrollGeometryChange(for: CGFloat.self) { $0.contentOffset.y } action: { _, y in
                 // His finger pulled the thread down (towards its top, or past it): the box folds.
                 // Reading on, up the thread, leaves it where it is.
@@ -139,6 +154,23 @@ struct MailConversationContent: View {
             #endif
         }
         .modifier(MailAttachmentPreviewHost(opener: reader.opener))
+    }
+
+    /// Whether the composer's box is open, not folded, on an answer to this conversation. Read when
+    /// the room changes, not observed: the thread does not redraw for the composer.
+    private var answering: Bool {
+        let navigation = session.navigation
+        guard let dock = navigation.dock, !dock.isFolded, let composer = navigation.composer else { return false }
+        return composer.answers == reader.id
+    }
+
+    private func showAnswered(_ proxy: ScrollViewProxy) {
+        guard answering else {
+            movedWhileAnswering = false
+            return
+        }
+        guard !movedWhileAnswering, let newest = reader.messages.first?.id else { return }
+        withAnimation(.snappy(duration: 0.25)) { proxy.scrollTo(newest, anchor: .top) }
     }
 }
 

@@ -40,6 +40,26 @@ final class MailComposerBoxUITest: MailUITestCase {
         return handle
     }
 
+    /// The newest message's text: the message the reply answers, at the thread's top.
+    private var answered: XCUIElement {
+        app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "Good catch, Jane")).firstMatch
+    }
+
+    /// The message answered reads above the box: its text on screen, under the reader's top row and
+    /// clear of the box's top edge, and reachable by a finger.
+    private func assertAnsweredReads(above handle: XCUIElement, _ moment: String,
+                                     file: StaticString = #filePath, line: UInt = #line) {
+        let text = answered
+        XCTAssertTrue(text.waitForExistence(timeout: 5), "the answered message's text (\(moment))\n\(app.debugDescription)",
+                      file: file, line: line)
+        let window = app.windows.firstMatch.frame
+        let reads = waitUntil(timeout: 5) {
+            text.isHittable && text.frame.minY >= window.minY && text.frame.maxY <= handle.frame.minY + 1
+        }
+        XCTAssertTrue(reads, "\(moment): the answered text \(text.frame) must show above the box's top \(handle.frame.minY)",
+                      file: file, line: line)
+    }
+
     private func type(_ text: String) {
         let body = element(MailID.composerBody)
         if (body.value(forKey: "hasKeyboardFocus") as? Bool) != true { body.tap() }
@@ -66,6 +86,10 @@ final class MailComposerBoxUITest: MailUITestCase {
         XCTAssertFalse(app.buttons["shell.ai"].exists, "the sparkle steps away while writing")
         let one = top.frame.minY
         type("Thanks \u{2014} I'll look at it tonight.")
+        // One line: the body starts right under the people, with no empty line between.
+        let gap = element(MailID.composerBody).frame.minY - style.frame.maxY
+        XCTAssertLessThan(gap, 36, "the text starts under the To line, \(gap) pt below Reply all")
+        assertAnsweredReads(above: top, "one line, keyboard up")
         snap("box-one-line")
         type("\nSecond line\nThird line")
         let three = top.frame.minY
@@ -73,6 +97,7 @@ final class MailComposerBoxUITest: MailUITestCase {
         type("\nFourth\nFifth\nSixth\nSeventh")
         let capped = top.frame.minY
         XCTAssertLessThan(three - capped, 60, "four lines at most, then the text scrolls (\(three) → \(capped))")
+        assertAnsweredReads(above: top, "four lines, keyboard up")
         snap("box-four-lines")
     }
 
@@ -94,9 +119,9 @@ final class MailComposerBoxUITest: MailUITestCase {
         launchShell()
         _ = openReply()
         type("Thanks \u{2014} I'll look at it tonight.")
-        let title = element(MailID.conversationTitle)
-        XCTAssertTrue(title.waitForExistence(timeout: 5))
-        let start = title.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
+        // The thread above the box shows the message answered: the finger pulls it down from there.
+        XCTAssertTrue(answered.waitForExistence(timeout: 5))
+        let start = answered.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
         start.press(forDuration: 0.05, thenDragTo: start.withOffset(CGVector(dx: 0, dy: 220)))
         let folded = element(MailID.composerFolded)
         XCTAssertTrue(folded.waitForExistence(timeout: 5), "the box folded into the field\n\(app.debugDescription)")

@@ -141,8 +141,12 @@ private struct MailRecipientRow: View {
                   selection: $selection)
             .textFieldStyle(.plain)
             .focused(focused, equals: field.field)
-            .frame(minWidth: DS.Mail.composerTyping)
+            // In the box the field keeps to the chips' line and takes what is left of it: a full
+            // width of its own pushed an empty line between the people and the text.
+            .frame(minWidth: compact ? DS.Mail.composerTypingCompact : DS.Mail.composerTyping)
             .layoutValue(key: MailFlowFills.self, value: true)
+            .layoutValue(key: MailFlowStaysOnLine.self,
+                         value: compact && model.text(of: field).isEmpty && focused.wrappedValue != field.field)
             .onSubmit { model.acceptHighlightedOrCommit(field) }
             .onKeyPress(.downArrow) {
                 model.moveHighlight(by: 1)

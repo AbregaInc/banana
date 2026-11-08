@@ -152,6 +152,14 @@ final class MailComposerModel: ObservableObject {
     private(set) var draftID: MailDraftID?
     /// The conversation it is written in; nil for a new message.
     private(set) var host: MailConversationID?
+    /// The conversation it answers, known from the start before its draft has come.
+    var answers: MailConversationID? {
+        if let host { return host }
+        switch start {
+        case .reply(let id), .replyAll(let id), .forward(let id): return id
+        case .new, .continuing: return nil
+        }
+    }
     /// Whether the caret is asked for and has not come. While it is, the keys are this composer's.
     private(set) var awaitingFocus: Bool
     private var buffer = ""

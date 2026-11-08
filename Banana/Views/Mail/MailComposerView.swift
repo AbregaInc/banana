@@ -275,6 +275,13 @@ struct MailFlowFills: LayoutValueKey {
     static let defaultValue = false
 }
 
+/// Set on a view that, when there is no room left on its line, takes what is left (even nothing)
+/// instead of starting a line of its own: the box's empty typing field, which would otherwise put
+/// an empty line between the people and the text.
+struct MailFlowStaysOnLine: LayoutValueKey {
+    static let defaultValue = false
+}
+
 /// Chips that wrap onto another line when the room runs out, with the typing field after them.
 struct MailFlowLayout: Layout {
     var spacing: CGFloat
@@ -300,7 +307,9 @@ struct MailFlowLayout: Layout {
         for subview in subviews {
             let size = subview.sizeThatFits(.unspecified)
             var fitted = min(size.width, width)
-            if x > 0, x + fitted > width {
+            if x > 0, x + fitted > width, subview[MailFlowStaysOnLine.self] {
+                fitted = max(0, width - x)
+            } else if x > 0, x + fitted > width {
                 x = 0
                 y += lineHeight + spacing
                 lineHeight = 0

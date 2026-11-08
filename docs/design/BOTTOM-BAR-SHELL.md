@@ -124,8 +124,11 @@ The owner chose direction A: the bottom field grows into the composer. `MailComp
 `Banana/Model/MailUI/Pure`) says where it is, and `MailNavigation.dock` holds it.
 
 - **Reply** ("Reply or ask", or "…" › Reply): a solid box docked over the keyboard, To and the text
-  growing to four lines, then the tools (paperclip, photo, Aa, sparkle) and Send. The thread scrolls
-  on its own above it, newest message first and whole where it fits. On a phone the switcher and
+  growing to four lines, then the tools (paperclip, photo, Aa, sparkle) and Send. The text starts
+  right under the To line: the typing field shares the chips' line. The thread scrolls on its own
+  above it, inset by the box and the keyboard; when the box opens or grows the message answered
+  (the newest, at the top) is brought up under the top row, its top first, so its text reads above
+  the box. Once he moves the thread himself it stays where he put it until the box folds. On a phone the switcher and
   the sparkle step away; on an upright iPad the switcher stays and the box takes the field's place
   beside it, growing upward.
 - **Reply all is the default.** A small "Reply all ⌄" at the start of To switches to Reply or

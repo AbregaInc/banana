@@ -264,6 +264,8 @@ enum DS {
         static let composerSheetHeight: CGFloat = 560
         /// The narrowest the To field's typing gets before it wraps to a line of its own.
         static let composerTyping: CGFloat = 120
+        /// The same in the composer's box, where the field shares the chips' line.
+        static let composerTypingCompact: CGFloat = 28
         /// The narrowest a button of a message's own actions gets, wide enough for "Keep as a draft".
         static let actionButton: CGFloat = 120
     }
