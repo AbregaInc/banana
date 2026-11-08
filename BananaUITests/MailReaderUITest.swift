@@ -29,4 +29,19 @@ final class MailReaderUITest: MailUITestCase {
         XCTAssertTrue(newest.isHittable, "the newest is in view on opening")
         snap("newest-first")
     }
+
+    /// Tapping a received attachment that is not on the device asks for it, shows it is coming and then opens
+    /// it in the system viewer (Quick Look), with no "Couldn't download" on the chip.
+    func testTappingAReceivedAttachmentFetchesItAndOpensTheSystemViewer() {
+        launch(open: "q3")
+        let chip = app.buttons["mail.conversation.attachment.Q3-revenue.xlsx"]
+        XCTAssertTrue(chip.waitForExistence(timeout: 10), app.debugDescription)
+        chip.tap()
+        // Quick Look's own view, titled with the file's name (without its extension).
+        let viewer = app.otherElements["QLPreviewControllerView"]
+        XCTAssertTrue(viewer.waitForExistence(timeout: 15), "Quick Look came up for the file: " + app.debugDescription)
+        XCTAssertTrue(viewer.navigationBars.firstMatch.waitForExistence(timeout: 5), "with its own bar")
+        XCTAssertFalse(app.staticTexts[MailID.attachmentFailure].exists)
+        snap("attachment-opened")
+    }
 }

@@ -85,13 +85,25 @@ extension MailFixtureSource {
     /// The bytes of a received attachment, here: a small stand-in of its type, written with its
     /// quarantine, and then the conversation says where it is. The chip that asked for it is
     /// waiting and shows nothing until it arrives.
+    func attachmentProgress(_ id: MailAttachmentID) -> MailProgress {
+        if let existing = attachmentProgresses[id] { return existing }
+        let created = MailProgress()
+        attachmentProgresses[id] = created
+        return created
+    }
+
     func fetchAttachment(_ id: MailAttachmentID) {
+        let progress = attachmentProgress(id)
+        progress.state = .queued
         let thread = MailConversationID(account: id.message.account,
                                         thread: String(id.message.message.prefix { $0 != "~" }))
         guard let stored = threads[thread],
               let message = stored.conversation.messages.first(where: { $0.id == id.message }),
               let attachment = message.attachments.first(where: { $0.id == id }),
-              attachment.localFile == nil else { return }
+              attachment.localFile == nil else {
+            progress.state = threads[thread] == nil ? .failed(.missing) : .done
+            return
+        }
         let sender = message.from.address
         Task { @MainActor [weak self] in
             guard let self,
@@ -103,6 +115,7 @@ extension MailFixtureSource {
             else { return }
             current.conversation.messages[at].attachments[part].localFile = url
             self.threads[thread] = current
+            progress.fraction = 1; progress.state = .done
             self.publish()
         }
     }

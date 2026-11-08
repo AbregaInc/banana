@@ -75,12 +75,17 @@ struct MailConversationReader: Sendable {
                     WHERE c.account=? AND c.gmail_id IN (\(placeholders))
                     """, arguments: StatementArguments([MailHTMLPreparer.version, account] as [(any DatabaseValueConvertible)?] + batch.map { $0 as (any DatabaseValueConvertible)? }))
                 var result: [String: Metadata] = [:]
+                var files: [String: [String: String]] = [:]
+                for row in try Row.fetchAll(db, sql: "SELECT gmail_id,part_id,path FROM attachment WHERE account=? AND state=1 AND gmail_id IN (\(placeholders))",
+                                            arguments: StatementArguments([account] as [(any DatabaseValueConvertible)?] + batch.map { $0 as (any DatabaseValueConvertible)? })) {
+                    if let path: String = row["path"] { files[row["gmail_id"], default: [:]][row["part_id"]] = path }
+                }
                 for row in rows {
                     let headerData: Data = row["headers"], structureData: Data = row["structure"]
                     let headers = try JSONDecoder().decode([GmailHeader].self, from: MailBlobCodec.decode(headerData))
                     result[row["gmail_id"]] = Metadata(headers: MessageHeaders(payload: GmailPart(headers: headers)),
                         structure: try JSONDecoder().decode(MIMEStructure.self, from: MailBlobCodec.decode(structureData)),
-                        ready: (row["ready"] as Bool?) == true)
+                        ready: (row["ready"] as Bool?) == true, files: files[row["gmail_id"]] ?? [:])
                 }
                 return result
             }
@@ -95,8 +100,9 @@ struct MailConversationReader: Sendable {
                 value.messages[index].deliveredTo = stored.headers.deliveredTo.mailboxes.first?.address
                 value.messages[index].attachments = stored.structure.attachments.map {
                     MailAttachment(id: MailAttachmentID(message: messageID, part: $0.partID), name: $0.name,
-                        mimeType: $0.mimeType, typeMismatch: false, bytes: $0.size ?? 0, localFile: nil,
-                        isInline: $0.isInline, isExecutable: false)
+                        mimeType: $0.mimeType, typeMismatch: false, bytes: $0.size ?? 0,
+                        localFile: stored.files[$0.partID].flatMap(localFile),
+                        isInline: $0.isInline, isExecutable: MailAttachmentKind.of(name: $0.name, mimeType: $0.mimeType).isProgram)
                 }
                 if let invite = stored.structure.invite, let uid = invite.uid, !uid.isEmpty {
                     value.invite = MailInvite(method: MailInvite.Method(rawValue: invite.method?.lowercased() ?? "other") ?? .other, uid: uid)
@@ -110,6 +116,15 @@ struct MailConversationReader: Sendable {
         var headers: MessageHeaders
         var structure: MIMEStructure
         var ready: Bool
+        /// Part id to the relative path of the file kept for it.
+        var files: [String: String]
+    }
+
+    /// An attachment kept on this device: only if the file is still there and its path stays in the attachment directory.
+    private func localFile(_ path: String) -> URL? {
+        guard MailInlinePictures.isSafe(path) else { return nil }
+        let url = stores.directories.attachments.appendingPathComponent(path)
+        return FileManager.default.fileExists(atPath: url.path) ? url : nil
     }
 }
 

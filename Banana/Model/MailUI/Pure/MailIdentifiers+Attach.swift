@@ -29,6 +29,7 @@ extension MailID {
     /// A received message's attachment, by its name.
     static func receivedAttachment(_ name: String) -> String { "mail.conversation.attachment." + name }
     static let attachmentNote = "mail.conversation.attachment.note"
+    static let attachmentFailure = "mail.conversation.attachment.failure"
 }
 
 #endif

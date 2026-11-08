@@ -22,7 +22,8 @@ struct MailReceivedAttachments: View {
         VStack(alignment: .leading, spacing: DS.Space.xs) {
             MailFlowLayout(spacing: DS.Space.xs) {
                 ForEach(shown) { file in
-                    MailReceivedAttachmentChip(file: file, isWaiting: opener.waiting == file.id) {
+                    MailReceivedAttachmentChip(file: file, isWaiting: opener.waiting == file.id, didFail: opener.failed.contains(file.id),
+                                               progress: opener.progress(for: file.id)) {
                         opener.open(file)
                     }
                 }
@@ -52,6 +53,8 @@ struct MailReceivedAttachments: View {
 private struct MailReceivedAttachmentChip: View {
     let file: MailAttachmentDisplay
     let isWaiting: Bool
+    let didFail: Bool
+    @ObservedObject var progress: MailProgress
     let open: () -> Void
 
     var body: some View {
@@ -64,16 +67,24 @@ private struct MailReceivedAttachmentChip: View {
                     Text(file.name).font(.callout).lineLimit(1).truncationMode(.middle)
                     Text(file.sizeText + " \u{00B7} " + file.kindText)
                         .font(.caption).foregroundStyle(.secondary).lineLimit(1)
-                    if let note = file.note {
+                    if didFail {
+                        Text("Couldn\u{2019}t download \u{00B7} Retry")
+                            .font(.caption).foregroundStyle(DS.Palette.warning)
+                            .accessibilityIdentifier(MailID.attachmentFailure)
+                    } else if let note = file.note {
                         Text(note)
                             .font(.caption).foregroundStyle(DS.Palette.warning)
                             .accessibilityIdentifier(MailID.attachmentNote)
                     }
                 }
                 if isWaiting {
-                    ProgressView().controlSize(.mini)
+                    if progress.fraction > 0, progress.fraction < 1 {
+                        ProgressView(value: progress.fraction).progressViewStyle(.circular).controlSize(.mini)
+                    } else {
+                        ProgressView().controlSize(.mini)
+                    }
                 } else if file.localFile == nil, !file.isProgram {
-                    Image(systemName: "arrow.down.circle").foregroundStyle(.secondary)
+                    Image(systemName: didFail ? "arrow.clockwise" : "arrow.down.circle").foregroundStyle(.secondary)
                 }
             }
             .padding(.horizontal, DS.Space.s)
