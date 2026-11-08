@@ -55,8 +55,9 @@ struct GoogleCalendar: Decodable, Identifiable, Hashable {
 
     /// Manager permission can be shared too. Google's data owner identifies secondary calendars;
     /// primary calendars use their account email. Older secondary entries fall back to the role.
+    /// A family calendar is never one account's own, whatever its role says.
     var isOwnedByAccount: Bool {
-        guard accessRole == "owner" else { return false }
+        guard accessRole == "owner", !isFamilyCalendar else { return false }
         let viewer = accountEmail.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         if let owner = dataOwner?.trimmingCharacters(in: .whitespacesAndNewlines), !owner.isEmpty {
             return owner.lowercased() == viewer
@@ -72,6 +73,26 @@ struct GoogleCalendar: Decodable, Identifiable, Hashable {
         if let owner, !owner.isEmpty { return owner }
         guard id.contains("@"), !id.hasSuffix(".calendar.google.com") else { return nil }
         return id.lowercased()
+    }
+
+    /// Google's family calendar (`family<digits>@group.calendar.google.com`): every member of the
+    /// family group manages it, so each sees "owner", and one member's walk is on everyone's list.
+    /// Its events are the family's, not this account's: they block time only when the person
+    /// switches Blocks my time on for it, and Busy copies go there only when it is opted in.
+    var isFamilyCalendar: Bool { Self.isFamilyCalendarID(id) }
+
+    /// Whether this calendar's events make the person unavailable: their choice in Blocks my
+    /// time, else whether the calendar is their own.
+    func blocksTime(overrides: [String: Bool]) -> Bool {
+        overrides[id] ?? isOwnedByAccount
+    }
+
+    static func isFamilyCalendarID(_ id: String) -> Bool {
+        let lowered = id.lowercased()
+        let prefix = "family", suffix = "@group.calendar.google.com"
+        guard lowered.hasPrefix(prefix), lowered.hasSuffix(suffix) else { return false }
+        let digits = lowered.dropFirst(prefix.count).dropLast(suffix.count)
+        return !digits.isEmpty && digits.allSatisfy(\.isASCII) && digits.allSatisfy(\.isNumber)
     }
 
     var displayTitle: String { summaryOverride?.nilIfEmpty ?? summary?.nilIfEmpty ?? "Calendar" }
@@ -162,6 +183,8 @@ struct GoogleEvent: Codable {
     let etag: String?
     /// An occurrence's place in its series, which a moved occurrence keeps.
     let originalStartTime: EventDate?
+    /// The account that created this event: on a shared calendar, whose Busy copy it is.
+    var creator: Organizer? = nil
 
     struct Organizer: Codable {
         let email: String?

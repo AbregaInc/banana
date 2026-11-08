@@ -246,10 +246,24 @@ enum BusyBlockDuplicates {
     }
 }
 
-/// A marker identifies Banana scaffolding, not the person who wrote it. Shared calendars
-/// additionally require the exact event ID recorded by this app before cleanup may delete it.
+/// A marker identifies Banana scaffolding, not the person who wrote it. On a calendar this
+/// account owns, every marked block is its own. On anyone else's (a shared or family calendar)
+/// a marked block is this person's only when it is the exact copy this app recorded writing, or
+/// one of this person's connected accounts created it (the same person's other device). Anything
+/// else is another person's: a pass never updates, deduplicates or removes it.
 enum BusyBlockCleanupPolicy {
-    static func mayDelete(calendarIsOwner: Bool, recordedEventID: String?, eventID: String) -> Bool {
-        calendarIsOwner || recordedEventID == eventID
+    static func mayDelete(calendarIsOwner: Bool, recordedEventID: String?, eventID: String,
+                          creatorEmail: String? = nil, accountEmails: Set<String> = []) -> Bool {
+        isOurs(calendarIsOwner: calendarIsOwner, eventID: eventID,
+               recordedEventIDs: recordedEventID.map { [$0] } ?? [],
+               creatorEmail: creatorEmail, accountEmails: accountEmails)
+    }
+
+    static func isOurs(calendarIsOwner: Bool, eventID: String, recordedEventIDs: Set<String>,
+                       creatorEmail: String?, accountEmails: Set<String>) -> Bool {
+        if calendarIsOwner || recordedEventIDs.contains(eventID) { return true }
+        guard let creator = creatorEmail?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased(),
+              !creator.isEmpty else { return false }
+        return accountEmails.contains { $0.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() == creator }
     }
 }

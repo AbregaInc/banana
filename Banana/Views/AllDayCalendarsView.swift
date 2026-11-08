@@ -123,7 +123,7 @@ struct IndividualCalendarsView: View {
     }
 
     private func blocking(_ calendar: GoogleCalendar) -> Binding<Bool> {
-        Binding(get: { smart.settings.calendarBlockingOverrides[calendar.id] ?? calendar.isOwnedByAccount },
+        Binding(get: { calendar.blocksTime(overrides: smart.settings.calendarBlockingOverrides) },
                 set: { smart.settings.calendarBlockingOverrides[calendar.id] = $0 })
     }
 
