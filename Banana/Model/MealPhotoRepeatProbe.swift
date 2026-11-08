@@ -19,7 +19,7 @@ enum MealPhotoRepeatProbe {
 
     private static func label(_ meal: MealEntry) -> String {
         let name = meal.name.isEmpty ? GroundedFoodEstimate.mealName("", items: meal.items) : meal.name
-        return "\(meal.date.formatted(.dateTime.weekday(.abbreviated).month().day().hour().minute())) \"\(name.prefix(40))\""
+        return "\(meal.date.formatted(.dateTime.weekday(.abbreviated).month().day().hour().minute())) \"\(PlaybackDiagnostics.personal(String(name.prefix(40))))\""
     }
 
     private static func run(wellness: WellnessStore) async {

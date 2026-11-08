@@ -543,6 +543,8 @@ struct MoreMenu<Items: View>: View {
                 .accessibilityIdentifier("page.more.routines")
             }
             #endif
+            Divider()
+            ReportProblemMenuItem()
         } label: {
             // The plain glyph: the bar draws the glass circle around it, as the system's own do.
             Image(systemName: "ellipsis")

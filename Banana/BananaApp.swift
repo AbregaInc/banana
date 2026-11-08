@@ -180,6 +180,7 @@ struct BananaApp: App {
         #if os(iOS)
         Metrics.start()   // MetricKit: daily CPU/battery + cpu_resource_fatal diagnostics → the journal
         #endif
+        MainActor.assumeIsolated { ProblemReporter.start() }   // spikes, hangs and reports from Report a problem
         MainActor.assumeIsolated { DiagnosticReports.start() }   // and the same reports, anonymously, to the service
         #if DEBUG && os(iOS)
         // `--frame-probe`: a real CADisplayLink-driven fps/hitch reading for the "is this view
@@ -795,6 +796,7 @@ struct BananaApp: App {
 
     private func configured<Content: View>(_ content: Content) -> some View {
         content
+            .problemReporting()
             .environmentObject(store)
             .environmentObject(library)
             .environmentObject(player)

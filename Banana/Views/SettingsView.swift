@@ -1302,7 +1302,7 @@ struct SettingsView: View {
         Section {
             if Telemetry.shared.canSend {
                 Toggle("Share usage", isOn: $sharesUsage)
-                    .onChange(of: sharesUsage) { _, on in if !on { Telemetry.shared.turnedOff(); DiagnosticReports.shared.turnedOff() } }
+                    .onChange(of: sharesUsage) { _, on in if !on { Telemetry.shared.turnedOff(); DiagnosticReports.shared.turnedOff(); ProblemReporter.shared.turnedOff() } }
                     .accessibilityIdentifier("settings.shareUsage")
             }
             Link("Privacy Policy", destination: Telemetry.privacyURL)

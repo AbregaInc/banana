@@ -391,6 +391,7 @@ struct RootView: View {
                 BananaAccount.shared.start()                   // signed in elsewhere; this device; calendars to watch
                 Telemetry.shared.cameForward()                  // opened today; what's counted goes
                 DiagnosticReports.shared.send()                 // crash and performance reports waiting
+                ProblemReporter.shared.flush()                  // problem reports waiting
                 Task {                                               // or trimmed, or reverted
                     await WorkoutRevertInbox.shared.settle()
                     await WorkoutHealthFollow.shared.settle()

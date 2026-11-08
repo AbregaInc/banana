@@ -1059,6 +1059,12 @@ targets:
       - path: BananaTests/PushEnvironmentTests.swift
       # Crash, hang and performance reports for the service (the outbox and the batch).
       - path: Banana/Model/DiagnosticReports.swift
+      # Problem reports (docs/design/PROBLEM-REPORTS.md): the report and its body, the log's
+      # scrubbing, the daily allowance and the outbox. The reporter and the sheet stay out.
+      - path: Banana/Model/ProblemReports/ProblemReport.swift
+      - path: Banana/Model/ProblemReports/ReportScrubber.swift
+      - path: Banana/Model/ProblemReports/ProblemReportOutbox.swift
+      - path: Banana/Model/ProblemReports/MainThreadSampler.swift
       - path: Banana/Model/MyFoodsStore.swift
       # Estimates that learn (docs/design/MEAL-LEARNING.md): each estimate paired with what was
       # logged, the portions learned from what was changed, usual foods by time of day, and the

@@ -213,9 +213,9 @@ struct FoodSearchView: View {
         do {
             let found = try await FoodSearchSources.online(text, brand: local.brand, food: local.food)
             guard !Task.isCancelled else { return }
-            PlaybackDiagnostics.shared.log("🔎 food search", "\u{201C}\(text)\u{201D}: \(local.foods.count) foods, "
+            PlaybackDiagnostics.shared.log("🔎 food search", "\u{201C}\(PlaybackDiagnostics.personal(text))\u{201D}: \(local.foods.count) foods, "
                 + "\(local.products.count) + \(found.count) products" + (local.brand.map { " of \($0.name)" } ?? "")
-                + (found.isEmpty ? "" : " \u{2014} " + found.prefix(4).map(\.name).joined(separator: "; ")))
+                + (found.isEmpty ? "" : " \u{2014} " + PlaybackDiagnostics.personal(found.prefix(4).map(\.name).joined(separator: "; "))))
             var seen = Set(products.map { FoodSearch.key($0.name) })
             let fresh = found.filter { !yoursIDs.contains($0.id) && seen.insert(FoodSearch.key($0.name)).inserted }
             products = FoodSearch.pickedFirst(products + fresh, picked: picked)

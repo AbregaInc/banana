@@ -62,6 +62,7 @@ struct MailActionsMenu: View {
                     .disabled(!session.allowsComposing)
                 MailDiscardDraftItem(session: session)
             }
+            ReportProblemMenuItem()
         } label: {
             Image(systemName: "ellipsis")
         }

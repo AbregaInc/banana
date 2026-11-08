@@ -154,6 +154,7 @@ struct MailConversationContent: View {
             #endif
         }
         .modifier(MailAttachmentPreviewHost(opener: reader.opener))
+        .modifier(ProvidesMailReport(reader: reader, source: session.source))
     }
 
     /// Whether the composer's box is open, not folded, on an answer to this conversation. Read when
@@ -257,6 +258,8 @@ private struct MailConversationHeader: View {
                 MailDiscardDraftItem(session: session)
                 Button { session.askForDetails(toggles: true) } label: { Label("Details", systemImage: "info.circle") }
                     .accessibilityIdentifier("mail.more.details")
+                Divider()
+                ReportProblemMenuItem()
             } label: {
                 Image(systemName: "ellipsis")
                     .font(.body.weight(.semibold))

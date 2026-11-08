@@ -16,6 +16,7 @@ import { featureAllowed, featurePolicy, linkedGoogleCapabilities } from "./featu
 import { Hono } from "hono";
 import { rows as usageRows } from "./usage.js";
 import { MOST_PER_DAY, reportRows } from "./diagnostics.js";
+import { reportRoutes } from "./reports.js";
 import { GoogleRefused } from "./google.js";
 import { constantTimeEqual, createVault, newId, newSecret, newSessionToken, sha256Hex, uuid } from "./crypto.js";
 import { audit, forget, forgetUnwatched, reconcile, WATCH_TTL_SECONDS } from "./calendar.js";
@@ -731,6 +732,10 @@ export function createApp(deps) {
     }
     return c.body(null, 204);
   });
+
+  // Problem reports (docs/design/PROBLEM-REPORTS.md): a spike, a MetricKit diagnostic, Report a
+  // problem or a rating on an answer. Anonymous like the diagnostics.
+  reportRoutes(app, deps, { readJson, TOO_LARGE, BAD, clientIp });
 
   // ---- the data platform (docs/design/DATA-PLATFORM.md) ----
   syncRoutes(app, deps, { signedIn, readJson, TOO_LARGE, BAD, push: pushDevices, onAccepted: (account, types) => {

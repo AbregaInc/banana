@@ -167,7 +167,7 @@ final class MusicController: ObservableObject {
             lastWakeStart = Date()
             wakePlaying = item
             watchWakePlayback()
-            PlaybackDiagnostics.shared.log("WAKE MUSIC playing", "\"\(item.title)\"")
+            PlaybackDiagnostics.shared.log("WAKE MUSIC playing", "\"\(PlaybackDiagnostics.personal(item.title))\"")
         } catch {
             PlaybackDiagnostics.shared.log("WAKE MUSIC FAILED", error.localizedDescription)
             errorMessage = "Couldn't play Apple Music: \(error.localizedDescription)"

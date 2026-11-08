@@ -670,7 +670,7 @@ final class VoiceNoteStore: ObservableObject {
         }
         PlaybackDiagnostics.shared.log(
             "voice note: ingested from Watch",
-            note.context?.anchorLine ?? "no context")
+            note.context?.anchorLine.map(PlaybackDiagnostics.personal) ?? "no context")
         DiagnosticJournal.shared.finish(
             trace,
             status: playable ? .succeeded : .failed,

@@ -668,10 +668,10 @@ final class GoogleCalendarService: ObservableObject {
         var covered: Set<String> = []
         var complete = !hasDegradedSources
         if !accountsNeedingReconnect.isEmpty {
-            problems.append("signed out: \(accountsNeedingReconnect.sorted().joined(separator: ", "))")
+            problems.append("signed out: \(PlaybackDiagnostics.personal(accountsNeedingReconnect.sorted().joined(separator: ", ")))")
         }
         if !accountsWithUnreadableCalendars.isEmpty {
-            problems.append("calendar list unreadable: \(accountsWithUnreadableCalendars.sorted().joined(separator: ", "))")
+            problems.append("calendar list unreadable: \(PlaybackDiagnostics.personal(accountsWithUnreadableCalendars.sorted().joined(separator: ", ")))")
         }
 
         let core = Self.coreWindow(now: Date())
@@ -682,7 +682,7 @@ final class GoogleCalendarService: ObservableObject {
             for calendar in included {
                 if let failure = coreFailures[calendar.id] {
                     complete = false
-                    problems.append("\(calendar.displayTitle): \(failure)")
+                    problems.append("\(PlaybackDiagnostics.personal(calendar.displayTitle)): \(failure)")
                     let fallback = lastKnownGood(calendar.id, from: core.start, to: core.end)
                     if let fallback { fetched += fallback; covered.insert(Self.calendarInfoID(calendar.id)) }
                 } else if let cached = eventCache[calendar.id] {
@@ -690,7 +690,7 @@ final class GoogleCalendarService: ObservableObject {
                     covered.insert(Self.calendarInfoID(calendar.id))
                 } else {
                     complete = false
-                    problems.append("\(calendar.displayTitle): missing from the shared read")
+                    problems.append("\(PlaybackDiagnostics.personal(calendar.displayTitle)): missing from the shared read")
                 }
             }
         } else {
@@ -703,7 +703,7 @@ final class GoogleCalendarService: ObservableObject {
                     covered.insert(Self.calendarInfoID(calendar.id))
                 case .failure(let error):
                     complete = false
-                    problems.append("\(calendar.displayTitle): \(Self.friendlyMessage(for: error))")
+                    problems.append("\(PlaybackDiagnostics.personal(calendar.displayTitle)): \(Self.friendlyMessage(for: error))")
                     // Whatever the last good copy knows about this stretch of time.
                     if let fallback = lastKnownGood(calendar.id, from: start, to: end) {
                         fetched += fallback
@@ -813,7 +813,7 @@ final class GoogleCalendarService: ObservableObject {
                         let titles = outcome.snapshot.events.filter { foreign.contains($0.id ?? "") }
                             .prefix(3).map { $0.summary ?? "?" }
                         PlaybackDiagnostics.shared.log("calendar news",
-                            "\(calendar.displayTitle): \(outcome.changedIDs.count) changed, \(foreign.count) not ours, \(outcome.wasFullRead ? "full" : "incremental") — \(titles.joined(separator: " | "))")
+                            "\(PlaybackDiagnostics.personal(calendar.displayTitle)): \(outcome.changedIDs.count) changed, \(foreign.count) not ours, \(outcome.wasFullRead ? "full" : "incremental") — \(PlaybackDiagnostics.personal(titles.joined(separator: " | ")))")
                     }
                 case .failure(let error):
                     failures[calendar.id] = Self.friendlyMessage(for: error)

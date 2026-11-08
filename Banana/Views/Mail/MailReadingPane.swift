@@ -169,6 +169,7 @@ struct MailPaneMoreMenu: View {
                 .accessibilityIdentifier("mail.more.details")
                 MailDiscardDraftItem(session: session)
             }
+            ReportProblemMenuItem()
         } label: {
             Image(systemName: "ellipsis")
                 .font(.body.weight(.semibold))
