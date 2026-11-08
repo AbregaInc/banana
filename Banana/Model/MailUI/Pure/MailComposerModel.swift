@@ -703,16 +703,18 @@ final class MailComposerModel: ObservableObject {
         if replyAllIsReply != same { replyAllIsReply = same }
     }
 
-    /// The switch at the start of To: the draft is made again as that kind of answer by the source
-    /// (the same rules as when it was opened), the text he typed is kept, and anyone he added by
-    /// hand stays where he put them. A forward goes to nobody and carries the original's files.
+    /// The switch at the start of To. Between Reply all and Reply the same draft is readdressed by
+    /// `MailReplyRules`, the rules it was made by. To or from Forward the draft is a different kind of
+    /// message (its quote, the original's files, its threading), so the source makes it again: the
+    /// old one goes first, so that a source which returns a conversation's open draft makes a fresh
+    /// one. Either way the text he typed is kept, and anyone he added by hand stays where he put them.
     func switchReply(to style: MailReplyStyle) {
         guard let host, let current = replyStyle, current != style, isReady else { return }
         switching?.cancel()
         switching = Task { @MainActor [weak self] in
             guard let self else { return }
             guard let conversation = await self.source.conversation(host),
-                  let original = MailReplyRules.original(in: conversation), !Task.isCancelled else { return }
+                  let original = MailReplyRules.original(in: conversation), !Task.isCancelled, !self.isClosed else { return }
             let kind: MailDraftKind
             switch style {
             case .reply: kind = .reply(to: original.id)
@@ -724,11 +726,21 @@ final class MailComposerModel: ObservableObject {
             for (field, people) in [(MailRecipientField.to, self.to), (.cc, self.cc), (.bcc, self.bcc)] {
                 for person in people where !made.contains(Self.key(person)) { byHand.append((field, person)) }
             }
-            let old = self.draftID
-            let fresh = await self.source.newDraft(kind)
-            guard !Task.isCancelled, !self.isClosed else { _ = self.source.discard(fresh.id); return }
-            // What the source made comes in under the text he typed, which `adopt` keeps.
-            self.adopt(fresh, fresh: true)
+            if current != .forward, style != .forward {
+                let recipients = MailReplyRules.recipients(for: kind, original: original, myAddresses: self.myAddresses)
+                self.isSettingText = true
+                self.to = recipients.to
+                self.cc = recipients.cc
+                self.bcc = []
+                self.isSettingText = false
+                self.baseline = Baseline(to: recipients.to.map(Self.key), cc: recipients.cc.map(Self.key), bcc: [], subject: self.subject)
+            } else {
+                if let old = self.draftID { _ = self.source.discard(old) }
+                let fresh = await self.source.newDraft(kind)
+                guard !Task.isCancelled, !self.isClosed else { _ = self.source.discard(fresh.id); return }
+                // What the source made comes in under the text he typed, which `adopt` keeps.
+                self.adopt(fresh, fresh: true)
+            }
             for (field, person) in byHand where self.field(of: person) == nil { self.add(person, to: field) }
             self.replyStyle = style
             switch style {
@@ -736,7 +748,6 @@ final class MailComposerModel: ObservableObject {
             case .replyAll: self.title = "Reply to all"
             case .forward: self.title = "Forward"
             }
-            if let old, old != fresh.id { _ = self.source.discard(old) }
             self.edited()
         }
     }

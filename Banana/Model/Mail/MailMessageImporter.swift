@@ -25,7 +25,7 @@ enum MailMessageImporter {
                                         arguments: [accountPK, threadID])!
         try db.execute(sql: "INSERT OR IGNORE INTO message(account_pk,gmail_id,thread_pk) VALUES (?,?,?)",
                        arguments: [accountPK, id, threadPK])
-        let stored = try Row.fetchOne(db, sql: "SELECT msg_pk,thread_pk,history_id,flags,vis FROM message WHERE account_pk=? AND gmail_id=?",
+        let stored = try Row.fetchOne(db, sql: "SELECT msg_pk,thread_pk,history_id,flags,vis,fetch_state FROM message WHERE account_pk=? AND gmail_id=?",
                                       arguments: [accountPK, id])!
         let msgPK: Int64 = stored[0], oldThread: Int64 = stored[1]
         guard oldThread == threadPK else { throw Failure.changedThread }
@@ -62,6 +62,16 @@ enum MailMessageImporter {
             let recipients = Recipients(to: headers.to.mailboxes.map(\.key), cc: headers.cc.mailboxes.map(\.key),
                                         bcc: headers.bcc.mailboxes.map(\.key))
             let json = String(decoding: try JSONEncoder().encode(recipients), as: UTF8.self)
+            // The people in it, counted once: the first time its headers arrive (`MailCorrespondents`).
+            if (stored[5] as Int) == 0 {
+                func person(_ value: MailAddress) -> MailCorrespondents.Mailbox {
+                    .init(address: value.key, name: MailAddressRules.displayName(value.name, address: value.address))
+                }
+                try MailCorrespondents.record(sender: sender.map(person),
+                    recipients: (headers.to.mailboxes + headers.cc.mailboxes).map(person),
+                    fromMe: flags.contains(.fromMe), date: wire.internalDate ?? 0,
+                    mine: myAddresses.union([account]), in: db)
+            }
             try db.execute(sql: """
                 UPDATE message SET fetch_state=max(fetch_state,1),from_addr=?,from_name=?,subject=?,
                   recipients=?,rfc_message_id=?,list_id=?,fts_dirty=1 WHERE msg_pk=?

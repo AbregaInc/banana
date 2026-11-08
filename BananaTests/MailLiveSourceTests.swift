@@ -48,6 +48,38 @@ import GRDB
                 plain: snapshot.subject, html: "", attachments: [], inReplyTo: nil, references: nil, threadID: nil)
         })
     }
+    /// The composer's To on a real account: the people in the index, not the empty not-yet default.
+    func testLiveSuggestionsComeFromThePeopleInTheIndex() async throws {
+        let (stores, _, source, _) = try await actionSource()
+        let wire = GmailMessage(id: "from-jane", threadId: "tj", labelIds: ["INBOX"], historyId: 2, internalDate: 2000,
+            payload: GmailPart(headers: [GmailHeader(name: "From", value: "Jane Park <jane@parkdesign.example>"),
+                                         GmailHeader(name: "To", value: "a@example.com"), GmailHeader(name: "Subject", value: "Q3")]))
+        _ = try await MailWriter(stores: stores, sink: nil).transact {
+            try MailMessageImporter.apply(FetchedMessage(wire: wire, floor: 2, headers: MessageHeaders(payload: wire.payload), structure: nil),
+                                          account: "a@example.com", myAddresses: ["a@example.com"], in: $0)
+        }
+        let found = await source.people(matching: "jan", limit: 5)
+        XCTAssertEqual(found.map(\.address), ["jane@parkdesign.example"])
+        XCTAssertTrue(found.first?.fromTheirMail == true, "only had mail from her: offered by address and marked")
+        let mine = await source.people(matching: "a@", limit: 5)
+        XCTAssertTrue(mine.isEmpty, "his own address is never suggested")
+    }
+
+    /// The From picker on a real account: the draft is told, and saved; another account's address
+    /// is not a change it can make.
+    func testLiveChangeOfFromIsSavedOnTheDraft() async throws {
+        let (_, intent, source, _) = try await actionSource()
+        try await prepareDrafts(source, intent)
+        let draft = await source.newDraft(.new(account: "a@example.com"))
+        let changed = await source.changeIdentity(of: draft.id, to: "A@example.com")
+        XCTAssertEqual(changed?.from.address, "a@example.com")
+        XCTAssertNil(changed?.signature)
+        let refused = await source.changeIdentity(of: draft.id, to: "someone@else.example")
+        XCTAssertNil(refused, "another account's address is not this draft's to change to")
+        let unknown = await source.changeIdentity(of: MailDraftID(raw: "missing"), to: "a@example.com")
+        XCTAssertNil(unknown)
+    }
+
     func testLiveComposerDraftIsDurableAndListedAfterReopening() async throws {
         let (stores, intent, source, _) = try await actionSource()
         try await prepareDrafts(source, intent)

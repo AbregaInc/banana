@@ -1670,6 +1670,30 @@ extension MailLiveSource {
         }
         return draft
     }
+    /// The composer's suggestions: the people in his mail whose name, address or domain begin with
+    /// what is typed, those he has written to first (`MailCorrespondents`), read off the main thread.
+    func people(matching text: String, limit: Int) async -> [MailPerson] {
+        let mine = Set(accounts.map { $0.id.lowercased() } + accounts.flatMap(\.identities).map { $0.address.lowercased() })
+        return (try? await stores.index.read { db in
+            try MailCorrespondents.search(text, limit: limit, mine: mine, in: db)
+        }) ?? []
+    }
+
+    /// From changed to another address of the draft's own account: the draft says it, saved as any
+    /// edit is. The signature goes with the address; the addresses here carry none yet, because
+    /// Gmail's send-as list (aliases and their signatures) is not read. Another account's address is
+    /// not a change of From but of account, which a draft here cannot make: nil, as for an unknown one.
+    func changeIdentity(of id: MailDraftID, to address: String) async -> MailDraft? {
+        guard var value = await draft(id), draftStates[id] == nil || draftStates[id] == .editing,
+              let identity = accounts.first(where: { $0.id == value.account })?.identities
+                .first(where: { $0.address.lowercased() == address.lowercased() }) else { return nil }
+        value.from = identity
+        value.signature = nil
+        value.editedAt = Date()
+        save(value)
+        return draftCache[id] ?? value
+    }
+
     func draft(_ id: MailDraftID) async -> MailDraft? {
         if let cached = draftCache[id] { return cached }
         guard let record = try? await draftDriver?.record(id) else { return nil }
