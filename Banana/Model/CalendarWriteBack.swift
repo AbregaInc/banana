@@ -445,7 +445,8 @@ final class CalendarWriteBack: ObservableObject {
                     // On someone else's calendar, only remove the exact locally recorded copy.
                     guard BusyBlockCleanupPolicy.mayDelete(calendarIsOwner: calendar.isOwner,
                         recordedEventID: ledger[ledgerKey(appItemID: itemID, calendarID: calendar.infoID)]?.eventIdentifier,
-                        eventID: eventID) else { continue }
+                        eventID: eventID, creatorEmail: block.creatorEmail,
+                        accountEmails: Set(google.accounts.map(\.email))) else { continue }
                     do {
                         try await google.deleteBusyBlock(calendarID: raw, eventID: eventID, expectedETag: block.etag)
                         removed += 1
@@ -678,8 +679,8 @@ final class CalendarWriteBack: ObservableObject {
             guard let raw = GoogleCalendarIDs.rawCalendarID(from: calendarID) else { continue }
             let ownedDetails: [String: [GoogleCalendarService.OwnedBlock]]
             do {
-                ownedDetails = try await google.ownedBusyBlockDetails(
-                    calendarID: raw, variant: variant, from: windowStart, to: windowEnd)
+                ownedDetails = try await ours(google.ownedBusyBlockDetails(
+                    calendarID: raw, variant: variant, from: windowStart, to: windowEnd), on: calendarID)
             } catch where GoogleCalendarService.isCalendarGone(error) {
                 // Deleted between the list and this read. Nothing of ours can be on a calendar
                 // that does not exist, so this is an answer, not a failure.
@@ -817,6 +818,24 @@ final class CalendarWriteBack: ObservableObject {
         return writtenCount
     }
 
+    /// What Google says Banana owns on `calendarID`, kept to this person's copies
+    /// (`BusyBlockCleanupPolicy`). On a calendar the account doesn't own, another person's Banana
+    /// carries the same marker: its copies are theirs, never updated, merged or removed here.
+    private func ours(_ owned: [String: [GoogleCalendarService.OwnedBlock]],
+                      on calendarID: String) -> [String: [GoogleCalendarService.OwnedBlock]] {
+        let google = GoogleCalendarService.shared
+        if google.writeBackCandidates.first(where: { $0.infoID == calendarID })?.isOwner == true { return owned }
+        let recorded = Set(ledger.values.filter { $0.calendarID == calendarID }.map(\.eventIdentifier))
+        let accounts = Set(google.accounts.map(\.email))
+        return owned.compactMapValues { blocks in
+            let mine = blocks.filter {
+                BusyBlockCleanupPolicy.isOurs(calendarIsOwner: false, eventID: $0.eventID, recordedEventIDs: recorded,
+                                              creatorEmail: $0.creatorEmail, accountEmails: accounts)
+            }
+            return mine.isEmpty ? nil : mine
+        }
+    }
+
     /// The planner's view of one calendar: what is wanted there, what Google says Banana owns
     /// there (with what each copy says), and what this device last wrote.
     private static func plan(_ wanted: [DesiredBlock], owned: [String: [GoogleCalendarService.OwnedBlock]],
@@ -944,8 +963,8 @@ final class CalendarWriteBack: ObservableObject {
             guard let raw = GoogleCalendarIDs.rawCalendarID(from: calendarID) else { continue }
             let owned: [String: [GoogleCalendarService.OwnedBlock]]
             do {
-                owned = try await google.ownedBusyBlockDetails(calendarID: raw, variant: Self.scheme,
-                                                               from: windowStart, to: windowEnd)
+                owned = try await ours(google.ownedBusyBlockDetails(calendarID: raw, variant: Self.scheme,
+                                                                    from: windowStart, to: windowEnd), on: calendarID)
             } catch where GoogleCalendarService.isCalendarGone(error) {
                 continue
             } catch {

@@ -155,3 +155,41 @@ The owner's own calendar-list `accessRole` describes the owner's access, not the
 partner's permission. It cannot substitute for the ACL check. Group membership is
 also separate from calendar ACLs, so the probe reports group grants as unresolved
 rather than assuming that the viewer belongs to them.
+
+## November 8: a family calendar event and its Busy copy
+
+The partner reported the same pair again on build 110: an event on the Google family calendar and a
+read-only "Busy" on the owner's Personal calendar over exactly the same interval. The owner's Mac
+cache and write-back ledger settle the writer: the owner's Stable Mac created a `mirror-…` copy of
+the family event five seconds after it was made, on all five of the owner's calendars, and the
+fingerprint recomputed from the event's title and times matches the copies' item id. No copy was
+on the partner's calendars.
+
+Two rules made it:
+
+- **Creation.** Google lists the family calendar with the `owner` role for every member of the
+  family group, so `GoogleCalendar.isOwnedByAccount` called it the owner's own. Its events then
+  blocked the owner's time by default (Blocks my time defaults to ownership since build 107) and
+  were mirrored into every calendar the owner writes to, Personal included, which the partner can
+  read. A family calendar is now never one account's own (`GoogleCalendar.isFamilyCalendar`, and
+  `isFamilyCalendar` in the service): its events block time only when Blocks my time is switched on
+  for it, and copies go to it only when it is opted in.
+- **Display.** A shared Busy mirror folded into its source only when both calendars had the same
+  data owner. A writer copies what it can see, calendars shared with it included, so the copy's
+  owner (the owner) and the source's calendar (the family's) differ. A mirror now folds into the
+  one visible event with its fingerprint over the same interval: the same owner's first, then
+  anyone's. Two visible events with the fingerprint still leave it separate, and the copy's
+  calendar stays on the merged entry.
+
+Ownership on calendars the account doesn't own: a write-back pass reads every writable calendar,
+and every person's Banana marks its copies the same way. A pass now treats a marked block on such a
+calendar as this person's only when the ledger recorded it or one of this person's connected
+accounts created it (`BusyBlockCleanupPolicy.isOurs`); it never updates, deduplicates or removes
+another person's copy.
+
+Cleanup: once every device of the writer runs this build, the copies of current and future family
+events are unwanted and removed after `BlockRemovalGate`'s two healthy passes. Copies of past
+events stay: a pass never removes a block that is over. On the partner's side they fold into the
+event only if Google returns the copy's private properties to her; whether it does is still
+unknown (the troubleshooting report's `marker=` field shows it). A device on an older build keeps
+writing the copies until it updates.

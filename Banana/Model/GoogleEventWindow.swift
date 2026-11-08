@@ -83,6 +83,26 @@ enum GoogleEventWindowBuilder {
         }
     }
 
+    /// What each included calendar is to the viewer: whose it is and whether it blocks their
+    /// time. One derivation for every read, so the calendars a pass copies from are the ones
+    /// Settings shows under Blocks my time.
+    struct CalendarRoles: Equatable {
+        /// Raw ids of the viewer's own calendars.
+        var owned: Set<String> = []
+        /// Raw id → the calendar's data owner, where Google names one.
+        var owners: [String: String] = [:]
+        /// Raw ids whose events make the viewer unavailable.
+        var blocking: Set<String> = []
+
+        init(_ calendars: [GoogleCalendar], blockingOverrides: [String: Bool]) {
+            for calendar in calendars {
+                if calendar.isOwnedByAccount { owned.insert(calendar.id) }
+                if let owner = calendar.reconciliationOwner, owners[calendar.id] == nil { owners[calendar.id] = owner }
+                if calendar.blocksTime(overrides: blockingOverrides) { blocking.insert(calendar.id) }
+            }
+        }
+    }
+
     // MARK: - Ownership
 
     static func ownership(of event: GoogleEvent) -> Ownership? {
@@ -339,22 +359,26 @@ enum GoogleEventWindowBuilder {
                     identity = "title:\(scope):\(normalizedTitle(event.title))"
                 }
                 add(event, as: identity)
-                if hasMirrors, !event.isFree, let owner = event.calendarOwner {
+                if hasMirrors, !event.isFree {
                     let mirror = GoogleBusyBlocks.mirrorID(title: event.title, start: event.start, end: event.end)
-                    sources["\(owner)\u{1F}\(mirror)", default: []].insert(identity)
+                    if let owner = event.calendarOwner {
+                        sources["\(owner)\u{1F}\(mirror)", default: []].insert(identity)
+                    }
+                    // Whoever's calendar it is on: a writer copies what it can see, which includes
+                    // calendars shared with it (a family calendar), not only its own.
+                    sources[Self.anyOwner + mirror, default: []].insert(identity)
                 }
             }
             for event in candidates where event.isSharedAvailability {
                 var identity = "availability:\(event.calendarID):\(event.eventID)"
                 if let copy = event.copyKey, merged[copy] != nil {
                     identity = copy
-                } else if let owner = event.calendarOwner, let item = event.ownership?.appItemID, item.hasPrefix("mirror-") {
-                    let source = "\(owner)\u{1F}\(item)"
-                    if let matches = sources[source], matches.count == 1, let match = matches.first {
+                } else if let item = event.ownership?.appItemID, item.hasPrefix("mirror-") {
+                    if let match = Self.mirrorSource(item: item, owner: event.calendarOwner, in: sources) {
                         identity = match
-                    } else {
+                    } else if let owner = event.calendarOwner {
                         // Without a visible original, proven mirrors still form ONE private Busy.
-                        identity = "mirror:\(source)"
+                        identity = "mirror:\(owner)\u{1F}\(item)"
                     }
                 }
                 add(event, as: identity)
@@ -362,6 +386,19 @@ enum GoogleEventWindowBuilder {
             result += keys.compactMap { merged[$0] }
         }
         return result
+    }
+
+    /// The key prefix for sources registered without an owner scope.
+    private static let anyOwner = "*\u{1F}"
+
+    /// The one visible event a Banana mirror copies. A mirror's id is the fingerprint of the exact
+    /// title, start and end it copied, so a visible event with that fingerprint over the same
+    /// interval is its source: the same owner's first, then anyone's, as long as exactly one
+    /// visible event fits. The copy's calendar stays on the merged entry (`alsoOn`).
+    private static func mirrorSource(item: String, owner: String?, in sources: [String: Set<String>]) -> String? {
+        if let owner, let matches = sources["\(owner)\u{1F}\(item)"], matches.count == 1 { return matches.first }
+        if let matches = sources[anyOwner + item], matches.count == 1 { return matches.first }
+        return nil
     }
 
     /// Lowercased, scheduling prefixes and leading symbols removed, so the same meeting under

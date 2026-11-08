@@ -165,12 +165,21 @@ final class GoogleEventWindowTests: XCTestCase {
         XCTAssertEqual(hidden.busyIntervals.count, 2)
     }
 
-    func testMirrorRequiresOwnerAndFingerprintAndKeepsOtherPeoplesBusy() {
+    func testMirrorFoldsIntoItsOneVisibleSourceWhoeverOwnsEitherCalendar() {
         let dinner = ("personal", googleEvent(id: "dinner", summary: "Dinner", iCalUID: "uid"))
         let mirror = ("fitness", googleEvent(id: "busy", summary: "Busy", ownedBy: "banana", itemID: dinnerMirror))
+        // A writer copies what it can see, calendars shared with it included: the copy's owner
+        // need not own the original's calendar.
         for owners in [["personal": "one", "fitness": "two"], ["personal": "one"], ["fitness": "one"], [:]] {
-            XCTAssertEqual(sharedWindow([dinner, mirror], owners: owners).meetings.count, 2)
+            let result = sharedWindow([dinner, mirror], owners: owners)
+            XCTAssertEqual(result.meetings.map(\.title), ["Dinner"], "\(owners)")
+            XCTAssertEqual(result.meetings.first?.alsoOnCalendarIDs, [GoogleCalendarIDs.calendarInfoID("fitness")])
+            XCTAssertEqual(result.busyIntervals.count, 2, "display reconciliation never removes raw coverage")
         }
+    }
+
+    func testMirrorRequiresFingerprintAndKeepsOtherPeoplesBusy() {
+        let dinner = ("personal", googleEvent(id: "dinner", summary: "Dinner", iCalUID: "uid"))
         let unknown = ("fitness", googleEvent(id: "busy", summary: "Busy"))
         XCTAssertEqual(sharedWindow([dinner, unknown], owners: ["personal": "one", "fitness": "one"]).meetings.count, 2)
         let other = ("fitness", googleEvent(id: "busy", summary: "Busy", ownedBy: "banana", itemID: "travel-123"))
@@ -246,6 +255,29 @@ final class GoogleEventWindowTests: XCTestCase {
         XCTAssertFalse(primary.isOwnedByAccount)
         primary.accountEmail = "person-one@gmail.com"
         XCTAssertTrue(primary.isOwnedByAccount)
+    }
+
+    func testFamilyCalendarIsNeverOneAccountsOwn() throws {
+        let family = "family00000000000000000001@group.calendar.google.com"
+        for json in [#"{"id":"\#(family)","summary":"Family","accessRole":"owner"}"#,
+                     #"{"id":"\#(family)","summary":"Family","accessRole":"owner","dataOwner":"noor@plan.example"}"#] {
+            var calendar = try JSONDecoder().decode(GoogleCalendar.self, from: Data(json.utf8))
+            calendar.accountEmail = "noor@plan.example"
+            XCTAssertTrue(calendar.isFamilyCalendar)
+            XCTAssertFalse(calendar.isOwnedByAccount, "every family member sees owner; the family calendar is the family's")
+            XCTAssertFalse(calendar.blocksTime(overrides: [:]))
+            XCTAssertTrue(calendar.blocksTime(overrides: [family: true]), "Blocks my time still turns it on")
+        }
+        for id in ["familyplanning@group.calendar.google.com", "family123@gmail.com",
+                   "c_family123@group.calendar.google.com", "family@group.calendar.google.com"] {
+            XCTAssertFalse(GoogleCalendar.isFamilyCalendarID(id), id)
+        }
+        XCTAssertTrue(GoogleCalendar.isFamilyCalendarID("FAMILY0123@group.calendar.google.com"))
+    }
+
+    func testEventCreatorIsDecoded() throws {
+        let event = try JSONDecoder().decode(GoogleEvent.self, from: Data(#"{"id":"a","creator":{"email":"noor@plan.example","self":true}}"#.utf8))
+        XCTAssertEqual(event.creator?.email, "noor@plan.example")
     }
 
     func testAnotherPersonsSharedBusyMirrorStaysVisibleEvenWithOurAppMarker() {
@@ -582,6 +614,27 @@ final class WriteBackDestinationTests: XCTestCase {
         XCTAssertTrue(BusyBlockCleanupPolicy.mayDelete(calendarIsOwner: false, recordedEventID: "our-copy", eventID: "our-copy"))
     }
 
+    /// A pass reads every writable calendar, a shared family calendar included, and the same
+    /// marker is on everyone's copies: on a calendar the account doesn't own, only copies this app
+    /// recorded or one of this person's accounts created are theirs to update or remove.
+    func testOnSharedCalendarsOnlyThisPersonsCopiesAreOurs() {
+        let accounts: Set<String> = ["noor@plan.example", "noor.work@plan.example"]
+        func ours(_ owner: Bool, _ creator: String?, recorded: Set<String> = []) -> Bool {
+            BusyBlockCleanupPolicy.isOurs(calendarIsOwner: owner, eventID: "copy", recordedEventIDs: recorded,
+                                          creatorEmail: creator, accountEmails: accounts)
+        }
+        XCTAssertTrue(ours(true, "partner@plan.example"), "on an own calendar every marked block is ours")
+        XCTAssertFalse(ours(false, "partner@plan.example"), "the partner's copy on the family calendar")
+        XCTAssertFalse(ours(false, nil))
+        XCTAssertFalse(ours(false, "  "))
+        XCTAssertTrue(ours(false, " Noor.Work@plan.example "), "written by the same person's other device")
+        XCTAssertTrue(ours(false, "partner@plan.example", recorded: ["copy"]), "the exact copy this app recorded")
+        XCTAssertFalse(BusyBlockCleanupPolicy.mayDelete(calendarIsOwner: false, recordedEventID: nil, eventID: "copy",
+                                                        creatorEmail: "partner@plan.example", accountEmails: accounts))
+        XCTAssertTrue(BusyBlockCleanupPolicy.mayDelete(calendarIsOwner: false, recordedEventID: nil, eventID: "copy",
+                                                       creatorEmail: "noor@plan.example", accountEmails: accounts))
+    }
+
     private let mine = WriteBackDestinations.Calendar(
         infoID: "google-calendar:mine", titles: ["bo@dewey.example"],
         accountEmail: "bo@dewey.example", isOwner: true)
@@ -867,5 +920,78 @@ final class GoogleRSVPPatchTests: XCTestCase {
 
     func testNotAGuestMeansNothingToReplyTo() {
         XCTAssertNil(GoogleRSVPPatch.attendees([["email": "someone@example.com"]], replying: .declined))
+    }
+}
+
+// MARK: - A shared family calendar between two people
+
+/// Noor and her partner both use Banana. Google's family calendar is on both their lists with
+/// the owner role; the partner's Personal calendar is shared with Noor to read. Noor's walk on
+/// the family calendar was copied as Busy into the partner's Personal, and Noor saw both.
+final class FamilyCalendarBusyCopyTests: XCTestCase {
+    private let family = "family00000000000000000001@group.calendar.google.com"
+    private let partnerPersonal = "partner-personal@group.calendar.google.com"
+
+    private func calendars(_ json: String, account: String) throws -> [GoogleCalendar] {
+        try JSONDecoder().decode([GoogleCalendar].self, from: Data(json.utf8)).map {
+            var calendar = $0
+            calendar.accountEmail = account
+            return calendar
+        }
+    }
+
+    private func window(_ calendars: [GoogleCalendar], _ events: [(String, GoogleEvent)],
+                        overrides: [String: Bool] = [:]) -> CalendarEventWindow {
+        let roles = GoogleEventWindowBuilder.CalendarRoles(calendars, blockingOverrides: overrides)
+        return GoogleEventWindowBuilder.window(
+            from: events.map { GoogleFetchedEvent(calendarID: $0.0, event: $0.1) }, calendar: utc,
+            ownedCalendarIDs: roles.owned, calendarOwners: roles.owners, blockingCalendarIDs: roles.blocking)
+    }
+
+    private let walk = googleEvent(id: "walk", summary: "Walk in the park")
+
+    private var walkMirror: String {
+        let event = GoogleEventWindowBuilder.normalize(.init(calendarID: "family", event: walk))!
+        return GoogleBusyBlocks.mirrorID(title: event.title, start: event.start, end: event.end)
+    }
+
+    /// The writer's side: the family calendar's events are the family's, so the partner's Banana
+    /// does not mirror Noor's walk into the partner's calendars. Their own events still are.
+    func testPartnersBananaDoesNotCopyFamilyEventsUnlessFamilyBlocksTheirTime() throws {
+        let list = try calendars("""
+        [{"id":"partner@plan.example","summary":"partner@plan.example","accessRole":"owner","primary":true},
+         {"id":"\(partnerPersonal)","summary":"Personal","accessRole":"owner","dataOwner":"partner@plan.example"},
+         {"id":"\(family)","summary":"Family","accessRole":"owner"}]
+        """, account: "partner@plan.example")
+        let dentist = googleEvent(id: "dentist", summary: "Dentist", start: "2026-10-05T18:00:00Z", end: "2026-10-05T19:00:00Z")
+        let result = window(list, [(family, walk), (partnerPersonal, dentist)])
+        let walkMeeting = try XCTUnwrap(result.meetings.first { $0.title == "Walk in the park" })
+        XCTAssertFalse(walkMeeting.shouldMirrorBusyTime, "no Busy copy of a family event")
+        XCTAssertEqual(result.busyIntervals.map(\.calendarID), [GoogleCalendarIDs.calendarInfoID(partnerPersonal)])
+        XCTAssertTrue(try XCTUnwrap(result.meetings.first { $0.title == "Dentist" }).shouldMirrorBusyTime,
+                      "the partner's own appointments still protect their booking calendars")
+
+        let optedIn = window(list, [(family, walk)], overrides: [family: true])
+        XCTAssertTrue(try XCTUnwrap(optedIn.meetings.first).shouldMirrorBusyTime, "Blocks my time on the family calendar copies again")
+    }
+
+    /// The viewer's side: a copy already written (before this build) folds into the walk it
+    /// mirrors, keeping the Personal calendar as one of the walk's calendars.
+    func testNoorSeesOneWalkNotTheWalkAndThePartnersBusyCopy() throws {
+        let list = try calendars("""
+        [{"id":"noor@plan.example","summary":"noor@plan.example","accessRole":"owner","primary":true},
+         {"id":"\(family)","summary":"Family","accessRole":"owner"},
+         {"id":"\(partnerPersonal)","summary":"Personal","accessRole":"reader","dataOwner":"partner@plan.example"}]
+        """, account: "noor@plan.example")
+        let copy = googleEvent(id: "copy", summary: "Busy", ownedBy: "banana", itemID: walkMirror)
+        let call = googleEvent(id: "call", summary: "Call", start: "2026-10-05T18:00:00Z", end: "2026-10-05T19:00:00Z")
+        let result = window(list, [(family, walk), (partnerPersonal, copy), ("noor@plan.example", call)])
+        XCTAssertEqual(result.meetings.map(\.title), ["Walk in the park", "Call"])
+        XCTAssertEqual(result.meetings.first?.alsoOnCalendarIDs, [GoogleCalendarIDs.calendarInfoID(partnerPersonal)])
+        XCTAssertFalse(result.meetings.contains { $0.isAvailabilityOnly })
+
+        // Google withholding the copy's private properties leaves nothing that proves it is a copy.
+        let redacted = window(list, [(family, walk), (partnerPersonal, googleEvent(id: "copy", summary: "Busy"))])
+        XCTAssertEqual(redacted.meetings.map(\.title).sorted(), ["Busy", "Walk in the park"])
     }
 }

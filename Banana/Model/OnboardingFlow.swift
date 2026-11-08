@@ -111,7 +111,7 @@ enum CalendarChoices {
         calendars.filter { !$0.isDeleted && !$0.isHidden }
             .map { calendar in
                 let shown = !settings.excludedCalendarIDs.contains(GoogleCalendarIDs.calendarInfoID(calendar.id))
-                let blocks = settings.calendarBlockingOverrides[calendar.id] ?? calendar.isOwnedByAccount
+                let blocks = calendar.blocksTime(overrides: settings.calendarBlockingOverrides)
                 return CalendarChoice(id: calendar.id, title: calendar.displayTitle, account: calendar.accountEmail,
                                       isOwner: calendar.isOwnedByAccount, colorHex: calendar.backgroundColor,
                                       shown: shown, busy: shown && blocks)

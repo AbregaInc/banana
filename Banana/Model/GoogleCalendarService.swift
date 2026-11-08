@@ -739,12 +739,11 @@ final class GoogleCalendarService: ObservableObject {
         let choice = allDay ?? .init()
         let read = fetched
         let hiddenSharedAvailabilityCalendarIDs = SmartScheduleStore.shared.settings.hiddenSharedAvailabilityCalendarIDs
-        let blockingOverrides = SmartScheduleStore.shared.settings.calendarBlockingOverrides
-        let blockingCalendarIDs = Set(included.filter { blockingOverrides[$0.id] ?? $0.isOwnedByAccount }.map(\.id))
-        let ownedCalendarIDs = Set(included.filter(\.isOwnedByAccount).map(\.id))
-        let calendarOwners = Dictionary(uniqueKeysWithValues: included.compactMap { calendar in
-            calendar.reconciliationOwner.map { (calendar.id, $0) }
-        })
+        let roles = GoogleEventWindowBuilder.CalendarRoles(
+            included, blockingOverrides: SmartScheduleStore.shared.settings.calendarBlockingOverrides)
+        let blockingCalendarIDs = roles.blocking
+        let ownedCalendarIDs = roles.owned
+        let calendarOwners = roles.owners
         let window = await Task.detached(priority: .userInitiated) {
             // Sliced to what was asked for (Google's own rule: overlap).
             let sliced = read.filter { item in
@@ -2041,6 +2040,8 @@ final class GoogleCalendarService: ObservableObject {
         /// What it says on the server (`GoogleBusyBlocks.content`): how a pass knows a copy is
         /// already as wanted, whichever device wrote it.
         var content: String? = nil
+        /// The account that created it (`BusyBlockCleanupPolicy`).
+        var creatorEmail: String? = nil
     }
 
     func ownedBusyBlockDetails(calendarID: String, variant: String,
@@ -2077,7 +2078,8 @@ final class GoogleCalendarService: ObservableObject {
                     // A title Google withheld is not a different title: unknown, not a mismatch.
                     content: event.summary.map {
                         GoogleBusyBlocks.content(title: $0, start: span.start, end: span.end, isAllDay: span.isAllDay)
-                    }))
+                    },
+                    creatorEmail: event.creator?.email))
             }
             pageToken = page.nextPageToken
         } while pageToken != nil

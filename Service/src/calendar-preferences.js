@@ -11,12 +11,16 @@ export function calendarNotifies(record, calendarID) {
     && !(settings.excludedCalendarIDs ?? []).some(id => id === calendarID || id === calendarInfoID(calendarID));
 }
 
+// Google's family calendar: every family member manages it, so its "owner" role is everyone's.
+// Mirrors GoogleCalendar.isFamilyCalendarID.
+export const isFamilyCalendar = id => /^family[0-9]+@group\.calendar\.google\.com$/i.test(String(id ?? ''));
+
 // Manager permission alone does not establish personal ownership.
 export function calendarBlocksTime(record, calendar, accountEmail) {
   const {settings} = calendarSettings(record);
   const override = settings.calendarBlockingOverrides?.[calendar.id];
   if (typeof override === 'boolean') return override;
-  if (calendar.accessRole !== 'owner') return false;
+  if (calendar.accessRole !== 'owner' || isFamilyCalendar(calendar.id)) return false;
   const viewer = String(accountEmail ?? '').trim().toLowerCase();
   const owner = String(calendar.dataOwner ?? '').trim().toLowerCase();
   if (owner) return owner === viewer;

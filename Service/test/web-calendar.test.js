@@ -133,9 +133,23 @@ test('without a visible source, proven mirrors form one private Busy that restor
   assert.equal(build(input)[0].title,'Dinner');const rows=build(input.slice(1));
   assert.equal(rows.length,1);assert.equal(rows[0].title,'Busy');assert.equal(rows[0].location,'');assert.equal(rows[0].alsoOn.length,1);
 });
-test('owner mismatch, missing owner, absent metadata and non-mirror markers never consume Busy',()=>{
-  for(const c of [ownerCal('fitness','another@example.com'),cal('fitness',{accessRole:'reader'})])assert.equal(build([fetched(dinner(),ownerCal('personal')),fetched(mirror(),c)]).length,2);
+test('a mirror folds into its one visible source whoever owns either calendar; absent metadata and non-mirror markers never consume Busy',()=>{
+  for(const c of [ownerCal('fitness','another@example.com'),cal('fitness',{accessRole:'reader'})]){
+    const rows=build([fetched(dinner(),ownerCal('personal')),fetched(mirror(),c)]);
+    assert.equal(rows.length,1);assert.equal(rows[0].title,'Dinner');assert.deepEqual(rows[0].alsoOn.map(c=>c.calendarID),['fitness']);
+  }
   for(const e of [event('busy',{summary:'Busy'}),mirror('b',{extendedProperties:{private:{bananaVariant:'banana',bananaItemID:'travel-other'}}})])assert.equal(build([fetched(dinner(),ownerCal('personal')),fetched(e,ownerCal('fitness'))]).length,2);
+});
+test('a family calendar event and the partner’s Busy copy of it are one entry for the viewer',()=>{
+  const family=cal('family00000000000000000001@group.calendar.google.com',{summary:'Family',accessRole:'owner'});
+  const walk=event('walk',{summary:'Walk in the park'});
+  const copy=event('copy',{summary:'Busy',extendedProperties:{private:{bananaVariant:'banana',bananaItemID:mirrorID('Walk in the park',Date.parse(walk.start.dateTime),Date.parse(walk.end.dateTime))}}});
+  const partnerPersonal=cal('partner-personal@group.calendar.google.com',{summary:'Personal',accessRole:'reader',dataOwner:'partner@plan.example'});
+  const rows=calendarAgenda([{event:walk,calendar:family,email:'noor@plan.example'},{event:copy,calendar:partnerPersonal,email:'noor@plan.example'}],null);
+  assert.equal(rows.length,1);assert.equal(rows[0].title,'Walk in the park');
+  assert.deepEqual(rows[0].alsoOn.map(c=>c.calendarID),['partner-personal@group.calendar.google.com']);
+  const redacted=calendarAgenda([{event:walk,calendar:family,email:'noor@plan.example'},{event:event('copy',{summary:'Busy'}),calendar:partnerPersonal,email:'noor@plan.example'}],null);
+  assert.equal(redacted.length,2,'without the marker nothing proves the Busy is a copy');
 });
 test('ambiguous sources, stale fingerprints, extended coverage and free originals stay separate',()=>{
   const original=fetched(dinner(),ownerCal('personal')),busy=fetched(mirror(),ownerCal('fitness'));

@@ -1,6 +1,6 @@
 // Port of GoogleEventWindowBuilder, CalendarEventTitlePolicy and AllDayEvents.
 // Keep these decisions aligned with Banana/Model; web-calendar.test.js mirrors their native cases.
-import { calendarSettings } from '../calendar-preferences.js';
+import { calendarSettings, isFamilyCalendar } from '../calendar-preferences.js';
 export { calendarSettings } from '../calendar-preferences.js';
 import flightData from './flight-data.json' with { type:'json' };
 const markers=new Set(['banana','banana-beta','quarters']);
@@ -56,7 +56,7 @@ export function includesCalendar(cal,email,record){
   return !excludedCalendars.some(c=>titles.includes(trim(c.calendarTitle).toLowerCase())&&trim(c.sourceTitle).toLowerCase().includes(email.toLowerCase()));
 }
 export function isViewerOwnedCalendar(cal,email){
-  if(cal.accessRole!=='owner')return false;
+  if(cal.accessRole!=='owner'||isFamilyCalendar(cal.id))return false;
   const viewer=trim(email).toLowerCase();
   if(trim(cal.dataOwner))return trim(cal.dataOwner).toLowerCase()===viewer;
   if(cal.primary)return true;
@@ -115,14 +115,21 @@ export function calendarAgenda(fetched,record,options={}){
       const flight=flightDestination(e.title,e.location,e.description),scope=e._owner||e.calendarID;
       const key=flight?`✈${flight}`:e._uid?e._uid:`title:${e._ownCalendar?'':scope}:${normalizedTitle(e.title)}`;
       add(key,e);
-      if(hasMirrors&&!e.showsAsFree&&e._owner){const source=`${e._owner}\u001f${mirrorID(e.title,e._start,e._end)}`;if(!sources.has(source))sources.set(source,new Set());sources.get(source).add(key);}
+      if(hasMirrors&&!e.showsAsFree){
+        // A writer copies what it can see, a calendar shared with it included: register under the owner and under anyone.
+        const mirror=mirrorID(e.title,e._start,e._end);
+        for(const source of [e._owner?`${e._owner}\u001f${mirror}`:null,`*\u001f${mirror}`].filter(Boolean)){if(!sources.has(source))sources.set(source,new Set());sources.get(source).add(key);}
+      }
     }
     for(const e of candidates.filter(e=>e._sharedAvailability)){
       let key=`availability:${e.calendarID}:${e.id}`;
       if(e._uid&&merged.has(e._uid))key=e._uid;
-      else if(e._owner&&e._mirror?.startsWith('mirror-')){
-        const source=`${e._owner}\u001f${e._mirror}`,matches=sources.get(source);
-        key=matches?.size===1?[...matches][0]:`mirror:${source}`;
+      else if(e._mirror?.startsWith('mirror-')){
+        // The one visible event with the mirror's fingerprint: the same owner's first, then anyone's (GoogleEventWindowBuilder.mirrorSource).
+        const own=e._owner?sources.get(`${e._owner}\u001f${e._mirror}`):null,any=sources.get(`*\u001f${e._mirror}`);
+        if(own?.size===1)key=[...own][0];
+        else if(any?.size===1)key=[...any][0];
+        else if(e._owner)key=`mirror:${e._owner}\u001f${e._mirror}`;
       }
       add(key,e);
     }
