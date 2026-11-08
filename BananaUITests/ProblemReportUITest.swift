@@ -29,7 +29,7 @@ final class ProblemReportUITest: XCTestCase {
 
     func testPlanMoreOpensTheSheetAndSendCloses() throws {
         let app = try launch(["--tab", "plan"])
-        XCTAssertTrue(app.descendants(matching: .any)["plan.title"].firstMatch.waitForExistence(timeout: 20), app.debugDescription)
+        XCTAssertTrue(app.descendants(matching: .any)["plan.today"].firstMatch.waitForExistence(timeout: 20), app.debugDescription)
         let more = app.buttons.matching(NSPredicate(format: "label == 'More'")).firstMatch
         XCTAssertTrue(more.waitForExistence(timeout: 5), "Plan has no \u{2026}")
         more.tap()

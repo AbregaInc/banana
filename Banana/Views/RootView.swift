@@ -678,7 +678,7 @@ struct RootView: View {
                 PlannerTab().equatable()
                     .measuresLayoutClass()
                     .toastHost()
-                    .shellPage(bottomBar: bottomBarShell)
+                    .shellPage(bottomBar: bottomBarShell).erasedTab()
             }
             // Overdue reminders.
             .badge(badges.counts.plan)
@@ -686,7 +686,7 @@ struct RootView: View {
             if modules.includes(.email) {
                 Tab(AppSection.mail.title, systemImage: AppSection.mail.symbol, value: ShellTab.section(.mail)) {
                     MailSection().measuresLayoutClass().toastHost()
-                        .shellPage(bottomBar: bottomBarShell)
+                        .shellPage(bottomBar: bottomBarShell).erasedTab()
                 }
             }
             #endif
@@ -707,7 +707,7 @@ struct RootView: View {
                                 .toastHost()
                         }
                     }
-                    .shellPage(bottomBar: bottomBarShell)
+                    .shellPage(bottomBar: bottomBarShell).erasedTab()
                 }
                 // Meals to log or check, and doses due and not yet marked.
                 .badge(badges.counts.nutrition)
@@ -722,7 +722,7 @@ struct RootView: View {
                             .measuresLayoutClass()
                             .syncWaitingNote(.fitness)
                             .toastHost()
-                            .shellPage(bottomBar: bottomBarShell)
+                            .shellPage(bottomBar: bottomBarShell).erasedTab()
                     }
                 }
                 if modules.includes(.food) {
@@ -731,7 +731,7 @@ struct RootView: View {
                             .measuresLayoutClass()
                             .syncWaitingNote(.wellness)
                             .toastHost()
-                            .shellPage(bottomBar: bottomBarShell)
+                            .shellPage(bottomBar: bottomBarShell).erasedTab()
                     }
                     // Meals to log or check, and doses due and not yet marked.
                     .badge(badges.counts.nutrition)
@@ -742,7 +742,7 @@ struct RootView: View {
                     NotesView()
                         .measuresLayoutClass()
                         .toastHost()
-                        .shellPage(bottomBar: bottomBarShell)
+                        .shellPage(bottomBar: bottomBarShell).erasedTab()
                 }
             }
             if showsSidebarSections {
@@ -752,7 +752,7 @@ struct RootView: View {
                     RoutinesView()
                         .measuresLayoutClass()
                         .toastHost()
-                        .shellPage(bottomBar: bottomBarShell)
+                        .shellPage(bottomBar: bottomBarShell).erasedTab()
                 }
             }
             if modules.includes(.podcasts) {
@@ -761,7 +761,7 @@ struct RootView: View {
                         .measuresLayoutClass()
                         .syncWaitingNote(.controls)
                         .toastHost()
-                        .shellPage(bottomBar: bottomBarShell)
+                        .shellPage(bottomBar: bottomBarShell).erasedTab()
                 }
             }
             if showsSidebarSections, AppSection.review.isShown(with: modules.effectiveChoice) {
@@ -772,7 +772,7 @@ struct RootView: View {
                         .measuresLayoutClass()
                         .syncWaitingNote(.fitness)
                         .toastHost()
-                        .shellPage(bottomBar: bottomBarShell)
+                        .shellPage(bottomBar: bottomBarShell).erasedTab()
                 }
                 .tabPlacement(.sidebarOnly)
             }
@@ -780,7 +780,7 @@ struct RootView: View {
                 #if BANANA_AI && !PI_DEVELOPMENT
                 Tab(AppSection.assistant.title, systemImage: AppSection.assistant.symbol, value: ShellTab.section(.assistant)) {
                     AssistantView().measuresLayoutClass()
-                        .shellPage(bottomBar: bottomBarShell)
+                        .shellPage(bottomBar: bottomBarShell).erasedTab()
                 }
                 .tabPlacement(.sidebarOnly)
                 #endif
@@ -788,7 +788,7 @@ struct RootView: View {
                     SettingsView()
                         .measuresLayoutClass()
                         .toastHost()
-                        .shellPage(bottomBar: bottomBarShell)
+                        .shellPage(bottomBar: bottomBarShell).erasedTab()
                 }
                 .tabPlacement(.sidebarOnly)
             }
@@ -1346,3 +1346,12 @@ enum LaunchTiming {
 #endif
 
 #endif
+
+
+private extension View {
+    /// Each tab's content behind one type: twelve tabs of chained modifiers made the TabView's
+    /// generic type deep enough that building it overflowed the main thread's stack (8 Nov 2026,
+    /// a Debug crash in `TabView.init` once the plan toolbar and problem reports were merged).
+    /// A tab's content type never changes, so this costs no identity or diffing.
+    func erasedTab() -> AnyView { AnyView(self) }
+}
