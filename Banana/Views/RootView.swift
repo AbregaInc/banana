@@ -1345,6 +1345,9 @@ enum LaunchTiming {
 }
 #endif
 
+#endif
+
+#if os(iOS)
 private extension View {
     /// Each tab's content behind one type: twelve tabs of chained modifiers made the TabView's
     /// generic type deep enough that building it overflowed the main thread's stack (8 Nov 2026,
@@ -1352,5 +1355,4 @@ private extension View {
     /// A tab's content type never changes, so this costs no identity or diffing.
     func erasedTab() -> AnyView { AnyView(self) }
 }
-
 #endif
