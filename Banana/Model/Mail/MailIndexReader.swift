@@ -62,7 +62,9 @@ struct MailIndexReader: Sendable {
             """
         let values = StatementArguments(arguments)
         let total = try Int.fetchOne(db, sql: "SELECT count(*) FROM (SELECT 1 \(base) AND v.sort_key > 0 LIMIT 10001)", arguments: values) ?? 0
-        let unread = try Int.fetchOne(db, sql: "SELECT count(*) \(base) AND v.unread=1", arguments: values) ?? 0
+        // Unread counts what the list shows: a conversation known only by id (a stub, key <= 0)
+        // is not listed, so it is not counted either. The badge and the Inbox number read this.
+        let unread = try Int.fetchOne(db, sql: "SELECT count(*) \(base) AND v.unread=1 AND v.sort_key > 0", arguments: values) ?? 0
         let loading = try Int.fetchOne(db, sql: "SELECT count(*) \(base) AND v.sort_key <= 0", arguments: values) ?? 0
         return ViewCounts(unread: unread, total: MailCount(value: min(10000, total), isAtLeast: total > 10000), stillLoading: loading)
     }

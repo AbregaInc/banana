@@ -87,9 +87,9 @@ actor GmailConversationLoader {
     /// Messages Banana Cloud already holds (MAIL-CLOUD-SYNC §5a), stored as `body` stores a read:
     /// content and its prepared form first, then one index transaction for all of them. Each is
     /// applied at its own `historyId` (the cloud's position for its labels), so the stale-read rule
-    /// holds. Returns the ids stored; a message this device holds no row for, or one in another
-    /// thread, is skipped and left to the per-message path.
-    func storeCloud(_ messages: [GmailMessage], account rawAccount: String) async throws -> [String] {
+    /// holds. A message this device holds no row for is skipped; one whose text cannot be stored
+    /// here gets its headers only (`CloudStored.headersOnly`) and is left to the per-message path.
+    func storeCloud(_ messages: [GmailMessage], account rawAccount: String) async throws -> CloudStored {
         let account = rawAccount.lowercased()
         let ids = messages.compactMap(\.id)
         let rows = try await stores.index.read { db -> [String: (String, Int64)] in
@@ -102,7 +102,8 @@ actor GmailConversationLoader {
             }
             return out
         }
-        var ready: [(FetchedMessage, Int64, String)] = []
+        var ready: [(FetchedMessage, Int64, String)] = [], headed: [(FetchedMessage, Int64, String)] = []
+        var problems: [String] = []
         for message in messages {
             try Task.checkCancellation()
             guard let messageID = message.id, let row = rows[messageID], let floor = message.historyId else { continue }
@@ -111,12 +112,73 @@ actor GmailConversationLoader {
                 let fetched = try await complete(message, id: id, thread: row.0, rowID: row.1, floor: floor,
                                                  access: { [token] in try await token(account) })
                 ready.append((fetched, row.1, row.0))
-            } catch let failure as Failure where failure == .malformed || failure == .incompleteBody {
-                continue   // left to the per-message path, which has its own rules for these
+            } catch is CancellationError {
+                throw CancellationError()
+            } catch {
+                // One message that cannot be stored here (malformed, too large or too complex to
+                // prepare, a part that would not load) never holds back the rest of the batch. Its
+                // headers still go in, so its row is listed; its text is left to the per-message path.
+                problems.append(Self.describe(error))
+                if message.threadId == row.0, message.payload?.headers != nil {
+                    headed.append((FetchedMessage(wire: message, floor: floor, headers: MessageHeaders(payload: message.payload), structure: nil), row.1, row.0))
+                }
             }
         }
-        try await commit(ready, account: account)
-        return ready.compactMap(\.0.wire.id)
+        var result = try await commitCloud(ready, headed: headed, account: account)
+        result.problems = problems + result.problems
+        return result
+    }
+
+    /// What `storeCloud` did with a batch: text stored, headers only, and why any could not be stored
+    /// (error kinds only: no ids, addresses or content).
+    struct CloudStored: Equatable, Sendable {
+        var stored: [String] = []
+        var headersOnly: [String] = []
+        var problems: [String] = []
+    }
+
+    /// An error's kind for the log: never an id, address, URL, SQL or content.
+    static func describe(_ error: Error) -> String {
+        if let gmail = error as? GmailError { return String(describing: gmail) }
+        if let database = error as? DatabaseError { return "sqlite code=\(database.extendedResultCode.rawValue)" }
+        if let url = error as? URLError { return "URLError code=\(url.code.rawValue)" }
+        let type = String(reflecting: Swift.type(of: error)), name = String(describing: error)
+        // A case without a payload names itself; anything else is its type and code only.
+        return name.allSatisfy { $0.isLetter || $0.isNumber } ? "\(type).\(name)" : "\(type); code=\((error as NSError).code)"
+    }
+
+    /// `commit` for a cloud batch, each message in its own savepoint: one the index refuses is left
+    /// out without undoing the others.
+    private func commitCloud(_ ready: [(fetched: FetchedMessage, rowID: Int64, thread: String)],
+                             headed: [(fetched: FetchedMessage, rowID: Int64, thread: String)],
+                             account: String) async throws -> CloudStored {
+        guard !ready.isEmpty || !headed.isEmpty else { return CloudStored() }
+        try Task.checkCancellation()
+        return try await writer.transactValue { db in
+            var change = MailStoreChange(), result = CloudStored()
+            for (full, items) in [(true, ready), (false, headed)] {
+                for item in items {
+                    guard let id = item.fetched.wire.id else { continue }
+                    var applied = MailStoreChange()
+                    do {
+                        try db.inSavepoint {
+                            applied = try MailMessageImporter.apply(item.fetched, account: account, myAddresses: [account], in: db)
+                            if full {
+                                try db.execute(sql: "UPDATE message SET fetch_state=2,prep_state=2 WHERE msg_pk=? AND gmail_id=? AND account_pk=(SELECT account_pk FROM account WHERE email=?)", arguments: [item.rowID, id, account])
+                            }
+                            return .commit
+                        }
+                    } catch {
+                        result.problems.append(Self.describe(error))
+                        continue
+                    }
+                    change.formUnion(applied)
+                    change.conversations.insert(MailConversationID(account: account, thread: item.thread))
+                    if full { result.stored.append(id) } else { result.headersOnly.append(id) }
+                }
+            }
+            return (result, change)
+        }
     }
 
     /// A `full` message made whole (external body parts read through `attachment`), its content and
