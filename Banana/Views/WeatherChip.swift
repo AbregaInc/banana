@@ -9,7 +9,11 @@ struct WeatherChip: View {
 
     /// Where you'll be then, not always where you are: on a day you fly, the afternoon's
     /// forecast is the city you land in (`WeatherStore.located`), as the full forecast shows it.
-    private var hour: HourlyWeather? {
+    private var hour: HourlyWeather? { Self.hour(on: day, in: weather) }
+
+    /// The hour the chip shows for `day`, or nil when there is no forecast for it (and the chip
+    /// draws nothing, so nothing should make room for it).
+    @MainActor static func hour(on day: Date, in weather: WeatherStore) -> HourlyWeather? {
         let now = Date()
         let days = weather.located(at: WeatherGlance.instant(on: day, now: now)).days
         guard let hours = days.first(where: { Calendar.current.isDate($0.date, inSameDayAs: day) })?.hours,
