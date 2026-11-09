@@ -14,8 +14,8 @@ final class CalendarSignals: ObservableObject {
 
     private var cancellables: Set<AnyCancellable> = []
 
-    func start(health: HealthKitStore, fitness: FitnessStore, player: PlayerController) {
-        guard cancellables.isEmpty else { return }
+    #if BANANA_MODULE_WORKOUTS
+    func watch(health: HealthKitStore, fitness: FitnessStore) {
         health.$workouts.combineLatest(fitness.$summaries)
             .map { workouts, summaries in
                 Self.days(workouts.map(\.start) + summaries.map(\.start))
@@ -23,12 +23,18 @@ final class CalendarSignals: ObservableObject {
             .removeDuplicates()
             .sink { [weak self] in self?.workoutDays = $0 }
             .store(in: &cancellables)
+    }
+    #endif
+
+    #if BANANA_MODULE_PODCASTS
+    func watch(player: PlayerController) {
         player.$isPlaying.combineLatest(player.$activeRoutineID)
             .map { playing, routine in playing ? routine : nil }
             .removeDuplicates()
             .sink { [weak self] in self?.playingRoutineID = $0 }
             .store(in: &cancellables)
     }
+    #endif
 
     func didWorkout(on day: Date) -> Bool {
         workoutDays.contains(Calendar.current.startOfDay(for: day))

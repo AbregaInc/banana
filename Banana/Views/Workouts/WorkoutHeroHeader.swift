@@ -1,3 +1,4 @@
+#if BANANA_MODULE_WORKOUTS
 import SwiftUI
 
 /// The detail view's top section: the activity's tile, name and when, then a card of every stat
@@ -178,3 +179,4 @@ struct WorkoutHeroHeader: View {
         return String(format: "%.1f %@", value, settings.distanceUnit == .miles ? "mph" : "km/h")
     }
 }
+#endif

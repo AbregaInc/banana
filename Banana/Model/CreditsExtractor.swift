@@ -1,3 +1,4 @@
+#if BANANA_MODULE_PODCASTS
 import Foundation
 #if canImport(FoundationModels)
 import FoundationModels
@@ -171,4 +172,5 @@ private struct GeneratedNarrator {
     @Guide(description: "One of: primary, supporting, unknown.")
     var role: String
 }
+#endif
 #endif

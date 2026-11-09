@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 import SwiftUI
 
 /// Search NIH's supplement label database by name, for a bottle with no barcode worth scanning.
@@ -98,3 +99,4 @@ struct SupplementCatalogSearchView: View {
         }
     }
 }
+#endif

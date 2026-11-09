@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 import Foundation
 import ImageIO
 import UniformTypeIdentifiers
@@ -86,3 +87,4 @@ enum MealPhotoImage {
         return data as Data
     }
 }
+#endif

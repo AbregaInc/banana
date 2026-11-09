@@ -1,3 +1,4 @@
+#if BANANA_MODULE_WORKOUTS
 import Foundation
 
 /// HealthKit's synchronous permission read waits for another process. Keep that
@@ -7,3 +8,4 @@ enum HealthAuthorization {
         await Task.detached(priority: .utility, operation: query).value
     }
 }
+#endif

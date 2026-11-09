@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 import Foundation
 
 /// A meal you've had before, from its photo (docs/design/MEAL-LEARNING.md §4): a new photo close
@@ -225,3 +226,4 @@ enum RepeatPhotoMeal {
         return item
     }
 }
+#endif

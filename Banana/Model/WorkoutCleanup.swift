@@ -1,3 +1,4 @@
+#if BANANA_MODULE_WORKOUTS
 import Foundation
 
 /// Which copy of a workout to believe, when several apps wrote the same session to Apple Health.
@@ -152,3 +153,4 @@ enum TrimmedLaps {
         return result
     }
 }
+#endif

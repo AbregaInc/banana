@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 import Foundation
 
 /// `--photo-repeat-probe`: how the photos of meals already logged compare on a real device — for
@@ -59,3 +60,4 @@ enum MealPhotoRepeatProbe {
         log("done")
     }
 }
+#endif

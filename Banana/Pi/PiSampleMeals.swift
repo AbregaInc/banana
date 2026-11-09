@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 import Foundation
 
 /// Fictional, deterministic meals. Reserved IDs and a marker make removal precise.
@@ -81,4 +82,5 @@ enum PiSampleMeals {
         UserDefaults.standard.set(true, forKey: initialized)
     }
 }
+#endif
 #endif

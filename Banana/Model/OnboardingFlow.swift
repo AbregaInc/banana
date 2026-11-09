@@ -39,6 +39,9 @@ enum OnboardingFlow {
         var copiesSettled = false
         /// The person owns a writable calendar, so there is somewhere a copy could go.
         var ownsWritableCalendar = false
+        /// This build carries a module to choose (BANANA_MODULES). Without one there is nothing to
+        /// ask on the modules page, so it isn't shown.
+        var offersModules = true
     }
 
     /// Whether the copies page is asked: only with a calendar of the person's own to write to,
@@ -50,7 +53,7 @@ enum OnboardingFlow {
     /// What follows `step`, or nil when the first run is over and the app opens.
     static func next(after step: OnboardingStep, in situation: Situation) -> OnboardingStep? {
         switch step {
-        case .welcome: return .modules
+        case .welcome: return situation.offersModules ? .modules : .wake
         case .modules: return .wake
         case .wake: return .windDown
         case .windDown: return .connect
@@ -63,11 +66,11 @@ enum OnboardingFlow {
     }
 
     /// Where Back goes from `step`. Not from the receipt: what it lists has been applied.
-    static func previous(before step: OnboardingStep) -> OnboardingStep? {
+    static func previous(before step: OnboardingStep, in situation: Situation = Situation()) -> OnboardingStep? {
         switch step {
         case .welcome, .done: nil
         case .modules: .welcome
-        case .wake: .modules
+        case .wake: situation.offersModules ? .modules : .welcome
         case .windDown: .wake
         case .connect: .windDown
         case .calendars: .connect
@@ -81,6 +84,7 @@ enum OnboardingFlow {
         guard let saved else { return .welcome }
         switch saved {
         case .calendars, .done: return situation.accounts > 0 ? saved : .connect
+        case .modules: return situation.offersModules ? saved : .wake
         case .copies:
             if situation.accounts == 0 { return .connect }
             return asksAboutCopies(situation) ? .copies : .done

@@ -1,3 +1,4 @@
+#if BANANA_MODULE_WORKOUTS
 #if DEBUG
 import Foundation
 import Combine
@@ -58,4 +59,5 @@ enum FitnessBatchVerification {
         for summary in synthetic { fitness.delete(summary.id) }
     }
 }
+#endif
 #endif

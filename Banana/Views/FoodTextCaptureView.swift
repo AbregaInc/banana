@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 #if os(iOS) || os(macOS)
 import SwiftUI
 
@@ -427,7 +428,7 @@ struct FoodTextCaptureView: View {
             VStack(alignment: .leading, spacing: DS.Space.xs) {
                 Text("Suggested").font(.caption).foregroundStyle(.secondary)
                 // Wrapping, as a food's measures do: a name cut off at the edge reads as broken.
-                WorkoutFlowLayout(spacing: DS.Space.s, lineSpacing: DS.Space.xs, fitsWidth: true) {
+                WrappingLayout(spacing: DS.Space.s, lineSpacing: DS.Space.xs, fitsWidth: true) {
                     ForEach(Array(offered), id: \.key) { food in
                         // One Text, the + inside it: a Label here drew its icon alone.
                         Button { addUsual(food) } label: {
@@ -1199,4 +1200,5 @@ private struct EditableFoodRow: Identifiable {
               macros: macros, confidence: confidence, source: source, grams: grams, reference: reference)
     }
 }
+#endif
 #endif

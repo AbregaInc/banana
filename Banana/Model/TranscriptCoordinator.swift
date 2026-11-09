@@ -1,3 +1,4 @@
+#if BANANA_MODULE_PODCASTS
 import Foundation
 import Combine
 #if os(iOS)
@@ -725,3 +726,4 @@ private enum CreditsCache {
         if let data = try? JSONEncoder().encode(credits) { try? data.write(to: url(id), options: .atomic) }
     }
 }
+#endif

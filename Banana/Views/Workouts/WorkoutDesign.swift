@@ -1,3 +1,4 @@
+#if BANANA_MODULE_WORKOUTS
 import SwiftUI
 
 /// Single source of truth for every size, font, and color the Workouts feature (list + detail)
@@ -195,4 +196,5 @@ enum WorkoutDetailSection: String {
         return WorkoutDetailSection(rawValue: arguments[i + 1])
     }
 }
+#endif
 #endif

@@ -1,3 +1,4 @@
+#if BANANA_MODULE_PODCASTS
 import Foundation
 
 /// The publisher-transcript path, pure Foundation so it can be tested on its own: a bounded fetch of
@@ -156,3 +157,4 @@ enum FeedTranscriptParser {
         return out
     }
 }
+#endif

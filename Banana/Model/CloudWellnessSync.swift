@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 import CloudKit
 import Foundation
 import os
@@ -659,3 +660,4 @@ final class CloudWellnessSync: NSObject, CKSyncEngineDelegate {
         try? data.write(to: systemFieldsURL, options: .atomic)
     }
 }
+#endif

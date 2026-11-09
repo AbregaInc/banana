@@ -1,3 +1,4 @@
+#if BANANA_MODULE_PODCASTS
 import Foundation
 
 /// What Banana learns when a skip was wrong.
@@ -117,3 +118,4 @@ struct SkipRewindWatcher {
         return hit.span
     }
 }
+#endif

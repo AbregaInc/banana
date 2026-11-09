@@ -1,3 +1,4 @@
+#if BANANA_MODULE_PODCASTS
 import Foundation
 
 /// Show notes, which arrive as HTML, as text SwiftUI can draw: paragraphs and line breaks kept,
@@ -161,3 +162,4 @@ enum ShowNotes {
         }
     }
 }
+#endif

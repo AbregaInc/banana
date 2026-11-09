@@ -77,9 +77,15 @@ struct DemoWorkspace: Codable, Sendable {
     var calendars: [DemoCalendar]
     var events: [DemoEvent]
     var tasks: [DemoTask]
-    var meals: [MealEntry]
-    var notes: [VoiceNote]
-    var workouts: [FitnessSession]
+    #if BANANA_MODULE_FOOD
+    var meals: [MealEntry] = []
+    #endif
+    #if BANANA_MODULE_NOTES
+    var notes: [VoiceNote] = []
+    #endif
+    #if BANANA_MODULE_WORKOUTS
+    var workouts: [FitnessSession] = []
+    #endif
     var sleep: [DemoSleep]
     var episodes: [DemoEpisode]
     var drafts: [String: String] = [:]
@@ -108,17 +114,28 @@ struct DemoWorkspace: Codable, Sendable {
         guard version == 1, fixture == "review-v1", TimeZone(identifier: timeZone) != nil,
               anchor.timeIntervalSince1970.isFinite else { throw DemoFailure.invalidData }
         guard unique(calendars.map(\.id)), unique(events.map(\.id)), unique(tasks.map(\.id)),
-              unique(meals.map(\.id)), unique(notes.map(\.id)), unique(workouts.map(\.id)),
               unique(episodes.map(\.id)), unique(sleep.map(\.id)) else { throw DemoFailure.invalidData }
-        guard events.count <= 500, meals.count <= 500, notes.count <= 500, workouts.count <= 500,
-              tasks.count <= 500, episodes.count <= 100, calendars.count <= 20, sleep.count <= 100,
+        guard events.count <= 500, tasks.count <= 500, episodes.count <= 100, calendars.count <= 20, sleep.count <= 100,
               drafts.count <= 10 else { throw DemoFailure.tooLarge }
+        #if BANANA_MODULE_FOOD
+        guard unique(meals.map(\.id)) else { throw DemoFailure.invalidData }
+        guard meals.count <= 500 else { throw DemoFailure.tooLarge }
+        #endif
+        #if BANANA_MODULE_NOTES
+        guard unique(notes.map(\.id)) else { throw DemoFailure.invalidData }
+        guard notes.count <= 500 else { throw DemoFailure.tooLarge }
+        #endif
+        #if BANANA_MODULE_WORKOUTS
+        guard unique(workouts.map(\.id)) else { throw DemoFailure.invalidData }
+        guard workouts.count <= 500 else { throw DemoFailure.tooLarge }
+        #endif
         let ids = Set(calendars.map(\.id))
         for event in events {
             guard ids.contains(event.calendarID), !event.title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
                   event.title.utf8.count <= 1000, event.notes.utf8.count <= 65_536,
                   event.end > event.start, event.end.timeIntervalSince(event.start) <= 7 * 86_400 else { throw DemoFailure.invalidData }
         }
+        #if BANANA_MODULE_FOOD
         for meal in meals {
             guard !meal.items.isEmpty, meal.items.count <= 100, meal.date.timeIntervalSince1970.isFinite else { throw DemoFailure.invalidData }
             for item in meal.items {
@@ -127,14 +144,19 @@ struct DemoWorkspace: Codable, Sendable {
                 guard values.allSatisfy({ $0.isFinite && (0...100_000).contains($0) }) else { throw DemoFailure.invalidData }
             }
         }
+        #endif
+        #if BANANA_MODULE_NOTES
         for note in notes {
             guard note.audioFilename.isEmpty, note.reminderID == nil, (note.transcript?.utf8.count ?? 0) <= 65_536 else { throw DemoFailure.invalidData }
         }
+        #endif
+        #if BANANA_MODULE_WORKOUTS
         for workout in workouts {
             guard let end = workout.end, end > workout.start, end.timeIntervalSince(workout.start) <= 86_400,
                   workout.samples.count <= 10_000 else { throw DemoFailure.invalidData }
             guard workout.samples.allSatisfy({ $0.t.isFinite && $0.v1.isFinite }) else { throw DemoFailure.invalidData }
         }
+        #endif
         for episode in episodes {
             guard episode.position.isFinite, episode.position >= 0, [0.75, 1, 1.25, 1.5, 2].contains(episode.speed) else { throw DemoFailure.invalidData }
         }
@@ -160,9 +182,15 @@ enum DemoFailure: Error, LocalizedError, Equatable {
 enum DemoCommand: Codable, Sendable {
     case saveEvent(DemoEvent), deleteEvent(UUID), moveEvent(UUID, Date)
     case calendarVisible(String, Bool), completeTask(UUID, Bool)
+    #if BANANA_MODULE_FOOD
     case saveMeal(MealEntry), deleteMeal(UUID), repeatMeal(UUID, Date, UUID)
+    #endif
+    #if BANANA_MODULE_NOTES
     case saveNote(VoiceNote), archiveNote(UUID, Bool), deleteNote(UUID)
+    #endif
+    #if BANANA_MODULE_WORKOUTS
     case saveWorkout(FitnessSession), deleteWorkout(UUID)
+    #endif
     case saveEpisode(DemoEpisode), saveDraft(String, String)
 }
 
@@ -237,6 +265,7 @@ actor DemoRepository {
         case .completeTask(let id, let completed):
             guard let index = next.tasks.firstIndex(where: { $0.id == id }) else { throw DemoFailure.missingItem }
             next.tasks[index].completed = completed
+        #if BANANA_MODULE_FOOD
         case .saveMeal(let meal):
             next.meals.removeAll { $0.id == meal.id }; next.meals.append(meal)
         case .deleteMeal(let id): next.meals.removeAll { $0.id == id }
@@ -244,6 +273,8 @@ actor DemoRepository {
             guard var meal = next.meals.first(where: { $0.id == id }) else { throw DemoFailure.missingItem }
             meal.id = newID; meal.date = date
             next.meals.removeAll { $0.id == newID }; next.meals.append(meal)
+        #endif
+        #if BANANA_MODULE_NOTES
         case .saveNote(let note):
             next.notes.removeAll { $0.id == note.id }; next.notes.append(note)
             next.drafts.removeValue(forKey: "note")
@@ -251,9 +282,12 @@ actor DemoRepository {
             guard let index = next.notes.firstIndex(where: { $0.id == id }) else { throw DemoFailure.missingItem }
             next.notes[index].archivedAt = archived ? next.anchor : nil
         case .deleteNote(let id): next.notes.removeAll { $0.id == id }
+        #endif
+        #if BANANA_MODULE_WORKOUTS
         case .saveWorkout(let session):
             next.workouts.removeAll { $0.id == session.id }; next.workouts.append(session)
         case .deleteWorkout(let id): next.workouts.removeAll { $0.id == id }
+        #endif
         case .saveEpisode(let episode):
             guard next.episodes.contains(where: { $0.id == episode.id }) else { throw DemoFailure.missingItem }
             next.episodes.removeAll { $0.id == episode.id }; next.episodes.append(episode)

@@ -1,3 +1,4 @@
+#if BANANA_MODULE_PODCASTS
 import SwiftUI
 import MapKit
 
@@ -113,3 +114,4 @@ struct ListenMapView: View {
         .padding(DS.Space.m)
     }
 }
+#endif

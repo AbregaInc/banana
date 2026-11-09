@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 import Foundation
 #if os(iOS)
 import Combine
@@ -279,4 +280,5 @@ enum MealPhotoNotifications {
     static var onAnswered: (() -> Void)?
     static func register() {}
 }
+#endif
 #endif

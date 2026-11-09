@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 import CryptoKit
 import Foundation
 
@@ -525,3 +526,4 @@ enum MealPhotoNotificationPolicy {
             .prefix(perPass))
     }
 }
+#endif

@@ -1,3 +1,4 @@
+#if BANANA_MODULE_PODCASTS
 import SwiftUI
 
 /// Start a routine now: play what it plays. The same button wherever a routine is shown — its
@@ -50,3 +51,4 @@ struct RoutineStartButton: View {
         onStart?()
     }
 }
+#endif

@@ -1,3 +1,4 @@
+#if BANANA_MODULE_PODCASTS
 import SwiftUI
 import AVKit
 
@@ -453,3 +454,4 @@ private struct EpisodeNotesPanel: View {
     }
 }
 
+#endif

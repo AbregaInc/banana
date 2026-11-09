@@ -1867,12 +1867,14 @@ struct MacWeekView: View {
             Button { reschedulingTask = occurrence } label: {
                 Label("Reschedule…", systemImage: "clock.arrow.circlepath")
             }
+            #if BANANA_MODULE_FOOD
             if occurrence.isRepeatingTask {
                 // Something taken each day belongs in Taken: logged taken or skipped, checked for clashes.
                 Button { AnchorSuggestionStore.shared.move(reminder: occurrence) } label: {
                     Label("Move to Taken…", systemImage: "pills")
                 }
             }
+            #endif
             if let id = occurrence.reminderID {
                 let current = TaskDurationStore.shared.minutes(for: id)
                 Menu {
@@ -4358,7 +4360,7 @@ struct WeekView: View {
         if !events.isEmpty {
             // Every one of the day's, wrapped onto as many lines as they take: one day has the
             // room, and a row that scrolled sideways hid whatever was past the edge.
-            WorkoutFlowLayout(spacing: DS.Space.s, lineSpacing: DS.Space.xs + 2, fitsWidth: true) {
+            WrappingLayout(spacing: DS.Space.s, lineSpacing: DS.Space.xs + 2, fitsWidth: true) {
                 ForEach(events) { allDayEventChip($0) }
             }
             .padding(.horizontal, DS.Space.m)
@@ -4443,7 +4445,7 @@ struct WeekView: View {
         }
         if !reminders.isEmpty || !moments.isEmpty {
             let shown = showsEveryReminder ? reminders : Array(reminders.prefix(Self.reminderLineLimit))
-            WorkoutFlowLayout(spacing: DS.Space.s, lineSpacing: DS.Space.xs + 2, fitsWidth: true) {
+            WrappingLayout(spacing: DS.Space.s, lineSpacing: DS.Space.xs + 2, fitsWidth: true) {
                 ForEach(moments) { untimedCueChip($0) }
                 ForEach(shown) { reminderChip($0) }
                 if reminders.count > Self.reminderLineLimit {
@@ -4531,7 +4533,11 @@ struct WeekView: View {
         let overdue = reminder.overdue && !reminder.completed
         // A dose that is due (a reminder that reads as something taken: "Creatine") is amber
         // across the whole chip, as a due dose is in Taken; it was the grey of any reminder.
+        #if BANANA_MODULE_FOOD
         let dueDose = overdue && ReminderToTaken.readsAsTaken(reminder.title)
+        #else
+        let dueDose = false   // Taken is Food's
+        #endif
         return HStack(spacing: 0) {
             Button {
                 TaskTick.toggle(reminder)
@@ -5987,12 +5993,14 @@ struct WeekView: View {
             Button { Task { await occurrences.markMissed(occ) } } label: { Label("Missed it", systemImage: "xmark.circle") }
         }
         Button { reschedulingTask = occ } label: { Label("Reschedule…", systemImage: "clock.arrow.circlepath") }
+        #if BANANA_MODULE_FOOD
         if occ.isRepeatingTask {
             // Something taken each day belongs in Taken: logged taken or skipped, checked for clashes.
             Button { AnchorSuggestionStore.shared.move(reminder: occ) } label: {
                 Label("Move to Taken…", systemImage: "pills")
             }
         }
+        #endif
         if let id = occ.reminderID {
             let current = TaskDurationStore.shared.minutes(for: id)
             Menu {

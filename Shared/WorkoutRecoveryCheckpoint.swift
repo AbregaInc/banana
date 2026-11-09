@@ -1,3 +1,4 @@
+#if BANANA_MODULE_WORKOUTS
 import Foundation
 
 /// The app-owned identity/configuration HealthKit cannot restore for us. HealthKit owns the
@@ -52,3 +53,4 @@ struct WorkoutRecoveryStore {
         try FileManager.default.removeItem(at: url)
     }
 }
+#endif

@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 import Foundation
 
 /// A US Nutrition Facts panel, as read from a photo of it (`NutritionLabelReader`): the serving,
@@ -129,3 +130,4 @@ enum NutritionLabelParser {
         return nil
     }
 }
+#endif

@@ -1,3 +1,4 @@
+#if BANANA_MODULE_PODCASTS
 #if DEBUG
 import Foundation
 import AVFoundation
@@ -104,4 +105,5 @@ enum PlaybackVerification {
         }
     }
 }
+#endif
 #endif

@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 #if os(iOS) || os(macOS)
 #if os(iOS)
 import BackgroundTasks
@@ -793,5 +794,6 @@ private extension CGImagePropertyOrientation {
         }
     }
 }
+#endif
 #endif
 #endif

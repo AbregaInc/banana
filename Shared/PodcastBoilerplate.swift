@@ -1,3 +1,4 @@
+#if BANANA_MODULE_PODCASTS
 import Foundation
 
 // MARK: - Transcript-level opening detection
@@ -443,3 +444,4 @@ struct PodcastBoilerplateLibrary: Codable, Sendable {
             .flatMap { $0?.elements } ?? [:]
     }
 }
+#endif

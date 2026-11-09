@@ -1,3 +1,4 @@
+#if BANANA_MODULE_WORKOUTS
 #if DEBUG && os(macOS)
 import Foundation
 
@@ -110,4 +111,5 @@ enum CloudFitnessZonePurgeTool {
         }
     }
 }
+#endif
 #endif

@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 #if os(iOS)
 import BackgroundTasks
 import Foundation
@@ -150,4 +151,5 @@ enum MealEstimateCatchUp {
         task.setTaskCompleted(success: !expired)
     }
 }
+#endif
 #endif

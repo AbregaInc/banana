@@ -132,8 +132,10 @@ struct ShellBottomBar: View {
     @ObservedObject private var search = ShellSearch.shared
     /// The switcher's badge. Publishes only when a count moves (`ActionBadges`).
     @ObservedObject private var badges = ActionBadges.shared
+    #if BANANA_MODULE_PODCASTS
     @EnvironmentObject private var player: PlayerController
     @EnvironmentObject private var music: MusicController
+    #endif
     /// A phone (compact) gives the box the whole width; an upright iPad keeps the switcher beside it.
     @Environment(\.horizontalSizeClass) private var widthClass
 
@@ -141,11 +143,17 @@ struct ShellBottomBar: View {
         let _ = RenderStats.note("ShellBottomBar")
         let mode = search.mode
         let composing = section == .mail && chrome.mailComposing
-        let placement = ShellPlayerPlacement.of(loaded: player.currentEpisode != nil,
+        #if BANANA_MODULE_PODCASTS
+        let loaded = player.currentEpisode != nil
+        #else
+        let loaded = false   // nothing plays in a build without Podcasts
+        #endif
+        let placement = ShellPlayerPlacement.of(loaded: loaded,
                                                 hidden: chrome.playerHidden,
                                                 fieldInUse: mode.hidesSideButtons || composing)
         let switcherShown = !mode.hidesSideButtons && !(composing && chrome.mailBoxOpen && widthClass != .regular)
         VStack(spacing: DS.Space.s) {
+            #if BANANA_MODULE_PODCASTS
             if placement == .capsule {
                 ShellPlayerCapsule(expand: expandPlayer)
                     .transition(.move(edge: .bottom).combined(with: .opacity))
@@ -154,6 +162,7 @@ struct ShellBottomBar: View {
                     .frame(height: ShellMetrics.control)
                     .glassEffect(.regular, in: .capsule)
             }
+            #endif
             GlassEffectContainer(spacing: ShellMetrics.spacing) {
                 // Bottom-aligned: the box grows upward from the switcher's line.
                 HStack(alignment: .bottom, spacing: ShellMetrics.spacing) {
@@ -191,7 +200,9 @@ struct ShellBottomBar: View {
         .animation(.snappy(duration: 0.25), value: mode.hidesSideButtons)
         .animation(.snappy(duration: 0.25), value: switcherShown)
         .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { chrome.setBarHeight($0) }
+        #if BANANA_MODULE_PODCASTS
         .onChange(of: player.currentEpisode?.id, initial: true) { _, id in chrome.episodeChanged(id.map { "\($0)" }) }
+        #endif
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("shell.bar")
     }
@@ -271,7 +282,9 @@ private struct ShellFieldRow: View {
         // Reply all by default (the owner, 7 Nov 2026); the box's switch makes it a Reply.
         Button { session.reply(.replyAll) } label: {
             HStack(spacing: DS.Space.s) {
+                #if BANANA_MODULE_PODCASTS
                 if showsChip { ShellPlayerChip() }
+                #endif
                 Image(systemName: "arrowshape.turn.up.left").foregroundStyle(.secondary)
                 Text("Reply or ask").foregroundStyle(.secondary)
                 Spacer(minLength: 0)
@@ -392,7 +405,9 @@ struct ShellField: View {
 
     var body: some View {
         HStack(spacing: DS.Space.s) {
+            #if BANANA_MODULE_PODCASTS
             if showsChip { ShellPlayerChip() }
+            #endif
             Image(systemName: "magnifyingglass")
                 .font(.body.weight(.medium))
                 .foregroundStyle(.secondary)
@@ -522,6 +537,7 @@ struct ShellResultsOverlay: View {
 
 // MARK: - The player
 
+#if BANANA_MODULE_PODCASTS
 /// The episode loaded: a slim capsule above the bar. Tap opens the player; the chevron folds it
 /// into the field. The 1 Hz playhead redraws only the progress line, never the bar.
 struct ShellPlayerCapsule: View {
@@ -586,7 +602,9 @@ struct ShellPlayerCapsule: View {
         }
     }
 }
+#endif
 
+#if BANANA_MODULE_PODCASTS
 /// The capsule's progress: the only part of it that follows the playhead.
 private struct ShellPlaybackLine: View {
     @EnvironmentObject private var clock: PlaybackClock
@@ -605,7 +623,9 @@ private struct ShellPlaybackLine: View {
         return min(1, max(0, clock.time / clock.duration))
     }
 }
+#endif
 
+#if BANANA_MODULE_PODCASTS
 /// The hidden player: its artwork in a ring of progress at the left end of the field. Tap brings
 /// the capsule back; a swipe away stops playback.
 struct ShellPlayerChip: View {
@@ -643,7 +663,9 @@ struct ShellPlayerChip: View {
         .accessibilityIdentifier("shell.player.chip")
     }
 }
+#endif
 
+#if BANANA_MODULE_PODCASTS
 private struct ShellPlaybackRing: View {
     @EnvironmentObject private var clock: PlaybackClock
 
@@ -659,6 +681,7 @@ private struct ShellPlaybackRing: View {
         .accessibilityHidden(true)
     }
 }
+#endif
 
 // MARK: - Page content under the bar
 

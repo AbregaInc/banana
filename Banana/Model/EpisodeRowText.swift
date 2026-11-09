@@ -1,3 +1,4 @@
+#if BANANA_MODULE_PODCASTS
 import Foundation
 
 /// The words on an episode row: when it came out, and how much is left.
@@ -38,3 +39,4 @@ enum EpisodeRowText {
         return length(duration)
     }
 }
+#endif

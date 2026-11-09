@@ -66,7 +66,9 @@ struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.scenePhase) private var scenePhase
     @StateObject private var backup = CloudBackup.shared
+    #if BANANA_MODULE_WORKOUTS
     @StateObject private var fitnessCloud = CloudFitnessSync.shared
+    #endif
     @EnvironmentObject var settings: AppSettings
 
     private static func eventReminderFooter(leads: [Int]) -> String? {
@@ -97,14 +99,22 @@ struct SettingsView: View {
         )
     }
     @EnvironmentObject private var smart: SmartScheduleStore
+    #if BANANA_MODULE_PODCASTS
     // Action-only (the re-sync button) — observing the download manager re-rendered this whole
     // Form on every download percent tick while Settings was open.
     private var downloads: DownloadManager { WakeCoordinator.shared.downloads }
+    #endif
     private var occurrences: OccurrenceStore { .shared }
+    #if BANANA_MODULE_WORKOUTS
     @EnvironmentObject var health: HealthKitStore
+    #endif
+    #if BANANA_MODULE_WORKOUTS || BANANA_MODULE_PODCASTS || BANANA_MODULE_NOTES
     @EnvironmentObject var connectivity: PhoneConnectivity
+    #endif
     @EnvironmentObject private var onboarding: OnboardingStore
+    #if BANANA_MODULE_PODCASTS
     @EnvironmentObject private var music: MusicController
+    #endif
     #if os(iOS)
     @EnvironmentObject private var alarms: AlarmStore
     #endif
@@ -119,10 +129,12 @@ struct SettingsView: View {
     @ObservedObject private var modules = ModuleStore.shared
     @ObservedObject private var booking = BookingCenter.shared
     @State private var confirmingAccountDelete = false
+    #if BANANA_MODULE_PODCASTS || BANANA_MODULE_NOTES
     @AppStorage(LocalTranscriptionEngine.defaultsKey)
     private var transcriptionEngine: LocalTranscriptionEngine = .apple
     /// Per device, like the engine above (`SpeakerLabelling`).
     @State private var labelsSpeakers = SpeakerLabelling.enabled
+    #endif
     @State private var showingHomePicker = false
     @State private var settingsSearch = ""
 
@@ -279,6 +291,10 @@ struct SettingsView: View {
     private func isShown(_ page: SettingsPage) -> Bool {
         // The backup's page goes once the service is the copy (`CloudBackup.isRetired`).
         if page == .icloud, backup.retired { return false }
+        // Nothing to switch in a build that carries no module (BANANA_MODULES).
+        if page == .modules, modules.selectable.isEmpty { return false }
+        // Sending episodes to the Watch: only a build with Podcasts has it.
+        if page == .watch, !AppModule.podcasts.isAvailable { return false }
         return page.module.map(modules.includes) ?? true
     }
 
@@ -451,18 +467,25 @@ struct SettingsView: View {
             AnyView(modulesSection)
         case .travel:
             AnyView(travelSection)
+        #if BANANA_MODULE_PODCASTS
         case .podcasts:
             AnyView(Group {
                 podcastsSection
                 transcriptsSection
                 autoSleepSection
             })
+        case .watch:
+            AnyView(watchSection)
+        #endif
+        #if BANANA_MODULE_WORKOUTS
         case .workouts:
             AnyView(Group {
                 fitnessUnitsSection
                 appleHealthSection
                 fitnessSyncSection
             })
+        #endif
+        #if BANANA_MODULE_FOOD
         case .food:
             AnyView(Group {
                 MealPhotoScanSettingsSection()
@@ -471,8 +494,7 @@ struct SettingsView: View {
                     Text("Taken recommends no supplement or dose.")
                 }
             })
-        case .watch:
-            AnyView(watchSection)
+        #endif
         case .icloud:
             AnyView(Group {
                 icloudSection
@@ -493,6 +515,10 @@ struct SettingsView: View {
             })
         case .wake, .booking:
             AnyView(EmptyView())   // shown by `page(_:)` as its own screen
+        #if !(BANANA_MODULE_PODCASTS && BANANA_MODULE_WORKOUTS && BANANA_MODULE_FOOD)
+        default:
+            AnyView(EmptyView())   // a module's page, in a build without the module (`isShown`)
+        #endif
         }
     }
 
@@ -571,7 +597,9 @@ struct SettingsView: View {
 
     private var featuresSection: some View {
         Section("Features") {
-            featureRow(.modules, value: modules.effectiveChoice.isEverything ? "All on" : "\(modules.effectiveChoice.enabled.count) on")
+            if isShown(.modules) {
+                featureRow(.modules, value: modules.effectiveChoice.isEverything ? "All on" : "\(modules.effectiveChoice.enabled.count) on")
+            }
             featureRow(.calendar, value: calendarWriteBack.enabled ? "Busy blocks on" : "Busy blocks off")
             featureRow(.booking, value: bookingSummary)
             featureRow(.travel, value: travelSummary)
@@ -617,11 +645,16 @@ struct SettingsView: View {
 
     private var missingPermissions: Int {
         var granted = [smart.calendarAuthorized, occurrences.remindersAuthorized,
-                       onboarding.locationGranted, onboarding.notificationsGranted, music.isAuthorized]
+                       onboarding.locationGranted, onboarding.notificationsGranted]
+        #if BANANA_MODULE_PODCASTS
+        granted.append(music.isAuthorized)
+        #endif
         #if os(iOS)
         if DeviceRole.current.isHub {   // elsewhere they're the phone's, shown under "Your iPhone"
             granted.append(alarms.isAuthorized)
+            #if BANANA_MODULE_WORKOUTS
             granted.append(health.setupState == .done)
+            #endif
         }
         #endif
         return granted.filter { !$0 }.count
@@ -762,6 +795,7 @@ struct SettingsView: View {
 
     // MARK: - Sections
 
+    #if BANANA_MODULE_PODCASTS
     @ViewBuilder private var podcastsSection: some View {
             Section {
                 Toggle(isOn: $settings.recordListenLocation) {
@@ -777,6 +811,7 @@ struct SettingsView: View {
                 Text("Misses some ads. Rewind into a skip to hear it.")
             }
     }
+    #endif
     @ViewBuilder private var eventRemindersSection: some View {
             Section {
                 // Several can be on at once, so these are toggles rather than a picker: the
@@ -793,6 +828,7 @@ struct SettingsView: View {
                 if let footer = Self.eventReminderFooter(leads: settings.eventAlertLeads) { Text(footer) }
             }
     }
+    #if BANANA_MODULE_PODCASTS
     @ViewBuilder private var transcriptsSection: some View {
             Section {
                 Picker("Local fallback", selection: $transcriptionEngine) {
@@ -825,6 +861,8 @@ struct SettingsView: View {
                 Text("Used when a show has no transcript. Set per device.")
             }
     }
+    #endif
+    #if BANANA_MODULE_PODCASTS
     @ViewBuilder private var autoSleepSection: some View {
             Section {
                 Picker("Fade-out after", selection: $settings.sleepTimerMinutes) {
@@ -842,6 +880,8 @@ struct SettingsView: View {
                 Text("Auto-sleep at night")
             }
     }
+    #endif
+    #if BANANA_MODULE_WORKOUTS
     @ViewBuilder private var fitnessUnitsSection: some View {
             Section {
                 Picker("Distance", selection: $settings.distanceUnit) {
@@ -860,6 +900,7 @@ struct SettingsView: View {
                 Text("Your Apple Watch uses these.")
             }
     }
+    #endif
     @ViewBuilder private var meetingsSection: some View {
             Section {
                 Picker("Directions app", selection: $settings.mapsProvider) {
@@ -1144,6 +1185,7 @@ struct SettingsView: View {
                 Text("Planner")
             }
     }
+    #if BANANA_MODULE_WORKOUTS
     @ViewBuilder private var appleHealthSection: some View {
             if !DeviceRole.current.isHub {
                 Section {
@@ -1200,6 +1242,8 @@ struct SettingsView: View {
             }
             #endif
     }
+    #endif
+    #if BANANA_MODULE_PODCASTS
     // The Watch sync is a phone↔Watch transfer; a Mac or iPad has neither the Watch nor the
     // WatchConnectivity link, so away from the phone the page is the one setting that syncs.
     @ViewBuilder private var watchSection: some View {
@@ -1254,6 +1298,7 @@ struct SettingsView: View {
             }
             #endif
     }
+    #endif
     @ViewBuilder private var icloudSection: some View {
             Section {
                 Toggle("Back up to iCloud", isOn: $backup.enabled)
@@ -1263,7 +1308,7 @@ struct SettingsView: View {
                         // last made it. (Each showed a status of its own, "Not backed up yet".)
                         Text(DeviceRole.current.isHub
                              ? backup.status
-                             : "On your iPhone: \(ReminderToTaken.lowercasedFirst(BackupRules.restingStatus(lastBackup: hubStatus.status.lastBackup)))")
+                             : "On your iPhone: \(AnchorSuggestionStore.lowercasedFirst(BackupRules.restingStatus(lastBackup: hubStatus.status.lastBackup)))")
                             .foregroundStyle(.secondary)
                         Spacer()
                         if backup.busy { ProgressView() }
@@ -1350,6 +1395,7 @@ struct SettingsView: View {
         return "\(short) (\(build))"
     }
 
+    #if BANANA_MODULE_WORKOUTS
     /// One place to see the whole fitness-sync picture — see `CloudFitnessSync.syncState`
     /// (`FitnessSyncState`, `Shared/FitnessModels.swift`) for what each state means and why it
     /// never claims delivery to the OTHER device, only that a recording left this one. This is
@@ -1381,7 +1427,9 @@ struct SettingsView: View {
             Text("Sent to iCloud isn\u{2019}t yet on every device.")
         }
     }
+    #endif
 
+    #if BANANA_MODULE_WORKOUTS
     @ViewBuilder
     private var fitnessSyncGlyph: some View {
         switch fitnessCloud.syncState {
@@ -1395,7 +1443,9 @@ struct SettingsView: View {
             Image(systemName: "icloud.and.arrow.up").foregroundStyle(.secondary)
         }
     }
+    #endif
 
+    #if BANANA_MODULE_WORKOUTS
     private var fitnessSyncTitle: String {
         switch fitnessCloud.syncState {
         case .unavailable:
@@ -1408,7 +1458,9 @@ struct SettingsView: View {
             return "\(count) item\(count == 1 ? "" : "s") waiting to sync"
         }
     }
+    #endif
 
+    #if BANANA_MODULE_WORKOUTS
     private var fitnessSyncDetail: String? {
         switch fitnessCloud.syncState {
         case .unavailable:
@@ -1427,6 +1479,7 @@ struct SettingsView: View {
             return "Last synced \(lastSuccess.formatted(date: .abbreviated, time: .shortened))"
         }
     }
+    #endif
 
     private var versionsSection: some View {
         Section {
@@ -1434,6 +1487,7 @@ struct SettingsView: View {
             LabeledContent("This \(DeviceRole.current.name)", value: Self.bundleVersion)
             #if os(iOS)
             // Only the phone is paired with the Watch: an iPad has nothing to report here.
+            #if BANANA_MODULE_WORKOUTS || BANANA_MODULE_PODCASTS || BANANA_MODULE_NOTES
             if !DeviceRole.current.isHub {
                 EmptyView()
             } else if let watch = connectivity.watchVersion {
@@ -1451,6 +1505,7 @@ struct SettingsView: View {
                 LabeledContent("Apple Watch", value: "Not reported yet")
                     .foregroundStyle(.secondary)
             }
+            #endif
             #endif
         } header: {
             Text("Versions")
@@ -1684,6 +1739,7 @@ struct SettingsView: View {
                 detail: "Your tasks on the timeline"
             ) { await occurrences.requestRemindersAccess() }
 
+            #if BANANA_MODULE_WORKOUTS
             if DeviceRole.current.isHub {
             permissionRow(
                 title: "Health", icon: "heart.fill",
@@ -1694,6 +1750,7 @@ struct SettingsView: View {
                 asked: health.setupState == .asked
             ) { await health.connect() }
             }
+            #endif
 
             permissionRow(
                 title: "Location", icon: "location.fill",
@@ -1711,11 +1768,13 @@ struct SettingsView: View {
                 settings: .notifications
             ) { _ = await onboarding.requestNotifications() }
 
+            #if BANANA_MODULE_PODCASTS
             permissionRow(
                 title: "Apple Music", icon: "music.note",
                 granted: music.isAuthorized,
                 detail: "Start a routine with your own music"
             ) { await music.requestAuthorization() }
+            #endif
 
             #if os(iOS)
             if DeviceRole.current.isHub {
@@ -1879,7 +1938,9 @@ struct SettingsView: View {
         case "Notifications": onboarding.notificationsGranted
         case "Location": onboarding.locationGranted
         case "Reminders": occurrences.remindersAuthorized
+        #if BANANA_MODULE_PODCASTS
         case "Apple Music": music.isAuthorized
+        #endif
         case "Google Calendar": smart.calendarAuthorized
         default: true   // Health never says; don't send anyone to settings over it
         }

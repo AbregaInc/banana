@@ -1,3 +1,4 @@
+#if BANANA_MODULE_PODCASTS
 import SwiftUI
 
 /// The Podcasts tab: subscribed feeds, plus adding a new one by URL.
@@ -525,3 +526,4 @@ struct Artwork: View {
         #endif
     }
 }
+#endif

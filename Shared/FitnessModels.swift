@@ -1,3 +1,4 @@
+#if BANANA_MODULE_WORKOUTS
 import Foundation
 
 /// One recorded data point during a session. Kept compact (short keys) because
@@ -1060,3 +1061,4 @@ enum FitnessSpaceChanges {
         return true
     }
 }
+#endif

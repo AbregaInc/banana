@@ -29,6 +29,7 @@ final class ControlsLegacyChannel: LegacyChannel {
     func drainToEnd() async throws -> DrainResult { try await drained { try await self.sync.drainToEnd() }.only(types) }
 }
 
+#if BANANA_MODULE_FOOD
 @MainActor
 final class WellnessLegacyChannel: LegacyChannel {
     let name = "wellness zone"
@@ -38,7 +39,9 @@ final class WellnessLegacyChannel: LegacyChannel {
     func setMode(_ mode: LegacyCloudMode) { CloudWellnessSync.shared.modeChanged() }
     func drainToEnd() async throws -> DrainResult { try await drained { try await CloudWellnessSync.shared.drainToEnd() }.only(types) }
 }
+#endif
 
+#if BANANA_MODULE_PODCASTS
 @MainActor
 final class ProgressLegacyChannel: LegacyChannel {
     let name = "progress zone"
@@ -48,7 +51,9 @@ final class ProgressLegacyChannel: LegacyChannel {
     func setMode(_ mode: LegacyCloudMode) { CloudProgressSync.shared.modeChanged() }
     func drainToEnd() async throws -> DrainResult { try await drained { try await CloudProgressSync.shared.drainToEnd() }.only(types) }
 }
+#endif
 
+#if BANANA_MODULE_WORKOUTS
 @MainActor
 final class FitnessLegacyChannel: LegacyChannel {
     let name: String
@@ -65,6 +70,7 @@ final class FitnessLegacyChannel: LegacyChannel {
     func drainToEnd() async throws -> DrainResult { try await drained { try await CloudFitnessSync.shared.drainToEnd() }.only(types) }
     func drainKept() { CloudFitnessSync.shared.drainKept(tier: tier) }
 }
+#endif
 
 @MainActor
 final class SettingsLegacyChannel: LegacyChannel {
@@ -100,6 +106,7 @@ final class KeyValueLegacyChannel: LegacyChannel {
 
 /// iCloud Drive: transcripts and voice-note files (the backup is held back by either tier, in
 /// `CloudBackup`). Writes ask `LegacyCloud` each time; a drain reads the voice notes once more.
+#if BANANA_MODULE_PODCASTS && BANANA_MODULE_NOTES
 @MainActor
 final class DriveLegacyChannel: LegacyChannel {
     let name = "iCloud Drive"
@@ -113,23 +120,50 @@ final class DriveLegacyChannel: LegacyChannel {
         return DrainResult()
     }
 }
+#endif
 
 extension LegacyCloud {
     /// Every legacy channel this process runs, for `MoveOver`. Once, after the syncs have started.
     @MainActor static func registerChannels() {
         guard channels.isEmpty else { return }
+        // A module this build doesn't carry still has its data in iCloud: its channel is counted,
+        // with the types it carries, and can't drain (`UncarriedLegacyChannel`), so its tier is
+        // never covered here and never moves or purges from this build.
+        #if BANANA_MODULE_FOOD
+        let wellness: any LegacyChannel = WellnessLegacyChannel()
+        #else
+        let wellness: any LegacyChannel = UncarriedLegacyChannel("wellness zone", .health, LegacyInventory.wellness)
+        #endif
+        #if BANANA_MODULE_PODCASTS
+        let progress: any LegacyChannel = ProgressLegacyChannel()
+        #else
+        let progress: any LegacyChannel = UncarriedLegacyChannel("progress zone", .personal, LegacyInventory.progress)
+        #endif
+        #if BANANA_MODULE_WORKOUTS
+        let fitness: any LegacyChannel = FitnessLegacyChannel(tier: .health)
+        let fitnessNotes: any LegacyChannel = FitnessLegacyChannel(tier: .personal)
+        #else
+        let fitness: any LegacyChannel = UncarriedLegacyChannel("fitness zone", .health, LegacyInventory.fitness)
+        let fitnessNotes: any LegacyChannel = UncarriedLegacyChannel("fitness zone (voice notes)", .personal,
+                                                                     LegacyInventory.fitnessNotes)
+        #endif
+        #if BANANA_MODULE_PODCASTS && BANANA_MODULE_NOTES
+        let drive: any LegacyChannel = DriveLegacyChannel()
+        #else
+        let drive: any LegacyChannel = UncarriedLegacyChannel("iCloud Drive", .personal, LegacyInventory.drive)
+        #endif
         let all: [any LegacyChannel] = [
             ControlsLegacyChannel(.shared, tier: .personal),
             ControlsLegacyChannel(.shared, tier: .health),
             ControlsLegacyChannel(.meals, tier: .health),
-            WellnessLegacyChannel(),
-            ProgressLegacyChannel(),
-            FitnessLegacyChannel(tier: .health),
-            FitnessLegacyChannel(tier: .personal),
+            wellness,
+            progress,
+            fitness,
+            fitnessNotes,
             SettingsLegacyChannel(),
             KeyValueLegacyChannel(tier: .personal),
             KeyValueLegacyChannel(tier: .health),
-            DriveLegacyChannel(),
+            drive,
         ]
         kept = all
         for channel in all { register(channel) }
@@ -137,6 +171,26 @@ extension LegacyCloud {
 
     /// `register` holds channels weakly; these are the process's own.
     @MainActor private static var kept: [any LegacyChannel] = []
+}
+
+/// The channel of a module this build doesn't carry (BANANA_MODULES): its types, and no way to
+/// drain them. `MoveOver` counts a tier's types from its channels, so the tier stays uncovered and
+/// its iCloud data stays where it is until a build with the module moves it.
+@MainActor
+final class UncarriedLegacyChannel: LegacyChannel {
+    struct NotCarried: Error {}
+    let name: String
+    let tier: LegacyTier
+    let types: Set<String>
+
+    init(_ name: String, _ tier: LegacyTier, _ types: Set<String>) {
+        self.name = name + " (module not in this build)"
+        self.tier = tier
+        self.types = types
+    }
+
+    func setMode(_ mode: LegacyCloudMode) {}
+    func drainToEnd() async throws -> DrainResult { throw NotCarried() }
 }
 
 /// A zone's drain, where a device signed out of iCloud holds nothing there to drain: iCloud

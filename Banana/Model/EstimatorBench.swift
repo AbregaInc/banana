@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 import CoreGraphics
 import Foundation
 import ImageIO
@@ -163,3 +164,4 @@ extension EstimatorBench {
         try? JSONEncoder().encode(cases).write(to: folder.appendingPathComponent(resultsName), options: .atomic)
     }
 }
+#endif

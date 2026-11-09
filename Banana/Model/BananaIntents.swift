@@ -152,6 +152,7 @@ struct RoutineEntityQuery: EntityQuery {
     }
 }
 
+#if BANANA_MODULE_PODCASTS
 /// "Start Wind Down in Banana": a routine started by voice, from Shortcuts or the Action button,
 /// without opening the app. It plays audio, which is what lets the system start it this way.
 struct StartRoutineIntent: AudioPlaybackIntent {
@@ -180,6 +181,7 @@ struct StartRoutineIntent: AudioPlaybackIntent {
         return .result(dialog: "Started \(found.name). \(summary).")
     }
 }
+#endif
 
 struct CompleteTaskIntent: AppIntent {
     static var title: LocalizedStringResource = "Complete Task"

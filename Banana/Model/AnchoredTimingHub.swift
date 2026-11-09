@@ -21,19 +21,36 @@ final class AnchoredTimingHub: ObservableObject {
 
     private var watches: Set<AnyCancellable> = []
     private var started = false
+    #if BANANA_MODULE_WORKOUTS
     /// The app's Health store: workouts and last night's sleep.
     private weak var health: HealthKitStore?
+    #endif
     private var pendingRefresh: Task<Void, Never>?
 
+    #if BANANA_MODULE_WORKOUTS
     func start(health: HealthKitStore) {
         guard !started else { return }
         started = true
         self.health = health
         health.$workouts.dropFirst().sink { [weak self] _ in self?.refreshSoon() }.store(in: &watches)
         FitnessStore.shared.$summaries.dropFirst().sink { [weak self] _ in self?.refreshSoon() }.store(in: &watches)
+        watchTheRest()
+    }
+    #else
+    func start() {
+        guard !started else { return }
+        started = true
+        watchTheRest()
+    }
+    #endif
+
+    /// What every build watches: Food's moments when it's there, the timeline and the modules.
+    private func watchTheRest() {
+        #if BANANA_MODULE_FOOD
         WellnessStore.shared.$meals.dropFirst().sink { [weak self] _ in self?.refreshSoon() }.store(in: &watches)
         WellnessStore.shared.$supplementLogs.dropFirst().sink { [weak self] _ in self?.refreshSoon() }.store(in: &watches)
         WellnessStore.shared.$supplements.dropFirst().sink { [weak self] _ in self?.refreshSoon() }.store(in: &watches)
+        #endif
         OccurrenceStore.shared.$occurrences.dropFirst().sink { [weak self] _ in self?.refreshSoon() }.store(in: &watches)
         // Food switched off takes its dose reminders with it; back on, they are planned again.
         ModuleStore.shared.$choice.dropFirst().removeDuplicates().sink { [weak self] _ in self?.refreshSoon() }.store(in: &watches)
@@ -49,8 +66,12 @@ final class AnchoredTimingHub: ObservableObject {
     func workoutEnded(start: Date? = nil, end: Date? = nil) {
         if let start, let end, end > start { announcedWorkouts.append((start, end)) }
         Task { @MainActor [weak self] in
+            #if BANANA_MODULE_FOOD
             await WellnessStore.shared.whenLoaded()
+            #endif
+            #if BANANA_MODULE_WORKOUTS
             await FitnessStore.shared.whenLoaded()
+            #endif
             self?.refresh()
         }
     }
@@ -68,7 +89,9 @@ final class AnchoredTimingHub: ObservableObject {
 
     func refresh(now: Date = Date()) {
         version &+= 1
+        #if BANANA_MODULE_FOOD
         ringTaken(now: now)
+        #endif
     }
 
     // MARK: - The moments
@@ -78,10 +101,14 @@ final class AnchoredTimingHub: ObservableObject {
         let today = calendar.startOfDay(for: now)
         let isToday: (Date) -> Bool = { calendar.isDate($0, inSameDayAs: now) }
 
+        #if BANANA_MODULE_WORKOUTS
         let fromHealth = (health?.workouts ?? []).map { (start: $0.start, end: $0.end) }
         let fromWatch = FitnessStore.shared.summaries.compactMap { summary in
             summary.end.map { (start: summary.start, end: $0) }
         }
+        #else
+        let fromHealth: [(start: Date, end: Date)] = [], fromWatch: [(start: Date, end: Date)] = []
+        #endif
         // A "Workout" reminder ticked is a workout done, recorded or not.
         let ticked = AnchoredTiming.tickedWorkouts(OccurrenceStore.shared.occurrences.compactMap { task in
             guard task.behavior == .task, task.completed, let done = task.completedAt,
@@ -90,8 +117,11 @@ final class AnchoredTimingHub: ObservableObject {
         })
         signals.workouts = AnchoredTiming.todaysWorkouts(fromHealth + fromWatch + announcedWorkouts + ticked,
                                                          now: now, calendar: calendar)
+        #if BANANA_MODULE_WORKOUTS
         signals.wake = health?.trends.nights.last { isToday($0.wake) && $0.wake <= now }?.wake
+        #endif
 
+        #if BANANA_MODULE_FOOD
         let wellness = WellnessStore.shared
         signals.meals = wellness.meals.filter { isToday($0.date) && $0.date <= now }
             .map { ($0.date, AnchoredTiming.mealPart(at: $0.date, calendar: calendar)) }
@@ -103,6 +133,9 @@ final class AnchoredTimingHub: ObservableObject {
             signals.doseTimes[supplement.id] = calendar.date(bySettingHour: supplement.safeHour,
                                                              minute: supplement.safeMinute, second: 0, of: today)
         }
+        #else
+        _ = today
+        #endif
 
         let occurrences = OccurrenceStore.shared.occurrences.filter { isToday($0.start) }
         for task in occurrences where task.behavior == .task {
@@ -132,6 +165,7 @@ final class AnchoredTimingHub: ObservableObject {
         }.map(\.start).min()
     }
 
+    #if BANANA_MODULE_FOOD
     /// The middle of when each meal was had over the last month, in minutes after midnight.
     static func usualMealMinutes(_ meals: [MealEntry], now: Date, calendar: Calendar) -> [MealTextPart: Int] {
         let since = calendar.date(byAdding: .day, value: -30, to: now) ?? now
@@ -230,9 +264,10 @@ final class AnchoredTimingHub: ObservableObject {
         UserDefaults.standard.set(rungAt, forKey: Self.rungKey)
         #endif
     }
+    #endif
 }
 
-#if canImport(UserNotifications)
+#if canImport(UserNotifications) && BANANA_MODULE_FOOD
 private extension AnchoredTimingHub {
     /// One Taken reminder, once, at `when`: through a Focus like the other reminders, and with
     /// "Taken" on it (`DoseReminders`).

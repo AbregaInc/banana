@@ -164,7 +164,7 @@ enum AnchorSuggestions {
             return isWorkout(title)
         case (.meal, .reminder(_, let title)):
             let meals = MealTextPart.allCases.flatMap(\.words)
-            return names(meals, in: title) && !ReminderToTaken.readsAsTaken(title)
+            return names(meals, in: title) && !readsAsTaken(title)
         case (.wake, .reminder(_, let title)):
             return names(wakeWords, in: title)
         default:
@@ -179,7 +179,16 @@ enum AnchorSuggestions {
     /// done around one ("Post-workout protein" is taken). Ticking it is the workout ending; its time
     /// is when it's planned (`AnchoredTimingHub`).
     static func isWorkout(_ title: String) -> Bool {
-        names(workoutWords, in: title) && !ReminderToTaken.readsAsTaken(title)
+        names(workoutWords, in: title) && !readsAsTaken(title)
+    }
+
+    /// Something taken ("Post-workout protein"), by Food's vocabulary; a build without Food has none.
+    private static func readsAsTaken(_ title: String) -> Bool {
+        #if BANANA_MODULE_FOOD
+        ReminderToTaken.readsAsTaken(title)
+        #else
+        false
+        #endif
     }
     static let wakeWords = ["wake", "get up", "out of bed"]
 
@@ -247,6 +256,7 @@ enum AnchorSuggestions {
         }
     }
 
+    #if BANANA_MODULE_FOOD
     // MARK: - Taken's history
 
     /// When a Taken item was actually taken: its `.taken` doses, less those ticked off for a day
@@ -261,6 +271,7 @@ enum AnchorSuggestions {
             return log.date != scheduled
         }.map(\.date)
     }
+    #endif
 }
 
 extension TimingAnchor {

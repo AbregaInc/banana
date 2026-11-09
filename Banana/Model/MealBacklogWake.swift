@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 import CloudKit
 import Foundation
 #if os(iOS)
@@ -104,3 +105,4 @@ enum MealBacklogWake {
         return changed
     }
 }
+#endif

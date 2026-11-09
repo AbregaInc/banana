@@ -1,3 +1,4 @@
+#if BANANA_MODULE_WORKOUTS
 import Foundation
 
 /// Apple Health's copy of a workout follows the workout. The phone owns Health
@@ -72,3 +73,4 @@ final class WorkoutHealthFollow {
         } while askedAgain
     }
 }
+#endif

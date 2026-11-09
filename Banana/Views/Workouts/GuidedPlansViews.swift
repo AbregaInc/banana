@@ -1,3 +1,4 @@
+#if BANANA_MODULE_WORKOUTS
 import SwiftUI
 
 // Guided plans: the saved plans, the builder, a plan's exercises and its coach. They were in the
@@ -346,3 +347,4 @@ private func setDescription(_ item: ExercisePrescription) -> String {
     if let reps = item.reps { return "\(item.sets) × \(reps) reps · \(item.restSeconds)s rest" }
     return "\(item.sets) × \(item.durationSeconds ?? 0)s · \(item.restSeconds)s rest"
 }
+#endif

@@ -119,6 +119,7 @@ final class ShellSearch: ObservableObject {
     // MARK: Notes — the list's own search.
 
     private static func notes(_ query: String) -> [ShellSearchHit] {
+        #if BANANA_MODULE_NOTES
         guard ModuleStore.shared.includes(.notes) else { return [] }
         return VoiceNoteStore.shared.matchingNotes(search: query, archived: false)
             .prefix(ShellSearchGroups<ShellSearchHit>.shownPerGroup)
@@ -127,6 +128,10 @@ final class ShellSearch: ObservableObject {
                                detail: String((note.transcript ?? "").prefix(120)),
                                target: .note(note.id))
             }
+        #else
+        _ = query
+        return []
+        #endif
     }
 
     // MARK: Mail — the same observation a Mail search makes, five rows.

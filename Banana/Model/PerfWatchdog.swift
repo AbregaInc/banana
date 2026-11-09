@@ -158,28 +158,36 @@ enum PerfWatchdog {
             OccurrenceStore.shared.objectWillChange.sink { _ in RenderStats.note("occurrences↻") },
             WeatherStore.shared.objectWillChange.sink { _ in RenderStats.note("weather↻") },
             RoutineStore.shared.objectWillChange.sink { _ in RenderStats.note("routines↻") },
-            // 09-02 00:22: RootView stormed at 6/s for two minutes after launch with none of the
-            // counters above moving; the source was the FitnessStore series backfill publishing
-            // per field. Count it so the next fitness-driven storm names itself.
-            FitnessStore.shared.objectWillChange.sink { _ in RenderStats.note("fitness↻") },
         ]
+        #if BANANA_MODULE_WORKOUTS
+        // 09-02 00:22: RootView stormed at 6/s for two minutes after launch with none of the
+        // counters above moving; the source was the FitnessStore series backfill publishing
+        // per field. Count it so the next fitness-driven storm names itself.
+        s.append(FitnessStore.shared.objectWillChange.sink { _ in RenderStats.note("fitness↻") })
+        #endif
         #if os(iOS)
         UIDevice.current.isBatteryMonitoringEnabled = true
         // A live Watch workout was running when it died — the one condition a test rig with no
         // paired Watch can never have. If the Watch link is what's spinning the phone, this counter
         // says so, and no more theorising is required.
+        #if BANANA_MODULE_WORKOUTS || BANANA_MODULE_PODCASTS || BANANA_MODULE_NOTES
         s.append(PhoneConnectivity.shared.objectWillChange.sink { _ in RenderStats.note("watch↻") })
+        #endif
         // 07-16 00:49: RootView stormed at 5/s with NONE of the counters above moving — the
         // republisher wasn't instrumented, so the log named the symptom but not the cause.
         // Count everything RootView itself observes; the next storm names its source.
+        #if BANANA_MODULE_PODCASTS
         s.append(WakeCoordinator.shared.library.objectWillChange.sink { _ in RenderStats.note("library↻") })
         s.append(WakeCoordinator.shared.music.objectWillChange.sink { _ in RenderStats.note("music↻") })
         s.append(WakeCoordinator.shared.downloads.objectWillChange.sink { _ in RenderStats.note("downloads↻") })
         #endif
+        #endif
         // On both platforms: MacRootView observes the player and the backup too, and without these
         // a Mac storm was logged as the view and not the store publishing into it. The player is
         // already built by `BananaApp`'s own properties by now; the backup's init is a few defaults.
+        #if BANANA_MODULE_PODCASTS
         s.append(WakeCoordinator.shared.player.objectWillChange.sink { _ in RenderStats.note("player↻") })
+        #endif
         s.append(CloudBackup.shared.objectWillChange.sink { _ in RenderStats.note("backup↻") })
         // What the Nutrition and shell views observe, none of which had a sink: a storm through
         // one of them was logged as the view, not the store publishing into it. All four exist by
@@ -187,8 +195,10 @@ enum PerfWatchdog {
         // MealInboxStore and OccurrenceStore, whose init builds ToastCenter — so naming them
         // constructs nothing earlier than it already is.
         s.append(ActionBadges.shared.objectWillChange.sink { _ in RenderStats.note("badges↻") })
+        #if BANANA_MODULE_FOOD
         s.append(WellnessStore.shared.objectWillChange.sink { _ in RenderStats.note("wellness↻") })
         s.append(MealInboxStore.shared.objectWillChange.sink { _ in RenderStats.note("mealInbox↻") })
+        #endif
         s.append(ToastCenter.shared.objectWillChange.sink { _ in RenderStats.note("toasts↻") })
         s.append(NotificationCenter.default.publisher(
             for: ProcessInfo.thermalStateDidChangeNotification
@@ -391,7 +401,7 @@ enum PerfWatchdog {
             #if os(iOS)
             if AppVisibility.shared.isActive {
                 interval = 15
-            } else if WakeCoordinator.shared.player.isPlaying {
+            } else if Self.isPlaying {
                 interval = 30
             } else {
                 interval = 60
@@ -453,6 +463,15 @@ enum PerfWatchdog {
         current >= previous ? current - previous : 0
     }
 
+    /// Whether podcast audio is playing (a build without Podcasts plays none).
+    @MainActor private static var isPlaying: Bool {
+        #if BANANA_MODULE_PODCASTS
+        WakeCoordinator.shared.player.isPlaying
+        #else
+        false
+        #endif
+    }
+
     private static func thermalName(_ state: ProcessInfo.ThermalState) -> String {
         switch state {
         case .nominal: return "nominal"
@@ -510,6 +529,7 @@ enum PerfWatchdog {
         let thermal = thermalName(ProcessInfo.processInfo.thermalState)
 
         #if os(iOS)
+        #if BANANA_MODULE_PODCASTS
         let graph = WakeCoordinator.shared
         let play = graph.player.isPlaying
             ? "playing@\(String(format: "%.2f", graph.player.speed))x"
@@ -519,6 +539,10 @@ enum PerfWatchdog {
             + "transcribe=\(TranscriptCoordinator.shared.powerSummary) "
             + "watchTx=\(PhoneConnectivity.shared.episodesInFlight) "
             + "\(batterySummary()) net=\(networkSummary())"
+        #else
+        let context = "scene=\(AppVisibility.shared.isActive ? "foreground" : "background") "
+            + "\(batterySummary()) net=\(networkSummary())"
+        #endif
         #else
         let context = "platform=macOS"
         #endif

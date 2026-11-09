@@ -1,3 +1,4 @@
+#if BANANA_MODULE_NOTES
 import Foundation
 import GRDB
 
@@ -210,3 +211,4 @@ final class NoteRepository: @unchecked Sendable {
         var errorDescription: String? { "Some saved notes could not be read. The original notes file has been preserved." }
     }
 }
+#endif

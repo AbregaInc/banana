@@ -1,3 +1,4 @@
+#if BANANA_MODULE_WORKOUTS
 #if os(iOS)
 import SwiftUI
 
@@ -196,4 +197,5 @@ struct WorkoutCleanupView: View {
         result = "Corrected \(corrected) \(corrected == 1 ? "swim" : "swims") to a 25 yd pool."
     }
 }
+#endif
 #endif

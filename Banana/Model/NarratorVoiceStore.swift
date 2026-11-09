@@ -1,3 +1,4 @@
+#if BANANA_MODULE_PODCASTS
 import Foundation
 import os
 
@@ -235,3 +236,4 @@ extension NarratorVoiceStore: CloudControlSource {
     }
 }
 
+#endif

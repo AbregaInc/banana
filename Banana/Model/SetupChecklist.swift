@@ -14,11 +14,21 @@ enum SetupItem: String, CaseIterable, Identifiable, Codable {
     /// for. Everything else is Plan's (music is what a wake-up plays) and stays.
     static func list(isHub: Bool, modules: ModuleChoice = .everything) -> [SetupItem] {
         let device = isHub ? allCases : allCases.filter { $0 != .health && $0 != .alarms }
-        return device.filter { $0.module.map(modules.includes) ?? true }
+        return device.filter { ($0.module.map(modules.includes) ?? true) && ($0.carriedBy?.isAvailable ?? true) }
     }
 
     /// The module an item serves, or nil for Plan's own.
     var module: AppModule? { self == .health ? .workouts : nil }
+
+    /// The module whose code asks for it: a build without that module (BANANA_MODULES) has no
+    /// such question to ask. Apple Music is what a routine plays, with Podcasts.
+    var carriedBy: AppModule? {
+        switch self {
+        case .health: .workouts
+        case .music: .podcasts
+        default: nil
+        }
+    }
 }
 
 /// Where one item stands.

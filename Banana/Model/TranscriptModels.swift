@@ -1,3 +1,4 @@
+#if BANANA_MODULE_PODCASTS || BANANA_MODULE_NOTES
 import Foundation
 
 /// One timestamped token of a transcript — the unit we highlight during playback.
@@ -157,3 +158,4 @@ enum Diarization {
         }
     }
 }
+#endif

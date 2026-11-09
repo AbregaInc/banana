@@ -3,7 +3,9 @@ import SwiftUI
 /// Create or edit a cue: what triggers it, what it plays, and how firmly it fires.
 struct RoutineEditorView: View {
     @EnvironmentObject var routines: RoutineStore
+    #if BANANA_MODULE_PODCASTS
     @EnvironmentObject var library: PodcastLibrary
+    #endif
     @EnvironmentObject var smart: SmartScheduleStore
     @Environment(\.dismiss) private var dismiss
 
@@ -114,6 +116,7 @@ struct RoutineEditorView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
 
+                #if BANANA_MODULE_PODCASTS
                 Section {
                     NavigationLink {
                         CueSourcesEditor(ids: $draft.podcastIDs, musicItem: $draft.musicItem)
@@ -135,6 +138,7 @@ struct RoutineEditorView: View {
                         .fixedSize(horizontal: false, vertical: true)
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
+                #endif
 
                 Section {
                     Toggle("Sleep timer", isOn: sleepTimerBinding)
@@ -174,19 +178,23 @@ struct RoutineEditorView: View {
         #endif
     }
 
+    #if BANANA_MODULE_PODCASTS
     private var sourceSummary: String {
         if draft.podcastIDs.count == 1 { return library.podcast(draft.podcastIDs[0])?.title ?? "1 show" }
         if draft.podcastIDs.count > 1 { return "\(draft.podcastIDs.count) shows" }
         if let music = draft.musicItem { return music.title }
         return "None"
     }
+    #endif
 
     private func save() {
         draft.autonomy = autonomy
+        #if BANANA_MODULE_PODCASTS
         if draft.podcastIDs.count == 1 { draft.sourceLabel = library.podcast(draft.podcastIDs[0])?.title ?? draft.sourceLabel }
         else if draft.podcastIDs.count > 1 { draft.sourceLabel = "\(draft.podcastIDs.count) shows" }
         else if let music = draft.musicItem { draft.sourceLabel = music.title }
         else if draft.slot == nil { draft.sourceLabel = "Keep playing" }
+        #endif
         routines.upsert(draft)
         dismiss()
     }
@@ -286,6 +294,7 @@ struct RoutineEditorView: View {
 
 }
 
+#if BANANA_MODULE_PODCASTS
 /// The cue's source pool — always editable (drag to reorder, swipe/– to remove, +
 /// to add), so there's no Edit button to toggle.
 private struct CueSourcesEditor: View {
@@ -372,7 +381,9 @@ private struct CueSourcesEditor: View {
         }
     }
 }
+#endif
 
+#if BANANA_MODULE_PODCASTS
 /// Pick an Apple Music playlist / album / song for a cue.
 private struct CueMusicPicker: View {
     @EnvironmentObject var music: MusicController
@@ -429,3 +440,4 @@ private struct CueMusicPicker: View {
         }
     }
 }
+#endif

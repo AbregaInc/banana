@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 #if os(iOS) || os(macOS)
 import SwiftUI
 
@@ -131,4 +132,5 @@ struct RecentMealsView: View {
         }
     }
 }
+#endif
 #endif

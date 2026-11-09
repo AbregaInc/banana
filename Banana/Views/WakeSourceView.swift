@@ -1,3 +1,4 @@
+#if BANANA_MODULE_PODCASTS
 import SwiftUI
 
 /// Choose what plays after an alarm rings: nothing, a subscribed podcast, or an
@@ -207,3 +208,4 @@ struct MusicPickerList: View {
         }
     }
 }
+#endif

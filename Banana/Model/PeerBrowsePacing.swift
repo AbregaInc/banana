@@ -1,3 +1,4 @@
+#if BANANA_MODULE_PODCASTS
 import Foundation
 
 /// How the nearby-device search (`PodcastPeerTransfer`'s Bonjour browse) is paced.
@@ -20,3 +21,4 @@ enum PeerBrowsePacing {
         return max(0, restartGap - now.timeIntervalSince(lastStopped))
     }
 }
+#endif

@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 import AVFoundation
 import Foundation
 import ImageIO
@@ -1001,3 +1002,4 @@ extension MealPhotoDepth {
     /// The nearest 10 ml, at least 10.
     private static func ml(_ value: Double) -> Int { max(10, Int((value / 10).rounded()) * 10) }
 }
+#endif

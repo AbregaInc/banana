@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 import Foundation
 
 /// A food the bundled catalog knows ("2 eggs") came with numbers but no weight and no database
@@ -49,3 +50,4 @@ enum CatalogFoodLink {
         return value
     }
 }
+#endif

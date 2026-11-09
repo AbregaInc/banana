@@ -29,6 +29,7 @@ struct TimingOfferCard: View {
     }
 }
 
+#if BANANA_MODULE_FOOD
 /// Taken's offers, where they're acted on: reminders that are something taken, to move in, and
 /// moments Taken items have been following. Its own List section on the iPhone (`inList`), a
 /// stack of cards on the iPad and Mac page; nothing at all when there's nothing to offer.
@@ -69,6 +70,7 @@ struct TakenTimingOffers: View {
         }
     }
 }
+#endif
 
 /// Repeating reminders that have been following a moment, offered it above Plan's Day:
 /// "Creatine after workouts?"

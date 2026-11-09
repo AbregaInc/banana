@@ -1,3 +1,4 @@
+#if BANANA_MODULE_WORKOUTS
 import SwiftUI
 
 /// A deliberately deterministic two-frame form guide. It never claims to assess the person;
@@ -136,3 +137,4 @@ private struct FormPose {
     private static func rotation(open: Bool) -> FormPose { var p = deadBug(reached: false); p.points[.leftElbow] = CGPoint(x: open ? 0.5:0.34, y: open ? 0.38:0.6); p.points[.leftHand] = CGPoint(x: open ? 0.67:0.42, y: open ? 0.25:0.68); return p }
     private static func chest(open: Bool) -> FormPose { var p = standing(); p.points[.leftElbow] = CGPoint(x: open ? 0.25:0.39, y: 0.31); p.points[.rightElbow] = CGPoint(x: open ? 0.75:0.61, y: 0.31); p.points[.leftHand] = CGPoint(x: open ? 0.14:0.4, y: 0.24); p.points[.rightHand] = CGPoint(x: open ? 0.86:0.6, y: 0.24); return p }
 }
+#endif

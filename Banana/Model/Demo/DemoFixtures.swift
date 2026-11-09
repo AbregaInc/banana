@@ -9,8 +9,16 @@ enum DemoFixtures {
         var workspace = review(now: now, timeZone: timeZone)
         workspace.scenarioID = scenario.rawValue
         if scenario == .empty {
-            workspace.events = []; workspace.tasks = []; workspace.meals = []; workspace.notes = []
-            workspace.workouts = []; workspace.sleep = []; workspace.episodes = []
+            workspace.events = []; workspace.tasks = []; workspace.sleep = []; workspace.episodes = []
+            #if BANANA_MODULE_FOOD
+            workspace.meals = []
+            #endif
+            #if BANANA_MODULE_NOTES
+            workspace.notes = []
+            #endif
+            #if BANANA_MODULE_WORKOUTS
+            workspace.workouts = []
+            #endif
         }
         return workspace
     }
@@ -40,25 +48,40 @@ enum DemoFixtures {
             .init(id: id(6), calendarID: "work", title: "Team check-in", start: at(1, 10), end: at(1, 10, 30), recurrence: .daily),
             .init(id: id(7), calendarID: "personal", title: "Weekend walk", start: at(3, 11), end: at(3, 12)),
         ]
+        #if BANANA_MODULE_FOOD
         let breakfast = MealEntry(id: id(20), date: at(0, 8), items: [
             MealItem(id: id(21), name: "Oats with berries", serving: "1 bowl", macros: .init(calories: 340, proteinGrams: 12, carbohydrateGrams: 54, fatGrams: 9), grams: 250),
         ], name: "Breakfast")
         let lunch = MealEntry(id: id(22), date: at(-1, 12), items: [
             MealItem(id: id(23), name: "Chicken and rice", serving: "1 plate", macros: .init(calories: 580, proteinGrams: 42, carbohydrateGrams: 65, fatGrams: 16), grams: 400),
         ], name: "Lunch")
+        #endif
+        #if BANANA_MODULE_NOTES
         let note = VoiceNote(id: id(30), createdAt: at(0, 9), audioFilename: "", transcript: "Ideas for the next design review\n\nKeep the day clear. Make important actions easy to find.", status: .transcribed)
         let podcastNote = VoiceNote(id: id(31), createdAt: at(-1, 17), audioFilename: "", transcript: "Try a short walk after lunch.", kind: .podcastCapture,
             context: .init(episodeID: "demo-episode", episodeTitle: "A little room in your day", podcastTitle: "Banana sample audio", timestamp: 12), status: .transcribed)
+        #endif
+        #if BANANA_MODULE_WORKOUTS
         let samples = (0..<60).map { FitnessSample(t: Double($0) * 30, kind: .heartRate, v1: 112 + sin(Double($0) / 5) * 16, v2: nil, v3: nil) }
         let workout = FitnessSession(id: id(40), start: at(-1, 16), end: at(-1, 16, 30), activity: "Strength", avgHeartRate: 114, totalEnergy: 180, totalDistance: nil, samples: samples)
-        return DemoWorkspace(anchor: at(0, 12), timeZone: timeZone.identifier, calendars: calendars, events: events,
+        #endif
+        var workspace = DemoWorkspace(anchor: at(0, 12), timeZone: timeZone.identifier, calendars: calendars, events: events,
             tasks: [.init(id: id(10), title: "Book the dentist", kind: .reminder),
                     .init(id: id(11), title: "Physical therapy exercises", kind: .routine),
                     .init(id: id(12), title: "Take a walk", kind: .routine)],
-            meals: [breakfast, lunch], notes: [note, podcastNote], workouts: [workout],
             sleep: (1...7).map { .init(id: id(50 + $0), start: at(-$0, 23), hours: 7.2 + Double($0 % 3) * 0.3) },
             episodes: [.init(id: id(70), title: "A little room in your day", show: "Banana sample audio",
                 transcript: "Welcome to Banana. This is sample audio for exploring the app. Plan your day, keep a note, log a meal, and make a little room for yourself. Your changes here stay in the demo."),
                 .init(id: id(71), title: "Small routines, steady progress", show: "Banana sample audio", transcript: "A small routine can make a busy day feel simpler. Start with something you can repeat, and keep track of what helps.")])
+        #if BANANA_MODULE_FOOD
+        workspace.meals = [breakfast, lunch]
+        #endif
+        #if BANANA_MODULE_NOTES
+        workspace.notes = [note, podcastNote]
+        #endif
+        #if BANANA_MODULE_WORKOUTS
+        workspace.workouts = [workout]
+        #endif
+        return workspace
     }
 }

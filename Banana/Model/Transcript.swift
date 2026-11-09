@@ -1,3 +1,4 @@
+#if BANANA_MODULE_PODCASTS
 import Foundation
 import CryptoKit
 
@@ -307,3 +308,4 @@ private enum TranscriptCloudFiles {
         }
     }
 }
+#endif

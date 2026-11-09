@@ -5,8 +5,15 @@ configs:
   PiDevelopment: debug
   DevelopmentCloud: release
   TestFlight: release
+  # The App Store app: the TestFlight identity with only the modules BANANA_APP_STORE_MODULES
+  # lists (Config/Base.xcconfig). Chosen at upload time: tools/testflight.sh ios|mac BUILD
+  # MODE appstore.
+  AppStore: release
 options:
   bundleIdPrefix: $(BANANA_BUNDLE_ID)
+  # The App Store app's Info.plist and entitlements, derived from the full ones just generated
+  # with only its modules' capabilities (Config/Modules.json, Config/Generated/).
+  postGenCommand: python3 tools/modules/modules.py generate
   createIntermediateGroups: true
   deploymentTarget:
     iOS: "26.1"
@@ -101,6 +108,24 @@ schemes:
         BananaMac: all
     run:
       config: Debug
+  # The App Store app (configuration AppStore): the TestFlight identity with only the modules
+  # BANANA_APP_STORE_MODULES lists. tools/testflight.sh ios|mac BUILD MODE appstore archives it.
+  BananaAppStore:
+    build:
+      targets:
+        Banana: all
+    run:
+      config: AppStore
+    archive:
+      config: AppStore
+  BananaMacAppStore:
+    build:
+      targets:
+        BananaMac: all
+    run:
+      config: AppStore
+    archive:
+      config: AppStore
   BananaMacBeta:
     build:
       targets:
@@ -161,6 +186,7 @@ configFiles:
   PiDevelopment: Config/Base.xcconfig
   DevelopmentCloud: Config/Base.xcconfig
   TestFlight: Config/Base.xcconfig
+  AppStore: Config/Base.xcconfig
 
 settings:
   base:
@@ -178,6 +204,15 @@ settings:
     # same objects differed (docs/performance/build-pipeline.md, "Reproducible builds"). Small
     # stubs branch to the one objc_msgSend stub instead.
     OTHER_LDFLAGS: "$(inherited) -Xlinker -objc_stubs_small"
+    # The modules a build carries, as compile conditions (`#if BANANA_MODULE_PODCASTS`; the list
+    # is BANANA_MODULES in Config/Base.xcconfig). Here and not in the xcconfig: the project's own
+    # Debug value would replace the xcconfig's.
+    SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) $(BANANA_MODULES)"
+  configs:
+    Debug:
+      SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) DEBUG $(BANANA_MODULES)"
+    PiDevelopment:
+      SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) DEBUG $(BANANA_MODULES)"
 
 packages:
   Sparkle:
@@ -241,6 +276,8 @@ targets:
         BananaReleaseChannel: $(BANANA_RELEASE_CHANNEL)
         BananaPrimaryBundleIdentifier: $(BANANA_BUNDLE_ID)
         BananaSourceCommit: $(BANANA_SOURCE_COMMIT)
+        # The modules this build carries (Config/Base.xcconfig), for tools/check-release.sh.
+        BananaModules: $(BANANA_MODULES)
         BananaServiceHost: $(BANANA_SERVICE_HOST)
         BananaGoogleServerClient: $(BANANA_GOOGLE_SERVER_CLIENT)
         CFBundleDisplayName: Banana
@@ -377,6 +414,16 @@ targets:
           BANANA_UNRELEASED: NO
           BANANA_LOCAL_EMAIL: NO
           BANANA_LOCAL_AI: NO
+        # The App Store app: TestFlight's identity, only BANANA_APP_STORE_MODULES' modules.
+        AppStore:
+          BANANA_RELEASE_CHANNEL: appstore
+          BANANA_UNRELEASED: NO
+          BANANA_LOCAL_EMAIL: NO
+          BANANA_LOCAL_AI: NO
+          # Only its modules' usage strings, background modes and entitlements (tools/modules).
+          # XcodeGen sets every configuration's CODE_SIGN_ENTITLEMENTS from `entitlements:`;
+          # modules.py points this one at the derived file after each generate.
+          INFOPLIST_FILE: Config/Generated/Banana-AppStore-Info.plist
         Release:
           # A normal Release build must be the public app; Debug retains test fixtures.
           BANANA_UNRELEASED: NO
@@ -390,8 +437,13 @@ targets:
       - package: GRDB
       - package: SwiftSoup
       - target: BananaWidgetExtension
+      # Into the app's Watch folder (BANANA_WATCH_EMBED_PATH), or beside the app in a build that
+      # carries none of the Watch app's modules (Config/Modules.json, "embeds").
       - target: BananaWatch
         embed: true
+        copy:
+          destination: productsDirectory
+          subpath: $(BANANA_WATCH_EMBED_PATH)
 
     postBuildScripts:
       - name: Gate local features and resources
@@ -432,6 +484,8 @@ targets:
         BananaReleaseChannel: $(BANANA_RELEASE_CHANNEL)
         BananaPrimaryBundleIdentifier: $(BANANA_BUNDLE_ID)
         BananaSourceCommit: $(BANANA_SOURCE_COMMIT)
+        # The modules this build carries (Config/Base.xcconfig), for tools/check-release.sh.
+        BananaModules: $(BANANA_MODULES)
         BananaServiceHost: $(BANANA_SERVICE_HOST_BETA)
         BananaGoogleServerClient: $(BANANA_GOOGLE_SERVER_CLIENT_BETA)
         CFBundleDisplayName: $(BANANA_BETA_DISPLAY_NAME)
@@ -661,6 +715,8 @@ targets:
       - path: Banana/Model/NoteReminderWriter.swift
       - path: Shared/JSONRecordStream.swift
       - path: Shared/WellnessModels.swift
+      # Reminders and Taken items due around a moment; the Plan's own, not a module's.
+      - path: Shared/TimingAnchor.swift
       - path: Banana/Model/WatchAudioQuality.swift
       - path: Banana/Model/Podcast.swift
       - path: Banana/Model/FeedTranscriptParser.swift
@@ -818,6 +874,7 @@ targets:
       # The meal backlog: items, photo grouping, splitting a day's words, log times, which device
       # estimates, repeat meals, sanity checks. Pure; needs WellnessModels + PortionScaling.
       - path: Banana/Model/MealBacklog.swift
+      - path: Banana/Model/MealTextPart.swift
       # A meal photo's capture date and the small copy kept. ImageIO only.
       - path: Banana/Model/MealPhotoImage.swift
       # Depth from Portrait (and LiDAR) photos: reading the map (ImageIO + AVFoundation) and
@@ -839,6 +896,7 @@ targets:
       # Trends: rolling windows and the same-point workout comparison. Pure; needs
       # HealthWorkout (MetricKind) and RhythmPeriod, both listed below.
       - path: Banana/Model/MetricTrends.swift
+      - path: Banana/Model/StringCase.swift
       # Show-notes HTML to text for the Episode info sheet (WebKit's importer froze the app).
       - path: Banana/Model/ShowNotes.swift
       # Learning real trip times from visits and motion: trip pairing, pace and per-place medians,
@@ -999,6 +1057,7 @@ targets:
       # "Lunch with Sam Friday 1pm at Balthazar" → the new-event form, filled in. Pure apart from
       # the system's date reading.
       - path: Banana/Model/EventPhrase.swift
+      - path: Banana/Model/PlainWords.swift
       - path: Banana/Model/GuestDirectory.swift
       # Due around a moment — after your workout, before breakfast (docs/design/ANCHORED-TIMING.md).
       - path: Banana/Model/AnchoredTiming.swift
@@ -1192,6 +1251,8 @@ targets:
         # measuring in Release. They are never embedded in the distributed application.
         BANANA_LOCAL_AI: YES
         BANANA_LOCAL_EMAIL: YES
+        # And every module, whatever the configuration: the tests exercise each one.
+        BANANA_MODULES: $(BANANA_ALL_MODULES)
         # And the mail fixtures (`#if DEBUG || MAIL_FIXTURES`), which the tests drive, so the
         # Release BananaModelTests run (cost budgets, tools/preflight.sh) compiles them too.
         SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) MAIL_FIXTURES"
@@ -1215,6 +1276,8 @@ targets:
       - path: Shared/SnapshotPersistence.swift
       - path: Shared/JSONRecordStream.swift
       - path: Shared/WellnessModels.swift
+      # Reminders and Taken items due around a moment; the Plan's own, not a module's.
+      - path: Shared/TimingAnchor.swift
       # Which built features are switched off, the same answer on the Watch as on the phone.
       - path: Shared/Features.swift
       - path: Shared/PlaybackSpeeds.swift
@@ -1257,6 +1320,10 @@ targets:
         keychain-access-groups: [$(AppIdentifierPrefix)com.boris.banana.watch.calendar]
     settings:
       base:
+        # The Watch app serves workouts, podcasts and voice notes, and is embedded only in a build
+        # that carries one of them (Config/Modules.json, tools/modules/embeds.sh). It always
+        # compiles whole, so it builds the same in every configuration.
+        BANANA_MODULES: $(BANANA_ALL_MODULES)
         PRODUCT_BUNDLE_IDENTIFIER: $(BANANA_BUNDLE_ID).watchkitapp
         # The phone, iPad and Mac take the system's accent (no AccentColor asset there); a
         # Watch has no such setting, so it keeps its own orange.
@@ -1287,6 +1354,7 @@ targets:
           NSExtensionPointIdentifier: com.apple.widgetkit-extension
     settings:
       base:
+        BANANA_MODULES: $(BANANA_ALL_MODULES)
         PRODUCT_BUNDLE_IDENTIFIER: $(BANANA_BUNDLE_ID).watchkitapp.watchface
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
         TARGETED_DEVICE_FAMILY: "4"
@@ -1356,6 +1424,8 @@ targets:
         BananaReleaseChannel: $(BANANA_RELEASE_CHANNEL)
         BananaPrimaryBundleIdentifier: $(BANANA_BUNDLE_ID)
         BananaSourceCommit: $(BANANA_SOURCE_COMMIT)
+        # The modules this build carries (Config/Base.xcconfig), for tools/check-release.sh.
+        BananaModules: $(BANANA_MODULES)
         BananaServiceHost: ""
         BananaGoogleServerClient: ""
         GIDClientID: ""
@@ -1435,6 +1505,8 @@ targetTemplates:
         BananaReleaseChannel: $(BANANA_RELEASE_CHANNEL)
         BananaPrimaryBundleIdentifier: $(BANANA_BUNDLE_ID)
         BananaSourceCommit: $(BANANA_SOURCE_COMMIT)
+        # The modules this build carries (Config/Base.xcconfig), for tools/check-release.sh.
+        BananaModules: $(BANANA_MODULES)
         BananaServiceHost: $(BANANA_SERVICE_HOST_BETA)
         BananaGoogleServerClient: $(BANANA_GOOGLE_SERVER_CLIENT_BETA)
         CFBundleDisplayName: $(BANANA_BETA_DISPLAY_NAME)
@@ -1558,6 +1630,8 @@ targetTemplates:
         BananaReleaseChannel: $(BANANA_RELEASE_CHANNEL)
         BananaPrimaryBundleIdentifier: $(BANANA_BUNDLE_ID)
         BananaSourceCommit: $(BANANA_SOURCE_COMMIT)
+        # The modules this build carries (Config/Base.xcconfig), for tools/check-release.sh.
+        BananaModules: $(BANANA_MODULES)
         BananaServiceHost: $(BANANA_SERVICE_HOST)
         BananaGoogleServerClient: $(BANANA_GOOGLE_SERVER_CLIENT)
         CFBundleDisplayName: Banana
@@ -1621,6 +1695,14 @@ targetTemplates:
           BANANA_LOCAL_EMAIL: NO
           BANANA_LOCAL_AI: NO
           CODE_SIGN_ENTITLEMENTS: BananaMac/BananaMacAppStore.entitlements
+        # The App Store app: TestFlight's identity, only BANANA_APP_STORE_MODULES' modules.
+        AppStore:
+          BANANA_RELEASE_CHANNEL: appstore
+          BANANA_UNRELEASED: NO
+          BANANA_LOCAL_EMAIL: NO
+          BANANA_LOCAL_AI: NO
+          INFOPLIST_FILE: Config/Generated/BananaMac-AppStore-Info.plist
+          CODE_SIGN_ENTITLEMENTS: Config/Generated/BananaMac-AppStore.entitlements
         # Local Mac builds should not require a developer-portal provisioning profile.
         # Release retains BananaMac.entitlements so App Store builds keep iCloud sync.
         Debug:

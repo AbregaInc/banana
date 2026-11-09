@@ -1,3 +1,4 @@
+#if BANANA_MODULE_WORKOUTS
 import SwiftUI
 import Charts
 
@@ -482,3 +483,4 @@ struct TrendsView: View {
         .contentShape(Rectangle())
     }
 }
+#endif

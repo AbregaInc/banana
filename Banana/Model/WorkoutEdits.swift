@@ -1,3 +1,4 @@
+#if BANANA_MODULE_WORKOUTS
 import Foundation
 
 /// A Revert asked for on a device that doesn't hold the workout's original recording. Any of
@@ -105,3 +106,4 @@ enum WorkoutEdits {
         return Array(kept.suffix(20))
     }
 }
+#endif

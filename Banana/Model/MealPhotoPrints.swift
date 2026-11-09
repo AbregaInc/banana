@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 import CoreGraphics
 import Foundation
 import Vision
@@ -122,3 +123,4 @@ actor MealPhotoPrints {
         }
     }
 }
+#endif

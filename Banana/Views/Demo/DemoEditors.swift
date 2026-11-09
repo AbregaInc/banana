@@ -65,6 +65,7 @@ struct DemoEventEditor: View {
     }
 }
 
+#if BANANA_MODULE_FOOD
 struct DemoMealEditor: View {
     @ObservedObject var session: DemoSession
     @Environment(\.dismiss) private var dismiss
@@ -140,7 +141,9 @@ struct DemoMealEditor: View {
         }
     }
 }
+#endif
 
+#if BANANA_MODULE_NOTES
 struct DemoNoteEditor: View {
     @ObservedObject var session: DemoSession
     @Environment(\.dismiss) private var dismiss
@@ -204,6 +207,7 @@ struct DemoNoteEditor: View {
         }.frame(minWidth: 320, minHeight: 360)
     }
 }
+#endif
 
 struct DemoSaveError: View {
     @ObservedObject var session: DemoSession
@@ -216,6 +220,7 @@ struct DemoSaveError: View {
     }
 }
 
+#if BANANA_MODULE_WORKOUTS
 struct DemoWorkoutRecorder: View {
     @ObservedObject var session: DemoSession
     @Environment(\.dismiss) private var dismiss
@@ -276,3 +281,4 @@ struct DemoWorkoutRecorder: View {
         Task { if await session.perform(.saveWorkout(workout)) { dismiss() } }
     }
 }
+#endif

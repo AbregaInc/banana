@@ -112,6 +112,7 @@ extension AlarmStore: CloudControlSource {
 
 // MARK: - The Watch link (WatchConnectivity is iPhone-only)
 
+#if BANANA_MODULE_WORKOUTS || BANANA_MODULE_PODCASTS || BANANA_MODULE_NOTES
 @MainActor
 final class PhoneConnectivity: NSObject, ObservableObject {
     static let shared = PhoneConnectivity()
@@ -145,5 +146,6 @@ final class PhoneConnectivity: NSObject, ObservableObject {
                      cleanup: Bool = false, skipPlan: Data? = nil) {}
     func sendFileFallback(_ episodeID: String) {}
 }
+#endif
 
 #endif

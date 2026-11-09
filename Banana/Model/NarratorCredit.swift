@@ -1,3 +1,4 @@
+#if BANANA_MODULE_PODCASTS
 import Foundation
 
 /// Who narrated an episode, read from what the publisher already tells us.
@@ -101,3 +102,4 @@ enum NarratorCredit {
             .sorted { $0.episodes == $1.episodes ? $0.name < $1.name : $0.episodes > $1.episodes }
     }
 }
+#endif

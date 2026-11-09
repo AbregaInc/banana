@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 import Foundation
 #if canImport(FoundationModels)
 import FoundationModels
@@ -74,4 +75,5 @@ struct GeneratedTakenGuess {
     @Guide(description: "True only if the reminder is about taking a supplement, vitamin, medicine or similar")
     var takesSomething: Bool
 }
+#endif
 #endif

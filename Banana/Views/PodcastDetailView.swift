@@ -1,3 +1,4 @@
+#if BANANA_MODULE_PODCASTS
 import SwiftUI
 import Foundation
 
@@ -963,3 +964,4 @@ private struct PodcastBrowserRow<Content: View>: View {
         .task { await browser.reveal(index) }
     }
 }
+#endif

@@ -1,3 +1,4 @@
+#if BANANA_MODULE_NOTES
 #if os(iOS)
 import AppIntents
 
@@ -82,4 +83,5 @@ struct BananaPhoneShortcuts: AppShortcutsProvider {
             systemImageName: "square.and.arrow.up")
     }
 }
+#endif
 #endif

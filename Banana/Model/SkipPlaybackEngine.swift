@@ -1,3 +1,4 @@
+#if BANANA_MODULE_PODCASTS
 import Foundation
 
 /// One jump automatic skipping actually made — what was taken, from where, and when.
@@ -233,3 +234,4 @@ struct SkipPlaybackEngine {
         return run.contains(where: { $0.id == span.id }) ? run : [span]
     }
 }
+#endif

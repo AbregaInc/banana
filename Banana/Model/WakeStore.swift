@@ -61,6 +61,9 @@ enum SourceSlot: String, Codable, CaseIterable, Identifiable {
 /// an Apple Music item). Persisted in UserDefaults.
 @MainActor
 final class WakeStore: ObservableObject {
+    /// The one store: the Plan's wake sounds, and the audio graph (`WakeCoordinator`) that plays them.
+    static let shared = WakeStore()
+
     @Published private(set) var sources: [SourceSlot: WakeSource] = [:]
 
     /// Fired after any slot changes (used to re-sync the Workout source to the Watch).
@@ -100,6 +103,7 @@ final class WakeStore: ObservableObject {
         for slot in SourceSlot.allCases where isPodcast(id, for: slot) { clear(slot) }
     }
 
+    #if BANANA_MODULE_PODCASTS
     /// Human-readable summary for a slot, resolving podcast titles.
     func summary(for slot: SourceSlot, using library: PodcastLibrary) -> (title: String, subtitle: String, systemImage: String)? {
         switch sources[slot] {
@@ -112,9 +116,12 @@ final class WakeStore: ObservableObject {
             return nil
         }
     }
+    #endif
+    #if BANANA_MODULE_PODCASTS
     func summary(using library: PodcastLibrary) -> (title: String, subtitle: String, systemImage: String)? {
         summary(for: .wake, using: library)
     }
+    #endif
 
     private func set(_ newValue: WakeSource?, for slot: SourceSlot) {
         guard sources[slot] != newValue else { return }

@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 import Combine
 import Foundation
 import ImageIO
@@ -104,3 +105,4 @@ extension MealPhotoStore: CloudControlSource {
         return true
     }
 }
+#endif

@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 import Foundation
 #if canImport(FoundationModels)
 import FoundationModels
@@ -388,3 +389,4 @@ extension FoodTextExtractor {
                             foods: parsed.map { EstimatedFood($0.asMealItem(), amount: .typed) })
     }
 }
+#endif

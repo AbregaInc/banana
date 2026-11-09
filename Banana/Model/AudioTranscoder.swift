@@ -1,3 +1,4 @@
+#if BANANA_MODULE_PODCASTS
 import Foundation
 @preconcurrency import AVFoundation
 
@@ -89,3 +90,4 @@ enum AudioTranscoder {
         }
     }
 }
+#endif

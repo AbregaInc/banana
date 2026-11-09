@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 import Foundation
 
 /// `--estimator-bench`: how close the estimator gets, measured, so a change can be shown to help
@@ -50,3 +51,4 @@ enum EstimatorBench {
         return text + "."
     }
 }
+#endif

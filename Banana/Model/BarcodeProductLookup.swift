@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 import Foundation
 import OSLog
 import SQLite3
@@ -1008,3 +1009,4 @@ actor UPCItemDBRateLimiter {
 }
 
 private let SQLITE_TRANSIENT = unsafeBitCast(-1, to: sqlite3_destructor_type.self)
+#endif

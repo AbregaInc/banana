@@ -31,6 +31,17 @@ private extension View {
 private enum DemoSection: String, CaseIterable, Identifiable {
     case plan = "Plan", body = "Body", notes = "Notes", library = "Library"
     var id: String { rawValue }
+    /// The modules a section shows; nil for Plan, which every build has.
+    var modules: [AppModule]? {
+        switch self {
+        case .plan: nil
+        case .body: [.workouts, .food]
+        case .notes: [.notes]
+        case .library: [.podcasts]
+        }
+    }
+    /// The sections of the modules this build carries.
+    static var shown: [DemoSection] { allCases.filter { $0.modules?.contains(where: \.isAvailable) ?? true } }
     var symbol: String { switch self { case .plan: AppSection.plan.outlineSymbol; case .body: "heart"; case .notes: AppSection.notes.outlineSymbol; case .library: AppSection.library.outlineSymbol } }
 }
 
@@ -42,8 +53,12 @@ struct DemoExperienceView: View {
     @Environment(\.scenePhase) private var phase
     @State private var section: DemoSection = .plan
     @State private var editingEvent: DemoEvent?
+    #if BANANA_MODULE_FOOD
     @State private var editingMeal: MealEntry?
+    #endif
+    #if BANANA_MODULE_NOTES
     @State private var editingNote: VoiceNote?
+    #endif
     @State private var resetting = false
     @State private var bodyPage = 0
     @State private var recording = false
@@ -63,7 +78,7 @@ struct DemoExperienceView: View {
         Group {
             if wide {
                 NavigationSplitView {
-                    List(DemoSection.allCases) { value in
+                    List(DemoSection.shown) { value in
                         Button { section = value } label: { Label(value.rawValue, systemImage: value.symbol) }
                             .buttonStyle(.plain)
                             .listRowBackground(section == value ? Color.accentColor.opacity(0.12) : Color.clear)
@@ -73,8 +88,10 @@ struct DemoExperienceView: View {
             } else {
                 navigation
                     .safeAreaInset(edge: .bottom, spacing: 0) {
+                        // One section is no choice: no bar.
+                        if DemoSection.shown.count > 1 {
                         HStack {
-                            ForEach(DemoSection.allCases) { value in
+                            ForEach(DemoSection.shown) { value in
                                 Button { section = value } label: {
                                     VStack(spacing: 4) { Image(systemName: value.symbol).font(.title3); Text(value.rawValue).font(.caption) }
                                         .frame(maxWidth: .infinity).padding(.vertical, 10)
@@ -82,14 +99,21 @@ struct DemoExperienceView: View {
                                 }.buttonStyle(.plain).accessibilityIdentifier("demo.tab.\(value.id.lowercased())")
                             }
                         }.background(.bar)
+                        }
                     }
             }
         }
         .task { await session.load() }
         .sheet(item: $editingEvent) { DemoEventEditor(session: session, event: $0) }
+        #if BANANA_MODULE_FOOD
         .sheet(item: $editingMeal) { DemoMealEditor(session: session, meal: $0) }
+        #endif
+        #if BANANA_MODULE_NOTES
         .sheet(item: $editingNote) { DemoNoteEditor(session: session, note: $0) }
+        #endif
+        #if BANANA_MODULE_WORKOUTS
         .sheet(isPresented: $recording) { DemoWorkoutRecorder(session: session) }
+        #endif
         .confirmationDialog("Reset sample data?", isPresented: $resetting, titleVisibility: .visible) {
             Button("Reset sample data", role: .destructive) { audio.stop(); Task { await session.reset() } }
         } message: { Text("Only changes made in this demo will be removed. Your personal data is unaffected.") }
@@ -114,9 +138,16 @@ struct DemoExperienceView: View {
                 if session.workspace != nil {
                     switch section {
                     case .plan: plan
+                    #if BANANA_MODULE_WORKOUTS || BANANA_MODULE_FOOD
                     case .body: bodyContent
+                    #endif
+                    #if BANANA_MODULE_NOTES
                     case .notes: notes
+                    #endif
+                    #if BANANA_MODULE_PODCASTS
                     case .library: library
+                    #endif
+                    default: plan
                     }
                 } else if session.error == nil {
                     ProgressView("Opening sample data…").frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -177,14 +208,23 @@ struct DemoExperienceView: View {
         }
     }
 
+    #if BANANA_MODULE_WORKOUTS || BANANA_MODULE_FOOD
     private var bodyContent: some View {
         VStack {
+            #if BANANA_MODULE_WORKOUTS && BANANA_MODULE_FOOD
             Picker("Body", selection: $bodyPage) { Text("Workouts and sleep").tag(0); Text("Food").tag(1) }
                 .pickerStyle(.segmented).padding(.horizontal).accessibilityIdentifier("demo.body.page")
             if bodyPage == 0 { workouts } else { meals }
+            #elseif BANANA_MODULE_WORKOUTS
+            workouts
+            #else
+            meals
+            #endif
         }
     }
+    #endif
 
+    #if BANANA_MODULE_FOOD
     private var meals: some View {
         List {
             if let workspace = session.workspace {
@@ -215,7 +255,9 @@ struct DemoExperienceView: View {
             }
         }
     }
+    #endif
 
+    #if BANANA_MODULE_NOTES
     private var notes: some View {
         VStack {
             LiveFilterSearch(scope: "notes", filter: $noteFilter).padding(.horizontal)
@@ -242,7 +284,9 @@ struct DemoExperienceView: View {
             }
         }
     }
+    #endif
 
+    #if BANANA_MODULE_WORKOUTS
     private var workouts: some View {
         List {
             Section {
@@ -275,7 +319,9 @@ struct DemoExperienceView: View {
             }
         }
     }
+    #endif
 
+    #if BANANA_MODULE_WORKOUTS
     private func workoutDetail(_ workout: FitnessSession) -> some View {
         List {
             LabeledContent("Duration", value: "\(Int(workout.duration / 60)) minutes")
@@ -287,7 +333,9 @@ struct DemoExperienceView: View {
             Button("Delete sample workout", role: .destructive) { Task { await session.perform(.deleteWorkout(workout.id)) } }
         }.navigationTitle(workout.activity)
     }
+    #endif
 
+    #if BANANA_MODULE_PODCASTS
     private var library: some View {
         List {
             Section {
@@ -313,14 +361,17 @@ struct DemoExperienceView: View {
                     Button(episode.listened ? "Mark unlistened" : "Mark listened", systemImage: episode.listened ? "checkmark.circle.fill" : "circle") {
                         var changed = episode; changed.listened.toggle(); Task { await session.perform(.saveEpisode(changed)) }
                     }.accessibilityIdentifier("demo.episode.listened.\(episode.id.uuidString)")
+                    #if BANANA_MODULE_NOTES
                     Button("Save a note from this episode", systemImage: "quote.bubble") {
                         editingNote = VoiceNote(createdAt: session.workspace?.anchor ?? Date(), audioFilename: "", transcript: "", kind: .podcastCapture,
                             context: .init(episodeID: episode.id.uuidString, episodeTitle: episode.title, podcastTitle: episode.show, timestamp: 0), status: .transcribed)
                     }
+                    #endif
                 }
             }
         }
     }
+    #endif
 }
 
 @MainActor

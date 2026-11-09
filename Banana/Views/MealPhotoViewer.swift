@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 #if os(iOS) || os(macOS)
 import SwiftUI
 #if os(iOS)
@@ -289,5 +290,6 @@ final class ZoomingPhotoView: UIScrollView, UIScrollViewDelegate {
                         width: size.width, height: size.height), animated: true)
     }
 }
+#endif
 #endif
 #endif

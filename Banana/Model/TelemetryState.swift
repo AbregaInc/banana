@@ -23,9 +23,13 @@ enum TelemetryState {
             .setup(.location, location(LocationAccess.shared.standing)),
             .setup(.appleIntelligence, Intelligence.current.deviceAvailable ? .on : .off),
             .setup(.routines, count: RoutineStore.shared.routines.filter(\.enabled).count),
-            .setup(.podcasts, count: WakeCoordinator.shared.library.podcasts.count),
-            .setup(.notes, count: VoiceNoteStore.shared.notes.count),
         ]
+        #if BANANA_MODULE_PODCASTS
+        out.append(.setup(.podcasts, count: WakeCoordinator.shared.library.podcasts.count))
+        #endif
+        #if BANANA_MODULE_NOTES
+        out.append(.setup(.notes, count: VoiceNoteStore.shared.notes.count))
+        #endif
         // Which modules are on: what people choose to have Banana look after.
         let modules = ModuleStore.shared.choice
         out += [

@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 import Foundation
 
 /// The foods you usually have around a time of day, from every meal you've logged — not only the
@@ -126,3 +127,4 @@ enum UsualFoods {
         return sorted.last?.grams
     }
 }
+#endif

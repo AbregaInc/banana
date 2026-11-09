@@ -1,3 +1,4 @@
+#if BANANA_MODULE_PODCASTS
 import Foundation
 
 /// The parsed result of a podcast RSS feed.
@@ -267,3 +268,4 @@ private extension String {
     var trimmed: String { trimmingCharacters(in: .whitespacesAndNewlines) }
     var nilIfEmpty: String? { isEmpty ? nil : self }
 }
+#endif

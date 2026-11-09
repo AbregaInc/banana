@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 #if os(iOS)
 // The capture session and its parts aren't marked Sendable; their work is done on the camera's queue.
 @preconcurrency import AVFoundation
@@ -271,4 +272,5 @@ struct MealDepthCameraView: View {
         }
     }
 }
+#endif
 #endif

@@ -1,3 +1,4 @@
+#if BANANA_MODULE_WORKOUTS
 import SwiftUI
 
 /// "Compared with your last 90 days" (spec §4.6) — reachable any time from the Mac, not only in
@@ -67,3 +68,4 @@ struct WorkoutComparisonCard: View {
         .dsCard()
     }
 }
+#endif

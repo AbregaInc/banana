@@ -1,3 +1,4 @@
+#if BANANA_MODULE_WORKOUTS
 import Foundation
 
 /// Pure 3D→2D geometry for the hand-path ("cylinder") view: an orbit camera, a rotation +
@@ -396,3 +397,4 @@ enum HandPathScene {
         }
     }
 }
+#endif

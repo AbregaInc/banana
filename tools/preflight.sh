@@ -3,6 +3,8 @@
 #
 #   tools/preflight.sh                          # Beta rollout checks, default unit tests
 #   tools/preflight.sh --channel stable         # Stable: TestFlight iOS + Mac, Mac direct
+#   tools/preflight.sh --channel appstore       # the App Store app: iOS + Mac, configuration
+#                                               # AppStore (BANANA_APP_STORE_MODULES only)
 #   tools/preflight.sh CalendarOwnershipTests   # these unit test classes instead of the default
 #   tools/preflight.sh --build 116 --version 1.0.4   # stamp what the rollout will stamp
 #                                               # (default: the next build number, last version)
@@ -13,7 +15,9 @@
 # then the strict tools/check-release.sh), the Mac Beta direct archive and export (with its check),
 # unit tests in Debug and optimized (`unit`, `unit-optimized`), and the Service tests when
 # Service/ changed since the last release tag. Stable swaps the iOS Beta build for the Mac
-# TestFlight archive and builds the Stable direct app.
+# TestFlight archive and builds the Stable direct app. App Store archives the iOS and Mac App
+# Store app (`testflight.sh … check appstore`), each checked by tools/check-release.sh, which
+# refuses anything of a module the app leaves out.
 #
 # The builds are the rollout's own (tools/release/lib.sh, testflight.sh check, build.sh check),
 # in its derived data (.build/ios-beta, .build/ios-prod, .build/mac-check, .build/mac-distribution)
@@ -34,12 +38,12 @@ while [ $# -gt 0 ]; do
     --skip) skip=",$2,"; shift 2 ;;
     --allow-dirty) allow_dirty=1; shift ;;
     --dry-run) DRY_RUN=1; shift ;;
-    -h|--help) sed -n '2,23p' "$0"; exit 0 ;;
+    -h|--help) sed -n '2,28p' "$0"; exit 0 ;;
     -*) die "unknown option $1" ;;
     *) tests+=("$1"); shift ;;
   esac
 done
-[ "$channel" = beta ] || [ "$channel" = stable ] || die "--channel beta|stable"
+[ "$channel" = beta ] || [ "$channel" = stable ] || [ "$channel" = appstore ] || die "--channel beta|stable|appstore"
 build=${build:-$(next_build)}
 version=${version:-$(last_release_version)}
 version=${version:-$(project_setting MARKETING_VERSION)}
@@ -72,15 +76,20 @@ clean_tree() {
 check clean-tree clean_tree
 check xcodegen run xcodegen generate
 
-if [ "$channel" = beta ]; then
-  check ios-beta build_ios_beta "$build" "$version"
-fi
-check ios-stable run tools/testflight.sh ios "$build" check
-if [ "$channel" = stable ]; then
-  check mac-testflight run tools/testflight.sh mac "$build" check
-  check mac-stable check_mac_direct stable "$build" "$version"
+if [ "$channel" = appstore ]; then
+  check ios-appstore run tools/testflight.sh ios "$build" check appstore
+  check mac-appstore run tools/testflight.sh mac "$build" check appstore
 else
-  check mac-beta check_mac_direct beta "$build" "$version"
+  if [ "$channel" = beta ]; then
+    check ios-beta build_ios_beta "$build" "$version"
+  fi
+  check ios-stable run tools/testflight.sh ios "$build" check
+  if [ "$channel" = stable ]; then
+    check mac-testflight run tools/testflight.sh mac "$build" check
+    check mac-stable check_mac_direct stable "$build" "$version"
+  else
+    check mac-beta check_mac_direct beta "$build" "$version"
+  fi
 fi
 
 unit_tests() {  # unit_tests CONFIGURATION SCHEME

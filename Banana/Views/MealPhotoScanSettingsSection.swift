@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 import SwiftUI
 #if os(iOS)
 import UIKit
@@ -115,3 +116,4 @@ struct MealPhotoScanSettingsSection: View {
         )
     }
 }
+#endif

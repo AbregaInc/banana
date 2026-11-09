@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 import SwiftUI
 
 /// What you said a meal was, as something you can change: the words under a photo meal waiting
@@ -88,3 +89,4 @@ struct MealWordsEditor: View {
         dismiss()
     }
 }
+#endif

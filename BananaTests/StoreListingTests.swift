@@ -40,7 +40,8 @@ final class StoreListingTests: XCTestCase {
         // without duplicating subtitle words. The names come from the modules themselves, so a
         // renamed or added module is a listing to update, not a test to edit.
         let indexed = words(try field("name") + " " + field("subtitle") + " " + field("keywords"))
-        let listed = AppModule.allCases.filter { $0.isAvailable(inUnreleasedBuild: false) }
+        // This listing is Stable's: every module but Email, which follows its own switch.
+        let listed = try ModuleSettings.modules("BANANA_ALL_MODULES")
         XCTAssertFalse(listed.isEmpty)
         var wanted: Set<String> = ["calendar"]
         for module in listed { wanted.formUnion(words(module.rawValue)) }
@@ -119,5 +120,33 @@ final class StoreListingTests: XCTestCase {
         XCTAssertTrue(generator.contains(#""-scheme", "BananaMacBeta""#))
         XCTAssertFalse(generator.contains(#""-scheme", "BananaMac","#))
         XCTAssertFalse(generator.contains("CODE_SIGNING_ALLOWED=NO"))
+    }
+
+    // MARK: - The App Store app's own listing (calendar-only)
+
+    private func appStoreField(_ name: String) throws -> String {
+        try String(contentsOf: Self.tool.appendingPathComponent("metadata/calendar-only/en-US/\(name).txt"), encoding: .utf8)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    /// The listing for the App Store configuration describes the modules it carries
+    /// (BANANA_APP_STORE_MODULES) and no other: no module it leaves out is named or searched for.
+    func testTheAppStoreListingNamesOnlyWhatItsBuildCarries() throws {
+        XCTAssertLessThanOrEqual(try appStoreField("name").count, 30)
+        XCTAssertLessThanOrEqual(try appStoreField("subtitle").count, 30)
+        XCTAssertLessThanOrEqual(try appStoreField("promotional_text").count, 170)
+        XCTAssertLessThanOrEqual(try appStoreField("description").count, 4000)
+        XCTAssertLessThanOrEqual(try appStoreField("keywords").utf8.count, 100)
+        let carried = Set(try ModuleSettings.modules("BANANA_APP_STORE_MODULES"))
+        let listing = words(try ["name", "subtitle", "keywords", "promotional_text", "description", "whats_new"]
+            .map(appStoreField).joined(separator: " "))
+        XCTAssertTrue(listing.contains("calendar"))
+        for module in AppModule.allCases where !carried.contains(module) {
+            XCTAssertFalse(listing.contains(words(module.rawValue).first ?? module.rawValue), "\(module) is left out of this build")
+        }
+        let indexed = words(try appStoreField("name")).union(words(try appStoreField("subtitle")))
+        for keyword in try appStoreField("keywords").split(separator: ",") {
+            XCTAssertTrue(words(String(keyword)).isDisjoint(with: indexed), "\(keyword) is already in the name or subtitle")
+        }
     }
 }

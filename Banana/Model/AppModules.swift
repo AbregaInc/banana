@@ -8,8 +8,11 @@ import Foundation
 /// looks after on the way in, Settings › Modules changes it after, and turning a module off only
 /// hides it. Its data stays and keeps syncing, so turning it back on loses nothing.
 ///
-/// Stable excludes Email at compile time. TestFlight and development can build it; ModuleStore
-/// separately checks account eligibility before offering it. Saved choices keep their names.
+/// A build carries only the modules its BANANA_MODULES setting lists (Config/Base.xcconfig); one it
+/// leaves out has no code in that build (`#if BANANA_MODULE_…`), and none of its entitlements,
+/// background modes, usage strings or embedded targets (Config/Modules.json). Beta carries all
+/// five, Stable all but Email, the App Store app those BANANA_APP_STORE_MODULES lists. ModuleStore
+/// separately checks account eligibility before offering Email. Saved choices keep their names.
 enum AppModule: String, CaseIterable, Identifiable, Sendable {
     case workouts, food, notes, podcasts, email
     var id: String { rawValue }
@@ -41,16 +44,37 @@ enum AppModule: String, CaseIterable, Identifiable, Sendable {
         #endif
     }
 
-    var isAvailable: Bool {
-        #if BANANA_UNRELEASED
-        isAvailable(inUnreleasedBuild: true)
-        #else
-        isAvailable(inUnreleasedBuild: false)
+    /// The modules this build carries, from its compile conditions.
+    static let carried: Set<AppModule> = {
+        var modules = Set<AppModule>()
+        #if BANANA_MODULE_WORKOUTS
+        modules.insert(.workouts)
         #endif
+        #if BANANA_MODULE_FOOD
+        modules.insert(.food)
+        #endif
+        #if BANANA_MODULE_NOTES
+        modules.insert(.notes)
+        #endif
+        #if BANANA_MODULE_PODCASTS
+        modules.insert(.podcasts)
+        #endif
+        #if BANANA_MODULE_EMAIL
+        modules.insert(.email)
+        #endif
+        return modules
+    }()
+
+    /// The compile condition that carries this module (BANANA_MODULES lists these names).
+    var compileCondition: String { "BANANA_MODULE_\(rawValue.uppercased())" }
+
+    /// The modules a BANANA_MODULES value names, in `allCases` order; unknown names are ignored.
+    static func named(inSetting setting: String) -> [AppModule] {
+        let names = Set(setting.split(whereSeparator: \.isWhitespace).map(String.init))
+        return allCases.filter { names.contains($0.compileCondition) }
     }
-    /// Whether a build with or without the unreleased modules carries this one: Stable, the
-    /// public build, has every module but Email.
-    func isAvailable(inUnreleasedBuild unreleased: Bool) -> Bool { unreleased || self != .email }
+
+    var isAvailable: Bool { Self.carried.contains(self) }
     static var selectable: [AppModule] { allCases.filter(\.isAvailable) }
     func statusLabel(inBeta: Bool) -> String? { inBeta ? "Beta" : nil }
     var statusLabel: String? { statusLabel(inBeta: Self.isBetaBuild) }

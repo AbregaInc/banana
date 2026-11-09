@@ -58,10 +58,16 @@ enum CloudSyncPoll {
         let changed = await CloudChangeCheck.changedZones()
         if CloudControlsSync.shared.needsRefresh(changedZones: changed) { CloudControlsSync.shared.refresh() }
         if CloudControlsSync.meals.needsRefresh(changedZones: changed) { CloudControlsSync.meals.refresh() }
+        #if BANANA_MODULE_FOOD
         if CloudWellnessSync.shared.needsRefresh(changedZones: changed) { CloudWellnessSync.shared.refresh() }
+        #endif
+        #if BANANA_MODULE_WORKOUTS
         if CloudFitnessSync.shared.needsRefresh(changedZones: changed) { CloudFitnessSync.shared.refresh() }
+        #endif
+        #if BANANA_MODULE_PODCASTS
         if CloudProgressSync.shared.needsRefresh(changedZones: changed) {
             CloudProgressSync.shared.flushNow(reason: "poll")
         }
+        #endif
     }
 }

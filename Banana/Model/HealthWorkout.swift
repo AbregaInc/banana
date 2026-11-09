@@ -1,3 +1,4 @@
+#if BANANA_MODULE_WORKOUTS
 import Foundation
 
 // This file holds the plain-data types that used to live at the top of HealthKitStore.swift
@@ -362,3 +363,4 @@ enum MetricKind: CaseIterable, Hashable, Sendable {
     }
 }
 }
+#endif

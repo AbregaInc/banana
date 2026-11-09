@@ -1,3 +1,4 @@
+#if BANANA_MODULE_PODCASTS
 import Foundation
 
 /// Automatic skipping of podcast ads, network promos and show openings.
@@ -176,3 +177,4 @@ extension EpisodeSkipPlan {
         return recorded == bytes
     }
 }
+#endif

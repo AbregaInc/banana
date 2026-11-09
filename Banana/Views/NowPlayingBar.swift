@@ -1,3 +1,4 @@
+#if BANANA_MODULE_PODCASTS
 import SwiftUI
 
 /// Compact playback bar shown in the tab view's bottom accessory slot. Tapping
@@ -171,3 +172,4 @@ private struct SleepCountdownLabel: View {
         }
     }
 }
+#endif

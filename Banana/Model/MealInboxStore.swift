@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 import Combine
 import Foundation
 
@@ -412,4 +413,5 @@ extension MealInboxStore {
                         confidence: 0.8, grams: 60, reference: reference)
     }
 }
+#endif
 #endif

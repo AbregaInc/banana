@@ -1,3 +1,4 @@
+#if BANANA_MODULE_PODCASTS
 import SwiftUI
 import MapKit
 
@@ -111,3 +112,4 @@ private struct ListenRow: View {
         return minutes >= 60 ? "\(minutes / 60)h \(minutes % 60)m" : "\(minutes)m"
     }
 }
+#endif

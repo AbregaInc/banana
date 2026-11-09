@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 #if os(iOS)
 import AVFoundation
 import SwiftUI
@@ -90,4 +91,5 @@ func requestBarcodeCameraAccess() async -> Bool {
     @unknown default: return false
     }
 }
+#endif
 #endif

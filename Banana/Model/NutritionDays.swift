@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 import Foundation
 
 /// Which days the Mac's Nutrition page shows and what each one adds up to. Pure, for tests.
@@ -85,3 +86,4 @@ enum RecentMeals {
         text.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: Locale(identifier: "en_US_POSIX"))
     }
 }
+#endif

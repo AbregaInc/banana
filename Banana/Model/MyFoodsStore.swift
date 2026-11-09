@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 import Combine
 import Foundation
 
@@ -190,3 +191,4 @@ extension MyFoodsStore: HealthFood.BatchSource {
         return Dictionary(items.map { ($0.id, true) }, uniquingKeysWith: { a, _ in a })
     }
 }
+#endif

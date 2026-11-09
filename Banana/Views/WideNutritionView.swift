@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 import SwiftUI
 
 /// Nutrition on the iPad and Mac: the day's calories and macros, the week to move between days,
@@ -661,3 +662,4 @@ struct MacSupplementEditor: View {
         dismiss()
     }
 }
+#endif

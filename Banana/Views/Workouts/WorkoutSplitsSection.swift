@@ -1,3 +1,4 @@
+#if BANANA_MODULE_WORKOUTS
 import SwiftUI
 
 /// The detail view's splits/laps card (spec §4.5): a three-way gate — SWOLF table for pool
@@ -119,3 +120,4 @@ struct WorkoutSplitsSection: View {
 
     private func durationText(_ seconds: TimeInterval) -> String { WorkoutComparisons.durationText(seconds) }
 }
+#endif

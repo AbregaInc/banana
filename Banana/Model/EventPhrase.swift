@@ -258,9 +258,9 @@ enum EventPhrase {
     static func merged(_ plain: Draft, with parts: ModelParts, text: String, now: Date = Date(),
                        calendar: Calendar = .current, defaultDuration: TimeInterval = 3_600) -> Draft {
         var draft = plain
-        let said = Set(GroundedFoodEstimate.words(text))
+        let said = Set(PlainWords.words(text))
         func ownWords(_ value: String) -> Bool {
-            let words = GroundedFoodEstimate.words(value)
+            let words = PlainWords.words(value)
             return !words.isEmpty && words.isSubset(of: said)
         }
         let title = tidyTitle(parts.title)

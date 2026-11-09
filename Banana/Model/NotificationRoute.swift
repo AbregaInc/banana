@@ -30,7 +30,9 @@ enum NotificationRoute: Equatable, Sendable {
         if category == eventAlertCategory || category == eventInviteCategory || identifier.hasPrefix(eventLocalPrefix) {
             return .eventAlert
         }
+        #if BANANA_MODULE_FOOD
         if SupplementSchedule.isReminder(notificationID: identifier) { return .dose }
+        #endif
         if BananaService.isBookingPush(userInfo) { return .booking }
         if category == mealPhotoCategory { return .mealPhoto }
         return .other

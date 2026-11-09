@@ -1,3 +1,4 @@
+#if BANANA_MODULE_PODCASTS
 import Foundation
 
 /// Starting a routine by hand: play what it plays — the next episode from its shows, or its
@@ -20,7 +21,7 @@ enum RoutineStart {
         if routine.musicItem != nil { return .music }
         // A slot counts only when something is set for it: a button that plays nothing is worse
         // than no button.
-        guard let slot = routine.slot, WakeCoordinator.shared.wake.source(for: slot) != nil else { return .nothing }
+        guard let slot = routine.slot, WakeStore.shared.source(for: slot) != nil else { return .nothing }
         return .slot
     }
 
@@ -50,3 +51,4 @@ enum RoutineStart {
         }
     }
 }
+#endif

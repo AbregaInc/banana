@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 import Foundation
 
 /// Where `FoodSearch` looks: the bundled USDA foods and products (offline), Open Food Facts
@@ -116,3 +117,4 @@ enum FoodSearchPicks {
         UserDefaults.standard.set(picks, forKey: key)
     }
 }
+#endif

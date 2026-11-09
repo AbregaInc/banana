@@ -1,3 +1,4 @@
+#if BANANA_MODULE_WORKOUTS
 import SwiftUI
 import MapKit
 
@@ -392,3 +393,4 @@ private var previewWindowBackground: Color {
     Color(.systemBackground)
     #endif
 }
+#endif

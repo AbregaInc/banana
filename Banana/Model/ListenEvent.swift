@@ -1,3 +1,4 @@
+#if BANANA_MODULE_PODCASTS
 import Foundation
 import CoreLocation
 
@@ -69,3 +70,4 @@ extension ListenEvent {
         routePointCount = try c.decodeIfPresent(Int.self, forKey: .routePointCount) ?? route.count
     }
 }
+#endif

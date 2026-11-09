@@ -1,3 +1,4 @@
+#if BANANA_MODULE_PODCASTS
 import Foundation
 
 /// Combines what the individual detectors found into one plan.
@@ -109,3 +110,4 @@ enum SkipPlanBuilder {
         return corrections.applied(to: plan)
     }
 }
+#endif

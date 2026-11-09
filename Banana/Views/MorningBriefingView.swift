@@ -3,24 +3,33 @@ import SwiftUI
 /// The wake payoff: shown when you open the app within the wake window. Last
 /// night's sleep, recovery, today's first meeting, and whatever's now playing.
 struct MorningBriefingView: View {
+    #if BANANA_MODULE_WORKOUTS
     @EnvironmentObject var health: HealthKitStore
+    #endif
     @EnvironmentObject var smart: SmartScheduleStore
+    #if BANANA_MODULE_PODCASTS
     @EnvironmentObject var player: PlayerController
     @EnvironmentObject var music: MusicController
+    #endif
+    #if BANANA_MODULE_WORKOUTS
     @EnvironmentObject private var fitness: FitnessStore
+    #endif
     @Environment(\.dismiss) private var dismiss
     @ObservedObject private var modules = ModuleStore.shared
 
+    #if BANANA_MODULE_WORKOUTS
     /// Last 7 nights, shared by the "Last night" stat card and `SleepWeekCard` so the two never
     /// disagree. Live HealthKit on iOS; the phone-synced cache on the Mac (and anywhere else
     /// HealthKit itself isn't available).
     @State private var sleepWeek: [MetricPoint] = []
+    #endif
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
                     header
+                    #if BANANA_MODULE_WORKOUTS
                     // Health's cards are the Workouts and sleep module's.
                     if modules.includes(.workouts) {
                         if !cards.isEmpty {
@@ -30,12 +39,15 @@ struct MorningBriefingView: View {
                         if !sleepWeek.isEmpty { SleepWeekCard(sleep: sleepWeek) }
                         if let workout = yesterdaysWorkout { yesterdaysWorkoutLink(workout) }
                     }
+                    #endif
                     if let meeting = nextMeetingToday { meetingCard(meeting) }
+                    #if BANANA_MODULE_PODCASTS
                     if modules.includes(.podcasts), player.currentEpisode != nil {
                         nowPlayingCard
                     } else if music.wakePlaying != nil {
                         musicWakeCard   // a music wake never touches the podcast player
                     }
+                    #endif
                 }
                 .padding(DS.Space.l)
                 .frame(maxWidth: 640)
@@ -49,14 +61,17 @@ struct MorningBriefingView: View {
                 }
             }
         }
+        #if BANANA_MODULE_WORKOUTS
         .task {
             // Health is otherwise only re-read from the Workouts tab — last night wouldn't be in yet.
             async let night: Void = health.refreshIfStale()
             await loadSleepWeek()
             await night
         }
+        #endif
     }
 
+    #if BANANA_MODULE_WORKOUTS
     private func loadSleepWeek() async {
         if health.isAvailable {
             let now = Date()
@@ -67,6 +82,7 @@ struct MorningBriefingView: View {
             sleepWeek = Array(health.trends.sleepHours.suffix(7))
         }
     }
+    #endif
 
     private var header: some View {
         VStack(alignment: .leading, spacing: 4) {
@@ -78,6 +94,7 @@ struct MorningBriefingView: View {
 
     // MARK: - Cards
 
+    #if BANANA_MODULE_WORKOUTS
     private var cards: [AnyView] {
         // Last night is `LastNightCard`'s, below, with what woke you: a second "Last night" here
         // gave another number for it (the trend's hours against the night's own).
@@ -100,7 +117,9 @@ struct MorningBriefingView: View {
             .dsCard()
         )]
     }
+    #endif
 
+    #if BANANA_MODULE_WORKOUTS
     private func statRow(_ title: String, _ value: String, _ icon: String, _ color: Color) -> some View {
         HStack(spacing: DS.Space.m) {
             IconTile(systemImage: icon, tint: color, style: .soft, size: DS.Row.glyphTile)
@@ -110,6 +129,7 @@ struct MorningBriefingView: View {
         }
         .padding(DS.Space.m)
     }
+    #endif
 
     private func meetingCard(_ meeting: Occurrence) -> some View {
         HStack(spacing: DS.Space.m) {
@@ -125,6 +145,7 @@ struct MorningBriefingView: View {
         .groupedCard()
     }
 
+    #if BANANA_MODULE_PODCASTS
     private var nowPlayingCard: some View {
         HStack(spacing: DS.Space.m) {
             IconTile(systemImage: player.isPlaying ? "waveform" : "pause.fill", tint: DS.Palette.Feature.wake,
@@ -140,7 +161,9 @@ struct MorningBriefingView: View {
         }
         .groupedCard()
     }
+    #endif
 
+    #if BANANA_MODULE_WORKOUTS
     private func yesterdaysWorkoutLink(_ entry: WorkoutEntry) -> some View {
         NavigationLink {
             PostWorkoutReviewView(subject: WorkoutReviewSubject(summary: entry.summary, health: entry.health))
@@ -159,13 +182,17 @@ struct MorningBriefingView: View {
         }
         .buttonStyle(.plain)
     }
+    #endif
 
+    #if BANANA_MODULE_WORKOUTS
     private func workoutLine(_ entry: WorkoutEntry) -> String {
         let minutes = entry.duration / 60
         return [entry.activity, minutes >= 1 ? DS.duration(minutes: minutes.rounded(.down)) : nil]
             .compactMap { $0 }.joined(separator: " · ")
     }
+    #endif
 
+    #if BANANA_MODULE_PODCASTS
     private var musicWakeCard: some View {
         HStack(spacing: DS.Space.m) {
             IconTile(systemImage: "music.note", tint: DS.Palette.Feature.wake, style: .soft, size: DS.Row.glyphTile)
@@ -180,6 +207,7 @@ struct MorningBriefingView: View {
         }
         .groupedCard()
     }
+    #endif
 
     // MARK: - Data
 
@@ -192,6 +220,7 @@ struct MorningBriefingView: View {
             .min { $0.start < $1.start }
     }
 
+    #if BANANA_MODULE_WORKOUTS
     /// The most recent workout, if it happened within the last 20 hours — a run finished right
     /// before bed still reads as "yesterday's" the next morning, but nothing older belongs here.
     private var yesterdaysWorkout: WorkoutEntry? {
@@ -199,5 +228,6 @@ struct MorningBriefingView: View {
               entry.start > Date().addingTimeInterval(-20 * 60 * 60) else { return nil }
         return entry
     }
+    #endif
 
 }

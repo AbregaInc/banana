@@ -1,3 +1,4 @@
+#if BANANA_MODULE_WORKOUTS
 import Foundation
 
 /// Converts between a unit quaternion (as CoreMotion's `CMAttitude.quaternion` reports it) and
@@ -39,3 +40,4 @@ enum RotationVector {
         return (x * scale, y * scale, z * scale, cos(halfAngle))
     }
 }
+#endif

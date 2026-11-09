@@ -1,3 +1,4 @@
+#if BANANA_MODULE_WORKOUTS || BANANA_MODULE_FOOD
 import CryptoKit
 import Foundation
 
@@ -396,3 +397,4 @@ enum HealthFood {
         func storeBlob(_ type: String, id: String, field: String, file: URL) {}
     }
 }
+#endif

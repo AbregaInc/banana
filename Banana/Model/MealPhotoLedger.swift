@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 import Combine
 import Foundation
 
@@ -164,3 +165,4 @@ final class MealPhotoScanReports: ObservableObject {
         if merged != all { all = merged }
     }
 }
+#endif

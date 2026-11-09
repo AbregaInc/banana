@@ -28,12 +28,13 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
             TripLearningService.shared.startIfEnabled()
             // The data platform's engine, unless `--no-space-sync` (`SpaceSyncFlag`).
             SpaceSyncLaunch.startIfAsked()
-            // The meal backlog's pushes (`MealBacklogWake`): asked for here, with launch done, and
-            // again on each return to the front (a scene app's delegate hears no "became active").
-            MealBacklogWake.registerForPush()
+            // Pushes — the Banana service's (a calendar changed, an alert dismissed elsewhere) and,
+            // with Food, the meal backlog's (`MealBacklogWake`): asked for here, with launch done,
+            // and again on each return to the front (a scene app's delegate hears no "became active").
+            UIApplication.shared.registerForRemoteNotifications()
             NotificationCenter.default.addObserver(forName: UIApplication.didBecomeActiveNotification,
                                                    object: nil, queue: .main) { _ in
-                MainActor.assumeIsolated { MealBacklogWake.registerForPush() }
+                MainActor.assumeIsolated { UIApplication.shared.registerForRemoteNotifications() }
             }
         }
         return true
@@ -46,25 +47,33 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
         // Hold the handler; DownloadManager calls it once the session has finished delivering its
         // events. Dropping it on the floor gets the app marked as misbehaving, and iOS answers by
         // being stingy with background time — which would break the very thing we're fixing.
+        #if BANANA_MODULE_PODCASTS
         MainActor.assumeIsolated {
             WakeCoordinator.shared.downloads.handleBackgroundEvents(
                 identifier: identifier,
                 completion: completionHandler)
         }
+        #else
+        completionHandler()
+        #endif
     }
 
     // MARK: - Pushes for the meal backlog
 
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
         MainActor.assumeIsolated {
+            #if BANANA_MODULE_FOOD
             MealBacklogWake.registered()
+            #endif
             BananaAccount.shared.pushTokenArrived(deviceToken)
         }
     }
 
     func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
         MainActor.assumeIsolated {
+            #if BANANA_MODULE_FOOD
             MealBacklogWake.registrationFailed(error)
+            #endif
             PlaybackDiagnostics.shared.log("☁️ push", "not available: \(error.localizedDescription)")
         }
     }
@@ -108,12 +117,16 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
             }
             return
         }
+        #if BANANA_MODULE_FOOD
         guard MealBacklogWake.isMealsPush(userInfo) else { return completionHandler(.noData) }
         let done = UncheckedSendableBox(completionHandler)
         Task { @MainActor in
             let changed = await MealBacklogWake.catchUp(reason: "push")
             done.value(changed ? .newData : .noData)
         }
+        #else
+        completionHandler(.noData)
+        #endif
     }
 }
 

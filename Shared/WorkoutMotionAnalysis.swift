@@ -1,3 +1,4 @@
+#if BANANA_MODULE_WORKOUTS
 import Foundation
 import Accelerate
 
@@ -857,3 +858,4 @@ extension WorkoutMotionAnalysis.SpectrogramFrame {
         bins = [Float](packedData: try c.decode(Data.self, forKey: .bins)) ?? []
     }
 }
+#endif

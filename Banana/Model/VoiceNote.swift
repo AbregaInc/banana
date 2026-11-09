@@ -1,3 +1,4 @@
+#if BANANA_MODULE_NOTES
 import Foundation
 
 /// A spoken note captured in the moment — the anchor of the notes platform.
@@ -142,3 +143,4 @@ enum NoteReminderLink {
         return UUID(uuidString: url.lastPathComponent)
     }
 }
+#endif

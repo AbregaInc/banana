@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 #if os(iOS) || os(macOS)
 import SwiftUI
 
@@ -343,7 +344,7 @@ struct FoodAmountControl<Focus: Hashable>: View {
     private var chips: some View {
         let weights = units.filter { $0 == .grams || $0 == .ounces }
         let own = units.filter { $0 != .grams && $0 != .ounces }
-        return WorkoutFlowLayout(spacing: DS.Space.xs, lineSpacing: DS.Space.xs, fitsWidth: true) {
+        return WrappingLayout(spacing: DS.Space.xs, lineSpacing: DS.Space.xs, fitsWidth: true) {
             ForEach(weights + own, id: \.self) { chip($0) }
         }
     }
@@ -361,4 +362,5 @@ struct FoodAmountControl<Focus: Hashable>: View {
         if selected { button.buttonStyle(.borderedProminent) } else { button.buttonStyle(.bordered) }
     }
 }
+#endif
 #endif

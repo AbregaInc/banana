@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 import Foundation
 
 /// How much of a food someone said: "1/2 can", "2 medium", "a bowl", "200g".
@@ -278,3 +279,4 @@ enum PortionGrams {
         return nil
     }
 }
+#endif

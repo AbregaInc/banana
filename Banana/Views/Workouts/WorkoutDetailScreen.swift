@@ -1,3 +1,4 @@
+#if BANANA_MODULE_WORKOUTS
 #if os(iOS)
 import SwiftUI
 
@@ -241,4 +242,5 @@ struct WorkoutDetailScreen: View {
     }
     #endif
 }
+#endif
 #endif

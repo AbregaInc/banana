@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 import Foundation
 
 /// The names of things people take: every prescribable drug's generic and brand names (RxNorm)
@@ -74,3 +75,4 @@ enum TakenVocabulary {
         return String(phrase.dropLast())
     }
 }
+#endif

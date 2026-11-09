@@ -1,3 +1,4 @@
+#if BANANA_MODULE_WORKOUTS
 import SwiftUI
 import MapKit
 import CoreLocation
@@ -268,3 +269,4 @@ struct TrimWorkoutView: View {
         return "\(mins) min"
     }
 }
+#endif

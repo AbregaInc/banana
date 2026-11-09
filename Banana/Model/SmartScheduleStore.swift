@@ -508,7 +508,9 @@ final class SmartScheduleStore: ObservableObject {
     #endif
 
     weak var alarms: AlarmStore?
+    #if BANANA_MODULE_WORKOUTS
     weak var health: HealthKitStore?
+    #endif
 
     /// Human-readable current adjustment (for the settings screen).
     @Published private(set) var healthNote: String?
@@ -1529,10 +1531,17 @@ final class SmartScheduleStore: ObservableObject {
     /// Trailing sleep debt + recovery → how much to sleep in on free days and how
     /// much earlier to go to bed. Trailing means (7-day) keep it stable day-to-day.
     private func healthAdjustment() -> (wakeShift: Int, bedtimeEarlier: Int) {
+        #if BANANA_MODULE_WORKOUTS
         guard settings.healthAdaptive, let health else {
             if healthNote != nil { healthNote = nil }
             return (0, 0)
         }
+        #else
+        // Sleep and recovery are the Workouts and sleep module's.
+        if healthNote != nil { healthNote = nil }
+        return (0, 0)
+        #endif
+        #if BANANA_MODULE_WORKOUTS
 
         let sleep = health.trends.sleepHours.map(\.value)
         guard sleep.count >= 3 else {
@@ -1562,8 +1571,10 @@ final class SmartScheduleStore: ObservableObject {
             if healthNote != note { healthNote = note }
         }
         return (wakeShift, bedtimeEarlier)
+        #endif
     }
 
+    #if BANANA_MODULE_WORKOUTS
     private func recoveryPenalty() -> Double {
         guard let health else { return 0 }
         func mean(_ a: ArraySlice<Double>) -> Double { a.isEmpty ? 0 : a.reduce(0, +) / Double(a.count) }
@@ -1583,6 +1594,7 @@ final class SmartScheduleStore: ObservableObject {
         guard signals > 0 else { return 0 }
         return min(1, (penalty / Double(signals)) * 4)   // small % deviations matter for HRV/RHR
     }
+    #endif
 
     // MARK: - Home location
 
@@ -1727,8 +1739,10 @@ final class SmartScheduleStore: ObservableObject {
     private static var mayAskWhileAway: Bool {
         #if os(macOS)
         true
-        #else
+        #elseif BANANA_MODULE_PODCASTS
         WakeCoordinator.shared.player.isPlaying
+        #else
+        false
         #endif
     }
 

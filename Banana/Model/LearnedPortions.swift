@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 import Foundation
 
 /// How much more or less of a food you really have than the model guesses — what trip learning
@@ -125,3 +126,4 @@ enum LearnedPortions {
         }
     }
 }
+#endif

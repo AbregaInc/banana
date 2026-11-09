@@ -44,7 +44,9 @@ enum PoolLength: String, Codable, CaseIterable, Identifiable {
 final class AppSettings: ObservableObject {
     @Published var distanceUnit: DistanceUnit {
         didSet {
+            #if BANANA_MODULE_WORKOUTS
             MetricKind.imperial = distanceUnit == .miles   // weight, height, speed follow it too
+            #endif
             save()
         }
     }
@@ -139,7 +141,9 @@ final class AppSettings: ObservableObject {
         poolLength = snapshot?.poolLength ?? .yards25
         watchAudioQuality = snapshot?.watchAudioQuality ?? .original
         backupEnabled = snapshot?.backupEnabled
+        #if BANANA_MODULE_WORKOUTS
         MetricKind.imperial = (snapshot?.distanceUnit ?? Self.localeDefault()) == .miles
+        #endif
         recordListenLocation = snapshot?.recordListenLocation ?? false
         automaticAdSkip = snapshot?.automaticAdSkip ?? true
         eventAlertLeads = snapshot?.eventAlertLeads ?? EventAlertPlan.defaultLeads
@@ -168,6 +172,7 @@ final class AppSettings: ObservableObject {
 
     // MARK: - Meal photos
 
+    #if BANANA_MODULE_FOOD
     var mealPhotoScan: MealPhotoScanPrefs {
         MealPhotoScanPrefs(enabled: mealPhotoScanEnabled, since: mealPhotoScanSince, ask: mealPhotoAskEnabled)
     }
@@ -196,6 +201,7 @@ final class AppSettings: ObservableObject {
             since: cloud?.mealPhotoScanSince ?? local?.mealPhotoScanSince,
             ask: cloud?.mealPhotoAskEnabled ?? local?.mealPhotoAskEnabled ?? true)
     }
+    #endif
 
     private static func mealPhotoScanChanged() {
         NotificationCenter.default.post(name: mealPhotoScanDidChange, object: nil)
@@ -356,7 +362,9 @@ final class AppSettings: ObservableObject {
     }
 }
 
+#if BANANA_MODULE_FOOD
 extension MealPhotoScanPrefs {
     /// See `AppSettings.currentMealPhotoScan`.
     @MainActor static var current: MealPhotoScanPrefs { AppSettings.currentMealPhotoScan }
 }
+#endif

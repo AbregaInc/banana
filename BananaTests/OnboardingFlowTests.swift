@@ -16,6 +16,17 @@ final class OnboardingFlowTests: XCTestCase {
         XCTAssertEqual(OnboardingFlow.next(after: .windDown, in: nothing), .connect)
     }
 
+    func testABuildWithNoModuleToChooseSkipsTheModulesPage() {
+        // The App Store's calendar-only app carries no module: nothing to ask, so no page.
+        var calendarOnly = nothing
+        calendarOnly.offersModules = false
+        XCTAssertEqual(OnboardingFlow.next(after: .welcome, in: calendarOnly), .wake)
+        XCTAssertEqual(OnboardingFlow.previous(before: .wake, in: calendarOnly), .welcome)
+        XCTAssertEqual(OnboardingFlow.resume(.modules, in: calendarOnly), .wake)
+        XCTAssertEqual(OnboardingFlow.previous(before: .wake, in: nothing), .modules)
+        XCTAssertEqual(OnboardingFlow.resume(.modules, in: nothing), .modules)
+    }
+
     func testWithoutACalendarTheAppOpensWithNoReceipt() {
         // Nothing to show, count or copy: a receipt would only say so.
         XCTAssertNil(OnboardingFlow.next(after: .connect, in: nothing))

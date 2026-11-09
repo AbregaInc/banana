@@ -1,3 +1,4 @@
+#if BANANA_MODULE_PODCASTS
 import Foundation
 
 /// What a narrator's voice sounds like, for shows that never say who is reading.
@@ -14,3 +15,4 @@ enum VoiceGender: String, Codable, Sendable, CaseIterable {
         }
     }
 }
+#endif

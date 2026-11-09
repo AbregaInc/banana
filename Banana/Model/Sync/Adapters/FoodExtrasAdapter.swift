@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 import Foundation
 
 /// The food and workout-plan kinds that sync item by item through `CloudControlsSync` today, as
@@ -98,3 +99,4 @@ final class MealPhotoAdapter: RecordAdapter {
         photos.applyCloud(.mealPhoto, id: id, item: data)
     }
 }
+#endif

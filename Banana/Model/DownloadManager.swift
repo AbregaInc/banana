@@ -1,3 +1,4 @@
+#if BANANA_MODULE_PODCASTS
 import Foundation
 import SwiftUI
 import MultipeerConnectivity
@@ -1580,3 +1581,4 @@ extension PodcastPeerTransfer: MCSessionDelegate {
         }
     }
 }
+#endif

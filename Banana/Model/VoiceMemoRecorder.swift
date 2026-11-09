@@ -1,3 +1,4 @@
+#if BANANA_MODULE_NOTES
 #if os(iOS)
 import Foundation
 import AVFoundation
@@ -265,4 +266,5 @@ extension VoiceMemoRecorder: AVAudioRecorderDelegate {
         }
     }
 }
+#endif
 #endif

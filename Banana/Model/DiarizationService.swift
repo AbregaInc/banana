@@ -1,3 +1,4 @@
+#if BANANA_MODULE_PODCASTS
 import Foundation
 #if canImport(FluidAudio)
 import FluidAudio
@@ -74,4 +75,5 @@ private actor FluidDiarizerHost {
         })
     }
 }
+#endif
 #endif

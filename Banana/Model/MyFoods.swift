@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 import Foundation
 
 /// A food you have: scanned once — its barcode, or the Nutrition Facts on the package — and
@@ -494,3 +495,4 @@ enum ScanCorrection {
         return food.servingStated ? food.servingGrams : 0
     }
 }
+#endif

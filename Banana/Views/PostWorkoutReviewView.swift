@@ -1,3 +1,4 @@
+#if BANANA_MODULE_WORKOUTS
 import SwiftUI
 import Charts
 import MapKit
@@ -451,4 +452,5 @@ struct MacWorkoutReviewSnapshotHarness: View {
             }
     }
 }
+#endif
 #endif

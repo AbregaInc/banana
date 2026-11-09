@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 import CoreGraphics
 import Foundation
 #if canImport(FoundationModels)
@@ -232,7 +233,7 @@ enum GroundedFoodEstimate {
     static let maxBrandedExtraWords = 5
     static let maxCalorieDensityRatio = 2.5
 
-    private static let fillerWords: Set<String> = ["a", "an", "and", "the", "of", "with", "in", "on", "some", "plain"]
+    private static let fillerWords = PlainWords.fillers
     /// Words that say how it was made or kept, not what it is: never required for a match.
     private static let descriptorWords: Set<String> = [
         "cooked", "raw", "fresh", "grilled", "baked", "broiled", "fried", "boiled", "steamed", "roasted",
@@ -243,22 +244,13 @@ enum GroundedFoodEstimate {
     private static let connectorWords: Set<String> = ["with", "and", "in", "on", "over", "plus", "from", "w"]
     private static let negationWords: Set<String> = ["no", "without", "not", "non"]
 
-    private static func stemmed(_ word: String) -> String {
-        word.count > 3 && word.hasSuffix("s") && !word.hasSuffix("ss") ? String(word.dropLast()) : word
-    }
+    private static func stemmed(_ word: String) -> String { PlainWords.stemmed(word) }
 
     /// The words of a name in order, lowercased and singular.
-    private static func orderedWords(_ text: String) -> [String] {
-        text.lowercased()
-            .components(separatedBy: CharacterSet.alphanumerics.inverted)
-            .filter { !$0.isEmpty }
-            .map(stemmed)
-    }
+    private static func orderedWords(_ text: String) -> [String] { PlainWords.ordered(text) }
 
     /// The plain words of a food's name: lowercase, plurals, fillers and numbers dropped.
-    static func words(_ text: String) -> Set<String> {
-        Set(orderedWords(text).filter { !fillerWords.contains($0) && !$0.allSatisfy(\.isNumber) })
-    }
+    static func words(_ text: String) -> Set<String> { PlainWords.words(text) }
 
     /// The words that say which food it is, in order: no amounts ("1/2 can of"), fillers or
     /// descriptors ("cooked", "grilled").
@@ -749,4 +741,5 @@ struct GeneratedMealPart {
               confidence: confidence)
     }
 }
+#endif
 #endif
