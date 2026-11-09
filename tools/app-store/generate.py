@@ -285,6 +285,32 @@ def mac_window_id(pid: int, app: Path | None = None) -> str:
     raise RuntimeError("Mac capture timed out waiting for the Banana window")
 
 
+def capture_mac_window(pid: int, identifier: str, destination: Path) -> None:
+    """The window, and any window of the app lying over it (a sheet is a window of its own, so
+    `screencapture -l` of the window alone left the forecast sheet out), pasted at its place."""
+    run(["screencapture", "-x", "-o", "-l", identifier, str(destination)])
+    listing = run([str(DERIVED / "window_id"), str(pid), "--all"], check=False, capture=True)
+    windows = [line.split() for line in listing.splitlines() if len(line.split()) == 5]
+    main = next((w for w in windows if w[0] == identifier), None)
+    if main is None:
+        return
+    mx, my, mw, mh = map(float, main[1:])
+    base = Image.open(destination).convert("RGBA")
+    scale = base.width / mw
+    for window in windows:
+        x, y, w, h = map(float, window[1:])
+        inside = window[0] != identifier and x >= mx - 1 and y >= my - 1 and x + w <= mx + mw + 1 and y + h <= my + mh + 1
+        if not inside:
+            continue
+        over = destination.with_name(destination.stem + f"-window-{window[0]}.png")
+        run(["screencapture", "-x", "-o", "-l", window[0], str(over)])
+        with Image.open(over) as layer:
+            sheet = layer.convert("RGBA").resize((round(w * scale), round(h * scale)), Image.Resampling.LANCZOS)
+        base.alpha_composite(sheet, (round((x - mx) * scale), round((y - my) * scale)))
+        over.unlink()
+    base.save(destination, "PNG")
+
+
 def stop_mac_app(app: Path) -> None:
     executable = mac_executable(app)
     pattern = rf"^{re.escape(str(executable))}( |$)"
@@ -496,7 +522,9 @@ def capture_mac(manifest: dict, output: Path, skip_build: bool, mac_app: Path | 
                     "open", "-n", str(app), "--args", "--ui-audit", "--disable-icloud", STORE_CAPTURE,
                     # Start from the default window, not whatever the last (killed) run left saved.
                     "-ApplePersistenceIgnoreState", "YES",
-                    "-AppleInterfaceStyle", "Dark", "--mac-section", scene["section"],
+                    # Light, as the phone and iPad sets are, whatever the Mac's own appearance.
+                    "--appearance", manifest["capture"].get("mac_appearance", "light"),
+                    "--mac-section", scene["section"],
                     "--mac-window-size", manifest["capture"]["mac_window"],
                     # The modules switched on: every one the build carries, unless the set says.
                     "--modules", manifest["capture"].get("mac_modules", "workouts,food,notes,podcasts"),
@@ -505,8 +533,8 @@ def capture_mac(manifest: dict, output: Path, skip_build: bool, mac_app: Path | 
             )
             pid = mac_process_id(app)
             identifier = mac_window_id(pid, app)
-            time.sleep(manifest["capture"]["settle_seconds"])
-            run(["screencapture", "-x", "-o", "-l", identifier, str(raw)])
+            time.sleep(scene.get("settle_seconds", manifest["capture"]["settle_seconds"]))
+            capture_mac_window(pid, identifier, raw)
             run(
                 [
                     sys.executable, str(TOOL / "compose.py"), "--platform", "mac",

@@ -22,6 +22,18 @@ func area(_ window: [String: Any]) -> Double {
     return width * height
 }
 
+// `window_id <pid> --all`: every visible window of the app, "id x y width height" (points),
+// largest first: the window and anything over it, such as a sheet, which is a window of its own.
+if CommandLine.arguments.contains("--all") {
+    for window in matches.sorted(by: { area($0) > area($1) }) {
+        guard let number = window[kCGWindowNumber as String] as? Int,
+              let b = window[kCGWindowBounds as String] as? [String: Any] else { continue }
+        let v = ["X", "Y", "Width", "Height"].map { (b[$0] as? Double) ?? 0 }
+        print(number, v[0], v[1], v[2], v[3])
+    }
+    exit(matches.isEmpty ? 1 : 0)
+}
+
 guard let match = matches.max(by: { area($0) < area($1) }),
       let number = match[kCGWindowNumber as String] as? Int else {
     fputs("No visible window owned by PID \(requestedPID)\n", stderr)

@@ -356,6 +356,11 @@ final class WeatherStore: NSObject, ObservableObject {
     }
 
     func refresh() async {
+        #if DEBUG
+        // The sample (`injectSampleForPreview`) is the whole forecast for its route: a real fetch
+        // would put this machine's place and weather into a capture.
+        if source == "Preview" { return }
+        #endif
         if let refreshTask {
             await refreshTask.value
             return
@@ -588,6 +593,12 @@ final class WeatherStore: NSObject, ObservableObject {
     #if DEBUG
     /// Stable, permission-free weather for visual verification routes (`WeatherSample`).
     func injectSampleForPreview() {
+        // Nothing of a real forecast left to win over it: `located(at:)` prefers a cached place's
+        // cell, and a snapshot from earlier use (or this machine's location) would be one.
+        cache = [:]
+        segmentMemo = [:]
+        travelEvents = []
+        lastCoordinate = nil
         let calendar = Calendar.current
         let zone = TimeZone.current
         let today = calendar.startOfDay(for: Date())

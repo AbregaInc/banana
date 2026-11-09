@@ -6,7 +6,8 @@
   "output": "AppStore/Generated/calendar-only",
   "landing": "LandingPage/assets/screenshots/calendar-only",
   "capture": {
-    "mac_modules": "plan"
+    "mac_modules": "plan",
+    "mac_appearance": "light"
   },
   "iphone_scenes": [
     {
@@ -300,7 +301,8 @@
       "eyebrow": "WEATHER",
       "background": "ivory",
       "foreground": "ink",
-      "accent": "purple"
+      "accent": "purple",
+      "settle_seconds": 7
     },
     {
       "id": "03-routines",

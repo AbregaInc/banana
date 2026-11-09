@@ -535,6 +535,8 @@ private struct MacPayoffPresenter: View {
         }
         #endif
         if ProcessInfo.processInfo.arguments.contains("--morning-briefing") { nav.showMorningBriefing = true; return }
+        // A store capture photographs the page under it: nothing opens over it by itself.
+        if SmartScheduleStore.isStoreCapture { return }
         #if BANANA_MODULE_WORKOUTS
         guard !WorkoutReviewCoordinator.isSuppressedByLaunchArguments else { return }
         #endif

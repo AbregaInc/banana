@@ -44,10 +44,12 @@ struct WeatherChip: View {
             #endif
             .sheet(item: $focus) { WeatherDetailView(focus: $0.date) }
             #if DEBUG
-            // `--open-weather`: the forecast open as a tap opens it, once per launch.
+            // `--open-weather`: the forecast open as a tap opens it, once for each chip. Not once
+            // per launch: the Mac's toolbar builds its items more than once, and the first copy,
+            // never in the window, used the launch's turn up, so the forecast never opened.
             .task {
-                guard ProcessInfo.processInfo.arguments.contains("--open-weather"), !Self.openedOnLaunch else { return }
-                Self.openedOnLaunch = true
+                guard ProcessInfo.processInfo.arguments.contains("--open-weather"), !openedOnLaunch else { return }
+                openedOnLaunch = true
                 try? await Task.sleep(for: .seconds(1))
                 focus = WeatherFocus(id: hour.date)
             }
@@ -56,7 +58,7 @@ struct WeatherChip: View {
     }
 
     #if DEBUG
-    @MainActor private static var openedOnLaunch = false
+    @State private var openedOnLaunch = false
     #endif
 }
 

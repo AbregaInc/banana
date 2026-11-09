@@ -5,6 +5,16 @@ import AppKit
 /// delivers push registration and pushes only to an application delegate. Without push on the
 /// Mac's App ID registration fails quietly, and the calendar poll carries on as before.
 final class MacAppDelegate: NSObject, NSApplicationDelegate {
+    #if DEBUG
+    /// `--appearance light|dark`: this launch in that appearance whatever the system's, before
+    /// any window is up (the store captures are light, as the phone's are).
+    func applicationWillFinishLaunching(_ notification: Notification) {
+        let arguments = ProcessInfo.processInfo.arguments
+        guard let flag = arguments.firstIndex(of: "--appearance"), arguments.indices.contains(flag + 1) else { return }
+        NSApplication.shared.appearance = NSAppearance(named: arguments[flag + 1] == "light" ? .aqua : .darkAqua)
+    }
+    #endif
+
     func applicationDidFinishLaunching(_ notification: Notification) {
         #if BANANA_DIRECT
         MainActor.assumeIsolated { DirectMacUpdater.shared.start() }
