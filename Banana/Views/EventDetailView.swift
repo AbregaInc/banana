@@ -120,9 +120,14 @@ struct EventDetailView: View {
     /// Edit at the trailing edge.
     private var panelBar: some View {
         HStack {
-            Button(role: .close) { finish() }
-                .buttonStyle(.glass)
-                .accessibilityIdentifier("sheet.close")
+            // The system's close button as a toolbar draws it: an × in a glass circle (outside a
+            // toolbar the close role alone draws the word).
+            Button(role: .close) { finish() } label: {
+                Label("Close", systemImage: "xmark").labelStyle(.iconOnly)
+            }
+            .buttonStyle(.glass)
+            .buttonBorderShape(.circle)
+            .accessibilityIdentifier("sheet.close")
             Spacer()
             if canEdit {
                 Button("Edit") { editing = true }
