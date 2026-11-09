@@ -142,8 +142,17 @@ final class ShellRulesTests: XCTestCase {
     /// Mac window's buttons, and slim (the Mac's first build drew a ~200 pt sidebar).
     func testTheRailIsSlimHoldsItsCirclesAndClearsTheWindowButtons() {
         XCTAssertGreaterThanOrEqual(ShellLayout.railColumn, ShellLayout.railButton + 2 * 12)
-        XCTAssertGreaterThanOrEqual(ShellLayout.railColumn, ShellLayout.macWindowButtonsEnd)
         XCTAssertLessThanOrEqual(ShellLayout.railColumn, 88)
+        XCTAssertLessThanOrEqual(ShellLayout.macRailColumn, 104)
+    }
+
+    /// On the Mac the rail leaves as much room after the green window button as before the red
+    /// one, and its circles centre under the three buttons.
+    func testTheMacRailFramesTheWindowButtons() {
+        let start = ShellLayout.macWindowButtonsStart, end = ShellLayout.macWindowButtonsEnd
+        XCTAssertEqual(ShellLayout.macRailColumn - end, start, accuracy: 0.5)
+        XCTAssertEqual(ShellLayout.macRailColumn / 2, (start + end) / 2, accuracy: 0.5)
+        XCTAssertGreaterThanOrEqual(ShellLayout.macRailColumn, ShellLayout.railButton + 2 * 16)
     }
 
     /// The switcher's badge adds up the pages' own counts, for the pages that are on: the old tab
