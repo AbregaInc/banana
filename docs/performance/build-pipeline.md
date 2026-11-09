@@ -75,10 +75,8 @@ Failing on the shipping branch without the cache (Debug), and what became of eac
 (`tests/green-unit`): the component cost budgets were measured in a Debug build, and now go
 through `CostBudget`: enforced in the Release `BananaModelTests` run that preflight makes
 (`unit-optimized`), reported as "not measured in an unoptimized build" in Debug. Three of them
-still fail optimized, on a quiet host holding the build lock, three runs each: Mail action commit
-for 1,000 messages in one conversation 121.7–167.0 ms (every sample), HTML preparation of 261 KB
-100.3–114.2 ms, account-scoped page and counts over 180,000 conversations 100.6–110.2 ms, all
-against 100 ms. Index reconcile passes optimized. `MailHistoryIndexTests` opened its on-disk index
+failed optimized against their 100 ms ceilings and are now fixed in the code (section "Mail cost
+budgets" below); no ceiling or workload changed. Index reconcile passes optimized. `MailHistoryIndexTests` opened its on-disk index
 on the main thread, which a Debug build stops at (invariant 10). The stale expectations were
 brought to what the app now does, or the app fixed where it had broken its own rule; the commit
 message lists which.
@@ -129,7 +127,7 @@ not compared. (Once fixed, the signatures matched too.)
 
 | Where | Why | Fix |
 |---|---|---|
-| Main executable, Mac and iOS: `__TEXT,__objc_stubs` (1,853 bytes on the Mac, about 2,200 on iOS), one `__stubs` entry, and with them `LC_UUID` and the dSYM's UUID | When objects already reference `objc_msgSend` through the GOT, the linker gives it a second GOT slot for the fast Objective-C selector stubs, which it builds in parallel; each stub loads from one slot or the other. Relinking the same objects gave different stubs in two of three tries. Only the main app has the second slot (the Google packages' Objective-C) | `OTHER_LDFLAGS: -Xlinker -objc_stubs_small` for every target (`project.yml`). Small stubs branch to the one `objc_msgSend` stub: the second slot is gone, and three relinks were byte-identical. The executable is 49 KB smaller; each selector call takes one more direct branch (its run-time cost is not measured) |
+| Main executable, Mac and iOS: `__TEXT,__objc_stubs` (1,853 bytes on the Mac, about 2,200 on iOS), one `__stubs` entry, and with them `LC_UUID` and the dSYM's UUID | When objects already reference `objc_msgSend` through the GOT, the linker gives it a second GOT slot for the fast Objective-C selector stubs, which it builds in parallel; each stub loads from one slot or the other. Relinking the same objects gave different stubs in two of three tries. Only the main app has the second slot (the Google packages' Objective-C) | `OTHER_LDFLAGS: -Xlinker -objc_stubs_small` for every target (`project.yml`). Small stubs branch to the one `objc_msgSend` stub: the second slot is gone, and three relinks were byte-identical. The executable is 49 KB smaller; each selector call takes one more direct branch, with no measurable run-time cost (section "The small Objective-C stubs at run time" below) |
 | `NarratorVoiceModel.mlmodelc/coremldata.bin` | `coremlc` writes a model's user-defined metadata map in a different order on every run (four runs, four orders; a C++ hash map, so `SWIFT_DETERMINISTIC_HASHING` does not help) | The four coremltools provenance entries (version, conversion date, source, dialect) move from the model to `docs/publication/voice-model-provenance.json`, which records the converted and the new `model.mlmodel` hashes; weights and manifest are unchanged, and the parsed model is otherwise equal. `tools/check-release.sh` refuses a compiled model with more than one such entry |
 | iOS `Metadata.appintents`: `extract.actionsdata`, `root.ssu.yaml`, the `nlu/*.version` file name | The App Intents processors are Swift programs that write Sets in hash order, and Swift seeds hashing at random per process: `resolvableInputTypes` and the entity list came out in a different order each run | `banana_xcode` gives build actions `SWIFT_DETERMINISTIC_HASHING=1`, which the tools Xcode starts inherit; test runs keep random hashing (`tools/tests/test_development_config.py`). Six reruns of the extraction with it were identical; four of four without it differed |
 
@@ -252,3 +250,75 @@ pair, as it does between any two builds.
 What the cache would buy, from these runs: a Mac archive of a commit already built 295 s → 19 s, the
 same commit in another worktree 92 s, a commit that changes one Swift file 213 s; the iOS build
 311 s → 19 s, 137 s in another worktree.
+
+## Mail cost budgets
+
+Measured 8 Nov 2026 (late evening) on the same Mac: the Release `BananaModelTests` build (the
+`unit-optimized` step), the three tests run together, five complete runs per build, on the phone
+simulator booted beforehand with `simctl` (each run that booted it itself pushed the load average
+past 200 and its HTML samples to 0.1–4 s, so that first set is set aside as unmeasured, not
+counted). Load averages during the runs below were 3–11 with no other xcodebuild or compiler on
+the machine (checked at the start and end of every run). Every sample is in the run records; one
+run of the "fixed, flag off, again" set did not execute (xcodebuild exited before testing) and is
+listed as such. The budgets, workloads and baselines are unchanged.
+
+The project was regenerated first: the generated `Banana.xcodeproj` in this worktree predated the
+`project.yml` that added `-objc_stubs_small`, so an earlier set built from it is set aside too.
+
+| Budget (ceiling 100 ms) | Before (samples, min–max, median, over) | After |
+|---|---|---|
+| Action commit, 1,000 messages in one conversation | 30: 95.5–117.8, 99.4, 13 over | 30: 38.8–50.2, 41.1 |
+| HTML preparation, 261 KB (≤ 100) | 40: 93.2–107.3, 94.3, 2 over | 40: 58.8–63.9, 59.8 |
+| Account-scoped page and counts, 180,000 conversations | 15: 92.4–104.4, 94.1, 5 over | 15: 0.7–11.0, 0.8 |
+
+("After" is the fixed code linked as shipped, with the flag.)
+
+- **Action commit.** A sample of the test showed `sqlite3_prepare` as most of the intent commit
+  and of the overlay projection: both ran their per-row SQL through `execute(sql:)` and
+  `fetchOne(sql:)`, which prepare the statement every call. They now take the connection's cached
+  statements. And after every writer transaction the checkpointer read the log's length with
+  `FileManager.attributesOfItem`, which also resolves the file owner's and group's names
+  (`getpwuid_r`); it is now one `stat`. Separately, with only the cached statements: 30 samples,
+  51.8–69.8 ms, median 54.0; with both, median 41.1.
+- **HTML preparation.** The parse was 74 of the 94 ms. `parseBodyFragment` inserts node by node,
+  and each inserted node registers with its document by walking up its ancestors
+  (`Node.ownerDocument`, `Document.registerDirtySourceRoot`); a document parse appends in one bulk
+  pass. The parse is now 40 ms, with the same node count. A scratch benchmark against the pinned
+  SwiftSoup (2.13.9) gave fragment 64–68 ms, document 35–37 ms, and document without source-range
+  tracking the same 36–37 ms, so tracking is left as it is. What a document puts in its head
+  (title, style, meta, link, base) was never shown; a `noscript` before any body content is no
+  longer shown, and a frameset document shows its plain part.
+- **Account scope.** The page and the three counts walked all 180,000 view rows, joining each to
+  its thread, to find the account's 50. The reader now counts the scope's threads up to 10,000
+  (`MailIndexReader.Scope`); a scope that small is read from the account's thread index and each
+  thread's place in the view, sorted, and counted in one pass; a larger one walks the view as
+  before. The first sample of each run, about 10 ms, is the cold one.
+
+The Mail and Gmail test classes that cover the changed code (101 classes) pass optimized
+(1,627 passed, 2 skipped) and in Debug (1,609 passed, 20 skipped: the cost budgets skip there).
+
+## The small Objective-C stubs at run time
+
+`-objc_stubs_small` makes each selector stub branch to the shared `objc_msgSend` stub instead of
+loading `objc_msgSend` itself: one more direct branch per Objective-C message send. Its run-time
+cost, measured two ways:
+
+- **The Mail budgets**, the same compiled objects linked with and without the flag (an
+  `OTHER_LDFLAGS=` override changes only the link; the test binary's `__objc_stubs` was 8,672 bytes
+  without the flag and 3,252 with it, 271 selectors either way, and relinking with the flag gave a
+  byte-identical binary), alternated off, on, off:
+
+  | Link | Action, 1,000 (median, max) | HTML, 261 KB | Account scope |
+  |---|---|---|---|
+  | without the flag | 41.3, 51.8 | 59.5, 70.1 | 0.7, 10.9 |
+  | with the flag | 41.1, 50.2 | 59.8, 63.9 | 0.8, 11.0 |
+  | without the flag, again (4 runs) | 40.1, 55.3 | 59.6, 63.2 | 0.7, 10.7 |
+
+  No difference beyond run-to-run noise; this work sends few Objective-C messages.
+- **A loop made of message sends** (an `@objc dynamic` method, `NSString` and `NSMutableArray`
+  calls from Swift), one object file linked both ways with Xcode 27.2 for macOS, the two binaries
+  run alternately ten times, seven samples each: without the flag 305.4–321.4 ms, median 307.8;
+  with it 297.9–318.7 ms, median 299.7. The small stubs were not slower; the 2.6% in their favour
+  is most likely code layout (the smaller stubs share cache lines), not the extra branch.
+
+So the flag costs nothing measurable at run time and stays.
