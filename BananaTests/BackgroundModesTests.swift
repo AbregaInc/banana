@@ -5,7 +5,7 @@ import XCTest
 /// recording after Banana leaves the screen (ListenRouteRecorder never lets iOS pause it).
 final class BackgroundModesTests: XCTestCase {
     private func modes(_ plist: String) throws -> [String] {
-        let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
+        let root = SourceTree.root
         let data = try Data(contentsOf: root.appendingPathComponent(plist))
         let dict = try XCTUnwrap(PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any])
         return try XCTUnwrap(dict["UIBackgroundModes"] as? [String])
