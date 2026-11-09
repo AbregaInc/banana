@@ -33,7 +33,11 @@ struct ShellRail: View {
     let open: (ShellPage) -> Void
     @ObservedObject private var badges = ActionBadges.shared
 
+    #if os(macOS)
+    static let width = CGFloat(ShellLayout.macRailColumn)
+    #else
     static let width = CGFloat(ShellLayout.railColumn)
+    #endif
 
     var body: some View {
         VStack(spacing: DS.Space.m) {

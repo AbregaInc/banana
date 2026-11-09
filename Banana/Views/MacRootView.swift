@@ -728,7 +728,7 @@ extension Notification.Name {
     static let macNewTaskRequested = Notification.Name("macNewTaskRequested")
 }
 /// Holds the window's sidebar column at the rail's width: no wider, no narrower, no collapsing,
-/// whatever AppKit's sidebar defaults or a saved divider position say (`ShellLayout.railColumn`).
+/// whatever AppKit's sidebar defaults or a saved divider position say (`ShellRail.width`).
 private struct MacRailColumnPin: NSViewRepresentable {
     let width: CGFloat
 

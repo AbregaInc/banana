@@ -100,11 +100,12 @@ enum ShellLayout: Equatable, Sendable {
 
     static func of(width: Double) -> Self { width >= railWidth ? .rail : .bottomBar }
 
-    /// The rail's own width, on an iPad on its side and on the Mac alike: its round buttons with
-    /// room either side, and on the Mac the window's three buttons above it (they end about 76 pt
-    /// from the edge), so the toolbar starts right after both. Fixed: the Mac's sidebar column is
-    /// pinned to it and cannot be dragged wider or collapsed.
+    /// The rail's own width on an iPad on its side: its round buttons with room either side.
     static let railColumn: Double = 80
+    /// The Mac's rail is as wide as the window's three buttons with the same margin after the
+    /// green one as before the red one (owner, 9 Nov 2026: 80 pt ended right at the green dot), so
+    /// the rail's circles centre under the three buttons. Fixed width; it hides, not resizes.
+    static let macRailColumn: Double = macWindowButtonsEnd + macWindowButtonsStart
     /// A rail button's circle.
     static let railButton: Double = 48
     /// The height of an iPad toolbar's controls (the paging group, Today, "…"), which start at
@@ -114,8 +115,10 @@ enum ShellLayout: Equatable, Sendable {
     /// bar's centre line. It was 16, which put the first circle 18 points below the bar's line.
     /// (The Mac's rail starts under the window's title bar, where the traffic lights are.)
     static let railTopInset: Double = (barControl - railButton) / 2
-    /// Where the Mac window's close, minimise and zoom buttons end, from the window's left edge.
-    static let macWindowButtonsEnd: Double = 76
+    /// Where the Mac window's close, minimise and zoom buttons start and end, from the window's
+    /// left edge (measured on macOS 26/27: the red button's edge at 19 pt, the green's at 78 pt).
+    static let macWindowButtonsStart: Double = 19
+    static let macWindowButtonsEnd: Double = 78
 }
 
 /// What needs attention, as chips in today's row beside the reminders (`PlanAttentionChips`).
