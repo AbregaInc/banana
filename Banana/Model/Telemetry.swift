@@ -203,9 +203,14 @@ final class Telemetry {
         #endif
     }
 
-    /// Installed from the App Store, from TestFlight, or by a developer (Xcode, our own installs).
+    /// Installed from the App Store, from TestFlight, from the direct Mac download, or by a
+    /// developer (Xcode, our own installs).
     static var channel: String {
-        #if os(iOS)
+        #if BANANA_DIRECT
+        // Developer ID signed with its own profile and no App Store receipt, like a developer build,
+        // so the build itself says so.
+        return "direct"
+        #elseif os(iOS)
         if Bundle.main.path(forResource: "embedded", ofType: "mobileprovision") != nil { return "dev" }
         #else
         if FileManager.default.fileExists(atPath: Bundle.main.bundleURL.appendingPathComponent("Contents/embedded.provisionprofile").path),
