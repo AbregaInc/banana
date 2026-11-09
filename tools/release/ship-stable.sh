@@ -1,18 +1,21 @@
 #!/bin/bash
-# Ship Stable build N: TestFlight for iOS and Mac (uploaded, in the public beta group with What to
-# Test, submitted for Beta App Review), the Mac direct download and its feed, and the Stable app
-# on the owner's iPhone and iPad. Only on the owner's word for this build.
+# Ship Stable build N: TestFlight for iOS and Mac (uploaded; added to the public beta group and
+# submitted for Beta App Review only with --public-beta), the Mac direct download and its feed, and
+# the Stable app on the owner's iPhone and iPad. Only on the owner's word for this build.
 #
-#   tools/release/ship-stable.sh 116 --notes-file notes.md --what-to-test wtt.txt --review-notes review.txt
+#   tools/release/ship-stable.sh 116 --notes-file notes.md
+#   tools/release/ship-stable.sh 116 --notes-file notes.md --public-beta --what-to-test wtt.txt --review-notes review.txt
 #   tools/release/ship-stable.sh 116 ... --dry-run
 #
 # Options:
 #   --notes-file FILE     GitHub release notes for the Mac download (Markdown). Required.
-#   --what-to-test FILE   TestFlight What to Test (both platforms). Required unless --no-public-beta.
-#   --review-notes FILE   notes for Beta App Review. Required unless --no-public-beta.
+#   --what-to-test FILE   TestFlight What to Test (both platforms). Required with --public-beta.
+#   --review-notes FILE   notes for Beta App Review. Required with --public-beta.
 #   --feed-notes TEXT     the update feed's one line; default: the notes' first line of text
 #   --version V           user version; default: the latest release's
-#   --no-public-beta      upload only; leave the group, texts and review to tools/asc-public-beta.py
+#   --public-beta         also add the build to the public beta group with What to Test and submit
+#                         it for Beta App Review; without it the build is uploaded only (internal
+#                         testers get it) and tools/asc-public-beta.py can do the rest later
 #   --unit "A B"        unit test classes for the preflight instead of the whole BananaTests target
 #   --skip-preflight      when tools/preflight.sh --channel stable already passed on this commit
 #   --skip-devices        no installs on the phone and iPad
@@ -27,7 +30,7 @@ cd "$(dirname "$0")/../.."
 
 build=${1:-}; shift || true
 [[ "$build" =~ ^[1-9][0-9]*$ ]] || { sed -n '2,23p' "$0"; exit 2; }
-notes="" what="" review="" feed_notes="" version="" public=1 preflight=1 devices=1 unit=()
+notes="" what="" review="" feed_notes="" version="" public=0 preflight=1 devices=1 unit=()
 while [ $# -gt 0 ]; do
   case "$1" in
     --notes-file) notes=$2; shift 2 ;;
@@ -35,6 +38,7 @@ while [ $# -gt 0 ]; do
     --review-notes) review=$2; shift 2 ;;
     --feed-notes) feed_notes=$2; shift 2 ;;
     --version) version=$2; shift 2 ;;
+    --public-beta) public=1; shift ;;
     --no-public-beta) public=0; shift ;;
     --skip-preflight) preflight=0; shift ;;
     --unit) unit=($2); shift 2 ;;
@@ -44,7 +48,7 @@ while [ $# -gt 0 ]; do
   esac
 done
 [ -f "$notes" ] || die "--notes-file FILE is required"
-[ "$public" = 0 ] || { [ -f "$what" ] && [ -f "$review" ]; } || die "--what-to-test and --review-notes files are required (or --no-public-beta)"
+[ "$public" = 0 ] || { [ -f "$what" ] && [ -f "$review" ]; } || die "--what-to-test and --review-notes files are required with --public-beta"
 version=${version:-$(last_release_version)}
 [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || die "no user version (pass --version)"
 [ -n "$feed_notes" ] || feed_notes=$(grep -v -e '^#' -e '^Source:' -e '^Released:' -e '^[[:space:]]*$' "$notes" | head -1 | sed -E 's/^[-*] +//')
