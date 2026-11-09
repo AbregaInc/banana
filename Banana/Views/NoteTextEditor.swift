@@ -12,6 +12,7 @@ struct NoteTextEditor: View {
             .scrollContentBackground(.hidden)
             .overlay(alignment: .topLeading) {
                 if text.isEmpty {
+                    // The field's placeholder, in the system's placeholder colour.
                     Text("What’s on your mind?")
                         .foregroundStyle(.tertiary).padding(.top, 8).padding(.leading, 5)
                         .allowsHitTesting(false)

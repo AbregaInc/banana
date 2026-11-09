@@ -212,6 +212,7 @@ struct NewCalendarEventSheet: View {
                     if workspaceChrome == .sheetToolbar {
                         ToolbarItem(placement: .confirmationAction) {
                             Button(saveTitle) { save() }
+                                .sheetConfirm()
                                 .disabled(embeddedSaveDisabled)
                                 .accessibilityIdentifier("event.save")
                         }
@@ -230,6 +231,7 @@ struct NewCalendarEventSheet: View {
                                 // Not while Fill in is reading the words: the form is about to
                                 // change, and Save approves the form as it shows.
                                 Button(saveTitle) { save() }
+                                    .sheetConfirm()
                                     .disabled(cleanTitle.isEmpty || !timeRangeIsValid || !videoCallLinkIsValid || saving || filling || (onAssistantSave != nil && calendarID == nil))
                                     .keyboardShortcut(.return, modifiers: .command)
                                     .accessibilityIdentifier("event.save")
@@ -1018,7 +1020,7 @@ struct GuestAvatar: View {
                 .overlay(Text(String(person.displayName.prefix(1)).uppercased()).font(.footnote.weight(.semibold)))
             if person.isFavorite {
                 Image(systemName: "star.fill")
-                    .font(.system(size: 9, weight: .bold))
+                    .font(DS.Typeface.small(.bold))
                     .foregroundStyle(DS.Palette.accent)
                     .offset(x: 2, y: 2)
                     .accessibilityLabel("You meet often")

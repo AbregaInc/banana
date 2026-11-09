@@ -399,7 +399,7 @@ struct SetupSheet: View {
             .navigationTitle("Set up Banana")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } }
+                SheetClose { dismiss() }
             }
             .navigationDestination(for: SetupItem.self) { item in
                 SetupPrimerPage(item: item)

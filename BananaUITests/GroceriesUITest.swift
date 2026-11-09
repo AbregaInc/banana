@@ -29,14 +29,14 @@ final class GroceriesUITest: XCTestCase {
         XCTAssertTrue(waitUntil(timeout: 20) {
             rows.count == 2 && rows.allElementsBoundByIndex.allSatisfy { $0.label.contains("Added") }
         }, "two packages, the yogurt once\n\(app.debugDescription)")
-        app.buttons["Done"].firstMatch.tap()
+        app.buttons["sheet.close"].firstMatch.tap()
 
         // In your foods, bought today.
         let yogurt = app.descendants(matching: .any).matching(identifier: "myFoods.row")
             .matching(NSPredicate(format: "label CONTAINS[c] 'greek yogurt'")).firstMatch
         XCTAssertTrue(yogurt.waitForExistence(timeout: 5), app.debugDescription)
         XCTAssertTrue(yogurt.label.contains("bought"), yogurt.label)
-        app.buttons["Done"].firstMatch.tap()
+        app.buttons["sheet.close"].firstMatch.tap()
         XCTAssertTrue(waitUntil(timeout: 5) { !yogurt.exists }, "My foods didn't close")
 
         // Suggested when you describe a meal, before you've had any.

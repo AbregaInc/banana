@@ -33,9 +33,9 @@ struct TripZoneNames: View {
     var body: some View {
         VStack(alignment: .trailing, spacing: 0) {
             Text(Self.city(.current)).foregroundStyle(.secondary)
-            Text(Self.city(secondary)).foregroundStyle(.tertiary)
+            Text(Self.city(secondary)).foregroundStyle(DS.Palette.quietText)
         }
-        .font(.system(size: 8, weight: .semibold))
+        .font(DS.Typeface.small(.semibold))
         .lineLimit(1)
         .minimumScaleFactor(0.7)
         .accessibilityElement(children: .ignore)

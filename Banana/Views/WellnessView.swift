@@ -800,7 +800,7 @@ private struct SupplementEditor: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("Cancel") { lookupTask?.cancel(); dismiss() } }
-                ToolbarItem(placement: .confirmationAction) { Button("Save") { save() }.disabled(name.trimmingCharacters(in: .whitespaces).isEmpty) }
+                ToolbarItem(placement: .confirmationAction) { Button("Save") { save() }.sheetConfirm().disabled(name.trimmingCharacters(in: .whitespaces).isEmpty) }
             }
             .onDisappear { lookupTask?.cancel() }
             .sheet(isPresented: $showBarcodeScanner) {

@@ -520,7 +520,7 @@ final class OnboardingWalkUITest: XCTestCase {
         pause(0.5)
         keep(app, "calendar-from-the-list")
         app.navigationBars.buttons.firstMatch.tap()
-        app.buttons["Done"].firstMatch.tap()
+        app.buttons["sheet.close"].firstMatch.tap()
         pause(1)
 
         // Each page, as it is the first time it is opened. None of them asks the system anything.
@@ -614,7 +614,7 @@ final class OnboardingWalkUITest: XCTestCase {
         pause(0.8)
         keep(app, "setup-list")
         XCTAssertTrue(app.buttons["setup.row.calendar"].exists, "a finished row lost its place")
-        app.buttons["Done"].firstMatch.tap()
+        app.buttons["sheet.close"].firstMatch.tap()
         pause(0.8)
 
         hide.tap()

@@ -156,10 +156,7 @@ private struct CalendarSearchView: View {
             #endif
             .navigationTitle("Filter Calendar")
             .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") { dismiss() }
-                        .keyboardShortcut(.cancelAction)
-                }
+                SheetClose { dismiss() }
             }
             .onChange(of: query) { _, _ in cursor = nil; history = []; page = nil }
             .task(id: Request(query: query, cursor: cursor, revision: revision)) {

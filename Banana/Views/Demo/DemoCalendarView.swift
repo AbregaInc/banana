@@ -94,7 +94,7 @@ struct DemoCalendarView: View {
             CalendarHourLines(hourHeight: hourHeight, hourColor: .secondary.opacity(0.2), halfHourColor: .secondary.opacity(0.08), usesCanvas: false)
             ForEach(0..<24) { hour in
                 Text(hour == 0 ? "12 AM" : hour < 12 ? "\(hour) AM" : hour == 12 ? "12 PM" : "\(hour - 12) PM")
-                    .font(.system(size: 9)).foregroundStyle(.secondary)
+                    .font(DS.Typeface.small()).foregroundStyle(.secondary)
                     .frame(width: gutter - 4, alignment: .trailing).offset(y: CGFloat(hour) * hourHeight)
             }
         }.frame(width: width, height: 24 * hourHeight))

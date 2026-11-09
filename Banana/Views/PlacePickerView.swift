@@ -241,7 +241,7 @@ struct GettingThereView: View {
                     Text("GETTING THERE")
                         .font(DS.Typeface.eyebrow)
                         .tracking(DS.Typeface.eyebrowTracking)
-                        .foregroundStyle(.tertiary)
+                        .foregroundStyle(DS.Palette.quietText)
                     rows(leg)
                 }
             case .form:

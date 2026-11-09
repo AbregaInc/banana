@@ -48,7 +48,7 @@ struct AnswerRating: View {
             button(.down, "hand.thumbsdown", "Bad answer")
         }
         .font(.caption)
-        .foregroundStyle(.tertiary)
+        .foregroundStyle(DS.Palette.quietText)
     }
 
     private func button(_ rating: ProblemReport.Rating, _ symbol: String, _ label: String) -> some View {

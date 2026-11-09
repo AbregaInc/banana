@@ -87,6 +87,7 @@ struct ScanCorrectionSheet: View {
                     if isReviewing {
                         ToolbarItem(placement: .confirmationAction) {
                             Button("Save") { save() }
+                                .sheetConfirm()
                                 .disabled((reading?.servingGrams ?? 0) < 1)
                                 .accessibilityIdentifier("scan.saveLabel")
                         }

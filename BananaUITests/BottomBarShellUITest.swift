@@ -213,12 +213,12 @@ final class BottomBarShellUITest: XCTestCase {
         // Settings and Review open over the page, as they did from "…" and the chart button.
         switcher.tap()
         app.buttons["shell.page.settings"].tap()
-        let done = app.navigationBars.buttons["Done"].firstMatch
+        let done = app.buttons["sheet.close"].firstMatch
         XCTAssertTrue(done.waitForExistence(timeout: 5), "Settings didn't open")
         done.tap()
         switcher.tap()
         app.buttons["shell.page.review"].tap()
-        XCTAssertTrue(app.navigationBars.buttons["Done"].firstMatch.waitForExistence(timeout: 5), "Review didn't open")
+        XCTAssertTrue(app.buttons["sheet.close"].firstMatch.waitForExistence(timeout: 5), "Review didn't open")
     }
 
     // MARK: Search or ask

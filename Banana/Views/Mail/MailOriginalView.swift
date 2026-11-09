@@ -29,7 +29,7 @@ struct MailOriginalSheet: View {
             }
             .navigationTitle("Original")
             .toolbar {
-                ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } }
+                SheetClose { dismiss() }
                 ToolbarItem(placement: .automatic) {
                     if fragment != nil && !remoteImages {
                         Button("Load images") { remoteImages = true }

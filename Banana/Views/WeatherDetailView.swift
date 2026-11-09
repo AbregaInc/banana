@@ -59,7 +59,7 @@ struct WeatherDetailView: View {
             .navigationTitle(resolvedPlace ?? "Weather")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } }
+                SheetClose { dismiss() }
             }
         }
         #if os(macOS)
@@ -106,7 +106,8 @@ struct WeatherDetailView: View {
                 HStack(spacing: 10) {
                     ForEach(day.hours) { h in
                         let isSelected = h.hour == day.calendar.component(.hour, from: selected)
-                        VStack(spacing: 6) {
+                        // A button: VoiceOver reads it as one choice and says which is selected.
+                        Button { selected = h.date } label: { VStack(spacing: 6) {
                             Text(label(h.date, "ha", day.timeZone)).font(.caption2)
                                 .foregroundStyle(isSelected ? AnyShapeStyle(DS.Palette.accent) : AnyShapeStyle(.secondary))
                             Image(systemName: h.symbol)
@@ -118,17 +119,23 @@ struct WeatherDetailView: View {
                                 .foregroundStyle(isSelected ? DS.Palette.accent : Color.primary)
                             if h.precip > 0.05 {
                                 Text("\(Int((h.precip * 100).rounded()))%")
-                                    .font(.system(size: 9)).foregroundStyle(DS.Palette.info)
+                                    .font(DS.Typeface.small()).foregroundStyle(DS.Palette.info)
                             } else {
-                                Text(" ").font(.system(size: 9))
+                                Text(" ").font(DS.Typeface.small())
                             }
                         }
                         .frame(width: 46)
                         .padding(.vertical, DS.Space.s)
                         .background(isSelected ? DS.Palette.accent.opacity(DS.Tint.soft) : Color.clear,
                                     in: RoundedRectangle(cornerRadius: DS.Radius.control, style: .continuous))
+                        .contentShape(RoundedRectangle(cornerRadius: DS.Radius.control, style: .continuous))
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityElement(children: .ignore)
+                        .accessibilityLabel(hourSpoken(h, in: day))
+                        .accessibilityAddTraits(isSelected ? [.isButton, .isSelected] : .isButton)
+                        .accessibilityIdentifier("weather.hour")
                         .id(h.hour)
-                        .onTapGesture { selected = h.date }
                     }
                 }
                 .padding(.horizontal, DS.Space.l)
@@ -158,7 +165,8 @@ struct WeatherDetailView: View {
                 .labelStyle(.titleAndIcon)
             Text(value).font(.title3.weight(.medium))
         }
-        .padding(DS.Space.m)
+        // The page's one text edge: the card's inset plus the rows' (`week`).
+        .padding(DS.Space.l)
         .frame(maxWidth: .infinity, alignment: .leading)
         .dsCard()
     }
@@ -169,7 +177,8 @@ struct WeatherDetailView: View {
         VStack(alignment: .leading, spacing: 0) {
             Text("The week").font(.footnote.weight(.semibold))
                 .foregroundStyle(.secondary)
-                .padding(.horizontal, DS.Space.l).padding(.bottom, DS.Space.s)
+                // Over the rows' words, as a grouped list's header sits.
+                .padding(.horizontal, DS.Space.l + DS.Space.l).padding(.bottom, DS.Space.s)
 
             VStack(spacing: 0) {
                 ForEach(Array(resolvedDays.enumerated()), id: \.element.id) { i, d in
@@ -255,6 +264,13 @@ struct WeatherDetailView: View {
     }
 
     // MARK: - Helpers
+
+    /// What VoiceOver says for an hour: "3 PM, 72°, Rain, 20% rain".
+    private func hourSpoken(_ h: HourlyWeather, in day: DayForecast) -> String {
+        var parts = [label(h.date, "ha", day.timeZone), "\(Int(h.tempF.rounded()))°", h.condition]
+        if h.precip > 0.05 { parts.append("\(Int((h.precip * 100).rounded()))% rain") }
+        return parts.joined(separator: ", ")
+    }
 
     private func sameHour(as date: Date, on day: DayForecast) -> Date {
         let hour = day.calendar.component(.hour, from: date)

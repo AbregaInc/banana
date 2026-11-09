@@ -308,10 +308,10 @@ struct EventDetailView: View {
                         Text(attendee.displayName ?? attendee.email)
                             .lineLimit(1)
                         if attendee.isOrganizer {
-                            Text("Organizer").font(.caption).foregroundStyle(.tertiary)
+                            Text("Organizer").font(.caption).foregroundStyle(DS.Palette.quietText)
                         }
                         if attendee.isCurrentUser {
-                            Text("You").font(.caption).foregroundStyle(.tertiary)
+                            Text("You").font(.caption).foregroundStyle(DS.Palette.quietText)
                         }
                     }
                     .font(.subheadline)

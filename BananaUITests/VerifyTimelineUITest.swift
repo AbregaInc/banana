@@ -168,7 +168,7 @@ final class VerifyTimelineUITest: XCTestCase {
         XCTAssertTrue(thirtySeconds.waitForExistence(timeout: 3))
         thirtySeconds.tap()
         XCTAssertTrue(app.staticTexts["30 seconds"].waitForExistence(timeout: 3))
-        app.buttons["Done"].tap()
+        app.buttons["sheet.close"].tap()
         openSettings()
         XCTAssertTrue(app.navigationBars["Podcast settings"].waitForExistence(timeout: 3))
         XCTAssertTrue(app.staticTexts["30 seconds"].exists)

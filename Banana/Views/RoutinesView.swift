@@ -26,8 +26,7 @@ struct RoutinesView: View {
                 ForEach(routines.grouped(), id: \.group) { section in
                     Section(section.group.label) {
                         ForEach(section.items) { routine in
-                            Button { editing = routine } label: { row(routine) }
-                                .buttonStyle(.plain)
+                            row(routine)
                                 .swipeActions {
                                     Button("Delete", role: .destructive) { DeleteUndo.routine(routine.id, in: routines) }
                                 }
@@ -51,14 +50,14 @@ struct RoutinesView: View {
             .modifier(RoutinesAdd(inSheet: showsDoneButton) { pickingTemplate = true })
             // A column in the middle of an iPad or a wide window, not rows stretched across it.
             .readableColumn()
-            .pageNavigationTitle("Routines", presented: showsDoneButton)
+            // Named on every device: no rail button or switcher page says where this is.
+            .pageNavigationTitle("Routines", presented: true)
             .toolbar {
                 if showsDoneButton {
-                    ToolbarItem(placement: .confirmationAction) {
-                        Button("Done") { dismiss() }
-                    }
+                    SheetClose { dismiss() }
                 } else {
-                    // As a page: "…" like every other page's, the way to Settings.
+                    // As a page: the field like every other page's, and "…".
+                    ReviewToolbarItem(section: .routines)
                     ToolbarItem(placement: .automatic) { MoreMenu() }
                 }
             }
@@ -122,30 +121,40 @@ struct RoutinesView: View {
         return parts.isEmpty ? "On" : parts.joined(separator: " · ")
     }
 
+    /// A row is two controls side by side, never one inside the other: the name opens the
+    /// editor, the switch turns the routine on and off. Inside the row's button the switch was
+    /// either an unnamed element or part of a button VoiceOver could not toggle.
     private func row(_ routine: Routine) -> some View {
         HStack(spacing: 12) {
-            IconTile(systemImage: routine.icon, tint: routine.color.color, size: 34)
-            .opacity(routine.enabled ? 1 : 0.4)
+            Button { editing = routine } label: {
+                HStack(spacing: 12) {
+                    IconTile(systemImage: routine.icon, tint: routine.color.color, size: 34)
+                    .opacity(routine.enabled ? 1 : 0.4)
 
-            VStack(alignment: .leading, spacing: 3) {
-                Text(routine.name).font(.body.weight(.medium))
-                detailLine(triggerIcon(routine.triggerKind), routine.triggerDescription)
-                // Only when something is set to play; a "Not set" line said nothing.
-                if let source = sourceLine(routine) {
-                    detailLine("waveform", source)
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text(routine.name).font(.body.weight(.medium))
+                        detailLine(triggerIcon(routine.triggerKind), routine.triggerDescription)
+                        // Only when something is set to play; a "Not set" line said nothing.
+                        if let source = sourceLine(routine) {
+                            detailLine("waveform", source)
+                        }
+                    }
+                    .opacity(routine.enabled ? 1 : 0.55)
+
+                    // The controls at the trailing edge, in one column down the list.
+                    Spacer(minLength: DS.Space.s)
                 }
+                .contentShape(Rectangle())
             }
-            .opacity(routine.enabled ? 1 : 0.55)
-
-            // The controls at the trailing edge, in one column down the list.
-            Spacer(minLength: DS.Space.s)
+            .buttonStyle(.plain)
+            .accessibilityHint("Edit")
 
             #if BANANA_MODULE_PODCASTS
             // Start it now, whatever its time: the way to run a Manual one at all.
             RoutineStartButton(routine: routine, compact: true)
             #endif
 
-            Toggle("", isOn: Binding(
+            Toggle(routine.name, isOn: Binding(
                 get: { routine.enabled },
                 set: { routines.setEnabled(routine.id, $0) }
             ))

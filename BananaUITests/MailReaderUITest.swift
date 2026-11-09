@@ -10,7 +10,7 @@ final class MailReaderUITest: MailUITestCase {
         XCTAssertTrue(app.webViews.staticTexts["Dispatch"].waitForExistence(timeout: 10))
         XCTAssertTrue(app.webViews.links["View event"].exists)
         snap("original-layout")
-        app.buttons["Done"].firstMatch.tap()
+        app.buttons["sheet.close"].firstMatch.tap()
         XCTAssertTrue(original.waitForExistence(timeout: 5))
         snap("reader-return")
     }

@@ -189,7 +189,7 @@ private struct PlanAttentionList: View {
                 }
             }
             .navigationTitle("Needs attention")
-            .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } } }
+            .toolbar { SheetClose { dismiss() } }
             #if BANANA_MODULE_FOOD
             .sheet(item: $reviewing) { request in MealDayReviewView(day: request.day).environmentObject(wellness) }
             #endif

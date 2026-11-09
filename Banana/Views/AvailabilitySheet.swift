@@ -115,7 +115,7 @@ struct AvailabilitySheet: View {
                     #if os(iOS)
                     // One verb: the system's share sheet, which has Copy in it. Copy here and a
                     // second share button at the bottom were two ways to do one thing.
-                    ShareLink(item: text) { Text("Share") }
+                    ShareLink(item: text) { Text("Share") }.sheetConfirm()
                         .accessibilityIdentifier("availability.copy")
                     #else
                     Button(copied ? "Copied" : "Copy") { copy(text) }
@@ -247,7 +247,7 @@ struct MacAvailabilityPanel: View {
                     .fixedSize()
                 }
                 row("calendar.day.timeline.left", "Include weekends") {
-                    Toggle("", isOn: $includeWeekends).formControls().controlSize(.small).labelsHidden()
+                    Toggle("Include weekends", isOn: $includeWeekends).formControls().controlSize(.small).labelsHidden()
                 }
             }
             .padding(.vertical, DS.Space.xs)

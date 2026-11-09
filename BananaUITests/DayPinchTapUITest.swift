@@ -30,7 +30,7 @@ final class DayPinchTapUITest: XCTestCase {
         focus.tap()
         if !editor.waitForExistence(timeout: 5) { print("TREE-START\n\(app.debugDescription)\nTREE-END") }
         XCTAssertTrue(editor.exists, "tapping the cue should open it")
-        app.buttons["Done"].tap()
+        app.buttons["sheet.close"].tap()
         XCTAssertTrue(editor.waitForNonExistence(timeout: 5))
 
         // Zooming from on top of it, in and out, opens nothing.
@@ -38,7 +38,7 @@ final class DayPinchTapUITest: XCTestCase {
             focus = try revealCalendarButton("Wake", in: app)
             focus.pinch(withScale: scale, velocity: scale > 1 ? 1.2 : -1.2)
             XCTAssertFalse(editor.exists, "a pinch on the cue opened it (scale \(scale))")
-            if editor.exists { app.buttons["Done"].tap() }
+            if editor.exists { app.buttons["sheet.close"].tap() }
         }
 
         // Once the fingers have been up a moment, a tap opens it again.

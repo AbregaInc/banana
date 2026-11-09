@@ -35,7 +35,7 @@ struct OccurrenceTimeSheet: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") { onSave(date); dismiss() }
+                    Button("Save") { onSave(date); dismiss() }.sheetConfirm()
                 }
             }
         }

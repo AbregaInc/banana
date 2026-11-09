@@ -238,7 +238,7 @@ private struct MailRefusalSheet: View {
             }
             .padding(.vertical)
             .navigationTitle("Changes needing attention")
-            .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } } }
+            .toolbar { SheetClose { dismiss() } }
             .task(id: revision) {
                 loading = true; failed = false
                 do {

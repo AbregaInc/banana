@@ -343,9 +343,7 @@ struct PodcastDetailView: View {
             .navigationBarTitleDisplayMode(.inline)
             #endif
             .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") { showConfiguration = false }
-                }
+                SheetClose { showConfiguration = false }
             }
         }
         #if os(macOS)
@@ -834,7 +832,7 @@ private struct EpisodeInfoSheet: View {
             }
             .navigationTitle("Episode info")
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } } }
+            .toolbar { SheetClose { dismiss() } }
         }
         .task {
             let html = episode.summary ?? ""
