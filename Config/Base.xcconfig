@@ -54,4 +54,23 @@ BANANA_UNRELEASED_SWIFT_YES = -DBANANA_UNRELEASED
 BANANA_UNRELEASED_SWIFT_NO = -DBANANA_PUBLIC
 OTHER_SWIFT_FLAGS = $(inherited) $(BANANA_UNRELEASED_SWIFT_$(BANANA_LOCAL_EMAIL)) $(BANANA_AI_SWIFT_$(BANANA_LOCAL_AI))
 
+// The modules a build carries (AppModules.swift), each named by its compile condition: a module
+// not listed has no code, entitlement, background mode, usage string or embedded target in the
+// build (Config/Modules.json, tools/modules/). Plan and the calendar are not modules and are always
+// there. Email stays on its own switch above, so every existing way of turning it on still works.
+// project.yml adds the list to SWIFT_ACTIVE_COMPILATION_CONDITIONS and to Info.plist
+// (BananaModules), where tools/check-release.sh reads it back.
+BANANA_MODULE_EMAIL_YES = BANANA_MODULE_EMAIL
+BANANA_MODULE_EMAIL_NO =
+BANANA_ALL_MODULES = BANANA_MODULE_WORKOUTS BANANA_MODULE_FOOD BANANA_MODULE_NOTES BANANA_MODULE_PODCASTS $(BANANA_MODULE_EMAIL_$(BANANA_LOCAL_EMAIL))
+BANANA_MODULES = $(BANANA_ALL_MODULES)
+// The App Store app (configuration AppStore): the calendar alone for its first release. Every
+// target of that configuration takes the list, so the widgets compile the same modules as the app.
+BANANA_APP_STORE_MODULES =
+BANANA_MODULES[config=AppStore] = $(BANANA_APP_STORE_MODULES)
+BANANA_UNRELEASED[config=AppStore] = NO
+BANANA_LOCAL_EMAIL[config=AppStore] = NO
+BANANA_LOCAL_AI[config=AppStore] = NO
+BANANA_RELEASE_CHANNEL[config=AppStore] = appstore
+
 #include? "Local.xcconfig"

@@ -5,6 +5,10 @@ configs:
   PiDevelopment: debug
   DevelopmentCloud: release
   TestFlight: release
+  # The App Store app: the TestFlight identity with only the modules BANANA_APP_STORE_MODULES
+  # lists (Config/Base.xcconfig). Chosen at upload time: tools/testflight.sh ios|mac BUILD
+  # MODE appstore.
+  AppStore: release
 options:
   bundleIdPrefix: $(BANANA_BUNDLE_ID)
   createIntermediateGroups: true
@@ -101,6 +105,24 @@ schemes:
         BananaMac: all
     run:
       config: Debug
+  # The App Store app (configuration AppStore): the TestFlight identity with only the modules
+  # BANANA_APP_STORE_MODULES lists. tools/testflight.sh ios|mac BUILD MODE appstore archives it.
+  BananaAppStore:
+    build:
+      targets:
+        Banana: all
+    run:
+      config: AppStore
+    archive:
+      config: AppStore
+  BananaMacAppStore:
+    build:
+      targets:
+        BananaMac: all
+    run:
+      config: AppStore
+    archive:
+      config: AppStore
   BananaMacBeta:
     build:
       targets:
@@ -161,6 +183,7 @@ configFiles:
   PiDevelopment: Config/Base.xcconfig
   DevelopmentCloud: Config/Base.xcconfig
   TestFlight: Config/Base.xcconfig
+  AppStore: Config/Base.xcconfig
 
 settings:
   base:
@@ -178,6 +201,15 @@ settings:
     # same objects differed (docs/performance/build-pipeline.md, "Reproducible builds"). Small
     # stubs branch to the one objc_msgSend stub instead.
     OTHER_LDFLAGS: "$(inherited) -Xlinker -objc_stubs_small"
+    # The modules a build carries, as compile conditions (`#if BANANA_MODULE_PODCASTS`; the list
+    # is BANANA_MODULES in Config/Base.xcconfig). Here and not in the xcconfig: the project's own
+    # Debug value would replace the xcconfig's.
+    SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) $(BANANA_MODULES)"
+  configs:
+    Debug:
+      SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) DEBUG $(BANANA_MODULES)"
+    PiDevelopment:
+      SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) DEBUG $(BANANA_MODULES)"
 
 packages:
   Sparkle:
@@ -241,6 +273,8 @@ targets:
         BananaReleaseChannel: $(BANANA_RELEASE_CHANNEL)
         BananaPrimaryBundleIdentifier: $(BANANA_BUNDLE_ID)
         BananaSourceCommit: $(BANANA_SOURCE_COMMIT)
+        # The modules this build carries (Config/Base.xcconfig), for tools/check-release.sh.
+        BananaModules: $(BANANA_MODULES)
         BananaServiceHost: $(BANANA_SERVICE_HOST)
         BananaGoogleServerClient: $(BANANA_GOOGLE_SERVER_CLIENT)
         CFBundleDisplayName: Banana
@@ -377,6 +411,12 @@ targets:
           BANANA_UNRELEASED: NO
           BANANA_LOCAL_EMAIL: NO
           BANANA_LOCAL_AI: NO
+        # The App Store app: TestFlight's identity, only BANANA_APP_STORE_MODULES' modules.
+        AppStore:
+          BANANA_RELEASE_CHANNEL: appstore
+          BANANA_UNRELEASED: NO
+          BANANA_LOCAL_EMAIL: NO
+          BANANA_LOCAL_AI: NO
         Release:
           # A normal Release build must be the public app; Debug retains test fixtures.
           BANANA_UNRELEASED: NO
@@ -432,6 +472,8 @@ targets:
         BananaReleaseChannel: $(BANANA_RELEASE_CHANNEL)
         BananaPrimaryBundleIdentifier: $(BANANA_BUNDLE_ID)
         BananaSourceCommit: $(BANANA_SOURCE_COMMIT)
+        # The modules this build carries (Config/Base.xcconfig), for tools/check-release.sh.
+        BananaModules: $(BANANA_MODULES)
         BananaServiceHost: $(BANANA_SERVICE_HOST_BETA)
         BananaGoogleServerClient: $(BANANA_GOOGLE_SERVER_CLIENT_BETA)
         CFBundleDisplayName: $(BANANA_BETA_DISPLAY_NAME)
@@ -1356,6 +1398,8 @@ targets:
         BananaReleaseChannel: $(BANANA_RELEASE_CHANNEL)
         BananaPrimaryBundleIdentifier: $(BANANA_BUNDLE_ID)
         BananaSourceCommit: $(BANANA_SOURCE_COMMIT)
+        # The modules this build carries (Config/Base.xcconfig), for tools/check-release.sh.
+        BananaModules: $(BANANA_MODULES)
         BananaServiceHost: ""
         BananaGoogleServerClient: ""
         GIDClientID: ""
@@ -1435,6 +1479,8 @@ targetTemplates:
         BananaReleaseChannel: $(BANANA_RELEASE_CHANNEL)
         BananaPrimaryBundleIdentifier: $(BANANA_BUNDLE_ID)
         BananaSourceCommit: $(BANANA_SOURCE_COMMIT)
+        # The modules this build carries (Config/Base.xcconfig), for tools/check-release.sh.
+        BananaModules: $(BANANA_MODULES)
         BananaServiceHost: $(BANANA_SERVICE_HOST_BETA)
         BananaGoogleServerClient: $(BANANA_GOOGLE_SERVER_CLIENT_BETA)
         CFBundleDisplayName: $(BANANA_BETA_DISPLAY_NAME)
@@ -1558,6 +1604,8 @@ targetTemplates:
         BananaReleaseChannel: $(BANANA_RELEASE_CHANNEL)
         BananaPrimaryBundleIdentifier: $(BANANA_BUNDLE_ID)
         BananaSourceCommit: $(BANANA_SOURCE_COMMIT)
+        # The modules this build carries (Config/Base.xcconfig), for tools/check-release.sh.
+        BananaModules: $(BANANA_MODULES)
         BananaServiceHost: $(BANANA_SERVICE_HOST)
         BananaGoogleServerClient: $(BANANA_GOOGLE_SERVER_CLIENT)
         CFBundleDisplayName: Banana
@@ -1617,6 +1665,13 @@ targetTemplates:
         # TestFlight is Stable: no Email and no local AI (tools/check-release.sh refuses both).
         TestFlight:
           BANANA_RELEASE_CHANNEL: testflight
+          BANANA_UNRELEASED: NO
+          BANANA_LOCAL_EMAIL: NO
+          BANANA_LOCAL_AI: NO
+          CODE_SIGN_ENTITLEMENTS: BananaMac/BananaMacAppStore.entitlements
+        # The App Store app: TestFlight's identity, only BANANA_APP_STORE_MODULES' modules.
+        AppStore:
+          BANANA_RELEASE_CHANNEL: appstore
           BANANA_UNRELEASED: NO
           BANANA_LOCAL_EMAIL: NO
           BANANA_LOCAL_AI: NO

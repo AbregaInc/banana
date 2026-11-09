@@ -40,7 +40,8 @@ final class StoreListingTests: XCTestCase {
         // without duplicating subtitle words. The names come from the modules themselves, so a
         // renamed or added module is a listing to update, not a test to edit.
         let indexed = words(try field("name") + " " + field("subtitle") + " " + field("keywords"))
-        let listed = AppModule.allCases.filter { $0.isAvailable(inUnreleasedBuild: false) }
+        // This listing is Stable's: every module but Email, which follows its own switch.
+        let listed = try ModuleSettings.modules("BANANA_ALL_MODULES")
         XCTAssertFalse(listed.isEmpty)
         var wanted: Set<String> = ["calendar"]
         for module in listed { wanted.formUnion(words(module.rawValue)) }
