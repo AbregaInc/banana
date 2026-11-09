@@ -7,7 +7,7 @@ import unittest
 def load():
     spec = importlib.util.spec_from_file_location("asc_submit", Path(__file__).resolve().parents[1] / "asc-submit.py")
     module = importlib.util.module_from_spec(spec); spec.loader.exec_module(module)
-    return {"plan": module.plan}
+    return {"plan": module.plan, "build_to_attach": module.build_to_attach}
 
 def version(platform, build="83", release="MANUAL", vid="v1"):
     return {"id": vid, "attributes": {"platform": platform, "versionString": "1.0", "appVersionState": "PREPARE_FOR_SUBMISSION", "releaseType": release}, "build": build}
@@ -31,6 +31,21 @@ class PlanTests(unittest.TestCase):
         self.assertEqual(self.plan("IOS", [version("IOS")], [ready], "83"), ("submit", "v1", "s1"))
         self.assertEqual(self.plan("IOS", [version("IOS")], [waiting], "83")[0], "stop")
         self.assertEqual(self.plan("IOS", [version("IOS")], [{"id": "s3", "attributes": {"platform": "MAC_OS", "state": "WAITING_FOR_REVIEW"}}], "83"), ("submit", "v1", None))
+
+    def test_resubmits_a_rejected_submission_and_refuses_two_open_ones(self):
+        rejected = {"id": "s4", "attributes": {"platform": "IOS", "state": "UNRESOLVED_ISSUES"}}
+        ready = {"id": "s1", "attributes": {"platform": "IOS", "state": "READY_FOR_REVIEW"}}
+        self.assertEqual(self.plan("IOS", [version("IOS", build="117")], [rejected], "117"), ("resubmit", "v1", "s4"))
+        self.assertEqual(self.plan("IOS", [version("IOS", build="116")], [rejected], "117")[0], "stop")
+        self.assertEqual(self.plan("IOS", [version("IOS")], [rejected, ready], "83")[0], "stop")
+
+    def test_attaches_only_the_one_processed_build_for_the_platform(self):
+        pick = load()["build_to_attach"]
+        builds = [{"id": "i", "platform": "IOS", "state": "VALID", "expired": False, "version": "1.0"},
+                  {"id": "m", "platform": "MAC_OS", "state": "PROCESSING", "expired": False, "version": "1.0"}]
+        self.assertEqual(pick("IOS", builds, "1.0"), ("attach", "i"))
+        self.assertEqual(pick("MAC_OS", builds, "1.0")[0], "stop")
+        self.assertEqual(pick("IOS", builds, "1.0.4")[0], "stop")
 
 
 if __name__ == "__main__":

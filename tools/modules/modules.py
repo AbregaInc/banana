@@ -4,13 +4,16 @@
     tools/modules/modules.py generate
         After `xcodegen generate` (project.yml's postGenCommand): writes the App Store app's
         Info.plist and entitlements (Config/Generated/) from the full ones xcodegen just wrote,
-        with only the modules BANANA_APP_STORE_MODULES (Config/Base.xcconfig) lists, and
+        with only the modules BANANA_APP_STORE_MODULES (Config/Base.xcconfig) lists, its privacy
+        manifest (Config/Generated/AppStore-PrivacyInfo.xcprivacy, which
+        tools/local-feature-resources.sh puts in the AppStore build in place of the full one), and
         Config/Generated/Modules.xcconfig, which embeds a target that serves only modules
         (the Watch app) beside the App Store app instead of inside it when it carries none of them.
     tools/modules/modules.py check ARTIFACT
         tools/check-release.sh: an .xcarchive, .app or folder must carry nothing of a module its
         app's BananaModules leaves out: no Info.plist key, background mode, task identifier, URL
-        scheme, entitlement, linked framework, embedded target or marker in any executable.
+        scheme, entitlement, linked framework, embedded target, privacy-manifest data type or
+        purpose, or marker in any executable.
 
 A module is named in BANANA_MODULES by its compile condition (BANANA_MODULE_PODCASTS). An item
 several modules list stays while any of them is carried.
@@ -41,6 +44,9 @@ APP_STORE_FILES = [
     ("BananaMac/Info.plist", "Config/Generated/BananaMac-AppStore-Info.plist"),
     ("BananaMac/BananaMacAppStore.entitlements", "Config/Generated/BananaMac-AppStore.entitlements"),
 ]
+
+# The privacy manifest every Banana app bundles, and the App Store app's, derived from it.
+PRIVACY_MANIFEST = ("Banana/PrivacyInfo.xcprivacy", "Config/Generated/AppStore-PrivacyInfo.xcprivacy")
 
 
 def carried(setting: str) -> set[str]:
@@ -101,6 +107,38 @@ def derive_info(info: dict, have: set[str]) -> dict:
     return out
 
 
+def derive_privacy(manifest: dict, have: set[str]) -> dict:
+    """The manifest without the collected data types, and purposes, only left-out modules collect
+    (Modules.json "privacy": a type, or Type/Purpose)."""
+    out = dict(manifest)
+    kept = []
+    for entry in manifest.get("NSPrivacyCollectedDataTypes", []):
+        kind = entry.get("NSPrivacyCollectedDataType")
+        if removed("privacy", kind, have):
+            continue
+        entry = dict(entry)
+        entry["NSPrivacyCollectedDataTypePurposes"] = [
+            purpose for purpose in entry.get("NSPrivacyCollectedDataTypePurposes", [])
+            if not removed("privacy", f"{kind}/{purpose}", have)]
+        kept.append(entry)
+    out["NSPrivacyCollectedDataTypes"] = kept
+    return out
+
+
+def privacy_problems(manifest: dict, have: set[str]) -> list[str]:
+    """What a bundled privacy manifest declares for modules the build leaves out."""
+    problems = []
+    for entry in manifest.get("NSPrivacyCollectedDataTypes", []):
+        kind = entry.get("NSPrivacyCollectedDataType")
+        if removed("privacy", kind, have):
+            problems.append(f"privacy manifest data type {kind}")
+            continue
+        for purpose in entry.get("NSPrivacyCollectedDataTypePurposes", []):
+            if removed("privacy", f"{kind}/{purpose}", have):
+                problems.append(f"privacy manifest purpose {purpose} for {kind}")
+    return problems
+
+
 def derive_entitlements(entitlements: dict, have: set[str]) -> dict:
     return {key: value for key, value in entitlements.items() if not removed("entitlements", key, have)}
 
@@ -115,6 +153,10 @@ def generate() -> None:
         encoded = plistlib.dumps(derived, sort_keys=True)
         if not path.exists() or path.read_bytes() != encoded:
             path.write_bytes(encoded)
+    source, target = PRIVACY_MANIFEST
+    encoded = plistlib.dumps(derive_privacy(plistlib.loads((ROOT / source).read_bytes()), have), sort_keys=True)
+    if not (ROOT / target).exists() or (ROOT / target).read_bytes() != encoded:
+        (ROOT / target).write_bytes(encoded)
     point_entitlements()
     settings = ROOT / "Config/Generated/Modules.xcconfig"
     text = embed_settings(have)
@@ -243,6 +285,9 @@ def check(target: Path) -> int:
     for path in app.rglob("*"):
         if removed("resources", path.name, have):
             problems.append(f"bundled file {path.relative_to(app)}")
+    for manifest in (app / "PrivacyInfo.xcprivacy", app / "Contents/Resources/PrivacyInfo.xcprivacy"):
+        if manifest.exists():
+            problems += privacy_problems(plistlib.loads(manifest.read_bytes()), have)
     for folder, modules in MAP["embeds"].items():
         if not set(modules) & have and (app / folder).exists():
             problems.append(f"embedded {folder} (serves {', '.join(modules)})")

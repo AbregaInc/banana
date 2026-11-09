@@ -4,6 +4,11 @@
 Reads live specifications and device groups instead of legacy screenshot-set enums.
 Dry-run unless --apply. --place explicitly replaces only matching unpublished draft
 placements, retaining old assets and a restoration record. Reuse --out to resume.
+
+--flavour <name> works on that listing (flavours/<name>.json): its package folder and only the
+platforms it has a set for. With --platform all the listing's set replaces the whole draft set:
+a screenshot group it has no images for (the full app's Watch set, for an app with no Watch app)
+is cleared. Every run, dry or not, writes diff.json: each draft group's images now and after.
 """
 import argparse
 import hashlib
@@ -17,6 +22,8 @@ import urllib.error
 from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import listing  # noqa: E402
 API = "https://api.appstoreconnect.apple.com"
 FOLDERS = {"iphone":("iphone-6.9","IPHONE_APP_STORE","IOS"),
            "ipad":("ipad-13","IPAD_APP_STORE","IOS"),
@@ -36,9 +43,41 @@ def matches(image, path, spec, placement_type):
     return abs(w*b-h*a) <= max(a,b) # Header specifications allow whole-pixel rounding.
 
 
+def listing_platforms(chosen, flavour_platforms):
+    """The platforms a run covers: one named platform, or every platform the listing has."""
+    if chosen == "all": return list(flavour_platforms)
+    if chosen not in flavour_platforms: raise SystemExit(f"This listing has no {chosen} set")
+    return [chosen]
+
+
+def required_captures(platforms, flavour_platforms, creative):
+    """Platforms whose fresh-capture evidence an upload needs, within the listing's own set."""
+    required = set(platforms)
+    if "iphone" in required: required.update(["mac", "watch"])
+    if creative: required.update(["iphone", "mac"])
+    return required & set(flavour_platforms)
+
+
+def draft_diff(desired, existing, whole_set, kinds_replaced):
+    """Per (locale, kind, group): the images there now and the files that would replace them.
+
+    desired: {(locale, kind, group): [file names]}; existing: {(locale, kind, group): [labels]}.
+    With whole_set, an existing group of a replaced kind with no desired images is cleared."""
+    out = []
+    for key in sorted(set(desired) | set(existing)):
+        now = existing.get(key, [])
+        if key in desired: after = desired[key]
+        elif whole_set and key[1] in kinds_replaced: after = []
+        else: continue
+        out.append({"locale": key[0], "kind": key[1], "group": key[2], "now": now, "after": after,
+                    "action": "keep" if now == after else ("clear" if not after else ("add" if not now else "replace"))})
+    return out
+
+
 def main():
     p=argparse.ArgumentParser(description=__doc__)
-    p.add_argument("--package",type=Path,default=ROOT/"AppStore/Generated")
+    p.add_argument("--flavour",choices=listing.names(),help="another listing's set, such as calendar-only")
+    p.add_argument("--package",type=Path,help="default AppStore/Generated, or the flavour's own folder")
     p.add_argument("--out",type=Path,required=True)
     p.add_argument("--platform",choices=["all",*FOLDERS],default="all")
     p.add_argument("--creative",action="store_true")
@@ -46,6 +85,8 @@ def main():
     p.add_argument("--place",action="store_true")
     args=p.parse_args()
     if args.place and not args.apply: p.error("--place requires --apply")
+    store_listing=listing.load(args.flavour)
+    args.package=args.package or store_listing["package"]
     args.out.mkdir(parents=True,exist_ok=True)
     spec=importlib.util.spec_from_file_location("asc",ROOT/"tools/asc-builds.py")
     asc=importlib.util.module_from_spec(spec);spec.loader.exec_module(asc)
@@ -84,7 +125,7 @@ def main():
     for platform,v in versions.items():
         locs=get(f"/v1/appStoreVersions/{v['id']}/appStoreVersionLocalizations")["data"]
         targets[platform]=next(x["id"] for x in locs if x["attributes"]["locale"]=="en-US")
-    platforms=list(FOLDERS) if args.platform=="all" else [args.platform]
+    platforms=listing_platforms(args.platform,store_listing["platforms"])
     files=[]
     for platform in platforms:
         folder,device,store=FOLDERS[platform]
@@ -111,13 +152,27 @@ def main():
     for item in plan:buckets.setdefault((item["locale"],item["kind"],item["group"]),[]).append(item)
     if any(len(items)>items[0]["limit"] for items in buckets.values()):raise RuntimeError("Placement count exceeds Apple's live limit")
     (args.out/"plan.json").write_text(json.dumps(plan,indent=2)+"\n")
+    # What the drafts hold now, beside what this run would place there.
+    kinds_replaced={item["kind"] for item in plan}
+    live_groups={}
+    for locale in {item["locale"] for item in plan}:
+        live=get(f"/v1/appStoreVersionLocalizations/{locale}/placements",include="image",sort="placementGroupPosition",limit="200")
+        images={x["id"]:x["attributes"] for x in live.get("included",[]) if x["type"]=="appAssetLibraryImages"}
+        for x in live["data"]:
+            image_id=((x.get("relationships") or {}).get("image") or {}).get("data") or {}
+            label=images.get(image_id.get("id"),{}).get("referenceName") or images.get(image_id.get("id"),{}).get("fileName") or image_id.get("id")
+            live_groups.setdefault((locale,x["attributes"]["placementType"],x["attributes"]["placementGroup"]),[]).append({"id":x["id"],"image":label})
+    desired={key:[Path(i["file"]).name+" "+i["sha256"][:12] for i in items] for key,items in buckets.items()}
+    diff=draft_diff(desired,{k:[e["image"] for e in v] for k,v in live_groups.items()},args.platform=="all",kinds_replaced)
+    (args.out/"diff.json").write_text(json.dumps(diff,indent=2)+"\n")
+    store={item["locale"]:item["store"] for item in plan}
+    for row in diff:
+        print(f'{store.get(row["locale"],"?"):6} {row["kind"]}/{row["group"]}: {row["action"]} ({len(row["now"])} now -> {len(row["after"])})')
     if not args.apply:
         print(f"Validated {len(plan)} files against Apple's live catalog; {len(buckets)} draft groups. No changes sent.")
         return
     captured=json.loads((args.package/"capture-status.json").read_text()).get("freshPlatforms",{})
-    required=set(platforms)
-    if "iphone" in required:required.update(["mac","watch"])
-    if args.creative:required.update(["iphone","mac"])
+    required=required_captures(platforms,store_listing["platforms"],args.creative)
     if not required.issubset(captured):raise RuntimeError("Fresh candidate captures required for: "+", ".join(sorted(required-set(captured))))
     for platform in required:
         hashes=captured[platform].get("rawSHA256",{})
@@ -184,6 +239,18 @@ def main():
         if [x["relationships"]["image"]["data"]["id"] for x in actual]!=desired:raise RuntimeError("Placement read-back order differs")
         state["placements"][bucket_key]["verified"]=True;save()
         print(f"Verified {kind}/{group}: {len(created)} unpublished placements",flush=True)
+    # A whole-listing run clears the draft groups the listing has no images for.
+    for row in diff:
+        if row["action"]!="clear":continue
+        key=(row["locale"],row["kind"],row["group"]);bucket_key=":".join(key)
+        version=versions[store[row["locale"]]]
+        if get("/v1/appStoreVersions/"+version["id"])["data"]["attributes"]["appStoreState"]!="PREPARE_FOR_SUBMISSION":
+            raise RuntimeError("Draft is no longer editable; placements untouched")
+        state["placements"].setdefault(bucket_key,{"before":live_groups[key],"created":[]});save()
+        current=get(f"/v1/appStoreVersionLocalizations/{key[0]}/placements",**{"filter[placementType]":key[1],"filter[placementGroup]":key[2],"limit":"200"})["data"]
+        for old in current:send("DELETE","/v1/appAssetLibraryPlacements/"+old["id"])
+        state["placements"][bucket_key]["cleared"]=True;save()
+        print(f"Cleared {row['kind']}/{row['group']}: {len(current)} draft placements",flush=True)
     print("Draft media updated. No review submission or release.")
 
 

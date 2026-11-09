@@ -3,10 +3,13 @@
 
     python3 tools/asc-submit.py 83            what would be submitted, and why not
     python3 tools/asc-submit.py 83 --apply    submit iOS and macOS (or one with --platform)
+    python3 tools/asc-submit.py 117 --attach [--apply]   only select build 117 on the drafts
 
 For each platform the draft must be in PREPARE_FOR_SUBMISSION with the given build selected and
 manual release; an existing unsubmitted review submission is reused, a submitted one stops the
-script. Submission is the owner's decision, given in words for this build; nothing here is called
+script. A rejected submission (UNRESOLVED_ISSUES) is resubmitted, as the web's "Resubmit to App
+Review" does: the version's rejected item is marked resolved and the same submission is submitted
+again. The dry run says which of the three it would do. Submission is the owner's decision, given in words for this build; nothing here is called
 by the upload scripts. Uses the Banana TestFlight API key, as `asc-builds.py` does.
 """
 import argparse, importlib.util, json, os, sys, urllib.request
@@ -42,7 +45,8 @@ def send(method, path, body=None):
 def plan(platform, versions, submissions, build):
     """What to do for one platform, from the drafts and review submissions Apple lists.
 
-    Returns ("submit", version_id, submission_id_or_None) or ("stop", reason)."""
+    Returns ("submit", version_id, submission_id_or_None), ("resubmit", version_id, submission_id)
+    for a rejected submission, or ("stop", reason)."""
     drafts = [v for v in versions if v["attributes"].get("platform") == platform]
     if len(drafts) != 1:
         return ("stop", f"{len(drafts)} versions in PREPARE_FOR_SUBMISSION for {platform}; expected one")
@@ -52,10 +56,52 @@ def plan(platform, versions, submissions, build):
     if v.get("build") != build:
         return ("stop", f"{platform} draft has build {v.get('build')} selected, not {build}")
     open_ones = [s for s in submissions if s["attributes"].get("platform") == platform]
+    states = [s["attributes"].get("state") for s in open_ones]
     for s in open_ones:
-        if s["attributes"].get("state") != "READY_FOR_REVIEW":
+        if s["attributes"].get("state") not in ("READY_FOR_REVIEW", "UNRESOLVED_ISSUES"):
             return ("stop", f"{platform} already has a review submission in state {s['attributes'].get('state')}")
+    if len(open_ones) > 1:
+        return ("stop", f"{platform} has {len(open_ones)} open review submissions ({', '.join(states)}); expected one")
+    if open_ones and states[0] == "UNRESOLVED_ISSUES":
+        return ("resubmit", v["id"], open_ones[0]["id"])
     return ("submit", v["id"], open_ones[0]["id"] if open_ones else None)
+
+
+def build_to_attach(platform, builds, version_string):
+    """The one processed, unexpired build of that number for the platform and the draft's version
+    (a 1.0.4 build can't go on version 1.0), or a reason it can't be."""
+    usable = [b for b in builds if b["platform"] == platform and b["state"] == "VALID" and not b["expired"]]
+    if len(usable) != 1:
+        return ("stop", f"{platform}: {len(usable)} processed builds with that number; expected one")
+    if usable[0]["version"] != version_string:
+        return ("stop", f"{platform}: the build is version {usable[0]['version']}, the draft is {version_string}")
+    return ("attach", usable[0]["id"])
+
+
+def builds_numbered(app, number):
+    r = asc_module().get("/v1/builds", **{"filter[app]": app, "filter[version]": number, "include": "preReleaseVersion",
+                "fields[builds]": "version,processingState,expired,preReleaseVersion", "fields[preReleaseVersions]": "platform,version"})
+    if "error" in r: raise SystemExit(f"builds: {r}")
+    pre = {i["id"]: i["attributes"] for i in r.get("included", [])}
+    def of(b): return pre.get((((b.get("relationships") or {}).get("preReleaseVersion") or {}).get("data") or {}).get("id"), {})
+    return [{"id": b["id"], "platform": of(b).get("platform"), "version": of(b).get("version"),
+             "state": b["attributes"]["processingState"], "expired": b["attributes"]["expired"]} for b in r["data"]]
+
+
+def attach(app, versions, number, platforms, apply):
+    """Select build `number` on each platform's draft. Never submits."""
+    builds = builds_numbered(app, number); failed = False
+    for platform in platforms:
+        drafts = [v for v in versions if v["attributes"]["platform"] == platform]
+        if len(drafts) != 1: print(f"{platform}: {len(drafts)} drafts; expected one"); failed = True; continue
+        if drafts[0]["build"] == number: print(f"{platform}: build {number} already selected"); continue
+        p = build_to_attach(platform, builds, drafts[0]["attributes"]["versionString"])
+        if p[0] == "stop": print(p[1]); failed = True; continue
+        if not apply: print(f"{platform}: would select build {number} (replacing {drafts[0]['build']}) on draft {drafts[0]['id']}"); continue
+        r = send("PATCH", f"/v1/appStoreVersions/{drafts[0]['id']}/relationships/build", {"data": {"type": "builds", "id": p[1]}})
+        if "error" in r: print(f"{platform}: select build failed: {r}"); failed = True; continue
+        print(f"{platform}: build {number} selected")
+    sys.exit(1 if failed else 0)
 
 
 def versions_in_preparation(app):
@@ -82,6 +128,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("build"); ap.add_argument("--apply", action="store_true")
     ap.add_argument("--platform", choices=PLATFORMS, action="append")
+    ap.add_argument("--attach", action="store_true", help="only select the build on the drafts; no submission")
     a = ap.parse_args()
     apps = asc_module().get("/v1/apps", **{"filter[bundleId]": asc_module().BUNDLE_ID, "fields[apps]": "name"})
     if "error" in apps or not apps["data"]: raise SystemExit(f"apps: {apps}")
@@ -91,13 +138,17 @@ def main():
         print(f'draft {v["attributes"]["platform"]:7} {v["attributes"]["versionString"]} build {v["build"]} {v["attributes"]["appVersionState"]} release {v["attributes"]["releaseType"]}')
     for s in submissions:
         print(f'review submission {s["id"]} {s["attributes"]["platform"]} {s["attributes"]["state"]}')
+    if a.attach:
+        attach(app, versions, a.build, a.platform or PLATFORMS, a.apply)
     failed = False
     for platform in a.platform or PLATFORMS:
         p = plan(platform, versions, submissions, a.build)
         if p[0] == "stop":
             print(f"{platform}: not submitted: {p[1]}"); failed = True; continue
-        _, version_id, submission_id = p
+        action, version_id, submission_id = p
         if not a.apply:
+            if action == "resubmit":
+                print(f"{platform}: would resubmit rejected submission {submission_id}: mark version {version_id}'s rejected item resolved, then submit (build {a.build})"); continue
             print(f"{platform}: would submit version {version_id} (build {a.build})" + (f" through existing submission {submission_id}" if submission_id else "")); continue
         if not submission_id:
             r = send("POST", "/v1/reviewSubmissions", {"data": {"type": "reviewSubmissions", "attributes": {"platform": platform},
@@ -105,7 +156,13 @@ def main():
             if "error" in r: print(f"{platform}: create submission failed: {r}"); failed = True; continue
             submission_id = r["data"]["id"]
         items = asc_module().get(f"/v1/reviewSubmissions/{submission_id}/items", **{"fields[reviewSubmissionItems]": "state", "include": "appStoreVersion"})
-        has_version = any(((i.get("relationships") or {}).get("appStoreVersion") or {}).get("data", {}).get("id") == version_id for i in items.get("data", []))
+        ours = [i for i in items.get("data", []) if (((i.get("relationships") or {}).get("appStoreVersion") or {}).get("data") or {}).get("id") == version_id]
+        has_version = bool(ours)
+        if action == "resubmit":
+            results = [send("PATCH", f"/v1/reviewSubmissionItems/{i['id']}", {"data": {"type": "reviewSubmissionItems", "id": i["id"], "attributes": {"resolved": True}}})
+                       for i in ours if i["attributes"].get("state") == "REJECTED"]
+            errors = [r for r in results if "error" in r]
+            if errors: print(f"{platform}: mark rejected item resolved failed: {errors[0]}"); failed = True; continue
         if not has_version:
             r = send("POST", "/v1/reviewSubmissionItems", {"data": {"type": "reviewSubmissionItems", "relationships": {
                 "reviewSubmission": {"data": {"type": "reviewSubmissions", "id": submission_id}},

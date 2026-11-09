@@ -34,6 +34,11 @@ done
 if [ "${BANANA_LOCAL_AI:-NO}" != YES ]; then
   rm -rf "$resources/PiRuntime"
 fi
+# The App Store app declares only what its modules collect: its privacy manifest is the one
+# tools/modules/modules.py derives (Config/Modules.json "privacy"), in place of the full app's.
+if [ "${CONFIGURATION:-}" = AppStore ] && [ -f "$resources/PrivacyInfo.xcprivacy" ]; then
+  cp "$SRCROOT/Config/Generated/AppStore-PrivacyInfo.xcprivacy" "$resources/PrivacyInfo.xcprivacy"
+fi
 # An inspectable marker survives optimizer stripping and catches incorrectly configured archives.
 marker="$resources/banana-local-features.txt"
 rm -f "$marker"
