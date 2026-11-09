@@ -46,7 +46,7 @@ struct DemoCalendarView: View {
                         }
                     }
                     .navigationTitle("Calendar visibility")
-                    .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { calendars = false } } }
+                    .toolbar { SheetClose { calendars = false } }
                 }.frame(minWidth: 300, minHeight: 300)
             }
         }

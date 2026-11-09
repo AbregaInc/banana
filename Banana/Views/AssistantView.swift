@@ -72,7 +72,7 @@ struct AssistantView: View {
                     }
                 }
                 .navigationTitle("Conversations")
-                .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { showingConversations = false } } }
+                .toolbar { SheetClose { showingConversations = false } }
             }
             #if os(macOS)
             .frame(minWidth: 340, minHeight: 360)

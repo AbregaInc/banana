@@ -87,6 +87,7 @@ struct RootView: View {
                 // for real — the path that used to lose the tab and the open note.
                 if visibility.rendersContent {
                     mainTabs
+                        .modifier(PreviewNewItemSheet(showing: PreviewNewItemSheet.requested))
                         // Mail's badge (unread in the Inbox) before Mail has started: the engine's
                         // launch mirror at once, then one read-only count a moment later, off the
                         // first frame (`MailBadgeLaunchRead`). Mail itself starts when it is shown.
@@ -1393,20 +1394,33 @@ private struct EventEditorPreviewHost: View {
 /// sheet open over it, as the "+" menu opens it.
 private struct NewItemSheetHost: View {
     let task: Bool
-    @State private var showing = true
 
     var body: some View {
         NavigationStack { PlannerTab() }
             .toastHost()
-            .sheet(isPresented: $showing) {
-                if task {
-                    NewTaskSheet()
-                } else {
-                    // `--new-calendar-event-text "…"`: the form with words already typed.
-                    NewCalendarEventSheet(initialTitle: CommandLine.arguments.firstIndex(of: "--new-calendar-event-text")
-                        .flatMap { CommandLine.arguments.indices.contains($0 + 1) ? CommandLine.arguments[$0 + 1] : nil } ?? "")
-                }
+            .modifier(PreviewNewItemSheet(showing: true))
+    }
+}
+
+/// The new-event or new-task sheet open from launch: over the standalone Plan above, or over
+/// the real shell with `--ui-preview` (the store captures), as + would open it there.
+/// `--new-calendar-event-text "…"`: the form with words already typed.
+struct PreviewNewItemSheet: ViewModifier {
+    @State var showing: Bool
+    static var requested: Bool {
+        let arguments = ProcessInfo.processInfo.arguments
+        return arguments.contains("--new-calendar-event") || arguments.contains("--new-task")
+    }
+
+    func body(content: Content) -> some View {
+        content.sheet(isPresented: $showing) {
+            if ProcessInfo.processInfo.arguments.contains("--new-task") {
+                NewTaskSheet()
+            } else {
+                NewCalendarEventSheet(initialTitle: CommandLine.arguments.firstIndex(of: "--new-calendar-event-text")
+                    .flatMap { CommandLine.arguments.indices.contains($0 + 1) ? CommandLine.arguments[$0 + 1] : nil } ?? "")
             }
+        }
     }
 }
 #endif

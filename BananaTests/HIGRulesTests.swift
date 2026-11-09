@@ -162,7 +162,9 @@ final class HIGRulesTests: XCTestCase {
         for (path, lines) in try swiftSources() where !path.hasSuffix("SheetChrome.swift") {
             for (i, line) in lines.enumerated() where line.contains("placement: .confirmationAction") {
                 let item = lines[i...min(lines.count - 1, i + 6)].joined(separator: "\n")
-                if item.contains("Button(\"Done\") { dismiss() }") {
+                // A Done that isn't the prominent confirming button only closes the sheet, however
+                // it closes it (`dismiss()`, a flag, the caller's close): that is SheetClose's job.
+                if item.contains("Button(\"Done\")"), !item.contains(".sheetConfirm()") {
                     XCTFail("\(path):\(i + 1) a Done that only closes the sheet: use SheetClose")
                 } else if !item.contains("Button(\"Done\")"), !item.contains(".sheetConfirm()") {
                     XCTFail("\(path):\(i + 1) a sheet's confirming button without .sheetConfirm()")

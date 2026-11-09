@@ -54,17 +54,15 @@ struct EventDetailView: View {
                 NavigationStack {
                     page
                         .navigationBarTitleDisplayMode(.inline)
-                        // Done on the right, where the thumb is and where iOS puts the button that
-                        // closes a sheet — it's what you tap most. Edit, the rarer step, on the left.
+                        // It only shows the event, so it closes with the system's Close (`SheetClose`,
+                        // HIG Sheets); Edit, which opens the editor, at the trailing edge.
                         .toolbar {
+                            SheetClose { finish() }
                             if canEdit {
-                                ToolbarItem(placement: .topBarLeading) {
+                                ToolbarItem(placement: .primaryAction) {
                                     Button("Edit") { editing = true }
                                         .accessibilityIdentifier("eventDetail.edit")
                                 }
-                            }
-                            ToolbarItem(placement: .confirmationAction) {
-                                Button("Done") { finish() }
                             }
                         }
                 }
@@ -118,18 +116,20 @@ struct EventDetailView: View {
         .listSectionSpacing(.compact)
     }
 
-    /// The panel's own row: Edit on the left, Done on the right, as the sheet's toolbar has them.
+    /// The panel's own row, as the sheet's toolbar has it: the system's Close at the leading edge,
+    /// Edit at the trailing edge.
     private var panelBar: some View {
         HStack {
+            Button(role: .close) { finish() }
+                .buttonStyle(.glass)
+                .accessibilityIdentifier("sheet.close")
+            Spacer()
             if canEdit {
                 Button("Edit") { editing = true }
+                    .buttonStyle(.inline)
                     .accessibilityIdentifier("eventDetail.edit")
             }
-            Spacer()
-            Button("Done") { finish() }
-                .fontWeight(.semibold)
         }
-        .buttonStyle(.inline)
         .padding(.horizontal, DS.Space.l)
         .padding(.vertical, DS.Space.m)
     }
