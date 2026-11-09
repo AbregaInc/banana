@@ -113,10 +113,34 @@ def generate() -> None:
         encoded = plistlib.dumps(derived, sort_keys=True)
         if not path.exists() or path.read_bytes() != encoded:
             path.write_bytes(encoded)
+    point_entitlements()
     settings = ROOT / "Config/Generated/Modules.xcconfig"
     text = embed_settings(have)
     if not settings.exists() or settings.read_text() != text:
         settings.write_text(text)
+
+
+def point_entitlements() -> None:
+    """XcodeGen gives every configuration of a target with `entitlements:` that file, whatever
+    the configuration says. A configuration that uses a derived Info.plist gets the derived
+    entitlements of the same app (APP_STORE_FILES pairs them in order)."""
+    project = ROOT / "Banana.xcodeproj/project.pbxproj"
+    if not project.exists():
+        return
+    text = project.read_text()
+    pairs = list(zip(APP_STORE_FILES[0::2], APP_STORE_FILES[1::2]))
+    changed = text
+    for (_, info), (full, derived) in pairs:
+        pattern = re.compile(r"(isa = XCBuildConfiguration;\s*buildSettings = \{)(.*?)(\};\s*name = [^;]+;)", re.S)
+        def fix(match):
+            body = match.group(2)
+            if f'INFOPLIST_FILE = "{info}"' not in body and f"INFOPLIST_FILE = {info};" not in body:
+                return match.group(0)
+            body = re.sub(r"CODE_SIGN_ENTITLEMENTS = [^;]+;", f'CODE_SIGN_ENTITLEMENTS = "{derived}";', body)
+            return match.group(1) + body + match.group(3)
+        changed = pattern.sub(fix, changed)
+    if changed != text:
+        project.write_text(changed)
 
 
 def embed_settings(have: set[str]) -> str:

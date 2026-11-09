@@ -421,8 +421,9 @@ targets:
           BANANA_LOCAL_EMAIL: NO
           BANANA_LOCAL_AI: NO
           # Only its modules' usage strings, background modes and entitlements (tools/modules).
+          # XcodeGen sets every configuration's CODE_SIGN_ENTITLEMENTS from `entitlements:`;
+          # modules.py points this one at the derived file after each generate.
           INFOPLIST_FILE: Config/Generated/Banana-AppStore-Info.plist
-          CODE_SIGN_ENTITLEMENTS: Config/Generated/Banana-AppStore.entitlements
         Release:
           # A normal Release build must be the public app; Debug retains test fixtures.
           BANANA_UNRELEASED: NO
