@@ -182,6 +182,18 @@ final class MailHTMLPreparerTests: XCTestCase {
         XCTAssertNil(none.quoteStartsAt)
     }
 
+    /// Preparation parses a message as a document (one bulk pass) rather than a body fragment: what
+    /// a document puts in its head never reaches the text, and the body reads as it did.
+    func testDocumentHeadNeverReachesTheText() throws {
+        let document = "<!DOCTYPE html><html><head><title>Subject line</title><style>p{color:red}</style><meta charset=utf-8>"
+            + "<base href='https://example.com'><link rel=stylesheet href=x.css></head><body><p>Hello <b>there</b></p><p>Bye</p></body></html>"
+        let loose = "<title>Subject line</title><style>p{}</style><p>Hello <b>there</b></p><p>Bye</p>"
+        for html in [document, loose] {
+            let blocks = try MailHTMLPreparer.prepare(plain: nil, html: html).text.blocks
+            XCTAssertEqual(blocks.map { $0.runs.map(\.text).joined() }, ["Hello there", "Bye"], html)
+        }
+    }
+
     func testPreparationCostForGeneratedHTML() throws {
         let budget = CostBudget(self)
         var samples: [[String: Any]] = []
