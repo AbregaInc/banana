@@ -102,6 +102,8 @@ final class ScaleStress: ObservableObject {
         let platform: String
     }
 
+    // The workload is notes and podcasts beside the calendar: a build without them has none.
+    #if BANANA_MODULE_NOTES && BANANA_MODULE_PODCASTS
     func prepare(library: PodcastLibrary, clock: PlaybackClock, smart: SmartScheduleStore) async {
         guard !prepared, let days = Self.days else { return }
         prepared = true
@@ -323,6 +325,7 @@ final class ScaleStress: ObservableObject {
             catch { assertionFailure("Stress idle report: \(error)") }
         }
     }
+    #endif
 }
 
 struct ScaleStressBadge: View {

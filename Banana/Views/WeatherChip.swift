@@ -43,8 +43,21 @@ struct WeatherChip: View {
             .help("\(hour.condition) \u{2014} open the forecast")
             #endif
             .sheet(item: $focus) { WeatherDetailView(focus: $0.date) }
+            #if DEBUG
+            // `--open-weather`: the forecast open as a tap opens it, once per launch.
+            .task {
+                guard ProcessInfo.processInfo.arguments.contains("--open-weather"), !Self.openedOnLaunch else { return }
+                Self.openedOnLaunch = true
+                try? await Task.sleep(for: .seconds(1))
+                focus = WeatherFocus(id: hour.date)
+            }
+            #endif
         }
     }
+
+    #if DEBUG
+    @MainActor private static var openedOnLaunch = false
+    #endif
 }
 
 /// Absolute temperature → color (blue cold → red hot). Absolute so colors mean the same

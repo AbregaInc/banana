@@ -4,6 +4,8 @@ import SwiftUI
 /// existing smart-schedule + manual-alarm config. (Full per-routine editing next.)
 struct RoutinesView: View {
     @EnvironmentObject var routines: RoutineStore
+    /// Which routines show: one waiting on a module that is off is hidden with it.
+    @ObservedObject private var modules = ModuleStore.shared
     @EnvironmentObject var smart: SmartScheduleStore
     @State private var editing: Routine?
     @State private var pickingTemplate = false
@@ -23,7 +25,7 @@ struct RoutinesView: View {
                     smartScheduleRow
                 }
 
-                ForEach(routines.grouped(), id: \.group) { section in
+                ForEach(routines.grouped(in: modules.effectiveChoice), id: \.group) { section in
                     Section(section.group.label) {
                         ForEach(section.items) { routine in
                             Button { editing = routine } label: { row(routine) }
@@ -71,7 +73,7 @@ struct RoutinesView: View {
             .sheet(isPresented: $pickingTemplate, onDismiss: {
                 if let t = pendingType { pendingType = nil; newDraft = t.makeRoutine() }
             }) {
-                CueTemplatePicker(missing: routines.missingBuiltInTypes) { type in
+                CueTemplatePicker(missing: routines.missingBuiltInTypes(in: modules.effectiveChoice)) { type in
                     pendingType = type
                     pickingTemplate = false
                 }

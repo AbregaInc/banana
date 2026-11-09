@@ -208,8 +208,7 @@ struct SettingsView: View {
         Section("General") {
             // Apple Watch too, as on the phone: here it holds the audio quality the
             // phone syncs at. It was reachable only through the search field.
-            ForEach([SettingsPage.watch, .icloud, .permissions].filter { $0 != .icloud || !backup.retired },
-                    id: \.self) { sidebarRow($0) }
+            ForEach([SettingsPage.watch, .icloud, .permissions].filter(isShown), id: \.self) { sidebarRow($0) }
         }
         Section { sidebarRow(.about) }
     }
@@ -293,8 +292,7 @@ struct SettingsView: View {
         if page == .icloud, backup.retired { return false }
         // Nothing to switch in a build that carries no module (BANANA_MODULES).
         if page == .modules, modules.selectable.isEmpty { return false }
-        // Sending episodes to the Watch: only a build with Podcasts has it.
-        if page == .watch, !AppModule.podcasts.isAvailable { return false }
+        guard page.isCarried(by: AppModule.carried) else { return false }
         return page.module.map(modules.includes) ?? true
     }
 
@@ -367,6 +365,15 @@ struct SettingsView: View {
             case .workouts: .workouts
             case .food: .food
             default: nil
+            }
+        }
+
+        /// Whether a build carrying these modules has this page at all. Apple Watch holds the
+        /// quality episodes are sent to the Watch at, so it is Podcasts' too.
+        func isCarried(by modules: Set<AppModule>) -> Bool {
+            switch self {
+            case .watch: modules.contains(AppModule.owner(of: .watchSettings))
+            default: module.map(modules.contains) ?? true
             }
         }
 
@@ -672,7 +679,8 @@ struct SettingsView: View {
 
     private var generalSection: some View {
         Section("General") {
-            featureRow(.watch, value: settings.watchAudioQuality.label)
+            // Only with Podcasts, which is what it sends to the Watch (`isShown`).
+            if isShown(.watch) { featureRow(.watch, value: settings.watchAudioQuality.label) }
             // The backup's job is the Banana service's once this device has moved (§6).
             if !backup.retired { featureRow(.icloud, value: backup.enabled ? "Backing up" : "Off") }
             featureRow(.permissions, value: missingPermissions == 0 ? "All allowed" : "\(missingPermissions) off")

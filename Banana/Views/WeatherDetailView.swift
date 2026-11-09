@@ -36,6 +36,15 @@ struct WeatherDetailView: View {
     }
     private var hour: HourlyWeather? { day?.hour(at: selected) }
 
+    /// `--scroll-bottom` (DEBUG): opens on the week and Apple Weather's mark, for screenshots.
+    private static var startsAtBottom: Bool {
+        #if DEBUG
+        ProcessInfo.processInfo.arguments.contains("--scroll-bottom")
+        #else
+        false
+        #endif
+    }
+
     var body: some View {
         NavigationStack {
             Group {
@@ -50,6 +59,7 @@ struct WeatherDetailView: View {
                         }
                         .padding(.vertical, DS.Space.s)
                     }
+                    .defaultScrollAnchor(Self.startsAtBottom ? .bottom : nil)
                 } else {
                     ContentUnavailableView("No forecast",
                                            systemImage: "cloud.slash",

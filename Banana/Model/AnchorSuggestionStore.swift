@@ -87,7 +87,9 @@ final class AnchorSuggestionStore: ObservableObject {
                 if arguments.contains("--timing-suggestions-accept"), let first = taken.first ?? reminders.first {
                     accept(first)
                 }
+                #if BANANA_MODULE_FOOD
                 if arguments.contains("--timing-suggestions-move"), let first = moves.first { move(first) }
+                #endif
             }
         }
         #endif
@@ -507,6 +509,7 @@ final class AnchorSuggestionStore: ObservableObject {
     /// What the cards look like with a habit found: a Taken item that follows breakfast, and
     /// Creatine, a reminder, after the workout — offered as an anchor in Plan and a move in Taken.
     private func publishPreview() {
+        #if BANANA_MODULE_FOOD
         let wellness = WellnessStore.shared
         let anchors = ReminderAnchors.shared
         var taken: [AnchorSuggestions.Suggestion] = []
@@ -528,6 +531,16 @@ final class AnchorSuggestionStore: ObservableObject {
         publish(taken: taken.filter { !declined.contains($0.id) },
                 reminders: reminders.filter { !declined.contains($0.id) },
                 moves: [offer].filter { !notNowIDs.contains($0.id) && !moved.contains($0.id) && !inTaken })
+        #else
+        // Without Food there is no Taken: the reminder's anchor alone.
+        let creatine = TimingAnchor(moment: .workout, minutes: 15)
+        let subject = AnchorSuggestions.Item.Subject.reminder(externalID: "preview-creatine", title: "Creatine")
+        var reminders: [AnchorSuggestions.Suggestion] = []
+        if ReminderAnchors.shared.anchor(externalID: "preview-creatine", title: "Creatine") == nil {
+            reminders.append(.init(subject: subject, name: "Creatine", anchor: creatine, followed: 6, together: 8, spread: 5))
+        }
+        publish(taken: [], reminders: reminders.filter { !declined.contains($0.id) })
+        #endif
     }
     #endif
 }
