@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Make the website's images from the marketing captures.
 
-    python3 LandingPage/build_site.py
+    python3 LandingPage/build_site.py            # captures, mark, icons, social image
+    python3 LandingPage/build_site.py captures   # the screenshots only
 
 `tools/app-store/generate.py` refreshes `LandingPage/assets/screenshots/` with every run; this
 turns those captures (the raw ones: the site sets its own headlines in HTML) into the WebP
@@ -23,19 +24,13 @@ ROOT = HERE.parent
 SHOTS = HERE / "assets/screenshots"
 OUT = HERE / "site/assets/img"
 
-# name on the site, source capture, width in pixels (twice the widest it is shown)
+# name on the site, source capture, width in pixels (twice the widest it is shown). The site shows
+# the calendar-only App Store build; swapping a picture is changing its source here and running
+# `python3 LandingPage/build_site.py captures`. The Mac picture waits for a calendar-only capture
+# (the old mac/raw/01-plan.png shows module tabs), so the home page shows no Mac tab until then.
 CAPTURES = [
-    ("phone-plan", "iphone/raw/01-plan.png", 780),
-    ("phone-routines", "iphone/raw/02-routines.png", 780),
-    ("phone-nutrition", "iphone/raw/03-nutrition.png", 780),
-    ("phone-workouts", "iphone/raw/05-workouts.png", 780),
-    ("phone-listenmap", "iphone/raw/06-listening.png", 600),    # the pair is shown smaller,
-    ("phone-transcript", "iphone/raw/07-transcripts.png", 600),  # and a map is heavy
-    ("ipad-plan", "ipad/raw/01-plan.png", 1500),
-    ("mac-plan", "mac/raw/01-plan.png", 1320),
-    ("mac-sleep", "mac/raw/03-sleep.png", 1320),
-    ("watch-workout", "watch/raw/01-workout.png", 416),
-    ("watch-playing", "watch/raw/02-now-playing.png", 416),
+    ("phone-plan", "calendar-only/iphone/raw/01-plan.png", 780),
+    ("ipad-plan", "calendar-only/ipad/raw/01-plan.png", 1500),
 ]
 
 
@@ -83,8 +78,11 @@ def social(tile: Image.Image) -> None:
 
 
 if __name__ == "__main__":
+    import sys
     OUT.mkdir(parents=True, exist_ok=True)
     captures()
+    if sys.argv[1:] == ["captures"]:
+        raise SystemExit
     tile = mark()
     icons(tile)
     cloud_brand()

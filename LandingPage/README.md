@@ -40,7 +40,14 @@ iPhone and iPad TestFlight beta. Set it to the address App Store Connect gives t
 `check_site.py`: the App Store becomes the first button in the header, hero and footer, structured
 data and Support and About follow, and the Mac download and the beta stay. `store_links.py` holds
 the copy for both states. Before switching, replace the iPhone, iPad and Mac screenshots with
-captures of the calendar-only App Store build: the current ones show the module tabs.
+captures of the calendar-only App Store build.
+
+The home page's iPhone and iPad pictures come from `assets/screenshots/calendar-only/*/raw/`
+(listed in `build_site.py`'s `CAPTURES`); to swap one, replace or repoint its capture and run
+`python3 LandingPage/build_site.py captures`. There is no calendar-only Mac capture yet, so the
+iPad/Mac switch under the large picture is reduced to "iPad". When one exists, add `mac-plan` to
+`CAPTURES` and put the switch back (the buttons with `data-screen="ipad"` and `"mac"`; the script
+that swaps the picture is still on the page).
 
 ## Lines that will go out of date
 
