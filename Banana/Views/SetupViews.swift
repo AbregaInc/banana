@@ -212,7 +212,9 @@ extension SetupItem {
         ]
         case .notifications: [
             ("figure.walk.departure", "When to leave for a meeting"),
-            ("pills.fill", "A supplement or reminder that\u{2019}s due"),
+            AppModule.food.isAvailable
+                ? ("pills.fill", "A supplement or reminder that\u{2019}s due")
+                : ("checklist", "A reminder that\u{2019}s due"),
             ("moon.fill", "Time to wind down"),
         ]
         case .location: [

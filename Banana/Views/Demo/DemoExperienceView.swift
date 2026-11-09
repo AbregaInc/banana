@@ -166,7 +166,9 @@ struct DemoExperienceView: View {
                 ToolbarItem(placement: .primaryAction) {
                     Menu {
                         Button("Reset sample data", systemImage: "arrow.counterclockwise") { resetting = true }
-                        Text("No Google account or native permissions are needed. Demo actions never send invitations, schedule notifications or change Apple Health.")
+                        Text(AppModule.workouts.isAvailable
+                             ? "No Google account or native permissions are needed. Demo actions never send invitations, schedule notifications or change Apple Health."
+                             : "No Google account or native permissions are needed. Demo actions never send invitations or schedule notifications.")
                     } label: { Image(systemName: "ellipsis.circle") }.accessibilityLabel("Demo options")
                 }
             }

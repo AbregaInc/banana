@@ -170,7 +170,7 @@ final class OnboardingWalkUITest: XCTestCase {
         app.withoutSpaceSync()
         app.launch()
         XCTAssertTrue(text(containing: "Bring in your calendars", in: app).waitForExistence(timeout: 25), "the calendar page did not come")
-        XCTAssertTrue(text(containing: "Connecting only reads your calendars", in: app).exists)
+        XCTAssertFalse(text(containing: "only reads", in: app).exists, "Banana edits events too")
         XCTAssertFalse(app.switches["onboarding.email"].exists, "Stable mentions Email")
         XCTAssertFalse(text(containing: "mail", in: app).exists, "Stable mentions Email")
         keep(app, "stable-connect")

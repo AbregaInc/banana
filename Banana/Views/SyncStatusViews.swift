@@ -46,13 +46,13 @@ struct SyncStatusSection: View {
 
     var body: some View {
         Section {
-            ForEach(SyncDomain.allCases, id: \.self) { domain in
+            ForEach(SyncDomain.carried(), id: \.self) { domain in
                 LabeledContent(domain.title, value: sync[domain].statusLine())
             }
         } header: {
             Text("Sync")
         } footer: {
-            Text("A new device downloads everything once, which can take a few minutes for years of workouts; after that only changes move.")
+            Text("A new device downloads everything once, which can take a few minutes; after that only changes move.")
         }
     }
 }

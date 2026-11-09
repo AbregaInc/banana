@@ -69,6 +69,9 @@ final class SpaceSyncQuestions: ObservableObject {
         askingConsent = false
     }
 
+    /// Whether this build has anything the consent covers (`AppModule.healthConsentApplies`).
+    nonisolated static func appliesToBuild() -> Bool { AppModule.healthConsentApplies() }
+
     private func askedKey(_ account: String) -> String { "spaceSync.healthConsentAsked.\(account)" }
 
     /// After the update: the health tier is waiting for the consent on this device.
@@ -83,7 +86,7 @@ final class SpaceSyncQuestions: ObservableObject {
     }
 
     private func askIfDue() {
-        guard SpaceSyncFlag.isOn, let account, !consentGiven, !sending, !askingConsent,
+        guard SpaceSyncFlag.isOn, Self.appliesToBuild(), let account, !consentGiven, !sending, !askingConsent,
               !defaults.bool(forKey: askedKey(account)) else { return }
         askingConsent = true
     }

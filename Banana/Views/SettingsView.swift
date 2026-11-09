@@ -1910,7 +1910,7 @@ struct SettingsView: View {
                         .accessibilityIdentifier("settings.bananaAccount.moving")
                 }
                 // The Health consent (DATA-PLATFORM.md §7): the one switch to give or withdraw it.
-                if SpaceSyncFlag.isOn, spaceQuestions.engineRunning {
+                if SpaceSyncFlag.isOn, spaceQuestions.engineRunning, SpaceSyncQuestions.appliesToBuild() {
                     Toggle("Sync Health", isOn: Binding(get: { spaceQuestions.consentGiven },
                                                         set: { spaceQuestions.setConsent($0) }))
                         .disabled(spaceQuestions.sending)
