@@ -245,15 +245,18 @@ final class MailIntentStore: MailWriterLog, @unchecked Sendable {
             try db.execute(sql: "UPDATE meta SET value=? WHERE key='next_seq'", arguments: [String(seq + 1)])
             try db.execute(sql: "INSERT INTO change_group(group_seq,account,change,conversations,created_at,is_undo) VALUES(?,?,?,?,?,?)", arguments: [seq, groupAccount, encoded, conversations, at, isUndo])
             var replaced = Set<Int64>()
+            // Prepared once per connection, not once per assertion: preparing was most of the cost.
+            let previous = try db.cachedStatement(sql: "SELECT group_seq FROM label_intent WHERE account=? AND gmail_msg_id=? AND label_ref=?")
+            let upsert = try db.cachedStatement(sql: """
+                INSERT INTO label_intent(account,gmail_msg_id,label_ref,want,seq,group_seq,origin,created_at)
+                VALUES(?,?,?,?,?,?,?,?) ON CONFLICT(account,gmail_msg_id,label_ref) DO UPDATE SET
+                want=excluded.want,seq=excluded.seq,group_seq=excluded.group_seq,origin=excluded.origin,
+                state=0,sent_seq=NULL,attempts=0,next_attempt_at=NULL,failure=NULL,created_at=excluded.created_at
+                """)
             for value in assertions {
                 let account = value.account
-                if let old = try Int64.fetchOne(db, sql: "SELECT group_seq FROM label_intent WHERE account=? AND gmail_msg_id=? AND label_ref=?", arguments: [account, value.messageID, value.labelRef]) { replaced.insert(old) }
-                try db.execute(sql: """
-                    INSERT INTO label_intent(account,gmail_msg_id,label_ref,want,seq,group_seq,origin,created_at)
-                    VALUES(?,?,?,?,?,?,?,?) ON CONFLICT(account,gmail_msg_id,label_ref) DO UPDATE SET
-                    want=excluded.want,seq=excluded.seq,group_seq=excluded.group_seq,origin=excluded.origin,
-                    state=0,sent_seq=NULL,attempts=0,next_attempt_at=NULL,failure=NULL,created_at=excluded.created_at
-                    """, arguments: [account, value.messageID, value.labelRef, value.want, seq, seq, value.origin.rawValue, at])
+                if let old = try Int64.fetchOne(previous, arguments: [account, value.messageID, value.labelRef]) { replaced.insert(old) }
+                try upsert.execute(arguments: [account, value.messageID, value.labelRef, value.want, seq, seq, value.origin.rawValue, at])
             }
             for old in replaced where old != seq { try Self.removeEmptyGroup(old, db: db) }
             return seq

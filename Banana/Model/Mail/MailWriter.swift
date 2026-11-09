@@ -368,10 +368,12 @@ final class MailLogCheckpointer {
         standing = 0
     }
 
+    /// One `stat`, after every transaction. `FileManager.attributesOfItem` also looked up the
+    /// owner's and group's names (`getpwuid_r`), which cost more than the rest of a small write.
     private static func fileSize(_ path: String) -> Int64 {
-        guard let attributes = try? FileManager.default.attributesOfItem(atPath: path),
-              let size = attributes[.size] as? NSNumber else { return 0 }
-        return size.int64Value
+        var info = stat()
+        guard stat(path, &info) == 0 else { return 0 }
+        return Int64(info.st_size)
     }
 }
 
