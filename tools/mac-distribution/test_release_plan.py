@@ -37,4 +37,12 @@ class ReleasePlanTests(unittest.TestCase):
             with self.assertRaises(ValueError): plan.clean_commit()
 
 
+    def test_uploaded_builds_are_taken_and_a_higher_free_number_can_be_chosen(self):
+        value = plan.make_plan('1.0.4', '115', ['mac-v1.0.4-115'], 'a' * 40, uploaded=['116', '116'])
+        self.assertEqual(value['version'], '117')
+        value = plan.make_plan('1.0.4', '115', ['mac-v1.0.4-115'], 'a' * 40, uploaded=['116'], at_least='118')
+        self.assertEqual(value['version'], '118')
+        with self.assertRaises(ValueError):
+            plan.make_plan('1.0.4', '115', ['mac-v1.0.4-115'], 'a' * 40, uploaded=['116'], at_least='116')
+
 if __name__ == '__main__': unittest.main()

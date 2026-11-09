@@ -146,7 +146,7 @@ mac_plan() {
   if [ -e "$plan" ]; then
     say "  plan exists: $plan (kept; delete it to plan again)"
   else
-    safe python3 tools/mac-distribution/release-plan.py --channel "$channel" --version "$version" --out "$plan" ||
+    safe python3 tools/mac-distribution/release-plan.py --channel "$channel" --version "$version" --build "$build" --out "$plan" ||
       die "release-plan.py failed; see $STEP_LOG"
   fi
   local planned
