@@ -37,11 +37,18 @@ enum MailActionIndex {
               assertions.allSatisfy({ $0.assertion.account == account && ids.contains($0.assertion.messageID) }) else { throw Failure.invalidProjection }
         let slots = Array(repeating: "?", count: messages.count).joined(separator: ",")
         let rows = try Row.fetchAll(db, sql: "SELECT m.gmail_id,m.msg_pk,m.thread_pk,m.account_pk FROM message m JOIN account a ON a.account_pk=m.account_pk WHERE a.email=? AND m.gmail_id IN (\(slots))", arguments: StatementArguments([account] + messages))
+        // Prepared once per connection, not once per message: preparing was most of the cost.
+        let deleteOverlay = try db.cachedStatement(sql: "DELETE FROM overlay WHERE msg_pk=?")
+        let insertLabel = try db.cachedStatement(sql: "INSERT OR IGNORE INTO label(account_pk,gmail_id,name,kind) VALUES(?,?,?,?)")
+        let insertOverlay = try db.cachedStatement(sql: """
+            INSERT INTO overlay(msg_pk,label_pk,want,derived,refused)
+            SELECT ?,label_pk,?,?,? FROM label WHERE account_pk=? AND gmail_id=?
+            """)
         var found: [String: (Int64, Int64)] = [:], threads = Set<Int64>()
         for row in rows {
             let id: String = row[0], message: Int64 = row[1], thread: Int64 = row[2], account: Int64 = row[3]
             found[id] = (message, account); threads.insert(thread)
-            try db.execute(sql: "DELETE FROM overlay WHERE msg_pk=?", arguments: [message])
+            try deleteOverlay.execute(arguments: [message])
         }
         var labelsChanged = false
         for stored in assertions {
@@ -53,12 +60,9 @@ enum MailActionIndex {
             let named = value.labelRef.hasPrefix(BananaLabelRules.namePrefix)
             let name = named ? String(value.labelRef.dropFirst(BananaLabelRules.namePrefix.count)) : value.labelRef
             let kind = named && name.hasPrefix(BananaLabelRules.prefix) ? 2 : SystemLabel(rawValue: value.labelRef) == nil ? 1 : 0
-            try db.execute(sql: "INSERT OR IGNORE INTO label(account_pk,gmail_id,name,kind) VALUES(?,?,?,?)", arguments: [owner, value.labelRef, name, kind])
+            try insertLabel.execute(arguments: [owner, value.labelRef, name, kind])
             labelsChanged = labelsChanged || db.changesCount > 0
-            try db.execute(sql: """
-                INSERT INTO overlay(msg_pk,label_pk,want,derived,refused)
-                SELECT ?,label_pk,?,?,? FROM label WHERE account_pk=? AND gmail_id=?
-                """, arguments: [message, value.want, value.origin == .rule, stored.state == .refused, owner, value.labelRef])
+            try insertOverlay.execute(arguments: [message, value.want, value.origin == .rule, stored.state == .refused, owner, value.labelRef])
         }
         var change = MailStoreChange(labelsChanged: labelsChanged, through: through)
         for thread in threads where rebuild {

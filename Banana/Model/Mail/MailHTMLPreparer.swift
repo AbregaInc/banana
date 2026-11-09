@@ -39,7 +39,12 @@ enum MailHTMLPreparer {
         }
         if let html {
             guard html.utf8.count <= maximumBytes else { throw Failure.tooLarge }
-            let source = try SwiftSoup.parseBodyFragment(html)
+            // Parsed as a document, not a body fragment: SwiftSoup builds a document's tree in one
+            // bulk pass, but registers every node of a fragment with its document as it is inserted,
+            // walking up its ancestors, which was half the parse. What moves to the head is title,
+            // style, meta, link and base, never shown as text, and a noscript before any body
+            // content, now not shown; a frameset document has no body and shows its plain part.
+            let source = try SwiftSoup.parse(html)
             mark("parse")
             // Bound subsequent walks independently of the parser's input-size bound.
             var stack: [(Node, Int)] = [(source, 0)], nodes = 0

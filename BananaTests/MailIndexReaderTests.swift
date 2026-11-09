@@ -191,6 +191,60 @@ final class MailIndexReaderTests: XCTestCase {
         try budget.finish()
     }
 
+    /// A small account scope is read from its own threads and a large one from the view
+    /// (`MailIndexReader.Scope`); both must give exactly the rows, order and counts that the
+    /// view's own membership implies, with filters, keyset pages and conversations still loading.
+    func testAccountScopeReadsTheSameRowsFromEitherSide() async throws {
+        let reader = try await reader(count: MailIndexReader.Scope.threadSideBound + 2050)
+        try await reader.stores.index.write { db in
+            try db.execute(sql: "UPDATE thread SET account_pk=CASE WHEN thread_pk<=50 THEN 1 ELSE 2 END")
+            try db.execute(sql: "UPDATE view_thread SET sort_key=-thread_pk WHERE thread_pk%11=0")
+        }
+        struct Member { let pk: Int64, account: String, sortKey: Int64, tie: Int64, unread: Bool, flags: MailThreadFlags }
+        let members = try await reader.stores.index.read { db in
+            try Row.fetchAll(db, sql: """
+                SELECT v.thread_pk,a.email,v.sort_key,v.tie,v.unread,t.flags FROM view_thread v
+                JOIN thread t ON t.thread_pk=v.thread_pk JOIN account a ON a.account_pk=t.account_pk
+                """).map { Member(pk: $0[0], account: $0[1], sortKey: $0[2], tie: $0[3], unread: $0[4], flags: MailThreadFlags(rawValue: $0[5])) }
+        }
+        func matches(_ m: Member, _ filters: Set<MailFilter>) -> Bool {
+            (!filters.contains(.unread) || m.unread) && (!filters.contains(.starred) || m.flags.contains(.starred))
+                && (!filters.contains(.important) || m.flags.contains(.important)) && (!filters.contains(.noReply) || m.flags.contains(.lastIsMine))
+        }
+        let cases: [(allowed: Set<String>?, account: String?, threadSide: Bool)] = [
+            (["A@example.com"], nil, true), (nil, "a@example.com", true), (["b@example.com"], nil, false),
+            (["a@example.com", "b@example.com"], nil, false), (["a@example.com", "b@example.com"], "A@EXAMPLE.COM", true),
+            (["b@example.com"], "a@example.com", false), (["nobody@example.com"], nil, false)]
+        for scope in cases {
+            for filters: Set<MailFilter> in [[], [.unread], [.starred, .noReply]] {
+                var query = request(limit: 500, account: scope.account, filters: filters)
+                query.allowedAccounts = scope.allowed
+                let side = try await reader.stores.index.read { try MailIndexReader.Scope(query, in: $0).fromThreads }
+                XCTAssertEqual(side, scope.threadSide, "\(scope)")
+                let emails = Set((scope.allowed ?? ["a@example.com", "b@example.com"]).map { $0.lowercased() })
+                    .intersection(scope.account.map { [$0.lowercased()] } ?? ["a@example.com", "b@example.com"])
+                let inScope = members.filter { emails.contains($0.account) && matches($0, filters) }
+                let listed = inScope.filter { $0.sortKey > 0 }.sorted { ($0.sortKey, $0.tie) > ($1.sortKey, $1.tie) }
+                var walked: [Int64] = [], before: MailOrderKey?
+                while true {
+                    query.before = before
+                    let rows = try await reader.page(query)
+                    XCTAssertLessThanOrEqual(rows.count, 500)
+                    guard let last = rows.last else { break }
+                    walked += rows.map(\.threadPK)
+                    XCTAssertTrue(rows.allSatisfy { emails.contains($0.account) })
+                    before = MailOrderKey(group: 0, sortKey: last.sortKey, tie: last.tie)
+                }
+                XCTAssertEqual(walked, listed.map(\.pk), "\(scope) \(filters)")
+                query.before = nil
+                let counts = try await reader.counts(query)
+                XCTAssertEqual(counts, ViewCounts(unread: listed.filter(\.unread).count,
+                    total: MailCount(value: min(10000, listed.count), isAtLeast: listed.count > 10000),
+                    stillLoading: inScope.filter { $0.sortKey <= 0 }.count), "\(scope) \(filters)")
+            }
+        }
+    }
+
     func testKeysetCostAgainstOffsetWithRetainedHistory() async throws {
         let budget = CostBudget(self)
         // 90 days at 2,000 messages/day, deliberately one conversation per message.
