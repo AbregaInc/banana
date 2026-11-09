@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 #if os(iOS)
 import Foundation
 import UIKit
@@ -494,5 +495,6 @@ private struct GeneratedSupplementLabel {
     @Guide(description: "The serving size and active dose combined into one short phrase exactly as printed, e.g. '2 capsules — 1000 mg'. Both normally come from the small-type Supplement Facts panel, not from the large-type front of the bottle. Blank if not legible.")
     var servingAndDose: String?
 }
+#endif
 #endif
 #endif

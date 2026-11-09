@@ -1,3 +1,4 @@
+#if BANANA_MODULE_WORKOUTS
 import Foundation
 
 /// One workout, pairing the Apple Health record with our detailed recording (if the same
@@ -112,3 +113,4 @@ extension WorkoutEntry {
     }
 }
 
+#endif

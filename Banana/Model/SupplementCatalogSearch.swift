@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 import Foundation
 import os
 
@@ -149,3 +150,4 @@ enum SupplementCatalogSearch {
         let hits: [Hit]
     }
 }
+#endif

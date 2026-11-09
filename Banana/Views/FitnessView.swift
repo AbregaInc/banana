@@ -1,3 +1,4 @@
+#if BANANA_MODULE_WORKOUTS
 #if os(iOS)
 // Fitness is recorded on the Watch and lives on the phone.
 
@@ -391,4 +392,5 @@ private func clock(_ seconds: TimeInterval) -> String {
     let h = total / 3600, m = (total % 3600) / 60, s = total % 60
     return h > 0 ? String(format: "%d:%02d:%02d", h, m, s) : String(format: "%d:%02d", m, s)
 }
+#endif
 #endif

@@ -1,3 +1,4 @@
+#if BANANA_MODULE_WORKOUTS
 import Foundation
 import HealthKit
 import CoreLocation
@@ -1454,3 +1455,4 @@ extension HKWorkoutActivityType {
         if let data = try? JSONEncoder().encode(windows) { try? HealthFileProtection.write(data, to: url) }
     }
 }
+#endif

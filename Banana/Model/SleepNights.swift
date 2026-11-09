@@ -1,3 +1,4 @@
+#if BANANA_MODULE_WORKOUTS
 import Foundation
 
 /// What a stretch awake at night was — as far as the Watch's sleep stages and step counts can
@@ -456,3 +457,4 @@ enum SleepNights {
     /// "7h 12m"; "38m" under an hour (`DS.duration`).
     static func duration(_ minutes: Double) -> String { DS.duration(minutes: minutes) }
 }
+#endif

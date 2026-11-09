@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 #if os(iOS)
 import PhotosUI
 import SwiftUI
@@ -180,4 +181,5 @@ struct GroceryScanView: View {
         change(&scanned[i])
     }
 }
+#endif
 #endif

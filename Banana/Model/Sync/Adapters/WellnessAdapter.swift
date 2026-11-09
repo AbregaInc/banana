@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 import Foundation
 
 /// Meals, supplements and doses (`food.meal`, `food.supplement`, `food.dose`): `WellnessStore`'s
@@ -175,3 +176,4 @@ final class WellnessAdapter: RecordAdapter {
     func blobFile(_ type: String, id: String, field: String) -> URL? { nil }
     func storeBlob(_ type: String, id: String, field: String, file: URL) {}
 }
+#endif

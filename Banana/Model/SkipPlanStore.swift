@@ -1,3 +1,4 @@
+#if BANANA_MODULE_PODCASTS
 import Foundation
 import os
 
@@ -392,3 +393,4 @@ extension SkipPlanStore: CloudControlSource {
     }
 }
 
+#endif

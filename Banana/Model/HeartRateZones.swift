@@ -1,3 +1,4 @@
+#if BANANA_MODULE_WORKOUTS
 import Foundation
 
 /// Five heart-rate zones as shares of your maximum, and how long a workout spent in each.
@@ -45,3 +46,4 @@ enum HeartRateZones {
         return totals
     }
 }
+#endif

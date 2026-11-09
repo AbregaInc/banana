@@ -1,3 +1,4 @@
+#if BANANA_MODULE_WORKOUTS
 import Foundation
 
 // Health (T2): the phone's Health snapshot, Banana workouts with their recordings, and the
@@ -608,3 +609,4 @@ struct RequestItem<R: Encodable & Sendable>: Encodable, Sendable {
         try container.encodeIfPresent(outcome, forKey: .outcome)
     }
 }
+#endif

@@ -1,3 +1,4 @@
+#if BANANA_MODULE_NOTES
 #if os(iOS)
 import SwiftUI
 
@@ -60,4 +61,5 @@ struct VoiceCaptureView: View {
         String(format: "%d:%02d", Int(s) / 60, Int(s) % 60)
     }
 }
+#endif
 #endif

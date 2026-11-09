@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 import Foundation
 
 /// Versioned native catalog entry. Pi persists the query, never model-invented chart values.
@@ -120,3 +121,4 @@ enum AssistantNutrition {
     }
 
 }
+#endif

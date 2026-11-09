@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 import Foundation
 
 /// How meals, supplements and doses are named in the Wellness CloudKit zone, and how a batch of
@@ -219,3 +220,4 @@ enum WellnessCloudMerge {
         }
     }
 }
+#endif

@@ -1,3 +1,4 @@
+#if BANANA_MODULE_WORKOUTS
 import Foundation
 
 /// How a Health metric is moving, compared fairly: the last N finished days against the N days
@@ -234,7 +235,4 @@ enum PeriodPace {
     }
 }
 
-extension String {
-    /// "last week by now" → "Last week by now".
-    var capitalizedFirst: String { prefix(1).uppercased() + dropFirst() }
-}
+#endif

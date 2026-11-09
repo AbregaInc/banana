@@ -1,3 +1,4 @@
+#if BANANA_MODULE_PODCASTS
 import Foundation
 import MapKit
 import CoreLocation
@@ -589,3 +590,4 @@ extension ListenHistoryStore: ListenSyncSource {
 
     func syncEditedAt(_ id: UUID) -> Date? { CloudControlsSync.editedAt(.listen, id: id.uuidString) }
 }
+#endif

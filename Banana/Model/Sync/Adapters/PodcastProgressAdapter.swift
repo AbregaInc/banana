@@ -1,3 +1,4 @@
+#if BANANA_MODULE_PODCASTS
 import Foundation
 
 /// One episode's progress as the library keeps it.
@@ -102,3 +103,4 @@ enum PodcastProgressAdapter {
         return abs(a.position - b.position) < 0.5
     }
 }
+#endif

@@ -1,3 +1,4 @@
+#if BANANA_MODULE_WORKOUTS
 import Foundation
 import SwiftUI
 import os
@@ -1788,3 +1789,4 @@ final class FitnessStore: ObservableObject {
         try? FileManager.default.removeItem(at: legacy)
     }
 }
+#endif

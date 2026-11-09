@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 import Foundation
 
 /// The one question worth asking in a day's review: "Rice: 1 cup · 1½ · 2" — for the biggest
@@ -102,3 +103,4 @@ enum PortionQuestion {
         return countable.contains(unit) ? unit + "s" : unit
     }
 }
+#endif

@@ -1,3 +1,4 @@
+#if BANANA_MODULE_WORKOUTS
 import Foundation
 
 /// Pure, no-SwiftUI construction of a "hand path" — one pool-swim lap's stroke rotation rendered
@@ -528,3 +529,4 @@ extension WorkoutHandPath.Lap {
         warnings = try c.decode([String].self, forKey: .warnings)
     }
 }
+#endif

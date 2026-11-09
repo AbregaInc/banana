@@ -1,3 +1,4 @@
+#if BANANA_MODULE_PODCASTS
 #if os(iOS)
 // DEBUG harness; leans on iOS-only background tasks.
 
@@ -680,5 +681,6 @@ enum TranscribeVerification {
         (try? url.resourceValues(forKeys: [.fileSizeKey]).fileSize) ?? 0
     }
 }
+#endif
 #endif
 #endif

@@ -1,3 +1,4 @@
+#if BANANA_MODULE_NOTES
 import SwiftUI
 
 /// Shared text surface; storage and drafts belong to the caller's personal or demo profile.
@@ -18,3 +19,4 @@ struct NoteTextEditor: View {
             }
     }
 }
+#endif

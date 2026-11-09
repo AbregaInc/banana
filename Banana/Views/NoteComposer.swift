@@ -1,3 +1,4 @@
+#if BANANA_MODULE_NOTES
 import SwiftUI
 
 /// Writing a note instead of speaking it, or changing a note's text — a written note, or a voice
@@ -107,3 +108,4 @@ struct NoteComposer: View {
 struct NoteComposerTarget: Identifiable {
     let id: String
 }
+#endif

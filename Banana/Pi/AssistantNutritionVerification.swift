@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 #if BANANA_AI
 #if DEBUG
 import Foundation
@@ -135,4 +136,5 @@ import Foundation
 }
 #endif
 
+#endif
 #endif

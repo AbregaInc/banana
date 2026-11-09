@@ -42,9 +42,11 @@ struct CueOccurrenceSheet: View {
                                             ruleDescription: routine.triggerDescription,
                                             date: occurrence.start, plan: plan))
                 }
+                #if BANANA_MODULE_PODCASTS
                 Section {
                     RoutineStartButton(routine: routine) { dismiss() }
                 }
+                #endif
                 if occurrence.occurrenceKey != nil {
                     Section {
                         if !occurrence.skipped {

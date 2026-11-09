@@ -1,3 +1,4 @@
+#if BANANA_MODULE_PODCASTS
 import Foundation
 import os
 
@@ -517,3 +518,4 @@ struct PodcastSubscription: Codable, Equatable {
         Podcast(id: id, feedURL: feedURL, title: title, author: author, artworkURL: artworkURL)
     }
 }
+#endif

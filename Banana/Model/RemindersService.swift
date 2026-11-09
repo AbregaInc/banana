@@ -527,6 +527,7 @@ final class RemindersService {
         }
     }
 
+    #if BANANA_MODULE_NOTES
     /// Idempotent note write-back. The stable URL survives a crash between EventKit save
     /// and the local outbox acknowledgement. Fetch completed reminders too, so retrying never
     /// resurrects a reminder the user already completed.
@@ -556,6 +557,7 @@ final class RemindersService {
                 return reminder.calendarItemIdentifier
             })
     }
+    #endif
 
     /// Replace a reminder's title/notes in place (e.g. once a voice note is transcribed).
     func update(_ id: String, title: String?, notes: String?) {

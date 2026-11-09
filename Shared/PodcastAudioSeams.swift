@@ -1,3 +1,4 @@
+#if BANANA_MODULE_PODCASTS
 import Foundation
 
 /// What an episode's bytes alone can tell us: where its MP3 frames are, and where an ad server
@@ -462,3 +463,4 @@ enum PodcastAudioSeams {
         spans(in: scan(data))
     }
 }
+#endif

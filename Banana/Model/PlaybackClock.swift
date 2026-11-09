@@ -1,3 +1,4 @@
+#if BANANA_MODULE_PODCASTS
 import Foundation
 
 /// The playhead, on its own object.
@@ -21,3 +22,4 @@ final class PlaybackClock: ObservableObject {
     @Published var time: Double = 0
     @Published var duration: Double = 0
 }
+#endif

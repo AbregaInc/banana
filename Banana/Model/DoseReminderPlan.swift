@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 import Foundation
 
 /// When a Taken item's reminder rings, one day at a time. Pure, for tests.
@@ -27,3 +28,4 @@ enum DoseReminderPlan {
         return UUID(uuidString: String(notificationID.dropFirst(prefix.count).prefix(36)))
     }
 }
+#endif

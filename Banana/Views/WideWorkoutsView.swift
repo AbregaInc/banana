@@ -1,3 +1,4 @@
+#if BANANA_MODULE_WORKOUTS
 import SwiftUI
 import Charts
 import MapKit
@@ -505,3 +506,4 @@ private struct HealthWorkoutRow: View {
     }
 }
 
+#endif

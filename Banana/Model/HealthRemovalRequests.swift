@@ -1,3 +1,4 @@
+#if BANANA_MODULE_WORKOUTS
 import Foundation
 
 /// A workout removed on an iPad or the Mac, for the phone to finish. Apple Health is the phone's
@@ -79,3 +80,4 @@ enum HealthRemovalRequests {
         }.map(\.id))
     }
 }
+#endif

@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 import Foundation
 import SwiftUI
 import os
@@ -905,3 +906,4 @@ extension WellnessStore: WellnessSyncPort {
     }
 }
 
+#endif

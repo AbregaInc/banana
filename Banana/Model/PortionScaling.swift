@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 import Foundation
 
 /// Changing how much of something you had — "I had two of those" — without retyping four
@@ -78,3 +79,4 @@ enum NutritionText {
         return "\(names.prefix(2).joined(separator: ", ")) +\(names.count - 2) more"
     }
 }
+#endif

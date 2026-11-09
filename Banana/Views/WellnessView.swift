@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 #if os(iOS)
 import PhotosUI
 import SwiftUI
@@ -975,4 +976,5 @@ private struct SupplementEditor: View {
     }
 }
 
+#endif
 #endif

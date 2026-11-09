@@ -1,3 +1,4 @@
+#if BANANA_MODULE_PODCASTS
 import Foundation
 #if os(iOS)
 import BackgroundTasks
@@ -66,3 +67,4 @@ enum OvernightRefresh {
     static func schedule() {}
     #endif
 }
+#endif

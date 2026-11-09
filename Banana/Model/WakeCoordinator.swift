@@ -1,3 +1,4 @@
+#if BANANA_MODULE_PODCASTS
 import Foundation
 
 /// Owns the audio/wake object graph as a shared singleton so BOTH the SwiftUI app
@@ -12,7 +13,7 @@ final class WakeCoordinator {
     static let shared = WakeCoordinator()
 
     let library = PodcastLibrary()
-    let wake = WakeStore()
+    let wake = WakeStore.shared
     let downloads = DownloadManager()
     let music = MusicController()
     let player = PlayerController()
@@ -151,3 +152,4 @@ final class WakeCoordinator {
         if let minutes = sleepTimerMinutes { player.startSleepTimer(minutes: minutes) }
     }
 }
+#endif

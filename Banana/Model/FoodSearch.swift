@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 import Foundation
 
 /// Finding a food by name and adding it at an amount — "Trader Joe's cut and peeled carrots",
@@ -656,3 +657,4 @@ enum FoodSearch {
         }.map(\.element)
     }
 }
+#endif

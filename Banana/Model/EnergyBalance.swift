@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 import Foundation
 
 /// Your logs against your weight (MEAL-LEARNING.md §6): what four weeks of weigh-ins and the
@@ -333,4 +334,5 @@ extension EnergyBalance {
         }
     }
 }
+#endif
 #endif

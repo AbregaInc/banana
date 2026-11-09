@@ -1,3 +1,4 @@
+#if BANANA_MODULE_WORKOUTS
 import Foundation
 
 /// Wall-clock countdown: view redraws and workout pauses must not slow down a rest interval.
@@ -7,3 +8,4 @@ enum WorkoutRestTimer {
         return max(0, Int(ceil(deadline.timeIntervalSince(now))))
     }
 }
+#endif

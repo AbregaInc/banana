@@ -79,7 +79,8 @@ struct OnboardingView: View {
     private var situation: OnboardingFlow.Situation {
         OnboardingFlow.Situation(accounts: accountEmails.count,
                                  copiesSettled: writeBack.questionSettled,
-                                 ownsWritableCalendar: Self.isSample || writeBack.writableCalendars.contains(where: \.isOwner))
+                                 ownsWritableCalendar: Self.isSample || writeBack.writableCalendars.contains(where: \.isOwner),
+                                 offersModules: !ModuleStore.shared.selectable.isEmpty)
     }
 
     // MARK: - Welcome
@@ -346,7 +347,7 @@ struct OnboardingView: View {
     }
 
     private func back() {
-        if let previous = OnboardingFlow.previous(before: onboarding.step) { onboarding.step = previous }
+        if let previous = OnboardingFlow.previous(before: onboarding.step, in: situation) { onboarding.step = previous }
     }
 
     /// Into the app, on the plan.

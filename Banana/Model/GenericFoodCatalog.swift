@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 import Foundation
 
 /// A hand-curated macro entry for one generic food, matched by name against free-text
@@ -145,3 +146,4 @@ extension GenericFood {
         }
     }
 }
+#endif

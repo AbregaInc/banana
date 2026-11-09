@@ -1,3 +1,4 @@
+#if BANANA_MODULE_WORKOUTS
 import SwiftUI
 import Charts
 
@@ -371,3 +372,4 @@ private struct HeartRateZonesCard: View {
         range.upper.map { "\(range.lower)\u{2013}\($0)" } ?? "\(range.lower)+"
     }
 }
+#endif

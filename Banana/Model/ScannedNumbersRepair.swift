@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 import Foundation
 
 /// Keeps what you've scanned true to its source: **a scanned food's numbers are what scanning
@@ -100,3 +101,4 @@ enum ScannedNumbersRepair {
         return any ? fixed : nil
     }
 }
+#endif

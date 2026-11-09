@@ -32,9 +32,11 @@ final class ActionBadges: ObservableObject {
         guard !started else { return }
         started = true
         OccurrenceStore.shared.$occurrences.dropFirst().sink { [weak self] _ in self?.recountSoon() }.store(in: &watches)
+        #if BANANA_MODULE_FOOD
         MealInboxStore.shared.$items.dropFirst().sink { [weak self] _ in self?.recountSoon() }.store(in: &watches)
         WellnessStore.shared.$supplements.dropFirst().sink { [weak self] _ in self?.recountSoon() }.store(in: &watches)
         WellnessStore.shared.$supplementLogs.dropFirst().sink { [weak self] _ in self?.recountSoon() }.store(in: &watches)
+        #endif
         // A moment came (a workout ended): what waited for it may be due now.
         AnchoredTimingHub.shared.$version.dropFirst().sink { [weak self] _ in self?.recountSoon() }.store(in: &watches)
         ModuleStore.shared.$choice.dropFirst().sink { [weak self] _ in self?.recountSoon() }.store(in: &watches)
@@ -57,9 +59,11 @@ final class ActionBadges: ObservableObject {
     }
 
     func recount(now: Date = Date()) {
+        #if BANANA_MODULE_FOOD
         let wellness = WellnessStore.shared
         // Food switched off: nothing of it waits, on a tab or on the app's icon.
         let food = ModuleStore.shared.includes(.food)
+        #endif
         let dueRoutines = OccurrenceStore.shared.occurrences.filter { occurrence in
             guard occurrence.behavior == .cue,
                   let routine = RoutineStore.shared.routines.first(where: { $0.id == occurrence.routineID }),
@@ -75,12 +79,16 @@ final class ActionBadges: ObservableObject {
            ProcessInfo.processInfo.arguments.indices.contains(index + 1),
            let forced = Int(ProcessInfo.processInfo.arguments[index + 1]) { plan = forced }
         #endif
+        #if BANANA_MODULE_FOOD
         let next = ActionItems.Counts(
             plan: plan,
             food: food ? ActionItems.food(MealInboxStore.shared.items) : 0,
             taken: food ? ActionItems.dosesDue(wellness.supplements,
                                                marked: { wellness.supplementStatus($0, on: now) != nil },
                                                due: { AnchoredTimingHub.shared.dueDate($0, now: now) }, now: now) : 0)
+        #else
+        let next = ActionItems.Counts(plan: plan)
+        #endif
         guard next != counts else { return }
         counts = next
         showOnIcon(next.total)

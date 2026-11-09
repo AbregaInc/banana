@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 import Foundation
 
 /// Timing conflicts between the supplements you take and what you eat or drink around them.
@@ -384,3 +385,4 @@ extension SupplementInteractions {
             .sorted { $0.resolves.count > $1.resolves.count }
     }
 }
+#endif

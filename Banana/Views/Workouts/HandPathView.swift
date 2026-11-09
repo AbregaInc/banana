@@ -1,3 +1,4 @@
+#if BANANA_MODULE_WORKOUTS
 import SwiftUI
 
 /// SwiftUI `Canvas` renderer for one workout's hand-path helix — shared verbatim by iOS and Mac.
@@ -654,3 +655,4 @@ struct HandPathView: View {
         return stops[low].mix(with: stops[high], by: scaled - Double(low))
     }
 }
+#endif

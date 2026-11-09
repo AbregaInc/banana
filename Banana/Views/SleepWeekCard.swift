@@ -1,3 +1,4 @@
+#if BANANA_MODULE_WORKOUTS
 import SwiftUI
 import Charts
 
@@ -86,3 +87,4 @@ struct SleepWeekCard: View {
                         : "~\(amount) less on weekends."
     }
 }
+#endif

@@ -14,10 +14,16 @@ struct ReviewView: View {
     var showsDoneButton = false
 
     @Environment(\.dismiss) private var dismiss
+    #if BANANA_MODULE_WORKOUTS
     @EnvironmentObject private var fitness: FitnessStore
     @EnvironmentObject private var health: HealthKitStore
+    #endif
+    #if BANANA_MODULE_FOOD
     @EnvironmentObject private var wellness: WellnessStore
+    #endif
+    #if BANANA_MODULE_PODCASTS
     @EnvironmentObject private var history: ListenHistoryStore
+    #endif
     @EnvironmentObject private var smart: SmartScheduleStore
     @AppStorage("reviewSpan") private var span: ReviewSpan = .week
     /// How many periods back from now. Not kept: Review opens on now.
@@ -110,6 +116,7 @@ struct ReviewView: View {
     private func summary(_ subject: ReviewSubject) -> String {
         let (start, end) = period.range()
         switch subject {
+        #if BANANA_MODULE_WORKOUTS
         case .fitness:
             let workouts = WorkoutEntry.merge(summaries: fitness.summaries, health: health.workouts,
                                               hiddenHealthIDs: health.hiddenWorkoutIDs)
@@ -122,16 +129,24 @@ struct ReviewView: View {
             guard !nights.isEmpty else { return "No nights" }
             let average = nights.reduce(0) { $0 + $1.asleepMinutes } / Double(nights.count)
             return "\(ReviewMath.clock(minutes: average)) a night"
+        #endif
+        #if BANANA_MODULE_FOOD
         case .food:
             let days = ReviewMath.perDay(wellness.meals.map { ($0.date, $0.totals.calories) }, from: start, to: end)
             guard let average = ReviewMath.averageOfLoggedDays(days.map(\.value)) else { return "Nothing logged" }
             let logged = days.filter { $0.value > 0 }.count
             return "\(Int(average.rounded()).formatted()) kcal a day \u{00B7} \(logged) \(logged == 1 ? "day" : "days") logged"
+        #endif
+        #if BANANA_MODULE_PODCASTS
         case .listening:
             let events = history.events.filter { $0.date >= start && $0.date < end }
             guard !events.isEmpty else { return "Nothing played" }
             let minutes = events.reduce(0) { $0 + $1.duration } / 60
             return "\(ReviewMath.clock(minutes: minutes)) \u{00B7} \(events.count) \(events.count == 1 ? "episode" : "episodes")"
+        #endif
+        #if !(BANANA_MODULE_WORKOUTS && BANANA_MODULE_FOOD && BANANA_MODULE_PODCASTS)
+        default: _ = (start, end); return ""
+        #endif
         }
     }
 
@@ -143,19 +158,29 @@ struct ReviewView: View {
     }
 
     @ViewBuilder private func subjectPage(_ subject: ReviewSubject) -> some View {
-        let range = period.range()
-        let span = TrendSpan(start: range.start, end: range.end)
         switch subject {
+        #if BANANA_MODULE_WORKOUTS
         case .fitness: ReviewFitnessPage(period: period)
         case .sleep: SleepView()
+        #endif
+        #if BANANA_MODULE_FOOD
         case .food: ReviewFoodPage(period: period, onOpenDay: showsDoneButton ? { dismiss() } : nil)
-        case .listening: ListenHistoryView(span: span)
+        #endif
+        #if BANANA_MODULE_PODCASTS
+        case .listening:
+            let range = period.range()
+            ListenHistoryView(span: TrendSpan(start: range.start, end: range.end))
+        #endif
+        #if !(BANANA_MODULE_WORKOUTS && BANANA_MODULE_FOOD && BANANA_MODULE_PODCASTS)
+        default: EmptyView()
+        #endif
         }
     }
 }
 
 // MARK: - Fitness
 
+#if BANANA_MODULE_WORKOUTS
 /// The measures Workouts used to list under its period switch: each against the period before,
 /// opening its own page.
 private struct ReviewFitnessPage: View {
@@ -200,9 +225,11 @@ private struct ReviewFitnessPage: View {
         .refreshable { await health.refresh() }
     }
 }
+#endif
 
 // MARK: - Food
 
+#if BANANA_MODULE_FOOD
 /// What was logged over the period: a bar a day (a bar a month over a year), the average of the
 /// days that were logged, and the logs against the weight trend.
 private struct ReviewFoodPage: View {
@@ -278,3 +305,4 @@ private struct ReviewFoodPage: View {
         onOpenDay?()
     }
 }
+#endif

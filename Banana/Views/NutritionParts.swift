@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 import SwiftUI
 
 /// A symbol beside a line of text: the symbol on a solid tile, the words in the primary colour
@@ -311,3 +312,4 @@ struct SupplementClashRow: View {
     }
 }
 
+#endif

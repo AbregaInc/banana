@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 #if BANANA_AI
 import Foundation
 
@@ -50,4 +51,5 @@ extension AssistantNutrition {
     }
 }
 
+#endif
 #endif

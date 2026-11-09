@@ -1,3 +1,4 @@
+#if BANANA_MODULE_PODCASTS
 #if DEBUG && os(iOS)
 import SwiftUI
 
@@ -122,4 +123,5 @@ struct TranscriptDemoView: View {
         PlaybackDiagnostics.shared.log("transcript-demo: seeded \(words.count) words, PAUSED @520s", "")
     }
 }
+#endif
 #endif

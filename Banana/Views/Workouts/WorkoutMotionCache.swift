@@ -1,3 +1,4 @@
+#if BANANA_MODULE_WORKOUTS
 import Foundation
 
 /// Off-main-actor loading of `WorkoutMotionAnalysis.Result`/`WorkoutHandPath.Analysis`, kept in
@@ -185,3 +186,4 @@ final class WorkoutMotionCache: ObservableObject {
         rawCache[id] = nil
     }
 }
+#endif

@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 import Foundation
 
 /// A repeating reminder that's something you take — Creatine, vitamin D, the morning pills —
@@ -145,3 +146,4 @@ enum ReminderToTaken {
         text.prefix(1).lowercased() + text.dropFirst()
     }
 }
+#endif

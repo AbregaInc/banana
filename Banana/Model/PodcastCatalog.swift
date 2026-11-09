@@ -1,3 +1,4 @@
+#if BANANA_MODULE_PODCASTS
 import Foundation
 import GRDB
 import os
@@ -279,3 +280,4 @@ final class EpisodeSnapshot: @unchecked Sendable, Hashable {
     }
     func all() throws -> [Episode] { try page(limit: count) }
 }
+#endif

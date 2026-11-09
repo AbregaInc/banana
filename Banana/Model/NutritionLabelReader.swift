@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 import CoreGraphics
 import Foundation
 import Vision
@@ -351,4 +352,5 @@ struct GeneratedServings {
     @Guide(description: "How many servings of the food are in the photo, in quarters, e.g. 1.5; 0 if it isn't there")
     var servings: Double
 }
+#endif
 #endif

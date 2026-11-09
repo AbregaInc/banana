@@ -210,10 +210,12 @@ final class WeatherStore: NSObject, ObservableObject {
         sample(CLLocationCoordinate2D(latitude: lat, longitude: lon), at: instant).map { Int($0.tempF.rounded()) }
     }
 
+    #if BANANA_MODULE_WORKOUTS
     func outdoorConditions(lat: Double, lon: Double, at instant: Date) -> OutdoorConditions? {
         guard let hour = sample(CLLocationCoordinate2D(latitude: lat, longitude: lon), at: instant) else { return nil }
         return OutdoorConditions(temperatureF: hour.tempF, humidity: hour.humidity, condition: hour.condition)
     }
+    #endif
 
     /// The first meaningful wet hour in a window, at the current-location forecast.
     ///

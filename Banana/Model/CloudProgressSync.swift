@@ -1,3 +1,4 @@
+#if BANANA_MODULE_PODCASTS
 import Foundation
 import CloudKit
 import Combine
@@ -1877,3 +1878,4 @@ extension CKSyncEngine.PendingRecordZoneChange {
         }
     }
 }
+#endif

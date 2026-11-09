@@ -21,6 +21,7 @@ enum DeleteUndo {
         }
     }
 
+    #if BANANA_MODULE_FOOD
     static func workoutPlan(_ id: UUID, in store: WellnessStore) {
         guard let removed = store.deleteWorkoutPlan(id) else { return }
         offer("Deleted \(removed.item.title)") {
@@ -28,6 +29,7 @@ enum DeleteUndo {
             return nil
         }
     }
+    #endif
 
     /// Undo arms it again on the phone (`AlarmStore.restoreOneOff`).
     static func alarm(_ id: UUID, in store: AlarmStore) {
@@ -49,6 +51,7 @@ enum DeleteUndo {
         }
     }
 
+    #if BANANA_MODULE_NOTES
     /// Deferred: the recording, its iCloud copies and its reminder stay as they are until the
     /// Undo window closes, so there is nothing to rebuild and no tombstone to outrun.
     static func note(_ note: VoiceNote, in store: VoiceNoteStore) {
@@ -64,7 +67,9 @@ enum DeleteUndo {
             }
         }
     }
+    #endif
 
+    #if BANANA_MODULE_PODCASTS
     /// Deferred: `remove` (downloads, transcripts, the show itself) runs when the Undo window
     /// closes, so Undo leaves progress, downloads and every episode's state untouched.
     static func podcast(_ podcast: Podcast, remove: @escaping @MainActor () -> Void) {
@@ -79,7 +84,9 @@ enum DeleteUndo {
             }
         }
     }
+    #endif
 
+    #if BANANA_MODULE_PODCASTS
     /// Deferred, for the same reason: the routes walked are files, gone for good once cleared.
     static func listeningHistory(_ store: ListenHistoryStore) {
         Task {
@@ -93,7 +100,9 @@ enum DeleteUndo {
             }
         }
     }
+    #endif
 
+    #if BANANA_MODULE_FOOD
     /// "Not a meal" in the backlog. Out of it at once; its photos go when the Undo window
     /// closes, so Undo finds the meal whole.
     static func notAMeal(_ id: UUID, in inbox: MealInboxStore) {
@@ -105,6 +114,7 @@ enum DeleteUndo {
                 commit: { inbox.discardPhotos(of: item) })
         }
     }
+    #endif
 
     // What `ToastCenter.hiddenIDs` holds while each deferred delete waits.
     static func hidingID(note id: UUID) -> String { "note|" + id.uuidString }

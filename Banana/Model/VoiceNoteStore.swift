@@ -1,3 +1,4 @@
+#if BANANA_MODULE_NOTES
 import Foundation
 import SwiftUI
 import os
@@ -1103,3 +1104,4 @@ extension VoiceNoteStore: VoiceNoteSyncSource {
         for id in ids { removeCloudNote(id) }
     }
 }
+#endif

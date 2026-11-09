@@ -1,3 +1,4 @@
+#if BANANA_MODULE_WORKOUTS
 import Foundation
 #if canImport(FoundationModels)
 import FoundationModels
@@ -117,4 +118,5 @@ private struct GeneratedExercisePrescription {
     @Guide(description: "Rest after each set in seconds, from 10 through 180.")
     var restSeconds: Int
 }
+#endif
 #endif

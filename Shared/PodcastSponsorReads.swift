@@ -1,3 +1,4 @@
+#if BANANA_MODULE_PODCASTS
 import Foundation
 
 // MARK: - Host-read sponsor detection
@@ -438,3 +439,4 @@ struct PodcastSponsorLibrary: Codable, Sendable {
             .flatMap { $0?.elements } ?? [:]
     }
 }
+#endif

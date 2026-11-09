@@ -1,3 +1,4 @@
+#if BANANA_MODULE_NOTES
 import AVFoundation
 import Combine
 import SwiftUI
@@ -888,3 +889,4 @@ private struct VoiceNoteDetailView: View {
         }
     }
 }
+#endif

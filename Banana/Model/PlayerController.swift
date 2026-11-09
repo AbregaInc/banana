@@ -1,3 +1,4 @@
+#if BANANA_MODULE_PODCASTS
 import AVFoundation
 import MediaPlayer
 import SwiftUI
@@ -1513,3 +1514,4 @@ final class PlayerController: ObservableObject {
         onStateChange?()
     }
 }
+#endif

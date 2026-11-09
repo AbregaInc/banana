@@ -1,3 +1,4 @@
+#if BANANA_MODULE_PODCASTS
 import Foundation
 
 /// What the listen adapter needs of the listening history (`ListenHistoryStore`).
@@ -103,3 +104,4 @@ enum ListenAdapter {
         return try SyncShape.fields.decode(ListenEvent.self, from: plain)
     }
 }
+#endif

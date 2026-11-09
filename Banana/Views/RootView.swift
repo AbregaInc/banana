@@ -15,16 +15,20 @@ struct RootView: View {
     @Environment(\.alarmStore) private var alarmsRef
     private var store: AlarmStore? { alarmsRef.store }
     @State private var alarmRinging = false
+    #if BANANA_MODULE_PODCASTS
     @EnvironmentObject var player: PlayerController
     @EnvironmentObject var music: MusicController
+    #endif
     /// Used for actions only — recompute, sync permission — never to draw. Observed, every one of
     /// its publishes (ten in a launch's first seconds) rebuilt the whole tab shell.
     private var smart: SmartScheduleStore { .shared }
     @EnvironmentObject var onboarding: OnboardingStore
     /// What's waiting on you, for the tab badges. Publishes only when a count moves.
     @ObservedObject private var badges = ActionBadges.shared
+    #if BANANA_MODULE_PODCASTS
     /// Actions only (feed refresh, peer serving) — see `smart`.
     private var downloads: DownloadManager { WakeCoordinator.shared.downloads }
+    #endif
     @Environment(\.scenePhase) private var scenePhase
 
     /// A Google account connected on another device arrives through iCloud Keychain, but the
@@ -301,10 +305,12 @@ struct RootView: View {
         }
         .onAppear {
             LaunchClock.mark("root.appear")   // ≈ first frame on screen
+            #if BANANA_MODULE_PODCASTS
             #if !PI_DEVELOPMENT
             if scenePhase == .active {
                 downloads.setPeerServingAllowed(true)
             }
+            #endif
             #endif
         }
         .onReceive(NotificationCenter.default.publisher(for: .assistantOpenSection)) { notice in
@@ -326,12 +332,14 @@ struct RootView: View {
         .fullScreenCover(isPresented: $showMorningBriefing) {
             MorningBriefingView()
         }
+        #if BANANA_MODULE_WORKOUTS
         // The workout payoff lives in its own zero-size view: it watches FitnessStore and
         // HealthKitStore, and those must never be observed from the shell itself (see
         // WorkoutReviewPresenter).
         .background {
             WorkoutReviewPresenter(suppressed: showMorningBriefing || alarmRinging)
         }
+        #endif
         .onReceive(store?.$isAlerting.eraseToAnyPublisher() ?? Just(false).eraseToAnyPublisher()) {
             if alarmRinging != $0 { alarmRinging = $0 }
         }
@@ -384,7 +392,9 @@ struct RootView: View {
                 TripLearningService.shared.appBecameActive()   // turned on elsewhere: ask here
                 if plan.runsNetworkAndSync {
                 HubStatusStore.shared.handleRequests()          // asked for on another device
+                #if BANANA_MODULE_WORKOUTS
                 Task { await HealthRemovalInbox.shared.settle() }   // and a workout removed on one
+                #endif
                 Telemetry.shared.calendarConnected = { !GoogleCalendarService.shared.accounts.isEmpty }
                 Telemetry.shared.setup = { await TelemetryState.signals() }
                 Telemetry.shared.session = { BananaAccount.shared.authorization }
@@ -392,19 +402,25 @@ struct RootView: View {
                 Telemetry.shared.cameForward()                  // opened today; what's counted goes
                 DiagnosticReports.shared.send()                 // crash and performance reports waiting
                 ProblemReporter.shared.flush()                  // problem reports waiting
+                #if BANANA_MODULE_WORKOUTS
                 Task {                                               // or trimmed, or reverted
                     await WorkoutRevertInbox.shared.settle()
                     await WorkoutHealthFollow.shared.settle()
                 }
+                #endif
                 CloudSyncPoll.resume()                          // other devices' changes, now and every minute
                 }
+                #if BANANA_MODULE_PODCASTS
                 HubStatusStore.shared.update { $0.watchEpisodesPending = downloads.watchPendingCount }
                 // In front means polling: stopped only by `.background`, so a no-op unless it was.
                 downloads.setPeerServingAllowed(true)
                 player.setInterfaceActive(true)
                 PlaybackDiagnostics.shared.log("app → foreground", "playing=\(player.isPlaying)")
+                #endif
                 if plan.runsNetworkAndSync { adoptGoogleAccountsAddedElsewhere() }   // keychain read, then a Google refresh
+                #if BANANA_MODULE_PODCASTS
                 music.reconcileWakeState()   // drop a stale music-wake bar if it was stopped while suspended
+                #endif
                 handleWakeIfNeeded()
                 // Permissions change outside the app — in Settings, or via onboarding's own
                 // EventKit store. Re-read on every foreground so a granted calendar can never
@@ -412,19 +428,23 @@ struct RootView: View {
                 if plan.rereadsPermissions {
                     Task { await smart.syncCalendarAuthorization() }
                     Task { await OccurrenceStore.shared.syncRemindersAuthorization() }
+                    #if BANANA_MODULE_PODCASTS
                     Task { await music.syncAuthorization() }
+                    #endif
                     // Write-back reads its own EventKit status; refreshCalendars is what updates it.
                     CalendarWriteBack.shared.refreshCalendars()
                     Task { await onboarding.refresh() }   // location + notification status
                 }
                 if plan.runsNetworkAndSync {
                     Task { await smart.recomputeIfStale() }   // keep the wake plan fresh; skip when it already is
+                    #if BANANA_MODULE_PODCASTS
                     // Manual-cadence sync fetches only when told to — foreground is when another
                     // device's session is worth picking up. No-op while sync is off.
                     CloudProgressSync.shared.flushNow(reason: "foreground")
                     // Keep feeds and auto-downloads moving on the app people actually open.
                     // Throttled inside (4h) so this is free on rapid app switches.
                     Task { await downloads.refreshFeedsAndReconcile() }
+                    #endif
                 }
             case .inactive:
                 // Still on screen. `.inactive` fires for Control Center, notification center,
@@ -445,11 +465,13 @@ struct RootView: View {
                 MailSession.noteBackgrounding()   // the open conversation, if Mail has one
                 #endif
                 ShellNavigation.shared.save()   // `savedAt` = when they left, for a cold relaunch
+                #if BANANA_MODULE_PODCASTS
                 downloads.setPeerServingAllowed(false)
                 player.setInterfaceActive(false)
                 PlaybackDiagnostics.shared.log("app → background", "playing=\(player.isPlaying)")
                 player.commitProgress()
                 CloudProgressSync.shared.flushNow(reason: "background")
+                #endif
                 // Progress saves during playback deliberately skip the iCloud upload (they run
                 // every 30s and each one re-reads and uploads the whole library). Leaving the app
                 // is the natural point to push the latest state up.
@@ -690,11 +712,13 @@ struct RootView: View {
                 }
             }
             #endif
+            #if BANANA_MODULE_WORKOUTS || BANANA_MODULE_FOOD
             if addOpensList, BodyPage.isShown(with: modules.effectiveChoice) {
                 // The + takes a place on the row and a phone's bar holds five: Workouts and
                 // Nutrition share one, with one switch across both at the top (`BodySwitch`).
                 Tab(bodyLabel.title, systemImage: bodyLabel.symbol, value: ShellTab.body) {
                     Group {
+                        #if BANANA_MODULE_WORKOUTS && BANANA_MODULE_FOOD
                         if bodyShowing == .nutrition {
                             NutritionSection()
                                 .measuresLayoutClass()
@@ -706,6 +730,11 @@ struct RootView: View {
                                 .syncWaitingNote(.fitness)
                                 .toastHost()
                         }
+                        #elseif BANANA_MODULE_FOOD
+                        NutritionSection().measuresLayoutClass().syncWaitingNote(.wellness).toastHost()
+                        #else
+                        WorkoutsSection(path: $shell.state.workouts).measuresLayoutClass().syncWaitingNote(.fitness).toastHost()
+                        #endif
                     }
                     .shellPage(bottomBar: bottomBarShell).erasedTab()
                 }
@@ -716,6 +745,7 @@ struct RootView: View {
                 // The two things used daily — the workout just done, logging a meal — are tabs,
                 // not cards at the bottom of a weekly review. Routines is configuration edited
                 // weekly at most; it lives under Plan's "…" menu on a phone.
+                #if BANANA_MODULE_WORKOUTS
                 if modules.includes(.workouts) {
                     Tab(AppSection.workouts.title, systemImage: AppSection.workouts.symbol, value: ShellTab.section(.workouts)) {
                         WorkoutsSection(path: $shell.state.workouts)
@@ -725,6 +755,8 @@ struct RootView: View {
                             .shellPage(bottomBar: bottomBarShell).erasedTab()
                     }
                 }
+                #endif
+                #if BANANA_MODULE_FOOD
                 if modules.includes(.food) {
                     Tab(AppSection.nutrition.title, systemImage: AppSection.nutrition.symbol, value: ShellTab.section(.nutrition)) {
                         NutritionSection()
@@ -736,7 +768,10 @@ struct RootView: View {
                     // Meals to log or check, and doses due and not yet marked.
                     .badge(badges.counts.nutrition)
                 }
+                #endif
             }
+            #endif
+            #if BANANA_MODULE_NOTES
             if modules.includes(.notes) {
                 Tab(AppSection.notes.title, systemImage: AppSection.notes.symbol, value: ShellTab.section(.notes)) {
                     NotesView()
@@ -745,6 +780,7 @@ struct RootView: View {
                         .shellPage(bottomBar: bottomBarShell).erasedTab()
                 }
             }
+            #endif
             if showsSidebarSections {
                 // In the iPad's tab bar as well as its sidebar: sidebar-only, it was nowhere to be
                 // seen with the bar showing, and read as gone. (A phone keeps it under Plan's "…".)
@@ -755,6 +791,7 @@ struct RootView: View {
                         .shellPage(bottomBar: bottomBarShell).erasedTab()
                 }
             }
+            #if BANANA_MODULE_PODCASTS
             if modules.includes(.podcasts) {
                 Tab(AppSection.library.title, systemImage: AppSection.library.symbol, value: ShellTab.section(.library)) {
                     PodcastsView()
@@ -764,6 +801,8 @@ struct RootView: View {
                         .shellPage(bottomBar: bottomBarShell).erasedTab()
                 }
             }
+            #endif
+            #if BANANA_MODULE_WORKOUTS || BANANA_MODULE_FOOD || BANANA_MODULE_PODCASTS
             if showsSidebarSections, AppSection.review.isShown(with: modules.effectiveChoice) {
                 // Looking back, in the sidebar where there is one. (On a phone it opens from the
                 // chart button at the top left of every tab.) Sleep and Trends were rows here.
@@ -776,6 +815,7 @@ struct RootView: View {
                 }
                 .tabPlacement(.sidebarOnly)
             }
+            #endif
             if showsSidebarSections {
                 #if BANANA_AI && !PI_DEVELOPMENT
                 Tab(AppSection.assistant.title, systemImage: AppSection.assistant.symbol, value: ShellTab.section(.assistant)) {
@@ -798,6 +838,7 @@ struct RootView: View {
         }
         .tabViewStyle(.sidebarAdaptable)
         .tabBarMinimizeBehavior(.onScrollDown)   // collapse to a pill on scroll, tap to expand
+        #if BANANA_MODULE_PODCASTS
         .tabViewBottomAccessory(isEnabled: classicShell && (player.currentEpisode != nil || music.wakePlaying != nil)) {
             // An Apple Music wake plays in the Music app, so the podcast bar has nothing to
             // show — without this branch the ONLY way to stop wake music was the Lock Screen.
@@ -807,6 +848,7 @@ struct RootView: View {
                 MusicWakeBar()
             }
         }
+        #endif
     }
 
     /// The tab view, with what both shells add around it: the bar or the rail's results, the
@@ -854,6 +896,7 @@ struct RootView: View {
                 ShellSwitcherOverlay(pages: shellPages, current: currentShellPage, open: openShellPage)
             }
         }
+        #if BANANA_MODULE_PODCASTS
         // Wide: the player at the foot of the page, as the Mac has it (no bar to sit above).
         .safeAreaInset(edge: .bottom, spacing: 0) {
             if !bottomBarShell, player.currentEpisode != nil || music.wakePlaying != nil {
@@ -870,6 +913,7 @@ struct RootView: View {
                 .padding(.bottom, DS.Space.s)
             }
         }
+        #endif
         // Wide: what the field in a page's toolbar found, hanging under the toolbar.
         .overlay(alignment: .top) {
             if !bottomBarShell {
@@ -879,11 +923,15 @@ struct RootView: View {
         }
         // Floats just above the bottom accessory: visible without covering anything, and it
         // clears itself after a few seconds whether or not anyone was looking.
+        #if BANANA_MODULE_PODCASTS
         .overlay(alignment: .bottom) {
             SkipNoticeBar().padding(.bottom, 96)
         }
         .sheet(isPresented: $showNowPlaying) { NowPlayingView() }
+        #endif
+        #if BANANA_MODULE_NOTES
         .modifier(VoiceCaptureHost(playerOpen: showNowPlaying))
+        #endif
         .modifier(PageChromeHost(sidebar: showsSidebarSections))
     }
 
@@ -896,12 +944,15 @@ struct RootView: View {
             return
         }
         guard store.consumeRecentAlarm() else { return }
+        #if BANANA_MODULE_PODCASTS
         Task { await WakeCoordinator.shared.startWake(reason: "on-open") }
+        #endif
         showMorningBriefing = true   // the wake payoff screen
     }
 
 }
 
+#if BANANA_MODULE_WORKOUTS
 /// Presents the post-workout review the first time the app is used after a workout arrives.
 ///
 /// It is a separate zero-size view on purpose. The stores it watches — FitnessStore and
@@ -944,6 +995,7 @@ private struct WorkoutReviewPresenter: View {
         review.check(summaries: fitness.summaries, healthWorkouts: health.workouts)
     }
 }
+#endif
 
 #if DEBUG
 /// Test-only probe kept in its own subtree so sampling diagnostics never invalidates RootView or
@@ -1084,7 +1136,7 @@ private struct NowPlayingPreviewHost: View {
 #endif
 #endif
 
-#if os(iOS)
+#if os(iOS) && BANANA_MODULE_NOTES
 /// The one place a voice note's recording screen is shown — except over the full player, which
 /// shows its own because it's on top. The now-playing bar, Notes and the player each used to
 /// present it; iOS shows one sheet at a time, so with a podcast loaded (the bar on screen) two of
@@ -1218,6 +1270,7 @@ private struct PageChromeHost: ViewModifier {
 /// Workouts, laid out for the column it has: the phone's list — latest workout, trends, the
 /// period's sessions — when narrow; the wide arrangement the Mac uses, with its columns and
 /// detail, when there's room. Trends and Sleep have their own sidebar rows then.
+#if BANANA_MODULE_WORKOUTS
 private struct WorkoutsSection: View {
     @Binding var path: [ShellState.WorkoutsRoute]
     @Environment(\.layoutClass) private var layout
@@ -1233,6 +1286,9 @@ private struct WorkoutsSection: View {
     }
 }
 
+#endif
+
+#if BANANA_MODULE_FOOD
 /// Nutrition, laid out for the column it has — see `WorkoutsSection`.
 private struct NutritionSection: View {
     @Environment(\.layoutClass) private var layout
@@ -1247,6 +1303,7 @@ private struct NutritionSection: View {
         .onAppear { SpaceSyncQuestions.shared.healthUsed() }
     }
 }
+#endif
 #endif
 
 #if DEBUG && os(iOS)

@@ -1,3 +1,4 @@
+#if BANANA_MODULE_WORKOUTS
 import SwiftUI
 import MapKit
 
@@ -213,3 +214,4 @@ struct WideWorkoutDetailView: View {
     }
     #endif
 }
+#endif

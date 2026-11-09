@@ -1,3 +1,4 @@
+#if BANANA_MODULE_WORKOUTS || BANANA_MODULE_PODCASTS || BANANA_MODULE_NOTES
 #if os(iOS)
 // WatchConnectivity is the phone↔Watch link. A Mac has no Watch to talk to.
 
@@ -769,4 +770,5 @@ final class PhoneConnectivity: NSObject, ObservableObject, WCSessionDelegate {
         }
     }
 }
+#endif
 #endif

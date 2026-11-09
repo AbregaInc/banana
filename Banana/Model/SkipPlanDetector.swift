@@ -1,3 +1,4 @@
+#if BANANA_MODULE_PODCASTS
 import Foundation
 import os
 
@@ -123,3 +124,4 @@ final class SkipPlanDetector: EpisodeSkipPlanBuilding {
         }
     }
 }
+#endif

@@ -1,3 +1,4 @@
+#if BANANA_MODULE_PODCASTS
 import Foundation
 
 /// Playback speed, the same list on every device. A show keeps one speed: set it on the phone,
@@ -41,3 +42,4 @@ enum PlaybackSpeeds {
         return result
     }
 }
+#endif

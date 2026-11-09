@@ -73,4 +73,9 @@ BANANA_LOCAL_EMAIL[config=AppStore] = NO
 BANANA_LOCAL_AI[config=AppStore] = NO
 BANANA_RELEASE_CHANNEL[config=AppStore] = appstore
 
+// Where the Watch app goes: inside the app, unless the configuration carries none of its modules
+// (Config/Generated/Modules.xcconfig, written by tools/modules/modules.py).
+BANANA_WATCH_EMBED_PATH = $(CONTENTS_FOLDER_PATH)/Watch
+#include? "Generated/Modules.xcconfig"
+
 #include? "Local.xcconfig"

@@ -140,8 +140,10 @@ struct RoutinesView: View {
             // The controls at the trailing edge, in one column down the list.
             Spacer(minLength: DS.Space.s)
 
+            #if BANANA_MODULE_PODCASTS
             // Start it now, whatever its time: the way to run a Manual one at all.
             RoutineStartButton(routine: routine, compact: true)
+            #endif
 
             Toggle("", isOn: Binding(
                 get: { routine.enabled },

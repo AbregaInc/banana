@@ -279,9 +279,13 @@ final class CloudBackup: ObservableObject {
         // These stores intentionally persist on serial utility lanes. Cross their barriers before
         // reading the snapshot so the backup cannot lag the final route point or workout summary
         // merely because the app backgrounded immediately after the mutation.
-        async let historyFlushed: Void = ListenHistoryStore.flushPendingWrites()
-        async let fitnessFlushed: Void = FitnessStore.shared.flushPendingWrites()
-        _ = await (historyFlushed, fitnessFlushed)
+        // A module this build doesn't carry wrote nothing since its build last ran.
+        #if BANANA_MODULE_PODCASTS
+        await ListenHistoryStore.flushPendingWrites()
+        #endif
+        #if BANANA_MODULE_WORKOUTS
+        await FitnessStore.shared.flushPendingWrites()
+        #endif
 
         let root = supportDir
         let fileNames = files
@@ -436,8 +440,15 @@ final class CloudBackup: ObservableObject {
             if name == "podcasts.json", FileManager.default.fileExists(atPath: catalogURL.path) {
                 // Export a consistent portable catalog, never back up an open SQLite/WAL pair
                 // or silently fall back to the now-historical pre-migration JSON.
+                #if BANANA_MODULE_PODCASTS
                 guard let data = try? PodcastCatalog.open(at: catalogURL).backupJSON(legacyURL: url) else { return nil }
                 payload[name] = data
+                #else
+                // A build without Podcasts can't read the catalogue; the last backup's copy of it
+                // is the current one, since nothing has changed it since. None: left out, and an
+                // existing backup with shows is kept (`protectedExistingBackup`).
+                if let data = previousCatalogue() { payload[name] = data }
+                #endif
                 continue
             }
             if let data = try? Data(contentsOf: url) { payload[name] = data }
@@ -475,6 +486,15 @@ final class CloudBackup: ObservableObject {
         return PreparedBackup(snapshot: snapshot, payload: encoded,
                               hash: contentHash(snapshot, defaultsDomain: domain))
     }
+
+    #if !BANANA_MODULE_PODCASTS
+    /// The catalogue in the backup this device last wrote, carried forward unchanged.
+    private nonisolated static func previousCatalogue() -> Data? {
+        guard let url = backupFileURL(), let data = try? Data(contentsOf: url),
+              let snapshot = try? PropertyListDecoder().decode(Snapshot.self, from: data) else { return nil }
+        return snapshot.files["podcasts.json"]
+    }
+    #endif
 
     /// Summarise without depending on the model types — the snapshot has to stay readable even if
     /// Podcast/Routine change shape later.
@@ -636,12 +656,18 @@ final class CloudBackup: ObservableObject {
         let catalogURL = supportDir.appendingPathComponent("podcast-catalog.sqlite")
         let legacyURL = supportDir.appendingPathComponent("podcasts.json")
         if FileManager.default.fileExists(atPath: catalogURL.path) {
+            #if BANANA_MODULE_PODCASTS
             let hasShows = await Task.detached(priority: .utility) {
                 // Failure is not evidence of an empty install; preserve it for explicit repair.
                 guard let catalog = try? PodcastCatalog.open(at: catalogURL),
                       let shows = try? catalog.load(legacyURL: legacyURL) else { return true }
                 return !shows.isEmpty
             }.value
+            #else
+            // A catalogue this build can't read is still an established install.
+            let hasShows = true
+            _ = legacyURL
+            #endif
             if hasShows {
                 UserDefaults.standard.set(true, forKey: Self.initialRestoreOfferShownKey)
                 return

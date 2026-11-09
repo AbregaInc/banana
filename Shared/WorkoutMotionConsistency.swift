@@ -1,3 +1,4 @@
+#if BANANA_MODULE_WORKOUTS
 import Foundation
 
 /// Pure, no-SwiftUI "technique consistency" measure for a page (lap, or 60 s window) of
@@ -217,3 +218,4 @@ enum WorkoutMotionConsistency {
         return vector.map { $0 / norm }
     }
 }
+#endif

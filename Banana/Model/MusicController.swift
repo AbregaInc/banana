@@ -1,3 +1,4 @@
+#if BANANA_MODULE_PODCASTS
 import MusicKit
 import SwiftUI
 import Combine
@@ -227,3 +228,4 @@ final class MusicController: ObservableObject {
         return try await req.response().items.first { $0.id.rawValue == id }
     }
 }
+#endif

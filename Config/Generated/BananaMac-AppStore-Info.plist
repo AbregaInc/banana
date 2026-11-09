@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>BananaCloudContainer</key>
+	<string>$(BANANA_ICLOUD_CONTAINER)</string>
+	<key>BananaGoogleServerClient</key>
+	<string>$(BANANA_GOOGLE_SERVER_CLIENT)</string>
+	<key>BananaLegacyCloudContainer</key>
+	<string>$(BANANA_LEGACY_ICLOUD_CONTAINER)</string>
+	<key>BananaModules</key>
+	<string>$(BANANA_MODULES)</string>
+	<key>BananaPrimaryBundleIdentifier</key>
+	<string>$(BANANA_BUNDLE_ID)</string>
+	<key>BananaPrivateCloudCompute</key>
+	<false/>
+	<key>BananaReleaseChannel</key>
+	<string>$(BANANA_RELEASE_CHANNEL)</string>
+	<key>BananaServiceHost</key>
+	<string>$(BANANA_SERVICE_HOST)</string>
+	<key>BananaSourceCommit</key>
+	<string>$(BANANA_SOURCE_COMMIT)</string>
+	<key>BananaTeamID</key>
+	<string>$(DEVELOPMENT_TEAM)</string>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>CFBundleDisplayName</key>
+	<string>Banana</string>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>$(PRODUCT_NAME)</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>$(MARKETING_VERSION)</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.$(BANANA_GOOGLE_CLIENT)</string>
+			</array>
+		</dict>
+	</array>
+	<key>CFBundleVersion</key>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>GIDClientID</key>
+	<string>$(BANANA_GOOGLE_CLIENT).apps.googleusercontent.com</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.productivity</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>26.0</string>
+	<key>NSContactsUsageDescription</key>
+	<string>Banana looks up the people you type when adding guests to an event, so “Lunch with Sam” can invite the Sam you mean.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Banana uses your location for your local forecast.</string>
+	<key>NSRemindersFullAccessUsageDescription</key>
+	<string>Banana reads your reminders on-device so it can schedule tasks onto your day.</string>
+</dict>
+</plist>

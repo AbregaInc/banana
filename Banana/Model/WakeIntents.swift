@@ -22,7 +22,9 @@ struct WakeStopIntent: LiveActivityIntent {
         if let uuid = UUID(uuidString: alarmID) {
             try? AlarmManager.shared.stop(id: uuid)
         }
+        #if BANANA_MODULE_PODCASTS
         await WakeCoordinator.shared.startWake(reason: "stopIntent")
+        #endif
         return .result()
     }
 }

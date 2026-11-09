@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 import Combine
 import CoreGraphics
 import Foundation
@@ -339,3 +340,4 @@ final class MealBacklogProcessor: ObservableObject {
         PlaybackDiagnostics.shared.log("🍽 estimate", "\(item.photos.count) photo(s), \(note.isEmpty ? "no words" : "with words") → \(String(describing: outcome).prefix(80))")
     }
 }
+#endif

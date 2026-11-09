@@ -1,3 +1,4 @@
+#if BANANA_MODULE_PODCASTS
 #if os(iOS)
 // BGContinuedProcessingTask + Live Activities: iPhone-only.
 
@@ -181,4 +182,5 @@ enum ContinuedTranscription {
         }
     }
 }
+#endif
 #endif

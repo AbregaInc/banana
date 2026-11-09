@@ -16,6 +16,7 @@ enum ActionItems {
         var total: Int { plan + food + taken }
     }
 
+    #if BANANA_MODULE_FOOD
     /// Meals waiting on the person — not the ones being estimated, which need nothing from them yet.
     static func food(_ items: [MealInboxItem]) -> Int {
         items.filter(foodNeedsAttention).count
@@ -24,6 +25,7 @@ enum ActionItems {
     static func foodNeedsAttention(_ item: MealInboxItem) -> Bool {
         item.state == .awaitingNote || item.state == .proposed || item.state == .failed
     }
+    #endif
 
     /// An explicitly scheduled routine is due from its time, until completed or skipped.
     /// Untimed routines have no deadline to invent; they stay in the day's routine moments.
@@ -31,6 +33,7 @@ enum ActionItems {
         hasTime && !completed && !skipped && start <= now ? start : nil
     }
 
+    #if BANANA_MODULE_FOOD
     /// Today's doses whose time has come and that aren't marked yet. A dose later today isn't
     /// counted until its time: there's nothing to do about it before then — nor one waiting for
     /// its moment ("after your workout", `AnchoredTiming`). `due`: when each is due today, nil
@@ -50,6 +53,7 @@ enum ActionItems {
         guard supplement.enabled, !marked, let due, due <= now else { return nil }
         return due
     }
+    #endif
 
     /// What a due dose's row says in place of its time: "Due now" in its first minute, then
     /// "Due since 8:00 AM". One wording for the phone's Taken tab and the wide Nutrition page.
@@ -59,7 +63,9 @@ enum ActionItems {
             : "Due since \(since.formatted(date: .omitted, time: .shortened))"
     }
 
+    #if BANANA_MODULE_FOOD
     private static func usual(_ supplement: SupplementSchedule, _ now: Date, _ calendar: Calendar) -> Date? {
         calendar.date(bySettingHour: supplement.safeHour, minute: supplement.safeMinute, second: 0, of: now)
     }
+    #endif
 }

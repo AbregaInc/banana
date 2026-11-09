@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 import Foundation
 import Darwin
 
@@ -33,3 +34,4 @@ enum MealRepeatPersistence {
         try HealthFileProtection.replace(staged, destination: url)
     }
 }
+#endif

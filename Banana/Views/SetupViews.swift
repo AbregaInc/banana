@@ -21,8 +21,12 @@ final class SetupPresenter: ObservableObject {
 @MainActor
 struct SetupAccess: DynamicProperty {
     @EnvironmentObject private var alarms: AlarmStore
+    #if BANANA_MODULE_WORKOUTS
     @EnvironmentObject private var health: HealthKitStore
+    #endif
+    #if BANANA_MODULE_PODCASTS
     @EnvironmentObject private var music: MusicController
+    #endif
     @EnvironmentObject private var onboarding: OnboardingStore
     @ObservedObject private var occurrences = OccurrenceStore.shared
     @ObservedObject private var google = GoogleCalendarService.shared
@@ -52,10 +56,18 @@ struct SetupAccess: DynamicProperty {
             case .notAsked, .unknown: return .todo
             }
         case .health:
+            #if BANANA_MODULE_WORKOUTS
             return health.setupState
+            #else
+            return .done   // not listed in a build without it (`SetupItem.carriedBy`)
+            #endif
         case .music:
+            #if BANANA_MODULE_PODCASTS
             if music.isAuthorized { return .done }
             return [.denied, .restricted].contains(music.authorization) ? .refused : .todo
+            #else
+            return .done
+            #endif
         }
     }
 
@@ -92,8 +104,14 @@ struct SetupAccess: DynamicProperty {
                 try? await Task.sleep(for: .milliseconds(500))
                 location.recheck()
             }
-        case .health: await health.connect()
-        case .music: await music.requestAuthorization()
+        case .health:
+            #if BANANA_MODULE_WORKOUTS
+            await health.connect()
+            #endif
+        case .music:
+            #if BANANA_MODULE_PODCASTS
+            await music.requestAuthorization()
+            #endif
         }
         // An answer already in doesn't wait for the rest (the notification daemon, Google's
         // credentials): the page that asked would sit on "Set up" until they had been read.

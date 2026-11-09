@@ -76,6 +76,7 @@ struct TimingFields: View {
     }
 }
 
+#if BANANA_MODULE_FOOD
 extension AnchoredTimingHub {
     /// A Taken item's time as its row says it: "8:00 AM", "After your workout", "After your
     /// workout · 9:42 AM" once its moment came, "Not today" on a day it skips.
@@ -100,3 +101,4 @@ extension AnchoredTimingHub {
         supplements.filter { $0.id != id }.map { .dose(id: $0.id, name: $0.name) }
     }
 }
+#endif

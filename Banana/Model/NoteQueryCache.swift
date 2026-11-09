@@ -1,3 +1,4 @@
+#if BANANA_MODULE_NOTES
 import Foundation
 
 /// At most four result arrays: active/archived browsing and the current search. Owners invalidate
@@ -41,3 +42,4 @@ final class NoteQueryCache {
         return result
     }
 }
+#endif

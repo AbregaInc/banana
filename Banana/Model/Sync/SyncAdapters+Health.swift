@@ -1,3 +1,4 @@
+#if BANANA_MODULE_WORKOUTS
 import Foundation
 
 extension SyncAdapters {
@@ -79,40 +80,5 @@ extension SyncAdapters {
     /// The controls' health kinds report to the data platform from the first time adapters join.
     private static var reportingHealth = false
 
-    /// Another account signed in and the person said to clear this device first (§2): nothing of
-    /// the account before may stay to seed into the new one. Only once no tier writes iCloud (the
-    /// caller makes both read-only first; the device's floor keeps them there), so none of this
-    /// reaches the other account's iCloud. Nil, and nothing cleared, while a tier still writes.
-    ///
-    /// - Every item every adapter covers (health and food, and the personal types) leaves its store
-    ///   through the adapter's `remove`, the stores' adopt-from-cloud delete paths, which tell no
-    ///   sync.
-    /// - Podcast progress, transcripts, the settings that are one value (app settings, modules,
-    ///   Smart Schedule and the wake plan, the hub status) go back to a new install's, through
-    ///   their stores' account-change functions.
-    /// - An iPad's or Mac's copy of the phone's Health goes; the removal and revert requests go.
-    static func clearLocalData(_ stores: SyncStores) async -> Int? {
-        guard LegacyTier.allCases.allSatisfy({ !LegacyCloud.mayWrite($0) }) else { return nil }
-        await prepareEverythingElse()
-        let reset: Set<String> = [HealthSnapshotAdapter.type, "podcast.progress", "podcast.transcript"]
-        var count = 0
-        for adapter in all(stores) {
-            for type in adapter.types where !reset.contains(type) {
-                let ids = Array(adapter.snapshot(type).keys)
-                guard !ids.isEmpty else { continue }
-                adapter.remove(type, ids: ids.sorted())
-                count += ids.count
-            }
-        }
-        stores.library.clearProgressForAccountChange()
-        TranscriptStore.shared.clearForAccountChange()
-        stores.settings.resetForAccountChange()
-        stores.modules.resetForAccountChange()
-        stores.smart.resetForAccountChange()
-        stores.hubStatus.resetForAccountChange()
-        stores.health.clearForAccountChange()
-        stores.removalInbox.clearForAccountChange()
-        stores.revertInbox.clearForAccountChange()
-        return count
-    }
 }
+#endif

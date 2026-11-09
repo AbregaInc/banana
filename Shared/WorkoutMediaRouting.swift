@@ -1,3 +1,4 @@
+#if BANANA_MODULE_PODCASTS
 import Foundation
 
 /// Chooses which device owns the media controls shown during a Watch workout.
@@ -32,3 +33,4 @@ enum WorkoutMediaRouting {
         outputs.contains { !builtIn.contains($0) }
     }
 }
+#endif

@@ -1,3 +1,4 @@
+#if BANANA_MODULE_WORKOUTS
 import Foundation
 import Combine
 
@@ -164,3 +165,4 @@ final class WorkoutReviewCoordinator: ObservableObject {
     }
     #endif
 }
+#endif

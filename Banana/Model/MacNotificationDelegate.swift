@@ -27,7 +27,10 @@ final class MacNotificationDelegate: NSObject, UNUserNotificationCenterDelegate 
         Task { @MainActor in
             switch action {
             case .eventAlert: await EventAlerts.handle(response)
-            case .markDoseTaken, .openTakenList: await DoseReminders.handle(response)
+            case .markDoseTaken, .openTakenList:
+                #if BANANA_MODULE_FOOD
+                await DoseReminders.handle(response)
+                #endif
             case .openBooking: BookingPushes.opened(response.notification)
             case .mealPhoto, .nothing: break   // meal photos are the iPhone's
             }

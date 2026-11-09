@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 import Foundation
 
 /// What each device can estimate (`MealEstimatorStatus`), in iCloud key-value storage: install id
@@ -87,3 +88,4 @@ final class MealEstimators: ObservableObject {
         if merged != all { all = merged }
     }
 }
+#endif

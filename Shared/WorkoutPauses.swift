@@ -1,3 +1,4 @@
+#if BANANA_MODULE_WORKOUTS
 import Foundation
 
 /// A stretch of a workout that was paused: seconds since the session's start, by the clock.
@@ -64,3 +65,4 @@ enum WorkoutPauses {
         }
     }
 }
+#endif

@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 import Foundation
 #if canImport(UserNotifications)
 import UserNotifications
@@ -51,4 +52,5 @@ enum DoseReminders {
     }
 }
 
+#endif
 #endif

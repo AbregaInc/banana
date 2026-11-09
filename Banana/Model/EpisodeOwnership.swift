@@ -1,3 +1,4 @@
+#if BANANA_MODULE_PODCASTS
 import Foundation
 
 /// An episode's id is the publisher's guid (or its audio URL), and the per-episode stores (downloads,
@@ -20,3 +21,4 @@ enum EpisodeOwnership {
         return (kept, episodes.count - kept.count)
     }
 }
+#endif

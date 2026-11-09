@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 import Foundation
 #if canImport(FoundationModels)
 import FoundationModels
@@ -158,4 +159,5 @@ private struct GeneratedCleanRecord {
             usedModel: true)
     }
 }
+#endif
 #endif

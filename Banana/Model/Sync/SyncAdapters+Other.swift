@@ -26,7 +26,7 @@ extension SyncAdapters {
             ControlsAdapter.binding(LegacyInventory.controlKinds[kind.rawValue]!, kind: kind, source: source,
                                     codec: .model(model, shape: shape), editedAt: edited)
         }
-        let adapters: [any RecordAdapter] = [
+        var adapters: [any RecordAdapter] = [
             BoundAdapter("routines, alarms and wake sounds", [
                 control(.routine, stores.routines, Routine.self),
                 control(.alarm, stores.alarms, OneOffAlarm.self),
@@ -36,6 +36,9 @@ extension SyncAdapters {
                 control(.timelineOverride, stores.exceptions, ExceptionStore.Kind.self, .wrapped),
                 control(.timelineExtra, stores.exceptions, ExceptionStore.Extra.self),
             ]),
+        ]
+        #if BANANA_MODULE_PODCASTS
+        adapters += [
             BoundAdapter("podcast library", [
                 control(.show, stores.library, PodcastSubscription.self),
                 control(.podcast, stores.library, PodcastSettings.self),
@@ -53,12 +56,20 @@ extension SyncAdapters {
                 control(.narratorOverride, stores.narratorVoices, VoiceGender.self, .wrapped),
             ]),
             TranscriptAdapter.adapter(TranscriptStore.shared),
-            VoiceNoteAdapter.adapter(stores.voiceNotes),
+        ]
+        #endif
+        #if BANANA_MODULE_NOTES
+        adapters.append(VoiceNoteAdapter.adapter(stores.voiceNotes))
+        #endif
+        adapters += [
             SettingsAdapters.adapter(stores),
             KeyValueAdapters.adapter(stores),
             BookingTypeAdapter.adapter(stores.bookingTypes),
         ]
+        // A build without a module has none of its types here, so its tier never moves (`MoveOver`).
+        #if BANANA_MODULE_PODCASTS && BANANA_MODULE_NOTES
         assert(Set(adapters.flatMap(\.types)) == Set(EverythingElseTypes.all), "EverythingElseTypes is out of date")
+        #endif
         return adapters
     }
 
@@ -66,6 +77,8 @@ extension SyncAdapters {
     /// without holding them up. Transcripts it lists after a seed has begun enter as late
     /// arrivals, with their seed clocks (`TranscriptStore.prepareSyncIndex`).
     static func prepareEverythingElse() async {
+        #if BANANA_MODULE_PODCASTS
         Task { await TranscriptStore.shared.prepareSyncIndex() }
+        #endif
     }
 }

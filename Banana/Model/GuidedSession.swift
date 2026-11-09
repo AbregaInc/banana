@@ -1,3 +1,4 @@
+#if BANANA_MODULE_WORKOUTS
 import Combine
 import Foundation
 
@@ -171,3 +172,4 @@ final class GuidedSessionStore: ObservableObject {
         }
     }
 }
+#endif

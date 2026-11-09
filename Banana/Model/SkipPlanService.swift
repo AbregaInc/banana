@@ -1,3 +1,4 @@
+#if BANANA_MODULE_PODCASTS
 import Foundation
 import os
 
@@ -276,3 +277,4 @@ final class SkipPlanService: ObservableObject {
         store.prune(keeping: known)
     }
 }
+#endif

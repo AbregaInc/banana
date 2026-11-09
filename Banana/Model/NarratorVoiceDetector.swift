@@ -1,3 +1,4 @@
+#if BANANA_MODULE_PODCASTS
 #if os(iOS) || os(macOS)
 import Foundation
 import AVFoundation
@@ -155,4 +156,5 @@ enum NarratorVoiceDetector {
         return Array(UnsafeBufferPointer(start: channel, count: Int(out.frameLength)))
     }
 }
+#endif
 #endif

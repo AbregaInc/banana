@@ -240,7 +240,9 @@ final class OccurrenceStore: ObservableObject {
     weak var routines: RoutineStore?
     weak var smart: SmartScheduleStore?
     weak var alarms: AlarmStore?
+    #if BANANA_MODULE_WORKOUTS
     weak var health: HealthKitStore?
+    #endif
     /// Read for the event-notification lead time. Weak and optional like the rest: a headless
     /// background launch wires none of these, and must still recompute.
     weak var settings: AppSettings?

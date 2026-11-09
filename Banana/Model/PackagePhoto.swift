@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 import CoreGraphics
 import Foundation
 import ImageIO
@@ -58,3 +59,4 @@ enum PackagePhoto {
     }
     #endif
 }
+#endif

@@ -1,3 +1,4 @@
+#if BANANA_MODULE_PODCASTS
 #if os(iOS) || os(macOS)
 import Foundation
 import AVFoundation
@@ -71,4 +72,5 @@ final class VoiceGenderClassifier {
             : (.male, expMale / sum)
     }
 }
+#endif
 #endif

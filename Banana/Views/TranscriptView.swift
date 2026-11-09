@@ -1,3 +1,4 @@
+#if BANANA_MODULE_PODCASTS
 import SwiftUI
 
 /// Follow-along transcript synced to playback ("karaoke"). Words are grouped into short
@@ -344,3 +345,4 @@ struct TranscriptView: View {
 final class TranscriptCoordinatorBox: ObservableObject {
     let value = TranscriptCoordinator.shared
 }
+#endif

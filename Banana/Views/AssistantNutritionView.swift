@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 #if BANANA_AI
 import SwiftUI
 import Charts
@@ -198,4 +199,5 @@ struct AssistantNutritionView: View {
     private func change(_ patch: [String: Any]) { Task { await assistant.updateSurface(patch) } }
 }
 
+#endif
 #endif

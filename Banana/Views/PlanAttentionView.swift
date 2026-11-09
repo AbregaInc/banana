@@ -4,8 +4,10 @@ import SwiftUI
 struct PlanAttentionBand: View {
     @ObservedObject private var timeline = OccurrenceStore.shared
     @ObservedObject private var routines = RoutineStore.shared
+    #if BANANA_MODULE_FOOD
     @ObservedObject private var inbox = MealInboxStore.shared
     @ObservedObject private var wellness = WellnessStore.shared
+    #endif
     @ObservedObject private var modules = ModuleStore.shared
     @ObservedObject private var timing = AnchoredTimingHub.shared
     @State private var showing = false
@@ -48,8 +50,10 @@ struct PlanAttentivePeriodMenu: View {
 
     @ObservedObject private var timeline = OccurrenceStore.shared
     @ObservedObject private var routines = RoutineStore.shared
+    #if BANANA_MODULE_FOOD
     @ObservedObject private var inbox = MealInboxStore.shared
     @ObservedObject private var wellness = WellnessStore.shared
+    #endif
     @ObservedObject private var modules = ModuleStore.shared
     @ObservedObject private var timing = AnchoredTimingHub.shared
     @State private var showingAttention = false
@@ -71,14 +75,22 @@ private struct PlanAttentionSnapshot {
         var routine: Routine
         var id: String { occurrence.id }
     }
+    #if BANANA_MODULE_FOOD
     struct Dose: Identifiable {
         var supplement: SupplementSchedule
         var due: Date
         var id: UUID { supplement.id }
     }
+    #endif
     var routines: [RoutineItem] = []
+    #if BANANA_MODULE_FOOD
     var meals: [MealInboxItem] = []
     var doses: [Dose] = []
+    #else
+    // Food's two parts, empty in a build without it.
+    var meals: [Never] = []
+    var doses: [Never] = []
+    #endif
     var count: Int { routines.count + meals.count + doses.count }
     var summary: String {
         [(routines.count, "routine"), (meals.count, "meal"), (doses.count, "dose")]
@@ -95,6 +107,7 @@ private struct PlanAttentionSnapshot {
             result.routines.append(.init(occurrence: occurrence, routine: routine))
         }
         result.routines.sort { $0.occurrence.start < $1.occurrence.start }
+        #if BANANA_MODULE_FOOD
         if ModuleStore.shared.includes(.food) {
             result.meals = MealInboxStore.shared.items.filter(ActionItems.foodNeedsAttention).sorted { $0.eatenAt < $1.eatenAt }
             let wellness = WellnessStore.shared
@@ -104,6 +117,7 @@ private struct PlanAttentionSnapshot {
                 return Dose(supplement: supplement, due: due)
             }.sorted { $0.due < $1.due }
         }
+        #endif
         return result
     }
 }
@@ -111,12 +125,16 @@ private struct PlanAttentionSnapshot {
 private struct PlanAttentionList: View {
     @ObservedObject private var timeline = OccurrenceStore.shared
     @ObservedObject private var routines = RoutineStore.shared
+    #if BANANA_MODULE_FOOD
     @ObservedObject private var inbox = MealInboxStore.shared
     @ObservedObject private var wellness = WellnessStore.shared
+    #endif
     @ObservedObject private var modules = ModuleStore.shared
     @ObservedObject private var timing = AnchoredTimingHub.shared
     @Environment(\.dismiss) private var dismiss
+    #if BANANA_MODULE_FOOD
     @State private var reviewing: MealDayRequest?
+    #endif
 
     var body: some View {
         NavigationStack {
@@ -136,6 +154,7 @@ private struct PlanAttentionList: View {
                             }
                         }
                     }
+                    #if BANANA_MODULE_FOOD
                     if !items.meals.isEmpty {
                         Section("Food to review") {
                             ForEach(items.meals) { meal in
@@ -166,11 +185,14 @@ private struct PlanAttentionList: View {
                             }
                         }
                     }
+                    #endif
                 }
             }
             .navigationTitle("Needs attention")
             .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } } }
+            #if BANANA_MODULE_FOOD
             .sheet(item: $reviewing) { request in MealDayReviewView(day: request.day).environmentObject(wellness) }
+            #endif
         }
         #if os(macOS)
         // List has no useful intrinsic height. Give the desktop sheet a usable

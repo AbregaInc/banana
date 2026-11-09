@@ -1,3 +1,4 @@
+#if BANANA_MODULE_PODCASTS
 import SwiftUI
 
 /// What automatic ad skipping just did, and the way back.
@@ -36,3 +37,4 @@ struct SkipNoticeBar: View {
         }
     }
 }
+#endif

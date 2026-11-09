@@ -1,3 +1,4 @@
+#if BANANA_MODULE_PODCASTS
 import SwiftUI
 #if os(iOS)
 import UIKit
@@ -29,3 +30,4 @@ enum ArtworkTint {
         #endif
     }
 }
+#endif

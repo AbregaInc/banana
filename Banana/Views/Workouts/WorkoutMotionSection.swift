@@ -1,3 +1,4 @@
+#if BANANA_MODULE_WORKOUTS
 import SwiftUI
 import Charts
 
@@ -791,3 +792,4 @@ private struct MotionSignatureCard: View {
         return stops[low].mix(with: stops[high], by: scaled - Double(low))
     }
 }
+#endif

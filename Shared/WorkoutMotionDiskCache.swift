@@ -1,3 +1,4 @@
+#if BANANA_MODULE_WORKOUTS
 import Foundation
 
 /// Persists `WorkoutMotionCache`'s per-workout derived analysis (`WorkoutMotionAnalysis.Result`,
@@ -108,3 +109,4 @@ struct WorkoutMotionCacheEntry: Sendable, Codable {
         self.version == version && self.sampleFileSize == sampleFileSize
     }
 }
+#endif

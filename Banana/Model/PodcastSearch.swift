@@ -1,3 +1,4 @@
+#if BANANA_MODULE_PODCASTS
 import Foundation
 
 /// A search hit from the iTunes podcast directory.
@@ -50,3 +51,4 @@ enum PodcastSearch {
         }
     }
 }
+#endif

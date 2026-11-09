@@ -1,3 +1,4 @@
+#if BANANA_MODULE_NOTES
 import EventKit
 import Foundation
 
@@ -35,3 +36,4 @@ enum NoteReminderWriter {
         catch { return nil }
     }
 }
+#endif

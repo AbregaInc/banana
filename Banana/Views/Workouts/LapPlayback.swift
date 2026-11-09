@@ -1,3 +1,4 @@
+#if BANANA_MODULE_WORKOUTS
 import Foundation
 
 /// Drives the "play" control both `HandPathView` and `WorkoutMotionSection.MotionSignatureCard`
@@ -32,3 +33,4 @@ enum LapPlayback {
         }
     }
 }
+#endif

@@ -1,3 +1,4 @@
+#if BANANA_MODULE_WORKOUTS || BANANA_MODULE_FOOD
 import Foundation
 
 // The app's health and food stores as the Stage C adapters see them. Kept out of the unit tests,
@@ -79,3 +80,4 @@ extension ControlChangeReporter {
         }
     }
 }
+#endif

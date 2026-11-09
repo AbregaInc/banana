@@ -1,3 +1,4 @@
+#if BANANA_MODULE_WORKOUTS
 import Foundation
 
 /// Deleting a workout Banana recorded, the way meals and doses are deleted: gone from the list at
@@ -32,3 +33,4 @@ enum WorkoutRemoval {
         }
     }
 }
+#endif

@@ -1,3 +1,4 @@
+#if BANANA_MODULE_WORKOUTS
 import Foundation
 
 /// Pure 3D→2D geometry for the stroke/stride-signature point cloud, drawn by a depth-sorted
@@ -155,3 +156,4 @@ enum MotionSignatureScene {
         }
     }
 }
+#endif

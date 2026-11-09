@@ -25,12 +25,16 @@ final class AnchorSuggestionStore: ObservableObject {
     @Published private(set) var taken: [AnchorSuggestions.Suggestion] = []
     /// Moments repeating reminders have been following, offered above List's Overdue.
     @Published private(set) var reminders: [AnchorSuggestions.Suggestion] = []
+    #if BANANA_MODULE_FOOD
     /// Repeating reminders that are something taken, offered a move into Taken.
     @Published private(set) var moves: [ReminderToTaken.Offer] = []
+    #endif
 
     private let service = RemindersService()
+    #if BANANA_MODULE_WORKOUTS
     /// The app's Health store: workouts and nights.
     private weak var health: HealthKitStore?
+    #endif
     private var started = false
     private var watching = false
     private var watches: Set<AnyCancellable> = []
@@ -89,12 +93,24 @@ final class AnchorSuggestionStore: ObservableObject {
         #endif
     }
 
+    #if BANANA_MODULE_WORKOUTS
     func start(health: HealthKitStore) {
         guard !started else { return }
         started = true
         self.health = health
         health.$workouts.dropFirst().sink { [weak self] _ in self?.recomputeSoon() }.store(in: &watches)
         health.$trends.dropFirst().sink { [weak self] _ in self?.recomputeSoon() }.store(in: &watches)
+        startWatching()
+    }
+    #else
+    func start() {
+        guard !started else { return }
+        started = true
+        startWatching()
+    }
+    #endif
+
+    private func startWatching() {
         watchStores()
         #if os(iOS)
         let forward = UIApplication.didBecomeActiveNotification
@@ -114,10 +130,12 @@ final class AnchorSuggestionStore: ObservableObject {
     private func watchStores() {
         guard !watching else { return }
         watching = true
+        #if BANANA_MODULE_FOOD
         let wellness = WellnessStore.shared
         wellness.$supplements.dropFirst().sink { [weak self] _ in self?.recomputeSoon() }.store(in: &watches)
         wellness.$supplementLogs.dropFirst().sink { [weak self] _ in self?.recomputeSoon() }.store(in: &watches)
         wellness.$meals.dropFirst().sink { [weak self] _ in self?.recomputeSoon() }.store(in: &watches)
+        #endif
         ReminderAnchors.shared.$rules.dropFirst().sink { [weak self] _ in self?.recomputeSoon() }.store(in: &watches)
     }
 
@@ -139,7 +157,13 @@ final class AnchorSuggestionStore: ObservableObject {
         defer { reading = false }
         if service.authorized {
             let calendar = Calendar.current
-            let since = calendar.date(byAdding: .day, value: -ReminderToTaken.historyDays,
+            // Taken's moves bring a longer history of ticks along; suggestions need their window.
+            #if BANANA_MODULE_FOOD
+            let historyDays = ReminderToTaken.historyDays
+            #else
+            let historyDays = AnchorSuggestions.days
+            #endif
+            let since = calendar.date(byAdding: .day, value: -historyDays,
                                       to: calendar.startOfDay(for: now)) ?? now
             repeating = await service.dueTasks(within: 14).filter { $0.recurrence != .never && !$0.isCompleted }
             ticks = await service.completedTasks(from: since, to: now)
@@ -168,23 +192,32 @@ final class AnchorSuggestionStore: ObservableObject {
         #if DEBUG
         if previewing { publishPreview(); return }
         #endif
+        #if BANANA_MODULE_FOOD
         let wellness = WellnessStore.shared
+        #endif
         let anchors = ReminderAnchors.shared
         let since = calendar.date(byAdding: .day, value: -AnchorSuggestions.days, to: calendar.startOfDay(for: now)) ?? now
         let recentTicks = ticks.filter { ($0.completedAt ?? .distantPast) >= since }
+        #if BANANA_MODULE_FOOD
         let doses = wellness.supplementLogs.filter { $0.date >= since }
+        #endif
 
         // The moments, in the order a tie goes: what happens, then what's ticked.
-        var moments: [AnchorSuggestions.Moment] = [
+        var moments: [AnchorSuggestions.Moment] = []
+        #if BANANA_MODULE_WORKOUTS
+        moments += [
             .init(.workout, times: (health?.workouts ?? []).map(\.end).filter { $0 >= since }),
             .init(.wake, times: (health?.trends.nights ?? []).map(\.wake).filter { $0 >= since }),
         ]
+        #endif
+        #if BANANA_MODULE_FOOD
         let meals = wellness.meals.map(\.date).filter { $0 >= since }
         for part in [MealTextPart.breakfast, .lunch, .dinner] {
             moments.append(.init(.meal(part.rawValue),
                                  times: meals.filter { AnchoredTiming.mealPart(at: $0, calendar: calendar) == part }))
         }
         moments.append(.init(.meal(nil), times: meals))
+        #endif
         let byTitle = Dictionary(grouping: recentTicks) { Self.titleKey($0.title) }
         for key in byTitle.keys.sorted() {
             guard let group = byTitle[key], group.count >= AnchorSuggestions.minimumDays else { continue }
@@ -194,6 +227,7 @@ final class AnchorSuggestionStore: ObservableObject {
                                  times: group.compactMap(\.completedAt),
                                  anchoredTo: anchors.anchor(externalID: live?.externalID, title: title)?.moment))
         }
+        #if BANANA_MODULE_FOOD
         for supplement in wellness.supplements {
             moments.append(.init(.dose(id: supplement.id, name: supplement.name),
                                  times: AnchorSuggestions.observed(doses, for: supplement, calendar: calendar),
@@ -206,6 +240,9 @@ final class AnchorSuggestionStore: ObservableObject {
                                    done: AnchorSuggestions.observed(doses, for: supplement, calendar: calendar),
                                    anchored: supplement.anchor != nil)
         }
+        #else
+        var items: [AnchorSuggestions.Item] = []
+        #endif
         for reminder in repeating {
             items.append(.init(subject: .reminder(externalID: reminder.externalID, title: reminder.title),
                                name: reminder.title,
@@ -215,6 +252,7 @@ final class AnchorSuggestionStore: ObservableObject {
         let learned = AnchorSuggestions.suggestions(items, moments: moments, now: now, calendar: calendar)
             .filter { !declined.contains($0.id) && !moved.contains(AnchorSuggestions.key($0.subject)) }
 
+        #if BANANA_MODULE_FOOD
         // Reminders that are something taken, unless one by that name is in Taken already.
         let inTaken = Set(wellness.supplements.map { Self.titleKey($0.name) })
         // Something taken by name (`ReminderToTaken`, the bundled vocabulary), or — for a name no
@@ -250,15 +288,25 @@ final class AnchorSuggestionStore: ObservableObject {
                 if await TakenGuess.ask(unknown) { self?.recompute() }
             }
         }
+        #else
+        publish(taken: learned.filter(\.subject.isTaken), reminders: learned.filter { !$0.subject.isTaken })
+        #endif
     }
 
     /// Only what changed: an unchanged list republished redraws Plan's List for nothing.
+    #if BANANA_MODULE_FOOD
     private func publish(taken: [AnchorSuggestions.Suggestion], reminders: [AnchorSuggestions.Suggestion],
                          moves: [ReminderToTaken.Offer]) {
         if taken != self.taken { self.taken = taken }
         if reminders != self.reminders { self.reminders = reminders }
         if moves != self.moves { self.moves = moves }
     }
+    #else
+    private func publish(taken: [AnchorSuggestions.Suggestion], reminders: [AnchorSuggestions.Suggestion]) {
+        if taken != self.taken { self.taken = taken }
+        if reminders != self.reminders { self.reminders = reminders }
+    }
+    #endif
 
     /// A reminder's ticks: completed copies under its stable id or its title.
     private static func completions(of externalID: String?, title: String, in list: [TaskInfo]) -> [Date] {
@@ -275,8 +323,9 @@ final class AnchorSuggestionStore: ObservableObject {
 
     /// "Make it so": due around the moment from now on, with Undo putting back what it had.
     func accept(_ suggestion: AnchorSuggestions.Suggestion) {
-        let message = "\(suggestion.name) is now due \(ReminderToTaken.lowercasedFirst(AnchoredTiming.label(suggestion.anchor)))"
+        let message = "\(suggestion.name) is now due \(Self.lowercasedFirst(AnchoredTiming.label(suggestion.anchor)))"
         switch suggestion.subject {
+        #if BANANA_MODULE_FOOD
         case .taken(let id):
             let wellness = WellnessStore.shared
             guard var item = wellness.supplements.first(where: { $0.id == id }) else { return }
@@ -292,6 +341,9 @@ final class AnchorSuggestionStore: ObservableObject {
                 WellnessStore.shared.upsertSupplement(item)
                 return nil
             }
+        #else
+        case .taken: return
+        #endif
         case .reminder(let externalID, let title):
             let rules = ReminderAnchors.shared
             let before = rules.anchor(externalID: externalID, title: title)
@@ -312,6 +364,7 @@ final class AnchorSuggestionStore: ObservableObject {
         recompute()
     }
 
+    #if BANANA_MODULE_FOOD
     /// "Move to Taken…" on any repeating reminder, whatever its name says — the lists and the
     /// model only decide what's offered unasked.
     func move(reminder occurrence: Occurrence) {
@@ -340,6 +393,7 @@ final class AnchorSuggestionStore: ObservableObject {
         SyncReport.changed(Self.syncNotNowType, [offer.id])
         recompute()
     }
+    #endif
 
     // MARK: - The data platform (docs/design/DATA-PLATFORM.md, `KeyValueAdapters`): one record per answer
 
@@ -370,6 +424,7 @@ final class AnchorSuggestionStore: ObservableObject {
         recomputeSoon()
     }
 
+    #if BANANA_MODULE_FOOD
     /// Moves a reminder into Taken, shown at once: the Taken item (with its anchor), its ticks of
     /// the last 60 days as doses taken, and then — in Reminders — its repeat ended and it ticked,
     /// so it stops coming back. If Reminders won't take the change, the Taken item goes again.
@@ -418,9 +473,15 @@ final class AnchorSuggestionStore: ObservableObject {
         #endif
         return try service.endRepeat(offer.reminderID)
     }
+    #endif
 
     private func offerUndo(_ message: String, undo: @escaping () async -> String?) {
         Task { await ToastCenter.shared.offerUndo(message, undo: undo) }
+    }
+
+    /// "Before lunch" → "before lunch", inside a sentence.
+    static func lowercasedFirst(_ text: String) -> String {
+        text.prefix(1).lowercased() + text.dropFirst()
     }
 
     // MARK: - Remembered answers

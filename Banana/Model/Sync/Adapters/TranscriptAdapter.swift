@@ -1,3 +1,4 @@
+#if BANANA_MODULE_PODCASTS
 import Foundation
 
 /// What the transcript adapter needs of `TranscriptStore`.
@@ -124,3 +125,4 @@ enum TranscriptAdapter {
         return try? JSONDecoder().decode(Transcript.self, from: data)
     }
 }
+#endif

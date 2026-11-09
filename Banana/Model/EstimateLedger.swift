@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 import Foundation
 
 /// How each estimate turned out: every food Banana first proposed, paired with what was logged
@@ -157,3 +158,4 @@ enum EstimateLedger {
         return sorted.count % 2 == 1 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2
     }
 }
+#endif

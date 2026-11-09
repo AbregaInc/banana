@@ -1,3 +1,4 @@
+#if BANANA_MODULE_PODCASTS
 import Foundation
 
 /// Which episodes' progress still needs to reach CloudKit: those changed here more recently than
@@ -68,3 +69,4 @@ struct ParkedProgress: Codable, Equatable, Sendable {
         return ready.map { ($0.key, $0.value) }.sorted { $0.episodeID < $1.episodeID }
     }
 }
+#endif

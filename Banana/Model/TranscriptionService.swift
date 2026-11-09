@@ -1,3 +1,4 @@
+#if BANANA_MODULE_PODCASTS || BANANA_MODULE_NOTES
 import Foundation
 import AVFoundation
 import Speech
@@ -446,3 +447,4 @@ private actor ParakeetTranscriber {
 private extension UInt8 {
     var isASCIIWhitespace: Bool { self == 0x20 || self == 0x09 || self == 0x0A || self == 0x0D }
 }
+#endif

@@ -1,5 +1,6 @@
 #!/bin/bash
-# Check unreleased modules, Apple-silicon-only Mac apps, and required Watch slices.
+# Check unreleased modules, the modules a build leaves out, Apple-silicon-only Mac apps, and
+# required Watch slices.
 #
 #   tools/check-release.sh <path to .xcarchive, .app or .ipa folder>
 #
@@ -122,3 +123,9 @@ if [ "$found" -ne 0 ]; then
   exit 1
 fi
 echo "OK: no unreleased module in $checked executable(s) under $target"
+
+# The modules the app's BananaModules leaves out: none of their code, frameworks, entitlements,
+# Info.plist keys, background modes, task identifiers, URL schemes or embedded targets
+# (Config/Modules.json). The App Store app leaves out every module but those
+# BANANA_APP_STORE_MODULES lists; Stable leaves out Email.
+python3 "$(dirname "$0")/modules/modules.py" check "$target"

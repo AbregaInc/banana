@@ -1,3 +1,4 @@
+#if BANANA_MODULE_WORKOUTS
 import SwiftUI
 
 /// Sleep at a glance, on the phone and the Mac: last night — how long, and every time you were
@@ -337,3 +338,4 @@ extension SmartScheduleStore {
         settings.nightWakeLabels = labels
     }
 }
+#endif

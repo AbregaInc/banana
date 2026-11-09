@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 #if os(iOS) || os(macOS)
 import ImageIO
 import PhotosUI
@@ -546,7 +547,7 @@ struct MealDayReviewView: View {
     /// How much of a food there was, asked once: an answer is the best thing to learn from.
     private func portionQuestion(_ question: PortionQuestion.Question) -> some View {
         // Wraps: "1½ miniature" and Other… don't fit one line of a phone's card.
-        WorkoutFlowLayout(spacing: DS.Space.s, lineSpacing: DS.Space.xs) {
+        WrappingLayout(spacing: DS.Space.s, lineSpacing: DS.Space.xs) {
             Text("How much?").font(.caption).foregroundStyle(.secondary)
             ForEach(question.choices, id: \.self) { choice in
                 Button(choice.label) {
@@ -899,4 +900,5 @@ struct DroppedMealImage: Transferable {
         }
     }
 }
+#endif
 #endif

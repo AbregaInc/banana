@@ -1,3 +1,4 @@
+#if BANANA_MODULE_WORKOUTS
 import SwiftUI
 
 /// The screen a Workouts route stands for. One mapping for the phone's list, the iPad's wide page
@@ -157,7 +158,7 @@ struct HealthOnlyWorkoutCard: View {
                     Text(workout.source).font(.caption).foregroundStyle(.secondary)
                 }
             }
-            WorkoutFlowLayout(spacing: 20, lineSpacing: 12) {
+            WrappingLayout(spacing: 20, lineSpacing: 12) {
                 WorkoutMetricTile(value: WorkoutComparisons.durationText(workout.duration), label: "Duration", alignment: .leading)
                 if let d = workout.distanceMeters, d > 0 {
                     WorkoutMetricTile(value: settings.distanceUnit.format(meters: d), label: "Distance", alignment: .leading)
@@ -179,3 +180,4 @@ struct HealthOnlyWorkoutCard: View {
         .dsCard()
     }
 }
+#endif

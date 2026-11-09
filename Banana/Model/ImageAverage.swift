@@ -1,3 +1,4 @@
+#if BANANA_MODULE_PODCASTS
 import CoreGraphics
 import Foundation
 
@@ -15,3 +16,4 @@ enum ImageAverage {
         return String(format: "#%02X%02X%02X", pixel[0], pixel[1], pixel[2])
     }
 }
+#endif

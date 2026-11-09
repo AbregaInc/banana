@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 import Foundation
 #if canImport(FoundationModels)
 import FoundationModels
@@ -113,3 +114,4 @@ enum GroundedEstimateProbe {
         log("all steps done")
     }
 }
+#endif

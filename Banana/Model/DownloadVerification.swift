@@ -1,3 +1,4 @@
+#if BANANA_MODULE_PODCASTS
 #if DEBUG
 import Foundation
 
@@ -136,4 +137,5 @@ enum DownloadVerification {
         }
     }
 }
+#endif
 #endif

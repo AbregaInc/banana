@@ -1,0 +1,69 @@
+{
+  "about": "What each module brings into a build beyond its code (#if BANANA_MODULE_*): the frameworks its code links, the files it bundles, the entitlements, Info.plist keys, background modes, background task identifiers and URL schemes it needs, the targets embedded only for it, and type names that only its code defines. A build whose BANANA_MODULES leaves a module out carries none of them (tools/modules/modules.py derives the Info.plist, entitlements and where an embedded target goes; tools/check-release.sh refuses an artifact that has any). An item several modules list stays while any of them is carried. Everything else in an app's Info.plist and entitlements is the core's: 'core' lists the capability keys of that kind, so a new one has to be put somewhere (ModuleCapabilityTests).",
+  "modules": {
+    "workouts": {
+      "condition": "BANANA_MODULE_WORKOUTS",
+      "frameworks": ["HealthKit"],
+      "entitlements": ["com.apple.developer.healthkit", "com.apple.developer.healthkit.access"],
+      "info": ["NSHealthShareUsageDescription", "NSHealthUpdateUsageDescription"],
+      "markers": ["HealthKitStore", "FitnessStore", "WorkoutHealthFollow"]
+    },
+    "food": {
+      "condition": "BANANA_MODULE_FOOD",
+      "frameworks": ["Photos", "VisionKit"],
+      "resources": ["Foods.sqlite", "BarcodeProducts.sqlite", "GenericFoods.json", "TakenVocabulary.json"],
+      "entitlements": ["com.apple.security.personal-information.photos-library"],
+      "info": ["NSPhotoLibraryUsageDescription", "NSCameraUsageDescription"],
+      "backgroundModes": ["processing"],
+      "taskIdentifiers": ["com.boris.banana.meals.scan", "com.boris.banana.meals.estimate.*", "com.boris.banana.meals.catchup"],
+      "markers": ["WellnessStore", "MealInboxStore", "MealBacklogProcessor"]
+    },
+    "notes": {
+      "condition": "BANANA_MODULE_NOTES",
+      "frameworks": ["Speech"],
+      "entitlements": ["com.apple.security.device.audio-input"],
+      "info": ["NSMicrophoneUsageDescription", "NSSpeechRecognitionUsageDescription"],
+      "urlSchemes": ["banananote", "banananotebeta"],
+      "markers": ["VoiceNoteStore", "VoiceMemoRecorder"]
+    },
+    "podcasts": {
+      "condition": "BANANA_MODULE_PODCASTS",
+      "frameworks": ["Speech", "MusicKit", "MediaPlayer", "AVKit"],
+      "resources": ["NarratorVoiceModel.mlpackage", "NarratorVoiceModel.mlmodelc", "NarratorVoiceModel-LICENSE.txt",
+                    "acq2.jpg", "acquired.jpg", "complex-systems.jpg", "gamecraft.jpg", "get-sleepy.jpg", "step-change.jpg"],
+      "entitlements": ["com.apple.security.network.server"],
+      "info": ["NSAppleMusicUsageDescription", "NSSpeechRecognitionUsageDescription", "NSLocalNetworkUsageDescription",
+               "NSBonjourServices", "NSAppTransportSecurity"],
+      "backgroundModes": ["audio", "processing", "location"],
+      "taskIdentifiers": ["com.boris.banana.transcribe.overnight", "com.boris.banana.feeds.overnight", "com.boris.banana.transcribe.*"],
+      "rewords": [
+        {"key": "NSLocationWhenInUseUsageDescription", "when": "podcast",
+         "text": "Banana uses your location for forecasts and travel estimates."}
+      ],
+      "markers": ["PodcastLibrary", "PlayerController", "TranscriptCoordinator"]
+    },
+    "email": {
+      "condition": "BANANA_MODULE_EMAIL",
+      "markers": ["banana-unreleased-modules-built-in", "gmail.googleapis.com",
+                  "https://www.googleapis.com/auth/gmail", "https://mail.google.com/"]
+    }
+  },
+  "embeds": {
+    "Watch": ["workouts", "podcasts", "notes"]
+  },
+  "core": {
+    "info": ["NSAlarmKitUsageDescription", "NSRemindersFullAccessUsageDescription", "NSLocationWhenInUseUsageDescription",
+             "NSLocationAlwaysAndWhenInUseUsageDescription", "NSMotionUsageDescription", "NSContactsUsageDescription",
+             "NSSupportsLiveActivities"],
+    "entitlements": ["aps-environment", "com.apple.developer.aps-environment", "com.apple.developer.usernotifications.time-sensitive",
+                     "com.apple.developer.weatherkit", "com.apple.developer.icloud-services",
+                     "com.apple.developer.icloud-container-identifiers", "com.apple.developer.icloud-container-environment",
+                     "com.apple.developer.ubiquity-container-identifiers", "com.apple.developer.ubiquity-kvstore-identifier",
+                     "keychain-access-groups", "com.apple.security.app-sandbox", "com.apple.security.network.client",
+                     "com.apple.security.personal-information.calendars", "com.apple.security.personal-information.addressbook",
+                     "com.apple.security.personal-information.location"],
+    "backgroundModes": ["fetch", "remote-notification"],
+    "taskIdentifiers": ["com.boris.banana.calendar.refresh"],
+    "urlSchemes": ["com.googleusercontent.apps.*"]
+  }
+}

@@ -1,3 +1,4 @@
+#if BANANA_MODULE_WORKOUTS
 import SwiftUI
 
 /// One line of the "compared with your last 90 days" card: a metric's value for this workout,
@@ -247,3 +248,4 @@ enum WorkoutSplits {
         return bestIndex
     }
 }
+#endif

@@ -1,3 +1,4 @@
+#if BANANA_MODULE_WORKOUTS
 import Foundation
 
 /// One visual group of workouts in the Mac list — a day, a week, or a month, depending on the
@@ -69,3 +70,4 @@ enum WorkoutGrouping {
         }
     }
 }
+#endif

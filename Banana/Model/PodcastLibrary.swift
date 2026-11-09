@@ -1,3 +1,4 @@
+#if BANANA_MODULE_PODCASTS
 import SwiftUI
 import Foundation
 import os
@@ -1344,3 +1345,4 @@ extension PodcastLibrary: ProgressSyncSource {
 
     func applyingSyncedBatch(_ body: () -> Void) { applyingRemoteBatch(body) }
 }
+#endif

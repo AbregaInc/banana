@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 #if os(iOS) || os(macOS)
 import Foundation
 import Photos
@@ -83,4 +84,5 @@ enum MealDepthProbe {
         asset.creationDate?.formatted(date: .abbreviated, time: .shortened) ?? "undated"
     }
 }
+#endif
 #endif

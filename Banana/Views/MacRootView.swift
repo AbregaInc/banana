@@ -98,7 +98,9 @@ struct MacGatedRootView: View {
         .onChange(of: scenePhase) { _, phase in
             guard phase == .active else { return }
             Task { await onboarding.refresh() }
+            #if BANANA_MODULE_WORKOUTS
             Task { await WorkoutRevertInbox.shared.settle() }   // a Revert asked for on another device
+            #endif
         }
     }
 }
@@ -148,7 +150,9 @@ struct MacRootView: View {
         }
     }
 
+    #if BANANA_MODULE_PODCASTS
     @EnvironmentObject private var player: PlayerController
+    #endif
     @Environment(\.openSettings) private var openSettings
 
     /// Which Body page the rail's Body opens: the one looked at last.
@@ -230,11 +234,17 @@ struct MacRootView: View {
                             #else
                             ContentUnavailableView("Email is coming soon", systemImage: "envelope")
                             #endif
+                        #if BANANA_MODULE_WORKOUTS
                         case .workouts:  WideWorkoutsView().syncWaitingNote(.fitness).onAppear { SpaceSyncQuestions.shared.healthUsed() }
+                        #endif
                         // Sleep and Trends had rows of their own; both are inside Review.
                         case .sleep, .trends, .review: macReview.syncWaitingNote(.fitness)
+                        #if BANANA_MODULE_FOOD
                         case .nutrition: WideNutritionView().syncWaitingNote(.wellness).onAppear { SpaceSyncQuestions.shared.healthUsed() }
+                        #endif
+                        #if BANANA_MODULE_NOTES
                         case .notes:     NotesView()
+                        #endif
                         case .assistant:
                             #if PI_DEVELOPMENT
                             macReview
@@ -247,10 +257,16 @@ struct MacRootView: View {
                             #endif
                         case .routines:  RoutinesView()
                         // Told how much room it has, so a wide window gets the grid of shows.
+                        #if BANANA_MODULE_PODCASTS
                         case .library:   PodcastsView().measuresLayoutClass().syncWaitingNote(.controls)
+                        #endif
                         // Settings is its own window (the `Settings` scene); a place kept from
                         // before it moved opens Plan.
                         case .settings:  PlannerTab()
+                        #if !(BANANA_MODULE_WORKOUTS && BANANA_MODULE_FOOD && BANANA_MODULE_NOTES && BANANA_MODULE_PODCASTS)
+                        // A module's section in a build without it: `shown(with:)` never opens one.
+                        default:         PlannerTab()
+                        #endif
                         }
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -291,17 +307,21 @@ struct MacRootView: View {
                     .toastHost()
                     // "Skipped an ad · Undo", whatever section is showing — as on the phone. It
                     // was only inside the full player, so a skip made while planning went unseen.
+                    #if BANANA_MODULE_PODCASTS
                     .overlay(alignment: .bottom) {
                         SkipNoticeBar()
                             .frame(maxWidth: 440)
                             .padding(.bottom, DS.Space.l)
                     }
+                    #endif
                     // Pull listening progress each time the Mac is switched to, as the phone does
                     // coming forward. Only a launch or playing here used to fetch it, so a Mac left
                     // running for days kept showing episodes finished on the phone as unplayed.
                     .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
                         guard !Self.isolatedPreview else { return }
+                        #if BANANA_MODULE_PODCASTS
                         CloudProgressSync.shared.flushNow(reason: "foreground")
+                        #endif
                         Telemetry.shared.calendarConnected = { !GoogleCalendarService.shared.accounts.isEmpty }
                         Telemetry.shared.setup = { await TelemetryState.signals() }
                         Telemetry.shared.session = { BananaAccount.shared.authorization }
@@ -368,6 +388,7 @@ struct MacRootView: View {
                 // this in the tab bar's bottom accessory; the Mac had NO transport at all, so you
                 // could start an episode and then lose all control of it. A persistent bottom bar is
                 // the Music/Podcasts-app idiom.
+                #if BANANA_MODULE_PODCASTS
                 if player.currentEpisode != nil {
                     Divider()
                     NowPlayingBar(onExpand: { nav.showFullPlayer = true })
@@ -375,8 +396,11 @@ struct MacRootView: View {
                         .padding(.vertical, 8)
                         .background(.bar)
                 }
+                #endif
             }
+            #if BANANA_MODULE_PODCASTS
             .sheet(isPresented: $nav.showFullPlayer) { NowPlayingView() }
+            #endif
         }
         #if PI_DEVELOPMENT
         .onChange(of: chrome.showAdd) { _, requested in
@@ -444,11 +468,15 @@ struct MacRootView: View {
 /// front. Both live in this separate view so FitnessStore / HealthKitStore / SmartScheduleStore
 /// publishes invalidate a view with no body, not MacRootView and every section under it.
 private struct MacPayoffPresenter: View {
+    #if BANANA_MODULE_WORKOUTS
     @EnvironmentObject private var fitness: FitnessStore
     @EnvironmentObject private var health: HealthKitStore
+    #endif
     @EnvironmentObject private var smart: SmartScheduleStore
     @EnvironmentObject private var settings: AppSettings
+    #if BANANA_MODULE_WORKOUTS
     @ObservedObject private var review = WorkoutReviewCoordinator.shared
+    #endif
     @ObservedObject private var nav = MacNavigator.shared
     @Environment(\.scenePhase) private var scenePhase
 
@@ -463,10 +491,12 @@ private struct MacPayoffPresenter: View {
                 MorningBriefingView()
                     .frame(minWidth: 480, idealWidth: 520, minHeight: 520, idealHeight: 640)
             }
+            #if BANANA_MODULE_WORKOUTS
             // Dismissal clears `pending`.
             .sheet(item: $review.pending) { subject in
                 PostWorkoutReviewView(subject: subject)
             }
+            #endif
             .task { checkPayoffScreens() }
             .onChange(of: scenePhase) { _, phase in
                 if phase == .active {
@@ -474,8 +504,10 @@ private struct MacPayoffPresenter: View {
                     adoptGoogleAccountsAddedElsewhere()
                 }
             }
+            #if BANANA_MODULE_WORKOUTS
             .onChange(of: fitness.summaries.count) { _, _ in checkWorkoutReview() }
             .onChange(of: health.workouts.count) { _, _ in checkWorkoutReview() }
+            #endif
     }
 
     /// A Google account connected on the phone arrives here through iCloud Keychain, but the
@@ -504,12 +536,17 @@ private struct MacPayoffPresenter: View {
         guard !WorkoutReviewCoordinator.isSuppressedByLaunchArguments else { return }
         #endif
         checkMorningBriefing()
+        #if BANANA_MODULE_WORKOUTS
         checkWorkoutReview()
+        #endif
     }
 
     private func checkMorningBriefing() {
         guard settings.macMorningBriefing else { return }   // ⌘⇧M still opens it — only the auto-present is gated
-        guard scenePhase == .active, !nav.showMorningBriefing, review.pending == nil else { return }
+        #if BANANA_MODULE_WORKOUTS
+        guard review.pending == nil else { return }   // a workout's review first
+        #endif
+        guard scenePhase == .active, !nav.showMorningBriefing else { return }
         let now = Date()
         let plannedWake = smart.planDay(for: now)?.wake
         guard MorningBriefingSchedule.shouldShow(now: now, plannedWake: plannedWake,
@@ -518,6 +555,7 @@ private struct MacPayoffPresenter: View {
         nav.showMorningBriefing = true
     }
 
+    #if BANANA_MODULE_WORKOUTS
     /// The briefing owns the morning; a workout that arrives during it is not consumed and shows
     /// the next time the app is used.
     private func checkWorkoutReview() {
@@ -527,6 +565,7 @@ private struct MacPayoffPresenter: View {
         guard scenePhase == .active, !nav.showMorningBriefing else { return }
         review.check(summaries: fitness.summaries, healthWorkouts: health.workouts)
     }
+    #endif
 }
 
 /// Menu-bar commands: navigate from the keyboard.

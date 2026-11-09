@@ -1,3 +1,4 @@
+#if BANANA_MODULE_WORKOUTS
 import Foundation
 
 /// The road a `WorkoutRevertRequest` takes: asked on a device that shows a workout as edited but
@@ -112,3 +113,4 @@ final class WorkoutRevertInbox {
         fromSpace = fromSpace.filter { !gone.contains($0.id) }
     }
 }
+#endif

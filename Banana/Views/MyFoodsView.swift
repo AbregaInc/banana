@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 #if os(iOS) || os(macOS)
 import SwiftUI
 
@@ -106,5 +107,6 @@ extension MyFoodsStore {
         ], name: "Pumpkin gnocchi")
     }
 }
+#endif
 #endif
 #endif

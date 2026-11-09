@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 #if os(iOS) || os(macOS)
 import PhotosUI
 import SwiftUI
@@ -471,4 +472,5 @@ struct MyFoodRow: View {
         .accessibilityElement(children: .combine)
     }
 }
+#endif
 #endif

@@ -1,3 +1,4 @@
+#if BANANA_MODULE_PODCASTS
 import Foundation
 
 /// The ad server's own account of where it put the ads.
@@ -251,3 +252,4 @@ enum PodcastAdServerHeaders {
         }
     }
 }
+#endif

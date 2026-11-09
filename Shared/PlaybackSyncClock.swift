@@ -1,3 +1,4 @@
+#if BANANA_MODULE_PODCASTS
 import Foundation
 
 /// Cross-device playback sync resolves conflicts by last-write-wins on an event timestamp, and
@@ -35,3 +36,4 @@ enum PlaybackSyncClock {
         at > now.addingTimeInterval(tolerance)
     }
 }
+#endif

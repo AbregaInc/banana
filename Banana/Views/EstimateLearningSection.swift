@@ -1,3 +1,4 @@
+#if BANANA_MODULE_FOOD
 import SwiftUI
 
 /// What meal estimates have learned from the amounts you changed (docs/design/MEAL-LEARNING.md):
@@ -105,3 +106,4 @@ private struct EstimateLearningLines: View {
         }
     }
 }
+#endif

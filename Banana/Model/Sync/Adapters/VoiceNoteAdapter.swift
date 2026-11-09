@@ -1,3 +1,4 @@
+#if BANANA_MODULE_NOTES
 import Foundation
 
 /// What the voice-note adapter needs of `VoiceNoteStore`.
@@ -85,3 +86,4 @@ enum VoiceNoteAdapter {
         return try SyncShape.fields.decode(VoiceNote.self, from: plain)
     }
 }
+#endif

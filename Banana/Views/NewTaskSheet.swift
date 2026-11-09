@@ -347,7 +347,11 @@ extension NewTaskSheet {
                 guard seen.insert(occurrence.title.lowercased()).inserted else { return nil }
                 return .reminder(id: occurrence.reminderExternalID ?? occurrence.title, title: occurrence.title)
             }
+        #if BANANA_MODULE_FOOD
         return reminders + AnchoredTimingHub.otherMoments(excluding: nil, supplements: WellnessStore.shared.supplements)
+        #else
+        return reminders
+        #endif
     }
 
     func externalID(of reminderID: String) -> String? {

@@ -67,8 +67,10 @@ enum ReviewSpan: String, CaseIterable, Identifiable, Codable, Sendable {
         }
     }
 
+    #if BANANA_MODULE_WORKOUTS
     /// The rolling window the trend pages draw for this span.
     var trendWindow: TrendWindow { TrendWindow(granularity) }
+    #endif
 }
 
 /// What the date line under a page's top bar says. One wording for every page that has one.
