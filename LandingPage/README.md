@@ -32,14 +32,33 @@ scene panels. The earlier editorial-serif concept is historical. `Brand/README.m
 current-direction note at the top of `HANDOFF.md` describe the shared website/store identity.
 The site builder uses the current icon master and retains the calendar-scene social artwork.
 
+## When Banana is on the App Store
+
+`store.json`'s `appStoreUrl` is the switch. Empty, the pages offer the direct Mac download and the
+iPhone and iPad TestFlight beta. Set it to the address App Store Connect gives the published app
+(`https://apps.apple.com/app/…/id…`), run `uv run --locked LandingPage/build_content.py` and
+`check_site.py`: the App Store becomes the first button in the header, hero and footer, structured
+data and Support and About follow, and the Mac download and the beta stay. `store_links.py` holds
+the copy for both states. Before switching, replace the iPhone, iPad and Mac screenshots with
+captures of the calendar-only App Store build.
+
+The home page's iPhone and iPad pictures come from `assets/screenshots/calendar-only/*/raw/`
+(listed in `build_site.py`'s `CAPTURES`); to swap one, replace or repoint its capture and run
+`python3 LandingPage/build_site.py captures`. There is no calendar-only Mac capture yet, so the
+iPad/Mac switch under the large picture is reduced to "iPad". When one exists, add `mac-plan` to
+`CAPTURES` and put the switch back (the buttons with `data-screen="ipad"` and `"mac"`; the script
+that swaps the picture is still on the page).
+
 ## Lines that will go out of date
 
-- **The policy is dated 27 October 2026; the terms are dated 18 October 2026.** Change the date with any change to them.
+- **The policy and the terms are dated 9 November 2026.** Change the date with any change to them.
   The policy describes the Banana account and its service; keep it in step with
   `docs/design/ACCOUNTS.md` and `Service/`.
-- **Platforms** under the last button: iPhone and iPad on iOS 26.1, Mac on macOS 26, Watch on
-  watchOS 26 (`project.yml`).
-- The copy rules are `HANDOFF.md`'s: no App Store link, price, testimonial, user count or
+- **Platforms** under the last button: iPhone and iPad on iOS 26.1, Mac on macOS 26
+  (`project.yml`). The App Store version carries the calendar alone (`Config/Modules.json`,
+  `tools/app-store/metadata/calendar-only/`); the site names no Apple Watch app and shows the
+  modules as coming later.
+- The copy rules are `HANDOFF.md`'s: no App Store link until `store.json` names one, price, testimonial, user count or
   launch date; nothing under “Claims to avoid”; podcast ad skipping is not mentioned.
 
 Node tooling: use Node 24.22.1 (October 2026 security release), pinned in this folder’s `package.json` and the repository’s `.node-version`. The deployed site is static Workers assets and does not run Node.

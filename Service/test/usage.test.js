@@ -24,6 +24,10 @@ test("a batch that isn't ours is refused whole", () => {
   assert.equal(rows({ ...base, cohort: "2026-10-15", events: [] }), null);
 });
 
+test("the direct Mac download is its own channel", () => {
+  assert.equal(rows({ ...base, platform: "mac", channel: "direct", events: [{ event: "active", count: 1 }] })[0].channel, "direct");
+});
+
 test("counts and days are bounded", () => {
   assert.equal(rows({ ...base, since: 9999, events: [{ event: "active", count: 99999 }] })[0].count, 500);
   assert.equal(rows({ ...base, since: 9999, events: [{ event: "active", count: 1 }] })[0].since, 400);

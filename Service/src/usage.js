@@ -19,7 +19,7 @@ const CODES = { os: /^[0-9]{1,3}$/, region: /^[A-Z]{2}$/, language: /^[a-z]{2,3}
 export const DETAILS = ["", "shown", "continued", "skipped", "photo", "describe", "search", "scan", "byHand",
                         "groceries", "parser", "model", "failed", "voice", "written"];
 export const PLATFORMS = ["iphone", "ipad", "mac"];
-export const CHANNELS = ["appstore", "testflight", "dev"];
+export const CHANNELS = ["appstore", "testflight", "direct", "dev"];
 
 const word = (value, list) => (typeof value === "string" && list.includes(value) ? value : null);
 

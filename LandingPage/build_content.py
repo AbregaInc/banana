@@ -27,6 +27,8 @@ import xml.etree.ElementTree as ET
 
 from markdown_it import MarkdownIt
 
+import store_links
+
 HERE = Path(__file__).resolve().parent
 ORIGIN = "https://bananatheapp.com"
 PUBLISHER = {"@type": "Organization", "@id": ORIGIN + "/#organization", "name": "Abrega, Inc.", "url": ORIGIN + "/about", "logo": ORIGIN + "/apple-touch-icon.png"}
@@ -207,7 +209,8 @@ def render(title: str, description: str, path: str, body: str, schema: dict, *, 
         about_current='aria-current="page"' if path == "/about" else "", extra_head=extra_head)
 
 
-def build(out: Path, content: Path, today: date, preview: bool = False) -> None:
+def build(out: Path, content: Path, today: date, preview: bool = False, store: str | None = None) -> None:
+    store_links.apply(out, store)
     posts = [post for path in sorted(content.glob("*.md")) if (post := read_post(path, today, preview))]
     posts.sort(key=lambda p: (p["published"], p["slug"]), reverse=True)
     blog = out / "blog"
@@ -243,7 +246,7 @@ def build(out: Path, content: Path, today: date, preview: bool = False) -> None:
         write(f'blog/{post["slug"]}/index.html', render(post["title"] + " · Banana", post["description"], path, body, graph, article=True, extra_head=extra, image=image))
     body = '<header class="intro"><p class="eyebrow">The Banana blog</p><h1 class="index-title">Building Banana.</h1><p>Engineering notes on the calendar, the app, and the tests behind them. What we built, what we measured, and what still needs work.</p><a href="/blog/feed.xml">Follow along with RSS →</a></header><section class="posts" aria-label="Latest posts">' + ("".join(rows) or '<p>No posts yet. Check back soon.</p>') + '</section>'
     write("blog/index.html", render("Banana blog · Engineering and product development", "Engineering notes from the Banana team on calendar rendering, performance testing, and building a native daily planning app.", "/blog/", body, {"@context": "https://schema.org", "@type": "Blog", "@id": ORIGIN + "/blog/#blog", "url": ORIGIN + "/blog/", "name": "Banana blog", "publisher": PUBLISHER, "blogPost": [{"@type": "BlogPosting", "url": p["url"], "headline": p["title"]} for p in posts]}))
-    about_body = '<header class="intro"><p class="eyebrow">About Banana</p><h1>Many calendars.<br>One you.</h1><p>Banana brings Google calendars, reminders, routines, travel time, and weather into one daily plan on iPhone, iPad, and Apple silicon Mac, with a companion Apple Watch app.</p></header><div class="prose"><h2 id="team">Made by Abrega, Inc.</h2><p>The Banana team publishes engineering notes and product documentation on this site. We explain what the app does, the permissions it needs, and the limits that matter when you use it.</p><p>Banana for Mac is available as a direct download. iPhone, iPad and Apple Watch use the public TestFlight beta. Calendar features require a Google account. Optional modules include food, workouts and sleep, notes, and podcasts. Capabilities and permissions vary by device. Banana is for general wellness and planning and does not give medical advice.</p><h2>Get in touch</h2><p>For product questions, feedback, or corrections to a guide, write to <a href="mailto:support@abrega.com">support@abrega.com</a>.</p><p><a href="/blog/">Read the blog</a> · <a href="/support">Get help</a> · <a href="/privacy">Read the Privacy Policy</a></p></div>'
+    about_body = '<header class="intro"><p class="eyebrow">About Banana</p><h1>Many calendars.<br>One you.</h1><p>Banana brings Google calendars, reminders, routines, travel time, and weather into one daily plan on iPhone, iPad, and Apple silicon Mac.</p></header><div class="prose"><h2 id="team">Made by Abrega, Inc.</h2><p>The Banana team publishes engineering notes and product documentation on this site. We explain what the app does, the permissions it needs, and the limits that matter when you use it.</p>' + store_links.about(store) + '<h2>Get in touch</h2><p>For product questions, feedback, or corrections to a guide, write to <a href="mailto:support@abrega.com">support@abrega.com</a>.</p><p><a href="/blog/">Read the blog</a> · <a href="/support">Get help</a> · <a href="/privacy">Read the Privacy Policy</a></p></div>'
     write("about.html", render("About Banana · Made by Abrega, Inc.", "Banana is made by Abrega, Inc. Learn about the daily planning app, the Banana team, and how to contact us.", "/about", about_body, {"@context": "https://schema.org", "@graph": [PUBLISHER, AUTHOR, {"@type": "AboutPage", "url": ORIGIN + "/about", "name": "About Banana", "about": {"@id": ORIGIN + "/#application"}}]}))
     ET.register_namespace("atom", "http://www.w3.org/2005/Atom")
     rss = ET.Element("rss", version="2.0")
@@ -286,4 +289,4 @@ if __name__ == "__main__":
             parser.error("Preview output must be outside the public site directory")
         import shutil
         shutil.copytree(HERE / "site", args.out, dirs_exist_ok=True)
-    build(args.out, HERE / "content/posts", date.today(), args.preview)
+    build(args.out, HERE / "content/posts", date.today(), args.preview, store_links.app_store_url())
