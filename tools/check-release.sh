@@ -40,6 +40,17 @@ while IFS= read -r -d '' marker; do
   fi
 done < <(find "$target" -name banana-local-features.txt -print0)
 
+# Reproducible builds: Core ML's compiler writes a model's user-defined metadata in a different
+# order on every build, so a model with more than one entry makes every build differ. Keep such
+# provenance beside the model (docs/publication/voice-model-provenance.json does).
+while IFS= read -r -d '' metadata; do
+  entries=$(python3 -c 'import json,sys; print(max([len(m.get("userDefinedMetadata") or {}) for m in json.load(open(sys.argv[1]))] or [0]))' "$metadata")
+  if [ "$entries" -gt 1 ]; then
+    echo "Not reproducible: $entries user-defined metadata entries in ${metadata%/metadata.json}; at most one."
+    exit 1
+  fi
+done < <(find "$target" -path '*.mlmodelc/metadata.json' -print0)
+
 # Check nested apps and extensions before export. A global arm64 override also affects
 # Watch targets, which still need arm64_32 when supporting watchOS versions before 27.
 # Native Mac applications are Apple-silicon-only, including with command-line overrides.

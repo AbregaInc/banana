@@ -89,15 +89,16 @@ _banana_root=$(pwd -P)
 banana_xcode() {
   # zsh callers (ui-tests.sh) split the settings string like sh does.
   [ -z "${ZSH_VERSION:-}" ] || setopt local_options sh_word_split
-  _bx_action=none _bx_dd="" _bx_config="" _bx_jobs="" _bx_prev=""
+  _bx_action=none _bx_dd="" _bx_config="" _bx_jobs="" _bx_prev="" _bx_runs=0
   for _bx_arg in "$@"; do
     case "$_bx_prev" in
       -derivedDataPath) _bx_dd=$_bx_arg ;;
       -configuration) _bx_config=$_bx_arg ;;
     esac
     case "$_bx_arg" in
-      build|build-for-testing|archive|test|analyze|install|clean|docbuild) _bx_action=compile ;;
-      test-without-building) [ "$_bx_action" = compile ] || _bx_action=run ;;
+      build|build-for-testing|archive|analyze|install|clean|docbuild) _bx_action=compile ;;
+      test) _bx_action=compile _bx_runs=1 ;;
+      test-without-building) _bx_runs=1; [ "$_bx_action" = compile ] || _bx_action=run ;;
       -jobs) _bx_jobs=1 ;;
       -exportArchive|-showBuildSettings|-resolvePackageDependencies|-list|-version) _bx_action=none ;;
     esac
@@ -122,16 +123,23 @@ banana_xcode() {
         fi ;;
     esac
   fi
+  # Build tools written in Swift (the App Intents metadata processors) write Sets and
+  # Dictionaries in hash order, which Swift seeds at random per process: the same source gave a
+  # different Metadata.appintents on every build (docs/performance/build-pipeline.md,
+  # "Reproducible builds"). A fixed seed for the tools of a build; never for a run of the tests,
+  # whose processes would inherit it.
+  _bx_hash=0
+  [ "$_bx_action" != compile ] || [ "$_bx_runs" = 1 ] || _bx_hash=1
   _bx_lock="$_banana_root/tools/agents/xcode-lock.sh"
   if [ "${BANANA_NO_LOCK:-0}" = 1 ] || [ "$_bx_action" = none ] || [ ! -x "$_bx_lock" ]; then
     # shellcheck disable=SC2086
-    command xcodebuild $_bx_extra "$@"
+    SWIFT_DETERMINISTIC_HASHING=$_bx_hash command xcodebuild $_bx_extra "$@"
   elif [ "$_bx_action" = compile ] && [ -n "$_bx_dd" ]; then
     # shellcheck disable=SC2086
-    "$_bx_lock" -l build -d "$_bx_dd" xcodebuild $_bx_extra "$@"
+    SWIFT_DETERMINISTIC_HASHING=$_bx_hash "$_bx_lock" -l build -d "$_bx_dd" xcodebuild $_bx_extra "$@"
   elif [ "$_bx_action" = compile ]; then
     # shellcheck disable=SC2086
-    "$_bx_lock" -l build xcodebuild $_bx_extra "$@"
+    SWIFT_DETERMINISTIC_HASHING=$_bx_hash "$_bx_lock" -l build xcodebuild $_bx_extra "$@"
   elif [ -n "$_bx_dd" ]; then
     "$_bx_lock" -d "$_bx_dd" xcodebuild "$@"
   else

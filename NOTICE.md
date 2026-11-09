@@ -82,8 +82,9 @@ Calendar benchmark packages and the nonshipping Skia experiment also retain
 their upstream terms; consult their pinned dependencies and local notices.
 
 The bundled converted voice classifier retains its upstream MIT notice in
-`Banana/Resources/NarratorVoiceModel-LICENSE.txt`. Model-card/licence sources and
-unchanged artifact hashes are recorded in `docs/publication/voice-model-provenance.json`.
+`Banana/Resources/NarratorVoiceModel-LICENSE.txt`. Model-card/licence sources, the
+artifact hashes and the conversion metadata moved out of the model (for reproducible builds) are
+recorded in `docs/publication/voice-model-provenance.json`.
 The original weights/conversion revision is not inferred from the current licence source.
 
 The mwgg/Airports MIT copyright and permission notice is also retained in

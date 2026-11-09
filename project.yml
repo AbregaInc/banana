@@ -173,6 +173,11 @@ settings:
     "ARCHS[sdk=macosx*]": arm64
     # iPhone and iPad: one app, laid out by the room it has (see docs/design/ADAPTIVE-LAYOUT.md).
     TARGETED_DEVICE_FAMILY: "1,2"
+    # Reproducible links. With the default fast Objective-C selector stubs the linker gives
+    # objc_msgSend two GOT slots and each stub takes one of them at random, so two links of the
+    # same objects differed (docs/performance/build-pipeline.md, "Reproducible builds"). Small
+    # stubs branch to the one objc_msgSend stub instead.
+    OTHER_LDFLAGS: "$(inherited) -Xlinker -objc_stubs_small"
 
 packages:
   Sparkle:
