@@ -106,11 +106,16 @@
     {
       "id": "03-new-event",
       "route": [
+        "--ui-preview",
+        "--tab",
+        "plan",
+        "--plan",
+        "-planMode",
+        "day",
         "--new-calendar-event",
         "--new-calendar-event-text",
         "Lunch with Sam Friday at 1",
-        "--new-calendar-event-fill",
-        "--plan"
+        "--new-calendar-event-fill"
       ],
       "headline": "Add it the way\nyou'd say it.",
       "subhead": "Type a sentence. Banana fills in the day, the time and who's coming.",
@@ -250,11 +255,16 @@
     {
       "id": "03-new-event",
       "route": [
+        "--ui-preview",
+        "--tab",
+        "plan",
+        "--plan",
+        "-planMode",
+        "day",
         "--new-calendar-event",
         "--new-calendar-event-text",
         "Lunch with Sam Friday at 1",
-        "--new-calendar-event-fill",
-        "--plan"
+        "--new-calendar-event-fill"
       ],
       "headline": "Add it the way\nyou'd say it.",
       "subhead": "Type a sentence. Banana fills in the day, the time and who's coming.",
