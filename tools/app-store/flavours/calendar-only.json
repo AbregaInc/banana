@@ -108,7 +108,13 @@
     {
       "id": "05-weather",
       "route": [
-        "--weather-detail",
+        "--ui-preview",
+        "--tab",
+        "plan",
+        "--plan",
+        "-planMode",
+        "day",
+        "--open-weather",
         "--scroll-bottom"
       ],
       "headline": "The weather\nfor your plans.",
@@ -125,7 +131,8 @@
       "background": "ivory",
       "foreground": "ink",
       "accent": "purple",
-      "align": "right"
+      "align": "right",
+      "settle_seconds": 7
     },
     {
       "id": "06-booking",
