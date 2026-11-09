@@ -4,11 +4,12 @@
   "declaredLicense": "MIT",
   "licenseSource": "https://github.com/JaesungHuh/voice-gender-classifier/blob/49bcbecfd929ba5a043bde645fdff1a375eb79c7/LICENSE",
   "licenseNotice": "Banana/Resources/NarratorVoiceModel-LICENSE.txt",
-  "scope": "Existing converted Core ML artifact retained byte-for-byte. Original conversion revision/recipe is not recorded; do not misrepresent the licence-source revision as the weights revision.",
+  "scope": "Existing converted Core ML artifact. Weights and Manifest are retained byte-for-byte. model.mlmodel differs from the converted file only by the removal of its four user-defined metadata entries (recorded under conversionMetadata): Core ML's compiler writes that map in a different order on every build, so with them no two builds of the app were identical. Original conversion revision/recipe is not recorded; do not misrepresent the licence-source revision as the weights revision.",
   "artifacts": [
     {
       "path": "Banana/Resources/NarratorVoiceModel.mlpackage/Data/com.apple.CoreML/model.mlmodel",
-      "sha256": "cd74e198cad0fc5adb99672a3190e29077bcc021b16df8161a858eda4ea85764"
+      "sha256": "0171d60e4393f0f0cb733c6978fd242bed803dc2ad91ac28df77f04d468faac4",
+      "convertedSha256": "cd74e198cad0fc5adb99672a3190e29077bcc021b16df8161a858eda4ea85764"
     },
     {
       "path": "Banana/Resources/NarratorVoiceModel.mlpackage/Data/com.apple.CoreML/weights/weight.bin",
@@ -18,5 +19,11 @@
       "path": "Banana/Resources/NarratorVoiceModel.mlpackage/Manifest.json",
       "sha256": "c318f3c56ff09c6bca5d1d363402527ee7dc567bfc59042cee3065812b75a5d9"
     }
-  ]
+  ],
+  "conversionMetadata": {
+    "com.github.apple.coremltools.version": "9.0",
+    "com.github.apple.coremltools.conversion_date": "2026-09-11",
+    "com.github.apple.coremltools.source": "torch==2.14.0",
+    "com.github.apple.coremltools.source_dialect": "TorchScript"
+  }
 }

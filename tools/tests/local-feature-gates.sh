@@ -37,6 +37,15 @@ tools/local-feature-resources.sh
 printf 'int main(void) { return 0; }\n' > "$scratch/probe.c"
 xcrun clang "$scratch/probe.c" -o "$scratch/probe"
 tools/check-release.sh "$scratch" > "$scratch/check.log"
+# A compiled Core ML model with more than one user-defined metadata entry builds differently
+# every time (coremlc writes that map in random order); one entry is fine.
+mkdir -p "$scratch/Model.mlmodelc"
+echo '[{"userDefinedMetadata": {"source": "torch"}}]' > "$scratch/Model.mlmodelc/metadata.json"
+tools/check-release.sh "$scratch" > "$scratch/check.log"
+echo '[{"userDefinedMetadata": {"source": "torch", "date": "2026-09-11"}}]' > "$scratch/Model.mlmodelc/metadata.json"
+if tools/check-release.sh "$scratch" > "$scratch/check.log" 2>&1; then echo 'Unordered model metadata accepted'; exit 1; fi
+grep -q 'Not reproducible' "$scratch/check.log"
+rm -rf "$scratch/Model.mlmodelc"
 for marker in banana-local-ai-built-in banana-unreleased-modules-built-in; do
   printf '#include <stdio.h>\nint main(void) { puts("%s"); return 0; }\n' "$marker" > "$scratch/probe.c"
   xcrun clang "$scratch/probe.c" -o "$scratch/probe"

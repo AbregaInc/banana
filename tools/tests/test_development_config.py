@@ -44,7 +44,7 @@ class DevelopmentConfigurationTests(unittest.TestCase):
 
 
 class SigningConfigurationTests(unittest.TestCase):
-    def invoke(self, key_exists=True, configured=True):
+    def invoke(self, key_exists=True, configured=True, action='build'):
         with tempfile.TemporaryDirectory() as directory:
             root = pathlib.Path(directory)
             (root / 'Config').mkdir()
@@ -56,18 +56,20 @@ class SigningConfigurationTests(unittest.TestCase):
             command.chmod(0o755)
             env = {k: v for k, v in os.environ.items()
                    if k not in ('ASC_KEY_ID', 'ASC_ISSUER_ID', 'ASC_KEY_PATH', 'AUTH_ARGS')}
-            env.update(PATH=str(root) + os.pathsep + env.get('PATH', ''), BANANA_NO_LOCAL_CONFIG='1')
+            env.update(PATH=str(root) + os.pathsep + env.get('PATH', ''), BANANA_NO_LOCAL_CONFIG='1',
+                       BUILD_JOBS='3')
             if configured:
                 env.update(ASC_KEY_ID='test-key', ASC_ISSUER_ID='test-issuer', ASC_KEY_PATH=str(key))
-            return subprocess.run(['sh', '-c', '. "$1"; banana_xcodebuild -scheme "Banana Dev" build',
-                                   'check', str(CONFIG)], cwd=root, env=env, capture_output=True, text=True)
+            return subprocess.run(['sh', '-c', '. "$1"; banana_xcodebuild -scheme "Banana Dev" "$2"',
+                                   'check', str(CONFIG), action], cwd=root, env=env, capture_output=True, text=True)
 
     def test_configured_key_is_passed_as_separate_arguments(self):
         result = self.invoke()
         self.assertEqual(result.returncode, 0)
         args = result.stdout.splitlines()
-        self.assertEqual(args[0], '-authenticationKeyPath')
-        self.assertTrue(args[1].endswith('/signing key.p8'))
+        self.assertEqual(args[:2], ['-jobs', '3'])
+        self.assertEqual(args[2], '-authenticationKeyPath')
+        self.assertTrue(args[3].endswith('/signing key.p8'))
         self.assertEqual(args[-3:], ['-scheme', 'Banana Dev', 'build'])
 
     def test_missing_configured_key_stops_before_xcode(self):
@@ -78,7 +80,36 @@ class SigningConfigurationTests(unittest.TestCase):
     def test_interactive_xcode_login_remains_supported(self):
         result = self.invoke(configured=False)
         self.assertEqual(result.returncode, 0)
-        self.assertEqual(result.stdout.splitlines(), ['-scheme', 'Banana Dev', 'build'])
+        self.assertEqual(result.stdout.splitlines(), ['-jobs', '3', '-scheme', 'Banana Dev', 'build'])
+
+
+class BuildEnvironmentTests(unittest.TestCase):
+    """What banana_xcode hands xcodebuild besides its arguments."""
+
+    def environment(self, action):
+        with tempfile.TemporaryDirectory() as directory:
+            root = pathlib.Path(directory)
+            (root / 'Config').mkdir()
+            command = root / 'xcodebuild'
+            command.write_text('#!/bin/sh\necho "hashing=${SWIFT_DETERMINISTIC_HASHING-unset}"\n')
+            command.chmod(0o755)
+            env = {k: v for k, v in os.environ.items() if k not in ('AUTH_ARGS', 'SWIFT_DETERMINISTIC_HASHING')}
+            env.update(PATH=str(root) + os.pathsep + env.get('PATH', ''), BANANA_NO_LOCAL_CONFIG='1')
+            result = subprocess.run(['sh', '-c', '. "$1"; shift; banana_xcode "$@"; echo "after=${SWIFT_DETERMINISTIC_HASHING-unset}"',
+                                     'check', str(CONFIG), '-scheme', 'Banana', *action],
+                                    cwd=root, env=env, capture_output=True, text=True)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            return result.stdout.split()
+
+    def test_builds_seed_swift_hashing_so_build_tools_write_the_same_bytes(self):
+        for action in (['build'], ['archive'], ['build-for-testing']):
+            with self.subTest(action=action):
+                self.assertEqual(self.environment(action), ['hashing=1', 'after=unset'])
+
+    def test_test_runs_keep_random_hashing(self):
+        for action in (['test'], ['test-without-building'], ['build-for-testing', 'test-without-building']):
+            with self.subTest(action=action):
+                self.assertEqual(self.environment(action), ['hashing=0', 'after=unset'])
 
 
 if __name__ == '__main__':
