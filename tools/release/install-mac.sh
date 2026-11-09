@@ -31,7 +31,13 @@ trap 'hdiutil detach "$mount" -quiet 2>/dev/null || true; rmdir "$mount" 2>/dev/
 hdiutil attach "$dmg" -nobrowse -readonly -noverify -mountpoint "$mount" -quiet
 app="$mount/$name"
 [ -d "$app" ] || { echo "No $name in the DMG"; exit 1; }
-codesign --verify --deep --strict "$app"
+# Strict verification of a copy without extended attributes: a DMG made before package.py
+# dropped them carries macOS's provenance and Finder tags, which --strict refuses though they
+# are not part of the signature.
+check=$(mktemp -d "${TMPDIR:-/tmp}/banana-verify.XXXXXX")
+ditto --norsrc --noextattr --noqtn "$app" "$check/$name"
+codesign --verify --deep --strict "$check/$name" || { rm -rf "$check"; echo "$name fails strict signature verification"; exit 1; }
+rm -rf "$check"
 spctl -a -t exec "$app" 2>/dev/null || { echo "Gatekeeper rejects $name"; exit 1; }
 [ "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$app/Contents/Info.plist")" = "$bundle" ] || { echo "Wrong bundle id"; exit 1; }
 [ "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$app/Contents/Info.plist")" = "$want_build" ] || { echo "Wrong build number"; exit 1; }
@@ -56,7 +62,7 @@ fi
 
 staged="/Applications/.${name%.app}-installing.app"
 rm -rf "$staged"
-ditto "$app" "$staged"
+ditto --norsrc --noextattr --noqtn "$app" "$staged"
 rm -rf "$target"
 mv "$staged" "$target"
 open "$target"

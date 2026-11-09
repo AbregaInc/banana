@@ -127,7 +127,9 @@ def main():
         stage = Path(tmp) / 'stage'
         stage.mkdir()
         app = stage / source.name
-        run('ditto', source, app)
+        # No extended attributes or resource forks: macOS tags built files (provenance, Finder
+        # info), and `codesign --verify --strict` refuses an app that carries them.
+        run('ditto', '--norsrc', '--noextattr', '--noqtn', source, app)
         if args.test_version:
             p = app / 'Contents/Info.plist'
             d = plistlib.loads(p.read_bytes())
