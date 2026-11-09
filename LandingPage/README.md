@@ -34,11 +34,13 @@ The site builder uses the current icon master and retains the calendar-scene soc
 
 ## Lines that will go out of date
 
-- **The policy is dated 27 October 2026; the terms are dated 18 October 2026.** Change the date with any change to them.
+- **The policy and the terms are dated 9 November 2026.** Change the date with any change to them.
   The policy describes the Banana account and its service; keep it in step with
   `docs/design/ACCOUNTS.md` and `Service/`.
-- **Platforms** under the last button: iPhone and iPad on iOS 26.1, Mac on macOS 26, Watch on
-  watchOS 26 (`project.yml`).
+- **Platforms** under the last button: iPhone and iPad on iOS 26.1, Mac on macOS 26
+  (`project.yml`). The App Store version carries the calendar alone (`Config/Modules.json`,
+  `tools/app-store/metadata/calendar-only/`); the site names no Apple Watch app and shows the
+  modules as coming later.
 - The copy rules are `HANDOFF.md`'s: no App Store link, price, testimonial, user count or
   launch date; nothing under “Claims to avoid”; podcast ad skipping is not mentioned.
 

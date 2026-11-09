@@ -1,7 +1,8 @@
 > **Current public site, October 27, 2026:** IBM Plex Mono, cream/ink/yellow/pastels and the
 > approved dimensional yellow mascot are current. The static blog and RSS use this identity.
-> Workouts/sleep, Food, Notes and Podcasts are optional modules in the main app; Email remains
-> unavailable there. Google Calendar also uses Banana's service for alerts, cloud views and
+> Workouts/sleep, Food, Notes and Podcasts are optional modules in TestFlight and the direct Mac
+> download; the first App Store version (8 Nov 2026) is the calendar alone, with no Apple Watch app,
+> so the site shows those modules as coming later. Email remains unavailable. Google Calendar also uses Banana's service for alerts, cloud views and
 > explicitly approved guest sharing. The historical feature/brand narrative below includes
 > superseded privacy and availability statements: verify against released code and the current
 > public Privacy Policy before reusing it. Do not copy it as current product documentation.

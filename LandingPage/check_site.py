@@ -49,6 +49,10 @@ AVOID = ["ai-powered", "ai powered", "automatically organi", "never miss", "batt
          "skips ads", "ad-free", "accurate", "precise", "adherence", "diagnos", "treat"]
 PRICE = re.compile(r"[$€£]\s?\d|\bfree\b|\bpricing\b|\bsubscription\b|\bper month\b", re.I)
 MUST_SAY = ["does not give medical advice", "Apple Intelligence", "Google account", "approximate"]
+# The App Store version carries the calendar alone and has no Watch app (8 Nov 2026); the
+# product pages don't name one. The legal pages may, for the versions that carry the modules.
+NO_WATCH = ["apple watch", "watchos"]
+PRODUCT_PAGES = ["index.html", "about.html", "support.html"]
 
 # Bytes a first visit downloads for the front page: HTML, CSS, fonts and every image on it.
 FRONT_PAGE_BUDGET = 900_000
@@ -184,6 +188,12 @@ def check() -> list[str]:
     for words in AVOID:
         if words in lowered:
             faults.append(f"the page says “{words}”, which HANDOFF.md rules out")
+    for name in PRODUCT_PAGES:
+        page_text = " ".join(pages[name].text).lower()
+        page_text += " " + (SITE / name).read_text(encoding="utf-8").split("</head>")[0].lower()
+        for words in NO_WATCH:
+            if words in page_text:
+                faults.append(f"{name} names “{words}”; the App Store version has no Watch app")
     found = PRICE.search(text)
     if found:
         faults.append(f"the page talks about price (“{found.group(0)}”); pricing is undecided")
