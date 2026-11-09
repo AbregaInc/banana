@@ -49,3 +49,37 @@ enum WeatherAttributionFooter: Equatable {
         }
     }
 }
+
+/// What each palette layer of a forecast symbol draws, so `WeatherSymbol` can colour clouds,
+/// light and precipitation apart. SF Symbols order a symbol's layers its own way (cloud.bolt
+/// puts the bolt on its second layer; cloud.bolt.rain draws the bolt with the cloud, on the
+/// first), so this is a table, measured by rendering each symbol with one colour per layer.
+/// WeatherKit's symbol names and the sample's are in it; another falls back on its name.
+enum WeatherSymbolLayers {
+    enum Part: Equatable { case cloud, light, wet }
+
+    static let table: [String: [Part]] = [
+        "sun.max": [.light], "moon": [.light], "moon.stars": [.light, .light],
+        "sun.horizon": [.cloud, .light], "sunrise": [.cloud, .light], "sunset": [.cloud, .light],
+        "sun.haze": [.cloud, .light], "sun.dust": [.cloud, .light],
+        "cloud": [.cloud], "cloud.sun": [.cloud, .light], "cloud.moon": [.cloud, .light],
+        "cloud.rain": [.cloud, .wet], "cloud.drizzle": [.cloud, .wet], "cloud.heavyrain": [.cloud, .wet],
+        "cloud.snow": [.cloud, .wet], "cloud.sleet": [.cloud, .wet], "cloud.hail": [.cloud, .wet],
+        "cloud.sun.rain": [.cloud, .light, .wet], "cloud.moon.rain": [.cloud, .light, .wet],
+        "cloud.bolt": [.cloud, .light], "cloud.bolt.rain": [.cloud, .wet],
+        "cloud.sun.bolt": [.cloud, .light], "cloud.moon.bolt": [.cloud, .light],
+        "cloud.fog": [.cloud, .cloud], "smoke": [.cloud], "wind": [.cloud], "wind.snow": [.cloud, .wet],
+        "snowflake": [.wet], "tornado": [.cloud], "hurricane": [.cloud], "tropicalstorm": [.cloud],
+    ]
+
+    /// The parts of `symbol`'s layers, first layer first (".fill" or not draws the same parts).
+    static func parts(of symbol: String) -> [Part] {
+        let base = symbol.hasSuffix(".fill") ? String(symbol.dropLast(5)) : symbol
+        if let known = table[base] { return known }
+        let words = base.split(separator: ".")
+        let light = words.contains { ["sun", "moon", "stars", "bolt"].contains($0) }
+        let wet = words.contains { ["rain", "drizzle", "snow", "sleet", "hail", "heavyrain"].contains($0) }
+        if words.first == "cloud" { return [.cloud] + (light ? [.light] : []) + (wet ? [.wet] : []) }
+        return light ? [.light, .light] : wet ? [.wet] : [.cloud]
+    }
+}

@@ -36,4 +36,34 @@ final class WeatherSampleTests: XCTestCase {
         XCTAssertLessThan(today.wettest, 0.2)
         XCTAssertFalse(today.symbol.contains("rain"))
     }
+
+    // MARK: - Symbol colours (`WeatherSymbol`)
+
+    func testEverySymbolTheForecastShowsHasItsLayersKnown() {
+        // Each of the sample's symbols is measured, not guessed from its name.
+        for symbol in Set(week.flatMap { [$0.symbol] + $0.hours.map(\.symbol) }) {
+            let base = symbol.hasSuffix(".fill") ? String(symbol.dropLast(5)) : symbol
+            XCTAssertNotNil(WeatherSymbolLayers.table[base], symbol)
+        }
+    }
+
+    func testCloudsLightAndRainEachGetTheirOwnColour() {
+        typealias P = WeatherSymbolLayers.Part
+        XCTAssertEqual(WeatherSymbolLayers.parts(of: "sun.max.fill"), [P.light])
+        XCTAssertEqual(WeatherSymbolLayers.parts(of: "cloud.fill"), [P.cloud])
+        XCTAssertEqual(WeatherSymbolLayers.parts(of: "cloud.sun.rain.fill"), [P.cloud, .light, .wet])
+        // Lightning is drawn with the cloud in cloud.bolt.rain, so that layer is the cloud's.
+        XCTAssertEqual(WeatherSymbolLayers.parts(of: "cloud.bolt.rain.fill"), [P.cloud, .wet])
+        for (base, parts) in WeatherSymbolLayers.table {
+            let words = Set(base.split(separator: ".").map(String.init))
+            XCTAssertTrue((1...3).contains(parts.count), base)
+            if words.contains("cloud") { XCTAssertEqual(parts.first, .cloud, base) }
+            if !words.isDisjoint(with: ["rain", "drizzle", "heavyrain", "snow", "sleet", "hail"]) || base == "snowflake" {
+                XCTAssertTrue(parts.contains(.wet), base)
+            }
+            if !words.isDisjoint(with: ["sun", "moon"]) { XCTAssertTrue(parts.contains(.light), base) }
+        }
+        // A name WeatherKit might add later still gets a cloud, its light and its rain.
+        XCTAssertEqual(WeatherSymbolLayers.parts(of: "cloud.moon.sleet.fill"), [P.cloud, .light, .wet])
+    }
 }

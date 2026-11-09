@@ -84,9 +84,8 @@ struct WeatherDetailView: View {
             Text(label(selected, "EEEE MMM d", day.timeZone))
                 .font(.subheadline).foregroundStyle(.secondary)
 
-            Image(systemName: hour.symbol)
+            WeatherSymbol(hour.symbol)
                 .font(.system(size: 54))
-                .symbolRenderingMode(.multicolor)
                 .padding(.vertical, 2)
 
             Text("\(Int(hour.tempF.rounded()))°")
@@ -119,9 +118,8 @@ struct WeatherDetailView: View {
                         VStack(spacing: 6) {
                             Text(label(h.date, "ha", day.timeZone)).font(.caption2)
                                 .foregroundStyle(isSelected ? AnyShapeStyle(DS.Palette.accent) : AnyShapeStyle(.secondary))
-                            Image(systemName: h.symbol)
+                            WeatherSymbol(h.symbol)
                                 .font(.system(size: 17))
-                                .symbolRenderingMode(.multicolor)
                                 .frame(height: 20)
                             Text("\(Int(h.tempF.rounded()))°")
                                 .font(.footnote.weight(isSelected ? .bold : .regular))
@@ -205,8 +203,7 @@ struct WeatherDetailView: View {
                 .font(.subheadline.weight(isSelected ? .semibold : .regular))
                 .frame(width: 54, alignment: .leading)
 
-            Image(systemName: d.symbol)
-                .symbolRenderingMode(.multicolor)
+            WeatherSymbol(d.symbol)
                 .frame(width: 24)
 
             if let wettest = d.hours.max(by: { $0.precip < $1.precip }), wettest.precip >= 0.2 {

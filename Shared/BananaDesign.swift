@@ -102,6 +102,17 @@ enum DS {
         /// with no role above (carbs used to be the brand orange and fat the danger red).
         /// Feature identity on settings rows' icon tiles — one colour per feature, the way the
         /// system's own Settings does it. Identity only, never a status.
+        /// A forecast symbol's parts (`WeatherSymbol`): system colours, so a symbol reads on a light
+        /// page and a dark one alike. Multicolor drew clouds white, which vanished on light.
+        enum Weather {
+            /// Clouds, fog, wind and haze lines.
+            static let cloud = Color.secondary
+            /// The sun, the moon, stars and lightning.
+            static let light = Color.yellow
+            /// Rain, drizzle, snow, sleet and hail.
+            static let wet = Color.blue
+        }
+
         enum Feature {
             static let calendar = Color.red
             static let booking = Color.teal

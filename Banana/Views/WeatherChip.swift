@@ -21,7 +21,7 @@ struct WeatherChip: View {
         if let hour {
             Button { focus = WeatherFocus(id: hour.date) } label: {
                 HStack(spacing: DS.Space.xs) {
-                    Image(systemName: hour.symbol).symbolRenderingMode(.multicolor)
+                    WeatherSymbol(hour.symbol)
                     Text("\(Int(hour.tempF.rounded()))\u{00B0}").monospacedDigit()
                 }
                 // The Mac's is a toolbar item, which draws its own; the phone's sits in the date line.
