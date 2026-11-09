@@ -42,12 +42,10 @@ data and Support and About follow, and the Mac download and the beta stay. `stor
 the copy for both states. Before switching, replace the iPhone, iPad and Mac screenshots with
 captures of the calendar-only App Store build.
 
-The home page's iPhone and iPad pictures come from `assets/screenshots/calendar-only/*/raw/`
+The home page's iPhone, iPad and Mac pictures come from `assets/screenshots/calendar-only/*/raw/`
 (listed in `build_site.py`'s `CAPTURES`); to swap one, replace or repoint its capture and run
-`python3 LandingPage/build_site.py captures`. There is no calendar-only Mac capture yet, so the
-iPad/Mac switch under the large picture is reduced to "iPad". When one exists, add `mac-plan` to
-`CAPTURES` and put the switch back (the buttons with `data-screen="ipad"` and `"mac"`; the script
-that swaps the picture is still on the page).
+`python3 LandingPage/build_site.py captures`. The iPad/Mac switch under the large picture swaps
+`ipad-plan.webp` and `mac-plan.webp`.
 
 ## Lines that will go out of date
 
