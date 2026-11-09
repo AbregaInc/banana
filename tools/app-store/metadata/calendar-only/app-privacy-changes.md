@@ -2,7 +2,7 @@
 
 The calendar-only build carries no modules (`BANANA_APP_STORE_MODULES` is empty): no Workouts and
 sleep, Food, Notes, Podcasts or Email, no Apple Watch app, no HealthKit, camera, microphone,
-photos or speech access. Starting from the published answers in `tools/app-store/app-privacy.md`,
+photos or speech access, and no trip learning (Always location and Motion). Starting from the published answers in `tools/app-store/app-privacy.md`,
 these are the changes to make in App Store Connect › App Privacy. Nothing here has been entered.
 
 ## Untick (no longer collected)
@@ -19,7 +19,7 @@ these are the changes to make in App Store Connect › App Privacy. Nothing here
 
 | Category | Type | Now covers |
 |---|---|---|
-| Location | **Precise Location** | Saved places' coordinates (Settings › Travel). No workout routes or listening places. Linked, App Functionality. |
+| Location | **Precise Location** | Saved places' coordinates (Settings › Travel). No workout routes, listening places or learned trips: this build has no "Learn from my trips" and asks for location only while in use. Linked, App Functionality. |
 | User Content | **Other User Content** | Routines, alarms, a day's changes, reminders' timing, event alert titles. No podcasts, listening or note text. |
 | Usage Data | **Product Interaction** | Optional usage counts, Analytics only: untick **App Functionality**, which was for synced playback progress and listening history. |
 

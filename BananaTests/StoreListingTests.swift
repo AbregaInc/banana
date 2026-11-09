@@ -240,4 +240,22 @@ final class StoreListingTests: XCTestCase {
             }
         }
     }
+
+    /// The App Store app asks for location only while in use (the forecast, travel time): trip
+    /// learning, with Always location and Motion, is a feature it leaves out (Config/Modules.json),
+    /// so its derived Info.plists have neither usage string. Beta and Stable keep it.
+    func testTheAppStoreAppLeavesTripLearningOut() throws {
+        let settings = try ModuleSettings.read()
+        XCTAssertTrue(try XCTUnwrap(settings["BANANA_ALL_MODULES"]).contains("BANANA_FEATURE_TRIP_LEARNING"))
+        XCTAssertFalse(try XCTUnwrap(settings["BANANA_APP_STORE_MODULES"]).contains("BANANA_FEATURE_TRIP_LEARNING"))
+        for name in ["Banana-AppStore-Info.plist", "BananaMac-AppStore-Info.plist"] {
+            let url = SourceTree.root.appendingPathComponent("Config/Generated/\(name)")
+            let plist = try XCTUnwrap(PropertyListSerialization.propertyList(from: Data(contentsOf: url), format: nil) as? [String: Any])
+            XCTAssertNil(plist["NSLocationAlwaysAndWhenInUseUsageDescription"], name)
+            XCTAssertNil(plist["NSMotionUsageDescription"], name)
+            XCTAssertNotNil(plist["NSLocationWhenInUseUsageDescription"], "\(name): the forecast and travel time still need it")
+        }
+        let notes = try appStoreField("review_notes")
+        XCTAssertFalse(notes.contains("Learn from my trips"), "the review notes describe a feature the build leaves out")
+    }
 }

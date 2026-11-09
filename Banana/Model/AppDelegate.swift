@@ -25,7 +25,9 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
         return true
         #else
         MainActor.assumeIsolated {
+            #if BANANA_FEATURE_TRIP_LEARNING
             TripLearningService.shared.startIfEnabled()
+            #endif
             // The data platform's engine, unless `--no-space-sync` (`SpaceSyncFlag`).
             SpaceSyncLaunch.startIfAsked()
             // Pushes — the Banana service's (a calendar changed, an alert dismissed elsewhere) and,

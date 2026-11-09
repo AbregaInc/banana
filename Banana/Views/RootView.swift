@@ -443,7 +443,9 @@ struct RootView: View {
             case .active:
                 Log.wake.notice("scenePhase → active; checking wake trigger")
                 AppVisibility.shared.set(active: true)
+                #if BANANA_FEATURE_TRIP_LEARNING
                 TripLearningService.shared.appBecameActive()   // turned on elsewhere: ask here
+                #endif
                 if plan.runsNetworkAndSync {
                 HubStatusStore.shared.handleRequests()          // asked for on another device
                 #if BANANA_MODULE_WORKOUTS

@@ -12,15 +12,14 @@ and crops are in `tools/app-store/flavours/calendar-only.json`.
 | 2 | Plan, Week | Plan, Day with the event beside it | Forecast over the week | Your week at a glance. / Every detail, beside your day. |
 | 3 | New event, "Lunch with Sam Friday at 1" | New event over the day | Routines | Add it the way you'd say it. |
 | 4 | Routines | Routines | | Make room for your routines. |
-| 5 | Forecast, scrolled to Apple Weather's mark | Forecast over the week | | The weather for your plans. |
+| 5 | Forecast opened from Plan, scrolled to Apple Weather's mark | Forecast over the week | | The weather for your plans. |
 | 6 | Settings › Booking | | | Let people book you. |
 
 Notes
 - The forecast always opens on the week and Apple Weather's mark and legal link
   (`--scroll-bottom`), guideline 5.2.5; `StoreListingTests` holds every set to it.
-- The phone's forecast is the standalone `--weather-detail` route: at the 6.3" capture width
-  Plan's top row gives the forecast chip up for room. On iPad and Mac it opens from the chip
-  (`--open-weather`), as a tap does.
+- The forecast opens from Plan's weather button (`--open-weather`), as a tap does, on every
+  device; on a narrow phone the button is in Today's place on the current period.
 - Booking is not in the iPad set: alone in landscape it is a narrow form on an empty screen.
 - Generate: `python3 -u tools/app-store/generate.py --flavour calendar-only --platform iphone
   --ios-udid <phone>` (then `--platform ipad --keep-output --ios-udid <pad>`). Output:

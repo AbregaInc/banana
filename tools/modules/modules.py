@@ -28,7 +28,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 MAP = json.loads((ROOT / "Config/Modules.json").read_text())
-MODULES: dict = MAP["modules"]
+# The modules, and the features a build carries or leaves out the same way (trip learning),
+# which nobody switches: both are named in BANANA_MODULES by their condition.
+MODULES: dict = {**MAP["modules"], **{k: v for k, v in MAP.get("features", {}).items() if isinstance(v, dict)}}
 
 # The App Store flavour's derived files: (full file xcodegen writes, derived file the AppStore
 # configuration points at). project.yml names the derived ones; ModuleCapabilityTests checks
