@@ -32,6 +32,16 @@ scene panels. The earlier editorial-serif concept is historical. `Brand/README.m
 current-direction note at the top of `HANDOFF.md` describe the shared website/store identity.
 The site builder uses the current icon master and retains the calendar-scene social artwork.
 
+## When Banana is on the App Store
+
+`store.json`'s `appStoreUrl` is the switch. Empty, the pages offer the direct Mac download and the
+iPhone and iPad TestFlight beta. Set it to the address App Store Connect gives the published app
+(`https://apps.apple.com/app/…/id…`), run `uv run --locked LandingPage/build_content.py` and
+`check_site.py`: the App Store becomes the first button in the header, hero and footer, structured
+data and Support and About follow, and the Mac download and the beta stay. `store_links.py` holds
+the copy for both states. Before switching, replace the iPhone, iPad and Mac screenshots with
+captures of the calendar-only App Store build: the current ones show the module tabs.
+
 ## Lines that will go out of date
 
 - **The policy and the terms are dated 9 November 2026.** Change the date with any change to them.
@@ -41,7 +51,7 @@ The site builder uses the current icon master and retains the calendar-scene soc
   (`project.yml`). The App Store version carries the calendar alone (`Config/Modules.json`,
   `tools/app-store/metadata/calendar-only/`); the site names no Apple Watch app and shows the
   modules as coming later.
-- The copy rules are `HANDOFF.md`'s: no App Store link, price, testimonial, user count or
+- The copy rules are `HANDOFF.md`'s: no App Store link until `store.json` names one, price, testimonial, user count or
   launch date; nothing under “Claims to avoid”; podcast ad skipping is not mentioned.
 
 Node tooling: use Node 24.22.1 (October 2026 security release), pinned in this folder’s `package.json` and the repository’s `.node-version`. The deployed site is static Workers assets and does not run Node.

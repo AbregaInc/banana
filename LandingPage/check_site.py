@@ -5,8 +5,9 @@
 
 Reads `LandingPage/site/` (or the folder named) as it would be served and fails (exit 1) when:
   - a page points at a file that isn't there, or an image has no size or no `alt`;
-  - a link to TestFlight isn't the public one, or the page links to an App Store page that
-    doesn't exist yet;
+  - a link to TestFlight isn't the public one, or the page links to an App Store page other than
+    the one `store.json` names (none until Apple publishes the app), or a page is out of step
+    with `store.json` (`store_links.py`);
   - the copy says something `HANDOFF.md` rules out ("Claims to avoid"), names a feature that
     was switched off, quotes a price, or drops one of the qualifications it must carry;
   - the front page grows past its weight budget;
@@ -31,7 +32,8 @@ except ImportError:
     Image = None
 
 SITE = Path(__file__).resolve().parent / "site"
-TESTFLIGHT = "https://testflight.apple.com/join/47yxmU8U"
+from store_links import TESTFLIGHT
+import store_links
 # Outside pages the Privacy Policy points to on purpose: Google's rules for its user data, and
 # where a Google account's access to Banana is taken away.
 OUTSIDE = {"https://github.com/AbregaInc/banana",
@@ -135,6 +137,19 @@ def check() -> list[str]:
         if not file.exists():
             faults.append(f"index.html points at {file.relative_to(SITE)}, which isn't there")
 
+    try:
+        app_store = store_links.app_store_url()
+    except (ValueError, OSError) as error:
+        faults.append(str(error)); app_store = None
+    for name in store_links.PAGES:
+        html = (SITE / name).read_text(encoding="utf-8")
+        marked = {m.group(2) for m in store_links.REGION.finditer(html)}
+        expected = {"index.html": {"schema", "header", "hero", "end"}, "support.html": {"get"}}[name]
+        if marked != expected:
+            faults.append(f"{name}: store regions {sorted(marked)}, expected {sorted(expected)}")
+        elif store_links.render(html, app_store) != html:
+            faults.append(f"{name} doesn't match store.json; run build_content.py")
+
     pages = {}
     for file in sorted(SITE.rglob("*.html")):
         name = str(file.relative_to(SITE))
@@ -172,6 +187,8 @@ def check() -> list[str]:
             elif "testflight.apple.com" in link:
                 if link != TESTFLIGHT:
                     faults.append(f"{name}: {link} isn't the public TestFlight link")
+            elif app_store and link == app_store:
+                pass
             elif "apps.apple.com" in link or "itunes.apple.com" in link:
                 faults.append(f"{name}: {link} — there is no App Store page yet")
             elif name.startswith("blog/") and urlsplit(link).scheme == "https" and urlsplit(link).hostname:
@@ -200,6 +217,8 @@ def check() -> list[str]:
     for words in MUST_SAY:
         if words.lower() not in lowered:
             faults.append(f"the page no longer says “{words}”")
+    if app_store and app_store not in front.links:
+        faults.append("store.json names an App Store page the front page doesn't link to")
     if TESTFLIGHT not in front.links:
         faults.append("the page has no link to the TestFlight")
     if front.meta.get("canonical") != "https://bananatheapp.com/":
