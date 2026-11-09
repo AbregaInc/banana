@@ -55,8 +55,9 @@ say "  SOURCE_ARCHIVE_URL=$archive"
 step_done
 
 step tests
-run npm --prefix Service ci --no-audit --no-fund || die "npm ci failed"
-run npm --prefix Service test || die "service tests failed"
+# npm runs inside Service/ so a version manager (Volta) picks the Node it pins there.
+(cd Service && run npm ci --no-audit --no-fund) || die "npm ci failed"
+(cd Service && run npm test) || die "service tests failed"
 step_done
 
 step migrations
