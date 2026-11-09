@@ -37,6 +37,22 @@ enum ShellPage: String, CaseIterable, Identifiable, Sendable {
         }
     }
 
+    /// The page lit in the rail or the switcher while `section` shows, on every device. A section
+    /// with no page of its own (Routines, opened from "…") lights none: lighting Plan said the
+    /// person was on Plan.
+    static func showing(_ section: AppSection) -> ShellPage? {
+        switch section {
+        case .plan: .plan
+        case .mail: .mail
+        case .workouts, .nutrition: .body
+        case .notes: .notes
+        case .library: .library
+        case .review, .sleep, .trends: .review
+        case .settings: .settings
+        default: nil
+        }
+    }
+
     /// What the page needs switched on to be listed. Plan and Settings are always there.
     struct Modules: Equatable, Sendable {
         var mail = false
@@ -85,6 +101,13 @@ enum ShellLayout: Equatable, Sendable {
     static let railColumn: Double = 80
     /// A rail button's circle.
     static let railButton: Double = 48
+    /// The height of an iPad toolbar's controls (the paging group, Today, "…"), which start at
+    /// the top of the safe area.
+    static let barControl: Double = 44
+    /// From the top of the safe area to the first rail button, on an iPad: its centre on the top
+    /// bar's centre line. It was 16, which put the first circle 18 points below the bar's line.
+    /// (The Mac's rail starts under the window's title bar, where the traffic lights are.)
+    static let railTopInset: Double = (barControl - railButton) / 2
     /// Where the Mac window's close, minimise and zoom buttons end, from the window's left edge.
     static let macWindowButtonsEnd: Double = 76
 }

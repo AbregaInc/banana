@@ -602,16 +602,10 @@ struct RootView: View {
 
     /// The switcher's page for the section showing.
     private var currentShellPage: ShellPage? {
-        if shell.state.tab == .settings { return .settings }
-        if shell.state.tab == .review, showsSidebarSections { return .review }
-        return switch shell.state.tab.tabBarHome {
-        case .plan: .plan
-        case .mail: .mail
-        case .workouts, .nutrition: .body
-        case .notes: .notes
-        case .library: .library
-        default: nil
-        }
+        let tab = shell.state.tab
+        // With a rail every section is a page of its own; under the switcher one that is only
+        // a sheet there (Review, Routines) is shown on the page it falls back to.
+        return ShellPage.showing(tab == .settings || showsSidebarSections ? tab : tab.tabBarHome)
     }
 
     private func openShellPage(_ page: ShellPage) {

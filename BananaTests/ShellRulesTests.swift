@@ -14,6 +14,22 @@ final class ShellRulesTests: XCTestCase {
         XCTAssertTrue(ShellPage.listed(on).contains(.body), "Food alone keeps Body")
     }
 
+    /// One rule on the iPad and the Mac: the rail lights the section's own page, and a section
+    /// without one (Routines) lights nothing, never Plan.
+    func testTheRailLightsTheSectionsOwnPageOrNone() {
+        XCTAssertEqual(ShellPage.showing(.plan), .plan)
+        XCTAssertEqual(ShellPage.showing(.nutrition), .body)
+        XCTAssertEqual(ShellPage.showing(.sleep), .review)
+        XCTAssertEqual(ShellPage.showing(.settings), .settings)
+        XCTAssertNil(ShellPage.showing(.routines))
+        XCTAssertNil(ShellPage.showing(.assistant))
+    }
+
+    /// On an iPad the first rail button's centre is on the top bar's centre line.
+    func testTheFirstRailButtonSitsOnTheTopBarsLine() {
+        XCTAssertEqual(ShellLayout.railTopInset + ShellLayout.railButton / 2, ShellLayout.barControl / 2)
+    }
+
     func testReviewAndSettingsOpenOverThePage() {
         XCTAssertEqual(ShellPage.allCases.filter(\.opensOver), [.review, .settings])
     }

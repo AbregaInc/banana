@@ -42,7 +42,12 @@ struct ShellRail: View {
             Spacer(minLength: DS.Space.m)
             if pages.contains(.settings) { button(.settings) }
         }
+        #if os(iOS)
+        .padding(.top, CGFloat(ShellLayout.railTopInset))
+        .padding(.bottom, DS.Space.l)
+        #else
         .padding(.vertical, DS.Space.l)
+        #endif
         .frame(width: Self.width)
         .frame(maxHeight: .infinity)
         .accessibilityElement(children: .contain)

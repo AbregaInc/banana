@@ -549,6 +549,9 @@ struct MoreMenu<Items: View>: View {
             // The plain glyph: the bar draws the glass circle around it, as the system's own do.
             Image(systemName: "ellipsis")
         }
+        // "…" says it's a menu itself: a Mac toolbar otherwise adds a chevron on some pages and
+        // not others, depending on what is beside it.
+        .menuIndicator(.hidden)
         .accessibilityLabel("More")
         .accessibilityIdentifier(identifier)
     }

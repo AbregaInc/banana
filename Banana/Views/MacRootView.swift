@@ -172,17 +172,7 @@ struct MacRootView: View {
         return ShellPage.listed(on)
     }
 
-    private var railCurrent: ShellPage? {
-        switch nav.section {
-        case .plan: .plan
-        case .mail: .mail
-        case .workouts, .nutrition: .body
-        case .notes: .notes
-        case .library: .library
-        case .review, .sleep, .trends: .review
-        default: nil
-        }
-    }
+    private var railCurrent: ShellPage? { ShellPage.showing(nav.section) }
 
     private func openRailPage(_ page: ShellPage) {
         switch page {
@@ -650,6 +640,28 @@ struct MacCommands: Commands {
             Button("Report a Problem\u{2026}") { ProblemReportCenter.shared.open() }
                 .keyboardShortcut("r", modifiers: [.command, .shift])
         }
+        // Every toolbar command is in the menu bar too (HIG, Toolbars: macOS): the period's
+        // paging and Today under Go, the span under View, and ⌘F into "Search or ask". The
+        // planner's single keys (T, J, K, D, W, 1–7) stay as they are; a menu item's key with no
+        // modifier would be taken from every text field, so the menus carry chords.
+        CommandGroup(before: .toolbar) {
+            ForEach(MacMenuCommands.views, id: \.title) { item in
+                Button(item.title) { MacCommandCenter.shared.perform(item.action) }
+                    .keyboardShortcut(item.key, modifiers: [.command, .option])
+            }
+            Divider()
+        }
+        CommandMenu("Go") {
+            ForEach(MacMenuCommands.go, id: \.title) { item in
+                Button(item.title) { MacCommandCenter.shared.perform(item.action) }
+                    .keyboardShortcut(item.key, modifiers: item.modifiers)
+            }
+        }
+        CommandGroup(before: .textEditing) {
+            Button("Search or Ask") { ShellSearch.shared.focusRequests.send(true) }
+                .keyboardShortcut("f", modifiers: .command)
+            Divider()
+        }
         // The calendar's sharing: the booking link (copied, with the shortcut BOOKING.md §12 names)
         // and the availability panel.
         CommandMenu("Calendar") {
@@ -659,6 +671,32 @@ struct MacCommands: Commands {
             Button("Share Availability\u{2026}") { MacCommandCenter.shared.perform(.shareAvailability) }
         }
     }
+}
+
+/// The planner's toolbar commands as menu items (`MacCommands`): the same actions the toolbar
+/// and the single keys run (`MacCommandCenter`).
+enum MacMenuCommands {
+    struct Item {
+        let title: String
+        let key: KeyEquivalent
+        var modifiers: EventModifiers = [.command, .option]
+        let action: MacCalendarAction
+    }
+
+    /// View: the span, numbered by its days, as the single keys 1–7 are.
+    static let views: [Item] = [
+        Item(title: "Day", key: "1", action: .dayView),
+        Item(title: "3 Days", key: "3", action: .span(3)),
+        Item(title: "5 Days", key: "5", action: .span(5)),
+        Item(title: "Week", key: "7", action: .weekView),
+    ]
+
+    /// Go: back, forward and Today, as in the toolbar's group.
+    static let go: [Item] = [
+        Item(title: "Previous", key: .leftArrow, action: .previousPeriod),
+        Item(title: "Next", key: .rightArrow, action: .nextPeriod),
+        Item(title: "Today", key: "t", modifiers: .command, action: .today),
+    ]
 }
 
 extension Notification.Name {
