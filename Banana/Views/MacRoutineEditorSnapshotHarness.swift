@@ -16,7 +16,9 @@ import SwiftUI
 @MainActor
 struct MacRoutineEditorSnapshotHarness: View {
     @EnvironmentObject private var routines: RoutineStore
+    #if BANANA_MODULE_PODCASTS
     @EnvironmentObject private var library: PodcastLibrary
+    #endif
     @EnvironmentObject private var smart: SmartScheduleStore
 
     let outputURL: URL
@@ -45,7 +47,9 @@ struct MacRoutineEditorSnapshotHarness: View {
     private var editor: some View {
         RoutineEditorView(draft: sample, isNew: false)
             .environmentObject(routines)
+            #if BANANA_MODULE_PODCASTS
             .environmentObject(library)
+            #endif
             .environmentObject(smart)
             .frame(width: 500, height: 620)
             .background(Color(nsColor: .windowBackgroundColor))

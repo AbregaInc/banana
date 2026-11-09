@@ -416,7 +416,11 @@ struct BananaApp: App {
                     configured(MacAppStoreSnapshotHarness(outputURL: outputURL))
                 }
             } else if let outputURL = debugOutputURL(after: "--snapshot-workout-review") {
+                #if BANANA_MODULE_WORKOUTS
                 configured(MacWorkoutReviewSnapshotHarness(outputURL: outputURL))
+                #else
+                let _ = outputURL
+                #endif
             } else if ProcessInfo.processInfo.arguments.contains("--ui-audit") {
                 configuredPlatformRoot
                     // `@StateObject` access from `App.init` is only an early best-effort seed:
@@ -594,6 +598,7 @@ struct BananaApp: App {
     @MainActor
     private func injectMacVisualAuditSamples() {
         routines.injectSampleForPreview()
+        #if BANANA_MODULE_WORKOUTS
         fitness.injectSampleForPreview()
         // And again once the store has read its index: that read replaces what's there, and on a
         // Mac it finishes after this, which left the Workouts page with nothing on it.
@@ -601,8 +606,11 @@ struct BananaApp: App {
             await fitness.whenLoaded()
             fitness.injectSampleForPreview()
         }
+        #endif
+        #if BANANA_MODULE_PODCASTS
         history.injectSampleForPreview()
         library.injectSampleForPreview()
+        #endif
         WeatherStore.shared.injectSampleForPreview()
         smart.injectSampleAgenda(anchoredToBusinessHours: true)
         if ProcessInfo.processInfo.arguments.contains("--event-states-sample") {
@@ -611,7 +619,10 @@ struct BananaApp: App {
         if ProcessInfo.processInfo.arguments.contains("--trip-sample") {
             smart.injectTripSample()
         }
+        #if BANANA_MODULE_NOTES
         VoiceNoteStore.shared.injectSampleForPreview()
+        #endif
+        #if BANANA_MODULE_FOOD
         wellness.injectPreviewData()
         // `--energy-balance`: four weeks of meals for the logs-against-weight card instead of the
         // week (they'd double up); HealthKitStore seeds the weight and energy it reads.
@@ -620,6 +631,7 @@ struct BananaApp: App {
         } else {
             wellness.injectWeekPreview()
         }
+        #endif
     }
 
     /// Run after SwiftUI installs this App's StateObjects. This is the authoritative Mac visual
@@ -1430,7 +1442,9 @@ struct BananaApp: App {
         // list rather than a CloudKit query (see CloudFitnessZonePurgeTool). Needs both the sync
         // engine and the local index (the live real-workout safety check) already live, hence
         // right here rather than earlier in App.init.
+        #if BANANA_MODULE_WORKOUTS
         await CloudFitnessZonePurgeTool.runIfRequested()
+        #endif
         #endif
 
         #if DEBUG
