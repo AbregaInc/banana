@@ -97,7 +97,7 @@ passes 30 GB (`BANANA_CACHE_LIMIT_GB`); Xcode is also given the same limit
 | Stable iOS archive + check | 5m24s | 5m07s |
 | Mac Beta archive + check + export | 5m53s | 5m44s |
 | unit tests (BananaTests, Debug, 4,093 tests) | — | 4m46s |
-| unit tests, optimized (BananaModelTests, Release, uncached) | — | see below |
+| unit tests, optimized (BananaModelTests, Release, uncached build) | — | 15m36s (one run, build-lock waits included) |
 
 `xcodebuild archive` deletes its intermediates at the start of every archive (every folder under
 `ArchiveIntermediates` is re-created and every package recompiles), so an archive is never
