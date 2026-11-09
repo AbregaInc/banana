@@ -9,8 +9,8 @@ and crops are in `tools/app-store/flavours/calendar-only.json`.
 | # | iPhone 6.9" | iPad 13" (landscape) | Mac | Headline |
 |---|---|---|---|---|
 | 1 | Plan, Day | Plan, Week | Plan, 5-day week | Every calendar in one day. / Many calendars. One you. |
-| 2 | Plan, Week | Plan, Day with the event beside it | Forecast over the week | Your week at a glance. / Every detail, beside your day. |
-| 3 | New event, "Lunch with Sam Friday at 1" | New event over the day | Routines | Add it the way you'd say it. |
+| 2 | Plan, Week | Plan, Day with the event beside it | Routines | Your week at a glance. / Every detail, beside your day. |
+| 3 | New event, "Lunch with Sam Friday at 1" | New event over the day | | Add it the way you'd say it. |
 | 4 | Routines | Routines | | Make room for your routines. |
 | 5 | Forecast opened from Plan, scrolled to Apple Weather's mark | Forecast over the week | | The weather for your plans. |
 | 6 | Settings › Booking | | | Let people book you. |
@@ -26,3 +26,5 @@ Notes
   `AppStore/Generated/calendar-only/`, copied to `LandingPage/assets/screenshots/calendar-only/`.
 - The Mac set opens real windows, so it waits for a slot the owner picks:
   `python3 -u tools/app-store/generate.py --flavour calendar-only --platform mac --keep-output`.
+- No Mac forecast shot: a Mac sheet is a window of its own, and the capture of it came back as
+  the whole window shrunk with the sheet inside, so the Mac set is the week and Routines.

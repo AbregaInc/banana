@@ -653,11 +653,7 @@ private struct MotionSignatureCard: View {
                 .onTapGesture(count: 2) { resetCamera() }
                 .navigationTitle("3D acceleration signature")
                 .navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .confirmationAction) {
-                        Button("Done") { showExpanded = false }
-                    }
-                }
+                .toolbar { SheetClose { showExpanded = false } }
         }
     }
     #endif

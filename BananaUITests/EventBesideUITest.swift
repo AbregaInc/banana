@@ -35,9 +35,9 @@ final class EventBesideUITest: XCTestCase {
         attachment.lifetime = .keepAlways
         add(attachment)
 
-        app.buttons["Done"].firstMatch.tap()
+        app.buttons["sheet.close"].firstMatch.tap()
         let gone = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == false"), object: title)
-        XCTAssertEqual(XCTWaiter().wait(for: [gone], timeout: 5), .completed, "Done didn't close the panel")
+        XCTAssertEqual(XCTWaiter().wait(for: [gone], timeout: 5), .completed, "Close didn't close the panel")
     }
 
     func testUprightTheEventOpensAsASheet() {

@@ -473,12 +473,8 @@ struct MacShortcutsSheet: View {
             .padding(DS.Space.xl)
         }
         .frame(width: 440)
-        // Only looked at: the system's Done, where a Mac sheet puts it. Return closes.
-        .toolbar {
-            ToolbarItem(placement: .confirmationAction) {
-                Button("Done") { center.showsShortcuts = false }
-            }
-        }
+        // Only looked at: the system's Close (`SheetClose`); Esc closes.
+        .toolbar { SheetClose { center.showsShortcuts = false } }
     }
 }
 #endif

@@ -26,11 +26,11 @@ OUT = HERE / "site/assets/img"
 
 # name on the site, source capture, width in pixels (twice the widest it is shown). The site shows
 # the calendar-only App Store build; swapping a picture is changing its source here and running
-# `python3 LandingPage/build_site.py captures`. The Mac picture waits for a calendar-only capture
-# (the old mac/raw/01-plan.png shows module tabs), so the home page shows no Mac tab until then.
+# `python3 LandingPage/build_site.py captures`.
 CAPTURES = [
     ("phone-plan", "calendar-only/iphone/raw/01-plan.png", 780),
     ("ipad-plan", "calendar-only/ipad/raw/01-plan.png", 1500),
+    ("mac-plan", "calendar-only/mac/raw/01-plan.png", 1320),
 ]
 
 

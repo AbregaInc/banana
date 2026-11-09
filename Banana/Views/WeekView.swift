@@ -4994,10 +4994,7 @@ struct WeekView: View {
             .navigationTitle(day.date.formatted(.dateTime.weekday().month().day()))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") { mobileDayList = nil }
-                        .accessibilityIdentifier("calendar.day.items.done")
-                }
+                SheetClose(id: "calendar.day.items.done") { mobileDayList = nil }
             }
         }
     }

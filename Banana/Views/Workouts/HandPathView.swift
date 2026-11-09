@@ -305,10 +305,8 @@ struct HandPathView: View {
             .navigationTitle("Hand path")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) { cameraMenu }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") { showExpanded = false }
-                }
+                SheetClose { showExpanded = false }
+                ToolbarItem(placement: .primaryAction) { cameraMenu }
             }
         }
     }
