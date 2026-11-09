@@ -118,6 +118,17 @@ enum ShellLayout: Equatable, Sendable {
     static let macWindowButtonsEnd: Double = 76
 }
 
+/// What needs attention, as chips in today's row beside the reminders (`PlanAttentionChips`).
+enum PlanAttentionLine {
+    /// The chips a row shows: all of them, or where the row folds what doesn't fit (`limit`), one
+    /// fewer and a "+N more" chip that opens the rest.
+    static func shown(_ count: Int, limit: Int?) -> (chips: Int, more: Int) {
+        guard let limit, count > limit else { return (count, 0) }
+        let chips = max(0, limit - 1)
+        return (chips, count - chips)
+    }
+}
+
 /// The rail on an iPad on its side and on the Mac hides and shows like a system sidebar, and
 /// stays as it was left (owner, 9 Nov 2026). One stored value for both.
 enum ShellRailVisibility {

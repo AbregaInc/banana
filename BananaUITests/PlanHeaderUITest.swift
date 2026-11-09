@@ -16,9 +16,8 @@ final class PlanHeaderUITest: XCTestCase {
         XCTAssertLessThan(day.frame.minY, search.frame.maxY, "The view switch uses the top bar after removing the page title")
         XCTAssertFalse(day.frame.intersects(search.frame), "The picker must not overlap search")
         XCTAssertTrue(app.buttons["Mark Call the plumber done"].exists)
-        if app.buttons["plan.attention"].exists {
-            XCTAssertFalse(app.buttons["plan.attention"].label.contains("reminder"), "Reminders already appear in their own actionable row")
-        }
+        // What needs attention is in the reminders' row, not a band of its own.
+        XCTAssertFalse(app.buttons["plan.attention"].exists, "no attention band")
         let shot = XCTAttachment(screenshot: app.screenshot())
         shot.name = "Plan header — sample data"; shot.lifetime = .keepAlways; add(shot)
         search.tap()

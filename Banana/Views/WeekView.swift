@@ -332,6 +332,9 @@ struct MacWeekView: View {
     @State private var remindersExpanded = false
     /// The day whose whole "No time" list is open, from its "+N more".
     @State private var untimedOverflowDay: Date?
+    /// Only whether anything needs attention, and how much: the chips are their own subview
+    /// (`PlanAttentionChips`), so their stores' publishes never rebuild this grid.
+    @ObservedObject private var attention = PlanAttention.shared
     @State private var reschedulingTask: Occurrence?
     @State private var editingTask: Occurrence?
     @State private var eventSheet: CalendarEventSheet?
@@ -389,7 +392,6 @@ struct MacWeekView: View {
             VStack(spacing: 0) {
                 // A trip timed to a guessed place asks here too, as it does on the phone.
                 PlanPromptCard()
-                PlanAttentionBand()
                 if dayMode { ReminderTimingOffers().padding(.vertical, DS.Space.xs) }
                 dayHeaders
                 if hasReminderRows {
@@ -1014,6 +1016,11 @@ struct MacWeekView: View {
                                 } else {
                                     reminderRow(occurrence)
                                 }
+                            }
+                            // What else needs attention, beside today's reminders.
+                            if day.isToday, attention.count > 0 {
+                                PlanAttentionChips(desktop: true)
+                                    .frame(maxWidth: .infinity, minHeight: reminderRowHeight - 3, alignment: .leading)
                             }
                             if folded || (remindersExpanded && line.count > maxVisibleReminderRows) {
                                 Button {
@@ -2140,7 +2147,7 @@ struct MacWeekView: View {
     }
 
     private var hasReminderRows: Bool {
-        days.contains { !reminderLine($0).isEmpty }
+        days.contains { !reminderLine($0).isEmpty || ($0.isToday && attention.count > 0) }
     }
 
     private var hasUntimedItems: Bool {
@@ -2163,7 +2170,7 @@ struct MacWeekView: View {
     }
 
     private var reminderRowsHeight: CGFloat {
-        let largestDay = days.map { reminderLine($0).count }.max() ?? 0
+        let largestDay = days.map { reminderLine($0).count + ($0.isToday ? attention.count : 0) }.max() ?? 0
         // Opened ("+N more"): every reminder and the "Fewer" row under them.
         let visibleRows = remindersExpanded && largestDay > maxVisibleReminderRows
             ? largestDay + 1
@@ -3701,6 +3708,9 @@ struct WeekView: View {
     @State private var overdueTasks: [Occurrence] = []
     /// The reminders line opened past its first few.
     @State private var showsEveryReminder = false
+    /// Only whether anything needs attention: the chips are their own subview
+    /// (`PlanAttentionChips`), so their stores' publishes never rebuild this grid.
+    @ObservedObject private var attention = PlanAttention.shared
 
     init(dayMode: Bool = false) {
         self.dayMode = dayMode
@@ -4325,9 +4335,6 @@ struct WeekView: View {
     private var mobilePlanner: some View {
         VStack(spacing: 0) {
             PlanPromptCard()
-            // In the bottom-bar shell what needs attention is a count on the title, and the
-            // dates are the title's: no rows of their own.
-            if !bottomBarShell { PlanAttentionBand() }
             // A repeating reminder that follows a moment, offered it (`AnchorSuggestions`):
             // above the day, where Plan's List had it.
             if dayMode { ReminderTimingOffers().padding(.bottom, DS.Space.xs) }
@@ -4442,6 +4449,8 @@ struct WeekView: View {
     /// How many reminders the line shows before "+N more": two or three lines of chips, so the
     /// day below keeps most of the screen however much is outstanding.
     private static let reminderLineLimit = 4
+    /// The attention chips the wrapping line shows before "+N more" opens the rest.
+    private static let attentionLineLimit = 3
 
     /// Due routines and reminders share one wrapping band above the hours. Today also includes
     /// every outstanding reminder (`OutstandingReminders`). Existing actions and overflow stay
@@ -4455,11 +4464,14 @@ struct WeekView: View {
         let moments = (day?.items ?? []).filter {
             untimedMomentIsDue($0, routines: routines.routines, signals: signals)
         }
-        if !reminders.isEmpty || !moments.isEmpty {
+        // What else needs attention: today's, in the same row (`PlanAttentionChips`).
+        let attends = (day?.isToday ?? false) && attention.count > 0
+        if !reminders.isEmpty || !moments.isEmpty || attends {
             let shown = showsEveryReminder ? reminders : Array(reminders.prefix(Self.reminderLineLimit))
             WrappingLayout(spacing: DS.Space.s, lineSpacing: DS.Space.xs + 2, fitsWidth: true) {
                 ForEach(moments) { untimedCueChip($0) }
                 ForEach(shown) { reminderChip($0) }
+                if attends { PlanAttentionChips(limit: Self.attentionLineLimit) }
                 if reminders.count > Self.reminderLineLimit {
                     Button {
                         withAnimation(.snappy(duration: 0.2)) { showsEveryReminder.toggle() }
@@ -4499,12 +4511,15 @@ struct WeekView: View {
         let moments = (day?.items ?? []).filter {
             untimedMomentIsDue($0, routines: routines.routines, signals: signals)
         }
-        if !events.isEmpty || !reminders.isEmpty || !moments.isEmpty {
+        let attends = (day?.isToday ?? false) && attention.count > 0
+        if !events.isEmpty || !reminders.isEmpty || !moments.isEmpty || attends {
             ScrollView(.horizontal) {
                 HStack(spacing: DS.Space.s) {
                     ForEach(events) { allDayEventChip($0) }
                     ForEach(moments) { untimedCueChip($0) }
                     ForEach(reminders) { reminderChip($0) }
+                    // Every one of them, as the row's reminders are.
+                    if attends { PlanAttentionChips() }
                 }
                 .padding(.horizontal, DS.Space.m)
                 .padding(.vertical, DS.Space.xs + 2)

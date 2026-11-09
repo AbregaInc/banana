@@ -206,6 +206,25 @@ final class ShellRulesTests: XCTestCase {
         XCTAssertTrue(PlanPaging.topRowLayouts(isCurrent: true, hasForecast: false).allSatisfy { !$0.today && !$0.forecast })
     }
 
+    /// Attention chips: all where they fit; past the limit, one fewer and "+N more" for the rest.
+    func testAttentionChipsFoldOnlyPastTheLimit() {
+        XCTAssertTrue(PlanAttentionLine.shown(2, limit: 3) == (2, 0))
+        XCTAssertTrue(PlanAttentionLine.shown(3, limit: 3) == (3, 0))
+        XCTAssertTrue(PlanAttentionLine.shown(5, limit: 3) == (2, 3))
+        XCTAssertTrue(PlanAttentionLine.shown(9, limit: nil) == (9, 0))
+    }
+
+    /// The grid observes only the attention count (`PlanAttention`): the stores behind the chips
+    /// publish often, and the clock grid must not rebuild for them (ui-performance-contract.md).
+    func testThePlanGridDoesNotObserveTheAttentionStores() throws {
+        let source = try String(contentsOf: SourceTree.root.appendingPathComponent("Banana/Views/WeekView.swift"), encoding: .utf8)
+        for store in ["MealInboxStore", "WellnessStore", "AnchoredTimingHub"] {
+            XCTAssertFalse(source.contains("@ObservedObject private var") && source.contains("= \(store).shared"),
+                           "WeekView observes \(store)")
+        }
+        XCTAssertFalse(source.contains("PlanAttentionBand"), "the attention band is gone")
+    }
+
     /// The Mac's rail has no Settings (the app menu's ⌘, opens its window); an iPad's keeps it.
     func testTheMacsRailHasNoSettings() {
         let on = ShellPage.Modules()

@@ -93,11 +93,6 @@ struct PlanPeriodMenu: View {
     let dates: String
     var datesPlace = DatesPlace.beside
     enum DatesPlace: Hashable { case beside, under, hidden }
-    /// What needs attention (the bottom-bar shell, which has no row for it): a count beside the
-    /// name and the list first under the chevron (`PlanAttentivePeriodMenu`).
-    var attentionCount = 0
-    var attentionSummary = ""
-    var openAttention: (() -> Void)? = nil
     @AppStorage("planMode") private var mode: PlanMode = .day
     #if os(macOS)
     @AppStorage("macWeekSpan") private var span: MacWeekSpan = .sevenDays
@@ -137,15 +132,10 @@ struct PlanPeriodMenu: View {
     }
 
     var body: some View {
+        // What needs attention is in the day's row with the reminders (`PlanAttentionChips`), not
+        // a count or an entry here.
         PageTitleMenu(title: name(choice.wrappedValue), subtitle: datesPlace != .hidden && !dates.isEmpty ? dates : nil,
-                      badge: attentionCount, identifier: Self.identifier) {
-            if attentionCount > 0, let openAttention {
-                Button { openAttention() } label: {
-                    Label("Needs attention", systemImage: "tray.full")
-                    Text(attentionSummary)
-                }
-                .accessibilityIdentifier("plan.attention")
-            }
+                      identifier: Self.identifier) {
             Picker("View", selection: choice) {
                 ForEach(Self.choices, id: \.self) { Text(name($0)).tag($0) }
             }
@@ -238,7 +228,7 @@ struct PlanPagingToolbar<Accessory: View>: ToolbarContent {
 #if os(iOS)
 /// The same group as a row of its own: the bottom-bar shell's top row (a phone, an iPad upright),
 /// whose hidden bar would fold it into an overflow menu. Glass capsules, as the bar's would be;
-/// the period picker carries what needs attention there (`PlanAttentivePeriodMenu`).
+/// what needs attention is in the day's row with the reminders (`PlanAttentionChips`).
 struct PlanPagingRow: View {
     let days: Int
     let dates: String
@@ -253,7 +243,7 @@ struct PlanPagingRow: View {
         HStack(spacing: DS.Space.s) {
             HStack(spacing: 0) {
                 PlanStepButton(delta: -1, days: days, framed: true, step: step)
-                PlanAttentivePeriodMenu(dates: dates, datesPlace: datesPlace)
+                PlanPeriodMenu(dates: dates, datesPlace: datesPlace)
                     .frame(minHeight: 44)
                 PlanStepButton(delta: 1, days: days, framed: true, step: step)
             }
