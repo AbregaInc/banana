@@ -476,8 +476,15 @@ struct ReviewToolbarItem: ToolbarContent {
 
     var body: some ToolbarContent {
         #if os(iOS)
+        if wideShell {
+            // First at the leading edge, a group of its own, as a system sidebar's button is.
+            ToolbarItem(placement: .topBarLeading) { ShellRailToggle() }
+            ToolbarSpacer(.fixed, placement: .topBarLeading)
+        }
         if wideShell, !fieldInDetail {
-            ToolbarItem(placement: .principal) { ShellToolbarField() }
+            // At the trailing edge, beside the assistant and "…": the bar's last group, in the
+            // same place on every page (HIG, Toolbars: three groups at most).
+            ToolbarItem(placement: .topBarTrailing) { ShellToolbarField() }
                 .sharedBackgroundVisibility(.hidden)
             ToolbarItem(placement: .topBarTrailing) { ShellAIButton() }
         }

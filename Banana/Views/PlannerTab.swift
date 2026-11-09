@@ -182,9 +182,8 @@ struct PlanStepButton: View {
     }
 }
 
-/// Today of Plan's paging group: always there, so the group never shifts; idle on the current period.
+/// Today of Plan's paging group, shown only away from the current period (`PlanPaging.showsToday`).
 struct PlanTodayButton: View {
-    let isCurrent: Bool
     var framed = false
     let toCurrent: () -> Void
 
@@ -195,15 +194,16 @@ struct PlanTodayButton: View {
                 .frame(minHeight: framed ? 44 : nil)
                 .contentShape(Rectangle())
         }
-        .disabled(!PlanPaging.todayEnabled(isCurrent: isCurrent))
         .help(PlanPaging.help("Go to today", key: "T"))
         .accessibilityIdentifier("plan.today")
     }
 }
 
-/// Plan's paging in a wide toolbar (an iPad on its side, the Mac; docs/design/BOTTOM-BAR-SHELL.md):
-/// "‹", the period picker and "›" as one group, then Today on its own, idle on the current period
-/// (`PlanPaging`). `accessory` follows: the forecast, and a spinner while the dates load.
+/// Plan's paging in a wide toolbar (an iPad on its side, the Mac; docs/design/BOTTOM-BAR-SHELL.md),
+/// as two of the bar's three groups (HIG, Toolbars: three at most): "‹", Today away from the
+/// current period, "›"; then the period picker (Day, several days or Week, with the dates) and
+/// `accessory`, the forecast and a spinner while the dates load. The third group is the field
+/// and "…" at the trailing edge.
 struct PlanPagingToolbar<Accessory: View>: ToolbarContent {
     /// The days on screen: 1 in Day, the span in Week.
     let days: Int
@@ -222,17 +222,16 @@ struct PlanPagingToolbar<Accessory: View>: ToolbarContent {
     var body: some ToolbarContent {
         ToolbarItemGroup(placement: Self.leading) {
             PlanStepButton(delta: -1, days: days, step: step)
-            PlanPeriodMenu(dates: dates)
+            if PlanPaging.showsToday(isCurrent: isCurrent) {
+                PlanTodayButton(toCurrent: toCurrent)
+            }
             PlanStepButton(delta: 1, days: days, step: step)
         }
         ToolbarSpacer(.fixed, placement: Self.leading)
-        ToolbarItem(placement: Self.leading) {
-            PlanTodayButton(isCurrent: isCurrent, toCurrent: toCurrent)
-        }
-        ToolbarItem(placement: Self.leading) {
+        ToolbarItemGroup(placement: Self.leading) {
+            PlanPeriodMenu(dates: dates)
             HStack(spacing: DS.Space.s) { accessory }.fixedSize()
         }
-        .sharedBackgroundVisibility(.hidden)
     }
 }
 
@@ -261,7 +260,7 @@ struct PlanPagingRow: View {
             .font(.body.weight(.medium))
             .glassEffect(.regular.interactive(), in: .capsule)
             if showsToday {
-                PlanTodayButton(isCurrent: isCurrent, framed: true, toCurrent: toCurrent)
+                PlanTodayButton(framed: true, toCurrent: toCurrent)
                     .glassEffect(.regular.interactive(), in: .capsule)
             }
         }

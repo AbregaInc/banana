@@ -717,6 +717,8 @@ struct RootView: View {
         }
     }
     @State private var lastBody = AppSection.workouts
+    /// The rail hidden or shown (`ShellRailToggle`), as a system sidebar is.
+    @AppStorage(ShellRailVisibility.key) private var railShown = true
 
     /// Each tab hosts the toast itself (not the TabView): inside a tab the bottom safe area already
     /// clears the tab bar and the now-playing accessory, so the toast sits just above them.
@@ -725,8 +727,9 @@ struct RootView: View {
         // not a screen of its own. Where a landscape iPad's room is, the rail of pages at the left
         // edge (docs/design/BOTTOM-BAR-SHELL.md, Wide); anywhere narrower, the bar at the bottom.
         HStack(spacing: 0) {
-            if !bottomBarShell {
+            if !bottomBarShell, railShown {
                 ShellRail(pages: shellPages, current: currentShellPage, open: openShellPage)
+                    .transition(.move(edge: .leading))
             }
             browseTabs
         }

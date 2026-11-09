@@ -120,8 +120,8 @@ struct MailWideTopRow: View {
                 .frame(minHeight: 44)
                 .glassEffect(.regular.interactive(), in: .capsule)
             Spacer(minLength: DS.Space.m)
+            // Beside the assistant and "…", as on every wide page.
             ShellToolbarField()
-            Spacer(minLength: DS.Space.m)
             if ShellAssistant.isAvailable {
                 ShellAIButton()
                     .font(.title3)

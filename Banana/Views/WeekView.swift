@@ -3945,6 +3945,8 @@ struct WeekView: View {
                 // its items into an overflow menu, with room to spare, once Today joined "‹ ›",
                 // and the row has to fit a 13 mini.
                 if wideShell {
+                    // First: the sidebar button leads the bar, as on every page.
+                    ReviewToolbarItem(section: .plan)
                     PlanPagingToolbar(days: dayMode ? 1 : 7,
                                       dates: PlanPaging.dates(start: mobileVisibleWeekStart, days: dayMode ? 1 : 7),
                                       isCurrent: mobileWeekOffset == 0,
@@ -3952,7 +3954,6 @@ struct WeekView: View {
                         mobileForecast
                         if mobileWeekLoading { ProgressView().controlSize(.mini) }
                     }
-                    ReviewToolbarItem(section: .plan)
                     ToolbarItem(placement: .topBarTrailing) {
                         MoreMenu(identifier: "mobile.week.more") {
                             if booking.canShare { BookingShareButton() }

@@ -109,9 +109,8 @@ final class BottomBarShellUITest: XCTestCase {
     // MARK: Plan paging
 
     /// The top row is the paging group every shell has: "‹", the period picker, "›", then Today
-    /// (idle on the current period), and "…" at the end. One of each; "‹ ›" step a week in Week
-    /// and a day in Day, and Today brings it back. On the current period, where Today and the
-    /// forecast don't both fit, the forecast is in Today's place (`PlanPaging.topRowLayouts`).
+    /// away from the current period (`PlanPaging.showsToday`), and "…" at the end. One of each;
+    /// "‹ ›" step a week in Week and a day in Day, and Today brings it back and goes.
     func testThePagingButtonsStepEachModeAndTodayReturns() throws {
         for (mode, name, unit) in [("week", "Week", "week"), ("day", "Day", "day")] {
             let app = try launch(["--tab", "plan", "--plan", "-planMode", mode])
@@ -129,24 +128,21 @@ final class BottomBarShellUITest: XCTestCase {
             XCTAssertEqual(app.buttons.matching(NSPredicate(format: "label == %@", "Previous \(unit)")).count, 1, "one \u{2039}")
             XCTAssertEqual(app.buttons.matching(NSPredicate(format: "label == %@", "Next \(unit)")).count, 1, "one \u{203A}")
             let todays = count("label == 'Today' OR label BEGINSWITH 'Return to'")
-            XCTAssertLessThanOrEqual(todays, 1, "one Today")
-            // Today's slot: Today, or on the current period the forecast in its place.
-            let slot = todays == 1 ? today : weather
-            XCTAssertTrue(slot.exists, "neither Today nor the forecast after \u{203A}")
-            // ‹ picker › Today (or the forecast) … on one line, all in reach.
+            XCTAssertEqual(todays, 0, "no Today on the current \(mode)")
+            // After "›": the forecast where there is one, then "…".
+            let slot = weather.exists ? weather : more
+            // ‹ picker › (the forecast) … on one line, all in reach.
             XCTAssertLessThanOrEqual(previous.frame.maxX, period.frame.minX + 1)
             XCTAssertLessThanOrEqual(period.frame.maxX, next.frame.minX + 1)
             XCTAssertLessThanOrEqual(next.frame.maxX, slot.frame.minX + 1)
-            XCTAssertLessThanOrEqual(slot.frame.maxX, more.frame.minX + 1)
+            if weather.exists { XCTAssertLessThanOrEqual(slot.frame.maxX, more.frame.minX + 1) }
             for control in [period, next, slot, more] {
                 XCTAssertEqual(control.frame.midY, previous.frame.midY, accuracy: 12, "on the top row")
             }
             for control in [previous, next] {
                 XCTAssertGreaterThanOrEqual(control.frame.height, 43, "a full-size target")
             }
-            if todays == 1 { XCTAssertGreaterThanOrEqual(today.frame.height, 43, "a full-size target") }
             XCTAssertTrue(more.isHittable)
-            if todays == 1 { XCTAssertFalse(today.isEnabled, "Today, idle on the current \(mode)") }
             shot("plan-\(mode)")
 
             let start = period.value as? String
@@ -163,10 +159,10 @@ final class BottomBarShellUITest: XCTestCase {
             XCTAssertTrue(period.label.hasPrefix(name), "the period's name stays")
             if mode == "week" { shot("plan-week-next") }
             today.tap()
-            XCTAssertTrue(waitUntil(timeout: 5) { (period.value as? String) == start && !(today.exists && today.isEnabled) },
-                          "Today returns")
+            XCTAssertTrue(waitUntil(timeout: 5) { (period.value as? String) == start && !today.exists },
+                          "Today returns, and goes")
             previous.tap()
-            XCTAssertTrue(waitUntil(timeout: 5) { (period.value as? String) != start && today.isEnabled }, "back a \(mode)")
+            XCTAssertTrue(waitUntil(timeout: 5) { (period.value as? String) != start && today.exists }, "back a \(mode)")
             if mode == "day" { XCTAssertEqual(period.value as? String, dayText(-1)) }
             app.terminate()
         }

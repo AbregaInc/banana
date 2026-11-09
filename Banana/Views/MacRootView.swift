@@ -169,7 +169,7 @@ struct MacRootView: View {
         on.notes = modules.includes(.notes)
         on.library = modules.includes(.podcasts)
         on.review = AppSection.review.isShown(with: modules.effectiveChoice)
-        return ShellPage.listed(on)
+        return ShellPage.rail(on, mac: true)
     }
 
     private var railCurrent: ShellPage? { ShellPage.showing(nav.section) }
@@ -186,16 +186,24 @@ struct MacRootView: View {
         }
     }
 
+    /// Whether the rail is shown: hidden and shown like a system sidebar (the toolbar's sidebar
+    /// button, View › Hide Sidebar ⌃⌘S), and kept across launches (`ShellRailVisibility`).
+    @AppStorage(ShellRailVisibility.key) private var railShown = true
+
+    private var railVisibility: Binding<NavigationSplitViewVisibility> {
+        Binding(get: { railShown ? .all : .detailOnly },
+                set: { railShown = $0 != .detailOnly })
+    }
+
     var body: some View {
-        NavigationSplitView {
+        NavigationSplitView(columnVisibility: railVisibility) {
             // The rail: round page buttons under the traffic lights, in place of the source list.
             // Routines, which had a row, is in each page's "…" (`MoreMenu`).
             ShellRail(pages: railPages, current: railCurrent, open: openRailPage)
                 .navigationSplitViewColumnWidth(min: ShellRail.width, ideal: ShellRail.width, max: ShellRail.width)
-                .toolbar(removing: .sidebarToggle)
                 // The column widths above are only a request: AppKit's sidebar kept its own
                 // minimum (and a width saved from before), ~200 pt in Beta 105. Pin the split
-                // view's sidebar item itself.
+                // view's sidebar item's width itself; it still collapses.
                 .background(MacRailColumnPin(width: ShellRail.width))
                 .accessibilityIdentifier("app.sidebar")
         } detail: {
@@ -267,7 +275,8 @@ struct MacRootView: View {
                     // The window's one toolbar: "Search or ask" in the middle and the assistant beside
                     // it, on every page; each page adds its title menu and "…".
                     .toolbar {
-                        ToolbarItem(placement: .principal) { ShellToolbarField() }
+                        // Beside "…" at the trailing edge, the toolbar's last group, on every page.
+                        ToolbarItem(placement: .primaryAction) { ShellToolbarField() }
                         #if BANANA_AI
                         ToolbarItem(placement: .primaryAction) {
                             Button {
@@ -571,6 +580,8 @@ struct MacCommands: Commands {
     @ObservedObject private var modules = ModuleStore.shared
 
     var body: some Commands {
+        // View › Show/Hide Sidebar (⌃⌘S), for the rail (HIG, Sidebars: let people hide it).
+        SidebarCommands()
         #if BANANA_DIRECT
         CommandGroup(after: .appInfo) {
             DirectMacUpdateButton()
@@ -745,9 +756,8 @@ private struct MacRailColumnPin: NSViewRepresentable {
                   let sidebar = controller.splitViewItems.first else { return }
             if sidebar.minimumThickness != width { sidebar.minimumThickness = width }
             if sidebar.maximumThickness != width { sidebar.maximumThickness = width }
-            if sidebar.canCollapse { sidebar.canCollapse = false }
-            if sidebar.isCollapsed { sidebar.isCollapsed = false }
-            if let column = split.arrangedSubviews.first, abs(column.frame.width - width) > 0.5 {
+            if !sidebar.canCollapse { sidebar.canCollapse = true }
+            if !sidebar.isCollapsed, let column = split.arrangedSubviews.first, abs(column.frame.width - width) > 0.5 {
                 split.setPosition(width, ofDividerAt: 0)
             }
         }
