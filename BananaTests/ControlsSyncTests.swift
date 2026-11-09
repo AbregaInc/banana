@@ -375,6 +375,23 @@ final class ZoomTapGateTests: XCTestCase {
     }
 }
 
+/// A build lists, and asks about, only the data its modules have: the calendar-only App Store
+/// app shows no Workouts, Meals or Listening sync and no Health consent.
+final class ModuleSyncScopeTests: XCTestCase {
+    func testOnlyTheCarriedModulesKindsOfDataAreListed() {
+        XCTAssertEqual(SyncDomain.carried([]), [.controls])
+        XCTAssertEqual(SyncDomain.carried([.food]), [.wellness, .controls, .meals])
+        XCTAssertEqual(SyncDomain.carried(Set(AppModule.allCases)), SyncDomain.allCases)
+    }
+
+    func testTheHealthConsentBelongsToBuildsWithHealthOrFood() {
+        XCTAssertFalse(AppModule.healthConsentApplies([]))
+        XCTAssertFalse(AppModule.healthConsentApplies([.notes, .podcasts]))
+        XCTAssertTrue(AppModule.healthConsentApplies([.food]))
+        XCTAssertTrue(AppModule.healthConsentApplies([.workouts]))
+    }
+}
+
 /// What a page and Settings say while data is still arriving.
 final class SyncActivityTests: XCTestCase {
     private let t0 = Date(timeIntervalSinceReferenceDate: 800_000_000)

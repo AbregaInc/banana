@@ -35,10 +35,11 @@ Device ID, Crash Data, Performance Data, Other Diagnostic Data, Other Data Types
 - The labels belong to the app record, not a build. When a later version brings a module back,
   tick its types again before that version goes out (`app-privacy.md` has them).
 
-## Open, not changed here
+## The build's privacy manifest
 
-- The build's embedded privacy manifest (`Banana/PrivacyInfo.xcprivacy`) is the full app's:
-  `tools/modules/modules.py` derives the App Store Info.plist and entitlements from the module
-  set, not the privacy manifest. It still declares Health, Fitness, Photos or Videos, Audio Data
-  and Search History. Declaring more than the build collects is not a rejection reason, but the
-  manifest and the labels will disagree until modules.py derives it too.
+The App Store build bundles `Config/Generated/AppStore-PrivacyInfo.xcprivacy`, which
+`tools/modules/modules.py generate` derives from `Banana/PrivacyInfo.xcprivacy` with only the data
+types its modules collect (`Config/Modules.json`, "privacy"): no Health, Fitness, Photos or
+Videos, Audio Data or Search History, and Product Interaction for Analytics only, the same as the
+labels above. `tools/local-feature-resources.sh` puts it in the AppStore configuration's bundle
+and `tools/check-release.sh` refuses an archive whose manifest declares a left-out module's data.

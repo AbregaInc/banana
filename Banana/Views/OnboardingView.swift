@@ -169,14 +169,10 @@ struct OnboardingView: View {
             ArtCanvas(top: FirstRunArt.connect.top, bottom: FirstRunArt.connect.bottom) { art in
                 ConnectScene(art: art, mail: withEmail && onboarding.emailWanted)
             }
+            // No line under the calendar-only page: Banana edits events too (calendar.events), so
+            // "only reads" was untrue beside Google's own consent screen.
             if withEmail {
                 ConnectRows(emailWanted: $onboarding.emailWanted, locked: !emails.isEmpty)
-            } else {
-                Text("Connecting only reads your calendars.")
-                    .font(FirstRun.bodyFont)
-                    .foregroundStyle(FirstRun.ink)
-                    .frame(maxWidth: .infinity)
-                    .multilineTextAlignment(.center)
             }
             if !emails.isEmpty {
                 AccountRows(emails: emails, adding: connecting) { Task { await addAccount() } }

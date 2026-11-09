@@ -1,8 +1,9 @@
 {
-  "about": "What each module brings into a build beyond its code (#if BANANA_MODULE_*): the frameworks its code links, the files it bundles, the entitlements, Info.plist keys, background modes, background task identifiers and URL schemes it needs, the targets embedded only for it, and type names that only its code defines. A build whose BANANA_MODULES leaves a module out carries none of them (tools/modules/modules.py derives the Info.plist, entitlements and where an embedded target goes; tools/check-release.sh refuses an artifact that has any). An item several modules list stays while any of them is carried. Everything else in an app's Info.plist and entitlements is the core's: 'core' lists the capability keys of that kind, so a new one has to be put somewhere (ModuleCapabilityTests).",
+  "about": "What each module brings into a build beyond its code (#if BANANA_MODULE_*): the frameworks its code links, the files it bundles, the entitlements, Info.plist keys, background modes, background task identifiers and URL schemes it needs, the targets embedded only for it, and type names that only its code defines. A build whose BANANA_MODULES leaves a module out carries none of them (tools/modules/modules.py derives the Info.plist, entitlements and where an embedded target goes; tools/check-release.sh refuses an artifact that has any). An item several modules list stays while any of them is carried. Everything else in an app's Info.plist and entitlements is the core's: 'core' lists the capability keys of that kind, so a new one has to be put somewhere (ModuleCapabilityTests). 'privacy' names the privacy manifest's collected data types only that module collects, or Type/Purpose for a purpose only it adds; the App Store app's PrivacyInfo.xcprivacy leaves them out (tools/local-feature-resources.sh puts the derived one in).",
   "modules": {
     "workouts": {
       "condition": "BANANA_MODULE_WORKOUTS",
+      "privacy": ["NSPrivacyCollectedDataTypeHealth", "NSPrivacyCollectedDataTypeFitness"],
       "frameworks": ["HealthKit"],
       "entitlements": ["com.apple.developer.healthkit", "com.apple.developer.healthkit.access"],
       "info": ["NSHealthShareUsageDescription", "NSHealthUpdateUsageDescription"],
@@ -10,6 +11,7 @@
     },
     "food": {
       "condition": "BANANA_MODULE_FOOD",
+      "privacy": ["NSPrivacyCollectedDataTypeHealth", "NSPrivacyCollectedDataTypePhotosorVideos", "NSPrivacyCollectedDataTypeSearchHistory"],
       "frameworks": ["Photos", "VisionKit"],
       "resources": ["Foods.sqlite", "BarcodeProducts.sqlite", "GenericFoods.json", "TakenVocabulary.json"],
       "entitlements": ["com.apple.security.personal-information.photos-library"],
@@ -20,6 +22,7 @@
     },
     "notes": {
       "condition": "BANANA_MODULE_NOTES",
+      "privacy": ["NSPrivacyCollectedDataTypeAudioData"],
       "frameworks": ["Speech"],
       "entitlements": ["com.apple.security.device.audio-input"],
       "info": ["NSMicrophoneUsageDescription", "NSSpeechRecognitionUsageDescription"],
@@ -28,6 +31,7 @@
     },
     "podcasts": {
       "condition": "BANANA_MODULE_PODCASTS",
+      "privacy": ["NSPrivacyCollectedDataTypeProductInteraction/NSPrivacyCollectedDataTypePurposeAppFunctionality"],
       "frameworks": ["Speech", "MusicKit", "MediaPlayer", "AVKit"],
       "resources": ["NarratorVoiceModel.mlpackage", "NarratorVoiceModel.mlmodelc", "NarratorVoiceModel-LICENSE.txt",
                     "acq2.jpg", "acquired.jpg", "complex-systems.jpg", "gamecraft.jpg", "get-sleepy.jpg", "step-change.jpg"],

@@ -92,6 +92,14 @@ enum AppModule: String, CaseIterable, Identifiable, Sendable {
         }
     }
     static var selectable: [AppModule] { allCases.filter(\.isAvailable) }
+
+    /// The modules whose data the Health consent covers (DATA-PLATFORM.md §7: health, and food).
+    static let healthConsentModules: Set<AppModule> = [.workouts, .food]
+    /// Whether a build with these modules has anything the Health consent covers. One without
+    /// (the calendar-only App Store app) neither asks for it nor shows its switch.
+    static func healthConsentApplies(_ modules: Set<AppModule> = carried) -> Bool {
+        !healthConsentModules.isDisjoint(with: modules)
+    }
     func statusLabel(inBeta: Bool) -> String? { inBeta ? "Beta" : nil }
     var statusLabel: String? { statusLabel(inBeta: Self.isBetaBuild) }
 

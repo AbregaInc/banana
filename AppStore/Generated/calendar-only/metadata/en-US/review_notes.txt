@@ -1,15 +1,22 @@
-This build is the calendar alone: Plan (Google Calendar, Apple Reminders, routines, alarms, event alerts, weather, travel time) and Settings. It has no Workouts, Sleep, Food, Notes, Podcasts or Email, no Apple Watch app, and no HealthKit, background audio, background or Always location, Motion, camera, microphone, photos or speech access. There are no purchases.
+Build 117 is a new, smaller app: the calendar alone. It has Plan (Google Calendar, Apple Reminders, routines, alarms, event alerts, weather, travel time), Booking and Settings. Workouts, Food, Notes, Podcasts, Email and the Apple Watch app are not in this build. There are no purchases.
 
-QUICK REVIEW: SAMPLE WORKSPACE (NO SIGN-IN)
-1. On the welcome screen choose "Explore an example". A Demo banner marks this fictional, local workspace.
-2. Switch Day and Week, change calendar visibility, and create, edit or delete sample events. Complete a reminder or routine. The Alex calendar shows availability only and is read-only.
-3. Edits survive reopening. Demo options > Reset sample data restores the records. Exit demo returns to the personal workspace.
+HOW EARLIER ISSUES ARE RESOLVED IN THIS BUILD
+- 2.5.4 audio: no podcast player and no "audio" background mode.
+- 2.5.4 location: no background or Always location, no visit monitoring and no Motion. Location is When In Use only, for the forecast and travel time. Background modes are only remote notifications and background fetch, which refresh the calendar.
+- 2.5.1 HealthKit: no HealthKit entitlement, no Health usage strings and no Health features.
+- 5.2.5 WeatherKit: in Plan, tap the temperature beside the date (Mac: click it in the toolbar). The forecast ends with the Apple Weather mark and the "Other data sources" link to Apple's legal attribution page. Settings > About > Credits also links it.
+- 2.4.5 (Mac): the com.apple.security.network.server entitlement and the Bonjour/local network keys are removed. The Mac app makes outgoing connections only.
 
-LIVE GOOGLE CALENDAR REVIEW
-Exit the demo. Choose "Continue with Google" during setup, or Settings > Accounts & calendars > Connect Google Calendar, and use the account in App Review Sign-In Information. After allowing Calendar access, test Day and Week, visibility, and creating, editing and deleting an event.
+QUICK REVIEW, NO SIGN-IN
+1. On the welcome screen choose "Explore an example" (or Settings > About > Try with sample data). A Demo banner marks this fictional, local workspace.
+2. Switch Day and Week, change calendar visibility, create, edit and delete sample events, complete a reminder or routine. The Alex calendar shows availability only and is read-only.
+3. Demo options > Reset sample data restores it. Exit demo returns to your own setup.
 
-Booking (Settings > Booking) and its link need the Banana account that signing in with Google creates.
+LIVE GOOGLE CALENDAR
+Exit the demo. Choose "Continue with Google" on the calendar step, or Settings > Accounts & calendars > Connect Google Calendar, and use the Google account in App Review Sign-In Information. This is Google's own sign-in; Banana has no password of its own. Allow Calendar access, then test Day and Week, visibility, and creating, editing and deleting an event. "Not now" on the same step skips Google; routines, alarms and reminders work without it.
 
-Account deletion is in Settings > Accounts & calendars > Delete account and requires fresh authentication.
+GUIDELINE 4.8
+Banana is a client for Google Calendar: what it shows and edits is the person's own Google Calendar content, read and written through the Google Calendar API under their Google sign-in. We ask that the 4.8 exception for clients of a specific third-party service apply. To be complete: connecting Google also creates a Banana service record keyed to that Google account. It relays Google's calendar change notifications to the person's devices, keeps routines and settings in step between them, and hosts the Booking page (Settings > Booking), whose bookings are written into the person's Google Calendar. It has no profile or password of its own, and it is deleted in Settings > Accounts & calendars > Delete account (confirmed with a fresh Google sign-in).
 
-Weather shows Apple Weather attribution and its legal link on the forecast. Location is used only while the app is in use, for the forecast and travel time. This build does not ask for Always location or Motion and does not monitor visits.
+PERMISSIONS, ALL OPTIONAL
+Calendar (Google), Reminders, Notifications, Alarms (AlarmKit, for wake alarms), Contacts (picking guests) and Location When In Use. Each can be declined.

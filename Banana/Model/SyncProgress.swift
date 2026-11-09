@@ -21,6 +21,22 @@ enum SyncDomain: String, CaseIterable, Sendable {
         }
     }
 
+    /// The modules whose data this is; empty for the core's. A build that carries none of them
+    /// has nothing of this kind to sync, so it isn't listed (Settings › iCloud).
+    var modules: Set<AppModule> {
+        switch self {
+        case .fitness: [.workouts, .notes]
+        case .wellness, .meals: [.food]
+        case .progress: [.podcasts]
+        case .controls: []
+        }
+    }
+
+    /// The kinds this build has data of.
+    static func carried(_ modules: Set<AppModule> = AppModule.carried) -> [SyncDomain] {
+        allCases.filter { $0.modules.isEmpty || !$0.modules.isDisjoint(with: modules) }
+    }
+
     /// For "Getting your … from iCloud".
     var noun: String {
         switch self {
