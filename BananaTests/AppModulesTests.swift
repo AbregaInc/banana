@@ -132,6 +132,19 @@ final class AppModulesTests: XCTestCase {
         XCTAssertEqual(AppSection.sidebar(with: .everything), AppSection.sidebar.filter { $0 != .mail || AppModule.email.isAvailable })
     }
 
+    func testWhatOnlyAModuleFeedsGoesWithIt() {
+        // Settings › Apple Watch was still listed in the App Store app, which has no Podcasts,
+        // and opened an empty page; its Routines listed one that waits for a workout to start,
+        // which nothing in that build can see. Each now follows its module.
+        XCTAssertEqual(AppModule.owner(of: .watchSettings), .podcasts)
+        XCTAssertEqual(AppModule.owner(of: .workoutStartTrigger), .workouts)
+        for dependent in AppModule.Dependent.allCases {
+            let owner = AppModule.owner(of: dependent)
+            XCTAssertFalse(ModuleChoice.planOnly.includes(owner), "\(dependent) shows with Plan alone")
+            XCTAssertEqual(ModuleChoice.everything.includes(owner), owner.isAvailable, "\(dependent)")
+        }
+    }
+
     func testASectionSwitchedOffOpensPlan() {
         XCTAssertEqual(AppSection.notes.shown(with: foodOnly), .plan)
         XCTAssertEqual(AppSection.sleep.shown(with: foodOnly), .plan)

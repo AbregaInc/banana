@@ -235,8 +235,11 @@ def compose_standard_iphone(
     # Map attribution belongs to the real UI; keep the entire map capture in frame.
     full_capture = scene["id"].endswith("-listening")
     cropped = source if full_capture else crop_normalized(source, scene.get("crop"))
-    width = 900 if full_capture else 1100
-    x = (canvas.width - width) // 2 if full_capture else (62 if scene.get("align") == "left" else 158)
+    # A tall crop (one that must keep a footer, such as Apple Weather's mark) can ask for a
+    # narrower panel so it still ends inside the canvas.
+    width = scene.get("panel_width", 900 if full_capture else 1100)
+    centred = full_capture or "panel_width" in scene
+    x = (canvas.width - width) // 2 if centred else (62 if scene.get("align") == "left" else 158)
     top = max(760, header_bottom + 22)
     place_panel(
         canvas,

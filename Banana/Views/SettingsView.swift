@@ -21,7 +21,16 @@ private struct SettingsSearchEntry: Identifiable {
 }
 
 struct SettingsView: View {
-    fileprivate static let searchIndex: [SettingsSearchEntry] = [
+    /// Trip learning's own entry, only in a build that carries it (Config/Modules.json "features").
+    private static let tripLearningEntries: [SettingsSearchEntry] = {
+        #if BANANA_FEATURE_TRIP_LEARNING
+        [.init(title: "Learn from my trips", page: .travel, keywords: ["learn", "visits", "motion", "real times", "pace"])]
+        #else
+        []
+        #endif
+    }()
+
+    fileprivate static let searchIndex: [SettingsSearchEntry] = tripLearningEntries + [
         .init(title: "Modules", page: .modules, keywords: ["modules", "features", "tabs", "hide", "show", "turn off", "food", "workouts", "podcasts", "notes"]),
         .init(title: "Record where I listen", page: .podcasts, keywords: ["location", "gps", "route", "privacy"]),
         .init(title: "Skip ads automatically", page: .podcasts, keywords: ["ads", "advert", "sponsor", "promo", "intro", "skip"]),
@@ -50,7 +59,6 @@ struct SettingsView: View {
         .init(title: "Plan my wake and bedtime", page: .wake, keywords: ["wake", "alarm", "bedtime", "sleep", "morning", "smart schedule"]),
         .init(title: "Block travel time", page: .travel, keywords: ["travel", "commute", "busy", "calendar"]),
         .init(title: "Usually by", page: .travel, keywords: ["transit", "drive", "walk", "mode", "subway", "car"]),
-        .init(title: "Learn from my trips", page: .travel, keywords: ["learn", "visits", "motion", "real times", "pace"]),
         .init(title: "Walk short trips", page: .travel, keywords: ["walk", "walking", "distance", "nearby"]),
         .init(title: "Places", page: .travel, keywords: ["gym", "place", "where", "location", "address", "chelsea"]),
         .init(title: "Home", page: .travel, keywords: ["home", "address", "location", "commute"]),
@@ -208,8 +216,7 @@ struct SettingsView: View {
         Section("General") {
             // Apple Watch too, as on the phone: here it holds the audio quality the
             // phone syncs at. It was reachable only through the search field.
-            ForEach([SettingsPage.watch, .icloud, .permissions].filter { $0 != .icloud || !backup.retired },
-                    id: \.self) { sidebarRow($0) }
+            ForEach([SettingsPage.watch, .icloud, .permissions].filter(isShown), id: \.self) { sidebarRow($0) }
         }
         Section { sidebarRow(.about) }
     }
@@ -293,8 +300,7 @@ struct SettingsView: View {
         if page == .icloud, backup.retired { return false }
         // Nothing to switch in a build that carries no module (BANANA_MODULES).
         if page == .modules, modules.selectable.isEmpty { return false }
-        // Sending episodes to the Watch: only a build with Podcasts has it.
-        if page == .watch, !AppModule.podcasts.isAvailable { return false }
+        guard page.isCarried(by: AppModule.carried) else { return false }
         return page.module.map(modules.includes) ?? true
     }
 
@@ -367,6 +373,15 @@ struct SettingsView: View {
             case .workouts: .workouts
             case .food: .food
             default: nil
+            }
+        }
+
+        /// Whether a build carrying these modules has this page at all. Apple Watch holds the
+        /// quality episodes are sent to the Watch at, so it is Podcasts' too.
+        func isCarried(by modules: Set<AppModule>) -> Bool {
+            switch self {
+            case .watch: modules.contains(AppModule.owner(of: .watchSettings))
+            default: module.map(modules.contains) ?? true
             }
         }
 
@@ -672,7 +687,8 @@ struct SettingsView: View {
 
     private var generalSection: some View {
         Section("General") {
-            featureRow(.watch, value: settings.watchAudioQuality.label)
+            // Only with Podcasts, which is what it sends to the Watch (`isShown`).
+            if isShown(.watch) { featureRow(.watch, value: settings.watchAudioQuality.label) }
             // The backup's job is the Banana service's once this device has moved (§6).
             if !backup.retired { featureRow(.icloud, value: backup.enabled ? "Backing up" : "Off") }
             featureRow(.permissions, value: missingPermissions == 0 ? "All allowed" : "\(missingPermissions) off")
@@ -708,6 +724,7 @@ struct SettingsView: View {
     /// One synced setting, the same toggle on every device (docs/design/ADAPTIVE-LAYOUT.md, rule
     /// 5). Learning itself is the phone's — it has the visits and the motion sensor — so the phone
     /// acts on the setting, and says under the toggle, everywhere, how it's going.
+    #if BANANA_FEATURE_TRIP_LEARNING
     @ViewBuilder private var learnFromTripsRow: some View {
         let wanted = smart.settings.learnFromTrips
         VStack(alignment: .leading, spacing: DS.Space.xs) {
@@ -730,6 +747,8 @@ struct SettingsView: View {
             }
         }
     }
+
+    #endif
 
     private var learnedSummary: String {
         let learned = smart.settings.learnedTravel
@@ -780,12 +799,16 @@ struct SettingsView: View {
                 Text("Block travel time")
             }
             .disabled(!calendarWriteBack.enabled)
+            // "Learn from my trips" asks for Always location and Motion: only in a build that carries
+            // trip learning (not the App Store app), and with it what it has learned.
+            #if BANANA_FEATURE_TRIP_LEARNING
             learnFromTripsRow
             if smart.settings.learnedTravel.tripsLearned > 0 {
                 Text(learnedSummary)
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             }
+            #endif
         } footer: {
             Text(calendarWriteBack.enabled
                  ? "Anything under \(PlaceDistance.text(Double(smart.settings.walkShortTripMeters))) is a walk."

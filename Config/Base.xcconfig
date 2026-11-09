@@ -62,7 +62,9 @@ OTHER_SWIFT_FLAGS = $(inherited) $(BANANA_UNRELEASED_SWIFT_$(BANANA_LOCAL_EMAIL)
 // (BananaModules), where tools/check-release.sh reads it back.
 BANANA_MODULE_EMAIL_YES = BANANA_MODULE_EMAIL
 BANANA_MODULE_EMAIL_NO =
-BANANA_ALL_MODULES = BANANA_MODULE_WORKOUTS BANANA_MODULE_FOOD BANANA_MODULE_NOTES BANANA_MODULE_PODCASTS $(BANANA_MODULE_EMAIL_$(BANANA_LOCAL_EMAIL))
+// Features are carried the same way but are not modules: trip learning ("Learn from my trips",
+// Always location and Motion) is Beta's and Stable's, and the App Store app leaves it out.
+BANANA_ALL_MODULES = BANANA_MODULE_WORKOUTS BANANA_MODULE_FOOD BANANA_MODULE_NOTES BANANA_MODULE_PODCASTS BANANA_FEATURE_TRIP_LEARNING $(BANANA_MODULE_EMAIL_$(BANANA_LOCAL_EMAIL))
 BANANA_MODULES = $(BANANA_ALL_MODULES)
 // The App Store app (configuration AppStore): the calendar alone for its first release. Every
 // target of that configuration takes the list, so the widgets compile the same modules as the app.

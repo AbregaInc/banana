@@ -363,7 +363,8 @@ final class OccurrenceStore: ObservableObject {
     /// only there while Workouts and sleep is on (`ModuleStore`); the routine itself is kept.
     private var plannedRoutines: [Routine] {
         let list = routines?.routines ?? RoutineStore.shared.routines
-        return ModuleStore.shared.includes(.workouts) ? list : list.filter { $0.triggerKind != .workoutStart }
+        let choice = ModuleStore.shared.effectiveChoice
+        return list.filter { $0.triggerKind.isOn(in: choice) }
     }
 
     /// A module switched on or off changes which routines are laid out: the week windows are

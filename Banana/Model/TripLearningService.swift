@@ -1,4 +1,4 @@
-#if os(iOS)
+#if os(iOS) && BANANA_FEATURE_TRIP_LEARNING
 import Combine
 import CoreLocation
 import CoreMotion

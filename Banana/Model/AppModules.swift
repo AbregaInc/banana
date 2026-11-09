@@ -75,6 +75,22 @@ enum AppModule: String, CaseIterable, Identifiable, Sendable {
     }
 
     var isAvailable: Bool { Self.carried.contains(self) }
+
+    /// Things outside a module's own screens that only it feeds, so they go with it: in a build
+    /// without the module, or with it switched off, they are neither listed nor offered.
+    enum Dependent: CaseIterable {
+        /// Settings › Apple Watch: the quality Podcasts sends episodes to the Watch at.
+        case watchSettings
+        /// A routine that waits for a workout to start, which Workouts and sleep sees.
+        case workoutStartTrigger
+    }
+
+    static func owner(of dependent: Dependent) -> AppModule {
+        switch dependent {
+        case .watchSettings: .podcasts
+        case .workoutStartTrigger: .workouts
+        }
+    }
     static var selectable: [AppModule] { allCases.filter(\.isAvailable) }
     func statusLabel(inBeta: Bool) -> String? { inBeta ? "Beta" : nil }
     var statusLabel: String? { statusLabel(inBeta: Self.isBetaBuild) }

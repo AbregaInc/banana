@@ -26,9 +26,9 @@ final class RoutineStore: ObservableObject {
 
     /// Built-in cue types the user is currently missing (deleted) — offered as re-addable
     /// templates. `.custom` is never "missing".
-    var missingBuiltInTypes: [CueType] {
+    func missingBuiltInTypes(in choice: ModuleChoice) -> [CueType] {
         CueType.allCases.filter { type in
-            type.isBuiltIn && !routines.contains { $0.cueType == type }
+            type.isBuiltIn && (type.module.map(choice.includes) ?? true) && !routines.contains { $0.cueType == type }
         }
     }
 
@@ -96,9 +96,10 @@ final class RoutineStore: ObservableObject {
 
     var manualRoutines: [Routine] { routines.filter { $0.enabled && $0.triggerKind == .manual } }
 
-    func grouped() -> [(group: RoutineGroup, items: [Routine])] {
+    /// The routines by group, those whose trigger's module is off left out (`RoutineTriggerKind.isOn`).
+    func grouped(in choice: ModuleChoice) -> [(group: RoutineGroup, items: [Routine])] {
         RoutineGroup.allCases.compactMap { g in
-            let items = routines.filter { $0.group == g }.sorted { $0.nominalMinutes < $1.nominalMinutes }
+            let items = routines.filter { $0.group == g && $0.triggerKind.isOn(in: choice) }.sorted { $0.nominalMinutes < $1.nominalMinutes }
             return items.isEmpty ? nil : (g, items)
         }
     }

@@ -9,7 +9,11 @@ struct WeatherChip: View {
 
     /// Where you'll be then, not always where you are: on a day you fly, the afternoon's
     /// forecast is the city you land in (`WeatherStore.located`), as the full forecast shows it.
-    private var hour: HourlyWeather? {
+    private var hour: HourlyWeather? { Self.hour(on: day, in: weather) }
+
+    /// The hour the chip shows for `day`, or nil when there is no forecast for it (and the chip
+    /// draws nothing, so nothing should make room for it).
+    @MainActor static func hour(on day: Date, in weather: WeatherStore) -> HourlyWeather? {
         let now = Date()
         let days = weather.located(at: WeatherGlance.instant(on: day, now: now)).days
         guard let hours = days.first(where: { Calendar.current.isDate($0.date, inSameDayAs: day) })?.hours,
@@ -21,7 +25,7 @@ struct WeatherChip: View {
         if let hour {
             Button { focus = WeatherFocus(id: hour.date) } label: {
                 HStack(spacing: DS.Space.xs) {
-                    Image(systemName: hour.symbol).symbolRenderingMode(.multicolor)
+                    WeatherSymbol(hour.symbol)
                     Text("\(Int(hour.tempF.rounded()))\u{00B0}").monospacedDigit()
                 }
                 // The Mac's is a toolbar item, which draws its own; the phone's sits in the date line.
@@ -43,8 +47,23 @@ struct WeatherChip: View {
             .help("\(hour.condition) \u{2014} open the forecast")
             #endif
             .sheet(item: $focus) { WeatherDetailView(focus: $0.date) }
+            #if DEBUG
+            // `--open-weather`: the forecast open as a tap opens it, once for each chip. Not once
+            // per launch: the Mac's toolbar builds its items more than once, and the first copy,
+            // never in the window, used the launch's turn up, so the forecast never opened.
+            .task {
+                guard ProcessInfo.processInfo.arguments.contains("--open-weather"), !openedOnLaunch else { return }
+                openedOnLaunch = true
+                try? await Task.sleep(for: .seconds(1))
+                focus = WeatherFocus(id: hour.date)
+            }
+            #endif
         }
     }
+
+    #if DEBUG
+    @State private var openedOnLaunch = false
+    #endif
 }
 
 /// Absolute temperature → color (blue cold → red hot). Absolute so colors mean the same

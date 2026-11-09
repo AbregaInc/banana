@@ -20,20 +20,25 @@ final class ModuleFenceTests: XCTestCase {
         var frameworks: [String]
         var info: [String]
         var markers: [String]
+        /// A feature (Modules.json "features"): carried or left out the same way, never switched.
+        var isFeature = false
     }
 
-    /// The modules of Config/Modules.json.
+    /// The modules of Config/Modules.json, and its features, which are fenced the same way.
     private func modules() throws -> [Module] {
         let url = SourceTree.root.appendingPathComponent("Config/Modules.json")
         try XCTSkipUnless(FileManager.default.fileExists(atPath: url.path), "the source tree is not on this machine")
         let json = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any])
         let entries = try XCTUnwrap(json["modules"] as? [String: [String: Any]])
-        return entries.map { name, entry in
+        let features = (json["features"] as? [String: Any] ?? [:]).compactMapValues { $0 as? [String: Any] }
+        func module(_ name: String, _ entry: [String: Any], feature: Bool) -> Module {
             Module(name: name, condition: entry["condition"] as? String ?? "",
                    frameworks: entry["frameworks"] as? [String] ?? [],
                    info: entry["info"] as? [String] ?? [],
-                   markers: entry["markers"] as? [String] ?? [])
-        }.sorted { $0.name < $1.name }
+                   markers: entry["markers"] as? [String] ?? [], isFeature: feature)
+        }
+        return (entries.map { module($0, $1, feature: false) } + features.map { module($0, $1, feature: true) })
+            .sorted { $0.name < $1.name }
     }
 
     /// Every Swift file the app targets compile.
@@ -52,7 +57,7 @@ final class ModuleFenceTests: XCTestCase {
     // MARK: - The modules and the code agree
 
     func testEveryModuleHasItsConditionAndCapabilities() throws {
-        let listed = try modules()
+        let listed = try modules().filter { !$0.isFeature }
         XCTAssertEqual(Set(listed.map(\.name)), Set(AppModule.allCases.map(\.rawValue)))
         for module in AppModule.allCases {
             XCTAssertEqual(listed.first { $0.name == module.rawValue }?.condition, module.compileCondition)

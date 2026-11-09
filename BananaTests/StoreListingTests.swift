@@ -84,6 +84,15 @@ final class StoreListingTests: XCTestCase {
                 }
             }
         }
+        // And the App Store app's own listing and set.
+        text += "\n" + (try ["description", "promotional_text", "whats_new", "subtitle", "keywords"]
+            .map(appStoreField).joined(separator: "\n"))
+        for platform in ["iphone", "ipad", "mac"] {
+            for scene in try flavour()["\(platform)_scenes"] as? [[String: Any]] ?? [] {
+                text += "\n" + ["headline", "subhead", "eyebrow"].compactMap { scene[$0] as? String }.joined(separator: "\n")
+                XCTAssertFalse((scene["route"] as? [String] ?? []).contains("--today"), "\(platform): the retired Today screen")
+            }
+        }
         let lowered = text.lowercased()
         for words in retired {
             XCTAssertFalse(lowered.contains(words), "the listing still says \u{201C}\(words)\u{201D}")
@@ -148,5 +157,105 @@ final class StoreListingTests: XCTestCase {
         for keyword in try appStoreField("keywords").split(separator: ",") {
             XCTAssertTrue(words(String(keyword)).isDisjoint(with: indexed), "\(keyword) is already in the name or subtitle")
         }
+        let keywords = try appStoreField("keywords").split(separator: ",").map(String.init)
+        XCTAssertEqual(Set(keywords).count, keywords.count, "a keyword is listed twice")
+        for url in ["support_url", "marketing_url", "privacy_url"] {
+            XCTAssertTrue(try appStoreField(url).hasPrefix("https://"), url)
+        }
+    }
+
+    // MARK: - The App Store app's screenshots (flavours/calendar-only.json)
+
+    private func flavour() throws -> [String: Any] {
+        let data = try Data(contentsOf: Self.tool.appendingPathComponent("flavours/calendar-only.json"))
+        return try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
+    }
+
+    /// The module a capture route opens, for the routes that open one (RootView's DEBUG routes).
+    private static let moduleRoutes: [String: AppModule] = [
+        "--wellness": .food, "--nutrition-week": .food, "--food-search": .food, "--my-foods": .food,
+        "--energy-balance": .food, "--scan-correct-preview": .food, "--meal-backlog": .food,
+        "--library": .podcasts, "--library-detail": .podcasts, "--listenmap": .podcasts,
+        "--transcript-demo": .podcasts, "--now-playing": .podcasts, "--sample-episode": .podcasts,
+        "--notes": .notes, "--voicenote-demo": .notes,
+        "--workout": .workouts, "--dummy-health": .workouts, "--sleep": .workouts, "--trends": .workouts,
+        "--trend": .workouts, "--workouts-route": .workouts, "--workout-review": .workouts, "--trim": .workouts,
+        "--mail": .email, "--mail-fresh": .email,
+    ]
+
+    /// Its build is made with exactly the App Store app's modules, and the generator refuses a
+    /// build that carries any other set (`check_modules`), so no capture can show a module.
+    func testTheAppStoreSetIsCapturedFromABuildWithItsModules() throws {
+        let flavour = try flavour()
+        XCTAssertEqual(flavour["modules_setting"] as? String, "BANANA_APP_STORE_MODULES")
+        let xcconfig = try String(contentsOf: SourceTree.root.appendingPathComponent(try XCTUnwrap(flavour["xcconfig"] as? String)),
+                                  encoding: .utf8)
+        XCTAssertTrue(xcconfig.contains("BANANA_MODULES[sdk=iphonesimulator*] = $(BANANA_APP_STORE_MODULES)"))
+        XCTAssertTrue(xcconfig.contains("BANANA_MODULES[sdk=macosx*] = $(BANANA_APP_STORE_MODULES)"))
+        let generator = try String(contentsOf: Self.tool.appendingPathComponent("generate.py"), encoding: .utf8)
+        XCTAssertTrue(generator.contains("check_modules(manifest, app / \"Info.plist\")"))
+        XCTAssertTrue(generator.contains("check_modules(manifest, app / \"Contents/Info.plist\")"))
+    }
+
+    /// Every scene opens a screen the App Store app has, says nothing about a module it leaves
+    /// out, and there is a set for each device it runs on and none for one it doesn't.
+    func testTheAppStoreSetShowsOnlyWhatItsBuildCarries() throws {
+        let flavour = try flavour()
+        let carried = Set(try ModuleSettings.modules("BANANA_APP_STORE_MODULES"))
+        // The Watch app serves only Workouts and Podcasts: without either it is left out.
+        let hasWatch = !carried.isDisjoint(with: [.workouts, .podcasts])
+        XCTAssertEqual(flavour["watch_scenes"] != nil, hasWatch, "a Watch set only with a Watch app")
+        let left = AppModule.allCases.filter { !carried.contains($0) }
+        let leftWords = Set(left.flatMap { words($0.rawValue).union(words($0.title)) })
+            .subtracting(["and"])
+        for platform in ["iphone", "ipad", "mac"] {
+            let scenes = try XCTUnwrap(flavour["\(platform)_scenes"] as? [[String: Any]], "no \(platform) set")
+            XCTAssertTrue((1...10).contains(scenes.count), "\(platform): Apple takes one to ten")
+            let ids = scenes.compactMap { $0["id"] as? String }
+            XCTAssertEqual(Set(ids).count, scenes.count, "\(platform): two scenes share a file name")
+            for scene in scenes {
+                let id = scene["id"] as? String ?? "?"
+                let route = scene["route"] as? [String] ?? []
+                for argument in route {
+                    if let module = Self.moduleRoutes[argument] {
+                        XCTAssertTrue(carried.contains(module), "\(platform) \(id) opens \(module), which this build leaves out")
+                    }
+                }
+                // The tab (`--tab`) or the Mac's sidebar section (`section`) it opens.
+                let tab = route.firstIndex(of: "--tab").flatMap { route.indices.contains($0 + 1) ? route[$0 + 1] : nil }
+                for name in [tab, scene["section"] as? String].compactMap({ $0 }) {
+                    let section = try XCTUnwrap(AppSection(rawValue: name), "\(platform) \(id): no section \(name)")
+                    XCTAssertTrue(section.module.map(carried.contains) ?? true, "\(platform) \(id) opens \(section)")
+                }
+                if let at = route.firstIndex(of: "-planMode"), at + 1 < route.count {
+                    XCTAssertTrue(["day", "week"].contains(route[at + 1]), "\(platform) \(id): Plan is Day and Week")
+                }
+                let caption = words(["headline", "subhead", "eyebrow"].compactMap { scene[$0] as? String }.joined(separator: " "))
+                XCTAssertTrue(caption.isDisjoint(with: leftWords), "\(platform) \(id) names \(caption.intersection(leftWords).sorted())")
+                // Guideline 5.2.5: a forecast in a screenshot shows Apple Weather's mark, which
+                // sits under the week, so the forecast opens scrolled to it.
+                if route.contains("--weather-detail") || route.contains("--open-weather") {
+                    XCTAssertTrue(route.contains("--scroll-bottom"), "\(platform) \(id): the forecast without Apple Weather's mark")
+                }
+            }
+        }
+    }
+
+    /// The App Store app asks for location only while in use (the forecast, travel time): trip
+    /// learning, with Always location and Motion, is a feature it leaves out (Config/Modules.json),
+    /// so its derived Info.plists have neither usage string. Beta and Stable keep it.
+    func testTheAppStoreAppLeavesTripLearningOut() throws {
+        let settings = try ModuleSettings.read()
+        XCTAssertTrue(try XCTUnwrap(settings["BANANA_ALL_MODULES"]).contains("BANANA_FEATURE_TRIP_LEARNING"))
+        XCTAssertFalse(try XCTUnwrap(settings["BANANA_APP_STORE_MODULES"]).contains("BANANA_FEATURE_TRIP_LEARNING"))
+        for name in ["Banana-AppStore-Info.plist", "BananaMac-AppStore-Info.plist"] {
+            let url = SourceTree.root.appendingPathComponent("Config/Generated/\(name)")
+            let plist = try XCTUnwrap(PropertyListSerialization.propertyList(from: Data(contentsOf: url), format: nil) as? [String: Any])
+            XCTAssertNil(plist["NSLocationAlwaysAndWhenInUseUsageDescription"], name)
+            XCTAssertNil(plist["NSMotionUsageDescription"], name)
+            XCTAssertNotNil(plist["NSLocationWhenInUseUsageDescription"], "\(name): the forecast and travel time still need it")
+        }
+        let notes = try appStoreField("review_notes")
+        XCTAssertFalse(notes.contains("Learn from my trips"), "the review notes describe a feature the build leaves out")
     }
 }

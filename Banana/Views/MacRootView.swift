@@ -108,7 +108,7 @@ struct MacGatedRootView: View {
 struct MacRootView: View {
     /// Review; in the layout harness, `--trend <id>` opens one measure.
     @ViewBuilder private var macReview: some View {
-        #if DEBUG
+        #if DEBUG && BANANA_MODULE_WORKOUTS
         if let kind = MetricKind.launchArgument {
             NavigationStack { TrendDetailView(kind: kind, window: .month) }
         } else {
@@ -522,6 +522,7 @@ private struct MacPayoffPresenter: View {
 
     private func checkPayoffScreens() {
         #if DEBUG
+        #if BANANA_MODULE_WORKOUTS
         if ProcessInfo.processInfo.arguments.contains("--workout-review") {
             Task {
                 await fitness.whenLoaded()   // the index decode sweeps preview fixtures it beats
@@ -532,8 +533,13 @@ private struct MacPayoffPresenter: View {
             }
             return
         }
+        #endif
         if ProcessInfo.processInfo.arguments.contains("--morning-briefing") { nav.showMorningBriefing = true; return }
+        // A store capture photographs the page under it: nothing opens over it by itself.
+        if SmartScheduleStore.isStoreCapture { return }
+        #if BANANA_MODULE_WORKOUTS
         guard !WorkoutReviewCoordinator.isSuppressedByLaunchArguments else { return }
+        #endif
         #endif
         checkMorningBriefing()
         #if BANANA_MODULE_WORKOUTS

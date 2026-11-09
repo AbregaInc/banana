@@ -48,6 +48,22 @@ Edit `manifest.json` to change screenshot order, captions, feature crops, simula
 brand accents. Feature crops use normalized `[x, y, width, height]` coordinates and always crop a
 real raw capture.
 
+## Another listing's set (flavours)
+
+`--flavour calendar-only` makes the App Store app's set from `flavours/calendar-only.json`: its
+scenes and captions, its metadata (`metadata/calendar-only/`), its output
+(`AppStore/Generated/calendar-only/`) and its landing copy
+(`LandingPage/assets/screenshots/calendar-only/`). The app is built with the flavour's xcconfig,
+which gives it exactly `BANANA_APP_STORE_MODULES`, and a build carrying any other module set is
+refused. A flavour has only the platforms it lists (no Watch here), and leaves the website's own
+images alone.
+
+```sh
+python3 -u tools/app-store/generate.py --flavour calendar-only --platform iphone --ios-udid <phone>
+python3 -u tools/app-store/generate.py --flavour calendar-only --platform ipad --keep-output --ios-udid <pad>
+python3 -u tools/app-store/generate.py --flavour calendar-only --platform mac --keep-output
+```
+
 ## Requirements
 
 - Xcode with the simulator runtimes named in `manifest.json`.

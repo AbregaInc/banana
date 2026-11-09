@@ -4265,11 +4265,12 @@ struct WeekView: View {
 
     /// The forecast beside Plan's paging group: the day shown in Day, today in this week.
     @ViewBuilder private var mobileForecast: some View {
-        if dayMode {
-            WeatherChip(day: mobileVisibleWeekStart)
-        } else if mobileWeekOffset == 0 {
-            WeatherChip(day: Date())
-        }
+        if let day = mobileForecastDay { WeatherChip(day: day) }
+    }
+
+    /// The day the forecast is for: the day shown in Day, today in this week, none otherwise.
+    private var mobileForecastDay: Date? {
+        dayMode ? mobileVisibleWeekStart : mobileWeekOffset == 0 ? Date() : nil
     }
 
     /// The bottom-bar layout's one top row: the paging group every shell has (`PlanPagingRow`:
@@ -4279,22 +4280,28 @@ struct WeekView: View {
     private var mobileTopRow: some View {
         let days = dayMode ? 1 : 7
         let dates = PlanPaging.dates(start: mobileVisibleWeekStart, days: days)
-        func row(dates place: PlanPeriodMenu.DatesPlace, forecast: Bool) -> some View {
-            HStack(spacing: DS.Space.s) {
-                PlanPagingRow(days: days, dates: dates, isCurrent: mobileWeekOffset == 0, datesPlace: place,
+        let isCurrent = mobileWeekOffset == 0
+        func row(_ layout: PlanPaging.TopRow) -> some View {
+            let place: PlanPeriodMenu.DatesPlace = switch layout.dates {
+            case .beside: .beside
+            case .under: .under
+            case .hidden: .hidden
+            }
+            return HStack(spacing: DS.Space.s) {
+                PlanPagingRow(days: days, dates: dates, isCurrent: isCurrent, datesPlace: place, showsToday: layout.today,
                               step: { moveMobileWeek($0) }, toCurrent: { moveMobileWeekToCurrent() })
-                if forecast { mobileForecast.fixedSize() }
+                if layout.forecast { mobileForecast.fixedSize() }
                 if mobileWeekLoading { ProgressView().controlSize(.mini) }
                 Spacer(minLength: 0)
             }
         }
+        // Widest first (`PlanPaging.topRowLayouts`): on the current period the forecast takes
+        // Today's place before it gives way, so it is reachable at every phone width.
+        let hasForecast = mobileForecastDay.map { WeatherChip.hour(on: $0, in: weather) != nil } ?? false
+        let layouts = PlanPaging.topRowLayouts(isCurrent: isCurrent, hasForecast: hasForecast)
         return HStack(spacing: DS.Space.s) {
             ViewThatFits(in: .horizontal) {
-                row(dates: .beside, forecast: true)
-                row(dates: .beside, forecast: false)
-                row(dates: .under, forecast: true)
-                row(dates: .under, forecast: false)
-                row(dates: .hidden, forecast: false)
+                ForEach(layouts.indices, id: \.self) { row(layouts[$0]) }
             }
             MoreMenu(identifier: "mobile.week.more") {
                 if booking.canShare { BookingShareButton() }

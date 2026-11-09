@@ -27,12 +27,17 @@ enum CPUVerification {
                 print("[cpu] selftest burn done (\(x))")
             }
         }
+        // Playback is the Podcasts module's: a build without it has nothing to measure.
+        #if BANANA_MODULE_PODCASTS
         guard ProcessInfo.processInfo.arguments.contains("--verify-cpu") else { return }
         Task { @MainActor in
             try? await Task.sleep(for: .seconds(4))   // let the real UI come up first
             start()
         }
+        #endif
     }
+
+    #if BANANA_MODULE_PODCASTS
 
     @MainActor
     private static func start() {
@@ -58,5 +63,6 @@ enum CPUVerification {
         player.play(episode, in: podcast)
         print("[cpu] PLAYING — measure the process now")
     }
+    #endif
 }
 #endif

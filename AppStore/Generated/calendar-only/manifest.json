@@ -1,0 +1,368 @@
+{
+  "brand": {
+    "name": "Banana",
+    "tagline": "Many calendars. One you.",
+    "icon": "Brand/BananaAppIconMaster.png",
+    "colors": {
+      "ink": "#221D38",
+      "ivory": "#FBF6EA",
+      "yellow": "#FFD84A",
+      "orange": "#FBD9BB",
+      "coral": "#F9D0DC",
+      "green": "#D3F0E2",
+      "purple": "#E4DBF6",
+      "blue": "#CBE4F6",
+      "mist": "#DDD2F6"
+    }
+  },
+  "capture": {
+    "bundle_id": "com.boris.banana",
+    "watch_bundle_id": "com.boris.banana.watchkitapp",
+    "iphone_device": "iPhone 17 Pro Max",
+    "ipad_device": "iPad Pro 13-inch (M5)",
+    "watch_device": "Apple Watch Series 11 (46mm)",
+    "iphone_size": [
+      1320,
+      2868
+    ],
+    "ipad_size": [
+      2752,
+      2064
+    ],
+    "ipad_orientation": "landscape_left",
+    "watch_size": [
+      416,
+      496
+    ],
+    "mac_size": [
+      2880,
+      1800
+    ],
+    "mac_window": "1320x840",
+    "settle_seconds": 4,
+    "mac_appearance": "light",
+    "mac_modules": "plan"
+  },
+  "flavour": {
+    "comment": "The App Store app's set: the calendar alone (BANANA_APP_STORE_MODULES). python3 -u tools/app-store/generate.py --flavour calendar-only --platform iphone|ipad|mac --keep-output. No Watch set: this app has no Watch app.",
+    "xcconfig": "tools/app-store/flavours/calendar-only.xcconfig",
+    "modules_setting": "BANANA_APP_STORE_MODULES",
+    "metadata": "metadata/calendar-only/en-US",
+    "output": "AppStore/Generated/calendar-only",
+    "landing": "LandingPage/assets/screenshots/calendar-only",
+    "name": "calendar-only"
+  },
+  "iphone_scenes": [
+    {
+      "id": "01-plan",
+      "route": [
+        "--ui-preview",
+        "--tab",
+        "plan",
+        "--plan",
+        "-planMode",
+        "day"
+      ],
+      "headline": "Every calendar\nin one day.",
+      "subhead": "Google calendars, reminders, routines and travel time in one plan.",
+      "eyebrow": "YOUR DAY",
+      "mode": "feature",
+      "crop": [
+        0.0,
+        0.06,
+        1.0,
+        0.795
+      ],
+      "background": "ivory",
+      "foreground": "ink",
+      "accent": "yellow",
+      "align": "right"
+    },
+    {
+      "id": "02-week",
+      "route": [
+        "--ui-preview",
+        "--tab",
+        "plan",
+        "--plan",
+        "-planMode",
+        "week"
+      ],
+      "headline": "Your week\nat a glance.",
+      "subhead": "Every account on one timeline. Switch between day and week.",
+      "eyebrow": "THE WEEK",
+      "mode": "feature",
+      "crop": [
+        0.0,
+        0.06,
+        1.0,
+        0.795
+      ],
+      "background": "ivory",
+      "foreground": "ink",
+      "accent": "blue",
+      "align": "right"
+    },
+    {
+      "id": "03-new-event",
+      "route": [
+        "--new-calendar-event",
+        "--new-calendar-event-text",
+        "Lunch with Sam Friday at 1",
+        "--new-calendar-event-fill",
+        "--plan"
+      ],
+      "headline": "Add it the way\nyou'd say it.",
+      "subhead": "Type a sentence. Banana fills in the day, the time and who's coming.",
+      "eyebrow": "QUICK ADD",
+      "mode": "feature",
+      "crop": [
+        0.0,
+        0.075,
+        1.0,
+        0.8
+      ],
+      "background": "ivory",
+      "foreground": "ink",
+      "accent": "green",
+      "align": "right",
+      "settle_seconds": 12
+    },
+    {
+      "id": "04-routines",
+      "route": [
+        "--routines"
+      ],
+      "headline": "Make room for\nyour routines.",
+      "subhead": "Wake, commute, focus and wind-down, placed around your meetings.",
+      "eyebrow": "ROUTINES",
+      "mode": "feature",
+      "crop": [
+        0.0,
+        0.06,
+        1.0,
+        0.84
+      ],
+      "background": "ivory",
+      "foreground": "ink",
+      "accent": "coral",
+      "align": "left"
+    },
+    {
+      "id": "05-weather",
+      "route": [
+        "--ui-preview",
+        "--tab",
+        "plan",
+        "--plan",
+        "-planMode",
+        "day",
+        "--open-weather",
+        "--scroll-bottom"
+      ],
+      "headline": "The weather\nfor your plans.",
+      "subhead": "Hour by hour and the week ahead, from Apple Weather.",
+      "eyebrow": "WEATHER",
+      "mode": "feature",
+      "crop": [
+        0.0,
+        0.06,
+        1.0,
+        0.885
+      ],
+      "panel_width": 1000,
+      "background": "ivory",
+      "foreground": "ink",
+      "accent": "purple",
+      "align": "right",
+      "settle_seconds": 7
+    },
+    {
+      "id": "06-booking",
+      "route": [
+        "--booking-preview",
+        "--booking-linked"
+      ],
+      "headline": "Let people\nbook you.",
+      "subhead": "Share one link. People pick a time you're free.",
+      "eyebrow": "BOOKING",
+      "mode": "feature",
+      "crop": [
+        0.0,
+        0.06,
+        1.0,
+        0.595
+      ],
+      "background": "ivory",
+      "foreground": "ink",
+      "accent": "orange",
+      "align": "left"
+    }
+  ],
+  "ipad_scenes": [
+    {
+      "id": "01-plan",
+      "route": [
+        "--ui-preview",
+        "--tab",
+        "plan",
+        "--plan",
+        "-planMode",
+        "week"
+      ],
+      "headline": "Many calendars.\nOne you.",
+      "subhead": "Google calendars, reminders, routines and travel time in one plan.",
+      "eyebrow": "BANANA FOR iPAD",
+      "crop": [
+        0.0,
+        0.021,
+        1.0,
+        0.979
+      ],
+      "background": "ivory",
+      "foreground": "ink",
+      "accent": "yellow"
+    },
+    {
+      "id": "02-event",
+      "route": [
+        "--ui-preview",
+        "--tab",
+        "plan",
+        "--plan",
+        "-planMode",
+        "day",
+        "--open-event"
+      ],
+      "headline": "Every detail,\nbeside your day.",
+      "subhead": "Join the call, see where it is and answer, without leaving the plan.",
+      "eyebrow": "EVENTS",
+      "crop": [
+        0.0,
+        0.021,
+        1.0,
+        0.979
+      ],
+      "background": "ivory",
+      "foreground": "ink",
+      "accent": "blue"
+    },
+    {
+      "id": "03-new-event",
+      "route": [
+        "--new-calendar-event",
+        "--new-calendar-event-text",
+        "Lunch with Sam Friday at 1",
+        "--new-calendar-event-fill",
+        "--plan"
+      ],
+      "headline": "Add it the way\nyou'd say it.",
+      "subhead": "Type a sentence. Banana fills in the day, the time and who's coming.",
+      "eyebrow": "QUICK ADD",
+      "crop": [
+        0.0,
+        0.021,
+        1.0,
+        0.979
+      ],
+      "background": "ivory",
+      "foreground": "ink",
+      "accent": "green",
+      "settle_seconds": 12
+    },
+    {
+      "id": "04-routines",
+      "route": [
+        "--ui-preview",
+        "--tab",
+        "routines",
+        "--routines"
+      ],
+      "headline": "Make room for\nyour routines.",
+      "subhead": "Wake, commute, focus and wind-down, placed around your meetings.",
+      "eyebrow": "ROUTINES",
+      "crop": [
+        0.0,
+        0.021,
+        1.0,
+        0.979
+      ],
+      "background": "ivory",
+      "foreground": "ink",
+      "accent": "coral"
+    },
+    {
+      "id": "05-weather",
+      "route": [
+        "--ui-preview",
+        "--tab",
+        "plan",
+        "--plan",
+        "-planMode",
+        "week",
+        "--open-weather",
+        "--scroll-bottom"
+      ],
+      "headline": "The weather\nfor your plans.",
+      "subhead": "Hour by hour and the week ahead, from Apple Weather.",
+      "eyebrow": "WEATHER",
+      "crop": [
+        0.0,
+        0.021,
+        1.0,
+        0.979
+      ],
+      "background": "ivory",
+      "foreground": "ink",
+      "accent": "purple",
+      "settle_seconds": 6
+    }
+  ],
+  "mac_scenes": [
+    {
+      "id": "01-plan",
+      "section": "plan",
+      "route": [
+        "-planMode",
+        "week",
+        "-macWeekSpan",
+        "5"
+      ],
+      "headline": "Many calendars.\nOne you.",
+      "subhead": "Google calendars, reminders, routines and travel time in one plan.",
+      "eyebrow": "BANANA FOR MAC",
+      "background": "ivory",
+      "foreground": "ink",
+      "accent": "yellow"
+    },
+    {
+      "id": "02-weather",
+      "section": "plan",
+      "route": [
+        "-planMode",
+        "week",
+        "-macWeekSpan",
+        "5",
+        "--open-weather",
+        "--scroll-bottom"
+      ],
+      "headline": "The weather\nfor your plans.",
+      "subhead": "Hour by hour and the week ahead, from Apple Weather.",
+      "eyebrow": "WEATHER",
+      "background": "ivory",
+      "foreground": "ink",
+      "accent": "purple",
+      "settle_seconds": 7
+    },
+    {
+      "id": "03-routines",
+      "section": "routines",
+      "headline": "Make room for\nyour routines.",
+      "subhead": "Wake, commute, focus and wind-down, placed around your meetings.",
+      "eyebrow": "ROUTINES",
+      "background": "ivory",
+      "foreground": "ink",
+      "accent": "coral"
+    }
+  ]
+}
