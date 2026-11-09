@@ -37,6 +37,28 @@ enum ShellPage: String, CaseIterable, Identifiable, Sendable {
         }
     }
 
+    /// The rail's pages. On the Mac, Settings is the app menu's (⌘,), its own window as in every
+    /// Mac app, not a rail button (owner, 9 Nov 2026); an iPad keeps it at the rail's foot.
+    static func rail(_ on: Modules, mac: Bool) -> [ShellPage] {
+        mac ? listed(on).filter { $0 != .settings } : listed(on)
+    }
+
+    /// The page lit in the rail or the switcher while `section` shows, on every device. A section
+    /// with no page of its own (Routines, opened from "…") lights none: lighting Plan said the
+    /// person was on Plan.
+    static func showing(_ section: AppSection) -> ShellPage? {
+        switch section {
+        case .plan: .plan
+        case .mail: .mail
+        case .workouts, .nutrition: .body
+        case .notes: .notes
+        case .library: .library
+        case .review, .sleep, .trends: .review
+        case .settings: .settings
+        default: nil
+        }
+    }
+
     /// What the page needs switched on to be listed. Plan and Settings are always there.
     struct Modules: Equatable, Sendable {
         var mail = false
@@ -85,8 +107,32 @@ enum ShellLayout: Equatable, Sendable {
     static let railColumn: Double = 80
     /// A rail button's circle.
     static let railButton: Double = 48
+    /// The height of an iPad toolbar's controls (the paging group, Today, "…"), which start at
+    /// the top of the safe area.
+    static let barControl: Double = 44
+    /// From the top of the safe area to the first rail button, on an iPad: its centre on the top
+    /// bar's centre line. It was 16, which put the first circle 18 points below the bar's line.
+    /// (The Mac's rail starts under the window's title bar, where the traffic lights are.)
+    static let railTopInset: Double = (barControl - railButton) / 2
     /// Where the Mac window's close, minimise and zoom buttons end, from the window's left edge.
     static let macWindowButtonsEnd: Double = 76
+}
+
+/// What needs attention, as chips in today's row beside the reminders (`PlanAttentionChips`).
+enum PlanAttentionLine {
+    /// The chips a row shows: all of them, or where the row folds what doesn't fit (`limit`), one
+    /// fewer and a "+N more" chip that opens the rest.
+    static func shown(_ count: Int, limit: Int?) -> (chips: Int, more: Int) {
+        guard let limit, count > limit else { return (count, 0) }
+        let chips = max(0, limit - 1)
+        return (chips, count - chips)
+    }
+}
+
+/// The rail on an iPad on its side and on the Mac hides and shows like a system sidebar, and
+/// stays as it was left (owner, 9 Nov 2026). One stored value for both.
+enum ShellRailVisibility {
+    static let key = "shellRailShown"
 }
 
 /// What the "Search or ask" field has under it.
@@ -207,10 +253,10 @@ enum PlanPaging {
         wide ? .wide : bottomBar ? .bottomBar : .classic
     }
 
-    /// What a shell's Plan pages with, left to right.
+    /// What a shell's Plan pages with, left to right. Today only away from the current period.
     static func controls(_ shell: Shell, isCurrent: Bool) -> [Control] {
         switch shell {
-        case .wide, .bottomBar: [.previous, .period, .next, .today]
+        case .wide, .bottomBar: [.previous, .period, .next] + (showsToday(isCurrent: isCurrent) ? [.today] : [])
         case .classic: [.period, .dateLine]
         }
     }
@@ -220,8 +266,9 @@ enum PlanPaging {
         controls(shell, isCurrent: true).contains(.dateLine)
     }
 
-    /// Today is always there, so the group never shifts; it acts away from now.
-    static func todayEnabled(isCurrent: Bool) -> Bool { !isCurrent }
+    /// Today is shown only away from the current period, on every device (owner, 9 Nov 2026):
+    /// on the current period it does nothing, and an idle Today read as broken.
+    static func showsToday(isCurrent: Bool) -> Bool { !isCurrent }
 
     /// One way the bottom-bar shell's top row can be laid out.
     struct TopRow: Equatable, Sendable {
@@ -232,16 +279,21 @@ enum PlanPaging {
     }
 
     /// The top row's layouts, widest first; the row takes the first that fits (owner, 9 Nov 2026).
-    /// On the current period Today does nothing, so where Today and the forecast don't both fit
-    /// the forecast takes Today's place, and the forecast can be reached at every phone width;
-    /// paged away, Today comes back and the forecast gives way, as before. Then the dates move
-    /// under the period's name, and on the narrowest go.
+    /// Today follows `showsToday`. On the current period, where Today isn't shown, the forecast
+    /// takes its place and stays at every width: the dates move under the period's name and then
+    /// go before it does. Paged away, where Today and the forecast don't both fit, the forecast
+    /// gives way first, then the dates move under the name, and on the narrowest go.
     static func topRowLayouts(isCurrent: Bool, hasForecast: Bool) -> [TopRow] {
+        let today = showsToday(isCurrent: isCurrent)
+        let widths: [TopRow.Dates] = [.beside, .under, .hidden]
+        if isCurrent {
+            let withForecast = hasForecast ? widths.map { TopRow(dates: $0, today: today, forecast: true) } : []
+            return withForecast + widths.map { TopRow(dates: $0, today: today, forecast: false) }
+        }
         var layouts: [TopRow] = []
-        for dates in [TopRow.Dates.beside, .under, .hidden] {
-            if hasForecast, dates != .hidden { layouts.append(TopRow(dates: dates, today: true, forecast: true)) }
-            if hasForecast, isCurrent { layouts.append(TopRow(dates: dates, today: false, forecast: true)) }
-            layouts.append(TopRow(dates: dates, today: true, forecast: false))
+        for dates in widths {
+            if hasForecast, dates != .hidden { layouts.append(TopRow(dates: dates, today: today, forecast: true)) }
+            layouts.append(TopRow(dates: dates, today: today, forecast: false))
         }
         return layouts
     }

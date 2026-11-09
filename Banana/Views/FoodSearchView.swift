@@ -275,6 +275,7 @@ struct FoodAmountView: View {
         .toolbar {
             ToolbarItem(placement: .confirmationAction) {
                 Button("Add") { onAdd(item) }
+                    .sheetConfirm()
                     .disabled(amount.count <= 0)
                     .accessibilityIdentifier("foodAmount.add")
             }

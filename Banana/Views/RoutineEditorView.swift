@@ -174,7 +174,7 @@ struct RoutineEditorView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
-                ToolbarItem(placement: .confirmationAction) { Button("Save") { save() } }
+                ToolbarItem(placement: .confirmationAction) { Button("Save") { save() }.sheetConfirm() }
             }
         }
         #if os(macOS)

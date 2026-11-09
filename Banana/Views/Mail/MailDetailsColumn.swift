@@ -42,10 +42,7 @@ struct MailDetailsSheet: View {
                 .navigationBarTitleDisplayMode(.inline)
                 #endif
                 .toolbar {
-                    ToolbarItem(placement: .confirmationAction) {
-                        Button("Done") { dismiss() }
-                            .accessibilityIdentifier("mail.details.close")
-                    }
+                    SheetClose(id: "mail.details.close") { dismiss() }
                 }
         }
         .presentationDetents([.medium, .large])
@@ -112,7 +109,7 @@ private struct MailDetailSection<Content: View>: View {
             Text(title.uppercased())
                 .font(DS.Typeface.eyebrow)
                 .tracking(DS.Typeface.eyebrowTracking)
-                .foregroundStyle(.tertiary)
+                .foregroundStyle(DS.Palette.quietText)
             content
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -137,7 +134,7 @@ private struct MailParticipantRow: View {
             if person.wrote > 0 {
                 Text(person.wrote == 1 ? "Wrote 1 message" : "Wrote \(person.wrote) messages")
                     .font(.caption)
-                    .foregroundStyle(.tertiary)
+                    .foregroundStyle(DS.Palette.quietText)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)

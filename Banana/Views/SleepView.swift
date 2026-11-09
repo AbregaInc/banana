@@ -246,7 +246,7 @@ struct WakeRow: View {
                     HStack(spacing: DS.Space.xs) {
                         Text(wake.kind.label).foregroundStyle(.primary)
                         if !wake.labelled {
-                            Text("guess").font(.caption2).foregroundStyle(.tertiary)
+                            Text("guess").font(.caption2).foregroundStyle(DS.Palette.quietText)
                         }
                     }
                     Text("\(SleepNights.duration(wake.minutes)) \u{00B7} \(wake.steps) steps")

@@ -69,9 +69,7 @@ struct ReviewView: View {
                         .accessibilityIdentifier("review.span")
                 }
                 if showsDoneButton {
-                    ToolbarItem(placement: .confirmationAction) {
-                        Button("Done") { dismiss() }
-                    }
+                    SheetClose { dismiss() }
                 }
             }
             .navigationDestination(for: ReviewSubject.self) { page($0) }

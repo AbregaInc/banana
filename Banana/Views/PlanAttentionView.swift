@@ -1,7 +1,62 @@
+import Combine
 import SwiftUI
 
-/// Kept in its own observed subtree: backlog/dose publishes must not rebuild the clock grid.
-struct PlanAttentionBand: View {
+/// What needs attention beside the reminders: routines past their time, and in builds with Food
+/// meals to review and doses due (`PlanAttentionSnapshot`). They are chips in the same row as
+/// the day's reminders and routines, on every device (owner, 9 Nov 2026: "they should be
+/// unified"); there is no band, badge or count of their own.
+///
+/// The plan grid must not rebuild for these stores' publishes (docs/performance/
+/// ui-performance-contract.md). It observes only this object, which publishes the number of
+/// items when that number changes; the chips themselves are their own observed subview
+/// (`PlanAttentionChips`).
+@MainActor
+final class PlanAttention: ObservableObject {
+    static let shared = PlanAttention()
+
+    /// How many items there are. Published only when it changes.
+    @Published private(set) var count = 0
+    private var watching: Set<AnyCancellable> = []
+
+    private init() {
+        var changes: [AnyPublisher<Void, Never>] = [
+            OccurrenceStore.shared.objectWillChange.map { _ in }.eraseToAnyPublisher(),
+            RoutineStore.shared.objectWillChange.map { _ in }.eraseToAnyPublisher(),
+            ModuleStore.shared.objectWillChange.map { _ in }.eraseToAnyPublisher(),
+            AnchoredTimingHub.shared.objectWillChange.map { _ in }.eraseToAnyPublisher(),
+            // A routine or a dose comes due with the clock, not with a store.
+            Timer.publish(every: 60, on: .main, in: .common).autoconnect().map { _ in }.eraseToAnyPublisher(),
+        ]
+        #if BANANA_MODULE_FOOD
+        changes.append(MealInboxStore.shared.objectWillChange.map { _ in }.eraseToAnyPublisher())
+        changes.append(WellnessStore.shared.objectWillChange.map { _ in }.eraseToAnyPublisher())
+        #endif
+        // `objectWillChange` comes before the change: count once the stores have settled.
+        Publishers.MergeMany(changes)
+            .debounce(for: .milliseconds(50), scheduler: RunLoop.main)
+            .sink { [weak self] in self?.refresh() }
+            .store(in: &watching)
+        refresh()
+    }
+
+    func refresh() {
+        let now = PlanAttentionSnapshot.make().count
+        if now != count { count = now }
+    }
+
+}
+
+/// The attention items as chips, the reminders' look and actions: the circle does it (a
+/// routine done, a dose taken), the words open it (a routine's sheet, a meal to review). Placed
+/// inside a row's own layout: its body is the chips themselves, so a wrapping row wraps them
+/// with the reminders. Only on today's row.
+struct PlanAttentionChips: View {
+    /// The most chips before the rest fold behind "+N more" (a row that wraps); nil shows all
+    /// (a row that scrolls sideways).
+    var limit: Int?
+    var desktop = false
+
+    @ObservedObject private var attention = PlanAttention.shared
     @ObservedObject private var timeline = OccurrenceStore.shared
     @ObservedObject private var routines = RoutineStore.shared
     #if BANANA_MODULE_FOOD
@@ -10,66 +65,140 @@ struct PlanAttentionBand: View {
     #endif
     @ObservedObject private var modules = ModuleStore.shared
     @ObservedObject private var timing = AnchoredTimingHub.shared
-    @State private var showing = false
+    @State private var showingAll = false
+    @State private var opening: Occurrence?
+    #if BANANA_MODULE_FOOD
+    @State private var reviewing: MealDayRequest?
+    #endif
 
     var body: some View {
-        TimelineView(.periodic(from: .now, by: 60)) { _ in
-            // Overdue reminders already have completion/edit controls in the calendar's
-            // reminders row. This band only adds the other kinds of work due.
-            let items = PlanAttentionSnapshot.make()
-            if items.count > 0 {
-                Button { showing = true } label: {
-                    HStack(spacing: 8) {
-                        Label("Needs attention", systemImage: "tray.full")
-                            .font(.subheadline.weight(.semibold))
-                        Text("\(items.count)").font(.subheadline.monospacedDigit())
-                        Spacer(minLength: 4)
-                        Text(items.summary).font(.caption).foregroundStyle(.secondary).lineLimit(1)
-                        Image(systemName: "chevron.right").font(.caption.weight(.semibold))
-                    }
-                    .foregroundStyle(.primary)
-                    .padding(.horizontal, DS.Space.m)
-                    .frame(minHeight: 44)
-                    .contentShape(Rectangle())
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel("Needs attention, \(items.summary)")
-                .accessibilityIdentifier("plan.attention")
-            }
+        let items = PlanAttentionSnapshot.make()
+        let chips = items.chips
+        let shown = PlanAttentionLine.shown(chips.count, limit: limit)
+        ForEach(chips.prefix(shown.chips)) { chip in
+            chipView(chip)
         }
-        .sheet(isPresented: $showing) { PlanAttentionList().toastHost() }
+        if shown.more > 0 {
+            Button { showingAll = true } label: {
+                Text("+\(shown.more) more")
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 6)
+            }
+            .buttonStyle(.inline)
+            .accessibilityIdentifier("plan.attention.more")
+            .sheet(isPresented: $showingAll) { PlanAttentionList().toastHost() }
+        }
+    }
+
+    @ViewBuilder private func chipView(_ chip: PlanAttentionSnapshot.Chip) -> some View {
+        AttentionChip(chip: chip, desktop: desktop, complete: complete(chip), open: open(chip))
+            .contextMenu {
+                #if BANANA_MODULE_FOOD
+                if case .dose(let dose) = chip.kind {
+                    Button("Mark skipped", systemImage: "xmark.circle") {
+                        wellness.logSupplement(dose.id, status: .skipped, at: NutritionDays.doseDate(for: dose.supplement, on: Date()))
+                    }
+                }
+                #endif
+            }
+            .sheet(item: $opening) { occurrence in
+                if let routine = routines.routines.first(where: { $0.id == occurrence.routineID }) {
+                    CueOccurrenceSheet(occurrence: occurrence, routine: routine, plan: nil) { _ in opening = nil }
+                }
+            }
+            #if BANANA_MODULE_FOOD
+            .sheet(item: $reviewing) { request in MealDayReviewView(day: request.day).environmentObject(wellness) }
+            #endif
+    }
+
+    private func complete(_ chip: PlanAttentionSnapshot.Chip) -> (() -> Void)? {
+        switch chip.kind {
+        case .routine(let item): return { CueCompletion.toggle(item.occurrence) }
+        #if BANANA_MODULE_FOOD
+        case .dose(let dose):
+            return { wellness.logSupplement(dose.id, status: .taken, at: NutritionDays.doseDate(for: dose.supplement, on: Date())) }
+        case .meal: return nil
+        #endif
+        }
+    }
+
+    private func open(_ chip: PlanAttentionSnapshot.Chip) -> (() -> Void)? {
+        switch chip.kind {
+        case .routine(let item): return { opening = item.occurrence }
+        #if BANANA_MODULE_FOOD
+        case .meal(let meal): return { reviewing = MealDayRequest(day: meal.eatenAt) }
+        case .dose: return nil
+        #endif
+        }
     }
 }
 
-/// Plan's period picker in the bottom-bar shell (`PlanPagingRow`), with what needs attention as
-/// a count beside its name and the list first under its chevron. Watches the same stores the
-/// attention row does, so the plan itself never redraws for a count.
-struct PlanAttentivePeriodMenu: View {
-    let dates: String
-    var datesPlace = PlanPeriodMenu.DatesPlace.beside
-
-    @ObservedObject private var timeline = OccurrenceStore.shared
-    @ObservedObject private var routines = RoutineStore.shared
-    #if BANANA_MODULE_FOOD
-    @ObservedObject private var inbox = MealInboxStore.shared
-    @ObservedObject private var wellness = WellnessStore.shared
-    #endif
-    @ObservedObject private var modules = ModuleStore.shared
-    @ObservedObject private var timing = AnchoredTimingHub.shared
-    @State private var showingAttention = false
+/// One attention item, drawn as a reminder chip is (`WeekView.reminderChip` on a phone and an
+/// iPad, the To do row on the Mac): a circle that does it, the words, and when it was due.
+private struct AttentionChip: View {
+    let chip: PlanAttentionSnapshot.Chip
+    let desktop: Bool
+    let complete: (() -> Void)?
+    let open: (() -> Void)?
 
     var body: some View {
-        TimelineView(.periodic(from: .now, by: 60)) { _ in
-            let items = PlanAttentionSnapshot.make()
-            PlanPeriodMenu(dates: dates, datesPlace: datesPlace, attentionCount: items.count,
-                           attentionSummary: items.summary, openAttention: { showingAttention = true })
+        HStack(spacing: 0) {
+            if let complete {
+                Button(action: complete) {
+                    Image(systemName: "circle")
+                        .foregroundStyle(DS.Palette.task)
+                        .padding(.leading, 10).padding(.trailing, 5).padding(.vertical, 6)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Mark \(chip.title) completed")
+                .accessibilityIdentifier("plan.attention.done.\(chip.id)")
+            } else {
+                Image(systemName: chip.symbol)
+                    .foregroundStyle(DS.Palette.quietText)
+                    .padding(.leading, 10).padding(.trailing, 5).padding(.vertical, 6)
+                    .accessibilityHidden(true)
+            }
+            Button { open?() } label: {
+                HStack(spacing: 5) {
+                    Text(chip.title)
+                        .font(desktop ? DS.Typeface.eventTitle : .footnote)
+                        .lineLimit(1)
+                    Text(chip.detail)
+                        .font(desktop ? DS.Typeface.eventMeta.weight(.semibold) : .caption2.weight(.semibold))
+                        .foregroundStyle(chip.late ? DS.Palette.danger : DS.Palette.quietText)
+                        .lineLimit(1)
+                }
+                .padding(.trailing, 10)
+                .padding(.vertical, 6)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .disabled(open == nil)
+            .accessibilityLabel(open == nil ? "\(chip.title), \(chip.detail)" : "Open \(chip.title)")
+            .accessibilityIdentifier("plan.attention.open.\(chip.id)")
         }
-        .sheet(isPresented: $showingAttention) { PlanAttentionList().toastHost() }
+        .background { chipGround }
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("plan.attention.chip")
+    }
+
+    /// The reminders' ground: the Mac's To do rows are a wash of the reminders' colour, a
+    /// phone's and an iPad's chips are the calendar's white with a hairline.
+    @ViewBuilder private var chipGround: some View {
+        if desktop {
+            Capsule().fill(DS.Palette.task.opacity(DS.Tint.subtle))
+        } else {
+            #if os(iOS)
+            Capsule().fill(Color(.systemBackground))
+                .overlay(Capsule().strokeBorder(Color(.separator), lineWidth: 0.5))
+            #endif
+        }
     }
 }
 
 @MainActor
-private struct PlanAttentionSnapshot {
+struct PlanAttentionSnapshot {
     struct RoutineItem: Identifiable {
         var occurrence: Occurrence
         var routine: Routine
@@ -92,6 +221,42 @@ private struct PlanAttentionSnapshot {
     var doses: [Never] = []
     #endif
     var count: Int { routines.count + meals.count + doses.count }
+
+    /// One item as a chip, in the row's order: routines, then meals, then doses.
+    struct Chip: Identifiable {
+        enum Kind {
+            case routine(RoutineItem)
+            #if BANANA_MODULE_FOOD
+            case meal(MealInboxItem)
+            case dose(Dose)
+            #endif
+        }
+        var kind: Kind
+        var id: String
+        var title: String
+        var detail: String
+        var symbol: String
+        /// Past its time (a routine, a dose), not merely waiting (a meal to review).
+        var late: Bool
+    }
+
+    var chips: [Chip] {
+        var result = routines.map {
+            Chip(kind: .routine($0), id: "routine.\($0.routine.id.uuidString)", title: $0.occurrence.title,
+                 detail: ActionItems.dueText(since: $0.occurrence.start), symbol: $0.routine.icon, late: true)
+        }
+        #if BANANA_MODULE_FOOD
+        result += meals.map {
+            Chip(kind: .meal($0), id: "meal.\($0.id)", title: $0.trimmedNote.isEmpty ? "Meal to review" : $0.trimmedNote,
+                 detail: MealInboxText.when($0.eatenAt), symbol: "fork.knife", late: false)
+        }
+        result += doses.map {
+            Chip(kind: .dose($0), id: "dose.\($0.id.uuidString)", title: $0.supplement.name,
+                 detail: ActionItems.dueText(since: $0.due), symbol: "pills", late: true)
+        }
+        #endif
+        return result
+    }
     var summary: String {
         [(routines.count, "routine"), (meals.count, "meal"), (doses.count, "dose")]
             .filter { $0.0 > 0 }.map { "\($0.0) \($0.1)\($0.0 == 1 ? "" : "s")" }.joined(separator: " · ")
@@ -99,7 +264,8 @@ private struct PlanAttentionSnapshot {
     static func make(now: Date = Date()) -> Self {
         var result = Self()
         let timeline = OccurrenceStore.shared.occurrences
-        for occurrence in timeline where occurrence.behavior == .cue {
+        // A routine with no time of its own is already in the row as one of the day's moments.
+        for occurrence in timeline where occurrence.behavior == .cue && occurrence.hasScheduledTime {
             guard let routine = RoutineStore.shared.routines.first(where: { $0.id == occurrence.routineID }),
                   routine.cueType == .custom || routine.cueType == .workout,
                   ActionItems.routineDueSince(start: occurrence.start, hasTime: occurrence.hasScheduledTime,
@@ -115,14 +281,20 @@ private struct PlanAttentionSnapshot {
                 guard let due = ActionItems.dueSince(supplement, marked: wellness.supplementStatus(supplement.id, on: now) != nil,
                     due: AnchoredTimingHub.shared.dueDate(supplement, now: now), now: now) else { return nil }
                 return Dose(supplement: supplement, due: due)
-            }.sorted { $0.due < $1.due }
+            }
+            // A dose that is also an open reminder ("Creatine") is already a reminder chip.
+            .filter { dose in
+                !timeline.contains { $0.behavior == .task && !$0.completed
+                    && $0.title.localizedCaseInsensitiveCompare(dose.supplement.name) == .orderedSame }
+            }
+            .sorted { $0.due < $1.due }
         }
         #endif
         return result
     }
 }
 
-private struct PlanAttentionList: View {
+struct PlanAttentionList: View {
     @ObservedObject private var timeline = OccurrenceStore.shared
     @ObservedObject private var routines = RoutineStore.shared
     #if BANANA_MODULE_FOOD
@@ -189,7 +361,7 @@ private struct PlanAttentionList: View {
                 }
             }
             .navigationTitle("Needs attention")
-            .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } } }
+            .toolbar { SheetClose { dismiss() } }
             #if BANANA_MODULE_FOOD
             .sheet(item: $reviewing) { request in MealDayReviewView(day: request.day).environmentObject(wellness) }
             #endif

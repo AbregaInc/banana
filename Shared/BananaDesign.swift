@@ -46,14 +46,28 @@ enum DS {
         }
     }
 
-    /// Type roles. Sizes are fixed rather than Dynamic Type on the calendar grid, where rows are
-    /// laid out on a time ruler; everywhere else use the text styles below.
+    /// Type roles for the calendar grid and its chrome; everywhere else use the system's text
+    /// styles. On iOS and iPadOS they are text styles, so they start at the system's 11-point
+    /// floor and grow with Dynamic Type (the grid caps the growth at `gridLargest`); on the Mac,
+    /// which has no Dynamic Type, they are fixed sizes at or above its 10-point floor (HIG,
+    /// Typography).
     enum Typeface {
+        /// The smallest text the platform allows: 11 points on iOS and iPadOS, 10 on macOS.
+        /// Nothing is drawn smaller, however short its block.
+        #if os(macOS)
+        static let minimumSize: CGFloat = 10
+        #else
+        static let minimumSize: CGFloat = 11
+        #endif
+        /// The largest Dynamic Type size the calendar grid follows. Its rows sit on a time ruler
+        /// whose hour height doesn't change; past this, a half-hour block can't hold one line.
+        static let gridLargest = DynamicTypeSize.xxxLarge
+
+        #if os(macOS)
         /// Period title in the planner header: "September 21 – 27".
         static let periodTitle = Font.system(size: 17, weight: .semibold)
         /// Small uppercase label above or beside content ("NO TIME", "TOMORROW").
         static let eyebrow = Font.system(size: 10, weight: .semibold)
-        static let eyebrowTracking: CGFloat = 0.6
         /// Day column header: weekday and date on one line.
         static let dayHeader = Font.system(size: 12, weight: .medium)
         static let dayHeaderToday = Font.system(size: 12, weight: .semibold)
@@ -62,8 +76,51 @@ enum DS {
         /// Event block title and its time line.
         static let eventTitle = Font.system(size: 11, weight: .semibold)
         static let eventMeta = Font.system(size: 10, weight: .regular).monospacedDigit()
+        #else
+        static let periodTitle = Font.headline
+        static let eyebrow = Font.caption2.weight(.semibold)
+        static let dayHeader = Font.caption.weight(.medium)
+        static let dayHeaderToday = Font.caption.weight(.semibold)
+        static let gutter = Font.caption2.weight(.medium).monospacedDigit()
+        static let eventTitle = Font.caption2.weight(.semibold)
+        static let eventMeta = Font.caption2.monospacedDigit()
+        #endif
+        static let eyebrowTracking: CGFloat = 0.6
+
+        /// The smallest text, for what has least room (a travel band, a short block's glyph, a
+        /// second time zone's hours): `minimumSize`, growing with Dynamic Type on iOS like the
+        /// roles above. Nothing on screen is drawn smaller.
+        static func small(_ weight: Font.Weight = .regular, design: Font.Design = .default) -> Font {
+            #if os(macOS)
+            Font.system(size: minimumSize, weight: weight, design: design)
+            #else
+            Font.system(.caption2, design: design, weight: weight)
+            #endif
+        }
+
         /// Keyboard key caps.
         static let keyCap = Font.system(size: 11, weight: .medium)
+
+        /// Point sizes of the roles above, for text drawn outside SwiftUI (the calendar's
+        /// prepared event artwork): the same sizes the fonts resolve to at `typeSize`, capped at
+        /// `gridLargest`.
+        enum Size {
+            /// `eventTitle`.
+            static func title(_ typeSize: DynamicTypeSize) -> CGFloat { scaled(11, typeSize) }
+            /// `eventMeta`, and every smaller line on a block (a location, a return leg).
+            static func meta(_ typeSize: DynamicTypeSize) -> CGFloat { scaled(max(10, minimumSize), typeSize) }
+
+            /// A `.caption2` size at a Dynamic Type size, as the system scales it.
+            static func scaled(_ size: CGFloat, _ typeSize: DynamicTypeSize) -> CGFloat {
+                #if os(iOS)
+                let capped = min(typeSize, gridLargest)
+                let traits = UITraitCollection(preferredContentSizeCategory: UIContentSizeCategory(capped))
+                return UIFontMetrics(forTextStyle: .caption2).scaledValue(for: size, compatibleWith: traits)
+                #else
+                return size
+                #endif
+            }
+        }
     }
 
     /// Every colour Banana uses, by role. Never write `.orange` or `.green` in a view: pick the
@@ -163,6 +220,44 @@ enum DS {
         static let gridHalfHour = Color.primary.opacity(0.035)
         static let selection = Color.primary.opacity(0.08)
         static let todayWash = accent.opacity(Tint.wash)
+
+        /// Small text that is quieter than the body but still has to be read: hour labels,
+        /// gutter eyebrows ("TO DO", "NO TIME"), captions beside a value. The system's tertiary
+        /// label is 1.7–1.9:1 on white and its secondary 3.1–3.4:1, both under the 4.5:1 that text
+        /// below 17 points needs (HIG, Accessibility). This grey is 4.7:1 or more on every page
+        /// background in light (#6C6C70) and dark (#98989D), and darker or lighter again when the
+        /// person asks for more contrast. Glyphs that only decorate (a row's chevron) may stay
+        /// tertiary.
+        static let quietText: Color = adaptive(light: 0x6C6C70, dark: 0x98989D,
+                                               lightHighContrast: 0x48484A, darkHighContrast: 0xC7C7CC)
+
+        private static func adaptive(light: UInt32, dark: UInt32, lightHighContrast: UInt32, darkHighContrast: UInt32) -> Color {
+            func rgb(_ hex: UInt32) -> (CGFloat, CGFloat, CGFloat) {
+                (CGFloat((hex >> 16) & 0xFF) / 255, CGFloat((hex >> 8) & 0xFF) / 255, CGFloat(hex & 0xFF) / 255)
+            }
+            #if os(iOS)
+            return Color(uiColor: UIColor { traits in
+                let isDark = traits.userInterfaceStyle == .dark, high = traits.accessibilityContrast == .high
+                let (r, g, b) = rgb(isDark ? (high ? darkHighContrast : dark) : (high ? lightHighContrast : light))
+                return UIColor(red: r, green: g, blue: b, alpha: 1)
+            })
+            #elseif os(macOS)
+            return Color(nsColor: NSColor(name: nil) { appearance in
+                let match = appearance.bestMatch(from: [.aqua, .darkAqua, .accessibilityHighContrastAqua, .accessibilityHighContrastDarkAqua])
+                let hex: UInt32 = switch match {
+                case .darkAqua: dark
+                case .accessibilityHighContrastAqua: lightHighContrast
+                case .accessibilityHighContrastDarkAqua: darkHighContrast
+                default: light
+                }
+                let (r, g, b) = rgb(hex)
+                return NSColor(srgbRed: r, green: g, blue: b, alpha: 1)
+            })
+            #else
+            let (r, g, b) = rgb(dark)
+            return Color(red: r, green: g, blue: b)
+            #endif
+        }
     }
 
     /// The only opacities a tint of a colour may use — a wash behind today's column, a subtle
@@ -190,6 +285,15 @@ enum DS {
         /// The lane width below which blocks drop their kind icon — decided per column, never
         /// per block, so the same kind of event looks the same across a week.
         static let iconMinColumnWidth: CGFloat = 132
+
+        /// How far a block's words and glyphs are taken from its calendar's colour toward the
+        /// text colour (black in light, white in dark). The calendar colour itself is 1.7:1 on
+        /// its own fill for a yellow calendar; this much darker (lighter in dark) is 4.6:1 or
+        /// more on the fill for every colour `CalendarColor` can produce, in both appearances.
+        static let inkMix: Double = 0.45
+
+        /// The colour of a block's words and glyphs: its calendar's colour, readable on its fill.
+        static func ink(_ tint: Color) -> Color { tint.mix(with: .primary, by: inkMix) }
     }
 
     /// Row anatomy shared by every list, so a settings row, an account card and a workout row
@@ -392,7 +496,7 @@ struct KeyCombo: View {
         HStack(spacing: 3) {
             ForEach(Array(Self.keys(combo).enumerated()), id: \.offset) { _, key in
                 if key == "then" || key == "/" || key == "–" {
-                    Text(key).font(.caption).foregroundStyle(.tertiary)
+                    Text(key).font(.caption).foregroundStyle(DS.Palette.quietText)
                 } else {
                     KeyCap(key: key)
                 }

@@ -64,6 +64,7 @@ struct MealWordsEditor: View {
                 ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Estimate again", action: save)
+                        .sheetConfirm()
                         .disabled(trimmed.isEmpty && !item.hasPhotos)
                         .accessibilityIdentifier("mealWords.save")
                 }

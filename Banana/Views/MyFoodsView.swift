@@ -44,7 +44,7 @@ struct MyFoodsView: View {
             .frame(minWidth: 440, idealWidth: 500, minHeight: 420, idealHeight: 560)
             #endif
             .toolbar {
-                ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } }
+                SheetClose { dismiss() }
             }
             .sheet(isPresented: $adding) {
                 // No meal to correct: a scan only adds the food.

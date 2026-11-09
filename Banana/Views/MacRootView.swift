@@ -169,20 +169,10 @@ struct MacRootView: View {
         on.notes = modules.includes(.notes)
         on.library = modules.includes(.podcasts)
         on.review = AppSection.review.isShown(with: modules.effectiveChoice)
-        return ShellPage.listed(on)
+        return ShellPage.rail(on, mac: true)
     }
 
-    private var railCurrent: ShellPage? {
-        switch nav.section {
-        case .plan: .plan
-        case .mail: .mail
-        case .workouts, .nutrition: .body
-        case .notes: .notes
-        case .library: .library
-        case .review, .sleep, .trends: .review
-        default: nil
-        }
-    }
+    private var railCurrent: ShellPage? { ShellPage.showing(nav.section) }
 
     private func openRailPage(_ page: ShellPage) {
         switch page {
@@ -196,16 +186,24 @@ struct MacRootView: View {
         }
     }
 
+    /// Whether the rail is shown: hidden and shown like a system sidebar (the toolbar's sidebar
+    /// button, View › Hide Sidebar ⌃⌘S), and kept across launches (`ShellRailVisibility`).
+    @AppStorage(ShellRailVisibility.key) private var railShown = true
+
+    private var railVisibility: Binding<NavigationSplitViewVisibility> {
+        Binding(get: { railShown ? .all : .detailOnly },
+                set: { railShown = $0 != .detailOnly })
+    }
+
     var body: some View {
-        NavigationSplitView {
+        NavigationSplitView(columnVisibility: railVisibility) {
             // The rail: round page buttons under the traffic lights, in place of the source list.
             // Routines, which had a row, is in each page's "…" (`MoreMenu`).
             ShellRail(pages: railPages, current: railCurrent, open: openRailPage)
                 .navigationSplitViewColumnWidth(min: ShellRail.width, ideal: ShellRail.width, max: ShellRail.width)
-                .toolbar(removing: .sidebarToggle)
                 // The column widths above are only a request: AppKit's sidebar kept its own
                 // minimum (and a width saved from before), ~200 pt in Beta 105. Pin the split
-                // view's sidebar item itself.
+                // view's sidebar item's width itself; it still collapses.
                 .background(MacRailColumnPin(width: ShellRail.width))
                 .accessibilityIdentifier("app.sidebar")
         } detail: {
@@ -277,7 +275,8 @@ struct MacRootView: View {
                     // The window's one toolbar: "Search or ask" in the middle and the assistant beside
                     // it, on every page; each page adds its title menu and "…".
                     .toolbar {
-                        ToolbarItem(placement: .principal) { ShellToolbarField() }
+                        // Beside "…" at the trailing edge, the toolbar's last group, on every page.
+                        ToolbarItem(placement: .primaryAction) { ShellToolbarField() }
                         #if BANANA_AI
                         ToolbarItem(placement: .primaryAction) {
                             Button {
@@ -581,6 +580,8 @@ struct MacCommands: Commands {
     @ObservedObject private var modules = ModuleStore.shared
 
     var body: some Commands {
+        // View › Show/Hide Sidebar (⌃⌘S), for the rail (HIG, Sidebars: let people hide it).
+        SidebarCommands()
         #if BANANA_DIRECT
         CommandGroup(after: .appInfo) {
             DirectMacUpdateButton()
@@ -656,6 +657,28 @@ struct MacCommands: Commands {
             Button("Report a Problem\u{2026}") { ProblemReportCenter.shared.open() }
                 .keyboardShortcut("r", modifiers: [.command, .shift])
         }
+        // Every toolbar command is in the menu bar too (HIG, Toolbars: macOS): the period's
+        // paging and Today under Go, the span under View, and ⌘F into "Search or ask". The
+        // planner's single keys (T, J, K, D, W, 1–7) stay as they are; a menu item's key with no
+        // modifier would be taken from every text field, so the menus carry chords.
+        CommandGroup(before: .toolbar) {
+            ForEach(MacMenuCommands.views, id: \.title) { item in
+                Button(item.title) { MacCommandCenter.shared.perform(item.action) }
+                    .keyboardShortcut(item.key, modifiers: [.command, .option])
+            }
+            Divider()
+        }
+        CommandMenu("Go") {
+            ForEach(MacMenuCommands.go, id: \.title) { item in
+                Button(item.title) { MacCommandCenter.shared.perform(item.action) }
+                    .keyboardShortcut(item.key, modifiers: item.modifiers)
+            }
+        }
+        CommandGroup(before: .textEditing) {
+            Button("Search or Ask") { ShellSearch.shared.focusRequests.send(true) }
+                .keyboardShortcut("f", modifiers: .command)
+            Divider()
+        }
         // The calendar's sharing: the booking link (copied, with the shortcut BOOKING.md §12 names)
         // and the availability panel.
         CommandMenu("Calendar") {
@@ -665,6 +688,32 @@ struct MacCommands: Commands {
             Button("Share Availability\u{2026}") { MacCommandCenter.shared.perform(.shareAvailability) }
         }
     }
+}
+
+/// The planner's toolbar commands as menu items (`MacCommands`): the same actions the toolbar
+/// and the single keys run (`MacCommandCenter`).
+enum MacMenuCommands {
+    struct Item {
+        let title: String
+        let key: KeyEquivalent
+        var modifiers: EventModifiers = [.command, .option]
+        let action: MacCalendarAction
+    }
+
+    /// View: the span, numbered by its days, as the single keys 1–7 are.
+    static let views: [Item] = [
+        Item(title: "Day", key: "1", action: .dayView),
+        Item(title: "3 Days", key: "3", action: .span(3)),
+        Item(title: "5 Days", key: "5", action: .span(5)),
+        Item(title: "Week", key: "7", action: .weekView),
+    ]
+
+    /// Go: back, forward and Today, as in the toolbar's group.
+    static let go: [Item] = [
+        Item(title: "Previous", key: .leftArrow, action: .previousPeriod),
+        Item(title: "Next", key: .rightArrow, action: .nextPeriod),
+        Item(title: "Today", key: "t", modifiers: .command, action: .today),
+    ]
 }
 
 extension Notification.Name {
@@ -707,9 +756,8 @@ private struct MacRailColumnPin: NSViewRepresentable {
                   let sidebar = controller.splitViewItems.first else { return }
             if sidebar.minimumThickness != width { sidebar.minimumThickness = width }
             if sidebar.maximumThickness != width { sidebar.maximumThickness = width }
-            if sidebar.canCollapse { sidebar.canCollapse = false }
-            if sidebar.isCollapsed { sidebar.isCollapsed = false }
-            if let column = split.arrangedSubviews.first, abs(column.frame.width - width) > 0.5 {
+            if !sidebar.canCollapse { sidebar.canCollapse = true }
+            if !sidebar.isCollapsed, let column = split.arrangedSubviews.first, abs(column.frame.width - width) > 0.5 {
                 split.setPosition(width, ofDividerAt: 0)
             }
         }

@@ -43,7 +43,7 @@ enum WorkoutType {
     static let rowTitle = Font.body.weight(.semibold)
     static let rowSubtitle = Font.caption
     static let rowMetricValue = Font.callout.weight(.medium).monospacedDigit()
-    static let rowMetricLabel = Font.system(size: 9, weight: .semibold)   // unchanged, it's already tiny/correct
+    static let rowMetricLabel = DS.Typeface.small(.semibold)
     static let stripValue = Font.title3.weight(.semibold).monospacedDigit()   // was .title2/.title/.largeTitle-adjacent
     static let stripLabel = Font.caption2.weight(.semibold)
     static let heroActivity = Font.title2.weight(.bold)

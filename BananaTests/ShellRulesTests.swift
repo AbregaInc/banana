@@ -14,6 +14,22 @@ final class ShellRulesTests: XCTestCase {
         XCTAssertTrue(ShellPage.listed(on).contains(.body), "Food alone keeps Body")
     }
 
+    /// One rule on the iPad and the Mac: the rail lights the section's own page, and a section
+    /// without one (Routines) lights nothing, never Plan.
+    func testTheRailLightsTheSectionsOwnPageOrNone() {
+        XCTAssertEqual(ShellPage.showing(.plan), .plan)
+        XCTAssertEqual(ShellPage.showing(.nutrition), .body)
+        XCTAssertEqual(ShellPage.showing(.sleep), .review)
+        XCTAssertEqual(ShellPage.showing(.settings), .settings)
+        XCTAssertNil(ShellPage.showing(.routines))
+        XCTAssertNil(ShellPage.showing(.assistant))
+    }
+
+    /// On an iPad the first rail button's centre is on the top bar's centre line.
+    func testTheFirstRailButtonSitsOnTheTopBarsLine() {
+        XCTAssertEqual(ShellLayout.railTopInset + ShellLayout.railButton / 2, ShellLayout.barControl / 2)
+    }
+
     func testReviewAndSettingsOpenOverThePage() {
         XCTAssertEqual(ShellPage.allCases.filter(\.opensOver), [.review, .settings])
     }
@@ -86,18 +102,18 @@ final class ShellRulesTests: XCTestCase {
     }
 
     /// Plan pages from one place in each shell, the same group in both new ones: "‹", the period,
-    /// "›", then Today (always there, idle on the current period). A date line under the bar only
+    /// "›", then Today (only away from the current period). A date line under the bar only
     /// outside both.
     func testPlanPagesFromOnePlacePerShell() {
         for shell in [PlanPaging.Shell.wide, .bottomBar] {
-            for isCurrent in [true, false] {
-                XCTAssertEqual(PlanPaging.controls(shell, isCurrent: isCurrent), [.previous, .period, .next, .today],
-                               "\(shell): the group doesn't shift when Today wakes")
-            }
+            XCTAssertEqual(PlanPaging.controls(shell, isCurrent: true), [.previous, .period, .next],
+                           "\(shell): no Today on the current period")
+            XCTAssertEqual(PlanPaging.controls(shell, isCurrent: false), [.previous, .period, .next, .today],
+                           "\(shell): Today away from it")
             XCTAssertFalse(PlanPaging.drawsDateLine(shell), "no date line under \(shell)'s bar")
         }
-        XCTAssertFalse(PlanPaging.todayEnabled(isCurrent: true))
-        XCTAssertTrue(PlanPaging.todayEnabled(isCurrent: false))
+        XCTAssertFalse(PlanPaging.showsToday(isCurrent: true))
+        XCTAssertTrue(PlanPaging.showsToday(isCurrent: false))
         XCTAssertTrue(PlanPaging.drawsDateLine(.classic))
         XCTAssertEqual(PlanPaging.shell(bottomBar: false, wide: true), .wide)
         XCTAssertEqual(PlanPaging.shell(bottomBar: true, wide: false), .bottomBar)
@@ -169,27 +185,50 @@ final class ShellRulesTests: XCTestCase {
         for page in ShellPage.allCases { XCTAssertFalse(page.symbol.contains(".fill"), page.rawValue) }
     }
 
-    func testTheForecastTakesTodaysPlaceOnTheCurrentPeriodWhereBothDontFit() {
+    /// Today only away from the current period, on every device; the forecast is in the top row
+    /// at every width on the current period and gives way to Today when paged away.
+    func testTodayShowsOnlyAwayFromTheCurrentPeriod() {
         typealias Row = PlanPaging.TopRow
         let now = PlanPaging.topRowLayouts(isCurrent: true, hasForecast: true)
-        // Widest first: Today and the forecast with the dates beside, then the forecast in
-        // Today's place before it would give way, then the same with the dates under.
-        XCTAssertEqual(Array(now.prefix(4)), [Row(dates: .beside, today: true, forecast: true),
-                                              Row(dates: .beside, today: false, forecast: true),
-                                              Row(dates: .beside, today: true, forecast: false),
-                                              Row(dates: .under, today: true, forecast: true)])
-        // On the current period every width has a layout with the forecast before one without.
+        XCTAssertTrue(now.allSatisfy { !$0.today }, "no Today on the current period")
+        // The forecast in Today's place before the dates beside the name: they move under it and
+        // go before the forecast does.
+        XCTAssertEqual(Array(now.prefix(3)), [Row(dates: .beside, today: false, forecast: true),
+                                              Row(dates: .under, today: false, forecast: true),
+                                              Row(dates: .hidden, today: false, forecast: true)])
         for dates in [Row.Dates.beside, .under, .hidden] {
             let first = now.firstIndex { $0.dates == dates }!
             XCTAssertTrue(now[first].forecast, "\(dates): the forecast is not reachable")
         }
-        // Paged away, Today is always there and the forecast gives way.
         let away = PlanPaging.topRowLayouts(isCurrent: false, hasForecast: true)
-        XCTAssertTrue(away.allSatisfy(\.today))
+        XCTAssertTrue(away.allSatisfy(\.today), "Today, paged away")
         XCTAssertEqual(away.map(\.dates), [.beside, .beside, .under, .under, .hidden])
-        // No forecast: Today stays, nothing takes its place.
-        XCTAssertTrue(PlanPaging.topRowLayouts(isCurrent: true, hasForecast: false).allSatisfy { $0.today && !$0.forecast })
-        // The last resort always has Today or the forecast: the row is never just "‹ ›".
-        XCTAssertTrue(now.allSatisfy { $0.today || $0.forecast })
+        XCTAssertTrue(PlanPaging.topRowLayouts(isCurrent: true, hasForecast: false).allSatisfy { !$0.today && !$0.forecast })
+    }
+
+    /// Attention chips: all where they fit; past the limit, one fewer and "+N more" for the rest.
+    func testAttentionChipsFoldOnlyPastTheLimit() {
+        XCTAssertTrue(PlanAttentionLine.shown(2, limit: 3) == (2, 0))
+        XCTAssertTrue(PlanAttentionLine.shown(3, limit: 3) == (3, 0))
+        XCTAssertTrue(PlanAttentionLine.shown(5, limit: 3) == (2, 3))
+        XCTAssertTrue(PlanAttentionLine.shown(9, limit: nil) == (9, 0))
+    }
+
+    /// The grid observes only the attention count (`PlanAttention`): the stores behind the chips
+    /// publish often, and the clock grid must not rebuild for them (ui-performance-contract.md).
+    func testThePlanGridDoesNotObserveTheAttentionStores() throws {
+        let source = try String(contentsOf: SourceTree.root.appendingPathComponent("Banana/Views/WeekView.swift"), encoding: .utf8)
+        for store in ["MealInboxStore", "WellnessStore", "AnchoredTimingHub"] {
+            XCTAssertFalse(source.contains("@ObservedObject private var") && source.contains("= \(store).shared"),
+                           "WeekView observes \(store)")
+        }
+        XCTAssertFalse(source.contains("PlanAttentionBand"), "the attention band is gone")
+    }
+
+    /// The Mac's rail has no Settings (the app menu's ⌘, opens its window); an iPad's keeps it.
+    func testTheMacsRailHasNoSettings() {
+        let on = ShellPage.Modules()
+        XCTAssertEqual(ShellPage.rail(on, mac: true), [.plan])
+        XCTAssertEqual(ShellPage.rail(on, mac: false), [.plan, .settings])
     }
 }

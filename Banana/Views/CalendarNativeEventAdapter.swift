@@ -18,7 +18,11 @@ enum CalendarNativeEventAdapter {
             return CGColor(srgbRed: CGFloat(resolved.red), green: CGFloat(resolved.green),
                 blue: CGFloat(resolved.blue), alpha: CGFloat(resolved.opacity))
         }
-        let tint = color(paint.tint), secondary = color(.secondary)
+        // Words and glyphs: the calendar's colour made readable on its fill (`DS.Event.ink`).
+        // Sizes: the design system's grid roles at this Dynamic Type size (`DS.Typeface.Size`).
+        let tint = color(paint.tint), ink = color(DS.Event.ink(paint.tint))
+        let titleSize = DS.Typeface.Size.title(environment.dynamicTypeSize)
+        let metaSize = DS.Typeface.Size.meta(environment.dynamicTypeSize)
         let redacted = !environment.redactionReasons.isEmpty
         func font(_ size: CGFloat, bold: Bool = false, digits: Bool = false, rounded: Bool = false) -> CTFont {
             #if os(macOS)
@@ -48,12 +52,12 @@ enum CalendarNativeEventAdapter {
         func symbol(_ name: String, tint: CGColor) -> CGImage? {
             guard !redacted else { return nil }
             #if os(macOS)
-            let config = NSImage.SymbolConfiguration(pointSize: 9, weight: .semibold)
+            let config = NSImage.SymbolConfiguration(pointSize: metaSize, weight: .semibold)
                 .applying(.init(hierarchicalColor: NSColor(cgColor: tint) ?? .labelColor))
             return NSImage(systemSymbolName: name, accessibilityDescription: nil)?
                 .withSymbolConfiguration(config)?.cgImage(forProposedRect: nil, context: nil, hints: nil)
             #else
-            let config = UIImage.SymbolConfiguration(pointSize: 9, weight: .semibold)
+            let config = UIImage.SymbolConfiguration(pointSize: metaSize, weight: .semibold)
             return UIImage(systemName: name, withConfiguration: config)?
                 .withTintColor(UIColor(cgColor: tint), renderingMode: .alwaysOriginal).cgImage
             #endif
@@ -61,26 +65,25 @@ enum CalendarNativeEventAdapter {
         let twoLine = desktop ? paintHeight >= DS.Event.twoLineMinHeight : paintHeight >= 40
         let titleLines = desktop ? (twoLine ? max(1, Int(min(128, (paintHeight - 20) / 13))) : 1)
             : (paintHeight >= 76 ? 3 : (paintHeight >= 40 ? 2 : 1))
-        var title = text(paint.title, size: !desktop && paintHeight < 20 ? 9 : 11,
-            bold: true, color: desktop ? tint : color(.primary), lines: titleLines)
+        var title = text(paint.title, size: titleSize,
+            bold: true, color: desktop ? ink : color(.primary), lines: titleLines)
         if desktop && !twoLine {
             let combined = NSMutableAttributedString(attributedString: title.value)
-            combined.append(text("  " + paint.startText, size: 10, digits: true,
-                color: tint.copy(alpha: tint.alpha * 0.75)!).value)
+            combined.append(text("  " + paint.startText, size: metaSize, digits: true,
+                color: ink).value)
             title = .init(value: combined, maximumLines: 1)
         } else if !desktop && !twoLine && paint.isMoment && paint.hasScheduledTime {
             // An instant has no second line. Keep its time visible before a long title truncates.
             let combined = NSMutableAttributedString(attributedString: text(paint.startText + "  ",
-                size: paintHeight < 20 ? 9 : 10, digits: true, color: secondary).value)
+                size: metaSize, digits: true, color: ink).value)
             combined.append(title.value)
             title = .init(value: combined, maximumLines: 1)
         }
         var subtitle: CalendarNativeEventRaster.Text?
         if let caption = paint.returnCaption, !desktop || twoLine {
-            subtitle = text(caption, size: desktop ? 10 : 9, bold: true, color: color(DS.Palette.travel), rounded: !desktop)
+            subtitle = text(caption, size: metaSize, bold: true, color: color(DS.Palette.travel), rounded: !desktop)
         } else if twoLine {
-            subtitle = text(paint.timeRange, size: 10, digits: true,
-                color: desktop ? tint.copy(alpha: tint.alpha * 0.8)! : secondary)
+            subtitle = text(paint.timeRange, size: metaSize, digits: true, color: ink)
         }
         var iconName: String?
         if paint.isTask { iconName = paint.completed ? "checkmark.circle.fill" : "circle" }
@@ -95,8 +98,8 @@ enum CalendarNativeEventAdapter {
                 : (paint.completed || paint.skipped ? 0.55 : 1),
             title: title, subtitle: subtitle,
             location: !desktop && paintHeight >= 64
-                ? paint.location.map { text($0, size: 9, color: secondary, rounded: true) } : nil,
-            icon: iconName.flatMap { symbol($0, tint: tint) },
+                ? paint.location.map { text($0, size: metaSize, color: ink, rounded: true) } : nil,
+            icon: iconName.flatMap { symbol($0, tint: ink) },
             warning: paint.othersDeclined ? symbol("exclamationmark.triangle.fill", tint: color(DS.Palette.accent)) : nil,
             desktop: desktop, rightToLeft: environment.layoutDirection == .rightToLeft,
             free: paint.showsAsFree, tentative: paint.tentative, needsAction: paint.needsAction,

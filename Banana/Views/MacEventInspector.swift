@@ -113,10 +113,10 @@ struct MacEventInspectorView: View {
                                         .lineLimit(1)
                                         .textSelection(.enabled)
                                     if attendee.isOrganizer {
-                                        Text("Organizer").font(.caption).foregroundStyle(.tertiary)
+                                        Text("Organizer").font(.caption).foregroundStyle(DS.Palette.quietText)
                                     }
                                     if attendee.isCurrentUser {
-                                        Text("You").font(.caption).foregroundStyle(.tertiary)
+                                        Text("You").font(.caption).foregroundStyle(DS.Palette.quietText)
                                     }
                                 }
                             }
@@ -249,7 +249,7 @@ struct MacEventInspectorView: View {
             Text(title.uppercased())
                 .font(DS.Typeface.eyebrow)
                 .tracking(DS.Typeface.eyebrowTracking)
-                .foregroundStyle(.tertiary)
+                .foregroundStyle(DS.Palette.quietText)
             content()
         }
     }

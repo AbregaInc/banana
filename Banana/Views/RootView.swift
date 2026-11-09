@@ -658,16 +658,10 @@ struct RootView: View {
 
     /// The switcher's page for the section showing.
     private var currentShellPage: ShellPage? {
-        if shell.state.tab == .settings { return .settings }
-        if shell.state.tab == .review, showsSidebarSections { return .review }
-        return switch shell.state.tab.tabBarHome {
-        case .plan: .plan
-        case .mail: .mail
-        case .workouts, .nutrition: .body
-        case .notes: .notes
-        case .library: .library
-        default: nil
-        }
+        let tab = shell.state.tab
+        // With a rail every section is a page of its own; under the switcher one that is only
+        // a sheet there (Review, Routines) is shown on the page it falls back to.
+        return ShellPage.showing(tab == .settings || showsSidebarSections ? tab : tab.tabBarHome)
     }
 
     private func openShellPage(_ page: ShellPage) {
@@ -723,6 +717,8 @@ struct RootView: View {
         }
     }
     @State private var lastBody = AppSection.workouts
+    /// The rail hidden or shown (`ShellRailToggle`), as a system sidebar is.
+    @AppStorage(ShellRailVisibility.key) private var railShown = true
 
     /// Each tab hosts the toast itself (not the TabView): inside a tab the bottom safe area already
     /// clears the tab bar and the now-playing accessory, so the toast sits just above them.
@@ -731,8 +727,9 @@ struct RootView: View {
         // not a screen of its own. Where a landscape iPad's room is, the rail of pages at the left
         // edge (docs/design/BOTTOM-BAR-SHELL.md, Wide); anywhere narrower, the bar at the bottom.
         HStack(spacing: 0) {
-            if !bottomBarShell {
+            if !bottomBarShell, railShown {
                 ShellRail(pages: shellPages, current: currentShellPage, open: openShellPage)
+                    .transition(.move(edge: .leading))
             }
             browseTabs
         }

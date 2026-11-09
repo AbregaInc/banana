@@ -45,7 +45,7 @@ struct AssistantView: View {
                         .toolbar {
                             ToolbarItemGroup(placement: .automatic) { addFormMenu; conversationControls }
                             if showsDoneButton {
-                                ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } }
+                                SheetClose { dismiss() }
                             }
                         }
                 }

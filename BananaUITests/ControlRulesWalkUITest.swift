@@ -193,7 +193,7 @@ final class ControlRulesWalkUITest: XCTestCase {
             keep("review-\(part)")
             app.navigationBars.buttons.firstMatch.tap()
         }
-        app.buttons["Done"].firstMatch.tap()
+        app.buttons["sheet.close"].firstMatch.tap()
         XCTAssertTrue(app.buttons["shell.switcher"].firstMatch.waitForExistence(timeout: 5), "Done didn't close Review")
     }
 

@@ -66,9 +66,7 @@ struct PostWorkoutReviewView: View {
             .navigationSubtitle("\(subject.activity) · \(whenText)")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") { dismiss() }
-                }
+                SheetClose { dismiss() }
             }
         }
         #if os(macOS)

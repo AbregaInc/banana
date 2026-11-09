@@ -61,7 +61,7 @@ private struct CalendarMoveRecoveryView: View {
                 }
             }
             .navigationTitle("Calendar Moves")
-            .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } } }
+            .toolbar { SheetClose { dismiss() } }
             .confirmationDialog("Discard this pending move?", isPresented: Binding(
                 get: { discarding != nil }, set: { if !$0 { discarding = nil } })) {
                 Button("Discard move", role: .destructive) {

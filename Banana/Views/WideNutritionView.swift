@@ -625,7 +625,7 @@ struct MacSupplementEditor: View {
             .navigationTitle(isNew ? "Add" : "Edit")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
-                ToolbarItem(placement: .confirmationAction) { Button("Save") { save() }.disabled(!canSave) }
+                ToolbarItem(placement: .confirmationAction) { Button("Save") { save() }.sheetConfirm().disabled(!canSave) }
             }
             .sheet(isPresented: $searching) {
                 SupplementCatalogSearchView { entry in

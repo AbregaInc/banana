@@ -58,7 +58,7 @@ struct OneOffAlarmSheet: View {
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
             #endif
-            .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } } }
+            .toolbar { SheetClose { dismiss() } }
             .alert("Alarm", isPresented: Binding(
                 get: { alarms.errorMessage != nil },
                 set: { if !$0 { alarms.errorMessage = nil } }

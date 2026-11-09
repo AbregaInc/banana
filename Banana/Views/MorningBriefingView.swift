@@ -56,9 +56,7 @@ struct MorningBriefingView: View {
             .groupedPage()
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") { dismiss() }
-                }
+                SheetClose { dismiss() }
             }
         }
         #if BANANA_MODULE_WORKOUTS

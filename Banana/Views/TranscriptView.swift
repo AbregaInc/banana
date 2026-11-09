@@ -41,9 +41,7 @@ struct TranscriptView: View {
                         .navigationTitle("Transcript")
                         .navigationBarTitleDisplayMode(.inline)
                         .toolbar {
-                            ToolbarItem(placement: .confirmationAction) {
-                                Button("Done") { dismiss() }
-                            }
+                            SheetClose { dismiss() }
                         }
                 }
                 #if os(macOS)

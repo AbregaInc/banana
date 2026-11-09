@@ -45,7 +45,8 @@ struct CalendarEventArtwork: View {
     }
 
     private var desktop: some View {
-        let tint = paint.tint, ribbons = paint.ribbons
+        // Words and glyphs in the calendar's colour made readable on its fill (`DS.Event.ink`).
+        let tint = paint.tint, ink = DS.Event.ink(paint.tint), ribbons = paint.ribbons
         let twoLine = height >= DS.Event.twoLineMinHeight
         return VStack(alignment: .leading, spacing: 1) {
             HStack(spacing: DS.Space.xs) {
@@ -54,16 +55,16 @@ struct CalendarEventArtwork: View {
                 // has room for it on every block.
                 if paint.isTask {
                     Image(systemName: paint.completed ? "checkmark.circle.fill" : "circle")
-                        .font(.system(size: 9, weight: .semibold))
+                        .font(DS.Typeface.small(.semibold))
                 } else if paint.completed {
                     Image(systemName: "checkmark.circle.fill")
-                        .font(.system(size: 9, weight: .semibold))
+                        .font(DS.Typeface.small(.semibold))
                 } else if paint.skipped {
                     Image(systemName: "xmark.circle")
-                        .font(.system(size: 9, weight: .semibold))
+                        .font(DS.Typeface.small(.semibold))
                 } else if showsIcon {
                     Image(systemName: paint.icon)
-                        .font(.system(size: 9, weight: .semibold))
+                        .font(DS.Typeface.small(.semibold))
                 }
                 if paint.othersDeclined { OthersDeclinedMark() }
                 if twoLine {
@@ -76,7 +77,7 @@ struct CalendarEventArtwork: View {
                 } else {
                     // Too short for two lines: title, then when — on one.
                     (Text(paint.title).font(DS.Typeface.eventTitle)
-                        + Text("  \(paint.startText)").font(DS.Typeface.eventMeta).foregroundColor(tint.opacity(0.75)))
+                        + Text("  \(paint.startText)").font(DS.Typeface.eventMeta))
                         .strikethrough(paint.completed || paint.skipped, color: .secondary)
                         .lineLimit(1)
                 }
@@ -93,12 +94,11 @@ struct CalendarEventArtwork: View {
                 } else {
                     Text(paint.timeRange)
                         .font(DS.Typeface.eventMeta)
-                        .foregroundStyle(tint.opacity(0.8))
                         .lineLimit(1)
                 }
             }
         }
-        .foregroundStyle(tint)
+        .foregroundStyle(ink)
         .padding(.leading, DS.Space.s + paint.ribbonInset)
         .padding(.trailing, DS.Space.xs)
         .padding(.vertical, twoLine ? DS.Space.xs : 0)
@@ -116,37 +116,46 @@ struct CalendarEventArtwork: View {
     }
 
     private var mobile: some View {
-        let color = paint.tint, ribbons = paint.ribbons
+        let color = paint.tint, ink = DS.Event.ink(paint.tint), ribbons = paint.ribbons
         return VStack(alignment: .leading, spacing: 1) {
             HStack(spacing: 4) {
                 if paint.isTask {
                     // Same rule as the Mac grid: for a reminder, done-or-not is the fact worth
                     // the glyph, so it always shows the circle/checkmark rather than a kind icon.
                     Image(systemName: paint.completed ? "checkmark.circle.fill" : "circle")
-                        .font(.system(size: 9, weight: .semibold))
-                        .foregroundStyle(color)
+                        .font(DS.Typeface.small(.semibold))
+                        .foregroundStyle(ink)
                 } else if !paint.isEvent {
                     Image(systemName: paint.completed ? "checkmark.circle.fill" : (paint.skipped ? "xmark.circle" : paint.icon))
-                        .font(.system(size: 9, weight: .semibold))
-                        .foregroundStyle(color)
+                        .font(DS.Typeface.small(.semibold))
+                        .foregroundStyle(ink)
                 }
                 if paint.othersDeclined { OthersDeclinedMark() }
-                Text(paint.title)
+                let title = Text(paint.title)
                     // A block kept to its own few minutes (see CalendarBlockHeight) still names itself.
-                    .font(height < 20 ? .system(size: 9, weight: .semibold) : DS.Typeface.eventTitle)
+                    .font(DS.Typeface.eventTitle)
                     .foregroundStyle(.primary)
                     .strikethrough(paint.completed || paint.skipped, color: .secondary)
                     .lineLimit(height >= 76 ? 3 : (height >= 40 ? 2 : 1))
                 // A moment — a wake-up, an alarm — has no length to draw, so its block is too short
-                // for the time line below: its time goes beside the name, and keeps its room first.
+                // for the time line below: its time goes beside the name. The name comes first:
+                // where both don't fit whole, the time goes before the name is cut ("Fo 9:30 AM"
+                // was a name cut to two letters to keep the time).
                 if height < 40, paint.hasScheduledTime, paint.isMoment {
-                    Text(paint.start, format: .dateTime.hour().minute())
-                        .font(DS.Typeface.eventMeta)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                        .fixedSize()
-                        .layoutPriority(1)
-                        .accessibilityIdentifier("grid.cueTime")
+                    ViewThatFits(in: .horizontal) {
+                        HStack(spacing: 4) {
+                            title.fixedSize()
+                            Text(paint.start, format: .dateTime.hour().minute())
+                                .font(DS.Typeface.eventMeta)
+                                .foregroundStyle(ink)
+                                .lineLimit(1)
+                                .fixedSize()
+                                .accessibilityIdentifier("grid.cueTime")
+                        }
+                        title.truncationMode(.tail)
+                    }
+                } else {
+                    title
                 }
                 Spacer(minLength: 0)
             }
@@ -156,20 +165,20 @@ struct CalendarEventArtwork: View {
             // A short block has no room for the duration, so collapse to icon + time only.
             if let returnCaption = paint.returnCaption {
                 Label(returnCaption, systemImage: "house")
-                .font(.system(size: 9, weight: .semibold, design: .rounded))
+                .font(DS.Typeface.small(.semibold, design: .rounded))
                 .foregroundStyle(DS.Palette.travel)
                 .labelStyle(.titleAndIcon)
                 .lineLimit(1)
             } else if height >= 40 {
                 Text(paint.timeRange)
                     .font(DS.Typeface.eventMeta)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(ink)
                     .lineLimit(1)
             }
             if height >= 64, let location = paint.location {
                 Text(location)
-                    .font(.system(size: 9, design: .rounded))
-                    .foregroundStyle(.secondary)
+                    .font(DS.Typeface.small(design: .rounded))
+                    .foregroundStyle(ink)
                     .lineLimit(1)
             }
         }

@@ -92,7 +92,7 @@ private struct MailRemovalReviewView: View {
             }
             .padding()
             .navigationTitle("Review removed mail")
-            .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() }.disabled(saving).accessibilityIdentifier("mail.removal.close") } }
+            .toolbar { SheetClose(id: "mail.removal.close") { if !saving { dismiss() } } }
             .task(id: revision) {
                 loading = true; failed = false
                 do {
@@ -163,7 +163,7 @@ private struct MailRemovalPreview: View {
                 }.padding()
             }
             .navigationTitle("Saved message")
-            .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() }.accessibilityIdentifier("mail.removal.preview.close") } }
+            .toolbar { SheetClose(id: "mail.removal.preview.close") { dismiss() } }
         }
         #if os(macOS)
         .frame(minWidth: 520, minHeight: 500)

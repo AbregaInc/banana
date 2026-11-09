@@ -341,7 +341,7 @@ struct MacCommandMenu: View {
                                 Text(title.uppercased())
                                     .font(DS.Typeface.eyebrow)
                                     .tracking(DS.Typeface.eyebrowTracking)
-                                    .foregroundStyle(.tertiary)
+                                    .foregroundStyle(DS.Palette.quietText)
                                     .padding(.horizontal, DS.Space.m)
                                     .padding(.top, DS.Space.m)
                                     .padding(.bottom, DS.Space.xs)
@@ -373,7 +373,7 @@ struct MacCommandMenu: View {
                 Spacer()
                 Text(items.count == 1 ? "1 command" : "\(items.count) commands")
                     .font(.caption)
-                    .foregroundStyle(.tertiary)
+                    .foregroundStyle(DS.Palette.quietText)
                     .monospacedDigit()
             }
             .padding(.horizontal, DS.Space.l)
@@ -454,7 +454,7 @@ struct MacShortcutsSheet: View {
                         Text(group.0.uppercased())
                             .font(DS.Typeface.eyebrow)
                             .tracking(DS.Typeface.eyebrowTracking)
-                            .foregroundStyle(.tertiary)
+                            .foregroundStyle(DS.Palette.quietText)
                             .padding(.bottom, DS.Space.xs)
                         ForEach(group.1, id: \.0) { row in
                             // What it does on the left, the keys on the right — read the action,

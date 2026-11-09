@@ -55,7 +55,7 @@ struct GroceryScanView: View {
             .navigationTitle("Groceries")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } }
+                SheetClose { dismiss() }
             }
             .sheet(item: $labelFor) { item in
                 ScanCorrectionSheet(items: [], photos: [], startingBarcode: item.barcode, startingPhoto: item.photo) { result in

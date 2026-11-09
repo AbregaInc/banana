@@ -152,6 +152,7 @@ struct GoogleCalendarEventView: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button(addedGuests.isEmpty ? "Save" : "Save & Invite") { requestSave() }
+                        .sheetConfirm()
                         .disabled(!canSave)
                         .accessibilityIdentifier("eventEditor.save")
                 }

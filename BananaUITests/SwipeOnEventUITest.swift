@@ -35,7 +35,7 @@ final class SwipeOnEventUITest: XCTestCase {
         // Control: a plain tap does open it, so a pass below means something.
         windDown.tap()
         XCTAssertTrue(editorOpened(app, within: 5), "tapping the block didn't open it")
-        app.buttons["Done"].tap()   // the routine's sheet closes with Done
+        app.buttons["sheet.close"].tap()   // the routine's sheet closes with Close
         windDown = try revealCalendarButton("Wind down", in: app)
 
         let title = app.descendants(matching: .any)["mobile.day.title"].firstMatch

@@ -63,6 +63,7 @@ struct TrimWorkoutView: View {
                 ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") { apply() }
+                        .sheetConfirm()
                         .disabled(applying || !hasRecording || (startOffset == 0 && endOffset >= duration))
                 }
             }

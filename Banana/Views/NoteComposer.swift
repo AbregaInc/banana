@@ -70,7 +70,7 @@ struct NoteComposer: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") { save() }
-                        .fontWeight(.semibold)
+                        .sheetConfirm()
                         .disabled(trimmed.isEmpty)
                 }
             }

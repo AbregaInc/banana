@@ -50,6 +50,7 @@ struct ProblemReportSheet: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Send") { send(draft) }
+                        .sheetConfirm()
                         .accessibilityIdentifier("report.send")
                 }
             }

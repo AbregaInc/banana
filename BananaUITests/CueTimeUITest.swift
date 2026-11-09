@@ -29,6 +29,6 @@ final class CueTimeUITest: XCTestCase {
         XCTAssertTrue(sheetTime.waitForExistence(timeout: 3), "the tap opens the moment, with its time")
         XCTAssertTrue(sheetTime.label.contains(":"), sheetTime.label)
         XCTAssertTrue(app.buttons["Skip this one"].exists || app.buttons["Restore"].exists)
-        app.buttons["Done"].tap()
+        app.buttons["sheet.close"].tap()
     }
 }

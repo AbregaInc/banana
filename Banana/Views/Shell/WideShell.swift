@@ -24,7 +24,8 @@ struct ShellBadgeMark: View {
     }
 }
 
-/// The rail: the pages that are on, as round buttons with no labels; Settings at its foot. Each
+/// The rail: the pages that are on, as round buttons with no labels; Settings at its foot where
+/// it is a page (`ShellPage.rail`). Each
 /// carries its own badge (the rail is always in view, so nothing is added up).
 struct ShellRail: View {
     let pages: [ShellPage]
@@ -42,7 +43,12 @@ struct ShellRail: View {
             Spacer(minLength: DS.Space.m)
             if pages.contains(.settings) { button(.settings) }
         }
+        #if os(iOS)
+        .padding(.top, CGFloat(ShellLayout.railTopInset))
+        .padding(.bottom, DS.Space.l)
+        #else
         .padding(.vertical, DS.Space.l)
+        #endif
         .frame(width: Self.width)
         .frame(maxHeight: .infinity)
         .accessibilityElement(children: .contain)
@@ -68,6 +74,23 @@ struct ShellRail: View {
         .accessibilityValue(ShellBadge.spoken(ShellBadge.count(page, badges.counts, mail: badges.mailInbox)) ?? "")
         .accessibilityAddTraits(selected ? .isSelected : [])
         .accessibilityIdentifier("shell.page.\(page.rawValue)")
+    }
+}
+
+/// The iPad's way to hide and show the rail, as a system sidebar's button does: at the toolbar's
+/// leading edge, ⌃⌘S from a keyboard, kept across launches (`ShellRailVisibility`). The Mac's
+/// rail is a split view column and uses the system's own button.
+struct ShellRailToggle: View {
+    @AppStorage(ShellRailVisibility.key) private var shown = true
+
+    var body: some View {
+        Button { withAnimation(.snappy) { shown.toggle() } } label: {
+            Image(systemName: "sidebar.leading")
+        }
+        .keyboardShortcut("s", modifiers: [.control, .command])
+        .help(shown ? "Hide Sidebar" : "Show Sidebar")
+        .accessibilityLabel(shown ? "Hide sidebar" : "Show sidebar")
+        .accessibilityIdentifier("shell.railToggle")
     }
 }
 
@@ -141,7 +164,7 @@ private struct ShellDetailToolbar: ViewModifier {
         #if os(iOS)
         content.toolbar {
             if wideShell {
-                ToolbarItem(placement: .principal) { ShellToolbarField() }
+                ToolbarItem(placement: .topBarTrailing) { ShellToolbarField() }
                     .sharedBackgroundVisibility(.hidden)
                 ToolbarItem(placement: .topBarTrailing) { ShellAIButton() }
             }

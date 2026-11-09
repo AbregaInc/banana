@@ -36,16 +36,25 @@ A 4-pt scale: `hair 2 · xs 4 · s 8 · m 12 · l 16 · xl 24 · xxl 32`. Panel 
 insets are `l`; rows inside a panel are 32–36 pt tall; the planner header is 44 pt.
 
 ## Radii — `DS.Radius` (always `.continuous`)
-`block 5` event blocks and grid chips · `chip 6` tags, key caps · `control 8` buttons, fields,
-list selection · `card 12` cards, toasts · `panel 16` palettes, sheets. A shape nested inside
-another steps down one size so the curves stay concentric.
+`block 5` event blocks and grid chips · `chip 6` tags, key caps · `control 8` list selection and
+hover washes · `card 12` cards, toasts · `panel 16` palettes, sheets. A shape nested inside
+another steps down one size so the curves stay concentric. Buttons, fields and every control in
+a bar are not drawn with a radius at all: they are the system's, as capsules or circles
+(`Controls.swift`: `.buttonBorderShape(.capsule)`, the glass capsule of "Search or ask"), so a
+control's shape is the bar's.
 
 ## Type — `DS.Typeface`
-Grid and chrome sizes are fixed (they sit on a time ruler): `periodTitle 17 semibold`,
-`dayHeader 12`, `gutter 10 medium, monospaced digits`, `eventTitle 11 semibold`,
-`eventMeta 10`, `eyebrow 10 semibold + 0.6 tracking, UPPERCASE`, `keyCap 11 medium`.
-Elsewhere use the system text styles. SF Pro everywhere on the calendar; SF Rounded is reserved
-for large numerals.
+Nothing is smaller than the platform's floor (HIG, Typography): 11 points on iOS and iPadOS, 10
+on the Mac (`minimumSize`). On iOS and iPadOS the grid and chrome roles are text styles, so they
+grow with Dynamic Type: `periodTitle` headline, `dayHeader` caption, `gutter` caption2 medium
+with monospaced digits, `eventTitle` caption2 semibold, `eventMeta` caption2, `eyebrow` caption2
+semibold + 0.6 tracking, UPPERCASE, and `small()` for whatever has least room (a travel band, a
+second time zone's hours). The calendar follows Dynamic Type up to `gridLargest` (xxxLarge): its
+hours sit on a ruler whose height doesn't change. The Mac has no Dynamic Type and keeps fixed
+sizes: `periodTitle 17 semibold`, `dayHeader 12`, `gutter 10`, `eventTitle 11 semibold`,
+`eventMeta 10`, `eyebrow 10`. Text drawn outside SwiftUI (the prepared event artwork) takes its
+sizes from `DS.Typeface.Size`. Elsewhere use the system text styles. SF Pro everywhere on the
+calendar; SF Rounded is reserved for large numerals.
 
 ## Colour — `DS.Palette`, `DS.Tint`, `CalendarColor`
 - **Accent** (`accent`, the system's: the Mac's chosen accent, blue on a phone or iPad): Banana itself — today, now, primary
@@ -53,6 +62,13 @@ for large numerals.
 - **Roles:** `success` (done, accepted, connected) · `danger` (delete, declined, failed, overdue)
   · `warning` · `info` · `task` (reminders) · `travel` (leave-by, travel legs).
 - **Neutrals:** `separator`, `gridHour`, `gridHalfHour`, `selection`, `todayWash`.
+- **Quiet words** (`quietText`): hour labels, gutter eyebrows ("TO DO", "NO TIME"), a caption
+  beside a value. 4.7:1 or more on every page background in light and dark, more again with
+  Increase Contrast; the system's tertiary label is 1.7–1.9:1 and is only for glyphs that
+  decorate (a row's chevron) and a field's placeholder (`HIGRulesTests`).
+- **Words on a block** (`DS.Event.ink`): the calendar's colour taken 45% toward the text colour,
+  4.6:1 or more on the block's fill for every calendar colour, in both appearances. A block's
+  title on the Mac, its time and place everywhere.
 - **Tints** — the only opacities for a wash of a colour: `wash 0.04 · subtle 0.08 · soft 0.14 ·
   fill 0.2 · strong 0.35`.
 - **Calendar colours** go through `calendarTint(hex)` → `CalendarColor`: hue kept, saturation
@@ -267,7 +283,7 @@ sheets and editors keep their titles; Mac windows keep their native navigation t
 | Look back | Review in the switcher (phone) or the rail (iPad, Mac); `ReviewToolbarItem` puts the field and the assistant in a wide toolbar | |
 | More | `MoreMenu`: "…", with Routines; Settings is in the switcher or at the foot of the rail | Top right of every main page. On a detail page "…" holds Edit, Share, Delete |
 | Page title | `PageTitleMenu`: the page's name with what it switches between under its chevron (Plan: Day and Week; Body: Workouts, Food, Taken; Mail: places and accounts) | Top left; the only other thing in the top row is "…" |
-| Close or save a sheet | Changes something: Cancel left, a verb right. Only looked at: Done right, plain weight. A list to pick from: Cancel left | |
+| Close or save a sheet | Changes something: Cancel left, a verb right in the prominent style. Only looked at: the system's Close (×) left. A list to pick from: Cancel left | `.sheetConfirm()`, `SheetClose` (`SheetChrome.swift`) |
 | Act on a row | Tap opens. Swipe left deletes. Press-and-hold offers the same. No extra icons on rows | |
 | An empty page | One line, and one button that does what + does | |
 | Titles | Inline everywhere; a capital on the first word only | |

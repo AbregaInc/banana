@@ -14,15 +14,19 @@ final class WideShellUITest: XCTestCase {
         XCUIDevice.shared.orientation = .portrait
     }
 
-    private func launch(_ extra: [String]) throws -> XCUIApplication {
+    /// `keepsRailState`: launch with the rail as it was left; otherwise it is shown, whatever an
+    /// earlier run left (`ShellRailVisibility`).
+    private func launch(_ extra: [String], keepsRailState: Bool = false) throws -> XCUIApplication {
         try XCTSkipIf(UIDevice.current.userInterfaceIdiom != .pad, "the rail is the iPad's (and the Mac's)")
         let app = XCUIApplication()
         app.launchArguments += ["--ui-preview", "--ui-audit", "--disable-icloud", "--dummy-health", "--store-capture",
-                                "-finishSetupDismissed", "YES", "-onboardingCompleted", "YES", "--modules", "everything"] + extra
+                                "-finishSetupDismissed", "YES", "-onboardingCompleted", "YES", "--modules", "everything"]
+            + (keepsRailState ? [] : ["-shellRailShown", "YES"]) + extra
         app.withoutSpaceSync()
         app.launch()
         let rail = app.descendants(matching: .any)["shell.rail"], switcher = app.buttons["shell.switcher"]
-        XCTAssertTrue(waitUntil(timeout: 30) { rail.exists || switcher.exists }, app.debugDescription)
+        let toggle = app.buttons["shell.railToggle"]
+        XCTAssertTrue(waitUntil(timeout: 30) { rail.exists || switcher.exists || toggle.exists }, app.debugDescription)
         return app
     }
 
@@ -103,8 +107,8 @@ final class WideShellUITest: XCTestCase {
         shot("pad-land-rail-badge")
     }
 
-    /// Paging: the same group upright (the top row) and on its side (the toolbar): "‹", the period
-    /// picker, "›", Today, idle on the current period. One of each upright too.
+    /// Paging: the same rule upright (the top row) and on its side (the toolbar): "‹", the period
+    /// picker, "›", and Today only away from the current period. One of each upright too.
     func testPagingUprightAndOnItsSide() throws {
         XCUIDevice.shared.orientation = .portrait
         let app = try launch(["--tab", "plan", "--plan", "-planMode", "week"])
@@ -113,42 +117,66 @@ final class WideShellUITest: XCTestCase {
         XCTAssertTrue(app.buttons["shell.switcher"].waitForExistence(timeout: 10))
         let start = title.value as? String
         let previous = app.buttons["plan.previous"], next = app.buttons["plan.next"], today = app.buttons["plan.today"]
-        XCTAssertTrue(previous.exists && next.exists && today.exists)
+        XCTAssertTrue(previous.exists && next.exists)
+        XCTAssertFalse(today.exists, "no Today on this week")
         XCTAssertEqual(app.descendants(matching: .any).matching(identifier: "plan.mode").count, 1, "one period picker")
         XCTAssertFalse(app.descendants(matching: .any)["plan.title"].exists, "no title menu beside it")
         XCTAssertEqual(app.buttons.matching(NSPredicate(format: "label == 'Previous week'")).count, 1)
         XCTAssertEqual(app.buttons.matching(NSPredicate(format: "label == 'Next week'")).count, 1)
-        XCTAssertEqual(app.buttons.matching(NSPredicate(format: "label == 'Today' OR label BEGINSWITH 'Return to'")).count, 1)
         XCTAssertLessThanOrEqual(previous.frame.maxX, title.frame.minX + 1)
         XCTAssertLessThanOrEqual(title.frame.maxX, next.frame.minX + 1)
-        XCTAssertLessThanOrEqual(next.frame.maxX, today.frame.minX + 1)
         XCTAssertEqual(title.value as? String ?? "", start ?? "")
         XCTAssertTrue((title.value as? String)?.contains("\u{2013}") == true, "the week's dates: \(title.value ?? "")")
-        XCTAssertFalse(today.isEnabled, "Today, idle on this week")
         XCTAssertFalse(app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'Show all'")).firstMatch.exists,
                        "no list icon beside the day numbers")
         shot("pad-portrait-plan-week")
         next.tap()
-        XCTAssertTrue(waitUntil(timeout: 5) { today.isEnabled && (title.value as? String) != start })
+        XCTAssertTrue(waitUntil(timeout: 5) { today.exists && (title.value as? String) != start })
+        XCTAssertEqual(app.buttons.matching(NSPredicate(format: "label == 'Today' OR label BEGINSWITH 'Return to'")).count, 1)
+        XCTAssertLessThanOrEqual(next.frame.maxX, today.frame.minX + 1)
         shot("pad-portrait-plan-next")
         today.tap()
-        XCTAssertTrue(waitUntil(timeout: 5) { (title.value as? String) == start && !today.isEnabled && title.label.hasPrefix("Week") })
+        XCTAssertTrue(waitUntil(timeout: 5) { (title.value as? String) == start && !today.exists && title.label.hasPrefix("Week") })
 
         XCUIDevice.shared.orientation = .landscapeLeft
         XCTAssertTrue(app.descendants(matching: .any)["shell.rail"].waitForExistence(timeout: 8))
 
         XCTAssertTrue(next.waitForExistence(timeout: 5) && app.buttons["plan.previous"].exists, "back and forward on its side")
         XCTAssertEqual(next.label, "Next week")
-        XCTAssertTrue(today.exists && !today.isEnabled, "Today, idle on this week")
+        XCTAssertFalse(today.exists, "no Today on this week")
         next.tap()
-        XCTAssertTrue(waitUntil(timeout: 5) { today.isEnabled })
+        XCTAssertTrue(waitUntil(timeout: 5) { today.exists })
         today.tap()
-        XCTAssertTrue(waitUntil(timeout: 5) { !today.isEnabled })
+        XCTAssertTrue(waitUntil(timeout: 5) { !today.exists })
     }
 
-    /// On its side Plan's paging is one group at the toolbar's left, the Mac's: "‹", the period
-    /// picker, "›", then Today. No second pair of arrows, no second Today, and no row under the
-    /// toolbar naming the period again. "‹ ›" step a week in Week and a day in Day.
+    /// On its side Plan's toolbar is the Mac's three groups (HIG, Toolbars): "‹", Today away from
+    /// the current period, "›"; then the period picker and the forecast; then the field and "…".
+    /// No second pair of arrows, no second Today, and no row under the toolbar naming the period
+    /// again. "‹ ›" step a week in Week and a day in Day.
+    /// The rail hides and shows like a system sidebar, from its button at the toolbar's leading
+    /// edge, and stays hidden across a relaunch.
+    func testTheRailHidesLikeASidebarAndStaysHidden() throws {
+        XCUIDevice.shared.orientation = .landscapeLeft
+        var app = try launch(["--tab", "plan", "--plan"], keepsRailState: true)
+        let rail = app.descendants(matching: .any)["shell.rail"]
+        let toggle = app.buttons["shell.railToggle"].firstMatch
+        XCTAssertTrue(toggle.waitForExistence(timeout: 10), "no sidebar button")
+        // Start from a shown rail, whatever an earlier run left.
+        if !rail.waitForExistence(timeout: 3) { toggle.tap() }
+        XCTAssertTrue(rail.waitForExistence(timeout: 5))
+        XCTAssertLessThan(toggle.frame.minX, app.buttons["plan.previous"].frame.minX, "the sidebar button leads the toolbar")
+        toggle.tap()
+        XCTAssertTrue(waitUntil(timeout: 5) { !rail.exists }, "the rail didn't hide")
+        shot("pad-land-rail-hidden")
+        app.terminate()
+        app = try launch(["--tab", "plan", "--plan"], keepsRailState: true)
+        XCTAssertTrue(app.buttons["shell.railToggle"].firstMatch.waitForExistence(timeout: 10))
+        XCTAssertFalse(app.descendants(matching: .any)["shell.rail"].exists, "hidden is kept")
+        app.buttons["shell.railToggle"].firstMatch.tap()
+        XCTAssertTrue(app.descendants(matching: .any)["shell.rail"].waitForExistence(timeout: 5), "the rail didn't come back")
+    }
+
     func testOnItsSidePlanPagesFromOneToolbarGroup() throws {
         XCUIDevice.shared.orientation = .landscapeLeft
         // No `-planMode`: a launch argument pins the setting, and the picker has to change it.
@@ -182,15 +210,14 @@ final class WideShellUITest: XCTestCase {
         XCTAssertFalse(app.descendants(matching: .any)["mobile.day.title"].exists, "no date line under the toolbar")
         XCTAssertEqual(app.buttons.matching(NSPredicate(format: "label == %@", "Previous \(unit)")).count, 1, "one \u{2039}")
         XCTAssertEqual(app.buttons.matching(NSPredicate(format: "label == %@", "Next \(unit)")).count, 1, "one \u{203A}")
-        // In the order the Mac has: ‹ picker › Today, on one line.
-        XCTAssertTrue(previous.exists && next.exists && today.exists)
-        XCTAssertLessThanOrEqual(previous.frame.maxX, period.frame.minX + 1)
-        XCTAssertLessThanOrEqual(period.frame.maxX, next.frame.minX + 1)
-        XCTAssertLessThanOrEqual(next.frame.maxX, today.frame.minX + 1)
-        for control in [period, next, today] {
+        // In the order the Mac has: ‹ › then the picker, on one line; no Today on the current one.
+        XCTAssertTrue(previous.exists && next.exists)
+        XCTAssertFalse(today.exists, "no Today on the current \(unit)")
+        XCTAssertLessThanOrEqual(previous.frame.maxX, next.frame.minX + 1)
+        XCTAssertLessThanOrEqual(next.frame.maxX, period.frame.minX + 1)
+        for control in [period, next] {
             XCTAssertEqual(control.frame.midY, previous.frame.midY, accuracy: 12, "on the toolbar's line")
         }
-        XCTAssertFalse(today.isEnabled, "Today, idle on the current \(unit)")
 
         // "›" steps one period and Today comes back to it; still one Today away from now.
         let key = { (days: Int) -> String in
@@ -212,15 +239,18 @@ final class WideShellUITest: XCTestCase {
         let start = period.value as? String
         next.tap()
         XCTAssertTrue(waitUntil(timeout: 5) { shows(step) && !shows(0) }, "\u{203A} steps one \(unit)")
-        XCTAssertTrue(waitUntil(timeout: 5) { today.isEnabled })
+        XCTAssertTrue(waitUntil(timeout: 5) { today.exists })
         XCTAssertNotEqual(period.value as? String, start, "the picker names the dates on screen")
         XCTAssertEqual(count("label == 'Today' OR label BEGINSWITH 'Return to'"), 1, "one Today away from now")
+        // ‹ Today › in one group.
+        XCTAssertLessThanOrEqual(previous.frame.maxX, today.frame.minX + 1)
+        XCTAssertLessThanOrEqual(today.frame.maxX, next.frame.minX + 1)
         previous.tap()
-        XCTAssertTrue(waitUntil(timeout: 5) { shows(0) && !today.isEnabled }, "\u{2039} steps back")
+        XCTAssertTrue(waitUntil(timeout: 5) { shows(0) && !today.exists }, "\u{2039} steps back")
         previous.tap()
         XCTAssertTrue(waitUntil(timeout: 5) { shows(-step) && !shows(0) })
         today.tap()
-        XCTAssertTrue(waitUntil(timeout: 5) { shows(0) && !today.isEnabled }, "Today returns")
+        XCTAssertTrue(waitUntil(timeout: 5) { shows(0) && !today.exists }, "Today returns")
         XCTAssertEqual(period.value as? String, start)
     }
 

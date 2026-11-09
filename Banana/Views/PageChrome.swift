@@ -476,8 +476,15 @@ struct ReviewToolbarItem: ToolbarContent {
 
     var body: some ToolbarContent {
         #if os(iOS)
+        if wideShell {
+            // First at the leading edge, a group of its own, as a system sidebar's button is.
+            ToolbarItem(placement: .topBarLeading) { ShellRailToggle() }
+            ToolbarSpacer(.fixed, placement: .topBarLeading)
+        }
         if wideShell, !fieldInDetail {
-            ToolbarItem(placement: .principal) { ShellToolbarField() }
+            // At the trailing edge, beside the assistant and "…": the bar's last group, in the
+            // same place on every page (HIG, Toolbars: three groups at most).
+            ToolbarItem(placement: .topBarTrailing) { ShellToolbarField() }
                 .sharedBackgroundVisibility(.hidden)
             ToolbarItem(placement: .topBarTrailing) { ShellAIButton() }
         }
@@ -549,6 +556,9 @@ struct MoreMenu<Items: View>: View {
             // The plain glyph: the bar draws the glass circle around it, as the system's own do.
             Image(systemName: "ellipsis")
         }
+        // "…" says it's a menu itself: a Mac toolbar otherwise adds a chevron on some pages and
+        // not others, depending on what is beside it.
+        .menuIndicator(.hidden)
         .accessibilityLabel("More")
         .accessibilityIdentifier(identifier)
     }

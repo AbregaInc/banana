@@ -339,9 +339,7 @@ struct SettingsView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 if showsDoneButton {
-                    ToolbarItem(placement: .confirmationAction) {
-                        Button("Done") { dismiss() }
-                    }
+                    SheetClose { dismiss() }
                 }
             }
             .task {

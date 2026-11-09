@@ -282,6 +282,7 @@ struct FoodTextCaptureView: View {
                     if workspaceChrome == .sheetToolbar {
                         ToolbarItem(placement: .confirmationAction) {
                             Button("Save") { approveAndSave() }
+                                .sheetConfirm()
                                 .disabled(approvesOnSave ? !canApprove : !canSave)
                                 .accessibilityIdentifier("assistant.workspace.saveMeal")
                         }
@@ -317,10 +318,11 @@ struct FoodTextCaptureView: View {
                             // lands below to check; then Save. One verb at a time, where the verb is.
                             if needsEstimate {
                                 Button("Estimate") { Task { await parse() } }
+                                    .sheetConfirm()
                                     .disabled(!canParse)
                                     .accessibilityIdentifier("foodText.parse")
                             } else {
-                                Button("Save") { save() }.disabled(!canSave)
+                                Button("Save") { save() }.sheetConfirm().disabled(!canSave)
                             }
                         }
                     }

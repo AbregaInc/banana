@@ -244,6 +244,7 @@ struct NewTaskSheet: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") { save() }
+                        .sheetConfirm()
                         .disabled(cleanTitle.isEmpty || saving || loading)
                         .keyboardShortcut(.return, modifiers: .command)
                 }

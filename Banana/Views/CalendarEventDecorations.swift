@@ -27,7 +27,7 @@ struct EventRibbons: View {
 struct OthersDeclinedMark: View {
     var body: some View {
         Image(systemName: "exclamationmark.triangle.fill")
-            .font(.system(size: 9, weight: .semibold))
+            .font(DS.Typeface.small(.semibold))
             .foregroundStyle(DS.Palette.accent)
             .help("Everyone else declined")
             .accessibilityLabel("Everyone else declined")

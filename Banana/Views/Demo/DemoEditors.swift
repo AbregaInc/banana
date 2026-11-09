@@ -54,6 +54,7 @@ struct DemoEventEditor: View {
                 if !readOnly {
                     ToolbarItem(placement: .confirmationAction) {
                         Button("Save") { Task { if await session.perform(.saveEvent(event)) { dismiss() } } }
+                            .sheetConfirm()
                             .disabled(event.title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || event.end <= event.start || session.saving > 0)
                             .accessibilityIdentifier("demo.event.save")
                     }
@@ -126,6 +127,7 @@ struct DemoMealEditor: View {
                 ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") { Task { if await session.perform(.saveMeal(meal)) { dismiss() } } }
+                        .sheetConfirm()
                         .disabled(!valid || session.saving > 0).accessibilityIdentifier("demo.meal.save")
                 }
             }
@@ -188,7 +190,7 @@ struct DemoNoteEditor: View {
                         var saved = note; saved.transcript = text.trimmingCharacters(in: .whitespacesAndNewlines)
                         saved.updatedAt = session.workspace?.anchor; saved.status = .transcribed
                         Task { if await session.perform(.saveNote(saved)) { dismiss() } }
-                    }.disabled(text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || session.saving > 0)
+                    }.sheetConfirm().disabled(text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || session.saving > 0)
                         .accessibilityIdentifier("demo.note.save")
                 }
             }

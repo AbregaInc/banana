@@ -120,7 +120,7 @@ struct WorkoutBuilderView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button(building ? "Building…" : "Build") { Task { await build() } }.disabled(building)
+                    Button(building ? "Building…" : "Build") { Task { await build() } }.sheetConfirm().disabled(building)
                 }
             }
         }

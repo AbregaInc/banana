@@ -421,6 +421,7 @@ struct MealDayReviewView: View {
                         inbox.log(proposed.map(\.id), into: wellness)
                         if items.isEmpty { dismiss() }
                     }
+                    .sheetConfirm()
                     .disabled(proposed.isEmpty)
                     .accessibilityIdentifier("mealReview.logAll")
                 }
@@ -717,6 +718,7 @@ struct MealDumpView: View {
                 ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Add", action: add)
+                        .sheetConfirm()
                         .disabled((photos.isEmpty && pieces.isEmpty) || reading > 0)
                         .accessibilityIdentifier("mealDump.add")
                 }

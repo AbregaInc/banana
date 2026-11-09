@@ -182,15 +182,15 @@ private struct TravelBand: View {
     var body: some View {
         HStack(spacing: 3) {
             Image(systemName: icon)
-                .font(.system(size: 8, weight: .semibold))
+                .font(DS.Typeface.small(.semibold))
             if height >= 22 {
                 Text(text)
-                    .font(.system(size: 9, weight: .medium).monospacedDigit())
+                    .font(DS.Typeface.small(.medium).monospacedDigit())
                     .lineLimit(1)
                     .truncationMode(.tail)
-            } else if height >= 11 {
+            } else if height >= DS.Typeface.minimumSize + 2 {
                 Text(minutesText)
-                    .font(.system(size: 9, weight: .medium).monospacedDigit())
+                    .font(DS.Typeface.small(.medium).monospacedDigit())
                     .lineLimit(1)
             }
             Spacer(minLength: 0)
@@ -332,6 +332,9 @@ struct MacWeekView: View {
     @State private var remindersExpanded = false
     /// The day whose whole "No time" list is open, from its "+N more".
     @State private var untimedOverflowDay: Date?
+    /// Only whether anything needs attention, and how much: the chips are their own subview
+    /// (`PlanAttentionChips`), so their stores' publishes never rebuild this grid.
+    @ObservedObject private var attention = PlanAttention.shared
     @State private var reschedulingTask: Occurrence?
     @State private var editingTask: Occurrence?
     @State private var eventSheet: CalendarEventSheet?
@@ -389,7 +392,6 @@ struct MacWeekView: View {
             VStack(spacing: 0) {
                 // A trip timed to a guessed place asks here too, as it does on the phone.
                 PlanPromptCard()
-                PlanAttentionBand()
                 if dayMode { ReminderTimingOffers().padding(.vertical, DS.Space.xs) }
                 dayHeaders
                 if hasReminderRows {
@@ -898,10 +900,10 @@ struct MacWeekView: View {
                             .font(DS.Typeface.dayHeaderToday)
                             .monospacedDigit()
                             .foregroundStyle(day.isToday ? DS.Palette.onAccent : Color.primary)
-                            .padding(.horizontal, day.isToday ? 5 : 0)
-                            .frame(minWidth: 20, minHeight: 20)
-                            .background(day.isToday ? DS.Palette.accent : Color.clear,
-                                        in: RoundedRectangle(cornerRadius: DS.Radius.chip, style: .continuous))
+                            // Today's number in a circle, as on the phone and the iPad: one
+                            // shape for each thing on every device (round marks, capsule chips).
+                            .frame(width: 22, height: 22)
+                            .background(day.isToday ? DS.Palette.accent : Color.clear, in: Circle())
                         if !overflow.isEmpty {
                             CalendarOverflowButton { dismiss in
                                 overflowList(OverflowCluster(start: day.date,
@@ -985,7 +987,7 @@ struct MacWeekView: View {
         Text(text.uppercased())
             .font(DS.Typeface.eyebrow)
             .tracking(DS.Typeface.eyebrowTracking)
-            .foregroundStyle(.tertiary)
+            .foregroundStyle(DS.Palette.quietText)
             .lineLimit(1)
             .minimumScaleFactor(0.7)
             .frame(width: timeGutterWidth - DS.Space.s, alignment: .trailing)
@@ -1014,6 +1016,11 @@ struct MacWeekView: View {
                                 } else {
                                     reminderRow(occurrence)
                                 }
+                            }
+                            // What else needs attention, beside today's reminders.
+                            if day.isToday, attention.count > 0 {
+                                PlanAttentionChips(desktop: true)
+                                    .frame(maxWidth: .infinity, minHeight: reminderRowHeight - 3, alignment: .leading)
                             }
                             if folded || (remindersExpanded && line.count > maxVisibleReminderRows) {
                                 Button {
@@ -1188,8 +1195,8 @@ struct MacWeekView: View {
                     ForEach(1..<24, id: \.self) { hour in
                         Text(TripTimeZone.label(forHour: hour, on: days.first?.date ?? Date(),
                                                 primary: .current, zone: secondaryZone))
-                            .font(.system(size: 9, weight: .regular, design: .rounded))
-                            .foregroundStyle(.tertiary)
+                            .font(DS.Typeface.small(design: .rounded))
+                            .foregroundStyle(DS.Palette.quietText)
                             .monospacedDigit()
                             .lineLimit(1)
                             .minimumScaleFactor(0.8)
@@ -1205,7 +1212,7 @@ struct MacWeekView: View {
                     let y = CGFloat(hour) * hourHeight
                     Text(hourLabel(hour))
                         .font(DS.Typeface.gutter)
-                        .foregroundStyle(.tertiary)
+                        .foregroundStyle(DS.Palette.quietText)
                         .frame(width: 58 - DS.Space.s, alignment: .trailing)
                         .offset(y: y - 7)
                         .opacity(nowY.map { abs($0 - y) < 12 } == true ? 0 : 1)
@@ -1235,7 +1242,7 @@ struct MacWeekView: View {
             let date = days.first?.date ?? Date()
             HStack(spacing: 0) {
                 Text(TripTimeZone.shortName(secondaryZone, at: date))
-                    .foregroundStyle(.tertiary)
+                    .foregroundStyle(DS.Palette.quietText)
                     .frame(width: Self.secondaryGutterWidth - 6, alignment: .trailing)
                     .help(secondaryZone.identifier)
                 Spacer(minLength: 0)
@@ -1245,7 +1252,7 @@ struct MacWeekView: View {
                     .help(TimeZone.current.identifier)
                 Spacer(minLength: 10)
             }
-            .font(.system(size: 9, weight: .semibold))
+            .font(DS.Typeface.small(.semibold))
             .lineLimit(1)
             .minimumScaleFactor(0.7)
             .padding(.bottom, 6)
@@ -1701,11 +1708,12 @@ struct MacWeekView: View {
         let outlined = occurrence.behavior == .allDay && !occurrence.blocksWholeDay
         // …and one that blocks the day is solid, its calendar's colour.
         let solid = occurrence.blocksWholeDay
-        let shape = RoundedRectangle(cornerRadius: DS.Radius.block, style: .continuous)
+        // A capsule, as the phone's all-day chips are.
+        let shape = Capsule()
         return Button { activate(occurrence) } label: {
             HStack(spacing: DS.Space.xs) {
                 Image(systemName: occurrence.completed ? "checkmark.circle.fill" : occurrence.icon)
-                    .font(.system(size: 9, weight: .semibold))
+                    .font(DS.Typeface.small(.semibold))
                 Text(occurrence.title).lineLimit(1)
                 Spacer(minLength: 0)
             }
@@ -1748,7 +1756,7 @@ struct MacWeekView: View {
                     .lineLimit(1)
                     .strikethrough(occurrence.completed, color: .secondary)
                 Text(reminderDetail(occurrence))
-                    .font(.system(size: 8.5, weight: occurrence.overdue ? .semibold : .regular))
+                    .font(DS.Typeface.small(occurrence.overdue ? .semibold : .regular))
                     .foregroundStyle(occurrence.overdue ? DS.Palette.danger : Color.secondary)
                     .lineLimit(1)
             }
@@ -1756,7 +1764,8 @@ struct MacWeekView: View {
         }
         .padding(.horizontal, 5)
         .frame(maxWidth: .infinity, minHeight: reminderRowHeight, alignment: .leading)
-        .background(DS.Palette.task.opacity(DS.Tint.subtle), in: RoundedRectangle(cornerRadius: 5, style: .continuous))
+        // A capsule, as the phone's reminder chips are.
+        .background(DS.Palette.task.opacity(DS.Tint.subtle), in: Capsule())
         .opacity(occurrence.completed ? 0.5 : 1)
         .contentShape(Rectangle())
         // The circle ticks; a click on the rest opens the reminder, as on the phone.
@@ -2138,7 +2147,7 @@ struct MacWeekView: View {
     }
 
     private var hasReminderRows: Bool {
-        days.contains { !reminderLine($0).isEmpty }
+        days.contains { !reminderLine($0).isEmpty || ($0.isToday && attention.count > 0) }
     }
 
     private var hasUntimedItems: Bool {
@@ -2161,7 +2170,7 @@ struct MacWeekView: View {
     }
 
     private var reminderRowsHeight: CGFloat {
-        let largestDay = days.map { reminderLine($0).count }.max() ?? 0
+        let largestDay = days.map { reminderLine($0).count + ($0.isToday ? attention.count : 0) }.max() ?? 0
         // Opened ("+N more"): every reminder and the "Fewer" row under them.
         let visibleRows = remindersExpanded && largestDay > maxVisibleReminderRows
             ? largestDay + 1
@@ -3492,7 +3501,7 @@ private struct MobileAllDayStrip: View {
                             // opened nothing left them out of reach from the week.
                             Button { showingAll = day.id } label: {
                                 Text("+\(fitting.more) more")
-                                    .font(.system(size: 9, weight: .medium))
+                                    .font(DS.Typeface.small(.medium))
                                     .foregroundStyle(.secondary)
                                     .padding(.leading, 3)
                                     .frame(maxWidth: .infinity, minHeight: 18, alignment: .leading)
@@ -3565,7 +3574,7 @@ private struct MobileAllDayStrip: View {
             }
         } label: {
             Text(occurrence.title)
-                .font(.system(size: inList ? 14 : 10, weight: busy ? .semibold : .regular))
+                .font(inList ? Font.subheadline.weight(busy ? .semibold : .regular) : DS.Typeface.small(busy ? .semibold : .regular))
                 .lineLimit(1)
                 .foregroundStyle(busy ? Color.white : Color.primary)
                 .padding(.horizontal, inList ? 10 : 6)
@@ -3618,7 +3627,7 @@ private struct MobileDayHeaderStrip: View {
                     } label: {
                         VStack(spacing: 1) {
                             Text(day.letter.uppercased())
-                                .font(.system(size: 10, weight: .semibold, design: .rounded))
+                                .font(DS.Typeface.small(.semibold, design: .rounded))
                                 .foregroundStyle(day.isToday ? DS.Palette.accent : .secondary)
                             Text(day.dayNum)
                                 .font(.system(size: 16, weight: day.isToday ? .bold : .medium, design: .rounded))
@@ -3699,6 +3708,9 @@ struct WeekView: View {
     @State private var overdueTasks: [Occurrence] = []
     /// The reminders line opened past its first few.
     @State private var showsEveryReminder = false
+    /// Only whether anything needs attention: the chips are their own subview
+    /// (`PlanAttentionChips`), so their stores' publishes never rebuild this grid.
+    @ObservedObject private var attention = PlanAttention.shared
 
     init(dayMode: Bool = false) {
         self.dayMode = dayMode
@@ -3891,6 +3903,8 @@ struct WeekView: View {
             Group {
                 mobilePlanner
             }
+            // The grid's words grow with Dynamic Type as far as its time ruler can hold them.
+            .dynamicTypeSize(...DS.Typeface.gridLargest)
             // Day's calendar surface is systemBackground. Let that same color cover the bottom
             // safe area under the collapsible tab/menu chrome; the grouped background otherwise
             // leaks through as a solid gray strip when the chrome contracts.
@@ -3941,6 +3955,8 @@ struct WeekView: View {
                 // its items into an overflow menu, with room to spare, once Today joined "‹ ›",
                 // and the row has to fit a 13 mini.
                 if wideShell {
+                    // First: the sidebar button leads the bar, as on every page.
+                    ReviewToolbarItem(section: .plan)
                     PlanPagingToolbar(days: dayMode ? 1 : 7,
                                       dates: PlanPaging.dates(start: mobileVisibleWeekStart, days: dayMode ? 1 : 7),
                                       isCurrent: mobileWeekOffset == 0,
@@ -3948,7 +3964,6 @@ struct WeekView: View {
                         mobileForecast
                         if mobileWeekLoading { ProgressView().controlSize(.mini) }
                     }
-                    ReviewToolbarItem(section: .plan)
                     ToolbarItem(placement: .topBarTrailing) {
                         MoreMenu(identifier: "mobile.week.more") {
                             if booking.canShare { BookingShareButton() }
@@ -4320,9 +4335,6 @@ struct WeekView: View {
     private var mobilePlanner: some View {
         VStack(spacing: 0) {
             PlanPromptCard()
-            // In the bottom-bar shell what needs attention is a count on the title, and the
-            // dates are the title's: no rows of their own.
-            if !bottomBarShell { PlanAttentionBand() }
             // A repeating reminder that follows a moment, offered it (`AnchorSuggestions`):
             // above the day, where Plan's List had it.
             if dayMode { ReminderTimingOffers().padding(.bottom, DS.Space.xs) }
@@ -4437,6 +4449,8 @@ struct WeekView: View {
     /// How many reminders the line shows before "+N more": two or three lines of chips, so the
     /// day below keeps most of the screen however much is outstanding.
     private static let reminderLineLimit = 4
+    /// The attention chips the wrapping line shows before "+N more" opens the rest.
+    private static let attentionLineLimit = 3
 
     /// Due routines and reminders share one wrapping band above the hours. Today also includes
     /// every outstanding reminder (`OutstandingReminders`). Existing actions and overflow stay
@@ -4450,11 +4464,14 @@ struct WeekView: View {
         let moments = (day?.items ?? []).filter {
             untimedMomentIsDue($0, routines: routines.routines, signals: signals)
         }
-        if !reminders.isEmpty || !moments.isEmpty {
+        // What else needs attention: today's, in the same row (`PlanAttentionChips`).
+        let attends = (day?.isToday ?? false) && attention.count > 0
+        if !reminders.isEmpty || !moments.isEmpty || attends {
             let shown = showsEveryReminder ? reminders : Array(reminders.prefix(Self.reminderLineLimit))
             WrappingLayout(spacing: DS.Space.s, lineSpacing: DS.Space.xs + 2, fitsWidth: true) {
                 ForEach(moments) { untimedCueChip($0) }
                 ForEach(shown) { reminderChip($0) }
+                if attends { PlanAttentionChips(limit: Self.attentionLineLimit) }
                 if reminders.count > Self.reminderLineLimit {
                     Button {
                         withAnimation(.snappy(duration: 0.2)) { showsEveryReminder.toggle() }
@@ -4494,12 +4511,15 @@ struct WeekView: View {
         let moments = (day?.items ?? []).filter {
             untimedMomentIsDue($0, routines: routines.routines, signals: signals)
         }
-        if !events.isEmpty || !reminders.isEmpty || !moments.isEmpty {
+        let attends = (day?.isToday ?? false) && attention.count > 0
+        if !events.isEmpty || !reminders.isEmpty || !moments.isEmpty || attends {
             ScrollView(.horizontal) {
                 HStack(spacing: DS.Space.s) {
                     ForEach(events) { allDayEventChip($0) }
                     ForEach(moments) { untimedCueChip($0) }
                     ForEach(reminders) { reminderChip($0) }
+                    // Every one of them, as the row's reminders are.
+                    if attends { PlanAttentionChips() }
                 }
                 .padding(.horizontal, DS.Space.m)
                 .padding(.vertical, DS.Space.xs + 2)
@@ -4592,7 +4612,7 @@ struct WeekView: View {
 
     private var mobileWeekCalendarGrid: some View {
         GeometryReader { geometry in
-            let timeWidth: CGFloat = 36
+            let timeWidth = mobileGutterWidth
             let visibleDays = dayMode ? 1 : (geometry.size.width >= 700 ? 7
                 : (geometry.size.width >= 520 ? 5 : 3))
             // Day is a single time axis as wide as this view. The UIKit bridge has no intrinsic
@@ -4878,6 +4898,11 @@ struct WeekView: View {
     /// view's body on every scroll frame.
     @State private var headerOffset = HeaderScrollOffset()
 
+    /// The hour gutter: "10 AM" on one line at the hour labels' size (`DS.Typeface.small`), which
+    /// grows with Dynamic Type. At the old 36 points the 11-point label broke into "10 A / M".
+    @Environment(\.dynamicTypeSize) private var typeSize
+    private var mobileGutterWidth: CGFloat { DS.Typeface.Size.scaled(40, typeSize) }
+
     private func mobileTimeGutter(
         width: CGFloat,
         startHour: Int,
@@ -4893,12 +4918,13 @@ struct WeekView: View {
             ForEach(startHour..<endHour, id: \.self) { hour in
                 VStack(alignment: .trailing, spacing: 0) {
                     Text(hour > startHour ? mobileHourLabel(hour) : "")
-                        .font(.system(size: 9, weight: .regular, design: .rounded))
-                        .foregroundStyle(other == nil ? .tertiary : .secondary)
+                        .font(DS.Typeface.small(design: .rounded))
+                        .foregroundStyle(DS.Palette.quietText)
+                        .lineLimit(1)
                     if let other, hour > startHour {
                         Text(TripTimeZone.label(forHour: hour, on: day, primary: .current, zone: other))
-                            .font(.system(size: 8, weight: .regular, design: .rounded))
-                            .foregroundStyle(.tertiary)
+                            .font(DS.Typeface.small(design: .rounded))
+                            .foregroundStyle(DS.Palette.quietText)
                             .lineLimit(1)
                             .minimumScaleFactor(0.7)
                             .accessibilityIdentifier("plan.tripZoneHour")
@@ -5143,7 +5169,7 @@ struct WeekView: View {
                         // own, so once it does take over, the range label is the confirmation
                         // that something is happening — and what it's about to do.
                         Text(selection.rangeLabel)
-                            .font(.system(size: 10, weight: .semibold, design: .rounded))
+                            .font(DS.Typeface.small(.semibold, design: .rounded))
                             .foregroundStyle(DS.Palette.accent)
                             .padding(.horizontal, 4).padding(.top, 2)
                     }
