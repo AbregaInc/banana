@@ -89,6 +89,7 @@ final class MailCorrespondentsTests: XCTestCase {
     }
 
     func testAKeystrokeOverManyPeopleIsUnderTenMilliseconds() async throws {
+        let budget = CostBudget(self)
         let stores = try await stores()
         try await stores.index.write { db in
             for n in 0..<20_000 {
@@ -120,6 +121,7 @@ final class MailCorrespondentsTests: XCTestCase {
             roundTrip = max(roundTrip, Double(elapsed.seconds) * 1000 + Double(elapsed.attoseconds) / 1e15)
         }
         print("MAIL_PEOPLE_SEARCH_WORST_MS", "database", inDatabase, "call", roundTrip)
-        XCTAssertLessThan(inDatabase, 10, "a keystroke's suggestions in under ten milliseconds")
+        budget.expect(inDatabase, below: 10, "a keystroke's suggestions in under ten milliseconds")
+        try budget.finish()
     }
 }

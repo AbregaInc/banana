@@ -237,7 +237,9 @@ final class EnergyBalanceTests: XCTestCase {
                        "Your logs come to about 115% of what your weight says you eat \u{2014} they run high, or the Watch undercounts")
     }
 
-    /// The `--energy-balance` fixtures show the states they're named for.
+    #if DEBUG
+    /// The `--energy-balance` fixtures show the states they're named for. They are a Debug
+    /// build's launch route, so they are checked where they exist: the Debug run.
     func testPreviewFixturesShowTheirStates() throws {
         func preview(_ kind: EnergyBalance.Preview) -> EnergyBalance? {
             let s = kind.sample(now: september29, calendar: calendar)
@@ -258,4 +260,5 @@ final class EnergyBalanceTests: XCTestCase {
         XCTAssertEqual(EnergyBalance.Preview.requested(["Banana", "--energy-balance", "off"]), .off)
         XCTAssertNil(EnergyBalance.Preview.requested(["Banana", "--wellness"]))
     }
+    #endif
 }

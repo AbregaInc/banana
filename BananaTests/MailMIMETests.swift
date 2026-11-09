@@ -71,6 +71,7 @@ final class MailMIMETests: XCTestCase {
         XCTAssertNil(result.structure.invite?.uid)
     }
     func testExtractionCostAtBodySizes() throws {
+        let budget = CostBudget(self)
         var samples: [[String: Any]] = []
         for size in [63 * 1024, 261 * 1024, 2 * 1024 * 1024] {
             let input = part("body", "text/plain", String(repeating: "x", count: size))
@@ -81,7 +82,7 @@ final class MailMIMETests: XCTestCase {
                 XCTAssertEqual(result.plain?.utf8.count, size)
                 XCTAssertFalse(result.bodyTooLarge)
                 samples.append(["bodyBytes": size, "iteration": iteration, "milliseconds": elapsed])
-                XCTAssertLessThanOrEqual(elapsed, 100, "Extraction alone exceeded the entire UI budget")
+                budget.expect(elapsed, below: 100, orEqual: true, "Extraction alone exceeded the entire UI budget")
             }
         }
         let report: [String: Any] = ["samples": samples, "processID": ProcessInfo.processInfo.processIdentifier,
@@ -94,6 +95,7 @@ final class MailMIMETests: XCTestCase {
             attachment.lifetime = .keepAlways
             add(attachment)
         }
+        try budget.finish()
     }
     func testMixedInlineSectionsPreserveBothSidesOfAlternative() {
         let root = GmailPart(mimeType: "multipart/mixed", parts: [part("intro", "text/plain", "Intro"),

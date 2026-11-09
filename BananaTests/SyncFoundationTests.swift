@@ -333,7 +333,12 @@ final class SyncFoundationTests: XCTestCase {
         XCTAssertEqual(real.url?.absoluteString, "https://api.bananatheapp.com/v1/account")
         // tools/e2e-sync.sh: the service on Node, this Mac's loopback, plain HTTP (DEBUG only).
         let local = BananaService.request(.sync(Data("{}".utf8)), host: "http://127.0.0.1:8787", session: "s")
+        #if DEBUG
         XCTAssertEqual(local.url?.absoluteString, "http://127.0.0.1:8787/v2/sync")
+        #else
+        // Any other build never sends the session over plain HTTP, whatever the host says.
+        XCTAssertNotEqual(local.url?.scheme, "http")
+        #endif
         XCTAssertEqual(local.value(forHTTPHeaderField: "Authorization"), "Bearer s")
     }
 

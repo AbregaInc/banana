@@ -70,6 +70,7 @@ final class MailSyncCheckpointTests: XCTestCase {
     }
 
     func testExpirationCostOnDisk() async throws {
+        let budget = CostBudget(self)
         let root = FileManager.default.temporaryDirectory.appendingPathComponent("checkpoint-cost-" + UUID().uuidString)
         defer { try? FileManager.default.removeItem(at: root) }
         let stores = try await Task.detached { try MailStores.open(MailDirectories(root: root), migrations: MailSlices.migrations()) }.value
@@ -86,9 +87,10 @@ final class MailSyncCheckpointTests: XCTestCase {
             let ms = Double(duration.seconds) * 1000 + Double(duration.attoseconds) / 1e15
             samples.append(ms)
             XCTAssertTrue(expired)
-            XCTAssertLessThan(ms, 100)
         }
         // Retained in the persistent runner's test.log, including failed samples.
         print("CHECKPOINT_EXPIRATION_10000_MARKS_MS \(samples)")
+        budget.expect(samples, below: 100)
+        try budget.finish()
     }
 }

@@ -1187,6 +1187,9 @@ targets:
         # measuring in Release. They are never embedded in the distributed application.
         BANANA_LOCAL_AI: YES
         BANANA_LOCAL_EMAIL: YES
+        # And the mail fixtures (`#if DEBUG || MAIL_FIXTURES`), which the tests drive, so the
+        # Release BananaModelTests run (cost budgets, tools/preflight.sh) compiles them too.
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) MAIL_FIXTURES"
         PRODUCT_BUNDLE_IDENTIFIER: $(BANANA_BUNDLE_ID).tests
         GENERATE_INFOPLIST_FILE: YES
         # Merged into the generated plist: BananaSourceRoot, the checkout (BananaTests/SourceTree.swift).

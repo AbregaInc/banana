@@ -5,7 +5,8 @@ import XCTest
 ///
 /// The folder is inside the one the four app targets take whole, and it has to be: the fixtures
 /// drive routes inside the app as well as the tests. So **every file there is wholly inside
-/// `#if DEBUG || MAIL_FIXTURES` … `#endif`, its first line and its last.** A Debug build has
+/// `#if DEBUG || MAIL_FIXTURES` … `#endif`**, alone or inside conditions that each hold the whole
+/// file (the email build gate every mail source carries). A Debug build has
 /// them; a Release build of the two production targets, which defines neither, compiles each of
 /// those files to nothing; and the two Beta targets' Release configuration defines
 /// `MAIL_FIXTURES` (P24), which is how the owner's device runs have the fixture mailbox. A file
@@ -40,28 +41,46 @@ final class MailTestingFenceTests: XCTestCase {
 
     /// What is wrong with the fence of `source`, if anything: not wholly inside one
     /// `#if DEBUG || MAIL_FIXTURES` and its `#endif`.
+    ///
+    /// The fence may sit inside other conditions that each hold the whole file, such as the
+    /// email build gate (`#if !BANANA_PUBLIC`) every mail source carries. Nested conditions all
+    /// have to hold for a line to compile, so a whole-file wrapper only ever narrows the builds
+    /// that have the file; it can never put a fixture where the fence alone would not. A wrapper
+    /// with an `#else`, or one that closes before the end, does not hold the whole file and is
+    /// refused like a fence that does that.
     private func fenceProblems(in source: String) -> [String] {
-        let lines = source.split(separator: "\n", omittingEmptySubsequences: false).map(String.init)
-        var problems: [String] = []
-        guard let first = lines.first, first == Self.fence else {
-            return ["the first line is not `\(Self.fence)`"]
+        var lines = source.split(separator: "\n", omittingEmptySubsequences: false).map(String.init)
+        var offset = 0  // lines peeled off the top, for the line numbers a problem names
+        func isBlank(_ line: String) -> Bool { line.trimmingCharacters(in: .whitespaces).isEmpty }
+        while true {
+            // A trailing newline, and the blank line between two closing `#endif`s, are allowed.
+            while let last = lines.last, isBlank(last) { lines.removeLast() }
+            guard let first = lines.first, first.hasPrefix("#if") else {
+                return ["the first line is not `\(Self.fence)`"]
+            }
+            guard lines.last == "#endif" else { return ["the last line is not `#endif`"] }
+            // The first line's condition must close on the last line and nowhere before it, with
+            // no other branch at its level.
+            var depth = 0
+            for (index, line) in lines.enumerated() {
+                let trimmed = line.trimmingCharacters(in: .whitespaces)
+                if trimmed.hasPrefix("#if") { depth += 1 }
+                else if trimmed.hasPrefix("#endif") { depth -= 1 }
+                else if trimmed.hasPrefix("#else") && depth == 1 {
+                    return ["`\(first)` has another branch on line \(offset + index + 1)"]
+                }
+                if depth < 0 { return ["an `#endif` with no `#if` on line \(offset + index + 1)"] }
+                if depth == 0 && index < lines.count - 1 {
+                    return ["the fence closes on line \(offset + index + 1), before the end"]
+                }
+            }
+            if depth != 0 { return ["an `#if` is never closed"] }
+            if first == Self.fence { return [] }
+            // A wrapper around the whole file: look for the fence inside it.
+            lines = Array(lines.dropFirst().dropLast())
+            offset += 1
+            while let top = lines.first, isBlank(top) { lines.removeFirst(); offset += 1 }
         }
-        // The last non-empty line, with a trailing newline allowed.
-        guard let lastIndex = lines.lastIndex(where: { !$0.trimmingCharacters(in: .whitespaces).isEmpty }),
-              lines[lastIndex] == "#endif" else {
-            return ["the last line is not `#endif`"]
-        }
-        // The fence must not close before the end: depth 1 on every line between.
-        var depth = 0
-        for (index, line) in lines.enumerated() where index <= lastIndex {
-            let trimmed = line.trimmingCharacters(in: .whitespaces)
-            if trimmed.hasPrefix("#if") { depth += 1 }
-            if trimmed.hasPrefix("#endif") { depth -= 1 }
-            if depth == 0 && index < lastIndex { problems.append("the fence closes on line \(index + 1), before the end") }
-            if depth < 0 { problems.append("an `#endif` with no `#if` on line \(index + 1)") }
-        }
-        if depth != 0 { problems.append("an `#if` is never closed") }
-        return problems
     }
 
     // MARK: - The folder
@@ -123,6 +142,16 @@ final class MailTestingFenceTests: XCTestCase {
                        "a line before the fence is outside it")
         XCTAssertEqual(fenceProblems(in: "\(Self.fence)\n#if os(macOS)\nenum A {}\n#endif\n#endif\n"), [],
                        "an inner #if is fine")
+        XCTAssertEqual(fenceProblems(in: "#if !BANANA_PUBLIC\n\(Self.fence)\nenum A {}\n#endif\n\n#endif\n"), [],
+                       "a condition around the whole file only narrows it")
+        XCTAssertFalse(fenceProblems(in: "#if !BANANA_PUBLIC\n\(Self.fence)\nenum A {}\n#endif\nenum Shipped {}\n#endif\n").isEmpty,
+                       "a declaration inside the wrapper but after the fence is in the shipped app")
+        XCTAssertFalse(fenceProblems(in: "#if !BANANA_PUBLIC\nenum Shipped {}\n#else\n\(Self.fence)\nenum A {}\n#endif\n#endif\n").isEmpty,
+                       "a wrapper with another branch does not hold the whole file")
+        XCTAssertFalse(fenceProblems(in: "#if !BANANA_PUBLIC\nenum Shipped {}\n#endif\n").isEmpty,
+                       "a wrapper is not a fence")
+        XCTAssertFalse(fenceProblems(in: "\(Self.fence)\nenum A {}\n#else\nenum Shipped {}\n#endif\n").isEmpty,
+                       "the fence's own #else is outside it")
     }
 
     /// In this build, which defines DEBUG, what the fence holds is there: the fixtures this

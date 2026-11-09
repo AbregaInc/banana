@@ -218,6 +218,7 @@ import GRDB
     /// What the launch's count costs on a full Inbox, off the main thread: 2,000 conversations,
     /// half unread. Printed for the launch report; bounded loosely so a regression shows.
     func testTheLaunchCountOfALargeInboxIsQuick() async throws {
+        let budget = CostBudget(self)
         let stores = try await stores()
         _ = try await MailWriter(stores: stores, sink: nil).transact { db in
             var changes = MailStoreChange()
@@ -239,7 +240,8 @@ import GRDB
         }.value
         print("mail-badge launch count: \(unread) unread of 2000 in \(Int(ms.rounded())) ms (open + count, read only)")
         XCTAssertEqual(unread, 1000)
-        XCTAssertLessThan(ms, 500)
+        budget.expect(ms, below: 500)
+        try budget.finish()
     }
 
     func testInboxCountCapsAtTenThousand() {

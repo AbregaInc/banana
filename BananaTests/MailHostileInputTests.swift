@@ -68,14 +68,19 @@ final class MailHostileInputTests: XCTestCase {
                           file: file, line: line)
     }
 
+    /// Where the quadratic work leaves its result, so an optimized build cannot drop the work.
+    private static var sink = 0
+
     /// The measure has to be able to fail. Work that is quadratic — here, every byte compared with
     /// every other — shows a ratio far over the limit in every round, and linear work does not.
+    /// Each step depends on the one before, so an optimizer can neither fold the loop away nor
+    /// spread it across vector lanes: in a Release build it is still n² steps.
     func testTheRatioTestCatchesQuadraticWorkAndPassesLinearWork() {
-        let quadratic = measure(make: { String(repeating: "a", count: $0 / 32) }, run: { input in
+        let quadratic = measure(make: { String(repeating: "a", count: $0 / 16) }, run: { input in
             let bytes = Array(input.utf8)
-            var sum = 0
-            for i in 0..<bytes.count { for j in 0..<bytes.count { sum &+= Int(bytes[i] ^ bytes[j]) } }
-            XCTAssertEqual(sum, 0)
+            var hash = 0
+            for i in 0..<bytes.count { for j in 0..<bytes.count { hash = hash &* 31 &+ Int(bytes[i] ^ bytes[j]) } }
+            Self.sink = hash
         })
         XCTAssertGreaterThan(quadratic.ratio, Self.allowedRatio, "quadratic work is not mistaken for linear")
         XCTAssertEqual(quadratic.rounds, 3, "and is measured the three times before it is failed")

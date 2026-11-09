@@ -168,6 +168,7 @@ final class MailIndexReaderTests: XCTestCase {
     }
 
     func testAccountScopeBeforeLimitAndCountsWithLargeUnlinkedCache() async throws {
+        let budget = CostBudget(self)
         let reader = try await reader(count: 180000)
         try await reader.stores.index.write { db in
             try db.execute(sql: "UPDATE thread SET account_pk=CASE WHEN thread_pk<=50 THEN 1 ELSE 2 END")
@@ -186,10 +187,12 @@ final class MailIndexReaderTests: XCTestCase {
             XCTAssertTrue(empty.isEmpty)
         }
         print("ACCOUNT_SCOPED_PAGE_AND_COUNTS_180000_MS", samples)
-        for ms in samples { XCTAssertLessThan(ms, 100) }
+        budget.expect(samples, below: 100)
+        try budget.finish()
     }
 
     func testKeysetCostAgainstOffsetWithRetainedHistory() async throws {
+        let budget = CostBudget(self)
         // 90 days at 2,000 messages/day, deliberately one conversation per message.
         // A native component comparison, not frame/input evidence or the full app workload.
         let reader = try await reader(count: 180000)
@@ -263,6 +266,7 @@ final class MailIndexReaderTests: XCTestCase {
             let attachment = XCTAttachment(data: try JSONSerialization.data(withJSONObject: result), uniformTypeIdentifier: "public.json")
             attachment.name = "mail-index-keyset-ablation"; attachment.lifetime = .keepAlways; add(attachment)
         }
-        XCTAssertLessThanOrEqual(worst, 100, "A query exceeding the entire UI budget cannot be accepted; raw samples retained")
+        budget.expect(worst, below: 100, orEqual: true, "A query exceeding the entire UI budget cannot be accepted; raw samples retained")
+        try budget.finish()
     }
 }

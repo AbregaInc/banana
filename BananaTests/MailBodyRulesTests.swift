@@ -55,14 +55,24 @@ final class MailBodyRulesTests: XCTestCase {
         }
     }
 
+    /// Mail hands another app no file. A link a person taps in a message does open, through the
+    /// system's URL action (MAIL-READER-ORIGINAL.md), and only once `MailBodyHTML.safeLink` has
+    /// passed it: http, https or mailto with somewhere to go, never `file:` or anything else.
     func testNothingInMailOpensAFileInAnotherApp() throws {
         let forbidden = ["NSWorkspace.shared.open", "NSWorkspace.shared.openFile", "NSWorkspace.shared.activateFileViewer",
-                         "UIApplication.shared.open", "UIDocumentInteractionController", "openURL", "openInPlace"]
+                         "UIApplication.shared.open", "UIDocumentInteractionController", "openInPlace"]
         for (name, text) in try mailUISources() {
             let body = code(text)
             for call in forbidden {
                 XCTAssertFalse(body.contains(call), "\(name) uses \(call)")
             }
+            if body.contains("openURL") {
+                XCTAssertTrue(body.contains("MailBodyHTML.safeLink("), "\(name) opens a URL that safeLink has not passed")
+            }
+        }
+        for url in ["file:///private/var/mobile/Mail/a.pdf", "FILE:///tmp/a", "data:text/html,a", "javascript:alert(1)",
+                    "x-apple-reminderkit://a", "shortcuts://run-shortcut?name=a"] {
+            XCTAssertNil(MailBodyHTML.safeLink(URL(string: url)), url)
         }
     }
 

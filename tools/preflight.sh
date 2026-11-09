@@ -11,8 +11,9 @@
 #
 # Steps (Beta): clean tree, xcodegen, iOS Beta Release build, the Stable iOS archive (Email off,
 # then the strict tools/check-release.sh), the Mac Beta direct archive and export (with its check),
-# unit tests, and the Service tests when Service/ changed since the last release tag. Stable swaps
-# the iOS Beta build for the Mac TestFlight archive and builds the Stable direct app.
+# unit tests in Debug and optimized (`unit`, `unit-optimized`), and the Service tests when
+# Service/ changed since the last release tag. Stable swaps the iOS Beta build for the Mac
+# TestFlight archive and builds the Stable direct app.
 #
 # The builds are the rollout's own (tools/release/lib.sh, testflight.sh check, build.sh check),
 # in its derived data (.build/ios-beta, .build/ios-prod, .build/mac-check, .build/mac-distribution)
@@ -33,7 +34,7 @@ while [ $# -gt 0 ]; do
     --skip) skip=",$2,"; shift 2 ;;
     --allow-dirty) allow_dirty=1; shift ;;
     --dry-run) DRY_RUN=1; shift ;;
-    -h|--help) sed -n '2,22p' "$0"; exit 0 ;;
+    -h|--help) sed -n '2,23p' "$0"; exit 0 ;;
     -*) die "unknown option $1" ;;
     *) tests+=("$1"); shift ;;
   esac
@@ -42,9 +43,11 @@ done
 build=${build:-$(next_build)}
 version=${version:-$(last_release_version)}
 version=${version:-$(project_setting MARKETING_VERSION)}
-# The default unit set: the whole BananaTests target, Debug, on the phone simulator (4,000-odd
-# tests, about 4.5 minutes). Debug, because its build is the cached one ui-tests.sh shares; the
-# Release BananaModelTests scheme did not compile on the shipping branch (8 Nov 2026).
+# The default unit set: the whole BananaTests target on the phone simulator (4,000-odd tests),
+# run twice. `unit` is Debug: its build is the cached one ui-tests.sh shares, and only Debug stops
+# at the main-thread and other Debug-only traps. `unit-optimized` is the Release BananaModelTests
+# scheme: the component cost budgets are set for optimized code, so they are enforced there and
+# report "not measured in an unoptimized build" in Debug (BananaTests/CostBudget.swift).
 [ ${#tests[@]} -gt 0 ] || tests=(BananaTests)
 
 OUT=${PREFLIGHT_OUT:-.build/preflight}
@@ -80,18 +83,18 @@ else
   check mac-beta check_mac_direct beta "$build" "$version"
 fi
 
-unit_tests() {
-  local only=() t
+unit_tests() {  # unit_tests CONFIGURATION SCHEME
+  local config=$1 scheme=$2 only=() t
   for t in "${tests[@]}"; do
     case "$t" in BananaTests|BananaTests/*) only+=("-only-testing:$t") ;; *) only+=("-only-testing:BananaTests/$t") ;; esac
   done
-  run banana_xcode build-for-testing -project Banana.xcodeproj -scheme Banana -configuration Debug \
+  run banana_xcode build-for-testing -project Banana.xcodeproj -scheme "$scheme" -configuration "$config" \
     -destination 'generic/platform=iOS Simulator' ONLY_ACTIVE_ARCH=YES ARCHS=arm64 -derivedDataPath .build/sim || return 1
   local booted=1
   xcrun simctl list devices booted | grep -q "$BANANA_SIM_PHONE" || booted=0
-  local result="$OUT/unit-$(date +%Y%m%d-%H%M%S).xcresult"
+  local result="$OUT/unit-$config-$(date +%Y%m%d-%H%M%S).xcresult"
   run tools/agents/xcode-lock.sh -l sim-phone -d .build/sim xcodebuild test-without-building -project Banana.xcodeproj \
-    -scheme Banana -configuration Debug -destination "platform=iOS Simulator,id=$BANANA_SIM_PHONE" \
+    -scheme "$scheme" -configuration "$config" -destination "platform=iOS Simulator,id=$BANANA_SIM_PHONE" \
     -derivedDataPath .build/sim -resultBundlePath "$result" -collect-test-diagnostics never "${only[@]}" \
     -test-timeouts-enabled YES -default-test-execution-time-allowance 120 -maximum-test-execution-time-allowance 300
   local rc=$?
@@ -107,7 +110,8 @@ print("    %s passed, %s failed, %s skipped" % (d.get("passedTests"), d.get("fai
   fi
   return $rc
 }
-check unit unit_tests
+check unit unit_tests Debug Banana
+check unit-optimized unit_tests Release BananaModelTests
 
 service_tests() {
   local tag

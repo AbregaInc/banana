@@ -67,10 +67,12 @@ final class AppVariantTests: XCTestCase {
 
     func testBetaIsBuiltWithNothingOfStables() throws {
         let project = try Self.text("project.yml")
-        for name in ["BananaBeta", "BananaMacBeta"] {
+        let betas = ["BananaBeta": "Banana/BananaBeta.entitlements",
+                     "BananaMacBeta": "BananaMac/BananaMacBeta.entitlements",
+                     "BananaMacBetaDirect": "BananaMac/BananaMacBetaDirect.entitlements"]
+        for (name, entitlementPath) in betas.sorted(by: { $0.key < $1.key }) {
             let target = try XCTUnwrap(Self.target(name, in: project), name)
             XCTAssertTrue(target.contains("BANANA_BETA"), name)
-            let entitlementPath = name == "BananaBeta" ? "Banana/BananaBeta.entitlements" : "BananaMac/BananaMacBeta.entitlements"
             XCTAssertTrue(target.contains("CODE_SIGN_ENTITLEMENTS: \(entitlementPath)"), name)
             let entitlementData = Data(try Self.text(entitlementPath).utf8)
             let entitlements = try XCTUnwrap(PropertyListSerialization.propertyList(from: entitlementData, format: nil) as? [String: Any])
@@ -83,11 +85,7 @@ final class AppVariantTests: XCTestCase {
             XCTAssertFalse(target.contains("$(BANANA_GOOGLE_CLIENT)"), "\(name) signs in with Stable's Google client")
         }
         for name in ["Banana", "BananaMac"] {
-            var target = try XCTUnwrap(Self.target(name, in: project), name)
-            if name == "BananaMac" {
-                XCTAssertTrue(target.contains("MacApplication"))
-                target += try XCTUnwrap(Self.target("MacApplication", in: project))
-            }
+            let target = try XCTUnwrap(Self.target(name, in: project), name)
             XCTAssertFalse(target.contains("BANANA_BETA"), name)
             XCTAssertFalse(target.contains("banana.beta"), "\(name) names something of Beta's")
             XCTAssertTrue(target.contains("_banana-audio._tcp"), name)
@@ -95,12 +93,12 @@ final class AppVariantTests: XCTestCase {
     }
 
     func testThePlistsOnDiskMatch() throws {
-        for path in ["Banana/InfoBeta.plist", "BananaMac/InfoBeta.plist"] {
+        for path in ["Banana/InfoBeta.plist", "BananaMac/InfoBeta.plist", "BananaMac/InfoBetaDirect.plist"] {
             let plist = try Self.text(path)
             XCTAssertTrue(plist.contains("_$(BANANA_PEER_SERVICE)._tcp"), path)
             XCTAssertFalse(plist.contains("_banana-audio._tcp"), path)
         }
-        for path in ["Banana/BananaBeta.entitlements", "BananaMac/BananaMacBeta.entitlements"] {
+        for path in ["Banana/BananaBeta.entitlements", "BananaMac/BananaMacBeta.entitlements", "BananaMac/BananaMacBetaDirect.entitlements"] {
             XCTAssertFalse(try Self.text(path).contains("<string>$(BANANA_ICLOUD_CONTAINER)</string>"), path)
         }
     }
@@ -110,9 +108,34 @@ final class AppVariantTests: XCTestCase {
         return try String(contentsOf: root.appendingPathComponent(path), encoding: .utf8)
     }
 
-    /// One target's block under the second `targets:`-level heading of that name: from its
-    /// two-space heading to the next one.
+    /// What one target is built with: its own block, followed by the block of every template it
+    /// names (`templates: [A, B]`), and theirs in turn, as xcodegen merges them.
     private static func target(_ name: String, in project: String) -> String? {
+        guard var built = block(name, in: project) else { return nil }
+        var pending = templates(in: built), seen: Set<String> = [name]
+        while let template = pending.first {
+            pending.removeFirst()
+            guard seen.insert(template).inserted, let body = block(template, in: project) else { continue }
+            built += "\n" + body
+            pending += templates(in: body)
+        }
+        return built
+    }
+
+    /// The templates a block names on its own `templates:` line.
+    private static func templates(in block: String) -> [String] {
+        block.components(separatedBy: "\n")
+            .map { $0.trimmingCharacters(in: .whitespaces) }
+            .filter { $0.hasPrefix("templates:") }
+            .flatMap { $0.dropFirst("templates:".count)
+                .trimmingCharacters(in: CharacterSet(charactersIn: " []"))
+                .split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) } }
+            .filter { !$0.isEmpty }
+    }
+
+    /// One target's or template's block under the last two-space heading of that name: from its
+    /// heading to the next one.
+    private static func block(_ name: String, in project: String) -> String? {
         let lines = project.components(separatedBy: "\n")
         guard let start = lines.lastIndex(of: "  \(name):") else { return nil }
         let rest = lines[(start + 1)...]

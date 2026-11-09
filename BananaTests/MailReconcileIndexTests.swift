@@ -178,6 +178,7 @@ final class MailReconcileIndexTests: XCTestCase {
     }
 
     func testEnumerationStatementReuseMatchesUncachedAndSurvivesEviction() async throws {
+        let budget = CostBudget(self)
         let root = FileManager.default.temporaryDirectory.appendingPathComponent("reconcile-statements-" + UUID().uuidString)
         defer { try? FileManager.default.removeItem(at: root) }
         let stores = try await Task.detached {
@@ -256,12 +257,14 @@ final class MailReconcileIndexTests: XCTestCase {
             try data.write(to: URL(fileURLWithPath: path))
         }
         for sample in measurements where sample["projectionCached"] as? Bool == true {
-            XCTAssertLessThan(try XCTUnwrap(sample["durationMS"] as? Double), 100,
+            budget.expect(try XCTUnwrap(sample["durationMS"] as? Double), below: 100,
                 "Current statement policy must meet the budget in \(sample["phase"] ?? "unknown")")
         }
+        try budget.finish()
     }
 
     func testInboxRepairCostOnDiskWithLargeRetainedInbox() async throws {
+        let budget = CostBudget(self)
         let root = FileManager.default.temporaryDirectory.appendingPathComponent("inbox-repair-cost-" + UUID().uuidString)
         defer { try? FileManager.default.removeItem(at: root) }
         let stores = try await Task.detached { try MailStores.open(MailDirectories(root: root), migrations: MailSlices.migrations()) }.value
@@ -288,10 +291,12 @@ final class MailReconcileIndexTests: XCTestCase {
         }
         print("INBOX_REPAIR_100_OF_100000_MS", samples)
         XCTAssertEqual(current.inboxCloseAfterPK, 300)
-        for ms in samples { XCTAssertLessThan(ms, 100) }
+        budget.expect(samples, below: 100)
+        try budget.finish()
     }
 
     func testEnumerationPageCostOnDisk() async throws {
+        let budget = CostBudget(self)
         let root = FileManager.default.temporaryDirectory.appendingPathComponent("reconcile-cost-" + UUID().uuidString)
         defer { try? FileManager.default.removeItem(at: root) }
         let stores = try await Task.detached { try MailStores.open(MailDirectories(root: root), migrations: MailSlices.migrations()) }.value
@@ -316,6 +321,9 @@ final class MailReconcileIndexTests: XCTestCase {
                 "scope": "Actual disk enumeration page plus durable cursor; first/warm only, no UI or eviction acceptance"], options: [.prettyPrinted, .sortedKeys])
             try data.write(to: URL(fileURLWithPath: path))
         }
-        for samples in timings.values { for ms in samples { XCTAssertLessThan(ms, 100) } }
+        for (size, samples) in timings.sorted(by: { Int($0.key)! < Int($1.key)! }) {
+            budget.expect(samples, below: 100, "enumeration page of \(size)")
+        }
+        try budget.finish()
     }
 }

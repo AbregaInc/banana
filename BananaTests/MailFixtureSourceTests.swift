@@ -328,7 +328,8 @@ final class MailFixtureSourceTests: XCTestCase {
         let declared: Set<String> = [
             "activate()", "setVisible(_:)", "accounts", "observeAccounts(_:)", "observePlaces(_:)",
             "cachedFirstPage(_:)", "observeList(_:limit:_:)", "observeConversation(_:_:)",
-            "conversation(_:)", "body(_:)", "status", "badges", "apply(_:to:)", "undo(_:)",
+            "conversation(_:)", "body(_:)", "originalHTML(_:)", "status",
+            "canCompose", "supportsScheduledSend", "supportsAccountSwitching", "onScreen(_:)", "badges", "apply(_:to:)", "undo(_:)",
             // Drafts and sending (MailFixtureSource+Drafts.swift).
             "people(matching:limit:)", "draft(_:)", "newDraft(_:)", "save(_:)", "discard(_:) draft",
             "send(_:_:)", "cancelSend(_:)", "hasUnfinishedSends", "finishSends(within:)",

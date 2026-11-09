@@ -644,6 +644,38 @@ final class MailStoresTests: MailStoreTestCase {
         XCTAssertNotNil(count)
     }
 
+    /// The one snapshot that may hold a read transaction across suspension points ends with the
+    /// work that asked for it, whether that work returns or throws (invariant 11).
+    func testAnIndexSnapshotIsClosedWhenItsWorkEnds() async throws {
+        struct Stop: Error {}
+        let stores = try await openStores(migrations: MailSlices.migrations())
+        var kept: DatabaseSnapshot?
+        let tables = try await stores.withIndexSnapshot { snapshot in
+            kept = snapshot
+            return try await snapshot.read { try Int.fetchOne($0, sql: "SELECT count(*) FROM sqlite_master") ?? 0 }
+        }
+        XCTAssertGreaterThan(tables, 0)
+        let returned = try XCTUnwrap(kept)
+        await assertClosed(returned, "after the work returned")
+
+        kept = nil
+        do {
+            try await stores.withIndexSnapshot { snapshot in
+                kept = snapshot
+                throw Stop()
+            }
+            XCTFail("the work's error comes back")
+        } catch is Stop {}
+        await assertClosed(try XCTUnwrap(kept), "after the work threw")
+    }
+
+    private func assertClosed(_ snapshot: DatabaseSnapshot, _ message: String) async {
+        do {
+            _ = try await snapshot.read { try Int.fetchOne($0, sql: "SELECT 1") }
+            XCTFail("the snapshot still reads \(message)")
+        } catch {}
+    }
+
     /// The code of a source file with its line comments taken off, so that a sentence that says
     /// what is not done does not count as doing it.
     private func code(of file: URL) throws -> String {
@@ -671,10 +703,15 @@ final class MailStoresTests: MailStoreTestCase {
             XCTAssertFalse(text.contains("publicStatementArguments = true"),
                            "\(name): would put bound values in every error (invariant 21)")
             // Ways to keep a read transaction open after the closure that made it has returned,
-            // which compile (invariant 11): a snapshot, an observation, a cursor that outlives its
-            // read, a transaction left open on purpose.
-            for token in ["makeSnapshot", "ValueObservation", "allowsUnsafeTransactions"] {
+            // which compile (invariant 11): an observation, a cursor that outlives its read, a
+            // transaction left open on purpose, and a snapshot — which only
+            // `MailStores.withIndexSnapshot` makes, and closes when its work ends.
+            for token in ["ValueObservation", "allowsUnsafeTransactions"] {
                 XCTAssertFalse(text.contains(token), "\(name): \(token) can hold a transaction open (invariant 11)")
+            }
+            if name != "MailStores.swift" {
+                XCTAssertFalse(text.contains("makeSnapshot"),
+                               "\(name): a snapshot made outside MailStores.withIndexSnapshot can hold a transaction open (invariant 11)")
             }
             // `erase` of a database, and `vacuum(into:)`, are what the intent store has no method for.
             XCTAssertFalse(text.contains(".erase("), "\(name): erases a database (invariant 5)")

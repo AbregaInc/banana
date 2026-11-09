@@ -88,6 +88,7 @@ final class MailRemovalCoordinatorTests: XCTestCase {
     }
 
     func testReviewAndKeepCostWithOneHundredHeldMessages() async throws {
+        let budget = CostBudget(self)
         let (stores, _, coordinator) = try await setup()
         try await stores.index.write { db in
             for i in 4...101 {
@@ -112,6 +113,7 @@ final class MailRemovalCoordinatorTests: XCTestCase {
                 "scope": "First disk review snapshot and full-fsync keep decision/projection; no UI, warm or eviction acceptance"], options: [.prettyPrinted, .sortedKeys])
             try data.write(to: URL(fileURLWithPath: path))
         }
-        XCTAssertLessThan(prepareMS, 100); XCTAssertLessThan(answerMS, 100)
+        budget.expect(prepareMS, below: 100); budget.expect(answerMS, below: 100)
+        try budget.finish()
     }
 }

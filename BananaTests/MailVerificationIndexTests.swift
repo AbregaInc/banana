@@ -57,6 +57,7 @@ final class MailVerificationIndexTests: XCTestCase {
     }
 
     func testBatchDecisionSurvivesReopenWithoutRejudgingSmallerDenominator() throws {
+        let budget = CostBudget(self)
         let (queue, path) = try setup(count: 180)
         try queue.write { try $0.execute(sql: "DELETE FROM verify_queue WHERE msg_pk>55") }
         try markGone(queue)
@@ -69,7 +70,7 @@ final class MailVerificationIndexTests: XCTestCase {
                 "scope": "Temporary disk index: aggregate decision, 50 deletions and summaries; no UI, warm or eviction acceptance"], options: [.prettyPrinted, .sortedKeys])
             try data.write(to: URL(fileURLWithPath: path))
         }
-        XCTAssertLessThan(ms, 100)
+        budget.expect(ms, below: 100)
         XCTAssertEqual(first.deleted.count, 50)
         try queue.close()
         let reopened = try DatabaseQueue(path: path)
@@ -82,6 +83,7 @@ final class MailVerificationIndexTests: XCTestCase {
         let raw = try reopened.read { try String.fetchOne($0, sql: "SELECT removals FROM account")! }
         let hours = try JSONDecoder().decode([MailRemovalRules.Hour].self, from: Data(raw.utf8))
         XCTAssertEqual(hours.reduce(0) { $0 + $1.count }, 55)
+        try budget.finish()
     }
 
     func testNewHistoryInvalidatesAbsenceBeforeAndAfterRecording() throws {

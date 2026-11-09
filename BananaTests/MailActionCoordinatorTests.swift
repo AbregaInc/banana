@@ -212,6 +212,7 @@ final class MailActionCoordinatorTests: XCTestCase {
         XCTAssertTrue(remaining.isEmpty)
     }
     func testActionCommitCostForDenseConversations() async throws {
+        let budget = CostBudget(self)
         var timings: [String: [Double]] = [:]
         for count in [1, 20, 100, 1000] {
             let (stores, _, coordinator) = try await setup()
@@ -238,9 +239,10 @@ final class MailActionCoordinatorTests: XCTestCase {
                 "scope": "Intent full-fsync plus index projection; first and five warm actions; no UI, device or eviction acceptance"], options: [.prettyPrinted, .sortedKeys])
             try data.write(to: URL(fileURLWithPath: path))
         }
-        for (count, samples) in timings {
-            for sample in samples { XCTAssertLessThan(sample, 100, "Action commit for \(count) messages exceeds component ceiling") }
+        for (count, samples) in timings.sorted(by: { Int($0.key)! < Int($1.key)! }) {
+            budget.expect(samples, below: 100, "Action commit for \(count) messages exceeds component ceiling")
         }
+        try budget.finish()
     }
 
     func testLaterOppositeActionReplacesEffectiveState() async throws {

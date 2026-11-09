@@ -78,6 +78,7 @@ final class MailLocalSearchTests: XCTestCase {
     }
 
     func testSearchCostAtRetainedHistoryScale() async throws {
+        let budget = CostBudget(self)
         let reader = try await makeReader(count: 180000)
         var measurements: [String: [Double]] = [:]
         for term in ["180000", "budget"] {
@@ -104,9 +105,10 @@ final class MailLocalSearchTests: XCTestCase {
                 "scope": "Mac disk query component; first query then seven warm samples, no UI or eviction acceptance"], options: [.prettyPrinted, .sortedKeys])
             try data.write(to: URL(fileURLWithPath: path))
         }
-        for (term, samples) in measurements where !term.hasSuffix("-reference") {
-            for sample in samples { XCTAssertLessThan(sample, 100, "Search \(term) exceeded local UI ceiling before rendering") }
+        for (term, samples) in measurements.sorted(by: { $0.key < $1.key }) where !term.hasSuffix("-reference") {
+            budget.expect(samples, below: 100, "Search \(term) exceeded local UI ceiling before rendering")
         }
+        try budget.finish()
     }
 
     func testLiteralQueryDoesNotExecuteFTSOperators() {

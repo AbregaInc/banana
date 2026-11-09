@@ -96,50 +96,50 @@ actor MailActionCoordinator {
         let prior = tail, stores = stores, intent = intent, writer = writer
         let work = Task<Applied, Error> {
             await prior?.value
-            let snapshot = try await Task.detached { try stores.index.makeSnapshot() }.value
             let stage = UUID().uuidString
             do {
-                var cursor: MailOrderKey?, first = true
-                var buffered: [MailIntentStore.StagedAssertion] = []
-                buffered.reserveCapacity(500)
-                while true {
-                    try Task.checkCancellation()
-                    let boundary = cursor, inclusive = first
-                    let rows = try await snapshot.read { db in
-                        switch selection {
-                        case .list(let view, let account, let filters, let from):
-                            return try MailIndexReader.page(PageRequest(view: view, account: account, filters: filters,
-                                before: boundary ?? from, limit: 100), in: db, includingBoundary: inclusive)
-                        case .search(var query):
-                            query.before = boundary ?? query.before; query.limit = 100
-                            return try MailIndexReader.search(query, in: db, includingBoundary: inclusive)
-                        }
-                    }
-                    guard let last = rows.last else { break }
-                    for row in rows {
-                        let prepared = try await snapshot.read { db -> [MailIntentStore.StagedAssertion] in
-                            let facts = try MailMessageImporter.facts(threadPK: row.threadPK, in: db)
-                            let labels = Dictionary(uniqueKeysWithValues: facts.map { ($0.gmailID, $0.labels) })
-                            return try OutboxRules.assertions(for: change, account: row.account, messages: facts, asOf: row.lastDate,
-                                                              bananaLabelIDs: try Self.bananaLabelIDs(account: row.account, in: db)).map {
-                                MailIntentStore.StagedAssertion(thread: row.thread, assertion: $0,
-                                    previous: labels[$0.messageID]?.contains($0.labelRef) == true)
+                // Preparation reads one snapshot; it is released before the commit and projection.
+                try await stores.withIndexSnapshot { snapshot in
+                    var cursor: MailOrderKey?, first = true
+                    var buffered: [MailIntentStore.StagedAssertion] = []
+                    buffered.reserveCapacity(500)
+                    while true {
+                        try Task.checkCancellation()
+                        let boundary = cursor, inclusive = first
+                        let rows = try await snapshot.read { db in
+                            switch selection {
+                            case .list(let view, let account, let filters, let from):
+                                return try MailIndexReader.page(PageRequest(view: view, account: account, filters: filters,
+                                    before: boundary ?? from, limit: 100), in: db, includingBoundary: inclusive)
+                            case .search(var query):
+                                query.before = boundary ?? query.before; query.limit = 100
+                                return try MailIndexReader.search(query, in: db, includingBoundary: inclusive)
                             }
                         }
-                        for value in prepared {
-                            buffered.append(value)
-                            if buffered.count == 500 {
-                                try await intent.appendStage(stage, values: buffered)
-                                buffered.removeAll(keepingCapacity: true)
+                        guard let last = rows.last else { break }
+                        for row in rows {
+                            let prepared = try await snapshot.read { db -> [MailIntentStore.StagedAssertion] in
+                                let facts = try MailMessageImporter.facts(threadPK: row.threadPK, in: db)
+                                let labels = Dictionary(uniqueKeysWithValues: facts.map { ($0.gmailID, $0.labels) })
+                                return try OutboxRules.assertions(for: change, account: row.account, messages: facts, asOf: row.lastDate,
+                                                                  bananaLabelIDs: try Self.bananaLabelIDs(account: row.account, in: db)).map {
+                                    MailIntentStore.StagedAssertion(thread: row.thread, assertion: $0,
+                                        previous: labels[$0.messageID]?.contains($0.labelRef) == true)
+                                }
+                            }
+                            for value in prepared {
+                                buffered.append(value)
+                                if buffered.count == 500 {
+                                    try await intent.appendStage(stage, values: buffered)
+                                    buffered.removeAll(keepingCapacity: true)
+                                }
                             }
                         }
+                        cursor = MailOrderKey(group: 0, sortKey: last.sortKey, tie: last.tie)
+                        first = false
                     }
-                    cursor = MailOrderKey(group: 0, sortKey: last.sortKey, tie: last.tie)
-                    first = false
+                    if !buffered.isEmpty { try await intent.appendStage(stage, values: buffered) }
                 }
-                if !buffered.isEmpty { try await intent.appendStage(stage, values: buffered) }
-                // Preparation is complete; release the WAL read transaction before projection.
-                try snapshot.close()
                 let count = try await intent.commitStage(stage, change: change, sequence: sequence, at: at)
                 guard count > 0 else { return Applied(sequence: nil, count: 0, before: [], projectionError: nil) }
                 do {

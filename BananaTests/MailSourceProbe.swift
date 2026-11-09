@@ -26,9 +26,9 @@ enum MailSourceProbe {
     /// The name each default reports under, member for member, in the protocol's order.
     nonisolated static let everyMember: Set<String> = [
         "activate()", "setVisible(_:)",
-        "accounts", "observeAccounts(_:)", "observePlaces(_:)", "cachedFirstPage(_:)",
+        "accounts", "canCompose", "supportsScheduledSend", "supportsAccountSwitching", "observeAccounts(_:)", "observePlaces(_:)", "cachedFirstPage(_:)",
         "syncLimit", "setSyncLimit(_:)", "conversationsBeyond(_:)",
-        "observeList(_:limit:_:)", "observeConversation(_:_:)", "conversation(_:)", "body(_:)",
+        "observeList(_:limit:_:)", "observeConversation(_:_:)", "conversation(_:)", "body(_:)", "originalHTML(_:)",
         "resource(_:for:presentation:)", "suggestions(for:)", "people(matching:limit:)",
         "queryTokens(_:)", "decideLink(_:in:)", "draft(_:)", "status", "badges",
         "attachmentProgress(_:)", "storageUsed()",
@@ -36,9 +36,9 @@ enum MailSourceProbe {
         "newDraft(_:)", "save(_:)", "addAttachment(_:to:)", "removeAttachment(_:from:)",
         "rewriteAsText(_:)", "quoteAsText(in:)", "changeIdentity(of:to:)",
         "resource(_:forDraft:presentation:)", "discard(_:) draft", "send(_:_:)",
-        "cancelSend(_:)", "retrySend(_:)", "hasUnfinishedSends", "finishSends(within:)",
+        "cancelSend(_:)", "retrySend(_:)", "resolveDraftQuestion(_:choice:)", "hasUnfinishedSends", "finishSends(within:)",
         "answer(_:_:)",
-        "checkNow()", "askGmail(_:)", "wants(_:)", "fetchBody(_:)", "fetchAttachment(_:)",
+        "checkNow()", "askGmail(_:)", "wants(_:)", "onScreen(_:)", "fetchBody(_:)", "fetchAttachment(_:)",
         "showPictures(in:always:)", "pictureRules()",
         "removePictureRule(_:)",
         "setWantsMail(_:account:)", "requestPermission(account:)", "forgetPermission(account:)",
@@ -80,6 +80,9 @@ enum MailSourceProbe {
 
         // Reads.
         _ = source.accounts
+        _ = source.canCompose
+        _ = source.supportsScheduledSend
+        _ = source.supportsAccountSwitching
         let observations = [
             source.observeAccounts { _ in },
             source.observePlaces { _ in },
@@ -90,6 +93,7 @@ enum MailSourceProbe {
         _ = source.cachedFirstPage(inbox)
         _ = await source.conversation(conversation)
         _ = await source.body(message)
+        _ = try? await source.originalHTML(message)
         _ = await source.resource(picture, for: message, presentation: .warming)
         _ = await source.suggestions(for: "probe")
         _ = await source.people(matching: "probe", limit: 1)
@@ -120,6 +124,7 @@ enum MailSourceProbe {
         source.send(draft, MailSendOptions(hold: nil, thenDone: false))
         _ = await source.cancelSend(draft)
         source.retrySend(draft)
+        _ = try? await source.resolveDraftQuestion(draft, choice: .acknowledge)
         _ = source.hasUnfinishedSends
         await source.finishSends(within: 0)
 
@@ -133,6 +138,7 @@ enum MailSourceProbe {
         _ = await source.conversationsBeyond(.oneMonth)
         source.askGmail(search)
         source.wants([conversation])
+        source.onScreen([conversation])
         source.fetchBody(message)
         source.fetchAttachment(attachment)
         source.showPictures(in: message, always: nil)

@@ -43,11 +43,14 @@ enum AppModule: String, CaseIterable, Identifiable, Sendable {
 
     var isAvailable: Bool {
         #if BANANA_UNRELEASED
-        true
+        isAvailable(inUnreleasedBuild: true)
         #else
-        self != .email
+        isAvailable(inUnreleasedBuild: false)
         #endif
     }
+    /// Whether a build with or without the unreleased modules carries this one: Stable, the
+    /// public build, has every module but Email.
+    func isAvailable(inUnreleasedBuild unreleased: Bool) -> Bool { unreleased || self != .email }
     static var selectable: [AppModule] { allCases.filter(\.isAvailable) }
     func statusLabel(inBeta: Bool) -> String? { inBeta ? "Beta" : nil }
     var statusLabel: String? { statusLabel(inBeta: Self.isBetaBuild) }

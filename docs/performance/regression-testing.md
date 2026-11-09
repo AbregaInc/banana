@@ -90,6 +90,18 @@ python3 tools/performance-regression.py compare --results PATH/measurements.json
 python3 -m unittest discover -s tools/tests -v
 ```
 
+## Unit-test cost budgets run optimized
+
+The unit tests' component cost budgets (Mail index, actions, reconcile, HTML preparation and the
+rest, 10–500 ms ceilings) are set for optimized code. Each goes through `CostBudget`
+(BananaTests/CostBudget.swift): in the Release `BananaModelTests` run the ceiling is asserted; in
+a Debug build the test runs every other assertion and then skips as "not measured in an
+unoptimized build", naming the numbers it saw. `tools/preflight.sh` runs both (`unit` in Debug,
+`unit-optimized` in Release), so every budget is enforced before a release. A new timing ceiling
+in a unit test uses `CostBudget`; a check that tells two behaviours apart by time (a wait that
+must not happen, a deadline) is not a cost budget and stays a plain assertion. No ceiling was
+moved for this.
+
 ## References and noise policy
 
 The versioned manifest points to retained raw measurements, not moving `latest` files. Initial

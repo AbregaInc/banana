@@ -71,11 +71,17 @@ sources as inputs; the other targets and packages come from the cache.
   now find the checkout through `SourceTree.root` (BananaTests/SourceTree.swift), which the build
   writes into the test bundle's Info.plist; that run is the one above.
 
-Failing on the shipping branch without the cache (Debug): four component cost budgets in Mail
-(index, actions, reconcile, HTML preparation) measured in a Debug build, `MailHistoryIndexTests`
-crashing, and stale expectations in `AppVariantTests`, `StoreListingTests` (2), `AppSectionTests`
-(2), `MailTestingFenceTests`, `MailStoresTests`, `MailBodyRulesTests`, `MailSourceTreeTests` and
-`SupplementLabelExtractorTests`.
+Failing on the shipping branch without the cache (Debug), and what became of each
+(`tests/green-unit`): the component cost budgets were measured in a Debug build, and now go
+through `CostBudget`: enforced in the Release `BananaModelTests` run that preflight makes
+(`unit-optimized`), reported as "not measured in an unoptimized build" in Debug. Three of them
+still fail optimized, on a quiet host holding the build lock, three runs each: Mail action commit
+for 1,000 messages in one conversation 121.7–167.0 ms (every sample), HTML preparation of 261 KB
+100.3–114.2 ms, account-scoped page and counts over 180,000 conversations 100.6–110.2 ms, all
+against 100 ms. Index reconcile passes optimized. `MailHistoryIndexTests` opened its on-disk index
+on the main thread, which a Debug build stops at (invariant 10). The stale expectations were
+brought to what the app now does, or the app fixed where it had broken its own rule; the commit
+message lists which.
 
 Size: 1.4–2.9 GB per commit and configuration. `tools/clean-builds.sh` deletes the cache when it
 passes 30 GB (`BANANA_CACHE_LIMIT_GB`); Xcode is also given the same limit
@@ -91,6 +97,7 @@ passes 30 GB (`BANANA_CACHE_LIMIT_GB`); Xcode is also given the same limit
 | Stable iOS archive + check | 5m24s | 5m07s |
 | Mac Beta archive + check + export | 5m53s | 5m44s |
 | unit tests (BananaTests, Debug, 4,093 tests) | — | 4m46s |
+| unit tests, optimized (BananaModelTests, Release, uncached) | — | see below |
 
 `xcodebuild archive` deletes its intermediates at the start of every archive (every folder under
 `ArchiveIntermediates` is re-created and every package recompiles), so an archive is never

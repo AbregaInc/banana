@@ -5,7 +5,9 @@ import XCTest
 ///
 /// The Simulator has no barcode detector ("Failed to create barcode detector", 15 Oct 2026): these
 /// run on a device. On the Mac, `PackagePhoto.swift` is checked the same way by compiling it into
-/// a small program.
+/// a small program. The pictures come from `PackagePhoto.barcodePicture`, a Debug build's fixture,
+/// so the class is compiled where that is.
+#if DEBUG
 final class PackagePhotoTests: XCTestCase {
     override func setUpWithError() throws {
         #if targetEnvironment(simulator)
@@ -35,3 +37,4 @@ final class PackagePhotoTests: XCTestCase {
         XCTAssertEqual(codes, [])
     }
 }
+#endif

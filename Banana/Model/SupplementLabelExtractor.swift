@@ -88,8 +88,11 @@ enum SupplementLabelExtractor {
         // text, so the OCR had to be reassembled into something a blind reader could interpret.
         // With vision, that reconstruction is guesswork standing between the model and the thing
         // it could just look at. It stays as the fallback, which is what iOS 26 keeps using.
-        if let record = await visionRecord(from: image) { return .record(record) }
-
+        //
+        // The text is still recognized first, because it is what the photo route answers to: a
+        // field the model reports must be printed on the photo (`printed(_:in:)`). A photo with
+        // nothing printed on it is `.noText` on either route; the model, shown a blank picture,
+        // has been seen to describe a bottle that was never there.
         let lines: [RecognizedLabelLine]
         do {
             lines = try await recognizeText(in: image)
@@ -97,6 +100,8 @@ enum SupplementLabelExtractor {
             return .noText
         }
         guard !lines.isEmpty else { return .noText }
+
+        if let record = await visionRecord(from: image, printed: lines) { return .record(record) }
 
         guard modelAvailable else { return .record(deterministicRecord(from: lines)) }
 
@@ -129,9 +134,14 @@ enum SupplementLabelExtractor {
     /// the picture. Rather than invent a number, these come back at the `.aiEstimate` bar, so the
     /// review screen flags them amber for checking against the bottle — which is what you want for
     /// a value nothing has vouched for.
-    static func visionRecord(from image: UIImage) async -> SupplementLabelRecord? {
+    ///
+    /// What the model reads is held to what is printed: a field none of whose words the text
+    /// recognizer found on the same photo is dropped (`printed(_:in:)`), and with nothing left
+    /// this returns nil and the OCR pipeline reads the label instead.
+    static func visionRecord(from image: UIImage, printed lines: [RecognizedLabelLine]) async -> SupplementLabelRecord? {
         #if canImport(FoundationModels)
         guard #available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *) else { return nil }
+        guard !lines.isEmpty else { return nil }
         guard let cgImage = image.cgImage else { return nil }
         guard let (session, route) = Intelligence.session(for: .vision,
                                                       instructions: visionInstructions) else { return nil }
@@ -149,8 +159,8 @@ enum SupplementLabelExtractor {
                 let text = value.trimmingCharacters(in: .whitespacesAndNewlines)
                 return text.isEmpty ? nil : text
             }
-            let product = trimmed(generated.productName)
-            let brand = trimmed(generated.brand)
+            let product = trimmed(generated.productName).flatMap { printed($0, in: lines) ? $0 : nil }
+            let brand = trimmed(generated.brand).flatMap { printed($0, in: lines) ? $0 : nil }
             let name: SupplementLabelField? = {
                 switch (product, brand) {
                 case (nil, nil): return nil
@@ -162,6 +172,7 @@ enum SupplementLabelExtractor {
                 }
             }()
             let dose = trimmed(generated.servingAndDose)
+                .flatMap { printed($0, in: lines) ? $0 : nil }
                 .map { SupplementLabelField(value: $0, confidence: visionConfidence) }
             guard name != nil || dose != nil else { return nil }
             return SupplementLabelRecord(name: name, dose: dose)
@@ -175,6 +186,17 @@ enum SupplementLabelExtractor {
 
     /// Below `SupplementLabelField.isConfident`'s 0.9 bar on purpose — see `visionRecord`.
     static let visionConfidence = 0.6
+
+    /// Whether a value the model read off the photo is printed on it: at least half of its words
+    /// are among the words the text recognizer found there. Half, not all, because the model
+    /// reads small or curved print the recognizer misses, and joins a serving and a dose from
+    /// two lines; none, or one stray word of four, is a value the photo does not show.
+    static func printed(_ value: String, in lines: [RecognizedLabelLine]) -> Bool {
+        let words = wordSet(value)
+        guard !words.isEmpty else { return false }
+        let seen = lines.reduce(into: Set<String>()) { $0.formUnion(wordSet($1.text)) }
+        return words.intersection(seen).count * 2 >= words.count
+    }
 
     // MARK: - Vision OCR
 

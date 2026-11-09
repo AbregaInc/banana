@@ -41,6 +41,7 @@ final class MailSyncFillTests: XCTestCase {
     }
 
     func testSparseFillUsesBoundedQueueAtLargeRetainedHistory() async throws {
+        let budget = CostBudget(self)
         let root = FileManager.default.temporaryDirectory.appendingPathComponent("fill-cost-" + UUID().uuidString)
         defer { try? FileManager.default.removeItem(at: root) }
         let stores = try await Task.detached { try MailStores.open(MailDirectories(root: root), migrations: MailSlices.migrations()) }.value
@@ -57,8 +58,9 @@ final class MailSyncFillTests: XCTestCase {
             samples.append(ms)
             XCTAssertEqual(rows.count, 16)
             XCTAssertEqual(rows.first?.key, 180000)
-            XCTAssertLessThan(ms, 100)
         }
         print("SYNC_FILL_180000_RETAINED_MS \(samples)")
+        budget.expect(samples, below: 100)
+        try budget.finish()
     }
 }

@@ -76,9 +76,18 @@ import Foundation
 }
 
 extension MailSource {
-    var canCompose: Bool { true }
-    var supportsScheduledSend: Bool { true }
-    var supportsAccountSwitching: Bool { true }
+    var canCompose: Bool {
+        MailNotYet.reached(#function)
+        return true
+    }
+    var supportsScheduledSend: Bool {
+        MailNotYet.reached(#function)
+        return true
+    }
+    var supportsAccountSwitching: Bool {
+        MailNotYet.reached(#function)
+        return true
+    }
 
     // MARK: - Life
 
@@ -147,7 +156,10 @@ extension MailSource {
         return nil
     }
 
-    func originalHTML(_ id: MailMessageID) async throws -> String? { nil }
+    func originalHTML(_ id: MailMessageID) async throws -> String? {
+        MailNotYet.reached(#function)
+        return nil
+    }
 
     func body(_ id: MailMessageID) async -> MailBody {
         MailNotYet.reached(#function)
@@ -281,6 +293,7 @@ extension MailSource {
     }
 
     func resolveDraftQuestion(_ draft: MailDraftID, choice: MailChoice) async throws -> MailDraft? {
+        MailNotYet.reached(#function)
         throw MailDraftResolutionFailure.unavailable
     }
 
@@ -357,8 +370,11 @@ extension MailSource {
         MailNotYet.reached(#function)
     }
 
-    /// A hint; a source that keeps every body (the fixture) has nothing to do.
-    func onScreen(_ ids: [MailConversationID]) {}
+    /// A hint; a source that keeps every body (the fixture) has nothing to do, and says so by
+    /// declaring its own.
+    func onScreen(_ ids: [MailConversationID]) {
+        MailNotYet.reached(#function)
+    }
 
     func fetchBody(_ id: MailMessageID) {
         MailNotYet.reached(#function)

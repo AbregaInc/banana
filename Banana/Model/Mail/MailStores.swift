@@ -110,6 +110,29 @@ struct MailStores: Sendable {
         }
     }
 
+    /// One unchanging view of `index.sqlite` across several reads, for bulk work that has to see
+    /// a selection as it stood when the person made it (an action over every retained message of
+    /// a view, the removal review): the one place a read transaction is held across suspension
+    /// points, which invariant 11 otherwise forbids, because it keeps the log from being
+    /// checkpointed past it. So the snapshot is made here and nowhere else, and it is closed
+    /// when `body` returns or throws: it cannot outlive the work that asked for it. Keep that
+    /// work to reading and staging; nothing else should wait inside it.
+    func withIndexSnapshot<T>(isolation: isolated (any Actor)? = #isolation,
+                              _ body: (DatabaseSnapshot) async throws -> T) async throws -> T {
+        let index = self.index
+        // Making a snapshot waits for a reader connection: blocking, so off the caller's thread.
+        let snapshot = try await Task.detached { try index.makeSnapshot() }.value
+        let value: T
+        do {
+            value = try await body(snapshot)
+        } catch {
+            try? snapshot.close()
+            throw error
+        }
+        try snapshot.close()
+        return value
+    }
+
     /// Opens `intent.sqlite`, and sets what makes a commit to it durable.
     ///
     /// **Only `MailIntentStore` (P14a) calls this**, and it keeps what it returns private

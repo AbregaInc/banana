@@ -39,31 +39,27 @@ actor MailRemovalCoordinator {
     func review(account: String, at: Int64) async throws -> MailRemovalReview {
         let id = UUID().uuidString
         try await intent.beginRemovalReview(id, account: account, at: at)
-        let stores = self.stores
-        let snapshot: DatabaseSnapshot
-        do { snapshot = try await Task.detached { try stores.index.makeSnapshot() }.value }
-        catch { try? await intent.discardRemovalReview(id); throw error }
         do {
-            var after: Int64 = 0
-            while true {
-                try Task.checkCancellation()
-                let boundary = after
-                let rows = try await snapshot.read { db -> [(key: Int64, id: String)] in
-                    try Row.fetchAll(db, sql: """
-                        SELECT m.msg_pk,m.gmail_id FROM held_removal h JOIN message m ON m.msg_pk=h.msg_pk
-                        JOIN account a ON a.account_pk=m.account_pk WHERE a.email=? AND h.kept=0 AND m.msg_pk>?
-                        ORDER BY m.msg_pk LIMIT 100
-                        """, arguments: [account, boundary]).map { (key: $0[0], id: $0[1]) }
+            try await stores.withIndexSnapshot { snapshot in
+                var after: Int64 = 0
+                while true {
+                    try Task.checkCancellation()
+                    let boundary = after
+                    let rows = try await snapshot.read { db -> [(key: Int64, id: String)] in
+                        try Row.fetchAll(db, sql: """
+                            SELECT m.msg_pk,m.gmail_id FROM held_removal h JOIN message m ON m.msg_pk=h.msg_pk
+                            JOIN account a ON a.account_pk=m.account_pk WHERE a.email=? AND h.kept=0 AND m.msg_pk>?
+                            ORDER BY m.msg_pk LIMIT 100
+                            """, arguments: [account, boundary]).map { (key: $0[0], id: $0[1]) }
+                    }
+                    guard let last = rows.last else { break }
+                    try await intent.appendRemovalReview(id, messages: rows.map(\.id))
+                    after = last.key
                 }
-                guard let last = rows.last else { break }
-                try await intent.appendRemovalReview(id, messages: rows.map(\.id))
-                after = last.key
             }
-            try snapshot.close()
             guard let review = try await intent.removalReview(id) else { throw Failure.invalidReview }
             return review
         } catch {
-            try? snapshot.close()
             try? await intent.discardRemovalReview(id)
             throw error
         }

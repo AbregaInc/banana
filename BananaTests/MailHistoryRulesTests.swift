@@ -64,6 +64,7 @@ final class MailHistoryRulesTests: XCTestCase {
     }
 
     func testHistoryPagePlanningCost() throws {
+        let budget = CostBudget(self)
         let records = (1...100).map { number in
             GmailHistoryRecord(id: UInt64(number + 1), labelsAdded: (0..<20).map {
                 change("\(number)-\($0)", labels: ["UNREAD", "custom"])
@@ -86,6 +87,7 @@ final class MailHistoryRulesTests: XCTestCase {
                 "scope": "100 history records, 2000 message deltas; first and five warm planner calls only. No database, UI, eviction or device acceptance."], options: [.prettyPrinted, .sortedKeys])
             try data.write(to: URL(fileURLWithPath: path))
         }
-        for sample in samples { XCTAssertLessThan(sample, 100) }
+        budget.expect(samples, below: 100)
+        try budget.finish()
     }
 }

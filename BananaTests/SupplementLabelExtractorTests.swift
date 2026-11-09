@@ -174,17 +174,35 @@ final class SupplementLabelExtractorTests: XCTestCase {
 
     // MARK: - iOS 27 vision path
 
-    /// On anything without a vision-capable model — every OS this app currently runs on — the
-    /// photo route must decline rather than fail, so `extract(from:)` falls through to the OCR
-    /// pipeline below it. This is the guarantee that adding iOS 27 support did not take anything
-    /// away from iOS 26.
-    func testTheVisionRouteDeclinesWhenNoModelCanSee() async {
+    /// A photo with nothing printed on it gives the photo route nothing to report, on every OS:
+    /// on iOS 26 there is no vision-capable model, and on iOS 27 the model shown a blank picture
+    /// described a bottle of Vitamin D3 that was never there. Declining (nil, not a failure) is
+    /// what lets `extract(from:)` fall through to the OCR pipeline, which says `.noText`.
+    func testTheVisionRouteDeclinesAPhotoWithNothingPrinted() async {
         let blank = UIGraphicsImageRenderer(size: CGSize(width: 8, height: 8)).image { context in
             UIColor.white.setFill()
             context.fill(CGRect(x: 0, y: 0, width: 8, height: 8))
         }
-        let record = await SupplementLabelExtractor.visionRecord(from: blank)
-        XCTAssertNil(record, "no vision-capable model here, so the OCR pipeline must get the photo")
+        let record = await SupplementLabelExtractor.visionRecord(from: blank, printed: [])
+        XCTAssertNil(record, "nothing is printed, so nothing read off the photo can be reported")
+        guard case .noText = await SupplementLabelExtractor.extract(from: blank) else {
+            return XCTFail("a blank photo is no text on every route")
+        }
+    }
+
+    /// A value from the photo route stands only when the label shows it: most of its words are
+    /// among what the text recognizer found on the same photo.
+    func testAPhotoReadValueMustBePrintedOnThePhoto() {
+        let lines = [RecognizedLabelLine(text: "NOW", confidence: 0.9),
+                     RecognizedLabelLine(text: "Zinc Picolinate", confidence: 0.9),
+                     RecognizedLabelLine(text: "Serving Size 1 Veg Capsule", confidence: 0.8),
+                     RecognizedLabelLine(text: "Zinc (as Zinc Picolinate) 50 mg", confidence: 0.7)]
+        XCTAssertTrue(SupplementLabelExtractor.printed("Zinc Picolinate", in: lines))
+        XCTAssertTrue(SupplementLabelExtractor.printed("1 capsule — 50 mg", in: lines), "a serving and a dose joined from two lines")
+        XCTAssertFalse(SupplementLabelExtractor.printed("Nature Made Vitamin D3", in: lines))
+        XCTAssertFalse(SupplementLabelExtractor.printed("1 softgel — 1000 IU", in: lines))
+        XCTAssertFalse(SupplementLabelExtractor.printed("Zinc Picolinate", in: []), "nothing printed")
+        XCTAssertFalse(SupplementLabelExtractor.printed("—", in: lines), "no words")
     }
 
     /// A value the model read off a photograph has no recognized line to trace to, so it must not

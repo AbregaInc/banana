@@ -183,6 +183,7 @@ final class MailHTMLPreparerTests: XCTestCase {
     }
 
     func testPreparationCostForGeneratedHTML() throws {
+        let budget = CostBudget(self)
         var samples: [[String: Any]] = []
         let block = "<p>Message text with <b>emphasis</b> and <a href='https://example.com'>a link</a>.</p>"
         for size in [63 * 1024, 261 * 1024] {
@@ -194,7 +195,7 @@ final class MailHTMLPreparerTests: XCTestCase {
                 let elapsed = Double(DispatchTime.now().uptimeNanoseconds - start) / 1_000_000
                 XCTAssertFalse(result.text.blocks.isEmpty)
                 samples.append(["inputBytes": html.utf8.count, "iteration": iteration, "milliseconds": elapsed, "phases": phases])
-                XCTAssertLessThanOrEqual(elapsed, 100, "Background preparation exceeded the component guardrail")
+                budget.expect(elapsed, below: 100, orEqual: true, "Background preparation exceeded the component guardrail")
             }
         }
         let data = try JSONSerialization.data(withJSONObject: ["samples": samples,
@@ -205,5 +206,6 @@ final class MailHTMLPreparerTests: XCTestCase {
             let attachment = XCTAttachment(data: data, uniformTypeIdentifier: "public.json")
             attachment.lifetime = .keepAlways; add(attachment)
         }
+        try budget.finish()
     }
 }

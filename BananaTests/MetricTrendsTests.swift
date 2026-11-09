@@ -175,23 +175,29 @@ final class AppSectionTests: XCTestCase {
         for section in AppSection.allCases { XCTAssertTrue(AppSection.iOSTabs.contains(section.tabBarHome)) }
     }
 
-    /// Mail is the second section everywhere there is a sidebar, and not one of the phone's five
-    /// tabs: where it sits on a phone is undecided, so the phone's bar is exactly what it was.
+    /// Mail is the second section everywhere: in the sidebar of the iPad and the Mac and in the
+    /// phone's tabs. Sleep and Trends are parts of Review, so they have no row of their own; the
+    /// Mac's sidebar is the shared one without Settings, which is its own window there.
     func testMailIsSecondInTheSidebarAndPhoneTabs() {
         XCTAssertEqual(AppSection.allCases.prefix(2).map(\.rawValue), ["plan", "mail"])
-        XCTAssertEqual(AppSection.macSidebar, AppSection.allCases)
-        XCTAssertEqual(AppSection.mail.title, "Mail")
+        XCTAssertEqual(AppSection.sidebar.prefix(2).map(\.rawValue), ["plan", "mail"])
+        XCTAssertEqual(AppSection.macSidebar, AppSection.sidebar.filter { $0 != .settings })
+        XCTAssertFalse(AppSection.sidebar.contains(.sleep))
+        XCTAssertFalse(AppSection.sidebar.contains(.trends))
+        for section in AppSection.allCases { XCTAssertTrue(AppSection.sidebar.contains(section.sidebarHome), "\(section)") }
+        XCTAssertEqual(AppSection.mail.title, "Email", "the name of its module")
         XCTAssertEqual(AppSection.mail.symbol, "envelope.fill")
         XCTAssertEqual(AppSection.iOSTabs, [.plan, .mail, .workouts, .nutrition, .notes, .library])
         XCTAssertTrue(AppSection.iOSTabs.contains(.mail))
     }
 
-    /// The Mac numbers its sections ⌘1 to ⌘9 from their place. Mail is ⌘2, the sections after it
-    /// each move down one, and no section after the ninth has a number to take (a tenth used to
-    /// trap in `Character(String(index + 1))`).
+    /// The Mac numbers its sections ⌘1 to ⌘9 from their place in its sidebar. Mail is ⌘2, and
+    /// no section after the ninth has a number to take (a tenth used to trap in
+    /// `Character(String(index + 1))`).
     func testTheMacNumbersNineSectionsAndMailIsTheSecond() {
+        XCTAssertEqual(AppSection.macShortcuts, Array(AppSection.macSidebar.prefix(9)))
         XCTAssertEqual(AppSection.macShortcuts.map(\.rawValue),
-                       ["plan", "mail", "workouts", "sleep", "trends", "nutrition", "notes", "routines", "library"])
+                       ["plan", "mail", "workouts", "nutrition", "notes", "routines", "library", "review", "assistant"])
         XCTAssertLessThanOrEqual(AppSection.macShortcuts.count, 9)
         XCTAssertFalse(AppSection.macShortcuts.contains(.settings), "Settings is ⌘, and has no number")
     }

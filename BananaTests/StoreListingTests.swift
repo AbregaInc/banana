@@ -35,10 +35,16 @@ final class StoreListingTests: XCTestCase {
     }
 
     func testIndexedFieldsCoverTheCalendarAndOptionalModules() throws {
-        // The website tagline can lead the subtitle; searchable module names still need
-        // coverage across the fields Apple indexes, without duplicating subtitle words.
+        // The website tagline can lead the subtitle; the calendar and the name of every module
+        // the listed app can turn on still need coverage across the fields Apple indexes,
+        // without duplicating subtitle words. The names come from the modules themselves, so a
+        // renamed or added module is a listing to update, not a test to edit.
         let indexed = words(try field("name") + " " + field("subtitle") + " " + field("keywords"))
-        XCTAssertTrue(indexed.isSuperset(of: ["calendar", "podcast", "fitness", "food", "sleep", "note"]), "\(indexed)")
+        let listed = AppModule.allCases.filter { $0.isAvailable(inUnreleasedBuild: false) }
+        XCTAssertFalse(listed.isEmpty)
+        var wanted: Set<String> = ["calendar"]
+        for module in listed { wanted.formUnion(words(module.rawValue)) }
+        XCTAssertTrue(indexed.isSuperset(of: wanted), "missing \(wanted.subtracting(indexed).sorted()) in \(indexed.sorted())")
     }
 
     func testNoKeywordRepeatsAWordOfTheNameOrSubtitle() throws {
@@ -91,12 +97,18 @@ final class StoreListingTests: XCTestCase {
     func testEveryDeviceTheAppRunsOnHasAScreenshotSet() throws {
         let manifest = try manifest()
         let capture = try XCTUnwrap(manifest["capture"] as? [String: Any])
+        // Apple's sizes for each device held its usual way up; a set captured on its side
+        // (`<platform>_orientation` is landscape_left or landscape_right, which the generator
+        // rotates the device to) is the same size turned, long side first.
         for (platform, size) in [("iphone", [1320, 2868]), ("ipad", [2064, 2752]), ("watch", [416, 496]), ("mac", [2880, 1800])] {
             let scenes = try XCTUnwrap(manifest["\(platform)_scenes"] as? [[String: Any]], "no \(platform) set")
             XCTAssertTrue((1...10).contains(scenes.count), "\(platform): \(scenes.count) screenshots, Apple takes one to ten")
             let ids = scenes.compactMap { $0["id"] as? String }
             XCTAssertEqual(Set(ids).count, scenes.count, "\(platform): two scenes share a file name")
-            XCTAssertEqual(capture["\(platform)_size"] as? [Int], size, "\(platform): not the size Apple asks for")
+            let orientation = capture["\(platform)_orientation"] as? String ?? "portrait"
+            XCTAssertTrue(["portrait", "landscape_left", "landscape_right"].contains(orientation), "\(platform): \(orientation)")
+            let expected = orientation.hasPrefix("landscape") ? [size.max()!, size.min()!] : size
+            XCTAssertEqual(capture["\(platform)_size"] as? [Int], expected, "\(platform): not the size Apple asks for")
         }
     }
 

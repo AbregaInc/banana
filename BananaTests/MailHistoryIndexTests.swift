@@ -2,26 +2,35 @@ import XCTest
 import GRDB
 
 final class MailHistoryIndexTests: XCTestCase {
-    private func database(count: Int = 1, onDisk: Bool = false) throws -> any DatabaseWriter {
-        let queue: any DatabaseWriter
-        if onDisk {
-            let root = FileManager.default.temporaryDirectory.appendingPathComponent("mail-history-" + UUID().uuidString)
-            addTeardownBlock { try? FileManager.default.removeItem(at: root) }
-            queue = try MailStores.open(MailDirectories(root: root), migrations: MailSlices.migrations()).index
-        } else { queue = try DatabaseQueue() }
+    private func database(count: Int = 1) throws -> any DatabaseWriter {
+        let queue = try DatabaseQueue()
         try MailSlices.migrations().index.migrate(queue)
-        try queue.write { db in
-            for account in ["a@example.com", "b@example.com"] {
-                for n in 0..<count {
-                    let wire = GmailMessage(id: "m\(n)", threadId: "t\(n)", labelIds: ["INBOX"], snippet: "Needle", historyId: 1,
-                        internalDate: Int64(n + 1), payload: GmailPart(headers: [GmailHeader(name: "Subject", value: "Needle")]))
-                    _ = try MailMessageImporter.apply(FetchedMessage(wire: wire, floor: 1,
-                        headers: MessageHeaders(payload: wire.payload), structure: nil), account: account, myAddresses: [account], in: db)
-                }
-            }
-            try db.execute(sql: "UPDATE account SET checkpoint='1'")
-        }
+        try queue.write { try Self.seed($0, count: count) }
         return queue
+    }
+
+    /// The engine's own on-disk index, opened and filled where the engine does that work: off
+    /// the main thread (invariant 10), which a Debug build enforces by stopping the process.
+    private func diskDatabase(count: Int) async throws -> any DatabaseWriter {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent("mail-history-" + UUID().uuidString)
+        addTeardownBlock { try? FileManager.default.removeItem(at: root) }
+        return try await Task.detached { () throws -> DatabasePool in
+            let index = try MailStores.open(MailDirectories(root: root), migrations: MailSlices.migrations()).index
+            try index.write { try Self.seed($0, count: count) }
+            return index
+        }.value
+    }
+
+    private static func seed(_ db: Database, count: Int) throws {
+        for account in ["a@example.com", "b@example.com"] {
+            for n in 0..<count {
+                let wire = GmailMessage(id: "m\(n)", threadId: "t\(n)", labelIds: ["INBOX"], snippet: "Needle", historyId: 1,
+                    internalDate: Int64(n + 1), payload: GmailPart(headers: [GmailHeader(name: "Subject", value: "Needle")]))
+                _ = try MailMessageImporter.apply(FetchedMessage(wire: wire, floor: 1,
+                    headers: MessageHeaders(payload: wire.payload), structure: nil), account: account, myAddresses: [account], in: db)
+            }
+        }
+        try db.execute(sql: "UPDATE account SET checkpoint='1'")
     }
     private func delta(_ id: String, labels: [String]? = nil) -> GmailHistoryChange {
         GmailHistoryChange(message: GmailMessage(id: id, threadId: "t" + id.dropFirst()), labelIds: labels)
@@ -119,8 +128,9 @@ final class MailHistoryIndexTests: XCTestCase {
         })
     }
 
-    func testAtomicHistoryPageCost() throws {
-        let queue = try database(count: 100, onDisk: true)
+    func testAtomicHistoryPageCost() async throws {
+        let budget = CostBudget(self)
+        let queue = try await diskDatabase(count: 100)
         var samples: [Double] = []
         for trial in 0..<6 {
             let version = UInt64(trial + 2)
@@ -130,7 +140,7 @@ final class MailHistoryIndexTests: XCTestCase {
                 labelsRemoved: trial % 2 == 0 ? nil : changes)
             let page = GmailHistoryPage(history: [record], historyId: version)
             let start = ContinuousClock.now
-            let result = try queue.write {
+            let result = try await queue.write {
                 try MailHistoryIndex.apply(page, account: "a@example.com", after: version - 1, nowMS: Int64(trial + 100), in: $0)
             }
             let elapsed = start.duration(to: .now).components
@@ -143,6 +153,7 @@ final class MailHistoryIndexTests: XCTestCase {
                 "scope": "100 distinct conversations per atomic history page in actual MailStores disk index; first/five warm transactions. Excludes crash/power-loss, UI, device and eviction acceptance."], options: [.prettyPrinted, .sortedKeys])
             try data.write(to: URL(fileURLWithPath: path))
         }
-        for sample in samples { XCTAssertLessThan(sample, 100) }
+        budget.expect(samples, below: 100)
+        try budget.finish()
     }
 }

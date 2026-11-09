@@ -210,6 +210,13 @@ final class MailFixtureSource: MailSource {
         conversationValue(id)
     }
 
+    // What the sample mailbox can do: compose, hold a send, switch accounts. It keeps every
+    // body, so a row on screen asks for nothing.
+    var canCompose: Bool { true }
+    var supportsScheduledSend: Bool { true }
+    var supportsAccountSwitching: Bool { true }
+    func onScreen(_ ids: [MailConversationID]) {}
+
     func originalHTML(_ id: MailMessageID) async throws -> String? {
         guard case .text(let text, _, let notices)? = bodies[id], notices.contains(.shownAsText) else { return nil }
         return "<style>.newsletter{max-width:600px;margin:auto;background:#fff7c2;padding:24px;font:18px Georgia}</style><article class='newsletter'><h1>Dispatch</h1>"

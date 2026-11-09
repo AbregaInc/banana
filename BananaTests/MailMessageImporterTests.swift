@@ -16,6 +16,7 @@ final class MailMessageImporterTests: XCTestCase {
         try await MailIndexReader(stores: stores).page(PageRequest(view: view, account: nil, filters: [], before: nil, limit: 50))
     }
     func testArrivalBoundaryImportCostAgainstTriggerAblation() async throws {
+        let budget = CostBudget(self)
         let reference = try await stores(), current = try await stores()
         // Isolated temporary control only: identical importer/schema, arrival triggers off.
         try await reference.index.write {
@@ -53,7 +54,9 @@ final class MailMessageImporterTests: XCTestCase {
                 "scope": "Alternating disk import batches; first then warm; temporary trigger ablation, not UI or eviction acceptance"], options: [.prettyPrinted, .sortedKeys])
             try data.write(to: URL(fileURLWithPath: path))
         }
-        for values in samples { for value in values { XCTAssertLessThan(value, 100) } }
+        budget.expect(samples[0], below: 100, "import without arrival triggers")
+        budget.expect(samples[1], below: 100, "import with arrival triggers")
+        try budget.finish()
     }
     func testFetchedMetadataFeedsConversationRows() async throws {
         let stores = try await stores(), value = try fetched(original)
