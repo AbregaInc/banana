@@ -586,32 +586,26 @@ final class WeatherStore: NSObject, ObservableObject {
     }
 
     #if DEBUG
-    /// Stable, permission-free weather for visual verification routes.
+    /// Stable, permission-free weather for visual verification routes (`WeatherSample`).
     func injectSampleForPreview() {
         let calendar = Calendar.current
         let zone = TimeZone.current
         let today = calendar.startOfDay(for: Date())
-        days = (0..<7).compactMap { dayOffset in
+        days = WeatherSample.week().enumerated().compactMap { dayOffset, sample in
             guard let start = calendar.date(byAdding: .day, value: dayOffset, to: today) else { return nil }
-            let hours = (0..<24).compactMap { hour -> HourlyWeather? in
-                guard let date = calendar.date(byAdding: .hour, value: hour, to: start) else { return nil }
-                let wave = sin((Double(hour) - 7) / 24 * .pi * 2)
-                let temp = 67 + wave * 13 + Double(dayOffset)
+            let hours = sample.hours.compactMap { hour -> HourlyWeather? in
+                guard let date = calendar.date(byAdding: .hour, value: hour.hour, to: start) else { return nil }
                 return HourlyWeather(
-                    date: date, hour: hour, tempF: temp, feelsF: temp - 1,
-                    precip: hour == 15 || hour == 16 ? 0.55 : 0.08,
-                    windMph: 7, humidity: 0.58,
-                    symbol: hour == 15 || hour == 16 ? "cloud.rain.fill" : "sun.max.fill",
-                    condition: hour == 15 || hour == 16 ? "Rain" : "Clear"
+                    date: date, hour: hour.hour, tempF: hour.tempF, feelsF: hour.tempF - 1,
+                    precip: hour.precip, windMph: hour.windMph, humidity: hour.humidity,
+                    symbol: hour.symbol, condition: hour.condition
                 )
             }
             return DayForecast(
-                date: start, hours: hours,
-                highF: hours.map(\.tempF).max() ?? 80,
-                lowF: hours.map(\.tempF).min() ?? 54,
-                sunrise: calendar.date(bySettingHour: 5, minute: 42, second: 0, of: start),
-                sunset: calendar.date(bySettingHour: 20, minute: 24, second: 0, of: start),
-                symbol: "sun.max.fill", condition: "Mostly Clear", timeZone: zone
+                date: start, hours: hours, highF: sample.highF, lowF: sample.lowF,
+                sunrise: calendar.date(bySettingHour: 6, minute: 32, second: 0, of: start),
+                sunset: calendar.date(bySettingHour: 16, minute: 41, second: 0, of: start),
+                symbol: sample.symbol, condition: sample.condition, timeZone: zone
             )
         }
         placeName = "New York"
