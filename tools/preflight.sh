@@ -130,8 +130,9 @@ service_tests() {
     return 0
   fi
   say "  Service/ changed since ${tag:-the first release}"
-  [ -d Service/node_modules ] || run npm --prefix Service ci || return 1
-  run npm --prefix Service test
+  # npm runs inside Service/ so a version manager (Volta) picks the Node it pins there.
+  [ -d Service/node_modules ] || (cd Service && run npm ci) || return 1
+  (cd Service && run npm test)
 }
 check service service_tests
 

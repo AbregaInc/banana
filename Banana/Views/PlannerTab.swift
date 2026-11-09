@@ -245,6 +245,8 @@ struct PlanPagingRow: View {
     let dates: String
     let isCurrent: Bool
     var datesPlace = PlanPeriodMenu.DatesPlace.beside
+    /// False where the forecast takes Today's place (`PlanPaging.topRowLayouts`).
+    var showsToday = true
     let step: (Int) -> Void
     let toCurrent: () -> Void
 
@@ -258,8 +260,10 @@ struct PlanPagingRow: View {
             }
             .font(.body.weight(.medium))
             .glassEffect(.regular.interactive(), in: .capsule)
-            PlanTodayButton(isCurrent: isCurrent, framed: true, toCurrent: toCurrent)
-                .glassEffect(.regular.interactive(), in: .capsule)
+            if showsToday {
+                PlanTodayButton(isCurrent: isCurrent, framed: true, toCurrent: toCurrent)
+                    .glassEffect(.regular.interactive(), in: .capsule)
+            }
         }
         .fixedSize()
     }

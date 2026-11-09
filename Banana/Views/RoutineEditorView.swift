@@ -33,7 +33,11 @@ struct RoutineEditorView: View {
                             Text("When you wake up").tag(RoutineTriggerKind.wakeUp)
                         }
                         Text("With calendar events").tag(RoutineTriggerKind.calendarMatch)
-                        Text("When a workout starts").tag(RoutineTriggerKind.workoutStart)
+                        // Only with Workouts and sleep on, which is what sees a workout start.
+                        if RoutineTriggerKind.workoutStart.isOn(in: ModuleStore.shared.effectiveChoice)
+                            || draft.triggerKind == .workoutStart {
+                            Text("When a workout starts").tag(RoutineTriggerKind.workoutStart)
+                        }
                         Text("Manual (a button)").tag(RoutineTriggerKind.manual)
                     }
                     if draft.triggerKind == .time {

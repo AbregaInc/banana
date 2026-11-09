@@ -88,7 +88,9 @@ def main() -> None:
         errors += validate_images(args.output / "screenshots/watch", tuple(manifest["capture"]["watch_size"]), 1, 10)
     if "mac" in platforms:
         errors += validate_images(args.output / "screenshots/mac", tuple(manifest["capture"]["mac_size"]), 1, 10)
-        errors += validate_mac_raw_captures(args.output / "raw/mac")
+        # A white sidebar is the dark set's offscreen-render artifact; a light window is white.
+        if manifest["capture"].get("mac_appearance", "light") == "dark":
+            errors += validate_mac_raw_captures(args.output / "raw/mac")
     creative = args.output / "creative/en-US"
     if creative.exists():
         for kind, size in (("header", (3840, 1646)), ("search", (1920, 1280))):

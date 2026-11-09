@@ -58,6 +58,17 @@ struct RootView: View {
     @ObservedObject private var modules = ModuleStore.shared
     private let chrome = PageChrome.shared
 
+    #if DEBUG
+    /// `--trend <metric>` names a metric this build has (Trends are the Workouts module's).
+    private static var trendRequested: Bool {
+        #if BANANA_MODULE_WORKOUTS
+        MetricKind.launchArgument != nil
+        #else
+        false
+        #endif
+    }
+    #endif
+
     var body: some View {
 
         let _ = RenderStats.note("RootView")
@@ -65,7 +76,9 @@ struct RootView: View {
         Group {
             #if DEBUG
             if ProcessInfo.processInfo.arguments.contains("--src-sleep") {
+                #if BANANA_MODULE_PODCASTS
                 NavigationStack { WakeSourceView(slot: .sleep) }   // picker verification
+                #endif
             } else if ProcessInfo.processInfo.arguments.contains("--morning") {
                 MorningBriefingView()   // briefing layout verification
             } else if ProcessInfo.processInfo.arguments.contains("--ui-preview") {
@@ -93,6 +106,7 @@ struct RootView: View {
                             // `--sample-episode`: a sample episode loaded (not playing), for the
                             // player above the bar; `--player-hidden` starts it folded away.
                             let args = ProcessInfo.processInfo.arguments
+                            #if BANANA_MODULE_PODCASTS
                             if args.contains("--sample-episode") {
                                 let library = WakeCoordinator.shared.library
                                 library.injectSampleForPreview()
@@ -103,6 +117,7 @@ struct RootView: View {
                                 }
                                 if args.contains("--player-hidden") { ShellChrome.shared.playerHidden = true }
                             }
+                            #endif
                             // `--shell-switcher-open`, `--shell-query <words>`: the switcher open, or
                             // the field with words in it, for screenshots of the bottom-bar shell.
                             if args.contains("--shell-switcher-open") { ShellChrome.shared.switcherOpen = true }
@@ -117,6 +132,7 @@ struct RootView: View {
                             }
                             // `--shell-tick`: the playhead moves once a second, as in playback,
                             // so a test can count what that redraws (`RenderStats`).
+                            #if BANANA_MODULE_PODCASTS
                             if args.contains("--shell-tick") {
                                 Task { @MainActor in
                                     while !Task.isCancelled {
@@ -125,18 +141,26 @@ struct RootView: View {
                                     }
                                 }
                             }
+                            #endif
                         }
                 } else {
                     Color.black.ignoresSafeArea()
                 }
             } else if ProcessInfo.processInfo.arguments.contains("--listenmap") {
+                #if BANANA_MODULE_PODCASTS
                 NavigationStack { ListenMapView() }   // listen-map verification
+                #endif
             } else if ProcessInfo.processInfo.arguments.contains("--widgets") {
                 WidgetGalleryView()
             } else if ProcessInfo.processInfo.arguments.contains("--availability") {
                 AvailabilitySheet()
             } else if ProcessInfo.processInfo.arguments.contains("--now-playing") {
+                #if BANANA_MODULE_PODCASTS
                 NowPlayingPreviewHost()
+                #endif
+            } else if ProcessInfo.processInfo.arguments.contains("--weather-detail") {
+                // The forecast a tap on Plan's weather opens, at 2 PM today, on the sample week.
+                WeatherDetailView(focus: Calendar.current.date(bySettingHour: 14, minute: 0, second: 0, of: Date()) ?? Date())
             } else if ProcessInfo.processInfo.arguments.contains("--event-detail") {
                 EventDetailView(meeting: .detailPreview)
             } else if ProcessInfo.processInfo.arguments.contains("--event-editor") {
@@ -162,6 +186,7 @@ struct RootView: View {
             } else if ProcessInfo.processInfo.arguments.contains("--place-picker") {
                 PlacePickerView(locationText: "Chelsea", context: "Lap Swim at 7:45 PM", eventTitle: "Lap Swim")
             } else if ["--wellness", "--scan-correct-preview", "--my-foods", "--energy-balance", "--food-search"].contains(where: { ProcessInfo.processInfo.arguments.contains($0) }) {
+                #if BANANA_MODULE_FOOD
                 // `--wide-nutrition`: the iPad and Mac page, in the phone's width.
                 Group {
                     if ProcessInfo.processInfo.arguments.contains("--wide-nutrition") {
@@ -190,6 +215,7 @@ struct RootView: View {
                             ShellNavigation.shared.state.nutritionDay = Calendar.current.date(byAdding: .day, value: -1, to: Date())
                         }
                     }
+                #endif
             } else if ProcessInfo.processInfo.arguments.contains("--routines") {
                 RoutinesView().toastHost()
             } else if ProcessInfo.processInfo.arguments.contains("--mail") {
@@ -208,15 +234,25 @@ struct RootView: View {
                     Color.black.ignoresSafeArea()
                 }
             } else if ProcessInfo.processInfo.arguments.contains("--library-detail") {
+                #if BANANA_MODULE_PODCASTS
                 FirstPodcastDetailHost()   // episode-list verification (folded listened runs)
+                #endif
             } else if ProcessInfo.processInfo.arguments.contains("--library") {
+                #if BANANA_MODULE_PODCASTS
                 PodcastsView()
+                #endif
             } else if ProcessInfo.processInfo.arguments.contains("--notes") {
+                #if BANANA_MODULE_NOTES
                 NotesView()
+                #endif
             } else if ProcessInfo.processInfo.arguments.contains("--trim") {
+                #if BANANA_MODULE_WORKOUTS
                 TrimPreviewHost()
+                #endif
             } else if ProcessInfo.processInfo.arguments.contains("--transcript-demo") || ProcessInfo.processInfo.arguments.contains("--voicenote-demo") {
+                #if BANANA_MODULE_PODCASTS
                 TranscriptDemoView()
+                #endif
             } else if ProcessInfo.processInfo.arguments.contains("--verify-flight-boarding") {
                 FlightBoardingVerificationView()
             } else if ProcessInfo.processInfo.arguments.contains("--new-calendar-event")
@@ -236,26 +272,43 @@ struct RootView: View {
                                 smart.settings.accountForTravel = true
                                 smart.settings.commuteAlerts = true }
             } else if ProcessInfo.processInfo.arguments.contains("--runmap") {
+                #if BANANA_MODULE_WORKOUTS
                 FitnessDebugDetail()   // podcast-colored run route verification
+                #endif
             } else if ProcessInfo.processInfo.arguments.contains("--workout-review") {
+                #if BANANA_MODULE_WORKOUTS
                 PostWorkoutReviewDebugHost()   // the post-workout payoff screen
+                #endif
             } else if ProcessInfo.processInfo.arguments.contains("--workout-detail") {
+                #if BANANA_MODULE_WORKOUTS
                 WorkoutDetailDebugHost()   // WorkoutDetailScreen audit against a real workout
+                #endif
             } else if ProcessInfo.processInfo.arguments.contains("--sleep") {
+                #if BANANA_MODULE_WORKOUTS
                 NavigationStack { SleepView() }   // Sleep page, with two weeks of sample nights
-            } else if let kind = MetricKind.launchArgument {
-                NavigationStack { TrendDetailView(kind: kind, window: .month) }   // `--trend steps`
+                #endif
+            } else if Self.trendRequested {
+                #if BANANA_MODULE_WORKOUTS
+                if let kind = MetricKind.launchArgument {
+                    NavigationStack { TrendDetailView(kind: kind, window: .month) }   // `--trend steps`
+                }
+                #endif
             } else if ProcessInfo.processInfo.arguments.contains("--review") {
+                #if BANANA_MODULE_WORKOUTS
                 // Review, as the chart button on Workouts opens it: a sheet, with its Done.
                 ReviewView(from: .workouts, showsDoneButton: true)
+                #endif
             } else if ProcessInfo.processInfo.arguments.contains("--trends") {
+                #if BANANA_MODULE_WORKOUTS
                 NavigationStack { TrendsView() }   // every metric, two years of sample data
+                #endif
             } else if ProcessInfo.processInfo.arguments.contains("--dummy-health")
                         || ProcessInfo.processInfo.arguments.contains("--workout")
                         || ProcessInfo.processInfo.arguments.contains("--rhythm") {
                 // `--rhythm` opened the retired Rhythm tab; it lands on Workouts for one release so
                 // old scripts keep working. Guided plans now live under Workouts, so this route
                 // seeds the same wellness fixtures `--wellness` does or "Saved plans" is empty.
+                #if BANANA_MODULE_WORKOUTS && BANANA_MODULE_FOOD
                 Group {
                     if ProcessInfo.processInfo.arguments.contains("--wide-workouts") {
                         WideWorkoutsView()
@@ -264,6 +317,7 @@ struct RootView: View {
                     }
                 }   // layout-verification harness
                     .onAppear { WellnessStore.shared.injectPreviewData() }
+                #endif
             } else {
                 gatedContent
             }
@@ -389,7 +443,9 @@ struct RootView: View {
             case .active:
                 Log.wake.notice("scenePhase → active; checking wake trigger")
                 AppVisibility.shared.set(active: true)
+                #if BANANA_FEATURE_TRIP_LEARNING
                 TripLearningService.shared.appBecameActive()   // turned on elsewhere: ask here
+                #endif
                 if plan.runsNetworkAndSync {
                 HubStatusStore.shared.handleRequests()          // asked for on another device
                 #if BANANA_MODULE_WORKOUTS
@@ -860,7 +916,9 @@ struct RootView: View {
             if let i = args.firstIndex(of: "--tab"), i + 1 < args.count, let section = AppSection(rawValue: args[i + 1]) {
                 shell.state.tab = section
             }
+            #if BANANA_MODULE_FOOD
             if args.contains("--meal-backlog") { MealInboxStore.shared.injectPreview() }
+            #endif
             // `--telemetry-probe <file>`: the day's setup facts as they would be counted, written out.
             if let i = args.firstIndex(of: "--telemetry-probe"), i + 1 < args.count {
                 try? await Task.sleep(for: .seconds(3))
@@ -1082,6 +1140,7 @@ private struct ReturningUserCheckView: View {
 #endif
 
 #if DEBUG && os(iOS)
+#if BANANA_MODULE_WORKOUTS
 /// `--trim`: the trim sheet on the sample workout, once the store has loaded. (It read the first
 /// workout at the first render, before there was one, and showed nothing.)
 struct TrimPreviewHost: View {
@@ -1099,6 +1158,9 @@ struct TrimPreviewHost: View {
     }
 }
 
+#endif
+
+#if BANANA_MODULE_PODCASTS
 /// `--library-detail`: straight to the first preview podcast's episode list, so the
 /// folded listened runs can be screenshot-verified without navigation taps.
 struct FirstPodcastDetailHost: View {
@@ -1127,6 +1189,7 @@ private struct NowPlayingPreviewHost: View {
             }
     }
 }
+#endif
 #endif
 #endif
 

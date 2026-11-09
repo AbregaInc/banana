@@ -35,6 +35,7 @@ enum MacDebugSnapshotViews {
                 Divider()
                 MacEventInspectorView(meeting: swim).frame(width: 350)
             })
+        #if BANANA_MODULE_FOOD
         case "meal-editor":
             // With `--ui-audit`: the review sheet the Mac's "What did you eat?" and a meal click open.
             let meal = WellnessStore.shared.meals.first { $0.items.count > 1 }
@@ -44,6 +45,7 @@ enum MacDebugSnapshotViews {
             let supplement = WellnessStore.shared.supplements.first
                 ?? SupplementSchedule(name: "Vitamin D", dose: "1 capsule", hour: 8, minute: 0)
             return AnyView(MacSupplementEditor(supplement: supplement, onDelete: {}).frame(width: 520, height: 640))
+        #endif
         case "place-picker":
             return AnyView(PlacePickerView(locationText: "Chelsea", context: "Lap Swim at 7:45 PM"))
         case "calendar-picker":
@@ -61,10 +63,14 @@ enum MacDebugSnapshotViews {
                     ])
                     smart.injectPreviewCalendarColors(["a": "#4285F4", "b": "#0B8043", "c": "#F4511E", "d": "#8E24AA"])
                 })
+        #if BANANA_MODULE_PODCASTS
         case "player":
             return AnyView(MacPlayerPreviewHost().frame(width: 480, height: 720))
+        #endif
+        #if BANANA_MODULE_WORKOUTS
         case "workout-charts":
             return AnyView(MacChartsPreviewHost().frame(width: 720, height: 900))
+        #endif
         #if !BANANA_PUBLIC
         case "mail":
             // The sample mail at the harness's width, which chooses its columns. `--mail-open`,
@@ -79,6 +85,7 @@ enum MacDebugSnapshotViews {
         }
     }
 }
+#if BANANA_MODULE_PODCASTS
 /// The full player on a sample episode, no audio.
 private struct MacPlayerPreviewHost: View {
     @EnvironmentObject private var library: PodcastLibrary
@@ -95,6 +102,9 @@ private struct MacPlayerPreviewHost: View {
     }
 }
 
+#endif
+
+#if BANANA_MODULE_WORKOUTS
 /// The detail charts (heart rate, zones, speed…) for the sample ride.
 private struct MacChartsPreviewHost: View {
     @State private var workout: FitnessSessionSummary?
@@ -113,4 +123,5 @@ private struct MacChartsPreviewHost: View {
         }
     }
 }
+#endif
 #endif

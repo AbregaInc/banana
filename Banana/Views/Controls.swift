@@ -378,3 +378,27 @@ struct InlineEditorSections<Content: View>: View {
         .formControls()
     }
 }
+
+// MARK: - Weather symbols
+
+/// A forecast symbol, everywhere one is drawn: each layer in its part's colour (clouds grey, the
+/// sun and moon yellow, rain and snow blue: `DS.Palette.Weather`, `WeatherSymbolLayers`).
+struct WeatherSymbol: View {
+    let name: String
+    init(_ name: String) { self.name = name }
+
+    var body: some View {
+        let styles = WeatherSymbolLayers.parts(of: name).map(Self.color) + [DS.Palette.Weather.cloud, DS.Palette.Weather.cloud]
+        Image(systemName: name)
+            .symbolRenderingMode(.palette)
+            .foregroundStyle(styles[0], styles[1], styles[2])
+    }
+
+    private static func color(_ part: WeatherSymbolLayers.Part) -> Color {
+        switch part {
+        case .cloud: DS.Palette.Weather.cloud
+        case .light: DS.Palette.Weather.light
+        case .wet: DS.Palette.Weather.wet
+        }
+    }
+}

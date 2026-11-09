@@ -48,12 +48,21 @@
                   "https://www.googleapis.com/auth/gmail", "https://mail.google.com/"]
     }
   },
+  "features": {
+    "about": "Parts of Plan a build carries or leaves out exactly as it does a module, named in BANANA_MODULES by their condition, but nobody switches them on or off: there is no AppModule for them.",
+    "tripLearning": {
+      "condition": "BANANA_FEATURE_TRIP_LEARNING",
+      "frameworks": ["CoreMotion"],
+      "info": ["NSLocationAlwaysAndWhenInUseUsageDescription", "NSMotionUsageDescription"],
+      "markers": ["TripLearningService"]
+    }
+  },
   "embeds": {
     "Watch": ["workouts", "podcasts", "notes"]
   },
   "core": {
     "info": ["NSAlarmKitUsageDescription", "NSRemindersFullAccessUsageDescription", "NSLocationWhenInUseUsageDescription",
-             "NSLocationAlwaysAndWhenInUseUsageDescription", "NSMotionUsageDescription", "NSContactsUsageDescription",
+             "NSContactsUsageDescription",
              "NSSupportsLiveActivities"],
     "entitlements": ["aps-environment", "com.apple.developer.aps-environment", "com.apple.developer.usernotifications.time-sensitive",
                      "com.apple.developer.weatherkit", "com.apple.developer.icloud-services",

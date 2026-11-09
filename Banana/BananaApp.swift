@@ -19,7 +19,7 @@ enum VisualAuditRoute {
         "--routines", "--trim", "--transcript-demo", "--voicenote-demo", "--day",
         "--week", "--plan", "--smart", "--runmap", "--dummy-health", "--workout",
         "--library", "--library-detail", "--notes", "--new-calendar-event", "--verify-flight-boarding",
-        "--workout-review", "--workout-detail", "--wellness", "--widgets", "--availability", "--place-picker", "--settings", "--event-detail", "--event-editor", "--now-playing", "--sleep",
+        "--workout-review", "--workout-detail", "--wellness", "--widgets", "--availability", "--place-picker", "--settings", "--weather-detail", "--event-detail", "--event-editor", "--now-playing", "--sleep",
         "--trends", "--trend", "--scan-correct-preview", "--my-foods", "--energy-balance",
         "--food-search", "--booking-preview", "--calendar-settings-preview", "--speech-lab", "--mail", "--assistant-test", "--assistant-real-test"
     ]
@@ -228,6 +228,7 @@ struct BananaApp: App {
                 }
             }
         }
+        #if BANANA_MODULE_PODCASTS
         if ProcessInfo.processInfo.arguments.contains("--library-publish-regression") {
             // Reproduce the exact source named by a production journal without touching a
             // real feed or account. The Plan subtree must remain stable while unrelated catalogue
@@ -240,6 +241,7 @@ struct BananaApp: App {
                 }
             }
         }
+        #endif
         if ProcessInfo.processInfo.arguments.contains("--reset-day-scroll-offset") {
             UserDefaults.standard.set(0.0, forKey: "mobileDayScrollOffset")
         }
@@ -266,15 +268,23 @@ struct BananaApp: App {
 
         #if DEBUG && os(iOS)
         TimelineVerification.runIfRequested()   // --verify-timeline: L1–L4 assumption checks
+        #if BANANA_MODULE_PODCASTS
         TranscribeVerification.runIfRequested()   // --verify-transcribe: where does on-device ASR stall?
+        #endif
         CPUVerification.runIfRequested()          // --verify-cpu: what does a second of playback cost?
+        #if BANANA_MODULE_PODCASTS
         PlaybackVerification.runIfRequested()     // --verify-stall: does playback survive a dead stream?
+        #endif
+        #if BANANA_MODULE_WORKOUTS
         FitnessBatchVerification.runIfRequested() // --verify-fitness-batch: publishes-per-batch, not per-record
+        #endif
         #endif
         #if DEBUG
         // Background downloads are iPhone-specific, but the peer fixture provider intentionally
         // runs on Mac so a phone/simulator can prove the LAN path without a second physical phone.
+        #if BANANA_MODULE_PODCASTS
         DownloadVerification.runIfRequested()
+        #endif
         // Cross-platform for the same reason: the Mac is the easiest Apple-Intelligence host to
         // measure on, and the numbers this reports are platform-independent.
         #endif
@@ -376,7 +386,7 @@ struct BananaApp: App {
                 configuredPlatformRoot
                     .task {
                         injectVisualAuditSamples()
-                        #if targetEnvironment(simulator) || STRESS_DEVICE_AUDIT
+                        #if (targetEnvironment(simulator) || STRESS_DEVICE_AUDIT) && BANANA_MODULE_NOTES && BANANA_MODULE_PODCASTS
                         await ScaleStress.shared.prepare(library: library, clock: player.clock, smart: smart)
                         #endif
                     }
@@ -406,7 +416,11 @@ struct BananaApp: App {
                     configured(MacAppStoreSnapshotHarness(outputURL: outputURL))
                 }
             } else if let outputURL = debugOutputURL(after: "--snapshot-workout-review") {
+                #if BANANA_MODULE_WORKOUTS
                 configured(MacWorkoutReviewSnapshotHarness(outputURL: outputURL))
+                #else
+                let _ = outputURL
+                #endif
             } else if ProcessInfo.processInfo.arguments.contains("--ui-audit") {
                 configuredPlatformRoot
                     // `@StateObject` access from `App.init` is only an early best-effort seed:
@@ -415,7 +429,9 @@ struct BananaApp: App {
                     // capture and its environment objects are guaranteed to be the same graph.
                     .task {
                         injectInstalledMacVisualAuditSamples()
+                        #if BANANA_MODULE_NOTES && BANANA_MODULE_PODCASTS
                         await ScaleStress.shared.prepare(library: library, clock: player.clock, smart: smart)
+                        #endif
                     }
                     .overlay(alignment: .bottomTrailing) { ScaleStressBadge() }
             } else {
@@ -582,6 +598,7 @@ struct BananaApp: App {
     @MainActor
     private func injectMacVisualAuditSamples() {
         routines.injectSampleForPreview()
+        #if BANANA_MODULE_WORKOUTS
         fitness.injectSampleForPreview()
         // And again once the store has read its index: that read replaces what's there, and on a
         // Mac it finishes after this, which left the Workouts page with nothing on it.
@@ -589,8 +606,11 @@ struct BananaApp: App {
             await fitness.whenLoaded()
             fitness.injectSampleForPreview()
         }
+        #endif
+        #if BANANA_MODULE_PODCASTS
         history.injectSampleForPreview()
         library.injectSampleForPreview()
+        #endif
         WeatherStore.shared.injectSampleForPreview()
         smart.injectSampleAgenda(anchoredToBusinessHours: true)
         if ProcessInfo.processInfo.arguments.contains("--event-states-sample") {
@@ -599,7 +619,10 @@ struct BananaApp: App {
         if ProcessInfo.processInfo.arguments.contains("--trip-sample") {
             smart.injectTripSample()
         }
+        #if BANANA_MODULE_NOTES
         VoiceNoteStore.shared.injectSampleForPreview()
+        #endif
+        #if BANANA_MODULE_FOOD
         wellness.injectPreviewData()
         // `--energy-balance`: four weeks of meals for the logs-against-weight card instead of the
         // week (they'd double up); HealthKitStore seeds the weight and energy it reads.
@@ -608,6 +631,7 @@ struct BananaApp: App {
         } else {
             wellness.injectWeekPreview()
         }
+        #endif
     }
 
     /// Run after SwiftUI installs this App's StateObjects. This is the authoritative Mac visual
@@ -657,6 +681,7 @@ struct BananaApp: App {
             }
         }
         // `--routine-start-sample`: a Manual routine with a show to play, for the Start button.
+        #if BANANA_MODULE_PODCASTS
         if arguments.contains("--routine-start-sample") {
             Task { @MainActor [library, routines] in
                 await library.whenLoaded()
@@ -664,6 +689,8 @@ struct BananaApp: App {
                 if let first = library.podcasts.first { routines.injectStartableSample(podcastID: first.id) }
             }
         }
+        #endif
+        #if BANANA_MODULE_WORKOUTS
         if arguments.contains("--dummy-health") || arguments.contains("--workout") || arguments.contains("--trim") {
             fitness.injectSampleForPreview()
             // And again once the store has read its index, as on the Mac: that read replaces
@@ -673,9 +700,12 @@ struct BananaApp: App {
                 fitness.injectSampleForPreview()
             }
         }
+        #endif
+        #if BANANA_MODULE_PODCASTS
         if arguments.contains("--listenmap") {
             history.injectSampleForPreview()
         }
+        #endif
         // `--plan`: the whole Plan tab, its List · Day · Week switch included, on the week's sample.
         let week = arguments.contains("--week") || arguments.contains("--plan")
         if week || arguments.contains("--day") {
@@ -769,31 +799,39 @@ struct BananaApp: App {
                 OccurrenceStore.shared.injectStress(meetings)
             }
         }
-        if week || arguments.contains("--day") {
+        if week || arguments.contains("--day") || arguments.contains("--weather-detail") {
             WeatherStore.shared.injectSampleForPreview()
         }
+        #if BANANA_MODULE_PODCASTS
         if arguments.contains("--library") || arguments.contains("--library-detail") {
             library.injectSampleForPreview()
             // A couple of shows with downloads, so the row's download count is on screen too.
             downloads.markDownloadedForPreview(library.podcasts.prefix(2).flatMap { $0.episodes.prefix(3).map(\.id) })
         }
+        #endif
+        #if BANANA_MODULE_NOTES
         if arguments.contains("--notes") {
             VoiceNoteStore.shared.injectSampleForPreview()
         }
+        #endif
         #if PI_DEVELOPMENT
         // The agent walk through the real shell: sample meals from launch, so Review's rows and
         // the agent's answers read the same data (not seeded lazily by the first tool call).
+        #if BANANA_MODULE_FOOD
         if arguments.contains("--assistant-test-navigation"), arguments.contains("--ui-preview") {
             wellness.injectPreviewData()
         }
         #endif
+        #endif
         // `--ui-preview --tab nutrition --wellness`: the Nutrition tab inside the real tabs — the
         // wide page on an iPad — on the sample the standalone `--wellness` route loads for itself.
         // The same sample has the guided plan the Workouts tab's `--workouts-route plan` opens.
+        #if BANANA_MODULE_FOOD
         if arguments.contains("--wellness"), arguments.contains("--ui-preview") {
             wellness.injectPreviewData()
             wellness.injectWeekPreview()
         }
+        #endif
     }
     #endif
 
@@ -1404,15 +1442,22 @@ struct BananaApp: App {
         // list rather than a CloudKit query (see CloudFitnessZonePurgeTool). Needs both the sync
         // engine and the local index (the live real-workout safety check) already live, hence
         // right here rather than earlier in App.init.
+        #if BANANA_MODULE_WORKOUTS
         await CloudFitnessZonePurgeTool.runIfRequested()
+        #endif
         #endif
 
         #if DEBUG
+        #if BANANA_MODULE_WORKOUTS
         if ProcessInfo.processInfo.arguments.contains("--dummy-health")
             || ProcessInfo.processInfo.arguments.contains("--workout")
             || ProcessInfo.processInfo.arguments.contains("--trim") { fitness.injectSampleForPreview() }
+        #endif
+        #if BANANA_MODULE_PODCASTS
         if ProcessInfo.processInfo.arguments.contains("--listenmap") { history.injectSampleForPreview() }
+        #endif
         // (--runmap injects in FitnessDebugDetail.onAppear so listens anchor to the workout)
+        #if BANANA_MODULE_PODCASTS && BANANA_MODULE_WORKOUTS
         MemoryLog.extraInfo = { [weak player, weak library, weak fitness] in
             let p = player?.debugSummary ?? "player:-"
             let feeds = library?.podcasts.count ?? 0
@@ -1421,6 +1466,7 @@ struct BananaApp: App {
             let smp = fitness?.summaries.reduce(0) { $0 + $1.sampleCount } ?? 0
             return "\(p)  lib:\(feeds)f/\(eps)ep  fit:\(sess)s/\(smp)smp"
         }
+        #endif
         // Memory sampling is a developer instrument, not normal app behavior. Leaving this timer
         // on in every Debug install kept waking the daily-driver phone forever with no consumer.
         if ProcessInfo.processInfo.arguments.contains("--memory-trace") {

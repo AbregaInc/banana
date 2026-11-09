@@ -1,0 +1,17 @@
+// The App Store app's module set in a Debug simulator build, for its screenshots
+// (tools/app-store/generate.py --flavour calendar-only).
+//
+// The screenshot routes are DEBUG-only, and the AppStore configuration is Release; this keeps
+// Debug and gives the iPhone app and its widgets exactly the modules the AppStore configuration
+// carries (BANANA_APP_STORE_MODULES, Config/Base.xcconfig), with none of the unreleased or local
+// switches; the Mac capture's Beta app likewise. Scoped to the iOS simulator and the Mac so the
+// Watch app, which the App Store app leaves out and which needs its modules to compile, builds
+// as it always does.
+BANANA_MODULES[sdk=iphonesimulator*] = $(BANANA_APP_STORE_MODULES)
+BANANA_UNRELEASED[sdk=iphonesimulator*] = NO
+BANANA_LOCAL_EMAIL[sdk=iphonesimulator*] = NO
+BANANA_LOCAL_AI[sdk=iphonesimulator*] = NO
+BANANA_MODULES[sdk=macosx*] = $(BANANA_APP_STORE_MODULES)
+BANANA_UNRELEASED[sdk=macosx*] = NO
+BANANA_LOCAL_EMAIL[sdk=macosx*] = NO
+BANANA_LOCAL_AI[sdk=macosx*] = NO

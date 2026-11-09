@@ -218,8 +218,9 @@ enum PlanTopRow {
 /// have the same group, the Mac's (8 Nov 2026): "‹", the period picker, "›", then Today, always
 /// there and idle on the current period. The wide toolbar (an iPad on its side, the Mac) holds it
 /// (`PlanPagingToolbar`); the bottom-bar shell (a phone, an iPad upright) draws it as its top row
-/// (`PlanPagingRow`); where the row is narrow the forecast goes first, then the dates move under
-/// the period's name, and only then go. Only outside both shells is there a date line under the bar: an iPad on its side
+/// (`PlanPagingRow`); where the row is narrow the forecast takes Today's place while Plan is on
+/// the current period (Today does nothing there), and otherwise gives way; then the dates move
+/// under the period's name, and only then go (`topRowLayouts`). Only outside both shells is there a date line under the bar: an iPad on its side
 /// had it under the toolbar's group, a second "‹ ›", a second Today and the period named twice.
 enum PlanPaging {
     enum Shell: Equatable, Sendable { case classic, bottomBar, wide }
@@ -244,6 +245,29 @@ enum PlanPaging {
 
     /// Today is always there, so the group never shifts; it acts away from now.
     static func todayEnabled(isCurrent: Bool) -> Bool { !isCurrent }
+
+    /// One way the bottom-bar shell's top row can be laid out.
+    struct TopRow: Equatable, Sendable {
+        enum Dates: Equatable, Sendable { case beside, under, hidden }
+        var dates: Dates
+        var today: Bool
+        var forecast: Bool
+    }
+
+    /// The top row's layouts, widest first; the row takes the first that fits (owner, 9 Nov 2026).
+    /// On the current period Today does nothing, so where Today and the forecast don't both fit
+    /// the forecast takes Today's place, and the forecast can be reached at every phone width;
+    /// paged away, Today comes back and the forecast gives way, as before. Then the dates move
+    /// under the period's name, and on the narrowest go.
+    static func topRowLayouts(isCurrent: Bool, hasForecast: Bool) -> [TopRow] {
+        var layouts: [TopRow] = []
+        for dates in [TopRow.Dates.beside, .under, .hidden] {
+            if hasForecast, dates != .hidden { layouts.append(TopRow(dates: dates, today: true, forecast: true)) }
+            if hasForecast, isCurrent { layouts.append(TopRow(dates: dates, today: false, forecast: true)) }
+            layouts.append(TopRow(dates: dates, today: true, forecast: false))
+        }
+        return layouts
+    }
 
     /// A pointer's tooltip; on the Mac with the key that does the same.
     static func help(_ text: String, key: String) -> String {

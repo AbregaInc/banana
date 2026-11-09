@@ -25,6 +25,10 @@ from PIL import Image
 ROOT = Path(__file__).resolve().parents[2]
 TOOL = Path(__file__).resolve().parent
 MANIFEST = TOOL / "manifest.json"
+# A flavour is another listing's set: its scenes, the build settings that give the app its module
+# set, its metadata folder and where its images go (flavours/<name>.json). Without one, the
+# full app's set as before.
+FLAVOURS = TOOL / "flavours"
 DERIVED = ROOT / ".build/sim"
 MAC_DERIVED = ROOT / ".build/mac-check"
 # Every core, and the shared build lock and derived-data guard (tools/config.sh, tools/agents/).
@@ -134,12 +138,65 @@ def write_demo_audio(data_container: Path) -> None:
         audio.writeframes(struct.pack("<h", 0) * rate * duration)
 
 
-def build_iphone(udid: str) -> Path:
+def load_manifest(flavour: str | None) -> dict:
+    """The manifest, with a flavour's scenes in place of the full app's and its settings under
+    "flavour". A flavour names only the platforms it has a set for (no Watch for an app with none)."""
+    manifest = json.loads(MANIFEST.read_text())
+    manifest["flavour"] = {"name": "full"}
+    if not flavour:
+        return manifest
+    path = FLAVOURS / f"{flavour}.json"
+    if not path.exists():
+        raise SystemExit(f"No flavour {flavour}: {path} is missing")
+    spec = json.loads(path.read_text())
+    for key in [k for k in manifest if k.endswith("_scenes")]:
+        del manifest[key]
+    for key, value in spec.items():
+        if key.endswith("_scenes"):
+            manifest[key] = value
+    manifest["capture"].update(spec.get("capture", {}))
+    manifest["flavour"] = {k: v for k, v in spec.items() if not k.endswith("_scenes") and k != "capture"}
+    manifest["flavour"]["name"] = flavour
+    return manifest
+
+
+def flavour_build_settings(manifest: dict) -> list[str]:
+    """The flavour's xcconfig, which gives the app its module set (flavours/<name>.xcconfig)."""
+    xcconfig = manifest["flavour"].get("xcconfig")
+    return ["-xcconfig", str(ROOT / xcconfig)] if xcconfig else []
+
+
+def base_setting(name: str) -> str:
+    for line in (ROOT / "Config/Base.xcconfig").read_text().splitlines():
+        found = re.match(rf"^{re.escape(name)}\s*=(.*)$", line)
+        if found:
+            return found.group(1).strip()
+    raise SystemExit(f"{name} is not in Config/Base.xcconfig")
+
+
+def check_modules(manifest: dict, info_plist: Path) -> None:
+    """A flavour's capture must come from a build with exactly its modules, never a leftover
+    build of the full app: its screens would show what the listed app doesn't have."""
+    setting = manifest["flavour"].get("modules_setting")
+    if not setting:
+        return
+    expected = set(base_setting(setting).split())
+    with info_plist.open("rb") as handle:
+        carried = set(str(plistlib.load(handle).get("BananaModules", "")).split())
+    if carried != expected:
+        raise RuntimeError(
+            f"{info_plist.parent}: the build carries {sorted(carried) or 'no modules'}, the "
+            f"{manifest['flavour']['name']} set needs {sorted(expected) or 'no modules'} ({setting}). "
+            "Build it with the flavour (drop --skip-build / --ios-app / --mac-app)."
+        )
+
+
+def build_iphone(udid: str, manifest: dict) -> Path:
     run(
         [
             *xcodebuild(DERIVED), "-project", "Banana.xcodeproj", "-scheme", "Banana",
             "-configuration", "Debug", "-destination", f"id={udid}",
-            "-derivedDataPath", str(DERIVED), "-jobs", JOBS, "build",
+            "-derivedDataPath", str(DERIVED), *flavour_build_settings(manifest), "-jobs", JOBS, "build",
         ]
     )
     return DERIVED / "Build/Products/Debug-iphonesimulator/Banana.app"
@@ -156,7 +213,7 @@ def build_watch(udid: str) -> Path:
     return DERIVED / "Build/Products/Debug-watchsimulator/BananaWatch.app"
 
 
-def build_mac() -> Path:
+def build_mac(manifest: dict) -> Path:
     """The Beta variant, signed. It has its own bundle id and keeps everything it writes in its
     own folder (`AppSupport.directory`), so a capture can never read or change the data of the
     Banana installed on this Mac. This used to build the daily app's own target unsigned, which
@@ -170,7 +227,8 @@ def build_mac() -> Path:
             *xcodebuild(MAC_DERIVED), "-project", "Banana.xcodeproj", "-scheme", "BananaMacBeta",
             "-configuration", "Debug", "ONLY_ACTIVE_ARCH=YES",
             "-derivedDataPath", str(MAC_DERIVED), "-allowProvisioningUpdates",
-            *shlex.split(os.environ.get("AUTH_ARGS", "")), "-jobs", JOBS, "build",
+            *shlex.split(os.environ.get("AUTH_ARGS", "")), *flavour_build_settings(manifest),
+            "-jobs", JOBS, "build",
         ]
     )
     return MAC_DERIVED / "Build/Products/Debug" / MAC_APP
@@ -227,6 +285,32 @@ def mac_window_id(pid: int, app: Path | None = None) -> str:
     raise RuntimeError("Mac capture timed out waiting for the Banana window")
 
 
+def capture_mac_window(pid: int, identifier: str, destination: Path) -> None:
+    """The window, and any window of the app lying over it (a sheet is a window of its own, so
+    `screencapture -l` of the window alone left the forecast sheet out), pasted at its place."""
+    run(["screencapture", "-x", "-o", "-l", identifier, str(destination)])
+    listing = run([str(DERIVED / "window_id"), str(pid), "--all"], check=False, capture=True)
+    windows = [line.split() for line in listing.splitlines() if len(line.split()) == 5]
+    main = next((w for w in windows if w[0] == identifier), None)
+    if main is None:
+        return
+    mx, my, mw, mh = map(float, main[1:])
+    base = Image.open(destination).convert("RGBA")
+    scale = base.width / mw
+    for window in windows:
+        x, y, w, h = map(float, window[1:])
+        inside = window[0] != identifier and x >= mx - 1 and y >= my - 1 and x + w <= mx + mw + 1 and y + h <= my + mh + 1
+        if not inside:
+            continue
+        over = destination.with_name(destination.stem + f"-window-{window[0]}.png")
+        run(["screencapture", "-x", "-o", "-l", window[0], str(over)])
+        with Image.open(over) as layer:
+            sheet = layer.convert("RGBA").resize((round(w * scale), round(h * scale)), Image.Resampling.LANCZOS)
+        base.alpha_composite(sheet, (round((x - mx) * scale), round((y - my) * scale)))
+        over.unlink()
+    base.save(destination, "PNG")
+
+
 def stop_mac_app(app: Path) -> None:
     executable = mac_executable(app)
     pattern = rf"^{re.escape(str(executable))}( |$)"
@@ -261,6 +345,16 @@ def settled_screenshot(udid: str, destination: Path, settle: float) -> None:
     raise RuntimeError(f"Capture stayed blank after retries: {destination}")
 
 
+def forget_retired_scenes(scenes: list[dict], *folders: Path) -> None:
+    """A scene the manifest no longer names leaves no image behind: the landing copy and the
+    upload take whatever is in the folder (`--keep-output` runs kept them)."""
+    named = {f"{scene['id']}.png" for scene in scenes}
+    for folder in folders:
+        for stale in folder.glob("*.png"):
+            if stale.name not in named:
+                stale.unlink()
+
+
 def capture_ios(manifest: dict, output: Path, skip_build: bool, ios_app: Path | None,
                 platform: str, folder: str, udid: str | None = None) -> None:
     """The iPhone set or the iPad set: the same app, another simulator and another canvas."""
@@ -278,14 +372,19 @@ def capture_ios(manifest: dict, output: Path, skip_build: bool, ios_app: Path | 
         run([*emulator, "rotate", manifest["capture"]["ipad_orientation"], *target])
     # The sets are light; a simulator left in Dark Mode by something else would mix them.
     run(["xcrun", "simctl", "ui", udid, "appearance", "light"], check=False)
+    # A simulator's first keyboard shows a "slide to type" card over the lower half of the screen;
+    # mark it seen so it never lands in the quick-add capture.
+    run(["xcrun", "simctl", "spawn", udid, "defaults", "write", "com.apple.keyboard.preferences",
+         "DidShowContinuousPathIntroduction", "-bool", "true"], check=False)
     if ios_app is not None:
         app = ios_app
     elif skip_build:
         app = DERIVED / "Build/Products/Debug-iphonesimulator/Banana.app"
     else:
-        app = build_iphone(udid)
+        app = build_iphone(udid, manifest)
     if not app.exists():
         raise RuntimeError(f"Missing iOS simulator build: {app}")
+    check_modules(manifest, app / "Info.plist")
     executable = app / "Banana"
     captured_binary = binary_hash(executable)
     run(["xcrun", "simctl", "uninstall", udid, BUNDLE_ID], check=False)
@@ -307,6 +406,7 @@ def capture_ios(manifest: dict, output: Path, skip_build: bool, ios_app: Path | 
     final_dir = output / f"screenshots/{folder}"
     raw_dir.mkdir(parents=True, exist_ok=True)
     final_dir.mkdir(parents=True, exist_ok=True)
+    forget_retired_scenes(manifest[f"{platform}_scenes"], raw_dir, final_dir)
     for scene in manifest[f"{platform}_scenes"]:
         raw = raw_dir / f"{scene['id']}.png"
         final = final_dir / f"{scene['id']}.png"
@@ -331,6 +431,7 @@ def capture_ios(manifest: dict, output: Path, skip_build: bool, ios_app: Path | 
         run(
             [
                 sys.executable, str(TOOL / "compose.py"), "--platform", platform,
+                "--manifest", str(output / "manifest.json"),
                 "--raw", str(raw), "--output", str(final), "--scene", scene["id"],
             ]
         )
@@ -388,7 +489,7 @@ def capture_mac(manifest: dict, output: Path, skip_build: bool, mac_app: Path | 
     elif skip_build:
         app = MAC_DERIVED / "Build/Products/Debug" / MAC_APP
     else:
-        app = build_mac()
+        app = build_mac(manifest)
     if app.name != MAC_APP:
         # See `build_mac`: only the Beta variant keeps its files apart from the installed app's.
         raise RuntimeError(f"The Mac capture runs {MAC_APP}, not {app.name}")
@@ -398,10 +499,12 @@ def capture_mac(manifest: dict, output: Path, skip_build: bool, mac_app: Path | 
     app = app.resolve()
     if not app.exists():
         raise RuntimeError(f"Missing Mac build: {app}")
+    check_modules(manifest, app / "Contents/Info.plist")
     raw_dir = output / "raw/mac"
     final_dir = output / "screenshots/mac"
     raw_dir.mkdir(parents=True, exist_ok=True)
     final_dir.mkdir(parents=True, exist_ok=True)
+    forget_retired_scenes(manifest["mac_scenes"], raw_dir, final_dir)
     captured_binary = binary_hash(mac_executable(app))
     wake_assertion = subprocess.Popen(
         ["caffeinate", "-d", "-u", "-t", "120"],
@@ -419,19 +522,23 @@ def capture_mac(manifest: dict, output: Path, skip_build: bool, mac_app: Path | 
                     "open", "-n", str(app), "--args", "--ui-audit", "--disable-icloud", STORE_CAPTURE,
                     # Start from the default window, not whatever the last (killed) run left saved.
                     "-ApplePersistenceIgnoreState", "YES",
-                    "-AppleInterfaceStyle", "Dark", "--mac-section", scene["section"],
+                    # Light, as the phone and iPad sets are, whatever the Mac's own appearance.
+                    "--appearance", manifest["capture"].get("mac_appearance", "light"),
+                    "--mac-section", scene["section"],
                     "--mac-window-size", manifest["capture"]["mac_window"],
-                    "--modules", "workouts,food,notes,podcasts",
+                    # The modules switched on: every one the build carries, unless the set says.
+                    "--modules", manifest["capture"].get("mac_modules", "workouts,food,notes,podcasts"),
                     *scene.get("route", []),
                 ]
             )
             pid = mac_process_id(app)
             identifier = mac_window_id(pid, app)
-            time.sleep(manifest["capture"]["settle_seconds"])
-            run(["screencapture", "-x", "-o", "-l", identifier, str(raw)])
+            time.sleep(scene.get("settle_seconds", manifest["capture"]["settle_seconds"]))
+            capture_mac_window(pid, identifier, raw)
             run(
                 [
                     sys.executable, str(TOOL / "compose.py"), "--platform", "mac",
+                    "--manifest", str(output / "manifest.json"),
                     "--raw", str(raw), "--output", str(final), "--scene", scene["id"],
                 ]
             )
@@ -443,8 +550,8 @@ def capture_mac(manifest: dict, output: Path, skip_build: bool, mac_app: Path | 
     record_captures(output, "mac", mac_executable(app), captured_binary)
 
 
-def write_metadata(output: Path) -> None:
-    source = TOOL / "metadata/en-US"
+def write_metadata(output: Path, manifest: dict) -> None:
+    source = TOOL / manifest["flavour"].get("metadata", "metadata/en-US")
     destination = output / "metadata/en-US"
     destination.mkdir(parents=True, exist_ok=True)
     for path in source.iterdir():
@@ -452,6 +559,11 @@ def write_metadata(output: Path) -> None:
             shutil.copy2(path, destination / path.name)
     for filename in ("submission-checklist.md", "app-preview-storyboard.md"):
         shutil.copy2(TOOL / filename, output / filename)
+    # A flavour's own notes beside its listing (its App Privacy changes, its screenshot plan).
+    for extra in sorted(source.parent.glob("*.md")) if manifest["flavour"].get("metadata") else []:
+        shutil.copy2(extra, output / extra.name)
+    # The manifest the images were composed from, flavour included.
+    (output / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
 
 
 def replace_pngs(source: Path, destination: Path) -> None:
@@ -483,8 +595,9 @@ def contact_sheet(
     sheet.save(destination, "PNG", optimize=True)
 
 
-def publish_landing_assets(output: Path, platforms: tuple[str, ...]) -> None:
-    assets = ROOT / "LandingPage/assets/screenshots"
+def publish_landing_assets(output: Path, platforms: tuple[str, ...], manifest: dict) -> None:
+    # A flavour's set goes in its own folder, laid out the same way.
+    assets = ROOT / manifest["flavour"].get("landing", "LandingPage/assets/screenshots")
     if "iphone" in platforms:
         replace_pngs(output / "raw/iphone", assets / "iphone/raw")
         replace_pngs(output / "screenshots/iphone-6.9", assets / "iphone/composed")
@@ -554,7 +667,10 @@ def clean_output(output: Path) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--output", type=Path, default=ROOT / "AppStore/Generated")
+    parser.add_argument("--flavour", choices=sorted(p.stem for p in FLAVOURS.glob("*.json")),
+                        help="another listing's set (flavours/<name>.json), such as calendar-only")
+    parser.add_argument("--output", type=Path,
+                        help="default AppStore/Generated, or the flavour's own folder")
     parser.add_argument("--platform", choices=("all", "iphone", "ipad", "watch", "mac"), default="all")
     parser.add_argument("--skip-build", action="store_true")
     parser.add_argument("--keep-output", action="store_true")
@@ -565,15 +681,22 @@ def main() -> None:
     parser.add_argument("--mac-app", type=Path,
                         help=f"a signed {MAC_APP} to use instead of building one")
     args = parser.parse_args()
-    manifest = json.loads(MANIFEST.read_text())
+    manifest = load_manifest(args.flavour)
+    args.output = args.output or ROOT / manifest["flavour"].get("output", "AppStore/Generated")
     if not args.keep_output:
         clean_output(args.output)
-    write_metadata(args.output)
+    else:
+        args.output.mkdir(parents=True, exist_ok=True)
+    write_metadata(args.output, manifest)
     run([sys.executable, str(TOOL / "brand.py"), "--output", str(args.output)])
     # In this order: the iPhone composes last, because its continuity and workout scenes embed
     # the Mac and Watch captures. (It used to run first whatever this said, so a full run
     # composed them with the previous run's.)
     platforms = ("watch", "mac", "ipad", "iphone") if args.platform == "all" else (args.platform,)
+    # A flavour without a set for a platform (calendar-only has no Watch app) skips it.
+    platforms = tuple(p for p in platforms if f"{p}_scenes" in manifest)
+    if not platforms:
+        parser.error(f"the {manifest['flavour']['name']} set has no {args.platform} scenes")
     if args.ios_udid and args.platform not in ("iphone", "ipad"):
         parser.error("--ios-udid goes with --platform iphone or --platform ipad")
     udid = args.ios_udid
@@ -585,11 +708,15 @@ def main() -> None:
     }
     for platform in platforms:
         capture[platform]()
-    publish_landing_assets(args.output, platforms)
-    refresh_site_screenshots(args.output, platforms)
+    publish_landing_assets(args.output, platforms, manifest)
+    if manifest["flavour"]["name"] == "full":
+        # The served website's images are the full app's; a flavour leaves the site alone.
+        refresh_site_screenshots(args.output, platforms)
     if (args.output / "raw/mac/01-plan.png").exists() and (args.output / "raw/iphone/01-plan.png").exists():
         run([sys.executable, str(TOOL / "creative.py"), "--output", str(args.output)])
-    run([sys.executable, str(TOOL / "validate.py"), str(args.output), "--platform", args.platform])
+    for platform in platforms:
+        run([sys.executable, str(TOOL / "validate.py"), str(args.output), "--platform", platform,
+             "--manifest", str(args.output / "manifest.json")])
     print(f"\nApp Store package generated at {args.output}")
 
 

@@ -32,6 +32,15 @@ enum RoutineTriggerKind: String, Codable, Hashable {
     case manual           // on demand
 }
 
+extension RoutineTriggerKind {
+    /// The module whose data fires this trigger: a workout starting is Workouts and sleep's.
+    var module: AppModule? { self == .workoutStart ? AppModule.owner(of: .workoutStartTrigger) : nil }
+
+    /// Offered, listed and laid out only while its module is on; the routine itself is kept, so
+    /// turning the module back on brings it back as it was.
+    func isOn(in choice: ModuleChoice) -> Bool { module.map(choice.includes) ?? true }
+}
+
 enum RoutineColor: String, Codable, Hashable, CaseIterable {
     case orange, blue, green, indigo, purple, pink, gray
     var color: Color {
@@ -58,6 +67,9 @@ enum CueType: String, Codable, Hashable, CaseIterable {
     case wake, workout, windDown, sleep, custom
 
     var isBuiltIn: Bool { self != .custom }
+
+    /// Its template's trigger needs this module (`RoutineTriggerKind.module`).
+    var module: AppModule? { makeRoutine().triggerKind.module }
 
     var title: String {
         switch self {

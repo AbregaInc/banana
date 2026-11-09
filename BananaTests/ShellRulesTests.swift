@@ -184,4 +184,28 @@ final class ShellRulesTests: XCTestCase {
         XCTAssertEqual(ShellPage.body.symbol, "heart")
         for page in ShellPage.allCases { XCTAssertFalse(page.symbol.contains(".fill"), page.rawValue) }
     }
+
+    func testTheForecastTakesTodaysPlaceOnTheCurrentPeriodWhereBothDontFit() {
+        typealias Row = PlanPaging.TopRow
+        let now = PlanPaging.topRowLayouts(isCurrent: true, hasForecast: true)
+        // Widest first: Today and the forecast with the dates beside, then the forecast in
+        // Today's place before it would give way, then the same with the dates under.
+        XCTAssertEqual(Array(now.prefix(4)), [Row(dates: .beside, today: true, forecast: true),
+                                              Row(dates: .beside, today: false, forecast: true),
+                                              Row(dates: .beside, today: true, forecast: false),
+                                              Row(dates: .under, today: true, forecast: true)])
+        // On the current period every width has a layout with the forecast before one without.
+        for dates in [Row.Dates.beside, .under, .hidden] {
+            let first = now.firstIndex { $0.dates == dates }!
+            XCTAssertTrue(now[first].forecast, "\(dates): the forecast is not reachable")
+        }
+        // Paged away, Today is always there and the forecast gives way.
+        let away = PlanPaging.topRowLayouts(isCurrent: false, hasForecast: true)
+        XCTAssertTrue(away.allSatisfy(\.today))
+        XCTAssertEqual(away.map(\.dates), [.beside, .beside, .under, .under, .hidden])
+        // No forecast: Today stays, nothing takes its place.
+        XCTAssertTrue(PlanPaging.topRowLayouts(isCurrent: true, hasForecast: false).allSatisfy { $0.today && !$0.forecast })
+        // The last resort always has Today or the forecast: the row is never just "‹ ›".
+        XCTAssertTrue(now.allSatisfy { $0.today || $0.forecast })
+    }
 }
