@@ -370,15 +370,21 @@ struct BookingTypeEditor: View {
                     Text("Any").tag(Int?.none)
                     ForEach(1...8, id: \.self) { Text("\($0)").tag(Int?.some($0)) }
                 }
+                Toggle("Hours follow where I am", isOn: $draft.followsTravel)
+                    .accessibilityIdentifier("booking.editor.followsTravel")
                 NavigationLink {
-                    BookingZonePicker(selection: $draft.timeZone)
+                    BookingZonePicker(selection: $draft.timeZone, title: zoneLabel)
                 } label: {
-                    LabeledContent("Time zone", value: BookingText.city(draft.timeZone))
+                    LabeledContent(zoneLabel, value: BookingText.city(draft.timeZone))
                 }
             }
             .accessibilityIdentifier("booking.editor.more")
         }
     }
+
+    /// With the hours following travel, the type's zone is only where they are read when nobody
+    /// knows where the owner is.
+    private var zoneLabel: String { draft.followsTravel ? "Fallback zone" : "Time zone" }
 }
 
 /// One weekday's hours: on or off, its spans, and another span.
@@ -533,9 +539,11 @@ private struct BookingPlacesSection: View {
 
 // MARK: - Time zone
 
-/// Every zone, by city. A type's zone is fixed once set: it doesn't follow the host's travel.
+/// Every zone, by city: the type's own, or with "Hours follow where I am" on, the one its hours
+/// are read in when the service doesn't know where the owner is.
 private struct BookingZonePicker: View {
     @Binding var selection: String
+    let title: String
     @Environment(\.dismiss) private var dismiss
     @State private var search = ""
 
@@ -562,7 +570,7 @@ private struct BookingZonePicker: View {
             .buttonStyle(.plain)
         }
         .searchable(text: $search)
-        .navigationTitle("Time zone")
+        .navigationTitle(title)
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif

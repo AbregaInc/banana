@@ -1134,6 +1134,8 @@ struct BananaApp: App {
         CalendarWriteBack.shared.bindToSyncedSettings(smart)
         // Back up to iCloud: likewise one synced switch; the phone makes the backups.
         CloudBackup.shared.bind(to: settings)
+        // Where booking hours follow (docs/design/BOOKING.md §13): the phone publishes it.
+        WhereaboutsStore.shared.start(flightLegs: smart.$flightLegs)
         // The phone's jobs pressed on an iPad or the Mac (docs/design/ADAPTIVE-LAYOUT.md, rule 5).
         HubStatusStore.shared.onRequest = { kind in
             switch kind {

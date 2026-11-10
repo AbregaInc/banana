@@ -53,7 +53,7 @@ final class BookingTypeRecordTests: XCTestCase {
     func testTheDefaultTypesFieldsAreTheServicesDefault() throws {
         let fields = try CanonicalJSON.fields(of: BookingType.standard(zone: "America/New_York"))
         let expected = try JSONDecoder().decode([String: JSONValue].self, from: Data("""
-        {"active":true,"bufferAfter":0,"bufferBefore":0,"horizonDays":30,
+        {"active":true,"bufferAfter":0,"bufferBefore":0,"followsTravel":true,"horizonDays":30,
          "hours":[[],[[540,1020]],[[540,1020]],[[540,1020]],[[540,1020]],[[540,1020]],[]],
          "locations":[{"id":"meet","kind":"meet"}],"minutes":30,"notice":240,"order":0,"slug":"meeting",
          "timeZone":"America/New_York","title":"Meeting"}
@@ -62,6 +62,18 @@ final class BookingTypeRecordTests: XCTestCase {
         XCTAssertNil(fields["perDay"], "no limit is no field")
         XCTAssertNil(fields["step"], "the service works the step out from the length")
         XCTAssertNil(fields["calendar"], "the primary calendar of the oldest link")
+    }
+
+    /// The hours follow travel unless switched off; a record from before the switch (no field)
+    /// is on, as the service reads it (`followsTravel !== false`).
+    func testFollowsTravelIsOnWhenAbsentAndOffSurvivesTheRoundTrip() throws {
+        let old = try SyncShape.fields.decode(BookingType.self, from: ["title": .string("Intro"), "slug": .string("intro")])
+        XCTAssertTrue(old.followsTravel)
+        var fixed = BookingType.standard(zone: "Europe/Sofia")
+        fixed.followsTravel = false
+        let fields = try CanonicalJSON.fields(of: fixed)
+        XCTAssertEqual(fields["followsTravel"], .bool(false))
+        XCTAssertEqual(try SyncShape.fields.decode(BookingType.self, from: fields), fixed)
     }
 
     func testAPlaceSendsOnlyWhatItsKindUses() throws {

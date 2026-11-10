@@ -561,9 +561,10 @@ enum LegacyInventory {
     static let fitnessNotes: Set<String> = ["notes.voiceNote"]
     static let settings: Set<String> = ["core.smartSettings"]
     static let drive: Set<String> = ["podcast.transcript", "notes.voiceNote"]
-    /// Types that never lived in iCloud (booking types, the service's own): no legacy channel
-    /// carries them, so no tier's coverage waits for them (`MoveOver` counts only channel types).
-    static let withoutLegacy: Set<String> = ["plan.bookingType"]
+    /// Types that never lived in iCloud (booking types and where the owner will be, the service's
+    /// own): no legacy channel carries them, so no tier's coverage waits for them (`MoveOver`
+    /// counts only channel types).
+    static let withoutLegacy: Set<String> = ["plan.bookingType", "plan.whereabouts"]
 
     /// The key-value keys and their types; `keptKeys` aren't here.
     static let keys: [String: String] = [

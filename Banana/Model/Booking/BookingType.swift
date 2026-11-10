@@ -9,7 +9,8 @@ import Foundation
 /// | `title`, `slug` | text; the slug is `[a-z0-9-]{1,40}`, unique among the person's types, fixed once made |
 /// | `minutes` | the length, 5–480 |
 /// | `hours` | 7 lists, index 0 = Sunday, of `[startMinute, endMinute]` on the type's wall clock |
-/// | `timeZone` | an IANA name, fixed once set (it doesn't follow travel) |
+/// | `timeZone` | an IANA name: the hours' zone, or with `followsTravel` the backup for when the service doesn't know where the owner is |
+/// | `followsTravel` | the hours follow where the owner is (`plan.whereabouts`); absent = on |
 /// | `step` | minutes between start times; absent = the length if it divides 60, else 15 |
 /// | `bufferBefore`, `bufferAfter` | minutes, 0–240 |
 /// | `notice` | minutes from now, 0–43 200 |
@@ -27,6 +28,10 @@ struct BookingType: Codable, Equatable, Sendable {
     var minutes: Int
     var hours: [[BookingSpan]]
     var timeZone: String
+    /// The weekly hours apply in the zone where the owner will be each day (BOOKING.md §13):
+    /// from the phone's zone and the flights on the calendar (`WhereaboutsBuilder`). Off: always
+    /// `timeZone`.
+    var followsTravel: Bool = true
     var step: Int?
     var bufferBefore: Int
     var bufferAfter: Int
@@ -79,7 +84,7 @@ struct BookingType: Codable, Equatable, Sendable {
     }
 
     private enum CodingKeys: String, CodingKey {
-        case title, slug, minutes, hours, timeZone, step, bufferBefore, bufferAfter, notice, horizonDays, perDay
+        case title, slug, minutes, hours, timeZone, followsTravel, step, bufferBefore, bufferAfter, notice, horizonDays, perDay
         case locations, calendar, active, order
     }
 
@@ -93,6 +98,7 @@ struct BookingType: Codable, Equatable, Sendable {
         let hours: [[BookingSpan]] = value(.hours, d.hours)
         self.hours = hours.count == 7 ? hours : d.hours
         timeZone = value(.timeZone, d.timeZone)
+        followsTravel = value(.followsTravel, true)
         step = try? c.decodeIfPresent(Int.self, forKey: .step)
         bufferBefore = value(.bufferBefore, 0)
         bufferAfter = value(.bufferAfter, 0)
@@ -114,6 +120,7 @@ struct BookingType: Codable, Equatable, Sendable {
         try c.encode(minutes, forKey: .minutes)
         try c.encode(hours, forKey: .hours)
         try c.encode(timeZone, forKey: .timeZone)
+        try c.encode(followsTravel, forKey: .followsTravel)
         try c.encodeIfPresent(step, forKey: .step)
         try c.encode(bufferBefore, forKey: .bufferBefore)
         try c.encode(bufferAfter, forKey: .bufferAfter)

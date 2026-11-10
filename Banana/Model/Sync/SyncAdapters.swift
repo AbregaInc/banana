@@ -89,7 +89,7 @@ enum SyncAdapters {
     ///   through the adapter's `remove`, the stores' adopt-from-cloud delete paths, which tell no
     ///   sync.
     /// - Podcast progress, transcripts, the settings that are one value (app settings, modules,
-    ///   Smart Schedule and the wake plan, the hub status) go back to a new install's, through
+    ///   Smart Schedule and the wake plan, the hub status, where the owner will be) go back to a new install's, through
     ///   their stores' account-change functions.
     /// - An iPad's or Mac's copy of the phone's Health goes; the removal and revert requests go.
     static func clearLocalData(_ stores: SyncStores) async -> Int? {
@@ -114,6 +114,7 @@ enum SyncAdapters {
         stores.modules.resetForAccountChange()
         stores.smart.resetForAccountChange()
         stores.hubStatus.resetForAccountChange()
+        WhereaboutsStore.shared.resetForAccountChange()
         #if BANANA_MODULE_WORKOUTS
         stores.health.clearForAccountChange()
         stores.removalInbox.clearForAccountChange()
