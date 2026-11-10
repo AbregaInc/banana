@@ -30,7 +30,7 @@
   </header>
   <main id="main" class="legal-page">
     <h1>Privacy Policy</h1>
-    <p class="updated">Last updated 9 November 2026.</p>
+    <p class="updated">Last updated 10 November 2026.</p>
 
     <p>Banana is made by Abrega, Inc. (“we”). This policy says what the app and this website do with information, in plain words. We are responsible for the information described here; write to <a href="mailto:support@abrega.com">support@abrega.com</a> about any of it.</p>
 
@@ -106,12 +106,13 @@
 
     <h2>Email in the separate Banana Beta app</h2>
     <p>Email is unavailable in the main Banana app and its public TestFlight build. The separate Banana Beta app can ask for additional Google permission to read and modify Gmail. It reads message headers, bodies and labels directly from Google and keeps a local mailbox index and downloaded content on that device. Mail credentials use a separate device-only Keychain entry, without iCloud Keychain synchronization. This mailbox is not uploaded to Banana’s account-sync service or exposed through guest sharing.</p>
+    <p><strong>Sender pictures.</strong> To show a picture beside a sender, our server, never your device, looks one up by a fingerprint (hash) of the sender’s address or by the sender’s domain: the brand logo the domain publishes (BIMI), Gravatar, the site’s own icon for automated mail, and, if you allowed contacts with email, the photos in your Google contacts. Your devices ask our server only. A photo you set on one of your contacts is kept for you alone; public pictures (brand logos, Gravatar, site icons, a person’s own Google profile photo) are kept once and shown to every Banana user who gets mail from that sender. Contacts are read only to find photos: we keep a fingerprint of each address and its photo’s link, refresh them daily, and delete them with email access, the Google account or your Banana account.</p>
     <p>Implemented mailbox changes, such as marking read, changing labels, archiving or moving to Trash, are sent to Google. In the separate Beta app, changes require an account marked as a test account. Live composing and sending are unavailable. You can revoke Banana’s Google access from your <a href="https://myaccount.google.com/permissions">Google account permissions</a>; revoking remote access does not itself erase copies already downloaded to a device.</p>
 
     <h2>Google user data</h2>
     <p>Banana's use and transfer of information received from Google APIs adheres to the <a href="https://developers.google.com/terms/api-services-user-data-policy">Google API Services User Data Policy</a>, including the Limited Use requirements.</p>
     <ul>
-      <li><strong>What Banana reads:</strong> your list of calendars and their events; Gmail data only in the separate Beta app after its additional permission, as described above.</li>
+      <li><strong>What Banana reads:</strong> your list of calendars and their events; Gmail data only in the separate Beta app after its additional permission, as described above; with email, if you allow it, your Google contacts’ addresses and photos, only to show sender pictures.</li>
       <li><strong>What Banana writes:</strong> events you create or change in Banana, and, unless you turn it off, “Busy” blocks that copy the time (not the title or details) of a plan on one of your calendars to your other calendars.</li>
       <li><strong>Where it is kept:</strong> events are kept on your device to show your day. Our server retains what “Your Banana account” lists and the guest addresses you chose (“What Banana keeps for you”). It also fetches details for web-calendar and approved guest requests without retaining that event history.</li>
       <li><strong>What it is used for:</strong> showing and planning your day in the app, telling your devices when a calendar changed, and sending you alerts for your events. Event titles may be read by Apple Intelligence as described above, only to help you. Guest access is limited to the calendars and detail level you approve.</li>
@@ -141,6 +142,7 @@
       <li>Daily totals across everyone: kept, as they say nothing about any one person.</li>
       <li>What Banana keeps for you, with its earlier versions: until you delete your account, and health data until you withdraw your yes. Copies then stay up to 30 days in Cloudflare's recovery and trash.</li>
       <li>Booking with someone: a booking's details until 30 days after the meeting; your remembered details and Google's permission until you choose Forget me, or after two years without use.</li>
+      <li>Sender pictures: public ones up to 14 days before they are checked again; your contacts’ photos and fingerprints until you turn email off, disconnect that Google account or delete your account.</li>
       <li>On your devices: until you delete it there.</li>
     </ul>
 

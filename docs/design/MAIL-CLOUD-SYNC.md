@@ -260,6 +260,33 @@ Cloud stores mail content encrypted. This does not block the build, which runs o
 accounts with `email` eligibility on staging. It must be settled before production or any wider
 release.
 
+## 9a. Open item for the owner: contacts scopes for sender pictures
+
+Sender images (MAIL-UX "Sender images") read the owner's Google contacts on the service to show a
+contact's photo. The Beta app asks for two more scopes on the same Google screen as Mail
+(`MailScopes.senderPhotos`; Stable asks for neither, and `tools/check-release.sh` refuses a
+Stable binary that carries `https://www.googleapis.com/auth/contacts`):
+
+- `https://www.googleapis.com/auth/contacts.readonly` — People API `people.connections.list`.
+- `https://www.googleapis.com/auth/contacts.other.readonly` — People API `otherContacts.list`.
+
+Both are Google **sensitive** scopes (not restricted). What the owner does in Google Cloud, for
+the Beta web client's project first and the production one before any wider release:
+
+1. APIs & Services › Library: enable the **People API**.
+2. Google Auth Platform › Data Access (the OAuth consent screen's scopes): **Add or remove
+   scopes**, add both scopes above, save.
+3. Include both in the app's **verification** submission, with the justification: "Banana shows
+   a sender's photo beside their email. The service reads contacts' email addresses and photos
+   only to find that photo, keeps a hash of each address and the photo's link, refreshes them
+   daily, and deletes them when email is turned off or the account is deleted. Nothing is shown
+   to other users." Google's review asks for a demo video of the consent screen and the feature.
+4. Until verification passes, test users still sign in, through the "unverified app" screen; the
+   two boxes are optional there, and Mail works without them (the source is skipped).
+
+Nothing else changes: the service already holds the Mail grant's refresh token, and reads
+contacts only while it lists both scopes.
+
 ## 10. Verification
 
 - Service: `Service/test/mail-mailbox.test.js` (12 tests) covers two devices with one Google

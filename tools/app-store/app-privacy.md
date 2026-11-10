@@ -84,3 +84,13 @@ App Store Connect actually shows before editing.
 Playback progress and listening history also meet Apple’s Product Interaction definition. The
 functional sync purpose is separate from optional analytics and is included in the candidate
 manifest. Verify both purposes in the live Connect form.
+
+## Sender images (10 November 2026; Beta Mail only)
+
+Mail, and with it sender images, is compiled out of the App Store binary, so the published answers
+do not change. For the Beta and for any later release that carries Mail: the service reads the
+owner's Google contacts (addresses and photos) only to show sender pictures, keeps a SHA-256 of each
+address and the photo's link (linked to the account, App Functionality, no tracking), and deletes
+them with email access, the Google account or the Banana account. That falls under **Contacts**,
+already declared. Public pictures (BIMI logos, Gravatar, site icons, profile photos) are fetched by
+the service by address hash or domain, not from the device, and are not data about the user.

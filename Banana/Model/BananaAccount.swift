@@ -528,6 +528,16 @@ final class BananaAccount: ObservableObject {
         return answer
     }
 
+    /// Sender images, for `MailSenderImages`: never the account's state, never a sign-out. Nil
+    /// when there is no session or Mail is not allowed here, or the service could not be reached.
+    func senderImagesRequest(_ call: BananaService.Call) async -> (Data, Int)? {
+        guard let host = BananaService.host, let session, FeatureAccessStore.shared.allows("email") else { return nil }
+        var request = BananaService.request(call, host: host, session: session)
+        request.timeoutInterval = 15
+        guard let (data, response) = try? await URLSession.shared.data(for: request) else { return nil }
+        return (data, (response as? HTTPURLResponse)?.statusCode ?? 0)
+    }
+
     func mailRequest(path: [String], reference: String, query: [URLQueryItem], method: String, body: Data?) async throws -> Data {
         let route = try CloudMailReference(value: reference)
         guard let requestSession = session, FeatureAccessStore.shared.mailContext == route.context else { throw GmailError.networkDisabled }

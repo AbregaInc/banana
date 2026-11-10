@@ -345,7 +345,7 @@ struct MailMessageCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: DS.Space.s) {
             HStack(alignment: .top, spacing: DS.Space.s) {
-                Monogram(initial: message.face.initial, hue: message.face.hue, size: DS.Mail.face)
+                MailFaceView(face: message.face, size: DS.Mail.face)
                 header
             }
             if let note = message.sampleNote {

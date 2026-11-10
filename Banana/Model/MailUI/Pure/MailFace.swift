@@ -2,24 +2,29 @@
 import Foundation
 
 /// The face drawn for a person in the list and on a message: their initial on a colour of their
-/// own. No picture is fetched for it (a sender would learn when the mail was read); the same
-/// address always has the same colour, on every device, so a person is found by colour too.
+/// own, the same for the same address on every device, so a person is found by colour too. A
+/// picture (`MailSenderImages`) may cover it later; Banana Cloud finds it, never the device, so no
+/// sender learns when the mail was read.
 struct MailFace: Equatable, Hashable, Sendable {
     /// One letter, upper-cased; "?" when neither the name nor the address has one.
     var initial: String
     /// Which of the faces' colours (`Monogram.hues`), from the address.
     var hue: Int
+    /// Whose face it is, lower-cased: what a picture is asked for by. Empty for none.
+    var address: String
 
     static let hueCount = 10
 
     init(_ person: MailPerson) {
         initial = Self.initial(name: person.name, address: person.address)
         hue = Self.hue(person.address)
+        address = MailSenderImages.key(person.address)
     }
 
-    init(initial: String, hue: Int) {
+    init(initial: String, hue: Int, address: String = "") {
         self.initial = initial
         self.hue = hue
+        self.address = address
     }
 
     /// The first letter of the name ("[Slack] Ann" is A), else of the address.

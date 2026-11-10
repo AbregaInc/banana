@@ -150,7 +150,7 @@ final class OnboardingFlowTests: XCTestCase {
     // MARK: - Calendar and email, one consent
 
     func testBothGrantedAndEligibleTurnsEmailOn() {
-        XCTAssertEqual(EmailSetup.extraScopes(inBuild: true, wanted: true), [EmailSetup.gmailScope], "one Google screen for both")
+        XCTAssertEqual(EmailSetup.extraScopes(inBuild: true, wanted: true), [EmailSetup.gmailScope] + MailScopes.senderPhotos, "one Google screen for both, contacts' photos with Mail")
         let outcome = EmailSetup.outcome(inBuild: true, wanted: true, gmailGranted: true, eligible: true)
         XCTAssertEqual(outcome, .on)
         XCTAssertFalse(EmailSetup.releasesGrant(outcome, gmailGranted: true))
