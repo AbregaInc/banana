@@ -455,6 +455,18 @@ final class MailListModel {
         open != nil && neighbour(of: cursorKey, in: direction) != nil
     }
 
+    /// The conversation a sideways swipe in the reader would show next to `id`: the one `step`
+    /// opens, for the open conversation (also when it has left the list, T13), and the row beside
+    /// it for any other shown row. Nil at the ends: the queue is the list as shown, no wrap.
+    func neighbourID(of id: MailConversationID, _ direction: MailDirection) -> MailConversationID? {
+        if open?.id == id {
+            return neighbour(of: cursorKey, in: direction).map { rows[$0].id }
+        }
+        guard let index = indexOf(id) else { return nil }
+        let next = direction == .older ? index + 1 : index - 1
+        return rows.indices.contains(next) ? rows[next].id : nil
+    }
+
     // MARK: State, private
 
     private let marks = PassthroughSubject<MailMarkChange, Never>()

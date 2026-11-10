@@ -184,6 +184,10 @@ final class MailSession {
     private var cancelIdle: (() -> Void)?
     private var queue: [MailListEffect] = []
     private var isDraining = false
+    /// The readers of the open conversation's neighbours in the list, made ahead of a swipe so
+    /// the page it lands on is already prepared (`MailConversationPager`). Only the neighbours of
+    /// the open conversation are kept; closing lets them all go.
+    private var preparedReaders: [MailConversationID: MailReaderModel] = [:]
 
     init(source: MailSource, now: Date, deviceName: String, defaults: UserDefaults? = nil,
          timers: MailTimers = .live, clock: @escaping () -> Date = Date.init, isSample: Bool = false, allowsChanges: Bool = true,
@@ -486,6 +490,37 @@ final class MailSession {
     func close() { send(.close) }
     func step(_ direction: MailDirection) { send(.step(direction)) }
 
+    /// The reader for a page of the open conversation's pager: the open one's own, or a
+    /// neighbour's, made once and kept while it is a neighbour. Making one reads the conversation
+    /// and the bodies already on the device; nothing is fetched until its page is on screen.
+    func reader(for id: MailConversationID) -> MailReaderModel {
+        if let open = navigation.reader, open.id == id { return open }
+        if let prepared = preparedReaders[id] { return prepared }
+        let made = MailReaderModel(id: id, source: source)
+        preparedReaders[id] = made
+        return made
+    }
+
+    /// A sideways swipe came to rest on a neighbour of the open conversation: it opens as `J` or
+    /// `K` would open it (T12), with the cursor, the read delay and the list following. False
+    /// when the list has changed under the swipe and it is no longer a neighbour.
+    @discardableResult
+    func settle(on id: MailConversationID) -> Bool {
+        guard let open = navigation.open, open != id else { return false }
+        for direction in [MailDirection.older, .newer] where model.neighbourID(of: open, direction) == id {
+            step(direction)
+            return navigation.open == id
+        }
+        return false
+    }
+
+    /// Lets go of prepared readers that are no longer next to the open conversation.
+    func keepPreparedNeighbours() {
+        guard let open = navigation.open else { preparedReaders.removeAll(); return }
+        let wanted = Set([MailDirection.older, .newer].compactMap { model.neighbourID(of: open, $0) })
+        preparedReaders = preparedReaders.filter { wanted.contains($0.key) }
+    }
+
     /// A swipe, or a button of the open conversation: one action on one conversation.
     func act(_ action: MailAction, on id: MailConversationID? = nil) {
         // Drafts and Scheduled hold messages of his own: Done and star mean nothing there.
@@ -617,7 +652,13 @@ final class MailSession {
         case .toast(let toast):
             showToast(toast)
         case .open(let id, let start, _):
-            if navigation.open != id { navigation.reader = MailReaderModel(id: id, source: source) }
+            if navigation.open != id {
+                // The one it leaves is kept as a prepared neighbour; the one it lands on may
+                // already have been prepared by a swipe.
+                if let leaving = navigation.reader { preparedReaders[leaving.id] = leaving }
+                navigation.reader = preparedReaders.removeValue(forKey: id) ?? MailReaderModel(id: id, source: source)
+                keepPreparedNeighbours()
+            }
             // A composer is written in one conversation: another one opening leaves it.
             if let host = navigation.composer?.host, host != id { closeComposer() }
             switch start {
@@ -627,6 +668,7 @@ final class MailSession {
             }
         case .close:
             navigation.reader = nil
+            preparedReaders.removeAll()
             closeComposer()
         case .reveal(let id, let beyond):
             hostCommands.send(.reveal(id, beyond: beyond))
