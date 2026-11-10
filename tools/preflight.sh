@@ -79,6 +79,12 @@ check xcodegen run xcodegen generate
 if [ "$channel" = appstore ]; then
   check ios-appstore run tools/testflight.sh ios "$build" check appstore
   check mac-appstore run tools/testflight.sh mac "$build" check appstore
+  mac_launch_evidence() {
+    local candidate=".build/mac-appstore/Banana-$build.xcarchive"
+    [ -d "$candidate" ] || candidate=".build/mac-appstore-check/Banana-$build.xcarchive"
+    run python3 tools/mac-release-tests.py verify "$candidate"
+  }
+  check mac-appstore-launch mac_launch_evidence
 else
   if [ "$channel" = beta ]; then
     check ios-beta build_ios_beta "$build" "$version"

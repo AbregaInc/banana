@@ -11,10 +11,83 @@ They replace the per-build scripts that were copied with `sed` from the previous
 | `tools/release/deploy-service.sh beta\|prod [--yes-prod]` | Service tests, additive migrations, deploy with the source offer, smoke test. |
 | `tools/release/install-mac.sh beta\|stable DMG` | Verify a released DMG, back up the installed app, install it, relaunch. |
 | `tools/release/devices.py list\|find\|run` | The owner's iPhone and iPad by kind, waiting out locked or unreachable devices. |
+| `python3 tools/mac-release-tests.py build` | Build only the Mac release UI runner, in the background; no app target or launch. |
+| `python3 tools/mac-release-tests.py run ARCHIVE --out NEW_FOLDER --interactive` | Visible tests of the exact archived Mac App Store app, in a dedicated test account. |
+| `python3 tools/mac-release-tests.py verify ARCHIVE [--evidence FOLDER]` | Read-only upload gate: checks exact candidate, symbols, test cases and macOS/SDK coverage. |
 
-Every script takes `--dry-run`: it prints each step and command, and runs only what changes
+The shipping shell scripts take `--dry-run`: it prints each step and command, and runs only what changes
 nothing (the plan into a temporary file, device discovery, the migration check). Output of a real
 run goes to `private/releases/<channel>-<build>/` (ignored), one log per step.
+
+## Mac App Store launch gate
+
+`tools/preflight.sh --channel appstore` now includes `mac-appstore-launch`.
+`tools/testflight.sh mac N upload appstore` independently requires passing launch evidence before
+the upload export, including when preflight was skipped. Building and inspecting the archive
+alone cannot pass this gate. Preparing a local export remains possible without launching an app.
+`tools/asc-submit.py --apply` also enforces it for Mac submission/resubmission, so an older upload
+does not bypass the gate. Draft attachment and read-only submission planning remain available.
+Submitting through Apple's website bypasses local scripts; run `verify` first in that case.
+
+The native XCTest suite uses `XCUIApplication(url:)` to open the app **inside the archive**, with
+no preview flags, fixtures, injected app environment or Debug rebuild. It checks the normal first
+screen, deferred-startup survival, onboarding without Google sign-in, Day/Week selection, next
+period/Today, saved onboarding on relaunch and another startup interval. A second test checks
+the Foundation `Date >=` / `<=` operators imported by that candidate against numeric timestamps
+on the actual runtime, including equal dates, infinities and NaN (36 pairs per imported operator).
+A candidate that removes the imports is not blocked by the probe's own Date operators.
+Native XCTest is used instead of a custom GUI driver:
+it can select the exact Mac app URL, fail launch errors, wait on accessibility state and retain
+screenshots/crashes in an xcresult. These are correctness checks, not UI latency measurements.
+
+Visible runs require an **idle, unlocked dedicated macOS test account**, signed out of iCloud
+and Google, with no personal calendars or Banana data. Use a disposable test machine/VM or reset
+that account's test state between runs. The suite deliberately fails if it finds completed
+onboarding; it does not erase preferences, containers, keychain items or installed applications.
+It refuses to launch an identity that is already running. Never create the marker in the owner's
+everyday account. In the dedicated account only, configure Xcode Automation Mode and create:
+
+```sh
+mkdir -p ~/.config/banana
+touch ~/.config/banana/mac-release-test-account
+automationmodetool enable-automationmode-without-authentication
+```
+
+Build the runner without touching the screen, then, on the dedicated idle desktop:
+
+```sh
+python3 tools/mac-release-tests.py build
+# Prepare the signed calendar-only archive/export on the build machine (no upload):
+tools/testflight.sh mac <build> prepare appstore
+# Make the same archive available to the dedicated account; never rebuild or re-sign it there.
+python3 tools/mac-release-tests.py run <archive-path> \
+  --out private/releases/mac-launch/<build>-<unique-run> --interactive
+python3 tools/mac-release-tests.py verify <archive-path>
+```
+
+When testing on another account/machine, copy the complete result folder (including xcresult)
+back into `private/releases/mac-launch/`, or set `BANANA_MAC_LAUNCH_EVIDENCE` to its parent.
+Each attempt needs a new directory; failed/unfinished attempts stay on disk and cannot pass.
+The gate rereads the raw xcresult, requires both exact test identifiers with zero failures/skips,
+and checks XCTest's runtime against the receipt. It binds evidence to all app bundle contents,
+the clean source commit, build, channel, SDK, executable UUIDs, matching dSYM and test harness.
+Changing any of these invalidates that evidence. The candidate's signature, sandbox and absence
+of get-task-allow are checked before testing and again before upload. The app must also be
+unchanged after the tests. App Store export/Apple may subsequently re-sign the archive's code;
+this gate does not claim to test Apple's delivered package or Google sign-in.
+
+Required runtime coverage includes **macOS 27.2** (the launch-crash regression) and the archive's
+SDK major/minor version. A 27.0.1 run cannot stand in for 27.2; if a later SDK is used, retain runs
+on both boundaries. Exact OS build numbers are recorded. This is a targeted compatibility gate,
+not a claim of coverage of every supported macOS version; the minimum supported OS and a real
+review Google-account walkthrough remain release acceptance checks.
+
+The first preflight can build the candidate and report missing launch coverage. Prepare adopts
+that archive; run the suite on it and then upload. Rechecking an already prepared archive reuses
+it, so signing timestamps do not silently replace the tested candidate. App Store archives and
+preflight archives are now retained by `clean-builds.sh`; compilation uses the existing
+`.build/mac-check` folder. Keep evidence under `private/`, outside disposable `.build`, and keep
+the original archive/dSYM for every submitted build.
 
 ## Typical Beta rollout
 

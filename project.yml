@@ -20,6 +20,16 @@ options:
     macOS: "26.0"
 
 schemes:
+  # Tests an already archived release by URL. No dependency on an app target: never rebuilds
+  # the candidate as Debug or replaces its normal startup with preview fixtures.
+  BananaMacReleaseUITests:
+    build:
+      targets:
+        BananaMacReleaseUITests: [test]
+    test:
+      config: Debug
+      targets:
+        - BananaMacReleaseUITests
   BananaMacBetaDirect:
     build:
       targets:
@@ -671,6 +681,17 @@ targets:
         MACOSX_DEPLOYMENT_TARGET: "26.0"
         GENERATE_INFOPLIST_FILE: YES
         CODE_SIGN_IDENTITY: "Apple Development"
+
+  BananaMacReleaseUITests:
+    type: bundle.ui-testing
+    platform: macOS
+    sources:
+      - path: BananaMacReleaseUITests
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: $(BANANA_BUNDLE_ID).release-uitests
+        GENERATE_INFOPLIST_FILE: YES
+        CODE_SIGN_IDENTITY: "-"
 
   BananaMacUITests:
     type: bundle.ui-testing

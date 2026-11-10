@@ -12,7 +12,7 @@
 #
 # Kept:
 #   - what symbolicates the builds on the author's devices: ios-prod, ios-prod-watch, dsyms and the
-#     TestFlight archives;
+#     TestFlight and submitted App Store archives (including preflight candidates);
 #   - any folder holding a file named .keep-build (put one in the build folder of the worktree
 #     a Beta was installed from, and remove it when that Beta is replaced);
 #   - any folder a running xcodebuild is using.
@@ -25,7 +25,7 @@
 set -eu
 cd "$(dirname "$0")/.."
 
-KEEP="ios-prod ios-prod-watch dsyms ios-testflight mac-testflight site-fonts"
+KEEP="ios-prod ios-prod-watch dsyms ios-testflight mac-testflight ios-appstore mac-appstore ios-appstore-check mac-appstore-check site-fonts"
 free() { df -k . | awk 'NR==2 { print $4 }'; }
 before=$(free)
 

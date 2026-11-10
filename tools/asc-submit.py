@@ -12,7 +12,8 @@ Review" does: the version's rejected item is marked resolved and the same submis
 again. The dry run says which of the three it would do. Submission is the owner's decision, given in words for this build; nothing here is called
 by the upload scripts. Uses the Banana TestFlight API key, as `asc-builds.py` does.
 """
-import argparse, importlib.util, json, os, sys, urllib.request
+import argparse, importlib.util, json, os, subprocess, sys, urllib.request
+from pathlib import Path
 
 sys.dont_write_bytecode = True
 _asc = None
@@ -124,12 +125,27 @@ def review_submissions(app):
     return [s for s in r["data"] if s["attributes"].get("state") not in ("COMPLETE", "CANCELING", "COMPLETING")]
 
 
+def verify_mac_launch(number):
+    """Older uploads must meet the launch gate too, before any submission writes."""
+    root = Path(__file__).resolve().parents[1]
+    spec = importlib.util.spec_from_file_location("mac_release_tests", root / "tools/mac-release-tests.py")
+    gate = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(gate)
+    evidence = Path(os.environ.get("BANANA_MAC_LAUNCH_EVIDENCE", root / "private/releases/mac-launch"))
+    gate.verify(root / ".build/mac-appstore" / f"Banana-{number}.xcarchive", evidence, expected_build=number)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("build"); ap.add_argument("--apply", action="store_true")
     ap.add_argument("--platform", choices=PLATFORMS, action="append")
     ap.add_argument("--attach", action="store_true", help="only select the build on the drafts; no submission")
     a = ap.parse_args()
+    if a.apply and not a.attach and "MAC_OS" in (a.platform or PLATFORMS):
+        try:
+            verify_mac_launch(a.build)
+        except (ValueError, OSError, subprocess.SubprocessError) as error:
+            raise SystemExit(f"Mac submission blocked by launch gate: {error}")
     apps = asc_module().get("/v1/apps", **{"filter[bundleId]": asc_module().BUNDLE_ID, "fields[apps]": "name"})
     if "error" in apps or not apps["data"]: raise SystemExit(f"apps: {apps}")
     app = apps["data"][0]["id"]

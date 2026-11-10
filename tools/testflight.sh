@@ -46,8 +46,10 @@ archive="$root/Banana-$build.xcarchive"
 export_path="$root/$mode-$build"
 checked=".build/$platform-$lane-check/Banana-$build.xcarchive"
 if [[ "$mode" == check ]]; then
-  rm -rf ".build/$platform-$lane-check"
-  archive=$checked
+  # Rechecking a prepared candidate must not rebuild/re-sign it and invalidate its launch proof.
+  if [[ ! -d "$archive" ]]; then
+    archive=$checked
+  fi
 fi
 [[ "$mode" == upload || "$mode" == check || ( ! -e "$archive" && ! -e "$export_path" ) ]] || {
   echo 'That build already has retained artifacts. Use a new build number.' >&2; exit 1;
@@ -62,7 +64,6 @@ if [[ "$platform" == mac ]]; then
 fi
 if [[ "$flavour" == appstore ]]; then
   scheme="${scheme}AppStore"
-  derived=".build/$platform-appstore"
 fi
 mkdir -p "$root"
 options=$(mktemp -t banana-testflight)
@@ -95,7 +96,7 @@ if [[ "$mode" == prepare && ! -d "$archive" && -d "$checked" ]]; then
     mv "$checked" "$archive"
     echo "Adopted the preflight archive of $revision, build $build"
   fi
-  rm -rf ".build/$platform-$lane-check"
+  rmdir ".build/$platform-$lane-check" 2>/dev/null || true
 fi
 if [[ ! -d "$archive" ]]; then
 xcodegen generate
@@ -108,6 +109,10 @@ fi
 identity_ok "$archive"
 tools/check-release.sh "$archive"
 if [[ "$mode" == check ]]; then printf '%s check passed: %s %s\n' "$configuration" "$platform" "$build"; exit 0; fi
+if [[ "$platform" == mac && "$flavour" == appstore && "$mode" == upload ]]; then
+  # Read-only. Visible tests are a separate, deliberate run on the dedicated test desktop.
+  python3 tools/mac-release-tests.py verify "$archive"
+fi
 xcodebuild -exportArchive -archivePath "$archive" -exportPath "$export_path" \
   -exportOptionsPlist "$options" "${auth[@]}"
 python3 - "$root/build-$build.json" "$platform" "$build" "$revision" "$mode" "$channel" <<'PY'
