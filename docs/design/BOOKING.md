@@ -535,3 +535,14 @@ Owner, 19–20 Oct:
 14. **The policy** is live before the first booking.
 15. **Calendly basics** written down: the invite is the confirmation; the zone picker; Meet shown on
     confirmation; the default calendar defined.
+
+## 13. Backlog
+
+- **Hours follow where the owner is (added 9 Nov 2026).** Today a type's zone is fixed once set
+  and doesn't follow travel (§ Engine corrections). Add a backup to that rule: on each day, the
+  type's weekly hours apply in the zone where the owner will be, taken from their current
+  location's zone and their travel (trips, flights, the "where you'll be" days Plan already shows).
+  Days with no travel keep the type's zone. Open questions for when it is picked up: what the
+  service needs synced to know the zone per day, how a flight day is handled (no slots while in
+  the air; which zone's hours on a day that changes zone), and whether it is on for every type or
+  set per type.
