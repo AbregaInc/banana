@@ -36,9 +36,11 @@ except the hang detector's half-second ping, and that only while the app is in f
   the assistant's.
 - Mac: Help › Report a Problem… and ⌘⇧R.
 
-The screenshot is the page the report is about: chosen from a "…" menu, it waits (a frame at a
-time, half a second at most) until the menu has closed, so the menu and the blur under it aren't
-in it (`ProblemReportCenter.menuOnScreen`; the wait is in the journal as `menuWait`).
+The screenshot is the page the report is about: chosen from a "…" menu, the menu is still on
+screen, closing, for a second and more after its item runs, so the capture draws the window's
+layers without the menu's container (and the blur in it) (`ProblemReportCenter.isMenu`; the journal
+line says `leftOut=1`). Measured on the phone simulator, the capture took about 100 ms with a menu
+closing and about 30 ms without; no device figure yet.
 - 👍 / 👎 under each answer. 👍 is a count. 👎 opens the sheet with that answer.
 
 The sheet: one field, then what goes with it (Screenshot, Log, and the page's own row), Send. What
