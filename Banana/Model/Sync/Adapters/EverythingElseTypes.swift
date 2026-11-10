@@ -13,8 +13,13 @@ enum EverythingElseTypes {
         "core.appSettings", "core.modules", "core.smartSettings", "core.wakePlan", "core.hubStatus", "core.hubRequest",
         "plan.taskDuration", "plan.reminderAnchor", "plan.reminderAnchorUsual", "plan.missedRepeat",
         "plan.declinedSuggestion", "plan.notNow", "core.guestPick",
-        "plan.bookingType",
-    ]
+    ] + bookingTypes
+
+    #if BANANA_FEATURE_BOOKING
+    private static let bookingTypes = ["plan.bookingType"]
+    #else
+    private static let bookingTypes: [String] = []
+    #endif
 
     /// Personal types in the catalog with no app adapter yet. Any such type must be one no legacy
     /// channel carries (`LegacyInventory.withoutLegacy`), so the move doesn't wait for it.

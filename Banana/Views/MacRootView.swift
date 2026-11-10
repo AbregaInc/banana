@@ -576,7 +576,9 @@ private struct MacPayoffPresenter: View {
 /// Menu-bar commands: navigate from the keyboard.
 struct MacCommands: Commands {
     @ObservedObject private var nav = MacNavigator.shared
+    #if BANANA_FEATURE_BOOKING
     @ObservedObject private var booking = BookingCenter.shared
+    #endif
     @ObservedObject private var modules = ModuleStore.shared
 
     var body: some Commands {
@@ -682,9 +684,11 @@ struct MacCommands: Commands {
         // The calendar's sharing: the booking link (copied, with the shortcut BOOKING.md §12 names)
         // and the availability panel.
         CommandMenu("Calendar") {
+            #if BANANA_FEATURE_BOOKING
             Button("Copy Booking Link") { booking.copyLink() }
                 .keyboardShortcut("l", modifiers: [.command, .shift])
                 .disabled(!booking.canShare)
+            #endif
             Button("Share Availability\u{2026}") { MacCommandCenter.shared.perform(.shareAvailability) }
         }
     }

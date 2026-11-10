@@ -136,9 +136,11 @@ final class BananaAccount: ObservableObject {
             if self.isSignedIn {
                 await self.registerDevice()
                 await self.sendWatchLists()
+                #if BANANA_FEATURE_BOOKING
                 // The booking link, or the handle to suggest, so the calendar's Share works on its
                 // first tap. Once it's known, Booking and sharing read it again themselves.
                 await BookingCenter.shared.refreshIfUnknown()
+                #endif
             }
             guard self.transportFailed, attempt < Self.retryDelays.count else { return }
             let delay = Self.retryDelays[attempt]
@@ -454,12 +456,14 @@ final class BananaAccount: ObservableObject {
         return status == 204 || status == 200
     }
 
+    #if BANANA_FEATURE_BOOKING
     /// A booking call (`BookingCenter`): nil when not signed in, or when the service couldn't be
     /// reached.
     func bookingCall(_ call: BananaService.Call) async -> (data: Data, status: Int)? {
         guard isSignedIn, let (data, status) = await send(call) else { return nil }
         return (data, status)
     }
+    #endif
 
     private var providerOperationContext: String? {
         guard let account, let host = BananaService.host else { return nil }

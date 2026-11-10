@@ -1,3 +1,4 @@
+#if BANANA_FEATURE_BOOKING
 import Combine
 import Foundation
 
@@ -267,3 +268,4 @@ final class BookingTypeStore: ObservableObject, BookingTypeSyncSource {
     }
     #endif
 }
+#endif

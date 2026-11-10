@@ -260,8 +260,10 @@ struct PendingEventMove: Identifiable {
 /// appointment" — and unlike a text label it still reads at six points tall.
 
 struct MacWeekView: View {
+    #if BANANA_FEATURE_BOOKING
     /// Whether the toolbar offers the booking link.
     @ObservedObject private var booking = BookingCenter.shared
+    #endif
     /// Match iPhone Day: observe only the two calendar publishers below, not every transient
     /// occurrence-store publication while the native scroll view is moving.
     private var occurrences: OccurrenceStore { .shared }
@@ -824,7 +826,9 @@ struct MacWeekView: View {
         }
         ToolbarItem(placement: .primaryAction) {
             Menu {
+                #if BANANA_FEATURE_BOOKING
                 BookingShareButton()
+                #endif
                 Button { MacNavigator.shared.showsAvailability.toggle() } label: {
                     Label("Share availability", systemImage: "calendar.badge.checkmark")
                 }
@@ -2411,11 +2415,11 @@ struct MacWeekView: View {
     private func openFromPush(_ target: BananaService.BookingPushTarget) async {
         if let start = target.start { moveWeek(periodOffset(to: start) - weekOffset) }
         guard !target.cancelled, target.eventID != nil else { return }
-        var meeting = BookingPushes.meeting(for: target)
+        var meeting = PlanOpenRequests.meeting(for: target)
         if meeting == nil {
             await smart.refreshCalendar()
             await occurrences.recompute()
-            meeting = BookingPushes.meeting(for: target)
+            meeting = PlanOpenRequests.meeting(for: target)
         }
         guard let meeting else { return }
         if target.start == nil { moveWeek(periodOffset(to: meeting.start) - weekOffset) }
@@ -3677,8 +3681,10 @@ struct WeekView: View {
     /// The wide shell (the rail, one toolbar): the Mac's paging group (`PlanPagingToolbar`) at the
     /// left, "Search or ask" in the middle (`ReviewToolbarItem`), the assistant and "…".
     @Environment(\.wideShell) private var wideShell
+    #if BANANA_FEATURE_BOOKING
     /// Whether the top bar offers the booking link.
     @ObservedObject private var booking = BookingCenter.shared
+    #endif
     /// Calendar publications are observed explicitly below. Observing the entire store here made
     /// every transient store change rebuild the 24-hour SwiftUI grid, including while UIKit was
     /// handling a vertical flick. The app has one canonical occurrence store, so actions can use
@@ -3966,7 +3972,9 @@ struct WeekView: View {
                     }
                     ToolbarItem(placement: .topBarTrailing) {
                         MoreMenu(identifier: "mobile.week.more") {
+                            #if BANANA_FEATURE_BOOKING
                             if booking.canShare { BookingShareButton() }
+                            #endif
                             planMoreItems
                         }
                     }
@@ -3979,9 +3987,11 @@ struct WeekView: View {
                     }
                     .sharedBackgroundVisibility(.hidden)
                     ReviewToolbarItem(section: .plan)
+                    #if BANANA_FEATURE_BOOKING
                     if booking.canShare {
                         ToolbarItem(placement: .automatic) { BookingShareButton() }
                     }
+                    #endif
                     ToolbarItem(placement: .automatic) { CalendarSearchButton() }
                     ToolbarItem(placement: .automatic) {
                         MoreMenu(identifier: "mobile.week.more") { planMoreItems }
@@ -4268,7 +4278,9 @@ struct WeekView: View {
             Label("Morning briefing", systemImage: "sunrise.fill")
         }
         .accessibilityIdentifier("mobile.week.briefing")
+        #if BANANA_FEATURE_BOOKING
         CopyBookingLinkButton()
+        #endif
         Button { showingAvailability = true } label: {
             Label("Share availability", systemImage: "calendar.badge.checkmark")
         }
@@ -4319,7 +4331,9 @@ struct WeekView: View {
                 ForEach(layouts.indices, id: \.self) { row(layouts[$0]) }
             }
             MoreMenu(identifier: "mobile.week.more") {
+                #if BANANA_FEATURE_BOOKING
                 if booking.canShare { BookingShareButton() }
+                #endif
                 planMoreItems
             }
             .font(.title3)
@@ -5766,11 +5780,11 @@ struct WeekView: View {
     private func openFromPush(_ target: BananaService.BookingPushTarget) async {
         if let start = target.start { showMobileDay(start) }
         guard !target.cancelled, target.eventID != nil else { return }
-        var meeting = BookingPushes.meeting(for: target)
+        var meeting = PlanOpenRequests.meeting(for: target)
         if meeting == nil {
             await smart.refreshCalendar()
             await occurrences.recompute()
-            meeting = BookingPushes.meeting(for: target)
+            meeting = PlanOpenRequests.meeting(for: target)
         }
         guard let meeting else { return }
         if target.start == nil { showMobileDay(meeting.start) }
@@ -6186,6 +6200,19 @@ private struct AgendaDayAccessibility: ViewModifier {
                 .accessibilityIdentifier("plan.agenda.day.\(index)")
         } else {
             content
+        }
+    }
+}
+
+/// The meeting a Plan open request names, among what the Plan has (the app's side of
+/// `PlanOpenRequests`, which the model test target compiles without the occurrence store).
+extension PlanOpenRequests {
+    /// The meeting a request names, among what the Plan has.
+    static func meeting(for target: BananaService.BookingPushTarget, in occurrences: [Occurrence]? = nil) -> MeetingInfo? {
+        guard let calendarID = target.calendarID, let eventID = target.eventID else { return nil }
+        return (occurrences ?? OccurrenceStore.shared.occurrences).lazy.compactMap(\.meeting).first { meeting in
+            guard let id = meeting.eventID, let route = GoogleCalendarIDs.rawEventRoute(from: id) else { return false }
+            return route.calendarID == calendarID && route.eventID == eventID
         }
     }
 }

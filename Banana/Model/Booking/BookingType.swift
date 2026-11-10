@@ -1,3 +1,4 @@
+#if BANANA_FEATURE_BOOKING
 import Foundation
 
 /// A booking type (docs/design/BOOKING.md §4, §12): what a guest can book on the host's link, as the
@@ -303,3 +304,4 @@ enum BookingSlug {
         return "\(slug)-\(n)"
     }
 }
+#endif

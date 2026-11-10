@@ -1,3 +1,4 @@
+#if BANANA_FEATURE_BOOKING
 import Foundation
 import UserNotifications
 #if os(macOS)
@@ -22,13 +23,5 @@ enum BookingPushes {
         #endif
         PlanOpenRequests.shared.pending = target
     }
-
-    /// The meeting a push names, among what the Plan has.
-    static func meeting(for target: BananaService.BookingPushTarget, in occurrences: [Occurrence]? = nil) -> MeetingInfo? {
-        guard let calendarID = target.calendarID, let eventID = target.eventID else { return nil }
-        return (occurrences ?? OccurrenceStore.shared.occurrences).lazy.compactMap(\.meeting).first { meeting in
-            guard let id = meeting.eventID, let route = GoogleCalendarIDs.rawEventRoute(from: id) else { return false }
-            return route.calendarID == calendarID && route.eventID == eventID
-        }
-    }
 }
+#endif

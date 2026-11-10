@@ -64,8 +64,10 @@ extension SyncAdapters {
         adapters += [
             SettingsAdapters.adapter(stores),
             KeyValueAdapters.adapter(stores),
-            BookingTypeAdapter.adapter(stores.bookingTypes),
         ]
+        #if BANANA_FEATURE_BOOKING
+        adapters.append(BookingTypeAdapter.adapter(stores.bookingTypes))
+        #endif
         // A build without a module has none of its types here, so its tier never moves (`MoveOver`).
         #if BANANA_MODULE_PODCASTS && BANANA_MODULE_NOTES
         assert(Set(adapters.flatMap(\.types)) == Set(EverythingElseTypes.all), "EverythingElseTypes is out of date")

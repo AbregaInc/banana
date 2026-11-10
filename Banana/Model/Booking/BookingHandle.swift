@@ -1,3 +1,4 @@
+#if BANANA_FEATURE_BOOKING
 import Foundation
 
 /// The booking link's handle (docs/design/BOOKING.md §4): `book.bananatheapp.com/<handle>`, one per
@@ -95,3 +96,4 @@ enum BookingHandle {
         return text
     }
 }
+#endif

@@ -123,9 +123,11 @@ struct MenuBarAgendaPanel: View {
                     }
                 }
                 Divider()
+                #if BANANA_FEATURE_BOOKING
                 // The booking link, copied from wherever the Mac is (⇧⌘L in the app).
                 CopyBookingLinkButton(confirm: false)
                     .buttonStyle(.inline)
+                #endif
                 HStack {
                     Button("Open Banana") { activateMainWindow() }
                     Spacer()

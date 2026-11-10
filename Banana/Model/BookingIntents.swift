@@ -1,3 +1,4 @@
+#if BANANA_FEATURE_BOOKING
 import AppIntents
 import Foundation
 
@@ -63,4 +64,5 @@ struct BananaMacShortcuts: AppShortcutsProvider {
             systemImageName: "square.and.arrow.up")
     }
 }
+#endif
 #endif

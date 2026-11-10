@@ -65,8 +65,10 @@ struct AvailabilitySheet: View {
         let text = self.text
         NavigationStack {
             Form {
+                #if BANANA_FEATURE_BOOKING
                 // The booking link first: guests pick a time themselves, live.
                 Section { CopyBookingLinkButton() }
+                #endif
                 Section {
                     Picker("Meeting length", selection: $durationMinutes) {
                         ForEach([15, 30, 45, 60, 90], id: \.self) { Text(Self.lengthLabel($0)).tag($0) }
@@ -160,7 +162,9 @@ struct AvailabilitySheet: View {
 /// (see `OfferedSlotsOverlay`). Same settings as the iPhone sheet, stored under the same keys.
 struct MacAvailabilityPanel: View {
     @ObservedObject private var store = OccurrenceStore.shared
+    #if BANANA_FEATURE_BOOKING
     @ObservedObject private var booking = BookingCenter.shared
+    #endif
     @ObservedObject private var nav = MacNavigator.shared
 
     @AppStorage("availabilityDurationMinutes") private var durationMinutes = 30
@@ -201,6 +205,7 @@ struct MacAvailabilityPanel: View {
             }
             .padding(DS.Space.l)
 
+            #if BANANA_FEATURE_BOOKING
             // The booking link first: guests pick a time themselves, live.
             if booking.isAvailable, booking.shareURL != nil {
                 CopyBookingLinkButton()
@@ -208,6 +213,7 @@ struct MacAvailabilityPanel: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding([.horizontal, .bottom], DS.Space.l)
             }
+            #endif
 
             Divider()
 

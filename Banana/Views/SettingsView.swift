@@ -30,7 +30,17 @@ struct SettingsView: View {
         #endif
     }()
 
-    fileprivate static let searchIndex: [SettingsSearchEntry] = tripLearningEntries + [
+    /// Booking's entries, only in a build that carries it (Config/Modules.json "features").
+    private static let bookingEntries: [SettingsSearchEntry] = {
+        #if BANANA_FEATURE_BOOKING
+        [.init(title: "Booking link", page: .booking, keywords: ["booking", "book", "link", "calendly", "schedule", "handle", "share"]),
+         .init(title: "Booking types", page: .booking, keywords: ["meeting", "length", "hours", "zoom", "meet", "phone", "in person", "notice", "buffer"])]
+        #else
+        []
+        #endif
+    }()
+
+    fileprivate static let searchIndex: [SettingsSearchEntry] = tripLearningEntries + bookingEntries + [
         .init(title: "Modules", page: .modules, keywords: ["modules", "features", "tabs", "hide", "show", "turn off", "food", "workouts", "podcasts", "notes"]),
         .init(title: "Record where I listen", page: .podcasts, keywords: ["location", "gps", "route", "privacy"]),
         .init(title: "Skip ads automatically", page: .podcasts, keywords: ["ads", "advert", "sponsor", "promo", "intro", "skip"]),
@@ -42,8 +52,6 @@ struct SettingsView: View {
         .init(title: "Apple Health", page: .workouts, keywords: ["workouts", "fitness", "import", "health"]),
         .init(title: "Find meal photos automatically", page: .food, keywords: ["photos", "meals", "library", "nutrition", "food"]),
         .init(title: "Fitness sync", page: .workouts, keywords: ["workouts", "fitness", "icloud", "sync", "mac", "iphone", "raw recording", "waiting", "uploading"]),
-        .init(title: "Booking link", page: .booking, keywords: ["booking", "book", "link", "calendly", "schedule", "handle", "share"]),
-        .init(title: "Booking types", page: .booking, keywords: ["meeting", "length", "hours", "zoom", "meet", "phone", "in person", "notice", "buffer"]),
         .init(title: "Directions app", page: .calendar, keywords: ["maps", "google maps", "apple maps", "navigation"]),
         .init(title: "Event reminders", page: .calendar, keywords: ["notifications", "alerts", "starting soon"]),
         .init(title: "Google Calendar", page: .accounts, keywords: ["connect", "oauth", "gmail", "account", "sign in", "reconnect"]),
@@ -135,7 +143,9 @@ struct SettingsView: View {
     /// The move off iCloud on this device, while it's under way (`MoveOver.progress`).
     @ObservedObject private var moveProgress = MoveOver.progress
     @ObservedObject private var modules = ModuleStore.shared
+    #if BANANA_FEATURE_BOOKING
     @ObservedObject private var booking = BookingCenter.shared
+    #endif
     @State private var confirmingAccountDelete = false
     #if BANANA_MODULE_PODCASTS || BANANA_MODULE_NOTES
     @AppStorage(LocalTranscriptionEngine.defaultsKey)
@@ -379,9 +389,19 @@ struct SettingsView: View {
         func isCarried(by modules: Set<AppModule>) -> Bool {
             switch self {
             case .watch: modules.contains(AppModule.owner(of: .watchSettings))
+            case .booking: Self.carriesBooking
             default: module.map(modules.contains) ?? true
             }
         }
+
+        /// Booking is a feature, not a module: carried or not by the build alone.
+        static let carriesBooking: Bool = {
+            #if BANANA_FEATURE_BOOKING
+            true
+            #else
+            false
+            #endif
+        }()
 
         var title: String {
             switch self {
@@ -443,10 +463,12 @@ struct SettingsView: View {
             // Its own screen, with its own list and sheets.
             return AnyView(SmartScheduleView().navigationTitle(page.title))
         }
+        #if BANANA_FEATURE_BOOKING
         if page == .booking {
             // Its own screen: the link, and the types with their editor.
             return AnyView(BookingSettingsView())
         }
+        #endif
         return AnyView(pageForm(page))
     }
 
@@ -614,7 +636,9 @@ struct SettingsView: View {
                 featureRow(.modules, value: modules.effectiveChoice.isEverything ? "All on" : "\(modules.effectiveChoice.enabled.count) on")
             }
             featureRow(.calendar, value: calendarWriteBack.enabled ? "Busy blocks on" : "Busy blocks off")
-            featureRow(.booking, value: bookingSummary)
+            if isShown(.booking) {
+                featureRow(.booking, value: bookingSummary)
+            }
             featureRow(.travel, value: travelSummary)
             featureRow(.wake, value: smart.settings.enabled ? "On" : "Off")
             if isShown(.podcasts) {
@@ -675,7 +699,11 @@ struct SettingsView: View {
 
     /// The link's name, or nothing yet.
     private var bookingSummary: String? {
+        #if BANANA_FEATURE_BOOKING
         booking.handle.map { "/\($0)" }
+        #else
+        nil
+        #endif
     }
 
     private var travelSummary: String {

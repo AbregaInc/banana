@@ -1,3 +1,4 @@
+#if BANANA_FEATURE_BOOKING
 import CoreTransferable
 import SwiftUI
 #if os(iOS)
@@ -767,3 +768,4 @@ struct CopyBookingLinkButton: View {
         }
     }
 }
+#endif

@@ -250,12 +250,14 @@ struct MacCommand: Identifiable {
             .init(id: "briefing", title: "Morning briefing", symbol: "sun.max", shortcut: "⇧⌘M") { nav.showMorningBriefing = true },
             .init(id: "shortcuts", title: "Keyboard shortcuts", symbol: "keyboard", shortcut: "?") { center.showsShortcuts = true },
         ]
+        #if BANANA_FEATURE_BOOKING
         // Only with a link to copy.
         if BookingCenter.shared.canShare {
             commands.insert(.init(id: "booking-link", title: "Copy booking link", symbol: "link", shortcut: "⇧⌘L") {
                 BookingCenter.shared.copyLink()
             }, at: min(2, commands.count))
         }
+        #endif
         for days in 2...7 {
             commands.append(.init(id: "span-\(days)", title: "Show \(days) days", symbol: "calendar.day.timeline.left",
                                   shortcut: "\(days)") { center.perform(.span(days)) })
@@ -429,10 +431,18 @@ struct MacCommandMenu: View {
 struct MacShortcutsSheet: View {
     @ObservedObject private var center = MacCommandCenter.shared
 
+    private static let bookingShortcuts: [(String, String)] = {
+        #if BANANA_FEATURE_BOOKING
+        [("⇧⌘L", "Copy booking link")]
+        #else
+        []
+        #endif
+    }()
+
     private let groups: [(String, [(String, String)])] = [
         ("Anywhere", [("⌘K", "Command menu"), ("?", "This list"), ("⌃⌘J", "Join the next meeting (from any app)"),
-                      ("⌘N", "New event"), ("⇧⌘N", "New reminder"), ("⌘R", "Refresh calendar"),
-                      ("⇧⌘L", "Copy booking link")]),
+                      ("⌘N", "New event"), ("⇧⌘N", "New reminder"), ("⌘R", "Refresh calendar")]
+                     + MacShortcutsSheet.bookingShortcuts),
         ("Calendar", [("T", "Today"), ("J / K", "Next / previous week"), ("D / W", "Day / week view"),
                       ("2 – 7", "Number of days shown"), ("C", "New event"), ("S", "Share availability")]),
         ("Events", [("N / B", "Next / previous event"), ("E then Y / N / M", "Reply Yes / No / Maybe"),

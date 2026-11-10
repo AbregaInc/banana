@@ -20,7 +20,9 @@ struct SyncStores {
     let reminderAnchors: ReminderAnchors
     let missedRepeats: MissedRepeats
     let anchorSuggestions: AnchorSuggestionStore
-    let bookingTypes: BookingTypeStore
+    #if BANANA_FEATURE_BOOKING
+    var bookingTypes: BookingTypeStore! = nil
+    #endif
     #if BANANA_MODULE_PODCASTS
     var library: PodcastLibrary! = nil
     var listenHistory: ListenHistoryStore! = nil

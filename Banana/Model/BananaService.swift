@@ -210,6 +210,7 @@ enum BananaService {
         /// The Health consent (docs/design/DATA-PLATFORM.md §7): given, with the version of the words
         /// agreed to and the device it was given on, or withdrawn.
         case healthConsent(granted: Bool, version: String, device: String)
+        #if BANANA_FEATURE_BOOKING
         /// The booking link (docs/design/BOOKING.md §12): the handle, the link, the handles to
         /// suggest when there is none, the account's name and zone, and the types the service sees.
         case booking
@@ -218,8 +219,10 @@ enum BananaService {
         case claimHandle(handle: String, timeZone: String?)
         /// The bookings still ahead.
         case upcomingBookings
+        #endif
     }
 
+    #if BANANA_FEATURE_BOOKING
     /// `GET /v1/booking` (`Service/src/booking/api.js`).
     struct BookingState: Codable, Equatable, Sendable {
         struct TypeLink: Codable, Equatable, Sendable {
@@ -323,6 +326,7 @@ enum BananaService {
             return try decoder.decode(UpcomingBookings.self, from: data)
         }
     }
+    #endif
 
     static func request(_ call: Call, host: String, session: String?) -> URLRequest {
         let (method, path, body): (String, String, Data?) = {
@@ -395,6 +399,7 @@ enum BananaService {
             case .healthConsent(let granted, let version, let device):
                 return granted ? ("PUT", "/v2/consents/health", encode(["version": version, "device": device]))
                                : ("DELETE", "/v2/consents/health", nil)
+            #if BANANA_FEATURE_BOOKING
             case .booking:
                 return ("GET", "/v1/booking", nil)
             case .claimHandle(let handle, let timeZone):
@@ -403,6 +408,7 @@ enum BananaService {
                 return ("PUT", "/v1/booking", encode(body))
             case .upcomingBookings:
                 return ("GET", "/v1/booking/upcoming", nil)
+            #endif
             }
         }()
         #if DEBUG
@@ -457,11 +463,13 @@ enum BananaService {
         (userInfo["b"] as? [String: Any])?["k"] as? String == "sync"
     }
 
+    #if BANANA_FEATURE_BOOKING
     /// A visible push about a booking made, moved or cancelled (`pushHost` in
     /// `Service/src/booking/book.js`): `{"aps": {"alert": …, "thread-id": "booking"}, "b": {"k": "booking"}}`.
     static func isBookingPush(_ userInfo: [AnyHashable: Any]) -> Bool {
         (userInfo["b"] as? [AnyHashable: Any])?["k"] as? String == "booking"
     }
+    #endif
 
     /// What a booking push points at: the event (`cal`, `event`, as event alerts name them), its
     /// start (`start`: milliseconds or an ISO string), and whether it was cancelled (`cancelled:
@@ -473,6 +481,7 @@ enum BananaService {
         var cancelled = false
     }
 
+    #if BANANA_FEATURE_BOOKING
     static func bookingTarget(_ userInfo: [AnyHashable: Any]) -> BookingPushTarget? {
         guard let b = userInfo["b"] as? [AnyHashable: Any], b["k"] as? String == "booking" else { return nil }
         let text = { (key: String) in (b[key] as? String).flatMap { $0.isEmpty ? nil : $0 } }
@@ -487,6 +496,7 @@ enum BananaService {
         let cancelled = b["cancelled"] as? Bool == true || text("status") == "cancelled" || text("kind") == "cancelled"
         return BookingPushTarget(calendarID: text("cal"), eventID: text("event"), start: start, cancelled: cancelled)
     }
+    #endif
 
     /// A silent push from the service saying a Google calendar changed: `{"b": {"k": "calendar"}}`.
     static func isCalendarPush(_ userInfo: [AnyHashable: Any]) -> Bool {

@@ -59,6 +59,10 @@
       "frameworks": ["CoreMotion"],
       "info": ["NSLocationAlwaysAndWhenInUseUsageDescription", "NSMotionUsageDescription"],
       "markers": ["TripLearningService"]
+    },
+    "booking": {
+      "condition": "BANANA_FEATURE_BOOKING",
+      "markers": ["BookingCenter", "BookingTypeStore", "BookingSettingsView"]
     }
   },
   "embeds": {

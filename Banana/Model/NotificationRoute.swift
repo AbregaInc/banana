@@ -10,8 +10,10 @@ enum NotificationRoute: Equatable, Sendable {
     case eventAlert
     /// A Taken reminder (`SupplementSchedule`, `DoseReminders`).
     case dose
+    #if BANANA_FEATURE_BOOKING
     /// A guest booked, moved or cancelled (`BookingPushes`).
     case booking
+    #endif
     /// "What did you eat?" (`MealPhotoNotifications`, the iPhone's).
     case mealPhoto
     case other
@@ -33,14 +35,21 @@ enum NotificationRoute: Equatable, Sendable {
         #if BANANA_MODULE_FOOD
         if SupplementSchedule.isReminder(notificationID: identifier) { return .dose }
         #endif
+        #if BANANA_FEATURE_BOOKING
         if BananaService.isBookingPush(userInfo) { return .booking }
+        #endif
         if category == mealPhotoCategory { return .mealPhoto }
         return .other
     }
 
     /// Shown while Banana is in front: a meeting starting, a dose due (ticking "Workout" makes
     /// Creatine due right then) and a booking are worth a banner wherever you are.
-    var showsInFront: Bool { [.eventAlert, .dose, .booking].contains(self) }
+    var showsInFront: Bool {
+        #if BANANA_FEATURE_BOOKING
+        if self == .booking { return true }
+        #endif
+        return [.eventAlert, .dose].contains(self)
+    }
 
     /// What answering it does.
     enum Action: Equatable, Sendable {
@@ -48,7 +57,9 @@ enum NotificationRoute: Equatable, Sendable {
         case eventAlert
         case markDoseTaken
         case openTakenList
+        #if BANANA_FEATURE_BOOKING
         case openBooking
+        #endif
         case mealPhoto
         case nothing
     }
@@ -57,7 +68,9 @@ enum NotificationRoute: Equatable, Sendable {
         switch self {
         case .eventAlert: .eventAlert
         case .dose: identifier == Self.doseTakenAction ? .markDoseTaken : identifier == Self.tap ? .openTakenList : .nothing
+        #if BANANA_FEATURE_BOOKING
         case .booking: identifier == Self.tap ? .openBooking : .nothing
+        #endif
         case .mealPhoto: .mealPhoto
         case .other: .nothing
         }

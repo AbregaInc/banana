@@ -31,7 +31,9 @@ final class MacNotificationDelegate: NSObject, UNUserNotificationCenterDelegate 
                 #if BANANA_MODULE_FOOD
                 await DoseReminders.handle(response)
                 #endif
+            #if BANANA_FEATURE_BOOKING
             case .openBooking: BookingPushes.opened(response.notification)
+            #endif
             case .mealPhoto, .nothing: break   // meal photos are the iPhone's
             }
             completionHandler()

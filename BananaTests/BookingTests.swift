@@ -1,3 +1,4 @@
+#if BANANA_FEATURE_BOOKING
 import UserNotifications
 import XCTest
 
@@ -613,3 +614,4 @@ final class PlanOpenRequestsTests: XCTestCase {
         XCTAssertFalse(requests.take(b), "taken once")
     }
 }
+#endif

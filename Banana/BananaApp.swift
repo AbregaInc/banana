@@ -1236,8 +1236,10 @@ struct BananaApp: App {
             routines: routines, alarms: store, wake: wake, exceptions: ExceptionStore.shared,
             taskDurations: TaskDurationStore.shared, reminderAnchors: ReminderAnchors.shared,
             missedRepeats: MissedRepeats.shared, anchorSuggestions: AnchorSuggestionStore.shared,
-            bookingTypes: BookingTypeStore.shared,
             smart: smart, settings: settings, modules: ModuleStore.shared, hubStatus: HubStatusStore.shared)
+        #if BANANA_FEATURE_BOOKING
+        syncStores.bookingTypes = BookingTypeStore.shared
+        #endif
         #if BANANA_MODULE_PODCASTS
         syncStores.library = library; syncStores.listenHistory = history
         syncStores.skipPlans = skipPlans.store; syncStores.narratorVoices = NarratorVoiceStore.shared

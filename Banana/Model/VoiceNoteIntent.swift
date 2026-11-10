@@ -71,6 +71,7 @@ struct BananaPhoneShortcuts: AppShortcutsProvider {
             phrases: ["Complete a task in \(.applicationName)", "Tick off a \(.applicationName) task"],
             shortTitle: "Complete Task",
             systemImageName: "checkmark.circle.fill")
+        #if BANANA_FEATURE_BOOKING
         AppShortcut(
             intent: CopyBookingLinkIntent(),
             phrases: ["Copy my \(.applicationName) booking link", "Copy my booking link in \(.applicationName)"],
@@ -81,6 +82,7 @@ struct BananaPhoneShortcuts: AppShortcutsProvider {
             phrases: ["Share my \(.applicationName) booking link", "Share my booking link in \(.applicationName)"],
             shortTitle: "Share Booking Link",
             systemImageName: "square.and.arrow.up")
+        #endif
     }
 }
 #endif

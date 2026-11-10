@@ -1,3 +1,4 @@
+#if BANANA_FEATURE_BOOKING
 import Combine
 import Foundation
 #if os(iOS)
@@ -253,3 +254,4 @@ final class BookingCenter: ObservableObject {
         keep(next)
     }
 }
+#endif

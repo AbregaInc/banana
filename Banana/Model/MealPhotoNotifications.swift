@@ -246,12 +246,14 @@ final class MealPhotoNotificationDelegate: NSObject, UNUserNotificationCenterDel
                 completionHandler()
             }
             return
+        #if BANANA_FEATURE_BOOKING
         case .openBooking:
             Task { @MainActor in
                 BookingPushes.opened(response.notification)
                 completionHandler()
             }
             return
+        #endif
         case .markDoseTaken, .openTakenList:
             // "Taken" marks the dose, a tap opens the Taken list.
             Task { @MainActor in

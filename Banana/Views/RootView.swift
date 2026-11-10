@@ -173,7 +173,9 @@ struct RootView: View {
             } else if ProcessInfo.processInfo.arguments.contains("--booking-preview") {
                 // Settings › Booking on sample types and a stand-in service (`BookingCenter`);
                 // `--booking-linked` with a handle taken, `--booking-editor` on the first type.
+                #if BANANA_FEATURE_BOOKING
                 NavigationStack { BookingSettingsView() }.toastHost()
+                #endif
             } else if ProcessInfo.processInfo.arguments.contains("--calendar-settings-preview") {
                 NavigationStack {
                     IndividualCalendarsView(previewCalendars: [

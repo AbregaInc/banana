@@ -1,3 +1,4 @@
+#if BANANA_FEATURE_BOOKING
 import Foundation
 
 /// `plan.bookingType` (docs/design/BOOKING.md §4): one record per booking type, its fields the
@@ -44,3 +45,4 @@ enum BookingTypeAdapter {
         return binding
     }
 }
+#endif

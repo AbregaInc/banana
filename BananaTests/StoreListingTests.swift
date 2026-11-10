@@ -244,6 +244,19 @@ final class StoreListingTests: XCTestCase {
     /// The App Store app asks for location only while in use (the forecast, travel time): trip
     /// learning, with Always location and Motion, is a feature it leaves out (Config/Modules.json),
     /// so its derived Info.plists have neither usage string. Beta and Stable keep it.
+    /// The App Store app is a Google Calendar client alone: Booking (the link, its types, its
+    /// pushes) is a feature it leaves out, with markers check-release refuses. Beta and Stable keep it.
+    func testTheAppStoreAppLeavesBookingOut() throws {
+        let settings = try ModuleSettings.read()
+        XCTAssertTrue(try XCTUnwrap(settings["BANANA_ALL_MODULES"]).contains("BANANA_FEATURE_BOOKING"))
+        XCTAssertFalse(try XCTUnwrap(settings["BANANA_APP_STORE_MODULES"]).contains("BANANA_FEATURE_BOOKING"))
+        let map = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(contentsOf:
+            SourceTree.root.appendingPathComponent("Config/Modules.json"))) as? [String: Any])
+        let booking = try XCTUnwrap((map["features"] as? [String: Any])?["booking"] as? [String: Any])
+        XCTAssertEqual(booking["condition"] as? String, "BANANA_FEATURE_BOOKING")
+        XCTAssertFalse((booking["markers"] as? [String] ?? []).isEmpty)
+    }
+
     func testTheAppStoreAppLeavesTripLearningOut() throws {
         let settings = try ModuleSettings.read()
         XCTAssertTrue(try XCTUnwrap(settings["BANANA_ALL_MODULES"]).contains("BANANA_FEATURE_TRIP_LEARNING"))
