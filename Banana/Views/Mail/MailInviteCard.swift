@@ -46,9 +46,12 @@ struct MailInviteCard: View {
     @State private var chosen: GoogleCalendarRSVP?
 
     var body: some View {
+        // Something is always there, so the lookup runs: an empty group never appears.
         Group {
             if let event {
                 card(event)
+            } else {
+                Color.clear.frame(height: 0)
             }
         }
         .task(id: invite.uid) {
