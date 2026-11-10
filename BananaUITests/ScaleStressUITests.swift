@@ -43,6 +43,12 @@ final class ScaleStressUITests: XCTestCase {
             app.launchArguments += [flag, value]
         }
         #endif
+        // `MAIL_SENDER_IMAGES=1` (TEST_RUNNER_MAIL_SENDER_IMAGES to xcodebuild): the Mail cases with
+        // sender pictures on every third face (drawn stand-ins, MAIL-UX "Sender images"), for an
+        // ablation against the same build without them.
+        if route == "--mail", ProcessInfo.processInfo.environment["MAIL_SENDER_IMAGES"] == "1" {
+            app.launchArguments += ["--mail-sender-images"]
+        }
         if route == "--plan" {
             if extra.contains("--calendar-prepared-artwork") {
                 app.launchArguments += ["--calendar-artwork-test-probe"]
