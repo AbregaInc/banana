@@ -36,4 +36,16 @@ final class UntimedMomentsTests: XCTestCase {
         XCTAssertFalse(due(at(6, 7), done: true, now: at(6, 12)), "the workout happened")
         XCTAssertFalse(due(at(6, 7), skipped: true, now: at(6, 12)))
     }
+
+    // The Plan rows' rule: a moment marked done leaves at once, not at midnight.
+    func testAMomentMarkedDoneLeavesTheRow() {
+        let shows = { (completed: Bool, skipped: Bool, workedOut: Bool) in
+            UntimedMoments.shows(start: self.at(6, 7), completed: completed, skipped: skipped,
+                                 workedOut: workedOut, now: self.at(6, 12), calendar: self.calendar)
+        }
+        XCTAssertTrue(shows(false, false, false))
+        XCTAssertFalse(shows(true, false, false), "marked done: off the row for the rest of the day")
+        XCTAssertFalse(shows(false, false, true), "a workout was recorded")
+        XCTAssertFalse(shows(false, true, false))
+    }
 }
