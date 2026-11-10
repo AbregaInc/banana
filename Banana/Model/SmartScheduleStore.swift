@@ -1681,10 +1681,9 @@ final class SmartScheduleStore: ObservableObject {
                 }
                 #endif
                 guard let changed = await self.askWhetherCalendarsChanged() else { continue }
-                if changed {
-                    GoogleCalendarService.shared.invalidateEventCache()
-                    self.calendarStoreChanged()
-                }
+                // The ask just brought the shared read up to date, so the pass it starts reads
+                // from that (fresh for 45 s), not from Google a second time.
+                if changed { self.calendarStoreChanged() }
             }
         }
     }
@@ -1703,8 +1702,8 @@ final class SmartScheduleStore: ObservableObject {
         let changed = await askWhetherCalendarsChanged()
         PlaybackDiagnostics.shared.log("☁️ push", changed == nil ? "calendars not read" : changed == true ? "changes found" : "nothing new here")
         if changed == true {
-            GoogleCalendarService.shared.invalidateEventCache()
-            // One change, already read: no burst to wait out.
+            // One change, already read (and the shared read with it): no burst to wait out, and
+            // no second read of the same calendars.
             calendarStoreChanged(after: CalendarChangeEchoPolicy.pushDebounce)
         }
     }

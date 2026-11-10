@@ -27,6 +27,11 @@ enum GoogleEventSync {
         var fullReadAt: Date
         var syncToken: String?
         var events: [GoogleEvent]
+        /// How many times in a row Google refused this calendar's token (410). Some calendars
+        /// (Google's public holiday calendars) refuse every token, even one a moment old.
+        var tokenRefusals: Int? = nil
+        /// When it last did.
+        var tokenRefusedAt: Date? = nil
 
         func covers(_ from: Date, _ to: Date) -> Bool { start <= from && end >= to }
 
@@ -73,6 +78,113 @@ enum GoogleEventSync {
             && now >= snapshot.fullReadAt
     }
 
+    // MARK: Calendars that refuse their tokens
+
+    /// Refusals in a row after which a calendar is read in full without trying its token. Two: a
+    /// token that has merely expired is refused once, and the fresh one after it works.
+    static let refusalsBeforeFullReadsOnly = 2
+    /// How long such a calendar goes without its token before it is tried again.
+    static let refusedTokenRetry: TimeInterval = 6 * 3600
+    /// The most often such a calendar is read in full. In between, its copy answers.
+    static let refusedFullReadInterval: TimeInterval = 10 * 60
+
+    /// What a read of one calendar does next.
+    enum ReadPlan: Equatable {
+        /// Ask for what changed since `token`.
+        case incremental(token: String)
+        /// Read the window in full.
+        case full
+        /// Answer from the copy: read in full a moment ago, and its token is refused anyway.
+        case reuse
+    }
+
+    /// Whether this calendar's tokens are refused, so it is read in full without one.
+    static func refusesTokens(_ snapshot: Snapshot, now: Date) -> Bool {
+        guard (snapshot.tokenRefusals ?? 0) >= refusalsBeforeFullReadsOnly,
+              let refusedAt = snapshot.tokenRefusedAt else { return false }
+        let age = now.timeIntervalSince(refusedAt)
+        return age >= 0 && age < refusedTokenRetry
+    }
+
+    static func readPlan(_ snapshot: Snapshot?, window: (start: Date, end: Date), now: Date) -> ReadPlan {
+        guard let snapshot, snapshot.start == window.start, snapshot.end == window.end else { return .full }
+        if refusesTokens(snapshot, now: now) {
+            let age = now.timeIntervalSince(snapshot.fullReadAt)
+            return age >= 0 && age < refusedFullReadInterval ? .reuse : .full
+        }
+        if canContinue(snapshot, window: window, now: now), let token = snapshot.syncToken {
+            return .incremental(token: token)
+        }
+        return .full
+    }
+
+    /// A full read's copy, carrying the refusal record: counted up when Google refused the token
+    /// (`refused`), kept as it was otherwise, so it runs out by time.
+    static func fullRead(_ snapshot: Snapshot, after previous: Snapshot?, refused: Bool, now: Date) -> Snapshot {
+        var copy = snapshot
+        if refused {
+            copy.tokenRefusals = (previous?.tokenRefusals ?? 0) + 1
+            copy.tokenRefusedAt = now
+        } else {
+            copy.tokenRefusals = previous?.tokenRefusals
+            copy.tokenRefusedAt = previous?.tokenRefusedAt
+        }
+        return copy
+    }
+
+    // MARK: Which changes are news
+
+    /// Whether an event is one of Banana's own copies: a Busy, travel or task block, written by
+    /// any device of either build (the variant marker), or a copy naming its source.
+    static func isBananaCopy(_ event: GoogleEvent) -> Bool {
+        GoogleEventEditPolicy.isBananaBlock(event.extendedProperties?.private)
+            || !GoogleBusyBlocks.sources(of: event.extendedProperties).isEmpty
+    }
+
+    /// The changed ids that are Banana's copies. A removed copy comes back from Google as a bare
+    /// cancelled id, so what it was is read from the copy before the change.
+    static func bananaCopyIDs(_ ids: Set<String>, before: [GoogleEvent], after: [GoogleEvent]) -> Set<String> {
+        guard !ids.isEmpty else { return [] }
+        var now: [String: GoogleEvent] = [:]
+        for event in after { if let id = event.id, ids.contains(id) { now[id] = event } }
+        var then: [String: GoogleEvent] = [:]
+        for event in before { if let id = event.id, ids.contains(id) { then[id] = event } }
+        return ids.filter { id in
+            if let event = now[id], event.status != "cancelled" { return isBananaCopy(event) }
+            return then[id].map(isBananaCopy) ?? false
+        }
+    }
+
+    /// Decides when a read that found changes tells the plan. A change to a real event does at
+    /// once. A change only to Banana's copies, written by another device, does at most once every
+    /// `copyChurnInterval`: copies follow from the events, so a re-plan for them can wait. Without
+    /// this, two devices that each re-plan and re-write when the other writes kept every device
+    /// re-planning every few seconds. A held change is told at the first read past the interval.
+    struct NewsGate: Equatable {
+        static let copyChurnInterval: TimeInterval = 3 * 60
+        private(set) var lastToldAt: Date?
+        private(set) var copiesHeld = false
+
+        /// Whether to tell the plan, for a read that found changes to real events (`events`) and
+        /// to copies (`copies`), either possibly none.
+        mutating func admit(events: Bool, copies: Bool, now: Date) -> Bool {
+            if events {
+                lastToldAt = now
+                copiesHeld = false
+                return true
+            }
+            if copies { copiesHeld = true }
+            guard copiesHeld else { return false }
+            if let last = lastToldAt {
+                let age = now.timeIntervalSince(last)
+                if age >= 0 && age < Self.copyChurnInterval { return false }
+            }
+            lastToldAt = now
+            copiesHeld = false
+            return true
+        }
+    }
+
     /// Apply an incremental read to the cached events.
     static func apply(_ changes: [GoogleEvent], to events: [GoogleEvent]) -> [GoogleEvent] {
         guard !changes.isEmpty else { return events }
@@ -109,7 +221,13 @@ enum GoogleEventSync {
     /// Whether any of `ids` is something other than an echo of Banana's own recent writes.
     static func containsNews(_ ids: Set<String>, ownWrites: [String: Date], now: Date,
                              echoWindow: TimeInterval = 10 * 60) -> Bool {
-        ids.contains { id in
+        !foreignIDs(ids, ownWrites: ownWrites, now: now, echoWindow: echoWindow).isEmpty
+    }
+
+    /// The ids among `ids` that are not echoes of this device's own recent writes.
+    static func foreignIDs(_ ids: Set<String>, ownWrites: [String: Date], now: Date,
+                           echoWindow: TimeInterval = 10 * 60) -> Set<String> {
+        ids.filter { id in
             guard let wroteAt = GoogleOwnWrites.writtenAt(id, in: ownWrites) else { return true }
             return now.timeIntervalSince(wroteAt) > echoWindow
         }
