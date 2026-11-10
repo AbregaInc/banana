@@ -118,6 +118,10 @@ enum MailAccessOutcome: Equatable, Sendable {
 
 enum MailScopes {
     static let gmailModify = "https://www.googleapis.com/auth/gmail.modify"
+    /// Asked with Mail so Banana Cloud can show a sender's photo from his Google contacts (MAIL-UX
+    /// "Sender images"). Mail works without them: an unticked box only skips that source.
+    static let senderPhotos = ["https://www.googleapis.com/auth/contacts.readonly",
+                               "https://www.googleapis.com/auth/contacts.other.readonly"]
 
     /// The scopes in a token response's space-separated `scope` field.
     ///

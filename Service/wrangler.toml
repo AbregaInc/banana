@@ -95,6 +95,12 @@ name = "RL_RECONCILE"
 namespace_id = "1007"
 simple = { limit = 6, period = 60 }
 
+# Mail sender images: lookups per account (src/sender-images.js).
+[[ratelimits]]
+name = "RL_SENDERS"
+namespace_id = "1008"
+simple = { limit = 60, period = 60 }
+
 # Booking and guest mail use the onboarded ce.bananatheapp.com sending domain.
 # Keep config.emailFrom on that domain; replies go to the owner.
 [[send_email]]
@@ -194,6 +200,11 @@ simple = { limit = 60, period = 60 }
 name = "RL_RECONCILE"
 namespace_id = "1107"
 simple = { limit = 6, period = 60 }
+
+[[env.beta.ratelimits]]
+name = "RL_SENDERS"
+namespace_id = "1108"
+simple = { limit = 60, period = 60 }
 
 [[env.beta.send_email]]
 name = "EMAIL"

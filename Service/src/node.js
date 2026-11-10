@@ -22,6 +22,7 @@ import { memoryEmail } from "./booking/email.js";
 import { memoryLimits, memoryPageCache } from "./booking/guard.js";
 import { bookingContext, bookingMinute, bookingQuarter } from "./booking/jobs.js";
 import { createSigner } from "./booking/sign.js";
+import { nodeSvgRasterizer } from "./svg-raster.js";
 
 const config = configFrom(process.env);
 const dataDir = process.env.DATA_DIR || "./data";
@@ -45,6 +46,9 @@ const deps = {
   now: Date.now,
   sleep: (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
   random: (n) => crypto.getRandomValues(new Uint8Array(n)),
+  // Sender images (src/sender-images.js): public pictures fetched by the service, BIMI SVGs drawn here.
+  outbound: fetch,
+  rasterSvg: await nodeSvgRasterizer(),
 };
 deps.mailboxes = mailboxesSqlite(join(dataDir, "mailboxes"), { deps, blobs });
 

@@ -233,16 +233,19 @@ struct DayAnchors: Equatable {
 /// Whether Email then starts is the account's eligibility, which is known only after sign-in.
 enum EmailSetup {
     #if BANANA_PUBLIC
-    /// Stable has no Email, so it carries no Gmail scope (tools/check-release.sh refuses one).
+    /// Stable has no Email, so it carries no Gmail or contacts scope (tools/check-release.sh refuses one).
     static let gmailScope = ""
+    static let senderScopes: [String] = []
     #else
     /// What Mail reads and acts with (`MailScopes.gmailModify`).
     static let gmailScope = "https://www.googleapis.com/auth/gmail.modify"
+    /// Read with Mail, for senders' photos (`MailScopes.senderPhotos`); optional on Google's screen.
+    static let senderScopes = MailScopes.senderPhotos
     #endif
 
     /// What the one consent asks for beyond the calendar's own scopes.
     static func extraScopes(inBuild: Bool, wanted: Bool) -> [String] {
-        inBuild && wanted && !gmailScope.isEmpty ? [gmailScope] : []
+        inBuild && wanted && !gmailScope.isEmpty ? [gmailScope] + senderScopes : []
     }
 
     enum Outcome: Equatable {

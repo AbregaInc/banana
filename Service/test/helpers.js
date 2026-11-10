@@ -81,6 +81,14 @@ export function fakeGoogle() {
     async revoke(refreshToken) { calls.revoke.push(refreshToken); },
     clock: () => 0,
 
+    // ---- sender images: the People API's contacts, per kind ("connections", "other") ----
+    contactBook: { connections: [], other: [] }, contactCalls: [],
+    async contacts(access, kind, pageToken) {
+      this.contactCalls.push({ access, kind, pageToken });
+      if (refused.has(this.tokenOf(access))) throw new GoogleRefused("contacts");
+      return { people: structuredClone(this.contactBook[kind] ?? []), next: null };
+    },
+
     // ---- booking: calendar lists, events made, read, moved, deleted, free/busy ----
     /** Calendars per refresh token; without an entry, one primary calendar `primary-<refresh>`. */
     calendars: new Map(),

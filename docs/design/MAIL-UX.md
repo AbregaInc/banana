@@ -1300,7 +1300,7 @@ list may use the eyebrow; and Mail hosts its own toast on iPhone and iPad (5.2).
 |---|---|---|
 | `DateText` | `Shared/BananaDesign.swift`, beside `TimeRangeText` | A rule over the system's formatters; it assembles nothing by hand. `DateText.row(_:now:calendar:locale:)`: today → `TimeRangeText.time` · yesterday → the locale's own word, from the system's relative formatter · two to six days ago → `Date.FormatStyle` weekday · this year → `.dateTime.day().month(.abbreviated)` · earlier → the same with the year. `DateText.column(…)` for the one-line row, which sits under a date-group label: today and yesterday → the time · this week → weekday and day · this year → day and month · earlier → month and year. `DateText.full(…)` for a message header: weekday, day, month and the time. Tested at fixed instants in a 12- and a 24-hour locale. |
 | `DSChip` | `Shared/BananaDesign.swift` | A small labelled pill: optional leading symbol, text (`.caption`, one line, middle truncation when asked), `Radius.chip`, fill `tint.opacity(Tint.soft)` or `Color.primary.opacity(Tint.subtle)` with no tint. Two forms. *Display* (labels, the account, attachments): minimum height 22 pt. *Control* (recipients, filters, split chips): the same pill with an optional trailing × and a 44-pt (28 on the Mac) hit area. |
-| `Monogram` | `Shared/BananaDesign.swift` | The account card's avatar made reusable: a circle (`DS.Row.avatar` by default) filled with the person's colour at `Tint.fill`, the initial in that colour taken toward the text colour (`DS.Event.ink`). Rows and message headers (6.1.1). No remote pictures. |
+| `Monogram` | `Shared/BananaDesign.swift` | The account card's avatar made reusable: a circle (`DS.Row.avatar` by default) filled with the person's colour at `Tint.fill`, the initial in that colour taken toward the text colour (`DS.Event.ink`). Rows and message headers (6.1.1), under the sender's picture when Banana Cloud has one (`MailFaceView`, "Sender images"). |
 | `KeyHintRow` | `Shared/BananaDesign.swift` | The command menu's footer hint (`KeyCap`s and a caption) lifted out of `MacCommandMenu` so the composer and pickers draw the same strip. |
 | `ToastCenter.present` | `Banana/Model/ToastCenter.swift` | `func present(_ message: String, actionTitle: String = "Undo", duration: Duration? = nil, action: (@MainActor () -> Void)? = nil)`. Shows now and returns: it takes the previous pending commit, shows, and runs that commit in a detached task, as `notify` does. `duration` overrides `ToastCenter.window` for this toast (the send hold). Mail never calls `deferRemoval` or `offerUndo`: its changes are already stored when the toast shows, and a key handler must not await another feature's network call. |
 | `MailBottomBar` | `Banana/Views/Mail/MailBottomBar.swift` | The compact arrangement's one bottom slot (6.1.3). Built only after prototype P4 has settled its form. Where it is a safe-area inset, the toast host is applied *inside* it so the toast sits just above. **Where the toast is hosted:** on iPhone and iPad `MailSection` applies `.toastHost()` itself and `RootView` adds none to the Mail tab; on the Mac the shell's one host serves Mail. |
@@ -1579,9 +1579,53 @@ first person in the row who isn't him, as a `Monogram` — their initial on a so
 chosen from their address (`MailFace`), the same on every device. In the three-line row it is
 `DS.Mail.face` (32 pt) beside the name and subject, inside the row's fixed 76 pt, so the list is no
 taller; in the one-line row it is `DS.Mail.faceInline` (20 pt) at the head of the sender's column.
-Each message in a conversation shows its sender's face beside the name. Nothing is fetched for a
-face: a remote picture would tell the sender when the mail was read, and Google's profile photos
-of other people need a contacts permission Mail doesn't ask for.
+Each message in a conversation shows its sender's face beside the name. The monogram is drawn at
+once and stays when there is no picture.
+
+**Sender images** (the owner, 10 Nov 2026). A face's picture is laid over its monogram when Banana
+Cloud has one (`MailFaceView`, `MailSenderImages`). Same size, same place: the row never moves.
+
+- *Who finds it.* Banana Cloud, never the device. A device that asked Gravatar or a brand's site
+  would tell them who writes to him and when he reads it; the service asks once for every user.
+  The device asks only `POST /v1/mail/senders` (up to 50 addresses, in the body) and
+  `GET /v1/mail/sender-image/<id>`, where the id is the SHA-256 of the image's bytes.
+- *Order, per address* (`Service/src/sender-images.js`): his contact's own photo → the person's
+  Google profile photo → the brand's BIMI logo → Gravatar → the site's icon → none.
+  - Contacts (People API `connections` and `otherContacts`, `contacts.readonly` and
+    `contacts.other.readonly`, asked with Mail on the same Google screen and optional there) are
+    read on the service at most once a day. A `CONTACT`-source photo (one he set) is his alone; a
+    `PROFILE`-source photo is the person's public one.
+  - BIMI: `default._bimi.<From domain>`, else the organisational domain's (public suffix list,
+    `tldts`). Only when the domain's DMARC policy is at enforcement (`quarantine` or `reject`, all
+    of its mail): BIMI's own condition, and what keeps a forged From at that domain out of the
+    inbox. Per-message DMARC results (`MailAuthRules`) are not carried to rows or to the cloud
+    mailbox, so the check is the domain's, not the message's. The SVG (32 KB at most) is refused
+    if it has scripts, event handlers, foreign objects, entities or any outside reference, and is
+    drawn to a 128 px PNG on the service with resvg (WebAssembly): devices decode only bitmaps.
+  - Gravatar: `https://gravatar.com/avatar/<sha256 of the address>?d=404&s=128`; 404 is none.
+  - Site icon: only for automated senders (`no-reply@`, `notifications@`, `news@`…; never a person
+    at the company) — the site's own `/apple-touch-icon.png`, else the largest `apple-touch-icon`
+    or sized `icon` its home page links; 64 px at least, never a favicon.ico. The way established
+    clients without a logo service show brands, without a third-party logo API.
+  - Mail providers (gmail.com, outlook.com, icloud.com, yahoo.*…) never get a brand logo or site
+    icon: a person at gmail.com is not Google.
+- *Two tiers.* Public pictures (profile photo, BIMI, Gravatar, site icon) are kept once, in
+  R2 `senders/shared/`, for every Banana user, keyed by a hash of the address or domain: the first
+  user to show a sender pays for the fetch. A contact photo is kept under his account
+  (`senders/u/<account>/`) and served to him alone; it never enters the shared tier. His contact
+  rows and copies go with Mail access, the Google link or the account.
+- *Times.* A picture is checked again after 14 days, "none" after 3 days, a source that failed
+  after an hour. The device keeps the service's answer 3 days (a picture) or a day (none), the
+  bytes on disk (24 MB, least recently shown first out) and decoded pictures in memory.
+- *Never waiting.* Rows show their monogram at once. A face on screen asks (`task`, cancelled when
+  it scrolls away); asks within 40 ms of each other go as one request and one address is asked
+  once however many rows show it. The service answers within 2.5 s; what it is still finding is
+  `pending` and asked again 5 s later, twice at most. A picture fades in over 0.2 s; one already
+  decoded is drawn on the row's first frame.
+- *Limits.* Every outside fetch is https to a public host name (no address literals, local names
+  or ports; redirects checked hop by hop), 3 s, 256 KB at most, and kept only when its first bytes
+  are PNG, JPEG, GIF or WebP. Lookups are limited per account (`RL_SENDERS`). No address or hash
+  of one is logged.
 
 **Skeleton row.** A conversation known to belong here whose first message has not arrived
 (`stillLoading`) is the same row with bars in secondary at `Tint.subtle`: one per line, at

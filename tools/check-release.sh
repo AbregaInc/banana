@@ -96,6 +96,7 @@ patterns="$patterns
 banana-unreleased-modules-built-in
 gmail.googleapis.com
 https://www.googleapis.com/auth/gmail
+https://www.googleapis.com/auth/contacts
 https://mail.google.com/"
 fi
 
