@@ -27,9 +27,7 @@ struct MailConversationScreen: View {
             if !bottomBarShell && !wideShell { MailDivider(axis: .horizontal) }
             if wideShell, let composer = navigation.composer, composer.answers == reader.id {
                 // The box at the foot of the conversation (direction A), or over it at full height.
-                if navigation.dock?.mode != .full {
-                    MailConversationContent(session: session, reader: reader, inlineComposer: inlineComposer)
-                }
+                if navigation.dock?.mode != .full { conversation }
                 Group {
                     if navigation.dock?.isFolded == true {
                         MailComposerFoldedField(session: session, model: composer)
@@ -41,13 +39,24 @@ struct MailConversationScreen: View {
                 .padding(.horizontal, DS.Space.m)
                 .padding(.bottom, DS.Space.m)
             } else {
-                MailConversationContent(session: session, reader: reader, inlineComposer: inlineComposer)
+                conversation
             }
         }
         // A container of its own, so that its identifier is its own: set on a bare stack it is
         // handed down to every control in it, and Back, Done and the rest lose theirs.
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier(MailID.conversation)
+    }
+
+    /// On iPhone and iPad the conversation is a page among its neighbours in the list: a swipe
+    /// sideways reads on (`MailConversationPager`). The Mac steps with J and K and its buttons.
+    @ViewBuilder private var conversation: some View {
+        #if os(iOS)
+        MailConversationPager(session: session, reader: reader, feed: session.feed,
+                              inlineComposer: inlineComposer, swipes: navigation.composer == nil)
+        #else
+        MailConversationContent(session: session, reader: reader, inlineComposer: inlineComposer)
+        #endif
     }
 }
 
@@ -63,6 +72,9 @@ struct MailConversationContent: View {
     let inlineComposer: Bool
     /// "…" beside the subject, in place of the pane's row of icons (an upright iPad's reader).
     var titleMenu = false
+    /// False for a neighbour's page laid out beside the open one in the pager: it is not offered
+    /// to Report a problem.
+    var isShown = true
     @State private var position: ScrollPosition
     /// Where the thread was when his finger went down on it, while it is down.
     @State private var pullStart: CGFloat?
@@ -71,11 +83,13 @@ struct MailConversationContent: View {
     /// In the bar's shells, pulling the thread down to read folds the composer's box into the field.
     @Environment(\.bottomBarShell) private var bottomBarShell
 
-    init(session: MailSession, reader: MailReaderModel, inlineComposer: Bool, titleMenu: Bool = false) {
+    init(session: MailSession, reader: MailReaderModel, inlineComposer: Bool, titleMenu: Bool = false,
+         isShown: Bool = true) {
         self.session = session
         self.reader = reader
         self.inlineComposer = inlineComposer
         self.titleMenu = titleMenu
+        self.isShown = isShown
         _position = State(initialValue: ScrollPosition(y: reader.scrollOffset))
     }
 
@@ -158,7 +172,7 @@ struct MailConversationContent: View {
             #endif
         }
         .modifier(MailAttachmentPreviewHost(opener: reader.opener))
-        .modifier(ProvidesMailReport(reader: reader, source: session.source))
+        .modifier(ProvidesMailReport(reader: reader, source: session.source, active: isShown))
     }
 
     /// Whether the composer's box is open, not folded, on an answer to this conversation. Read when

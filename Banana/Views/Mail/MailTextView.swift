@@ -102,6 +102,7 @@ private struct MailTableView: View {
         }
         .scrollIndicators(.hidden)
         .scrollBounceBehavior(.basedOnSize, axes: .horizontal)
+        .accessibilityIdentifier(MailID.bodyTable)
     }
 }
 

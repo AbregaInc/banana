@@ -55,20 +55,30 @@ extension ProblemReportPageContext {
     }
 }
 
-/// Offers the conversation in the reader to Report a problem while it shows.
+/// Offers the conversation in the reader to Report a problem while it shows. A neighbour's page
+/// in the reader's pager is laid out beside the open one and is not `active`: only the page on
+/// screen is offered.
 struct ProvidesMailReport: ViewModifier {
     let reader: MailReaderModel
     let source: MailSource
+    var active = true
 
     func body(content: Content) -> some View {
         content
-            .onAppear {
-                let model = reader, source = source
-                ProblemReportCenter.shared.provide(.mail, owner: ObjectIdentifier(model)) { [weak model] in
-                    model.flatMap { ProblemReportPageContext.mail(reader: $0, source: source) }
-                }
-            }
-            .onDisappear { ProblemReportCenter.shared.withdraw(.mail, owner: ObjectIdentifier(reader)) }
+            .onAppear { if active { provide() } }
+            .onChange(of: active) { _, now in if now { provide() } else { withdraw() } }
+            .onDisappear { withdraw() }
+    }
+
+    private func provide() {
+        let model = reader, source = source
+        ProblemReportCenter.shared.provide(.mail, owner: ObjectIdentifier(model)) { [weak model] in
+            model.flatMap { ProblemReportPageContext.mail(reader: $0, source: source) }
+        }
+    }
+
+    private func withdraw() {
+        ProblemReportCenter.shared.withdraw(.mail, owner: ObjectIdentifier(reader))
     }
 }
 #endif

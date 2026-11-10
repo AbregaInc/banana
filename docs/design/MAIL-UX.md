@@ -643,8 +643,15 @@ is T16; the next conversation appears under a bar that has not moved.
 
 **T42. Next and previous by touch.** The conversation's navigation bar has an older and a
 newer button at its trailing edge, disabled at the ends of the list (T12). They act on
-nothing. A swipe along the action bar for the same thing is added only if prototype P4 shows
-it does not fight the system's back swipe.
+nothing. On iPhone and iPad the conversation is also a page among its neighbours, as in
+Gmail (the owner's request, 10 Nov 2026): a swipe left shows the next older conversation, a
+swipe right the newer one, following the finger and settling like a page; at either end it
+rubber-bands and never wraps. The queue is the list it was opened from as shown (place,
+label, search, filters, and the rows that load as he goes). A swipe that settles is T12:
+the cursor follows, the read delay starts, the direction is set, so a disposing action then
+advances the way he was swiping (T16). The left edge is Back and never a page; a pan that
+starts on content that scrolls sideways (a wide table or picture) scrolls it first. Not
+while a composer is open. The Mac keeps `J`/`K` and the buttons; no trackpad page swipe.
 
 **T43.** Pulling the list down checks for mail now (7.2).
 
@@ -1920,7 +1927,7 @@ below, and the Mac's is accepted when its own run has passed.
   changed, so clearing a run is tap, tap, tap in one spot.
 - **Older and newer** are buttons in the navigation bar (`chevron.down`, `chevron.up`),
   disabled at the ends of the list. They are how a conversation is skipped without acting on
-  it. A swipe along the action bar for the same thing is added only if P4 allows (T42).
+  it. A sideways swipe on the conversation does the same (T42).
 - **Reply** replies to everyone in the conversation (to the sender alone when there is no one
   else). More lists Reply to sender and Forward; so does a press and hold.
 - **More** opens the command sheet (6.7).

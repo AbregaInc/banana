@@ -311,10 +311,20 @@ private struct MailScreen: View {
                     .accessibilityHidden(navigation.reader != nil)
                 // Over the columns, not instead of them: the list keeps its place underneath.
                 if let reader = navigation.reader {
+                    #if os(iOS)
+                    // One screen for the whole run of conversations he swipes through: the
+                    // pager keeps each page's own identity (`MailConversationPager`). Its left
+                    // edge pulls it away to the list underneath, as a pushed screen's does.
+                    MailConversationScreen(session: session, reader: reader,
+                                           inlineComposer: !arrangement.isCompact)
+                        .background(Color.mailBackground)
+                        .modifier(MailEdgeBack(session: session))
+                    #else
                     MailConversationScreen(session: session, reader: reader,
                                            inlineComposer: !arrangement.isCompact)
                         .id(reader.id)
                         .background(Color.mailBackground)
+                    #endif
                 }
             }
             .environment(\.mailSession, session)
