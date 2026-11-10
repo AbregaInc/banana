@@ -195,6 +195,13 @@ import GRDB
     }
     func activate() {
         guard !active else { return }; active = true
+        // Coming back to Mail: a wait left by a failure that was not a limit (a request the
+        // system suspended with the app, a dropped connection) does not hold the first pass or
+        // the first downloads back. A limit's wait stands.
+        for account in Array(syncRetryAt.keys) {
+            if case .limited = syncHealth[account] { continue }
+            syncRetryAt[account] = nil
+        }
         publishAccounts(); checkNow()
         wants(conversationSubscriptions.values.map(\.id))
         startDownloads()
@@ -786,8 +793,11 @@ import GRDB
                     guard !Task.isCancelled, let self else { return }
                     self.failures.insert(item.account)
                     if error as? GmailError == .unauthorized { self.access.dropMailAccessToken(accountID: item.account) }
-                    if case GmailError.limited = error {
-                        self.recordReadFailure(error, account: item.account, minimumDelay: 30)
+                    if case GmailError.limited(_, let hint) = error {
+                        // The service's own pacing says when (Retry-After, often a second): that,
+                        // not half a minute of every read and the sync for the account waiting.
+                        self.recordReadFailure(error, account: item.account,
+                                               minimumDelay: hint.flatMap { $0.isFinite && $0 > 0 ? $0 : nil } ?? 30)
                     }
                 }
                 guard !Task.isCancelled, let self else { return }

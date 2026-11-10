@@ -92,18 +92,34 @@ actor GmailConversationLoader {
     func storeCloud(_ messages: [GmailMessage], account rawAccount: String) async throws -> CloudStored {
         let account = rawAccount.lowercased()
         let ids = messages.compactMap(\.id)
-        let rows = try await stores.index.read { db -> [String: (String, Int64)] in
-            var out: [String: (String, Int64)] = [:]
+        let rows = try await stores.index.read { db -> [String: (String, Int64, Int)] in
+            var out: [String: (String, Int64, Int)] = [:]
             for id in ids {
                 if let row = try Row.fetchOne(db, sql: """
-                    SELECT t.gmail_id,m.msg_pk FROM message m JOIN thread t ON t.thread_pk=m.thread_pk
+                    SELECT t.gmail_id,m.msg_pk,m.fetch_state FROM message m JOIN thread t ON t.thread_pk=m.thread_pk
                     JOIN account a ON a.account_pk=m.account_pk WHERE a.email=? AND m.gmail_id=?
-                    """, arguments: [account, id]) { out[id] = (row[0], row[1]) }
+                    """, arguments: [account, id]) { out[id] = (row[0], row[1], row[2]) }
             }
             return out
         }
-        var ready: [(FetchedMessage, Int64, String)] = [], headed: [(FetchedMessage, Int64, String)] = []
+        func headersOnly(_ message: GmailMessage) -> (FetchedMessage, Int64, String)? {
+            guard let messageID = message.id, let row = rows[messageID], let floor = message.historyId,
+                  message.threadId == row.0, message.payload?.headers != nil else { return nil }
+            return (FetchedMessage(wire: message, floor: floor, headers: MessageHeaders(payload: message.payload), structure: nil), row.1, row.0)
+        }
         var problems: [String] = []
+        // Mail known only by id is not listed until its headers are in, and they came with this
+        // batch: they go in first, in one transaction, so new mail is on the list now rather than
+        // after every body of the batch has been prepared.
+        var listedFirst = Set<String>()
+        let stubs = messages.filter { $0.id.flatMap { rows[$0]?.2 } == 0 }.compactMap(headersOnly)
+        if !stubs.isEmpty {
+            let early = try await commitCloud([], headed: stubs, account: account)
+            listedFirst = Set(early.headersOnly)
+            problems += early.problems
+        }
+        var ready: [(FetchedMessage, Int64, String)] = [], headed: [(FetchedMessage, Int64, String)] = []
+        var unstored: [String] = []
         for message in messages {
             try Task.checkCancellation()
             guard let messageID = message.id, let row = rows[messageID], let floor = message.historyId else { continue }
@@ -115,16 +131,16 @@ actor GmailConversationLoader {
             } catch is CancellationError {
                 throw CancellationError()
             } catch {
-                // One message that cannot be stored here (malformed, too large or too complex to
-                // prepare, a part that would not load) never holds back the rest of the batch. Its
-                // headers still go in, so its row is listed; its text is left to the per-message path.
+                // One message that cannot be stored here (malformed, too large, a part that would
+                // not load) never holds back the rest of the batch. Its headers still go in, so its
+                // row is listed; its text is left to the per-message path.
                 problems.append(Self.describe(error))
-                if message.threadId == row.0, message.payload?.headers != nil {
-                    headed.append((FetchedMessage(wire: message, floor: floor, headers: MessageHeaders(payload: message.payload), structure: nil), row.1, row.0))
-                }
+                if listedFirst.contains(messageID) { unstored.append(messageID) }
+                else if let item = headersOnly(message) { headed.append(item) }
             }
         }
         var result = try await commitCloud(ready, headed: headed, account: account)
+        result.headersOnly += unstored
         result.problems = problems + result.problems
         return result
     }

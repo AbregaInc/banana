@@ -75,7 +75,14 @@ final class MailCloudPullTests: XCTestCase {
                 .map { m -> GmailMessage in var h = m; h.payload?.body = nil; return h }
             return GmailThread(id: id, historyId: 100, messages: list)
         }
-        func attachment(token: String, messageID: String, attachmentID: String) async throws -> GmailPartBody { throw GmailError.malformed }
+        /// How long an attachment read takes before it fails (a body that has to be fetched in parts).
+        var attachmentWait: Duration = .zero
+        func slowAttachments(_ value: Duration) { attachmentWait = value }
+        func attachment(token: String, messageID: String, attachmentID: String) async throws -> GmailPartBody {
+            calls.append("attachment:\(messageID)")
+            if attachmentWait > .zero { try await Task.sleep(for: attachmentWait) }
+            throw GmailError.malformed
+        }
         func labels(token: String) async throws -> [GmailLabel] { [] }
         func listMessages(token: String, labelIDs: [String], query: String?, includeSpamTrash: Bool, pageToken: String?, maxResults: Int) async throws -> GmailIDPage { GmailIDPage() }
         func history(token: String, start: String, pageToken: String?, maxResults: Int) async throws -> GmailHistoryPage { GmailHistoryPage(historyId: 100) }
@@ -119,6 +126,19 @@ final class MailCloudPullTests: XCTestCase {
         {"id":"\(id)","threadId":"t-\(id)","historyId":"100","internalDate":"\(date)","labelIds":\(String(decoding: try! JSONEncoder().encode(labels), as: UTF8.self)),
          "payload":{"partId":"0","mimeType":"text/html","headers":[{"name":"From","value":"news@example.com"},{"name":"Subject","value":"Deep \(id)"}],
          "body":{"size":\(html.utf8.count),"data":"\(data)"}}}
+        """
+        return try! JSONDecoder().decode(GmailMessage.self, from: Data(json.utf8))
+    }
+    /// A message whose headers are fine but whose body cannot be stored here (no MIME type).
+    static func unstorable(_ id: String, date: Int64, labels: [String] = ["INBOX"]) -> GmailMessage {
+        var m = full(id, date: date); m.labelIds = labels; m.payload?.mimeType = ""; return m
+    }
+    /// A message whose body Gmail left out of the `full` read: it must be read in parts.
+    static func bodyInParts(_ id: String, date: Int64, labels: [String] = ["INBOX"]) -> GmailMessage {
+        let json = """
+        {"id":"\(id)","threadId":"t-\(id)","historyId":"100","internalDate":"\(date)","labelIds":\(String(decoding: try! JSONEncoder().encode(labels), as: UTF8.self)),
+         "payload":{"partId":"0","mimeType":"text/plain","headers":[{"name":"From","value":"sender@example.com"},{"name":"Subject","value":"Parts \(id)"}],
+         "body":{"size":5,"attachmentId":"a-\(id)"}}}
         """
         return try! JSONDecoder().decode(GmailMessage.self, from: Data(json.utf8))
     }
@@ -283,22 +303,69 @@ final class MailCloudPullTests: XCTestCase {
     /// One message in the batch whose HTML the preparer refuses used to fail the whole batch, and
     /// the same newest-first batch was asked again on every kick: nothing in it, nor in any later
     /// account, was ever stored. Now the others are stored and it is listed with its headers.
-    func testOneMessageThatCannotBePreparedDoesNotHoldBackItsBatch() async throws {
+    func testOneMessageThatCannotBeStoredDoesNotHoldBackItsBatch() async throws {
         let cloud = Cloud()
         await cloud.set((1...5).map { entry("m\($0)", date: Int64($0) * 1000) })
-        await cloud.hold([1, 2, 4, 5].map { Self.full("m\($0)", date: Int64($0) * 1000) } + [Self.tooDeep("m3", date: 3000)])
+        await cloud.hold([1, 2, 4, 5].map { Self.full("m\($0)", date: Int64($0) * 1000) } + [Self.unstorable("m3", date: 3000)])
         let (stores, pull) = try await setup(cloud)
         let step = try await pull.step(fill: true)
         XCTAssertEqual(step.tier, .fill)
         XCTAssertEqual(Set(step.stored), Set([5, 4, 2, 1].map { id("m\($0)") }))
-        XCTAssertTrue(step.problems.contains { $0.contains("tooComplex") }, "\(step.problems)")
+        XCTAssertTrue(step.problems.contains { $0.contains("malformed") }, "\(step.problems)")
         for n in [1, 2, 4, 5] { let ok = try await here(stores, "m\(n)"); XCTAssertTrue(ok, "m\(n)") }
-        let deep = try await stores.index.read { try Row.fetchOne($0, sql: "SELECT fetch_state, subject, cloud_content FROM message WHERE gmail_id='m3'") }
-        XCTAssertEqual(deep?[0] as Int?, 1, "its headers are in: the row is listed")
-        XCTAssertEqual(deep?[1] as String?, "Deep m3")
-        XCTAssertEqual(deep?[2] as Int?, 0, "the fill does not ask for it again")
+        let bad = try await stores.index.read { try Row.fetchOne($0, sql: "SELECT fetch_state, subject, cloud_content FROM message WHERE gmail_id='m3'") }
+        XCTAssertEqual(bad?[0] as Int?, 1, "its headers are in: the row is listed")
+        XCTAssertEqual(bad?[1] as String?, "S m3")
+        XCTAssertEqual(bad?[2] as Int?, 0, "the fill does not ask for it again")
         let idle = try await pull.step(fill: true)
         XCTAssertFalse(idle.worked, "no batch is asked again and again")
+    }
+
+    /// HTML beyond what native text is made from (here nested past the bound) is stored with its
+    /// words, once: it is not pulled and prepared again on every screen change.
+    func testAMessageTooComplexToMakeNativeIsStoredOnceWithItsWords() async throws {
+        let cloud = Cloud()
+        await cloud.set([entry("d", date: 2000), entry("p", date: 1000)])
+        await cloud.hold([Self.tooDeep("d", date: 2000), Self.full("p", date: 1000)])
+        let (stores, pull) = try await setup(cloud)
+        _ = try await pull.onScreen([conversation("d"), conversation("p")])
+        let step = try await pull.step(fill: true)
+        XCTAssertEqual(Set(step.stored), [id("d"), id("p")])
+        XCTAssertEqual(step.problems, [])
+        let body = try await MailBlobStore(stores: stores).prepared(account: Self.account, messageID: "d")
+        XCTAssertEqual(body?.text.blocks.map { $0.runs.map(\.text).joined() }.joined(), "deep")
+        _ = try await pull.onScreen([conversation("p"), conversation("d")])   // the rows move
+        let again = try await pull.step(fill: true)
+        XCTAssertFalse(again.worked, "nothing left to pull")
+        let asked = await cloud.asked
+        XCTAssertEqual(asked.count, 1)
+    }
+
+    /// New mail is listed as soon as its batch arrives, before any body is made: a body that has to
+    /// be read in parts does not keep the rows of its batch off the list.
+    func testArrivalsAreListedBeforeTheirBodiesAreMade() async throws {
+        let cloud = Cloud(), clock = Clock(), gmail = Gmail()
+        let entries = [entry("n1", date: clock.now - 60_000, labels: ["INBOX", "UNREAD"]),
+                       entry("n2", date: clock.now - 30_000, labels: ["INBOX", "UNREAD"])]
+        await cloud.set(entries)
+        await cloud.hold([Self.full("n1", date: clock.now - 60_000, labels: ["INBOX", "UNREAD"]),
+                          Self.bodyInParts("n2", date: clock.now - 30_000, labels: ["INBOX", "UNREAD"])])
+        await gmail.slowAttachments(.seconds(60))
+        let (stores, pull) = try await setup(cloud, gmail: gmail, clock: clock)
+        let reader = MailIndexReader(stores: stores)
+        let inbox = PageRequest(view: .unified(.inbox), account: nil, filters: [], before: nil, limit: 50)
+        let step = Task { try await pull.step(fill: true) }
+        // Wait until the body read in parts has started: the batch is not done.
+        for _ in 0..<500 where !(await gmail.calls.contains("attachment:n2")) { try await Task.sleep(for: .milliseconds(10)) }
+        let calls = await gmail.calls
+        XCTAssertTrue(calls.contains("attachment:n2"))
+        let rows = try await reader.page(inbox)
+        XCTAssertEqual(rows.map(\.thread), ["t-n2", "t-n1"], "both listed, newest first, while a body is still being read")
+        XCTAssertEqual(rows.first?.subject, "Parts n2")
+        let counts = try await reader.counts(inbox)
+        XCTAssertEqual(counts.unread, 2)
+        step.cancel()
+        _ = try? await step.value
     }
 
     /// New Inbox mail known only by id is not listed until its headers arrive, so it comes first,

@@ -7,7 +7,7 @@ import { DurableObject } from "cloudflare:workers";
 import { createMailbox } from "./mailbox.js";
 import { configFrom } from "./config.js";
 import { createGoogle } from "./google.js";
-import { createApns } from "./apns.js";
+import { createApns, sharedProviderTokens } from "./apns.js";
 import { createVault } from "./crypto.js";
 import { d1 } from "./adapters/d1.js";
 import { r2Blobs } from "./adapters/r2.js";
@@ -19,7 +19,8 @@ export class Mailbox extends DurableObject {
     const random = (n) => crypto.getRandomValues(new Uint8Array(n));
     const deps = {
       config, db: d1(env.DB), google: createGoogle(config, (...args) => fetch(...args)),
-      apns: createApns(config, (...args) => fetch(...args)),   // silent pushes: new mail, a snooze woken
+      // Silent pushes (new mail, a snooze woken), with the provider token every isolate shares.
+      apns: createApns(config, (...args) => fetch(...args), Date.now, sharedProviderTokens(d1(env.DB))),
       now: Date.now, random, sleep: (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
     };
     this.mailbox = createMailbox({

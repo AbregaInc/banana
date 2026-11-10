@@ -129,7 +129,11 @@ export function createMailbox({ port, deps, vault, blobs, alarm, destroy }) {
     const reservation = await reserveMailRead(deps, who.sub, request, { maxWait: background ? 0 : 10_000 });
     if (!reservation) throw new Retry(await nextMailReadAt(deps, who.sub));
     if (reservation.waitMS > 0) await deps.sleep(reservation.waitMS);
-    const answer = await deps.google.mailRead(who.token, request);
+    let answer;
+    // A request that never got an answer (the connection dropped, Google did not answer) is tried
+    // again later; it is not a fact about the message.
+    try { answer = await deps.google.mailRead(who.token, request); }
+    catch (error) { console.log(`mailbox: gmail read failed (${error.name})`); throw new Retry(now() + BACKOFF); }
     if ([401, 403].includes(answer.status)) {
       const { bytes } = await answerBytes(answer, 64 * 1024);
       refused(answer.status, bytes && parse(bytes));
@@ -621,10 +625,12 @@ export function createMailbox({ port, deps, vault, blobs, alarm, destroy }) {
     /** What a device's content read gets: a stored copy's key, or a status from Gmail. */
     async content({ id, attachmentID = null }) {
       setup();
-      const who = await access();
-      if (!who) return { status: 403, body: { error: { code: 403, message: "Email access is unavailable." } } };
-      try { return await content(who, id, attachmentID); }
-      catch (error) {
+      try {
+        // Inside the try: Google's token endpoint failing for a moment is a "later", not a 502.
+        const who = await access();
+        if (!who) return { status: 403, body: { error: { code: 403, message: "Email access is unavailable." } } };
+        return await content(who, id, attachmentID);
+      } catch (error) {
         if (error instanceof Retry) return { status: 429, body: { error: { code: 429, message: "Mail reads are queued. Retry shortly." } }, retryAfter: 1 };
         if (error instanceof Unauthorized) return { status: 403, body: { error: { code: 403, message: "Reconnect Email for this Google account." } } };
         throw error;

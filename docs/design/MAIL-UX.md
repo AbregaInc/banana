@@ -355,9 +355,11 @@ press, so the three seconds start again from it.
   its successor (T6, no targets) — unless it is the open conversation, which stays open with
   no row (T13).
 - (b) A new conversation, or one with new mail, takes its place in the order. One exception:
-  **the conversation under the cursor does not move.** It has already been redrawn where it
-  is (T7); it takes its new position the next time changes are applied after the cursor has
-  left it.
+  **while a hand may be on the list, the conversation under the cursor does not move.** It has
+  already been redrawn where it is (T7). Once the list is at rest, or a conversation covers it,
+  it takes its place by date like any other and the cursor goes with it. (Until 10 November
+  2026 it waited for the cursor to leave it; on a phone the cursor never visibly leaves a row,
+  so a conversation with new mail stayed at its old date below newer ones.)
 
 **T9. Arrivals at the top.** *Given* new rows that belong above the first row: *if* the
 list's first row is on screen and the list is idle, *then* they join the top and are seen
