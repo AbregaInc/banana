@@ -87,11 +87,13 @@ A reply alone does not re-queue a submission; post it, then resubmit (step 6).
 >   Health features.
 > - 5.2.5 (WeatherKit): in Plan, tap the temperature beside the date. The forecast ends with the
 >   Apple Weather mark and the "Other data sources" link to Apple's legal attribution.
-> - 4.8 (Login Services): Banana is a Google Calendar client. Signing in with Google gives Banana
->   access to the person's own Google calendars, which it shows and edits through the Google
->   Calendar API, so we ask that the exception for clients of a specific third-party service
->   apply. Google can be skipped with "Not now". The App Review Notes describe, in full, the
->   service record that connecting Google creates.
+> - 4.8 (Login Services): Banana is a Google Calendar client, and Google's own sign-in is the
+>   only one it has. It gives Banana access to the person's own Google calendars, which it shows
+>   and edits through the Google Calendar API. Booking works the same way: the booking page offers
+>   only the times free on that Google Calendar and writes each booking into it, so it cannot
+>   work without Google. Banana has no account, username or password of its own, so we ask that
+>   the exception for clients of a specific third-party service apply. Google can be skipped with
+>   "Not now".
 >
 > The Notes also have a sample workspace that needs no sign-in.
 
