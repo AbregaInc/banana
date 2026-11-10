@@ -844,7 +844,12 @@ final class MailListModel {
                                hold: Set<MailConversationID>) -> (rows: [MailRow], cursorHeld: Bool) {
         var frozen: [MailConversationID: MailOrderKey] = [:]
         var cursorHeld = false
-        if let id = cursorID, let current = cursorIndex(), let at = indexInReading[id],
+        // The cursor's row is held still only while a hand may be on the list. At rest, or under an
+        // open conversation, it takes its place by date like any other and the cursor goes with
+        // it: on a phone the cursor never visibly leaves a row, so holding it until it did kept a
+        // conversation with new mail at its old date, below older ones, indefinitely.
+        let handOnList = !isIdle && open == nil
+        if handOnList, let id = cursorID, let current = cursorIndex(), let at = indexInReading[id],
            snapshot.rows[at].key != rows[current].key {
             frozen[id] = rows[current].key
             cursorHeld = true

@@ -34,10 +34,22 @@ final class MailHTMLPreparerTests: XCTestCase {
         XCTAssertEqual(runs.first { $0.text == "mail" }?.link?.scheme, "mailto")
         XCTAssertTrue(text(prepared).contains("quiet"))
     }
-    func testInputAndNestingBounds() throws {
-        XCTAssertThrowsError(try MailHTMLPreparer.prepare(plain: String(repeating: "x", count: MailHTMLPreparer.maximumBytes + 1), html: nil))
-        let deep = String(repeating: "<div>", count: 100) + "text" + String(repeating: "</div>", count: 100)
-        XCTAssertThrowsError(try MailHTMLPreparer.prepare(plain: nil, html: deep))
+    /// Past the bounds a message still gets a body, once: never a failure that every pull retries.
+    func testInputAndNestingBoundsDegradeToTextInsteadOfFailing() throws {
+        let max = MailHTMLPreparer.maximumBytes
+        let long = try MailHTMLPreparer.prepare(plain: String(repeating: "é", count: max), html: nil)
+        XCTAssertLessThanOrEqual(text(long).utf8.count, max, "cut to the bound, at a character boundary")
+        XCTAssertTrue(text(long).hasPrefix("éé"))
+        let deep = String(repeating: "<div>", count: 100) + "deep words" + String(repeating: "</div>", count: 100)
+        let words = try MailHTMLPreparer.prepare(plain: nil, html: deep)
+        XCTAssertTrue(text(words).contains("deep words"))
+        XCTAssertTrue(words.shownAsText)
+        let preferPlain = try MailHTMLPreparer.prepare(plain: "Plain\nlines", html: deep)
+        XCTAssertEqual(text(preferPlain), "Plain\nlines", "the plain part, with its line breaks, when there is one")
+        let many = "<p>" + String(repeating: "<b>w</b> ", count: 60_000) + "</p>"
+        XCTAssertTrue(text(try MailHTMLPreparer.prepare(plain: nil, html: many)).contains("w w w"), "too many nodes: the words")
+        let huge = "<p>start</p>" + String(repeating: "<i>x</i>", count: max / 8 + 10)
+        XCTAssertTrue(text(try MailHTMLPreparer.prepare(plain: nil, html: huge)).hasPrefix("start"), "too large: as much as is taken")
     }
     func testTablesAndListsRemainReadable() throws {
         let prepared = try MailHTMLPreparer.prepare(plain: nil, html: "<table><tr><td>Left</td><td>Right</td></tr></table><ol><li>First</li><li>Second</li></ol>")

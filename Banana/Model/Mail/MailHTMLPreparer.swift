@@ -38,7 +38,13 @@ enum MailHTMLPreparer {
             previous = now
         }
         if let html {
-            guard html.utf8.count <= maximumBytes else { throw Failure.tooLarge }
+            // Beyond what native text is made from: the plain part, else the words of as much of
+            // the HTML as is taken. A message is never left without a body, so it is prepared once
+            // and never asked for again (a failure here was retried on every pull, for ever).
+            guard html.utf8.count <= maximumBytes else {
+                if let shown = usablePlain(plain) { return shown }
+                return try wordsOnly(SwiftSoup.parse(String(decoding: html.utf8.prefix(maximumBytes), as: UTF8.self)))
+            }
             // Parsed as a document, not a body fragment: SwiftSoup builds a document's tree in one
             // bulk pass, but registers every node of a fragment with its document as it is inserted,
             // walking up its ancestors, which was half the parse. What moves to the head is title,
@@ -47,12 +53,7 @@ enum MailHTMLPreparer {
             let source = try SwiftSoup.parse(html)
             mark("parse")
             // Bound subsequent walks independently of the parser's input-size bound.
-            var stack: [(Node, Int)] = [(source, 0)], nodes = 0
-            while let (node, depth) = stack.popLast() {
-                nodes += 1
-                guard nodes <= 50_000, depth <= 64 else { throw Failure.tooComplex }
-                for child in node.getChildNodes() { stack.append((child, depth + 1)) }
-            }
+            if !withinBounds(source) { return try usablePlain(plain) ?? wordsOnly(source) }
             mark("bounds")
             // Native text reads only text nodes, the listed formatting tags and checked http/https/mailto
             // links, so it walks the parsed tree directly. Script and style content are data nodes and are
@@ -65,8 +66,38 @@ enum MailHTMLPreparer {
             }
             return MailPreparedBody(version: version, text: native, shownAsText: true, quoteStartsAt: MailPreparedBody.quoteStart(of: native.blocks))
         }
-        guard (plain?.utf8.count ?? 0) <= maximumBytes else { throw Failure.tooLarge }
-        return plainBody(plain ?? "", shownAsText: false)
+        return plainBody(clipped(plain ?? ""), shownAsText: false)
+    }
+
+    /// Whether native text can be made from the tree: at most 50,000 nodes, 64 deep.
+    static func withinBounds(_ root: Node) -> Bool {
+        var stack: [(Node, Int)] = [(root, 0)], nodes = 0
+        while let (node, depth) = stack.popLast() {
+            nodes += 1
+            guard nodes <= 50_000, depth <= 64 else { return false }
+            for child in node.getChildNodes() { stack.append((child, depth + 1)) }
+        }
+        return true
+    }
+
+    /// A plain part worth showing instead of HTML that cannot be made native.
+    private static func usablePlain(_ plain: String?) -> MailPreparedBody? {
+        guard let plain, !plain.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return nil }
+        return plainBody(clipped(plain), shownAsText: true)
+    }
+
+    /// The document's words, in order, without its structure. The walk is iterative, so no
+    /// nesting depth can exhaust the stack.
+    private static func wordsOnly(_ document: Document) throws -> MailPreparedBody {
+        plainBody(clipped(try (document.body() ?? document).text()), shownAsText: true)
+    }
+
+    /// At most `maximumBytes` of text, cut at a character boundary.
+    private static func clipped(_ value: String) -> String {
+        guard value.utf8.count > maximumBytes else { return value }
+        var end = value.utf8.index(value.utf8.startIndex, offsetBy: maximumBytes)
+        while end.samePosition(in: value.unicodeScalars) == nil { end = value.utf8.index(before: end) }
+        return String(value.unicodeScalars[..<end])
     }
 
     private static func plainBody(_ value: String, shownAsText: Bool) -> MailPreparedBody {
