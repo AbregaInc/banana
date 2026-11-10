@@ -6,6 +6,7 @@ import Foundation
 struct MailMessageDisplay: Equatable, Identifiable, Sendable {
     var id: MailMessageID
     var sender: String
+    var face: MailFace
     /// "to me, Jane".
     var recipients: String
     var date: String
@@ -40,6 +41,7 @@ struct MailMessageDisplay: Equatable, Identifiable, Sendable {
          locale: Locale = .current) {
         id = message.id
         sender = message.from.isMe ? "me" : (message.from.name ?? message.from.address)
+        face = MailFace(message.from)
         let names = message.to.map { person -> String in
             if person.isMe { return "me" }
             return person.name?.split(separator: " ").first.map(String.init) ?? person.address

@@ -94,6 +94,10 @@ struct MailConversationContent: View {
                             }
                         }
                         .padding(.bottom, DS.Space.xs)
+                        if let invite = reader.conversation?.invite, invite.method == .request {
+                            MailInviteCard(account: reader.id.account, invite: invite,
+                                           calendar: session.isSample ? .sample : .live)
+                        }
                         // A reply (or the draft left here) above the newest message, which it
                         // answers and which is read first.
                         MailReplySlot(session: session, navigation: session.navigation,
@@ -340,6 +344,35 @@ struct MailMessageCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: DS.Space.s) {
+            HStack(alignment: .top, spacing: DS.Space.s) {
+                Monogram(initial: message.face.initial, hue: message.face.hue, size: DS.Mail.face)
+                header
+            }
+            if let note = message.sampleNote {
+                MailSampleChip(text: note)
+            }
+            if let scheduled = message.scheduled {
+                MailScheduledBanner(scheduled: scheduled)
+            }
+            if !message.files.isEmpty {
+                MailReceivedAttachments(files: message.files, opener: opener)
+            }
+            content
+        }
+        .padding(DS.Space.m)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color.primary.opacity(DS.Tint.wash),
+                    in: RoundedRectangle(cornerRadius: DS.Radius.card, style: .continuous))
+        .sheet(isPresented: $showsOriginal) {
+            MailOriginalSheet {
+                try await session?.source.originalHTML(message.id)
+            }
+        }
+    }
+
+    /// Who and when, then to whom and Original: two lines beside the face.
+    private var header: some View {
+        VStack(alignment: .leading, spacing: DS.Space.hair) {
             HStack(alignment: .firstTextBaseline) {
                 // The sender opens the conversation's Details, as "…" › Details does.
                 Button { session?.askForDetails(toggles: false) } label: {
@@ -366,25 +399,6 @@ struct MailMessageCard: View {
                         .font(.caption)
                         .accessibilityIdentifier("mail.body.original." + message.id.message)
                 }
-            }
-            if let note = message.sampleNote {
-                MailSampleChip(text: note)
-            }
-            if let scheduled = message.scheduled {
-                MailScheduledBanner(scheduled: scheduled)
-            }
-            if !message.files.isEmpty {
-                MailReceivedAttachments(files: message.files, opener: opener)
-            }
-            content
-        }
-        .padding(DS.Space.m)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.primary.opacity(DS.Tint.wash),
-                    in: RoundedRectangle(cornerRadius: DS.Radius.card, style: .continuous))
-        .sheet(isPresented: $showsOriginal) {
-            MailOriginalSheet {
-                try await session?.source.originalHTML(message.id)
             }
         }
     }

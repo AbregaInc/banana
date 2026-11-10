@@ -1298,7 +1298,7 @@ list may use the eyebrow; and Mail hosts its own toast on iPhone and iPad (5.2).
 |---|---|---|
 | `DateText` | `Shared/BananaDesign.swift`, beside `TimeRangeText` | A rule over the system's formatters; it assembles nothing by hand. `DateText.row(_:now:calendar:locale:)`: today → `TimeRangeText.time` · yesterday → the locale's own word, from the system's relative formatter · two to six days ago → `Date.FormatStyle` weekday · this year → `.dateTime.day().month(.abbreviated)` · earlier → the same with the year. `DateText.column(…)` for the one-line row, which sits under a date-group label: today and yesterday → the time · this week → weekday and day · this year → day and month · earlier → month and year. `DateText.full(…)` for a message header: weekday, day, month and the time. Tested at fixed instants in a 12- and a 24-hour locale. |
 | `DSChip` | `Shared/BananaDesign.swift` | A small labelled pill: optional leading symbol, text (`.caption`, one line, middle truncation when asked), `Radius.chip`, fill `tint.opacity(Tint.soft)` or `Color.primary.opacity(Tint.subtle)` with no tint. Two forms. *Display* (labels, the account, attachments): minimum height 22 pt. *Control* (recipients, filters, split chips): the same pill with an optional trailing × and a 44-pt (28 on the Mac) hit area. |
-| `Monogram` | `Shared/BananaDesign.swift` | The account card's avatar made reusable: a circle of `DS.Row.avatar`, `Color.primary.opacity(Tint.soft)`, the first letter in `.subheadline.weight(.semibold)`. Conversation headers only. No remote pictures. |
+| `Monogram` | `Shared/BananaDesign.swift` | The account card's avatar made reusable: a circle (`DS.Row.avatar` by default) filled with the person's colour at `Tint.fill`, the initial in that colour taken toward the text colour (`DS.Event.ink`). Rows and message headers (6.1.1). No remote pictures. |
 | `KeyHintRow` | `Shared/BananaDesign.swift` | The command menu's footer hint (`KeyCap`s and a caption) lifted out of `MacCommandMenu` so the composer and pickers draw the same strip. |
 | `ToastCenter.present` | `Banana/Model/ToastCenter.swift` | `func present(_ message: String, actionTitle: String = "Undo", duration: Duration? = nil, action: (@MainActor () -> Void)? = nil)`. Shows now and returns: it takes the previous pending commit, shows, and runs that commit in a detached task, as `notify` does. `duration` overrides `ToastCenter.window` for this toast (the send hold). Mail never calls `deferRemoval` or `offerUndo`: its changes are already stored when the toast shows, and a key handler must not await another feature's network call. |
 | `MailBottomBar` | `Banana/Views/Mail/MailBottomBar.swift` | The compact arrangement's one bottom slot (6.1.3). Built only after prototype P4 has settled its form. Where it is a safe-area inset, the toast host is applied *inside* it so the toast sits just above. **Where the toast is hosted:** on iPhone and iPad `MailSection` applies `.toastHost()` itself and `RootView` adds none to the Mail tab; on the Mac the shell's one host serves Mail. |
@@ -1572,8 +1572,14 @@ contract's `MailRow`.
 
 Every time is `TimeRangeText.time`; every date is `DateText`.
 
-**No avatars in lists.** They cost a fetch per sender and tell the sender nothing they should
-know. A `Monogram` appears in the conversation only.
+**A face on every row** (the owner's report, 10 Nov 2026, replacing "no avatars in lists"): the
+first person in the row who isn't him, as a `Monogram` — their initial on a soft circle of a colour
+chosen from their address (`MailFace`), the same on every device. In the three-line row it is
+`DS.Mail.face` (32 pt) beside the name and subject, inside the row's fixed 76 pt, so the list is no
+taller; in the one-line row it is `DS.Mail.faceInline` (20 pt) at the head of the sender's column.
+Each message in a conversation shows its sender's face beside the name. Nothing is fetched for a
+face: a remote picture would tell the sender when the mail was read, and Google's profile photos
+of other people need a contacts permission Mail doesn't ask for.
 
 **Skeleton row.** A conversation known to belong here whose first message has not arrived
 (`stillLoading`) is the same row with bars in secondary at `Tint.subtle`: one per line, at
@@ -2031,7 +2037,7 @@ reader parses nothing.
 
 | `MailBody` | What it is | How it is drawn |
 |---|---|---|
-| `.text` | Plain text, or HTML with no design of its own. Almost all mail between people. It arrives as `MailText`: blocks (paragraph, quote, list item, heading, preformatted, rule) of styled runs, with no fonts. | **One TextKit view per message** (`MailTextView`: a `UITextView` / `NSTextView`, not scrolling, not editable). `MailTextRendering` maps blocks and runs to attributed text with the design system's type, off the main thread, in one place: quotes indented with a bar, list items with hanging indents, links in `DS.Palette.info`. Its height is measured off the main thread and recorded. So a range can be selected and copied — one tracking number, one sentence — on the phone as on the Mac. |
+| `.text` | Plain text, or HTML with no design of its own. Almost all mail between people. It arrives as `MailText`: blocks (paragraph, quote, list item, heading, preformatted, rule, picture, table) of styled runs, with no fonts. | **One TextKit view per message** (`MailTextView`: a `UITextView` / `NSTextView`, not scrolling, not editable). `MailTextRendering` maps blocks and runs to attributed text with the design system's type, off the main thread, in one place: quotes indented with a bar, list items with hanging indents, links in `DS.Palette.info`. Its height is measured off the main thread and recorded. So a range can be selected and copied — one tracking number, one sentence — on the phone as on the Mac. |
 | `.designed` | Designed HTML — newsletters, receipts, anything with layout, a picture or a table. It arrives as a whole document for one web view, with the box of every picture declared. | **One web view per open designed message** (`MailWebView`, built with the engine's package P26 to the engine's contract, 10.5 there: no script, no network, pictures only through the source), inside a "paper" card: light in both appearances, `Radius.card`. At most `MailTuning.maxOpenDesignedBodies` exist in a conversation; a designed message beyond that is a card reading **Show this message**, which loads it and empties the one furthest from the viewport. |
 | `.notOnDevice` | The body has never been downloaded. | The header, the snippet, and one line: online, "Getting this message…" (the one wait Mail shows: it has never been here); offline, "The rest of this message isn't on this iPhone yet. It downloads when you're online." |
 
@@ -2067,6 +2073,18 @@ the header and the snippet, with no words and no spinner; the body appears by it
   it, on its light card.
 - **Right-to-left text** takes its direction from the text itself. The card and header
   mirror with the interface language, not with the message.
+- **How the preparer reads a designed message as text** (`MailHTMLPreparer`, version 4, from the
+  reports of Nov 2026). A table of data (two to eight columns, two or more rows with two filled
+  cells, short cells with no layout inside) is a `table` block drawn as a grid that scrolls sideways
+  when wider than the column; a table that lays a page out is read as text, as before, and a table
+  whose first column only numbers its rows is a list. Lists written as text become lists: a marker
+  on its own line followed by its words, lines that each start with a marker, and short lines after
+  a sentence ending in a colon. A line break before a word in lower case only wrapped the line to
+  the sender's column, so the sentence flows on. A linked picture beside a link to the same page, or
+  whose description names the link's words, keeps no description; a picture that can't load shows
+  no label that only describes it ("Share icon", "profile photo"). Content deeper than the walk
+  recurses is read flat, in order, so depth is never a failure; only more pieces than it walks in
+  time is, and then the sender's plain part is shown when there is one.
 - **Nothing in a message is made tappable except a link.** Phone numbers, addresses and
   dates are text: they can be selected and copied. (The security review's rule; see 11.)
 
@@ -3504,6 +3522,12 @@ first draft assumed things about the calendar that are not so.
 
 A conversation that carries an invitation (`MailConversation.invite`) shows a card first,
 under the header and above the messages.
+
+**Built (10 Nov 2026, from a report):** `MailInviteCard` with the event's title, its day and time
+and Yes · No · Maybe, found by `GoogleCalendarService.events(calendarID:iCalUID:)` on the
+receiving account's calendar (`MailInviteEvent`) and answered through `InvitationReply`, as the
+week view answers. Not yet: the day strip, the clash line, Show in Plan and the `I` keys. An
+invitation the calendar can't find shows no card (the message's own words remain).
 
 ```
 ┌──────────────────────────────────────────────────────────────┐

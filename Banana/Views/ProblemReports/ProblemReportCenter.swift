@@ -78,7 +78,38 @@ final class ProblemReportCenter: ObservableObject {
     #endif
 
     /// Opens the sheet for the page in front, or with the context given (a 👎 on one answer).
+    ///
+    /// Chosen from a "…" menu, the menu is still closing when its item runs: the screenshot waits
+    /// until it has gone (a frame at a time, at most half a second), so it shows the page the
+    /// report is about, not the menu over a blurred page.
     func open(context: ProblemReportPageContext? = nil, page: AppSection? = nil) {
+        guard presented == nil, !opening else { return }
+        #if os(iOS)
+        if Self.menuOnScreen() {
+            opening = true
+            Task { @MainActor in
+                let start = DispatchTime.now().uptimeNanoseconds
+                let deadline = start + 500_000_000
+                while Self.menuOnScreen(), DispatchTime.now().uptimeNanoseconds < deadline {
+                    try? await Task.sleep(for: .milliseconds(16))
+                }
+                // One more frame: the page under the menu loses its blur in the frame the menu goes.
+                try? await Task.sleep(for: .milliseconds(16))
+                self.opening = false
+                self.menuWait = (DispatchTime.now().uptimeNanoseconds - start) / 1_000_000
+                self.openNow(context: context, page: page)
+            }
+            return
+        }
+        #endif
+        openNow(context: context, page: page)
+    }
+
+    private var opening = false
+    /// How long the last opening waited for a menu to close, for the journal.
+    private var menuWait: UInt64 = 0
+
+    private func openNow(context: ProblemReportPageContext?, page: AppSection?) {
         guard presented == nil else { return }
         let name = page?.rawValue ?? ProblemReporter.page
         let began = DispatchTime.now().uptimeNanoseconds
@@ -91,7 +122,8 @@ final class ProblemReportCenter: ObservableObject {
         // Opening is a UI response (docs/performance): its cost goes in the journal.
         let done = DispatchTime.now().uptimeNanoseconds
         PlaybackDiagnostics.shared.log("📝 report opened",
-            "page=\(name) screenshot=\((captured - began) / 1_000_000)ms total=\((done - began) / 1_000_000)ms")
+            "page=\(name) screenshot=\((captured - began) / 1_000_000)ms total=\((done - began) / 1_000_000)ms menuWait=\(menuWait)ms")
+        menuWait = 0
     }
 
     func send(_ draft: ProblemReportDraft) {
@@ -172,6 +204,20 @@ final class ProblemReportCenter: ObservableObject {
     #endif
 
     // MARK: - The screenshot
+
+    #if os(iOS)
+    /// A menu (a "…" menu, a context menu) is on screen, opening or closing. UIKit draws every one
+    /// in a container whose class names it a context menu; a few levels of the windows are read.
+    static func menuOnScreen() -> Bool {
+        let windows = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.flatMap(\.windows)
+        var views: [(UIView, Int)] = windows.filter { !$0.isHidden }.map { ($0, 0) }
+        while let (view, depth) = views.popLast() {
+            if depth > 0, !view.isHidden, view.alpha > 0.01, NSStringFromClass(type(of: view)).contains("ContextMenu") { return true }
+            if depth < 3 { views.append(contentsOf: view.subviews.map { ($0, depth + 1) }) }
+        }
+        return false
+    }
+    #endif
 
     /// The screen as it is, before the sheet covers it. Nil when nothing can be drawn.
     static func captureScreen() -> PlatformImage? {
