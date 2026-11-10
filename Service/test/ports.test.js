@@ -5,7 +5,7 @@ import { DatabaseSync } from "node:sqlite";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { createApns } from "../src/apns.js";
+import { createApns, sharedProviderTokens } from "../src/apns.js";
 import { createGoogle, GoogleRefused, GoogleError } from "../src/google.js";
 import { base64url, constantTimeEqual, createVault, fromBase64 } from "../src/crypto.js";
 import { sqlite } from "../src/adapters/sqlite.js";
@@ -123,6 +123,64 @@ test("apns: the provider JWT is ES256 and verifies with the matching public key"
   assert.notEqual(fetch.calls[2].headers.authorization, call.headers.authorization);
 });
 
+test("apns: every isolate shares one provider token, replaced at most once per 20 minutes", async () => {
+  const { pem } = await p8();
+  const db = sqlite(":memory:");
+  const tokens = sharedProviderTokens(db);
+  let clock = NOW;
+  const config = { apnsKey: pem, apnsKeyId: "KEY123ABCD", apnsTeamId: "TEAM123456" };
+  const fetch = fakeFetch({ status: 200, body: {} });
+  const push = (apns) => apns.send({ token: "ab".repeat(32), env: "production", topic: "t", payload: {} });
+  const bearerOf = (i) => fetch.calls[i].headers.authorization;
+  // Two isolates (a Worker and a mailbox's Durable Object) push: the second adopts the first's token.
+  const worker = createApns(config, fetch, () => clock, tokens), mailbox = createApns(config, fetch, () => clock, tokens);
+  await push(worker);
+  clock += 1000;
+  await push(mailbox);
+  assert.equal(bearerOf(1), bearerOf(0));
+  // A third isolate started 49 minutes later still adopts it; at 50 minutes one new token is made and shared.
+  clock = NOW + 49 * 60 * 1000;
+  await push(createApns(config, fetch, () => clock, tokens));
+  assert.equal(bearerOf(2), bearerOf(0));
+  clock = NOW + 51 * 60 * 1000;
+  await push(mailbox);
+  assert.notEqual(bearerOf(3), bearerOf(0));
+  await push(worker);
+  assert.equal(bearerOf(4), bearerOf(3), "the other isolate takes the new one, it does not make its own");
+  // Apple refuses a token (403): it is replaced at once, whatever its age, and the others follow.
+  const refusing = fakeFetch({ status: 403, body: { reason: "InvalidProviderToken" } });
+  const refused = createApns(config, refusing, () => clock, tokens);
+  await push(refused);
+  const bad = refusing.calls[0].headers.authorization;
+  clock += 1000;
+  await refused.send({ token: "ab".repeat(32), env: "production", topic: "t", payload: {} });
+  assert.notEqual(refusing.calls[1].headers.authorization, bad);
+  const stored = await tokens.read("KEY123ABCD");
+  assert.equal(`bearer ${stored.token}`, refusing.calls[1].headers.authorization);
+});
+
+test("apns: Apple's TooManyProviderTokenUpdates makes an isolate read the shared token again", async () => {
+  const { pem } = await p8();
+  const db = sqlite(":memory:");
+  const tokens = sharedProviderTokens(db);
+  const config = { apnsKey: pem, apnsKeyId: "K", apnsTeamId: "T" };
+  let clock = NOW;
+  // An isolate that made its own token while the store was briefly unreadable.
+  const broken = { read: async () => { throw new Error("db"); }, offer: async () => { throw new Error("db"); } };
+  const limited = fakeFetch({ status: 429, body: { reason: "TooManyProviderTokenUpdates" } });
+  const lone = createApns(config, limited, () => clock, broken);
+  await lone.send({ token: "ab", env: "production", topic: "t", payload: {} });
+  const own = limited.calls[0].headers.authorization;
+  const other = createApns(config, fakeFetch({ status: 200, body: {} }), () => clock, tokens);
+  await other.send({ token: "ab", env: "production", topic: "t", payload: {} });
+  const shared = (await tokens.read("K")).token;
+  assert.notEqual(own, `bearer ${shared}`);
+  Object.assign(broken, tokens);   // the store answers again
+  clock += 1000;
+  await lone.send({ token: "ab", env: "production", topic: "t", payload: {} });
+  assert.equal(limited.calls[1].headers.authorization, `bearer ${shared}`);
+});
+
 test("apns: a refusal comes back with Apple's reason", async () => {
   const { pem } = await p8();
   const apns = createApns({ apnsKey: pem.replace(/\n/g, "\\n"), apnsKeyId: "K", apnsTeamId: "T" }, fakeFetch({ status: 410, body: { reason: "Unregistered" } }), () => NOW);
@@ -151,7 +209,7 @@ test("sqlite: migrations apply once, and a database exported from D1 isn't migra
     const path = join(dir, "a.db");
     sqlite(path).close();
     const again = sqlite(path);
-    assert.deepEqual(again.raw.prepare("SELECT name FROM migrations_applied").all().map((r) => r.name), ["0001_init.sql", "0002_link_lifecycle.sql", "0003_device_channels.sql", "0004_push_record.sql", "0005_event_alerts.sql", "0006_alert_devices.sql", "0007_plan_ahead.sql", "0008_diagnostics.sql", "0009_spaces.sql", "0010_booking.sql", "0011_web_sharing.sql", "0012_series_invites.sql", "0013_booking_hardening.sql", "0014_feature_access.sql", "0015_provider_operations.sql", "0016_mail_grants.sql", "0017_provider_protocol.sql", "0018_busy_block_identity.sql", "0019_mail_drafts.sql", "0020_mail_uploads.sql", "0021_mail_read_pacing.sql", "0022_mail_mailboxes.sql", "0023_mail_watch.sql", "0024_mail_snooze_wake.sql", "0025_problem_reports.sql", "0026_device_capabilities.sql", "0027_booking_whereabouts.sql"]);
+    assert.deepEqual(again.raw.prepare("SELECT name FROM migrations_applied").all().map((r) => r.name), ["0001_init.sql", "0002_link_lifecycle.sql", "0003_device_channels.sql", "0004_push_record.sql", "0005_event_alerts.sql", "0006_alert_devices.sql", "0007_plan_ahead.sql", "0008_diagnostics.sql", "0009_spaces.sql", "0010_booking.sql", "0011_web_sharing.sql", "0012_series_invites.sql", "0013_booking_hardening.sql", "0014_feature_access.sql", "0015_provider_operations.sql", "0016_mail_grants.sql", "0017_provider_protocol.sql", "0018_busy_block_identity.sql", "0019_mail_drafts.sql", "0020_mail_uploads.sql", "0021_mail_read_pacing.sql", "0022_mail_mailboxes.sql", "0023_mail_watch.sql", "0024_mail_snooze_wake.sql", "0025_problem_reports.sql", "0026_device_capabilities.sql", "0027_booking_whereabouts.sql", "0028_apns_provider_token.sql"]);
     again.close();
 
     // As `wrangler d1 export` leaves it: the tables and wrangler's own record of the migration.
@@ -167,7 +225,7 @@ test("sqlite: migrations apply once, and a database exported from D1 isn't migra
     raw.close();
     const moved = sqlite(exported);
     // 0001 came with the export; 0002 to 0004 are applied here.
-    assert.deepEqual(moved.raw.prepare("SELECT name FROM migrations_applied").all().map((r) => r.name), ["0001_init.sql", "0002_link_lifecycle.sql", "0003_device_channels.sql", "0004_push_record.sql", "0005_event_alerts.sql", "0006_alert_devices.sql", "0007_plan_ahead.sql", "0008_diagnostics.sql", "0009_spaces.sql", "0010_booking.sql", "0011_web_sharing.sql", "0012_series_invites.sql", "0013_booking_hardening.sql", "0014_feature_access.sql", "0015_provider_operations.sql", "0016_mail_grants.sql", "0017_provider_protocol.sql", "0018_busy_block_identity.sql", "0019_mail_drafts.sql", "0020_mail_uploads.sql", "0021_mail_read_pacing.sql", "0022_mail_mailboxes.sql", "0023_mail_watch.sql", "0024_mail_snooze_wake.sql", "0025_problem_reports.sql", "0026_device_capabilities.sql", "0027_booking_whereabouts.sql"]);
+    assert.deepEqual(moved.raw.prepare("SELECT name FROM migrations_applied").all().map((r) => r.name), ["0001_init.sql", "0002_link_lifecycle.sql", "0003_device_channels.sql", "0004_push_record.sql", "0005_event_alerts.sql", "0006_alert_devices.sql", "0007_plan_ahead.sql", "0008_diagnostics.sql", "0009_spaces.sql", "0010_booking.sql", "0011_web_sharing.sql", "0012_series_invites.sql", "0013_booking_hardening.sql", "0014_feature_access.sql", "0015_provider_operations.sql", "0016_mail_grants.sql", "0017_provider_protocol.sql", "0018_busy_block_identity.sql", "0019_mail_drafts.sql", "0020_mail_uploads.sql", "0021_mail_read_pacing.sql", "0022_mail_mailboxes.sql", "0023_mail_watch.sql", "0024_mail_snooze_wake.sql", "0025_problem_reports.sql", "0026_device_capabilities.sql", "0027_booking_whereabouts.sql", "0028_apns_provider_token.sql"]);
     moved.close();
   } finally {
     rmSync(dir, { recursive: true, force: true });
