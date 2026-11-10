@@ -35,6 +35,10 @@ except the hang detector's half-second ping, and that only while the app is in f
 - "…" › Report a Problem: every page's "…" (`MoreMenu`), the mail reader's, the Mac planner's,
   the assistant's.
 - Mac: Help › Report a Problem… and ⌘⇧R.
+
+The screenshot is the page the report is about: chosen from a "…" menu, it waits (a frame at a
+time, half a second at most) until the menu has closed, so the menu and the blur under it aren't
+in it (`ProblemReportCenter.menuOnScreen`; the wait is in the journal as `menuWait`).
 - 👍 / 👎 under each answer. 👍 is a count. 👎 opens the sheet with that answer.
 
 The sheet: one field, then what goes with it (Screenshot, Log, and the page's own row), Send. What
@@ -72,10 +76,13 @@ ignored; the pre-push guard refuses a tracked file there.
 
 - **Mail:** `reports.py mail-case <id> [name]` makes `private/mail-render-corpus/<name>/` with
   `input.html`, what the reader drew then, the screenshot and an `expect.json` to fill in: text that
-  must show (`contains`), must not (`absent`), `blocksAtMost`. When the message can be anonymised,
+  must show (`contains`), must not (`absent`), `blocksAtMost`, and the shape: `tables` (grids drawn),
+  `itemsAtLeast`, `picturesAtMost`, `describedLinkedPicturesAtMost`, `blankLinksAtMost`. When the message can be anonymised,
   `reports.py anonymise <name> <public-name>` writes `tools/reports/mail-cases/<public-name>/`:
   markup and styles kept, every word replaced by a stable stand-in, links and addresses by
-  `plan.example`, then checked with `tools/private-text-check.sh`. Read it before committing.
+  `plan.example` (one stand-in per page and per picture, so repeats stay repeats), class names by
+  hashes (but the few the renderer reads), then checked with `tools/private-text-check.sh`. Read it
+  before committing.
 - **Assistant:** `reports.py ai-case <id>` makes `private/ai-evals/<id>.json`: prompt, history,
   the reported answer and tool calls, and an `expected` to fill in (tool, arguments, text).
 - **Spikes:** `reports.py spikes` names the signature; the pulled log and stack say where.

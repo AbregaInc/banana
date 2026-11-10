@@ -21,6 +21,7 @@ import html
 import html.parser
 import json
 import re
+import urllib.parse
 import subprocess
 import sys
 import time
@@ -187,6 +188,23 @@ def anonymise_text(text):
     return WORD.sub(lambda m: m.group(0) if m.group(0) in ("noor", "plan", "example", "https", "link") else stand_in(m.group(0)), text)
 
 
+# Class names the renderer reads (MailHTMLPreparer); every other class name becomes a stand-in, since a
+# sender's class names say who sent it ("brand_logo_small").
+MEANINGFUL_CLASSES = {"mcnpreviewtext", "gmail_attr", "gmail_quote", "moz-cite-prefix", "yahoo_quoted"}
+
+
+def class_stand_in(name):
+    if name.lower() in MEANINGFUL_CLASSES:
+        return name
+    return "c-" + hashlib.sha256(name.encode()).hexdigest()[:8]
+
+
+def anonymise_css(css):
+    css = re.sub(r"/\*.*?\*/", "", css, flags=re.S)
+    css = re.sub(r"url\([^)]*\)", "url(https://plan.example/picture.png)", css)
+    return re.sub(r"\.(-?[A-Za-z_][\w-]*)", lambda m: "." + class_stand_in(m.group(1)), css)
+
+
 class Anonymiser(html.parser.HTMLParser):
     """Keeps the markup (tags, structure, style, class) and replaces what is the sender's: text,
     links, picture sources, alt and title text, comments."""
@@ -197,6 +215,8 @@ class Anonymiser(html.parser.HTMLParser):
         super().__init__(convert_charrefs=False)
         self.out = []
         self.links = 0
+        self.pictures = {}
+        self.pages = {}
         self.raw = None
 
     def attrs(self, attrs):
@@ -209,12 +229,26 @@ class Anonymiser(html.parser.HTMLParser):
                 if value.startswith("mailto:"):
                     value = "mailto:noor@plan.example"
                 else:
-                    self.links += 1
-                    value = f"https://plan.example/link-{self.links}"
+                    # The same page keeps one stand-in (with its variants apart), so a picture and the
+                    # words beside it that go to one place still do.
+                    split = urllib.parse.urlsplit(value.strip())
+                    page = (split.netloc.lower(), split.path)
+                    if page not in self.pages:
+                        self.links += 1
+                        self.pages[page] = (self.links, {})
+                    number, variants = self.pages[page]
+                    variant = variants.setdefault(value, len(variants))
+                    value = f"https://plan.example/link-{number}" + (f"?v={variant}" if variant else "")
             elif key in ("src", "background"):
-                value = "cid:picture" if value.startswith("cid:") else "https://plan.example/picture.png"
+                # One stand-in per picture, so a picture repeated stays repeated and two stay two.
+                number = self.pictures.setdefault(value, len(self.pictures) + 1)
+                value = f"cid:picture-{number}" if value.startswith("cid:") else f"https://plan.example/picture-{number}.png"
             elif key in ("alt", "title", "aria-label"):
                 value = anonymise_text(value)
+            elif key == "class":
+                value = " ".join(class_stand_in(name) for name in value.split())
+            elif key == "style":
+                value = re.sub(r"url\([^)]*\)", "url(https://plan.example/picture.png)", value)
             elif key not in self.KEEP:
                 continue
             parts.append(f'{key}="{html.escape(value, quote=True)}"')
@@ -235,7 +269,7 @@ class Anonymiser(html.parser.HTMLParser):
     def handle_data(self, data):
         # Style sheets stay (layout is the point), with any URL in them replaced; scripts go.
         if self.raw == "style":
-            self.out.append(re.sub(r"url\([^)]*\)", "url(https://plan.example/picture.png)", data))
+            self.out.append(anonymise_css(data))
         elif self.raw == "script":
             pass
         else:
@@ -272,8 +306,9 @@ def cmd_anonymise(a):
     public = {"source": "synthetic, anonymised from a report", "note": anonymise_text(expect.get("note", "")),
               "contains": [anonymise_text(t) for t in expect.get("contains", [])],
               "absent": [anonymise_text(t) for t in expect.get("absent", [])]}
-    if "blocksAtMost" in expect:
-        public["blocksAtMost"] = expect["blocksAtMost"]
+    for key in ("blocksAtMost", "tables", "itemsAtLeast", "picturesAtMost", "describedLinkedPicturesAtMost", "blankLinksAtMost"):
+        if key in expect:
+            public[key] = expect[key]
     (target / "expect.json").write_text(json.dumps(public, indent=2, ensure_ascii=False) + "\n")
     check = subprocess.run([str(ROOT / "tools/private-text-check.sh"), str(target)], capture_output=True, text=True)
     if check.returncode != 0:

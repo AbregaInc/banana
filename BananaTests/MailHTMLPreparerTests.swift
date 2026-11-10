@@ -34,10 +34,101 @@ final class MailHTMLPreparerTests: XCTestCase {
         XCTAssertEqual(runs.first { $0.text == "mail" }?.link?.scheme, "mailto")
         XCTAssertTrue(text(prepared).contains("quiet"))
     }
-    func testInputAndNestingBounds() throws {
+    func testInputBoundsAndDeepNestingIsReadFlat() throws {
         XCTAssertThrowsError(try MailHTMLPreparer.prepare(plain: String(repeating: "x", count: MailHTMLPreparer.maximumBytes + 1), html: nil))
-        let deep = String(repeating: "<div>", count: 100) + "text" + String(repeating: "</div>", count: 100)
-        XCTAssertThrowsError(try MailHTMLPreparer.prepare(plain: nil, html: deep))
+        // Deeper than the walk recurses: every word still shows, in order, its link kept (was tooComplex).
+        let deep = String(repeating: "<div>", count: 300) + "<p>first <a href=\"https://example.com/a\">link</a></p><p>second<br>Third</p>"
+            + String(repeating: "</div>", count: 300)
+        let prepared = try MailHTMLPreparer.prepare(plain: nil, html: deep)
+        XCTAssertEqual(text(prepared), "first link\nsecond\nThird")
+        XCTAssertEqual(prepared.text.blocks.flatMap(\.runs).first { $0.text == "link" }?.link?.absoluteString, "https://example.com/a")
+        // Tables in tables, as newsletters nest them: twenty levels down.
+        let nested = String(repeating: "<table><tr><td>", count: 20) + "Deep words" + String(repeating: "</td></tr></table>", count: 20)
+        XCTAssertEqual(text(try MailHTMLPreparer.prepare(plain: nil, html: nested)), "Deep words")
+        // Too many pieces to walk: the plain part, when the sender sent one.
+        let huge = String(repeating: "<i></i>", count: MailHTMLPreparer.maximumNodes) + "x"
+        XCTAssertEqual(text(try MailHTMLPreparer.prepare(plain: "Plain version", html: huge)), "Plain version")
+        XCTAssertThrowsError(try MailHTMLPreparer.prepare(plain: nil, html: huge))
+    }
+
+    // MARK: Data tables, lists written as text, soft breaks (problem reports, Nov 2026)
+
+    private func table(_ prepared: MailPreparedBody) -> MailTable? {
+        prepared.text.blocks.lazy.compactMap { if case .table(let table) = $0.kind { return table }; return nil }.first
+    }
+
+    func testDataTableIsAGrid() throws {
+        let html = "<p>Key numbers</p><table><tr><th>Number</th><th>This week</th><th>Last week</th></tr>"
+            + "<tr><td>Net cash</td><td><a href=\"https://example.com/c\">$3,261</a></td><td>$8,169</td></tr>"
+            + "<tr><td>Purchases</td><td>8</td><td>6 <span>(&#9650; 2)</span></td></tr></table><p>After</p>"
+        let prepared = try MailHTMLPreparer.prepare(plain: nil, html: html)
+        let grid = try XCTUnwrap(table(prepared))
+        XCTAssertEqual(grid.rows.map { $0.map { $0.runs.map(\.text).joined() } },
+                       [["Number", "This week", "Last week"], ["Net cash", "$3,261", "$8,169"], ["Purchases", "8", "6 (\u{25B2} 2)"]])
+        XCTAssertEqual(grid.rows[0].map(\.header), [true, true, true])
+        XCTAssertEqual(grid.rows[1][1].runs.first?.link?.absoluteString, "https://example.com/c")
+        // Its text (search, quoting) is a row to a line.
+        XCTAssertTrue(text(prepared).contains("Net cash\u{2003}\u{2003}$3,261\u{2003}\u{2003}$8,169"))
+        XCTAssertEqual(blockTexts(prepared).first, "Key numbers")
+        XCTAssertEqual(blockTexts(prepared).last, "After")
+    }
+
+    func testLayoutTablesStayText() throws {
+        // One row of links, a single column, cells holding layout, mostly empty cells.
+        let row = "<table><tr><th><a href=\"https://example.com/a\">Preferences</a></th><th>Online version</th></tr></table>"
+        let column = "<table><tr><td>Hello</td></tr><tr><td>World</td></tr></table>"
+        let layout = "<table><tr><td><h2>Title</h2></td><td>x</td></tr><tr><td>a</td><td>b</td></tr></table>"
+        let heat = "<table><tr><td>Oct 11</td><td> </td><td> </td><td> </td></tr><tr><td>Oct 18</td><td> </td><td> </td><td> </td></tr></table>"
+        for html in [row, column, layout, heat] { XCTAssertNil(table(try MailHTMLPreparer.prepare(plain: nil, html: html)), html) }
+    }
+
+    func testNumberedRowsInATableAreAList() throws {
+        let html = "<p>Complete these 3 requirements:</p><table><tr><td>1.</td><td>Deposit $5,000</td></tr>"
+            + "<tr><td>2.</td><td>Keep a balance</td></tr><tr><td>3.</td><td>Make 5 transactions</td></tr></table>"
+        let blocks = try MailHTMLPreparer.prepare(plain: nil, html: html).text.blocks
+        XCTAssertEqual(blocks.map(\.kind), [.paragraph, .item(ordered: true, depth: 0, number: 1), .item(ordered: true, depth: 0, number: 2), .item(ordered: true, depth: 0, number: 3)])
+        XCTAssertEqual(blocks[1].runs.map(\.text).joined(), "Deposit $5,000")
+    }
+
+    func testListsWrittenAsTextBecomeLists() throws {
+        // A marker in one block, its words in the next.
+        let split = try MailHTMLPreparer.prepare(plain: nil, html: "<div>1.</div><div>First thing</div><div>2.</div><div>Second thing</div>")
+        XCTAssertEqual(split.text.blocks.map(\.kind), [.item(ordered: true, depth: 0, number: 1), .item(ordered: true, depth: 0, number: 2)])
+        XCTAssertEqual(blockTexts(split), ["First thing", "Second thing"])
+        // Lines that start with markers, broken in one paragraph or in several.
+        let lines = try MailHTMLPreparer.prepare(plain: nil, html: "<p>a. Apples<br>b. Pears</p><p>&bull; One</p><p>&bull; Two</p>")
+        XCTAssertEqual(lines.text.blocks.map(\.kind), Array(repeating: .item(ordered: false, depth: 0, number: nil), count: 4))
+        XCTAssertEqual(blockTexts(lines), ["Apples", "Pears", "One", "Two"])
+        // Short lines after a sentence ending in a colon, until a sentence.
+        let leadIn = try MailHTMLPreparer.prepare(plain: nil, html: "<p>Pages are not indexed for these reasons:</p>"
+            + "<div><p>Alternate page with proper canonical tag</p><p>Duplicate, Google chose a different canonical</p></div>"
+            + "<p>If any of these are not intentional, fix them.</p>")
+        XCTAssertEqual(leadIn.text.blocks.map(\.kind), [.paragraph, .item(ordered: false, depth: 0, number: nil), .item(ordered: false, depth: 0, number: nil), .paragraph])
+        // Not lists: one numbered sentence, a colon followed by sentences, a year.
+        let prose = try MailHTMLPreparer.prepare(plain: nil, html: "<p>1. is the loneliest number.</p><p>Here it is:</p><p>A sentence.</p><p>Another one.</p><p>2026.</p>")
+        XCTAssertFalse(prose.text.blocks.contains { if case .item = $0.kind { return true }; return false })
+    }
+
+    func testBreakBeforeALowerCaseWordOnlyWrapsTheLine() throws {
+        let prepared = try MailHTMLPreparer.prepare(plain: nil, html: "<h1>Bank with the Power <br>of Membership.</h1><p>Line one<br>Line two<br>and on</p><pre>keep\nlower</pre>")
+        XCTAssertEqual(blockTexts(prepared), ["Bank with the Power of Membership.", "Line one\nLine two and on", "keep\nlower"])
+    }
+
+    func testLinkedPictureBesideItsOwnLinkHasNoSecondLabel() throws {
+        let html = "<a href=\"https://example.com/in/ann?photo=1\"><img src=\"https://img.example.com/a.png\" width=\"96\" height=\"96\" alt=\"Ann Lee\"></a>"
+            + "<p><a href=\"https://example.com/in/ann?name=1\">Ann Lee</a></p>"
+            + "<a href=\"https://other.example.com/x\"><img src=\"https://img.example.com/b.png\" width=\"48\" height=\"48\" alt=\"Bo Chen\u{2019}s Profile Picture\"></a>"
+            + "<p><a href=\"https://example.com/in/bo\">Bo Chen</a></p>"
+            + "<a href=\"https://example.com/app\"><img src=\"https://img.example.com/c.png\" width=\"150\" height=\"40\" alt=\"Get the app, opens a new tab\"></a><p>Words</p>"
+            + "<a href=\"https://example.com/m\"><img src=\"https://img.example.com/i.png\" height=\"25\" alt=\"Messaging\"></a>"
+        let found = pictures(try MailHTMLPreparer.prepare(plain: nil, html: html))
+        XCTAssertEqual(found.map(\.alt), ["", "", "Get the app"])
+        XCTAssertEqual(found.map { $0.link?.host }, ["example.com", "other.example.com", "example.com"])
+    }
+
+    func testBlankLinkedCellsAreNotLinks() throws {
+        let prepared = try MailHTMLPreparer.prepare(plain: nil, html: "<p>Oct 11 <a href=\"https://example.com\">&nbsp; </a> <a href=\"https://example.com/b\">Next</a></p>")
+        XCTAssertEqual(prepared.text.blocks.flatMap(\.runs).filter { $0.link != nil }.map(\.text), ["Next"])
     }
     func testTablesAndListsRemainReadable() throws {
         let prepared = try MailHTMLPreparer.prepare(plain: nil, html: "<table><tr><td>Left</td><td>Right</td></tr></table><ol><li>First</li><li>Second</li></ol>")

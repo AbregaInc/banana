@@ -25,8 +25,11 @@ struct MailPreparedBody: Codable, Equatable, Sendable {
 
 /// Runs on the preparation worker, before opening. Uses the pinned library's parser.
 enum MailHTMLPreparer {
-    static let version = 3
+    static let version = 4
     static let maximumBytes = 2 * 1024 * 1024
+    static let maximumNodes = 50_000
+    /// How deep the walk recurses; deeper content is read flat, in document order.
+    static let maximumDepth = 48
     enum Failure: Error { case tooLarge, tooComplex }
 
     static func prepare(plain: String?, html: String?, measure: ((String, Double) -> Void)? = nil) throws -> MailPreparedBody {
@@ -47,11 +50,18 @@ enum MailHTMLPreparer {
             let source = try SwiftSoup.parse(html)
             mark("parse")
             // Bound subsequent walks independently of the parser's input-size bound.
-            var stack: [(Node, Int)] = [(source, 0)], nodes = 0
-            while let (node, depth) = stack.popLast() {
+            // Depth is not a failure: below `maximumDepth` the walk reads a subtree's words flat
+            // (`flatText`), so a newsletter of tables in tables, or a long chain of quoted replies,
+            // still shows every word without recursing deeper.
+            var stack: [Node] = [source], nodes = 0
+            while let node = stack.popLast() {
                 nodes += 1
-                guard nodes <= 50_000, depth <= 64 else { throw Failure.tooComplex }
-                for child in node.getChildNodes() { stack.append((child, depth + 1)) }
+                guard nodes <= maximumNodes else {
+                    // Too many pieces to walk in time: the sender's plain part, if it sent one.
+                    if let plain, !plain.isEmpty, plain.utf8.count <= maximumBytes { return plainBody(plain, shownAsText: true) }
+                    throw Failure.tooComplex
+                }
+                stack.append(contentsOf: node.getChildNodes())
             }
             mark("bounds")
             // Native text reads only text nodes, the listed formatting tags and checked http/https/mailto
@@ -122,6 +132,8 @@ enum MailHTMLPreparer {
         static let k_0_0 = Array("0.0".utf8)
         static let k_block = Array("block".utf8)
         static let k_class = Array("class".utf8)
+        static let k_colspan = Array("colspan".utf8)
+        static let k_rowspan = Array("rowspan".utf8)
         static let k_display = Array("display".utf8)
         static let k_divRplyFwdMsg = Array("divRplyFwdMsg".utf8)
         static let k_flex = Array("flex".utf8)
@@ -145,7 +157,7 @@ enum MailHTMLPreparer {
     /// Which attributes the message could possibly use that matter here, found in one pass over its bytes. Reading an
     /// attribute through the parser is the slowest thing the walk does, so a message that cannot use one never pays for it.
     struct DocNeeds {
-        var style = false, hidden = false, quote = false, outlook = false, preview = false
+        var style = false, hidden = false, quote = false, outlook = false, preview = false, span = false
 
         init(_ html: String) {
             var copy = html
@@ -183,6 +195,8 @@ enum MailHTMLPreparer {
                         // The attribute (` hidden>` or ` hidden=`), not the CSS value (`overflow: hidden;`).
                         if match(i, "hidden"), i > 0, b[i - 1] == 32, i + 6 < n, b[i + 6] == 62 || b[i + 6] == 61 || b[i + 6] == 32 || b[i + 6] == 47 { hidden = true }
                     case UInt8(ascii: "g"): if match(i, "gmail_attr") { quote = true }
+                    case UInt8(ascii: "c"): if match(i, "colspan") { span = true }
+                    case UInt8(ascii: "r"): if match(i, "rowspan") { span = true }
                     case UInt8(ascii: "y"): if match(i, "yahoo_quoted") { quote = true }
                     default: break
                     }
@@ -379,11 +393,225 @@ enum MailHTMLPreparer {
             counts.unsupported += 1
             return nil
         }
-        // A small icon (social buttons, bullets, check marks) is decoration.
-        if let width, let height, width <= 32, height <= 32 { counts.decorative += 1; return nil }
+        // A small icon (social buttons, bullets, check marks) is decoration, also when only one side is given.
+        if let side = width ?? height, let other = height ?? width, side <= 32, other <= 32 { counts.decorative += 1; return nil }
         if case .cid = source { counts.cid += 1 }
-        let alt = collapse((try? element.attr("alt")) ?? "").trimmingCharacters(in: .whitespaces)
+        var alt = collapse((try? element.attr("alt")) ?? "").trimmingCharacters(in: .whitespaces)
+        // "Shop, opens a new tab": what a screen reader is told about the link, not about the picture.
+        for hint in [", opens a new tab", ", opens in a new tab", ", opens in a new window", " (opens in a new window)", " (opens in a new tab)", " - opens in a new window"] {
+            if let range = alt.range(of: hint, options: [.caseInsensitive, .backwards]) { alt.removeSubrange(range) }
+        }
         return MailPicture(source: source, width: width, height: height, alt: String(alt.prefix(200)), link: MailBodyHTML.safeLink(link))
+    }
+
+
+    // MARK: Tables
+
+    struct TableCell { var element: Element; var header: Bool; var span: Int }
+    static let maximumTableRows = 40
+    static let maximumTableColumns = 8
+    /// What a cell of a data table never holds: these lay a page out.
+    private static let layoutInCell: Set<String> = ["table", "ul", "ol", "li", "h1", "h2", "h3", "h4", "h5", "h6", "blockquote", "pre", "hr"]
+    private static let longestCell = 300
+
+    private static func elements(_ node: Node) -> [Element] { node.getChildNodes().compactMap { $0 as? Element } }
+
+    /// The rows and cells of a table that holds data: rows of the same width (two to eight columns),
+    /// every cell short words with no layout inside, at least half the cells filled, and two rows
+    /// with two filled cells. Anything else lays a page out (a single row is a row of links or a footer).
+    static func tableShape(_ table: Element, needs: DocNeeds) -> (rows: [[TableCell]], columns: Int)? {
+        var trs: [Element] = []
+        for child in elements(table) {
+            switch child.tagNameNormal() {
+            case "tr": trs.append(child)
+            case "thead", "tbody", "tfoot": trs.append(contentsOf: elements(child).filter { $0.tagNameNormal() == "tr" })
+            default: break
+            }
+            guard trs.count <= maximumTableRows else { return nil }
+        }
+        guard !trs.isEmpty else { return nil }
+        // First what costs nothing (tags and words), so a table that lays a page out is left before
+        // any attribute is read: reading one through the parser is the slowest thing the walk does.
+        var found: [(tr: Element, cells: [(cell: Element, header: Bool)])] = [], cells = 0, filled = 0, richRows = 0
+        for tr in trs {
+            var row: [(cell: Element, header: Bool)] = [], rowFilled = 0
+            for cell in elements(tr) {
+                let tag = cell.tagNameNormal()
+                guard tag == "td" || tag == "th" else { continue }
+                var length = 0, stack: [Node] = cell.getChildNodes()
+                while let node = stack.popLast() {
+                    if let text = node as? TextNode {
+                        for scalar in text.getWholeText().unicodeScalars where !isSpace(scalar.value) && !isInvisible(scalar.value) { length += 1 }
+                        guard length <= longestCell else { return nil }
+                    } else if let element = node as? Element {
+                        guard !layoutInCell.contains(element.tagNameNormal()) else { return nil }
+                        stack.append(contentsOf: element.getChildNodes())
+                    }
+                }
+                cells += 1
+                if length > 0 { filled += 1; rowFilled += 1 }
+                row.append((cell, tag == "th"))
+            }
+            if row.isEmpty { continue }
+            if rowFilled >= 2 { richRows += 1 }
+            found.append((tr, row))
+        }
+        guard richRows >= 2, filled * 2 >= cells else { return nil }
+        // Then hidden rows and cells, and spans.
+        var rows: [[TableCell]] = []
+        for (tr, row) in found where !look(of: tr, tag: "tr", needs: needs).contains(.hidden) {
+            var kept: [TableCell] = []
+            for item in row where !look(of: item.cell, tag: item.header ? "th" : "td", needs: needs).contains(.hidden) {
+                func number(_ key: [UInt8]) -> Int? {
+                    guard needs.span else { return nil }
+                    return (try? item.cell.attr(key)).flatMap { Int(String(decoding: $0, as: UTF8.self)) }
+                }
+                if let rowspan = number(Bytes.k_rowspan), rowspan > 1 { return nil }
+                let span = min(max(number(Bytes.k_colspan) ?? 1, 1), maximumTableColumns)
+                kept.append(TableCell(element: item.cell, header: item.header, span: span))
+            }
+            if !kept.isEmpty { rows.append(kept) }
+        }
+        let widths = rows.map { $0.reduce(0) { $0 + $1.span } }
+        guard let columns = widths.max(), columns >= 2, columns <= maximumTableColumns,
+              widths.filter({ $0 == columns }).count * 3 >= rows.count * 2,
+              rows.count >= 2 else { return nil }
+        return (rows, columns)
+    }
+
+    // MARK: Lists written as text
+
+    /// "1." "2)" "(3)" number a list; "a." "b)", "•", "-" and the like mark one.
+    static func listMarker(_ text: String) -> (number: Int?, length: Int)? {
+        let scalars = Array(text.unicodeScalars.prefix(6))
+        guard let first = scalars.first else { return nil }
+        if ["\u{2022}", "\u{00B7}", "\u{25AA}", "\u{25E6}", "\u{2023}", "\u{2013}", "-", "*", "\u{25CF}", "\u{25A0}"].contains(first) {
+            return (nil, 1)
+        }
+        var i = 0
+        if first == "(" { i = 1 }
+        var digits = ""
+        while i < scalars.count, scalars[i].properties.numericType == .decimal, digits.count < 2 { digits.unicodeScalars.append(scalars[i]); i += 1 }
+        var letter = false
+        if digits.isEmpty, i < scalars.count, CharacterSet.lowercaseLetters.contains(scalars[i]), scalars[i].isASCII { letter = true; i += 1 }
+        guard !digits.isEmpty || letter, i < scalars.count, scalars[i] == "." || scalars[i] == ")" else { return nil }
+        if first == "(", scalars[i] != ")" { return nil }
+        return (digits.isEmpty ? nil : Int(digits), i + 1)
+    }
+
+    private static func plainText(_ runs: [MailTextRun]) -> String { runs.map(\.text).joined() }
+
+    /// "b. Pears": a marker, a space and words.
+    static func startsWithMarker(_ text: String) -> Bool {
+        guard let marker = listMarker(text) else { return false }
+        return text.unicodeScalars.dropFirst(marker.length).first == " "
+    }
+
+    /// The runs without their first `count` characters (a list marker) and the space after it.
+    private static func dropping(_ count: Int, from runs: [MailTextRun]) -> [MailTextRun] {
+        var left = count
+        var out: [MailTextRun] = []
+        for var run in runs {
+            if left > 0 {
+                let scalars = run.text.unicodeScalars
+                let take = min(left, scalars.count)
+                run.text = String(String.UnicodeScalarView(scalars.dropFirst(take)))
+                left -= take
+                if left == 0 { run.text = String(run.text.drop(while: { $0 == " " })) }
+            }
+            if !run.text.isEmpty { out.append(run) }
+        }
+        return out
+    }
+
+    /// The lines of a block, split where it breaks.
+    private static func lines(_ runs: [MailTextRun]) -> [[MailTextRun]] {
+        var out: [[MailTextRun]] = [[]]
+        for run in runs { if run.text == "\n" { out.append([]) } else { out[out.count - 1].append(run) } }
+        return out.filter { !$0.isEmpty }
+    }
+
+    /// A line that starts with a marker and a space, as an item; nil otherwise.
+    private static func item(_ runs: [MailTextRun]) -> MailTextBlock? {
+        let text = plainText(runs)
+        guard let marker = listMarker(text) else { return nil }
+        let rest = text.unicodeScalars.dropFirst(marker.length)
+        guard rest.first == " ", rest.contains(where: { !CharacterSet.whitespaces.contains($0) }) else { return nil }
+        return MailTextBlock(kind: .item(ordered: marker.number != nil, depth: 0, number: marker.number), runs: dropping(marker.length, from: runs))
+    }
+
+    /// Lists a sender wrote as text become lists: a marker on its own line followed by its words ("1."
+    /// then "Deposit $5,000…"), two or more lines that each start with a marker, and short lines that
+    /// follow a sentence ending in a colon ("…for the following reasons:" then one reason a line).
+    static func listsFromLines(_ blocks: [MailTextBlock]) -> [MailTextBlock] {
+        var out: [MailTextBlock] = []
+        out.reserveCapacity(blocks.count)
+        var i = 0
+        while i < blocks.count {
+            let block = blocks[i]
+            guard case .paragraph = block.kind else { out.append(block); i += 1; continue }
+            let text = plainText(block.runs).trimmingCharacters(in: .whitespaces)
+            // A marker alone, its words in the next paragraph.
+            if let marker = listMarker(text), marker.length == text.unicodeScalars.count, i + 1 < blocks.count,
+               case .paragraph = blocks[i + 1].kind, !plainText(blocks[i + 1].runs).isEmpty {
+                out.append(MailTextBlock(kind: .item(ordered: marker.number != nil, depth: 0, number: marker.number), runs: blocks[i + 1].runs))
+                i += 2
+                continue
+            }
+            // Lines that each start with a marker, in one paragraph or in several.
+            let split = lines(block.runs)
+            if split.count >= 2, case let items = split.compactMap(item), items.count == split.count {
+                out.append(contentsOf: items); i += 1; continue
+            }
+            if split.count == 1, let first = item(block.runs), i + 1 < blocks.count, case .paragraph = blocks[i + 1].kind,
+               let second = item(blocks[i + 1].runs) {
+                out.append(first); out.append(second)
+                i += 2
+                while i < blocks.count, case .paragraph = blocks[i].kind, let next = item(blocks[i].runs) { out.append(next); i += 1 }
+                continue
+            }
+            out.append(block)
+            i += 1
+            // A lead-in ending in a colon, then short lines that are not sentences: one item each.
+            guard text.hasSuffix(":"), text.count >= 12 else { continue }
+            var j = i
+            func isShortLine(_ b: MailTextBlock) -> Bool {
+                guard case .paragraph = b.kind, !b.runs.contains(where: { $0.text == "\n" }) else { return false }
+                let line = plainText(b.runs).trimmingCharacters(in: .whitespaces)
+                guard !line.isEmpty, line.count <= 120, let last = line.last else { return false }
+                return !".!?:".contains(last)
+            }
+            while j < blocks.count, isShortLine(blocks[j]) { j += 1 }
+            guard j - i >= 2 else { continue }
+            for k in i..<j { out.append(MailTextBlock(kind: .item(ordered: false, depth: 0, number: nil), runs: blocks[k].runs)) }
+            i = j
+        }
+        return out
+    }
+
+    // MARK: Pictures beside their own link
+
+    /// A linked picture next to a link to the same page, or to a link whose words its description names
+    /// (a profile photo above the name, a logo by the shop's name), says nothing the words don't: it keeps its link but no description, so a picture
+    /// that cannot be shown leaves no second label.
+    static func picturesWithoutRepeatedLinks(_ blocks: [MailTextBlock]) -> [MailTextBlock] {
+        var out = blocks
+        for index in out.indices {
+            guard case .picture(var picture) = out[index].kind, let link = picture.link, !picture.alt.isEmpty else { continue }
+            let neighbours = [index - 1, index + 1].filter { out.indices.contains($0) }
+            let alt = picture.alt.lowercased()
+            func same(_ other: URL) -> Bool {
+                other == link || (other.host != nil && other.host == link.host && other.path.count > 1 && other.path == link.path)
+            }
+            func named(_ run: MailTextRun) -> Bool {
+                let words = run.text.trimmingCharacters(in: .whitespaces).lowercased()
+                return words.count >= 3 && alt.contains(words)
+            }
+            guard neighbours.contains(where: { out[$0].runs.contains { run in run.link.map(same) == true || (run.link != nil && named(run)) } }) else { continue }
+            picture.alt = ""
+            out[index].kind = .picture(picture)
+        }
+        return out
     }
 
     // MARK: Fine print
@@ -440,6 +668,8 @@ enum MailHTMLPreparer {
         // A list item whose text sits in a div or p (Outlook, Apple Mail): the first block inside it is the item.
         var pendingItem: MailTextBlock.Kind?
         var counts = PictureCounts()
+        // Inside a data table's cell: words only, no pictures and no blocks of its own.
+        var inCell = false
 
         func flush() {
             defer { runs.removeAll(keepingCapacity: true); hasVisible = false }
@@ -461,18 +691,29 @@ enum MailHTMLPreparer {
                 atStart = false
                 cleaned.append(run)
             }
-            while let last = cleaned.last, last.text == "\n" || last.text.allSatisfy({ $0 == " " }) { cleaned.removeLast() }
-            if var last = cleaned.last, last.text.hasSuffix(" ") { while last.text.hasSuffix(" ") { last.text.removeLast() }; cleaned[cleaned.count - 1] = last }
+            while let last = cleaned.last, last.text.allSatisfy(\.isWhitespace) { cleaned.removeLast() }
+            if var last = cleaned.last, last.text.last?.isWhitespace == true { while last.text.last?.isWhitespace == true { last.text.removeLast() }; cleaned[cleaned.count - 1] = last }
             guard cleaned.contains(where: { !$0.text.isEmpty }) else { return }
             var k = kind
             if let item = pendingItem, case .paragraph = k { k = item }
             pendingItem = nil
             if outlookQuote, case .quote = k {} else if outlookQuote { k = .quote(depth: 1) }
+            // A break before a word that goes on in lower case only wrapped the line to the sender's
+            // column ("Bank with the Power<br>of Membership"): in this column the sentence flows on.
+            if k != .preformatted {
+                for i in cleaned.indices.dropLast() where cleaned[i].text == "\n" {
+                    guard let next = cleaned[i + 1].text.first, next.isLowercase, !startsWithMarker(cleaned[i + 1].text) else { continue }
+                    cleaned[i].text = i > 0 && cleaned[i - 1].text.hasSuffix(" ") ? "" : " "
+                }
+                cleaned.removeAll { $0.text.isEmpty }
+            }
             blocks.append(MailTextBlock(kind: k, runs: cleaned))
         }
 
         func append(_ text: String, style: MailTextStyle, link: URL?) {
             guard !text.isEmpty else { return }
+            // A link around nothing but space (a padded table cell) is no link: there is nothing to tap.
+            let link = link != nil && text.allSatisfy({ $0 == " " || $0 == "\n" }) ? nil : link
             if text != " " && text != "\n" { hasVisible = hasVisible || text.contains(where: { $0 != " " }) }
             if let last = runs.last, last.style == style, last.link == link, text != "\n", last.text != "\n" {
                 runs[runs.count - 1].text += text
@@ -483,7 +724,7 @@ enum MailHTMLPreparer {
 
         func shortened(_ text: String) -> String { displayAddress(text) }
 
-        func walk(_ node: Node, style: MailTextStyle, link: URL?, quote: Int, pre: Bool) throws {
+        func walk(_ node: Node, style: MailTextStyle, link: URL?, quote: Int, pre: Bool, depth: Int) throws {
             if let text = node as? TextNode {
                 if pre {
                     let value = stripInvisible(text.getWholeText())
@@ -496,9 +737,15 @@ enum MailHTMLPreparer {
                 return
             }
             guard let element = node as? Element else { return }
+            if depth >= maximumDepth { flatText(element, style: style, link: link); return }
             let tag = element.tagNameNormal()
             let traits = look(of: element, tag: tag, needs: needs)
             if traits.contains(.hidden) { return }
+            if tag == "table", quote == 0, !outlookQuote, !inCell, !pre, let found = try table(element, depth: depth) {
+                flush()
+                blocks.append(contentsOf: found)
+                return
+            }
             let previous = kind
             // Floated and inline-block boxes sit side by side (a label and its value): one line, a gap between.
             let sideBySide = traits.contains(.sideBySide)
@@ -510,6 +757,7 @@ enum MailHTMLPreparer {
             if tag == "hr" { flush(); blocks.append(MailTextBlock(kind: .rule, runs: [])); return }
             if tag == "img" {
                 guard let picture = picture(of: element, link: link, counts: &counts) else { return }
+                if inCell { counts.decorative += 1; return }
                 if quote > 0 || outlookQuote { counts.quoted += 1; return }
                 if case .picture(let last)? = blocks.last?.kind, last.source == picture.source { return }
                 if counts.kept >= maximumPictures { counts.capped += 1; return }
@@ -561,9 +809,10 @@ enum MailHTMLPreparer {
             if tag == "br" {
                 if let last = runs.last, last.text == "\n" { flush() } else if hasVisible { append("\n", style: style, link: nil) }
             }
-            if tag == "td" || tag == "th", hasVisible { append(cellSeparator, style: [], link: nil) }
+            // One gap between cells however many empty cells lie between them (a calendar's blank days).
+            if tag == "td" || tag == "th", hasVisible, runs.last?.text.hasSuffix(cellSeparator) != true { append(cellSeparator, style: [], link: nil) }
             for child in element.getChildNodes() {
-                try walk(child, style: nextStyle, link: nextLink, quote: quote, pre: pre || tag == "pre")
+                try walk(child, style: nextStyle, link: nextLink, quote: quote, pre: pre || tag == "pre", depth: depth + 1)
             }
             if isBlock {
                 flush()
@@ -572,9 +821,99 @@ enum MailHTMLPreparer {
                 if tag == "ul" || tag == "ol" { _ = lists.popLast() }
             }
         }
-        try walk(root, style: [], link: nil, quote: 0, pre: false)
+        /// A subtree below `maximumDepth`, read without recursion: its words in document order, a block
+        /// element ending a line, a break a line break, its links kept; hidden parts and pictures skipped.
+        func flatText(_ start: Element, style: MailTextStyle, link: URL?) {
+            enum Step { case enter(Node, URL?), leave }
+            var steps: [Step] = [.enter(start, link)]
+            while let step = steps.popLast() {
+                guard case .enter(let node, let link) = step else { flush(); continue }
+                if let text = node as? TextNode {
+                    let value = collapse(text.getWholeText())
+                    if !value.isEmpty { append(value, style: style, link: link) }
+                    continue
+                }
+                guard let element = node as? Element else { continue }
+                let tag = element.tagNameNormal()
+                if look(of: element, tag: tag, needs: needs).contains(.hidden) || tag == "img" { continue }
+                if tag == "br" { if hasVisible { append("\n", style: style, link: nil) }; continue }
+                var inner = link
+                if tag == "a" {
+                    let href = ((try? element.attr("href")) ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+                    let url = URL(string: href)
+                    if let url, ["http", "https", "mailto"].contains(url.scheme?.lowercased() ?? ""),
+                       !href.unicodeScalars.contains(where: { $0.value < 32 || $0.value == 127 }) { inner = url } else { inner = nil }
+                }
+                let block = blockTags.contains(tag) || tag == "td" || tag == "th"
+                if block { flush(); steps.append(.leave) }
+                for child in element.getChildNodes().reversed() { steps.append(.enter(child, inner)) }
+            }
+        }
+
+        /// The runs a cell's content makes, its lines joined by line breaks.
+        func cellRuns(_ cell: Element, depth: Int) throws -> [MailTextRun] {
+            let saved = (blocks, runs, hasVisible, kind, pendingItem, lists)
+            blocks = []; runs = []; hasVisible = false; kind = .paragraph; pendingItem = nil; lists = []
+            inCell = true
+            defer { (blocks, runs, hasVisible, kind, pendingItem, lists) = saved; inCell = false }
+            for child in cell.getChildNodes() {
+                try walk(child, style: [], link: nil, quote: 0, pre: false, depth: depth + 1)
+            }
+            flush()
+            var out: [MailTextRun] = []
+            for block in blocks {
+                if !out.isEmpty { out.append(MailTextRun(text: "\n", link: nil)) }
+                out.append(contentsOf: block.runs)
+            }
+            return out
+        }
+
+        /// A table of data as a grid (or, when its first column only numbers or bullets the rows, as a
+        /// list); nil for a table that lays a page out, which is read as text as before.
+        func table(_ element: Element, depth: Int) throws -> [MailTextBlock]? {
+            guard let shape = tableShape(element, needs: needs) else { return nil }
+            var grid: [[MailTable.Cell]] = []
+            for row in shape.rows {
+                var cells: [MailTable.Cell] = []
+                for cell in row {
+                    let runs = try cellRuns(cell.element, depth: depth)
+                    cells.append(MailTable.Cell(runs: runs, header: cell.header))
+                    for _ in 1..<max(1, cell.span) { cells.append(MailTable.Cell(runs: [], header: cell.header)) }
+                }
+                while cells.count < shape.columns { cells.append(MailTable.Cell(runs: [])) }
+                grid.append(Array(cells.prefix(shape.columns)))
+            }
+            // What each cell says, worked out once.
+            let words = grid.map { row in row.map { MailHTMLPreparer.plainText($0.runs).trimmingCharacters(in: .whitespaces) } }
+            // Empty columns (spacer cells) and empty rows are not part of the table.
+            let used = (0..<shape.columns).filter { column in words.contains { !$0[column].isEmpty } }
+            let kept = grid.indices.filter { row in used.contains { !words[row][$0].isEmpty } }
+            guard used.count >= 2, !kept.isEmpty else { return nil }
+            grid = kept.map { row in used.map { grid[row][$0] } }
+            let shown = kept.map { row in used.map { words[row][$0] } }
+            // "1." | "Deposit $5,000…": a list laid out in a table.
+            if used.count == 2, grid.count >= 2, shown.allSatisfy({ listMarker($0[0])?.length == $0[0].unicodeScalars.count && !$0[1].isEmpty }) {
+                return zip(grid, shown).map { row, text in
+                    let number = listMarker(text[0])?.number
+                    return MailTextBlock(kind: .item(ordered: number != nil, depth: 0, number: number), runs: row[1].runs)
+                }
+            }
+            var flat: [MailTextRun] = []
+            for (index, row) in grid.enumerated() {
+                if index > 0 { flat.append(MailTextRun(text: "\n", link: nil)) }
+                for (column, cell) in row.enumerated() {
+                    if column > 0 { flat.append(MailTextRun(text: cellSeparator, link: nil)) }
+                    flat.append(contentsOf: cell.runs.map { var run = $0; if run.text == "\n" { run.text = " " }; return run })
+                }
+            }
+            return [MailTextBlock(kind: .table(MailTable(rows: grid)), runs: flat)]
+        }
+
+        try walk(root, style: [], link: nil, quote: 0, pre: false, depth: 0)
         flush()
-        let marked = markingFinePrint(attributionsJoinedToTheirQuotes(blocks), counts: &counts)
+        let joined = attributionsJoinedToTheirQuotes(blocks)
+        let listed = listsFromLines(joined)
+        let marked = markingFinePrint(picturesWithoutRepeatedLinks(listed), counts: &counts)
         return (MailText(blocks: marked), counts)
     }
 

@@ -112,8 +112,10 @@ final class MailCloudPullTests: XCTestCase {
     }
 
     /// An HTML message nested deeper than the preparer takes (`MailHTMLPreparer.Failure.tooComplex`).
-    static func tooDeep(_ id: String, date: Int64, labels: [String] = ["INBOX"]) -> GmailMessage {
-        let html = "<html><body>" + String(repeating: "<div>", count: 80) + "deep" + String(repeating: "</div>", count: 80) + "</body></html>"
+    /// More pieces than preparation walks, and no plain part to show instead: it cannot be prepared.
+    /// (Depth alone no longer stops it: deep content is read flat.)
+    static func tooComplex(_ id: String, date: Int64, labels: [String] = ["INBOX"]) -> GmailMessage {
+        let html = "<html><body>" + String(repeating: "<i></i>", count: MailHTMLPreparer.maximumNodes) + "deep</body></html>"
         let data = Data(html.utf8).base64EncodedString().replacingOccurrences(of: "+", with: "-").replacingOccurrences(of: "/", with: "_").replacingOccurrences(of: "=", with: "")
         let json = """
         {"id":"\(id)","threadId":"t-\(id)","historyId":"100","internalDate":"\(date)","labelIds":\(String(decoding: try! JSONEncoder().encode(labels), as: UTF8.self)),
@@ -286,7 +288,7 @@ final class MailCloudPullTests: XCTestCase {
     func testOneMessageThatCannotBePreparedDoesNotHoldBackItsBatch() async throws {
         let cloud = Cloud()
         await cloud.set((1...5).map { entry("m\($0)", date: Int64($0) * 1000) })
-        await cloud.hold([1, 2, 4, 5].map { Self.full("m\($0)", date: Int64($0) * 1000) } + [Self.tooDeep("m3", date: 3000)])
+        await cloud.hold([1, 2, 4, 5].map { Self.full("m\($0)", date: Int64($0) * 1000) } + [Self.tooComplex("m3", date: 3000)])
         let (stores, pull) = try await setup(cloud)
         let step = try await pull.step(fill: true)
         XCTAssertEqual(step.tier, .fill)
