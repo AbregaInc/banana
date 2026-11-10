@@ -247,3 +247,32 @@ reader can't see (a free/busy-only calendar, which returns times and nothing els
 without a source fall back to the fingerprint match above. Google documents private extended
 properties as belonging to one calendar's copy and does not say what a reader with "See all event
 details" receives; the troubleshooting report's `traced=` field shows whether a reader gets them.
+
+## November 10: every device writes, and leaves another's recent work alone
+
+Every device writes Busy copies and travel blocks; there is no single writer. Two devices that
+rewrote each other's travel blocks over a few minutes of traffic difference kept every device
+re-reading and re-planning every few seconds (pushes every 5 to 10 seconds, all night). The rule
+now, for any copy whoever wrote it, this device included:
+
+- **Stamped.** Each copy carries, in `extendedProperties.private`, `bananaWriter` (an opaque
+  per-install id, never a name) and `bananaInputs`: a stable hash of what the copy is derived
+  from. For a travel block that is its trip identity (kind and the meeting edge it hangs on), the
+  place, the mode and the origin it is timed from, never the computed minutes or the traffic
+  estimate. For a Busy copy or a task block it is what the copy says and the sources it names.
+- **Inputs changed: write now.** The meeting moved or was cancelled, the place or origin changed:
+  written (or removed) at once, whoever wrote it and however recently. A stale busy block never
+  stays.
+- **Same inputs, only the times differ (traffic): leave it** while Google's own `updated` on it is
+  less than `CopyRefresh.travelRefreshHold` (one hour) ago; after that, rewrite only if an edge
+  moves five minutes or more. Age is read on the server's clock, so devices' clocks don't matter.
+  Traffic still refreshes a block, just not every minute.
+- **Unstamped (an older build's):** left when only its times differ by under five minutes (adopted,
+  stamped at its next real update); written when its title, all-day form or times genuinely
+  differ.
+- **A second guard:** a change that touches only Banana's copies, written by another device,
+  re-plans at most every three minutes (`GoogleEventSync.NewsGate`); a change to a real event
+  re-plans at once.
+
+Tests: `TravelCopyRefreshTests` (each branch, and two devices with estimates three minutes apart
+converging with no rewrites over three hours), `GoogleEventSyncTests` (the news gate).
