@@ -33,6 +33,7 @@ import { webRoutes } from "./web/routes.js";
 import { sourceRoutes } from "./source-offer.js";
 import { pushTo } from "./push.js";
 import { capabilitiesColumn, parseCapabilities } from "./device-features.js";
+import { senderImageRoutes, forgetContacts } from "./sender-images.js";
 
 /**
  * @typedef {{
@@ -374,6 +375,9 @@ export function createApp(deps) {
     return c.json(answer.body,answer.status);
   });
 
+  // Sender images: a picture per sender, found and kept by the service (docs/design/MAIL-UX.md).
+  senderImageRoutes(app, deps, { signedIn, readJson, vault });
+
   // Gmail's push, through Cloud Pub/Sub (MAIL-CLOUD-SYNC §2a). Not a session route: the OIDC
   // token Pub/Sub signs is the authentication.
   app.post("/v1/mail/push", async (c) => {
@@ -400,8 +404,9 @@ export function createApp(deps) {
     // Forget Mail access only. Revoking at Google could also revoke working Calendar consent.
     await db.run(`INSERT INTO mail_grants(google_sub,refresh_token,scopes,client_id,status,granted_at,updated_at)
       VALUES (?,NULL,'','','unlinked',?,?) ON CONFLICT(google_sub) DO UPDATE SET refresh_token=NULL,status='unlinked',updated_at=excluded.updated_at`,link.sub,now(),now());
-    // Mail turned off: the shared mailbox and every stored message go with it.
+    // Mail turned off: the shared mailbox and every stored message go with it, and his contacts' photos.
     await wipeMailbox(deps,link.sub);
+    await forgetContacts(deps,c.get("account"),link.sub);
     return c.body(null,204);
   });
 
@@ -470,6 +475,7 @@ export function createApp(deps) {
     for(const sub of new Set([...links.map(l=>l.sub),...mailboxes.map(m=>m.google_sub)])){await stopMailWatch(deps,sub);await wipeMailbox(deps,sub);}
     const uploads=await db.all('SELECT DISTINCT operation_id FROM mail_uploads WHERE account_id=?',account);
     for(const upload of uploads)await removeMailParts(deps,account,upload.operation_id);
+    await forgetContacts(deps,account);
     await db.batch([
       ...spaces,
       { sql: "DELETE FROM watches WHERE account_id = ?", params: [account] },
@@ -531,6 +537,7 @@ export function createApp(deps) {
     await stopMailWatch(deps, link.sub);
     await forget(deps, vault, link);
     await wipeMailbox(deps, link.sub);
+    await forgetContacts(deps, account, link.sub);
     // The sub and email stay (status 'unlinked'), so this Google account can sign in to the same
     // account again, and delete it.
     await db.batch([

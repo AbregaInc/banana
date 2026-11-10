@@ -452,6 +452,26 @@ export function createGoogle(config, fetchImpl, now = Date.now) {
       if (!response.ok && response.status !== 404) throw new GoogleError(`stop ${response.status}`, response.status);
     },
 
+    /**
+     * One page of the person's contacts with their addresses and photos, for sender images
+     * (docs/design/MAIL-UX.md): `kind` "connections" (contacts.readonly) or "other" (the addresses
+     * Gmail keeps from mail, contacts.other.readonly). {people, next}.
+     */
+    async contacts(accessToken, kind, pageToken) {
+      const url = kind === "other"
+        ? new URL("https://people.googleapis.com/v1/otherContacts")
+        : new URL("https://people.googleapis.com/v1/people/me/connections");
+      url.searchParams.set(kind === "other" ? "readMask" : "personFields", "emailAddresses,photos");
+      url.searchParams.set("pageSize", "1000");
+      if (pageToken) url.searchParams.set("pageToken", pageToken);
+      const response = await fetch(url.toString(), { headers: { authorization: `Bearer ${accessToken}` }, redirect: "error" });
+      if (response.status === 401 || response.status === 403) throw new GoogleRefused("contacts");
+      if (!response.ok) throw new GoogleError(`contacts ${response.status}`, response.status);
+      const body = await readJson(response);
+      const people = kind === "other" ? body.otherContacts : body.connections;
+      return { people: Array.isArray(people) ? people : [], next: typeof body.nextPageToken === "string" ? body.nextPageToken : null };
+    },
+
     /** Revokes the refresh token (and every access token made from it) at Google. */
     async revoke(refreshToken) {
       cache.delete(refreshToken);

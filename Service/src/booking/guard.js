@@ -11,11 +11,12 @@ export const LIMITS = {
   notify: { limit: 30, period: 60 },   // Google change notices acted on, per channel
   share: { limit: 60, period: 60 },    // a share's reads (the owner's Google quota behind them), per share
   reconcile: { limit: 6, period: 60 }, // calendar-list changes acted on at Google, per Google account
+  senders: { limit: 60, period: 60 },  // Mail sender-image lookups (up to 50 addresses each), per account
 };
 
 /** deps.limit on Workers: one binding per limit (wrangler.toml [[ratelimits]]). */
 export function workersLimits(env) {
-  const bindings = { slots: env.RL_SLOTS, book: env.RL_BOOK, code: env.RL_CODE, api: env.RL_API, notify: env.RL_NOTIFY, share: env.RL_SHARE, reconcile: env.RL_RECONCILE };
+  const bindings = { slots: env.RL_SLOTS, book: env.RL_BOOK, code: env.RL_CODE, api: env.RL_API, notify: env.RL_NOTIFY, share: env.RL_SHARE, reconcile: env.RL_RECONCILE, senders: env.RL_SENDERS };
   const memory = memoryLimits();
   return async (name, key) => {
     const binding = bindings[name];

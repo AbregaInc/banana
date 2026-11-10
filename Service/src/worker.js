@@ -15,6 +15,11 @@ import { cloudflareEmail, memoryEmail } from "./booking/email.js";
 import { createTurnstile, workersLimits, workersPageCache } from "./booking/guard.js";
 import { bookingContext, bookingMinute, bookingQuarter } from "./booking/jobs.js";
 import { createSigner } from "./booking/sign.js";
+import { svgRasterizer } from "./svg-raster.js";
+import resvgWasm from "@resvg/resvg-wasm/index_bg.wasm";
+
+// One rasterizer per isolate: the WebAssembly module is compiled once.
+const rasterSvg = svgRasterizer(() => resvgWasm);
 
 export { Space } from "./space-do.js";
 export { Mailbox } from "./mailbox-do.js";
@@ -51,6 +56,9 @@ function deps(env, ctx) {
     now: Date.now,
     sleep: (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
     random,
+    // Sender images (src/sender-images.js): public pictures fetched by the service, BIMI SVGs drawn here.
+    outbound: (...args) => fetch(...args),
+    rasterSvg,
   };
 }
 
