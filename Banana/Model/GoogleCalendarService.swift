@@ -221,6 +221,8 @@ final class GoogleCalendarService: ObservableObject {
     private(set) var newsSerial = 0
     /// When a read last found a change someone else made. `hasChanges(since:)` answers from it.
     private var lastNewsAt: Date?
+    /// When a change counts as news: at once for events, at a bounded pace for Banana's copies.
+    private var newsGate = GoogleEventSync.NewsGate()
     /// How the last core read went, per calendar: incremental, full, or failed. For the probe.
     private(set) var lastSyncTrace: [String: String] = [:]
 
@@ -804,25 +806,30 @@ final class GoogleCalendarService: ObservableObject {
             }
             var failures: [String: String] = [:]
             var toSave: [(String, GoogleEventSync.Snapshot)] = []
-            var news = false
+            var eventNews = false
+            var copyNews = false
             let ownWrites = self.recentOwnWrites
             for calendar in readable {
                 switch results[calendar.id] {
                 case .success(let outcome):
+                    let before = self.eventCache[calendar.id]?.events ?? []
                     self.eventCache[calendar.id] = outcome.snapshot
                     if !outcome.changedIDs.isEmpty || outcome.wasFullRead {
                         toSave.append((calendar.id, outcome.snapshot))
                     }
-                    if outcome.hadBaseline,
-                       GoogleEventSync.containsNews(outcome.changedIDs, ownWrites: ownWrites, now: startedAt) {
-                        news = true
+                    let foreign = outcome.hadBaseline
+                        ? GoogleEventSync.foreignIDs(outcome.changedIDs, ownWrites: ownWrites, now: startedAt) : []
+                    if !foreign.isEmpty {
+                        // Banana's copies written by another device follow from events already
+                        // read; they wait their turn (`GoogleEventSync.NewsGate`).
+                        let copies = GoogleEventSync.bananaCopyIDs(foreign, before: before, after: outcome.snapshot.events)
+                        if copies.count < foreign.count { eventNews = true } else { copyNews = true }
                         // Which calendar and events counted as someone else's change — a change
                         // poll that keeps finding "news" re-plans the whole timeline every time.
-                        let foreign = outcome.changedIDs.filter { ownWrites[$0] == nil }
                         let titles = outcome.snapshot.events.filter { foreign.contains($0.id ?? "") }
                             .prefix(3).map { $0.summary ?? "?" }
                         PlaybackDiagnostics.shared.log("calendar news",
-                            "\(PlaybackDiagnostics.personal(calendar.displayTitle)): \(outcome.changedIDs.count) changed, \(foreign.count) not ours, \(outcome.wasFullRead ? "full" : "incremental") — \(PlaybackDiagnostics.personal(titles.joined(separator: " | ")))")
+                            "\(PlaybackDiagnostics.personal(calendar.displayTitle)): \(outcome.changedIDs.count) changed, \(foreign.count) not ours (\(copies.count) Banana copies), \(outcome.wasFullRead ? "full" : "incremental") — \(PlaybackDiagnostics.personal(titles.joined(separator: " | ")))")
                     }
                 case .failure(let error):
                     failures[calendar.id] = Self.friendlyMessage(for: error)
@@ -830,9 +837,11 @@ final class GoogleCalendarService: ObservableObject {
                     failures[calendar.id] = "no answer from the read"
                 }
             }
-            if news {
+            if self.newsGate.admit(events: eventNews, copies: copyNews, now: startedAt) {
                 self.lastNewsAt = startedAt
                 self.newsSerial += 1
+            } else if copyNews {
+                PlaybackDiagnostics.shared.log("calendar news", "only Banana copies changed; held for the next look")
             }
             if !toSave.isEmpty {
                 // Encoding a busy calendar is real work; keep it off the main actor.
@@ -1263,26 +1272,40 @@ final class GoogleCalendarService: ObservableObject {
     nonisolated private static func sync(calendarID: String, authorization: GoogleCalendarReadAuthorization,
                                          previous: GoogleEventSync.Snapshot?,
                                          window: (start: Date, end: Date), now: Date) async throws -> SyncOutcome {
-        if let previous, GoogleEventSync.canContinue(previous, window: window, now: now),
-           let syncToken = previous.syncToken, authorization.accepts(cursor: syncToken) {
-            do {
-                let page = try await fetchAllPages(firstPage: incrementalURL(calendarID: calendarID, syncToken: syncToken),
-                                                   authorization: authorization)
-                var snapshot = previous
-                snapshot.events = GoogleEventSync.apply(page.events, to: previous.events)
-                snapshot.fetchedAt = now
-                snapshot.syncToken = page.syncToken
-                return SyncOutcome(snapshot: snapshot, changedIDs: GoogleEventSync.ids(in: page.events),
-                                   wasFullRead: false, hadBaseline: true)
-            } catch GoogleCalendarError.api(status: 410, _) {
-                // Token expired: fall through to a full read.
+        var refused = false
+        switch GoogleEventSync.readPlan(previous, window: window, now: now) {
+        case .reuse:
+            // A calendar that refuses its tokens, read in full moments ago: its copy answers.
+            if let previous {
+                return SyncOutcome(snapshot: previous, changedIDs: [], wasFullRead: false, hadBaseline: true)
             }
+        case .incremental(let syncToken) where authorization.accepts(cursor: syncToken):
+            if let previous {
+                do {
+                    let page = try await fetchAllPages(firstPage: incrementalURL(calendarID: calendarID, syncToken: syncToken),
+                                                       authorization: authorization)
+                    var snapshot = previous
+                    snapshot.events = GoogleEventSync.apply(page.events, to: previous.events)
+                    snapshot.fetchedAt = now
+                    snapshot.syncToken = page.syncToken
+                    snapshot.tokenRefusals = nil
+                    snapshot.tokenRefusedAt = nil
+                    return SyncOutcome(snapshot: snapshot, changedIDs: GoogleEventSync.ids(in: page.events),
+                                       wasFullRead: false, hadBaseline: true)
+                } catch GoogleCalendarError.api(status: 410, _) {
+                    // Token refused: read in full, and count it (`GoogleEventSync.readPlan`).
+                    refused = true
+                }
+            }
+        case .incremental, .full:
+            break
         }
         let page = try await fetchAllPages(firstPage: syncListURL(calendarID: calendarID, from: window.start, to: window.end),
                                            authorization: authorization)
         let live = page.events.filter { $0.status != "cancelled" }
-        let snapshot = GoogleEventSync.Snapshot(start: window.start, end: window.end, fetchedAt: now,
-                                                fullReadAt: now, syncToken: page.syncToken, events: live)
+        let read = GoogleEventSync.Snapshot(start: window.start, end: window.end, fetchedAt: now,
+                                            fullReadAt: now, syncToken: page.syncToken, events: live)
+        let snapshot = GoogleEventSync.fullRead(read, after: previous, refused: refused, now: now)
         let changed = previous.map { GoogleEventSync.changedIDs(from: $0.events, to: live) } ?? []
         return SyncOutcome(snapshot: snapshot, changedIDs: changed, wasFullRead: true,
                            hadBaseline: previous != nil)

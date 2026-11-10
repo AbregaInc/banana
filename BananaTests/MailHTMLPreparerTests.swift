@@ -34,8 +34,7 @@ final class MailHTMLPreparerTests: XCTestCase {
         XCTAssertEqual(runs.first { $0.text == "mail" }?.link?.scheme, "mailto")
         XCTAssertTrue(text(prepared).contains("quiet"))
     }
-    func testInputBoundsAndDeepNestingIsReadFlat() throws {
-        XCTAssertThrowsError(try MailHTMLPreparer.prepare(plain: String(repeating: "x", count: MailHTMLPreparer.maximumBytes + 1), html: nil))
+    func testDeepNestingIsReadFlat() throws {
         // Deeper than the walk recurses: every word still shows, in order, its link kept (was tooComplex).
         let deep = String(repeating: "<div>", count: 300) + "<p>first <a href=\"https://example.com/a\">link</a></p><p>second<br>Third</p>"
             + String(repeating: "</div>", count: 300)
@@ -45,10 +44,8 @@ final class MailHTMLPreparerTests: XCTestCase {
         // Tables in tables, as newsletters nest them: twenty levels down.
         let nested = String(repeating: "<table><tr><td>", count: 20) + "Deep words" + String(repeating: "</td></tr></table>", count: 20)
         XCTAssertEqual(text(try MailHTMLPreparer.prepare(plain: nil, html: nested)), "Deep words")
-        // Too many pieces to walk: the plain part, when the sender sent one.
-        let huge = String(repeating: "<i></i>", count: MailHTMLPreparer.maximumNodes) + "x"
-        XCTAssertEqual(text(try MailHTMLPreparer.prepare(plain: "Plain version", html: huge)), "Plain version")
-        XCTAssertThrowsError(try MailHTMLPreparer.prepare(plain: nil, html: huge))
+        // Depth alone never swaps the HTML for the plain part: the HTML is still read.
+        XCTAssertEqual(text(try MailHTMLPreparer.prepare(plain: "Plain version", html: nested)), "Deep words")
     }
 
     // MARK: Data tables, lists written as text, soft breaks (problem reports, Nov 2026)
@@ -129,6 +126,24 @@ final class MailHTMLPreparerTests: XCTestCase {
     func testBlankLinkedCellsAreNotLinks() throws {
         let prepared = try MailHTMLPreparer.prepare(plain: nil, html: "<p>Oct 11 <a href=\"https://example.com\">&nbsp; </a> <a href=\"https://example.com/b\">Next</a></p>")
         XCTAssertEqual(prepared.text.blocks.flatMap(\.runs).filter { $0.link != nil }.map(\.text), ["Next"])
+    }
+
+    /// Past the bounds a message still gets a body, once: never a failure that every pull retries.
+    func testInputAndNestingBoundsDegradeToTextInsteadOfFailing() throws {
+        let max = MailHTMLPreparer.maximumBytes
+        let long = try MailHTMLPreparer.prepare(plain: String(repeating: "é", count: max), html: nil)
+        XCTAssertLessThanOrEqual(text(long).utf8.count, max, "cut to the bound, at a character boundary")
+        XCTAssertTrue(text(long).hasPrefix("éé"))
+        let deep = String(repeating: "<div>", count: 100) + "deep words" + String(repeating: "</div>", count: 100)
+        let words = try MailHTMLPreparer.prepare(plain: nil, html: deep)
+        XCTAssertTrue(text(words).contains("deep words"))
+        XCTAssertTrue(words.shownAsText)
+        let many = "<p>" + String(repeating: "<b>w</b> ", count: 60_000) + "</p>"
+        let preferPlain = try MailHTMLPreparer.prepare(plain: "Plain\nlines", html: many)
+        XCTAssertEqual(text(preferPlain), "Plain\nlines", "too many nodes: the plain part, with its line breaks, when there is one")
+        XCTAssertTrue(text(try MailHTMLPreparer.prepare(plain: nil, html: many)).contains("w w w"), "too many nodes: the words")
+        let huge = "<p>start</p>" + String(repeating: "<i>x</i>", count: max / 8 + 10)
+        XCTAssertTrue(text(try MailHTMLPreparer.prepare(plain: nil, html: huge)).hasPrefix("start"), "too large: as much as is taken")
     }
     func testTablesAndListsRemainReadable() throws {
         let prepared = try MailHTMLPreparer.prepare(plain: nil, html: "<table><tr><td>Left</td><td>Right</td></tr></table><ol><li>First</li><li>Second</li></ol>")

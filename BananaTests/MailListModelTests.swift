@@ -803,17 +803,40 @@ final class MailListModelTests: XCTestCase {
         XCTAssertEqual(h.shown, "HABCDEFGIJ")
     }
 
-    func testT8b_theConversationUnderTheCursorDoesNotMoveUntilTheCursorHasLeftIt() {
+    func testT8b_theConversationUnderTheCursorDoesNotMoveWhileAHandIsOnTheList() {
         let h = TriageHarness()
         h.send(.place(h.id("E")))
         h.newMail(in: "E")
-        h.send(.idle)
         XCTAssertEqual(h.shown, "ABCDEFGHIJ")
         XCTAssertEqual(h.row("E")?.snippet, "New mail")
         h.send(.move(.older))
         h.send(.idle)
         XCTAssertEqual(h.shown, "EABCDFGHIJ")
         XCTAssertEqual(h.cursor, "F")
+    }
+
+    /// At rest the list is newest first, the cursor's conversation included: on a phone the cursor
+    /// never visibly leaves a row, so it must not keep one at its old date below newer ones.
+    func testT8b_atRestTheConversationUnderTheCursorTakesItsPlaceAndTheCursorGoesWithIt() {
+        let h = TriageHarness()
+        h.send(.place(h.id("E")))
+        h.newMail(in: "E")
+        h.send(.idle)
+        XCTAssertEqual(h.shown, "EABCDFGHIJ")
+        XCTAssertEqual(h.cursor, "E")
+        // Mail arriving later, with the list already at rest, moves it at once.
+        h.newMail(in: "H")
+        XCTAssertEqual(h.shown, "HEABCDFGIJ")
+        XCTAssertEqual(h.cursor, "E")
+    }
+
+    /// Under an open conversation the list beneath is at rest: the open one moves to its date too.
+    func testT8b_theOpenConversationTakesItsPlaceInTheListBeneath() {
+        let h = TriageHarness()
+        h.send(.place(h.id("E")))
+        h.send(.open(h.id("E")))
+        h.newMail(in: "E")
+        XCTAssertEqual(h.shown, "EABCDFGHIJ")
     }
 
     // MARK: T9: arrivals at the top

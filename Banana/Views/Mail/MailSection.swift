@@ -289,6 +289,10 @@ private struct MailScreen: View {
 
     /// The conversation whose Details are open as a sheet.
     @State private var detailsSheet: MailReaderModel?
+    /// Between appearing and disappearing. Going to the background is not a disappearance to
+    /// SwiftUI, so the scene's phase is followed as well.
+    @State private var onScreen = false
+    @Environment(\.scenePhase) private var scenePhase
 
     init(session: MailSession) {
         self.session = session
@@ -342,10 +346,20 @@ private struct MailScreen: View {
         }
         .modifier(MailSnoozeSheetHost(session: session, navigation: navigation))
         .onAppear {
+            onScreen = true
             session.enter()
             session.finishLaunch()
         }
-        .onDisappear { session.leave() }
+        .onDisappear { onScreen = false; session.leave() }
+        #if os(iOS)
+        // iOS suspends the app: Mail's requests are let go as it goes, rather than left to fail as
+        // "timed out" on return and hold the sync back, and taken up at once when it is back (a
+        // feed pass and the new mail's text, with the list reading as on entry).
+        .onChange(of: scenePhase) { _, phase in
+            guard onScreen else { return }
+            if phase == .background { session.leave() } else if phase == .active { session.enter() }
+        }
+        #endif
     }
 
     /// A composer is a sheet where there is nowhere to write it in: a reply at a phone's width, and

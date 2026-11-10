@@ -216,6 +216,29 @@ test("content is stored sealed on the first read, served from the store after, w
   assert.equal((await t.s.deps.blobs.list(`mail/${await sha256Hex("sub-noor")}/`, 100)).length, 0);
 });
 
+test("a content read that Google's token endpoint or Gmail drops answers later (429), never 502", async () => {
+  const t = await mailbox({ count: 3, labels: () => ["Label_1"] });
+  await t.feed(t.phone);
+  await t.drain(t.settled);
+  // Google's token endpoint fails for a moment (not a refusal of the grant).
+  const refresh = t.s.google.refresh;
+  t.s.google.refresh = async () => { throw new Error("token endpoint unreachable"); };
+  t.s.advance(3_600_000);   // past the cached access token
+  const offline = await t.read(t.phone, "m2");
+  assert.equal(offline.status, 429, offline.text);
+  t.s.google.refresh = refresh;
+  // Gmail's connection drops mid-request.
+  const mailRead = t.s.google.mailRead;
+  t.s.google.mailRead = async () => { throw new TypeError("Network connection lost."); };
+  const dropped = await t.read(t.phone, "m2");
+  assert.equal(dropped.status, 429, dropped.text);
+  t.s.google.mailRead = mailRead;
+  // Both are "later": the next read stores and serves it.
+  const ok = await t.read(t.phone, "m2");
+  assert.equal(ok.status, 200);
+  assert.equal(ok.json.id, "m2");
+});
+
 test("a device's catch-up check publishes what Gmail still has and what it deleted", async () => {
   const t = await mailbox({ count: 2 });
   await t.feed(t.phone);

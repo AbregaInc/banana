@@ -44,6 +44,8 @@ export async function mailRead(deps,vault,account,request) {
   const {accessToken}=await deps.google.refresh(await vault.open(link.sub,link.refresh_token));
   return await deps.google.mailRead(accessToken,request);
  } catch(error) {
+  // The kind of failure only (no address, id or content), so `wrangler tail` says which upstream failed.
+  if(!(error instanceof GoogleRefused))console.log(`mail read failed: ${request.resource} ${error?.name??'Error'} ${error?.status??''}`.trim());
   if(error instanceof GoogleRefused&&link.mailGrant)await deps.db.run("UPDATE mail_grants SET status='refused',updated_at=? WHERE google_sub=? AND refresh_token=?",deps.now(),link.sub,link.refresh_token);
   return fail(error instanceof GoogleRefused?403:502,error instanceof GoogleRefused?'Reconnect Email for this Google account.':'Email temporarily unavailable.');
  }

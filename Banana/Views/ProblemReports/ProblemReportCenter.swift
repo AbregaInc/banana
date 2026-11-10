@@ -188,9 +188,9 @@ final class ProblemReportCenter: ObservableObject {
     /// its own on top of the window, whose class names it a context menu. It is still there, closing,
     /// when the menu's item runs (for a second and more), so it is left out of the picture.
     static func isMenu(_ view: UIView) -> Bool { NSStringFromClass(type(of: view)).contains("ContextMenu") }
-    /// How many menu containers the last screenshot left out, for the journal.
-    private(set) static var leftOut = 0
     #endif
+    /// How many menu containers the last screenshot left out, for the journal (iPhone and iPad).
+    private(set) static var leftOut = 0
 
     /// The screen as it is, before the sheet covers it. Nil when nothing can be drawn.
     static func captureScreen() -> PlatformImage? {

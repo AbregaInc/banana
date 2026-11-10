@@ -2,7 +2,7 @@
 // Trigger for the job, a Durable Object per space and R2 for blobs (wrangler.toml).
 
 import { createApp, pushTo } from "./app.js";
-import { createApns } from "./apns.js";
+import { createApns, sharedProviderTokens } from "./apns.js";
 import { configFrom } from "./config.js";
 import { createGoogle } from "./google.js";
 import { runJob } from "./job.js";
@@ -25,7 +25,7 @@ function shared(env) {
   if (!ports) {
     const config = configFrom(env);
     const fetcher = (...args) => fetch(...args);
-    ports = { config, google: createGoogle(config, fetcher), apns: createApns(config, fetcher), turnstile: createTurnstile(config.turnstileSecret, fetcher, { required: config.turnstileRequired }) };
+    ports = { config, google: createGoogle(config, fetcher), apns: createApns(config, fetcher, Date.now, sharedProviderTokens(d1(env.DB))), turnstile: createTurnstile(config.turnstileSecret, fetcher, { required: config.turnstileRequired }) };
   }
   return ports;
 }
