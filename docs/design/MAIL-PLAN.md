@@ -796,6 +796,8 @@ screens in U4b and U6, on the fallback; this package replaces the fallback with 
 | — | The control column inside Banana's own sidebar on the Mac | Only if he chooses B for decision 23: the same `MailControlColumn` view under the Mail row |
 | U17 | Free times in a reply | — |
 | U16 | The accessibility sweep; the two hints; the old-mail offer | — |
+| U18 | **Spam everywhere** (backlog, 9 Nov 2026). The engine, the `!` key and the Mac menu already mark spam and not spam (`MailAction.spam`/`.notSpam`, `OutboxRules`: add `SPAM`, remove `INBOX`; Gmail learns from it). Make it as quick on the phone and iPad as Done is: in the conversation's menu and the row's long press, with the same toast and Undo. Marking spam offers "Block <sender> too" in the toast, never a dialog. | — |
+| U19 | **Block a sender** (backlog, 9 Nov 2026). Gmail's API has no block call; Gmail's own Block is a filter that sends the sender's mail to Trash. Banana's version: a synced blocked-senders list (address, or the whole domain when asked), applied by Banana Cloud as mail arrives — it already reads every new message 24/7 — which moves a blocked sender's mail to Spam within seconds, on every device and with every app closed, and by the engine on devices for anything the server hasn't reached yet. Unblock from the sender's card and Settings › Mail › Blocked. Later, optionally, mirror the list into a real Gmail filter so Gmail's web and other apps block too; that needs the `gmail.settings.basic` scope, a new consent and an update to Google's verification, so it is its own decision. | A new synced type for the list; Banana Cloud's arrival hook |
 
 ## 8. Decisions for the author
 
