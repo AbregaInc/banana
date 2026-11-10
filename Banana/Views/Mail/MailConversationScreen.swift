@@ -22,7 +22,7 @@ struct MailConversationScreen: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            MailConversationHeader(session: session)
+            MailConversationHeader(session: session, open: reader.id)
             // The shells' top row floats on glass with no rule under it (the approved images).
             if !bottomBarShell && !wideShell { MailDivider(axis: .horizontal) }
             if wideShell, let composer = navigation.composer, composer.answers == reader.id {
@@ -223,6 +223,9 @@ struct MailReplyMenu: View {
 /// (T15).
 private struct MailConversationHeader: View {
     let session: MailSession
+    /// The conversation it acts on. The screen stays while swipes and J/K change the conversation
+    /// open in it, so this is what has the header worked out again (older, newer, the actions).
+    let open: MailConversationID
     /// The bottom-bar shell: Back, and the rest under one "…"; Archive and Reply are on the bar.
     @Environment(\.bottomBarShell) private var bottomBarShell
 
