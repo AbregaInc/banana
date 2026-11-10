@@ -1936,11 +1936,12 @@ final class GoogleCalendarService: ObservableObject {
 
     func createBusyBlockWithVersion(calendarID: String, title: String, start: Date, end: Date,
                                     isAllDay: Bool, appItemID: String, variant: String,
-                                    sources: [String] = []) async throws
+                                    sources: [String] = [], writer: String? = nil, inputs: String? = nil) async throws
         -> (id: String, etag: String?) {
         let body = try JSONSerialization.data(withJSONObject: GoogleBusyBlocks.body(
             title: title, start: start, end: end, timeZoneID: TimeZone.current.identifier,
-            appItemID: appItemID, variant: variant, isAllDay: isAllDay, sources: sources))
+            appItemID: appItemID, variant: variant, isAllDay: isAllDay, sources: sources,
+            writer: writer, inputs: inputs))
         let created: GoogleEvent = try await request(
             url: Self.eventsURL(calendarID: calendarID), method: "POST", body: body)
         guard let id = created.id else { throw GoogleCalendarError.eventUnavailable }
@@ -1955,13 +1956,14 @@ final class GoogleCalendarService: ObservableObject {
     func updateBusyBlock(calendarID: String, eventID: String, title: String,
                          start: Date, end: Date, isAllDay: Bool = false,
                          appItemID: String, variant: String, expectedETag: String? = nil,
-                         sources: [String] = []) async throws -> String? {
+                         sources: [String] = [], writer: String? = nil, inputs: String? = nil) async throws -> String? {
         let version: String
         if let expectedETag { version = expectedETag }
         else { version = try await busyBlockVersion(calendarID: calendarID, eventID: eventID) }
         let body = try JSONSerialization.data(withJSONObject: GoogleBusyBlocks.body(
             title: title, start: start, end: end, timeZoneID: TimeZone.current.identifier,
-            appItemID: appItemID, variant: variant, isAllDay: isAllDay, sources: sources))
+            appItemID: appItemID, variant: variant, isAllDay: isAllDay, sources: sources,
+            writer: writer, inputs: inputs))
         noteOwnWrite(eventID)
         let updated: GoogleEvent = try await request(
             url: Self.eventURL(calendarID: calendarID, eventID: eventID), method: "PATCH", body: body, ifMatch: version)
@@ -2079,6 +2081,10 @@ final class GoogleCalendarService: ObservableObject {
         var creatorEmail: String? = nil
         /// The sources it names (`GoogleBusyBlocks.sources`); empty on a copy written before them.
         var sources: Set<String> = []
+        /// Its inputs stamp (`GoogleBusyBlocks.inputsKey`); nil on a copy from an older build.
+        var inputs: String? = nil
+        /// Google's `updated`: when the server last saw it change.
+        var updated: Date? = nil
     }
 
     func ownedBusyBlockDetails(calendarID: String, variant: String,
@@ -2117,7 +2123,9 @@ final class GoogleCalendarService: ObservableObject {
                         GoogleBusyBlocks.content(title: $0, start: span.start, end: span.end, isAllDay: span.isAllDay)
                     },
                     creatorEmail: event.creator?.email,
-                    sources: GoogleBusyBlocks.sources(of: event.extendedProperties)))
+                    sources: GoogleBusyBlocks.sources(of: event.extendedProperties),
+                    inputs: event.extendedProperties?.private?[GoogleBusyBlocks.inputsKey],
+                    updated: event.updated.flatMap(GoogleCalendarDates.parseRFC3339)))
             }
             pageToken = page.nextPageToken
         } while pageToken != nil

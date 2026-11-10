@@ -20,6 +20,15 @@ enum BusyCopyPlanner {
         var content: String? = nil
         /// The source events it stands for (`GoogleBusyBlocks.sourceKey`).
         var sources: Set<String> = []
+        /// What the copy is derived from (`GoogleBusyBlocks.inputsHash`), stamped on it when
+        /// written: the source event and its times, the place, the trip's origin and mode — never
+        /// the computed minutes. Nil: a planner run that doesn't stamp.
+        var inputs: String? = nil
+        /// A travel block: its times come from a route estimate that moves with traffic, so a
+        /// copy with the same inputs is only refreshed by `CopyRefresh`'s rule.
+        var refreshable = false
+        var start: Date? = nil
+        var end: Date? = nil
     }
 
     /// A copy Google says Banana owns on this calendar.
@@ -33,6 +42,10 @@ enum BusyCopyPlanner {
         var start: Date? = nil
         /// The sources it names on the server; empty on a copy written before copies named them.
         var sources: Set<String> = []
+        /// The inputs stamp it carries; nil on a copy written before copies were stamped.
+        var inputs: String? = nil
+        /// Google's own `updated` time for it: the server's clock, so devices' clocks don't matter.
+        var updated: Date? = nil
     }
 
     /// What this device last wrote for a ledger key.
@@ -63,6 +76,9 @@ enum BusyCopyPlanner {
         /// Extra copies of a wanted block (two devices wrote it at once): every device keeps the
         /// same one (`BusyBlockDuplicates.copyToKeep`) and removes the rest.
         var duplicates: [Owned] = []
+        /// Travel blocks left as another pass (any device, this one included) wrote them, though
+        /// this pass's estimate differs a little: `CopyRefresh` says they're fine.
+        var held: [Match] = []
         /// Owned copies of blocks no longer wanted, current or future only, by app item.
         /// Removing them still waits for `BlockRemovalGate` and `MassRemovalGuard`.
         var unwanted: [String: [Owned]] = [:]
@@ -101,6 +117,10 @@ enum BusyCopyPlanner {
                     if let etag { plan.matches.append(Match(index: index, eventID: keep, etag: etag)) }
                     continue
                 }
+                if let copy, traced, CopyRefresh.leaves(copy, as: block, now: now) {
+                    if let etag { plan.held.append(Match(index: index, eventID: keep, etag: etag)) }
+                    continue
+                }
                 plan.writes.append(.update(index: index, eventID: keep, etag: etag))
                 continue
             }
@@ -114,6 +134,54 @@ enum BusyCopyPlanner {
             if !current.isEmpty { plan.unwanted[itemID] = current }
         }
         return plan
+    }
+}
+
+/// When a travel block that already exists is left as it is, though this pass would write it a
+/// little differently. Every device plans travel from its own route estimate, and estimates differ
+/// by a few minutes from device to device and from minute to minute. Rewriting on every difference
+/// had two devices rewrite each other's blocks every few seconds, each write waking the others.
+///
+/// - What the block is derived from changed (`inputs`: the meeting moved, the place or the origin
+///   changed): write now, whoever wrote it. A stale block must never stay.
+/// - Same inputs, only the computed times differ: leave it while it is younger than
+///   `travelRefreshHold` by Google's `updated` (the server's clock), and after that unless an edge
+///   moves by `refreshThreshold` or more. Traffic still updates a block, just not every minute.
+/// - A block from a build that didn't stamp: left when only its times differ, by less than the
+///   threshold (adopted; it is stamped at its next real update), written otherwise.
+///
+/// Busy copies of events and task blocks are never `refreshable`: any difference is written.
+enum CopyRefresh {
+    static let travelRefreshHold: TimeInterval = 60 * 60
+    static let refreshThreshold: TimeInterval = 5 * 60
+
+    static func leaves(_ copy: BusyCopyPlanner.Owned, as block: BusyCopyPlanner.Desired, now: Date) -> Bool {
+        guard block.refreshable, let start = block.start, let end = block.end,
+              let haveStart = copy.start, let want = block.content, let have = copy.content,
+              sameExceptTimes(have, want) else { return false }
+        let moved = max(abs(haveStart.timeIntervalSince(start)), abs(copy.end.timeIntervalSince(end)))
+        guard let stamped = copy.inputs else {
+            // Unstamped: nothing says what it was derived from, so only its times can.
+            return moved < refreshThreshold
+        }
+        guard stamped == block.inputs else { return false }
+        if let updated = copy.updated {
+            let age = now.timeIntervalSince(updated)
+            if age < travelRefreshHold { return true }
+        }
+        return moved < refreshThreshold
+    }
+
+    /// Whether two `GoogleBusyBlocks.content` strings agree on everything but the times.
+    private static func sameExceptTimes(_ a: String, _ b: String) -> Bool {
+        // Title and form, the first two fields; no splitting, this runs for every differing copy.
+        func head(_ s: String) -> Substring? {
+            guard let first = s.firstIndex(of: "\u{1F}"),
+                  let second = s[s.index(after: first)...].firstIndex(of: "\u{1F}") else { return nil }
+            return s[..<second]
+        }
+        guard let x = head(a), let y = head(b) else { return false }
+        return x == y
     }
 }
 

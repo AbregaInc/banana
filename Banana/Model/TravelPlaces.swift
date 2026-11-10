@@ -239,6 +239,10 @@ struct TravelLegDetail: Codable, Equatable, Hashable {
     /// Where the trip was timed to, so a mode chosen for an address can be saved against it.
     var latitude: Double? = nil
     var longitude: Double? = nil
+    /// Where the trip was timed from: part of what a travel block is derived from, stamped on
+    /// its calendar copies (`CalendarWriteBack`), so a changed origin rewrites it at once.
+    var originLatitude: Double? = nil
+    var originLongitude: Double? = nil
     /// Where the minutes come from, when it isn't Apple Maps alone: "Usually 22 min (4 trips)",
     /// "Your walking pace". Shown in Getting there.
     var basis: String? = nil

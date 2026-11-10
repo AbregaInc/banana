@@ -20,6 +20,16 @@ enum GoogleBusyBlocks {
     /// visibility, so anyone who can see event details on its calendar reads them; a free/busy-only
     /// reader sees a busy interval and nothing else.
     static let sourceKeyName = "bananaSource"
+    /// Which install last wrote it: an opaque id, never a name (`CalendarWriteBack.writerID`).
+    static let writerKey = "bananaWriter"
+    /// What it was derived from (`inputsHash`), so another device can tell a block whose source
+    /// changed from one whose travel estimate merely differs (`CopyRefresh`).
+    static let inputsKey = "bananaInputs"
+
+    /// A stable stamp for what a block is derived from. Never includes computed travel minutes.
+    static func inputsHash(_ parts: [String]) -> String {
+        "v1-" + String(fnv1a(parts.joined(separator: "\u{1F}")), radix: 16)
+    }
 
     /// A source event's key: a stable hash of its calendar and event ids, so a copy names its
     /// source without spelling out a calendar id (often an address). Any reader that can see the
@@ -66,9 +76,14 @@ enum GoogleBusyBlocks {
                      appItemID: String,
                      variant: String,
                      isAllDay: Bool = false,
-                     sources: [String] = []) -> [String: Any] {
-        var properties: [String: Any] = ["private": [itemIDKey: appItemID, variantKey: variant]
-            .merging(sources.isEmpty ? [:] : [sourceKeyName: sources.joined(separator: ",")]) { $1 }]
+                     sources: [String] = [],
+                     writer: String? = nil,
+                     inputs: String? = nil) -> [String: Any] {
+        var privateProperties = [itemIDKey: appItemID, variantKey: variant]
+        if !sources.isEmpty { privateProperties[sourceKeyName] = sources.joined(separator: ",") }
+        if let writer { privateProperties[writerKey] = writer }
+        if let inputs { privateProperties[inputsKey] = inputs }
+        var properties: [String: Any] = ["private": privateProperties]
         if !sources.isEmpty { properties["shared"] = [sourceKeyName: sources.joined(separator: ",")] }
         return [
             "summary": title,

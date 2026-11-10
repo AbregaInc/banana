@@ -160,10 +160,19 @@ final class CalendarWriteBack: ObservableObject {
 
     private static let variant = CalendarWriteBackVariant.current
     private static var scheme: String { variant.markerScheme }
+
+    /// This install's opaque writer id, stamped on every copy it writes (`GoogleBusyBlocks.writerKey`).
+    private var writerID: String {
+        if let id = defaults.string(forKey: DefaultsKey.writerID), !id.isEmpty { return id }
+        let id = UUID().uuidString.lowercased()
+        defaults.set(id, forKey: DefaultsKey.writerID)
+        return id
+    }
     private static let coverageTolerance: TimeInterval = 60
 
     private enum DefaultsKey {
         static let enabled = "calendarWriteBack.enabled"
+        static let writerID = "calendarWriteBack.writerID"
         static let goLive = "calendarWriteBack.goLive"
         static let calendarID = "calendarWriteBack.calendarID"
         static let userConfigured = "calendarWriteBack.userConfigured"
@@ -543,8 +552,34 @@ final class CalendarWriteBack: ObservableObject {
         var sourceCalendarID: String? = nil
         /// The source events' keys, written into the copy so its readers can trace it.
         var sources: [String] = []
+        /// What a travel block is derived from, besides its id (place, mode, origin); nil for
+        /// copies and task blocks, whose inputs are what they say (`inputs`).
+        var travelInputs: [String]? = nil
 
         var ledgerKey: String { "\(appItemID)\u{1F}\(calendarID)" }
+        /// A travel block: its times move with traffic (`CopyRefresh`).
+        var refreshable: Bool { travelInputs != nil }
+        /// The stamp written on the copy (`GoogleBusyBlocks.inputsHash`). For a travel block its
+        /// identity (the trip's kind and the meeting edge it hangs on) and `travelInputs`, never
+        /// its computed minutes; for anything else what it says and what it stands for.
+        var inputs: String {
+            if let travelInputs { return GoogleBusyBlocks.inputsHash([appItemID, calendarID, title] + travelInputs) }
+            return GoogleBusyBlocks.inputsHash([appItemID, calendarID,
+                GoogleBusyBlocks.content(title: title, start: start, end: end, isAllDay: isAllDay)] + sources)
+        }
+    }
+
+    /// What a travel occurrence is derived from, besides its id: where it goes, how, and from where,
+    /// at about a hundred metres. Nil for anything that isn't travel.
+    private static func travelInputs(of occurrence: Occurrence) -> [String]? {
+        guard occurrence.id.hasPrefix("travel-") else { return nil }
+        func place(_ latitude: Double?, _ longitude: Double?) -> String {
+            guard let latitude, let longitude else { return "" }
+            return String(format: "%.3f,%.3f", latitude, longitude)
+        }
+        guard let detail = occurrence.travel else { return [] }
+        return [detail.mode.rawValue, detail.query ?? detail.placeName ?? "",
+                place(detail.latitude, detail.longitude), place(detail.originLatitude, detail.originLongitude)]
     }
 
     /// Reconcile privacy-safe busy coverage across every included writable Google calendar.
@@ -793,6 +828,7 @@ final class CalendarWriteBack: ObservableObject {
         var everyOwnedReadSucceeded = true
         var unwanted: [String: (calendarID: String, blocks: [GoogleCalendarService.OwnedBlock])] = [:]
         var ownedTotal = 0
+        var heldTravel = 0
         let now = Date()
 
         for calendarID in calendarIDs.sorted() {
@@ -821,6 +857,7 @@ final class CalendarWriteBack: ObservableObject {
             // (`BusyCopyPlanner`), so what a person was shown is what a pass does.
             let wanted = byCalendar[calendarID] ?? []
             let plan = Self.plan(wanted, owned: ownedDetails, recorded: recordedWrites(on: calendarID), now: now)
+            heldTravel += plan.held.count
             // Any extra copies of a wanted block — two devices writing it at once, or copies
             // adopted from Apple Calendar — go. Every device keeps the SAME copy: keeping "the one
             // my ledger knows" let the phone keep A and delete B while the iPad kept B and
@@ -858,7 +895,7 @@ final class CalendarWriteBack: ObservableObject {
                             calendarID: raw, eventID: keep,
                             title: block.title, start: block.start, end: block.end, isAllDay: block.isAllDay,
                             appItemID: block.appItemID, variant: variant, expectedETag: etag,
-                            sources: block.sources)
+                            sources: block.sources, writer: writerID, inputs: block.inputs)
                         ledger[block.ledgerKey] = LedgerEntry(appItemID: block.appItemID, eventIdentifier: keep,
                                                               calendarID: calendarID, writtenHash: Self.hash(block), writtenETag: writtenETag)
                     case .create(let index):
@@ -866,7 +903,8 @@ final class CalendarWriteBack: ObservableObject {
                         let created = try await google.createBusyBlockWithVersion(
                             calendarID: raw, title: block.title,
                             start: block.start, end: block.end, isAllDay: block.isAllDay,
-                            appItemID: block.appItemID, variant: variant, sources: block.sources)
+                            appItemID: block.appItemID, variant: variant, sources: block.sources,
+                            writer: writerID, inputs: block.inputs)
                         ledger[block.ledgerKey] = LedgerEntry(appItemID: block.appItemID, eventIdentifier: created.id,
                                                               calendarID: calendarID, writtenHash: Self.hash(block), writtenETag: created.etag)
                     }
@@ -889,6 +927,9 @@ final class CalendarWriteBack: ObservableObject {
             }
         }
 
+        if heldTravel > 0 {
+            Log.writeBack.notice("[writeback] left \(heldTravel, privacy: .public) travel block(s) as written: same inputs, recently updated or moved under five minutes")
+        }
         // Removal: only what two healthy passes agree on, and never a suspiciously large share.
         let healthy = sourcesHealthy && everyOwnedReadSucceeded
         var confirmed = removalGate.review(unwanted: Set(unwanted.keys), sourcesHealthy: healthy,
@@ -966,11 +1007,13 @@ final class CalendarWriteBack: ObservableObject {
                 BusyCopyPlanner.Desired(appItemID: $0.appItemID, ledgerKey: $0.ledgerKey, fingerprint: hash($0),
                                         content: GoogleBusyBlocks.content(title: $0.title, start: $0.start,
                                                                           end: $0.end, isAllDay: $0.isAllDay),
-                                        sources: Set($0.sources))
+                                        sources: Set($0.sources), inputs: $0.inputs,
+                                        refreshable: $0.refreshable, start: $0.start, end: $0.end)
             },
             owned: owned.mapValues {
                 $0.map { BusyCopyPlanner.Owned(eventID: $0.eventID, etag: $0.etag, end: $0.end, content: $0.content,
-                                               sources: $0.sources) }
+                                               start: $0.start, sources: $0.sources,
+                                               inputs: $0.inputs, updated: $0.updated) }
             },
             recorded: recorded,
             now: now)
@@ -1276,7 +1319,8 @@ final class CalendarWriteBack: ObservableObject {
                     end: end,
                     isAllDay: isBlockedDay,
                     sourceCalendarID: sourceCalendarID,
-                    sources: isExternalMeeting || isBlockedDay ? (occurrence.meeting?.copySources ?? []).sorted() : []
+                    sources: isExternalMeeting || isBlockedDay ? (occurrence.meeting?.copySources ?? []).sorted() : [],
+                    travelInputs: isAuthoredWork ? Self.travelInputs(of: occurrence) : nil
                 )
                 let slotKey = [
                     calendarID,

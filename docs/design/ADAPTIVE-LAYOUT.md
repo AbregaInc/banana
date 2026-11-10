@@ -107,6 +107,8 @@ Every device: calendar busy blocks — on/off and the task calendar are synced s
 (`writeBackEnabled`, `writeBackCalendarID`). No device owns a block: each carries Banana's marker
 and its plan item, every device reconciles all of them to the same wanted set, duplicates resolve
 to the same copy everywhere (`BusyBlockDuplicates`), and deleting one already gone counts as done.
+A copy another device wrote recently is left as it is unless what it is derived from changed
+(`CopyRefresh`, docs/SHARED-CALENDAR-MIRROR-DEDUPE.md).
 Turned off anywhere, every device withdraws them. Reminders
 (bedtime, leave-by, events, supplements) ring on every device.
 

@@ -1144,6 +1144,8 @@ final class SmartScheduleStore: ObservableObject {
                 // The minutes shown are the minutes reserved, so "Leave by 2:35 · 10 min" adds up.
                 var detail = estimate.detail
                 detail.minutes = Int(seconds / 60)
+                detail.originLatitude = routeOrigin.latitude
+                detail.originLongitude = routeOrigin.longitude
                 legs.append(.init(
                     title: meeting.title,
                     start: meeting.start,
@@ -1267,10 +1269,12 @@ final class SmartScheduleStore: ObservableObject {
                 let interval = DateInterval(
                     start: departure,
                     duration: TravelBlockPolicy.settledDuration(computed: routedInterval.duration, written: written))
-                let detail = TravelLegDetail(
+                var detail = TravelLegDetail(
                     mode: mode,
                     minutes: Int(interval.duration / 60),   // what's reserved, as the band shows
                     placeName: "Home", query: nil, confidence: .exact)
+                detail.originLatitude = origin?.latitude
+                detail.originLongitude = origin?.longitude
                 blocks.append(travelOccurrence(
                     kind: "return-home", identity: identity, title: "Travel home",
                     start: interval.start, end: interval.end,
