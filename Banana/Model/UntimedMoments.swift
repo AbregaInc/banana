@@ -10,4 +10,11 @@ enum UntimedMoments {
                       calendar: Calendar = .current) -> Bool {
         !done && !skipped && calendar.isDate(start, inSameDayAs: now) && start <= now
     }
+
+    /// The Plan rows' rule for one moment: it leaves once it's done, marked done (`completed`) or,
+    /// for a routine that follows a workout, once a workout was recorded that day (`workedOut`).
+    static func shows(start: Date, completed: Bool, skipped: Bool, workedOut: Bool,
+                      now: Date = Date(), calendar: Calendar = .current) -> Bool {
+        isDue(start: start, done: completed || workedOut, skipped: skipped, now: now, calendar: calendar)
+    }
 }

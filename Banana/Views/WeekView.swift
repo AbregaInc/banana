@@ -27,19 +27,17 @@ enum GridDraftSelection {
 /// for 120 × 58pt = 6,958pt of block inside a 1,392pt day: it covered its own column from 17:00
 /// downwards and every row under it, which is why a full day could look like one giant item and
 /// nothing else.
-/// Whether a routine moment with no time is shown above the hours now (`UntimedMoments`): a
-/// workout routine's is done once a workout has been recorded that day.
+/// Whether a routine moment with no time is shown above the hours now (`UntimedMoments`): it
+/// leaves once it's done, whether marked done or, for a workout routine, once a workout has been
+/// recorded that day.
 @MainActor
 func untimedMomentIsDue(_ occurrence: Occurrence, routines: [Routine], signals: CalendarSignals,
                         now: Date = Date()) -> Bool {
     guard occurrence.isUntimedCue else { return false }
-    if occurrence.completed {
-        return Calendar.current.isDate(occurrence.start, inSameDayAs: now) && !occurrence.skipped
-    }
     let followsWorkout = routines.first { $0.id == occurrence.routineID }?.triggerKind == .workoutStart
-    return UntimedMoments.isDue(start: occurrence.start,
-                                done: followsWorkout && signals.didWorkout(on: occurrence.start),
-                                skipped: occurrence.skipped, now: now)
+    return UntimedMoments.shows(start: occurrence.start, completed: occurrence.completed,
+                                skipped: occurrence.skipped,
+                                workedOut: followsWorkout && signals.didWorkout(on: occurrence.start), now: now)
 }
 
 enum DayColumn {
