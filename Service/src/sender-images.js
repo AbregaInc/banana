@@ -125,13 +125,21 @@ export function senderImages(deps, vault) {
   /** Reads his Google contacts' photos again where they are a day old (or never read). */
   async function syncContacts(account) {
     for (const { link, kinds } of await contactLinks(account)) {
-      if (kinds.length === 0) { await forgetContacts(deps, account, link.sub); continue; }
+      if (kinds.length === 0) {
+        // Contacts not (or no longer) granted: what an earlier grant gave goes.
+        if (await db.first("SELECT 1 AS x FROM sender_contact_syncs WHERE account_id = ? AND google_sub = ?", account, link.sub)) await forgetContacts(deps, account, link.sub);
+        continue;
+      }
       const synced = await db.first("SELECT synced_at FROM sender_contact_syncs WHERE account_id = ? AND google_sub = ?", account, link.sub);
       if (synced && now() - Number(synced.synced_at) < TTL.contacts) continue;
       try { await readContacts(account, link, kinds); }
       catch (error) {
+        // Refused (the API off, or the grant withdrawn): what it gave goes, and it is tried again
+        // in a day, not on every lookup.
         if (error instanceof GoogleRefused) await forgetContacts(deps, account, link.sub);
         else console.log(`senders: contacts unavailable (${error.name} ${error.status ?? ""})`);
+        await db.run(`INSERT INTO sender_contact_syncs (account_id, google_sub, synced_at) VALUES (?, ?, ?)
+          ON CONFLICT (account_id, google_sub) DO UPDATE SET synced_at = excluded.synced_at`, account, link.sub, now());
       }
     }
   }

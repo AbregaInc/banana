@@ -305,3 +305,17 @@ test("a redirect is followed only to another public https name", async () => {
   assert.ok(!w.asked.some((u) => u.includes("127.0.0.1")));
   void DAY;
 });
+
+test("contacts Google refuses are tried again in a day, not on every lookup", async () => {
+  const { s } = world();
+  const noor = await owner(s, "a", "sub-noor", "noor@plan.example", CONTACTS);
+  s.google.contacts = async function (access, kind) { this.contactCalls.push({ kind }); throw new (await import("../src/google.js")).GoogleRefused("contacts"); };
+  await ask(s, noor, ["a@gmail.com"]);
+  await ask(s, noor, ["b@gmail.com"]);
+  await s.settle();
+  assert.equal(s.google.contactCalls.length, 1);
+  s.advance(TTL.contacts + 1);
+  await ask(s, noor, ["c@gmail.com"]);
+  await s.settle();
+  assert.equal(s.google.contactCalls.length, 2);
+});
