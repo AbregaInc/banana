@@ -98,6 +98,109 @@ final class GoogleEventSyncTests: XCTestCase {
         XCTAssertEqual(GoogleEventSync.pruned(own, now: now), [:])
     }
 
+    // MARK: Calendars that refuse their tokens
+
+    /// The calendar Google refuses every token for (its public holiday calendars do): after the
+    /// second refusal in a row it is read in full without one, at most every ten minutes, and its
+    /// token is tried again after six hours.
+    func testACalendarThatRefusesEveryTokenIsReadInFullAtABoundedPace() {
+        let t0 = Date(timeIntervalSince1970: 2_000_000)
+        var copy = snapshot(fullReadAt: t0)
+        XCTAssertEqual(GoogleEventSync.readPlan(copy, window: window, now: t0 + 60), .incremental(token: "t1"))
+
+        // First refusal: a full read, and the fresh token is still tried next time.
+        copy = GoogleEventSync.fullRead(snapshot(token: "t2", fullReadAt: t0 + 60), after: copy, refused: true, now: t0 + 60)
+        XCTAssertEqual(copy.tokenRefusals, 1)
+        XCTAssertEqual(GoogleEventSync.readPlan(copy, window: window, now: t0 + 120), .incremental(token: "t2"))
+
+        // The fresh token refused too: no more tokens, and no full read every few seconds.
+        copy = GoogleEventSync.fullRead(snapshot(token: "t3", fullReadAt: t0 + 120), after: copy, refused: true, now: t0 + 120)
+        XCTAssertEqual(copy.tokenRefusals, 2)
+        XCTAssertEqual(GoogleEventSync.readPlan(copy, window: window, now: t0 + 125), .reuse)
+        XCTAssertEqual(GoogleEventSync.readPlan(copy, window: window, now: t0 + 120 + 9 * 60), .reuse)
+        XCTAssertEqual(GoogleEventSync.readPlan(copy, window: window, now: t0 + 120 + 10 * 60), .full)
+
+        // A full read that wasn't refused keeps the record, so it runs out by time alone.
+        copy = GoogleEventSync.fullRead(snapshot(token: "t4", fullReadAt: t0 + 720), after: copy, refused: false, now: t0 + 720)
+        XCTAssertEqual(GoogleEventSync.readPlan(copy, window: window, now: t0 + 725), .reuse)
+        XCTAssertEqual(GoogleEventSync.readPlan(copy, window: window, now: t0 + 120 + 6 * 3600), .incremental(token: "t4"))
+    }
+
+    func testOneRefusalIsAnExpiredTokenNotARefusingCalendar() {
+        let t0 = Date(timeIntervalSince1970: 2_000_000)
+        let refusedOnce = GoogleEventSync.fullRead(snapshot(token: "fresh", fullReadAt: t0), after: snapshot(fullReadAt: t0 - 3600),
+                                                   refused: true, now: t0)
+        XCTAssertFalse(GoogleEventSync.refusesTokens(refusedOnce, now: t0 + 1))
+        XCTAssertEqual(GoogleEventSync.readPlan(refusedOnce, window: window, now: t0 + 5), .incremental(token: "fresh"))
+        // A moved window is always a full read, refusing or not.
+        let slid = (start: window.start.addingTimeInterval(86_400), end: window.end.addingTimeInterval(86_400))
+        XCTAssertEqual(GoogleEventSync.readPlan(refusedOnce, window: slid, now: t0 + 5), .full)
+        XCTAssertEqual(GoogleEventSync.readPlan(nil, window: window, now: t0), .full)
+    }
+
+    func testTheRefusalRecordSurvivesTheDiskAndOldCopiesHaveNone() throws {
+        var copy = snapshot()
+        copy.tokenRefusals = 2
+        copy.tokenRefusedAt = Date(timeIntervalSince1970: 2_000_000)
+        let decoded = try JSONDecoder().decode(GoogleEventSync.Snapshot.self, from: JSONEncoder().encode(copy))
+        XCTAssertEqual(decoded.tokenRefusals, 2)
+        XCTAssertEqual(decoded.tokenRefusedAt, copy.tokenRefusedAt)
+        // A copy saved before this field existed.
+        var old = try XCTUnwrap(JSONSerialization.jsonObject(with: JSONEncoder().encode(snapshot())) as? [String: Any])
+        old["tokenRefusals"] = nil
+        old["tokenRefusedAt"] = nil
+        let legacy = try JSONDecoder().decode(GoogleEventSync.Snapshot.self, from: JSONSerialization.data(withJSONObject: old))
+        XCTAssertNil(legacy.tokenRefusals)
+        XCTAssertEqual(GoogleEventSync.readPlan(legacy, window: window, now: Date(timeIntervalSince1970: 2_000_060)),
+                       .incremental(token: "t1"))
+    }
+
+    // MARK: Banana's copies written elsewhere
+
+    private func copyEvent(_ id: String, privateMarker: Bool = true, sharedSource: Bool = false) -> GoogleEvent {
+        var properties: [String: Any] = [:]
+        if privateMarker { properties["private"] = [GoogleBusyBlocks.variantKey: "production"] }
+        if sharedSource { properties["shared"] = [GoogleBusyBlocks.sourceKeyName: "src-1a2b"] }
+        let json: [String: Any] = [
+            "id": id, "status": "confirmed", "summary": "Busy", "updated": "2026-11-09T00:00:00Z",
+            "start": ["dateTime": "2026-11-10T15:00:00Z"], "end": ["dateTime": "2026-11-10T16:00:00Z"],
+            "extendedProperties": properties,
+        ]
+        return try! JSONDecoder().decode(GoogleEvent.self, from: JSONSerialization.data(withJSONObject: json))
+    }
+
+    func testBananaCopiesAreToldApartFromEvents() {
+        let before = [copyEvent("gone-copy"), event("meeting"), copyEvent("moved-copy")]
+        let after = [event("meeting", updated: "2026-11-09T10:00:00Z"), copyEvent("moved-copy"),
+                     copyEvent("shared-copy", privateMarker: false, sharedSource: true), event("new-meeting")]
+        let changed: Set<String> = ["gone-copy", "meeting", "moved-copy", "shared-copy", "new-meeting", "unknown"]
+        // A removed copy is a bare cancelled id in an incremental read: what it was comes from before.
+        XCTAssertEqual(GoogleEventSync.bananaCopyIDs(changed, before: before, after: after),
+                       ["gone-copy", "moved-copy", "shared-copy"])
+        XCTAssertEqual(GoogleEventSync.bananaCopyIDs([], before: before, after: after), [])
+    }
+
+    func testCopyChurnFromAnotherDeviceRePlansAtABoundedPaceAndIsNeverLost() {
+        var gate = GoogleEventSync.NewsGate()
+        let t0 = Date(timeIntervalSince1970: 2_000_000)
+        // The first change to copies is told.
+        XCTAssertTrue(gate.admit(events: false, copies: true, now: t0))
+        // Another device rewriting its copies every few seconds is held...
+        for second in stride(from: 5.0, to: 180, by: 5) {
+            XCTAssertFalse(gate.admit(events: false, copies: true, now: t0 + second), "at +\(second)s")
+        }
+        // ...and told at the first look past the interval, even when that look found nothing new.
+        XCTAssertTrue(gate.admit(events: false, copies: false, now: t0 + 181))
+        XCTAssertFalse(gate.admit(events: false, copies: false, now: t0 + 250))
+        // Copies changing again, inside the interval: held. A real event: told at once, with them.
+        XCTAssertFalse(gate.admit(events: false, copies: true, now: t0 + 300))
+        XCTAssertTrue(gate.copiesHeld)
+        XCTAssertTrue(gate.admit(events: true, copies: true, now: t0 + 302))
+        XCTAssertFalse(gate.copiesHeld)
+        XCTAssertTrue(gate.admit(events: true, copies: false, now: t0 + 303))
+        XCTAssertFalse(gate.admit(events: false, copies: false, now: t0 + 304))
+    }
+
     // MARK: Disk
 
     func testSnapshotsRoundTripAndPruneOnDisk() throws {
