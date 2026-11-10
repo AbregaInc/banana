@@ -136,6 +136,18 @@ final class MailFixtureSource: MailSource {
             threads[built.stored.row.id] = built.stored
             for (id, body) in built.bodies { bodies[id] = body }
         }
+        #if DEBUG && targetEnvironment(simulator)
+        // `--mail-case <input.html>` (Debug, Simulator): the receipt's message is that HTML, prepared
+        // as received mail is, so a renderer case (tools/reports/mail-cases) can be looked at in the
+        // reader on sample data (`--mail-open receipt`).
+        let arguments = ProcessInfo.processInfo.arguments
+        if let index = arguments.firstIndex(of: "--mail-case"), arguments.indices.contains(index + 1),
+           let html = try? String(contentsOfFile: arguments[index + 1], encoding: .utf8),
+           let prepared = try? MailHTMLPreparer.prepare(plain: nil, html: html) {
+            let id = MailMessageID(account: MailFixtureConversations.account, message: "receipt~1")
+            bodies[id] = prepared.body
+        }
+        #endif
         restoreSchedules()
         publishCounts()
     }

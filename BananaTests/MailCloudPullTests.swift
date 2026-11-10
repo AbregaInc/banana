@@ -118,9 +118,10 @@ final class MailCloudPullTests: XCTestCase {
         return (stores, MailCloudPull(stores: stores, loader: loader, source: cloud, clock: { clock.now }, pace: pace, sleep: { _ in }))
     }
 
-    /// An HTML message nested deeper than the preparer takes (`MailHTMLPreparer.Failure.tooComplex`).
-    static func tooDeep(_ id: String, date: Int64, labels: [String] = ["INBOX"]) -> GmailMessage {
-        let html = "<html><body>" + String(repeating: "<div>", count: 80) + "deep" + String(repeating: "</div>", count: 80) + "</body></html>"
+    /// HTML with more pieces than preparation walks, and no plain part: shown as its words, "deep".
+    /// (Depth alone is no bound: deep content is read flat.)
+    static func tooComplex(_ id: String, date: Int64, labels: [String] = ["INBOX"]) -> GmailMessage {
+        let html = "<html><body>" + String(repeating: "<i></i>", count: MailHTMLPreparer.maximumNodes) + "deep</body></html>"
         let data = Data(html.utf8).base64EncodedString().replacingOccurrences(of: "+", with: "-").replacingOccurrences(of: "/", with: "_").replacingOccurrences(of: "=", with: "")
         let json = """
         {"id":"\(id)","threadId":"t-\(id)","historyId":"100","internalDate":"\(date)","labelIds":\(String(decoding: try! JSONEncoder().encode(labels), as: UTF8.self)),
@@ -321,12 +322,12 @@ final class MailCloudPullTests: XCTestCase {
         XCTAssertFalse(idle.worked, "no batch is asked again and again")
     }
 
-    /// HTML beyond what native text is made from (here nested past the bound) is stored with its
-    /// words, once: it is not pulled and prepared again on every screen change.
+    /// HTML beyond what native text is made from (here more pieces than are walked) is stored with
+    /// its words, once: it is not pulled and prepared again on every screen change.
     func testAMessageTooComplexToMakeNativeIsStoredOnceWithItsWords() async throws {
         let cloud = Cloud()
         await cloud.set([entry("d", date: 2000), entry("p", date: 1000)])
-        await cloud.hold([Self.tooDeep("d", date: 2000), Self.full("p", date: 1000)])
+        await cloud.hold([Self.tooComplex("d", date: 2000), Self.full("p", date: 1000)])
         let (stores, pull) = try await setup(cloud)
         _ = try await pull.onScreen([conversation("d"), conversation("p")])
         let step = try await pull.step(fill: true)

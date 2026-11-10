@@ -35,6 +35,12 @@ except the hang detector's half-second ping, and that only while the app is in f
 - "…" › Report a Problem: every page's "…" (`MoreMenu`), the mail reader's, the Mac planner's,
   the assistant's.
 - Mac: Help › Report a Problem… and ⌘⇧R.
+
+The screenshot is the page the report is about: chosen from a "…" menu, the menu is still on
+screen, closing, for a second and more after its item runs, so the capture draws the window's
+layers without the menu's container (and the blur in it) (`ProblemReportCenter.isMenu`; the journal
+line says `leftOut=1`). Measured on the phone simulator, the capture took about 100 ms with a menu
+closing and about 30 ms without; no device figure yet.
 - 👍 / 👎 under each answer. 👍 is a count. 👎 opens the sheet with that answer.
 
 The sheet: one field, then what goes with it (Screenshot, Log, and the page's own row), Send. What
@@ -72,10 +78,13 @@ ignored; the pre-push guard refuses a tracked file there.
 
 - **Mail:** `reports.py mail-case <id> [name]` makes `private/mail-render-corpus/<name>/` with
   `input.html`, what the reader drew then, the screenshot and an `expect.json` to fill in: text that
-  must show (`contains`), must not (`absent`), `blocksAtMost`. When the message can be anonymised,
+  must show (`contains`), must not (`absent`), `blocksAtMost`, and the shape: `tables` (grids drawn),
+  `itemsAtLeast`, `picturesAtMost`, `describedLinkedPicturesAtMost`, `blankLinksAtMost`. When the message can be anonymised,
   `reports.py anonymise <name> <public-name>` writes `tools/reports/mail-cases/<public-name>/`:
   markup and styles kept, every word replaced by a stable stand-in, links and addresses by
-  `plan.example`, then checked with `tools/private-text-check.sh`. Read it before committing.
+  `plan.example` (one stand-in per page and per picture, so repeats stay repeats), class names by
+  hashes (but the few the renderer reads), then checked with `tools/private-text-check.sh`. Read it
+  before committing.
 - **Assistant:** `reports.py ai-case <id>` makes `private/ai-evals/<id>.json`: prompt, history,
   the reported answer and tool calls, and an `expected` to fill in (tool, arguments, text).
 - **Spikes:** `reports.py spikes` names the signature; the pulled log and stack say where.

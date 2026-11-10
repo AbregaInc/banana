@@ -141,5 +141,9 @@ final class MailInlinePicturesTests: XCTestCase {
         XCTAssertNil(label(""))
         XCTAssertNil(label("Example logo"))
         XCTAssertNil(label("A very long description of what the photograph shows in detail"))
+        for caption in ["Share icon", "Ann\u{2019}s profile photo", "Comment icon", "Hero image", "Profile Picture"] {
+            XCTAssertNil(label(caption), caption)
+        }
+        XCTAssertEqual(label("Thumbs up"), "Thumbs up")
     }
 }

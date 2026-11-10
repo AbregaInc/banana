@@ -159,9 +159,21 @@ struct MailTextBlock: Equatable, Codable, Sendable {
         case fineprint
         /// A picture of the message's own content, in reading order. Its `runs` are empty.
         case picture(MailPicture)
+        /// A table of data (rows and columns of figures or labels), drawn as a grid. Its `runs` are
+        /// the same cells as text, a row to a line, for search, quoting and plain text.
+        case table(MailTable)
     }
     var kind: Kind
     var runs: [MailTextRun]
+}
+
+/// Rows of cells, every row the same width; a missing cell is empty.
+struct MailTable: Equatable, Codable, Sendable {
+    struct Cell: Equatable, Codable, Sendable {
+        var runs: [MailTextRun]
+        var header: Bool = false
+    }
+    var rows: [[Cell]]
 }
 
 /// A content picture: where it comes from, the size its sender declared (so the layout does not jump

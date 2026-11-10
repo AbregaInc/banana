@@ -68,7 +68,40 @@ private struct MailBlockView: View {
             MailPictureView(picture: picture)
         case .fineprint:
             Text(runs).font(.caption).foregroundStyle(.secondary)
+        case .table(let table):
+            MailTableView(table: table)
         }
+    }
+}
+
+/// A table of data as a grid: columns as wide as their words (to a limit, then wrapping), headers
+/// in secondary, a separator between rows. A table wider than the column scrolls sideways on its own,
+/// so the message around it keeps its width.
+private struct MailTableView: View {
+    let table: MailTable
+    /// Wider than this, a cell wraps.
+    private let widestCell: CGFloat = 220
+
+    var body: some View {
+        ScrollView(.horizontal) {
+            Grid(alignment: .leadingFirstTextBaseline, horizontalSpacing: DS.Space.l, verticalSpacing: DS.Space.s) {
+                ForEach(Array(table.rows.enumerated()), id: \.offset) { index, row in
+                    if index > 0 { Divider().gridCellUnsizedAxes(.horizontal) }
+                    GridRow {
+                        ForEach(Array(row.enumerated()), id: \.offset) { _, cell in
+                            Text(MailAttributedText.make(cell.runs))
+                                .font(cell.header ? .footnote.weight(.semibold) : .subheadline)
+                                .foregroundStyle(cell.header ? .secondary : .primary)
+                                .frame(maxWidth: widestCell, alignment: .leading)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                    }
+                }
+            }
+            .padding(.vertical, DS.Space.xs)
+        }
+        .scrollIndicators(.hidden)
+        .scrollBounceBehavior(.basedOnSize, axes: .horizontal)
     }
 }
 

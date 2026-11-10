@@ -79,10 +79,20 @@ final class ProblemReportCenter: ObservableObject {
 
     /// Opens the sheet for the page in front, or with the context given (a 👎 on one answer).
     func open(context: ProblemReportPageContext? = nil, page: AppSection? = nil) {
+        openNow(context: context, page: page)
+    }
+
+    private func openNow(context: ProblemReportPageContext?, page: AppSection?) {
         guard presented == nil else { return }
         let name = page?.rawValue ?? ProblemReporter.page
         let began = DispatchTime.now().uptimeNanoseconds
         let screenshot = Self.captureScreen()
+        #if DEBUG
+        // The picture as taken, for checking what a report carries (the app's tmp folder).
+        if let screenshot, let jpeg = Self.jpeg(screenshot) {
+            try? jpeg.write(to: FileManager.default.temporaryDirectory.appendingPathComponent("report-capture.jpg"))
+        }
+        #endif
         let captured = DispatchTime.now().uptimeNanoseconds
         var draft = ProblemReportDraft(page: name, screenshot: screenshot,
                                        pageContext: context ?? providers[name]?.make())
@@ -91,7 +101,7 @@ final class ProblemReportCenter: ObservableObject {
         // Opening is a UI response (docs/performance): its cost goes in the journal.
         let done = DispatchTime.now().uptimeNanoseconds
         PlaybackDiagnostics.shared.log("📝 report opened",
-            "page=\(name) screenshot=\((captured - began) / 1_000_000)ms total=\((done - began) / 1_000_000)ms")
+            "page=\(name) screenshot=\((captured - began) / 1_000_000)ms total=\((done - began) / 1_000_000)ms leftOut=\(Self.leftOut)")
     }
 
     func send(_ draft: ProblemReportDraft) {
@@ -173,14 +183,32 @@ final class ProblemReportCenter: ObservableObject {
 
     // MARK: - The screenshot
 
+    #if os(iOS)
+    /// UIKit draws a menu (a "…" menu, a context menu), and the blur behind it, in a container of
+    /// its own on top of the window, whose class names it a context menu. It is still there, closing,
+    /// when the menu's item runs (for a second and more), so it is left out of the picture.
+    static func isMenu(_ view: UIView) -> Bool { NSStringFromClass(type(of: view)).contains("ContextMenu") }
+    #endif
+    /// How many menu containers the last screenshot left out, for the journal (iPhone and iPad).
+    private(set) static var leftOut = 0
+
     /// The screen as it is, before the sheet covers it. Nil when nothing can be drawn.
     static func captureScreen() -> PlatformImage? {
         #if os(iOS)
         guard let window = keyWindow() else { return nil }
         let format = UIGraphicsImageRendererFormat()
         format.scale = min(2, window.traitCollection.displayScale)
+        // The page the report is about, without a menu over it: the window's layers but the menus'.
+        let menus = window.subviews.filter(isMenu)
+        leftOut = menus.count
         return UIGraphicsImageRenderer(bounds: window.bounds, format: format).image { _ in
-            window.drawHierarchy(in: window.bounds, afterScreenUpdates: false)
+            if menus.isEmpty {
+                window.drawHierarchy(in: window.bounds, afterScreenUpdates: false)
+            } else {
+                for view in window.subviews where !isMenu(view) && !view.isHidden {
+                    view.drawHierarchy(in: view.frame, afterScreenUpdates: false)
+                }
+            }
         }
         #else
         guard let window = NSApp.keyWindow ?? NSApp.mainWindow,

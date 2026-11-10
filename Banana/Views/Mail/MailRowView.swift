@@ -95,6 +95,10 @@ private struct MailOneLineRow: View {
         HStack(spacing: DS.Space.s) {
             MailUnreadDot(isUnread: display.isUnread)
             HStack(spacing: DS.Space.xs) {
+                if let face = display.face {
+                    Monogram(initial: face.initial, hue: face.hue, size: DS.Mail.faceInline)
+                        .padding(.trailing, DS.Space.xs)
+                }
                 Text(display.who)
                     .fontWeight(display.isUnread ? .semibold : .regular)
                     .lineLimit(1)
@@ -130,7 +134,12 @@ private struct MailThreeLineRow: View {
     var body: some View {
         HStack(alignment: .top, spacing: 0) {
             MailUnreadDot(isUnread: display.isUnread)
-                .frame(height: DS.Mail.glyphSlot)
+                .frame(height: DS.Mail.face)
+            // The face sits beside the name and subject, inside the row's fixed height.
+            if let face = display.face {
+                Monogram(initial: face.initial, hue: face.hue, size: DS.Mail.face)
+                    .padding(.trailing, DS.Space.m)
+            }
             VStack(alignment: .leading, spacing: DS.Space.hair) {
                 HStack(alignment: .firstTextBaseline, spacing: DS.Space.xs) {
                     Text(display.who)

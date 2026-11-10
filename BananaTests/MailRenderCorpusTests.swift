@@ -4,7 +4,8 @@ import XCTest
 /// `tools/reports/mail-cases/` (synthetic, public) and, on a machine that has it, in the git-ignored
 /// `private/mail-render-corpus/` (real mail pulled from reports, never in the tree) goes through
 /// `MailHTMLPreparer`. A case is `input.html` and, once its fix is known, `expect.json`:
-/// `contains` / `absent` (text that must or must not be shown) and `blocksAtMost`. A case
+/// `contains` / `absent` (text that must or must not be shown), `blocksAtMost`, and the shape:
+/// `tables`, `itemsAtLeast`, `picturesAtMost`, `describedLinkedPicturesAtMost`, `blankLinksAtMost`. A case
 /// without one only has to prepare. What each case drew is written to
 /// `.build/mail-render-out/<case>.txt` to read beside it.
 final class MailRenderCorpusTests: XCTestCase {
@@ -12,6 +13,16 @@ final class MailRenderCorpusTests: XCTestCase {
         var contains: [String]?
         var absent: [String]?
         var blocksAtMost: Int?
+        /// How many data tables are drawn as grids.
+        var tables: Int?
+        /// At least this many list items.
+        var itemsAtLeast: Int?
+        /// At most this many pictures.
+        var picturesAtMost: Int?
+        /// At most this many linked pictures still carrying a description (a label when it can't load).
+        var describedLinkedPicturesAtMost: Int?
+        /// At most this many links around nothing but space.
+        var blankLinksAtMost: Int?
     }
 
     private static let root = SourceTree.root
@@ -52,5 +63,21 @@ final class MailRenderCorpusTests: XCTestCase {
         for text in expect.contains ?? [] { XCTAssertTrue(shown.contains(text), "\(name): shows \(text.debugDescription)") }
         for text in expect.absent ?? [] { XCTAssertFalse(shown.contains(text), "\(name): hides \(text.debugDescription)") }
         if let most = expect.blocksAtMost { XCTAssertLessThanOrEqual(blocks.count, most, "\(name): at most \(most) blocks") }
+        let kinds = prepared.text.blocks.map(\.kind)
+        let pictures = kinds.compactMap { if case .picture(let picture) = $0 { return picture }; return nil }
+        if let tables = expect.tables {
+            XCTAssertEqual(kinds.filter { if case .table = $0 { return true }; return false }.count, tables, "\(name): tables")
+        }
+        if let least = expect.itemsAtLeast {
+            XCTAssertGreaterThanOrEqual(kinds.filter { if case .item = $0 { return true }; return false }.count, least, "\(name): list items")
+        }
+        if let most = expect.picturesAtMost { XCTAssertLessThanOrEqual(pictures.count, most, "\(name): pictures") }
+        if let most = expect.describedLinkedPicturesAtMost {
+            XCTAssertLessThanOrEqual(pictures.filter { $0.link != nil && !$0.alt.isEmpty }.count, most, "\(name): described linked pictures")
+        }
+        if let most = expect.blankLinksAtMost {
+            let blank = prepared.text.blocks.flatMap(\.runs).filter { $0.link != nil && $0.text.allSatisfy(\.isWhitespace) }
+            XCTAssertLessThanOrEqual(blank.count, most, "\(name): blank links")
+        }
     }
 }

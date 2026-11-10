@@ -367,6 +367,10 @@ enum DS {
         static let glyphSlot: CGFloat = 20
         /// The list's and the conversation's header: the planner header's height.
         static let header: CGFloat = 44
+        /// A person's face in a three-line row and on a message (`Monogram`): the account card's size.
+        static let face: CGFloat = Row.avatar
+        /// A person's face in a one-line row, inside the sender's column.
+        static let faceInline: CGFloat = 20
         /// The widest a conversation's column gets.
         static let readingMeasure: CGFloat = 680
         /// The composer's body is at least this tall, and grows with its text to the larger.
@@ -471,6 +475,32 @@ enum TimeRangeText {
 }
 
 /// A keyboard key, drawn as a key cap: one cap per key, as on the keyboard itself.
+/// A person as their initial on a soft circle of their own colour: the account card's avatar made
+/// reusable (MAIL-UX 5.2). The colour is a role, "this person", chosen from the address so it is
+/// the same everywhere; the letter is that colour taken toward the text colour, as an event's words
+/// are (`DS.Event.ink`), so it reads on the fill in both appearances.
+struct Monogram: View {
+    let initial: String
+    let hue: Int
+    var size: CGFloat = DS.Row.avatar
+
+    /// The faces' colours: the system's, none of them a status.
+    static let hues: [Color] = [.blue, .indigo, .purple, .pink, .orange, .green, .teal, .cyan, .brown, .mint]
+
+    var body: some View {
+        let tint = Self.hues[((hue % Self.hues.count) + Self.hues.count) % Self.hues.count]
+        Circle()
+            .fill(tint.opacity(DS.Tint.fill))
+            .frame(width: size, height: size)
+            .overlay {
+                Text(initial)
+                    .font(.system(size: size * 0.44, weight: .semibold, design: .rounded))
+                    .foregroundStyle(DS.Event.ink(tint))
+            }
+            .accessibilityHidden(true)
+    }
+}
+
 struct KeyCap: View {
     let key: String
 

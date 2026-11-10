@@ -11,12 +11,17 @@ struct MailPictureContext: Sendable {
 
 extension MailPicture {
     /// What a linked picture says when the picture itself cannot be shown: its description, if that is a label
-    /// ("Get the app") and not a caption of the picture or a logo's name.
+    /// ("Get the app") and not a caption of the picture ("Share icon", "Ann's profile photo") or a logo's name.
     var label: String? {
-        guard link != nil, !alt.isEmpty, alt.count <= 40, alt.split(separator: " ").count <= 6,
-              alt.range(of: "logo", options: .caseInsensitive) == nil else { return nil }
+        guard link != nil, !alt.isEmpty, alt.count <= 40, alt.split(separator: " ").count <= 6 else { return nil }
+        let words = alt.lowercased().split(whereSeparator: { !$0.isLetter })
+        guard !words.contains(where: { Self.captionWords.contains(String($0)) }) else { return nil }
         return alt
     }
+
+    /// Words that describe a picture rather than say where its link goes.
+    static let captionWords: Set<String> = ["logo", "icon", "icons", "image", "img", "picture", "photo", "avatar",
+        "thumbnail", "banner", "badge", "illustration", "graphic", "spacer", "pixel"]
 }
 
 /// Decodes pictures off the main thread, at the size they are shown, and keeps a bounded number of them.

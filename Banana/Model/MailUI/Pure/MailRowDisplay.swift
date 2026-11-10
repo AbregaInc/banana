@@ -11,6 +11,8 @@ import Foundation
 /// the account chip are not here: the sample mail has none.
 struct MailRowDisplay: Equatable, Sendable {
     var who: String
+    /// Whose face the row shows (`MailFace.of`); nil for a row with nobody on it yet.
+    var face: MailFace?
     /// The message count, when there are two or more.
     var count: Int?
     /// "Re:" and "Fwd:" removed; "(no subject)" when there is nothing left.
@@ -39,6 +41,7 @@ struct MailRowDisplay: Equatable, Sendable {
         // A draft with nobody on it yet has no one to name.
         if who.isEmpty, case .draft? = row.reason { who = "No recipient" }
         self.who = who
+        face = MailFace.of(row.people)
         count = row.messageCount >= 2 ? row.messageCount : nil
         let cleaned = MailToastText.cleanSubject(row.subject)
         subject = cleaned

@@ -994,6 +994,8 @@ targets:
       # pure; the network half stays in GoogleCalendarService.swift, out of this target.
       - path: Banana/Model/CalendarEventModels.swift
       - path: Banana/Model/GoogleCalendarModels.swift
+      # The event behind an invitation email (MAIL-UX 9.1).
+      - path: Banana/Model/MailInviteEvent.swift
       - path: Banana/Model/CloudCalendarSnapshot.swift
       - path: Banana/Model/CloudCalendarRequest.swift
       - path: Banana/Model/CloudCalendarOperation.swift
