@@ -12,6 +12,7 @@ import { accessToken } from "../calendar.js";
 import { GoogleRefused } from "../google.js";
 import { busyFromEvents, canonicalZone } from "./slots.js";
 import { TYPE, typesFrom } from "./types.js";
+import { WHEREABOUTS, WHEREABOUTS_ID } from "./whereabouts.js";
 import { personalSpace } from "../sync-routes.js";
 
 const MINUTE = 60_000;
@@ -82,11 +83,12 @@ export async function readBusy(deps, vault, account, { from, to, settings = null
   return out;
 }
 
-/** The booking types and exclusions from the account's space. */
+/** The booking types, the exclusions and where the owner will be, from the account's space. */
 async function fromSpace(deps, account) {
   const space = deps.spaces.get(personalSpace(account));
-  const [records, settings] = await Promise.all([space.list(TYPE), space.read("core.smartSettings", "smart-settings")]);
-  return { records, settings };
+  const [records, settings, whereabouts] = await Promise.all([space.list(TYPE), space.read("core.smartSettings", "smart-settings"),
+    space.read(WHEREABOUTS, WHEREABOUTS_ID)]);
+  return { records, settings, whereabouts };
 }
 
 /**
@@ -118,7 +120,7 @@ export async function rebuildSnapshot(deps, account, { vault, force = false }) {
     }
     let written = null;
     try {
-      const [{ records, settings }, zones] = await Promise.all([fromSpace(deps, account),
+      const [{ records, settings, whereabouts }, zones] = await Promise.all([fromSpace(deps, account),
         db.first("SELECT h.time_zone AS handle_zone, a.time_zone FROM accounts a LEFT JOIN booking_handles h ON h.account_id = a.id WHERE a.id = ?", account)]);
       const zone = zones?.handle_zone ?? zones?.time_zone ?? null;
       const types = typesFrom(records, zone);
@@ -131,12 +133,13 @@ export async function rebuildSnapshot(deps, account, { vault, force = false }) {
         console.log(`booking: snapshot kept (${read.failed} read(s) failed)`);
         // The claim stays for CLAIM: a snapshot whose reads keep failing is tried once a minute (and
         // by the 15-minute job), however many anonymous page views find it stale.
-        await db.run("UPDATE busy_snapshot SET types_json = ?, types_at = ? WHERE account_id = ?", JSON.stringify(records), t, account);
+        await db.run("UPDATE busy_snapshot SET types_json = ?, whereabouts_json = ?, types_at = ? WHERE account_id = ?",
+          JSON.stringify(records), whereaboutsJson(whereabouts), t, account);
         return null;
       } else {
         if (read.failed) horizon.unknown += read.failed;
-        await db.run("UPDATE busy_snapshot SET horizon_json = ?, types_json = ?, types_at = ?, computed_at = ?, rebuilding_at = NULL WHERE account_id = ?",
-          JSON.stringify(horizon), JSON.stringify(records), t, t, account);
+        await db.run("UPDATE busy_snapshot SET horizon_json = ?, types_json = ?, whereabouts_json = ?, types_at = ?, computed_at = ?, rebuilding_at = NULL WHERE account_id = ?",
+          JSON.stringify(horizon), JSON.stringify(records), whereaboutsJson(whereabouts), t, t, account);
         written = { horizon, records, computedAt: t };
       }
     } catch (error) {
@@ -150,10 +153,16 @@ export async function rebuildSnapshot(deps, account, { vault, force = false }) {
   return null;
 }
 
-/** After a type changed in the space: the snapshot's copy of the types, at once. */
+const whereaboutsJson = (fields) => (fields ? JSON.stringify(fields) : null);
+
+/**
+ * After a type, or where the owner will be, changed in the space: the snapshot's copies, at once.
+ * `types_at` moves with either, so the page cache's key changes and the pages follow.
+ */
 export async function refreshTypes(deps, account) {
-  const { records } = await fromSpace(deps, account);
-  await deps.db.run("UPDATE busy_snapshot SET types_json = ?, types_at = ? WHERE account_id = ?", JSON.stringify(records), deps.now(), account);
+  const { records, whereabouts } = await fromSpace(deps, account);
+  await deps.db.run("UPDATE busy_snapshot SET types_json = ?, whereabouts_json = ?, types_at = ? WHERE account_id = ?",
+    JSON.stringify(records), whereaboutsJson(whereabouts), deps.now(), account);
 }
 
 /**

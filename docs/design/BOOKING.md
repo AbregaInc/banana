@@ -123,6 +123,7 @@ A record in the person's space, `plan.bookingType` (T1, writers any), edited in 
 | `minutes` | 30 |
 | `hours` | Mon–Fri 09:00–17:00 (wall minutes, several spans a day allowed) |
 | `timeZone` | `accounts.time_zone` |
+| `followsTravel` | on: the hours follow where the owner is (§13) |
 | `step` | the duration if it divides 60, else 15 (Elevate) |
 | `bufferBefore` / `bufferAfter` | 0 / 0 |
 | `notice` | 4 h |
@@ -485,8 +486,8 @@ Owner, 19–20 Oct:
   - spans can't cross midnight;
   - the horizon's last day is today + horizonDays − 1;
   - the slots answer is the whole horizon (no `from`/`to`/`tz`).
-- **The type's zone is fixed** once set. `accounts.time_zone` only seeds it, and it doesn't follow the
-  host's travel.
+- **The type's zone** is set once; `accounts.time_zone` only seeds it. With `followsTravel` (on by
+  default) it is the backup: the hours follow where the owner is (§13).
 - **Event ids** are 128 bits in lowercase hex (fits `[a-v0-9]`). The client id is only an idempotency
   key, scoped to (email, slot). The manage id is made by the server. On a Google 409, `events.get`
   and carry on.
@@ -536,13 +537,36 @@ Owner, 19–20 Oct:
 15. **Calendly basics** written down: the invite is the confirmation; the zone picker; Meet shown on
     confirmation; the default calendar defined.
 
-## 13. Backlog
+## 13. Hours that follow where the owner is (built 9 Nov 2026)
 
-- **Hours follow where the owner is (added 9 Nov 2026).** Today a type's zone is fixed once set
-  and doesn't follow travel (§ Engine corrections). Add a backup to that rule: on each day, the
-  type's weekly hours apply in the zone where the owner will be, taken from their current
-  location's zone and their travel (trips, flights, the "where you'll be" days Plan already shows).
-  Days with no travel keep the type's zone. Open questions for when it is picked up: what the
-  service needs synced to know the zone per day, how a flight day is handled (no slots while in
-  the air; which zone's hours on a day that changes zone), and whether it is on for every type or
-  set per type.
+On each day, a type's weekly wall-clock hours apply in the zone where the owner will be. The type's
+own `timeZone` is the backup whenever the service doesn't know.
+
+- **What the service knows.** The phone (`DeviceRole.isHub`) publishes one record,
+  `plan.whereabouts` (T1, merged whole, `writers: hub`), as `{v: {current, home, stays: [{from, to,
+  zone}], flights: [{departs, arrives}], updatedAt}}`: times in ms and IANA zones only, no airports,
+  cities, titles or places. `stays` are `TripTimeZone.stays` (landing to the next departure, at a
+  clock other than home's), built from the flights on the calendar from yesterday to 92 days ahead
+  (`WhereaboutsBuilder`). The calendar read is the shared core read every screen uses (it already
+  reaches 90 days); the Plan's own 8-day flight pass, with its routing, is untouched, and the parse
+  runs off the main thread (measured: `WhereaboutsBuilderTests.testBuildingFromAHeavyCalendarIsCheap`).
+  It is worked out again when the Plan's flights change, the phone changes zone, or the app comes
+  forward (debounced 2 s), and published only when it says something new or the copy out there is a
+  day old. A read that missed a calendar publishes nothing.
+- **The zone at an instant** (`Service/src/booking/whereabouts.js`): the stay covering it; else,
+  before the first known flight, `current`; else `home`. No record, or one older than 14 days: the
+  type's `timeZone`.
+- **Per type.** `followsTravel` (default on; absent reads as on). Off is the fixed zone of §3. In the
+  app: "Hours follow where I am" under More; while on, the zone row is the "Fallback zone".
+- **Expansion.** Days step from today in the zone the owner is in now. Each day's hours are read in
+  every zone the owner is in at some point that day (one, or two on a day they fly across zones),
+  and a slot is kept only when the owner is in the zone that made it at its start; one instant is
+  offered once. Every flight is busy, padded by the buffers like any busy time: no slots in the air.
+  Spring-forward and fall-back keep §3's rules in each zone.
+- **A day** (`perDay`, the D1 day guard, a booking's day re-read) is the date where the owner is at
+  that slot's start, so a flight day is one date with London's morning and New York's afternoon. The
+  Google event's `timeZone` is the zone at its start; the page's host-zone caption is the zone now.
+  `reserve`, `complete` and `move` regenerate with the same record, so the exact match holds.
+- **Freshness.** The snapshot keeps the record beside the types (`busy_snapshot.whereabouts_json`,
+  migration 0027); a `plan.whereabouts` change refreshes it as a type change does, and moves the page
+  cache's key.

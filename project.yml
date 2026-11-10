@@ -1201,6 +1201,10 @@ targets:
       - path: Banana/Model/Booking/BookingType.swift
       - path: Banana/Model/Booking/BookingHandle.swift
       - path: Banana/Model/Booking/BookingTypeStore.swift
+      # Where the owner will be (BOOKING.md §13): the record, its builder and its adapter; the
+      # store that reads the calendar stays out.
+      - path: Banana/Model/Booking/Whereabouts.swift
+      - path: Banana/Model/Sync/Adapters/WhereaboutsAdapter.swift
       # The notification rule both delegates follow (iPhone and Mac).
       - path: Banana/Model/NotificationRoute.swift
       # What a booking push's tap asks the Plan to open, taken once.

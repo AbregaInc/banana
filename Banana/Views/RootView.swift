@@ -449,6 +449,7 @@ struct RootView: View {
                 #endif
                 if plan.runsNetworkAndSync {
                 HubStatusStore.shared.handleRequests()          // asked for on another device
+                WhereaboutsStore.shared.schedule()              // where booking hours follow (the phone)
                 #if BANANA_MODULE_WORKOUTS
                 Task { await HealthRemovalInbox.shared.settle() }   // and a workout removed on one
                 #endif

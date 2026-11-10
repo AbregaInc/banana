@@ -201,7 +201,8 @@ The first time a store's items go into the mirror (§8.1), the rules are these.
   - `health.snapshot` (a blob reference);
   - `podcast.progress` (`{position, completed}`; seed ties as in §3, seeding rule 7);
   - `core.hubStatus`;
-  - `core.wakePlan`.
+  - `core.wakePlan`;
+  - `plan.whereabouts` (where the owner will be, for booking hours; BOOKING.md §13).
 - `append`: once written, the record never changes. A second write of the same id is ignored. Used
   only where nothing is ever updated: `podcast.listen` is not append, because a listen is edited as
   it grows.
@@ -417,7 +418,7 @@ Tiers:
   These calls now go to `SpaceSync.changed(type:ids:)` and `.deleted(type:ids:)`.
 - **Hub rules are unchanged.** Only the iPhone:
   - reads Health;
-  - publishes `health.snapshot`, `core.hubStatus` and `core.wakePlan`;
+  - publishes `health.snapshot`, `core.hubStatus`, `core.wakePlan` and `plan.whereabouts`;
   - carries out removal requests;
   - arms alarms.
 - **The Watch** keeps getting everything from the iPhone over WatchConnectivity.

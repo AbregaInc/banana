@@ -1196,3 +1196,67 @@ test("pages that find no snapshot yet wait for the one build in flight instead o
   assert.equal(s.google.calls.refresh.length - before, 1, "one build for five first views");
   assert.ok(Number((await s.db.first("SELECT computed_at FROM busy_snapshot WHERE account_id = ?", s.account)).computed_at) > 0);
 });
+
+/** Where the owner will be, as the phone publishes it (plan.whereabouts). */
+async function publishWhereabouts(s, fields, n = 1) {
+  const clock = `${String(s.now()).padStart(13, "0")}.000${n}.phone`;
+  const sync = await s.call("POST", "/v2/sync", { session: s.session, body: { device: "phone-0001", changes: [
+    { type: "plan.whereabouts", id: "whereabouts", set: { v: fields }, clocks: { v: clock } },
+  ] } });
+  assert.equal(sync.status, 200, JSON.stringify(sync.json));
+  assert.deepEqual(sync.json.rejected ?? [], []);
+  await s.settle();
+}
+// A week in London: out Saturday 17th at night, back Wednesday 28th at 11:00 London (15:00 New York).
+const LONDON_WEEK = (now) => ({
+  current: "America/New_York", home: "America/New_York", updatedAt: now,
+  stays: [{ from: Date.parse("2026-10-18T07:00:00Z"), to: Date.parse("2026-10-28T11:00:00Z"), zone: "Europe/London" }],
+  flights: [{ departs: Date.parse("2026-10-17T22:00:00Z"), arrives: Date.parse("2026-10-18T07:00:00Z") },
+    { departs: Date.parse("2026-10-28T11:00:00Z"), arrives: Date.parse("2026-10-28T19:00:00Z") }],
+});
+
+test("hours follow where the owner is: the trip's days in London, nothing in the air, the page and the event in that zone", async () => {
+  const s = await hostReady();
+  const before = await s.slots();
+  assert.equal(before.find((x) => x.start.startsWith("2026-10-19")).start, "2026-10-19T13:00:00.000Z", "09:00 New York before the phone says anything");
+  await publishWhereabouts(s, LONDON_WEEK(s.now()));
+  const slots = await s.slots();
+  assert.equal(slots[0].start, "2026-10-15T16:00:00.000Z", "today, at home, as before");
+  assert.equal(slots.find((x) => x.start.startsWith("2026-10-19")).start, "2026-10-19T08:00:00.000Z", "Monday 09:00 in London");
+  assert.deepEqual(slots.filter((x) => x.start.startsWith("2026-10-28")).map((x) => x.start), [
+    "2026-10-28T09:00:00.000Z", "2026-10-28T09:30:00.000Z", "2026-10-28T10:00:00.000Z", "2026-10-28T10:30:00.000Z",
+    "2026-10-28T19:00:00.000Z", "2026-10-28T19:30:00.000Z", "2026-10-28T20:00:00.000Z", "2026-10-28T20:30:00.000Z",
+  ], "the flight day: London's morning, New York's afternoon, nothing in the air");
+  assert.equal(pageData((await s.page("GET", "/noor/meeting")).text).ty.hostZone, "America/New_York", "the caption: where the owner is now");
+
+  // A booking on the flight day matches exactly, and its event is in London's zone.
+  const r = await s.book("2026-10-28T09:30:00.000Z");
+  assert.equal(r.status, 200, r.text);
+  await s.settle();
+  assert.equal((await s.row()).status, "confirmed");
+  const [insert] = s.google.booking.insert;
+  assert.deepEqual(insert.event.start, { dateTime: "2026-10-28T09:30:00.000Z", timeZone: "Europe/London" });
+
+  // In London, the page says so.
+  s.advance(5 * DAY);
+  assert.equal(pageData((await s.page("GET", "/noor/meeting")).text).ty.hostZone, "Europe/London");
+});
+
+test("hours follow travel: off for a type, or a record older than 14 days, is the type's own zone", async () => {
+  const s = await hostReady();
+  const clock = `${String(s.now()).padStart(13, "0")}.0009.phone`;
+  await s.call("POST", "/v2/sync", { session: s.session, body: { device: "phone-0001", changes: [
+    { type: "plan.bookingType", id: "t-fixed", set: { title: "Fixed", slug: "fixed", followsTravel: false, timeZone: "America/New_York" },
+      clocks: { title: clock, slug: clock, followsTravel: clock, timeZone: clock } },
+    { type: "plan.bookingType", id: "t-moves", set: { title: "Moves", slug: "moves", timeZone: "America/New_York" },
+      clocks: { title: clock, slug: clock, timeZone: clock } },
+  ] } });
+  await s.settle();
+  await publishWhereabouts(s, LONDON_WEEK(s.now()));
+  const monday = (slots) => slots.find((x) => x.start.startsWith("2026-10-19")).start;
+  assert.equal(monday(await s.slots("/noor/fixed")), "2026-10-19T13:00:00.000Z");
+  assert.equal(monday(await s.slots("/noor/moves")), "2026-10-19T08:00:00.000Z");
+  // The phone went quiet 15 days ago: nobody knows where the owner is.
+  await publishWhereabouts(s, { ...LONDON_WEEK(s.now()), updatedAt: s.now() - 15 * DAY }, 2);
+  assert.equal(monday(await s.slots("/noor/moves")), "2026-10-19T13:00:00.000Z");
+});

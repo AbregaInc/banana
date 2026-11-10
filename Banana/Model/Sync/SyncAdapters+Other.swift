@@ -18,6 +18,7 @@ extension SyncAdapters {
     /// | `notes.voiceNote` | `VoiceNoteStore` (`VoiceNoteAdapter`, the audio an eager blob) |
     /// | `core.appSettings`, `.modules`, `.smartSettings`, `.wakePlan`, `.hubStatus`, `.hubRequest` | `AppSettings`, `ModuleStore`, `SmartScheduleStore`, `HubStatusStore` (`SettingsAdapters`) |
     /// | `plan.bookingType` | `BookingTypeStore` (`BookingTypeAdapter`) |
+    /// | `plan.whereabouts` | `WhereaboutsStore` (`WhereaboutsAdapter`) |
     /// | `plan.taskDuration`, `.reminderAnchor`, `.reminderAnchorUsual`, `.missedRepeat`, `.declinedSuggestion`, `.notNow`, `core.guestPick` | `TaskDurationStore`, `ReminderAnchors`, `MissedRepeats`, `AnchorSuggestionStore`, `GuestPicks` (`KeyValueAdapters`) |
     static func everythingElse(_ stores: SyncStores) -> [any RecordAdapter] {
         let edited: @MainActor (ControlKind, String) -> Date? = { CloudControlsSync.editedAt($0, id: $1) }
@@ -65,6 +66,7 @@ extension SyncAdapters {
             SettingsAdapters.adapter(stores),
             KeyValueAdapters.adapter(stores),
             BookingTypeAdapter.adapter(stores.bookingTypes),
+            WhereaboutsAdapter.adapter(WhereaboutsStore.shared),
         ]
         // A build without a module has none of its types here, so its tier never moves (`MoveOver`).
         #if BANANA_MODULE_PODCASTS && BANANA_MODULE_NOTES
