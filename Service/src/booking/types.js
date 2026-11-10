@@ -7,7 +7,9 @@
 //   minutes      30                              5–480
 //   hours        Mon–Fri 09:00–17:00             7 lists, index 0 = Sunday, of [startMinute, endMinute]
 //                                                 on the host's wall clock (0–1440, start < end)
-//   timeZone     the handle's zone               an IANA name; fixed once set
+//   timeZone     the handle's zone               an IANA name: the hours' zone, or with followsTravel the
+//                                                 backup for when the service doesn't know where the owner is
+//   followsTravel true                           the hours follow where the owner is (whereabouts.js)
 //   step         the length if it divides 60, else 15
 //   bufferBefore, bufferAfter   0                minutes, 0–240
 //   notice       240                             minutes from now, 0–43200
@@ -20,6 +22,7 @@
 //   order        0                               where it sits on the profile
 
 import { canonicalZone, defaultStep } from "./slots.js";
+import { zoneOf } from "./whereabouts.js";
 
 export const TYPE = "plan.bookingType";
 const KINDS = ["meet", "zoom", "phone_host_calls", "phone_guest_calls", "in_person", "link"];
@@ -74,6 +77,7 @@ export function normaliseType(id, fields, { zone }) {
     minutes,
     hours: hoursOf(fields.hours) ?? WEEKDAYS_9_TO_5,
     timeZone,
+    followsTravel: fields.followsTravel !== false,
     step: int(fields.step, 5, 240, defaultStep(minutes)),
     bufferBefore: int(fields.bufferBefore, 0, 240, 0),
     bufferAfter: int(fields.bufferAfter, 0, 240, 0),
@@ -105,8 +109,14 @@ export function typesFrom(records, zone) {
 /** A place as the page may show it before booking: no Zoom link and no host phone number yet. */
 export const publicPlace = (p) => ({ id: p.id, kind: p.kind, label: p.label, ...(p.kind === "in_person" ? { address: p.address } : {}) });
 
-/** The type as the pages take it (CONTRACT.md). */
-export const typeView = (t, nextSlot = null) => ({ slug: t.slug, title: t.title, minutes: t.minutes, places: t.places.map(publicPlace), hostZone: t.timeZone, nextSlot });
+/**
+ * The type as the pages take it (CONTRACT.md). `hostZone` is where the owner is now (the type's own
+ * zone when its hours don't follow travel, or nobody knows).
+ */
+export const typeView = (t, nextSlot = null, now = Date.now()) => ({ slug: t.slug, title: t.title, minutes: t.minutes, places: t.places.map(publicPlace), hostZone: zoneOf(t, now), nextSlot });
+
+/** The types, each told where the owner will be when its hours follow travel (`type.where`). */
+export const placed = (types, where) => types.map((t) => ({ ...t, where: where && t.followsTravel ? where : null }));
 
 // ---- the handle ----
 

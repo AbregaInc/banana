@@ -744,8 +744,9 @@ export function createApp(deps) {
 
   // ---- the data platform (docs/design/DATA-PLATFORM.md) ----
   syncRoutes(app, deps, { signedIn, readJson, TOO_LARGE, BAD, push: pushDevices, onAccepted: (account, types) => {
-    // A booking type or the calendars left out changed in the app: the booking pages follow at once.
-    if (types.has("plan.bookingType")) defer(refreshTypes(deps, account).catch((error) => console.log(`booking: types failed (${error.name})`)));
+    // A booking type, where the owner will be, or the calendars left out changed in the app: the
+    // booking pages follow at once.
+    if (types.has("plan.bookingType") || types.has("plan.whereabouts")) defer(refreshTypes(deps, account).catch((error) => console.log(`booking: types failed (${error.name})`)));
     if (types.has("core.smartSettings")) rebuildBusy(account);
   } });
 

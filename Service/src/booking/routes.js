@@ -9,6 +9,7 @@ import { Hono } from "hono";
 import { getCookie, setCookie, deleteCookie } from "hono/cookie";
 import { canonicalZone, MINUTE, nearest } from "./slots.js";
 import { typeView } from "./types.js";
+import { zoneOf } from "./whereabouts.js";
 import { cacheAge, cacheable, withFreshNonce } from "./guard.js";
 import {
   bookingView, cancel, complete, findRetry, icsFor, liveRow, mail, manageRef, move, pushHost, readHost, refusal, reserve, slotsOf, undo,
@@ -197,7 +198,7 @@ export function bookingApp(deps, { vault, signer, push }) {
   async function timesPage(c, host, type, key) {
     const t0 = Date.now();
     const guest = await guestFor(c);
-    const out = await renderTimes(c, host, type, { guest, zone: zoneOfRequest(c, guest) ?? type.timeZone, locale: localeOf(c), key });
+    const out = await renderTimes(c, host, type, { guest, zone: zoneOfRequest(c, guest) ?? zoneOf(type, host.now), locale: localeOf(c), key });
     return page(c, out, [...(key ? ["cache;desc=miss"] : []), `total;dur=${Date.now() - t0}`]);
   }
 
@@ -208,7 +209,7 @@ export function bookingApp(deps, { vault, signer, push }) {
     const path = `/${host.handle}/${type.slug}`;
     const [upcoming, busy, connect] = await Promise.all([upcomingOf(guest), guestBusy(c, guest, host.horizon.to, { wait: false }), connectFor(guest, path)]);
     const out = pages.times({
-      host: hostView(host), type: typeView(type, slots[0] ?? null), slots, guest: await guestView(deps, guest, { upcoming }),
+      host: hostView(host), type: typeView(type, slots[0] ?? null, host.now), slots, guest: await guestView(deps, guest, { upcoming }),
       turnstileSiteKey: config.turnstileSiteKey || null, connect, busy, csrf: await signer.csrf(guest?.hash), zone, locale, canEmail: emailOn(),
     });
     out.headers = { ...(out.headers ?? {}), "server-timing": [out.headers?.["server-timing"], `engine;dur=${engine}`].filter(Boolean).join(", ") };
@@ -225,7 +226,7 @@ export function bookingApp(deps, { vault, signer, push }) {
       const cached = await fromCache(c, key, async () => {
         const fresh = await readHost(ctx, { handle });
         const type = pickType(fresh, c.req.param("slug"));
-        if (type && !refusal(fresh, type)) await renderTimes(c, fresh, type, { guest: null, zone: zoneOfRequest(c, null) ?? type.timeZone, locale: localeOf(c), key });
+        if (type && !refusal(fresh, type)) await renderTimes(c, fresh, type, { guest: null, zone: zoneOfRequest(c, null) ?? zoneOf(type, fresh.now), locale: localeOf(c), key });
       });
       if (cached) return { cached };
     }
@@ -269,9 +270,9 @@ export function bookingApp(deps, { vault, signer, push }) {
     }
     if (refusal(host, active[0]) === "unknown") return notTakingPage(c, host, null);
     const guest = await guestFor(c);
-    const types = active.map((x) => typeView(x, refusal(host, x) ? null : slotsOf(host, x)[0] ?? null));
+    const types = active.map((x) => typeView(x, refusal(host, x) ? null : slotsOf(host, x)[0] ?? null, host.now));
     return page(c, pages.profile({ host: hostView(host), types, guest: await guestView(deps, guest, { upcoming: await upcomingOf(guest) }),
-      zone: zoneOfRequest(c, guest) ?? active[0].timeZone, locale: localeOf(c), canEmail: emailOn() }), [`db;dur=${c.get("dbTime") ?? 0}`]);
+      zone: zoneOfRequest(c, guest) ?? zoneOf(active[0], host.now), locale: localeOf(c), canEmail: emailOn() }), [`db;dur=${c.get("dbTime") ?? 0}`]);
   });
 
   app.get("/:handle{[a-z0-9-]{3,30}}/:slug{[a-z0-9-]{1,40}}", async (c) => {
@@ -322,7 +323,7 @@ export function bookingApp(deps, { vault, signer, push }) {
     if (!host || !type) return json(c, { error: "not_found" }, 404);
     const guest = await guestFor(c);
     // A zone the browser got wrong falls back to the guest's or the request's, then the type's: never UTC.
-    const zone = canonicalZone(body.zone) ?? zoneOfRequest(c, guest) ?? type.timeZone;
+    const zone = canonicalZone(body.zone) ?? zoneOfRequest(c, guest) ?? zoneOf(type, host.now);
     if (refusal(host, type)) return json(c, { error: "not_taking" }, 409);
     const place = type.places.find((p) => p.id === body.place) ?? (body.place == null ? type.places[0] : null);
     if (!place) return json(c, { field: "place", error: "invalid" }, 400);
@@ -410,7 +411,7 @@ export function bookingApp(deps, { vault, signer, push }) {
     if (!host) return notFound(c);
     const type = host.types.find((x) => x.id === row.type_id);
     const guest = await guestFor(c);
-    const tv = type ? typeView(type) : { slug: "", title: row.type_title, minutes: Math.round((row.end_at - row.start_at) / MINUTE), places: [], hostZone: host.zone };
+    const tv = type ? typeView(type, null, host.now) : { slug: "", title: row.type_title, minutes: Math.round((row.end_at - row.start_at) / MINUTE), places: [], hostZone: host.zone };
     const zone = canonicalZone(row.guest_zone) ?? zoneOfRequest(c, guest) ?? tv.hostZone;
     const booking = await bookingView(ctx, row);
     if (row.status === "cancelled") return page(c, pages.cancelled({ host: hostView(host), type: tv, booking, zone, locale: localeOf(c) }));

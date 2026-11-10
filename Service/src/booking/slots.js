@@ -6,6 +6,7 @@
 // first occurrence (instantAt), and every length is elapsed time.
 
 import { TZDate } from "@date-fns/tz";
+import { inZoneDuring, zoneAt } from "./whereabouts.js";
 
 export const MINUTE = 60_000;
 const DAY_MINUTES = 1440;
@@ -158,7 +159,7 @@ export function overlaps(merged, s, e) {
  * The free slots of a booking type, over its whole horizon.
  * @param {{
  *   type: {minutes: number, step?: number, hours: number[][][], timeZone: string, bufferBefore?: number,
- *          bufferAfter?: number, notice?: number, horizonDays?: number, perDay?: number|null},
+ *          bufferAfter?: number, notice?: number, horizonDays?: number, perDay?: number|null, where?: object|null},
  *   now: number,
  *   busy?: Array<[number, number]>,     // Google's busy and the bookings, unpadded instants
  *   booked?: number[],                   // starts of this type's bookings, for perDay
@@ -166,46 +167,61 @@ export function overlaps(merged, s, e) {
  * }} input
  *   `hours[weekday]` (0 = Sunday) is a list of [startMinute, endMinute] spans on the host's wall
  *   clock; a span never crosses midnight (1440 is the most). Buffers and notice are minutes.
+ *
+ *   `type.where` (whereabouts.js), when set, is where the owner will be: each day's hours are read
+ *   in every zone the owner is in at some point that day (one, or two on a day they fly across
+ *   zones), a slot is kept only when the owner is in the zone that made it at its start, and the
+ *   flights are busy. Without it, every day is read in `type.timeZone`.
  * @returns {{start: string, end: string}[]} UTC ISO strings, in order.
  */
 export function generateSlots({ type, now, busy = [], booked = [], days = null }) {
-  const zone = type.timeZone;
+  const where = type.where ?? null;
+  const zoneAtT = where ? (t) => zoneAt(where, t) : () => type.timeZone;
+  const zones = where ? where.zones : [type.timeZone];
   const minutes = type.minutes;
   const step = type.step || defaultStep(minutes);
   const length = minutes * MINUTE;
   const before = (type.bufferBefore ?? 0) * MINUTE, after = (type.bufferAfter ?? 0) * MINUTE;
   const earliest = now + (type.notice ?? 0) * MINUTE;
   const horizon = type.horizonDays ?? 30;
-  const merged = mergeIntervals(busy);
+  // In the air is busy (padded by the buffers like any busy time).
+  const merged = mergeIntervals(where ? [...busy, ...where.flights] : busy);
   const perDay = type.perDay ?? null;
+  // A day's count is kept by the date where the owner is at each booking's start.
   const counts = new Map();
-  if (perDay) for (const s of booked) { const k = dateIn(s, zone); counts.set(k, (counts.get(k) ?? 0) + 1); }
+  if (perDay) for (const s of booked) { const k = dateIn(s, zoneAtT(s)); counts.set(k, (counts.get(k) ?? 0) + 1); }
 
-  const today = partsIn(now, zone);
+  const today = partsIn(now, zoneAtT(now));
   const out = [];
   const seen = new Set();
   for (let n = 0; n < horizon; n++) {
     const date = addDays(today, n);
     const key = `${pad(date.y, 4)}-${pad(date.m)}-${pad(date.d)}`;
     if (perDay && (counts.get(key) ?? 0) >= perDay) continue;
-    if (days) {
-      const dayStart = instantAt(date, 0, zone, { strict: false });
-      if (dayStart >= days.to || instantAt(date, DAY_MINUTES, zone, { strict: false }) <= days.from) continue;
-    }
-    for (const span of type.hours[date.weekday] ?? []) {
-      const [a, b] = span;
-      if (!(Number.isInteger(a) && Number.isInteger(b) && a >= 0 && b <= DAY_MINUTES && a < b)) continue;
-      const spanEnd = instantAt(date, b, zone, { strict: false });
-      for (let minute = Math.ceil(a / step) * step; minute < b; minute += step) {
-        const start = instantAt(date, minute, zone);
-        if (start === null) continue;                    // a wall time that doesn't exist: no slot
-        const end = start + length;
-        if (end > spanEnd) break;
-        if (start < earliest || start <= now) continue;
-        if (overlaps(merged, start - before, end + after)) continue;
-        if (seen.has(start)) continue;
-        seen.add(start);
-        out.push(start);
+    const spans = type.hours[date.weekday] ?? [];
+    if (!spans.length) continue;
+    for (const zone of zones) {
+      if (where || days) {
+        const dayStart = instantAt(date, 0, zone, { strict: false }), dayEnd = instantAt(date, DAY_MINUTES, zone, { strict: false });
+        if (where && !inZoneDuring(where, zone, dayStart, dayEnd)) continue;
+        if (days && (dayStart >= days.to || dayEnd <= days.from)) continue;
+      }
+      for (const span of spans) {
+        const [a, b] = span;
+        if (!(Number.isInteger(a) && Number.isInteger(b) && a >= 0 && b <= DAY_MINUTES && a < b)) continue;
+        const spanEnd = instantAt(date, b, zone, { strict: false });
+        for (let minute = Math.ceil(a / step) * step; minute < b; minute += step) {
+          const start = instantAt(date, minute, zone);
+          if (start === null) continue;                    // a wall time that doesn't exist: no slot
+          const end = start + length;
+          if (end > spanEnd) break;
+          if (start < earliest || start <= now) continue;
+          if (where && zoneAt(where, start) !== zone) continue;   // the owner is elsewhere then
+          if (overlaps(merged, start - before, end + after)) continue;
+          if (seen.has(start)) continue;
+          seen.add(start);
+          out.push(start);
+        }
       }
     }
   }

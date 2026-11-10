@@ -9,7 +9,8 @@ import { accessToken } from "../calendar.js";
 import { GoogleError, GoogleRefused } from "../google.js";
 import { newId, hex } from "../crypto.js";
 import { dayAround, generateSlots, MINUTE, nearest, shortWhen } from "./slots.js";
-import { publicPlace, typesFrom } from "./types.js";
+import { placed, publicPlace, typesFrom } from "./types.js";
+import { whereaboutsFrom, zoneOf } from "./whereabouts.js";
 import { readDay, STALE, rebuildSnapshot } from "./busy.js";
 import { bookingEmail } from "./email.js";
 import { icsFile } from "./ics.js";
@@ -24,7 +25,7 @@ const LIVE = ["pending", "confirmed"];
 // ---- the host, as one read ----
 
 const HOST_SQL = `SELECT h.handle, h.account_id, h.time_zone AS handle_zone, a.display_name, a.time_zone AS account_zone,
-    s.horizon_json, s.types_json, s.computed_at, s.told_at,
+    s.horizon_json, s.types_json, s.whereabouts_json, s.computed_at, s.told_at,
     (SELECT g.name FROM google_links g WHERE g.account_id = h.account_id AND g.status <> 'unlinked' ORDER BY g.created_at LIMIT 1) AS google_name,
     (SELECT g.email FROM google_links g WHERE g.account_id = h.account_id AND g.status <> 'unlinked' ORDER BY g.created_at LIMIT 1) AS google_email
   FROM booking_handles h JOIN accounts a ON a.id = h.account_id LEFT JOIN busy_snapshot s ON s.account_id = h.account_id`;
@@ -42,13 +43,17 @@ function hostFrom(row, bookings, now) {
   let horizon = null, records = [];
   try { horizon = row.horizon_json ? JSON.parse(row.horizon_json) : null; } catch { horizon = null; }
   try { records = row.types_json ? JSON.parse(row.types_json) : []; } catch { records = []; }
+  let where = null;
+  try { where = row.whereabouts_json ? whereaboutsFrom(JSON.parse(row.whereabouts_json), now) : null; } catch { where = null; }
   const zone = row.handle_zone ?? row.account_zone ?? null;
   return {
     handle: row.handle, account: row.account_id, zone, accountZone: row.account_zone ?? zone,
     name: row.display_name || row.google_name || null, email: row.google_email ?? null,   // the handle is an address, never a name
     computedAt: Number(row.computed_at ?? 0), toldAt: Number(row.told_at ?? 0),
     horizon: horizon && Number.isFinite(horizon.from) ? horizon : null,
-    types: typesFrom(row.types_json ? records : [], zone),
+    // Each type knows where the owner will be when its hours follow travel (`type.where`).
+    types: placed(typesFrom(row.types_json ? records : [], zone), where),
+    where,
     bookings: bookings.filter((b) => LIVE.includes(b.status ?? "confirmed"))
       .map((b) => ({ ...b, start_at: Number(b.start_at), end_at: Number(b.end_at), block_start: Number(b.block_start), block_end: Number(b.block_end) })),
     ownIds: new Set(bookings.map((b) => b.id)),
@@ -231,8 +236,8 @@ function eventBody(row, type, manageUrl, { withGuest }) {
     id: row.id,
     summary: `${row.type_title}: ${row.guest_name ?? "Guest"}`,
     description: description(row, manageUrl),
-    start: { dateTime: new Date(Number(row.start_at)).toISOString(), timeZone: type?.timeZone ?? "UTC" },
-    end: { dateTime: new Date(Number(row.end_at)).toISOString(), timeZone: type?.timeZone ?? "UTC" },
+    start: { dateTime: new Date(Number(row.start_at)).toISOString(), timeZone: zoneOf(type, Number(row.start_at)) },
+    end: { dateTime: new Date(Number(row.end_at)).toISOString(), timeZone: zoneOf(type, Number(row.start_at)) },
     reminders: { useDefault: true },
     guestsCanModify: false,
     extendedProperties: { private: { bananaBooking: row.id } },
@@ -288,7 +293,7 @@ export async function reserve(ctx, host, type, input) {
     : place.kind === "phone_guest_calls" ? place.phone
     : place.kind === "in_person" ? place.address
     : place.kind === "phone_host_calls" ? input.phone : null;
-  const day = type.perDay ? dayAround(start, type.timeZone) : null;
+  const day = type.perDay ? dayAround(start, zoneOf(type, start)) : null;
   const row = {
     id: hex(deps.random(16)), manage_id: newId(deps.random), account_id: host.account, type_id: type.id, type_title: type.title,
     start_at: start, end_at: end, block_start: blockStart, block_end: blockEnd, status: "pending", invite: "held", undo_until: t + UNDO,
@@ -346,7 +351,7 @@ export async function complete(ctx, id, { first = false } = {}) {
   try {
     // The day, read again, live. The booking itself isn't in the way (a retry after an insert got through).
     if (type && host.horizon?.calendars?.length) {
-      const day = dayAround(Number(row.start_at), type.timeZone);
+      const day = dayAround(Number(row.start_at), zoneOf(type, Number(row.start_at)));
       const from = day.from - type.bufferBefore * MINUTE - DAY, to = day.to + type.bufferAfter * MINUTE + DAY;
       const live = await readDay(deps, ctx.vault, row.account_id, host.horizon.calendars, { from, to });
       const others = { ...host, bookings: host.bookings.filter((b) => b.id !== id) };
@@ -579,7 +584,7 @@ export async function move(ctx, row, host, type, { start: wanted, zone }) {
   let access;
   try {
     access = await linkAccess(ctx, row.calendar_sub);
-    const day = dayAround(start, type.timeZone);
+    const day = dayAround(start, zoneOf(type, start));
     const live = await readDay(deps, ctx.vault, row.account_id, host.horizon.calendars, { from: day.from - DAY, to: day.to + DAY });
     const offered = slotsOf({ ...host, bookings: host.bookings.filter((b) => b.id !== row.id) }, type, { now: t, except: row.id, days: day, live });
     if (!offered.some((s) => s.start === wanted)) return { kind: "taken", nearest: nearest(slots.filter((s) => s.start !== wanted), start) };
@@ -621,7 +626,8 @@ export async function patchTime(ctx, id, access = null, { fromJob = false, zone:
   }
   const row = await deps.db.first("SELECT * FROM bookings WHERE id = ?", id);
   const host = fromJob ? await readHost(ctx, { account: row.account_id }) : null;
-  const zone = given ?? host?.types.find((x) => x.id === row.type_id)?.timeZone ?? "UTC";
+  const type = host?.types.find((x) => x.id === row.type_id);
+  const zone = given ?? (type ? zoneOf(type, Number(row.start_at)) : "UTC");
   try {
     access ??= await linkAccess(ctx, row.calendar_sub);
     const patched = await deps.google.patchEvent(access, row.calendar_id, row.id, {

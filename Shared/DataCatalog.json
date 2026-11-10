@@ -22,6 +22,7 @@
     { "type": "plan.declinedSuggestion",  "tier": "T1", "merge": "field",  "writers": "any", "seed": "default" },
     { "type": "plan.notNow",              "tier": "T1", "merge": "field",  "writers": "any", "seed": "default" },
     { "type": "plan.bookingType",         "tier": "T1", "merge": "field",  "writers": "any", "seed": "edited" },
+    { "type": "plan.whereabouts",         "tier": "T1", "merge": "whole",  "writers": "hub", "seed": "edited" },
 
     { "type": "podcast.show",             "tier": "T1", "merge": "field",  "writers": "any", "seed": "edited" },
     { "type": "podcast.settings",         "tier": "T1", "merge": "field",  "writers": "any", "seed": "edited" , "after": ["podcast.show"] },
