@@ -136,20 +136,10 @@ struct PlanPeriodMenu: View {
         // a count or an entry here.
         PageTitleMenu(title: name(choice.wrappedValue), subtitle: datesPlace != .hidden && !dates.isEmpty ? dates : nil,
                       identifier: Self.identifier) {
-            #if os(macOS)
-            // Inline Picker tags are disabled in the native toolbar menu on affected macOS
-            // runtimes. Native checkable actions keep the same single-selection binding.
-            ForEach(Self.choices, id: \.self) { option in
-                Toggle(name(option), isOn: Binding(
-                    get: { choice.wrappedValue == option },
-                    set: { selected in if selected { choice.wrappedValue = option } }))
-            }
-            #else
             Picker("View", selection: choice) {
                 ForEach(Self.choices, id: \.self) { Text(name($0)).tag($0) }
             }
             .pickerStyle(.inline)
-            #endif
         }
         // Beside or under the name as asked, whatever width class the bar reports.
         .environment(\.layoutClass, datesPlace == .under ? .compact : .regular)

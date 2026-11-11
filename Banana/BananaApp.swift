@@ -1482,7 +1482,9 @@ private extension View {
     @ViewBuilder
     func bananaToggleStyle() -> some View {
         #if os(macOS)
-        toggleStyle(.switch)
+        // A forced switch style disables Toggle/Picker actions inside native menus.
+        // Let each context choose its native style, including menu checkmarks.
+        toggleStyle(.automatic)
         #else
         self
         #endif
