@@ -716,6 +716,7 @@ targets:
     platform: iOS
     sources:
       - path: BananaTests
+      - path: Shared/DateComparisonCompatibility.swift
       # The navigation layer's decisions (docs/design/BOTTOM-BAR-SHELL.md).
       - path: Banana/Model/ShellRules.swift
       - path: Banana/Model/HealthAuthorization.swift
@@ -1295,6 +1296,7 @@ targets:
     deploymentTarget: "26.0"
     sources:
       - path: BananaWatch
+      - path: Shared/DateComparisonCompatibility.swift
       - path: Shared/WorkoutRecoveryCheckpoint.swift
       - path: Shared/WatchCalendarSnapshot.swift
       - path: Shared/FitnessModels.swift
@@ -1369,6 +1371,7 @@ targets:
     deploymentTarget: "26.0"
     sources:
       - path: BananaWatchWidget
+      - path: Shared/DateComparisonCompatibility.swift
       - path: Shared/WatchCalendarSnapshot.swift
     info:
       path: BananaWatchWidget/Info.plist

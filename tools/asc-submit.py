@@ -5,7 +5,7 @@
     python3 tools/asc-submit.py 83 --apply    submit iOS and macOS (or one with --platform)
     python3 tools/asc-submit.py 117 --attach [--apply]   only select build 117 on the drafts
 
-For each platform the draft must be in PREPARE_FOR_SUBMISSION with the given build selected and
+For each platform the version must be editable (new draft or rejected) with the given build selected and
 manual release; an existing unsubmitted review submission is reused, a submitted one stops the
 script. A rejected submission (UNRESOLVED_ISSUES) is resubmitted, as the web's "Resubmit to App
 Review" does: the version's rejected item is marked resolved and the same submission is submitted
@@ -30,6 +30,7 @@ def asc_module():
 
 API = "https://api.appstoreconnect.apple.com"
 PLATFORMS = ("IOS", "MAC_OS")
+EDITABLE_STATES = ("PREPARE_FOR_SUBMISSION", "REJECTED", "METADATA_REJECTED", "DEVELOPER_REJECTED")
 
 
 def send(method, path, body=None):
@@ -48,9 +49,10 @@ def plan(platform, versions, submissions, build):
 
     Returns ("submit", version_id, submission_id_or_None), ("resubmit", version_id, submission_id)
     for a rejected submission, or ("stop", reason)."""
-    drafts = [v for v in versions if v["attributes"].get("platform") == platform]
+    drafts = [v for v in versions if v["attributes"].get("platform") == platform
+              and v["attributes"].get("appVersionState") in EDITABLE_STATES]
     if len(drafts) != 1:
-        return ("stop", f"{len(drafts)} versions in PREPARE_FOR_SUBMISSION for {platform}; expected one")
+        return ("stop", f"{len(drafts)} editable versions for {platform}; expected one")
     v = drafts[0]; at = v["attributes"]
     if at.get("releaseType") != "MANUAL":
         return ("stop", f"{platform} release type is {at.get('releaseType')}, not MANUAL")
@@ -106,7 +108,7 @@ def attach(app, versions, number, platforms, apply):
 
 
 def versions_in_preparation(app):
-    r = asc_module().get(f"/v1/apps/{app}/appStoreVersions", **{"filter[appVersionState]": "PREPARE_FOR_SUBMISSION",
+    r = asc_module().get(f"/v1/apps/{app}/appStoreVersions", **{"filter[appVersionState]": ",".join(EDITABLE_STATES),
                 "fields[appStoreVersions]": "platform,versionString,appVersionState,releaseType,build",
                 "include": "build", "fields[builds]": "version"})
     if "error" in r: raise SystemExit(f"appStoreVersions: {r}")

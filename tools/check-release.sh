@@ -106,6 +106,13 @@ checked=0
 while IFS= read -r -d '' file; do
   file "$file" | grep -q "Mach-O" || continue
   checked=$((checked + 1))
+  # These weak Foundation imports crash on the review's early 27.2 runtime.
+  # Check every image, including dependencies and embedded extension executables.
+  imports=$(xcrun nm -u "$file" 2>/dev/null)
+  if grep -Eq '_\$s10Foundation4DateV2(ge|le)oiySbAC_ACtFZ' <<< "$imports"; then
+    echo "Not for Apple: runtime-unsafe Foundation Date comparison import in $file"
+    exit 1
+  fi
   echo "$patterns" | while IFS= read -r words; do
     [ -n "$words" ] || continue
     if LC_ALL=C grep -a -q -F "$words" "$file"; then

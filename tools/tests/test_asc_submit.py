@@ -40,6 +40,17 @@ class PlanTests(unittest.TestCase):
         self.assertEqual(self.plan("IOS", [version("IOS", build="116")], [rejected], "117")[0], "stop")
         self.assertEqual(self.plan("IOS", [version("IOS")], [rejected, ready], "83")[0], "stop")
 
+    def test_rejected_version_is_editable_but_reviewed_or_released_version_is_not(self):
+        rejected = {"id": "s4", "attributes": {"platform": "MAC_OS", "state": "UNRESOLVED_ISSUES"}}
+        for state in ("REJECTED", "METADATA_REJECTED", "DEVELOPER_REJECTED"):
+            candidate = version("MAC_OS")
+            candidate["attributes"]["appVersionState"] = state
+            self.assertEqual(self.plan("MAC_OS", [candidate], [rejected], "83"), ("resubmit", "v1", "s4"))
+        for state in ("WAITING_FOR_REVIEW", "IN_REVIEW", "READY_FOR_SALE"):
+            candidate = version("MAC_OS")
+            candidate["attributes"]["appVersionState"] = state
+            self.assertEqual(self.plan("MAC_OS", [candidate], [], "83")[0], "stop")
+
     def test_attaches_only_the_one_processed_build_for_the_platform(self):
         pick = load()["build_to_attach"]
         builds = [{"id": "i", "platform": "IOS", "state": "VALID", "expired": False, "version": "1.0"},
