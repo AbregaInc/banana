@@ -173,10 +173,14 @@ def main():
                                                               "relationships": {"app": {"data": {"type": "apps", "id": app}}}}})
             if "error" in r: print(f"{platform}: create submission failed: {r}"); failed = True; continue
             submission_id = r["data"]["id"]
-        items = asc_module().get(f"/v1/reviewSubmissions/{submission_id}/items", **{"fields[reviewSubmissionItems]": "state", "include": "appStoreVersion"})
+        items = asc_module().get(f"/v1/reviewSubmissions/{submission_id}/items", **{"fields[reviewSubmissionItems]": "state,appStoreVersion", "include": "appStoreVersion"})
+        if "error" in items:
+            print(f"{platform}: read submission items failed: {items}"); failed = True; continue
         ours = [i for i in items.get("data", []) if (((i.get("relationships") or {}).get("appStoreVersion") or {}).get("data") or {}).get("id") == version_id]
         has_version = bool(ours)
         if action == "resubmit":
+            if len(ours) != 1:
+                print(f"{platform}: rejected submission has {len(ours)} matching version items; expected one"); failed = True; continue
             results = [send("PATCH", f"/v1/reviewSubmissionItems/{i['id']}", {"data": {"type": "reviewSubmissionItems", "id": i["id"], "attributes": {"resolved": True}}})
                        for i in ours if i["attributes"].get("state") == "REJECTED"]
             errors = [r for r in results if "error" in r]

@@ -2,7 +2,7 @@
 import importlib.util
 from pathlib import Path
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 
 def load():
@@ -87,6 +87,44 @@ class MacLaunchGateTests(unittest.TestCase):
                 with self.assertRaisesRegex(RuntimeError, "API boundary"):
                     module.main()
                 gate.assert_not_called()
+
+    def test_resubmission_resolves_the_existing_item_without_adding_a_duplicate(self):
+        module = self.module()
+        draft = version('MAC_OS', build='123')
+        submission = {'id': 's1', 'attributes': {'platform': 'MAC_OS', 'state': 'UNRESOLVED_ISSUES'}}
+        item = {'id': 'item1', 'attributes': {'state': 'REJECTED'},
+                'relationships': {'appStoreVersion': {'data': {'id': 'v1'}}}}
+        for response in ({'data': [item]}, {'error': 500, 'body': 'unavailable'}, {'data': []}):
+            with self.subTest(response=response):
+                def get(path, **params):
+                    if path == '/v1/apps':
+                        return {'data': [{'id': 'app1'}]}
+                    if path.endswith('/items'):
+                        # Sparse fieldsets omit relationships unless explicitly requested,
+                        # even when the related resource is in `included`.
+                        self.assertIn('appStoreVersion', params['fields[reviewSubmissionItems]'].split(','))
+                        return response
+                    return {'data': {'attributes': {'state': 'WAITING_FOR_REVIEW',
+                                                    'appVersionState': 'WAITING_FOR_REVIEW'}}}
+                apple = Mock()
+                apple.get.side_effect = get
+                success = bool(response.get('data'))
+                with patch('sys.argv', ['asc-submit.py', '123', '--platform', 'MAC_OS', '--apply']), \
+                     patch.object(module, 'verify_mac_launch'), \
+                     patch.object(module, 'asc_module', return_value=apple), \
+                     patch.object(module, 'versions_in_preparation', return_value=[draft]), \
+                     patch.object(module, 'review_submissions', return_value=[submission]), \
+                     patch.object(module, 'send', return_value={}) as send:
+                    with self.assertRaises(SystemExit) as exit:
+                        module.main()
+                    self.assertEqual(exit.exception.code, 0 if success else 1)
+                    if success:
+                        self.assertEqual([(c.args[0], c.args[1]) for c in send.call_args_list], [
+                            ('PATCH', '/v1/reviewSubmissionItems/item1'),
+                            ('PATCH', '/v1/reviewSubmissions/s1')])
+                        self.assertEqual(send.call_args_list[0].args[2]['data']['attributes'], {'resolved': True})
+                    else:
+                        send.assert_not_called()
 
 
 if __name__ == "__main__":
