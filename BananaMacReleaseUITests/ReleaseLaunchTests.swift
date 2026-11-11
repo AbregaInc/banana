@@ -36,13 +36,19 @@ final class ReleaseLaunchTests: XCTestCase {
             image.name = "release-final-state"
             image.lifetime = .keepAlways
             add(image)
+            let tree = XCTAttachment(string: app.debugDescription)
+            tree.name = "release-accessibility-state"
+            tree.lifetime = .keepAlways
+            add(tree)
             app.terminate()
         }
     }
 
     private func ready(_ element: XCUIElement, _ description: String) {
-        XCTAssertTrue(element.waitForExistence(timeout: 30), description)
-        XCTAssertTrue(element.isHittable, description)
+        let usable = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in
+            element.exists && element.isHittable
+        }, object: nil)
+        XCTAssertEqual(XCTWaiter.wait(for: [usable], timeout: 30), .completed, description)
     }
 
     private var period: XCUIElement {
@@ -51,12 +57,21 @@ final class ReleaseLaunchTests: XCTestCase {
 
     private func choose(_ name: String) {
         ready(period, "Plan period menu")
+        // AppKit exposes a menu button's displayed name as its title, not its AX label.
+        if period.title == name { return }
         period.click()
-        let item = app.menuItems[name].firstMatch
-        ready(item, "Calendar view \(name)")
+        // The menu bar can expose another item with this name. Wait for the opened menu's
+        // usable item, including the menu-opening animation, rather than choosing firstMatch.
+        var item: XCUIElement?
+        let opened = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in
+            item = self.app.menuItems.matching(identifier: name).allElementsBoundByIndex.first { $0.isHittable }
+            return item != nil
+        }, object: nil)
+        XCTAssertEqual(XCTWaiter.wait(for: [opened], timeout: 30), .completed, "Calendar view \(name)")
+        guard let item else { return }
         item.click()
         let selected = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in
-            self.period.label == name
+            self.period.title == name
         }, object: nil)
         XCTAssertEqual(XCTWaiter.wait(for: [selected], timeout: 10), .completed)
     }
