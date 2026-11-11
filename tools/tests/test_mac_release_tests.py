@@ -226,8 +226,8 @@ class PipelineTests(unittest.TestCase):
             self.assertFalse((root / ".build/mac-check").exists())
 
     def test_upload_cannot_export_without_launch_evidence_even_without_preflight(self):
-        for gate_passes in (False, True):
-            with self.subTest(gate_passes=gate_passes), tempfile.TemporaryDirectory() as directory:
+        for gate_passes, package_passes in ((False, True), (True, False), (True, True)):
+            with self.subTest(gate_passes=gate_passes, package_passes=package_passes), tempfile.TemporaryDirectory() as directory:
                 root = Path(directory)
                 (root / "tools").mkdir()
                 (root / "bin").mkdir()
@@ -238,8 +238,9 @@ class PipelineTests(unittest.TestCase):
                 (root / "TestFlightExportOptions.plist").write_bytes(plistlib.dumps({}))
                 stubs = {
                     "git": '#!/bin/sh\n[ "$1" != rev-parse ] || echo aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n',
-                    "python3": '#!/bin/sh\nif [ "$1" = tools/mac-release-tests.py ]; then\n echo "$@" >> gate-called\n exit ' + ('0' if gate_passes else '2') + '\nfi\nexit 0\n',
-                    "xcodebuild": '#!/bin/sh\necho exported > export-called\n',
+                    "python3": '#!/bin/sh\nif [ "$1" = tools/mac-release-tests.py ]; then\n echo "$@" >> gate-called\n exit ' + ('0' if gate_passes else '2') + '\nfi\nif [ "$1" = tools/check-mac-package.py ]; then\n echo checked > package-checked\n exit ' + ('0' if package_passes else '3') + '\nfi\nexit 0\n',
+                    "xcodebuild": '#!/bin/sh\necho exported > export-called\nmkdir -p .build/mac-appstore/upload-123\ntouch .build/mac-appstore/upload-123/Banana.pkg\n',
+                    "xcrun": '#!/bin/sh\necho "$@" >> transport-called\n',
                 }
                 for name, text in stubs.items():
                     path = root / "bin" / name
@@ -258,8 +259,14 @@ class PipelineTests(unittest.TestCase):
                 self.assertFalse((root / "export-called").exists())
                 result = subprocess.run(["bash", str(root / "tools/testflight.sh"), "mac", "123", "upload", "appstore"],
                                         env=env, capture_output=True, text=True)
-                self.assertEqual(result.returncode, 0 if gate_passes else 2, result.stderr)
+                self.assertEqual(result.returncode, (0 if package_passes else 3) if gate_passes else 2, result.stderr)
                 self.assertEqual((root / "export-called").exists(), gate_passes)
+                self.assertEqual((root / "transport-called").exists(), gate_passes and package_passes)
+                if gate_passes and package_passes:
+                    transport = (root / "transport-called").read_text()
+                    self.assertIn('--validate-app .build/mac-appstore/upload-123/Banana.pkg', transport)
+                    self.assertIn('--upload-package .build/mac-appstore/upload-123/Banana.pkg --wait', transport)
+                self.assertEqual(archive_marker.read_text(), 'immutable candidate')
                 self.assertIn("verify .build/mac-appstore/Banana-123.xcarchive", (root / "gate-called").read_text())
 
 

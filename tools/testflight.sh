@@ -68,11 +68,14 @@ fi
 mkdir -p "$root"
 options=$(mktemp -t banana-testflight)
 trap 'result=$?; rm -f "$options"; exit "$result"' EXIT
-python3 - "$options" "$team" "$mode" <<'PY'
+python3 - "$options" "$team" "$mode" "$platform" "$flavour" <<'PY'
 import plistlib, sys
 options = plistlib.load(open('TestFlightExportOptions.plist', 'rb'))
 options['teamID'] = sys.argv[2]
-options['destination'] = 'upload' if sys.argv[3] == 'upload' else 'export'
+# Inspect the actual distribution-signed Mac package before sending that same
+# package. Xcode's upload export does not catch resource-bundle signer mismatches.
+inspect_mac = sys.argv[4:] == ['mac', 'appstore']
+options['destination'] = 'upload' if sys.argv[3] == 'upload' and not inspect_mac else 'export'
 with open(sys.argv[1], 'wb') as output: plistlib.dump(options, output)
 PY
 auth=(-allowProvisioningUpdates -authenticationKeyPath "$key_path"
@@ -115,6 +118,19 @@ if [[ "$platform" == mac && "$flavour" == appstore && "$mode" == upload ]]; then
 fi
 xcodebuild -exportArchive -archivePath "$archive" -exportPath "$export_path" \
   -exportOptionsPlist "$options" "${auth[@]}"
+if [[ "$platform" == mac && "$flavour" == appstore ]]; then
+  packages=("$export_path"/*.pkg)
+  [[ ${#packages[@]} == 1 && -f "${packages[0]}" ]] || { echo 'Expected one exported Mac package' >&2; exit 1; }
+  python3 tools/check-mac-package.py "${packages[0]}"
+  if [[ "$mode" == upload ]]; then
+    # Validate remotely, then upload the exact package inspected above. --wait
+    # surfaces asynchronous ingestion failures instead of treating delivery as acceptance.
+    API_PRIVATE_KEYS_DIR="$(dirname "$key_path")" xcrun altool --validate-app "${packages[0]}" \
+      --api-key "$ASC_KEY_ID" --api-issuer "$ASC_ISSUER_ID"
+    API_PRIVATE_KEYS_DIR="$(dirname "$key_path")" xcrun altool --upload-package "${packages[0]}" --wait \
+      --api-key "$ASC_KEY_ID" --api-issuer "$ASC_ISSUER_ID"
+  fi
+fi
 python3 - "$root/build-$build.json" "$platform" "$build" "$revision" "$mode" "$channel" <<'PY'
 import json, sys
 with open(sys.argv[1], 'w') as output:

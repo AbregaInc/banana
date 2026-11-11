@@ -1,0 +1,9 @@
+// Include from an ignored override that supplies DEVELOPMENT_TEAM and
+// BANANA_TEST_PROFILE_Banana. Scope development signing to the app: signing
+// resource-only Swift package bundles leaves development signatures behind when
+// Xcode exports the enclosing app with its distribution certificate.
+CODE_SIGN_STYLE = Manual
+CODE_SIGN_IDENTITY = Apple Development
+BANANA_TEST_SIGN_Banana = YES
+CODE_SIGNING_ALLOWED = $(BANANA_TEST_SIGN_$(PRODUCT_NAME):default=NO)
+PROVISIONING_PROFILE_SPECIFIER = $(BANANA_TEST_PROFILE_$(PRODUCT_NAME))

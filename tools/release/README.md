@@ -65,6 +65,11 @@ team before preparing the archive. The archive's development profile must author
 otherwise macOS refuses the process before app code runs, even when `codesign --verify` passes.
 Keep that failure as failed launch evidence. Do not strip entitlements or re-sign the tested app
 to bypass it: prepare a new candidate with the appropriate profile and test that exact archive.
+If a manual development profile is needed, include `tools/release/mac-test-signing.xcconfig`
+from an ignored override supplying `DEVELOPMENT_TEAM` and `BANANA_TEST_PROFILE_Banana`.
+It signs only the app, leaving resource-only package bundles unsigned under the app's resource
+seal, as in the standard Xcode archive. Do not apply a development signing identity to every
+package target: export may retain those signatures while re-signing only the enclosing app.
 Run the VM without host graphics, clipboard or home-directory sharing; share only the test kit
 and an evidence directory. Stop the VM after the run and keep it for the next release.
 
@@ -104,6 +109,13 @@ it, so signing timestamps do not silently replace the tested candidate. App Stor
 preflight archives are now retained by `clean-builds.sh`; compilation uses the existing
 `.build/mac-check` folder. Keep evidence under `private/`, outside disposable `.build`, and keep
 the original archive/dSYM for every submitted build.
+
+Mac App Store prepare/upload exports a local distribution package and runs
+`tools/check-mac-package.py` before upload. It checks the installer signature, strict app seal,
+and certificate membership in the embedded provisioning profile for every signed nested bundle
+and Mach-O image. Unsigned resource-only bundles may be sealed by their parent; executable
+bundles and ad-hoc signatures are rejected. Upload validates remotely and sends that same package
+with `altool --wait`, so successful delivery alone is not reported as successful processing.
 
 ## Typical Beta rollout
 
