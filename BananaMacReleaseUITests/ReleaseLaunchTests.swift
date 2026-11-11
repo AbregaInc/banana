@@ -64,7 +64,7 @@ final class ReleaseLaunchTests: XCTestCase {
         // usable item, including the menu-opening animation, rather than choosing firstMatch.
         var item: XCUIElement?
         let opened = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in
-            item = self.app.menuItems.matching(identifier: name).allElementsBoundByIndex.first { $0.isHittable }
+            item = self.app.menuItems.matching(identifier: name).allElementsBoundByIndex.first { $0.isHittable && $0.isEnabled }
             return item != nil
         }, object: nil)
         XCTAssertEqual(XCTWaiter.wait(for: [opened], timeout: 30), .completed, "Calendar view \(name)")
