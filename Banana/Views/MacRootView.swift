@@ -467,6 +467,10 @@ struct MacRootView: View {
 /// front. Both live in this separate view so FitnessStore / HealthKitStore / SmartScheduleStore
 /// publishes invalidate a view with no body, not MacRootView and every section under it.
 private struct MacPayoffPresenter: View {
+    #if BANANA_MODULE_PODCASTS
+    @EnvironmentObject private var player: PlayerController
+    @EnvironmentObject private var music: MusicController
+    #endif
     #if BANANA_MODULE_WORKOUTS
     @EnvironmentObject private var fitness: FitnessStore
     @EnvironmentObject private var health: HealthKitStore
@@ -555,9 +559,31 @@ private struct MacPayoffPresenter: View {
         let now = Date()
         let plannedWake = smart.planDay(for: now)?.wake
         guard MorningBriefingSchedule.shouldShow(now: now, plannedWake: plannedWake,
-                                                lastShownDay: MorningBriefingSchedule.lastShownDay()) else { return }
+                                                lastShownDay: MorningBriefingSchedule.lastShownDay(),
+                                                hasContent: hasBriefingContent(on: now)) else { return }
         MorningBriefingSchedule.markShown(now)
         nav.showMorningBriefing = true
+    }
+
+    /// Automatic presentation must offer at least one of the cards the sheet renders.
+    /// Do not consume today's presentation when a fresh account has nothing to show yet.
+    private func hasBriefingContent(on now: Date) -> Bool {
+        if MorningBriefingView.nextMeeting(on: now) != nil { return true }
+        #if BANANA_MODULE_WORKOUTS
+        if ModuleStore.shared.includes(.workouts) {
+            if health.trends.restingHR.last?.value != nil || health.trends.hrv.last?.value != nil
+                || !health.trends.sleepHours.isEmpty
+                || LastNightLine.latest(health.trends.nights, labels: smart.nightWakeLabelKinds,
+                                        babyDuty: smart.settings.babyDutyAtNight) != nil { return true }
+            if let entry = WorkoutEntry.merge(summaries: fitness.summaries, health: health.workouts).first,
+               entry.start > now.addingTimeInterval(-20 * 60 * 60) { return true }
+        }
+        #endif
+        #if BANANA_MODULE_PODCASTS
+        if (ModuleStore.shared.includes(.podcasts) && player.currentEpisode != nil)
+            || music.wakePlaying != nil { return true }
+        #endif
+        return false
     }
 
     #if BANANA_MODULE_WORKOUTS

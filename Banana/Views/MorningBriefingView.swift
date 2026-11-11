@@ -212,7 +212,10 @@ struct MorningBriefingView: View {
     /// The next meeting still to come today. It was the day's first by its time alone, which
     /// read "First meeting 9:00 AM" at four in the afternoon.
     private var nextMeetingToday: Occurrence? {
-        let now = Date()
+        Self.nextMeeting(on: Date())
+    }
+
+    @MainActor static func nextMeeting(on now: Date) -> Occurrence? {
         return OccurrenceStore.shared.occurrences(on: now)
             .filter { $0.behavior == .event && $0.hasScheduledTime && !$0.skipped && $0.start > now }
             .min { $0.start < $1.start }

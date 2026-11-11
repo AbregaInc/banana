@@ -17,10 +17,11 @@ enum MorningBriefingSchedule {
 
     /// True when `now` falls in this morning's window and the briefing has not been shown today.
     static func shouldShow(now: Date, plannedWake: Date?, lastShownDay: String?,
+                           hasContent: @autoclosure () -> Bool,
                            calendar: Calendar = .current) -> Bool {
         guard dayKey(now, calendar: calendar) != lastShownDay else { return false }
         let (start, end) = window(for: now, plannedWake: plannedWake, calendar: calendar)
-        return now >= start && now < end
+        return now >= start && now < end && hasContent()
     }
 
     static func window(for now: Date, plannedWake: Date?, calendar: Calendar = .current) -> (Date, Date) {
