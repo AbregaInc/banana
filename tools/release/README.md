@@ -90,9 +90,10 @@ of get-task-allow are checked before testing and again before upload. The app mu
 unchanged after the tests. App Store export/Apple may subsequently re-sign the archive's code;
 this gate does not claim to test Apple's delivered package or Google sign-in.
 
-Required runtime coverage includes **macOS 27.2** (the launch-crash regression) and the archive's
-SDK major/minor version. A 27.0.1 run cannot stand in for 27.2; if a later SDK is used, retain runs
-on both boundaries. Exact OS build numbers are recorded. This is a targeted compatibility gate,
+Required runtime coverage includes **macOS 27.2 beta 2, build 26B5091g** (the launch-crash
+regression) and the archive's SDK major/minor version. A different 27.2 build or 27.2.1 cannot
+replace the review build. XCTest's OS build metadata must match the receipt. If a later SDK is
+used, retain runs on both boundaries. This is a targeted compatibility gate,
 not a claim of coverage of every supported macOS version; the minimum supported OS and a real
 review Google-account walkthrough remain release acceptance checks.
 

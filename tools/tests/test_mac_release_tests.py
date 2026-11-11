@@ -17,10 +17,10 @@ gate = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(gate)
 
 
-def passed_results(os_version="27.2"):
+def passed_results(os_version="27.2", os_build=gate.REGRESSION_OS_BUILD):
     return ({"result": "Passed", "passedTests": 2, "totalTestCount": 2, "failedTests": 0,
              "skippedTests": 0, "expectedFailures": 0},
-            {"devices": [{"osVersion": os_version}], "testNodes": [{"children": [
+            {"devices": [{"osVersion": os_version, "osBuildNumber": os_build}], "testNodes": [{"children": [
                 {"nodeType": "Test Case", "nodeIdentifier": name, "result": "Passed"}
                 for name in sorted(gate.TESTS)]}]})
 
@@ -30,7 +30,7 @@ class EvidenceTests(unittest.TestCase):
         self.identity = {"build": "123", "source": "a" * 40, "sdk": "macosx27.2",
                          "uuids": [("arm64", "sample-uuid")], "appSHA256": "app", "dSYMSHA256": "symbols"}
         self.receipt = {"candidate": json.loads(json.dumps(self.identity)), "harnessSHA256": "suite",
-                        "status": "passed", "environment": {"osVersion": "27.2", "osBuild": "test-os-build"}}
+                        "status": "passed", "environment": {"osVersion": "27.2", "osBuild": gate.REGRESSION_OS_BUILD}}
 
     def test_accepts_complete_exact_candidate_evidence(self):
         self.assertEqual(gate.validate_receipt(self.receipt, self.identity, "suite", *passed_results()), (27, 2))
@@ -68,8 +68,9 @@ class EvidenceTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "build number"):
             gate.validate_receipt(self.receipt, self.identity, "suite", *passed_results())
 
-    def verify_with_runtimes(self, versions, sdk="macosx27.2"):
+    def verify_with_runtimes(self, versions, sdk="macosx27.2", builds=None):
         self.identity["sdk"] = sdk
+        builds = builds or [gate.REGRESSION_OS_BUILD if v == "27.2" else "other-os-build" for v in versions]
         with tempfile.TemporaryDirectory() as directory:
             evidence = Path(directory)
             for index, version in enumerate(versions):
@@ -78,9 +79,11 @@ class EvidenceTests(unittest.TestCase):
                 receipt = copy.deepcopy(self.receipt)
                 receipt["candidate"] = self.identity
                 receipt["environment"]["osVersion"] = version
+                receipt["environment"]["osBuild"] = builds[index]
                 (folder / "receipt.json").write_text(json.dumps(receipt))
             def results(path):
-                return passed_results(versions[int(path.parent.name)])
+                index = int(path.parent.name)
+                return passed_results(versions[index], builds[index])
             with patch.object(gate, "candidate", return_value=(Path("candidate"), self.identity)), \
                  patch.object(gate, "harness_digest", return_value="suite"), \
                  patch.object(gate, "results", side_effect=results):
@@ -90,7 +93,17 @@ class EvidenceTests(unittest.TestCase):
         for versions in ([], ["27.0.1"], ["27.3"]):
             with self.subTest(versions=versions), self.assertRaisesRegex(ValueError, "27.2"):
                 self.verify_with_runtimes(versions)
-        self.verify_with_runtimes(["27.2.1"])
+        self.verify_with_runtimes(["27.2"])
+
+    def test_same_version_and_patch_release_do_not_replace_exact_review_build(self):
+        for version, build in (("27.2", "26B123"), ("27.2", "26B5112a"), ("27.2.1", "26B131")):
+            with self.subTest(version=version, build=build), self.assertRaisesRegex(ValueError, gate.REGRESSION_OS_BUILD):
+                self.verify_with_runtimes([version], builds=[build])
+
+    def test_xctest_build_must_match_receipt(self):
+        summary, tree = passed_results(os_build="different-build")
+        with self.assertRaisesRegex(ValueError, "macOS build"):
+            gate.validate_receipt(self.receipt, self.identity, "suite", summary, tree)
 
     def test_new_sdk_requires_both_sdk_and_regression_runtime(self):
         with self.assertRaisesRegex(ValueError, "27.3"):

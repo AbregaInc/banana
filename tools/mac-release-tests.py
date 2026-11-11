@@ -20,6 +20,7 @@ ROOT = Path(__file__).resolve().parents[1]
 TESTS = {"ReleaseLaunchTests/testFirstLaunchOnboardingCalendarAndRelaunch()",
          "ReleaseLaunchTests/testFoundationDateOperatorsOnRuntime()"}
 REGRESSION_RUNTIME = (27, 2)
+REGRESSION_OS_BUILD = "26B5091g"
 
 
 def command(args, **kwargs):
@@ -150,6 +151,8 @@ def validate_receipt(receipt, identity, harness, summary, tree):
     devices = tree.get("devices", [])
     if len(devices) != 1 or runtime_version(devices[0].get("osVersion", "")) != tested:
         raise ValueError("XCTest runtime does not match the recorded macOS version")
+    if devices[0].get("osBuildNumber") != environment["osBuild"]:
+        raise ValueError("XCTest runtime does not match the recorded macOS build")
     return tested
 
 
@@ -159,20 +162,27 @@ def verify(archive, evidence, expected_build=None):
         raise ValueError("Local archive is not the build being submitted")
     required = {REGRESSION_RUNTIME, runtime_version(identity["sdk"])}
     covered, failures = set(), []
+    regression_build_covered = False
     for file in sorted(evidence.rglob("receipt.json")):
         try:
             receipt = json.loads(file.read_text())
             summary, tree = results(file.parent / "result.xcresult")
-            covered.add(validate_receipt(receipt, identity, harness_digest(), summary, tree))
+            tested = validate_receipt(receipt, identity, harness_digest(), summary, tree)
+            covered.add(tested)
+            regression_build_covered |= (tested == REGRESSION_RUNTIME
+                                         and receipt["environment"]["osBuild"] == REGRESSION_OS_BUILD)
         except (ValueError, OSError, subprocess.SubprocessError) as error:
             failures.append(f"{file.parent}: {error}")
     # Keep failed attempts, even when a later, complete run supplies passing evidence.
     for failure in failures:
         print("Retained non-passing evidence:", failure, file=sys.stderr)
     missing = required - covered
-    if missing:
+    if missing or not regression_build_covered:
         versions = ", ".join("%s.%s" % value for value in sorted(missing))
-        raise ValueError(f"Missing exact-candidate launch coverage on macOS {versions}. "
+        requirements = [f"macOS {versions}"] if versions else []
+        if not regression_build_covered:
+            requirements.append(f"review OS build {REGRESSION_OS_BUILD}")
+        raise ValueError("Missing exact-candidate launch coverage on " + " and ".join(requirements) + ". "
                          "Run tools/mac-release-tests.py run in the dedicated test account; see tools/release/README.md")
     print(f"Mac App Store build {identity['build']}: exact candidate launch evidence passed")
 
