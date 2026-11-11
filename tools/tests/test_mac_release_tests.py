@@ -132,6 +132,31 @@ class EvidenceTests(unittest.TestCase):
             candidate.assert_not_called()
             command.assert_not_called()
 
+    def test_session_mode_may_be_disabled_but_activation_must_not_require_authentication(self):
+        with tempfile.TemporaryDirectory() as directory:
+            home = Path(directory)
+            marker = home / ".config/banana/mac-release-test-account"
+            marker.parent.mkdir(parents=True)
+            marker.touch()
+            for state in ("enabled", "disabled"):
+                for requires in (True, False):
+                    output = f"Automation Mode is {state}.\nThis device " + (
+                        "REQUIRES" if requires else "DOES NOT REQUIRE") + " user authentication to enable Automation Mode.\n"
+                    status = subprocess.CompletedProcess(["automationmodetool"], 0, output, "")
+                    with self.subTest(state=state, requires=requires), \
+                         patch.object(gate.Path, "home", return_value=home), \
+                         patch.object(gate, "command", side_effect=[str(os.getuid()), '"IOConsoleLocked" = No']), \
+                         patch.object(gate.subprocess, "run", return_value=status), \
+                         patch.object(gate, "candidate", side_effect=RuntimeError("artifact inspection reached")) as candidate:
+                        if requires:
+                            with self.assertRaisesRegex(ValueError, "without authentication"):
+                                gate.run(Path("archive"), Path("out"), True)
+                            candidate.assert_not_called()
+                        else:
+                            with self.assertRaisesRegex(RuntimeError, "artifact inspection reached"):
+                                gate.run(Path("archive"), Path("out"), True)
+                            candidate.assert_called_once()
+
 
 class ArtifactTests(unittest.TestCase):
     def test_signature_sandbox_release_identity_and_matching_symbols_are_required(self):

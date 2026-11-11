@@ -1,5 +1,6 @@
 import XCTest
 import AppKit
+import Darwin
 
 /// Normal startup of the exact signed archive, in a dedicated signed-out macOS test account.
 /// This suite takes desktop input. It is never part of the everyday Simulator run.
@@ -8,7 +9,12 @@ final class ReleaseLaunchTests: XCTestCase {
 
     override func setUpWithError() throws {
         continueAfterFailure = false
-        let marker = FileManager.default.homeDirectoryForCurrentUser
+        // XCTest's runner is sandboxed; FileManager's home points to its container.
+        guard let accountHome = getpwuid(getuid())?.pointee.pw_dir else {
+            throw NSError(domain: "ReleaseLaunch", code: 1, userInfo: [NSLocalizedDescriptionKey:
+                "Cannot resolve the test account home directory"])
+        }
+        let marker = URL(fileURLWithPath: String(cString: accountHome), isDirectory: true)
             .appendingPathComponent(".config/banana/mac-release-test-account")
         guard FileManager.default.fileExists(atPath: marker.path),
               let path = ProcessInfo.processInfo.environment["BANANA_RELEASE_APP"],

@@ -213,8 +213,10 @@ def run(archive, out, interactive):
     if '"IOConsoleLocked" = Yes' in command(["ioreg", "-n", "Root", "-d1", "-l"]):
         raise ValueError("Unlock the dedicated test desktop first")
     automation = subprocess.run(["automationmodetool"], capture_output=True, text=True, timeout=15)
-    if automation.returncode or "enabled" not in (automation.stdout + automation.stderr).lower():
-        raise ValueError("Enable Xcode Automation Mode in the dedicated test account first")
+    # XCTest activates Automation Mode for its session. It is normally disabled beforehand;
+    # the prerequisite for unattended CI is that activation will not ask for authentication.
+    if automation.returncode or "DOES NOT REQUIRE user authentication" not in (automation.stdout + automation.stderr):
+        raise ValueError("Configure Automation Mode without authentication in the dedicated test account first")
     app, identity = candidate(archive)
     config, runner = runner_identity()
     stamp = json.loads((config.parent / "mac-release-runner.json").read_text())

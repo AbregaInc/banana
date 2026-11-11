@@ -45,13 +45,27 @@ and Google, with no personal calendars or Banana data. Use a disposable test mac
 that account's test state between runs. The suite deliberately fails if it finds completed
 onboarding; it does not erase preferences, containers, keychain items or installed applications.
 It refuses to launch an identity that is already running. Never create the marker in the owner's
-everyday account. In the dedicated account only, configure Xcode Automation Mode and create:
+everyday account. In the dedicated account only, allow XCTest to activate Automation Mode
+without an authentication prompt and create:
 
 ```sh
 mkdir -p ~/.config/banana
 touch ~/.config/banana/mac-release-test-account
-automationmodetool enable-automationmode-without-authentication
+sudo automationmodetool enable-automationmode-without-authentication
 ```
+
+`automationmodetool` may still report "Automation Mode is disabled" outside a test session.
+That is normal: the prerequisite is "DOES NOT REQUIRE user authentication"; XCTest activates
+the mode when its session starts.
+
+For a local macOS VM, reuse its persistent machine identity and a signed-out guest account.
+Register its **provisioning UDID** (from `system_profiler SPHardwareDataType`) with the development
+team before preparing the archive. The archive's development profile must authorize that VM;
+otherwise macOS refuses the process before app code runs, even when `codesign --verify` passes.
+Keep that failure as failed launch evidence. Do not strip entitlements or re-sign the tested app
+to bypass it: prepare a new candidate with the appropriate profile and test that exact archive.
+Run the VM without host graphics, clipboard or home-directory sharing; share only the test kit
+and an evidence directory. Stop the VM after the run and keep it for the next release.
 
 Build the runner without touching the screen, then, on the dedicated idle desktop:
 
