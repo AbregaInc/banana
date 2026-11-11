@@ -52,6 +52,7 @@ without an authentication prompt and create:
 mkdir -p ~/.config/banana
 touch ~/.config/banana/mac-release-test-account
 sudo automationmodetool enable-automationmode-without-authentication
+sudo DevToolsSecurity -enable
 ```
 
 `automationmodetool` may still report "Automation Mode is disabled" outside a test session.
