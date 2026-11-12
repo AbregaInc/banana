@@ -455,11 +455,14 @@ test("inputs are checked: caps, a real email, a phone when the host calls, contr
   assert.equal(big.status, 400);
 });
 
-test("the 6-digit code: always 204, single use, five tries; a verified guest sees their times; Forget me", async () => {
+test("the 6-digit code: always 204, single use, five tries; a verified guest sees their times; Forget me", async (t) => {
   const s = await hostReady();
+  // Keep the page's clock aligned with the service fixture, independent of the real date.
+  t.mock.timers.enable({ apis: ["Date"], now: s.now() });
   const slots = await s.slots();
-  // The page shows upcoming times by the browser's own clock: a time after today's real date.
-  await s.book(slots.find((x) => Date.parse(x.start) > Date.now() + DAY).start, { cookies: new Map() });
+  const future = slots.find((x) => Date.parse(x.start) > Date.now() + DAY);
+  assert.ok(future, "the fixed fixture has an upcoming booking beyond tomorrow");
+  await s.book(future.start, { cookies: new Map() });
   await s.settle();
   assert.equal((await s.page("POST", "/b/code", { body: { email: "sam@example.com" } })).status, 204);
   const [mail] = s.mails("code");
