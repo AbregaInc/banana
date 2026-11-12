@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { DatabaseSync } from "node:sqlite";
 import { sqlitePort } from "../src/adapters/spaces-sqlite.js";
-import { migrate } from "../src/mail-mailbox.js";
+import { migrate, drop } from "../src/mail-mailbox.js";
 import { parseSenderPolicy, senderKey, senderPolicy, setSenderPolicy, blockedSender } from "../src/sender-policy.js";
 
 test("sender rules are exact, revisioned and replay-safe after a later unblock", async () => {
@@ -43,4 +43,28 @@ test("sender-policy writes require an exact address, boolean, revision and opera
     { ...base, blocked: "true", revision: 0, operation: "11111111-1111-1111-1111-111111111111" }]) {
     assert.equal(parseSenderPolicy(body), null);
   }
+});
+
+test("a fencing write that keeps a sender blocked preserves the original receipt cutoff", async () => {
+  const db = new DatabaseSync(":memory:"), port = sqlitePort(db); migrate(port);
+  const key = await senderKey("offers@shop.example");
+  setSenderPolicy(port, key, { blocked: true, revision: 0, operation: "first" }, 1000);
+  setSenderPolicy(port, key, { blocked: true, revision: 1, operation: "fence" }, 2000);
+  const message = { internalDate: "1500", labelIds: ["INBOX"], payload: { headers: [{ name: "From", value: "offers@shop.example" }] } };
+  assert.equal(await blockedSender(port, message, "noor@plan.example"), true);
+  assert.equal(senderPolicy(port, key).revision, 2);
+  db.close();
+});
+
+
+test("forgetting the mailbox removes sender rules and per-message delivery markers", async () => {
+  const db = new DatabaseSync(":memory:"), port = sqlitePort(db); migrate(port);
+  const key = await senderKey("offers@shop.example");
+  setSenderPolicy(port, key, { blocked: true, revision: 0, operation: "block" }, 1000);
+  port.exec("INSERT INTO sender_policy_applied(id,period) VALUES(?,?)", "message", 1000);
+  drop(port); migrate(port);
+  assert.equal(senderPolicy(port, key).blocked, false);
+  assert.equal(senderPolicy(port, key).revision, 0);
+  assert.equal(port.exec("SELECT COUNT(*) AS n FROM sender_policy_applied")[0].n, 0);
+  db.close();
 });

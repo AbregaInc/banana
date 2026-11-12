@@ -20,7 +20,7 @@ import GRDB
         addTeardownBlock { try? FileManager.default.removeItem(at: root) }
         return try await Task.detached { try MailStores.open(MailDirectories(root: root), migrations: MailSlices.migrations()) }.value
     }
-    private func actionSource(deliveryAPI: (any GmailAPI)? = nil) async throws -> (MailStores, MailIntentStore, MailLiveSource, MailRow) {
+    private func actionSource(deliveryAPI: (any GmailAPI)? = nil, senderPolicyAPI: (any MailSenderPolicyAPI)? = nil) async throws -> (MailStores, MailIntentStore, MailLiveSource, MailRow) {
         let stores = try await stores()
         let intent = try await Task.detached { try MailIntentStore(directories: stores.directories) }.value
         let wire = GmailMessage(id: "m", threadId: "t", labelIds: ["INBOX"], historyId: 1, internalDate: 1000,
@@ -30,11 +30,55 @@ import GRDB
         }
         let access = Access()
         if deliveryAPI != nil { access.grant = .granted }
-        let source = MailLiveSource(stores: stores, access: access, api: deliveryAPI ?? GmailPageLoaderTests.Provider(count: 0), deliveryAllowed: { _ in deliveryAPI != nil })
+        let source = MailLiveSource(stores: stores, access: access, api: deliveryAPI ?? GmailPageLoaderTests.Provider(count: 0), senderPolicyAPI: senderPolicyAPI, deliveryAllowed: { _ in deliveryAPI != nil })
         try await source.prepareActions(intent: intent)
         let rows = try await MailIndexReader(stores: stores).page(PageRequest(view: .unified(.inbox), account: nil, filters: [], before: nil, limit: 50))
         let row = MailRowMapper.row(try XCTUnwrap(rows.first), labels: [], reason: nil, in: MailScope(place: .mailbox(.inbox)))
         return (stores, intent, source, row)
+    }
+
+    private struct PolicySnapshotAPI: MailSenderPolicyAPI {
+        let blocked: Bool
+        let revision: Int
+        func read(account: String, sender: String) async throws -> MailSenderPolicyRemote {
+            .init(blocked: blocked, revision: revision, operation: "33333333-3333-3333-3333-333333333333")
+        }
+        func write(account: String, sender: String, blocked: Bool, revision: Int, operation: String) async throws -> MailSenderPolicyRemote {
+            XCTFail("Refreshing sender state must not write a provider rule")
+            throw GmailError.neverLeft
+        }
+    }
+    private func policyReady(_ intent: MailIntentStore, status: MailSenderPolicyStatus, revision: Int, blocked: Bool) async throws -> Bool {
+        let deadline = ContinuousClock.now.advanced(by: .seconds(3))
+        while ContinuousClock.now < deadline {
+            let record = try await intent.senderPolicy(account: "a@example.com", sender: "offers@shop.example")
+            if record?.remote?.revision == revision, status.blocked == blocked,
+               status.failed == !blocked, status.desiredBlocked, !status.pending { return true }
+            await Task.yield()
+        }
+        return false
+    }
+    func testRefreshingAFailedSenderIntentKeepsRetryUntilTheDesiredEffectIsConfirmed() async throws {
+        for blocked in [false, true] {
+            let (stores, intent, source, _) = try await actionSource(senderPolicyAPI: PolicySnapshotAPI(blocked: blocked, revision: 19))
+            try await intent.queueSenderPolicy(account: "a@example.com", sender: "offers@shop.example", blocked: true)
+            let queued = try await intent.senderPolicy(account: "a@example.com", sender: "offers@shop.example")
+            let record = try XCTUnwrap(queued)
+            try await intent.settleSenderPolicy(record, remote: .init(blocked: false, revision: 1, operation: nil), failed: true)
+            let status = source.senderPolicyStatus(account: "a@example.com", sender: "offers@shop.example")
+            let ready = try await policyReady(intent, status: status, revision: 19, blocked: blocked)
+            XCTAssertTrue(ready, "A current-state read must preserve an unmet intent and settle a confirmed matching effect")
+            let saved = try await intent.senderPolicy(account: "a@example.com", sender: "offers@shop.example")
+            XCTAssertEqual(saved?.failed, !blocked)
+            if !blocked {
+                let reopened = MailLiveSource(stores: stores, access: Access(), api: GmailPageLoaderTests.Provider(count: 0),
+                    senderPolicyAPI: PolicySnapshotAPI(blocked: false, revision: 20))
+                try await reopened.prepareActions(intent: intent)
+                let again = reopened.senderPolicyStatus(account: "a@example.com", sender: "offers@shop.example")
+                let retained = try await policyReady(intent, status: again, revision: 20, blocked: false)
+                XCTAssertTrue(retained, "Retry remains visible after the source is recreated")
+            }
+        }
     }
 
     private struct DraftProvider: GmailDraftAPI {

@@ -244,7 +244,7 @@ struct MailBlockSenderItem: View {
             if want && !status.pending { session.askToBlockSender(message) } else { session.changeSenderBlock(want, message: message) }
         } label: { Label(title, systemImage: status.blocked ? "person.crop.circle.badge.checkmark" : "person.crop.circle.badge.xmark") }
         .disabled(status.loading || !session.canPerform(.spam))
-        .accessibilityIdentifier(status.blocked ? "mail.sender.unblock" : "mail.sender.block")
+        .accessibilityIdentifier(want ? "mail.sender.block" : "mail.sender.unblock")
     }
 }
 

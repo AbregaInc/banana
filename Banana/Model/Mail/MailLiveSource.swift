@@ -385,9 +385,10 @@ import GRDB
                 value.update(cached)
                 if cached?.pending != true, let senderPolicyAPI {
                     let remote = try await senderPolicyAPI.read(account: account, sender: sender)
-                    let current = try await intentStore?.senderPolicy(account: account, sender: sender)
-                    guard current?.pending != true, current?.operation == cached?.operation else { return }
-                    value.blocked = remote.blocked; value.desiredBlocked = remote.blocked; value.failed = false
+                    guard !disabled.contains(account), !forgettingAccess.contains(account) else { return }
+                    try await intentStore?.observeSenderPolicy(account: account.lowercased(), sender: sender.lowercased(),
+                        remote: remote, expectedOperation: cached?.operation)
+                    await refreshSenderStatus(account: account, sender: sender)
                 }
             } catch { value.loading = false }
         }
@@ -1229,7 +1230,7 @@ extension MailLiveSource {
                     if outcome != .idle { worked = true }
                     deliveryRetryAt[account] = nil
                     if let due = try await intentStore.nextAttempt(account: account) { next = min(next ?? due, due) }
-                    if let due = try await intentStore.nextSenderPolicyAttempt(account: account) {
+                    if senderPolicyDriver != nil, let due = try await intentStore.nextSenderPolicyAttempt(account: account) {
                         let millis = Int64(due.timeIntervalSince1970 * 1000)
                         next = min(next ?? millis, millis)
                     }

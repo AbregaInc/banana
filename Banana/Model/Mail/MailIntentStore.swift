@@ -92,6 +92,23 @@ final class MailIntentStore: MailWriterLog, @unchecked Sendable {
                 arguments: [account.lowercased(), sender.lowercased()]).map { try JSONDecoder().decode(MailSenderPolicyRecord.self, from: $0) }
         }
     }
+    /// Read-only snapshots and durable user intents share one canonical state. A stale read
+    /// cannot replace a new intent or a newer provider revision, including after relaunch.
+    func observeSenderPolicy(account: String, sender: String, remote: MailSenderPolicyRemote, expectedOperation: String?) async throws {
+        try await queue.write { db in
+            let current = try Data.fetchOne(db, sql: "SELECT record FROM sender_policy_intent WHERE account=? AND sender=?", arguments: [account,sender])
+                .map { try JSONDecoder().decode(MailSenderPolicyRecord.self, from: $0) }
+            guard current?.operation == expectedOperation, current?.pending != true,
+                  remote.revision >= (current?.remote?.revision ?? 0) else { return }
+            var value = current ?? MailSenderPolicyRecord(account: account, sender: sender, want: remote.blocked,
+                operation: UUID().uuidString, remote: nil, expectedRevision: nil, pending: false, failed: false, retryAt: .distantPast)
+            if value.failed { value.failed = !value.confirmsEffect(remote) }
+            else { value.want = remote.blocked }
+            value.remote = remote
+            if !value.failed { value.expectedRevision = nil }
+            if current != value { try Self.saveSenderPolicy(value, db: db) }
+        }
+    }
     func queueSenderPolicy(account: String, sender: String, blocked: Bool) async throws {
         try await queue.write { db in
             let old = try Data.fetchOne(db, sql: "SELECT record FROM sender_policy_intent WHERE account=? AND sender=?", arguments: [account,sender])
@@ -113,25 +130,28 @@ final class MailIntentStore: MailWriterLog, @unchecked Sendable {
                 .map(Date.init(timeIntervalSince1970:))
         }
     }
-    func attemptSenderPolicy(_ record: MailSenderPolicyRecord, remote: MailSenderPolicyRemote) async throws {
+    @discardableResult func attemptSenderPolicy(_ record: MailSenderPolicyRecord, remote: MailSenderPolicyRemote) async throws -> Bool {
         try await updateSenderPolicy(record) { $0.remote = remote; $0.expectedRevision = remote.revision }
     }
     func settleSenderPolicy(_ record: MailSenderPolicyRecord, remote: MailSenderPolicyRemote, failed: Bool = false) async throws {
-        try await updateSenderPolicy(record) { $0.remote = remote; $0.pending = false; $0.failed = failed }
+        _ = try await updateSenderPolicy(record) { $0.remote = remote; $0.pending = false; $0.failed = failed }
     }
     func failSenderPolicy(_ record: MailSenderPolicyRecord, permanent: Bool, retryAt: Date) async throws {
-        try await updateSenderPolicy(record) { $0.pending = !permanent; $0.failed = permanent; $0.retryAt = retryAt }
+        _ = try await updateSenderPolicy(record) { $0.pending = !permanent; $0.failed = permanent; $0.retryAt = retryAt }
     }
     func forgetSenderPolicies(account: String) async throws {
         try await queue.write { db in try db.execute(sql: "DELETE FROM sender_policy_intent WHERE account=?", arguments: [account]) }
     }
     private func updateSenderPolicy(_ expected: MailSenderPolicyRecord,
-                                    change: @escaping @Sendable (inout MailSenderPolicyRecord) -> Void) async throws {
+                                    change: @escaping @Sendable (inout MailSenderPolicyRecord) -> Void) async throws -> Bool {
         try await queue.write { db in
-            guard let data = try Data.fetchOne(db, sql: "SELECT record FROM sender_policy_intent WHERE account=? AND sender=?", arguments: [expected.account,expected.sender]) else { return }
+            guard let data = try Data.fetchOne(db, sql: "SELECT record FROM sender_policy_intent WHERE account=? AND sender=?", arguments: [expected.account,expected.sender]) else { return false }
             var current = try JSONDecoder().decode(MailSenderPolicyRecord.self, from: data)
-            guard current.operation == expected.operation else { return }
-            change(&current); try Self.saveSenderPolicy(current, db: db)
+            guard current.operation == expected.operation else { return false }
+            let previous = current
+            change(&current)
+            if current != previous { try Self.saveSenderPolicy(current, db: db) }
+            return true
         }
     }
     private static func saveSenderPolicy(_ value: MailSenderPolicyRecord, db: Database) throws {

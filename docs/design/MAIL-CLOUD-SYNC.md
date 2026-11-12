@@ -406,3 +406,17 @@ maintained address parser already used by the service handles From syntax.
 receipt-time boundaries, cross-device changes, access checks, lost replies, Gmail
 readback and an unblock racing an in-flight content read. Real Gmail delivery and
 physical-device rendering remain separate integration evidence.
+
+Read snapshots are persisted against the local operation and provider revision. They
+cannot replace a new pending intent or a newer snapshot. An unmet failed intent stays
+retryable across menu opens and relaunches. A matching value at an unchanged revision
+is insufficient to acknowledge a request: an older timed-out request may still apply.
+New intents use a revision-fencing write when needed, even if the boolean is already
+the desired value. A retry acknowledges its own operation or a matching effect beyond
+its earlier revision. The driver must claim the still-current local operation before
+sending it. Fencing an already-blocked sender preserves the original receipt cutoff.
+
+Before publishing Spam, the mailbox records that this message reached Spam during
+its sender's contiguous blocked period. Restoring that message with Not spam then
+wins for that message; the sender remains blocked for new arrivals. This prevents a
+read or history refresh from immediately undoing an explicit restoration.

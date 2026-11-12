@@ -785,3 +785,22 @@ test("an acknowledged unblock fences an in-flight content-read spam application"
   assert.equal((await unblocking).status, 200);
   assert.equal((await policyRequest(t, t.phone, sender)).json.blocked, false);
 });
+
+test("Not spam overrides a delivered message while its sender stays blocked for future mail", async () => {
+  const t = await mailbox(), sender = "offers@shop.example";
+  await policyRequest(t, t.phone, sender, { blocked: true, revision: 0, operation: policyOperation(1) });
+  t.gmail.add("first"); Object.assign(t.gmail.messages.get("first"), { from: sender, internalDate: t.s.now() + 1000 });
+  await t.feed(t.phone);
+  await t.drain(async () => t.gmail.messages.get("first").labels.has("SPAM") && await t.settled());
+  t.gmail.modify("first", ["INBOX"], ["SPAM"]);
+  t.gmail.add("next"); Object.assign(t.gmail.messages.get("next"), { from: sender, internalDate: t.s.now() + 1000 });
+  await t.s.mailboxes.get("sub-noor").wake();
+  await t.drain(async () => t.gmail.messages.get("next").labels.has("SPAM") && await t.settled());
+  assert.ok(t.gmail.messages.get("first").labels.has("INBOX"));
+  assert.ok(!t.gmail.messages.get("first").labels.has("SPAM"));
+  assert.equal((await policyRequest(t, t.mac, sender)).json.blocked, true);
+  const feed = t.latest((await t.all(t.phone)).entries);
+  assert.ok(feed.get("first").labels.includes("INBOX"));
+  assert.ok(feed.get("next").labels.includes("SPAM"));
+  assert.equal(t.gmail.writes.filter(w => w.id === "first" && w.add?.includes("SPAM")).length, 1);
+});

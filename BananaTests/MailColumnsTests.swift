@@ -98,7 +98,7 @@ final class MailColumnsTests: XCTestCase {
         XCTAssertEqual(places.total(of: .done), 1)
         XCTAssertEqual(places.total(of: .starred), starred, "Done does not unstar it")
         XCTAssertEqual(places.total(of: .drafts), 0, "nothing written yet")
-        XCTAssertEqual(places.total(of: .sent), 0)
+        XCTAssertEqual(places.total(of: .sent), 5, "the sample includes five sent conversations")
     }
 
     func testAPlaceHasATitleAndAScopeKnowsItsMailbox() {

@@ -27,6 +27,7 @@ const SYSTEM_LAST = ["TRASH", "SPAM"];
 const SCHEMA = [
   "CREATE TABLE IF NOT EXISTS sender_policy(sender TEXT PRIMARY KEY,blocked INTEGER NOT NULL,revision INTEGER NOT NULL,operation TEXT NOT NULL,blocked_since INTEGER NOT NULL)",
   "CREATE INDEX IF NOT EXISTS sender_policy_blocked ON sender_policy(blocked)",
+  "CREATE TABLE IF NOT EXISTS sender_policy_applied(id TEXT PRIMARY KEY,period INTEGER NOT NULL)",
   "CREATE TABLE IF NOT EXISTS meta (key TEXT PRIMARY KEY, value TEXT NOT NULL)",
   // hist: the newest history record or read reflected in labels. labels: JSON, sorted, or NULL
   // when nothing is known. known: the set is exact. seq: its place in the feed (0 = not yet
@@ -474,7 +475,7 @@ export function contentStates(port, ids) {
 
 /** Everything goes: the caller has removed the content first. */
 export function drop(port) {
-  for (const table of ["meta", "msg", "mark", "verify", "fetch", "label", "snooze", "snooze_dirty"]) port.exec(`DROP TABLE IF EXISTS ${table}`);
+  for (const table of ["meta", "msg", "mark", "verify", "fetch", "label", "snooze", "snooze_dirty", "sender_policy", "sender_policy_applied"]) port.exec(`DROP TABLE IF EXISTS ${table}`);
   banana.delete(port);
 }
 

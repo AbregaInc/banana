@@ -12,7 +12,7 @@ import { GoogleRefused } from "./google.js";
 import { sha256Hex, hex } from "./crypto.js";
 import { pushTo } from "./push.js";
 import { snoozeAssertions } from "./mail-snooze.js";
-import { hasBlockedSenders, blockedSender, senderPolicy, setSenderPolicy } from "./sender-policy.js";
+import { hasBlockedSenders, matchingSenderPolicy, senderRuleWasApplied, recordSenderRuleApplied, senderPolicy, setSenderPolicy } from "./sender-policy.js";
 
 const SECOND = 1000, MINUTE = 60 * SECOND, DAY = 24 * 60 * MINUTE;
 export const CACHE_MOST = 16 * 1024 * 1024;   // larger content is passed through, not stored
@@ -326,12 +326,22 @@ export function createMailbox({ port, deps, vault, blobs, alarm, destroy }) {
 
   async function enforceSenderPolicy(who, message) {
     return policyLock(async () => {
-    if (!who.modify || !hasBlockedSenders(port) || !(await blockedSender(port, message, who.email))) return message;
-    await modify(who, { id: message.id, add: ["SPAM"], remove: ["INBOX"] });
-    const answer = await gmailJSON(who, { resource: "message", id: message.id, query: q({ format: "minimal" }) });
-    if (answer.status !== 200 || answer.body?.id !== message.id || !answer.body.labelIds?.includes("SPAM")
-        || answer.body.labelIds.includes("INBOX")) throw new Retry(now() + BACKOFF);
-    return { ...message, labelIds: answer.body.labelIds, historyId: answer.body.historyId };
+      if (!who.modify || !hasBlockedSenders(port)) return message;
+      const rule = await matchingSenderPolicy(port, message, who.email);
+      if (!rule) return message;
+      // Record the confirmed state before publishing it. A later Not spam is a
+      // message-level override, not permission to run the delivery rule again.
+      if (message.labelIds.includes("SPAM")) {
+        recordSenderRuleApplied(port, message.id, rule.period);
+        return message;
+      }
+      if (!message.labelIds.includes("INBOX") || senderRuleWasApplied(port, message.id, rule.period)) return message;
+      await modify(who, { id: message.id, add: ["SPAM"], remove: ["INBOX"] });
+      const answer = await gmailJSON(who, { resource: "message", id: message.id, query: q({ format: "minimal" }) });
+      if (answer.status !== 200 || answer.body?.id !== message.id || !answer.body.labelIds?.includes("SPAM")
+          || answer.body.labelIds.includes("INBOX")) throw new Retry(now() + BACKOFF);
+      recordSenderRuleApplied(port, message.id, rule.period);
+      return { ...message, labelIds: answer.body.labelIds, historyId: answer.body.historyId };
     });
   }
 

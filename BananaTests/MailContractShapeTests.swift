@@ -388,6 +388,14 @@ final class MailContractShapeTests: XCTestCase {
         XCTAssertTrue(source.supportsAccountSwitching)
         let original = try? await source.originalHTML(message)
         XCTAssertNil(original ?? nil, "no original on this device")
+        XCTAssertFalse(source.supportsSenderBlocking)
+        let policy = source.senderPolicyStatus(account: "work@example.com", sender: "sender@example.com")
+        XCTAssertTrue(policy.failed)
+        XCTAssertFalse(policy.loading || policy.pending || policy.blocked)
+        do {
+            try await source.setSenderBlocked(true, account: "work@example.com", sender: "sender@example.com")
+            XCTFail("An unsupported source must not claim to save a sender rule")
+        } catch MailSenderPolicyError.unavailable { } catch { XCTFail("Unexpected sender-policy failure") }
         let resolved = try? await source.resolveDraftQuestion(draftID, choice: .keepHere)
         XCTAssertNil(resolved ?? nil, "no draft to resolve")
         source.removePictureRule(.domain("example.com"))
