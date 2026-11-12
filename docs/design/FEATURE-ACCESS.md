@@ -30,7 +30,8 @@ Mail navigation remembers a previously offered module for 24 hours after its liv
 expires or is withdrawn. The first loss starts the grace period; repeated denials and failed
 refreshes never extend it. The deadline survives relaunch, is bound to the same session and
 account, and resets only after a fresh positive policy. Session changes clear it immediately.
-This changes neither the saved module choice nor local data. Live Gmail requests and new
+Account and eligibility updates wake an already visible Mail source when access recovers;
+hidden sources remain inactive. This changes neither the saved module choice nor local data. Live Gmail requests and new
 consent still require fresh eligibility; grace never authorizes provider access. Content-free
 live/visible/grace transitions and their reason are written to the app journal. Explicit timed
 server grants still expire at their configured deadline; presentation grace does not renew them.

@@ -247,6 +247,17 @@ import GRDB
             for message in stale { self.enqueue(.body(message), priority: true) }
         }
     }
+    /// Eligibility can recover while grace keeps the same screen mounted. Resume its work
+    /// without requiring a tab switch; a hidden source only updates account presentation.
+    func accessChanged() {
+        publishAccounts()
+        guard active, accounts.contains(where: { $0.state == .connected }) else { return }
+        checkNow()
+        wants(conversationSubscriptions.values.map(\.id))
+        startDownloads()
+        kickCloud()
+    }
+
     func setVisible(_ visible: Bool) {
         paceGauge.setVisible(visible)
         if visible { activate() }

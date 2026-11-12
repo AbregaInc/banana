@@ -592,6 +592,34 @@ import GRDB
         XCTAssertEqual(reversed.first?.assertion.want, false)
         events.cancel()
     }
+    func testEligibilityRecoveryWhileVisibleImportsMailWithoutReentering() async throws {
+        let stores = try await stores(), access = Access(), api = GmailPageLoaderTests.Provider(count: 3)
+        let source = MailLiveSource(stores: stores, access: access, api: api)
+        let arrived = expectation(description: "A recovered policy resumes the mounted Mail screen")
+        var delivered = false
+        let observation = source.observeList(MailScope(place: .mailbox(.inbox)), limit: 50) { snapshot in
+            if snapshot.rows.count == 3, !delivered { delivered = true; arrived.fulfill() }
+        }
+        defer { observation.cancel(); source.setVisible(false) }
+        source.activate() // Starts with no eligible grant, so no requests are started.
+        XCTAssertEqual(source.accounts.first?.state, .needsAccess(.notAllowedHere))
+        access.grant = .granted
+        source.accessChanged()
+        await fulfillment(of: [arrived], timeout: 5)
+        XCTAssertEqual(source.accounts.first?.state, .connected)
+        XCTAssertEqual(source.cachedFirstPage(MailScope(place: .mailbox(.inbox)))?.rows.count, 3)
+        access.grant = .none
+        source.accessChanged()
+        XCTAssertEqual(source.accounts.first?.state, .needsAccess(.notAllowedHere))
+        let requests = await api.requested
+        source.setVisible(false)
+        access.grant = .granted
+        source.accessChanged()
+        XCTAssertEqual(source.accounts.first?.state, .connected)
+        let after = await api.requested
+        XCTAssertEqual(after, requests, "A policy notification must not activate a hidden source")
+    }
+
     func testConsentDrivesControlledProviderToObservedList() async throws {
         let stores = try await stores(), access = Access(), api = GmailPageLoaderTests.Provider(count: 3)
         let source = MailLiveSource(stores: stores, access: access, api: api)
