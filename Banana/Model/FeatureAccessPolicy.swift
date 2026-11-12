@@ -26,11 +26,19 @@ struct FeatureAccessCache: Codable, Equatable {
         account != nextAccount || !policy.issuedAt.isFinite || nextPolicy.issuedAt >= policy.issuedAt
     }
 
-    func allows(_ feature: String, context expected: String?, now: Date) -> Bool {
+    /// Navigation remembers an offered module through a failed refresh. This is not a live
+    /// access grant: requests and new consent still use `allows`, including its expiry.
+    /// A new policy that removes the feature, or a different session, withdraws the offer.
+    func offers(_ feature: String, context expected: String?) -> Bool {
         guard let expected, context == expected, !account.isEmpty,
-              ["email", "calendarCloud"].contains(feature) else { return false }
+              ["email", "calendarCloud"].contains(feature), policy.lifetime > 0 else { return false }
+        return policy.enabled.contains(feature)
+    }
+
+    func allows(_ feature: String, context expected: String?, now: Date) -> Bool {
+        guard offers(feature, context: expected) else { return false }
         let age = now.timeIntervalSince(receivedAt)
-        return age >= 0 && age < policy.lifetime && policy.enabled.contains(feature)
+        return age >= 0 && age < policy.lifetime
     }
 }
 

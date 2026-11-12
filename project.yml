@@ -1144,6 +1144,7 @@ targets:
       # Its counts (`Telemetry`), which the label reader records, and the service they go to.
       - path: Banana/Model/Telemetry.swift
       - path: Banana/Model/FeatureAccessPolicy.swift
+      - path: Banana/Model/FeatureAccessStore.swift
       - path: Banana/Model/BananaService.swift
       - path: Banana/Model/PushEnvironment.swift
       - path: BananaTests/PushEnvironmentTests.swift

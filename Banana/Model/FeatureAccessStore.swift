@@ -7,9 +7,14 @@ final class FeatureAccessStore: ObservableObject {
     static let shared = FeatureAccessStore()
     nonisolated static let network = FeatureAccessGate()
     @Published private(set) var emailAvailable = false
+    /// A module already offered to this session remains navigable during a failed refresh.
+    @Published private(set) var emailOffered = false
     /// A policy for this session has arrived, so `emailAvailable` is an answer, not a default.
     @Published private(set) var policyLoaded = false
     private let key = "featureAccess.sessionPolicy.v1"
+    private let defaults: UserDefaults
+
+    init(defaults: UserDefaults = .standard) { self.defaults = defaults }
     private var context: String?
     private var cached: FeatureAccessCache?
     private var expiry: Task<Void, Never>?
@@ -20,8 +25,8 @@ final class FeatureAccessStore: ObservableObject {
         } }
         guard next != context else { return }
         context = next
-        cached = UserDefaults.standard.data(forKey: key).flatMap { try? JSONDecoder().decode(FeatureAccessCache.self, from: $0) }
-        if cached?.context != next { cached = nil; UserDefaults.standard.removeObject(forKey: key) }
+        cached = defaults.data(forKey: key).flatMap { try? JSONDecoder().decode(FeatureAccessCache.self, from: $0) }
+        if cached?.context != next { cached = nil; defaults.removeObject(forKey: key) }
         publish()
     }
 
@@ -29,8 +34,8 @@ final class FeatureAccessStore: ObservableObject {
         if let context, let policy {
             guard cached?.accepts(account: account, policy: policy) != false else { return }
             cached = FeatureAccessCache(context: context, account: account, policy: policy, receivedAt: Date())
-            if let data = try? JSONEncoder().encode(cached) { UserDefaults.standard.set(data, forKey: key) }
-        } else { cached = nil; UserDefaults.standard.removeObject(forKey: key) }
+            if let data = try? JSONEncoder().encode(cached) { defaults.set(data, forKey: key) }
+        } else { cached = nil; defaults.removeObject(forKey: key) }
         publish()
     }
 
@@ -49,6 +54,8 @@ final class FeatureAccessStore: ObservableObject {
     private func publish() {
         Self.network.update(cached, context: context)
         expiry?.cancel()
+        let offered = cached?.offers("email", context: context) == true
+        if emailOffered != offered { emailOffered = offered }
         let available = allows("email")
         if emailAvailable != available { emailAvailable = available }
         let loaded = cached != nil
