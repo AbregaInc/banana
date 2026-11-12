@@ -34,6 +34,17 @@ import XCTest
             isImportant: false, isMuted: false, snoozedUntil: nil, system: nil, messages: [message],
             invite: nil, unsubscribe: nil, draft: nil, newestIsMine: false, appliedThrough: 0)
     }
+    func testOutgoingAliasesAreExcludedFromSenderBlockingBeforeContactRecognition() {
+        var message = conversation(body: .text).messages[0]
+        message.isMine = true
+        XCTAssertFalse(message.from.isMe)
+        XCTAssertTrue(MailMessageDisplay(message).senderIsMe)
+        message.isMine = false
+        XCTAssertFalse(MailMessageDisplay(message).senderIsMe)
+        message.from = MailPerson(name: "Noor", address: id.account, isMe: true, isKnown: true, fromTheirMail: false)
+        XCTAssertTrue(MailMessageDisplay(message).senderIsMe)
+    }
+
     func testDownloadedBodyReplacesCachedPlaceholderWithoutReopening() async {
         let source = Source()
         // Keep one observed source for both notifications.

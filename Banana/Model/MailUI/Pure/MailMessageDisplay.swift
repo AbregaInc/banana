@@ -44,7 +44,7 @@ struct MailMessageDisplay: Equatable, Identifiable, Sendable {
         id = message.id
         sender = message.from.isMe ? "me" : (message.from.name ?? message.from.address)
         senderAddress = message.from.address
-        senderIsMe = message.from.isMe
+        senderIsMe = message.isMine || message.from.isMe
         face = MailFace(message.from)
         let names = message.to.map { person -> String in
             if person.isMe { return "me" }
