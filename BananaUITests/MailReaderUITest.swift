@@ -77,6 +77,20 @@ final class MailReaderUITest: MailUITestCase {
         XCTAssertTrue(app.webViews.links["Request refund"].waitForExistence(timeout: 10))
     }
 
+    func testFormattedBodyShrinksAndGrowsWhenRotated() {
+        launch(open: "receipt", extra: ["--mail-wrap-html"])
+        let web = app.webViews.firstMatch
+        XCTAssertTrue(web.links["Request refund"].waitForExistence(timeout: 10))
+        XCTAssertTrue(waitUntil { web.frame.height > 320 })
+        let portrait = web.frame
+        XCUIDevice.shared.orientation = .landscapeLeft
+        XCTAssertTrue(waitUntil(timeout: 10) { web.frame.width > portrait.width + 100 && web.frame.height < portrait.height - 30 })
+        let landscape = web.frame
+        XCUIDevice.shared.orientation = .portrait
+        XCTAssertTrue(waitUntil(timeout: 10) { web.frame.width < landscape.width - 100 && web.frame.height > landscape.height + 30 })
+        snap("formatted-body-rotation")
+    }
+
     /// An open conversation reads newest first: the latest message at the top, older ones going
     /// down, and it opens at the top (the subject in view).
     func testAConversationReadsNewestFirst() {

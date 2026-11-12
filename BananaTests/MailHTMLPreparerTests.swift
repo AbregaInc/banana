@@ -195,6 +195,8 @@ final class MailHTMLPreparerTests: XCTestCase {
         XCTAssertTrue(page.contains("script-src 'none'"))
         XCTAssertTrue(page.contains("connect-src 'none'"))
         XCTAssertTrue(page.contains("color-scheme:light"))
+        XCTAssertTrue(page.contains("height:auto!important;min-height:0!important"))
+        XCTAssertFalse(MailOriginalDocument.page(fragment).contains("height:auto!important;min-height:0!important"))
         XCTAssertTrue(MailOriginalDocument.page(fragment, remoteImages: true, embedded: true)
             .contains("img-src banana-mail-image: https:;"))
     }

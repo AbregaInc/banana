@@ -85,7 +85,7 @@ struct MailOriginalSheet: View {
         if height != nil {
             // App-owned code in an isolated world measures layout; message scripts remain disabled.
             let script = """
-            (()=>{const report=()=>window.webkit.messageHandlers.mailHeight.postMessage(Math.ceil(document.documentElement.getBoundingClientRect().height));new ResizeObserver(report).observe(document.documentElement);report()})();
+            (()=>{const body=document.body;const report=()=>{const bottom=body.getBoundingClientRect().bottom+window.scrollY+(parseFloat(getComputedStyle(body).marginBottom)||0);window.webkit.messageHandlers.mailHeight.postMessage(Math.ceil(bottom))};new ResizeObserver(report).observe(body);report()})();
             """
             config.userContentController.add(coordinator, contentWorld: .defaultClient, name: "mailHeight")
             config.userContentController.addUserScript(WKUserScript(source: script, injectionTime: .atDocumentEnd,

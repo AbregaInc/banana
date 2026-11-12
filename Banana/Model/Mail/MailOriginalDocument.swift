@@ -40,12 +40,14 @@ enum MailOriginalDocument {
         let sources = (embedded ? ["banana-mail-image:"] : []) + (remoteImages ? ["https:"] : [])
         let imagePolicy = sources.isEmpty ? "'none'" : sources.joined(separator: " ")
         let margin = embedded ? 0 : 16
+        // Embedded messages size to content, including mail templates that demand a full viewport.
+        let intrinsic = embedded ? "<style>html:root,html:root body{height:auto!important;min-height:0!important}</style>" : ""
         return """
         <!doctype html><html><head><meta charset="utf-8">
         <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'none'; style-src 'unsafe-inline'; img-src \(imagePolicy); font-src 'none'; connect-src 'none'; frame-src 'none'; form-action 'none'; base-uri 'none'">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <style>html{color-scheme:light}body{margin:\(margin)px;font:17px -apple-system,sans-serif;color:#1c1c1e;background:#fff;overflow-wrap:anywhere}table{max-width:100%}img{max-width:100%;height:auto}pre{white-space:pre-wrap}</style>
-        </head><body>\(fragment)</body></html>
+        </head><body>\(fragment)\(intrinsic)</body></html>
         """
     }
 

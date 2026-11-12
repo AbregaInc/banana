@@ -152,8 +152,11 @@ final class MailFixtureSource: MailSource {
             bodies[id] = prepared.body
             originalFragments[id] = try? MailOriginalDocument.prepare(html)
         }
-        if arguments.contains("--mail-complex-html") {
-            let html = "<table><tr><th>Item</th><th>Amount</th></tr><tr><td rowspan='2'>Notebook</td><td>$12</td></tr><tr><td>$4</td></tr></table><p><a href='https://shop.example/refund'>Request refund</a></p>"
+        if arguments.contains("--mail-complex-html") || arguments.contains("--mail-wrap-html") {
+            var html = "<table><tr><th>Item</th><th>Amount</th></tr><tr><td rowspan='2'>Notebook</td><td>$12</td></tr><tr><td>$4</td></tr></table><p><a href='https://shop.example/refund'>Request refund</a></p>"
+            if arguments.contains("--mail-wrap-html") {
+                html += "<style>html,body{height:100%;min-height:100vh}body{margin:24px}</style><p>" + String(repeating: "Message layout should adapt when the screen changes. ", count: 35) + "</p>"
+            }
             let id = MailMessageID(account: MailFixtureConversations.account, message: "receipt~1")
             bodies[id] = try? MailHTMLPreparer.prepare(plain: nil, html: html).body
             originalFragments[id] = try? MailOriginalDocument.prepare(html)
