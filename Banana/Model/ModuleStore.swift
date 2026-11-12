@@ -62,7 +62,7 @@ final class ModuleStore: ObservableObject {
         LaunchClock.mark("banana-local-ai-built-in")
         #endif
         choice = Self.stored() ?? .everything
-        featureObservation = FeatureAccessStore.shared.$emailAvailable.removeDuplicates().sink { [weak self] allowed in
+        featureObservation = FeatureAccessStore.shared.$emailOffered.removeDuplicates().sink { [weak self] allowed in
             guard self?.emailEligible != allowed else { return }
             self?.emailEligible = allowed
         }
