@@ -26,11 +26,14 @@ The client caches policy for at most 15 minutes, bound to a hash of the service 
 Banana session. The expiry can be shorter for a timed grant. It refreshes account state while
 running and on foreground entry. A failed refresh does not extend eligibility. Changing the
 session invalidates cached access; a late account response from an earlier session is ignored.
-Mail navigation remembers a valid offer for the same session even after the cached policy
-expires: a failed refresh must not remove the module from its picker or change the saved
-selection. A fresh policy that withdraws Email, or a session change, hides it while preserving
-its local data and preference. This presentation state never grants live access. Live Gmail
-requests and new consent are denied when eligibility expires; queued work remains for later recovery.
+Mail navigation remembers a previously offered module for 24 hours after its live eligibility
+expires or is withdrawn. The first loss starts the grace period; repeated denials and failed
+refreshes never extend it. The deadline survives relaunch, is bound to the same session and
+account, and resets only after a fresh positive policy. Session changes clear it immediately.
+This changes neither the saved module choice nor local data. Live Gmail requests and new
+consent still require fresh eligibility; grace never authorizes provider access. Content-free
+live/visible/grace transitions and their reason are written to the app journal. Explicit timed
+server grants still expire at their configured deadline; presentation grace does not renew them.
 An already dispatched request can finish. Fixture visibility does not enable live transport.
 
 Future cloud feature endpoints must call `featureAllowed` against current server state for
