@@ -87,7 +87,7 @@ final class MailColumnsTests: XCTestCase {
     func testThePlacesAndTheirCountsFollowTheMailbox() {
         let source = MailFixtureSource()
         let places = MailPlacesModel(source: source)
-        XCTAssertEqual(MailPlacesModel.all.map(\.title), ["Inbox", "Starred", "Drafts", "Snoozed", "Scheduled", "Done"])
+        XCTAssertEqual(MailPlacesModel.all.map(\.title), ["Inbox", "Starred", "Drafts", "Snoozed", "Scheduled", "Done", "Sent", "All mail", "Spam", "Trash"])
         XCTAssertEqual(places.total(of: .inbox), 40)
         XCTAssertEqual(places.total(of: .done), 0)
         let starred = places.total(of: .starred) ?? 0
@@ -98,13 +98,13 @@ final class MailColumnsTests: XCTestCase {
         XCTAssertEqual(places.total(of: .done), 1)
         XCTAssertEqual(places.total(of: .starred), starred, "Done does not unstar it")
         XCTAssertEqual(places.total(of: .drafts), 0, "nothing written yet")
-        XCTAssertNil(places.total(of: .sent), "a place the slice does not have")
+        XCTAssertEqual(places.total(of: .sent), 0)
     }
 
     func testAPlaceHasATitleAndAScopeKnowsItsMailbox() {
         XCTAssertEqual(MailPlacesModel.title(of: MailScope(place: .mailbox(.starred))), "Starred")
         XCTAssertEqual(MailPlacesModel.title(of: MailScope(place: .search("x"))), "Search results")
-        XCTAssertEqual(MailPlacesModel.title(of: MailScope(place: .mailbox(.sent))), "Mail")
+        XCTAssertEqual(MailPlacesModel.title(of: MailScope(place: .mailbox(.sent))), "Sent")
         XCTAssertEqual(MailScope(place: .mailbox(.done)).mailbox, .done)
         XCTAssertNil(MailScope(place: .search("x")).mailbox)
     }

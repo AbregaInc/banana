@@ -27,6 +27,7 @@ enum MailSourceProbe {
     nonisolated static let everyMember: Set<String> = [
         "activate()", "setVisible(_:)",
         "accounts", "canCompose", "supportsScheduledSend", "supportsAccountSwitching", "observeAccounts(_:)", "observePlaces(_:)", "cachedFirstPage(_:)",
+        "supportsSenderBlocking", "senderPolicyStatus(account:sender:)", "setSenderBlocked(_:account:sender:)",
         "syncLimit", "setSyncLimit(_:)", "conversationsBeyond(_:)",
         "observeList(_:limit:_:)", "observeConversation(_:_:)", "conversation(_:)", "body(_:)", "originalHTML(_:)",
         "resource(_:for:presentation:)", "suggestions(for:)", "people(matching:limit:)",
@@ -83,6 +84,9 @@ enum MailSourceProbe {
         _ = source.canCompose
         _ = source.supportsScheduledSend
         _ = source.supportsAccountSwitching
+        _ = source.supportsSenderBlocking
+        _ = source.senderPolicyStatus(account: account, sender: "sender@example.com")
+        try? await source.setSenderBlocked(false, account: account, sender: "sender@example.com")
         let observations = [
             source.observeAccounts { _ in },
             source.observePlaces { _ in },

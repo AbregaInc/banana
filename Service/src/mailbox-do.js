@@ -40,6 +40,7 @@ export class Mailbox extends DurableObject {
   }
 
   ensure(who) { return this.mailbox.ensure(who); }
+  senderPolicy(request) { return this.mailbox.senderPolicy(request); }
   feed(request) { return this.mailbox.feed(request); }
   check(ids) { return this.mailbox.check(ids); }
   noteAction(ids, labels) { return this.mailbox.noteAction(ids, labels); }
@@ -64,6 +65,7 @@ export function doMailboxes(namespace) {
     get(sub) {
       const stub = namespace.get(namespace.idFromName(`mail:${sub}`));
       return {
+        senderPolicy: (request) => stub.senderPolicy(request),
         ensure: (who) => stub.ensure(who), feed: (request) => stub.feed(request), check: (ids) => stub.check(ids),
         noteAction: (ids, labels) => stub.noteAction(ids, labels), noteLabel: (label) => stub.noteLabel(label),
         poke: () => stub.poke(), profile: () => stub.profile(),

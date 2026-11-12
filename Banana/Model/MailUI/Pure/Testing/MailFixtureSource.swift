@@ -39,6 +39,9 @@ final class MailFixtureSource: MailSource {
     struct Stored: Equatable {
         var row: MailRow
         var conversation: MailConversation
+        var excludedMailbox: MailMailbox? = nil
+        var mailboxBeforeTrash: MailMailbox? = nil
+        var inboxBeforeTrash = false
     }
 
     // Not `private`: the draft and send members are in a file of their own, and they change what
@@ -62,6 +65,7 @@ final class MailFixtureSource: MailSource {
     private var pageCache: [PageKey: (rows: [MailRow], total: Int)] = [:]
     private var searchDefinitions: [String: LiveFilter?] = [:]
     var bodies: [MailMessageID: MailBody] = [:]
+    var originalFragments: [MailMessageID: String] = [:]
     /// Every conversation, as a change last left it.
     var sequence: UInt64 = 0
     /// What each command changed, as it was, for Undo.
@@ -146,6 +150,13 @@ final class MailFixtureSource: MailSource {
            let prepared = try? MailHTMLPreparer.prepare(plain: nil, html: html) {
             let id = MailMessageID(account: MailFixtureConversations.account, message: "receipt~1")
             bodies[id] = prepared.body
+            originalFragments[id] = try? MailOriginalDocument.prepare(html)
+        }
+        if arguments.contains("--mail-complex-html") {
+            let html = "<table><tr><th>Item</th><th>Amount</th></tr><tr><td rowspan='2'>Notebook</td><td>$12</td></tr><tr><td>$4</td></tr></table><p><a href='https://shop.example/refund'>Request refund</a></p>"
+            let id = MailMessageID(account: MailFixtureConversations.account, message: "receipt~1")
+            bodies[id] = try? MailHTMLPreparer.prepare(plain: nil, html: html).body
+            originalFragments[id] = try? MailOriginalDocument.prepare(html)
         }
         #endif
         restoreSchedules()
@@ -227,9 +238,21 @@ final class MailFixtureSource: MailSource {
     var canCompose: Bool { true }
     var supportsScheduledSend: Bool { true }
     var supportsAccountSwitching: Bool { true }
+    var supportsSenderBlocking: Bool { true }
+    private var senderPolicies: [String: MailSenderPolicyStatus] = [:]
+    func senderPolicyStatus(account: String, sender: String) -> MailSenderPolicyStatus {
+        let key = account + "\0" + sender.lowercased()
+        if let value = senderPolicies[key] { return value }
+        let value = MailSenderPolicyStatus(); value.loading = false; senderPolicies[key] = value; return value
+    }
+    func setSenderBlocked(_ blocked: Bool, account: String, sender: String) async throws {
+        let value = senderPolicyStatus(account: account, sender: sender)
+        value.blocked = blocked; value.desiredBlocked = blocked; value.pending = false; value.failed = false
+    }
     func onScreen(_ ids: [MailConversationID]) {}
 
     func originalHTML(_ id: MailMessageID) async throws -> String? {
+        if let fragment = originalFragments[id] { return fragment }
         guard case .text(let text, _, let notices)? = bodies[id], notices.contains(.shownAsText) else { return nil }
         return "<style>.newsletter{max-width:600px;margin:auto;background:#fff7c2;padding:24px;font:18px Georgia}</style><article class='newsletter'><h1>Dispatch</h1>"
             + MailBodyHTML.html(text) + "<a href='https://example.com/event'>View event</a></article>"
@@ -316,8 +339,8 @@ final class MailFixtureSource: MailSource {
         maintainingThreadCaches = false
         memberCache.removeAll(keepingCapacity: true)
         for key in Array(pageCache.keys) {
-            let wasMember = old.map { !Self.isUnsent($0) && belongs($0.row, to: key.scope) } ?? false
-            let isMember = !Self.isUnsent(value) && belongs(value.row, to: key.scope)
+            let wasMember = old.map { !Self.isUnsent($0) && belongs($0, to: key.scope) } ?? false
+            let isMember = !Self.isUnsent(value) && belongs(value, to: key.scope)
             guard wasMember == isMember, old?.row.key == value.row.key else {
                 pageCache[key] = nil
                 continue
@@ -327,14 +350,21 @@ final class MailFixtureSource: MailSource {
             }
         }
         if placeTotals != nil {
-            if let old, !Self.isUnsent(old) { adjustPlaceTotals(old.row, by: -1) }
-            if !Self.isUnsent(value) { adjustPlaceTotals(value.row, by: 1) }
+            if let old, !Self.isUnsent(old) { adjustPlaceTotals(old, by: -1) }
+            if !Self.isUnsent(value) { adjustPlaceTotals(value, by: 1) }
         }
     }
 
-    private func adjustPlaceTotals(_ row: MailRow, by delta: Int) {
-        var mailboxes: [MailMailbox] = [row.inInbox ? .inbox : .done]
-        if row.isStarred { mailboxes.append(.starred) }
+    private func adjustPlaceTotals(_ stored: Stored, by delta: Int) {
+        let row = stored.row
+        var mailboxes: [MailMailbox]
+        if let excluded = stored.excludedMailbox { mailboxes = [excluded] }
+        else {
+            mailboxes = [.all, row.inInbox ? .inbox : .done]
+            if row.isStarred { mailboxes.append(.starred) }
+            if case .snoozed = row.reason { mailboxes.append(.snoozed) }
+            if stored.conversation.messages.contains(where: \.isMine) { mailboxes.append(.sent) }
+        }
         for mailbox in mailboxes {
             placeTotals?.total[mailbox, default: 0] += delta
             if row.isUnread { placeTotals?.unread[mailbox, default: 0] += delta }
@@ -349,10 +379,24 @@ final class MailFixtureSource: MailSource {
     /// source is Gmail as well, and Gmail takes a change at once, so nothing is left pending.
     static func changed(_ stored: Stored, by change: MailChange, at sequence: UInt64) -> Stored {
         var stored = stored
+        let wasInInbox = stored.row.inInbox
+        switch change {
+        case .spam: stored.excludedMailbox = .spam
+        case .trash:
+            if stored.excludedMailbox != .trash {
+                stored.mailboxBeforeTrash = stored.excludedMailbox
+                stored.inboxBeforeTrash = wasInInbox
+            }
+            stored.excludedMailbox = .trash
+        case .notSpam: if stored.excludedMailbox == .spam { stored.excludedMailbox = nil }
+        case .restore: if stored.excludedMailbox == .trash { stored.excludedMailbox = stored.mailboxBeforeTrash }
+        default: break
+        }
         switch MailRowRules.apply(change, to: stored.row, in: inboxScope) {
         case .stays(let row), .leaves(let row), .unknown(let row):
             stored.row = row
         }
+        if case .restore = change { stored.row.inInbox = stored.inboxBeforeTrash }
         stored.row.hasPendingChange = false
 
         var conversation = stored.conversation
@@ -376,7 +420,9 @@ final class MailFixtureSource: MailSource {
 
     // MARK: - Lists
 
-    private func belongs(_ row: MailRow, to scope: MailScope) -> Bool {
+    private func belongs(_ stored: Stored, to scope: MailScope) -> Bool {
+        let row = stored.row
+        if let excluded = stored.excludedMailbox, scope.mailbox != excluded { return false }
         if let before = scope.before, row.key >= before { return false }
         if let account = scope.account, row.id.account != account.lowercased() { return false }
         let inPlace: Bool
@@ -387,6 +433,9 @@ final class MailFixtureSource: MailSource {
         case .mailbox(.snoozed):
             if case .snoozed = row.reason { inPlace = true } else { inPlace = false }
         case .mailbox(.all): inPlace = true
+        case .mailbox(.spam): inPlace = stored.excludedMailbox == .spam
+        case .mailbox(.trash): inPlace = stored.excludedMailbox == .trash
+        case .mailbox(.sent): inPlace = stored.conversation.messages.contains(where: \.isMine)
         case .search(let text):
             // Parsed once per text, not once per conversation: a search over the stress mailbox
             // reads every conversation for each page it is scrolled to.
@@ -430,7 +479,7 @@ final class MailFixtureSource: MailSource {
         default: break
         }
         if let cached = memberCache[scope] { return cached }
-        let result = threads.values.filter { !Self.isUnsent($0) && belongs($0.row, to: scope) }
+        let result = threads.values.filter { !Self.isUnsent($0) && belongs($0, to: scope) }
             .map(\.row).sorted { $0.key > $1.key }
         if memberCache.count >= 4 { memberCache.removeAll(keepingCapacity: true) }
         memberCache[scope] = result
@@ -451,7 +500,7 @@ final class MailFixtureSource: MailSource {
             } else {
                 var top = MailTopRows(limit: key.limit)
                 var total = 0
-                for stored in threads.values where !Self.isUnsent(stored) && belongs(stored.row, to: scope) {
+                for stored in threads.values where !Self.isUnsent(stored) && belongs(stored, to: scope) {
                     total += 1
                     top.insert(stored.row)
                 }
@@ -472,7 +521,7 @@ final class MailFixtureSource: MailSource {
         if placeTotals == nil {
             placeTotals = ([:], [:])
             for stored in threads.values where !Self.isUnsent(stored) {
-                adjustPlaceTotals(stored.row, by: 1)
+                adjustPlaceTotals(stored, by: 1)
             }
         }
         var totals = placeTotals!.total
@@ -484,7 +533,7 @@ final class MailFixtureSource: MailSource {
         for row in draftRows() { include(row, in: .drafts) }
         for row in scheduledRows() { include(row, in: .outbox) }
         var counts: [MailMailbox: MailPlaceCount] = [:]
-        for mailbox: MailMailbox in [.inbox, .starred, .drafts, .outbox, .done] {
+        for mailbox in MailMailbox.allCases {
             counts[mailbox] = MailPlaceCount(
                 unread: MailCount(value: unread[mailbox, default: 0], isAtLeast: false),
                 total: MailCount(value: totals[mailbox, default: 0], isAtLeast: false))

@@ -39,6 +39,10 @@ final class MailPlacesModel: ObservableObject {
         Place(mailbox: .snoozed, title: "Snoozed", symbol: "alarm"),
         Place(mailbox: .outbox, title: "Scheduled", symbol: "clock"),
         Place(mailbox: .done, title: "Done", symbol: "checkmark.circle"),
+        Place(mailbox: .sent, title: "Sent", symbol: "paperplane"),
+        Place(mailbox: .all, title: "All mail", symbol: "tray.full"),
+        Place(mailbox: .spam, title: "Spam", symbol: "exclamationmark.shield"),
+        Place(mailbox: .trash, title: "Trash", symbol: "trash"),
     ]
 
     static func title(of scope: MailScope) -> String {

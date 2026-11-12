@@ -7,6 +7,29 @@ import XCTest
 @MainActor
 final class MailFixtureSourceTests: XCTestCase {
 
+    func testSpamTrashRestoreAndUndoKeepMailboxMembershipAndCountsConsistent() {
+        let source = MailFixtureSource()
+        let places = MailPlacesModel(source: source)
+        let message = id("newsletter")
+        let spam = MailScope(place: .mailbox(.spam)), trash = MailScope(place: .mailbox(.trash))
+        let applied = source.apply(.spam, to: .conversations([message]))
+        XCTAssertEqual(rows(source, spam).map(\.id), [message])
+        XCTAssertFalse(rows(source, MailScope(place: .mailbox(.done))).contains { $0.id == message })
+        XCTAssertFalse(rows(source, MailScope(place: .mailbox(.all))).contains { $0.id == message })
+        XCTAssertEqual(places.total(of: .spam), 1)
+        source.apply(.trash, to: .conversations([message]))
+        XCTAssertEqual(places.total(of: .spam), 0)
+        XCTAssertEqual(rows(source, trash).map(\.id), [message])
+        source.apply(.restore, to: .conversations([message]))
+        XCTAssertEqual(rows(source, spam).map(\.id), [message])
+        source.apply(.notSpam, to: .conversations([message]))
+        XCTAssertEqual(places.total(of: .spam), 0)
+        XCTAssertNotNil(row(source, "newsletter"))
+        source.undo(applied)
+        XCTAssertNotNil(row(source, "newsletter"))
+        XCTAssertEqual(places.total(of: .trash), 0)
+    }
+
     private let inbox = MailScope(place: .mailbox(.inbox))
     private let account = MailFixtureConversations.account
 
@@ -330,6 +353,7 @@ final class MailFixtureSourceTests: XCTestCase {
             "cachedFirstPage(_:)", "observeList(_:limit:_:)", "observeConversation(_:_:)",
             "conversation(_:)", "body(_:)", "originalHTML(_:)", "status",
             "canCompose", "supportsScheduledSend", "supportsAccountSwitching", "onScreen(_:)", "badges", "apply(_:to:)", "undo(_:)",
+            "supportsSenderBlocking", "senderPolicyStatus(account:sender:)", "setSenderBlocked(_:account:sender:)",
             // Drafts and sending (MailFixtureSource+Drafts.swift).
             "people(matching:limit:)", "draft(_:)", "newDraft(_:)", "save(_:)", "discard(_:) draft",
             "send(_:_:)", "cancelSend(_:)", "hasUnfinishedSends", "finishSends(within:)",

@@ -146,6 +146,7 @@ struct MailPaneMoreMenu: View {
                 Button { session.reply(.forward) } label: { Label("Forward", systemImage: "arrowshape.turn.up.right") }
             }
             .disabled(!session.allowsComposing)
+            Section { MailSpamItems(session: session) }
             Section {
                 Button { session.act(.done) } label: { Label("Archive", systemImage: "checkmark") }
                     .disabled(!session.canPerform(.done))
@@ -179,6 +180,93 @@ struct MailPaneMoreMenu: View {
         .menuIndicator(.hidden)
         .accessibilityLabel("More")
         .accessibilityIdentifier("mail.pane.more")
+    }
+}
+
+/// Every reader exposes the same durable disposal actions, including touch-only layouts.
+struct MailSpamItems: View {
+    let session: MailSession
+    private var inSpam: Bool { session.scope.place == .mailbox(.spam) }
+    private var inTrash: Bool { session.scope.place == .mailbox(.trash) }
+    var body: some View {
+        Button {
+            session.act(inSpam ? .notSpam : .spam)
+        } label: {
+            Label(inSpam ? "Not spam" : "Mark as spam", systemImage: inSpam ? "tray" : "exclamationmark.shield")
+        }
+        .disabled(!session.canPerform(inSpam ? .notSpam : .spam))
+        .accessibilityIdentifier(inSpam ? "mail.action.notSpam" : "mail.action.spam")
+        Button {
+            session.act(inTrash ? .restore : .trash)
+        } label: {
+            Label(inTrash ? "Restore" : "Move to Trash", systemImage: inTrash ? "arrow.uturn.backward" : "trash")
+        }
+        .disabled(!session.canPerform(inTrash ? .restore : .trash))
+        .accessibilityIdentifier(inTrash ? "mail.action.restore" : "mail.action.trash")
+        MailCurrentSenderBlockItem(session: session)
+    }
+}
+
+struct MailCurrentSenderBlockItem: View {
+    let session: MailSession
+    @ObservedObject private var navigation: MailNavigation
+    @ObservedObject private var pane: MailPaneModel
+    init(session: MailSession) {
+        self.session = session
+        _navigation = ObservedObject(wrappedValue: session.navigation)
+        _pane = ObservedObject(wrappedValue: session.pane)
+    }
+    var body: some View {
+        if session.source.supportsSenderBlocking,
+           let message = (navigation.reader ?? pane.reader)?.messages.first(where: { !$0.senderIsMe }),
+           MailAddressRules.isValid(message.senderAddress) {
+            MailBlockSenderItem(session: session, message: message)
+        }
+    }
+}
+
+struct MailBlockSenderItem: View {
+    let session: MailSession
+    let message: MailMessageDisplay
+    @ObservedObject private var status: MailSenderPolicyStatus
+    init(session: MailSession, message: MailMessageDisplay) {
+        self.session = session; self.message = message
+        _status = ObservedObject(wrappedValue: session.source.senderPolicyStatus(account: message.id.account, sender: message.senderAddress))
+    }
+    private var want: Bool { status.failed ? status.desiredBlocked : !(status.pending ? status.desiredBlocked : status.blocked) }
+    private var title: String {
+        if status.pending { return status.desiredBlocked ? "Cancel blocking" : "Cancel unblocking" }
+        if status.failed { return status.desiredBlocked ? "Retry blocking sender" : "Retry unblocking sender" }
+        return status.blocked ? "Unblock sender" : "Block sender"
+    }
+    var body: some View {
+        Button {
+            if want && !status.pending { session.askToBlockSender(message) } else { session.changeSenderBlock(want, message: message) }
+        } label: { Label(title, systemImage: status.blocked ? "person.crop.circle.badge.checkmark" : "person.crop.circle.badge.xmark") }
+        .disabled(status.loading || !session.canPerform(.spam))
+        .accessibilityIdentifier(status.blocked ? "mail.sender.unblock" : "mail.sender.block")
+    }
+}
+
+/// Dialogs belong to the persistent screen, not a menu item removed on dismissal.
+struct MailSenderBlockHost: ViewModifier {
+    let session: MailSession
+    @ObservedObject var navigation: MailNavigation
+    func body(content: Content) -> some View {
+        content.confirmationDialog("Block sender?", isPresented: Binding(
+            get: { navigation.senderBlockAsk != nil },
+            set: { if !$0 { session.closeSenderBlockConfirmation() } }),
+            titleVisibility: .visible, presenting: navigation.senderBlockAsk) { message in
+                Button("Block sender", role: .destructive) { session.changeSenderBlock(true, message: message) }
+                Button("Cancel", role: .cancel) {}
+            } message: { message in
+                Text("Future messages from \(message.senderAddress) will go to Spam. This message will also move to Spam.")
+            }
+            .alert("Couldn’t save sender settings", isPresented: Binding(
+                get: { navigation.senderBlockFailed },
+                set: { if !$0 { session.closeSenderBlockFailure() } })) {
+                    Button("OK", role: .cancel) {}
+                }
     }
 }
 

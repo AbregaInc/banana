@@ -12,6 +12,7 @@ import { GoogleRefused } from "./google.js";
 import { sha256Hex, hex } from "./crypto.js";
 import { pushTo } from "./push.js";
 import { snoozeAssertions } from "./mail-snooze.js";
+import { hasBlockedSenders, blockedSender, senderPolicy, setSenderPolicy } from "./sender-policy.js";
 
 const SECOND = 1000, MINUTE = 60 * SECOND, DAY = 24 * 60 * MINUTE;
 export const CACHE_MOST = 16 * 1024 * 1024;   // larger content is passed through, not stored
@@ -89,6 +90,7 @@ export const contentAAD = (sub, id, attachmentID = null) => `mail-content:${sub}
  *   alarm: {set(at: number): Promise<void>|void}, destroy?: () => Promise<void>|void}} parts
  */
 export function createMailbox({ port, deps, vault, blobs, alarm, destroy }) {
+  let policyBusy = null;            // rule writes and applications share a fence
   let busy = null;                   // the step in hand: one at a time
   const inflight = new Map();        // content fetches by key: concurrent asks share one download
   let ready = false;
@@ -100,6 +102,13 @@ export function createMailbox({ port, deps, vault, blobs, alarm, destroy }) {
     const run = (async () => work())();
     busy = run;
     try { return await run; } finally { if (busy === run) busy = null; }
+  }
+
+  async function policyLock(work) {
+    while (policyBusy) await policyBusy.catch(() => {});
+    const run = (async () => work())();
+    policyBusy = run;
+    try { return await run; } finally { if (policyBusy === run) policyBusy = null; }
   }
 
   /** The current Google access for this mailbox, or null when Email access is gone for good. */
@@ -298,16 +307,32 @@ export function createMailbox({ port, deps, vault, blobs, alarm, destroy }) {
 
   async function verifyBatch(who, { prio = null, limit = 10 } = {}) {
     const next = box.verifyNext(port, { limit, prio });
+    const checkSenders = who.modify && hasBlockedSenders(port);
     for (const { id } of next) {
       const floor = box.checkpoint(port);   // before the request leaves (applyRead)
-      const answer = await gmailJSON(who, { resource: "message", id, query: q({ format: "minimal" }) });
-      if (answer.status === 200 && answer.body?.id === id) box.applyRead(port, answer.body, { floor, now: now() });
+      const answer = await gmailJSON(who, { resource: "message", id,
+        query: q({ format: checkSenders ? "metadata" : "minimal", ...(checkSenders ? { metadataHeaders: "From" } : {}) }) });
+      if (answer.status === 200 && answer.body?.id === id) {
+        const value = await enforceSenderPolicy(who, answer.body);
+        box.applyRead(port, value, { floor, now: now() });
+      }
       else if (answer.status === 404 && notFound(answer.body)) {
         if (box.applyGone(port, id, { now: now() }).cached) await dropContent([id]);
       } else if (answer.status === 400) box.verifyDone(port, id);   // not a message id Gmail knows how to read
       else throw new Retry(now() + BACKOFF);
     }
     return next.length > 0;
+  }
+
+  async function enforceSenderPolicy(who, message) {
+    return policyLock(async () => {
+    if (!who.modify || !hasBlockedSenders(port) || !(await blockedSender(port, message, who.email))) return message;
+    await modify(who, { id: message.id, add: ["SPAM"], remove: ["INBOX"] });
+    const answer = await gmailJSON(who, { resource: "message", id: message.id, query: q({ format: "minimal" }) });
+    if (answer.status !== 200 || answer.body?.id !== message.id || !answer.body.labelIds?.includes("SPAM")
+        || answer.body.labelIds.includes("INBOX")) throw new Retry(now() + BACKOFF);
+    return { ...message, labelIds: answer.body.labelIds, historyId: answer.body.historyId };
+    });
   }
 
   async function labelCheck(who) {
@@ -542,7 +567,8 @@ export function createMailbox({ port, deps, vault, blobs, alarm, destroy }) {
       }
       if (answer.status !== 200 || body === undefined || (!attachmentID && body?.id !== id)) return { status: answer.status === 200 ? 502 : answer.status, body: body ?? { error: { code: 502, message: "Email temporarily unavailable." } } };
       if (!attachmentID) {
-        const read = box.applyRead(port, body, { floor, now: now() });
+        const value = await enforceSenderPolicy(who, body);
+        const read = box.applyRead(port, value, { floor, now: now() });
         if (read.gone) return { status: 404, body: { error: { code: 404, status: "NOT_FOUND", message: "Not Found" } } };
       } else if (!box.contentState(port, id)) {
         return { passthrough: true, status: 200, body };   // an attachment of a message this mailbox doesn't know: served, not stored
@@ -579,6 +605,12 @@ export function createMailbox({ port, deps, vault, blobs, alarm, destroy }) {
   const arm = async (at = now()) => alarm.set(at);
 
   return {
+    async senderPolicy(request) {
+      setup();
+      if (request.blocked === undefined) return { status: 200, body: senderPolicy(port, request.key) };
+      // An acknowledged unblock waits for an in-flight rule application to finish.
+      return lock(() => policyLock(() => setSenderPolicy(port, request.key, request, now())));
+    },
     run,
     wipe,
     async ensure({ sub, email, account }) {

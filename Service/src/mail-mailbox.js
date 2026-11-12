@@ -25,6 +25,8 @@ const SYSTEM_FIRST = ["INBOX", "UNREAD", "STARRED", "DRAFT", "SENT", "IMPORTANT"
 const SYSTEM_LAST = ["TRASH", "SPAM"];
 
 const SCHEMA = [
+  "CREATE TABLE IF NOT EXISTS sender_policy(sender TEXT PRIMARY KEY,blocked INTEGER NOT NULL,revision INTEGER NOT NULL,operation TEXT NOT NULL,blocked_since INTEGER NOT NULL)",
+  "CREATE INDEX IF NOT EXISTS sender_policy_blocked ON sender_policy(blocked)",
   "CREATE TABLE IF NOT EXISTS meta (key TEXT PRIMARY KEY, value TEXT NOT NULL)",
   // hist: the newest history record or read reflected in labels. labels: JSON, sorted, or NULL
   // when nothing is known. known: the set is exact. seq: its place in the feed (0 = not yet

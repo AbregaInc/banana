@@ -1,9 +1,7 @@
 #if !BANANA_PUBLIC
 import SwiftUI
 
-/// The control column: where you are in Mail. The slice has three places, from the sample
-/// source — Inbox, Starred, Done — each with how many it holds, the current one marked. Choosing
-/// one shows its list. Accounts, splits and labels join this column with their screens.
+/// The control column lists mailboxes with their current counts and selection.
 struct MailControlColumn: View {
     let session: MailSession
     @ObservedObject var places: MailPlacesModel

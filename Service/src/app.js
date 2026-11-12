@@ -34,6 +34,7 @@ import { sourceRoutes } from "./source-offer.js";
 import { pushTo } from "./push.js";
 import { capabilitiesColumn, parseCapabilities } from "./device-features.js";
 import { senderImageRoutes, forgetContacts } from "./sender-images.js";
+import { parseSenderPolicy, mailSenderPolicy } from "./mail-sync.js";
 
 /**
  * @typedef {{
@@ -376,6 +377,14 @@ export function createApp(deps) {
   });
 
   // Sender images: a picture per sender, found and kept by the service (docs/design/MAIL-UX.md).
+  app.post("/v1/mail/sender-policy", signedIn, async (c) => {
+    c.header("Cache-Control", "no-store");
+    const request = parseSenderPolicy(await readJson(c, 2048));
+    if (!request) return c.json({ error: "bad_request" }, 400);
+    const answer = await mailSenderPolicy(deps, c.get("account"), request);
+    return c.json(answer.body, answer.status);
+  });
+
   senderImageRoutes(app, deps, { signedIn, readJson, vault });
 
   // Gmail's push, through Cloud Pub/Sub (MAIL-CLOUD-SYNC §2a). Not a session route: the OIDC

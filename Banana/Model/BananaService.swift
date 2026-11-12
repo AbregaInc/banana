@@ -171,6 +171,7 @@ enum BananaService {
         case mailFeed(Data)
         case mailCheck(Data)
         case mailContent(Data)
+        case mailSenderPolicy(Data)
         /// Sender images (MAIL-UX "Sender images"): which picture each address has, and an image's bytes.
         case mailSenders(Data)
         case mailSenderImage(id: String)
@@ -346,6 +347,7 @@ enum BananaService {
             case .mailFeed(let body): return ("POST", "/v1/mail/feed", body)
             case .mailCheck(let body): return ("POST", "/v1/mail/check", body)
             case .mailContent(let body): return ("POST", "/v1/mail/content", body)
+            case .mailSenderPolicy(let body): return ("POST", "/v1/mail/sender-policy", body)
             case .mailSenders(let body): return ("POST", "/v1/mail/senders", body)
             case .mailSenderImage(let id): return ("GET", "/v1/mail/sender-image/\(id)", nil)
             case .connectMail(let email, let code): return ("POST", "/v1/google/mail", encode(["email":email,"code":code]))

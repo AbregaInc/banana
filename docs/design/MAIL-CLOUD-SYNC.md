@@ -367,3 +367,42 @@ a desired end state, so two wakes make one change.
   438 tests in both UTC and America/New_York. `tools/mailbox-check` passed on local workerd with
   migration 0024 (the Worker bundle with the new modules loads; its checks do not snooze). Not
   shown: a real Gmail account (probe W5).
+
+## Sender blocking
+
+`POST /v1/mail/sender-policy` reads an exact sender rule with `{email, sender}` and
+changes it with `{email, sender, blocked, revision, operation}`. The existing account,
+Email feature, Google identity and write-grant checks apply. The response is
+`{blocked, revision, operation}`; a stale revision returns 409 with current state.
+Rules belong to the Google identity's mailbox, shared by its devices. Sender addresses
+are hashed before rule storage and are never written to logs.
+
+The device commits the desired rule to `MailIntentStore` before acknowledging it.
+Retries first read current state, reconcile an unknown response, and refuse to
+silently overwrite a later change from another device. Pending, failed and actual
+provider-confirmed states remain distinct. The UI can cancel a pending rule or retry
+a failed one. A new rule does not change Gmail's own blocked-sender settings.
+
+A blocked rule records the service time it took effect. During incoming-message
+verification and uncached content reads, the mailbox requests From metadata and
+matches a single parsed From address exactly. Only Inbox messages received at or
+after that time qualify. Sent, Draft, Spam, Trash, ambiguous headers and the account's
+own primary address do not. The selected message moves through the existing durable
+Spam action; older mail is not swept into Spam just because its content is opened.
+Unblocking leaves already-spammed mail alone; Not spam restores it explicitly.
+
+Matching mail is moved through Gmail's paced modify API, then read back before its
+new labels enter the device feed. Rule changes and applications share a fence, so an
+acknowledged unblock cannot be followed by an older application still in flight.
+A lost modify response is reconciled from Gmail rather than repeated blindly. No
+sender rules means no additional From metadata reads. Rules work while devices are
+asleep and are removed with the mailbox when Email access is forgotten.
+
+This uses the existing `gmail.modify` grant. Gmail's native
+[filter creation API](https://developers.google.com/workspace/gmail/api/reference/rest/v1/users.settings.filters/create)
+requires `gmail.settings.basic`; adding that scope would require new consent. The
+maintained address parser already used by the service handles From syntax.
+`sender-policy.test.js` and `mail-mailbox.test.js` cover CAS/replay, exact matching,
+receipt-time boundaries, cross-device changes, access checks, lost replies, Gmail
+readback and an unblock racing an in-flight content read. Real Gmail delivery and
+physical-device rendering remain separate integration evidence.

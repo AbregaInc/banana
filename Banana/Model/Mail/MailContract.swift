@@ -339,7 +339,7 @@ enum MailBodyState: String, Codable, Sendable {
 }
 
 enum MailBodyNotice: String, Codable, Sendable {
-    case tooLarge, truncated, shownAsText
+    case tooLarge, truncated, shownAsText, designedLayout
 }
 
 struct MailPictureBox: Equatable, Sendable {
@@ -387,6 +387,20 @@ enum MailBody: Equatable, Sendable {
 /// sender for a message that is only being made ready (invariant 30).
 enum MailPresentation: Sendable {
     case onScreen, warming
+}
+
+struct MailSenderPolicyRemote: Codable, Equatable, Sendable {
+    var blocked: Bool
+    var revision: Int
+    var operation: String?
+}
+enum MailSenderPolicyError: Error { case unavailable, conflict(MailSenderPolicyRemote) }
+@MainActor final class MailSenderPolicyStatus: ObservableObject {
+    @Published var blocked = false
+    @Published var pending = false
+    @Published var desiredBlocked = false
+    @Published var failed = false
+    @Published var loading = true
 }
 
 struct MailResource: Equatable, Sendable {
@@ -1010,6 +1024,9 @@ enum MailLinkRules {}
     var canCompose: Bool { get }
     var supportsScheduledSend: Bool { get }
     var supportsAccountSwitching: Bool { get }
+    var supportsSenderBlocking: Bool { get }
+    func senderPolicyStatus(account: String, sender: String) -> MailSenderPolicyStatus
+    func setSenderBlocked(_ blocked: Bool, account: String, sender: String) async throws
     /// This device's history policy, independent of the provider's retained mail.
     var syncLimit: MailSyncLimit { get }
     /// Returns at once: raising fetches more; lowering releases local cached conversations.

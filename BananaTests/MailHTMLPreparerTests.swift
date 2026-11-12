@@ -170,6 +170,34 @@ final class MailHTMLPreparerTests: XCTestCase {
         XCTAssertThrowsError(try MailOriginalDocument.prepare(String(repeating: "x", count: MailHTMLPreparer.maximumBytes + 1)))
         XCTAssertThrowsError(try MailOriginalDocument.prepare(String(repeating: "<div>", count: 100) + "body" + String(repeating: "</div>", count: 100)))
     }
+
+    func testFormattedRenderingRequiresUnrepresentedStructureNotStyling() throws {
+        let spanning = "<table><tr><th>Item</th><th>Amount</th></tr><tr><td rowspan='2'>Notebook</td><td>$12</td></tr><tr><td>$4</td></tr></table>"
+        XCTAssertEqual(try MailHTMLPreparer.prepare(plain: nil, html: spanning).prefersOriginal, true)
+        let caption = "<table><caption>Receipt</caption><tr><th>Item</th><th>Amount</th></tr><tr><td>Notebook</td><td>$12</td></tr></table>"
+        XCTAssertEqual(try MailHTMLPreparer.prepare(plain: nil, html: caption).prefersOriginal, true)
+        for html in ["<p>Hello <b>Noor</b>.</p>", "<p style='color:#123456'>Hello</p>",
+                     "<style>p{color:red}</style><p>Hello</p>", "<img src='cid:receipt@message'>",
+                     "<table role='presentation'><tr><td>Newsletter</td></tr></table>",
+                     "<table><tr><th>Item</th><th>Amount</th></tr><tr><td>Notebook</td><td>$12</td></tr></table>",
+                     "<table><tr><td><table><tr><th>Item</th><th>Amount</th></tr><tr><td>Notebook</td><td>$12</td></tr></table></td></tr></table>",
+                     "<blockquote>" + spanning + "</blockquote>",
+                     "<div hidden>" + spanning + "</div>"] {
+            XCTAssertNotEqual(try MailHTMLPreparer.prepare(plain: nil, html: html).prefersOriginal, true, html)
+        }
+    }
+
+    func testInlineLayoutKeepsCIDImagesOfflineAndRemoteImagesRequireConsent() throws {
+        let fragment = try MailOriginalDocument.prepare("<table><tr><td>Receipt</td></tr></table><img src='cid:logo@message'><img src='https://images.example/pixel.png'>")
+        XCTAssertTrue(fragment.contains("banana-mail-image://message/logo%40message"))
+        let page = MailOriginalDocument.page(fragment, embedded: true)
+        XCTAssertTrue(page.contains("img-src banana-mail-image:;"))
+        XCTAssertTrue(page.contains("script-src 'none'"))
+        XCTAssertTrue(page.contains("connect-src 'none'"))
+        XCTAssertTrue(page.contains("color-scheme:light"))
+        XCTAssertTrue(MailOriginalDocument.page(fragment, remoteImages: true, embedded: true)
+            .contains("img-src banana-mail-image: https:;"))
+    }
     // MARK: Renderer climb fixtures (synthetic: each reproduces a pattern, none is a real message)
 
     private func blockTexts(_ prepared: MailPreparedBody) -> [String] { prepared.text.blocks.map { $0.runs.map(\.text).joined() } }

@@ -78,8 +78,65 @@ final class MailIntentStore: MailWriterLog, @unchecked Sendable {
         migrations.registerMigration("v7-legacy-beta-import") { db in
             try db.execute(sql: "CREATE TABLE legacy_draft_import(id TEXT PRIMARY KEY,scope TEXT NOT NULL) WITHOUT ROWID")
         }
+        migrations.registerMigration("v8-sender-policy") { db in
+            try db.execute(sql: "CREATE TABLE sender_policy_intent(account TEXT NOT NULL,sender TEXT NOT NULL,record BLOB NOT NULL,pending INTEGER NOT NULL,retry_at REAL NOT NULL,PRIMARY KEY(account,sender)) WITHOUT ROWID")
+            try db.execute(sql: "CREATE INDEX sender_policy_pending ON sender_policy_intent(account,pending,retry_at)")
+        }
         guard try queue.read({ try !migrations.hasBeenSuperseded($0) }) else { throw Failure.newerSchema }
         try migrations.migrate(queue)
+    }
+
+    func senderPolicy(account: String, sender: String) async throws -> MailSenderPolicyRecord? {
+        try await queue.read { db in
+            try Data.fetchOne(db, sql: "SELECT record FROM sender_policy_intent WHERE account=? AND sender=?",
+                arguments: [account.lowercased(), sender.lowercased()]).map { try JSONDecoder().decode(MailSenderPolicyRecord.self, from: $0) }
+        }
+    }
+    func queueSenderPolicy(account: String, sender: String, blocked: Bool) async throws {
+        try await queue.write { db in
+            let old = try Data.fetchOne(db, sql: "SELECT record FROM sender_policy_intent WHERE account=? AND sender=?", arguments: [account,sender])
+                .map { try JSONDecoder().decode(MailSenderPolicyRecord.self, from: $0) }
+            let value = MailSenderPolicyRecord(account: account, sender: sender, want: blocked, operation: UUID().uuidString,
+                remote: old?.remote, expectedRevision: nil, pending: true, failed: false, retryAt: .distantPast)
+            try Self.saveSenderPolicy(value, db: db)
+        }
+    }
+    func nextSenderPolicy(account: String, at: Date) async throws -> MailSenderPolicyRecord? {
+        try await queue.read { db in
+            try Data.fetchOne(db, sql: "SELECT record FROM sender_policy_intent WHERE account=? AND pending=1 AND retry_at<=? ORDER BY retry_at,sender LIMIT 1",
+                arguments: [account,at.timeIntervalSince1970]).map { try JSONDecoder().decode(MailSenderPolicyRecord.self, from: $0) }
+        }
+    }
+    func nextSenderPolicyAttempt(account: String) async throws -> Date? {
+        try await queue.read { db in
+            try Double.fetchOne(db, sql: "SELECT MIN(retry_at) FROM sender_policy_intent WHERE account=? AND pending=1", arguments: [account])
+                .map(Date.init(timeIntervalSince1970:))
+        }
+    }
+    func attemptSenderPolicy(_ record: MailSenderPolicyRecord, remote: MailSenderPolicyRemote) async throws {
+        try await updateSenderPolicy(record) { $0.remote = remote; $0.expectedRevision = remote.revision }
+    }
+    func settleSenderPolicy(_ record: MailSenderPolicyRecord, remote: MailSenderPolicyRemote, failed: Bool = false) async throws {
+        try await updateSenderPolicy(record) { $0.remote = remote; $0.pending = false; $0.failed = failed }
+    }
+    func failSenderPolicy(_ record: MailSenderPolicyRecord, permanent: Bool, retryAt: Date) async throws {
+        try await updateSenderPolicy(record) { $0.pending = !permanent; $0.failed = permanent; $0.retryAt = retryAt }
+    }
+    func forgetSenderPolicies(account: String) async throws {
+        try await queue.write { db in try db.execute(sql: "DELETE FROM sender_policy_intent WHERE account=?", arguments: [account]) }
+    }
+    private func updateSenderPolicy(_ expected: MailSenderPolicyRecord,
+                                    change: @escaping @Sendable (inout MailSenderPolicyRecord) -> Void) async throws {
+        try await queue.write { db in
+            guard let data = try Data.fetchOne(db, sql: "SELECT record FROM sender_policy_intent WHERE account=? AND sender=?", arguments: [expected.account,expected.sender]) else { return }
+            var current = try JSONDecoder().decode(MailSenderPolicyRecord.self, from: data)
+            guard current.operation == expected.operation else { return }
+            change(&current); try Self.saveSenderPolicy(current, db: db)
+        }
+    }
+    private static func saveSenderPolicy(_ value: MailSenderPolicyRecord, db: Database) throws {
+        try db.execute(sql: "INSERT INTO sender_policy_intent(account,sender,record,pending,retry_at) VALUES(?,?,?,?,?) ON CONFLICT(account,sender) DO UPDATE SET record=excluded.record,pending=excluded.pending,retry_at=excluded.retry_at",
+            arguments: [value.account,value.sender,try JSONEncoder().encode(value),value.pending,value.retryAt.timeIntervalSince1970])
     }
 
     /// Import once, only for connected identities. Keep original rows and attachment files intact.

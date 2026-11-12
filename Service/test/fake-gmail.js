@@ -53,6 +53,8 @@ export function fakeGmail({ email = "noor@plan.example", userLabels = ["Label_1"
     wire(m, format) {
       const out = { id: m.id, threadId: m.threadId, labelIds: [...m.labels].sort(), historyId: String(m.hist), internalDate: String(m.internalDate), snippet: `snippet ${m.id}`, sizeEstimate: 100 };
       if (format === "full") out.payload = { mimeType: "text/plain", headers: [{ name: "Subject", value: m.subject }], body: { size: 5, data: "aGVsbG8" } };
+      if (m.from && format === "full") out.payload.headers.push({ name: "From", value: m.from });
+      if (format === "metadata") out.payload = { headers: m.headers ?? (m.from ? [{ name: "From", value: m.from }] : []) };
       return out;
     },
     async mailRead(token, request) {

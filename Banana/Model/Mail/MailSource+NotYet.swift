@@ -76,6 +76,14 @@ import Foundation
 }
 
 extension MailSource {
+    var supportsSenderBlocking: Bool { MailNotYet.reached(#function); return false }
+    func senderPolicyStatus(account: String, sender: String) -> MailSenderPolicyStatus {
+        MailNotYet.reached(#function)
+        let value = MailSenderPolicyStatus(); value.loading = false; value.failed = true; return value
+    }
+    func setSenderBlocked(_ blocked: Bool, account: String, sender: String) async throws {
+        MailNotYet.reached(#function); throw MailSenderPolicyError.unavailable
+    }
     var canCompose: Bool {
         MailNotYet.reached(#function)
         return true

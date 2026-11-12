@@ -697,3 +697,91 @@ test("listings and verification go before the fill", async () => {
   assert.ok(Number.isFinite(lastListing), "a scan ran");
   assert.ok(lastListing < firstFill, `every listing before the first fill read: ${calls.slice(0, 30).map((c) => c.resource + (c.format ? ":" + c.format : "")).join(" ")}`);
 });
+
+const policyOperation = (n) => `${String(n).padStart(8, '0')}-1111-1111-1111-111111111111`;
+function policyRequest(t, who, sender, change = {}) {
+  return t.s.call("POST", "/v1/mail/sender-policy", { session: who.session, body: { email: EMAIL, sender, ...change } });
+}
+
+test("sender blocking is shared across devices and enforces future incoming mail with Gmail readback", async () => {
+  const t = await mailbox(), sender = "offers@shop.example";
+  assert.equal((await policyRequest(t, t.phone, sender)).json.blocked, false);
+  const block = await policyRequest(t, t.phone, sender, { blocked: true, revision: 0, operation: policyOperation(1) });
+  assert.equal(block.status, 200, block.text);
+  assert.equal((await policyRequest(t, t.mac, sender)).json.blocked, true);
+  for (const [id, from] of [["blocked", sender], ["allowed", "other@shop.example"], ["old", sender]]) {
+    t.gmail.add(id); t.gmail.messages.get(id).from = from; t.gmail.messages.get(id).internalDate = t.s.now() + (id === "old" ? -1000 : 1000);
+  }
+  await t.feed(t.phone);
+  await t.drain(async () => t.gmail.messages.get("blocked").labels.has("SPAM") && await t.settled());
+  assert.equal(t.gmail.messages.get("blocked").labels.has("INBOX"), false);
+  assert.equal(t.gmail.messages.get("allowed").labels.has("INBOX"), true);
+  assert.equal(t.gmail.messages.get("old").labels.has("INBOX"), true, "an old message is not newly blocked by a content read");
+  assert.equal((await t.read(t.phone, "old")).status, 200);
+  assert.equal(t.gmail.messages.get("old").labels.has("INBOX"), true);
+  const labels = t.latest((await t.all(t.mac)).entries).get("blocked").labels;
+  assert.ok(labels.includes("SPAM")); assert.ok(!labels.includes("INBOX"));
+  assert.equal((await policyRequest(t, t.mac, sender, { blocked: false, revision: 1, operation: policyOperation(2) })).status, 200);
+  t.gmail.add("later"); t.gmail.messages.get("later").from = sender; t.gmail.messages.get("later").internalDate = t.s.now() + 1000;
+  await t.s.mailboxes.get("sub-noor").wake();
+  await t.drain(async () => t.latest((await t.all(t.phone)).entries).has("later") && await t.settled());
+  assert.ok(t.gmail.messages.get("later").labels.has("INBOX"));
+  assert.ok(t.gmail.messages.get("blocked").labels.has("SPAM"));
+  assert.equal((await policyRequest(t, t.phone, sender, { blocked: true, revision: 0, operation: policyOperation(1) })).status, 409);
+});
+
+test("a lost Gmail spam mutation response reconciles before retry without a duplicate write", async () => {
+  const t = await mailbox(), sender = "offers@shop.example";
+  await policyRequest(t, t.phone, sender, { blocked: true, revision: 0, operation: policyOperation(1) });
+  let lose = true;
+  t.s.google.mailMutation = async (...args) => {
+    const answer = await t.gmail.mailMutation(...args);
+    if (lose) { lose = false; throw new Error("response lost"); }
+    return answer;
+  };
+  t.gmail.add("blocked"); t.gmail.messages.get("blocked").from = sender; t.gmail.messages.get("blocked").internalDate = t.s.now() + 1000;
+  await t.feed(t.phone);
+  await t.drain(async () => !lose && await t.settled());
+  assert.ok(t.gmail.messages.get("blocked").labels.has("SPAM"));
+  assert.equal(t.gmail.writes.filter(w => w.id === "blocked" && w.add?.includes("SPAM")).length, 1);
+  assert.ok(t.latest((await t.all(t.phone)).entries).get("blocked").labels.includes("SPAM"));
+});
+
+test("sender-policy endpoint requires account access and rejects malformed and own-address rules", async () => {
+  const t = await mailbox(), sender = "offers@shop.example";
+  assert.equal((await t.s.call("POST", "/v1/mail/sender-policy", { body: { email: EMAIL, sender } })).status, 401);
+  assert.equal((await policyRequest(t, t.phone, EMAIL)).status, 400);
+  assert.equal((await policyRequest(t, t.phone, sender, { blocked: true })).status, 400);
+  t.s.google.person("other", "sub-other", "other@plan.example");
+  const other = (await t.s.signIn("other", device("device-other"))).json;
+  assert.equal((await policyRequest(t, other, sender)).status, 403);
+  await t.s.call("DELETE", "/v1/google/mail", { session: t.phone.session, body: { email: EMAIL } });
+  assert.equal((await policyRequest(t, t.phone, sender)).status, 403);
+});
+
+test("read-only grants cannot change sender policies", async () => {
+  const t = await mailbox(), sender = "offers@shop.example";
+  await t.s.db.run("UPDATE mail_grants SET scopes=? WHERE google_sub=?", "https://www.googleapis.com/auth/gmail.readonly", "sub-noor");
+  assert.equal((await policyRequest(t, t.phone, sender)).status, 200);
+  assert.equal((await policyRequest(t, t.phone, sender, { blocked: true, revision: 0, operation: policyOperation(1) })).status, 403);
+});
+
+test("an acknowledged unblock fences an in-flight content-read spam application", async () => {
+  const t = await mailbox(), sender = "offers@shop.example";
+  await policyRequest(t, t.phone, sender, { blocked: true, revision: 0, operation: policyOperation(1) });
+  t.gmail.add("blocked"); t.gmail.messages.get("blocked").from = sender; t.gmail.messages.get("blocked").internalDate = t.s.now() + 1000;
+  let began, release;
+  const started = new Promise(resolve => { began = resolve; });
+  const gate = new Promise(resolve => { release = resolve; });
+  t.s.google.mailMutation = async (...args) => { began(); await gate; return t.gmail.mailMutation(...args); };
+  const reading = t.read(t.phone, "blocked");
+  await started;
+  let acknowledged = false;
+  const unblocking = policyRequest(t, t.mac, sender, { blocked: false, revision: 1, operation: policyOperation(2) }).then(value => { acknowledged = true; return value; });
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(acknowledged, false, "unblock waits for already-started rule effects");
+  release();
+  assert.equal((await reading).status, 200);
+  assert.equal((await unblocking).status, 200);
+  assert.equal((await policyRequest(t, t.phone, sender)).json.blocked, false);
+});

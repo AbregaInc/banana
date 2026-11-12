@@ -345,6 +345,7 @@ private struct MailScreen: View {
             if let reader = detailsSheet { MailDetailsSheet(reader: reader) }
         }
         .modifier(MailSnoozeSheetHost(session: session, navigation: navigation))
+        .modifier(MailSenderBlockHost(session: session, navigation: navigation))
         .onAppear {
             onScreen = true
             session.enter()

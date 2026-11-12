@@ -358,6 +358,28 @@ final class MailListCoordinator: NSObject, UICollectionViewDelegate {
         return configuration
     }
 
+    func collectionView(_ collectionView: UICollectionView,
+                        contextMenuConfigurationForItemAt indexPath: IndexPath,
+                        point: CGPoint) -> UIContextMenuConfiguration? {
+        guard let id = dataSource.itemIdentifier(for: indexPath) else { return nil }
+        return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { [weak self] _ in
+            guard let self else { return nil }
+            let inSpam = session.scope.place == .mailbox(.spam)
+            let spam: MailAction = inSpam ? .notSpam : .spam
+            let entries: [(String, String, MailAction)] = [
+                ("Archive", "archivebox", .done),
+                (inSpam ? "Not spam" : "Mark as spam", "exclamationmark.shield", spam),
+                ("Move to Trash", "trash", .trash)]
+            return UIMenu(children: entries.map { title, icon, action in
+                UIAction(title: title, image: UIImage(systemName: icon),
+                         attributes: self.session.canPerform(action, on: id) ? [] : [.disabled]) { [weak self] _ in
+                    self?.session.send(.place(id))
+                    self?.session.act(action, on: id)
+                }
+            })
+        }
+    }
+
     /// Snooze, read or unread, and star, from the leading edge. Read and star mark and nothing moves.
     fileprivate func leadingSwipes(at path: IndexPath) -> UISwipeActionsConfiguration? {
         guard let id = dataSource.itemIdentifier(for: path), let row = rows[id] else { return nil }

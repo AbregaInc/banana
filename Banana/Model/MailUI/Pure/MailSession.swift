@@ -33,6 +33,8 @@ final class MailNavigation: ObservableObject {
     /// The snooze time picker, while it is open: a sheet on a phone, and on a Mac or an iPad when it
     /// was asked for by `H` or "Pick a date and time…" (the "…" menus list the times themselves).
     @Published fileprivate(set) var snoozeAsk: MailSnoozeAsk?
+    @Published fileprivate(set) var senderBlockAsk: MailMessageDisplay?
+    @Published fileprivate(set) var senderBlockFailed = false
 
     private let defaults: UserDefaults?
 
@@ -427,6 +429,18 @@ final class MailSession {
     func unsnooze(_ id: MailConversationID? = nil) {
         navigation.snoozeAsk = nil
         act(.unsnooze, on: id)
+    }
+
+    func askToBlockSender(_ message: MailMessageDisplay) { navigation.senderBlockAsk = message }
+    func closeSenderBlockConfirmation() { navigation.senderBlockAsk = nil }
+    func closeSenderBlockFailure() { navigation.senderBlockFailed = false }
+    func changeSenderBlock(_ blocked: Bool, message: MailMessageDisplay) {
+        Task {
+            do {
+                try await source.setSenderBlocked(blocked, account: message.id.account, sender: message.senderAddress)
+                if blocked { source.apply(.spam, to: .message(message.id)) }
+            } catch { navigation.senderBlockFailed = true }
+        }
     }
 
     func closeSnoozePicker() { navigation.snoozeAsk = nil }

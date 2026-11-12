@@ -55,6 +55,7 @@ struct MailConversationScreen: View {
 /// full-width screen and the reading pane both show. It is made again for each conversation
 /// (`.id`), so a new one opens at its top, on the newest message.
 struct MailConversationContent: View {
+    @StateObject private var htmlSlots = MailHTMLSlots()
     /// Where a reply is written: under the subject, above the newest message it answers.
     private static let replySlot = "mail.conversation.replySlot"
 
@@ -157,6 +158,7 @@ struct MailConversationContent: View {
             }
             #endif
         }
+        .environmentObject(htmlSlots)
         .modifier(MailAttachmentPreviewHost(opener: reader.opener))
         .modifier(ProvidesMailReport(reader: reader, source: session.source))
     }
@@ -260,6 +262,7 @@ private struct MailConversationHeader: View {
                     MailSnoozeMenu(session: session)
                 }
                 MailDiscardDraftItem(session: session)
+                Section { MailSpamItems(session: session) }
                 Button { session.askForDetails(toggles: true) } label: { Label("Details", systemImage: "info.circle") }
                     .accessibilityIdentifier("mail.more.details")
                 Divider()
@@ -299,7 +302,7 @@ private struct MailConversationHeader: View {
             }
             MailReplyMenu(session: session)
             button("checkmark", "Done (E)", MailID.done, enabled: session.canPerform(.done)) { session.act(.done) }
-            button("star", "Star (S)", MailID.star, enabled: session.canPerform(.toggleStar)) { session.act(.toggleStar) }
+            MailPaneMoreMenu(session: session)
             button("envelope.badge", "Mark unread (U)", MailID.unread, enabled: session.canPerform(.toggleRead)) { session.act(.toggleRead) }
         }
         .buttonStyle(.borderless)
@@ -415,11 +418,20 @@ struct MailMessageCard: View {
 
     @ViewBuilder private var content: some View {
         switch text {
-        case .text(let content, let quoteStart, _)?:
-            MailTextView(text: content, styled: styled, foldFrom: quoteStart)
-                .environment(\.mailPictureContext, pictureContext)
+        case .text(let content, let quoteStart, let notices)?:
+            if notices.contains(.designedLayout), let session {
+                MailFormattedBody(id: message.id, source: session.source) {
+                    MailTextView(text: content, styled: styled, foldFrom: quoteStart)
+                        .environment(\.mailPictureContext, pictureContext)
+                }
+            } else {
+                MailTextView(text: content, styled: styled, foldFrom: quoteStart)
+                    .environment(\.mailPictureContext, pictureContext)
+            }
         case .designed(_, _, _, let plain, _)?:
-            MailTextView(text: plain, styled: styled)
+            if let session {
+                MailFormattedBody(id: message.id, source: session.source) { MailTextView(text: plain, styled: styled) }
+            } else { MailTextView(text: plain, styled: styled) }
         case .notOnDevice?, nil:
             // Never a spinner: what the row said, until the body is here.
             VStack(alignment: .leading, spacing: DS.Space.s) {

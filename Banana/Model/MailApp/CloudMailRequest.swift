@@ -16,6 +16,29 @@ struct CloudMailReference: Codable, Sendable {
     }
 }
 
+struct CloudMailSenderPolicy: MailSenderPolicyAPI {
+    let feed: CloudMailFeed
+    func read(account: String, sender: String) async throws -> MailSenderPolicyRemote {
+        try await request(account: account, values: ["sender": sender])
+    }
+    func write(account: String, sender: String, blocked: Bool, revision: Int, operation: String) async throws -> MailSenderPolicyRemote {
+        try await request(account: account, values: ["sender": sender, "blocked": blocked, "revision": revision, "operation": operation])
+    }
+    private func request(account: String, values: [String: Any]) async throws -> MailSenderPolicyRemote {
+        var value = values; value["email"] = account.lowercased()
+        let body = try JSONSerialization.data(withJSONObject: value, options: .sortedKeys)
+        let reference = try await feed.reference(account)
+        let (data, status) = try await feed.transport("sender-policy", reference, body)
+        if status == 200 || status == 409 {
+            let remote = try JSONDecoder().decode(MailSenderPolicyRemote.self, from: data)
+            guard remote.revision >= 0 else { throw GmailError.malformed }
+            if status == 409 { throw MailSenderPolicyError.conflict(remote) }
+            return remote
+        }
+        throw GmailHTTPRules.failure(status: status, data: data, retryAfter: nil)
+    }
+}
+
 enum CloudMailRequest {
     static func body(path: [String], email: String, query: [URLQueryItem], method: String, body: Data?) throws -> Data {
         var request: [String: Any] = ["email": email.lowercased()]

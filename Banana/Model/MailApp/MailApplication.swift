@@ -48,7 +48,8 @@ import Combine
                         guard FeatureAccessStore.network.allows("email") else { throw GmailError.networkDisabled }
                         return try await BananaAccount.shared.mailFeedRequest(kind: kind, reference: reference, body: body)
                     })
-                let source = MailLiveSource(stores: stores, access: access, api: api, cloudFeed: feed, deliveryAllowed: { account in
+                let source = MailLiveSource(stores: stores, access: access, api: api, cloudFeed: feed,
+                    senderPolicyAPI: CloudMailSenderPolicy(feed: feed), deliveryAllowed: { account in
                         FeatureAccessStore.shared.allows("email") && AppVariant.current.mayCallGoogle(method: "POST", account: account, testAccounts: BetaTestAccounts.all)
                     })
                 try await source.prepareActions(intent: intent)

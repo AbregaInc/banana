@@ -162,11 +162,21 @@ import GRDB
 
     /// Banana Cloud's shared mailbox feed, when this app's service offers one (MAIL-CLOUD-SYNC).
     let cloudFeed: (any MailCloudFeedSource)?
+    private let senderPolicyAPI: (any MailSenderPolicyAPI)?
+    private var senderPolicyDriver: MailSenderPolicyDriver?
+    private final class WeakSenderStatus {
+        weak var value: MailSenderPolicyStatus?
+        var checkedAt = Date.distantPast
+        init(_ value: MailSenderPolicyStatus) { self.value = value }
+    }
+    private var senderStatuses: [String: WeakSenderStatus] = [:]
 
     init(stores: MailStores, access: any MailAccountAccess, api: any GmailAPI,
          cloudFeed: (any MailCloudFeedSource)? = nil,
+         senderPolicyAPI: (any MailSenderPolicyAPI)? = nil,
          deliveryAllowed: @escaping @MainActor @Sendable (String) -> Bool = { _ in false }) {
         self.stores = stores; self.access = access; self.api = api; self.cloudFeed = cloudFeed
+        self.senderPolicyAPI = senderPolicyAPI
         self.deliveryAllowed = deliveryAllowed
         self.observedReadAccounts = Set(access.connectedAccountIDs.map { $0.lowercased() })
         status.value.store = .ready
@@ -208,6 +218,7 @@ import GRDB
         kickCloud()
         kickReprepare(restart: true)
         searchIndexer.kick()
+        kickDelivery()
     }
 
     /// Walks stored originals newest first, preparing what the current preparer has not, at the
@@ -353,6 +364,45 @@ import GRDB
     }
     func originalHTML(_ id: MailMessageID) async throws -> String? {
         try await MailOriginalDocument.load(stores: stores, id: id)
+    }
+    var supportsSenderBlocking: Bool { senderPolicyAPI != nil && senderPolicyDriver != nil }
+    func senderPolicyStatus(account: String, sender: String) -> MailSenderPolicyStatus {
+        let key = account.lowercased() + "\0" + sender.lowercased()
+        let value: MailSenderPolicyStatus
+        let entry: WeakSenderStatus
+        if let existing = senderStatuses[key], let hit = existing.value {
+            value = hit; entry = existing
+            guard Date().timeIntervalSince(entry.checkedAt) >= 15 else { return value }
+        } else {
+            if senderStatuses.count > 128 { senderStatuses = senderStatuses.filter { $0.value.value != nil } }
+            value = MailSenderPolicyStatus(); entry = WeakSenderStatus(value); senderStatuses[key] = entry
+        }
+        entry.checkedAt = Date()
+        Task { [weak self, weak value] in
+            guard let self, let value else { return }
+            do {
+                let cached = try await intentStore?.senderPolicy(account: account, sender: sender)
+                value.update(cached)
+                if cached?.pending != true, let senderPolicyAPI {
+                    let remote = try await senderPolicyAPI.read(account: account, sender: sender)
+                    let current = try await intentStore?.senderPolicy(account: account, sender: sender)
+                    guard current?.pending != true, current?.operation == cached?.operation else { return }
+                    value.blocked = remote.blocked; value.desiredBlocked = remote.blocked; value.failed = false
+                }
+            } catch { value.loading = false }
+        }
+        return value
+    }
+    private func refreshSenderStatus(account: String, sender: String) async {
+        guard let value = senderStatuses[account.lowercased() + "\0" + sender.lowercased()]?.value else { return }
+        do { value.update(try await intentStore?.senderPolicy(account: account, sender: sender)) }
+        catch { value.failed = true; value.loading = false }
+    }
+    func setSenderBlocked(_ blocked: Bool, account: String, sender: String) async throws {
+        guard let senderPolicyDriver else { throw MailSenderPolicyError.unavailable }
+        try await senderPolicyDriver.queue(account: account, sender: sender, blocked: blocked)
+        await refreshSenderStatus(account: account, sender: sender)
+        activate(); kickDelivery()
     }
     /// One progress object for each attachment, for as long as the app runs: the chip watches it.
     func attachmentProgress(_ id: MailAttachmentID) -> MailProgress {
@@ -842,7 +892,11 @@ import GRDB
         Task { [weak self] in
             guard let self else { return }
             defer { self.forgettingAccess.remove(account); self.publishAccounts() }
-            do { try await self.access.forgetMailAccess(accountID: account) }
+            do {
+                try await self.access.forgetMailAccess(accountID: account)
+                try await self.intentStore?.forgetSenderPolicies(account: account)
+                self.senderStatuses = self.senderStatuses.filter { !$0.key.hasPrefix(account.lowercased() + "\0") }
+            }
             catch {
                 self.disabled.insert(account)
                 self.status.value.store = .cannotSave(.unavailable)
@@ -922,6 +976,14 @@ extension MailLiveSource {
         nextActionSequence = try await intent.nextSequence()
         actionCoordinator = coordinator
         intentStore = intent
+        if let senderPolicyAPI {
+            senderPolicyDriver = MailSenderPolicyDriver(store: intent, api: senderPolicyAPI,
+                allowed: { [weak self] account in
+                    await MainActor.run { self?.canDeliver(account) == true }
+                }, settled: { [weak self] account, sender in
+                    await self?.refreshSenderStatus(account: account, sender: sender)
+                })
+        }
         mailboxSync = GmailMailboxSync(stores: stores, writer: writer, api: api,
             token: { [access] account in try await access.mailAccessToken(accountID: account).value },
             recovery: MailRemovalRecovery(stores: stores, intents: intent), feed: cloudFeed)
@@ -1162,10 +1224,15 @@ extension MailLiveSource {
                     next = min(next ?? retry, retry); continue
                 }
                 do {
+                    if try await senderPolicyDriver?.deliverNext(account: account, at: Date()) == true { worked = true }
                     let outcome = try await delivery.deliverNext(account: account, at: now)
                     if outcome != .idle { worked = true }
                     deliveryRetryAt[account] = nil
                     if let due = try await intentStore.nextAttempt(account: account) { next = min(next ?? due, due) }
+                    if let due = try await intentStore.nextSenderPolicyAttempt(account: account) {
+                        let millis = Int64(due.timeIntervalSince1970 * 1000)
+                        next = min(next ?? millis, millis)
+                    }
                 } catch is CancellationError { return }
                 catch {
                     let retry = now + 30_000

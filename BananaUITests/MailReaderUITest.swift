@@ -15,6 +15,68 @@ final class MailReaderUITest: MailUITestCase {
         snap("reader-return")
     }
 
+    private func openDisposalMenu() {
+        let more = app.buttons.matching(NSPredicate(format: "identifier == %@ OR identifier == %@", "mail.pane.more", "mail.reader.more")).firstMatch
+        XCTAssertTrue(more.waitForExistence(timeout: 5))
+        more.tap()
+    }
+
+    func testReaderExposesSpamAndSenderBlocking() {
+        launch(open: "newsletter")
+        openDisposalMenu()
+        let spam = app.buttons.matching(NSPredicate(format: "identifier == %@ OR label == %@", "mail.action.spam", "Mark as spam")).firstMatch
+        XCTAssertTrue(spam.waitForExistence(timeout: 5))
+        let block = app.buttons.matching(NSPredicate(format: "identifier == %@ OR label == %@", "mail.sender.block", "Block sender")).firstMatch
+        XCTAssertTrue(block.waitForExistence(timeout: 5))
+        block.tap()
+        let confirm = app.buttons["Block sender"].firstMatch
+        XCTAssertTrue(confirm.waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "will go to Spam")).firstMatch.exists)
+        let dismiss = app.otherElements["PopoverDismissRegion"]
+        if dismiss.exists { dismiss.tap() } else { app.buttons["Cancel"].firstMatch.tap() }
+        openDisposalMenu()
+        app.buttons.matching(NSPredicate(format: "identifier == %@ OR label == %@", "mail.action.spam", "Mark as spam")).firstMatch.tap()
+        XCTAssertTrue(waitForToast(containing: "spam"))
+    }
+
+    func testSenderCanBeUnblockedAndSpamCanReturnToInbox() {
+        launch(open: "newsletter")
+        openDisposalMenu()
+        app.buttons.matching(NSPredicate(format: "identifier == %@ OR label == %@", "mail.sender.block", "Block sender")).firstMatch.tap()
+        let confirm = app.buttons["Block sender"].firstMatch
+        XCTAssertTrue(confirm.waitForExistence(timeout: 5))
+        confirm.tap()
+        show(place: "Spam")
+        XCTAssertTrue(row("newsletter").waitForExistence(timeout: 5))
+        guard row("newsletter").exists else { return }
+        row("newsletter").tap()
+        openDisposalMenu()
+        let unblock = app.buttons.matching(NSPredicate(format: "identifier == %@ OR label == %@", "mail.sender.unblock", "Unblock sender")).firstMatch
+        XCTAssertTrue(unblock.waitForExistence(timeout: 5))
+        unblock.tap()
+        openDisposalMenu()
+        XCTAssertTrue(app.buttons.matching(NSPredicate(format: "identifier == %@ OR label == %@", "mail.sender.block", "Block sender")).firstMatch.waitForExistence(timeout: 5))
+        let restore = app.buttons.matching(NSPredicate(format: "identifier == %@ OR label == %@", "mail.action.notSpam", "Not spam")).firstMatch
+        XCTAssertTrue(restore.exists)
+        restore.tap()
+        XCTAssertTrue(waitForToast(containing: "back in the inbox"))
+    }
+
+    func testComplexTableUsesFormattedBodyAndRetainsActionLink() {
+        launch(open: "receipt", extra: ["--mail-complex-html"])
+        XCTAssertTrue(app.webViews.firstMatch.waitForExistence(timeout: 10))
+        XCTAssertTrue(app.webViews.links["Request refund"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.webViews.staticTexts["Notebook"].exists)
+        XCTAssertTrue(app.webViews.staticTexts["$12"].exists)
+        snap("formatted-complex-table")
+        app.buttons["mail.body.simplify.receipt~1"].tap()
+        XCTAssertTrue(waitUntil { self.app.webViews.count == 0 })
+        let formatted = app.buttons["mail.body.format.receipt~1"]
+        XCTAssertTrue(formatted.exists)
+        formatted.tap()
+        XCTAssertTrue(app.webViews.links["Request refund"].waitForExistence(timeout: 10))
+    }
+
     /// An open conversation reads newest first: the latest message at the top, older ones going
     /// down, and it opens at the top (the subject in view).
     func testAConversationReadsNewestFirst() {

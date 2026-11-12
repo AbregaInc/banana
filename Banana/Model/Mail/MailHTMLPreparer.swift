@@ -9,8 +9,15 @@ struct MailPreparedBody: Codable, Equatable, Sendable {
     /// Index of the first block of the quoted tail: every block from here on is quoted. Nil when the
     /// message does not end in a quote. Made with the text, so opening a message costs nothing.
     var quoteStartsAt: Int? = nil
+    /// Use formatted HTML when the native grid cannot preserve a data table's structure.
+    /// Optional so older cached bodies remain decodable until background preparation catches up.
+    var prefersOriginal: Bool? = nil
 
-    var body: MailBody { .text(text, quoteStartsAt: quoteStartsAt, notices: shownAsText ? [.shownAsText] : []) }
+    var body: MailBody {
+        var notices: [MailBodyNotice] = shownAsText ? [.shownAsText] : []
+        if prefersOriginal == true { notices.append(.designedLayout) }
+        return .text(text, quoteStartsAt: quoteStartsAt, notices: notices)
+    }
 
     static func quoteStart(of blocks: [MailTextBlock]) -> Int? {
         var start: Int?
@@ -25,7 +32,7 @@ struct MailPreparedBody: Codable, Equatable, Sendable {
 
 /// Runs on the preparation worker, before opening. Uses the pinned library's parser.
 enum MailHTMLPreparer {
-    static let version = 4
+    static let version = 5
     static let maximumBytes = 2 * 1024 * 1024
     static let maximumNodes = 50_000
     /// How deep the walk recurses; deeper content is read flat, in document order.
@@ -66,14 +73,59 @@ enum MailHTMLPreparer {
             // links, so it walks the parsed tree directly. Script and style content are data nodes and are
             // never read. The Original view prepares its own cleaned document (MailOriginalDocument).
             guard let body = source.body() else { return plainBody(plain ?? "", shownAsText: true) }
-            let (native, pictures) = try nativeText(body, needs: DocNeeds(html))
+            let needs = DocNeeds(html)
+            let (native, pictures) = try nativeText(body, needs: needs)
             mark("nativeText")
             if let measure {
                 for (name, count) in pictures.named { measure("pictures." + name, Double(count)) }
             }
-            return MailPreparedBody(version: version, text: native, shownAsText: true, quoteStartsAt: MailPreparedBody.quoteStart(of: native.blocks))
+            let formatted = needsFormattedLayout(body, needs: needs)
+            mark("layoutDecision")
+            return MailPreparedBody(version: version, text: native, shownAsText: true,
+                                    quoteStartsAt: MailPreparedBody.quoteStart(of: native.blocks),
+                                    prefersOriginal: formatted)
         }
         return plainBody(clipped(plain ?? ""), shownAsText: false)
+    }
+
+    /// Select layout only when simplifying would lose a table's relationships.
+    /// Fonts, colors, wrapper tables, signatures and quoted history are not evidence.
+    /// This uses the same visibility and table rules as native preparation.
+    static func needsFormattedLayout(_ root: Element, needs: DocNeeds) -> Bool {
+        var stack: [Element] = [root]
+        while let element = stack.popLast() {
+            let tag = element.tagNameNormal()
+            let traits = look(of: element, tag: tag, needs: needs)
+            if traits.contains(.hidden) || traits.contains(.quoteHeader) || traits.contains(.outlookReply) || tag == "blockquote" { continue }
+            if tag == "table", hasOwnDataSemantics(element) {
+                // Native grids currently have no caption slot. Do not silently drop one.
+                if elements(element).contains(where: { $0.tagNameNormal() == "caption" }) || tableShape(element, needs: needs) == nil { return true }
+            }
+            stack.append(contentsOf: elements(element))
+        }
+        return false
+    }
+
+    private static func hasOwnDataSemantics(_ table: Element) -> Bool {
+        guard (try? table.attr("role")) != "presentation" else { return false }
+        for child in elements(table) {
+            let tag = child.tagNameNormal()
+            if tag == "caption" { return true }
+            let rows: [Element]
+            switch tag {
+            case "tr": rows = [child]
+            case "thead", "tbody", "tfoot": rows = elements(child).filter { $0.tagNameNormal() == "tr" }
+            default: continue
+            }
+            for row in rows {
+                for cell in elements(row) {
+                    let tag = cell.tagNameNormal()
+                    if tag == "th" { return true }
+                    if tag == "td", let span = try? cell.attr("rowspan"), (Int(span) ?? 1) > 1 { return true }
+                }
+            }
+        }
+        return false
     }
 
     /// Whether native text can be made from the tree in time: at most `maximumNodes` pieces. Depth is

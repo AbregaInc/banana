@@ -3,6 +3,19 @@
 
 import { mailLink } from "./mail-grant.js";
 import { featureAllowed, googleCapabilities } from "./feature-access.js";
+import { parseSenderPolicy, senderKey } from "./sender-policy.js";
+
+export { parseSenderPolicy };
+export async function mailSenderPolicy(deps, account, request) {
+  const { link, refusal } = await readableLink(deps, account, request.email);
+  if (refusal) return refusal;
+  if (request.blocked !== undefined && !googleCapabilities({ ...link, has_token: Boolean(link.refresh_token) }).mailModify)
+    return fail(403, "Email write access is unavailable.");
+  if (request.sender === link.email.toLowerCase()) return fail(400, "Cannot block this account's own address.");
+  const mailbox = deps.mailboxes.get(link.sub);
+  await mailbox.ensure({ sub: link.sub, email: link.email, account });
+  return mailbox.senderPolicy({ ...request, key: await senderKey(request.sender) });
+}
 
 const fail = (status, message) => ({ status, body: { error: { code: status, message } } });
 const ID = (x) => typeof x === "string" && x.length > 0 && x.length <= 256 && !/[\x00-\x1f]/.test(x);
