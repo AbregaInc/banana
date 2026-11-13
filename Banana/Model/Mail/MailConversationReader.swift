@@ -98,7 +98,7 @@ struct MailConversationReader: Sendable {
                                isMe: $0.key == account, isKnown: false, fromTheirMail: false)
                 }
                 value.messages[index].deliveredTo = stored.headers.deliveredTo.mailboxes.first?.address
-                value.messages[index].attachments = stored.structure.attachments.map {
+                value.messages[index].attachments = stored.structure.displayAttachments.map {
                     MailAttachment(id: MailAttachmentID(message: messageID, part: $0.partID), name: $0.name,
                         mimeType: $0.mimeType, typeMismatch: false, bytes: $0.size ?? 0,
                         localFile: stored.files[$0.partID].flatMap(localFile),

@@ -62,6 +62,8 @@ final class PodcastEpisodeBrowser: ObservableObject {
     private var pending: [Int: (id: UUID, task: Task<Void, Never>)] = [:]
     private var generation = 0
     private var focusedPage = 0
+    private var feedID: UUID?
+    private var configurationInFlight = false
 
     var retainedEpisodeCount: Int { pages.values.reduce(0) { $0 + $1.count } }
     func episode(at index: Int) -> Episode? {
@@ -75,20 +77,48 @@ final class PodcastEpisodeBrowser: ObservableObject {
         generation += 1
         let token = generation
         for request in pending.values { request.task.cancel() }
-        pending.removeAll(); pages.removeAll(); recency.removeAll()
-        query = nil; count = 0; focusedPage = 0; isLoading = true; error = nil
+        pending.removeAll()
+        let warm = feedID == podcast.id && query != nil
+        if !warm {
+            pages.removeAll(); recency.removeAll()
+            query = nil; count = 0; focusedPage = 0
+            isLoading = true
+        }
+        feedID = podcast.id
+        configurationInFlight = true
+        error = nil
+        let requestedPage = focusedPage
         do {
-            let (query, first) = try await Task.detached(priority: .userInitiated) {
+            // Stage only the viewport and its neighbours. Keep the old bounded snapshot
+            // visible until the replacement is ready, including across played/undo updates.
+            let (query, prepared, focus) = try await Task.detached(priority: .userInitiated) {
                 let query = try PodcastEpisodeQuery(podcast: podcast, includingListened: includingListened, voiceOf: voiceOf)
-                return (query, try query.page(offset: 0, limit: Self.pageSize))
+                let focus = min(requestedPage, max(0, (query.count - 1) / Self.pageSize))
+                var prepared: [Int: [Episode]] = [:]
+                for page in max(0, focus - 1)...min(focus + 1, max(0, (query.count - 1) / Self.pageSize)) {
+                    prepared[page] = try query.page(offset: page * Self.pageSize, limit: Self.pageSize)
+                }
+                return (query, prepared, focus)
             }.value
-            guard token == generation, !Task.isCancelled else { return }
+            guard token == generation else { return }
+            configurationInFlight = false
+            guard !Task.isCancelled else { return }
+            let latestFocus = focusedPage
             self.query = query
-            pages[0] = first; recency = [0]
-            count = query.count; isLoading = false; revision += 1
+            pages = prepared; recency = prepared.keys.sorted()
+            focusedPage = focus
+            if count != query.count { count = query.count }
+            if isLoading { isLoading = false }
+            revision += 1
+            if latestFocus != requestedPage, query.count > 0 {
+                await reveal(min(latestFocus * Self.pageSize, query.count - 1))
+            }
         } catch {
-            guard token == generation, !Task.isCancelled else { return }
-            isLoading = false; self.error = error.localizedDescription
+            guard token == generation else { return }
+            configurationInFlight = false
+            guard !Task.isCancelled else { return }
+            if isLoading { isLoading = false }
+            self.error = error.localizedDescription
         }
     }
 
@@ -106,7 +136,7 @@ final class PodcastEpisodeBrowser: ObservableObject {
     }
 
     private func load(_ page: Int) async {
-        guard abs(page - focusedPage) <= 2 else { return }
+        guard !configurationInFlight, abs(page - focusedPage) <= 2 else { return }
         if pages[page] != nil {
             recency.removeAll { $0 == page }; recency.append(page)
             return

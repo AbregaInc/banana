@@ -236,7 +236,7 @@ struct RootView: View {
                 }
             } else if ProcessInfo.processInfo.arguments.contains("--library-detail") {
                 #if BANANA_MODULE_PODCASTS
-                FirstPodcastDetailHost()   // episode-list verification (folded listened runs)
+                FirstPodcastDetailHost().toastHost()   // episode-list actions include Undo, as in the shell
                 #endif
             } else if ProcessInfo.processInfo.arguments.contains("--library") {
                 #if BANANA_MODULE_PODCASTS

@@ -1,4 +1,5 @@
 import XCTest
+import Combine
 
 final class PodcastEpisodeBrowserTests: XCTestCase {
     func testSpeakerAndGenderFiltersHideBeforePagingWithoutMarkingPlayed() throws {
@@ -103,6 +104,37 @@ final class PodcastEpisodeBrowserTests: XCTestCase {
         await browser.reveal(0)
         XCTAssertEqual(browser.episode(at: 0)?.id, "e0")
         XCTAssertLessThanOrEqual(browser.retainedEpisodeCount, 500)
+    }
+
+    @MainActor func testPlayedRefreshKeepsViewportWithoutEmptyOrLoadingTransitionAndUndoRestoresIt() async throws {
+        var (podcast, root) = try fixture(1_003)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let browser = PodcastEpisodeBrowser()
+        await browser.configure(podcast: podcast, includingListened: false)
+        await browser.reveal(450)
+        var counts: [Int] = [], loading: [Bool] = []
+        let countSubscription = browser.$count.dropFirst().sink { counts.append($0) }
+        let loadingSubscription = browser.$isLoading.dropFirst().sink { loading.append($0) }
+        defer { countSubscription.cancel(); loadingSubscription.cancel() }
+        podcast.completed.insert("e450")
+        await browser.configure(podcast: podcast, includingListened: false)
+        XCTAssertEqual(counts, [1_002], "publish only the final membership change")
+        XCTAssertTrue(loading.isEmpty, "a warm update never replaces the list with a loading state")
+        XCTAssertEqual(browser.episode(at: 449)?.id, "e449")
+        XCTAssertEqual(browser.episode(at: 450)?.id, "e451")
+        XCTAssertLessThanOrEqual(browser.retainedEpisodeCount, 500)
+        podcast.completed.remove("e450")
+        await browser.configure(podcast: podcast, includingListened: false)
+        XCTAssertEqual(browser.episode(at: 450)?.id, "e450")
+        XCTAssertEqual(counts, [1_002, 1_003])
+        XCTAssertTrue(loading.isEmpty)
+        podcast.completed = Set((0..<1_003).map { "e\($0)" })
+        await browser.configure(podcast: podcast, includingListened: false)
+        XCTAssertEqual(browser.count, 0)
+        XCTAssertNil(browser.episode(at: 0))
+        await browser.configure(podcast: podcast, includingListened: true)
+        XCTAssertEqual(browser.count, 1_003)
+        XCTAssertEqual(browser.episode(at: 0)?.id, "e0")
     }
 
     func testLongListenedPrefixComparisonRetainsRawComponentTimings() throws {

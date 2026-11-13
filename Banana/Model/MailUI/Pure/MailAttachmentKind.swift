@@ -25,7 +25,7 @@ struct MailAttachmentKind: Equatable, Sendable {
     static func of(name: String, mimeType: String, typeMismatch: Bool = false) -> MailAttachmentKind {
         let byName = type(ofName: name)
         var real = UTType(mimeType: mimeType)
-        if real == nil || real == .data || real == .item { real = byName }
+        if real == nil || real?.isDynamic == true || real == .data || real == .item { real = byName }
         let disagrees: Bool
         if let real, let byName {
             disagrees = typeMismatch || !(real.conforms(to: byName) || byName.conforms(to: real))
