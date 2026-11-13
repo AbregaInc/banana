@@ -55,6 +55,22 @@ final class MailMIMETests: XCTestCase {
         XCTAssertEqual(result.structure.attachments.first?.isInvite, true)
         XCTAssertNil(result.plain)
     }
+    func testInlineCalendarCopiesCompareBytesWithoutDroppingOriginalMIMEParts() {
+        let content = "BEGIN:VCALENDAR\r\nMETHOD:REQUEST\r\nUID:unique\r\nEND:VCALENDAR"
+        let root = GmailPart(mimeType: "multipart/mixed", parts: [
+            part("calendar", "text/calendar", content, filename: "invite.ics"),
+            part("file", "application/ics", content, filename: "invite.ics")])
+        let same = MIMEStructure.extract(root).structure
+        XCTAssertEqual(same.attachments.count, 2)
+        XCTAssertEqual(same.displayAttachments.map(\.partID), ["calendar"])
+        XCTAssertTrue(same.uncheckedCalendarCopies.isEmpty)
+        var distinct = root
+        distinct.parts?[1] = part("file", "application/ics", content.replacingOccurrences(of: "unique", with: "other!"), filename: "invite.ics")
+        XCTAssertEqual(MIMEStructure.extract(distinct).structure.displayAttachments.count, 2)
+        XCTAssertNil(MIMEStructure.calendarFingerprint(GmailPartBody(size: 5, data: "%%%%"), expectedSize: 5))
+        XCTAssertNil(MIMEStructure.calendarFingerprint(GmailPartBody(size: 1, data: "SGVsbG8"), expectedSize: 1))
+    }
+
     func testDepthCutStopsWideTraversal() {
         let root = GmailPart(mimeType: "multipart/mixed", parts: Array(repeating: part("p", "text/plain", "a"), count: 2000))
         let result = MIMEStructure.extract(root, limits: MIMELimits(depth: 0))

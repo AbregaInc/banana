@@ -1,6 +1,7 @@
 #if !BANANA_PUBLIC
 import Foundation
 import GRDB
+import CryptoKit
 
 /// Read-only provider ingestion. The index is promoted only after original content
 /// and its prepared representation are committed. No sync checkpoint is advanced.
@@ -82,6 +83,48 @@ actor GmailConversationLoader {
         let message = try await api.message(token: access, id: id.message, format: .full)
         let fetched = try await complete(message, id: id, thread: identity.0, rowID: identity.1, floor: floor, access: { access })
         try await commit([(fetched, identity.1, identity.0)], account: account)
+    }
+
+    /// Optional background verification, independent of body availability. Old cached
+    /// structures gain fingerprints too; failures leave every original attachment visible.
+    func verifyCalendarCopies(_ id: MailMessageID) async throws {
+        let account = id.account.lowercased()
+        let original = try await stores.blobs.read { db -> (Data, String)? in
+            guard let row = try Row.fetchOne(db, sql: "SELECT structure,thread_id FROM content WHERE account=? AND gmail_id=? AND level=2",
+                                            arguments: [account, id.message]) else { return nil }
+            return (row[0], row[1])
+        }
+        guard let original else { return }
+        var structure = try JSONDecoder().decode(MIMEStructure.self, from: MailBlobCodec.decode(original.0))
+        let candidates = structure.uncheckedCalendarCopies
+        guard !candidates.isEmpty else { return }
+        let access = try await token(account)
+        guard try await api.profile(token: access).emailAddress?.lowercased() == account else { throw Failure.wrongAccount }
+        let pictures = MailInlinePictures(stores: stores, api: api, token: { _ in access })
+        for part in candidates {
+            try Task.checkCancellation()
+            let originalPart = MailAttachmentFetcher.find(partID: part.partID, in: structure.root)
+            guard let originalPart,
+                  let bytes = await pictures.bytes(of: originalPart, account: account, message: id.message, limit: 256 * 1024),
+                  bytes.count == part.size,
+                  let index = structure.attachments.firstIndex(where: { $0.partID == part.partID }) else { return }
+            structure.attachments[index].contentSHA256 = SHA256.hash(data: bytes).map { String(format: "%02x", $0) }.joined()
+        }
+        try Task.checkCancellation()
+        let encoded = try MailBlobCodec.encode(JSONEncoder().encode(structure))
+        let changed = try await stores.blobs.write { db in
+            // A refresh may have replaced the provider handles while requests were in flight.
+            try db.execute(sql: "UPDATE content SET structure=?,bytes=bytes-length(structure)+? WHERE account=? AND gmail_id=? AND structure=?",
+                           arguments: [encoded, encoded.count, account, id.message, original.0])
+            return db.changesCount > 0
+        }
+        if changed {
+            _ = try await writer.transact { _ in
+                var change = MailStoreChange()
+                change.conversations.insert(MailConversationID(account: account, thread: original.1))
+                return change
+            }
+        }
     }
 
     /// Messages Banana Cloud already holds (MAIL-CLOUD-SYNC §5a), stored as `body` stores a read:

@@ -1,5 +1,6 @@
 #if !BANANA_PUBLIC
 import Foundation
+import CryptoKit
 
 struct MIMELimits: Sendable {
     var depth = 20
@@ -19,11 +20,38 @@ struct MIMEExtraction: Sendable {
 /// Gmail supplies the parsed MIME tree; this is body selection, not an RFC message parser.
 /// Decoding uses Foundation and the same charset policy as message headers.
 extension MIMEStructure {
+    /// Keep the original MIME parts for fetching; only the chip projection collapses
+    /// byte-identical calendar representations. Distinct events with the same name stay.
+    var displayAttachments: [Attachment] {
+        var seen = Set<String>()
+        return attachments.filter { attachment in
+            guard attachment.isCalendarFile, let hash = attachment.contentSHA256 else { return true }
+            return seen.insert(hash).inserted
+        }
+    }
+
+    var uncheckedCalendarCopies: [Attachment] {
+        let calendars = attachments.filter(\.isCalendarFile)
+        guard (2...4).contains(calendars.count), calendars.contains(where: { $0.contentSHA256 == nil }),
+              calendars.allSatisfy({ ($0.size ?? -1) >= 0 && ($0.size ?? Int.max) <= 256 * 1024 }) else { return [] }
+        return calendars.filter { $0.contentSHA256 == nil }
+    }
+
+    static func calendarFingerprint(_ body: GmailPartBody?, expectedSize: Int?) -> String? {
+        guard let body, let encoded = body.data, encoded.utf8.count <= ((256 * 1024 + 2) / 3) * 4 else { return nil }
+        var base64 = encoded.replacingOccurrences(of: "-", with: "+").replacingOccurrences(of: "_", with: "/")
+        base64 += String(repeating: "=", count: (4 - base64.utf8.count % 4) % 4)
+        guard let bytes = Data(base64Encoded: base64), bytes.count <= 256 * 1024,
+              bytes.count == expectedSize, body.size == bytes.count else { return nil }
+        return SHA256.hash(data: bytes).map { String(format: "%02x", $0) }.joined()
+    }
+
     static func extract(_ payload: GmailPart, limits: MIMELimits = MIMELimits()) -> MIMEExtraction {
         var remaining = max(0, limits.parts), cut: Cut?
         var attachments: [Attachment] = [], invite: Invite?
         var missing: [String] = [], tooLarge = false, malformed = false
         var totalDecoded = 0
+        var inlineCalendars: [String: GmailPartBody] = [:]
         func text(_ part: GmailPart, id: String) -> String? {
             guard let encoded = part.body?.data else {
                 if part.body?.size == 0 { return "" }
@@ -61,6 +89,8 @@ extension MIMEStructure {
                 attachments.append(Attachment(partID: id, name: MailFileName.safe(part.filename ?? "attachment"),
                     mimeType: result.mimeType, size: result.size, attachmentID: result.attachmentID,
                     contentID: result.contentID, isInline: inline, isInvite: mime == "text/calendar"))
+                if attachments[attachments.count - 1].isCalendarFile, inlineCalendars.count < 4,
+                   let body = part.body, body.data != nil { inlineCalendars[id] = body }
             }
             if mime == "text/calendar", invite == nil {
                 var item = Invite(partID: id)
@@ -113,6 +143,11 @@ extension MIMEStructure {
         }
         let (root, chosen) = walk(payload, depth: 0, path: "0", bodyAllowed: true)
         let body = cut != nil || tooLarge ? MIMEBodySelection() : chosen
+        if (2...4).contains(attachments.filter(\.isCalendarFile).count) {
+            for index in attachments.indices where attachments[index].isCalendarFile {
+                attachments[index].contentSHA256 = calendarFingerprint(inlineCalendars[attachments[index].partID], expectedSize: attachments[index].size)
+            }
+        }
 
         return MIMEExtraction(structure: MIMEStructure(root: root, attachments: attachments,
             htmlPartID: body.htmlID, plainPartID: body.plainID, invite: invite, cut: cut), html: body.html, plain: body.plain,

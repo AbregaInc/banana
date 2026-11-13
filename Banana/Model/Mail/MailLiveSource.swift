@@ -65,11 +65,12 @@ import GRDB
     private var attachmentProgressByID: [MailAttachmentID: MailProgress] = [:]
     private var attachmentTasks: [MailAttachmentID: Task<Void, Never>] = [:]
     private enum Download: Hashable {
-        case thread(MailConversationID), body(MailMessageID)
+        case thread(MailConversationID), body(MailMessageID), calendarCopies(MailMessageID)
         var account: String {
-            switch self { case .thread(let id): return id.account; case .body(let id): return id.account }
+            switch self { case .thread(let id): return id.account; case .body(let id), .calendarCopies(let id): return id.account }
         }
     }
+    private var calendarCheckAfter: [MailMessageID: Date] = [:]
     private var downloadQueue: [Download] = []
     private var downloads: [Download: Task<Void, Never>] = [:]
     /// Content from Banana Cloud in bulk (MAIL-CLOUD-SYNC §5a); nil without a cloud feed.
@@ -361,6 +362,20 @@ import GRDB
         do {
             var value = try await MailConversationReader(stores: stores).conversation(id)
             value?.appliedThrough = through
+            for message in value?.messages ?? [] {
+                let calendars = message.attachments.filter {
+                    $0.mimeType == "text/calendar" || ($0.name.lowercased().hasSuffix(".ics") &&
+                        ["application/ics", "application/octet-stream"].contains($0.mimeType))
+                }
+                guard (2...4).contains(calendars.count), calendars.allSatisfy({ $0.bytes <= 256 * 1024 }),
+                      (calendarCheckAfter[message.id] ?? .distantPast) <= Date() else { continue }
+                if calendarCheckAfter.count >= 128 {
+                    calendarCheckAfter = calendarCheckAfter.filter { $0.value > Date() }
+                    if calendarCheckAfter.count >= 128 { continue }
+                }
+                calendarCheckAfter[message.id] = Date().addingTimeInterval(15 * 60)
+                enqueue(.calendarCopies(message.id), priority: false)
+            }
             if let record = try await draftDriver?.forConversation(id) {
                 let draft = record.snapshot.value
                 if value == nil {
@@ -850,6 +865,9 @@ import GRDB
                             for message in messages.suffix(8) { self.enqueue(.body(message), priority: false) }
                         }
                     case .body(let id): try await loader.body(id)
+                    case .calendarCopies(let id):
+                        // Verification is optional: offline mail and body readiness do not depend on it.
+                        try? await loader.verifyCalendarCopies(id)
                     }
                 } catch {
                     guard !Task.isCancelled, let self else { return }

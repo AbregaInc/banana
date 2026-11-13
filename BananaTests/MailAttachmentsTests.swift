@@ -104,6 +104,15 @@ final class MailAttachmentsTests: XCTestCase {
         XCTAssertEqual(MailAttachmentKind.of(name: "setup.pkg", mimeType: "").symbol, "exclamationmark.triangle")
     }
 
+    func testUnregisteredCalendarMIMEDoesNotInventATypeMismatch() {
+        let kind = MailAttachmentKind.of(name: "invite.ics", mimeType: "application/ics")
+        XCTAssertEqual(kind.type, MailAttachmentKind.type(ofName: "invite.ics"))
+        XCTAssertNil(kind.nameSays)
+        XCTAssertFalse(kind.isProgram)
+        XCTAssertNotNil(MailAttachmentKind.of(name: "invite.ics", mimeType: "application/ics", typeMismatch: true).nameSays)
+        XCTAssertTrue(MailAttachmentKind.of(name: "script.exe", mimeType: "application/x-unregistered").isProgram)
+    }
+
     func testAFileWhoseNameAndTypeDisagreeIsShownWithItsRealType() {
         let kind = MailAttachmentKind.of(name: "invoice.pdf", mimeType: "image/png", typeMismatch: true)
         XCTAssertEqual(kind.type, .png, "what the bytes are")

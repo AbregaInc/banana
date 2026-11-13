@@ -358,6 +358,32 @@ final class ScaleStressUITests: XCTestCase {
         capture("podcasts-continuous-scroll")
     }
 
+    func testMarkPlayedKeepsNeighbourAndUndoRestoresEpisode() {
+        let app = launch("--library-detail")
+        let heading = app.staticTexts["library.episodes.heading"]
+        let first = app.descendants(matching: .any)["podcast.episode.stress-0-0"].firstMatch
+        let ordered = (0..<1000).sorted { ($0 * 7919) % 1000 < ($1 * 7919) % 1000 }
+        let neighbour = app.descendants(matching: .any)["podcast.episode.stress-0-\(ordered[1])"].firstMatch
+        XCTAssertTrue(first.waitForExistence(timeout: 10))
+        for _ in 0..<4 where !first.isHittable { app.swipeUp() }
+        XCTAssertTrue(first.isHittable)
+        XCTAssertTrue(neighbour.exists)
+        let initialCount = heading.label
+        let menu = app.buttons["Download"].firstMatch
+        XCTAssertTrue(menu.isHittable)
+        menu.press(forDuration: 1.1)
+        let mark = app.buttons["Mark as Played"].firstMatch
+        XCTAssertTrue(mark.waitForExistence(timeout: 3))
+        mark.tap()
+        XCTAssertTrue(waitUntil { !first.exists && neighbour.exists && heading.label != initialCount })
+        XCTAssertFalse(app.staticTexts["Loading episodes…"].exists)
+        let undo = app.buttons["toast.undo"].firstMatch
+        XCTAssertTrue(undo.waitForExistence(timeout: 3))
+        undo.tap()
+        XCTAssertTrue(waitUntil { first.exists && neighbour.exists && heading.label == initialCount })
+        capture("podcasts-mark-played-undo")
+    }
+
     func testDenseCalendarScroll() {
         checkDenseCalendarScroll(extra: ["--calendar-reference-week"])
     }

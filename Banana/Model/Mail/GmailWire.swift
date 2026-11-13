@@ -722,6 +722,13 @@ struct MIMEStructure: Codable, Equatable, Sendable {
         var isInline: Bool
         /// A `text/calendar` part: an invitation, to be offered as one.
         var isInvite: Bool
+        /// SHA-256 of fetched bytes, never inferred from the name, size or provider handle.
+        var contentSHA256: String?
+
+        var isCalendarFile: Bool {
+            mimeType == "text/calendar" || (name.lowercased().hasSuffix(".ics") &&
+                ["application/ics", "application/octet-stream"].contains(mimeType))
+        }
 
         init(partID: String, name: String, mimeType: String, size: Int? = nil,
              attachmentID: String? = nil, contentID: String? = nil, isInline: Bool = false,

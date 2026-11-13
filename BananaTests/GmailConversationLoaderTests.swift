@@ -8,6 +8,16 @@ final class GmailConversationLoaderTests: XCTestCase {
         var attachmentBody = GmailPartBody(size: 5, data: "SGVsbG8")
         var attachments: [String] = []
         var fullReads = 0
+        var calendarBodies: [String: GmailPartBody] = [:]
+        func calendarCopies(distinct: Bool = false) {
+            let first = Data("BEGIN:VCALENDAR\r\nUID:first\r\nEND:VCALENDAR".utf8)
+            let second = distinct ? Data("BEGIN:VCALENDAR\r\nUID:other\r\nEND:VCALENDAR".utf8) : first
+            func body(_ data: Data) -> GmailPartBody { GmailPartBody(size: data.count, data: data.base64EncodedString()) }
+            calendarBodies = ["calendar-a": body(first), "calendar-b": body(second)]
+            full.payload?.parts = [GmailPart(partId: "body", mimeType: "text/plain", body: GmailPartBody(size: 5, data: "SGVsbG8")),
+                GmailPart(partId: "invite-a", mimeType: "text/calendar", filename: "invite.ics", body: GmailPartBody(attachmentId: "calendar-a", size: first.count)),
+                GmailPart(partId: "invite-b", mimeType: "application/ics", filename: "invite.ics", body: GmailPartBody(attachmentId: "calendar-b", size: second.count))]
+        }
         init() {
             let json = #"{"id":"m1","threadId":"t1","historyId":"100","internalDate":"1000","labelIds":["INBOX"],"payload":{"partId":"0","mimeType":"multipart/mixed","headers":[{"name":"From","value":"sender@example.com"},{"name":"Subject","value":"Subject"}],"parts":[{"partId":"1","mimeType":"text/plain","body":{"attachmentId":"body-part","size":5}},{"partId":"2","mimeType":"application/pdf","filename":"report.pdf","body":{"attachmentId":"file-part","size":123}}]}}"#
             full = try! JSONDecoder().decode(GmailMessage.self, from: Data(json.utf8))
@@ -24,7 +34,7 @@ final class GmailConversationLoaderTests: XCTestCase {
             XCTAssertEqual(format, .full); fullReads += 1; return full
         }
         func attachment(token: String, messageID: String, attachmentID: String) async throws -> GmailPartBody {
-            XCTAssertEqual(messageID, "m1"); attachments.append(attachmentID); return attachmentBody
+            XCTAssertEqual(messageID, "m1"); attachments.append(attachmentID); return calendarBodies[attachmentID] ?? attachmentBody
         }
         func labels(token: String) async throws -> [GmailLabel] { [] }
         func listMessages(token: String, labelIDs: [String], query: String?, includeSpamTrash: Bool, pageToken: String?, maxResults: Int) async throws -> GmailIDPage { GmailIDPage(messages: [], nextPageToken: nil, resultSizeEstimate: 0) }
@@ -73,6 +83,44 @@ final class GmailConversationLoaderTests: XCTestCase {
         let reads = await api.fullReads
         XCTAssertEqual(reads, 1)
     }
+    func testCachedCalendarCopiesRequireIdenticalBytesAndKeepOriginalParts() async throws {
+        for distinct in [false, true] {
+            let (stores, api, loader) = try await setup()
+            await api.calendarCopies(distinct: distinct)
+            _ = try await loader.thread(conversation)
+            try await loader.body(message)
+            let before = try await MailConversationReader(stores: stores).conversation(conversation)
+            XCTAssertEqual(before?.messages.first?.attachments.count, 2, "names and sizes do not establish equality")
+            let coldReads = await api.attachments
+            XCTAssertTrue(coldReads.isEmpty, "ordinary body preparation does not download calendar files")
+            try await loader.verifyCalendarCopies(message)
+            let after = try await MailConversationReader(stores: stores).conversation(conversation)
+            XCTAssertEqual(after?.messages.first?.attachments.count, distinct ? 2 : 1)
+            let stored = try await MailBlobStore(stores: stores).content(account: message.account, messageID: message.message)
+            XCTAssertEqual(stored?.structure.attachments.count, 2, "both original parts remain fetchable")
+            XCTAssertTrue(stored?.structure.uncheckedCalendarCopies.isEmpty == true)
+            try await loader.verifyCalendarCopies(message)
+            let reads = await api.attachments
+            XCTAssertEqual(reads, ["calendar-a", "calendar-b"], "fingerprints survive warm cache reads")
+            let prepared = try await MailBlobStore(stores: stores).prepared(account: message.account, messageID: message.message)
+            XCTAssertNotNil(prepared)
+        }
+    }
+
+    func testCalendarVerificationFailurePreservesBothFilesAndPreparedBody() async throws {
+        let (stores, api, loader) = try await setup()
+        await api.calendarCopies()
+        _ = try await loader.thread(conversation)
+        try await loader.body(message)
+        await api.wrongAccount()
+        do { try await loader.verifyCalendarCopies(message); XCTFail("wrong mailbox") }
+        catch { XCTAssertEqual(error as? GmailConversationLoader.Failure, .wrongAccount) }
+        let value = try await MailConversationReader(stores: stores).conversation(conversation)
+        XCTAssertEqual(value?.messages.first?.attachments.count, 2)
+        let prepared = try await MailBlobStore(stores: stores).prepared(account: message.account, messageID: message.message)
+        XCTAssertNotNil(prepared)
+    }
+
     func testWrongAccountNeverImportsThread() async throws {
         let (stores, api, loader) = try await setup()
         await api.wrongAccount()

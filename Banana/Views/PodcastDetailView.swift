@@ -89,6 +89,12 @@ struct PodcastDetailView: View {
                 }
             }
             .listStyle(.insetGrouped)
+            .transaction(value: browser.count) { transaction in
+                // Integer positions shift on filtering. Do not animate every surviving
+                // row into its neighbour's position when one episode is marked played.
+                transaction.animation = nil
+                transaction.disablesAnimations = true
+            }
             // Pull to refresh, as the Library does; there's no Refresh button in the bar.
             .refreshable {
                 await library.refresh(podcastID)
@@ -109,6 +115,7 @@ struct PodcastDetailView: View {
                 await browser.configure(podcast: podcast, includingListened: includingListened, voiceOf: voices.lookup())
             }
             .onChange(of: podcast.completed) { _, _ in
+                guard !includingListened else { return }
                 Task { await browser.configure(podcast: podcast, includingListened: includingListened, voiceOf: voices.lookup()) }
             }
             .task(id: podcast.id) {
