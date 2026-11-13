@@ -81,6 +81,60 @@ final class BottomBarShellUITest: XCTestCase {
         }
     }
 
+    func testSkipNoticeClearsExpandedAndFoldedPlayerAndOtherUndo() throws {
+        let app = try launch(["--tab", "library", "--library", "--sample-episode", "--shell-long-feed", "--skip-notice-preview", "--toast-preview"])
+        let notice = any(app, "adSkip.notice"), bar = any(app, "shell.bar"), player = any(app, "shell.player")
+        let toast = any(app, "toast")
+        XCTAssertTrue(notice.waitForExistence(timeout: 10), app.debugDescription)
+        XCTAssertTrue(player.exists)
+        XCTAssertGreaterThanOrEqual(app.buttons["shell.player.play"].frame.height, 44)
+        XCTAssertGreaterThanOrEqual(app.buttons["shell.player.hide"].frame.height, 44)
+        shot("skip-expanded-player")
+        XCTAssertTrue(waitUntil { notice.frame.maxY < bar.frame.minY }, "skip \(notice.frame) covers chrome \(bar.frame)")
+        XCTAssertTrue(waitUntil { toast.frame.maxY < notice.frame.minY }, "Undo toasts overlap \(toast.frame), \(notice.frame)")
+        XCTAssertLessThanOrEqual(notice.frame.minY - toast.frame.maxY, 20, "keep the notice stack compact")
+        XCTAssertTrue(app.buttons["adSkip.undo"].isHittable)
+        app.buttons["shell.player.hide"].tap()
+        XCTAssertTrue(any(app, "shell.player.chip").waitForExistence(timeout: 3))
+        XCTAssertTrue(waitUntil { notice.frame.maxY < bar.frame.minY && toast.frame.maxY < notice.frame.minY })
+        shot("skip-folded-player")
+        any(app, "shell.player.chip").tap()
+        XCTAssertTrue(player.waitForExistence(timeout: 3))
+        XCTAssertTrue(waitUntil { notice.frame.maxY < bar.frame.minY && toast.frame.maxY < notice.frame.minY })
+        app.buttons["shell.switcher"].tap()
+        let settings = app.buttons["shell.page.settings"]
+        XCTAssertTrue(settings.waitForExistence(timeout: 3))
+        XCTAssertTrue(settings.isHittable)
+        shot("skip-with-switcher")
+        app.buttons["shell.switcher"].tap()
+        XCTAssertTrue(settings.waitForNonExistence(timeout: 3))
+        app.buttons["toast.undo"].tap()
+        XCTAssertTrue(toast.waitForNonExistence(timeout: 3))
+        XCTAssertTrue(app.buttons["adSkip.undo"].isHittable)
+    }
+
+    func testPodcastHeaderStartsBelowTheCompactNavigationBar() throws {
+        let app = try launch(["--tab", "library", "--library", "--sample-episode", "--shell-long-feed", "--skip-notice-preview", "--sample-playing"])
+        let show = app.descendants(matching: .any).matching(NSPredicate(format: "identifier BEGINSWITH 'library.podcast.' AND label CONTAINS 'Acquired'")).firstMatch
+        XCTAssertTrue(show.waitForExistence(timeout: 10))
+        show.tap()
+        let header = any(app, "podcast.header")
+        XCTAssertTrue(header.waitForExistence(timeout: 5))
+        let heading = app.staticTexts["library.episodes.heading"].firstMatch
+        shot("dense-header-before-count-check")
+        XCTAssertTrue(waitUntil { heading.label == "Episodes (40)" }, "Observed heading: \(heading.label); playback: \(app.buttons["podcast.playback"].label)")
+        let playback = app.buttons["podcast.playback"]
+        XCTAssertEqual(playback.label, "Pause episode")
+        playback.tap()
+        XCTAssertTrue(waitUntil { playback.label == "Resume episode" })
+        let navigation = app.navigationBars.firstMatch
+        XCTAssertLessThanOrEqual(header.frame.minY, navigation.frame.maxY + 24, "unused space above the show")
+        XCTAssertTrue(app.buttons["Downloaded episode actions"].firstMatch.exists)
+        shot("podcast-header-and-bottom-edge")
+        app.swipeUp()
+        shot("podcast-scrolled-bottom-edge")
+    }
+
     // MARK: Badges
 
     /// Overdue reminders badge Plan and the sample Inbox badges Mail; the closed switcher carries

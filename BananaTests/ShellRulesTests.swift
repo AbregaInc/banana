@@ -177,12 +177,18 @@ final class ShellRulesTests: XCTestCase {
         XCTAssertNil(ShellBadge.spoken(0))
     }
 
-    /// A toast clears the bar on a page while the bar is there; in a sheet, or with the bar away
-    /// for a keyboard, it keeps its own place.
-    func testAToastStandsAboveTheBarOnlyWhereTheBarIs() {
-        XCTAssertEqual(ShellToastInset.bottom(barHeight: 120, barShown: true, onPage: true), 120)
-        XCTAssertEqual(ShellToastInset.bottom(barHeight: 120, barShown: false, onPage: true), 0, "keyboard up for a note")
-        XCTAssertEqual(ShellToastInset.bottom(barHeight: 120, barShown: true, onPage: false), 0, "in a sheet")
+    func testToastClearsOnlyTheChromeThatIsPresent() {
+        XCTAssertEqual(ShellToastInset.bottom(footerHeight: 120), 120)
+        XCTAssertEqual(ShellToastInset.bottom(footerHeight: 60), 60, "wide player")
+        XCTAssertEqual(ShellToastInset.bottom(footerHeight: 0), 0, "no footer")
+    }
+
+    func testGeneralToastClearsTheWholeSkipNoticeForEveryMeasuredHeight() {
+        for footer in [0.0, 52, 120, 180] {
+            for notice in [36.0, 60, 100] {
+                XCTAssertGreaterThan(ShellToastInset.bottom(footerHeight: footer, noticeHeight: notice), footer + notice)
+            }
+        }
     }
 
     /// The shell's symbols are the sections' own, without their fill: Library is headphones.

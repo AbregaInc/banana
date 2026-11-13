@@ -36,6 +36,20 @@ final class WideShellUITest: XCTestCase {
         try? XCUIScreen.main.screenshot().pngRepresentation.write(to: folder.appendingPathComponent("\(name).png"))
     }
 
+    func testSkipNoticeAndUndoClearTheWidePlayer() throws {
+        XCUIDevice.shared.orientation = .landscapeLeft
+        let app = try launch(["--tab", "plan", "--plan", "--sample-episode", "--skip-notice-preview", "--toast-preview"])
+        let notice = app.descendants(matching: .any)["adSkip.notice"].firstMatch
+        let footer = app.descendants(matching: .any)["shell.playbackFooter"].firstMatch
+        let toast = app.descendants(matching: .any)["toast"].firstMatch
+        XCTAssertTrue(notice.waitForExistence(timeout: 10), app.debugDescription)
+        XCTAssertTrue(footer.exists)
+        shot("wide-skip-notice")
+        XCTAssertTrue(waitUntil { notice.frame.maxY < footer.frame.minY }, "skip covers player")
+        XCTAssertTrue(waitUntil { toast.frame.maxY < notice.frame.minY }, "Undo covers skip notice")
+        XCTAssertTrue(app.buttons["adSkip.undo"].isHittable)
+    }
+
     func testTheBarUprightAndTheRailOnItsSide() throws {
         XCUIDevice.shared.orientation = .portrait
         // `--plan` loads the sample plan, so the week has its events and the weather to compare.
