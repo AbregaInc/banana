@@ -1213,8 +1213,15 @@ final class PlayerController: ObservableObject {
     var hasNextEpisode: Bool { episodeIndex().map { $0.idx + 1 < $0.count } ?? false }
 
     #if DEBUG
+    /// A persistent layout fixture; no audio or skip plan is executed.
+    func showSkipNoticeForPreview() {
+        skipNoticeDismissal?.cancel()
+        skipNotice = SkipNotice(id: UUID(), label: "Intro", seconds: 3, returnTo: 0, spans: [])
+    }
+
     /// Screenshot fixture: show `episode` as the current one without loading any audio.
-    func loadForPreview(_ episode: Episode, in podcast: Podcast) {
+    func loadForPreview(_ episode: Episode, in podcast: Podcast, playing: Bool = false) {
+        isPlaying = playing
         currentPodcastID = podcast.id
         _ = orderedEpisodes(for: podcast)
         currentEpisode = episode

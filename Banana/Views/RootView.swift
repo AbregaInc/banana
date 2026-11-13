@@ -112,11 +112,12 @@ struct RootView: View {
                                 let library = WakeCoordinator.shared.library
                                 library.injectSampleForPreview()
                                 if let podcast = library.podcasts.first, let episode = podcast.ordered().first {
-                                    player.loadForPreview(episode, in: podcast)
+                                    player.loadForPreview(episode, in: podcast, playing: args.contains("--sample-playing"))
                                     player.duration = max(player.duration, 2_400)
                                     player.currentTime = player.duration * 0.42
                                 }
                                 if args.contains("--player-hidden") { ShellChrome.shared.playerHidden = true }
+                                if args.contains("--skip-notice-preview") { player.showSkipNoticeForPreview() }
                             }
                             #endif
                             // `--shell-switcher-open`, `--shell-query <words>`: the switcher open, or
@@ -940,22 +941,21 @@ struct RootView: View {
         .tint(DS.Palette.accent)
         // The bottom-bar shell: one bar for every page, with the player above it. The pages
         // scroll under it (it is their bottom safe area), and it rides up with the keyboard.
-        .safeAreaInset(edge: .bottom, spacing: 0) {
+        .safeAreaBar(edge: .bottom, spacing: 0) {
             if bottomBarShell {
                 ShellBarHost(section: shell.state.tab.tabBarHome, pages: shellPages,
                              open: openShellPage, expandPlayer: { showNowPlaying = true })
             }
         }
-        // What the field found, over the page; then the switcher's column over everything.
+        // Field results cover the page while leaving its controls in reach.
         .overlay {
             if bottomBarShell {
                 ShellResultsOverlay(section: shell.state.tab.tabBarHome)
-                ShellSwitcherOverlay(pages: shellPages, current: currentShellPage, open: openShellPage)
             }
         }
         #if BANANA_MODULE_PODCASTS
         // Wide: the player at the foot of the page, as the Mac has it (no bar to sit above).
-        .safeAreaInset(edge: .bottom, spacing: 0) {
+        .safeAreaBar(edge: .bottom, spacing: 0) {
             if !bottomBarShell, player.currentEpisode != nil || music.wakePlaying != nil {
                 Group {
                     if player.currentEpisode != nil {
@@ -966,11 +966,19 @@ struct RootView: View {
                 }
                 .padding(.vertical, DS.Space.xs)
                 .frame(maxWidth: 560)
+                .background(.background, in: .capsule)
                 .glassEffect(.regular, in: .capsule)
                 .padding(.bottom, DS.Space.s)
+                .modifier(ShellSkipNoticeHost())
+                .accessibilityIdentifier("shell.playbackFooter")
             }
         }
         #endif
+        .overlayPreferenceValue(ShellPlaybackChromeAnchor.self) { anchor in
+            ShellPlaybackNoticeOverlay(anchor: anchor)
+        }
+        .onPreferenceChange(ShellPlaybackChromeHeight.self) { ShellChrome.shared.setFooterHeight($0) }
+        .onPreferenceChange(ShellSkipNoticeHeight.self) { ShellChrome.shared.setSkipNoticeHeight($0) }
         // Wide: what the field in a page's toolbar found, hanging under the toolbar.
         .overlay(alignment: .top) {
             if !bottomBarShell {
@@ -978,18 +986,19 @@ struct RootView: View {
                     .padding(.top, 52)
             }
         }
-        // Floats just above the bottom accessory: visible without covering anything, and it
-        // clears itself after a few seconds whether or not anyone was looking.
         #if BANANA_MODULE_PODCASTS
-        .overlay(alignment: .bottom) {
-            SkipNoticeBar().padding(.bottom, 96)
-        }
         .sheet(isPresented: $showNowPlaying) { NowPlayingView() }
         #endif
         #if BANANA_MODULE_NOTES
         .modifier(VoiceCaptureHost(playerOpen: showNowPlaying))
         #endif
         .modifier(PageChromeHost(sidebar: showsSidebarSections))
+        // Modal navigation stays above transient playback notices.
+        .overlay {
+            if bottomBarShell {
+                ShellSwitcherOverlay(pages: shellPages, current: currentShellPage, open: openShellPage)
+            }
+        }
     }
 
     /// When the app becomes active shortly after an alarm rang, start the

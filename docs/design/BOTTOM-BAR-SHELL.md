@@ -36,6 +36,13 @@ without the shell and keep its own controls; `--ui-preview` draws the shell.
 Glass is the system's (`.glassEffect`, `.buttonStyle(.glass)`), on the bar, the switcher, the
 player and the top row only. Results, rows and the page stay solid.
 
+The bottom controls sit over an opaque system-background backing, including the home-indicator
+area, so scrolling words cannot show through their labels. Feedback capsules also have opaque
+backings. The shell uses [SwiftUI’s native safe-area bar](https://developer.apple.com/documentation/swiftui/view/safeareabar%28edge%3Aalignment%3Aspacing%3Acontent%3A%29) for content insets and scroll-edge treatment.
+The skip notice follows the measured footer bounds at every width; a regular Undo toast clears
+both the footer and the skip notice. The page switcher stays above transient feedback.
+
+
 ## Every old control and its new place (phone)
 
 | Before | Now |

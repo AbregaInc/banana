@@ -21,6 +21,20 @@ final class ShellChrome: ObservableObject {
     @Published private(set) var keyboardUp = false
     /// The height of the bar and the player above it, for what is laid out over the page.
     @Published private(set) var barHeight: CGFloat = 76
+    @Published private(set) var skipNoticeHeight: CGFloat = 0
+    @Published private(set) var footerHeight: CGFloat = 0
+
+    func setFooterHeight(_ height: CGFloat) {
+        guard height.isFinite else { return }
+        let height = max(0, height)
+        if abs(footerHeight - height) >= 0.5 { footerHeight = height }
+    }
+
+    func setSkipNoticeHeight(_ height: CGFloat) {
+        guard height.isFinite else { return }
+        let height = max(0, height)
+        if abs(skipNoticeHeight - height) >= 0.5 { skipNoticeHeight = height }
+    }
     /// How much of the window the keyboard covers (0 with none, or a hardware keyboard).
     @Published private(set) var keyboardHeight: CGFloat = 0
     /// Mail's composer is open in the bar (`ShellMailComposer`): the sparkle and the player step away.
@@ -98,6 +112,61 @@ private enum ShellMetrics {
     static let spacing: CGFloat = DS.Space.m
 }
 
+/// The notice is anchored to the actual chrome, so changing player/keyboard/text sizes
+/// never leaves it sitting on a control. Its height also keeps ordinary Undo toasts clear.
+struct ShellSkipNoticeHeight: PreferenceKey {
+    static let defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) { value = max(value, nextValue()) }
+}
+
+struct ShellPlaybackChromeHeight: PreferenceKey {
+    static let defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) { value = max(value, nextValue()) }
+}
+
+struct ShellPlaybackChromeAnchor: PreferenceKey {
+    static let defaultValue: Anchor<CGRect>? = nil
+    static func reduce(value: inout Anchor<CGRect>?, nextValue: () -> Anchor<CGRect>?) {
+        value = nextValue() ?? value
+    }
+}
+
+struct ShellSkipNoticeHost: ViewModifier {
+    func body(content: Content) -> some View {
+        content.anchorPreference(key: ShellPlaybackChromeAnchor.self, value: .bounds) { $0 }
+    }
+}
+
+/// Keep hit testing in the root's full viewport; the notice can sit above the bar's
+/// bounds without becoming an untappable child outside a native bar hosting view.
+struct ShellPlaybackNoticeOverlay: View {
+    let anchor: Anchor<CGRect>?
+
+    var body: some View {
+        GeometryReader { proxy in
+            if let anchor {
+                let bar = proxy[anchor]
+                Color.clear
+                    .allowsHitTesting(false)
+                    .preference(key: ShellPlaybackChromeHeight.self, value: bar.height)
+                    .overlay(alignment: .top) {
+                    #if BANANA_MODULE_PODCASTS
+                    SkipNoticeBar()
+                        .frame(width: bar.width)
+                        .background {
+                            GeometryReader { notice in
+                                Color.clear.preference(key: ShellSkipNoticeHeight.self, value: notice.size.height)
+                            }
+                        }
+                        .alignmentGuide(.top) { $0[.bottom] }
+                        .offset(x: bar.midX - proxy.size.width / 2, y: bar.minY - DS.Space.s)
+                    #endif
+                }
+            }
+        }
+    }
+}
+
 // MARK: - The bar
 
 /// The bar, except while a keyboard is up for something else (a note, a form): the bar would
@@ -114,6 +183,7 @@ struct ShellBarHost: View {
         // Mail's composer is the bar's own: the keyboard is up for it, and the bar holds the box.
         if !chrome.keyboardUp || search.focused || (section == .mail && chrome.mailComposing) {
             ShellBottomBar(section: section, pages: pages, open: open, expandPlayer: expandPlayer)
+                .modifier(ShellSkipNoticeHost())
                 .onAppear { chrome.setBarShown(true) }
                 .onDisappear { chrome.setBarShown(false) }
         }
@@ -196,6 +266,9 @@ struct ShellBottomBar: View {
         .padding(.horizontal, ShellMetrics.gutter)
         .padding(.top, DS.Space.s)
         .padding(.bottom, DS.Space.xs)
+        .background {
+            Rectangle().fill(.background).ignoresSafeArea(.container, edges: .bottom)
+        }
         .animation(.snappy(duration: 0.25), value: placement)
         .animation(.snappy(duration: 0.25), value: mode.hidesSideButtons)
         .animation(.snappy(duration: 0.25), value: switcherShown)
@@ -560,6 +633,7 @@ struct ShellPlayerCapsule: View {
                         }
                         Spacer(minLength: 0)
                     }
+                    .frame(minHeight: 44)
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
@@ -569,7 +643,7 @@ struct ShellPlayerCapsule: View {
                 Button { player.togglePlayPause() } label: {
                     Image(systemName: player.isPlaying ? "pause.fill" : "play.fill")
                         .font(.title3)
-                        .frame(width: 40, height: 40)
+                        .frame(width: 44, height: 44)
                         .contentShape(Circle())
                 }
                 .buttonStyle(.plain)
@@ -580,7 +654,7 @@ struct ShellPlayerCapsule: View {
                 } label: {
                     Image(systemName: "chevron.down")
                         .font(.body.weight(.semibold))
-                        .frame(width: 40, height: 40)
+                        .frame(width: 44, height: 44)
                         .contentShape(Circle())
                 }
                 .buttonStyle(.plain)
@@ -699,7 +773,7 @@ private struct ShellPageModifier: ViewModifier {
         content
             .environment(\.bottomBarShell, bottomBar)
             .environment(\.wideShell, !bottomBar)
-            .modifier(ShellToastInsetProvider(bottomBar: bottomBar))
+            .modifier(ShellToastInsetProvider())
             .toolbarVisibility(.hidden, for: .tabBar)
             // An iPad's floating tab strip and sidebar ignore the SwiftUI setting: the tab bar
             // controller hides them itself.
@@ -745,12 +819,11 @@ private struct TabBarHider: UIViewControllerRepresentable {
 /// Hands a page's toasts the bar's measured height to stand above (`ShellToastInset`). Its own
 /// small view, so the bar's height and presence redraw the toast and not the page.
 private struct ShellToastInsetProvider: ViewModifier {
-    let bottomBar: Bool
     @ObservedObject private var chrome = ShellChrome.shared
 
     func body(content: Content) -> some View {
         content.environment(\.toastBottomInset, CGFloat(ShellToastInset.bottom(
-            barHeight: Double(chrome.barHeight), barShown: chrome.barShown, onPage: bottomBar)))
+            footerHeight: Double(chrome.footerHeight), noticeHeight: Double(chrome.skipNoticeHeight))))
     }
 }
 

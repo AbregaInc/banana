@@ -888,6 +888,8 @@ final class PodcastLibrary: ObservableObject {
     /// Artwork ships as bundled fixtures (`PreviewArtwork/`) seeded straight into `ImageCache`,
     /// so rows render original synthetic sample covers without a network fetch.
     func injectSampleForPreview() {
+        let episodeCount: Int? = ProcessInfo.processInfo.arguments.contains("--shell-long-feed") ? 40 : nil
+        let previousIDs = Dictionary(podcasts.map { ($0.feedURL, $0.id) }, uniquingKeysWith: { first, _ in first })
         usesPreviewCatalogue = true
         struct PreviewShow {
             let title: String
@@ -966,7 +968,12 @@ final class PodcastLibrary: ObservableObject {
                let data = try? Data(contentsOf: asset) {
                 ImageCache.shared.injectPreviewOriginal(data, for: artworkURL)
             }
-            let episodes = show.episodes.enumerated().map { episodeIndex, episodeTitle in
+            let titles = episodeCount.map { count in
+                (0..<max(1, count)).map { i in
+                    show.episodes[i % show.episodes.count] + (i >= show.episodes.count ? " · \(i + 1)" : "")
+                }
+            } ?? show.episodes
+            let episodes = titles.enumerated().map { episodeIndex, episodeTitle in
                 var episode = Episode(
                     id: "preview-\(index)-\(episodeIndex)",
                     title: episodeTitle,
@@ -983,15 +990,16 @@ final class PodcastLibrary: ObservableObject {
                     + "<ul><li>00:00 Intro</li><li>12:30 The early years</li><li>41:05 What came next</li></ul>"
                 return episode
             }
+            let feedURL = URL(string: "https://preview.banana.invalid/feed/\(show.artworkAsset).xml")!
             var podcast = Podcast(
-                feedURL: URL(
-                    string: "https://preview.banana.invalid/feed/\(show.artworkAsset).xml")!,
+                id: previousIDs[feedURL] ?? UUID(),
+                feedURL: feedURL,
                 title: show.title,
                 author: show.author,
                 artworkURL: artworkURL,
                 episodes: episodes
             )
-            podcast.completed = Set(episodes.dropFirst(show.unplayed).map(\.id))
+            podcast.completed = episodeCount == nil ? Set(episodes.dropFirst(show.unplayed).map(\.id)) : []
             return podcast
         }
         isLoaded = true

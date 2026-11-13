@@ -284,6 +284,7 @@ struct ToastView: View {
                 }
                 .padding(.horizontal, DS.Space.l)
                 .padding(.vertical, DS.Space.m)
+                .background(.background, in: .capsule)
                 .floatingCapsule()
                 .accessibilityElement(children: .contain)
                 .accessibilityIdentifier("toast")

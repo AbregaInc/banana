@@ -89,6 +89,7 @@ struct PodcastDetailView: View {
                 }
             }
             .listStyle(.insetGrouped)
+            .contentMargins(.top, DS.Space.s, for: .scrollContent)
             .transaction(value: browser.count) { transaction in
                 // Integer positions shift on filtering. Do not animate every surviving
                 // row into its neighbour's position when one episode is marked played.
@@ -251,8 +252,11 @@ struct PodcastDetailView: View {
     /// The show at a glance, compact so its episodes start high on a phone: the cover at the
     /// left, its name and who makes it beside it, then Play and its settings.
     private func header(_ podcast: Podcast) -> some View {
-        HStack(alignment: .top, spacing: DS.Space.l) {
+        let current = player.currentPodcastID == podcast.id && player.currentEpisode != nil
+        let action = current ? (player.isPlaying ? "Pause" : "Resume") : "Play next"
+        return HStack(alignment: .top, spacing: DS.Space.l) {
             Artwork(url: podcast.artworkURL, size: 112)
+                .accessibilityIdentifier("podcast.artwork")
             VStack(alignment: .leading, spacing: DS.Space.xs) {
                 Text(podcast.title).font(.title3.bold()).lineLimit(3)
                 if let author = podcast.author {
@@ -261,12 +265,14 @@ struct PodcastDetailView: View {
                 Spacer(minLength: DS.Space.s)
                 HStack(spacing: DS.Space.s) {
                     Button {
-                        player.playNext(in: podcast)
+                        if current { player.togglePlayPause() }
+                        else { player.playNext(in: podcast) }
                     } label: {
-                        Label("Play next", systemImage: "play.fill")
+                        Label(action, systemImage: current && player.isPlaying ? "pause.fill" : "play.fill")
                     }
                     .buttonStyle(.primary)
-                    .accessibilityLabel("Play next episode")
+                    .accessibilityLabel(current ? action + " episode" : "Play next episode")
+                    .accessibilityIdentifier("podcast.playback")
 
                     Button {
                         showConfiguration = true
@@ -283,6 +289,8 @@ struct PodcastDetailView: View {
             .frame(maxWidth: .infinity, minHeight: 112, alignment: .leading)
         }
         .padding(.vertical, DS.Space.s)
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("podcast.header")
     }
 
     private func configurationSheet(_ podcast: Podcast) -> some View {
@@ -653,7 +661,7 @@ struct PodcastDetailView: View {
                 } label: {
                     menuLabel(state, episodeID: episode.id)
                 }
-                .accessibilityLabel("Episode actions")
+                .accessibilityLabel(state == .downloaded ? "Downloaded episode actions" : "Episode actions")
             }
         }
         // The app's accent would otherwise tint this orange whatever the label asks for.
@@ -775,8 +783,8 @@ struct PodcastDetailView: View {
             // re-renders THIS 20 pt circle — not the detail view and its whole episode list.
             DownloadRing(episodeID: episodeID, ticker: downloads.progressTicker)
         case .downloaded:
-            // Downloaded is a state, not an action: a quiet tick, like the rest of the row.
-            labelIcon("checkmark.circle.fill", Color.secondary)
+            // The filled download state stays distinct from completion in Unplayed.
+            labelIcon("arrow.down.circle.fill", Color.secondary)
         case .waitingForWiFi:
             labelIcon("wifi.exclamationmark", .secondary)
         default:
@@ -943,7 +951,7 @@ struct EpisodeRow: View {
 
     /// What a tap will do — or, while playing, that it's live. A loaded but paused episode shows
     /// play; the accent is what marks it as "paused here" rather than "never started".
-    /// Played says so in words only: the row's one tick is the downloaded one.
+    /// Played says so in words; the trailing download arrow is its separate local-file state.
     private var glyph: String? {
         if isPlaying { return "waveform" }
         if isCompleted { return nil }

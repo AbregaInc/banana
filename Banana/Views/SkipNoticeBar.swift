@@ -24,16 +24,23 @@ struct SkipNoticeBar: View {
                 Spacer(minLength: 0)
                 Button("Undo") { player.undoLastSkip() }
                     .buttonStyle(.inline)
+                    #if os(iOS)
+                    .frame(minWidth: 44, minHeight: DS.Row.minHeight)
+                    .contentShape(Rectangle())
+                    .padding(.vertical, -DS.Space.m)
+                    #endif
                     .accessibilityIdentifier("adSkip.undo")
             }
             .padding(.horizontal, DS.Space.l)
             .padding(.vertical, DS.Space.m)
+            .background(.background, in: .capsule)
             .floatingCapsule()
             .padding(.horizontal, DS.Space.l)
             .transition(.move(edge: .bottom).combined(with: .opacity))
             .animation(.snappy, value: notice.id)
             .accessibilityElement(children: .contain)
             .accessibilityLabel(notice.summary)
+            .accessibilityIdentifier("adSkip.notice")
         }
     }
 }

@@ -361,11 +361,10 @@ enum ShellBadge {
     }
 }
 
-/// How far a toast stands off the bottom of a page: above the bottom bar (and the player on it)
-/// while the bar is there, on the pages it lies over; in a sheet, on the iPad on its side and on
-/// the Mac there is no bar under it, and it keeps its own place.
+/// Every shell toast clears its actual footer and the temporary skip notice above it.
+/// A hidden footer contributes zero; sheets use their own toast host and safe area.
 enum ShellToastInset {
-    static func bottom(barHeight: Double, barShown: Bool, onPage: Bool) -> Double {
-        barShown && onPage ? barHeight : 0
+    static func bottom(footerHeight: Double, noticeHeight: Double = 0) -> Double {
+        max(0, footerHeight) + (noticeHeight > 0 ? noticeHeight + 8 : 0)
     }
 }
