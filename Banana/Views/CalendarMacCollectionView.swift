@@ -197,7 +197,13 @@ struct CalendarMacCollectionViewport: NSViewRepresentable {
             onOffset = input.onOffset
             onScrollEnd = input.onScrollEnd
             slotActions = input.slotActions
-            backgroundHost.rootView = AnyView(input.background.environment(\.self, environment))
+            // AppKit can give its background the clip width (excluding a legacy
+            // scrollbar). Keep grid chrome in the same coordinates as event items,
+            // even while that native host is resized independently of the document.
+            backgroundHost.rootView = AnyView(input.background
+                .frame(width: input.contentSize.width, height: input.contentSize.height, alignment: .topLeading)
+                .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity, alignment: .topLeading)
+                .environment(\.self, environment))
             layout.size = input.contentSize
             layout.activeIndex = input.activeID.flatMap { id in items.firstIndex { $0.id.hasSuffix("|" + id) } }
             layout.attributes = items.enumerated().map { index, item in

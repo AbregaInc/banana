@@ -1,6 +1,7 @@
 import AppKit
 import SwiftUI
 import Foundation
+setbuf(__stdoutp, nil)
 let layout = CalendarMacCollectionLayout()
 layout.size = CGSize(width: 1000, height: 2400)
 layout.attributes = (0..<240).map { i in
@@ -76,4 +77,50 @@ wheel.scheduleDiscreteScrollEnd()
 wheel.stopScrollCallbacks()
 RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.25))
 check(wheelEnds == 1)
+
+// Background chrome must keep the event descriptor coordinate space even when
+// AppKit independently narrows its native host to make room for a scrollbar.
+func settle(_ view: NSView, until ready: () -> Bool) {
+    let deadline = Date(timeIntervalSinceNow: 2)
+    repeat {
+        view.layoutSubtreeIfNeeded()
+        if ready() { return }
+        RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.001))
+    } while Date() < deadline
+}
+for style in [NSScroller.Style.legacy, .overlay] {
+    let host = CalendarMacCollectionViewport.Coordinator()
+    host.scroll.scrollerStyle = style
+    host.scroll.frame = CGRect(x: 0, y: 0, width: 900, height: 600)
+    var backgroundFrame: CGRect = .zero
+    let background = AnyView(GeometryReader { geometry in
+        let _ = { backgroundFrame = geometry.frame(in: .global) }()
+        Color.clear
+    })
+    func update(width: CGFloat) {
+        host.update(CalendarMacCollectionViewport(items: descriptors,
+            contentSize: CGSize(width: width, height: 50000), background: background,
+            initialOffset: 0, onOffset: { _ in }), environment: EnvironmentValues())
+        settle(host.scroll) { backgroundFrame.width == width }
+        check(backgroundFrame.width == width)
+        check(backgroundFrame.minX == 0)
+    }
+    update(width: 900)
+    for y in [400.0, 1200, 0] {
+        host.scroll.contentView.scroll(to: CGPoint(x: 0, y: y))
+        host.scroll.reflectScrolledClipView(host.scroll.contentView)
+        settle(host.scroll) { backgroundFrame.width == 900 }
+        check(backgroundFrame.width == 900)
+        check(backgroundFrame.minX == 0)
+    }
+    host.scroll.frame.size.width = 1200
+    update(width: 1200)
+    let nativeBackground = (host.scroll.documentView as! NSCollectionView).backgroundView!
+    nativeBackground.setFrameSize(CGSize(width: host.scroll.contentView.bounds.width, height: 50000))
+    settle(nativeBackground) { backgroundFrame.width == 1200 }
+    print("style=\(style.rawValue) hostWidth=\(nativeBackground.frame.width) gridFrame=\(backgroundFrame)")
+    check(backgroundFrame.width == 1200)
+    check(backgroundFrame.minX == 0)
+    host.stopObserving()
+}
 print("\(checks) AppKit layout/initial-mount checks passed; no visible interaction or performance acceptance")
