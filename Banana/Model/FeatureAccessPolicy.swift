@@ -26,20 +26,54 @@ struct FeatureAccessCache: Codable, Equatable {
         account != nextAccount || !policy.issuedAt.isFinite || nextPolicy.issuedAt >= policy.issuedAt
     }
 
-    /// Navigation remembers an offered module through a failed refresh. This is not a live
-    /// access grant: requests and new consent still use `allows`, including its expiry.
-    /// A new policy that removes the feature, or a different session, withdraws the offer.
-    func offers(_ feature: String, context expected: String?) -> Bool {
-        guard let expected, context == expected, !account.isEmpty,
-              ["email", "calendarCloud"].contains(feature), policy.lifetime > 0 else { return false }
-        return policy.enabled.contains(feature)
+    /// Local expiry of each last positive offer. Optional for caches written before grace.
+    /// This never participates in live authorization.
+    var lastOffers: [String: Date]? = nil
+    static let visibilityGrace: TimeInterval = 24 * 60 * 60
+
+    init(context: String, account: String, policy: FeatureAccessPolicy, receivedAt: Date,
+         previous: FeatureAccessCache? = nil) {
+        self.context = context; self.account = account; self.policy = policy; self.receivedAt = receivedAt
+        var offers: [String: Date] = [:]
+        let previous = previous.flatMap { $0.context == context && $0.account == account ? $0 : nil }
+        for feature in ["email", "calendarCloud"] {
+            if policy.lifetime > 0, policy.enabled.contains(feature) {
+                offers[feature] = receivedAt.addingTimeInterval(policy.lifetime)
+            } else if let end = previous?.lastOfferEnd(feature) {
+                // A denial starts grace at once; repeated denials cannot slide its deadline.
+                offers[feature] = min(end, receivedAt)
+            }
+        }
+        lastOffers = offers.isEmpty ? nil : offers
+    }
+
+    private func matches(_ feature: String, context expected: String?) -> Bool {
+        expected != nil && context == expected && !account.isEmpty && ["email", "calendarCloud"].contains(feature)
+    }
+
+    private func lastOfferEnd(_ feature: String) -> Date? {
+        if let end = lastOffers?[feature], end.timeIntervalSince1970.isFinite { return end }
+        // Migrate an older positive cache without inventing offers for an older denial.
+        guard policy.lifetime > 0, policy.enabled.contains(feature) else { return nil }
+        return receivedAt.addingTimeInterval(policy.lifetime)
+    }
+
+    func visibilityDeadline(_ feature: String, context expected: String?) -> Date? {
+        guard matches(feature, context: expected), let end = lastOfferEnd(feature) else { return nil }
+        return end.addingTimeInterval(Self.visibilityGrace)
+    }
+
+    func offers(_ feature: String, context expected: String?, now: Date) -> Bool {
+        guard now.timeIntervalSince(receivedAt) >= 0, let deadline = visibilityDeadline(feature, context: expected) else { return false }
+        return now.timeIntervalSince(deadline) < 0
     }
 
     func allows(_ feature: String, context expected: String?, now: Date) -> Bool {
-        guard offers(feature, context: expected) else { return false }
+        guard matches(feature, context: expected), policy.enabled.contains(feature) else { return false }
         let age = now.timeIntervalSince(receivedAt)
         return age >= 0 && age < policy.lifetime
     }
+
 }
 
 struct GoogleAccountCapabilities: Codable, Equatable, Hashable {

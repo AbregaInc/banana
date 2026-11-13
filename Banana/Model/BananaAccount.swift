@@ -73,6 +73,7 @@ final class BananaAccount: ObservableObject {
     private var transportFailed = false
 
     private init() {
+        FeatureAccessStore.shared.reportTransition = { PlaybackDiagnostics.shared.log("feature access", $0) }
         session = SyncedKeychain.read(service: AppVariant.current.googleKeychainService,
                                       account: Self.keychainAccount) { String(data: $0, encoding: .utf8) }
         FeatureAccessStore.shared.bind(session: session, host: BananaService.host)

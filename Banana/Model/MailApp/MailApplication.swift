@@ -9,6 +9,8 @@ import Combine
     @Published private(set) var failed = false
     @Published private(set) var loading = false
     private var startup: Task<Void, Never>?
+    private var accessObservation: AnyCancellable?
+    private var accessRefresh: Task<Void, Never>?
 
     func start() {
         guard session == nil, startup == nil else { return }
@@ -71,6 +73,17 @@ import Combine
                         })
                 }
                 source.reportReadFailure = { PlaybackDiagnostics.shared.log("mail read", $0) }
+                accessObservation = BananaAccount.shared.$account.map { $0?.google }.removeDuplicates().dropFirst().map { _ in () }
+                    .merge(with: FeatureAccessStore.shared.$emailAvailable.removeDuplicates().dropFirst().map { _ in () })
+                    .sink { [weak self, weak source] _ in
+                        guard let self, self.accessRefresh == nil else { return }
+                        // Both publishers send before their stored value changes. Coalesce them
+                        // and read after the synchronous account/policy update has completed.
+                        self.accessRefresh = Task { @MainActor [weak self, weak source] in
+                            self?.accessRefresh = nil
+                            source?.accessChanged()
+                        }
+                    }
                 session = MailSession.installLive(source)
             } catch {
                 // Preserve all files and credentials. Log no SQL, account, subject or payload.
