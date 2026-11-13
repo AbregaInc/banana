@@ -9,6 +9,13 @@ final class GmailConversationLoaderTests: XCTestCase {
         var attachments: [String] = []
         var fullReads = 0
         var calendarBodies: [String: GmailPartBody] = [:]
+        private var holdCalendars = false
+        private var calendarGate: CheckedContinuation<Void, Never>?
+        func holdCalendarAttachments() { holdCalendars = true }
+        func releaseCalendarAttachments() {
+            holdCalendars = false
+            calendarGate?.resume(); calendarGate = nil
+        }
         func calendarCopies(distinct: Bool = false) {
             let first = Data("BEGIN:VCALENDAR\r\nUID:first\r\nEND:VCALENDAR".utf8)
             let second = distinct ? Data("BEGIN:VCALENDAR\r\nUID:other\r\nEND:VCALENDAR".utf8) : first
@@ -34,7 +41,11 @@ final class GmailConversationLoaderTests: XCTestCase {
             XCTAssertEqual(format, .full); fullReads += 1; return full
         }
         func attachment(token: String, messageID: String, attachmentID: String) async throws -> GmailPartBody {
-            XCTAssertEqual(messageID, "m1"); attachments.append(attachmentID); return calendarBodies[attachmentID] ?? attachmentBody
+            XCTAssertEqual(messageID, "m1"); attachments.append(attachmentID)
+            if holdCalendars, calendarBodies[attachmentID] != nil {
+                await withCheckedContinuation { calendarGate = $0 }
+            }
+            return calendarBodies[attachmentID] ?? attachmentBody
         }
         func labels(token: String) async throws -> [GmailLabel] { [] }
         func listMessages(token: String, labelIDs: [String], query: String?, includeSpamTrash: Bool, pageToken: String?, maxResults: Int) async throws -> GmailIDPage { GmailIDPage(messages: [], nextPageToken: nil, resultSizeEstimate: 0) }

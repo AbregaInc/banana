@@ -27,6 +27,11 @@ target = out / 'Tests'
 target.mkdir()
 sources = sorted((root / 'Banana/Model/Mail').glob('*.swift')) + [root / "Banana/Model/LiveFilter.swift"]
 sources += [root / 'BananaTests' / (name + '.swift') for name in ['MailLegacyMigrationTests', 'MailDraftDriverTests', 'MailReadBackoffTests', 'MailAccessLifecycleTests', 'GmailMailboxSyncTests', 'MailSyncFillTests', 'MailSyncCheckpointTests', 'MailRemovalCoordinatorTests', 'GmailVerificationSyncTests', 'MailVerificationIndexTests', 'GmailReconcileSyncTests', 'MailReconcileIndexTests', 'GmailHistorySyncTests', 'MailHistoryIndexTests', 'MailRemovalRulesTests', 'MailHistoryRulesTests', 'GmailWireTests', 'MailIndexSchemaTests', 'MailIndexReaderTests', 'MailIndexWriterTests', 'MailMessageImporterTests', 'MailMIMETests', 'MailBlobStoreTests', 'MailHTMLPreparerTests', 'GmailPageLoaderTests', 'MailLiveSourceTests', 'MailLocalSearchTests', 'MailLocalSearchReference', 'MailGmailSearchTests', 'MailConversationReaderTests', 'GmailConversationLoaderTests', 'MailIntentStoreTests', 'OutboxRulesTests', 'GmailIntentDeliveryTests', 'MailActionCoordinatorTests', 'MailLabelCatalogTests']]
+# Keep the standalone target's presentation and cost-budget dependencies aligned with
+# the native target. These helpers remain pure Foundation/system type projections.
+sources += [root / 'Banana/Model/MailUI/Pure' / name for name in [
+    'MailAttachmentKind.swift', 'MailAttachmentText.swift', 'MailBodyHTML.swift', 'MailToastText.swift', 'MailActions.swift']]
+sources += [root / 'BananaTests/CostBudget.swift']
 identities = {}
 for source in sources:
     destination = target / source.name

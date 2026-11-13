@@ -676,6 +676,30 @@ import GRDB
         observation.cancel(); source.setVisible(false)
     }
 
+    func testCalendarCopiesVerifyAfterTheBodyIsAvailable() async throws {
+        let stores = try await stores(), access = Access(), api = GmailConversationLoaderTests.Provider()
+        await api.calendarCopies()
+        await api.holdCalendarAttachments()
+        access.grant = .granted
+        let source = MailLiveSource(stores: stores, access: access, api: api)
+        let id = MailConversationID(account: "a@example.com", thread: "t1")
+        let readable = expectation(description: "Body is usable before optional attachment verification")
+        let verified = expectation(description: "Identical calendar copies become one chip")
+        var sawBody = false, sawVerified = false
+        let observation = source.observeConversation(id) { value in
+            guard let message = value?.messages.first, message.body == .text else { return }
+            if !sawBody, message.attachments.count == 2 { sawBody = true; readable.fulfill() }
+            if !sawVerified, message.attachments.count == 1 { sawVerified = true; verified.fulfill() }
+        }
+        source.activate()
+        await fulfillment(of: [readable], timeout: 5)
+        await api.releaseCalendarAttachments()
+        await fulfillment(of: [verified], timeout: 5)
+        observation.cancel(); source.setVisible(false)
+        let reads = await api.attachments
+        XCTAssertEqual(reads, ["calendar-a", "calendar-b"])
+    }
+
     func testReturningToMailResumesObservedConversationDownload() async throws {
         let stores = try await stores(), access = Access(), api = GmailConversationLoaderTests.Provider()
         access.grant = .granted
