@@ -14,3 +14,9 @@ Off-window programmatic clip scrolling did not deliver the collection's visible
 scroll lifecycle, even when explicitly requesting layout; those attempts are kept
 under `.build/calendar-mac-integration-20261010/host-probe`. They do not demonstrate
 successful scrolling or recycling, and the persistent check makes no such claim.
+
+Background geometry checks cover both scrollbar styles, clip scrolling and a
+windowless resize. A controlled narrower background host reproduces the native
+host/descriptor width mismatch: background chrome must retain the descriptor
+width and leading origin. This proves the coordinate invariant under that
+proposal; it does not reproduce AppKit's visible-window scrollbar lifecycle.
