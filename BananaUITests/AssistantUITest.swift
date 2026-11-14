@@ -33,7 +33,7 @@ final class UnifiedAssistantEntryUITest: XCTestCase {
         XCTAssertTrue(input.waitForExistence(timeout: 15), app.debugDescription)
         input.tap()
         input.typeText("Plan tomorrow")
-        app.buttons["Done"].firstMatch.tap()
+        app.buttons["sheet.close"].tap()
         XCTAssertTrue(entry.waitForExistence(timeout: 10))
         entry.tap()
         XCTAssertTrue(input.waitForExistence(timeout: 10))
