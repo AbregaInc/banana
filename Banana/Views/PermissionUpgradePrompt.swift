@@ -8,19 +8,15 @@ struct PermissionUpgradePrompt: ViewModifier {
     let upgrade: @MainActor ([PermissionUpgradeNeed]) async -> PermissionUpgradeOutcome
     @StateObject private var model = PermissionUpgradePromptModel()
 
-    @State private var queued: PermissionUpgradePromptModel.Presentation?
-
     func body(content: Content) -> some View {
         content
             .onAppear { model.offer(needs) }
             .onChange(of: needs) { _, value in model.offer(value) }
             .sheet(item: Binding(get: { model.presentation }, set: { value in
-                if value == nil, queued == nil, let current = model.presentation { model.deferUpgrade(current) }
+                if value == nil, !model.updating, let current = model.presentation { model.deferUpgrade(current) }
                 else { model.presentation = value }
             }), onDismiss: {
-                guard let value = queued else { return }
-                queued = nil
-                Task { await model.update(value, using: upgrade) }
+                Task { await model.completeDismissal(using: upgrade) }
             }) { value in
                 prompt(value)
                     #if os(iOS)
@@ -42,8 +38,7 @@ struct PermissionUpgradePrompt: ViewModifier {
                     .buttonStyle(.bordered)
                 Spacer()
                 Button(value.retry ? "Retry" : "Reconnect") {
-                    queued = value
-                    model.presentation = nil
+                    model.queue(value)
                 }
                 .buttonStyle(.borderedProminent)
                 .accessibilityIdentifier("permission-upgrade.reconnect")

@@ -55,6 +55,18 @@ final class PermissionUpgradeTests: XCTestCase {
         XCTAssertNil(prompt.presentation)
     }
 
+    func testQueuedUpgradeDoesNotReopenBeforeNativeDismissalCompletes() async {
+        let prompt = model(); prompt.offer(needs())
+        XCTAssertTrue(prompt.queue(prompt.presentation!))
+        prompt.offer(needs())
+        XCTAssertTrue(prompt.updating)
+        XCTAssertNil(prompt.presentation)
+        var called = false
+        await prompt.completeDismissal { _ in called = true; return .updated }
+        XCTAssertTrue(called)
+        XCTAssertFalse(prompt.updating)
+    }
+
     func testRemovedAccountIsNotReconnectedFromAStalePrompt() async {
         let prompt = model(); prompt.offer(needs())
         let presented = prompt.presentation!

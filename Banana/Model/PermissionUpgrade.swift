@@ -47,6 +47,7 @@ final class PermissionUpgradePromptModel: ObservableObject {
     @Published var presentation: Presentation?
     @Published private(set) var updating = false
     private var offered: [PermissionUpgradeNeed] = []
+    private var queued: Presentation?
     private var deferred: [String]
     private let defaults: UserDefaults
     private let key = "permissions.deferred-upgrades"
@@ -74,11 +75,26 @@ final class PermissionUpgradePromptModel: ObservableObject {
         offer(offered)
     }
 
+    @discardableResult
+    func queue(_ value: Presentation) -> Bool {
+        guard !updating else { return false }
+        queued = value
+        updating = true
+        presentation = nil
+        return true
+    }
+
     func update(_ value: Presentation, using action: @escaping @MainActor ([PermissionUpgradeNeed]) async -> PermissionUpgradeOutcome) async {
-        guard !updating else { return }
+        guard queue(value) else { return }
+        await completeDismissal(using: action)
+    }
+
+    /// The native sheet calls this only after dismissal; offers can update while it closes.
+    func completeDismissal(using action: @escaping @MainActor ([PermissionUpgradeNeed]) async -> PermissionUpgradeOutcome) async {
+        guard let value = queued else { return }
+        queued = nil
         let current = value.needs.filter { need in offered.contains { $0.id == need.id } }
-        guard !current.isEmpty else { presentation = nil; return }
-        updating = true; presentation = nil
+        guard !current.isEmpty else { updating = false; presentation = nil; offer(offered); return }
         let outcome = await action(current)
         updating = false
         switch outcome {
