@@ -12,9 +12,9 @@ set -e
 target="${1:?usage: $0 <.xcarchive | .app | folder>}"
 [ -e "$target" ] || { echo "No such path: $target"; exit 2; }
 
-# Email distribution requires the Beta identity and the Beta feed. TestFlight is Stable.
+# AI and Email distribution require the Beta identity and the Beta feed. TestFlight is Stable.
 # Never infer eligibility from a command-line allow flag or a public app's saved preference.
-email_allowed=0
+beta_features_allowed=0
 primary_apps=()
 while IFS= read -r -d '' app; do primary_apps+=("$app"); done < <(find "$target" -type d -name '*.app' -prune -print0)
 if [ "${#primary_apps[@]}" -eq 1 ]; then
@@ -25,18 +25,20 @@ if [ "${#primary_apps[@]}" -eq 1 ]; then
   primary=$(/usr/libexec/PlistBuddy -c 'Print :BananaPrimaryBundleIdentifier' "$info" 2>/dev/null || true)
   if [ -n "$primary" ]; then
     feed=$(/usr/libexec/PlistBuddy -c 'Print :SUFeedURL' "$info" 2>/dev/null || true)
-    if [ "$channel" = beta ] && [ "$bundle" = "$primary.beta" ] && [ "$feed" = 'https://bananatheapp.com/updates/mac-beta/appcast.xml' ]; then email_allowed=1; fi
+    if [ "$channel" = beta ] && [ "$bundle" = "$primary.beta" ] && [ "$feed" = 'https://bananatheapp.com/updates/mac-beta/appcast.xml' ]; then beta_features_allowed=1; fi
   fi
 fi
 
-# Runtime bundles, JS entry points and build markers must never reach distribution.
+# Runtime bundles and entry points are confined to the verified direct Beta identity/feed.
+if [ "$beta_features_allowed" -ne 1 ]; then
 while IFS= read -r -d '' resource; do
   echo "Not for Apple: local-only feature resource in $resource"
   exit 1
 done < <(find "$target" \( -name 'PiRuntime' -o -name 'pi-agent.js' -o -name 'pi-bootstrap.js' -o -name 'pi-local-model.json' -o -name 'pi-runtime-manifest.json' -o -name 'pi-inference-worker.py' \) -print0)
+fi
 
 while IFS= read -r -d '' marker; do
-  if [ "$email_allowed" -ne 1 ] || grep -qv '^EMAIL$' "$marker"; then
+  if [ "$beta_features_allowed" -ne 1 ] || grep -qvE '^(AI|EMAIL)$' "$marker"; then
     echo "Not for distribution: unexpected local feature marker"; exit 1
   fi
 done < <(find "$target" -name banana-local-features.txt -print0)
@@ -88,11 +90,11 @@ while IFS= read -r -d '' app; do
 done < <(find "$target" -type d \( -name '*.app' -o -name '*.appex' \) -print0)
 
 # What only an unreleased build carries.
-patterns='banana-local-ai-built-in
+patterns=''
+if [ "$beta_features_allowed" -ne 1 ]; then
+patterns="banana-local-ai-built-in
 AppleRuntimeHost
-AssistantStore'
-if [ "$email_allowed" -ne 1 ]; then
-patterns="$patterns
+AssistantStore
 banana-unreleased-modules-built-in
 gmail.googleapis.com
 https://www.googleapis.com/auth/gmail
@@ -127,10 +129,10 @@ if [ "$checked" -eq 0 ]; then
   exit 2
 fi
 if [ "$found" -ne 0 ]; then
-  echo "Not for Apple: this build has unreleased modules in it. Exclude local AI; Email ships only in the dedicated direct Beta identity and feed."
+  echo "Not for Apple: this build has unreleased modules in it. AI and Email ship only in the dedicated direct Beta identity and feed."
   exit 1
 fi
-echo "OK: no unreleased module in $checked executable(s) under $target"
+echo "OK: release checks passed for $checked executable(s) under $target"
 
 # The modules the app's BananaModules leaves out: none of their code, frameworks, entitlements,
 # Info.plist keys, background modes, task identifiers, URL schemes or embedded targets

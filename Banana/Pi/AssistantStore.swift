@@ -128,7 +128,7 @@ final class AssistantStore: ObservableObject {
     /// Whether the running Pi was started on the Mac's own model (vs Apple's, while it downloads).
     private var hostUsesLocalModel = false
     var modelIdentity: String {
-        #if os(macOS) && PI_DEVELOPMENT
+        #if os(macOS)
         if !diagnostic, let local = MacLocalInference.shared.resolvedConfiguration() { return "mac-local/\(local.modelId)" }
         #endif
         return diagnostic ? "faux/faux-1" : "apple-foundation/on-device"
@@ -239,7 +239,7 @@ final class AssistantStore: ObservableObject {
         }
         host.eventHandler = { [weak self] event in self?.receive(event) }
         var configuration: [String: Any] = ["testModel": diagnostic]
-        #if os(macOS) && PI_DEVELOPMENT
+        #if os(macOS)
         // The Mac's own model, kept by the app: Qwen through the app's Locals once `LocalModel`
         // has its files here and checked, Apple's on-device model until then. Never in
         // fixture/UI-test runs (no 3 GB download there).
@@ -274,7 +274,7 @@ final class AssistantStore: ObservableObject {
             guard let self else { return }
             do {
                 if value {
-                    #if os(macOS) && PI_DEVELOPMENT
+                    #if os(macOS)
                     if !self.diagnostic {
                         LocalModel.shared.start()
                         let local = MacLocalInference.shared.resolvedConfiguration() != nil

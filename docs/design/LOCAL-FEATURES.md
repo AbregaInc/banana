@@ -11,8 +11,8 @@ compile-time settings, not preferences or remote flags:
 | `BANANA_LOCAL_EMAIL` | Existing `BANANA_UNRELEASED` email compilation gate | `BANANA_PUBLIC`: email implementation excluded |
 
 Both inherit `BANANA_UNRELEASED` for compatibility with local install scripts. Release defaults
-to `NO` on production and ordinary Beta Release targets. The explicit `TestFlight`
-configuration includes gated Email and excludes AI; see [feature access](FEATURE-ACCESS.md).
+to `NO` on production and ordinary Beta Release targets. The dedicated direct Mac Beta
+configuration includes gated Email and the Pi assistant; see [feature access](FEATURE-ACCESS.md).
 Debug and PiDevelopment opt in locally. Either switch
 can be overridden independently on ordinary targets; PiDevelopment requires AI enabled.
 Standalone unit-test bundles explicitly enable both implementations, including in Release;
@@ -34,13 +34,10 @@ email or the assistant when their build gate is off. `tools/local-feature-resour
 AI resources only when enabled and removes stale runtime resources when switching a build
 folder back to public. Local builds carry a resource marker naming their enabled features.
 
-Every application target rejects Archive (`ACTION=install`) with local AI enabled. Email is
-allowed only for the primary app identity with `BananaReleaseChannel=testflight`;
-Stable and Dev archives reject it. Archives run `tools/check-release.sh` against the built
-application. The Mac TestFlight script uses this configuration; public Release excludes both.
-The checker rejects Pi runtime/entry points and assistant binary markers in every channel;
-Gmail scopes/endpoints and Email markers also fail outside TestFlight. It checks the primary app,
-so a nested TestFlight bundle cannot authorize a Stable archive. A saved preference cannot bypass
+AI and Email may archive only in the dedicated direct Mac Beta target. The archive checker
+requires its Beta channel, bundle identity and update feed together. Stable, App Store, Dev and
+TestFlight archives reject these features, including their resources and binary markers.
+Archives run `tools/check-release.sh` against the built app; saved preferences cannot bypass
 compile-time exclusion or the authenticated runtime eligibility gate.
 
 Run `tools/tests/local-feature-gates.sh` to test resource inclusion, stale cleanup, archive
@@ -66,3 +63,16 @@ Local verification logs: `.build/feature-public-mac-check.log`,
 `.build/feature-public-ios-check.log`, `.build/feature-local-mac.log`,
 `.build/feature-local-ios.log`, `.build/feature-native-tests.log`, `.build/feature-settings.json`.
 The public compile-check products were removed after scanning; installed local-build symbols remain.
+
+## Integrated Beta
+
+Banana Beta includes the Pi assistant alongside Mail, using Beta’s existing accounts, stores,
+CloudKit container and peer identity. On iPhone and iPad it uses Apple’s on-device model. On Mac,
+AI-enabled builds also embed the pinned Python/Locals runtime; the app checks and reuses the
+existing immutable model cache, while its worker log belongs to its own support directory.
+The isolated PiDevelopment schemes remain available for fixtures and verification, but are not
+required to use the assistant. Their sample workspace is never imported into Beta.
+
+Direct Mac Beta archives carry both features. Stable, App Store and TestFlight archives continue
+to reject them. The archive checker requires the Beta channel, Beta bundle identity and Beta
+update feed together; a build flag alone cannot authorize distribution.
