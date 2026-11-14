@@ -3,6 +3,14 @@
 Outside work worth borrowing from, with enough detail to judge it without opening the link.
 Licence is recorded because "MIT" on a repo often covers the code and not the media inside it.
 
+## UX design
+
+[Jon Yablonski’s Laws of UX](https://lawsofux.com/llms.txt) is an ongoing design reference,
+with the full collection mapped into [our UX practice](design/UX-PRINCIPLES.md). Apply relevant
+principles to actual flows and verify outcomes; source heuristics do not replace accessibility,
+correctness or Banana’s performance budgets. We link and paraphrase the ideas rather than bundle
+the site’s posters or artwork.
+
 ## Fitness
 
 ### hasaneyldrm/exercises-dataset

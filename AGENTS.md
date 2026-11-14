@@ -7,6 +7,14 @@ Cut taglines, helper text and secondary labels. If a screen needs them to make s
 Make the best decision that will elevate all three: the user experience (UX), developer experience
 (DX), and agent experience (AX) always, without breaking anything.
 
+## Ongoing UX design practice
+
+For every UI or interaction change, apply [UX principles](docs/design/UX-PRINCIPLES.md) during
+planning, implementation and review. Select the relevant Laws of UX, connect decisions to
+user-visible outcomes, and verify the touched states. Keep native conventions, accessibility,
+truthful feedback and this repo’s stricter performance contract. This applies to future design
+work, not only the current Mail change; an exhaustive checklist is unnecessary for small edits.
+
 ## Every fix is general
 
 Fix the rule that was broken, not the case that was reported (the owner's policy, 8 Nov 2026). No
