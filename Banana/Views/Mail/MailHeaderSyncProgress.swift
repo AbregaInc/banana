@@ -28,7 +28,7 @@ struct MailHeaderSyncProgress: View {
                 if !textSize.isAccessibilitySize { Text("Paused") }
             } else if let fraction = value.fraction {
                 ProgressView(value: fraction).progressViewStyle(.linear)
-                    .frame(minWidth: 24, maxWidth: 46)
+                    .frame(width: 46)
                     .accessibilityIdentifier(MailID.syncFraction)
                 if !textSize.isAccessibilitySize {
                     Text("\(Int((fraction * 100).rounded(.down)))%")
@@ -43,8 +43,8 @@ struct MailHeaderSyncProgress: View {
         }
         .font(.caption2).monospacedDigit().foregroundStyle(.secondary)
         .lineLimit(1)
-        .fixedSize(horizontal: false, vertical: true)
-        .frame(maxWidth: 96, minHeight: 22)
+        .fixedSize(horizontal: true, vertical: true)
+        .frame(minHeight: 22)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("Mail sync")
         .accessibilityValue(accessibilityValue(value))
