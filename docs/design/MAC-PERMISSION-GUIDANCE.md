@@ -36,7 +36,8 @@ no third-party rendering or automation layer is needed.
 
 Banana's existing permissions use system prompts, switches and access selectors.
 They do not require dragging an app into Full Disk Access. First-run completion
-therefore offers an optional **Permissions** panel. Existing **Open Settings**
+therefore offers an optional **Permissions** panel on the connection and receipt
+pages, including when Google sign-in is skipped. Existing **Open Settings**
 actions for Reminders, Location, Notifications, Apple Music and Photos open the
 same guide at the relevant permission.
 
@@ -79,7 +80,25 @@ result of a newer explicit permission request.
 `tools/mac-permission-guide-tests/run.py` checks actual model behavior, geometry,
 secondary-screen conversion, narrow-screen fallback, status deduplication,
 independent reads, stale-result rejection, and a windowless rendering. The check
-runs in the persistent macOS component workflow. It does not verify actual System
-Settings layout, permission prompts, visible following, keyboard/VoiceOver use or
-physical frame/input timing. Those remain an idle-desktop acceptance run. The
-shared persistent performance suite retains its own results and failures separately.
+runs in the persistent macOS component workflow.
+
+The native XCTest in `BananaMacReleaseUITests/PermissionGuideTests.swift` was also
+run on an isolated Tart guest with macOS 27.2 (26B123), using a development-signed
+Debug candidate with the App Store sandbox entitlements. It verifies optional
+entry without sign-in, real Reminders consent and refusal, navigation to the
+Reminders pane, actual mouse dragging and adjacency on both sides, enabling the
+native permission switch, the system's Quit & Reopen requirement, the effective
+grant after reopening the guide, hiding for Finder, returning with Banana and
+closing. App identity, signature, unchanged bundle digest, screenshots and AX
+trees are retained privately, including failed attempts. This is functional
+evidence, not exact-release or physical performance acceptance.
+
+The VM exposed EventKit continuing to report `notDetermined` after a real refusal.
+The guide now uses the existing `OnboardingStore.remindersState` decision, which
+honors a remembered unsuccessful request while letting a subsequent actual grant
+win. It never infers effective access just from the Settings switch: macOS can
+require a restart first.
+
+Other native permission panes, keyboard/VoiceOver interaction and physical
+frame/input timing remain unmeasured. The shared persistent performance suite
+retains its own results and failures separately; no acceptance pass is claimed.

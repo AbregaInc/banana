@@ -44,10 +44,16 @@ final class PermissionGuideTests: XCTestCase {
             tree.lifetime = .keepAlways
             add(tree)
         }
+        if settings.state != .notRunning {
+            let tree = XCTAttachment(string: settings.debugDescription)
+            tree.name = "permissions-" + name + "-settings-tree"
+            tree.lifetime = .keepAlways
+            add(tree)
+        }
     }
 
-    private func openGuide() {
-        app.launch()
+    private func openGuide(launch: Bool = true) {
+        if launch { app.launch() }
         // Local-network discovery may have prompted before XCTest attached.
         for bundle in ["com.apple.UserNotificationCenter", "com.apple.coreservices.uiagent"] {
             let system = XCUIApplication(bundleIdentifier: bundle)
@@ -101,7 +107,7 @@ final class PermissionGuideTests: XCTestCase {
         XCTAssertFalse(guide.frame.intersects(target.frame))
     }
 
-    func testNativeRemindersRecoveryAndSettingsFollowing() {
+    func testNativeRemindersRecoveryAndSettingsFollowing() throws {
         openGuide()
         let guide = app.dialogs["Permissions"]
         let reminders = guide.buttons["mac.permissions.allow.Reminders"]
@@ -116,12 +122,37 @@ final class PermissionGuideTests: XCTestCase {
         wait("System Settings opens", until: { target.exists && self.settings.state == .runningForeground })
         assertAdjacent(guide, target)
         capture("docked")
-        // Drag the real Settings title bar; the guide must follow without covering it.
-        let start = target.coordinate(withNormalizedOffset: CGVector(dx: 0.6, dy: 0)).withOffset(CGVector(dx: 0, dy: 12))
-        let finish = start.withOffset(CGVector(dx: -80, dy: 40))
-        start.press(forDuration: 0.1, thenDragTo: finish)
-        assertAdjacent(guide, target)
-        capture("after-move")
+        // Drag the blank sidebar title bar, away from toolbar controls.
+        // Assert actual movement as well as following, so a failed drag cannot pass.
+        let screen = try XCTUnwrap(NSScreen.main).frame
+        for (name, x) in [("right-side", screen.minX + 40),
+                          ("left-side", screen.maxX - target.frame.width - 40)] {
+            let before = target.frame
+            let start = target.coordinate(withNormalizedOffset: CGVector(dx: 0.2, dy: 0))
+                .withOffset(CGVector(dx: 0, dy: 26))
+            let finish = start.withOffset(CGVector(dx: x - before.minX, dy: 160 - before.minY))
+            start.click(forDuration: 0.3, thenDragTo: finish)
+            wait("Settings actually moves", until: { abs(target.frame.minX - before.minX) > 20 })
+            assertAdjacent(guide, target)
+            if name == "right-side" { XCTAssertGreaterThan(guide.frame.minX, target.frame.maxX) }
+            else { XCTAssertLessThan(guide.frame.maxX, target.frame.minX) }
+            capture(name)
+        }
+        let permissionSwitch = target.switches.firstMatch
+        wait("Native Reminders switch", until: { permissionSwitch.exists && permissionSwitch.isHittable })
+        XCTAssertEqual((permissionSwitch.value as? NSNumber)?.boolValue, false)
+        click(permissionSwitch)
+        wait("Reminders enabled in Settings", until: { (permissionSwitch.value as? NSNumber)?.boolValue == true })
+        // macOS may withhold the effective grant until its own Quit & Reopen action.
+        let reopen = settings.buttons["Quit & Reopen"]
+        if reopen.waitForExistence(timeout: 3) {
+            capture("restart-required")
+            click(reopen)
+            wait("System reopens Banana", until: { self.app.state == .runningForeground })
+            openGuide(launch: false)
+        }
+        wait("Guide observes the real grant", until: { !reminders.exists && guide.images["Allowed"].exists })
+        capture("granted")
         let finder = XCUIApplication(bundleIdentifier: "com.apple.finder")
         finder.activate()
         wait("Guide hides for other apps", until: { !guide.exists || !guide.isHittable })

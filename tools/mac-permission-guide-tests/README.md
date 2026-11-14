@@ -12,7 +12,8 @@ interaction, or physical frame/input performance. Run those on an idle test desk
 ## Native Settings checks
 
 `BananaMacReleaseUITests/PermissionGuideTests.swift` drives the actual app, native
-Reminders consent and System Settings through XCTest. Run it in a disposable Tart
+Reminders consent, Settings recovery, real window movement, native Quit & Reopen
+and the effective grant through XCTest. Run it in a disposable Tart
 guest or dedicated idle test account, never the owner's active desktop. The account
 must have `~/.config/banana/mac-release-test-account`, an unlocked Aqua session and
 XCTest Automation Mode configured without authentication.
@@ -40,3 +41,8 @@ xcodebuild test-without-building -xctestrun /path/to/permissions.xctestrun \
 The test retains screen and accessibility-tree attachments. Failed runs stay as
 evidence and are read before another run. This development-signed functional check
 does not replace exact-release launch validation or physical performance testing.
+
+On macOS 27.2, XCTest can misidentify desktop widgets as notification banners and
+fail in its automatic swipe handler. Disable desktop widgets in the disposable
+guest before the run, saving its original preferences. Retain that failure and
+its screen/tree evidence; do not interpret it as an app failure or weaken the test.
