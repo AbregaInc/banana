@@ -42,3 +42,31 @@ test('declined scope upgrade and a different Google identity leave existing gran
  assert.equal((await connect(s,a,'other')).status,409);
  assert.deepEqual(await s.db.first('SELECT * FROM mail_grants'),before);
 });
+
+test('existing reconnect atomically upgrades Calendar and Mail with one code exchange',async()=>{
+ const s=setup(),a=await user(s);
+ s.google.person('mail','sub-noor','noor@plan.example','mail-refresh',{scopes:mail});await connect(s,a);
+ await s.db.run('INSERT INTO sender_contact_syncs VALUES (?,?,?)',a.account.id,'sub-noor',s.now());
+ const scopes=calendar+' https://www.googleapis.com/auth/gmail.modify https://www.googleapis.com/auth/contacts.readonly https://www.googleapis.com/auth/contacts.other.readonly';
+ s.google.person('upgrade','sub-noor','noor@plan.example','combined-refresh',{scopes});
+ const before=s.google.calls.exchange;
+ const result=await s.signIn('upgrade',device('device-noor'),a.session);
+ assert.equal(result.status,200);assert.equal(s.google.calls.exchange,before+1);
+ const grant=await s.db.first('SELECT * FROM mail_grants WHERE google_sub=?','sub-noor');
+ assert.equal(grant.scopes,scopes);assert.equal(grant.status,'ok');
+ assert.equal(result.json.account.google[0].capabilities.calendarRead,true);
+ assert.equal(result.json.account.google[0].capabilities.mailRead,true);
+ assert.ok(result.json.account.google[0].permissionScopes.mail.includes('https://www.googleapis.com/auth/contacts.readonly'));
+ assert.equal(await s.db.first('SELECT * FROM sender_contact_syncs WHERE google_sub=?','sub-noor'),null);
+});
+
+test('Calendar-only reconnect preserves an existing separate Mail grant and reports each grant accurately',async()=>{
+ const s=setup(),a=await user(s);
+ s.google.person('mail','sub-noor','noor@plan.example','mail-refresh',{scopes:mail});await connect(s,a);
+ const before=await s.db.first('SELECT * FROM mail_grants');
+ s.google.person('calendar-only','sub-noor','noor@plan.example','calendar-refresh-2',{scopes:calendar});
+ const result=await s.signIn('calendar-only',device('device-noor'),a.session);
+ assert.equal(result.status,200);assert.deepEqual(await s.db.first('SELECT * FROM mail_grants'),before);
+ assert.deepEqual(result.json.account.google[0].permissionScopes.mail,mail.split(' ').sort());
+ assert.deepEqual(result.json.account.google[0].permissionScopes.calendar,calendar.split(' ').sort());
+});

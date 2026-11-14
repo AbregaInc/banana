@@ -19,6 +19,9 @@ and in-app reports are separate sources and both are read during triage.
 - Keep short receipt labels and values together, including one-cell nested table wrappers.
   Convert table-based bullet markers into native list items without duplicate dots.
 - Fold the final quoted run while leaving following signature pictures visible.
+- Use the existing Google Reconnect action to upgrade enabled features' permissions
+  together. A reusable prompt detects missing requirements, supports deferral/retry,
+  and preserves existing access when an upgrade is declined.
 - Fall back to the address when the sender name is blank.
 - Live reports attach stored source HTML rather than the sanitized Original viewer
   document. Legacy private cases restore the viewer's image URLs to MIME content-ID

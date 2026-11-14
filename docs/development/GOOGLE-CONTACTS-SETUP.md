@@ -20,9 +20,12 @@ Google Auth Platform → Clients against the local `BANANA_GOOGLE_CLIENT`,
    scopes. The current implemented use is reading contact email addresses and photos
    to match senders with saved contact images. Contacts are not edited. Use that
    description for the current feature; recipient search is separate app work.
-5. In Banana Beta, use the Google account's Mail connection flow again and grant
-   the additional Contacts permissions. Existing grants do not automatically gain
-   new scopes when the console configuration changes. Repeat for each Google account.
+5. In the updated Banana Beta, use the existing **Settings → Google account → Reconnect**
+   action for connected Mail accounts. It requests the current permissions for enabled
+   features in one Google consent flow. A reusable permission-upgrade prompt also offers
+   that same Reconnect action when Mail's required Contacts access is missing. Approve
+   Contacts access on Google's screen; refreshing calendars alone does not add scopes.
+   Existing grants do not automatically gain scopes when console configuration changes.
 6. Verify sender photos on the phone, iPad and Mac using the same linked account.
    Some contacts have no photo. Negative image/contact caches can delay a newly
    available photo; inspect the grant and service lookup before resetting anything.

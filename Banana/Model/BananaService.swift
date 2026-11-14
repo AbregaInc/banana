@@ -69,6 +69,8 @@ enum BananaService {
             /// identity token: the person signs in once more. Nil from a service that doesn't say.
             var access: Bool?
             var capabilities: GoogleAccountCapabilities? = nil
+            /// Scopes held by each server grant; absent on older services.
+            var permissionScopes: [String: [String]]? = nil
         }
         var id: String
         var google: [Google]
