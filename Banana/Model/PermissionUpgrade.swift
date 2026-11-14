@@ -39,9 +39,10 @@ enum PermissionUpgradeOutcome { case updated, cancelled, failed }
 
 @MainActor
 final class PermissionUpgradePromptModel: ObservableObject {
-    struct Presentation: Equatable {
+    struct Presentation: Equatable, Identifiable {
         var needs: [PermissionUpgradeNeed]
         var retry = false
+        var id: String { needs.map(\.id).joined(separator: ":") + (retry ? ":retry" : "") }
     }
     @Published var presentation: Presentation?
     @Published private(set) var updating = false

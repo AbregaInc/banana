@@ -14,18 +14,26 @@ final class MailSenderImagesTests: XCTestCase {
         var downloads: [String] = []
         var images: [String: Data] = [:]
         var fails = false
+        var nextLookupBegan: (@Sendable () -> Void)?
+        var heldLookup: CheckedContinuation<Void, Never>?
+        func suspendNextLookup(_ began: @escaping @Sendable () -> Void) { nextLookupBegan = began }
+        func releaseLookup() { heldLookup?.resume(); heldLookup = nil }
 
         func set(_ address: String, _ answer: MailSenderImages.Answer) { answers[address] = answer }
         func image(_ id: String, _ data: Data) { images[id] = data }
         func holdOnce(_ address: String) { pendingOnce.insert(address) }
         func failing(_ value: Bool) { fails = value }
 
-        func lookup(_ addresses: [String]) throws -> [String: MailSenderImages.Answer] {
+        func lookup(_ addresses: [String]) async throws -> [String: MailSenderImages.Answer] {
             lookups.append(addresses)
             if fails { throw URLError(.notConnectedToInternet) }
             var out: [String: MailSenderImages.Answer] = [:]
             for address in addresses {
                 if pendingOnce.remove(address) != nil { out[address] = .pending } else { out[address] = answers[address] ?? MailSenderImages.Answer.none }
+            }
+            if let began = nextLookupBegan {
+                nextLookupBegan = nil
+                await withCheckedContinuation { continuation in heldLookup = continuation; began() }
             }
             return out
         }
@@ -34,6 +42,36 @@ final class MailSenderImagesTests: XCTestCase {
         var service: MailSenderImages.Service {
             MailSenderImages.Service(lookup: { try await self.lookup($0) }, bytes: { await self.bytes($0) })
         }
+    }
+
+    func testPermissionChangeRetriesCachedMissesAndPersistsTheInvalidation() async {
+        let cloud = FakeCloud()
+        let store = MailSenderImages(directory: folder, service: await cloud.service)
+        let address = "sender@plan.example"
+        let first = await store.imageID(for: address)
+        XCTAssertNil(first)
+        await cloud.set(address, .image("new-photo"))
+        await store.permissionsDidChange()
+        let newStore = MailSenderImages(directory: folder, service: await cloud.service)
+        let refreshed = await newStore.imageID(for: address)
+        XCTAssertEqual(refreshed, "new-photo")
+    }
+
+    func testOldInFlightMissCannotUndoPermissionInvalidation() async {
+        let cloud = FakeCloud()
+        let store = MailSenderImages(directory: folder, service: await cloud.service)
+        let address = "sender@plan.example"
+        let began = expectation(description: "Old lookup suspended")
+        await cloud.suspendNextLookup { began.fulfill() }
+        let request = Task { await store.imageID(for: address) }
+        await fulfillment(of: [began], timeout: 2)
+        await store.permissionsDidChange()
+        await cloud.set(address, .image("new-photo"))
+        await cloud.releaseLookup()
+        let refreshed = await request.value
+        XCTAssertEqual(refreshed, "new-photo")
+        let known = await store.knownEntry(address)
+        XCTAssertEqual(known?.image, "new-photo")
     }
 
     private var folder: URL!

@@ -472,6 +472,13 @@ final class GoogleCalendarService: ObservableObject {
             reconnectReasons[email.lowercased()] = nil
             tokenCache[email.lowercased()] = nil
             await BananaAccount.shared.googleSignedIn(code: result.serverAuthCode)
+            #if !BANANA_PUBLIC
+            if ModuleStore.shared.choice.includes(.email), FeatureAccessStore.shared.allows("email"),
+               BananaAccount.shared.account?.google.first(where: { $0.email.lowercased() == email.lowercased() })?.capabilities?.mailRead == true {
+                await MailSenderImages.shared.permissionsDidChange()
+                NotificationCenter.default.post(name: MailSenderImages.permissionsChanged, object: nil)
+            }
+            #endif
             try await loadCalendars()
         } catch is CancellationError {
         } catch {

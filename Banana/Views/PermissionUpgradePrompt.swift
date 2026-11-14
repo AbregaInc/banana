@@ -8,21 +8,51 @@ struct PermissionUpgradePrompt: ViewModifier {
     let upgrade: @MainActor ([PermissionUpgradeNeed]) async -> PermissionUpgradeOutcome
     @StateObject private var model = PermissionUpgradePromptModel()
 
+    @State private var queued: PermissionUpgradePromptModel.Presentation?
+
     func body(content: Content) -> some View {
         content
             .onAppear { model.offer(needs) }
             .onChange(of: needs) { _, value in model.offer(value) }
-            .alert(model.presentation?.retry == true ? "Access wasn’t updated" : "Update \(provider) access?",
-                   isPresented: Binding(get: { model.presentation != nil }, set: { if !$0 { model.presentation = nil } }),
-                   presenting: model.presentation) { value in
-                Button(value.retry ? "Retry" : "Reconnect") {
-                    Task { await model.update(value, using: upgrade) }
-                }
-                .accessibilityIdentifier("permission-upgrade.reconnect")
-                Button("Not now", role: .cancel) { model.deferUpgrade(value) }
-            } message: { value in
-                Text(explanation + "\n\n" + Array(Set(value.needs.map(\.account))).sorted().joined(separator: "\n"))
+            .sheet(item: Binding(get: { model.presentation }, set: { value in
+                if value == nil, queued == nil, let current = model.presentation { model.deferUpgrade(current) }
+                else { model.presentation = value }
+            }), onDismiss: {
+                guard let value = queued else { return }
+                queued = nil
+                Task { await model.update(value, using: upgrade) }
+            }) { value in
+                prompt(value)
+                    #if os(iOS)
+                    .presentationDetents([.medium, .large])
+                    #endif
             }
+    }
+
+    private func prompt(_ value: PermissionUpgradePromptModel.Presentation) -> some View {
+        VStack(alignment: .leading, spacing: DS.Space.l) {
+            Text(value.retry ? "Access wasn’t updated" : "Update \(provider) access?")
+                .font(.title2.weight(.semibold))
+            Text(explanation).fixedSize(horizontal: false, vertical: true)
+            ForEach(Array(Set(value.needs.map(\.account))).sorted(), id: \.self) { account in
+                Text(account).font(.callout).textSelection(.enabled)
+            }
+            HStack {
+                Button("Not now", role: .cancel) { model.deferUpgrade(value) }
+                    .buttonStyle(.bordered)
+                Spacer()
+                Button(value.retry ? "Retry" : "Reconnect") {
+                    queued = value
+                    model.presentation = nil
+                }
+                .buttonStyle(.borderedProminent)
+                .accessibilityIdentifier("permission-upgrade.reconnect")
+            }
+        }
+        .padding(DS.Space.l)
+        .frame(idealWidth: 420, alignment: .leading)
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("permission-upgrade.prompt")
     }
 }
 
@@ -74,10 +104,11 @@ struct GooglePermissionUpgradePrompt: ViewModifier {
                 for email in Set(requested.map(\.account)).sorted() {
                     await GoogleCalendarService.shared.reconnect(email: email)
                     if GoogleCalendarService.shared.lastError != nil { return .failed }
+                    guard await account.refresh() else { return .failed }
+                    // Cancelling or declining one account ends the whole grouped request.
+                    if needs.contains(where: { $0.account.lowercased() == email.lowercased() }) { return .cancelled }
                 }
-                guard await account.refresh() else { return .failed }
-                let remaining = needs
-                return requested.contains { request in remaining.contains { $0.id == request.id } } ? .cancelled : .updated
+                return .updated
             })
     }
 }

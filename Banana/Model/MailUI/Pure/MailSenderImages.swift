@@ -45,6 +45,8 @@ actor MailSenderImages {
     private var known: [String: Known] = [:]
     private var failedAt: [String: Date] = [:]
     private var loaded = false
+    private var permissionGeneration: UInt64 = 0
+    nonisolated static let permissionsChanged = Notification.Name("MailSenderImagePermissionsChanged")
     private var waiting: [String: [CheckedContinuation<String?, Never>]] = [:]
     private var queued: [String] = []
     private var flushing = false
@@ -82,10 +84,12 @@ actor MailSenderImages {
         let address = Self.key(address)
         guard address.contains("@") else { return nil }
         if let hit = Self.cached(address, px: px) { return hit }
+        let generation = permissionGeneration
         guard let id = await imageID(for: address), !Task.isCancelled,
               let bytes = await data(for: id), !Task.isCancelled else { return nil }
         // The bytes are in hand before the decoder's two slots are taken: a download never holds one.
         let image = await MailPictureLoader.shared.image(key: "sender-\(id)", maxPixel: px) { bytes }
+        guard generation == permissionGeneration else { return nil }
         if let image { Self.memory.setObject(image, forKey: "\(address)#\(px)" as NSString, cost: image.bytesPerRow * image.height) }
         return image
     }
@@ -127,12 +131,15 @@ actor MailSenderImages {
     }
 
     private func ask(_ batch: [String], retriesLeft: Int) async {
+        let generation = permissionGeneration
         let answers: [String: Answer]
         do { answers = try await service.lookup(batch) }
         catch {
+            if generation != permissionGeneration { await ask(batch, retriesLeft: retriesLeft); return }
             for address in batch { failedAt[address] = now(); settle(address, known[address]?.image) }
             return
         }
+        if generation != permissionGeneration { await ask(batch, retriesLeft: retriesLeft); return }
         var pending: [String] = []
         for address in batch {
             switch answers[address] {
@@ -227,6 +234,16 @@ actor MailSenderImages {
         guard let data = try? JSONEncoder().encode(kept) else { return }
         try? FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         try? data.write(to: indexFile, options: .atomic)
+    }
+
+    /// An explicit consent change invalidates positive/negative address resolutions.
+    /// Immutable image bytes stay reusable; old in-flight answers cannot restore stale decisions.
+    func permissionsDidChange() {
+        loadIfNeeded()
+        permissionGeneration &+= 1
+        known.removeAll(); failedAt.removeAll()
+        Self.memory.removeAllObjects()
+        save()
     }
 
     /// For tests: what is kept for an address.
