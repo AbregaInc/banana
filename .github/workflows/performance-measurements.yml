@@ -21,6 +21,10 @@ jobs:
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
+      - name: Verify simulator tooling
+        run: |
+          command -v simslim || { echo "Install simslim as described in tools/simulators/README.md"; exit 1; }
+          test "$(simslim --version)" = "simslim 0.14.0"
       - name: Build and measure against the reviewed reference
         env:
           PERF_DEVICE: ${{ inputs.device || vars.BANANA_PERF_SIMULATOR }}
@@ -38,6 +42,7 @@ jobs:
           path: |
             .build/ci-performance/*.json
             .build/ci-performance/*.log
+            .build/ci-performance/simulator
             .build/ci-mail-paging
           if-no-files-found: error
           retention-days: 90

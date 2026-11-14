@@ -130,6 +130,16 @@ A simulator is 1–2 GB once it has booted, and a new one per run piles up.
   means a first boot: hundreds of iOS services that loaded the Mac past 800 and, when killed at
   shutdown, showed "Family quit unexpectedly" (8 Nov 2026). `FRESH=1` erases when a test needs it.
 
+## Simulator service profiles
+
+Serial UI tests and Simulator unit preflight use the reviewed simslim 0.14.0 profile in
+`tools/simulators/slim.json`; install and usage: `tools/simulators/README.md`. Keep its
+required Banana integrations enabled. Preparation verifies the exact profile and `doctor`
+checks before tests, under the existing simulator lock. `BANANA_SIM_MODE=stock` restores
+services for system-integration tests; parallel workers remain stock. The persistent component
+runner always restores stock before measuring. Never use a slim run to replace a stock
+reference, loosen a budget or claim physical-device performance.
+
 ## UI tests: run what the change touches, in parallel, with time limits
 
 A full UI run was 37 minutes clean and 70 with failures, and was run as the gate for every small
