@@ -59,7 +59,10 @@ final class MailSyncProgressUITest: MailUITestCase {
             action.tap()
             let newMessage = app.buttons["New message"].firstMatch
             XCTAssertTrue(newMessage.waitForExistence(timeout: 5))
-            XCTAssertTrue(waitUntil { newMessage.isHittable }, app.debugDescription)
+            // Native menus scroll at large text sizes; tap scrolls the item into view.
+            newMessage.tap()
+            XCTAssertTrue(app.descendants(matching: .any)[MailID.composerBody].firstMatch.waitForExistence(timeout: 10),
+                          app.debugDescription)
         }
     }
     func testPausedWorkSaysPausedAndFinishedWorkDisappears() {
