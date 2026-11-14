@@ -79,3 +79,15 @@ test('refused Mail retains reconnect intent without reporting usable access',asy
  assert.equal(result.json.google[0].capabilities.mailRead,false);
  assert.deepEqual(result.json.google[0].permissionScopes.mail,mail.split(' ').sort());
 });
+
+test('Calendar reconnect cannot re-enable explicitly disconnected Mail from aggregate Google scopes',async()=>{
+ const s=setup(),a=await user(s);
+ s.google.person('mail','sub-noor','noor@plan.example','mail-refresh',{scopes:mail});await connect(s,a);
+ await s.call('DELETE','/v1/google/mail',{session:a.session,body:{email:'noor@plan.example'}});
+ const before=await s.db.first('SELECT * FROM mail_grants');
+ s.google.person('aggregate','sub-noor','noor@plan.example','combined-refresh',{scopes:calendar+' '+mail});
+ const result=await s.signIn('aggregate',device('device-noor'),a.session);
+ assert.equal(result.status,200);
+ assert.equal(result.json.account.google[0].capabilities.mailRead,false);
+ assert.deepEqual(await s.db.first('SELECT * FROM mail_grants'),before);
+});

@@ -297,8 +297,13 @@ export function createApp(deps) {
     // Combined reconnect updates both grants atomically. Calendar-only consent and
     // identity refreshes leave working Mail access untouched.
     if (!byIdentity && await featureAllowed(deps, account, "email")) {
-      const mail = await mailGrantStatements(deps, vault, account, google);
-      if (mail.status === 200) statements.push(...mail.statements);
+      const previousMail = await db.first("SELECT status FROM mail_grants WHERE google_sub = ?", google.sub);
+      // Google may return previously granted scopes even on a Calendar-only sign-in.
+      // Explicitly disconnected Mail is re-enabled only by the dedicated Mail consent action.
+      if (previousMail?.status !== "unlinked") {
+        const mail = await mailGrantStatements(deps, vault, account, google);
+        if (mail.status === 200) statements.push(...mail.statements);
+      }
     }
     // Connected again: calendars waiting for a retry are tried at the next job run.
     if (existing) statements.push({ sql: "UPDATE watches SET retry_at = NULL, failures = 0 WHERE google_sub = ?", params: [google.sub] });
