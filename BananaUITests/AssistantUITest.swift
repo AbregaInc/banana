@@ -21,7 +21,6 @@ final class PiLaunchUITest: XCTestCase {
 
 #endif
 
-#if BANANA_AI
 final class UnifiedAssistantEntryUITest: XCTestCase {
     func testDraftSurvivesClosingAndReopening() {
         let app = XCUIApplication()
@@ -47,8 +46,6 @@ final class UnifiedAssistantEntryUITest: XCTestCase {
         XCTAssertFalse(input.exists)
     }
 }
-
-#endif
 
 #if PI_DEVELOPMENT
 /// The agent as an input method: words in the + sheet become the app's own editor, and the
