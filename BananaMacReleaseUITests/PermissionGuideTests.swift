@@ -29,6 +29,10 @@ final class PermissionGuideTests: XCTestCase {
         XCTAssertEqual(XCTWaiter.wait(for: [ready], timeout: 30), .completed, reason)
     }
 
+    private func click(_ element: XCUIElement) {
+        element.click()
+    }
+
     private func capture(_ name: String) {
         let shot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
         shot.name = "permissions-" + name
@@ -44,6 +48,17 @@ final class PermissionGuideTests: XCTestCase {
 
     private func openGuide() {
         app.launch()
+        // Local-network discovery may have prompted before XCTest attached.
+        for bundle in ["com.apple.UserNotificationCenter", "com.apple.coreservices.uiagent"] {
+            let system = XCUIApplication(bundleIdentifier: bundle)
+            guard system.state != .notRunning else { continue }
+            let tree = XCTAttachment(string: system.debugDescription)
+            tree.name = "startup-" + bundle
+            tree.lifetime = .keepAlways
+            add(tree)
+            let unrelated = system.buttons.matching(NSPredicate(format: "title == %@ OR title == %@", "Don’t Allow", "Don't Allow")).firstMatch
+            if unrelated.exists { click(unrelated) }
+        }
         let permissions = app.buttons["onboarding.permissions"]
         for _ in 0..<10 {
             if permissions.exists && permissions.isHittable { break }
@@ -53,27 +68,27 @@ final class PermissionGuideTests: XCTestCase {
                 permissions.exists || (skip.exists && skip.isHittable) || (next.exists && next.isHittable)
             })
             if permissions.exists { break }
-            if skip.exists && skip.isHittable { skip.click() }
-            else { next.click() }
+            if skip.exists && skip.isHittable { click(skip) }
+            else { click(next) }
         }
         wait("Optional permissions entry", until: { permissions.exists && permissions.isHittable })
-        permissions.click()
-        wait("Permissions panel", until: { self.app.windows["Permissions"].exists })
+        click(permissions)
+        wait("Permissions panel", until: { self.app.dialogs["Permissions"].exists })
     }
 
     private func denyReminderPrompt() {
         let agents = [app!, XCUIApplication(bundleIdentifier: "com.apple.UserNotificationCenter"),
-                      XCUIApplication(bundleIdentifier: "com.apple.CoreServicesUIAgent"), settings]
+                      XCUIApplication(bundleIdentifier: "com.apple.coreservices.uiagent"), settings]
         var deny: XCUIElement?
         wait("Native Reminders denial button", until: {
             for agent in agents where agent.state != .notRunning {
-                let button = agent.buttons.matching(NSPredicate(format: "label == %@ OR label == %@", "Don’t Allow", "Don't Allow")).firstMatch
+                let button = agent.buttons.matching(NSPredicate(format: "title == %@ OR title == %@", "Don’t Allow", "Don't Allow")).firstMatch
                 if button.exists && button.isHittable { deny = button; return true }
             }
             return false
         })
         capture("reminders-prompt")
-        deny?.click()
+        if let deny { click(deny) }
     }
 
     private func assertAdjacent(_ guide: XCUIElement, _ target: XCUIElement) {
@@ -88,17 +103,17 @@ final class PermissionGuideTests: XCTestCase {
 
     func testNativeRemindersRecoveryAndSettingsFollowing() {
         openGuide()
-        let guide = app.windows["Permissions"]
+        let guide = app.dialogs["Permissions"]
         let reminders = guide.buttons["mac.permissions.allow.Reminders"]
         wait("Native Reminders request", until: { reminders.exists && reminders.isHittable })
         XCTAssertEqual(reminders.label, "Allow")
         capture("before-request")
-        reminders.click()
+        click(reminders)
         denyReminderPrompt()
         wait("Denied permission offers Settings", until: { reminders.exists && reminders.label == "Open Settings" })
-        reminders.click()
+        click(reminders)
         let target = settings.windows.firstMatch
-        wait("System Settings opens", until: { target.exists && settings.state == .runningForeground })
+        wait("System Settings opens", until: { target.exists && self.settings.state == .runningForeground })
         assertAdjacent(guide, target)
         capture("docked")
         // Drag the real Settings title bar; the guide must follow without covering it.
@@ -115,7 +130,7 @@ final class PermissionGuideTests: XCTestCase {
         capture("returned")
         let close = guide.buttons.matching(NSPredicate(format: "identifier CONTAINS[c] %@", "CloseWindow")).firstMatch
         wait("Native panel close control", until: { close.exists && close.isHittable })
-        close.click()
+        click(close)
         wait("Guide closes", until: { !guide.exists || !guide.isHittable })
     }
 }

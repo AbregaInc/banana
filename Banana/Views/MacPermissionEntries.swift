@@ -15,11 +15,13 @@ extension MacPermissionGuide {
                 if OccurrenceStore.shared.remindersAuthorized != (status == .fullAccess) {
                     Task { await OccurrenceStore.shared.syncRemindersAuthorization() }
                 }
-                switch status {
-                case .fullAccess: return .allowed
-                case .notDetermined: return .requestable
-                case .restricted: return .restricted
-                default: return .settings
+                if status == .restricted { return .restricted }
+                // EventKit can still report notDetermined after a real denial.
+                // Honor the same remembered refusal as the existing setup checklist.
+                return switch onboarding.remindersState(authorized: status == .fullAccess) {
+                case .done: .allowed
+                case .todo: .requestable
+                case .refused, .asked: .settings
                 }
             }, request: {
                 _ = await onboarding.requestReminders()

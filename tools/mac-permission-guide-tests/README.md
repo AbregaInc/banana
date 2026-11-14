@@ -8,3 +8,35 @@ publication. It renders the actual view without opening a window or System Setti
 Build and run results and source hashes are retained. These checks do not establish
 visible window following, system permission prompts, keyboard/accessibility
 interaction, or physical frame/input performance. Run those on an idle test desktop.
+
+## Native Settings checks
+
+`BananaMacReleaseUITests/PermissionGuideTests.swift` drives the actual app, native
+Reminders consent and System Settings through XCTest. Run it in a disposable Tart
+guest or dedicated idle test account, never the owner's active desktop. The account
+must have `~/.config/banana/mac-release-test-account`, an unlocked Aqua session and
+XCTest Automation Mode configured without authentication.
+
+Build the app with a development profile authorizing that test Mac and the real
+sandbox entitlements. Build the independent `BananaMacReleaseUITests` runner into
+`.build/mac-check` using `build-for-testing`. Transfer those signed products and the
+`.xctestrun` together into the guest; do not re-sign them. In a copy of the runner
+configuration, expand `__TESTROOT__` to the guest products directory and set
+`EnvironmentVariables.BANANA_PERMISSION_APP` on the UI-test target to the guest's
+`Banana.app` path. Preserve the other Xcode substitutions.
+
+Start with fresh app state and Reminders consent for that candidate identity in the
+guest. Retain existing state before resetting it; these tests deliberately deny a
+native permission. Then run in the guest:
+
+```sh
+xcodebuild test-without-building -xctestrun /path/to/permissions.xctestrun \
+  -destination 'platform=macOS,arch=arm64' -parallel-testing-enabled NO \
+  -only-testing:BananaMacReleaseUITests/PermissionGuideTests \
+  -test-timeouts-enabled YES -maximum-test-execution-time-allowance 180 \
+  -resultBundlePath /path/to/new-result.xcresult
+```
+
+The test retains screen and accessibility-tree attachments. Failed runs stay as
+evidence and are read before another run. This development-signed functional check
+does not replace exact-release launch validation or physical performance testing.
