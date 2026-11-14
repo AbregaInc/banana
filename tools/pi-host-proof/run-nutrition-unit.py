@@ -9,7 +9,7 @@ build.mkdir(parents=True, exist_ok=True)
 try:
     main = build / 'main.swift'
     main.write_text('import XCTest\nimport Foundation\nlet suite = XCTestSuite(name: "Pi native queries, sample meals and inference transport")\nsuite.addTest(XCTestSuite(forTestCaseClass: AssistantNutritionTests.self))\nsuite.addTest(XCTestSuite(forTestCaseClass: PiSampleMealsTests.self))\nsuite.addTest(XCTestSuite(forTestCaseClass: LocalInferenceTransportTests.self))\nsuite.addTest(XCTestSuite(forTestCaseClass: AssistantCalendarIdentityTests.self))\nsuite.run()\nguard let result = suite.testRun, result.executionCount == 24, result.failureCount == 0 else { exit(1) }\n')
-    sources = ['Shared/SnapshotPersistence.swift', 'Shared/WellnessModels.swift',
+    sources = ['Shared/SnapshotPersistence.swift', 'Shared/WellnessModels.swift', 'Shared/TimingAnchor.swift',
                'Banana/Pi/AssistantFailure.swift', 'Banana/Pi/AssistantNutrition.swift',
                'Banana/Pi/PiSampleMeals.swift', 'Banana/Pi/AssistantCalendarIdentity.swift', 'BananaTests/AssistantCalendarIdentityTests.swift', 'Banana/Pi/LocalInferenceTransport.swift', 'BananaTests/LocalInferenceTransportTests.swift', 'BananaTests/AssistantNutritionTests.swift', 'BananaTests/PiSampleMealsTests.swift', str(main)]
     executable = build / 'nutrition-tests'
