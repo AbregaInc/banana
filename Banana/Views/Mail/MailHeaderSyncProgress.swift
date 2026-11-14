@@ -30,7 +30,9 @@ struct MailHeaderSyncProgress: View {
                 ProgressView(value: fraction).progressViewStyle(.linear)
                     .frame(minWidth: 24, maxWidth: 46)
                     .accessibilityIdentifier(MailID.syncFraction)
-                Text("\(Int((fraction * 100).rounded(.down)))%")
+                if !textSize.isAccessibilitySize {
+                    Text("\(Int((fraction * 100).rounded(.down)))%")
+                }
             } else {
                 Image(systemName: "arrow.down")
                 if value.completed > 0 {
@@ -40,6 +42,7 @@ struct MailHeaderSyncProgress: View {
             }
         }
         .font(.caption2).monospacedDigit().foregroundStyle(.secondary)
+        .lineLimit(1)
         .fixedSize(horizontal: false, vertical: true)
         .frame(maxWidth: 96, minHeight: 22)
         .accessibilityElement(children: .ignore)

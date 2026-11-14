@@ -39,15 +39,20 @@ final class MailSyncProgressUITest: MailUITestCase {
         launchProgress("known", largeText: true)
         let progress = app.descendants(matching: .any)["mail.sync.progress"].firstMatch
         XCTAssertTrue(progress.waitForExistence(timeout: 10), app.debugDescription)
-        let compose = app.buttons[MailID.compose].firstMatch
-        XCTAssertTrue(compose.exists, app.debugDescription)
-        XCTAssertTrue(compose.isHittable)
-        XCTAssertGreaterThanOrEqual(compose.frame.width, 44)
-        XCTAssertGreaterThanOrEqual(compose.frame.height, 44)
+        let action = app.buttons[isPad ? "mail.more" : MailID.compose].firstMatch
+        XCTAssertTrue(action.exists, app.debugDescription)
+        XCTAssertTrue(action.isHittable)
+        XCTAssertGreaterThanOrEqual(action.frame.width, 44)
+        XCTAssertGreaterThanOrEqual(action.frame.height, 44)
         XCTAssertGreaterThan(progress.frame.width, 24)
         XCTAssertGreaterThanOrEqual(progress.frame.minX, 0)
-        XCTAssertLessThanOrEqual(progress.frame.maxX, compose.frame.minX)
+        XCTAssertLessThanOrEqual(progress.frame.maxX, action.frame.minX)
         snap("mail-header-large-text-progress")
+        if isPad {
+            action.tap()
+            XCTAssertTrue(app.buttons["New message"].firstMatch.waitForExistence(timeout: 5))
+            XCTAssertTrue(app.buttons["New message"].firstMatch.isHittable)
+        }
     }
     func testPausedWorkSaysPausedAndFinishedWorkDisappears() {
         launchProgress("paused")
