@@ -290,6 +290,11 @@ struct OnboardingView: View {
             ArtCanvas(top: FirstRunArt.done.top, bottom: FirstRunArt.done.bottom) { art in DoneScene(art: art) }
             ReceiptRows(receipt: receipt, copyProblem: writeBack.enabled ? writeBack.lastError : nil)
         } actions: {
+            #if os(macOS)
+            Button("Permissions") { MacPermissionGuide.shared.show(onboarding: onboarding) }
+                .buttonStyle(.plain)
+                .accessibilityIdentifier("onboarding.permissions")
+            #endif
             Button("Open my day") { finish() }
                 .buttonStyle(FirstRun.primary)
                 .accessibilityIdentifier("onboarding.open")

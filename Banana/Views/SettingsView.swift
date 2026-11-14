@@ -1757,7 +1757,8 @@ struct SettingsView: View {
             permissionRow(
                 title: "Reminders", icon: "checklist",
                 granted: occurrences.remindersAuthorized,
-                detail: "Your tasks on the timeline"
+                detail: "Your tasks on the timeline",
+                settings: .reminders
             ) { await occurrences.requestRemindersAccess() }
 
             #if BANANA_MODULE_WORKOUTS
@@ -1793,7 +1794,8 @@ struct SettingsView: View {
             permissionRow(
                 title: "Apple Music", icon: "music.note",
                 granted: music.isAuthorized,
-                detail: "Start a routine with your own music"
+                detail: "Start a routine with your own music",
+                settings: .music
             ) { await music.requestAuthorization() }
             #endif
 
@@ -1870,7 +1872,14 @@ struct SettingsView: View {
             } else if blocked || askedWithoutAnswer.contains(title) {
                 // Asking again can't work once the system says no — and on the Mac a request can
                 // be held back silently (a Focus mode hides the prompt). The settings screen can.
-                Button("Open Settings") { openURL(settings.url) }
+                Button("Open Settings") {
+                    #if os(macOS)
+                    if settings != .app { MacPermissionGuide.shared.show(onboarding: onboarding, selected: settings) }
+                    else { openURL(settings.url) }
+                    #else
+                    openURL(settings.url)
+                    #endif
+                }
                     .buttonStyle(.secondary)
             } else {
                 Button("Connect") {
@@ -1994,28 +2003,6 @@ extension View {
             .frame(maxWidth: .infinity)
         #else
         self.readableColumn().formControls()
-        #endif
-    }
-}
-
-/// Where a permission is changed once the app can no longer ask for it.
-enum SystemSettingsLink {
-    case app, notifications, location
-
-    var url: URL {
-        #if os(macOS)
-        let id = Bundle.main.bundleIdentifier ?? "com.boris.banana"
-        switch self {
-        case .notifications:
-            return URL(string: "x-apple.systempreferences:com.apple.Notifications-Settings.extension?id=\(id)")!
-        case .location:
-            return URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_LocationServices")!
-        case .app:
-            return URL(string: "x-apple.systempreferences:com.apple.preference.security")!
-        }
-        #else
-        // iOS has one page per app, with every permission on it.
-        return URL(string: UIApplication.openSettingsURLString)!
         #endif
     }
 }

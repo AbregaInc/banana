@@ -10,6 +10,9 @@ import UIKit
 /// (`MealPhotoScanner`) — the Mac most, on power — and the line under the switch says how it's
 /// going here and which other devices are looking.
 struct MealPhotoScanSettingsSection: View {
+    #if os(macOS)
+    @EnvironmentObject private var onboarding: OnboardingStore
+    #endif
     @EnvironmentObject private var settings: AppSettings
     @ObservedObject private var scanner = MealPhotoScanner.shared
     @ObservedObject private var reports = MealPhotoScanReports.shared
@@ -92,8 +95,14 @@ struct MealPhotoScanSettingsSection: View {
                 .font(.footnote)
                 .foregroundStyle(.secondary)
             }
-            if scanner.access == .denied || scanner.access == .limited, let url = settingsURL {
-                Button(isMac ? "Open Privacy Settings" : "Open Settings") { openURL(url) }
+            if scanner.access == .denied || scanner.access == .limited {
+                Button(isMac ? "Open Privacy Settings" : "Open Settings") {
+                    #if os(macOS)
+                    MacPermissionGuide.shared.show(onboarding: onboarding, selected: .photos)
+                    #else
+                    if let url = settingsURL { openURL(url) }
+                    #endif
+                }
                     // Only the button, not the whole row with the switch in it.
                     .buttonStyle(.inline)
             }
