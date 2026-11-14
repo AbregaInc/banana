@@ -42,8 +42,9 @@ final class MailSyncProgressUITest: MailUITestCase {
         let action = app.buttons[isPad ? "mail.more" : MailID.compose].firstMatch
         XCTAssertTrue(action.exists, app.debugDescription)
         XCTAssertTrue(action.isHittable)
-        XCTAssertGreaterThanOrEqual(action.frame.width, 44)
-        XCTAssertGreaterThanOrEqual(action.frame.height, 44)
+        // Accessibility coordinate conversion can return 43.999999999999986 for a 44pt target.
+        XCTAssertGreaterThanOrEqual(action.frame.width + 0.001, 44)
+        XCTAssertGreaterThanOrEqual(action.frame.height + 0.001, 44)
         XCTAssertGreaterThan(progress.frame.width, 24)
         XCTAssertGreaterThanOrEqual(progress.frame.minX, 0)
         XCTAssertLessThanOrEqual(progress.frame.maxX, action.frame.minX)
