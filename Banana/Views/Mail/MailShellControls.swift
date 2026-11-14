@@ -65,6 +65,10 @@ struct MailActionsMenu: View {
             ReportProblemMenuItem()
         } label: {
             Image(systemName: "ellipsis")
+                #if os(iOS)
+                .frame(minWidth: 44, minHeight: 44)
+                .contentShape(Rectangle())
+                #endif
         }
         .menuIndicator(.hidden)
         .accessibilityLabel("More")

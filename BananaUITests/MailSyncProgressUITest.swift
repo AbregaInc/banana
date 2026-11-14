@@ -48,11 +48,18 @@ final class MailSyncProgressUITest: MailUITestCase {
         XCTAssertGreaterThan(progress.frame.width, 24)
         XCTAssertGreaterThanOrEqual(progress.frame.minX, 0)
         XCTAssertLessThanOrEqual(progress.frame.maxX, action.frame.minX)
+        if !isPad {
+            let place = app.buttons[MailID.placeMenu].firstMatch
+            let count = app.staticTexts[MailID.listCount].firstMatch
+            XCTAssertLessThanOrEqual(place.frame.height, max(44, count.frame.height * 1.6),
+                                     "The header title must stay on one line at accessibility sizes")
+        }
         snap("mail-header-large-text-progress")
         if isPad {
             action.tap()
-            XCTAssertTrue(app.buttons["New message"].firstMatch.waitForExistence(timeout: 5))
-            XCTAssertTrue(app.buttons["New message"].firstMatch.isHittable)
+            let newMessage = app.buttons["New message"].firstMatch
+            XCTAssertTrue(newMessage.waitForExistence(timeout: 5))
+            XCTAssertTrue(waitUntil { newMessage.isHittable }, app.debugDescription)
         }
     }
     func testPausedWorkSaysPausedAndFinishedWorkDisappears() {
