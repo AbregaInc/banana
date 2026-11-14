@@ -19,12 +19,15 @@ final class PiLaunchUITest: XCTestCase {
     }
 }
 
+#endif
+
+#if BANANA_AI
 final class UnifiedAssistantEntryUITest: XCTestCase {
     func testDraftSurvivesClosingAndReopening() {
         let app = XCUIApplication()
         app.launchArguments = ["--ui-preview", "--assistant-test-navigation", "--assistant-reset", "--disable-icloud", "-onboardingCompleted", "YES"]
         app.launch()
-        let entry = app.buttons["Ask or add"].firstMatch
+        let entry = app.buttons["shell.ai"]
         XCTAssertTrue(entry.waitForExistence(timeout: 25), app.debugDescription)
         entry.tap()
         let input = app.descendants(matching: .any)["assistant.input"].firstMatch
@@ -45,6 +48,9 @@ final class UnifiedAssistantEntryUITest: XCTestCase {
     }
 }
 
+#endif
+
+#if PI_DEVELOPMENT
 /// The agent as an input method: words in the + sheet become the app's own editor, and the
 /// saved thing lands on its page; a question in Review opens its answer.
 final class AgentInputUITest: XCTestCase {
@@ -198,24 +204,19 @@ final class AssistantUITest: XCTestCase {
         XCTAssertTrue(original.waitForExistence(timeout: 5)); original.tap()
         XCTAssertTrue(app.staticTexts["Local reply: Hello Pi"].waitForExistence(timeout: 10))
     }
-    #if !PI_DEVELOPMENT
-    // Main reaches the assistant from … › Assistant; in Pi it is the + and Review (AgentInputUITest).
+    // The same existing shell entry opens the integrated assistant on phone and iPad.
     func testAssistantOpensThroughTheAppShell() {
         let app = XCUIApplication()
-        app.launchArguments = ["--ui-preview", "--assistant-test-navigation", "--assistant-reset", "--disable-icloud", "-onboardingCompleted", "YES"]
+        app.launchArguments = ["--ui-preview", "--assistant-test-navigation", "--assistant-reset", "--disable-icloud", "-onboardingCompleted", "YES", "-finishSetupDismissed", "YES"]
         app.launch()
-        let more = app.buttons["More"].firstMatch
-        XCTAssertTrue(more.waitForExistence(timeout: 25), app.debugDescription)
-        more.tap()
-        let assistant = app.buttons["page.more.assistant"]
-        XCTAssertTrue(assistant.waitForExistence(timeout: 5), app.debugDescription)
-        assistant.tap()
+        let entry = app.buttons["shell.ai"]
+        XCTAssertTrue(entry.waitForExistence(timeout: 25), app.debugDescription)
+        entry.tap()
         let input = app.descendants(matching: .any)["assistant.input"].firstMatch
         XCTAssertTrue(input.waitForExistence(timeout: 25), app.debugDescription)
         send("Through the app shell", in: app)
         XCTAssertTrue(app.staticTexts["Local reply: Through the app shell"].waitForExistence(timeout: 15), app.debugDescription)
     }
-    #endif
     func testNoteToolDoesNotRepeatAfterReopen() {
         let app = launch()
         send("Save note: Check Pi durability", in: app)

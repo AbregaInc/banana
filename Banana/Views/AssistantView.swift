@@ -108,7 +108,7 @@ struct AssistantView: View {
     }
 
     @ViewBuilder private var addFormMenu: some View {
-        #if PI_DEVELOPMENT
+        #if BANANA_AI
         if let section = panelAddSection {
             Menu {
                 ForEach(AddKind.groups(for: section, with: modules.effectiveChoice), id: \.section) { group in

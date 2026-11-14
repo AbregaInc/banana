@@ -124,7 +124,7 @@ final class AppModulesTests: XCTestCase {
         }
         #if BANANA_AI
         XCTAssertEqual(AppSection.sidebar(with: .planOnly), [.plan, .routines, .assistant, .settings])
-        XCTAssertEqual(AppSection.macSidebar(with: .planOnly), [.plan, .routines, .assistant])
+        XCTAssertEqual(AppSection.macSidebar(with: .planOnly), [.plan, .routines])
         #else
         XCTAssertEqual(AppSection.sidebar(with: .planOnly), [.plan, .routines, .settings])
         XCTAssertEqual(AppSection.macSidebar(with: .planOnly), [.plan, .routines])

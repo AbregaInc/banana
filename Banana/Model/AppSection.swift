@@ -76,7 +76,7 @@ enum AppSection: String, Codable, CaseIterable, Identifiable {
     static let sidebar: [AppSection] = [.plan, .mail, .workouts, .nutrition, .notes, .routines, .library, .review, .assistant, .settings]
     /// The Mac's has no Settings: it is its own window there (⌘,), as in every Mac app.
     static var macSidebar: [AppSection] {
-        #if PI_DEVELOPMENT
+        #if BANANA_AI
         sidebar.filter { $0 != .settings && $0 != .assistant }
         #else
         sidebar.filter { $0 != .settings }

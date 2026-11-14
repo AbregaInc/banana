@@ -67,7 +67,9 @@ The public compile-check products were removed after scanning; installed local-b
 ## Integrated Beta
 
 Banana Beta includes the Pi assistant alongside Mail, using Beta’s existing accounts, stores,
-CloudKit container and peer identity. On iPhone and iPad it uses Apple’s on-device model. On Mac,
+CloudKit container and peer identity. The existing shell opens Pi’s unified Ask/Add sheet,
+including native form handoff and questions in Review, without a duplicate Assistant menu or
+sidebar entry. On iPhone and iPad it uses Apple’s on-device model. On Mac,
 AI-enabled builds also embed the pinned Python/Locals runtime; the app checks and reuses the
 existing immutable model cache, while its worker log belongs to its own support directory.
 The isolated PiDevelopment schemes remain available for fixtures and verification, but are not

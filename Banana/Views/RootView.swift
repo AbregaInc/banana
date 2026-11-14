@@ -873,13 +873,6 @@ struct RootView: View {
             }
             #endif
             if showsSidebarSections {
-                #if BANANA_AI && !PI_DEVELOPMENT
-                Tab(AppSection.assistant.title, systemImage: AppSection.assistant.symbol, value: ShellTab.section(.assistant)) {
-                    AssistantView().measuresLayoutClass()
-                        .shellPage(bottomBar: bottomBarShell).erasedTab()
-                }
-                .tabPlacement(.sidebarOnly)
-                #endif
                 Tab(AppSection.settings.title, systemImage: AppSection.settings.symbol, value: ShellTab.section(.settings)) {
                     SettingsView()
                         .measuresLayoutClass()
@@ -1247,7 +1240,7 @@ private struct PageChromeHost: ViewModifier {
     /// With Pi, Review is where questions are asked and answers pushed: a sheet on every device,
     /// so the iPad's tab strip stays as it is and each level has one way back.
     private static var reviewIsASheet: Bool {
-        #if PI_DEVELOPMENT
+        #if BANANA_AI
         true
         #else
         false
@@ -1264,7 +1257,7 @@ private struct PageChromeHost: ViewModifier {
                 }
                 startPicked()
             }) {
-                #if PI_DEVELOPMENT
+                #if BANANA_AI
                 AssistantView(showsDoneButton: true, panelAddSection: shell.state.tab, pickAdd: { kind in
                     chrome.pickedAdd = kind
                     chrome.showAssistant = false
@@ -1286,7 +1279,7 @@ private struct PageChromeHost: ViewModifier {
             .sheet(isPresented: Binding(get: { !sidebar && chrome.showRoutines }, set: { chrome.showRoutines = $0 })) {
                 RoutinesView(showsDoneButton: true).toastHost()
             }
-            #if PI_DEVELOPMENT
+            #if BANANA_AI
             .onChange(of: chrome.showAdd) { _, requested in
                 guard requested else { return }
                 chrome.showAdd = false

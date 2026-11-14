@@ -177,9 +177,7 @@ final class AssistantStore: ObservableObject {
         observers.append(NotificationCenter.default.addObserver(forName: NSApplication.willTerminateNotification, object: nil, queue: .main) { [weak self] _ in
             MainActor.assumeIsolated {
                 self?.host?.stop()
-                #if PI_DEVELOPMENT
                 MacLocalInference.shared.stop()
-                #endif
             }
         })
         #endif

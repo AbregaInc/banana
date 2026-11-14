@@ -131,7 +131,7 @@ struct MacRootView: View {
         #endif
     }
 
-    #if PI_DEVELOPMENT
+    #if BANANA_AI
     @ObservedObject private var chrome = PageChrome.shared
     #endif
     @ObservedObject private var nav = MacNavigator.shared
@@ -401,7 +401,7 @@ struct MacRootView: View {
             .sheet(isPresented: $nav.showFullPlayer) { NowPlayingView() }
             #endif
         }
-        #if PI_DEVELOPMENT
+        #if BANANA_AI
         .onChange(of: chrome.showAdd) { _, requested in
             guard requested else { return }
             chrome.showAdd = false
