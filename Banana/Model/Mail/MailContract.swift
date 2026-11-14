@@ -1058,6 +1058,8 @@ enum MailLinkRules {}
     func body(_ id: MailMessageID) async -> MailBody
     /// Sanitized original layout, prepared on demand off the UI thread.
     func originalHTML(_ id: MailMessageID) async throws -> String?
+    /// Source HTML for an explicitly submitted diagnostic report, never displayed directly.
+    func reportHTML(_ id: MailMessageID) async throws -> String?
     /// A picture a designed body refers to (10.5). Nil: answer 404. Fetches a remote picture
     /// only when `presentation == .onScreen` and the picture rules allow it.
     func resource(_ url: URL, for message: MailMessageID,

@@ -361,6 +361,13 @@ struct MailMessageCard: View {
                 MailReceivedAttachments(files: message.files, opener: opener)
             }
             content
+            if !message.inlineImages.isEmpty {
+                DisclosureGroup("Images (\(message.inlineImages.count))") {
+                    MailReceivedAttachments(files: message.inlineImages, opener: opener)
+                }
+                .font(.callout)
+                .accessibilityIdentifier("mail.inline-images")
+            }
         }
         .padding(DS.Space.m)
         .frame(maxWidth: .infinity, alignment: .leading)

@@ -137,6 +137,25 @@ def pulled(report):
     return folder, json.loads((folder / "report.json").read_text())
 
 
+def restore_inline_image_sources(source):
+    """Legacy reports contain viewer URLs, not the original MIME image sources.
+
+    Restore only quoted img src attributes from our own viewer scheme; keep every
+    other byte of markup and escape decoded content IDs as attribute data.
+    """
+    tags = re.compile(r"<img\b(?:[^\"'<>]|\"[^\"]*\"|'[^']*')*>", re.I)
+    attributes = re.compile(r"(\s+)([^\s=/>]+)(\s*=\s*)([\"'])(.*?)\4", re.S)
+    prefix = "banana-mail-image://message/"
+
+    def attribute(match):
+        if match[2].lower() != "src" or not match[5].lower().startswith(prefix):
+            return match[0]
+        value = "cid:" + urllib.parse.unquote(match[5][len(prefix):])
+        return match[1] + match[2] + match[3] + match[4] + html.escape(value, quote=True) + match[4]
+
+    return tags.sub(lambda tag: attributes.sub(attribute, tag[0]), source)
+
+
 def cmd_mail_case(a):
     folder, row = pulled(a.id)
     if not (folder / "mail.html").exists():
@@ -144,7 +163,7 @@ def cmd_mail_case(a):
     name = a.name or f"report-{a.id[:8].lower()}"
     case = CORPUS / name
     case.mkdir(parents=True, exist_ok=True)
-    (case / "input.html").write_bytes((folder / "mail.html").read_bytes())
+    (case / "input.html").write_text(restore_inline_image_sources((folder / "mail.html").read_text()))
     if (folder / "mail.txt").exists():
         (case / "input.txt").write_bytes((folder / "mail.txt").read_bytes())
     if (folder / "mail-prepared.json").exists():

@@ -1,6 +1,18 @@
 import XCTest
 
 @MainActor final class MailReaderModelTests: XCTestCase {
+    func testQuoteFoldingKeepsFollowingContentAndOriginalIndices() {
+        let blocks = [MailTextBlock(kind: .paragraph, runs: []),
+                      MailTextBlock(kind: .quote(depth: 1), runs: []),
+                      MailTextBlock(kind: .quote(depth: 2), runs: []),
+                      MailTextBlock(kind: .paragraph, runs: [])]
+        XCTAssertEqual(MailQuoteFolding.hiddenRange(in: blocks, from: 1, expanded: false), 1..<3)
+        XCTAssertNil(MailQuoteFolding.hiddenRange(in: blocks, from: 1, expanded: true))
+        for start in [nil, -1, 0, 3, 4] as [Int?] {
+            XCTAssertNil(MailQuoteFolding.hiddenRange(in: blocks, from: start, expanded: false))
+        }
+    }
+
     private final class Source: MailSource {
         var value = MailBody.notOnDevice
         var onChange: (@MainActor (MailConversation?) -> Void)?
@@ -43,6 +55,52 @@ import XCTest
         XCTAssertFalse(MailMessageDisplay(message).senderIsMe)
         message.from = MailPerson(name: "Noor", address: id.account, isMe: true, isKnown: true, fromTheirMail: false)
         XCTAssertTrue(MailMessageDisplay(message).senderIsMe)
+    }
+
+    func testBlankSenderNameFallsBackToAddress() {
+        var message = conversation(body: .text).messages[0]
+        for name in ["", "  \n "] {
+            message.from.name = name
+            XCTAssertEqual(MailMessageDisplay(message).sender, message.from.address)
+            let row = MailRow(id: id, key: MailOrderKey(group: 0, sortKey: 0, tie: 0), date: message.date,
+                people: [message.from], peopleTotal: 1, messageCount: 1, subject: "Subject", snippet: "",
+                isUnread: false, isStarred: false, isImportant: false, hasAttachment: false, isInvitation: false,
+                inInbox: true, isMuted: false, hasPendingChange: false, fromGmailSearch: false, labels: [], reason: nil)
+            XCTAssertEqual(MailRowDisplay.who(for: row), message.from.address)
+        }
+        message.from.name = " Noor "
+        XCTAssertEqual(MailMessageDisplay(message).sender, "Noor")
+    }
+
+    func testInlineImagesDoNotCrowdTheAttachmentHeaderButRemainAvailable() {
+        var message = conversation(body: .text).messages[0]
+        func file(_ part: String, inline: Bool, mime: String = "image/jpeg",
+                  mismatch: Bool = false, executable: Bool = false) -> MailAttachment {
+            MailAttachment(id: MailAttachmentID(message: message.id, part: part), name: part + ".jpg",
+                mimeType: mime, typeMismatch: mismatch, bytes: 100, localFile: nil,
+                isInline: inline, isExecutable: executable)
+        }
+        message.attachments = [file("inline", inline: true), file("photo", inline: false),
+                               file("document", inline: true, mime: "application/pdf"),
+                               file("mismatch", inline: true, mismatch: true),
+                               file("program", inline: true, executable: true)]
+        let display = MailMessageDisplay(message)
+        XCTAssertEqual(display.inlineImages.map(\.id.part), ["inline"])
+        XCTAssertEqual(display.files.map(\.id.part), ["photo", "document", "mismatch", "program"])
+        XCTAssertEqual(display.attachments.count, 4)
+        XCTAssertEqual(display.files.last?.isProgram, true)
+    }
+
+    func testReportHTMLDispatchCanKeepRawMarkupSeparateFromTheSafeOriginal() async throws {
+        final class ReportingSource: MailSource {
+            func originalHTML(_ id: MailMessageID) async throws -> String? { "<p>safe</p>" }
+            func reportHTML(_ id: MailMessageID) async throws -> String? { "<img src=\"cid:picture\">" }
+        }
+        let source: MailSource = ReportingSource()
+        let raw = try await source.reportHTML(messageID)
+        let original = try await source.originalHTML(messageID)
+        XCTAssertEqual(raw, "<img src=\"cid:picture\">")
+        XCTAssertEqual(original, "<p>safe</p>")
     }
 
     func testDownloadedBodyReplacesCachedPlaceholderWithoutReopening() async {

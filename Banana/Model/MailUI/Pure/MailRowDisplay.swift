@@ -76,7 +76,8 @@ struct MailRowDisplay: Equatable, Sendable {
         guard !people.isEmpty else { return "" }
         if people.count == 1 {
             let only = people[0]
-            return only.isMe ? "me" : (only.name ?? only.address)
+            let name = only.name?.trimmingCharacters(in: .whitespacesAndNewlines)
+            return only.isMe ? "me" : (name.flatMap { $0.isEmpty ? nil : $0 } ?? only.address)
         }
         let names = people.map(shortName)
         if names.count <= 3 { return names.joined(separator: ", ") }

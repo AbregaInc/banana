@@ -19,6 +19,8 @@ struct MailMessageDisplay: Equatable, Identifiable, Sendable {
     /// The same attachments as the reader draws them: a symbol and a size, whether the bytes are
     /// here to look at, and a note under a program or a file that is not what its name says.
     var files: [MailAttachmentDisplay]
+    /// Inline pictures already belong in the body. Keep their downloads available separately.
+    var inlineImages: [MailAttachmentDisplay]
     /// What a sample message says in place of a time it was not sent at, and nothing for a message
     /// that is not one. The sample mail "sends" and nothing leaves the machine, so every message it
     /// makes says so.
@@ -42,7 +44,8 @@ struct MailMessageDisplay: Equatable, Identifiable, Sendable {
     init(_ message: MailMessage, now: Date = Date(), calendar: Calendar = .current,
          locale: Locale = .current) {
         id = message.id
-        sender = message.from.isMe ? "me" : (message.from.name ?? message.from.address)
+        let name = message.from.name?.trimmingCharacters(in: .whitespacesAndNewlines)
+        sender = message.from.isMe ? "me" : (name.flatMap { $0.isEmpty ? nil : $0 } ?? message.from.address)
         senderAddress = message.from.address
         senderIsMe = message.isMine || message.from.isMe
         face = MailFace(message.from)
@@ -53,10 +56,21 @@ struct MailMessageDisplay: Equatable, Identifiable, Sendable {
         recipients = "to " + names.joined(separator: ", ")
         date = MailDateText.full(message.date, calendar: calendar, locale: locale)
         firstLine = message.firstLine
-        attachments = message.attachments.map {
+        var standalone: [MailAttachment] = []
+        var inline: [MailAttachmentDisplay] = []
+        for file in message.attachments {
+            if file.isInline, file.mimeType.lowercased().hasPrefix("image/"),
+               !file.typeMismatch, !file.isExecutable {
+                inline.append(MailAttachmentDisplay(file))
+            } else {
+                standalone.append(file)
+            }
+        }
+        inlineImages = inline
+        attachments = standalone.map {
             "\($0.name) \u{00B7} " + ByteCountFormatter.string(fromByteCount: Int64($0.bytes), countStyle: .file)
         }
-        files = message.attachments.map(MailAttachmentDisplay.init)
+        files = standalone.map(MailAttachmentDisplay.init)
         scheduled = Self.scheduled(message, now: now, calendar: calendar, locale: locale)
         if message.id.message.contains(Self.sampleMark) {
             if case .held? = message.delivery {

@@ -164,6 +164,11 @@ extension MailSource {
         return nil
     }
 
+    /// Sources without a raw store can still contribute their safe original document.
+    func reportHTML(_ id: MailMessageID) async throws -> String? {
+        try await originalHTML(id)
+    }
+
     func originalHTML(_ id: MailMessageID) async throws -> String? {
         MailNotYet.reached(#function)
         return nil

@@ -46,7 +46,7 @@ extension ProblemReportPageContext {
                 var out: [ProblemReport.Attachment] = []
                 if let prepared, let file = ProblemReport.Attachment.json(.mailPrepared, prepared) { out.append(file) }
                 // Whole or not at all: a cut HTML file is no test case.
-                if let html = try? await source.originalHTML(id), html.utf8.count <= ProblemReport.Attachment.Name.mailHTML.most,
+                if let html = try? await source.reportHTML(id), html.utf8.count <= ProblemReport.Attachment.Name.mailHTML.most,
                    let file = ProblemReport.Attachment.text(.mailHTML, html, type: "text/html") {
                     out.append(file)
                 }

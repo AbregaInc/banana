@@ -2,6 +2,20 @@
 import Foundation
 import Combine
 
+/// Fold only the quoted run; a signature picture after it remains visible.
+enum MailQuoteFolding {
+    static func hiddenRange(in blocks: [MailTextBlock], from start: Int?, expanded: Bool) -> Range<Int>? {
+        guard !expanded, let start, start > 0, blocks.indices.contains(start),
+              case .quote = blocks[start].kind else { return nil }
+        var end = start
+        while end < blocks.count {
+            guard case .quote = blocks[end].kind else { break }
+            end += 1
+        }
+        return start..<end
+    }
+}
+
 /// The open conversation as the reader draws it: the conversation, kept current, and each
 /// message's body as the source made it. Ready bodies are reused; placeholders and changed
 /// body states are re-read on notification. Reads never fetch (`MailSource.body`).

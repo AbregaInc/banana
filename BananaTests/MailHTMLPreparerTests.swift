@@ -87,6 +87,30 @@ final class MailHTMLPreparerTests: XCTestCase {
         XCTAssertEqual(blocks[1].runs.map(\.text).joined(), "Deposit $5,000")
     }
 
+    func testSemanticListDoesNotDuplicateAuthoredBullets() throws {
+        let html = "<ul><li><div>&bull;</div><div><strong>First</strong> item</div></li><li>&bull; Second item</li><li>-5 degrees</li></ul>"
+        let prepared = try MailHTMLPreparer.prepare(plain: nil, html: html)
+        XCTAssertEqual(blockTexts(prepared), ["First item", "Second item", "-5 degrees"])
+        XCTAssertEqual(prepared.text.blocks.map(\.kind), Array(repeating: .item(ordered: false, depth: 0, number: nil), count: 3))
+        XCTAssertEqual(prepared.text.blocks[0].runs.first?.style.contains(.bold), true)
+    }
+
+    func testShortReceiptRowsKeepLabelsWithTheirValues() throws {
+        let html = "<table role='presentation'><tr><td><table><tr><td><span>Total</span></td><td><strong>$25</strong></td></tr></table>"
+            + "<table><tr><td>Receipt</td><td><a href='https://plan.example/receipt'>Download</a></td></tr></table></td></tr></table>"
+        let prepared = try MailHTMLPreparer.prepare(plain: nil, html: html)
+        XCTAssertEqual(blockTexts(prepared), ["Total\u{2003}\u{2003}$25", "Receipt\u{2003}\u{2003}Download"])
+        XCTAssertEqual(prepared.text.blocks.last?.runs.last?.link?.absoluteString, "https://plan.example/receipt")
+        XCTAssertNil(table(prepared))
+    }
+
+    func testCompactRowsDoNotDiscardPicturesOrFlattenHeadings() throws {
+        let html = "<table><tr><td><h2>Heading</h2><p>Words</p></td><td><img src='cid:picture' width='300' height='200'></td></tr></table>"
+        let prepared = try MailHTMLPreparer.prepare(plain: nil, html: html)
+        XCTAssertTrue(prepared.text.blocks.contains { if case .heading = $0.kind { return true }; return false })
+        XCTAssertEqual(pictures(prepared).count, 1)
+    }
+
     func testListsWrittenAsTextBecomeLists() throws {
         // A marker in one block, its words in the next.
         let split = try MailHTMLPreparer.prepare(plain: nil, html: "<div>1.</div><div>First thing</div><div>2.</div><div>Second thing</div>")
@@ -309,6 +333,28 @@ final class MailHTMLPreparerTests: XCTestCase {
             XCTAssertTrue(blocks.dropFirst().contains { if case .quote = $0.kind { return true }; return false })
             XCTAssertFalse(blocks.dropFirst().contains { $0.kind == .paragraph }, html)
         }
+    }
+
+    func testQuoteBeforeSignaturePictureCanFold() throws {
+        let prepared = try MailHTMLPreparer.prepare(plain: nil, html:
+            "<p>Reply</p><blockquote><p>Earlier</p></blockquote><img src='cid:signature' width='200' height='100'>")
+        XCTAssertEqual(prepared.quoteStartsAt, 1)
+        XCTAssertEqual(pictures(prepared).count, 1)
+    }
+
+    func testSingleCellWrappersKeepReceiptLabelAndValueTogether() throws {
+        let prepared = try MailHTMLPreparer.prepare(plain: nil, html:
+            "<table><tr><td></td><td><table><tr><td><span>Total</span></td></tr></table></td>"
+            + "<td></td><td><table><tr><td><span>$25.00</span></td></tr></table></td><td></td></tr></table>")
+        XCTAssertEqual(prepared.text.blocks.map { $0.runs.map(\.text).joined() }, ["Total\u{2003}\u{2003}$25.00"])
+    }
+
+    func testSingleRowTableBulletUsesOneNativeMarker() throws {
+        let prepared = try MailHTMLPreparer.prepare(plain: nil, html:
+            "<table><tr><td><p>•</p></td><td><div>Checklist <a href='https://example.com'>entry</a></div></td></tr></table>")
+        XCTAssertEqual(prepared.text.blocks.map(\.kind), [.item(ordered: false, depth: 0, number: nil)])
+        XCTAssertEqual(prepared.text.blocks.first?.runs.map(\.text).joined(), "Checklist entry")
+        XCTAssertEqual(prepared.text.blocks.first?.runs.last?.link, URL(string: "https://example.com"))
     }
 
     func testPreparedBodyRecordsWhereTheQuoteStarts() throws {

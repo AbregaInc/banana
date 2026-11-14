@@ -6,8 +6,8 @@ struct MailPreparedBody: Codable, Equatable, Sendable {
     var version: Int
     var text: MailText
     var shownAsText: Bool
-    /// Index of the first block of the quoted tail: every block from here on is quoted. Nil when the
-    /// message does not end in a quote. Made with the text, so opening a message costs nothing.
+    /// Index of the final quoted run, which may be followed by signature pictures.
+    /// Made with the text, so opening a message does not parse it again.
     var quoteStartsAt: Int? = nil
     /// Use formatted HTML when the native grid cannot preserve a data table's structure.
     /// Optional so older cached bodies remain decodable until background preparation catches up.
@@ -22,6 +22,7 @@ struct MailPreparedBody: Codable, Equatable, Sendable {
     static func quoteStart(of blocks: [MailTextBlock]) -> Int? {
         var start: Int?
         for (index, block) in blocks.enumerated().reversed() {
+            if case .picture = block.kind, start == nil { continue }
             guard case .quote = block.kind else { break }
             start = index
         }
@@ -32,7 +33,7 @@ struct MailPreparedBody: Codable, Equatable, Sendable {
 
 /// Runs on the preparation worker, before opening. Uses the pinned library's parser.
 enum MailHTMLPreparer {
-    static let version = 5
+    static let version = 6
     static let maximumBytes = 2 * 1024 * 1024
     static let maximumNodes = 50_000
     /// How deep the walk recurses; deeper content is read flat, in document order.
@@ -560,6 +561,52 @@ enum MailHTMLPreparer {
         return (rows, columns)
     }
 
+    /// Short cells in a layout row still belong on one line (receipt labels and amounts).
+    /// Rich/nested content keeps the normal walk; this never turns a layout table into a grid.
+    private static func compactRowCells(_ row: Element, needs: DocNeeds) -> [Element]? {
+        let cells = elements(row).filter { ["td", "th"].contains($0.tagNameNormal()) }
+        guard (2...maximumTableColumns).contains(cells.count) else { return nil }
+        var kept: [Element] = []
+        for cell in cells {
+            if look(of: cell, tag: cell.tagNameNormal(), needs: needs).contains(.hidden) { continue }
+            if needs.span {
+                for key in ["rowspan", "colspan"] where (Int((try? cell.attr(key)) ?? "1") ?? 1) > 1 { return nil }
+            }
+            var length = 0, count = 0, nodes = cell.getChildNodes()
+            while let node = nodes.popLast() {
+                count += 1
+                guard count <= 128 else { return nil }
+                if let text = node as? TextNode {
+                    for scalar in text.getWholeText().unicodeScalars where !isSpace(scalar.value) && !isInvisible(scalar.value) { length += 1 }
+                    guard length <= 120 else { return nil }
+                } else if let element = node as? Element {
+                    let tag = element.tagNameNormal()
+                    // A one-cell nested table only wraps a label or amount. Rich grids keep
+                    // their structure and are handled by the ordinary table walk.
+                    if tag == "table" {
+                        var rows = 0, columns = 0, visited = 0, descendants = element.getChildNodes()
+                        while let child = descendants.popLast() {
+                            visited += 1
+                            guard visited <= 128 else { return nil }
+                            if let child = child as? Element {
+                                let name = child.tagNameNormal()
+                                if name == "tr" { rows += 1 }
+                                if name == "td" || name == "th" { columns += 1 }
+                                descendants.append(contentsOf: child.getChildNodes())
+                            }
+                            if rows > 1 || columns > 1 { return nil }
+                        }
+                        guard rows == 1, columns == 1 else { return nil }
+                    }
+                    guard (!layoutInCell.contains(tag) || tag == "table"), tag != "img", tag != "br", tag != "script", tag != "style" else { return nil }
+                    nodes.append(contentsOf: element.getChildNodes())
+                }
+            }
+            if length > 0 { kept.append(cell) }
+        }
+        return (2...4).contains(kept.count) ? kept : nil
+    }
+
     // MARK: Lists written as text
 
     /// "1." "2)" "(3)" number a list; "a." "b)", "•", "-" and the like mark one.
@@ -777,6 +824,15 @@ enum MailHTMLPreparer {
             guard cleaned.contains(where: { !$0.text.isEmpty }) else { return }
             var k = kind
             if let item = pendingItem, case .paragraph = k { k = item }
+            if case .item = k {
+                let value = plainText(cleaned)
+                if let marker = listMarker(value), marker.number == nil, value.first?.isLetter == false {
+                    let rest = value.unicodeScalars.dropFirst(marker.length)
+                    // A separate marker node must not consume the pending semantic list item.
+                    if rest.isEmpty { return }
+                    if rest.first == " " { cleaned = dropping(marker.length, from: cleaned) }
+                }
+            }
             pendingItem = nil
             if outlookQuote, case .quote = k {} else if outlookQuote { k = .quote(depth: 1) }
             // A break before a word that goes on in lower case only wrapped the line to the sender's
@@ -825,6 +881,29 @@ enum MailHTMLPreparer {
             if tag == "table", quote == 0, !outlookQuote, !inCell, !pre, let found = try table(element, depth: depth) {
                 flush()
                 blocks.append(contentsOf: found)
+                return
+            }
+            if tag == "tr", quote == 0, !outlookQuote, !inCell, !pre, lists.isEmpty,
+               let cells = compactRowCells(element, needs: needs) {
+                flush()
+                let runs = try cells.map { cell in
+                    try cellRuns(cell, depth: depth).map { run in
+                        var run = run
+                        if run.text == "\n" { run.text = " " }
+                        return run
+                    }
+                }
+                let first = MailHTMLPreparer.plainText(runs[0]).trimmingCharacters(in: .whitespacesAndNewlines)
+                if runs.count == 2, let marker = listMarker(first), marker.length == first.unicodeScalars.count {
+                    blocks.append(MailTextBlock(kind: .item(ordered: marker.number != nil, depth: 0, number: marker.number), runs: runs[1]))
+                } else {
+                    var row: [MailTextRun] = []
+                    for cell in runs {
+                        if !row.isEmpty { row.append(MailTextRun(text: cellSeparator, link: nil)) }
+                        row.append(contentsOf: cell)
+                    }
+                    blocks.append(MailTextBlock(kind: .paragraph, runs: row))
+                }
                 return
             }
             let previous = kind

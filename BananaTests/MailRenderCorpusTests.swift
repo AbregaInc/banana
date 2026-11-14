@@ -10,6 +10,7 @@ import XCTest
 /// `.build/mail-render-out/<case>.txt` to read beside it.
 final class MailRenderCorpusTests: XCTestCase {
     private struct Expect: Decodable {
+        var quoteStartsAt: Int?
         var contains: [String]?
         var absent: [String]?
         var blocksAtMost: Int?
@@ -60,6 +61,7 @@ final class MailRenderCorpusTests: XCTestCase {
 
         guard let data = try? Data(contentsOf: folder.appendingPathComponent("expect.json")) else { return }
         let expect = try JSONDecoder().decode(Expect.self, from: data)
+        if let start = expect.quoteStartsAt { XCTAssertEqual(prepared.quoteStartsAt, start, "\(name): folds quoted history") }
         for text in expect.contains ?? [] { XCTAssertTrue(shown.contains(text), "\(name): shows \(text.debugDescription)") }
         for text in expect.absent ?? [] { XCTAssertFalse(shown.contains(text), "\(name): hides \(text.debugDescription)") }
         if let most = expect.blocksAtMost { XCTAssertLessThanOrEqual(blocks.count, most, "\(name): at most \(most) blocks") }

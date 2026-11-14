@@ -8,29 +8,32 @@ struct MailTextView: View {
     /// The blocks already styled off the main thread (`MailReaderModel.styled`); styled here
     /// only when absent.
     var styled: [AttributedString]? = nil
-    /// The prepared body's `quoteStartsAt`: the quoted tail waits behind one button.
+    /// The prepared body's `quoteStartsAt`: quoted history waits behind one button.
     var foldFrom: Int? = nil
     @State private var showsQuote = false
 
     var body: some View {
         let ready = styled?.count == text.blocks.count ? styled : nil
-        let folded = foldFrom != nil && !showsQuote
-        let shown = folded ? Array(text.blocks.prefix(foldFrom ?? 0)) : text.blocks
+        let hidden = MailQuoteFolding.hiddenRange(in: text.blocks, from: foldFrom, expanded: showsQuote)
         VStack(alignment: .leading, spacing: DS.Space.s) {
-            // A fold keeps the first blocks, so a block's index is its index in `styled` too.
-            ForEach(Array(shown.enumerated()), id: \.offset) { index, block in
-                MailBlockView(block: block, styled: ready?[index])
-            }
-            if folded {
-                Button { showsQuote = true } label: {
-                    Label("Show quoted text", systemImage: "ellipsis").labelStyle(.iconOnly)
+            ForEach(text.blocks.indices, id: \.self) { index in
+                if hidden?.lowerBound == index { showQuoteButton }
+                if hidden?.contains(index) != true {
+                    MailBlockView(block: text.blocks[index], styled: ready?[index])
                 }
-                .buttonStyle(.bordered).controlSize(.small)
-                .accessibilityIdentifier("mail.body.quote")
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
+
+    private var showQuoteButton: some View {
+        Button { showsQuote = true } label: {
+            Label("Show quoted text", systemImage: "ellipsis").labelStyle(.iconOnly)
+        }
+        .buttonStyle(.bordered).controlSize(.small)
+        .accessibilityIdentifier("mail.body.quote")
+    }
+
 }
 
 private struct MailBlockView: View {
