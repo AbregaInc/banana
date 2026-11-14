@@ -75,6 +75,9 @@ Task { @MainActor in
     await model.activate(entry)
     check(requests == 1 && opened == 1 && model.states[.reminders] == .restricted)
     check(model.busy == nil)
+    state = .checking
+    await model.activate(entry)
+    check(requests == 1 && opened == 1 && model.states[.reminders] == .checking)
     subscription.cancel()
     // A slow notification daemon cannot block another permission's refresh.
     var pending: CheckedContinuation<MacPermissionState, Never>?
@@ -133,6 +136,7 @@ Task { @MainActor in
         }
     }
     check(host.fittingSize.width == 330)
+    check((try? Data(contentsOf: URL(fileURLWithPath: CommandLine.arguments[1])).count) ?? 0 > 100)
     done = true
 }
 let deadline = Date(timeIntervalSinceNow: 15)

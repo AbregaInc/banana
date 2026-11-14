@@ -58,7 +58,7 @@ evidence, not measured CPU savings or physical interaction acceptance. No screen
 events are used. If metadata is unavailable or neither side fits, the panel leaves
 Settings unobstructed; returning to Banana brings the guide back. Other foreground
 apps hide the panel and pause following/animation. Closing it stops polling,
-invalidates the display link, cancels reads, removes observers and invalidates
+invalidates the display link, cancels follower reads, removes observers and invalidates
 outstanding status updates.
 
 The deep-link anchors were also checked against the installed macOS 27.2
@@ -66,6 +66,9 @@ Security & Privacy extension's English search-term metadata (including
 `Privacy_Reminders`, `Privacy_Photos`, and `Privacy_Media`). Those routes are
 system implementation details, so actual pane navigation remains a native
 acceptance check on supported macOS releases.
+
+Location remains in a checking state until its delegate supplies a real standing,
+rather than interpreting the store's initial placeholder as permission to ask.
 
 Permission reads are independent, so a slow notification daemon cannot hold up
 Reminders. Unchanged status is not published. A stale read cannot overwrite the

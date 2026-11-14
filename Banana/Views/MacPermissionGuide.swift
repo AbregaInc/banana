@@ -4,7 +4,7 @@ import SwiftUI
 import Combine
 
 enum MacPermissionState: Equatable, Sendable {
-    case allowed, requestable, settings, restricted
+    case checking, allowed, requestable, settings, restricted
 }
 
 struct MacPermissionEntry: Identifiable, Sendable {
@@ -72,7 +72,7 @@ final class MacPermissionGuideModel: ObservableObject {
         case .settings:
             selected = entry.id
             openSettings(entry)
-        case .allowed, .restricted: break
+        case .checking, .allowed, .restricted: break
         }
     }
 
@@ -323,7 +323,7 @@ struct MacPermissionGuideView: View {
                                 .accessibilityLabel("Allowed")
                         } else if status == .restricted {
                             Text("Restricted").foregroundStyle(.secondary)
-                        } else if status == nil || model.busy == entry.id {
+                        } else if status == nil || status == .checking || model.busy == entry.id {
                             ProgressView().controlSize(.small)
                         } else {
                             Button(status == .settings ? "Open Settings" : "Allow") {

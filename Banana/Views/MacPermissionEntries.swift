@@ -26,6 +26,7 @@ extension MacPermissionGuide {
                 await OccurrenceStore.shared.syncRemindersAuthorization()
             }),
             MacPermissionEntry(id: .location, title: "Location Services", symbol: "location", read: {
+                guard LocationAccess.shared.standing != .unknown else { return .checking }
                 if onboarding.locationGranted { return .allowed }
                 if onboarding.locationStatus == .notDetermined { return .requestable }
                 return onboarding.locationStatus == .restricted ? .restricted : .settings
