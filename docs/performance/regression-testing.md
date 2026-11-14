@@ -74,6 +74,13 @@ Prerequisites: Xcode, xcodegen, Python 3 and the runtime specified in
 arm64, iPhone 17 Pro / iOS 26.5, Xcode 27.0. The November 2026 runtime migration runs on the same host and device type with iOS 27.0 and Xcode 27.2. The original environment is retained as `referenceEnvironment`; measurements, budgets, tolerances and workloads are unchanged. Results are cross-runtime comparisons, not a newly measured iOS 27 baseline. Other environments need explicit review.
 Do not compare Debug and optimized builds or silently substitute another device/runtime.
 
+The runner restores and verifies stock simulator services before collecting, using the
+[simslim workflow](../../tools/simulators/README.md). Ordinary serial UI/unit runs use a
+conservative slim profile. Its state persists across boots and worktrees, so restoration
+is mandatory for reference comparisons. The selected profile, CLI version and required-feature
+checks are retained in each run's `simulator/` directory. Slimming comparisons are separate
+experiments and never update the reference measurements or budgets.
+
 Each invocation creates a new `.build/performance-regression/<timestamp>/` directory. An optional
 `--out NEW_DIRECTORY` chooses its location. Existing directories are never overwritten.
 `--derived-data .build/stress-dd` can reuse compilation products; a build still runs before measuring.

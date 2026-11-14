@@ -108,7 +108,7 @@ unit_tests() {  # unit_tests CONFIGURATION SCHEME
   local booted=1
   xcrun simctl list devices booted | grep -q "$BANANA_SIM_PHONE" || booted=0
   local result="$OUT/unit-$config-$(date +%Y%m%d-%H%M%S).xcresult"
-  run tools/agents/xcode-lock.sh -l sim-phone -d .build/sim xcodebuild test-without-building -project Banana.xcodeproj \
+  run tools/simulator-run.sh phone "${BANANA_SIM_MODE:-slim}" "$OUT/simulator-$config" -- xcodebuild test-without-building -project Banana.xcodeproj \
     -scheme "$scheme" -configuration "$config" -destination "platform=iOS Simulator,id=$BANANA_SIM_PHONE" \
     -derivedDataPath .build/sim -resultBundlePath "$result" -collect-test-diagnostics never "${only[@]}" \
     -test-timeouts-enabled YES -default-test-execution-time-allowance 120 -maximum-test-execution-time-allowance 300

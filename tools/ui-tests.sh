@@ -103,8 +103,12 @@ if [ -z "$physical" ]; then
     xcrun simctl shutdown "$udid" 2>/dev/null
     xcrun simctl erase "$udid"
   fi
-  # Boot once and keep it; a clean slate comes from removing what earlier runs left.
-  xcrun simctl bootstatus "$udid" -b > /dev/null 2>&1
+  # Parallel-testing clones start stock; avoid claiming the serial profile covers them.
+  sim_mode="${BANANA_SIM_MODE:-slim}"
+  [ "$workers" -le 1 ] || sim_mode=stock
+  sim_evidence="${SIMULATOR_EVIDENCE:-.build/simulator-runs/$device-$(date +%Y%m%d-%H%M%S)-$$}"
+  SIMULATOR_UDID="$udid" tools/simulator-run.sh "$device" "$sim_mode" "$sim_evidence" || exit $?
+  echo "Simulator: $sim_mode ($sim_evidence)"
   for app in ${(f)"$(xcrun simctl listapps "$udid" 2>/dev/null | plutil -convert json -o - - 2>/dev/null |
       python3 -c 'import json,sys; [print(k) for k,v in json.load(sys.stdin).items() if v.get("ApplicationType")=="User"]' 2>/dev/null)"}; do
     xcrun simctl privacy "$udid" reset all "$app" 2>/dev/null

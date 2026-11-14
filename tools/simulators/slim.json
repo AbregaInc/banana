@@ -1,0 +1,6 @@
+{
+  "name": "banana-functional",
+  "description": "Keep Banana integrations; disable wallpaper posters, Family/Screen Time and MDM.",
+  "except": ["siri", "search", "icloud", "store", "pim", "web", "health", "photos", "apps", "messaging", "connectivity", "telemetry", "other"],
+  "keep": ["com.apple.chronod", "com.apple.liveactivitiesd", "com.apple.navd"]
+}
