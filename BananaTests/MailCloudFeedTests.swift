@@ -156,11 +156,13 @@ final class MailCloudFeedTests: XCTestCase {
         await feed.set([entry("kept", ["INBOX"]), entry("new", ["INBOX"])], complete: false)
         var progress = try await pass(sync)
         XCTAssertTrue(progress.hasMore, "the catch-up stays open while the cloud's first scan runs")
+        XCTAssertEqual(progress.enumerationComplete, false)
         var checks = await feed.checks
         XCTAssertEqual(checks, [], "absence from an incomplete feed says nothing")
         await feed.configure(complete: true)
         progress = try await pass(sync, at: 2)
         XCTAssertFalse(progress.hasMore)
+        XCTAssertEqual(progress.enumerationComplete, true)
         checks = await feed.checks
         XCTAssertEqual(checks, [["old-1", "old-2"]])
         // The cloud's answers arrive through the feed: one still in Gmail, one deleted.

@@ -9,6 +9,8 @@ actor GmailMailboxSync {
     struct Progress: Equatable, Sendable {
         var hasMore: Bool
         var checkpoint: UInt64?
+        /// Nil on the direct Gmail path; false while the cloud mailbox is still discovering mail.
+        var enumerationComplete: Bool? = nil
     }
     private let stores: MailStores
     private let history: GmailHistorySync

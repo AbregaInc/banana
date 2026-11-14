@@ -76,6 +76,8 @@ import Foundation
 }
 
 extension MailSource {
+    var syncProgress: MailSyncProgress? { nil }
+
     var supportsSenderBlocking: Bool { MailNotYet.reached(#function); return false }
     func senderPolicyStatus(account: String, sender: String) -> MailSenderPolicyStatus {
         MailNotYet.reached(#function)

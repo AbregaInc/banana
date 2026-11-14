@@ -17,6 +17,9 @@ import Foundation
 /// This file holds the two the first screens share. Each later package adds its own in
 /// `MailIdentifiers+<package>.swift`, by extension, so no package edits another's file.
 enum MailID {
+    static let listCount = "mail.list.count"
+    static let syncProgress = "mail.sync.progress"
+    static let syncFraction = "mail.sync.fraction"
     /// The conversation list itself.
     static let list = "mail.list"
     /// The row after the last conversation: loading, the end, or Retry (`MailListStatusRow`).

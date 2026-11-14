@@ -114,6 +114,7 @@ final class MailFixtureSource: MailSource {
     private var accountObservers: [UUID: @MainActor ([MailAccount]) -> Void] = [:]
 
     let status = MailStatus(MailNotYet.emptyStatus)
+    var syncProgress: MailSyncProgress?
     let badges = MailBadges(MailBadgeCounts(unreadInFirstSplit: 0, needsAnswer: 0))
 
     /// Where the sample mail's clock stands.
@@ -126,6 +127,16 @@ final class MailFixtureSource: MailSource {
         self.gmailDelay = gmailDelay
         self.wakeClock = wakeClock
         self.defaults = defaults
+        #if DEBUG
+        let args = ProcessInfo.processInfo.arguments
+        if let index = args.firstIndex(of: "--mail-sync-progress-fixture"), index + 1 < args.count {
+            let mode = args[index + 1]
+            let model = MailSyncProgress()
+            model.update(.init(completed: 25, pending: mode == "done" ? 0 : 75,
+                               totalKnown: mode != "unknown", paused: mode == "paused"))
+            syncProgress = model
+        }
+        #endif
         if gmailDelay != nil {
             for sample in Self.gmailOnlySamples() {
                 let built = Self.build(sample)

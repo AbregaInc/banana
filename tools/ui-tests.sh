@@ -79,6 +79,7 @@ stamp=".build/sim/.ui-$scheme-$test_config-$platform_key"
 if [ -z "${UI_TESTS_RUN:-}" ] && { [ ! -f "$stamp" ] || [ project.yml -nt "$stamp" ] ||
    [ -n "$(find Banana BananaUITests Shared -type f -newer "$stamp" 2>/dev/null | head -1)" ]; }; then
   echo "building…"
+  xcodegen generate > .build/ui-tests-generate.log 2>&1 || { cat .build/ui-tests-generate.log; exit 1; }
   # Apple-silicon simulators only: a generic simulator destination otherwise compiles every file a
   # second time for x86_64 (175-188 s clean against 89-100 s, 8 Nov 2026).
   build_destination='generic/platform=iOS Simulator'

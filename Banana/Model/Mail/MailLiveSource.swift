@@ -77,7 +77,10 @@ import GRDB
     /// Whether local CPU work may run now, and how fast (invariant 31).
     let paceGauge = MailPaceGauge()
     private lazy var cloudPull: MailCloudPull? = cloudFeed.map { [paceGauge] in
-        MailCloudPull(stores: stores, loader: conversationLoader, source: $0, pace: { paceGauge.pace() })
+        MailCloudPull(stores: stores, loader: conversationLoader, source: $0, pace: { paceGauge.pace() },
+            stored: { [weak self] account, count in
+                Task { @MainActor in self?.recordSyncCompleted(account: account, count: count) }
+            })
     }
     /// Re-prepares stored originals whose prepared body is missing or stale, newest first.
     private lazy var reprepare = MailReprepare(stores: stores, loader: conversationLoader, pace: { [paceGauge] in paceGauge.pace() })
@@ -130,6 +133,13 @@ import GRDB
     private var lastFinishedAction: UInt64 = 0
     private var projectionNeedsRepair = false
     private var actionTask: Task<Void, Never>?
+    lazy var syncProgress: MailSyncProgress? = MailSyncProgress { [weak self] in self?.refreshSyncProgress() }
+    private var syncCompleted: [String: Int] = [:]
+    private var syncEnumerationComplete: [String: Bool] = [:]
+    private var progressReadTask: Task<Void, Never>?
+    private var progressReadToken = UUID()
+    private var progressRevision: UInt64 = 0
+    private var progressReadAgain = false
     private var eventObservers: [UUID: @MainActor (MailEvent) -> Void] = [:]
     private var savedActions: [UInt64: (change: MailChange, applied: MailActionCoordinator.Applied)] = [:]
     private var savedActionOrder: [UInt64] = []
@@ -206,6 +216,7 @@ import GRDB
     }
     func activate() {
         guard !active else { return }; active = true
+        syncCompleted.removeAll()
         // Coming back to Mail: a wait left by a failure that was not a limit (a request the
         // system suspended with the app, a dropped connection) does not hold the first pass or
         // the first downloads back. A limit's wait stands.
@@ -600,6 +611,7 @@ import GRDB
         }
     }
     private func committed(_ change: MailStoreChange) {
+        refreshSyncProgress()
         if change.labelsChanged { refreshLabelCatalog() }
         if active, !change.conversations.isEmpty { searchIndexer.kick() }
         guard !change.viewKeys.isEmpty || !change.conversations.isEmpty else { return }
@@ -870,7 +882,9 @@ import GRDB
                             // Older bodies remain reachable through explicit Load message controls.
                             for message in messages.suffix(8) { self.enqueue(.body(message), priority: false) }
                         }
-                    case .body(let id): try await loader.body(id)
+                    case .body(let id):
+                        try await loader.body(id)
+                        if !Task.isCancelled { self?.recordSyncCompleted(account: id.account, count: 1) }
                     case .calendarCopies(let id):
                         // Verification is optional: offline mail and body readiness do not depend on it.
                         try? await loader.verifyCalendarCopies(id)
@@ -966,6 +980,7 @@ import GRDB
         }
         let value = accounts
         for callback in accountObservers.values { callback(value) }
+        refreshSyncProgress()
     }
 
     private static func account(for scope: MailScope) -> String? {
@@ -1497,6 +1512,7 @@ extension MailLiveSource {
                     try Task.checkCancellation()
                     let progress = try await worker.pass(account: account, nowMS: Int64(Date().timeIntervalSince1970 * 1000))
                     try Task.checkCancellation()
+                    self.syncEnumerationComplete[account] = progress.enumerationComplete ?? !progress.hasMore
                     if let retry = self.syncRetryAt[account], retry > Date() {
                         // A concurrent body request may have been rate-limited
                         // while this pass was in flight. Its deadline still wins.
@@ -1990,6 +2006,60 @@ enum MailInboxCount {
 
     static func place(unread: Int, total: MailCount) -> MailPlaceCount {
         MailPlaceCount(unread: MailCount(value: min(cap, unread), isAtLeast: unread > cap), total: total)
+    }
+}
+
+
+extension MailLiveSource {
+    private func recordSyncCompleted(account: String, count: Int) {
+        guard count > 0 else { return }
+        syncCompleted[account, default: 0] += count
+        refreshSyncProgress()
+    }
+
+    /// Coalesce committed batches. Off-screen headers do no counting and no polling is added.
+    private func refreshSyncProgress() {
+        progressRevision &+= 1
+        guard let progress = syncProgress, progress.observers > 0 else {
+            progressReadTask?.cancel(); progressReadTask = nil; progressReadToken = UUID()
+            return
+        }
+        if progressReadTask != nil { progressReadAgain = true; return }
+        let token = UUID(); progressReadToken = token
+        progressReadTask = Task { [weak self] in
+            guard let self else { return }
+            defer { if self.progressReadToken == token { self.progressReadTask = nil } }
+            repeat {
+                self.progressReadAgain = false
+                let revision = self.progressRevision
+                let accounts = self.accounts.filter { $0.state == .connected }
+                let ids = accounts.map(\.id)
+                let completed = ids.reduce(0) { $0 + (self.syncCompleted[$1] ?? 0) }
+                let known = ids.allSatisfy { self.syncEnumerationComplete[$0] == true }
+                do {
+                    let remaining = try await self.stores.index.read { try MailSyncProgressReader.pending(accounts: ids, in: $0) }
+                    guard !Task.isCancelled, self.progressReadToken == token else { return }
+                    // Never combine a stale queue count with newer completion counters.
+                    if revision != self.progressRevision { self.progressReadAgain = true; continue }
+                    let involved = accounts.filter { (remaining[$0.id]?.count ?? 0) > 0 || self.syncEnumerationComplete[$0.id] != true }
+                    let paused = !involved.isEmpty && involved.allSatisfy { Self.syncProgressPaused($0.health) }
+                    progress.update(.init(completed: completed, pending: remaining.values.reduce(0) { $0 + $1.count },
+                                          totalKnown: known && remaining.values.allSatisfy(\.isExact),
+                                          pendingIsAtLeast: remaining.values.contains { !$0.isExact }, checking: !known && !accounts.isEmpty && !paused,
+                                          paused: paused))
+                } catch {
+                    guard !Task.isCancelled, self.progressReadToken == token else { return }
+                    progress.update(.init(completed: completed, unavailable: true))
+                }
+            } while self.progressReadAgain && !Task.isCancelled
+        }
+    }
+
+    private static func syncProgressPaused(_ health: MailSyncHealth) -> Bool {
+        switch health {
+        case .offline, .limited, .bytesSpent, .apiDisabled, .notAllowedByAdmin, .wrongAccount: true
+        case .live, .firstSync, .catchingUp, .checking: false
+        }
     }
 }
 

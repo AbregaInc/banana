@@ -52,7 +52,7 @@ private struct MailListHeader: View {
     }
 
     private var header: some View {
-        HStack(alignment: .firstTextBaseline, spacing: DS.Space.s) {
+        HStack(alignment: headerAlignment, spacing: DS.Space.s) {
             if !wideShell { title }
             if bottomBarShell, case .search = scope.place {
                 // A search the field opened: the way back to the inbox, beside its name.
@@ -66,7 +66,11 @@ private struct MailListHeader: View {
             if feed.shown.hasDelivered {
                 Text(MailToastText.number(feed.shown.total.value) + (feed.shown.total.isAtLeast ? "+" : ""))
                     .font(.subheadline).monospacedDigit().foregroundStyle(.secondary)
+                    .accessibilityIdentifier(MailID.listCount)
             }
+            #if os(iOS)
+            if let progress = session.source.syncProgress { MailHeaderSyncProgress(progress: progress) }
+            #endif
             Spacer(minLength: 0)
             Button { session.compose() } label: {
                 Image(systemName: "square.and.pencil")
@@ -92,7 +96,19 @@ private struct MailListHeader: View {
         }
         .padding(.leading, DS.Space.l)
         .padding(.trailing, DS.Space.xs)
+        #if os(iOS)
+        .frame(minHeight: DS.Mail.header)
+        #else
         .frame(height: DS.Mail.header)
+        #endif
+    }
+
+    private var headerAlignment: VerticalAlignment {
+        #if os(iOS)
+        .center
+        #else
+        .firstTextBaseline
+        #endif
     }
 
     @ViewBuilder private var title: some View {

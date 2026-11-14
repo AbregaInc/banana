@@ -766,6 +766,46 @@ final class MailObservation: @unchecked Sendable {
     deinit { onCancel?() }
 }
 
+/// Only the header observes this. Network/index work never publishes through the list or shell.
+@MainActor final class MailSyncProgress: ObservableObject {
+    struct Value: Equatable {
+        var completed = 0
+        var pending = 0
+        var totalKnown = false
+        var pendingIsAtLeast = false
+        var checking = false
+        var paused = false
+        var unavailable = false
+        var isVisible: Bool { checking || pending > 0 || paused || unavailable }
+        /// A denominator is valid only after every participating mailbox has finished discovery.
+        var fraction: Double? {
+            guard totalKnown, !pendingIsAtLeast, !unavailable, completed >= 0, pending >= 0,
+                  completed > 0 || pending > 0 else { return nil }
+            return Double(completed) / (Double(completed) + Double(pending))
+        }
+    }
+    @Published private(set) var value = Value()
+    private(set) var observers = 0
+    private let observationChanged: @MainActor () -> Void
+    init(observationChanged: @escaping @MainActor () -> Void = {}) {
+        self.observationChanged = observationChanged
+    }
+    func update(_ value: Value) {
+        if self.value != value { self.value = value }
+    }
+    func observe() -> MailObservation {
+        observers += 1
+        if observers == 1 { observationChanged() }
+        return MailObservation { [weak self] in
+            Task { @MainActor in
+                guard let self else { return }
+                self.observers = max(0, self.observers - 1)
+                if self.observers == 0 { self.observationChanged() }
+            }
+        }
+    }
+}
+
 /// Status is a leaf: the status line, the foot card and the alert cards observe it, and no
 /// shell, tab bar or list container does. It changes at the rate of meaning, never per message.
 @MainActor final class MailStatus: ObservableObject {
@@ -1010,6 +1050,9 @@ enum MailLinkRules {}
 /// Everything a screen may ask of mail. Every requirement has a default in
 /// MailSource+NotYet.swift, so a source builds a member by declaring it and holds no stubs.
 @MainActor protocol MailSource: AnyObject {
+    /// Optional for sources without background downloads.
+    var syncProgress: MailSyncProgress? { get }
+
 
     // MARK: Life
 

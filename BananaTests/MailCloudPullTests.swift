@@ -104,9 +104,17 @@ final class MailCloudPullTests: XCTestCase {
         Entry(id: id, thread: thread ?? "t-" + id, history: "100", date: date, labels: labels, deleted: nil, content: content)
     }
 
+    private final class ProgressCounts: @unchecked Sendable {
+        private let lock = NSLock()
+        private var count = 0
+        func add(_ value: Int) { lock.lock(); defer { lock.unlock() }; count += value }
+        var total: Int { lock.lock(); defer { lock.unlock() }; return count }
+    }
+
     /// The feed applied (as a sync pass does), and a pull over it.
     private func setup(_ cloud: Cloud, gmail: Gmail = Gmail(), clock: Clock = Clock(), accounts: [String] = [account],
-                       pace: @escaping @Sendable () -> MailWorkPace = { .full }) async throws -> (MailStores, MailCloudPull) {
+                       pace: @escaping @Sendable () -> MailWorkPace = { .full },
+                       stored: @escaping @Sendable (String, Int) -> Void = { _, _ in }) async throws -> (MailStores, MailCloudPull) {
         let stores = try await stores()
         let writer = MailWriter(stores: stores, sink: nil)
         let feed = MailCloudFeedSync(stores: stores, writer: writer, source: cloud, recover: { _ in })
@@ -115,7 +123,7 @@ final class MailCloudPullTests: XCTestCase {
             while progress?.hasMore == true { progress = try await feed.pass(account: account, nowMS: 1) }
         }
         let loader = GmailConversationLoader(stores: stores, writer: writer, api: gmail, token: { _ in "fixture" })
-        return (stores, MailCloudPull(stores: stores, loader: loader, source: cloud, clock: { clock.now }, pace: pace, sleep: { _ in }))
+        return (stores, MailCloudPull(stores: stores, loader: loader, source: cloud, clock: { clock.now }, pace: pace, sleep: { _ in }, stored: stored))
     }
 
     /// HTML with more pieces than preparation walks, and no plain part: shown as its words, "deep".
@@ -168,7 +176,8 @@ final class MailCloudPullTests: XCTestCase {
         let dates = (1...60).map { Int64($0) * 1000 }
         await cloud.set(dates.enumerated().map { entry("m\($0.offset + 1)", date: $0.element) })
         await cloud.hold(dates.enumerated().map { Self.full("m\($0.offset + 1)", date: $0.element) })
-        let (stores, pull) = try await setup(cloud)
+        let counts = ProgressCounts()
+        let (stores, pull) = try await setup(cloud, stored: { _, count in counts.add(count) })
         // Rows 10–14 are on screen (an older stretch of the list): they come first.
         _ = try await pull.onScreen((10...14).map { conversation("m\($0)") })
         let first = try await pull.step(fill: true)
@@ -177,6 +186,7 @@ final class MailCloudPullTests: XCTestCase {
         var steps = [first]
         while true { let s = try await pull.step(fill: true); if !s.worked { break }; steps.append(s) }
         let asked = await cloud.asked
+        XCTAssertEqual(counts.total, 60, "progress reports the content actually stored across batches")
         XCTAssertEqual(asked.count, 4, "5 on screen, then 55 in batches of 25")
         XCTAssertEqual(asked[1], (36...60).reversed().map { "m\($0)" }, "then the rest, newest first, a batch at a time")
         XCTAssertEqual(asked[2].first, "m35")

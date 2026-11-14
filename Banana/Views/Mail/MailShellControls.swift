@@ -82,6 +82,7 @@ struct MailShellTopRow: View {
         HStack(spacing: DS.Space.s) {
             MailPlaceTitleMenu(session: session)
             MailFeedCount(feed: session.feed)
+            if let progress = session.source.syncProgress { MailHeaderSyncProgress(progress: progress) }
             Spacer(minLength: DS.Space.m)
             MailActionsMenu(session: session)
                 .font(.title3)
@@ -104,6 +105,7 @@ private struct MailFeedCount: View {
         if feed.shown.hasDelivered {
             Text(MailToastText.number(feed.shown.total.value) + (feed.shown.total.isAtLeast ? "+" : ""))
                 .font(.title3).monospacedDigit().foregroundStyle(.secondary)
+                .accessibilityIdentifier(MailID.listCount)
         }
     }
 }

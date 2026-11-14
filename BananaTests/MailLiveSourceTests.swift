@@ -37,6 +37,33 @@ import GRDB
         return (stores, intent, source, row)
     }
 
+    func testHeaderProgressTracksEligibleAccountsOnlyWhileObserved() async throws {
+        let (stores, _, _, _) = try await actionSource()
+        let access = Access(); access.grant = .granted
+        let source = MailLiveSource(stores: stores, access: access, api: GmailPageLoaderTests.Provider(count: 0))
+        let progress = try XCTUnwrap(source.syncProgress)
+        func ready(_ predicate: () -> Bool) async -> Bool {
+            let deadline = ContinuousClock.now.advanced(by: .seconds(3))
+            while !predicate(), ContinuousClock.now < deadline { await Task.yield() }
+            return predicate()
+        }
+        let first = progress.observe()
+        let queued = await ready { progress.value.pending == 1 }
+        XCTAssertTrue(queued, "The live source counts its persisted eligible content queue")
+        XCTAssertTrue(progress.value.checking)
+        XCTAssertNil(progress.value.fraction, "Discovery has not finished")
+        first.cancel()
+        let stopped = await ready { progress.observers == 0 }
+        XCTAssertTrue(stopped)
+        access.grant = .none; source.accessChanged()
+        XCTAssertEqual(progress.value.pending, 1, "No header: policy changes do not publish progress")
+        let second = progress.observe()
+        defer { second.cancel() }
+        let idle = await ready { !progress.value.isVisible }
+        XCTAssertTrue(idle, "A remounted header drops work for accounts without access")
+        XCTAssertEqual(progress.value.pending, 0)
+    }
+
     private struct PolicySnapshotAPI: MailSenderPolicyAPI {
         let blocked: Bool
         let revision: Int

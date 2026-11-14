@@ -3106,7 +3106,7 @@ overnight on a charger. The inbox must not wait for any of that.
 | Moment | The list | Says |
 |---|---|---|
 | Nothing has arrived yet (the first seconds) | Skeleton rows (6.1.1) | Status line, working dot: "Getting your newest mail…" |
-| The newest mail is here; older mail is arriving | Real rows, fully usable: read, triage, reply, search | The **foot card** below. Nothing at the top. |
+| The newest mail is here; older mail is arriving | Real rows, fully usable: read, triage, reply, search | On iOS/iPadOS, compact progress beside the list count (7.1.1). The fuller foot-card design below remains the account-detail specification. |
 | Everything is here | — | The card is gone. Nothing announces it. |
 
 The foot card, after the last row of any list that would be longer if everything were here:
@@ -3147,6 +3147,27 @@ The foot card, after the last row of any list that would be longer if everything
 Meanwhile: counts that may be short end in "+" (7.4); search says how much it covered (7.3);
 Places shows the account as "Downloading"; a conversation whose body has not arrived shows
 its header and snippet (6.2.5).
+
+#### 7.1.1 Mobile header progress
+
+The iOS/iPadOS list header shows sync immediately to the right of its message count. This keeps
+the feedback beside the content it describes (Proximity) and uses the native linear progress
+control (Jakob). The inbox and Compose remain usable throughout. The existing last-row loading
+state describes paging, a separate operation.
+
+Show a percentage only when every participating mailbox has finished discovery and the local
+pending-content count is exact. Otherwise show the actual number loaded, or the checking icon
+before any content arrives. Counts are session work, not a claim about all mail on the server.
+Large queues use a lower bound, never an invented denominator. Pauses and unavailable counts
+have distinct symbols; VoiceOver reads full counts and state. At accessibility text sizes,
+compact symbols/counts preserve room for the existing actions. Completion removes the element.
+
+`MailSyncProgress` is observed only by the header leaf; progress must not invalidate the list or
+reader. Reads coalesce committed batches off the main actor, stop when no header observes, and
+use the existing pending-content indexes. There is no new timer or network request. Correctness
+tests cover unknown/lower-bound totals, completion, observer lifetime and queue eligibility;
+mobile UI tests check placement, completion and large-text Compose reachability. These checks
+do not establish physical frame or input-to-visible latency.
 
 ### 7.2 How fresh the list is
 
