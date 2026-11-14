@@ -108,6 +108,13 @@ enum MacPermissionGuidePlacement {
     }
 }
 
+enum MacPermissionFollowSchedule {
+    static func shouldRead(now: TimeInterval, lastRead: TimeInterval,
+                           hasWindow: Bool, recentInput: Bool) -> Bool {
+        hasWindow && recentInput || now - lastRead >= 0.25
+    }
+}
+
 private actor MacSettingsWindowReader {
     func bounds(pid: pid_t, windowID: CGWindowID?) -> (CGWindowID, CGRect)? {
         guard !Task.isCancelled else { return nil }
@@ -143,7 +150,7 @@ final class MacPermissionGuide: NSObject, NSWindowDelegate {
     private var settingsWindowID: CGWindowID?
     private var settingsPID: pid_t?
     private var generation = 0
-    private var lastSearch: TimeInterval = -.infinity
+    private var lastWindowRead: TimeInterval = -.infinity
 
     func show(entries: [MacPermissionEntry], selected: SystemSettingsLink? = nil) {
         close()
@@ -193,6 +200,7 @@ final class MacPermissionGuide: NSObject, NSWindowDelegate {
     private func open(_ entry: MacPermissionEntry) {
         model?.selected = entry.id
         settingsWindowID = nil
+        lastWindowRead = -.infinity
         panel?.orderOut(nil)
         model?.setVisible(false)
         if NSWorkspace.shared.open(entry.id.url) { startFollowing() }
@@ -215,6 +223,7 @@ final class MacPermissionGuide: NSObject, NSWindowDelegate {
         let frontmost = NSWorkspace.shared.frontmostApplication?.bundleIdentifier
         let visible = frontmost == Bundle.main.bundleIdentifier || frontmost == "com.apple.systempreferences"
         if frontmost == "com.apple.systempreferences", model.selected != nil {
+            lastWindowRead = -.infinity
             startFollowing()
             displayLink?.isPaused = false
         } else {
@@ -230,11 +239,13 @@ final class MacPermissionGuide: NSObject, NSWindowDelegate {
               NSWorkspace.shared.frontmostApplication?.bundleIdentifier == "com.apple.systempreferences" else { return }
         guard let app = NSRunningApplication.runningApplications(withBundleIdentifier: "com.apple.systempreferences").first else { return }
         if settingsPID != app.processIdentifier { settingsPID = app.processIdentifier; settingsWindowID = nil }
-        if settingsWindowID == nil {
-            let now = ProcessInfo.processInfo.systemUptime
-            guard now - lastSearch >= 0.25 else { return }
-            lastSearch = now
-        }
+        let now = ProcessInfo.processInfo.systemUptime
+        let recentInput = CGEventSource.buttonState(.combinedSessionState, button: .left)
+            || CGEventSource.secondsSinceLastEventType(.combinedSessionState, eventType: .leftMouseUp) < 0.5
+            || CGEventSource.secondsSinceLastEventType(.combinedSessionState, eventType: .keyDown) < 0.5
+        guard MacPermissionFollowSchedule.shouldRead(now: now, lastRead: lastWindowRead,
+            hasWindow: settingsWindowID != nil, recentInput: recentInput) else { return }
+        lastWindowRead = now
         let generation = generation
         let pid = app.processIdentifier
         let windowID = settingsWindowID
@@ -283,7 +294,7 @@ final class MacPermissionGuide: NSObject, NSWindowDelegate {
         model = nil
         settingsWindowID = nil
         settingsPID = nil
-        lastSearch = -.infinity
+        lastWindowRead = -.infinity
     }
 }
 

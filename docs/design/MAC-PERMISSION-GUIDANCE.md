@@ -50,7 +50,11 @@ a static illustration.
 The guide positions only its own window. Settings window bounds are read off the
 main actor, with one read in flight, cached window IDs, and bounded discovery.
 A screen display link follows movement without invalidating SwiftUI's status
-rows. No screen images, Accessibility permission, Apple Events, or injected mouse
+rows. Pointer-button state and elapsed input times select frame-cadence reads
+during interaction; quiet window reads are capped at four per second. The
+controlled schedule check records 120 reads/second for the unthrottled control,
+four for a quiet follower, and 120 during active input. This is query-count
+evidence, not measured CPU savings or physical interaction acceptance. No screen images, Accessibility permission, Apple Events, or injected mouse
 events are used. If metadata is unavailable or neither side fits, the panel leaves
 Settings unobstructed; returning to Banana brings the guide back. Other foreground
 apps hide the panel and pause following/animation. Closing it stops polling,

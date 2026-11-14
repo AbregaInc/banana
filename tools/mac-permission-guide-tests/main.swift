@@ -33,6 +33,22 @@ check(SystemSettingsLink.reminders.url.absoluteString.hasSuffix("?Privacy_Remind
 check(SystemSettingsLink.location.url.absoluteString.hasSuffix("?Privacy_LocationServices"))
 check(SystemSettingsLink.music.url.absoluteString.hasSuffix("?Privacy_Media"))
 check(SystemSettingsLink.photos.url.absoluteString.hasSuffix("?Privacy_Photos"))
+// Controlled ablation: the frame-by-frame control asks 120 times per quiet
+// second; the production schedule asks four. Active input keeps every frame.
+for active in [false, true] {
+    var lastRead = -Double.infinity
+    var reads = 0
+    for frame in 0..<120 {
+        let now = Double(frame) / 120
+        if MacPermissionFollowSchedule.shouldRead(now: now, lastRead: lastRead, hasWindow: true, recentInput: active) {
+            reads += 1
+            lastRead = now
+        }
+    }
+    check(reads == (active ? 120 : 4))
+}
+check(MacPermissionFollowSchedule.shouldRead(now: 0, lastRead: -.infinity, hasWindow: false, recentInput: false))
+check(!MacPermissionFollowSchedule.shouldRead(now: 0.1, lastRead: 0, hasWindow: false, recentInput: true))
 var done = false
 Task { @MainActor in
     var state = MacPermissionState.requestable
