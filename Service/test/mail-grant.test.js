@@ -70,3 +70,12 @@ test('Calendar-only reconnect preserves an existing separate Mail grant and repo
  assert.deepEqual(result.json.account.google[0].permissionScopes.mail,mail.split(' ').sort());
  assert.deepEqual(result.json.account.google[0].permissionScopes.calendar,calendar.split(' ').sort());
 });
+
+test('refused Mail retains reconnect intent without reporting usable access',async()=>{
+ const s=setup(),a=await user(s);
+ s.google.person('mail','sub-noor','noor@plan.example','mail-refresh',{scopes:mail});await connect(s,a);
+ await s.db.run("UPDATE mail_grants SET status='refused' WHERE google_sub=?",'sub-noor');
+ const result=await s.call('GET','/v1/account',{session:a.session});
+ assert.equal(result.json.google[0].capabilities.mailRead,false);
+ assert.deepEqual(result.json.google[0].permissionScopes.mail,mail.split(' ').sort());
+});

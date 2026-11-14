@@ -51,10 +51,10 @@ export async function providerDevicesReady(deps, account) {
   return !(await deps.db.first('SELECT 1 AS legacy FROM devices WHERE account_id=? AND provider_protocol<1 LIMIT 1',account));
 }
 
-/** Non-secret permission metadata, separated by the grant used for each feature. */
+/** Recorded grant scopes for reconnect planning; capabilities remain the usable-access authority. */
 export function linkedGoogleScopes(link) {
  const scopes=(value)=>[...new Set(String(value??'').split(/\s+/).filter(Boolean))].sort();
- const calendar=link.has_token&&link.status==='ok'?scopes(link.scopes):[];
- const mail=link.mail_status==null?calendar:link.mail_has_token&&link.mail_status==='ok'?scopes(link.mail_scopes):[];
+ const calendar=scopes(link.scopes);
+ const mail=link.mail_status==null?calendar:link.mail_status==='unlinked'?[]:scopes(link.mail_scopes);
  return {calendar,mail};
 }

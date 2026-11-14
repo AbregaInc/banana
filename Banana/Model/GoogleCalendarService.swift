@@ -453,15 +453,12 @@ final class GoogleCalendarService: ObservableObject {
         do {
             var scopes = Self.requiredScopes
             #if !BANANA_PUBLIC
-            // Reconnect preserves existing Mail access and includes current feature requirements.
-            // The service redeems this single code for both grants in one transaction.
-            if ModuleStore.shared.choice.includes(.email), FeatureAccessStore.shared.allows("email"),
-               let link = BananaAccount.shared.account?.google.first(where: { $0.email.lowercased() == email.lowercased() }),
-               link.capabilities?.mailRead == true {
-                scopes += link.permissionScopes?["mail"] ?? [link.capabilities?.mailModify == true
-                    ? MailScopes.gmailModify : "https://www.googleapis.com/auth/gmail.readonly"]
-                scopes += MailScopes.senderPhotos
-            }
+            let link = BananaAccount.shared.account?.google.first { $0.email.lowercased() == email.lowercased() }
+            scopes = GoogleReconnectPermissions.scopes(calendar: scopes,
+                mail: link?.permissionScopes?["mail"] ?? [], readable: link?.capabilities?.mailRead == true,
+                modifiable: link?.capabilities?.mailModify == true,
+                enabled: ModuleStore.shared.choice.includes(.email) && FeatureAccessStore.shared.allows("email"),
+                additional: MailScopes.senderPhotos)
             #endif
             let result = try await interactiveSignIn(hint: email, scopes: Array(Set(scopes)).sorted())
             guard let signedIn = result.user.profile?.email,

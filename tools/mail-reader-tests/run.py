@@ -8,7 +8,8 @@ a.out.mkdir(parents=True,exist_ok=False);target=a.out/'Tests';target.mkdir()
 paths=[root/'Banana/Model/Mail'/name for name in ['MailContract.swift','MailSource+NotYet.swift','MailFileName.swift']]
 paths += [root/'Banana/Model/MailUI/Pure'/name for name in ['MailFace.swift','MailSenderImages.swift','MailPictureLoader.swift','MailReaderModel.swift','MailConversationFacts.swift','MailMessageDisplay.swift','MailAttachmentKind.swift','MailAttachmentText.swift','MailRowDisplay.swift','MailScheduleCopy.swift','MailAttributedText.swift','MailBodyHTML.swift']]
 paths += [root/'BananaTests/MailReaderModelTests.swift', root/'BananaTests/MailLinkTests.swift']
-paths += [root/'Banana/Model/PermissionUpgrade.swift', root/'BananaTests/PermissionUpgradeTests.swift']
+paths += [root/'Banana/Model/PermissionUpgrade.swift', root/'BananaTests/PermissionUpgradeTests.swift',
+          root/'Banana/Model/GoogleReconnectPermissions.swift', root/'BananaTests/GoogleReconnectPermissionsTests.swift']
 for path in paths: shutil.copy2(path,target/path.name)
 toast=root/'Banana/Model/MailUI/Pure/MailToastText.swift';s=toast.read_text().replace('#if !BANANA_PUBLIC\n', '').removesuffix('#endif\n');start=s.index('    static func cleanSubject(');end=s.index('\n    /// How many characters',start)
 (target/'MailToastExtract.swift').write_text(s[:s.index('enum MailToastText')]+'enum MailToastText {\n'+s[start:end]+'\n}\n')
