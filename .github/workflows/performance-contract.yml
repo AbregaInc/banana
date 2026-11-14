@@ -127,6 +127,7 @@ jobs:
           python3 tools/travel-horizon-tests/run.py --out .build/calendar-core/travel-horizon
           python3 tools/calendar-viewport-item-tests/run.py --out .build/calendar-core/viewport-items
           python3 tools/calendar-mac-viewport-tests/run.py --out .build/calendar-core/mac-viewport
+          python3 tools/mac-permission-guide-tests/run.py --out .build/calendar-core/mac-permission-guide
           python3 tools/physical-stress-tests/run.py --out .build/calendar-core/physical-stress
           python3 tools/calendar-header-tests/run.py --out .build/calendar-core/header-delivery
           swiftc -O -parse-as-library Banana/Model/CalendarMobileNeighbors.swift Banana/Model/CalendarDayClockGeometry.swift Banana/Model/CalendarLanePlan.swift tools/calendar-library-benchmark/Shared/Fixtures.swift tools/calendar-neighbor-tests/main.swift -o .build/calendar-core/neighbor-tests
