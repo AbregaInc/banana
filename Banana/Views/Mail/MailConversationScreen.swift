@@ -95,6 +95,9 @@ struct MailConversationContent: View {
                             }
                         }
                         .padding(.bottom, DS.Space.xs)
+                        if let code = reader.verificationCode {
+                            MailVerificationCodeCard(code: code)
+                        }
                         if let invite = reader.conversation?.invite, invite.method == .request {
                             MailInviteCard(account: reader.id.account, invite: invite,
                                            calendar: session.isSample ? .sample : .live)

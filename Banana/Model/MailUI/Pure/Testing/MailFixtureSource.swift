@@ -156,6 +156,15 @@ final class MailFixtureSource: MailSource {
             for (id, body) in built.bodies { bodies[id] = body }
         }
         #if DEBUG
+        if args.contains("--mail-verification-code"),
+           let id = threads.keys.first(where: { $0.thread == "newsletter" }), var stored = threads[id] {
+            stored.row.subject = "Your one-time verification code"
+            stored.conversation.subject = stored.row.subject
+            if let message = stored.conversation.messages.first {
+                bodies[message.id] = .text(Self.text(from: ["One-Time Verification Code:", "042819", "Do not share this code."]), quoteStartsAt: nil, notices: [])
+            }
+            threads[id] = stored
+        }
         if args.contains("--mail-unknown-sender"),
            let id = threads.keys.first(where: { $0.thread == "newsletter" }), var stored = threads[id] {
             let unknown = MailPerson(name: nil, address: "", isMe: false, isKnown: false, fromTheirMail: false)

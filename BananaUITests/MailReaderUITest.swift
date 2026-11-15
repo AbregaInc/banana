@@ -1,6 +1,34 @@
 import XCTest
 
 final class MailReaderUITest: MailUITestCase {
+    func testVerificationCodeStaysReachableWithLargeTextAndDarkAppearance() {
+        launch(open: "newsletter", extra: ["--mail-verification-code", "-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryAccessibilityXXXL", "-AppleInterfaceStyle", "Dark"])
+        let copy = app.buttons["mail.verification.copy"].firstMatch
+        XCTAssertTrue(copy.waitForExistence(timeout: 10), app.debugDescription)
+        XCTAssertTrue(copy.isHittable)
+        XCTAssertGreaterThanOrEqual(copy.frame.height, 44)
+        let value = element("mail.verification.value")
+        XCTAssertTrue(value.exists)
+        XCTAssertLessThanOrEqual(value.frame.maxX, app.frame.maxX)
+        copy.tap()
+        XCTAssertTrue(waitUntil { copy.label.contains("Copied") })
+        snap("verification-large-dark")
+    }
+
+    func testVerificationCodeIsAboveTheMessageAndCopiesInOneTap() {
+        launch(open: "newsletter", extra: ["--mail-verification-code"])
+        let copy = app.buttons["mail.verification.copy"].firstMatch
+        XCTAssertTrue(copy.waitForExistence(timeout: 10), app.debugDescription)
+        XCTAssertTrue(copy.isHittable)
+        XCTAssertGreaterThanOrEqual(copy.frame.height, 44)
+        let sender = element("mail.sender.newsletter~1")
+        XCTAssertTrue(sender.waitForExistence(timeout: 5))
+        XCTAssertLessThan(copy.frame.minY, sender.frame.minY)
+        copy.tap()
+        XCTAssertTrue(waitUntil { copy.label.contains("Copied") })
+        snap("verification-copied")
+    }
+
     func testMissingAndFailedInvitationsKeepRetryVisible() {
         for flag in ["--mail-invite-missing", "--mail-invite-failed"] {
             launch(open: "invite", extra: [flag])
