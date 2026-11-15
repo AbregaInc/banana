@@ -151,3 +151,46 @@ test('explicit native chart command remains a view action',async()=>{
  assert.equal(out.content[0].name,'nutrition_view');
  assert.notEqual(out.content[0].arguments.responseMode,'answer');
 });
+
+
+test('micronutrient requests expose only the grounded read capability', async()=>{
+ let calls=0;
+ const out=await routeGeneration(request('Have I had enough coline this week?', ['nutrition_view','read_nutrients']),async r=>{
+  if(calls++===0)return pick('read_nutrients',{section:'nutrition',needsUnavailableData:false});
+  assert.deepEqual(r.tools.map(t=>t.name),['read_nutrients']);
+  return response('read_nutrients',{nutrient:'coline',period:'this_week'});
+ });
+ assert.equal(out.content[0].name,'read_nutrients');
+ assert.equal(out.content[0].arguments.nutrient,'coline');
+});
+test('a model cannot replace the requested micronutrient with another one',async()=>{
+ let calls=0;
+ const out=await routeGeneration(request('Check my choline intake', ['read_nutrients']),async()=>calls++===0
+  ? pick('read_nutrients',{section:'nutrition',needsUnavailableData:false})
+  : response('read_nutrients',{nutrient:'iron'}));
+ assert.equal(out.content[0].type,'text');
+});
+test('nutrient names require whole-word evidence rather than a substring',async()=>{
+ let calls=0;
+ const out=await routeGeneration(request('What about ironing?', ['read_nutrients']),async()=>calls++===0
+  ? pick('read_nutrients',{section:'nutrition',needsUnavailableData:false})
+  : response('read_nutrients',{nutrient:'iron'}));
+ assert.equal(out.content[0].type,'text');
+});
+
+test('relative nutrient periods discard model calendar arithmetic',async()=>{
+ let calls=0;
+ const out=await routeGeneration(request('Check choline this week',['read_nutrients']),async()=>calls++===0
+  ? pick('read_nutrients',{section:'nutrition'})
+  : response('read_nutrients',{nutrient:'choline',period:'this_week',end:'1999-01-01'}));
+ assert.deepEqual(out.content[0].arguments,{nutrient:'choline',period:'this_week'});
+});
+test('explicit nutrient dates must be supplied by the person',async()=>{
+ for(const supplied of [false,true]) {
+  let calls=0;
+  const out=await routeGeneration(request('Check choline'+(supplied?' 2026-11-01 to 2026-11-07':''),['read_nutrients']),async()=>calls++===0
+   ? pick('read_nutrients',{section:'nutrition'})
+   : response('read_nutrients',{nutrient:'choline',start:'2026-11-01',end:'2026-11-07'}));
+  assert.equal(out.content[0].type,supplied?'toolCall':'text');
+ }
+});

@@ -23,6 +23,8 @@ final class MailFixtureSource: MailSource {
     var nextUndoFailure: MailStoreProblem?
     var beforeSenderBlock: (() async throws -> Void)?
     var onApply: ((MailChange, MailTarget) -> Void)?
+    var onRetrySend: ((MailDraftID) -> Void)?
+    func retrySend(_ draft: MailDraftID) { onRetrySend?(draft) }
 
     func observeEvents(_ onEvent: @escaping @MainActor (MailEvent) -> Void) -> MailObservation {
         let id = UUID()

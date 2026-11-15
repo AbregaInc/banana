@@ -66,6 +66,7 @@ enum AssistantNutrition {
         case "last_month":
             start = calendar.date(byAdding: .month, value: -1, to: month)!
             end = calendar.date(byAdding: .day, value: -1, to: month)!
+        case "this_week": start = calendar.dateInterval(of: .weekOfYear, for: today)!.start; end = today
         case "last_7_days": start = calendar.date(byAdding: .day, value: -6, to: today)!; end = today
         case "last_30_days": start = calendar.date(byAdding: .day, value: -29, to: today)!; end = today
         default: throw AssistantFailure(message: "That nutrition period is not supported.")

@@ -2016,12 +2016,24 @@ final class GoogleCalendarService: ObservableObject {
 
     /// Events on one calendar carrying an iCalendar UID — how a block written through Apple
     /// Calendar is found again through the API. Read-only.
-    func events(calendarID: String, iCalUID: String) async throws -> [GoogleEvent] {
-        var components = URLComponents(url: Self.eventsURL(calendarID: calendarID),
-                                       resolvingAgainstBaseURL: false)!
-        components.queryItems = [URLQueryItem(name: "iCalUID", value: iCalUID)]
-        let page: GoogleEventsResponse = try await request(url: components.url!)
-        return (page.items ?? []).filter { $0.status != "cancelled" }
+    func events(calendarID: String, iCalUID: String, accountEmail: String? = nil) async throws -> [GoogleEvent] {
+        let credential: GoogleAccountCredential?
+        if let accountEmail {
+            guard let connected = accounts.first(where: { $0.id == accountEmail.lowercased() }) else { throw GoogleCalendarError.notConnected }
+            credential = connected
+        } else { credential = account(forCalendarID: calendarID) }
+        var components = URLComponents(url: Self.eventsURL(calendarID: calendarID), resolvingAgainstBaseURL: false)!
+        var events: [GoogleEvent] = [], seen = Set<String>(), token: String?
+        repeat {
+            try Task.checkCancellation()
+            components.queryItems = [URLQueryItem(name: "iCalUID", value: iCalUID)]
+            if let token { components.queryItems?.append(URLQueryItem(name: "pageToken", value: token)) }
+            let page: GoogleEventsResponse = try await request(url: components.url!, account: credential)
+            events.append(contentsOf: (page.items ?? []).filter { $0.status != "cancelled" })
+            token = page.nextPageToken
+            if let token, !seen.insert(token).inserted { throw GoogleCalendarError.malformedResponse }
+        } while token != nil
+        return events
     }
 
     /// Mark an existing event as a block this build owns, touching nothing else about it.

@@ -483,6 +483,8 @@ def build(survey_zip, sr_zip, foundation_zip, output, products_path, fixture=Fal
     db.commit()
     db.execute("INSERT INTO foods_fts(foods_fts) VALUES ('optimize')")
     db.execute("INSERT INTO branded_fts(branded_fts) VALUES ('optimize')")
+    from build_food_nutrients import populate
+    populate(db, {"fndds": survey, "sr": sr, "foundation": foundation})
     db.commit()
     db.execute("VACUUM")
     portions_count = db.execute("SELECT count(*) FROM portions").fetchone()[0]

@@ -54,6 +54,17 @@ final class MailHTMLPreparerTests: XCTestCase {
         prepared.text.blocks.lazy.compactMap { if case .table(let table) = $0.kind { return table }; return nil }.first
     }
 
+    func testMeaningfulStatusImageInADataCellKeepsItsLayoutAndTextAlternative() throws {
+        let html = "<table><tr><th>Status</th><th>Job</th></tr><tr><td><img src='https://img.example/status.png' width='24' height='24' alt='Failed'></td><td>Build</td></tr><tr><td>Passed</td><td>Tests</td></tr></table>"
+        let prepared = try MailHTMLPreparer.prepare(plain: nil, html: html)
+        XCTAssertEqual(prepared.prefersOriginal, true)
+        XCTAssertTrue(text(prepared).contains("Failed"))
+        let tracker = html.replacingOccurrences(of: "width='24' height='24'", with: "width='1' height='1'")
+        let ignored = try MailHTMLPreparer.prepare(plain: nil, html: tracker)
+        XCTAssertNotEqual(ignored.prefersOriginal, true)
+        XCTAssertFalse(text(ignored).contains("Failed"))
+    }
+
     func testDataTableIsAGrid() throws {
         let html = "<p>Key numbers</p><table><tr><th>Number</th><th>This week</th><th>Last week</th></tr>"
             + "<tr><td>Net cash</td><td><a href=\"https://example.com/c\">$3,261</a></td><td>$8,169</td></tr>"

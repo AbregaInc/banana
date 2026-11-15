@@ -6,6 +6,7 @@ import Foundation
 struct MailToast: Equatable, Sendable {
     enum Action: Equatable, Sendable {
         case undo
+        case undoDone
         /// What `Z` does after an undo, when the stack has another entry: "Undo previous: Marked
         /// Done". The associated text is that entry's description.
         case undoPrevious(String)
@@ -14,6 +15,7 @@ struct MailToast: Equatable, Sendable {
         var title: String {
             switch self {
             case .undo: return "Undo"
+            case .undoDone: return "Undo Done"
             case .undoPrevious(let what): return "Undo previous: \(what)"
             case .retry: return "Retry"
             }

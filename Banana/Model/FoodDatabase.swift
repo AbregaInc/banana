@@ -54,6 +54,30 @@ enum FoodDatabase {
         return food(id: id, databaseURL: databaseURL, productsURL: bundledProductsURL)
     }
 
+    /// One read-only connection for a bounded set of logged USDA references; no body/view work.
+    static func nutrientCatalog(_ query: String, foodIDs: Set<String>, databaseURL: URL? = nil) -> FoodNutrientIntake.Catalog? {
+        guard let url = databaseURL ?? bundledDatabaseURL, let db = FoodSQLite(url: url) else { return nil }
+        let definitions = db.rows("SELECT id,key,name,unit,aliases,reference_json FROM nutrient ORDER BY key", []) { row in
+            FoodNutrientIntake.Definition(id: row.text(0), key: row.text(1), name: row.text(2), unit: row.text(3),
+                aliases: (try? JSONDecoder().decode([String].self, from: Data(row.text(4).utf8))) ?? [],
+                reference: try? JSONDecoder().decode(FoodNutrientIntake.Reference.self, from: Data(row.text(5).utf8)))
+        }
+        let normalized = FoodNutrientIntake.normalized(query)
+        guard !normalized.isEmpty, let definition = definitions.first(where: {
+            ([$0.key, $0.name, $0.id] + $0.aliases).contains { FoodNutrientIntake.normalized($0) == normalized }
+        }) else { return nil }
+        var values: [String: Double] = [:]
+        let ids = foodIDs.sorted()
+        for start in stride(from: 0, to: ids.count, by: 200) {
+            let batch = Array(ids[start..<min(start + 200, ids.count)])
+            let marks = Array(repeating: "?", count: batch.count).joined(separator: ",")
+            let rows = db.rows("SELECT food_id,amount FROM food_nutrient WHERE nutrient_id=? AND food_id IN (\(marks))",
+                               [.text(definition.id)] + batch.map(FoodSQLite.Argument.text)) { ($0.text(0), $0.double(1)) }
+            for (id, amount) in rows where amount.isFinite && amount >= 0 { values[id] = amount }
+        }
+        return FoodNutrientIntake.Catalog(definition: definition, values: values)
+    }
+
     /// Generic foods first, best first; then, when the query plausibly names a product, up to
     /// three branded products. `productsURL` nil leaves branded products out.
     static func search(_ query: String, limit: Int = 8, databaseURL: URL, productsURL: URL?) -> [FoodMatch] {

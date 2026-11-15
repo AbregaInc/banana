@@ -1,6 +1,25 @@
 import XCTest
 
 final class MailReaderUITest: MailUITestCase {
+    func testMissingAndFailedInvitationsKeepRetryVisible() {
+        for flag in ["--mail-invite-missing", "--mail-invite-failed"] {
+            launch(open: "invite", extra: [flag])
+            let retry = element("mail.invite.retry")
+            XCTAssertTrue(retry.waitForExistence(timeout: 10), app.debugDescription)
+            retry.tap()
+            XCTAssertTrue(retry.waitForExistence(timeout: 10))
+            XCTAssertFalse(element("mail.invite.accepted").exists)
+            snap("invitation-retry")
+        }
+    }
+
+    func testAvailableInvitationRetainsItsReplyControls() {
+        launch(open: "invite")
+        XCTAssertTrue(element("mail.invite.accepted").waitForExistence(timeout: 10))
+        XCTAssertTrue(element("mail.invite.declined").exists)
+        XCTAssertTrue(element("mail.invite.tentative").exists)
+    }
+
     func testUnreadableSenderHasAVisibleFallbackInListAndReader() {
         launch(extra: ["--mail-unknown-sender"])
         let message = row("newsletter")

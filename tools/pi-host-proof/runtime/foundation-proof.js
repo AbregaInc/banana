@@ -58,25 +58,25 @@ async function runNutritionFoundationProof() {
   const availability = JSON.parse(nativeModelStatus());
   if (!availability.available) return {mode: nativeMode, passed: false, unavailable: true, availability};
   const models = createModels(), registry = createRegistry();
-  let modelCalls = 0;
-  models.setProvider(bananaFoundationProvider({contextWindow: availability.contextWindow, generate: (request, signal) => {
+  let modelCalls = 0; const selections = [];
+  models.setProvider(bananaFoundationProvider({contextWindow: availability.contextWindow, generate: async (request, signal) => {
     if (++modelCalls > 4) throw new Error('Nutrition proof exceeded four model calls');
-    return requestNativeGeneration(request, signal);
+    const result = await requestNativeGeneration(request, signal); selections.push(result); return result;
   }}));
-  const native = async ({arguments: surface}) => ({surface, summary: {loggedDays: 0, loggedTotal: 0, missingDaysAreNotZero: true}});
+  const native = async ({name, arguments: surface}) => { if (name === 'read_nutrients' && ((surface.start == null) !== (surface.end == null) || surface.period && surface.start)) throw new Error('Invalid native date arguments'); return name === 'read_nutrients' ? {nutrient: {key: 'choline', unit: 'mg'}, estimateFromLoggedFoods: 125, averagePerDayWithData: 125, quantifiedItems: 2, unknownItems: 1, loggedDays: 1, fullDietCoverageKnown: false, basis: 'Fictional proof records only. Estimated USDA intake from two logged foods; one food and six days are unknown. Missing is not zero.', sourceURL: 'https://fdc.nal.usda.gov/download-datasets/'} : {surface, summary: {loggedDays: 0, loggedTotal: 0, missingDaysAreNotZero: true}}; };
   registry.install(nutritionExtension(native, () => 'fixture-operation'));
   const harness = await Harness.open(await SqliteStorage.open(new NativeDatabase()), {models, registry}, BACKGROUND_CONTEXT);
   try {
-    const root = await harness.root(BACKGROUND_CONTEXT, {agent: {model: {provider: 'apple-foundation', modelId: 'on-device'}, instructions: 'Answer from recorded app data only. Never invent intake. Only calories, protein, carbohydrates and fat are recorded; other nutrients are unavailable.'}});
+    const root = await harness.root(BACKGROUND_CONTEXT, {agent: {model: {provider: 'apple-foundation', modelId: 'on-device'}, instructions: 'Answer from recorded app data only. Never invent intake. Use read_nutrients for estimated choline in logged foods. Report the numeric result and incomplete coverage; do not infer personal adequacy or substitute the old protein chart.'}});
     await updateNutrition(harness, root.id, {revision: 0, metric: 'protein'}, 'old-chart', native, BACKGROUND_CONTEXT, {inputId: 'old-input'});
-    const settled = await (await root.submit({type: 'input', content: 'Have I had enough choline this week?', requestId: 'unsupported-nutrient'}, BACKGROUND_CONTEXT)).wait(BACKGROUND_CONTEXT);
+    const settled = await (await root.submit({type: 'input', content: 'Have I had enough choline this week?', requestId: 'estimated-nutrient'}, BACKGROUND_CONTEXT)).wait(BACKGROUND_CONTEXT);
     const entries = await root.entries({}, 100, undefined, BACKGROUND_CONTEXT);
     const messages = entries.items.flatMap(entry => entry.model ?? []);
     const answer = messages.filter(m => m.role === 'assistant').flatMap(m => m.content).filter(p => p.type === 'text').map(p => p.text).join(' ');
     const tools = messages.filter(m => m.role === 'assistant').flatMap(m => m.content).filter(p => p.type === 'toolCall').map(p => p.name);
     const doc = await harness.snapshot(NutritionDoc, root.id, BACKGROUND_CONTEXT);
-    const limited = /can[’']t|cannot|not.*(?:record|available|access)|don[’']t.*have/i.test(answer) && /calories.*protein.*carbohydrates.*fat/i.test(answer);
-    return {mode: nativeMode, modelCalls, status: settled.status, answer, tools,
-      passed: settled.status === 'done' && limited && tools.length === 0 && doc.operation === 'old-chart' && nutritionForInput(doc, nutritionInputId(entries.items)) === null};
+    const limited = /125/.test(answer) && /choline/i.test(answer) && /unknown|incomplete|missing|not enough|cannot|can’t|can.t|partial|only/i.test(answer);
+    return {mode: nativeMode, modelCalls, selections, status: settled.status, answer, tools,
+      passed: settled.status === 'done' && limited && tools.length === 1 && tools[0] === 'read_nutrients' && doc.operation === 'old-chart' && nutritionForInput(doc, nutritionInputId(entries.items)) === null};
   } finally { await harness.close(BACKGROUND_CONTEXT); }
 }

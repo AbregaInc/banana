@@ -351,6 +351,13 @@ struct MailMessageCard: View {
                 MailFaceView(face: message.face, size: DS.Mail.face)
                 header
             }
+            if let delivery = message.deliveryText {
+                HStack(spacing: DS.Space.s) {
+                    if message.deliveryIsWorking { ProgressView().controlSize(.small) }
+                    Text(delivery).font(.caption).foregroundStyle(.secondary)
+                }
+                .accessibilityIdentifier("mail.message.delivery." + message.id.message)
+            }
             if let note = message.sampleNote {
                 MailSampleChip(text: note)
             }

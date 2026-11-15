@@ -5,6 +5,22 @@ import XCTest
 /// its files; a new message with To, Cc, Bcc and a stranger; From and the signature; attachments;
 /// formatting; and send later with presets and typed times. MAIL-UX 6.3 and 6.5 are the oracle.
 final class MailComposeUITest: MailUITestCase {
+    func testSendingConfirmsDeliveryAfterTheUndoHold() {
+        launch()
+        beginReply(to: "q3")
+        typeIntoBody("Thanks for the update.")
+        hideKeyboard()
+        let send = button(MailID.send)
+        XCTAssertTrue(send.waitForExistence(timeout: 5))
+        if !send.isHittable { app.swipeUp() }
+        send.tap()
+        XCTAssertTrue(waitForToast(containing: "Sending", timeout: 5))
+        XCTAssertTrue(undoButton.exists)
+        XCTAssertTrue(waitUntil(timeout: 15) { self.toastText == "Sent" })
+        XCTAssertTrue(waitGone(undoButton, timeout: 3))
+        snap("delivery-confirmed")
+    }
+
 
     /// A reply written where a finger writes one: in the open conversation on a phone (a sheet),
     /// in the pane on an iPad (a card under the messages).

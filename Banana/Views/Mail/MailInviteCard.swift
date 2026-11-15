@@ -3,7 +3,7 @@ import SwiftUI
 
 /// Where an invitation's event is found and answered: the calendar's own lookup and reply path.
 struct MailInviteCalendar {
-    var find: @MainActor (_ account: String, _ uid: String) async -> MailInviteEvent?
+    var find: @MainActor (_ account: String, _ uid: String) async throws -> MailInviteEvent?
     var answer: @MainActor (_ event: MailInviteEvent, _ response: GoogleCalendarRSVP) async throws -> Void
     var decline: @MainActor (_ event: MailInviteEvent) async -> Void
 
@@ -11,8 +11,11 @@ struct MailInviteCalendar {
     /// view answers (`InvitationReply`): Yes and Maybe at once, No with the calendar's Undo.
     static let live = MailInviteCalendar(
         find: { account, uid in
-            guard let events = try? await GoogleCalendarService.shared.events(calendarID: account, iCalUID: uid) else { return nil }
-            return MailInviteEvent.pick(events, calendarID: account)
+            let service = GoogleCalendarService.shared
+            let ids = MailInviteLookup.calendarIDs(account: account, calendars: service.calendars)
+            return try await MailInviteLookup.find(uid: uid, calendars: ids) { calendar in
+                try await service.events(calendarID: calendar, iCalUID: uid, accountEmail: account)
+            }
         },
         answer: { event, response in try await InvitationReply.send(response, to: meeting(event)) },
         decline: { event in await InvitationReply.decline(meeting(event)) })
@@ -21,6 +24,10 @@ struct MailInviteCalendar {
     /// touch a calendar).
     static let sample = MailInviteCalendar(
         find: { _, _ in
+            #if DEBUG
+            if ProcessInfo.processInfo.arguments.contains("--mail-invite-missing") { return nil }
+            if ProcessInfo.processInfo.arguments.contains("--mail-invite-failed") { throw URLError(.notConnectedToInternet) }
+            #endif
             let start = Calendar.current.date(bySettingHour: 9, minute: 0, second: 0, of: Date().addingTimeInterval(86_400)) ?? Date()
             return MailInviteEvent(calendarID: "sample", eventID: "sample", title: "Design review",
                                    start: start, end: start.addingTimeInterval(45 * 60), isAllDay: false, response: nil)
@@ -36,27 +43,49 @@ struct MailInviteCalendar {
 
 /// An invitation answered in place (MAIL-UX 9.1): the calendar's event, when, and Yes · No · Maybe,
 /// the current answer filled. It moves nothing in Mail. An invitation whose event the calendar
-/// can't find shows no card; the message's own words are still there.
+/// cannot find keeps an explicit retry state beside the message's original invitation links.
 struct MailInviteCard: View {
     let account: String
     let invite: MailInvite
     let calendar: MailInviteCalendar
-    @State private var event: MailInviteEvent?
+    @StateObject private var lookup = MailInviteLookup()
+    @State private var retry = 0
+    @State private var completedKey = ""
     /// The answer as he chose it, shown at once; put back if the calendar refuses it.
     @State private var chosen: GoogleCalendarRSVP?
 
     var body: some View {
-        // Something is always there, so the lookup runs: an empty group never appears.
+        let requestKey = account.lowercased() + "\u{0}" + invite.uid + ":" + String(retry)
         Group {
-            if let event {
-                card(event)
+            if completedKey != requestKey {
+                HStack { ProgressView().controlSize(.small); Text("Loading invitation") }
+                    .frame(maxWidth: .infinity, alignment: .leading).padding(DS.Space.m)
             } else {
-                Color.clear.frame(height: 0)
+            switch lookup.phase {
+            case .ready(let event): card(event)
+            case .loading:
+                HStack { ProgressView().controlSize(.small); Text("Loading invitation") }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(DS.Space.m)
+            case .missing, .failed:
+                HStack {
+                    Label(lookup.phase == .missing ? "Invitation not found" : "Couldn’t load invitation", systemImage: "calendar.badge.exclamationmark")
+                    Spacer(minLength: DS.Space.s)
+                    Button("Retry") { retry += 1 }
+                        .accessibilityIdentifier("mail.invite.retry")
+                }
+                .padding(DS.Space.m)
+                .accessibilityElement(children: .contain)
+                .accessibilityIdentifier("mail.invite.unavailable")
             }
         }
-        .task(id: invite.uid) {
-            event = await calendar.find(account, invite.uid)
-            chosen = event?.response
+        }
+        .task(id: requestKey) {
+            chosen = nil
+            await lookup.load(account: account, uid: invite.uid, find: calendar.find)
+            guard !Task.isCancelled else { return }
+            completedKey = requestKey
+            if case .ready(let event) = lookup.phase { chosen = event.response }
         }
     }
 
@@ -109,6 +138,7 @@ struct MailInviteCard: View {
     private func send(_ response: GoogleCalendarRSVP, _ event: MailInviteEvent) {
         guard chosen != response else { return }
         let before = chosen
+        let key = completedKey
         chosen = response
         Task {
             if response == .declined {
@@ -119,7 +149,7 @@ struct MailInviteCard: View {
                 try await calendar.answer(event, response)
                 ToastCenter.shared.notify(response.confirmation(title: event.title))
             } catch {
-                chosen = before
+                if completedKey == key { chosen = before }
                 ToastCenter.shared.notify("Couldn\u{2019}t reply: \(error.localizedDescription)")
             }
         }

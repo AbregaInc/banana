@@ -3,6 +3,40 @@
 import Foundation
 
 extension AssistantNutrition {
+    /// Snapshot native records on the main actor; catalog I/O and aggregation run off it.
+    @MainActor static func readNutrients(_ args: [String: Any]) async throws -> String {
+        guard let nutrient = args["nutrient"] as? String, !nutrient.isEmpty, nutrient.count <= 80 else {
+            throw AssistantFailure(message: "Name a nutrient to read from your logged foods.")
+        }
+        var queryCalendar = calendar()
+        queryCalendar.firstWeekday = Calendar.app.firstWeekday
+        var range = AssistantNutritionSurface(revision: 0, metric: .calories, start: key(Date()), end: key(Date()),
+                                             weekdaysOnly: false, compare: false, search: "")
+        if let start = args["start"] as? String, let end = args["end"] as? String {
+            guard args["period"] == nil else { throw AssistantFailure(message: "Choose a period or explicit dates.") }
+            range.start = start; range.end = end
+        } else {
+            guard args["start"] == nil, args["end"] == nil else { throw AssistantFailure(message: "Supply both start and end dates.") }
+            range = try resolve(range, period: args["period"] as? String ?? "last_7_days", calendar: queryCalendar)
+        }
+        try validate(range)
+        let start = try date(range.start), end = try date(range.end), calendar = queryCalendar
+        let meals = WellnessStore.shared.meals
+        let sampleWorkspace = AppSupport.isPiSampleWorkspace
+        return try await Task.detached(priority: .userInitiated) {
+            do {
+                var report = try FoodNutrientIntake.report(nutrient: nutrient, start: start, end: end, meals: meals, calendar: calendar)
+                report.sampleData = sampleWorkspace || meals.contains {
+                    $0.date >= start && $0.date < calendar.date(byAdding: .day, value: 1, to: end)! && PiSampleMeals.contains($0)
+                }
+                let encoder = JSONEncoder(); encoder.outputFormatting = [.sortedKeys]
+                return String(decoding: try encoder.encode(report), as: UTF8.self)
+            } catch FoodNutrientIntake.Failure.unavailableNutrient {
+                throw AssistantFailure(message: "That nutrient is not available in the bundled USDA catalog. No intake was estimated.")
+            }
+        }.value
+    }
+
     @MainActor static func validateRequest(_ args: [String: Any]) throws -> String {
         let data = try JSONSerialization.data(withJSONObject: args)
         let decoded = try JSONDecoder().decode(AssistantNutritionSurface.self, from: data)

@@ -7,6 +7,20 @@ struct MailMessageDisplay: Equatable, Identifiable, Sendable {
     var id: MailMessageID
     var sender: String
     var senderAddress: String
+    var delivery: MailDelivery?
+    var deliveryText: String? {
+        switch delivery {
+        case .held?: "Queued"
+        case .sending?: "Sending"
+        case .waitingForNetwork?: "Waiting for connection"
+        case .checking?: "Send unconfirmed"
+        case .failed?: "Not sent"
+        case .asking?: "Send needs review"
+        case .sentLate?: "Sent"
+        default: nil
+        }
+    }
+    var deliveryIsWorking: Bool { if case .sending? = delivery { true } else { false } }
     var senderIsMe: Bool
     var face: MailFace
     /// "to me, Jane".
@@ -44,6 +58,7 @@ struct MailMessageDisplay: Equatable, Identifiable, Sendable {
     init(_ message: MailMessage, now: Date = Date(), calendar: Calendar = .current,
          locale: Locale = .current) {
         id = message.id
+        delivery = message.delivery
         let name = message.from.name?.trimmingCharacters(in: .whitespacesAndNewlines)
         sender = message.from.isMe ? "me" : (name.flatMap { $0.isEmpty ? nil : $0 } ?? (message.from.address.isEmpty ? "Unknown sender" : message.from.address))
         senderAddress = message.from.address

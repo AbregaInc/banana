@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "source": "USDA FoodData Central",
+  "sourceURL": "https://fdc.nal.usda.gov/download-datasets/",
+  "nutrients": [
+    {"key":"choline","id":"1180","name":"Choline","unit":"mg","usdaUnit":"MG","aliases":["choline","coline","total choline"],"reference":{"source":"NIH Office of Dietary Supplements","url":"https://ods.od.nih.gov/factsheets/Choline-HealthProfessional/","kind":"Adequate Intake","adults19Plus":{"maleMG":550,"femaleMG":425,"pregnancyMG":450,"lactationMG":550},"note":"Context only: age, sex and pregnancy/lactation status are not inferred. An intake estimate below an AI does not establish deficiency."}},
+    {"key":"fiber","id":"1079","name":"Dietary fiber","unit":"g","usdaUnit":"G","aliases":["fiber","fibre","dietary fiber","dietary fibre"]},
+    {"key":"calcium","id":"1087","name":"Calcium","unit":"mg","usdaUnit":"MG","aliases":["calcium"]},
+    {"key":"iron","id":"1089","name":"Iron","unit":"mg","usdaUnit":"MG","aliases":["iron"]},
+    {"key":"magnesium","id":"1090","name":"Magnesium","unit":"mg","usdaUnit":"MG","aliases":["magnesium"]},
+    {"key":"potassium","id":"1092","name":"Potassium","unit":"mg","usdaUnit":"MG","aliases":["potassium"]},
+    {"key":"sodium","id":"1093","name":"Sodium","unit":"mg","usdaUnit":"MG","aliases":["sodium"]},
+    {"key":"zinc","id":"1095","name":"Zinc","unit":"mg","usdaUnit":"MG","aliases":["zinc"]},
+    {"key":"selenium","id":"1103","name":"Selenium","unit":"mcg","usdaUnit":"UG","aliases":["selenium"]},
+    {"key":"vitamin_a","id":"1106","name":"Vitamin A (RAE)","unit":"mcg RAE","usdaUnit":"UG","aliases":["vitamin a","vitamin a rae"]},
+    {"key":"vitamin_e","id":"1109","name":"Vitamin E (alpha-tocopherol)","unit":"mg","usdaUnit":"MG","aliases":["vitamin e"]},
+    {"key":"vitamin_d","id":"1114","name":"Vitamin D (D2 + D3)","unit":"mcg","usdaUnit":"UG","aliases":["vitamin d","vitamin d2 and d3"]},
+    {"key":"vitamin_c","id":"1162","name":"Vitamin C","unit":"mg","usdaUnit":"MG","aliases":["vitamin c"]},
+    {"key":"vitamin_b6","id":"1175","name":"Vitamin B6","unit":"mg","usdaUnit":"MG","aliases":["vitamin b6","vitamin b 6"]},
+    {"key":"vitamin_b12","id":"1178","name":"Vitamin B12","unit":"mcg","usdaUnit":"UG","aliases":["vitamin b12","vitamin b 12"]},
+    {"key":"vitamin_k","id":"1185","name":"Vitamin K (phylloquinone)","unit":"mcg","usdaUnit":"UG","aliases":["vitamin k"]},
+    {"key":"folate","id":"1190","name":"Folate (DFE)","unit":"mcg DFE","usdaUnit":"UG","aliases":["folate","dietary folate","folate dfe"]}
+  ]
+}

@@ -101,8 +101,26 @@ export async function runNutritionConformance() {
     await (await restored.submit({type: 'input', content: 'Have I had enough choline this week?', requestId: 'application-apple-boundary'}, ctx)).wait(ctx);
     const entries = await restored.entries({}, 100, undefined, ctx);
     const reply = entries.items.flatMap(entry => entry.model ?? []).filter(message => message.role === 'assistant').flatMap(message => message.content).filter(part => part.type === 'text').map(part => part.text).join(' ');
-    check(appleCalls === 2 && reply.includes('Other nutrient intake is not recorded'), 'iOS application provider rejects the real protein substitution before executing a view tool');
+    check(appleCalls === 2 && reply.includes('does not match the requested nutrient'), 'iOS application provider rejects the real protein substitution before executing a view tool');
     check(JSON.stringify(await harness.snapshot(NutritionDoc, id, ctx)) === beforeQuestion, 'Rejected iOS model substitution preserves the saved chart');
+    let nutrientCalls = 0;
+    const nutrientExtension = nutritionExtension(async request => {
+      if (request.name !== 'read_nutrients') return native(request);
+      check(request.name === 'read_nutrients' && request.arguments.nutrient === 'choline', 'Nutrient tool passes the requested nutrient to the native bridge');
+      nutrientCalls++;
+      return {nutrient: {key: 'choline', unit: 'mg'}, estimateFromLoggedFoods: 125, quantifiedItems: 2, unknownItems: 1, fullDietCoverageKnown: false};
+    }, () => 'nutrient-check');
+    registry.install(nutrientExtension);
+    models.setProvider(faux.provider);
+    await restored.configure({model: {provider: 'faux', modelId: 'faux-1'}}, ctx);
+    modelCalls = 0;
+    faux.setResponses([
+      () => { modelCalls++; return fauxAssistantMessage([fauxToolCall('read_nutrients', {nutrient: 'choline', period: 'last_7_days'})], {stopReason: 'toolUse'}); },
+      () => { modelCalls++; return fauxAssistantMessage('The logged foods provide an estimated 125 mg; one item is unknown, so full intake is not established.'); },
+    ]);
+    await (await restored.submit({type: 'input', content: 'How much choline did I log?', requestId: 'nutrient-read'}, ctx)).wait(ctx);
+    check(nutrientCalls === 1 && modelCalls === 2, 'Nutrient facts continue to a written answer after one native read');
+    check(JSON.stringify(await harness.snapshot(NutritionDoc, id, ctx)) === beforeQuestion, 'Nutrient reading preserves the saved chart and revision');
     return { passed: true, results };
   } finally { await harness.close(ctx); }
 }

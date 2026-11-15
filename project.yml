@@ -1019,6 +1019,7 @@ targets:
       - path: Banana/Model/GoogleCalendarModels.swift
       # The event behind an invitation email (MAIL-UX 9.1).
       - path: Banana/Model/MailInviteEvent.swift
+      - path: Banana/Model/MailInviteLookup.swift
       - path: Banana/Model/CloudCalendarSnapshot.swift
       - path: Banana/Model/CloudCalendarRequest.swift
       - path: Banana/Model/CloudCalendarOperation.swift
@@ -1127,6 +1128,7 @@ targets:
       # is checked too. Branded names resolve through BarcodeProducts.sqlite (listed above) and
       # BarcodeProductLookup.combinedName.
       - path: Banana/Model/FoodDatabase.swift
+      - path: Banana/Model/FoodNutrientIntake.swift
       - path: Banana/Resources/Foods.sqlite
       - path: Banana/Model/FoodTextExtractor.swift
       # Grounded estimates: the model names foods and grams, the USDA database gives the numbers.

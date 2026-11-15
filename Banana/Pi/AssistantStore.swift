@@ -191,6 +191,11 @@ final class AssistantStore: ObservableObject {
         host.toolHandler = { [weak self] request in
             guard let self else { throw AssistantFailure(message: "The assistant is unavailable.") }
             if let value = try JSONSerialization.jsonObject(with: Data(request.utf8)) as? [String: Any],
+               value["name"] as? String == "read_nutrients", let args = value["arguments"] as? [String: Any] {
+                await WellnessStore.shared.whenLoaded()
+                return try await AssistantNutrition.readNutrients(args)
+            }
+            if let value = try JSONSerialization.jsonObject(with: Data(request.utf8)) as? [String: Any],
                value["name"] as? String == "nutrition_view", let args = value["arguments"] as? [String: Any] {
                 await WellnessStore.shared.whenLoaded()
                 #if DEBUG

@@ -33,7 +33,7 @@ struct MailPreparedBody: Codable, Equatable, Sendable {
 
 /// Runs on the preparation worker, before opening. Uses the pinned library's parser.
 enum MailHTMLPreparer {
-    static let version = 6
+    static let version = 7
     static let maximumBytes = 2 * 1024 * 1024
     static let maximumNodes = 50_000
     /// How deep the walk recurses; deeper content is read flat, in document order.
@@ -99,6 +99,15 @@ enum MailHTMLPreparer {
             let traits = look(of: element, tag: tag, needs: needs)
             if traits.contains(.hidden) || traits.contains(.quoteHeader) || traits.contains(.outlookReply) || tag == "blockquote" { continue }
             if tag == "table", hasOwnDataSemantics(element) {
+                // Reuse WebKit's existing formatted renderer for inline graphics the native
+                // text-only cells cannot represent. Tracking pixels never justify layout.
+                if let images = try? element.select("img") {
+                    for image in images {
+                        if (try? image.attr("role")) == "presentation" || (try? image.attr("aria-hidden")) == "true" { continue }
+                        var counts = PictureCounts()
+                        if picture(of: image, link: nil, counts: &counts, preserveSmall: true) != nil { return true }
+                    }
+                }
                 // Native grids currently have no caption slot. Do not silently drop one.
                 if elements(element).contains(where: { $0.tagNameNormal() == "caption" }) || tableShape(element, needs: needs) == nil { return true }
             }
@@ -445,7 +454,7 @@ enum MailHTMLPreparer {
     }
 
     /// The picture an `img` stands for, or nil when it is a tracker, a spacer, an icon or something that cannot be shown.
-    private static func picture(of element: Element, link: URL?, counts: inout PictureCounts) -> MailPicture? {
+    private static func picture(of element: Element, link: URL?, counts: inout PictureCounts, preserveSmall: Bool = false) -> MailPicture? {
         let raw = ((try? element.attr("src")) ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
         guard !raw.isEmpty else { counts.unsupported += 1; return nil }
         var width = (try? element.attr("width")).flatMap(pixels)
@@ -476,7 +485,7 @@ enum MailHTMLPreparer {
             return nil
         }
         // A small icon (social buttons, bullets, check marks) is decoration, also when only one side is given.
-        if let side = width ?? height, let other = height ?? width, side <= 32, other <= 32 { counts.decorative += 1; return nil }
+        if !preserveSmall, let side = width ?? height, let other = height ?? width, side <= 32, other <= 32 { counts.decorative += 1; return nil }
         if case .cid = source { counts.cid += 1 }
         var alt = collapse((try? element.attr("alt")) ?? "").trimmingCharacters(in: .whitespaces)
         // "Shop, opens a new tab": what a screen reader is told about the link, not about the picture.
@@ -916,8 +925,13 @@ enum MailHTMLPreparer {
             if traits.contains(.outlookReply) { outlookQuote = true }
             if tag == "hr" { flush(); blocks.append(MailTextBlock(kind: .rule, runs: [])); return }
             if tag == "img" {
-                guard let picture = picture(of: element, link: link, counts: &counts) else { return }
-                if inCell { counts.decorative += 1; return }
+                guard let picture = picture(of: element, link: link, counts: &counts, preserveSmall: inCell) else { return }
+                if inCell {
+                    if (try? element.attr("role")) != "presentation", (try? element.attr("aria-hidden")) != "true", !picture.alt.isEmpty {
+                        append(picture.alt, style: style, link: link)
+                    } else { counts.decorative += 1 }
+                    return
+                }
                 if quote > 0 || outlookQuote { counts.quoted += 1; return }
                 if case .picture(let last)? = blocks.last?.kind, last.source == picture.source { return }
                 if counts.kept >= maximumPictures { counts.capped += 1; return }

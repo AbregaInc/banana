@@ -179,6 +179,8 @@ final class MailSession {
     private var pendingEvents: [MailEvent] = []
     private var registeringUndo = false
     private var pendingUndos: [MailReceipt: MailUndoEntry] = [:]
+    /// Only sends initiated in this session announce completion; bounded like the undo history.
+    var pendingDeliveryReceipts: [MailDraftID: MailReceipt] = [:]
     private var activeToastReceipt: MailReceipt?
     private let dismissToast: @MainActor () -> Void
     private var isEntered = false
@@ -308,6 +310,7 @@ final class MailSession {
                 dismissToast()
             }
         case .notSaved(let receipt, let problem):
+            pendingDeliveryReceipts = pendingDeliveryReceipts.filter { $0.value != receipt }
             if let original = pendingUndos.removeValue(forKey: receipt) {
                 undoStack.restoreFailedUndo(original)
                 showToast(MailToastText.notSaved(on: deviceName, problem: problem))
@@ -327,8 +330,26 @@ final class MailSession {
             revert(entry, because: .refused(failure))
         case .draftNotSaved(_, let problem):
             showToast(MailToastText.notSaved(on: deviceName, problem: problem))
-        case .sendFailed(_, let failure):
-            showToast(MailToast(text: MailToastText.reason(for: failure), action: nil))
+        case .sent(let draft, _):
+            guard let receipt = pendingDeliveryReceipts.removeValue(forKey: draft) else { break }
+            let canUndoDone = undoStack.confirmedSend(receipt, at: clock())
+            // A background send must not replace a more recent action's Undo.
+            if activeToastReceipt == receipt {
+                showToast(MailToast(text: canUndoDone ? "Sent and Done" : "Sent", action: canUndoDone ? .undoDone : nil))
+            }
+        case .sendFailed(let draft, let failure):
+            guard let receipt = pendingDeliveryReceipts.removeValue(forKey: draft) else {
+                showToast(MailToast(text: MailToastText.reason(for: failure), action: nil)); break
+            }
+            undoStack.remove(receipt: receipt)
+            activeToastReceipt = nil
+            present(MailToast(text: "Couldn’t send. Draft kept", action: .retry, lasts: nil)) { [weak self] in
+                guard let self else { return }
+                self.trackDelivery(draft, receipt: receipt)
+                self.activeToastReceipt = receipt
+                self.present(MailToast(text: "Sending", action: nil), {})
+                self.source.retrySend(draft)
+            }
         default:
             break
         }
@@ -701,7 +722,7 @@ final class MailSession {
     func showToast(_ toast: MailToast) {
         let receipt: MailReceipt?
         switch toast.action {
-        case .undo?, .undoPrevious?: receipt = undoStack.top?.receipt
+        case .undo?, .undoDone?, .undoPrevious?: receipt = undoStack.top?.receipt
         default: receipt = nil
         }
         activeToastReceipt = receipt
