@@ -28,6 +28,7 @@ enum MailSlices {
         MailCloudFeedIndex.register(in: &migrations.index)
         MailBodySearchSchema.registerIndex(in: &migrations.index)
         MailCorrespondents.register(in: &migrations.index)
+        MailIndexSchema.registerSenderRecovery(in: &migrations.index)
         MailBlobSchema.register(in: &migrations.blobs)
         MailBodySearchSchema.register(in: &migrations.search)
         return migrations

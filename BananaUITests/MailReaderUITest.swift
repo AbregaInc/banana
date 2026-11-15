@@ -1,6 +1,18 @@
 import XCTest
 
 final class MailReaderUITest: MailUITestCase {
+    func testUnreadableSenderHasAVisibleFallbackInListAndReader() {
+        launch(extra: ["--mail-unknown-sender"])
+        let message = row("newsletter")
+        XCTAssertTrue(message.waitForExistence(timeout: 5))
+        XCTAssertTrue(message.label.contains("Unknown sender"))
+        message.tap()
+        let sender = element("mail.sender.newsletter~1")
+        XCTAssertTrue(sender.waitForExistence(timeout: 5))
+        XCTAssertEqual(sender.label, "Unknown sender")
+        snap("unknown-sender-fallback")
+    }
+
     func testOriginalLayoutOpensAndReturnsToReader() {
         launch(open: "newsletter")
         let original = app.buttons["mail.body.original.newsletter~1"]

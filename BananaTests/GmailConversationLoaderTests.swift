@@ -94,6 +94,52 @@ final class GmailConversationLoaderTests: XCTestCase {
         let reads = await api.fullReads
         XCTAssertEqual(reads, 1)
     }
+    func testCachedOriginalRepairsMissingSenderWithoutNetworkOrChangingMailState() async throws {
+        let (stores, api, loader) = try await setup()
+        _ = try await loader.thread(conversation)
+        try await loader.body(message)
+        try await stores.index.write { db in
+            // Reproduce the earlier cache and its actual migration ledger.
+            try db.execute(sql: "UPDATE message SET from_addr=NULL,from_name=NULL")
+            try db.execute(sql: "DELETE FROM grdb_migrations WHERE identifier='sender-domain-recovery-v1'")
+            let thread = try XCTUnwrap(Int64.fetchOne(db, sql: "SELECT thread_pk FROM message"))
+            try MailIndexWriter.rebuildThread(thread, facts: MailMessageImporter.facts(threadPK: thread, in: db),
+                                             myAddresses: [message.account], in: db)
+        }
+        let directories = stores.directories
+        let reopened = try await Task.detached { try MailStores.open(directories, migrations: MailSlices.migrations()) }.value
+        let queued = try await reopened.index.read { try Int.fetchOne($0, sql: "SELECT prep_state FROM message") }
+        XCTAssertEqual(queued, 0, "Migration queues missing senders while retaining their headers and originals")
+        await api.wrongAccount()
+        let recovery = GmailConversationLoader(stores: reopened, writer: MailWriter(stores: reopened, sink: nil),
+                                               api: api, token: { _ in "fixture" })
+        try await recovery.body(message)
+        let address = try await reopened.index.read { try String.fetchOne($0, sql: "SELECT from_addr FROM message") }
+        XCTAssertEqual(address, "sender@example.com")
+        let people = try await reopened.index.read { try String.fetchOne($0, sql: "SELECT people FROM thread") }
+        let summary = try JSONDecoder().decode([SummaryPerson].self, from: Data(try XCTUnwrap(people).utf8))
+        XCTAssertEqual(summary.first?.a, "sender@example.com", "The list summary must recover with the reader")
+        let value = try await MailConversationReader(stores: reopened).conversation(conversation)
+        XCTAssertEqual(value?.messages.first?.from.address, "sender@example.com")
+        let reads = await api.fullReads
+        XCTAssertEqual(reads, 1, "Cached recovery must work offline")
+    }
+
+    func testCorruptCachedSenderDoesNotHideAnOtherwiseValidPreparedBody() async throws {
+        let (stores, _, loader) = try await setup()
+        _ = try await loader.thread(conversation)
+        try await loader.body(message)
+        try await stores.index.write { try $0.execute(sql: "UPDATE message SET from_addr=NULL,from_name=NULL,prep_state=0") }
+        try await stores.blobs.write { try $0.execute(sql: "UPDATE content SET headers=x'00'") }
+        try await loader.body(message)
+        let prepared = try await MailBlobStore(stores: stores).prepared(account: message.account, messageID: message.message)
+        XCTAssertNotNil(prepared)
+        let state = try await stores.index.read { try Int.fetchOne($0, sql: "SELECT prep_state FROM message") }
+        XCTAssertEqual(state, 2)
+        let address = try await stores.index.read { try String.fetchOne($0, sql: "SELECT from_addr FROM message") }
+        XCTAssertNil(address, "Unreadable evidence must never become a guessed sender")
+    }
+
     func testCachedCalendarCopiesRequireIdenticalBytesAndKeepOriginalParts() async throws {
         for distinct in [false, true] {
             let (stores, api, loader) = try await setup()

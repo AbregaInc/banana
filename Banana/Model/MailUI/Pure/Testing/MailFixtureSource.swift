@@ -153,6 +153,15 @@ final class MailFixtureSource: MailSource {
             threads[built.stored.row.id] = built.stored
             for (id, body) in built.bodies { bodies[id] = body }
         }
+        #if DEBUG
+        if args.contains("--mail-unknown-sender"),
+           let id = threads.keys.first(where: { $0.thread == "newsletter" }), var stored = threads[id] {
+            let unknown = MailPerson(name: nil, address: "", isMe: false, isKnown: false, fromTheirMail: false)
+            stored.row.people = [unknown]
+            for index in stored.conversation.messages.indices { stored.conversation.messages[index].from = unknown }
+            threads[id] = stored
+        }
+        #endif
         #if DEBUG && targetEnvironment(simulator)
         // `--mail-case <input.html>` (Debug, Simulator): the receipt's message is that HTML, prepared
         // as received mail is, so a renderer case (tools/reports/mail-cases) can be looked at in the

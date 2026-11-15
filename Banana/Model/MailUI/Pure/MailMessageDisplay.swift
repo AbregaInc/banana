@@ -45,7 +45,7 @@ struct MailMessageDisplay: Equatable, Identifiable, Sendable {
          locale: Locale = .current) {
         id = message.id
         let name = message.from.name?.trimmingCharacters(in: .whitespacesAndNewlines)
-        sender = message.from.isMe ? "me" : (name.flatMap { $0.isEmpty ? nil : $0 } ?? message.from.address)
+        sender = message.from.isMe ? "me" : (name.flatMap { $0.isEmpty ? nil : $0 } ?? (message.from.address.isEmpty ? "Unknown sender" : message.from.address))
         senderAddress = message.from.address
         senderIsMe = message.isMine || message.from.isMe
         face = MailFace(message.from)

@@ -327,10 +327,24 @@ actor GmailConversationLoader {
     private func promoteCached(_ id: MailMessageID, thread: String, rowID: Int64) async throws {
         try Task.checkCancellation()
         let account = id.account.lowercased()
+        let needsSender = try await stores.index.read { db in
+            try Bool.fetchOne(db, sql: "SELECT from_addr IS NULL FROM message WHERE msg_pk=?", arguments: [rowID]) == true
+        }
+        // A damaged original's headers must not hide an otherwise valid prepared body.
+        let sender = needsSender ? try? await MailBlobStore(stores: stores).sender(account: account, messageID: id.message) : nil
+        let name = sender.flatMap { MailAddressRules.displayName($0.name, address: $0.address) }
         _ = try await writer.transact { db in
+            var change = MailStoreChange(conversations: [MailConversationID(account: account, thread: thread)])
+            if let sender, let threadPK = try Int64.fetchOne(db, sql: "SELECT thread_pk FROM message WHERE msg_pk=? AND gmail_id=? AND from_addr IS NULL",
+                                                            arguments: [rowID, id.message]) {
+                try db.execute(sql: "UPDATE message SET from_addr=?,from_name=?,fts_dirty=1,flags=flags|? WHERE msg_pk=? AND from_addr IS NULL",
+                               arguments: [sender.key, name, sender.key == account ? MailMessageFlags.fromMe.rawValue : 0, rowID])
+                change.formUnion(try MailIndexWriter.rebuildThread(threadPK,
+                    facts: MailMessageImporter.facts(threadPK: threadPK, in: db), myAddresses: [account], in: db))
+            }
             try db.execute(sql: "UPDATE message SET fetch_state=2,prep_state=2 WHERE msg_pk=? AND gmail_id=? AND account_pk=(SELECT account_pk FROM account WHERE email=?)",
                            arguments: [rowID, id.message, account])
-            return MailStoreChange(conversations: [MailConversationID(account: account, thread: thread)])
+            return change
         }
     }
 
