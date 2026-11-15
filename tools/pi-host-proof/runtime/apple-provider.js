@@ -1,3 +1,4 @@
+import {routeGeneration} from './capability-routing.js';
 import { createProvider } from '@earendil-works/pi-ai/models';
 import { createAssistantMessageEventStream } from '@earendil-works/pi-ai/utils/event-stream';
 import { getCurrentSystemPrompt, getCurrentTools } from '@earendil-works/pi-ai/utils/transcript';
@@ -69,6 +70,11 @@ export function appleFoundationProvider({ generate = requestNativeGeneration, co
     provider: 'apple-foundation', baseUrl: 'apple-local://foundation-models', reasoning: false, input: ['text'],
     contextWindow, maxTokens: Math.min(1024, contextWindow), cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 } };
   return nativeModelProvider({ model, generate, buildRequest: appleRequest, name: 'Apple Foundation Models' });
+}
+
+// Banana's application policy is separate from the generic Apple provider used by host proofs.
+export function bananaFoundationProvider({generate = requestNativeGeneration, ...options} = {}) {
+  return appleFoundationProvider({...options, generate: (request, signal) => routeGeneration(request, generate, signal)});
 }
 
 // Public Pi provider adapter shared by Apple's model and the separate local Mac engine.

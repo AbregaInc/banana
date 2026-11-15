@@ -124,3 +124,30 @@ test('an omitted clarification field is repaired without exposing app capabiliti
   return response('clarify_input',{missing:'amount'});
  });assert.equal(out.content[0].text,'How much did you have?');assert.equal(calls,2);
 });
+
+test('unsupported nutrient cannot be substituted with a default protein chart', async()=>{
+ for(const evidence of [undefined, 'protein', 'coline']) {
+  let n=0;
+  const out=await routeGeneration(request('Have I had enough coline this week?', ['nutrition_view']),async()=>n++===0
+   ? pick('nutrition_view',{section:'nutrition'})
+   : response('nutrition_view',{metric:'protein',period:'this_month',...(evidence===undefined?{}:{metricEvidence:evidence})}));
+  assert.equal(out.content[0].type,'text');
+  assert.match(out.content[0].text,/calories.*protein.*carb.*fat/i);
+ }
+});
+
+test('nutrition questions read facts and continue to a written answer',async()=>{
+ let n=0;
+ const out=await routeGeneration(request('How much protein did I log in the last seven days?', ['nutrition_view']),async()=>n++===0
+  ? pick('nutrition_view',{section:'nutrition'})
+  : response('nutrition_view',{metric:'protein',period:'last_7_days',metricEvidence:'protein'}));
+ assert.equal(out.content[0].name,'nutrition_view');
+ assert.equal(out.content[0].arguments.responseMode,'answer');
+ assert.equal(out.content[0].arguments.metricEvidence,undefined);
+});
+
+test('explicit native chart command remains a view action',async()=>{
+ const out=await routeGeneration(request('Show my protein this month',['nutrition_view']),async()=>{throw Error('No model needed');});
+ assert.equal(out.content[0].name,'nutrition_view');
+ assert.notEqual(out.content[0].arguments.responseMode,'answer');
+});
