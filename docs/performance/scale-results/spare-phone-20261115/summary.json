@@ -1,0 +1,616 @@
+{
+  "schemaVersion": 1,
+  "source": "96d23d6f",
+  "hardware": "iPhone15,2",
+  "os": "27.2.1",
+  "requestedCaptureSeconds": 8,
+  "scope": "Isolated full-app scrolling samples; no complete frame or input-to-visible acceptance",
+  "productionPolicyChanged": false,
+  "baselineChanged": false,
+  "workload": {
+    "mail": 180000,
+    "calendarEvents": 36500,
+    "calendarDays": 365,
+    "calendars": 12,
+    "notes": 5000,
+    "podcastEpisodes": 20000
+  },
+  "frames": [
+    {
+      "case": "week-1-clear",
+      "mode": "Week",
+      "period": "current",
+      "cellHostPolicy": "clear",
+      "captureStatus": "captured-partial-evidence",
+      "testExit": 0,
+      "analysisExit": 1,
+      "measuredWorkBudget": "fail",
+      "thermalStates": [
+        "Nominal thermal state"
+      ],
+      "initialCellCount": 13,
+      "timings": {
+        "appUpdates": {
+          "count": 607,
+          "p50MS": 1.38325,
+          "p95MS": 5.390458,
+          "p99MS": 12.05275,
+          "maxMS": 13.936041,
+          "over8_3MS": 22
+        },
+        "associatedRenders": {
+          "count": 601,
+          "p50MS": 3.117791,
+          "p95MS": 11.602083,
+          "p99MS": 13.147458,
+          "maxMS": 14.841291,
+          "over8_3MS": 170
+        },
+        "associatedFrameLifetimes": {
+          "count": 597,
+          "p50MS": 25.022125,
+          "p95MS": 33.366625,
+          "p99MS": 33.367375,
+          "maxMS": 50.043625,
+          "over8_3MS": 597
+        },
+        "associatedGPU": {
+          "count": 597,
+          "p50MS": 1.257166,
+          "p95MS": 1.770666,
+          "p99MS": 2.05325,
+          "maxMS": 3.518083,
+          "over8_3MS": 0
+        }
+      },
+      "appHitchRows": 8,
+      "displayCadence": {
+        "scope": "Display-wide VSync intervals, not app frame/input latency",
+        "count": 675,
+        "roundedGapHistogramMS": {
+          "8.34": 389,
+          "12.51": 8,
+          "16.68": 236,
+          "20.85": 12,
+          "25.02": 6,
+          "29.19": 3,
+          "33.36": 7,
+          "37.53": 4,
+          "41.7": 3,
+          "45.87": 1,
+          "50.04": 3,
+          "58.38": 2
+        }
+      }
+    },
+    {
+      "case": "round2-week-1-clear",
+      "mode": "Week",
+      "period": "current",
+      "cellHostPolicy": "clear",
+      "captureStatus": "captured-partial-evidence",
+      "testExit": 0,
+      "analysisExit": 1,
+      "measuredWorkBudget": "fail",
+      "thermalStates": [
+        "Nominal thermal state"
+      ],
+      "initialCellCount": 13,
+      "timings": {
+        "appUpdates": {
+          "count": 596,
+          "p50MS": 1.544,
+          "p95MS": 3.177833,
+          "p99MS": 12.568416,
+          "maxMS": 13.858625,
+          "over8_3MS": 11
+        },
+        "associatedRenders": {
+          "count": 592,
+          "p50MS": 3.026958,
+          "p95MS": 11.698,
+          "p99MS": 12.98125,
+          "maxMS": 14.440375,
+          "over8_3MS": 157
+        },
+        "associatedFrameLifetimes": {
+          "count": 591,
+          "p50MS": 25.022375,
+          "p95MS": 33.3665,
+          "p99MS": 33.367291,
+          "maxMS": 33.367458,
+          "over8_3MS": 591
+        },
+        "associatedGPU": {
+          "count": 591,
+          "p50MS": 1.222125,
+          "p95MS": 1.726833,
+          "p99MS": 2.32425,
+          "maxMS": 3.469583,
+          "over8_3MS": 0
+        }
+      },
+      "appHitchRows": 5,
+      "displayCadence": {
+        "scope": "Display-wide VSync intervals, not app frame/input latency",
+        "count": 645,
+        "roundedGapHistogramMS": {
+          "8.33": 3,
+          "8.34": 338,
+          "8.35": 4,
+          "12.51": 6,
+          "16.68": 255,
+          "20.85": 10,
+          "25.02": 4,
+          "29.19": 4,
+          "33.36": 5,
+          "37.53": 3,
+          "41.7": 3,
+          "50.04": 3,
+          "58.38": 2,
+          "62.55": 1,
+          "66.72": 2,
+          "75.06": 1
+        }
+      }
+    },
+    {
+      "case": "round2-week-2-preserve",
+      "mode": "Week",
+      "period": "current",
+      "cellHostPolicy": "preserve",
+      "captureStatus": "captured-partial-evidence",
+      "testExit": 0,
+      "analysisExit": 1,
+      "measuredWorkBudget": "fail",
+      "thermalStates": [
+        "Nominal thermal state"
+      ],
+      "initialCellCount": 13,
+      "timings": {
+        "appUpdates": {
+          "count": 586,
+          "p50MS": 1.414333,
+          "p95MS": 3.258,
+          "p99MS": 12.566583,
+          "maxMS": 13.858916,
+          "over8_3MS": 15
+        },
+        "associatedRenders": {
+          "count": 584,
+          "p50MS": 3.011416,
+          "p95MS": 11.628541,
+          "p99MS": 13.050333,
+          "maxMS": 14.371291,
+          "over8_3MS": 154
+        },
+        "associatedFrameLifetimes": {
+          "count": 580,
+          "p50MS": 25.022291,
+          "p95MS": 33.366666,
+          "p99MS": 33.367333,
+          "maxMS": 50.042625,
+          "over8_3MS": 580
+        },
+        "associatedGPU": {
+          "count": 580,
+          "p50MS": 1.2505,
+          "p95MS": 1.776,
+          "p99MS": 2.159875,
+          "maxMS": 3.779083,
+          "over8_3MS": 0
+        }
+      },
+      "appHitchRows": 6,
+      "displayCadence": {
+        "scope": "Display-wide VSync intervals, not app frame/input latency",
+        "count": 650,
+        "roundedGapHistogramMS": {
+          "8.33": 1,
+          "8.34": 350,
+          "8.35": 1,
+          "12.51": 7,
+          "16.68": 244,
+          "20.85": 11,
+          "25.02": 7,
+          "29.19": 4,
+          "33.36": 7,
+          "37.53": 4,
+          "41.7": 4,
+          "45.87": 1,
+          "50.04": 5,
+          "58.38": 2,
+          "62.55": 1
+        }
+      }
+    },
+    {
+      "case": "round2-week-3-preserve",
+      "mode": "Week",
+      "period": "current",
+      "cellHostPolicy": "preserve",
+      "captureStatus": "captured-partial-evidence",
+      "testExit": 0,
+      "analysisExit": 1,
+      "measuredWorkBudget": "fail",
+      "thermalStates": [
+        "Nominal thermal state"
+      ],
+      "initialCellCount": 13,
+      "timings": {
+        "appUpdates": {
+          "count": 581,
+          "p50MS": 1.460583,
+          "p95MS": 3.299916,
+          "p99MS": 12.785166,
+          "maxMS": 13.800208,
+          "over8_3MS": 13
+        },
+        "associatedRenders": {
+          "count": 577,
+          "p50MS": 3.039708,
+          "p95MS": 11.3115,
+          "p99MS": 12.891375,
+          "maxMS": 15.674916,
+          "over8_3MS": 148
+        },
+        "associatedFrameLifetimes": {
+          "count": 575,
+          "p50MS": 25.022208,
+          "p95MS": 33.3665,
+          "p99MS": 33.36725,
+          "maxMS": 33.367375,
+          "over8_3MS": 575
+        },
+        "associatedGPU": {
+          "count": 575,
+          "p50MS": 1.2385,
+          "p95MS": 1.807375,
+          "p99MS": 2.872458,
+          "maxMS": 4.403875,
+          "over8_3MS": 0
+        }
+      },
+      "appHitchRows": 6,
+      "displayCadence": {
+        "scope": "Display-wide VSync intervals, not app frame/input latency",
+        "count": 638,
+        "roundedGapHistogramMS": {
+          "8.33": 1,
+          "8.34": 351,
+          "12.51": 6,
+          "16.68": 240,
+          "20.85": 8,
+          "25.02": 4,
+          "29.19": 3,
+          "33.36": 5,
+          "37.53": 3,
+          "41.7": 4,
+          "45.87": 1,
+          "50.04": 3,
+          "58.38": 2,
+          "66.72": 2,
+          "75.06": 2,
+          "87.57": 1,
+          "91.74": 1
+        }
+      }
+    },
+    {
+      "case": "round2-week-4-clear",
+      "mode": "Week",
+      "period": "current",
+      "cellHostPolicy": "clear",
+      "captureStatus": "captured-partial-evidence",
+      "testExit": 0,
+      "analysisExit": 1,
+      "measuredWorkBudget": "fail",
+      "thermalStates": [
+        "Nominal thermal state"
+      ],
+      "initialCellCount": 13,
+      "timings": {
+        "appUpdates": {
+          "count": 590,
+          "p50MS": 1.439916,
+          "p95MS": 3.031333,
+          "p99MS": 12.966,
+          "maxMS": 14.368916,
+          "over8_3MS": 13
+        },
+        "associatedRenders": {
+          "count": 587,
+          "p50MS": 3.057875,
+          "p95MS": 11.1865,
+          "p99MS": 12.327208,
+          "maxMS": 14.240291,
+          "over8_3MS": 157
+        },
+        "associatedFrameLifetimes": {
+          "count": 585,
+          "p50MS": 25.022416,
+          "p95MS": 33.366583,
+          "p99MS": 33.367291,
+          "maxMS": 33.367416,
+          "over8_3MS": 585
+        },
+        "associatedGPU": {
+          "count": 585,
+          "p50MS": 1.255875,
+          "p95MS": 1.744125,
+          "p99MS": 2.122125,
+          "maxMS": 3.366833,
+          "over8_3MS": 0
+        }
+      },
+      "appHitchRows": 5,
+      "displayCadence": {
+        "scope": "Display-wide VSync intervals, not app frame/input latency",
+        "count": 654,
+        "roundedGapHistogramMS": {
+          "8.33": 1,
+          "8.34": 352,
+          "8.35": 1,
+          "12.51": 6,
+          "16.68": 255,
+          "20.85": 10,
+          "25.02": 6,
+          "29.19": 3,
+          "33.36": 4,
+          "37.53": 3,
+          "41.7": 3,
+          "50.04": 3,
+          "54.21": 2,
+          "58.38": 4
+        }
+      }
+    },
+    {
+      "case": "frames-populated-week",
+      "mode": "Week",
+      "period": "next",
+      "cellHostPolicy": "clear",
+      "captureStatus": "captured-partial-evidence",
+      "testExit": 0,
+      "analysisExit": 1,
+      "measuredWorkBudget": "fail",
+      "thermalStates": [
+        "Fair thermal state"
+      ],
+      "initialCellCount": 54,
+      "timings": {
+        "appUpdates": {
+          "count": 588,
+          "p50MS": 2.309791,
+          "p95MS": 6.736333,
+          "p99MS": 11.773083,
+          "maxMS": 15.948666,
+          "over8_3MS": 15
+        },
+        "associatedRenders": {
+          "count": 583,
+          "p50MS": 3.107958,
+          "p95MS": 11.367541,
+          "p99MS": 13.688458,
+          "maxMS": 14.69625,
+          "over8_3MS": 173
+        },
+        "associatedFrameLifetimes": {
+          "count": 582,
+          "p50MS": 25.022458,
+          "p95MS": 33.3665,
+          "p99MS": 33.36725,
+          "maxMS": 33.367416,
+          "over8_3MS": 582
+        },
+        "associatedGPU": {
+          "count": 582,
+          "p50MS": 1.284875,
+          "p95MS": 1.705291,
+          "p99MS": 1.991416,
+          "maxMS": 3.34325,
+          "over8_3MS": 0
+        }
+      },
+      "appHitchRows": 6,
+      "displayCadence": {
+        "scope": "Display-wide VSync intervals, not app frame/input latency",
+        "count": 651,
+        "roundedGapHistogramMS": {
+          "8.33": 3,
+          "8.34": 353,
+          "8.35": 1,
+          "12.51": 6,
+          "16.68": 248,
+          "20.85": 10,
+          "25.02": 5,
+          "29.19": 3,
+          "33.36": 3,
+          "37.53": 5,
+          "41.7": 3,
+          "45.87": 1,
+          "50.04": 3,
+          "54.21": 1,
+          "58.38": 3,
+          "66.72": 1,
+          "75.06": 1
+        }
+      }
+    },
+    {
+      "case": "frames-day",
+      "mode": "Day",
+      "period": "current",
+      "cellHostPolicy": "clear",
+      "captureStatus": "captured-partial-evidence",
+      "testExit": 0,
+      "analysisExit": 1,
+      "measuredWorkBudget": "fail",
+      "thermalStates": [
+        "Nominal thermal state"
+      ],
+      "initialCellCount": 36,
+      "timings": {
+        "appUpdates": {
+          "count": 575,
+          "p50MS": 2.779083,
+          "p95MS": 6.850125,
+          "p99MS": 12.591916,
+          "maxMS": 35.109583,
+          "over8_3MS": 17
+        },
+        "associatedRenders": {
+          "count": 570,
+          "p50MS": 3.160791,
+          "p95MS": 11.670875,
+          "p99MS": 12.503833,
+          "maxMS": 13.948166,
+          "over8_3MS": 179
+        },
+        "associatedFrameLifetimes": {
+          "count": 569,
+          "p50MS": 25.022125,
+          "p95MS": 33.366458,
+          "p99MS": 50.042333,
+          "maxMS": 66.726708,
+          "over8_3MS": 569
+        },
+        "associatedGPU": {
+          "count": 569,
+          "p50MS": 1.439291,
+          "p95MS": 1.89175,
+          "p99MS": 2.114958,
+          "maxMS": 3.082375,
+          "over8_3MS": 0
+        }
+      },
+      "appHitchRows": 4,
+      "displayCadence": {
+        "scope": "Display-wide VSync intervals, not app frame/input latency",
+        "count": 628,
+        "roundedGapHistogramMS": {
+          "8.34": 346,
+          "12.51": 8,
+          "16.68": 226,
+          "20.85": 12,
+          "25.02": 4,
+          "29.19": 3,
+          "33.36": 6,
+          "37.53": 5,
+          "41.7": 5,
+          "50.04": 4,
+          "58.38": 4,
+          "66.72": 2,
+          "75.06": 1,
+          "91.74": 1
+        }
+      }
+    },
+    {
+      "case": "frames-populated-week-cooled",
+      "mode": "Week",
+      "period": "next",
+      "cellHostPolicy": "clear",
+      "captureStatus": "captured-partial-evidence",
+      "testExit": 0,
+      "analysisExit": 1,
+      "measuredWorkBudget": "fail",
+      "thermalStates": [
+        "Fair thermal state"
+      ],
+      "initialCellCount": 54,
+      "timings": {
+        "appUpdates": {
+          "count": 593,
+          "p50MS": 2.243833,
+          "p95MS": 6.826458,
+          "p99MS": 12.520958,
+          "maxMS": 15.407916,
+          "over8_3MS": 17
+        },
+        "associatedRenders": {
+          "count": 588,
+          "p50MS": 2.924125,
+          "p95MS": 11.393375,
+          "p99MS": 12.54775,
+          "maxMS": 14.208541,
+          "over8_3MS": 152
+        },
+        "associatedFrameLifetimes": {
+          "count": 587,
+          "p50MS": 25.02225,
+          "p95MS": 33.366625,
+          "p99MS": 33.367416,
+          "maxMS": 50.046208,
+          "over8_3MS": 587
+        },
+        "associatedGPU": {
+          "count": 587,
+          "p50MS": 1.2535,
+          "p95MS": 1.625,
+          "p99MS": 2.164791,
+          "maxMS": 3.938958,
+          "over8_3MS": 0
+        }
+      },
+      "appHitchRows": 6,
+      "displayCadence": {
+        "scope": "Display-wide VSync intervals, not app frame/input latency",
+        "count": 643,
+        "roundedGapHistogramMS": {
+          "8.34": 353,
+          "12.51": 6,
+          "16.68": 245,
+          "20.85": 10,
+          "25.02": 4,
+          "29.19": 4,
+          "33.36": 3,
+          "37.53": 3,
+          "41.7": 3,
+          "45.87": 1,
+          "50.04": 3,
+          "54.21": 1,
+          "58.38": 3,
+          "66.72": 1,
+          "70.89": 1,
+          "75.06": 1
+        }
+      }
+    }
+  ],
+  "cpu": [
+    {
+      "case": "cpu-populated-week",
+      "thermalStates": [
+        "Nominal thermal state"
+      ],
+      "sampledWeightSecondsApprox": 2.39,
+      "mainThreadWeightSecondsApprox": 2.31,
+      "inclusiveCollectionLayoutWeightMS": 233,
+      "initialCellCount": 54,
+      "appUUIDMatchesRetainedBinary": true,
+      "scope": "Exploratory sampled attribution; nested weights overlap; not frame or input latency"
+    },
+    {
+      "case": "cpu-day",
+      "thermalStates": [
+        "Fair thermal state"
+      ],
+      "sampledWeightSecondsApprox": 2.37,
+      "mainThreadWeightSecondsApprox": 2.3,
+      "inclusiveCollectionLayoutWeightMS": 183,
+      "initialCellCount": 32,
+      "appUUIDMatchesRetainedBinary": true,
+      "scope": "Exploratory sampled attribution; nested weights overlap; not frame or input latency"
+    }
+  ],
+  "unmeasured": [
+    "input-to-visible latency",
+    "cold navigation",
+    "physical footprint/peak memory",
+    "cache eviction/recovery",
+    "live sync",
+    "accessibility",
+    "other platforms"
+  ]
+}

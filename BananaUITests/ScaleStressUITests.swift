@@ -454,7 +454,10 @@ final class ScaleStressUITests: XCTestCase {
         XCTAssertTrue(app.buttons["eventDetail.edit"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.staticTexts[title].exists, "The exact rendered event must open")
         capture("default-varied-\(mode)-detail")
-        app.buttons["Done"].tap()
+        let close = app.buttons["sheet.close"]
+        XCTAssertTrue(close.waitForExistence(timeout: 5))
+        close.tap()
+        XCTAssertTrue(waitUntil { !app.buttons["eventDetail.edit"].exists })
     }
 
     func testPreservedHostNativeWeekCalendarScroll() {
@@ -470,6 +473,10 @@ final class ScaleStressUITests: XCTestCase {
     // integrated app. XCTest gesture durations are not frame/input measurements.
     func testPhysicalWeekScrollTrace() { checkPhysicalScrollTrace(mode: "Week") }
     func testPhysicalDayScrollTrace() { checkPhysicalScrollTrace(mode: "Day") }
+    func testPhysicalFutureWeekScrollTrace() { checkPhysicalScrollTrace(mode: "Week", futureWeek: true) }
+    func testPhysicalFutureWeekPreservedHostScrollTrace() {
+        checkPhysicalScrollTrace(mode: "Week", extra: ["--calendar-preserve-cell-host"], futureWeek: true)
+    }
     // The matched comparison for the renderer article: the pre-virtualization Day/Week host,
     // same fixture, same device, same interaction window, chosen by the DEBUG reference flags.
     func testPhysicalWeekReferenceScrollTrace() {
@@ -500,7 +507,7 @@ final class ScaleStressUITests: XCTestCase {
     func testPhysicalDayDensity10ScrollTrace() { checkPhysicalScrollTrace(mode: "Day", density: 10) }
     func testPhysicalDayDensity30ScrollTrace() { checkPhysicalScrollTrace(mode: "Day", density: 30) }
 
-    private func checkPhysicalScrollTrace(mode: String, density: Int = 100, extra: [String] = [], reference: Bool = false) {
+    private func checkPhysicalScrollTrace(mode: String, density: Int = 100, extra: [String] = [], reference: Bool = false, futureWeek: Bool = false) {
         // The orientation is an input of the trace (STRESS_ORIENTATION=portrait|landscape, from the
         // xctestrun the profiler writes), never an accident of how the device was lying. The device
         // must comply before any scrolling is measured, so a trace cannot be mislabelled.
@@ -509,7 +516,8 @@ final class ScaleStressUITests: XCTestCase {
         let wantsPortrait = requested == "portrait"
         XCUIDevice.shared.orientation = wantsPortrait ? .portrait : .landscapeLeft
         let densityArguments = density == 100 ? [] : ["--stress-events-per-day", String(density)]
-        let app = launch("--plan", extra: ["--stress-calendar-fixture", "varied-v1"] + densityArguments + extra)
+        let auditArguments = futureWeek ? ["--calendar-viewport-audit"] : []
+        let app = launch("--plan", extra: ["--stress-calendar-fixture", "varied-v1"] + densityArguments + extra + auditArguments)
         let oriented = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in
             wantsPortrait ? app.frame.height > app.frame.width : app.frame.width > app.frame.height
         }, object: app)
@@ -524,6 +532,19 @@ final class ScaleStressUITests: XCTestCase {
             }
         }
         let orientation = requested
+        if futureWeek {
+            // The retained fixture starts today. A current-week viewport can contain
+            // empty days before its anchor; use the following week for a populated probe.
+            let original = app.calendarDaySnapshot(referenceID: "mobile.day.surface.0")
+            XCTAssertNotNil(original)
+            let next = app.buttons["Next week"]
+            XCTAssertTrue(next.waitForExistence(timeout: 5))
+            next.tap()
+            XCTAssertTrue(waitUntil {
+                guard let current = app.calendarDaySnapshot(referenceID: "mobile.day.surface.0") else { return false }
+                return current != original
+            }, "The populated-period probe must navigate before recording")
+        }
         if mode == "Day" { app.segmentedControls.buttons["Day"].tap() }
         // The reference host is a SwiftUI ScrollView; the native viewport is a collection view.
         let viewport = reference ? app.scrollViews.firstMatch : app.collectionViews.firstMatch
@@ -553,7 +574,7 @@ final class ScaleStressUITests: XCTestCase {
         // The reference host does not expose hour labels as elements; record absence instead of failing.
         let tenAM = app.staticTexts["10 AM"].firstMatch
         let tenAMFrame = tenAM.exists ? "\(tenAM.frame)" : "absent"
-        let geometry = XCTAttachment(string: "mode=\(mode) flags=\(extra) viewport=\(reference ? "reference" : "native") orientation=\(orientation) app=\(app.frame) frame=\(viewport.frame) tenAM=\(tenAMFrame) cells=\(reference ? -1 : viewport.cells.count)")
+        let geometry = XCTAttachment(string: "mode=\(mode) futureWeek=\(futureWeek) flags=\(extra) viewport=\(reference ? "reference" : "native") orientation=\(orientation) app=\(app.frame) frame=\(viewport.frame) tenAM=\(tenAMFrame) cells=\(reference ? -1 : viewport.cells.count)")
         geometry.name = "physical-scroll-trace-initial-geometry"
         geometry.lifetime = .keepAlways; add(geometry)
         for _ in 0..<16 { viewport.swipeUp(); viewport.swipeDown() }

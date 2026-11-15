@@ -23,6 +23,8 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.boris.banana.stressreview.uitests
         GENERATE_INFOPLIST_FILE: YES
+        # The isolated runner includes Mail cases and their shared identifiers in Release.
+        BANANA_LOCAL_EMAIL: YES
         SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) PHYSICAL_STRESS_UI_TESTS"
         DEVELOPMENT_TEAM: $(DEVELOPMENT_TEAM)
 schemes:

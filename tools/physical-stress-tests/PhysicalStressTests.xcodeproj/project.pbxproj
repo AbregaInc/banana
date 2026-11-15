@@ -12,8 +12,10 @@
 		2154FF12B0051C364DA1936D /* ReviewLaunchUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BEF9AABB8F94BC3BF0BD207 /* ReviewLaunchUITests.swift */; };
 		3E403DFD6A275F136A00045C /* MailIdentifiers+Compose.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4AE66BD2DCD87096B589480 /* MailIdentifiers+Compose.swift */; };
 		68D1D144AB4E2E4F926E51CE /* Ready.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B8BB9E67BD17FECAE4DEECD /* Ready.swift */; };
+		757F2327F35A2FA126A1FAAB /* MailIdentifiers+Snooze.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F5444BAED814D0ABBB97B0A /* MailIdentifiers+Snooze.swift */; };
 		767753D738DAC5C543359ECE /* MailIdentifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CE5A70E73D80E72E041FA58 /* MailIdentifiers.swift */; };
 		9B06B9A10315A68F5D98D446 /* LiveReminderAcceptanceUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1C5DBD58EC372A21335899B /* LiveReminderAcceptanceUITests.swift */; };
+		ADC7E525D4E1C909E74007F8 /* MailIdentifiers+Box.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E43FF8688BB78FCD80550B5 /* MailIdentifiers+Box.swift */; };
 		AFE97C55A219FC7E8D31D891 /* MailIdentifiers+Attach.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DDCD8ED5653845D1496537B /* MailIdentifiers+Attach.swift */; };
 		B1F7622C4185A01243AC3398 /* ScaleStressUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3588A69EDB0B509671BAAAC8 /* ScaleStressUITests.swift */; };
 		FDDA9A06A6E8BB452395EB16 /* MailIdentifiers+Schedule.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE2D6CE3C8CF927A3BD3A8FF /* MailIdentifiers+Schedule.swift */; };
@@ -24,10 +26,12 @@
 		1061A6F6F67882831BCF153B /* MailIdentifiers+Slice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MailIdentifiers+Slice.swift"; sourceTree = "<group>"; };
 		1DDCD8ED5653845D1496537B /* MailIdentifiers+Attach.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MailIdentifiers+Attach.swift"; sourceTree = "<group>"; };
 		2B8BB9E67BD17FECAE4DEECD /* Ready.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Ready.swift; sourceTree = "<group>"; };
+		2F5444BAED814D0ABBB97B0A /* MailIdentifiers+Snooze.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MailIdentifiers+Snooze.swift"; sourceTree = "<group>"; };
 		3588A69EDB0B509671BAAAC8 /* ScaleStressUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScaleStressUITests.swift; sourceTree = "<group>"; };
 		3FD94BD5472CF953B488985C /* PhysicalSystemIdlePolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhysicalSystemIdlePolicy.swift; sourceTree = "<group>"; };
 		4498887D4A58F0218B7F49ED /* Base.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Base.xcconfig; sourceTree = "<group>"; };
 		4CE5A70E73D80E72E041FA58 /* MailIdentifiers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MailIdentifiers.swift; sourceTree = "<group>"; };
+		5E43FF8688BB78FCD80550B5 /* MailIdentifiers+Box.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MailIdentifiers+Box.swift"; sourceTree = "<group>"; };
 		BE2D6CE3C8CF927A3BD3A8FF /* MailIdentifiers+Schedule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MailIdentifiers+Schedule.swift"; sourceTree = "<group>"; };
 		D1C5DBD58EC372A21335899B /* LiveReminderAcceptanceUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveReminderAcceptanceUITests.swift; sourceTree = "<group>"; };
 		E4AE66BD2DCD87096B589480 /* MailIdentifiers+Compose.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MailIdentifiers+Compose.swift"; sourceTree = "<group>"; };
@@ -48,9 +52,11 @@
 			children = (
 				4CE5A70E73D80E72E041FA58 /* MailIdentifiers.swift */,
 				1DDCD8ED5653845D1496537B /* MailIdentifiers+Attach.swift */,
+				5E43FF8688BB78FCD80550B5 /* MailIdentifiers+Box.swift */,
 				E4AE66BD2DCD87096B589480 /* MailIdentifiers+Compose.swift */,
 				BE2D6CE3C8CF927A3BD3A8FF /* MailIdentifiers+Schedule.swift */,
 				1061A6F6F67882831BCF153B /* MailIdentifiers+Slice.swift */,
+				2F5444BAED814D0ABBB97B0A /* MailIdentifiers+Snooze.swift */,
 			);
 			name = Pure;
 			path = ../../Banana/Model/MailUI/Pure;
@@ -148,9 +154,11 @@
 			files = (
 				9B06B9A10315A68F5D98D446 /* LiveReminderAcceptanceUITests.swift in Sources */,
 				AFE97C55A219FC7E8D31D891 /* MailIdentifiers+Attach.swift in Sources */,
+				ADC7E525D4E1C909E74007F8 /* MailIdentifiers+Box.swift in Sources */,
 				3E403DFD6A275F136A00045C /* MailIdentifiers+Compose.swift in Sources */,
 				FDDA9A06A6E8BB452395EB16 /* MailIdentifiers+Schedule.swift in Sources */,
 				1374A486DCF117EA186FE761 /* MailIdentifiers+Slice.swift in Sources */,
+				757F2327F35A2FA126A1FAAB /* MailIdentifiers+Snooze.swift in Sources */,
 				767753D738DAC5C543359ECE /* MailIdentifiers.swift in Sources */,
 				0F0842186E076C9E4F670C46 /* PhysicalSystemIdlePolicy.swift in Sources */,
 				68D1D144AB4E2E4F926E51CE /* Ready.swift in Sources */,
@@ -222,6 +230,7 @@
 		A58DA7930C80DDAE37FA1EF2 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				BANANA_LOCAL_EMAIL = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				DEVELOPMENT_TEAM = "$(DEVELOPMENT_TEAM)";
 				GENERATE_INFOPLIST_FILE = YES;
@@ -240,6 +249,7 @@
 		B20E5A07926FD1720C7CAD7F /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				BANANA_LOCAL_EMAIL = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				DEVELOPMENT_TEAM = "$(DEVELOPMENT_TEAM)";
 				GENERATE_INFOPLIST_FILE = YES;

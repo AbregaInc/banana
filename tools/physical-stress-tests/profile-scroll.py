@@ -45,6 +45,8 @@ def main():
     p.add_argument('--instruments-device', required=True, help='Exact name/version from xctrace list devices; retained separately from the XCTest UDID')
     p.add_argument('--xctestrun', required=True, type=Path)
     p.add_argument('--mode', choices=['Day', 'Week'], required=True)
+    p.add_argument('--period', choices=['current', 'next'], default='current',
+                   help='next = navigate to the following populated fixture week before scrolling; supplementary scenario')
     p.add_argument('--template', choices=['Animation Hitches', 'Time Profiler'], default='Animation Hitches')
     p.add_argument('--cell-host-policy', choices=['clear', 'preserve', 'prefetch'], default='clear',
                    help='preserve = keep the hosting content view across reuse; prefetch = UIKit cell prefetching on')
@@ -56,6 +58,8 @@ def main():
                    help='The test rotates the device to this orientation and fails if it does not comply; recorded with the trace')
     p.add_argument('--out', required=True, type=Path)
     a = p.parse_args()
+    if a.period == 'next' and (a.mode != 'Week' or a.viewport != 'native' or a.density != 100 or a.cell_host_policy == 'prefetch'):
+        p.error('The populated-period probe supports native Week clear/preserve at the unchanged 100/day workload')
     if a.density != 100 and a.cell_host_policy != 'clear':
         p.error('Capacity probes use the default clear policy to isolate density')
     if a.viewport == 'reference' and (a.density != 100 or a.cell_host_policy != 'clear'):
@@ -63,7 +67,7 @@ def main():
     a.out.mkdir(parents=True, exist_ok=False)
     root = Path(__file__).resolve().parents[2]
     benchmark = root / 'tools/calendar-library-benchmark'
-    state = {'status': 'unmeasured', 'mode': a.mode, 'template': a.template, 'cellHostPolicy': a.cell_host_policy, 'viewport': a.viewport, 'eventsPerDay': a.density, 'orientation': a.orientation, 'device': a.device, 'instrumentsDevice': a.instruments_device,
+    state = {'status': 'unmeasured', 'mode': a.mode, 'period': a.period, 'template': a.template, 'cellHostPolicy': a.cell_host_policy, 'viewport': a.viewport, 'eventsPerDay': a.density, 'orientation': a.orientation, 'device': a.device, 'instrumentsDevice': a.instruments_device,
              'scope': 'Partial Instruments trace of integrated app scrolling; no input-to-visible acceptance',
              'commands': []}
 
@@ -87,7 +91,8 @@ def main():
         variant = f'Density{a.density}'
     if a.viewport == 'reference':
         variant = 'Reference'
-    test_name = f'PhysicalStressUITests/ScaleStressUITests/testPhysical{a.mode}{variant}ScrollTrace'
+    period = 'Future' if a.period == 'next' else ''
+    test_name = f'PhysicalStressUITests/ScaleStressUITests/testPhysical{period}{a.mode}{variant}ScrollTrace'
     xctestrun = oriented_xctestrun(a.xctestrun, a.orientation)
     state['xctestrun'] = str(xctestrun); save()
     args = ['xcodebuild', 'test-without-building', '-xctestrun', str(xctestrun),

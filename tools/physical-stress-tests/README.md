@@ -119,6 +119,14 @@ supported daily/weekly capacity without representative busy windows, paging,
 repeats, cache lifecycle and input-to-visible evidence. Preserve failing densities
 and the original 100/day target separately.
 
+`--period next` adds a populated-period probe for native Week with the default
+100 events/day and either clear or preserved hosting content. The fixture begins
+today, so a current-week viewport may include empty dates before that anchor.
+The supplementary probe navigates to the following week and verifies the date
+snapshot changed before recording. It retains the same datasets, workload checks
+and timing budgets. The default current-period scenarios remain unchanged; retain
+their results separately. Rebuild the standalone UI runner before using this option.
+
 ## Matched old/new viewport comparison
 
 `compare-viewports.py run` captures, for each of Day and Week, four `profile-scroll.py` traces
