@@ -181,6 +181,7 @@ final class MailSession {
     private var pendingUndos: [MailReceipt: MailUndoEntry] = [:]
     /// Only sends initiated in this session announce completion; bounded like the undo history.
     var pendingDeliveryReceipts: [MailDraftID: MailReceipt] = [:]
+    var pendingDeliveryRetries: [MailDraftID: MailUndoEntry] = [:]
     private var activeToastReceipt: MailReceipt?
     private let dismissToast: @MainActor () -> Void
     private var isEntered = false
@@ -310,6 +311,8 @@ final class MailSession {
                 dismissToast()
             }
         case .notSaved(let receipt, let problem):
+            let failedDrafts = pendingDeliveryReceipts.filter { $0.value == receipt }.map(\.key)
+            for draft in failedDrafts { pendingDeliveryRetries.removeValue(forKey: draft) }
             pendingDeliveryReceipts = pendingDeliveryReceipts.filter { $0.value != receipt }
             if let original = pendingUndos.removeValue(forKey: receipt) {
                 undoStack.restoreFailedUndo(original)
@@ -332,6 +335,9 @@ final class MailSession {
             showToast(MailToastText.notSaved(on: deviceName, problem: problem))
         case .sent(let draft, _):
             guard let receipt = pendingDeliveryReceipts.removeValue(forKey: draft) else { break }
+            if let retryEntry = pendingDeliveryRetries.removeValue(forKey: draft) {
+                undoStack.restoreFailedUndo(retryEntry)
+            }
             let canUndoDone = undoStack.confirmedSend(receipt, at: clock())
             // A background send must not replace a more recent action's Undo.
             if activeToastReceipt == receipt {
@@ -341,11 +347,16 @@ final class MailSession {
             guard let receipt = pendingDeliveryReceipts.removeValue(forKey: draft) else {
                 showToast(MailToast(text: MailToastText.reason(for: failure), action: nil)); break
             }
-            undoStack.remove(receipt: receipt)
+            let retryEntry = undoStack.remove(receipt: receipt) ?? pendingDeliveryRetries.removeValue(forKey: draft)
             activeToastReceipt = nil
             present(MailToast(text: "Couldn’t send. Draft kept", action: .retry, lasts: nil)) { [weak self] in
                 guard let self else { return }
                 self.trackDelivery(draft, receipt: receipt)
+                if var retryEntry {
+                    // Restore only after delivery, behind any newer actions. A retry has no hold.
+                    retryEntry.pushedAt = self.clock()
+                    self.pendingDeliveryRetries[draft] = retryEntry
+                }
                 self.activeToastReceipt = receipt
                 self.present(MailToast(text: "Sending", action: nil), {})
                 self.source.retrySend(draft)

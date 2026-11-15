@@ -295,6 +295,7 @@ extension MailSession {
         if pendingDeliveryReceipts.count >= MailUndoStack.depth,
            let oldest = pendingDeliveryReceipts.min(by: { $0.value.sequence < $1.value.sequence })?.key {
             pendingDeliveryReceipts.removeValue(forKey: oldest)
+            pendingDeliveryRetries.removeValue(forKey: oldest)
         }
         pendingDeliveryReceipts[draft] = receipt
     }

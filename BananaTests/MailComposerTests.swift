@@ -754,6 +754,41 @@ final class MailComposerTests: XCTestCase {
         XCTAssertEqual(h.toasts.last?.text, "Sent")
     }
 
+    func testRetriedSendAndDoneRestoresUndoDoneOnlyAfterConfirmedDelivery() async throws {
+        let h = Harness()
+        let composer = await h.reply()
+        composer.body = "A reply"
+        let draft = try XCTUnwrap(composer.draftID)
+        h.session.sendComposer(thenDone: true)
+        h.source.emit(.sendFailed(draft, .other))
+        XCTAssertNil(h.session.undoStack.top)
+        h.toastUndo?()
+        XCTAssertNil(h.session.undoStack.top, "Retry does not claim the send has completed")
+        h.source.release(draft)
+        XCTAssertEqual(h.toasts.last?.text, "Sent and Done")
+        XCTAssertEqual(h.toasts.last?.action, .undoDone)
+        h.toastUndo?()
+        XCTAssertTrue(h.toasts.last?.text.contains("Already sent") == true)
+    }
+
+    func testRetriedCompletionKeepsItsHistoryBehindANewerAction() async throws {
+        let h = Harness()
+        let composer = await h.reply()
+        composer.body = "A reply"
+        let draft = try XCTUnwrap(composer.draftID)
+        h.session.sendComposer(thenDone: true)
+        h.source.emit(.sendFailed(draft, .other))
+        h.toastUndo?()
+        h.now = h.now.addingTimeInterval(1)
+        let other = try XCTUnwrap(h.session.model.rows.first { $0.id != id("q3") }?.id)
+        h.session.act(.done, on: other)
+        let receipt = h.session.undoStack.top?.receipt
+        let toast = h.toasts.last
+        h.source.release(draft)
+        XCTAssertEqual(h.session.undoStack.top?.receipt, receipt)
+        XCTAssertEqual(h.toasts.last, toast)
+    }
+
     func testConfirmedSendAndDoneStillOffersOnlyUndoDone() async throws {
         let h = Harness()
         let composer = await h.reply()
