@@ -436,7 +436,7 @@ final class MailSession {
     func closeSenderBlockFailure() { navigation.senderBlockFailed = false }
     func changeSenderBlock(_ blocked: Bool, message: MailMessageDisplay) {
         let origin = model
-        let conversation = navigation.reader?.conversation.flatMap { conversation in
+        let conversation = (navigation.reader ?? pane.reader)?.conversation.flatMap { conversation in
             conversation.messages.contains { $0.id == message.id } ? conversation.id : nil
         }
         Task {

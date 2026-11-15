@@ -38,6 +38,23 @@ final class MailSessionTests: XCTestCase {
         XCTAssertTrue(status.blocked, "Undoing this message's Spam action does not unblock future mail")
     }
 
+    func testBlockingSenderInTheReadingPaneAdvancesItsCursor() async throws {
+        let h = Harness()
+        let first = h.model.rows[0].id, next = h.model.rows[1].id
+        h.session.send(.place(first))
+        h.session.setPaneVisible(true)
+        let message = try XCTUnwrap(h.session.pane.reader?.messages.first)
+        let saved = expectation(description: "Pane sender policy saved")
+        let status = h.source.senderPolicyStatus(account: message.id.account, sender: message.senderAddress)
+        let observation = status.$blocked.filter { $0 }.prefix(1).sink { _ in saved.fulfill() }
+        defer { observation.cancel() }
+        h.session.changeSenderBlock(true, message: message)
+        await fulfillment(of: [saved], timeout: 3)
+        XCTAssertEqual(h.model.cursor, next)
+        XCTAssertNotNil(h.toastUndo)
+        XCTAssertNil(h.session.navigation.reader, "Keep the side-by-side layout")
+    }
+
     func testBlockingTheLastConversationReturnsToTheList() async throws {
         let h = Harness()
         h.session.open(try XCTUnwrap(h.model.rows.last).id)

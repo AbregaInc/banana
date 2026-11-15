@@ -16,6 +16,9 @@ final class MailReaderUITest: MailUITestCase {
     }
 
     private func openDisposalMenu() {
+        // The standalone iPad fixture selects into its pane; disposal lives in the full reader.
+        let expand = element("mail.pane.expand")
+        if expand.exists { expand.tap() }
         let more = app.descendants(matching: .any).matching(NSPredicate(format: "identifier == %@ OR identifier == %@", "mail.pane.more", "mail.reader.more")).firstMatch
         XCTAssertTrue(more.waitForExistence(timeout: 5))
         more.tap()
