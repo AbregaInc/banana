@@ -1,99 +1,134 @@
 #if !BANANA_PUBLIC
 import Foundation
 
-/// A local reading aid, never a claim that a code is valid or that its sender is trusted.
-/// Apple's oneTimeCode content type is for entry fields; DataDetector has no email OTP entity.
-/// Work on prepared visible text off the main actor, without HTML, URLs, images or model calls.
+/// Local reading aid over prepared visible text, never an attestation of sender or validity.
+/// Bounded and run off the main actor; no HTML, remote fetch, model call or persisted code cache.
 struct MailVerificationCode: Equatable, Sendable {
     var message: MailMessageID
     var value: String
-
     static let maximumCharacters = 16_384
     static let maximumBlocks = 256
     static let maximumRuns = 2_048
-    private static let label = #"(?<![A-Za-z])(?:one[ -]?time(?:[ -]+(?:verification|security))?[ -]+(?:code|password|passcode)|(?:verification|security|authentication|log[ -]?in|sign[ -]?in|password[ -]+reset|two[ -]?factor|2fa)[ -]+(?:code|passcode)|otp|passcode)(?![A-Za-z])"#
-    private static let token = #"(?<![A-Za-z0-9])(?:[0-9]{3}[ \t-][0-9]{3}|[0-9]{4}[ \t-][0-9]{4}|[0-9]{2}(?:[ \t-][0-9]{2}){2}|[0-9](?:[ \t][0-9]){3,7}|[0-9]{4,8}|[A-Za-z0-9]{3,5}-[A-Za-z0-9]{3,5}|[A-Za-z0-9]{6,10})(?![A-Za-z0-9]|[./:\-][0-9])"#
-    private static let labelPattern = try? NSRegularExpression(pattern: label, options: .caseInsensitive)
-    private static let afterLabel = try? NSRegularExpression(
-        pattern: label + #"(?:\s+is)?[\s:=–—\-\"“”'\[\]()]{0,24}("# + token + #")"#, options: .caseInsensitive)
-    private static let beforeLabel = try? NSRegularExpression(
-        pattern: #"("# + token + #")[\s:=–—\-\"“”'\[\]()]{0,12}(?:is\s+)?(?:your\s+|the\s+)?"# + label, options: .caseInsensitive)
-    private static let subjectCode = try? NSRegularExpression(
-        pattern: #"(?:^|[\r\n])(?:your\s+)?code(?:\s+is)?[\s:=–—\-\"“”'\[\]()]{0,24}("# + token + #")"#, options: .caseInsensitive)
-    private static let standalone = try? NSRegularExpression(pattern: #"^\s*("# + token + #")\s*$"#)
+
+    private struct Line { var text: String; var plain: Bool }
+    private static let label = #"(?<![A-Za-z])(?:one[ -]?time(?:[ -]+(?:verification|security))?[ -]+(?:code|password|passcode|pin)|(?:verification|security|authentication|log[ -]?in|sign[ -]?in|password[ -]+reset|two[ -]?factor|2fa)[ -]+(?:code|passcode)|otp(?:[ -]+code)?)(?![A-Za-z])"#
+    private static let token = #"(?<![A-Za-z0-9])(?:[0-9]{3}[ \t-][0-9]{3}|[0-9]{4}[ \t-][0-9]{4}|[0-9]{2}(?:[ \t-][0-9]{2}){2}|[A-Za-z0-9](?:[ \t|]+[A-Za-z0-9]){3,9}|[A-Za-z]-[0-9]{4,10}|[A-Za-z0-9]{3,5}-[A-Za-z0-9]{3,5}|[A-Za-z0-9]{4,10})(?![A-Za-z0-9]|[./:\-][0-9])"#
+    private static func regex(_ pattern: String) -> NSRegularExpression? { try? NSRegularExpression(pattern: pattern, options: .caseInsensitive) }
+    private static let labelPattern = regex(label)
+    private static let afterLabel = regex(label + #"(?:\s+is)?[\s:=–—\-\"“”'\[\]()]{0,24}("# + token + #")"#)
+    private static let beforeLabel = regex(#"("# + token + #")\s+is\s+(?:your\s+|the\s+)"# + label)
+    private static let standalone = regex(#"^\s*("# + token + #")\s*$"#)
+    private static let action = regex(#"\b(?:log[ -]?in|logging[ -]?in|sign[ -]?in|signing[ -]?in|authenticat\w*|confirm(?:ing|ed)?\s+(?:your\s+|this\s+|the\s+)?(?:email|account|identity|sign[ -]?in)|verif(?:y|ying)\s+(?:your\s+|this\s+|the\s+)?(?:email|account|identity)|reset\s+(?:your\s+|the\s+)?password|code.{0,100}(?:verification|authentication|verify|log[ -]?in|access.{0,30}account))\b"#)
+    private static let meeting = regex(#"\b(?:meeting|conference|webinar)\s+(?:id|passcode|password)\b|\bjoin\s+(?:(?:the|a)\s+)?(?:meeting|conference|webinar)\b"#)
+    private static let instruction = regex(#"\b(?:code|pin|passcode)\b"#)
+    private static let otherRole = regex(#"\b(?:promo|referral|coupon|discount|sale|offer|voucher|donation|booking|reservation|order|invoice|shipping|tracking|reference)\b"#)
+    private static let genericAfter = regex(#"^\s*(?:(?:your(?:\s+[^\s:]{1,24}){0,3}\s+)?(?:code|passcode|pin)(?:\s+is)?|(?:confirmation|activation|launch)\s+code)[\s:=–—\-]{0,24}("# + token + #")[.!\s]*$"#)
+    private static let instructedCode = regex(#"\b(?:your\s+(?:temporary\s+)?code|(?:following|activation)\s+code)(?:\s+is)?\s*:\s*("# + token + #")"#)
+    private static let genericBefore = regex(#"^\s*("# + token + #")\s+is\s+your\s+[^\n]{0,64}\b(?:code|pin|passcode)[.!\s]*$"#)
+
+    private static func has(_ pattern: NSRegularExpression?, _ text: String) -> Bool {
+        pattern?.firstMatch(in: text, range: NSRange(text.startIndex..., in: text)) != nil
+    }
 
     static func extract(subject: String, body: MailBody, allowSubjectCode: Bool = true) -> String? {
         let subject = String(subject.prefix(512))
         let prefix = subject.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         guard !prefix.hasPrefix("fwd:"), !prefix.hasPrefix("fw:") else { return nil }
-        var lines: [String] = [], remaining = maximumCharacters - subject.count, remainingRuns = maximumRuns
         let plain: MailText?, quoteStart: Int?
         switch body {
         case .notOnDevice: plain = nil; quoteStart = nil
         case .text(let text, let start, _): plain = text; quoteStart = start
         case .designed(_, _, _, let text, _): plain = text; quoteStart = nil
         }
+        var lines: [Line] = [], remaining = maximumCharacters - subject.count, runs = maximumRuns, stopped = false
+        func append(_ text: String, plain: Bool) {
+            let value = text.trimmingCharacters(in: .whitespacesAndNewlines), lower = value.lowercased()
+            if value.hasPrefix(">") || lower.hasPrefix("-----original message") || lower.hasPrefix("begin forwarded message") || (lower.hasPrefix("on ") && lower.hasSuffix("wrote:")) { stopped = true; return }
+            if !value.isEmpty { lines.append(Line(text: value, plain: plain)) }
+        }
         if let plain {
             for (index, block) in plain.blocks.prefix(maximumBlocks).enumerated() {
+                guard remaining > 0, runs > 0, !stopped else { break }
                 if let quoteStart, index >= quoteStart { break }
                 if case .quote = block.kind { break }
-                switch block.kind {
-                case .picture, .fineprint, .rule: continue
-                default: break
+                switch block.kind { case .picture, .rule: continue; default: break }
+                var current = "", hasPlain = false
+                for run in block.runs.prefix(runs) {
+                    guard remaining > 0, !stopped else { break }
+                    let part = String(run.text.prefix(remaining)); remaining -= part.count; runs -= 1
+                    for (partIndex, piece) in part.components(separatedBy: .newlines).enumerated() {
+                        if partIndex > 0 { append(current, plain: hasPlain); current = ""; hasPlain = false }
+                        guard !stopped else { break }
+                        current += piece
+                        if run.link == nil && !piece.trimmingCharacters(in: .whitespaces).isEmpty { hasPlain = true }
+                    }
                 }
-                guard remaining > 0, remainingRuns > 0 else { break }
-                var line = ""
-                for run in block.runs.prefix(remainingRuns) {
-                    guard remaining > 0 else { break }
-                    let part = String(run.text.prefix(remaining))
-                    line += part; remaining -= part.count; remainingRuns -= 1
-                }
-                let trimmed = line.trimmingCharacters(in: .whitespacesAndNewlines)
-                let lower = trimmed.lowercased()
-                if trimmed.hasPrefix(">") || lower.hasPrefix("-----original message") || lower.hasPrefix("begin forwarded message") || (lower.hasPrefix("on ") && lower.hasSuffix("wrote:")) { break }
-                lines.append(line)
+                if !stopped { append(current, plain: hasPlain) }
                 remaining -= 1
             }
         }
-        let text = (allowSubjectCode ? subject + "\n" : "") + lines.joined(separator: "\n")
-        var candidates = Set<String>()
+        // Link-only actions (e.g. a VERIFY button) are not code payloads.
+        let own = lines.map { $0.plain ? $0.text : "\u{FFFC}" }.joined(separator: "\n")
+        let text = (allowSubjectCode ? subject + "\n" : "") + own
+        let strongSubject = has(labelPattern, subject)
+        let strongContext = strongSubject || has(labelPattern, own)
+        let authContext = strongContext || has(action, subject) || has(action, own)
+        if !strongContext && has(meeting, own) { return nil }
+        var candidates: [String: Set<String>] = [:]
+        func add(_ raw: String, letters: Bool = false, anyCase: Bool = false) {
+            guard let value = normalized(raw, letters: letters, anyCase: anyCase) else { return }
+            let parts = value.split(separator: "-")
+            let key: String
+            if parts.count == 2, parts[0].count == 1, parts[0].allSatisfy(\.isLetter), parts[1].allSatisfy(\.isNumber) { key = String(parts[1]) }
+            else { key = value }
+            candidates[key, default: []].insert(value)
+        }
         for pattern in [afterLabel, beforeLabel].compactMap({ $0 }) {
             for match in pattern.matches(in: text, range: NSRange(text.startIndex..., in: text)) {
-                if let range = Range(match.range(at: 1), in: text), let code = normalized(String(text[range])) { candidates.insert(code) }
+                if let range = Range(match.range(at: 1), in: text) { add(String(text[range])) }
             }
         }
-        // Some messages label only the subject and put the code on its own line. Do not
-        // turn four-digit account tails, dates, order references or footer numbers into codes.
-        if labelPattern?.firstMatch(in: subject, range: NSRange(subject.startIndex..., in: subject)) != nil {
-            let visible = lines.joined(separator: "\n")
-            if let subjectCode {
-                for match in subjectCode.matches(in: visible, range: NSRange(visible.startIndex..., in: visible)) {
-                    if let range = Range(match.range(at: 1), in: visible), let code = normalized(String(visible[range])) { candidates.insert(code) }
+        if authContext && (!has(meeting, own) || strongSubject) && (strongContext || !has(otherRole, subject)) {
+            if allowSubjectCode, strongSubject || !has(otherRole, subject) {
+                for pattern in [genericAfter, genericBefore].compactMap({ $0 }) {
+                    if let match = pattern.firstMatch(in: subject, range: NSRange(subject.startIndex..., in: subject)), let range = Range(match.range(at: 1), in: subject) { add(String(subject[range]), letters: true, anyCase: true) }
                 }
             }
-            for line in lines.prefix(12) {
-                for piece in line.split(separator: "\n") {
-                    let value = String(piece)
-                    guard let match = standalone?.firstMatch(in: value, range: NSRange(value.startIndex..., in: value)),
-                          let range = Range(match.range(at: 1), in: value), let code = normalized(String(value[range])) else { continue }
-                    if code.count == 6 || (code.contains(where: { $0.isLetter }) && code.contains(where: { $0.isNumber })) { candidates.insert(code) }
+            for (index, line) in lines.enumerated() where line.plain {
+                let preceding = index > 0 ? lines[index - 1].text : ""
+                let anchored = has(instruction, preceding) && !has(otherRole, preceding)
+                if let match = standalone?.firstMatch(in: line.text, range: NSRange(line.text.startIndex..., in: line.text)), let range = Range(match.range(at: 1), in: line.text) {
+                    let raw = String(line.text[range])
+                    if anchored || (strongSubject && index < 4 && raw.filter(\.isNumber).count == 6) { add(raw, letters: anchored) }
+                }
+                if !has(otherRole, line.text) {
+                    for pattern in [genericAfter, genericBefore, instructedCode].compactMap({ $0 }) {
+                        if let match = pattern.firstMatch(in: line.text, range: NSRange(line.text.startIndex..., in: line.text)), let range = Range(match.range(at: 1), in: line.text) { add(String(line.text[range])) }
+                    }
                 }
             }
         }
-        return candidates.count == 1 ? candidates.first : nil
+        guard candidates.count == 1, let values = candidates.values.first else { return nil }
+        // A plain numeric representation corroborates a prefixed form of that same code.
+        if let numeric = values.first(where: { $0.allSatisfy(\.isNumber) }) { return numeric }
+        return values.count == 1 ? values.first : nil
     }
 
-    private static func normalized(_ token: String) -> String? {
-        let digits = token.filter { $0 >= "0" && $0 <= "9" }
-        let compact = token.filter { !$0.isWhitespace && $0 != "-" }
-        if digits.count == compact.count {
-            guard (4...8).contains(digits.count), !token.contains("/"), !token.contains(":"),
-                  !(token.count == 10 && token.dropFirst(4).first == "-" && token.dropFirst(7).first == "-") else { return nil }
+    private static func normalized(_ token: String, letters: Bool, anyCase: Bool) -> String? {
+        let compact = token.filter { !$0.isWhitespace && $0 != "|" }
+        let digits = compact.filter(\.isNumber), bare = compact.filter { $0 != "-" }
+        if digits.count == bare.count {
+            guard (4...10).contains(digits.count), !(compact.count == 10 && compact.dropFirst(4).first == "-" && compact.dropFirst(7).first == "-") else { return nil }
             return digits
         }
-        guard (6...10).contains(compact.count), compact.allSatisfy({ $0.isASCII && ($0.isLetter || $0.isNumber) }),
-              (!digits.isEmpty || (token.split(separator: "-").map(\.count) == [4, 4] && token == token.uppercased())) else { return nil }
-        return token.filter { !$0.isWhitespace }
+        let parts = compact.split(separator: "-")
+        if parts.count == 2, parts[0].count == 1, parts[0].allSatisfy(\.isLetter), (4...10).contains(parts[1].count), parts[1].allSatisfy(\.isNumber) { return compact }
+        guard (4...10).contains(bare.count), bare.allSatisfy({ $0.isASCII && ($0.isLetter || $0.isNumber) }) else { return nil }
+        if digits.isEmpty {
+            let grouped = parts.map(\.count) == [4, 4] && compact == compact.uppercased()
+            guard grouped || (letters && (4...8).contains(bare.count) && (anyCase || compact == compact.uppercased())) else { return nil }
+        }
+        return compact
     }
 }
 #endif

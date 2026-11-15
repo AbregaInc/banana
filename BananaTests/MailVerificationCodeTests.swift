@@ -60,6 +60,60 @@ final class MailVerificationCodeTests: XCTestCase {
     func testLargeBodyWorkIsBounded() {
         XCTAssertNil(MailVerificationCode.extract(subject: "Account", body: body(String(repeating: "x", count: MailVerificationCode.maximumCharacters), "Verification code: 042819")))
     }
+    func testAuthenticationInstructionsAllowCodesAfterMetadataAndInDifferentFormats() {
+        let examples: [(String, [String], String)] = [
+            ("Your verification code - expires in 15 minutes", ["Hello Noor", "Use the verification code below to complete your action", "04281973", "The code expires in 15 minutes", "Support", "100 Main Street", "City 10001"], "04281973"),
+            ("Account verification code", ["Sign-in attempt", "Date: 2026-11-15", "Account: Noor", "Location: US", "IP: 192.0.2.10", "Enter this 6 digit code on the sign in page to confirm your identity:", "042819"], "042819"),
+            ("Your account code is 042819", ["Enter this temporary verification code to continue:", "042819"], "042819"),
+            ("042819 is your account code", ["Confirm your account", "Enter this code:", "042819"], "042819"),
+            ("Your code: 042819", ["Copy and paste the code below to log in to your account", "042819"], "042819"),
+            ("Confirmation code: A7K-Q2M", ["Confirm your email address", "Here is your confirmation code", "A7K-Q2M"], "A7K-Q2M"),
+            ("RAVON is your account verification code", ["Here is a 5-character verification code for verifying your email address", "RAVON"], "RAVON"),
+            ("Your one time PIN: 042819", ["Use the code below to access your account", "042819"], "042819"),
+            ("Your activation code", ["You can now log in using the code below", "A1b2C3"], "A1b2C3"),
+            ("Your sign-in code", ["Confirm it is you signing in", "Enter the code below", "042 819"], "042819"),
+            ("Confirmation code", ["To finish logging in, enter this code:", "042819"], "042819"),
+            ("Your code: 042819", ["Use the code below to verify your account", "042819"], "042819"),
+            ("Account OTP", ["The OTP code is: 042819"], "042819"),
+            ("Verify your identity", ["Here is your temporary code: 042819"], "042819"),
+            ("Verification code for your request", ["Please verify your email address by entering the following code: 042819."], "042819")
+        ]
+        for (subject, lines, expected) in examples {
+            let message = MailBody.text(MailText(blocks: lines.map { .init(kind: .paragraph, runs: [.init(text: $0)]) }), quoteStartsAt: nil, notices: [])
+            XCTAssertEqual(MailVerificationCode.extract(subject: subject, body: message), expected, subject)
+        }
+    }
+
+    func testMeetingDeckAndOfferPasscodesAreNotOneTimeAuthenticationCodes() {
+        for (subject, text) in [
+            ("Meeting invitation", "Join the meeting now\nMeeting ID: 123 456 789\nPasscode: 042819"),
+            ("Investor deck", "Investor presentation\nPasscode: A1b2C3!"),
+            ("Save on tickets", "Unlock this offer\nPasscode: 042819\nOffer valid through Thursday"),
+            ("Webinar replay", "Join webinar\nPasscode: 042819"),
+            ("Event registration", "Authentication code, when needed, will be sent by email\nMeeting ID: 123456789\nPasscode\n042819"),
+            ("Special pricing", "Use the following referral code:\nA7KQ2M\nLog in to your account to apply it")
+        ] {
+            XCTAssertNil(MailVerificationCode.extract(subject: subject, body: body(text)), subject)
+        }
+    }
+
+    func testLinkedActionsAreNotAlphabeticCodePayloads() {
+        let text = MailText(blocks: [
+            .init(kind: .paragraph, runs: [.init(text: "Your verification code")]),
+            .init(kind: .paragraph, runs: [.init(text: "VERIFY", link: URL(string: "https://plan.example/verify"))])
+        ])
+        XCTAssertNil(MailVerificationCode.extract(subject: "Verify your account", body: .text(text, quoteStartsAt: nil, notices: [])))
+    }
+
+    func testSmallPrintCanContainTheActualAuthenticationInstructions() {
+        let text = MailText(blocks: [
+            .init(kind: .fineprint, runs: [.init(text: "Please enter the following code for verification:")]),
+            .init(kind: .fineprint, runs: [.init(text: "042819")]),
+            .init(kind: .fineprint, runs: [.init(text: "100 Main Street, City 10001")])
+        ])
+        XCTAssertEqual(MailVerificationCode.extract(subject: "One-time verification code", body: .text(text, quoteStartsAt: nil, notices: [])), "042819")
+    }
+
     func testPreparationComponentCost() throws {
         let cases: [(String, String, MailBody, String?)] = [
             ("short-code", "Account", body("Verification code: 042819"), "042819"),
