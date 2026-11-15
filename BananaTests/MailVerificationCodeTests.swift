@@ -75,6 +75,8 @@ final class MailVerificationCodeTests: XCTestCase {
             ("Confirmation code", ["To finish logging in, enter this code:", "042819"], "042819"),
             ("Your code: 042819", ["Use the code below to verify your account", "042819"], "042819"),
             ("Account OTP", ["The OTP code is: 042819"], "042819"),
+            ("Your verification code", ["Please enter the 6-digit code below on the email verification page: 042819"], "042819"),
+            ("Activation code", ["To activate your account, please enter the following activation code:", "Activation Code : A1b2C3D4"], "A1b2C3D4"),
             ("Verify your identity", ["Here is your temporary code: 042819"], "042819"),
             ("Verification code for your request", ["Please verify your email address by entering the following code: 042819."], "042819")
         ]
@@ -91,7 +93,9 @@ final class MailVerificationCodeTests: XCTestCase {
             ("Save on tickets", "Unlock this offer\nPasscode: 042819\nOffer valid through Thursday"),
             ("Webinar replay", "Join webinar\nPasscode: 042819"),
             ("Event registration", "Authentication code, when needed, will be sent by email\nMeeting ID: 123456789\nPasscode\n042819"),
-            ("Special pricing", "Use the following referral code:\nA7KQ2M\nLog in to your account to apply it")
+            ("Special pricing", "Use the following referral code:\nA7KQ2M\nLog in to your account to apply it"),
+            ("August perks", "Secure authentication and user access\nUse code: A7KQ2M"),
+            ("Reward Purchase Confirmation", "Your reward redemption code\n042819\nActivate your account to redeem your reward")
         ] {
             XCTAssertNil(MailVerificationCode.extract(subject: subject, body: body(text)), subject)
         }

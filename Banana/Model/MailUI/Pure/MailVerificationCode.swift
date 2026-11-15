@@ -18,12 +18,13 @@ struct MailVerificationCode: Equatable, Sendable {
     private static let afterLabel = regex(label + #"(?:\s+is)?[\s:=–—\-\"“”'\[\]()]{0,24}("# + token + #")"#)
     private static let beforeLabel = regex(#"("# + token + #")\s+is\s+(?:your\s+|the\s+)"# + label)
     private static let standalone = regex(#"^\s*("# + token + #")\s*$"#)
-    private static let action = regex(#"\b(?:log[ -]?in|logging[ -]?in|sign[ -]?in|signing[ -]?in|authenticat\w*|confirm(?:ing|ed)?\s+(?:your\s+|this\s+|the\s+)?(?:email|account|identity|sign[ -]?in)|verif(?:y|ying)\s+(?:your\s+|this\s+|the\s+)?(?:email|account|identity)|reset\s+(?:your\s+|the\s+)?password|code.{0,100}(?:verification|authentication|verify|log[ -]?in|access.{0,30}account))\b"#)
+    private static let action = regex(#"\b(?:log[ -]?in|logging[ -]?in|sign[ -]?in|signing[ -]?in|authenticat\w*|confirm(?:ing|ed)?\s+(?:your\s+|this\s+|the\s+)?(?:email|account|identity|sign[ -]?in)|verif(?:y|ying)\s+(?:your\s+|this\s+|the\s+)?(?:email|account|identity)|reset\s+(?:your\s+|the\s+)?password|activate\s+(?:your\s+|the\s+)?account|code.{0,100}(?:verification|authentication|verify|log[ -]?in|access.{0,30}account))\b"#)
     private static let meeting = regex(#"\b(?:meeting|conference|webinar)\s+(?:id|passcode|password)\b|\bjoin\s+(?:(?:the|a)\s+)?(?:meeting|conference|webinar)\b"#)
     private static let instruction = regex(#"\b(?:code|pin|passcode)\b"#)
-    private static let otherRole = regex(#"\b(?:promo|referral|coupon|discount|sale|offer|voucher|donation|booking|reservation|order|invoice|shipping|tracking|reference)\b"#)
+    private static let otherRole = regex(#"\b(?:promo|referral|coupon|discount|sale|offer|voucher|donation|booking|reservation|order|invoice|shipping|tracking|reference|purchase|reward|redemption|perk|deal|ticket)s?\b"#)
     private static let genericAfter = regex(#"^\s*(?:(?:your(?:\s+[^\s:]{1,24}){0,3}\s+)?(?:code|passcode|pin)(?:\s+is)?|(?:confirmation|activation|launch)\s+code)[\s:=–—\-]{0,24}("# + token + #")[.!\s]*$"#)
     private static let instructedCode = regex(#"\b(?:your\s+(?:temporary\s+)?code|(?:following|activation)\s+code)(?:\s+is)?\s*:\s*("# + token + #")"#)
+    private static let enterCode = regex(#"\b(?:enter|use)\b[^\n:]{0,120}\bcode\b[^\n:]{0,80}:\s*("# + token + #")"#)
     private static let genericBefore = regex(#"^\s*("# + token + #")\s+is\s+your\s+[^\n]{0,64}\b(?:code|pin|passcode)[.!\s]*$"#)
 
     private static func has(_ pattern: NSRegularExpression?, _ text: String) -> Bool {
@@ -102,7 +103,7 @@ struct MailVerificationCode: Equatable, Sendable {
                     if anchored || (strongSubject && index < 4 && raw.filter(\.isNumber).count == 6) { add(raw, letters: anchored) }
                 }
                 if !has(otherRole, line.text) {
-                    for pattern in [genericAfter, genericBefore, instructedCode].compactMap({ $0 }) {
+                    for pattern in [genericAfter, genericBefore, instructedCode, enterCode].compactMap({ $0 }) {
                         if let match = pattern.firstMatch(in: line.text, range: NSRange(line.text.startIndex..., in: line.text)), let range = Range(match.range(at: 1), in: line.text) { add(String(line.text[range])) }
                     }
                 }
