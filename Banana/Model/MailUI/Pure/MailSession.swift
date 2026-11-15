@@ -435,10 +435,22 @@ final class MailSession {
     func closeSenderBlockConfirmation() { navigation.senderBlockAsk = nil }
     func closeSenderBlockFailure() { navigation.senderBlockFailed = false }
     func changeSenderBlock(_ blocked: Bool, message: MailMessageDisplay) {
+        let origin = model
+        let conversation = navigation.reader?.conversation.flatMap { conversation in
+            conversation.messages.contains { $0.id == message.id } ? conversation.id : nil
+        }
         Task {
             do {
                 try await source.setSenderBlocked(blocked, account: message.id.account, sender: message.senderAddress)
-                if blocked { source.apply(.spam, to: .message(message.id)) }
+                if blocked {
+                    if let conversation {
+                        send(.actOnMessage(.spam, message: message.id, conversation: conversation,
+                                           advance: model === origin))
+                    } else {
+                        // A stale card no longer belongs to the current reader; retain its exact target.
+                        source.apply(.spam, to: .message(message.id))
+                    }
+                }
             } catch { navigation.senderBlockFailed = true }
         }
     }
@@ -456,6 +468,12 @@ final class MailSession {
         case .act(let action, let explicit):
             guard allowsChanges, supportsAction(action) else { explainChangesUnavailable(); return }
             if let target = model.actionTarget(for: action, explicit: explicit), !allowsTarget(target) {
+                present(MailToast(text: targetRestriction, action: nil, lasts: nil), {})
+                return
+            }
+        case .actOnMessage(let action, let message, _, _):
+            guard allowsChanges, supportsAction(action) else { explainChangesUnavailable(); return }
+            guard allowsTarget(.message(message)) else {
                 present(MailToast(text: targetRestriction, action: nil, lasts: nil), {})
                 return
             }

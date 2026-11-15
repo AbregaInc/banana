@@ -16,9 +16,31 @@ final class MailReaderUITest: MailUITestCase {
     }
 
     private func openDisposalMenu() {
-        let more = app.buttons.matching(NSPredicate(format: "identifier == %@ OR identifier == %@", "mail.pane.more", "mail.reader.more")).firstMatch
+        let more = app.descendants(matching: .any).matching(NSPredicate(format: "identifier == %@ OR identifier == %@", "mail.pane.more", "mail.reader.more")).firstMatch
         XCTAssertTrue(more.waitForExistence(timeout: 5))
         more.tap()
+    }
+
+    func testSpamAndConfirmedSenderBlockBothAdvanceToTheNextConversation() {
+        for blocking in [false, true] {
+            launch(open: "q3")
+            XCTAssertEqual(element(MailID.conversationTitle).label, "Q3 numbers before Thursday")
+            openDisposalMenu()
+            let identifier = blocking ? "mail.sender.block" : "mail.action.spam"
+            let title = blocking ? "Block sender" : "Mark as spam"
+            let action = app.buttons.matching(NSPredicate(format: "identifier == %@ OR label == %@", identifier, title)).firstMatch
+            XCTAssertTrue(action.waitForExistence(timeout: 5))
+            action.tap()
+            if blocking {
+                let confirm = app.buttons["Block sender"].firstMatch
+                XCTAssertTrue(confirm.waitForExistence(timeout: 5))
+                confirm.tap()
+            }
+            XCTAssertTrue(waitUntil(timeout: 5) {
+                self.element(MailID.conversationTitle).label == "Invitation: Design review"
+            }, "Both disposal actions must continue to the next conversation")
+            snap(blocking ? "block-advances-reader" : "spam-advances-reader")
+        }
     }
 
     func testReaderExposesSpamAndSenderBlocking() {

@@ -21,6 +21,8 @@ final class MailFixtureSource: MailSource {
     private var eventObservers: [UUID: @MainActor (MailEvent) -> Void] = [:]
     var nextApplyFailure: MailStoreProblem?
     var nextUndoFailure: MailStoreProblem?
+    var beforeSenderBlock: (() async throws -> Void)?
+    var onApply: ((MailChange, MailTarget) -> Void)?
 
     func observeEvents(_ onEvent: @escaping @MainActor (MailEvent) -> Void) -> MailObservation {
         let id = UUID()
@@ -260,6 +262,7 @@ final class MailFixtureSource: MailSource {
         let value = MailSenderPolicyStatus(); value.loading = false; senderPolicies[key] = value; return value
     }
     func setSenderBlocked(_ blocked: Bool, account: String, sender: String) async throws {
+        try await beforeSenderBlock?()
         let value = senderPolicyStatus(account: account, sender: sender)
         value.blocked = blocked; value.desiredBlocked = blocked; value.pending = false; value.failed = false
     }
@@ -280,6 +283,7 @@ final class MailFixtureSource: MailSource {
 
     @discardableResult
     func apply(_ change: MailChange, to target: MailTarget) -> MailReceipt {
+        onApply?(change, target)
         let ids: [MailConversationID]
         switch target {
         case .reading(let readings):
