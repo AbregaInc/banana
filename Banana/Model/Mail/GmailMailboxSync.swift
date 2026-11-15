@@ -17,14 +17,17 @@ actor GmailMailboxSync {
     private let reconcile: GmailReconcileSync
     private let verification: GmailVerificationSync
     private let feed: MailCloudFeedSync?
+    private let sourceSelected: @Sendable (String, Bool) async -> Void
     private var running = Set<String>()
 
     /// With `feed`, an account whose service offers Banana Cloud's shared mailbox syncs from it and
     /// nothing else (MAIL-CLOUD-SYNC §8); the Gmail path below stays for a service without one.
     init(stores: MailStores, writer: MailWriter, api: any GmailAPI,
          token: @escaping GmailPageLoader.Token, recovery: MailRemovalRecovery,
-         feed source: (any MailCloudFeedSource)? = nil) {
+         feed source: (any MailCloudFeedSource)? = nil,
+         sourceSelected: @escaping @Sendable (String, Bool) async -> Void = { _, _ in }) {
         self.stores = stores
+        self.sourceSelected = sourceSelected
         let recover: GmailHistorySync.Recover = { account in _ = try await recovery.recover(account: account) }
         feed = source.map { MailCloudFeedSync(stores: stores, writer: writer, source: $0, recover: recover) }
         history = GmailHistorySync(stores: stores, writer: writer, api: api, token: token,
@@ -41,7 +44,15 @@ actor GmailMailboxSync {
     func pass(account: String, nowMS: Int64) async throws -> Progress {
         guard running.insert(account).inserted else { throw Failure.busy }
         defer { running.remove(account) }
-        if let feed, let progress = try await feed.pass(account: account, nowMS: nowMS) { return progress }
+        if let feed, let progress = try await feed.pass(account: account, nowMS: nowMS) {
+            await sourceSelected(account, true)
+            try Task.checkCancellation()
+            return progress
+        }
+        // Publish routing before direct history/reconciliation: their failure must not prevent
+        // the list from using the supported direct paging path.
+        await sourceSelected(account, false)
+        try Task.checkCancellation()
         let result = try await history.poll(account: account, nowMS: nowMS, maximumPages: 2)
         var needsReconcile = false
         var moreHistory = false

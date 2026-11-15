@@ -19,6 +19,10 @@ final class MailCloudPullTests: XCTestCase {
     /// The cloud: a feed, and the content it holds. Records each bulk request.
     actor Cloud: MailCloudFeedSource {
         var entries: [Entry] = []
+        var enumerationComplete = true
+        var feedUnavailable = false
+        var pageCalls = 0
+        func configureFeed(complete: Bool = true, unavailable: Bool = false) { enumerationComplete = complete; feedUnavailable = unavailable }
         var accountEntries: [String: [Entry]] = [:]
         var held: [String: GmailMessage] = [:]
         var asked: [[String]] = []
@@ -36,11 +40,13 @@ final class MailCloudPullTests: XCTestCase {
         func slow(_ value: Duration) { latency = value }
         func page(account: String, after: String?, limit: Int, fresh: Bool) async throws -> MailCloudFeedPage {
             if latency > .zero { try await Task.sleep(for: latency) }
+            pageCalls += 1
+            if feedUnavailable { throw MailCloudFeedError.unavailable }
             let entries = accountEntries[account] ?? entries
             let start = after.flatMap(Int.init) ?? 0
             let slice = Array(entries[min(start, entries.count)..<min(start + limit, entries.count)])
             return MailCloudFeedPage(epoch: "e1", cursor: String(start + slice.count), more: start + slice.count < entries.count,
-                                     complete: true, entries: slice)
+                                     complete: enumerationComplete, entries: slice)
         }
         func check(account: String, ids: [String]) async throws {}
         func contents(account: String, ids: [String]) async throws -> [MailCloudContent] {
@@ -56,6 +62,7 @@ final class MailCloudPullTests: XCTestCase {
     actor Gmail: GmailAPI {
         var messages: [String: GmailMessage] = [:]
         var calls: [String] = []
+        var listCalls = 0
         var latency: Duration = .zero
         func hold(_ list: [GmailMessage]) { for m in list { messages[m.id!] = m } }
         func slow(_ value: Duration) { latency = value }
@@ -83,8 +90,10 @@ final class MailCloudPullTests: XCTestCase {
             if attachmentWait > .zero { try await Task.sleep(for: attachmentWait) }
             throw GmailError.malformed
         }
-        func labels(token: String) async throws -> [GmailLabel] { [] }
-        func listMessages(token: String, labelIDs: [String], query: String?, includeSpamTrash: Bool, pageToken: String?, maxResults: Int) async throws -> GmailIDPage { GmailIDPage() }
+        func labels(token: String) async throws -> [GmailLabel] {
+            ["INBOX", "SENT", "DRAFT", "TRASH", "SPAM", "UNREAD", "STARRED"].map { GmailLabel(id: $0, name: $0, type: "system") }
+        }
+        func listMessages(token: String, labelIDs: [String], query: String?, includeSpamTrash: Bool, pageToken: String?, maxResults: Int) async throws -> GmailIDPage { listCalls += 1; return GmailIDPage() }
         func history(token: String, start: String, pageToken: String?, maxResults: Int) async throws -> GmailHistoryPage { GmailHistoryPage(historyId: 100) }
         func modify(token: String, id: String, add: [String], remove: [String]) async throws { XCTFail("no writes") }
         func trash(token: String, id: String) async throws { XCTFail("no writes") }
@@ -508,6 +517,53 @@ final class MailCloudPullTests: XCTestCase {
         return (stores, source)
     }
     private func id(_ m: String) -> MailMessageID { MailMessageID(account: MailCloudPullTests.account, message: m) }
+
+    func testCloudEnumerationOwnsListPagingWithoutStartingAnotherGmailScan() async throws {
+        for complete in [true, false] {
+            let cloud = MailCloudPullTests.Cloud(), gmail = MailCloudPullTests.Gmail()
+            await cloud.configureFeed(complete: complete)
+            let (_, source) = try await source(cloud: cloud, gmail: gmail)
+            let scope = MailScope(place: .mailbox(.inbox))
+            var latest: MailListSnapshot?
+            let observation = source.observeList(scope, limit: 50) { latest = $0 }
+            source.activate()
+            source.askGmail(scope) // The visible list's bottom edge can ask before routing is known.
+            let deadline = ContinuousClock.now + .seconds(3)
+            while ContinuousClock.now < deadline {
+                if await cloud.pageCalls > 0, latest?.hasMore == !complete, latest?.remote == nil { break }
+                await Task.yield()
+            }
+            source.askGmail(scope) // Repeated bottom-edge callbacks must remain local/cloud-owned.
+            source.checkNow()
+            for _ in 0..<100 { await Task.yield() }
+            let calls = await gmail.listCalls
+            XCTAssertEqual(calls, 0, "Cloud sync must not run a parallel Gmail mailbox scan")
+            XCTAssertEqual(latest?.hasMore, !complete)
+            XCTAssertNil(latest?.remote, "Cloud work belongs to header progress, not list-page loading")
+            source.setVisible(false)
+            observation.cancel()
+        }
+    }
+
+    func testUnavailableCloudPreservesDirectMailboxPaging() async throws {
+        let cloud = MailCloudPullTests.Cloud(), gmail = MailCloudPullTests.Gmail()
+        await cloud.configureFeed(unavailable: true)
+        let (_, source) = try await source(cloud: cloud, gmail: gmail)
+        let scope = MailScope(place: .mailbox(.inbox))
+        var latest: MailListSnapshot?
+        let observation = source.observeList(scope, limit: 50) { latest = $0 }
+        source.activate()
+        defer { source.setVisible(false); observation.cancel() }
+        let deadline = ContinuousClock.now + .seconds(3)
+        while ContinuousClock.now < deadline {
+            if await gmail.listCalls > 0, latest?.hasMore == false, latest?.remote == nil { break }
+            await Task.yield()
+        }
+        let calls = await gmail.listCalls
+        XCTAssertGreaterThan(calls, 0)
+        XCTAssertEqual(latest?.hasMore, false)
+        XCTAssertNil(latest?.remote)
+    }
 
     func testBananaServiceRecognisesTheMailPush() {
         XCTAssertTrue(BananaService.isMailPush(["aps": ["content-available": 1], "b": ["k": "mail"]]))

@@ -136,6 +136,8 @@ import GRDB
     lazy var syncProgress: MailSyncProgress? = MailSyncProgress { [weak self] in self?.refreshSyncProgress() }
     private var syncCompleted: [String: Int] = [:]
     private var syncEnumerationComplete: [String: Bool] = [:]
+    // nil means the first sync pass has not established cloud versus direct ownership yet.
+    private var syncUsesCloud: [String: Bool] = [:]
     private var progressReadTask: Task<Void, Never>?
     private var progressReadToken = UUID()
     private var progressRevision: UInt64 = 0
@@ -582,7 +584,11 @@ import GRDB
                 guard !Task.isCancelled, allowedAccounts == self.readAccounts else { return }
                 let connected = self.accounts.filter { $0.state == .connected && (Self.account(for: scope) == nil || Self.account(for: scope) == $0.id) }
                 let pending = connected.contains { self.pageTasks[$0.id] != nil }
-                let more = connected.contains { !self.completed.contains($0.id) }
+                let more = connected.contains {
+                    self.syncUsesCloud[$0.id] == true
+                        ? self.syncEnumerationComplete[$0.id] != true
+                        : !self.completed.contains($0.id)
+                }
                 let failed = connected.contains { self.failures.contains($0.id) }
                 self.deliver(MailListSnapshot(scope: scope,
                     rows: rows.map { row in MailRowMapper.row(row, labels: row.labelPKs.compactMap { self.labelCatalog.refs[$0] }, reason: nil, in: scope) },
@@ -684,6 +690,14 @@ import GRDB
     }
 
     private func loadPage(_ account: String) {
+        // The cloud feed already enumerates this mailbox. Starting the legacy list loader here
+        // duplicates that work and keeps a bottom-edge request loading through the whole archive.
+        // Defer until the sync worker establishes whether the feed supports this account; an
+        // unavailable feed explicitly restores the direct path. Searches retain their own loader.
+        if cloudFeed != nil, mailboxSync != nil, syncUsesCloud[account] != false {
+            startSync(account)
+            return
+        }
         guard access.mailGrant(accountID: account) == .granted, !disabled.contains(account), !forgettingAccess.contains(account),
               (syncRetryAt[account] ?? .distantPast) <= Date(), pageTasks[account] == nil, !completed.contains(account) else { return }
         failures.remove(account)
@@ -825,7 +839,8 @@ import GRDB
         var ok = false
         for account in accounts where account.state == .connected {
             do {
-                _ = try await sync.pass(account: account.id, nowMS: Int64(Date().timeIntervalSince1970 * 1000))
+                let progress = try await sync.pass(account: account.id, nowMS: Int64(Date().timeIntervalSince1970 * 1000))
+                acceptSyncProgress(progress, account: account.id)
                 ok = true
             } catch GmailMailboxSync.Failure.busy, MailCloudFeedSync.Failure.busy {
                 ok = true   // a pass is running already; it brings the same
@@ -1037,7 +1052,10 @@ extension MailLiveSource {
         }
         mailboxSync = GmailMailboxSync(stores: stores, writer: writer, api: api,
             token: { [access] account in try await access.mailAccessToken(accountID: account).value },
-            recovery: MailRemovalRecovery(stores: stores, intents: intent), feed: cloudFeed)
+            recovery: MailRemovalRecovery(stores: stores, intents: intent), feed: cloudFeed,
+            sourceSelected: { [weak self] account, cloud in
+                await self?.selectSyncSource(cloud: cloud, account: account)
+            })
         let writer = self.writer
         delivery = GmailIntentDelivery(store: intent, api: api, token: { [access] account in
             try await access.mailAccessToken(accountID: account).value
@@ -1490,6 +1508,26 @@ extension MailLiveSource {
         }
     }
 
+    private func selectSyncSource(cloud: Bool, account: String) {
+        let changed = syncUsesCloud[account] != cloud
+        syncUsesCloud[account] = cloud
+        if cloud {
+            pageTasks[account]?.cancel(); pageTasks[account] = nil
+            pages[account] = nil
+        } else if changed, active {
+            loadPage(account)
+        }
+        if changed { for id in subscriptions.keys { refresh(id) } }
+    }
+
+    private func acceptSyncProgress(_ progress: GmailMailboxSync.Progress, account: String) {
+        syncEnumerationComplete[account] = progress.enumerationComplete ?? !progress.hasMore
+        // An empty final feed page can complete enumeration without changing a stored row.
+        // Observers must still learn that there is no remote list page left to request.
+        for id in subscriptions.keys { refresh(id) }
+        refreshSyncProgress()
+    }
+
     private func startSync(_ account: String) {
         guard active, !disabled.contains(account), !forgettingAccess.contains(account), access.mailGrant(accountID: account) == .granted,
               syncTasks[account] == nil, let worker = mailboxSync else { return }
@@ -1512,7 +1550,7 @@ extension MailLiveSource {
                     try Task.checkCancellation()
                     let progress = try await worker.pass(account: account, nowMS: Int64(Date().timeIntervalSince1970 * 1000))
                     try Task.checkCancellation()
-                    self.syncEnumerationComplete[account] = progress.enumerationComplete ?? !progress.hasMore
+                    self.acceptSyncProgress(progress, account: account)
                     if let retry = self.syncRetryAt[account], retry > Date() {
                         // A concurrent body request may have been rate-limited
                         // while this pass was in flight. Its deadline still wins.
