@@ -104,6 +104,9 @@ private struct MailListHeader: View {
         .padding(.trailing, DS.Space.xs)
         #if os(iOS)
         .frame(minHeight: DS.Mail.header)
+        .anchorPreference(key: ShellPageHeaderBounds.self, value: .bounds) { bounds in
+            bottomBarShell ? [.mail: bounds] : [:]
+        }
         #else
         .frame(height: DS.Mail.header)
         #endif

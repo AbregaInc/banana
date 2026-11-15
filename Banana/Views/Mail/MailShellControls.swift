@@ -98,6 +98,7 @@ struct MailShellTopRow: View {
         .glassEffect(.regular, in: .capsule)
         .padding(.horizontal, DS.Space.l)
         .padding(.vertical, DS.Space.xs)
+        .anchorPreference(key: ShellPageHeaderBounds.self, value: .bounds) { [.mail: $0] }
     }
 }
 

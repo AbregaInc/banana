@@ -588,10 +588,20 @@ struct ShellSwitcherOverlay: View {
 
 // MARK: - The results
 
+/// Custom page headers report their actual boundary instead of borrowing a native bar's height.
+struct ShellPageHeaderBounds: PreferenceKey {
+    static let defaultValue: [AppSection: Anchor<CGRect>] = [:]
+    static func reduce(value: inout [AppSection: Anchor<CGRect>],
+                       nextValue: () -> [AppSection: Anchor<CGRect>]) {
+        value.merge(nextValue()) { _, next in next }
+    }
+}
+
 /// What the field found, over the page and above the bar. Solid: it is content, not navigation.
 struct ShellResultsOverlay: View {
     let section: AppSection
-    /// The height of a page's top row (the navigation bar) under the status bar.
+    var headerBottom: CGFloat? = nil
+    /// Native navigation bars reserve this row; custom headers supply their measured boundary.
     private static let topRow: CGFloat = 54
     @ObservedObject private var search = ShellSearch.shared
     @ObservedObject private var chrome = ShellChrome.shared
@@ -601,7 +611,7 @@ struct ShellResultsOverlay: View {
             ShellSearchResults(search: search, section: section)
                 .background(Color(.systemBackground))
                 // The page's top row stays in view above it, as in the approved design.
-                .padding(.top, Self.topRow)
+                .padding(.top, max(0, headerBottom ?? Self.topRow))
                 // Down to the field: the bar's top padding is open page otherwise.
                 .padding(.bottom, chrome.barHeight - DS.Space.s)
                 .transition(.opacity)

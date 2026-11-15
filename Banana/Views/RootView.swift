@@ -941,9 +941,12 @@ struct RootView: View {
             }
         }
         // Field results cover the page while leaving its controls in reach.
-        .overlay {
+        .overlayPreferenceValue(ShellPageHeaderBounds.self) { headers in
             if bottomBarShell {
-                ShellResultsOverlay(section: shell.state.tab.tabBarHome)
+                GeometryReader { proxy in
+                    ShellResultsOverlay(section: shell.state.tab.tabBarHome,
+                        headerBottom: headers[shell.state.tab.tabBarHome].map { proxy[$0].maxY })
+                }
             }
         }
         #if BANANA_MODULE_PODCASTS
