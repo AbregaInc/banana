@@ -135,7 +135,7 @@ struct ShellWideField: View {
                 .onExitCommand { search.clear() }
                 #endif
                 .accessibilityIdentifier("shell.field")
-            if !search.text.isEmpty || search.focused {
+            if search.mode != .idle {
                 Button { search.clear() } label: {
                     Image(systemName: "xmark.circle.fill").foregroundStyle(.secondary)
                 }

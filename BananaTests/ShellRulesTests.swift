@@ -45,6 +45,14 @@ final class ShellRulesTests: XCTestCase {
         XCTAssertTrue(ShellFieldMode.results.hidesSideButtons)
     }
 
+    func testAnOpenAddPickerSurvivesKeyboardFocusLossUntilDismissed() {
+        XCTAssertEqual(ShellFieldMode.of(text: "", focused: true, presented: true), .add)
+        XCTAssertEqual(ShellFieldMode.of(text: "", focused: false, presented: true), .add,
+                       "A scroll dismisses the keyboard, not the task being browsed")
+        XCTAssertEqual(ShellFieldMode.of(text: "", focused: false, presented: false), .idle)
+        XCTAssertEqual(ShellFieldMode.of(text: "meal", focused: false, presented: true), .results)
+    }
+
     func testSearchesWaitForTwoCharacters() {
         XCTAssertNil(ShellSearchRules.query(""))
         XCTAssertNil(ShellSearchRules.query(" l "))

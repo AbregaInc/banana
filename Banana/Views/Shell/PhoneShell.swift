@@ -181,7 +181,7 @@ struct ShellBarHost: View {
 
     var body: some View {
         // Mail's composer is the bar's own: the keyboard is up for it, and the bar holds the box.
-        if !chrome.keyboardUp || search.focused || (section == .mail && chrome.mailComposing) {
+        if !chrome.keyboardUp || search.mode != .idle || (section == .mail && chrome.mailComposing) {
             ShellBottomBar(section: section, pages: pages, open: open, expandPlayer: expandPlayer)
                 .modifier(ShellSkipNoticeHost())
                 .onAppear { chrome.setBarShown(true) }
@@ -496,9 +496,10 @@ struct ShellField: View {
                     }
                 }
                 .accessibilityIdentifier("shell.field")
-            if !search.text.isEmpty || focused {
+            if search.mode != .idle {
                 Button { search.clear() } label: {
                     Image(systemName: "xmark.circle.fill").foregroundStyle(.secondary)
+                        .frame(minWidth: 44, minHeight: 44)
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel(search.text.isEmpty ? "Close search" : "Clear")

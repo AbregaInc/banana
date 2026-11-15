@@ -32,7 +32,13 @@ final class ShellSearch: ObservableObject {
 
     @Published var text = ""
     /// The field has the keyboard. Mirrored from the field's focus, for the bar and the results.
-    @Published var focused = false
+    @Published var focused = false {
+        didSet {
+            if focused && !presented { presented = true }
+        }
+    }
+    /// A scroll may dismiss the keyboard while the picker remains the task in progress.
+    @Published private(set) var presented = false
     @Published private(set) var groups = ShellSearchGroups<ShellSearchHit>()
     /// The words `groups` answers, so a result list is never shown under other words.
     @Published private(set) var answered: String?
@@ -45,7 +51,7 @@ final class ShellSearch: ObservableObject {
     private var mailObservation: MailObservation?
     #endif
 
-    var mode: ShellFieldMode { .of(text: text, focused: focused) }
+    var mode: ShellFieldMode { .of(text: text, focused: focused, presented: presented) }
 
     /// Called on each change of `text`: the searches run once typing settles.
     func textChanged() {
@@ -65,6 +71,7 @@ final class ShellSearch: ObservableObject {
 
     /// Clears the field and lets the keyboard go.
     func clear() {
+        presented = false
         text = ""
         textChanged()
         focusRequests.send(false)
@@ -276,7 +283,7 @@ enum ShellMailOpener {
 
 // MARK: - The results
 
-/// Under the field: the "Ask Banana" row, then what each page's search found. Focused with
+/// Under the field: the "Ask Banana" row, then what each page's search found. Opened with
 /// nothing typed: what can be added, this page's kinds first (the one list a + used to open).
 struct ShellSearchResults: View {
     @ObservedObject var search: ShellSearch

@@ -20,6 +20,22 @@ final class BottomBarShellUITest: XCTestCase {
         return app
     }
 
+    func testScrollingTheAddOptionsDismissesOnlyTheKeyboard() throws {
+        let app = try launch(["--tab", "plan"])
+        app.textFields["shell.field"].tap()
+        let options = any(app, "page.add.list")
+        XCTAssertTrue(options.waitForExistence(timeout: 5), app.debugDescription)
+        XCTAssertTrue(app.keyboards.firstMatch.waitForExistence(timeout: 5))
+        options.swipeUp()
+        XCTAssertTrue(waitUntil(timeout: 5) { !app.keyboards.firstMatch.exists }, "Browsing options should make room by dismissing the keyboard")
+        XCTAssertTrue(options.exists, "Scrolling must keep the add options open")
+        let close = app.buttons["shell.field.clear"]
+        XCTAssertTrue(close.isHittable, "The open list keeps its explicit close control")
+        close.tap()
+        XCTAssertTrue(options.waitForNonExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["shell.switcher"].exists)
+    }
+
     private func any(_ app: XCUIApplication, _ id: String) -> XCUIElement {
         app.descendants(matching: .any).matching(identifier: id).firstMatch
     }
