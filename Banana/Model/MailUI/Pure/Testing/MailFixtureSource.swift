@@ -523,10 +523,23 @@ final class MailFixtureSource: MailSource {
                 pageCache[key] = page
             }
         }
-        return MailListSnapshot(scope: scope, rows: page.rows,
+        var snapshot = MailListSnapshot(scope: scope, rows: page.rows,
                                 total: MailCount(value: page.total, isAtLeast: false),
                                 hasMore: page.total > page.rows.count, stillLoading: 0, isRebuilding: false,
                                 remote: nil, coverage: nil, appliedThrough: sequence)
+        #if DEBUG
+        let args = ProcessInfo.processInfo.arguments
+        if let index = args.firstIndex(of: "--mail-paging-fixture"), index + 1 < args.count {
+            snapshot.hasMore = true
+            snapshot.total.isAtLeast = true
+            switch args[index + 1] {
+            case "pending": snapshot.remote = .pending
+            case "failed": snapshot.remote = .failed
+            default: snapshot.remote = nil
+            }
+        }
+        #endif
+        return snapshot
     }
 
     private func places() -> MailPlaces {

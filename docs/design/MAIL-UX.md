@@ -3153,7 +3153,9 @@ its header and snippet (6.2.5).
 The iOS/iPadOS list header shows sync immediately to the right of its message count. This keeps
 the feedback beside the content it describes (Proximity) and uses the native linear progress
 control (Jakob). The inbox and Compose remain usable throughout. The existing last-row loading
-state describes paging, a separate operation.
+state describes paging, a separate operation. It spins only for a source-confirmed pending
+remote page request. More mail being available, a declined request during a cooldown, or a
+local index reading leaves it quiet; a real failure still offers Retry.
 
 Show a percentage only when every participating mailbox has finished discovery and the local
 pending-content count is exact. Otherwise show the actual number loaded, or the checking icon

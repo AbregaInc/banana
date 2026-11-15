@@ -1962,7 +1962,9 @@ final class MailListModel {
         // Worked out on every input, a held `J` included: a few comparisons, and the published
         // value is not read (that would retain its rows).
         let paging = scope.isWriting ? MailPaging.Status.hidden : MailPaging.status(
-            loaded: rows.count, hasMore: sourceHasMore, failed: edge == .failed, hasPaged: hasPaged)
+            loaded: rows.count, hasMore: sourceHasMore,
+            loading: meta.remote == .pending,
+            failed: edge == .failed, hasPaged: hasPaged)
         if paging != publishedPaging || shownWindow != publishedWindow { dirty = true }
         guard dirty else { return }
         dirty = false

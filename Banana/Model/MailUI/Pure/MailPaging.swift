@@ -13,6 +13,12 @@ import Foundation
 /// to come, so nobody reaches a wall or a button.
 enum MailPaging {
 
+    /// Clear only the part of the home indicator, keyboard or measured shell covering the list.
+    /// All coordinates share the window's space; an already-shortened viewport adds no padding.
+    static func bottomOverlayInset(viewBottom: Double, safeBottom: Double, overlayBottom: Double, overlayHeight: Double) -> Double {
+        max(0, viewBottom - min(safeBottom, overlayBottom - max(0, overlayHeight)))
+    }
+
     /// The least lead, in rows, whatever the screen: a phone in landscape shows few rows, and a
     /// fling covers many. It is also the lead for the keyboard, which has no screen to count.
     static let minimumLead = 30
@@ -84,8 +90,9 @@ enum MailPaging {
 
     /// What the row after the last one says.
     enum Status: Equatable, Sendable {
-        /// Nothing: no rows, a place of his own drafts, or a list that never needed a second page.
+        /// Nothing: no rows, idle between remote requests, or no second page was needed.
         case hidden
+        /// A source-confirmed remote page request, not just the possibility of more mail.
         case loading
         /// The end of the list, once he has scrolled through pages to reach it.
         case end
@@ -93,10 +100,11 @@ enum MailPaging {
         case failed
     }
 
-    static func status(loaded: Int, hasMore: Bool, failed: Bool, hasPaged: Bool) -> Status {
+    static func status(loaded: Int, hasMore: Bool, loading: Bool, failed: Bool, hasPaged: Bool) -> Status {
         guard loaded > 0 else { return .hidden }
         if failed { return .failed }
-        if hasMore { return .loading }
+        if loading { return .loading }
+        if hasMore { return .hidden }
         return hasPaged ? .end : .hidden
     }
 }

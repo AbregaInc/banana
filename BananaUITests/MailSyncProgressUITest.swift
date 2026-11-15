@@ -1,7 +1,7 @@
 import XCTest
 
 final class MailSyncProgressUITest: MailUITestCase {
-    private func launchProgress(_ mode: String, largeText: Bool = false) {
+    private func launchProgress(_ mode: String, largeText: Bool = false, paging: String? = nil) {
         XCUIDevice.shared.orientation = .portrait
         app = XCUIApplication()
         app.launchArguments = ["--ui-preview", "--ui-audit", "--disable-icloud", "--dummy-health",
@@ -10,6 +10,7 @@ final class MailSyncProgressUITest: MailUITestCase {
         if largeText {
             app.launchArguments += ["-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryAccessibilityXXXL"]
         }
+        if let paging { app.launchArguments += ["--mail-paging-fixture", paging] }
         app.withoutSpaceSync()
         app.launch()
         XCTAssertTrue(app.waitForShell(timeout: 30), app.debugDescription)
@@ -34,6 +35,45 @@ final class MailSyncProgressUITest: MailUITestCase {
         XCTAssertEqual(progress.value as? String, "25 loaded; total still being discovered")
         XCTAssertFalse(app.progressIndicators["mail.sync.fraction"].exists)
         snap("mail-header-unknown-progress")
+    }
+
+    private func reachFooter() {
+        let list = app.collectionViews[MailID.list].firstMatch
+        XCTAssertTrue(list.waitForExistence(timeout: 10))
+        for _ in 0..<12 { list.swipeUp() }
+    }
+
+    func testIdleFooterDoesNotSpinWhileTheHeaderShowsSyncProgress() {
+        launchProgress("known", paging: "idle")
+        reachFooter()
+        let header = app.descendants(matching: .any)[MailID.syncProgress].firstMatch
+        XCTAssertTrue(header.exists)
+        XCTAssertEqual(header.value as? String, "25 loaded, 75 queued")
+        XCTAssertFalse(app.descendants(matching: .any).matching(NSPredicate(format: "label == %@", "Loading more mail")).firstMatch.exists,
+                       "More mail being available must not leave a permanent footer spinner")
+        snap("mail-footer-idle-header-working")
+    }
+
+    func testFooterStillShowsAnActualPendingPageRequest() {
+        launchProgress("known", paging: "pending")
+        reachFooter()
+        let spinner = app.descendants(matching: .any).matching(NSPredicate(format: "label == %@", "Loading more mail")).firstMatch
+        XCTAssertTrue(spinner.waitForExistence(timeout: 10), app.debugDescription)
+        let bar = app.otherElements["shell.bar"].firstMatch
+        XCTAssertLessThanOrEqual(spinner.frame.maxY, bar.frame.minY, "Loading feedback must be above the bar")
+        snap("mail-footer-page-request-pending")
+    }
+
+    func testFailedFooterKeepsRetryAboveTheBottomBar() {
+        launchProgress("known", paging: "failed")
+        reachFooter()
+        let retry = app.buttons[MailID.listRetry].firstMatch
+        XCTAssertTrue(retry.waitForExistence(timeout: 10), app.debugDescription)
+        XCTAssertTrue(retry.isHittable, app.debugDescription)
+        XCTAssertGreaterThanOrEqual(retry.frame.height + 0.001, 44)
+        XCTAssertGreaterThanOrEqual(retry.frame.width + 0.001, 44)
+        XCTAssertLessThanOrEqual(retry.frame.maxY, app.otherElements["shell.bar"].firstMatch.frame.minY)
+        snap("mail-footer-retry-above-bar")
     }
     func testLargeTextKeepsProgressAndComposeReachable() {
         launchProgress("known", largeText: true)
