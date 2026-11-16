@@ -161,7 +161,8 @@ final class MailComposerBoxUITest: MailUITestCase {
         XCTAssertFalse(element(MailID.composerFolded).exists)
         XCTAssertTrue(waitUntil(timeout: 5) { self.app.buttons["shell.switcher"].firstMatch.isHittable })
         if !isPad { XCTAssertTrue(app.buttons["shell.reply"].firstMatch.isHittable) }
-        XCTAssertTrue(waitUntil(timeout: 5) { self.toastText?.contains("Sen") == true })
+        XCTAssertFalse(element(MailID.continueDraft).exists)
+        XCTAssertTrue(app.staticTexts["Resumed reply test"].firstMatch.waitForExistence(timeout: 5))
         snap("continued-reply-after-send")
     }
 
@@ -194,7 +195,7 @@ final class MailComposerBoxUITest: MailUITestCase {
         XCTAssertFalse(element(MailID.composerFolded).exists)
         XCTAssertTrue(waitUntil(timeout: 5) { self.app.buttons["shell.switcher"].firstMatch.isHittable })
         XCTAssertTrue(element(MailID.placeMenu).isHittable)
-        XCTAssertTrue(waitUntil(timeout: 5) { self.toastText?.contains("Sen") == true })
+        XCTAssertFalse(element(MailID.continueDraft).exists)
         snap("continued-new-message-after-send")
         show(place: "Inbox")
         XCTAssertTrue(element(MailID.list).waitForExistence(timeout: 5))
