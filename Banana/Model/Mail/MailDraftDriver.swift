@@ -394,6 +394,7 @@ actor MailDraftDriver {
                     current.pending = nil; current.pendingRevision = nil; current.pendingFiles = nil; current.deliveryFailed = nil
                     if pending.action == .send {
                         current.state = .sent
+                        if let message = sent?.id { current.sentMessage = MailMessageID(account: current.snapshot.account, message: message) }
                         if let thread = sent?.threadId { current.snapshot.conversation = MailConversationID(account: current.snapshot.account, thread: thread) }
                     }
                     else if pending.action == .delete { current.state = .deleted }

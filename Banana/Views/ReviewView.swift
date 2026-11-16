@@ -36,7 +36,7 @@ struct ReviewView: View {
     var body: some View {
         NavigationStack {
             List {
-                #if PI_DEVELOPMENT
+                #if BANANA_AI
                 Section {
                     AgentAskRow { showingAnswer = true }
                     AgentRecentQuestions { showingAnswer = true }

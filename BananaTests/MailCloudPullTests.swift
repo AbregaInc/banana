@@ -19,6 +19,10 @@ final class MailCloudPullTests: XCTestCase {
     /// The cloud: a feed, and the content it holds. Records each bulk request.
     actor Cloud: MailCloudFeedSource {
         var entries: [Entry] = []
+        var enumerationComplete = true
+        var feedUnavailable = false
+        var pageCalls = 0
+        func configureFeed(complete: Bool = true, unavailable: Bool = false) { enumerationComplete = complete; feedUnavailable = unavailable }
         var accountEntries: [String: [Entry]] = [:]
         var held: [String: GmailMessage] = [:]
         var asked: [[String]] = []
@@ -36,11 +40,13 @@ final class MailCloudPullTests: XCTestCase {
         func slow(_ value: Duration) { latency = value }
         func page(account: String, after: String?, limit: Int, fresh: Bool) async throws -> MailCloudFeedPage {
             if latency > .zero { try await Task.sleep(for: latency) }
+            pageCalls += 1
+            if feedUnavailable { throw MailCloudFeedError.unavailable }
             let entries = accountEntries[account] ?? entries
             let start = after.flatMap(Int.init) ?? 0
             let slice = Array(entries[min(start, entries.count)..<min(start + limit, entries.count)])
             return MailCloudFeedPage(epoch: "e1", cursor: String(start + slice.count), more: start + slice.count < entries.count,
-                                     complete: true, entries: slice)
+                                     complete: enumerationComplete, entries: slice)
         }
         func check(account: String, ids: [String]) async throws {}
         func contents(account: String, ids: [String]) async throws -> [MailCloudContent] {
@@ -56,6 +62,7 @@ final class MailCloudPullTests: XCTestCase {
     actor Gmail: GmailAPI {
         var messages: [String: GmailMessage] = [:]
         var calls: [String] = []
+        var listCalls = 0
         var latency: Duration = .zero
         func hold(_ list: [GmailMessage]) { for m in list { messages[m.id!] = m } }
         func slow(_ value: Duration) { latency = value }
@@ -83,8 +90,10 @@ final class MailCloudPullTests: XCTestCase {
             if attachmentWait > .zero { try await Task.sleep(for: attachmentWait) }
             throw GmailError.malformed
         }
-        func labels(token: String) async throws -> [GmailLabel] { [] }
-        func listMessages(token: String, labelIDs: [String], query: String?, includeSpamTrash: Bool, pageToken: String?, maxResults: Int) async throws -> GmailIDPage { GmailIDPage() }
+        func labels(token: String) async throws -> [GmailLabel] {
+            ["INBOX", "SENT", "DRAFT", "TRASH", "SPAM", "UNREAD", "STARRED"].map { GmailLabel(id: $0, name: $0, type: "system") }
+        }
+        func listMessages(token: String, labelIDs: [String], query: String?, includeSpamTrash: Bool, pageToken: String?, maxResults: Int) async throws -> GmailIDPage { listCalls += 1; return GmailIDPage() }
         func history(token: String, start: String, pageToken: String?, maxResults: Int) async throws -> GmailHistoryPage { GmailHistoryPage(historyId: 100) }
         func modify(token: String, id: String, add: [String], remove: [String]) async throws { XCTFail("no writes") }
         func trash(token: String, id: String) async throws { XCTFail("no writes") }
@@ -104,9 +113,17 @@ final class MailCloudPullTests: XCTestCase {
         Entry(id: id, thread: thread ?? "t-" + id, history: "100", date: date, labels: labels, deleted: nil, content: content)
     }
 
+    private final class ProgressCounts: @unchecked Sendable {
+        private let lock = NSLock()
+        private var count = 0
+        func add(_ value: Int) { lock.lock(); defer { lock.unlock() }; count += value }
+        var total: Int { lock.lock(); defer { lock.unlock() }; return count }
+    }
+
     /// The feed applied (as a sync pass does), and a pull over it.
     private func setup(_ cloud: Cloud, gmail: Gmail = Gmail(), clock: Clock = Clock(), accounts: [String] = [account],
-                       pace: @escaping @Sendable () -> MailWorkPace = { .full }) async throws -> (MailStores, MailCloudPull) {
+                       pace: @escaping @Sendable () -> MailWorkPace = { .full },
+                       stored: @escaping @Sendable (String, Int) -> Void = { _, _ in }) async throws -> (MailStores, MailCloudPull) {
         let stores = try await stores()
         let writer = MailWriter(stores: stores, sink: nil)
         let feed = MailCloudFeedSync(stores: stores, writer: writer, source: cloud, recover: { _ in })
@@ -115,7 +132,7 @@ final class MailCloudPullTests: XCTestCase {
             while progress?.hasMore == true { progress = try await feed.pass(account: account, nowMS: 1) }
         }
         let loader = GmailConversationLoader(stores: stores, writer: writer, api: gmail, token: { _ in "fixture" })
-        return (stores, MailCloudPull(stores: stores, loader: loader, source: cloud, clock: { clock.now }, pace: pace, sleep: { _ in }))
+        return (stores, MailCloudPull(stores: stores, loader: loader, source: cloud, clock: { clock.now }, pace: pace, sleep: { _ in }, stored: stored))
     }
 
     /// HTML with more pieces than preparation walks, and no plain part: shown as its words, "deep".
@@ -168,7 +185,8 @@ final class MailCloudPullTests: XCTestCase {
         let dates = (1...60).map { Int64($0) * 1000 }
         await cloud.set(dates.enumerated().map { entry("m\($0.offset + 1)", date: $0.element) })
         await cloud.hold(dates.enumerated().map { Self.full("m\($0.offset + 1)", date: $0.element) })
-        let (stores, pull) = try await setup(cloud)
+        let counts = ProgressCounts()
+        let (stores, pull) = try await setup(cloud, stored: { _, count in counts.add(count) })
         // Rows 10–14 are on screen (an older stretch of the list): they come first.
         _ = try await pull.onScreen((10...14).map { conversation("m\($0)") })
         let first = try await pull.step(fill: true)
@@ -177,6 +195,7 @@ final class MailCloudPullTests: XCTestCase {
         var steps = [first]
         while true { let s = try await pull.step(fill: true); if !s.worked { break }; steps.append(s) }
         let asked = await cloud.asked
+        XCTAssertEqual(counts.total, 60, "progress reports the content actually stored across batches")
         XCTAssertEqual(asked.count, 4, "5 on screen, then 55 in batches of 25")
         XCTAssertEqual(asked[1], (36...60).reversed().map { "m\($0)" }, "then the rest, newest first, a batch at a time")
         XCTAssertEqual(asked[2].first, "m35")
@@ -498,6 +517,53 @@ final class MailCloudPullTests: XCTestCase {
         return (stores, source)
     }
     private func id(_ m: String) -> MailMessageID { MailMessageID(account: MailCloudPullTests.account, message: m) }
+
+    func testCloudEnumerationOwnsListPagingWithoutStartingAnotherGmailScan() async throws {
+        for complete in [true, false] {
+            let cloud = MailCloudPullTests.Cloud(), gmail = MailCloudPullTests.Gmail()
+            await cloud.configureFeed(complete: complete)
+            let (_, source) = try await source(cloud: cloud, gmail: gmail)
+            let scope = MailScope(place: .mailbox(.inbox))
+            var latest: MailListSnapshot?
+            let observation = source.observeList(scope, limit: 50) { latest = $0 }
+            source.activate()
+            source.askGmail(scope) // The visible list's bottom edge can ask before routing is known.
+            let deadline = ContinuousClock.now + .seconds(3)
+            while ContinuousClock.now < deadline {
+                if await cloud.pageCalls > 0, latest?.hasMore == !complete, latest?.remote == nil { break }
+                await Task.yield()
+            }
+            source.askGmail(scope) // Repeated bottom-edge callbacks must remain local/cloud-owned.
+            source.checkNow()
+            for _ in 0..<100 { await Task.yield() }
+            let calls = await gmail.listCalls
+            XCTAssertEqual(calls, 0, "Cloud sync must not run a parallel Gmail mailbox scan")
+            XCTAssertEqual(latest?.hasMore, !complete)
+            XCTAssertNil(latest?.remote, "Cloud work belongs to header progress, not list-page loading")
+            source.setVisible(false)
+            observation.cancel()
+        }
+    }
+
+    func testUnavailableCloudPreservesDirectMailboxPaging() async throws {
+        let cloud = MailCloudPullTests.Cloud(), gmail = MailCloudPullTests.Gmail()
+        await cloud.configureFeed(unavailable: true)
+        let (_, source) = try await source(cloud: cloud, gmail: gmail)
+        let scope = MailScope(place: .mailbox(.inbox))
+        var latest: MailListSnapshot?
+        let observation = source.observeList(scope, limit: 50) { latest = $0 }
+        source.activate()
+        defer { source.setVisible(false); observation.cancel() }
+        let deadline = ContinuousClock.now + .seconds(3)
+        while ContinuousClock.now < deadline {
+            if await gmail.listCalls > 0, latest?.hasMore == false, latest?.remote == nil { break }
+            await Task.yield()
+        }
+        let calls = await gmail.listCalls
+        XCTAssertGreaterThan(calls, 0)
+        XCTAssertEqual(latest?.hasMore, false)
+        XCTAssertNil(latest?.remote)
+    }
 
     func testBananaServiceRecognisesTheMailPush() {
         XCTAssertTrue(BananaService.isMailPush(["aps": ["content-available": 1], "b": ["k": "mail"]]))

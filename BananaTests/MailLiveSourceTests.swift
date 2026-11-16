@@ -37,6 +37,33 @@ import GRDB
         return (stores, intent, source, row)
     }
 
+    func testHeaderProgressTracksEligibleAccountsOnlyWhileObserved() async throws {
+        let (stores, _, _, _) = try await actionSource()
+        let access = Access(); access.grant = .granted
+        let source = MailLiveSource(stores: stores, access: access, api: GmailPageLoaderTests.Provider(count: 0))
+        let progress = try XCTUnwrap(source.syncProgress)
+        func ready(_ predicate: () -> Bool) async -> Bool {
+            let deadline = ContinuousClock.now.advanced(by: .seconds(3))
+            while !predicate(), ContinuousClock.now < deadline { await Task.yield() }
+            return predicate()
+        }
+        let first = progress.observe()
+        let queued = await ready { progress.value.pending == 1 }
+        XCTAssertTrue(queued, "The live source counts its persisted eligible content queue")
+        XCTAssertTrue(progress.value.checking)
+        XCTAssertNil(progress.value.fraction, "Discovery has not finished")
+        first.cancel()
+        let stopped = await ready { progress.observers == 0 }
+        XCTAssertTrue(stopped)
+        access.grant = .none; source.accessChanged()
+        XCTAssertEqual(progress.value.pending, 1, "No header: policy changes do not publish progress")
+        let second = progress.observe()
+        defer { second.cancel() }
+        let idle = await ready { !progress.value.isVisible }
+        XCTAssertTrue(idle, "A remounted header drops work for accounts without access")
+        XCTAssertEqual(progress.value.pending, 0)
+    }
+
     private struct PolicySnapshotAPI: MailSenderPolicyAPI {
         let blocked: Bool
         let revision: Int
@@ -92,6 +119,113 @@ import GRDB
                 plain: snapshot.subject, html: "", attachments: [], inReplyTo: nil, references: nil, threadID: nil)
         })
     }
+    private func outgoingRecord(state: MailDraftRecord.State, conversation: MailConversationID) -> MailDraftRecord {
+        let draft = MailDraft(id: MailDraftID(raw: "queued-reply"), conversation: conversation,
+            account: conversation.account, isReply: true, isForward: false,
+            from: .init(account: conversation.account, address: conversation.account, name: "Noor", isDefault: true, hasSignature: false),
+            to: [MailPerson(name: "Sam", address: "sam@plan.example", isMe: false, isKnown: true, fromTheirMail: true)], cc: [], bcc: [],
+            subject: "Re: Action", body: MailPlainText.text("The latest resumed reply"), signature: nil, quote: nil,
+            attachments: [], format: .banana, schedule: nil, remindIfNoReply: nil, delivery: nil, encodedBytes: 0, editedAt: Date())
+        var record = MailDraftRecord(scope: "test-account", snapshot: .init(draft))
+        record.state = state; record.sendAt = Date().addingTimeInterval(600)
+        return record
+    }
+
+    func testLiveUndoHoldShowsOutgoingContentWithoutADraftNoticeAndUndoRestoresDraft() async throws {
+        let (_, intent, source, row) = try await actionSource()
+        let record = outgoingRecord(state: .held, conversation: row.id)
+        let inserted = try await intent.putDraftRecord(record, expectedGeneration: nil)
+        XCTAssertTrue(inserted)
+        try await prepareDrafts(source, intent)
+        let loaded = await source.conversation(row.id)
+        let conversation = try XCTUnwrap(loaded)
+        XCTAssertNil(conversation.draft, "Sending is not an editable draft notice during Undo")
+        let message = try XCTUnwrap(conversation.messages.first)
+        XCTAssertTrue(message.isMine)
+        XCTAssertNotNil(message.delivery)
+        XCTAssertEqual(MailOutgoingDraft.draftID(message.id), record.snapshot.id)
+        let body = await source.body(message.id)
+        guard case .text(let text, _, _) = body else { return XCTFail("Outgoing body must already be local") }
+        XCTAssertEqual(MailPlainText.string(text), "The latest resumed reply")
+        let cancelled = await source.cancelSend(record.snapshot.id)
+        XCTAssertTrue(cancelled)
+        let restored = expectation(description: "Undo restores the draft marker")
+        Task { @MainActor in
+            for _ in 0..<100 {
+                if await source.conversation(row.id)?.draft == record.snapshot.id { restored.fulfill(); return }
+                await Task.yield()
+            }
+        }
+        await fulfillment(of: [restored], timeout: 5)
+        let again = await source.conversation(row.id)
+        XCTAssertFalse(again?.messages.contains { MailOutgoingDraft.draftID($0.id) != nil } ?? true)
+    }
+
+    func testLiveScheduledSendRetainsScheduleActionsWithoutAnEditableDraftNotice() async throws {
+        let (_, intent, source, row) = try await actionSource()
+        var record = outgoingRecord(state: .held, conversation: row.id)
+        let date = Date().addingTimeInterval(3600)
+        record.snapshot.schedule = MailSchedule(at: date, onThisDevice: true, isLate: false)
+        let inserted = try await intent.putDraftRecord(record, expectedGeneration: nil)
+        XCTAssertTrue(inserted)
+        try await prepareDrafts(source, intent)
+        let conversation = await source.conversation(row.id)
+        XCTAssertNil(conversation?.draft)
+        let message = try XCTUnwrap(conversation?.messages.first)
+        XCTAssertEqual(message.draft, record.snapshot.id)
+        XCTAssertEqual(message.delivery, .scheduled(date))
+    }
+
+    func testLiveSendingAndUnconfirmedMessagesRemainOutgoingWithoutADraftNotice() async throws {
+        for state in [MailDraftRecord.State.sending, .uncertain] {
+            let (_, intent, source, row) = try await actionSource()
+            let record = outgoingRecord(state: state, conversation: row.id)
+            let inserted = try await intent.putDraftRecord(record, expectedGeneration: nil)
+            XCTAssertTrue(inserted)
+            try await prepareDrafts(source, intent)
+            let loaded = await source.conversation(row.id)
+            let conversation = try XCTUnwrap(loaded)
+            XCTAssertNil(conversation.draft)
+            let message = try XCTUnwrap(conversation.messages.first)
+            XCTAssertEqual(message.delivery, state == .sending ? .sending : .checking)
+            XCTAssertNil(message.draft)
+        }
+    }
+
+    func testLiveConfirmedSendKeepsLocalContentUntilProviderBodyArrivesWithoutDuplicateHeaders() async throws {
+        let (stores, intent, source, row) = try await actionSource()
+        var record = outgoingRecord(state: .sent, conversation: row.id)
+        record.sentMessage = MailMessageID(account: row.id.account, message: "provider-sent")
+        let inserted = try await intent.putDraftRecord(record, expectedGeneration: nil)
+        XCTAssertTrue(inserted)
+        try await prepareDrafts(source, intent)
+        let before = await source.conversation(row.id)
+        XCTAssertEqual(before?.messages.count, 2)
+        XCTAssertNil(before?.messages.first?.delivery, "Sent is shown only after provider confirmation")
+        let wire = GmailMessage(id: "provider-sent", threadId: row.id.thread, labelIds: ["SENT"], historyId: 2, internalDate: 2000,
+            payload: GmailPart(headers: [GmailHeader(name: "From", value: row.id.account), GmailHeader(name: "Subject", value: "Re: Action")]))
+        _ = try await MailWriter(stores: stores, sink: nil).transact {
+            try MailMessageImporter.apply(FetchedMessage(wire: wire, floor: 2, headers: MessageHeaders(payload: wire.payload), structure: nil),
+                account: row.id.account, myAddresses: [row.id.account], in: $0)
+        }
+        let after = await source.conversation(row.id)
+        XCTAssertEqual(after?.messages.count, 2, "A provider header cannot duplicate the still-visible outgoing body")
+        XCTAssertNotNil(after?.messages.first.flatMap { MailOutgoingDraft.draftID($0.id) })
+        var bodyWire = wire
+        bodyWire.payload = GmailPart(partId: "0", mimeType: "text/plain", headers: wire.payload?.headers,
+            body: GmailPartBody(data: Data("The latest resumed reply".utf8).base64EncodedString()))
+        let blobs = MailBlobStore(stores: stores)
+        try await blobs.put(bodyWire, account: row.id.account, extraction: MIMEStructure.extract(bodyWire.payload!), ftsRowID: 2, at: 2000)
+        _ = try await blobs.prepare(account: row.id.account, messageID: "provider-sent", at: 2001)
+        let handedOff = await source.conversation(row.id)
+        XCTAssertEqual(handedOff?.messages.count, 2)
+        XCTAssertFalse(handedOff?.messages.contains { MailOutgoingDraft.draftID($0.id) != nil } ?? true)
+        XCTAssertTrue(handedOff?.messages.contains { $0.id == record.sentMessage } ?? false)
+        let providerBody = await source.body(try XCTUnwrap(record.sentMessage))
+        guard case .text(let text, _, _) = providerBody else { return XCTFail("Confirmed provider body must be usable") }
+        XCTAssertEqual(MailPlainText.string(text), "The latest resumed reply")
+    }
+
     /// The composer's To on a real account: the people in the index, not the empty not-yet default.
     func testLiveSuggestionsComeFromThePeopleInTheIndex() async throws {
         let (stores, _, source, _) = try await actionSource()

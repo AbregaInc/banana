@@ -1,6 +1,7 @@
 #if DEBUG || MAIL_FIXTURES
 import XCTest
 import Combine
+import SwiftUI
 
 /// Writing mail, without the screen: the session around the real triage model, the real composer
 /// model and the in-memory source, driven by the keys a person presses. What these hold is what
@@ -263,6 +264,29 @@ final class MailComposerTests: XCTestCase {
     }
 
     // MARK: Leaving
+
+    func testSchedulingLinkPersistsWithTheDraftAndItsRecipients() async throws {
+        let h = Harness()
+        let composer = await h.reply()
+        composer.focusLanded(on: .body)
+        composer.body = "Choose a time"
+        let recipients = composer.currentDraft()?.to
+        let url = try XCTUnwrap(URL(string: "https://schedule.example/noor"))
+        var selection = AttributedTextSelection(insertionPoint: composer.rich.endIndex)
+        XCTAssertTrue(MailFormatting.insertLink(url, in: &composer.rich, selection: &selection))
+        let expected = MailRichText.text(composer.rich)
+        let draftID = try XCTUnwrap(composer.draftID)
+        h.session.closeComposer()
+        let saved = await h.source.draft(draftID)
+        let kept = try XCTUnwrap(saved)
+        XCTAssertEqual(kept.body, expected)
+        XCTAssertEqual(kept.to, recipients)
+        h.session.begin(.continuing(draftID))
+        let resumed = try XCTUnwrap(h.composer)
+        await resumed.waitForDraft()
+        XCTAssertEqual(MailRichText.text(resumed.rich), expected)
+        XCTAssertTrue(MailBodyHTML.html(from: resumed.rich).contains("href=\"https://schedule.example/noor\""))
+    }
 
     func testEscapeKeepsTheDraftAndTheConversationShowsItsMark() async throws {
         let h = Harness()
@@ -634,6 +658,8 @@ final class MailComposerTests: XCTestCase {
         h.session.setPaneVisible(true)
         let composer = await h.reply()
         let reader = h.session.pane.reader
+        // Initial body preparation publishes independently of typing. Observe only once ready.
+        await reader?.waitForBodies()
         var publications: [String] = []
         var watching: [AnyCancellable] = []
         watching.append(h.session.feed.objectWillChange.sink { publications.append("list") })
@@ -717,6 +743,106 @@ final class MailComposerTests: XCTestCase {
     }
 
     // MARK: Sending
+
+    func testConfirmedSendShowsSentOnlyForItsOwnDraftAndStopsOfferingUndo() async throws {
+        let h = Harness()
+        let composer = await h.reply()
+        composer.body = "A reply"
+        let draft = try XCTUnwrap(composer.draftID)
+        h.session.sendComposer()
+        let count = h.toasts.count
+        h.source.emit(.sent(MailDraftID(raw: "unrelated"), id("q3")))
+        XCTAssertEqual(h.toasts.count, count)
+        h.source.emit(.sent(draft, id("q3")))
+        XCTAssertEqual(h.toasts.last?.text, "Sent")
+        XCTAssertNil(h.toasts.last?.action)
+    }
+
+    func testFailedSendOffersRetryWithoutClaimingDelivery() async throws {
+        let h = Harness()
+        let composer = await h.reply()
+        composer.body = "A reply"
+        let draft = try XCTUnwrap(composer.draftID)
+        h.session.sendComposer()
+        h.source.emit(.sendFailed(draft, .other))
+        XCTAssertEqual(h.toasts.last?.action, .retry)
+        XCTAssertTrue(h.toasts.last?.text.contains("send") == true)
+        XCTAssertNotEqual(h.toasts.last?.text, "Sent")
+        let kept = await h.source.draft(draft)
+        XCTAssertNotNil(kept)
+        var retried: MailDraftID?
+        h.source.onRetrySend = { retried = $0 }
+        h.toastUndo?()
+        XCTAssertEqual(retried, draft)
+        XCTAssertEqual(h.toasts.last?.text, "Sending")
+        XCTAssertNil(h.toasts.last?.action)
+        h.source.emit(.sent(draft, id("q3")))
+        XCTAssertEqual(h.toasts.last?.text, "Sent")
+    }
+
+    func testRetriedSendAndDoneRestoresUndoDoneOnlyAfterConfirmedDelivery() async throws {
+        let h = Harness()
+        let composer = await h.reply()
+        composer.body = "A reply"
+        let draft = try XCTUnwrap(composer.draftID)
+        h.session.sendComposer(thenDone: true)
+        h.source.emit(.sendFailed(draft, .other))
+        XCTAssertNil(h.session.undoStack.top)
+        h.toastUndo?()
+        XCTAssertNil(h.session.undoStack.top, "Retry does not claim the send has completed")
+        h.source.release(draft)
+        XCTAssertEqual(h.toasts.last?.text, "Sent and Done")
+        XCTAssertEqual(h.toasts.last?.action, .undoDone)
+        h.toastUndo?()
+        XCTAssertTrue(h.toasts.last?.text.contains("Already sent") == true)
+    }
+
+    func testRetriedCompletionKeepsItsHistoryBehindANewerAction() async throws {
+        let h = Harness()
+        let composer = await h.reply()
+        composer.body = "A reply"
+        let draft = try XCTUnwrap(composer.draftID)
+        h.session.sendComposer(thenDone: true)
+        h.source.emit(.sendFailed(draft, .other))
+        h.toastUndo?()
+        h.now = h.now.addingTimeInterval(1)
+        let other = try XCTUnwrap(h.session.model.rows.first { $0.id != id("q3") }?.id)
+        h.session.act(.done, on: other)
+        let receipt = h.session.undoStack.top?.receipt
+        let toast = h.toasts.last
+        h.source.release(draft)
+        XCTAssertEqual(h.session.undoStack.top?.receipt, receipt)
+        XCTAssertEqual(h.toasts.last, toast)
+    }
+
+    func testConfirmedSendAndDoneStillOffersOnlyUndoDone() async throws {
+        let h = Harness()
+        let composer = await h.reply()
+        composer.body = "A reply"
+        let draft = try XCTUnwrap(composer.draftID)
+        h.session.sendComposer(thenDone: true)
+        h.source.release(draft)
+        XCTAssertEqual(h.toasts.last?.text, "Sent and Done")
+        XCTAssertEqual(h.toasts.last?.action, .undoDone)
+        XCTAssertEqual(h.toasts.last?.action?.title, "Undo Done")
+        h.toastUndo?()
+        XCTAssertTrue(h.toasts.last?.text.contains("Already sent") == true)
+    }
+
+    func testBackgroundSendCompletionPreservesANewerActionsUndo() async throws {
+        let h = Harness()
+        let composer = await h.reply()
+        composer.body = "A reply"
+        let draft = try XCTUnwrap(composer.draftID)
+        h.session.sendComposer()
+        let other = try XCTUnwrap(h.session.model.rows.first { $0.id != id("q3") }?.id)
+        h.session.act(.done, on: other)
+        let toast = h.toasts.last
+        let receipt = h.session.undoStack.top?.receipt
+        h.source.release(draft)
+        XCTAssertEqual(h.toasts.last, toast)
+        XCTAssertEqual(h.session.undoStack.top?.receipt, receipt)
+    }
 
     func testSendLeavesTheComposerAddsTheMessageMarkedAsSampleAndOffersUndoForTenSeconds() async throws {
         let h = Harness()

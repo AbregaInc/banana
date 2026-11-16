@@ -80,8 +80,9 @@ final class MailRowDisplayTests: XCTestCase {
         XCTAssertTrue(display(drafted).isSending)
     }
 
-    func testNobodyIsNothing() {
-        XCTAssertEqual(display(row()).who, "")
+    func testMissingSenderIsExplicitRatherThanAnEmptyHeading() {
+        XCTAssertEqual(display(row()).who, "Unknown sender")
+        XCTAssertEqual(display(row(people: [person(nil, "")])).who, "Unknown sender")
     }
 
     // MARK: The rest of the row

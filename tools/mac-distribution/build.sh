@@ -37,7 +37,9 @@ if [[ "$mode" == check ]]; then
   # The export is thrown away; the archive and logs stay beside the derived data.
   log_dir=.build/mac-distribution/check-$channel archive=.build/mac-distribution/check-$channel/Banana.xcarchive
   export_dir=$scratch/export
-  mkdir -p "$log_dir"; rm -rf "$archive"
+  mkdir -p "$log_dir"
+  python3 tools/mac-distribution/preserve_symbols.py "$archive"
+  rm -rf "$archive"
 fi
 xcodegen generate
 scheme=BananaMacDirect
@@ -79,10 +81,13 @@ sys.exit(0 if info and all(info.get(k) == v for k, v in want.items()) else 1)
 PY
   then
     # The preflight's archive of this exact commit, version, build and feed: the same build.
+    python3 tools/mac-distribution/preserve_symbols.py "$archive"
     rm -rf "$archive"; mv "$checked" "$archive"
     echo "Adopted the preflight archive of $source_commit ($release_version, $release_build)" > "$log_dir/build-release.log"
   else
+    python3 tools/mac-distribution/preserve_symbols.py "$checked"
     rm -rf "$checked"
+    python3 tools/mac-distribution/preserve_symbols.py "$archive"
     banana_xcode "${args[@]}" -archivePath "$archive" archive \
       > "$log_dir/build-release.log" 2>&1 || { [[ "$mode" != check ]] || grep -E ' error: ' "$log_dir/build-release.log" | sort -u | head -20; exit 1; }
   fi

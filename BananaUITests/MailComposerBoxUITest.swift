@@ -7,12 +7,17 @@ import XCTest
 /// and its chevron opens send later; pulled all the way down it goes away and the draft is kept.
 final class MailComposerBoxUITest: MailUITestCase {
 
-    private func launchShell() {
+    private func launchShell(booking: Bool? = nil, largeText: Bool = false) {
         if isPad { MailTurn.ask(landscape: false) }
         app = XCUIApplication()
         app.launchArguments += ["--ui-preview", "--ui-audit", "--disable-icloud", "--dummy-health",
                                 "-finishSetupDismissed", "YES", "-onboardingCompleted", "YES", "--modules", "everything",
                                 "--tab", "mail", "--mail-fresh", isPad ? "--mail-cursor" : "--mail-open", "q3"]
+        if let booking {
+            app.launchArguments += ["--booking-fixture"]
+            if booking { app.launchArguments += ["--booking-linked"] }
+        }
+        if largeText { app.launchArguments += ["-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryXXXL"] }
         app.withoutSpaceSync()
         app.launch()
         if isPad { XCTAssertTrue(MailTurn.settle(app, landscape: false), "the iPad must be upright") }
@@ -64,6 +69,136 @@ final class MailComposerBoxUITest: MailUITestCase {
         let body = element(MailID.composerBody)
         if (body.value(forKey: "hasKeyboardFocus") as? Bool) != true { body.tap() }
         body.typeText(text)
+    }
+
+    func testSchedulingLinkInsertsWhileTypingAndSurvivesClosingTheDraft() {
+        launchShell(booking: true)
+        let handle = openReply()
+        type("Choose a time:")
+        let insert = element(MailID.composerSchedulingLink)
+        XCTAssertTrue(insert.isHittable, "Scheduling is reachable with the keyboard open")
+        insert.tap()
+        let body = element(MailID.composerBody)
+        XCTAssertTrue(waitUntil(timeout: 5) { (body.value as? String)?.contains("https://book.bananatheapp.com/noor") == true })
+        XCTAssertTrue(element(MailID.send).isHittable, "Inserting a link keeps Send reachable")
+        body.typeText("Thanks")
+        XCTAssertTrue((body.value as? String)?.contains("Choose a time:") == true)
+        snap("scheduling-link-keyboard")
+        let grip = handle.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
+        grip.press(forDuration: 0.05, thenDragTo: grip.withOffset(CGVector(dx: 0, dy: 700)), withVelocity: .fast, thenHoldForDuration: 0)
+        XCTAssertTrue(waitGone(body, timeout: 5))
+        XCTAssertTrue(element(MailID.draftMarker).waitForExistence(timeout: 5))
+        element(MailID.continueDraft).tap()
+        XCTAssertTrue(body.waitForExistence(timeout: 5))
+        XCTAssertTrue((body.value as? String)?.contains("https://book.bananatheapp.com/noor") == true)
+        XCTAssertTrue((body.value as? String)?.contains("Thanks") == true)
+        XCTAssertEqual((body.value as? String)?.components(separatedBy: "https://book.bananatheapp.com/noor").count, 2,
+                       "Reopening must not replay the insertion")
+    }
+
+    func testSchedulingLinkInANewMessageWithoutAnExistingBodyCaret() {
+        launchShell(booking: true)
+        if isPad {
+            element("mail.more").tap()
+            let new = app.buttons["New message"].firstMatch
+            XCTAssertTrue(new.waitForExistence(timeout: 5))
+            new.tap()
+        } else {
+            app.buttons["mail.conversation.back"].tap()
+            app.buttons["mail.list.compose"].tap()
+        }
+        let body = element(MailID.composerBody)
+        XCTAssertTrue(body.waitForExistence(timeout: 5))
+        let insert = element(MailID.composerSchedulingLink)
+        XCTAssertTrue(insert.isHittable)
+        insert.tap()
+        XCTAssertTrue(waitUntil(timeout: 5) { (body.value as? String)?.contains("https://book.bananatheapp.com/noor") == true })
+        snap("scheduling-link-new-message")
+    }
+
+    func testSchedulingAndSendRemainReachableWithLargerText() {
+        launchShell(booking: true, largeText: true)
+        _ = openReply()
+        type("Choose a time")
+        let insert = element(MailID.composerSchedulingLink)
+        let send = element(MailID.send)
+        XCTAssertTrue(insert.isHittable)
+        XCTAssertTrue(send.isHittable)
+        let window = app.windows.firstMatch.frame
+        XCTAssertTrue(window.contains(insert.frame))
+        XCTAssertTrue(window.contains(send.frame))
+        XCTAssertFalse(insert.frame.intersects(send.frame))
+        insert.tap()
+        XCTAssertTrue(waitUntil(timeout: 5) { (self.element(MailID.composerBody).value as? String)?.contains("https://book.bananatheapp.com/noor") == true })
+        snap("scheduling-large-text")
+    }
+
+    func testUnconfiguredSchedulingOpensExistingSettingsAndPreservesDraft() {
+        launchShell(booking: false)
+        _ = openReply()
+        type("Keep this draft")
+        element(MailID.composerSchedulingLink).tap()
+        XCTAssertTrue(app.navigationBars["Booking"].waitForExistence(timeout: 5))
+        element("sheet.close").tap()
+        let body = element(MailID.composerBody)
+        XCTAssertTrue(body.waitForExistence(timeout: 5))
+        XCTAssertEqual(body.value as? String, "Keep this draft")
+    }
+
+    func testContinuedReplySendRestoresTheReaderAndBottomBar() {
+        launchShell()
+        let handle = openReply()
+        type("Resumed reply test")
+        let grip = handle.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
+        grip.press(forDuration: 0.05, thenDragTo: grip.withOffset(CGVector(dx: 0, dy: 700)), withVelocity: .fast, thenHoldForDuration: 0)
+        XCTAssertTrue(waitGone(element(MailID.composerBody), timeout: 5))
+        element(MailID.continueDraft).tap()
+        let body = element(MailID.composerBody)
+        XCTAssertTrue(body.waitForExistence(timeout: 5))
+        XCTAssertTrue((body.value as? String)?.contains("Resumed reply test") == true)
+        element(MailID.send).tap()
+        XCTAssertTrue(waitGone(body, timeout: 5))
+        XCTAssertFalse(element(MailID.composerFolded).exists)
+        XCTAssertTrue(waitUntil(timeout: 5) { self.app.buttons["shell.switcher"].firstMatch.isHittable })
+        if !isPad { XCTAssertTrue(app.buttons["shell.reply"].firstMatch.isHittable) }
+        XCTAssertFalse(element(MailID.continueDraft).exists)
+        XCTAssertTrue(app.staticTexts["Resumed reply test"].firstMatch.waitForExistence(timeout: 5))
+        snap("continued-reply-after-send")
+    }
+
+    func testNewMessageContinuedFromDraftsSendsAndLeavesUsableNavigation() {
+        launchShell()
+        if !isPad { app.buttons["mail.conversation.back"].tap() }
+        if isPad {
+            element("mail.more").tap()
+            app.buttons["New message"].firstMatch.tap()
+        } else { element(MailID.compose).tap() }
+        let to = app.textFields[MailID.composerTo].firstMatch
+        XCTAssertTrue(to.waitForExistence(timeout: 5))
+        to.tap(); to.typeText("sam@lee.example,")
+        let subject = app.textFields[MailID.composerSubject].firstMatch
+        subject.tap(); subject.typeText("Resumed new message")
+        type("Keep and send this test draft")
+        let handle = element(MailID.composerHandle)
+        let grip = handle.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
+        grip.press(forDuration: 0.05, thenDragTo: grip.withOffset(CGVector(dx: 0, dy: 700)), withVelocity: .fast, thenHoldForDuration: 0)
+        XCTAssertTrue(waitGone(element(MailID.composerBody), timeout: 5))
+        show(place: "Drafts")
+        let row = app.descendants(matching: .any).matching(NSPredicate(format: "identifier BEGINSWITH %@", MailID.list + ".row.")).firstMatch
+        XCTAssertTrue(row.waitForExistence(timeout: 5))
+        row.tap()
+        let body = element(MailID.composerBody)
+        XCTAssertTrue(body.waitForExistence(timeout: 5))
+        XCTAssertTrue((body.value as? String)?.contains("Keep and send this test draft") == true)
+        element(MailID.send).tap()
+        XCTAssertTrue(waitGone(body, timeout: 5))
+        XCTAssertFalse(element(MailID.composerFolded).exists)
+        XCTAssertTrue(waitUntil(timeout: 5) { self.app.buttons["shell.switcher"].firstMatch.isHittable })
+        XCTAssertTrue(element(MailID.placeMenu).isHittable)
+        XCTAssertFalse(element(MailID.continueDraft).exists)
+        snap("continued-new-message-after-send")
+        show(place: "Inbox")
+        XCTAssertTrue(element(MailID.list).waitForExistence(timeout: 5))
     }
 
     func testReplyOpensTheBoxAsReplyAllAndItGrowsToFourLines() {

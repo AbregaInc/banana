@@ -76,6 +76,10 @@ ignored; the pre-push guard refuses a tracked file there.
 
 ## 3. Case
 
+Live mail reports use stored source HTML for replay, separately from the sanitized
+Original viewer document. Cases made from older reports restore the viewer's
+`banana-mail-image` URLs to `cid:` sources before preparation.
+
 - **Mail:** `reports.py mail-case <id> [name]` makes `private/mail-render-corpus/<name>/` with
   `input.html`, what the reader drew then, the screenshot and an `expect.json` to fill in: text that
   must show (`contains`), must not (`absent`), `blocksAtMost`, and the shape: `tables` (grids drawn),

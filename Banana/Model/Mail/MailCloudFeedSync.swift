@@ -65,10 +65,10 @@ actor MailCloudFeedSync {
                 // from the feed says nothing at all.
                 var catchingUp = state?.catchUpMaxPK != nil
                 if catchingUp && page.complete { catchingUp = try await check(account: account, nowMS: nowMS) }
-                return GmailMailboxSync.Progress(hasMore: catchingUp, checkpoint: nil)
+                return GmailMailboxSync.Progress(hasMore: catchingUp, checkpoint: nil, enumerationComplete: page.complete && !catchingUp)
             }
         }
-        return GmailMailboxSync.Progress(hasMore: true, checkpoint: nil)
+        return GmailMailboxSync.Progress(hasMore: true, checkpoint: nil, enumerationComplete: false)
     }
 
     private func apply(_ page: MailCloudFeedPage, account: String, expected: MailCloudFeedIndex.State,

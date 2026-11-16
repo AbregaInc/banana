@@ -56,6 +56,16 @@ struct MailBlobStore: Sendable {
         }
     }
 
+    /// Recover a missing indexed identity from the original headers without decoding the body.
+    func sender(account: String, messageID: String) async throws -> MailAddress? {
+        try await stores.blobs.read { db in
+            guard let data = try Data.fetchOne(db, sql: "SELECT headers FROM content WHERE account=? AND gmail_id=? AND level=2",
+                                               arguments: [account.lowercased(), messageID]) else { return nil }
+            let headers = try JSONDecoder().decode([GmailHeader].self, from: MailBlobCodec.decode(data))
+            return MessageHeaders(payload: GmailPart(headers: headers)).sender
+        }
+    }
+
     func content(account: String, messageID: String) async throws -> MailStoredContent? {
         try await stores.blobs.read { db in
             guard let row = try Row.fetchOne(db, sql: "SELECT headers,structure,html,plain,content_rev FROM content WHERE account=? AND gmail_id=? AND level=2",

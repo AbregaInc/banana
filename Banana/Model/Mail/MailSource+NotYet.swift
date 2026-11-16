@@ -76,6 +76,8 @@ import Foundation
 }
 
 extension MailSource {
+    var syncProgress: MailSyncProgress? { nil }
+
     var supportsSenderBlocking: Bool { MailNotYet.reached(#function); return false }
     func senderPolicyStatus(account: String, sender: String) -> MailSenderPolicyStatus {
         MailNotYet.reached(#function)
@@ -162,6 +164,11 @@ extension MailSource {
     func conversation(_ id: MailConversationID) async -> MailConversation? {
         MailNotYet.reached(#function)
         return nil
+    }
+
+    /// Sources without a raw store can still contribute their safe original document.
+    func reportHTML(_ id: MailMessageID) async throws -> String? {
+        try await originalHTML(id)
     }
 
     func originalHTML(_ id: MailMessageID) async throws -> String? {

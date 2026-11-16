@@ -421,12 +421,13 @@ private struct MailFromRow: View {
 
 /// Copying an address, from a chip's menu.
 enum MailClipboard {
-    static func copy(_ text: String) {
+    @discardableResult static func copy(_ text: String) -> Bool {
         #if os(macOS)
         NSPasteboard.general.clearContents()
-        NSPasteboard.general.setString(text, forType: .string)
+        return NSPasteboard.general.setString(text, forType: .string)
         #else
         UIPasteboard.general.string = text
+        return true
         #endif
     }
 }

@@ -322,3 +322,18 @@ cost, measured two ways:
   is most likely code layout (the smaller stubs share cache lines), not the extra branch.
 
 So the flag costs nothing measurable at run time and stays.
+
+## Installed Mac symbols survive archive reuse
+
+The Mac check and release paths reuse archives. A `.keep-build` on the derived-data directory
+protects it from cleanup, but does not protect its old archive from the next build.
+`tools/mac-distribution/preserve_symbols.py` now runs before archive replacement. When the
+archive executable's UUIDs match the installed app, it copies the app, embedded framework and
+update-helper dSYMs into `.build/dsyms`, verifies their UUIDs, and stops replacement if matching
+symbols cannot be retained. Candidates that are not installed do not accumulate symbol copies.
+
+Run `python3 -m unittest discover -s tools/mac-distribution -p test_preserve_symbols.py` for
+replacement survival, idempotence, candidate isolation, missing-symbol refusal and framework
+coverage. A native archive smoke check also verified copying all six app/framework/helper
+bundles through `dwarfdump`, then removed its temporary copy. This safeguard cannot recover an
+archive already overwritten before it was introduced.

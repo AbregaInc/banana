@@ -70,6 +70,25 @@ final class ProblemReportUITest: XCTestCase {
         XCTAssertTrue(waitUntil(timeout: 5) { !email.exists }, "Cancel didn't close the sheet")
     }
 
+    func testAssistantToolOnlyTurnReportsItsPromptInsteadOfTheUnderlyingMailPage() throws {
+        let app = try launch(["--ui-preview", "--assistant-test-navigation", "--assistant-reset", "--modules", "everything", "--tab", "mail"])
+        let entry = app.buttons["shell.ai"]
+        XCTAssertTrue(entry.waitForExistence(timeout: 25), app.debugDescription)
+        entry.tap()
+        let input = app.descendants(matching: .any)["assistant.input"].firstMatch
+        XCTAssertTrue(input.waitForExistence(timeout: 15), app.debugDescription)
+        input.tap(); input.typeText("Show my protein this month")
+        let send = app.buttons["assistant.send"]
+        XCTAssertTrue(waitUntil(timeout: 15) { send.isEnabled })
+        send.tap()
+        XCTAssertTrue(app.buttons["assistant.nutrition.metric"].waitForExistence(timeout: 20), app.debugDescription)
+        app.buttons["assistant.options"].tap()
+        app.buttons["report.problem"].firstMatch.tap()
+        XCTAssertTrue(app.staticTexts["Prompt and answer"].waitForExistence(timeout: 6), app.debugDescription)
+        XCTAssertFalse(app.switches["report.page"].exists, "The underlying email must not be attached to an AI report")
+        app.buttons["report.cancel"].tap()
+    }
+
     func testTheLaunchRouteOpensTheSheetAndCancelCloses() throws {
         let app = try launch(["--tab", "plan", "--report-problem"])
         let note = app.descendants(matching: .any)["report.note"].firstMatch

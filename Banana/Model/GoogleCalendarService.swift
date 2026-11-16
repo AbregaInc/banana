@@ -451,7 +451,16 @@ final class GoogleCalendarService: ObservableObject {
         lastError = nil
         defer { isWorking = false }
         do {
-            let result = try await interactiveSignIn(hint: email)
+            var scopes = Self.requiredScopes
+            #if !BANANA_PUBLIC
+            let link = BananaAccount.shared.account?.google.first { $0.email.lowercased() == email.lowercased() }
+            scopes = GoogleReconnectPermissions.scopes(calendar: scopes,
+                mail: link?.permissionScopes?["mail"] ?? [], readable: link?.capabilities?.mailRead == true,
+                modifiable: link?.capabilities?.mailModify == true,
+                enabled: ModuleStore.shared.choice.includes(.email) && FeatureAccessStore.shared.allows("email"),
+                additional: MailScopes.senderPhotos)
+            #endif
+            let result = try await interactiveSignIn(hint: email, scopes: Array(Set(scopes)).sorted())
             guard let signedIn = result.user.profile?.email,
                   signedIn.lowercased() == email.lowercased() else {
                 // Signing in as someone else here would silently swap which account is connected.
@@ -463,6 +472,13 @@ final class GoogleCalendarService: ObservableObject {
             reconnectReasons[email.lowercased()] = nil
             tokenCache[email.lowercased()] = nil
             await BananaAccount.shared.googleSignedIn(code: result.serverAuthCode)
+            #if !BANANA_PUBLIC
+            if ModuleStore.shared.choice.includes(.email), FeatureAccessStore.shared.allows("email"),
+               BananaAccount.shared.account?.google.first(where: { $0.email.lowercased() == email.lowercased() })?.capabilities?.mailRead == true {
+                await MailSenderImages.shared.permissionsDidChange()
+                NotificationCenter.default.post(name: MailSenderImages.permissionsChanged, object: nil)
+            }
+            #endif
             try await loadCalendars()
         } catch is CancellationError {
         } catch {
@@ -2000,12 +2016,24 @@ final class GoogleCalendarService: ObservableObject {
 
     /// Events on one calendar carrying an iCalendar UID — how a block written through Apple
     /// Calendar is found again through the API. Read-only.
-    func events(calendarID: String, iCalUID: String) async throws -> [GoogleEvent] {
-        var components = URLComponents(url: Self.eventsURL(calendarID: calendarID),
-                                       resolvingAgainstBaseURL: false)!
-        components.queryItems = [URLQueryItem(name: "iCalUID", value: iCalUID)]
-        let page: GoogleEventsResponse = try await request(url: components.url!)
-        return (page.items ?? []).filter { $0.status != "cancelled" }
+    func events(calendarID: String, iCalUID: String, accountEmail: String? = nil) async throws -> [GoogleEvent] {
+        let credential: GoogleAccountCredential?
+        if let accountEmail {
+            guard let connected = accounts.first(where: { $0.id == accountEmail.lowercased() }) else { throw GoogleCalendarError.notConnected }
+            credential = connected
+        } else { credential = account(forCalendarID: calendarID) }
+        var components = URLComponents(url: Self.eventsURL(calendarID: calendarID), resolvingAgainstBaseURL: false)!
+        var events: [GoogleEvent] = [], seen = Set<String>(), token: String?
+        repeat {
+            try Task.checkCancellation()
+            components.queryItems = [URLQueryItem(name: "iCalUID", value: iCalUID)]
+            if let token { components.queryItems?.append(URLQueryItem(name: "pageToken", value: token)) }
+            let page: GoogleEventsResponse = try await request(url: components.url!, account: credential)
+            events.append(contentsOf: (page.items ?? []).filter { $0.status != "cancelled" })
+            token = page.nextPageToken
+            if let token, !seen.insert(token).inserted { throw GoogleCalendarError.malformedResponse }
+        } while token != nil
+        return events
     }
 
     /// Mark an existing event as a block this build owns, touching nothing else about it.

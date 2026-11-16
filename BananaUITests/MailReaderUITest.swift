@@ -1,6 +1,65 @@
 import XCTest
 
 final class MailReaderUITest: MailUITestCase {
+    func testVerificationCodeStaysReachableWithLargeTextAndDarkAppearance() {
+        launch(open: "newsletter", extra: ["--mail-verification-code", "-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryAccessibilityXXXL", "-AppleInterfaceStyle", "Dark"])
+        let copy = app.buttons["mail.verification.copy"].firstMatch
+        XCTAssertTrue(copy.waitForExistence(timeout: 10), app.debugDescription)
+        XCTAssertTrue(copy.isHittable)
+        XCTAssertGreaterThanOrEqual(copy.frame.height, 44)
+        let value = element("mail.verification.value")
+        XCTAssertTrue(value.exists)
+        XCTAssertLessThanOrEqual(value.frame.maxX, app.frame.maxX)
+        copy.tap()
+        XCTAssertTrue(waitUntil { copy.label.contains("Copied") })
+        snap("verification-large-dark")
+    }
+
+    func testVerificationCodeIsAboveTheMessageAndCopiesInOneTap() {
+        launch(open: "newsletter", extra: ["--mail-verification-code"])
+        let copy = app.buttons["mail.verification.copy"].firstMatch
+        XCTAssertTrue(copy.waitForExistence(timeout: 10), app.debugDescription)
+        XCTAssertTrue(copy.isHittable)
+        XCTAssertGreaterThanOrEqual(copy.frame.height, 44)
+        let sender = element("mail.sender.newsletter~1")
+        XCTAssertTrue(sender.waitForExistence(timeout: 5))
+        XCTAssertLessThan(copy.frame.minY, sender.frame.minY)
+        copy.tap()
+        XCTAssertTrue(waitUntil { copy.label.contains("Copied") })
+        snap("verification-copied")
+    }
+
+    func testMissingAndFailedInvitationsKeepRetryVisible() {
+        for flag in ["--mail-invite-missing", "--mail-invite-failed"] {
+            launch(open: "invite", extra: [flag])
+            let retry = element("mail.invite.retry")
+            XCTAssertTrue(retry.waitForExistence(timeout: 10), app.debugDescription)
+            retry.tap()
+            XCTAssertTrue(retry.waitForExistence(timeout: 10))
+            XCTAssertFalse(element("mail.invite.accepted").exists)
+            snap("invitation-retry")
+        }
+    }
+
+    func testAvailableInvitationRetainsItsReplyControls() {
+        launch(open: "invite")
+        XCTAssertTrue(element("mail.invite.accepted").waitForExistence(timeout: 10))
+        XCTAssertTrue(element("mail.invite.declined").exists)
+        XCTAssertTrue(element("mail.invite.tentative").exists)
+    }
+
+    func testUnreadableSenderHasAVisibleFallbackInListAndReader() {
+        launch(extra: ["--mail-unknown-sender"])
+        let message = row("newsletter")
+        XCTAssertTrue(message.waitForExistence(timeout: 5))
+        XCTAssertTrue(message.label.contains("Unknown sender"))
+        message.tap()
+        let sender = element("mail.sender.newsletter~1")
+        XCTAssertTrue(sender.waitForExistence(timeout: 5))
+        XCTAssertEqual(sender.label, "Unknown sender")
+        snap("unknown-sender-fallback")
+    }
+
     func testOriginalLayoutOpensAndReturnsToReader() {
         launch(open: "newsletter")
         let original = app.buttons["mail.body.original.newsletter~1"]
@@ -16,9 +75,34 @@ final class MailReaderUITest: MailUITestCase {
     }
 
     private func openDisposalMenu() {
-        let more = app.buttons.matching(NSPredicate(format: "identifier == %@ OR identifier == %@", "mail.pane.more", "mail.reader.more")).firstMatch
+        // The standalone iPad fixture selects into its pane; disposal lives in the full reader.
+        let expand = element("mail.pane.expand")
+        if expand.exists { expand.tap() }
+        let more = app.descendants(matching: .any).matching(NSPredicate(format: "identifier == %@ OR identifier == %@", "mail.pane.more", "mail.reader.more")).firstMatch
         XCTAssertTrue(more.waitForExistence(timeout: 5))
         more.tap()
+    }
+
+    func testSpamAndConfirmedSenderBlockBothAdvanceToTheNextConversation() {
+        for blocking in [false, true] {
+            launch(open: "q3")
+            XCTAssertEqual(element(MailID.conversationTitle).label, "Q3 numbers before Thursday")
+            openDisposalMenu()
+            let identifier = blocking ? "mail.sender.block" : "mail.action.spam"
+            let title = blocking ? "Block sender" : "Mark as spam"
+            let action = app.buttons.matching(NSPredicate(format: "identifier == %@ OR label == %@", identifier, title)).firstMatch
+            XCTAssertTrue(action.waitForExistence(timeout: 5))
+            action.tap()
+            if blocking {
+                let confirm = app.buttons["Block sender"].firstMatch
+                XCTAssertTrue(confirm.waitForExistence(timeout: 5))
+                confirm.tap()
+            }
+            XCTAssertTrue(waitUntil(timeout: 5) {
+                self.element(MailID.conversationTitle).label == "Invitation: Design review"
+            }, "Both disposal actions must continue to the next conversation")
+            snap(blocking ? "block-advances-reader" : "spam-advances-reader")
+        }
     }
 
     func testReaderExposesSpamAndSenderBlocking() {

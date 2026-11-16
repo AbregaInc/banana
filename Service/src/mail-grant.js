@@ -21,16 +21,28 @@ export async function connectMail(deps,vault,account,code,email) {
  try {grant=await deps.google.exchangeCode(code);}
  catch(e){return {status:e instanceof GoogleRefused?403:502,error:e instanceof GoogleRefused?'google_refused':'google_unavailable'};}
  if(grant.sub!==link.sub||grant.email.toLowerCase()!==link.email.toLowerCase())return {status:409,error:'different_account'};
- const existing=await deps.db.first('SELECT * FROM mail_grants WHERE google_sub=?',link.sub);
+ const prepared=await mailGrantStatements(deps,vault,account,grant);
+ if(prepared.status!==200)return prepared;
+ await deps.db.batch(prepared.statements);
+ return {status:200,capabilities:prepared.capabilities};
+}
+
+// Both first consent and the existing combined Reconnect use this persistence rule.
+// A code is exchanged once; Mail-only consent never replaces the Calendar grant.
+export async function mailGrantStatements(deps,vault,account,grant) {
+ const existing=await deps.db.first('SELECT * FROM mail_grants WHERE google_sub=?',grant.sub);
  const client=deps.config.googleClientId??'';
  if(!client)return {status:503,error:'not_configured'};
- const sealed=grant.refreshToken?await vault.seal(link.sub,grant.refreshToken):existing?.client_id===client&&existing?.status==='ok'?existing.refresh_token:null;
+ const sealed=grant.refreshToken?await vault.seal(grant.sub,grant.refreshToken):existing?.client_id===client&&existing?.status==='ok'?existing.refresh_token:null;
  const capabilities=googleCapabilities({scopes:grant.scopes,status:'ok',has_token:Boolean(sealed)});
- // A declined or incomplete new consent leaves the working grants untouched.
  if(!capabilities.mailRead)return {status:403,error:'mail_access_missing'};
- await deps.db.run(`INSERT INTO mail_grants(google_sub,refresh_token,scopes,client_id,status,granted_at,updated_at)
- VALUES (?,?,?,?,'ok',?,?) ON CONFLICT(google_sub) DO UPDATE SET refresh_token=excluded.refresh_token,
- scopes=excluded.scopes,client_id=excluded.client_id,status='ok',granted_at=excluded.granted_at,updated_at=excluded.updated_at`,
- link.sub,sealed,grant.scopes,client,deps.now(),deps.now());
- return {status:200,capabilities};
+ return {status:200,capabilities,statements:[{
+  sql:`INSERT INTO mail_grants(google_sub,refresh_token,scopes,client_id,status,granted_at,updated_at)
+   VALUES (?,?,?,?,'ok',?,?) ON CONFLICT(google_sub) DO UPDATE SET refresh_token=excluded.refresh_token,
+   scopes=excluded.scopes,client_id=excluded.client_id,status='ok',granted_at=excluded.granted_at,updated_at=excluded.updated_at`,
+  params:[grant.sub,sealed,grant.scopes,client,deps.now(),deps.now()]
+ },{
+  // Re-consent retries an API that was disabled earlier; keep photos until refresh.
+  sql:'DELETE FROM sender_contact_syncs WHERE account_id=? AND google_sub=?',params:[account,grant.sub]
+ }]};
 }

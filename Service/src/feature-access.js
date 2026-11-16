@@ -50,3 +50,11 @@ export function linkedGoogleCapabilities(link) {
 export async function providerDevicesReady(deps, account) {
   return !(await deps.db.first('SELECT 1 AS legacy FROM devices WHERE account_id=? AND provider_protocol<1 LIMIT 1',account));
 }
+
+/** Recorded grant scopes for reconnect planning; capabilities remain the usable-access authority. */
+export function linkedGoogleScopes(link) {
+ const scopes=(value)=>[...new Set(String(value??'').split(/\s+/).filter(Boolean))].sort();
+ const calendar=scopes(link.scopes);
+ const mail=link.mail_status==null?calendar:link.mail_status==='unlinked'?[]:scopes(link.mail_scopes);
+ return {calendar,mail};
+}

@@ -77,8 +77,9 @@ platform_key=simulator
 [ -n "$physical" ] && platform_key=device
 stamp=".build/sim/.ui-$scheme-$test_config-$platform_key"
 if [ -z "${UI_TESTS_RUN:-}" ] && { [ ! -f "$stamp" ] || [ project.yml -nt "$stamp" ] ||
-   [ -n "$(find Banana BananaUITests Shared -type f -newer "$stamp" 2>/dev/null | head -1)" ]; }; then
+   [ -n "$(find Banana BananaTests BananaUITests Shared -type f -newer "$stamp" 2>/dev/null | head -1)" ]; }; then
   echo "building…"
+  xcodegen generate > .build/ui-tests-generate.log 2>&1 || { cat .build/ui-tests-generate.log; exit 1; }
   # Apple-silicon simulators only: a generic simulator destination otherwise compiles every file a
   # second time for x86_64 (175-188 s clean against 89-100 s, 8 Nov 2026).
   build_destination='generic/platform=iOS Simulator'
@@ -103,8 +104,12 @@ if [ -z "$physical" ]; then
     xcrun simctl shutdown "$udid" 2>/dev/null
     xcrun simctl erase "$udid"
   fi
-  # Boot once and keep it; a clean slate comes from removing what earlier runs left.
-  xcrun simctl bootstatus "$udid" -b > /dev/null 2>&1
+  # Parallel-testing clones start stock; avoid claiming the serial profile covers them.
+  sim_mode="${BANANA_SIM_MODE:-slim}"
+  [ "$workers" -le 1 ] || sim_mode=stock
+  sim_evidence="${SIMULATOR_EVIDENCE:-.build/simulator-runs/$device-$(date +%Y%m%d-%H%M%S)-$$}"
+  SIMULATOR_UDID="$udid" tools/simulator-run.sh "$device" "$sim_mode" "$sim_evidence" || exit $?
+  echo "Simulator: $sim_mode ($sim_evidence)"
   for app in ${(f)"$(xcrun simctl listapps "$udid" 2>/dev/null | plutil -convert json -o - - 2>/dev/null |
       python3 -c 'import json,sys; [print(k) for k,v in json.load(sys.stdin).items() if v.get("ApplicationType")=="User"]' 2>/dev/null)"}; do
     xcrun simctl privacy "$udid" reset all "$app" 2>/dev/null

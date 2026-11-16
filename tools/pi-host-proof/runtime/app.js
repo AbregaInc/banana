@@ -1,10 +1,11 @@
+import {nutritionInputId, nutritionForInput} from './nutrition-presentation.js';
 import {clockInstructions} from './clock-context.js';
 import { BACKGROUND_CONTEXT as context } from '@earendil-works/chord/context';
 import { createModels } from '@earendil-works/pi-ai/models';
 import { CompactionEntry, createRegistry, defineExtension, defineTool } from '@earendil-works/pi-durable';
 import { Type } from 'typebox';
 import { NutritionDoc, nutritionExtension, updateNutrition } from './nutrition.js';
-import { appleFoundationProvider } from './apple-provider.js';
+import { bananaFoundationProvider } from './apple-provider.js';
 import { macLocalProvider } from './local-provider.js';
 import { WorkspaceDoc, workspaceExtension, updateWorkspace, workspaceRequestText } from './workspace.js';
 import { ApplePiSession } from './apple-session.js';
@@ -76,12 +77,17 @@ const tool = (name, description, parameters) => defineTool({ name, description, 
   },
 });
 const registry = createRegistry();
+async function currentNutritionInput(api, ctx) {
+  const conversation = await harness.conversation(api.conversationId, ctx);
+  const page = await conversation.entries({}, 100, undefined, ctx);
+  return nutritionInputId(page.items);
+}
 registry.install(nutritionExtension(nativeTool, uuid, async (api, ctx) => {
   await api.commit(async tx => {
     const doc = await tx.doc(WorkspaceDoc, api.conversationId);
     if (doc.action) { doc.revision += 1; doc.action = null; doc.operation = null; }
   }, ctx);
-}));
+}, currentNutritionInput));
 registry.install(workspaceExtension(nativeTool, uuid, (api, ctx) => workspaceRequestText(harness, api, ctx)));
 registry.install(defineExtension({ name: 'banana', tools: [
   tool('list_notes', 'List recent Banana notes with IDs and short previews. Use when the person asks about their notes, not for greetings or general conversation.', Type.Object({ limit: Type.Optional(Type.Integer()) }, { additionalProperties: false })),
@@ -137,7 +143,7 @@ async function open(options = {}) {
       });
       return fauxAssistantMessage('Local reply: ' + text);
     }));
-    models.setProvider(faux?.provider ?? appleFoundationProvider({ contextWindow: local ? 4096 : availability.contextWindow }));
+    models.setProvider(faux?.provider ?? bananaFoundationProvider({ contextWindow: local ? 4096 : availability.contextWindow }));
     if (local) models.setProvider(macLocalProvider(local));
     session = new ApplePiSession({ models, registry,
       // Reserve the actual response budget. Split the remaining context between
@@ -171,10 +177,10 @@ function displayMessages(entries) {
     }
     if (message.role === 'assistant') {
       const text = message.content.filter((part) => part.type === 'text').map((part) => part.text).join('\n');
-      const calls = message.content.filter((part) => part.type === 'toolCall').map((part) => part.name);
+      const calls = message.content.filter((part) => part.type === 'toolCall').map((part) => part.name === 'nutrition_view' && part.arguments.responseMode === 'answer' ? 'nutrition_read' : part.name);
       const result = [];
       if (text) result.push({ id, role: 'assistant', text });
-      if (calls.length) result.push({ id: id + ':tools', role: 'activity', text: calls.map((name) => ({ list_notes: 'Looking up notes', read_note: 'Reading a note', create_note: configuration.testModel ? 'Saving a note' : 'Preparing a note', day_plan: 'Reading the day plan', nutrition_view: 'Updating nutrition view', filter_nutrition: 'Updating nutrition view', prepare_meal_copy: 'Preparing meal draft', prepare_meal: 'Preparing meal draft', prepare_event: 'Preparing event draft', search_app: 'Searching Banana', open_page: 'Opening Banana page' })[name] ?? name).join(' · ') });
+      if (calls.length) result.push({ id: id + ':tools', role: 'activity', text: calls.map((name) => ({ list_notes: 'Looking up notes', read_note: 'Reading a note', create_note: configuration.testModel ? 'Saving a note' : 'Preparing a note', day_plan: 'Reading the day plan', nutrition_view: 'Updating nutrition view', nutrition_read: 'Reading nutrition records', read_nutrients: 'Reading nutrient records', filter_nutrition: 'Updating nutrition view', prepare_meal_copy: 'Preparing meal draft', prepare_meal: 'Preparing meal draft', prepare_event: 'Preparing event draft', search_app: 'Searching Banana', open_page: 'Opening Banana page' })[name] ?? name).join(' · ') });
       if (message.stopReason === 'error' || message.stopReason === 'aborted') result.push({ id: id + ':error', role: 'error', text: message.errorMessage ?? 'This response stopped.' });
       return result;
     }
@@ -218,7 +224,7 @@ async function publish() {
       const workspace = await current.snapshot(WorkspaceDoc, viewing, context);
       const busy = inspection.tasks.some((item) => item.record.conversationId === viewing && !item.record.background)
         || inspection.submissions.some((item) => item.conversationId === viewing);
-      nativeAgentEvent(JSON.stringify({ selected: String(viewing), conversations, messages: displayMessages([...page.items].reverse()), surface: nutrition?.surface ?? null, workspace: workspace ? { revision: workspace.revision, action: workspace.action } : { revision: 0, action: null }, busy,
+      nativeAgentEvent(JSON.stringify({ selected: String(viewing), conversations, messages: displayMessages([...page.items].reverse()), surface: nutritionForInput(nutrition, nutritionInputId(page.items)), workspace: workspace ? { revision: workspace.revision, action: workspace.action } : { revision: 0, action: null }, busy,
         hasEarlier: page.next !== undefined, hasMoreConversations: catalog.next !== undefined,
         availability: faux ? { available: true, reason: 'diagnostic', contextWindow: 4096 } : JSON.parse(nativeModelStatus()), error: lastError ?? null }));
     } while (publishAgain);
@@ -254,7 +260,7 @@ async function command(operation, payload) {
       await publish(); return {};
     }
     if (operation === 'surface') {
-      await updateNutrition(harness, selected, payload.patch, payload.requestId, nativeTool, context);
+      await updateNutrition(harness, selected, payload.patch, payload.requestId, nativeTool, context, {inputId: await currentNutritionInput({conversationId: selected}, context)});
       await publish(); return {};
     }
     if (operation === 'send') {

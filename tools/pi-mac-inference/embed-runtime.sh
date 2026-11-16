@@ -1,8 +1,7 @@
 #!/bin/bash
 # Xcode build phase (BananaMacBeta): puts Banana Pi's Python runtime inside the app, at
-# Contents/Resources/PiRuntime. PiDevelopment only; other configurations carry nothing.
+# Contents/Resources/PiRuntime. Included whenever local AI is enabled; public builds carry nothing.
 set -euo pipefail
-[ "${CONFIGURATION:-}" = PiDevelopment ] || exit 0
 [ "${BANANA_LOCAL_AI:-NO}" = YES ] || exit 0
 # The embed caller keeps this lock until its copy is complete. Standalone builds take it too.
 if [ "${BANANA_RUNTIME_CACHE_LOCKED:-}" != 1 ]; then

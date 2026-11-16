@@ -1019,6 +1019,7 @@ targets:
       - path: Banana/Model/GoogleCalendarModels.swift
       # The event behind an invitation email (MAIL-UX 9.1).
       - path: Banana/Model/MailInviteEvent.swift
+      - path: Banana/Model/MailInviteLookup.swift
       - path: Banana/Model/CloudCalendarSnapshot.swift
       - path: Banana/Model/CloudCalendarRequest.swift
       - path: Banana/Model/CloudCalendarOperation.swift
@@ -1127,6 +1128,7 @@ targets:
       # is checked too. Branded names resolve through BarcodeProducts.sqlite (listed above) and
       # BarcodeProductLookup.combinedName.
       - path: Banana/Model/FoodDatabase.swift
+      - path: Banana/Model/FoodNutrientIntake.swift
       - path: Banana/Resources/Foods.sqlite
       - path: Banana/Model/FoodTextExtractor.swift
       # Grounded estimates: the model names foods and grams, the USDA database gives the numbers.
@@ -1144,6 +1146,8 @@ targets:
       # Its counts (`Telemetry`), which the label reader records, and the service they go to.
       - path: Banana/Model/Telemetry.swift
       - path: Banana/Model/FeatureAccessPolicy.swift
+      - path: Banana/Model/PermissionUpgrade.swift
+      - path: Banana/Model/GoogleReconnectPermissions.swift
       - path: Banana/Model/FeatureAccessStore.swift
       - path: Banana/Model/BananaService.swift
       - path: Banana/Model/PushEnvironment.swift
@@ -1506,7 +1510,7 @@ targets:
       configs:
         Release:
           BANANA_LOCAL_EMAIL: YES
-          BANANA_LOCAL_AI: NO
+          BANANA_LOCAL_AI: YES
     dependencies:
       - package: Sparkle
 

@@ -6,8 +6,8 @@ struct MailPreparedBody: Codable, Equatable, Sendable {
     var version: Int
     var text: MailText
     var shownAsText: Bool
-    /// Index of the first block of the quoted tail: every block from here on is quoted. Nil when the
-    /// message does not end in a quote. Made with the text, so opening a message costs nothing.
+    /// Index of the final quoted run, which may be followed by signature pictures.
+    /// Made with the text, so opening a message does not parse it again.
     var quoteStartsAt: Int? = nil
     /// Use formatted HTML when the native grid cannot preserve a data table's structure.
     /// Optional so older cached bodies remain decodable until background preparation catches up.
@@ -22,6 +22,7 @@ struct MailPreparedBody: Codable, Equatable, Sendable {
     static func quoteStart(of blocks: [MailTextBlock]) -> Int? {
         var start: Int?
         for (index, block) in blocks.enumerated().reversed() {
+            if case .picture = block.kind, start == nil { continue }
             guard case .quote = block.kind else { break }
             start = index
         }
@@ -32,7 +33,7 @@ struct MailPreparedBody: Codable, Equatable, Sendable {
 
 /// Runs on the preparation worker, before opening. Uses the pinned library's parser.
 enum MailHTMLPreparer {
-    static let version = 5
+    static let version = 7
     static let maximumBytes = 2 * 1024 * 1024
     static let maximumNodes = 50_000
     /// How deep the walk recurses; deeper content is read flat, in document order.
@@ -98,6 +99,15 @@ enum MailHTMLPreparer {
             let traits = look(of: element, tag: tag, needs: needs)
             if traits.contains(.hidden) || traits.contains(.quoteHeader) || traits.contains(.outlookReply) || tag == "blockquote" { continue }
             if tag == "table", hasOwnDataSemantics(element) {
+                // Reuse WebKit's existing formatted renderer for inline graphics the native
+                // text-only cells cannot represent. Tracking pixels never justify layout.
+                if let images = try? element.select("img") {
+                    for image in images {
+                        if (try? image.attr("role")) == "presentation" || (try? image.attr("aria-hidden")) == "true" { continue }
+                        var counts = PictureCounts()
+                        if picture(of: image, link: nil, counts: &counts, preserveSmall: true) != nil { return true }
+                    }
+                }
                 // Native grids currently have no caption slot. Do not silently drop one.
                 if elements(element).contains(where: { $0.tagNameNormal() == "caption" }) || tableShape(element, needs: needs) == nil { return true }
             }
@@ -444,7 +454,7 @@ enum MailHTMLPreparer {
     }
 
     /// The picture an `img` stands for, or nil when it is a tracker, a spacer, an icon or something that cannot be shown.
-    private static func picture(of element: Element, link: URL?, counts: inout PictureCounts) -> MailPicture? {
+    private static func picture(of element: Element, link: URL?, counts: inout PictureCounts, preserveSmall: Bool = false) -> MailPicture? {
         let raw = ((try? element.attr("src")) ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
         guard !raw.isEmpty else { counts.unsupported += 1; return nil }
         var width = (try? element.attr("width")).flatMap(pixels)
@@ -475,7 +485,7 @@ enum MailHTMLPreparer {
             return nil
         }
         // A small icon (social buttons, bullets, check marks) is decoration, also when only one side is given.
-        if let side = width ?? height, let other = height ?? width, side <= 32, other <= 32 { counts.decorative += 1; return nil }
+        if !preserveSmall, let side = width ?? height, let other = height ?? width, side <= 32, other <= 32 { counts.decorative += 1; return nil }
         if case .cid = source { counts.cid += 1 }
         var alt = collapse((try? element.attr("alt")) ?? "").trimmingCharacters(in: .whitespaces)
         // "Shop, opens a new tab": what a screen reader is told about the link, not about the picture.
@@ -558,6 +568,52 @@ enum MailHTMLPreparer {
               widths.filter({ $0 == columns }).count * 3 >= rows.count * 2,
               rows.count >= 2 else { return nil }
         return (rows, columns)
+    }
+
+    /// Short cells in a layout row still belong on one line (receipt labels and amounts).
+    /// Rich/nested content keeps the normal walk; this never turns a layout table into a grid.
+    private static func compactRowCells(_ row: Element, needs: DocNeeds) -> [Element]? {
+        let cells = elements(row).filter { ["td", "th"].contains($0.tagNameNormal()) }
+        guard (2...maximumTableColumns).contains(cells.count) else { return nil }
+        var kept: [Element] = []
+        for cell in cells {
+            if look(of: cell, tag: cell.tagNameNormal(), needs: needs).contains(.hidden) { continue }
+            if needs.span {
+                for key in ["rowspan", "colspan"] where (Int((try? cell.attr(key)) ?? "1") ?? 1) > 1 { return nil }
+            }
+            var length = 0, count = 0, nodes = cell.getChildNodes()
+            while let node = nodes.popLast() {
+                count += 1
+                guard count <= 128 else { return nil }
+                if let text = node as? TextNode {
+                    for scalar in text.getWholeText().unicodeScalars where !isSpace(scalar.value) && !isInvisible(scalar.value) { length += 1 }
+                    guard length <= 120 else { return nil }
+                } else if let element = node as? Element {
+                    let tag = element.tagNameNormal()
+                    // A one-cell nested table only wraps a label or amount. Rich grids keep
+                    // their structure and are handled by the ordinary table walk.
+                    if tag == "table" {
+                        var rows = 0, columns = 0, visited = 0, descendants = element.getChildNodes()
+                        while let child = descendants.popLast() {
+                            visited += 1
+                            guard visited <= 128 else { return nil }
+                            if let child = child as? Element {
+                                let name = child.tagNameNormal()
+                                if name == "tr" { rows += 1 }
+                                if name == "td" || name == "th" { columns += 1 }
+                                descendants.append(contentsOf: child.getChildNodes())
+                            }
+                            if rows > 1 || columns > 1 { return nil }
+                        }
+                        guard rows == 1, columns == 1 else { return nil }
+                    }
+                    guard (!layoutInCell.contains(tag) || tag == "table"), tag != "img", tag != "br", tag != "script", tag != "style" else { return nil }
+                    nodes.append(contentsOf: element.getChildNodes())
+                }
+            }
+            if length > 0 { kept.append(cell) }
+        }
+        return (2...4).contains(kept.count) ? kept : nil
     }
 
     // MARK: Lists written as text
@@ -777,6 +833,15 @@ enum MailHTMLPreparer {
             guard cleaned.contains(where: { !$0.text.isEmpty }) else { return }
             var k = kind
             if let item = pendingItem, case .paragraph = k { k = item }
+            if case .item = k {
+                let value = plainText(cleaned)
+                if let marker = listMarker(value), marker.number == nil, value.first?.isLetter == false {
+                    let rest = value.unicodeScalars.dropFirst(marker.length)
+                    // A separate marker node must not consume the pending semantic list item.
+                    if rest.isEmpty { return }
+                    if rest.first == " " { cleaned = dropping(marker.length, from: cleaned) }
+                }
+            }
             pendingItem = nil
             if outlookQuote, case .quote = k {} else if outlookQuote { k = .quote(depth: 1) }
             // A break before a word that goes on in lower case only wrapped the line to the sender's
@@ -827,6 +892,29 @@ enum MailHTMLPreparer {
                 blocks.append(contentsOf: found)
                 return
             }
+            if tag == "tr", quote == 0, !outlookQuote, !inCell, !pre, lists.isEmpty,
+               let cells = compactRowCells(element, needs: needs) {
+                flush()
+                let runs = try cells.map { cell in
+                    try cellRuns(cell, depth: depth).map { run in
+                        var run = run
+                        if run.text == "\n" { run.text = " " }
+                        return run
+                    }
+                }
+                let first = MailHTMLPreparer.plainText(runs[0]).trimmingCharacters(in: .whitespacesAndNewlines)
+                if runs.count == 2, let marker = listMarker(first), marker.length == first.unicodeScalars.count {
+                    blocks.append(MailTextBlock(kind: .item(ordered: marker.number != nil, depth: 0, number: marker.number), runs: runs[1]))
+                } else {
+                    var row: [MailTextRun] = []
+                    for cell in runs {
+                        if !row.isEmpty { row.append(MailTextRun(text: cellSeparator, link: nil)) }
+                        row.append(contentsOf: cell)
+                    }
+                    blocks.append(MailTextBlock(kind: .paragraph, runs: row))
+                }
+                return
+            }
             let previous = kind
             // Floated and inline-block boxes sit side by side (a label and its value): one line, a gap between.
             let sideBySide = traits.contains(.sideBySide)
@@ -837,8 +925,13 @@ enum MailHTMLPreparer {
             if traits.contains(.outlookReply) { outlookQuote = true }
             if tag == "hr" { flush(); blocks.append(MailTextBlock(kind: .rule, runs: [])); return }
             if tag == "img" {
-                guard let picture = picture(of: element, link: link, counts: &counts) else { return }
-                if inCell { counts.decorative += 1; return }
+                guard let picture = picture(of: element, link: link, counts: &counts, preserveSmall: inCell) else { return }
+                if inCell {
+                    if (try? element.attr("role")) != "presentation", (try? element.attr("aria-hidden")) != "true", !picture.alt.isEmpty {
+                        append(picture.alt, style: style, link: link)
+                    } else { counts.decorative += 1 }
+                    return
+                }
                 if quote > 0 || outlookQuote { counts.quoted += 1; return }
                 if case .picture(let last)? = blocks.last?.kind, last.source == picture.source { return }
                 if counts.kept >= maximumPictures { counts.capped += 1; return }

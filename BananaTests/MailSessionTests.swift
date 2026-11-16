@@ -1,5 +1,6 @@
 #if DEBUG || MAIL_FIXTURES
 import XCTest
+import Combine
 
 /// The first Mail screen, without the screen: the session around the real triage model and the
 /// in-memory source, driven by the keys and taps a person makes. What it asks of the model, and
@@ -13,6 +14,140 @@ final class MailSessionTests: XCTestCase {
 
     private func id(_ key: String) -> MailConversationID {
         MailConversationID(account: account, thread: key)
+    }
+
+    func testBlockingSenderAdvancesTheOpenConversationThroughSpamTriage() async throws {
+        let h = Harness()
+        let first = h.model.rows[0].id, next = h.model.rows[1].id
+        h.session.open(first)
+        let message = try XCTUnwrap(h.session.navigation.reader?.messages.first)
+        let status = h.source.senderPolicyStatus(account: message.id.account, sender: message.senderAddress)
+        let saved = expectation(description: "Sender policy saved")
+        var spamTarget: MailTarget?
+        h.source.onApply = { change, target in if change == .spam { spamTarget = target } }
+        let observation = status.$blocked.filter { $0 }.prefix(1).sink { _ in saved.fulfill() }
+        defer { observation.cancel() }
+        h.session.changeSenderBlock(true, message: message)
+        await fulfillment(of: [saved], timeout: 3)
+        XCTAssertEqual(h.session.openConversation, next)
+        XCTAssertEqual(h.model.cursor, next)
+        XCTAssertNotNil(h.toastUndo, "The accompanying Spam action uses ordinary undo handling")
+        XCTAssertEqual(spamTarget, .message(message.id), "Blocking must not widen to the entire thread")
+        XCTAssertTrue(h.press("z"))
+        XCTAssertEqual(h.session.openConversation, first)
+        XCTAssertTrue(status.blocked, "Undoing this message's Spam action does not unblock future mail")
+    }
+
+    func testBlockingSenderInTheReadingPaneAdvancesItsCursor() async throws {
+        let h = Harness()
+        let first = h.model.rows[0].id, next = h.model.rows[1].id
+        h.session.send(.place(first))
+        h.session.setPaneVisible(true)
+        let message = try XCTUnwrap(h.session.pane.reader?.messages.first)
+        let saved = expectation(description: "Pane sender policy saved")
+        let status = h.source.senderPolicyStatus(account: message.id.account, sender: message.senderAddress)
+        let observation = status.$blocked.filter { $0 }.prefix(1).sink { _ in saved.fulfill() }
+        defer { observation.cancel() }
+        h.session.changeSenderBlock(true, message: message)
+        await fulfillment(of: [saved], timeout: 3)
+        XCTAssertEqual(h.model.cursor, next)
+        XCTAssertNotNil(h.toastUndo)
+        XCTAssertNil(h.session.navigation.reader, "Keep the side-by-side layout")
+    }
+
+    func testBlockingTheLastConversationReturnsToTheList() async throws {
+        let h = Harness()
+        h.session.open(try XCTUnwrap(h.model.rows.last).id)
+        let message = try XCTUnwrap(h.session.navigation.reader?.messages.first)
+        let saved = expectation(description: "Last sender policy saved")
+        let status = h.source.senderPolicyStatus(account: message.id.account, sender: message.senderAddress)
+        let observation = status.$blocked.filter { $0 }.prefix(1).sink { _ in saved.fulfill() }
+        defer { observation.cancel() }
+        h.session.changeSenderBlock(true, message: message)
+        await fulfillment(of: [saved], timeout: 3)
+        XCTAssertNil(h.session.openConversation)
+        XCTAssertNil(h.session.navigation.reader)
+    }
+
+    func testFailedSenderBlockKeepsTheReaderAndDoesNotMoveMail() async throws {
+        let h = Harness()
+        let first = h.model.rows[0].id
+        h.session.open(first)
+        let message = try XCTUnwrap(h.session.navigation.reader?.messages.first)
+        h.source.beforeSenderBlock = { throw MailSenderPolicyError.unavailable }
+        var applied = false
+        h.source.onApply = { _, _ in applied = true }
+        let failed = expectation(description: "Sender policy failure shown")
+        let observation = h.session.navigation.$senderBlockFailed.filter { $0 }.prefix(1).sink { _ in failed.fulfill() }
+        defer { observation.cancel() }
+        h.session.changeSenderBlock(true, message: message)
+        await fulfillment(of: [failed], timeout: 3)
+        XCTAssertEqual(h.session.openConversation, first)
+        XCTAssertFalse(applied)
+    }
+
+    func testBlockWithFailedSpamPersistenceKeepsTheMessageAndShowsFailure() async throws {
+        let h = Harness()
+        let first = h.model.rows[0].id, next = h.model.rows[1].id
+        h.session.open(first)
+        let message = try XCTUnwrap(h.session.navigation.reader?.messages.first)
+        h.source.nextApplyFailure = .diskFull
+        let saved = expectation(description: "Sender policy saved before failed message move")
+        let status = h.source.senderPolicyStatus(account: message.id.account, sender: message.senderAddress)
+        let observation = status.$blocked.filter { $0 }.prefix(1).sink { _ in saved.fulfill() }
+        defer { observation.cancel() }
+        h.session.changeSenderBlock(true, message: message)
+        await fulfillment(of: [saved], timeout: 3)
+        // T36 restores the failed change without rewinding the person's reading position.
+        XCTAssertEqual(h.session.openConversation, next)
+        XCTAssertTrue(h.model.rows.contains { $0.id == first })
+        XCTAssertTrue(h.session.undoStack.isEmpty)
+        XCTAssertEqual(h.toasts.last, MailToastText.notSaved(on: "Mac", problem: .diskFull))
+        XCTAssertTrue(status.blocked)
+    }
+
+    func testDelayedBlockDoesNotAdvanceAChangedReaderOrMailbox() async throws {
+        for changeMailbox in [false, true] {
+            let h = Harness()
+            let first = h.model.rows[0].id, next = h.model.rows[1].id
+            h.session.open(first)
+            let message = try XCTUnwrap(h.session.navigation.reader?.messages.first)
+            let requested = expectation(description: "Waiting for sender policy")
+            var resume: CheckedContinuation<Void, Error>?
+            h.source.beforeSenderBlock = {
+                try await withCheckedThrowingContinuation { resume = $0; requested.fulfill() }
+            }
+            let saved = expectation(description: "Delayed sender policy saved")
+            let status = h.source.senderPolicyStatus(account: message.id.account, sender: message.senderAddress)
+            let observation = status.$blocked.filter { $0 }.prefix(1).sink { _ in saved.fulfill() }
+            h.session.changeSenderBlock(true, message: message)
+            await fulfillment(of: [requested], timeout: 3)
+            XCTAssertEqual(h.session.openConversation, first, "Do not navigate before the rule is saved")
+            if changeMailbox { h.session.show(.all) }
+            h.session.open(changeMailbox ? first : next)
+            resume?.resume()
+            await fulfillment(of: [saved], timeout: 3)
+            observation.cancel()
+            XCTAssertEqual(h.session.openConversation, changeMailbox ? first : next)
+        }
+    }
+
+    func testUnblockingSenderLeavesTheOpenConversationInPlace() async throws {
+        let h = Harness()
+        let first = h.model.rows[0].id
+        h.session.open(first)
+        let message = try XCTUnwrap(h.session.navigation.reader?.messages.first)
+        let status = h.source.senderPolicyStatus(account: message.id.account, sender: message.senderAddress)
+        status.blocked = true; status.desiredBlocked = true
+        let saved = expectation(description: "Sender unblocked")
+        let observation = status.$blocked.filter { !$0 }.prefix(1).sink { _ in saved.fulfill() }
+        defer { observation.cancel() }
+        var applied = false
+        h.source.onApply = { _, _ in applied = true }
+        h.session.changeSenderBlock(false, message: message)
+        await fulfillment(of: [saved], timeout: 3)
+        XCTAssertEqual(h.session.openConversation, first)
+        XCTAssertFalse(applied)
     }
 
     /// A session on its own source, with timers that wait to be fired and a toast that is recorded.

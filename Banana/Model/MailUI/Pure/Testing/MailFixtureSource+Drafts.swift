@@ -318,6 +318,7 @@ extension MailFixtureSource {
             before[sent.receipt.sequence] = nil
         }
         publish()
+        emit(.sent(id, sent.target))
     }
 
     /// A scheduled message is waiting for its time, not for a hold: leaving does not send it.

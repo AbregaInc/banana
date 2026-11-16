@@ -128,6 +128,18 @@ final class MailSenderTests: XCTestCase {
                        "sam@xn--bcher-kva.de")
     }
 
+    func testOrganizationalDMARCDomainKeepsAnExactlyDKIMAuthenticatedSubdomainSender() {
+        let auth = gmail("dkim=pass header.i=@email.plan.example; dmarc=pass header.from=plan.example")
+        XCTAssertEqual(sender("Planner <noreply@email.plan.example>", auth: auth)?.name, "Planner")
+        XCTAssertEqual(sender("Planner <noreply@email.plan.example>", auth: auth)?.address, "noreply@email.plan.example")
+        for result in ["dkim=fail header.i=@email.plan.example", "dkim=pass header.i=@other.example",
+                       "dkim=pass header.i=@plan.example"] {
+            XCTAssertNil(sender("Planner <noreply@email.plan.example>", auth: gmail(result + "; dmarc=pass header.from=plan.example")))
+        }
+        XCTAssertNil(sender("Planner <noreply@email.plan.example>", auth: gmail("dkim=pass header.i=@email.plan.example; dmarc=fail header.from=plan.example")))
+        XCTAssertNil(sender("Planner <noreply@email.plan.example>", auth: gmail("dkim=pass header.i=@email.plan.example; dmarc=pass header.from=other.example")))
+    }
+
     func testADMARCResultNamingAnotherDomainMakesTheSenderUnreadable() {
         XCTAssertNil(sender("Sam <sam@plan.example>", auth: gmail("dmarc=pass header.from=evil.example")))
         XCTAssertNil(sender("Sam <sam@plan.example>", auth: gmail("dmarc=none header.from=mail.plan.example")))

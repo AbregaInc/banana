@@ -37,6 +37,12 @@ The UX proposals most likely to get approved remove something: a button, a setti
 screen, a step. A proposal that adds a new option or a new control faces a higher bar
 than one that gets the same result with fewer of them.
 
+Apply our [ongoing UX design practice](docs/design/UX-PRINCIPLES.md) in proposals,
+implementation and review. Choose the relevant Laws of UX, describe the observable
+benefit, and check the affected interaction states, accessibility and performance.
+Keep the rationale proportionate to the change; a named principle is not evidence
+that the design works.
+
 ## Security first
 
 When a change touches data collection, storage, logging, or anything that leaves the

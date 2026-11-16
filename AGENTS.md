@@ -7,6 +7,14 @@ Cut taglines, helper text and secondary labels. If a screen needs them to make s
 Make the best decision that will elevate all three: the user experience (UX), developer experience
 (DX), and agent experience (AX) always, without breaking anything.
 
+## Ongoing UX design practice
+
+For every UI or interaction change, apply [UX principles](docs/design/UX-PRINCIPLES.md) during
+planning, implementation and review. Select the relevant Laws of UX, connect decisions to
+user-visible outcomes, and verify the touched states. Keep native conventions, accessibility,
+truthful feedback and this repo’s stricter performance contract. This applies to future design
+work, not only the current Mail change; an exhaustive checklist is unnecessary for small edits.
+
 ## Every fix is general
 
 Fix the rule that was broken, not the case that was reported (the owner's policy, 8 Nov 2026). No
@@ -129,6 +137,16 @@ A simulator is 1–2 GB once it has booted, and a new one per run piles up.
   privacy grants instead of erasing, and shuts it down after 30 idle minutes. Erasing or cloning
   means a first boot: hundreds of iOS services that loaded the Mac past 800 and, when killed at
   shutdown, showed "Family quit unexpectedly" (8 Nov 2026). `FRESH=1` erases when a test needs it.
+
+## Simulator service profiles
+
+Serial UI tests and Simulator unit preflight use the reviewed simslim 0.14.0 profile in
+`tools/simulators/slim.json`; install and usage: `tools/simulators/README.md`. Keep its
+required Banana integrations enabled. Preparation verifies the exact profile and `doctor`
+checks before tests, under the existing simulator lock. `BANANA_SIM_MODE=stock` restores
+services for system-integration tests; parallel workers remain stock. The persistent component
+runner always restores stock before measuring. Never use a slim run to replace a stock
+reference, loosen a budget or claim physical-device performance.
 
 ## UI tests: run what the change touches, in parallel, with time limits
 

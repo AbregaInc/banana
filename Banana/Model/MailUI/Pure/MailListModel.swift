@@ -291,6 +291,9 @@ enum MailListInput {
     /// An action, on the target of T15, or on this row alone (a swipe, a row's own button, a
     /// picker for the conversation it was opened for).
     case act(MailAction, on: MailConversationID?)
+    /// A card's action changes only that message, while retaining normal triage/undo behavior.
+    /// A completed asynchronous request must not advance a list the person has since entered.
+    case actOnMessage(MailAction, message: MailMessageID, conversation: MailConversationID, advance: Bool)
     /// The "N new" chip (T9).
     case chipUsed
     /// Undo has taken this entry off the stack and the source has answered with a receipt of
@@ -616,6 +619,8 @@ final class MailListModel {
         case .clearSelection: clearSelection()
         case .back: back(&fx)
         case .act(let action, let id): act(action, on: id, &fx)
+        case .actOnMessage(let action, let message, let conversation, let advance):
+            act(action, on: conversation, &fx, message: message, advance: advance)
         case .chipUsed: chipUsed(&fx)
         case .restore(let entry, let through): restore(entry, through: through, &fx)
         case .retryPaging: retryPaging(&fx)
@@ -1528,11 +1533,17 @@ final class MailListModel {
     /// selection, the open conversation. What the source is to do is an effect; what Undo will
     /// restore is the entry that comes back with the receipt (T0).
     private func act(_ action: MailAction, on explicit: MailConversationID?,
-                     _ fx: inout [MailListEffect]) {
+                     _ fx: inout [MailListEffect], message: MailMessageID? = nil, advance: Bool = true) {
         guard action.isDecidedByTheModel,
-              let resolved = resolveTarget(for: action, explicit: explicit),
-              var change = action.change(for: resolved.rows, in: scope)
+              var resolved = resolveTarget(for: action, explicit: explicit)
         else { return }
+        if let message {
+            guard explicit?.account == message.account else { return }
+            resolved.target = .message(message)
+            resolved.viaMessage = true
+            resolved.isTheOpenConversation = open?.id == explicit
+        }
+        guard var change = action.change(for: resolved.rows, in: scope) else { return }
 
         // `U` in an open conversation always means "leave it unread and go back", whatever the
         // toggle would say of a row that is unread because he has only just opened it (T17).
@@ -1552,7 +1563,7 @@ final class MailListModel {
             && resolved.rows.allSatisfy { action.wouldChangeNothing(on: $0, in: scope) }
         if changesNothing {
             // T16: nothing is sent, no toast, no undo entry — and the cursor still advances.
-            if disposing { settle(excluding: resolved.ids, &fx) }
+            if disposing && advance { settle(excluding: resolved.ids, &fx) }
             return
         }
 
@@ -1571,7 +1582,7 @@ final class MailListModel {
             applyToRows(change, ids: resolved.ids, disposing: disposing)
         }
 
-        if disposing {
+        if disposing && advance {
             // 2. The selection is cleared, when it was the target.
             if resolved.fromSelection { clearSelection() }
             // 3 and 4. The cursor advances; a conversation that was open follows it.
@@ -1962,7 +1973,9 @@ final class MailListModel {
         // Worked out on every input, a held `J` included: a few comparisons, and the published
         // value is not read (that would retain its rows).
         let paging = scope.isWriting ? MailPaging.Status.hidden : MailPaging.status(
-            loaded: rows.count, hasMore: sourceHasMore, failed: edge == .failed, hasPaged: hasPaged)
+            loaded: rows.count, hasMore: sourceHasMore,
+            loading: meta.remote == .pending,
+            failed: edge == .failed, hasPaged: hasPaged)
         if paging != publishedPaging || shownWindow != publishedWindow { dirty = true }
         guard dirty else { return }
         dirty = false

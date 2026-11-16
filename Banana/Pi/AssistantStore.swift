@@ -128,7 +128,7 @@ final class AssistantStore: ObservableObject {
     /// Whether the running Pi was started on the Mac's own model (vs Apple's, while it downloads).
     private var hostUsesLocalModel = false
     var modelIdentity: String {
-        #if os(macOS) && PI_DEVELOPMENT
+        #if os(macOS)
         if !diagnostic, let local = MacLocalInference.shared.resolvedConfiguration() { return "mac-local/\(local.modelId)" }
         #endif
         return diagnostic ? "faux/faux-1" : "apple-foundation/on-device"
@@ -177,9 +177,7 @@ final class AssistantStore: ObservableObject {
         observers.append(NotificationCenter.default.addObserver(forName: NSApplication.willTerminateNotification, object: nil, queue: .main) { [weak self] _ in
             MainActor.assumeIsolated {
                 self?.host?.stop()
-                #if PI_DEVELOPMENT
                 MacLocalInference.shared.stop()
-                #endif
             }
         })
         #endif
@@ -192,6 +190,11 @@ final class AssistantStore: ObservableObject {
         }
         host.toolHandler = { [weak self] request in
             guard let self else { throw AssistantFailure(message: "The assistant is unavailable.") }
+            if let value = try JSONSerialization.jsonObject(with: Data(request.utf8)) as? [String: Any],
+               value["name"] as? String == "read_nutrients", let args = value["arguments"] as? [String: Any] {
+                await WellnessStore.shared.whenLoaded()
+                return try await AssistantNutrition.readNutrients(args)
+            }
             if let value = try JSONSerialization.jsonObject(with: Data(request.utf8)) as? [String: Any],
                value["name"] as? String == "nutrition_view", let args = value["arguments"] as? [String: Any] {
                 await WellnessStore.shared.whenLoaded()
@@ -239,7 +242,7 @@ final class AssistantStore: ObservableObject {
         }
         host.eventHandler = { [weak self] event in self?.receive(event) }
         var configuration: [String: Any] = ["testModel": diagnostic]
-        #if os(macOS) && PI_DEVELOPMENT
+        #if os(macOS)
         // The Mac's own model, kept by the app: Qwen through the app's Locals once `LocalModel`
         // has its files here and checked, Apple's on-device model until then. Never in
         // fixture/UI-test runs (no 3 GB download there).
@@ -274,7 +277,7 @@ final class AssistantStore: ObservableObject {
             guard let self else { return }
             do {
                 if value {
-                    #if os(macOS) && PI_DEVELOPMENT
+                    #if os(macOS)
                     if !self.diagnostic {
                         LocalModel.shared.start()
                         let local = MacLocalInference.shared.resolvedConfiguration() != nil

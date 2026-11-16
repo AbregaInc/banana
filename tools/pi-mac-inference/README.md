@@ -1,6 +1,6 @@
 # Local inference for Banana Pi on Mac
 
-This is the isolated PiDevelopment app's local inference worker. Pi remains the agent runtime in JavaScriptCore/SQLite; the worker receives model inputs and returns proposed text/tool calls. It cannot reach Banana's app capabilities.
+This is Banana Beta’s local inference worker, also available in the isolated PiDevelopment app. Pi remains the agent runtime in JavaScriptCore/SQLite; the worker receives model inputs and returns proposed text/tool calls. It cannot reach Banana's app capabilities.
 
 ## Model and runtime
 
@@ -22,9 +22,9 @@ and fetches its model itself:
   via uv), Locals at the reviewed commit and `requirements.lock.txt`, pruned and precompiled
   (~490 MB, mostly MLX's GPU kernels). It is cached by a hash of those pins in
   `~/Library/Caches/Banana Pi build/pi-runtime/` (shared by worktrees; survives `tools/clean-builds.sh`).
-  The `BananaMacPi` build's *Embed Banana Pi runtime* phase (`embed-runtime.sh`, PiDevelopment
-  only) copies it to `Banana Pi.app/Contents/Resources/PiRuntime` and, with a real identity,
-  signs its binaries with the hardened runtime. Other configurations carry nothing.
+  The *Embed Banana Pi runtime* phase (`embed-runtime.sh`) copies it to the AI-enabled
+  app’s `Contents/Resources/PiRuntime` and, with a real identity,
+  signs its binaries with the hardened runtime. Builds with AI disabled carry nothing.
 - **Model fetched by the app.** `Banana/Pi/Resources/pi-local-model.json` pins the repo, revision,
   every file's size and SHA-256 and the serving profile. `LocalModel` downloads into
   `~/Library/Application Support/Banana Pi/Models/<name>@<revision>/`, checks every hash and stamps
@@ -32,7 +32,7 @@ and fetches its model itself:
 - **Worker started by the app.** `MacLocalInference` runs the bundled Python (`-I -B`: only its own
   packages, never writing inside the app) on 127.0.0.1:41789 with the profile from the pin.
   Quitting the app releases the worker; the worker's parent watch releases it on a crash. The log
-  is `~/Library/Application Support/Banana Pi/LocalInference/engine.log`.
+  is `LocalInference/engine.log` inside the running app’s support directory (`Banana Beta` for Beta).
 
 `setup.py`, the sibling `pi-inference-upstream` checkout and `LocalInference/configuration.json`
 are no longer used. `run-app.py` derives the same settings from the app it is given;

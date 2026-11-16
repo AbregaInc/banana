@@ -142,14 +142,14 @@ enum ShellRailVisibility {
 enum ShellFieldMode: Equatable, Sendable {
     /// Nothing: the page.
     case idle
-    /// Focused with nothing typed: what can be added, this page's kinds first.
+    /// Open with nothing typed: what can be added, this page's kinds first.
     case add
     /// Words typed: "Ask Banana" (when there is an assistant), then what was found.
     case results
 
-    static func of(text: String, focused: Bool) -> Self {
+    static func of(text: String, focused: Bool, presented: Bool = false) -> Self {
         if !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { return .results }
-        return focused ? .add : .idle
+        return focused || presented ? .add : .idle
     }
 
     /// The switcher and the AI button step aside while the field is in use, so it is as wide as

@@ -271,6 +271,7 @@ extension MailSession {
             receipt: receipt, description: MailToastText.sentDescription,
             subjects: [draft.subject], count: 1, scope: scope)
         undoStack.push(entry, at: clock())
+        trackDelivery(draft.id, receipt: receipt)
         showToast(Self.sendingToast(thenDone: false))
     }
 
@@ -286,7 +287,17 @@ extension MailSession {
         entry.kind = .send(pending.draft, holdEnds: clock().addingTimeInterval(Self.undoHold),
                            doneSubject: half.subjects.first)
         undoStack.push(entry, at: clock())
+        trackDelivery(pending.draft, receipt: receipt)
         showToast(Self.sendingToast(thenDone: true))
+    }
+
+    func trackDelivery(_ draft: MailDraftID, receipt: MailReceipt) {
+        if pendingDeliveryReceipts.count >= MailUndoStack.depth,
+           let oldest = pendingDeliveryReceipts.min(by: { $0.value.sequence < $1.value.sequence })?.key {
+            pendingDeliveryReceipts.removeValue(forKey: oldest)
+            pendingDeliveryRetries.removeValue(forKey: oldest)
+        }
+        pendingDeliveryReceipts[draft] = receipt
     }
 
     /// The toast stays as long as the hold does: Undo is there for as long as it can work.
@@ -308,7 +319,10 @@ extension MailSession {
             let succeeded = await self.source.cancelSend(draft)
             self.showToast(self.undoStack.outcome(cancelling: entry, succeeded: succeeded).toast)
             self.reverseDone(of: entry)
-            if succeeded { self.begin(.continuing(draft)) }
+            if succeeded {
+                self.pendingDeliveryReceipts.removeValue(forKey: draft)
+                self.begin(.continuing(draft))
+            }
         }
     }
 

@@ -2,12 +2,12 @@ import {parseMailDraftRequest,mailDraft} from './mail-drafts.js';
 import {uploadMailPart,removeMailParts} from './mail-uploads.js';
 import {parseMailOperation,mailOperation} from "./mail-operation.js";
 import {parseMailRead,mailRead} from "./mail-read.js";
-import {connectMail} from "./mail-grant.js";
+import {connectMail,mailGrantStatements} from "./mail-grant.js";
 import {parseFeedQuery,mailFeed,parseMailCheck,mailCheck,wipeMailbox,parseMailContent,mailContent,mailPush,stopMailWatch} from "./mail-sync.js";
 import { parseCalendarOperation, calendarOperation } from "./calendar-operation.js";
 import { parseCalendarRead, calendarRead } from "./calendar-read.js";
 import { readCalendarWindow, readCalendarSnapshot, validCalendarWindow } from './calendar-window.js';
-import { featureAllowed, featurePolicy, linkedGoogleCapabilities } from "./feature-access.js";
+import { featureAllowed, featurePolicy, linkedGoogleCapabilities, linkedGoogleScopes } from "./feature-access.js";
 // The Banana service's HTTP API (docs/design/ACCOUNTS.md). No platform code: everything outside
 // comes in through `deps`, so the same app runs on Workers (src/worker.js) and Node (src/node.js).
 //
@@ -207,7 +207,7 @@ export function createApp(deps) {
       // access: the service holds working Google access of its own for this link (a sealed
       // refresh token from a code sign-in, not refused). Without it the app asks the person to
       // sign in again, so the service can read events and send alerts itself.
-      google: links.map((l) => ({ email: l.email, status: l.status, watching: Number(l.watching), access: Boolean(l.has_token) && l.status === "ok", capabilities: linkedGoogleCapabilities(l) })),
+      google: links.map((l) => ({ email: l.email, status: l.status, watching: Number(l.watching), access: Boolean(l.has_token) && l.status === "ok", capabilities: linkedGoogleCapabilities(l), permissionScopes: linkedGoogleScopes(l) })),
       devices: Number(devices?.n ?? 0),
       featureAccess: await featurePolicy(deps, account),
       ...(await syncSummary(deps, account)),
@@ -294,6 +294,17 @@ export function createApp(deps) {
               scopes = excluded.scopes, status = excluded.status, updated_at = excluded.updated_at, name = COALESCE(excluded.name, google_links.name)`,
       params: [google.sub, account, google.email.toLowerCase(), sealed, scopes, status, t, t, typeof google.name === "string" ? google.name.slice(0, 120) : null],
     });
+    // Combined reconnect updates both grants atomically. Calendar-only consent and
+    // identity refreshes leave working Mail access untouched.
+    if (!byIdentity && await featureAllowed(deps, account, "email")) {
+      const previousMail = await db.first("SELECT status FROM mail_grants WHERE google_sub = ?", google.sub);
+      // Google may return previously granted scopes even on a Calendar-only sign-in.
+      // Explicitly disconnected Mail is re-enabled only by the dedicated Mail consent action.
+      if (previousMail?.status !== "unlinked") {
+        const mail = await mailGrantStatements(deps, vault, account, google);
+        if (mail.status === 200) statements.push(...mail.statements);
+      }
+    }
     // Connected again: calendars waiting for a retry are tried at the next job run.
     if (existing) statements.push({ sql: "UPDATE watches SET retry_at = NULL, failures = 0 WHERE google_sub = ?", params: [google.sub] });
     // The device: a row another account holds moves to this one (the same device, signed in as

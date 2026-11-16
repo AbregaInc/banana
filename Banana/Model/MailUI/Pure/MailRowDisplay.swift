@@ -39,7 +39,9 @@ struct MailRowDisplay: Equatable, Sendable {
     init(_ row: MailRow, now: Date, calendar: Calendar = .current, locale: Locale = .current) {
         var who = Self.who(for: row)
         // A draft with nobody on it yet has no one to name.
-        if who.isEmpty, case .draft? = row.reason { who = "No recipient" }
+        if who.isEmpty {
+            if case .draft? = row.reason { who = "No recipient" } else { who = "Unknown sender" }
+        }
         self.who = who
         face = MailFace.of(row.people)
         count = row.messageCount >= 2 ? row.messageCount : nil
@@ -76,7 +78,8 @@ struct MailRowDisplay: Equatable, Sendable {
         guard !people.isEmpty else { return "" }
         if people.count == 1 {
             let only = people[0]
-            return only.isMe ? "me" : (only.name ?? only.address)
+            let name = only.name?.trimmingCharacters(in: .whitespacesAndNewlines)
+            return only.isMe ? "me" : (name.flatMap { $0.isEmpty ? nil : $0 } ?? (only.address.isEmpty ? "Unknown sender" : only.address))
         }
         let names = people.map(shortName)
         if names.count <= 3 { return names.joined(separator: ", ") }
@@ -86,7 +89,7 @@ struct MailRowDisplay: Equatable, Sendable {
     private static func shortName(_ person: MailPerson) -> String {
         if person.isMe { return "me" }
         guard let name = person.name, let first = name.split(separator: " ").first else {
-            return person.address
+            return person.address.isEmpty ? "Unknown sender" : person.address
         }
         return String(first)
     }

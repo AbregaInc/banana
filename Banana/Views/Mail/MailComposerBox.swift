@@ -106,6 +106,16 @@ struct MailComposerBox: View {
         .onChange(of: focused) { _, field in
             if let field { model.focusLanded(on: field) }
         }
+        .onDisappear {
+            focused = nil
+            instructing = false
+            #if os(iOS)
+            // Closing a retained draft must also end its native editing session. Otherwise
+            // keyboard state can outlive the removed editor and hide the restored shell bar.
+            // A replacement composer owns its own focus; leave that new editor alone.
+            if session.composer == nil { ShellChrome.keyWindow?.endEditing(false) }
+            #endif
+        }
         .animation(.snappy(duration: 0.25), value: style)
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier(MailID.composer)
@@ -165,34 +175,47 @@ struct MailComposerBox: View {
     // MARK: The tools and Send
 
     @ViewBuilder private var footer: some View {
-        HStack(spacing: 0) {
+        Group {
             if asking {
                 assistantLine
             } else {
-                MailComposerTools(files: model.files, chords: model.chords).disabled(model.isForeign)
-                if MailDraftAssistant.isAvailable {
-                    Button {
-                        asking = true
-                        instructing = true
-                    } label: {
-                        Image(systemName: "sparkle")
-                            .frame(width: DS.Row.minHeight, height: DS.Mail.header)
-                            .contentShape(Rectangle())
+                ViewThatFits(in: .horizontal) {
+                    HStack(spacing: 0) {
+                        writingTools
+                        Spacer(minLength: DS.Space.s)
+                        MailSendSplitButton(session: session, model: model)
                     }
-                    .buttonStyle(.borderless)
-                    .disabled(model.isForeign)
-                    .accessibilityLabel("Write with Banana")
-                    .accessibilityIdentifier(MailID.composerAssistant)
+                    VStack(alignment: .leading, spacing: DS.Space.xs) {
+                        HStack(spacing: 0) { writingTools; Spacer(minLength: 0) }
+                        HStack(spacing: 0) {
+                            Spacer(minLength: 0)
+                            MailSendSplitButton(session: session, model: model)
+                        }
+                    }
                 }
-                Spacer(minLength: DS.Space.s)
-                MailSendSplitButton(session: session, model: model)
             }
         }
         .foregroundStyle(.secondary)
     }
 
-    /// The sparkle's line: what to say ("say yes, Friday instead"), and the draft is written into
-    /// the body, ready to edit, with one Undo.
+    @ViewBuilder private var writingTools: some View {
+        MailComposerTools(files: model.files, chords: model.chords, format: model.format, isReadOnly: model.isForeign).disabled(model.isForeign)
+        if MailDraftAssistant.isAvailable {
+            Button {
+                asking = true
+                instructing = true
+            } label: {
+                Image(systemName: "sparkle")
+                    .frame(width: DS.Row.minHeight, height: DS.Mail.header)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.borderless)
+            .disabled(model.isForeign)
+            .accessibilityLabel("Write with Banana")
+            .accessibilityIdentifier(MailID.composerAssistant)
+        }
+    }
+
     private var assistantLine: some View {
         HStack(spacing: DS.Space.s) {
             Image(systemName: "sparkle").foregroundStyle(DS.Palette.accent)

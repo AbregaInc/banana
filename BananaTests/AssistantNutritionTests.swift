@@ -60,6 +60,9 @@ final class AssistantNutritionTests: XCTestCase {
         XCTAssertEqual(last.start, "2026-02-01"); XCTAssertEqual(last.end, "2026-02-28")
         let week = try AssistantNutrition.resolve(surface(), period: "last_7_days", now: now, calendar: calendar)
         XCTAssertEqual(week.start, "2026-03-03"); XCTAssertEqual(week.end, "2026-03-09")
+        var monday = calendar; monday.firstWeekday = 2
+        let currentWeek = try AssistantNutrition.resolve(surface(), period: "this_week", now: now, calendar: monday)
+        XCTAssertEqual(currentWeek.start, "2026-03-09"); XCTAssertEqual(currentWeek.end, "2026-03-09")
     }
     func testWeekdayFilterAlsoExcludesPriorWeekendMeals() throws {
         var view = surface(); view.start = "2026-03-09"; view.end = "2026-03-10"; view.weekdaysOnly = true

@@ -77,7 +77,10 @@ import GRDB
     /// Whether local CPU work may run now, and how fast (invariant 31).
     let paceGauge = MailPaceGauge()
     private lazy var cloudPull: MailCloudPull? = cloudFeed.map { [paceGauge] in
-        MailCloudPull(stores: stores, loader: conversationLoader, source: $0, pace: { paceGauge.pace() })
+        MailCloudPull(stores: stores, loader: conversationLoader, source: $0, pace: { paceGauge.pace() },
+            stored: { [weak self] account, count in
+                Task { @MainActor in self?.recordSyncCompleted(account: account, count: count) }
+            })
     }
     /// Re-prepares stored originals whose prepared body is missing or stale, newest first.
     private lazy var reprepare = MailReprepare(stores: stores, loader: conversationLoader, pace: { [paceGauge] in paceGauge.pace() })
@@ -130,6 +133,15 @@ import GRDB
     private var lastFinishedAction: UInt64 = 0
     private var projectionNeedsRepair = false
     private var actionTask: Task<Void, Never>?
+    lazy var syncProgress: MailSyncProgress? = MailSyncProgress { [weak self] in self?.refreshSyncProgress() }
+    private var syncCompleted: [String: Int] = [:]
+    private var syncEnumerationComplete: [String: Bool] = [:]
+    // nil means the first sync pass has not established cloud versus direct ownership yet.
+    private var syncUsesCloud: [String: Bool] = [:]
+    private var progressReadTask: Task<Void, Never>?
+    private var progressReadToken = UUID()
+    private var progressRevision: UInt64 = 0
+    private var progressReadAgain = false
     private var eventObservers: [UUID: @MainActor (MailEvent) -> Void] = [:]
     private var savedActions: [UInt64: (change: MailChange, applied: MailActionCoordinator.Applied)] = [:]
     private var savedActionOrder: [UInt64] = []
@@ -154,6 +166,8 @@ import GRDB
     private var draftReadTask: Task<Void, Never>?
     private var draftCache: [MailDraftID: MailDraft] = [:]
     private var draftStates: [MailDraftID: MailDraftRecord.State] = [:]
+    private var draftSentMessages: [MailDraftID: MailMessageID] = [:]
+    private var draftRemoteMessages: [MailDraftID: MailMessageID] = [:]
     private var draftUndo: [UInt64: MailDraftID] = [:]
     private var draftSaveFailures = Set<MailDraftID>()
     private var draftGenerations: [MailDraftID: Int] = [:]
@@ -206,6 +220,7 @@ import GRDB
     }
     func activate() {
         guard !active else { return }; active = true
+        syncCompleted.removeAll()
         // Coming back to Mail: a wait left by a failure that was not a limit (a request the
         // system suspended with the app, a dropped connection) does not hold the first pass or
         // the first downloads back. A limit's wait stands.
@@ -385,11 +400,39 @@ import GRDB
                     value = MailConversation(id: id, subject: draft.subject, labels: [], inInbox: false,
                         isStarred: false, isImportant: false, isMuted: false, snoozedUntil: nil, system: nil,
                         messages: [], invite: nil, unsubscribe: nil, draft: draft.id, newestIsMine: true, appliedThrough: through)
-                } else { value?.draft = draft.id }
+                } else { value?.draft = [.editing, .failed].contains(record.state) ? draft.id : nil }
+                if ![.editing, .failed].contains(record.state) { value?.draft = nil }
+            }
+            for draft in draftCache.values.filter({ $0.conversation == id }).sorted(by: { $0.editedAt < $1.editedAt }) {
+                guard let state = draftStates[draft.id], [.held, .sending, .uncertain, .sent].contains(state) else { continue }
+                let confirmed = draftSentMessages[draft.id]
+                if let remote = draftRemoteMessages[draft.id], remote != confirmed {
+                    value?.messages.removeAll { $0.id == remote }
+                }
+                if state == .sent {
+                    guard let confirmed else { continue }
+                    if let provider = value?.messages.first(where: { $0.id == confirmed }) {
+                        if [.text, .designed, .tooLarge].contains(provider.body) { continue }
+                        fetchBody(confirmed)
+                        value?.messages.removeAll { $0.id == confirmed }
+                    }
+                }
+                let message = MailOutgoingDraft.message(draft)
+                if value == nil {
+                    value = MailConversation(id: id, subject: draft.subject, labels: [], inInbox: false,
+                        isStarred: false, isImportant: false, isMuted: false, snoozedUntil: nil, system: nil,
+                        messages: [], invite: nil, unsubscribe: nil, draft: nil, newestIsMine: true, appliedThrough: through)
+                }
+                value?.messages.removeAll { $0.id == message.id || $0.draft == draft.id }
+                value?.messages.insert(message, at: 0)
+                value?.newestIsMine = true
             }
             return value
         }
         catch { if !Task.isCancelled { status.value.store = .unavailable(.unavailable) }; return nil }
+    }
+    func reportHTML(_ id: MailMessageID) async throws -> String? {
+        try await MailBlobStore(stores: stores).content(account: id.account, messageID: id.message)?.html
     }
     func originalHTML(_ id: MailMessageID) async throws -> String? {
         try await MailOriginalDocument.load(stores: stores, id: id)
@@ -445,6 +488,11 @@ import GRDB
     /// Fetches a received attachment now. It is a person waiting for it, so it does not go through the download
     /// queue: not behind body prefetch, not held by its two slots or by a read backoff. Asked twice, it is one fetch.
     func fetchAttachment(_ id: MailAttachmentID) {
+        if let draft = outgoingDraft(for: id.message) {
+            let file = draft.attachments.first { $0.id == id.part }?.file
+            attachmentProgress(id).state = file == nil ? .failed(.unavailable) : .done
+            return
+        }
         let progress = attachmentProgress(id)
         guard attachmentTasks[id] == nil else { return }
         let account = id.message.account.lowercased()
@@ -483,10 +531,16 @@ import GRDB
     /// A picture that is a part of the message (`cid:`), from the stored parts. Nothing else is a resource here:
     /// remote pictures are `MailImageSource`'s.
     func resource(_ url: URL, for message: MailMessageID, presentation: MailPresentation) async -> MailResource? {
+        if let draft = outgoingDraft(for: message) { return await resource(url, forDraft: draft.id, presentation: presentation) }
         guard presentation == .onScreen, url.scheme?.lowercased() == "cid" else { return nil }
         return await inlinePictures.resource(contentID: String(url.absoluteString.dropFirst(4)), message: message)
     }
+    private func outgoingDraft(for message: MailMessageID) -> MailDraft? {
+        guard let id = MailOutgoingDraft.draftID(message), let draft = draftCache[id], draft.account == message.account else { return nil }
+        return draft
+    }
     func body(_ id: MailMessageID) async -> MailBody {
+        if let draft = outgoingDraft(for: id) { return MailOutgoingDraft.body(draft) }
         do { return try await MailBlobStore(stores: stores).prepared(account: id.account, messageID: id.message)?.body ?? .notOnDevice }
         catch { if !Task.isCancelled { status.value.store = .unavailable(.unavailable) }; return .notOnDevice }
     }
@@ -568,7 +622,11 @@ import GRDB
                 guard !Task.isCancelled, allowedAccounts == self.readAccounts else { return }
                 let connected = self.accounts.filter { $0.state == .connected && (Self.account(for: scope) == nil || Self.account(for: scope) == $0.id) }
                 let pending = connected.contains { self.pageTasks[$0.id] != nil }
-                let more = connected.contains { !self.completed.contains($0.id) }
+                let more = connected.contains {
+                    self.syncUsesCloud[$0.id] == true
+                        ? self.syncEnumerationComplete[$0.id] != true
+                        : !self.completed.contains($0.id)
+                }
                 let failed = connected.contains { self.failures.contains($0.id) }
                 self.deliver(MailListSnapshot(scope: scope,
                     rows: rows.map { row in MailRowMapper.row(row, labels: row.labelPKs.compactMap { self.labelCatalog.refs[$0] }, reason: nil, in: scope) },
@@ -597,6 +655,7 @@ import GRDB
         }
     }
     private func committed(_ change: MailStoreChange) {
+        refreshSyncProgress()
         if change.labelsChanged { refreshLabelCatalog() }
         if active, !change.conversations.isEmpty { searchIndexer.kick() }
         guard !change.viewKeys.isEmpty || !change.conversations.isEmpty else { return }
@@ -669,6 +728,14 @@ import GRDB
     }
 
     private func loadPage(_ account: String) {
+        // The cloud feed already enumerates this mailbox. Starting the legacy list loader here
+        // duplicates that work and keeps a bottom-edge request loading through the whole archive.
+        // Defer until the sync worker establishes whether the feed supports this account; an
+        // unavailable feed explicitly restores the direct path. Searches retain their own loader.
+        if cloudFeed != nil, mailboxSync != nil, syncUsesCloud[account] != false {
+            startSync(account)
+            return
+        }
         guard access.mailGrant(accountID: account) == .granted, !disabled.contains(account), !forgettingAccess.contains(account),
               (syncRetryAt[account] ?? .distantPast) <= Date(), pageTasks[account] == nil, !completed.contains(account) else { return }
         failures.remove(account)
@@ -810,7 +877,8 @@ import GRDB
         var ok = false
         for account in accounts where account.state == .connected {
             do {
-                _ = try await sync.pass(account: account.id, nowMS: Int64(Date().timeIntervalSince1970 * 1000))
+                let progress = try await sync.pass(account: account.id, nowMS: Int64(Date().timeIntervalSince1970 * 1000))
+                acceptSyncProgress(progress, account: account.id)
                 ok = true
             } catch GmailMailboxSync.Failure.busy, MailCloudFeedSync.Failure.busy {
                 ok = true   // a pass is running already; it brings the same
@@ -867,7 +935,9 @@ import GRDB
                             // Older bodies remain reachable through explicit Load message controls.
                             for message in messages.suffix(8) { self.enqueue(.body(message), priority: false) }
                         }
-                    case .body(let id): try await loader.body(id)
+                    case .body(let id):
+                        try await loader.body(id)
+                        if !Task.isCancelled { self?.recordSyncCompleted(account: id.account, count: 1) }
                     case .calendarCopies(let id):
                         // Verification is optional: offline mail and body readiness do not depend on it.
                         try? await loader.verifyCalendarCopies(id)
@@ -963,6 +1033,7 @@ import GRDB
         }
         let value = accounts
         for callback in accountObservers.values { callback(value) }
+        refreshSyncProgress()
     }
 
     private static func account(for scope: MailScope) -> String? {
@@ -1019,7 +1090,10 @@ extension MailLiveSource {
         }
         mailboxSync = GmailMailboxSync(stores: stores, writer: writer, api: api,
             token: { [access] account in try await access.mailAccessToken(accountID: account).value },
-            recovery: MailRemovalRecovery(stores: stores, intents: intent), feed: cloudFeed)
+            recovery: MailRemovalRecovery(stores: stores, intents: intent), feed: cloudFeed,
+            sourceSelected: { [weak self] account, cloud in
+                await self?.selectSyncSource(cloud: cloud, account: account)
+            })
         let writer = self.writer
         delivery = GmailIntentDelivery(store: intent, api: api, token: { [access] account in
             try await access.mailAccessToken(accountID: account).value
@@ -1472,6 +1546,26 @@ extension MailLiveSource {
         }
     }
 
+    private func selectSyncSource(cloud: Bool, account: String) {
+        let changed = syncUsesCloud[account] != cloud
+        syncUsesCloud[account] = cloud
+        if cloud {
+            pageTasks[account]?.cancel(); pageTasks[account] = nil
+            pages[account] = nil
+        } else if changed, active {
+            loadPage(account)
+        }
+        if changed { for id in subscriptions.keys { refresh(id) } }
+    }
+
+    private func acceptSyncProgress(_ progress: GmailMailboxSync.Progress, account: String) {
+        syncEnumerationComplete[account] = progress.enumerationComplete ?? !progress.hasMore
+        // An empty final feed page can complete enumeration without changing a stored row.
+        // Observers must still learn that there is no remote list page left to request.
+        for id in subscriptions.keys { refresh(id) }
+        refreshSyncProgress()
+    }
+
     private func startSync(_ account: String) {
         guard active, !disabled.contains(account), !forgettingAccess.contains(account), access.mailGrant(accountID: account) == .granted,
               syncTasks[account] == nil, let worker = mailboxSync else { return }
@@ -1494,6 +1588,7 @@ extension MailLiveSource {
                     try Task.checkCancellation()
                     let progress = try await worker.pass(account: account, nowMS: Int64(Date().timeIntervalSince1970 * 1000))
                     try Task.checkCancellation()
+                    self.acceptSyncProgress(progress, account: account)
                     if let retry = self.syncRetryAt[account], retry > Date() {
                         // A concurrent body request may have been rate-limited
                         // while this pass was in flight. Its deadline still wins.
@@ -1732,13 +1827,14 @@ extension MailLiveSource {
     }
     private func draftChanged(_ record: MailDraftRecord) {
         let id = record.snapshot.id, previous = draftStates[id]
+        let previousConversation = draftCache[id]?.conversation
         if let generation = draftGenerations[id], generation > record.generation { return }
         draftGenerations[id] = record.generation
         draftCacheOrder.removeAll { $0 == id }; draftCacheOrder.append(id)
         while draftCacheOrder.count > 100 {
             guard let victim = draftCacheOrder.first(where: { !draftSaveFailures.contains($0) && $0 != id }) else { break }
             draftCacheOrder.removeAll { $0 == victim }
-            draftCache.removeValue(forKey: victim); draftStates.removeValue(forKey: victim); draftGenerations.removeValue(forKey: victim)
+            draftCache.removeValue(forKey: victim); draftStates.removeValue(forKey: victim); draftGenerations.removeValue(forKey: victim); draftSentMessages.removeValue(forKey: victim); draftRemoteMessages.removeValue(forKey: victim)
         }
         if let driver = draftDriver {
             Task { [weak self] in
@@ -1747,7 +1843,7 @@ extension MailLiveSource {
         }
         var draft = record.snapshot.value
         switch record.state {
-        case .held: draft.delivery = .held(until: record.sendAt ?? Date())
+        case .held: draft.delivery = draft.schedule.map { .scheduled($0.at) } ?? .held(until: record.sendAt ?? Date())
         case .sending: draft.delivery = .sending
         case .uncertain: draft.delivery = .checking
         case .failed: draft.delivery = .failed(.other)
@@ -1758,6 +1854,8 @@ extension MailLiveSource {
             var newer = cached; newer.delivery = draft.delivery; draftCache[id] = newer
         } else { draftCache[id] = draft }
         draftStates[id] = record.state
+        draftSentMessages[id] = record.sentMessage
+        draftRemoteMessages[id] = record.remote.map { MailMessageID(account: draft.account, message: $0.message.id) }
         let questionID = MailQuestion.ID(raw: "draft:" + id.raw)
         status.value.questions.removeAll { $0.id == questionID }
         if record.conflict {
@@ -1770,7 +1868,7 @@ extension MailLiveSource {
             if record.thenDone { _ = apply(.done, to: .conversations([draft.conversation])) }
         }
         if record.state == .failed && previous != nil && previous != .failed { emit(.sendFailed(id, .other)) }
-        for (token, subscription) in conversationSubscriptions where subscription.id == draft.conversation { refreshConversation(token) }
+        for (token, subscription) in conversationSubscriptions where subscription.id == draft.conversation || subscription.id == previousConversation { refreshConversation(token) }
         for token in subscriptions.keys { refresh(token) }
     }
     func newDraft(_ kind: MailDraftKind) async -> MailDraft {
@@ -1987,6 +2085,60 @@ enum MailInboxCount {
 
     static func place(unread: Int, total: MailCount) -> MailPlaceCount {
         MailPlaceCount(unread: MailCount(value: min(cap, unread), isAtLeast: unread > cap), total: total)
+    }
+}
+
+
+extension MailLiveSource {
+    private func recordSyncCompleted(account: String, count: Int) {
+        guard count > 0 else { return }
+        syncCompleted[account, default: 0] += count
+        refreshSyncProgress()
+    }
+
+    /// Coalesce committed batches. Off-screen headers do no counting and no polling is added.
+    private func refreshSyncProgress() {
+        progressRevision &+= 1
+        guard let progress = syncProgress, progress.observers > 0 else {
+            progressReadTask?.cancel(); progressReadTask = nil; progressReadToken = UUID()
+            return
+        }
+        if progressReadTask != nil { progressReadAgain = true; return }
+        let token = UUID(); progressReadToken = token
+        progressReadTask = Task { [weak self] in
+            guard let self else { return }
+            defer { if self.progressReadToken == token { self.progressReadTask = nil } }
+            repeat {
+                self.progressReadAgain = false
+                let revision = self.progressRevision
+                let accounts = self.accounts.filter { $0.state == .connected }
+                let ids = accounts.map(\.id)
+                let completed = ids.reduce(0) { $0 + (self.syncCompleted[$1] ?? 0) }
+                let known = ids.allSatisfy { self.syncEnumerationComplete[$0] == true }
+                do {
+                    let remaining = try await self.stores.index.read { try MailSyncProgressReader.pending(accounts: ids, in: $0) }
+                    guard !Task.isCancelled, self.progressReadToken == token else { return }
+                    // Never combine a stale queue count with newer completion counters.
+                    if revision != self.progressRevision { self.progressReadAgain = true; continue }
+                    let involved = accounts.filter { (remaining[$0.id]?.count ?? 0) > 0 || self.syncEnumerationComplete[$0.id] != true }
+                    let paused = !involved.isEmpty && involved.allSatisfy { Self.syncProgressPaused($0.health) }
+                    progress.update(.init(completed: completed, pending: remaining.values.reduce(0) { $0 + $1.count },
+                                          totalKnown: known && remaining.values.allSatisfy(\.isExact),
+                                          pendingIsAtLeast: remaining.values.contains { !$0.isExact }, checking: !known && !accounts.isEmpty && !paused,
+                                          paused: paused))
+                } catch {
+                    guard !Task.isCancelled, self.progressReadToken == token else { return }
+                    progress.update(.init(completed: completed, unavailable: true))
+                }
+            } while self.progressReadAgain && !Task.isCancelled
+        }
+    }
+
+    private static func syncProgressPaused(_ health: MailSyncHealth) -> Bool {
+        switch health {
+        case .offline, .limited, .bytesSpent, .apiDisabled, .notAllowedByAdmin, .wrongAccount: true
+        case .live, .firstSync, .catchingUp, .checking: false
+        }
     }
 }
 

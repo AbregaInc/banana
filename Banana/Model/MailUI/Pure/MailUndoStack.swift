@@ -140,6 +140,14 @@ struct MailUndoStack: Equatable, Sendable {
         if entries.count > Self.depth { entries.removeFirst(entries.count - Self.depth) }
     }
 
+    /// Delivery ends cancellation immediately; Send and Done still retains its separate Done undo.
+    mutating func confirmedSend(_ receipt: MailReceipt, at now: Date) -> Bool {
+        guard let index = entries.lastIndex(where: { $0.receipt == receipt }),
+              case .send(let draft, let end, let done) = entries[index].kind else { return false }
+        entries[index].kind = .send(draft, holdEnds: min(end, now), doneSubject: done)
+        return done != nil
+    }
+
     /// Takes an entry out because its change cannot stand (T36): the source refused it for good,
     /// or the device could not save it. There is nothing left to undo.
     @discardableResult

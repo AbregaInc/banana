@@ -90,3 +90,10 @@ The handoff runner moves a closed SQLite store from iPad to Mac and back. It pro
 Machine-readable results and console transcripts are retained in `docs/research/pi-apple-host-results`. See the accompanying results report for which device/build actually passed. Controlled exit is not SIGKILL or power loss. Automatic cross-device ownership/synchronization, OS-scheduled background delivery, forced-expiration coverage remain work. Production Notes/day-plan capabilities and the app UI are covered by the [app integration](../../docs/research/PI-APPLE-APP-INTEGRATION.md). The standalone proof app keeps this integration separate from Banana's production user stores.
 
 Run `tools/clean-builds.sh` when finished. Sources and evidence stay; no simulator is required.
+
+`python3 tools/pi-host-proof/run-mac.py --mode foundation-nutrition` uses the real Apple
+model through Banana’s application capability policy, with fictional food logs and an older
+chart. It checks that an unsupported nutrient question gets a written data limitation, executes
+no substitute chart tool, and leaves the older chart out of the current answer. Generic Apple
+provider proofs remain separate from application routing. Mac results do not establish the
+exact model behavior on a physical iPhone.

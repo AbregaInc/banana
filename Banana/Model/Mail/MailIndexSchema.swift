@@ -11,6 +11,14 @@ enum MailIndexSchema {
         }
     }
 
+    /// Revisit only already-downloaded mail whose identity was lost by older header rules.
+    /// Keep headers/list membership and originals; the normal bounded fill/cache promotion repairs it.
+    static func registerSenderRecovery(in migrator: inout DatabaseMigrator) {
+        migrator.registerMigration("sender-domain-recovery-v1") { db in
+            try db.execute(sql: "UPDATE message SET prep_state=0 WHERE fetch_state=2 AND from_addr IS NULL")
+        }
+    }
+
     static let schema = """
     CREATE TABLE meta(key TEXT PRIMARY KEY, value TEXT NOT NULL) WITHOUT ROWID;
     -- 'derived_version', 'created_at', 'unclean' (set while the engine runs)

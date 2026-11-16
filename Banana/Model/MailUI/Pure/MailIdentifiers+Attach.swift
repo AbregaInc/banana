@@ -20,6 +20,7 @@ extension MailID {
     static let formatBold = "mail.composer.format.bold"
     static let formatItalic = "mail.composer.format.italic"
     static let formatUnderline = "mail.composer.format.underline"
+    static let composerSchedulingLink = "mail.composer.schedulingLink"
     static let formatLink = "mail.composer.format.link"
     static let formatLinkField = "mail.composer.format.link.field"
     static let formatBullets = "mail.composer.format.bullets"

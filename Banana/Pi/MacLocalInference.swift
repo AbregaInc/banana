@@ -1,5 +1,5 @@
 #if BANANA_AI
-#if os(macOS) && PI_DEVELOPMENT
+#if os(macOS)
 import Foundation
 
 /// Owns a loopback-only inference worker; Pi and all application effects stay in Banana.
@@ -30,8 +30,7 @@ final class MacLocalInference {
         }
     }
     static let shared = MacLocalInference()
-    static let directory = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-        .appendingPathComponent("Banana Pi/LocalInference", isDirectory: true)
+    static let directory = AppSupport.directory.appendingPathComponent("LocalInference", isDirectory: true)
     /// A verification run may name another profile to qualify (`--assistant-inference-configuration`).
     static var verificationConfigurationURL: URL? {
         #if DEBUG
@@ -92,14 +91,14 @@ final class MacLocalInference {
                   (candidate.topK ?? 20) >= 0,
                   candidate.modelDirectory.hasPrefix("/"), FileManager.default.isExecutableFile(atPath: candidate.python),
                   FileManager.default.fileExists(atPath: candidate.modelDirectory + "/model.safetensors.index.json") else {
-                throw AssistantFailure(message: "This Mac's model isn't complete. Banana Pi will fetch it again.")
+                throw AssistantFailure(message: "This Mac's model isn't complete. Banana will fetch it again.")
             }
             configuration = candidate
         }
         guard let config = configuration else { return }
         if ready && (process == nil || process?.isRunning == true) { return }
         if let ids = try? await models(config) {
-            guard ids.contains(config.serverModel) else { throw AssistantFailure(message: "Another model is using Banana Pi's inference port.") }
+            guard ids.contains(config.serverModel) else { throw AssistantFailure(message: "Another model is using Banana's inference port.") }
             ready = true
             return
         }
@@ -128,11 +127,11 @@ final class MacLocalInference {
         let deadline = ContinuousClock.now.advanced(by: .seconds(240))
         while ContinuousClock.now < deadline {
             try Task.checkCancellation()
-            guard process?.isRunning == true else { throw AssistantFailure(message: "The local inference worker stopped. See Banana Pi/LocalInference/engine.log.") }
+            guard process?.isRunning == true else { throw AssistantFailure(message: "The local inference worker stopped. See LocalInference/engine.log in the app’s support folder.") }
             if let ids = try? await models(config) {
                 guard ids.contains(config.serverModel) else {
                     stop()
-                    throw AssistantFailure(message: "The local worker loaded a different model than this build expects. Update Banana Pi and try again.")
+                    throw AssistantFailure(message: "The local worker loaded a different model than this build expects. Update Banana and try again.")
                 }
                 ready = true
                 return

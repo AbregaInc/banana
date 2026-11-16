@@ -124,3 +124,73 @@ test('an omitted clarification field is repaired without exposing app capabiliti
   return response('clarify_input',{missing:'amount'});
  });assert.equal(out.content[0].text,'How much did you have?');assert.equal(calls,2);
 });
+
+test('unsupported nutrient cannot be substituted with a default protein chart', async()=>{
+ for(const evidence of [undefined, 'protein', 'coline']) {
+  let n=0;
+  const out=await routeGeneration(request('Have I had enough coline this week?', ['nutrition_view']),async()=>n++===0
+   ? pick('nutrition_view',{section:'nutrition'})
+   : response('nutrition_view',{metric:'protein',period:'this_month',...(evidence===undefined?{}:{metricEvidence:evidence})}));
+  assert.equal(out.content[0].type,'text');
+  assert.match(out.content[0].text,/calories.*protein.*carb.*fat/i);
+ }
+});
+
+test('nutrition questions read facts and continue to a written answer',async()=>{
+ let n=0;
+ const out=await routeGeneration(request('How much protein did I log in the last seven days?', ['nutrition_view']),async()=>n++===0
+  ? pick('nutrition_view',{section:'nutrition'})
+  : response('nutrition_view',{metric:'protein',period:'last_7_days',metricEvidence:'protein'}));
+ assert.equal(out.content[0].name,'nutrition_view');
+ assert.equal(out.content[0].arguments.responseMode,'answer');
+ assert.equal(out.content[0].arguments.metricEvidence,undefined);
+});
+
+test('explicit native chart command remains a view action',async()=>{
+ const out=await routeGeneration(request('Show my protein this month',['nutrition_view']),async()=>{throw Error('No model needed');});
+ assert.equal(out.content[0].name,'nutrition_view');
+ assert.notEqual(out.content[0].arguments.responseMode,'answer');
+});
+
+
+test('micronutrient requests expose only the grounded read capability', async()=>{
+ let calls=0;
+ const out=await routeGeneration(request('Have I had enough coline this week?', ['nutrition_view','read_nutrients']),async r=>{
+  if(calls++===0)return pick('read_nutrients',{section:'nutrition',needsUnavailableData:false});
+  assert.deepEqual(r.tools.map(t=>t.name),['read_nutrients']);
+  return response('read_nutrients',{nutrient:'coline',period:'this_week'});
+ });
+ assert.equal(out.content[0].name,'read_nutrients');
+ assert.equal(out.content[0].arguments.nutrient,'coline');
+});
+test('a model cannot replace the requested micronutrient with another one',async()=>{
+ let calls=0;
+ const out=await routeGeneration(request('Check my choline intake', ['read_nutrients']),async()=>calls++===0
+  ? pick('read_nutrients',{section:'nutrition',needsUnavailableData:false})
+  : response('read_nutrients',{nutrient:'iron'}));
+ assert.equal(out.content[0].type,'text');
+});
+test('nutrient names require whole-word evidence rather than a substring',async()=>{
+ let calls=0;
+ const out=await routeGeneration(request('What about ironing?', ['read_nutrients']),async()=>calls++===0
+  ? pick('read_nutrients',{section:'nutrition',needsUnavailableData:false})
+  : response('read_nutrients',{nutrient:'iron'}));
+ assert.equal(out.content[0].type,'text');
+});
+
+test('relative nutrient periods discard model calendar arithmetic',async()=>{
+ let calls=0;
+ const out=await routeGeneration(request('Check choline this week',['read_nutrients']),async()=>calls++===0
+  ? pick('read_nutrients',{section:'nutrition'})
+  : response('read_nutrients',{nutrient:'choline',period:'this_week',end:'1999-01-01'}));
+ assert.deepEqual(out.content[0].arguments,{nutrient:'choline',period:'this_week'});
+});
+test('explicit nutrient dates must be supplied by the person',async()=>{
+ for(const supplied of [false,true]) {
+  let calls=0;
+  const out=await routeGeneration(request('Check choline'+(supplied?' 2026-11-01 to 2026-11-07':''),['read_nutrients']),async()=>calls++===0
+   ? pick('read_nutrients',{section:'nutrition'})
+   : response('read_nutrients',{nutrient:'choline',start:'2026-11-01',end:'2026-11-07'}));
+  assert.equal(out.content[0].type,supplied?'toolCall':'text');
+ }
+});

@@ -21,6 +21,10 @@ final class MailFixtureSource: MailSource {
     private var eventObservers: [UUID: @MainActor (MailEvent) -> Void] = [:]
     var nextApplyFailure: MailStoreProblem?
     var nextUndoFailure: MailStoreProblem?
+    var beforeSenderBlock: (() async throws -> Void)?
+    var onApply: ((MailChange, MailTarget) -> Void)?
+    var onRetrySend: ((MailDraftID) -> Void)?
+    func retrySend(_ draft: MailDraftID) { onRetrySend?(draft) }
 
     func observeEvents(_ onEvent: @escaping @MainActor (MailEvent) -> Void) -> MailObservation {
         let id = UUID()
@@ -114,6 +118,7 @@ final class MailFixtureSource: MailSource {
     private var accountObservers: [UUID: @MainActor ([MailAccount]) -> Void] = [:]
 
     let status = MailStatus(MailNotYet.emptyStatus)
+    var syncProgress: MailSyncProgress?
     let badges = MailBadges(MailBadgeCounts(unreadInFirstSplit: 0, needsAnswer: 0))
 
     /// Where the sample mail's clock stands.
@@ -126,6 +131,16 @@ final class MailFixtureSource: MailSource {
         self.gmailDelay = gmailDelay
         self.wakeClock = wakeClock
         self.defaults = defaults
+        #if DEBUG
+        let args = ProcessInfo.processInfo.arguments
+        if let index = args.firstIndex(of: "--mail-sync-progress-fixture"), index + 1 < args.count {
+            let mode = args[index + 1]
+            let model = MailSyncProgress()
+            model.update(.init(completed: 25, pending: mode == "done" ? 0 : 75,
+                               totalKnown: mode != "unknown", paused: mode == "paused"))
+            syncProgress = model
+        }
+        #endif
         if gmailDelay != nil {
             for sample in Self.gmailOnlySamples() {
                 let built = Self.build(sample)
@@ -140,6 +155,24 @@ final class MailFixtureSource: MailSource {
             threads[built.stored.row.id] = built.stored
             for (id, body) in built.bodies { bodies[id] = body }
         }
+        #if DEBUG
+        if args.contains("--mail-verification-code"),
+           let id = threads.keys.first(where: { $0.thread == "newsletter" }), var stored = threads[id] {
+            stored.row.subject = "Your one-time verification code"
+            stored.conversation.subject = stored.row.subject
+            if let message = stored.conversation.messages.first {
+                bodies[message.id] = .text(Self.text(from: ["One-Time Verification Code:", "042819", "Do not share this code."]), quoteStartsAt: nil, notices: [])
+            }
+            threads[id] = stored
+        }
+        if args.contains("--mail-unknown-sender"),
+           let id = threads.keys.first(where: { $0.thread == "newsletter" }), var stored = threads[id] {
+            let unknown = MailPerson(name: nil, address: "", isMe: false, isKnown: false, fromTheirMail: false)
+            stored.row.people = [unknown]
+            for index in stored.conversation.messages.indices { stored.conversation.messages[index].from = unknown }
+            threads[id] = stored
+        }
+        #endif
         #if DEBUG && targetEnvironment(simulator)
         // `--mail-case <input.html>` (Debug, Simulator): the receipt's message is that HTML, prepared
         // as received mail is, so a renderer case (tools/reports/mail-cases) can be looked at in the
@@ -249,6 +282,7 @@ final class MailFixtureSource: MailSource {
         let value = MailSenderPolicyStatus(); value.loading = false; senderPolicies[key] = value; return value
     }
     func setSenderBlocked(_ blocked: Bool, account: String, sender: String) async throws {
+        try await beforeSenderBlock?()
         let value = senderPolicyStatus(account: account, sender: sender)
         value.blocked = blocked; value.desiredBlocked = blocked; value.pending = false; value.failed = false
     }
@@ -269,6 +303,7 @@ final class MailFixtureSource: MailSource {
 
     @discardableResult
     func apply(_ change: MailChange, to target: MailTarget) -> MailReceipt {
+        onApply?(change, target)
         let ids: [MailConversationID]
         switch target {
         case .reading(let readings):
@@ -512,10 +547,23 @@ final class MailFixtureSource: MailSource {
                 pageCache[key] = page
             }
         }
-        return MailListSnapshot(scope: scope, rows: page.rows,
+        var snapshot = MailListSnapshot(scope: scope, rows: page.rows,
                                 total: MailCount(value: page.total, isAtLeast: false),
                                 hasMore: page.total > page.rows.count, stillLoading: 0, isRebuilding: false,
                                 remote: nil, coverage: nil, appliedThrough: sequence)
+        #if DEBUG
+        let args = ProcessInfo.processInfo.arguments
+        if let index = args.firstIndex(of: "--mail-paging-fixture"), index + 1 < args.count {
+            snapshot.hasMore = true
+            snapshot.total.isAtLeast = true
+            switch args[index + 1] {
+            case "pending": snapshot.remote = .pending
+            case "failed": snapshot.remote = .failed
+            default: snapshot.remote = nil
+            }
+        }
+        #endif
+        return snapshot
     }
 
     private func places() -> MailPlaces {

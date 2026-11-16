@@ -46,6 +46,7 @@ actor MailCloudPull {
     private let clock: @Sendable () -> Int64
     private let pace: @Sendable () -> MailWorkPace
     private let sleep: @Sendable (TimeInterval) async throws -> Void
+    private let stored: @Sendable (String, Int) -> Void
     private var opened: [MailMessageID] = []
     private var screen: [MailMessageID] = []
     private var inFlight = Set<MailMessageID>()
@@ -65,8 +66,9 @@ actor MailCloudPull {
     init(stores: MailStores, loader: GmailConversationLoader, source: any MailCloudFeedSource,
          clock: @escaping @Sendable () -> Int64 = { Int64(Date().timeIntervalSince1970 * 1000) },
          pace: @escaping @Sendable () -> MailWorkPace = { .full },
-         sleep: @escaping @Sendable (TimeInterval) async throws -> Void = { try await Task.sleep(for: .seconds($0)) }) {
-        self.stores = stores; self.loader = loader; self.source = source; self.clock = clock
+         sleep: @escaping @Sendable (TimeInterval) async throws -> Void = { try await Task.sleep(for: .seconds($0)) },
+         stored: @escaping @Sendable (String, Int) -> Void = { _, _ in }) {
+        self.stores = stores; self.loader = loader; self.source = source; self.clock = clock; self.stored = stored
         self.pace = pace; self.sleep = sleep
     }
 
@@ -301,6 +303,7 @@ actor MailCloudPull {
         let stored = result.stored.map { MailMessageID(account: account, message: $0) }
         let headed = Set(result.headersOnly.map { MailMessageID(account: account, message: $0) })
         step.stored = stored
+        if !stored.isEmpty { self.stored(account, stored.count) }
         step.problems = result.problems
         done.formUnion(stored)
         // A message the cloud sent that could not be stored here (malformed, too large) goes the

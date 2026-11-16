@@ -12,6 +12,7 @@ struct MailFaceView: View {
     @Environment(\.displayScale) private var scale
     @State private var picture: CGImage?
     @State private var shownFor = ""
+    @State private var permissionGeneration: UInt64 = 0
 
     private var px: Int { Int((size * scale).rounded(.up)) }
 
@@ -32,11 +33,15 @@ struct MailFaceView: View {
                         .transition(.opacity)
                 }
             }
-            .task(id: TaskKey(address: face.address, px: px)) {
-                guard !face.address.isEmpty, MailSenderImages.cached(face.address, px: px) == nil else { return }
+            .onReceive(NotificationCenter.default.publisher(for: MailSenderImages.permissionsChanged)) { _ in
+                permissionGeneration &+= 1
+            }
+            .task(id: TaskKey(address: face.address, px: px, generation: permissionGeneration)) {
+                guard !face.address.isEmpty else { return }
+                if permissionGeneration == 0, MailSenderImages.cached(face.address, px: px) != nil { return }
                 let address = face.address
                 let got = await MailSenderImages.shared.image(for: address, px: px)
-                guard !Task.isCancelled, let got else { return }
+                guard !Task.isCancelled else { return }
                 withAnimation(.easeIn(duration: 0.2)) {
                     shownFor = address
                     picture = got
@@ -44,7 +49,7 @@ struct MailFaceView: View {
             }
     }
 
-    private struct TaskKey: Equatable { var address: String; var px: Int }
+    private struct TaskKey: Equatable { var address: String; var px: Int; var generation: UInt64 }
 }
 
 #endif

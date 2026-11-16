@@ -104,11 +104,11 @@ last_release_version() {
 
 IOS_BETA_APP=".build/ios-beta/Build/Products/Release-iphoneos/Banana Beta.app"
 
-# build_ios_beta BUILD VERSION: the Beta iOS app that goes on the owner's devices (Email on,
-# local AI off). Not distributed, so no release check.
+# build_ios_beta BUILD VERSION: the integrated Beta iOS app (Email and Pi on).
+# Installed locally, not distributed through Stable/TestFlight.
 build_ios_beta() {
   run banana_xcodebuild -project Banana.xcodeproj -scheme BananaBeta -configuration Release \
-    BANANA_UNRELEASED=NO BANANA_LOCAL_EMAIL=YES BANANA_LOCAL_AI=NO \
+    BANANA_UNRELEASED=NO BANANA_LOCAL_EMAIL=YES BANANA_LOCAL_AI=YES \
     "BANANA_SOURCE_COMMIT=$(banana_source_revision)" "CURRENT_PROJECT_VERSION=$1" "MARKETING_VERSION=$2" \
     -destination 'generic/platform=iOS' -derivedDataPath .build/ios-beta -allowProvisioningUpdates -quiet build
 }

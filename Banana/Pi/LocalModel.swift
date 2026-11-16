@@ -1,5 +1,5 @@
 #if BANANA_AI
-#if os(macOS) && PI_DEVELOPMENT
+#if os(macOS)
 import Foundation
 
 /// Banana Pi's model files on the Mac, kept by the app itself: nothing to install or set up.

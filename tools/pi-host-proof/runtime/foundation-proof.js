@@ -1,12 +1,15 @@
+import {NutritionDoc, nutritionExtension, updateNutrition} from './nutrition.js';
+import {nutritionInputId,nutritionForInput} from './nutrition-presentation.js';
 import { BACKGROUND_CONTEXT } from '@earendil-works/chord/context';
 import { createModels } from '@earendil-works/pi-ai/models';
 import { Type } from 'typebox';
 import { Harness, createRegistry, defineExtension, defineTool } from '@earendil-works/pi-durable';
 import { SqliteStorage } from '@earendil-works/pi-durable/storage/sqlite';
 import { NativeDatabase } from './database.js';
-import { appleFoundationProvider, requestNativeGeneration } from './apple-provider.js';
+import { appleFoundationProvider, bananaFoundationProvider, requestNativeGeneration } from './apple-provider.js';
 
 export async function runFoundationProof() {
+  if (nativeMode === 'foundation-nutrition') return runNutritionFoundationProof();
   const availability = JSON.parse(nativeModelStatus());
   if (!availability.available) return { mode: nativeMode, passed: false, unavailable: true, availability };
   let modelCalls = 0, toolCalls = 0;
@@ -47,5 +50,33 @@ export async function runFoundationProof() {
         && (textOnly ? toolCalls === 0 : interruptedRecovery ? interrupted && toolCalls === 0 && modelCalls === 1
           : reopening ? toolCalls === 0 && modelCalls === 0 : toolCalls === 1 && answer.some((text) => text.includes('42'))),
       results: messages.filter((message) => message.role === 'toolResult') };
+  } finally { await harness.close(BACKGROUND_CONTEXT); }
+}
+
+// The real on-device model, using the same policy factory as Banana on iOS, with fictional logs.
+async function runNutritionFoundationProof() {
+  const availability = JSON.parse(nativeModelStatus());
+  if (!availability.available) return {mode: nativeMode, passed: false, unavailable: true, availability};
+  const models = createModels(), registry = createRegistry();
+  let modelCalls = 0; const selections = [];
+  models.setProvider(bananaFoundationProvider({contextWindow: availability.contextWindow, generate: async (request, signal) => {
+    if (++modelCalls > 4) throw new Error('Nutrition proof exceeded four model calls');
+    const result = await requestNativeGeneration(request, signal); selections.push(result); return result;
+  }}));
+  const native = async ({name, arguments: surface}) => { if (name === 'read_nutrients' && ((surface.start == null) !== (surface.end == null) || surface.period && surface.start)) throw new Error('Invalid native date arguments'); return name === 'read_nutrients' ? {nutrient: {key: 'choline', unit: 'mg'}, estimateFromLoggedFoods: 125, averagePerDayWithData: 125, quantifiedItems: 2, unknownItems: 1, loggedDays: 1, fullDietCoverageKnown: false, basis: 'Fictional proof records only. Estimated USDA intake from two logged foods; one food and six days are unknown. Missing is not zero.', sourceURL: 'https://fdc.nal.usda.gov/download-datasets/'} : {surface, summary: {loggedDays: 0, loggedTotal: 0, missingDaysAreNotZero: true}}; };
+  registry.install(nutritionExtension(native, () => 'fixture-operation'));
+  const harness = await Harness.open(await SqliteStorage.open(new NativeDatabase()), {models, registry}, BACKGROUND_CONTEXT);
+  try {
+    const root = await harness.root(BACKGROUND_CONTEXT, {agent: {model: {provider: 'apple-foundation', modelId: 'on-device'}, instructions: 'Answer from recorded app data only. Never invent intake. Use read_nutrients for estimated choline in logged foods. Report the numeric result and incomplete coverage; do not infer personal adequacy or substitute the old protein chart.'}});
+    await updateNutrition(harness, root.id, {revision: 0, metric: 'protein'}, 'old-chart', native, BACKGROUND_CONTEXT, {inputId: 'old-input'});
+    const settled = await (await root.submit({type: 'input', content: 'Have I had enough choline this week?', requestId: 'estimated-nutrient'}, BACKGROUND_CONTEXT)).wait(BACKGROUND_CONTEXT);
+    const entries = await root.entries({}, 100, undefined, BACKGROUND_CONTEXT);
+    const messages = entries.items.flatMap(entry => entry.model ?? []);
+    const answer = messages.filter(m => m.role === 'assistant').flatMap(m => m.content).filter(p => p.type === 'text').map(p => p.text).join(' ');
+    const tools = messages.filter(m => m.role === 'assistant').flatMap(m => m.content).filter(p => p.type === 'toolCall').map(p => p.name);
+    const doc = await harness.snapshot(NutritionDoc, root.id, BACKGROUND_CONTEXT);
+    const limited = /125/.test(answer) && /choline/i.test(answer) && /unknown|incomplete|missing|not enough|cannot|can’t|can.t|partial|only/i.test(answer);
+    return {mode: nativeMode, modelCalls, selections, status: settled.status, answer, tools,
+      passed: settled.status === 'done' && limited && tools.length === 1 && tools[0] === 'read_nutrients' && doc.operation === 'old-chart' && nutritionForInput(doc, nutritionInputId(entries.items)) === null};
   } finally { await harness.close(BACKGROUND_CONTEXT); }
 }

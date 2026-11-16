@@ -7,7 +7,7 @@ import subprocess
 import tempfile
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--mode', default='host-conformance', choices=['workspace-conformance', 'nutrition-conformance', 'host-conformance', 'provider-conformance', 'foundation-text', 'foundation-tool', 'foundation-roundtrip', 'foundation-interruption', 'lifecycle-roundtrip', 'lifecycle-conformance'])
+parser.add_argument('--mode', default='host-conformance', choices=['workspace-conformance', 'nutrition-conformance', 'host-conformance', 'provider-conformance', 'foundation-text', 'foundation-tool', 'foundation-nutrition', 'foundation-roundtrip', 'foundation-interruption', 'lifecycle-roundtrip', 'lifecycle-conformance'])
 args = parser.parse_args()
 repo = pathlib.Path(__file__).resolve().parents[2]
 sources = pathlib.Path(__file__).resolve().parent

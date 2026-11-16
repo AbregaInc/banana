@@ -164,6 +164,9 @@ struct PlanStepButton: View {
         Button { step(delta) } label: {
             Image(systemName: delta < 0 ? "chevron.left" : "chevron.right")
                 .frame(width: framed ? 44 : nil, height: framed ? 44 : nil)
+                #if os(macOS)
+                .frame(minWidth: 28, minHeight: 28)
+                #endif
                 .contentShape(Rectangle())
         }
         .help(PlanPaging.help(name, key: delta < 0 ? "K" : "J"))
@@ -182,6 +185,9 @@ struct PlanTodayButton: View {
             Text("Today")
                 .padding(.horizontal, framed ? DS.Space.m : 0)
                 .frame(minHeight: framed ? 44 : nil)
+                #if os(macOS)
+                .frame(minWidth: 44, minHeight: 28)
+                #endif
                 .contentShape(Rectangle())
         }
         .help(PlanPaging.help("Go to today", key: "T"))
@@ -210,6 +216,32 @@ struct PlanPagingToolbar<Accessory: View>: ToolbarContent {
     #endif
 
     var body: some ToolbarContent {
+        #if os(macOS)
+        // One item keeps the native toolbar from splitting or reordering the date controls.
+        // Calendar navigation sits on the right; the only leading arrow-like control is the
+        // explicitly labelled sidebar icon. Single chevrons always page dates.
+        ToolbarItem(placement: .primaryAction) {
+            HStack(spacing: DS.Space.m) {
+                PlanPeriodMenu(dates: dates).fixedSize()
+                HStack(spacing: DS.Space.s) {
+                    PlanStepButton(delta: -1, days: days, step: step)
+                    if PlanPaging.showsToday(isCurrent: isCurrent) {
+                        PlanTodayButton(toCurrent: toCurrent)
+                    }
+                    PlanStepButton(delta: 1, days: days, step: step)
+                }
+                .buttonStyle(.borderless)
+                .fixedSize()
+                // Separate the date menu and the paging hit targets.
+                .padding(.leading, DS.Space.s)
+            }
+            .fixedSize()
+        }
+        // Optional forecast/loading status can yield independently of essential date controls.
+        ToolbarItem(placement: .automatic) {
+            HStack(spacing: DS.Space.s) { accessory }.fixedSize()
+        }
+        #else
         ToolbarItemGroup(placement: Self.leading) {
             PlanStepButton(delta: -1, days: days, step: step)
             if PlanPaging.showsToday(isCurrent: isCurrent) {
@@ -222,6 +254,7 @@ struct PlanPagingToolbar<Accessory: View>: ToolbarContent {
             PlanPeriodMenu(dates: dates)
             HStack(spacing: DS.Space.s) { accessory }.fixedSize()
         }
+        #endif
     }
 }
 

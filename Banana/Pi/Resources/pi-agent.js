@@ -5,6 +5,15 @@
       __defProp(target, name, { get: all[name], enumerable: true });
   };
 
+  // tools/pi-host-proof/runtime/nutrition-presentation.js
+  function nutritionInputId(entries) {
+    const entry2 = entries.find((entry3) => entry3.model?.some((message) => message.role === "user"));
+    return entry2 ? String(entry2.id) : null;
+  }
+  function nutritionForInput(doc, inputId) {
+    return doc?.inputId === inputId ? doc.surface ?? null : null;
+  }
+
   // tools/pi-host-proof/runtime/clock-context.js
   function clockInstructions(clock) {
     return "<current-clock>" + JSON.stringify(clock) + "</current-clock>\nResolve today/tomorrow/yesterday against this turn\u2019s device date and timezone, even if the conversation began on an earlier day. Prior agenda dates are historical results. Preserve relative day names for native tools; do not calculate an ISO date.";
@@ -21572,7 +21581,7 @@ ${SUMMARIZATION_PROMPT}${focus}`;
     scope: "conversation",
     history: "latest",
     fork: "current",
-    initial: () => ({ revision: 0, surface: null, operation: null }),
+    initial: () => ({ revision: 0, surface: null, operation: null, inputId: null }),
     checkpointWhen: () => true
   });
   var fields = {
@@ -21591,7 +21600,7 @@ ${SUMMARIZATION_PROMPT}${focus}`;
   function dateKey(date) {
     return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
   }
-  async function updateNutrition(owner, conversationId, patch, operation, nativeTool2, ctx) {
+  async function updateNutrition(owner, conversationId, patch, operation, nativeTool2, ctx, { readOnly = false, inputId = null } = {}) {
     const before = await owner.snapshot(NutritionDoc, conversationId, ctx);
     if (before?.operation === operation) return before.surface;
     const revision = before?.revision ?? 0;
@@ -21621,6 +21630,7 @@ ${SUMMARIZATION_PROMPT}${focus}`;
     if (!surface.draftMealID) delete surface.draftID;
     surface.revision = revision + 1;
     const validated = await nativeTool2({ name: "nutrition_view", arguments: surface }, ctx.abortSignal);
+    if (readOnly) return validated;
     await owner.commit(async (tx) => {
       const doc = await tx.doc(NutritionDoc, conversationId);
       if (doc.operation === operation) return;
@@ -21628,22 +21638,24 @@ ${SUMMARIZATION_PROMPT}${focus}`;
       doc.revision = surface.revision;
       doc.surface = validated.surface;
       doc.operation = operation;
+      doc.inputId = inputId;
     }, ctx);
     return validated;
   }
   function nutritionExtension(nativeTool2, uuid2, presented = async () => {
-  }) {
+  }, currentInput = async () => null) {
     const names3 = /* @__PURE__ */ new Set(["nutrition_view", "filter_nutrition", "prepare_meal_copy"]);
     const registered = (name, description, parameters, patch) => defineTool({
       name,
       description,
-      parameters: typebox_exports.Object({ ...parameters, revision: typebox_exports.Optional(typebox_exports.Integer({ description: "Host metadata; omit." })) }, { additionalProperties: false }),
+      parameters: typebox_exports.Object({ ...parameters, revision: typebox_exports.Optional(typebox_exports.Integer({ description: "Host metadata; omit." })), responseMode: typebox_exports.Optional(typebox_exports.String({ enum: ["view", "answer"], description: "Host response metadata; omit." })) }, { additionalProperties: false }),
       replay: "safe",
       execute: async (args, api, ctx) => {
         const operation = await api.memo("nutrition-operation", uuid2(), ctx);
-        const result = await updateNutrition(api, api.conversationId, { ...patch(args), revision: args.revision }, operation, nativeTool2, ctx);
-        await presented(api, ctx);
-        return { output: [{ type: "text", text: JSON.stringify(result) }], control: { terminate: true } };
+        const readOnly = name === "nutrition_view" && args.responseMode === "answer";
+        const result = await updateNutrition(api, api.conversationId, { ...patch(args), revision: args.revision }, operation, nativeTool2, ctx, { readOnly, inputId: await currentInput(api, ctx) });
+        if (!readOnly) await presented(api, ctx);
+        return { output: [{ type: "text", text: JSON.stringify(result) }], ...!readOnly ? { control: { terminate: true } } : {} };
       }
     });
     return defineExtension({ name: "banana-nutrition", hooks: [hook(GenerationTask, {
@@ -21670,8 +21682,23 @@ ${SUMMARIZATION_PROMPT}${focus}`;
         }
       }
       return `Revision ${doc?.revision ?? 0}
-Current native nutrition view: ` + JSON.stringify(active) + ". nutrition_view opens charts or searches food names. filter_nutrition changes only requested filters. prepare_meal_copy creates a review draft using an actual visible meal ID; it never saves. For repeat/add-again meal requests, use prepare_meal_copy directly with the most recent matching visible meal ID; do not search again when matching IDs are already listed. Default to today unless another date is requested. The host manages revision metadata. Dates are local and inclusive; period computes relative ranges natively. Successful view tools end the turn because the native interface is the answer. For explanations, use current native facts and reply directly. Missing prior logs cannot establish equal or zero intake. Never claim a meal draft exists unless the result contains draftMealID and draftDate.";
+Current native nutrition view: ` + JSON.stringify(active) + ". nutrition_view opens charts or searches food names. filter_nutrition changes only requested filters. prepare_meal_copy creates a review draft using an actual visible meal ID; it never saves. For repeat/add-again meal requests, use prepare_meal_copy directly with the most recent matching visible meal ID; do not search again when matching IDs are already listed. Default to today unless another date is requested. The host manages revision metadata. Dates are local and inclusive; period computes relative ranges natively. Explicit view actions end the turn because the native interface is the answer. Nutrition questions read facts without opening a chart and must continue to a written answer. Calories and macros are recorded. read_nutrients estimates choline, fiber, vitamins and minerals from USDA-linked foods with logged weights. It reports missing data explicitly and never opens a chart. Use it before answering micronutrient questions. Cite its source/reference links. Estimates, missing foods/days and supplements cannot establish complete intake or a diagnosis; do not infer age, sex or pregnancy/lactation status or select a personal target without that context. If sampleData is true, describe sample results rather than personal intake. Do not prescribe supplements or doses from an incomplete log. Never substitute a different nutrient. For explanations, use current native facts and reply directly. Missing prior logs cannot establish equal or zero intake. Never claim a meal draft exists unless the result contains draftMealID and draftDate.";
     })], tools: [
+      defineTool({
+        name: "read_nutrients",
+        description: "Read USDA-based estimates of a named nutrient from logged foods and their portion weights. Use the nutrient phrase verbatim from the current request. Includes coverage, missing items/days and sources; never changes a chart or saves a record.",
+        parameters: typebox_exports.Object({
+          nutrient: typebox_exports.String({ description: "The nutrient phrase verbatim from the request; native validation limits length to 80 characters." }),
+          period: typebox_exports.Optional(typebox_exports.String({ enum: ["this_week", "this_month", "last_month", "last_7_days", "last_30_days"], description: "Only use a period requested by the person. Omit for the default last seven days." })),
+          start: typebox_exports.Optional(typebox_exports.String()),
+          end: typebox_exports.Optional(typebox_exports.String())
+        }, { additionalProperties: false }),
+        replay: "safe",
+        execute: async (args, api, ctx) => {
+          const result = await nativeTool2({ name: "read_nutrients", arguments: args }, ctx.abortSignal);
+          return { output: [{ type: "text", text: typeof result === "string" ? result : JSON.stringify(result) }] };
+        }
+      }),
       registered(
         "nutrition_view",
         "Show a nutrition chart or find logged meals. Nutrients use metric; foodName is only an explicitly named food (e.g. yogurt), never a nutrient. Omitted fields keep the current view.",
@@ -21699,179 +21726,6 @@ Current native nutrition view: ` + JSON.stringify(active) + ". nutrition_view op
         (args) => ({ draftMealID: args.mealID, draftRelativeDay: args.day, draftDate: args.date ?? null })
       )
     ] });
-  }
-
-  // tools/pi-host-proof/runtime/apple-provider.js
-  function requestNativeGeneration(request2, signal) {
-    return new Promise((resolve2, reject) => {
-      if (signal?.aborted) {
-        reject(signal.reason);
-        return;
-      }
-      let id, settled = false;
-      const finish = (error, value, failed = false) => {
-        if (settled) return;
-        settled = true;
-        signal?.removeEventListener("abort", abort);
-        failed ? reject(error) : resolve2(value);
-      };
-      const abort = () => {
-        nativeModelCancel(id);
-        finish(signal.reason, void 0, true);
-      };
-      signal?.addEventListener("abort", abort, { once: true });
-      try {
-        id = nativeModelStart(JSON.stringify(request2), (raw) => {
-          try {
-            const result = JSON.parse(raw);
-            if (!result.ok) {
-              const error = new Error(result.error.message);
-              error.code = result.error.code;
-              finish(error, void 0, true);
-            } else finish(null, result.value);
-          } catch (error) {
-            finish(error, void 0, true);
-          }
-        });
-      } catch (error) {
-        finish(error, void 0, true);
-      }
-    });
-  }
-  function textContent(content) {
-    if (typeof content === "string") return content;
-    return content.map((part) => {
-      if (part.type !== "text") throw new Error(`Apple provider does not support ${part.type} input`);
-      return part.text;
-    }).join("\n");
-  }
-  function nativeRequest(context, options = {}, allowReasoning = false) {
-    if (!allowReasoning && options.reasoning !== void 0 && options.reasoning !== "off") throw new Error("Apple provider does not expose reasoning controls");
-    if (options.thinkingBudgets !== void 0) throw new Error("Apple provider does not expose thinking budgets");
-    if (options.deferred) throw new Error("Apple provider does not support deferred inference");
-    if (options.toolChoice !== void 0 && !["auto", "none"].includes(options.toolChoice)) throw new Error("Unsupported Apple tool choice");
-    if (options.maxTokens !== void 0 && (!Number.isSafeInteger(options.maxTokens) || options.maxTokens < 1)) throw new Error("Invalid Apple maxTokens");
-    if (options.temperature !== void 0 && (!Number.isFinite(options.temperature) || options.temperature < 0)) throw new Error("Invalid Apple temperature");
-    return {
-      instructions: getCurrentSystemPrompt(context.messages),
-      tools: options.toolChoice === "none" ? [] : getCurrentTools(context.messages),
-      messages: context.messages.filter((message) => message.role !== "system").map((message) => {
-        if (message.role === "assistant") {
-          return { role: "assistant", content: message.content.map((part) => {
-            if (!allowReasoning && part.type === "thinking") throw new Error("Apple provider cannot replay reasoning blocks");
-            return part;
-          }) };
-        }
-        if (message.role === "user") return { role: "user", text: textContent(message.content) };
-        return {
-          role: "toolResult",
-          toolCallId: message.toolCallId,
-          toolName: message.toolName,
-          text: textContent(message.content),
-          isError: message.isError
-        };
-      }),
-      ...allowReasoning ? { reasoning: options.reasoning ?? "off" } : {},
-      ...options.temperature === void 0 ? {} : { temperature: options.temperature },
-      ...options.maxTokens === void 0 ? {} : { maxTokens: options.maxTokens }
-    };
-  }
-  function appleRequest(context, options = {}) {
-    return nativeRequest(context, options);
-  }
-  function appleFoundationProvider({ generate = requestNativeGeneration, contextWindow = 4096 } = {}) {
-    const model2 = {
-      id: "on-device",
-      name: "Apple Foundation Models (on device)",
-      api: "banana-apple-foundation",
-      provider: "apple-foundation",
-      baseUrl: "apple-local://foundation-models",
-      reasoning: false,
-      input: ["text"],
-      contextWindow,
-      maxTokens: Math.min(1024, contextWindow),
-      cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 }
-    };
-    return nativeModelProvider({ model: model2, generate, buildRequest: appleRequest, name: "Apple Foundation Models" });
-  }
-  function nativeModelProvider({ model: model2, generate = requestNativeGeneration, buildRequest, name }) {
-    const stream = (selected2, context, options = {}) => {
-      const events = createAssistantMessageEventStream();
-      const message = {
-        role: "assistant",
-        content: [],
-        api: selected2.api,
-        provider: selected2.provider,
-        model: selected2.id,
-        timestamp: Date.now(),
-        stopReason: "pending",
-        usage: {
-          input: 0,
-          output: 0,
-          cacheRead: 0,
-          cacheWrite: 0,
-          totalTokens: 0,
-          cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, total: 0 }
-        }
-      };
-      queueMicrotask(async () => {
-        try {
-          options.signal?.throwIfAborted();
-          const request2 = buildRequest(context, options);
-          request2.maxTokens = Math.min(request2.maxTokens ?? selected2.maxTokens, selected2.maxTokens);
-          const result = await generate(request2, options.signal);
-          options.signal?.throwIfAborted();
-          if (!result || !Array.isArray(result.content) || result.content.length === 0) throw new Error("Empty Apple model response");
-          const tools = new Map(request2.tools.map((tool2) => [tool2.name, tool2]));
-          const ids = /* @__PURE__ */ new Set();
-          for (const part of result.content) {
-            if (part.type === "text" && typeof part.text === "string") continue;
-            if (model2.reasoning && part.type === "thinking" && typeof part.thinking === "string") continue;
-            if (part.type !== "toolCall" || !tools.has(part.name) || typeof part.id !== "string" || !part.id || ids.has(part.id) || !part.arguments || typeof part.arguments !== "object" || Array.isArray(part.arguments)) throw new Error("Invalid Apple model tool call");
-            ids.add(part.id);
-          }
-          events.push({ type: "start", partial: message });
-          for (const part of result.content) {
-            const index3 = message.content.length;
-            if (part.type === "thinking") {
-              message.content.push({ type: "thinking", thinking: "" });
-              events.push({ type: "thinking_start", contentIndex: index3, partial: message });
-              message.content[index3].thinking = part.thinking;
-              events.push({ type: "thinking_delta", contentIndex: index3, delta: part.thinking, partial: message });
-              events.push({ type: "thinking_end", contentIndex: index3, content: part.thinking, partial: message });
-            } else if (part.type === "text") {
-              message.content.push({ type: "text", text: "" });
-              events.push({ type: "text_start", contentIndex: index3, partial: message });
-              message.content[index3].text = part.text;
-              events.push({ type: "text_delta", contentIndex: index3, delta: part.text, partial: message });
-              events.push({ type: "text_end", contentIndex: index3, content: part.text, partial: message });
-            } else {
-              message.content.push({ type: "toolCall", id: part.id, name: part.name, arguments: {} });
-              events.push({ type: "toolcall_start", contentIndex: index3, partial: message });
-              events.push({ type: "toolcall_delta", contentIndex: index3, delta: JSON.stringify(part.arguments), partial: message });
-              message.content[index3].arguments = part.arguments;
-              events.push({ type: "toolcall_end", contentIndex: index3, toolCall: part, partial: message });
-            }
-          }
-          message.stopReason = ids.size ? "toolUse" : "stop";
-          events.push({ type: "done", reason: message.stopReason, message });
-          events.end(message);
-        } catch (error) {
-          message.stopReason = options.signal?.aborted ? "aborted" : "error";
-          message.errorMessage = String(error);
-          events.push({ type: "error", reason: message.stopReason, error: message });
-          events.end(message);
-        }
-      });
-      return events;
-    };
-    return createProvider({
-      id: model2.provider,
-      name,
-      models: [model2],
-      auth: { apiKey: { name: "On-device availability", resolve: async () => ({ auth: {} }) } },
-      api: { stream, streamSimple: stream }
-    });
   }
 
   // tools/pi-host-proof/runtime/request-language.js
@@ -21975,17 +21829,19 @@ Current native nutrition view: ` + JSON.stringify(active) + ". nutrition_view op
   // tools/pi-host-proof/runtime/capability-routing.js
   var navigationSequence = 0;
   var sections = ["plan", "workouts", "nutrition", "notes", "routines", "library", "review", "assistant", "settings"];
-  var operations = ["conversation", "clarify", "unavailable", "open_page", "day_plan", "list_notes", "read_note", "create_note", "search_app", "prepare_event", "prepare_meal", "nutrition_view", "filter_nutrition", "prepare_meal_copy"];
+  var operations = ["conversation", "clarify", "unavailable", "open_page", "day_plan", "list_notes", "read_note", "create_note", "search_app", "prepare_event", "prepare_meal", "read_nutrients", "nutrition_view", "filter_nutrition", "prepare_meal_copy"];
   var selection = { name: "select_capability", description: "Classify the requested outcome against Banana capabilities. This does not execute anything.", parameters: { type: "object", additionalProperties: false, required: ["requestSummary", "requirements", "needsUnavailableData", "operation", "section"], properties: {
     requestSummary: { type: "string", description: "Briefly state the requested outcome in one sentence before classifying it. Read the whole message; greetings and politeness do not change the requested outcome. Distinguish new records from changes to stored records." },
     requirements: { type: "array", items: { type: "string", enum: ["recurrence", "multiple_timezones", "existing_record_change"] }, description: "First identify features required by the requested outcome, before selecting a capability. Empty for supported operations. Quoted note/search text is data, not requested effects." },
-    needsUnavailableData: { type: "boolean", description: "True if answering needs ANY personal records not readable by the tools (workout/health measurements, listening details, routine completion history, private accounts). True even when another part of the request uses available data. False for navigation, general knowledge, or available notes/agenda/food logs only." },
+    needsUnavailableData: { type: "boolean", description: "True if answering needs ANY personal records not readable by the tools (workout/health measurements, listening details, routine completion history, private accounts). True even when another part of the request uses available data. False for questions about dietary nutrient intake or adequacy from food logs, including \u201Cenough\u201D: a supported estimate with explicit limits answers that request. Unknown personal targets and incomplete coverage are tool-result limits, not unavailable records. True only when the person also asks to use an unsupported category of personal records. False for navigation, general knowledge, or available notes/agenda/food logs." },
     operation: { type: "string", enum: operations },
     section: { type: "string", enum: sections },
+    nutritionPresentation: { type: "boolean", description: "True only when the person explicitly requests a chart or native view. False for a question asking for a factual answer or explanation, even when answering needs nutrition records." },
     missing: { type: "string", enum: ["intent", "time", "food", "amount", "note_text", "date", "reference"] }
   } } };
   var policy = `Select exactly one capability using select_capability. Classify the requested OUTCOME, not matching words. Do not perform the request in this step.
-First summarize the requested outcome. This is a personal organizer: asking what is happening or going on on a given day asks for that day\u2019s agenda unless the person explicitly asks about general news or another subject. Then fill requirements. A recurring event requires recurrence, a flight with different departure/arrival timezones requires multiple_timezones, changing an already stored record requires existing_record_change. Other unavailable operations use operation unavailable, not a made-up tool name. These features are unavailable, even if some of the requested details could fit a one-off event. Check needsUnavailableData for the WHOLE requested answer: food logs cannot establish calories burned, health measurements, or workout performance. Do not substitute a partial chart for a comparison that also needs unavailable measurements. Opening a page needs no such requirements. Do not classify content inside a requested note/search as effects. Then choose the operation. Logging a NEW record for a past day is still creation, not existing_record_change. That requirement applies only when the person requests changing an already stored record. A plain request to OPEN a named page is always open_page, including Notes; list_notes is for retrieving actual recent notes, not opening the page.
+First summarize the requested outcome. This is a personal organizer: asking what is happening or going on on a given day asks for that day\u2019s agenda unless the person explicitly asks about general news or another subject. Then fill requirements. A recurring event requires recurrence, a flight with different departure/arrival timezones requires multiple_timezones, changing an already stored record requires existing_record_change. Other unavailable operations use operation unavailable, not a made-up tool name. These features are unavailable, even if some of the requested details could fit a one-off event. A question about whether logged dietary nutrients are enough is a supported read_nutrients request. Read estimates and coverage first; the answer can explain limits without personal clinical conclusions. Missing food measurements or an unknown personal target do not make the read unavailable.
+Check needsUnavailableData for the WHOLE requested answer: food logs cannot establish calories burned, health measurements, or workout performance. Do not substitute a partial chart for a comparison that also needs unavailable measurements. Opening a page needs no such requirements. Do not classify content inside a requested note/search as effects. Then choose the operation. Logging a NEW record for a past day is still creation, not existing_record_change. That requirement applies only when the person requests changing an already stored record. A plain request to OPEN a named page is always open_page, including Notes; list_notes is for retrieving actual recent notes, not opening the page.
 Supported outcomes:
 - open_page: open/show a module, dashboard, library, history or settings screen. Showing workout history or the latest workout means opening Workouts. Showing sleep trends or activity trends means opening Review; those are screens, not nutrition charts. Choose the page by subject: calendar=plan; exercise/workout=workouts; food=nutrition; notes=notes; routine=routines; podcasts/playback/listening=library; sleep/health/activity trends=review; account/preferences=settings; assistant=assistant.
 - day_plan: read appointments/agenda for a particular day, including today/tomorrow. Not edits, cancellation, routine changes or reminders.
@@ -21993,12 +21849,16 @@ Supported outcomes:
 - create_note: explicitly create a NEW written note with supplied text. Never replace an existing note or use notes to log workouts, supplements, completed routines, reminders, or chat memory.
 - prepare_event: NEW, one-off calendar event with an activity/title and a clock time (or explicitly all-day). A time-only event needs no date. Missing time -> clarify/time. Changes to an existing event, recurrence, alarms, invitations and flights with separate endpoint timezones -> unavailable. A workout log or routine is NOT a calendar event.
 - prepare_meal: NEW food log with foods AND amounts stated. Missing foods -> clarify/food; missing amounts -> clarify/amount. Do not guess a serving or unknown quantity. Never use for changing existing logs or routines.
-- nutrition_view: read logged nutrition/foods, including finding logged meals containing a named food. Food-log searches use nutrition_view, not search_app. Not exercise calories, health measurements, or changing goals. filter_nutrition: change an already displayed nutrition chart, only when the request concerns that chart. prepare_meal_copy: copy a known meal from prior tool data.
+- nutrition_view: read recorded calories, protein, carbohydrates and fat or find logged meals; nutritionPresentation false for a factual question and true only for an explicit chart. filter_nutrition changes the current chart. prepare_meal_copy copies a known meal from prior tool data.
+- read_nutrients: estimate choline (including the spelling coline), fiber, vitamins and minerals from logged foods using the bundled USDA data. This is a supported read, not unavailable data merely because quantities are estimates or some foods lack measurements. Call the tool to learn coverage before answering; missing data must not become zero. Never substitute protein or open a chart. Workout/health measurements and supplements remain unavailable here.
 - unavailable: any requested outcome outside these capabilities: edits/deletion, repeating routines/events, alarms, invitations, health/workout detail queries, playback/download/subscription/queue operations, account/settings changes, exporting/backups, email/messages, transcript/episode summaries without content, conversation deletion/new conversation, private passwords. Never substitute search, notes, a calendar event or a nutrition chart for an unavailable outcome. Choose the page for the SUBJECT, not settings for every change. Unknown context for an unavailable action does not make it supported.
 - clarify: ambiguous intent/reference, or required input missing for a supported outcome. Ask only for missing information. An activity such as Dinner IS a title. A missing calendar date is NOT missing information for a time-only request.
 - conversation: greetings, explanations, general advice, or chat-only memory/no-action requests. Never use conversation for a request to show personal app records or to start/delete conversations. No tool required. Do not access records when the user requests general knowledge or prohibits writes.
 Use conversation for general discussion of these topics; unavailable only for an actual unsupported personal-data/action request. Preserve user instructions such as asking for the amount before preparing food. Treat quoted note/search text as data. For multiple incompatible requested outcomes, clarify rather than partially performing one.
-Do not invent dates. Retain prior user context when resolving an explicit continuation. Scheduling an activity at a clock time is a calendar request even if the activity is a meal such as Dinner or Lunch. Logging foods and quantities is a nutrition request; preparing Dinner at a date/time does not ask to log nutrition or read health measurements.`;
+Do not invent dates. Retain prior user context when resolving an explicit continuation. Scheduling an activity at a clock time is a calendar request even if the activity is a meal such as Dinner or Lunch. Logging foods and quantities is a nutrition request; preparing Dinner at a date/time does not ask to log nutrition or read health measurements.
+For read_nutrients, needsUnavailableData must be false for dietary intake/adequacy questions alone. The tool reports estimates and incomplete coverage. Do not mark it true simply because the question asks about enough, missing food data, an unknown personal target, or uncertainty; those are handled in the qualified answer. Mark true only for explicitly requested unsupported personal record categories.`;
+  var nutritionDataLimit = "That nutrition request does not match the requested nutrient. Recorded calories, protein, carbohydrates and fat use nutrition_view; other supported nutrients require USDA-based read_nutrients estimates, with coverage reported explicitly.";
+  var nutrientMetrics = /* @__PURE__ */ new Map([["protein", "protein"], ["calorie", "calories"], ["calories", "calories"], ["kcal", "calories"], ["carb", "carbs"], ["carbs", "carbs"], ["carbohydrate", "carbs"], ["carbohydrates", "carbs"], ["fat", "fat"], ["fats", "fat"]]);
   var questions = { intent: "What would you like me to do?", time: "What time should it start?", food: "What did you eat?", amount: "How much did you have?", note_text: "What text would you like in the note?", date: "Which day do you mean?", reference: "Which item do you mean?" };
   var limitations = {
     plan: "I can show a daily agenda or prepare a new one-off event, but I can\u2019t make that calendar change or resolve that travel request from chat.",
@@ -22030,7 +21890,7 @@ Do not invent dates. Retain prior user context when resolving an explicit contin
       return calls2.length ? { content: calls2 } : result2;
     };
     if (!request2.tools.length) return generate(request2, signal);
-    if (request2.messages.at(-1)?.role !== "user") return generate({ ...request2, tools: request2.tools.filter((t) => t.name === "read_note"), instructions: request2.instructions + "\nAnswer only from the tool results. Do not prepare new records or perform unrelated actions during a read continuation." }, signal);
+    if (request2.messages.at(-1)?.role !== "user") return generate({ ...request2, tools: request2.tools.filter((t) => t.name === "read_note"), instructions: request2.instructions + "\nAnswer only from the tool results for the current question. For nutrients, report the requested nutrient, units, date range, coverage gaps, and source links. Missing data is not zero; do not infer age, sex, pregnancy, deficiency or a personal goal. Do not prepare new records or perform unrelated actions during a read continuation." }, signal);
     const latest = request2.messages.at(-1).text;
     const directPage = directPageCommand(latest);
     if (directPage && request2.tools.some((t) => t.name === "open_page")) return call("open_page", { section: directPage }, "navigation-" + Date.now() + "-" + ++navigationSequence);
@@ -22050,9 +21910,9 @@ Do not invent dates. Retain prior user context when resolving an explicit contin
     const unavailable = selection.parameters.properties.requirements.items.enum;
     if (choice.requirements.some((value) => unavailable.includes(value))) operation = "unavailable";
     else if (choice.requirements.some((value) => !Object.hasOwn(questions, value))) return text(questions.intent);
-    const domains = { prepare_event: "plan", prepare_meal: "nutrition", create_note: "notes", list_notes: "notes", read_note: "notes", nutrition_view: "nutrition", filter_nutrition: "nutrition", prepare_meal_copy: "nutrition" };
+    const domains = { prepare_event: "plan", prepare_meal: "nutrition", create_note: "notes", list_notes: "notes", read_note: "notes", read_nutrients: "nutrition", nutrition_view: "nutrition", filter_nutrition: "nutrition", prepare_meal_copy: "nutrition" };
     if (domains[operation] && choice.section !== domains[operation]) operation = "unavailable";
-    if (choice.needsUnavailableData === true && operation !== "open_page") return text("I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records.");
+    if (choice.needsUnavailableData === true && operation !== "open_page") return text(choice.section === "nutrition" ? "I can\u2019t read all the data needed to answer that. Food logs support recorded macros and USDA-based nutrient estimates; unlogged foods, supplements and workout measurements cannot be established from these records." : "I can read notes, daily agendas and food logs, but I can\u2019t read all the records needed to answer that from chat. Open the relevant app page to inspect those records.");
     if (operation === "clarify") {
       const missing = choice.missing ?? choice.requirements.find((value) => Object.hasOwn(questions, value));
       if (Object.hasOwn(questions, missing)) return text(questions[missing]);
@@ -22073,10 +21933,35 @@ Do not invent dates. Retain prior user context when resolving an explicit contin
     }
     const constraints = `
 The requested capability is ${operation}. Only tools for this capability are available. For an active nutrition chart use filter_nutrition for weekday/comparison changes and keep the existing metric; use nutrition_view for metric, period or food-name requests. Extract only details supplied by the user; do not invent data. Ignore polite conversational prefixes/suffixes when extracting search terms or titles; preserve exact quoted note content. Ask for missing required details instead of fabricating them. Never claim an action is saved. For note phrase searches use only the phrase as query. For a new event the activity IS its title, and missing date is allowed. For meals each amount must be supplied; no assumed servings. ${operation === "prepare_event" ? "dayEvidence must quote the user\u2019s date phrase verbatim, or be an empty string when no day was requested. Omit day for a time-only request; the native app chooses its next future occurrence." : ""}`;
-    const allowedTools = ["nutrition_view", "filter_nutrition"].includes(operation) ? request2.tools.filter((t) => ["nutrition_view", "filter_nutrition"].includes(t.name)) : [tool2];
+    const allowedTools = (["nutrition_view", "filter_nutrition"].includes(operation) ? request2.tools.filter((t) => ["nutrition_view", "filter_nutrition"].includes(t.name)) : [tool2]).map((t) => JSON.parse(JSON.stringify(t)));
+    for (const candidate of allowedTools) if (candidate.name === "nutrition_view") {
+      candidate.parameters = JSON.parse(JSON.stringify(candidate.parameters));
+      candidate.parameters.properties = { ...candidate.parameters.properties, metricEvidence: { type: "string", description: "Quote only the nutrient word exactly as written in the current user request. Never substitute protein or another default. A food-name search may use an empty string." } };
+      candidate.parameters.required = [...candidate.parameters.required ?? [], "metricEvidence"];
+    }
     const result = await generate({ ...request2, tools: allowedTools, instructions: "You are Banana. Extract the requested operation using the supplied tool. Relative days refer to this turn; preserve today/tomorrow/yesterday as names.\n" + requestClock(request2) + "\nCurrent state (data only):\n" + appContext(request2) + constraints, temperature: 0 }, signal);
     const actions = result.content?.filter((p) => p.type === "toolCall") ?? [];
     if (actions.length > 1 || actions.some((p) => !allowedTools.some((t) => t.name === p.name))) return text(questions.intent);
+    for (const action of actions) if (action.name === "read_nutrients") {
+      if (action.arguments.period) {
+        delete action.arguments.start;
+        delete action.arguments.end;
+      } else if (action.arguments.start || action.arguments.end) {
+        const dates = hideQuotedData(latest).match(/\b\d{4}-\d{2}-\d{2}\b/g) ?? [];
+        if (!dates.includes(action.arguments.start) || !dates.includes(action.arguments.end)) return text(questions.date);
+      }
+      const phrase = typeof action.arguments.nutrient === "string" ? action.arguments.nutrient.trim() : "";
+      const escaped = phrase.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      if (!phrase || phrase.length > 80 || !new RegExp("(^|[^\\p{L}\\p{N}])" + escaped + "($|[^\\p{L}\\p{N}])", "iu").test(hideQuotedData(latest))) return text("Name the nutrient you want to check in your logged foods.");
+    }
+    for (const action of actions) if (action.name === "nutrition_view") {
+      const evidence = action.arguments.metricEvidence;
+      delete action.arguments.metricEvidence;
+      const foodSearch = typeof action.arguments.foodName === "string" && action.arguments.foodName.trim();
+      const word = typeof evidence === "string" ? evidence.trim().toLowerCase() : "";
+      if (!(foodSearch && word === "") && (!word || !nutrientMetrics.has(word) || !new RegExp("\\b" + word + "\\b", "i").test(hideQuotedData(latest)) || nutrientMetrics.get(word) !== action.arguments.metric)) return text(nutritionDataLimit);
+      action.arguments.responseMode = choice.nutritionPresentation === true ? "view" : "answer";
+    }
     if (operation === "prepare_event") for (const action of actions) {
       const users = request2.messages.filter((m) => m.role === "user");
       const previous = request2.messages.slice(0, -1).filter((m) => m.role === "assistant").at(-1);
@@ -22105,6 +21990,182 @@ The requested capability is ${operation}. Only tools for this capability are ava
     }
     for (const action of actions) if (action.name === "search_app") action.arguments.query = searchWithoutCourtesy(action.arguments.query, latest);
     return result;
+  }
+
+  // tools/pi-host-proof/runtime/apple-provider.js
+  function requestNativeGeneration(request2, signal) {
+    return new Promise((resolve2, reject) => {
+      if (signal?.aborted) {
+        reject(signal.reason);
+        return;
+      }
+      let id, settled = false;
+      const finish = (error, value, failed = false) => {
+        if (settled) return;
+        settled = true;
+        signal?.removeEventListener("abort", abort);
+        failed ? reject(error) : resolve2(value);
+      };
+      const abort = () => {
+        nativeModelCancel(id);
+        finish(signal.reason, void 0, true);
+      };
+      signal?.addEventListener("abort", abort, { once: true });
+      try {
+        id = nativeModelStart(JSON.stringify(request2), (raw) => {
+          try {
+            const result = JSON.parse(raw);
+            if (!result.ok) {
+              const error = new Error(result.error.message);
+              error.code = result.error.code;
+              finish(error, void 0, true);
+            } else finish(null, result.value);
+          } catch (error) {
+            finish(error, void 0, true);
+          }
+        });
+      } catch (error) {
+        finish(error, void 0, true);
+      }
+    });
+  }
+  function textContent(content) {
+    if (typeof content === "string") return content;
+    return content.map((part) => {
+      if (part.type !== "text") throw new Error(`Apple provider does not support ${part.type} input`);
+      return part.text;
+    }).join("\n");
+  }
+  function nativeRequest(context, options = {}, allowReasoning = false) {
+    if (!allowReasoning && options.reasoning !== void 0 && options.reasoning !== "off") throw new Error("Apple provider does not expose reasoning controls");
+    if (options.thinkingBudgets !== void 0) throw new Error("Apple provider does not expose thinking budgets");
+    if (options.deferred) throw new Error("Apple provider does not support deferred inference");
+    if (options.toolChoice !== void 0 && !["auto", "none"].includes(options.toolChoice)) throw new Error("Unsupported Apple tool choice");
+    if (options.maxTokens !== void 0 && (!Number.isSafeInteger(options.maxTokens) || options.maxTokens < 1)) throw new Error("Invalid Apple maxTokens");
+    if (options.temperature !== void 0 && (!Number.isFinite(options.temperature) || options.temperature < 0)) throw new Error("Invalid Apple temperature");
+    return {
+      instructions: getCurrentSystemPrompt(context.messages),
+      tools: options.toolChoice === "none" ? [] : getCurrentTools(context.messages),
+      messages: context.messages.filter((message) => message.role !== "system").map((message) => {
+        if (message.role === "assistant") {
+          return { role: "assistant", content: message.content.map((part) => {
+            if (!allowReasoning && part.type === "thinking") throw new Error("Apple provider cannot replay reasoning blocks");
+            return part;
+          }) };
+        }
+        if (message.role === "user") return { role: "user", text: textContent(message.content) };
+        return {
+          role: "toolResult",
+          toolCallId: message.toolCallId,
+          toolName: message.toolName,
+          text: textContent(message.content),
+          isError: message.isError
+        };
+      }),
+      ...allowReasoning ? { reasoning: options.reasoning ?? "off" } : {},
+      ...options.temperature === void 0 ? {} : { temperature: options.temperature },
+      ...options.maxTokens === void 0 ? {} : { maxTokens: options.maxTokens }
+    };
+  }
+  function appleRequest(context, options = {}) {
+    return nativeRequest(context, options);
+  }
+  function appleFoundationProvider({ generate = requestNativeGeneration, contextWindow = 4096 } = {}) {
+    const model2 = {
+      id: "on-device",
+      name: "Apple Foundation Models (on device)",
+      api: "banana-apple-foundation",
+      provider: "apple-foundation",
+      baseUrl: "apple-local://foundation-models",
+      reasoning: false,
+      input: ["text"],
+      contextWindow,
+      maxTokens: Math.min(1024, contextWindow),
+      cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 }
+    };
+    return nativeModelProvider({ model: model2, generate, buildRequest: appleRequest, name: "Apple Foundation Models" });
+  }
+  function bananaFoundationProvider({ generate = requestNativeGeneration, ...options } = {}) {
+    return appleFoundationProvider({ ...options, generate: (request2, signal) => routeGeneration(request2, generate, signal) });
+  }
+  function nativeModelProvider({ model: model2, generate = requestNativeGeneration, buildRequest, name }) {
+    const stream = (selected2, context, options = {}) => {
+      const events = createAssistantMessageEventStream();
+      const message = {
+        role: "assistant",
+        content: [],
+        api: selected2.api,
+        provider: selected2.provider,
+        model: selected2.id,
+        timestamp: Date.now(),
+        stopReason: "pending",
+        usage: {
+          input: 0,
+          output: 0,
+          cacheRead: 0,
+          cacheWrite: 0,
+          totalTokens: 0,
+          cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, total: 0 }
+        }
+      };
+      queueMicrotask(async () => {
+        try {
+          options.signal?.throwIfAborted();
+          const request2 = buildRequest(context, options);
+          request2.maxTokens = Math.min(request2.maxTokens ?? selected2.maxTokens, selected2.maxTokens);
+          const result = await generate(request2, options.signal);
+          options.signal?.throwIfAborted();
+          if (!result || !Array.isArray(result.content) || result.content.length === 0) throw new Error("Empty Apple model response");
+          const tools = new Map(request2.tools.map((tool2) => [tool2.name, tool2]));
+          const ids = /* @__PURE__ */ new Set();
+          for (const part of result.content) {
+            if (part.type === "text" && typeof part.text === "string") continue;
+            if (model2.reasoning && part.type === "thinking" && typeof part.thinking === "string") continue;
+            if (part.type !== "toolCall" || !tools.has(part.name) || typeof part.id !== "string" || !part.id || ids.has(part.id) || !part.arguments || typeof part.arguments !== "object" || Array.isArray(part.arguments)) throw new Error("Invalid Apple model tool call");
+            ids.add(part.id);
+          }
+          events.push({ type: "start", partial: message });
+          for (const part of result.content) {
+            const index3 = message.content.length;
+            if (part.type === "thinking") {
+              message.content.push({ type: "thinking", thinking: "" });
+              events.push({ type: "thinking_start", contentIndex: index3, partial: message });
+              message.content[index3].thinking = part.thinking;
+              events.push({ type: "thinking_delta", contentIndex: index3, delta: part.thinking, partial: message });
+              events.push({ type: "thinking_end", contentIndex: index3, content: part.thinking, partial: message });
+            } else if (part.type === "text") {
+              message.content.push({ type: "text", text: "" });
+              events.push({ type: "text_start", contentIndex: index3, partial: message });
+              message.content[index3].text = part.text;
+              events.push({ type: "text_delta", contentIndex: index3, delta: part.text, partial: message });
+              events.push({ type: "text_end", contentIndex: index3, content: part.text, partial: message });
+            } else {
+              message.content.push({ type: "toolCall", id: part.id, name: part.name, arguments: {} });
+              events.push({ type: "toolcall_start", contentIndex: index3, partial: message });
+              events.push({ type: "toolcall_delta", contentIndex: index3, delta: JSON.stringify(part.arguments), partial: message });
+              message.content[index3].arguments = part.arguments;
+              events.push({ type: "toolcall_end", contentIndex: index3, toolCall: part, partial: message });
+            }
+          }
+          message.stopReason = ids.size ? "toolUse" : "stop";
+          events.push({ type: "done", reason: message.stopReason, message });
+          events.end(message);
+        } catch (error) {
+          message.stopReason = options.signal?.aborted ? "aborted" : "error";
+          message.errorMessage = String(error);
+          events.push({ type: "error", reason: message.stopReason, error: message });
+          events.end(message);
+        }
+      });
+      return events;
+    };
+    return createProvider({
+      id: model2.provider,
+      name,
+      models: [model2],
+      auth: { apiKey: { name: "On-device availability", resolve: async () => ({ auth: {} }) } },
+      api: { stream, streamSimple: stream }
+    });
   }
 
   // tools/pi-host-proof/runtime/local-provider.js
@@ -23940,6 +24001,11 @@ Use prepare_meal for NEW food entries, prepare_meal_copy for an existing logged 
     }
   });
   var registry = createRegistry();
+  async function currentNutritionInput(api, ctx) {
+    const conversation = await harness.conversation(api.conversationId, ctx);
+    const page2 = await conversation.entries({}, 100, void 0, ctx);
+    return nutritionInputId(page2.items);
+  }
   registry.install(nutritionExtension(nativeTool, uuid, async (api, ctx) => {
     await api.commit(async (tx) => {
       const doc = await tx.doc(WorkspaceDoc, api.conversationId);
@@ -23949,7 +24015,7 @@ Use prepare_meal for NEW food entries, prepare_meal_copy for an existing logged 
         doc.operation = null;
       }
     }, ctx);
-  }));
+  }, currentNutritionInput));
   registry.install(workspaceExtension(nativeTool, uuid, (api, ctx) => workspaceRequestText(harness, api, ctx)));
   registry.install(defineExtension({ name: "banana", tools: [
     tool("list_notes", "List recent Banana notes with IDs and short previews. Use when the person asks about their notes, not for greetings or general conversation.", typebox_exports.Object({ limit: typebox_exports.Optional(typebox_exports.Integer()) }, { additionalProperties: false })),
@@ -24007,7 +24073,7 @@ Use prepare_meal for NEW food entries, prepare_meal_copy for an existing logged 
         });
         return fauxAssistantMessage("Local reply: " + text2);
       }));
-      models.setProvider(faux?.provider ?? appleFoundationProvider({ contextWindow: local ? 4096 : availability.contextWindow }));
+      models.setProvider(faux?.provider ?? bananaFoundationProvider({ contextWindow: local ? 4096 : availability.contextWindow }));
       if (local) models.setProvider(macLocalProvider(local));
       session = new ApplePiSession({
         models,
@@ -24045,10 +24111,10 @@ Use prepare_meal for NEW food entries, prepare_meal_copy for an existing logged 
       }
       if (message.role === "assistant") {
         const text2 = message.content.filter((part) => part.type === "text").map((part) => part.text).join("\n");
-        const calls = message.content.filter((part) => part.type === "toolCall").map((part) => part.name);
+        const calls = message.content.filter((part) => part.type === "toolCall").map((part) => part.name === "nutrition_view" && part.arguments.responseMode === "answer" ? "nutrition_read" : part.name);
         const result = [];
         if (text2) result.push({ id, role: "assistant", text: text2 });
-        if (calls.length) result.push({ id: id + ":tools", role: "activity", text: calls.map((name) => ({ list_notes: "Looking up notes", read_note: "Reading a note", create_note: configuration.testModel ? "Saving a note" : "Preparing a note", day_plan: "Reading the day plan", nutrition_view: "Updating nutrition view", filter_nutrition: "Updating nutrition view", prepare_meal_copy: "Preparing meal draft", prepare_meal: "Preparing meal draft", prepare_event: "Preparing event draft", search_app: "Searching Banana", open_page: "Opening Banana page" })[name] ?? name).join(" \xB7 ") });
+        if (calls.length) result.push({ id: id + ":tools", role: "activity", text: calls.map((name) => ({ list_notes: "Looking up notes", read_note: "Reading a note", create_note: configuration.testModel ? "Saving a note" : "Preparing a note", day_plan: "Reading the day plan", nutrition_view: "Updating nutrition view", nutrition_read: "Reading nutrition records", read_nutrients: "Reading nutrient records", filter_nutrition: "Updating nutrition view", prepare_meal_copy: "Preparing meal draft", prepare_meal: "Preparing meal draft", prepare_event: "Preparing event draft", search_app: "Searching Banana", open_page: "Opening Banana page" })[name] ?? name).join(" \xB7 ") });
         if (message.stopReason === "error" || message.stopReason === "aborted") result.push({ id: id + ":error", role: "error", text: message.errorMessage ?? "This response stopped." });
         return result;
       }
@@ -24101,7 +24167,7 @@ Use prepare_meal for NEW food entries, prepare_meal_copy for an existing logged 
           selected: String(viewing),
           conversations,
           messages: displayMessages([...page2.items].reverse()),
-          surface: nutrition?.surface ?? null,
+          surface: nutritionForInput(nutrition, nutritionInputId(page2.items)),
           workspace: workspace ? { revision: workspace.revision, action: workspace.action } : { revision: 0, action: null },
           busy,
           hasEarlier: page2.next !== void 0,
@@ -24149,7 +24215,7 @@ Use prepare_meal for NEW food entries, prepare_meal_copy for an existing logged 
         return {};
       }
       if (operation === "surface") {
-        await updateNutrition(harness, selected, payload.patch, payload.requestId, nativeTool, BACKGROUND_CONTEXT);
+        await updateNutrition(harness, selected, payload.patch, payload.requestId, nativeTool, BACKGROUND_CONTEXT, { inputId: await currentNutritionInput({ conversationId: selected }, BACKGROUND_CONTEXT) });
         await publish2();
         return {};
       }

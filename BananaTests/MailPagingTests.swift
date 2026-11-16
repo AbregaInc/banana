@@ -56,15 +56,26 @@ final class MailPagingTests: XCTestCase {
     }
 
     func testTheLastRowSaysLoadingTheEndOrRetryWithTheFewestWords() {
-        XCTAssertEqual(MailPaging.status(loaded: 0, hasMore: true, failed: false, hasPaged: true), .hidden)
-        XCTAssertEqual(MailPaging.status(loaded: 40, hasMore: false, failed: false, hasPaged: false), .hidden,
+        XCTAssertEqual(MailPaging.status(loaded: 0, hasMore: true, loading: true, failed: false, hasPaged: true), .hidden)
+        XCTAssertEqual(MailPaging.status(loaded: 40, hasMore: false, loading: false, failed: false, hasPaged: false), .hidden,
                        "a list that never needed a second page has no last row to speak of")
-        XCTAssertEqual(MailPaging.status(loaded: 40, hasMore: true, failed: false, hasPaged: false), .loading)
-        XCTAssertEqual(MailPaging.status(loaded: 300, hasMore: false, failed: false, hasPaged: true), .end)
-        XCTAssertEqual(MailPaging.status(loaded: 300, hasMore: true, failed: true, hasPaged: true), .failed)
+        XCTAssertEqual(MailPaging.status(loaded: 40, hasMore: true, loading: false, failed: false, hasPaged: false), .hidden)
+        XCTAssertEqual(MailPaging.status(loaded: 40, hasMore: true, loading: true, failed: false, hasPaged: false), .loading)
+        XCTAssertEqual(MailPaging.status(loaded: 300, hasMore: false, loading: false, failed: false, hasPaged: true), .end)
+        XCTAssertEqual(MailPaging.status(loaded: 300, hasMore: true, loading: false, failed: true, hasPaged: true), .failed)
     }
 
     // MARK: The model, by the screen
+
+    func testNativeBottomClearanceUsesAppliedInsetsWithoutDoubleCounting() {
+        XCTAssertEqual(MailPaging.bottomOverlayInset(viewBottom: 840, safeBottom: 840, overlayBottom: 840, overlayHeight: 66), 66)
+        XCTAssertEqual(MailPaging.bottomOverlayInset(viewBottom: 874, safeBottom: 840, overlayBottom: 840, overlayHeight: 66), 100)
+        XCTAssertEqual(MailPaging.bottomOverlayInset(viewBottom: 774, safeBottom: 840, overlayBottom: 840, overlayHeight: 66), 0,
+                       "A viewport already above the bar must not receive the inset twice")
+        XCTAssertEqual(MailPaging.bottomOverlayInset(viewBottom: 540, safeBottom: 840, overlayBottom: 540, overlayHeight: 66), 66,
+                       "A docked keyboard moves the bar's lower edge")
+        XCTAssertEqual(MailPaging.bottomOverlayInset(viewBottom: 840, safeBottom: 840, overlayBottom: 840, overlayHeight: 0), 0)
+    }
 
     private func viewport(_ h: TriageHarness, at index: Int, screen: Int = 12) -> MailViewport {
         let row = h.model.rows[index]
@@ -196,6 +207,32 @@ final class MailPagingTests: XCTestCase {
         effects.filter { $0 == .askGmail }.count
     }
 
+    func testFooterIsQuietWhenMoreMailExistsButNoPageRequestIsRunning() {
+        let scope = MailScope(place: .mailbox(.inbox))
+        let model = MailListModel(scope: scope, deviceName: "Test", timePhrase: { _ in "" })
+        model.handle(.snapshot(reading(80, scope: scope)))
+        XCTAssertEqual(model.list.shown.paging, .hidden,
+                       "Availability is not activity; background sync has its own header progress")
+        model.handle(.snapshot(reading(80, scope: scope, remote: .pending)))
+        XCTAssertEqual(model.list.shown.paging, .loading)
+        model.handle(.snapshot(reading(80, scope: scope), answersRequest: true))
+        XCTAssertEqual(model.list.shown.paging, .hidden,
+                       "A completed request clears its spinner even if the provider has more mail")
+        let row = model.rows[70]
+        let effects = model.handle(.scrolled(MailViewport(firstRow: row.id, key: row.key, offset: 0, rowsOnScreen: 10)))
+        XCTAssertEqual(asks(effects), 1, "Quiet status must not stop automatic paging")
+        XCTAssertEqual(model.list.shown.paging, .hidden,
+                       "An edge request the provider declines is not a running transfer")
+        model.handle(.snapshot(reading(80, scope: scope, remote: .failed)))
+        XCTAssertEqual(model.list.shown.paging, .failed)
+        model.handle(.retryPaging)
+        XCTAssertEqual(model.list.shown.paging, .hidden, "Local replacement reads do not imply a network transfer")
+        model.handle(.snapshot(reading(80, scope: scope, remote: .pending)))
+        XCTAssertEqual(model.list.shown.paging, .loading)
+        model.handle(.snapshot(reading(80, scope: scope, hasMore: false), answersRequest: true))
+        XCTAssertEqual(model.list.shown.paging, .end)
+    }
+
     func testTheEdgeIsAskedOncePerAnswerAndRetryFollowsAFailure() throws {
         let scope = MailScope(place: .mailbox(.inbox))
         let model = MailListModel(scope: scope, deviceName: "iPhone", timePhrase: { _ in "" })
@@ -205,9 +242,10 @@ final class MailPagingTests: XCTestCase {
             return model.handle(.scrolled(MailViewport(firstRow: row.id, key: row.key, offset: 0, rowsOnScreen: 10)))
         }
         XCTAssertEqual(asks(scrolledToEnd()), 1, "the device has given all it holds: the edge is asked")
-        XCTAssertEqual(model.list.shown.paging, .loading)
+        XCTAssertEqual(model.list.shown.paging, .hidden, "The provider has not started a page transfer yet")
         XCTAssertEqual(asks(scrolledToEnd()), 0, "asked once")
         model.handle(.snapshot(reading(80, scope: scope, remote: .pending)))
+        XCTAssertEqual(model.list.shown.paging, .loading)
         XCTAssertEqual(asks(scrolledToEnd()), 0, "still out")
         // The answer: more rows, and the screen is still near their end, so the edge is asked
         // again at once.
@@ -233,6 +271,8 @@ final class MailPagingTests: XCTestCase {
         let row = model.rows[35]
         let effects = model.handle(.scrolled(MailViewport(firstRow: row.id, key: row.key, offset: 0, rowsOnScreen: 5)))
         XCTAssertEqual(asks(effects), 1, "Gmail's next page is asked for without a button")
+        XCTAssertEqual(model.list.shown.paging, .hidden)
+        model.handle(.snapshot(reading(40, scope: scope, hasMore: false, remote: .pending)))
         XCTAssertEqual(model.list.shown.paging, .loading)
     }
 

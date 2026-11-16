@@ -2,6 +2,20 @@
 import Foundation
 import Combine
 
+/// Fold only the quoted run; a signature picture after it remains visible.
+enum MailQuoteFolding {
+    static func hiddenRange(in blocks: [MailTextBlock], from start: Int?, expanded: Bool) -> Range<Int>? {
+        guard !expanded, let start, start > 0, blocks.indices.contains(start),
+              case .quote = blocks[start].kind else { return nil }
+        var end = start
+        while end < blocks.count {
+            guard case .quote = blocks[end].kind else { break }
+            end += 1
+        }
+        return start..<end
+    }
+}
+
 /// The open conversation as the reader draws it: the conversation, kept current, and each
 /// message's body as the source made it. Ready bodies are reused; placeholders and changed
 /// body states are re-read on notification. Reads never fetch (`MailSource.body`).
@@ -22,6 +36,14 @@ final class MailReaderModel: ObservableObject {
     /// when the conversation arrives, so no view works any of it out.
     @Published private(set) var messages: [MailMessageDisplay] = []
     @Published private(set) var title = ""
+    @Published private(set) var verificationCode: MailVerificationCode?
+    private struct VerificationBasis: Equatable {
+        var message: MailMessageID
+        var subject: String
+        var body: MailBodyState
+        var allowSubjectCode: Bool
+    }
+    private var verificationBasis: VerificationBasis?
     /// True until the source has said whether it holds this conversation.
     @Published private(set) var isLoading = true
     /// Opening an attachment: Quick Look, and nothing else (MAIL-UX 6.2.9).
@@ -89,15 +111,46 @@ final class MailReaderModel: ObservableObject {
         opener.update(messages)
         title = conversation.map { MailToastText.cleanSubject($0.subject) } ?? ""
         isLoading = false
-        guard let conversation else { return }
+        guard let conversation else {
+            verificationBasis = nil
+            if verificationCode != nil { verificationCode = nil }
+            return
+        }
+        // Only the newest message can supply a code. An outgoing reply or a newer unrelated
+        // message must never promote an older code from the conversation.
+        let newest = conversation.messages.first { $0.id == messages.first?.id }
+        let eligible = newest.flatMap { message -> MailMessage? in
+            guard !message.isMine, !message.from.isMe, message.draft == nil, message.delivery == nil else { return nil }
+            return message
+        }
+        let basis = eligible.map { VerificationBasis(message: $0.id, subject: String(conversation.subject.prefix(512)), body: $0.body, allowSubjectCode: conversation.messages.count == 1) }
+        if basis != verificationBasis, verificationCode != nil { verificationCode = nil }
         // In the order they are read: the newest first.
         let missing = MailReadingOrder.newestFirst(conversation.messages).map(\.id)
             .filter { bodies[$0] == nil || bodies[$0] == .notOnDevice }
-        guard !missing.isEmpty else { return }
+        let needsCode = basis != verificationBasis || basis.map { missing.contains($0.message) } == true
+        guard !missing.isEmpty || needsCode else { return }
+        let cachedCodeBody = basis.flatMap { bodies[$0.message] } ?? .notOnDevice
         let source = self.source
         loading = Task { @MainActor [weak self] in
             var arrived: [MailMessageID: MailBody] = [:]
-            for message in missing {
+            if needsCode {
+                if let basis {
+                    let body: MailBody
+                    if missing.contains(basis.message) {
+                        body = await source.body(basis.message)
+                        arrived[basis.message] = body
+                    } else { body = cachedCodeBody }
+                    let code = await Task.detached(priority: .userInitiated) {
+                        MailVerificationCode.extract(subject: basis.subject, body: body, allowSubjectCode: basis.allowSubjectCode)
+                            .map { MailVerificationCode(message: basis.message, value: $0) }
+                    }.value
+                    guard !Task.isCancelled, let self, self.bodyGeneration == generation else { return }
+                    self.verificationBasis = basis
+                    if self.verificationCode != code { self.verificationCode = code }
+                } else { self?.verificationBasis = nil }
+            }
+            for message in missing where arrived[message] == nil {
                 guard !Task.isCancelled else { return }
                 arrived[message] = await source.body(message)
             }

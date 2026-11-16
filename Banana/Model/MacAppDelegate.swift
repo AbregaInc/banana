@@ -16,6 +16,12 @@ final class MacAppDelegate: NSObject, NSApplicationDelegate {
     #endif
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        #if DEBUG
+        // Isolated fixtures must never update their own executable or start live services.
+        // In a direct Debug build the project version may be below the public feed's version.
+        let arguments = ProcessInfo.processInfo.arguments
+        if MailKeyDriver.requested || arguments.contains("--ui-audit") || arguments.contains("--snapshot-app-store") { return }
+        #endif
         #if BANANA_DIRECT
         MainActor.assumeIsolated { DirectMacUpdater.shared.start() }
         #endif

@@ -4,7 +4,7 @@ import { Type } from 'typebox';
 
 export const NutritionDoc = defineDoc({
   kind: 'banana.nutrition-surface', version: 1, scope: 'conversation', history: 'latest', fork: 'current',
-  initial: () => ({ revision: 0, surface: null, operation: null }), checkpointWhen: () => true,
+  initial: () => ({ revision: 0, surface: null, operation: null, inputId: null }), checkpointWhen: () => true,
 });
 
 const fields = {
@@ -23,7 +23,7 @@ function dateKey(date) {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 }
 
-export async function updateNutrition(owner, conversationId, patch, operation, nativeTool, ctx) {
+export async function updateNutrition(owner, conversationId, patch, operation, nativeTool, ctx, { readOnly = false, inputId = null } = {}) {
   const before = await owner.snapshot(NutritionDoc, conversationId, ctx);
   if (before?.operation === operation) return before.surface;
   const revision = before?.revision ?? 0;
@@ -43,25 +43,27 @@ export async function updateNutrition(owner, conversationId, patch, operation, n
   if (!surface.draftMealID) delete surface.draftID;
   surface.revision = revision + 1;
   const validated = await nativeTool({ name: 'nutrition_view', arguments: surface }, ctx.abortSignal);
+  if (readOnly) return validated;
   await owner.commit(async (tx) => {
     const doc = await tx.doc(NutritionDoc, conversationId);
     if (doc.operation === operation) return;
     if (doc.revision !== revision) throw new Error('The view changed while interpreting this request. Try again.');
-    doc.revision = surface.revision; doc.surface = validated.surface; doc.operation = operation;
+    doc.revision = surface.revision; doc.surface = validated.surface; doc.operation = operation; doc.inputId = inputId;
   }, ctx);
   return validated;
 }
 
-export function nutritionExtension(nativeTool, uuid, presented = async () => {}) {
+export function nutritionExtension(nativeTool, uuid, presented = async () => {}, currentInput = async () => null) {
   const names = new Set(['nutrition_view', 'filter_nutrition', 'prepare_meal_copy']);
   const registered = (name, description, parameters, patch) => defineTool({ name, description,
-    parameters: Type.Object({ ...parameters, revision: Type.Optional(Type.Integer({ description: 'Host metadata; omit.' })) }, { additionalProperties: false }),
+    parameters: Type.Object({ ...parameters, revision: Type.Optional(Type.Integer({ description: 'Host metadata; omit.' })), responseMode: Type.Optional(Type.String({ enum: ['view', 'answer'], description: 'Host response metadata; omit.' })) }, { additionalProperties: false }),
     replay: 'safe',
     execute: async (args, api, ctx) => {
       const operation = await api.memo('nutrition-operation', uuid(), ctx);
-      const result = await updateNutrition(api, api.conversationId, { ...patch(args), revision: args.revision }, operation, nativeTool, ctx);
-      await presented(api, ctx);
-      return { output: [{ type: 'text', text: JSON.stringify(result) }], control: { terminate: true } };
+      const readOnly = name === 'nutrition_view' && args.responseMode === 'answer';
+      const result = await updateNutrition(api, api.conversationId, { ...patch(args), revision: args.revision }, operation, nativeTool, ctx, {readOnly, inputId: await currentInput(api, ctx)});
+      if (!readOnly) await presented(api, ctx);
+      return { output: [{ type: 'text', text: JSON.stringify(result) }], ...(!readOnly ? {control: { terminate: true }} : {}) };
     },
   });
   return defineExtension({ name: 'banana-nutrition', hooks: [hook(GenerationTask, {
@@ -89,8 +91,18 @@ export function nutritionExtension(nativeTool, uuid, presented = async () => {})
       'prepare_meal_copy creates a review draft using an actual visible meal ID; it never saves. ' +
       'For repeat/add-again meal requests, use prepare_meal_copy directly with the most recent matching visible meal ID; do not search again when matching IDs are already listed. Default to today unless another date is requested. ' +
       'The host manages revision metadata. Dates are local and inclusive; period computes relative ranges natively. ' +
-      'Successful view tools end the turn because the native interface is the answer. For explanations, use current native facts and reply directly. Missing prior logs cannot establish equal or zero intake. Never claim a meal draft exists unless the result contains draftMealID and draftDate.';
+      'Explicit view actions end the turn because the native interface is the answer. Nutrition questions read facts without opening a chart and must continue to a written answer. Calories and macros are recorded. read_nutrients estimates choline, fiber, vitamins and minerals from USDA-linked foods with logged weights. It reports missing data explicitly and never opens a chart. Use it before answering micronutrient questions. Cite its source/reference links. Estimates, missing foods/days and supplements cannot establish complete intake or a diagnosis; do not infer age, sex or pregnancy/lactation status or select a personal target without that context. If sampleData is true, describe sample results rather than personal intake. Do not prescribe supplements or doses from an incomplete log. Never substitute a different nutrient. For explanations, use current native facts and reply directly. Missing prior logs cannot establish equal or zero intake. Never claim a meal draft exists unless the result contains draftMealID and draftDate.';
   })], tools: [
+    defineTool({ name: 'read_nutrients',
+      description: 'Read USDA-based estimates of a named nutrient from logged foods and their portion weights. Use the nutrient phrase verbatim from the current request. Includes coverage, missing items/days and sources; never changes a chart or saves a record.',
+      parameters: Type.Object({ nutrient: Type.String({description: 'The nutrient phrase verbatim from the request; native validation limits length to 80 characters.'}),
+        period: Type.Optional(Type.String({enum: ['this_week', 'this_month', 'last_month', 'last_7_days', 'last_30_days'], description: 'Only use a period requested by the person. Omit for the default last seven days.'})),
+        start: Type.Optional(Type.String()), end: Type.Optional(Type.String()) }, {additionalProperties: false}),
+      replay: 'safe', execute: async (args, api, ctx) => {
+        const result = await nativeTool({name: 'read_nutrients', arguments: args}, ctx.abortSignal);
+        return {output: [{type: 'text', text: typeof result === 'string' ? result : JSON.stringify(result)}]};
+      },
+    }),
     registered('nutrition_view', 'Show a nutrition chart or find logged meals. Nutrients use metric; foodName is only an explicitly named food (e.g. yogurt), never a nutrient. Omitted fields keep the current view.',
       { metric: fields.metric, period: fields.period, start: fields.start, end: fields.end, foodName: fields.search },
       (args) => ({ ...args, ...(Object.hasOwn(args, 'foodName') ? { search: args.foodName } : {}) })),

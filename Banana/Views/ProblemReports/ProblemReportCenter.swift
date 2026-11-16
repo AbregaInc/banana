@@ -48,6 +48,17 @@ final class ProblemReportCenter: ObservableObject {
     /// What each page adds, set while it shows: the mail reader, the assistant, the calendar.
     private var providers: [String: (owner: ObjectIdentifier?, make: () -> ProblemReportPageContext?)] = [:]
 
+    private var foregroundPages: [(owner: UUID, page: AppSection)] = []
+
+    func foreground(_ page: AppSection, owner: UUID) {
+        leaveForeground(owner: owner)
+        foregroundPages.append((owner, page))
+    }
+
+    func leaveForeground(owner: UUID) {
+        foregroundPages.removeAll { $0.owner == owner }
+    }
+
     /// `owner` is the view's model: a page that disappears after the next one appeared (a new
     /// conversation in the reader) withdraws only its own.
     func provide(_ page: AppSection, owner: ObjectIdentifier? = nil, _ provider: @escaping () -> ProblemReportPageContext?) {
@@ -84,7 +95,7 @@ final class ProblemReportCenter: ObservableObject {
 
     private func openNow(context: ProblemReportPageContext?, page: AppSection?) {
         guard presented == nil else { return }
-        let name = page?.rawValue ?? ProblemReporter.page
+        let name = page?.rawValue ?? foregroundPages.last?.page.rawValue ?? ProblemReporter.page
         let began = DispatchTime.now().uptimeNanoseconds
         let screenshot = Self.captureScreen()
         #if DEBUG
@@ -283,7 +294,18 @@ struct ProblemReporting: ViewModifier {
     }
 }
 
+private struct ProblemReportForeground: ViewModifier {
+    let page: AppSection
+    @State private var owner = UUID()
+    func body(content: Content) -> some View {
+        content
+            .onAppear { ProblemReportCenter.shared.foreground(page, owner: owner) }
+            .onDisappear { ProblemReportCenter.shared.leaveForeground(owner: owner) }
+    }
+}
+
 extension View {
+    func problemReportPage(_ page: AppSection) -> some View { modifier(ProblemReportForeground(page: page)) }
     func problemReporting() -> some View { modifier(ProblemReporting()) }
 }
 

@@ -65,6 +65,10 @@ struct MailActionsMenu: View {
             ReportProblemMenuItem()
         } label: {
             Image(systemName: "ellipsis")
+                #if os(iOS)
+                .frame(minWidth: 44, minHeight: 44)
+                .contentShape(Rectangle())
+                #endif
         }
         .menuIndicator(.hidden)
         .accessibilityLabel("More")
@@ -82,6 +86,7 @@ struct MailShellTopRow: View {
         HStack(spacing: DS.Space.s) {
             MailPlaceTitleMenu(session: session)
             MailFeedCount(feed: session.feed)
+            if let progress = session.source.syncProgress { MailHeaderSyncProgress(progress: progress) }
             Spacer(minLength: DS.Space.m)
             MailActionsMenu(session: session)
                 .font(.title3)
@@ -93,6 +98,7 @@ struct MailShellTopRow: View {
         .glassEffect(.regular, in: .capsule)
         .padding(.horizontal, DS.Space.l)
         .padding(.vertical, DS.Space.xs)
+        .anchorPreference(key: ShellPageHeaderBounds.self, value: .bounds) { [.mail: $0] }
     }
 }
 
@@ -104,6 +110,7 @@ private struct MailFeedCount: View {
         if feed.shown.hasDelivered {
             Text(MailToastText.number(feed.shown.total.value) + (feed.shown.total.isAtLeast ? "+" : ""))
                 .font(.title3).monospacedDigit().foregroundStyle(.secondary)
+                .accessibilityIdentifier(MailID.listCount)
         }
     }
 }

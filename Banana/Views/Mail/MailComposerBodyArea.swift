@@ -54,7 +54,7 @@ struct MailComposerBodyArea: View {
             MailAttachmentChips(session: session, model: model, files: model.files)
             if toolsBelow {
                 HStack(spacing: 0) {
-                    MailComposerTools(files: model.files, chords: model.chords)
+                    MailComposerTools(files: model.files, chords: model.chords, format: model.format, isReadOnly: model.isForeign)
                     Spacer(minLength: 0)
                 }
             }
@@ -76,6 +76,14 @@ struct MailComposerBodyArea: View {
             selection = AttributedTextSelection(insertionPoint: model.rich.endIndex)
         }
         .onChange(of: formatModel.linkRequest) { _, _ in beginLink() }
+        .onChange(of: formatModel.linkInsertion) { _, request in
+            guard !model.isForeign, let request else { return }
+            if linking { selection = linkTarget }
+            guard MailFormatting.insertLink(request.url, in: &model.rich, selection: &selection) else { return }
+            linking = false
+            refresh()
+            focused.wrappedValue = .body
+        }
         .onAppear {
             model.format.bodyFocused = focused.wrappedValue == .body
             refresh()

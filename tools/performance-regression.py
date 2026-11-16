@@ -3,6 +3,7 @@
 import argparse
 import datetime
 import json
+import os
 import math
 from pathlib import Path
 import subprocess
@@ -134,6 +135,11 @@ def collect(args, policy):
                  '-derivedDataPath', str(dd), 'CODE_SIGNING_ALLOWED=NO', '-quiet', 'build'], log)
     if subprocess.run(['pgrep', '-x', 'xcodebuild'], stdout=subprocess.DEVNULL).returncode == 0:
         raise ValueError('another Xcode build/test is running; retain this run and retry on an idle host')
+    # Persistent slimming must never silently change the reference environment.
+    # The helper restores and verifies stock services, irrespective of the UI-test default.
+    simulator_env = dict(os.environ, SIMULATOR_UDID=args.device)
+    subprocess.run(['tools/simulator-run.sh', 'phone', 'stock', str(args.out / 'simulator')],
+                   cwd=ROOT, env=simulator_env, check=True, timeout=1200)
     app = dd / 'Build/Products/Release-iphonesimulator/Banana.app'
     bundle = {'environment': environment, 'cases': {}}
     for case in policy['cases']:

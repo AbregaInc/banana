@@ -38,5 +38,26 @@ class AnonymiseTests(unittest.TestCase):
         self.assertEqual(len(reports.anonymise_text("48213")), 5)
 
 
+class MailSourceRecoveryTests(unittest.TestCase):
+    def test_viewer_image_urls_become_cid_sources_without_changing_other_markup(self):
+        source = '<p>keep</p><img src="banana-mail-image://message/picture%40part" width="320">'
+        self.assertEqual(reports.restore_inline_image_sources(source),
+                         '<p>keep</p><img src="cid:picture@part" width="320">')
+
+    def test_remote_images_and_text_are_not_rewritten(self):
+        source = '<img src="https://plan.example/picture"><p>banana-mail-image://message/text</p>'
+        self.assertEqual(reports.restore_inline_image_sources(source), source)
+
+    def test_similar_attributes_and_quoted_example_text_are_untouched(self):
+        source = '<img data-src="banana-mail-image://message/data" alt="example src=\'banana-mail-image://message/text\'" src="banana-mail-image://message/actual">'
+        expected = source.replace('src="banana-mail-image://message/actual"', 'src="cid:actual"')
+        self.assertEqual(reports.restore_inline_image_sources(source), expected)
+
+    def test_encoded_quotes_remain_attribute_data(self):
+        source = "<IMG SRC='banana-mail-image://message/a%27b%22c'>"
+        self.assertEqual(reports.restore_inline_image_sources(source),
+                         "<IMG SRC='cid:a&#x27;b&quot;c'>")
+
+
 if __name__ == "__main__":
     unittest.main()

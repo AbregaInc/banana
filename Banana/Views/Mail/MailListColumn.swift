@@ -45,6 +45,9 @@ private struct MailListHeader: View {
     @Environment(\.bottomBarShell) private var bottomBarShell
     /// The wide shell has the place's name in its toolbar: not again over the list.
     @Environment(\.wideShell) private var wideShell
+    #if os(iOS)
+    @Environment(\.dynamicTypeSize) private var textSize
+    #endif
 
     var body: some View {
         // An upright iPad's top row (`MailShellTopRow`) names the place over both columns.
@@ -52,7 +55,7 @@ private struct MailListHeader: View {
     }
 
     private var header: some View {
-        HStack(alignment: .firstTextBaseline, spacing: DS.Space.s) {
+        HStack(alignment: headerAlignment, spacing: DS.Space.s) {
             if !wideShell { title }
             if bottomBarShell, case .search = scope.place {
                 // A search the field opened: the way back to the inbox, beside its name.
@@ -66,10 +69,17 @@ private struct MailListHeader: View {
             if feed.shown.hasDelivered {
                 Text(MailToastText.number(feed.shown.total.value) + (feed.shown.total.isAtLeast ? "+" : ""))
                     .font(.subheadline).monospacedDigit().foregroundStyle(.secondary)
+                    .accessibilityIdentifier(MailID.listCount)
             }
+            #if os(iOS)
+            if let progress = session.source.syncProgress { MailHeaderSyncProgress(progress: progress) }
+            #endif
             Spacer(minLength: 0)
             Button { session.compose() } label: {
                 Image(systemName: "square.and.pencil")
+                    #if os(iOS)
+                    .font(.system(size: 20))
+                    #endif
                     .frame(width: DS.Row.minHeight, height: DS.Mail.header)
                     .contentShape(Rectangle())
             }
@@ -92,12 +102,27 @@ private struct MailListHeader: View {
         }
         .padding(.leading, DS.Space.l)
         .padding(.trailing, DS.Space.xs)
+        #if os(iOS)
+        .frame(minHeight: DS.Mail.header)
+        .anchorPreference(key: ShellPageHeaderBounds.self, value: .bounds) { bounds in
+            bottomBarShell ? [.mail: bounds] : [:]
+        }
+        #else
         .frame(height: DS.Mail.header)
+        #endif
+    }
+
+    private var headerAlignment: VerticalAlignment {
+        #if os(iOS)
+        .center
+        #else
+        .firstTextBaseline
+        #endif
     }
 
     @ViewBuilder private var title: some View {
         let name = Text(MailPlacesModel.title(of: scope))
-            .font(bottomBarShell ? .title.weight(.bold) : .title3.weight(.semibold))
+            .font(titleFont)
         if arrangement.showsControl {
             name
         } else {
@@ -126,6 +151,13 @@ private struct MailListHeader: View {
             .buttonStyle(.plain)
             .accessibilityIdentifier(MailID.placeMenu)
         }
+    }
+
+    private var titleFont: Font {
+        #if os(iOS)
+        if textSize.isAccessibilitySize { return .headline.weight(.bold) }
+        #endif
+        return bottomBarShell ? .title.weight(.bold) : .title3.weight(.semibold)
     }
 }
 

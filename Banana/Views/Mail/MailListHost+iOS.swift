@@ -21,6 +21,7 @@ struct MailListHost: UIViewRepresentable {
     /// A tap opens the conversation full width; false, with a reading pane to show it in, it only
     /// places the cursor.
     let opensOnTap: Bool
+    @Environment(\.toastBottomInset) private var bottomOverlayHeight
 
     func makeCoordinator() -> MailListCoordinator {
         MailListCoordinator(session: session, style: style, opensOnTap: opensOnTap)
@@ -33,6 +34,9 @@ struct MailListHost: UIViewRepresentable {
     func updateUIView(_ uiView: UICollectionView, context: Context) {
         context.coordinator.opensOnTap = opensOnTap
         context.coordinator.setStyle(style)
+        if let list = uiView as? MailRestoringCollectionView {
+            list.bottomOverlayHeight = bottomOverlayHeight
+        }
     }
 }
 
@@ -40,9 +44,28 @@ struct MailListHost: UIViewRepresentable {
 /// is already at the restored position and never a frame at the top first.
 final class MailRestoringCollectionView: UICollectionView {
     var pendingRestore: (() -> Void)?
+    var bottomOverlayHeight: CGFloat = 0 {
+        didSet { if abs(oldValue - bottomOverlayHeight) >= 0.5 { setNeedsLayout() } }
+    }
 
     override func layoutSubviews() {
         super.layoutSubviews()
+        if let window {
+            // A tab-hosted native view does not receive safeAreaBar's region in its safe-area
+            // insets. Use the measured shell height and actual window overlap instead.
+            let keyboard = window.keyboardLayoutGuide.layoutFrame
+            // The measured shell height excludes the window's home-indicator safe area.
+            let overlayBottom = min(window.safeAreaLayoutGuide.layoutFrame.maxY,
+                keyboard.height > window.safeAreaInsets.bottom + 1 ? keyboard.minY : window.bounds.maxY)
+            let extra = CGFloat(MailPaging.bottomOverlayInset(viewBottom: Double(convert(bounds, to: window).maxY),
+                safeBottom: Double(window.safeAreaLayoutGuide.layoutFrame.maxY),
+                overlayBottom: Double(overlayBottom), overlayHeight: Double(bottomOverlayHeight)))
+            if abs(contentInset.bottom - extra) >= 0.5 {
+                contentInset.bottom = extra
+                verticalScrollIndicatorInsets.bottom = extra
+                PlaybackDiagnostics.shared.log("mail viewport", "bottomInset=\(extra) overlay=\(bottomOverlayHeight)")
+            }
+        }
         if let restore = pendingRestore, bounds.height > 0, contentSize.height > 0 {
             pendingRestore = nil
             // Twice: the first pass scrolls by the layout's estimates for rows not yet drawn, and
@@ -54,6 +77,7 @@ final class MailRestoringCollectionView: UICollectionView {
             super.layoutSubviews()
         }
     }
+
 }
 
 /// The cell answers the self-sizing pass without measuring its SwiftUI content.
@@ -124,6 +148,10 @@ final class MailListCoordinator: NSObject, UICollectionViewDelegate {
         collectionView = MailRestoringCollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.backgroundColor = .clear
         collectionView.alwaysBounceVertical = true
+        // SwiftUI supplies the bar/keyboard safe area. UIKit's automatic controller adjustment
+        // otherwise applies part of that inset again after the first native layout pass.
+        collectionView.contentInsetAdjustmentBehavior = .never
+        collectionView.automaticallyAdjustsScrollIndicatorInsets = false
         collectionView.selfSizingInvalidation = .disabled
         super.init()
         swipes.coordinator = self

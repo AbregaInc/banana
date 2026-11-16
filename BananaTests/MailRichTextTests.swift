@@ -251,6 +251,58 @@ final class MailRichTextTests: XCTestCase {
 
     // MARK: Links
 
+    func testInsertedSchedulingAddressPreservesSurroundingUnicodeAndEndsTheLink() throws {
+        let url = try XCTUnwrap(URL(string: "https://schedule.example/noor"))
+        var text = AttributedString("Hello 👋 tomorrow")
+        var selection = caret(text, 8)
+        XCTAssertTrue(MailFormatting.insertLink(url, in: &text, selection: &selection))
+        XCTAssertEqual(String(text.characters), "Hello 👋 https://schedule.example/noor tomorrow")
+        let linked = text.runs.filter { $0.link == url }.map { String(text[$0.range].characters) }.joined()
+        XCTAssertEqual(linked, url.absoluteString)
+        XCTAssertNil(selection.typingAttributes(in: text).link, "Typing after the address must not extend its href")
+        XCTAssertEqual(MailBodyHTML.html(from: text), "<p>Hello 👋 <a href=\"https://schedule.example/noor\">https://schedule.example/noor</a> tomorrow</p>")
+    }
+
+    func testSchedulingLinkCanBeInsertedWithoutAnExistingBodyCaret() throws {
+        let url = try XCTUnwrap(URL(string: "https://schedule.example/noor"))
+        var text = AttributedString("Hello")
+        var selection = AttributedTextSelection()
+        XCTAssertTrue(MailFormatting.insertLink(url, in: &text, selection: &selection))
+        XCTAssertEqual(String(text.characters), "Hello https://schedule.example/noor ")
+        XCTAssertEqual(offset(of: selection, in: text), text.characters.count)
+    }
+
+    func testSchedulingLinkKeepsSelectedWordsAndTheirFormatting() throws {
+        let url = try XCTUnwrap(URL(string: "https://schedule.example/noor"))
+        var text = bold("Choose a time")
+        var selection = range(text, 0, text.characters.count)
+        XCTAssertTrue(MailFormatting.insertLink(url, in: &text, selection: &selection))
+        XCTAssertEqual(String(text.characters), "Choose a time")
+        XCTAssertTrue(MailFormatting.state(of: text, in: selection).bold)
+        XCTAssertEqual(MailFormatting.state(of: text, in: selection).link, url)
+    }
+
+    func testSchedulingInsertionRejectsUnsafeAddressesWithoutChangingTheDraft() throws {
+        for raw in ["javascript:alert(1)", "file:///tmp/document", "mailto:noor@plan.example"] {
+            var text = AttributedString("Keep this draft")
+            let before = text
+            var selection = caret(text, 4)
+            XCTAssertFalse(MailFormatting.insertLink(try XCTUnwrap(URL(string: raw)), in: &text, selection: &selection))
+            XCTAssertEqual(text, before)
+            XCTAssertEqual(offset(of: selection, in: text), 4)
+        }
+    }
+
+    @MainActor func testRepeatedInsertionRequestsAreDistinctEvenForTheSameAddress() throws {
+        let url = try XCTUnwrap(URL(string: "https://schedule.example/noor"))
+        let format = MailComposerFormat()
+        format.requestLinkInsertion(url)
+        let first = try XCTUnwrap(format.linkInsertion)
+        format.requestLinkInsertion(url)
+        XCTAssertNotEqual(first.id, format.linkInsertion?.id)
+        XCTAssertEqual(format.linkInsertion?.url, url)
+    }
+
     func testALinkIsMadeOfSelectedWordsAndTakenOffAgain() throws {
         var text = AttributedString("see the report")
         var selection = range(text, 8, 14)

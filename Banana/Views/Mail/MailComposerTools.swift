@@ -23,6 +23,10 @@ struct MailComposerTools: View {
     /// and asks for the panel here, because SwiftUI's own shortcut match does not count Shift and
     /// took plain ⌘A, Select All, for it.
     let chords: MailComposerChords
+    let format: MailComposerFormat
+    var isReadOnly = false
+    @ObservedObject private var booking = BookingCenter.shared
+    @State private var showsBookingSettings = false
     /// The bar is shown until it is hidden; a sheet and a card remember it alike.
     @AppStorage("mailFormatBarShown") private var showsCardBar = true
     /// In the box (direction A) it is hidden until Aa asks for it.
@@ -45,6 +49,7 @@ struct MailComposerTools: View {
             // The box (direction A): a photo is one tap of its own, beside the paperclip.
             if box != nil { photoControl }
             formatToggle
+            schedulingLink
         }
         .background {
             Button("") { showsFilePanel = true }
@@ -52,6 +57,12 @@ struct MailComposerTools: View {
                 .opacity(0)
                 .frame(width: 0, height: 0)
                 .accessibilityHidden(true)
+        }
+        .sheet(isPresented: $showsBookingSettings, onDismiss: { format.isPresentingSheet = false }) {
+            NavigationStack {
+                BookingSettingsView().toolbar { SheetClose { showsBookingSettings = false } }
+            }
+            .toastHost()
         }
         .fileImporter(isPresented: $showsFilePanel, allowedContentTypes: [.item], allowsMultipleSelection: true) { result in
             if case .success(let urls) = result { files.add(urls) }
@@ -134,6 +145,27 @@ struct MailComposerTools: View {
         .buttonStyle(.borderless)
         .accessibilityLabel("Photo")
         .accessibilityIdentifier(MailID.composerPhoto)
+    }
+
+    private var schedulingLink: some View {
+        Button {
+            guard !isReadOnly else { return }
+            if booking.isAvailable, booking.pendingHandle == nil, let url = booking.link {
+                format.requestLinkInsertion(url)
+            } else {
+                format.isPresentingSheet = true
+                showsBookingSettings = true
+            }
+        } label: {
+            Image(systemName: "calendar.badge.clock")
+                .frame(width: DS.Row.minHeight, height: DS.Mail.header)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.borderless)
+        .disabled(isReadOnly)
+        .accessibilityLabel("Insert scheduling link")
+        .accessibilityIdentifier(MailID.composerSchedulingLink)
+        .help("Insert scheduling link")
     }
 
     private var attachLabel: some View {

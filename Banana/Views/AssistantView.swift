@@ -51,6 +51,7 @@ struct AssistantView: View {
                 }
             }
         }
+        .problemReportPage(.assistant)
         .onAppear { ProblemReportCenter.shared.provide(.assistant) { ProblemReportPageContext.assistant() } }
         .sheet(isPresented: $showingConversations) {
             NavigationStack {
@@ -108,7 +109,7 @@ struct AssistantView: View {
     }
 
     @ViewBuilder private var addFormMenu: some View {
-        #if PI_DEVELOPMENT
+        #if BANANA_AI
         if let section = panelAddSection {
             Menu {
                 ForEach(AddKind.groups(for: section, with: modules.effectiveChoice), id: \.section) { group in
@@ -318,6 +319,7 @@ struct AssistantView: View {
     static func settled(_ activity: String) -> String {
         activity.components(separatedBy: " · ").map { step in
             [
+                "Reading nutrition records": "Read nutrition records",
                 "Looking up notes": "Looked up notes", "Reading a note": "Read a note", "Saving a note": "Saved a note",
                 "Preparing a note": "Prepared a note draft", "Reading the day plan": "Read the day plan", "Updating nutrition view": "Updated the nutrition view",
                 "Preparing meal draft": "Prepared a meal draft", "Preparing event draft": "Prepared an event draft",

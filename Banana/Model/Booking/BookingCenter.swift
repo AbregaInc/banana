@@ -36,7 +36,7 @@ final class BookingCenter: ObservableObject {
     init(defaults: UserDefaults = .standard, arguments: [String] = ProcessInfo.processInfo.arguments) {
         self.defaults = defaults
         #if DEBUG
-        isPreview = arguments.contains("--booking-preview")
+        isPreview = (arguments.contains("--booking-preview") || arguments.contains("--booking-fixture"))
         #else
         isPreview = false
         #endif

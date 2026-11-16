@@ -42,6 +42,7 @@ struct MailSection: View {
             }
         }
         .task { application.start() }
+        .modifier(GooglePermissionUpgradePrompt())
         #if os(macOS)
         .toolbar {
             if wideShell, let session = application.session {

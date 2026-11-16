@@ -95,6 +95,9 @@ struct MailConversationContent: View {
                             }
                         }
                         .padding(.bottom, DS.Space.xs)
+                        if let code = reader.verificationCode {
+                            MailVerificationCodeCard(code: code)
+                        }
                         if let invite = reader.conversation?.invite, invite.method == .request {
                             MailInviteCard(account: reader.id.account, invite: invite,
                                            calendar: session.isSample ? .sample : .live)
@@ -351,6 +354,13 @@ struct MailMessageCard: View {
                 MailFaceView(face: message.face, size: DS.Mail.face)
                 header
             }
+            if let delivery = message.deliveryText {
+                HStack(spacing: DS.Space.s) {
+                    if message.deliveryIsWorking { ProgressView().controlSize(.small) }
+                    Text(delivery).font(.caption).foregroundStyle(.secondary)
+                }
+                .accessibilityIdentifier("mail.message.delivery." + message.id.message)
+            }
             if let note = message.sampleNote {
                 MailSampleChip(text: note)
             }
@@ -361,6 +371,13 @@ struct MailMessageCard: View {
                 MailReceivedAttachments(files: message.files, opener: opener)
             }
             content
+            if !message.inlineImages.isEmpty {
+                DisclosureGroup("Images (\(message.inlineImages.count))") {
+                    MailReceivedAttachments(files: message.inlineImages, opener: opener)
+                }
+                .font(.callout)
+                .accessibilityIdentifier("mail.inline-images")
+            }
         }
         .padding(DS.Space.m)
         .frame(maxWidth: .infinity, alignment: .leading)

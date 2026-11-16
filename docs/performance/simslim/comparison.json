@@ -1,0 +1,137 @@
+{
+  "scope": "One paired headless Simulator service-profile comparison; not physical UI acceptance",
+  "sourceCommit": "4f5fd15249480fa73d21d5e3df61e1d02d4478f3",
+  "simslimVersion": "0.14.0",
+  "environment": {
+    "hostModel": "MacBookPro18,2",
+    "architecture": "arm64",
+    "runtime": "com.apple.CoreSimulator.SimRuntime.iOS-27-0",
+    "deviceType": "com.apple.CoreSimulator.SimDeviceType.iPhone-17-Pro",
+    "xcode": "Xcode 27.2\nBuild version 27B52",
+    "configuration": "Release + DEBUG audit fixtures; arm64"
+  },
+  "profileOrder": "stock,slim",
+  "runs": {
+    "stock": {
+      "footprintSamplesGiB": [
+        8.128318786621094,
+        8.216950416564941,
+        8.316146850585938
+      ],
+      "medianFootprintGiB": 8.216950416564941,
+      "processSamples": [
+        207,
+        207,
+        207
+      ],
+      "scenarioCount": 8,
+      "allAbsoluteChecksPassed": true,
+      "hostMonitorsClean": true,
+      "caseWallSeconds": {
+        "scale-1d": 7.267527792020701,
+        "scale-7d": 6.057302166998852,
+        "scale-30d": 11.021015166013967,
+        "scale-90d": 22.03863312501926,
+        "redraw-notes": 30.419143332983367,
+        "redraw-library": 26.37096783396555,
+        "redraw-plan": 26.202524416032247,
+        "redraw-mail": 26.147446750022937
+      }
+    },
+    "slim": {
+      "footprintSamplesGiB": [
+        6.412197113037109,
+        6.477547645568848,
+        6.579615592956543
+      ],
+      "medianFootprintGiB": 6.477547645568848,
+      "processSamples": [
+        176,
+        175,
+        178
+      ],
+      "scenarioCount": 8,
+      "allAbsoluteChecksPassed": true,
+      "hostMonitorsClean": true,
+      "caseWallSeconds": {
+        "scale-1d": 6.751656665990595,
+        "scale-7d": 6.038475290988572,
+        "scale-30d": 10.993557000008877,
+        "scale-90d": 22.06057354103541,
+        "redraw-notes": 26.15123154199682,
+        "redraw-library": 26.229579208011273,
+        "redraw-plan": 26.10275554098189,
+        "redraw-mail": 26.116082750028
+      }
+    }
+  },
+  "comparisonRegressions": {
+    "scale-1d": [],
+    "scale-7d": [],
+    "scale-30d": [],
+    "scale-90d": [],
+    "redraw-notes": [],
+    "redraw-library": [],
+    "redraw-plan": [],
+    "redraw-mail": []
+  },
+  "comparisonFailed": false,
+  "historicalStockGate": {
+    "status": "fail",
+    "scope": "Simulator components, not UI acceptance",
+    "baselineVersion": 1,
+    "failures": {
+      "scale-1d": [
+        "peak RSS regression or ceiling exceeded: 367.22 MB"
+      ],
+      "scale-7d": [
+        "peak RSS regression or ceiling exceeded: 408.27 MB"
+      ],
+      "scale-30d": [
+        "peak RSS regression or ceiling exceeded: 490.75 MB"
+      ],
+      "scale-90d": [
+        "peak RSS regression or ceiling exceeded: 722.56 MB"
+      ],
+      "redraw-notes": [
+        "peak RSS regression or ceiling exceeded: 490.86 MB"
+      ],
+      "redraw-library": [
+        "peak RSS regression or ceiling exceeded: 493.31 MB"
+      ],
+      "redraw-plan": [
+        "peak RSS regression or ceiling exceeded: 510.86 MB"
+      ],
+      "redraw-mail": [
+        "peak RSS regression or ceiling exceeded: 492.94 MB"
+      ]
+    }
+  },
+  "idleAfterPreparationSeconds": 30,
+  "waitBetweenFootprintSamplesSeconds": 5,
+  "workflowValidation": {
+    "mailUITests": {
+      "passed": 14,
+      "failed": 0,
+      "skipped": 0
+    },
+    "workflowTests": {
+      "passed": 7,
+      "failed": 0
+    },
+    "existingGateTests": {
+      "passed": 16,
+      "failed": 0
+    },
+    "requiredFeatures": {
+      "phone": {
+        "ok": true,
+        "checked": 15
+      },
+      "pad": {
+        "ok": true,
+        "checked": 15
+      }
+    }
+  }
+}

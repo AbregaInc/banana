@@ -20,6 +20,47 @@ final class BottomBarShellUITest: XCTestCase {
         return app
     }
 
+    func testScrollingTheAddOptionsDismissesOnlyTheKeyboard() throws {
+        let app = try launch(["--tab", "plan"])
+        app.textFields["shell.field"].tap()
+        let options = any(app, "page.add.list")
+        XCTAssertTrue(options.waitForExistence(timeout: 5), app.debugDescription)
+        XCTAssertTrue(app.keyboards.firstMatch.waitForExistence(timeout: 5))
+        options.swipeUp()
+        XCTAssertTrue(waitUntil(timeout: 5) { !app.keyboards.firstMatch.exists }, "Browsing options should make room by dismissing the keyboard")
+        XCTAssertTrue(options.exists, "Scrolling must keep the add options open")
+        let close = app.buttons["shell.field.clear"]
+        XCTAssertTrue(close.isHittable, "The open list keeps its explicit close control")
+        close.tap()
+        XCTAssertTrue(options.waitForNonExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["shell.switcher"].exists)
+    }
+
+    func testAddOptionsCoverTheFirstMailRowBelowItsHeader() throws {
+        let app = try launch(["--tab", "mail", "--mail-fresh"])
+        let firstRow = app.collectionViews.cells.firstMatch
+        XCTAssertTrue(firstRow.waitForExistence(timeout: 15))
+        let rowFrame = firstRow.frame
+        app.textFields["shell.field"].tap()
+        let options = any(app, "page.add.list")
+        XCTAssertTrue(options.waitForExistence(timeout: 5))
+        options.swipeUp()
+        XCTAssertTrue(waitUntil { !app.keyboards.firstMatch.exists })
+        let picture = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        picture.name = "add-options-header-boundary"
+        picture.lifetime = .keepAlways
+        add(picture)
+        XCTAssertLessThanOrEqual(options.frame.minY, rowFrame.minY + 0.5,
+                                 "The picker must cover content immediately below the real header")
+        // The picker covers page content from the first row, including its leading avatar.
+        app.coordinate(withNormalizedOffset: .zero)
+            .withOffset(CGVector(dx: rowFrame.minX + 24, dy: rowFrame.minY + 2)).tap()
+        app.buttons["shell.field.clear"].tap()
+        XCTAssertTrue(options.waitForNonExistence(timeout: 5))
+        XCTAssertFalse(any(app, MailID.conversation).exists,
+                       "The open picker must not expose or activate the underlying first message")
+    }
+
     private func any(_ app: XCUIApplication, _ id: String) -> XCUIElement {
         app.descendants(matching: .any).matching(identifier: id).firstMatch
     }

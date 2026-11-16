@@ -239,14 +239,14 @@ private struct AddButton<Items: View>: ViewModifier {
     }
 
     @ViewBuilder private func classic(_ content: Content) -> some View {
-        #if os(macOS) && PI_DEVELOPMENT
+        #if os(macOS) && BANANA_AI
         // The window's Ask or add control owns the single desktop entry point.
         content
         #elseif os(macOS)
         content.toolbar {
             if ownItems { ToolbarItem(placement: .primaryAction) { control } }
         }
-        #elseif PI_DEVELOPMENT
+        #elseif BANANA_AI
         content.toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button { PageChrome.shared.showAssistant = true } label: { Image(systemName: "bubble.left.and.bubble.right") }
@@ -270,7 +270,7 @@ private struct AddButton<Items: View>: ViewModifier {
     }
 
     @ViewBuilder private var control: some View {
-        #if PI_DEVELOPMENT
+        #if BANANA_AI
         // The same sheet as a phone's +: words first, this page's kinds right under them.
         Button { PageChrome.shared.showAdd = true } label: { Image(systemName: "plus") }
             .accessibilityLabel("Add")
@@ -529,12 +529,6 @@ struct MoreMenu<Items: View>: View {
                 .accessibilityIdentifier("page.more.routines")
             }
             if !bottomBarShell && !wideShell {
-                #if BANANA_AI && !PI_DEVELOPMENT
-                Button { PageChrome.shared.showAssistant = true } label: {
-                    Label("Assistant", systemImage: "bubble.left.and.bubble.right")
-                }
-                .accessibilityIdentifier("page.more.assistant")
-                #endif
                 Button { PageChrome.shared.showSettings = true } label: {
                     Label("Settings", systemImage: "gearshape")
                 }
