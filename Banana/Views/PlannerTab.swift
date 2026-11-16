@@ -164,6 +164,9 @@ struct PlanStepButton: View {
         Button { step(delta) } label: {
             Image(systemName: delta < 0 ? "chevron.left" : "chevron.right")
                 .frame(width: framed ? 44 : nil, height: framed ? 44 : nil)
+                #if os(macOS)
+                .frame(minWidth: 28, minHeight: 28)
+                #endif
                 .contentShape(Rectangle())
         }
         .help(PlanPaging.help(name, key: delta < 0 ? "K" : "J"))
@@ -182,6 +185,9 @@ struct PlanTodayButton: View {
             Text("Today")
                 .padding(.horizontal, framed ? DS.Space.m : 0)
                 .frame(minHeight: framed ? 44 : nil)
+                #if os(macOS)
+                .frame(minWidth: 44, minHeight: 28)
+                #endif
                 .contentShape(Rectangle())
         }
         .help(PlanPaging.help("Go to today", key: "T"))

@@ -443,10 +443,8 @@ struct BananaApp: App {
         }
         #if os(macOS)
         #if DEBUG
-        let auditWidth = ProcessInfo.processInfo.arguments.contains("--ui-audit")
-            ? Double(ProcessInfo.processInfo.environment["BANANA_AUDIT_WINDOW_WIDTH"] ?? "") : nil
         return group
-            .defaultSize(width: auditWidth.map { min(1600, max(760, $0)) } ?? 1120, height: 780)
+            .defaultSize(width: 1120, height: 780)
             .windowResizability(.contentMinSize)
             .commands { MacCommands() }
             .defaultLaunchBehavior(MailKeyDriver.requested ? .suppressed : .automatic)

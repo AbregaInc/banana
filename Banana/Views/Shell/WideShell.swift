@@ -102,13 +102,14 @@ struct ShellRailToggle: View {
 
 /// "Search or ask" in a page's toolbar: the phone's field, as wide as the toolbar's middle allows.
 struct ShellToolbarField: View {
+    var compact = false
     @ObservedObject private var search = ShellSearch.shared
 
     var body: some View {
         ShellWideField(search: search)
             #if os(macOS)
             // Search yields width before the calendar's navigation or the sidebar toggle.
-            .frame(minWidth: 160, idealWidth: 320, maxWidth: 560)
+            .frame(minWidth: compact ? 120 : 160, idealWidth: compact ? 160 : 320, maxWidth: compact ? 160 : 560)
             #else
             .frame(minWidth: 240, idealWidth: 520, maxWidth: 560)
             #endif

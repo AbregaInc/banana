@@ -189,6 +189,7 @@ struct MacRootView: View {
     /// Whether the rail is shown: hidden and shown like a system sidebar (the toolbar's sidebar
     /// button, View › Hide Sidebar ⌃⌘S), and kept across launches (`ShellRailVisibility`).
     @AppStorage(ShellRailVisibility.key) private var railShown = true
+    @State private var narrowToolbar = false
 
     private var railVisibility: Binding<NavigationSplitViewVisibility> {
         Binding(get: { railShown ? .all : .detailOnly },
@@ -278,7 +279,7 @@ struct MacRootView: View {
                     // it, on every page; each page adds its title menu and "…".
                     .toolbar {
                         // Beside "…" at the trailing edge, the toolbar's last group, on every page.
-                        ToolbarItem(placement: .principal) { ShellToolbarField() }
+                        ToolbarItem(placement: narrowToolbar ? .navigation : .principal) { ShellToolbarField(compact: narrowToolbar) }
                         #if BANANA_AI
                         ToolbarItem(placement: .primaryAction) {
                             Button {
@@ -449,18 +450,7 @@ struct MacRootView: View {
             }
         }
         .sheet(isPresented: $commands.showsShortcuts) { MacShortcutsSheet() }
-        #if DEBUG
-        // `--mac-window-size 1320x840`: the window at a known size, for the store's screenshots.
-        // It otherwise opens wherever it was last left, at whatever size.
-        .task {
-            let args = ProcessInfo.processInfo.arguments
-            guard let i = args.firstIndex(of: "--mac-window-size"), i + 1 < args.count else { return }
-            let parts = args[i + 1].split(separator: "x").compactMap { Double($0) }
-            guard parts.count == 2, let window = NSApp.windows.first(where: { $0.isVisible && $0.canBecomeMain }) else { return }
-            window.setContentSize(NSSize(width: parts[0], height: parts[1]))
-            window.center()
-        }
-        #endif
+        .onGeometryChange(for: Bool.self) { $0.size.width < 1000 } action: { narrowToolbar = $0 }
         .onAppear { MacKeyMonitor.shared.install() }
     }
 
@@ -781,7 +771,26 @@ private struct MacRailColumnPin: NSViewRepresentable {
             DispatchQueue.main.async { [weak self] in self?.pin() }
         }
 
+        #if DEBUG
+        private var appliedFixtureSize = false
+        #endif
+
         func pin() {
+            #if DEBUG
+            // Size screenshot/UI fixtures only after the native view has its actual window.
+            // A SwiftUI .task can run before a newly-created window is visible.
+            if !appliedFixtureSize, let window {
+                let args = ProcessInfo.processInfo.arguments
+                if let i = args.firstIndex(of: "--mac-window-size"), args.indices.contains(i + 1) {
+                    let parts = args[i + 1].split(separator: "x").compactMap { Double($0) }
+                    if parts.count == 2, parts.allSatisfy({ $0.isFinite && $0 > 0 }) {
+                        appliedFixtureSize = true
+                        window.setContentSize(NSSize(width: parts[0], height: parts[1]))
+                        window.center()
+                    }
+                }
+            }
+            #endif
             var ancestor = superview
             while let view = ancestor, !(view is NSSplitView) { ancestor = view.superview }
             guard let split = ancestor as? NSSplitView,

@@ -21,6 +21,11 @@ final class MacToolbarTests: XCTestCase {
         candidateInfo = try Data(contentsOf: candidate.appendingPathComponent("Contents/Info.plist"))
         app = XCUIApplication(url: candidate)
         app.launchArguments = ["--ui-audit", "--disable-icloud", "--mac-section", "plan"]
+        if name.contains("Scheduling") {
+            app.launchArguments = ["--ui-audit", "--disable-icloud", "--mac-section", "plan", "--mail", "--mail-fresh",
+                                   "--booking-fixture", "--booking-linked", "--modules", "everything",
+                                   "-onboardingCompleted", "YES"]
+        }
         app.launch()
     }
 
@@ -57,12 +62,38 @@ final class MacToolbarTests: XCTestCase {
         XCTAssertLessThan(toggle.frame.maxX, window.midX, "Sidebar control belongs on the left")
         XCTAssertGreaterThan(previous.frame.midX, window.midX, "Calendar navigation belongs on the right")
         XCTAssertGreaterThan(next.frame.minX, previous.frame.midX, "Next follows Previous")
+        XCTAssertGreaterThanOrEqual(previous.frame.width, 28)
+        XCTAssertGreaterThanOrEqual(next.frame.width, 28)
         XCTAssertLessThanOrEqual(period.frame.maxX, previous.frame.minX + 2, "Range and paging form one ordered group")
         XCTAssertLessThanOrEqual(next.frame.maxX, window.maxX, "Next is not clipped into overflow")
         let screenshot = XCTAttachment(screenshot: app.screenshot())
         screenshot.name = "mac-toolbar-" + name
         screenshot.lifetime = .keepAlways
         add(screenshot)
+    }
+
+    func testSchedulingLinkInTheMacComposer() {
+        wait("The shell window is ready") { self.app.windows.firstMatch.exists }
+        app.menuBars.menuBarItems["File"].click()
+        app.menuItems["Email"].firstMatch.click()
+        let compose = app.buttons["mail.list.compose"].firstMatch
+        wait("Mail actions are ready") { compose.isHittable || self.app.descendants(matching: .any)["mail.more"].firstMatch.isHittable }
+        if compose.isHittable {
+            compose.click()
+        } else {
+            app.descendants(matching: .any)["mail.more"].firstMatch.click()
+            let new = app.menuItems["New message"].firstMatch
+            wait("New message menu action is ready") { new.isHittable }
+            new.click()
+        }
+        let body = app.textViews["mail.composer.body"].firstMatch
+        wait("The new message editor is ready") { body.isHittable }
+        let insert = app.buttons["mail.composer.schedulingLink"].firstMatch
+        XCTAssertTrue(insert.isHittable)
+        insert.click()
+        wait("The confirmed link is inserted") { (body.value as? String)?.contains("https://book.bananatheapp.com/noor") == true }
+        body.typeText("Thanks")
+        XCTAssertTrue((body.value as? String)?.contains("Thanks") == true)
     }
 
     func testSidebarAndWeekNavigationAtWideAndNarrowWidths() {
@@ -94,10 +125,13 @@ final class MacToolbarTests: XCTestCase {
 
         let window = app.windows.firstMatch, frame = window.frame
         app.terminate()
-        app.launchEnvironment["BANANA_AUDIT_WINDOW_WIDTH"] = "800"
+        app.launchArguments += ["--mac-window-size", "800x780"]
         app.launchArguments += ["-ApplePersistenceIgnoreState", "YES", "-NSQuitAlwaysKeepsWindows", "NO"]
         app.launch()
         wait("Window launches at the requested narrow width") { window.frame.width < frame.width - 100 }
         checkPlacement("narrow")
+        app.buttons["plan.next"].click()
+        wait("Narrow paging shows Today") { self.app.buttons["plan.today"].isHittable }
+        checkPlacement("narrow-paged")
     }
 }
