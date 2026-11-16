@@ -445,6 +445,8 @@ struct MailMessage: Identifiable, Equatable, Sendable {
     var delivery: MailDelivery?
     /// Set while it can be reopened.
     var draft: MailDraftID?
+    /// Provider draft state survives even before an editable local draft has been linked.
+    var isUnsentDraft: Bool = false
 }
 
 struct MailInvite: Equatable, Sendable {

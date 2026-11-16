@@ -7,6 +7,27 @@ import XCTest
 @MainActor
 final class MailFixtureSourceTests: XCTestCase {
 
+    func testProviderCopyFixtureExercisesADraftWithoutAnEditableMessageLink() async throws {
+        let source = MailFixtureSource(); source.mirrorsProviderDraftCopies = true
+        let target = id("q3")
+        let before = await source.conversation(target)
+        let original = try XCTUnwrap(before)
+        var draft = await source.newDraft(.reply(to: try XCTUnwrap(original.messages.last?.id)))
+        draft.body = MailText(blocks: [.init(kind: .paragraph, runs: [.init(text: "Unsent reply")])])
+        source.save(draft)
+        let updated = await source.conversation(target)
+        let copies = try XCTUnwrap(updated).messages.filter(\.isUnsentDraft)
+        XCTAssertEqual(copies.count, 1)
+        let copy = try XCTUnwrap(copies.first)
+        XCTAssertNil(copy.draft)
+        XCTAssertEqual(copy.firstLine, "Unsent reply")
+        let reader = MailReaderModel(id: target, source: source)
+        await reader.waitForBodies()
+        XCTAssertEqual(reader.messages.count, original.messages.count)
+        XCTAssertFalse(reader.messages.contains { $0.id == copy.id })
+        XCTAssertNil(reader.bodies[copy.id])
+    }
+
     func testSpamTrashRestoreAndUndoKeepMailboxMembershipAndCountsConsistent() {
         let source = MailFixtureSource()
         let places = MailPlacesModel(source: source)

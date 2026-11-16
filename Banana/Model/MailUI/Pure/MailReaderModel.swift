@@ -101,13 +101,17 @@ final class MailReaderModel: ObservableObject {
         let generation = bodyGeneration
         let oldStates = bodyStates
         bodyStates.removeAll(keepingCapacity: true)
-        for message in conversation?.messages ?? [] { bodyStates[message.id] = message.body }
+        // An unsent draft belongs to the composer or the saved-draft marker, never a
+        // delivered-looking message card. Keep outbox states visible for Undo and retry.
+        let ordered = MailReadingOrder.newestFirst(conversation?.messages ?? [])
+        let visible = ordered.filter { ($0.draft == nil && !$0.isUnsentDraft) || $0.delivery != nil }
+        for message in visible { bodyStates[message.id] = message.body }
         let retained = bodies.filter { id, _ in bodyStates[id] != nil && bodyStates[id] == oldStates[id] }
         styled = styled.filter { retained[$0.key] != nil }
         if bodies != retained { bodies = retained }
         self.conversation = conversation
         facts = conversation.map(MailConversationFacts.init)
-        messages = MailReadingOrder.newestFirst(conversation?.messages ?? []).map { MailMessageDisplay($0) }
+        messages = visible.map { MailMessageDisplay($0) }
         opener.update(messages)
         title = conversation.map { MailToastText.cleanSubject($0.subject) } ?? ""
         isLoading = false
@@ -118,15 +122,15 @@ final class MailReaderModel: ObservableObject {
         }
         // Only the newest message can supply a code. An outgoing reply or a newer unrelated
         // message must never promote an older code from the conversation.
-        let newest = conversation.messages.first { $0.id == messages.first?.id }
+        let newest = ordered.first
         let eligible = newest.flatMap { message -> MailMessage? in
-            guard !message.isMine, !message.from.isMe, message.draft == nil, message.delivery == nil else { return nil }
+            guard !message.isMine, !message.from.isMe, message.draft == nil, !message.isUnsentDraft, message.delivery == nil else { return nil }
             return message
         }
         let basis = eligible.map { VerificationBasis(message: $0.id, subject: String(conversation.subject.prefix(512)), body: $0.body, allowSubjectCode: conversation.messages.count == 1) }
         if basis != verificationBasis, verificationCode != nil { verificationCode = nil }
         // In the order they are read: the newest first.
-        let missing = MailReadingOrder.newestFirst(conversation.messages).map(\.id)
+        let missing = visible.map(\.id)
             .filter { bodies[$0] == nil || bodies[$0] == .notOnDevice }
         let needsCode = basis != verificationBasis || basis.map { missing.contains($0.message) } == true
         guard !missing.isEmpty || needsCode else { return }

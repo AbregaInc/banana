@@ -19,6 +19,7 @@ import Combine
 @MainActor
 final class MailFixtureSource: MailSource {
     private var eventObservers: [UUID: @MainActor (MailEvent) -> Void] = [:]
+    var mirrorsProviderDraftCopies = false
     var nextApplyFailure: MailStoreProblem?
     var nextUndoFailure: MailStoreProblem?
     var beforeSenderBlock: (() async throws -> Void)?
@@ -133,6 +134,7 @@ final class MailFixtureSource: MailSource {
         self.defaults = defaults
         #if DEBUG
         let args = ProcessInfo.processInfo.arguments
+        mirrorsProviderDraftCopies = args.contains("--mail-provider-draft-copy")
         if let index = args.firstIndex(of: "--mail-sync-progress-fixture"), index + 1 < args.count {
             let mode = args[index + 1]
             let model = MailSyncProgress()

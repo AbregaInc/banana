@@ -114,7 +114,18 @@ extension MailFixtureSource {
     /// A conversation as it is read: a stored one, or the one a new message's draft is the only
     /// message of, so choosing it in Drafts has something to open.
     func conversationValue(_ id: MailConversationID) -> MailConversation? {
-        if let stored = threads[id] { return stored.conversation }
+        if let stored = threads[id] {
+            var value = stored.conversation
+            if mirrorsProviderDraftCopies, let draft = drafts.values.first(where: {
+                $0.conversation == id && kept.contains($0.id) && held[$0.id] == nil
+            }), var copy = draftConversation(draft).messages.first {
+                // A provider copy can arrive before its editable local id has been linked.
+                copy.draft = nil
+                copy.isUnsentDraft = true
+                value.messages.append(copy)
+            }
+            return value
+        }
         if let stored = gmailOnly[id] { return stored.conversation }
         guard id.thread.hasPrefix("local:"),
               let draft = drafts.values.first(where: {

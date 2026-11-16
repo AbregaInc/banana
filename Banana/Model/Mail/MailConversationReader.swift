@@ -45,7 +45,7 @@ struct MailConversationReader: Sendable {
                     listName: fact.listID, date: Date(timeIntervalSince1970: Double(fact.internalDate) / 1000),
                     isUnread: fact.labels.contains("UNREAD"), isMine: fact.isFromMe, firstLine: MailSnippet.display(fact.snippet),
                     body: states[fact.gmailID] == 1 ? .preparing : .notOnDevice,
-                    attachments: [], delivery: nil, draft: nil)
+                    attachments: [], delivery: nil, draft: nil, isUnsentDraft: fact.labels.contains("DRAFT"))
             }
             // Snoozed until: only while it is away. A conversation back from its snooze keeps the time
             // in `wake_at` for its row ("Back from snooze") and is not snoozed.

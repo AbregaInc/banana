@@ -17,6 +17,20 @@ final class MailConversationReaderTests: XCTestCase {
             try MailMessageImporter.apply(fetched, account: "a@example.com", myAddresses: ["a@example.com"], in: db)
         }
     }
+    func testProviderDraftStateSurvivesBeforeItsEditableRecordExists() async throws {
+        let stores = try await stores()
+        var wire = try message()
+        try await importMessage(wire, stores: stores)
+        wire.id = "provider-draft"; wire.labelIds = ["DRAFT"]; wire.internalDate = 2000
+        try await importMessage(wire, stores: stores)
+        let value = try await MailConversationReader(stores: stores).conversation(
+            MailConversationID(account: "a@example.com", thread: "t1"))
+        let draft = try XCTUnwrap(value?.messages.first { $0.id.message == "provider-draft" })
+        XCTAssertTrue(draft.isUnsentDraft)
+        XCTAssertNil(draft.draft, "Provider draft status does not invent a local editable id")
+        XCTAssertFalse(try XCTUnwrap(value?.messages.first { $0.id.message == "m1" }).isUnsentDraft)
+    }
+
     func testCachedPreviewDecodesEntitiesBeforeTheBodyArrives() async throws {
         let stores = try await stores()
         var wire = try message(); wire.snippet = "We&#39;ve got tea &amp; coffee"

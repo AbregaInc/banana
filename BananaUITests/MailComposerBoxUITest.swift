@@ -7,12 +7,13 @@ import XCTest
 /// and its chevron opens send later; pulled all the way down it goes away and the draft is kept.
 final class MailComposerBoxUITest: MailUITestCase {
 
-    private func launchShell(booking: Bool? = nil, largeText: Bool = false) {
+    private func launchShell(booking: Bool? = nil, largeText: Bool = false, providerDraftCopy: Bool = false) {
         if isPad { MailTurn.ask(landscape: false) }
         app = XCUIApplication()
         app.launchArguments += ["--ui-preview", "--ui-audit", "--disable-icloud", "--dummy-health",
                                 "-finishSetupDismissed", "YES", "-onboardingCompleted", "YES", "--modules", "everything",
                                 "--tab", "mail", "--mail-fresh", isPad ? "--mail-cursor" : "--mail-open", "q3"]
+        if providerDraftCopy { app.launchArguments += ["--mail-provider-draft-copy"] }
         if let booking {
             app.launchArguments += ["--booking-fixture"]
             if booking { app.launchArguments += ["--booking-linked"] }
@@ -69,6 +70,29 @@ final class MailComposerBoxUITest: MailUITestCase {
         let body = element(MailID.composerBody)
         if (body.value(forKey: "hasKeyboardFocus") as? Bool) != true { body.tap() }
         body.typeText(text)
+    }
+
+    func testContinuingADraftDoesNotDuplicateItAboveTheComposer() {
+        launchShell(providerDraftCopy: true)
+        let handle = openReply()
+        let writing = "Reply still being written, not sent."
+        type(writing)
+        let body = element(MailID.composerBody)
+        let grip = handle.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
+        grip.press(forDuration: 0.05, thenDragTo: grip.withOffset(CGVector(dx: 0, dy: 700)), withVelocity: .fast, thenHoldForDuration: 0)
+        XCTAssertTrue(waitGone(body, timeout: 5))
+        XCTAssertTrue(element(MailID.draftMarker).waitForExistence(timeout: 5))
+        element(MailID.continueDraft).tap()
+        XCTAssertTrue(body.waitForExistence(timeout: 5))
+        XCTAssertTrue(waitUntil { (body.value as? String)?.contains(writing) == true })
+        assertAnsweredReads(above: element(MailID.composerHandle), "continuing a saved draft")
+        // The iPad list legitimately previews the saved draft beside the reader. Scope this
+        // check to the thread's scroll view, not the list or the composer.
+        let thread = app.scrollViews.containing(.staticText, identifier: answered.label).firstMatch
+        XCTAssertTrue(thread.exists)
+        XCTAssertFalse(thread.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", writing)).firstMatch.exists,
+                       "The unsent reply belongs only in the editor, not a message card")
+        snap("draft-only-in-composer")
     }
 
     func testSchedulingLinkInsertsWhileTypingAndSurvivesClosingTheDraft() {

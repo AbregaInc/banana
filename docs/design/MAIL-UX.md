@@ -2469,6 +2469,12 @@ sent by the device it was scheduled on, which has to be awake and running Banana
 
 #### 6.3.8 Leaving and discarding
 
+Unsent text belongs in the composer, with the existing Draft marker providing recovery when
+it is closed. Neither a local draft nor a provider's synced draft copy is an ordinary message
+card in the conversation. Provider draft state survives before its editable local id is linked.
+Queued, scheduled, failed and sent messages retain their delivery cards and recovery actions.
+This keeps the editing task clear while preserving the draft and its route back.
+
 - `Esc`, clicking elsewhere in the conversation, dragging the sheet down: **the draft is
   kept.** It never asks. A reply's draft stays with its conversation (the reply field shows
   it; the row's reason line reads "Draft · …"). A new message's draft is in Drafts.

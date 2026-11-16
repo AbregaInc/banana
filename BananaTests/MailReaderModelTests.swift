@@ -144,6 +144,68 @@ import XCTest
         for _ in 0..<10 { await Task.yield() }
         XCTAssertEqual(reader.bodies[messageID], text)
     }
+    func testAutosavedDraftStaysInTheComposerInsteadOfDuplicatingAMessageCard() async {
+        let source = Source(); source.value = text
+        let reader = MailReaderModel(id: id, source: source)
+        var value = conversation(body: .text)
+        let draftID = MailDraftID(raw: "reply-draft")
+        let draftMessage = MailMessageID(account: id.account, message: "local-draft")
+        var draft = MailMessage(id: draftMessage, from: value.messages[0].from, to: [], cc: [], bcc: [],
+            replyTo: [], deliveredTo: nil, listName: nil, date: Date(timeIntervalSince1970: 1),
+            isUnread: false, isMine: true, firstLine: "Work in progress", body: .text,
+            attachments: [], delivery: nil, draft: draftID)
+        value.messages.append(draft); value.draft = draftID
+        source.onChange?(value); await reader.waitForBodies()
+        XCTAssertEqual(reader.messages.map(\.id), [messageID])
+        XCTAssertEqual(reader.conversation?.draft, draftID, "Closing the composer still offers Continue")
+        XCTAssertNil(reader.bodies[draftMessage]); XCTAssertEqual(source.reads, 1)
+        // Gmail may sync the remote copy before its local editable id is attached.
+        draft.draft = nil; draft.isUnsentDraft = true; value.messages[1] = draft
+        source.onChange?(value); await reader.waitForBodies()
+        XCTAssertEqual(reader.messages.map(\.id), [messageID])
+        XCTAssertNil(reader.bodies[draftMessage]); XCTAssertEqual(source.reads, 1)
+        draft.firstLine = "More typing"; value.messages[1] = draft
+        source.onChange?(value); await reader.waitForBodies()
+        XCTAssertEqual(reader.messages.map(\.id), [messageID])
+        XCTAssertEqual(source.reads, 1, "Autosave must not fetch or render another copy of the draft")
+        draft.delivery = .held(until: Date(timeIntervalSince1970: 10)); value.messages[1] = draft
+        source.onChange?(value); await reader.waitForBodies()
+        XCTAssertEqual(reader.messages.map(\.id), [draftMessage, messageID])
+        XCTAssertEqual(reader.messages.first?.deliveryText, "Queued")
+        draft.delivery = .waitingForNetwork; value.messages[1] = draft
+        source.onChange?(value); await reader.waitForBodies()
+        XCTAssertEqual(reader.messages.first?.deliveryText, "Waiting for connection")
+        draft.delivery = .failed(.other); value.messages[1] = draft
+        source.onChange?(value); await reader.waitForBodies()
+        XCTAssertEqual(reader.messages.first?.deliveryText, "Not sent", "Failures remain visible for retry")
+        draft.delivery = nil; value.messages[1] = draft
+        source.onChange?(value); await reader.waitForBodies()
+        XCTAssertEqual(reader.messages.map(\.id), [messageID], "Undo returns it to the composer/marker")
+        XCTAssertNil(reader.bodies[draftMessage])
+        draft.draft = nil; draft.isUnsentDraft = false; value.messages[1] = draft; value.draft = nil
+        source.onChange?(value); await reader.waitForBodies()
+        XCTAssertEqual(reader.messages.map(\.id), [draftMessage, messageID], "A sent message stays visible")
+    }
+
+    func testHiddenDraftDoesNotPromoteAnOlderVerificationCode() async {
+        let source = Source()
+        source.value = .text(MailText(blocks: [.init(kind: .paragraph, runs: [.init(text: "Verification code: 042819")])]), quoteStartsAt: nil, notices: [])
+        let reader = MailReaderModel(id: id, source: source)
+        var value = conversation(body: .text)
+        var draft = value.messages[0]
+        draft = MailMessage(id: .init(account: id.account, message: "draft"), from: draft.from,
+            to: [], cc: [], bcc: [], replyTo: [], deliveredTo: nil, listName: nil,
+            date: Date(timeIntervalSince1970: 1), isUnread: false, isMine: true,
+            firstLine: "Reply", body: .text, attachments: [], delivery: nil,
+            draft: .init(raw: "draft"))
+        // Provider draft status must win even before alias recognition or local linking.
+        draft.draft = nil; draft.isUnsentDraft = true; draft.isMine = false
+        value.messages.append(draft)
+        source.onChange?(value); await reader.waitForBodies()
+        XCTAssertEqual(reader.messages.map(\.id), [messageID])
+        XCTAssertNil(reader.verificationCode)
+    }
+
     func testCodeUsesNewestIncomingMessageAndClearsForAnOutgoingReply() async {
         let source = Source()
         source.value = .text(MailText(blocks: [.init(kind: .paragraph, runs: [.init(text: "Verification code: 042819")])]), quoteStartsAt: nil, notices: [])
