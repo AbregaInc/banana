@@ -386,10 +386,11 @@ struct FoodTextCaptureView: View {
 
     private var phraseSection: some View {
         Section {
-            TextField("What did you eat?", text: Binding(get: { phrase }, set: {
+            TextField("Meal description", text: Binding(get: { phrase }, set: {
                 phrase = $0
                 if editingMealID == nil { Drafts.foodPhrase = $0 }
-            }), axis: .vertical)
+            }), prompt: Text("What did you eat?"), axis: .vertical)
+                .labelsHidden()
                 .lineLimit(1...4)
                 .submitLabel(.done)
                 .focused($focus, equals: .phrase)

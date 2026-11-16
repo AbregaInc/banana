@@ -463,7 +463,8 @@ struct NewCalendarEventSheet: View {
                     }
                 }
             }
-            TextField("Add a guest \u{2014} name or email", text: $guestQuery)
+            TextField("Guest", text: $guestQuery, prompt: Text("Add a guest \u{2014} name or email"))
+                .labelsHidden()
                 #if os(iOS)
                 .textInputAutocapitalization(.never)
                 .keyboardType(.emailAddress)
@@ -546,8 +547,9 @@ struct NewCalendarEventSheet: View {
 
     @ViewBuilder private var primaryFields: some View {
         Section {
-            // The example is the placeholder: it was a three-line hint under the field.
-            TextField(embedded ? "What’s happening?" : "Lunch with Sam Fri 1pm", text: $title)
+            // Mac forms display labels beside values; the example belongs only in prompt:.
+            TextField("Event title", text: $title, prompt: Text(embedded ? "What’s happening?" : "Lunch with Sam Fri 1pm"))
+                .labelsHidden()
                 .focused($titleFocused)
                 .submitLabel(.done)
                 .onSubmit {

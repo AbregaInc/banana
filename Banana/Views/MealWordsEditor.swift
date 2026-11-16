@@ -47,7 +47,8 @@ struct MealWordsEditor: View {
         NavigationStack {
             Form {
                 Section {
-                    TextField("What was this?", text: $words, axis: .vertical)
+                    TextField("Meal description", text: $words, prompt: Text("What was this?"), axis: .vertical)
+                        .labelsHidden()
                         .lineLimit(2...6)
                         .focused($focused)
                         .accessibilityIdentifier("mealWords.field")

@@ -34,7 +34,9 @@ struct AgentInputField: View {
 
     var body: some View {
         HStack(alignment: .bottom, spacing: 10) {
-            TextField(placeholder ?? purpose.placeholder, text: $text, axis: .vertical)
+            TextField(purpose == .add ? "Add something" : purpose == .ask ? "Ask Banana" : "Refine request",
+                      text: $text, prompt: Text(placeholder ?? purpose.placeholder), axis: .vertical)
+                .labelsHidden()
                 .lineLimit(1...4)
                 .focused(focused)
                 .submitLabel(.send)

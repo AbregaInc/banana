@@ -165,7 +165,8 @@ struct MealInboxRow: View {
     /// The question, answered in place: a field like any list's, sent with Return or Add.
     private var asking: some View {
         HStack(alignment: .firstTextBaseline, spacing: DS.Space.s) {
-            TextField("What was this?", text: $note, axis: .vertical)
+            TextField("Meal description", text: $note, prompt: Text("What was this?"), axis: .vertical)
+                .labelsHidden()
                 .lineLimit(1...3)
                 #if os(macOS)
                 .textFieldStyle(.roundedBorder)
@@ -698,7 +699,8 @@ struct MealDumpView: View {
                 }
 
                 Section {
-                    TextField("Anything else you ate?", text: $words, axis: .vertical)
+                    TextField("Additional food", text: $words, prompt: Text("Anything else you ate?"), axis: .vertical)
+                        .labelsHidden()
                         .lineLimit(2...8)
                         .accessibilityIdentifier("mealDump.words")
                 } footer: {
@@ -760,7 +762,8 @@ struct MealDumpView: View {
                 }
             }
             // Left blank, it's estimated from the photo alone; words make it better.
-            TextField("What was this?", text: note, axis: .vertical)
+            TextField("Meal description", text: note, prompt: Text("What was this?"), axis: .vertical)
+                .labelsHidden()
                 .lineLimit(1...3)
         } header: {
             Text(group.first?.takenAt.map { MealInboxText.when($0) } ?? "No time on the photo \u{2014} goes \(dayWords)")

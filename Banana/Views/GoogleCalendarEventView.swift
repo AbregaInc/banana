@@ -223,7 +223,8 @@ struct GoogleCalendarEventView: View {
                 }
             }
             Section("Event") {
-                TextField("What’s happening?", text: $title)
+                TextField("Event title", text: $title, prompt: Text("What’s happening?"))
+                    .labelsHidden()
                     .disabled(!canEdit)
                 // Someone else's invite: who it's from is one plain row, not a note of its own.
                 if let source, source.access == .personalOnly {
@@ -449,7 +450,8 @@ struct GoogleCalendarEventView: View {
                 .accessibilityIdentifier("eventEditor.guest.added")
             }
             if canEdit {
-                TextField("Add a guest \u{2014} name or email", text: $guestQuery)
+                TextField("Guest", text: $guestQuery, prompt: Text("Add a guest \u{2014} name or email"))
+                    .labelsHidden()
                     #if os(iOS)
                     .textInputAutocapitalization(.never)
                     .keyboardType(.emailAddress)

@@ -1095,7 +1095,7 @@ final class VerifyTimelineUITest: XCTestCase {
         newTask.tap()
 
         XCTAssertTrue(app.navigationBars["New reminder"].waitForExistence(timeout: 3))
-        XCTAssertTrue(app.textFields["What needs doing?"].exists)
+        XCTAssertTrue(app.textFields["task.title"].exists)
         XCTAssertTrue(app.switches["Schedule a time"].exists)
         XCTAssertTrue(app.descendants(matching: .any)["task.duration"].exists)
         XCTAssertTrue(app.descendants(matching: .any)["task.priority"].exists)

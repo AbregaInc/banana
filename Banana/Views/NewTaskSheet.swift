@@ -121,7 +121,8 @@ struct NewTaskSheet: View {
                 Section {
                     // On as many lines as it needs: this is where a reminder too long for its
                     // chip or its block is read.
-                    TextField("What needs doing?", text: $title, axis: .vertical)
+                    TextField("Reminder title", text: $title, prompt: Text("What needs doing?"), axis: .vertical)
+                        .labelsHidden()
                         .lineLimit(1...5)
                         .focused($titleFocused)
                         .accessibilityIdentifier("task.title")
