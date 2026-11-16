@@ -118,7 +118,8 @@ struct BookingSettingsView: View {
     }
 
     private var handleField: some View {
-        TextField("you", text: $draft)
+        TextField("Link name", text: $draft, prompt: Text("you"))
+            .labelsHidden()
             .focused($handleFocused)
             .autocorrectionDisabled()
             #if os(iOS)
@@ -127,7 +128,6 @@ struct BookingSettingsView: View {
             #endif
             .submitLabel(.done)
             .onSubmit(use)
-            .accessibilityLabel("Link name")
             .accessibilityIdentifier("booking.handle")
     }
 

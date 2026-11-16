@@ -22,16 +22,20 @@ struct MailListHost: UIViewRepresentable {
     /// places the cursor.
     let opensOnTap: Bool
     @Environment(\.toastBottomInset) private var bottomOverlayHeight
+    @Environment(\.bottomBarShell) private var bottomBarShell
 
     func makeCoordinator() -> MailListCoordinator {
         MailListCoordinator(session: session, style: style, opensOnTap: opensOnTap)
     }
 
     func makeUIView(context: Context) -> UICollectionView {
-        context.coordinator.collectionView
+        let view = context.coordinator.collectionView
+        view.bottomEdgeEffect.isHidden = bottomBarShell
+        return view
     }
 
     func updateUIView(_ uiView: UICollectionView, context: Context) {
+        uiView.bottomEdgeEffect.isHidden = bottomBarShell
         context.coordinator.opensOnTap = opensOnTap
         context.coordinator.setStyle(style)
         if let list = uiView as? MailRestoringCollectionView {

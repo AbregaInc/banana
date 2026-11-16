@@ -11,7 +11,8 @@ struct ProblemReportSheet: View {
         NavigationStack {
             Form {
                 Section {
-                    TextField("What happened?", text: $draft.note, axis: .vertical)
+                    TextField("Problem description", text: $draft.note, prompt: Text("What happened?"), axis: .vertical)
+                        .labelsHidden()
                         .lineLimit(3...8)
                         .focused($noteFocused)
                         .accessibilityIdentifier("report.note")

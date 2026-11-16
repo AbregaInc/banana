@@ -129,7 +129,8 @@ struct EventLocationField: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                TextField("Location or room", text: $model.query)
+                TextField("Location", text: $model.query, prompt: Text("Location or room"))
+                    .labelsHidden()
                     .focused($locationFocused)
                     .onSubmit(commitLink)
                     .accessibilityIdentifier("event.location")

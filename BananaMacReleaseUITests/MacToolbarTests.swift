@@ -26,7 +26,18 @@ final class MacToolbarTests: XCTestCase {
                                    "--booking-fixture", "--booking-linked", "--modules", "everything",
                                    "-onboardingCompleted", "YES"]
         }
+        if name.contains("FieldPrompt") { app.launchArguments += ["--mac-new-event"] }
         app.launch()
+        if name.contains("FieldPrompt") {
+            // A newly signed fixture can raise Local Network privacy before its window opens.
+            // This editor check needs no discovery access; dismiss only that system prompt.
+            for bundle in ["com.apple.UserNotificationCenter", "com.apple.coreservices.uiagent"] {
+                let system = XCUIApplication(bundleIdentifier: bundle)
+                let deny = system.buttons.matching(NSPredicate(format: "title == %@ OR title == %@", "Don’t Allow", "Don't Allow")).firstMatch
+                if deny.waitForExistence(timeout: 5) && deny.isHittable { deny.click() }
+            }
+            app.activate()
+        }
     }
 
     override func tearDownWithError() throws {
@@ -70,6 +81,40 @@ final class MacToolbarTests: XCTestCase {
         screenshot.name = "mac-toolbar-" + name
         screenshot.lifetime = .keepAlways
         add(screenshot)
+    }
+
+    func testEventFieldPromptsStayInsideEmptyFields() {
+        let title = app.textFields["event.title"]
+        wait("The real event editor is ready") { title.isHittable }
+        XCTAssertEqual(title.label, "Event title")
+        XCTAssertEqual(title.placeholderValue, "Lunch with Sam Fri 1pm")
+        XCTAssertFalse(app.staticTexts["Lunch with Sam Fri 1pm"].exists,
+                       "An example must not become a permanent form label")
+        let editor = app.sheets.firstMatch
+        XCTAssertTrue(editor.exists)
+        if editor.exists {
+            XCTAssertGreaterThan(title.frame.width, editor.frame.width * 0.75,
+                                 "The title needs the row, not a narrow trailing value column")
+        }
+        let empty = XCTAttachment(screenshot: app.screenshot())
+        empty.name = "event-title-empty-prompt"; empty.lifetime = .keepAlways; add(empty)
+        title.click(); title.typeText("Interview Blocker")
+        XCTAssertEqual(title.value as? String, "Interview Blocker")
+        XCTAssertFalse(app.staticTexts["Lunch with Sam Fri 1pm"].exists)
+        let filled = XCTAttachment(screenshot: app.screenshot())
+        filled.name = "event-title-filled"; filled.lifetime = .keepAlways; add(filled)
+        let location = app.textFields["event.location"], guest = app.textFields["event.guestField"]
+        for field in [location, guest] {
+            for _ in 0..<6 {
+                if field.exists && field.isHittable { break }
+                editor.scrollViews.firstMatch.scroll(byDeltaX: 0, deltaY: -350)
+            }
+            XCTAssertTrue(field.exists && field.isHittable, "The form field remains reachable")
+        }
+        XCTAssertEqual(location.label, "Location")
+        XCTAssertEqual(location.placeholderValue, "Location or room")
+        XCTAssertEqual(guest.label, "Guest")
+        XCTAssertEqual(guest.placeholderValue, "Add a guest — name or email")
     }
 
     func testSchedulingLinkInTheMacComposer() {
