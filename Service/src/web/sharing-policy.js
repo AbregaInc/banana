@@ -16,9 +16,10 @@ export const emptyPolicy = () => ({ calendars: [], sections: Object.fromEntries(
 const object = v => v && typeof v === 'object' && !Array.isArray(v);
 export const calendarKey = (sub, id) => JSON.stringify([sub, id]);
 export function normalizePolicy(value) {
-  if (!object(value) || Object.keys(value).some(k => !['calendars', 'sections', 'expiresOn'].includes(k))
+  if (!object(value) || Object.keys(value).some(k => !['calendars', 'sections', 'expiresOn', 'allowFeeds'].includes(k))
     || !Array.isArray(value.calendars) || value.calendars.length > 300 || !object(value.sections)
     || Object.keys(value.sections).some(k => !Object.hasOwn(SECTIONS, k))) throw new Error('Choose valid sharing permissions.');
+  if (value.allowFeeds != null && typeof value.allowFeeds !== 'boolean') throw new Error('Choose valid sharing permissions.');
   const expiresOn = value.expiresOn;
   if (expiresOn != null && (typeof expiresOn !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(expiresOn)
     || !Number.isFinite(Date.parse(expiresOn)) || new Date(expiresOn).toISOString().slice(0, 10) !== expiresOn))
@@ -40,7 +41,20 @@ export function normalizePolicy(value) {
     return { sub: c.sub, id: c.id, access: c.access };
   }).sort((a, b) => calendarKey(a.sub, a.id).localeCompare(calendarKey(b.sub, b.id)));
   if (!calendars.length && !Object.values(sections).some(Boolean)) throw new Error('Choose at least one calendar or section to share.');
-  return { calendars, sections, ...(expiresOn ? { expiresOn } : {}) };
+  return { calendars, sections, ...(expiresOn ? { expiresOn } : {}), ...(value.allowFeeds ? { allowFeeds: true } : {}) };
+}
+
+/** A feed can lose rights immediately, but never inherit a later expansion of its share. */
+export function feedPolicy(issued, current) {
+  if (!issued?.allowFeeds || !current?.allowFeeds) return null;
+  const sections = Object.fromEntries(Object.keys(SECTIONS).map(k => [k, Boolean(issued.sections[k] && current.sections[k])]));
+  const calendars = issued.calendars.flatMap(c => {
+    const now = current.calendars.find(n => calendarKey(n.sub, n.id) === calendarKey(c.sub, c.id));
+    return now ? [{ ...c, access: c.access === 'busy' || now.access === 'busy' ? 'busy' : 'details' }] : [];
+  });
+  if (!calendars.length && !Object.values(sections).some(Boolean)) return null;
+  const expiresOn = [issued.expiresOn, current.expiresOn].filter(Boolean).sort()[0];
+  return { sections, calendars, allowFeeds: true, ...(expiresOn ? { expiresOn } : {}) };
 }
 export function allowedTypes(policy) {
   const types = new Set(Object.entries(SECTIONS).filter(([key]) => policy.sections[key]).flatMap(([, value]) => value.types));

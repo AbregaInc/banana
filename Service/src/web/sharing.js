@@ -1,3 +1,4 @@
+import { sharingFeeds } from "./sharing-feeds.js";
 import { contentVersion } from "./status.js";
 import { CATALOG } from '../catalog.js';
 import { newId } from '../crypto.js';
@@ -116,6 +117,7 @@ export function sharingRoutes(app, deps, { owner, signedIn, calendarChoices, vau
       AND (? = 0 OR last_sent_at IS NULL OR last_sent_at <= ?)`,
       sentAt, sendEmail, sendEmail, sentAt, row.id, row.owner_id, input.version, input.version, sendEmail, now() - 60_000);
     if (!changed.changes) return error(c, 'This invitation changed. Reopen and preview it again.', 409);
+    if (!parse(row.draft_policy)?.allowFeeds) await db.run('UPDATE web_share_feeds SET revoked_at = ? WHERE share_id = ? AND revoked_at IS NULL AND issued_version <= ?', sentAt, row.id, row.draft_version);
     if (sendEmail) {
       const name = await ownerName(row.owner_id), url = `${webOrigin}/share/${row.id}`;
       try {
@@ -198,12 +200,13 @@ export function sharingRoutes(app, deps, { owner, signedIn, calendarChoices, vau
     const status=await updateStatus(c,statusState);
     return c.json({ contentVersion:status.contentVersion,email: c.get('web').authEmail, name, ownerName: name, shared: true, preview, publishedPreview: Boolean(publishedPreview), expiresOn: policy.expiresOn ?? null, audience: preview ? row.email : undefined,
       shareVersion: preview && !publishedPreview ? row.draft_version : row.published_version, views: allowedViews(policy), allowedTypes: types,
+      ...(policy.allowFeeds ? { dataFeedsAllowed: true } : {}),
       consents: { health: Boolean(consents.health && types.some(type => CATALOG.get(type)?.tier === 'T2')), transcripts: Boolean(consents.transcripts && policy.sections.listening) },
       counts: Object.fromEntries(Object.entries(counts).filter(([type]) => types.includes(type))),
       preferences: { distanceUnit: prefs?.distanceUnit ?? null, ownBundleID: phone?.bundle ?? null }, weekStartWeekday: calendarSettings(smart).weekStartWeekday,
       lastSync: latest?.at ?? null, now: now(), previewBack: preview ? `${home}#sharing/${row.id}` : undefined });
   });
-  app.get('/app/api/shared/:id/records', signedIn, shared, async c => {
+  async function recordsResponse(c) {
     const { row, policy } = c.get('share'), type = c.req.query('type'), after = c.req.query('after') ?? '';
     if (!allowedTypes(policy).has(type)) return error(c, 'not_shared', 403);
     if (after.length > 200) return error(c, 'bad_request');
@@ -212,8 +215,9 @@ export function sharingRoutes(app, deps, { owner, signedIn, calendarChoices, vau
       fields: { v: record.fields.v?.$blob ? { $blob: 'shared-health-snapshot', ext: 'json' }
         : projectHealthSnapshot(record.fields.v ?? record.fields, policy) } }));
     return c.json(result);
-  });
-  app.get('/app/api/shared/:id/calendar', signedIn, shared, async c => {
+  }
+  app.get('/app/api/shared/:id/records', signedIn, shared, recordsResponse);
+  async function calendarResponse(c) {
     const { row, policy } = c.get('share'), from = Number(c.req.query('from')), to = Number(c.req.query('to'));
     if (!Number.isFinite(from) || !Number.isFinite(to) || from <= 0 || to <= from || to - from > 8 * DAY || Math.abs(from - now()) > 366 * DAY) return error(c, 'bad_request');
     const links = await db.all("SELECT sub, email, refresh_token, scopes, status FROM google_links WHERE account_id = ? AND status <> 'unlinked' ORDER BY created_at, sub", row.owner_id);
@@ -241,9 +245,10 @@ export function sharingRoutes(app, deps, { owner, signedIn, calendarChoices, vau
     const settings = await spaceFor(row.owner_id).read('core.smartSettings', 'smart-settings');
     return c.json({ events: await sharedCalendar(fetched, policy, { secret: deps.config.tokenKey, shareID: row.id, settings }), unavailable,
       weekStartWeekday: calendarSettings(settings).weekStartWeekday });
-  });
-  app.get('/app/api/shared/:id/blob', signedIn, shared, async c => {
-    const { row, policy } = c.get('share'), type = c.req.query('type'), id = c.req.query('id'), field = c.req.query('field');
+  }
+  app.get('/app/api/shared/:id/calendar', signedIn, shared, calendarResponse);
+  async function blobResponse(c, parameters) {
+    const { row, policy } = c.get('share'), type = parameters?.type ?? c.req.query('type'), id = parameters?.id ?? c.req.query('id'), field = parameters?.field ?? c.req.query('field');
     if (!allowedTypes(policy).has(type)) return error(c, 'not_shared', 403);
     if (!id || id.length > 200 || !field || field.length > 200) return error(c, 'bad_request');
     const ref = await spaceFor(row.owner_id).webBlob(type, id, field);
@@ -263,5 +268,7 @@ export function sharingRoutes(app, deps, { owner, signedIn, calendarChoices, vau
     const mime = { jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', webp: 'image/webp', m4a: 'audio/mp4', wav: 'audio/wav', mp3: 'audio/mpeg' }[ref.ext] ?? 'application/octet-stream';
     return new Response(found.body, { headers: { 'content-type': mime, 'content-length': String(found.size), 'cache-control': 'no-store',
       'x-content-type-options': 'nosniff', 'content-security-policy': "default-src 'none'; sandbox" } });
-  });
+  }
+  app.get('/app/api/shared/:id/blob', signedIn, shared, blobResponse);
+  sharingFeeds(app, deps, { owner, signedIn, shared, ownerRow, body, spaceFor, webOrigin, recordsResponse, blobResponse, calendarResponse });
 }

@@ -1,3 +1,4 @@
+import { shareFeedControls } from './share-feeds.js';
 // Owner controls only. Preview opens the normal viewer against the server's guest projection.
 const sections = {
   personalPlan: ['Routines & reminders', 'Your own routines, alarms and day plans.'],
@@ -13,6 +14,7 @@ const key = (sub, id) => JSON.stringify([sub, id]);
 
 export function sharingControls({ request, escape: esc, notice, rerender }) {
   let list = [], accounts = [], received = [], emailEnabled = false, draft = null, dirty = false, selected = '', busy = false;
+  const feeds = shareFeedControls({ request, escape: esc, notice });
   const json = async (url, method = 'GET', data) => (await request(url, { method,
     ...(data == null ? {} : { headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) }) })).json();
   const picked = (sub, id) => draft.policy.calendars.find(c => c.sub === sub && c.id === id)?.access ?? 'none';
@@ -33,7 +35,7 @@ export function sharingControls({ request, escape: esc, notice, rerender }) {
     if (summary) {
       const full = draft.policy.calendars.filter(c => c.access === 'details').length, privateBusy = draft.policy.calendars.filter(c => c.access === 'busy').length;
       const names = Object.entries(draft.policy.sections).filter(([, enabled]) => enabled).map(([id]) => sections[id][0]);
-      summary.textContent = [full ? `${full} full calendar${full === 1 ? '' : 's'}` : '', privateBusy ? `${privateBusy} busy-only calendar${privateBusy === 1 ? '' : 's'}` : '', ...names].filter(Boolean).join(' · ') || 'Nothing selected yet.';
+      summary.textContent = [full ? `${full} full calendar${full === 1 ? '' : 's'}` : '', privateBusy ? `${privateBusy} busy-only calendar${privateBusy === 1 ? '' : 's'}` : '', ...names, draft.policy.allowFeeds ? 'External data feeds' : ''].filter(Boolean).join(' · ') || 'Nothing selected yet.';
     }
   }
   async function render(id = '') {
@@ -64,6 +66,7 @@ export function sharingControls({ request, escape: esc, notice, rerender }) {
       ${showEditor ? `<section class="share-editor" aria-labelledby="share-editor-title"><div class="section-title"><h2 id="share-editor-title">${draft.publishedVersion ? 'Edit guest access' : 'Invite a guest'}</h2><span class="share-status">${draft.publishedVersion ? 'Changes stay private until you publish them' : 'Nothing has been sent'}</span></div>
       <label class="share-email">Google sign-in email<input type="email" id="share-email" autocomplete="email" placeholder="trainer@example.com" value="${esc(draft.email)}" ${draft.publishedVersion ? 'disabled' : ''}><small>Use the email they sign in to Google with. The link alone does not grant access.</small></label>
       <label class="share-email">Access expiration date<input type="date" id="share-expiry" value="${esc(draft.policy.expiresOn || '')}" min="${new Date().toISOString().slice(0,10)}"><small>Optional. Access ends after this date at midnight UTC. Leave blank for no expiration.</small></label>
+      <label class="share-section"><input type="checkbox" id="share-allow-feeds" ${draft.policy.allowFeeds ? 'checked' : ''}><span><strong>Allow external data feeds</strong></span></label>
       <h3>Calendars</h3><p class="subtle">Full details includes titles, notes, locations and meeting links. Busy only shares occupied time. New calendars are not shared automatically.</p>
       ${calendarHTML || '<p class="subtle">Connect Google Calendar in Banana to choose calendars here.</p>'}
       <div class="share-extra">${checkbox('personalPlan')}</div>
@@ -75,6 +78,7 @@ export function sharingControls({ request, escape: esc, notice, rerender }) {
       ${draft.publishedVersion ? `<button class="button secondary" data-share-publish="publish" ${dirty || !draft.previewed || busy ? 'disabled' : ''}>Save access</button>` : ''}
       <button class="button secondary" data-share-publish="send" ${dirty || !draft.previewed || busy || !emailEnabled ? 'disabled' : ''}>${draft.publishedVersion ? 'Send invitation again' : 'Send invitation'}</button></div>
       ${!emailEnabled ? '<p class="notice">Email delivery is not configured. You can prepare and preview a draft.</p>' : ''}</div></section>` : ''}
+      ${showEditor && list.find(s => s.id === draft.id)?.policy?.allowFeeds ? '<section id="share-feed-controls"></section>' : ''}
       <section><div class="section-title"><h2>Your guests</h2></div>${entries || '<p class="subtle">No guests yet. Add a guest and preview their access above.</p>'}</section>
       ${received.length ? `<section><div class="section-title"><h2>Shared with you</h2></div>${received.map(s => `<a class="record" href="/share/${s.id}"><strong>${esc(s.owner)}</strong><span>Open shared view ↗</span></a>`).join('')}</section>` : ''}`;
   }
@@ -82,6 +86,7 @@ export function sharingControls({ request, escape: esc, notice, rerender }) {
     if (!draft) return false;
     if (target.id === 'share-email') { draft.email = target.value; dirty = true; }
     else if (target.id === 'share-expiry') { if (target.value) draft.policy.expiresOn = target.value; else delete draft.policy.expiresOn; dirty = true; }
+    else if (target.id === 'share-allow-feeds') { draft.policy.allowFeeds = target.checked; dirty = true; }
     else if (target.dataset.shareSection) { draft.policy.sections[target.dataset.shareSection] = target.checked; dirty = true; }
     else if (target.dataset.shareCalendar) choose(target.dataset.shareSub, target.dataset.shareCalendar, target.value);
     else return false;
@@ -128,5 +133,6 @@ export function sharingControls({ request, escape: esc, notice, rerender }) {
     finally { busy = false; if (!navigating) await rerender(); }
     return true;
   }
-  return { render, change, click, mounted: buttons, isDirty: () => dirty };
+  return { render, change, click, mounted: () => { buttons(); if (draft?.id) feeds.mount(document.querySelector('#share-feed-controls'), `/app/api/shares/${draft.id}/feeds`); }, isDirty: () => dirty,
+    clear() { feeds.clear(); draft = null; selected = ''; dirty = false; } };
 }
