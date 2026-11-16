@@ -1,6 +1,7 @@
 #if DEBUG || MAIL_FIXTURES
 import XCTest
 import Combine
+import SwiftUI
 
 /// Writing mail, without the screen: the session around the real triage model, the real composer
 /// model and the in-memory source, driven by the keys a person presses. What these hold is what
@@ -263,6 +264,29 @@ final class MailComposerTests: XCTestCase {
     }
 
     // MARK: Leaving
+
+    func testSchedulingLinkPersistsWithTheDraftAndItsRecipients() async throws {
+        let h = Harness()
+        let composer = await h.reply()
+        composer.focusLanded(on: .body)
+        composer.body = "Choose a time"
+        let recipients = composer.currentDraft()?.to
+        let url = try XCTUnwrap(URL(string: "https://schedule.example/noor"))
+        var selection = AttributedTextSelection(insertionPoint: composer.rich.endIndex)
+        XCTAssertTrue(MailFormatting.insertLink(url, in: &composer.rich, selection: &selection))
+        let expected = MailRichText.text(composer.rich)
+        let draftID = try XCTUnwrap(composer.draftID)
+        h.session.closeComposer()
+        let saved = await h.source.draft(draftID)
+        let kept = try XCTUnwrap(saved)
+        XCTAssertEqual(kept.body, expected)
+        XCTAssertEqual(kept.to, recipients)
+        h.session.begin(.continuing(draftID))
+        let resumed = try XCTUnwrap(h.composer)
+        await resumed.waitForDraft()
+        XCTAssertEqual(MailRichText.text(resumed.rich), expected)
+        XCTAssertTrue(MailBodyHTML.html(from: resumed.rich).contains("href=\"https://schedule.example/noor\""))
+    }
 
     func testEscapeKeepsTheDraftAndTheConversationShowsItsMark() async throws {
         let h = Harness()
@@ -634,6 +658,8 @@ final class MailComposerTests: XCTestCase {
         h.session.setPaneVisible(true)
         let composer = await h.reply()
         let reader = h.session.pane.reader
+        // Initial body preparation publishes independently of typing. Observe only once ready.
+        await reader?.waitForBodies()
         var publications: [String] = []
         var watching: [AnyCancellable] = []
         watching.append(h.session.feed.objectWillChange.sink { publications.append("list") })

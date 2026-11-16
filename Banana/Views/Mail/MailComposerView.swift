@@ -220,7 +220,7 @@ private struct MailComposerFooter: View {
             .help("Discard draft (\u{21E7}\u{2318},)")
             // Where there is room the paperclip and Aa sit here; in a narrow card they have a row of
             // their own under the body (`MailComposerBodyArea`), for the footer is full without them.
-            if showsTools { MailComposerTools(files: model.files, chords: model.chords).disabled(model.isForeign) }
+            if showsTools { MailComposerTools(files: model.files, chords: model.chords, format: model.format, isReadOnly: model.isForeign).disabled(model.isForeign) }
             Spacer(minLength: DS.Space.s)
             // A message that waits for a time is not marked Done with it.
             if model.canSendAndDone, model.schedule == nil {

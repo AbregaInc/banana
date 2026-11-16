@@ -169,7 +169,7 @@ struct MailComposerBox: View {
             if asking {
                 assistantLine
             } else {
-                MailComposerTools(files: model.files, chords: model.chords).disabled(model.isForeign)
+                MailComposerTools(files: model.files, chords: model.chords, format: model.format, isReadOnly: model.isForeign).disabled(model.isForeign)
                 if MailDraftAssistant.isAvailable {
                     Button {
                         asking = true

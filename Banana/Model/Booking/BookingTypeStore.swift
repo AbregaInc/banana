@@ -63,7 +63,8 @@ final class BookingTypeStore: ObservableObject, BookingTypeSyncSource {
     static let shared: BookingTypeStore = {
         let store = BookingTypeStore(directory: AppSupport.directory)
         #if DEBUG
-        if ProcessInfo.processInfo.arguments.contains("--booking-preview") { store.injectPreview() }
+        let arguments = ProcessInfo.processInfo.arguments
+        if arguments.contains("--booking-preview") || arguments.contains("--booking-fixture") { store.injectPreview() }
         #endif
         return store
     }()

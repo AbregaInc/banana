@@ -147,6 +147,37 @@ enum MailFormatting {
         return ranges.ranges.map { String(text[$0].characters) }.joined()
     }
 
+    /// Inserts a clickable address at the caret, or links selected words without replacing them.
+    /// The separating space has no href, so subsequent typing cannot extend the inserted link.
+    @discardableResult
+    static func insertLink(_ url: URL, in text: inout AttributedString,
+                           selection: inout AttributedTextSelection) -> Bool {
+        guard let safe = MailBodyHTML.safeLink(url), ["http", "https"].contains(safe.scheme?.lowercased() ?? "") else { return false }
+        if hasSelectedText(text, selection) {
+            setLink(safe, in: &text, selection: &selection)
+            return true
+        }
+        let point: AttributedString.Index
+        switch selection.indices(in: text) {
+        case .insertionPoint(let index): point = index
+        case .ranges: point = text.endIndex
+        }
+        var target = AttributedTextSelection(insertionPoint: point)
+        var attributes = selection.typingAttributes(in: text)
+        attributes.link = nil
+        var inserted = AttributedString()
+        if let previous = text.characters[..<point].last, !previous.isWhitespace {
+            inserted += AttributedString(" ", attributes: attributes)
+        }
+        var address = AttributedString(safe.absoluteString, attributes: attributes)
+        address.link = safe
+        inserted += address
+        inserted += AttributedString(" ", attributes: attributes)
+        text.replaceSelection(&target, with: inserted)
+        selection = target
+        return true
+    }
+
     /// An address as he typed it, as a link: "example.com" is `https://example.com`, "a@b.example" is
     /// `mailto:`, and what is not an address (or is not allowed) is nil.
     static func link(from input: String) -> URL? {

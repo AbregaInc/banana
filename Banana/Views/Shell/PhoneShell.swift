@@ -440,7 +440,7 @@ private struct ShellMailComposer: View {
             Task { @MainActor in
                 try? await Task.sleep(for: .milliseconds(350))
                 // A caret on its way to another row (Cc asked for) is not him putting the keyboard away.
-                if !chrome.keyboardUp, !model.awaitingFocus { session.dock(.keyboardHidden) }
+                if !chrome.keyboardUp, !model.awaitingFocus, !model.format.isPresentingSheet { session.dock(.keyboardHidden) }
             }
         }
     }
