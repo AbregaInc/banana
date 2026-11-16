@@ -106,6 +106,16 @@ struct MailComposerBox: View {
         .onChange(of: focused) { _, field in
             if let field { model.focusLanded(on: field) }
         }
+        .onDisappear {
+            focused = nil
+            instructing = false
+            #if os(iOS)
+            // Closing a retained draft must also end its native editing session. Otherwise
+            // keyboard state can outlive the removed editor and hide the restored shell bar.
+            // A replacement composer owns its own focus; leave that new editor alone.
+            if session.composer == nil { ShellChrome.keyWindow?.endEditing(false) }
+            #endif
+        }
         .animation(.snappy(duration: 0.25), value: style)
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier(MailID.composer)

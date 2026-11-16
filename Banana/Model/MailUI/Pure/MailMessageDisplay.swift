@@ -11,6 +11,7 @@ struct MailMessageDisplay: Equatable, Identifiable, Sendable {
     var deliveryText: String? {
         switch delivery {
         case .held?: "Queued"
+        case .scheduled?: "Scheduled"
         case .sending?: "Sending"
         case .waitingForNetwork?: "Waiting for connection"
         case .checking?: "Send unconfirmed"

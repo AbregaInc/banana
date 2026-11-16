@@ -283,6 +283,7 @@ final class MailDraftDriverTests: XCTestCase {
         let requests = await api.requests
         XCTAssertEqual(requests[1].action, .send); XCTAssertEqual(requests[1], requests[2])
         let result = try await source.record(value.id); XCTAssertEqual(result?.state, .sent)
+        XCTAssertEqual(result?.sentMessage, MailMessageID(account: value.account, message: "sent"))
     }
 }
 

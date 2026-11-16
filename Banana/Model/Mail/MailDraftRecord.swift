@@ -52,6 +52,8 @@ struct MailDraftRecord: Codable, Equatable, Sendable {
     var revision: Int = 1
     var acknowledgedRevision: Int = 0
     var remote: GmailDraftReference?
+    /// Provider-confirmed identity, used to replace the local outgoing card without duplication.
+    var sentMessage: MailMessageID?
     var pending: GmailDraftMutation?
     var pendingRevision: Int?
     var pendingFiles: [MailDraftAttachment]?

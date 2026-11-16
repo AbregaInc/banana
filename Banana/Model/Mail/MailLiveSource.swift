@@ -166,6 +166,8 @@ import GRDB
     private var draftReadTask: Task<Void, Never>?
     private var draftCache: [MailDraftID: MailDraft] = [:]
     private var draftStates: [MailDraftID: MailDraftRecord.State] = [:]
+    private var draftSentMessages: [MailDraftID: MailMessageID] = [:]
+    private var draftRemoteMessages: [MailDraftID: MailMessageID] = [:]
     private var draftUndo: [UInt64: MailDraftID] = [:]
     private var draftSaveFailures = Set<MailDraftID>()
     private var draftGenerations: [MailDraftID: Int] = [:]
@@ -398,7 +400,32 @@ import GRDB
                     value = MailConversation(id: id, subject: draft.subject, labels: [], inInbox: false,
                         isStarred: false, isImportant: false, isMuted: false, snoozedUntil: nil, system: nil,
                         messages: [], invite: nil, unsubscribe: nil, draft: draft.id, newestIsMine: true, appliedThrough: through)
-                } else { value?.draft = draft.id }
+                } else { value?.draft = [.editing, .failed].contains(record.state) ? draft.id : nil }
+                if ![.editing, .failed].contains(record.state) { value?.draft = nil }
+            }
+            for draft in draftCache.values.filter({ $0.conversation == id }).sorted(by: { $0.editedAt < $1.editedAt }) {
+                guard let state = draftStates[draft.id], [.held, .sending, .uncertain, .sent].contains(state) else { continue }
+                let confirmed = draftSentMessages[draft.id]
+                if let remote = draftRemoteMessages[draft.id], remote != confirmed {
+                    value?.messages.removeAll { $0.id == remote }
+                }
+                if state == .sent {
+                    guard let confirmed else { continue }
+                    if let provider = value?.messages.first(where: { $0.id == confirmed }) {
+                        if [.text, .designed, .tooLarge].contains(provider.body) { continue }
+                        fetchBody(confirmed)
+                        value?.messages.removeAll { $0.id == confirmed }
+                    }
+                }
+                let message = MailOutgoingDraft.message(draft)
+                if value == nil {
+                    value = MailConversation(id: id, subject: draft.subject, labels: [], inInbox: false,
+                        isStarred: false, isImportant: false, isMuted: false, snoozedUntil: nil, system: nil,
+                        messages: [], invite: nil, unsubscribe: nil, draft: nil, newestIsMine: true, appliedThrough: through)
+                }
+                value?.messages.removeAll { $0.id == message.id || $0.draft == draft.id }
+                value?.messages.insert(message, at: 0)
+                value?.newestIsMine = true
             }
             return value
         }
@@ -461,6 +488,11 @@ import GRDB
     /// Fetches a received attachment now. It is a person waiting for it, so it does not go through the download
     /// queue: not behind body prefetch, not held by its two slots or by a read backoff. Asked twice, it is one fetch.
     func fetchAttachment(_ id: MailAttachmentID) {
+        if let draft = outgoingDraft(for: id.message) {
+            let file = draft.attachments.first { $0.id == id.part }?.file
+            attachmentProgress(id).state = file == nil ? .failed(.unavailable) : .done
+            return
+        }
         let progress = attachmentProgress(id)
         guard attachmentTasks[id] == nil else { return }
         let account = id.message.account.lowercased()
@@ -499,10 +531,16 @@ import GRDB
     /// A picture that is a part of the message (`cid:`), from the stored parts. Nothing else is a resource here:
     /// remote pictures are `MailImageSource`'s.
     func resource(_ url: URL, for message: MailMessageID, presentation: MailPresentation) async -> MailResource? {
+        if let draft = outgoingDraft(for: message) { return await resource(url, forDraft: draft.id, presentation: presentation) }
         guard presentation == .onScreen, url.scheme?.lowercased() == "cid" else { return nil }
         return await inlinePictures.resource(contentID: String(url.absoluteString.dropFirst(4)), message: message)
     }
+    private func outgoingDraft(for message: MailMessageID) -> MailDraft? {
+        guard let id = MailOutgoingDraft.draftID(message), let draft = draftCache[id], draft.account == message.account else { return nil }
+        return draft
+    }
     func body(_ id: MailMessageID) async -> MailBody {
+        if let draft = outgoingDraft(for: id) { return MailOutgoingDraft.body(draft) }
         do { return try await MailBlobStore(stores: stores).prepared(account: id.account, messageID: id.message)?.body ?? .notOnDevice }
         catch { if !Task.isCancelled { status.value.store = .unavailable(.unavailable) }; return .notOnDevice }
     }
@@ -1789,13 +1827,14 @@ extension MailLiveSource {
     }
     private func draftChanged(_ record: MailDraftRecord) {
         let id = record.snapshot.id, previous = draftStates[id]
+        let previousConversation = draftCache[id]?.conversation
         if let generation = draftGenerations[id], generation > record.generation { return }
         draftGenerations[id] = record.generation
         draftCacheOrder.removeAll { $0 == id }; draftCacheOrder.append(id)
         while draftCacheOrder.count > 100 {
             guard let victim = draftCacheOrder.first(where: { !draftSaveFailures.contains($0) && $0 != id }) else { break }
             draftCacheOrder.removeAll { $0 == victim }
-            draftCache.removeValue(forKey: victim); draftStates.removeValue(forKey: victim); draftGenerations.removeValue(forKey: victim)
+            draftCache.removeValue(forKey: victim); draftStates.removeValue(forKey: victim); draftGenerations.removeValue(forKey: victim); draftSentMessages.removeValue(forKey: victim); draftRemoteMessages.removeValue(forKey: victim)
         }
         if let driver = draftDriver {
             Task { [weak self] in
@@ -1804,7 +1843,7 @@ extension MailLiveSource {
         }
         var draft = record.snapshot.value
         switch record.state {
-        case .held: draft.delivery = .held(until: record.sendAt ?? Date())
+        case .held: draft.delivery = draft.schedule.map { .scheduled($0.at) } ?? .held(until: record.sendAt ?? Date())
         case .sending: draft.delivery = .sending
         case .uncertain: draft.delivery = .checking
         case .failed: draft.delivery = .failed(.other)
@@ -1815,6 +1854,8 @@ extension MailLiveSource {
             var newer = cached; newer.delivery = draft.delivery; draftCache[id] = newer
         } else { draftCache[id] = draft }
         draftStates[id] = record.state
+        draftSentMessages[id] = record.sentMessage
+        draftRemoteMessages[id] = record.remote.map { MailMessageID(account: draft.account, message: $0.message.id) }
         let questionID = MailQuestion.ID(raw: "draft:" + id.raw)
         status.value.questions.removeAll { $0.id == questionID }
         if record.conflict {
@@ -1827,7 +1868,7 @@ extension MailLiveSource {
             if record.thenDone { _ = apply(.done, to: .conversations([draft.conversation])) }
         }
         if record.state == .failed && previous != nil && previous != .failed { emit(.sendFailed(id, .other)) }
-        for (token, subscription) in conversationSubscriptions where subscription.id == draft.conversation { refreshConversation(token) }
+        for (token, subscription) in conversationSubscriptions where subscription.id == draft.conversation || subscription.id == previousConversation { refreshConversation(token) }
         for token in subscriptions.keys { refresh(token) }
     }
     func newDraft(_ kind: MailDraftKind) async -> MailDraft {

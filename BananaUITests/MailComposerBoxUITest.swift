@@ -145,6 +145,61 @@ final class MailComposerBoxUITest: MailUITestCase {
         XCTAssertEqual(body.value as? String, "Keep this draft")
     }
 
+    func testContinuedReplySendRestoresTheReaderAndBottomBar() {
+        launchShell()
+        let handle = openReply()
+        type("Resumed reply test")
+        let grip = handle.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
+        grip.press(forDuration: 0.05, thenDragTo: grip.withOffset(CGVector(dx: 0, dy: 700)), withVelocity: .fast, thenHoldForDuration: 0)
+        XCTAssertTrue(waitGone(element(MailID.composerBody), timeout: 5))
+        element(MailID.continueDraft).tap()
+        let body = element(MailID.composerBody)
+        XCTAssertTrue(body.waitForExistence(timeout: 5))
+        XCTAssertTrue((body.value as? String)?.contains("Resumed reply test") == true)
+        element(MailID.send).tap()
+        XCTAssertTrue(waitGone(body, timeout: 5))
+        XCTAssertFalse(element(MailID.composerFolded).exists)
+        XCTAssertTrue(waitUntil(timeout: 5) { self.app.buttons["shell.switcher"].firstMatch.isHittable })
+        if !isPad { XCTAssertTrue(app.buttons["shell.reply"].firstMatch.isHittable) }
+        XCTAssertTrue(waitUntil(timeout: 5) { self.toastText?.contains("Sen") == true })
+        snap("continued-reply-after-send")
+    }
+
+    func testNewMessageContinuedFromDraftsSendsAndLeavesUsableNavigation() {
+        launchShell()
+        if !isPad { app.buttons["mail.conversation.back"].tap() }
+        if isPad {
+            element("mail.more").tap()
+            app.buttons["New message"].firstMatch.tap()
+        } else { element(MailID.compose).tap() }
+        let to = app.textFields[MailID.composerTo].firstMatch
+        XCTAssertTrue(to.waitForExistence(timeout: 5))
+        to.tap(); to.typeText("sam@lee.example,")
+        let subject = app.textFields[MailID.composerSubject].firstMatch
+        subject.tap(); subject.typeText("Resumed new message")
+        type("Keep and send this test draft")
+        let handle = element(MailID.composerHandle)
+        let grip = handle.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
+        grip.press(forDuration: 0.05, thenDragTo: grip.withOffset(CGVector(dx: 0, dy: 700)), withVelocity: .fast, thenHoldForDuration: 0)
+        XCTAssertTrue(waitGone(element(MailID.composerBody), timeout: 5))
+        show(place: "Drafts")
+        let row = app.descendants(matching: .any).matching(NSPredicate(format: "identifier BEGINSWITH %@", MailID.list + ".row.")).firstMatch
+        XCTAssertTrue(row.waitForExistence(timeout: 5))
+        row.tap()
+        let body = element(MailID.composerBody)
+        XCTAssertTrue(body.waitForExistence(timeout: 5))
+        XCTAssertTrue((body.value as? String)?.contains("Keep and send this test draft") == true)
+        element(MailID.send).tap()
+        XCTAssertTrue(waitGone(body, timeout: 5))
+        XCTAssertFalse(element(MailID.composerFolded).exists)
+        XCTAssertTrue(waitUntil(timeout: 5) { self.app.buttons["shell.switcher"].firstMatch.isHittable })
+        XCTAssertTrue(element(MailID.placeMenu).isHittable)
+        XCTAssertTrue(waitUntil(timeout: 5) { self.toastText?.contains("Sen") == true })
+        snap("continued-new-message-after-send")
+        show(place: "Inbox")
+        XCTAssertTrue(element(MailID.list).waitForExistence(timeout: 5))
+    }
+
     func testReplyOpensTheBoxAsReplyAllAndItGrowsToFourLines() {
         launchShell()
         let top = openReply()
