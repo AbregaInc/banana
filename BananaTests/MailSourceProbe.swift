@@ -19,7 +19,8 @@ import Foundation
 ///   nothing but a short named list of members that come after the first release.
 ///
 /// `MailSourceTreeTests` counts the protocol's requirements in the source and compares the
-/// count with `everyMember`, so a requirement added to the contract cannot be left out of here.
+/// count with `everyMember` plus the explicitly tested `fallbackMembers`, so a requirement
+/// added to the contract cannot be left out of here.
 @MainActor
 enum MailSourceProbe {
 
@@ -47,6 +48,11 @@ enum MailSourceProbe {
         "removeDownloadedMail(account:)", "reconsiderKeptMail(account:)",
         "observeEvents(_:)",
     ]
+
+    /// These two requirements have complete, intentional defaults: no progress for a source
+    /// without background downloads, and sanitized HTML when no raw diagnostic store exists.
+    /// They are exercised below but do not report an unfinished implementation.
+    nonisolated static let fallbackMembers: Set<String> = ["syncProgress", "reportHTML(_:)"]
 
     /// The defaults `source` still reaches when every member is called: all of `everyMember`
     /// for a source that has built nothing, none for one that is finished.
@@ -98,12 +104,14 @@ enum MailSourceProbe {
         _ = await source.conversation(conversation)
         _ = await source.body(message)
         _ = try? await source.originalHTML(message)
+        _ = try? await source.reportHTML(message)
         _ = await source.resource(picture, for: message, presentation: .warming)
         _ = await source.suggestions(for: "probe")
         _ = await source.people(matching: "probe", limit: 1)
         _ = source.queryTokens("probe")
         _ = await source.decideLink(picture, in: message)
         _ = await source.draft(draft)
+        _ = source.syncProgress
         _ = source.status
         _ = source.badges
         _ = source.attachmentProgress(attachment)

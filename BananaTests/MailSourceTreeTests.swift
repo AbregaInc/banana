@@ -76,8 +76,9 @@ final class MailSourceTreeTests: XCTestCase {
 
     func testTheProbeNamesEveryRequirementOfTheProtocol() throws {
         // The probe is a list written by hand. A requirement added to the protocol compiles
-        // without it — its default sees to that — so the count is taken from the source: one
-        // more requirement there than names here, and this fails until the probe has grown.
+        // without it — its default sees to that — so reporting and intentional fallback members
+        // both count against the source. One
+        // more requirement there than names here fails until the probe has grown.
         let contract = try source("Banana/Model/Mail/MailContract.swift")
         let start = try XCTUnwrap(contract.range(of: "@MainActor protocol MailSource: AnyObject {"))
         let rest = start.upperBound..<contract.endIndex
@@ -90,7 +91,8 @@ final class MailSourceTreeTests: XCTestCase {
                     || line.hasPrefix("var ")
             }
         XCTAssertGreaterThan(requirements.count, 0, "the protocol's requirements, counted in its source")
-        XCTAssertEqual(requirements.count, MailSourceProbe.everyMember.count,
+        XCTAssertTrue(MailSourceProbe.everyMember.isDisjoint(with: MailSourceProbe.fallbackMembers))
+        XCTAssertEqual(requirements.count, MailSourceProbe.everyMember.union(MailSourceProbe.fallbackMembers).count,
                        "the protocol's requirements, counted in its source, against the probe's names")
     }
 }

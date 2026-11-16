@@ -28,7 +28,11 @@ final class PageChromeRulesTests: XCTestCase {
         XCTAssertFalse(AppSection.sidebar.contains(.sleep))
         XCTAssertFalse(AppSection.sidebar.contains(.trends))
         // The Mac's Settings is its own window, not a sidebar row.
+        #if BANANA_AI
+        XCTAssertEqual(AppSection.macSidebar, AppSection.sidebar.filter { $0 != .settings && $0 != .assistant })
+        #else
         XCTAssertEqual(AppSection.macSidebar, AppSection.sidebar.filter { $0 != .settings })
+        #endif
         // A place kept from before opens Review, not nothing.
         XCTAssertEqual(AppSection.sleep.sidebarHome, .review)
         XCTAssertEqual(AppSection.trends.sidebarHome, .review)

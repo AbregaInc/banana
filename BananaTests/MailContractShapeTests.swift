@@ -532,6 +532,17 @@ final class MailContractShapeTests: XCTestCase {
         XCTAssertEqual(MailNotYet.reachedNames, MailSourceProbe.everyMember)
     }
 
+    func testOptionalDefaultsNeedNoProgressAndUseTheSourcesSanitizedHTML() async throws {
+        final class SafeHTMLSource: MailSource {
+            func originalHTML(_ id: MailMessageID) async throws -> String? { "<p>Safe body</p>" }
+        }
+        let source: MailSource = SafeHTMLSource()
+        XCTAssertNil(source.syncProgress)
+        let html = try await source.reportHTML(.init(account: "noor@plan.example", message: "message"))
+        XCTAssertEqual(html, "<p>Safe body</p>")
+        XCTAssertTrue(MailNotYet.reachedNames.isEmpty)
+    }
+
     func testTheProbeReachesEveryDefaultOfASourceThatHasBuiltNothing() async {
         // The same probe is run on the engine and on the in-memory source when they are
         // finished, expecting nothing. Here it is run where everything is a default, which

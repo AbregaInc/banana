@@ -1,10 +1,6 @@
 #if os(macOS)
 import EventKit
 import UserNotifications
-import Photos
-#if BANANA_MODULE_PODCASTS
-import MusicKit
-#endif
 
 extension MacPermissionGuide {
     func show(onboarding: OnboardingStore, selected: SystemSettingsLink? = nil) {
@@ -44,32 +40,10 @@ extension MacPermissionGuide {
             }, request: { _ = await NotificationService.requestAuthorization() })
         ]
         #if BANANA_MODULE_PODCASTS
-        if selected == .music {
-            entries.append(MacPermissionEntry(id: .music, title: "Media & Apple Music", symbol: "music.note", read: {
-                let status = MusicAuthorization.currentStatus
-                let music = WakeCoordinator.shared.music
-                if music.authorization != status { Task { await music.syncAuthorization() } }
-                return switch status {
-                case .authorized: .allowed
-                case .notDetermined: .requestable
-                case .restricted: .restricted
-                default: .settings
-                }
-            }, request: { _ = await MusicAuthorization.request() }))
-        }
+        if selected == .music { entries.append(musicPermissionEntry()) }
         #endif
         #if BANANA_MODULE_FOOD
-        if selected == .photos {
-            entries.append(MacPermissionEntry(id: .photos, title: "Photos", symbol: "photo", read: {
-                MealPhotoScanner.shared.refreshAccess()
-                return switch PHPhotoLibrary.authorizationStatus(for: .readWrite) {
-                case .authorized: .allowed
-                case .notDetermined: .requestable
-                case .restricted: .restricted
-                default: .settings
-                }
-            }, request: { _ = await PHPhotoLibrary.requestAuthorization(for: .readWrite) }))
-        }
+        if selected == .photos { entries.append(photoPermissionEntry()) }
         #endif
         show(entries: entries, selected: selected)
     }

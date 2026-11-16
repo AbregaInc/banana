@@ -181,7 +181,11 @@ final class AppSectionTests: XCTestCase {
     func testMailIsSecondInTheSidebarAndPhoneTabs() {
         XCTAssertEqual(AppSection.allCases.prefix(2).map(\.rawValue), ["plan", "mail"])
         XCTAssertEqual(AppSection.sidebar.prefix(2).map(\.rawValue), ["plan", "mail"])
+        #if BANANA_AI
+        XCTAssertEqual(AppSection.macSidebar, AppSection.sidebar.filter { $0 != .settings && $0 != .assistant })
+        #else
         XCTAssertEqual(AppSection.macSidebar, AppSection.sidebar.filter { $0 != .settings })
+        #endif
         XCTAssertFalse(AppSection.sidebar.contains(.sleep))
         XCTAssertFalse(AppSection.sidebar.contains(.trends))
         for section in AppSection.allCases { XCTAssertTrue(AppSection.sidebar.contains(section.sidebarHome), "\(section)") }
@@ -196,8 +200,11 @@ final class AppSectionTests: XCTestCase {
     /// `Character(String(index + 1))`).
     func testTheMacNumbersNineSectionsAndMailIsTheSecond() {
         XCTAssertEqual(AppSection.macShortcuts, Array(AppSection.macSidebar.prefix(9)))
-        XCTAssertEqual(AppSection.macShortcuts.map(\.rawValue),
-                       ["plan", "mail", "workouts", "nutrition", "notes", "routines", "library", "review", "assistant"])
+        var expected = ["plan", "mail", "workouts", "nutrition", "notes", "routines", "library", "review"]
+        #if !BANANA_AI
+        expected.append("assistant")
+        #endif
+        XCTAssertEqual(AppSection.macShortcuts.map(\.rawValue), expected)
         XCTAssertLessThanOrEqual(AppSection.macShortcuts.count, 9)
         XCTAssertFalse(AppSection.macShortcuts.contains(.settings), "Settings is ⌘, and has no number")
     }

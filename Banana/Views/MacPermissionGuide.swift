@@ -381,7 +381,7 @@ private struct MacPermissionExample: View {
                 Text(on ? "Full Access" : "No Access").font(.caption)
                 Image(systemName: "chevron.up.chevron.down").font(.caption)
             } else {
-                Toggle("", isOn: .constant(on)).labelsHidden().toggleStyle(.switch)
+                Toggle(appName, isOn: .constant(on)).labelsHidden().toggleStyle(.switch)
             }
         }
     }
