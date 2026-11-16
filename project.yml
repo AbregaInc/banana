@@ -861,6 +861,7 @@ targets:
       - path: Banana/Model/PlanningWindowSlice.swift
       # How tall an event is drawn: its minutes, a readable minimum, never over the next block. Pure.
       - path: Banana/Model/CalendarBlockHeight.swift
+      - path: Banana/Model/CalendarWeekEdge.swift
       # Taps during and just after a pinch belong to the pinch. Pure.
       - path: Banana/Model/ZoomTapGate.swift
       # What each sync is doing, in words, for the pages and Settings. Foundation + Combine.

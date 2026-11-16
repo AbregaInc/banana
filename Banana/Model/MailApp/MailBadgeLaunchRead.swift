@@ -12,10 +12,12 @@ enum MailBadgeLaunchRead {
     }
 
     /// The unified Inbox's unread conversations, read off the main thread; nil when there is
-    /// nothing to read (no account, no store yet, a store older than the code).
+    /// no readable store yet. No connected accounts means zero, not a stale launch mirror.
     @MainActor static func read() async -> Int? {
+        // Account hydration is asynchronous. Unknown is not an empty account list.
+        guard BananaAccount.shared.account != nil else { return nil }
         let accounts = Set(MailCloudAccess().connectedAccountIDs)
-        guard !accounts.isEmpty else { return nil }
+        guard !accounts.isEmpty else { return 0 }
         let index = MailDirectories.indexDatabase(under: AppSupport.directory.appendingPathComponent("BananaMail", isDirectory: true))
         return try? await Task.detached(priority: .utility) {
             let queue = try MailStores.openIndexForCounting(at: index)

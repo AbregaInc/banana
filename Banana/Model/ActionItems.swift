@@ -16,6 +16,18 @@ enum ActionItems {
         var total: Int { plan + food + taken }
     }
 
+    /// One aggregate for the system badge; nil means there is no new value to write.
+    /// The initial zero is significant: it clears a badge left by a previous process.
+    struct Icon {
+        private(set) var value: Int?
+        mutating func update(_ counts: Counts, mail: Int, mailEnabled: Bool) -> Int? {
+            let next = counts.total + (mailEnabled ? max(0, mail) : 0)
+            guard next != value else { return nil }
+            value = next
+            return next
+        }
+    }
+
     #if BANANA_MODULE_FOOD
     /// Meals waiting on the person — not the ones being estimated, which need nothing from them yet.
     static func food(_ items: [MealInboxItem]) -> Int {

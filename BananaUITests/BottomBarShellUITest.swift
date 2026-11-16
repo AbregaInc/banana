@@ -65,6 +65,34 @@ final class BottomBarShellUITest: XCTestCase {
         app.descendants(matching: .any).matching(identifier: id).firstMatch
     }
 
+    func testMailScrollsBehindTheFloatingBottomControls() throws {
+        let app = try launch(["--tab", "mail", "--mail-fresh"])
+        let list = app.collectionViews.firstMatch
+        XCTAssertTrue(list.waitForExistence(timeout: 15))
+        let bar = any(app, "shell.bar")
+        XCTAssertGreaterThan(list.frame.maxY, bar.frame.minY + 20,
+                             "The list viewport must extend behind the floating controls")
+        list.swipeUp()
+        XCTAssertTrue(app.buttons["shell.switcher"].isHittable)
+        XCTAssertTrue(app.textFields["shell.field"].isHittable)
+        let picture = XCTAttachment(screenshot: app.screenshot())
+        picture.name = "mail-under-floating-controls"; picture.lifetime = .keepAlways; add(picture)
+    }
+
+    func testCalendarScrollsBehindTheFloatingBottomControls() throws {
+        let app = try launch(["--tab", "plan", "-planMode", "week", "-mobileWeekLayout", "calendar",
+                              "--calendar-opening-hour", "9"])
+        let grid = app.collectionViews["calendar.nativeDay.viewport"].firstMatch
+        XCTAssertTrue(grid.waitForExistence(timeout: 15))
+        let bar = any(app, "shell.bar")
+        XCTAssertGreaterThan(grid.frame.maxY, bar.frame.minY + 20)
+        grid.swipeUp()
+        XCTAssertTrue(app.buttons["shell.switcher"].isHittable)
+        XCTAssertTrue(app.textFields["shell.field"].isHittable)
+        let picture = XCTAttachment(screenshot: app.screenshot())
+        picture.name = "calendar-under-floating-controls"; picture.lifetime = .keepAlways; add(picture)
+    }
+
     /// `TEST_RUNNER_SHELL_SHOTS=<folder>` keeps a picture for the compare page.
     private func shot(_ name: String) {
         guard let path = ProcessInfo.processInfo.environment["SHELL_SHOTS"] else { return }

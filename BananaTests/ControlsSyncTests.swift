@@ -629,6 +629,20 @@ final class ActionItemsTests: XCTestCase {
         XCTAssertEqual(counts.nutrition, 4)
         XCTAssertEqual(counts.total, 6)
     }
+
+    func testSystemBadgeIncludesMailAndChangesWithoutAnyOtherCountChanging() {
+        let counts = ActionItems.Counts(plan: 2, food: 3, taken: 1)
+        var icon = ActionItems.Icon()
+        XCTAssertEqual(icon.update(counts, mail: 12, mailEnabled: true), 18)
+        XCTAssertNil(icon.update(counts, mail: 12, mailEnabled: true))
+        XCTAssertEqual(icon.update(counts, mail: 11, mailEnabled: true), 17)
+        XCTAssertEqual(icon.update(counts, mail: 11, mailEnabled: false), 6)
+        XCTAssertNil(icon.update(counts, mail: -1, mailEnabled: true))
+        XCTAssertEqual(icon.update(.init(), mail: 0, mailEnabled: true), 0)
+        XCTAssertNil(icon.update(.init(), mail: 0, mailEnabled: true))
+        var cold = ActionItems.Icon()
+        XCTAssertEqual(cold.update(.init(), mail: 0, mailEnabled: false), 0)
+    }
 }
 
 /// A repeating reminder is overdue until its next instance's day begins — then that one's

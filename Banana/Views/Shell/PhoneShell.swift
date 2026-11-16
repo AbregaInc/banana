@@ -266,9 +266,6 @@ struct ShellBottomBar: View {
         .padding(.horizontal, ShellMetrics.gutter)
         .padding(.top, DS.Space.s)
         .padding(.bottom, DS.Space.xs)
-        .background {
-            Rectangle().fill(.background).ignoresSafeArea(.container, edges: .bottom)
-        }
         .animation(.snappy(duration: 0.25), value: placement)
         .animation(.snappy(duration: 0.25), value: mode.hidesSideButtons)
         .animation(.snappy(duration: 0.25), value: switcherShown)
@@ -784,6 +781,7 @@ private struct ShellPageModifier: ViewModifier {
         content
             .environment(\.bottomBarShell, bottomBar)
             .environment(\.wideShell, !bottomBar)
+            .scrollEdgeEffectHidden(bottomBar, for: .bottom)
             .modifier(ShellToastInsetProvider())
             .toolbarVisibility(.hidden, for: .tabBar)
             // An iPad's floating tab strip and sidebar ignore the SwiftUI setting: the tab bar

@@ -643,6 +643,50 @@ final class ScaleStressUITests: XCTestCase {
         capture("native-week-navigation")
     }
 
+    func testNativeWeekEdgePullPagesAndReturnsWithoutChangingTheTime() {
+        let app = launch("--plan", extra: ["--calendar-viewport-audit", "--calendar-opening-hour", "9"])
+        let viewport = app.collectionViews.firstMatch
+        XCTAssertTrue(viewport.waitForExistence(timeout: 10))
+        func number(_ key: String) -> CGFloat {
+            guard let text = viewport.value as? String, let data = text.data(using: .utf8),
+                  let state = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+                  let value = state[key] as? NSNumber else { return -1 }
+            return CGFloat(value.doubleValue)
+        }
+        func week() -> String? { app.calendarDaySnapshot(referenceID: "mobile.day.surface.0") }
+        let original = week()
+        XCTAssertNotNil(original)
+        // Ordinary swipes still browse the current week's columns before its boundary.
+        for _ in 0..<8 {
+            if number("x") >= max(0, number("contentWidth") - number("width")) - 2 { break }
+            let before = number("x")
+            viewport.swipeLeft()
+            XCTAssertTrue(waitUntil { number("x") > before + 2 })
+            XCTAssertEqual(week(), original)
+        }
+        let maximum = max(0, number("contentWidth") - number("width"))
+        XCTAssertEqual(number("x"), maximum, accuracy: 2)
+        let y = number("y")
+        func pull(from: CGFloat, to: CGFloat) {
+            viewport.coordinate(withNormalizedOffset: CGVector(dx: from, dy: 0.3))
+                .press(forDuration: 0.02, thenDragTo: viewport.coordinate(withNormalizedOffset: CGVector(dx: to, dy: 0.3)),
+                       withVelocity: .fast, thenHoldForDuration: 0)
+        }
+        pull(from: 0.65, to: 0.55)
+        XCTAssertTrue(waitUntil { abs(number("x") - maximum) < 2 })
+        XCTAssertEqual(week(), original, "A short extension springs back into the same week")
+        pull(from: 0.85, to: 0.15)
+        XCTAssertTrue(waitUntil { week() != original && abs(number("x")) < 2 })
+        XCTAssertEqual(number("y"), y, accuracy: 3)
+        XCTAssertEqual(number("gutterX"), number("x"), accuracy: 1)
+        pull(from: 0.15, to: 0.85)
+        XCTAssertTrue(waitUntil { week() == original && abs(number("x") - maximum) < 2 })
+        XCTAssertEqual(number("y"), y, accuracy: 3)
+        viewport.swipeUp()
+        XCTAssertEqual(week(), original, "Vertical scrolling at a week edge never changes weeks")
+        capture("native-week-edge-pull")
+    }
+
     func testNativeWeekRotation() { checkNativeWeekRotation(extra: []) }
 
     func testReferenceWeekHeaderPublication() {
@@ -652,7 +696,7 @@ final class ScaleStressUITests: XCTestCase {
     private func checkNativeWeekRotation(extra: [String]) {
         XCUIDevice.shared.orientation = .portrait
         defer { XCUIDevice.shared.orientation = .portrait }
-        let app = launch("--plan", extra: ["--calendar-viewport-audit",
+        let app = launch("--plan", extra: ["--calendar-viewport-audit", "--calendar-opening-hour", "9",
                                            "--stress-calendar-fixture", "varied-v1"] + extra)
         let viewport = app.collectionViews.firstMatch
         XCTAssertTrue(viewport.waitForExistence(timeout: 10))
@@ -663,6 +707,13 @@ final class ScaleStressUITests: XCTestCase {
             }
             return (snapshot[key] as? NSNumber)?.doubleValue ?? -1
         }
+        // The fixture starts today. Use the following week so a selected column
+        // has real events even late in the current week, before rotating.
+        let initialWeek = app.calendarDaySnapshot(referenceID: "mobile.day.surface.0")
+        app.buttons["Next week"].tap()
+        XCTAssertTrue(waitUntil {
+            app.calendarDaySnapshot(referenceID: "mobile.day.surface.0") != initialWeek && number("visibleCells") > 0
+        })
         // Establish a user-selected column instead of relying on today's weekday.
         if number("contentWidth") > number("width") + 1 {
             if number("x") > 1 { viewport.swipeRight() } else { viewport.swipeLeft() }

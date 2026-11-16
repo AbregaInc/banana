@@ -17,12 +17,17 @@ final class ActionBadges: ObservableObject {
     @Published private(set) var counts = ActionItems.Counts()
     /// Mail's badge in the shell: the unified Inbox's unread conversations, as the mail source
     /// publishes them (`MailPlaces.mailboxCounts[.inbox].unread`, counted off the main thread).
-    /// Not on the app icon.
+    /// Included in the system badge while Mail is enabled.
     @Published private(set) var mailInbox = 0
 
     func setMailInbox(_ count: Int) {
-        if mailInbox != count { mailInbox = count }
+        mailPublication &+= 1
+        let next = max(0, count)
+        if mailInbox != next { mailInbox = next }
+        updateIcon()
     }
+    private var mailPublication: UInt64 = 0
+    private var icon = ActionItems.Icon()
     private var watches: Set<AnyCancellable> = []
     private var minute: Timer?
     private var started = false
@@ -40,6 +45,17 @@ final class ActionBadges: ObservableObject {
         // A moment came (a workout ended): what waited for it may be due now.
         AnchoredTimingHub.shared.$version.dropFirst().sink { [weak self] _ in self?.recountSoon() }.store(in: &watches)
         ModuleStore.shared.$choice.dropFirst().sink { [weak self] _ in self?.recountSoon() }.store(in: &watches)
+        FeatureAccessStore.shared.$emailOffered.removeDuplicates().dropFirst()
+            .sink { [weak self] _ in self?.recountSoon() }.store(in: &watches)
+        #if !BANANA_PUBLIC
+        // A cold/background launch need not open Mail to restore its part of the badge.
+        // A live source publication always wins over a count read that started earlier.
+        if let cached = MailBadgeLaunchRead.mirrored() { mailInbox = max(0, cached) }
+        BananaAccount.shared.$account
+            .map { $0?.google.map { $0.email.lowercased() }.sorted() }.removeDuplicates().dropFirst()
+            .sink { [weak self] _ in self?.refreshMailInbox() }.store(in: &watches)
+        refreshMailInbox()
+        #endif
         minute = Timer.scheduledTimer(withTimeInterval: 60, repeats: true) { _ in
             MainActor.assumeIsolated { ActionBadges.shared.recount() }
         }
@@ -89,10 +105,27 @@ final class ActionBadges: ObservableObject {
         #else
         let next = ActionItems.Counts(plan: plan)
         #endif
-        guard next != counts else { return }
-        counts = next
-        showOnIcon(next.total)
+        if next != counts { counts = next }
+        updateIcon()
     }
+
+    private func updateIcon() {
+        if let total = icon.update(counts, mail: mailInbox, mailEnabled: ModuleStore.shared.includes(.email)) {
+            showOnIcon(total)
+        }
+    }
+
+    #if !BANANA_PUBLIC
+    private func refreshMailInbox() {
+        let publication = mailPublication
+        Task { [weak self] in
+            guard let self, self.mailPublication == publication else { return }
+            guard BananaAccount.shared.isSignedIn else { self.setMailInbox(0); return }
+            guard let unread = await MailBadgeLaunchRead.read(), self.mailPublication == publication else { return }
+            self.setMailInbox(unread)
+        }
+    }
+    #endif
 
     #if os(iOS)
     /// Badge counts go out one after another, off the main thread: `setBadgeCount` waits on the

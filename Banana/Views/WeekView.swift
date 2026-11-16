@@ -213,6 +213,9 @@ enum GridOpeningHour {
     static var current: Int {
         #if DEBUG
         if SmartScheduleStore.isStoreCapture { return 9 }
+        let args = ProcessInfo.processInfo.arguments
+        if let index = args.firstIndex(of: "--calendar-opening-hour"), args.indices.contains(index + 1),
+           let hour = Int(args[index + 1]), (0...23).contains(hour) { return hour }
         #endif
         return Calendar.current.component(.hour, from: Date())
     }
@@ -2841,6 +2844,8 @@ struct DirectionalDayScrollView<Content: View>: UIViewRepresentable {
         defer { context.coordinator.isUpdatingView = false }
         let scrollView: UIScrollView = nativeItems == nil ? UIScrollView() : CalendarDayCollectionView()
         scrollView.alwaysBounceVertical = true
+        scrollView.alwaysBounceHorizontal = week != nil
+        scrollView.bottomEdgeEffect.isHidden = context.environment.bottomBarShell
         scrollView.isDirectionalLockEnabled = true
         scrollView.decelerationRate = .normal
         scrollView.isMultipleTouchEnabled = true
@@ -2956,6 +2961,7 @@ struct DirectionalDayScrollView<Content: View>: UIViewRepresentable {
     }
 
     func updateUIView(_ scrollView: UIScrollView, context: Context) {
+        scrollView.bottomEdgeEffect.isHidden = context.environment.bottomBarShell
         context.coordinator.isUpdatingView = true
         defer { context.coordinator.isUpdatingView = false }
         context.coordinator.week = week
@@ -2983,6 +2989,7 @@ struct DirectionalDayScrollView<Content: View>: UIViewRepresentable {
             // for deceleration to finish while the fixed date header has already changed.
             scrollView.setContentOffset(scrollView.contentOffset, animated: false)
             context.coordinator.pendingRoot = nil
+            context.coordinator.resetColumnRequest()
         }
         // Always the current day. This used to be skipped unless a hand-kept token of the day's
         // inputs changed — and every input the token missed stayed stale on screen until you paged
@@ -3003,7 +3010,7 @@ struct DirectionalDayScrollView<Content: View>: UIViewRepresentable {
                 }
             }
         } else {
-            if pageChanged, let hostView = context.coordinator.host?.view {
+            if pageChanged, !UIAccessibility.isReduceMotionEnabled, let hostView = context.coordinator.host?.view {
                 let transition = CATransition()
                 transition.type = .push
                 transition.subtype = resetToken > previousResetToken ? .fromRight : .fromLeft
@@ -3035,6 +3042,7 @@ struct DirectionalDayScrollView<Content: View>: UIViewRepresentable {
         let targetOffset = min(maximum, max(0, preservedOffset))
         scrollView.setContentOffset(CGPoint(x: week == nil ? 0 : scrollView.contentOffset.x, y: targetOffset), animated: false)
         onVerticalOffset(targetOffset)
+        context.coordinator.pendingWeekPage = nil
     }
 
     static func dismantleUIView(_ uiView: UIScrollView, coordinator: Coordinator) {
@@ -3085,6 +3093,8 @@ struct DirectionalDayScrollView<Content: View>: UIViewRepresentable {
         private var appliedColumnWidth: CGFloat = 0
         private var appliedContentWidth: CGFloat = 0
         private var dragStartX: CGFloat = 0
+        var pendingWeekPage: Int?
+        func resetColumnRequest() { requestedColumn = nil }
         #if DEBUG
         private var columnTransitions: [String] = []
         private let auditColumns = ProcessInfo.processInfo.arguments.contains("--calendar-viewport-audit")
@@ -3123,13 +3133,34 @@ struct DirectionalDayScrollView<Content: View>: UIViewRepresentable {
             (scrollView as? CalendarDayCollectionView)?.updatePinnedGutter()
             // UIKit can adjust offsets during SwiftUI's layout, after updateUIView returns.
             // Only actual scrolling input/coasting requires synchronous header feedback.
-            sendHorizontalOffset(max(0, scrollView.contentOffset.x),
+            sendHorizontalOffset(scrollView.contentOffset.x,
                                  programmatic: !scrollView.isTracking && !scrollView.isDragging && !scrollView.isDecelerating)
         }
         func scrollViewWillBeginDragging(_ scrollView: UIScrollView) { dragStartX = scrollView.contentOffset.x }
         func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint,
                                       targetContentOffset: UnsafeMutablePointer<CGPoint>) {
             guard let week else { return }
+            let maximum = max(0, week.contentWidth - scrollView.bounds.width)
+            if pendingWeekPage == nil, !isPinching, eventMove == nil, canBeginSwipe(),
+               scrollView.panGestureRecognizer.state != .cancelled,
+               let page = CalendarWeekEdge.page(start: dragStartX, offset: scrollView.contentOffset.x,
+                    maximum: maximum, width: scrollView.bounds.width,
+                    translation: scrollView.panGestureRecognizer.translation(in: scrollView)) {
+                pendingWeekPage = page
+                targetContentOffset.pointee = CGPoint(x: page > 0 ? maximum : 0, y: scrollView.contentOffset.y)
+                let token = resetToken
+                DispatchQueue.main.async { [weak self, weak scrollView] in
+                    guard let self else { return }
+                    guard self.resetToken == token, self.week != nil,
+                          self.pendingWeekPage == page, !self.isPinching,
+                          self.eventMove == nil, self.canBeginSwipe() else {
+                        self.pendingWeekPage = nil; return
+                    }
+                    if let scrollView { self.onVerticalOffset(scrollView.contentOffset.y) }
+                    self.onHorizontalSwipe(page > 0)
+                }
+                return
+            }
             let current = (dragStartX / week.columnWidth).rounded()
             let proposed = (targetContentOffset.pointee.x / week.columnWidth).rounded()
             let column = min(current + 1, max(current - 1, proposed))
@@ -3137,7 +3168,7 @@ struct DirectionalDayScrollView<Content: View>: UIViewRepresentable {
                                                 max(0, week.contentWidth - scrollView.bounds.width))
         }
         private func settledColumn(_ scrollView: UIScrollView) {
-            guard let week else { return }
+            guard pendingWeekPage == nil, let week else { return }
             let index = Int((max(0, scrollView.contentOffset.x) / week.columnWidth).rounded())
             requestedColumn = index
             week.onColumnSettled(index)
@@ -3451,7 +3482,17 @@ extension EnvironmentValues {
 /// WeekView's whole body — and with it the entire 7-column grid it would otherwise re-diff on
 /// every frame of a horizontal scroll.
 private final class HeaderScrollOffset: ObservableObject {
-    @Published var x: CGFloat = 0
+    private struct Position: Equatable { var x: CGFloat = 0; var stretch: CGFloat = 0 }
+    @Published private var position = Position()
+    var x: CGFloat {
+        get { position.x }
+        set { set(x: newValue, stretch: 0) }
+    }
+    var stretch: CGFloat { position.stretch }
+    func set(x: CGFloat, stretch: CGFloat) {
+        let next = Position(x: x, stretch: stretch)
+        if next != position { position = next }
+    }
 }
 
 /// The week header's day-letter/day-number strip, extracted out of WeekView's body so that
@@ -3524,6 +3565,7 @@ private struct MobileAllDayStrip: View {
                 }
             }
             .scrollTargetLayout()
+            .offset(x: offset.stretch)
         }
         .scrollIndicators(.hidden)
         .scrollDisabled(true)
@@ -3653,6 +3695,7 @@ private struct MobileDayHeaderStrip: View {
                 }
             }
             .scrollTargetLayout()
+            .offset(x: offset.stretch)
         }
         .scrollIndicators(.hidden)
         .scrollDisabled(true)
@@ -4770,7 +4813,7 @@ struct WeekView: View {
                 } else if Self.nativeWeekViewport {
                     mobileNativeWeekViewport(timeWidth: timeWidth, dayWidth: dayWidth,
                         hourHeight: hourHeight, gridHeight: gridHeight,
-                        viewportHeight: max(1, geometry.size.height - 45))
+                        viewportHeight: max(1, geometry.size.height - 45), viewportWidth: measured)
                 } else {
                     ScrollViewReader { scrollProxy in
                         ScrollView(.vertical) {
@@ -4999,7 +5042,7 @@ struct WeekView: View {
 
     private func mobileNativeWeekViewport(
         timeWidth: CGFloat, dayWidth: CGFloat, hourHeight: CGFloat,
-        gridHeight: CGFloat, viewportHeight: CGFloat
+        gridHeight: CGFloat, viewportHeight: CGFloat, viewportWidth: CGFloat
     ) -> some View {
         let days = calendarDays
         let items = days.enumerated().flatMap { index, day in
@@ -5018,8 +5061,8 @@ struct WeekView: View {
         return DirectionalDayScrollView(
             resetToken: Occurrence.dayKey(mobileVisibleWeekStart), contentHeight: gridHeight,
             initialOffset: mobileWeekScrollY.y > 0 ? mobileWeekScrollY.y
-                : max(0, CGFloat(Calendar.current.component(.hour, from: Date()) - 1) * hourHeight),
-            onHorizontalSwipe: { _ in }, canBeginSwipe: { draggingEventID == nil },
+                : max(0, CGFloat(GridOpeningHour.current - 1) * hourHeight),
+            onHorizontalSwipe: { moveMobileWeek($0 ? 1 : -1, landingAtEdge: true) }, canBeginSwipe: { draggingEventID == nil },
             onVerticalOffset: { mobileWeekScrollY.y = $0 },
             canBeginCreate: { point in
                 guard let day = dayAt(point) else { return false }
@@ -5050,7 +5093,10 @@ struct WeekView: View {
                 gutterWidth: timeWidth,
                 gutter: AnyView(mobileTimeGutter(width: timeWidth, startHour: 0, endHour: 24,
                                                 hourHeight: hourHeight)),
-                onHorizontalOffset: { if headerOffset.x != $0 { headerOffset.x = $0 } },
+                onHorizontalOffset: { x in
+                    let maximum = max(0, timeWidth + CGFloat(days.count) * dayWidth - viewportWidth)
+                    headerOffset.set(x: min(maximum, max(0, x)), stretch: min(maximum, max(0, x)) - x)
+                },
                 onColumnSettled: { if mobileVisibleDayID != $0 { mobileVisibleDayID = $0 } }),
             preservesActiveGesture: draggingEventID != nil,
             content: HStack(alignment: .top, spacing: 0) {
@@ -5730,10 +5776,11 @@ struct WeekView: View {
         }
     }
 
-    private func moveMobileWeek(_ delta: Int) {
-        let visibleDay = mobileVisibleDayID
+    private func moveMobileWeek(_ delta: Int, landingAtEdge: Bool = false) {
+        let edge = delta > 0 ? 0 : 6
+        let visibleDay = landingAtEdge ? edge : mobileVisibleDayID
         let calendar = Calendar.current
-        let selectedOffset = dayMode ? 0 : min(6, max(0,
+        let selectedOffset = dayMode ? 0 : landingAtEdge ? edge : min(6, max(0,
             calendar.dateComponents([.day], from: mobileVisibleWeekStart,
                                     to: calendar.startOfDay(for: mobileSelectedDay)).day ?? 0))
         mobileWeekOffset += delta
