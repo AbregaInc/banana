@@ -189,6 +189,9 @@ struct OnboardingView: View {
                 }
                 .buttonStyle(FirstRun.quiet)
                 .accessibilityIdentifier("onboarding.notNow")
+                #if os(macOS)
+                permissionGuideButton
+                #endif
             } else {
                 Button {
                     // After a relaunch mid-consent too: Email is settled from what is connected.
@@ -290,11 +293,22 @@ struct OnboardingView: View {
             ArtCanvas(top: FirstRunArt.done.top, bottom: FirstRunArt.done.bottom) { art in DoneScene(art: art) }
             ReceiptRows(receipt: receipt, copyProblem: writeBack.enabled ? writeBack.lastError : nil)
         } actions: {
+            #if os(macOS)
+            permissionGuideButton
+            #endif
             Button("Open my day") { finish() }
                 .buttonStyle(FirstRun.primary)
                 .accessibilityIdentifier("onboarding.open")
         }
     }
+
+    #if os(macOS)
+    private var permissionGuideButton: some View {
+        Button("Permissions") { MacPermissionGuide.shared.show(onboarding: onboarding) }
+            .buttonStyle(FirstRun.quiet)
+            .accessibilityIdentifier("onboarding.permissions")
+    }
+    #endif
 
     // MARK: - Accounts
 
