@@ -83,7 +83,7 @@ struct ShellRail: View {
 
 /// The iPad's way to hide and show the rail, as a system sidebar's button does: at the toolbar's
 /// leading edge, ⌃⌘S from a keyboard, kept across launches (`ShellRailVisibility`). The Mac's
-/// rail is a split view column and uses the system's own button.
+/// rail is a split view column driven by the same preference, with its button explicitly leading.
 struct ShellRailToggle: View {
     @AppStorage(ShellRailVisibility.key) private var shown = true
 
@@ -91,7 +91,9 @@ struct ShellRailToggle: View {
         Button { withAnimation(.snappy) { shown.toggle() } } label: {
             Image(systemName: "sidebar.leading")
         }
+        #if os(iOS)
         .keyboardShortcut("s", modifiers: [.control, .command])
+        #endif
         .help(shown ? "Hide Sidebar" : "Show Sidebar")
         .accessibilityLabel(shown ? "Hide sidebar" : "Show sidebar")
         .accessibilityIdentifier("shell.railToggle")
@@ -104,7 +106,12 @@ struct ShellToolbarField: View {
 
     var body: some View {
         ShellWideField(search: search)
+            #if os(macOS)
+            // Search yields width before the calendar's navigation or the sidebar toggle.
+            .frame(minWidth: 160, idealWidth: 320, maxWidth: 560)
+            #else
             .frame(minWidth: 240, idealWidth: 520, maxWidth: 560)
+            #endif
     }
 }
 

@@ -205,6 +205,8 @@ struct MacRootView: View {
                 // minimum (and a width saved from before), ~200 pt in Beta 105. Pin the split
                 // view's sidebar item's width itself; it still collapses.
                 .background(MacRailColumnPin(width: ShellRail.width))
+                // The default item belongs to this column, not the split-view wrapper.
+                .toolbar(removing: .sidebarToggle)
                 .accessibilityIdentifier("app.sidebar")
         } detail: {
             VStack(spacing: 0) {
@@ -276,7 +278,7 @@ struct MacRootView: View {
                     // it, on every page; each page adds its title menu and "…".
                     .toolbar {
                         // Beside "…" at the trailing edge, the toolbar's last group, on every page.
-                        ToolbarItem(placement: .primaryAction) { ShellToolbarField() }
+                        ToolbarItem(placement: .principal) { ShellToolbarField() }
                         #if BANANA_AI
                         ToolbarItem(placement: .primaryAction) {
                             Button {
@@ -400,6 +402,11 @@ struct MacRootView: View {
             #if BANANA_MODULE_PODCASTS
             .sheet(isPresented: $nav.showFullPlayer) { NowPlayingView() }
             #endif
+        }
+        // A left-column action belongs at the leading edge, with a sidebar glyph. Remove the
+        // split view's automatic item so it cannot migrate into the trailing overflow control.
+        .toolbar {
+            ToolbarItem(placement: .navigation) { ShellRailToggle() }
         }
         #if BANANA_AI
         .onChange(of: chrome.showAdd) { _, requested in

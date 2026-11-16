@@ -1,0 +1,7 @@
+# Mac toolbar controls
+
+The left sidebar has one leading `sidebar.leading` button. Its persisted visibility and the native View menu/Control–Command–S command share the existing split-view state. The default sidebar item is removed from the sidebar column, as in Apple's [toolbar removal example](https://developer.apple.com/documentation/swiftui/view/toolbar(removing:)); removing it from the wrapper leaves an unwanted default item available to overflow.
+
+Calendar date navigation belongs on the right. The range and Previous/Today/Next stay in one toolbar item so native toolbar layout cannot separate them. Next is the last date action, Today remains conditional on being away from the current period, and the existing day/span/week actions and keyboard commands are unchanged. Search occupies the principal position and can yield width before essential navigation. The compound date controls retain their intrinsic size; optional forecast/loading status is a separate toolbar item so it can yield without compressing the date menu into a paging button. iPhone/iPad placements are unchanged.
+
+This applies proximity and familiar sidebar/calendar conventions: left-column visibility has a sidebar glyph on the left; single chevrons on the right page dates. The native VM test checks actual accessible frames, week changes, the sidebar button and keyboard command, and a narrower window, retaining screenshots. Compile, functional placement and physical input/frame performance are separate evidence; a successful placement test does not establish the performance contract.
