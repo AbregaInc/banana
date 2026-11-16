@@ -161,6 +161,21 @@ import GRDB
         XCTAssertFalse(again?.messages.contains { MailOutgoingDraft.draftID($0.id) != nil } ?? true)
     }
 
+    func testLiveScheduledSendRetainsScheduleActionsWithoutAnEditableDraftNotice() async throws {
+        let (_, intent, source, row) = try await actionSource()
+        var record = outgoingRecord(state: .held, conversation: row.id)
+        let date = Date().addingTimeInterval(3600)
+        record.snapshot.schedule = MailSchedule(at: date, onThisDevice: true, isLate: false)
+        let inserted = try await intent.putDraftRecord(record, expectedGeneration: nil)
+        XCTAssertTrue(inserted)
+        try await prepareDrafts(source, intent)
+        let conversation = await source.conversation(row.id)
+        XCTAssertNil(conversation?.draft)
+        let message = try XCTUnwrap(conversation?.messages.first)
+        XCTAssertEqual(message.draft, record.snapshot.id)
+        XCTAssertEqual(message.delivery, .scheduled(date))
+    }
+
     func testLiveSendingAndUnconfirmedMessagesRemainOutgoingWithoutADraftNotice() async throws {
         for state in [MailDraftRecord.State.sending, .uncertain] {
             let (_, intent, source, row) = try await actionSource()

@@ -12,6 +12,10 @@ enum MailOutgoingDraft {
     }
     static func message(_ draft: MailDraft) -> MailMessage {
         let id = MailMessageID(account: draft.account, message: prefix + draft.id.raw)
+        // Scheduled cards retain their existing Change/Cancel actions without
+        // restoring the conversation's editable-draft notice.
+        let scheduledDraft: MailDraftID?
+        if case .scheduled? = draft.delivery { scheduledDraft = draft.id } else { scheduledDraft = nil }
         return MailMessage(id: id,
             from: MailPerson(name: draft.from.name, address: draft.from.address, isMe: true, isKnown: true, fromTheirMail: false),
             to: draft.to, cc: draft.cc, bcc: draft.bcc, replyTo: [], deliveredTo: nil, listName: nil,
@@ -21,7 +25,7 @@ enum MailOutgoingDraft {
                 MailAttachment(id: MailAttachmentID(message: id, part: file.id), name: file.name,
                     mimeType: UTType(filenameExtension: (file.name as NSString).pathExtension)?.preferredMIMEType ?? "application/octet-stream",
                     typeMismatch: false, bytes: file.bytes, localFile: file.file, isInline: false, isExecutable: file.isExecutable)
-            }, delivery: draft.delivery, draft: nil)
+            }, delivery: draft.delivery, draft: scheduledDraft)
     }
     static func body(_ draft: MailDraft) -> MailBody {
         var blocks = draft.body.blocks
