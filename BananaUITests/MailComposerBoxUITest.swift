@@ -7,7 +7,7 @@ import XCTest
 /// and its chevron opens send later; pulled all the way down it goes away and the draft is kept.
 final class MailComposerBoxUITest: MailUITestCase {
 
-    private func launchShell(booking: Bool? = nil) {
+    private func launchShell(booking: Bool? = nil, largeText: Bool = false) {
         if isPad { MailTurn.ask(landscape: false) }
         app = XCUIApplication()
         app.launchArguments += ["--ui-preview", "--ui-audit", "--disable-icloud", "--dummy-health",
@@ -17,6 +17,7 @@ final class MailComposerBoxUITest: MailUITestCase {
             app.launchArguments += ["--booking-fixture"]
             if booking { app.launchArguments += ["--booking-linked"] }
         }
+        if largeText { app.launchArguments += ["-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryXXXL"] }
         app.withoutSpaceSync()
         app.launch()
         if isPad { XCTAssertTrue(MailTurn.settle(app, landscape: false), "the iPad must be upright") }
@@ -113,6 +114,23 @@ final class MailComposerBoxUITest: MailUITestCase {
         insert.tap()
         XCTAssertTrue(waitUntil(timeout: 5) { (body.value as? String)?.contains("https://book.bananatheapp.com/noor") == true })
         snap("scheduling-link-new-message")
+    }
+
+    func testSchedulingAndSendRemainReachableWithLargerText() {
+        launchShell(booking: true, largeText: true)
+        _ = openReply()
+        type("Choose a time")
+        let insert = element(MailID.composerSchedulingLink)
+        let send = element(MailID.send)
+        XCTAssertTrue(insert.isHittable)
+        XCTAssertTrue(send.isHittable)
+        let window = app.windows.firstMatch.frame
+        XCTAssertTrue(window.contains(insert.frame))
+        XCTAssertTrue(window.contains(send.frame))
+        XCTAssertFalse(insert.frame.intersects(send.frame))
+        insert.tap()
+        XCTAssertTrue(waitUntil(timeout: 5) { (self.element(MailID.composerBody).value as? String)?.contains("https://book.bananatheapp.com/noor") == true })
+        snap("scheduling-large-text")
     }
 
     func testUnconfiguredSchedulingOpensExistingSettingsAndPreservesDraft() {

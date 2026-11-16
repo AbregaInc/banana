@@ -165,34 +165,47 @@ struct MailComposerBox: View {
     // MARK: The tools and Send
 
     @ViewBuilder private var footer: some View {
-        HStack(spacing: 0) {
+        Group {
             if asking {
                 assistantLine
             } else {
-                MailComposerTools(files: model.files, chords: model.chords, format: model.format, isReadOnly: model.isForeign).disabled(model.isForeign)
-                if MailDraftAssistant.isAvailable {
-                    Button {
-                        asking = true
-                        instructing = true
-                    } label: {
-                        Image(systemName: "sparkle")
-                            .frame(width: DS.Row.minHeight, height: DS.Mail.header)
-                            .contentShape(Rectangle())
+                ViewThatFits(in: .horizontal) {
+                    HStack(spacing: 0) {
+                        writingTools
+                        Spacer(minLength: DS.Space.s)
+                        MailSendSplitButton(session: session, model: model)
                     }
-                    .buttonStyle(.borderless)
-                    .disabled(model.isForeign)
-                    .accessibilityLabel("Write with Banana")
-                    .accessibilityIdentifier(MailID.composerAssistant)
+                    VStack(alignment: .leading, spacing: DS.Space.xs) {
+                        HStack(spacing: 0) { writingTools; Spacer(minLength: 0) }
+                        HStack(spacing: 0) {
+                            Spacer(minLength: 0)
+                            MailSendSplitButton(session: session, model: model)
+                        }
+                    }
                 }
-                Spacer(minLength: DS.Space.s)
-                MailSendSplitButton(session: session, model: model)
             }
         }
         .foregroundStyle(.secondary)
     }
 
-    /// The sparkle's line: what to say ("say yes, Friday instead"), and the draft is written into
-    /// the body, ready to edit, with one Undo.
+    @ViewBuilder private var writingTools: some View {
+        MailComposerTools(files: model.files, chords: model.chords, format: model.format, isReadOnly: model.isForeign).disabled(model.isForeign)
+        if MailDraftAssistant.isAvailable {
+            Button {
+                asking = true
+                instructing = true
+            } label: {
+                Image(systemName: "sparkle")
+                    .frame(width: DS.Row.minHeight, height: DS.Mail.header)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.borderless)
+            .disabled(model.isForeign)
+            .accessibilityLabel("Write with Banana")
+            .accessibilityIdentifier(MailID.composerAssistant)
+        }
+    }
+
     private var assistantLine: some View {
         HStack(spacing: DS.Space.s) {
             Image(systemName: "sparkle").foregroundStyle(DS.Palette.accent)
