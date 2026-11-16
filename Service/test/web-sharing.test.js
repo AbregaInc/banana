@@ -4,6 +4,7 @@ import { setup, device, DAY } from './helpers.js';
 import { emptyPolicy, sharedCalendar } from '../src/web/sharing-policy.js';
 import { sha256Hex } from '../src/crypto.js';
 import { memoryEmail } from '../src/booking/email.js';
+import { feedCSV } from '../src/web/feed-format.js';
 
 async function fixture() {
   const email = memoryEmail({ enabled: true, log: false });
@@ -60,6 +61,93 @@ async function fixture() {
 }
 const policy = (...sections) => { const p = emptyPolicy(); for (const section of sections) p.sections[section] = true; return p; };
 const view = (id, endpoint, preview) => `/app/api/shared/${id}/${endpoint}${endpoint.includes('?') ? '&' : '?'}${preview ? `preview=${preview}` : ''}`;
+
+test('feeds: opt-in is published, owner or the actual guest issues a separate read-only credential', async () => {
+  const f = await fixture(), p = policy('nutrition'), d = await f.draft(p);
+  await f.send(d);
+  assert.equal((await f.call('POST', `/app/api/shares/${d.id}/feeds`, { name: 'Coach system' })).status, 403);
+  p.allowFeeds = true;
+  const edited = await (await f.call('PUT', `/app/api/shares/${d.id}/draft`, { email: d.email, version: d.version, policy: p })).json();
+  await f.preview(edited);
+  assert.equal((await f.call('POST', `/app/api/shares/${d.id}/feeds`, { name: 'Coach system' })).status, 403, 'draft opt-in grants nothing');
+  assert.equal((await f.call('POST', `/app/api/shares/${d.id}/publish`, { version: edited.version })).status, 200);
+  const guest = await f.login('trainer', d.id), stranger = await f.login('stranger');
+  const path = `/app/api/shared/${d.id}/feeds`;
+  assert.equal((await f.call('POST', path, { name: 'Other system' }, stranger.cookie)).status, 403);
+  assert.equal((await f.call('POST', path, { name: 'Wrong origin' }, guest.cookie, 'https://other.example')).status, 403);
+  const response = await f.call('POST', path, { name: 'Coach system' }, guest.cookie);
+  assert.equal(response.status, 201, await response.clone().text());
+  const feed = await response.json();
+  assert.equal(feed.token.length, 43);
+  const stored = await f.s.deps.db.first('SELECT token_hash FROM web_share_feeds WHERE id = ?', feed.id);
+  assert.equal(stored.token_hash, await sha256Hex(feed.token));
+  const listed = await (await f.call('GET', path, null, guest.cookie)).json();
+  assert.equal(listed.feeds.length, 1); assert.equal(JSON.stringify(listed).includes(feed.token), false);
+  assert.equal(JSON.stringify(listed).includes(new URL(feed.url).searchParams.get('signature')), false);
+  const manifest = await f.s.app.request(feed.url);
+  assert.equal(manifest.status, 200); assert.match(manifest.headers.get('cache-control'), /no-store/);
+  const metadata = await manifest.json();
+  assert.equal(metadata.types.some(t => t.type === 'food.meal'), true);
+  assert.equal(metadata.types.some(t => t.type === 'food.dose'), false);
+  assert.equal((await f.s.app.request(feed.url + 'tamper')).status, 401);
+  const bearer = await f.s.app.request(`/app/feeds/${feed.id}`, { headers: { Authorization: `Bearer ${feed.token}` } });
+  assert.equal(bearer.status, 200);
+  assert.equal((await f.s.call('GET', '/v1/account', { session: feed.token })).status, 401, 'feed credentials are not native sessions');
+});
+
+test('feeds: JSON and CSV paginate, and food photos use signed scoped expiring paths', async () => {
+  const f = await fixture(), p = policy('nutrition'); p.allowFeeds = true;
+  const d = await f.draft(p); await f.send(d);
+  const photo = await f.blob('food.mealPhoto', 'sample image', 'jpg');
+  await f.put('food.mealPhoto', 'photo-1', { v: photo });
+  for (const id of ['meal-a', 'meal-b', 'meal-c']) await f.put('food.meal', id, { name: '=not a formula', protein: 24, photoIDs: ['photo-1'] });
+  const feed = await (await f.call('POST', `/app/api/shares/${d.id}/feeds`, { name: 'Analysis' })).json();
+  const manifest = await (await f.s.app.request(feed.url)).json();
+  const urls = manifest.types.find(t => t.type === 'food.meal');
+  const firstURL = new URL(urls.json); firstURL.searchParams.set('limit', '1');
+  const first = await (await f.s.app.request(firstURL)).json();
+  assert.equal(first.records.length, 1); assert.equal(first.records[0].data.protein, 24);
+  const second = await (await f.s.app.request(first.next)).json();
+  assert.notEqual(second.records[0].id, first.records[0].id);
+  const image = first.records[0].assets[0];
+  assert.equal((await f.s.app.request(image.url)).status, 200);
+  const imageURL = new URL(image.url); imageURL.searchParams.set('id', 'other-photo');
+  assert.equal((await f.s.app.request(imageURL)).status, 401);
+  const csv = await f.s.app.request(urls.csv);
+  assert.match(csv.headers.get('content-type'), /text\/csv/);
+  assert.match(await csv.text(), /'=not a formula/);
+  const denied = new URL(urls.json); denied.searchParams.set('type', 'food.dose');
+  assert.equal((await f.s.app.request(denied)).status, 403);
+  await f.call('POST', `/app/api/shares/${d.id}/feeds/${feed.id}/revoke`, {});
+  assert.equal((await f.s.app.request(firstURL)).status, 404);
+  assert.equal((await f.s.app.request(image.url)).status, 404, 'image revocation is immediate too');
+});
+
+test('feeds: old credentials never inherit broader sharing and disabling permanently revokes them', async () => {
+  const f = await fixture(), p = policy('nutrition'); p.allowFeeds = true;
+  const d = await f.draft(p); await f.send(d);
+  const feed = await (await f.call('POST', `/app/api/shares/${d.id}/feeds`, { name: 'Food connection' })).json();
+  async function publish(value, version) {
+    const edited = await (await f.call('PUT', `/app/api/shares/${d.id}/draft`, { email: d.email, version, policy: value })).json();
+    await f.preview(edited);
+    const response = await f.call('POST', `/app/api/shares/${d.id}/publish`, { version: edited.version });
+    assert.equal(response.status, 200); return edited.version;
+  }
+  p.sections.taken = true;
+  let version = await publish(p, d.version);
+  const manifest = await (await f.s.app.request(feed.url)).json();
+  assert.equal(manifest.types.some(t => t.type === 'food.dose'), false);
+  p.allowFeeds = false; version = await publish(p, version);
+  assert.equal((await f.s.app.request(feed.url)).status, 404);
+  p.allowFeeds = true; await publish(p, version);
+  assert.equal((await f.s.app.request(feed.url)).status, 404, 're-enabling must not resurrect an old key');
+});
+
+test('feed CSV preserves quoting and neutralizes formulas without changing negative numbers', () => {
+  const text = feedCSV([{ id: 'a', data: { title: 'comma, "quote"\nline', value: -2, formula: ' \t=1+1' }, assets: [] }]);
+  assert.match(text, /comma, ""quote""\nline/); assert.match(text, /"-2"/); assert.match(text, /' \t=1\+1/);
+  assert.throws(() => feedCSV([{ id: 'a', data: { 'x.y': 1, x: { y: 2 } } }]), /collision/);
+});
 
 test('sharing: a draft sends nothing; only its owner can preview, and sending requires the current preview', async () => {
   const f = await fixture(), d = await f.draft(policy('nutrition'));
@@ -281,4 +369,85 @@ test('sharing: list preview shows published access, not unpublished edits, and r
   assert.equal((await f.call('POST', `/app/api/shares/${d.id}/publish`, { version: changed.version })).status, 409);
   await f.call('POST', `/app/api/shares/${d.id}/revoke`, {});
   assert.equal((await f.call('GET', view(d.id, 'account', 'published'))).status, 403);
+});
+
+
+test('feeds: Health projection, withdrawn consent and parent revocation apply to every request', async () => {
+  const f = await fixture(), p = policy('workouts'); p.allowFeeds = true;
+  const ref = await f.blob('health.snapshot', { workouts: [{ id: 'visible', activity: 'Run' }, { id: 'hidden', activity: 'PRIVATE' }], hiddenWorkoutIDs: ['hidden'], trends: { PRIVATE: 42 } });
+  await f.put('health.snapshot', 'snapshot', { v: ref });
+  const d = await f.draft(p); await f.send(d);
+  const feed = await (await f.call('POST', `/app/api/shares/${d.id}/feeds`, { name: 'Training' })).json();
+  const metadata = await (await f.s.app.request(feed.url)).json();
+  const endpoint = metadata.types.find(t => t.type === 'health.snapshot').json;
+  const response = await f.s.app.request(endpoint); assert.equal(response.status, 200);
+  const text = await response.text(); assert.match(text, /Run/); assert.doesNotMatch(text, /PRIVATE|\$blob/);
+  await f.space.withdrawConsent('health');
+  const withdrawn = await f.s.app.request(endpoint); assert.equal(withdrawn.status, 200);
+  assert.deepEqual((await withdrawn.json()).records, []);
+  assert.equal((await (await f.s.app.request(feed.url)).json()).types.some(t => t.type.startsWith('health.')), false);
+  await f.call('POST', `/app/api/shares/${d.id}/revoke`, {});
+  assert.equal((await f.s.app.request(feed.url)).status, 404);
+});
+
+test('feeds: guests manage only their connections, and expired parent and image grants stop working', async () => {
+  const f = await fixture(), p = policy('nutrition'); p.allowFeeds = true;
+  p.expiresOn = new Date(f.s.now()).toISOString().slice(0, 10);
+  const d = await f.draft(p); await f.send(d);
+  const guest = await f.login('trainer', d.id), ownerPath = `/app/api/shares/${d.id}/feeds`, guestPath = `/app/api/shared/${d.id}/feeds`;
+  const ownerFeed = await (await f.call('POST', ownerPath, { name: 'Owner analysis' })).json();
+  assert.equal((await (await f.call('GET', guestPath, null, guest.cookie)).json()).feeds.length, 0);
+  assert.equal((await f.call('POST', `${guestPath}/${ownerFeed.id}/revoke`, {}, guest.cookie)).status, 404);
+  const guestFeed = await (await f.call('POST', guestPath, { name: 'Coach analysis' }, guest.cookie)).json();
+  assert.equal((await (await f.call('GET', ownerPath)).json()).feeds.length, 2);
+  await f.put('food.mealPhoto', 'photo', { v: await f.blob('food.mealPhoto', 'image', 'jpg') });
+  const metadata = await (await f.s.app.request(guestFeed.url)).json();
+  const url = metadata.types.find(t => t.type === 'food.mealPhoto').json;
+  const readAsset = async () => (await (await f.s.app.request(url)).json()).records[0].assets[0];
+  const image = await readAsset(); f.s.advance(3_600_001);
+  assert.equal((await f.s.app.request(image.url)).status, 404);
+  f.s.advance(Date.parse(p.expiresOn) + DAY - f.s.now() - 1000);
+  const last = await readAsset(); assert.equal(Date.parse(last.expiresAt), Date.parse(p.expiresOn) + DAY);
+  f.s.advance(1000);
+  assert.equal((await f.s.app.request(guestFeed.url)).status, 404);
+  assert.equal((await f.s.app.request(last.url)).status, 404);
+});
+
+test('feeds: calendar busy projection is preserved in JSON and CSV, and scope narrowing is immediate', async () => {
+  const f = await fixture(), p = policy('nutrition'); p.allowFeeds = true;
+  p.calendars = [{ sub: 'owner-sub', id: 'calendar-1', access: 'busy' }];
+  f.s.google.events.set('calendar-1', [{ id: 'PRIVATE-ID', summary: 'PRIVATE-TITLE', description: 'PRIVATE-NOTES', start: { dateTime: new Date(f.s.now()).toISOString() }, end: { dateTime: new Date(f.s.now() + 3600000).toISOString() } }]);
+  const d = await f.draft(p); await f.send(d);
+  const feed = await (await f.call('POST', `/app/api/shares/${d.id}/feeds`, { name: 'Schedule' })).json();
+  const metadata = await (await f.s.app.request(feed.url)).json();
+  for (const format of ['json', 'csv']) {
+    const url = new URL(metadata.calendar[format]); url.searchParams.set('from', f.s.now()); url.searchParams.set('to', f.s.now() + DAY);
+    const response = await f.s.app.request(url); assert.equal(response.status, 200);
+    const text = await response.text(); assert.match(text, /Busy/); assert.doesNotMatch(text, /PRIVATE/);
+  }
+  const mealURL = metadata.types.find(t => t.type === 'food.meal').json;
+  p.sections.nutrition = false;
+  const edited = await (await f.call('PUT', `/app/api/shares/${d.id}/draft`, { email: d.email, version: d.version, policy: p })).json();
+  await f.preview(edited); await f.call('POST', `/app/api/shares/${d.id}/publish`, { version: edited.version });
+  assert.equal((await f.s.app.request(mealURL)).status, 403);
+});
+
+
+test('feeds: issuance is bounded and bearer pagination does not turn a supplied query into a credential', async () => {
+  const f = await fixture(), p = policy('nutrition'); p.allowFeeds = true;
+  const d = await f.draft(p); await f.send(d);
+  const path = `/app/api/shares/${d.id}/feeds`;
+  const issued = await Promise.all(Array.from({ length: 11 }, (_, i) => f.call('POST', path, { name: `Connection ${i}` })));
+  assert.equal(issued.filter(r => r.status === 201).length, 10);
+  assert.equal(issued.filter(r => r.status === 409).length, 1);
+  const feed = await issued.find(r => r.status === 201).json();
+  for (const id of ['a', 'b']) await f.put('food.meal', id, { name: 'Lunch' });
+  const url = `/app/feeds/${feed.id}/records.json?type=food.meal&limit=1&signature=invalid`;
+  const response = await f.s.app.request(url, { headers: { Authorization: `Bearer ${feed.token}` } });
+  assert.equal(response.status, 200);
+  const next = (await response.json()).next;
+  assert.equal(new URL(next).searchParams.has('signature'), false);
+  assert.equal((await f.s.app.request(next)).status, 401);
+  assert.equal((await f.s.app.request(next, { headers: { Authorization: `Bearer ${feed.token}` } })).status, 200);
+  assert.equal((await f.s.app.request(feed.url, { headers: { Authorization: 'Bearer wrong' } })).status, 401);
 });

@@ -1,3 +1,4 @@
+import { shareFeedControls } from './share-feeds.js';
 import {healthTrend,trendSpans,trendChartHTML} from './health-trends.js';
 import { CalendarWindowCache } from './calendar-window-cache.js';
 import {parseFilters,filterTitle,filterInterval,prepareFilters,dateLabels} from './live-filters.js';
@@ -119,6 +120,7 @@ function trendCaption(trend){
 function periodControls(){if(view==='health')return trendControls();const w=healthWindow();return `<div class="health-controls"><div class="tabs" aria-label="${pages[view].name} period">${['day','week'].map(m=>`<button data-health-mode="${m}" aria-pressed="${healthMode===m}">${m==='day'?'Day':'Week'}</button>`).join('')}</div><div class="period-stepper"><button class="text-button" data-health-step="-1" aria-label="Previous ${healthMode}">←</button><label>Date <input type="date" id="health-day" value="${healthDay}"></label><button class="text-button" data-health-step="1" aria-label="Next ${healthMode}">→</button></div><button class="text-button" data-health-today>Today</button><span>${date(w.start)}${healthMode==='week'?` – ${date(w.end-1)}`:''}</span></div>`;}
 
 const sharing=sharingControls({request,escape,notice:showNotice,rerender:render});
+const receivedFeeds=shareFeedControls({request,escape,notice:showNotice});
 const canView=id=>!account?.shared || account.views.includes(id);
 
 async function request(path, options = {}) {
@@ -434,13 +436,21 @@ function updateAccount() {
   $('#sync-source-label').textContent=account.shared?'Shared with you':'From your devices';
   $('#share-banner').hidden=!account.shared;
   if(account.shared)$('#share-banner').innerHTML=account.preview?`<p><strong>Guest preview</strong> · What ${escape(account.audience)} ${account.publishedPreview?'can currently access':'will see with these draft permissions'}. No invitation is sent from this preview.</p><a class="button secondary" href="${escape(account.previewBack)}">Back to invitation ↗</a>`:`<p>Shared by <strong>${escape(account.ownerName)}</strong> · Read only${account.expiresOn?` · Access through ${escape(account.expiresOn)} (UTC)`:""}</p><a class="text-button" href="${appHome}">Other shared views ↗</a>`;
+  if(account.shared && account.dataFeedsAllowed){
+    const disclosure=document.createElement('details');disclosure.id='received-feed-disclosure';
+    const summary=document.createElement('summary');summary.textContent='Data feeds';disclosure.append(summary);
+    const panel=document.createElement('div');panel.id='received-feed-controls';disclosure.append(panel);$('#share-banner').append(disclosure);
+    if(!account.preview)receivedFeeds.mount(panel,`/app/api/shared/${sharedContext.id}/feeds`);
+    else panel.textContent='External data feeds will be allowed.';
+  }
 }
 function signedOut() {
+  sharing.clear(); receivedFeeds.clear();
   hiddenMetrics=new Set();$('#refresh').textContent='Refresh';$('#refresh').removeAttribute('aria-label');
   generation++;detailGeneration++;account=null;filterSources=[];filterSourcesPromise=null;filterSourcesLoaded=false;filterStates.clear();clearTimeout(searchTimer);query='';liveFilter=parseFilters('','text');livePredicate=prepareFilters(liveFilter);cache.clear();pending.clear();healthSnapshot=null;snapshotPromise=null;detailRecords=[];agendas.clear();workoutEntries=[];currentWorkout=null;recordingWorker?.terminate();recordingWorker=null;
   $('#detail').close();$('#detail-content').replaceChildren();$('#content').replaceChildren();
   $('#workspace').hidden=true;$('#account-controls').hidden=true;$('#login').hidden=false;
-  guestHomeSession=null;$('#shared-home').hidden=true;$('#share-banner').hidden=true;
+  guestHomeSession=null;$('#shared-home').hidden=true;$('#share-banner').hidden=true;$('#share-banner').replaceChildren();
   $('#google-signin').href=`/app/auth/google${sharedContext?`?share=${sharedContext.id}`:''}`;
   $('#login-hint').textContent=sharedContext?'Sign in with the Google account this invitation was sent to.':'Use a Google account connected to Banana or invited to a shared view.';
   if(sharedContext){$('#login-title').textContent='Sign in to view shared data';$('#login-description').hidden=false;$('#login-description').textContent='See the parts of Banana someone chose to share with you. Your access is read-only.';}

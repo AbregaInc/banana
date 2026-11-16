@@ -88,7 +88,7 @@ if(coachPreview){
     if(!response.ok)throw new Error('Could not prepare coach demo: '+response.status+' '+await response.text());
     return response.json();
   };
-  const draft=await post('/app/api/shares',{email:'trainer@example.com',policy:{calendars:[],sections:{health:true,nutrition:true,workouts:true}}});
+  const draft=await post('/app/api/shares',{email:'trainer@example.com',policy:{calendars:process.env.BANANA_PREVIEW_FEEDS==='1'?[{sub:'preview-sub',id:'preview-calendar',access:'busy'}]:[],sections:{health:true,nutrition:true,workouts:true},...(process.env.BANANA_PREVIEW_FEEDS==='1'?{allowFeeds:true}:{})}});
   await post('/app/api/shares/'+draft.id+'/preview',{version:draft.version});
   // Seed an invited fixture without sending any email. Guest authorization still uses real routes.
   await s.db.run("UPDATE web_shares SET policy = draft_policy, published_version = draft_version, status = 'invited' WHERE id = ?",draft.id);
