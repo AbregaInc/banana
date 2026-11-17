@@ -23,7 +23,8 @@ export function shareFeedControls({ request, escape: esc, notice }) {
     const example = preview ? { url: `${location.origin}/app/feeds/example?signature=EXAMPLE_ONLY`, manifest: previewManifest, preview: true } : null;
     const previewBase = preview ? new URL(base.replace(/\/feeds$/, '/feed-preview'), location.origin) : null;
     if (previewBase) previewBase.searchParams.set('preview', previewVersion);
-    const saved = () => preview ? example : secrets.get(base);
+    const session = sharedTypes ? {session:true, manifest:{scope:'share',access:sharedAccess,types:sharedTypes.map(type=>({type})),calendar:sharedAccess?.calendars.busy || sharedAccess?.calendars.details ? {} : null},dataURL:new URL(base.replace(/\/feeds$/, '/export-data'),location.origin).href} : null;
+    const saved = () => preview ? example : secrets.get(base) ?? session;
     const permittedTypes = () => {
       const current = saved();
       if (current && !current.manifest) return null;
@@ -48,6 +49,7 @@ export function shareFeedControls({ request, escape: esc, notice }) {
       const focus = active?.matches('[data-feed-type]') ? `[data-feed-type="${CSS.escape(active.dataset.feedType)}"]`
         : active?.matches('[data-feed-format]') ? '[data-feed-format]' : active?.matches('[data-feed-days]') ? '[data-feed-days]'
         : active?.matches('[data-feed-url]') ? '[data-feed-url]' : active?.name === 'feed-name' ? '[name="feed-name"]' : null;
+      const exportFocus = active?.matches('[data-feed-images]') ? '[data-feed-images]' : active?.matches('[data-feed-export-cancel]') ? '[data-feed-export-cancel]' : null;
       const selection = active?.tagName === 'INPUT' && active.type === 'text' ? [active.selectionStart, active.selectionEnd] : null;
       const current = saved(), types = [...(current?.manifest?.types ?? []), ...(current?.manifest?.calendar ? [{ type: 'calendar', ...current.manifest.calendar }] : [])];
       const available = types.map(t => t.type);
@@ -69,23 +71,58 @@ export function shareFeedControls({ request, escape: esc, notice }) {
         ${preview ? '<p class="subtle">Owner preview: actual shared data, without creating a recipient connection.</p>' : ''}
         ${!preview ? `<form data-feed-form class="feed-connection-form"><label class="share-email">Connection name <input name="feed-name" value="${esc(state.name)}" required maxlength="100" placeholder="Coaching app" autocomplete="off" ${preview || busy ? 'disabled' : ''}></label>
         <button class="button secondary" type="submit" ${preview || busy ? 'disabled' : ''}>Create private feed</button></form>` : ''}
-        ${current ? `<div class="feed-secret"><p>${preview ? 'Example connection. The URL below is non-working; the response preview reads your actual shared data.' : 'Read-only connection created. Copy these credentials now; they are shown once.'}</p>
+        ${current ? `<div class="feed-secret"><p>${preview ? 'Example connection. The URL below is non-working; the response preview reads your actual shared data.' : current.session ? 'Download shared data below. Create a private feed when connecting another system.' : 'Read-only connection created. Copy these credentials now; they are shown once.'}</p>
           ${scope ? `<p><strong>${current.manifest.scope === 'share' ? 'Shared access' : 'Selected access'}:</strong> ${esc(scope)}</p>` : ''}
           ${types.length ? `<fieldset class="feed-types"><legend>Included data types</legend>${types.map(t => `<label><input type="checkbox" data-feed-type="${esc(t.type)}" ${selected.includes(t.type) ? 'checked' : ''}>${esc(typeName(t.type, access))} <code>${esc(t.type)}</code></label>`).join('')}</fieldset>` : current.manifest ? '<p>No data types are currently available under this connection’s access and consent.</p>' : current.manifestError ? '<p>Could not load connection permissions.</p><button class="text-button" data-feed-retry>Retry</button>' : '<p role="status">Reading connection permissions…</p>'}
           <div class="feed-options"><label>Format <select data-feed-format><option value="json" ${state.format === 'json' ? 'selected' : ''}>JSON</option><option value="csv" ${state.format === 'csv' ? 'selected' : ''}>CSV</option></select></label>
           ${hasCalendar ? `<label>Calendar window <select data-feed-days>${[1,2,3,4,5,6,7,8].map(n => `<option value="${n}" ${state.calendarDays === n ? 'selected' : ''}>Next ${n} day${n === 1 ? '' : 's'}</option>`).join('')}</select></label>` : ''}</div>
           ${preview ? responseHTML : ''}
-          <label class="feed-url">${preview ? 'Example feed URL' : 'Feed URL'}<input readonly data-feed-url value="${esc(url)}"></label>
+          ${!current.session ? `<label class="feed-url">${preview ? 'Example feed URL' : 'Feed URL'}<input readonly data-feed-url value="${esc(url)}"></label>
           <div class="share-actions"><button class="button" data-feed-copy="url" ${busy || !url ? 'disabled' : ''}>${preview ? 'Copy example URL' : 'Copy feed URL'}</button>
-          ${!preview ? `<button class="text-button" data-feed-copy="token" ${busy ? 'disabled' : ''}>Copy API token</button>` : ''}<button class="text-button" data-feed-response ${busy || !url ? 'disabled' : ''}>Preview data</button></div>
-          ${!preview ? responseHTML : ''}</div>` : ''}
-        ${feedGuide({ access: current?.manifest?.access ?? sharedAccess, types: permittedTypes(), url, manifestURL: current?.manifestURL, preview, escape: esc })}
+          ${!preview ? `<button class="text-button" data-feed-copy="token" ${busy ? 'disabled' : ''}>Copy API token</button>` : ''}<button class="text-button" data-feed-response ${busy || !url ? 'disabled' : ''}>Preview data</button></div>` : '<button class="text-button" data-feed-response>Preview data</button>'}
+          ${!preview ? responseHTML : ''}
+          <section class="feed-export" aria-label="Complete export"><h3>Complete download</h3><p>All pages of the selected data, with spreadsheet tables, normalized JSON and a field dictionary. Source records are retained separately.</p>
+          <label><input type="checkbox" data-feed-images ${state.includeImages !== false ? 'checked' : ''}> Include meal image files</label>
+          <div class="share-actions"><button class="button" data-feed-export ${busy || !url || state.exportWorker ? 'disabled' : ''}>Download complete ZIP</button>${state.exportWorker ? '<button class="text-button" data-feed-export-cancel>Cancel download</button>' : ''}</div><p role="status" data-export-status>${esc(state.exportStatus ?? '')}</p></section></div>` : ''}
+        ${feedGuide({ access: current?.manifest?.access ?? sharedAccess, types: permittedTypes(), url: current?.session ? '' : url, manifestURL: current?.manifestURL, preview, escape: esc })}
         ${feeds.length ? `<div class="feed-connections">${feeds.map(f => `<div class="share-invitation"><div><strong>${esc(f.name)}</strong>
           ${f.access || f.policy ? `<p>${esc(f.access ? accessName(f.access) : scopeName(f.policy))}</p>` : ''}<span class="share-status">${f.revokedAt != null ? 'Revoked' : f.expiresOn ? `Expires ${esc(f.expiresOn)}` : 'Active'}${f.createdByYou ? ' · Created by you' : ''}</span></div>
           ${f.revokedAt == null ? `<button class="text-button" data-feed-revoke="${esc(f.id)}" ${busy ? 'disabled' : ''}>Revoke</button>` : ''}</div>`).join('')}</div>` : ''}`;
-      if (focus) { const control = element.querySelector(focus); control?.focus({ preventScroll: true }); if (selection && control) control.setSelectionRange(...selection); }
+      if (focus || exportFocus) { const control = element.querySelector(focus || exportFocus); control?.focus({ preventScroll: true }); if (selection && control) control.setSelectionRange(...selection); }
+    }
+    function cancelExport(message = 'Download cancelled.') {
+      if (!state.exportWorker) return;
+      state.exportWorker.terminate(); state.exportWorker = null;
+      state.exportObserver?.disconnect(); state.exportObserver = null; state.exportStatus = message;
+    }
+    function exportAll() {
+      if (state.exportWorker) return;
+      const url = selectedURL(saved(), true); if (!url) return;
+      const worker = new Worker(new URL('./feed-export-worker.js', import.meta.url), {type:'module'});
+      state.exportWorker = worker; state.exportStatus = 'Reading shared data…'; draw();
+      element.querySelector('[data-feed-export-cancel]')?.focus();
+      state.exportObserver = new MutationObserver(() => { if (!element.isConnected) cancelExport(); });
+      state.exportObserver.observe(document.body, {childList:true,subtree:true});
+      const finish = () => { worker.terminate(); if(state.exportWorker === worker)state.exportWorker=null; state.exportObserver?.disconnect();state.exportObserver=null; };
+      worker.onmessage = ({data}) => {
+        if (epoch !== credentialEpoch || state.exportWorker !== worker) { finish(); return; }
+        if (data.error) { finish(); state.exportStatus=data.error; draw(); return; }
+        if (data.progress) {
+          const p=data.progress;
+          state.exportStatus=p.stage==='waiting'?`Request limit reached. Waiting ${p.retryAfterSeconds} seconds…`:p.stage==='images'?`Downloaded ${p.completed} of ${p.total} photos.`:p.stage==='packaging'?'Preparing ZIP…':`Read ${p.records} records across ${p.pages} pages.`;
+          const status=element.querySelector('[data-export-status]');if(status)status.textContent=state.exportStatus;return;
+        }
+        finish();
+        if(!alive())return;
+        const blob=new Blob([data.bytes],{type:'application/zip'}), href=URL.createObjectURL(blob),link=document.createElement('a');
+        document.body.appendChild(link);link.href=href;link.download='banana-analysis-'+new Date().toISOString().slice(0,10)+'.zip';link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(href),60000);
+        state.exportStatus='Complete download ready.';draw();
+      };
+      worker.onerror=()=>{finish();state.exportStatus='The download could not be prepared. Try again; no partial file was saved.';draw();};
+      worker.postMessage({url,preview:preview||saved()?.session,images:state.includeImages!==false});
     }
     function invalidateResponse() {
+      cancelExport('Selection changed. Start the download again.');
       state.responseAbort?.abort(); state.responseAbort = null;
       state.responseEpoch = (state.responseEpoch ?? 0) + 1; state.responseText = null; state.responseError = false; state.responseLoading = false;
     }
@@ -97,7 +134,7 @@ export function shareFeedControls({ request, escape: esc, notice }) {
       state.responseLoading = true; state.responseError = false; state.redraw?.();
       try {
         const target = new URL(url); if (target.origin !== location.origin) throw new Error('Feed origin changed.');
-        const response = await fetch(target, { credentials: preview ? 'same-origin' : 'omit', cache: 'no-store', signal: controller.signal });
+        const response = await fetch(target, { credentials: preview || saved()?.session ? 'same-origin' : 'omit', cache: 'no-store', signal: controller.signal });
         const text = await response.text();
         if (epoch !== credentialEpoch || state.responseEpoch !== owner) return;
         let display = text.slice(0, 65536);
@@ -126,7 +163,7 @@ export function shareFeedControls({ request, escape: esc, notice }) {
       }
       if (epoch === credentialEpoch) state.redraw?.();
     }
-    async function reload(refresh = true) { const data = await json(base); if (epoch === credentialEpoch) { state.feeds = data.feeds; if (refresh && saved()) await refreshManifest(saved()); state.redraw?.(); } }
+    async function reload(refresh = true) { const data = await json(base); if (epoch === credentialEpoch) { state.feeds = data.feeds; if (refresh && secrets.get(base)) await refreshManifest(secrets.get(base)); state.redraw?.(); } }
     state.reload = reload;
     element.oninput = event => { if (event.target.name === 'feed-name') state.name = event.target.value;
       else if (event.target.name === 'feed-from') state.from = event.target.value;
@@ -150,6 +187,7 @@ export function shareFeedControls({ request, escape: esc, notice }) {
     };
     element.onchange = event => {
       const target = event.target;
+      if (target.matches('[data-feed-images]')) { state.includeImages=target.checked;cancelExport('Photo selection changed. Start the download again.');draw();return; }
       if (target.matches('[data-feed-type]')) {
         const current = saved(), available = [...(current?.manifest?.types ?? []).map(t => t.type), ...(current?.manifest?.calendar ? ['calendar'] : [])];
         const picked = new Set(state.selectedTypes ?? available);
@@ -159,10 +197,12 @@ export function shareFeedControls({ request, escape: esc, notice }) {
       else if (target.matches('[data-feed-days]')) { state.calendarDays = Number(target.value); invalidateResponse(); draw(); if (preview) loadResponse(); element.querySelector('[data-feed-days]')?.focus(); }
     };
     element.onclick = async event => {
-      const button = event.target.closest('[data-feed-copy],[data-feed-revoke],[data-feed-retry],[data-feed-response],[data-feed-next]');
+      const button = event.target.closest('[data-feed-copy],[data-feed-revoke],[data-feed-retry],[data-feed-response],[data-feed-next],[data-feed-export],[data-feed-export-cancel]');
       if (!button || state.busy) return;
       try {
-        if (button.hasAttribute('data-feed-response')) { await loadResponse(); }
+        if (button.hasAttribute('data-feed-export')) { exportAll(); }
+        else if (button.hasAttribute('data-feed-export-cancel')) { cancelExport();draw(); }
+        else if (button.hasAttribute('data-feed-response')) { await loadResponse(); }
         else if (button.hasAttribute('data-feed-next')) { await loadResponse(state.responseNext); }
         else if (button.hasAttribute('data-feed-retry')) { if (saved()) await refreshManifest(saved()); }
         else if (button.dataset.feedCopy) {
@@ -184,5 +224,5 @@ export function shareFeedControls({ request, escape: esc, notice }) {
     if (preview) { invalidateResponse(); await loadResponse(); return; }
     try { await reload(); } catch (error) { if (alive()) notice(error.message, true); }
   }
-  return { mount, clear() { credentialEpoch++; generation++; for (const state of states.values()) state.responseAbort?.abort(); secrets.clear(); states.clear(); } };
+  return { mount, clear() { credentialEpoch++; generation++; for (const state of states.values()) {state.responseAbort?.abort();state.exportWorker?.terminate();state.exportObserver?.disconnect();} secrets.clear(); states.clear(); } };
 }
