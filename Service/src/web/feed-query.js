@@ -2,9 +2,10 @@ const DAY = 86_400_000;
 const refused = (code, status = 400) => { throw Object.assign(new Error(code), { status }); };
 
 // Query values select within a grant. They are never used to construct or widen the grant.
-export function feedQuery(url, available, now) {
+export function feedQuery(url, available, now, { preview = false } = {}) {
   const query = new URL(url).searchParams;
   const keys = new Set(['signature', 'types', 'format', 'limit', 'cursor', 'from', 'to', 'calendarDays']);
+  if (preview) keys.add('preview');
   for (const key of query.keys()) if (!keys.has(key) || query.getAll(key).length !== 1) refused('bad_feed_query');
   const format = query.get('format') ?? 'json';
   if (!['json', 'csv'].includes(format)) refused('bad_format');

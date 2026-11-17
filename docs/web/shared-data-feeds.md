@@ -3,8 +3,8 @@
 A share can explicitly allow its owner and verified recipient to create independent read-only
 connections. In Sharing, enable **Allow external data feeds**, choose **Review and save access**, then
 confirm **Save access** in the guest preview. Create a named connection in the same screen. A recipient opens **Data feeds** in the shared view’s navigation. The page contains connection
-creation, one configurable feed URL and revocation. Guest previews show the same page with creation disabled;
-they never issue credentials as the recipient. Choose included data types and JSON or CSV, then copy the feed URL when creating the connection; secrets
+creation, one configurable feed URL and revocation. Owner previews show the configured types and a live response from the same export projection.
+They never create a connection or issue recipient credentials. Choose included data types and JSON or CSV, then copy the feed URL when creating the connection; secrets
 are shown once, kept only in page memory and cleared on sign-out. Neither creating a share nor
 editing an unpublished draft enables feeds by default.
 
@@ -13,6 +13,26 @@ only connections they created. Removing guest access or disabling feeds blocks r
 image downloads immediately. Disabling feeds permanently revokes existing connections; enabling
 it again does not restore old keys. Already downloaded copies cannot be recalled.
 
+## Preview and on-page instructions
+
+In the owner’s guest preview, Data feeds loads an actual JSON response immediately. Select data
+types or CSV to inspect the corresponding data, use Next page for the next response, or Open full
+response to inspect a full page. The on-screen display is bounded to 65,536 characters; this does
+not truncate the feed itself. Preview uses the configured share permissions for a new connection;
+existing connections can retain a narrower original grant.
+
+Preview requests use the owner-authenticated `/app/api/shared/<share-id>/feed-preview?preview=<version>`
+route and the same record/calendar/blob projection as real feeds. They are not public integrations.
+Preview JSON is marked `preview: true`; its image and next-page links require the owner’s browser
+session, and image `expiresAt` is null rather than pretending a signed public image link was issued.
+The displayed example private feed URL is non-working. The recipient creates their own private
+connection, which receives the real signed URL and API token.
+
+**Use this feed** instructions are visible on the page before creating a connection, for recipients
+and owners. They describe the selected groups, HTTP GET examples, query parameters, JSON/CSV
+pagination, expiring image links, original field/unit encodings, separate URL signatures and API
+tokens, and error responses. A created recipient connection also offers the same response viewer.
+
 ## Personal feeds
 
 In Sharing, open **Your data feeds**, select the calendars and sections, optionally set an
@@ -20,7 +40,7 @@ expiration date, name the connection and choose **Create private feed**. No gues
 invitation is created. The same JSON, CSV and expiring image links work for a personal feed.
 Each connection has fixed permissions; changing the selection prepares the next connection,
 not an expansion of an existing credential. Revoke and recreate a connection to change its scope.
-Health and transcript consent still apply on every request. The owner alone can list or revoke
+Health sync consent and shared-data filtering still apply on every request. The owner alone can list or revoke
 these connections; signing out clears the one-time credentials from the browser.
 
 Personal management uses `GET/POST /app/api/feeds` and `POST /app/api/feeds/<feed-id>/revoke`

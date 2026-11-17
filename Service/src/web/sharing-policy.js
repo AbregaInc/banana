@@ -61,6 +61,10 @@ export function allowedTypes(policy) {
   if (policy.sections.workouts || policy.sections.health) types.add('health.snapshot');
   return types;
 }
+export function feedAccess(policy) {
+  return { sections: Object.entries(policy.sections).filter(([, on]) => on).map(([key]) => key),
+    calendars: { busy: policy.calendars.filter(c => c.access === 'busy').length, details: policy.calendars.filter(c => c.access === 'details').length } };
+}
 export function allowedViews(policy) {
   return ['overview', ...(policy.calendars.length || policy.sections.personalPlan ? ['plans'] : []),
     ...['nutrition', 'taken', 'workouts', 'health', 'notes'].filter(k => policy.sections[k]),

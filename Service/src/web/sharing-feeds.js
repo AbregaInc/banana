@@ -1,5 +1,5 @@
 import { newId, newSessionToken, sha256Hex, hmacHex, constantTimeEqual } from '../crypto.js';
-import { allowedTypes, feedPolicy, normalizePolicy, policyExpired } from './sharing-policy.js';
+import { allowedTypes, feedAccess, feedPolicy, normalizePolicy, policyExpired } from './sharing-policy.js';
 import { feedCSV } from './feed-format.js';
 import { CATALOG } from '../catalog.js';
 import { contentVersion } from './status.js';
@@ -24,8 +24,7 @@ export function sharingFeeds(app, deps, { owner, signedIn, shared, ownerRow, bod
     manifest.searchParams.set('view', 'manifest'); data.searchParams.set('types', 'all'); data.searchParams.set('format', 'json');
     return { url: url.href, manifestURL: manifest.href, dataURL: data.href };
   }
-  const accessSummary = policy => ({ sections: Object.entries(policy.sections).filter(([, on]) => on).map(([key]) => key),
-    calendars: { busy: policy.calendars.filter(c => c.access === 'busy').length, details: policy.calendars.filter(c => c.access === 'details').length } });
+  const accessSummary = feedAccess;
   const management = ownerMode => async (c, next) => {
     const row = ownerMode ? await ownerRow(c) : c.get('share')?.row;
     if (!published(row) || (!ownerMode && c.get('share')?.preview)) return fail(c, 403);
@@ -144,11 +143,23 @@ export function sharingFeeds(app, deps, { owner, signedIn, shared, ownerRow, bod
   };
   app.use('/app/feeds/*', privateResponse);
   function endpoint(c, suffix = '', query = {}) {
-    const url = new URL(baseURL(c.get('feed').id) + suffix);
+    const preview = c.get('feed').preview;
+    const url = new URL(preview ? `${webOrigin}/app/api/shared/${c.get('share').row.id}/feed-preview` : baseURL(c.get('feed').id) + suffix);
+    if (preview) url.searchParams.set('preview', c.req.query('preview'));
     const signature = c.get('feedSignature'); if (signature) url.searchParams.set('signature', signature);
     for (const [key, value] of Object.entries(query)) if (value != null) url.searchParams.set(key, value);
     return url.href;
   }
+  app.get('/app/api/shared/:id/feed-preview', owner, shared, async c => {
+    const value = c.get('share');
+    if (!value.preview || !value.policy.allowFeeds) return fail(c, 403);
+    c.set('feed', { id: `preview:${value.row.id}`, preview: true,
+      issued_version: value.publishedPreview ? value.row.published_version : value.row.draft_version });
+    const state = await spaceFor(value.row.owner_id).webStatus([...allowedTypes(value.policy)]);
+    const types = [...allowedTypes(value.policy)].filter(type => CATALOG.get(type)?.tier !== 'T2' || state.consents.health);
+    c.header('X-Banana-Feed-Preview', 'true');
+    return unifiedResponse(c, [...types, ...(value.policy.calendars.length ? ['calendar'] : [])]);
+  });
   app.get('/app/feeds/:feed', authenticate, async c => {
     const { row, policy } = c.get('share');
     const state = await spaceFor(row.owner_id).webStatus([...allowedTypes(policy)]);
@@ -165,6 +176,11 @@ export function sharingFeeds(app, deps, { owner, signedIn, shared, ownerRow, bod
 
   async function asset(c, type, id, field) {
     const policy = c.get('share').policy;
+    if (c.get('feed').preview) {
+      const url = new URL(`${webOrigin}/app/api/shared/${c.get('share').row.id}/blob`);
+      for (const [k, v] of Object.entries({ preview: c.req.query('preview'), type, id, field })) url.searchParams.set(k, v);
+      return { type, id, field, url: url.href, expiresAt: null };
+    }
     const expires = Math.min(now() + HOUR, policy.expiresOn ? Date.parse(policy.expiresOn) + 24 * HOUR : Infinity), feed = c.get('feed');
     const sig = await hmacHex(deps.config.tokenKey, JSON.stringify(['share-feed-blob-v1', feed.id, type, id, field, expires]));
     const url = new URL(baseURL(feed.id) + '/blob');
@@ -194,7 +210,7 @@ export function sharingFeeds(app, deps, { owner, signedIn, shared, ownerRow, bod
   // One bounded stream across the selected datasets. Legacy URLs below remain compatible.
   async function unifiedResponse(c, available) {
     let query;
-    try { query = feedQuery(c.req.url, available, now()); }
+    try { query = feedQuery(c.req.url, available, now(), { preview: c.get('feed').preview }); }
     catch (error) { return fail(c, error.status ?? 400, error.message); }
     const { types, format, limit, from, to } = query;
     const { row, policy, personal } = c.get('share'), feed = c.get('feed');
@@ -245,7 +261,7 @@ export function sharingFeeds(app, deps, { owner, signedIn, shared, ownerRow, bod
       next = endpoint(c, '', { types: types.join(','), format, limit, ...(types.includes('calendar') ? { from, to } : {}), cursor });
     }
     const state = await spaceFor(row.owner_id).webStatus([...allowedTypes(policy)]);
-    const result = { schema: 'banana.feed.v2', scope: personal ? 'personal' : 'share', access: accessSummary(policy),
+    const result = { schema: 'banana.feed.v2', ...(feed.preview ? { preview: true } : {}), scope: personal ? 'personal' : 'share', access: accessSummary(policy),
       generatedAt: new Date(now()).toISOString(), expiresOn: policy.expiresOn ?? null,
       contentVersion: await contentVersion(state, available.filter(t => t !== 'calendar')), types,
       ...(types.includes('calendar') ? { calendarWindow: { from, to } } : {}), records, next };
