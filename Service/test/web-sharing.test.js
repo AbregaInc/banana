@@ -451,3 +451,117 @@ test('feeds: issuance is bounded and bearer pagination does not turn a supplied 
   assert.equal((await f.s.app.request(next, { headers: { Authorization: `Bearer ${feed.token}` } })).status, 200);
   assert.equal((await f.s.app.request(feed.url, { headers: { Authorization: 'Bearer wrong' } })).status, 401);
 });
+
+test('personal feeds: selected JSON, CSV and images without a guest, invitation or native credential', async () => {
+  const f = await fixture();
+  const photo = await f.blob('food.mealPhoto', 'photo-bytes', 'jpg');
+  await f.put('food.mealPhoto', 'photo-one', { v: photo });
+  await f.put('food.meal', 'lunch', { v: { name: 'Lunch', photoIDs: ['photo-one'] } });
+  await f.put('food.supplement', 'private', { name: 'Not selected' });
+  const response = await f.call('POST', '/app/api/feeds', { name: 'My analysis', policy: policy('nutrition') });
+  assert.equal(response.status, 201, await response.clone().text());
+  const feed = await response.json();
+  assert.match(feed.id, /^p_[A-Za-z0-9_-]{22}$/);
+  const manifest = await (await f.s.app.request(feed.url)).json();
+  assert.equal(manifest.scope, 'personal'); assert.equal(manifest.shareVersion, null);
+  const meals = manifest.types.find(t => t.type === 'food.meal');
+  assert.ok(meals); assert.equal(manifest.types.some(t => t.type === 'food.supplement'), false);
+  const page = await (await f.s.app.request(meals.json)).json();
+  assert.equal(page.records[0].data.name, 'Lunch');
+  const image = page.records[0].assets[0].url;
+  assert.equal(await (await f.s.app.request(image)).text(), 'photo-bytes');
+  assert.match(await (await f.s.app.request(meals.csv)).text(), /Lunch/);
+  assert.equal((await f.s.app.request(`/app/feeds/${feed.id}`, { headers: { Authorization: `Bearer ${feed.token}` } })).status, 200);
+  assert.equal((await f.s.call('GET', '/v1/account', { session: feed.token })).status, 401);
+  const listing = await (await f.call('GET', '/app/api/feeds')).json();
+  assert.equal(listing.feeds.length, 1); assert.ok(listing.feeds[0].policy.sections.nutrition);
+  assert.doesNotMatch(JSON.stringify(listing), new RegExp(feed.token));
+  assert.equal((await f.s.deps.db.first('SELECT COUNT(*) AS n FROM web_shares')).n, 0);
+  assert.equal((await f.s.deps.db.first('SELECT COUNT(*) AS n FROM guests')).n, 0);
+  assert.equal(f.s.email.sent.length, 0);
+  assert.equal((await f.call('POST', `/app/api/feeds/${feed.id}/revoke`, {})).status, 200);
+  assert.equal((await f.s.app.request(feed.url)).status, 404);
+  assert.equal((await f.s.app.request(image)).status, 404);
+});
+
+test('personal feeds: guest, signed-out, cross-origin and other-owner management is denied', async () => {
+  const f = await fixture(), input = { name: 'Private', policy: policy('nutrition') };
+  const shared = await f.draft(policy('nutrition')); await f.send(shared);
+  const guest = await f.login('trainer', shared.id); assert.ok(guest.cookie);
+  assert.equal((await f.call('POST', '/app/api/feeds', input, guest.cookie)).status, 403);
+  assert.equal((await f.call('GET', '/app/api/feeds', null, guest.cookie)).status, 403);
+  assert.equal((await f.call('POST', '/app/api/feeds', input, null)).status, 401);
+  assert.equal((await f.call('POST', '/app/api/feeds', input, f.ownerCookie, 'https://elsewhere.example')).status, 403);
+  const feed = await (await f.call('POST', '/app/api/feeds', input)).json();
+  f.s.google.person('other-owner', 'other-owner-sub', 'noor@plan.example');
+  await f.s.signIn('other-owner', device('phone-other-0001'));
+  const other = await f.login('other-owner');
+  assert.deepEqual((await (await f.call('GET', '/app/api/feeds', null, other.cookie)).json()).feeds, []);
+  assert.equal((await f.call('POST', `/app/api/feeds/${feed.id}/revoke`, {}, other.cookie)).status, 404);
+  assert.equal((await f.call('POST', `/app/api/feeds/${feed.id}/revoke`, {}, f.ownerCookie, 'https://elsewhere.example')).status, 403);
+  assert.equal((await f.s.app.request(feed.url)).status, 200);
+  assert.equal((await f.s.app.request(feed.url + 'tampered')).status, 401);
+});
+
+test('personal feeds: scope validation, expiration, health projection and withdrawn consent', async () => {
+  const f = await fixture();
+  for (const p of [emptyPolicy(), { ...policy('nutrition'), expiresOn: '2020-01-01' },
+    { ...policy('nutrition'), calendars: [{ sub: 'owner-sub', id: 'unknown', access: 'details' }] }])
+    assert.equal((await f.call('POST', '/app/api/feeds', { name: 'Invalid', policy: p })).status, 400);
+  const ref = await f.blob('health.snapshot', { workouts: [{ id: 'run', activity: 'Run' }], trends: { PRIVATE: 42 } });
+  await f.put('health.snapshot', 'snapshot', { v: ref });
+  const p = { ...policy('workouts'), expiresOn: new Date(f.s.now()).toISOString().slice(0, 10) };
+  const feed = await (await f.call('POST', '/app/api/feeds', { name: 'Training', policy: p })).json();
+  const manifest = await (await f.s.app.request(feed.url)).json();
+  const endpoint = manifest.types.find(t => t.type === 'health.snapshot').json;
+  const text = await (await f.s.app.request(endpoint)).text();
+  assert.match(text, /Run/); assert.doesNotMatch(text, /PRIVATE/);
+  await f.space.withdrawConsent('health');
+  assert.deepEqual((await (await f.s.app.request(endpoint)).json()).records, []);
+  f.s.advance(DAY);
+  assert.equal((await f.s.app.request(feed.url)).status, 404);
+});
+
+test('personal feeds: ten live connections, revocation frees capacity and account deletion removes credentials', async () => {
+  const f = await fixture(), input = { name: 'Analysis', policy: policy('nutrition') };
+  let feed;
+  for (let i = 0; i < 10; i++) {
+    const response = await f.call('POST', '/app/api/feeds', input);
+    assert.equal(response.status, 201); feed = await response.json();
+  }
+  assert.equal((await f.call('POST', '/app/api/feeds', input)).status, 409);
+  await f.call('POST', `/app/api/feeds/${feed.id}/revoke`, {});
+  const replacement = await f.call('POST', '/app/api/feeds', input);
+  assert.equal(replacement.status, 201);
+  const url = (await replacement.json()).url;
+  f.s.google.person('delete-owner', 'owner-sub', 'owner@example.com');
+  assert.equal((await f.s.call('DELETE', '/v1/account', { session: f.owner.session, body: { code: 'delete-owner' } })).status, 204);
+  assert.equal((await f.s.app.request(url)).status, 404);
+  assert.equal((await f.s.deps.db.first('SELECT COUNT(*) AS n FROM web_personal_feeds')).n, 0);
+});
+
+test('sharing: unavailable published calendars can be retained or reduced during unrelated edits, never newly granted or widened', async () => {
+  const f = await fixture(), p = policy('nutrition');
+  p.calendars = [{ sub: 'owner-sub', id: 'calendar-1', access: 'details' }, { sub: 'owner-sub', id: 'calendar-2', access: 'busy' }];
+  let d = await f.draft(p); await f.send(d);
+  f.s.google.failList = true;
+  p.allowFeeds = true;
+  let response = await f.call('PUT', `/app/api/shares/${d.id}/draft`, { email: d.email, version: d.version, policy: p });
+  assert.equal(response.status, 200, await response.clone().text()); d = await response.json();
+  await f.preview(d);
+  const preview = await (await f.call('GET', view(d.id, 'account', d.version))).json();
+  assert.equal(preview.canPublish, true);
+  assert.equal((await f.call('POST', `/app/api/shares/${d.id}/publish`, { version: d.version })).status, 200);
+  assert.deepEqual((await (await f.call('GET', '/app/api/shares')).json()).shares[0].policy.calendars, p.calendars);
+  p.calendars[0].access = 'busy';
+  response = await f.call('PUT', `/app/api/shares/${d.id}/draft`, { email: d.email, version: d.version, policy: p });
+  assert.equal(response.status, 200); d = await response.json();
+  p.calendars[1].access = 'details';
+  assert.equal((await f.call('PUT', `/app/api/shares/${d.id}/draft`, { email: d.email, version: d.version, policy: p })).status, 400);
+  p.calendars = [{ sub: 'owner-sub', id: 'calendar-new', access: 'busy' }];
+  assert.equal((await f.call('PUT', `/app/api/shares/${d.id}/draft`, { email: d.email, version: d.version, policy: p })).status, 400);
+  assert.equal((await f.call('POST', '/app/api/feeds', { name: 'New grant', policy: p })).status, 400);
+  const fresh = await f.draft(policy('nutrition'));
+  await f.preview(fresh);
+  assert.equal((await (await f.call('GET', view(fresh.id, 'account', fresh.version))).json()).canPublish, false);
+});

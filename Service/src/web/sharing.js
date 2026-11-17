@@ -37,13 +37,18 @@ export function sharingRoutes(app, deps, { owner, signedIn, calendarChoices, vau
     if (raw.length > 65_536) return null;
     return parse(raw);
   }
-  async function checkedPolicy(c, value) {
+  async function checkedPolicy(c, value, retained = null) {
     const policy = normalizePolicy(value);
     if (policyExpired(policy, now())) throw new Error('Choose today or a future access expiration date.');
     if (policy.calendars.length) {
       const choices = await calendarChoices(c);
       const available = new Set(choices.accounts.flatMap(a => a.calendars.map(cal => calendarKey(a.sub, cal.id))));
-      if (policy.calendars.some(cal => !available.has(calendarKey(cal.sub, cal.id)))) throw new Error('A selected calendar is unavailable. Reconnect it or change the selection.');
+      // Provider outages must not prevent unrelated edits or force removal of an existing grant.
+      // Only an already-published permission (or a reduction of it) may survive an unavailable list.
+      const previous = new Map((retained?.calendars ?? []).map(cal => [calendarKey(cal.sub, cal.id), cal.access]));
+      if (policy.calendars.some(cal => !available.has(calendarKey(cal.sub, cal.id))
+        && !(previous.has(calendarKey(cal.sub, cal.id)) && (previous.get(calendarKey(cal.sub, cal.id)) === 'details' || cal.access === 'busy'))))
+        throw new Error('A newly selected calendar is unavailable. Reconnect it or remove it from the selection.');
     }
     return policy;
   }
@@ -78,7 +83,7 @@ export function sharingRoutes(app, deps, { owner, signedIn, calendarChoices, vau
     if (!email || (row.policy && email !== row.email)) return error(c, 'The recipient of a published invitation cannot be changed.');
     if (input.version !== row.draft_version) return error(c, 'This invitation changed in another tab. Reopen it before editing.', 409);
     let policy;
-    try { policy = await checkedPolicy(c, input.policy); } catch (e) { return error(c, e.message); }
+    try { policy = await checkedPolicy(c, input.policy, parse(row.policy)); } catch (e) { return error(c, e.message); }
     const updated = await db.run(`UPDATE web_shares SET email = ?, draft_policy = ?, draft_version = draft_version + 1,
       previewed_version = NULL, previewed_at = NULL, updated_at = ? WHERE id = ? AND owner_id = ? AND draft_version = ? AND status <> 'revoked'`,
       email, JSON.stringify(policy), now(), row.id, row.owner_id, input.version);
@@ -198,7 +203,7 @@ export function sharingRoutes(app, deps, { owner, signedIn, calendarChoices, vau
     const consents=statusState.consents;
     const types = [...allowedTypes(policy)].filter(type => CATALOG.get(type)?.tier !== 'T2' || consents.health);
     const status=await updateStatus(c,statusState);
-    return c.json({ contentVersion:status.contentVersion,email: c.get('web').authEmail, name, ownerName: name, shared: true, preview, publishedPreview: Boolean(publishedPreview), expiresOn: policy.expiresOn ?? null, audience: preview ? row.email : undefined,
+    return c.json({ contentVersion:status.contentVersion,email: c.get('web').authEmail, name, ownerName: name, shared: true, preview, canPublish: Boolean(preview && !publishedPreview && row.policy), publishedPreview: Boolean(publishedPreview), expiresOn: policy.expiresOn ?? null, audience: preview ? row.email : undefined,
       shareVersion: preview && !publishedPreview ? row.draft_version : row.published_version, views: allowedViews(policy), allowedTypes: types,
       ...(policy.allowFeeds ? { dataFeedsAllowed: true } : {}),
       consents: { health: Boolean(consents.health && types.some(type => CATALOG.get(type)?.tier === 'T2')), transcripts: Boolean(consents.transcripts && policy.sections.listening) },
@@ -270,5 +275,5 @@ export function sharingRoutes(app, deps, { owner, signedIn, calendarChoices, vau
       'x-content-type-options': 'nosniff', 'content-security-policy': "default-src 'none'; sandbox" } });
   }
   app.get('/app/api/shared/:id/blob', signedIn, shared, blobResponse);
-  sharingFeeds(app, deps, { owner, signedIn, shared, ownerRow, body, spaceFor, webOrigin, recordsResponse, blobResponse, calendarResponse });
+  sharingFeeds(app, deps, { owner, signedIn, shared, ownerRow, body, spaceFor, webOrigin, recordsResponse, blobResponse, calendarResponse, checkedPolicy });
 }

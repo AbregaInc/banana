@@ -9,7 +9,7 @@ const parse = text => { try { return JSON.parse(text); } catch { return null; } 
 
 /** Independent read-only credentials. All content still uses the normal guest projection. */
 export function sharingFeeds(app, deps, { owner, signedIn, shared, ownerRow, body, spaceFor, webOrigin,
-  recordsResponse, blobResponse, calendarResponse }) {
+  recordsResponse, blobResponse, calendarResponse, checkedPolicy }) {
   const { db, now } = deps;
   const fail = (c, status = 404, error = 'feed_unavailable') => c.json({ error }, status);
   const published = row => row && ['invited', 'active'].includes(row.status) && row.policy
@@ -57,17 +57,56 @@ export function sharingFeeds(app, deps, { owner, signedIn, shared, ownerRow, bod
     });
   }
 
+  // A person can export their own explicitly selected data without a guest identity.
+  app.get('/app/api/feeds', owner, async c => {
+    const who = c.get('web');
+    const feeds = await db.all('SELECT * FROM web_personal_feeds WHERE owner_id = ? ORDER BY created_at, id', who.account);
+    return c.json({ feeds: feeds.map(f => ({ ...summary(f, who), policy: parse(f.policy) })) });
+  });
+  app.post('/app/api/feeds', owner, async c => {
+    const input = await body(c), who = c.get('web');
+    if (!input) return fail(c, 403);
+    const name = typeof input.name === 'string' ? input.name.trim() : '';
+    if (!name || name.length > 100 || /[\u0000-\u001f]/.test(name)) return fail(c, 400, 'Choose a name for this connection.');
+    let policy;
+    try { policy = await checkedPolicy(c, { ...input.policy, allowFeeds: true }); }
+    catch (error) { return fail(c, 400, error.message); }
+    const id = `p_${newId(deps.random)}`, token = newSessionToken(deps.random), hash = await sha256Hex(token);
+    const result = await db.run(`INSERT INTO web_personal_feeds (id, owner_id, creator_sub, name, token_hash, policy, created_at)
+      SELECT ?, ?, ?, ?, ?, ?, ? WHERE (SELECT COUNT(*) FROM web_personal_feeds WHERE owner_id = ? AND revoked_at IS NULL) < 10`,
+      id, who.account, who.sub, name, hash, JSON.stringify(policy), now(), who.account);
+    if (!result.changes) return fail(c, 409, 'Revoke an old connection before creating another.');
+    const feed = await db.first('SELECT * FROM web_personal_feeds WHERE id = ?', id);
+    const url = new URL(baseURL(id)); url.searchParams.set('signature', await urlSignature(feed));
+    return c.json({ ...summary(feed, who), url: url.href, token }, 201);
+  });
+  app.post('/app/api/feeds/:feed/revoke', owner, async c => {
+    if (!await body(c)) return fail(c, 403);
+    const result = await db.run('UPDATE web_personal_feeds SET revoked_at = ? WHERE id = ? AND owner_id = ?',
+      now(), c.req.param('feed'), c.get('web').account);
+    return result.changes ? c.json({ revoked: true }) : fail(c);
+  });
+
   async function grant(id) {
-    if (!/^[A-Za-z0-9_-]{22}$/.test(id ?? '')) return null;
-    const feed = await db.first('SELECT * FROM web_share_feeds WHERE id = ? AND revoked_at IS NULL', id);
+    if (!/^(?:p_)?[A-Za-z0-9_-]{22}$/.test(id ?? '')) return null;
+    const personal = id.length === 24;
+    const table = personal ? 'web_personal_feeds' : 'web_share_feeds';
+    const feed = await db.first(`SELECT * FROM ${table} WHERE id = ? AND revoked_at IS NULL`, id);
     if (!feed) return null;
+    if (personal) {
+      let policy;
+      try { policy = normalizePolicy(parse(feed.policy)); } catch { return null; }
+      if (!policy.allowFeeds || policyExpired(policy, now())) return null;
+      return { feed, policy, personal: true, preview: false, table,
+        row: { id: feed.id, owner_id: feed.owner_id, published_version: null } };
+    }
     const row = await db.first('SELECT * FROM web_shares WHERE id = ?', feed.share_id);
     if (!published(row)) return null;
     let policy;
     try { policy = feedPolicy(normalizePolicy(parse(feed.policy)), normalizePolicy(parse(row.policy))); }
     catch { return null; }
     if (!policy || policyExpired(policy, now())) return null;
-    return { feed, row, policy, preview: false };
+    return { feed, row, policy, preview: false, table };
   }
   async function authenticate(c, next) {
     const value = await grant(c.req.param('feed'));
@@ -79,10 +118,10 @@ export function sharingFeeds(app, deps, { owner, signedIn, shared, ownerRow, bod
       valid = Boolean(token && constantTimeEqual(await sha256Hex(token), value.feed.token_hash));
     } else if (signature) valid = constantTimeEqual(signature, await urlSignature(value.feed));
     if (!valid) { c.header('WWW-Authenticate', 'Bearer realm="Banana share feed"'); return fail(c, 401); }
-    if (!await deps.limit('share', value.row.id)) { c.header('Retry-After', '60'); return fail(c, 429, 'rate'); }
+    if (!await deps.limit('share', value.personal ? `personal:${value.row.owner_id}` : value.row.id)) { c.header('Retry-After', '60'); return fail(c, 429, 'rate'); }
     c.set('feed', value.feed); c.set('share', value);
     if (!authorization) c.set('feedSignature', signature);
-    await db.run('UPDATE web_share_feeds SET last_used_at = ? WHERE id = ? AND revoked_at IS NULL', now(), value.feed.id);
+    await db.run(`UPDATE ${value.table} SET last_used_at = ? WHERE id = ? AND revoked_at IS NULL`, now(), value.feed.id);
     return next();
   }
   const privateResponse = async (c, next) => {
@@ -101,7 +140,7 @@ export function sharingFeeds(app, deps, { owner, signedIn, shared, ownerRow, bod
     const { row, policy } = c.get('share');
     const state = await spaceFor(row.owner_id).webStatus([...allowedTypes(policy)]);
     const types = [...allowedTypes(policy)].filter(t => CATALOG.get(t)?.tier !== 'T2' || state.consents.health);
-    return c.json({ schema: 'banana.share-feed.v1', generatedAt: new Date(now()).toISOString(), expiresOn: policy.expiresOn ?? null,
+    return c.json({ schema: 'banana.share-feed.v1', scope: c.get('share').personal ? 'personal' : 'share', generatedAt: new Date(now()).toISOString(), expiresOn: policy.expiresOn ?? null,
       contentVersion: await contentVersion(state, types), shareVersion: row.published_version, grantVersion: c.get('feed').issued_version,
       types: types.map(type => ({ type, json: endpoint(c, '/records.json', { type }), csv: endpoint(c, '/records.csv', { type }) })),
       calendar: policy.calendars.length ? { json: endpoint(c, '/calendar.json'), csv: endpoint(c, '/calendar.csv'), requires: ['from', 'to'] } : null });
@@ -181,7 +220,7 @@ export function sharingFeeds(app, deps, { owner, signedIn, shared, ownerRow, bod
       || !allowedTypes(value.policy).has(type) || !id || id.length > 200 || !field || field.length > 200) return fail(c);
     const expected = await hmacHex(deps.config.tokenKey, JSON.stringify(['share-feed-blob-v1', value.feed.id, type, id, field, expires]));
     if (!constantTimeEqual(sig, expected)) return fail(c, 401);
-    if (!await deps.limit('share', value.row.id)) { c.header('Retry-After', '60'); return fail(c, 429, 'rate'); }
+    if (!await deps.limit('share', value.personal ? `personal:${value.row.owner_id}` : value.row.id)) { c.header('Retry-After', '60'); return fail(c, 429, 'rate'); }
     c.set('share', value);
     return blobResponse(c);
   });

@@ -6,11 +6,16 @@ const typeName = type => ({ 'food.meal': 'Meals', 'food.mealPhoto': 'Meal photos
   'podcast.show': 'Podcasts', 'podcast.listen': 'Listening history', 'podcast.progress': 'Listening progress', 'podcast.transcript': 'Transcripts',
   calendar: 'Calendar', 'notes.voiceNote': 'Voice notes' })[type] ?? type;
 
+const scopeName = policy => [
+  ...Object.entries(policy.sections).filter(([, on]) => on).map(([key]) => ({ personalPlan: 'Routines & reminders', workouts: 'Workouts', health: 'Health trends', nutrition: 'Food', taken: 'Taken', notes: 'Notes', listening: 'Listening' })[key]),
+  ...(policy.calendars.length ? [`${policy.calendars.length} calendar${policy.calendars.length === 1 ? '' : 's'}`] : []),
+].join(' · ');
+
 export function shareFeedControls({ request, escape: esc, notice }) {
   const secrets = new Map(), states = new Map(); let generation = 0, credentialEpoch = 0;
   const json = async (path, method = 'GET', data) => (await request(path, { method,
     ...(data == null ? {} : { headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) }) })).json();
-  async function mount(element, base) {
+  async function mount(element, base, { policy } = {}) {
     if (!element) return;
     const ticket = ++generation, epoch = credentialEpoch;
     const state = states.get(base) ?? { busy: false, feeds: [], selectedType: '', name: '' };
@@ -34,7 +39,7 @@ export function shareFeedControls({ request, escape: esc, notice }) {
           <button class="text-button" data-feed-copy="token" ${busy ? 'disabled' : ''}>Copy API token</button></div>
           <p class="subtle">JSON uses next-page URLs; CSV uses the Link response header. Image links expire within an hour.</p></div>` : ''}
         ${feeds.length ? `<div class="feed-connections">${feeds.map(f => `<div class="share-invitation"><div><strong>${esc(f.name)}</strong>
-          <span class="share-status">${f.revokedAt != null ? 'Revoked' : f.expiresOn ? `Expires ${esc(f.expiresOn)}` : 'Active'}${f.createdByYou ? ' · Created by you' : ''}</span></div>
+          ${f.policy ? `<p>${esc(scopeName(f.policy))}</p>` : ''}<span class="share-status">${f.revokedAt != null ? 'Revoked' : f.expiresOn ? `Expires ${esc(f.expiresOn)}` : 'Active'}${f.createdByYou ? ' · Created by you' : ''}</span></div>
           ${f.revokedAt == null ? `<button class="text-button" data-feed-revoke="${esc(f.id)}" ${busy ? 'disabled' : ''}>Revoke</button>` : ''}</div>`).join('')}</div>` : ''}`;
     }
     state.redraw = draw;
@@ -49,7 +54,7 @@ export function shareFeedControls({ request, escape: esc, notice }) {
       const name = new FormData(event.target).get('feed-name');
       state.busy = true; draw();
       try {
-        const created = await json(base, 'POST', { name });
+        const created = await json(base, 'POST', { name, ...(policy ? { policy: policy() } : {}) });
         if (epoch !== credentialEpoch) return;
         // Preserve the one-time result even if navigation removes this view during the request.
         secrets.set(base, created);
