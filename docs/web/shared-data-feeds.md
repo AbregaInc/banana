@@ -1,8 +1,8 @@
 # Shared data feeds
 
 A share can explicitly allow its owner and verified recipient to create independent read-only
-connections. In Sharing, enable **Allow external data feeds**, preview the guest view and save
-access. Create a named connection in the same screen. A recipient opens **Data feeds** in the
+connections. In Sharing, enable **Allow external data feeds**, choose **Review and save access**, then
+confirm **Save access** in the guest preview. Create a named connection in the same screen. A recipient opens **Data feeds** in the
 shared-view banner. Copy the JSON/CSV URL or API token when creating the connection; secrets
 are shown once, kept only in page memory and cleared on sign-out. Neither creating a share nor
 editing an unpublished draft enables feeds by default.
@@ -11,6 +11,25 @@ The owner can list and revoke every connection on that share. The recipient can 
 only connections they created. Removing guest access or disabling feeds blocks requests and
 image downloads immediately. Disabling feeds permanently revokes existing connections; enabling
 it again does not restore old keys. Already downloaded copies cannot be recalled.
+
+## Personal feeds
+
+In Sharing, open **Your data feeds**, select the calendars and sections, optionally set an
+expiration date, name the connection and choose **Create private feed**. No guest, share or
+invitation is created. The same JSON, CSV and expiring image links work for a personal feed.
+Each connection has fixed permissions; changing the selection prepares the next connection,
+not an expansion of an existing credential. Revoke and recreate a connection to change its scope.
+Health and transcript consent still apply on every request. The owner alone can list or revoke
+these connections; signing out clears the one-time credentials from the browser.
+
+Personal management uses `GET/POST /app/api/feeds` and `POST /app/api/feeds/<feed-id>/revoke`
+with an owner browser session and same-origin mutations. Signed feed URLs and bearer credentials
+remain independent of browser/native sessions. The manifest has `scope: personal` and a null
+`shareVersion`; the existing schema, paging and field/unit rules below still apply.
+
+Existing shares may retain or narrow a previously published calendar permission when the
+provider temporarily cannot list it. New calendar grants and wider permissions still require
+current availability. Unavailable selections remain visible and removable in the editor.
 
 ## Importing into another system
 

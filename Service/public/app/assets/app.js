@@ -435,7 +435,16 @@ function updateAccount() {
   $('#sync-time').textContent=account.lastSync?`Last device sync: ${date(account.lastSync)} ${time(account.lastSync)}`:'Waiting for a device sync';
   $('#sync-source-label').textContent=account.shared?'Shared with you':'From your devices';
   $('#share-banner').hidden=!account.shared;
-  if(account.shared)$('#share-banner').innerHTML=account.preview?`<p><strong>Guest preview</strong> · What ${escape(account.audience)} ${account.publishedPreview?'can currently access':'will see with these draft permissions'}. No invitation is sent from this preview.</p><a class="button secondary" href="${escape(account.previewBack)}">Back to invitation ↗</a>`:`<p>Shared by <strong>${escape(account.ownerName)}</strong> · Read only${account.expiresOn?` · Access through ${escape(account.expiresOn)} (UTC)`:""}</p><a class="text-button" href="${appHome}">Other shared views ↗</a>`;
+  if(account.shared)$('#share-banner').innerHTML=account.preview?`<p><strong>Guest preview</strong> · What ${escape(account.audience)} ${account.publishedPreview?'can currently access':'will see with these draft permissions'}. No invitation is sent from this preview.</p>${account.canPublish ? '<button class="button" id="share-save-access">Save access</button>' : ''}<a class="button secondary" href="${escape(account.previewBack)}">${account.publishedPreview ? 'Back to sharing' : 'Back to edit'} ↗</a>`:`<p>Shared by <strong>${escape(account.ownerName)}</strong> · Read only${account.expiresOn?` · Access through ${escape(account.expiresOn)} (UTC)`:""}</p><a class="text-button" href="${appHome}">Other shared views ↗</a>`;
+  const saveAccess = $('#share-save-access');
+  if(saveAccess) saveAccess.onclick = async () => {
+    saveAccess.disabled = true;
+    try {
+      await request(`/app/api/shares/${sharedContext.id}/publish`, { method: 'POST',
+        headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ version: account.shareVersion }) });
+      location.assign(account.previewBack);
+    } catch(error) { saveAccess.disabled = false; showNotice(error.message, true); }
+  };
   if(account.shared && account.dataFeedsAllowed){
     const disclosure=document.createElement('details');disclosure.id='received-feed-disclosure';
     const summary=document.createElement('summary');summary.textContent='Data feeds';disclosure.append(summary);

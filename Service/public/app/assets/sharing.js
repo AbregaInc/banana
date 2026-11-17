@@ -30,7 +30,11 @@ export function sharingControls({ request, escape: esc, notice, rerender }) {
     for (const button of document.querySelectorAll('[data-share-bulk],[data-share-body],[data-share-revoke],[data-share-action="new"]')) button.disabled = busy;
     const preview = document.querySelector('[data-share-action="preview"]');
     if (preview) preview.disabled = busy || !validEmail() || !hasData();
-    for (const button of document.querySelectorAll('[data-share-publish]')) button.disabled = busy || dirty || !draft.previewed || !emailEnabled && button.dataset.sharePublish === 'send';
+    for (const button of document.querySelectorAll('[data-share-publish]')) {
+      const save = button.dataset.sharePublish === 'publish';
+      button.disabled = busy || (save ? !validEmail() || !hasData() : dirty || !draft.previewed || !emailEnabled);
+      if (save) button.textContent = dirty || !draft.previewed ? 'Review and save access ↗' : 'Save access';
+    }
     const summary = document.querySelector('#share-scope-summary');
     if (summary) {
       const full = draft.policy.calendars.filter(c => c.access === 'details').length, privateBusy = draft.policy.calendars.filter(c => c.access === 'busy').length;
@@ -39,6 +43,7 @@ export function sharingControls({ request, escape: esc, notice, rerender }) {
     }
   }
   async function render(id = '') {
+    const personal = id === 'personal';
     const [data, calendars, session] = await Promise.all([json('/app/api/shares'), json('/app/api/calendars'), json('/app/api/session')]);
     list = data.shares; emailEnabled = data.emailEnabled; accounts = calendars.accounts; received = session.shares;
     if (!draft || selected !== id) {
@@ -57,28 +62,39 @@ export function sharingControls({ request, escape: esc, notice, rerender }) {
       ${a.calendars.map(c => `<label class="share-calendar"><span>${esc(c.title)}</span><select data-share-calendar="${esc(c.id)}" data-share-sub="${esc(a.sub)}" aria-label="${esc(c.title)} access">
         ${[['none', 'Not shared'], ['busy', 'Busy only'], ['details', 'Full details']].map(([value, label]) => `<option value="${value}" ${picked(a.sub, c.id) === value ? 'selected' : ''}>${label}</option>`).join('')}</select></label>`).join('')}
       </fieldset>`).join('');
+    const available = new Set(accounts.flatMap(a => a.calendars.map(c => key(a.sub, c.id))));
+    const unavailable = draft.policy.calendars.filter(c => !available.has(key(c.sub, c.id)));
+    const unavailableHTML = unavailable.length ? `<fieldset class="share-account"><legend>Unavailable calendars</legend>
+      ${unavailable.map(c => {
+        const account = accounts.find(a => a.sub === c.sub);
+        const reason = !account ? 'Account no longer connected' : account.error === 'reconnect' ? 'Account needs reconnecting' : account.error ? 'Calendar list could not be read' : 'Calendar is no longer listed';
+        return `<label class="share-calendar"><span>${esc(c.id)}<small>${esc(account?.email || '')} · ${reason}</small></span>
+          <select data-share-calendar="${esc(c.id)}" data-share-sub="${esc(c.sub)}" aria-label="${esc(c.id)} unavailable calendar access">
+            <option value="${c.access}" selected>Keep ${c.access === 'busy' ? 'busy only' : 'full details'}</option>
+            <option value="none">Not shared</option></select></label>`;
+      }).join('')}</fieldset>` : '';
     const current = list.filter(s => s.status !== 'revoked');
     const showEditor = Boolean(id) || current.length === 0;
     const expiry = s => { const date = (s.policy || s.draftPolicy)?.expiresOn; return date ? `${Date.now() >= Date.parse(date) + 86400000 ? 'Expired' : 'Access through'} ${date} (UTC)` : 'No expiration date'; };
     const entries = current.map(s => `<article class="share-invitation"><div><h3>${esc(s.guestName || s.email)}</h3>${s.guestName ? `<p>${esc(s.email)}</p>` : ''}<span class="share-status">${s.status === 'draft' ? 'Draft · not sent' : s.sendStatus === 'failed' ? 'Email failed · permissions saved' : s.status === 'active' ? 'Connected' : 'Invited'}</span><p>${esc(expiry(s))}</p></div><div class="share-row-actions">${s.policy ? `<a class="text-button" href="/share/${s.id}?preview=published">Preview access ↗</a>` : ''}<a class="text-button" href="#sharing/${s.id}">${s.status === 'draft' ? 'Continue draft' : 'Edit access'}</a>${s.policy ? `<button class="text-button" data-share-revoke="${s.id}">Remove access</button>` : ''}</div></article>`).join('');
     const body = ['workouts', 'health', 'nutrition', 'taken'];
-    return `<div class="sharing-intro"><p>Invite someone to a read-only view of the parts of Banana you choose. They sign in with their own Google account.</p><button class="text-button" data-share-action="new">Add new guest</button></div>
-      ${showEditor ? `<section class="share-editor" aria-labelledby="share-editor-title"><div class="section-title"><h2 id="share-editor-title">${draft.publishedVersion ? 'Edit guest access' : 'Invite a guest'}</h2><span class="share-status">${draft.publishedVersion ? 'Changes stay private until you publish them' : 'Nothing has been sent'}</span></div>
-      <label class="share-email">Google sign-in email<input type="email" id="share-email" autocomplete="email" placeholder="trainer@example.com" value="${esc(draft.email)}" ${draft.publishedVersion ? 'disabled' : ''}><small>Use the email they sign in to Google with. The link alone does not grant access.</small></label>
+    return `<div class="sharing-intro">${personal ? '' : '<p>Invite someone to a read-only view of the parts of Banana you choose. They sign in with their own Google account.</p>'}<div class="share-actions"><a class="text-button" href="#sharing/personal">Your data feeds</a><button class="text-button" data-share-action="new">Add new guest</button></div></div>
+      ${showEditor ? `<section class="share-editor" aria-labelledby="share-editor-title"><div class="section-title"><h2 id="share-editor-title">${personal ? 'New personal feed' : draft.publishedVersion ? 'Edit guest access' : 'Invite a guest'}</h2><span class="share-status">${personal ? 'Read-only connections to your selected data' : draft.publishedVersion ? 'Changes stay private until you publish them' : 'Nothing has been sent'}</span></div>
+      ${!personal ? `<label class="share-email">Google sign-in email<input type="email" id="share-email" autocomplete="email" placeholder="trainer@example.com" value="${esc(draft.email)}" ${draft.publishedVersion ? 'disabled' : ''}><small>Use the email they sign in to Google with. The link alone does not grant access.</small></label>` : ''}
       <label class="share-email">Access expiration date<input type="date" id="share-expiry" value="${esc(draft.policy.expiresOn || '')}" min="${new Date().toISOString().slice(0,10)}"><small>Optional. Access ends after this date at midnight UTC. Leave blank for no expiration.</small></label>
-      <label class="share-section"><input type="checkbox" id="share-allow-feeds" ${draft.policy.allowFeeds ? 'checked' : ''}><span><strong>Allow external data feeds</strong></span></label>
+      ${!personal ? `<label class="share-section"><input type="checkbox" id="share-allow-feeds" ${draft.policy.allowFeeds ? 'checked' : ''}><span><strong>Allow external data feeds</strong></span></label>` : ''}
       <h3>Calendars</h3><p class="subtle">Full details includes titles, notes, locations and meeting links. Busy only shares occupied time. New calendars are not shared automatically.</p>
-      ${calendarHTML || '<p class="subtle">Connect Google Calendar in Banana to choose calendars here.</p>'}
+      ${calendarHTML || '<p class="subtle">Connect Google Calendar in Banana to choose calendars here.</p>'}${unavailableHTML}
       <div class="share-extra">${checkbox('personalPlan')}</div>
       <div class="share-section-heading"><h3>Body</h3><div><button class="text-button" data-share-body="all">Select all</button><button class="text-button" data-share-body="none">Clear</button></div></div>
       <div class="share-sections">${body.map(checkbox).join('')}</div>
       <h3>Other parts of Banana</h3><div class="share-sections">${['notes', 'listening'].map(checkbox).join('')}</div>
-      <div class="share-review"><h3>This guest will see</h3><p id="share-scope-summary"></p><p class="subtle">Preview the complete guest view first. Changing any permission requires a new preview.</p>
+      <div class="share-review"><h3>${personal ? 'This connection can read' : 'This guest will see'}</h3><p id="share-scope-summary"></p>${!personal ? `<p class="subtle">Preview the complete guest view first. Changing any permission requires a new preview.</p>
       <div class="share-actions"><button class="button" data-share-action="preview" ${busy || !validEmail() || !hasData() ? 'disabled' : ''}>Preview as guest ↗</button>
-      ${draft.publishedVersion ? `<button class="button secondary" data-share-publish="publish" ${dirty || !draft.previewed || busy ? 'disabled' : ''}>Save access</button>` : ''}
+      ${draft.publishedVersion ? `<button class="button secondary" data-share-publish="publish" ${busy || !validEmail() || !hasData() ? 'disabled' : ''}>${dirty || !draft.previewed ? 'Review and save access ↗' : 'Save access'}</button>` : ''}
       <button class="button secondary" data-share-publish="send" ${dirty || !draft.previewed || busy || !emailEnabled ? 'disabled' : ''}>${draft.publishedVersion ? 'Send invitation again' : 'Send invitation'}</button></div>
-      ${!emailEnabled ? '<p class="notice">Email delivery is not configured. You can prepare and preview a draft.</p>' : ''}</div></section>` : ''}
-      ${showEditor && list.find(s => s.id === draft.id)?.policy?.allowFeeds ? '<section id="share-feed-controls"></section>' : ''}
+      ${!emailEnabled ? '<p class="notice">Email delivery is not configured. You can prepare and preview a draft.</p>' : ''}` : '<section id="share-feed-controls"></section>'}</div></section>` : ''}
+      ${!personal && showEditor && list.find(s => s.id === draft.id)?.policy?.allowFeeds ? '<section id="share-feed-controls"></section>' : ''}
       <section><div class="section-title"><h2>Your guests</h2></div>${entries || '<p class="subtle">No guests yet. Add a guest and preview their access above.</p>'}</section>
       ${received.length ? `<section><div class="section-title"><h2>Shared with you</h2></div>${received.map(s => `<a class="record" href="/share/${s.id}"><strong>${esc(s.owner)}</strong><span>Open shared view ↗</span></a>`).join('')}</section>` : ''}`;
   }
@@ -117,7 +133,7 @@ export function sharingControls({ request, escape: esc, notice, rerender }) {
         await json(`/app/api/shares/${button.dataset.shareRevoke}/revoke`, 'POST', {});
         if (draft?.id === button.dataset.shareRevoke) { draft = null; selected = ''; }
         notice('Access removed. The guest can no longer open this shared view.');
-      } else if (button.dataset.shareAction === 'preview') {
+      } else if (button.dataset.shareAction === 'preview' || button.dataset.sharePublish === 'publish' && (dirty || !draft.previewed)) {
         const saved = await json(draft.id ? `/app/api/shares/${draft.id}/draft` : '/app/api/shares', draft.id ? 'PUT' : 'POST',
           { email: draft.email, policy: draft.policy, ...(draft.id ? { version: draft.version } : {}) });
         draft = { ...saved, policy: saved.draftPolicy }; selected = saved.id; dirty = false;
@@ -133,6 +149,7 @@ export function sharingControls({ request, escape: esc, notice, rerender }) {
     finally { busy = false; if (!navigating) await rerender(); }
     return true;
   }
-  return { render, change, click, mounted: () => { buttons(); if (draft?.id) feeds.mount(document.querySelector('#share-feed-controls'), `/app/api/shares/${draft.id}/feeds`); }, isDirty: () => dirty,
+  return { render, change, click, mounted: () => { buttons(); if (selected === 'personal') feeds.mount(document.querySelector('#share-feed-controls'), '/app/api/feeds', { policy: () => structuredClone(draft.policy) });
+      else if (draft?.id) feeds.mount(document.querySelector('#share-feed-controls'), `/app/api/shares/${draft.id}/feeds`); }, isDirty: () => selected !== 'personal' && dirty,
     clear() { feeds.clear(); draft = null; selected = ''; dirty = false; } };
 }
