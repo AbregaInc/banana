@@ -1,5 +1,5 @@
 /** Small bounded serializer, not a CSV parser. Arrays remain JSON; scalar fields are columns. */
-export function feedCSV(records) {
+export function feedCSV(records, { typed = records.some(r => r.type != null) } = {}) {
   function flatten(value, prefix = '', result = Object.create(null), depth = 0) {
     for (const [key, item] of Object.entries(value ?? {})) {
       const name = prefix ? `${prefix}.${key}` : key;
@@ -11,9 +11,9 @@ export function feedCSV(records) {
     }
     return result;
   }
-  const rows = records.map(r => ({ id: r.id, ...Object.fromEntries(Object.entries(flatten(r.data)).map(([k, v]) => [`data.${k}`, v])),
+  const rows = records.map(r => ({ ...(typed ? { type: r.type } : {}), id: r.id, ...Object.fromEntries(Object.entries(flatten(r.data)).map(([k, v]) => [`data.${k}`, v])),
     assets: r.assets ?? [] }));
-  const headers = ['id', ...[...new Set(rows.flatMap(r => Object.keys(r)))].filter(k => k !== 'id').sort()];
+  const headers = [...(typed ? ['type'] : []), 'id', ...[...new Set(rows.flatMap(r => Object.keys(r)))].filter(k => k !== 'id' && k !== 'type').sort()];
   if (headers.length > 1024) throw new Error('csv_too_wide');
   const cell = v => {
     let text = v == null ? '' : typeof v === 'object' ? JSON.stringify(v) : String(v);

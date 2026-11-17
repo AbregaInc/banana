@@ -137,6 +137,8 @@ test('feeds: old credentials never inherit broader sharing and disabling permane
   let version = await publish(p, d.version);
   const manifest = await (await f.s.app.request(feed.url)).json();
   assert.equal(manifest.types.some(t => t.type === 'food.dose'), false);
+  const listed = await (await f.call('GET', `/app/api/shares/${d.id}/feeds`)).json();
+  assert.deepEqual(listed.feeds[0].access.sections, ['nutrition']);
   p.allowFeeds = false; version = await publish(p, version);
   assert.equal((await f.s.app.request(feed.url)).status, 404);
   p.allowFeeds = true; await publish(p, version);
@@ -564,4 +566,108 @@ test('sharing: unavailable published calendars can be retained or reduced during
   const fresh = await f.draft(policy('nutrition'));
   await f.preview(fresh);
   assert.equal((await (await f.call('GET', view(fresh.id, 'account', fresh.version))).json()).canPublish, false);
+});
+
+test('unified feed: one URL combines only shared types with bounded JSON/CSV pages and working images', async () => {
+  const f = await fixture(), p = policy('nutrition'); p.allowFeeds = true;
+  const photo = await f.blob('food.mealPhoto', 'shared-photo', 'jpg');
+  await f.put('food.mealPhoto', 'photo', { v: photo });
+  await f.put('food.meal', 'meal-a', { name: 'Lunch', photoIDs: ['photo'] });
+  await f.put('food.meal', 'meal-b', { name: 'Dinner' });
+  await f.put('food.myFood', 'saved', { name: 'Rice' });
+  await f.put('notes.voiceNote', 'private-note', { transcript: 'PRIVATE NOTE' });
+  await f.put('food.supplement', 'private-dose', { name: 'PRIVATE DOSE' });
+  const d = await f.draft(p); await f.send(d);
+  const guest = await f.login('trainer', d.id); assert.ok(guest.cookie);
+  const feed = await (await f.call('POST', `/app/api/shared/${d.id}/feeds`, { name: 'Coach' }, guest.cookie)).json();
+  assert.equal(new URL(feed.dataURL).pathname, new URL(feed.url).pathname);
+  assert.equal((await (await f.s.app.request(feed.manifestURL)).json()).access.sections.includes('nutrition'), true);
+  const url = new URL(feed.dataURL); url.searchParams.set('limit', '1');
+  let next = url.href, rows = [], pages = 0, image;
+  while (next) {
+    const response = await f.s.app.request(next); assert.equal(response.status, 200, await response.clone().text());
+    const page = await response.json(); assert.equal(page.schema, 'banana.feed.v2');
+    assert.ok(page.records.length <= 1); assert.deepEqual(page.access.sections, ['nutrition']);
+    rows.push(...page.records); image ??= page.records.find(r => r.type === 'food.meal' && r.assets.length)?.assets[0].url;
+    next = page.next; assert.ok(++pages < 12);
+  }
+  assert.deepEqual(rows.map(r => r.type+':'+r.id).sort(), ['food.meal:meal-a','food.meal:meal-b','food.mealPhoto:photo','food.myFood:saved'].sort());
+  assert.equal(await (await f.s.app.request(image)).text(), 'shared-photo');
+  const csv = new URL(feed.dataURL); csv.searchParams.set('types', 'food.meal,food.myFood'); csv.searchParams.set('format', 'csv');
+  const text = await (await f.s.app.request(csv)).text(); assert.match(text, /^"type","id"/); assert.match(text, /Rice/); assert.match(text, /Lunch/); assert.doesNotMatch(text, /PRIVATE/);
+  for (const type of ['notes.voiceNote','food.supplement','food.meal,notes.voiceNote','calendar']) {
+    const bad = new URL(feed.dataURL); bad.searchParams.set('types', type);
+    assert.equal((await f.s.app.request(bad)).status, 403);
+  }
+  const bad = new URL(feed.dataURL); bad.searchParams.set('owner', 'another-account');
+  assert.equal((await f.s.app.request(bad)).status, 400);
+  const bearer = new URL(feed.dataURL); bearer.searchParams.delete('signature'); bearer.searchParams.set('limit', '1');
+  const first = await (await f.s.app.request(bearer, { headers: { Authorization: `Bearer ${feed.token}` } })).json();
+  assert.equal(new URL(first.next).searchParams.has('signature'), false);
+  assert.equal((await f.s.app.request(first.next)).status, 401);
+  assert.equal((await f.s.app.request(first.next, { headers: { Authorization: `Bearer ${feed.token}` } })).status, 200);
+  await f.call('POST', `/app/api/shared/${d.id}/feeds/${feed.id}/revoke`, {}, guest.cookie);
+  assert.equal((await f.s.app.request(feed.dataURL)).status, 404);
+  assert.equal((await f.s.app.request(image)).status, 404);
+});
+
+test('unified feed: narrowed and withdrawn access is rechecked for queries, pages and image links', async () => {
+  const f = await fixture(), p = policy('nutrition', 'notes'); p.allowFeeds = true;
+  await f.put('food.meal', 'a', { name: 'Lunch' }); await f.put('food.meal', 'b', { name: 'Dinner' });
+  await f.put('notes.voiceNote', 'a', { transcript: 'Shared then removed' });
+  const d = await f.draft(p); await f.send(d);
+  const feed = await (await f.call('POST', `/app/api/shares/${d.id}/feeds`, { name: 'Limited' })).json();
+  const one = new URL(feed.dataURL); one.searchParams.set('limit', '1');
+  const first = await (await f.s.app.request(one)).json(); assert.ok(first.next);
+  const other = await (await f.call('POST', `/app/api/shares/${d.id}/feeds`, { name: 'Other' })).json();
+  const replay = new URL(first.next); replay.pathname = new URL(other.url).pathname; replay.searchParams.set('signature', new URL(other.url).searchParams.get('signature'));
+  assert.equal((await f.s.app.request(replay)).status, 409);
+  const changed = new URL(first.next); changed.searchParams.set('format', 'csv');
+  assert.equal((await f.s.app.request(changed)).status, 409);
+  const forged = new URL(first.next); forged.searchParams.set('cursor', forged.searchParams.get('cursor').slice(0,-1)+'!');
+  assert.equal((await f.s.app.request(forged)).status, 400);
+  p.sections.notes = false;
+  const edited = await (await f.call('PUT', `/app/api/shares/${d.id}/draft`, { email: d.email, version: d.version, policy: p })).json();
+  await f.preview(edited); await f.call('POST', `/app/api/shares/${d.id}/publish`, { version: edited.version });
+  const current = await (await f.s.app.request(feed.dataURL)).json();
+  assert.ok(current.records.every(r => r.type !== 'notes.voiceNote'));
+  assert.equal((await f.s.app.request(first.next)).status, 403);
+  const listed = await (await f.call('GET', `/app/api/shares/${d.id}/feeds`)).json();
+  assert.ok(listed.feeds.every(item => !item.access.sections.includes('notes')));
+  const privateQuery = new URL(feed.dataURL); privateQuery.searchParams.set('types', 'notes.voiceNote');
+  assert.equal((await f.s.app.request(privateQuery)).status, 403);
+  await f.space.withdrawConsent('health');
+  const withdrawn = await (await f.s.app.request(feed.dataURL)).json(); assert.deepEqual(withdrawn.records, []);
+});
+
+test('unified feed: rolling calendar pages freeze their window, redact busy details and reject calendar changes', async () => {
+  const f = await fixture(), p = policy('nutrition'); p.allowFeeds = true;
+  p.calendars = [{ sub: 'owner-sub', id: 'calendar-1', access: 'busy' }];
+  const events = [1,2,3].map(i => ({ id: 'private-'+i, summary: 'PRIVATE TITLE', description: 'PRIVATE NOTES', start: { dateTime: new Date(f.s.now()+i*3600000).toISOString() }, end: { dateTime: new Date(f.s.now()+i*3600000+1800000).toISOString() } }));
+  f.s.google.events.set('calendar-1', events);
+  f.s.google.events.set('calendar-4', [{...events[0], summary:'UNSHARED CALENDAR'}]);
+  const d = await f.draft(p); await f.send(d);
+  const feed = await (await f.call('POST', `/app/api/shares/${d.id}/feeds`, { name: 'Availability' })).json();
+  f.s.advance(12*3600000-60000);
+  const url = new URL(feed.dataURL); url.searchParams.set('types','calendar');url.searchParams.set('limit','1');
+  const first = await (await f.s.app.request(url)).json(); assert.equal(first.records.length,1);assert.ok(first.next);
+  assert.doesNotMatch(JSON.stringify(first), /PRIVATE|UNSHARED|private-/);
+  f.s.advance(120000);
+  const second = await (await f.s.app.request(first.next)).json();
+  assert.deepEqual(second.calendarWindow, first.calendarWindow);assert.notEqual(first.records[0].id, second.records[0].id);
+  const csv = new URL(url); csv.searchParams.set('format','csv');
+  const response = await f.s.app.request(csv);assert.equal(response.status,200);assert.match(response.headers.get('link'), /rel="next"/);
+  assert.doesNotMatch(await response.text(), /PRIVATE|UNSHARED/);
+  f.s.google.events.set('calendar-1', events.slice(1));
+  assert.equal((await f.s.app.request(first.next)).status,409);
+  f.s.google.failList=true;
+  assert.equal((await f.s.app.request(url)).status,503);
+});
+
+test('unified personal feed cannot reach types outside its selected scope', async () => {
+  const f = await fixture(); await f.put('food.meal','one',{name:'Lunch'});await f.put('notes.voiceNote','secret',{transcript:'PRIVATE'});
+  const feed = await (await f.call('POST','/app/api/feeds',{name:'My export',policy:policy('nutrition')})).json();
+  const data = await (await f.s.app.request(feed.dataURL)).json();assert.equal(data.scope,'personal');assert.equal(data.records.length,1);
+  const widened = new URL(feed.dataURL);widened.searchParams.set('types','notes.voiceNote');
+  assert.equal((await f.s.app.request(widened)).status,403);
 });

@@ -3,8 +3,8 @@
 A share can explicitly allow its owner and verified recipient to create independent read-only
 connections. In Sharing, enable **Allow external data feeds**, choose **Review and save access**, then
 confirm **Save access** in the guest preview. Create a named connection in the same screen. A recipient opens **Data feeds** in the shared view’s navigation. The page contains connection
-creation, export URLs and revocation. Guest previews show the same page with creation disabled;
-they never issue credentials as the recipient. Copy the JSON/CSV URL or API token when creating the connection; secrets
+creation, one configurable feed URL and revocation. Guest previews show the same page with creation disabled;
+they never issue credentials as the recipient. Choose included data types and JSON or CSV, then copy the feed URL when creating the connection; secrets
 are shown once, kept only in page memory and cleared on sign-out. Neither creating a share nor
 editing an unpublished draft enables feeds by default.
 
@@ -32,30 +32,55 @@ Existing shares may retain or narrow a previously published calendar permission 
 provider temporarily cannot list it. New calendar grants and wider permissions still require
 current availability. Unavailable selections remain visible and removable in the editor.
 
-## Importing into another system
+## One URL, filtered within the shared access
 
-Use JSON for a recurring import. The creation response contains a signed manifest `url` and a
-separate `token`. A signed URL works without cookies. A server integration can instead remove
-the signature query parameter and send `Authorization: Bearer <feed-token>` to that feed's
-endpoints. Do not send a feed token to native sync APIs or use a native account session here.
+A connection has one stable endpoint. Select multiple **Included data types**, choose JSON or CSV,
+and use **Copy feed URL**. The screen shows the effective shared sections and full/busy-only
+calendar access. Types not in that grant are not offered. These query parameters filter an
+existing grant; they never authorize additional data.
 
 ```
-GET /app/feeds/<feed-id>
-GET /app/feeds/<feed-id>/records.json?type=food.meal&limit=25
-GET /app/feeds/<feed-id>/records.csv?type=food.meal&limit=25
-GET /app/feeds/<feed-id>/calendar.json?from=<unix-ms>&to=<unix-ms>
-GET /app/feeds/<feed-id>/calendar.csv?from=<unix-ms>&to=<unix-ms>
-Authorization: Bearer <feed-token>
+GET /app/feeds/<feed-id>?signature=<credential>&types=all&format=json
+GET /app/feeds/<feed-id>?signature=<credential>&types=food.meal,food.myFood&format=csv
+GET /app/feeds/<feed-id>?signature=<credential>&types=calendar,food.meal&format=json&calendarDays=7
 ```
 
-The manifest (`schema: banana.share-feed.v1`) lists only authorized, consented datasets and their
-JSON/CSV endpoints. It also includes `generatedAt`, `expiresOn`, `contentVersion`, `shareVersion`
-and `grantVersion`. Feed credentials never expand to include permissions granted after their
-creation. Create a new connection to grant newly shared datasets. Narrowing current permissions
-always narrows an existing feed, including calendar details becoming busy-only.
+`types=all` means all currently authorized, consented data within the connection's original
+permissions and the current published share. An explicit comma-separated selection may only
+narrow that set. Requests containing an unshared type fail with 403, including mixed authorized
+and unauthorized types. Unknown or repeated parameters fail rather than being silently ignored.
+The current sharing model selects entire sections and specific calendars; selecting Food grants
+its meals, photos and saved foods. It does not offer per-meal selection or a record-date access
+policy. Calendar full-details/busy-only redaction remains part of the server projection.
 
-Record responses contain `type`, `generatedAt`, `records` and `next`. Each record has `id`, `data`
-and `assets`. `data` contains the shared type's synced fields, unwrapping the existing `v` object
+Creation returns `dataURL` for the signed data endpoint and `manifestURL` for metadata. A server
+integration can remove the signature and send `Authorization: Bearer <feed-token>` instead.
+`format` is `json` or `csv`, `limit` defaults to 100 and accepts 1–100. Neither cookies nor native
+account sessions authorize feed reads. Tokens cannot be used on native sync endpoints.
+
+JSON uses `schema: banana.feed.v2`, with a typed `records` stream and a `next` URL. CSV includes
+`type` and `id` columns and carries the next-page URL in the HTTP `Link` header. Follow every page,
+even an empty one, until the continuation is absent. Pages are bounded to 100 returned records
+and 8 MiB. Signed cursors expire within one hour and bind to the connection, selected types,
+format, page size, resolved calendar window and effective permission policy. A changed query or
+policy requires restarting from the original feed URL; a cursor never restores revoked access.
+Native records may change during a pull, so reconcile by type and ID and compare content versions.
+
+For calendars, `calendarDays=1..8` selects a rolling window beginning at the current UTC day;
+the default is seven days. A recurring importer can keep this URL as the days advance. Fixed
+`from` and `to` Unix-millisecond bounds can be used instead, up to eight days with the start within
+366 days of now. Next-page URLs freeze the resolved window. If calendar results change while
+paging, restart after a 409. Unavailable calendars return 503 instead of a partial export.
+
+For compatibility, the legacy `url` creation field and bare endpoint still return the
+`banana.share-feed.v1` manifest. `/records.json?type=...`, `/records.csv?type=...`, and the
+`/calendar.json` and `/calendar.csv` aliases remain supported. New integrations should use the
+single data endpoint above. The manifest lists only authorized, consented datasets, exposes an
+access summary without private account identifiers, and includes generated/expiry times and
+content, share and grant versions.
+
+JSON responses contain `types`, `generatedAt`, `records` and `next`. Each record has `type`, `id`,
+`data` and `assets`. `data` contains the shared type's synced fields, unwrapping the existing `v` object
 where used. Health snapshots are decoded and projected through the same workout/trend filter
 as the guest UI; hidden workouts and unrelated snapshot fields are excluded. Blobs become
 signed URL objects, not storage keys. Meals include photo links in `assets`; photo records also
@@ -69,21 +94,18 @@ request bounds and feed metadata use Unix milliseconds and ISO timestamps respec
 future normalized analysis schema should be separately versioned; consumers must retain the
 record type and handle missing fields rather than infer units from a number.
 
-Follow JSON `next` until null, even after an empty page. CSV pages use the HTTP `Link` header with
-`rel="next"`; a CSV URL is one page, not a complete-download promise. `limit` defaults to 25 and
-accepts 1–100. The underlying scan is bounded to 100 raw records per page; deleted records may
-produce empty pages with a continuation. CSV nested scalar objects become dotted columns;
-arrays remain JSON cells. Columns can vary between pages. Quoting follows RFC 4180, and strings
-that could start spreadsheet formulas are escaped; numeric negative values remain numeric.
-Use JSON for structures with colliding dotted keys or more than 1,024 columns.
+CSV nested scalar objects become dotted columns; arrays remain JSON cells. Columns can vary
+between pages, so retain the type and column names rather than column positions. Quoting follows
+RFC 4180 and untrusted formula-like strings are escaped. Use JSON for colliding dotted keys or
+structures wider than 1,024 columns.
 
 These are live snapshots, not a change stream. Reconcile the complete dataset by record ID,
 including deletions, rather than only appending returned rows. `contentVersion` covers the
 authorized synced datasets; compare the manifest before and after a full import and retry if it
 changed. It does not cover live Google calendar changes. Calendar queries use explicit windows
 of at most eight days, with the start within 366 days of now. Busy-only calendars retain the same
-redaction and busy-time merging as the shared web view. JSON reports unavailable calendars;
-CSV returns 503 rather than silently export a partial schedule.
+redaction and busy-time merging as the shared web view. The unified endpoint returns 503 for unavailable calendars in either format; the legacy JSON
+calendar alias retains its `unavailable` list.
 
 Asset URLs expire within one hour, or earlier when the grant expires. Fetch assets promptly;
 refresh their record page for new URLs. Assets always recheck the current share, feed, record
@@ -96,7 +118,7 @@ image yourself if an authorized import needs a durable copy.
   purpose-separated HMACs. Tokens and signatures are never returned by connection listings.
 - The effective scope is the intersection of the issued and current published share. The
   earliest expiration applies, through the stated UTC date. Consent is checked on every read.
-- At most ten unrevoked connections per share; revoke unused ones. Reads share the existing
+- At most ten unrevoked connections per share or personal owner; revoke unused ones. Reads share the existing
   60 requests/minute share budget, including images. A 429 response includes `Retry-After`.
 - Data responses are private/no-store/no-referrer/noindex. Keep signed URLs out of tickets,
   analytics, logs and public spreadsheets. Prefer bearer headers for server integrations; URL
@@ -104,7 +126,7 @@ image yourself if an authorized import needs a durable copy.
 - Feeds cannot write data, accept invitations, create account sessions or broaden permissions.
   Sharing links still require verified Google sign-in to create a connection. Feed consumers
   need only the independent credential, so revoke it if forwarded beyond the intended system.
-- Apply additive migration `0030_web_share_feeds.sql` before deploying the new service and web
+- Apply additive migrations `0030_web_share_feeds.sql` and `0031_web_personal_feeds.sql` before deploying the new service and web
   assets together. Production deployment follows the existing release approval and preflight.
 
 ## MCP direction

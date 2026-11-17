@@ -211,8 +211,8 @@ export function sharingRoutes(app, deps, { owner, signedIn, calendarChoices, vau
       preferences: { distanceUnit: prefs?.distanceUnit ?? null, ownBundleID: phone?.bundle ?? null }, weekStartWeekday: calendarSettings(smart).weekStartWeekday,
       lastSync: latest?.at ?? null, now: now(), previewBack: preview ? `${home}#sharing/${row.id}` : undefined });
   });
-  async function recordsResponse(c) {
-    const { row, policy } = c.get('share'), type = c.req.query('type'), after = c.req.query('after') ?? '';
+  async function recordsResponse(c, parameters) {
+    const { row, policy } = c.get('share'), type = parameters?.type ?? c.req.query('type'), after = parameters?.after ?? c.req.query('after') ?? '';
     if (!allowedTypes(policy).has(type)) return error(c, 'not_shared', 403);
     if (after.length > 200) return error(c, 'bad_request');
     const result = await spaceFor(row.owner_id).browse(type, after);
@@ -222,8 +222,8 @@ export function sharingRoutes(app, deps, { owner, signedIn, calendarChoices, vau
     return c.json(result);
   }
   app.get('/app/api/shared/:id/records', signedIn, shared, recordsResponse);
-  async function calendarResponse(c) {
-    const { row, policy } = c.get('share'), from = Number(c.req.query('from')), to = Number(c.req.query('to'));
+  async function calendarResponse(c, parameters) {
+    const { row, policy } = c.get('share'), from = Number(parameters?.from ?? c.req.query('from')), to = Number(parameters?.to ?? c.req.query('to'));
     if (!Number.isFinite(from) || !Number.isFinite(to) || from <= 0 || to <= from || to - from > 8 * DAY || Math.abs(from - now()) > 366 * DAY) return error(c, 'bad_request');
     const links = await db.all("SELECT sub, email, refresh_token, scopes, status FROM google_links WHERE account_id = ? AND status <> 'unlinked' ORDER BY created_at, sub", row.owner_id);
     const fetched = [], unavailable = [];
