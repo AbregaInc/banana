@@ -284,7 +284,7 @@ async function agenda(){
 
   const amount=planMode==='week'?7:1;
   const toolbar=`<div class="agenda-toolbar"><div class="period-controls"><button class="text-button" data-plan-day="${dayStep(planDay,-amount)}" aria-label="Previous ${planMode}">←</button><button class="text-button" data-plan-day="${dayKey(Date.now())}">Today</button><button class="text-button" data-plan-day="${dayStep(planDay,amount)}" aria-label="Next ${planMode}">→</button></div><div class="tabs view-switch" aria-label="Plan view">${['day','week'].map(mode=>`<button data-plan-mode="${mode}" aria-pressed="${mode===planMode}">${mode==='day'?'Day':'Week'}</button>`).join('')}</div><label class="date-picker">Date <input type="date" id="plan-day" value="${planDay}" min="${dayStep(dayKey(Date.now()),-365)}" max="${dayStep(dayKey(Date.now()),365)}"></label></div>`;
-  const errors=data.unavailable.length?`<p class="notice">${escape([...new Set(data.unavailable.map(e=>e.email))].join(', '))}: ${data.unavailable.some(e=>e.reason==='reconnect')?'sign in again in Banana on your device to reconnect the calendar.':'some calendars could not be read. Try Refresh.'}</p>`:'';
+  const errors=data.unavailable.length?`<p class="notice">${escape([...new Set(data.unavailable.map(e=>e.email))].join(', '))}: ${data.unavailable.some(e=>e.reason==='reconnect')?account.shared?'Ask the owner to reconnect the calendar in Banana.':'Sign in again in Banana on your device to reconnect the calendar.':'some calendars could not be read. Try Refresh.'}</p>`:'';
   const from=new Date(days[0]+'T00:00:00');
   const title=planMode==='day'?date(+from,{weekday:'long',month:'long',day:'numeric'}):`${date(+from)} – ${date(new Date(days.at(-1)+'T12:00:00'))}`;
   const hours=Array.from({length:24},(_,hour)=>`<span class="clock-label" data-hour="${hour}">${escape(clock(hour,0))}</span>`).join('');
@@ -308,7 +308,7 @@ async function nutrition() {
   const [meals,saved]=await Promise.all(['food.meal','food.myFood'].map(records));
   const window=healthWindow();
   const shown=sortDate(meals.filter(r=>matches(r)&&inPeriod(fields(r).date,window)));viewCount(shown.length,'meals');
-  let html=shown.length?listHTML(shown,mealRow):empty('No meals',query?'No meals match your search.':account.consents.health?'Log a meal in Banana and it will appear here.':'Turn on Sync Health in Banana to share your meals and Health data.');
+  let html=shown.length?listHTML(shown,mealRow):empty('No meals',query?'No meals match your search.':account.shared?(account.consents.health?'No shared meals in this period. Try another date range or ask the owner to sync Banana.':'The owner has not enabled Health sync. Ask them to enable it in Banana.'):(account.consents.health?'Log a meal in Banana and it will appear here.':'Turn on Sync Health in Banana to share your meals and Health data.'));
   if(saved.filter(matches).length)html+=section('Saved foods',listHTML(saved.filter(matches),(r)=>{const f=fields(r);return row(r,f.name||'Saved food',f.servingLabel||'', '',`${num(f.per100g?.calories)} kcal`, 'per 100 g');}));
   const totals=shown.reduce((sum,r)=>{const m=macros(fields(r));for(const k of Object.keys(sum))sum[k]+=m[k];return sum;},{calories:0,proteinGrams:0,carbohydrateGrams:0,fatGrams:0});
   return periodControls()+`<dl class="detail-data">${stat('Logged energy',metric(totals.calories,'kcal'))}${stat('Protein',metric(totals.proteinGrams,'g'))}${stat('Carbohydrates',metric(totals.carbohydrateGrams,'g'))}${stat('Fat',metric(totals.fatGrams,'g'))}</dl>`+html;
@@ -334,7 +334,7 @@ async function workouts(){
   if(pass!==renderId||epoch!==generation)return undefined;
   const window=healthWindow();
   const rows=all.filter(r=>matches(r)&&inPeriod(fields(r).start,window));viewCount(rows.length,'workouts');
-  if(!rows.length)return periodControls()+empty('Your workouts',query?'No workouts match your search.':account.consents.health?'Your recordings and Apple Health history appear here after your iPhone syncs.':'Turn on Sync Health in Banana to see your workouts here.');
+  if(!rows.length)return periodControls()+empty(account.shared?'Shared workouts':'Your workouts',query?'No workouts match your search.':account.shared?(account.consents.health?'No shared workouts in this period. Try another date range or ask the owner to sync Banana.':'The owner has not enabled Health sync. Ask them to enable it in Banana.'):(account.consents.health?'Your recordings and Apple Health history appear here after your iPhone syncs.':'Turn on Sync Health in Banana to see your workouts here.'));
   const total=rows.reduce((n,r)=>n+r.fields.durationSeconds,0),recorded=rows.filter(r=>r.summary).length;
   return periodControls()+(workoutHistoryError?`<p class="notice">Apple Health history could not be loaded. Showing available recordings. ${escape(workoutHistoryError)}</p>`:'')+`<div class="workout-readout"><span><strong>${num(rows.length)}</strong> workouts</span><span><strong>${duration(total)}</strong> active time</span><span><strong>${num(recorded)}</strong> with detailed recordings</span></div>`+listHTML(rows,workoutRow);
 }
@@ -346,9 +346,9 @@ function spark(series, valueKey='value') {
   return `<svg class="spark" viewBox="0 0 300 65" preserveAspectRatio="none" role="img" aria-label="${escape(`${a.length} readings, from ${num(a[0],1)} to ${num(a.at(-1),1)}`)}"><polyline points="${points}"/></svg>`;
 }
 async function health() {
-  if(!account.consents.health)return empty('Health sync is off','Turn on Sync Health in Banana on your iPhone to see your trends here.');
+  if(!account.consents.health)return empty('Health sync is off',account.shared?'The owner has not enabled Health sync. Ask them to enable it in Banana.':'Turn on Sync Health in Banana on your iPhone to see your trends here.');
   const data=await snapshot();
-  if(!data)return empty('Waiting for your iPhone','Your Health snapshot will appear once your iPhone finishes syncing.');
+  if(!data)return empty(account.shared?'Waiting for shared Health data':'Waiting for your iPhone',account.shared?'The owner’s Health snapshot has not synced yet. Ask them to open Banana on their iPhone.':'Your Health snapshot will appear once your iPhone finishes syncing.');
   const window=healthWindow();
   const choices=[...metrics.map(([key,label])=>[key,label]),['nights','Sleep timing & wake-ups'],['variation','Sleep consistency'],...(canView('workouts')?[['workoutLog','Workout log']]:[])];
   const chooser=`<details class="metric-choices"><summary>Choose metrics</summary><div class="metric-options">${choices.map(([key,label])=>`<label><input type="checkbox" data-health-metric="${key}" ${hiddenMetrics.has(key)?'':'checked'}> ${label}</label>`).join('')}</div></details>`;
@@ -382,7 +382,7 @@ async function podcasts() {
   if(podcastTab==='shows')body=listHTML(shown.sort((a,b)=>String(fields(a).title).localeCompare(String(fields(b).title))),r=>{const f=fields(r);return row(r,f.title||'Podcast',f.author||'','','↗');});
   if(podcastTab==='transcripts')body=listHTML(shown,r=>row(r,episodeNames.get(r.id)||'Episode transcript',human(fields(r).source),'','Read ↗'));
   if(podcastTab==='progress')body=listHTML(sortDate(shown,'updatedAt'),r=>{const f=fields(r);return row(r,episodeNames.get(r.id)||'Episode progress',f.completed?'Finished':'In progress',date(f.updatedAt),duration(f.position));});
-  return tabs+(shown.length?body:empty('No listening history',query?'No listening matches your search.':'Your listening will appear after your devices sync.'));
+  return tabs+(shown.length?body:empty('No listening history',query?'No listening matches your search.':account.shared?'Shared listening appears after the owner’s devices sync.':'Your listening will appear after your devices sync.'));
 }
 async function notes() { const pass=renderId,epoch=generation;const data=await records('notes.voiceNote');if(pass!==renderId||epoch!==generation)return undefined;const rows=sortDate(data.filter(matches),'createdAt');viewCount(rows.length,'notes');return rows.length?listHTML(rows,noteRow):empty('No voice notes',query?'No notes match your search.':'Capture a voice note in Banana and find it here, with its transcript.'); }
 const renders={calendars,overview,plans,nutrition,taken,workouts,health,podcasts,notes,sharing:()=>sharing.render(location.hash.split('/')[1]||''),feeds:()=>'<section id="received-feed-controls" aria-label="Connections"></section>'};
@@ -547,7 +547,7 @@ async function showDetail(r) {
     if(f.distanceSplits?.length)html+=`<h3>Distance splits</h3><table class="table"><thead><tr><th>Split</th><th>Details</th></tr></thead><tbody>${f.distanceSplits.map((s,i)=>`<tr><td>${i+1}</td><td>${escape(`${num(s.distanceMeters/1000,2)} km · ${duration(s.duration)}`)}</td></tr>`).join('')}</tbody></table>`;
   }else if(r.type==='notes.voiceNote'){
     html=heading(human(f.kind)||'Voice note',`${date(f.createdAt,{month:'long',day:'numeric',year:'numeric'})} · ${time(f.createdAt)}`)
-      +`<p class="detail-note">${escape(f.transcript||'No transcript yet. Transcription happens on your device.')}</p>`
+      +`<p class="detail-note">${escape(f.transcript||(account.shared?'No shared transcript is available yet. Transcription happens on the owner’s device.':'No transcript yet. Transcription happens on your device.'))}</p>`
       +(f.context?`<p class="body-copy">${escape([f.context.podcastTitle,f.context.episodeTitle].filter(Boolean).join(' · '))}</p>`:'')
       +(f.audio?.$blob?`<audio controls preload="none" src="${escape(blobURL(r,'audio'))}"></audio>`:'');
   }else if(r.type==='podcast.transcript'){

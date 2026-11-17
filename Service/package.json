@@ -11,7 +11,8 @@
     "start": "node src/node.js",
     "fixtures": "node tools/make-protocol-fixtures.mjs",
     "pretest": "node src/node-runtime.js",
-    "prestart": "node src/node-runtime.js"
+    "prestart": "node src/node-runtime.js",
+    "build:feed": "node tools/build-feed-client.mjs"
   },
   "dependencies": {
     "@date-fns/tz": "1.5.0",
@@ -24,5 +25,8 @@
   "volta": {
     "node": "24.22.1"
   },
-  "license": "AGPL-3.0-only"
+  "license": "AGPL-3.0-only",
+  "devDependencies": {
+    "esbuild": "0.28.2"
+  }
 }

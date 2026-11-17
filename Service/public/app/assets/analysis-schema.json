@@ -1,0 +1,746 @@
+{
+  "schema": "banana.analysis.v1",
+  "conventions": {
+    "null": "Unknown or absent, never inferred as zero.",
+    "dates": "UTC ISO 8601 strings; local calendar days remain YYYY-MM-DD and are not shifted to UTC.",
+    "ids": "Opaque case-sensitive strings. Join only through documented reference columns. IDs are stable within their source type.",
+    "numbers": "Decimal SI units except explicitly named kcal, bpm, hours, minutes, percent and counts.",
+    "scope": "Only selected feed types within the current grant and consent. Tables with no selected source types are omitted; selected empty datasets have headers and zero rows.",
+    "workouts": "Use workouts for counts and totals, not sourceRecords. Matches the shared website merge: starts less than 90 seconds apart pair, nearest start first; Health source ranking and completeness break ties. Summary ID wins; Health metrics take precedence. Workout plans/completions are not extra recorded workouts.",
+    "raw": "sourceRecords preserves every fetched source record. It is provenance, not an additional set of observations to sum.",
+    "versioning": "Additive columns may be introduced. Breaking unit/meaning/type changes require a new schema version. Consumers must ignore unknown columns.",
+    "consistency": "A complete pull checks contentVersion, access, selected types and workout preference on every page and again at the end. Calendar is a live external window, not an atomic transaction with synced records.",
+    "assets": "Credential-based asset URLs are private, expire within one hour and recheck access. Session-export asset URLs require the signed-in recipient/owner session, have null expiry, and stop working when session or access ends. Local archive paths remain readable offline. Downloaded copies cannot be revoked."
+  },
+  "tables": {
+    "meals": {
+      "description": "One row per logged meal. Totals sum logged item macros, not per-100g reference values.",
+      "columns": {
+        "id": {
+          "type": "string",
+          "description": "Meal record ID"
+        },
+        "date": {
+          "type": "string",
+          "description": "Logged meal instant",
+          "unit": "ISO 8601 UTC"
+        },
+        "name": {
+          "type": "string",
+          "description": "Meal label"
+        },
+        "note": {
+          "type": "string",
+          "description": "Meal note"
+        },
+        "source": {
+          "type": "string",
+          "description": "manual, photo, barcode or text; preserve future values"
+        },
+        "energy_kcal": {
+          "type": "number",
+          "description": "Food energy",
+          "unit": "kcal"
+        },
+        "protein_g": {
+          "type": "number",
+          "description": "Protein",
+          "unit": "g"
+        },
+        "carbohydrate_g": {
+          "type": "number",
+          "description": "Carbohydrates",
+          "unit": "g"
+        },
+        "fat_g": {
+          "type": "number",
+          "description": "Fat",
+          "unit": "g"
+        }
+      }
+    },
+    "meal_items": {
+      "description": "One row per food item in a meal; do not add these totals to meal totals.",
+      "columns": {
+        "id": {
+          "type": "string",
+          "description": "Item ID, or meal ID plus index when absent"
+        },
+        "meal_id": {
+          "type": "string",
+          "description": "Parent meal",
+          "references": "meals.id"
+        },
+        "position": {
+          "type": "number",
+          "description": "Zero-based item position",
+          "unit": "index"
+        },
+        "name": {
+          "type": "string",
+          "description": "Food name"
+        },
+        "serving": {
+          "type": "string",
+          "description": "Entered serving description"
+        },
+        "grams": {
+          "type": "number",
+          "description": "Logged portion weight",
+          "unit": "g"
+        },
+        "confidence": {
+          "type": "number",
+          "description": "Confidence in food identification, not portion size",
+          "unit": "fraction 0–1"
+        },
+        "reference_id": {
+          "type": "string",
+          "description": "Source food ID, for example myfood:<id>; not necessarily a shared saved food"
+        },
+        "energy_kcal": {
+          "type": "number",
+          "description": "Food energy",
+          "unit": "kcal"
+        },
+        "protein_g": {
+          "type": "number",
+          "description": "Protein",
+          "unit": "g"
+        },
+        "carbohydrate_g": {
+          "type": "number",
+          "description": "Carbohydrates",
+          "unit": "g"
+        },
+        "fat_g": {
+          "type": "number",
+          "description": "Fat",
+          "unit": "g"
+        }
+      }
+    },
+    "meal_photos": {
+      "description": "Links meals to available photo assets; multiple meals can refer to a photo.",
+      "columns": {
+        "meal_id": {
+          "type": "string",
+          "description": "Parent meal",
+          "references": "meals.id"
+        },
+        "photo_id": {
+          "type": "string",
+          "description": "Photo record ID"
+        },
+        "asset_id": {
+          "type": "string",
+          "description": "Image asset",
+          "references": "assets.id"
+        }
+      }
+    },
+    "saved_foods": {
+      "description": "Nutrition values are per 100 g, not for the usual serving.",
+      "columns": {
+        "id": {
+          "type": "string",
+          "description": "Saved food record ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "Food name"
+        },
+        "added_at": {
+          "type": "string",
+          "description": "Creation instant",
+          "unit": "ISO 8601 UTC"
+        },
+        "serving_label": {
+          "type": "string",
+          "description": "Usual serving description"
+        },
+        "serving_g": {
+          "type": "number",
+          "description": "Usual serving weight",
+          "unit": "g"
+        },
+        "package_g": {
+          "type": "number",
+          "description": "Package weight",
+          "unit": "g"
+        },
+        "energy_kcal": {
+          "type": "number",
+          "description": "Food energy",
+          "unit": "kcal"
+        },
+        "protein_g": {
+          "type": "number",
+          "description": "Protein",
+          "unit": "g"
+        },
+        "carbohydrate_g": {
+          "type": "number",
+          "description": "Carbohydrates",
+          "unit": "g"
+        },
+        "fat_g": {
+          "type": "number",
+          "description": "Fat",
+          "unit": "g"
+        }
+      }
+    },
+    "workouts": {
+      "description": "Merged recorded and Health workouts; same selection rules as the shared website. Not a medical or training score.",
+      "columns": {
+        "id": {
+          "type": "string",
+          "description": "Stable summary ID when present, otherwise Health workout ID"
+        },
+        "summary_id": {
+          "type": "string",
+          "description": "Source health.workout ID; nullable"
+        },
+        "health_id": {
+          "type": "string",
+          "description": "Source Health workout ID; nullable"
+        },
+        "activity": {
+          "type": "string",
+          "description": "Source activity label"
+        },
+        "start": {
+          "type": "string",
+          "description": "Workout start",
+          "unit": "ISO 8601 UTC"
+        },
+        "end": {
+          "type": "string",
+          "description": "Workout end",
+          "unit": "ISO 8601 UTC"
+        },
+        "duration_s": {
+          "type": "number",
+          "description": "Active duration; Health duration wins, otherwise recorded elapsed minus pauses",
+          "unit": "s"
+        },
+        "distance_m": {
+          "type": "number",
+          "description": "Total distance",
+          "unit": "m"
+        },
+        "energy_kcal": {
+          "type": "number",
+          "description": "Active workout energy",
+          "unit": "kcal"
+        },
+        "avg_hr_bpm": {
+          "type": "number",
+          "description": "Average heart rate",
+          "unit": "bpm"
+        },
+        "max_hr_bpm": {
+          "type": "number",
+          "description": "Maximum heart rate, when Health supplies it",
+          "unit": "bpm"
+        },
+        "source": {
+          "type": "string",
+          "description": "Chosen Health source or Banana"
+        },
+        "pool_length_m": {
+          "type": "number",
+          "description": "Pool or lap length",
+          "unit": "m"
+        }
+      }
+    },
+    "workout_plans": {
+      "description": "Prescribed plans, not completed sessions.",
+      "columns": {
+        "id": {
+          "type": "string",
+          "description": "Plan record ID"
+        },
+        "title": {
+          "type": "string",
+          "description": "Plan title"
+        },
+        "created_at": {
+          "type": "string",
+          "description": "Creation instant",
+          "unit": "ISO 8601 UTC"
+        },
+        "focus": {
+          "type": "string",
+          "description": "strength, mobility, mixed; preserve future values"
+        },
+        "target_minutes": {
+          "type": "number",
+          "description": "Planned duration",
+          "unit": "min"
+        },
+        "rationale": {
+          "type": "string",
+          "description": "Plan rationale"
+        }
+      }
+    },
+    "workout_exercises": {
+      "description": "Prescriptions in a workout plan.",
+      "columns": {
+        "id": {
+          "type": "string",
+          "description": "Prescription ID or plan ID plus index"
+        },
+        "plan_id": {
+          "type": "string",
+          "description": "Parent plan",
+          "references": "workout_plans.id"
+        },
+        "position": {
+          "type": "number",
+          "description": "Zero-based exercise position",
+          "unit": "index"
+        },
+        "exercise_id": {
+          "type": "string",
+          "description": "Exercise catalog identifier"
+        },
+        "sets": {
+          "type": "number",
+          "description": "Prescribed sets",
+          "unit": "count"
+        },
+        "reps": {
+          "type": "number",
+          "description": "Prescribed repetitions per set",
+          "unit": "count"
+        },
+        "duration_s": {
+          "type": "number",
+          "description": "Prescribed time per set",
+          "unit": "s"
+        },
+        "rest_s": {
+          "type": "number",
+          "description": "Rest between sets",
+          "unit": "s"
+        }
+      }
+    },
+    "workout_completions": {
+      "description": "Plan-session completion records; do not add to recorded workout totals.",
+      "columns": {
+        "id": {
+          "type": "string",
+          "description": "Completion record ID"
+        },
+        "plan_id": {
+          "type": "string",
+          "description": "Referenced plan, possibly outside selected types",
+          "references": "workout_plans.id"
+        },
+        "start": {
+          "type": "string",
+          "description": "Session start",
+          "unit": "ISO 8601 UTC"
+        },
+        "end": {
+          "type": "string",
+          "description": "Session end",
+          "unit": "ISO 8601 UTC"
+        }
+      }
+    },
+    "completed_exercises": {
+      "description": "Exercise IDs checked off in a completed plan session.",
+      "columns": {
+        "completion_id": {
+          "type": "string",
+          "description": "Parent completion",
+          "references": "workout_completions.id"
+        },
+        "exercise_id": {
+          "type": "string",
+          "description": "Completed prescription ID"
+        }
+      }
+    },
+    "health_readings": {
+      "description": "Daily source measurements, not intraday samples. Body fat is normalized from a fraction to percent. No new aggregate or missing-day zero is invented.",
+      "columns": {
+        "snapshot_id": {
+          "type": "string",
+          "description": "Source snapshot ID"
+        },
+        "metric": {
+          "type": "string",
+          "description": "Metric identifier; see metrics"
+        },
+        "date": {
+          "type": "string",
+          "description": "Source measurement instant; local day depends on consumer timezone",
+          "unit": "ISO 8601 UTC"
+        },
+        "value": {
+          "type": "number",
+          "description": "Normalized source value",
+          "unit": "see unit"
+        },
+        "unit": {
+          "type": "string",
+          "description": "Explicit measurement unit"
+        }
+      }
+    },
+    "sleep_nights": {
+      "description": "Source sleep-night summaries; not inferred from missing readings.",
+      "columns": {
+        "snapshot_id": {
+          "type": "string",
+          "description": "Source snapshot ID"
+        },
+        "id": {
+          "type": "string",
+          "description": "Source snapshot ID plus night timestamp"
+        },
+        "night": {
+          "type": "string",
+          "description": "Morning the night belongs to",
+          "unit": "ISO 8601 UTC"
+        },
+        "bedtime": {
+          "type": "string",
+          "description": "Sleep period start",
+          "unit": "ISO 8601 UTC"
+        },
+        "wake": {
+          "type": "string",
+          "description": "Sleep period end",
+          "unit": "ISO 8601 UTC"
+        },
+        "asleep_min": {
+          "type": "number",
+          "description": "Minutes asleep",
+          "unit": "min"
+        }
+      }
+    },
+    "sleep_wakes": {
+      "description": "Awake stretches within a night.",
+      "columns": {
+        "night_id": {
+          "type": "string",
+          "description": "Parent night",
+          "references": "sleep_nights.id"
+        },
+        "start": {
+          "type": "string",
+          "description": "Wake stretch start",
+          "unit": "ISO 8601 UTC"
+        },
+        "end": {
+          "type": "string",
+          "description": "Wake stretch end",
+          "unit": "ISO 8601 UTC"
+        },
+        "steps": {
+          "type": "number",
+          "description": "Steps during stretch",
+          "unit": "count"
+        },
+        "kind": {
+          "type": "string",
+          "description": "Source classification; preserve future values"
+        },
+        "labelled": {
+          "type": "boolean",
+          "description": "Whether the owner supplied the label"
+        }
+      }
+    },
+    "routines": {
+      "description": "Routine definitions; no future occurrences or completion is inferred. Actual overrides are in routine_overrides.",
+      "columns": {
+        "id": {
+          "type": "string",
+          "description": "Routine ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "Routine name"
+        },
+        "enabled": {
+          "type": "boolean",
+          "description": "Enabled state"
+        },
+        "trigger": {
+          "type": "string",
+          "description": "time, earliestMeeting, workoutStart, wakeUp, calendarMatch or manual; preserve future values"
+        },
+        "hour": {
+          "type": "number",
+          "description": "Fallback local clock hour",
+          "unit": "0–23"
+        },
+        "minute": {
+          "type": "number",
+          "description": "Fallback local clock minute",
+          "unit": "0–59"
+        },
+        "duration_min": {
+          "type": "number",
+          "description": "Nominal duration",
+          "unit": "min"
+        },
+        "lead_min": {
+          "type": "number",
+          "description": "calendarMatch: minutes before the matching event; wakeUp: minutes after waking. Other triggers retain this field without implying a scheduled offset.",
+          "unit": "min"
+        }
+      }
+    },
+    "routine_slots": {
+      "description": "Primary and additional routine time slots. weekday null means every day; 1=Sunday through 7=Saturday.",
+      "columns": {
+        "routine_id": {
+          "type": "string",
+          "description": "Parent routine",
+          "references": "routines.id"
+        },
+        "slot_id": {
+          "type": "string",
+          "description": "main or extra-slot ID"
+        },
+        "weekday": {
+          "type": "number",
+          "description": "Scheduled weekday, null for every day",
+          "unit": "1–7"
+        },
+        "hour": {
+          "type": "number",
+          "description": "Local clock hour",
+          "unit": "0–23"
+        },
+        "minute": {
+          "type": "number",
+          "description": "Local clock minute",
+          "unit": "0–59"
+        }
+      }
+    },
+    "routine_keywords": {
+      "description": "Calendar-match keywords; only useful when relevant calendar events are also shared.",
+      "columns": {
+        "routine_id": {
+          "type": "string",
+          "description": "Parent routine",
+          "references": "routines.id"
+        },
+        "keyword": {
+          "type": "string",
+          "description": "Match keyword"
+        }
+      }
+    },
+    "alarms": {
+      "description": "One-off alarm definitions.",
+      "columns": {
+        "id": {
+          "type": "string",
+          "description": "Alarm record ID"
+        },
+        "label": {
+          "type": "string",
+          "description": "Alarm label"
+        },
+        "fire": {
+          "type": "string",
+          "description": "Alarm instant",
+          "unit": "ISO 8601 UTC"
+        }
+      }
+    },
+    "plan_extras": {
+      "description": "Additional routine occurrences.",
+      "columns": {
+        "id": {
+          "type": "string",
+          "description": "Extra occurrence ID"
+        },
+        "routine_id": {
+          "type": "string",
+          "description": "Routine reference",
+          "references": "routines.id"
+        },
+        "start": {
+          "type": "string",
+          "description": "Scheduled instant",
+          "unit": "ISO 8601 UTC"
+        }
+      }
+    },
+    "routine_overrides": {
+      "description": "Explicit skip, reschedule or completion; ID encodes routine|slot|local-day. No row means no recorded override, not necessarily incomplete.",
+      "columns": {
+        "id": {
+          "type": "string",
+          "description": "Override ID"
+        },
+        "routine_id": {
+          "type": "string",
+          "description": "Routine reference",
+          "references": "routines.id"
+        },
+        "slot_id": {
+          "type": "string",
+          "description": "Slot ID"
+        },
+        "local_day": {
+          "type": "string",
+          "description": "YYYY-MM-DD local day from override ID"
+        },
+        "status": {
+          "type": "string",
+          "description": "completed, skipped, rescheduled or other"
+        },
+        "completed_at": {
+          "type": "string",
+          "description": "Recorded completion instant",
+          "unit": "ISO 8601 UTC"
+        },
+        "scheduled_start": {
+          "type": "string",
+          "description": "Completed occurrence scheduled instant",
+          "unit": "ISO 8601 UTC"
+        },
+        "rescheduled_to": {
+          "type": "string",
+          "description": "New scheduled instant",
+          "unit": "ISO 8601 UTC"
+        }
+      }
+    },
+    "wake_days": {
+      "description": "Synced wake-plan days; no new schedule is generated by export.",
+      "columns": {
+        "plan_id": {
+          "type": "string",
+          "description": "Source wake-plan ID"
+        },
+        "date": {
+          "type": "string",
+          "description": "Source planned day instant",
+          "unit": "ISO 8601 UTC"
+        },
+        "wake": {
+          "type": "string",
+          "description": "Planned wake instant",
+          "unit": "ISO 8601 UTC"
+        }
+      }
+    },
+    "calendar_events": {
+      "description": "Selected live calendar window. Busy-only records remain redacted. All-day end dates are exclusive.",
+      "columns": {
+        "id": {
+          "type": "string",
+          "description": "Projected event ID"
+        },
+        "title": {
+          "type": "string",
+          "description": "Shared title or busy label"
+        },
+        "start": {
+          "type": "string",
+          "description": "Timed event start, null for all-day",
+          "unit": "ISO 8601 UTC"
+        },
+        "end": {
+          "type": "string",
+          "description": "Timed event end, null for all-day",
+          "unit": "ISO 8601 UTC"
+        },
+        "start_day": {
+          "type": "string",
+          "description": "All-day YYYY-MM-DD start"
+        },
+        "end_day": {
+          "type": "string",
+          "description": "Exclusive all-day YYYY-MM-DD end"
+        },
+        "all_day": {
+          "type": "boolean",
+          "description": "All-day state"
+        },
+        "calendar": {
+          "type": "string",
+          "description": "Shared calendar label, nullable for redacted data"
+        },
+        "location": {
+          "type": "string",
+          "description": "Shared location, if permitted"
+        }
+      }
+    },
+    "assets": {
+      "description": "Private source attachments; file_path is populated only for images included in this archive.",
+      "columns": {
+        "id": {
+          "type": "string",
+          "description": "Source type:record:field key"
+        },
+        "record_type": {
+          "type": "string",
+          "description": "Source record type"
+        },
+        "record_id": {
+          "type": "string",
+          "description": "Source record ID"
+        },
+        "field": {
+          "type": "string",
+          "description": "Source blob field"
+        },
+        "url": {
+          "type": "string",
+          "description": "Private expiring URL"
+        },
+        "expires_at": {
+          "type": "string",
+          "description": "URL expiry; null for authenticated session exports or owner preview",
+          "unit": "ISO 8601 UTC"
+        },
+        "file_path": {
+          "type": "string",
+          "description": "Relative archive path, when downloaded"
+        },
+        "media_type": {
+          "type": "string",
+          "description": "Downloaded MIME type, when available"
+        }
+      }
+    }
+  },
+  "metrics": {
+    "sleepHours": "hours",
+    "restingHR": "bpm",
+    "hrv": "ms",
+    "steps": "steps",
+    "vo2Max": "mL/kg/min",
+    "respiratory": "/min",
+    "bodyMassKg": "kg",
+    "bodyFatPercentage": "%",
+    "activeEnergyKcal": "kcal",
+    "exerciseMinutes": "min",
+    "walkingHeartRate": "bpm",
+    "basalEnergyKcal": "kcal",
+    "leanBodyMassKg": "kg",
+    "bodyMassIndex": "kg/m²",
+    "heightMeters": "m",
+    "flightsClimbed": "flights",
+    "walkingSpeedMetersPerSecond": "m/s"
+  }
+}

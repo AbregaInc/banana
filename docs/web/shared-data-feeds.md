@@ -110,8 +110,8 @@ format has become JSON.
 
 This first feed preserves each source type's field names, units and date encodings. It does not
 silently reinterpret nutrient units or Swift reference-date values as Unix timestamps. Calendar
-request bounds and feed metadata use Unix milliseconds and ISO timestamps respectively. A
-future normalized analysis schema should be separately versioned; consumers must retain the
+request bounds and feed metadata use Unix milliseconds and ISO timestamps respectively. The
+normalized analysis schema below is separately versioned; raw consumers must retain the
 record type and handle missing fields rather than infer units from a number.
 
 CSV nested scalar objects become dotted columns; arrays remain JSON cells. Columns can vary
@@ -190,3 +190,149 @@ For programmatic discovery, GET the connection’s `manifestURL` (the endpoint w
 Read every `types[].type`; add `calendar` only if the top-level `calendar` is non-null. Use `all`
 for every currently permitted type or join a subset with commas, without spaces or duplicates.
 Unavailable types return 403; reload metadata when access or consent changes.
+
+## Complete coach download and normalized analysis contract
+
+A signed-in recipient can select types and use **Download complete ZIP** without creating an
+external credential. This one-off read uses `/app/api/shared/<id>/export-data`, requires the actual
+recipient or an authorized owner preview, and still requires the share's external-data-feed opt-in.
+It uses the same section/calendar/consent projection as credential-based feeds. Its page/image links
+require the same browser session; `expiresAt: null` does not make them public or permanent.
+
+The ZIP contains:
+
+- `tables/*.csv`: all pages assembled into fixed-column scalar tables, UTF-8 with a BOM, compatible
+  with Excel/Numbers and CSV analysis tools. Empty selected datasets keep their headers. Formula-like
+  strings are escaped. Null is an empty cell, never an invented zero.
+- `analysis.json`: `banana.analysis.v1`, the same normalized tables, `sourceRecords`, collection
+  metadata, selected types, scope, calendar window and warnings. All fetched source records are
+  retained, including additional fields and selected Notes/Taken/Listening types that do not have
+  fitness-specific normalized tables. Do not sum source records with normalized observations.
+- `schema.json`: every normalized column's type, meaning, unit, enum semantics and relationship.
+  The same dictionary is available on the page and at `/app/assets/analysis-schema.json`.
+- `manifest.json`: row counts per table, selected scope/types, collection and verification times,
+  calendar bounds and warnings; `README.txt` explains import and reconciliation.
+- `images/`: optional meal image files. `assets.csv.file_path` and `meal_photos.csv.asset_id` join
+  them to meals. Other binary attachments remain source links. With images unchecked, links are
+  remote and may expire (credential links) or require a current session (session links). Downloaded
+  image copies remain usable offline and cannot be recalled by revocation.
+
+Normalized fitness coverage includes meals, individual meal items, meal/photo relationships, saved
+foods, merged workouts, workout plans/exercises/completions, Health readings and sleep nights/wakes,
+routine definitions/time slots/keywords/explicit overrides, alarms, added occurrences and wake plans.
+Calendar events retain full/busy-only projection and exclusive all-day end dates. Definitions and
+explicit completion history are exported; no future routine occurrence or unrecorded completion is
+invented. A missing referenced plan/routine is possible when its source type was not selected.
+
+All normalized instants are ISO 8601 UTC. Local-day and local-clock fields remain explicitly local;
+routine weekdays use 1=Sunday through 7=Saturday. A local clock alone does not establish a UTC
+occurrence. Food energy is kcal and macronutrients are grams; saved-food nutrition is per 100 g,
+meal-item nutrition is for the logged portion, and meal totals sum those portions. If any item lacks
+one nutrient, that meal's total for that nutrient is null, not a misleading partial sum. Body fat is
+percent (20 = 20%), BMI is kg/m², distances are metres, durations are explicitly seconds/minutes/hours,
+heart rate is bpm, HRV is milliseconds and VO₂ max is mL/kg/min. The dictionary lists every metric.
+
+`workouts` is the canonical counting table. It calls the shared website's actual `mergeWorkouts`
+implementation using the same owner source preference supplied by the server, not a separate
+heuristic. Starts **less than 90 seconds** apart pair, nearest first. Source preference is owner
+bundle, Banana, Apple Watch, Workoutdoors, Nike/Slopes/Daypart, default, Strava, Whoop; metric
+completeness and ID break equal-source ties. Health metrics take precedence, with recorded values
+as fallback. A paired recording keeps its ID and retains `summary_id` and `health_id`. Plans and
+plan completions are prescriptions/history, not additional recorded workouts. Hidden Health
+workouts are already removed by the server. Multiple source snapshots produce an explicit warning;
+as on the website, the first snapshot in record order supplies normalized Health data. All source
+snapshots remain in provenance. Unknown future Health metrics are retained in sourceRecords and
+produce a warning rather than receiving an invented unit.
+
+### Developer importer
+
+Download `/app/assets/banana-feed.mjs` (Node 24; bundled, no package installation required):
+
+```sh
+export BANANA_FEED_URL='<private feed URL>'
+# Optional bearer mode: remove signature from the URL and set BANANA_FEED_TOKEN.
+node banana-feed.mjs --output banana-analysis.zip
+# Optional: --no-images --max-mib 128
+```
+
+For your own Node program:
+
+```js
+import {importFeed, exportFeed, analysisSchema} from './banana-feed.mjs';
+const data = await importFeed(process.env.BANANA_FEED_URL, {
+  token: process.env.BANANA_FEED_TOKEN,
+});
+// data.schema === 'banana.analysis.v1'
+// data.tables.workouts, data.tables.meals, data.sourceRecords
+```
+
+`importFeed` returns a complete normalized JSON pull; `exportFeed` returns ZIP bytes and optionally
+includes photos. Both accept `signal`, `onProgress`, `maxBytes` and `maxRecords`. Browser work runs
+in a dedicated module worker. Cancellation, selection changes, navigation and sign-out terminate
+it. The importer starts from the beginning even if given a continuation URL, follows empty pages,
+rejects loops/duplicate records, rejects redirected or cross-origin continuation/asset URLs, and
+never forwards the credential to another origin. Keep tokens in environment variables or secret
+storage, not command arguments/logs. A raw source-record normalizer is also exported for advanced
+use, but must receive the complete selected dataset; use `importFeed` for a verified collection.
+
+Every page checks `contentVersion`, access, selected types and workout source preference against
+the first page. The server checks synced content before and after constructing each page. The
+importer verifies again at the end and, for ZIPs, after downloading images. Any mismatch, revoked
+access, unavailable calendar/image, malformed record, duplicate, or exhausted retry fails without
+saving a partial archive. This is optimistic consistency, not an atomic multi-provider database
+transaction. Calendar pagination checks its own stable window/version; calendars can change after
+collection. Reconcile a complete replacement by the selected type/ID set, including deletions.
+
+The importer defaults to at least 1.1 seconds between requests under the shared 60/minute budget,
+respects `Retry-After`, and retries 429 three times before surfacing failure. Other consumers on the
+same share may still consume the budget. Browser downloads cap fetched data at 64 MiB and 100,000
+records, including verification reads and image bytes, and fail explicitly when exceeded. Use
+fewer types or the Node importer's explicit size override (CLI up to 1 GiB) for larger exports;
+large imports require corresponding process memory. Cursor validity remains one hour. Refresh
+source pages for fresh credential image URLs; session URLs require a current signed-in session.
+
+The analysis schema is versioned independently from `banana.feed.v2`. Additive columns can be
+introduced; address columns by name. Breaking type/unit/meaning changes require a new analysis
+schema version. Existing raw feed URLs and source representations are unchanged.
+
+### Native source encoding reference
+
+For consumers choosing raw `banana.feed.v2` rather than the normalized importer:
+
+| Source type | Date fields and interpretation | Relationships / numbers |
+| --- | --- | --- |
+| `food.meal` | `date`: Unix milliseconds | `items[].macros`: logged portion kcal/g; `items[].grams`: g; `photoIDs[]` → mealPhoto; `items[].reference.per100g`: per-100g kcal/g, not portion totals |
+| `food.myFood` | `addedAt`, `uses[].at`, `bought[]`: Unix milliseconds | `per100g`: kcal/g per 100 g; `servingGrams`, `packageGrams`: g; source barcode/label |
+| `food.mealPhoto` | No date conversion | `v` is an image URL descriptor; asset ID joins meal photoIDs |
+| `health.workout` | `start`, `end`: Unix milliseconds | distance m, energy kcal, heart rate bpm; pauses are relative elapsed seconds; recordings remain binary assets |
+| `health.snapshot` | `workouts[].start/end`, trend `date`, night/wake dates: seconds since 2001-01-01 UTC | Convert with `(seconds + 978307200) * 1000`; workout duration s, distance m, energy kcal, HR bpm. Body fat raw fraction, not percent; hidden workouts/unshared fields already removed |
+| `health.workoutPlan` | `createdAt`: Unix milliseconds | `exercises[].id` prescription ID; sets/reps counts, duration/rest seconds; focus strength/mobility/mixed |
+| `health.workoutCompletion` | `startedAt`, `endedAt`: Unix milliseconds | `planID` → workoutPlan; `completedExerciseIDs[]` → prescription IDs |
+| `plan.routine` | Local `hour`, `minute`, weekdays (1=Sunday) | trigger time/earliestMeeting/workoutStart/wakeUp/calendarMatch/manual; calendar-match lead is before event, wake lead is after wake; extra slots have their own IDs/weekdays/time |
+| `plan.alarm` | `fire`: Unix milliseconds | Label and one-off definition |
+| `plan.extra` | `start`: Unix milliseconds | `seriesID` → routine |
+| `plan.override` | `completed.at`, `completed.scheduledStart`, `reschedule._0`: Unix milliseconds | ID routine\|slot\|local-day; completed, skip or reschedule enum payload; absence is not inferred incomplete |
+| `core.wakePlan` | `plan.days[].date/wake`: Unix milliseconds | Synced plan, not newly generated occurrences |
+| `calendar` | `start/end.dateTime`: ISO 8601 with offset; `start/end.date`: local YYYY-MM-DD, exclusive end | Projected IDs and busy/full-details policy; from/to query bounds use Unix milliseconds |
+| `food.supplement` | Local hour/minute | kind supplement/medication, free-text dose, ingredients/anchor definitions |
+| `food.dose` | `date`: Unix milliseconds; `day`: fixed local YYYYMMDD | `supplementID` → supplement; status taken/skipped |
+| `notes.voiceNote` | Synced Date fields: Unix milliseconds | Text metadata plus recording/transcript source attachments |
+| `podcast.show` | Synced Date fields: Unix milliseconds | Podcast definitions and source metadata |
+| `podcast.listen` | Synced Date fields: Unix milliseconds | Listening observations, linked show/episode identifiers |
+| `podcast.progress` | Synced Date fields: Unix milliseconds | Playback position/duration are seconds, not dates |
+| `podcast.transcript` | No blanket conversion of blob contents | Metadata plus original binary/text attachment representation; decoder required for compressed content |
+
+Additional native fields and unknown future enum cases are preserved in sourceRecords. Optional
+fields can be absent. Do not infer measurement units from magnitudes or parse opaque IDs. The
+versioned analysis dictionary is the supported scalar fitness contract when those native details
+are not needed.
+
+### ZIP implementation and checks
+
+Browsers provide no native ZIP writer. The export uses pinned MIT-licensed fflate 0.8.3, stored
+locally with its license, in an isolated module worker. ZIP storage mode avoids recompressing
+already-compressed photos and does not use nested blob workers or a CDN. Tests open the resulting
+archive and verify every page, scalar table, schema, image join and count. Size caps are checked
+while streaming responses before JSON parsing; the worker bounds main-thread work independently
+of total source history. This is a functionality/resource boundary, not native frame-performance
+acceptance.

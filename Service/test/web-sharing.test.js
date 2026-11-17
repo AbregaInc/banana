@@ -1,3 +1,4 @@
+import {importFeed} from '../public/app/assets/feed-import.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { setup, device, DAY } from './helpers.js';
@@ -719,4 +720,42 @@ test('feed preview: owner sees the real scoped export and images without issuing
   assert.equal(await (await f.s.app.request(actual.records.find(r=>r.type==='food.meal').assets[0].url)).text(), 'actual-image-bytes');
   const bad = new URL(feed.dataURL);bad.searchParams.set('preview', String(d.version));
   assert.equal((await f.s.app.request(bad)).status,400);
+});
+
+
+test('coach importer reads a real scoped feed across every page and matches projected workout history', async () => {
+ const f=await fixture(),p=policy('personalPlan','nutrition','workouts','health');p.allowFeeds=true;
+ const d=await f.draft(p);await f.send(d);const guest=await f.login('trainer',d.id);
+ const start=Date.parse('2026-11-17T12:00:00Z');
+ for(let i=0;i<103;i++)await f.put('food.meal','meal-'+String(i).padStart(3,'0'),{date:start,items:[{id:'item',name:'Rice',macros:{calories:130,proteinGrams:3,carbohydrateGrams:28,fatGrams:1}}]});
+ await f.put('notes.voiceNote','private',{text:'PRIVATE'});
+ await f.put('health.workout','recording',{start,end:start+3600000,totalDistance:5000});
+ const data={workouts:[{id:'health',start:start/1000-978307200,end:(start+3600000)/1000-978307200,duration:3500,distanceMeters:5100}],trends:{bodyFatPercentage:[{date:start/1000-978307200,value:0.2}]}};
+ const ref=await f.blob('health.snapshot',data);await f.put('health.snapshot','health',{v:ref});
+ const created=await(await f.call('POST',`/app/api/shared/${d.id}/feeds`,{name:'Analysis'},guest.cookie)).json();
+ const result=await importFeed(created.dataURL,{paceMs:0,wait:async()=>{},fetcher:(url,init)=>f.s.app.request(url,init)});
+ assert.equal(result.tables.meals.length,103);assert.equal(result.tables.workouts.length,1);assert.equal(result.tables.workouts[0].distance_m,5100);assert.equal(result.tables.health_readings[0].value,20);
+ assert.ok(result.collection.pages>=2);assert.ok(result.sourceRecords.every(r=>r.type!=='notes.voiceNote'));
+ assert.equal(result.schema,'banana.analysis.v1');
+ const metadata=await(await f.s.app.request(created.manifestURL)).json();assert.equal(metadata.analysis.schema,'banana.analysis.v1');assert.ok(metadata.analysis.importerURL.endsWith('/feed-import.js'));assert.ok(metadata.analysis.schemaURL.endsWith('/analysis-schema.json'));
+});
+
+test('one-off session export requires actual shared access and feed opt-in without creating credentials',async()=>{
+ const f=await fixture(),p=policy('nutrition'),d=await f.draft(p);await f.send(d);const guest=await f.login('trainer',d.id),stranger=await f.login('stranger');
+ const path=`/app/api/shared/${d.id}/export-data?types=food.meal&format=json&limit=1`;
+ assert.equal((await f.call('GET',path,null,guest.cookie)).status,403);
+ p.allowFeeds=true;const edited=await(await f.call('PUT',`/app/api/shares/${d.id}/draft`,{email:d.email,version:d.version,policy:p})).json();await f.preview(edited);await f.call('POST',`/app/api/shares/${d.id}/publish`,{version:edited.version});
+ await f.put('food.meal','one',{date:1,items:[]});await f.put('food.meal','two',{date:2,items:[]});
+ assert.equal((await f.call('GET',path,null,null)).status,401);assert.equal((await f.call('GET',path,null,stranger.cookie)).status,403);
+ const result=await importFeed('https://service.test'+path,{paceMs:0,wait:async()=>{},credentials:'same-origin',fetcher:(url,init)=>f.call('GET',new URL(url).pathname+new URL(url).search,null,guest.cookie)});
+ assert.equal(result.tables.meals.length,2);assert.equal((await f.s.db.first('SELECT COUNT(*) AS n FROM web_share_feeds')).n,0);
+ assert.equal((await f.call('GET',path.replace('food.meal','notes.voiceNote'),null,guest.cookie)).status,403);
+ await f.call('POST',`/app/api/shares/${d.id}/revoke`,{});assert.equal((await f.call('GET',path,null,guest.cookie)).status,403);
+});
+
+test('a mutation during page construction returns conflict instead of a falsely verified page',async()=>{
+ const f=await fixture(),p=policy('nutrition');p.allowFeeds=true;const d=await f.draft(p);await f.send(d);await f.put('food.meal','meal',{name:'Before',date:1,items:[]});
+ const originalGet=f.s.deps.spaces.get.bind(f.s.deps.spaces);let changed=false;
+ f.s.deps.spaces.get=id=>{const stub=originalGet(id),browse=stub.browse.bind(stub);stub.browse=async(...args)=>{const page=await browse(...args);if(!changed){changed=true;f.s.advance(1);await f.put('food.meal','meal',{name:'After'});}return page;};return stub;};
+ const response=await f.call('GET',`/app/api/shared/${d.id}/feed-preview?preview=${d.version}&types=food.meal&format=json`);assert.equal(response.status,409);assert.match((await response.json()).error,/changed/);
 });
