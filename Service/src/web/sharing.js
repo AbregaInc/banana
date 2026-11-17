@@ -8,7 +8,7 @@ import { calendarSettings } from './calendar.js';
 import { GoogleRefused } from '../google.js';
 import { lzfseDecompress } from '../../public/app/assets/vendor/lzfse.js';
 const MOST_SNAPSHOT_BYTES = 8 * 1024 * 1024;   // a packed Health snapshot the Worker decodes
-import { allowedTypes, allowedViews, calendarKey, normalizePolicy, policyExpired, projectHealthSnapshot, sharedCalendar } from './sharing-policy.js';
+import { allowedTypes, allowedViews, feedAccess, calendarKey, normalizePolicy, policyExpired, projectHealthSnapshot, sharedCalendar } from './sharing-policy.js';
 
 const DAY = 86_400_000, HOUR = 3_600_000;
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -205,7 +205,9 @@ export function sharingRoutes(app, deps, { owner, signedIn, calendarChoices, vau
     const status=await updateStatus(c,statusState);
     return c.json({ contentVersion:status.contentVersion,email: c.get('web').authEmail, name, ownerName: name, shared: true, preview, canPublish: Boolean(preview && !publishedPreview && row.policy), publishedPreview: Boolean(publishedPreview), expiresOn: policy.expiresOn ?? null, audience: preview ? row.email : undefined,
       shareVersion: preview && !publishedPreview ? row.draft_version : row.published_version, views: allowedViews(policy), allowedTypes: types,
-      ...(policy.allowFeeds ? { dataFeedsAllowed: true } : {}),
+      ...(policy.allowFeeds ? { dataFeedsAllowed: true, feedAccess: feedAccess(policy) } : {}),
+      ...(preview && policy.allowFeeds ? { feedPreview: { scope: 'share', access: feedAccess(policy),
+        types: types.map(type => ({ type })), calendar: policy.calendars.length ? {} : null } } : {}),
       consents: { health: Boolean(consents.health && types.some(type => CATALOG.get(type)?.tier === 'T2')), transcripts: Boolean(consents.transcripts && policy.sections.listening) },
       counts: Object.fromEntries(Object.entries(counts).filter(([type]) => types.includes(type))),
       preferences: { distanceUnit: prefs?.distanceUnit ?? null, ownBundleID: phone?.bundle ?? null }, weekStartWeekday: calendarSettings(smart).weekStartWeekday,

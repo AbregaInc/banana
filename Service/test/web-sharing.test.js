@@ -671,3 +671,52 @@ test('unified personal feed cannot reach types outside its selected scope', asyn
   const widened = new URL(feed.dataURL);widened.searchParams.set('types','notes.voiceNote');
   assert.equal((await f.s.app.request(widened)).status,403);
 });
+
+test('feed preview: owner sees the real scoped export and images without issuing a credential', async () => {
+  const f = await fixture(), p = policy('personalPlan', 'workouts', 'health', 'nutrition'); p.allowFeeds = true;
+  await f.put('plan.routine', 'morning', { name: 'Morning routine' });
+  await f.put('health.workout', 'run', { activity: 'Run' });
+  const health = await f.blob('health.snapshot', { workouts: [{ id: 'visible', activity: 'Walk' }, { id: 'hidden', activity: 'PRIVATE HIDDEN' }], hiddenWorkoutIDs: ['hidden'], trends: { steps: { today: 123 } }, futurePrivate: 'PRIVATE FUTURE' });
+  await f.put('health.snapshot', 'health', { v: health });
+  const photo = await f.blob('food.mealPhoto', 'actual-image-bytes', 'jpg');
+  await f.put('food.mealPhoto', 'photo', { v: photo });
+  await f.put('food.meal', 'lunch', { name: 'Lunch', photoIDs: ['photo'] });
+  await f.put('food.myFood', 'rice', { name: 'Rice' });
+  await f.put('notes.voiceNote', 'private', { transcript: 'PRIVATE NOTE' });
+  await f.put('food.supplement', 'private', { name: 'PRIVATE TAKEN' });
+  const d = await f.draft(p); await f.preview(d);
+  const account = await (await f.call('GET', view(d.id, 'account', d.version))).json();
+  assert.deepEqual(account.feedPreview.access.sections, ['personalPlan','workouts','health','nutrition']);
+  assert.equal(account.feedPreview.types.some(t => t.type === 'notes.voiceNote'), false);
+  const start = `/app/api/shared/${d.id}/feed-preview?preview=${d.version}&types=all&format=json&limit=1`;
+  const rows = []; let next = start, pages = 0;
+  while (next) {
+    const response = await f.call('GET', next); assert.equal(response.status, 200, await response.clone().text());
+    assert.equal(response.headers.get('x-banana-feed-preview'), 'true');
+    const data = await response.json(); assert.equal(data.preview, true); rows.push(...data.records); next = data.next;
+    if (next) { assert.match(new URL(next).pathname, /feed-preview$/); assert.equal(new URL(next).searchParams.get('preview'), String(d.version)); }
+    assert.ok(++pages < 16);
+  }
+  assert.equal(rows.length, 6); assert.doesNotMatch(JSON.stringify(rows), /PRIVATE/);
+  assert.equal(rows.find(r => r.type === 'health.snapshot').data.trends.steps.today, 123);
+  const image = rows.find(r => r.type === 'food.meal').assets[0];
+  assert.equal(image.expiresAt, null); assert.equal((await f.s.app.request(image.url)).status, 401);
+  assert.equal(await (await f.call('GET', image.url)).text(), 'actual-image-bytes');
+  assert.equal((await f.s.app.request('https://service.test'+start)).status, 401);
+  assert.equal((await f.s.deps.db.first('SELECT COUNT(*) AS n FROM web_share_feeds')).n, 0);
+  assert.equal((await f.s.deps.db.first('SELECT COUNT(*) AS n FROM web_personal_feeds')).n, 0);
+  const denied = start.replace('types=all', 'types=notes.voiceNote');
+  assert.equal((await f.call('GET', denied)).status, 403);
+  const csv = await f.call('GET', start.replace('format=json','format=csv'));
+  assert.equal(csv.status,200); assert.match(await csv.text(), /^"type","id"/); assert.ok(csv.headers.get('link'));
+  await f.send(d); const guest = await f.login('trainer', d.id); assert.ok(guest.cookie);
+  assert.equal((await f.call('GET', start, null, guest.cookie)).status, 403);
+  const feed = await (await f.call('POST', `/app/api/shared/${d.id}/feeds`, { name:'Real recipient' }, guest.cookie)).json();
+  const actual = await (await f.s.app.request(feed.dataURL)).json();
+  const withoutLinks = value => Array.isArray(value) ? value.map(withoutLinks) : value && typeof value === 'object'
+    ? Object.fromEntries(Object.entries(value).filter(([k]) => !['url','expiresAt'].includes(k)).map(([k,v]) => [k,withoutLinks(v)])) : value;
+  assert.deepEqual(withoutLinks(actual.records), withoutLinks(rows));
+  assert.equal(await (await f.s.app.request(actual.records.find(r=>r.type==='food.meal').assets[0].url)).text(), 'actual-image-bytes');
+  const bad = new URL(feed.dataURL);bad.searchParams.set('preview', String(d.version));
+  assert.equal((await f.s.app.request(bad)).status,400);
+});
