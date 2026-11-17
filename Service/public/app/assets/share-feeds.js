@@ -56,6 +56,26 @@ export function shareFeedControls({ request, escape: esc, notice }) {
       const feeds=preview?[]:state.feeds;
       const url=created?feedLink(current?.dataURL??current?.url,{types:'all',format:'json'}):'';
       const scope=access?accessName(access):'';
+      const apiURL = url ? new URL(url) : null;
+      apiURL?.searchParams.delete('signature');
+      function credentialRow(key, label, value, button) {
+        return `<label class="feed-url-label" for="feed-credential-${key}">${label}</label>
+          <div class="feed-link-row">
+            <input id="feed-credential-${key}" ${key==='url'?'data-feed-url':''}
+              type="${key==='token'?'password':'text'}" readonly value="${esc(value)}">
+            <button class="button" data-feed-copy="${key}" ${preview||busy||!value?'disabled':''}>${button}</button>
+          </div>`;
+      }
+      const credentials = created ? `
+        ${credentialRow('url', 'Private feed URL', preview ? 'Preview of the recipient’s URL' : url, 'Copy URL')}
+        <p class="feed-footnote">This link includes its own access key. Use it directly in a browser or tool.</p>
+        <div class="feed-api-credentials">
+          <h3>For tools that ask for an API token</h3>
+          ${credentialRow('endpoint', 'API URL', preview ? 'Preview of the API URL' : apiURL?.href ?? '', 'Copy API URL')}
+          ${credentialRow('token', 'API token', preview ? 'EXAMPLE' : current?.token ?? '', 'Copy token')}
+          <p class="feed-footnote">Use both together. For HTTP requests, send <code>Authorization: Bearer &lt;token&gt;</code>.</p>
+        </div>
+        <p class="feed-footnote">${preview ? 'Your recipient creates their own credentials.' : 'Save your credentials now. They’re shown when you create the feed.'}</p>` : '';
       const createForm=label=>`<form data-feed-form><button class="button" type="submit" ${busy?'disabled':''}>${busy?'Creating…':label}</button></form>`;
       const recovery=state.calendarIssue?`<div class="feed-warning" role="alert"><strong>A shared calendar needs attention</strong><p>${esc(state.calendarIssue.issues.some(i=>i.reason==='unavailable')?'The owner needs to restore or remove an unavailable calendar.':state.calendarIssue.issues.some(i=>i.reason==='reconnect')?'The owner needs to reconnect Google Calendar in Banana.':'Calendar data could not be read. Try again.')}</p><div class="share-actions"><button class="text-button" data-feed-response>Retry</button>${editShareURL?`<a class="text-button" href="${esc(editShareURL)}">Edit shared calendars</a>`:''}${permittedTypes()?.some(type=>type!=='calendar')?'<button class="text-button" data-feed-exclude-calendar>Preview without Calendar</button>':''}</div><details><summary>Calendar details</summary><ul>${state.calendarIssue.issues.map(i=>`<li>${esc(i.calendar||'Shared calendar')}${i.ownerCalendarID?`<br><code>${esc(i.ownerCalendarID)}</code>`:''}</li>`).join('')}</ul></details></div>`:'';
       const open=name=>state.panels?.[name]?'open':'';
@@ -63,18 +83,32 @@ export function shareFeedControls({ request, escape: esc, notice }) {
         ${heading?'<h3>Data feed</h3>':''}
         <section class="feed-main" aria-label="Data feed">
           ${scope?`<p class="feed-scope">${esc(scope)}</p>`:''}
-          ${!created?createForm('Create data feed'):`<label class="feed-url-label" for="private-feed-url">Private feed URL</label><div class="feed-link-row"><input id="private-feed-url" data-feed-url readonly aria-label="Private feed URL" value="${esc(preview?'Your recipient’s private URL will appear here':url)}"><button class="button" data-feed-copy="url" ${preview||busy?'disabled':''}>Copy URL</button></div>${preview?'<p class="feed-footnote">Preview only. Your recipient creates their own private URL.</p>':'<p class="feed-footnote">Save a copy of this URL. It’s only shown here once.</p>'}`}
+          ${created ? credentials : createForm('Create data feed')}
           ${feedGuide({access,created})}
         </section>
         <details class="feed-reference-panel" data-feed-panel="reference" ${open('reference')}><summary>Developer reference</summary><div class="feed-reference-content">
-          ${created&&!preview?`<div class="share-actions"><button class="text-button" data-feed-copy="token">Copy API token</button>${current?.manifestURL?`<a class="text-button" href="${esc(current.manifestURL)}" target="_blank" rel="noreferrer noopener">Connection metadata ↗</a>`:''}</div>`:''}
+          <div class="share-actions feed-developer-links">
+            <a class="text-button" href="/app/assets/analysis-schema.json" target="_blank" rel="noopener noreferrer">Schema ↗</a>
+            <a class="text-button" href="/app/assets/banana-feed.mjs" download="banana-feed.mjs">Download importer</a>
+            ${created&&!preview&&current?.manifestURL?`<a class="text-button" href="${esc(current.manifestURL)}" target="_blank" rel="noreferrer noopener">Feed metadata ↗</a>`:''}
+          </div>
           ${current?.manifestError?'<p>Feed details could not be loaded. <button class="text-button" data-feed-retry>Retry</button></p>':''}
           ${current?`<details data-feed-panel="response" ${open('response')}><summary>Response preview</summary><div class="feed-response"><button class="text-button" data-feed-response ${busy?'disabled':''}>${state.responseText==null?'Load response':'Refresh response'}</button>${state.responseLoading?'<p role="status">Loading…</p>':''}${recovery}${state.selectedTypes?'<p>Calendar excluded from this preview and download. The private feed URL still requests all shared data.</p><button class="text-button" data-feed-restore-calendar>Include Calendar again</button>':''}${state.responseText!=null?`<p>HTTP ${state.responseStatus}${state.responseClipped?' · Preview truncated':''}</p><pre tabindex="0" aria-label="Feed response"><code>${esc(state.responseText)}</code></pre><div class="share-actions"><a class="text-button" href="${esc(state.responseURL)}" target="_blank" rel="noreferrer noopener">Open full response ↗</a>${state.responseNext?`<button class="text-button" data-feed-next ${state.responseLoading?'disabled':''}>Next page</button>`:''}</div>`:state.responseError?'<p>Could not load the response. Try again.</p>':''}</div></details>
           <details data-feed-panel="archive" ${open('archive')}><summary>Download a copy</summary><div class="feed-export"><label><input type="checkbox" data-feed-images ${state.includeImages!==false?'checked':''}> Include meal photos</label><div class="share-actions"><button class="button" data-feed-export ${busy||state.exportWorker?'disabled':''}>Download ZIP</button>${state.exportWorker?'<button class="text-button" data-feed-export-cancel>Cancel download</button>':''}</div><p role="status" data-export-status>${esc(state.exportStatus??'')}</p></div></details>`:''}
-          ${feedReference({access,types:permittedTypes(),url:preview?'':url,manifestURL:created&&!preview?current?.manifestURL:'',preview,escape:esc})}
+          <details data-feed-panel="api-details" ${open('api-details')}><summary>Parameters, data types and examples</summary></details>
         </div></details>
-        ${(feeds.length||created&&!preview)?`<details class="feed-manage-panel" data-feed-panel="manage" ${open('manage')}><summary>Manage feeds${feeds.length?` <span>${feeds.length}</span>`:''}</summary><div class="feed-managed-list">${feeds.map(f=>`<div class="feed-managed-row"><div><strong>${esc(f.name)}</strong><p>${f.revokedAt!=null?'Revoked':f.expiresOn?'Expires '+esc(f.expiresOn):'Active'} · ${esc(new Date(f.createdAt).toLocaleDateString())}</p></div>${f.revokedAt==null?`<button class="text-button" data-feed-revoke="${esc(f.id)}" ${busy?'disabled':''}>Revoke</button>`:`<button class="text-button" data-feed-delete="${esc(f.id)}" ${busy?'disabled':''}>Delete</button>`}</div>`).join('')}</div></details>`:''}
+        ${(feeds.length||created&&!preview)?`<details class="feed-manage-panel" data-feed-panel="manage" ${open('manage')}><summary>Manage feeds</summary><div class="feed-managed-list">${feeds.map(f=>`<div class="feed-managed-row"><div><strong>${esc(f.name)}</strong><p>${f.revokedAt!=null?'Revoked':f.expiresOn?'Expires '+esc(f.expiresOn):'Active'} · ${esc(new Date(f.createdAt).toLocaleDateString())}</p></div>${f.revokedAt==null?`<button class="text-button" data-feed-revoke="${esc(f.id)}" ${busy?'disabled':''}>Revoke</button>`:`<button class="text-button" data-feed-delete="${esc(f.id)}" ${busy?'disabled':''}>Delete</button>`}</div>`).join('')}</div></details>`:''}
       </div>`;
+      const apiDetails = element.querySelector('[data-feed-panel="api-details"]');
+      function renderReference() {
+        if (apiDetails.open && !apiDetails.querySelector('.feed-guide')) {
+          apiDetails.insertAdjacentHTML('beforeend', feedReference({
+            access, types: permittedTypes(), manifestURL: created&&!preview?current?.manifestURL:'', preview, escape: esc,
+          }));
+        }
+      }
+      renderReference();
+      apiDetails.addEventListener('toggle', renderReference);
       if(focus){const control=element.querySelector(focus);control?.focus({preventScroll:true});if(selection&&control)control.setSelectionRange(...selection);}
     }
     function cancelExport(message = 'Download cancelled.') {
@@ -198,10 +232,10 @@ export function shareFeedControls({ request, escape: esc, notice }) {
         else if (button.hasAttribute('data-feed-retry')) { if (saved()) await refreshManifest(saved()); }
         else if (button.dataset.feedCopy) {
           const current = saved();
-          const value = button.dataset.feedCopy === 'types' ? permittedTypes()?.join(',') : button.dataset.feedCopy === 'token' ? current?.token : element.querySelector('[data-feed-url]')?.value;
+          const value = button.dataset.feedCopy === 'types' ? permittedTypes()?.join(',') : button.dataset.feedCopy === 'token' ? current?.token : element.querySelector('#feed-credential-' + CSS.escape(button.dataset.feedCopy))?.value;
           if (!value) return;
           await navigator.clipboard.writeText(value);
-          if (alive()) notice(button.dataset.feedCopy === 'types' ? 'Valid data types copied.' : preview ? 'Example URL copied. It does not grant access.' : button.dataset.feedCopy === 'token' ? 'API token copied.' : 'Private feed URL copied.');
+          if (alive()) notice(button.dataset.feedCopy === 'types' ? 'Valid data types copied.' : preview ? 'Example URL copied. It does not grant access.' : button.dataset.feedCopy === 'token' ? 'API token copied.' : button.dataset.feedCopy === 'endpoint' ? 'API URL copied.' : 'Private feed URL copied.');
         } else {
           state.busy = true; draw();
           await json(`${base}/${button.dataset.feedRevoke}/revoke`, 'POST', {});

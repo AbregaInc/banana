@@ -60,3 +60,10 @@
 @media(max-width:520px){.feed-page{font-size:14px}.feed-scope{margin-bottom:20px}.feed-explanation{margin-top:26px}.feed-page .share-actions{gap:8px 16px}.feed-link-row input{padding:10px}.feed-link-row .button{padding-inline:12px}}
 
 .feed-intro{margin:16px 0 0;color:var(--dim);font-size:14px;line-height:1.7}
+
+.feed-api-credentials{margin-top:22px;padding:16px;background:var(--paper);border:1px solid var(--line);border-radius:7px}
+.feed-api-credentials h3{margin:0 0 12px;font-size:15px;font-weight:600}
+.feed-api-credentials .feed-link-row+.feed-url-label{margin-top:12px}
+.feed-api-credentials .button{background:transparent;color:var(--ink);border-color:var(--line)}
+.feed-api-credentials .feed-footnote code{overflow-wrap:anywhere}
+.feed-developer-links{margin:0 0 12px}
