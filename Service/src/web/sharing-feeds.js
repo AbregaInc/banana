@@ -3,6 +3,8 @@ import { allowedTypes, feedPolicy, normalizePolicy, policyExpired } from './shar
 import { feedCSV } from './feed-format.js';
 import { CATALOG } from '../catalog.js';
 import { contentVersion } from './status.js';
+import { createSigner } from '../booking/sign.js';
+import { feedQuery } from './feed-query.js';
 
 const HOUR = 3_600_000;
 const parse = text => { try { return JSON.parse(text); } catch { return null; } };
@@ -11,11 +13,19 @@ const parse = text => { try { return JSON.parse(text); } catch { return null; } 
 export function sharingFeeds(app, deps, { owner, signedIn, shared, ownerRow, body, spaceFor, webOrigin,
   recordsResponse, blobResponse, calendarResponse, checkedPolicy }) {
   const { db, now } = deps;
+  const signer = createSigner(deps.config.tokenKey);
   const fail = (c, status = 404, error = 'feed_unavailable') => c.json({ error }, status);
   const published = row => row && ['invited', 'active'].includes(row.status) && row.policy
     && !policyExpired(parse(row.policy), now()) && parse(row.policy)?.allowFeeds === true;
   const urlSignature = feed => hmacHex(deps.config.tokenKey, JSON.stringify(['share-feed-url-v1', feed.id, feed.token_hash]));
   const baseURL = id => `${webOrigin}/app/feeds/${id}`;
+  function issuedURLs(url) {
+    const manifest = new URL(url), data = new URL(url);
+    manifest.searchParams.set('view', 'manifest'); data.searchParams.set('types', 'all'); data.searchParams.set('format', 'json');
+    return { url: url.href, manifestURL: manifest.href, dataURL: data.href };
+  }
+  const accessSummary = policy => ({ sections: Object.entries(policy.sections).filter(([, on]) => on).map(([key]) => key),
+    calendars: { busy: policy.calendars.filter(c => c.access === 'busy').length, details: policy.calendars.filter(c => c.access === 'details').length } });
   const management = ownerMode => async (c, next) => {
     const row = ownerMode ? await ownerRow(c) : c.get('share')?.row;
     if (!published(row) || (!ownerMode && c.get('share')?.preview)) return fail(c, 403);
@@ -31,7 +41,10 @@ export function sharingFeeds(app, deps, { owner, signedIn, shared, ownerRow, bod
       const row = c.get('feedShare'), who = c.get('web');
       const feeds = await db.all(`SELECT * FROM web_share_feeds WHERE share_id = ?${ownerMode ? '' : ' AND creator_sub = ?'} ORDER BY created_at, id`,
         row.id, ...(ownerMode ? [] : [who.sub]));
-      return c.json({ feeds: feeds.map(f => summary(f, who)) });
+      return c.json({ feeds: feeds.map(f => {
+        const effective = f.revoked_at == null ? feedPolicy(parse(f.policy), parse(row.policy)) : null;
+        return { ...summary(f, who), ...(effective ? { access: accessSummary(effective), expiresOn: effective.expiresOn ?? null } : {}) };
+      }) });
     });
     app.post(prefix, ...guards, async c => {
       const input = await body(c), row = c.get('feedShare'), who = c.get('web');
@@ -47,7 +60,7 @@ export function sharingFeeds(app, deps, { owner, signedIn, shared, ownerRow, bod
       const feed = await db.first('SELECT * FROM web_share_feeds WHERE id = ?', id);
       const url = new URL(baseURL(id)); url.searchParams.set('signature', await urlSignature(feed));
       // The bearer secret and signed URL are returned only on creation, never in listings.
-      return c.json({ ...summary(feed, who), url: url.href, token }, 201);
+      return c.json({ ...summary(feed, who), ...issuedURLs(url), token }, 201);
     });
     app.post(`${prefix}/:feed/revoke`, ...guards, async c => {
       if (!await body(c)) return fail(c, 403);
@@ -78,7 +91,7 @@ export function sharingFeeds(app, deps, { owner, signedIn, shared, ownerRow, bod
     if (!result.changes) return fail(c, 409, 'Revoke an old connection before creating another.');
     const feed = await db.first('SELECT * FROM web_personal_feeds WHERE id = ?', id);
     const url = new URL(baseURL(id)); url.searchParams.set('signature', await urlSignature(feed));
-    return c.json({ ...summary(feed, who), url: url.href, token }, 201);
+    return c.json({ ...summary(feed, who), ...issuedURLs(url), token }, 201);
   });
   app.post('/app/api/feeds/:feed/revoke', owner, async c => {
     if (!await body(c)) return fail(c, 403);
@@ -140,7 +153,11 @@ export function sharingFeeds(app, deps, { owner, signedIn, shared, ownerRow, bod
     const { row, policy } = c.get('share');
     const state = await spaceFor(row.owner_id).webStatus([...allowedTypes(policy)]);
     const types = [...allowedTypes(policy)].filter(t => CATALOG.get(t)?.tier !== 'T2' || state.consents.health);
-    return c.json({ schema: 'banana.share-feed.v1', scope: c.get('share').personal ? 'personal' : 'share', generatedAt: new Date(now()).toISOString(), expiresOn: policy.expiresOn ?? null,
+    const params = new URL(c.req.url).searchParams;
+    if (params.has('view') && (params.get('view') !== 'manifest' || [...params.keys()].some(k => !['view', 'signature'].includes(k)))) return fail(c, 400, 'bad_feed_query');
+    if (!params.has('view') && [...params.keys()].some(k => k !== 'signature'))
+      return unifiedResponse(c, [...types, ...(policy.calendars.length ? ['calendar'] : [])]);
+    return c.json({ schema: 'banana.share-feed.v1', access: accessSummary(policy), dataURL: endpoint(c, '', { types: 'all', format: 'json' }), scope: c.get('share').personal ? 'personal' : 'share', generatedAt: new Date(now()).toISOString(), expiresOn: policy.expiresOn ?? null,
       contentVersion: await contentVersion(state, types), shareVersion: row.published_version, grantVersion: c.get('feed').issued_version,
       types: types.map(type => ({ type, json: endpoint(c, '/records.json', { type }), csv: endpoint(c, '/records.csv', { type }) })),
       calendar: policy.calendars.length ? { json: endpoint(c, '/calendar.json'), csv: endpoint(c, '/calendar.csv'), requires: ['from', 'to'] } : null });
@@ -174,6 +191,72 @@ export function sharingFeeds(app, deps, { owner, signedIn, shared, ownerRow, bod
     }
     return { id: record.id, data, assets };
   }
+  // One bounded stream across the selected datasets. Legacy URLs below remain compatible.
+  async function unifiedResponse(c, available) {
+    let query;
+    try { query = feedQuery(c.req.url, available, now()); }
+    catch (error) { return fail(c, error.status ?? 400, error.message); }
+    const { types, format, limit, from, to } = query;
+    const { row, policy, personal } = c.get('share'), feed = c.get('feed');
+    const context = JSON.stringify({ types, format, limit, from, to, policy: await sha256Hex(JSON.stringify(policy)) });
+    let index = 0, after = '', offset = 0, calendarVersion = null;
+    if (query.cursor) {
+      const value = await signer.unseal('share-feed-page', query.cursor, now());
+      if (!value || value.feed !== feed.id || value.context !== context) return fail(c, 409, 'Feed selection or access changed. Start again from the original feed URL.');
+      if (!Number.isInteger(value.index) || value.index < 0 || value.index >= types.length
+        || typeof value.after !== 'string' || value.after.length > 200 || !Number.isSafeInteger(value.offset) || value.offset < 0) return fail(c, 400, 'bad_cursor');
+      ({ index, after, offset, calendarVersion } = value);
+    }
+    const records = []; let bytes = 0, continuation = false;
+    while (index < types.length && records.length < limit) {
+      const type = types[index], remaining = limit - records.length;
+      if (type === 'calendar') {
+        const response = await calendarResponse(c, { from, to }); if (!response.ok) return response;
+        const text = await response.text();
+        if (new TextEncoder().encode(text).byteLength > 8 * 1024 * 1024) return fail(c, 413, 'Use a shorter calendar window.');
+        const page = JSON.parse(text);
+        if (page.unavailable?.length) return fail(c, 503, 'calendar_unavailable');
+        const version = await sha256Hex(text);
+        if (calendarVersion && calendarVersion !== version) return fail(c, 409, 'Calendar changed. Start again from the original feed URL.');
+        const selected = page.events.slice(offset, offset + remaining);
+        for (const event of selected) records.push({ type, id: event.id, data: event, assets: [] });
+        offset += selected.length;
+        if (offset < page.events.length) { calendarVersion = version; continuation = true; break; }
+        offset = 0; calendarVersion = null; index++; after = '';
+      } else {
+        const response = await recordsResponse(c, { type, after }); if (!response.ok) return response;
+        const page = await response.json(), selected = page.records.slice(0, remaining);
+        try {
+          for (const record of selected) {
+            const exported = { type, ...await exportRecord(c, type, record) };
+            bytes += new TextEncoder().encode(JSON.stringify(exported)).byteLength;
+            if (bytes > 8 * 1024 * 1024) return fail(c, 413, 'Use a smaller page size.');
+            records.push(exported);
+          }
+        } catch { return fail(c, 503, 'data_unavailable'); }
+        if (page.records.length > remaining) { after = selected.at(-1).id; continuation = true; break; }
+        if (page.next != null) { after = page.next; continuation = true; break; }
+        index++; after = '';
+      }
+    }
+    let next = null;
+    if (continuation || index < types.length) {
+      const cursor = await signer.seal('share-feed-page', { feed: feed.id, context, index, after, offset, calendarVersion }, now() + HOUR);
+      next = endpoint(c, '', { types: types.join(','), format, limit, ...(types.includes('calendar') ? { from, to } : {}), cursor });
+    }
+    const state = await spaceFor(row.owner_id).webStatus([...allowedTypes(policy)]);
+    const result = { schema: 'banana.feed.v2', scope: personal ? 'personal' : 'share', access: accessSummary(policy),
+      generatedAt: new Date(now()).toISOString(), expiresOn: policy.expiresOn ?? null,
+      contentVersion: await contentVersion(state, available.filter(t => t !== 'calendar')), types,
+      ...(types.includes('calendar') ? { calendarWindow: { from, to } } : {}), records, next };
+    const text = JSON.stringify(result);
+    if (new TextEncoder().encode(text).byteLength > 8 * 1024 * 1024) return fail(c, 413, 'Use a smaller page size.');
+    if (next) c.header('Link', `<${next}>; rel="next"`);
+    if (format === 'json') return c.json(result);
+    try { return c.body(feedCSV(records, { typed: true }), 200, { 'Content-Type': 'text/csv; charset=utf-8', 'Content-Disposition': 'attachment; filename="banana-feed.csv"' }); }
+    catch { return fail(c, 413, 'Use JSON for this record structure.'); }
+  }
+
   for (const format of ['json', 'csv']) {
     app.get(`/app/feeds/:feed/records.${format}`, authenticate, async c => {
       const rawLimit = c.req.query('limit') ?? '25', limit = Number(rawLimit);
