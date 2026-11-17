@@ -177,3 +177,16 @@ Validation for this change: 23 sharing/feed checks; the complete service suite p
 and America/New_York (522 checks each). Owner and recipient creation, copied URL retrieval,
 revocation, calendar CSV/date selection, selector keyboard focus, 390-pixel layout and sign-out
 credential removal were checked in the local browser. Private evidence is retained off-tree.
+
+## Discovering valid type parameters
+
+The on-page **Valid types for this connection** table is exhaustive for the current grant and
+consent, including permitted datasets that have no records yet. It shows exact, case-sensitive
+identifiers and descriptions, plus a **Copy valid types** action. Before creation, recipient
+views use the server’s consent-filtered allowed types; after creation the connection manifest
+is authoritative, preserving any narrower original grant. Checkbox labels also show identifiers.
+
+For programmatic discovery, GET the connection’s `manifestURL` (the endpoint with `view=manifest`).
+Read every `types[].type`; add `calendar` only if the top-level `calendar` is non-null. Use `all`
+for every currently permitted type or join a subset with commas, without spaces or duplicates.
+Unavailable types return 403; reload metadata when access or consent changes.
