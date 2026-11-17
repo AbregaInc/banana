@@ -229,25 +229,40 @@ export function sharingRoutes(app, deps, { owner, signedIn, calendarChoices, vau
     if (!Number.isFinite(from) || !Number.isFinite(to) || from <= 0 || to <= from || to - from > 8 * DAY || Math.abs(from - now()) > 366 * DAY) return error(c, 'bad_request');
     const links = await db.all("SELECT sub, email, refresh_token, scopes, status FROM google_links WHERE account_id = ? AND status <> 'unlinked' ORDER BY created_at, sub", row.owner_id);
     const fetched = [], unavailable = [];
+    function problem(cal, reason, link, title) {
+      const index = policy.calendars.findIndex(c => c.sub === cal.sub && c.id === cal.id) + 1;
+      const calendar = cal.access === 'details' && title ? title : `Shared calendar ${index}`;
+      const message = reason === 'reconnect' ? 'The owner needs to reconnect this Google account in Banana.'
+        : reason === 'unavailable' ? 'Google no longer provides access to this calendar. The owner must restore access or remove it from the share.'
+        : 'Google could not read this calendar. Retry later.';
+      unavailable.push({email:'Shared calendars',calendar,calendarIndex:index,reason,message,
+        ...(c.get('share').preview ? {ownerCalendarID:cal.id,ownerAccount:link?.email??null} : {})});
+    }
+    const reason = error => error instanceof GoogleRefused ? 'reconnect' : [403,404,410].includes(error?.status) ? 'unavailable' : 'retry';
+    for(const cal of policy.calendars)if(!links.some(link=>link.sub===cal.sub))problem(cal,'reconnect');
     for (const link of links) {
       const selected = policy.calendars.filter(cal => cal.sub === link.sub);
       if (!selected.length) continue;
-      if (!link.refresh_token || link.status !== 'ok' || !canRead(link.scopes)) { unavailable.push({ email: 'Shared calendars', reason: 'retry' }); continue; }
+      if (!link.refresh_token || link.status !== 'ok' || !canRead(link.scopes)) { for(const cal of selected)problem(cal,'reconnect',link); continue; }
       try {
         const { accessToken } = await deps.google.refresh(await vault.open(link.sub, link.refresh_token));
-        const calendars = (await deps.google.calendarList(accessToken)).filter(cal => !cal.deleted && !cal.hidden && selected.some(s => s.id === cal.id));
-        if (calendars.length < selected.length) unavailable.push({ email: 'Shared calendars', reason: 'retry' });
-        for (let i = 0; i < calendars.length; i += 4) {
-          const group = await Promise.all(calendars.slice(i, i + 4).map(async calendar => {
+        const list = await deps.google.calendarList(accessToken);
+        // Hidden/subscription state is not access control. Verify explicitly granted calendars
+        // against their events endpoint, including ones no longer in the account's sidebar.
+        for (let i = 0; i < selected.length; i += 4) {
+          const group = await Promise.all(selected.slice(i, i + 4).map(async cal => {
+            const known = list.find(c=>c.id===cal.id);
+            if(known?.deleted){problem(cal,'unavailable',link,known.summary);return [];}
+            const calendar = known ?? {id:cal.id,summary:'Shared calendar',accessRole:'reader'};
             try {
               const { events } = await deps.google.listEvents(accessToken, calendar.id, { timeMin: new Date(from).toISOString(), timeMax: new Date(to).toISOString(),
                 fields: 'items(id,iCalUID,originalStartTime,summary,start,end,status,location,description,htmlLink,transparency,attendees,organizer,attachments,extendedProperties,hangoutLink,conferenceData,eventType,recurrence,recurringEventId),nextPageToken,nextSyncToken' });
               return events.map(event => ({ event, calendar, sub: link.sub, email: link.email }));
-            } catch { unavailable.push({ email: 'Shared calendars', reason: 'retry' }); return []; }
+            } catch(error) { problem(cal,reason(error),link,known?.summary); return []; }
           }));
           fetched.push(...group.flat());
         }
-      } catch (e) { unavailable.push({ email: 'Shared calendars', reason: e instanceof GoogleRefused ? 'reconnect' : 'retry' }); }
+      } catch (error) { for(const cal of selected)problem(cal,reason(error),link); }
     }
     const settings = await spaceFor(row.owner_id).read('core.smartSettings', 'smart-settings');
     return c.json({ events: await sharedCalendar(fetched, policy, { secret: deps.config.tokenKey, shareID: row.id, settings }), unavailable,

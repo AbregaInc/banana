@@ -68,6 +68,17 @@ export function sharingFeeds(app, deps, { owner, signedIn, shared, ownerRow, bod
       // The bearer secret and signed URL are returned only on creation, never in listings.
       return c.json({ ...summary(feed, who), ...issuedURLs(url), token }, 201);
     });
+    app.delete(`${prefix}/:feed`, ...(ownerMode ? [owner] : [signedIn, shared]), async c => {
+      if (!await body(c)) return fail(c, 403);
+      const row = ownerMode ? await ownerRow(c) : c.get('share').row;
+      if (!row) return fail(c);
+      const args = [c.req.param('feed'), row.id, ...(ownerMode ? [] : [c.get('web').sub])];
+      const scope = `id = ? AND share_id = ?${ownerMode ? '' : ' AND creator_sub = ?'}`;
+      const result = await db.run(`DELETE FROM web_share_feeds WHERE ${scope} AND revoked_at IS NOT NULL`, ...args);
+      if (result.changes) return c.json({deleted: true});
+      const active = await db.first(`SELECT id FROM web_share_feeds WHERE ${scope} AND revoked_at IS NULL`, ...args);
+      return active ? fail(c, 409, 'Revoke this connection before deleting it.') : fail(c);
+    });
     app.post(`${prefix}/:feed/revoke`, ...guards, async c => {
       if (!await body(c)) return fail(c, 403);
       const result = await db.run(`UPDATE web_share_feeds SET revoked_at = ? WHERE id = ? AND share_id = ?${ownerMode ? '' : ' AND creator_sub = ?'}`,
@@ -98,6 +109,14 @@ export function sharingFeeds(app, deps, { owner, signedIn, shared, ownerRow, bod
     const feed = await db.first('SELECT * FROM web_personal_feeds WHERE id = ?', id);
     const url = new URL(baseURL(id)); url.searchParams.set('signature', await urlSignature(feed));
     return c.json({ ...summary(feed, who), ...issuedURLs(url), token }, 201);
+  });
+  app.delete('/app/api/feeds/:feed', owner, async c => {
+    if (!await body(c)) return fail(c, 403);
+    const args = [c.req.param('feed'), c.get('web').account];
+    const result = await db.run('DELETE FROM web_personal_feeds WHERE id = ? AND owner_id = ? AND revoked_at IS NOT NULL', ...args);
+    if (result.changes) return c.json({deleted: true});
+    const active = await db.first('SELECT id FROM web_personal_feeds WHERE id = ? AND owner_id = ? AND revoked_at IS NULL', ...args);
+    return active ? fail(c, 409, 'Revoke this connection before deleting it.') : fail(c);
   });
   app.post('/app/api/feeds/:feed/revoke', owner, async c => {
     if (!await body(c)) return fail(c, 403);
@@ -249,7 +268,7 @@ export function sharingFeeds(app, deps, { owner, signedIn, shared, ownerRow, bod
         const text = await response.text();
         if (new TextEncoder().encode(text).byteLength > 8 * 1024 * 1024) return fail(c, 413, 'Use a shorter calendar window.');
         const page = JSON.parse(text);
-        if (page.unavailable?.length) return fail(c, 503, 'calendar_unavailable');
+        if (page.unavailable?.length) return c.json({error:'calendar_unavailable',message:'The selected calendar data is incomplete. Fix the calendars below or exclude Calendar from this request.',issues:page.unavailable},503);
         const version = await sha256Hex(text);
         if (calendarVersion && calendarVersion !== version) return fail(c, 409, 'Calendar changed. Start again from the original feed URL.');
         const selected = page.events.slice(offset, offset + remaining);

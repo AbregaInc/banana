@@ -101,3 +101,7 @@ test('streamed oversized data and cross-origin photos are rejected before creati
 test('malformed scalar source fields never become object-valued analysis cells',()=>{
  const result=normalizeAnalysis([record('food.meal','meal',{name:{nested:'unexpected'},date:false,items:[]})]);assert.equal(result.tables.meals[0].name,null);assert.equal(result.tables.meals[0].date,null);assert.match(result.warnings.join(' '),/meals.name/);assert.deepEqual(result.sourceRecords[0].data.name,{nested:'unexpected'});
 });
+
+test('calendar errors preserve actionable structured recovery instead of suggesting blind retries',async()=>{
+ await assert.rejects(importFeed('https://feed.test/data',{...options,fetcher:async()=>response({error:'calendar_unavailable',issues:[{calendar:'Shared calendar 1',reason:'unavailable'}]},503)}),error=>error.status===503&&error.issues.length===1&&/restore access or remove/.test(error.message));
+});
