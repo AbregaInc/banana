@@ -2,8 +2,9 @@
 
 A share can explicitly allow its owner and verified recipient to create independent read-only
 connections. In Sharing, enable **Allow external data feeds**, choose **Review and save access**, then
-confirm **Save access** in the guest preview. Create a named connection in the same screen. A recipient opens **Data feeds** in the
-shared-view banner. Copy the JSON/CSV URL or API token when creating the connection; secrets
+confirm **Save access** in the guest preview. Create a named connection in the same screen. A recipient opens **Data feeds** in the shared view’s navigation. The page contains connection
+creation, export URLs and revocation. Guest previews show the same page with creation disabled;
+they never issue credentials as the recipient. Copy the JSON/CSV URL or API token when creating the connection; secrets
 are shown once, kept only in page memory and cleared on sign-out. Neither creating a share nor
 editing an unpublished draft enables feeds by default.
 
