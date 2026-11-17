@@ -1,15 +1,6 @@
 import { feedLink } from './feed-link.js';
-import { feedGuide } from './feed-guide.js';
+import { feedGuide, feedTypeName as typeName } from './feed-guide.js';
 // Connection credentials stay in this page's memory. Listings never return them again.
-const typeName = (type, access) => {
-  if (type === 'health.snapshot' && access) return [access.sections.includes('workouts') ? 'Workout history' : '', access.sections.includes('health') ? 'Health trends' : ''].filter(Boolean).join(' & ');
-  return ({ 'food.meal': 'Meals', 'food.mealPhoto': 'Meal photos', 'food.myFood': 'Saved foods',
-  'food.dose': 'Dose history', 'food.supplement': 'Supplements', 'health.snapshot': 'Health data',
-  'health.workout': 'Workouts', 'health.workoutPlan': 'Workout plans', 'health.workoutCompletion': 'Workout completions',
-  'plan.routine': 'Routines', 'plan.alarm': 'Alarms', 'plan.extra': 'Plan items', 'plan.override': 'Plan adjustments', 'core.wakePlan': 'Wake plans',
-  'podcast.show': 'Podcasts', 'podcast.listen': 'Listening history', 'podcast.progress': 'Listening progress', 'podcast.transcript': 'Transcripts',
-  calendar: 'Calendar', 'notes.voiceNote': 'Voice notes' })[type] ?? type;
-};
 
 const scopeName = policy => [
   ...Object.entries(policy.sections).filter(([, on]) => on).map(([key]) => ({ personalPlan: 'Routines & reminders', workouts: 'Workouts', health: 'Health trends', nutrition: 'Food', taken: 'Taken', notes: 'Notes', listening: 'Listening' })[key]),
@@ -23,7 +14,7 @@ export function shareFeedControls({ request, escape: esc, notice }) {
   const secrets = new Map(), states = new Map(); let generation = 0, credentialEpoch = 0;
   const json = async (path, method = 'GET', data) => (await request(path, { method,
     ...(data == null ? {} : { headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) }) })).json();
-  async function mount(element, base, { policy, preview = false, previewManifest, previewVersion, sharedAccess, heading = true } = {}) {
+  async function mount(element, base, { policy, preview = false, previewManifest, previewVersion, sharedAccess, sharedTypes, heading = true } = {}) {
     if (!element) return;
     const ticket = ++generation, epoch = credentialEpoch;
     const state = states.get(base) ?? { busy: false, feeds: [], selectedTypes: null, format: 'json', calendarDays: 7, name: '' };
@@ -33,6 +24,15 @@ export function shareFeedControls({ request, escape: esc, notice }) {
     const previewBase = preview ? new URL(base.replace(/\/feeds$/, '/feed-preview'), location.origin) : null;
     if (previewBase) previewBase.searchParams.set('preview', previewVersion);
     const saved = () => preview ? example : secrets.get(base);
+    const permittedTypes = () => {
+      const current = saved();
+      if (current && !current.manifest) return null;
+      const manifest = current?.manifest;
+      const types = manifest ? manifest.types.map(t => t.type) : sharedTypes;
+      if (types == null) return null;
+      const calendar = manifest ? manifest.calendar : sharedAccess?.calendars.busy || sharedAccess?.calendars.details;
+      return [...types, ...(calendar ? ['calendar'] : [])];
+    };
     function selectedURL(current, source = false) {
       if (!current?.manifest) return '';
       const available = [...current.manifest.types.map(t => t.type), ...(current.manifest.calendar ? ['calendar'] : [])];
@@ -71,7 +71,7 @@ export function shareFeedControls({ request, escape: esc, notice }) {
         <button class="button secondary" type="submit" ${preview || busy ? 'disabled' : ''}>Create private feed</button></form>` : ''}
         ${current ? `<div class="feed-secret"><p>${preview ? 'Example connection. The URL below is non-working; the response preview reads your actual shared data.' : 'Read-only connection created. Copy these credentials now; they are shown once.'}</p>
           ${scope ? `<p><strong>${current.manifest.scope === 'share' ? 'Shared access' : 'Selected access'}:</strong> ${esc(scope)}</p>` : ''}
-          ${types.length ? `<fieldset class="feed-types"><legend>Included data types</legend>${types.map(t => `<label><input type="checkbox" data-feed-type="${esc(t.type)}" ${selected.includes(t.type) ? 'checked' : ''}>${esc(typeName(t.type, access))}</label>`).join('')}</fieldset>` : current.manifest ? '<p>No data types are currently available under this connection’s access and consent.</p>' : current.manifestError ? '<p>Could not load connection permissions.</p><button class="text-button" data-feed-retry>Retry</button>' : '<p role="status">Reading connection permissions…</p>'}
+          ${types.length ? `<fieldset class="feed-types"><legend>Included data types</legend>${types.map(t => `<label><input type="checkbox" data-feed-type="${esc(t.type)}" ${selected.includes(t.type) ? 'checked' : ''}>${esc(typeName(t.type, access))} <code>${esc(t.type)}</code></label>`).join('')}</fieldset>` : current.manifest ? '<p>No data types are currently available under this connection’s access and consent.</p>' : current.manifestError ? '<p>Could not load connection permissions.</p><button class="text-button" data-feed-retry>Retry</button>' : '<p role="status">Reading connection permissions…</p>'}
           <div class="feed-options"><label>Format <select data-feed-format><option value="json" ${state.format === 'json' ? 'selected' : ''}>JSON</option><option value="csv" ${state.format === 'csv' ? 'selected' : ''}>CSV</option></select></label>
           ${hasCalendar ? `<label>Calendar window <select data-feed-days>${[1,2,3,4,5,6,7,8].map(n => `<option value="${n}" ${state.calendarDays === n ? 'selected' : ''}>Next ${n} day${n === 1 ? '' : 's'}</option>`).join('')}</select></label>` : ''}</div>
           ${preview ? responseHTML : ''}
@@ -79,7 +79,7 @@ export function shareFeedControls({ request, escape: esc, notice }) {
           <div class="share-actions"><button class="button" data-feed-copy="url" ${busy || !url ? 'disabled' : ''}>${preview ? 'Copy example URL' : 'Copy feed URL'}</button>
           ${!preview ? `<button class="text-button" data-feed-copy="token" ${busy ? 'disabled' : ''}>Copy API token</button>` : ''}<button class="text-button" data-feed-response ${busy || !url ? 'disabled' : ''}>Preview data</button></div>
           ${!preview ? responseHTML : ''}</div>` : ''}
-        ${feedGuide({ access: current?.manifest?.access ?? sharedAccess, url, preview, escape: esc })}
+        ${feedGuide({ access: current?.manifest?.access ?? sharedAccess, types: permittedTypes(), url, manifestURL: current?.manifestURL, preview, escape: esc })}
         ${feeds.length ? `<div class="feed-connections">${feeds.map(f => `<div class="share-invitation"><div><strong>${esc(f.name)}</strong>
           ${f.access || f.policy ? `<p>${esc(f.access ? accessName(f.access) : scopeName(f.policy))}</p>` : ''}<span class="share-status">${f.revokedAt != null ? 'Revoked' : f.expiresOn ? `Expires ${esc(f.expiresOn)}` : 'Active'}${f.createdByYou ? ' · Created by you' : ''}</span></div>
           ${f.revokedAt == null ? `<button class="text-button" data-feed-revoke="${esc(f.id)}" ${busy ? 'disabled' : ''}>Revoke</button>` : ''}</div>`).join('')}</div>` : ''}`;
@@ -167,10 +167,10 @@ export function shareFeedControls({ request, escape: esc, notice }) {
         else if (button.hasAttribute('data-feed-retry')) { if (saved()) await refreshManifest(saved()); }
         else if (button.dataset.feedCopy) {
           const current = saved();
-          const value = button.dataset.feedCopy === 'token' ? current?.token : element.querySelector('[data-feed-url]')?.value;
+          const value = button.dataset.feedCopy === 'types' ? permittedTypes()?.join(',') : button.dataset.feedCopy === 'token' ? current?.token : element.querySelector('[data-feed-url]')?.value;
           if (!value) return;
           await navigator.clipboard.writeText(value);
-          if (alive()) notice(preview ? 'Example URL copied. It does not grant access.' : button.dataset.feedCopy === 'token' ? 'API token copied.' : 'Private feed URL copied.');
+          if (alive()) notice(button.dataset.feedCopy === 'types' ? 'Valid data types copied.' : preview ? 'Example URL copied. It does not grant access.' : button.dataset.feedCopy === 'token' ? 'API token copied.' : 'Private feed URL copied.');
         } else {
           state.busy = true; draw();
           await json(`${base}/${button.dataset.feedRevoke}/revoke`, 'POST', {});
