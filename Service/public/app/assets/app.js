@@ -8,6 +8,7 @@ import { workoutHTML, recordingHTML, distanceText, exactDuration } from './worko
 import { visibleDays, eventOnDay, layoutEvents, stepDay, authoredEvents } from './plan-model.js';
 import {metrics, period, inPeriod, readings, summary as metricSummary, nights, awakeMinutes, sleepVariation, refreshKind, doseInPeriod, displayMetric, latestReading, defaultHiddenMetrics, STATUS_INTERVAL_MS, shouldCheckStatus} from './health-model.js';
 import { sharingControls } from './sharing.js';
+import { canViewPage } from './sharing-navigation.js';
 
 const appHome = document.querySelector('meta[name="app-home"]').content;
 const $ = (s) => document.querySelector(s);
@@ -52,6 +53,7 @@ const pages = {
   podcasts:{name:'Listening'},
   notes:{name:'Notes'},
   sharing:{name:'Sharing'},
+  feeds:{name:'Data feeds'},
 };
 let renderId = 0, lastStatusCheck=0;
 let account, view = 'overview', generation = 0, refreshing = false, detailRecords = [], detailGeneration = 0;
@@ -121,7 +123,7 @@ function periodControls(){if(view==='health')return trendControls();const w=heal
 
 const sharing=sharingControls({request,escape,notice:showNotice,rerender:render});
 const receivedFeeds=shareFeedControls({request,escape,notice:showNotice});
-const canView=id=>!account?.shared || account.views.includes(id);
+const canView=id=>canViewPage(account,id);
 
 async function request(path, options = {}) {
   const r = await fetch(path, { credentials:'same-origin', cache:'no-store', ...options });
@@ -383,7 +385,7 @@ async function podcasts() {
   return tabs+(shown.length?body:empty('No listening history',query?'No listening matches your search.':'Your listening will appear after your devices sync.'));
 }
 async function notes() { const pass=renderId,epoch=generation;const data=await records('notes.voiceNote');if(pass!==renderId||epoch!==generation)return undefined;const rows=sortDate(data.filter(matches),'createdAt');viewCount(rows.length,'notes');return rows.length?listHTML(rows,noteRow):empty('No voice notes',query?'No notes match your search.':'Capture a voice note in Banana and find it here, with its transcript.'); }
-const renders={calendars,overview,plans,nutrition,taken,workouts,health,podcasts,notes,sharing:()=>sharing.render(location.hash.split('/')[1]||'')};
+const renders={calendars,overview,plans,nutrition,taken,workouts,health,podcasts,notes,sharing:()=>sharing.render(location.hash.split('/')[1]||''),feeds:()=>'<section id="received-feed-controls" aria-label="Connections"></section>'};
 
 async function calendars() {
   const data = await (await request('/app/api/calendars')).json();
@@ -400,7 +402,7 @@ async function render(keepContent=false) {
   $('#page-title').textContent=view==='overview'?(account.shared?`Shared by ${account.ownerName}`:`Hello${account.name?`, ${account.name.split(' ')[0]}`:''}.`):info.name;
   $('#page-date').textContent=date(Date.now(),{weekday:'short',month:'short',day:'numeric'});
   document.title=`Banana · ${info.name}`;
-  $('#tools').hidden=['overview','health','calendars','sharing'].includes(view);
+  $('#tools').hidden=['overview','health','calendars','sharing','feeds'].includes(view);
   $('#search').placeholder=filterScope()==='text'?`Search ${info.name.toLowerCase()}`:`Filter ${info.name.toLowerCase()} in your own words…`;
   filterControls();
   $('#navigation').innerHTML=Object.entries(pages).filter(([key])=>canView(key)).map(([key,p],i)=>`<a class="nav-link" href="#${key}" ${view===key?'aria-current="page"':''}><span class="nav-num">${String(i+1).padStart(2,'0')}</span>${p.name}</a>`).join('');
@@ -410,7 +412,7 @@ async function render(keepContent=false) {
   detailRecords=[];
   try {
     const html=await renders[view]();
-    if(pass===renderId && current===generation && selected===view && html!==undefined){ $('#content').innerHTML=html; if(selected==='plans')applyCalendarLayout();if(selected==='sharing')sharing.mounted(); }
+    if(pass===renderId && current===generation && selected===view && html!==undefined){ $('#content').innerHTML=html; if(selected==='plans')applyCalendarLayout();if(selected==='sharing')sharing.mounted();if(selected==='feeds')receivedFeeds.mount($('#received-feed-controls'),`/app/api/shared/${sharedContext.id}/feeds`,{preview:account.preview,heading:false}); }
   }catch(e){if(pass===renderId && current===generation && selected===view && account)$('#content').innerHTML=empty('Could not load this view',e.message)+'<button class="button error-action" data-retry>Try again</button>';}
   finally{if(pass===renderId && current===generation && selected===view){$('#content').setAttribute('aria-busy','false');$('#content').inert=false;}}
 }
@@ -445,13 +447,7 @@ function updateAccount() {
       location.assign(account.previewBack);
     } catch(error) { saveAccess.disabled = false; showNotice(error.message, true); }
   };
-  if(account.shared && account.dataFeedsAllowed){
-    const disclosure=document.createElement('details');disclosure.id='received-feed-disclosure';
-    const summary=document.createElement('summary');summary.textContent='Data feeds';disclosure.append(summary);
-    const panel=document.createElement('div');panel.id='received-feed-controls';disclosure.append(panel);$('#share-banner').append(disclosure);
-    if(!account.preview)receivedFeeds.mount(panel,`/app/api/shared/${sharedContext.id}/feeds`);
-    else panel.textContent='External data feeds will be allowed.';
-  }
+
 }
 function signedOut() {
   sharing.clear(); receivedFeeds.clear();

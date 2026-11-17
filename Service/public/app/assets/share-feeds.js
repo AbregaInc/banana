@@ -15,22 +15,24 @@ export function shareFeedControls({ request, escape: esc, notice }) {
   const secrets = new Map(), states = new Map(); let generation = 0, credentialEpoch = 0;
   const json = async (path, method = 'GET', data) => (await request(path, { method,
     ...(data == null ? {} : { headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) }) })).json();
-  async function mount(element, base, { policy } = {}) {
+  async function mount(element, base, { policy, preview = false, heading = true } = {}) {
     if (!element) return;
     const ticket = ++generation, epoch = credentialEpoch;
     const state = states.get(base) ?? { busy: false, feeds: [], selectedType: '', name: '' };
     states.set(base, state);
     const alive = () => ticket === generation && element.isConnected;
-    const saved = () => secrets.get(base);
+    const saved = () => preview ? null : secrets.get(base);
     function draw() {
       if (!alive()) return;
       const current = saved(), types = [...(current?.manifest?.types ?? []), ...(current?.manifest?.calendar ? [{ type: 'calendar', ...current.manifest.calendar }] : [])];
       if (!types.some(t => t.type === state.selectedType)) state.selectedType = types[0]?.type ?? '';
-      const { busy, feeds, selectedType } = state;
+      const { busy, selectedType } = state;
+      const feeds = preview ? [] : state.feeds;
       const selected = types.find(t => t.type === selectedType);
-      element.innerHTML = `<div class="section-title"><h3>Data feeds</h3></div>
-        <form data-feed-form class="feed-connection-form"><label class="share-email">Connection name <input name="feed-name" value="${esc(state.name)}" required maxlength="100" placeholder="Coaching app" autocomplete="off"></label>
-        <button class="button secondary" type="submit" ${busy ? 'disabled' : ''}>Create private feed</button></form>
+      element.innerHTML = `${heading ? '<div class="section-title"><h3>Data feeds</h3></div>' : ''}
+        ${preview ? '<p class="subtle">The recipient can create a connection here. Preview controls are disabled.</p>' : ''}
+        <form data-feed-form class="feed-connection-form"><label class="share-email">Connection name <input name="feed-name" value="${esc(state.name)}" required maxlength="100" placeholder="Coaching app" autocomplete="off" ${preview || busy ? 'disabled' : ''}></label>
+        <button class="button secondary" type="submit" ${preview || busy ? 'disabled' : ''}>Create private feed</button></form>
         ${current ? `<div class="feed-secret"><p>Read-only connection created. Copy these credentials now; they are shown once.</p>
           ${types.length ? `<label>Data <select data-feed-type>${types.map(t => `<option value="${esc(t.type)}" ${t.type === selectedType ? 'selected' : ''}>${esc(typeName(t.type))}</option>`).join('')}</select></label>` : ''}
           ${selectedType === 'calendar' ? `<div class="feed-dates"><label>From <input type="date" name="feed-from" value="${esc(state.from ?? new Date().toISOString().slice(0, 10))}"></label><label>Until <input type="date" name="feed-to" value="${esc(state.to ?? new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10))}"></label></div>` : ''}
@@ -50,7 +52,7 @@ export function shareFeedControls({ request, escape: esc, notice }) {
       else if (event.target.name === 'feed-to') state.to = event.target.value; };
     element.onsubmit = async event => {
       if (!event.target.matches('[data-feed-form]')) return;
-      event.preventDefault(); if (state.busy) return;
+      event.preventDefault(); if (state.busy || preview) return;
       const name = new FormData(event.target).get('feed-name');
       state.busy = true; draw();
       try {
@@ -99,6 +101,7 @@ export function shareFeedControls({ request, escape: esc, notice }) {
       finally { if (state.busy) { state.busy = false; state.redraw?.(); } }
     };
     draw();
+    if (preview) return;
     try { await reload(); } catch (error) { if (alive()) notice(error.message, true); }
   }
   return { mount, clear() { credentialEpoch++; generation++; secrets.clear(); states.clear(); } };
