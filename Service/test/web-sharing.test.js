@@ -759,3 +759,43 @@ test('a mutation during page construction returns conflict instead of a falsely 
  f.s.deps.spaces.get=id=>{const stub=originalGet(id),browse=stub.browse.bind(stub);stub.browse=async(...args)=>{const page=await browse(...args);if(!changed){changed=true;f.s.advance(1);await f.put('food.meal','meal',{name:'After'});}return page;};return stub;};
  const response=await f.call('GET',`/app/api/shared/${d.id}/feed-preview?preview=${d.version}&types=food.meal&format=json`);assert.equal(response.status,409);assert.match((await response.json()).error,/changed/);
 });
+
+test('revoked shared connections can be deleted only by their creator or share owner',async()=>{
+ const f=await fixture(),p=policy('nutrition');p.allowFeeds=true;const d=await f.draft(p);await f.send(d);const guest=await f.login('trainer',d.id),stranger=await f.login('stranger');
+ const base=`/app/api/shared/${d.id}/feeds`,ownerBase=`/app/api/shares/${d.id}/feeds`;
+ const own=await(await f.call('POST',ownerBase,{name:'Owner key'})).json(),key=await(await f.call('POST',base,{name:'Guest key'},guest.cookie)).json();
+ assert.equal((await f.call('DELETE',`${base}/${key.id}`,{},guest.cookie)).status,409);
+ await f.call('POST',`${ownerBase}/${own.id}/revoke`,{});
+ assert.equal((await f.call('DELETE',`${base}/${own.id}`,{},guest.cookie)).status,404);
+ assert.equal((await f.call('DELETE',`${base}/${key.id}`,{},stranger.cookie)).status,403);
+ await f.call('POST',`${base}/${key.id}/revoke`,{},guest.cookie);
+ assert.equal((await f.call('DELETE',`${base}/${key.id}`,{},guest.cookie,'https://other.example')).status,403);
+ assert.equal((await f.call('DELETE',`${base}/${key.id}`,{},guest.cookie)).status,200);
+ assert.equal((await f.call('DELETE',`${ownerBase}/${own.id}`,{})).status,200);
+ assert.equal((await f.s.app.request(key.url)).status,404);assert.equal((await f.s.db.first('SELECT COUNT(*) AS n FROM web_share_feeds')).n,0);
+});
+test('revoked personal connections delete without removing source records and active keys are protected',async()=>{
+ const f=await fixture(),p=policy('nutrition');await f.put('food.meal','meal',{name:'Keep this'});
+ const key=await(await f.call('POST','/app/api/feeds',{name:'Personal',policy:p})).json();
+ assert.equal((await f.call('DELETE',`/app/api/feeds/${key.id}`,{})).status,409);
+ await f.call('POST',`/app/api/feeds/${key.id}/revoke`,{});
+ assert.equal((await f.call('DELETE',`/app/api/feeds/${key.id}`,{},null)).status,401);
+ assert.equal((await f.call('DELETE',`/app/api/feeds/${key.id}`,{})).status,200);
+ assert.equal((await f.s.db.first('SELECT COUNT(*) AS n FROM web_personal_feeds')).n,0);assert.equal((await f.space.browse('food.meal')).records[0].fields.name,'Keep this');
+ assert.equal((await f.s.app.request(key.url)).status,404);
+});
+test('calendar failures identify a selected missing calendar without disclosing busy-calendar provenance',async()=>{
+ const f=await fixture(),p=policy('nutrition');p.allowFeeds=true;p.calendars=[{sub:'owner-sub',id:'calendar-1',access:'busy'}];const d=await f.draft(p);await f.send(d);const guest=await f.login('trainer',d.id);
+ f.s.google.listEvents=async()=>{throw Object.assign(new Error('events 404'),{status:404});};
+ const response=await f.call('GET',`/app/api/shared/${d.id}/export-data?types=all&format=json`,null,guest.cookie);assert.equal(response.status,503);const result=await response.json();assert.equal(result.error,'calendar_unavailable');assert.equal(result.issues[0].reason,'unavailable');assert.equal(result.issues[0].calendar,'Shared calendar 1');assert.equal(result.issues[0].ownerCalendarID,undefined);assert.equal(JSON.stringify(result).includes('owner-sub'),false);assert.equal(JSON.stringify(result).includes('Calendar 1'),false);
+ const owner=await(await f.call('GET',`/app/api/shared/${d.id}/feed-preview?preview=${d.version}&types=calendar&format=json`)).json();assert.equal(owner.issues[0].ownerCalendarID,'calendar-1');
+ const fitness=await f.call('GET',`/app/api/shared/${d.id}/export-data?types=food.meal&format=json`,null,guest.cookie);assert.equal(fitness.status,200);
+});
+test('explicitly selected hidden or unlisted accessible calendars still export; disconnected accounts fail closed',async()=>{
+ const f=await fixture(),p=policy('nutrition');p.allowFeeds=true;p.calendars=[{sub:'owner-sub',id:'calendar-1',access:'details'}];const d=await f.draft(p);await f.send(d);const guest=await f.login('trainer',d.id);
+ const path=`/app/api/shared/${d.id}/export-data?types=calendar&format=json`;
+ const start=f.s.now()+3600000;f.s.google.events.set('calendar-1',[{id:'event',summary:'Shared event',start:{dateTime:new Date(start).toISOString()},end:{dateTime:new Date(start+3600000).toISOString()}}]);
+ f.s.google.calendars.set('owner-refresh',[{id:'calendar-1',summary:'Hidden',accessRole:'reader',hidden:true}]);assert.equal((await(await f.call('GET',path,null,guest.cookie)).json()).records.length,1);
+ f.s.google.calendars.set('owner-refresh',[]);assert.equal((await(await f.call('GET',path,null,guest.cookie)).json()).records.length,1);
+ await f.s.db.run("UPDATE google_links SET status = 'unlinked' WHERE sub = ?",'owner-sub');const response=await f.call('GET',path,null,guest.cookie);assert.equal(response.status,503);assert.equal((await response.json()).issues[0].reason,'reconnect');
+});

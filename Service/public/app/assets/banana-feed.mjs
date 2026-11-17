@@ -289,6 +289,46 @@ async function collectFeed(url, { fetcher = fetch, signal, onProgress = () => {
         await wait(ms, signal);
         continue;
       }
+      if (response.status === 503) {
+        let detail = null;
+        try {
+          const reader2 = response.body?.getReader(), chunks2 = [];
+          let size = 0;
+          if (reader2) {
+            try {
+              for (; ; ) {
+                const { value, done } = await reader2.read();
+                if (done) break;
+                size += value.byteLength;
+                if (size > 16384) {
+                  await reader2.cancel();
+                  break;
+                }
+                chunks2.push(value);
+              }
+              if (size <= 16384) {
+                const bytes2 = new Uint8Array(size);
+                let offset2 = 0;
+                for (const chunk of chunks2) {
+                  bytes2.set(chunk, offset2);
+                  offset2 += chunk.length;
+                }
+                detail = JSON.parse(new TextDecoder().decode(bytes2));
+              }
+            } finally {
+              reader2.releaseLock();
+            }
+          }
+        } catch {
+        }
+        if (detail?.error === "calendar_unavailable") {
+          const issues = Array.isArray(detail.issues) ? detail.issues : [];
+          const message = issues.some((i2) => i2.reason === "reconnect") ? "The owner needs to reconnect a selected Google account." : issues.some((i2) => i2.reason === "unavailable") ? "Google no longer provides access to a selected calendar. The owner must restore access or remove it from the share." : "A selected calendar is temporarily unavailable. Retry later.";
+          const error = new FeedImportError(message + " You can also exclude calendar from the requested types. No partial export was saved.", 503);
+          error.issues = issues;
+          throw error;
+        }
+      }
       if (!response.ok) throw new FeedImportError(messages[response.status] ?? `Feed request failed (HTTP ${response.status}).`, response.status);
       const declared = Number(response.headers.get("Content-Length"));
       if (declared > maxBytes - bytes) throw new FeedImportError("The export exceeds the 64 MiB browser download limit. Select fewer types or use the developer importer with a larger maxBytes limit.");

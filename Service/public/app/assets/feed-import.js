@@ -17,6 +17,15 @@ export async function collectFeed(url,{fetcher=fetch,signal,onProgress=()=>{},wa
       if(requests++)await wait(paceMs,signal);
       const response=await fetcher(u.href,{headers:token?{Authorization:`Bearer ${token}`}:{},credentials,cache:'no-store',signal,redirect:'error'});
       if(response.status===429&&attempt<3){const raw=response.headers.get('Retry-After');const seconds=/^\d+$/.test(raw??'')?Number(raw):Math.ceil((Date.parse(raw)-Date.now())/1000);const ms=Math.max(1000,Math.min(3600000,(Number.isFinite(seconds)?seconds:60)*1000));onProgress({stage:'waiting',pages,records:records.length,retryAfterSeconds:Math.ceil(ms/1000)});await wait(ms,signal);continue;}
+      if(response.status===503){
+        let detail=null;
+        try{const reader=response.body?.getReader(),chunks=[];let size=0;if(reader){try{for(;;){const {value,done}=await reader.read();if(done)break;size+=value.byteLength;if(size>16384){await reader.cancel();break;}chunks.push(value);}if(size<=16384){const bytes=new Uint8Array(size);let offset=0;for(const chunk of chunks){bytes.set(chunk,offset);offset+=chunk.length;}detail=JSON.parse(new TextDecoder().decode(bytes));}}finally{reader.releaseLock();}}}catch{}
+        if(detail?.error==='calendar_unavailable'){
+          const issues=Array.isArray(detail.issues)?detail.issues:[];
+          const message=issues.some(i=>i.reason==='reconnect')?'The owner needs to reconnect a selected Google account.':issues.some(i=>i.reason==='unavailable')?'Google no longer provides access to a selected calendar. The owner must restore access or remove it from the share.':'A selected calendar is temporarily unavailable. Retry later.';
+          const error=new FeedImportError(message+' You can also exclude calendar from the requested types. No partial export was saved.',503);error.issues=issues;throw error;
+        }
+      }
       if(!response.ok)throw new FeedImportError(messages[response.status]??`Feed request failed (HTTP ${response.status}).`,response.status);
       const declared=Number(response.headers.get('Content-Length'));if(declared>maxBytes-bytes)throw new FeedImportError('The export exceeds the 64 MiB browser download limit. Select fewer types or use the developer importer with a larger maxBytes limit.');
       // Bound streamed reads before decoding/parsing a response; servers may omit Content-Length.

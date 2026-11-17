@@ -14,7 +14,7 @@ export function shareFeedControls({ request, escape: esc, notice }) {
   const secrets = new Map(), states = new Map(); let generation = 0, credentialEpoch = 0;
   const json = async (path, method = 'GET', data) => (await request(path, { method,
     ...(data == null ? {} : { headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) }) })).json();
-  async function mount(element, base, { policy, preview = false, previewManifest, previewVersion, sharedAccess, sharedTypes, heading = true } = {}) {
+  async function mount(element, base, { policy, preview = false, previewManifest, previewVersion, sharedAccess, sharedTypes, editShareURL, heading = true } = {}) {
     if (!element) return;
     const ticket = ++generation, epoch = credentialEpoch;
     const state = states.get(base) ?? { busy: false, feeds: [], selectedTypes: null, format: 'json', calendarDays: 7, name: '' };
@@ -63,7 +63,8 @@ export function shareFeedControls({ request, escape: esc, notice }) {
       const access = current?.manifest?.access;
       const scope = access ? accessName(access) : '';
 
-      const responseHTML = `<section class="feed-response" aria-label="Response preview"><h3>Response preview</h3>
+      const calendarRecovery = state.calendarIssue ? `<div class="notice" role="alert"><strong>Calendar access needs attention</strong><p>${esc(state.calendarIssue.message)}</p><ul>${state.calendarIssue.issues.map(issue=>`<li><strong>${esc(issue.calendar||'Shared calendar')}</strong>: ${esc(issue.message||'Could not read this calendar.')}${issue.ownerCalendarID?`<br><code>${esc(issue.ownerCalendarID)}</code>`:''}${issue.ownerAccount?`<br>${esc(issue.ownerAccount)}`:''}</li>`).join('')}</ul><div class="share-actions"><button class="text-button" data-feed-response>Retry</button>${selected.some(t=>t!=='calendar')?'<button class="text-button" data-feed-exclude-calendar>Exclude Calendar from this request</button>':''}${editShareURL?`<a class="text-button" href="${esc(editShareURL)}">Edit shared calendars</a>`:''}</div></div>` : '';
+      const responseHTML = `<section class="feed-response" aria-label="Response preview"><h3>Response preview</h3>${calendarRecovery}
           ${state.responseLoading ? '<p role="status">Loading shared data…</p>' : ''}${state.responseText != null ? `<p>HTTP ${state.responseStatus}${state.responseClipped ? ' · Display limited to 65,536 characters' : ''}</p><pre tabindex="0" aria-label="Feed response"><code>${esc(state.responseText)}</code></pre><div class="share-actions"><a class="text-button" href="${esc(state.responseURL)}" target="_blank" rel="noreferrer noopener">Open full response ↗</a>${state.responseNext ? `<button class="text-button" data-feed-next ${state.responseLoading ? 'disabled' : ''}>Next page</button>` : ''}</div>` : state.responseError ? '<p>Could not read the response. Use Preview data to retry.</p>' : state.responseLoading ? '' : '<p>Preview data shows one real response page.</p>'}
           </section>`;
 
@@ -87,7 +88,7 @@ export function shareFeedControls({ request, escape: esc, notice }) {
         ${feedGuide({ access: current?.manifest?.access ?? sharedAccess, types: permittedTypes(), url: current?.session ? '' : url, manifestURL: current?.manifestURL, preview, escape: esc })}
         ${feeds.length ? `<div class="feed-connections">${feeds.map(f => `<div class="share-invitation"><div><strong>${esc(f.name)}</strong>
           ${f.access || f.policy ? `<p>${esc(f.access ? accessName(f.access) : scopeName(f.policy))}</p>` : ''}<span class="share-status">${f.revokedAt != null ? 'Revoked' : f.expiresOn ? `Expires ${esc(f.expiresOn)}` : 'Active'}${f.createdByYou ? ' · Created by you' : ''}</span></div>
-          ${f.revokedAt == null ? `<button class="text-button" data-feed-revoke="${esc(f.id)}" ${busy ? 'disabled' : ''}>Revoke</button>` : ''}</div>`).join('')}</div>` : ''}`;
+          ${f.revokedAt == null ? `<button class="text-button" data-feed-revoke="${esc(f.id)}" ${busy ? 'disabled' : ''}>Revoke</button>` : `<button class="text-button" data-feed-delete="${esc(f.id)}" ${busy ? 'disabled' : ''}>Delete</button>`}</div>`).join('')}</div>` : ''}`;
       if (focus || exportFocus) { const control = element.querySelector(focus || exportFocus); control?.focus({ preventScroll: true }); if (selection && control) control.setSelectionRange(...selection); }
     }
     function cancelExport(message = 'Download cancelled.') {
@@ -122,21 +123,22 @@ export function shareFeedControls({ request, escape: esc, notice }) {
       worker.postMessage({url,preview:preview||saved()?.session,images:state.includeImages!==false});
     }
     function invalidateResponse() {
-      cancelExport('Selection changed. Start the download again.');
+      if(state.exportWorker)cancelExport('Selection changed. Start the download again.');else state.exportStatus='';
       state.responseAbort?.abort(); state.responseAbort = null;
-      state.responseEpoch = (state.responseEpoch ?? 0) + 1; state.responseText = null; state.responseError = false; state.responseLoading = false;
+      state.responseEpoch = (state.responseEpoch ?? 0) + 1; state.responseText = null; state.responseError = false; state.responseLoading = false;state.calendarIssue=null;
     }
     async function loadResponse(next = null) {
       const url = next ?? selectedURL(saved(), true); if (!url) return;
       state.responseAbort?.abort();
       const controller = new AbortController(); state.responseAbort = controller;
       const owner = state.responseEpoch = (state.responseEpoch ?? 0) + 1;
-      state.responseLoading = true; state.responseError = false; state.redraw?.();
+      state.responseLoading = true; state.responseError = false;state.calendarIssue=null; state.redraw?.();
       try {
         const target = new URL(url); if (target.origin !== location.origin) throw new Error('Feed origin changed.');
         const response = await fetch(target, { credentials: preview || saved()?.session ? 'same-origin' : 'omit', cache: 'no-store', signal: controller.signal });
         const text = await response.text();
         if (epoch !== credentialEpoch || state.responseEpoch !== owner) return;
+        if(response.status===503&&text.length<=65536){try{const issue=JSON.parse(text);if(issue.error==='calendar_unavailable')state.calendarIssue={message:issue.message||'A selected calendar could not be read. Retry, edit the share or exclude Calendar from this request.',issues:Array.isArray(issue.issues)?issue.issues:[]};}catch{}}
         let display = text.slice(0, 65536);
         if (text.length <= 65536 && state.format === 'json') { try { display = JSON.stringify(JSON.parse(text), null, 2); } catch {} }
         state.responseText = display.slice(0, 65536); state.responseClipped = text.length > 65536 || display.length > 65536;
@@ -197,10 +199,19 @@ export function shareFeedControls({ request, escape: esc, notice }) {
       else if (target.matches('[data-feed-days]')) { state.calendarDays = Number(target.value); invalidateResponse(); draw(); if (preview) loadResponse(); element.querySelector('[data-feed-days]')?.focus(); }
     };
     element.onclick = async event => {
-      const button = event.target.closest('[data-feed-copy],[data-feed-revoke],[data-feed-retry],[data-feed-response],[data-feed-next],[data-feed-export],[data-feed-export-cancel]');
+      const button = event.target.closest('[data-feed-copy],[data-feed-revoke],[data-feed-retry],[data-feed-response],[data-feed-next],[data-feed-export],[data-feed-export-cancel],[data-feed-delete],[data-feed-exclude-calendar]');
       if (!button || state.busy) return;
       try {
-        if (button.hasAttribute('data-feed-export')) { exportAll(); }
+        if (button.hasAttribute('data-feed-exclude-calendar')) {
+          const selected=state.selectedTypes??permittedTypes()??[];state.selectedTypes=selected.filter(t=>t!=='calendar');invalidateResponse();draw();await loadResponse();
+          if(alive())notice('Calendar excluded from this request. The saved share was not changed.');
+        }
+        else if (button.hasAttribute('data-feed-delete')) {
+          if (!confirm('Delete this revoked connection from the list? Your Banana data will be kept.')) return;
+          state.busy=true;draw();await json(`${base}/${button.dataset.feedDelete}`, 'DELETE', {});
+          if (epoch===credentialEpoch) { await state.reload?.();if(alive())notice('Revoked connection deleted.'); }
+        }
+        else if (button.hasAttribute('data-feed-export')) { exportAll(); }
         else if (button.hasAttribute('data-feed-export-cancel')) { cancelExport();draw(); }
         else if (button.hasAttribute('data-feed-response')) { await loadResponse(); }
         else if (button.hasAttribute('data-feed-next')) { await loadResponse(state.responseNext); }

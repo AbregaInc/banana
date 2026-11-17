@@ -336,3 +336,27 @@ archive and verify every page, scalar table, schema, image join and count. Size 
 while streaming responses before JSON parsing; the worker bounds main-thread work independently
 of total source history. This is a functionality/resource boundary, not native frame-performance
 acceptance.
+
+## Calendar recovery and deleting old connections
+
+A revoked personal or shared connection offers **Delete**. Deletion removes only that credential
+record from the list; source data and the share remain. Active connections must first be revoked.
+Owners may delete revoked connections for their shares, recipients only their own. Deletion checks
+the same identity/origin boundary and does not re-enable URLs or image links. Management endpoints
+are `DELETE /app/api/feeds/<id>`, `DELETE /app/api/shares/<share>/feeds/<id>` (owner), and
+`DELETE /app/api/shared/<share>/feeds/<id>` (recipient), with a same-origin authenticated JSON body.
+An active key returns 409, unknown or out-of-scope keys 404.
+
+`calendar_unavailable` returns a message and per-selected-calendar `issues`, with a reason of
+`reconnect`, `unavailable` or `retry`. The preview renders the recovery instructions, Retry, an
+owner link to edit the share, and **Exclude Calendar from this request** when other types are
+selected. Exclusion changes only the request/type selection, never the saved share. The importer
+surfaces the same actionable reasons and exposes structured `error.issues`; no partial archive is
+saved. Google 403/404/410 requires the owner to restore access or remove the obsolete selection;
+transient failures remain retryable. Owner preview identifies its account/calendar IDs; recipient
+errors never expose busy-calendar names, account addresses or Google IDs.
+
+Explicitly selected hidden or unsubscribed calendars are read if Google still permits the events
+request. Sidebar membership is not the permission check. Deleted/inaccessible calendars and missing
+Google links fail closed instead of being silently omitted. The existing share editor's unavailable
+calendar rows can remove a stale permission, followed by Review and save access → Save access.

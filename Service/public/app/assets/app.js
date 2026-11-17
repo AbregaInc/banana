@@ -412,7 +412,7 @@ async function render(keepContent=false) {
   detailRecords=[];
   try {
     const html=await renders[view]();
-    if(pass===renderId && current===generation && selected===view && html!==undefined){ $('#content').innerHTML=html; if(selected==='plans')applyCalendarLayout();if(selected==='sharing')sharing.mounted();if(selected==='feeds')receivedFeeds.mount($('#received-feed-controls'),`/app/api/shared/${sharedContext.id}/feeds`,{preview:account.preview,previewManifest:account.feedPreview,sharedAccess:account.feedAccess,sharedTypes:account.allowedTypes,previewVersion:sharedContext.preview,heading:false}); }
+    if(pass===renderId && current===generation && selected===view && html!==undefined){ $('#content').innerHTML=html; if(selected==='plans')applyCalendarLayout();if(selected==='sharing')sharing.mounted();if(selected==='feeds')receivedFeeds.mount($('#received-feed-controls'),`/app/api/shared/${sharedContext.id}/feeds`,{preview:account.preview,previewManifest:account.feedPreview,sharedAccess:account.feedAccess,sharedTypes:account.allowedTypes,editShareURL:account.previewBack,previewVersion:sharedContext.preview,heading:false}); }
   }catch(e){if(pass===renderId && current===generation && selected===view && account)$('#content').innerHTML=empty('Could not load this view',e.message)+'<button class="button error-action" data-retry>Try again</button>';}
   finally{if(pass===renderId && current===generation && selected===view){$('#content').setAttribute('aria-busy','false');$('#content').inert=false;}}
 }
