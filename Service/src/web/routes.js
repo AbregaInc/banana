@@ -204,8 +204,10 @@ export function webRoutes(app, deps, { signer, onCalendarSettingsChanged = () =>
   });
   app.get("/app/api/records", signedIn, async (c) => {
     const type = c.req.query("type"), after = c.req.query("after") ?? "";
-    if (!TYPES.has(type) || after.length > 200) return c.json({ error: "bad_request" }, 400);
-    return c.json(await ownSpace(c).browse(type, after));
+    const limit = Number(c.req.query("limit") ?? 100), ordered = c.req.query("order") === "display";
+    if (!TYPES.has(type) || after.length > 200 || !Number.isInteger(limit) || limit < 1 || limit > 100)
+      return c.json({ error: "bad_request" }, 400);
+    return c.json(await ownSpace(c).browse(type, after, limit, ordered));
   });
   async function calendarChoices(c) {
     const links = await deps.db.all("SELECT sub, email, refresh_token, scopes, status FROM google_links WHERE account_id = ? AND status <> 'unlinked' ORDER BY created_at, sub", c.get("web").account);

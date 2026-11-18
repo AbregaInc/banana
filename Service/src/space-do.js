@@ -46,7 +46,7 @@ export class Space extends DurableObject {
   setCalendarPreference(request) { return space.setCalendarPreference(this.port, request); }
   read(type, id) { return space.read(this.port, type, id); }
   list(type) { return space.list(this.port, type); }
-  browse(type, after) { return space.browse(this.port, type, after); }
+  browse(type, after, limit, ordered) { return space.browse(this.port, type, after, limit, ordered); }
   webBlob(type, id, field) { return space.webBlob(this.port, type, id, field); }
 
   async withdrawConsent(kind, spaceId) {
@@ -104,7 +104,7 @@ export function doSpaces(namespace) {
         setCalendarPreference: (request) => stub.setCalendarPreference(request),
         read: (type, recordId) => stub.read(type, recordId),
         list: (type) => stub.list(type),
-        browse: (type, after) => stub.browse(type, after),
+        browse: (type, after, limit, ordered) => stub.browse(type, after, limit ?? 100, ordered === true),
         webBlob: (type, recordId, field) => stub.webBlob(type, recordId, field),
         wipe: () => stub.wipe(id),
         export: () => stub.fetch("https://space/export"),
