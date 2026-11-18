@@ -124,7 +124,7 @@ final class FakeSnapshot: HealthSnapshotPort {
         let packed = self.packed
         return { packed }
     }
-    func adoptSnapshot(_ packed: Data) { adopted.append(packed) }
+    func adoptSnapshot(file: URL) throws { adopted.append(try Data(contentsOf: file)) }
 }
 
 /// A requests inbox: the asker writes requests, the carrier marks what it did.
@@ -389,7 +389,7 @@ final class HealthFoodAdapterTests: XCTestCase {
                        sent[workout.id.uuidString]?["samples"], "kept across launches")
     }
 
-    func testTheHealthSnapshotGoesToASpokeWhole() throws {
+    func testTheHealthSnapshotGoesToASpokeWhole() async throws {
         let phone = FakeSnapshot(), mac = FakeSnapshot()
         let dir = FileManager.default.temporaryDirectory.appendingPathComponent("hs-\(UUID().uuidString)")
         let hub = HealthSnapshotAdapter(port: phone, isHub: true, directory: dir.appendingPathComponent("a"),
@@ -402,7 +402,7 @@ final class HealthFoodAdapterTests: XCTestCase {
         XCTAssertEqual(spoke.apply(HealthSnapshotAdapter.type, records: [(HealthSnapshotAdapter.id, sent[HealthSnapshotAdapter.id]!)]),
                        [HealthSnapshotAdapter.id: true])
         let file = try XCTUnwrap(hub.blobFile(HealthSnapshotAdapter.type, id: HealthSnapshotAdapter.id, field: "v"))
-        spoke.storeBlob(HealthSnapshotAdapter.type, id: HealthSnapshotAdapter.id, field: "v", file: file)
+        try await spoke.installBlob(HealthSnapshotAdapter.type, id: HealthSnapshotAdapter.id, field: "v", file: file)
         XCTAssertEqual(mac.adopted, [phone.packed], "adopted whole")
         XCTAssertTrue(spoke.snapshot(HealthSnapshotAdapter.type).isEmpty, "a spoke has no snapshot of its own to send")
     }

@@ -13,7 +13,10 @@ final class HealthKitStore: ObservableObject {
     /// Hidden-filtered view of `allWorkouts` — this is what every UI (Fitness, Mac Workouts,
     /// Rhythm, the morning briefing, the post-workout review coordinator) reads, so a hide
     /// takes effect everywhere at once without each call site filtering it out itself.
-    @Published private(set) var workouts: [HealthWorkout] = []
+    @Published private(set) var workouts: [HealthWorkout] = [] {
+        didSet { workoutsRevision += 1 }
+    }
+    private(set) var workoutsRevision = 0
     /// The full imported cache, hidden entries included — the anchored-query merge base and
     /// the only place a hidden workout still lives (so `unhide` can bring it back without a
     /// fresh HealthKit import, which an anchored query wouldn't even offer again).
@@ -1166,6 +1169,7 @@ final class HealthKitStore: ObservableObject {
     /// phone's Health cache from the account before goes (the phone's own Health is its own).
     func clearForAccountChange() {
         guard !DeviceRole.current.isHub else { return }
+        cloudSnapshotGeneration += 1
         allWorkouts = []
         storedTrends = HealthTrends()
         hiddenWorkoutIDs = []
@@ -1196,9 +1200,19 @@ final class HealthKitStore: ObservableObject {
     /// device (e.g. a Mac's own context-menu Hide) survives adopting an older remote snapshot —
     /// the tradeoff is that an *unhide* made on another device only catches up once this device
     /// unhides the same workout itself, since the synced field never shrinks the local set.
-    func adoptCloudSnapshot(_ data: Data) {
-        guard let json = HealthSnapshotCoding.unpack(data),
-              let payload = try? JSONDecoder().decode(Payload.self, from: json) else { return }
+    private var cloudSnapshotGeneration = 0
+
+    func adoptCloudSnapshot(_ load: @escaping @Sendable () throws -> Data) async throws {
+        cloudSnapshotGeneration += 1
+        let generation = cloudSnapshotGeneration
+        let payload = try await Task.detached(priority: .utility) {
+            guard let json = try HealthSnapshotCoding.unpack(load()) else { throw CocoaError(.fileReadCorruptFile) }
+            var payload = try JSONDecoder().decode(Payload.self, from: json)
+            payload.workouts.sort { $0.start > $1.start }
+            return payload
+        }.value
+        try Task.checkCancellation()
+        guard generation == cloudSnapshotGeneration else { throw CancellationError() }
         allWorkouts = payload.workouts
         hiddenWorkoutIDs.formUnion(payload.hiddenWorkoutIDs ?? [])
         // A workout deleted here whose Health half this snapshot still carries (it was made
@@ -1211,7 +1225,11 @@ final class HealthKitStore: ObservableObject {
         storedTrends = payload.trends
         rhythmCache.removeAll(keepingCapacity: true)
         metricCache.removeAll(keepingCapacity: true)
-        refreshVisibleWorkouts()
+        let visible: [HealthWorkout]
+        if showsNoHealth { visible = [] }
+        else if hiddenWorkoutIDs.isEmpty { visible = allWorkouts }
+        else { visible = allWorkouts.filter { !hiddenWorkoutIDs.contains($0.id) } }
+        if workouts != visible { workouts = visible }
         persist(publish: false)
     }
 

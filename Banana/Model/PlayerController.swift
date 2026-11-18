@@ -634,7 +634,7 @@ final class PlayerController: ObservableObject {
         if checkpointOnly {
             library?.saveLiveProgressCheckpoint()
         } else {
-            library?.saveProgressSnapshot()
+            library?.savePlaybackTransition()
         }
     }
 

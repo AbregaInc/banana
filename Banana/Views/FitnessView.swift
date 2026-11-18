@@ -19,6 +19,7 @@ struct FitnessView: View {
     private let period: RhythmPeriod
     @State private var showAllWorkouts = false
     @State private var filter = LiveFilter(scope: "workouts")
+    @State private var prepared: [WorkoutEntry]?
     /// A workout deleted a moment ago stays hidden until its Undo window closes.
     @ObservedObject private var toasts = ToastCenter.shared
 
@@ -28,15 +29,15 @@ struct FitnessView: View {
 
     var body: some View {
         let _ = RenderStats.note("FitnessView")
+        let key = fitness.workoutProjectionKey(health: health)
+        let entries = fitness.cachedWorkouts(key) ?? prepared
         VStack(spacing: 0) {
-            // One merge per render: `entries` pairs every summary with its Health record (O(n²)
-            // in the worst case).
-            let all = entries
             List {
                 if !health.hasData {
                     connectSection
                 }
-                workoutsSection(all)
+                if let entries { workoutsSection(WorkoutRemoval.visible(entries, hiding: toasts.hiddenIDs)) }
+                else { ProgressView() }
                 if Features.guidedPlans { plansSection }
                 if health.hasData { healthAccessSection }
             }
@@ -55,6 +56,9 @@ struct FitnessView: View {
         // Nothing of its own to add; on a phone the + opens the list of everything.
         .addListButton(identifier: "workouts.add")
         .refreshable { await health.refresh() }
+        .task(id: key) {
+            if let entries = await fitness.prepareWorkouts(key, health: health) { prepared = entries }
+        }
         .task {
             if health.hasData { await health.refreshIfStale() }
         }
@@ -128,13 +132,6 @@ struct FitnessView: View {
         WorkoutsRouteScreen(route: route)
     }
 
-    private var entries: [WorkoutEntry] {
-        WorkoutRemoval.visible(
-            WorkoutEntry.merge(summaries: fitness.summaries, health: health.workouts,
-                               hiddenHealthIDs: health.hiddenWorkoutIDs),
-            hiding: toasts.hiddenIDs)
-    }
-
     /// Workouts scoped to the current period, unless the user asked to see everything.
     private func periodEntries(from all: [WorkoutEntry]) -> [WorkoutEntry] {
         if !filter.isEmpty { let match = filter.predicate(); return all.filter { match($0.start, $0.activity, $0.activity, $0.duration) } }
@@ -145,7 +142,7 @@ struct FitnessView: View {
 
     /// Workouts · active time · distance for the period — the tiles the Rhythm screen used to
     /// lead with, above the list they summarize.
-    private func summaryStrip(_ list: [WorkoutEntry], all: [WorkoutEntry]) -> some View {
+    private func summaryStrip(_ list: [WorkoutEntry]) -> some View {
         VStack(spacing: DS.Space.xs) {
             HStack(spacing: 0) {
                 stripStat("Workouts", "\(list.count)")
@@ -185,7 +182,7 @@ struct FitnessView: View {
                 Text(!filter.isEmpty ? "No matching workouts." : showAllWorkouts ? "No workouts yet." : "No workouts \(period.label().lowercased())")
                     .foregroundStyle(.secondary)
             } else {
-                summaryStrip(list, all: all)
+                summaryStrip(list)
                 ForEach(list) { entry in
                     WorkoutRow(entry: entry)
                         .listRowInsets(EdgeInsets())

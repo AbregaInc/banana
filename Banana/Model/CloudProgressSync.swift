@@ -1504,10 +1504,15 @@ final class CloudFitnessSync: NSObject, ObservableObject, CKSyncEngineDelegate {
                 log.error("health record's asset missing or unreadable — keeping the local cache")
                 return
             }
+            do {
+                try await health?.adoptCloudSnapshot { snapshot }
+            } catch {
+                log.error("Could not install the Health snapshot: \(error.localizedDescription, privacy: .public)")
+                return
+            }
             revisions[record.recordID.recordName] = remoteDate
             remember(record)
             clearDirty(record.recordID.recordName)
-            health?.adoptCloudSnapshot(snapshot)
         case .note:
             guard let note = try? JSONDecoder().decode(VoiceNote.self, from: payload) else {
                 // Previously this decode failure fell through into the workout branch below

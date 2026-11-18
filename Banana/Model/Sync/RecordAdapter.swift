@@ -26,6 +26,8 @@ import Foundation
     /// longer has them. By default, `blobFile(_:id:field:)`, for stores that keep one file per field.
     func blobFile(_ type: String, id: String, field: String, sha: String) -> URL?
     func storeBlob(_ type: String, id: String, field: String, file: URL)
+    /// Returns after installation; a thrown error leaves the blob eligible for retry.
+    func installBlob(_ type: String, id: String, field: String, file: URL) async throws
 
     /// The compiled default of a `default`-seeded type (§3 seeding rule 5): only fields that
     /// differ from it are seeded. Nil: there is no default item (a dictionary kept one record per
@@ -52,6 +54,10 @@ import Foundation
 }
 
 extension RecordAdapter {
+    func storeBlob(_ type: String, id: String, field: String, file: URL) {}
+    func installBlob(_ type: String, id: String, field: String, file: URL) async throws {
+        storeBlob(type, id: id, field: field, file: file)
+    }
     func blobFile(_ type: String, id: String, field: String, sha: String) -> URL? { blobFile(type, id: id, field: field) }
     func defaultEncoding(_ type: String) -> [String: JSONValue]? { nil }
     func keptOwn(_ type: String) -> Set<String> { [] }

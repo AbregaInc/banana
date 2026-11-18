@@ -5,7 +5,11 @@ import SwiftUI
 /// how far you've been moving them, and the foods they now size differently. The calendar's travel
 /// learning says what it's learned in the same spirit — a learning system you can't see is one you
 /// can't trust or correct.
-struct EstimateLearning: Equatable {
+struct EstimateLearning: Equatable, Sendable {
+    struct Key: Hashable {
+        let revision: Int
+        let hiddenIDs: Set<String>
+    }
     var summary: String?
     var learned: [LearnedPortions.Factor]
     /// Learned, but replaying recent meals says it makes the guesses worse: set aside.
@@ -17,13 +21,22 @@ struct EstimateLearning: Equatable {
     static func make(_ meals: [MealEntry]) -> EstimateLearning? {
         let rows = EstimateLedger.rows(meals)
         guard !rows.isEmpty else { return nil }
-        let category: (String) -> String? = { FoodDatabase.food(id: $0)?.category }
+        let ids = Set(rows.compactMap { $0.estimated?.referenceID })
+        let categories = Dictionary(uniqueKeysWithValues: ids.compactMap { id in
+            FoodDatabase.food(id: id).map { (id, $0.category) }
+        })
+        let category: (String) -> String? = { categories[$0] }
         let book = LearnedPortions.book(rows, category: category)
         let learned = (Array(book.byName.values) + Array(book.byCategory.values))
             .sorted { $0.samples != $1.samples ? $0.samples > $1.samples : $0.basis < $1.basis }
         return EstimateLearning(summary: EstimateLedger.line(EstimateLedger.summary(rows)),
                                 learned: Array(learned.prefix(6)),
                                 turnedOff: !learned.isEmpty && !LearnedPortions.backtest(rows, category: category).keepsFactors)
+    }
+
+    static func prepare(_ meals: [MealEntry]) async -> EstimateLearning? {
+        let work = Task.detached(priority: .utility) { make(meals) }
+        return await withTaskCancellationHandler { await work.value } onCancel: { work.cancel() }
     }
 
     /// "Rice ×1.3 · Pasta ×0.8".
@@ -46,6 +59,7 @@ struct EstimateLearning: Equatable {
 /// `EstimateLearning` as a section of the phone's Nutrition list.
 struct EstimateLearningSection: View {
     let meals: [MealEntry]
+    let key: EstimateLearning.Key
     @State private var learning: EstimateLearning?
 
     var body: some View {
@@ -60,13 +74,17 @@ struct EstimateLearningSection: View {
                 }
             }
         }
-        .task(id: meals.count) { learning = EstimateLearning.make(meals) }
+        .task(id: key) {
+            let prepared = await EstimateLearning.prepare(meals)
+            if !Task.isCancelled { learning = prepared }
+        }
     }
 }
 
 /// The same on the iPad and Mac Nutrition page, as a card.
 struct EstimateLearningCard: View {
     let meals: [MealEntry]
+    let key: EstimateLearning.Key
     @State private var learning: EstimateLearning?
 
     var body: some View {
@@ -87,7 +105,10 @@ struct EstimateLearningCard: View {
                 }
             }
         }
-        .task(id: meals.count) { learning = EstimateLearning.make(meals) }
+        .task(id: key) {
+            let prepared = await EstimateLearning.prepare(meals)
+            if !Task.isCancelled { learning = prepared }
+        }
     }
 }
 
