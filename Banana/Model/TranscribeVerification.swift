@@ -239,10 +239,12 @@ enum TranscribeVerification {
         let step2OK = p1?.positions["ep-7"] == 1234.5 && p1?.completed.count == 2 && p1?.currentEpisodeID == "ep-7"
 
         // Step 3: move the playhead and save through the hot path.
-        let catMtimeBefore = (try? FileManager.default.attributesOfItem(atPath: catalogue.path)[.modificationDate] as? Date) ?? Date()
+        let catMtimeBefore = try? FileManager.default.attributesOfItem(atPath: catalogue.path)[.modificationDate] as? Date
         library.updateProgress(podcastID: seeded.id, episodeID: "ep-7", position: 9999.0)
         library.savePlaybackTransition()
         library.commitLiveProgress()
+        let catMtimeAfter = try? FileManager.default.attributesOfItem(atPath: catalogue.path)[.modificationDate] as? Date
+        let catalogueUntouched = catMtimeBefore != nil && catMtimeBefore == catMtimeAfter
         library.updateProgress(podcastID: seeded.id, episodeID: "ep-9", position: 84.0)
         library.savePlaybackTransition()
         library.commitLiveProgress()
@@ -255,8 +257,6 @@ enum TranscribeVerification {
         await library.debugWaitForProgressCompaction()
 
         let progSize = (try? Data(contentsOf: progress).count) ?? 0
-        let catMtimeAfter = (try? FileManager.default.attributesOfItem(atPath: catalogue.path)[.modificationDate] as? Date) ?? Date()
-        let catalogueUntouched = catMtimeBefore == catMtimeAfter
         log("hot-path save → progress.json: \(progSize) bytes, catalogue rewritten: \(!catalogueUntouched)")
         log("   (was \(catSize / 1024) KB rewritten every 30s of playback)")
 

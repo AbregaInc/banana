@@ -17,12 +17,14 @@ final class NutritionAdaptiveUITest: XCTestCase {
         let date = app.descendants(matching: .any)["nutrition.day"].firstMatch
         app.buttons["Previous day"].tap()
         XCTAssertTrue(waitUntil { date.value as? String == yesterday })
-        let add = app.buttons["nutrition.add"]
+        let add = app.plus("nutrition.add")
         XCTAssertTrue(add.waitForExistence(timeout: 5))
         add.tap()
-        XCTAssertTrue(app.buttons["nutrition.search"].waitForExistence(timeout: 3))
-        XCTAssertTrue(app.buttons["nutrition.addPhotos"].exists)
-        XCTAssertTrue(app.dismissNativeMenu(item: app.buttons["nutrition.search"]))
+        let firstSearch = menuItem(app, shared: "wellness.searchFood", local: "nutrition.search")
+        XCTAssertTrue(menuItem(app, shared: "wellness.photoMeal", local: "nutrition.addPhotos").exists)
+        firstSearch.tap()
+        XCTAssertTrue(app.searchFields.firstMatch.waitForExistence(timeout: 5))
+        app.navigationBars["Add food"].buttons["Cancel"].tap()
         XCTAssertFalse(app.navigationBars["Recent meals"].exists)
         XCTAssertTrue(app.buttons["nutrition.myFoods"].exists)
         capture("nutrition-portrait")
@@ -31,12 +33,18 @@ final class NutritionAdaptiveUITest: XCTestCase {
         XCTAssertEqual(date.value as? String, yesterday)
         capture("nutrition-landscape")
         add.tap()
-        let search = app.buttons["nutrition.search"]
-        XCTAssertTrue(search.waitForExistence(timeout: 3))
+        let search = menuItem(app, shared: "wellness.searchFood", local: "nutrition.search")
         search.tap()
         XCTAssertTrue(app.searchFields.firstMatch.waitForExistence(timeout: 5))
         app.navigationBars["Add food"].buttons["Cancel"].tap()
         XCTAssertEqual(date.value as? String, yesterday)
+    }
+
+    private func menuItem(_ app: XCUIApplication, shared: String, local: String) -> XCUIElement {
+        let sharedItem = app.buttons[shared].firstMatch
+        let localItem = app.buttons[local].firstMatch
+        XCTAssertTrue(waitUntil { sharedItem.exists || localItem.exists }, app.debugDescription)
+        return sharedItem.exists ? sharedItem : localItem
     }
 
     private func capture(_ name: String) {
