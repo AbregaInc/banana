@@ -177,12 +177,10 @@ private struct NutritionView: View {
         }
     }
     private var isToday: Bool { Calendar.current.isDateInToday(day) }
-    private var visibleMeals: [MealEntry] {
-        wellness.meals.filter { !toasts.hiddenIDs.contains($0.id.uuidString) }
-    }
+    private var mealIndex: NutritionDays.Index { wellness.mealIndex(hiding: toasts.hiddenIDs) }
     /// The day's meals (named `today` from before there were other days to look at).
-    private var today: [MealEntry] { NutritionDays.meals(visibleMeals, on: day) }
-    private var total: NutritionMacros { today.reduce(.init()) { $0 + $1.totals } }
+    private var today: [MealEntry] { mealIndex.meals(on: day) }
+    private var total: NutritionMacros { mealIndex.total(on: day) }
 
     var body: some View {
         let _ = RenderStats.note("NutritionView")
@@ -240,14 +238,12 @@ private struct NutritionView: View {
     }
 
     @ViewBuilder private var list: some View {
-        // Each read of these filters every logged meal, and one pass read them a dozen times: once
-        // per pass now. (The preview hooks below keep reading the live properties — they wait on them.)
-        let visible = visibleMeals
+        let index = mealIndex
         let dayMeals = today
         List {
             Section {
                 VStack(alignment: .leading, spacing: DS.Space.m) {
-                    NutritionWeekStrip(day: Binding(get: { day }, set: { day = $0 }), meals: visible)
+                    NutritionWeekStrip(day: Binding(get: { day }, set: { day = $0 }), index: index)
                     Divider()
                     daySummary
                     Button { showingRecentMeals = true } label: {
@@ -315,7 +311,7 @@ private struct NutritionView: View {
 
             // The logs against the weight trend were here: looking back, so in Review now.
 
-            EstimateLearningSection(meals: visibleMeals)
+            EstimateLearningSection(meals: index.visible, key: .init(revision: wellness.mealRevision, hiddenIDs: index.hiddenIDs))
 
             MealPhotoScanSettingsSection()
         }

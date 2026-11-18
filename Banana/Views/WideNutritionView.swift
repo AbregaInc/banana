@@ -70,10 +70,8 @@ struct WideNutritionView: View {
 
     private var calendar: Calendar { .current }
     private var isToday: Bool { calendar.isDateInToday(day) }
-    private var visibleMeals: [MealEntry] {
-        wellness.meals.filter { !toasts.hiddenIDs.contains($0.id.uuidString) }
-    }
-    private var dayMeals: [MealEntry] { NutritionDays.meals(visibleMeals, on: day) }
+    private var mealIndex: NutritionDays.Index { wellness.mealIndex(hiding: toasts.hiddenIDs) }
+    private var dayMeals: [MealEntry] { mealIndex.meals(on: day) }
 
     var body: some View {
         ScrollViewReader { proxy in
@@ -104,7 +102,8 @@ struct WideNutritionView: View {
                 if !inbox.items.isEmpty { backlog }
                 logField
                 meals
-                EstimateLearningCard(meals: visibleMeals)
+                let index = mealIndex
+                EstimateLearningCard(meals: index.visible, key: .init(revision: wellness.mealRevision, hiddenIDs: index.hiddenIDs))
                 taken
                 syncNote
             }
@@ -229,7 +228,7 @@ struct WideNutritionView: View {
     /// The week strip and the day's total under it, in one card as on the phone.
     private var dayCard: some View {
         VStack(alignment: .leading, spacing: DS.Space.m) {
-            NutritionWeekStrip(day: dayBinding, meals: visibleMeals)
+            NutritionWeekStrip(day: dayBinding, index: mealIndex)
             Divider()
             totals
                 .padding(.horizontal, DS.Space.s)
@@ -240,7 +239,7 @@ struct WideNutritionView: View {
     }
 
     private var totals: some View {
-        let total = NutritionDays.total(dayMeals)
+        let total = mealIndex.total(on: day)
         return NutritionSummary(label: isToday ? "So far today" : "Total", macros: dayMeals.isEmpty ? nil : total)
     }
 
@@ -294,6 +293,7 @@ struct WideNutritionView: View {
     // MARK: - Meals
 
     @ViewBuilder private var meals: some View {
+        let dayMeals = self.dayMeals
         if dayMeals.isEmpty {
             ContentUnavailableView {
                 Label("No food logged", systemImage: "fork.knife")
@@ -304,10 +304,10 @@ struct WideNutritionView: View {
             .frame(maxWidth: .infinity)
             .padding(.vertical, DS.Space.l)
         } else {
+            let grouped = Dictionary(grouping: dayMeals) { DayPart.of($0.date) }
             VStack(alignment: .leading, spacing: DS.Space.l) {
                 ForEach(DayPart.allCases, id: \.self) { part in
-                    let meals = dayMeals.filter { DayPart.of($0.date) == part }
-                    if !meals.isEmpty { partSection(part, meals) }
+                    if let meals = grouped[part] { partSection(part, meals) }
                 }
             }
         }

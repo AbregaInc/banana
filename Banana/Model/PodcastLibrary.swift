@@ -36,8 +36,7 @@ final class PodcastLibrary: ObservableObject {
             }
             let stored = (try? Data(contentsOf: progressURL))
                 .flatMap { try? JSONDecoder().decode(StoredProgress.self, from: $0) }
-            let checkpoint = (try? Data(contentsOf: checkpointURL))
-                .flatMap { try? JSONDecoder().decode(PlayheadCheckpoint.self, from: $0) }
+            let checkpoint = Self.readCheckpoints(checkpointURL)
             await MainActor.run { [weak self] in self?.finishLoad(catalogResult, stored, checkpoint) }
         }
         LaunchClock.mark("library.init")
@@ -58,7 +57,7 @@ final class PodcastLibrary: ObservableObject {
     #endif
 
     private func finishLoad(_ catalogOutcome: Result<(PodcastCatalog, [Podcast]), Error>, _ stored: StoredProgress?,
-                            _ checkpoint: PlayheadCheckpoint?) {
+                            _ checkpoint: [PlayheadCheckpoint]) {
         #if DEBUG
         if usesPreviewCatalogue {
             isLoaded = true
@@ -90,7 +89,7 @@ final class PodcastLibrary: ObservableObject {
         }
         applyStoredProgress(stored)
         adoptSyncStamps(stored)
-        if let checkpoint { applyCheckpoint(checkpoint) }
+        applyCheckpoints(checkpoint)
         isLoaded = true
         LaunchClock.mark("library.loaded")
         for waiter in loadWaiters { waiter.resume() }
@@ -450,7 +449,7 @@ final class PodcastLibrary: ObservableObject {
     /// publish — at moments a list could actually show something new (pause, stop, episode
     /// switch, completion, a remote merge). `saveProgress` merges it too, so what's on disk is
     /// always current regardless of fold timing.
-    private struct LiveProgress {
+    private struct LiveProgress: Sendable {
         var podcastID: UUID
         var episodeID: String
         var position: Double
@@ -549,12 +548,14 @@ final class PodcastLibrary: ObservableObject {
     func markCompleted(podcastID: UUID, episodeIDs: [String]) {
         commitLiveProgress()   // fold the playhead first — this mutation publishes anyway
         guard let idx = podcasts.firstIndex(where: { $0.id == podcastID }) else { return }
+        var podcast = podcasts[idx]
         for id in episodeIDs {
-            podcasts[idx].completed.insert(id)
-            podcasts[idx].positions[id] = nil
+            podcast.completed.insert(id)
+            podcast.positions[id] = nil
             noteLocalProgress(id)           // stamp so a stale remote can't un-complete it
             pendingCloudPush.insert(id)
         }
+        podcasts[idx] = podcast
         saveProgress()   // progress-only: no need to rewrite the catalogue
         // Announce rather than call: DownloadManager already holds a reference to the library, so
         // reaching back the other way would close a retain cycle between the two.
@@ -860,27 +861,38 @@ final class PodcastLibrary: ObservableObject {
     /// checkpoint. The lifetime progress snapshot is written at pause/stop/switch/background,
     /// while this tiny record limits crash loss to at most one heartbeat without repeatedly
     /// scanning and encoding every episode ever played.
-    func saveLiveProgressCheckpoint(enqueueCloud: Bool = false) {
+    @discardableResult
+    func saveLiveProgressCheckpoint(enqueueCloud: Bool = false) -> Bool {
         #if PERFORMANCE_TESTING
-        guard !usesPerformanceCatalogue else { return }
+        guard !usesPerformanceCatalogue else { return true }
         #endif
-        guard let live else { return }
+        guard let live else { return true }
         let checkpoint = PlayheadCheckpoint(
             podcastID: live.podcastID,
             episodeID: live.episodeID,
             position: live.position,
             at: live.at)
-        guard let data = try? JSONEncoder().encode(checkpoint) else { return }
-        try? data.write(to: checkpointURL, options: .atomic)
+        progressCheckpoints[checkpoint.episodeID] = checkpoint
+        do { try writeCheckpoints() } catch { return false }
         // Starting/switching playback is already a CloudKit commit point. The 30-second crash
         // heartbeat is not: feeding CKSyncEngine twice a minute still makes it persist engine
         // bookkeeping even though its radio cadence is manual.
         if enqueueCloud { flushCloudPush() }
         CloudBackup.shared.schedule()   // dirty-mark only
+        return true
     }
 
     /// Full durable snapshot for real state transitions, not the periodic heartbeat.
     func saveProgressSnapshot() { saveProgress() }
+
+    func savePlaybackTransition() {
+        guard live != nil else { return }
+        guard saveLiveProgressCheckpoint(enqueueCloud: true) else {
+            saveProgress()
+            return
+        }
+        compactPlaybackProgress()
+    }
 
     #if DEBUG
     /// A deterministic catalogue of real shows for screenshots. It never writes to disk and
@@ -1012,6 +1024,9 @@ final class PodcastLibrary: ObservableObject {
     }
     func debugCatalogueURL() -> URL { fileURL }
     func debugProgressURL() -> URL { progressURL }
+    func debugWaitForProgressCompaction() async {
+        while let compactingProgress { await compactingProgress.value }
+    }
     #endif
 
     #if PERFORMANCE_TESTING
@@ -1058,6 +1073,38 @@ final class PodcastLibrary: ObservableObject {
         var at: Date
     }
 
+    private var progressCheckpoints: [String: PlayheadCheckpoint] = [:]
+    private var progressEpoch = 0
+    private var compactingProgress: Task<Void, Never>?
+    private var wantsProgressCompaction = false
+
+    nonisolated private static func readCheckpoints(_ url: URL) -> [PlayheadCheckpoint] {
+        guard let data = try? Data(contentsOf: url) else { return [] }
+        let decoder = JSONDecoder()
+        if let checkpoints = try? decoder.decode([PlayheadCheckpoint].self, from: data) { return checkpoints }
+        return (try? decoder.decode(PlayheadCheckpoint.self, from: data)).map { [$0] } ?? []
+    }
+
+    private func applyCheckpoints(_ checkpoints: [PlayheadCheckpoint]) {
+        progressCheckpoints.removeAll(keepingCapacity: true)
+        for checkpoint in checkpoints.sorted(by: { $0.at < $1.at }) {
+            applyCheckpoint(checkpoint)
+            progressCheckpoints[checkpoint.episodeID] = checkpoint
+        }
+    }
+
+    private func writeCheckpoints() throws {
+        if let one = progressCheckpoints.values.first, progressCheckpoints.count == 1 {
+            try JSONEncoder().encode(one).write(to: checkpointURL, options: .atomic)
+        } else if progressCheckpoints.isEmpty {
+            if FileManager.default.fileExists(atPath: checkpointURL.path) {
+                try FileManager.default.removeItem(at: checkpointURL)
+            }
+        } else {
+            try JSONEncoder().encode(Array(progressCheckpoints.values)).write(to: checkpointURL, options: .atomic)
+        }
+    }
+
     /// Just the listening state: a few KB, regardless of how big the catalogue is.
     private struct StoredProgress: Codable {
         var positions: [String: [String: Double]] = [:]     // podcastID → episodeID → seconds
@@ -1072,6 +1119,7 @@ final class PodcastLibrary: ObservableObject {
     /// treatment as `init()`'s background load, so a corrupt file encountered mid-session (e.g.
     /// mid-restore) is preserved rather than risking getting overwritten by the very next save().
     func reloadFromDisk() {
+        progressEpoch += 1
         do {
             // A valid restore can also recover a catalog whose first import failed.
             let opened = try catalog ?? PodcastCatalog.open(at: fileURL.deletingLastPathComponent().appendingPathComponent("podcast-catalog.sqlite"))
@@ -1086,10 +1134,10 @@ final class PodcastLibrary: ObservableObject {
         }
         let stored = (try? Data(contentsOf: progressURL))
             .flatMap { try? JSONDecoder().decode(StoredProgress.self, from: $0) }
+        live = nil
         applyStoredProgress(stored)
-        let checkpoint = (try? Data(contentsOf: checkpointURL))
-            .flatMap { try? JSONDecoder().decode(PlayheadCheckpoint.self, from: $0) }
-        if let checkpoint { applyCheckpoint(checkpoint) }
+        adoptSyncStamps(stored)
+        applyCheckpoints(Self.readCheckpoints(checkpointURL))
     }
 
     /// Overlay the progress file onto the catalogue. Absent file → keep whatever the catalogue had.
@@ -1115,8 +1163,8 @@ final class PodcastLibrary: ObservableObject {
         let fullStamp = progressSyncedAt[checkpoint.episodeID] ?? .distantPast
         guard checkpoint.at > fullStamp else { return }
         podcasts[idx].positions[checkpoint.episodeID] = checkpoint.position
-        podcasts[idx].currentEpisodeID = checkpoint.episodeID
-        if (podcasts[idx].lastPlayedAt ?? .distantPast) < checkpoint.at {
+        if (podcasts[idx].lastPlayedAt ?? .distantPast) <= checkpoint.at {
+            podcasts[idx].currentEpisodeID = checkpoint.episodeID
             podcasts[idx].lastPlayedAt = checkpoint.at
         }
         progressSyncedAt[checkpoint.episodeID] = checkpoint.at
@@ -1178,34 +1226,15 @@ final class PodcastLibrary: ObservableObject {
         }
         let sp = Signpost.begin("saveProgress")
         defer { Signpost.end(sp) }
-        var stored = StoredProgress()
-        for podcast in podcasts {
-            let key = podcast.id.uuidString
-            stored.positions[key] = podcast.positions
-            stored.completed[key] = Array(podcast.completed)
-            if let current = podcast.currentEpisodeID { stored.currentEpisodeID[key] = current }
-            if let played = podcast.lastPlayedAt { stored.lastPlayedAt[key] = played }
-        }
-        // Merge the un-folded playhead so the file is always current — the fold only defers the
-        // UI publish, never what's on disk. A kill between folds loses nothing.
-        if let live {
-            let key = live.podcastID.uuidString
-            stored.positions[key, default: [:]][live.episodeID] = live.position
-            stored.currentEpisodeID[key] = live.episodeID
-            stored.lastPlayedAt[key] = live.at
-        }
-        // LWW stamps ride along, pruned to episodes that still carry progress — a stamp with no
-        // progress guards nothing, and unpruned this dictionary only ever grew.
-        var known = Set<String>()
-        for podcast in podcasts { known.formUnion(podcast.positions.keys); known.formUnion(podcast.completed) }
-        if let live { known.insert(live.episodeID) }
-        stored.syncedAt = progressSyncedAt.filter { known.contains($0.key) }
+        progressEpoch += 1
+        let stored = Self.makeProgress(progressEntries(), live: live, stamps: progressSyncedAt)
         guard let data = try? JSONEncoder().encode(stored) else { return }
         do {
             try data.write(to: progressURL, options: .atomic)
             // The full file now contains this playhead (including the un-folded `live` value).
             // Delete only after the atomic write succeeds; a kill before then leaves recovery.
-            try? FileManager.default.removeItem(at: checkpointURL)
+            progressCheckpoints.removeAll(keepingCapacity: true)
+            try? writeCheckpoints()
             if stampMigrationPendingCleanup {
                 // The stamps are safely in the file now — the legacy UserDefaults copy can go.
                 UserDefaults.standard.removeObject(forKey: "progressSyncedAt")
@@ -1215,6 +1244,92 @@ final class PodcastLibrary: ObservableObject {
         guard reporting else { return }
         flushCloudPush()
         CloudBackup.shared.schedule()   // dirty-mark only — the snapshot itself runs on background
+    }
+
+    private struct ProgressEntry: Sendable {
+        var key: String
+        var positions: [String: Double]
+        var completed: Set<String>
+        var current: String?
+        var played: Date?
+    }
+
+    private func progressEntries() -> [ProgressEntry] {
+        podcasts.map {
+            ProgressEntry(key: $0.id.uuidString, positions: $0.positions, completed: $0.completed,
+                          current: $0.currentEpisodeID, played: $0.lastPlayedAt)
+        }
+    }
+
+    nonisolated private static func makeProgress(_ entries: [ProgressEntry], live: LiveProgress?,
+                                                 stamps: [String: Date]) -> StoredProgress {
+        var stored = StoredProgress()
+        var known = Set<String>()
+        for entry in entries {
+            stored.positions[entry.key] = entry.positions
+            stored.completed[entry.key] = Array(entry.completed)
+            stored.currentEpisodeID[entry.key] = entry.current
+            stored.lastPlayedAt[entry.key] = entry.played
+            known.formUnion(entry.positions.keys)
+            known.formUnion(entry.completed)
+        }
+        if let live {
+            let key = live.podcastID.uuidString
+            stored.positions[key, default: [:]][live.episodeID] = live.position
+            stored.currentEpisodeID[key] = live.episodeID
+            stored.lastPlayedAt[key] = live.at
+            known.insert(live.episodeID)
+        }
+        stored.syncedAt = stamps.filter { known.contains($0.key) }
+        return stored
+    }
+
+    private func compactPlaybackProgress() {
+        #if PERFORMANCE_TESTING
+        guard !usesPerformanceCatalogue else { return }
+        #endif
+        guard isLoaded, !catalogLoadFailed else { return }
+        guard compactingProgress == nil else { wantsProgressCompaction = true; return }
+        let epoch = progressEpoch
+        let entries = progressEntries(), live = live, stamps = progressSyncedAt
+        let included = progressCheckpoints
+        let destination = progressURL
+        let staged = destination.deletingLastPathComponent().appendingPathComponent(".progress-\(UUID().uuidString)")
+        compactingProgress = Task { [weak self] in
+            let prepared = await Task.detached(priority: .utility) {
+                do {
+                    let stored = Self.makeProgress(entries, live: live, stamps: stamps)
+                    try JSONEncoder().encode(stored).write(to: staged)
+                    return true
+                } catch { return false }
+            }.value
+            defer {
+                try? FileManager.default.removeItem(at: staged)
+                if let self {
+                    self.compactingProgress = nil
+                    if self.wantsProgressCompaction {
+                        self.wantsProgressCompaction = false
+                        self.compactPlaybackProgress()
+                    }
+                }
+            }
+            guard let self, prepared, self.progressEpoch == epoch, !self.catalogLoadFailed else { return }
+            do {
+                if FileManager.default.fileExists(atPath: destination.path) {
+                    _ = try FileManager.default.replaceItemAt(destination, withItemAt: staged)
+                } else {
+                    try FileManager.default.moveItem(at: staged, to: destination)
+                }
+                // A newer transition can save a checkpoint while the worker is encoding. Only
+                // remove entries this exact snapshot includes.
+                for (id, checkpoint) in included where self.progressCheckpoints[id]?.at == checkpoint.at {
+                    self.progressCheckpoints[id] = nil
+                }
+                try self.writeCheckpoints()
+            } catch {
+                Self.log.error("Playback progress compaction could not finish: \(error.localizedDescription, privacy: .public)")
+            }
+        }
     }
 
     /// Persist metadata and newly staged feeds, reusing unchanged episode snapshots.

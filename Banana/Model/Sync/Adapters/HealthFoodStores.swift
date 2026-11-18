@@ -15,7 +15,9 @@ extension FitnessStore: WorkoutSyncPort {
 extension HealthKitStore: HealthSnapshotPort {
     func snapshotMaker() -> @Sendable () -> Data? { spaceSnapshotMaker() }
     var snapshotDate: Date? { snapshotChangedAt }
-    func adoptSnapshot(_ packed: Data) { adoptCloudSnapshot(packed) }
+    func adoptSnapshot(file: URL) async throws {
+        try await adoptCloudSnapshot { try Data(contentsOf: file) }
+    }
 }
 
 extension HealthRemovalInbox: HealthRequestPort {

@@ -15,7 +15,39 @@ final class WellnessStore: ObservableObject {
     // design (see its doc comment).
     private nonisolated static let log = Logger(subsystem: "com.boris.banana", category: "wellness")
 
-    @Published private(set) var meals: [MealEntry] = []
+    @Published private(set) var meals: [MealEntry] = [] {
+        didSet {
+            mealRevision += 1
+            portionsTask?.cancel()
+            portionsTask = nil
+            indexedMeals = nil
+        }
+    }
+    private(set) var mealRevision: Int = 0
+    private var portionsTask: Task<LearnedPortions.Lookup, Never>?
+    private var indexedMeals: NutritionDays.Index?
+
+    func portionLookup() async -> LearnedPortions.Lookup {
+        while !Task.isCancelled {
+            let revision = mealRevision
+            let task = portionsTask ?? Task.detached(priority: .utility) { [meals] in
+                LearnedPortions.lookup(meals, category: { FoodDatabase.food(id: $0)?.category })
+            }
+            portionsTask = task
+            let lookup = await task.value
+            if mealRevision == revision { return lookup }
+        }
+        return { _, _ in nil }
+    }
+
+    func mealIndex(calendar: Calendar = .current, hiding hiddenIDs: Set<String>) -> NutritionDays.Index {
+        if let indexedMeals, indexedMeals.calendar == calendar, indexedMeals.hiddenIDs == hiddenIDs {
+            return indexedMeals
+        }
+        let index = NutritionDays.Index(meals, calendar: calendar, hiding: hiddenIDs)
+        indexedMeals = index
+        return index
+    }
     @Published private(set) var supplements: [SupplementSchedule] = []
     @Published private(set) var supplementLogs: [SupplementLog] = []
     @Published private(set) var workoutPlans: [WorkoutPlan] = []
