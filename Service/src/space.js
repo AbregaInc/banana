@@ -20,11 +20,15 @@ export const MOST_AHEAD = 5 * 60 * 1000;
 const HLC = /^\d{13}\.[0-9a-f]{4}\.[A-Za-z0-9_-]{1,64}$/;
 const SHA = /^[0-9a-f]{64}$/;
 const encoder = new TextEncoder();
+const WEB_DATED_TYPES = "('food.meal','podcast.listen','notes.voiceNote')";
+const webNumber = key => `CAST(COALESCE(json_extract(fields,'$.v.${key}'),json_extract(fields,'$.${key}'),0) AS REAL)`;
+const WEB_DATE = `CASE WHEN type='notes.voiceNote' THEN ${webNumber('createdAt')} ELSE ${webNumber('date')} END`;
 
 const SCHEMA = [
   `CREATE TABLE IF NOT EXISTS records (type TEXT NOT NULL, id TEXT NOT NULL, fields TEXT NOT NULL, clocks TEXT NOT NULL,
      deleted TEXT, seq INTEGER NOT NULL, PRIMARY KEY (type, id))`,
   "CREATE INDEX IF NOT EXISTS records_seq ON records (seq)",
+  `CREATE INDEX IF NOT EXISTS records_web_date ON records (type, (${WEB_DATE}) DESC, id) WHERE type IN ${WEB_DATED_TYPES}`,
   // before/after: the changed fields only, {fields, clocks, deleted?}; before is null for a new record.
   `CREATE TABLE IF NOT EXISTS history (seq INTEGER NOT NULL, type TEXT NOT NULL, id TEXT NOT NULL, device TEXT NOT NULL,
      at INTEGER NOT NULL, before TEXT, after TEXT NOT NULL)`,
@@ -416,10 +420,34 @@ export function webStatus(port, types) {
 }
 
 /** The signed-in web reader: one page, including T2 only while consent stands. No history. */
-export function browse(port, type, after = "", limit = 100) {
+export function browse(port, type, after = "", limit = 100, ordered = false) {
   ready(port);
   const entry = CATALOG.get(type);
   if (!entry || (entry.tier === "T2" && !consentsOf(port).health)) return { records: [], next: null };
+  if (ordered) {
+    const routine = type === 'plan.routine';
+    if (!routine && !['food.meal','podcast.listen','notes.voiceNote'].includes(type)) return { records: [], next: null };
+    const sort = routine ? `(${webNumber('hour')} * 60 + ${webNumber('minute')})` : `(${WEB_DATE})`;
+    const direction = routine ? 'ASC' : 'DESC';
+    const where = routine
+      ? "AND COALESCE(json_type(fields,'$.v.enabled'),json_type(fields,'$.enabled'),'true') <> 'false'"
+      : `AND type IN ${WEB_DATED_TYPES}`;
+    let boundary = '', args = [];
+    if (after) {
+      let marker;
+      try { marker = JSON.parse(after); } catch {}
+      if (!Array.isArray(marker) || marker.length !== 2 || !Number.isFinite(marker[0]) || typeof marker[1] !== 'string')
+        return { records: [], next: null };
+      boundary = `AND (${sort} ${routine ? '>' : '<'} ? OR (${sort} = ? AND id > ?))`;
+      args = [marker[0], marker[0], marker[1]];
+    }
+    const rows = port.exec(`SELECT id, fields, ${sort} AS sort FROM records WHERE type = ? ${where}
+      AND (deleted IS NULL OR EXISTS (SELECT 1 FROM json_each(records.clocks) WHERE value >= records.deleted))
+      ${boundary} ORDER BY ${sort} ${direction}, id LIMIT ?`, type, ...args, limit + 1);
+    const page = rows.slice(0, limit);
+    return { records: page.map(r => ({ id:r.id, fields:JSON.parse(r.fields), cursor:JSON.stringify([r.sort, r.id]) })),
+      next: rows.length > limit ? JSON.stringify([page.at(-1).sort, page.at(-1).id]) : null };
+  }
   const rows = port.exec("SELECT id, fields, clocks, deleted FROM records WHERE type = ? AND id > ? ORDER BY id LIMIT ?",
     type, after, limit + 1);
   const page = rows.slice(0, limit);

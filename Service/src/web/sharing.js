@@ -216,8 +216,9 @@ export function sharingRoutes(app, deps, { owner, signedIn, calendarChoices, vau
   async function recordsResponse(c, parameters) {
     const { row, policy } = c.get('share'), type = parameters?.type ?? c.req.query('type'), after = parameters?.after ?? c.req.query('after') ?? '';
     if (!allowedTypes(policy).has(type)) return error(c, 'not_shared', 403);
-    if (after.length > 200) return error(c, 'bad_request');
-    const result = await spaceFor(row.owner_id).browse(type, after);
+    const limit = Number(c.req.query('limit') ?? 100), ordered = c.req.query('order') === 'display';
+    if (after.length > 200 || !Number.isInteger(limit) || limit < 1 || limit > 100) return error(c, 'bad_request');
+    const result = await spaceFor(row.owner_id).browse(type, after, limit, ordered);
     if (type === 'health.snapshot') result.records = result.records.map(record => ({ ...record,
       fields: { v: record.fields.v?.$blob ? { $blob: 'shared-health-snapshot', ext: 'json' }
         : projectHealthSnapshot(record.fields.v ?? record.fields, policy) } }));
