@@ -89,7 +89,6 @@ export function shareFeedControls({ request, escape: esc, notice }) {
         <details class="feed-reference-panel" data-feed-panel="reference" ${open('reference')}><summary>Developer reference</summary><div class="feed-reference-content">
           <div class="share-actions feed-developer-links">
             <a class="text-button" href="/app/assets/analysis-schema.json" target="_blank" rel="noopener noreferrer">Schema ↗</a>
-            <a class="text-button" href="/app/assets/banana-feed.mjs" download="banana-feed.mjs">Download importer</a>
             ${created&&!preview&&current?.manifestURL?`<a class="text-button" href="${esc(current.manifestURL)}" target="_blank" rel="noreferrer noopener">Feed metadata ↗</a>`:''}
           </div>
           ${current?.manifestError?'<p>Feed details could not be loaded. <button class="text-button" data-feed-retry>Retry</button></p>':''}
