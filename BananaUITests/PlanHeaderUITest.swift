@@ -79,4 +79,37 @@ final class PlanHeaderUITest: XCTestCase {
         XCTAssertEqual(reuse["calendarPreparations"], 0)
         XCTAssertEqual(reuse["notesLoads"], 0)
     }
+
+    func testNotesReusesItsLocalPageAfterBackgroundReconstruction() {
+        let app = XCUIApplication()
+        app.launchArguments = ["--ui-preview", "--tab", "notes", "--modules", "everything", "--ui-audit",
+                               "--tab-reentry-probe", "--disable-icloud", "--no-space-sync",
+                               "-onboardingCompleted", "YES", "-finishSetupDismissed", "YES"]
+        app.withoutSpaceSync()
+        app.launch()
+        XCTAssertTrue(app.waitForShell())
+
+        func count(_ name: String) -> Int {
+            Int(app.descendants(matching: .any)["notes.performance." + name].firstMatch.value as? String ?? "") ?? 0
+        }
+        func waitForAppearance(_ number: Int) {
+            let ready = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in count("appearances") >= number },
+                                                  object: nil)
+            XCTAssertEqual(XCTWaiter.wait(for: [ready], timeout: 10), .completed)
+        }
+        waitForAppearance(1)
+        let loaded = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in count("loads") > 0 }, object: nil)
+        XCTAssertEqual(XCTWaiter.wait(for: [loaded], timeout: 10), .completed)
+        let before = count("loads")
+        let appearances = count("appearances")
+
+        XCUIDevice.shared.press(.home)
+        // Cross the 2.5-second snapshot grace. This test must rebuild the tree, not just reveal it.
+        Thread.sleep(forTimeInterval: 3.5)
+        app.activate()
+
+        waitForAppearance(appearances + 1)
+        XCTAssertEqual(count("loads"), before)
+    }
+
 }

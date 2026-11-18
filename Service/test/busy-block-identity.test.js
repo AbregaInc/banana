@@ -27,6 +27,44 @@ test('two device operation identities create only one logical busy block',async(
  assert.equal(row.established,1);assert.equal(JSON.stringify(row).includes('task-1'),false);
  assert.equal(row.event_cipher.includes(first.json.id),false);
 });
+function betaBody(overrides={}) {
+ const beta=structuredClone(body);
+ beta.extendedProperties.private.bananaVariant='banana-beta';
+ return {...beta,...overrides};
+}
+test('Beta cannot insert a second copy over the same production item and slot',async()=>{
+ const f=await fixture();
+ const start={dateTime:'2026-11-19T19:30:00Z'},end={dateTime:'2026-11-19T19:40:00Z'};
+ assert.equal((await f.call(1,{body:{...body,start,end}})).status,200);
+ const input={body:betaBody({start:{dateTime:'2026-11-19T14:30:00-05:00'},end:{dateTime:'2026-11-19T14:40:00-05:00'}})};
+ const covered=await f.call(2,input);
+ assert.equal(covered.status,409);
+ assert.equal(covered.json.bananaOperation.state,'done');
+ assert.equal((await f.call(2,input)).status,409);
+ assert.equal(f.writes(),1);
+ assert.equal(f.events.size,1);
+});
+test('a moved slot or a nonblocking production copy does not suppress Beta',async()=>{
+ for(const [production,beta] of [
+  [body,betaBody({end:{date:'2026-11-07'}})],
+  [{...body,transparency:'transparent'},betaBody()],
+ ]) {
+  const f=await fixture();
+  assert.equal((await f.call(1,{body:production})).status,200);
+  assert.equal((await f.call(2,{body:beta})).status,200);
+  assert.equal(f.writes(),2);
+ }
+});
+test('an incomplete production read fences a Beta insert until the same request can retry',async()=>{
+ const f=await fixture(),read=f.s.google.calendarRead;
+ f.s.google.calendarRead=async()=>({status:200,body:{items:[],nextPageToken:'more'}});
+ const input={body:betaBody()};
+ assert.equal((await f.call(1,input)).status,502);
+ assert.equal(f.writes(),0);
+ f.s.google.calendarRead=read;
+ assert.equal((await f.call(1,input)).status,200);
+ assert.equal(f.writes(),1);
+});
 test('concurrent inserts are serialized even with distinct operation IDs',async()=>{
  const f=await fixture();let release,started;const wait=new Promise(r=>release=r),ready=new Promise(r=>started=r);
  const original=f.s.google.calendarMutation;f.s.google.calendarMutation=async(...args)=>{started();await wait;return original(...args);};

@@ -209,6 +209,8 @@ struct ShellBottomBar: View {
     /// A phone (compact) gives the box the whole width; an upright iPad keeps the switcher beside it.
     @Environment(\.horizontalSizeClass) private var widthClass
 
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     var body: some View {
         let _ = RenderStats.note("ShellBottomBar")
         let mode = search.mode
@@ -284,7 +286,7 @@ struct ShellBottomBar: View {
                            label: chrome.switcherOpen ? "Close pages"
                                : ["Pages", ShellBadge.spoken(waiting)].compactMap { $0 }.joined(separator: ", "),
                            identifier: "shell.switcher") {
-            withAnimation(.snappy(duration: 0.28)) { chrome.switcherOpen.toggle() }
+            withAnimation(reduceMotion ? nil : .easeOut(duration: 0.2)) { chrome.switcherOpen.toggle() }
         }
         // Where the badge goes: drawn outside the glass container, over it (`switcherBadge`).
         .anchorPreference(key: ShellSwitcherAnchor.self, value: .bounds) { $0 }
@@ -528,6 +530,8 @@ struct ShellSwitcherOverlay: View {
     @ObservedObject private var chrome = ShellChrome.shared
     @ObservedObject private var badges = ActionBadges.shared
 
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     var body: some View {
         if chrome.switcherOpen {
             ZStack(alignment: .bottomLeading) {
@@ -579,7 +583,7 @@ struct ShellSwitcherOverlay: View {
     }
 
     private func close() {
-        withAnimation(.snappy(duration: 0.25)) { chrome.switcherOpen = false }
+        withAnimation(reduceMotion ? nil : .easeOut(duration: 0.2)) { chrome.switcherOpen = false }
     }
 }
 

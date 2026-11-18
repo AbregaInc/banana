@@ -7,6 +7,21 @@ import UIKit
 import AppKit
 #endif
 
+/// A bounded local snapshot for the first body evaluation, before onAppear takes ownership.
+@MainActor
+private final class CalendarMountSnapshot<Value> {
+    private var value: Value?
+
+    func resolve(_ prepare: () -> Value) -> Value {
+        if let value { return value }
+        let prepared = prepare()
+        value = prepared
+        return prepared
+    }
+
+    func clear() { value = nil }
+}
+
 /// The label shown on a tap/drag-to-create draft rectangle. A rectangle alone doesn't say what
 /// it will create; the range does — this is what makes the gesture's result unmistakable once
 /// it takes over, on both the Mac click-drag grid and the mobile long-press-then-drag one.
@@ -286,7 +301,11 @@ struct MacWeekView: View {
 
     private var visibleDayCount: Int { dayMode ? 1 : weekSpan.rawValue }
 
-    @State private var days: [MacWeekDay] = []
+    @State private var mountedDays: [MacWeekDay]?
+    @State private var mountSnapshot = CalendarMountSnapshot<[MacWeekDay]>()
+    private var days: [MacWeekDay] {
+        mountedDays ?? mountSnapshot.resolve { makeDays(occurrences.occurrences) }
+    }
     private typealias TimedLayout = (placements: [MacWeekPlacement], overflow: [OverflowCluster])
     @State private var preparedTimedLayouts: [Date: TimedLayout] = [:]
     private static let reuseTimedLayouts: Bool = {
@@ -326,7 +345,10 @@ struct MacWeekView: View {
     @State private var savingEventIDs: Set<String> = []
     @State private var deletingMeeting: PendingEventDelete?
     /// Every reminder past its time and not done, for today's Reminders row.
-    @State private var overdueReminders: [Occurrence] = []
+    @State private var mountedOverdueReminders: [Occurrence]?
+    private var overdueReminders: [Occurrence] {
+        mountedOverdueReminders ?? occurrences.occurrences.filter(\.isOverdueReminder)
+    }
     /// Whether a workout has happened today: a workout routine's moment is done then.
     @ObservedObject private var signals = CalendarSignals.shared
     /// The Reminders row opened past the rows that fit ("+N more").
@@ -412,7 +434,7 @@ struct MacWeekView: View {
                                 items: macViewportItems(width: geometry.size.width, now: timeline.date),
                                 contentSize: CGSize(width: geometry.size.width, height: gridHeight),
                                 background: AnyView(timeGrid(now: timeline.date, includesEvents: false)),
-                                initialOffset: nativeInitialOffset,
+                                initialOffset: nativeInitialOffset ?? openingScrollOffset(),
                                 activeID: draggingEventID,
                                 onOffset: { scrollBookkeeping.offset = $0.rounded() },
                                 onScrollEnd: { persistDayScrollPosition() },
@@ -1193,7 +1215,7 @@ struct MacWeekView: View {
                 // The other zone's hours, dimmer and to the left, like a watch's second dial.
                 ZStack(alignment: .topLeading) {
                     Color(.systemBackground)
-                    ForEach(1..<24, id: \.self) { hour in
+                    ForEach(0..<24, id: \.self) { hour in
                         Text(TripTimeZone.label(forHour: hour, on: days.first?.date ?? Date(),
                                                 primary: .current, zone: secondaryZone))
                             .font(DS.Typeface.small(design: .rounded))
@@ -1202,20 +1224,20 @@ struct MacWeekView: View {
                             .lineLimit(1)
                             .minimumScaleFactor(0.8)
                             .frame(width: Self.secondaryGutterWidth - 6, alignment: .trailing)
-                            .offset(y: CGFloat(hour) * hourHeight - 7)
+                            .offset(y: max(0, CGFloat(hour) * hourHeight - 7))
                     }
                 }
                 .frame(width: Self.secondaryGutterWidth)
             }
             ZStack(alignment: .topLeading) {
                 Color(.systemBackground)
-                ForEach(1..<24, id: \.self) { hour in
+                ForEach(0..<24, id: \.self) { hour in
                     let y = CGFloat(hour) * hourHeight
                     Text(hourLabel(hour))
                         .font(DS.Typeface.gutter)
                         .foregroundStyle(DS.Palette.quietText)
                         .frame(width: 58 - DS.Space.s, alignment: .trailing)
-                        .offset(y: y - 7)
+                        .offset(y: max(0, y - 7))
                         .opacity(nowY.map { abs($0 - y) < 12 } == true ? 0 : 1)
                 }
                 if let nowY {
@@ -1228,7 +1250,7 @@ struct MacWeekView: View {
                         .frame(height: 16)
                         .background(DS.Palette.now, in: RoundedRectangle(cornerRadius: DS.Radius.chip - 2, style: .continuous))
                         .frame(width: 58 - DS.Space.xs, alignment: .trailing)
-                        .offset(y: nowY - 8)
+                        .offset(y: max(0, nowY - 8))
                         .accessibilityLabel("Now, \(TimeRangeText.time(now))")
                 }
             }
@@ -1268,7 +1290,8 @@ struct MacWeekView: View {
     }
 
     private func dayColumn(_ day: MacWeekDay, width: CGFloat, now: Date, includesEvents: Bool = true) -> some View {
-        let layout = timedLayout(for: day)
+        // The native viewport already lays out events. Its background needs only the grid.
+        let layout: TimedLayout = includesEvents ? timedLayout(for: day) : (placements: [], overflow: [])
         let placements = layout.placements
         // A day blocked all day (Busy all-day event): hatched in its calendar's colour, so a day
         // that can't be booked reads as one at a glance.
@@ -2014,7 +2037,7 @@ struct MacWeekView: View {
 
     // MARK: - Layout and data
 
-    private func rebuild(_ all: [Occurrence]) {
+    private func makeDays(_ all: [Occurrence]) -> [MacWeekDay] {
         let calendar = Calendar.current
         let start = visibleWeekStart
         let request = planningWindowRange(visibleStart: start)
@@ -2027,9 +2050,7 @@ struct MacWeekView: View {
         #endif
         let hidden = ToastCenter.shared.hiddenIDs
         let source = PendingRemovals.visible(window, id: { $0.meeting?.eventID }, start: \.start, hiding: hidden)
-        let overdue = occurrences.occurrences.filter(\.isOverdueReminder)
-        if overdue != overdueReminders { overdueReminders = overdue }
-        let nextDays: [MacWeekDay] = (0..<visibleDayCount).compactMap { offset in
+        return (0..<visibleDayCount).compactMap { offset in
             guard let date = calendar.date(byAdding: .day, value: offset, to: start) else { return nil }
             let items = DayColumn.occurrences(source, on: date, calendar: calendar)
             return MacWeekDay(
@@ -2038,7 +2059,13 @@ struct MacWeekView: View {
                 items: items.sorted { $0.start < $1.start }
             )
         }
-        if nextDays != days {
+    }
+
+    private func rebuild(_ all: [Occurrence]) {
+        let overdue = occurrences.occurrences.filter(\.isOverdueReminder)
+        if overdue != mountedOverdueReminders { mountedOverdueReminders = overdue }
+        let nextDays = makeDays(all)
+        if nextDays != mountedDays {
             // Geometry depends on the complete occurrence snapshot, including title/order
             // and completion state. Replace this visible-page-only cache with that snapshot;
             // never key reusable presentation solely by an event/date identifier.
@@ -2047,11 +2074,12 @@ struct MacWeekView: View {
                     ($0.date, Self.makeTimedLayout(for: $0))
                 })
             }
-            days = nextDays
+            mountedDays = nextDays
+            mountSnapshot.clear()
             // What Report a problem says of the calendar: the days in view and their items' ids.
             ProblemReportCenter.shared.noteCalendar(
                 start: nextDays.first?.date,
-                end: nextDays.last.flatMap { calendar.date(byAdding: .day, value: 1, to: $0.date) },
+                end: nextDays.last.flatMap { Calendar.current.date(byAdding: .day, value: 1, to: $0.date) },
                 ids: nextDays.flatMap { $0.items.map(\.id) })
         }
         updateSecondaryZone()
@@ -2092,6 +2120,17 @@ struct MacWeekView: View {
     private func setInitialScrollPosition() {
         guard !didSetInitialScroll else { return }
         didSetInitialScroll = true
+        let targetOffset = openingScrollOffset()
+        nativeInitialOffset = targetOffset
+        if !Self.nativeViewport {
+            Task { @MainActor in
+                await Task.yield()
+                gridScroll.scrollTo(y: targetOffset)
+            }
+        }
+    }
+
+    private func openingScrollOffset() -> CGFloat {
         let usePersistedOffset: Bool
         #if DEBUG
         usePersistedOffset = dayMode && persistedDayScrollOffset >= 0
@@ -2099,14 +2138,11 @@ struct MacWeekView: View {
         #else
         usePersistedOffset = dayMode && persistedDayScrollOffset >= 0
         #endif
-        let targetOffset: CGFloat
-        if usePersistedOffset {
-            targetOffset = CGFloat(persistedDayScrollOffset)
-        } else {
+        if usePersistedOffset { return CGFloat(persistedDayScrollOffset) }
         let firstVisibleHour: Int
         #if DEBUG
         if ProcessInfo.processInfo.arguments.contains("--ui-audit") {
-            // Marketing/QA captures must show the same useful workday at 9 AM and 9 PM.
+            // QA captures show the same workday regardless of the clock.
             firstVisibleHour = 7
         } else {
             let hour = Calendar.current.component(.hour, from: Date())
@@ -2116,25 +2152,17 @@ struct MacWeekView: View {
         let hour = Calendar.current.component(.hour, from: Date())
         firstVisibleHour = min(18, max(5, hour - 1))
         #endif
-            // Never open below the earliest timed item: a 6:45 AM run isn't cut off by a 7 AM top.
-            let cal = Calendar.current
-            let earliestHour = days.flatMap { day in
-                day.items.filter { $0.hasScheduledTime && $0.behavior != .block
-                    && !OutstandingReminders.leavesTheGrid(overdueReminder: $0.isOverdueReminder,
-                        onToday: day.isToday, lineIsTodays: true) }
-            }
-                .map { cal.component(.hour, from: $0.start) }
-                .min()
-            let openHour = min(firstVisibleHour, earliestHour ?? firstVisibleHour)
-            targetOffset = max(0, CGFloat(openHour) * hourHeight - 10)
+        // Never open below the earliest timed item, or cut off the first hour label.
+        let calendar = Calendar.current
+        let earliestHour = days.flatMap { day in
+            day.items.filter { $0.hasScheduledTime && $0.behavior != .block
+                && !OutstandingReminders.leavesTheGrid(overdueReminder: $0.isOverdueReminder,
+                    onToday: day.isToday, lineIsTodays: true) }
         }
-        Task { @MainActor in
-            await Task.yield()
-            // Hour labels sit seven points above their grid line. Leave a little leading room so
-            // the first visible label is not cut in half by the ScrollView's clipping boundary.
-            nativeInitialOffset = targetOffset
-            gridScroll.scrollTo(y: targetOffset)
-        }
+        .map { calendar.component(.hour, from: $0.start) }
+        .min()
+        let openHour = min(firstVisibleHour, earliestHour ?? firstVisibleHour)
+        return max(0, CGFloat(openHour) * hourHeight - 10)
     }
 
     private func persistDayScrollPosition() {
@@ -2947,15 +2975,18 @@ struct DirectionalDayScrollView<Content: View>: UIViewRepresentable {
             collection.gutterWidth = week.gutterWidth
             context.coordinator.gutterHost = gutter
         }
-        DispatchQueue.main.async {
-            // Days can load between creation and this callback. The captured initial week
-            // may contain only the 36-point gutter; restoring that stale width clamps an
-            // already-positioned viewport back to column zero. Use the latest configuration.
-            scrollView.contentSize = CGSize(width: context.coordinator.week?.contentWidth ?? scrollView.bounds.width,
-                                            height: contentHeight)
-            scrollView.contentOffset.y = min(max(0, initialOffset),
-                                             max(0, contentHeight - scrollView.bounds.height))
-            context.coordinator.applySelectedColumn(scrollView)
+        if let collection = scrollView as? CalendarDayCollectionView {
+            collection.prepareOpeningPosition = { [weak coordinator = context.coordinator] view in
+                let maximum = max(0, view.contentSize.height - view.bounds.height)
+                view.contentOffset.y = min(max(0, initialOffset), maximum)
+                coordinator?.applySelectedColumn(view)
+            }
+        } else {
+            DispatchQueue.main.async {
+                scrollView.contentSize = CGSize(width: scrollView.bounds.width, height: contentHeight)
+                scrollView.contentOffset.y = min(max(0, initialOffset),
+                                                 max(0, contentHeight - scrollView.bounds.height))
+            }
         }
         return scrollView
     }
@@ -3746,7 +3777,10 @@ struct WeekView: View {
     private let dayMode: Bool
     /// Overdue reminders: their own group at the top of List (and not again under today), and
     /// the first chips of today's reminders line in Day and Week.
-    @State private var overdueTasks: [Occurrence] = []
+    @State private var mountedOverdueTasks: [Occurrence]?
+    private var overdueTasks: [Occurrence] {
+        mountedOverdueTasks ?? occurrences.occurrences.filter(\.isOverdueReminder)
+    }
     /// The reminders line opened past its first few.
     @State private var showsEveryReminder = false
     /// Only whether anything needs attention: the chips are their own subview
@@ -3810,7 +3844,15 @@ struct WeekView: View {
     /// What that sheet asked for next — opened once it has gone.
     @State private var afterCueSheet: (() -> Void)?
 
-    @State private var calendarDays: [DayData] = []
+    @State private var mountedDays: [DayData]?
+    @State private var mountSnapshot = CalendarMountSnapshot<(CalendarInput, [DayData])>()
+    private var calendarDays: [DayData] { mountedDays ?? openingDays.1 }
+    private var openingDays: (CalendarInput, [DayData]) {
+        mountSnapshot.resolve {
+            let input = calendarInput(mobileWindowOccurrences())
+            return (input, makeMobileDays(input))
+        }
+    }
     // One bounded visible window, invalidated by data, navigation, midnight or calendar changes.
     private struct CalendarInput: Equatable {
         var occurrences: [Occurrence]
@@ -4347,7 +4389,6 @@ struct WeekView: View {
                 PlanPagingRow(days: days, dates: dates, isCurrent: isCurrent, datesPlace: place, showsToday: layout.today,
                               step: { moveMobileWeek($0) }, toCurrent: { moveMobileWeekToCurrent() })
                 if layout.forecast { mobileForecast.fixedSize() }
-                if mobileWeekLoading { ProgressView().controlSize(.mini) }
                 Spacer(minLength: 0)
             }
         }
@@ -4689,7 +4730,7 @@ struct WeekView: View {
                             selectedDay: mobileSelectedDay,
                             onSelect: { day in
                                 mobileSelectedDay = day.date
-                                mobileVisibleDayID = min(max(0, day.id), max(0, calendarDays.count - 3))
+                                mobileVisibleDayID = min(max(0, day.id), max(0, calendarDays.count - visibleDays))
                             },
                             onShowItems: { day in
                                 mobileDayListQuery = ""
@@ -4812,7 +4853,7 @@ struct WeekView: View {
                     }
                 } else if Self.nativeWeekViewport {
                     mobileNativeWeekViewport(timeWidth: timeWidth, dayWidth: dayWidth,
-                        hourHeight: hourHeight, gridHeight: gridHeight,
+                        hourHeight: hourHeight, gridHeight: gridHeight, visibleDays: visibleDays,
                         viewportHeight: max(1, geometry.size.height - 45), viewportWidth: measured)
                 } else {
                     ScrollViewReader { scrollProxy in
@@ -4898,33 +4939,13 @@ struct WeekView: View {
                     }
                 }
             }
-            // Once the week's days are there. Run before they were, it found no day to show, opened
-            // on the first and never tried again: from Thursday on, today was off the right edge.
-            .task(id: calendarDays.isEmpty) {
-                guard !calendarDays.isEmpty, !didSetMobileInitialHorizontalScroll else { return }
+            .task {
+                // The native grid applies its initial column at layout. The reference ScrollView
+                // still needs an explicit request after its targets have been registered.
+                guard !dayMode, !Self.nativeWeekViewport, !didSetMobileInitialHorizontalScroll else { return }
                 didSetMobileInitialHorizontalScroll = true
                 await Task.yield()
-                let calendar = Calendar.current
-                let selectedIndex = calendarDays.firstIndex {
-                    calendar.isDate($0.date, inSameDayAs: mobileSelectedDay)
-                } ?? 0
-                let target = min(max(0, selectedIndex), max(0, calendarDays.count - visibleDays))
-                // The id is often set already (`rebuildMobileCalendar`), but before the scroll view
-                // was laid out, which ignored it; the same id again is no change, so it never
-                // moved. Cleared and set, it scrolls.
-                mobileVisibleDayID = nil
-                await Task.yield()
-                mobileVisibleDayID = target
-                // Opened straight into Week, the columns could still be unlaid at this point and
-                // the week stayed on Monday with today off the right edge (atlas, Saturday). Once
-                // laid out, if the columns still sit at the start, ask again.
-                guard !dayMode, target > 0 else { return }
-                try? await Task.sleep(for: .milliseconds(300))
-                if headerOffset.x < 1 {
-                    mobileVisibleDayID = nil
-                    await Task.yield()
-                    mobileVisibleDayID = target
-                }
+                mobileVisibleDayID = openingWeekColumn(visibleDays: visibleDays)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -4958,11 +4979,11 @@ struct WeekView: View {
         return VStack(spacing: 0) {
             ForEach(startHour..<endHour, id: \.self) { hour in
                 VStack(alignment: .trailing, spacing: 0) {
-                    Text(hour > startHour ? mobileHourLabel(hour) : "")
+                    Text(mobileHourLabel(hour))
                         .font(DS.Typeface.small(design: .rounded))
                         .foregroundStyle(DS.Palette.quietText)
                         .lineLimit(1)
-                    if let other, hour > startHour {
+                    if let other {
                         Text(TripTimeZone.label(forHour: hour, on: day, primary: .current, zone: other))
                             .font(DS.Typeface.small(design: .rounded))
                             .foregroundStyle(DS.Palette.quietText)
@@ -4973,7 +4994,7 @@ struct WeekView: View {
                 }
                 .monospacedDigit()
                 .frame(width: width - 5, height: hourHeight, alignment: .topTrailing)
-                .offset(y: -6)
+                .offset(y: hour == startHour ? 0 : -6)
                 .id(hour)
             }
         }
@@ -5040,9 +5061,16 @@ struct WeekView: View {
         }
     }
 
+    private func openingWeekColumn(visibleDays: Int) -> Int {
+        let selected = calendarDays.firstIndex {
+            Calendar.current.isDate($0.date, inSameDayAs: mobileSelectedDay)
+        } ?? 0
+        return min(selected, max(0, calendarDays.count - visibleDays))
+    }
+
     private func mobileNativeWeekViewport(
         timeWidth: CGFloat, dayWidth: CGFloat, hourHeight: CGFloat,
-        gridHeight: CGFloat, viewportHeight: CGFloat, viewportWidth: CGFloat
+        gridHeight: CGFloat, visibleDays: Int, viewportHeight: CGFloat, viewportWidth: CGFloat
     ) -> some View {
         let days = calendarDays
         let items = days.enumerated().flatMap { index, day in
@@ -5089,7 +5117,8 @@ struct WeekView: View {
             nativeItems: items,
             week: CalendarWeekScrollConfiguration(
                 contentWidth: timeWidth + CGFloat(days.count) * dayWidth,
-                columnWidth: dayWidth, selectedColumn: mobileVisibleDayID ?? 0,
+                columnWidth: dayWidth,
+                selectedColumn: mobileVisibleDayID ?? openingWeekColumn(visibleDays: visibleDays),
                 gutterWidth: timeWidth,
                 gutter: AnyView(mobileTimeGutter(width: timeWidth, startHour: 0, endHour: 24,
                                                 hourHeight: hourHeight)),
@@ -5340,7 +5369,6 @@ struct WeekView: View {
             Rectangle().fill(Color(.separator).opacity(0.5)).frame(width: 0.5)
         }
         .clipped()
-        .animation(.easeInOut(duration: 0.16), value: placements.map(\.id))
         // Keep each day as an accessibility container. Without this boundary SwiftUI flattens
         // the full dense week into one spatial sort; 100 events/day made an AX snapshot take
         // about five seconds and blocked the main thread during every assistive/UI-test query.
@@ -5719,31 +5747,23 @@ struct WeekView: View {
         return Self.mobileRangeFormatter.string(from: mobileVisibleWeekStart, to: last)
     }
 
-    private func rebuildMobileCalendar(_ all: [Occurrence]) {
-        // Everything outstanding, for today's reminders line — from the whole timeline, not the
-        // days on screen: one from last week is still to do.
-        let overdue = occurrences.occurrences.filter(\.isOverdueReminder)
-        if overdue != overdueTasks { overdueTasks = overdue }
-        let all = PendingRemovals.visible(all, id: { $0.meeting?.eventID }, start: \.start, hiding: ToastCenter.shared.hiddenIDs)
+    private func calendarInput(_ all: [Occurrence]) -> CalendarInput {
+        let visible = PendingRemovals.visible(all, id: { $0.meeting?.eventID }, start: \.start,
+                                               hiding: ToastCenter.shared.hiddenIDs)
         let calendar = Calendar.current
-        updateMobileSecondaryZone()
-        let input = CalendarInput(occurrences: all, start: mobileVisibleWeekStart,
-                                  today: calendar.startOfDay(for: Date()), calendar: calendar)
-        #if DEBUG
-        let reusePreparedInput = !ProcessInfo.processInfo.arguments.contains("--calendar-reprepare-on-appear")
-        #else
-        let reusePreparedInput = true
-        #endif
-        if reusePreparedInput && preparedCalendarInput == input && mobileVisibleDayID != nil { return }
-        preparedCalendarInput = input
-        let _ = RenderStats.note("Calendar.prepareDays")
+        return CalendarInput(occurrences: visible, start: mobileVisibleWeekStart,
+                             today: calendar.startOfDay(for: Date()), calendar: calendar)
+    }
+
+    private func makeMobileDays(_ input: CalendarInput) -> [DayData] {
+        let calendar = input.calendar
         let offsets = dayMode ? Array(-1...1) : Array(0..<7)
-        let rebuilt = offsets.compactMap { offset -> DayData? in
+        return offsets.compactMap { offset -> DayData? in
             guard let day = calendar.date(
                 byAdding: .day,
                 value: offset,
-                to: mobileVisibleWeekStart) else { return nil }
-            let items = DayColumn.occurrences(all, on: day, calendar: calendar)
+                to: input.start) else { return nil }
+            let items = DayColumn.occurrences(input.occurrences, on: day, calendar: calendar)
             let committed = items
                 .filter { $0.behavior == .event || ($0.behavior == .task && $0.hasScheduledTime) }
                 .reduce(0.0) { $0 + $1.resolvedEnd.timeIntervalSince($1.start) } / 3_600
@@ -5753,27 +5773,42 @@ struct WeekView: View {
                 weekday: Self.weekdayFmt.string(from: day).uppercased(),
                 dayNum: Self.dayFmt.string(from: day),
                 letter: Self.letterFmt.string(from: day),
-                isToday: calendar.isDateInToday(day),
+                isToday: calendar.isDate(day, inSameDayAs: input.today),
                 items: items,
                 committed: committed,
                 itemsToken: items.hashValue, calendarGrid: true)
         }
-        // Every occurrence publish lands here — a launch sends several, most changing nothing
-        // on these days. Assigning an equal list still redrew the whole grid each time.
-        if rebuilt != calendarDays {
-            calendarDays = rebuilt
-            // What Report a problem says of the calendar: the days built and their items' ids.
-            ProblemReportCenter.shared.noteCalendar(
-                start: rebuilt.first?.date,
-                end: rebuilt.last.flatMap { calendar.date(byAdding: .day, value: 1, to: $0.date) },
-                ids: rebuilt.flatMap { $0.items.map(\.id) })
+    }
+
+    private func rebuildMobileCalendar(_ all: [Occurrence]) {
+        // Everything outstanding, including reminders outside the visible days.
+        let overdue = occurrences.occurrences.filter(\.isOverdueReminder)
+        if overdue != mountedOverdueTasks { mountedOverdueTasks = overdue }
+        let input = calendarInput(all)
+        #if DEBUG
+        let reusePreparedInput = !ProcessInfo.processInfo.arguments.contains("--calendar-reprepare-on-appear")
+        #else
+        let reusePreparedInput = true
+        #endif
+        if !reusePreparedInput || preparedCalendarInput != input {
+            preparedCalendarInput = input
+            let _ = RenderStats.note("Calendar.prepareDays")
+            let rebuilt: [DayData]
+            if mountedDays == nil, reusePreparedInput, openingDays.0 == input {
+                rebuilt = openingDays.1
+            } else {
+                rebuilt = makeMobileDays(input)
+            }
+            if rebuilt != mountedDays {
+                mountedDays = rebuilt
+                mountSnapshot.clear()
+                ProblemReportCenter.shared.noteCalendar(
+                    start: rebuilt.first?.date,
+                    end: rebuilt.last.flatMap { input.calendar.date(byAdding: .day, value: 1, to: $0.date) },
+                    ids: rebuilt.flatMap { $0.items.map(\.id) })
+            }
         }
-        if mobileVisibleDayID == nil {
-            let selectedIndex = calendarDays.firstIndex {
-                calendar.isDate($0.date, inSameDayAs: mobileSelectedDay)
-            } ?? 0
-            mobileVisibleDayID = dayMode ? 1 : min(max(0, selectedIndex), max(0, calendarDays.count - 3))
-        }
+        updateMobileSecondaryZone()
     }
 
     private func moveMobileWeek(_ delta: Int, landingAtEdge: Bool = false) {

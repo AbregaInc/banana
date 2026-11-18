@@ -56,6 +56,22 @@ private final class CalendarMacCellView: NSView {
 /// notification alone does not cover them. Coalesce their persistence callback.
 final class CalendarMacScrollView: NSScrollView {
     var onDiscreteScrollEnd: () -> Void = {}
+    var initialOffset: CGFloat?
+    private var initializedOffset = false
+
+    override func layout() {
+        super.layout()
+        applyInitialOffset()
+    }
+
+    func applyInitialOffset() {
+        guard !initializedOffset, let initialOffset, let documentView, contentView.bounds.height > 0 else { return }
+        initializedOffset = true
+        let maximum = max(0, documentView.frame.height - contentView.bounds.height)
+        contentView.scroll(to: CGPoint(x: 0, y: min(max(0, initialOffset), maximum)))
+        reflectScrolledClipView(contentView)
+    }
+
     private var idleTimer: Timer?
     override func scrollWheel(with event: NSEvent) {
         super.scrollWheel(with: event)
@@ -138,7 +154,6 @@ struct CalendarMacCollectionViewport: NSViewRepresentable {
         private var slotActions: (CGPoint) -> [CalendarMacSlotAction] = { _ in [] }
         private var onOffset: (CGFloat) -> Void = { _ in }
         private var onScrollEnd: () -> Void = {}
-        private var initializedOffset = false
         private static let reuseID = NSUserInterfaceItemIdentifier("calendar.event")
 
         override init() {
@@ -222,12 +237,8 @@ struct CalendarMacCollectionViewport: NSViewRepresentable {
                     cell?.setContent(content(at: index.item))
                 }
             }
-            if !initializedOffset, let initialOffset = input.initialOffset, scroll.contentView.bounds.height > 0 {
-                initializedOffset = true
-                let y = min(max(0, initialOffset), max(0, input.contentSize.height - scroll.contentView.bounds.height))
-                scroll.contentView.scroll(to: CGPoint(x: 0, y: y))
-                scroll.reflectScrolledClipView(scroll.contentView)
-            }
+            scroll.initialOffset = input.initialOffset
+            scroll.applyInitialOffset()
         }
         private func handleSlotMenu(_ event: NSEvent) -> NSEvent? {
             guard let window = scroll.window, event.window === window,

@@ -31,6 +31,8 @@ private func googleEvent(
     attendees: Int = 0,
     ownedBy variant: String? = nil,
     itemID: String? = nil,
+    creator: String? = nil,
+    writer: String? = nil,
     iCalUID: String? = nil,
     originalStart: String? = nil
 ) -> GoogleEvent {
@@ -48,6 +50,7 @@ private func googleEvent(
     if let hangoutLink { json["hangoutLink"] = hangoutLink }
     if let transparency { json["transparency"] = transparency }
     if let status { json["status"] = status }
+    if let creator { json["creator"] = ["email": creator] }
     if let iCalUID { json["iCalUID"] = iCalUID }
     if let originalStart {
         json["originalStartTime"] = ["dateTime": originalStart]
@@ -57,10 +60,12 @@ private func googleEvent(
     if declined { people.append(["email": "me@example.com", "self": true, "responseStatus": "declined"]) }
     if !people.isEmpty { json["attendees"] = people }
     if let variant {
-        json["extendedProperties"] = ["private": [
+        var properties = [
             GoogleBusyBlocks.variantKey: variant,
             GoogleBusyBlocks.itemIDKey: itemID ?? "item-\(id)",
-        ]]
+        ]
+        if let writer { properties[GoogleBusyBlocks.writerKey] = writer }
+        json["extendedProperties"] = ["private": properties]
     }
     let data = try! JSONSerialization.data(withJSONObject: json)
     return try! JSONDecoder().decode(GoogleEvent.self, from: data)
@@ -143,6 +148,40 @@ final class GoogleEventWindowTests: XCTestCase {
     private var dinnerMirror: String {
         let dinner = GoogleEventWindowBuilder.normalize(.init(calendarID: "personal", event: googleEvent(id: "d", summary: "Dinner")))!
         return GoogleBusyBlocks.mirrorID(title: dinner.title, start: dinner.start, end: dinner.end)
+    }
+
+    func testSharedScheduledCopiesFoldAcrossVariantsAndCalendars() {
+        let events = [
+            ("fitness", googleEvent(id: "stable", summary: "Busy", ownedBy: "banana", itemID: "travel-item",
+                                    creator: "noor@plan.example", writer: "stable-install")),
+            ("fitness", googleEvent(id: "beta", summary: "Busy", ownedBy: "banana-beta", itemID: "travel-item",
+                                    creator: "noor@plan.example", writer: "beta-install")),
+            ("personal", googleEvent(id: "personal", summary: "Busy", ownedBy: "banana", itemID: "travel-item",
+                                     creator: "noor-personal@plan.example", writer: "stable-install")),
+        ]
+        let result = sharedWindow(events, owners: [:])
+        XCTAssertEqual(result.meetings.map(\.title), ["Busy"])
+        XCTAssertEqual(result.meetings.first?.alsoOnCalendarIDs, [GoogleCalendarIDs.calendarInfoID("personal")])
+        XCTAssertEqual(result.busyIntervals.count, 3)
+        // If the calendar is hidden, its copies cannot stand in for a visible one.
+        let hidden = GoogleEventWindowBuilder.window(
+            from: events.map { .init(calendarID: $0.0, event: $0.1) }, calendar: utc, ownedCalendarIDs: [],
+            hiddenSharedAvailabilityCalendarIDs: ["fitness"])
+        XCTAssertEqual(hidden.meetings.first?.calendarID, GoogleCalendarIDs.calendarInfoID("personal"))
+        XCTAssertEqual(hidden.busyIntervals.count, 3)
+    }
+
+    func testSameTimeWithDifferentOrMissingProvenanceStaysVisible() {
+        let events = [
+            ("fitness", googleEvent(id: "one", summary: "Busy", ownedBy: "banana", itemID: "travel-item",
+                                    creator: "noor@plan.example", writer: "first-install")),
+            ("personal", googleEvent(id: "two", summary: "Busy", ownedBy: "banana", itemID: "travel-item",
+                                     creator: "another@plan.example", writer: "other-install")),
+            ("work", googleEvent(id: "three", summary: "Busy")),
+            ("work", googleEvent(id: "four", summary: "Busy", end: "2026-10-05T16:05:00Z",
+                                 ownedBy: "banana", itemID: "travel-item", writer: "first-install")),
+        ]
+        XCTAssertEqual(sharedWindow(events, owners: [:]).meetings.count, 4)
     }
 
     func testSharedMirrorFoldsIntoVisibleDinnerKeepingEveryCalendarAndRawCoverage() {
