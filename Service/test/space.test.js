@@ -21,6 +21,31 @@ const syncAs = (p, changes, { platform = "iphone", device = "phone-0001", since 
   space.sync(p, { account: "acc", device, platform, since, changes, now, ...rest });
 const rows = (p, sql, ...args) => p.exec(sql, ...args);
 
+test("web display pages keep date order across ties, tombstones, and wrapped records", () => {
+  const p = port();
+  const type = 'notes.voiceNote';
+  assert.deepEqual(space.browse(p, type, '', 2, true), {records: [], next: null});
+  const insert = (type, id, value, deleted = null, stamp = clock(NOW)) =>
+    p.exec('INSERT INTO records(type,id,fields,clocks,deleted,seq) VALUES(?,?,?,?,?,?)',
+      type, id, JSON.stringify(value), JSON.stringify({v:stamp}), deleted, 0);
+  insert(type, 'older', {createdAt:11});
+  insert(type, 'first', {v:{createdAt:20}});
+  insert(type, 'second', {createdAt:20});
+  insert(type, 'saved-again', {createdAt:19}, clock(NOW));
+  insert(type, 'deleted', {createdAt:30}, clock(NOW + 1));
+  const page = space.browse(p, type, '', 1, true);
+  assert.deepEqual(page.records.map(r => r.id), ['first']);
+  const more = space.browse(p, type, page.next, 3, true);
+  assert.deepEqual(more.records.map(r => r.id), ['second','saved-again','older']);
+  assert.equal(more.next, null);
+  insert('plan.routine', 'disabled', {v:{hour:1,minute:0,enabled:false}});
+  insert('plan.routine', 'later', {v:{hour:18,minute:0}});
+  insert('plan.routine', 'sooner', {hour:8,minute:0});
+  const routines=space.browse(p,'plan.routine','',1,true);
+  assert.deepEqual(routines.records.map(r => r.id), ['sooner']);
+  assert.deepEqual(space.browse(p,'plan.routine',routines.next,2,true).records.map(r => r.id), ['later']);
+});
+
 function permutations(list) {
   if (list.length <= 1) return [list];
   return list.flatMap((x, i) => permutations([...list.slice(0, i), ...list.slice(i + 1)]).map((rest) => [x, ...rest]));

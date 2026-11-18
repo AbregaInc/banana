@@ -42,6 +42,7 @@ final class ShellSearch: ObservableObject {
     @Published private(set) var groups = ShellSearchGroups<ShellSearchHit>()
     /// The words `groups` answers, so a result list is never shown under other words.
     @Published private(set) var answered: String?
+    @Published private(set) var searchingNotes = false
 
     /// A request to give the field the keyboard (the bar's field, wherever it is drawn).
     let focusRequests = PassthroughSubject<Bool, Never>()
@@ -60,12 +61,13 @@ final class ShellSearch: ObservableObject {
             stopMail()
             if !groups.isEmpty { groups = ShellSearchGroups() }
             answered = nil
+            searchingNotes = false
             return
         }
         pending = Task { [weak self] in
             try? await Task.sleep(for: ShellSearchRules.settle)
             guard !Task.isCancelled else { return }
-            self?.run(query)
+            await self?.run(query)
         }
     }
 
@@ -83,14 +85,18 @@ final class ShellSearch: ObservableObject {
         if focused { focused = false }
     }
 
-    private func run(_ query: String) {
+    private func run(_ query: String) async {
+        searchingNotes = true
         var next = ShellSearchGroups<ShellSearchHit>()
         next.plan = Self.plan(query)
-        next.notes = Self.notes(query)
         next.mail = groups.mail.filter { _ in answered == query }
         groups = next
         answered = query
         searchMail(query)
+        let notes = await Self.notes(query)
+        guard !Task.isCancelled, answered == query, ShellSearchRules.query(text) == query else { return }
+        if groups.notes != notes { groups.notes = notes }
+        searchingNotes = false
     }
 
     // MARK: Plan — the timeline already in memory (the assistant's search reads the same).
@@ -125,11 +131,10 @@ final class ShellSearch: ObservableObject {
 
     // MARK: Notes — the list's own search.
 
-    private static func notes(_ query: String) -> [ShellSearchHit] {
+    private static func notes(_ query: String) async -> [ShellSearchHit] {
         #if BANANA_MODULE_NOTES
         guard ModuleStore.shared.includes(.notes) else { return [] }
-        return VoiceNoteStore.shared.matchingNotes(search: query, archived: false)
-            .prefix(ShellSearchGroups<ShellSearchHit>.shownPerGroup)
+        return await VoiceNoteStore.shared.searchResults(query, limit: ShellSearchGroups<ShellSearchHit>.shownPerGroup)
             .map { note in
                 ShellSearchHit(id: "note:\(note.id)", title: note.displayTitle,
                                detail: String((note.transcript ?? "").prefix(120)),
@@ -357,7 +362,7 @@ struct ShellSearchResults: View {
                 }
             }
         }
-        if search.answered != nil, groups.isEmpty {
+        if search.answered != nil, !search.searchingNotes, groups.isEmpty {
             Text("Nothing found")
                 .foregroundStyle(.secondary)
                 .listRowSeparator(.hidden)

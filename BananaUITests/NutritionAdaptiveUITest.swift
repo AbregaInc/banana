@@ -17,12 +17,14 @@ final class NutritionAdaptiveUITest: XCTestCase {
         let date = app.descendants(matching: .any)["nutrition.day"].firstMatch
         app.buttons["Previous day"].tap()
         XCTAssertTrue(waitUntil { date.value as? String == yesterday })
-        let add = app.buttons["nutrition.add"]
+        let add = app.plus("nutrition.add")
         XCTAssertTrue(add.waitForExistence(timeout: 5))
-        add.tap()
-        XCTAssertTrue(app.buttons["nutrition.search"].waitForExistence(timeout: 3))
-        XCTAssertTrue(app.buttons["nutrition.addPhotos"].exists)
-        XCTAssertTrue(app.dismissNativeMenu(item: app.buttons["nutrition.search"]))
+        openAddForms(app, add)
+        let firstSearch = menuItem(app, shared: "wellness.searchFood", local: "nutrition.search", label: "Search")
+        XCTAssertTrue(menuItem(app, shared: "wellness.photoMeal", local: "nutrition.addPhotos", label: "Photos").exists)
+        firstSearch.tap()
+        XCTAssertTrue(app.searchFields.firstMatch.waitForExistence(timeout: 5))
+        app.navigationBars["Add food"].buttons["Cancel"].tap()
         XCTAssertFalse(app.navigationBars["Recent meals"].exists)
         XCTAssertTrue(app.buttons["nutrition.myFoods"].exists)
         capture("nutrition-portrait")
@@ -30,13 +32,27 @@ final class NutritionAdaptiveUITest: XCTestCase {
         XCTAssertTrue(waitUntil { app.windows.firstMatch.frame.width > app.windows.firstMatch.frame.height })
         XCTAssertEqual(date.value as? String, yesterday)
         capture("nutrition-landscape")
-        add.tap()
-        let search = app.buttons["nutrition.search"]
-        XCTAssertTrue(search.waitForExistence(timeout: 3))
+        openAddForms(app, add)
+        let search = menuItem(app, shared: "wellness.searchFood", local: "nutrition.search", label: "Search")
         search.tap()
         XCTAssertTrue(app.searchFields.firstMatch.waitForExistence(timeout: 5))
         app.navigationBars["Add food"].buttons["Cancel"].tap()
         XCTAssertEqual(date.value as? String, yesterday)
+    }
+
+    private func openAddForms(_ app: XCUIApplication, _ add: XCUIElement) {
+        add.tap()
+        if app.navigationBars["Ask or add"].exists {
+            app.buttons["assistant.panel.addForm"].tap()
+        }
+    }
+
+    private func menuItem(_ app: XCUIApplication, shared: String, local: String, label: String) -> XCUIElement {
+        let item = app.descendants(matching: .any).matching(NSPredicate(
+            format: "identifier == %@ OR identifier == %@ OR label == %@", shared, local, label
+        )).firstMatch
+        XCTAssertTrue(item.waitForExistence(timeout: 5), app.debugDescription)
+        return item
     }
 
     private func capture(_ name: String) {

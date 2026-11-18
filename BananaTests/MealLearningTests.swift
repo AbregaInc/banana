@@ -156,6 +156,25 @@ final class LearnedPortionsTests: XCTestCase {
         XCTAssertFalse(LearnedPortions.backtest(noise, category: { _ in nil }).keepsFactors,
                        "a factor that makes it worse is turned off")
     }
+
+    func testRollingBacktestMatchesPrefixReplayAcrossTiesAndAnExpiredWindow() {
+        let rows = (0..<56).map { i in
+            row(i % 3 == 0 ? "Rice" : "Pasta", guess: 100, logged: i.isMultiple(of: 7) ? 600 : Double(115 + i % 9 * 5),
+                reference: "sr:\(i % 5)", day: i < 25 ? 0 : i - 24)
+        }
+        let category: (String) -> String? = { _ in "Grains" }
+        var before: [Double] = []
+        var after: [Double] = []
+        for (i, correction) in rows.enumerated() {
+            let book = LearnedPortions.book(Array(rows[..<i]), category: category)
+            guard let food = correction.estimated, let guess = correction.guessedGrams, let logged = correction.logged?.grams,
+                  let factor = book.factor(name: food.name, referenceID: food.referenceID, category: "Grains") else { continue }
+            before.append(abs(guess - logged) / logged)
+            after.append(abs(guess * factor.ratio - logged) / logged)
+        }
+        XCTAssertEqual(LearnedPortions.backtest(rows, category: category),
+                       .init(tried: before.count, errorBefore: EstimateLedger.median(before), errorAfter: EstimateLedger.median(after)))
+    }
 }
 
 final class LearnedResolveTests: XCTestCase {

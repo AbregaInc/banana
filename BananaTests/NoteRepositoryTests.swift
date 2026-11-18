@@ -20,6 +20,20 @@ final class NoteRepositoryTests: XCTestCase {
         }
     }
 
+    func testBoundedSearchMatchesTheCountedPage() async throws {
+        let samples = (0..<14).map { i in
+            VoiceNote(createdAt: Date(timeIntervalSinceReferenceDate: Double(i)), audioFilename: "",
+                      transcript: i.isMultiple(of: 2) ? "CAFÉ" : "Not a match", status: .transcribed)
+        }
+        let (store, legacy) = try make(samples)
+        defer { try? FileManager.default.removeItem(at: legacy.deletingLastPathComponent()) }
+        let counted = try store.page(search: "café", archived: false, limit: 5)
+        let bounded = try await store.searchResults("café", limit: 5)
+        XCTAssertEqual(counted.total, 7)
+        XCTAssertEqual(bounded, counted.rows)
+        XCTAssertEqual(bounded.count, 5)
+    }
+
     func testReminderIntentSurvivesReopenAndAcknowledgesAtomically() throws {
         let (store, legacy) = try make()
         defer { try? FileManager.default.removeItem(at: legacy.deletingLastPathComponent()) }

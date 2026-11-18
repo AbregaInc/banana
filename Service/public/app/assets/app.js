@@ -154,6 +154,12 @@ async function records(type) {
   pending.set(type,work);
   try { return await work; } finally { if(pending.get(type) === work) pending.delete(type); }
 }
+async function displayRecords(type, limit, after = '') {
+  if(account?.shared && !account.allowedTypes.includes(type)) return { records: [], next: null };
+  const params = new URLSearchParams({type, limit, after, order:'display'});
+  const page = await (await request(dataURL(`records?${params}`))).json();
+  return { records:page.records.map(r => ({...r,type})), next:page.next };
+}
 async function packed(r, field, marker = false) {
   const bytes = new Uint8Array(await (await request(blobURL(r,field))).arrayBuffer());
   let data = bytes;
@@ -192,7 +198,10 @@ function filterControls(){
   mount.innerHTML=`<div class="filter-chips">${liveFilter.terms.map((t,i)=>`<span class="filter-chip"><button data-edit-filter="${i}" title="Edit filter">${escape(filterTitle(t))}</button><button data-remove-filter="${i}" aria-label="Remove ${escape(filterTitle(t))}">×</button></span>`).join('')}</div>${liveFilter.issues.map(s=>`<p class="filter-issue" role="status">${escape(s)}</p>`).join('')}`;
 }
 function rememberFilters(){filterStates.set(view,{query,filter:structuredClone(liveFilter)});saveViewPreferences();}
-function updateFilter(next){liveFilter=next;rememberFilters();render(true);}
+function updateFilter(next){
+  if(view==='notes'){ notesPage=0; notesCursors=['']; }
+  liveFilter=next;rememberFilters();render(true);
+}
 
 function sortDate(list,key='date') { return [...list].sort((a,b) => (Number(fields(b)[key]) || 0)-(Number(fields(a)[key]) || 0)); }
 function macros(f) { return (f.items ?? []).reduce((t,i) => { for(const k of Object.keys(t)) t[k] += Number(i.macros?.[k]) || 0; return t; }, {calories:0,proteinGrams:0,carbohydrateGrams:0,fatGrams:0}); }
@@ -210,27 +219,21 @@ function viewCount(n,word='records') { $('#result-count').textContent = `${num(n
 async function overview() {
 
   const counts=account.counts;
-  const definitions = [['plans',account.shared&&!account.allowedTypes.includes('plan.routine')?'Plans':'Routines',account.shared&&!account.allowedTypes.includes('plan.routine')?'↗':counts['plan.routine']??0],['nutrition','Meals',counts['food.meal']??0],['workouts','Workouts',counts['health.workout']??0],['podcasts','Listening sessions',counts['podcast.listen']??0],['notes','Voice notes',counts['notes.voiceNote']??0],['health','Health','↗',account.consents.health ? '' : 'Not shared yet'],...(account.shared?[['taken','Doses',counts['food.dose']??0]]:[])];
+  const definitions = [['plans',account.shared&&!account.allowedTypes.includes('plan.routine')?'Plans':'Routines',account.shared&&!account.allowedTypes.includes('plan.routine')?'↗':counts['plan.routine']??0],['nutrition','Meals',counts['food.meal']??0],['workouts','Workouts','↗'],['podcasts','Listening sessions',counts['podcast.listen']??0],['notes','Voice notes',counts['notes.voiceNote']??0],['health','Health','↗',account.consents.health ? '' : 'Not shared yet'],...(account.shared?[['taken','Doses',counts['food.dose']??0]]:[])];
   const summary=`<div class="summary-grid">${definitions.filter(([id])=>canView(id)).map(([id,label,n,foot])=>`<a class="summary" href="#${id}"><span class="summary-label">${label}</span><span class="summary-arrow" aria-hidden="true">↗</span><span class="summary-number">${typeof n==='number'?num(n):n}</span>${foot?`<span class="summary-foot">${foot}</span>`:''}</a>`).join('')}</div>`;
   if(account.shared){
     $('#content').innerHTML=summary;
-    const current=generation,pass=renderId;
-    if(canView('workouts')){
-      const workouts=await combinedWorkouts();
-      if(generation===current&&renderId===pass&&view==='overview'){
-        const count=$('#content a[href="#workouts"] .summary-number');
-        if(count)count.textContent=workoutHistoryError?'—':num(workouts.length);
-      }
-    }
     return;
   }
   $('#content').innerHTML=summary+`<div id="overview-recent" class="split"><p class="subtle">Reading your latest activity…</p></div>`;
   const current=generation;
   try {
-    const [routines,meals,listens,workouts] = await Promise.all([records('plan.routine'),records('food.meal'),records('podcast.listen'),combinedWorkouts(),records('plan.override')]);
+    const [routines,meals,listens] = (await Promise.all([
+      displayRecords('plan.routine',4), displayRecords('food.meal',3), displayRecords('podcast.listen',3)
+    ])).map(page => page.records);
     if(view!=='overview' || generation!==current) return;
-    const recent=$('#overview-recent');if(!recent)return;const count=$('#content a[href="#workouts"] .summary-number');if(count)count.textContent=num(workouts.length);
-    recent.innerHTML = `<div>${section('Your routines',routines.length ? listHTML(routines.filter(r=>fields(r).enabled!==false).sort((a,b)=>(fields(a).hour*60+fields(a).minute)-(fields(b).hour*60+fields(b).minute)).slice(0,4),routineRow) : empty('No routines','The routines you make in Banana will appear here.'),'<a href="#plans">All plans ↗</a>')}</div><div>${section(meals.length?'Latest meals':'Latest listening',meals.length?listHTML(sortDate(meals).slice(0,3),mealRow):listens.length?listHTML(sortDate(listens).slice(0,3),listenRow):empty('Nothing here yet','Open Banana on a device to sync your data.'),`<a href="#${meals.length?'nutrition':'podcasts'}">View all ↗</a>`)}</div>`;
+    const recent=$('#overview-recent');if(!recent)return;
+    recent.innerHTML = `<div>${section('Your routines',routines.length ? listHTML(routines,routineRow) : empty('No routines','The routines you make in Banana will appear here.'),'<a href="#plans">All plans ↗</a>')}</div><div>${section(meals.length?'Latest meals':'Latest listening',meals.length?listHTML(meals,mealRow):listens.length?listHTML(listens,listenRow):empty('Nothing here yet','Open Banana on a device to sync your data.'),`<a href="#${meals.length?'nutrition':'podcasts'}">View all ↗</a>`)}</div>`;
   } catch(e) { if(view==='overview' && generation===current && $('#overview-recent')) $('#overview-recent').innerHTML=`<p class="subtle">${escape(e.message)}</p>`; }
 }
 function dayStep(key,by){return stepDay(key,by);}
@@ -384,7 +387,34 @@ async function podcasts() {
   if(podcastTab==='progress')body=listHTML(sortDate(shown,'updatedAt'),r=>{const f=fields(r);return row(r,episodeNames.get(r.id)||'Episode progress',f.completed?'Finished':'In progress',date(f.updatedAt),duration(f.position));});
   return tabs+(shown.length?body:empty('No listening history',query?'No listening matches your search.':account.shared?'Shared listening appears after the owner’s devices sync.':'Your listening will appear after your devices sync.'));
 }
-async function notes() { const pass=renderId,epoch=generation;const data=await records('notes.voiceNote');if(pass!==renderId||epoch!==generation)return undefined;const rows=sortDate(data.filter(matches),'createdAt');viewCount(rows.length,'notes');return rows.length?listHTML(rows,noteRow):empty('No voice notes',query?'No notes match your search.':'Capture a voice note in Banana and find it here, with its transcript.'); }
+const notesPageSize = 30;
+let notesPage = 0, notesCursors = [''], notesGeneration;
+async function notes() {
+  const pass=renderId, epoch=generation;
+  if(notesGeneration!==epoch){ notesPage=0; notesCursors=['']; notesGeneration=epoch; }
+  const pageIndex=notesPage;
+  const filtered=liveFilter.terms.length>0;
+  let cursor=notesCursors[pageIndex]??'';
+  const rows=[];
+  if(!liveFilter.issues.length){
+    do{
+      const page=await displayRecords('notes.voiceNote',filtered?100:notesPageSize,cursor);
+      if(pass!==renderId||epoch!==generation)return undefined;
+      rows.push(...(filtered?page.records.filter(matches):page.records));
+      cursor=page.next;
+    }while(filtered&&cursor!==null&&rows.length<=notesPageSize);
+  }
+  const next=filtered?rows.length>notesPageSize:cursor!==null&&!liveFilter.issues.length;
+  rows.length=Math.min(rows.length,notesPageSize);
+  if(next) notesCursors[pageIndex+1]=rows.at(-1).cursor;
+  viewCount(filtered||liveFilter.issues.length?rows.length:(account.counts['notes.voiceNote']??rows.length),
+            filtered?'notes on this page':'notes');
+  const pager=pageIndex||next ? `<nav class="actions" aria-label="Voice note pages">
+    ${pageIndex ? '<button class="button" data-notes-page="-1">Previous</button>' : ''}
+    ${next ? '<button class="button" data-notes-page="1">Next</button>' : ''}
+  </nav>` : '';
+  return (rows.length ? listHTML(rows,noteRow) : empty('No voice notes',query?'No notes match your search.':'Capture a voice note in Banana and find it here, with its transcript.'))+pager;
+}
 const renders={calendars,overview,plans,nutrition,taken,workouts,health,podcasts,notes,sharing:()=>sharing.render(location.hash.split('/')[1]||''),feeds:()=>'<section id="received-feed-controls" aria-label="Connections"></section>'};
 
 async function calendars() {
@@ -618,6 +648,8 @@ for(const mount of [$('#content'),$('#detail-content')]){
   mount.addEventListener('change',changeTrend);mount.addEventListener('click',changeTrend);
 }
 $('#content').addEventListener('click',(e)=>{
+  const notesStep=e.target.closest('[data-notes-page]');
+  if(view==='notes'&&notesStep){ notesPage+=Number(notesStep.dataset.notesPage); render(); return; }
   if(view==='sharing'){sharing.click(e.target).catch(error=>showNotice(error.message,true));return;}
   const healthModeButton=e.target.closest('[data-health-mode]');if(healthModeButton){healthMode=healthModeButton.dataset.healthMode;saveViewPreferences();render().then(()=>document.querySelector(`[data-health-mode="${healthMode}"]`)?.focus());return;}
   const healthStep=e.target.closest('[data-health-step]');if(healthStep){const step=healthStep.dataset.healthStep;healthDay=stepDay(healthDay,Number(step)*(healthMode==='week'?7:1));saveViewPreferences();render().then(()=>document.querySelector(`[data-health-step="${step}"]`)?.focus());return;}

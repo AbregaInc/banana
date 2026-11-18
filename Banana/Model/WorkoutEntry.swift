@@ -4,7 +4,7 @@ import Foundation
 /// One workout, pairing the Apple Health record with our detailed recording (if the same
 /// session). Either may be nil — external workouts have only Health; a just-recorded one
 /// may briefly have only our summary before Health syncs.
-struct WorkoutEntry: Identifiable, Hashable {
+struct WorkoutEntry: Identifiable, Hashable, Sendable {
     let health: HealthWorkout?
     let summary: FitnessSessionSummary?
 

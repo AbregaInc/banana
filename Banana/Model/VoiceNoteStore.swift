@@ -109,6 +109,13 @@ final class VoiceNoteStore: ObservableObject {
         return (try? repository?.page(search: search, archived: archived).rows) ?? []
     }
 
+    func searchResults(_ search: String, limit: Int) async -> [VoiceNote] {
+        if let previewNotes {
+            return Array(queryCache.matching(previewNotes, search: search, archived: false).prefix(limit))
+        }
+        return (try? await repository?.searchResults(search, limit: limit)) ?? []
+    }
+
     #if DEBUG && (targetEnvironment(simulator) || os(macOS) || STRESS_DEVICE_AUDIT)
     func injectStress(_ values: [VoiceNote]) {
         previewNotes = nil
@@ -586,7 +593,13 @@ final class VoiceNoteStore: ObservableObject {
     // MARK: Watch ingest
 
     func snapshotContextForRemoteNote() {
-        remoteNoteContext = snapshotPodcastContext()
+        guard let player, let episode = player.currentEpisode else {
+            remoteNoteContext = nil
+            return
+        }
+        remoteNoteContext = VoiceNote.Context(episodeID: episode.id, episodeTitle: episode.title,
+                                              podcastTitle: player.currentPodcastTitle,
+                                              timestamp: player.preciseTime(), transcriptExcerpt: nil)
     }
 
     func ingestWatchNote(audio staged: URL, meta: [String: Any]) {
@@ -622,26 +635,23 @@ final class VoiceNoteStore: ObservableObject {
         var context: VoiceNote.Context?
         var excerptTask: Task<String?, Never>?
         if let episodeID = meta["episodeID"] as? String, !episodeID.isEmpty {
-            let timestamp = meta["timestamp"] as? TimeInterval
             context = VoiceNote.Context(
                 episodeID: episodeID,
                 episodeTitle: (meta["episodeTitle"] as? String).flatMap { $0.isEmpty ? nil : $0 },
                 podcastTitle: nil,
-                timestamp: timestamp,
+                timestamp: meta["timestamp"] as? TimeInterval,
                 transcriptExcerpt: nil)
-            if let timestamp {
-                excerptTask = Task {
-                    let excerpt = await TranscriptStore.shared.localTranscriptAsync(for: episodeID)?
-                        .excerpt(around: timestamp)
-                    return excerpt?.isEmpty == false ? excerpt : nil
-                }
-            }
         } else {
-            // Already synchronous today (`snapshotContextForRemoteNote()`, the "noteStart"
-            // WCSession handler, keeps using the plain sync path) — nothing to defer here.
             context = remoteNoteContext
         }
         remoteNoteContext = nil
+        if let episodeID = context?.episodeID, let timestamp = context?.timestamp {
+            excerptTask = Task {
+                let excerpt = await TranscriptStore.shared.localTranscriptAsync(for: episodeID)?
+                    .excerpt(around: timestamp)
+                return excerpt?.isEmpty == false ? excerpt : nil
+            }
+        }
 
         let createdAt = (meta["recordedAt"] as? TimeInterval)
             .map { Date(timeIntervalSince1970: $0) } ?? Date()

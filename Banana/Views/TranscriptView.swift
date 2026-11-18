@@ -300,10 +300,10 @@ struct TranscriptView: View {
         // from the shared coordinator, so it tracks that task's real progress.
         #if os(iOS)
         if #available(iOS 26, *), !force,
-           TranscriptStore.shared.transcript(for: episode.id) == nil,
            episode.availableTranscriptSources.isEmpty,
            !player.isPlaying,
            (episode.duration ?? 0) > 600,
+           !TranscriptStore.shared.has(episode.id),
            ContinuedTranscription.start(episode) {
             return
         }
