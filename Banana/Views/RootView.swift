@@ -199,7 +199,9 @@ struct RootView: View {
                 }
                     // With the toasts the Nutrition tab has, so an Undo can be seen here too.
                     .toastHost()
+                    .modifier(PageChromeHost(sidebar: false))
                     .onAppear {
+                        ShellNavigation.shared.state.tab = .nutrition
                         WellnessStore.shared.injectPreviewData()
                         // `--nutrition-week`: a week of meals for the day strip; not in the App
                         // Store set, which stays one meal. `--nutrition-yesterday` opens a past day.

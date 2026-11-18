@@ -265,6 +265,7 @@ struct WideWorkoutsView: View {
                     Divider().padding(.leading, WorkoutMetrics.rowPadding + WorkoutMetrics.rowGlyphSize + 14)
                 }
                 entryRow(entry)
+                    .accessibilityIdentifier("workouts.entry")
             }
         }
         .dsCard()

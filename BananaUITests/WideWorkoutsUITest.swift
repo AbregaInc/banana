@@ -19,13 +19,21 @@ final class WideWorkoutsUITest: XCTestCase {
                                "--ui-audit", "-onboardingCompleted", "YES"]
         app.withoutSpaceSync()
         app.launch()
+        let showAll = app.buttons["workouts.showAll"]
+        XCTAssertTrue(showAll.waitForExistence(timeout: 15))
+        showAll.tap()
         return app
+    }
+
+    private func yogaRow(_ app: XCUIApplication) -> XCUIElement {
+        app.buttons.matching(identifier: "workouts.entry")
+            .matching(NSPredicate(format: "label BEGINSWITH %@", "Yoga,")).firstMatch
     }
 
     func testThePlaceIsKept() throws {
         let app = try launch()
         // The sample's yoga session: its detail is one screen down the stack.
-        let row = app.staticTexts["A Very Long Third-Party App Name"].firstMatch
+        let row = yogaRow(app)
         XCTAssertTrue(row.waitForExistence(timeout: 20), app.debugDescription)
         row.tap()
         let detail = app.descendants(matching: .any)["workout.healthOnly"]
@@ -41,14 +49,14 @@ final class WideWorkoutsUITest: XCTestCase {
     /// Guided plans are switched off (`Features.guidedPlans`): no row on the wide page either.
     func testGuidedPlansAreOff() throws {
         let app = try launch()
-        XCTAssertTrue(app.staticTexts["A Very Long Third-Party App Name"].firstMatch.waitForExistence(timeout: 20))
+        XCTAssertTrue(yogaRow(app).waitForExistence(timeout: 20))
         XCTAssertFalse(app.buttons["workouts.guidedPlans"].exists)
     }
 
     func testAWorkoutThatIsOnlyInHealthOpens() throws {
         let app = try launch()
         // The sample's yoga session, from another app: Health has it and Banana recorded nothing.
-        let row = app.staticTexts["A Very Long Third-Party App Name"].firstMatch
+        let row = yogaRow(app)
         XCTAssertTrue(row.waitForExistence(timeout: 20), app.debugDescription)
         row.tap()
         XCTAssertTrue(app.descendants(matching: .any)["workout.healthOnly"].waitForExistence(timeout: 5)
@@ -60,8 +68,7 @@ final class WideWorkoutsUITest: XCTestCase {
     /// question first. (The wide list asked; the Mac asked and warned.)
     func testDeletingAWorkoutCanBeUndone() throws {
         let app = try launch()
-        // The list's rows: each reads its activity, then when it was.
-        let rows = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", ", 2026 at "))
+        let rows = app.buttons.matching(identifier: "workouts.entry")
         XCTAssertTrue(rows.firstMatch.waitForExistence(timeout: 20), app.debugDescription)
         let before = rows.count
         // A workout Banana recorded can be deleted; one that is only in Health, from another
