@@ -25,6 +25,15 @@ final class GmailConversationLoaderTests: XCTestCase {
                 GmailPart(partId: "invite-a", mimeType: "text/calendar", filename: "invite.ics", body: GmailPartBody(attachmentId: "calendar-a", size: first.count)),
                 GmailPart(partId: "invite-b", mimeType: "application/ics", filename: "invite.ics", body: GmailPartBody(attachmentId: "calendar-b", size: second.count))]
         }
+        func singleInvitation() {
+            let data = Data("BEGIN:VCALENDAR\r\nMETHOD:REQUEST\r\nBEGIN:VEVENT\r\nUID:test-invitation\r\nEND:VEVENT\r\nEND:VCALENDAR".utf8)
+            calendarBodies = ["calendar": GmailPartBody(size: data.count, data: data.base64EncodedString())]
+            full.payload?.parts = [
+                GmailPart(partId: "body", mimeType: "text/plain", body: GmailPartBody(size: 5, data: "SGVsbG8")),
+                GmailPart(partId: "invite", mimeType: "application/octet-stream", filename: "invite.ics",
+                          body: GmailPartBody(attachmentId: "calendar", size: data.count)),
+            ]
+        }
         init() {
             let json = #"{"id":"m1","threadId":"t1","historyId":"100","internalDate":"1000","labelIds":["INBOX"],"payload":{"partId":"0","mimeType":"multipart/mixed","headers":[{"name":"From","value":"sender@example.com"},{"name":"Subject","value":"Subject"}],"parts":[{"partId":"1","mimeType":"text/plain","body":{"attachmentId":"body-part","size":5}},{"partId":"2","mimeType":"application/pdf","filename":"report.pdf","body":{"attachmentId":"file-part","size":123}}]}}"#
             full = try! JSONDecoder().decode(GmailMessage.self, from: Data(json.utf8))
@@ -162,6 +171,23 @@ final class GmailConversationLoaderTests: XCTestCase {
             let prepared = try await MailBlobStore(stores: stores).prepared(account: message.account, messageID: message.message)
             XCTAssertNotNil(prepared)
         }
+    }
+
+    func testSeparatelyStoredCalendarInvitationIsAvailableAfterOneRead() async throws {
+        let (stores, api, loader) = try await setup()
+        await api.singleInvitation()
+        _ = try await loader.thread(conversation)
+        try await loader.body(message)
+        let reader = MailConversationReader(stores: stores)
+        let before = try await reader.conversation(conversation)
+        XCTAssertNil(before?.invite)
+        try await loader.verifyCalendarCopies(message)
+        let after = try await reader.conversation(conversation)
+        XCTAssertEqual(after?.invite, MailInvite(method: .request, uid: "test-invitation"))
+        XCTAssertEqual(after?.messages.first?.attachments.count, 1)
+        try await loader.verifyCalendarCopies(message)
+        let reads = await api.attachments
+        XCTAssertEqual(reads, ["calendar"])
     }
 
     func testCalendarVerificationFailurePreservesBothFilesAndPreparedBody() async throws {

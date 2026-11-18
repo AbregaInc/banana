@@ -121,6 +121,15 @@ for style in [NSScroller.Style.legacy, .overlay] {
     print("style=\(style.rawValue) hostWidth=\(nativeBackground.frame.width) gridFrame=\(backgroundFrame)")
     check(backgroundFrame.width == 1200)
     check(backgroundFrame.minX == 0)
+    // Shrinking and expanding repeatedly should keep the document ruler attached
+    // to the event geometry and leave the selected vertical range in place.
+    host.scroll.contentView.scroll(to: CGPoint(x: 0, y: 400))
+    host.scroll.reflectScrolledClipView(host.scroll.contentView)
+    for width in [640.0, 1080, 680, 1200] {
+        host.scroll.frame.size.width = width
+        update(width: width)
+        check(host.scroll.contentView.bounds.minY == 400)
+    }
     host.stopObserving()
 }
 print("\(checks) AppKit layout/initial-mount checks passed; no visible interaction or performance acceptance")

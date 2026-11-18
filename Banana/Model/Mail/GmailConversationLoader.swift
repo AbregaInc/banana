@@ -96,7 +96,12 @@ actor GmailConversationLoader {
         }
         guard let original else { return }
         var structure = try JSONDecoder().decode(MIMEStructure.self, from: MailBlobCodec.decode(original.0))
-        let candidates = structure.uncheckedCalendarCopies
+        let originalStructure = structure
+        let calendars = structure.attachments.filter(\.isCalendarFile)
+        let needsInvitation = structure.invite?.uid == nil && structure.calendarInvitationChecked != true
+        let canReadInvitation = needsInvitation && (1...4).contains(calendars.count)
+            && calendars.allSatisfy { (1...256 * 1024).contains($0.size ?? 0) }
+        let candidates = canReadInvitation ? calendars : structure.uncheckedCalendarCopies
         guard !candidates.isEmpty else { return }
         let access = try await token(account)
         guard try await api.profile(token: access).emailAddress?.lowercased() == account else { throw Failure.wrongAccount }
@@ -108,9 +113,16 @@ actor GmailConversationLoader {
                   let bytes = await pictures.bytes(of: originalPart, account: account, message: id.message, limit: 256 * 1024),
                   bytes.count == part.size,
                   let index = structure.attachments.firstIndex(where: { $0.partID == part.partID }) else { return }
-            structure.attachments[index].contentSHA256 = SHA256.hash(data: bytes).map { String(format: "%02x", $0) }.joined()
+            if calendars.count > 1 {
+                structure.attachments[index].contentSHA256 = SHA256.hash(data: bytes).map { String(format: "%02x", $0) }.joined()
+            }
+            if structure.invite?.uid == nil, let invite = MIMEStructure.calendarInvitation(bytes, partID: part.partID) {
+                structure.invite = invite
+            }
         }
         try Task.checkCancellation()
+        if canReadInvitation { structure.calendarInvitationChecked = true }
+        guard structure != originalStructure else { return }
         let encoded = try MailBlobCodec.encode(JSONEncoder().encode(structure))
         let changed = try await stores.blobs.write { db in
             // A refresh may have replaced the provider handles while requests were in flight.

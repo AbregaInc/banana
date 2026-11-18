@@ -30,7 +30,9 @@ sources += [root / 'BananaTests' / (name + '.swift') for name in ['MailSyncProgr
 # Keep the standalone target's presentation and cost-budget dependencies aligned with
 # the native target. These helpers remain pure Foundation/system type projections.
 sources += [root / 'Banana/Model/MailUI/Pure' / name for name in [
-    'MailAttachmentKind.swift', 'MailAttachmentText.swift', 'MailBodyHTML.swift', 'MailToastText.swift', 'MailActions.swift']]
+    'MailAttachmentKind.swift', 'MailAttachmentText.swift', 'MailAttributedText.swift', 'MailBodyHTML.swift',
+    'MailPlainText.swift',
+    'MailToastText.swift', 'MailActions.swift']]
 sources += [root / 'BananaTests/CostBudget.swift']
 identities = {}
 for source in sources:

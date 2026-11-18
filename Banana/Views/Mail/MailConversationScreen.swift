@@ -102,6 +102,12 @@ struct MailConversationContent: View {
                             MailInviteCard(account: reader.id.account, invite: invite,
                                            calendar: session.isSample ? .sample : .live)
                         }
+                        if case .openPage(let url) = reader.conversation?.unsubscribe {
+                            Link(destination: url) {
+                                Label("Unsubscribe…", systemImage: "envelope.badge.minus")
+                            }
+                            .accessibilityIdentifier("mail.unsubscribe")
+                        }
                         // A reply (or the draft left here) above the newest message, which it
                         // answers and which is read first.
                         MailReplySlot(session: session, navigation: session.navigation,

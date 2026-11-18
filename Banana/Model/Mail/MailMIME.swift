@@ -37,6 +37,24 @@ extension MIMEStructure {
         return calendars.filter { $0.contentSHA256 == nil }
     }
 
+    static func calendarInvitation(_ data: Data, partID: String) -> Invite? {
+        guard data.count <= 256 * 1024, let calendar = String(data: data, encoding: .utf8) else { return nil }
+        let unfolded = calendar.replacingOccurrences(of: "\r\n ", with: "").replacingOccurrences(of: "\r\n\t", with: "")
+        var item = Invite(partID: partID)
+        var inEvent = false
+        for line in unfolded.split(whereSeparator: \.isNewline) {
+            let upper = line.uppercased()
+            if upper == "BEGIN:VEVENT" { inEvent = true }
+            if upper == "END:VEVENT" { inEvent = false }
+            if !inEvent, upper.hasPrefix("METHOD:") { item.method = String(upper.dropFirst(7)) }
+            if inEvent, upper.hasPrefix("UID:"), item.uid == nil {
+                let uid = line.dropFirst(4).trimmingCharacters(in: .whitespaces)
+                if !uid.isEmpty { item.uid = uid }
+            }
+        }
+        return item.uid != nil && item.method != nil ? item : nil
+    }
+
     static func calendarFingerprint(_ body: GmailPartBody?, expectedSize: Int?) -> String? {
         guard let body, let encoded = body.data, encoded.utf8.count <= ((256 * 1024 + 2) / 3) * 4 else { return nil }
         var base64 = encoded.replacingOccurrences(of: "-", with: "+").replacingOccurrences(of: "_", with: "/")
@@ -92,20 +110,15 @@ extension MIMEStructure {
                 if attachments[attachments.count - 1].isCalendarFile, inlineCalendars.count < 4,
                    let body = part.body, body.data != nil { inlineCalendars[id] = body }
             }
-            if mime == "text/calendar", invite == nil {
-                var item = Invite(partID: id)
-                // Invitation metadata is optional; a large attachment must not suppress
-                // the ordinary body. Bound its decode independently to 256 KiB.
-                if let encoded = part.body?.data, encoded.utf8.count <= ((256 * 1024 + 2) / 3) * 4,
-                   let calendar = text(part, id: id) {
-                    let unfolded = calendar.replacingOccurrences(of: "\r\n ", with: "").replacingOccurrences(of: "\r\n\t", with: "")
-                    for line in unfolded.prefix(256 * 1024).split(whereSeparator: \.isNewline) {
-                        if line.uppercased().hasPrefix("METHOD:") { item.method = String(line.dropFirst(7)).uppercased() }
-                        if line.uppercased().hasPrefix("UID:"), item.uid == nil { item.uid = String(line.dropFirst(4)) }
-                    }
+            if invite?.uid == nil, let body = inlineCalendars[id],
+               let encoded = body.data, encoded.utf8.count <= ((256 * 1024 + 2) / 3) * 4 {
+                var base64 = encoded.replacingOccurrences(of: "-", with: "+").replacingOccurrences(of: "_", with: "/")
+                base64 += String(repeating: "=", count: (4 - base64.utf8.count % 4) % 4)
+                if let bytes = Data(base64Encoded: base64), let parsed = calendarInvitation(bytes, partID: id) {
+                    invite = parsed
                 }
-                invite = item
             }
+            if invite == nil, mime == "text/calendar" { invite = Invite(partID: id) }
             let canSelect = bodyAllowed && !attached
             var selection = MIMEBodySelection()
             if canSelect && mime == "text/plain" { selection.plain = text(part, id: id); selection.plainID = id }

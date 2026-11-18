@@ -49,14 +49,21 @@ final class MailMIMETests: XCTestCase {
         XCTAssertNil(bytes.plain)
     }
     func testInviteMetadataAndAttachment() {
-        let result = MIMEStructure.extract(part("invite", "text/calendar", "BEGIN:VCALENDAR\r\nMETHOD:REQUEST\r\nUID:unique\r\nEND:VCALENDAR", filename: "invite.ics"))
+        let result = MIMEStructure.extract(part("invite", "text/calendar", "BEGIN:VCALENDAR\r\nMETHOD:REQUEST\r\nBEGIN:VEVENT\r\nUID:unique\r\nEND:VEVENT\r\nEND:VCALENDAR", filename: "invite.ics"))
         XCTAssertEqual(result.structure.invite?.method, "REQUEST")
         XCTAssertEqual(result.structure.invite?.uid, "unique")
         XCTAssertEqual(result.structure.attachments.first?.isInvite, true)
         XCTAssertNil(result.plain)
     }
+    func testAttachedICSWithoutTextCalendarMIMEBecomesAnInvitation() {
+        let content = "BEGIN:VCALENDAR\r\nMETHOD:REQUEST\r\nBEGIN:VEVENT\r\nUID:folded-\r\n identifier\r\nEND:VEVENT\r\nEND:VCALENDAR"
+        let result = MIMEStructure.extract(part("file", "application/octet-stream", content, filename: "invite.ics"))
+        XCTAssertEqual(result.structure.invite?.uid, "folded-identifier")
+        XCTAssertEqual(result.structure.invite?.method, "REQUEST")
+        XCTAssertEqual(result.structure.attachments.count, 1)
+    }
     func testInlineCalendarCopiesCompareBytesWithoutDroppingOriginalMIMEParts() {
-        let content = "BEGIN:VCALENDAR\r\nMETHOD:REQUEST\r\nUID:unique\r\nEND:VCALENDAR"
+        let content = "BEGIN:VCALENDAR\r\nMETHOD:REQUEST\r\nBEGIN:VEVENT\r\nUID:unique\r\nEND:VEVENT\r\nEND:VCALENDAR"
         let root = GmailPart(mimeType: "multipart/mixed", parts: [
             part("calendar", "text/calendar", content, filename: "invite.ics"),
             part("file", "application/ics", content, filename: "invite.ics")])
