@@ -41,7 +41,10 @@ struct MailComposerBox: View {
     /// The sparkle turned the tools row into the assistant's line.
     @State private var asking = false
     @State private var instruction = ""
-    @State private var thinking = false
+    @State private var assistantTask: Task<Void, Never>?
+    @State private var suggestion: String?
+    @State private var suggestionContext: MailComposerModel.AssistantDraftContext?
+    private var thinking: Bool { assistantTask != nil }
     @FocusState private var instructing: Bool
 
     private var style: MailComposerBoxStyle { navigation.dock?.mode == .full ? .full : .docked }
@@ -68,6 +71,22 @@ struct MailComposerBox: View {
                 MailSignatureBlock(model: model).disabled(model.isForeign)
                 if let quote = model.quote { MailQuotedBlock(part: quote) }
             }
+            if let suggestion, suggestionContext == model.assistantDraftContext {
+                VStack(alignment: .leading, spacing: DS.Space.xs) {
+                    Text("Suggested draft").font(.subheadline.weight(.medium))
+                    ScrollView { Text(suggestion).frame(maxWidth: .infinity, alignment: .leading).textSelection(.enabled) }
+                        .frame(maxHeight: 120)
+                    HStack {
+                        Button("Use draft") {
+                            guard session.composer === model, suggestionContext == model.assistantDraftContext else { return }
+                            model.writeAssistantDraft(suggestion)
+                            clearAssistantSuggestion()
+                        }
+                        Button("Dismiss") { clearAssistantSuggestion() }
+                    }
+                    .buttonStyle(.borderless)
+                }
+            }
             if model.canUndoAssistantDraft {
                 Button("Undo") { model.undoAssistantDraft() }
                     .buttonStyle(.plain)
@@ -80,6 +99,11 @@ struct MailComposerBox: View {
             footer
         }
         .disabled(model.isResolving)
+        .onDisappear {
+            assistantTask?.cancel()
+            assistantTask = nil
+            clearAssistantSuggestion()
+        }
         .padding(.horizontal, DS.Space.l)
         .padding(.bottom, DS.Space.s)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -235,8 +259,11 @@ struct MailComposerBox: View {
                     .accessibilityLabel("Write it")
             }
             Button {
+                assistantTask?.cancel()
+                assistantTask = nil
                 asking = false
                 instruction = ""
+                clearAssistantSuggestion()
                 focused = .body
             } label: { Image(systemName: "xmark.circle.fill") }
                 .buttonStyle(.plain)
@@ -250,19 +277,39 @@ struct MailComposerBox: View {
 
     private func runAssistant() {
         let words = instruction.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !words.isEmpty, !thinking else { return }
-        thinking = true
-        Task { @MainActor in
-            defer { thinking = false }
+        guard !words.isEmpty, !thinking, model.isReady, !model.isForeign else { return }
+        let context = model.assistantDraftContext
+        let original = model.rich
+        let body = model.body
+        clearAssistantSuggestion()
+        assistantTask = Task { @MainActor in
+            defer { if !Task.isCancelled { assistantTask = nil } }
             do {
-                let text = try await MailDraftAssistant.write(instruction: words, model: model)
-                model.writeAssistantDraft(text)
+                let text = try await MailDraftAssistant.write(instruction: words, context: context, body: body)
+                guard !Task.isCancelled, session.composer === model else { return }
+                guard model.assistantDraftContext == context, !model.isForeign, !model.isResolving else {
+                    session.showToast(MailToast(text: "Draft changed. Try again.", action: nil, lasts: nil))
+                    return
+                }
+                guard instruction.trimmingCharacters(in: .whitespacesAndNewlines) == words else { return }
+                if model.rich == original {
+                    model.writeAssistantDraft(text)
+                } else {
+                    suggestionContext = context
+                    suggestion = text
+                }
                 asking = false
                 instruction = ""
             } catch {
-                session.showToast(MailToast(text: "Banana couldn\u{2019}t write that", action: nil, lasts: nil))
+                guard !Task.isCancelled, session.composer === model else { return }
+                session.showToast(MailToast(text: "Banana couldn’t write that", action: nil, lasts: nil))
             }
         }
+    }
+
+    private func clearAssistantSuggestion() {
+        suggestion = nil
+        suggestionContext = nil
     }
 
     // MARK: Keys

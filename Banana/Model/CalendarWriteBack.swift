@@ -920,8 +920,9 @@ final class CalendarWriteBack: ObservableObject {
             }
 
             // Only current and future blocks go: every removal is a chance to be wrong.
-            for itemID in plan.unwanted.keys {
-                let current = (ownedDetails[itemID] ?? []).filter { $0.end > now }
+            for (itemID, planned) in plan.unwanted {
+                let removableIDs = Set(planned.map(\.eventID))
+                let current = (ownedDetails[itemID] ?? []).filter { removableIDs.contains($0.eventID) }
                 guard !current.isEmpty else { continue }
                 unwanted[ledgerKey(appItemID: itemID, calendarID: calendarID)] = (calendarID, current)
             }

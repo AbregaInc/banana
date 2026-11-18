@@ -15,6 +15,37 @@ final class BusyCopyPlannerTests: XCTestCase {
         BusyCopyPlanner.Owned(eventID: eventID, etag: etag, end: end ?? later)
     }
 
+    func testExactOwnedMirrorsConvergeEvenWhenDevicesChooseDifferentKeys() {
+        let content = ["Busy", "time", "8000", "9000"].joined(separator: "\u{1F}")
+        let first = BusyCopyPlanner.Owned(eventID: "event-a", etag: "first", end: later, content: content)
+        let second = BusyCopyPlanner.Owned(eventID: "event-b", etag: "second", end: later, content: content)
+        let both = ["mirror-a": [first], "mirror-b": [second]]
+        for key in ["mirror-a", "mirror-b", "mirror-new"] {
+            var desired = wanted(key)
+            desired.content = content
+            let plan = BusyCopyPlanner.plan(desired: [desired], owned: both, recorded: [:], now: now)
+            XCTAssertTrue(plan.writes.isEmpty)
+            XCTAssertEqual(plan.matches.map(\.eventID), ["event-a"])
+            XCTAssertEqual(plan.duplicates.map(\.eventID), ["event-b"])
+            XCTAssertTrue(plan.unwanted.isEmpty)
+        }
+    }
+
+    func testMirrorReuseRequiresIdenticalCoverageAndLeavesOtherWantedKeysAlone() {
+        let timed = ["Busy", "time", "8000", "9000"].joined(separator: "\u{1F}")
+        var desired = wanted("mirror-new")
+        desired.content = timed
+        var other = wanted("mirror-other")
+        other.content = ["Busy", "day", "2026-11-01", "2026-11-02"].joined(separator: "\u{1F}")
+        let copy = BusyCopyPlanner.Owned(eventID: "event", etag: "e", end: later, content: timed)
+        let plan = BusyCopyPlanner.plan(desired: [desired, other], owned: ["mirror-other": [copy]], recorded: [:], now: now)
+        XCTAssertEqual(plan.writes, [.create(index: 0), .update(index: 1, eventID: "event", etag: "e")])
+        XCTAssertTrue(plan.duplicates.isEmpty)
+        let mismatched = BusyCopyPlanner.plan(desired: [other], owned: ["mirror-old": [copy]], recorded: [:], now: now)
+        XCTAssertEqual(mismatched.writes, [.create(index: 0)])
+        XCTAssertTrue(mismatched.duplicates.isEmpty)
+    }
+
     func testANewCalendarGetsOneCreatePerWantedBlock() {
         let plan = BusyCopyPlanner.plan(desired: [wanted("a"), wanted("b"), wanted("c")], owned: [:], recorded: [:], now: now)
         XCTAssertEqual(plan.creates, 3)

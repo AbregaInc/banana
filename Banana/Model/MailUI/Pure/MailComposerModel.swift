@@ -499,6 +499,23 @@ final class MailComposerModel: ObservableObject {
 
     // MARK: The assistant's draft
 
+    struct AssistantDraftContext: Equatable {
+        let draftID: MailDraftID?
+        let conversation: MailConversationID?
+        let sender: MailIdentity?
+        let subject: String
+        let quote: MailDraftPart?
+        let recipients: [[MailPerson]]
+        let typedRecipients: [String]
+        let replyStyle: MailReplyStyle?
+    }
+
+    var assistantDraftContext: AssistantDraftContext {
+        AssistantDraftContext(draftID: draftID, conversation: host, sender: from, subject: subject,
+                              quote: quote, recipients: [to, cc, bcc], typedRecipients: [toText, ccText, bccText],
+                              replyStyle: replyStyle)
+    }
+
     /// What the assistant wrote goes into the body, ready to edit; what was there is kept for one Undo.
     func writeAssistantDraft(_ text: String) {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
