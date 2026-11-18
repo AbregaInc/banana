@@ -152,6 +152,7 @@ final class MailComposerModel: ObservableObject {
     private(set) var draftID: MailDraftID?
     /// The conversation it is written in; nil for a new message.
     private(set) var host: MailConversationID?
+    private(set) var replyToMessage: MailMessageID?
     /// The conversation it answers, known from the start before its draft has come.
     var answers: MailConversationID? {
         if let host { return host }
@@ -201,8 +202,10 @@ final class MailComposerModel: ObservableObject {
     }
 
     init(start: MailComposeStart, source: MailSource, timers: MailTimers, clock: @escaping () -> Date,
-         device: String, requestFocus: Bool = true, preferredAccount: String? = nil) {
+         device: String, requestFocus: Bool = true, preferredAccount: String? = nil,
+         replyToMessage: MailMessageID? = nil) {
         self.preferredAccount = preferredAccount
+        self.replyToMessage = replyToMessage
         self.start = start
         self.source = source
         self.timers = timers
@@ -281,19 +284,24 @@ final class MailComposerModel: ObservableObject {
         case .continuing(let id):
             return await source.draft(id).map { ($0, false) }
         case .reply(let id), .replyAll(let id), .forward(let id):
-            guard let conversation = await source.conversation(id) else { return nil }
-            // A reply he has begun is the one he comes back to.
-            let forward: Bool; if case .forward = start { forward = true } else { forward = false }
-            if !forward, let kept = conversation.draft, let draft = await source.draft(kept) { return (draft, false) }
-            guard let original = MailReplyRules.original(in: conversation) else { return nil }
+            guard let conversation = await source.conversation(id), let original = original(in: conversation) else { return nil }
+            replyToMessage = original.id
             let kind: MailDraftKind
             switch start {
             case .replyAll: kind = .replyAll(to: original.id)
             case .forward: kind = .forward(original.id)
             default: kind = .reply(to: original.id)
             }
-            return (await source.newDraft(kind), true)
+            let draft = await source.newDraft(kind)
+            return (draft, draft.id != conversation.draft)
         }
+    }
+
+    private func original(in conversation: MailConversation) -> MailMessage? {
+        if let replyToMessage {
+            return conversation.messages.first { $0.id == replyToMessage && $0.canReply }
+        }
+        return MailReplyRules.original(in: conversation)
     }
 
     /// What the source made, in place of what was drawn while it was being made: whatever was
@@ -302,6 +310,7 @@ final class MailComposerModel: ObservableObject {
         isSettingText = true
         defer { isSettingText = false }
         self.draft = draft
+        replyToMessage = draft.replyToMessage ?? replyToMessage
         if !source.supportsAccountSwitching { identities = source.accounts.first(where: { $0.id == draft.account })?.identities ?? [] }
         draftID = draft.id
         let isOwn = draft.conversation.thread.hasPrefix("local:")
@@ -649,7 +658,7 @@ final class MailComposerModel: ObservableObject {
 
     /// Hands what is written to the source, if there is any.
     private func save() {
-        guard isReady, hasContent, let current = currentDraft() else { return }
+        guard isReady, !isForeign, hasContent, let current = currentDraft() else { return }
         source.save(current)
     }
 
@@ -703,6 +712,7 @@ final class MailComposerModel: ObservableObject {
             source.discard(id)
             return .dropped
         }
+        if isForeign { return .kept(id) }
         if hasContent, let current = currentDraft() {
             source.save(current)
             return .kept(id)
@@ -723,7 +733,7 @@ final class MailComposerModel: ObservableObject {
     /// draft is made by: the switch then offers Reply and Forward only.
     func refreshReplyChoices() async {
         guard let host, replyStyle != nil, let conversation = await source.conversation(host),
-              let original = MailReplyRules.original(in: conversation) else { return }
+              let original = original(in: conversation) else { return }
         let all = MailReplyRules.recipients(for: .replyAll(to: original.id), original: original, myAddresses: myAddresses)
         let one = MailReplyRules.recipients(for: .reply(to: original.id), original: original, myAddresses: myAddresses)
         let same = Set((all.to + all.cc).map(Self.key)) == Set((one.to + one.cc).map(Self.key))
@@ -741,7 +751,7 @@ final class MailComposerModel: ObservableObject {
         switching = Task { @MainActor [weak self] in
             guard let self else { return }
             guard let conversation = await self.source.conversation(host),
-                  let original = MailReplyRules.original(in: conversation), !Task.isCancelled, !self.isClosed else { return }
+                  let original = self.original(in: conversation), !Task.isCancelled, !self.isClosed else { return }
             let kind: MailDraftKind
             switch style {
             case .reply: kind = .reply(to: original.id)

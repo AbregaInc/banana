@@ -7,6 +7,7 @@ struct MailMessageDisplay: Equatable, Identifiable, Sendable {
     var id: MailMessageID
     var sender: String
     var senderAddress: String
+    var canReply: Bool
     var delivery: MailDelivery?
     var deliveryText: String? {
         switch delivery {
@@ -59,6 +60,7 @@ struct MailMessageDisplay: Equatable, Identifiable, Sendable {
     init(_ message: MailMessage, now: Date = Date(), calendar: Calendar = .current,
          locale: Locale = .current) {
         id = message.id
+        canReply = message.canReply
         delivery = message.delivery
         let name = message.from.name?.trimmingCharacters(in: .whitespacesAndNewlines)
         sender = message.from.isMe ? "me" : (name.flatMap { $0.isEmpty ? nil : $0 } ?? (message.from.address.isEmpty ? "Unknown sender" : message.from.address))

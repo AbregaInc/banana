@@ -34,6 +34,19 @@ final class MailComposeUITest: MailUITestCase {
         reply(style)
     }
 
+    func testMessageReplyActionOpensEditableComposer() {
+        launch()
+        if hasPane { row("q3").tap() } else { openConversation("q3") }
+        let action = app.buttons["mail.message.reply.q3~3"]
+        XCTAssertTrue(action.waitForExistence(timeout: 8))
+        action.tap()
+        menuItem("Reply").tap()
+        XCTAssertTrue(chip("sam@lee.example").waitForExistence(timeout: 5))
+        typeIntoBody("Thanks for the update.")
+        XCTAssertTrue(bodyText.contains("Thanks for the update."))
+        XCTAssertFalse(app.buttons["Edit as text"].exists)
+    }
+
     // MARK: Reply, draft, Drafts, send, undo, send
 
     func testReplyKeepDraftFindItFinishSendUndoAndSendAgain() {

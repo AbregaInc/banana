@@ -90,6 +90,27 @@ final class MailDraftDriverTests: XCTestCase {
         let pending = try await source.conversationsWithDrafts(among: [draft.conversation])
         XCTAssertTrue(pending.isEmpty)
     }
+
+    func testGmailEchoDoesNotTurnAnEditableReplyIntoAnImportedDraft() async throws {
+        let (_, store, api) = try await setup()
+        let source = driver(store, api)
+        var editable = draft()
+        editable.isReply = true
+        editable.replyToMessage = .init(account: editable.account, message: "received")
+        var record = MailDraftRecord(scope: "account-context", snapshot: .init(editable))
+        record.remote = .init(id: "remote-draft", message: .init(id: "echo", threadId: "thread"))
+        record.acknowledgedRevision = record.revision
+        let inserted = try await store.putDraftRecord(record, expectedGeneration: nil)
+        XCTAssertTrue(inserted)
+
+        var echoed = remote("echo", subject: "First")
+        echoed.message.payload?.parts?[0].mimeType = "text/html"
+        try await source.importDraft(echoed, account: editable.account)
+
+        let saved = try await source.record(editable.id)
+        XCTAssertEqual(saved?.snapshot, record.snapshot)
+        XCTAssertEqual(saved?.snapshot.format, .banana)
+    }
     func testRemoteDraftKeepsIdentityAcrossUpdatesAndSendsOriginalAttachments() async throws {
         let (_, store, api) = try await setup(); let source = driver(store, api)
         try await source.importDraft(remote("v1", subject: "Original", attachment: true), account: "noor@plan.example")

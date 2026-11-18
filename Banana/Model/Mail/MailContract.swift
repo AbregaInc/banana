@@ -447,6 +447,14 @@ struct MailMessage: Identifiable, Equatable, Sendable {
     var draft: MailDraftID?
     /// Provider draft state survives even before an editable local draft has been linked.
     var isUnsentDraft: Bool = false
+
+    var canReply: Bool {
+        guard draft == nil, !isUnsentDraft else { return false }
+        switch delivery {
+        case nil, .sentLate?: return true
+        default: return false
+        }
+    }
 }
 
 struct MailInvite: Equatable, Sendable {
@@ -552,6 +560,8 @@ struct MailDraft: Identifiable, Equatable, Sendable {
     /// What it would weigh as sent. The limit is `MailTuning.maxEncodedBytes`.
     var encodedBytes: Int
     var editedAt: Date
+    /// The provider message this draft answers, even when Gmail supplied no Message-ID header.
+    var replyToMessage: MailMessageID? = nil
 }
 
 // MARK: - Accounts and places

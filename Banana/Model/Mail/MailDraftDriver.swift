@@ -121,6 +121,10 @@ actor MailDraftDriver {
             }
             return
         }
+        // The same Gmail message is the acknowledged copy of our editor state. Gmail may
+        // represent it as HTML, so importing it again would turn our own reply read-only.
+        if replacingConflict == nil, existing?.snapshot.format == .banana,
+           existing?.remote?.message.id == messageID { return }
         let headers = MessageHeaders(payload: payload), extracted = MIMEStructure.extract(payload)
         // Do not turn an unavailable MIME body into an apparently empty editable draft.
         guard extracted.structure.cut == nil, extracted.missingBodyPartIDs.isEmpty, !extracted.bodyTooLarge, !extracted.malformedBody else { throw Failure.notEditable }
@@ -155,6 +159,9 @@ actor MailDraftDriver {
             encodedBytes: wire.message.sizeEstimate ?? 0, editedAt: Date(timeIntervalSince1970: Double(wire.message.internalDate ?? 0) / 1000))
         var value = MailDraftRecord(scope: scope, snapshot: .init(draft))
         value.snapshot.inReplyTo = headers.value("In-Reply-To")
+        if let existing, existing.snapshot.inReplyTo == value.snapshot.inReplyTo {
+            value.snapshot.replyToMessage = existing.snapshot.replyToMessage
+        }
         value.snapshot.editToken = UUID().uuidString.lowercased()
         value.remote = .init(id: wire.id, message: .init(id: messageID, threadId: wire.message.threadId))
         value.acknowledgedRevision = value.revision

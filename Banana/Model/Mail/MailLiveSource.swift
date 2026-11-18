@@ -1915,15 +1915,28 @@ extension MailLiveSource {
                 guard let identity, let conversation = await conversation(.init(account: account, thread: identity.0)),
                       var original = conversation.messages.first(where: { $0.id == message }) else { throw MailDraftDriver.Failure.notFound }
                 let forward: Bool; if case .forward = kind { forward = true } else { forward = false }
-                if !forward, let existing = try await driver.forConversation(conversation.id), existing.state == .editing { return existing.snapshot.value }
-                try await conversationLoader.body(message)
-                if let hydrated = await self.conversation(conversation.id)?.messages.first(where: { $0.id == message }) { original = hydrated }
+                if forward {
+                    try await conversationLoader.body(message)
+                    if let hydrated = await self.conversation(conversation.id)?.messages.first(where: { $0.id == message }) { original = hydrated }
+                } else {
+                    guard original.canReply else { throw MailDraftDriver.Failure.notFound }
+                    if let existing = try await driver.forConversation(conversation.id),
+                       existing.state == .editing, !existing.conflict, !existing.wantsDelete,
+                       existing.snapshot.format == .banana, existing.snapshot.isReply,
+                       existing.snapshot.replyToMessage.map({ $0 == message })
+                           ?? identity.1.map({ $0 == existing.snapshot.inReplyTo }) ?? false {
+                        return existing.snapshot.value
+                    }
+                    draft.replyToMessage = message
+                }
                 let originalBody = await body(message)
                 draft.conversation = conversation.id; draft.isReply = !forward; draft.isForward = forward
                 let recipients = MailReplyRules.recipients(for: kind, original: original, myAddresses: Set(accounts.map { $0.id.lowercased() }))
                 draft.to = recipients.to; draft.cc = recipients.cc
                 draft.subject = MailReplyRules.subject(for: kind, original: conversation.subject)
-                draft.quote = MailReplyRules.quote(message: original, body: originalBody, subject: conversation.subject, forward: forward)
+                if originalBody != .notOnDevice {
+                    draft.quote = MailReplyRules.quote(message: original, body: originalBody, subject: conversation.subject, forward: forward)
+                }
                 replyID = forward ? nil : identity.1
                 if forward {
                     forwardMessageID = message.message

@@ -47,7 +47,10 @@ extension MailSession {
     /// the conversation with the composer open, as T38 says.
     func reply(_ style: MailReplyStyle, requestFocus: Bool = true) {
         guard allowsComposing else { explainComposingUnavailable(); return }
-        if let composer { composer.askForFocus(); return }
+        if let composer {
+            if !composer.isForeign { composer.askForFocus(); return }
+            closeComposer()
+        }
         let target: MailConversationID
         if let open = model.open?.id {
             target = open
@@ -61,11 +64,30 @@ extension MailSession {
             }
             return
         }
-        switch style {
-        case .reply: begin(.reply(target), requestFocus: requestFocus)
-        case .replyAll: begin(.replyAll(target), requestFocus: requestFocus)
-        case .forward: begin(.forward(target), requestFocus: requestFocus)
+        beginReply(style, in: target, requestFocus: requestFocus)
+    }
+
+    func reply(_ style: MailReplyStyle, to message: MailMessageID, in conversation: MailConversationID) {
+        guard allowsComposing else { explainComposingUnavailable(); return }
+        if let composer {
+            if !composer.isForeign, composer.replyToMessage == message, composer.replyStyle == style {
+                composer.askForFocus()
+                return
+            }
+            closeComposer()
         }
+        beginReply(style, in: conversation, message: message)
+    }
+
+    private func beginReply(_ style: MailReplyStyle, in conversation: MailConversationID,
+                            message: MailMessageID? = nil, requestFocus: Bool = true) {
+        let start: MailComposeStart
+        switch style {
+        case .reply: start = .reply(conversation)
+        case .replyAll: start = .replyAll(conversation)
+        case .forward: start = .forward(conversation)
+        }
+        begin(start, requestFocus: requestFocus, replyToMessage: message)
     }
 
     /// `C`, ⌘N in Mail, and the list's pencil: a new message. One he began and set aside is the one
@@ -84,7 +106,7 @@ extension MailSession {
     }
 
     /// The composer is on screen in the frame after the key; what the draft says arrives after.
-    func begin(_ start: MailComposeStart, requestFocus: Bool = true) {
+    func begin(_ start: MailComposeStart, requestFocus: Bool = true, replyToMessage: MailMessageID? = nil) {
         guard allowsComposing else { explainComposingUnavailable(); return }
         let preferredAccount: String?
         switch scope.place {
@@ -92,7 +114,8 @@ extension MailSession {
         default: preferredAccount = scope.account
         }
         let composer = MailComposerModel(start: start, source: source, timers: timers, clock: clock,
-                                         device: deviceName, requestFocus: requestFocus, preferredAccount: preferredAccount)
+                                         device: deviceName, requestFocus: requestFocus, preferredAccount: preferredAccount,
+                                         replyToMessage: replyToMessage)
         // A new message opens at full height, To first; a reply, docked over the keyboard.
         var isNew = false
         switch start {

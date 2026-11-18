@@ -119,7 +119,8 @@ struct MailConversationContent: View {
                         LazyVStack(alignment: .leading, spacing: DS.Space.m) {
                             ForEach(reader.messages) { message in
                                 MailMessageCard(message: message, text: reader.bodies[message.id], styled: reader.styled[message.id], opener: reader.opener,
-                                                load: { reader.fetchBody(message.id) })
+                                                load: { reader.fetchBody(message.id) },
+                                                reply: { session.reply($0, to: message.id, in: reader.id) })
                                     .onAppear { reader.revealBody(message.id) }
                                     .id(message.id)
                             }
@@ -343,6 +344,7 @@ struct MailMessageCard: View {
     let opener: MailAttachmentOpener
 
     var load: () -> Void = {}
+    var reply: ((MailReplyStyle) -> Void)? = nil
     @Environment(\.mailSession) private var session
     @State private var showsOriginal = false
 
@@ -398,33 +400,50 @@ struct MailMessageCard: View {
 
     /// Who and when, then to whom and Original: two lines beside the face.
     private var header: some View {
-        VStack(alignment: .leading, spacing: DS.Space.hair) {
-            HStack(alignment: .firstTextBaseline) {
-                // The sender opens the conversation's Details, as "…" › Details does.
-                Button { session?.askForDetails(toggles: false) } label: {
-                    Text(message.sender)
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(.primary)
+        HStack(spacing: DS.Space.xs) {
+            VStack(alignment: .leading, spacing: DS.Space.hair) {
+                HStack(alignment: .firstTextBaseline) {
+                    // The sender opens the conversation's Details, as "…" › Details does.
+                    Button { session?.askForDetails(toggles: false) } label: {
+                        Text(message.sender)
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(.primary)
+                            .lineLimit(1)
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(session == nil)
+                    .accessibilityHint("Shows the details")
+                    .accessibilityIdentifier("mail.sender." + message.id.message)
+                    Spacer(minLength: DS.Space.s)
+                    Text(message.date)
+                        .font(.caption).foregroundStyle(.secondary).monospacedDigit()
                         .lineLimit(1)
                 }
-                .buttonStyle(.plain)
-                .disabled(session == nil)
-                .accessibilityHint("Shows the details")
-                .accessibilityIdentifier("mail.sender." + message.id.message)
-                Spacer(minLength: DS.Space.s)
-                Text(message.date)
-                    .font(.caption).foregroundStyle(.secondary).monospacedDigit()
-                    .lineLimit(1)
-            }
-            HStack {
-                Text(message.recipients)
-                    .font(.caption).foregroundStyle(.secondary).lineLimit(1)
-                Spacer()
-                if hasOriginal {
-                    Button("Original") { showsOriginal = true }
-                        .font(.caption)
-                        .accessibilityIdentifier("mail.body.original." + message.id.message)
+                HStack {
+                    Text(message.recipients)
+                        .font(.caption).foregroundStyle(.secondary).lineLimit(1)
+                    Spacer()
+                    if hasOriginal {
+                        Button("Original") { showsOriginal = true }
+                            .font(.caption)
+                            .accessibilityIdentifier("mail.body.original." + message.id.message)
+                    }
                 }
+            }
+            if message.canReply, let reply, session?.allowsComposing == true {
+                Menu {
+                    Button("Reply") { reply(.reply) }
+                    Button("Reply to all") { reply(.replyAll) }
+                } label: {
+                    Image(systemName: "arrowshape.turn.up.left")
+                        .frame(width: DS.Row.minHeight, height: DS.Row.minHeight)
+                        .contentShape(Rectangle())
+                }
+                .menuStyle(.borderlessButton)
+                .menuIndicator(.hidden)
+                .fixedSize()
+                .accessibilityLabel("Reply to this message")
+                .accessibilityIdentifier("mail.message.reply." + message.id.message)
             }
         }
     }
