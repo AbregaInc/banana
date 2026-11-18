@@ -33,6 +33,17 @@ final class CalendarWriteBackPolicyTests: XCTestCase {
         XCTAssertTrue(CalendarWriteBackVariant.beta.reusesCoverage(markerScheme: "https"))
     }
 
+    func testBetaShadowRequiresExactBlockingCopyAndSameKnownCreator() {
+        let content = ["Busy", "time", "1000", "2000"].joined(separator: "\u{1F}")
+        let original = BusyVariantShadows.Copy(content: content, creator: "noor@plan.example", blocksTime: true)
+        XCTAssertNotNil(original)
+        XCTAssertEqual(original, .init(content: content, creator: " NOOR@plan.example ", blocksTime: true))
+        XCTAssertNotEqual(original, .init(content: content, creator: "team@plan.example", blocksTime: true))
+        XCTAssertNotEqual(original, .init(content: content + "1", creator: "noor@plan.example", blocksTime: true))
+        XCTAssertNil(BusyVariantShadows.Copy(content: content, creator: nil, blocksTime: true))
+        XCTAssertNil(BusyVariantShadows.Copy(content: content, creator: "noor@plan.example", blocksTime: false))
+    }
+
     func testSelfCommitEchoIsDeferredInsteadOfDiscarded() {
         let now = Date(timeIntervalSinceReferenceDate: 10_000)
         let delay = CalendarChangeEchoPolicy.debounceDelay(

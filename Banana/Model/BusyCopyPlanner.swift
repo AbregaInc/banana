@@ -40,6 +40,7 @@ enum BusyCopyPlanner {
         /// unknown: then only this device's own record can show it is unchanged.
         var content: String? = nil
         var start: Date? = nil
+        var blocksTime = true
         /// The sources it names on the server; empty on a copy written before copies named them.
         var sources: Set<String> = []
         /// The inputs stamp it carries; nil on a copy written before copies were stamped.
@@ -98,7 +99,7 @@ enum BusyCopyPlanner {
         var alternateMirrors: [String: [Owned]] = [:]
         for (itemID, copies) in owned where itemID.hasPrefix("mirror-") && !desiredIDs.contains(itemID) {
             for copy in copies {
-                guard let content = copy.content, content.hasPrefix("Busy\u{1F}") else { continue }
+                guard copy.blocksTime, let content = copy.content, content.hasPrefix("Busy\u{1F}") else { continue }
                 alternateMirrors[content, default: []].append(copy)
             }
         }
@@ -109,7 +110,7 @@ enum BusyCopyPlanner {
             let keep = BusyBlockDuplicates.copyToKeep(copies.map(\.eventID))
             if block.appItemID.hasPrefix("mirror-"), let content = block.content,
                let alternates = alternateMirrors.removeValue(forKey: content),
-               copies.allSatisfy({ $0.content == content }) {
+               copies.allSatisfy({ $0.blocksTime && $0.content == content }) {
                 // Devices may disagree about the logical ID. Pick the survivor by provider ID
                 // across both groups so two devices cannot each delete the other's survivor.
                 let exact = copies + alternates

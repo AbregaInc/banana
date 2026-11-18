@@ -246,6 +246,22 @@ enum BusyBlockDuplicates {
     }
 }
 
+/// Production can retire an exact Beta shadow after both provider events have been read.
+enum BusyVariantShadows {
+    struct Copy: Hashable {
+        let content: String
+        let creator: String
+
+        init?(content: String?, creator: String?, blocksTime: Bool) {
+            guard blocksTime, let content, content.hasPrefix("Busy\u{1F}"),
+                  let creator = creator?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased(),
+                  !creator.isEmpty else { return nil }
+            self.content = content
+            self.creator = creator
+        }
+    }
+}
+
 /// A marker identifies Banana scaffolding, not the person who wrote it. On a calendar this
 /// account owns, every marked block is its own. On anyone else's (a shared or family calendar)
 /// a marked block is this person's only when it is the exact copy this app recorded writing, or
