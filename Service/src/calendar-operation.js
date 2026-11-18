@@ -8,6 +8,27 @@ const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const id=x=>typeof x==='string'&&x.length>0&&x.length<=2048&&!/[\x00-\x1f]/.test(x);
 const object=x=>x&&typeof x==='object'&&!Array.isArray(x);
 const marker='bananaCloudOperation';
+
+function sameBoundary(a,b) {
+ if(a?.date||b?.date)return typeof a?.date==='string'&&a.date===b?.date;
+ return typeof a?.dateTime==='string'&&typeof b?.dateTime==='string'&&Date.parse(a.dateTime)===Date.parse(b.dateTime);
+}
+
+async function productionCovers(google,token,request,item) {
+ const query=[{name:'privateExtendedProperty',value:'bananaVariant=banana'},
+  {name:'privateExtendedProperty',value:'bananaItemID='+item},{name:'maxResults',value:'2500'}];
+ const page=await google.calendarRead(token,{resource:'events',calendarID:request.calendarID,eventID:null,query});
+ if(page.status!==200||!Array.isArray(page.body?.items)||page.body.nextPageToken)
+  throw new Error('Production coverage requires a complete read');
+ return page.body.items.some(event=>{
+  const identity=busyIdentity(event);
+  return identity?.variant==='banana'&&identity.item===item&&event.status!=='cancelled'&&event.transparency!=='transparent'
+   &&sameBoundary(event.start,request.body.start)&&sameBoundary(event.end,request.body.end);
+ });
+}
+
+const coveredByProduction=()=>failure(409,'Production already covers this busy block. Refresh before changing it.');
+
 export function parseCalendarOperation(x) {
  if(!object(x)||!uuid.test(x.operationID)||!id(x.email)||!id(x.calendarID)||!['insert','patch','delete','move'].includes(x.action))return null;
  if(x.action!=='insert'&&!id(x.eventID))return null;
@@ -56,6 +77,8 @@ export async function calendarOperation(deps,vault,account,request) {
    catch(e){return failure(e instanceof GoogleRefused?403:502,e instanceof GoogleRefused?'Reconnect this Google account.':'Calendar temporarily unavailable.');}
   },
   prepareDispatch:async(claim)=>{
+   if(busyInsert?.variant==='banana-beta'&&await productionCovers(deps.google,accessToken,request,busyInsert.item))
+    return {productionCovered:true};
    if(busyInsert)return busy.prepare(accessToken,claim);
    if(request.action==='insert')return {};
    const event=await deps.google.getEvent(accessToken,request.calendarID,eventID);
@@ -66,6 +89,7 @@ export async function calendarOperation(deps,vault,account,request) {
    return {ifMatch:request.ifMatch??event.etag,uid:event.iCalUID??null};
   },
   dispatch:async(context)=>{
+   if(context.productionCovered)return coveredByProduction();
    if(busyInsert)return busy.dispatch(accessToken,context,outbound);
    if(context.missingVersion)return failure(428,'Refresh this busy block before changing it.');
    if(context.ownershipChanged)return failure(409,'Busy-block ownership changed. Refresh before changing it.');
@@ -79,6 +103,7 @@ export async function calendarOperation(deps,vault,account,request) {
    return answer;
   },
   reconcile:async(context)=>{
+   if(context.productionCovered)return coveredByProduction();
    if(busyInsert)return busy.reconcile(accessToken,context);
    if(context.missingVersion)return failure(428,'Refresh this busy block before changing it.');
    if(context.ownershipChanged)return failure(409,'Busy-block ownership changed. Refresh before changing it.');
