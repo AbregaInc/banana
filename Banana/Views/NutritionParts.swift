@@ -115,16 +115,16 @@ struct MealRowLabel: View {
 /// The last seven days, each with its calories — a glance at the week, and a tap to go to a day.
 struct NutritionWeekStrip: View {
     @Binding var day: Date
-    let meals: [MealEntry]
+    let index: NutritionDays.Index
     /// Days with backlog meals still to log get a dot.
     @ObservedObject private var inbox = MealInboxStore.shared
 
     var body: some View {
-        let calendar = Calendar.current
+        let calendar = index.calendar
         HStack(spacing: DS.Space.xs) {
-            ForEach(NutritionDays.window(for: day), id: \.self) { date in
+            ForEach(NutritionDays.window(for: day, calendar: calendar), id: \.self) { date in
                 let selected = calendar.isDate(date, inSameDayAs: day)
-                let total = NutritionDays.total(NutritionDays.meals(meals, on: date))
+                let total = index.total(on: date)
                 Button { day = calendar.startOfDay(for: date) } label: {
                     VStack(spacing: DS.Space.hair) {
                         Text(date.formatted(.dateTime.weekday(.abbreviated)))

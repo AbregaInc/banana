@@ -163,35 +163,48 @@ final class NoteRepository: @unchecked Sendable {
     }
 
     func page(search: String, archived: Bool, offset: Int = 0, limit: Int = 100, filter: LiveFilter? = nil) throws -> Page {
-        try database.read { db in
-            var clause = "archived = ?"
-            var arguments: StatementArguments = [archived]
-            if let filter, !filter.canRun { return Page(rows: [], total: 0) }
-            if let value = filter?.value("archived"), (value == "true") != archived { return Page(rows: [], total: 0) }
-            if let interval = filter?.interval() {
-                clause += " AND created >= ? AND created < ?"
-                arguments += [interval.start.timeIntervalSinceReferenceDate, interval.end.timeIntervalSinceReferenceDate]
-            }
-            let texts = filter.map { $0.terms.filter { $0.field == "text" }.map(\.value) } ?? (search.isEmpty ? [] : [search])
-            for search in texts {
-                // For printable ASCII only, SQLite can reject obvious nonmatches without
-                // bridging every field through Foundation. Unicode/control-containing rows
-                // always reach the original localized predicate; this is only a prefilter.
-                if Self.isPrintableASCII(search) {
-                    clause += " AND (searchASCII = 0 OR instr(lower(coalesce(transcript, '')), ?) > 0 OR instr(lower(coalesce(episodeTitle, '')), ?) > 0 OR instr(lower(coalesce(podcastTitle, '')), ?) > 0 OR instr(lower(coalesce(excerpt, '')), ?) > 0)"
-                    let folded = search.lowercased()
-                    arguments += [folded, folded, folded, folded]
-                }
-                clause += " AND (localizedContains(CAST(transcript AS BLOB), ?) OR localizedContains(CAST(episodeTitle AS BLOB), ?) OR localizedContains(CAST(podcastTitle AS BLOB), ?) OR localizedContains(CAST(excerpt AS BLOB), ?))"
-                let bytes = Data(search.utf8)
-                arguments += [bytes, bytes, bytes, bytes]
-            }
-            let total = try Int.fetchOne(db, sql: "SELECT count(*) FROM notes WHERE \(clause)", arguments: arguments)!
-            arguments += [max(0, limit), max(0, offset)]
-            let rows = try Data.fetchAll(db, sql: "SELECT payload FROM notes WHERE \(clause) ORDER BY created DESC, id LIMIT ? OFFSET ?", arguments: arguments)
-                .map { try JSONDecoder().decode(VoiceNote.self, from: $0) }
-            return Page(rows: rows, total: total)
+        try database.read {
+            try Self.selectPage($0, search: search, archived: archived, offset: offset,
+                                limit: limit, filter: filter, countMatches: true)
         }
+    }
+
+    func searchResults(_ query: String, limit: Int) async throws -> [VoiceNote] {
+        try await database.read {
+            try Self.selectPage($0, search: query, archived: false, offset: 0,
+                                limit: limit, filter: nil, countMatches: false).rows
+        }
+    }
+
+    private static func selectPage(_ db: Database, search: String, archived: Bool, offset: Int,
+                                   limit: Int, filter: LiveFilter?, countMatches: Bool) throws -> Page {
+        var clause = "archived = ?"
+        var arguments: StatementArguments = [archived]
+        if let filter, !filter.canRun { return Page(rows: [], total: 0) }
+        if let value = filter?.value("archived"), (value == "true") != archived { return Page(rows: [], total: 0) }
+        if let interval = filter?.interval() {
+            clause += " AND created >= ? AND created < ?"
+            arguments += [interval.start.timeIntervalSinceReferenceDate, interval.end.timeIntervalSinceReferenceDate]
+        }
+        let texts = filter.map { $0.terms.filter { $0.field == "text" }.map(\.value) } ?? (search.isEmpty ? [] : [search])
+        for search in texts {
+            // For printable ASCII only, SQLite can reject obvious nonmatches without
+            // bridging every field through Foundation. Unicode/control-containing rows
+            // always reach the original localized predicate; this is only a prefilter.
+            if Self.isPrintableASCII(search) {
+                clause += " AND (searchASCII = 0 OR instr(lower(coalesce(transcript, '')), ?) > 0 OR instr(lower(coalesce(episodeTitle, '')), ?) > 0 OR instr(lower(coalesce(podcastTitle, '')), ?) > 0 OR instr(lower(coalesce(excerpt, '')), ?) > 0)"
+                let folded = search.lowercased()
+                arguments += [folded, folded, folded, folded]
+            }
+            clause += " AND (localizedContains(CAST(transcript AS BLOB), ?) OR localizedContains(CAST(episodeTitle AS BLOB), ?) OR localizedContains(CAST(podcastTitle AS BLOB), ?) OR localizedContains(CAST(excerpt AS BLOB), ?))"
+            let bytes = Data(search.utf8)
+            arguments += [bytes, bytes, bytes, bytes]
+        }
+        let total = countMatches ? try Int.fetchOne(db, sql: "SELECT count(*) FROM notes WHERE \(clause)", arguments: arguments) : nil
+        arguments += [max(0, limit), max(0, offset)]
+        let rows = try Data.fetchAll(db, sql: "SELECT payload FROM notes WHERE \(clause) ORDER BY created DESC, id LIMIT ? OFFSET ?", arguments: arguments)
+            .map { try JSONDecoder().decode(VoiceNote.self, from: $0) }
+        return Page(rows: rows, total: total ?? rows.count)
     }
 
     private static func isPrintableASCII(_ text: String) -> Bool {

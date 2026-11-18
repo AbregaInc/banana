@@ -3,6 +3,25 @@ import Foundation
 
 /// Which days the Mac's Nutrition page shows and what each one adds up to. Pure, for tests.
 enum NutritionDays {
+    struct Index {
+        let calendar: Calendar
+        let hiddenIDs: Set<String>
+        let visible: [MealEntry]
+        private let rows: [Date: [MealEntry]]
+        private let totals: [Date: NutritionMacros]
+
+        init(_ meals: [MealEntry], calendar: Calendar, hiding hiddenIDs: Set<String>) {
+            self.calendar = calendar
+            self.hiddenIDs = hiddenIDs
+            visible = hiddenIDs.isEmpty ? meals : meals.filter { !hiddenIDs.contains($0.id.uuidString) }
+            let grouped = Dictionary(grouping: visible) { calendar.startOfDay(for: $0.date) }
+            rows = grouped.mapValues { $0.sorted { $0.date < $1.date } }
+            totals = rows.mapValues(NutritionDays.total)
+        }
+
+        func meals(on day: Date) -> [MealEntry] { rows[calendar.startOfDay(for: day)] ?? [] }
+        func total(on day: Date) -> NutritionMacros { totals[calendar.startOfDay(for: day)] ?? .init() }
+    }
     /// Seven days, oldest first, around `day`: the last week up to today while `day` is in it,
     /// else the week ending on `day`. Never a calendar week — on a Sunday that was today and six
     /// empty days still to come.

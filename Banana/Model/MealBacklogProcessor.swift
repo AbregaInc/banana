@@ -269,11 +269,12 @@ final class MealBacklogProcessor: ObservableObject {
     }
 
     /// What the estimate is told besides the photos and words (docs/design/MEAL-LEARNING.md).
-    private func context(for item: MealInboxItem, wellness: WellnessStore) -> GroundedFoodEstimate.Context {
-        GroundedFoodEstimate.Context(
+    private func context(for item: MealInboxItem, wellness: WellnessStore) async -> GroundedFoodEstimate.Context {
+        let portions = await wellness.portionLookup()
+        return GroundedFoodEstimate.Context(
             usualNames: UsualFoods.names(at: item.eatenAt, meals: wellness.meals, myFoods: MyFoodsStore.shared.foods),
             measurements: MealPhotoDepth.lines(item.photos.compactMap(\.depth)),
-            portionFactor: LearnedPortions.lookup(wellness.meals, category: { FoodDatabase.food(id: $0)?.category })
+            portionFactor: portions
         )
     }
 
@@ -329,7 +330,7 @@ final class MealBacklogProcessor: ObservableObject {
         }
         let outcome = await GroundedFoodEstimate.meal(images: images, note: note, eatenAt: item.eatenAt,
                                                       learned: wellness.learnedLookup(), myFoods: MyFoodsStore.shared.foods,
-                                                      context: context(for: item, wellness: wellness))
+                                                      context: await context(for: item, wellness: wellness))
         switch outcome {
         case .proposal(let proposal):
             inbox.propose(item.id, proposal, forNote: note)
