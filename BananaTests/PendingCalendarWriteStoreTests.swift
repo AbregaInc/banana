@@ -10,6 +10,22 @@ final class PendingCalendarWriteStoreTests: XCTestCase {
             availability: .busy, alertMinutesBefore: 10)
     }
 
+    func testAssistantReceiptSurvivesReadBackAndRelaunch() throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let operation = UUID()
+        var event = input
+        event.assistantOperationID = operation
+        let store = PendingCalendarWriteStore(directory: root, now: now)
+        let ticket = try store.enqueue(input: event, calendarID: "test-calendar", now: now)
+        XCTAssertFalse(store.hasAssistantReceipt(operation))
+        store.markWritten(ticket, remoteID: "provider-event")
+        store.reconcile(confirmedRemoteIDs: ["provider-event"], confirmedSignatures: [], now: now)
+        XCTAssertNil(store.entry(ticket))
+        XCTAssertTrue(PendingCalendarWriteStore(directory: root, now: now).hasAssistantReceipt(operation))
+    }
+
     func testFailedLocalEnqueueDoesNotAcknowledgeOrPublishIntent() throws {
         let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)

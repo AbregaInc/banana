@@ -58,6 +58,8 @@ enum GoogleEventWindowBuilder {
         var calendarBlocksTime = true
         var isSharedCalendar = false
         var calendarOwner: String? = nil
+        var creator: String? = nil
+        var bananaWriter: String? = nil
         var iCalUID: String? = nil
         var originalStart: Date? = nil
         var endTimeZone: String? = nil
@@ -159,6 +161,8 @@ enum GoogleEventWindowBuilder {
             timeZone: (event.start?.timeZone).flatMap(TimeZone.init(identifier:)),
             ownership: ownership(of: event),
             eventType: event.eventType,
+            creator: event.creator?.email?.lowercased().nonEmpty,
+            bananaWriter: event.extendedProperties?.private?[GoogleBusyBlocks.writerKey]?.nonEmpty,
             iCalUID: event.iCalUID,
             originalStart: event.originalStartTime.flatMap { original in
                 original.dateTime.flatMap(GoogleCalendarDates.parseRFC3339)
@@ -387,8 +391,13 @@ enum GoogleEventWindowBuilder {
                 guard let existing = merged[key] else {
                     merged[key] = event; keys.append(key); return
                 }
-                let preferNew = (existing.isSharedAvailability && !event.isSharedAvailability)
-                    || (existing.isSharedAvailability == event.isSharedAvailability && richness(event) > richness(existing))
+                let preferNew: Bool
+                if key.hasPrefix("managed:"), existing.ownership?.variant != event.ownership?.variant {
+                    preferNew = event.ownership?.variant == CalendarWriteBackVariant.production.markerScheme
+                } else {
+                    preferNew = (existing.isSharedAvailability && !event.isSharedAvailability)
+                        || (existing.isSharedAvailability == event.isSharedAvailability && richness(event) > richness(existing))
+                }
                 var winner = preferNew ? event : existing
                 let loser = preferNew ? existing : event
                 winner.calendarBlocksTime = existing.calendarBlocksTime || event.calendarBlocksTime
@@ -421,7 +430,8 @@ enum GoogleEventWindowBuilder {
                     sources[Self.anyOwner + mirror, default: []].insert(identity)
                 }
             }
-            for event in candidates where event.isSharedAvailability {
+            let managedCopies = managedAvailabilityIdentities(candidates)
+            for (index, event) in candidates.enumerated() where event.isSharedAvailability {
                 var identity = "availability:\(event.calendarID):\(event.eventID)"
                 if let copy = event.copyKey, merged[copy] != nil {
                     identity = copy
@@ -432,12 +442,64 @@ enum GoogleEventWindowBuilder {
                         // Without a visible original, proven mirrors still form ONE private Busy.
                         identity = "mirror:\(owner)\u{1F}\(item)"
                     }
+                } else if let match = managedCopies[index] {
+                    identity = "managed:\(match)"
                 }
                 add(event, as: identity)
             }
             result += keys.compactMap { merged[$0] }
         }
         return result
+    }
+
+    /// A scheduled item can be copied through several Google accounts by one install,
+    /// or through Beta and Production installs by one Google account. Join those proofs
+    /// within this exact interval. A bare Busy entry has neither proof.
+    private static func managedAvailabilityIdentities(_ events: [Normalized]) -> [Int: Int] {
+        struct Proof: Hashable {
+            let item: String
+            let person: String?
+            let writer: String?
+        }
+        var first: [Proof: Int] = [:]
+        var parents: [Int: Int] = [:]
+        func root(_ index: Int) -> Int {
+            var result = index
+            while let parent = parents[result] { result = parent }
+            var current = index
+            while let parent = parents[current], parent != result {
+                parents[current] = result
+                current = parent
+            }
+            return result
+        }
+        for (index, event) in events.enumerated() {
+            guard event.isSharedAvailability, event.attendeeCount == 0, !event.isFree,
+                  let item = event.ownership?.appItemID, !item.hasPrefix("mirror-") else { continue }
+            if let person = event.creator ?? event.calendarOwner {
+                let proof = Proof(item: item, person: person, writer: nil)
+                if let existing = first[proof] { parents[index] = root(existing) }
+                else { first[proof] = index }
+            }
+            if let writer = event.bananaWriter {
+                let proof = Proof(item: item, person: nil, writer: writer)
+                if let existing = first[proof] {
+                    let older = root(existing)
+                    let newer = root(index)
+                    if older != newer { parents[max(older, newer)] = min(older, newer) }
+                } else {
+                    first[proof] = index
+                }
+            }
+        }
+        guard !parents.isEmpty else { return [:] }
+        var identities: [Int: Int] = [:]
+        for index in Array(parents.keys) {
+            let canonical = root(index)
+            identities[index] = canonical
+            identities[canonical] = canonical
+        }
+        return identities
     }
 
     /// The key prefix for sources registered without an owner scope.

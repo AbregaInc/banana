@@ -50,6 +50,12 @@ enum CalendarWriteBackVariant {
         }
     }
 
+    /// A production task or travel block may look like a legacy Beta block. When it is
+    /// the exact item and slot Beta is about to write, production already protects it.
+    func reusesExactProductionCoverage(markerScheme: String?, existingItemID: String?, wantedItemID: String) -> Bool {
+        self == .beta && markerScheme == Self.production.markerScheme && existingItemID == wantedItemID
+    }
+
     static func isAppMarker(_ markerScheme: String?) -> Bool {
         markerScheme == "banana" || markerScheme == "banana-beta" || markerScheme == "quarters"
     }
@@ -243,6 +249,22 @@ enum BusyBlockDuplicates {
     /// Chosen by the event id alone, so devices reconciling at the same time agree.
     static func copyToKeep(_ eventIDs: [String]) -> String? {
         eventIDs.min()
+    }
+}
+
+/// Production can retire an exact Beta shadow after both provider events have been read.
+enum BusyVariantShadows {
+    struct Copy: Hashable {
+        let content: String
+        let creator: String
+
+        init?(content: String?, creator: String?, blocksTime: Bool) {
+            guard blocksTime, let content, content.hasPrefix("Busy\u{1F}"),
+                  let creator = creator?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased(),
+                  !creator.isEmpty else { return nil }
+            self.content = content
+            self.creator = creator
+        }
     }
 }
 
