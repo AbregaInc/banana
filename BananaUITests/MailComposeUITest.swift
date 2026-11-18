@@ -92,9 +92,10 @@ final class MailComposeUITest: MailUITestCase {
         if !again.isHittable { app.swipeUp() }
         again.tap()
         XCTAssertTrue(waitForToast(containing: "Sending", timeout: 5))
-        Thread.sleep(forTimeInterval: 11.5)
+        XCTAssertTrue(waitUntil(timeout: 15) { self.toastText == "Sent" },
+                      "delivery confirmation replaces the undo hold")
+        XCTAssertTrue(waitGone(undoButton, timeout: 3), "confirmed delivery can no longer be undone")
         snap("07-after-hold")
-        XCTAssertNil(toastText, "the toast is gone with the hold; saw \(toastText ?? "")")
         // Sent from Drafts, the draft's row left that place; with a pane the place is empty and so
         // is the pane (T19, case 4), and the conversation is back in the inbox. Awkward in use —
         // the thread you just answered is gone from view — but the design's rule.
