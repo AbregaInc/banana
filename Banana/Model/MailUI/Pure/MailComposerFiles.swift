@@ -46,6 +46,7 @@ final class MailComposerFiles: ObservableObject {
     private let source: MailSource
     /// Whose draft this is, once it has arrived.
     var draftID: () -> MailDraftID? = { nil }
+    var editToken: () -> String? = { nil }
     /// Finishes when the draft has arrived.
     var whenReady: () async -> Void = {}
     /// Something about the draft's files changed: it is to be saved.
@@ -128,7 +129,7 @@ final class MailComposerFiles: ObservableObject {
             notice = MailAttachmentText.notAdded(chip.name, bytes: size)
             return
         }
-        guard let added = await source.addAttachment(url, to: draft) else {
+        guard let added = await source.addAttachment(url, to: draft, basedOn: editToken()) else {
             notice = MailAttachmentText.couldNotAttach(chip.name)
             return
         }
@@ -150,7 +151,7 @@ final class MailComposerFiles: ObservableObject {
     func remove(_ id: String) -> Removed? {
         guard let index = items.firstIndex(where: { $0.id == id }), let draft = draftID() else { return nil }
         let attachment = items.remove(at: index)
-        source.removeAttachment(id, from: draft)
+        source.removeAttachment(id, from: draft, basedOn: editToken())
         touched = true
         notice = nil
         changed()
@@ -161,7 +162,7 @@ final class MailComposerFiles: ObservableObject {
     func restore(_ removed: Removed) {
         guard let file = removed.attachment.file, let draft = draftID() else { return }
         Task { @MainActor [weak self] in
-            guard let self, let back = await self.source.addAttachment(file, to: draft) else { return }
+            guard let self, let back = await self.source.addAttachment(file, to: draft, basedOn: self.editToken()) else { return }
             self.items.insert(back, at: min(removed.index, self.items.count))
             self.touched = true
             self.notice = nil

@@ -130,16 +130,19 @@ extension MailSession {
     func openDraft(_ conversation: MailConversationID) {
         cancelling = Task { @MainActor [weak self] in
             guard let self else { return }
-            guard let found = await self.source.conversation(conversation), let id = found.draft,
-                  let draft = await self.source.draft(id) else { return }
+            let selected: MailDraftID?
+            if let id = MailDraftID.fromRowThread(conversation.thread) { selected = id }
+            else { selected = await self.source.conversation(conversation)?.draft }
+            guard let id = selected, let draft = await self.source.draft(id), draft.account == conversation.account else { return }
             self.closeComposer()
-            if draft.conversation.thread.hasPrefix("local:") {
+            if !draft.isReply && !draft.isForward {
                 self.send(.place(conversation))
-                self.begin(.continuing(id))
+            } else if conversation != draft.conversation {
+                self.send(.openDraft(row: conversation, reading: draft.conversation))
             } else {
-                self.send(self.pane.isActive ? .place(conversation) : .open(conversation))
-                self.begin(draft.isForward ? .forward(conversation) : .reply(conversation))
+                self.send(self.pane.isActive ? .place(draft.conversation) : .open(draft.conversation))
             }
+            self.begin(.continuing(id))
         }
     }
 }

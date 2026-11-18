@@ -36,7 +36,7 @@ enum MailDraftFiles {
             hashes.append(hash(data))
         }
         guard bytes == file.bytes else { throw MailDraftDriver.Failure.changed }
-        let mime = UTType(filenameExtension: (file.name as NSString).pathExtension)?.preferredMIMEType ?? "application/octet-stream"
+        let mime = file.mimeType ?? UTType(filenameExtension: (file.name as NSString).pathExtension)?.preferredMIMEType ?? "application/octet-stream"
         return .init(name: file.name, mimeType: mime, bytes: bytes, chunks: hashes)
     }
     static func readChunk(_ input: FileHandle) throws -> Data? {
@@ -77,7 +77,8 @@ enum MailDraftFiles {
                 let id = UUID().uuidString.lowercased(), destination = directory.appendingPathComponent(id)
                 try MailFiles.install(data, at: destination, protection: .completeUntilFirstUserAuthentication,
                                       quarantine: MailQuarantine(), durability: .synced)
-                files.append(.init(id: attachment.partID, name: attachment.name, bytes: data.count, file: destination, isExecutable: false))
+                files.append(.init(id: attachment.partID, name: attachment.name, bytes: data.count,
+                                   file: destination, isExecutable: false, mimeType: attachment.mimeType))
             }
             return files
         } catch {

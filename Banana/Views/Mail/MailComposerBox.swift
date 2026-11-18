@@ -57,8 +57,10 @@ struct MailComposerBox: View {
                     .accessibilityIdentifier(MailID.composerSampleNote)
             }
             if model.isForeign {
+                if let url = model.gmailDraftsURL { Link("Continue in Gmail", destination: url) }
                 Button("Edit as text") { Task { await model.rewriteAsText() } }
             }
+            if !session.isSample { MailDraftSaveStatus(title: model.syncStatusTitle) }
             MailRecipientsView(model: model, focused: $focused, compact: true).disabled(model.isForeign)
             // A new message has a subject to write; a reply and a forward keep theirs.
             if model.host == nil {

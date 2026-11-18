@@ -70,19 +70,7 @@ import Combine
                 if let scope = FeatureAccessStore.shared.mailContext {
                     try await source.prepareDrafts(intent: intent, scope: scope, api: api,
                         contextAllowed: { await MainActor.run { FeatureAccessStore.shared.mailContext == scope } },
-                        compose: { snapshot in
-                            guard snapshot.format == .banana, snapshot.signature?.complete != false,
-                                  snapshot.quote?.complete != false else {
-                                throw MailDraftDriver.Failure.attachmentsNotReady
-                            }
-                            let rendered = MailBodyHTML.message(body: snapshot.body, signature: snapshot.signature?.value, quote: snapshot.quote?.value)
-                            let person: (MailPerson) -> GmailDraftComposition.Person = { .init(address: $0.address, name: $0.name) }
-                            return GmailDraftComposition(from: .init(address: snapshot.from.address, name: snapshot.from.name),
-                                to: snapshot.to.map(person), cc: snapshot.cc.map(person), bcc: snapshot.bcc.map(person),
-                                subject: snapshot.subject, plain: rendered.plain, html: rendered.html, attachments: [],
-                                inReplyTo: snapshot.inReplyTo, references: snapshot.inReplyTo.map { [$0] },
-                                threadID: snapshot.isReply ? snapshot.conversation.thread : nil)
-                        })
+                        compose: { try GmailDraftComposition(snapshot: $0) })
                 }
                 source.reportReadFailure = { PlaybackDiagnostics.shared.log("mail read", $0) }
                 accessObservation = BananaAccount.shared.$account.map { $0?.google }.removeDuplicates().dropFirst().map { _ in () }

@@ -40,6 +40,72 @@ enum MailHTMLPreparer {
     static let maximumDepth = 48
     enum Failure: Error { case tooLarge, tooComplex }
 
+    /// The draft editor can round-trip this subset of Gmail's compose markup. The reader's
+    /// ability to display a richer message is not evidence that the editor can save it.
+    static func editableDraftHTML(_ html: String) throws -> (body: String, signature: MailDraftPart?, quote: MailDraftPart?)? {
+        guard html.utf8.count <= 384 * 1024 else { return nil }
+        let document = try SwiftSoup.parse(html)
+        guard withinBounds(document), let body = document.body(),
+              document.head()?.children().isEmpty() != false else { return nil }
+        let plain: Set<String> = ["body", "div", "p", "span", "br", "b", "strong", "i", "em", "u", "blockquote", "ul", "ol", "li"]
+        let gmailClasses: Set<String> = ["gmail_signature", "gmail_quote", "gmail_quote_container", "gmail_attr"]
+        func classes(_ element: Element) throws -> Set<String> {
+            Set(try element.attr("class").split(whereSeparator: \.isWhitespace).map(String.init))
+        }
+        var stack = [body]
+        while let element = stack.popLast() {
+            let tag = element.tagNameNormal()
+            let keys = Set(element.getAttributes()?.asList().map { $0.getKey() } ?? [])
+            if tag == "a" {
+                guard keys == ["href"], MailBodyHTML.safeLink(URL(string: try element.attr("href"))) != nil else { return nil }
+            } else {
+                guard plain.contains(tag) else { return nil }
+                if keys.contains("dir"), try element.attr("dir") != "ltr" { return nil }
+                if keys.contains("class"), try !classes(element).isSubset(of: gmailClasses) { return nil }
+                if keys.contains("data-smartmail"), try element.attr("data-smartmail") != "gmail_signature" { return nil }
+                if keys.contains("type"), tag != "blockquote" { return nil }
+                if keys.contains("type"), try element.attr("type") != "cite" { return nil }
+                if keys.contains("style") {
+                    // Gmail's default reply border. Keep arbitrary styles out of the editable subset.
+                    guard tag == "blockquote", try element.attr("style").filter({ !$0.isWhitespace })
+                        == "margin:000.8ex;border-left:1px#cccsolid;padding-left:1ex" else { return nil }
+                }
+                guard keys.isSubset(of: ["dir", "class", "data-smartmail", "type", "style"]) else { return nil }
+            }
+            stack.append(contentsOf: elements(element))
+        }
+        func fragment(_ element: Element) throws -> MailDraftPart {
+            let html = try element.outerHtml()
+            return MailDraftPart(fragment: MailFragment(html: html), body: try prepare(plain: nil, html: html).body)
+        }
+        var signature: MailDraftPart?, quote: MailDraftPart?
+        func split(_ container: Element, depth: Int) throws -> Bool {
+            guard depth <= maximumDepth else { return false }
+            for node in container.getChildNodes() {
+                guard let element = node as? Element else {
+                    if let text = node as? TextNode, signature != nil || quote != nil,
+                       !text.getWholeText().trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { return false }
+                    continue
+                }
+                let names = try classes(element)
+                if names.contains("gmail_signature") {
+                    guard signature == nil, quote == nil else { return false }
+                    signature = try fragment(element)
+                } else if names.contains("gmail_quote") || names.contains("gmail_quote_container") || element.tagNameNormal() == "blockquote" {
+                    guard quote == nil else { return false }
+                    quote = try fragment(element)
+                } else {
+                    guard try split(element, depth: depth + 1) else { return false }
+                    continue
+                }
+                try element.remove()
+            }
+            return true
+        }
+        guard try split(body, depth: 0) else { return nil }
+        return (try body.html(), signature, quote)
+    }
+
     static func prepare(plain: String?, html: String?, measure: ((String, Double) -> Void)? = nil) throws -> MailPreparedBody {
         var previous = measure == nil ? 0 : DispatchTime.now().uptimeNanoseconds
         func mark(_ phase: String) {

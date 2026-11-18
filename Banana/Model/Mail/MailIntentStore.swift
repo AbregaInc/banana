@@ -88,6 +88,13 @@ final class MailIntentStore: MailWriterLog, @unchecked Sendable {
                 WHERE state IN ('editing','failed')
                 """)
         }
+        migrations.registerMigration("v10-draft-order-identity") { db in
+            for row in try Row.fetchAll(db, sql: "SELECT scope, account, local_id FROM draft_outbox") {
+                let scope: String = row["scope"], account: String = row["account"], id: String = row["local_id"]
+                try db.execute(sql: "UPDATE draft_outbox SET tie=? WHERE scope=? AND local_id=?",
+                               arguments: [MailMessageImporter.tie(account: account, thread: id), scope, id])
+            }
+        }
         guard try queue.read({ try !migrations.hasBeenSuperseded($0) }) else { throw Failure.newerSchema }
         try migrations.migrate(queue)
     }
@@ -190,7 +197,7 @@ final class MailIntentStore: MailWriterLog, @unchecked Sendable {
                         VALUES (?,?,?,?,?,?,?,?,?,?,?)
                         """, arguments: [scope,id,account,record.remote?.id,0,payload,record.state.rawValue,record.needsDelivery,
                             record.snapshot.conversation.thread,Int64(record.snapshot.editedAt.timeIntervalSince1970 * 1000),
-                            MailMessageImporter.tie(account: account, thread: record.snapshot.conversation.thread)])
+                            MailMessageImporter.tie(account: account, thread: id)])
                     try db.execute(sql: "INSERT INTO legacy_draft_import VALUES (?,?)", arguments: [id,scope])
                 }
                 return rows.map { $0["id"] as String }
@@ -243,6 +250,22 @@ final class MailIntentStore: MailWriterLog, @unchecked Sendable {
             return try JSONDecoder().decode(MailDraftRecord.self, from: data)
         }
     }
+    func editableReply(scope: String, conversation: MailConversationID, message: MailMessageID, rfcID: String?) async throws -> MailDraftRecord? {
+        try await queue.read { db in
+            let data = try Data.fetchOne(db, sql: """
+                SELECT payload FROM draft_outbox WHERE scope=? AND account=? AND conversation=? AND state='editing'
+                AND json_extract(CAST(payload AS TEXT), '$.snapshot.format')='banana'
+                AND json_extract(CAST(payload AS TEXT), '$.snapshot.isReply')=1
+                AND json_extract(CAST(payload AS TEXT), '$.conflict')=0
+                AND json_extract(CAST(payload AS TEXT), '$.wantsDelete')=0
+                AND (json_extract(CAST(payload AS TEXT), '$.snapshot.replyToMessage.message')=? OR
+                    (json_extract(CAST(payload AS TEXT), '$.snapshot.replyToMessage') IS NULL AND
+                     json_extract(CAST(payload AS TEXT), '$.snapshot.inReplyTo')=?))
+                ORDER BY sort_key DESC,local_id DESC LIMIT 1
+                """, arguments: [scope, conversation.account, conversation.thread, message.message, rfcID])
+            return try data.map { try JSONDecoder().decode(MailDraftRecord.self, from: $0) }
+        }
+    }
     func conversationsWithDrafts(scope: String, among conversations: [MailConversationID]) async throws -> Set<MailConversationID> {
         guard !conversations.isEmpty else { return [] }
         return try await queue.read { db in
@@ -262,8 +285,10 @@ final class MailIntentStore: MailWriterLog, @unchecked Sendable {
             var sql = "SELECT d.payload FROM draft_outbox d WHERE d.scope=? AND d.state IN " + states
             var arguments: [DatabaseValueConvertible] = [scope]
             if let account { sql += " AND d.account=?"; arguments.append(account) }
-            // A conversation has one row; retain all its draft records, selecting the latest one.
-            sql += " AND d.local_id=(SELECT other.local_id FROM draft_outbox other WHERE other.scope=d.scope AND other.account=d.account AND other.conversation=d.conversation AND other.state IN " + states + " ORDER BY other.sort_key DESC,other.local_id DESC LIMIT 1)"
+            // The outbox still represents a conversation; Drafts lists the actual drafts.
+            if outbox {
+                sql += " AND d.local_id=(SELECT other.local_id FROM draft_outbox other WHERE other.scope=d.scope AND other.account=d.account AND other.conversation=d.conversation AND other.state IN " + states + " ORDER BY other.sort_key DESC,other.local_id DESC LIMIT 1)"
+            }
             if let before { sql += " AND (d.sort_key<? OR (d.sort_key=? AND d.tie<?))"; arguments += [before.sortKey, before.sortKey, before.tie] }
             sql += " ORDER BY d.sort_key DESC,d.tie DESC LIMIT ?"; arguments.append(min(201, max(1, limit)))
             return try Data.fetchAll(db, sql: sql, arguments: StatementArguments(arguments)).map { try JSONDecoder().decode(MailDraftRecord.self, from: $0) }
@@ -279,10 +304,10 @@ final class MailIntentStore: MailWriterLog, @unchecked Sendable {
             let data = try JSONEncoder().encode(next)
             if let expectedGeneration {
                 try db.execute(sql: "UPDATE draft_outbox SET remote_id=?,generation=?,payload=?,state=?,dirty=?,conversation=?,sort_key=?,tie=? WHERE scope=? AND local_id=? AND generation=?",
-                    arguments: [next.remote?.id, next.generation, data, next.state.rawValue, next.needsDelivery, next.snapshot.conversation.thread, Int64(next.snapshot.editedAt.timeIntervalSince1970 * 1000), MailMessageImporter.tie(account: next.snapshot.account, thread: next.snapshot.conversation.thread), next.scope, next.snapshot.id.raw, expectedGeneration])
+                    arguments: [next.remote?.id, next.generation, data, next.state.rawValue, next.needsDelivery, next.snapshot.conversation.thread, Int64(next.snapshot.editedAt.timeIntervalSince1970 * 1000), MailMessageImporter.tie(account: next.snapshot.account, thread: next.snapshot.id.raw), next.scope, next.snapshot.id.raw, expectedGeneration])
             } else {
                 try db.execute(sql: "INSERT OR IGNORE INTO draft_outbox(scope,local_id,account,remote_id,generation,payload,state,dirty,conversation,sort_key,tie) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
-                    arguments: [next.scope, next.snapshot.id.raw, next.snapshot.account, next.remote?.id, next.generation, data, next.state.rawValue, next.needsDelivery, next.snapshot.conversation.thread, Int64(next.snapshot.editedAt.timeIntervalSince1970 * 1000), MailMessageImporter.tie(account: next.snapshot.account, thread: next.snapshot.conversation.thread)])
+                    arguments: [next.scope, next.snapshot.id.raw, next.snapshot.account, next.remote?.id, next.generation, data, next.state.rawValue, next.needsDelivery, next.snapshot.conversation.thread, Int64(next.snapshot.editedAt.timeIntervalSince1970 * 1000), MailMessageImporter.tie(account: next.snapshot.account, thread: next.snapshot.id.raw)])
             }
             return db.changesCount == 1
         }

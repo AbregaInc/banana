@@ -22,10 +22,12 @@ actor MailDraftDriver {
         self.allowed = allowed; self.compose = compose; self.changed = changed
     }
     func record(_ id: MailDraftID) async throws -> MailDraftRecord? { try await store.draftRecord(scope: scope, id: id) }
-    func create(_ draft: MailDraft, inReplyTo: String? = nil, forwardMessageID: String? = nil) async throws {
+    func create(_ draft: MailDraft, inReplyTo: String? = nil, forwardMessageID: String? = nil,
+                awaitingFirstEdit: Bool = false) async throws {
         var value = MailDraftRecord(scope: scope, snapshot: .init(draft))
         value.snapshot.inReplyTo = inReplyTo
         value.snapshot.forwardMessageID = forwardMessageID
+        if awaitingFirstEdit { value.awaitingFirstEdit = true }
         guard try await store.putDraftRecord(value, expectedGeneration: nil) else { throw Failure.changed }
         changed(value)
     }
@@ -45,6 +47,9 @@ actor MailDraftDriver {
     }
     func forConversation(_ conversation: MailConversationID) async throws -> MailDraftRecord? {
         try await store.draftForConversation(scope: scope, conversation: conversation)
+    }
+    func editableReply(in conversation: MailConversationID, message: MailMessageID, rfcID: String?) async throws -> MailDraftRecord? {
+        try await store.editableReply(scope: scope, conversation: conversation, message: message, rfcID: rfcID)
     }
     func conversationsWithDrafts(among conversations: [MailConversationID]) async throws -> Set<MailConversationID> {
         try await store.conversationsWithDrafts(scope: scope, among: conversations)
@@ -67,7 +72,8 @@ actor MailDraftDriver {
             guard let remoteID = item.id, let messageID = item.message?.id else { continue }
             let existing = try await store.draftRecord(scope: scope, account: account, remoteID: remoteID)
             if let scan { try await store.markDraftSeen(scope: scope, account: account, remoteID: remoteID, scan: scan) }
-            if existing?.remote?.message.id == messageID { continue }
+            if existing?.remote?.message.id == messageID,
+               existing?.snapshot.format != .foreign || existing?.snapshot.checkedDraftFormat == true { continue }
             // Our in-flight update can already be visible in Gmail. Its receipt must settle first.
             if existing?.pending != nil { continue }
             let wire = try await api.draft(token: reference, id: remoteID)
@@ -140,12 +146,29 @@ actor MailDraftDriver {
                 body = try MailHTMLPreparer.prepare(plain: plain, html: nil).text
             }
         }
-        let canEditDirectly = extracted.html == nil && extracted.structure.attachments.isEmpty
+        let editable = extracted.html.flatMap { try? MailHTMLPreparer.editableDraftHTML($0) }
+        let references = headers.value("References")?.split(whereSeparator: \.isWhitespace).map(String.init)
+        let canEditDirectly = (extracted.html == nil || editable != nil)
+            && Self.editableDraftMIME(payload)
+            && headers.value("Reply-To") == nil
+            && (headers.value("From") == nil || headers.sender != nil)
+            && (headers.sender?.key ?? account.lowercased()) == account.lowercased()
+            && extracted.structure.attachments.allSatisfy {
+                !$0.isInline && $0.contentID == nil && !$0.isInvite && $0.size != nil
+            }
+            && ["To", "Cc", "Bcc"].allSatisfy {
+                let list = headers.addresses($0)
+                return list.isComplete && !list.hasGroup
+            }
+            && (references ?? []).count <= 100
         func people(_ name: String) -> [MailPerson] {
             headers.addresses(name).mailboxes.map {
                 MailPerson(name: MailAddressRules.displayName($0.name, address: $0.address), address: $0.address,
                     isMe: $0.key == account.lowercased(), isKnown: false, fromTheirMail: false)
             }
+        }
+        if canEditDirectly, let editable, editable.signature != nil || editable.quote != nil {
+            body = try MailHTMLPreparer.prepare(plain: nil, html: editable.body).text
         }
         let id = existing?.snapshot.id ?? MailDraftID(raw: UUID().uuidString.lowercased())
         let from = headers.sender
@@ -153,12 +176,21 @@ actor MailDraftDriver {
             account: account, isReply: headers.value("In-Reply-To") != nil, isForward: false,
             from: .init(account: account, address: from?.address ?? account, name: from?.name, isDefault: from?.key == account.lowercased(), hasSignature: false),
             to: people("To"), cc: people("Cc"), bcc: people("Bcc"), subject: headers.subject ?? "", body: body,
-            signature: nil, quote: nil, attachments: extracted.structure.attachments.map {
-                MailDraftAttachment(id: $0.partID, name: $0.name, bytes: $0.size ?? 0, file: nil, isExecutable: false)
+            signature: canEditDirectly ? editable?.signature : nil, quote: canEditDirectly ? editable?.quote : nil,
+            attachments: extracted.structure.attachments.map {
+                MailDraftAttachment(id: $0.partID, name: $0.name, bytes: $0.size ?? 0,
+                                    file: nil, isExecutable: false, mimeType: $0.mimeType)
             }, format: canEditDirectly ? .banana : .foreign, schedule: nil, remindIfNoReply: nil, delivery: nil,
             encodedBytes: wire.message.sizeEstimate ?? 0, editedAt: Date(timeIntervalSince1970: Double(wire.message.internalDate ?? 0) / 1000))
         var value = MailDraftRecord(scope: scope, snapshot: .init(draft))
+        value.snapshot.checkedDraftFormat = true
         value.snapshot.inReplyTo = headers.value("In-Reply-To")
+        value.snapshot.references = references
+        if canEditDirectly {
+            value.snapshot.originalPlain = extracted.plain
+            value.snapshot.originalHTML = extracted.html
+            if !draft.attachments.isEmpty { value.snapshot.attachmentMessageID = messageID }
+        }
         if let existing, existing.snapshot.inReplyTo == value.snapshot.inReplyTo {
             value.snapshot.replyToMessage = existing.snapshot.replyToMessage
         }
@@ -168,6 +200,18 @@ actor MailDraftDriver {
         guard try await store.putDraftRecord(value, expectedGeneration: existing?.generation) else { throw Failure.changed }
         value.generation = (existing?.generation ?? -1) + 1
         changed(value)
+    }
+
+    private static func editableDraftMIME(_ part: GmailPart) -> Bool {
+        let type = part.mimeType?.lowercased()
+        if let name = part.filename, !name.isEmpty {
+            return name == MailFileName.safe(name) && (part.parts ?? []).isEmpty
+                && type?.hasPrefix("message/") != true && type?.hasPrefix("multipart/") != true
+        }
+        if type == "multipart/mixed" || type == "multipart/alternative" {
+            return (part.parts ?? []).allSatisfy(editableDraftMIME)
+        }
+        return (type == "text/plain" || type == "text/html") && (part.parts ?? []).isEmpty
     }
     func keepLegacyAsDraft(_ id: MailDraftID) async throws {
         _ = try await mutate(id) { value in
@@ -185,6 +229,11 @@ actor MailDraftDriver {
         do { fetched = try await api.draft(token: reference, id: remote.id) }
         catch GmailError.notFound { fetched = nil }
         guard await allowed(before.snapshot.account) else { throw Failure.changed }
+        if keepMine, before.snapshot.forwardMessageID == nil,
+           (before.snapshot.attachmentMessageID == nil || before.snapshot.attachmentMessageID != fetched?.message.id),
+           before.snapshot.attachments.contains(where: { $0.file == nil }) {
+            throw Failure.attachmentsNotReady
+        }
         guard let latest = fetched else {
             _ = try await mutate(id) { value in
                 guard value.generation == before.generation else { throw Failure.changed }
@@ -221,18 +270,28 @@ actor MailDraftDriver {
             guard value.snapshot.account == draft.account else { throw Failure.changed }
             var incoming = MailDraftRecord.Snapshot(draft)
             incoming.inReplyTo = value.snapshot.inReplyTo
+            incoming.references = value.snapshot.references
+            let sameVersion = draft.editToken == (value.snapshot.editToken ?? "local")
+            if sameVersion { incoming.attachmentMessageID = value.snapshot.attachmentMessageID }
+            incoming.checkedDraftFormat = value.snapshot.checkedDraftFormat
+            if incoming.body == value.snapshot.body, incoming.signature == value.snapshot.signature, incoming.quote == value.snapshot.quote {
+                incoming.originalPlain = value.snapshot.originalPlain
+                incoming.originalHTML = value.snapshot.originalHTML
+            }
             incoming.forwardMessageID = value.snapshot.forwardMessageID
-            incoming.attachments = incoming.attachments.map { attachment in
-                guard attachment.file == nil, let stored = value.snapshot.attachments.first(where: { $0.id == attachment.id }), stored.file != nil else { return attachment }
-                return stored
+            if sameVersion {
+                incoming.attachments = incoming.attachments.map { attachment in
+                    guard attachment.file == nil, let stored = value.snapshot.attachments.first(where: { $0.id == attachment.id }), stored.file != nil else { return attachment }
+                    return stored
+                }
             }
             var comparable = incoming
             comparable.editedAt = value.snapshot.editedAt
             comparable.encodedBytes = value.snapshot.encodedBytes
             if comparable == value.snapshot { return }
-            if draft.editToken != (value.snapshot.editToken ?? "local") { value.conflict = true }
+            if !sameVersion { value.conflict = true }
             if value.snapshot.format == .foreign && !value.conflict { throw Failure.notEditable }
-            value.snapshot = incoming; value.revision += 1
+            value.snapshot = incoming; value.revision += 1; value.awaitingFirstEdit = nil
 
         }
     }
@@ -263,14 +322,15 @@ actor MailDraftDriver {
             throw error
         }
     }
-    func addAttachment(_ url: URL, to id: MailDraftID) async throws -> MailDraftAttachment {
+    func addAttachment(_ url: URL, to id: MailDraftID, basedOn editToken: String? = nil) async throws -> MailDraftAttachment {
         guard let record = try await record(id), record.state == .editing, record.snapshot.format == .banana else { throw Failure.notEditable }
         let file = try MailDraftFiles.keep(url, directory: store.attachmentDirectory)
         do {
             _ = try await mutate(id) { value in
                 guard value.state == .editing, value.snapshot.format == .banana else { throw Failure.notEditable }
+                if let editToken, editToken != (value.snapshot.editToken ?? "local") { throw Failure.changed }
                 guard value.snapshot.attachments.reduce(0, { $0 + $1.bytes }) + file.bytes <= MailDraftFiles.maximumBytes else { throw Failure.attachmentsNotReady }
-                value.snapshot.attachments.append(file); value.revision += 1
+                value.snapshot.attachments.append(file); value.revision += 1; value.awaitingFirstEdit = nil
             }
             return file
         } catch {
@@ -278,27 +338,44 @@ actor MailDraftDriver {
             throw error
         }
     }
-    func removeAttachment(_ attachment: String, from id: MailDraftID) async throws {
+    func removeAttachment(_ attachment: String, from id: MailDraftID, basedOn editToken: String? = nil) async throws {
         _ = try await mutate(id) { value in
             guard value.state == .editing, value.snapshot.format == .banana else { throw Failure.notEditable }
+            if let editToken, editToken != (value.snapshot.editToken ?? "local") { throw Failure.changed }
             value.snapshot.attachments.removeAll { $0.id == attachment }; value.revision += 1
         }
         // An older in-flight operation may still need this immutable file. Cleanup follows its receipt.
     }
-    private func materializeForwardFiles(_ before: MailDraftRecord) async throws -> MailDraftRecord {
+    private func materializeFiles(_ before: MailDraftRecord) async throws -> MailDraftRecord {
         let missing = Set(before.snapshot.attachments.filter { $0.file == nil }.map(\.id))
-        guard !missing.isEmpty, let messageID = before.snapshot.forwardMessageID else { return before }
+        guard !missing.isEmpty else { return before }
         guard let downloadAPI = api as? any GmailAPI, await allowed(before.snapshot.account) else { throw Failure.attachmentsNotReady }
         let reference = try await token(before.snapshot.account)
-        let message = try await downloadAPI.message(token: reference, id: messageID, format: .full)
-        guard message.id == messageID else { throw Failure.changed }
+        let message: GmailMessage
+        if let messageID = before.snapshot.forwardMessageID {
+            message = try await downloadAPI.message(token: reference, id: messageID, format: .full)
+            guard message.id == messageID else { throw Failure.changed }
+        } else if let version = before.snapshot.attachmentMessageID, let remote = before.remote,
+                  version == remote.message.id {
+            let fetched = try await api.draft(token: reference, id: remote.id)
+            guard fetched.id == remote.id, fetched.message.id == version else {
+                _ = try await mutate(before.snapshot.id) { value in
+                    guard value.generation == before.generation else { throw Failure.changed }
+                    value.conflict = true
+                }
+                throw Failure.changed
+            }
+            message = fetched.message
+        } else {
+            throw Failure.attachmentsNotReady
+        }
         let files = try await MailDraftFiles.download(message, token: reference, api: downloadAPI,
             directory: store.attachmentDirectory, selected: missing)
         do {
             guard Set(files.map(\.id)) == missing, await allowed(before.snapshot.account) else { throw Failure.attachmentsNotReady }
             return try await mutate(before.snapshot.id) { value in
                 guard [.editing, .held].contains(value.state), value.pending == nil,
-                      value.snapshot.forwardMessageID == messageID else { throw Failure.changed }
+                      value.generation == before.generation else { throw Failure.changed }
                 value.snapshot.attachments = value.snapshot.attachments.map { original in
                     original.file == nil ? (files.first { $0.id == original.id } ?? original) : original
                 }
@@ -331,8 +408,12 @@ actor MailDraftDriver {
         _ = try await mutate(id) { value in
             guard value.state == .editing, !value.conflict else { throw Failure.notEditable }
             if let expectedEditToken, expectedEditToken != (value.snapshot.editToken ?? "local") { throw Failure.changed }
-            guard value.snapshot.forwardMessageID != nil || value.snapshot.attachments.allSatisfy({ $0.file != nil }) || (value.remote != nil && value.revision == value.acknowledgedRevision) else { throw Failure.attachmentsNotReady }
-            value.state = .held; value.thenDone = options.thenDone; value.sendAt = now.addingTimeInterval(max(0, options.hold ?? 10))
+            guard value.snapshot.forwardMessageID != nil
+                || (value.snapshot.attachmentMessageID != nil && value.snapshot.attachmentMessageID == value.remote?.message.id)
+                || value.snapshot.attachments.allSatisfy({ $0.file != nil })
+                || (value.remote != nil && value.revision == value.acknowledgedRevision) else { throw Failure.attachmentsNotReady }
+            value.state = .held; value.awaitingFirstEdit = nil
+            value.thenDone = options.thenDone; value.sendAt = now.addingTimeInterval(max(0, options.hold ?? 10))
         }
     }
     func cancelSend(_ id: MailDraftID) async throws -> Bool {
@@ -375,6 +456,7 @@ actor MailDraftDriver {
         for _ in 0..<20 {
             try Task.checkCancellation()
             guard var value = try await record(id), value.legacyReview != true, ![.sent, .deleted, .failed].contains(value.state), !value.conflict else { return }
+            guard value.awaitingFirstEdit != true else { return }
             guard await allowed(value.snapshot.account) else { return }
             if value.pending == nil {
                 let action: GmailDraftMutation.Action
@@ -383,7 +465,7 @@ actor MailDraftDriver {
                 else if value.state == .held, let sendAt = value.sendAt, sendAt <= now { action = .send }
                 else { return }
                 if action == .create || action == .update {
-                    do { value = try await materializeForwardFiles(value) }
+                    do { value = try await materializeFiles(value) }
                     catch { _ = try await mutate(id) { $0.deliveryFailed = true }; throw error }
                     guard !value.conflict, value.pending == nil else { return }
                     if value.wantsDelete || ![.editing, .held].contains(value.state) { continue }

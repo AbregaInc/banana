@@ -93,6 +93,41 @@ final class MailComposerTests: XCTestCase {
         XCTAssertEqual(composer.currentDraft()?.body, draft.body)
     }
 
+    func testGmailRefreshReplacesOnlyACleanEditorAndAcksOnlyTheSavedEdit() async throws {
+        let h = Harness()
+        var draft = await h.source.newDraft(.new(account: nil))
+        draft.conversation = .init(account: draft.account, thread: "provider-thread")
+        draft.subject = "Saved in Gmail"
+        draft.body = MailRichText.text(AttributedString("First Gmail version"))
+        draft.syncState = .gmail
+        h.source.save(draft)
+        h.session.begin(.continuing(draft.id))
+        let composer = try XCTUnwrap(h.composer)
+        await composer.waitForDraft()
+        XCTAssertEqual(composer.syncStatusTitle, "Saved to Gmail")
+        XCTAssertNil(composer.host)
+
+        draft.body = MailRichText.text(AttributedString("New Gmail version"))
+        draft.editToken = "gmail-version-2"
+        composer.refreshCleanDraft(draft)
+        XCTAssertEqual(composer.body, "New Gmail version")
+        composer.rich = AttributedString("Unsent local edits")
+        draft.body = MailRichText.text(AttributedString("Another Gmail version"))
+        draft.editToken = "gmail-version-3"
+        composer.refreshCleanDraft(draft)
+        XCTAssertEqual(composer.body, "Unsent local edits")
+        XCTAssertNil(composer.syncStatusTitle)
+
+        h.now += 1
+        composer.flush()
+        composer.updateSyncState(.gmail, for: draft.id, editedAt: draft.editedAt)
+        XCTAssertNil(composer.syncStatusTitle)
+        composer.updateSyncState(.local, for: draft.id, editedAt: h.now)
+        XCTAssertEqual(composer.syncStatusTitle, "Saved on this device")
+        composer.updateSyncState(.gmail, for: draft.id, editedAt: h.now)
+        XCTAssertEqual(composer.syncStatusTitle, "Saved to Gmail")
+    }
+
     func testRichEditKeepsLatestDraftWithoutReenteringEditorCallback() async throws {
         let h = Harness()
         let composer = await h.reply()

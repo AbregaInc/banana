@@ -59,10 +59,17 @@ struct MailMessageID: Hashable, Codable, Sendable {
     let message: String
 }
 
-/// The device's own id for a draft, stable for the draft's life. Gmail's draft and message ids
-/// change on every save and never reach the UI.
+/// The device's own id for a draft. Gmail's separate draft ID stays stable across saves.
 struct MailDraftID: Hashable, Codable, Sendable {
     let raw: String
+
+    private static let rowPrefix = "draft-row:"
+
+    var rowThread: String { Self.rowPrefix + raw }
+    static func fromRowThread(_ thread: String) -> Self? {
+        guard thread.hasPrefix(rowPrefix), thread.count > rowPrefix.count else { return nil }
+        return Self(raw: String(thread.dropFirst(rowPrefix.count)))
+    }
 }
 
 /// A message and a part. Never Gmail's `attachmentId`, which is not stable between reads.
@@ -515,6 +522,7 @@ struct MailDraftAttachment: Identifiable, Equatable, Codable, Sendable {
     /// Nil for a forwarded attachment that has not been downloaded yet.
     var file: URL?
     var isExecutable: Bool
+    var mimeType: String? = nil
 }
 
 enum MailDraftKind: Equatable, Sendable {
@@ -531,8 +539,11 @@ struct MailSchedule: Equatable, Codable, Sendable {
 }
 
 struct MailDraft: Identifiable, Equatable, Sendable {
+    enum SyncState: Equatable, Sendable { case local, gmail }
+    var syncState: SyncState? = nil
     /// Changes only when a provider refresh replaces the local editor baseline.
     var editToken: String = "local"
+    var attachmentMessageID: String?
     /// `banana`: written here, as text. `foreign`: written elsewhere in a form the text editor
     /// cannot hold; shown and sendable as it is (7.1).
     enum Format: String, Codable, Sendable {
@@ -1000,6 +1011,8 @@ enum MailEvent: Equatable, Sendable {
     case notSaved(MailReceipt, MailStoreProblem)
     /// What he is typing is in memory only, until a save succeeds.
     case draftNotSaved(MailDraftID, MailStoreProblem)
+    case draftSaved(MailDraftID, Date, MailDraft.SyncState)
+    case draftRefreshed(MailDraft)
     /// Gmail refused it for good; it is shown as not done.
     case refused(MailReceipt, MailFailure)
     /// Undo arrived after the message had left.
@@ -1150,6 +1163,8 @@ enum MailLinkRules {}
     func save(_ draft: MailDraft)
     func addAttachment(_ file: URL, to draft: MailDraftID) async -> MailDraftAttachment?
     func removeAttachment(_ id: String, from draft: MailDraftID)
+    func addAttachment(_ file: URL, to draft: MailDraftID, basedOn editToken: String?) async -> MailDraftAttachment?
+    func removeAttachment(_ id: String, from draft: MailDraftID, basedOn editToken: String?)
     /// A foreign draft, made editable.
     func rewriteAsText(_ draft: MailDraftID) async -> MailDraft?
     /// "Edit the quote": its text joins `body` as quoted blocks and `quote` becomes nil. Its

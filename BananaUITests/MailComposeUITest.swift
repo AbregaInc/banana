@@ -70,11 +70,12 @@ final class MailComposeUITest: MailUITestCase {
 
         // The draft is in Drafts, and the conversation's row says so.
         show(place: "Drafts")
-        Thread.sleep(forTimeInterval: 0.6)
+        let draftRow = app.descendants(matching: .any)
+            .matching(NSPredicate(format: "identifier BEGINSWITH %@", MailID.list + ".row.draft-row:")).firstMatch
+        XCTAssertTrue(draftRow.waitForExistence(timeout: 5), "the reply's draft is listed in Drafts: \(visibleRowKeys())")
         snap("03-drafts")
-        XCTAssertTrue(row("q3").waitForExistence(timeout: 5), "the reply's draft is listed in Drafts: \(visibleRowKeys())")
         XCTAssertEqual(headerCount(), 1)
-        row("q3").tap()
+        draftRow.tap()
         XCTAssertTrue(body.waitForExistence(timeout: 10), "choosing the draft opens its composer\n\(app.debugDescription)")
         Thread.sleep(forTimeInterval: 0.6)
         snap("04-reopened")
@@ -105,7 +106,7 @@ final class MailComposeUITest: MailUITestCase {
         if !again.isHittable { app.swipeUp() }
         again.tap()
         XCTAssertTrue(waitForToast(containing: "Sending", timeout: 5))
-        XCTAssertTrue(waitUntil(timeout: 15) { self.toastText == "Sent" },
+        XCTAssertTrue(element("toast").staticTexts["Sent"].firstMatch.waitForExistence(timeout: 15),
                       "delivery confirmation replaces the undo hold")
         XCTAssertTrue(waitGone(undoButton, timeout: 3), "confirmed delivery can no longer be undone")
         snap("07-after-hold")
@@ -529,8 +530,9 @@ final class MailComposeUITest: MailUITestCase {
         XCTAssertTrue(waitForToast(containing: "Kept as a draft", timeout: 5))
         snap("01-kept")
         show(place: "Drafts")
-        Thread.sleep(forTimeInterval: 0.6)
-        XCTAssertTrue(row("q3").waitForExistence(timeout: 5), "the draft is in Drafts, whole: \(visibleRowKeys())")
+        let draftRow = app.descendants(matching: .any)
+            .matching(NSPredicate(format: "identifier BEGINSWITH %@", MailID.list + ".row.draft-row:")).firstMatch
+        XCTAssertTrue(draftRow.waitForExistence(timeout: 5), "the draft is in Drafts: \(visibleRowKeys())")
         snap("02-drafts")
     }
 }

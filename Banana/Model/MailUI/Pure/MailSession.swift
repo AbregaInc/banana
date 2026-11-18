@@ -342,6 +342,10 @@ final class MailSession {
             revert(entry, because: .refused(failure))
         case .draftNotSaved(_, let problem):
             showToast(MailToastText.notSaved(on: deviceName, problem: problem))
+        case .draftSaved(let id, let editedAt, let state):
+            composer?.updateSyncState(state, for: id, editedAt: editedAt)
+        case .draftRefreshed(let draft):
+            composer?.refreshCleanDraft(draft)
         case .sent(let draft, _):
             guard let receipt = pendingDeliveryReceipts.removeValue(forKey: draft) else { break }
             if let retryEntry = pendingDeliveryRetries.removeValue(forKey: draft) {

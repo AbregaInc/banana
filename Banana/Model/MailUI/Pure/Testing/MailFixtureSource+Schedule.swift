@@ -68,18 +68,14 @@ extension MailFixtureSource {
 
     /// A draft is a row of the Drafts place once something has been written into it.
     func draftRows() -> [MailRow] {
-        // One row for each conversation, as a place counts conversations: the draft written last.
-        var seen = Set<MailConversationID>()
-        return drafts.values.filter { kept.contains($0.id) && held[$0.id] == nil }
-            .sorted { $0.editedAt > $1.editedAt }
-            .filter { seen.insert($0.conversation).inserted }
+        drafts.values.filter { kept.contains($0.id) && held[$0.id] == nil }
             .map(draftRow).sorted { $0.key > $1.key }
     }
 
     func draftRow(_ draft: MailDraft) -> MailRow {
         let first = MailPlainText.firstLine(MailPlainText.string(draft.body))
         return MailRow(
-            id: draft.conversation,
+            id: .init(account: draft.account, thread: draft.id.rowThread),
             key: MailOrderKey(group: 0, sortKey: Int64(draft.editedAt.timeIntervalSince1970 * 1_000),
                               tie: Self.stableHash(draft.id.raw)),
             date: draft.editedAt, people: draft.to, peopleTotal: draft.to.count, messageCount: 1,
