@@ -82,6 +82,12 @@ final class MailIntentStore: MailWriterLog, @unchecked Sendable {
             try db.execute(sql: "CREATE TABLE sender_policy_intent(account TEXT NOT NULL,sender TEXT NOT NULL,record BLOB NOT NULL,pending INTEGER NOT NULL,retry_at REAL NOT NULL,PRIMARY KEY(account,sender)) WITHOUT ROWID")
             try db.execute(sql: "CREATE INDEX sender_policy_pending ON sender_policy_intent(account,pending,retry_at)")
         }
+        migrations.registerMigration("v9-inbox-drafts") { db in
+            try db.execute(sql: """
+                CREATE INDEX draft_outbox_inbox ON draft_outbox(scope,account,conversation)
+                WHERE state IN ('editing','failed')
+                """)
+        }
         guard try queue.read({ try !migrations.hasBeenSuperseded($0) }) else { throw Failure.newerSchema }
         try migrations.migrate(queue)
     }
@@ -237,6 +243,19 @@ final class MailIntentStore: MailWriterLog, @unchecked Sendable {
             return try JSONDecoder().decode(MailDraftRecord.self, from: data)
         }
     }
+    func conversationsWithDrafts(scope: String, among conversations: [MailConversationID]) async throws -> Set<MailConversationID> {
+        guard !conversations.isEmpty else { return [] }
+        return try await queue.read { db in
+            let exists = try db.makeStatement(sql: """
+                SELECT EXISTS(SELECT 1 FROM draft_outbox WHERE scope=? AND account=? AND conversation=?
+                    AND state IN ('editing','failed'))
+                """)
+            return Set(try conversations.filter { id in
+                try Bool.fetchOne(exists, arguments: [scope, id.account, id.thread]) == true
+            })
+        }
+    }
+
     func draftPage(scope: String, account: String?, outbox: Bool, before: MailOrderKey?, limit: Int) async throws -> [MailDraftRecord] {
         try await queue.read { db in
             let states = outbox ? "('held','sending','uncertain','failed')" : "('editing','failed')"

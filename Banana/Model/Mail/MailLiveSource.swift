@@ -382,10 +382,10 @@ import GRDB
                     $0.mimeType == "text/calendar" || ($0.name.lowercased().hasSuffix(".ics") &&
                         ["application/ics", "application/octet-stream"].contains($0.mimeType))
                 }
-                // Optional verification starts only in an idle queue. At most one check
-                // runs, leaving the second slot available for a newly requested body.
+                // Resolve invitation metadata and verify copies without delaying the body.
+                let minimum = value?.invite == nil ? 1 : 2
                 guard active, downloads.isEmpty, downloadQueue.isEmpty,
-                      (2...4).contains(calendars.count), calendars.allSatisfy({ $0.bytes <= 256 * 1024 }),
+                      (minimum...4).contains(calendars.count), calendars.allSatisfy({ $0.bytes <= 256 * 1024 }),
                       (calendarCheckAfter[message.id] ?? .distantPast) <= Date() else { continue }
                 if calendarCheckAfter.count >= 128 {
                     calendarCheckAfter = calendarCheckAfter.filter { $0.value > Date() }
@@ -619,6 +619,16 @@ import GRDB
                             before: MailOrderKey(group: 0, sortKey: last.sortKey, tie: last.tie), limit: 1, allowedAccounts: allowedAccounts))).isEmpty
                     } else { localMore = false }
                 } else { localMore = rows.count < counts.total.value }
+                var mapped = rows.map { row in
+                    MailRowMapper.row(row, labels: row.labelPKs.compactMap { self.labelCatalog.refs[$0] },
+                                      reason: nil, in: scope)
+                }
+                if let driver = self.draftDriver {
+                    let draftIDs = try? await driver.conversationsWithDrafts(among: mapped.map(\.id))
+                    for index in mapped.indices where mapped[index].reason == nil && draftIDs?.contains(mapped[index].id) == true {
+                        mapped[index].reason = .draft(firstLine: "")
+                    }
+                }
                 guard !Task.isCancelled, allowedAccounts == self.readAccounts else { return }
                 let connected = self.accounts.filter { $0.state == .connected && (Self.account(for: scope) == nil || Self.account(for: scope) == $0.id) }
                 let pending = connected.contains { self.pageTasks[$0.id] != nil }
@@ -629,7 +639,7 @@ import GRDB
                 }
                 let failed = connected.contains { self.failures.contains($0.id) }
                 self.deliver(MailListSnapshot(scope: scope,
-                    rows: rows.map { row in MailRowMapper.row(row, labels: row.labelPKs.compactMap { self.labelCatalog.refs[$0] }, reason: nil, in: scope) },
+                    rows: mapped,
                     total: MailCount(value: counts.total.value, isAtLeast: counts.total.isAtLeast || more),
                     hasMore: localMore || more, stillLoading: counts.stillLoading,
                     isRebuilding: false, remote: pending ? .pending : failed ? .failed : nil, coverage: nil, appliedThrough: through), to: id)

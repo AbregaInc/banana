@@ -1193,7 +1193,7 @@ struct MacWeekView: View {
                 // The other zone's hours, dimmer and to the left, like a watch's second dial.
                 ZStack(alignment: .topLeading) {
                     Color(.systemBackground)
-                    ForEach(1..<24, id: \.self) { hour in
+                    ForEach(0..<24, id: \.self) { hour in
                         Text(TripTimeZone.label(forHour: hour, on: days.first?.date ?? Date(),
                                                 primary: .current, zone: secondaryZone))
                             .font(DS.Typeface.small(design: .rounded))
@@ -1202,20 +1202,20 @@ struct MacWeekView: View {
                             .lineLimit(1)
                             .minimumScaleFactor(0.8)
                             .frame(width: Self.secondaryGutterWidth - 6, alignment: .trailing)
-                            .offset(y: CGFloat(hour) * hourHeight - 7)
+                            .offset(y: max(0, CGFloat(hour) * hourHeight - 7))
                     }
                 }
                 .frame(width: Self.secondaryGutterWidth)
             }
             ZStack(alignment: .topLeading) {
                 Color(.systemBackground)
-                ForEach(1..<24, id: \.self) { hour in
+                ForEach(0..<24, id: \.self) { hour in
                     let y = CGFloat(hour) * hourHeight
                     Text(hourLabel(hour))
                         .font(DS.Typeface.gutter)
                         .foregroundStyle(DS.Palette.quietText)
                         .frame(width: 58 - DS.Space.s, alignment: .trailing)
-                        .offset(y: y - 7)
+                        .offset(y: max(0, y - 7))
                         .opacity(nowY.map { abs($0 - y) < 12 } == true ? 0 : 1)
                 }
                 if let nowY {
@@ -1228,7 +1228,7 @@ struct MacWeekView: View {
                         .frame(height: 16)
                         .background(DS.Palette.now, in: RoundedRectangle(cornerRadius: DS.Radius.chip - 2, style: .continuous))
                         .frame(width: 58 - DS.Space.xs, alignment: .trailing)
-                        .offset(y: nowY - 8)
+                        .offset(y: max(0, nowY - 8))
                         .accessibilityLabel("Now, \(TimeRangeText.time(now))")
                 }
             }
@@ -1268,7 +1268,8 @@ struct MacWeekView: View {
     }
 
     private func dayColumn(_ day: MacWeekDay, width: CGFloat, now: Date, includesEvents: Bool = true) -> some View {
-        let layout = timedLayout(for: day)
+        // The native viewport already lays out events. Its background needs only the grid.
+        let layout: TimedLayout = includesEvents ? timedLayout(for: day) : (placements: [], overflow: [])
         let placements = layout.placements
         // A day blocked all day (Busy all-day event): hatched in its calendar's colour, so a day
         // that can't be booked reads as one at a glance.
@@ -4958,11 +4959,11 @@ struct WeekView: View {
         return VStack(spacing: 0) {
             ForEach(startHour..<endHour, id: \.self) { hour in
                 VStack(alignment: .trailing, spacing: 0) {
-                    Text(hour > startHour ? mobileHourLabel(hour) : "")
+                    Text(mobileHourLabel(hour))
                         .font(DS.Typeface.small(design: .rounded))
                         .foregroundStyle(DS.Palette.quietText)
                         .lineLimit(1)
-                    if let other, hour > startHour {
+                    if let other {
                         Text(TripTimeZone.label(forHour: hour, on: day, primary: .current, zone: other))
                             .font(DS.Typeface.small(design: .rounded))
                             .foregroundStyle(DS.Palette.quietText)
@@ -4973,7 +4974,7 @@ struct WeekView: View {
                 }
                 .monospacedDigit()
                 .frame(width: width - 5, height: hourHeight, alignment: .topTrailing)
-                .offset(y: -6)
+                .offset(y: hour == startHour ? 0 : -6)
                 .id(hour)
             }
         }

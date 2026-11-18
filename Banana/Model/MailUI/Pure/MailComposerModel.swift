@@ -175,6 +175,7 @@ final class MailComposerModel: ObservableObject {
     /// How the screens name the device ("Mac"), for what a scheduled message says of who sends it.
     let device: String
     var draft: MailDraft?
+    private var adoptedBody = AttributedString()
     private var baseline = Baseline.blank
     private var isClosed = false
     private var wantsDiscard = false
@@ -314,7 +315,8 @@ final class MailComposerModel: ObservableObject {
         // A time that has gone by while the draft waited is not one to send at.
         schedule = draft.schedule.flatMap { $0.at > clock() ? $0.at : nil }
         subject = draft.subject
-        rich = MailRichText.attributed(draft.body) + typed
+        adoptedBody = MailRichText.attributed(draft.body)
+        rich = adoptedBody + typed
         // The draft's text arrived under a caret already in the body: the caret goes after it.
         if lastField == .body, !rich.characters.isEmpty { caretToEnd += 1 }
         files.adopt(draft.attachments)
@@ -621,7 +623,7 @@ final class MailComposerModel: ObservableObject {
         draft.signature = signature
         draft.schedule = schedule.map { MailSchedule(at: $0, onThisDevice: true, isLate: false) }
         draft.subject = subject
-        draft.body = MailRichText.text(rich)
+        if rich != adoptedBody { draft.body = MailRichText.text(rich) }
         draft.attachments = files.items
         draft.encodedBytes = files.encodedBytes + body.utf8.count
         draft.editedAt = clock()

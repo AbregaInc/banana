@@ -277,4 +277,27 @@ struct MessageHeaders: Equatable, Sendable {
     }
 }
 
+
+/// RFC 2369's advertised web page. This is a manual browser action, never an automatic GET
+/// or an RFC 8058 POST. Automatic unsubscribe requires separately verified DKIM coverage.
+enum MailUnsubscribeRules {
+    static func decide(headers: MessageHeaders) -> MailUnsubscribe? {
+        let fields = headers.fields.filter { $0.name.lowercased() == "list-unsubscribe" }
+        guard fields.count == 1, let field = fields.first, !field.wasCut else { return nil }
+        // URLs in this header are angle-bracket delimited. Never infer links from body text.
+        let parts = field.value.split(separator: "<", omittingEmptySubsequences: false).dropFirst()
+        for part in parts {
+            guard let end = part.firstIndex(of: ">") else { continue }
+            let raw = part[..<end].trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !raw.contains(where: { $0.isWhitespace || $0.isNewline }),
+                  let components = URLComponents(string: raw), components.scheme?.lowercased() == "https",
+                  let host = components.host, !host.isEmpty,
+                  components.user == nil, components.password == nil,
+                  let url = components.url else { continue }
+            return .openPage(url)
+        }
+        return nil
+    }
+}
+
 #endif

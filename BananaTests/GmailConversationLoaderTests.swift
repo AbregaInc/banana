@@ -25,9 +25,27 @@ final class GmailConversationLoaderTests: XCTestCase {
                 GmailPart(partId: "invite-a", mimeType: "text/calendar", filename: "invite.ics", body: GmailPartBody(attachmentId: "calendar-a", size: first.count)),
                 GmailPart(partId: "invite-b", mimeType: "application/ics", filename: "invite.ics", body: GmailPartBody(attachmentId: "calendar-b", size: second.count))]
         }
+        func singleInvitation() {
+            let data = Data("BEGIN:VCALENDAR\r\nMETHOD:REQUEST\r\nBEGIN:VEVENT\r\nUID:test-invitation\r\nEND:VEVENT\r\nEND:VCALENDAR".utf8)
+            calendarBodies = ["calendar": GmailPartBody(size: data.count, data: data.base64EncodedString())]
+            full.payload?.parts = [
+                GmailPart(partId: "body", mimeType: "text/plain", body: GmailPartBody(size: 5, data: "SGVsbG8")),
+                GmailPart(partId: "invite", mimeType: "application/octet-stream", filename: "invite.ics",
+                          body: GmailPartBody(attachmentId: "calendar", size: data.count)),
+            ]
+        }
         init() {
             let json = #"{"id":"m1","threadId":"t1","historyId":"100","internalDate":"1000","labelIds":["INBOX"],"payload":{"partId":"0","mimeType":"multipart/mixed","headers":[{"name":"From","value":"sender@example.com"},{"name":"Subject","value":"Subject"}],"parts":[{"partId":"1","mimeType":"text/plain","body":{"attachmentId":"body-part","size":5}},{"partId":"2","mimeType":"application/pdf","filename":"report.pdf","body":{"attachmentId":"file-part","size":123}}]}}"#
             full = try! JSONDecoder().decode(GmailMessage.self, from: Data(json.utf8))
+        }
+        func useOrganizationalSender() {
+            full.payload?.headers = [
+                GmailHeader(name: "From", value: "Newsroom <updates@news.plan.example>"),
+                GmailHeader(name: "Subject", value: "Subject"),
+                GmailHeader(name: "Authentication-Results", value:
+                    "mx.google.com; dkim=pass header.i=@plan.example; "
+                    + "spf=pass smtp.mailfrom=bounce@news.plan.example; dmarc=pass header.from=plan.example"),
+            ]
         }
         func wrongAccount() { account = "other@example.com" }
         func malformedBody() { attachmentBody.data = "not base64!" }
@@ -96,12 +114,13 @@ final class GmailConversationLoaderTests: XCTestCase {
     }
     func testCachedOriginalRepairsMissingSenderWithoutNetworkOrChangingMailState() async throws {
         let (stores, api, loader) = try await setup()
+        await api.useOrganizationalSender()
         _ = try await loader.thread(conversation)
         try await loader.body(message)
         try await stores.index.write { db in
             // Reproduce the earlier cache and its actual migration ledger.
             try db.execute(sql: "UPDATE message SET from_addr=NULL,from_name=NULL")
-            try db.execute(sql: "DELETE FROM grdb_migrations WHERE identifier='sender-domain-recovery-v1'")
+            try db.execute(sql: "DELETE FROM grdb_migrations WHERE identifier='sender-domain-recovery-v2'")
             let thread = try XCTUnwrap(Int64.fetchOne(db, sql: "SELECT thread_pk FROM message"))
             try MailIndexWriter.rebuildThread(thread, facts: MailMessageImporter.facts(threadPK: thread, in: db),
                                              myAddresses: [message.account], in: db)
@@ -115,14 +134,31 @@ final class GmailConversationLoaderTests: XCTestCase {
                                                api: api, token: { _ in "fixture" })
         try await recovery.body(message)
         let address = try await reopened.index.read { try String.fetchOne($0, sql: "SELECT from_addr FROM message") }
-        XCTAssertEqual(address, "sender@example.com")
+        XCTAssertEqual(address, "updates@news.plan.example")
         let people = try await reopened.index.read { try String.fetchOne($0, sql: "SELECT people FROM thread") }
         let summary = try JSONDecoder().decode([SummaryPerson].self, from: Data(try XCTUnwrap(people).utf8))
-        XCTAssertEqual(summary.first?.a, "sender@example.com", "The list summary must recover with the reader")
+        XCTAssertEqual(summary.first?.a, "updates@news.plan.example", "The list summary must recover with the reader")
         let value = try await MailConversationReader(stores: reopened).conversation(conversation)
-        XCTAssertEqual(value?.messages.first?.from.address, "sender@example.com")
+        XCTAssertEqual(value?.messages.first?.from.address, "updates@news.plan.example")
         let reads = await api.fullReads
         XCTAssertEqual(reads, 1, "Cached recovery must work offline")
+    }
+
+    func testGmailOrganizationalDMARCWithAnExactSPFPassReadsTheSender() throws {
+        let from = ("From", "Newsroom <updates@news.plan.example>")
+        let signed = "mx.google.com; dkim=pass header.i=@plan.example; "
+        let dmarc = "dmarc=pass header.from=plan.example"
+        func headers(_ spf: String, _ result: String = dmarc) -> MessageHeaders {
+            MessageHeaders([from, ("Authentication-Results", signed + spf + "; " + result)])
+        }
+        let valid = try XCTUnwrap(headers("spf=pass smtp.mailfrom=bounce@news.plan.example").sender)
+        XCTAssertEqual(valid.address, "updates@news.plan.example")
+        XCTAssertEqual(valid.name, "Newsroom")
+        XCTAssertNil(headers("spf=pass smtp.mailfrom=bounce@plan.example").sender)
+        XCTAssertNil(headers("spf=pass smtp.helo=news.plan.example").sender)
+        XCTAssertNil(headers("spf=fail smtp.mailfrom=bounce@news.plan.example").sender)
+        XCTAssertNil(headers("spf=pass smtp.mailfrom=bounce@news.plan.example",
+                             "dmarc=fail header.from=plan.example").sender)
     }
 
     func testCorruptCachedSenderDoesNotHideAnOtherwiseValidPreparedBody() async throws {
@@ -162,6 +198,23 @@ final class GmailConversationLoaderTests: XCTestCase {
             let prepared = try await MailBlobStore(stores: stores).prepared(account: message.account, messageID: message.message)
             XCTAssertNotNil(prepared)
         }
+    }
+
+    func testSeparatelyStoredCalendarInvitationIsAvailableAfterOneRead() async throws {
+        let (stores, api, loader) = try await setup()
+        await api.singleInvitation()
+        _ = try await loader.thread(conversation)
+        try await loader.body(message)
+        let reader = MailConversationReader(stores: stores)
+        let before = try await reader.conversation(conversation)
+        XCTAssertNil(before?.invite)
+        try await loader.verifyCalendarCopies(message)
+        let after = try await reader.conversation(conversation)
+        XCTAssertEqual(after?.invite, MailInvite(method: .request, uid: "test-invitation"))
+        XCTAssertEqual(after?.messages.first?.attachments.count, 1)
+        try await loader.verifyCalendarCopies(message)
+        let reads = await api.attachments
+        XCTAssertEqual(reads, ["calendar"])
     }
 
     func testCalendarVerificationFailurePreservesBothFilesAndPreparedBody() async throws {

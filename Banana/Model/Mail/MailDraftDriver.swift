@@ -46,6 +46,9 @@ actor MailDraftDriver {
     func forConversation(_ conversation: MailConversationID) async throws -> MailDraftRecord? {
         try await store.draftForConversation(scope: scope, conversation: conversation)
     }
+    func conversationsWithDrafts(among conversations: [MailConversationID]) async throws -> Set<MailConversationID> {
+        try await store.conversationsWithDrafts(scope: scope, among: conversations)
+    }
     func page(account: String?, outbox: Bool, before: MailOrderKey?, limit: Int) async throws -> [MailDraftRecord] {
         try await store.draftPage(scope: scope, account: account, outbox: outbox, before: before, limit: limit)
     }
@@ -122,6 +125,18 @@ actor MailDraftDriver {
         // Do not turn an unavailable MIME body into an apparently empty editable draft.
         guard extracted.structure.cut == nil, extracted.missingBodyPartIDs.isEmpty, !extracted.bodyTooLarge, !extracted.malformedBody else { throw Failure.notEditable }
         let prepared = try MailHTMLPreparer.prepare(plain: extracted.plain, html: extracted.html)
+        var body = prepared.text
+        if let plain = extracted.plain, extracted.html != nil,
+           body.blocks.allSatisfy({ block in
+               block.kind == .paragraph && block.runs.allSatisfy { $0.style.isEmpty && $0.link == nil }
+           }) {
+            // Use the sender's line breaks when the two alternatives differ only in spacing.
+            let rendered = body.blocks.map { $0.runs.map(\.text).joined() }.joined(separator: " ")
+            if rendered.split(whereSeparator: \.isWhitespace) == plain.split(whereSeparator: \.isWhitespace) {
+                body = try MailHTMLPreparer.prepare(plain: plain, html: nil).text
+            }
+        }
+        let canEditDirectly = extracted.html == nil && extracted.structure.attachments.isEmpty
         func people(_ name: String) -> [MailPerson] {
             headers.addresses(name).mailboxes.map {
                 MailPerson(name: MailAddressRules.displayName($0.name, address: $0.address), address: $0.address,
@@ -133,10 +148,10 @@ actor MailDraftDriver {
         let draft = MailDraft(id: id, conversation: .init(account: account, thread: wire.message.threadId ?? "draft:" + wire.id),
             account: account, isReply: headers.value("In-Reply-To") != nil, isForward: false,
             from: .init(account: account, address: from?.address ?? account, name: from?.name, isDefault: from?.key == account.lowercased(), hasSignature: false),
-            to: people("To"), cc: people("Cc"), bcc: people("Bcc"), subject: headers.subject ?? "", body: prepared.text,
+            to: people("To"), cc: people("Cc"), bcc: people("Bcc"), subject: headers.subject ?? "", body: body,
             signature: nil, quote: nil, attachments: extracted.structure.attachments.map {
                 MailDraftAttachment(id: $0.partID, name: $0.name, bytes: $0.size ?? 0, file: nil, isExecutable: false)
-            }, format: .foreign, schedule: nil, remindIfNoReply: nil, delivery: nil,
+            }, format: canEditDirectly ? .banana : .foreign, schedule: nil, remindIfNoReply: nil, delivery: nil,
             encodedBytes: wire.message.sizeEstimate ?? 0, editedAt: Date(timeIntervalSince1970: Double(wire.message.internalDate ?? 0) / 1000))
         var value = MailDraftRecord(scope: scope, snapshot: .init(draft))
         value.snapshot.inReplyTo = headers.value("In-Reply-To")

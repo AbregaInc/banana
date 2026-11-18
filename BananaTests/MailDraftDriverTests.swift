@@ -70,6 +70,26 @@ final class MailDraftDriverTests: XCTestCase {
             parts: attachment ? [body, GmailPart(partId: "file", mimeType: "application/pdf", filename: "notes.pdf", body: GmailPartBody(attachmentId: "file-id", size: 42))] : [body])
         return GmailDraftValue(id: "remote-draft", message: GmailMessage(id: version, threadId: "thread", internalDate: 1000, payload: payload))
     }
+    func testPlainImportedDraftIsEditableAndMarksOnlyItsConversation() async throws {
+        let (_, store, api) = try await setup()
+        let source = driver(store, api)
+        let account = "noor@plan.example"
+        let message = "First line\n\nSecond line"
+        var wire = remote("version", subject: "Draft")
+        wire.message.payload?.parts?[0].body = GmailPartBody(size: message.utf8.count,
+            data: Data(message.utf8).base64EncodedString())
+        try await source.importDraft(wire, account: account)
+        let records = try await source.records()
+        let draft = try XCTUnwrap(records.first?.snapshot)
+        XCTAssertEqual(draft.format, .banana)
+        XCTAssertEqual(draft.body.blocks.flatMap(\.runs).map(\.text).joined(), message)
+        let otherAccount = MailConversationID(account: "other@plan.example", thread: draft.conversation.thread)
+        let marked = try await source.conversationsWithDrafts(among: [draft.conversation, otherAccount])
+        XCTAssertEqual(marked, [draft.conversation])
+        try await source.queueSend(draft.id, options: .init(hold: 0, thenDone: false))
+        let pending = try await source.conversationsWithDrafts(among: [draft.conversation])
+        XCTAssertTrue(pending.isEmpty)
+    }
     func testRemoteDraftKeepsIdentityAcrossUpdatesAndSendsOriginalAttachments() async throws {
         let (_, store, api) = try await setup(); let source = driver(store, api)
         try await source.importDraft(remote("v1", subject: "Original", attachment: true), account: "noor@plan.example")

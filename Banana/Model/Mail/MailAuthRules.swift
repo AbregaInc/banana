@@ -71,7 +71,7 @@ enum MailAuthRules {
 
     /// Whether Gmail's own header, where it carries a `dmarc=` result of any verdict, names
     /// `domain` as its `header.from`, or names a parent on a pass independently corroborated by
-    /// DKIM for the exact From domain — true when it carries none, or when Gmail wrote no header
+    /// DKIM or SPF for the exact From domain — true when it carries none, or when Gmail wrote no header
     /// to read. False when a `dmarc=` result names another domain or none, and when the header
     /// is Gmail's and was cut (a result that cannot be read is not agreement). It is how
     /// `MessageHeaders.sender` learns that Gmail read the `From` line as someone else.
@@ -84,18 +84,26 @@ enum MailAuthRules {
         case .results(let results):
             let want = normalizedDomain(domain)
             // Gmail can report the organizational domain here even when From is a subdomain.
-            // Accept that only with a separate DKIM pass for the exact From domain. A suffix
-            // alone establishes no ownership (public suffixes and delegated domains included).
-            let exactDKIM = results.contains { result in
-                guard result.method == "dkim", result.verdict == "pass",
-                      let signing = result.properties["header.d"]
-                        ?? result.properties["header.i"].flatMap({ domainAfterLastAt($0) }) else { return false }
-                return normalizedDomain(signing) == want
+            // Gmail must also authenticate the exact From domain. A matching suffix alone
+            // establishes no ownership, including for public suffixes and delegated domains.
+            let exactAuthentication = results.contains { result in
+                guard result.verdict == "pass" else { return false }
+                switch result.method {
+                case "dkim":
+                    let signing = result.properties["header.d"]
+                        ?? result.properties["header.i"].flatMap { domainAfterLastAt($0) }
+                    return signing.map(normalizedDomain) == want
+                case "spf":
+                    guard let envelope = result.properties["smtp.mailfrom"] else { return false }
+                    return normalizedDomain(domainAfterLastAt(envelope) ?? envelope) == want
+                default:
+                    return false
+                }
             }
             return results.filter { $0.method == "dmarc" }.allSatisfy { result in
                 guard let named = result.properties["header.from"].map(normalizedDomain), !named.isEmpty else { return false }
                 if named == want { return true }
-                return result.verdict == "pass" && exactDKIM && want.hasSuffix("." + named)
+                return result.verdict == "pass" && exactAuthentication && want.hasSuffix("." + named)
             }
         }
     }
