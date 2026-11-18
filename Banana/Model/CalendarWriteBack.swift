@@ -819,9 +819,13 @@ final class CalendarWriteBack: ObservableObject {
                 return $0.start < $1.start
             }).prefix(40) {
                 // Ownership was read from Google on this very calendar. Refuse a changed copy.
-                try await google.deleteBusyBlock(calendarID: rawCalendarID, eventID: block.eventID, expectedETag: block.etag)
-                lastSelfCommit = Date()
-                removed += 1
+                do {
+                    try await google.deleteBusyBlock(calendarID: rawCalendarID, eventID: block.eventID, expectedETag: block.etag)
+                    lastSelfCommit = Date()
+                    removed += 1
+                } catch {
+                    Log.writeBack.notice("[writeback] Beta shadow cleanup will retry a failed deletion")
+                }
             }
             if removed > 0 {
                 Log.writeBack.notice("[writeback] removed \(removed, privacy: .public) Beta duplicates of production busy blocks")
@@ -1318,15 +1322,10 @@ final class CalendarWriteBack: ObservableObject {
         existingBusyIntervals: [CalendarBusyInterval]
     ) -> [DesiredBlock] {
         var byExactSlot: [String: DesiredBlock] = [:]
-        let reusableCoverageByCalendar = Dictionary(
-            grouping: existingBusyIntervals.filter {
-                Self.variant.reusesCoverage(
-                    markerScheme: $0.appMarkerScheme,
-                    appItemID: $0.appItemID
-                )
-            },
-            by: \.calendarID
-        )
+        let coverageByCalendar = Dictionary(grouping: existingBusyIntervals.filter {
+            Self.variant.reusesCoverage(markerScheme: $0.appMarkerScheme, appItemID: $0.appItemID)
+                || (Self.variant == .beta && $0.appMarkerScheme == CalendarWriteBackVariant.production.markerScheme)
+        }, by: \.calendarID)
 
         for occurrence in occurrences {
             var isAuthoredWork = occurrence.isWritable && occurrence.writePolicy == .busy
@@ -1359,7 +1358,8 @@ final class CalendarWriteBack: ObservableObject {
                 if hasForeignCoverage(
                     start: occurrence.start,
                     end: end,
-                    intervals: reusableCoverageByCalendar[calendarID] ?? []
+                    itemID: appItemID,
+                    intervals: coverageByCalendar[calendarID] ?? []
                 ) { continue }
 
                 let keepsTaskTitle = isAuthoredWork && calendarID == liveCalendarID
@@ -1406,11 +1406,22 @@ final class CalendarWriteBack: ObservableObject {
     private func hasForeignCoverage(
         start: Date,
         end: Date,
+        itemID: AppItemID,
         intervals: [CalendarBusyInterval]
     ) -> Bool {
-        intervals.contains { interval in
-            interval.start <= start.addingTimeInterval(Self.coverageTolerance)
-                && interval.end >= end.addingTimeInterval(-Self.coverageTolerance)
+        let latestStart = start.addingTimeInterval(Self.coverageTolerance)
+        let earliestEnd = end.addingTimeInterval(-Self.coverageTolerance)
+        return intervals.contains { interval in
+            guard interval.start <= latestStart, interval.end >= earliestEnd
+            else { return false }
+            if Self.variant != .beta
+                || Self.variant.reusesCoverage(markerScheme: interval.appMarkerScheme, appItemID: interval.appItemID) {
+                return true
+            }
+            return Self.variant.reusesExactProductionCoverage(markerScheme: interval.appMarkerScheme,
+                                                               existingItemID: interval.appItemID, wantedItemID: itemID)
+                && GoogleBusyBlocks.wholeSecond(interval.start) == GoogleBusyBlocks.wholeSecond(start)
+                && GoogleBusyBlocks.wholeSecond(interval.end) == GoogleBusyBlocks.wholeSecond(end)
         }
     }
 

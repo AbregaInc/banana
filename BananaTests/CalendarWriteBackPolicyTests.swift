@@ -33,6 +33,16 @@ final class CalendarWriteBackPolicyTests: XCTestCase {
         XCTAssertTrue(CalendarWriteBackVariant.beta.reusesCoverage(markerScheme: "https"))
     }
 
+    func testBetaReusesExactProductionCoverageOfTheSameScheduledItem() {
+        let item = "travel-item"
+        XCTAssertTrue(CalendarWriteBackVariant.beta.reusesExactProductionCoverage(
+            markerScheme: "banana", existingItemID: item, wantedItemID: item))
+        XCTAssertFalse(CalendarWriteBackVariant.beta.reusesExactProductionCoverage(
+            markerScheme: "banana", existingItemID: "another-item", wantedItemID: item))
+        XCTAssertFalse(CalendarWriteBackVariant.production.reusesExactProductionCoverage(
+            markerScheme: "banana-beta", existingItemID: item, wantedItemID: item))
+    }
+
     func testBetaShadowRequiresExactBlockingCopyAndSameKnownCreator() {
         let content = ["Busy", "time", "1000", "2000"].joined(separator: "\u{1F}")
         let original = BusyVariantShadows.Copy(content: content, creator: "noor@plan.example", blocksTime: true)

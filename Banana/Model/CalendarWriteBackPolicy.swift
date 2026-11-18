@@ -50,6 +50,12 @@ enum CalendarWriteBackVariant {
         }
     }
 
+    /// A production task or travel block may look like a legacy Beta block. When it is
+    /// the exact item and slot Beta is about to write, production already protects it.
+    func reusesExactProductionCoverage(markerScheme: String?, existingItemID: String?, wantedItemID: String) -> Bool {
+        self == .beta && markerScheme == Self.production.markerScheme && existingItemID == wantedItemID
+    }
+
     static func isAppMarker(_ markerScheme: String?) -> Bool {
         markerScheme == "banana" || markerScheme == "banana-beta" || markerScheme == "quarters"
     }
