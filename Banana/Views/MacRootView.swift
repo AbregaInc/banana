@@ -189,7 +189,7 @@ struct MacRootView: View {
     /// Whether the rail is shown: hidden and shown like a system sidebar (the toolbar's sidebar
     /// button, View › Hide Sidebar ⌃⌘S), and kept across launches (`ShellRailVisibility`).
     @AppStorage(ShellRailVisibility.key) private var railShown = true
-    @State private var narrowToolbar = false
+    @State private var toolbarSearchSize = ShellToolbarField.Size.regular
 
     private var railVisibility: Binding<NavigationSplitViewVisibility> {
         Binding(get: { railShown ? .all : .detailOnly },
@@ -198,17 +198,15 @@ struct MacRootView: View {
 
     var body: some View {
         NavigationSplitView(columnVisibility: railVisibility) {
-            // The rail: round page buttons under the traffic lights, in place of the source list.
-            // Routines, which had a row, is in each page's "…" (`MoreMenu`).
-            ShellRail(pages: railPages, current: railCurrent, open: openRailPage)
+            ShellSidebar(pages: railPages, current: railCurrent, open: openRailPage)
                 .frame(maxWidth: .infinity)
                 .accessibilityElement(children: .contain)
                 .accessibilityIdentifier("app.sidebar")
-                .navigationSplitViewColumnWidth(min: ShellRail.width, ideal: ShellRail.width, max: ShellRail.width)
+                .navigationSplitViewColumnWidth(min: ShellSidebar.width, ideal: ShellSidebar.width, max: ShellSidebar.width)
                 // The column widths above are only a request: AppKit's sidebar kept its own
                 // minimum (and a width saved from before), ~200 pt in Beta 105. Pin the split
                 // view's sidebar item's width itself; it still collapses.
-                .background(MacRailColumnPin(width: ShellRail.width))
+                .background(MacRailColumnPin(width: ShellSidebar.width))
                 // The default item belongs to this column, not the split-view wrapper.
                 .toolbar(removing: .sidebarToggle)
         } detail: {
@@ -277,22 +275,10 @@ struct MacRootView: View {
                         guard let raw = notice.object as? String, let section = AppSection(rawValue: raw) else { return }
                         if section == .settings { openSettings() } else { nav.section = section }
                     }
-                    // The window's one toolbar: "Search or ask" in the middle and the assistant beside
-                    // it, on every page; each page adds its title menu and "…".
+                    // Search and chat share the window's field. Each page adds its own commands.
                     .toolbar {
-                        // Beside "…" at the trailing edge, the toolbar's last group, on every page.
-                        ToolbarItem(placement: narrowToolbar ? .navigation : .principal) { ShellToolbarField(compact: narrowToolbar) }
-                        #if BANANA_AI
-                        ToolbarItem(placement: .primaryAction) {
-                            Button {
-                                nav.showsAssistant.toggle()
-                            } label: { Label("Ask Banana", systemImage: "sparkle") }
-                                .keyboardShortcut("j", modifiers: .command)
-                                .help(nav.showsAssistant ? "Hide chat (⌘J)" : "Ask a question or add something (⌘J)")
-                                .accessibilityValue(nav.showsAssistant ? "Open" : "Closed")
-                                .accessibilityIdentifier("app.askBanana")
-                        }
-                        #endif
+                        ToolbarItem(placement: .principal) { ShellToolbarField(size: toolbarSearchSize) }
+                            .sharedBackgroundVisibility(.hidden)
                     }
                     .environment(\.wideShell, true)
                     // What the field found, hanging under the toolbar's middle.
@@ -455,7 +441,9 @@ struct MacRootView: View {
             }
         }
         .sheet(isPresented: $commands.showsShortcuts) { MacShortcutsSheet() }
-        .onGeometryChange(for: Bool.self) { $0.size.width < 1000 } action: { narrowToolbar = $0 }
+        .onGeometryChange(for: ShellToolbarField.Size.self) { geometry in
+            ShellToolbarField.Size.forWidth(geometry.size.width)
+        } action: { toolbarSearchSize = $0 }
         .onAppear { MacKeyMonitor.shared.install() }
     }
 
@@ -703,8 +691,12 @@ struct MacCommands: Commands {
             }
         }
         CommandGroup(before: .textEditing) {
-            Button("Search or Ask") { ShellSearch.shared.focusRequests.send(true) }
+            Button(ShellAssistant.isAvailable ? "Search or Ask" : "Search") { ShellSearch.shared.focusRequests.send(true) }
                 .keyboardShortcut("f", modifiers: .command)
+            #if BANANA_AI
+            Button(nav.showsAssistant ? "Hide Chat" : "Show Chat") { nav.showsAssistant.toggle() }
+                .keyboardShortcut("j", modifiers: .command)
+            #endif
             Divider()
         }
         // The calendar's sharing: the booking link (copied, with the shortcut BOOKING.md §12 names)

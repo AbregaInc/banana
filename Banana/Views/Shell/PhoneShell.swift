@@ -282,7 +282,8 @@ struct ShellBottomBar: View {
     /// The circle's badge: what the pages' own badges add up to (`ShellBadge`), while closed.
     private var switcherButton: some View {
         let waiting = chrome.switcherOpen ? 0 : ShellBadge.total(pages, badges.counts, mail: badges.mailInbox)
-        return roundButton(chrome.switcherOpen ? "xmark" : "circle.grid.3x3.fill",
+        let closedIcon = UIDevice.current.userInterfaceIdiom == .pad ? "sidebar.leading" : "circle.grid.3x3.fill"
+        return roundButton(chrome.switcherOpen ? "xmark" : closedIcon,
                            label: chrome.switcherOpen ? "Close pages"
                                : ["Pages", ShellBadge.spoken(waiting)].compactMap { $0 }.joined(separator: ", "),
                            identifier: "shell.switcher") {
@@ -521,6 +522,40 @@ struct ShellField: View {
 }
 
 // MARK: - The switcher
+
+/// The same sidebar on a narrow iPad, over the page so the calendar keeps its full width.
+struct ShellSidebarDrawer: View {
+    let pages: [ShellPage]
+    let current: ShellPage?
+    let open: (ShellPage) -> Void
+    @ObservedObject private var chrome = ShellChrome.shared
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    var body: some View {
+        if chrome.switcherOpen {
+            ZStack(alignment: .leading) {
+                Color.black.opacity(0.22)
+                    .ignoresSafeArea(.container)
+                    .onTapGesture(perform: close)
+                    .accessibilityLabel("Close sidebar")
+                    .accessibilityAddTraits(.isButton)
+                    .accessibilityIdentifier("shell.switcher.dim")
+                ShellSidebar(pages: pages, current: current, open: open, dismiss: close)
+                    .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 14))
+                    .clipShape(.rect(cornerRadius: 14))
+                    .padding(DS.Space.s)
+                    .transition(.move(edge: .leading))
+            }
+            .accessibilityElement(children: .contain)
+            .accessibilityAddTraits(.isModal)
+            .accessibilityIdentifier("shell.switcher.pages")
+        }
+    }
+
+    private func close() {
+        withAnimation(reduceMotion ? nil : .easeOut(duration: 0.2)) { chrome.switcherOpen = false }
+    }
+}
 
 /// The pages, in a column of round buttons rising from the switcher; the rest of the screen dims.
 struct ShellSwitcherOverlay: View {

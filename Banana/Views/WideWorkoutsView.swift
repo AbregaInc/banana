@@ -127,9 +127,21 @@ struct WideWorkoutsView: View {
                              titleIdentifier: "workouts.period",
                              step: { delta in showAll = false; period = period.stepped(by: delta) },
                              toCurrent: { showAll = false; period = .current }) {
-                        Button(showAll ? "Show week" : "Show all") { withAnimation { showAll.toggle() } }
-                            .buttonStyle(.inline)
-                            .accessibilityIdentifier("workouts.showAll")
+                        Button {
+                            withAnimation { showAll.toggle() }
+                        } label: {
+                            Text(showAll ? "Show week" : "Show all")
+                                #if os(macOS)
+                                .padding(.horizontal, DS.Space.xs)
+                                .frame(minWidth: 88, minHeight: 28)
+                                #endif
+                        }
+                        #if os(macOS)
+                        .buttonStyle(.bordered)
+                        #else
+                        .buttonStyle(.inline)
+                        #endif
+                        .accessibilityIdentifier("workouts.showAll")
                     }
                     .disabled(!filter.isEmpty)
                     #if os(iOS)
@@ -207,6 +219,10 @@ struct WideWorkoutsView: View {
             .bodySwitch(wide: true)
             // As the phone's: the + opens the list of everything.
             .addListButton(identifier: "workouts.add")
+            #else
+            .toolbar {
+                ToolbarItem(placement: .primaryAction) { MoreMenu() }
+            }
             #endif
         }
         .pageNavigationTitle("Workouts")

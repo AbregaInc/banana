@@ -112,22 +112,24 @@ struct DateLine<Trailing: View>: View {
             .frame(height: 0)
             .navigationSubtitle(words.dates.flatMap { $0.isEmpty ? nil : "\(words.name) \u{00B7} \($0)" } ?? words.name)
             .toolbar {
-                // Plain buttons, not a ControlGroup: the window moved a group out of the leading
-                // place to the far end of the toolbar, away from Today.
-                ToolbarItemGroup(placement: .navigation) {
-                    Button { step(-1) } label: { Image(systemName: "chevron.left") }
-                        .help("Previous \(unit)")
-                        .accessibilityLabel("Previous \(unit)")
-                    Button { step(1) } label: { Image(systemName: "chevron.right") }
-                        .help("Next \(unit)")
-                        .accessibilityLabel("Next \(unit)")
-                        .disabled(!canGoForward)
-                    Button(home) { toCurrent() }
-                        .disabled(isCurrent)
-                        .accessibilityLabel("Return to \(home.lowercased())")
-                        .accessibilityIdentifier("dateLine.home")
+                ToolbarItem(placement: .navigation) {
+                    HStack(spacing: DS.Space.s) {
+                        Button { step(-1) } label: { Image(systemName: "chevron.left") }
+                            .help("Previous \(unit)")
+                            .accessibilityLabel("Previous \(unit)")
+                        Button { step(1) } label: { Image(systemName: "chevron.right") }
+                            .help("Next \(unit)")
+                            .accessibilityLabel("Next \(unit)")
+                            .disabled(!canGoForward)
+                        Button(home) { toCurrent() }
+                            .disabled(isCurrent)
+                            .accessibilityLabel("Return to \(home.lowercased())")
+                            .accessibilityIdentifier("dateLine.home")
+                        trailing
+                    }
+                    .buttonStyle(.borderless)
+                    .fixedSize()
                 }
-                ToolbarItem(placement: .automatic) { trailing }
             }
             .accessibilityIdentifier(titleIdentifier)
             .accessibilityValue(titleValue ?? dates)

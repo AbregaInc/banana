@@ -91,17 +91,18 @@ struct AssistantView: View {
             draft = UserDefaults.standard.string(forKey: draftKey) ?? ""
             assistant.activate()
             // "Ask Banana: …" under the shell's field: the words are the question, asked at once.
-            if let words = PageChrome.shared.agentPrefill {
-                PageChrome.shared.agentPrefill = nil
-                draft = words
-                if assistant.available { send() } else { sendWhenReady = true }
-            }
+            consumeShellPrompt()
             if panelClose != nil { composerFocused = true }
             #if DEBUG
             await AssistantVerification.runIfRequested(assistant)
             await AssistantLifecycleVerification.runIfRequested(assistant)
             #endif
         }
+        #if os(macOS)
+        .onReceive(NotificationCenter.default.publisher(for: .shellOpenAssistant)) { _ in
+            if panelClose != nil { consumeShellPrompt() }
+        }
+        #endif
         .onChange(of: draft) { _, value in UserDefaults.standard.set(value, forKey: draftKey) }
         .onChange(of: assistant.available) { _, ready in
             if ready && sendWhenReady { sendWhenReady = false; send() }
@@ -484,10 +485,29 @@ struct AssistantView: View {
         return assistant.savedNote(forNoteStepFromNewest: steps.count - 1 - position)
     }
 
+    private func consumeShellPrompt() {
+        guard let words = PageChrome.shared.agentPrefill else { return }
+        PageChrome.shared.agentPrefill = nil
+        if !draft.isEmpty {
+            draft += "\n\n" + words
+            sendWhenReady = false
+            composerFocused = true
+        } else {
+            draft = words
+            if assistant.busy {
+                composerFocused = true
+            } else if assistant.available {
+                send()
+            } else {
+                sendWhenReady = true
+            }
+        }
+    }
+
     private func send() {
         let text = draft
         Task {
-            if await assistant.send(text) {
+            if await assistant.send(text), draft == text {
                 draft = ""
                 composerFocused = false
             }

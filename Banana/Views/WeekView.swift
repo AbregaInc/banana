@@ -276,6 +276,7 @@ struct PendingEventMove: Identifiable {
 /// appointment" — and unlike a text label it still reads at six points tall.
 
 struct MacWeekView: View {
+    private let calendarScope = ShellCalendarScope.shared
     /// Whether the toolbar offers the booking link.
     @ObservedObject private var booking = BookingCenter.shared
     /// Match iPhone Day: observe only the two calendar publishers below, not every transient
@@ -675,6 +676,7 @@ struct MacWeekView: View {
             }
             .sheet(isPresented: $showingAlarms) { OneOffAlarmSheet().toastHost() }
         }
+        .onChange(of: calendarScope.calendarIDs) { _, _ in rebuild(occurrences.occurrences) }
         .onAppear {
             rebuild(occurrences.occurrences)
             setInitialScrollPosition()
@@ -2049,7 +2051,8 @@ struct MacWeekView: View {
         let window = occurrences.planningWindow(from: request.start, to: request.end)
         #endif
         let hidden = ToastCenter.shared.hiddenIDs
-        let source = PendingRemovals.visible(window, id: { $0.meeting?.eventID }, start: \.start, hiding: hidden)
+        let visible = PendingRemovals.visible(window, id: { $0.meeting?.eventID }, start: \.start, hiding: hidden)
+        let source = ShellCalendarScope.visible(visible, in: calendarScope.calendarIDs)
         return (0..<visibleDayCount).compactMap { offset in
             guard let date = calendar.date(byAdding: .day, value: offset, to: start) else { return nil }
             let items = DayColumn.occurrences(source, on: date, calendar: calendar)
@@ -3742,6 +3745,7 @@ private struct MobileDayHeaderStrip: View {
 
 #if os(iOS)
 struct WeekView: View {
+    private let calendarScope = ShellCalendarScope.shared
     @Environment(\.tabBarPlacement) private var tabBarPlacement
     /// The bottom-bar shell: one top row (the title menu and "…"), and the untimed items as one
     /// sideways row (docs/design/BOTTOM-BAR-SHELL.md).
@@ -4216,6 +4220,7 @@ struct WeekView: View {
             }
             .sheet(isPresented: $showingAlarms) { OneOffAlarmSheet().toastHost() }
         }
+        .onChange(of: calendarScope.calendarIDs) { _, _ in rebuildMobileCalendar(mobileWindowOccurrences()) }
         .onAppear {
             let _ = RenderStats.note("Calendar.appear")
             // instant: draw from what the store already holds
@@ -5751,7 +5756,8 @@ struct WeekView: View {
         let visible = PendingRemovals.visible(all, id: { $0.meeting?.eventID }, start: \.start,
                                                hiding: ToastCenter.shared.hiddenIDs)
         let calendar = Calendar.current
-        return CalendarInput(occurrences: visible, start: mobileVisibleWeekStart,
+        let scoped = ShellCalendarScope.visible(visible, in: calendarScope.calendarIDs)
+        return CalendarInput(occurrences: scoped, start: mobileVisibleWeekStart,
                              today: calendar.startOfDay(for: Date()), calendar: calendar)
     }
 

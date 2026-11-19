@@ -25,9 +25,12 @@ final class ShellRulesTests: XCTestCase {
         XCTAssertNil(ShellPage.showing(.assistant))
     }
 
-    /// On an iPad the first rail button's centre is on the top bar's centre line.
-    func testTheFirstRailButtonSitsOnTheTopBarsLine() {
-        XCTAssertEqual(ShellLayout.railTopInset + ShellLayout.railButton / 2, ShellLayout.barControl / 2)
+    func testReturnRoutesClearRequestsToAskAndKeepsShortQueriesInSearch() {
+        XCTAssertTrue(ShellSearchRules.isDirectAsk("When is my next run?"))
+        XCTAssertTrue(ShellSearchRules.isDirectAsk("Move my run to Friday"))
+        XCTAssertFalse(ShellSearchRules.isDirectAsk("Friday lunch"))
+        XCTAssertFalse(ShellSearchRules.isDirectAsk("studio"))
+        XCTAssertFalse(ShellSearchRules.isDirectAsk("  "))
     }
 
     func testReviewAndSettingsOpenOverThePage() {
@@ -146,21 +149,19 @@ final class ShellRulesTests: XCTestCase {
         XCTAssertEqual(dates(date(2026, 12, 29), 7), "Dec 29, 2026\u{2013}Jan 4, 2027")
     }
 
-    /// One rail width for the iPad and the Mac: the circles with room either side, clear of the
-    /// Mac window's buttons, and slim (the Mac's first build drew a ~200 pt sidebar).
-    func testTheRailIsSlimHoldsItsCirclesAndClearsTheWindowButtons() {
-        XCTAssertGreaterThanOrEqual(ShellLayout.railColumn, ShellLayout.railButton + 2 * 12)
-        XCTAssertLessThanOrEqual(ShellLayout.railColumn, 88)
-        XCTAssertLessThanOrEqual(ShellLayout.macRailColumn, 104)
+    func testCalendarAccountContainsSharedCopiesAndKeepsLocalItems() {
+        let primary = "google:first", copies = ["google:second"]
+        XCTAssertTrue(ShellCalendarRules.includes(primary, alsoOn: copies, in: ["google:first"]))
+        XCTAssertTrue(ShellCalendarRules.includes(primary, alsoOn: copies, in: ["google:second"]))
+        XCTAssertFalse(ShellCalendarRules.includes(primary, alsoOn: copies, in: ["google:third"]))
+        XCTAssertTrue(ShellCalendarRules.includes(nil, alsoOn: [], in: ["google:third"]))
     }
 
-    /// On the Mac the rail leaves as much room after the green window button as before the red
-    /// one, and its circles centre under the three buttons.
-    func testTheMacRailFramesTheWindowButtons() {
-        let start = ShellLayout.macWindowButtonsStart, end = ShellLayout.macWindowButtonsEnd
-        XCTAssertEqual(ShellLayout.macRailColumn - end, start, accuracy: 0.5)
-        XCTAssertEqual(ShellLayout.macRailColumn / 2, (start + end) / 2, accuracy: 0.5)
-        XCTAssertGreaterThanOrEqual(ShellLayout.macRailColumn, ShellLayout.railButton + 2 * 16)
+    func testSidebarLeavesRoomForLabelsAndMacWindowButtons() {
+        XCTAssertGreaterThanOrEqual(ShellLayout.railColumn, 180)
+        XCTAssertGreaterThanOrEqual(ShellLayout.macRailColumn, 180)
+        XCTAssertLessThanOrEqual(ShellLayout.railColumn, 220)
+        XCTAssertLessThanOrEqual(ShellLayout.macRailColumn, 220)
     }
 
     /// The switcher's badge adds up the pages' own counts, for the pages that are on: the old tab
