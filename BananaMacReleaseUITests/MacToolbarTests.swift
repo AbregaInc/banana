@@ -84,6 +84,14 @@ final class MacToolbarTests: XCTestCase {
         wait("Picking Workouts returns to its calendar period") { workouts.exists && menu.label.contains("Workouts") }
     }
 
+    private func checkRailWidth() {
+        let icon = app.buttons["shell.page.plan"]
+        let sidebar = app.descendants(matching: .any)["app.sidebar"].firstMatch
+        wait("The native sidebar is 97 points wide") {
+            icon.isHittable && sidebar.exists && abs(sidebar.frame.width - 97) <= 1
+        }
+    }
+
     private func checkPlacement(_ name: String) {
         let previous = app.buttons["plan.previous"], next = app.buttons["plan.next"]
         wait("All navigation controls remain reachable") { self.toggle.isHittable && previous.isHittable && next.isHittable && self.period.isHittable }
@@ -170,6 +178,8 @@ final class MacToolbarTests: XCTestCase {
         guard let week else { return }
         week.click()
         checkPlacement("wide")
+        if toggle.label == "Show sidebar" { toggle.click() }
+        checkRailWidth()
         let before = period.value as? String
         XCTAssertNotNil(before)
         app.buttons["plan.next"].click()
@@ -182,8 +192,10 @@ final class MacToolbarTests: XCTestCase {
 
         toggle.click()
         wait("Sidebar button remains reachable while collapsed") { self.toggle.isHittable && self.toggle.label == "Show sidebar" }
+        wait("The rail is hidden") { !self.app.buttons["shell.page.plan"].isHittable }
         app.typeKey("s", modifierFlags: [.control, .command])
         wait("Native sidebar shortcut restores the same column") { self.toggle.label == "Hide sidebar" }
+        checkRailWidth()
         XCTAssertEqual(period.value as? String, before, "Sidebar changes must not page the calendar")
 
         let window = app.windows.firstMatch, frame = window.frame
@@ -193,6 +205,7 @@ final class MacToolbarTests: XCTestCase {
         app.launch()
         wait("Window launches at the requested narrow width") { window.frame.width < frame.width - 100 }
         checkPlacement("narrow")
+        checkRailWidth()
         app.buttons["plan.next"].click()
         wait("Narrow paging shows Today") { self.app.buttons["plan.today"].isHittable }
         checkPlacement("narrow-paged")

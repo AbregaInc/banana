@@ -201,6 +201,9 @@ struct MacRootView: View {
             // The rail: round page buttons under the traffic lights, in place of the source list.
             // Routines, which had a row, is in each page's "…" (`MoreMenu`).
             ShellRail(pages: railPages, current: railCurrent, open: openRailPage)
+                .frame(maxWidth: .infinity)
+                .accessibilityElement(children: .contain)
+                .accessibilityIdentifier("app.sidebar")
                 .navigationSplitViewColumnWidth(min: ShellRail.width, ideal: ShellRail.width, max: ShellRail.width)
                 // The column widths above are only a request: AppKit's sidebar kept its own
                 // minimum (and a width saved from before), ~200 pt in Beta 105. Pin the split
@@ -208,7 +211,6 @@ struct MacRootView: View {
                 .background(MacRailColumnPin(width: ShellRail.width))
                 // The default item belongs to this column, not the split-view wrapper.
                 .toolbar(removing: .sidebarToggle)
-                .accessibilityIdentifier("app.sidebar")
         } detail: {
             VStack(spacing: 0) {
                 if AppSupport.isPiSampleWorkspace {
@@ -753,32 +755,66 @@ extension Notification.Name {
     static let macNewEventRequested = Notification.Name("macNewEventRequested")
     static let macNewTaskRequested = Notification.Name("macNewTaskRequested")
 }
-/// Holds the window's sidebar column at the rail's width: no wider, no narrower, no collapsing,
-/// whatever AppKit's sidebar defaults or a saved divider position say (`ShellRail.width`).
+/// Keeps the native sidebar at the rail's fixed width whenever it is visible.
 private struct MacRailColumnPin: NSViewRepresentable {
     let width: CGFloat
 
-    func makeNSView(context: Context) -> NSView { Probe(width: width) }
-    func updateNSView(_ view: NSView, context: Context) {
-        (view as? Probe)?.width = width
-        (view as? Probe)?.pin()
+    func makeNSView(context: Context) -> Probe { Probe(width: width) }
+    func updateNSView(_ view: Probe, context: Context) {
+        view.width = width
+        view.schedulePin()
     }
 
     final class Probe: NSView {
         var width: CGFloat
+        private weak var observedSplit: NSSplitView?
+        private weak var railColumn: NSView?
+        private var pinScheduled = false
+
         init(width: CGFloat) { self.width = width; super.init(frame: .zero) }
         required init?(coder: NSCoder) { nil }
 
         override func viewDidMoveToWindow() {
             super.viewDidMoveToWindow()
-            DispatchQueue.main.async { [weak self] in self?.pin() }
+            observe(nil, column: nil)
+            schedulePin()
+        }
+
+        func schedulePin() {
+            guard !pinScheduled, window != nil else { return }
+            pinScheduled = true
+            DispatchQueue.main.async { [weak self] in
+                guard let self else { return }
+                self.pin()
+                self.pinScheduled = false
+            }
+        }
+
+        private func observe(_ split: NSSplitView?, column: NSView?) {
+            railColumn = column
+            guard observedSplit !== split else { return }
+            if let observedSplit {
+                NotificationCenter.default.removeObserver(self, name: NSSplitView.didResizeSubviewsNotification, object: observedSplit)
+            }
+            observedSplit = split
+            if let split {
+                NotificationCenter.default.addObserver(self, selector: #selector(splitDidResize(_:)),
+                                                       name: NSSplitView.didResizeSubviewsNotification, object: split)
+            }
+        }
+
+        @objc private func splitDidResize(_ notification: Notification) {
+            guard let split = observedSplit, let column = railColumn,
+                  abs(column.frame.width - width) > 0.5, !split.isSubviewCollapsed(column) else { return }
+            schedulePin()
         }
 
         #if DEBUG
         private var appliedFixtureSize = false
         #endif
 
-        func pin() {
+        private func pin() {
+            guard window != nil else { return }
             #if DEBUG
             // Size screenshot/UI fixtures only after the native view has its actual window.
             // A SwiftUI .task can run before a newly-created window is visible.
@@ -794,17 +830,27 @@ private struct MacRailColumnPin: NSViewRepresentable {
                 }
             }
             #endif
-            var ancestor = superview
-            while let view = ancestor, !(view is NSSplitView) { ancestor = view.superview }
-            guard let split = ancestor as? NSSplitView,
-                  let controller = split.delegate as? NSSplitViewController,
-                  let sidebar = controller.splitViewItems.first else { return }
-            if sidebar.minimumThickness != width { sidebar.minimumThickness = width }
-            if sidebar.maximumThickness != width { sidebar.maximumThickness = width }
-            if !sidebar.canCollapse { sidebar.canCollapse = true }
-            if !sidebar.isCollapsed, let column = split.arrangedSubviews.first, abs(column.frame.width - width) > 0.5 {
-                split.setPosition(width, ofDividerAt: 0)
+            // Find the native column containing this rail, even if SwiftUI wraps it in
+            // additional views. Never change an unrelated split in the detail section.
+            var column: NSView = self
+            while let parent = column.superview, !(parent is NSSplitView) { column = parent }
+            guard let split = column.superview as? NSSplitView, split.isVertical,
+                  split.arrangedSubviews.count > 1, split.arrangedSubviews.first === column else { return }
+            observe(split, column: column)
+
+            // Visibility is persisted separately. The old source list's saved divider
+            // position has no meaning for a fixed-width rail.
+            if split.autosaveName != nil { split.autosaveName = nil }
+            let controller = split.delegate as? NSSplitViewController ?? split.nextResponder as? NSSplitViewController
+            let sidebar = controller?.splitViewItems.first
+            if let sidebar {
+                if sidebar.minimumThickness != width { sidebar.minimumThickness = width }
+                if sidebar.maximumThickness != width { sidebar.maximumThickness = width }
+                if !sidebar.canCollapse { sidebar.canCollapse = true }
             }
+            guard sidebar?.isCollapsed != true, !split.isSubviewCollapsed(column),
+                  split.bounds.width > width, abs(column.frame.width - width) > 0.5 else { return }
+            split.setPosition(width, ofDividerAt: 0)
         }
     }
 }
