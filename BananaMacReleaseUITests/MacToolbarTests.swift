@@ -27,6 +27,7 @@ final class MacToolbarTests: XCTestCase {
                                    "-onboardingCompleted", "YES"]
         }
         if name.contains("FieldPrompt") { app.launchArguments += ["--mac-new-event"] }
+        if name.contains("BodyMenu") { app.launchArguments += ["--modules", "everything", "-onboardingCompleted", "YES"] }
         app.launch()
         if name.contains("FieldPrompt") {
             // A newly signed fixture can raise Local Network privacy before its window opens.
@@ -65,6 +66,23 @@ final class MacToolbarTests: XCTestCase {
 
     private var period: XCUIElement { app.descendants(matching: .any)["mac.planner.view"].firstMatch }
     private var toggle: XCUIElement { app.buttons["shell.railToggle"] }
+
+    func testBodyMenuSwitchesBetweenWorkoutsAndFood() {
+        let body = app.buttons["shell.page.body"]
+        wait("Body is visible in the rail") { body.isHittable }
+        body.click()
+
+        let menu = app.descendants(matching: .any)["body.title"].firstMatch
+        let workouts = app.descendants(matching: .any)["workouts.period"].firstMatch
+        let food = app.textFields["nutrition.phrase"].firstMatch
+        wait("Workouts and its page menu are visible") { workouts.exists && menu.isHittable }
+        menu.click()
+        app.menuItems["Food"].firstMatch.click()
+        wait("Picking Food opens the nutrition page") { food.isHittable && menu.label.contains("Food") }
+        menu.click()
+        app.menuItems["Workouts"].firstMatch.click()
+        wait("Picking Workouts returns to its calendar period") { workouts.exists && menu.label.contains("Workouts") }
+    }
 
     private func checkPlacement(_ name: String) {
         let previous = app.buttons["plan.previous"], next = app.buttons["plan.next"]

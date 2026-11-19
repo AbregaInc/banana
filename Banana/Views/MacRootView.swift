@@ -408,6 +408,9 @@ struct MacRootView: View {
         // split view's automatic item so it cannot migrate into the trailing overflow control.
         .toolbar {
             ToolbarItem(placement: .navigation) { ShellRailToggle() }
+            if BodyPage.holds(nav.section), BodyPage.choices(wide: true, with: modules.effectiveChoice).count > 1 {
+                ToolbarItem(placement: .navigation) { BodyTitleMenu(wide: true, section: $nav.section) }
+            }
         }
         #if BANANA_AI
         .onChange(of: chrome.showAdd) { _, requested in
