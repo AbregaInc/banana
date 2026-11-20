@@ -116,8 +116,11 @@ if [[ "$platform" == mac && "$flavour" == appstore && "$mode" == upload ]]; then
   # Read-only. Visible tests are a separate, deliberate run on the dedicated test desktop.
   python3 tools/mac-release-tests.py verify "$archive"
 fi
-xcodebuild -exportArchive -archivePath "$archive" -exportPath "$export_path" \
-  -exportOptionsPlist "$options" "${auth[@]}"
+# Xcode adds a provisioning profile during export. The installer runs as root,
+# so a restrictive umask would leave this file unreadable to the app's users.
+(umask 022
+ xcodebuild -exportArchive -archivePath "$archive" -exportPath "$export_path" \
+   -exportOptionsPlist "$options" "${auth[@]}")
 if [[ "$platform" == mac && "$flavour" == appstore ]]; then
   packages=("$export_path"/*.pkg)
   [[ ${#packages[@]} == 1 && -f "${packages[0]}" ]] || { echo 'Expected one exported Mac package' >&2; exit 1; }
