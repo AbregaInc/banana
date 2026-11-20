@@ -63,15 +63,29 @@ import GRDB
         }.value
         let api = Provider(labels: labels, page: page)
         let source = MailLiveSource(stores: stores, access: Access(), api: api)
+        let expectedPage = expectation(description: "Inbox reports the outcome of its page")
+        var receivedPage = false
+        let list = source.observeList(MailScope(place: .mailbox(.inbox)), limit: 50) { snapshot in
+            guard !receivedPage else { return }
+            if page != nil {
+                guard snapshot.remote == .failed else { return }
+            } else {
+                guard !snapshot.hasMore else { return }
+                XCTAssertNotEqual(snapshot.remote, .failed, "A background label failure must not fail an inbox page that loaded")
+            }
+            receivedPage = true
+            expectedPage.fulfill()
+        }
         let started = Date()
         source.activate()
-        defer { source.setVisible(false) }
+        defer { list.cancel(); source.setVisible(false) }
         for _ in 0..<200 {
             if await api.pageFinished { break }
             try await Task.sleep(for: .milliseconds(5))
         }
         let finished = await api.pageFinished
         XCTAssertTrue(finished)
+        await fulfillment(of: [expectedPage], timeout: 5)
         try await Task.sleep(for: .milliseconds(50))
         guard case .limited(let until) = source.accounts.first?.health else {
             XCTFail("Page and label rate limits must be visible on the account"); return

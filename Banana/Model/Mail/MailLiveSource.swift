@@ -115,6 +115,7 @@ import GRDB
     private var pageTasks: [String: Task<Void, Never>] = [:]
     private var completed = Set<String>()
     private var failures = Set<String>()
+    private var pagingFailures = Set<String>()
     private var disabled = Set<String>()
     private var forgettingAccess = Set<String>()
     private var firstPages: [MailScope: MailListSnapshot] = [:]
@@ -637,7 +638,9 @@ import GRDB
                         ? self.syncEnumerationComplete[$0.id] != true
                         : !self.completed.contains($0.id)
                 }
-                let failed = connected.contains { self.failures.contains($0.id) }
+                // Label, sync and delivery failures belong to account health. The list's
+                // Retry control represents an actual failure fetching its next remote page.
+                let failed = connected.contains { self.pagingFailures.contains($0.id) }
                 self.deliver(MailListSnapshot(scope: scope,
                     rows: mapped,
                     total: MailCount(value: counts.total.value, isAtLeast: counts.total.isAtLeast || more),
@@ -749,6 +752,7 @@ import GRDB
         guard access.mailGrant(accountID: account) == .granted, !disabled.contains(account), !forgettingAccess.contains(account),
               (syncRetryAt[account] ?? .distantPast) <= Date(), pageTasks[account] == nil, !completed.contains(account) else { return }
         failures.remove(account)
+        pagingFailures.remove(account)
         let loader = self.loader, cursor = pages[account]
         pageTasks[account] = Task { [weak self] in
             do {
@@ -758,6 +762,7 @@ import GRDB
                 if result.next == nil { self.completed.insert(account) }
             } catch {
                 guard !Task.isCancelled, let self else { return }
+                self.pagingFailures.insert(account)
                 self.recordReadFailure(error, account: account)
             }
             guard let self else { return }
@@ -1562,6 +1567,7 @@ extension MailLiveSource {
         if cloud {
             pageTasks[account]?.cancel(); pageTasks[account] = nil
             pages[account] = nil
+            pagingFailures.remove(account)
         } else if changed, active {
             loadPage(account)
         }
