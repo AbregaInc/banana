@@ -52,6 +52,9 @@ def resolved_day(args,default='2026-10-25'):
  if value=='date':value=args.get('date')
  return {'today':'2026-10-25','tomorrow':'2026-10-26','yesterday':'2026-10-24'}.get(value,value or default)
 def score(case,raw):
+ if case.get("reviewed"):
+  from common_contracts import score_reviewed
+  return score_reviewed(case,raw)
  if case.get("contractVersion") == 1:
   from common_contracts import score_common
   return score_common(case,raw)

@@ -8,6 +8,7 @@
     tools/reports/reports.py mail-case ID [NAME]  a pulled mail report -> private/mail-render-corpus/NAME/
     tools/reports/reports.py anonymise CASE NAME  a private mail case -> tools/reports/mail-cases/NAME/
     tools/reports/reports.py ai-case ID           a pulled 👎 -> private/ai-evals/<id>.json
+    tools/reports/reports.py ai-fixture NAME REVIEW.json  compile reviewed corrections for benchmark.py
 
 Reads the service through wrangler with your own Cloudflare login (`npx wrangler login`): D1 for
 the rows, R2 for the files. `--env beta` (the default) or `--env production`. Nothing pulled ever
@@ -20,6 +21,7 @@ import hashlib
 import html
 import html.parser
 import json
+import os
 import re
 import urllib.parse
 import subprocess
@@ -362,6 +364,82 @@ def cmd_ai_case(a):
           "(tools/pi-evaluation; real data stays in private/).")
 
 
+
+def reviewed_ai_fixture(review, templates):
+    template_by_id = {case["id"]: case for case in templates["cases"]}
+    cases = []
+    seen = set()
+    for entry in review:
+        if entry.get("approved") is not True:
+            continue
+        case_id = entry.get("id", "")
+        if not re.fullmatch(r"[a-z][a-z0-9-]{2,63}", case_id) or case_id in seen:
+            raise ValueError("Invalid or duplicate reviewed case identifier")
+        seen.add(case_id)
+        if entry.get("domain") not in {"mail", "calendar"}:
+            raise ValueError("Use mail or calendar for a reviewed case")
+        if not isinstance(entry.get("reason"), str) or not entry["reason"].strip():
+            raise ValueError("A reviewed correction needs a reason")
+        template = template_by_id.get(entry.get("template"))
+        if template is None:
+            raise ValueError("Choose an existing inference request template")
+        messages = entry.get("messages")
+        if not isinstance(messages, list) or not messages or len(messages) > 20:
+            raise ValueError("Use 1 to 20 reviewed messages")
+        if any(not isinstance(m, dict) or set(m) != {"role", "text"}
+               or m["role"] not in {"user", "assistant"} or not isinstance(m["text"], str)
+               or not m["text"].strip() or len(m["text"]) > 4000 for m in messages):
+            raise ValueError("Use reviewed user and assistant messages with text only")
+        if messages[-1]["role"] != "user":
+            raise ValueError("The final message must be the request under test")
+        expected = entry.get("expected", {})
+        if not isinstance(expected, dict) or "tool" not in expected or set(expected) - {"tool", "arguments", "textIncludes", "textExcludes"}:
+            raise ValueError("Choose an explicit expected tool or a reply contract")
+        arguments = expected.get("arguments", {})
+        include = expected.get("textIncludes", "")
+        exclude = expected.get("textExcludes", [])
+        if not isinstance(arguments, dict) or not isinstance(include, str) or not isinstance(exclude, list) or any(
+            not isinstance(value, str) or not value.strip() for value in exclude
+        ):
+            raise ValueError("Invalid expected arguments or reply text checks")
+        request = dict(template["request"], messages=messages)
+        tool = expected["tool"]
+        if tool is None:
+            if not include.strip() or arguments:
+                raise ValueError("A reply contract needs an observable expected phrase")
+        else:
+            schema = next((item["parameters"] for item in request["tools"] if item["name"] == tool), None)
+            if schema is None or set(arguments) - set(schema.get("properties", {})):
+                raise ValueError("Expected tool and arguments must exist in the template")
+            if include or exclude:
+                raise ValueError("Use a separate reply case to check answer text")
+        cases.append({
+            "id": case_id, "module": entry["domain"], "reason": entry["reason"], "reviewed": True,
+            "expected": dict(expected, arguments=arguments),
+            "request": request,
+        })
+    if not cases:
+        raise ValueError("No approved cases")
+    return {"version": 1, "scope": "Reviewed Mail and Calendar feedback contracts. Inference only.", "cases": cases}
+
+
+def cmd_ai_fixture(a):
+    if not re.fullmatch(r"[a-z][a-z0-9-]{2,63}", a.name):
+        sys.exit("Use a short lowercase fixture name.")
+    reviews = json.loads(a.review.read_text())
+    templates = json.loads((ROOT / "tools/pi-evaluation/cases.json").read_text())
+    try:
+        fixture = reviewed_ai_fixture(reviews, templates)
+    except (TypeError, ValueError) as error:
+        sys.exit(str(error))
+    folder = EVALS / "reviewed"
+    folder.mkdir(parents=True, exist_ok=True)
+    output = folder / (a.name + ".json")
+    with output.open("x", opener=lambda path, flags: os.open(path, flags, 0o600)) as file:
+        json.dump(fixture, file, ensure_ascii=False, indent=2)
+        file.write("\n")
+    print(f"{output.relative_to(ROOT)}: {len(fixture['cases'])} approved inference contracts")
+
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--env", choices=ENVS, default="beta")
@@ -373,6 +451,7 @@ def main():
     s = sub.add_parser("mail-case"); s.add_argument("id"); s.add_argument("name", nargs="?"); s.set_defaults(run=cmd_mail_case)
     s = sub.add_parser("anonymise"); s.add_argument("case"); s.add_argument("name"); s.set_defaults(run=cmd_anonymise)
     s = sub.add_parser("ai-case"); s.add_argument("id"); s.set_defaults(run=cmd_ai_case)
+    s = sub.add_parser("ai-fixture"); s.add_argument("name"); s.add_argument("review", type=Path); s.set_defaults(run=cmd_ai_fixture)
     a = p.parse_args()
     a.run(a)
 

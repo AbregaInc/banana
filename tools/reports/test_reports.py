@@ -14,6 +14,42 @@ SAMPLE = """<html><head><style>.card{background:url(https://tracker.example/x.pn
 <img src="https://cdn.example/logo.png" alt="Pike &amp; Sons"><img src="cid:logo@part">&nbsp;</body></html>"""
 
 
+class ReviewedAIFixtureTests(unittest.TestCase):
+    def setUp(self):
+        self.templates = {"cases": [{"id": "identity", "request": {
+            "instructions": "Use the available tools or reply.",
+            "messages": [{"role": "user", "text": "Template prompt"}],
+            "tools": [{"name": "day_plan", "parameters": {"properties": {"date": {}}}}],
+        }}]}
+        self.review = {
+            "id": "calendar-tomorrow", "approved": True, "domain": "calendar", "template": "identity",
+            "reason": "Check the requested day.",
+            "messages": [{"role": "user", "text": "What is on my calendar tomorrow?"}],
+            "expected": {"tool": "day_plan", "arguments": {"date": "tomorrow"}},
+        }
+
+    def test_approved_correction_replaces_template_history_and_uses_its_tools(self):
+        fixture = reports.reviewed_ai_fixture([self.review], self.templates)
+        case = fixture["cases"][0]
+        self.assertEqual(case["request"]["messages"], self.review["messages"])
+        self.assertEqual(case["expected"], self.review["expected"])
+        self.assertEqual(case["request"]["tools"], self.templates["cases"][0]["request"]["tools"])
+
+    def test_unreviewed_or_unobservable_cases_cannot_be_exported(self):
+        with self.assertRaisesRegex(ValueError, "No approved"):
+            reports.reviewed_ai_fixture([dict(self.review, approved=False)], self.templates)
+        with self.assertRaisesRegex(ValueError, "observable"):
+            reports.reviewed_ai_fixture([dict(self.review, expected={"tool": None})], self.templates)
+        with self.assertRaisesRegex(ValueError, "must exist"):
+            reports.reviewed_ai_fixture([dict(self.review, expected={"tool": "invented"})], self.templates)
+
+    def test_a_reviewed_mail_limitation_can_reject_a_false_action_claim(self):
+        self.review["domain"] = "mail"
+        self.review["expected"] = {"tool": None, "textIncludes": "can’t send", "textExcludes": ["sent the message"]}
+        case = reports.reviewed_ai_fixture([self.review], self.templates)["cases"][0]
+        self.assertEqual(case["expected"]["textExcludes"], ["sent the message"])
+
+
 class AnonymiseTests(unittest.TestCase):
     def setUp(self):
         parser = reports.Anonymiser()
