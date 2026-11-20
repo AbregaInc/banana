@@ -44,7 +44,7 @@ enum MailSourceProbe {
         "showPictures(in:always:)", "pictureRules()",
         "removePictureRule(_:)",
         "setWantsMail(_:account:)", "requestPermission(account:)", "forgetPermission(account:)",
-        "saveSplits(_:)", "createLabel(named:account:)", "unsubscribe(_:)",
+        "saveSplits(_:)", "createLabel(named:account:)", "unsubscribe(_:expected:)",
         "removeDownloadedMail(account:)", "reconsiderKeptMail(account:)",
         "observeEvents(_:)",
     ]
@@ -167,7 +167,7 @@ enum MailSourceProbe {
         source.forgetPermission(account: account)
         source.saveSplits([])
         _ = source.createLabel(named: "probe", account: account)
-        _ = await source.unsubscribe(conversation)
+        _ = await source.unsubscribe(conversation, expected: URL(string: "https://plan.example/unsubscribe")!)
         await source.removeDownloadedMail(account: account)
         source.reconsiderKeptMail(account: account)
 

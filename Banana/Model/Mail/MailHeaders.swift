@@ -37,7 +37,7 @@ struct MessageHeaders: Equatable, Sendable {
     /// The headers read by name, folded: the header format of 5.6 less `Authentication-Results`.
     static let namedHeaders: Set<String> = [
         "from", "sender", "to", "cc", "bcc", "reply-to", "subject", "date", "message-id",
-        "in-reply-to", "references", "list-id", "list-unsubscribe", "list-unsubscribe-post",
+        "in-reply-to", "references", "list-id", "list-unsubscribe", "list-unsubscribe-post", "dkim-signature",
         "content-type", "delivered-to", "auto-submitted", "x-google-original-message-id",
         "x-banana-send-at", "x-banana-send-owner",
     ]
@@ -278,14 +278,21 @@ struct MessageHeaders: Equatable, Sendable {
 }
 
 
-/// RFC 2369's advertised web page. This is a manual browser action, never an automatic GET
-/// or an RFC 8058 POST. Automatic unsubscribe requires separately verified DKIM coverage.
+/// RFC 8058 one-click when Gmail authenticated the headers, with the RFC 2369 page as fallback.
 enum MailUnsubscribeRules {
     static func decide(headers: MessageHeaders) -> MailUnsubscribe? {
         let fields = headers.fields.filter { $0.name.lowercased() == "list-unsubscribe" }
         guard fields.count == 1, let field = fields.first, !field.wasCut else { return nil }
+        let post = headers.fields.filter { MessageHeaders.fold($0.name) == "list-unsubscribe-post" }
+        let list = headers.fields.filter { MessageHeaders.fold($0.name) == "list-id" }
+        let domain: String?
+        if post.count == 1, !post[0].wasCut, post[0].value.trimmingCharacters(in: .whitespacesAndNewlines) == "List-Unsubscribe=One-Click",
+           list.count == 1, !list[0].wasCut, !list[0].value.isEmpty, let sender = headers.sender {
+            domain = MailAuthRules.unsubscribeSigningDomain(headers: headers, fromDomain: sender.domain)
+        } else { domain = nil }
         // URLs in this header are angle-bracket delimited. Never infer links from body text.
         let parts = field.value.split(separator: "<", omittingEmptySubsequences: false).dropFirst()
+        var secureLinks: [URL] = []
         for part in parts {
             guard let end = part.firstIndex(of: ">") else { continue }
             let raw = part[..<end].trimmingCharacters(in: .whitespacesAndNewlines)
@@ -294,9 +301,15 @@ enum MailUnsubscribeRules {
                   let host = components.host, !host.isEmpty,
                   components.user == nil, components.password == nil,
                   let url = components.url else { continue }
-            return .openPage(url)
+            secureLinks.append(url)
         }
-        return nil
+        guard let url = secureLinks.first else { return nil }
+        if secureLinks.count == 1, let domain, let host = url.host?.lowercased(), url.fragment == nil,
+           (url.port == nil || url.port == 443), host.split(separator: ".").last?.first?.isLetter == true,
+           host == domain || host.hasSuffix("." + domain) {
+            return .oneClick(url)
+        }
+        return .openPage(url)
     }
 }
 

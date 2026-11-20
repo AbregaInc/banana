@@ -1302,6 +1302,13 @@ extension MailLiveSource {
         return receipt
     }
 
+    func unsubscribe(_ id: MailConversationID, expected: URL) async -> MailUnsubscribeResult {
+        guard canDeliver(id.account),
+              (try? await MailConversationReader(stores: stores).conversation(id))?.unsubscribe == .oneClick(expected),
+              canDeliver(id.account), !Task.isCancelled else { return .unavailable }
+        return await MailUnsubscribeTransport.post(expected)
+    }
+
     func permitsAccountChanges(_ account: String) -> Bool { deliveryAllowed(account) }
 
     /// UI policy only; delivery independently rechecks permission before every provider write.

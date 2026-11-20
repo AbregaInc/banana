@@ -475,7 +475,7 @@ struct MailInvite: Equatable, Sendable {
 }
 
 enum MailUnsubscribe: Equatable, Sendable {
-    case oneClick(host: String), openPage(URL), compose(to: String, subject: String?)
+    case oneClick(URL), openPage(URL), compose(to: String, subject: String?)
 }
 
 struct MailConversation: Equatable, Sendable {
@@ -1226,7 +1226,7 @@ enum MailLinkRules {}
     @discardableResult func saveSplits(_ splits: [MailSplit]) -> [String]
     func createLabel(named name: String, account: String) -> MailLabelRef
     /// After the UI's confirmation, for a `.oneClick` offer only.
-    func unsubscribe(_ id: MailConversationID) async -> MailUnsubscribeResult
+    func unsubscribe(_ id: MailConversationID, expected: URL) async -> MailUnsubscribeResult
     func removeDownloadedMail(account: String?) async
     /// Settings' "Remove mail that Gmail no longer has": raises `removalHeld` again for the
     /// messages he kept (`MailAccount.keptAfterRemoval`), to be answered like the first time.

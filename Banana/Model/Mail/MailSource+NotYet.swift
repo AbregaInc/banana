@@ -450,7 +450,7 @@ extension MailSource {
         return MailLabelRef(id: "local:" + name, name: name, colorHex: nil)
     }
 
-    func unsubscribe(_ id: MailConversationID) async -> MailUnsubscribeResult {
+    func unsubscribe(_ id: MailConversationID, expected: URL) async -> MailUnsubscribeResult {
         MailNotYet.reached(#function)
         return .unavailable
     }

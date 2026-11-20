@@ -466,7 +466,7 @@ final class MailContractShapeTests: XCTestCase {
         XCTAssertFalse(source.hasUnfinishedSends)
         let permission = await source.requestPermission(account: account)
         XCTAssertEqual(permission, .failed)
-        let unsubscribed = await source.unsubscribe(conversation)
+        let unsubscribed = await source.unsubscribe(conversation, expected: URL(string: "https://plan.example/unsubscribe")!)
         XCTAssertEqual(unsubscribed, .unavailable)
 
         // Status and badges: one shared object each, saying nothing has been opened.

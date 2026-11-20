@@ -51,6 +51,43 @@ struct MailConversationScreen: View {
     }
 }
 
+private struct MailUnsubscribeButton: View {
+    let source: any MailSource
+    let conversation: MailConversationID
+    let url: URL
+    let host: String
+    @State private var confirming = false
+    @State private var sending = false
+    @State private var result: MailUnsubscribeResult?
+
+    var body: some View {
+        if case .asked = result {
+            Label("Asked \(host) to unsubscribe you", systemImage: "checkmark.circle")
+        } else {
+            Button { confirming = true } label: {
+                Label("Unsubscribe…", systemImage: "envelope.badge.minus")
+            }
+            .accessibilityIdentifier("mail.unsubscribe")
+            .disabled(sending)
+            .confirmationDialog("Unsubscribe from this mailing list?", isPresented: $confirming, titleVisibility: .visible) {
+                Button("Unsubscribe") {
+                    sending = true
+                    result = nil
+                    Task {
+                        result = await source.unsubscribe(conversation, expected: url)
+                        sending = false
+                    }
+                }
+            } message: {
+                Text("Banana will send the request to \(host).")
+            }
+            if sending { ProgressView("Sending request…") }
+            if result == .failed { Text("Couldn’t confirm the unsubscribe request.").foregroundStyle(.secondary) }
+            if result == .unavailable { Text("This unsubscribe request is unavailable.").foregroundStyle(.secondary) }
+        }
+    }
+}
+
 /// The subject and each message, newest first (`MailReadingOrder`), scrolling: what the
 /// full-width screen and the reading pane both show. It is made again for each conversation
 /// (`.id`), so a new one opens at its top, on the newest message.
@@ -102,7 +139,10 @@ struct MailConversationContent: View {
                             MailInviteCard(account: reader.id.account, invite: invite,
                                            calendar: session.isSample ? .sample : .live)
                         }
-                        if case .openPage(let url) = reader.conversation?.unsubscribe {
+                        if case .oneClick(let url) = reader.conversation?.unsubscribe, let host = url.host {
+                            MailUnsubscribeButton(source: session.source, conversation: reader.id, url: url, host: host)
+                                .id(url)
+                        } else if case .openPage(let url) = reader.conversation?.unsubscribe {
                             Link(destination: url) {
                                 Label("Unsubscribe…", systemImage: "envelope.badge.minus")
                             }
