@@ -53,6 +53,7 @@ version=${version:-$(last_release_version)}
 [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || die "no user version (pass --version)"
 [ -n "$feed_notes" ] || feed_notes=$(grep -v -e '^#' -e '^Source:' -e '^Released:' -e '^[[:space:]]*$' "$notes" | head -1 | sed -E 's/^[-*] +//')
 need ASC_KEY_ID ASC_ISSUER_ID
+export BANANA_TESTFLIGHT_VERSION="$version"
 export DRY_RUN
 
 if [ "$DRY_RUN" = 1 ]; then OUT=$(mktemp -d "${TMPDIR:-/tmp}/ship-stable-$build.XXXXXX"); else OUT=private/releases/stable-$build; fi
