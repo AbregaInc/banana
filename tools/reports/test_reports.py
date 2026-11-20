@@ -1,7 +1,12 @@
 #!/usr/bin/env python3
 """python3 tools/reports/test_reports.py: the anonymiser keeps markup and drops what is the sender's."""
+import argparse
+import json
+import stat
 import sys
+import tempfile
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
@@ -42,6 +47,23 @@ class ReviewedAIFixtureTests(unittest.TestCase):
             reports.reviewed_ai_fixture([dict(self.review, expected={"tool": None})], self.templates)
         with self.assertRaisesRegex(ValueError, "must exist"):
             reports.reviewed_ai_fixture([dict(self.review, expected={"tool": "invented"})], self.templates)
+
+    def test_export_creates_a_private_file_without_overwriting_existing_cases(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            evaluation = root / "tools/pi-evaluation"
+            evaluation.mkdir(parents=True)
+            (evaluation / "cases.json").write_text(json.dumps(self.templates))
+            reviews = root / "review.json"
+            reviews.write_text(json.dumps([self.review]))
+            args = argparse.Namespace(name="calendar-case", review=reviews)
+            with patch.multiple(reports, ROOT=root, EVALS=root / "private/ai-evals"):
+                reports.cmd_ai_fixture(args)
+                with self.assertRaises(FileExistsError):
+                    reports.cmd_ai_fixture(args)
+            fixture = root / "private/ai-evals/reviewed/calendar-case.json"
+            self.assertEqual(stat.S_IMODE(fixture.stat().st_mode), 0o600)
+            self.assertEqual(json.loads(fixture.read_text())["cases"][0]["id"], self.review["id"])
 
     def test_a_reviewed_mail_limitation_can_reject_a_false_action_claim(self):
         self.review["domain"] = "mail"

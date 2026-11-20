@@ -435,7 +435,7 @@ def cmd_ai_fixture(a):
     folder = EVALS / "reviewed"
     folder.mkdir(parents=True, exist_ok=True)
     output = folder / (a.name + ".json")
-    with output.open("x", opener=lambda path, flags: os.open(path, flags, 0o600)) as file:
+    with open(output, "x", encoding="utf-8", opener=lambda path, flags: os.open(path, flags, 0o600)) as file:
         json.dump(fixture, file, ensure_ascii=False, indent=2)
         file.write("\n")
     print(f"{output.relative_to(ROOT)}: {len(fixture['cases'])} approved inference contracts")
