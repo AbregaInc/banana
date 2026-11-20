@@ -29,13 +29,13 @@ if [ -n "$identity" ] && [ "$identity" != "-" ]; then
   while IFS= read -r -d '' f; do
     format=$(file -b "$f")
     case "$format" in *Mach-O*) ;; *) continue ;; esac
-    flags=()
+    flags=(--force --options runtime --timestamp --sign "$identity")
     # Apple distribution requires embedded commands to inherit the parent's sandbox.
     # Libraries stay signed without process entitlements.
     if [[ -n "$helper_entitlements" && "$format" == *executable* ]]; then
-      flags=(--entitlements "$helper_entitlements")
+      flags+=(--entitlements "$helper_entitlements")
     fi
-    codesign --force --options runtime --timestamp --sign "$identity" "${flags[@]}" "$f"
+    codesign "${flags[@]}" "$f"
   done
 fi
 echo "$stamp" > "$dest/.runtime"
