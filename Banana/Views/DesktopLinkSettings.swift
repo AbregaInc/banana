@@ -81,6 +81,15 @@ struct DesktopLinkSettings: View {
                     }
                 }
             }
+            if link.isPaired {
+                Section("Away from home") {
+                    Toggle("Use Banana Cloud relay", isOn: Binding(
+                        get: { link.cloudEnabled }, set: { link.setCloudRelayEnabled($0) }))
+                    if link.cloudEnabled {
+                        LabeledContent("Cloud relay", value: link.cloudConnected ? "Connected" : "Waiting for connection")
+                    }
+                }
+            }
             #else
             Section("Mac model") {
                 if BarcodeScannerView.isSupported {
@@ -208,6 +217,7 @@ struct DesktopLinkSettings: View {
         switch route {
         case .local: "Connected over the local network"
         case .tailscale: "Connected over Tailscale"
+        case .cloud: "Connected over Banana Cloud"
         }
     }
 

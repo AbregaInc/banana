@@ -85,6 +85,7 @@ final class DesktopAssistantLink: ObservableObject {
         let result = SecItemDelete(Self.keychain as CFDictionary)
         guard result == errSecSuccess || result == errSecItemNotFound else { throw keychainFailure }
         #if os(macOS)
+        setCloudRelayEnabled(false)
         stopHosting()
         status = ""
         #else
@@ -99,6 +100,9 @@ final class DesktopAssistantLink: ObservableObject {
     #if os(macOS)
     @Published private(set) var status = ""
     @Published private(set) var hosting = false
+    @Published private(set) var cloudEnabled = UserDefaults.standard.bool(forKey: "desktopLink.cloudEnabled")
+    @Published private(set) var cloudConnected = false
+    private var cloudHost: Task<Void, Never>?
     private var listener: NWListener?
     private var connections: [UUID: NWConnection] = [:]
     private var inferenceInProgress = false
@@ -111,7 +115,9 @@ final class DesktopAssistantLink: ObservableObject {
     }
 
     func startHosting() {
-        guard let pairing, listener == nil else { return }
+        guard let pairing else { return }
+        startCloudHost(pairing)
+        guard listener == nil else { return }
         do {
             let next = try NWListener(using: pairing.parameters(), on: DesktopPeerLink.port)
             next.service = .init(name: pairing.serviceName, type: DesktopPeerLink.serviceType)
@@ -140,6 +146,87 @@ final class DesktopAssistantLink: ObservableObject {
         } catch {
             status = "Couldn’t start the desktop link."
         }
+    }
+
+    func setCloudRelayEnabled(_ enabled: Bool) {
+        guard cloudEnabled != enabled else { return }
+        cloudEnabled = enabled
+        UserDefaults.standard.set(enabled, forKey: "desktopLink.cloudEnabled")
+        if enabled, let pairing {
+            startCloudHost(pairing)
+        } else {
+            cloudHost?.cancel()
+            cloudHost = nil
+            cloudConnected = false
+        }
+    }
+
+    private func startCloudHost(_ pairing: DesktopPeerLink.Pairing) {
+        guard cloudEnabled, cloudHost == nil else { return }
+        cloudHost = Task { [weak self] in
+            var delay = 1
+            while let self, !Task.isCancelled {
+                let challenge = DesktopCloudRelay.nonce()
+                if let request = BananaAccount.shared.desktopRelaySocket(link: pairing.serviceName, hostChallenge: challenge) {
+                    do { try await self.serveCloud(request, pairing: pairing, challenge: challenge) }
+                    catch is CancellationError { return }
+                    catch {}
+                }
+                guard !Task.isCancelled else { return }
+                self.cloudConnected = false
+                do { try await Task.sleep(for: .seconds(delay)) } catch { return }
+                delay = min(delay * 2, 30)
+            }
+        }
+    }
+
+    private func serveCloud(_ request: URLRequest, pairing: DesktopPeerLink.Pairing, challenge: String) async throws {
+        let socket = DesktopCloudRelay.Socket(request)
+        let lease = Task {
+            try await Task.sleep(for: .seconds(900))
+            socket.close()
+        }
+        var seen: Set<String> = []
+        var jobs: [String: Task<Void, Never>] = [:]
+        defer {
+            lease.cancel()
+            socket.close()
+            for job in jobs.values { job.cancel() }
+        }
+        try await withTaskCancellationHandler {
+            guard case .string("ready") = try await socket.task.receive() else { throw DesktopPeerLink.Failure.unavailable }
+            cloudConnected = true
+            while !Task.isCancelled {
+                switch try await socket.task.receive() {
+                case .string(let control):
+                    let id = String(control.dropFirst(7))
+                    if control.hasPrefix("cancel:"), DesktopCloudRelay.valid(id) {
+                        jobs[id]?.cancel()
+                    }
+                case .data(let frame):
+                    guard let id = try? DesktopCloudRelay.identifier(of: frame),
+                          let value = try? DesktopCloudRelay.open(DesktopPeerLink.Request.self, frame: frame,
+                              id: id, challenge: challenge, pairing: pairing, response: false),
+                          seen.insert(id).inserted else { continue }
+                    guard seen.count < 1_024 else { return }
+                    guard jobs.count < 4 else { continue }
+                    jobs[id] = Task {
+                        defer { jobs[id] = nil }
+                        do {
+                            let response: DesktopPeerLink.Response
+                            do { response = .init(payload: try await answer(value), error: nil) }
+                            catch is CancellationError { return }
+                            catch { response = .init(payload: nil, error: error.localizedDescription) }
+                            try Task.checkCancellation()
+                            let reply = try DesktopCloudRelay.seal(response, id: id, challenge: challenge,
+                                                                  pairing: pairing, response: true)
+                            try await socket.task.send(.data(reply))
+                        } catch {}
+                    }
+                @unknown default: throw DesktopPeerLink.Failure.invalidMessage
+                }
+            }
+        } onCancel: { socket.close() }
     }
 
     private func stopHosting() {
@@ -260,7 +347,7 @@ final class DesktopAssistantLink: ObservableObject {
 
     /// QR setup authenticates the Mac on the LAN before saving its optional away address.
     func pair(_ qr: DesktopPeerLink.PairingQR) async throws -> DesktopPeerLink.Route {
-        let route = try await authenticate(qr.pairing, tailscaleAddress: nil)
+        let route = try await authenticate(qr.pairing, tailscaleAddress: nil, allowCloud: false)
         try savePairing(qr.pairing, address: qr.tailscaleAddress)
         return route
     }
@@ -270,8 +357,10 @@ final class DesktopAssistantLink: ObservableObject {
         return try await authenticate(pairing, tailscaleAddress: awayAddress)
     }
 
-    private func authenticate(_ pairing: DesktopPeerLink.Pairing, tailscaleAddress: String?) async throws -> DesktopPeerLink.Route {
-        let reply = try await call(.init(Self.hello), pairing: pairing, tailscaleAddress: tailscaleAddress, timeout: .seconds(8))
+    private func authenticate(_ pairing: DesktopPeerLink.Pairing, tailscaleAddress: String?,
+                              allowCloud: Bool = true) async throws -> DesktopPeerLink.Route {
+        let reply = try await call(.init(Self.hello), pairing: pairing, tailscaleAddress: tailscaleAddress,
+                                   timeout: .seconds(8), allowCloud: allowCloud)
         guard reply.payload == "ready" else { throw DesktopPeerLink.Failure.invalidMessage }
         return reply.route
     }
@@ -298,12 +387,23 @@ final class DesktopAssistantLink: ObservableObject {
     }
 
     private func call(_ request: DesktopPeerLink.Request, pairing: DesktopPeerLink.Pairing,
-                      tailscaleAddress: String?, timeout: Duration) async throws -> (payload: String, route: DesktopPeerLink.Route) {
-        let (connection, path) = try await DesktopPeerLink.connect(to: pairing, tailscaleAddress: tailscaleAddress)
-        defer { connection.cancel() }
-        let response = try await DesktopPeerLink.within(timeout, connection: connection) {
-            try await DesktopPeerLink.send(request, to: connection)
-            return try await DesktopPeerLink.read(DesktopPeerLink.Response.self, from: connection)
+                      tailscaleAddress: String?, timeout: Duration, allowCloud: Bool = true) async throws -> (payload: String, route: DesktopPeerLink.Route) {
+        let relay = allowCloud ? BananaAccount.shared.desktopRelaySocket(link: pairing.serviceName) : nil
+        let response: DesktopPeerLink.Response
+        let path: DesktopPeerLink.Route
+        if let direct = try await DesktopPeerLink.connect(to: pairing, tailscaleAddress: tailscaleAddress, cloudFallback: relay != nil) {
+            let (connection, route) = direct
+            path = route
+            defer { connection.cancel() }
+            response = try await DesktopPeerLink.within(timeout, connection: connection) {
+                try await DesktopPeerLink.send(request, to: connection)
+                return try await DesktopPeerLink.read(DesktopPeerLink.Response.self, from: connection)
+            }
+        } else if let relay {
+            path = .cloud
+            response = try await DesktopCloudRelay.exchange(request, over: relay, pairing: pairing, timeout: timeout)
+        } else {
+            throw DesktopPeerLink.Failure.unavailable
         }
         if let error = response.error { throw DesktopPeerLink.Failure.rejected(error) }
         guard let payload = response.payload else { throw DesktopPeerLink.Failure.invalidMessage }

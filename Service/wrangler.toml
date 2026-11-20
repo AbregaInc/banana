@@ -48,6 +48,14 @@ class_name = "Mailbox"
 tag = "v2"
 new_sqlite_classes = ["Mailbox"]
 
+[[durable_objects.bindings]]
+name = "DESKTOP_RELAY"
+class_name = "DesktopRelayRoom"
+
+[[migrations]]
+tag = "v3"
+new_sqlite_classes = ["DesktopRelayRoom"]
+
 [[r2_buckets]]
 binding = "BLOBS"
 bucket_name = "banana-blobs"
@@ -157,6 +165,14 @@ class_name = "Mailbox"
 [[env.beta.migrations]]
 tag = "v2"
 new_sqlite_classes = ["Mailbox"]
+
+[[env.beta.durable_objects.bindings]]
+name = "DESKTOP_RELAY"
+class_name = "DesktopRelayRoom"
+
+[[env.beta.migrations]]
+tag = "v3"
+new_sqlite_classes = ["DesktopRelayRoom"]
 
 [[env.beta.r2_buckets]]
 binding = "BLOBS"

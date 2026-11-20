@@ -1,3 +1,4 @@
+import { desktopLinkName, desktopNonce } from "./desktop-relay.js";
 import {parseMailDraftRequest,mailDraft} from './mail-drafts.js';
 import {uploadMailPart,removeMailParts} from './mail-uploads.js';
 import {parseMailOperation,mailOperation} from "./mail-operation.js";
@@ -325,6 +326,17 @@ export function createApp(deps) {
   }
 
   app.get("/v1/account", signedIn, async (c) => c.json(await summary(c.get("account"))));
+
+  app.get("/v1/desktop/:link/:role", signedIn, async (c) => {
+    const link = c.req.param("link"), role = c.req.param("role"), nonce = c.req.query("nonce");
+    if (!deps.desktopRelay) return c.body(null, 404);
+    if (!desktopLinkName.test(link) || !["host", "client"].includes(role)
+        || (role === "host" && !desktopNonce.test(nonce ?? ""))) return c.body(null, 400);
+    if (c.req.header("upgrade")?.toLowerCase() !== "websocket") return c.body(null, 426);
+    const account = c.get("account");
+    if (!(await deps.limit("api", "desktop:" + account))) return c.body(null, 429);
+    return deps.desktopRelay(account, link, role, nonce, c.req.raw);
+  });
 
   app.put("/v1/mail/attachment/:operation/:hash", signedIn, async (c) => {
     c.header("Cache-Control","no-store");

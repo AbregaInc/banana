@@ -674,6 +674,20 @@ final class BananaAccount: ObservableObject {
         PlaybackDiagnostics.shared.log("☁️ account", "signed out")
     }
 
+    #if BANANA_AI && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
+    func desktopRelaySocket(link: String, hostChallenge: String? = nil) -> URLRequest? {
+        guard let session, let host = BananaService.host,
+              var url = URLComponents(string: host), url.scheme == "https" else { return nil }
+        url.scheme = "wss"
+        url.path = "/v1/desktop/" + link + (hostChallenge == nil ? "/client" : "/host")
+        url.queryItems = hostChallenge.map { [URLQueryItem(name: "nonce", value: $0)] }
+        guard let endpoint = url.url else { return nil }
+        var request = URLRequest(url: endpoint)
+        request.setValue("Bearer " + session, forHTTPHeaderField: "Authorization")
+        return request
+    }
+    #endif
+
     /// One call. Nil when the service couldn't be reached. A 401 on a signed-in call means the
     /// account is gone (deleted on another device): this device signs out too.
     private func send(_ call: BananaService.Call) async -> (Data, Int)? {

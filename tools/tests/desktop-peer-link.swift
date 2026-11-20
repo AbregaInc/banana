@@ -39,6 +39,25 @@ struct DesktopPeerLinkTest {
         precondition(DesktopPeerLink.tailscaleFallback(address: "", preference: true) == nil)
         precondition(DesktopPeerLink.tailscaleFallback(address: "192.0.2.1", preference: nil) == nil)
 
+        let challenge = DesktopCloudRelay.nonce(), requestID = DesktopCloudRelay.nonce()
+        let secret = "Relay sample text"
+        let request = DesktopPeerLink.Request("test.echo.v1", payload: secret)
+        let encrypted = try DesktopCloudRelay.seal(request, id: requestID, challenge: challenge, pairing: pairing, response: false)
+        precondition(encrypted.range(of: Data(secret.utf8)) == nil)
+        let opened = try DesktopCloudRelay.open(DesktopPeerLink.Request.self, frame: encrypted, id: requestID,
+                                                challenge: challenge, pairing: pairing, response: false)
+        precondition(opened.payload == secret)
+        for (otherID, otherChallenge, otherPair, direction) in [
+            (DesktopCloudRelay.nonce(), challenge, pairing, false),
+            (requestID, DesktopCloudRelay.nonce(), pairing, false),
+            (requestID, challenge, DesktopPeerLink.Pairing(), false),
+            (requestID, challenge, pairing, true)
+        ] {
+            let invalid = try? DesktopCloudRelay.open(DesktopPeerLink.Request.self, frame: encrypted, id: otherID,
+                                                      challenge: otherChallenge, pairing: otherPair, response: direction)
+            precondition(invalid == nil)
+        }
+
         let listener = try NWListener(using: pairing.parameters())
         defer { listener.cancel() }
         listener.newConnectionHandler = { connection in

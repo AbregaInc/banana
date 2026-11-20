@@ -90,7 +90,7 @@ enum DesktopPeerLink {
         let error: String?
     }
 
-    enum Route: String { case local = "Local network", tailscale = "Tailscale" }
+    enum Route: String { case local = "Local network", tailscale = "Tailscale", cloud = "Banana Cloud" }
 
     enum Failure: LocalizedError {
         case unavailable, timeout, invalidMessage, incompatible, busy
@@ -123,16 +123,22 @@ enum DesktopPeerLink {
 
     /// If Bonjour finds the Mac, this request stays on the LAN even after a connection failure.
     /// Tailscale can be used for a Mac that isn't advertised on the local network.
-    @MainActor static func connect(to pairing: Pairing, tailscaleAddress: String?) async throws -> (NWConnection, Route) {
+    @MainActor static func connect(to pairing: Pairing, tailscaleAddress: String?,
+                                  cloudFallback: Bool) async throws -> (NWConnection, Route)? {
         if let endpoint = try await discover(pairing, timeout: .seconds(2)) {
             let connection = try await open(endpoint, pairing: pairing, localOnly: true, timeout: .seconds(4))
             return (connection, .local)
         }
-        guard let tailscaleAddress, let endpoint = tailnetEndpoint(tailscaleAddress) else {
-            throw Failure.unavailable
+        guard let tailscaleAddress, let endpoint = tailnetEndpoint(tailscaleAddress) else { return nil }
+        do {
+            let connection = try await open(endpoint, pairing: pairing, localOnly: false, timeout: .seconds(4))
+            return (connection, .tailscale)
+        } catch is CancellationError {
+            throw CancellationError()
+        } catch {
+            guard cloudFallback else { throw error }
+            return nil
         }
-        let connection = try await open(endpoint, pairing: pairing, localOnly: false, timeout: .seconds(4))
-        return (connection, .tailscale)
     }
 
     @MainActor static func discover(_ pairing: Pairing, timeout: Duration) async throws -> NWEndpoint? {

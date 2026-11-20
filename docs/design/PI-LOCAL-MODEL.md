@@ -43,7 +43,12 @@ The mobile device authenticates the Mac on the LAN before saving that address. A
 address enables Tailscale away from home. Turn off **Use Tailscale** to remember your
 preference across launches. You can also enter the address manually. If the
 paired Mac is discovered locally, failed authentication or inference does not try another
-route. The app does not use a Banana Cloud relay. If the Mac is unavailable when Assistant
+route. To use Banana Cloud away from home, turn on **Use Banana Cloud relay** on the Mac and keep
+both devices signed in to the same Banana account. The Mac holds an authenticated, renewable
+connection while sharing is enabled. Requests use the local network first and then Tailscale.
+The app may use the cloud relay if neither direct path connects. Requests already sent are
+never retried on another route. The relay forwards encrypted frames and has no pairing secret
+or access to model inputs and replies. If the Mac is unavailable when Assistant
 opens, the device uses its own model where supported. An interrupted desktop turn returns
 an error and is never replayed.
 
@@ -58,7 +63,7 @@ For transport verification on the Mac:
 ```sh
 test_dir=$(mktemp -d)
 xcrun swiftc -DBANANA_AI -DBANANA_BETA Banana/Pi/DesktopPeerLink.swift \
-  Banana/Pi/DesktopPairingQRCode.swift \
+  Banana/Pi/DesktopPairingQRCode.swift Banana/Pi/DesktopCloudRelay.swift \
   tools/tests/desktop-peer-link.swift -o "$test_dir/desktop-peer-link"
 "$test_dir/desktop-peer-link"
 rm -rf "$test_dir"
