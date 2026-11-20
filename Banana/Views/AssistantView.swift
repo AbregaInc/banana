@@ -227,7 +227,7 @@ struct AssistantView: View {
                     Button("Try again") { assistant.activate() }.font(.footnote)
                 }
             }
-            #if os(iOS) && BANANA_BETA && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
+            #if os(iOS) && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
             if assistant.available && !assistant.isDiagnostic {
                 Text(assistant.modelLocation)
                     .font(.caption)
