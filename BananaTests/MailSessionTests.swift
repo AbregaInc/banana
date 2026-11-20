@@ -418,6 +418,7 @@ final class MailSessionTests: XCTestCase {
     @MainActor
     private final class DelayedListSource: MailSource {
         let fixture = MailFixtureSource(samples: MailFixtureConversations.stress(days: 1), defaults: nil)
+        var delayFirstPage = false
         var active: Set<Int> = []
         var pending: [() -> Void] = []
         func activate() {}
@@ -430,7 +431,7 @@ final class MailSessionTests: XCTestCase {
             active.insert(limit)
             let token = fixture.observeList(scope, limit: limit) { [weak self] snapshot in
                 guard let self else { return }
-                if limit == MailTuning.listStep { onChange(snapshot) }
+                if limit == MailTuning.listStep && !self.delayFirstPage { onChange(snapshot) }
                 else {
                     self.pending.append { [weak self] in
                         guard self?.active.contains(limit) == true else { return }
@@ -908,6 +909,25 @@ final class MailSessionTests: XCTestCase {
         let gone = Harness()
         gone.session.restoreOpen(id("no-such-conversation"))
         XCTAssertNil(gone.open, "a restored conversation that no longer exists is dropped")
+    }
+
+    func testColdLaunchRestoresTheReaderWhenTheSavedPageArrives() throws {
+        let source = DelayedListSource()
+        source.delayFirstPage = true
+        let session = MailSession(source: source, now: source.fixture.now, deviceName: "Test",
+                                  timers: MailTimers { _, _ in {} }, present: { _, _ in })
+        var first: MailConversationID?
+        let sample = source.fixture.observeList(MailScope(place: .mailbox(.inbox)), limit: 1) {
+            first = $0.rows.first?.id
+        }
+        sample.cancel()
+        let target = try XCTUnwrap(first)
+        session.enter()
+        defer { session.leave() }
+        session.restoreOpen(target)
+        XCTAssertNil(session.openConversation)
+        try XCTUnwrap(source.pending.first)()
+        XCTAssertEqual(session.openConversation, target)
     }
 
     // MARK: The reading pane

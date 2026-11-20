@@ -26,7 +26,10 @@ final class BananaAccount: ObservableObject {
     /// its own for, so those show "Sign in again" where a signed-out account already does.
     @Published private(set) var account: BananaService.Account? {
         didSet {
-            if let account { FeatureAccessStore.shared.receive(account: account.id, policy: account.featureAccess) }
+            if let account {
+                FeatureAccessStore.shared.receive(account: account.id, policy: account.featureAccess,
+                                                  mailAccounts: account.google.map { $0.email.lowercased() })
+            }
             let need = BananaService.accountsToSignInAgain(connected: GoogleCalendarService.shared.accounts.map(\.id), account: account)
             if need != GoogleCalendarService.shared.accountsNeedingServiceSignIn {
                 PlaybackDiagnostics.shared.log("☁️ account", need.isEmpty

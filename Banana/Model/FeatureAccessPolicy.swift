@@ -26,6 +26,9 @@ struct FeatureAccessCache: Codable, Equatable {
     var account: String
     var policy: FeatureAccessPolicy
     var receivedAt: Date
+    /// Linked mailbox identities from the same authenticated response as this policy.
+    /// Optional for devices upgrading from before Mail could open offline.
+    var mailAccounts: [String]? = nil
 
     func accepts(account nextAccount: String, policy nextPolicy: FeatureAccessPolicy) -> Bool {
         // Concurrent foreground/background refreshes may finish in reverse order.

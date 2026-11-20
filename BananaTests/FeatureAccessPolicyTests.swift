@@ -27,6 +27,29 @@ final class FeatureAccessPolicyTests: XCTestCase {
         XCTAssertFalse(gate.allows("email", now: now.addingTimeInterval(901)))
     }
 
+    @MainActor
+    func testSavedMailMembershipIsAvailableOfflineOnlyToTheBoundSession() throws {
+        let suite = "MailMembership-" + UUID().uuidString
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let host = "https://beta.plan.example"
+        let clock = now
+        let original = FeatureAccessStore(defaults: defaults, now: { clock })
+        original.bind(session: "session", host: host)
+        original.receive(account: "account-1", policy: cache().policy)
+        let upgraded = FeatureAccessStore(defaults: defaults, now: { clock })
+        upgraded.bind(session: "session", host: host)
+        XCTAssertNil(upgraded.cachedMailAccounts, "Older caches do not establish mailbox membership")
+        upgraded.receive(account: "account-1", policy: cache().policy, mailAccounts: ["noor@plan.example"])
+
+        let reopened = FeatureAccessStore(defaults: defaults, now: { clock.addingTimeInterval(901) })
+        reopened.bind(session: "session", host: host)
+        XCTAssertEqual(reopened.cachedMailAccounts, ["noor@plan.example"])
+        XCTAssertNil(reopened.mailContext, "The saved list does not authorize requests")
+        reopened.bind(session: "another-session", host: host)
+        XCTAssertNil(reopened.cachedMailAccounts)
+    }
+
     func testUnseenDeniedInvalidOrDifferentSessionPoliciesCannotOfferMail() {
         var denied = cache().policy
         denied.enabled = []

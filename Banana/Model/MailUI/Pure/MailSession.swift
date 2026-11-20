@@ -282,17 +282,26 @@ final class MailSession {
         send(.leave)
     }
 
-    /// A cold launch comes back to the conversation that was open: after entering, and only if
-    /// the list still has it.
+    private var pendingOpenRestore: MailConversationID?
+
+    /// A live list can deliver its saved first page asynchronously after the screen appears.
     func restoreOpen(_ id: MailConversationID) {
-        guard navigation.open == nil, model.rows.contains(where: { $0.id == id }) else { return }
-        send(.open(id))
+        guard navigation.open == nil else { return }
+        if model.rows.contains(where: { $0.id == id }) {
+            send(.open(id))
+        } else if answersEntry {
+            pendingOpenRestore = id
+        }
     }
 
     private func received(_ snapshot: MailListSnapshot, answersRequest: Bool = false) {
         let marked = answersEntry
         answersEntry = false
         run(model.handle(.snapshot(snapshot, answersEntry: marked, answersRequest: answersRequest)))
+        if marked, let id = pendingOpenRestore {
+            pendingOpenRestore = nil
+            restoreOpen(id)
+        }
     }
 
     private func received(_ event: MailEvent) {
@@ -392,6 +401,7 @@ final class MailSession {
 
     func switchTo(_ target: MailScope) {
         guard target != scope else { return }
+        pendingOpenRestore = nil
         closeComposer()
         if model.open != nil { run(model.handle(.close)) }
         if isEntered { end() }
@@ -509,7 +519,10 @@ final class MailSession {
                 present(MailToast(text: targetRestriction, action: nil, lasts: nil), {})
                 return
             }
+        case .open, .close, .place:
+            pendingOpenRestore = nil
         case .openAndReply:
+            pendingOpenRestore = nil
             guard allowsComposing else { explainComposingUnavailable(); return }
         case .readDelayElapsed(let id):
             guard allowsChanges, allowsTarget(.conversations([id])) else { return }

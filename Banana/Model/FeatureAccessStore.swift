@@ -37,7 +37,7 @@ final class FeatureAccessStore: ObservableObject {
         publish()
     }
 
-    func receive(account: String, policy: FeatureAccessPolicy?) {
+    func receive(account: String, policy: FeatureAccessPolicy?, mailAccounts: [String]? = nil) {
         if let context {
             if let policy, cached?.accepts(account: account, policy: policy) == false { return }
             // A response with no supported policy cannot grant live requests.
@@ -45,6 +45,7 @@ final class FeatureAccessStore: ObservableObject {
             let policy = policy ?? FeatureAccessPolicy(version: 0, issuedAt: floor, expiresAt: floor, enabled: [])
             cached = FeatureAccessCache(context: context, account: account, policy: policy,
                                         receivedAt: now(), previous: cached)
+            cached?.mailAccounts = mailAccounts
             if let data = try? JSONEncoder().encode(cached) { defaults.set(data, forKey: key) }
         } else { cached = nil; defaults.removeObject(forKey: key) }
         publish()
@@ -57,6 +58,12 @@ final class FeatureAccessStore: ObservableObject {
     /// Opaque session/account binding for reads that may span several provider pages.
     var calendarReadContext: String? { featureContext("calendarCloud") }
     var mailContext: String? { featureContext("email") }
+
+    /// Saved membership is only for the local index; provider access still uses live grants.
+    var cachedMailAccounts: [String]? {
+        guard let cached, cached.offers("email", context: context, now: now()) else { return nil }
+        return cached.mailAccounts
+    }
     private func featureContext(_ feature: String) -> String? {
         guard allows(feature), let cached else { return nil }
         return cached.context + ":" + cached.account

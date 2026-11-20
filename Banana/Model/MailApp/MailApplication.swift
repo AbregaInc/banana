@@ -11,6 +11,15 @@ import Combine
     private var startup: Task<Void, Never>?
     private var accessObservation: AnyCancellable?
     private var accessRefresh: Task<Void, Never>?
+    private var accountRefresh: Task<Void, Never>?
+
+    func refreshAccount() async {
+        if let accountRefresh { await accountRefresh.value; return }
+        let task = Task { _ = await BananaAccount.shared.refresh() }
+        accountRefresh = task
+        await task.value
+        accountRefresh = nil
+    }
 
     func start() {
         guard session == nil, startup == nil else { return }
@@ -29,8 +38,9 @@ import Combine
         loading = true; failed = false
         startup = Task {
             do {
-                await GoogleCalendarService.shared.restoreIfNeeded()
-                _ = await BananaAccount.shared.refresh()
+                let account = BananaAccount.shared
+                let needsMembership = account.account == nil && FeatureAccessStore.shared.cachedMailAccounts == nil
+                let refresh = Task { await refreshAccount() }
                 let access = MailCloudAccess()
                 let (stores, intent) = try await Task.detached(priority: .userInitiated) {
                     let root = AppSupport.directory.appendingPathComponent("BananaMail", isDirectory: true)
@@ -38,6 +48,8 @@ import Combine
                     return (try MailStores.open(directories, migrations: MailSlices.migrations()),
                             try MailIntentStore(directories: directories))
                 }.value
+                // An older cache needs one authenticated lookup to scope the local index.
+                if needsMembership { await refresh.value }
                 let api = GmailHTTP(cloudTransport: { path, reference, query, method, body in
                         try await BananaAccount.shared.mailRequest(path: path, reference: reference, query: query, method: method, body: body)
                     }, draftTransport: { reference, body in
