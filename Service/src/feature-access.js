@@ -18,9 +18,11 @@ export async function featurePolicy(deps, account) {
   const ready = await providerDevicesReady(deps, account);
   const active = rows.filter(r => ready && FEATURES.includes(r.feature) && Number(r.enabled) === 1
     && (r.expires_at == null || Number(r.expires_at) > now));
+  const persistent = active.filter(row => row.expires_at == null).map(row => row.feature).sort();
   return { version: 1, issuedAt: now,
     expiresAt: Math.min(now + POLICY_TTL, ...active.filter(r => r.expires_at != null).map(r => Number(r.expires_at))),
-    enabled: active.map(r => r.feature).sort() };
+    enabled: active.map(r => r.feature).sort(),
+    ...(persistent.length > 0 ? { persistent } : {}) };
 }
 
 export function googleCapabilities(link) {
