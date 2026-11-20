@@ -31,6 +31,12 @@ export function searchWithoutCourtesy(query, source) {
   const clean=query.replace(new RegExp('\\s+'+courtesy+'[.!?\\s]*$','i'),'').trim();
   return clean || query;
 }
+export function namedCalendarLookup(value) {
+  const match = value.trim().match(/^(?:when is|what(?:['’]s| is)) +(?:(?:my|our) +)?([\p{L}][\p{L}\p{M}-]*(?: +[\p{L}][\p{L}\p{M}-]*){0,3})['’]s +(birthday|anniversary)[?.!]?$/iu);
+  if (!match || /\b(?:and|or|not)\b/i.test(match[1])) return null;
+  const query = `${match[1]} ${match[2]}`;
+  return query.length <= 120 ? query : null;
+}
 export function directConversationCommand(value) {
   if(value.match(quoted))return null;
   const words=value.toLowerCase().match(/[a-z]+(?:['’][a-z]+)?|\d+/g)??[];
