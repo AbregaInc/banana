@@ -217,9 +217,12 @@ final class AssistantUITest: XCTestCase {
     func testAnswerRatingTargetsIncludeSpaceAroundTheIcons() {
         let app = launch()
         send("Check the answer controls", in: app)
-        let up = app.buttons["assistant.rate.up"]
-        let down = app.buttons["assistant.rate.down"]
-        XCTAssertTrue(waitUntil(timeout: 15) { up.isHittable && down.isHittable }, app.debugDescription)
+        let up = app.buttons["Good answer"]
+        let down = app.buttons["Bad answer"]
+        guard waitUntil(timeout: 15, { up.exists && down.exists }) else {
+            return XCTFail(app.debugDescription)
+        }
+        XCTAssertTrue(up.isHittable && down.isHittable)
         for button in [up, down] {
             XCTAssertGreaterThanOrEqual(button.frame.width, 44)
             XCTAssertGreaterThanOrEqual(button.frame.height, 44)
