@@ -32,8 +32,38 @@ Locals from the app's own runtime measured the same as the developer setup (42/4
 
 ## iPhone and iPad
 
-Apple's on-device model, as before. `PinnedModelFiles` is platform-neutral should they get a
-model of their own.
+Apple’s on-device model is the default. In an AI-enabled Beta, open **Assistant → … →
+Desktop link** on both devices. Enable sharing on the Mac, then paste its pairing code into
+the iPhone or iPad. Keep Banana Beta open on the Mac. The connection screen shows which
+route is in use and whether the Mac’s model is ready.
+
+Bonjour finds the paired Mac on Wi-Fi or Ethernet and model requests stay on that network.
+Away from home, use the Mac’s Tailscale IPv4 address and opt in for that session. If the
+paired Mac is discovered locally, failed authentication or inference does not try another
+route. The app does not use a Banana Cloud relay. If the Mac is unavailable when Assistant
+opens, the device uses its own model where supported. An interrupted desktop turn returns
+an error and is never replayed.
+
+The versioned desktop link uses TLS with a random pairing secret stored in each device’s
+Keychain. Share the code only with your own devices. Turning sharing off from the Mac
+revokes the code for all paired devices. The Mac serves model inference through this link
+and keeps the model worker on loopback. Conversation storage and tool execution stay on
+the requesting device.
+
+For transport verification on the Mac:
+
+```sh
+test_dir=$(mktemp -d)
+xcrun swiftc -DBANANA_AI -DBANANA_BETA Banana/Pi/DesktopPeerLink.swift \
+  tools/tests/desktop-peer-link.swift -o "$test_dir/desktop-peer-link"
+"$test_dir/desktop-peer-link"
+rm -rf "$test_dir"
+```
+
+On physical devices, pair over the same Wi-Fi with Tailscale disabled and check that the
+connection reports **Local network**. Try the same prompt from an off-LAN connection, with
+Tailscale enabled and the explicit away access switched on. Turn sharing off on the Mac
+and verify that the previous code and outstanding requests stop working.
 
 ## Open
 

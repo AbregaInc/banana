@@ -110,9 +110,9 @@ final class AssistantStore: ObservableObject {
     /// Notes Pi saved, by conversation, in order: the conversation shows each as the note it
     /// is (its words, a way to it), not only as a "Saved a note" step.
     @Published private(set) var savedNotes: [String: [SavedNote]] = [:]
+    var isDiagnostic: Bool { diagnostic }
     #if DEBUG
     @Published private(set) var fixtureNoteCount = 0
-    var isDiagnostic: Bool { diagnostic }
     private(set) var verificationBackgrounds = 0
     private(set) var verificationActivations = 0
     private(set) var verificationResumedBackgrounds = 0
@@ -127,9 +127,15 @@ final class AssistantStore: ObservableObject {
     private var diagnostic = false
     /// Whether the running Pi was started on the Mac's own model (vs Apple's, while it downloads).
     private var hostUsesLocalModel = false
+    #if os(iOS) && BANANA_BETA && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
+    private var desktopModel: DesktopAssistantLink.Model?
+    #endif
     var modelIdentity: String {
         #if os(macOS)
         if !diagnostic, let local = MacLocalInference.shared.resolvedConfiguration() { return "mac-local/\(local.modelId)" }
+        #endif
+        #if os(iOS) && BANANA_BETA && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
+        if let desktopModel { return "desktop/\(desktopModel.modelId)" }
         #endif
         return diagnostic ? "faux/faux-1" : "apple-foundation/on-device"
     }
@@ -258,6 +264,21 @@ final class AssistantStore: ObservableObject {
             }
         }
         #endif
+        #if os(iOS) && BANANA_BETA && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
+        if let desktopModel {
+            configuration["localModel"] = desktopModel.agent
+            host.modelHandler = { raw in
+                if let input = try JSONSerialization.jsonObject(with: Data(raw.utf8)) as? [String: Any],
+                   input["backend"] as? String == "mac-local" {
+                    do { return try await DesktopAssistantLink.shared.generate(raw) }
+                    catch is CancellationError { throw CancellationError() }
+                    catch { throw AssistantFailure(message: error.localizedDescription) }
+                }
+                return try await AppleFoundationModel.generate(raw)
+            }
+            host.modelStatusHandler = { desktopModel.status }
+        }
+        #endif
         let config = String(decoding: try JSONSerialization.data(withJSONObject: configuration), as: UTF8.self)
         host.context.setObject(config, forKeyedSubscript: "nativeAgentConfiguration" as NSString)
         guard let bootstrap = Bundle.main.url(forResource: "pi-bootstrap", withExtension: "js"),
@@ -277,6 +298,16 @@ final class AssistantStore: ObservableObject {
             guard let self else { return }
             do {
                 if value {
+                    #if os(iOS) && BANANA_BETA && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
+                    if !self.diagnostic && !self.busy && !self.sending {
+                        let model = DesktopAssistantLink.hasSavedPairing ? await DesktopAssistantLink.shared.model() : nil
+                        if !self.busy && !self.sending && model != self.desktopModel {
+                            self.host?.stop()
+                            self.host = nil
+                            self.desktopModel = model
+                        }
+                    }
+                    #endif
                     #if os(macOS)
                     if !self.diagnostic {
                         LocalModel.shared.start()
@@ -334,7 +365,12 @@ final class AssistantStore: ObservableObject {
             busy = state.busy; available = state.availability.available
             modelName = state.availability.modelName
             if state.availability.available {
-                availabilityReason = state.availability.modelName.map { "\($0) · On this Mac" } ?? "On this \(DeviceRole.current.name)"
+                #if os(iOS) && BANANA_BETA && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
+                let location = desktopModel == nil ? "On this \(DeviceRole.current.name)" : "On your Mac"
+                #else
+                let location = "On this \(DeviceRole.current.name)"
+                #endif
+                availabilityReason = state.availability.modelName.map { "\($0) · \(location)" } ?? location
             } else if state.availability.modelName != nil {
                 availabilityReason = state.availability.reason
             } else if state.availability.reason == "requiresOS27" {

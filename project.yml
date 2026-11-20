@@ -561,6 +561,7 @@ targets:
         NSLocalNetworkUsageDescription: "Banana Beta finds your other Banana devices on this Wi-Fi."
         NSBonjourServices:
           - _$(BANANA_PEER_SERVICE)._tcp
+          - _banana-link._tcp
         NSAppTransportSecurity:
           NSAllowsArbitraryLoads: true
         ITSAppUsesNonExemptEncryption: false
@@ -1572,9 +1573,10 @@ targetTemplates:
         NSRemindersFullAccessUsageDescription: "Banana reads your reminders on-device so it can schedule tasks onto your day."
         NSLocationWhenInUseUsageDescription: "Banana uses your location for your local forecast."
         NSSpeechRecognitionUsageDescription: "Banana transcribes downloaded episodes on your device."
-        NSLocalNetworkUsageDescription: "Banana finds your other Banana devices on this Wi-Fi so one downloaded podcast file can be reused without downloading it again."
+        NSLocalNetworkUsageDescription: "Banana Beta connects to your other devices on the local network to share the Mac model and transfer downloaded podcasts."
         NSBonjourServices:
           - _$(BANANA_PEER_SERVICE)._tcp
+          - _banana-link._tcp
         NSAppTransportSecurity:
           NSAllowsArbitraryLoads: true
     settings:

@@ -8,6 +8,9 @@ struct AssistantView: View {
     @State private var showingConversations = false
     @State private var confirmingClear = false
     @State private var showingHistory = false
+    #if BANANA_BETA && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
+    @State private var showingDesktopLink = false
+    #endif
     /// Words handed over by the shell's "Ask Banana" row, sent once the model is ready.
     @State private var sendWhenReady = false
     #if PI_DEVELOPMENT
@@ -52,6 +55,13 @@ struct AssistantView: View {
             }
         }
         .problemReportPage(.assistant)
+        #if BANANA_BETA && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
+        .sheet(isPresented: $showingDesktopLink, onDismiss: {
+            #if os(iOS)
+            assistant.activate()
+            #endif
+        }) { DesktopLinkSettings() }
+        #endif
         .onAppear { ProblemReportCenter.shared.provide(.assistant) { ProblemReportPageContext.assistant() } }
         .sheet(isPresented: $showingConversations) {
             NavigationStack {
@@ -151,6 +161,12 @@ struct AssistantView: View {
         Menu {
             Button("Summarize context", systemImage: "text.append") { Task { await assistant.compact() } }
                 .disabled(assistant.busy || !assistant.available || assistant.messages.isEmpty)
+            #if BANANA_BETA && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
+            if !assistant.isDiagnostic {
+                Button("Desktop link…", systemImage: "link") { showingDesktopLink = true }
+                    .disabled(assistant.busy || assistant.sending)
+            }
+            #endif
             #if PI_DEVELOPMENT
             Menu("Sample data", systemImage: "flask") {
                 Button(AppSupport.isPiSampleWorkspace ? "Use my data after reopening" : "Use full sample workspace after reopening") {

@@ -848,6 +848,11 @@ struct BananaApp: App {
     private var configuredRoot: some View {
         configuredPlatformRoot
             .task { await wireUp() }
+            #if os(macOS) && BANANA_AI && BANANA_BETA && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
+            .task {
+                if DesktopAssistantLink.hasSavedPairing { DesktopAssistantLink.shared.startHosting() }
+            }
+            #endif
             .spaceSyncQuestions()
     }
 
