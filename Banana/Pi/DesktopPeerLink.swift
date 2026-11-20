@@ -12,6 +12,7 @@ enum DesktopPeerLink {
     private static let limit = 4 * 1024 * 1024
 
     struct Pairing: Equatable, Sendable {
+        private static let qrPrefix = "BANANA-DESKTOP-LINK/1/"
         let key: Data
 
         init() {
@@ -25,6 +26,13 @@ enum DesktopPeerLink {
         }
 
         var code: String { key.base64EncodedString() }
+        var qrPayload: String { Self.qrPrefix + code }
+
+        init?(qrPayload: String) {
+            guard qrPayload.hasPrefix(Self.qrPrefix) else { return nil }
+            self.init(code: String(qrPayload.dropFirst(Self.qrPrefix.count)))
+        }
+
         var serviceName: String { "Banana-" + SHA256.hash(data: key).prefix(12).map { String(format: "%02x", $0) }.joined() }
         func parameters(localOnly: Bool = false) -> NWParameters {
             let tls = NWProtocolTLS.Options()

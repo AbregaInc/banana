@@ -99,6 +99,7 @@ final class DesktopAssistantLink: ObservableObject {
     private var inferenceInProgress = false
 
     var pairingCode: String? { pairing?.code }
+    var pairingQRPayload: String? { pairing?.qrPayload }
 
     func enableHosting() throws {
         if pairing == nil { try save(.init()) }

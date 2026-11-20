@@ -33,8 +33,9 @@ Locals from the app's own runtime measured the same as the developer setup (42/4
 ## iPhone and iPad
 
 Apple’s on-device model is the default. In an AI-enabled Beta, open **Assistant → … →
-Desktop link** on both devices. Enable sharing on the Mac, then paste its pairing code into
-the iPhone or iPad. Keep Banana Beta open on the Mac. The connection screen shows which
+Desktop link** on both devices. Enable sharing on the Mac, then choose **Scan Mac QR code**
+on the iPhone or iPad. You can copy and enter the pairing code manually as well. Keep Banana
+Beta open on the Mac. The connection screen shows which
 route is in use and whether the Mac’s model is ready.
 
 Bonjour finds the paired Mac on Wi-Fi or Ethernet and model requests stay on that network.
@@ -55,6 +56,7 @@ For transport verification on the Mac:
 ```sh
 test_dir=$(mktemp -d)
 xcrun swiftc -DBANANA_AI -DBANANA_BETA Banana/Pi/DesktopPeerLink.swift \
+  Banana/Pi/DesktopPairingQRCode.swift \
   tools/tests/desktop-peer-link.swift -o "$test_dir/desktop-peer-link"
 "$test_dir/desktop-peer-link"
 rm -rf "$test_dir"
