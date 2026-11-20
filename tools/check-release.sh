@@ -60,13 +60,15 @@ if [[ "$target" == *.xcarchive && "${#primary_apps[@]}" -eq 1 && "${channel:-}" 
     while IFS= read -r -d '' helper; do
       format=$(file -b "$helper")
       [[ "$format" == *Mach-O*executable* ]] || continue
-      if ! codesign -d --entitlements - "$helper" 2>/dev/null | python3 -c '
+      if ! codesign -d --entitlements :- "$helper" 2>/dev/null | python3 -c '
 import plistlib, sys
 try:
-    entitlements = plistlib.load(sys.stdin.buffer)
+    entitlements = plistlib.loads(sys.stdin.buffer.read())
 except (ValueError, plistlib.InvalidFileException):
     sys.exit(1)
-sys.exit(entitlements != {"com.apple.security.app-sandbox": True, "com.apple.security.inherit": True})
+expected = {"com.apple.security.app-sandbox", "com.apple.security.inherit"}
+sys.exit(not isinstance(entitlements, dict) or set(entitlements) != expected
+         or any(value is not True for value in entitlements.values()))
 '; then
         echo "Missing sandbox inheritance on Mac inference helper ${helper##*/}"
         exit 1
