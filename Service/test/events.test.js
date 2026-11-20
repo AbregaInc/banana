@@ -351,9 +351,11 @@ test('recurring invitations ring once for the earliest occurrence, say series, a
   const invite = (i) => timed(`series_${i}`, s.now() + i * DAY, { recurringEventId: 'series', iCalUID: 'series@example.com',
     organizer: { email: 'coach@example.com' }, creator: { email: 'coach@example.com' },
     attendees: [{ email: 'ann@example.com', self: true, responseStatus: 'needsAction' }] });
-  s.google.changed.set('ann@example.com', [invite(4), invite(2), invite(3)]);
+  // A Google delta can return historical instances alongside the upcoming ones.
+  s.google.changed.set('ann@example.com', [invite(4), invite(-400), invite(2), invite(3)]);
   await notify(s, channel, token); await s.settle();
   assert.equal(visible(s).length, 2, 'one notification on each of the two devices');
+  assert.equal(await s.count("event_state", "event_id = 'series_-400'"), 0);
   for (const push of visible(s)) {
     assert.match(push.payload.aps.alert.body, /Recurring series/);
     assert.equal(push.payload.b.event, 'series', 'Accept and Decline address the series master');
