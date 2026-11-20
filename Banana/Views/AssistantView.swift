@@ -235,7 +235,7 @@ struct AssistantView: View {
     }
 
     /// One input for asking, finding and adding. While Pi works its send button is Stop, in the
-    /// same place; a status line shows only when the model can't be used.
+    /// same place. On phones and tablets, the status also identifies the selected model location.
     private var composer: some View {
         VStack(alignment: .leading, spacing: 8) {
             if assistant.loadingLocalModel {
@@ -252,6 +252,15 @@ struct AssistantView: View {
                     Button("Try again") { assistant.activate() }.font(.footnote)
                 }
             }
+            #if os(iOS) && BANANA_BETA && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
+            if assistant.available && !assistant.isDiagnostic {
+                Text(assistant.modelLocation)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .accessibilityLabel("Assistant model. \(assistant.modelLocation)")
+                    .accessibilityIdentifier("assistant.model.location")
+            }
+            #endif
             #if DEBUG
             if assistant.isDiagnostic && !AppSupport.isDesignCapture {
                 Text("\(assistant.fixtureNoteCount) saved note\(assistant.fixtureNoteCount == 1 ? "" : "s")")

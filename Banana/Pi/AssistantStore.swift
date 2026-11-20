@@ -130,6 +130,13 @@ final class AssistantStore: ObservableObject {
     #if os(iOS) && BANANA_BETA && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
     private var desktopModel: DesktopAssistantLink.Model?
     #endif
+    var modelLocation: String {
+        #if os(iOS) && BANANA_BETA && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
+        if desktopModel != nil { return "On your Mac" }
+        #endif
+        return "On this \(DeviceRole.current.name)"
+    }
+
     var modelIdentity: String {
         #if os(macOS)
         if !diagnostic, let local = MacLocalInference.shared.resolvedConfiguration() { return "mac-local/\(local.modelId)" }
@@ -365,11 +372,7 @@ final class AssistantStore: ObservableObject {
             busy = state.busy; available = state.availability.available
             modelName = state.availability.modelName
             if state.availability.available {
-                #if os(iOS) && BANANA_BETA && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
-                let location = desktopModel == nil ? "On this \(DeviceRole.current.name)" : "On your Mac"
-                #else
-                let location = "On this \(DeviceRole.current.name)"
-                #endif
+                let location = modelLocation
                 availabilityReason = state.availability.modelName.map { "\($0) · \(location)" } ?? location
             } else if state.availability.modelName != nil {
                 availabilityReason = state.availability.reason
