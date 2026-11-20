@@ -30,7 +30,15 @@ struct SettingsView: View {
         #endif
     }()
 
-    fileprivate static let searchIndex: [SettingsSearchEntry] = tripLearningEntries + [
+    private static let desktopLinkEntries: [SettingsSearchEntry] = {
+        #if BANANA_AI && BANANA_BETA && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
+        [.init(title: "Desktop Link", page: .desktopLink, keywords: ["assistant", "mac", "model", "pair", "QR", "Tailscale"])]
+        #else
+        []
+        #endif
+    }()
+
+    fileprivate static let searchIndex: [SettingsSearchEntry] = tripLearningEntries + desktopLinkEntries + [
         .init(title: "Modules", page: .modules, keywords: ["modules", "features", "tabs", "hide", "show", "turn off", "food", "workouts", "podcasts", "notes"]),
         .init(title: "Record where I listen", page: .podcasts, keywords: ["location", "gps", "route", "privacy"]),
         .init(title: "Skip ads automatically", page: .podcasts, keywords: ["ads", "advert", "sponsor", "promo", "intro", "skip"]),
@@ -214,6 +222,9 @@ struct SettingsView: View {
             ForEach([SettingsPage.modules, .calendar, .booking, .travel, .wake, .podcasts, .workouts, .food].filter(isShown), id: \.self) { sidebarRow($0) }
         }
         Section("General") {
+            #if BANANA_AI && BANANA_BETA && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
+            sidebarRow(.desktopLink)
+            #endif
             // Apple Watch too, as on the phone: here it holds the audio quality the
             // phone syncs at. It was reachable only through the search field.
             ForEach([SettingsPage.watch, .icloud, .permissions].filter(isShown), id: \.self) { sidebarRow($0) }
@@ -362,7 +373,11 @@ struct SettingsView: View {
     // sections below, so a setting has one home and search can take you straight to it.
 
     enum SettingsPage: String, Hashable, CaseIterable {
-        case accounts, modules, calendar, booking, travel, wake, podcasts, workouts, food, watch, icloud, permissions, about
+        case accounts, modules, calendar, booking, travel, wake, podcasts, workouts, food, watch, icloud, permissions
+        #if BANANA_AI && BANANA_BETA && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
+        case desktopLink
+        #endif
+        case about
 
         /// The module a page belongs to, if any.
         var module: AppModule? {
@@ -397,6 +412,9 @@ struct SettingsView: View {
             case .watch: "Apple Watch"
             case .icloud: "iCloud"
             case .permissions: "Permissions"
+            #if BANANA_AI && BANANA_BETA && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
+            case .desktopLink: "Desktop Link"
+            #endif
             case .about: "About"
             }
         }
@@ -415,6 +433,9 @@ struct SettingsView: View {
             case .watch: "applewatch"
             case .icloud: "icloud.fill"
             case .permissions: "hand.raised.fill"
+            #if BANANA_AI && BANANA_BETA && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
+            case .desktopLink: "desktopcomputer"
+            #endif
             case .about: "info.circle.fill"
             }
         }
@@ -430,6 +451,9 @@ struct SettingsView: View {
             case .food: DS.Palette.Feature.food
             case .icloud: DS.Palette.Feature.icloud
             case .accounts, .modules, .watch, .permissions, .about: DS.Palette.Feature.system
+            #if BANANA_AI && BANANA_BETA && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
+            case .desktopLink: DS.Palette.Feature.system
+            #endif
             }
         }
     }
@@ -439,6 +463,9 @@ struct SettingsView: View {
     /// an optimized build evaluated it in a stack frame bigger than an iPhone or iPad main thread
     /// has: Settings crashed on open (stack overflow). Each page now carries only its own sections.
     private func page(_ page: SettingsPage) -> AnyView {
+        #if BANANA_AI && BANANA_BETA && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
+        if page == .desktopLink { return AnyView(DesktopLinkSettings()) }
+        #endif
         if page == .wake {
             // Its own screen, with its own list and sheets.
             return AnyView(SmartScheduleView().navigationTitle(page.title))
@@ -517,7 +544,9 @@ struct SettingsView: View {
             AnyView(permissionsSection)
         case .about:
             AnyView(Group {
-                Section { DemoEntryButton() }
+                #if DEBUG
+                if DemoEntryButton.isEnabled { Section { DemoEntryButton() } }
+                #endif
                 versionsSection
                 #if os(macOS) && BANANA_DIRECT
                 DirectMacUpdateSettings()
@@ -528,6 +557,10 @@ struct SettingsView: View {
             })
         case .wake, .booking:
             AnyView(EmptyView())   // shown by `page(_:)` as its own screen
+        #if BANANA_AI && BANANA_BETA && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
+        case .desktopLink:
+            AnyView(EmptyView())   // shown by `page(_:)` as its own screen
+        #endif
         #if !(BANANA_MODULE_PODCASTS && BANANA_MODULE_WORKOUTS && BANANA_MODULE_FOOD)
         default:
             AnyView(EmptyView())   // a module's page, in a build without the module (`isShown`)
@@ -685,6 +718,9 @@ struct SettingsView: View {
 
     private var generalSection: some View {
         Section("General") {
+            #if BANANA_AI && BANANA_BETA && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
+            featureRow(.desktopLink, value: nil)
+            #endif
             // Only with Podcasts, which is what it sends to the Watch (`isShown`).
             if isShown(.watch) { featureRow(.watch, value: settings.watchAudioQuality.label) }
             // The backup's job is the Banana service's once this device has moved (§6).

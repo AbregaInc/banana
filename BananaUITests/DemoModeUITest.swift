@@ -32,7 +32,7 @@ final class DemoModeUITest: XCTestCase {
         app.buttons["demo.event.save"].tap()
     }
 
-    func testPublicEntryCalendarEditAndExitPreserveOnboarding() throws {
+    func testFixtureCalendarEditAndExitPreserveOnboarding() throws {
         let app = app(); app.launch()
         let food = app.buttons["onboarding.module.food"]
         XCTAssertTrue(food.waitForExistence(timeout: 20))

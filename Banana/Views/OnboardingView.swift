@@ -94,10 +94,14 @@ struct OnboardingView: View {
             Button("Build my day") { advance() }
                 .buttonStyle(FirstRun.primary)
                 .accessibilityIdentifier("onboarding.continue")
-            DemoEntryButton(plainTitle: "Explore an example")
-                .buttonStyle(.plain)
-                .font(FirstRun.bodyFont)
-                .foregroundStyle(FirstRun.ink)
+            #if DEBUG
+            if DemoEntryButton.isEnabled {
+                DemoEntryButton(plainTitle: "Explore an example")
+                    .buttonStyle(.plain)
+                    .font(FirstRun.bodyFont)
+                    .foregroundStyle(FirstRun.ink)
+            }
+            #endif
             // Getting started is agreeing to them: the one place they're asked for.
             Text("By continuing you agree to the [Terms](\(Telemetry.termsURL.absoluteString)) and [Privacy Policy](\(Telemetry.privacyURL.absoluteString)).")
                 .font(.footnote)

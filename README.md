@@ -74,9 +74,8 @@ That is enough for a simulator. The build uses the stand-in names in `Config/Bas
 it runs on sample or local data, with iCloud sync and Google sign-in switched off, because
 both belong to whoever signs the app.
 
-Use **Try with sample data** on the welcome screen to explore the native demo
-without Google credentials or personal data. The cloud service has its own
-[setup and test instructions](Service/README.md).
+The [native sample-data fixtures](docs/testing/demo-mode.md) are available to automated tests.
+The cloud service has its own [setup and test instructions](Service/README.md).
 
 For your own devices, copy `Config/Local.example.xcconfig` to `Config/Local.xcconfig`
 (not tracked) and give it:

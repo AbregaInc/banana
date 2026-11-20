@@ -32,14 +32,16 @@ Locals from the app's own runtime measured the same as the developer setup (42/4
 
 ## iPhone and iPad
 
-Apple’s on-device model is the default. In an AI-enabled Beta, open **Assistant → … →
-Desktop link** on both devices. Enable sharing on the Mac, then choose **Scan Mac QR code**
+Apple’s on-device model is the default. In an AI-enabled Beta, open **Settings → Desktop Link**
+on both devices. Enable sharing on the Mac, then choose **Scan Mac QR code**
 on the iPhone or iPad. You can copy and enter the pairing code manually as well. Keep Banana
 Beta open on the Mac. The connection screen shows which
 route is in use and whether the Mac’s model is ready.
 
 Bonjour finds the paired Mac on Wi-Fi or Ethernet and model requests stay on that network.
-Away from home, use the Mac’s Tailscale IPv4 address and opt in for that session. If the
+The QR code includes the Mac’s Tailscale IPv4 address when the Tailscale client provides it.
+The mobile device authenticates the Mac on the LAN before saving that address. Away from home,
+opt in for that session. The address can also be entered manually. If the
 paired Mac is discovered locally, failed authentication or inference does not try another
 route. The app does not use a Banana Cloud relay. If the Mac is unavailable when Assistant
 opens, the device uses its own model where supported. An interrupted desktop turn returns

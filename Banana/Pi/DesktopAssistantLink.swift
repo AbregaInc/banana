@@ -99,7 +99,6 @@ final class DesktopAssistantLink: ObservableObject {
     private var inferenceInProgress = false
 
     var pairingCode: String? { pairing?.code }
-    var pairingQRPayload: String? { pairing?.qrPayload }
 
     func enableHosting() throws {
         if pairing == nil { try save(.init()) }
@@ -223,6 +222,17 @@ final class DesktopAssistantLink: ObservableObject {
         try save(candidate)
     }
 
+    /// QR setup authenticates the Mac on the LAN before saving an optional away address.
+    func pair(_ qr: DesktopPeerLink.PairingQR) async throws {
+        _ = try await call(.init(Self.hello), pairing: qr.pairing, timeout: .seconds(8), localOnly: true)
+        let sameMac = pairing == qr.pairing
+        try save(qr.pairing)
+        if !sameMac || qr.tailscaleAddress != nil {
+            allowTailscale = false
+            try setTailscaleAddress(qr.tailscaleAddress ?? "")
+        }
+    }
+
     func model() async -> Model? {
         guard let pairing else { return nil }
         do { return try await model(using: pairing) }
@@ -248,8 +258,9 @@ final class DesktopAssistantLink: ObservableObject {
     }
 
     private func call(_ request: DesktopPeerLink.Request, pairing: DesktopPeerLink.Pairing,
-                      timeout: Duration) async throws -> String {
-        let (connection, path) = try await DesktopPeerLink.connect(to: pairing, tailscaleAddress: allowTailscale ? tailscaleAddress : nil)
+                      timeout: Duration, localOnly: Bool = false) async throws -> String {
+        let (connection, path) = try await DesktopPeerLink.connect(to: pairing,
+            tailscaleAddress: !localOnly && allowTailscale ? tailscaleAddress : nil)
         defer { connection.cancel() }
         let response = try await DesktopPeerLink.within(timeout, connection: connection) {
             try await DesktopPeerLink.send(request, to: connection)

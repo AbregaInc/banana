@@ -12,7 +12,6 @@ enum DesktopPeerLink {
     private static let limit = 4 * 1024 * 1024
 
     struct Pairing: Equatable, Sendable {
-        private static let qrPrefix = "BANANA-DESKTOP-LINK/1/"
         let key: Data
 
         init() {
@@ -26,13 +25,6 @@ enum DesktopPeerLink {
         }
 
         var code: String { key.base64EncodedString() }
-        var qrPayload: String { Self.qrPrefix + code }
-
-        init?(qrPayload: String) {
-            guard qrPayload.hasPrefix(Self.qrPrefix) else { return nil }
-            self.init(code: String(qrPayload.dropFirst(Self.qrPrefix.count)))
-        }
-
         var serviceName: String { "Banana-" + SHA256.hash(data: key).prefix(12).map { String(format: "%02x", $0) }.joined() }
         func parameters(localOnly: Bool = false) -> NWParameters {
             let tls = NWProtocolTLS.Options()
@@ -49,6 +41,36 @@ enum DesktopPeerLink {
                 parameters.prohibitedInterfaceTypes = [.cellular, .other]
             }
             return parameters
+        }
+    }
+
+    struct PairingQR {
+        private static let legacyPrefix = "BANANA-DESKTOP-LINK/1/"
+        private static let addressPrefix = "BANANA-DESKTOP-LINK/2/"
+        let pairing: Pairing
+        let tailscaleAddress: String?
+
+        init(pairing: Pairing, tailscaleAddress: String?) {
+            self.pairing = pairing
+            self.tailscaleAddress = tailscaleAddress.flatMap { tailnetEndpoint($0) == nil ? nil : $0 }
+        }
+
+        init?(payload: String) {
+            if payload.hasPrefix(Self.legacyPrefix),
+               let pairing = Pairing(code: String(payload.dropFirst(Self.legacyPrefix.count))) {
+                self.init(pairing: pairing, tailscaleAddress: nil)
+            } else {
+                guard payload.hasPrefix(Self.addressPrefix) else { return nil }
+                let parts = payload.dropFirst(Self.addressPrefix.count).split(separator: ":", omittingEmptySubsequences: false)
+                guard parts.count == 2, let pairing = Pairing(code: String(parts[0])),
+                      tailnetEndpoint(String(parts[1])) != nil else { return nil }
+                self.init(pairing: pairing, tailscaleAddress: String(parts[1]))
+            }
+        }
+
+        var payload: String {
+            guard let tailscaleAddress else { return Self.legacyPrefix + pairing.code }
+            return Self.addressPrefix + pairing.code + ":" + tailscaleAddress
         }
     }
 

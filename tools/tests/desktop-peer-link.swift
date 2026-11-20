@@ -9,17 +9,23 @@ struct DesktopPeerLinkTest {
         let pairing = DesktopPeerLink.Pairing()
         precondition(DesktopPeerLink.Pairing(code: pairing.code) == pairing)
         precondition(DesktopPeerLink.Pairing(code: "bad") == nil)
-        precondition(DesktopPeerLink.Pairing(qrPayload: pairing.qrPayload) == pairing)
-        precondition(DesktopPeerLink.Pairing(qrPayload: pairing.code) == nil)
-        precondition(DesktopPeerLink.Pairing(qrPayload: "https://example.org/" + pairing.code) == nil)
-        precondition(DesktopPeerLink.Pairing(qrPayload: "BANANA-DESKTOP-LINK/2/" + pairing.code) == nil)
-        guard let image = DesktopPairingQRCode.image(for: pairing.qrPayload) else {
+        let legacy = DesktopPeerLink.PairingQR(pairing: pairing, tailscaleAddress: nil)
+        precondition(DesktopPeerLink.PairingQR(payload: legacy.payload)?.pairing == pairing)
+        precondition(DesktopPeerLink.PairingQR(payload: legacy.payload)?.tailscaleAddress == nil)
+        let qr = DesktopPeerLink.PairingQR(pairing: pairing, tailscaleAddress: "100.64.1.1")
+        precondition(DesktopPeerLink.PairingQR(payload: qr.payload)?.pairing == pairing)
+        precondition(DesktopPeerLink.PairingQR(payload: qr.payload)?.tailscaleAddress == "100.64.1.1")
+        precondition(DesktopPeerLink.PairingQR(payload: pairing.code) == nil)
+        precondition(DesktopPeerLink.PairingQR(payload: "https://example.org/" + pairing.code) == nil)
+        precondition(DesktopPeerLink.PairingQR(payload: "BANANA-DESKTOP-LINK/2/" + pairing.code) == nil)
+        precondition(DesktopPeerLink.PairingQR(payload: "BANANA-DESKTOP-LINK/2/" + pairing.code + ":192.0.2.1") == nil)
+        guard let image = DesktopPairingQRCode.image(for: qr.payload) else {
             fatalError("Mac did not render the pairing code")
         }
         let scan = VNDetectBarcodesRequest()
         scan.symbologies = [.qr]
         try VNImageRequestHandler(cgImage: image).perform([scan])
-        precondition(scan.results?.first?.payloadStringValue == pairing.qrPayload)
+        precondition(scan.results?.first?.payloadStringValue == qr.payload)
         precondition(DesktopPeerLink.tailnetEndpoint("100.64.1.1") != nil)
         precondition(DesktopPeerLink.tailnetEndpoint("100.127.255.254") != nil)
         for invalid in ["127.0.0.1", "100.63.1.1", "100.128.1.1", "example.org", "100.64.1.1:443"] {

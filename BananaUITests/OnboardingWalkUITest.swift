@@ -299,7 +299,7 @@ final class OnboardingWalkUITest: XCTestCase {
 
         let go = app.buttons["onboarding.continue"]
         assertFullSize(go, "Build my day")
-        XCTAssertTrue(app.buttons["demo.open"].exists, "no way to explore an example")
+        XCTAssertFalse(app.buttons["demo.open"].exists, "Sample data is available only to dedicated tests")
         XCTAssertLessThanOrEqual(app.staticTexts.count, 10, "the welcome has grown more to read")
         // On an iPad the phone's layout ran edge to edge: a button a thousand points wide.
         XCTAssertLessThanOrEqual(go.frame.width, 561, "the page isn't kept to a column")
