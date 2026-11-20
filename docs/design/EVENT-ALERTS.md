@@ -13,9 +13,10 @@ own local alerts as the fallback for when the service can't reach them.
 |---|---|
 | Any timed event he attends | at his lead times (default 5 min before and at the start, `eventAlertLeads`), sent by the service |
 | Event added inside the lead window | at once ("Starting now" / "Starts in 3 minutes") |
-| New invitation (he is `needsAction`) | always, any date, with Accept / Decline |
-| Someone else adds, moves or cancels an event, any date | at once |
-| Gmail-created event (`eventType: fromGmail`, or a `source`) | at once |
+| New invitation (he is `needsAction`) | until the event ends, with Accept / Decline |
+| Someone else adds or moves an event | at once if the event hasn't ended |
+| Someone else cancels a known upcoming event | at once |
+| Gmail-created event (`eventType: fromGmail`, or a `source`) | at once if the event hasn't ended |
 | His own change, anywhere | silent, but its starting-soon alerts still come |
 | Banana's own busy blocks and write-backs (`extendedProperties.private.bananaVariant`) | always silent |
 
@@ -44,7 +45,7 @@ already does, so its own edits never ring as "someone else's".
    Recurring invitations announce once per series, not once per expanded occurrence. A hashed
    account/series receipt in `series_invitations` survives the one-day alert cleanup; iCalUID
    shares that receipt across connected calendars. Existing and baseline series seed it silently.
-   The earliest occurrence in a new batch supplies the notification, whose body says “Recurring
+   The earliest occurrence that hasn't ended in a new batch supplies the notification, whose body says “Recurring
    series”. Accept/Decline route to the series master, rather than only that occurrence.
    Automatically accepted invitations follow the same rule. Each occurrence still gets
    its own lead reminders, and genuine changes to known occurrences remain independent.

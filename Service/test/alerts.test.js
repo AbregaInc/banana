@@ -37,7 +37,7 @@ test("added inside the lead window: 'Starting now' at once, and only then", () =
   assert.deepEqual(ids(decide(args(timed("e2", NOW + 3 * MIN), { leads: [5], baseline: true }))), []);
 });
 
-test("an invitation he hasn't answered: visible once, any date, no lead alerts until he accepts", () => {
+test("an upcoming invitation he hasn't answered rings once and gets no lead alerts until he accepts", () => {
   const invite = timed("e3", NOW + 3 * 24 * 60 * MIN, {
     creator: { email: "ann@y.com", displayName: "Ann" }, organizer: { email: "ann@y.com", displayName: "Ann" },
     attendees: [{ email: "ann@y.com", organizer: true, responseStatus: "accepted" }, { email: "noor@x.com", self: true, responseStatus: "needsAction" }],
@@ -56,7 +56,7 @@ test("an invitation he hasn't answered: visible once, any date, no lead alerts u
   assert.ok(decide(args(declined)).dropPending);
 });
 
-test("someone else adds or moves an event: visible at once, any date; his own change is silent", () => {
+test("someone else adds or moves an upcoming event: visible at once; his own change is silent", () => {
   const byAnn = timed("e4", NOW + 5 * 24 * 60 * MIN, { creator: { email: "ann@y.com", displayName: "Ann" }, organizer: { email: "noor@x.com", self: true } });
   const added = decide(args(byAnn));
   assert.deepEqual(ids(added), ["0", "5", "changed"]);
@@ -68,6 +68,31 @@ test("someone else adds or moves an event: visible at once, any date; his own ch
   assert.deepEqual(ids(decide(args(byAnn, { previous: prev }))), ["0", "5"]);
   // His own: only the lead alerts.
   assert.deepEqual(ids(decide(args(timed("e5", NOW + 5 * 24 * 60 * MIN)))), ["0", "5"]);
+});
+
+test("historical additions, moves, invitations and Gmail events do not ring", () => {
+  const event = timed("historical", NOW - 400 * 24 * 60 * MIN, {
+    creator: { email: "ann@y.com" },
+  });
+  const pastEvents = [
+    args(event),
+    args(event, { previous: { start_at: NOW - 60 * MIN, end_at: NOW - 30 * MIN } }),
+    args({ ...event, attendees: [{ self: true, responseStatus: "needsAction" }] }),
+    args({ ...event, eventType: "fromGmail", creator: { self: true } }),
+    args(timed("just-ended", NOW - 30 * MIN, { creator: event.creator })),
+  ];
+  for (const input of pastEvents) {
+    assert.deepEqual(decide(input), { alerts: [], state: null, dropPending: true });
+  }
+  assert.deepEqual(ids(decide(args(timed("in-progress", NOW - MIN, { creator: event.creator })))), ["changed"]);
+});
+
+test("all-day notifications honor the exclusive end date in the event's time zone", () => {
+  const event = { id: "holiday", start: { date: "2026-10-17", timeZone: "America/New_York" },
+    end: { date: "2026-10-19" }, creator: { email: "ann@y.com" } };
+  const localMidnight = Date.parse("2026-10-19T04:00:00Z");
+  assert.deepEqual(ids(decide(args(event, { now: localMidnight - 1, timeZone: "UTC" }))), ["changed"]);
+  assert.deepEqual(ids(decide(args(event, { now: localMidnight, timeZone: "UTC" }))), []);
 });
 
 test("Gmail-made events ring at once; cancellations by others ring once; Banana's blocks never", () => {
