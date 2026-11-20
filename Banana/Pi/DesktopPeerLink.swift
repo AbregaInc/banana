@@ -116,8 +116,13 @@ enum DesktopPeerLink {
         return .hostPort(host: .ipv4(address), port: port)
     }
 
+    static func tailscaleFallback(address: String, preference: Bool?) -> String? {
+        guard preference != false, tailnetEndpoint(address) != nil else { return nil }
+        return address
+    }
+
     /// If Bonjour finds the Mac, this request stays on the LAN even after a connection failure.
-    /// A caller can opt in to Tailscale for a Mac that isn't advertised on the local network.
+    /// Tailscale can be used for a Mac that isn't advertised on the local network.
     @MainActor static func connect(to pairing: Pairing, tailscaleAddress: String?) async throws -> (NWConnection, Route) {
         if let endpoint = try await discover(pairing, timeout: .seconds(2)) {
             let connection = try await open(endpoint, pairing: pairing, localOnly: true, timeout: .seconds(4))

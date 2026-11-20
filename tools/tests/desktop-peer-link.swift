@@ -32,6 +32,13 @@ struct DesktopPeerLinkTest {
             precondition(DesktopPeerLink.tailnetEndpoint(invalid) == nil)
         }
 
+        let address = "100.64.1.1"
+        precondition(DesktopPeerLink.tailscaleFallback(address: address, preference: nil) == address)
+        precondition(DesktopPeerLink.tailscaleFallback(address: address, preference: true) == address)
+        precondition(DesktopPeerLink.tailscaleFallback(address: address, preference: false) == nil)
+        precondition(DesktopPeerLink.tailscaleFallback(address: "", preference: true) == nil)
+        precondition(DesktopPeerLink.tailscaleFallback(address: "192.0.2.1", preference: nil) == nil)
+
         let listener = try NWListener(using: pairing.parameters())
         defer { listener.cancel() }
         listener.newConnectionHandler = { connection in

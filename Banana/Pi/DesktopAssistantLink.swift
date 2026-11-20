@@ -28,13 +28,13 @@ final class DesktopAssistantLink: ObservableObject {
     private static let describe = "assistant.model.v1"
     private static let infer = "assistant.generate.v1"
     private static let addressKey = "desktopLink.tailscaleAddress"
+    private static let tailscalePreferenceKey = "desktopLink.allowTailscale"
     private static let pairingKey = "desktopLink.hasPairing"
 
     /// Skip Keychain and network work at launch on devices that have never opted in.
     static var hasSavedPairing: Bool { UserDefaults.standard.bool(forKey: pairingKey) }
 
     @Published private(set) var isPaired = false
-    @Published private(set) var status = ""
     private var pairing: DesktopPeerLink.Pairing? {
         didSet { isPaired = pairing != nil }
     }
@@ -42,6 +42,9 @@ final class DesktopAssistantLink: ObservableObject {
     private init() {
         pairing = Self.loadPairing()
         isPaired = pairing != nil
+        #if os(iOS)
+        restoreTailscaleSettings()
+        #endif
     }
 
     // The pairing is per installation. Never put the secret in synced preferences or logs.
@@ -83,16 +86,18 @@ final class DesktopAssistantLink: ObservableObject {
         guard result == errSecSuccess || result == errSecItemNotFound else { throw keychainFailure }
         #if os(macOS)
         stopHosting()
+        status = ""
         #else
-        allowTailscale = false
         UserDefaults.standard.removeObject(forKey: Self.addressKey)
+        UserDefaults.standard.removeObject(forKey: Self.tailscalePreferenceKey)
+        restoreTailscaleSettings()
         #endif
         pairing = nil
         UserDefaults.standard.removeObject(forKey: Self.pairingKey)
-        status = ""
     }
 
     #if os(macOS)
+    @Published private(set) var status = ""
     @Published private(set) var hosting = false
     private var listener: NWListener?
     private var connections: [UUID: NWConnection] = [:]
@@ -200,67 +205,101 @@ final class DesktopAssistantLink: ObservableObject {
         return try await MacLocalInference.shared.generate(raw)
     }
     #else
-    /// Away access is opt-in for the current launch. The local address is always tried first.
-    @Published var allowTailscale = false
-    @Published private(set) var route: DesktopPeerLink.Route?
+    @Published private(set) var allowTailscale = false
+    @Published private(set) var tailscaleAddress = ""
 
-    var tailscaleAddress: String { UserDefaults.standard.string(forKey: Self.addressKey) ?? "" }
+    private var tailscalePreference: Bool? {
+        UserDefaults.standard.object(forKey: Self.tailscalePreferenceKey) as? Bool
+    }
 
-    func setTailscaleAddress(_ value: String) throws {
+    private func restoreTailscaleSettings() {
+        let address = UserDefaults.standard.string(forKey: Self.addressKey) ?? ""
+        tailscaleAddress = DesktopPeerLink.tailscaleFallback(address: address, preference: nil) ?? ""
+        allowTailscale = DesktopPeerLink.tailscaleFallback(address: tailscaleAddress, preference: tailscalePreference) != nil
+    }
+
+    private var awayAddress: String? { allowTailscale ? tailscaleAddress : nil }
+
+    func setTailscaleAllowed(_ enabled: Bool) {
+        guard !tailscaleAddress.isEmpty else { return }
+        UserDefaults.standard.set(enabled, forKey: Self.tailscalePreferenceKey)
+        restoreTailscaleSettings()
+    }
+
+    private func validatedAddress(_ value: String) throws -> String {
         let address = value.trimmingCharacters(in: .whitespacesAndNewlines)
         guard address.isEmpty || DesktopPeerLink.tailnetEndpoint(address) != nil else {
             throw DesktopPeerLink.Failure.rejected("Enter the Mac’s Tailscale IPv4 address.")
         }
-        UserDefaults.standard.set(address, forKey: Self.addressKey)
+        return address
     }
 
-    func pair(with code: String) async throws {
+    func setTailscaleAddress(_ value: String) throws {
+        let address = try validatedAddress(value)
+        UserDefaults.standard.set(address, forKey: Self.addressKey)
+        restoreTailscaleSettings()
+    }
+
+    private func savePairing(_ candidate: DesktopPeerLink.Pairing, address: String?) throws {
+        let sameMac = pairing == candidate
+        try save(candidate)
+        if !sameMac { UserDefaults.standard.removeObject(forKey: Self.tailscalePreferenceKey) }
+        if !sameMac || address != nil { try setTailscaleAddress(address ?? "") }
+    }
+
+    func pair(with code: String, tailscaleAddress: String) async throws -> DesktopPeerLink.Route {
         guard let candidate = DesktopPeerLink.Pairing(code: code) else {
             throw DesktopPeerLink.Failure.rejected("Enter the pairing code shown on your Mac.")
         }
-        _ = try await call(.init(Self.hello), pairing: candidate, timeout: .seconds(8))
-        try save(candidate)
+        let address = try validatedAddress(tailscaleAddress)
+        let fallback = DesktopPeerLink.tailscaleFallback(address: address, preference: pairing == candidate ? tailscalePreference : nil)
+        let route = try await authenticate(candidate, tailscaleAddress: fallback)
+        try savePairing(candidate, address: address)
+        return route
     }
 
-    /// QR setup authenticates the Mac on the LAN before saving an optional away address.
-    func pair(_ qr: DesktopPeerLink.PairingQR) async throws {
-        _ = try await call(.init(Self.hello), pairing: qr.pairing, timeout: .seconds(8), localOnly: true)
-        let sameMac = pairing == qr.pairing
-        try save(qr.pairing)
-        if !sameMac || qr.tailscaleAddress != nil {
-            allowTailscale = false
-            try setTailscaleAddress(qr.tailscaleAddress ?? "")
-        }
+    /// QR setup authenticates the Mac on the LAN before saving its optional away address.
+    func pair(_ qr: DesktopPeerLink.PairingQR) async throws -> DesktopPeerLink.Route {
+        let route = try await authenticate(qr.pairing, tailscaleAddress: nil)
+        try savePairing(qr.pairing, address: qr.tailscaleAddress)
+        return route
+    }
+
+    func checkConnection() async throws -> DesktopPeerLink.Route {
+        guard let pairing else { throw DesktopPeerLink.Failure.unavailable }
+        return try await authenticate(pairing, tailscaleAddress: awayAddress)
+    }
+
+    private func authenticate(_ pairing: DesktopPeerLink.Pairing, tailscaleAddress: String?) async throws -> DesktopPeerLink.Route {
+        let reply = try await call(.init(Self.hello), pairing: pairing, tailscaleAddress: tailscaleAddress, timeout: .seconds(8))
+        guard reply.payload == "ready" else { throw DesktopPeerLink.Failure.invalidMessage }
+        return reply.route
     }
 
     func model() async -> Model? {
         guard let pairing else { return nil }
-        do { return try await model(using: pairing) }
-        catch is CancellationError { return nil }
-        catch { status = error.localizedDescription; route = nil; return nil }
+        return try? await model(using: pairing)
     }
 
     private func model(using pairing: DesktopPeerLink.Pairing) async throws -> Model {
-        let reply = try await call(.init(Self.describe), pairing: pairing, timeout: .seconds(8))
-        let value = try JSONDecoder().decode(Model.self, from: Data(reply.utf8))
+        let reply = try await call(.init(Self.describe), pairing: pairing, tailscaleAddress: awayAddress, timeout: .seconds(8))
+        let value = try JSONDecoder().decode(Model.self, from: Data(reply.payload.utf8))
         guard !value.modelId.isEmpty, (4096...1_048_576).contains(value.contextWindow),
               (1..<value.contextWindow).contains(value.maxTokens),
               ["off", "low", "medium", "high", "xhigh"].contains(value.thinkingLevel) else {
             throw DesktopPeerLink.Failure.invalidMessage
         }
-        status = value.name
         return value
     }
 
     func generate(_ raw: String) async throws -> String {
         guard let pairing else { throw DesktopPeerLink.Failure.unavailable }
-        return try await call(.init(Self.infer, payload: raw), pairing: pairing, timeout: .seconds(180))
+        return try await call(.init(Self.infer, payload: raw), pairing: pairing, tailscaleAddress: awayAddress, timeout: .seconds(180)).payload
     }
 
     private func call(_ request: DesktopPeerLink.Request, pairing: DesktopPeerLink.Pairing,
-                      timeout: Duration, localOnly: Bool = false) async throws -> String {
-        let (connection, path) = try await DesktopPeerLink.connect(to: pairing,
-            tailscaleAddress: !localOnly && allowTailscale ? tailscaleAddress : nil)
+                      tailscaleAddress: String?, timeout: Duration) async throws -> (payload: String, route: DesktopPeerLink.Route) {
+        let (connection, path) = try await DesktopPeerLink.connect(to: pairing, tailscaleAddress: tailscaleAddress)
         defer { connection.cancel() }
         let response = try await DesktopPeerLink.within(timeout, connection: connection) {
             try await DesktopPeerLink.send(request, to: connection)
@@ -268,8 +307,7 @@ final class DesktopAssistantLink: ObservableObject {
         }
         if let error = response.error { throw DesktopPeerLink.Failure.rejected(error) }
         guard let payload = response.payload else { throw DesktopPeerLink.Failure.invalidMessage }
-        route = path
-        return payload
+        return (payload, path)
     }
     #endif
 }

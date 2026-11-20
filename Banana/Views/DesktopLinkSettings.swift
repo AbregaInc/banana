@@ -2,6 +2,8 @@
 import SwiftUI
 #if os(macOS)
 import AppKit
+#else
+import Accessibility
 #endif
 
 struct DesktopLinkSettings: View {
@@ -11,6 +13,7 @@ struct DesktopLinkSettings: View {
     @State private var code = ""
     @State private var address = ""
     @State private var waiting = false
+    @State private var checkedRoute: DesktopPeerLink.Route?
     @State private var showingScanner = false
     @State private var requestingCamera = false
     #else
@@ -85,12 +88,15 @@ struct DesktopLinkSettings: View {
                         .disabled(waiting || requestingCamera)
                 }
                 if link.isPaired {
-                    if let route = link.route { LabeledContent("Connection", value: route.rawValue) }
-                    if !link.status.isEmpty { Text(link.status) }
-                    Button("Check connection") { run { _ = await link.model() } }
+                    Button("Check connection") { run { try await link.checkConnection() } }
                         .disabled(waiting)
-                    Button("Forget Mac", role: .destructive) { update { try link.forget() } }
-                        .disabled(waiting)
+                    Button("Forget Mac", role: .destructive) {
+                        update {
+                            try link.forget()
+                            address = link.tailscaleAddress
+                        }
+                    }
+                    .disabled(waiting)
                 } else {
                     SecureField("Pairing code", text: $code)
                         .textInputAutocapitalization(.never)
@@ -101,26 +107,33 @@ struct DesktopLinkSettings: View {
                     }
                     .disabled(code.isEmpty || waiting || requestingCamera)
                 }
-                if waiting { ProgressView("Connecting…") }
+                if waiting {
+                    ProgressView(link.isPaired ? "Checking connection…" : "Connecting…")
+                } else if let checkedRoute {
+                    Label(connectionMessage(checkedRoute), systemImage: "checkmark.circle.fill")
+                        .foregroundStyle(.green)
+                }
             }
             Section("Away from home") {
                 TextField("Mac’s Tailscale IPv4 address", text: $address)
                     .keyboardType(.decimalPad)
                     .autocorrectionDisabled()
                     .disabled(waiting)
-                    .onChange(of: address) { _, _ in
-                        if link.allowTailscale { link.allowTailscale = false }
-                    }
-                Toggle("Allow Tailscale this session", isOn: Binding(
-                    get: { link.allowTailscale },
-                    set: { allow in
-                        if !allow { link.allowTailscale = false; return }
+                if link.isPaired && address != link.tailscaleAddress {
+                    Button("Save address") {
                         update {
                             try link.setTailscaleAddress(address)
-                            link.allowTailscale = !link.tailscaleAddress.isEmpty
+                            address = link.tailscaleAddress
                         }
-                    }))
-                .disabled(address.isEmpty || waiting)
+                    }
+                    .disabled(waiting)
+                }
+                if !link.tailscaleAddress.isEmpty {
+                    Toggle("Use Tailscale", isOn: Binding(
+                        get: { link.allowTailscale },
+                        set: { enabled in update { link.setTailscaleAllowed(enabled) } }))
+                        .disabled(waiting)
+                }
             }
             #endif
             if let error { Text(error).foregroundStyle(.secondary) }
@@ -136,6 +149,9 @@ struct DesktopLinkSettings: View {
 
     private func update(_ operation: () throws -> Void) {
         error = nil
+        #if os(iOS)
+        checkedRoute = nil
+        #endif
         do { try operation() }
         catch { self.error = error.localizedDescription }
     }
@@ -148,10 +164,10 @@ struct DesktopLinkSettings: View {
                     guard let pairing = DesktopPeerLink.PairingQR(payload: payload) else { return }
                     showingScanner = false
                     run {
-                        try await link.pair(pairing)
+                        let route = try await link.pair(pairing)
                         address = link.tailscaleAddress
                         code = ""
-                        _ = await link.model()
+                        return route
                     }
                 },
                 onError: { message in showingScanner = false; error = message },
@@ -181,21 +197,34 @@ struct DesktopLinkSettings: View {
 
     private func connect(_ pairingCode: String) {
         run {
-            try link.setTailscaleAddress(address)
-            try await link.pair(with: pairingCode)
+            let route = try await link.pair(with: pairingCode, tailscaleAddress: address)
+            address = link.tailscaleAddress
             code = ""
-            _ = await link.model()
+            return route
         }
     }
 
-    private func run(_ operation: @escaping @MainActor () async throws -> Void) {
+    private func connectionMessage(_ route: DesktopPeerLink.Route) -> String {
+        switch route {
+        case .local: "Connected over the local network"
+        case .tailscale: "Connected over Tailscale"
+        }
+    }
+
+    private func run(_ operation: @escaping @MainActor () async throws -> DesktopPeerLink.Route) {
         guard !waiting else { return }
         waiting = true
         error = nil
+        checkedRoute = nil
         Task {
             defer { waiting = false }
-            do { try await operation() }
-            catch { self.error = error.localizedDescription }
+            do {
+                let route = try await operation()
+                checkedRoute = route
+                AccessibilityNotification.Announcement(connectionMessage(route)).post()
+            } catch {
+                self.error = error.localizedDescription
+            }
         }
     }
     #endif
