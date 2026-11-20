@@ -149,6 +149,43 @@ final class FeatureAccessPolicyTests: XCTestCase {
         XCTAssertFalse(store.policyLoaded)
     }
 
+    @MainActor
+    func testPersistentMailSurvivesStaleRefreshesAndRelaunchUntilDenied() throws {
+        let suite = "FeatureAccessPolicyTests-" + UUID().uuidString
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
+        var time = now
+        let store = FeatureAccessStore(defaults: defaults, now: { time })
+        store.bind(session: "session", host: "https://beta.plan.example")
+        var policy = cache().policy
+        policy.enabled.append("calendarCloud")
+        policy.persistent = ["email", "calendarCloud"]
+        store.receive(account: "account-1", policy: policy)
+
+        time = now.addingTimeInterval(7 * 86_400)
+        let relaunched = FeatureAccessStore(defaults: defaults, now: { time })
+        relaunched.bind(session: "session", host: "https://beta.plan.example")
+        XCTAssertTrue(relaunched.emailAvailable)
+        XCTAssertTrue(relaunched.emailOffered)
+        XCTAssertNotNil(relaunched.mailContext)
+        XCTAssertTrue(FeatureAccessStore.network.allows("email", now: time))
+        XCTAssertNil(relaunched.calendarReadContext)
+
+        var denied = policy
+        denied.enabled = []
+        denied.persistent = nil
+        denied.issuedAt = 1
+        relaunched.receive(account: "account-1", policy: denied)
+        XCTAssertFalse(relaunched.emailAvailable)
+        XCTAssertNil(relaunched.mailContext)
+        XCTAssertFalse(FeatureAccessStore.network.allows("email", now: time))
+        XCTAssertTrue(relaunched.emailOffered, "Previously saved mail remains visible during grace")
+        relaunched.receive(account: "account-1", policy: policy)
+        XCTAssertFalse(relaunched.emailAvailable, "An old refresh cannot undo an explicit denial")
+        relaunched.bind(session: "different-session", host: "https://beta.plan.example")
+        XCTAssertFalse(relaunched.emailOffered)
+    }
+
     func testFuturePoliciesAndInvalidLifetimeFailClosed() {
         for c in [cache(version: 2), cache(duration: -1), cache(duration: .infinity)] {
             XCTAssertFalse(c.allows("email", context: "beta-session", now: now))
