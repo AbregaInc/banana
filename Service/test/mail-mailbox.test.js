@@ -730,6 +730,20 @@ test("sender blocking is shared across devices and enforces future incoming mail
   assert.equal((await policyRequest(t, t.phone, sender, { blocked: true, revision: 0, operation: policyOperation(1) })).status, 409);
 });
 
+test("an exact domain can be blocked and unblocked through the shared Mail endpoint", async () => {
+  const t = await mailbox(), sender = "shop.example", scope = "domain";
+  const block = await policyRequest(t, t.phone, sender, { scope, blocked: true, revision: 0, operation: policyOperation(1) });
+  assert.equal(block.status, 200, block.text);
+  assert.equal((await policyRequest(t, t.mac, sender, { scope })).json.blocked, true);
+  assert.equal((await policyRequest(t, t.mac, "person@shop.example")).json.blocked, false);
+  t.gmail.add("same-domain"); t.gmail.messages.get("same-domain").from = "person@shop.example";
+  t.gmail.messages.get("same-domain").internalDate = t.s.now() + 1000;
+  await t.feed(t.phone);
+  await t.drain(async () => t.gmail.messages.get("same-domain").labels.has("SPAM") && await t.settled());
+  assert.equal((await policyRequest(t, t.mac, sender, { scope, blocked: false, revision: 1, operation: policyOperation(2) })).status, 200);
+  assert.equal((await policyRequest(t, t.phone, sender, { scope })).json.blocked, false);
+});
+
 test("a lost Gmail spam mutation response reconciles before retry without a duplicate write", async () => {
   const t = await mailbox(), sender = "offers@shop.example";
   await policyRequest(t, t.phone, sender, { blocked: true, revision: 0, operation: policyOperation(1) });

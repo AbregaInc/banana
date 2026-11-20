@@ -26,6 +26,10 @@ struct CloudMailSenderPolicy: MailSenderPolicyAPI {
     }
     private func request(account: String, values: [String: Any]) async throws -> MailSenderPolicyRemote {
         var value = values; value["email"] = account.lowercased()
+        if let sender = value["sender"] as? String, sender.hasPrefix("@") {
+            value["scope"] = "domain"
+            value["sender"] = String(sender.dropFirst())
+        }
         let body = try JSONSerialization.data(withJSONObject: value, options: .sortedKeys)
         let reference = try await feed.reference(account)
         let (data, status) = try await feed.transport("sender-policy", reference, body)
