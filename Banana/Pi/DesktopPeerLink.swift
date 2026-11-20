@@ -1,4 +1,4 @@
-#if BANANA_AI && BANANA_BETA && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
+#if BANANA_AI && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
 import CryptoKit
 import Foundation
 import Network
@@ -97,10 +97,10 @@ enum DesktopPeerLink {
         case rejected(String)
         var errorDescription: String? {
             switch self {
-            case .unavailable: "Can’t reach your Mac. Make sure Banana Beta is open."
+            case .unavailable: "Can’t reach your Mac. Make sure Banana is open."
             case .timeout: "Your Mac didn’t respond in time."
             case .invalidMessage: "The desktop link received an invalid message."
-            case .incompatible: "Update Banana Beta on both devices."
+            case .incompatible: "Update Banana on both devices."
             case .busy: "Your Mac is busy. Try again in a moment."
             case let .rejected(reason): reason
             }

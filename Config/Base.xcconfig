@@ -37,16 +37,11 @@ BANANA_SERVICE_HOST_DEV =
 BANANA_GOOGLE_SERVER_CLIENT_DEV =
 BANANA_RELEASE_CHANNEL = stable
 
-// Unreleased modules (`#if BANANA_UNRELEASED`, see AppModules.swift): built into Debug and into
-// the author's own installs (tools/ios-install.sh, tools/mac-install.sh pass YES), and left out of
-// public Release builds. Stable (TestFlight, the direct download) has neither Email nor local AI;
-// only the direct Beta app carries account-gated Email.
-// tools/check-release.sh checks the artifact; experimental archives are not public candidates.
+// AI is shared across the release channels. Email is enabled independently for direct Beta
+// and for explicit development builds. Artifact checks enforce the Email channel boundary.
 BANANA_UNRELEASED = NO
 BANANA_UNRELEASED[config=Debug] = YES
-// Independent local feature switches. Release defaults to NO; local install scripts can
-// opt in with BANANA_UNRELEASED=YES, or set either switch independently.
-BANANA_LOCAL_AI = $(BANANA_UNRELEASED)
+BANANA_LOCAL_AI = YES
 BANANA_LOCAL_EMAIL = $(BANANA_UNRELEASED)
 BANANA_AI_SWIFT_YES = -DBANANA_AI
 BANANA_AI_SWIFT_NO =
@@ -66,13 +61,12 @@ BANANA_MODULE_EMAIL_NO =
 // Always location and Motion) is Beta's and Stable's, and the App Store app leaves it out.
 BANANA_ALL_MODULES = BANANA_MODULE_WORKOUTS BANANA_MODULE_FOOD BANANA_MODULE_NOTES BANANA_MODULE_PODCASTS BANANA_FEATURE_TRIP_LEARNING $(BANANA_MODULE_EMAIL_$(BANANA_LOCAL_EMAIL))
 BANANA_MODULES = $(BANANA_ALL_MODULES)
-// The App Store app (configuration AppStore): the calendar alone for its first release. Every
-// target of that configuration takes the list, so the widgets compile the same modules as the app.
-BANANA_APP_STORE_MODULES =
+// All production targets carry the same product modules, with Email excluded.
+BANANA_APP_STORE_MODULES = $(BANANA_ALL_MODULES)
 BANANA_MODULES[config=AppStore] = $(BANANA_APP_STORE_MODULES)
 BANANA_UNRELEASED[config=AppStore] = NO
 BANANA_LOCAL_EMAIL[config=AppStore] = NO
-BANANA_LOCAL_AI[config=AppStore] = NO
+BANANA_LOCAL_AI[config=AppStore] = YES
 BANANA_RELEASE_CHANNEL[config=AppStore] = appstore
 
 // Where the Watch app goes: inside the app, unless the configuration carries none of its modules

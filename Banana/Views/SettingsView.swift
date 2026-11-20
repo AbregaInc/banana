@@ -31,7 +31,7 @@ struct SettingsView: View {
     }()
 
     private static let desktopLinkEntries: [SettingsSearchEntry] = {
-        #if BANANA_AI && BANANA_BETA && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
+        #if BANANA_AI && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
         [.init(title: "Desktop Link", page: .desktopLink, keywords: ["assistant", "mac", "model", "pair", "QR", "Tailscale"])]
         #else
         []
@@ -234,7 +234,7 @@ struct SettingsView: View {
             ForEach([SettingsPage.modules, .calendar, .booking, .travel, .wake, .podcasts, .workouts, .food].filter(isShown), id: \.self) { sidebarRow($0) }
         }
         Section("General") {
-            #if BANANA_AI && BANANA_BETA && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
+            #if BANANA_AI && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
             sidebarRow(.desktopLink)
             #endif
             // Apple Watch too, as on the phone: here it holds the audio quality the
@@ -401,7 +401,7 @@ struct SettingsView: View {
 
     enum SettingsPage: String, Hashable {
         case accounts, modules, calendar, booking, travel, wake, podcasts, workouts, food, watch, icloud, permissions
-        #if BANANA_AI && BANANA_BETA && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
+        #if BANANA_AI && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
         case desktopLink
         #endif
         case about
@@ -439,7 +439,7 @@ struct SettingsView: View {
             case .watch: "Apple Watch"
             case .icloud: "iCloud"
             case .permissions: "Permissions"
-            #if BANANA_AI && BANANA_BETA && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
+            #if BANANA_AI && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
             case .desktopLink: "Desktop Link"
             #endif
             case .about: "About"
@@ -460,7 +460,7 @@ struct SettingsView: View {
             case .watch: "applewatch"
             case .icloud: "icloud.fill"
             case .permissions: "hand.raised.fill"
-            #if BANANA_AI && BANANA_BETA && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
+            #if BANANA_AI && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
             case .desktopLink: "desktopcomputer"
             #endif
             case .about: "info.circle.fill"
@@ -478,7 +478,7 @@ struct SettingsView: View {
             case .food: DS.Palette.Feature.food
             case .icloud: DS.Palette.Feature.icloud
             case .accounts, .modules, .watch, .permissions, .about: DS.Palette.Feature.system
-            #if BANANA_AI && BANANA_BETA && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
+            #if BANANA_AI && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
             case .desktopLink: DS.Palette.Feature.system
             #endif
             }
@@ -490,7 +490,7 @@ struct SettingsView: View {
     /// an optimized build evaluated it in a stack frame bigger than an iPhone or iPad main thread
     /// has: Settings crashed on open (stack overflow). Each page now carries only its own sections.
     private func page(_ page: SettingsPage) -> AnyView {
-        #if BANANA_AI && BANANA_BETA && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
+        #if BANANA_AI && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
         if page == .desktopLink { return AnyView(DesktopLinkSettings()) }
         #endif
         if page == .wake {
@@ -584,7 +584,7 @@ struct SettingsView: View {
             })
         case .wake, .booking:
             AnyView(EmptyView())   // shown by `page(_:)` as its own screen
-        #if BANANA_AI && BANANA_BETA && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
+        #if BANANA_AI && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
         case .desktopLink:
             AnyView(EmptyView())   // shown by `page(_:)` as its own screen
         #endif
@@ -745,7 +745,7 @@ struct SettingsView: View {
 
     private var generalSection: some View {
         Section("General") {
-            #if BANANA_AI && BANANA_BETA && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
+            #if BANANA_AI && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
             featureRow(.desktopLink, value: nil)
             #endif
             // Only with Podcasts, which is what it sends to the Watch (`isShown`).

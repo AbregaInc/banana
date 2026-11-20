@@ -1,4 +1,4 @@
-#if os(macOS) && BANANA_AI && BANANA_BETA && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
+#if os(macOS) && BANANA_AI && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
 import CoreImage
 import CoreImage.CIFilterBuiltins
 

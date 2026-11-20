@@ -7,13 +7,13 @@ for setting in BANANA_LOCAL_AI BANANA_LOCAL_EMAIL; do
     *) echo "error: $setting must be YES or NO"; exit 1 ;;
   esac
 done
-if [ "${ACTION:-}" = install ] && { [ "${BANANA_LOCAL_AI:-NO}" = YES ] || [ "${BANANA_LOCAL_EMAIL:-NO}" = YES ]; }; then
+if [ "${ACTION:-}" = install ] && [ "${BANANA_LOCAL_EMAIL:-NO}" = YES ]; then
   beta_distribution=NO
   if [ -n "${BANANA_BUNDLE_ID:-}" ]; then
     if [ "${BANANA_RELEASE_CHANNEL:-}" = beta ] && [ "${PRODUCT_BUNDLE_IDENTIFIER:-}" = "$BANANA_BUNDLE_ID.beta" ] && [ "${TARGET_NAME:-}" = BananaMacBetaDirect ]; then beta_distribution=YES; fi
   fi
   if [ "$beta_distribution" != YES ]; then
-    echo "error: AI and Email ship only in the dedicated direct Beta target; Stable and TestFlight archives exclude them."; exit 1
+    echo "error: Email ships only in the dedicated direct Beta target."; exit 1
   fi
 fi
 resources="$TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH"

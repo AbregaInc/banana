@@ -1,7 +1,7 @@
 #!/bin/bash
 # Prepare a signed archive/export; upload only when explicitly requested.
 # Both platforms use the existing primary app identity and production service.
-# TestFlight is the Stable channel: Email and local AI are compiled out. The `appstore` flavour
+# TestFlight carries production features, with Email compiled out. The `appstore` flavour
 # is the App Store app: the same identity, configuration AppStore, only the modules
 # BANANA_APP_STORE_MODULES lists (Config/Base.xcconfig). Without it, Stable as always.
 #
@@ -105,7 +105,7 @@ if [[ ! -d "$archive" ]]; then
 xcodegen generate
 banana_xcode -project Banana.xcodeproj -scheme "$scheme" -configuration "$configuration" \
   "${platform_args[@]}" -derivedDataPath "$derived" -archivePath "$archive" \
-  BANANA_UNRELEASED=NO BANANA_LOCAL_AI=NO BANANA_LOCAL_EMAIL=NO \
+  BANANA_UNRELEASED=NO BANANA_LOCAL_AI=YES BANANA_LOCAL_EMAIL=NO \
   "CURRENT_PROJECT_VERSION=$build" "BANANA_SOURCE_COMMIT=$revision" \
   "${auth[@]}" archive
 fi

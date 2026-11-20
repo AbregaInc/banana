@@ -4,17 +4,16 @@
 #
 #   tools/check-release.sh <path to .xcarchive, .app or .ipa folder>
 #
-# Local assistant is never distributed. Stable (TestFlight and the direct download) never carries
-# Email; gated Email ships only in the dedicated direct Beta app. Check both
-# their copied resources and their native implementation markers before exporting.
+# AI may ship in signed application channels. Email ships only in the dedicated direct Beta app.
+# Verify resources and native implementation markers before exporting.
 # Archives made in Xcode run this check from local-feature-resources.sh too.
 set -e
 target="${1:?usage: $0 <.xcarchive | .app | folder>}"
 [ -e "$target" ] || { echo "No such path: $target"; exit 2; }
 
-# AI and Email distribution require the Beta identity and the Beta feed. TestFlight is Stable.
-# Never infer eligibility from a command-line allow flag or a public app's saved preference.
-beta_features_allowed=0
+# Derive channel permissions from the actual bundle identity and feed.
+ai_allowed=0
+email_allowed=0
 primary_apps=()
 while IFS= read -r -d '' app; do primary_apps+=("$app"); done < <(find "$target" -type d -name '*.app' -prune -print0)
 if [ "${#primary_apps[@]}" -eq 1 ]; then
@@ -25,12 +24,18 @@ if [ "${#primary_apps[@]}" -eq 1 ]; then
   primary=$(/usr/libexec/PlistBuddy -c 'Print :BananaPrimaryBundleIdentifier' "$info" 2>/dev/null || true)
   if [ -n "$primary" ]; then
     feed=$(/usr/libexec/PlistBuddy -c 'Print :SUFeedURL' "$info" 2>/dev/null || true)
-    if [ "$channel" = beta ] && [ "$bundle" = "$primary.beta" ] && [ "$feed" = 'https://bananatheapp.com/updates/mac-beta/appcast.xml' ]; then beta_features_allowed=1; fi
+    if [ "$channel" = beta ] && [ "$bundle" = "$primary.beta" ] && [ "$feed" = 'https://bananatheapp.com/updates/mac-beta/appcast.xml' ]; then
+      ai_allowed=1
+      email_allowed=1
+    elif [ "$bundle" = "$primary" ]; then
+      case "$channel" in
+        stable|testflight|appstore) ai_allowed=1 ;;
+      esac
+    fi
   fi
 fi
 
-# Runtime bundles and entry points are confined to the verified direct Beta identity/feed.
-if [ "$beta_features_allowed" -ne 1 ]; then
+if [ "$ai_allowed" -ne 1 ]; then
 while IFS= read -r -d '' resource; do
   echo "Not for Apple: local-only feature resource in $resource"
   exit 1
@@ -38,9 +43,13 @@ done < <(find "$target" \( -name 'PiRuntime' -o -name 'pi-agent.js' -o -name 'pi
 fi
 
 while IFS= read -r -d '' marker; do
-  if [ "$beta_features_allowed" -ne 1 ] || grep -qvE '^(AI|EMAIL)$' "$marker"; then
-    echo "Not for distribution: unexpected local feature marker"; exit 1
-  fi
+  while IFS= read -r feature; do
+    case "$feature" in
+      AI) [ "$ai_allowed" -eq 1 ] || { echo "Unexpected AI marker"; exit 1; } ;;
+      EMAIL) [ "$email_allowed" -eq 1 ] || { echo "Unexpected Email marker"; exit 1; } ;;
+      *) echo "Unexpected feature marker"; exit 1 ;;
+    esac
+  done < "$marker"
 done < <(find "$target" -name banana-local-features.txt -print0)
 
 # Reproducible builds: Core ML's compiler writes a model's user-defined metadata in a different
@@ -91,10 +100,13 @@ done < <(find "$target" -type d \( -name '*.app' -o -name '*.appex' \) -print0)
 
 # What only an unreleased build carries.
 patterns=''
-if [ "$beta_features_allowed" -ne 1 ]; then
+if [ "$ai_allowed" -ne 1 ]; then
 patterns="banana-local-ai-built-in
 AppleRuntimeHost
-AssistantStore
+AssistantStore"
+fi
+if [ "$email_allowed" -ne 1 ]; then
+patterns="$patterns
 banana-unreleased-modules-built-in
 gmail.googleapis.com
 https://www.googleapis.com/auth/gmail
@@ -129,7 +141,7 @@ if [ "$checked" -eq 0 ]; then
   exit 2
 fi
 if [ "$found" -ne 0 ]; then
-  echo "Not for Apple: this build has unreleased modules in it. AI and Email ship only in the dedicated direct Beta identity and feed."
+  echo "Not for Apple: this build has unreleased modules in it. Email requires the dedicated direct Beta identity and feed."
   exit 1
 fi
 echo "OK: release checks passed for $checked executable(s) under $target"

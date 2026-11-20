@@ -127,11 +127,11 @@ final class AssistantStore: ObservableObject {
     private var diagnostic = false
     /// Whether the running Pi was started on the Mac's own model (vs Apple's, while it downloads).
     private var hostUsesLocalModel = false
-    #if os(iOS) && BANANA_BETA && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
+    #if os(iOS) && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
     private var desktopModel: DesktopAssistantLink.Model?
     #endif
     var modelLocation: String {
-        #if os(iOS) && BANANA_BETA && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
+        #if os(iOS) && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
         if desktopModel != nil { return "On your Mac" }
         #endif
         return "On this \(DeviceRole.current.name)"
@@ -141,7 +141,7 @@ final class AssistantStore: ObservableObject {
         #if os(macOS)
         if !diagnostic, let local = MacLocalInference.shared.resolvedConfiguration() { return "mac-local/\(local.modelId)" }
         #endif
-        #if os(iOS) && BANANA_BETA && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
+        #if os(iOS) && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
         if let desktopModel { return "desktop/\(desktopModel.modelId)" }
         #endif
         return diagnostic ? "faux/faux-1" : "apple-foundation/on-device"
@@ -271,7 +271,7 @@ final class AssistantStore: ObservableObject {
             }
         }
         #endif
-        #if os(iOS) && BANANA_BETA && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
+        #if os(iOS) && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
         if let desktopModel {
             configuration["localModel"] = desktopModel.agent
             host.modelHandler = { raw in
@@ -305,7 +305,7 @@ final class AssistantStore: ObservableObject {
             guard let self else { return }
             do {
                 if value {
-                    #if os(iOS) && BANANA_BETA && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
+                    #if os(iOS) && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
                     if !self.diagnostic && !self.busy && !self.sending {
                         let model = DesktopAssistantLink.hasSavedPairing ? await DesktopAssistantLink.shared.model() : nil
                         if !self.busy && !self.sending && model != self.desktopModel {

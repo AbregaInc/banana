@@ -32,10 +32,9 @@ Locals from the app's own runtime measured the same as the developer setup (42/4
 
 ## iPhone and iPad
 
-Apple’s on-device model is the default. In an AI-enabled Beta, open **Settings → Desktop Link**
+Apple’s on-device model is the default. In an AI-enabled build, open **Settings → Desktop Link**
 on both devices. Enable sharing on the Mac, then choose **Scan Mac QR code**
-on the iPhone or iPad. You can copy and enter the pairing code manually as well. Keep Banana
-Beta open on the Mac. **Check connection** confirms whether the phone can reach the paired
+on the iPhone or iPad. You can copy and enter the pairing code manually as well. Keep Banana open on the Mac. **Check connection** confirms whether the phone can reach the paired
 Mac and shows the route it used. The Mac shows its model status separately.
 
 Bonjour finds the paired Mac on Wi-Fi or Ethernet and model requests stay on that network.
