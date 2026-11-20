@@ -2,6 +2,13 @@
 import Foundation
 import Combine
 
+struct MailSenderBlockAsk {
+    let message: MailMessageDisplay
+    let sender: String
+    var isDomain: Bool { sender.hasPrefix("@") }
+    var label: String { isDomain ? String(sender.dropFirst()) : sender }
+}
+
 /// What the Mail screen is showing that is not the list's rows: the place, the conversation open
 /// full width, and which of the optional columns he has asked for. The one thing `MailScreen`
 /// observes. It changes when a conversation opens or closes, a place is chosen or a column is
@@ -33,7 +40,7 @@ final class MailNavigation: ObservableObject {
     /// The snooze time picker, while it is open: a sheet on a phone, and on a Mac or an iPad when it
     /// was asked for by `H` or "Pick a date and time…" (the "…" menus list the times themselves).
     @Published fileprivate(set) var snoozeAsk: MailSnoozeAsk?
-    @Published fileprivate(set) var senderBlockAsk: MailMessageDisplay?
+    @Published fileprivate(set) var senderBlockAsk: MailSenderBlockAsk?
     @Published fileprivate(set) var senderBlockFailed = false
 
     private let defaults: UserDefaults?
@@ -477,17 +484,19 @@ final class MailSession {
         act(.unsnooze, on: id)
     }
 
-    func askToBlockSender(_ message: MailMessageDisplay) { navigation.senderBlockAsk = message }
+    func askToBlockSender(_ message: MailMessageDisplay, sender: String) {
+        navigation.senderBlockAsk = MailSenderBlockAsk(message: message, sender: sender)
+    }
     func closeSenderBlockConfirmation() { navigation.senderBlockAsk = nil }
     func closeSenderBlockFailure() { navigation.senderBlockFailed = false }
-    func changeSenderBlock(_ blocked: Bool, message: MailMessageDisplay) {
+    func changeSenderBlock(_ blocked: Bool, message: MailMessageDisplay, sender: String? = nil) {
         let origin = model
         let conversation = (navigation.reader ?? pane.reader)?.conversation.flatMap { conversation in
             conversation.messages.contains { $0.id == message.id } ? conversation.id : nil
         }
         Task {
             do {
-                try await source.setSenderBlocked(blocked, account: message.id.account, sender: message.senderAddress)
+                try await source.setSenderBlocked(blocked, account: message.id.account, sender: sender ?? message.senderAddress)
                 if blocked {
                     if let conversation {
                         send(.actOnMessage(.spam, message: message.id, conversation: conversation,
