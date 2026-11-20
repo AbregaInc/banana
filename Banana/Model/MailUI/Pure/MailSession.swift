@@ -2,6 +2,13 @@
 import Foundation
 import Combine
 
+struct MailSenderBlockAsk {
+    let message: MailMessageDisplay
+    let sender: String
+    var isDomain: Bool { sender.hasPrefix("@") }
+    var label: String { isDomain ? String(sender.dropFirst()) : sender }
+}
+
 /// What the Mail screen is showing that is not the list's rows: the place, the conversation open
 /// full width, and which of the optional columns he has asked for. The one thing `MailScreen`
 /// observes. It changes when a conversation opens or closes, a place is chosen or a column is
@@ -33,7 +40,7 @@ final class MailNavigation: ObservableObject {
     /// The snooze time picker, while it is open: a sheet on a phone, and on a Mac or an iPad when it
     /// was asked for by `H` or "Pick a date and time…" (the "…" menus list the times themselves).
     @Published fileprivate(set) var snoozeAsk: MailSnoozeAsk?
-    @Published fileprivate(set) var senderBlockAsk: MailMessageDisplay?
+    @Published fileprivate(set) var senderBlockAsk: MailSenderBlockAsk?
     @Published fileprivate(set) var senderBlockFailed = false
 
     private let defaults: UserDefaults?
@@ -282,17 +289,26 @@ final class MailSession {
         send(.leave)
     }
 
-    /// A cold launch comes back to the conversation that was open: after entering, and only if
-    /// the list still has it.
+    private var pendingOpenRestore: MailConversationID?
+
+    /// A live list can deliver its saved first page asynchronously after the screen appears.
     func restoreOpen(_ id: MailConversationID) {
-        guard navigation.open == nil, model.rows.contains(where: { $0.id == id }) else { return }
-        send(.open(id))
+        guard navigation.open == nil else { return }
+        if model.rows.contains(where: { $0.id == id }) {
+            send(.open(id))
+        } else if answersEntry {
+            pendingOpenRestore = id
+        }
     }
 
     private func received(_ snapshot: MailListSnapshot, answersRequest: Bool = false) {
         let marked = answersEntry
         answersEntry = false
         run(model.handle(.snapshot(snapshot, answersEntry: marked, answersRequest: answersRequest)))
+        if marked, let id = pendingOpenRestore {
+            pendingOpenRestore = nil
+            restoreOpen(id)
+        }
     }
 
     private func received(_ event: MailEvent) {
@@ -333,6 +349,10 @@ final class MailSession {
             revert(entry, because: .refused(failure))
         case .draftNotSaved(_, let problem):
             showToast(MailToastText.notSaved(on: deviceName, problem: problem))
+        case .draftSaved(let id, let editedAt, let state):
+            composer?.updateSyncState(state, for: id, editedAt: editedAt)
+        case .draftRefreshed(let draft):
+            composer?.refreshCleanDraft(draft)
         case .sent(let draft, _):
             guard let receipt = pendingDeliveryReceipts.removeValue(forKey: draft) else { break }
             if let retryEntry = pendingDeliveryRetries.removeValue(forKey: draft) {
@@ -392,6 +412,7 @@ final class MailSession {
 
     func switchTo(_ target: MailScope) {
         guard target != scope else { return }
+        pendingOpenRestore = nil
         closeComposer()
         if model.open != nil { run(model.handle(.close)) }
         if isEntered { end() }
@@ -463,17 +484,19 @@ final class MailSession {
         act(.unsnooze, on: id)
     }
 
-    func askToBlockSender(_ message: MailMessageDisplay) { navigation.senderBlockAsk = message }
+    func askToBlockSender(_ message: MailMessageDisplay, sender: String) {
+        navigation.senderBlockAsk = MailSenderBlockAsk(message: message, sender: sender)
+    }
     func closeSenderBlockConfirmation() { navigation.senderBlockAsk = nil }
     func closeSenderBlockFailure() { navigation.senderBlockFailed = false }
-    func changeSenderBlock(_ blocked: Bool, message: MailMessageDisplay) {
+    func changeSenderBlock(_ blocked: Bool, message: MailMessageDisplay, sender: String? = nil) {
         let origin = model
         let conversation = (navigation.reader ?? pane.reader)?.conversation.flatMap { conversation in
             conversation.messages.contains { $0.id == message.id } ? conversation.id : nil
         }
         Task {
             do {
-                try await source.setSenderBlocked(blocked, account: message.id.account, sender: message.senderAddress)
+                try await source.setSenderBlocked(blocked, account: message.id.account, sender: sender ?? message.senderAddress)
                 if blocked {
                     if let conversation {
                         send(.actOnMessage(.spam, message: message.id, conversation: conversation,
@@ -509,7 +532,10 @@ final class MailSession {
                 present(MailToast(text: targetRestriction, action: nil, lasts: nil), {})
                 return
             }
+        case .open, .close, .place:
+            pendingOpenRestore = nil
         case .openAndReply:
+            pendingOpenRestore = nil
             guard allowsComposing else { explainComposingUnavailable(); return }
         case .readDelayElapsed(let id):
             guard allowsChanges, allowsTarget(.conversations([id])) else { return }

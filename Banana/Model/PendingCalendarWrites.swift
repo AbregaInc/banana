@@ -44,13 +44,24 @@ final class PendingCalendarWriteStore: ObservableObject {
 
     private let log = Logger(subsystem: "com.boris.banana", category: "pending-events")
     private let url: URL
+    private let assistantReceiptsURL: URL
+    private var assistantReceipts: [UUID] = []
     /// Set when the stored file could not be read AND could not be copied aside. Saving would
     /// then destroy the only copy of whatever was in there, so we refuse to save at all.
     private var mustRefuseSaves = false
 
     init(directory: URL = AppSupport.directory, now: Date = Date()) {
         self.url = directory.appendingPathComponent("pending-calendar-writes.json")
+        assistantReceiptsURL = directory.appendingPathComponent("assistant-calendar-receipts.json")
+        if let data = try? Data(contentsOf: assistantReceiptsURL),
+           let receipts = try? JSONDecoder().decode([UUID].self, from: data) {
+            assistantReceipts = Array(receipts.suffix(128))
+        }
         load(now: now)
+        // A previous build may already have an acknowledged write awaiting read-back.
+        for entry in pending where entry.state == .awaitingReadBack {
+            recordAssistantReceipt(for: entry)
+        }
     }
 
     private func load(now: Date) {
@@ -62,11 +73,16 @@ final class PendingCalendarWriteStore: ObservableObject {
             // nothing is writing. Present them as failures so they can be retried rather than
             // sitting as placeholders nothing will ever resolve.
             pending = stored.map { entry in
-                let recoveredState = PendingCalendarWriteRules.stateAfterRelaunch(state: entry.state)
+                let recoveredState: PendingWriteState
+                if let operation = entry.input.assistantOperationID, hasAssistantReceipt(operation) {
+                    recoveredState = .awaitingReadBack
+                } else {
+                    recoveredState = PendingCalendarWriteRules.stateAfterRelaunch(state: entry.state)
+                }
                 guard recoveredState != entry.state else { return entry }
                 var recovered = entry
                 recovered.state = recoveredState
-                recovered.lastError = "Interrupted before it finished saving."
+                recovered.lastError = recoveredState == .failed ? "Interrupted before it finished saving." : nil
                 return recovered
             }
             if !pending.isEmpty {
@@ -122,10 +138,26 @@ final class PendingCalendarWriteStore: ObservableObject {
     }
 
     func markWritten(_ id: UUID, remoteID: String?) {
+        if let entry = entry(id) { recordAssistantReceipt(for: entry) }
         update(id) {
             $0.state = .awaitingReadBack
             $0.remoteID = remoteID
             $0.lastError = nil
+        }
+    }
+
+    func hasAssistantReceipt(_ operation: UUID) -> Bool {
+        assistantReceipts.contains(operation)
+    }
+
+    private func recordAssistantReceipt(for entry: PendingCalendarWrite) {
+        guard let operation = entry.input.assistantOperationID,
+              !assistantReceipts.contains(operation) else { return }
+        assistantReceipts = Array((assistantReceipts + [operation]).suffix(128))
+        do {
+            try JSONEncoder().encode(assistantReceipts).write(to: assistantReceiptsURL, options: .atomic)
+        } catch {
+            log.error("[pending-events] assistant receipt save failed")
         }
     }
 

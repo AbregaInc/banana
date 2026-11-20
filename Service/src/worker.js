@@ -1,6 +1,7 @@
 // Cloudflare Workers entry: D1 for the database, waitUntil for work after the response, a Cron
 // Trigger for the job, a Durable Object per space and R2 for blobs (wrangler.toml).
 
+import { DurableObject } from "cloudflare:workers";
 import { createApp, pushTo } from "./app.js";
 import { createApns, sharedProviderTokens } from "./apns.js";
 import { configFrom } from "./config.js";
@@ -11,6 +12,7 @@ import { d1 } from "./adapters/d1.js";
 import { r2Blobs } from "./adapters/r2.js";
 import { doSpaces } from "./space-do.js";
 import { doMailboxes } from "./mailbox-do.js";
+import { desktopRelay, DesktopRelayRoom as RelayRoom } from "./desktop-relay.js";
 import { cloudflareEmail, memoryEmail } from "./booking/email.js";
 import { createTurnstile, workersLimits, workersPageCache } from "./booking/guard.js";
 import { bookingContext, bookingMinute, bookingQuarter } from "./booking/jobs.js";
@@ -23,6 +25,16 @@ const rasterSvg = svgRasterizer(() => resvgWasm);
 
 export { Space } from "./space-do.js";
 export { Mailbox } from "./mailbox-do.js";
+export class DesktopRelayRoom extends DurableObject {
+  constructor(state, env) {
+    super(state, env);
+    this.room = new RelayRoom(state);
+  }
+  fetch(request) { return this.room.fetch(request); }
+  webSocketMessage(socket, message) { this.room.webSocketMessage(socket, message); }
+  webSocketClose(socket) { this.room.webSocketClose(socket); }
+  webSocketError(socket) { this.room.webSocketError(socket); }
+}
 
 // Ports live as long as the isolate, so Google access tokens and the APNs JWT are reused.
 let ports;
@@ -50,6 +62,7 @@ function deps(env, ctx) {
     spaces: doSpaces(env.SPACES),
     // The shared cloud mailboxes, one per Google identity (docs/design/MAIL-CLOUD-SYNC.md); absent: no feed.
     mailboxes: env.MAILBOXES ? doMailboxes(env.MAILBOXES) : undefined,
+    desktopRelay: desktopRelay(env.DESKTOP_RELAY),
     blobs: r2Blobs(env.BLOBS),
     changes: env.CHANGES ?? null,   // the Pipeline, once it exists
     defer: (work) => ctx.waitUntil(Promise.resolve(work).catch((error) => console.log(`deferred: ${error.name}`))),

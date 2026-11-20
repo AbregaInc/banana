@@ -731,7 +731,9 @@ struct RootView: View {
         // edge (docs/design/BOTTOM-BAR-SHELL.md, Wide); anywhere narrower, the bar at the bottom.
         HStack(spacing: 0) {
             if !bottomBarShell, railShown {
-                ShellRail(pages: shellPages, current: currentShellPage, open: openShellPage)
+                ShellSidebar(pages: shellPages, current: currentShellPage, open: openShellPage)
+                    .background(.regularMaterial)
+                    .overlay(alignment: .trailing) { Divider() }
                     .transition(.move(edge: .leading))
             }
             browseTabs
@@ -739,7 +741,10 @@ struct RootView: View {
         // The whole shell's width, rail included: measured inside it, the rail's own width would
         // flip the class back and forth at the line.
         .onGeometryChange(for: ShellLayout.self) { ShellLayout.of(width: Double($0.size.width)) } action: { layout in
-            if rootShell != layout { rootShell = layout }
+            if rootShell != layout {
+                rootShell = layout
+                if layout == .rail, ShellChrome.shared.switcherOpen { ShellChrome.shared.switcherOpen = false }
+            }
         }
     }
 
@@ -992,7 +997,11 @@ struct RootView: View {
         // Modal navigation stays above transient playback notices.
         .overlay {
             if bottomBarShell {
-                ShellSwitcherOverlay(pages: shellPages, current: currentShellPage, open: openShellPage)
+                if UIDevice.current.userInterfaceIdiom == .pad {
+                    ShellSidebarDrawer(pages: shellPages, current: currentShellPage, open: openShellPage)
+                } else {
+                    ShellSwitcherOverlay(pages: shellPages, current: currentShellPage, open: openShellPage)
+                }
             }
         }
     }

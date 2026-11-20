@@ -63,6 +63,7 @@ struct MailConversationReader: Sendable {
         guard var value = indexed else { return nil }
         // Primary-key batches avoid an account-wide blob scan and do not read body columns.
         let ids = value.messages.map(\.id.message)
+        let newest = value.messages.filter { !$0.isUnsentDraft }.max { $0.date < $1.date }?.id
         for offset in stride(from: 0, to: ids.count, by: 50) {
             try Task.checkCancellation()
             let batch = Array(ids[offset..<min(offset + 50, ids.count)])
@@ -92,6 +93,9 @@ struct MailConversationReader: Sendable {
             for index in offset..<min(offset + 50, ids.count) {
                 guard let stored = metadata[ids[index]] else { continue }
                 let messageID = value.messages[index].id
+                if messageID == newest, !value.messages[index].isMine, value.system == nil {
+                    value.unsubscribe = MailUnsubscribeRules.decide(headers: stored.headers)
+                }
                 value.messages[index].body = stored.ready ? .text : .preparing
                 value.messages[index].replyTo = stored.headers.replyTo.mailboxes.map {
                     MailPerson(name: MailAddressRules.displayName($0.name, address: $0.address), address: $0.address,

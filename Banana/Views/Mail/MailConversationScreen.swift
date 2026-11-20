@@ -51,6 +51,43 @@ struct MailConversationScreen: View {
     }
 }
 
+private struct MailUnsubscribeButton: View {
+    let source: any MailSource
+    let conversation: MailConversationID
+    let url: URL
+    let host: String
+    @State private var confirming = false
+    @State private var sending = false
+    @State private var result: MailUnsubscribeResult?
+
+    var body: some View {
+        if case .asked = result {
+            Label("Asked \(host) to unsubscribe you", systemImage: "checkmark.circle")
+        } else {
+            Button { confirming = true } label: {
+                Label("Unsubscribe…", systemImage: "envelope.badge.minus")
+            }
+            .accessibilityIdentifier("mail.unsubscribe")
+            .disabled(sending)
+            .confirmationDialog("Unsubscribe from this mailing list?", isPresented: $confirming, titleVisibility: .visible) {
+                Button("Unsubscribe") {
+                    sending = true
+                    result = nil
+                    Task {
+                        result = await source.unsubscribe(conversation, expected: url)
+                        sending = false
+                    }
+                }
+            } message: {
+                Text("Banana will send the request to \(host).")
+            }
+            if sending { ProgressView("Sending request…") }
+            if result == .failed { Text("Couldn’t confirm the unsubscribe request.").foregroundStyle(.secondary) }
+            if result == .unavailable { Text("This unsubscribe request is unavailable.").foregroundStyle(.secondary) }
+        }
+    }
+}
+
 /// The subject and each message, newest first (`MailReadingOrder`), scrolling: what the
 /// full-width screen and the reading pane both show. It is made again for each conversation
 /// (`.id`), so a new one opens at its top, on the newest message.
@@ -102,6 +139,15 @@ struct MailConversationContent: View {
                             MailInviteCard(account: reader.id.account, invite: invite,
                                            calendar: session.isSample ? .sample : .live)
                         }
+                        if case .oneClick(let url) = reader.conversation?.unsubscribe, let host = url.host {
+                            MailUnsubscribeButton(source: session.source, conversation: reader.id, url: url, host: host)
+                                .id(url)
+                        } else if case .openPage(let url) = reader.conversation?.unsubscribe {
+                            Link(destination: url) {
+                                Label("Unsubscribe…", systemImage: "envelope.badge.minus")
+                            }
+                            .accessibilityIdentifier("mail.unsubscribe")
+                        }
                         // A reply (or the draft left here) above the newest message, which it
                         // answers and which is read first.
                         MailReplySlot(session: session, navigation: session.navigation,
@@ -113,7 +159,8 @@ struct MailConversationContent: View {
                         LazyVStack(alignment: .leading, spacing: DS.Space.m) {
                             ForEach(reader.messages) { message in
                                 MailMessageCard(message: message, text: reader.bodies[message.id], styled: reader.styled[message.id], opener: reader.opener,
-                                                load: { reader.fetchBody(message.id) })
+                                                load: { reader.fetchBody(message.id) },
+                                                reply: { session.reply($0, to: message.id, in: reader.id) })
                                     .onAppear { reader.revealBody(message.id) }
                                     .id(message.id)
                             }
@@ -337,6 +384,7 @@ struct MailMessageCard: View {
     let opener: MailAttachmentOpener
 
     var load: () -> Void = {}
+    var reply: ((MailReplyStyle) -> Void)? = nil
     @Environment(\.mailSession) private var session
     @State private var showsOriginal = false
 
@@ -392,33 +440,50 @@ struct MailMessageCard: View {
 
     /// Who and when, then to whom and Original: two lines beside the face.
     private var header: some View {
-        VStack(alignment: .leading, spacing: DS.Space.hair) {
-            HStack(alignment: .firstTextBaseline) {
-                // The sender opens the conversation's Details, as "…" › Details does.
-                Button { session?.askForDetails(toggles: false) } label: {
-                    Text(message.sender)
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(.primary)
+        HStack(spacing: DS.Space.xs) {
+            VStack(alignment: .leading, spacing: DS.Space.hair) {
+                HStack(alignment: .firstTextBaseline) {
+                    // The sender opens the conversation's Details, as "…" › Details does.
+                    Button { session?.askForDetails(toggles: false) } label: {
+                        Text(message.sender)
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(.primary)
+                            .lineLimit(1)
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(session == nil)
+                    .accessibilityHint("Shows the details")
+                    .accessibilityIdentifier("mail.sender." + message.id.message)
+                    Spacer(minLength: DS.Space.s)
+                    Text(message.date)
+                        .font(.caption).foregroundStyle(.secondary).monospacedDigit()
                         .lineLimit(1)
                 }
-                .buttonStyle(.plain)
-                .disabled(session == nil)
-                .accessibilityHint("Shows the details")
-                .accessibilityIdentifier("mail.sender." + message.id.message)
-                Spacer(minLength: DS.Space.s)
-                Text(message.date)
-                    .font(.caption).foregroundStyle(.secondary).monospacedDigit()
-                    .lineLimit(1)
-            }
-            HStack {
-                Text(message.recipients)
-                    .font(.caption).foregroundStyle(.secondary).lineLimit(1)
-                Spacer()
-                if hasOriginal {
-                    Button("Original") { showsOriginal = true }
-                        .font(.caption)
-                        .accessibilityIdentifier("mail.body.original." + message.id.message)
+                HStack {
+                    Text(message.recipients)
+                        .font(.caption).foregroundStyle(.secondary).lineLimit(1)
+                    Spacer()
+                    if hasOriginal {
+                        Button("Original") { showsOriginal = true }
+                            .font(.caption)
+                            .accessibilityIdentifier("mail.body.original." + message.id.message)
+                    }
                 }
+            }
+            if message.canReply, let reply, session?.allowsComposing == true {
+                Menu {
+                    Button("Reply") { reply(.reply) }
+                    Button("Reply to all") { reply(.replyAll) }
+                } label: {
+                    Image(systemName: "arrowshape.turn.up.left")
+                        .frame(width: DS.Row.minHeight, height: DS.Row.minHeight)
+                        .contentShape(Rectangle())
+                }
+                .menuStyle(.borderlessButton)
+                .menuIndicator(.hidden)
+                .fixedSize()
+                .accessibilityLabel("Reply to this message")
+                .accessibilityIdentifier("mail.message.reply." + message.id.message)
             }
         }
     }

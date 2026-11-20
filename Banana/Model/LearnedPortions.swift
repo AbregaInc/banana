@@ -93,27 +93,60 @@ enum LearnedPortions {
     /// never with itself — to see whether the factors bring the guess closer.
     static func backtest(_ rows: [EstimateLedger.Row], category: (String) -> String?) -> Backtest {
         let ordered = rows.filter(\.teaches).sorted { $0.date < $1.date }
+        var references: [String: [Sample]] = [:]
+        var names: [String: [Sample]] = [:]
+        var categories: [String: [Sample]] = [:]
         var before: [Double] = []
         var after: [Double] = []
-        for (index, row) in ordered.enumerated() {
-            guard let guess = row.guessedGrams, let logged = row.logged?.grams, logged > 0,
-                  let estimated = row.estimated else { continue }
-            let book = Self.book(Array(ordered[..<index]), category: category)
-            guard let factor = book.factor(name: estimated.name, referenceID: estimated.referenceID,
-                                           category: estimated.referenceID.flatMap(category)) else { continue }
-            before.append(abs(guess - logged) / logged)
-            after.append(abs(guess * factor.ratio - logged) / logged)
+        for row in ordered {
+            guard let estimated = row.estimated else { continue }
+            let reference = estimated.referenceID
+            let name = MyFoods.key(estimated.name)
+            let group = reference.flatMap(category)
+            if let guess = row.guessedGrams, let logged = row.logged?.grams, logged > 0,
+               let factor = reference.flatMap({ effectiveRatio(references[$0], minimum: minimumForFood) })
+                    ?? effectiveRatio(names[name], minimum: minimumForFood)
+                    ?? group.flatMap({ effectiveRatio(categories[$0], minimum: minimumForCategory) }) {
+                before.append(abs(guess - logged) / logged)
+                after.append(abs(guess * factor - logged) / logged)
+            }
+            // Test before appending. Identical dates follow the stable order of book(_:category:).
+            guard let ratio = row.guessRatio, plausible.contains(ratio) else { continue }
+            let sample = Sample(date: row.date, ratio: ratio)
+            append(sample, to: &names[name, default: []])
+            if let reference { append(sample, to: &references[reference, default: []]) }
+            if let group { append(sample, to: &categories[group, default: []]) }
         }
         return Backtest(tried: before.count, errorBefore: EstimateLedger.median(before),
                         errorAfter: EstimateLedger.median(after))
     }
 
+    private struct Sample {
+        var date: Date
+        var ratio: Double
+    }
+
+    private static func append(_ sample: Sample, to samples: inout [Sample]) {
+        let insertion = samples.firstIndex { $0.date < sample.date } ?? samples.endIndex
+        guard insertion < window else { return }
+        samples.insert(sample, at: insertion)
+        if samples.count > window { samples.removeLast() }
+    }
+
+    private static func effectiveRatio(_ samples: [Sample]?, minimum: Int) -> Double? {
+        guard let samples, samples.count >= minimum,
+              let ratio = EstimateLedger.median(samples.map(\.ratio)), !negligible.contains(ratio) else { return nil }
+        return ratio
+    }
+
     // MARK: - For the estimator
+
+    typealias Lookup = @Sendable (String, String?) -> Double?
 
     /// What the estimator applies: the factors every logged meal teaches, or none while they'd
     /// make its guesses worse (`backtest`). `category`: a database food's category.
     static func lookup(_ meals: [MealEntry],
-                       category: @escaping @Sendable (String) -> String?) -> @Sendable (String, String?) -> Double? {
+                       category: @escaping @Sendable (String) -> String?) -> Lookup {
         let rows = EstimateLedger.rows(meals)
         var categories: [String: String] = [:]
         for id in Set(rows.compactMap { $0.estimated?.referenceID }) { categories[id] = category(id) }

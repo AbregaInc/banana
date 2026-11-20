@@ -757,7 +757,9 @@ struct PodcastDetailView: View {
     private func markPlayed(_ ids: [String], in podcast: Podcast) {
         let unplayed = ids.filter { !podcast.completed.contains($0) }
         guard !unplayed.isEmpty else { return }
-        let positions = podcast.positions.filter { unplayed.contains($0.key) }
+        let positions = Dictionary(uniqueKeysWithValues: Set(unplayed).compactMap { id in
+            podcast.positions[id].map { (id, $0) }
+        })
         let removing = unplayed.filter { downloads.isDownloaded($0) }.count
         library.markCompleted(podcastID: podcast.id, episodeIDs: unplayed)
         let what = unplayed.count == 1 ? "Marked played" : "Marked \(unplayed.count) episodes played"

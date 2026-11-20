@@ -91,17 +91,18 @@ struct AssistantView: View {
             draft = UserDefaults.standard.string(forKey: draftKey) ?? ""
             assistant.activate()
             // "Ask Banana: …" under the shell's field: the words are the question, asked at once.
-            if let words = PageChrome.shared.agentPrefill {
-                PageChrome.shared.agentPrefill = nil
-                draft = words
-                if assistant.available { send() } else { sendWhenReady = true }
-            }
+            consumeShellPrompt()
             if panelClose != nil { composerFocused = true }
             #if DEBUG
             await AssistantVerification.runIfRequested(assistant)
             await AssistantLifecycleVerification.runIfRequested(assistant)
             #endif
         }
+        #if os(macOS)
+        .onReceive(NotificationCenter.default.publisher(for: .shellOpenAssistant)) { _ in
+            if panelClose != nil { consumeShellPrompt() }
+        }
+        #endif
         .onChange(of: draft) { _, value in UserDefaults.standard.set(value, forKey: draftKey) }
         .onChange(of: assistant.available) { _, ready in
             if ready && sendWhenReady { sendWhenReady = false; send() }
@@ -150,15 +151,6 @@ struct AssistantView: View {
         Menu {
             Button("Summarize context", systemImage: "text.append") { Task { await assistant.compact() } }
                 .disabled(assistant.busy || !assistant.available || assistant.messages.isEmpty)
-            #if PI_DEVELOPMENT
-            Menu("Sample data", systemImage: "flask") {
-                Button(AppSupport.isPiSampleWorkspace ? "Use my data after reopening" : "Use full sample workspace after reopening") {
-                    UserDefaults.standard.set(!AppSupport.isPiSampleWorkspace, forKey: "assistant.sampleWorkspace")
-                    assistant.error = "Reopen Banana Pi to switch workspaces. Your personal data is kept separately. Sample calendar, workouts, sleep, trends, meals, supplements, notes, routines and library fixtures reset each launch."
-                }
-
-            }
-            #endif
             ReportProblemMenuItem()
             Divider()
             Button("Delete all conversations…", systemImage: "trash", role: .destructive) { confirmingClear = true }
@@ -218,7 +210,7 @@ struct AssistantView: View {
     }
 
     /// One input for asking, finding and adding. While Pi works its send button is Stop, in the
-    /// same place; a status line shows only when the model can't be used.
+    /// same place. On phones and tablets, the status also identifies the selected model location.
     private var composer: some View {
         VStack(alignment: .leading, spacing: 8) {
             if assistant.loadingLocalModel {
@@ -235,6 +227,15 @@ struct AssistantView: View {
                     Button("Try again") { assistant.activate() }.font(.footnote)
                 }
             }
+            #if os(iOS) && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
+            if assistant.available && !assistant.isDiagnostic {
+                Text(assistant.modelLocation)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .accessibilityLabel("Assistant model. \(assistant.modelLocation)")
+                    .accessibilityIdentifier("assistant.model.location")
+            }
+            #endif
             #if DEBUG
             if assistant.isDiagnostic && !AppSupport.isDesignCapture {
                 Text("\(assistant.fixtureNoteCount) saved note\(assistant.fixtureNoteCount == 1 ? "" : "s")")
@@ -484,10 +485,29 @@ struct AssistantView: View {
         return assistant.savedNote(forNoteStepFromNewest: steps.count - 1 - position)
     }
 
+    private func consumeShellPrompt() {
+        guard let words = PageChrome.shared.agentPrefill else { return }
+        PageChrome.shared.agentPrefill = nil
+        if !draft.isEmpty {
+            draft += "\n\n" + words
+            sendWhenReady = false
+            composerFocused = true
+        } else {
+            draft = words
+            if assistant.busy {
+                composerFocused = true
+            } else if assistant.available {
+                send()
+            } else {
+                sendWhenReady = true
+            }
+        }
+    }
+
     private func send() {
         let text = draft
         Task {
-            if await assistant.send(text) {
+            if await assistant.send(text), draft == text {
                 draft = ""
                 composerFocused = false
             }

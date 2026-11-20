@@ -19,11 +19,14 @@ extension EnvironmentValues {
 /// person learns one place to look and one way to close.
 struct WorkspaceObjectHeader: View {
     enum Status {
-        case draft, saved, blocked(String), results
+        case draft, saving, saved, saveFailed, submitted, blocked(String), results
         var label: String? {
             switch self {
             case .draft: "Draft"
+            case .saving: "Saving"
             case .saved: "Saved"
+            case .saveFailed: "Save failed"
+            case .submitted: "Submitted"
             case .blocked(let reason): reason
             case .results: nil
             }
@@ -31,7 +34,9 @@ struct WorkspaceObjectHeader: View {
         var symbol: String {
             switch self {
             case .draft: "pencil"
+            case .saving, .submitted: "clock"
             case .saved: "checkmark.circle.fill"
+            case .saveFailed: "exclamationmark.circle"
             case .blocked: "exclamationmark.circle"
             case .results: "magnifyingglass"
             }
@@ -42,7 +47,7 @@ struct WorkspaceObjectHeader: View {
         var tint: Color {
             switch self {
             case .saved: .green
-            case .blocked: .orange
+            case .blocked, .saveFailed: .orange
             default: .secondary
             }
         }
@@ -105,7 +110,7 @@ struct AssistantWorkspaceView: View {
     var request: String? = nil
     @ObservedObject private var assistant = AssistantStore.shared
     @ObservedObject private var wellness = WellnessStore.shared
-    @ObservedObject private var occurrences = OccurrenceStore.shared
+    @ObservedObject private var calendarWrites = OccurrenceStore.shared.pendingWrites
     @ObservedObject private var noteStore = VoiceNoteStore.shared
     @State private var noteText = ""
     @State private var eventSubmitted = false
@@ -116,10 +121,20 @@ struct AssistantWorkspaceView: View {
 
     private var savedMeal: MealEntry? { wellness.meals.first { $0.id == UUID(uuidString: action.id) } }
     private var savedNote: VoiceNote? { noteStore.notes.first { $0.id == UUID(uuidString: action.id) } }
-    private var eventQueued: Bool {
-        eventSubmitted || (UUID(uuidString: action.id).map { id in
-            occurrences.pendingWrites.pending.contains(where: { $0.input.assistantOperationID == id })
-        } ?? false)
+    private var eventWrite: PendingCalendarWrite? {
+        guard let id = UUID(uuidString: action.id) else { return nil }
+        return calendarWrites.pending.first { $0.input.assistantOperationID == id }
+    }
+
+    private var eventStatus: WorkspaceObjectHeader.Status {
+        switch eventWrite?.state {
+        case .writing: .saving
+        case .awaitingReadBack: .saved
+        case .failed: .saveFailed
+        case nil:
+            if let id = UUID(uuidString: action.id), calendarWrites.hasAssistantReceipt(id) { .saved }
+            else { eventSubmitted ? .submitted : .draft }
+        }
     }
 
     var body: some View {
@@ -138,7 +153,14 @@ struct AssistantWorkspaceView: View {
                         .disabled(assistant.busy)
                 }
             case .event:
-                if eventQueued {
+                if !eventStatus.isDraft {
+                    if let write = eventWrite, write.isFailed {
+                        if let problem = write.lastError {
+                            Text(problem).foregroundStyle(.secondary)
+                        }
+                        Button("Retry") { OccurrenceStore.shared.retryPendingWrite(write.id) }
+                            .disabled(assistant.busy)
+                    }
                     Button("Show in Plan") { open("plan") }
                 } else {
                     NewCalendarEventSheet(assistantDraft: action, words: action.sourceRequest, embedded: true) { eventSubmitted = true }
@@ -187,7 +209,7 @@ struct AssistantWorkspaceView: View {
     private var title: String {
         switch action.kind {
         case .meal: savedMeal.map { $0.name.isEmpty ? "Meal" : $0.name } ?? (action.title.isEmpty ? "Meal" : action.title)
-        case .event: eventQueued ? "Event added" : "New event"
+        case .event: action.title
         case .note: savedNote == nil ? "New note" : "Note saved"
         case .search: action.title
         case .navigation: action.title
@@ -198,9 +220,7 @@ struct AssistantWorkspaceView: View {
         switch action.kind {
         case .meal: return savedMeal == nil ? .draft : .saved
         case .note: return savedNote == nil ? .draft : .saved
-        case .event:
-            // A missing calendar is said on the Calendar row, which owns it; the draft is a draft.
-            return eventQueued ? .saved : .draft
+        case .event: return eventStatus
         case .search, .navigation: return .results
         }
     }

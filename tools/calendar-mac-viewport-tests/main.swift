@@ -66,6 +66,22 @@ check(scrollEnds == 11)
 coordinator.stopObserving()
 NotificationCenter.default.post(name: NSScrollView.didEndLiveScrollNotification, object: coordinator.scroll)
 check(scrollEnds == 11)
+// SwiftUI can update the coordinator before AppKit has given the viewport a size.
+let opening = CalendarMacCollectionViewport.Coordinator()
+opening.scroll.frame = .zero
+func updateOpening(offset: CGFloat) {
+    opening.update(CalendarMacCollectionViewport(items: [], contentSize: CGSize(width: 900, height: 1400),
+        background: AnyView(Color.clear), initialOffset: offset, onOffset: { _ in }),
+        environment: EnvironmentValues())
+}
+updateOpening(offset: 460)
+opening.scroll.frame = CGRect(x: 0, y: 0, width: 900, height: 600)
+opening.scroll.layoutSubtreeIfNeeded()
+check(opening.scroll.contentView.bounds.minY == 460)
+opening.scroll.contentView.scroll(to: CGPoint(x: 0, y: 300))
+updateOpening(offset: 460)
+check(opening.scroll.contentView.bounds.minY == 300)
+opening.stopObserving()
 let wheel = CalendarMacScrollView()
 var wheelEnds = 0
 wheel.onDiscreteScrollEnd = { wheelEnds += 1 }
@@ -121,6 +137,15 @@ for style in [NSScroller.Style.legacy, .overlay] {
     print("style=\(style.rawValue) hostWidth=\(nativeBackground.frame.width) gridFrame=\(backgroundFrame)")
     check(backgroundFrame.width == 1200)
     check(backgroundFrame.minX == 0)
+    // Shrinking and expanding repeatedly should keep the document ruler attached
+    // to the event geometry and leave the selected vertical range in place.
+    host.scroll.contentView.scroll(to: CGPoint(x: 0, y: 400))
+    host.scroll.reflectScrolledClipView(host.scroll.contentView)
+    for width in [640.0, 1080, 680, 1200] {
+        host.scroll.frame.size.width = width
+        update(width: width)
+        check(host.scroll.contentView.bounds.minY == 400)
+    }
     host.stopObserving()
 }
 print("\(checks) AppKit layout/initial-mount checks passed; no visible interaction or performance acceptance")

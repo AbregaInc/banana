@@ -128,6 +128,7 @@ struct WellnessView: View {
 }
 
 private struct NutritionView: View {
+    @Environment(\.bottomBarShell) private var bottomBarShell
     @EnvironmentObject private var wellness: WellnessStore
     /// Which "log food" sheet is open, kept in ShellNavigation so a half-typed meal is still
     /// open after switching apps (the iOS tree is rebuilt on return).
@@ -176,12 +177,10 @@ private struct NutritionView: View {
         }
     }
     private var isToday: Bool { Calendar.current.isDateInToday(day) }
-    private var visibleMeals: [MealEntry] {
-        wellness.meals.filter { !toasts.hiddenIDs.contains($0.id.uuidString) }
-    }
+    private var mealIndex: NutritionDays.Index { wellness.mealIndex(hiding: toasts.hiddenIDs) }
     /// The day's meals (named `today` from before there were other days to look at).
-    private var today: [MealEntry] { NutritionDays.meals(visibleMeals, on: day) }
-    private var total: NutritionMacros { today.reduce(.init()) { $0 + $1.totals } }
+    private var today: [MealEntry] { mealIndex.meals(on: day) }
+    private var total: NutritionMacros { mealIndex.total(on: day) }
 
     var body: some View {
         let _ = RenderStats.note("NutritionView")
@@ -239,14 +238,12 @@ private struct NutritionView: View {
     }
 
     @ViewBuilder private var list: some View {
-        // Each read of these filters every logged meal, and one pass read them a dozen times: once
-        // per pass now. (The preview hooks below keep reading the live properties — they wait on them.)
-        let visible = visibleMeals
+        let index = mealIndex
         let dayMeals = today
         List {
             Section {
                 VStack(alignment: .leading, spacing: DS.Space.m) {
-                    NutritionWeekStrip(day: Binding(get: { day }, set: { day = $0 }), meals: visible)
+                    NutritionWeekStrip(day: Binding(get: { day }, set: { day = $0 }), index: index)
                     Divider()
                     daySummary
                     Button { showingRecentMeals = true } label: {
@@ -314,12 +311,13 @@ private struct NutritionView: View {
 
             // The logs against the weight trend were here: looking back, so in Review now.
 
-            EstimateLearningSection(meals: visibleMeals)
+            EstimateLearningSection(meals: index.visible, key: .init(revision: wellness.mealRevision, hiddenIDs: index.hiddenIDs))
 
             MealPhotoScanSettingsSection()
         }
         // The first section has no header: without this it sat a blank band below the date line.
         .contentMargins(.top, DS.Space.s, for: .scrollContent)
+        .contentMargins(.bottom, bottomBarShell ? DS.Space.l : 0, for: .scrollContent)
         .sheet(item: Binding(get: { captureMode }, set: { captureMode = $0 })) { mode in
             // One sheet for every way in, the same one the iPad and the Mac open. Scan and
             // "Enter by hand" opened an older sheet here: it had no amount control, and what it
@@ -507,6 +505,7 @@ struct CameraPicker: UIViewControllerRepresentable {
 }
 
 private struct SupplementsView: View {
+    @Environment(\.bottomBarShell) private var bottomBarShell
     @EnvironmentObject private var wellness: WellnessStore
     /// When things are due around a moment (after your workout), and redraws when one comes.
     @ObservedObject private var hub = AnchoredTimingHub.shared
@@ -567,6 +566,7 @@ private struct SupplementsView: View {
                 }
             }
         }
+        .contentMargins(.bottom, bottomBarShell ? DS.Space.l : 0, for: .scrollContent)
         .sheet(isPresented: $adding) { SupplementEditor(supplement: nil) }
         // Opens the add sheet straight away, so the editor can be looked at without a tap. Same
         // convention as `--meal-editor-preview`.

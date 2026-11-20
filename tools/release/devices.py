@@ -100,7 +100,8 @@ def run_on(role, command, args, log):
             return f"FAILED {role}: {error}"
         argv = [part.replace("{id}", device["identifier"]) for part in command]
         print(f"  {role}: {describe(device)}: attempt {attempt}", flush=True)
-        result = subprocess.run(argv, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+        result = subprocess.run(argv, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                                encoding="utf-8", errors="replace")
         log.write(f"--- {role} attempt {attempt}: exit {result.returncode}\n{result.stdout}\n")
         log.flush()
         if result.returncode == 0:

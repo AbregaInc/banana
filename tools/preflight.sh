@@ -47,6 +47,7 @@ done
 build=${build:-$(next_build)}
 version=${version:-$(last_release_version)}
 version=${version:-$(project_setting MARKETING_VERSION)}
+export BANANA_TESTFLIGHT_VERSION="$version"
 # The default unit set: the whole BananaTests target on the phone simulator (4,000-odd tests),
 # run twice. `unit` is Debug: its build is the cached one ui-tests.sh shares, and only Debug stops
 # at the main-thread and other Debug-only traps. `unit-optimized` is the Release BananaModelTests

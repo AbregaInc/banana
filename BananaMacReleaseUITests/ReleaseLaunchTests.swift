@@ -109,17 +109,18 @@ final class ReleaseLaunchTests: XCTestCase {
         }, object: nil)
         XCTAssertEqual(XCTWaiter.wait(for: [moved], timeout: 10), .completed)
         let today = app.buttons["plan.today"]
-        if today.waitForExistence(timeout: 5) {
+        XCTAssertTrue(today.waitForExistence(timeout: 5))
+        if today.isEnabled {
             ready(today, "Return to today")
             today.click()
         } else {
             // This is a live-clock release build: crossing the week boundary can make the
-            // page we just advanced to today's week, so Today is correctly absent.
+            // page we just advanced to today's week, so Today is already disabled.
             XCTAssertFalse(Calendar.current.isDate(initialWeek, equalTo: Date(), toGranularity: .weekOfYear))
         }
         let returned = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in
             let sameWeek = Calendar.current.isDate(initialWeek, equalTo: Date(), toGranularity: .weekOfYear)
-            return !self.app.buttons["plan.today"].exists && (!sameWeek || (self.period.value as? String) == before)
+            return today.exists && !today.isEnabled && (!sameWeek || (self.period.value as? String) == before)
         }, object: nil)
         XCTAssertEqual(XCTWaiter.wait(for: [returned], timeout: 10), .completed)
         app.terminate()

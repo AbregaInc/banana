@@ -11,6 +11,15 @@ import Combine
     private var startup: Task<Void, Never>?
     private var accessObservation: AnyCancellable?
     private var accessRefresh: Task<Void, Never>?
+    private var accountRefresh: Task<Void, Never>?
+
+    func refreshAccount() async {
+        if let accountRefresh { await accountRefresh.value; return }
+        let task = Task { _ = await BananaAccount.shared.refresh() }
+        accountRefresh = task
+        await task.value
+        accountRefresh = nil
+    }
 
     func start() {
         guard session == nil, startup == nil else { return }
@@ -29,8 +38,9 @@ import Combine
         loading = true; failed = false
         startup = Task {
             do {
-                await GoogleCalendarService.shared.restoreIfNeeded()
-                _ = await BananaAccount.shared.refresh()
+                let account = BananaAccount.shared
+                let needsMembership = account.account == nil && FeatureAccessStore.shared.cachedMailAccounts == nil
+                let refresh = Task { await refreshAccount() }
                 let access = MailCloudAccess()
                 let (stores, intent) = try await Task.detached(priority: .userInitiated) {
                     let root = AppSupport.directory.appendingPathComponent("BananaMail", isDirectory: true)
@@ -38,6 +48,8 @@ import Combine
                     return (try MailStores.open(directories, migrations: MailSlices.migrations()),
                             try MailIntentStore(directories: directories))
                 }.value
+                // An older cache needs one authenticated lookup to scope the local index.
+                if needsMembership { await refresh.value }
                 let api = GmailHTTP(cloudTransport: { path, reference, query, method, body in
                         try await BananaAccount.shared.mailRequest(path: path, reference: reference, query: query, method: method, body: body)
                     }, draftTransport: { reference, body in
@@ -58,19 +70,7 @@ import Combine
                 if let scope = FeatureAccessStore.shared.mailContext {
                     try await source.prepareDrafts(intent: intent, scope: scope, api: api,
                         contextAllowed: { await MainActor.run { FeatureAccessStore.shared.mailContext == scope } },
-                        compose: { snapshot in
-                            guard snapshot.format == .banana, snapshot.signature?.complete != false,
-                                  snapshot.quote?.complete != false else {
-                                throw MailDraftDriver.Failure.attachmentsNotReady
-                            }
-                            let rendered = MailBodyHTML.message(body: snapshot.body, signature: snapshot.signature?.value, quote: snapshot.quote?.value)
-                            let person: (MailPerson) -> GmailDraftComposition.Person = { .init(address: $0.address, name: $0.name) }
-                            return GmailDraftComposition(from: .init(address: snapshot.from.address, name: snapshot.from.name),
-                                to: snapshot.to.map(person), cc: snapshot.cc.map(person), bcc: snapshot.bcc.map(person),
-                                subject: snapshot.subject, plain: rendered.plain, html: rendered.html, attachments: [],
-                                inReplyTo: snapshot.inReplyTo, references: snapshot.inReplyTo.map { [$0] },
-                                threadID: snapshot.isReply ? snapshot.conversation.thread : nil)
-                        })
+                        compose: { try GmailDraftComposition(snapshot: $0) })
                 }
                 source.reportReadFailure = { PlaybackDiagnostics.shared.log("mail read", $0) }
                 accessObservation = BananaAccount.shared.$account.map { $0?.google }.removeDuplicates().dropFirst().map { _ in () }

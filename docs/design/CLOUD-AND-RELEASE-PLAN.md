@@ -306,6 +306,11 @@ Lost acknowledgements and retries must not duplicate events, Meet requests or bu
   experimental access; disabling a feature must preserve user data and resolve pending actions explicitly.
 - [x] Revise archive/resource gates for primary-identity TestFlight Email, preserving Stable exclusions.
 
+Persistent Mail grants have no scheduled end. The account response identifies them separately
+from the policy refresh deadline. A delayed check retains the last confirmed Mail grant for that
+session, and an explicit denial or sign-out stops live requests. The service still checks its
+current grant on every protected operation. Time-limited grants retain their existing expiry.
+
 Done when selected testers can enable Email across their devices without enabling it globally or
 requesting Gmail permissions before they choose Email. No new signup flow is required.
 

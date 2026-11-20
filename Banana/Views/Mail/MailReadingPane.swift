@@ -220,31 +220,43 @@ struct MailCurrentSenderBlockItem: View {
         if session.source.supportsSenderBlocking,
            let message = (navigation.reader ?? pane.reader)?.messages.first(where: { !$0.senderIsMe }),
            MailAddressRules.isValid(message.senderAddress) {
-            MailBlockSenderItem(session: session, message: message)
+            if let domain = MailSenderPolicyTarget.domainKey(for: message.senderAddress) {
+                MailBlockSenderItem(session: session, message: message, sender: domain)
+            }
+            MailBlockSenderItem(session: session, message: message, sender: message.senderAddress)
         }
     }
 }
 
 struct MailBlockSenderItem: View {
     let session: MailSession
-    let message: MailMessageDisplay
+    let ask: MailSenderBlockAsk
     @ObservedObject private var status: MailSenderPolicyStatus
-    init(session: MailSession, message: MailMessageDisplay) {
-        self.session = session; self.message = message
-        _status = ObservedObject(wrappedValue: session.source.senderPolicyStatus(account: message.id.account, sender: message.senderAddress))
+
+    init(session: MailSession, message: MailMessageDisplay, sender: String) {
+        self.session = session
+        ask = MailSenderBlockAsk(message: message, sender: sender)
+        _status = ObservedObject(wrappedValue: session.source.senderPolicyStatus(account: message.id.account, sender: sender))
     }
     private var want: Bool { status.failed ? status.desiredBlocked : !(status.pending ? status.desiredBlocked : status.blocked) }
     private var title: String {
-        if status.pending { return status.desiredBlocked ? "Cancel blocking" : "Cancel unblocking" }
-        if status.failed { return status.desiredBlocked ? "Retry blocking sender" : "Retry unblocking sender" }
-        return status.blocked ? "Unblock sender" : "Block sender"
+        let target = ask.isDomain ? ask.label : "sender"
+        if status.pending { return status.desiredBlocked ? "Cancel blocking \(target)" : "Cancel unblocking \(target)" }
+        if status.failed { return status.desiredBlocked ? "Retry blocking \(target)" : "Retry unblocking \(target)" }
+        return status.blocked ? "Unblock \(target)" : "Block \(target)"
     }
     var body: some View {
         Button {
-            if want && !status.pending { session.askToBlockSender(message) } else { session.changeSenderBlock(want, message: message) }
+            if want && !status.pending {
+                session.askToBlockSender(ask.message, sender: ask.sender)
+            } else {
+                session.changeSenderBlock(want, message: ask.message, sender: ask.sender)
+            }
         } label: { Label(title, systemImage: status.blocked ? "person.crop.circle.badge.checkmark" : "person.crop.circle.badge.xmark") }
         .disabled(status.loading || !session.canPerform(.spam))
-        .accessibilityIdentifier(want ? "mail.sender.block" : "mail.sender.unblock")
+        .accessibilityIdentifier(ask.isDomain
+            ? (want ? "mail.domain.block" : "mail.domain.unblock")
+            : (want ? "mail.sender.block" : "mail.sender.unblock"))
     }
 }
 
@@ -253,14 +265,18 @@ struct MailSenderBlockHost: ViewModifier {
     let session: MailSession
     @ObservedObject var navigation: MailNavigation
     func body(content: Content) -> some View {
-        content.confirmationDialog("Block sender?", isPresented: Binding(
+        content.confirmationDialog(navigation.senderBlockAsk?.isDomain == true ? "Block domain?" : "Block sender?", isPresented: Binding(
             get: { navigation.senderBlockAsk != nil },
             set: { if !$0 { session.closeSenderBlockConfirmation() } }),
-            titleVisibility: .visible, presenting: navigation.senderBlockAsk) { message in
-                Button("Block sender", role: .destructive) { session.changeSenderBlock(true, message: message) }
+            titleVisibility: .visible, presenting: navigation.senderBlockAsk) { ask in
+                Button(ask.isDomain ? "Block domain" : "Block sender", role: .destructive) {
+                    session.changeSenderBlock(true, message: ask.message, sender: ask.sender)
+                }
                 Button("Cancel", role: .cancel) {}
-            } message: { message in
-                Text("Future messages from \(message.senderAddress) will go to Spam. This message will also move to Spam.")
+            } message: { ask in
+                Text(ask.isDomain
+                    ? "Future messages from addresses at \(ask.label) will go to Spam. This message will also move to Spam."
+                    : "Future messages from \(ask.label) will go to Spam. This message will also move to Spam.")
             }
             .alert("Couldn’t save sender settings", isPresented: Binding(
                 get: { navigation.senderBlockFailed },

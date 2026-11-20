@@ -59,10 +59,17 @@ struct MailMessageID: Hashable, Codable, Sendable {
     let message: String
 }
 
-/// The device's own id for a draft, stable for the draft's life. Gmail's draft and message ids
-/// change on every save and never reach the UI.
+/// The device's own id for a draft. Gmail's separate draft ID stays stable across saves.
 struct MailDraftID: Hashable, Codable, Sendable {
     let raw: String
+
+    private static let rowPrefix = "draft-row:"
+
+    var rowThread: String { Self.rowPrefix + raw }
+    static func fromRowThread(_ thread: String) -> Self? {
+        guard thread.hasPrefix(rowPrefix), thread.count > rowPrefix.count else { return nil }
+        return Self(raw: String(thread.dropFirst(rowPrefix.count)))
+    }
 }
 
 /// A message and a part. Never Gmail's `attachmentId`, which is not stable between reads.
@@ -447,6 +454,14 @@ struct MailMessage: Identifiable, Equatable, Sendable {
     var draft: MailDraftID?
     /// Provider draft state survives even before an editable local draft has been linked.
     var isUnsentDraft: Bool = false
+
+    var canReply: Bool {
+        guard draft == nil, !isUnsentDraft else { return false }
+        switch delivery {
+        case nil, .sentLate?: return true
+        default: return false
+        }
+    }
 }
 
 struct MailInvite: Equatable, Sendable {
@@ -460,7 +475,7 @@ struct MailInvite: Equatable, Sendable {
 }
 
 enum MailUnsubscribe: Equatable, Sendable {
-    case oneClick(host: String), openPage(URL), compose(to: String, subject: String?)
+    case oneClick(URL), openPage(URL), compose(to: String, subject: String?)
 }
 
 struct MailConversation: Equatable, Sendable {
@@ -507,6 +522,7 @@ struct MailDraftAttachment: Identifiable, Equatable, Codable, Sendable {
     /// Nil for a forwarded attachment that has not been downloaded yet.
     var file: URL?
     var isExecutable: Bool
+    var mimeType: String? = nil
 }
 
 enum MailDraftKind: Equatable, Sendable {
@@ -523,8 +539,11 @@ struct MailSchedule: Equatable, Codable, Sendable {
 }
 
 struct MailDraft: Identifiable, Equatable, Sendable {
+    enum SyncState: Equatable, Sendable { case local, gmail }
+    var syncState: SyncState? = nil
     /// Changes only when a provider refresh replaces the local editor baseline.
     var editToken: String = "local"
+    var attachmentMessageID: String?
     /// `banana`: written here, as text. `foreign`: written elsewhere in a form the text editor
     /// cannot hold; shown and sendable as it is (7.1).
     enum Format: String, Codable, Sendable {
@@ -552,6 +571,8 @@ struct MailDraft: Identifiable, Equatable, Sendable {
     /// What it would weigh as sent. The limit is `MailTuning.maxEncodedBytes`.
     var encodedBytes: Int
     var editedAt: Date
+    /// The provider message this draft answers, even when Gmail supplied no Message-ID header.
+    var replyToMessage: MailMessageID? = nil
 }
 
 // MARK: - Accounts and places
@@ -990,6 +1011,8 @@ enum MailEvent: Equatable, Sendable {
     case notSaved(MailReceipt, MailStoreProblem)
     /// What he is typing is in memory only, until a save succeeds.
     case draftNotSaved(MailDraftID, MailStoreProblem)
+    case draftSaved(MailDraftID, Date, MailDraft.SyncState)
+    case draftRefreshed(MailDraft)
     /// Gmail refused it for good; it is shown as not done.
     case refused(MailReceipt, MailFailure)
     /// Undo arrived after the message had left.
@@ -1140,6 +1163,8 @@ enum MailLinkRules {}
     func save(_ draft: MailDraft)
     func addAttachment(_ file: URL, to draft: MailDraftID) async -> MailDraftAttachment?
     func removeAttachment(_ id: String, from draft: MailDraftID)
+    func addAttachment(_ file: URL, to draft: MailDraftID, basedOn editToken: String?) async -> MailDraftAttachment?
+    func removeAttachment(_ id: String, from draft: MailDraftID, basedOn editToken: String?)
     /// A foreign draft, made editable.
     func rewriteAsText(_ draft: MailDraftID) async -> MailDraft?
     /// "Edit the quote": its text joins `body` as quoted blocks and `quote` becomes nil. Its
@@ -1201,7 +1226,7 @@ enum MailLinkRules {}
     @discardableResult func saveSplits(_ splits: [MailSplit]) -> [String]
     func createLabel(named name: String, account: String) -> MailLabelRef
     /// After the UI's confirmation, for a `.oneClick` offer only.
-    func unsubscribe(_ id: MailConversationID) async -> MailUnsubscribeResult
+    func unsubscribe(_ id: MailConversationID, expected: URL) async -> MailUnsubscribeResult
     func removeDownloadedMail(account: String?) async
     /// Settings' "Remove mail that Gmail no longer has": raises `removalHeld` again for the
     /// messages he kept (`MailAccount.keptAfterRemoval`), to be answered like the first time.

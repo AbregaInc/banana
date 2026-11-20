@@ -15,7 +15,7 @@ import Foundation
     /// When the cache last changed here: the snapshot's own time (§3 seeding rule 3).
     var snapshotDate: Date? { get }
     /// The phone's snapshot, arrived (`adoptCloudSnapshot`).
-    func adoptSnapshot(_ packed: Data)
+    func adoptSnapshot(file: URL) async throws
 }
 
 /// How often the Health snapshot goes up (§3 "The Health snapshot"): at most once an hour, and at
@@ -152,10 +152,10 @@ final class HealthSnapshotAdapter: RecordAdapter {
         return files.file(sha: sha)
     }
 
-    func storeBlob(_ type: String, id: String, field: String, file: URL) {
+    func installBlob(_ type: String, id: String, field: String, file: URL) async throws {
         // The phone reads Health itself: another copy of its own snapshot is nothing to it.
-        guard field == "v", !isHub, let data = try? Data(contentsOf: file) else { return }
-        port.adoptSnapshot(data)
+        guard field == "v", !isHub else { return }
+        try await port.adoptSnapshot(file: file)
     }
 }
 

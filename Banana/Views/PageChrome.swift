@@ -112,22 +112,24 @@ struct DateLine<Trailing: View>: View {
             .frame(height: 0)
             .navigationSubtitle(words.dates.flatMap { $0.isEmpty ? nil : "\(words.name) \u{00B7} \($0)" } ?? words.name)
             .toolbar {
-                // Plain buttons, not a ControlGroup: the window moved a group out of the leading
-                // place to the far end of the toolbar, away from Today.
-                ToolbarItemGroup(placement: .navigation) {
-                    Button { step(-1) } label: { Image(systemName: "chevron.left") }
-                        .help("Previous \(unit)")
-                        .accessibilityLabel("Previous \(unit)")
-                    Button { step(1) } label: { Image(systemName: "chevron.right") }
-                        .help("Next \(unit)")
-                        .accessibilityLabel("Next \(unit)")
-                        .disabled(!canGoForward)
-                    Button(home) { toCurrent() }
-                        .disabled(isCurrent)
-                        .accessibilityLabel("Return to \(home.lowercased())")
-                        .accessibilityIdentifier("dateLine.home")
+                ToolbarItem(placement: .navigation) {
+                    HStack(spacing: DS.Space.s) {
+                        Button { step(-1) } label: { Image(systemName: "chevron.left") }
+                            .help("Previous \(unit)")
+                            .accessibilityLabel("Previous \(unit)")
+                        Button { step(1) } label: { Image(systemName: "chevron.right") }
+                            .help("Next \(unit)")
+                            .accessibilityLabel("Next \(unit)")
+                            .disabled(!canGoForward)
+                        Button(home) { toCurrent() }
+                            .disabled(isCurrent)
+                            .accessibilityLabel("Return to \(home.lowercased())")
+                            .accessibilityIdentifier("dateLine.home")
+                        trailing
+                    }
+                    .buttonStyle(.borderless)
+                    .fixedSize()
                 }
-                ToolbarItem(placement: .automatic) { trailing }
             }
             .accessibilityIdentifier(titleIdentifier)
             .accessibilityValue(titleValue ?? dates)
@@ -670,17 +672,19 @@ private struct ShellPageTitle: ViewModifier {
     }
 }
 
-/// Body's title in the bottom-bar shell: the page showing (Workouts, Food or Taken), and the
+/// Body's title in the shell: the page showing (Workouts, Food or Taken), and the
 /// others under its chevron, with what is waiting in each.
 struct BodyTitleMenu: View {
     /// Workouts and Food alone (a wide screen keeps Taken inside Food).
     var wide = false
+    var section: Binding<AppSection>? = nil
     @ObservedObject private var shell = ShellNavigation.shared
     @ObservedObject private var badges = ActionBadges.shared
     @ObservedObject private var modules = ModuleStore.shared
 
     var body: some View {
-        let current = BodyPage(section: shell.state.tab, nutritionSection: shell.state.nutritionSection, wide: wide)
+        let current = BodyPage(section: section?.wrappedValue ?? shell.state.tab,
+                               nutritionSection: shell.state.nutritionSection, wide: wide)
         let choices = BodyPage.choices(wide: wide, with: modules.effectiveChoice)
         let waiting = badges.counts.food + badges.counts.taken
         if choices.count > 1 {
@@ -688,8 +692,12 @@ struct BodyTitleMenu: View {
                 Picker("Body section", selection: Binding(
                     get: { current },
                     set: { page in
-                        if !wide, let half = page.nutritionSection { shell.state.nutritionSection = half }
-                        shell.state.tab = page.section
+                        if let section {
+                            section.wrappedValue = page.section
+                        } else {
+                            if !wide, let half = page.nutritionSection { shell.state.nutritionSection = half }
+                            shell.state.tab = page.section
+                        }
                     })) {
                     ForEach(choices, id: \.self) { page in
                         let count = page == .food ? badges.counts.food : page == .taken ? badges.counts.taken : 0

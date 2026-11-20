@@ -1,4 +1,4 @@
-#if BANANA_MODULE_FOOD
+#if BANANA_MODULE_FOOD || (BANANA_AI && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT)
 #if os(iOS)
 import AVFoundation
 import SwiftUI
@@ -11,6 +11,10 @@ struct BarcodeScannerView: UIViewControllerRepresentable {
     /// Keeps scanning after a read, for a bag of shopping: each code is reported once, until a
     /// different one has been read in between.
     var continuous = false
+    var symbologies: [VNBarcodeSymbology] = [.ean8, .ean13, .upce, .code128, .itf14]
+    var accepts: (String) -> Bool = { _ in true }
+    var accessibilityID = "wellness.barcodeScanner"
+    var unavailableMessage = "The camera scanner is unavailable. You can still enter the product manually."
 
     static var isSupported: Bool { DataScannerViewController.isSupported }
 
@@ -18,24 +22,24 @@ struct BarcodeScannerView: UIViewControllerRepresentable {
 
     func makeUIViewController(context: Context) -> DataScannerViewController {
         let scanner = DataScannerViewController(
-            recognizedDataTypes: [.barcode(symbologies: [.ean8, .ean13, .upce, .code128, .itf14])],
+            recognizedDataTypes: [.barcode(symbologies: symbologies)],
             qualityLevel: .balanced,
             recognizesMultipleItems: false,
             isHighFrameRateTrackingEnabled: false,
             isPinchToZoomEnabled: true,
             isGuidanceEnabled: true,
             isHighlightingEnabled: true)
-        scanner.view.accessibilityIdentifier = "wellness.barcodeScanner"
+        scanner.view.accessibilityIdentifier = accessibilityID
         scanner.delegate = context.coordinator
         return scanner
     }
 
     func updateUIViewController(_ scanner: DataScannerViewController, context: Context) {
-        guard !scanner.isScanning else { return }
+        guard !scanner.isScanning, !context.coordinator.completed else { return }
         do {
             try scanner.startScanning()
         } catch {
-            onError("The camera scanner is unavailable. You can still enter the product manually.")
+            context.coordinator.fail()
         }
     }
 
@@ -45,7 +49,7 @@ struct BarcodeScannerView: UIViewControllerRepresentable {
 
     final class Coordinator: NSObject, DataScannerViewControllerDelegate {
         private let parent: BarcodeScannerView
-        private var completed = false
+        private(set) var completed = false
         private var last: String?
 
         init(parent: BarcodeScannerView) { self.parent = parent }
@@ -57,7 +61,7 @@ struct BarcodeScannerView: UIViewControllerRepresentable {
         ) {
             guard !completed,
                   case .barcode(let barcode) = addedItems.first,
-                  let value = barcode.payloadStringValue else { return }
+                  let value = barcode.payloadStringValue, parent.accepts(value) else { return }
             if parent.continuous {
                 // The same package still in view, or picked up again: once.
                 guard value != last else { return }
@@ -74,9 +78,13 @@ struct BarcodeScannerView: UIViewControllerRepresentable {
             _ dataScanner: DataScannerViewController,
             becameUnavailableWithError error: DataScannerViewController.ScanningUnavailable
         ) {
+            fail()
+        }
+
+        func fail() {
             guard !completed else { return }
             completed = true
-            parent.onError("The camera scanner became unavailable. You can still enter the product manually.")
+            Task { @MainActor in parent.onError(parent.unavailableMessage) }
         }
     }
 }

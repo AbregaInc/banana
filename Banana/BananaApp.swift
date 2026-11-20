@@ -312,8 +312,7 @@ struct BananaApp: App {
     var body: some Scene {
         mainScene
         #if os(macOS)
-        // Settings is its own window on the Mac, the system's: ⌘, and the app menu open it, its
-        // sections are the toolbar's (DESIGN-SYSTEM.md, the standard, 5).
+        // The system's Settings scene keeps the app menu and ⌘, available.
         Settings {
             // Its own toast host: deleting a booking type offers Undo.
             configured(SettingsView().toastHost())
@@ -848,6 +847,11 @@ struct BananaApp: App {
     private var configuredRoot: some View {
         configuredPlatformRoot
             .task { await wireUp() }
+            #if os(macOS) && BANANA_AI && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
+            .task {
+                if DesktopAssistantLink.hasSavedPairing { DesktopAssistantLink.shared.startHosting() }
+            }
+            #endif
             .spaceSyncQuestions()
     }
 

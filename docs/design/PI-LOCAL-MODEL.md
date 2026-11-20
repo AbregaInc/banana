@@ -32,8 +32,47 @@ Locals from the app's own runtime measured the same as the developer setup (42/4
 
 ## iPhone and iPad
 
-Apple's on-device model, as before. `PinnedModelFiles` is platform-neutral should they get a
-model of their own.
+Apple’s on-device model is the default. In an AI-enabled build, open **Settings → Desktop Link**
+on both devices. Enable sharing on the Mac, then choose **Scan Mac QR code**
+on the iPhone or iPad. You can copy and enter the pairing code manually as well. Keep Banana open on the Mac. **Check connection** confirms whether the phone can reach the paired
+Mac and shows the route it used. The Mac shows its model status separately.
+
+Bonjour finds the paired Mac on Wi-Fi or Ethernet and model requests stay on that network.
+The QR code includes the Mac’s Tailscale IPv4 address when the Tailscale client provides it.
+The mobile device authenticates the Mac on the LAN before saving that address. A valid
+address enables Tailscale away from home. Turn off **Use Tailscale** to remember your
+preference across launches. You can also enter the address manually. If the
+paired Mac is discovered locally, failed authentication or inference does not try another
+route. To use Banana Cloud away from home, turn on **Use Banana Cloud relay** on the Mac and keep
+both devices signed in to the same Banana account. The Mac holds an authenticated, renewable
+connection while sharing is enabled. Requests use the local network first and then Tailscale.
+The app may use the cloud relay if neither direct path connects. Requests already sent are
+never retried on another route. The relay forwards encrypted frames and has no pairing secret
+or access to model inputs and replies. If the Mac is unavailable when Assistant
+opens, the device uses its own model where supported. An interrupted desktop turn returns
+an error and is never replayed.
+
+The versioned desktop link uses TLS with a random pairing secret stored in each device’s
+Keychain. Share the code only with your own devices. Turning sharing off from the Mac
+revokes the code for all paired devices. The Mac serves model inference through this link
+and keeps the model worker on loopback. Conversation storage and tool execution stay on
+the requesting device.
+
+For transport verification on the Mac:
+
+```sh
+test_dir=$(mktemp -d)
+xcrun swiftc -DBANANA_AI -DBANANA_BETA Banana/Pi/DesktopPeerLink.swift \
+  Banana/Pi/DesktopPairingQRCode.swift Banana/Pi/DesktopCloudRelay.swift \
+  tools/tests/desktop-peer-link.swift -o "$test_dir/desktop-peer-link"
+"$test_dir/desktop-peer-link"
+rm -rf "$test_dir"
+```
+
+On physical devices, pair over the same Wi-Fi with Tailscale disabled and check that the
+connection reports **Connected over the local network**. Try **Check connection** and a
+prompt from an off-LAN connection with Tailscale enabled. Turn sharing off on the Mac
+and verify that the previous code and outstanding requests stop working.
 
 ## Open
 

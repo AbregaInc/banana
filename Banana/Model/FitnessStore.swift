@@ -34,7 +34,47 @@ final class FitnessStore: ObservableObject {
     // actor by design (see its doc comment).
     private nonisolated static let log = Logger(subsystem: "com.boris.banana", category: "fitness")
 
-    @Published private(set) var summaries: [FitnessSessionSummary] = []
+    @Published private(set) var summaries: [FitnessSessionSummary] = [] {
+        didSet { summariesRevision += 1 }
+    }
+    private var summariesRevision = 0
+    private var workoutProjections: [WorkoutProjectionKey: [WorkoutEntry]] = [:]
+
+    struct WorkoutProjectionKey: Hashable {
+        fileprivate let summariesRevision: Int
+        fileprivate let healthRevision: Int
+        fileprivate let healthStore: ObjectIdentifier
+        let dates: DateInterval?
+    }
+
+    func workoutProjectionKey(health: HealthKitStore, dates: DateInterval? = nil) -> WorkoutProjectionKey {
+        WorkoutProjectionKey(summariesRevision: summariesRevision, healthRevision: health.workoutsRevision,
+                             healthStore: ObjectIdentifier(health), dates: dates)
+    }
+
+    func cachedWorkouts(_ key: WorkoutProjectionKey) -> [WorkoutEntry]? { workoutProjections[key] }
+
+    func prepareWorkouts(_ key: WorkoutProjectionKey, health: HealthKitStore) async -> [WorkoutEntry]? {
+        if let cached = workoutProjections[key] { return cached }
+        let summaries = summaries
+        let workouts = health.workouts
+        let dates = key.dates
+        let rows = await Task.detached(priority: .userInitiated) {
+            guard let dates else { return WorkoutEntry.merge(summaries: summaries, health: workouts) }
+            return WorkoutEntry.merge(
+                summaries: summaries.filter { $0.start >= dates.start && $0.start < dates.end },
+                health: workouts.filter { $0.start >= dates.start && $0.start < dates.end })
+        }.value
+        guard !Task.isCancelled, key == workoutProjectionKey(health: health, dates: dates) else { return nil }
+        // Retain one lifetime projection and a small number of visited periods.
+        workoutProjections = workoutProjections.filter { $0.key.summariesRevision == key.summariesRevision
+            && $0.key.healthRevision == key.healthRevision && $0.key.healthStore == key.healthStore }
+        if workoutProjections.count >= 3, let victim = workoutProjections.keys.first(where: { $0.dates != nil }) {
+            workoutProjections.removeValue(forKey: victim)
+        }
+        workoutProjections[key] = rows
+        return rows
+    }
     private var isLoaded = false
     private var loadWaiters: [CheckedContinuation<Void, Never>] = []
     /// Set when `summaries.json` failed to decode AND could not even be quarantined (copied aside

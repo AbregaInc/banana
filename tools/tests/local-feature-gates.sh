@@ -94,4 +94,28 @@ for pair in 'BananaReleaseChannel testflight' 'CFBundleIdentifier org.example.ba
   esac
   /usr/libexec/PlistBuddy -c "Set :$key $original" "$scratch/Integrated.app/Contents/Info.plist"
 done
+# Production archives include AI and must continue to reject either form of Email.
+prod="$scratch/Production.app"
+mkdir -p "$prod/Contents/MacOS" "$prod/Contents/Resources/PiRuntime"
+printf '#include <stdio.h>\nint main(void) { puts("banana-local-ai-built-in"); return 0; }\n' > "$scratch/probe.c"
+xcrun clang "$scratch/probe.c" -o "$prod/Contents/MacOS/probe"
+python3 - "$prod/Contents/Info.plist" <<'PYTEST'
+import plistlib, sys
+with open(sys.argv[1], 'wb') as file:
+    plistlib.dump(dict(CFBundleExecutable='probe', CFBundleIdentifier='org.example.banana',
+                        BananaPrimaryBundleIdentifier='org.example.banana',
+                        BananaReleaseChannel='stable', BananaModules=''), file)
+PYTEST
+marker="$prod/Contents/Resources/banana-local-features.txt"
+printf 'AI\n' > "$marker"
+for channel in stable testflight appstore; do
+  /usr/libexec/PlistBuddy -c "Set :BananaReleaseChannel $channel" "$prod/Contents/Info.plist"
+  tools/check-release.sh "$prod" > "$scratch/production-ai.log" 2>&1 || { cat "$scratch/production-ai.log"; exit 1; }
+  printf 'EMAIL\n' >> "$marker"
+  if tools/check-release.sh "$prod" > "$scratch/production-email.log" 2>&1; then echo "Email marker accepted for $channel"; exit 1; fi
+  printf 'AI\n' > "$marker"
+done
+printf '#include <stdio.h>\nint main(void) { puts("banana-unreleased-modules-built-in"); return 0; }\n' > "$scratch/probe.c"
+xcrun clang "$scratch/probe.c" -o "$prod/Contents/MacOS/probe"
+if tools/check-release.sh "$prod" > "$scratch/production-email.log" 2>&1; then echo 'Production Email binary accepted'; exit 1; fi
 echo 'Local feature resource and release guard checks passed.'

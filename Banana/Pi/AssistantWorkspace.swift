@@ -93,7 +93,11 @@ enum AssistantWorkspace {
             let query = (action.query ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
             guard !query.isEmpty, query.count <= 120 else { throw AssistantFailure(message: "Enter a short search phrase.") }
             action.query = query; action.title = "Results for “\(query)”"
-            action.results = search(query)
+            if action.section == AppSection.plan.rawValue {
+                action.results = calendarSearch(query)
+            } else {
+                action.results = search(query)
+            }
         }
         return action
     }
@@ -141,6 +145,11 @@ enum AssistantWorkspace {
     static func open(_ section: AppSection, itemID: String? = nil) {
         let shell = ShellNavigation.shared
         shell.state = routedState(section, itemID: itemID, from: shell.state, meals: WellnessStore.shared.meals)
+        if section == .plan, let itemID, itemID.hasPrefix("plan:"),
+           let occurrence = OccurrenceStore.shared.occurrences.first(where: { $0.id == String(itemID.dropFirst(5)) }) {
+            let route = occurrence.meeting?.eventID.flatMap(GoogleCalendarIDs.rawEventRoute(from:))
+            PlanOpenRequests.shared.pending = .init(calendarID: route?.calendarID, eventID: route?.eventID, start: occurrence.start)
+        }
         #if os(iOS)
         if PageChrome.shared.showAssistant {
             PageChrome.shared.assistantDestination = section
@@ -149,6 +158,16 @@ enum AssistantWorkspace {
         }
         #endif
         NotificationCenter.default.post(name: .assistantOpenSection, object: section.rawValue)
+    }
+
+    private static func calendarSearch(_ query: String) -> [AssistantAction.Result] {
+        ShellSearch.matchingPlanOccurrences(query, limit: 6).map { occurrence in
+            let date = occurrence.hasScheduledTime && occurrence.behavior != .allDay
+                ? occurrence.start.formatted(date: .abbreviated, time: .shortened)
+                : occurrence.start.formatted(date: .abbreviated, time: .omitted)
+            return AssistantAction.Result(id: "plan:\(occurrence.id)", title: occurrence.title,
+                                          detail: date, section: AppSection.plan.rawValue)
+        }
     }
 
     private static func search(_ query: String) -> [AssistantAction.Result] {

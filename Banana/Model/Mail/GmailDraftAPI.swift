@@ -29,6 +29,20 @@ struct GmailDraftComposition: Codable, Equatable, Sendable {
     var attachments: [Attachment]
     var inReplyTo: String?; var references: [String]?; var threadID: String?
 }
+extension GmailDraftComposition {
+    init(snapshot: MailDraftRecord.Snapshot) throws {
+        guard snapshot.format == .banana, snapshot.signature?.complete != false,
+              snapshot.quote?.complete != false else { throw MailDraftDriver.Failure.attachmentsNotReady }
+        let rendered = MailBodyHTML.message(body: snapshot.body, signature: snapshot.signature?.value, quote: snapshot.quote?.value)
+        let person: (MailPerson) -> Person = { .init(address: $0.address, name: $0.name) }
+        self.init(from: .init(address: snapshot.from.address, name: snapshot.from.name),
+                  to: snapshot.to.map(person), cc: snapshot.cc.map(person), bcc: snapshot.bcc.map(person),
+                  subject: snapshot.subject, plain: snapshot.originalPlain ?? rendered.plain,
+                  html: snapshot.originalHTML ?? rendered.html, attachments: [],
+                  inReplyTo: snapshot.inReplyTo, references: snapshot.references ?? snapshot.inReplyTo.map { [$0] },
+                  threadID: snapshot.isReply ? snapshot.conversation.thread : nil)
+    }
+}
 struct GmailDraftMutation: Codable, Equatable, Sendable {
     enum Action: String, Codable, Sendable { case create, update, delete, send }
     var operationID: String

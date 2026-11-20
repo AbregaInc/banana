@@ -26,7 +26,10 @@ final class BananaAccount: ObservableObject {
     /// its own for, so those show "Sign in again" where a signed-out account already does.
     @Published private(set) var account: BananaService.Account? {
         didSet {
-            if let account { FeatureAccessStore.shared.receive(account: account.id, policy: account.featureAccess) }
+            if let account {
+                FeatureAccessStore.shared.receive(account: account.id, policy: account.featureAccess,
+                                                  mailAccounts: account.google.map { $0.email.lowercased() })
+            }
             let need = BananaService.accountsToSignInAgain(connected: GoogleCalendarService.shared.accounts.map(\.id), account: account)
             if need != GoogleCalendarService.shared.accountsNeedingServiceSignIn {
                 PlaybackDiagnostics.shared.log("☁️ account", need.isEmpty
@@ -670,6 +673,20 @@ final class BananaAccount: ObservableObject {
         defaults.removeObject(forKey: "bananaWatchLists")   // what build 56 kept; no longer used
         PlaybackDiagnostics.shared.log("☁️ account", "signed out")
     }
+
+    #if BANANA_AI && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
+    func desktopRelaySocket(link: String, hostChallenge: String? = nil) -> URLRequest? {
+        guard let session, let host = BananaService.host,
+              var url = URLComponents(string: host), url.scheme == "https" else { return nil }
+        url.scheme = "wss"
+        url.path = "/v1/desktop/" + link + (hostChallenge == nil ? "/client" : "/host")
+        url.queryItems = hostChallenge.map { [URLQueryItem(name: "nonce", value: $0)] }
+        guard let endpoint = url.url else { return nil }
+        var request = URLRequest(url: endpoint)
+        request.setValue("Bearer " + session, forHTTPHeaderField: "Authorization")
+        return request
+    }
+    #endif
 
     /// One call. Nil when the service couldn't be reached. A 401 on a signed-in call means the
     /// account is gone (deleted on another device): this device signs out too.

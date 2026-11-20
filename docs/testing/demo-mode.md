@@ -2,7 +2,7 @@
 
 ## Entry and data boundaries
 
-On iPhone, iPad and Mac, choose **Try with sample data** on the welcome page or in Settings → About. No Google account is required. The visible Demo banner remains while the sample workspace is open. Exit demo returns to the existing personal workspace without completing onboarding or enabling personal modules.
+The native demo is an automated testing fixture. A Debug launch with `--demo-test-session <id>` exposes its entry points for `DemoModeUITest`. The Demo banner remains while the sample workspace is open. Exit returns to the existing workspace without completing onboarding or enabling modules.
 
 The sample workspace persists its edits locally. **Demo options → Reset sample data** explicitly discards only these edits. A corrupt file is reported and preserved until that reset; a failed save retains the editor and can be retried. Calendar visibility, meal times, note archives, routines and reminders are sample values, independent of personal settings.
 
@@ -50,7 +50,3 @@ Foundation Codable/atomic writes and a dedicated actor provide persistence and i
 References: [SwiftUI EnvironmentValues](https://developer.apple.com/documentation/swiftui/environmentvalues), [Foundation FileManager](https://developer.apple.com/documentation/foundation/filemanager), [swift-dependencies](https://github.com/pointfreeco/swift-dependencies).
 
 No performance improvement is claimed. Component results, native input/frame evidence and functional demo checks are separate. The persistent component gate on 25 October returned **unmeasured** because installed Xcode 27.1 differs from the checked-in Xcode 27.0 reference; that failure is retained. No baseline, workload or budget was changed. Simulator functional passes cannot establish 120 Hz or physical-device input latency.
-
-## Apple review hold
-
-Public submission and beta review submission remain on the owner's review hold. A demo is not an automatic exemption from providing reviewer access. Before relying on it instead of credentials, obtain Apple's agreement and disclose the limits above. The review draft should identify **Try with sample data** on the welcome page, explain reset/exit, and separately explain how live integrations are available in the normal app. This implementation does not resolve Google's account-creation policies or establish that Apple will accept the alternative.

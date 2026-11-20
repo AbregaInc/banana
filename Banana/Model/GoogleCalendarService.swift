@@ -2107,6 +2107,7 @@ final class GoogleCalendarService: ObservableObject {
         var content: String? = nil
         /// The account that created it (`BusyBlockCleanupPolicy`).
         var creatorEmail: String? = nil
+        var blocksTime = true
         /// The sources it names (`GoogleBusyBlocks.sources`); empty on a copy written before them.
         var sources: Set<String> = []
         /// Its inputs stamp (`GoogleBusyBlocks.inputsKey`); nil on a copy from an older build.
@@ -2151,6 +2152,7 @@ final class GoogleCalendarService: ObservableObject {
                         GoogleBusyBlocks.content(title: $0, start: span.start, end: span.end, isAllDay: span.isAllDay)
                     },
                     creatorEmail: event.creator?.email,
+                    blocksTime: event.transparency != "transparent",
                     sources: GoogleBusyBlocks.sources(of: event.extendedProperties),
                     inputs: event.extendedProperties?.private?[GoogleBusyBlocks.inputsKey],
                     updated: event.updated.flatMap(GoogleCalendarDates.parseRFC3339)))

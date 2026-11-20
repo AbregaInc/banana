@@ -103,7 +103,7 @@ enum AppSupport {
     static let isPiSampleWorkspace: Bool = {
         #if DEBUG && PI_DEVELOPMENT
         return !isPiVerification && !isPiUITest
-            && (UserDefaults.standard.object(forKey: "assistant.sampleWorkspace") as? Bool ?? true)
+            && ProcessInfo.processInfo.arguments.contains("--pi-sample-check")
         #else
         return false
         #endif
@@ -123,7 +123,7 @@ enum AppSupport {
         let base = FileManager.default.urls(
             for: .applicationSupportDirectory, in: .userDomainMask)[0]
         #if PI_DEVELOPMENT
-        let dir = base.appendingPathComponent(isPiVerification ? "Banana Pi Verification" : isPiUITest ? "Banana Pi UI Tests" : isPiSampleWorkspace ? (ProcessInfo.processInfo.arguments.contains("--pi-sample-check") ? "Banana Pi Sample Verification" : "Banana Pi Samples") : "Banana Pi", isDirectory: true)
+        let dir = base.appendingPathComponent(isPiVerification ? "Banana Pi Verification" : isPiUITest ? "Banana Pi UI Tests" : isPiSampleWorkspace ? "Banana Pi Sample Verification" : "Banana Pi", isDirectory: true)
         try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
         return dir
         #elseif BANANA_DEVELOPMENT

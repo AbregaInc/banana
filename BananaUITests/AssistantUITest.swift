@@ -214,6 +214,28 @@ final class AssistantUITest: XCTestCase {
         send("Through the app shell", in: app)
         XCTAssertTrue(app.staticTexts["Local reply: Through the app shell"].waitForExistence(timeout: 15), app.debugDescription)
     }
+    func testAnswerRatingTargetsIncludeSpaceAroundTheIcons() {
+        let app = launch()
+        send("Check the answer controls", in: app)
+        let up = app.buttons["Good answer"]
+        let down = app.buttons["Bad answer"]
+        guard waitUntil(timeout: 15, { up.exists && down.exists }) else {
+            return XCTFail(app.debugDescription)
+        }
+        XCTAssertTrue(up.isHittable && down.isHittable)
+        for button in [up, down] {
+            XCTAssertGreaterThanOrEqual(button.frame.width, 44)
+            XCTAssertGreaterThanOrEqual(button.frame.height, 44)
+        }
+        XCTAssertFalse(up.frame.intersects(down.frame))
+
+        let edge = CGVector(dx: 0.85, dy: 0.85)
+        up.coordinate(withNormalizedOffset: edge).tap()
+        XCTAssertTrue(waitUntil { up.isSelected })
+        down.coordinate(withNormalizedOffset: edge).tap()
+        XCTAssertTrue(app.descendants(matching: .any)["report.note"].firstMatch.waitForExistence(timeout: 5))
+    }
+
     func testNoteToolDoesNotRepeatAfterReopen() {
         let app = launch()
         send("Save note: Check Pi durability", in: app)
@@ -418,7 +440,8 @@ final class AssistantUITest: XCTestCase {
         XCTAssertTrue(app.descendants(matching: .any)["assistant.input"].firstMatch.exists, "Saving must keep the assistant open")
         if !app.buttons["assistant.workspace.dismiss"].isHittable { app.swipeDown() }
         app.buttons["assistant.workspace.dismiss"].tap()
-        XCTAssertTrue(count.waitForExistence(timeout: 10), app.debugDescription)
+        send("Show my protein this month", in: app)
+        XCTAssertTrue(count.waitForExistence(timeout: 15), app.debugDescription)
         XCTAssertEqual(count.label, "\(initial + 1) logged meals")
     }
 
@@ -459,16 +482,13 @@ final class AssistantUITest: XCTestCase {
     }
 
     #if !PI_DEVELOPMENT
-    // Main reaches the assistant from … › Assistant; in Pi it is the + and Review (AgentInputUITest).
+    // Main opens the Assistant through the unified shell; Pi has separate entry tests.
     func testGlobalMealSearchLinksThroughNormalAppShell() {
         let app = XCUIApplication()
         app.launchArguments = ["--ui-preview", "--assistant-test-navigation", "--assistant-reset", "--wellness", "--disable-icloud", "-onboardingCompleted", "YES"]
         app.launch()
-        let more = app.buttons["More"].firstMatch
-        XCTAssertTrue(more.waitForExistence(timeout: 25), app.debugDescription)
-        more.tap()
-        let assistant = app.buttons["page.more.assistant"]
-        XCTAssertTrue(assistant.waitForExistence(timeout: 5), app.debugDescription)
+        let assistant = app.buttons["shell.ai"].firstMatch
+        XCTAssertTrue(assistant.waitForExistence(timeout: 25), app.debugDescription)
         assistant.tap()
         XCTAssertTrue(app.descendants(matching: .any)["assistant.input"].firstMatch.waitForExistence(timeout: 15), app.debugDescription)
         send("Search Banana for yogurt", in: app)

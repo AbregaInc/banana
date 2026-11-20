@@ -217,23 +217,22 @@ struct PlanPagingToolbar<Accessory: View>: ToolbarContent {
 
     var body: some ToolbarContent {
         #if os(macOS)
-        // One item keeps the native toolbar from splitting or reordering the date controls.
-        // Calendar navigation sits on the right; the only leading arrow-like control is the
-        // explicitly labelled sidebar icon. Single chevrons always page dates.
-        ToolbarItem(placement: .primaryAction) {
-            HStack(spacing: DS.Space.m) {
-                PlanPeriodMenu(dates: dates).fixedSize()
-                HStack(spacing: DS.Space.s) {
-                    PlanStepButton(delta: -1, days: days, step: step)
-                    if PlanPaging.showsToday(isCurrent: isCurrent) {
-                        PlanTodayButton(toCurrent: toCurrent)
-                    }
-                    PlanStepButton(delta: 1, days: days, step: step)
-                }
-                .buttonStyle(.borderless)
-                .fixedSize()
-                // Separate the date menu and the paging hit targets.
-                .padding(.leading, DS.Space.s)
+        // Keep the date and span between the paging controls in a single native toolbar item.
+        ToolbarItem(placement: Self.leading) {
+            HStack(spacing: DS.Space.s) {
+                PlanStepButton(delta: -1, days: days, step: step)
+                    .buttonStyle(.borderless)
+                PlanTodayButton(toCurrent: toCurrent)
+                    .buttonStyle(.borderless)
+                    .disabled(isCurrent)
+                Text(dates)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                    .accessibilityIdentifier("plan.dateRange")
+                PlanPeriodMenu(dates: dates, datesPlace: .hidden)
+                PlanStepButton(delta: 1, days: days, step: step)
+                    .buttonStyle(.borderless)
             }
             .fixedSize()
         }

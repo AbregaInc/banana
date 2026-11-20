@@ -1,8 +1,10 @@
+#if DEBUG
 import SwiftUI
 import Charts
 import AVFoundation
 
 struct DemoEntryButton: View {
+    static let isEnabled = ProcessInfo.processInfo.arguments.contains("--demo-test-session")
     /// The first run says it as plain words under its main button ("Explore an example").
     var plainTitle: String? = nil
     @State private var showing = false
@@ -402,3 +404,5 @@ private final class DemoNarration: NSObject, ObservableObject, AVSpeechSynthesiz
         }
     }
 }
+
+#endif

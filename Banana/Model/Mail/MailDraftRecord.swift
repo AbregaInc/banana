@@ -21,6 +21,12 @@ struct MailDraftRecord: Codable, Equatable, Sendable {
     struct Snapshot: Codable, Equatable, Sendable {
         var id: MailDraftID; var conversation: MailConversationID; var account: String
         var inReplyTo: String?
+        var references: [String]?
+        var originalPlain: String?
+        var originalHTML: String?
+        var attachmentMessageID: String?
+        var checkedDraftFormat: Bool?
+        var replyToMessage: MailMessageID?
         var editToken: String?
         var forwardMessageID: String?
         var isReply: Bool; var isForward: Bool; var from: MailIdentity
@@ -30,6 +36,8 @@ struct MailDraftRecord: Codable, Equatable, Sendable {
         var schedule: MailSchedule?; var remindIfNoReply: Date?; var encodedBytes: Int; var editedAt: Date
         init(_ draft: MailDraft) {
             editToken = draft.editToken
+            attachmentMessageID = draft.attachmentMessageID
+            replyToMessage = draft.replyToMessage
             id = draft.id; conversation = draft.conversation; account = draft.account
             isReply = draft.isReply; isForward = draft.isForward; from = draft.from
             to = draft.to; cc = draft.cc; bcc = draft.bcc; subject = draft.subject; body = draft.body
@@ -44,6 +52,8 @@ struct MailDraftRecord: Codable, Equatable, Sendable {
                 schedule: schedule, remindIfNoReply: remindIfNoReply, delivery: nil,
                 encodedBytes: encodedBytes, editedAt: editedAt)
             draft.editToken = editToken ?? "local"
+            draft.attachmentMessageID = attachmentMessageID
+            draft.replyToMessage = replyToMessage
             return draft
         }
     }
@@ -58,6 +68,7 @@ struct MailDraftRecord: Codable, Equatable, Sendable {
     var pendingRevision: Int?
     var pendingFiles: [MailDraftAttachment]?
     var deliveryFailed: Bool?
+    var awaitingFirstEdit: Bool?
     /// An older Beta may have submitted this message. Require an explicit keep-as-draft decision.
     var legacyReview: Bool?
     var state: State = .editing
@@ -67,6 +78,7 @@ struct MailDraftRecord: Codable, Equatable, Sendable {
     var conflict = false
     var generation: Int = 0
     var needsDelivery: Bool {
+        (awaitingFirstEdit != true || state == .held) &&
         legacyReview != true && ![.sent, .deleted, .failed].contains(state) && !conflict &&
         (pending != nil || acknowledgedRevision < revision || state == .held || state == .uncertain || wantsDelete)
     }

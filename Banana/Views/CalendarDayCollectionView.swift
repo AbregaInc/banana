@@ -314,8 +314,14 @@ final class CalendarDayCollectionView: UICollectionView, UICollectionViewDataSou
         bindMovePreview()
     }
 
+    var prepareOpeningPosition: ((CalendarDayCollectionView) -> Void)?
+
     override func layoutSubviews() {
         super.layoutSubviews()
+        if bounds.width > 0, bounds.height > 0, let prepareOpeningPosition {
+            self.prepareOpeningPosition = nil
+            prepareOpeningPosition(self)
+        }
         if let calendarBackground {
             calendarBackground.frame = CGRect(x: 0, y: 0, width: calendarLayout.collectionViewContentSize.width, height: calendarLayout.height)
             sendSubviewToBack(calendarBackground)

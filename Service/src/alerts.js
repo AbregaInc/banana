@@ -62,15 +62,23 @@ export function clock(ms, timeZone) {
 /** "Today 10:30 AM", "Tue 21 Oct, 10:30 AM". */
 export function when(ms, now, timeZone) {
   const tz = timeZone || "UTC";
-  const day = (t) => { try { return new Intl.DateTimeFormat("en-CA", { timeZone: tz, year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(t)); } catch { return new Date(t).toISOString().slice(0, 10); } };
-  const sameDay = day(ms) === day(now);
-  const tomorrow = day(ms) === day(now + 24 * 60 * MINUTE);
+  const sameDay = localDay(ms, tz) === localDay(now, tz);
+  const tomorrow = localDay(ms, tz) === localDay(now + 24 * 60 * MINUTE, tz);
   if (sameDay) return `Today ${clock(ms, tz)}`;
   if (tomorrow) return `Tomorrow ${clock(ms, tz)}`;
   let date;
   try { date = new Intl.DateTimeFormat("en-GB", { timeZone: tz, weekday: "short", day: "numeric", month: "short" }).format(new Date(ms)); }
   catch { date = new Date(ms).toISOString().slice(0, 10); }
   return `${date}, ${clock(ms, tz)}`;
+}
+
+/** An ISO calendar date in the given time zone, for date-only Google events. */
+function localDay(ms, timeZone = "UTC") {
+  try {
+    return new Intl.DateTimeFormat("en-CA", { timeZone, year: "numeric", month: "2-digit", day: "2-digit" }).format(ms);
+  } catch {
+    return new Date(ms).toISOString().slice(0, 10);
+  }
 }
 
 /** The body of a lead alert, as the devices word theirs. */
@@ -122,17 +130,26 @@ export function decide({ event, calendarId, selfEmail, now, leads = DEFAULT_LEAD
     return { alerts, state: null, dropPending: true };
   }
 
+  // A change feed can rediscover old events. Forget their alert state so a past instance
+  // cannot use up the announcement for a series with upcoming occurrences in the same read.
+  if (e.timed && (Number.isFinite(e.end) ? e.end : e.start) <= now) return none;
+  if (event.start?.date) {
+    const today = localDay(now, e.timeZone ?? tz ?? "UTC");
+    // Google's all-day end date is exclusive.
+    if (event.end?.date ? event.end.date <= today : event.start.date < today) return none;
+  }
+
   const alerts = [];
   const moved = previous && (previous.start_at !== e.start || previous.end_at !== e.end);
   const isNew = !previous;
 
-  // An invitation he hasn't answered: always visible, any date, with Accept / Decline.
+  // An invitation he hasn't answered: visible with Accept / Decline.
   if (e.invited && !baseline && (isNew || previous.response !== "needsAction")) {
     alerts.push({ id: id("invite"), kind: "invite", dueAt: now, title,
       body: `${e.organizerName ? `Invitation from ${e.organizerName}` : "Invitation"}${e.series ? " · Recurring series" : ""}${e.start ? ` · ${when(e.start, now, tz)}` : ""}` });
   }
 
-  // Someone else added or moved it, or Gmail made it: visible at once, any date.
+  // Someone else added or moved it, or Gmail made it: visible at once.
   if (!baseline && !e.invited && (isNew || moved) && (e.byOther || e.fromGmail) && e.attends) {
     const what = (e.fromGmail && isNew ? "From Gmail" : isNew ? `Added by ${e.who}` : `Moved by ${e.who}`) + (e.series ? " · Recurring series" : "");
     alerts.push({ id: id("changed"), kind: "changed", dueAt: now, title,

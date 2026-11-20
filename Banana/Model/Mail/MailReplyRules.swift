@@ -15,10 +15,9 @@ enum MailReplyRules {
         var cc: [MailPerson]
     }
 
-    /// The message a reply to the conversation answers: its newest. A conversation's messages are
-    /// oldest first, with his unsent ones last, so that is the last of them.
+    /// The newest replyable message. Drafts and queued sends can appear at the end of a thread.
     static func original(in conversation: MailConversation) -> MailMessage? {
-        conversation.messages.last
+        conversation.messages.last(where: \.canReply)
     }
 
     static func quote(message: MailMessage, body: MailBody, subject: String, forward: Bool) -> MailDraftPart {

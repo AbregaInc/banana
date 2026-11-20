@@ -184,7 +184,7 @@ enum MailFixtureConversations {
                                "2. Why every dashboard you build gets ignored by Friday.",
                                "3. The quiet return of plain text email.",
                                "You are receiving this because you subscribed at dispatch.example."])
-            ], important: false, unsubscribe: .oneClick(host: "dispatch.example"), designed: true),
+            ], important: false, unsubscribe: .oneClick(URL(string: "https://dispatch.example/unsubscribe")!), designed: true),
             Sample(key: "standup", subject: "Standup notes: Monday", messages: [
                 Message(from: tom, hour: 6, minute: 10,
                         body: ["Notes from standup:",
@@ -309,7 +309,7 @@ enum MailFixtureConversations {
                         body: ["Tuesday: how a three-person team ships weekly."]),
                 Message(from: dispatch, day: -9, hour: 7, minute: 2, unread: true,
                         body: ["Wednesday: the spreadsheet that runs a company."])
-            ], important: false, unsubscribe: .oneClick(host: "dispatch.example"), designed: true),
+            ], important: false, unsubscribe: .oneClick(URL(string: "https://dispatch.example/unsubscribe")!), designed: true),
             Sample(key: "lookalike", subject: "Action required: confirm your account", messages: [
                 Message(from: lookalike, day: -10, hour: 4, minute: 11,
                         body: ["Dear noor@plan.example, please confirm your account to avoid interruption.",

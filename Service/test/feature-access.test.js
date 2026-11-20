@@ -32,6 +32,20 @@ test('expiry and revocation take effect immediately and bound the client policy'
   await grant(s, a.account.id, 'email', 0);
   assert.equal(await featureAllowed(s.deps, a.account.id, 'email'), false);
 });
+test('persistent Mail stays eligible across refresh windows and ends on explicit revocation', async () => {
+  const s = setup(); const a = await account(s, 'noor');
+  await grant(s, a.account.id, 'email');
+  await grant(s, a.account.id, 'calendarCloud', 1, s.now() + 1000);
+  const first = await featurePolicy(s.deps, a.account.id);
+  assert.deepEqual(first.persistent, ['email']);
+  assert.equal(first.expiresAt, s.now() + 1000);
+  s.advance(POLICY_TTL * 2);
+  assert.equal(await featureAllowed(s.deps, a.account.id, 'email'), true);
+  assert.deepEqual((await featurePolicy(s.deps, a.account.id)).persistent, ['email']);
+  await grant(s, a.account.id, 'email', 0);
+  assert.equal(await featureAllowed(s.deps, a.account.id, 'email'), false);
+  assert.equal((await featurePolicy(s.deps, a.account.id)).persistent, undefined);
+});
 test('linked Google identities and other devices use the same Banana eligibility', async () => {
   const s = setup(); const a = await account(s, 'noor');
   await grant(s, a.account.id, 'email');

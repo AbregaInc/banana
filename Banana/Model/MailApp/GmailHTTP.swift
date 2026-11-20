@@ -70,7 +70,7 @@ final class GmailHTTP: GmailAPI, GmailDraftAPI, @unchecked Sendable {
         var result = [URLQueryItem(name: "format", value: format.apiValue)]
         if format == .header {
             for name in ["From", "To", "Cc", "Bcc", "Subject", "Date", "Message-ID", "In-Reply-To",
-                         "References", "List-ID", "List-Unsubscribe", "List-Unsubscribe-Post", "Authentication-Results"] {
+                         "References", "List-ID", "List-Unsubscribe", "List-Unsubscribe-Post", "Authentication-Results", "DKIM-Signature"] {
                 result.append(.init(name: "metadataHeaders", value: name))
             }
         }
