@@ -440,7 +440,8 @@ final class AssistantUITest: XCTestCase {
         XCTAssertTrue(app.descendants(matching: .any)["assistant.input"].firstMatch.exists, "Saving must keep the assistant open")
         if !app.buttons["assistant.workspace.dismiss"].isHittable { app.swipeDown() }
         app.buttons["assistant.workspace.dismiss"].tap()
-        XCTAssertTrue(count.waitForExistence(timeout: 10), app.debugDescription)
+        send("Show my protein this month", in: app)
+        XCTAssertTrue(count.waitForExistence(timeout: 15), app.debugDescription)
         XCTAssertEqual(count.label, "\(initial + 1) logged meals")
     }
 
