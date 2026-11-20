@@ -214,6 +214,25 @@ final class AssistantUITest: XCTestCase {
         send("Through the app shell", in: app)
         XCTAssertTrue(app.staticTexts["Local reply: Through the app shell"].waitForExistence(timeout: 15), app.debugDescription)
     }
+    func testAnswerRatingTargetsIncludeSpaceAroundTheIcons() {
+        let app = launch()
+        send("Check the answer controls", in: app)
+        let up = app.buttons["assistant.rate.up"]
+        let down = app.buttons["assistant.rate.down"]
+        XCTAssertTrue(waitUntil(timeout: 15) { up.isHittable && down.isHittable }, app.debugDescription)
+        for button in [up, down] {
+            XCTAssertGreaterThanOrEqual(button.frame.width, 44)
+            XCTAssertGreaterThanOrEqual(button.frame.height, 44)
+        }
+        XCTAssertFalse(up.frame.intersects(down.frame))
+
+        let edge = CGVector(dx: 0.85, dy: 0.85)
+        up.coordinate(withNormalizedOffset: edge).tap()
+        XCTAssertTrue(waitUntil { up.isSelected })
+        down.coordinate(withNormalizedOffset: edge).tap()
+        XCTAssertTrue(app.descendants(matching: .any)["report.note"].firstMatch.waitForExistence(timeout: 5))
+    }
+
     func testNoteToolDoesNotRepeatAfterReopen() {
         let app = launch()
         send("Save note: Check Pi durability", in: app)

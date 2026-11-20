@@ -62,9 +62,14 @@ struct AnswerRating: View {
             }
         } label: {
             Image(systemName: rated == rating ? symbol + ".fill" : symbol)
+                #if os(iOS)
+                .frame(minWidth: 44, minHeight: 44)
+                .contentShape(Rectangle())
+                #endif
         }
         .buttonStyle(.borderless)
         .accessibilityLabel(label)
+        .accessibilityAddTraits(rated == rating ? .isSelected : [])
         .accessibilityIdentifier("assistant.rate.\(rating.rawValue)")
     }
 }
