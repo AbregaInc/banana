@@ -6,13 +6,13 @@ final class FoodSearchUITest: XCTestCase {
     private func launch(_ arguments: [String]) -> XCUIApplication {
         let app = XCUIApplication()
         // No iCloud from an unsigned Simulator app (see MealEditorUITest).
-        app.launchArguments = arguments + ["--disable-icloud", "--no-space-sync", "--ui-audit", "-onboardingCompleted", "YES"]
+        app.launchArguments = arguments + ["--disable-icloud", "--no-space-sync", "--ui-preview", "--tab", "nutrition", "-onboardingCompleted", "YES"]
         app.withoutSpaceSync()
         app.launch()
         return app
     }
 
-    /// Search, in the page's + menu (it was a tile in the list, a scroll away).
+    /// Open Search from the food page’s add controls.
     private func searchFoods(_ app: XCUIApplication) -> XCUIElement {
         let add = app.plus("wellness.add")
         if add.waitForExistence(timeout: 8) { add.tap() }

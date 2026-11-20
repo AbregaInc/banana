@@ -101,15 +101,18 @@ final class ShellSearch: ObservableObject {
 
     // MARK: Plan — the timeline already in memory (the assistant's search reads the same).
 
-    private static func plan(_ query: String) -> [ShellSearchHit] {
-        let now = Date()
+    static func matchingPlanOccurrences(_ query: String, limit: Int, now: Date = Date()) -> [Occurrence] {
+        let today = Calendar.current.startOfDay(for: now)
         let matches = OccurrenceStore.shared.occurrences.filter {
             ShellSearchRules.titleMatches($0.title, query: query)
         }
-        // What's next first, then the most recent past.
-        let upcoming = matches.filter { $0.start >= Calendar.current.startOfDay(for: now) }.sorted { $0.start < $1.start }
-        let past = matches.filter { $0.start < Calendar.current.startOfDay(for: now) }.sorted { $0.start > $1.start }
-        return (upcoming + past).prefix(ShellSearchGroups<ShellSearchHit>.shownPerGroup).map { occurrence in
+        let upcoming = matches.filter { $0.start >= today }.sorted { $0.start < $1.start }
+        let past = matches.filter { $0.start < today }.sorted { $0.start > $1.start }
+        return Array((upcoming + past).prefix(limit))
+    }
+
+    private static func plan(_ query: String) -> [ShellSearchHit] {
+        matchingPlanOccurrences(query, limit: ShellSearchGroups<ShellSearchHit>.shownPerGroup).map { occurrence in
             let route = occurrence.meeting?.eventID.flatMap(GoogleCalendarIDs.rawEventRoute(from:))
             return ShellSearchHit(
                 id: "plan:" + occurrence.id,

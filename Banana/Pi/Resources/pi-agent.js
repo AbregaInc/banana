@@ -21762,6 +21762,12 @@ Current native nutrition view: ` + JSON.stringify(active) + ". nutrition_view op
     const clean = query.replace(new RegExp("\\s+" + courtesy + "[.!?\\s]*$", "i"), "").trim();
     return clean || query;
   }
+  function namedCalendarLookup(value) {
+    const match = value.trim().match(/^(?:when is|what(?:['’]s| is)) +(?:(?:my|our) +)?([\p{L}][\p{L}\p{M}-]*(?: +[\p{L}][\p{L}\p{M}-]*){0,3})['’]s +(birthday|anniversary)[?.!]?$/iu);
+    if (!match || /\b(?:and|or|not)\b/i.test(match[1])) return null;
+    const query = `${match[1]} ${match[2]}`;
+    return query.length <= 120 ? query : null;
+  }
   function directConversationCommand(value) {
     if (value.match(quoted)) return null;
     const words = value.toLowerCase().match(/[a-z]+(?:['’][a-z]+)?|\d+/g) ?? [];
@@ -21845,7 +21851,7 @@ Check needsUnavailableData for the WHOLE requested answer: food logs cannot esta
 Supported outcomes:
 - open_page: open/show a module, dashboard, library, history or settings screen. Showing workout history or the latest workout means opening Workouts. Showing sleep trends or activity trends means opening Review; those are screens, not nutrition charts. Choose the page by subject: calendar=plan; exercise/workout=workouts; food=nutrition; notes=notes; routine=routines; podcasts/playback/listening=library; sleep/health/activity trends=review; account/preferences=settings; assistant=assistant.
 - day_plan: read appointments/agenda for a particular day, including today/tomorrow. Not edits, cancellation, routine changes or reminders.
-- list_notes: recent/latest notes. read_note: a known note ID from prior tool results. search_app: find local titles/text or notes containing a phrase; not summaries of unavailable records. Search text is not a command to edit it.
+- list_notes: recent/latest notes. read_note: a known note ID from prior tool results. search_app: find a named calendar event, local title/text, or notes containing a phrase; not summaries of unavailable records. Search text is not a command to edit it.
 - create_note: explicitly create a NEW written note with supplied text. Never replace an existing note or use notes to log workouts, supplements, completed routines, reminders, or chat memory.
 - prepare_event: NEW, one-off calendar event with an activity/title and a clock time (or explicitly all-day). A time-only event needs no date. Missing time -> clarify/time. Changes to an existing event, recurrence, alarms, invitations and flights with separate endpoint timezones -> unavailable. A workout log or routine is NOT a calendar event.
 - prepare_meal: NEW food log with foods AND amounts stated. Missing foods -> clarify/food; missing amounts -> clarify/amount. Do not guess a serving or unknown quantity. Never use for changing existing logs or routines.
@@ -21895,6 +21901,10 @@ For read_nutrients, needsUnavailableData must be false for dietary intake/adequa
     const directPage = directPageCommand(latest);
     if (directPage && request2.tools.some((t) => t.name === "open_page")) return call("open_page", { section: directPage }, "navigation-" + Date.now() + "-" + ++navigationSequence);
     if (directConversationCommand(latest) === "new") return text("I can\u2019t start a separate conversation from a message. Use New Conversation in the chat menu.");
+    const calendarQuery = namedCalendarLookup(latest);
+    if (calendarQuery && request2.tools.some((tool3) => tool3.name === "search_app" && tool3.parameters.properties.section)) {
+      return call("search_app", { query: calendarQuery, section: "plan" }, "calendar-search-" + Date.now() + "-" + ++navigationSequence);
+    }
     const chart = nutritionCommand(latest, /Current native nutrition view:\s*\{/.test(request2.instructions));
     if (chart && request2.tools.some((t) => t.name === chart.name)) return call(chart.name, chart.arguments, "chart-" + Date.now() + "-" + ++navigationSequence);
     const chosen = await generate(selectionRequest(request2), signal);
@@ -22270,7 +22280,7 @@ Use prepare_meal for NEW food entries, prepare_meal_copy for an existing logged 
         { title: typebox_exports.String({ description: "Use the activity phrase already supplied by the user. Do not request a separate or more formal event name." }), day: typebox_exports.Optional(typebox_exports.String({ description: "Only a day explicitly requested by the user: today, tomorrow, yesterday, or YYYY-MM-DD. Omit for a time-only request; native code chooses the next occurrence, never a past default." })), time: typebox_exports.Optional(typebox_exports.String({ description: "Local 24-hour HH:mm; required unless explicitly all-day." })), durationMinutes: typebox_exports.Optional(typebox_exports.Integer()), isAllDay: typebox_exports.Optional(typebox_exports.Boolean()), location: typebox_exports.Optional(typebox_exports.String()), notes: typebox_exports.Optional(typebox_exports.String()) },
         "event"
       ),
-      tool2("search_app", "Search ACROSS Banana categories or for quoted text. For searches explicitly about logged meals/foods use nutrition_view with foodName instead. Returns a native list with app links.", { query: typebox_exports.String() }, "search"),
+      tool2("search_app", "Find named calendar events, search across Banana categories, or search for quoted text. Set section to plan for an explicitly named calendar event. For logged meals use nutrition_view. Returns matching records with app links.", { query: typebox_exports.String(), section: typebox_exports.Optional(typebox_exports.Literal("plan")) }, "search"),
       tool2("open_page", "Offer a link to a Banana page.", { section: typebox_exports.String({ enum: ["plan", "workouts", "nutrition", "notes", "routines", "library", "review", "assistant", "settings"] }) }, "navigation")
     ] });
   }
