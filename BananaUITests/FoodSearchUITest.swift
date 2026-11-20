@@ -6,7 +6,8 @@ final class FoodSearchUITest: XCTestCase {
     private func launch(_ arguments: [String]) -> XCUIApplication {
         let app = XCUIApplication()
         // No iCloud from an unsigned Simulator app (see MealEditorUITest).
-        app.launchArguments = arguments + ["--disable-icloud", "--no-space-sync", "--ui-preview", "--tab", "nutrition", "-onboardingCompleted", "YES"]
+        let layout = arguments.contains("--meal-editor-preview") ? ["--ui-audit"] : ["--ui-preview", "--tab", "nutrition"]
+        app.launchArguments = arguments + layout + ["--disable-icloud", "--no-space-sync", "-onboardingCompleted", "YES"]
         app.withoutSpaceSync()
         app.launch()
         return app
@@ -74,7 +75,8 @@ final class FoodSearchUITest: XCTestCase {
         search.tap()
         XCTAssertTrue(app.searchFields.firstMatch.waitForExistence(timeout: 3))
         app.navigationBars["Add food"].buttons["Cancel"].tap()
-        XCTAssertTrue(app.plus("wellness.add").waitForExistence(timeout: 3), "back on Nutrition, not on an empty meal")
+        let day = app.descendants(matching: .any).matching(identifier: "nutrition.day").firstMatch
+        XCTAssertTrue(day.waitForExistence(timeout: 5), "back on Nutrition, not on an empty meal")
         XCTAssertFalse(app.navigationBars["New meal"].waitForExistence(timeout: 2))
     }
 
