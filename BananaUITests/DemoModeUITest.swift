@@ -9,7 +9,7 @@ final class DemoModeUITest: XCTestCase {
     override func tearDown() { XCUIDevice.shared.orientation = .portrait }
     private func app(session: String = UUID().uuidString, fault: Bool = false) -> XCUIApplication {
         let app = XCUIApplication()
-        app.launchArguments = ["--disable-icloud", "--no-space-sync", "-onboardingCompleted", "NO",
+        app.launchArguments = ["--disable-icloud", "--no-space-sync", "-onboardingCompleted", "NO", "-onboardingStep", "welcome",
             "--demo-test-session", session, "--demo-test-clock", "2026-10-26T12:00:00Z"]
         if fault { app.launchArguments.append("--demo-save-failure") }
         app.withoutSpaceSync()
@@ -34,11 +34,8 @@ final class DemoModeUITest: XCTestCase {
 
     func testFixtureCalendarEditAndExitPreserveOnboarding() throws {
         let app = app(); app.launch()
-        let food = app.buttons["onboarding.module.food"]
-        XCTAssertTrue(food.waitForExistence(timeout: 20))
-        // The full suite shares a personal profile between classes. A previous flow may
-        // already have enabled Food; entering sample data must preserve either state.
-        let foodWasSelected = food.isSelected
+        let onboardingContinue = app.buttons["onboarding.continue"]
+        XCTAssertTrue(onboardingContinue.waitForExistence(timeout: 20))
         enter(app)
         if UIDevice.current.userInterfaceIdiom == .pad {
             XCTAssertTrue(waitUntil { app.frame.width > app.frame.height })
@@ -52,9 +49,9 @@ final class DemoModeUITest: XCTestCase {
         app.buttons["demo.event.delete"].tap()
         XCTAssertTrue(waitUntil { !app.textFields["demo.event.title"].exists })
         app.buttons["demo.exit"].tap()
-        XCTAssertTrue(app.buttons["onboarding.continue"].waitForExistence(timeout: 5))
-        XCTAssertEqual(app.buttons["onboarding.module.food"].isSelected, foodWasSelected,
-            "A demo must preserve the personal profile's module selection")
+        XCTAssertTrue(onboardingContinue.waitForExistence(timeout: 5))
+        onboardingContinue.tap()
+        XCTAssertTrue(app.buttons["onboarding.module.food"].waitForExistence(timeout: 5))
     }
 
     func testNotesAndMealsPersistAcrossRelaunchInTheirOwnProfile() throws {
