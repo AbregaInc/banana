@@ -67,6 +67,31 @@ final class MacToolbarTests: XCTestCase {
     private var period: XCUIElement { app.descendants(matching: .any)["mac.planner.view"].firstMatch }
     private var toggle: XCUIElement { app.buttons["shell.railToggle"] }
 
+    func testSettingsSidebarOpensDesktopLinkAndAbout() throws {
+        guard Bundle(url: candidate)?.bundleIdentifier?.hasSuffix(".beta") == true else {
+            throw XCTSkip("Desktop Link is available in Beta.")
+        }
+        app.typeKey(",", modifierFlags: .command)
+        let sidebar = app.descendants(matching: .any)["settings.sidebar"].firstMatch
+        let desktopLink = app.descendants(matching: .any)["settings.page.desktopLink"].firstMatch
+        let about = app.descendants(matching: .any)["settings.page.about"].firstMatch
+        wait("Desktop Link is selectable in the Settings sidebar") {
+            sidebar.exists && desktopLink.isEnabled && desktopLink.isHittable
+        }
+        desktopLink.click()
+        let pair = app.buttons["Enable desktop link"]
+        let qrCode = app.descendants(matching: .any)["Pairing QR code"].firstMatch
+        wait("Desktop Link opens its pairing settings") { pair.exists || qrCode.exists }
+
+        wait("About is selectable in the Settings sidebar") { about.isEnabled && about.isHittable }
+        about.click()
+        let version = app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "This Mac")).firstMatch
+        wait("About opens its version settings") { version.exists }
+        XCTAssertGreaterThan(version.frame.minX, sidebar.frame.midX)
+        let settings = app.windows.containing(.any, identifier: "settings.sidebar").firstMatch
+        XCTAssertGreaterThan(settings.frame.width - sidebar.frame.width, sidebar.frame.width)
+    }
+
     func testBodyMenuSwitchesBetweenWorkoutsAndFood() {
         wait("Sidebar control is available") { self.toggle.isHittable }
         if toggle.label == "Show sidebar" { toggle.click() }

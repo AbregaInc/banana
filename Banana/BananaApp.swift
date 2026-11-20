@@ -312,8 +312,7 @@ struct BananaApp: App {
     var body: some Scene {
         mainScene
         #if os(macOS)
-        // Settings is its own window on the Mac, the system's: ⌘, and the app menu open it, its
-        // sections are the toolbar's (DESIGN-SYSTEM.md, the standard, 5).
+        // The system's Settings scene keeps the app menu and ⌘, available.
         Settings {
             // Its own toast host: deleting a booking type offers Undo.
             configured(SettingsView().toastHost())

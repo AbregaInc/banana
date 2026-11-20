@@ -197,12 +197,23 @@ struct SettingsView: View {
         #endif
     }
 
-    /// The page shown on the right of the two-pane arrangement; the narrow one pushes pages.
-    @State private var macPage: SettingsPage? = .accounts
+    #if os(macOS)
+    @AppStorage("macSettingsPage") private var storedMacPage: SettingsPage = .accounts
+
+    private var selectedPage: SettingsPage? {
+        get { isShown(storedMacPage) ? storedMacPage : .accounts }
+        nonmutating set { if let newValue { storedMacPage = newValue } }
+    }
+    #else
+    @State private var selectedPage: SettingsPage? = .accounts
+    #endif
 
     /// The pages, account first: the list both two-pane arrangements choose from.
     @ViewBuilder private var pageRows: some View {
         Section {
+            #if os(macOS)
+            sidebarRow(.accounts)
+            #else
             HStack(spacing: DS.Space.s) {
                 Image(systemName: "person.crop.circle.fill")
                     .font(.system(size: 26))
@@ -217,6 +228,7 @@ struct SettingsView: View {
             }
             .padding(.vertical, DS.Space.xs)
             .tag(SettingsPage.accounts)
+            #endif
         }
         Section("Features") {
             ForEach([SettingsPage.modules, .calendar, .booking, .travel, .wake, .podcasts, .workouts, .food].filter(isShown), id: \.self) { sidebarRow($0) }
@@ -232,19 +244,24 @@ struct SettingsView: View {
         Section { sidebarRow(.about) }
     }
 
-    /// The chosen page, or what the search found, with its own navigation so links inside a
-    /// page still push.
+    /// A stack in the detail pane keeps links within the chosen page.
     private var pagePane: some View {
         NavigationStack {
             if !settingsSearch.isEmpty {
                 Form { searchResults }.settingsFormStyle()
-            } else if let macPage {
-                // No title over the page: in the detail column it narrowed the tab bar above
-                // until Library fell behind its overflow arrow. The selected row names it.
-                page(macPage).toolbar(removing: .title)
+                    #if os(macOS)
+                    .navigationTitle("Search")
+                    #endif
+            } else if let selectedPage {
+                #if os(macOS)
+                page(selectedPage)
+                #else
+                // The selected row names the page; preserve room for the iPad's tab bar.
+                page(selectedPage).toolbar(removing: .title)
+                #endif
             }
         }
-        .id(settingsSearch.isEmpty ? macPage?.rawValue ?? "" : "search")
+        .id(settingsSearch.isEmpty ? selectedPage?.rawValue ?? "" : "search")
     }
 
     #if os(iOS)
@@ -254,7 +271,7 @@ struct SettingsView: View {
     /// the list its width, its title and its search field, and keeps clear of the tab bar.
     private var padBody: some View {
         NavigationSplitView(columnVisibility: .constant(.all)) {
-            List(selection: $macPage) { pageRows }
+            List(selection: $selectedPage) { pageRows }
                 .listStyle(.insetGrouped)
                 .pageNavigationTitle("Settings", presented: showsDoneButton)
                 .searchable(text: $settingsSearch, placement: .navigationBarDrawer(displayMode: .always),
@@ -278,23 +295,28 @@ struct SettingsView: View {
     #endif
 
     #if os(macOS)
-    /// The Mac's Settings window (the `Settings` scene): each page a tab, its symbol and name in
-    /// the window's toolbar, the way Apple's own apps do it. It was a page of the main window,
-    /// with a list of pages beside the app's own sidebar: three columns.
     private var macBody: some View {
-        TabView(selection: Binding(get: { macPage ?? .accounts }, set: { macPage = $0 })) {
-            ForEach(SettingsPage.allCases.filter(isShown), id: \.self) { page in
-                // Booking's page makes the default type when it opens: built only while its tab
-                // is the one chosen, so the window's other tabs never open it.
-                NavigationStack {
-                    if page != .booking || macPage == .booking { self.page(page) }
+        NavigationSplitView(columnVisibility: .constant(.all)) {
+            List(selection: Binding(
+                get: { selectedPage },
+                set: { selection in
+                    guard let selection else { return }
+                    selectedPage = selection
+                    settingsSearch = ""
                 }
-                    .tabItem { Label(page.title, systemImage: page.symbol) }
-                    .tag(page)
+            )) {
+                pageRows
             }
+            .listStyle(.sidebar)
+            .accessibilityIdentifier("settings.sidebar")
+            .navigationSplitViewColumnWidth(min: 200, ideal: 224, max: 264)
+            .toolbar(removing: .sidebarToggle)
+        } detail: {
+            pagePane
         }
-        .frame(minWidth: 640, idealWidth: 680, minHeight: 520, idealHeight: 620)
-        .onChange(of: modules.effectiveChoice) { leaveHiddenPage() }
+        .navigationSplitViewStyle(.balanced)
+        .searchable(text: $settingsSearch, placement: .toolbar, prompt: "Search settings")
+        .frame(minWidth: 760, idealWidth: 860, minHeight: 520, idealHeight: 660)
         .task { refreshWriteBack() }
         .onChange(of: scenePhase) { _, phase in
             if phase == .active { refreshWriteBack() }
@@ -317,16 +339,21 @@ struct SettingsView: View {
 
     /// The page beside the list went with its module: show Accounts instead.
     private func leaveHiddenPage() {
-        if let macPage, !isShown(macPage) { self.macPage = .accounts }
+        if let selectedPage, !isShown(selectedPage) { self.selectedPage = .accounts }
     }
 
     private func sidebarRow(_ page: SettingsPage) -> some View {
-        HStack(spacing: DS.Space.s) {
+        #if os(macOS)
+        let label = Label(page.title, systemImage: page.symbol)
+        #else
+        let label = HStack(spacing: DS.Space.s) {
             IconTile(systemImage: page.symbol, tint: page.tint, size: 22)
             Text(page.title)
         }
-        .tag(page)
-        .accessibilityIdentifier("settings.page.\(page.rawValue)")
+        #endif
+        return label
+            .tag(page)
+            .accessibilityIdentifier("settings.page.\(page.rawValue)")
     }
 
     #if os(iOS)
@@ -372,7 +399,7 @@ struct SettingsView: View {
     // things, then About — the order people look in. Each row opens a page built from the
     // sections below, so a setting has one home and search can take you straight to it.
 
-    enum SettingsPage: String, Hashable, CaseIterable {
+    enum SettingsPage: String, Hashable {
         case accounts, modules, calendar, booking, travel, wake, podcasts, workouts, food, watch, icloud, permissions
         #if BANANA_AI && BANANA_BETA && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
         case desktopLink
@@ -579,7 +606,7 @@ struct SettingsView: View {
                 // Beside the list, a hit shows its page on the right; pushed, it opens it.
                 if usesTwoPanes {
                     Button {
-                        macPage = hit.page
+                        selectedPage = hit.page
                         settingsSearch = ""
                     } label: { searchHitLabel(hit) }
                     .buttonStyle(.plain)

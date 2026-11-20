@@ -27,7 +27,7 @@ images didn't show, meets it:
    iPad on its side: "‹", the period's name and dates under a chevron, "›", then Today
    (`PlanPagingToolbar`); the page's switch in the middle;
    search, + and … at the right. Pages without dates keep the same places. Settings is its own
-   window (⌘,), a `Settings` scene with its sections as toolbar icons.
+   window (⌘,), a `Settings` scene with sections in a sidebar and grouped controls in a wider detail pane.
 6. **Judge at real size.** A design is right only at a real phone width and a real window size.
 
 
