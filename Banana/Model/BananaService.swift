@@ -50,6 +50,9 @@ enum BananaService {
         /// into this build and switched on. Always sent by current builds, `[]` for none; nil only
         /// in older request shapes.
         var capabilities: [String]? = nil
+        /// This install's secret, kept in this device's keychain: a sign-in moves this device's row
+        /// to another account only with it (`Service/migrations/0034_device_secret.sql`).
+        var secret: String? = nil
     }
 
     /// The features this device reports (`Device.capabilities`): Mail when this build has it and
@@ -442,7 +445,14 @@ enum BananaService {
         json["push"] = device.push ?? NSNull()
         if let providerProtocol = device.providerProtocol { json["providerProtocol"] = providerProtocol }
         if let capabilities = device.capabilities { json["capabilities"] = capabilities }
+        if let secret = device.secret { json["secret"] = secret }
         return json
+    }
+
+    /// A signed-out answer for a session that ended while the account stays
+    /// (`{"error":"signed_out","reprove":true}`): sign in again, by identity, at once.
+    static func reproves(in data: Data) -> Bool {
+        ((try? JSONSerialization.jsonObject(with: data) as? [String: Any])?["reprove"] as? Bool) == true
     }
 
     /// The service's word for what went wrong (`{"error": "other_account"}`), if it said one.

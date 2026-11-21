@@ -1,4 +1,5 @@
 import Combine
+import Security
 import Foundation
 import os
 
@@ -51,6 +52,7 @@ final class BananaAccount: ObservableObject {
 
     private static let log = Logger(subsystem: "com.boris.banana", category: "account")
     private static let keychainAccount = "banana-session"
+    private static let deviceSecretAccount = "banana-device-secret"
     /// How long after a failed pass the next try is: a minute, then five.
     static let retryDelays: [TimeInterval] = [60, 5 * 60]
     /// How often a running app makes sure its watches at Google are current, with no one touching
@@ -160,6 +162,7 @@ final class BananaAccount: ObservableObject {
         let google = GoogleCalendarService.shared
         let linked = Set((account?.google ?? []).map { $0.email.lowercased() })
         let missing = BananaService.accountsToLink(connected: google.accounts.map(\.id), linked: linked, signedIn: isSignedIn)
+        var disconnected = false
         for email in missing {
             let idToken: String
             do { idToken = try await google.identityToken(forEmail: email) }
@@ -168,19 +171,31 @@ final class BananaAccount: ObservableObject {
                 PlaybackDiagnostics.shared.log("☁️ account", "no identity token for a Google account: \(error.localizedDescription)")
                 continue
             }
-            guard case let (data, status)? = await send(.identity(idToken: idToken, device: device())) else { continue }
+            guard case var (data, status)? = await send(.identity(idToken: idToken, device: device())) else { continue }
+            if status == 409, BananaService.failure(in: data) == "device_taken" {
+                // This device's id is another account's, and not this install's: a new id, once.
+                newDeviceIdentity()
+                guard case let (retried, again)? = await send(.identity(idToken: idToken, device: device())) else { continue }
+                (data, status) = (retried, again)
+            }
             if status == 200, let answer = try? JSONDecoder().decode(BananaService.SignInAnswer.self, from: data) {
                 if let new = answer.session { keep(session: new) }
                 account = answer.account
                 lastError = nil
                 PlaybackDiagnostics.shared.log("☁️ account", "joined: \(answer.account.google.count) Google account(s), \(answer.account.devices) device(s)")
+            } else if status == 403, BananaService.failure(in: data) == "disconnected" {
+                // Disconnected from the Banana account, which still has another Google account.
+                disconnected = true
             } else if status == 409 {
                 lastError = "A Google account here belongs to another Banana account."
             } else {
                 Self.log.error("identity sign-in for an account answered \(status, privacy: .public)")
             }
         }
+        if disconnected && !isSignedIn { lastError = Self.disconnectedMessage }
     }
+
+    static let disconnectedMessage = "That Google account was disconnected from Banana. Sign in with one still connected."
 
     // MARK: - Signing in
 
@@ -211,8 +226,14 @@ final class BananaAccount: ObservableObject {
                 PlaybackDiagnostics.shared.log("☁️ account", "signed in with a code, but the service still lacks Google access for an account")
             }
             await sendWatchLists()
+        case 409 where BananaService.failure(in: data) == "device_taken":
+            // The code is spent; with a new device id the identity sign-in joins at once.
+            newDeviceIdentity()
+            runPass(reason: "new device id")
         case 409:
             lastError = "That Google account belongs to another Banana account."
+        case 403 where BananaService.failure(in: data) == "disconnected":
+            lastError = Self.disconnectedMessage
         default:
             // Passing: the identity sign-in at the next pass joins the account anyway.
             PlaybackDiagnostics.shared.log("☁️ account", "sign-in with a code answered \(status)")
@@ -272,6 +293,8 @@ final class BananaAccount: ObservableObject {
             return true
         case 404, 409:
             lastError = "That Google account isn\u{2019}t part of this Banana account."
+        case 403 where BananaService.failure(in: data) == "disconnected":
+            lastError = "That Google account was disconnected from Banana. Use one still connected."
         case 401 where BananaService.failure(in: data) == "google_refused":
             lastError = "Google didn\u{2019}t confirm it\u{2019}s you. Try again."
         default:
@@ -311,6 +334,28 @@ final class BananaAccount: ObservableObject {
         return id
     }
 
+    /// This install's secret: 32 random bytes, in this device's keychain only (never synced, not
+    /// restored to another device). The service moves this device's row to another account only
+    /// for the install that holds it.
+    private var deviceSecret: String? {
+        let service = AppVariant.current.googleKeychainService
+        if let stored = DeviceKeychain.read(service: service, account: Self.deviceSecretAccount) { return stored }
+        var bytes = [UInt8](repeating: 0, count: 32)
+        guard SecRandomCopyBytes(kSecRandomDefault, bytes.count, &bytes) == errSecSuccess else { return nil }
+        let secret = Data(bytes).base64EncodedString()
+            .replacingOccurrences(of: "+", with: "-").replacingOccurrences(of: "/", with: "_").replacingOccurrences(of: "=", with: "")
+        guard DeviceKeychain.write(secret, service: service, account: Self.deviceSecretAccount) else { return nil }
+        return secret
+    }
+
+    /// The service said this device's id belongs to another account and isn't this install's: a
+    /// new id and secret.
+    private func newDeviceIdentity() {
+        defaults.removeObject(forKey: "bananaDeviceID")
+        DeviceKeychain.delete(service: AppVariant.current.googleKeychainService, account: Self.deviceSecretAccount)
+        PlaybackDiagnostics.shared.log("☁️ account", "this device's id was taken: a new one")
+    }
+
     private var pushEnvironment: String {
         PushEnvironment.current(isDevelopmentInstall: Telemetry.channel == "dev")
     }
@@ -319,7 +364,8 @@ final class BananaAccount: ObservableObject {
         BananaService.Device(id: deviceID, platform: Telemetry.platform, push: pushToken,
                              pushEnv: pushEnvironment,
                              bundle: Bundle.main.bundleIdentifier ?? "com.boris.banana", providerProtocol: 1,
-                             capabilities: BananaService.deviceCapabilities(modules: ModuleStore.shared.choice))
+                             capabilities: BananaService.deviceCapabilities(modules: ModuleStore.shared.choice),
+                             secret: deviceSecret)
     }
 
     // MARK: - Calendars to watch
@@ -659,6 +705,32 @@ final class BananaAccount: ObservableObject {
                              account: Self.keychainAccount)
     }
 
+    private var provingAgain = false
+
+    /// The session ended while the account stays (its Google account was disconnected or refused,
+    /// or its proof is old): sign in again at once, by identity, with a Google account still
+    /// linked. Nothing on screen unless none can.
+    private func proveAgain(after ended: String) {
+        guard !provingAgain else { return }
+        // Another device may have proven the account again already: its session is in the keychain.
+        if let stored = SyncedKeychain.read(service: AppVariant.current.googleKeychainService, account: Self.keychainAccount,
+                                            { String(data: $0, encoding: .utf8) }), stored != ended {
+            session = stored
+            FeatureAccessStore.shared.bind(session: stored, host: BananaService.host)
+            return
+        }
+        provingAgain = true
+        session = nil
+        FeatureAccessStore.shared.bind(session: nil, host: BananaService.host)
+        PlaybackDiagnostics.shared.log("☁️ account", "session ended: proving it again")
+        Task { [weak self] in
+            guard let self else { return }
+            await self.signInByIdentity()
+            self.provingAgain = false
+            if self.isSignedIn { self.runPass(reason: "proved again") } else { self.signedOut() }
+        }
+    }
+
     private func signedOut() {
         session = nil
         FeatureAccessStore.shared.bind(session: nil, host: BananaService.host)
@@ -680,7 +752,9 @@ final class BananaAccount: ObservableObject {
         do {
             let (data, response) = try await URLSession.shared.data(for: request)
             let status = (response as? HTTPURLResponse)?.statusCode ?? 0
-            if status == 401, session == requestSession, BananaService.failure(in: data) == "signed_out" { signedOut() }
+            if status == 401, let requestSession, session == requestSession, BananaService.failure(in: data) == "signed_out" {
+                if BananaService.reproves(in: data) { proveAgain(after: requestSession) } else { signedOut() }
+            }
             if status >= 400 {
                 PlaybackDiagnostics.shared.log("☁️ account", "\(request.httpMethod ?? "") \(request.url?.path ?? "") answered \(status) \(BananaService.failureForLog(in: data) ?? "")")
             }
