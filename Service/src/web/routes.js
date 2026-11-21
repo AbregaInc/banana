@@ -1,3 +1,4 @@
+import { readText, TOO_LARGE } from "../body.js";
 import { readCalendarWindow, validCalendarWindow } from '../calendar-window.js';
 import { WEB_TYPES as TYPES, WEB_STATUS_TYPES } from "../web-types.js";
 // The cloud app is a read-only view of the same personal space the native apps sync.
@@ -228,7 +229,7 @@ export function webRoutes(app, deps, { signer, onCalendarSettingsChanged = () =>
     if (c.req.header("Origin") !== webOrigin) return c.json({ error: "origin" }, 403);
     if (Number(c.req.header("Content-Length") || 0) > 4096) return c.json({ error: "bad_request" }, 400);
     let body;
-    try { const raw = await c.req.text(); if (raw.length > 4096) return c.json({ error: "bad_request" }, 400); body = JSON.parse(raw); }
+    try { const raw = await readText(c, 4096); if (raw === TOO_LARGE) return c.json({ error: "bad_request" }, 400); body = JSON.parse(raw); }
     catch { return c.json({ error: "bad_request" }, 400); }
     if (!body || typeof body.calendarID !== "string" || !["included", "notifications"].includes(body.preference)
       || typeof body.enabled !== "boolean") return c.json({ error: "bad_request" }, 400);

@@ -1,3 +1,4 @@
+import { readText, TOO_LARGE } from "../body.js";
 import { sharingFeeds } from "./sharing-feeds.js";
 import { contentVersion } from "./status.js";
 import { CATALOG } from '../catalog.js';
@@ -33,8 +34,8 @@ export function sharingRoutes(app, deps, { owner, signedIn, calendarChoices, vau
   app.use('/app/api/shares/*', sameOrigin);
   async function body(c) {
     if (c.req.header('Origin') !== webOrigin) return null;
-    const raw = await c.req.text();
-    if (raw.length > 65_536) return null;
+    const raw = await readText(c, 65_536);
+    if (raw === TOO_LARGE) return null;
     return parse(raw);
   }
   async function checkedPolicy(c, value, retained = null) {

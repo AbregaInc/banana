@@ -19,6 +19,7 @@ import { MOST_PER_DAY, reportRows } from "./diagnostics.js";
 import { reportRoutes } from "./reports.js";
 import { GoogleRefused } from "./google.js";
 import { SESSION_PROOF } from "./sessions.js";
+import { readText, TOO_LARGE } from "./body.js";
 import { constantTimeEqual, createVault, newId, newSecret, newSessionToken, sha256Hex, uuid } from "./crypto.js";
 import { audit, forget, forgetUnwatched, reconcile, WATCH_TTL_SECONDS } from "./calendar.js";
 import { clearAlert, syncCalendar } from "./events.js";
@@ -78,7 +79,6 @@ const MOST_DEVICE_WATCHES = 100;      // channels a person's devices may hold op
 const MOST_DIAGNOSTIC_BYTES = 128 * 1024 * 1024;   // kept per day across everyone
 const MOST_COUNT_ROWS_PER_DAY = 20_000;            // distinct usage rows a day across everyone
 const CALENDAR_PUSH = { aps: { "content-available": 1 }, b: { k: "calendar" } };
-const TOO_LARGE = Symbol("too large");
 const BAD = Symbol("bad");
 
 /** The device an app sends, or null when it isn't one. */
@@ -147,8 +147,8 @@ export function createApp(deps) {
 
   async function readJson(c, limit) {
     if (Number(c.req.header("content-length") || 0) > limit) return TOO_LARGE;
-    const text = await c.req.text();
-    if (text.length > limit) return TOO_LARGE;
+    const text = await readText(c, limit);
+    if (text === TOO_LARGE) return TOO_LARGE;
     try { return JSON.parse(text); } catch { return BAD; }
   }
 

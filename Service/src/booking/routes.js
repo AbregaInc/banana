@@ -5,6 +5,7 @@
 //
 // Never logged: names, emails, phone numbers, notes, links, handles.
 
+import { readText, TOO_LARGE } from "../body.js";
 import { Hono } from "hono";
 import { getCookie, setCookie, deleteCookie } from "hono/cookie";
 import { canonicalZone, MINUTE, nearest } from "./slots.js";
@@ -81,8 +82,8 @@ export function bookingApp(deps, { vault, signer, push }) {
   async function readBody(c, limit = 8192) {
     const length = Number(c.req.header("content-length") || 0);
     if (length > limit) return null;
-    const text = await c.req.text();
-    if (text.length > limit) return null;
+    const text = await readText(c, limit);
+    if (text === TOO_LARGE) return null;
     try { const v = JSON.parse(text || "{}"); return v && typeof v === "object" && !Array.isArray(v) ? v : null; } catch { return null; }
   }
 

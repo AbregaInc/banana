@@ -448,3 +448,13 @@ test("a device row from before secrets moves as before, and its owner's next reg
   // A bad secret is a bad device.
   assert.equal((await s.call("PUT", "/v1/devices/phone-0001", { body: device("phone-0001", { secret: "short" }), session: ann.session })).status, 400);
 });
+
+test("a JSON body without Content-Length is read only up to its limit", async () => {
+  const s = setup();
+  let pulled = 0;
+  const chunk = new TextEncoder().encode("x".repeat(64 * 1024));
+  const body = new ReadableStream({ pull(controller) { pulled++; if (pulled > 200) controller.close(); else controller.enqueue(chunk); } });
+  const r = await s.app.request("/v1/diagnostics", { method: "POST", body, duplex: "half", headers: { "content-type": "application/json" } });
+  assert.equal(r.status, 413);
+  assert.ok(pulled < 10, `read ${pulled} chunks of 64 KiB for a 256 KiB limit`);
+});
