@@ -88,7 +88,7 @@ export function spacesSqlite(dir, { blobs, batch = TRASH_BATCH, now = Date.now, 
           if (result.trashed) drain(id);
           return result;
         },
-        async recordBlob(sha, size, at, type) { return space.recordBlob(port(), sha, size, at, type); },
+        async recordBlob(sha, size, at, type) { return space.recordBlob(port(), sha, size, at, type, id); },
         async consents() { return space.consents(port()); },
         async setConsent(kind, consent) { space.setConsent(port(), kind, consent); },
         async withdrawConsent(kind) {
@@ -98,6 +98,9 @@ export function spacesSqlite(dir, { blobs, batch = TRASH_BATCH, now = Date.now, 
         },
         async webStatus(types) { return space.webStatus(port(), types); },
         async counts() { return space.counts(port()); },
+        async usage() { return space.usage(port()); },
+        /** What the Durable Object's alarm does when unnamed bytes come due (tests, a dev run). */
+        async collectUnnamed() { const r = space.collectUnnamed(port(), now()); if (r.trashed) drain(id); return r; },
         async setCalendarPreference(request) { return space.setCalendarPreference(port(), request); },
         async read(type, recordId) { return space.read(port(), type, recordId); },
         async list(type) { return space.list(port(), type); },

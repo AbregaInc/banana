@@ -187,7 +187,14 @@ export function webRoutes(app, deps, { signer, onCalendarSettingsChanged = () =>
       stub.read("core.smartSettings", "smart-settings"), stub.read("core.appSettings", "appSettings"),
       deps.db.first("SELECT bundle FROM devices WHERE account_id = ? AND platform = 'iphone' ORDER BY last_sync_at DESC, updated_at DESC, id LIMIT 1", who.account)]);
     const consents=statusState.consents,status=await updateStatus(c,statusState);
-    return c.json({ email: who.email, name: who.name, consents, contentVersion:status.contentVersion,
+    // ?usage=1: what the owner's space holds (sizes only), for sizing a storage limit. It reads
+    // the whole space, so it is paced.
+    let usage;
+    if (c.req.query("usage") === "1") {
+      if (!(await deps.limit("reconcile", `usage:${who.account}`))) return c.json({ error: "rate" }, 429);
+      usage = await stub.usage();
+    }
+    return c.json({ email: who.email, name: who.name, consents, contentVersion:status.contentVersion, ...(usage ? { usage } : {}),
       counts: Object.fromEntries(Object.entries(counts).filter(([type]) => TYPES.has(type) && (CATALOG.get(type)?.tier !== "T2" || consents.health))),
       calendarSettingsUpdatedAt: smart?.v?.updatedAt ?? null,
       weekStartWeekday: calendarSettings(smart).weekStartWeekday,
