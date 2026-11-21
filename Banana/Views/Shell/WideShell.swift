@@ -284,46 +284,15 @@ struct ShellRailToggle: View {
     }
 }
 
-/// "Search or ask" in a page's toolbar: the phone's field, as wide as the toolbar's middle allows.
+#if os(iOS)
+/// "Search or ask" in an iPad page's toolbar.
 struct ShellToolbarField: View {
-    enum Size {
-        case regular, compact, icon
-
-        static func forWidth(_ width: CGFloat) -> Self {
-            if width < 760 { return .icon }
-            return width < 1000 ? .compact : .regular
-        }
-    }
-
-    var size = Size.regular
-    @ObservedObject private var search = ShellSearch.shared
-
     var body: some View {
-        #if os(macOS)
-        Group {
-            if size == .icon, search.mode == .idle {
-                Button { search.focused = true } label: {
-                    Image(systemName: "magnifyingglass")
-                }
-                .help(ShellWideField.prompt + " (⌘F)")
-                .accessibilityLabel(ShellWideField.prompt)
-                .accessibilityIdentifier("shell.field.open")
-            } else {
-                ShellWideField(search: search)
-                    .frame(minWidth: size == .regular ? 160 : 120,
-                           idealWidth: size == .regular ? 320 : 160,
-                           maxWidth: size == .regular ? 560 : 160)
-            }
-        }
-        .onReceive(search.focusRequests) { requested in
-            if requested, size == .icon, search.mode == .idle { search.focused = true }
-        }
-        #else
-        ShellWideField(search: search)
+        ShellWideField(search: .shared)
             .frame(minWidth: 240, idealWidth: 520, maxWidth: 560)
-        #endif
     }
 }
+#endif
 
 /// The field itself, for a toolbar: focusing it shows what can be added under it, typing shows
 /// what is found (`ShellWideResults`, drawn by the shell under the toolbar).

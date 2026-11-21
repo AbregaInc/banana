@@ -93,10 +93,17 @@ struct DateLine<Trailing: View>: View {
     let step: (Int) -> Void
     let toCurrent: () -> Void
     @ViewBuilder var trailing: Trailing
+    #if os(macOS)
+    @Environment(\.wideShell) private var wideShell
+    #endif
 
     var body: some View {
         #if os(macOS)
-        windowControls
+        if wideShell {
+            line
+        } else {
+            windowControls
+        }
         #else
         line
         #endif

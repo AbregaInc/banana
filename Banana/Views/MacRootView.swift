@@ -189,7 +189,6 @@ struct MacRootView: View {
     /// Whether the rail is shown: hidden and shown like a system sidebar (the toolbar's sidebar
     /// button, View › Hide Sidebar ⌃⌘S), and kept across launches (`ShellRailVisibility`).
     @AppStorage(ShellRailVisibility.key) private var railShown = true
-    @State private var toolbarSearchSize = ShellToolbarField.Size.regular
 
     private var railVisibility: Binding<NavigationSplitViewVisibility> {
         Binding(get: { railShown ? .all : .detailOnly },
@@ -274,11 +273,6 @@ struct MacRootView: View {
                     .onReceive(NotificationCenter.default.publisher(for: .assistantOpenSection)) { notice in
                         guard let raw = notice.object as? String, let section = AppSection(rawValue: raw) else { return }
                         if section == .settings { openSettings() } else { nav.section = section }
-                    }
-                    // Search and chat share the window's field. Each page adds its own commands.
-                    .toolbar {
-                        ToolbarItem(placement: .principal) { ShellToolbarField(size: toolbarSearchSize) }
-                            .sharedBackgroundVisibility(.hidden)
                     }
                     .environment(\.wideShell, true)
                     // What the field found, hanging under the toolbar's middle.
@@ -388,17 +382,10 @@ struct MacRootView: View {
                 }
                 #endif
             }
+            .modifier(MacSharedToolbar(section: $nav.section, railShown: railShown))
             #if BANANA_MODULE_PODCASTS
             .sheet(isPresented: $nav.showFullPlayer) { NowPlayingView() }
             #endif
-        }
-        // A left-column action belongs at the leading edge, with a sidebar glyph. Remove the
-        // split view's automatic item so it cannot migrate into the trailing overflow control.
-        .toolbar {
-            ToolbarItem(placement: .navigation) { ShellRailToggle() }
-            if BodyPage.holds(nav.section), BodyPage.choices(wide: true, with: modules.effectiveChoice).count > 1 {
-                ToolbarItem(placement: .navigation) { BodyTitleMenu(wide: true, section: $nav.section) }
-            }
         }
         #if BANANA_AI
         .onChange(of: chrome.showAdd) { _, requested in
@@ -441,9 +428,6 @@ struct MacRootView: View {
             }
         }
         .sheet(isPresented: $commands.showsShortcuts) { MacShortcutsSheet() }
-        .onGeometryChange(for: ShellToolbarField.Size.self) { geometry in
-            ShellToolbarField.Size.forWidth(geometry.size.width)
-        } action: { toolbarSearchSize = $0 }
         .onAppear { MacKeyMonitor.shared.install() }
     }
 

@@ -54,14 +54,19 @@ struct RoutinesView: View {
             .readableColumn()
             // Named on every device: no rail button or switcher page says where this is.
             .pageNavigationTitle("Routines", presented: true)
+            #if os(macOS)
+            .macToolbarActions { if !showsDoneButton { MoreMenu() } }
+            #endif
             .toolbar {
                 if showsDoneButton {
                     SheetClose { dismiss() }
-                } else {
-                    // As a page: the field like every other page's, and "…".
+                }
+                #if os(iOS)
+                if !showsDoneButton {
                     ReviewToolbarItem(section: .routines)
                     ToolbarItem(placement: .automatic) { MoreMenu() }
                 }
+                #endif
             }
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)

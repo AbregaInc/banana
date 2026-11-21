@@ -104,7 +104,7 @@ final class MacToolbarTests: XCTestCase {
         let food = app.textFields["nutrition.phrase"].firstMatch
         wait("Workouts and its page menu are visible") { workouts.exists && menu.isHittable }
         let history = app.buttons["workouts.showAll"]
-        wait("Show all has its own toolbar control") { history.isHittable }
+        wait("Show all is reachable beside the workout dates") { history.isHittable }
         let historyWidth = history.frame.width
         XCTAssertGreaterThanOrEqual(historyWidth, 88)
         history.click()
@@ -131,8 +131,8 @@ final class MacToolbarTests: XCTestCase {
         wait("All navigation controls remain reachable") { self.toggle.isHittable && previous.isHittable && next.isHittable && self.period.isHittable }
         let window = app.windows.firstMatch.frame
         XCTAssertLessThan(toggle.frame.maxX, window.midX, "Sidebar control belongs on the left")
-        XCTAssertGreaterThan(previous.frame.midX, window.midX, "Calendar navigation belongs on the right")
-        XCTAssertGreaterThan(next.frame.minX, previous.frame.midX, "Next follows Previous")
+        XCTAssertGreaterThanOrEqual(previous.frame.minX, toggle.frame.maxX, "Calendar navigation follows the sidebar toggle")
+        XCTAssertGreaterThanOrEqual(next.frame.minX, period.frame.maxX - 2, "Next follows the period picker")
         XCTAssertGreaterThanOrEqual(previous.frame.width, 28)
         XCTAssertGreaterThanOrEqual(next.frame.width, 28)
         let date = app.staticTexts["plan.dateRange"]
@@ -201,6 +201,46 @@ final class MacToolbarTests: XCTestCase {
         wait("The confirmed link is inserted") { (body.value as? String)?.contains("https://book.bananatheapp.com/noor") == true }
         body.typeText("Thanks")
         XCTAssertTrue((body.value as? String)?.contains("Thanks") == true)
+    }
+
+    func testSearchAndSidebarStayAnchoredAcrossSections() {
+        app.terminate()
+        app.launchArguments += ["--modules", "everything", "-onboardingCompleted", "YES",
+                                "-ApplePersistenceIgnoreState", "YES", "-NSQuitAlwaysKeepsWindows", "NO"]
+        for width in [1120, 800] {
+            app.launchArguments += ["--mac-window-size", "\(width)x780"]
+            app.launch()
+            wait("Sidebar is available at width \(width)") { self.toggle.isHittable }
+            if toggle.label == "Show sidebar" { toggle.click() }
+            let search = app.textFields["shell.field"]
+            let plan = app.buttons["shell.page.plan"]
+            wait("Plan controls and search are visible") { self.period.isHittable && search.isHittable && plan.isHittable }
+            let searchFrame = search.frame
+            let toggleFrame = toggle.frame
+
+            let destinations: [(String, XCUIElement?)] = [
+                ("notes", app.buttons["notes.toolbar.write"]),
+                ("body", app.descendants(matching: .any)["body.title"].firstMatch),
+                ("library", nil),
+                ("review", app.descendants(matching: .any)["review.span"].firstMatch),
+                ("plan", period)
+            ]
+            for (page, control) in destinations {
+                let row = app.buttons["shell.page." + page]
+                wait("Sidebar contains \(page)") { row.isHittable }
+                row.click()
+                wait("\(page) toolbar is ready") {
+                    row.isSelected && (control?.isHittable ?? true) && search.isHittable
+                }
+                XCTAssertEqual(search.frame.minX, searchFrame.minX, accuracy: 1, page)
+                XCTAssertEqual(search.frame.minY, searchFrame.minY, accuracy: 1, page)
+                XCTAssertEqual(search.frame.width, searchFrame.width, accuracy: 1, page)
+                XCTAssertEqual(toggle.frame.minX, toggleFrame.minX, accuracy: 1, page)
+                XCTAssertEqual(toggle.frame.minY, toggleFrame.minY, accuracy: 1, page)
+            }
+            app.terminate()
+            app.launchArguments.removeLast(2)
+        }
     }
 
     func testSidebarAndWeekNavigationAtWideAndNarrowWidths() {

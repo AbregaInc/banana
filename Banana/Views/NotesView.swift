@@ -466,33 +466,16 @@ struct NotesView: View {
                     pagingControls
                 }
             .pageNavigationTitle("Notes")
-            .toolbar {
-                #if os(iOS)
-                ToolbarItem(placement: .primaryAction) {
-                    Button { store.beginCapture(kind: .podcastCapture) } label: {
-                        Label("Record note", systemImage: "mic.fill")
-                    }
+            .macToolbarStatus { syncIndicator }
+            .macToolbarActions {
+                Button(action: writeNote) {
+                    Label("New note", systemImage: "square.and.pencil")
                 }
-                #endif
-                ToolbarItem(placement: .automatic) {
+                .help("Write a note")
+                .accessibilityIdentifier("notes.toolbar.write")
+                MoreMenu(identifier: "notes.toolbar.more") {
                     archivedToggleButton
-                }
-                ToolbarItem(placement: .automatic) {
-                    Button {
-                        Task { await store.refreshFromCloud(force: true) }
-                    } label: {
-                        Label("Refresh notes", systemImage: "arrow.clockwise")
-                    }
-                    .disabled(store.syncState == .syncing)
-                }
-                // Whether iCloud is bringing notes in: the toolbar's, where a header of its own
-                // with three sentences about notes was.
-                ToolbarItem(placement: .automatic) { syncIndicator }
-                ToolbarItem(placement: .primaryAction) {
-                    Button(action: writeNote) {
-                        Label("New note", systemImage: "square.and.pencil")
-                    }
-                    .help("Write a note")
+                    refreshNotesButton
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
@@ -527,6 +510,15 @@ struct NotesView: View {
                 guard phase == .active else { return }
                 Task { await store.refreshFromCloud() }
             }
+    }
+
+    private var refreshNotesButton: some View {
+        Button {
+            Task { await store.refreshFromCloud(force: true) }
+        } label: {
+            Label("Refresh notes", systemImage: "arrow.clockwise")
+        }
+        .disabled(store.syncState == .syncing)
     }
 
     #endif
@@ -686,39 +678,11 @@ private struct VoiceNoteDetailView: View {
                 .background(Color(.systemGroupedBackground))
                 #if os(iOS)
                 .navigationTitle("Note")
-                #endif
-                #if os(iOS)
                 .navigationBarTitleDisplayMode(.inline)
-                #endif
                 .toolbar {
-                    // One "…" for what can be done with a note (it was three icons in a row).
-                    ToolbarItem(placement: .automatic) {
-                        Menu {
-                            // Every note's text can change: a written one, or a transcription
-                            // that got words wrong.
-                            Button { ShellNavigation.shared.state.noteComposer = note.id.uuidString } label: {
-                                Label(note.isWritten ? "Edit note" : "Edit text", systemImage: "pencil")
-                            }
-                            .accessibilityIdentifier("notes.edit")
-                            ShareLink(item: shareText(note)) {
-                                Label("Share", systemImage: "square.and.arrow.up")
-                            }
-                            // At once, with Undo in the toast: the list (and this screen with it)
-                            // lets go of the note, and it is removed when that window closes.
-                            Button(role: .destructive) {
-                                DeleteUndo.note(note, in: store)
-                                dismiss()
-                            } label: {
-                                Label("Delete", systemImage: "trash")
-                            }
-                            .accessibilityIdentifier("notes.delete")
-                        } label: {
-                            Image(systemName: "ellipsis.circle")
-                        }
-                        .accessibilityLabel("More")
-                        .accessibilityIdentifier("notes.more")
-                    }
+                    ToolbarItem(placement: .automatic) { noteActions(note) }
                 }
+                #endif
             } else {
                 ContentUnavailableView("Note unavailable", systemImage: "quote.bubble")
             }
@@ -765,14 +729,47 @@ private struct VoiceNoteDetailView: View {
         ticker = nil
     }
 
+    private func noteActions(_ note: VoiceNote) -> some View {
+        Menu {
+            Button { ShellNavigation.shared.state.noteComposer = note.id.uuidString } label: {
+                Label(note.isWritten ? "Edit note" : "Edit text", systemImage: "pencil")
+            }
+            .accessibilityIdentifier("notes.edit")
+            ShareLink(item: shareText(note)) {
+                Label("Share", systemImage: "square.and.arrow.up")
+            }
+            Button(role: .destructive) {
+                DeleteUndo.note(note, in: store)
+                dismiss()
+            } label: {
+                Label("Delete", systemImage: "trash")
+            }
+            .accessibilityIdentifier("notes.delete")
+        } label: {
+            Image(systemName: "ellipsis.circle")
+        }
+        .accessibilityLabel("More")
+        .accessibilityIdentifier("notes.more")
+    }
+
     private func detailHeader(_ note: VoiceNote) -> some View {
         VStack(alignment: .leading, spacing: 12) {
-            // One line, in the list's format: the long date wrapped in a narrow column.
-            Label("\(sourceLabel(note)) · \(note.createdAt.formatted(date: .abbreviated, time: .shortened))",
-                  systemImage: sourceIcon(note))
-            .lineLimit(1)
-            .font(.subheadline)
-            .foregroundStyle(.secondary)
+            // The selected note's actions stay with the note, leaving the window toolbar
+            // available for actions that work across the whole Notes section.
+            HStack {
+                Label("\(sourceLabel(note)) · \(note.createdAt.formatted(date: .abbreviated, time: .shortened))",
+                      systemImage: sourceIcon(note))
+                    .lineLimit(1)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                #if os(macOS)
+                Spacer(minLength: DS.Space.s)
+                noteActions(note)
+                    .menuStyle(.borderlessButton)
+                    .menuIndicator(.hidden)
+                    .accessibilityLabel("Note actions")
+                #endif
+            }
 
             // A written note, or one whose audio is gone, has nothing to play.
             if !note.isWritten && store.hasAudio(for: note) {

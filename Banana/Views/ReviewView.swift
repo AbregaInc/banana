@@ -62,18 +62,35 @@ struct ReviewView: View {
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
             #endif
+            #if os(macOS)
+            .macToolbarLeading {
+                PageTitleMenu(title: "Review", identifier: "review.span") {
+                    Picker("Span", selection: spanSelection) {
+                        ForEach(ReviewSpan.allCases, id: \.self) { option in
+                            Text(option.title).tag(option)
+                        }
+                    }
+                    .pickerStyle(.inline)
+                }
+            }
+            #endif
             .toolbar {
+                #if os(iOS)
                 ToolbarItem(placement: .principal) {
-                    PageSwitch(label: "Span", selection: Binding(get: { span }, set: { span = $0; offset = 0 }),
-                               choices: ReviewSpan.allCases, title: \.title)
+                    PageSwitch(label: "Span", selection: spanSelection, choices: ReviewSpan.allCases, title: \.title)
                         .accessibilityIdentifier("review.span")
                 }
+                #endif
                 if showsDoneButton {
                     SheetClose { dismiss() }
                 }
             }
             .navigationDestination(for: ReviewSubject.self) { page($0) }
         }
+    }
+
+    private var spanSelection: Binding<ReviewSpan> {
+        Binding(get: { span }, set: { span = $0; offset = 0 })
     }
 
     private var dateLine: some View {

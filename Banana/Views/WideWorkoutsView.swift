@@ -108,8 +108,7 @@ struct WideWorkoutsView: View {
                 let navInset = max(DS.Space.xl, (geo.size.width - WorkoutMetrics.listContentMaxWidth) / 2)
 
                 VStack(spacing: 0) {
-                    // The one date line (`PageChrome`): the toolbar's on the Mac, a row on an
-                    // iPad. A week at a time, as Plan steps days; "Show all" beside it.
+                    // A week at a time, as Plan steps days, with "Show all" beside the dates.
                     DateLine(current: !filter.isEmpty ? "Filtered workouts" : showAll ? "All workouts" : "This week",
                              dates: !filter.isEmpty ? "" : showAll ? "" : period.rangeLabel(),
                              isCurrent: showAll || period.offset == 0,
@@ -210,9 +209,7 @@ struct WideWorkoutsView: View {
             // As the phone's: the + opens the list of everything.
             .addListButton(identifier: "workouts.add")
             #else
-            .toolbar {
-                ToolbarItem(placement: .primaryAction) { MoreMenu() }
-            }
+            .macToolbarActions { MoreMenu() }
             #endif
         }
         .task(id: key) {

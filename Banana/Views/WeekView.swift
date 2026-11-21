@@ -503,7 +503,9 @@ struct MacWeekView: View {
             // The dates are the period picker's, in the paging group: the window keeps its title
             // (the Window menu) without a second one in the toolbar.
             .toolbar(removing: .title)
-            .toolbar { plannerToolbar }
+            .macToolbarLeading { plannerPaging }
+            .macToolbarStatus { plannerStatus }
+            .macToolbarActions { plannerActions }
             .sheet(item: $editing) { RoutineEditorView(draft: $0, isNew: false) }
             .sheet(item: $eventSheet) {
                 CalendarEventSheetView(sheet: $0) {
@@ -828,45 +830,34 @@ struct MacWeekView: View {
         return weekOffset == 0 ? "NEXT \(weekSpan.rawValue) DAYS" : "\(weekSpan.rawValue) DAYS FROM"
     }
 
-    /// Everything that acts on the planner, in the window's one toolbar (docs/design/
-    /// BOTTOM-BAR-SHELL.md, Wide): "‹", Day, several days or Week with the dates beside it, "›",
-    /// then Today and the forecast (`PlanPagingToolbar`, an iPad's on its side too); "Search or
-    /// ask" and the assistant are the window's; "…" holds sharing and Refresh. Adding is the
-    /// field's (focused with nothing typed), and C, S and ⇧⌘L still create, share availability
-    /// and copy the booking link.
-    @ToolbarContentBuilder private var plannerToolbar: some ToolbarContent {
-        PlanPagingToolbar(days: visibleDayCount,
-                          dates: days.first.map { PlanPaging.dates(start: $0.date, days: visibleDayCount) } ?? "",
-                          isCurrent: weekOffset == 0,
-                          step: { moveWeek($0) }, toCurrent: { moveToCurrentWeek() }) {
-            // The forecast: the day shown in Day, today while it is in view.
-            if dayMode, let day = days.first?.date {
-                WeatherChip(day: day)
-            } else if days.contains(where: \.isToday) {
-                WeatherChip(day: Date())
-            }
-            MacWeekLoadingSpinner(loading: loading)
+    private var plannerPaging: some View {
+        MacPlanPagingControls(days: visibleDayCount,
+                              dates: days.first.map { PlanPaging.dates(start: $0.date, days: visibleDayCount) } ?? "",
+                              isCurrent: weekOffset == 0,
+                              step: moveWeek, toCurrent: moveToCurrentWeek)
+    }
+
+    @ViewBuilder private var plannerStatus: some View {
+        if dayMode, let day = days.first?.date {
+            WeatherChip(day: day)
+        } else if days.contains(where: \.isToday) {
+            WeatherChip(day: Date())
         }
-        ToolbarItem(placement: .primaryAction) {
-            Menu {
-                BookingShareButton()
-                Button { MacNavigator.shared.showsAvailability.toggle() } label: {
-                    Label("Share availability", systemImage: "calendar.badge.checkmark")
-                }
-                .help("Share availability (S)")
-                Button { NotificationCenter.default.post(name: .macForceRefreshRequested, object: nil) } label: {
-                    Label("Refresh", systemImage: "arrow.clockwise")
-                }
-                Divider()
-                ReportProblemMenuItem()
-            } label: {
-                Image(systemName: "ellipsis")
+        MacWeekLoadingSpinner(loading: loading)
+    }
+
+    private var plannerActions: some View {
+        MoreMenu(identifier: "mac.planner.more") {
+            BookingShareButton()
+            Button { MacNavigator.shared.showsAvailability.toggle() } label: {
+                Label("Share availability", systemImage: "calendar.badge.checkmark")
             }
-            .menuIndicator(.hidden)
-            .help("Share and refresh")
-            .accessibilityLabel("More")
-            .accessibilityIdentifier("mac.planner.more")
+            .help("Share availability (S)")
+            Button { NotificationCenter.default.post(name: .macForceRefreshRequested, object: nil) } label: {
+                Label("Refresh", systemImage: "arrow.clockwise")
+            }
         }
+        .help("Share and refresh")
     }
 
     private func overflowList(_ cluster: OverflowCluster, dismiss: @escaping () -> Void) -> some View {
