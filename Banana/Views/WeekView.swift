@@ -761,7 +761,7 @@ struct MacWeekView: View {
             case .newEvent:
                 newEventRequest = MacNewEventRequest(start: defaultNewEventStart(), durationMinutes: 60)
             case .newTask: showingNewTask = true
-            case .shareAvailability: MacNavigator.shared.showsAvailability.toggle()
+            case .shareAvailability: MacNavigator.shared.toggleAvailability()
             default: break
             }
         }
@@ -831,10 +831,11 @@ struct MacWeekView: View {
     }
 
     private var plannerPaging: some View {
-        MacPlanPagingControls(days: visibleDayCount,
-                              dates: days.first.map { PlanPaging.dates(start: $0.date, days: visibleDayCount) } ?? "",
-                              isCurrent: weekOffset == 0,
-                              step: moveWeek, toCurrent: moveToCurrentWeek)
+        let dates = days.first.map { PlanPaging.dates(start: $0.date, days: visibleDayCount) } ?? ""
+        return MacPeriodPagingControls(days: visibleDayCount, dates: dates, isCurrent: weekOffset == 0,
+                                       step: moveWeek, toCurrent: moveToCurrentWeek) {
+            PlanPeriodMenu(dates: dates, datesPlace: .hidden)
+        }
     }
 
     @ViewBuilder private var plannerStatus: some View {
@@ -849,7 +850,7 @@ struct MacWeekView: View {
     private var plannerActions: some View {
         MoreMenu(identifier: "mac.planner.more") {
             BookingShareButton()
-            Button { MacNavigator.shared.showsAvailability.toggle() } label: {
+            Button { MacNavigator.shared.toggleAvailability() } label: {
                 Label("Share availability", systemImage: "calendar.badge.checkmark")
             }
             .help("Share availability (S)")
@@ -6214,7 +6215,7 @@ private struct OfferedSlotsOverlay: View {
 
     var body: some View {
         let dayStart = Calendar.current.startOfDay(for: day)
-        let slots = nav.offeredSlots.filter { Calendar.current.isDate($0.start, inSameDayAs: day) }
+        let slots = (nav.rightPanelVisible ? nav.offeredSlots : []).filter { Calendar.current.isDate($0.start, inSameDayAs: day) }
         ZStack(alignment: .topLeading) {
             ForEach(slots, id: \.start) { slot in
                 let y = CGFloat(slot.start.timeIntervalSince(dayStart) / 3600) * hourHeight

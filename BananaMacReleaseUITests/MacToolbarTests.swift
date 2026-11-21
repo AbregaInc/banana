@@ -27,7 +27,7 @@ final class MacToolbarTests: XCTestCase {
                                    "-onboardingCompleted", "YES"]
         }
         if name.contains("FieldPrompt") { app.launchArguments += ["--mac-new-event"] }
-        if name.contains("BodyMenu") { app.launchArguments += ["--modules", "everything", "-onboardingCompleted", "YES"] }
+        if name.contains("BodySidebar") { app.launchArguments += ["--modules", "everything", "-onboardingCompleted", "YES"] }
         app.launch()
         if name.contains("FieldPrompt") {
             // A newly signed fixture can raise Local Network privacy before its window opens.
@@ -92,30 +92,43 @@ final class MacToolbarTests: XCTestCase {
         XCTAssertGreaterThan(settings.frame.width - sidebar.frame.width, sidebar.frame.width)
     }
 
-    func testBodyMenuSwitchesBetweenWorkoutsAndFood() {
+    func testBodySidebarOpensWorkoutsFoodAndTaken() {
         wait("Sidebar control is available") { self.toggle.isHittable }
         if toggle.label == "Show sidebar" { toggle.click() }
-        let body = app.buttons["shell.page.body"]
-        wait("Body is visible in the rail") { body.isHittable }
-        body.click()
+        let expansion = app.buttons["shell.expand.body"]
+        wait("Body can expand") { expansion.isHittable }
+        if expansion.value as? String == "Collapsed" { expansion.click() }
 
-        let menu = app.descendants(matching: .any)["body.title"].firstMatch
-        let workouts = app.descendants(matching: .any)["workouts.period"].firstMatch
+        let toolbar = app.toolbars.firstMatch
+        let previousWeek = toolbar.buttons["Previous week"]
+        let previousDay = toolbar.buttons["Previous day"]
         let food = app.textFields["nutrition.phrase"].firstMatch
-        wait("Workouts and its page menu are visible") { workouts.exists && menu.isHittable }
-        let history = app.buttons["workouts.showAll"]
-        wait("Show all is reachable beside the workout dates") { history.isHittable }
-        let historyWidth = history.frame.width
-        XCTAssertGreaterThanOrEqual(historyWidth, 88)
-        history.click()
-        wait("Shows week after opening workout history") { history.label == "Show week" }
-        XCTAssertEqual(history.frame.width, historyWidth, accuracy: 2)
-        menu.click()
-        app.menuItems["Food"].firstMatch.click()
-        wait("Picking Food opens the nutrition page") { food.isHittable && menu.label.contains("Food") }
-        menu.click()
-        app.menuItems["Workouts"].firstMatch.click()
-        wait("Picking Workouts returns to its calendar period") { workouts.exists && menu.label.contains("Workouts") }
+        for page in ["workouts", "food", "taken"] {
+            let row = app.buttons["shell.body." + page]
+            wait("Body has a \(page) destination") { row.isHittable }
+            row.click()
+            wait("The selected Body destination has its date controls in the toolbar") {
+                row.isSelected && (page == "workouts" ? previousWeek : previousDay).isHittable
+            }
+            XCTAssertEqual(food.exists, page == "food")
+        }
+    }
+
+    func testRightPanelToggleKeepsTheLeftSidebarAndSearch() {
+        let right = app.buttons["shell.rightPanel.toggle"]
+        let search = app.textFields["shell.field"]
+        wait("Both sidebar controls and search are available") {
+            self.toggle.isHittable && right.isHittable && search.isHittable
+        }
+        let baseline = search.frame
+        let sidebarLabel = toggle.label
+        XCTAssertGreaterThan(right.frame.minX, search.frame.maxX)
+        for label in ["Hide right panel", "Show right panel", "Hide right panel"] {
+            right.click()
+            wait("Right panel toggle now says \(label)") { right.label == label && right.isHittable }
+            XCTAssertEqual(toggle.label, sidebarLabel)
+            XCTAssertEqual(search.frame.minX, baseline.minX, accuracy: 1)
+        }
     }
 
     private func checkRailWidth() {
@@ -220,7 +233,7 @@ final class MacToolbarTests: XCTestCase {
 
             let destinations: [(String, XCUIElement?)] = [
                 ("notes", app.buttons["notes.toolbar.write"]),
-                ("body", app.descendants(matching: .any)["body.title"].firstMatch),
+                ("body", app.toolbars.firstMatch.buttons["Previous week"]),
                 ("library", nil),
                 ("review", app.descendants(matching: .any)["review.span"].firstMatch),
                 ("plan", period)

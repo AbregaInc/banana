@@ -684,13 +684,12 @@ private struct ShellPageTitle: ViewModifier {
 struct BodyTitleMenu: View {
     /// Workouts and Food alone (a wide screen keeps Taken inside Food).
     var wide = false
-    var section: Binding<AppSection>? = nil
     @ObservedObject private var shell = ShellNavigation.shared
     @ObservedObject private var badges = ActionBadges.shared
     @ObservedObject private var modules = ModuleStore.shared
 
     var body: some View {
-        let current = BodyPage(section: section?.wrappedValue ?? shell.state.tab,
+        let current = BodyPage(section: shell.state.tab,
                                nutritionSection: shell.state.nutritionSection, wide: wide)
         let choices = BodyPage.choices(wide: wide, with: modules.effectiveChoice)
         let waiting = badges.counts.food + badges.counts.taken
@@ -699,12 +698,8 @@ struct BodyTitleMenu: View {
                 Picker("Body section", selection: Binding(
                     get: { current },
                     set: { page in
-                        if let section {
-                            section.wrappedValue = page.section
-                        } else {
-                            if !wide, let half = page.nutritionSection { shell.state.nutritionSection = half }
-                            shell.state.tab = page.section
-                        }
+                        if !wide, let half = page.nutritionSection { shell.state.nutritionSection = half }
+                        shell.state.tab = page.section
                     })) {
                     ForEach(choices, id: \.self) { page in
                         let count = page == .food ? badges.counts.food : page == .taken ? badges.counts.taken : 0

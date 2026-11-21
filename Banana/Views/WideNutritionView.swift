@@ -11,6 +11,7 @@ import SwiftUI
 /// Supplements are edited here too; their reminders ring on the phone and Watch, which
 /// reschedule when an edit arrives.
 struct WideNutritionView: View {
+    var bodyPage: BodyPage? = nil
     @EnvironmentObject private var wellness: WellnessStore
     @EnvironmentObject private var settings: AppSettings
     /// A meal deleted a moment ago stays hidden here until its Undo window closes.
@@ -96,15 +97,18 @@ struct WideNutritionView: View {
     private var page: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: DS.Space.xl) {
+                #if os(iOS)
                 header
-                // The week and the day's total in one card, then what's waiting: the phone's order.
-                dayCard
-                if !inbox.items.isEmpty { backlog }
-                logField
-                meals
-                let index = mealIndex
-                EstimateLearningCard(meals: index.visible, key: .init(revision: wellness.mealRevision, hiddenIDs: index.hiddenIDs))
-                taken
+                #endif
+                if bodyPage != .taken {
+                    dayCard
+                    if !inbox.items.isEmpty { backlog }
+                    logField
+                    meals
+                    let index = mealIndex
+                    EstimateLearningCard(meals: index.visible, key: .init(revision: wellness.mealRevision, hiddenIDs: index.hiddenIDs))
+                }
+                if bodyPage != .food { taken }
                 syncNote
             }
             .frame(maxWidth: 720, alignment: .leading)
@@ -112,8 +116,21 @@ struct WideNutritionView: View {
             .padding(.vertical, DS.Space.l)
             .frame(maxWidth: .infinity)
         }
-        .pageNavigationTitle("Food")
-        #if os(iOS)
+        .pageNavigationTitle(bodyPage == .taken ? "Taken" : "Food")
+        #if os(macOS)
+        .macToolbarLeading {
+            MacPeriodPagingControls(days: 1, dates: dayTitle, isCurrent: isToday,
+                                    canGoForward: !isToday, dateIdentifier: "nutrition.day",
+                                    step: stepDay, toCurrent: returnToToday) { EmptyView() }
+        }
+        .macToolbarActions {
+            if bodyPage == .taken {
+                MoreMenu {
+                    Button("Add medication or supplement", systemImage: "plus") { addingSupplement = true }
+                }
+            }
+        }
+        #else
         .navigationBarTitleDisplayMode(.inline)
         // What the cards sit on, as a list's rows do (`dsCard` is the row colour on iOS).
         .background(Color(.systemGroupedBackground))
@@ -217,13 +234,19 @@ struct WideNutritionView: View {
 
     // MARK: - Day
 
-    /// The one date line (`PageChrome`). Back is for filling in a day that was missed.
-    private var header: some View {
-        DateLine(current: "Today", dates: day.formatted(.dateTime.weekday(.abbreviated).month(.abbreviated).day()),
-                 isCurrent: isToday, canGoForward: !isToday, titleIdentifier: "nutrition.day",
-                 step: { day = NutritionDays.step(day, by: $0) },
-                 toCurrent: { day = Calendar.current.startOfDay(for: Date()) })
+    private var dayTitle: String {
+        day.formatted(.dateTime.weekday(.abbreviated).month(.abbreviated).day())
     }
+
+    private func stepDay(_ delta: Int) { day = NutritionDays.step(day, by: delta) }
+    private func returnToToday() { day = Calendar.current.startOfDay(for: Date()) }
+
+    #if os(iOS)
+    private var header: some View {
+        DateLine(current: "Today", dates: dayTitle, isCurrent: isToday, canGoForward: !isToday,
+                 titleIdentifier: "nutrition.day", step: stepDay, toCurrent: returnToToday)
+    }
+    #endif
 
     /// The week strip and the day's total under it, in one card as on the phone.
     private var dayCard: some View {
@@ -382,10 +405,12 @@ struct WideNutritionView: View {
 
     private var taken: some View {
         VStack(alignment: .leading, spacing: DS.Space.s) {
-            Text("Taken")
-                .font(.subheadline.weight(.semibold))
-                .foregroundStyle(.secondary)
-                .padding(.horizontal, DS.Space.xs)
+            if bodyPage == nil {
+                Text("Taken")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                    .padding(.horizontal, DS.Space.xs)
+            }
             // What Banana noticed: a reminder that's something taken, a moment one follows.
             TakenTimingOffers()
             if schedule.isEmpty {

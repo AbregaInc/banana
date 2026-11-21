@@ -156,6 +156,7 @@ struct PlanStepButton: View {
     let delta: Int
     let days: Int
     var framed = false
+    var showsPlanShortcut = true
     let step: (Int) -> Void
 
     var body: some View {
@@ -169,7 +170,7 @@ struct PlanStepButton: View {
                 #endif
                 .contentShape(Rectangle())
         }
-        .help(PlanPaging.help(name, key: delta < 0 ? "K" : "J"))
+        .help(showsPlanShortcut ? PlanPaging.help(name, key: delta < 0 ? "K" : "J") : name)
         .accessibilityLabel(name)
         .accessibilityIdentifier(delta < 0 ? "plan.previous" : "plan.next")
     }
@@ -178,6 +179,7 @@ struct PlanStepButton: View {
 /// Today of Plan's paging group, shown only away from the current period (`PlanPaging.showsToday`).
 struct PlanTodayButton: View {
     var framed = false
+    var showsPlanShortcut = true
     let toCurrent: () -> Void
 
     var body: some View {
@@ -190,31 +192,37 @@ struct PlanTodayButton: View {
                 #endif
                 .contentShape(Rectangle())
         }
-        .help(PlanPaging.help("Go to today", key: "T"))
+        .help(showsPlanShortcut ? PlanPaging.help("Go to today", key: "T") : "Go to today")
         .accessibilityIdentifier("plan.today")
     }
 }
 
 #if os(macOS)
-/// Keeps the day's date and mode between the two paging arrows.
-struct MacPlanPagingControls: View {
+/// The same date controls for Plan, Workouts, Food and Taken.
+struct MacPeriodPagingControls<Mode: View>: View {
     let days: Int
     let dates: String
     let isCurrent: Bool
+    var canGoForward = true
+    var dateIdentifier = "plan.dateRange"
     let step: (Int) -> Void
     let toCurrent: () -> Void
+    @ViewBuilder var mode: Mode
+
+    private var showsPlanShortcuts: Bool { dateIdentifier == "plan.dateRange" }
 
     var body: some View {
         HStack(spacing: DS.Space.xs) {
-            PlanStepButton(delta: -1, days: days, step: step)
-            PlanTodayButton(toCurrent: toCurrent).disabled(isCurrent)
+            PlanStepButton(delta: -1, days: days, showsPlanShortcut: showsPlanShortcuts, step: step)
+            PlanTodayButton(showsPlanShortcut: showsPlanShortcuts, toCurrent: toCurrent).disabled(isCurrent)
             Text(dates)
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .lineLimit(1)
-                .accessibilityIdentifier("plan.dateRange")
-            PlanPeriodMenu(dates: dates, datesPlace: .hidden)
-            PlanStepButton(delta: 1, days: days, step: step)
+                .accessibilityIdentifier(dateIdentifier)
+            mode
+            PlanStepButton(delta: 1, days: days, showsPlanShortcut: showsPlanShortcuts, step: step)
+                .disabled(!canGoForward)
         }
         .buttonStyle(.borderless)
         .accessibilityElement(children: .contain)

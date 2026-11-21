@@ -50,7 +50,7 @@ final class MacCommandCenter: ObservableObject {
         case .closeInspector:
             nav.inspectedMeeting = nil
         case .respond(let response):
-            guard let meeting = nav.inspectedMeeting else { NSSound.beep(); return }
+            guard nav.rightPanelVisible, let meeting = nav.inspectedMeeting else { NSSound.beep(); return }
             Task { await reply(to: meeting, with: response) }
         case .joinNextMeeting:
             JoinMeetingHotKey.joinNext()
@@ -165,7 +165,7 @@ final class MacKeyMonitor {
         if MacNavigator.shared.section == .mail { return MailKeyDispatch.handle(event) }
         #endif
         if event.keyCode == 53 {   // Escape
-            if MacNavigator.shared.inspectedMeeting != nil {
+            if MacNavigator.shared.rightPanelVisible, MacNavigator.shared.inspectedMeeting != nil {
                 center.perform(.closeInspector)
                 return true
             }
@@ -198,7 +198,7 @@ final class MacKeyMonitor {
         case "s": center.perform(.shareAvailability)
         case "?", "/": center.showsShortcuts = true
         case "e":
-            guard MacNavigator.shared.inspectedMeeting != nil else { return false }
+            guard MacNavigator.shared.rightPanelVisible, MacNavigator.shared.inspectedMeeting != nil else { return false }
             pendingPrefix = ("e", Date())
         default: return false
         }

@@ -4,8 +4,10 @@ import SwiftUI
 /// Pages supply controls bound to their own state. The window owns the items, their order and
 /// their widths, so swapping pages does not ask the native toolbar to arrange a new set of items.
 struct MacSharedToolbar: ViewModifier {
-    @Binding var section: AppSection
+    let section: AppSection
     let railShown: Bool
+    let rightPanelVisible: Bool
+    let toggleRightPanel: () -> Void
     @State private var layout = Layout.standard
 
     private enum Layout: Equatable {
@@ -13,8 +15,8 @@ struct MacSharedToolbar: ViewModifier {
 
         init(width: CGFloat) {
             // Leave room for AppKit's item margins before moving to the wider slots.
-            if width < 690 { self = .narrow }
-            else if width < 800 { self = .standard }
+            if width < 715 { self = .narrow }
+            else if width < 825 { self = .standard }
             else { self = .wide }
         }
 
@@ -26,7 +28,7 @@ struct MacSharedToolbar: ViewModifier {
             case .wide: 272
             }
         }
-        var trailing: CGFloat { self == .narrow ? 88 : 104 }
+        var trailing: CGFloat { self == .narrow ? 128 : self == .standard ? 136 : 168 }
     }
 
     func body(content: Content) -> some View {
@@ -48,15 +50,29 @@ struct MacSharedToolbar: ViewModifier {
                         }
                         .sharedBackgroundVisibility(.hidden)
                         ToolbarItem(placement: .primaryAction) {
-                            ViewThatFits(in: .horizontal) {
-                                HStack(spacing: DS.Space.s) {
-                                    slots.status
-                                    slots.actions
+                            HStack(spacing: DS.Space.s) {
+                                ViewThatFits(in: .horizontal) {
+                                    HStack(spacing: DS.Space.s) {
+                                        slots.status
+                                        slots.actions
+                                    }
+                                    .fixedSize(horizontal: true, vertical: false)
+                                    HStack(spacing: DS.Space.s) { slots.actions }
                                 }
-                                .fixedSize(horizontal: true, vertical: false)
-                                HStack(spacing: DS.Space.s) { slots.actions }
+                                .labelStyle(.iconOnly)
+                                .frame(maxWidth: .infinity, alignment: .trailing)
+
+                                Button(action: toggleRightPanel) {
+                                    Image(systemName: "sidebar.trailing")
+                                        .frame(width: 36, height: 36)
+                                        .contentShape(Rectangle())
+                                }
+                                .buttonStyle(.borderless)
+                                .glassEffect(.regular.interactive(), in: .capsule)
+                                .help(rightPanelVisible ? "Hide Right Panel" : "Show Right Panel")
+                                .accessibilityLabel(rightPanelVisible ? "Hide right panel" : "Show right panel")
+                                .accessibilityIdentifier("shell.rightPanel.toggle")
                             }
-                            .labelStyle(.iconOnly)
                             .frame(width: layout.trailing, height: 36, alignment: .trailing)
                             .environment(\.wideShell, true)
                         }
@@ -64,6 +80,9 @@ struct MacSharedToolbar: ViewModifier {
                     }
             }
             .toolbar(removing: .title)
+            // The resize divider between list and detail belongs below this bar.
+            .toolbarBackground(.background, for: .windowToolbar)
+            .toolbarBackgroundVisibility(.visible, for: .windowToolbar)
             .onGeometryChange(for: Layout.self) { geometry in
                 Layout(width: geometry.size.width - (railShown ? 0 : 78))
             } action: { layout = $0 }
@@ -72,8 +91,6 @@ struct MacSharedToolbar: ViewModifier {
     @ViewBuilder private func leading(_ page: AnyView?) -> some View {
         if let page {
             page
-        } else if BodyPage.holds(section) {
-            BodyTitleMenu(wide: true, section: $section)
         } else {
             PageTitleText(title: section.sidebarHome.title)
         }

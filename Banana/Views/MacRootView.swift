@@ -22,11 +22,26 @@ typealias MacSection = AppSection
 @MainActor
 final class MacNavigator: ObservableObject {
     static let shared = MacNavigator()
-    @Published var section: AppSection = .plan
+    @Published var section: AppSection = .plan {
+        didSet {
+            if section == .workouts, bodyPage != .workouts { bodyPage = .workouts }
+            if section == .nutrition, bodyPage != .food { bodyPage = .food }
+        }
+    }
+    @Published private(set) var bodyPage: BodyPage = .workouts
+
+    func openBody(_ page: BodyPage) {
+        if section != page.section { section = page.section }
+        if bodyPage != page { bodyPage = page }
+    }
     @Published var showFullPlayer = false
     @Published var showsAssistant = false {
         didSet {
-            if showsAssistant { inspectedMeeting = nil; showsAvailability = false }
+            if showsAssistant {
+                inspectedMeeting = nil
+                showsAvailability = false
+                rightPanelCollapsed = false
+            }
         }
     }
     /// Set by the Morning Briefing menu command (⌘⇧M) and by `MacPayoffPresenter`'s own schedule
@@ -35,16 +50,51 @@ final class MacNavigator: ObservableObject {
     /// The meeting whose detail drawer (right-hand inspector) is open, if any. Set from any
     /// event row click; the desktop's spare width shows the full event instead of a sheet.
     @Published var inspectedMeeting: MeetingInfo? {
-        didSet { if inspectedMeeting != nil { showsAvailability = false; showsAssistant = false } }
+        didSet {
+            if inspectedMeeting != nil {
+                showsAvailability = false
+                showsAssistant = false
+                rightPanelCollapsed = false
+            }
+        }
     }
     /// The share-availability panel, in the same right-hand slot as the event drawer — the grid
     /// stays in view so the offered times can be seen in place (`offeredSlots`).
     @Published var showsAvailability = false {
         didSet {
-            if showsAvailability { inspectedMeeting = nil; showsAssistant = false } else { offeredSlots = [] }
+            if showsAvailability {
+                inspectedMeeting = nil
+                showsAssistant = false
+                rightPanelCollapsed = false
+            } else {
+                offeredSlots = []
+            }
         }
     }
     @Published var offeredSlots: [DateInterval] = []
+    @Published private(set) var rightPanelCollapsed = false
+
+    private var hasRightPanel: Bool {
+        showsAssistant || showsAvailability || inspectedMeeting != nil
+    }
+
+    var rightPanelVisible: Bool { hasRightPanel && !rightPanelCollapsed }
+
+    func toggleAvailability() {
+        showsAvailability = !(showsAvailability && rightPanelVisible)
+    }
+
+    func toggleRightPanel() {
+        if hasRightPanel {
+            rightPanelCollapsed.toggle()
+        } else {
+            #if BANANA_AI
+            showsAssistant = true
+            #else
+            showsAvailability = true
+            #endif
+        }
+    }
 
     private init() {
         // `--mac-section workouts|routines|library|settings` opens straight to a surface, so it can
@@ -57,8 +107,11 @@ final class MacNavigator: ObservableObject {
         #endif
         if let i = args.firstIndex(of: "--mac-section"), i + 1 < args.count {
             let raw = args[i + 1]
-            if let sec = AppSection(rawValue: raw) ?? AppSection(legacyRawValue: raw) {
+            if raw == "taken" || (raw == "nutrition" && args.contains("--timing-suggestions")) {
+                openBody(.taken)
+            } else if let sec = AppSection(rawValue: raw) ?? AppSection(legacyRawValue: raw) {
                 section = sec
+                if sec == .nutrition { bodyPage = .food }
             }
         }
     }
@@ -155,9 +208,6 @@ struct MacRootView: View {
     #endif
     @Environment(\.openSettings) private var openSettings
 
-    /// Which Body page the rail's Body opens: the one looked at last.
-    @State private var lastBody: AppSection = .workouts
-
     /// The rail's pages: only the modules that are on (docs/design/BOTTOM-BAR-SHELL.md, Wide).
     private var railPages: [ShellPage] {
         var on = ShellPage.Modules()
@@ -178,7 +228,11 @@ struct MacRootView: View {
         switch page {
         case .plan: nav.section = .plan
         case .mail: nav.section = .mail
-        case .body: nav.section = modules.includes(.workouts) && (lastBody == .workouts || !modules.includes(.food)) ? .workouts : .nutrition
+        case .body:
+            let choices = BodyPage.choices(wide: false, with: modules.effectiveChoice)
+            if let page = choices.contains(nav.bodyPage) ? nav.bodyPage : choices.first {
+                nav.openBody(page)
+            }
         case .notes: nav.section = .notes
         case .library: nav.section = .library
         case .review: nav.section = .review
@@ -195,9 +249,35 @@ struct MacRootView: View {
                 set: { railShown = $0 != .detailOnly })
     }
 
+    @ViewBuilder private var rightPanel: some View {
+        #if BANANA_AI
+        if nav.showsAssistant {
+            Divider()
+            AssistantView(panelClose: { nav.showsAssistant = false }, panelAddSection: nav.section)
+                .frame(width: 420)
+                .accessibilityIdentifier("assistant.panel")
+                .transition(.move(edge: .trailing))
+        }
+        #endif
+        if let meeting = nav.inspectedMeeting {
+            Divider()
+            MacEventInspectorView(meeting: meeting)
+                .frame(width: 350)
+                .transition(.move(edge: .trailing))
+        } else if nav.showsAvailability {
+            Divider()
+            MacAvailabilityPanel()
+                .frame(width: 340)
+                .transition(.move(edge: .trailing))
+        }
+    }
+
     var body: some View {
         NavigationSplitView(columnVisibility: railVisibility) {
-            ShellSidebar(pages: railPages, current: railCurrent, open: openRailPage)
+            ShellSidebar(pages: railPages, current: railCurrent, open: openRailPage,
+                         bodyPages: BodyPage.choices(wide: false, with: modules.effectiveChoice),
+                         bodyCurrent: railCurrent == .body ? nav.bodyPage : nil,
+                         openBody: nav.openBody)
                 .frame(maxWidth: .infinity)
                 .accessibilityElement(children: .contain)
                 .accessibilityIdentifier("app.sidebar")
@@ -240,7 +320,7 @@ struct MacRootView: View {
                         // Sleep and Trends had rows of their own; both are inside Review.
                         case .sleep, .trends, .review: macReview.syncWaitingNote(.fitness)
                         #if BANANA_MODULE_FOOD
-                        case .nutrition: WideNutritionView().syncWaitingNote(.wellness).onAppear { SpaceSyncQuestions.shared.healthUsed() }
+                        case .nutrition: WideNutritionView(bodyPage: nav.bodyPage).syncWaitingNote(.wellness).onAppear { SpaceSyncQuestions.shared.healthUsed() }
                         #endif
                         #if BANANA_MODULE_NOTES
                         case .notes:     NotesView()
@@ -279,9 +359,6 @@ struct MacRootView: View {
                     .overlay(alignment: .top) { ShellWideResults(section: nav.section) }
                     .onReceive(NotificationCenter.default.publisher(for: .shellOpenAssistant)) { _ in
                         nav.showsAssistant = true
-                    }
-                    .onChange(of: nav.section) { _, section in
-                        if section == .workouts || section == .nutrition { lastBody = section }
                     }
                     // A module switched off (here or on another device) takes its section with it.
                     .onChange(of: modules.effectiveChoice, initial: true) { _, choice in
@@ -343,30 +420,11 @@ struct MacRootView: View {
                         }
                     }
                     #endif
-                    #if BANANA_AI
-                    if nav.showsAssistant {
-                        Divider()
-                        AssistantView(panelClose: { nav.showsAssistant = false }, panelAddSection: nav.section)
-                            .frame(width: 420)
-                            .accessibilityIdentifier("assistant.panel")
-                            .transition(.move(edge: .trailing))
-                    }
-                    #endif
-                    if !nav.showsAssistant, let meeting = nav.inspectedMeeting {
-                        Divider()
-                        MacEventInspectorView(meeting: meeting)
-                            .frame(width: 350)
-                            .transition(.move(edge: .trailing))
-                    } else if nav.showsAvailability {
-                        Divider()
-                        MacAvailabilityPanel()
-                            .frame(width: 340)
-                            .transition(.move(edge: .trailing))
+                    if nav.rightPanelVisible {
+                        rightPanel
                     }
                 }
-                .animation(.snappy(duration: 0.2), value: nav.inspectedMeeting != nil)
-                .animation(.snappy(duration: 0.2), value: nav.showsAvailability)
-                .animation(.snappy(duration: 0.2), value: nav.showsAssistant)
+                .animation(.snappy(duration: 0.2), value: nav.rightPanelVisible)
 
                 // Playback transport, always present while something is loaded — the iOS shell put
                 // this in the tab bar's bottom accessory; the Mac had NO transport at all, so you
@@ -382,7 +440,8 @@ struct MacRootView: View {
                 }
                 #endif
             }
-            .modifier(MacSharedToolbar(section: $nav.section, railShown: railShown))
+            .modifier(MacSharedToolbar(section: nav.section, railShown: railShown,
+                                       rightPanelVisible: nav.rightPanelVisible, toggleRightPanel: nav.toggleRightPanel))
             #if BANANA_MODULE_PODCASTS
             .sheet(isPresented: $nav.showFullPlayer) { NowPlayingView() }
             #endif
@@ -678,8 +737,10 @@ struct MacCommands: Commands {
             Button(ShellAssistant.isAvailable ? "Search or Ask" : "Search") { ShellSearch.shared.focusRequests.send(true) }
                 .keyboardShortcut("f", modifiers: .command)
             #if BANANA_AI
-            Button(nav.showsAssistant ? "Hide Chat" : "Show Chat") { nav.showsAssistant.toggle() }
-                .keyboardShortcut("j", modifiers: .command)
+            Button(nav.showsAssistant && nav.rightPanelVisible ? "Hide Chat" : "Show Chat") {
+                nav.showsAssistant = !(nav.showsAssistant && nav.rightPanelVisible)
+            }
+            .keyboardShortcut("j", modifiers: .command)
             #endif
             Divider()
         }

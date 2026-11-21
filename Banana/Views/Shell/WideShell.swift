@@ -76,6 +76,12 @@ struct ShellSidebar: View {
     let current: ShellPage?
     let open: (ShellPage) -> Void
     var dismiss: () -> Void = {}
+    #if os(macOS)
+    var bodyPages: [BodyPage] = []
+    var bodyCurrent: BodyPage? = nil
+    var openBody: (BodyPage) -> Void = { _ in }
+    @SceneStorage("shell.sidebar.bodyExpanded") private var bodyExpanded = true
+    #endif
     @ObservedObject private var badges = ActionBadges.shared
     @SceneStorage("shell.sidebar.planExpanded") private var planExpanded = true
     #if BANANA_UNRELEASED
@@ -116,6 +122,13 @@ struct ShellSidebar: View {
                     if page == .plan, planExpanded, !scope.accounts.isEmpty {
                         planAccounts.padding(.leading, DS.Space.m)
                     }
+                    #if os(macOS)
+                    if page == .body, bodyExpanded {
+                        ForEach(bodyPages, id: \.self) { bodyPage in
+                            bodyRow(bodyPage).padding(.leading, DS.Space.m)
+                        }
+                    }
+                    #endif
                     #if BANANA_UNRELEASED
                     if page == .mail, mailExpanded {
                         ShellSidebarMail(active: current == .mail, open: { open(.mail) }, dismiss: dismiss)
@@ -134,11 +147,30 @@ struct ShellSidebar: View {
 
     private func expansion(for page: ShellPage) -> Binding<Bool>? {
         if page == .plan, !scope.accounts.isEmpty { return $planExpanded }
+        #if os(macOS)
+        if page == .body, !bodyPages.isEmpty { return $bodyExpanded }
+        #endif
         #if BANANA_UNRELEASED
         if page == .mail { return $mailExpanded }
         #endif
         return nil
     }
+
+    #if os(macOS)
+    private func bodyRow(_ page: BodyPage) -> some View {
+        let symbol: String
+        let count: Int
+        switch page {
+        case .workouts: (symbol, count) = (AppSection.workouts.outlineSymbol, 0)
+        case .food: (symbol, count) = (AppSection.nutrition.outlineSymbol, badges.counts.food)
+        case .taken: (symbol, count) = ("pills", badges.counts.taken)
+        }
+        return Self.row(page.rawValue, symbol: symbol, selected: bodyCurrent == page, count: count) {
+            openBody(page)
+        }
+        .accessibilityIdentifier("shell.body.\(page.rawValue.lowercased())")
+    }
+    #endif
 
     private var planAccounts: some View {
         VStack(spacing: 2) {

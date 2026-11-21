@@ -96,6 +96,43 @@ struct WideWorkoutsView: View {
             .filter { match($0.start, $0.activity, $0.activity, $0.duration) })
     }
 
+    private var periodTitle: String {
+        !filter.isEmpty ? "Filtered workouts" : showAll ? "All workouts" : "This week"
+    }
+
+    private var periodDates: String {
+        !filter.isEmpty || showAll ? "" : period.rangeLabel()
+    }
+
+    private func stepPeriod(_ delta: Int) {
+        showAll = false
+        period = period.stepped(by: delta)
+    }
+
+    private func currentPeriod() {
+        showAll = false
+        period = .current
+    }
+
+    private var showAllButton: some View {
+        Button {
+            withAnimation { showAll.toggle() }
+        } label: {
+            Text(showAll ? "Show week" : "Show all")
+                #if os(macOS)
+                .padding(.horizontal, DS.Space.xs)
+                .frame(minWidth: 88, minHeight: 28)
+                #endif
+        }
+        #if os(macOS)
+        .buttonStyle(.bordered)
+        #else
+        .buttonStyle(.inline)
+        #endif
+        .disabled(!filter.isEmpty)
+        .accessibilityIdentifier("workouts.showAll")
+    }
+
     var body: some View {
         let _ = RenderStats.note("WideWorkoutsView")
         let key = fitness.workoutProjectionKey(health: health, dates: projectionDates)
@@ -108,32 +145,15 @@ struct WideWorkoutsView: View {
                 let navInset = max(DS.Space.xl, (geo.size.width - WorkoutMetrics.listContentMaxWidth) / 2)
 
                 VStack(spacing: 0) {
-                    // A week at a time, as Plan steps days, with "Show all" beside the dates.
-                    DateLine(current: !filter.isEmpty ? "Filtered workouts" : showAll ? "All workouts" : "This week",
-                             dates: !filter.isEmpty ? "" : showAll ? "" : period.rangeLabel(),
+                    #if os(iOS)
+                    DateLine(current: periodTitle, dates: periodDates,
                              isCurrent: showAll || period.offset == 0,
                              canGoForward: !showAll && period.canGoForward, unit: "week",
                              titleIdentifier: "workouts.period",
-                             step: { delta in showAll = false; period = period.stepped(by: delta) },
-                             toCurrent: { showAll = false; period = .current }) {
-                        Button {
-                            withAnimation { showAll.toggle() }
-                        } label: {
-                            Text(showAll ? "Show week" : "Show all")
-                                #if os(macOS)
-                                .padding(.horizontal, DS.Space.xs)
-                                .frame(minWidth: 88, minHeight: 28)
-                                #endif
-                        }
-                        #if os(macOS)
-                        .buttonStyle(.bordered)
-                        #else
-                        .buttonStyle(.inline)
-                        #endif
-                        .accessibilityIdentifier("workouts.showAll")
+                             step: stepPeriod, toCurrent: currentPeriod) {
+                        showAllButton
                     }
                     .disabled(!filter.isEmpty)
-                    #if os(iOS)
                     .padding(.horizontal, navInset - DS.Space.s)
                     #endif
                     ScrollView {
@@ -209,7 +229,24 @@ struct WideWorkoutsView: View {
             // As the phone's: the + opens the list of everything.
             .addListButton(identifier: "workouts.add")
             #else
-            .macToolbarActions { MoreMenu() }
+            .macToolbarLeading {
+                MacPeriodPagingControls(days: 7, dates: periodDates.isEmpty ? periodTitle : periodDates,
+                                        isCurrent: !showAll && period.offset == 0,
+                                        canGoForward: !showAll && period.canGoForward,
+                                        dateIdentifier: "workouts.period",
+                                        step: stepPeriod, toCurrent: currentPeriod) { EmptyView() }
+                    .disabled(!filter.isEmpty)
+            }
+            .macToolbarActions {
+                ViewThatFits(in: .horizontal) {
+                    HStack(spacing: DS.Space.xs) {
+                        showAllButton
+                        MoreMenu()
+                    }
+                    .fixedSize()
+                    MoreMenu { showAllButton }
+                }
+            }
             #endif
         }
         .task(id: key) {

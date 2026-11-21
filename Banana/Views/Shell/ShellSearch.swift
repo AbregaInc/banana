@@ -424,7 +424,15 @@ struct ShellSearchResults: View {
         search.clear()
         // The page the kind belongs to starts it (`onAdd`), as a pick from the old + list did.
         if let half = kind.nutritionSection { ShellNavigation.shared.state.nutritionSection = half }
+        #if os(macOS)
+        if kind == .supplement {
+            MacNavigator.shared.openBody(.taken)
+        } else {
+            ShellSearch.show(kind.section)
+        }
+        #else
         ShellSearch.show(kind.section)
+        #endif
         PageChrome.shared.pendingAdd = kind
         Task { @MainActor in
             try? await Task.sleep(for: .seconds(2))

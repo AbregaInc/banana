@@ -126,7 +126,15 @@ struct AssistantView: View {
                                 if let pickAdd { pickAdd(kind) }
                                 else {
                                     if let half = kind.nutritionSection { ShellNavigation.shared.state.nutritionSection = half }
+                                    #if os(macOS)
+                                    if kind == .supplement {
+                                        MacNavigator.shared.openBody(.taken)
+                                    } else {
+                                        AssistantWorkspace.open(kind.section)
+                                    }
+                                    #else
                                     AssistantWorkspace.open(kind.section)
+                                    #endif
                                     PageChrome.shared.pendingAdd = kind
                                 }
                             } label: { Label(kind.title, systemImage: kind.symbol) }
