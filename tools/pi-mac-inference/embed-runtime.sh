@@ -1,6 +1,5 @@
 #!/bin/bash
-# Xcode build phase (BananaMacBeta): puts Banana Pi's Python runtime inside the app, at
-# Contents/Resources/PiRuntime. Included whenever local AI is enabled; public builds carry nothing.
+# Xcode build phase: embed Banana's Python runtime when local AI is enabled.
 set -euo pipefail
 [ "${BANANA_LOCAL_AI:-NO}" = YES ] || exit 0
 # The embed caller keeps this lock until its copy is complete. Standalone builds take it too.
@@ -12,7 +11,14 @@ key=$(basename "$runtime")
 dest="$TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/PiRuntime"
 identity="${EXPANDED_CODE_SIGN_IDENTITY:-}"
 [ "${CODE_SIGNING_ALLOWED:-YES}" = NO ] && identity=""
+helper_entitlements=""
+case "${BANANA_RELEASE_CHANNEL:-}" in
+  appstore|testflight) helper_entitlements="$SRCROOT/tools/pi-mac-inference/runtime-helper.entitlements" ;;
+esac
 stamp="$key ${identity:--}"
+if [ -n "$helper_entitlements" ]; then
+  stamp="$stamp $(shasum -a 256 "$helper_entitlements" | cut -d ' ' -f 1)"
+fi
 if [ "$(cat "$dest/.runtime" 2>/dev/null)" = "$stamp" ]; then exit 0; fi
 mkdir -p "$dest"
 rsync -a --delete --exclude .runtime "$runtime/python/" "$dest/"
@@ -21,9 +27,15 @@ rsync -a --delete --exclude .runtime "$runtime/python/" "$dest/"
 if [ -n "$identity" ] && [ "$identity" != "-" ]; then
   find "$dest" -type f \( -name "*.so" -o -name "*.dylib" -o -perm -u+x \) -print0 |
   while IFS= read -r -d '' f; do
-    if file -b "$f" | grep -q "Mach-O"; then
-      codesign --force --options runtime --timestamp --sign "$identity" "$f"
+    format=$(file -b "$f")
+    case "$format" in *Mach-O*) ;; *) continue ;; esac
+    flags=(--force --options runtime --timestamp --sign "$identity")
+    # Apple distribution requires embedded commands to inherit the parent's sandbox.
+    # Libraries stay signed without process entitlements.
+    if [[ -n "$helper_entitlements" && "$format" == *executable* ]]; then
+      flags+=(--entitlements "$helper_entitlements")
     fi
+    codesign "${flags[@]}" "$f"
   done
 fi
 echo "$stamp" > "$dest/.runtime"

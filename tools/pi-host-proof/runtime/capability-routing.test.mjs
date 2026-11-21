@@ -194,3 +194,28 @@ test('explicit nutrient dates must be supplied by the person',async()=>{
   assert.equal(out.content[0].type,supplied?'toolCall':'text');
  }
 });
+
+
+test('named birthdays and anniversaries are read from Calendar before inference', async () => {
+  for (const [question, query] of [["What's my aunt's birthday?", 'aunt birthday'],
+    ['When is Noor’s anniversary?', 'Noor anniversary']]) {
+    const input = request(question, ['search_app', 'nutrition_view']);
+    input.tools[0].parameters.properties.section = {const: 'plan'};
+    const output = await routeGeneration(input, async () => assert.fail('A named lookup needs no model selection'));
+    assert.equal(output.content[0].name, 'search_app');
+    assert.deepEqual(output.content[0].arguments, {query, section: 'plan'});
+  }
+});
+
+test('compound, quoted, and unsupported birthday questions remain with normal routing', async () => {
+  for (const [question, scopedSearch] of [['When is my aunt’s birthday and can you send an email?', true],
+    ['What is “my aunt’s birthday”?', true], ['When is my aunt’s birthday?', false]]) {
+    const input = request(question, scopedSearch ? ['search_app', 'nutrition_view'] : ['nutrition_view']);
+    if (scopedSearch) input.tools[0].parameters.properties.section = {const: 'plan'};
+    const output = await routeGeneration(input, async (selection) => {
+      assert.equal(selection.tools[0].name, 'select_capability');
+      return pick('unavailable');
+    });
+    assert.equal(output.content[0].type, 'text');
+  }
+});

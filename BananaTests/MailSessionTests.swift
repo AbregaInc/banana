@@ -38,6 +38,22 @@ final class MailSessionTests: XCTestCase {
         XCTAssertTrue(status.blocked, "Undoing this message's Spam action does not unblock future mail")
     }
 
+    func testDomainBlockKeepsTheSenderRuleSeparate() async throws {
+        let h = Harness()
+        h.session.open(try XCTUnwrap(h.model.rows.first).id)
+        let message = try XCTUnwrap(h.session.navigation.reader?.messages.first)
+        let domain = try XCTUnwrap(MailSenderPolicyTarget.domainKey(for: message.senderAddress))
+        let sender = h.source.senderPolicyStatus(account: message.id.account, sender: message.senderAddress)
+        let status = h.source.senderPolicyStatus(account: message.id.account, sender: domain)
+        let saved = expectation(description: "Domain policy saved")
+        let observation = status.$blocked.filter { $0 }.prefix(1).sink { _ in saved.fulfill() }
+        defer { observation.cancel() }
+        h.session.changeSenderBlock(true, message: message, sender: domain)
+        await fulfillment(of: [saved], timeout: 3)
+        XCTAssertTrue(status.blocked)
+        XCTAssertFalse(sender.blocked)
+    }
+
     func testBlockingSenderInTheReadingPaneAdvancesItsCursor() async throws {
         let h = Harness()
         let first = h.model.rows[0].id, next = h.model.rows[1].id

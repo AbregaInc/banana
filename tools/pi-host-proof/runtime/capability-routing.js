@@ -1,6 +1,6 @@
 import {requestClock,relativeDay} from './clock-context.js';
 import {nutritionCommand,requestsUnsupportedAction} from './command-contracts.js';
-import {directPageCommand,directConversationCommand,hideQuotedData,searchWithoutCourtesy} from './request-language.js';
+import {directPageCommand,directConversationCommand,hideQuotedData,searchWithoutCourtesy,namedCalendarLookup} from './request-language.js';
 let navigationSequence=0;
 // One policy for production and evaluation. Selection cannot execute app capabilities.
 const sections = ['plan','workouts','nutrition','notes','routines','library','review','assistant','settings'];
@@ -19,7 +19,7 @@ Check needsUnavailableData for the WHOLE requested answer: food logs cannot esta
 Supported outcomes:
 - open_page: open/show a module, dashboard, library, history or settings screen. Showing workout history or the latest workout means opening Workouts. Showing sleep trends or activity trends means opening Review; those are screens, not nutrition charts. Choose the page by subject: calendar=plan; exercise/workout=workouts; food=nutrition; notes=notes; routine=routines; podcasts/playback/listening=library; sleep/health/activity trends=review; account/preferences=settings; assistant=assistant.
 - day_plan: read appointments/agenda for a particular day, including today/tomorrow. Not edits, cancellation, routine changes or reminders.
-- list_notes: recent/latest notes. read_note: a known note ID from prior tool results. search_app: find local titles/text or notes containing a phrase; not summaries of unavailable records. Search text is not a command to edit it.
+- list_notes: recent/latest notes. read_note: a known note ID from prior tool results. search_app: find a named calendar event, local title/text, or notes containing a phrase; not summaries of unavailable records. Search text is not a command to edit it.
 - create_note: explicitly create a NEW written note with supplied text. Never replace an existing note or use notes to log workouts, supplements, completed routines, reminders, or chat memory.
 - prepare_event: NEW, one-off calendar event with an activity/title and a clock time (or explicitly all-day). A time-only event needs no date. Missing time -> clarify/time. Changes to an existing event, recurrence, alarms, invitations and flights with separate endpoint timezones -> unavailable. A workout log or routine is NOT a calendar event.
 - prepare_meal: NEW food log with foods AND amounts stated. Missing foods -> clarify/food; missing amounts -> clarify/amount. Do not guess a serving or unknown quantity. Never use for changing existing logs or routines.
@@ -73,6 +73,10 @@ export async function routeGeneration(request, rawGenerate, signal) {
   const directPage=directPageCommand(latest);
   if(directPage && request.tools.some(t=>t.name==='open_page'))return call('open_page',{section:directPage},'navigation-'+Date.now()+'-'+(++navigationSequence));
   if(directConversationCommand(latest)==='new')return text('I can’t start a separate conversation from a message. Use New Conversation in the chat menu.');
+  const calendarQuery = namedCalendarLookup(latest);
+  if (calendarQuery && request.tools.some(tool => tool.name === 'search_app' && tool.parameters.properties.section)) {
+    return call('search_app', {query: calendarQuery, section: 'plan'}, 'calendar-search-' + Date.now() + '-' + (++navigationSequence));
+  }
   const chart=nutritionCommand(latest, /Current native nutrition view:\s*\{/.test(request.instructions));
   if(chart && request.tools.some(t=>t.name===chart.name))return call(chart.name,chart.arguments,'chart-'+Date.now()+'-'+(++navigationSequence));
   const chosen = await generate(selectionRequest(request),signal);

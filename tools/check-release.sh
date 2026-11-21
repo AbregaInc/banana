@@ -52,6 +52,31 @@ while IFS= read -r -d '' marker; do
   done < "$marker"
 done < <(find "$target" -name banana-local-features.txt -print0)
 
+# The local feature build phase runs before runtime embedding. Check the sealed Mac
+# archive for the exact inherited sandbox entitlements required by Apple.
+if [[ "$target" == *.xcarchive && "${#primary_apps[@]}" -eq 1 && "${channel:-}" =~ ^(testflight|appstore)$ ]]; then
+  runtime="${primary_apps[0]}/Contents/Resources/PiRuntime"
+  if [ -d "$runtime" ]; then
+    while IFS= read -r -d '' helper; do
+      format=$(file -b "$helper")
+      [[ "$format" == *Mach-O*executable* ]] || continue
+      if ! codesign -d --entitlements :- "$helper" 2>/dev/null | python3 -c '
+import plistlib, sys
+try:
+    entitlements = plistlib.loads(sys.stdin.buffer.read())
+except (ValueError, plistlib.InvalidFileException):
+    sys.exit(1)
+expected = {"com.apple.security.app-sandbox", "com.apple.security.inherit"}
+sys.exit(not isinstance(entitlements, dict) or set(entitlements) != expected
+         or any(value is not True for value in entitlements.values()))
+'; then
+        echo "Missing sandbox inheritance on Mac inference helper ${helper##*/}"
+        exit 1
+      fi
+    done < <(find "$runtime" -type f -perm -u+x -print0)
+  fi
+fi
+
 # Reproducible builds: Core ML's compiler writes a model's user-defined metadata in a different
 # order on every build, so a model with more than one entry makes every build differ. Keep such
 # provenance beside the model (docs/publication/voice-model-provenance.json does).

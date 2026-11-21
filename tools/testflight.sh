@@ -27,6 +27,8 @@ flavour=${4:-stable}
 [[ "$mode" == prepare || "$mode" == upload || "$mode" == check ]] || { usage >&2; exit 2; }
 [[ "$flavour" == stable || "$flavour" == appstore ]] || { usage >&2; exit 2; }
 [[ $# -le 4 ]] || { usage >&2; exit 2; }
+version=${BANANA_TESTFLIGHT_VERSION:-$(sed -n 's/^ *MARKETING_VERSION: *"\([0-9.]*\)".*/\1/p' project.yml | head -1)}
+[[ "$version" =~ ^[0-9]+\.[0-9]+(\.[0-9]+)?$ ]] || { echo 'Invalid TestFlight version.' >&2; exit 2; }
 [[ "$mode" == check || -z "$(git status --porcelain --untracked-files=normal)" ]] || {
   echo 'Commit the reviewed source before preparing a traceable build.' >&2; exit 1;
 }
@@ -81,7 +83,7 @@ PY
 auth=(-allowProvisioningUpdates -authenticationKeyPath "$key_path"
       -authenticationKeyID "$ASC_KEY_ID" -authenticationKeyIssuerID "$ASC_ISSUER_ID")
 identity_ok() {  # identity_ok ARCHIVE: one primary app with this commit, build, bundle id and channel
-  python3 - "$1" "$revision" "$build" "$(banana_setting BANANA_BUNDLE_ID)" "$channel" <<'PY'
+  python3 - "$1" "$revision" "$build" "$(banana_setting BANANA_BUNDLE_ID)" "$channel" "$version" <<'PY'
 import pathlib, plistlib, sys
 root = pathlib.Path(sys.argv[1]) / "Products/Applications"
 apps = list(root.glob("*.app"))
@@ -90,7 +92,7 @@ p = apps[0] / "Info.plist"
 if not p.exists(): p = apps[0] / "Contents/Info.plist"
 info = plistlib.load(p.open("rb"))
 expected = {"BananaSourceCommit": sys.argv[2], "CFBundleVersion": sys.argv[3],
-            "CFBundleIdentifier": sys.argv[4], "BananaReleaseChannel": sys.argv[5]}
+            "CFBundleIdentifier": sys.argv[4], "BananaReleaseChannel": sys.argv[5], "CFBundleShortVersionString": sys.argv[6]}
 sys.exit(0 if all(info.get(k) == v for k, v in expected.items()) else "Archive identity, channel or source does not match")
 PY
 }
@@ -106,7 +108,7 @@ xcodegen generate
 banana_xcode -project Banana.xcodeproj -scheme "$scheme" -configuration "$configuration" \
   "${platform_args[@]}" -derivedDataPath "$derived" -archivePath "$archive" \
   BANANA_UNRELEASED=NO BANANA_LOCAL_AI=YES BANANA_LOCAL_EMAIL=NO \
-  "CURRENT_PROJECT_VERSION=$build" "BANANA_SOURCE_COMMIT=$revision" \
+  "CURRENT_PROJECT_VERSION=$build" "MARKETING_VERSION=$version" "BANANA_SOURCE_COMMIT=$revision" \
   "${auth[@]}" archive
 fi
 identity_ok "$archive"
@@ -116,8 +118,11 @@ if [[ "$platform" == mac && "$flavour" == appstore && "$mode" == upload ]]; then
   # Read-only. Visible tests are a separate, deliberate run on the dedicated test desktop.
   python3 tools/mac-release-tests.py verify "$archive"
 fi
-xcodebuild -exportArchive -archivePath "$archive" -exportPath "$export_path" \
-  -exportOptionsPlist "$options" "${auth[@]}"
+# Xcode adds a provisioning profile during export. The installer runs as root,
+# so a restrictive umask would leave this file unreadable to the app's users.
+(umask 022
+ xcodebuild -exportArchive -archivePath "$archive" -exportPath "$export_path" \
+   -exportOptionsPlist "$options" "${auth[@]}")
 if [[ "$platform" == mac && "$flavour" == appstore ]]; then
   packages=("$export_path"/*.pkg)
   [[ ${#packages[@]} == 1 && -f "${packages[0]}" ]] || { echo 'Expected one exported Mac package' >&2; exit 1; }

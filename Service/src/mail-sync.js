@@ -14,7 +14,7 @@ export async function mailSenderPolicy(deps, account, request) {
   if (request.sender === link.email.toLowerCase()) return fail(400, "Cannot block this account's own address.");
   const mailbox = deps.mailboxes.get(link.sub);
   await mailbox.ensure({ sub: link.sub, email: link.email, account });
-  return mailbox.senderPolicy({ ...request, key: await senderKey(request.sender) });
+  return mailbox.senderPolicy({ ...request, key: await senderKey(request.sender, request.scope) });
 }
 
 const fail = (status, message) => ({ status, body: { error: { code: status, message } } });
