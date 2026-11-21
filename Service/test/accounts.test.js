@@ -2,6 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { setup, device, pushToken, TOKEN_KEY, DAY } from "./helpers.js";
 import { createVault, sha256Hex } from "../src/crypto.js";
+import { runJob } from "../src/job.js";
 
 test("health, unknown routes, signed-out calls", async () => {
   const s = setup();
@@ -287,4 +288,81 @@ test("an account holds a handful of device rows, not thousands (audit run-1)", a
   assert.equal(await s.count("devices"), 25);
   // One of its own again is fine.
   assert.equal((await s.call("PUT", "/v1/devices/dev-00002", { session, body: { platform: "ipad", pushEnv: "production", bundle: "app.banana.Banana" } })).status, 204);
+});
+
+// A Google account's authority over a Banana account ends when it is disconnected, unless it is
+// the account's only identity (which must stay able to come back and delete).
+async function twoIdentities() {
+  const s = setup();
+  s.google.person("c1", "sub-1", "ann@example.com");
+  s.google.person("c2", "sub-2", "ann@work.example");
+  const ann = (await s.signIn("c1", device("phone-0001"))).json;
+  await s.signIn("c2", device("phone-0001"), ann.session);
+  return { s, ann };
+}
+
+test("a disconnected Google account cannot sign in or delete while another identity remains", async () => {
+  const { s, ann } = await twoIdentities();
+  assert.equal((await s.call("DELETE", "/v1/google", { body: { email: "ann@work.example" }, session: ann.session })).status, 204);
+  s.google.person("c3", "sub-2", "ann@work.example", "refresh-sub-2-new");
+  const again = await s.signIn("c3", device("laptop-0001"));
+  assert.deepEqual([again.status, again.json.error], [403, "disconnected"]);
+  s.google.identity("t-work", "sub-2", "ann@work.example");
+  assert.equal((await s.call("POST", "/v1/google/identity", { body: { idToken: "t-work", device: device("laptop-0001") } })).status, 403);
+  assert.equal(await s.count("sessions"), 1);
+  assert.equal(await s.count("devices"), 1);
+  s.google.person("c4", "sub-2", "ann@work.example", "refresh-sub-2-del");
+  const gone = await s.call("DELETE", "/v1/account", { body: { code: "c4" } });
+  assert.deepEqual([gone.status, gone.json.error], [403, "disconnected"]);
+  assert.equal(await s.count("accounts"), 1);
+  // A signed-in device adds it back.
+  s.google.person("c5", "sub-2", "ann@work.example", "refresh-sub-2-back");
+  assert.equal((await s.signIn("c5", device("phone-0001"), ann.session)).status, 200);
+  assert.equal((await s.db.first("SELECT status FROM google_links WHERE sub = 'sub-2'")).status, "ok");
+});
+
+test("disconnecting a Google account ends the sessions it proved; sessions another identity proved stay", async () => {
+  const { s, ann } = await twoIdentities();
+  s.google.person("c3", "sub-2", "ann@work.example");
+  const work = (await s.signIn("c3", device("laptop-0001"))).json;
+  assert.equal((await s.call("GET", "/v1/account", { session: work.session })).status, 200);
+  assert.equal((await s.call("DELETE", "/v1/google", { body: { email: "ann@work.example" }, session: ann.session })).status, 204);
+  assert.equal((await s.call("GET", "/v1/account", { session: work.session })).status, 401);
+  assert.equal((await s.call("GET", "/v1/account", { session: ann.session })).status, 200);
+});
+
+test("a session with no recorded identity ends when one of several identities is disconnected", async () => {
+  const { s, ann } = await twoIdentities();
+  await s.db.run("UPDATE sessions SET google_sub = NULL");
+  assert.equal((await s.call("DELETE", "/v1/google", { body: { email: "ann@work.example" }, session: ann.session })).status, 204);
+  assert.equal((await s.call("GET", "/v1/account", { session: ann.session })).status, 401);
+});
+
+test("Google refusing one identity ends the sessions it proved, not the others", async () => {
+  const { s, ann } = await twoIdentities();
+  s.google.person("c3", "sub-2", "ann@work.example");
+  const work = (await s.signIn("c3", device("laptop-0001"))).json;
+  s.google.refused.add("refresh-sub-2");
+  s.advance(2 * DAY);
+  await runJob(s.deps);
+  assert.equal((await s.db.first("SELECT status FROM google_links WHERE sub = 'sub-2'")).status, "refused");
+  assert.equal((await s.call("GET", "/v1/account", { session: work.session })).status, 401);
+  assert.equal((await s.call("GET", "/v1/account", { session: ann.session })).status, 200);
+});
+
+test("disconnecting a Google account forgets its Mail grant; signing in again does not bring Mail back", async () => {
+  const s = setup();
+  const scopes = "openid email https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/gmail.modify";
+  s.google.person("c1", "sub-1", "ann@example.com", "refresh-sub-1", { scopes });
+  const ann = (await s.signIn("c1", device("phone-0001"))).json;
+  await s.db.run("INSERT INTO feature_access VALUES (?,?,1,NULL,?)", ann.account.id, "email", s.now());
+  s.google.person("m1", "sub-1", "ann@example.com", "mail-refresh", { scopes });
+  assert.equal((await s.call("POST", "/v1/google/mail", { session: ann.session, body: { email: "ann@example.com", code: "m1" } })).status, 200);
+  assert.equal((await s.db.first("SELECT status FROM mail_grants")).status, "ok");
+  assert.equal((await s.call("DELETE", "/v1/google", { body: { email: "ann@example.com" }, session: ann.session })).status, 204);
+  assert.deepEqual(await s.db.first("SELECT status, refresh_token FROM mail_grants"), { status: "unlinked", refresh_token: null });
+  s.google.person("c2", "sub-1", "ann@example.com", "refresh-sub-1-new", { scopes });
+  const back = (await s.signIn("c2", device("phone-0001"))).json;
+  assert.equal(back.account.google[0].capabilities.mailRead, false);
+  assert.deepEqual(await s.db.first("SELECT status, refresh_token FROM mail_grants"), { status: "unlinked", refresh_token: null });
 });

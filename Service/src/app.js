@@ -267,10 +267,21 @@ export function createApp(deps) {
     return signInAs(c, { ...who, refreshToken: null, scopes: "" }, device, current);
   });
 
+  /**
+   * Another Google account of the same Banana account that may still sign in. While there is one,
+   * a disconnected Google account has no authority over the account: it cannot sign in, keep a
+   * session or delete. Alone, it keeps all three, so the account is never stranded.
+   */
+  const otherIdentity = async (link) => Boolean(await db.first(
+    "SELECT 1 AS x FROM google_links WHERE account_id = ? AND sub <> ? AND status <> 'unlinked' LIMIT 1", link.account_id, link.sub));
+  const disconnected = async (link) => link?.status === "unlinked" && await otherIdentity(link);
+
   /** Signs in as, or links, the Google account `google` ({sub, email, refreshToken|null, scopes}). */
   async function signInAs(c, google, device, current) {
     const existing = await db.first("SELECT sub, account_id, refresh_token, scopes, status FROM google_links WHERE sub = ?", google.sub);
     if (current && existing && existing.account_id !== current) return c.json({ error: "other_account" }, 409);
+    // A disconnected Google account comes back only through a device already signed in.
+    if (!current && await disconnected(existing)) return c.json({ error: "disconnected" }, 403);
 
     const t = now();
     const account = current ?? existing?.account_id ?? newId(random);
@@ -316,8 +327,8 @@ export function createApp(deps) {
     let session;
     if (!current) {
       session = newSessionToken(random);
-      statements.push({ sql: "INSERT INTO sessions (token_hash, account_id, created_at, last_used_at) VALUES (?, ?, ?, ?)",
-        params: [await sha256Hex(session), account, t, t] });
+      statements.push({ sql: "INSERT INTO sessions (token_hash, account_id, created_at, last_used_at, google_sub) VALUES (?, ?, ?, ?, ?)",
+        params: [await sha256Hex(session), account, t, t, google.sub] });
     }
     statements.push(audit(deps, account, "link"));
     await db.batch(statements);
@@ -480,9 +491,10 @@ export function createApp(deps) {
     if (typeof code !== "string" || !code || code.length > 2048) return c.json({ error: "google_sign_in_required" }, 401);
     const { google, answer } = await exchange(c, code);
     if (answer) return answer;
-    const owner = await db.first("SELECT account_id FROM google_links WHERE sub = ?", google.sub);
+    const owner = await db.first("SELECT sub, account_id, status FROM google_links WHERE sub = ?", google.sub);
     if (google.refreshToken) defer(deps.google.revoke(google.refreshToken).catch(() => {}));
     if (!owner) return c.json({ error: "no_account" }, 404);
+    if (await disconnected(owner)) return c.json({ error: "disconnected" }, 403);
     const current = await sessionAccount(c);
     if (current && current !== owner.account_id) return c.json({ error: "other_account" }, 409);
     const account = owner.account_id;
@@ -558,9 +570,14 @@ export function createApp(deps) {
     await forget(deps, vault, link);
     await wipeMailbox(deps, link.sub);
     await forgetContacts(deps, account, link.sub);
-    // The sub and email stay (status 'unlinked'), so this Google account can sign in to the same
-    // account again, and delete it.
+    // The sub and email stay (status 'unlinked'). Alone, this Google account can still sign in to
+    // the account and delete it. With another Google account left, it can do neither, and the
+    // sessions it proved end (as do sessions from before identities were recorded).
+    const others = await otherIdentity(link);
     await db.batch([
+      ...(others ? [{ sql: "DELETE FROM sessions WHERE account_id = ? AND kind = 'person' AND (google_sub = ? OR google_sub IS NULL)", params: [account, link.sub] }] : []),
+      // Mail consent goes with the Google account; only the Mail consent action brings it back.
+      { sql: "UPDATE mail_grants SET refresh_token = NULL, status = 'unlinked', updated_at = ? WHERE google_sub = ?", params: [now(), link.sub] },
       { sql: "DELETE FROM watches WHERE google_sub = ?", params: [link.sub] },
       ...forgetUnwatched(link.sub),
       { sql: "UPDATE google_links SET status = 'unlinked', refresh_token = NULL, updated_at = ? WHERE sub = ?", params: [now(), link.sub] },

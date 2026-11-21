@@ -32,7 +32,13 @@ service later, so everything here is built to carry it.
   alone never deletes. Deleting stops every calendar watch, revokes every Google token at
   Google, and deletes every row about the account, usage included.
 - **Disconnecting** a Google account in Banana keeps its `sub` and email (status `unlinked`, no
-  token, no watches), so it can sign in to the same account again and delete it.
+  token, no watches, no Mail grant). When it was the account's only Google account, it can sign
+  in to the same account again and delete it, so the account is never stranded. When another
+  Google account is still linked, the disconnected one has no authority left: it cannot sign in
+  or delete, and the sessions it proved end. A signed-in device can add it back.
+- **A session records the Google account that proved it** (`sessions.google_sub`). Disconnecting
+  that Google account, or Google refusing it, ends those sessions while the account's other
+  sessions carry on. Mail comes back only through the Mail consent action.
 
 ## What the service holds
 
