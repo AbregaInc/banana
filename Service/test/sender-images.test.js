@@ -219,15 +219,42 @@ test("a person's own profile photo is public, shared with every user, ahead of G
   const sam = await owner(s, "b", "sub-sam", "sam@plan.example");
   w.routes.set("https://lh3.googleusercontent.com/a/profile?sz=128", w.image(png(128, 128, "profile")));
   s.google.contactBook.other = [{
-    emailAddresses: [{ value: "omar@gmail.com" }],
-    photos: [{ url: "https://lh3.googleusercontent.com/a/default", default: true, metadata: { source: { type: "PROFILE" } } },
-             { url: "https://lh3.googleusercontent.com/a/profile", metadata: { source: { type: "PROFILE" } } }],
+    emailAddresses: [{ value: "omar@gmail.com", metadata: { source: { type: "PROFILE", id: "p-omar" } } }],
+    photos: [{ url: "https://lh3.googleusercontent.com/a/default", default: true, metadata: { source: { type: "PROFILE", id: "p-omar" } } },
+             { url: "https://lh3.googleusercontent.com/a/profile", metadata: { source: { type: "PROFILE", id: "p-omar" } } }],
   }];
   const a = (await ask(s, noor, ["omar@gmail.com"])).json.senders[0].image;
   assert.equal(a, await sha256Hex(png(128, 128, "profile")));
   const b = (await ask(s, sam, ["omar@gmail.com"])).json.senders[0].image;
   assert.equal(b, a);
   assert.deepEqual(s.google.contactCalls.map((c) => c.kind).sort(), ["connections", "other"]);
+});
+
+test("a profile photo on an address the user added to that contact is his alone: it sets nobody else's picture", async () => {
+  const { s, w } = world();
+  const noor = await owner(s, "a", "sub-noor", "noor@plan.example", CONTACTS);
+  const sam = await owner(s, "b", "sub-sam", "sam@plan.example");
+  const gHash = await sha256Hex("ceo@gmail.com");
+  w.routes.set(`https://gravatar.com/avatar/${gHash}?d=404&s=128`, w.image(png(128, 128, "gravatar")));
+  w.routes.set("https://lh3.googleusercontent.com/a/mine?sz=128", w.image(png(128, 128, "mine")));
+  // Noor's contact is a Google profile (her own second account, say) with its own address, to
+  // which she added someone else's address by hand. A profile of another id proves nothing either.
+  s.google.contactBook.connections = [{
+    emailAddresses: [{ value: "noor.other@gmail.com", metadata: { source: { type: "PROFILE", id: "p-noor" } } },
+                     { value: "ceo@gmail.com", metadata: { source: { type: "CONTACT", id: "c1" } } },
+                     { value: "cfo@gmail.com", metadata: { source: { type: "PROFILE", id: "p-someone-else" } } }],
+    photos: [{ url: "https://lh3.googleusercontent.com/a/mine", metadata: { primary: true, source: { type: "PROFILE", id: "p-noor" } } }],
+  }];
+  const mineId = await sha256Hex(png(128, 128, "mine"));
+  assert.equal((await ask(s, noor, ["ceo@gmail.com"])).json.senders[0].image, mineId, "she still sees the photo she paired");
+  assert.equal((await ask(s, sam, ["ceo@gmail.com"])).json.senders[0].image, await sha256Hex(png(128, 128, "gravatar")));
+  assert.notEqual((await ask(s, sam, ["cfo@gmail.com"])).json.senders[0].image, mineId);
+  assert.equal(await s.count("sender_images", "key = ?", `p:${gHash}`), 0, "nothing shared under an address Google did not tie to the profile");
+  assert.equal(await s.count("sender_images", "key = ?", `p:${await sha256Hex("cfo@gmail.com")}`), 0);
+  assert.equal((await imageOf(s, sam, mineId)).status, 404);
+  // The profile's own address is public, as before.
+  assert.equal((await ask(s, noor, ["noor.other@gmail.com"])).json.senders[0].image, mineId);
+  assert.equal((await ask(s, sam, ["noor.other@gmail.com"])).json.senders[0].image, mineId);
 });
 
 test("contact photos are read only with the contacts grant, and go with Mail access and the account", async () => {
@@ -290,7 +317,7 @@ test("the service fetches public https names only, and Google photos only from G
     { url: "https://lh3.googleusercontent.com/p", metadata: { source: { type: "PROFILE" } } },
     { url: "https://lh3.googleusercontent.com/c", metadata: { primary: true, source: { type: "CONTACT" } } },
     { url: "https://lh3.googleusercontent.com/d", default: true, metadata: { source: { type: "CONTACT" } } },
-  ] }), [["contact", "https://lh3.googleusercontent.com/c"], ["profile", "https://lh3.googleusercontent.com/p"]]);
+  ] }), [["contact", "https://lh3.googleusercontent.com/c", null], ["profile", "https://lh3.googleusercontent.com/p", null]]);
   assert.equal(addressParts("not-an-address"), null);
   assert.equal(addressParts("a@b.c..d"), null);
 });
