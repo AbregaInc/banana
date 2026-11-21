@@ -9,6 +9,7 @@ import { accessToken, addWatch, forgetUnwatched, postpone, stopWatch } from "./c
 import {sweepMailParts} from "./mail-uploads.js";
 import { KEEP as KEEP_DIAGNOSTICS } from "./diagnostics.js";
 import { forgetOldReports } from "./reports.js";
+import { SESSION_PROOF } from "./sessions.js";
 
 const RENEW_BEFORE = 24 * 60 * 60 * 1000;
 const MAIL_WATCH_RENEW_BEFORE = 24 * 60 * 60 * 1000;
@@ -16,6 +17,7 @@ const CHECK_EVERY = 24 * 60 * 60 * 1000;
 const CHECKS_PER_RUN = 200;
 const STALE_DEVICE = 30 * 24 * 60 * 60 * 1000;
 const KEEP_COUNTS = 400 * 24 * 60 * 60 * 1000;
+const KEEP_ENDED_SESSIONS = 30 * 24 * 60 * 60 * 1000;
 const MOST_RENEWALS_PER_RUN = 200;   // Google calls a minute from the job; the rest wait a minute
 
 /** @param {import("./app.js").Deps} deps */
@@ -55,6 +57,12 @@ export async function runJob(deps) {
       }
     }
   }
+  // Sessions that ended (their Google account was disconnected or refused) or that lost their
+  // proof go a month on: until then their apps are told to prove themselves again.
+  await deps.db.run(
+    `DELETE FROM sessions WHERE kind = 'person' AND (ended_at < ? OR (COALESCE(proven_at, created_at) < ?
+       AND NOT EXISTS (SELECT 1 FROM google_links g WHERE g.sub = sessions.google_sub AND g.account_id = sessions.account_id AND g.refresh_token IS NOT NULL)))`,
+    t - KEEP_ENDED_SESSIONS, t - SESSION_PROOF - KEEP_ENDED_SESSIONS);
   // Once a day per working link: does Google still say yes?
   result.checked = 0;
   const stale = await deps.db.all(

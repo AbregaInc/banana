@@ -18,6 +18,7 @@ import { rows as usageRows } from "./usage.js";
 import { MOST_PER_DAY, reportRows } from "./diagnostics.js";
 import { reportRoutes } from "./reports.js";
 import { GoogleRefused } from "./google.js";
+import { SESSION_PROOF } from "./sessions.js";
 import { constantTimeEqual, createVault, newId, newSecret, newSessionToken, sha256Hex, uuid } from "./crypto.js";
 import { audit, forget, forgetUnwatched, reconcile, WATCH_TTL_SECONDS } from "./calendar.js";
 import { clearAlert, syncCalendar } from "./events.js";
@@ -94,7 +95,10 @@ export function parseDevice(input, id = input?.id) {
   // What the device can take pushes about (src/device-features.js); undefined from older builds.
   const capabilities = parseCapabilities(input.capabilities);
   if (capabilities === null) return null;
-  return { id, platform: input.platform, push: push && push.toLowerCase(), pushEnv: input.pushEnv, bundle: input.bundle, providerProtocol, capabilities };
+  // This install's secret (migration 0034); undefined from older builds.
+  const secret = input.secret ?? null;
+  if (secret !== null && (typeof secret !== "string" || !/^[A-Za-z0-9_-]{32,128}$/.test(secret))) return null;
+  return { id, platform: input.platform, push: push && push.toLowerCase(), pushEnv: input.pushEnv, bundle: input.bundle, providerProtocol, capabilities, secret };
 }
 
 export { pushTo } from "./push.js";
@@ -148,23 +152,41 @@ export function createApp(deps) {
     try { return JSON.parse(text); } catch { return BAD; }
   }
 
-  /** The account of the bearer session, or null. */
-  async function sessionAccount(c) {
+  /**
+   * The bearer session: {account, hash}; {reprove: true} when it ended or its proof is too old
+   * (the account is there, the app signs in again by itself); null when there is none.
+   */
+  async function sessionState(c) {
     const match = /^Bearer ([A-Za-z0-9_-]{20,200})$/.exec(c.req.header("authorization") ?? "");
     if (!match) return null;
     const hash = await sha256Hex(match[1]);
     // Person sessions only: a guest's (the booking pages' cookie) never reaches the API.
-    const row = await db.first("SELECT account_id, last_used_at FROM sessions WHERE token_hash = ? AND kind = 'person'", hash);
+    const row = await db.first(
+      `SELECT s.account_id, s.created_at, s.last_used_at, s.proven_at, s.ended_at,
+         EXISTS (SELECT 1 FROM google_links g WHERE g.sub = s.google_sub AND g.account_id = s.account_id AND g.refresh_token IS NOT NULL) AS checked
+       FROM sessions s WHERE s.token_hash = ? AND s.kind = 'person'`, hash);
     if (!row) return null;
     const t = now();
+    // Google is asked daily about a link the service holds a token for; about any other, the app's
+    // fresh proof every SESSION_PROOF is what says Google still says yes.
+    if (row.ended_at != null || (!Number(row.checked) && t - Number(row.proven_at ?? row.created_at) > SESSION_PROOF)) return { reprove: true };
     if (t - Number(row.last_used_at) >= DAY) await db.run("UPDATE sessions SET last_used_at = ? WHERE token_hash = ?", t, hash);
-    return row.account_id;
+    return { account: row.account_id, hash };
+  }
+
+  /** The account of the bearer session, or null. */
+  async function sessionAccount(c) {
+    const state = await sessionState(c);
+    if (!state?.account) return null;
+    c.set("sessionHash", state.hash);
+    return state.account;
   }
 
   const signedIn = async (c, next) => {
-    const account = await sessionAccount(c);
-    if (!account) return c.json({ error: "signed_out" }, 401);
-    c.set("account", account);
+    const state = await sessionState(c);
+    if (!state?.account) return c.json({ error: "signed_out", ...(state?.reprove ? { reprove: true } : {}) }, 401);
+    c.set("account", state.account);
+    c.set("sessionHash", state.hash);
     await next();
   };
 
@@ -178,17 +200,21 @@ export function createApp(deps) {
   /** An account holds at most MOST_DEVICES rows (a person's own devices are a handful). */
   const roomForDevice = async (account) => Number((await db.first("SELECT COUNT(*) AS n FROM devices WHERE account_id = ?", account)).n) < MOST_DEVICES;
 
-  function deviceStatements(device, account) {
+  /** The SHA-256 of the install's secret, or null when the device sent none (older builds). */
+  const deviceSecretHash = async (device) => (device.secret ? await sha256Hex(`device-secret:${device.secret}`) : null);
+
+  function deviceStatements(device, account, secretHash = null) {
     const t = now();
     const out = [{
-      sql: `INSERT INTO devices (id, account_id, platform, push_token, push_env, bundle, updated_at, provider_protocol, capabilities) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      sql: `INSERT INTO devices (id, account_id, platform, push_token, push_env, bundle, updated_at, provider_protocol, capabilities, secret_hash) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT (id) DO UPDATE SET account_id = excluded.account_id, platform = excluded.platform,
+              secret_hash = COALESCE(excluded.secret_hash, devices.secret_hash),
               push_token = excluded.push_token, push_env = excluded.push_env, bundle = excluded.bundle, updated_at = excluded.updated_at, provider_protocol = excluded.provider_protocol,
               capabilities = excluded.capabilities,
               seeded_types = CASE WHEN devices.account_id = excluded.account_id THEN devices.seeded_types END,
               seeded_at = CASE WHEN devices.account_id = excluded.account_id THEN devices.seeded_at END,
               flipped_at = CASE WHEN devices.account_id = excluded.account_id THEN devices.flipped_at END`,
-      params: [device.id, account, device.platform, device.push, device.pushEnv, device.bundle, t, device.providerProtocol, capabilitiesColumn(device.capabilities)],
+      params: [device.id, account, device.platform, device.push, device.pushEnv, device.bundle, t, device.providerProtocol, capabilitiesColumn(device.capabilities), secretHash],
     }];
     // A push token reaches one device: an older row holding it (a reinstall) lets go of it.
     if (device.push) out.push({ sql: "UPDATE devices SET push_token = NULL WHERE push_token = ? AND id <> ?", params: [device.push, device.id] });
@@ -318,17 +344,30 @@ export function createApp(deps) {
     }
     // Connected again: calendars waiting for a retry are tried at the next job run.
     if (existing) statements.push({ sql: "UPDATE watches SET retry_at = NULL, failures = 0 WHERE google_sub = ?", params: [google.sub] });
-    // The device: a row another account holds moves to this one (the same device, signed in as
-    // someone else), on the record; a new row only while the account has room.
-    const owner = await deviceOwner(device.id);
+    // The device: a row another account holds moves to this one (the same install, signed in as
+    // someone else) only with the install's secret, on the record; a new row only while the
+    // account has room.
+    const row = await db.first("SELECT account_id, secret_hash FROM devices WHERE id = ?", device.id);
+    const owner = row?.account_id ?? null;
+    const secretHash = await deviceSecretHash(device);
+    if (owner && owner !== account && row.secret_hash && !(secretHash && constantTimeEqual(row.secret_hash, secretHash))) {
+      return c.json({ error: "device_taken" }, 409);
+    }
     if (owner && owner !== account) statements.push(audit(deps, account, "device_moved"));
     if (!owner && !(await roomForDevice(account))) return c.json({ error: "too_many_devices" }, 409);
-    statements.push(...deviceStatements(device, account));
+    statements.push(...deviceStatements(device, account, secretHash));
     let session;
     if (!current) {
       session = newSessionToken(random);
-      statements.push({ sql: "INSERT INTO sessions (token_hash, account_id, created_at, last_used_at, google_sub) VALUES (?, ?, ?, ?, ?)",
-        params: [await sha256Hex(session), account, t, t, google.sub] });
+      statements.push({ sql: "INSERT INTO sessions (token_hash, account_id, created_at, last_used_at, google_sub, proven_at) VALUES (?, ?, ?, ?, ?, ?)",
+        params: [await sha256Hex(session), account, t, t, google.sub, t] });
+    } else if (c.get("sessionHash")) {
+      // Signed in already: the Google account that stands behind the session, proven again,
+      // renews its proof; a session from before identities were recorded takes this one. Linking
+      // another Google account leaves the session as it is.
+      statements.push({ sql: `UPDATE sessions SET proven_at = CASE WHEN google_sub IS NULL OR google_sub = ? THEN ? ELSE proven_at END,
+                                google_sub = COALESCE(google_sub, ?) WHERE token_hash = ? AND kind = 'person'`,
+        params: [google.sub, t, google.sub, c.get("sessionHash")] });
     }
     statements.push(audit(deps, account, "link"));
     await db.batch(statements);
@@ -535,7 +574,7 @@ export function createApp(deps) {
     const owner = await deviceOwner(device.id);
     if (owner && owner !== c.get("account")) return c.json({ error: "other_account" }, 409);
     if (!owner && !(await roomForDevice(c.get("account")))) return c.json({ error: "too_many_devices" }, 409);
-    await db.batch(deviceStatements(device, c.get("account")));
+    await db.batch(deviceStatements(device, c.get("account"), await deviceSecretHash(device)));
     return c.body(null, 204);
   });
 
@@ -575,7 +614,7 @@ export function createApp(deps) {
     // sessions it proved end (as do sessions from before identities were recorded).
     const others = await otherIdentity(link);
     await db.batch([
-      ...(others ? [{ sql: "DELETE FROM sessions WHERE account_id = ? AND kind = 'person' AND (google_sub = ? OR google_sub IS NULL)", params: [account, link.sub] }] : []),
+      ...(others ? [{ sql: "UPDATE sessions SET ended_at = ? WHERE account_id = ? AND kind = 'person' AND ended_at IS NULL AND (google_sub = ? OR google_sub IS NULL)", params: [now(), account, link.sub] }] : []),
       // Mail consent goes with the Google account; only the Mail consent action brings it back.
       { sql: "UPDATE mail_grants SET refresh_token = NULL, status = 'unlinked', updated_at = ? WHERE google_sub = ?", params: [now(), link.sub] },
       { sql: "DELETE FROM watches WHERE google_sub = ?", params: [link.sub] },

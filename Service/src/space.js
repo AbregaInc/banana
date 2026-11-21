@@ -273,7 +273,8 @@ export function sync(port, { device, platform, since = 0, changes = [], now, spa
     if (head !== startHead) setMeta(port, "head", head);
     if (webRevisions) setMeta(port, "web-revisions", JSON.stringify(webRevisions));
     if (hlc !== startHlc) setMeta(port, "hlc", hlc);
-    if (trashed && space) setMeta(port, "space", space);
+    // The space's own id: the trash needs it, for removed blobs and for unnamed ones (written once).
+    if (space && (trashed || meta(port, "space") === null)) setMeta(port, "space", space);
 
     // A cursor past the head means the space was started over (a wipe): read it from the start.
     const from = Number.isInteger(since) && since >= 0 && since <= head ? since : 0;
@@ -456,6 +457,19 @@ export function collectUnnamed(port, now, limit = 200) {
     const oldest = port.exec(`SELECT MIN(at) AS at FROM blobs b WHERE ${UNNAMED}`)[0]?.at;
     return { trashed, next: oldest == null ? null : Math.max(Number(oldest) + UNNAMED_GRACE, due.length === limit ? now : 0) };
   });
+}
+
+/**
+ * When the oldest bytes no record names come due, or null; looked at most once a day (the alarm
+ * arms itself on a sync without waiting for an upload, so a space that only syncs still clears).
+ */
+export function unnamedDue(port, now) {
+  ready(port);
+  const looked = Number(meta(port, "unnamed-looked") ?? 0);
+  if (now - looked < DAY) return null;
+  setMeta(port, "unnamed-looked", String(now));
+  const oldest = port.exec(`SELECT MIN(at) AS at FROM blobs b WHERE ${UNNAMED}`)[0]?.at;
+  return oldest == null ? null : Math.max(Number(oldest) + UNNAMED_GRACE, now);
 }
 
 /**

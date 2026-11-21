@@ -695,3 +695,13 @@ test("usage: blobs by type and month, unnamed bytes, record and history sizes", 
   assert.ok(u.records["podcast.listen"].chars > 0 && u.history["podcast.listen"].chars > 0);
   assert.deepEqual(u.trash, { waiting: 0, moved: 0 });
 });
+
+test("a space that only syncs still finds its unnamed bytes: looked at once a day, and it learns its own id", () => {
+  const p = port();
+  space.recordBlob(p, sha(7), 7, NOW, "podcast.listen");   // from before uploads named the space
+  assert.equal(space.unnamedDue(p, NOW + 1), NOW + space.UNNAMED_GRACE);
+  assert.equal(space.unnamedDue(p, NOW + 2), null, "once a day");
+  assert.deepEqual(space.collectUnnamed(p, NOW + space.UNNAMED_GRACE), { trashed: 0, next: null }, "no id yet: nothing moves");
+  syncAs(p, [], { space: "sp_acc", now: NOW + space.UNNAMED_GRACE });
+  assert.equal(space.collectUnnamed(p, NOW + space.UNNAMED_GRACE).trashed, 1);
+});

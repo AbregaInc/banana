@@ -58,8 +58,9 @@ export async function markRefused(deps, link) {
     statements.push({ sql: "DELETE FROM sessions WHERE account_id = ?", params: [link.account_id] },
                     audit(deps, link.account_id, "signed_out"));
   } else {
-    // Other links still work: only the sessions this Google account proved end.
-    statements.push({ sql: "DELETE FROM sessions WHERE account_id = ? AND kind = 'person' AND google_sub = ?", params: [link.account_id, link.sub] });
+    // Other links still work: only the sessions this Google account proved end, and their apps
+    // prove themselves again with another.
+    statements.push({ sql: "UPDATE sessions SET ended_at = ? WHERE account_id = ? AND kind = 'person' AND google_sub = ? AND ended_at IS NULL", params: [deps.now(), link.account_id, link.sub] });
   }
   await deps.db.batch(statements);
 }

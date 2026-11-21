@@ -21,6 +21,10 @@ export class Space extends DurableObject {
   async sync(request) {
     const result = space.sync(this.port, request);
     if (result.trashed) await this.arm();
+    else if ((await this.ctx.storage.getAlarm()) === null) {
+      const due = space.unnamedDue(this.port, Date.now());
+      if (due !== null) await this.ctx.storage.setAlarm(due);
+    }
     return result;
   }
   async recordBlob(sha, size, at, type, spaceId) {

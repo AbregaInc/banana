@@ -366,3 +366,85 @@ test("disconnecting a Google account forgets its Mail grant; signing in again do
   assert.equal(back.account.google[0].capabilities.mailRead, false);
   assert.deepEqual(await s.db.first("SELECT status, refresh_token FROM mail_grants"), { status: "unlinked", refresh_token: null });
 });
+
+test("an ended session tells the app to prove itself again; a deleted account just says signed out", async () => {
+  const { s, ann } = await twoIdentities();
+  await s.db.run("UPDATE sessions SET google_sub = 'sub-2'");
+  assert.equal((await s.call("DELETE", "/v1/google", { body: { email: "ann@work.example" }, session: ann.session })).status, 204);
+  const ended = await s.call("GET", "/v1/account", { session: ann.session });
+  assert.deepEqual([ended.status, ended.json], [401, { error: "signed_out", reprove: true }]);
+  // The app proves itself again with the Google account still linked: a new session, same account.
+  s.google.identity("t-ann", "sub-1", "ann@example.com");
+  const again = await s.call("POST", "/v1/google/identity", { body: { idToken: "t-ann", device: device("phone-0001") } });
+  assert.equal(again.status, 200);
+  assert.equal(again.json.account.id, ann.account.id);
+  assert.equal((await s.call("GET", "/v1/account", { session: again.json.session })).status, 200);
+  // Deleting the account: no proving again, the account is gone.
+  s.google.person("del", "sub-1", "ann@example.com", "refresh-del");
+  assert.equal((await s.call("DELETE", "/v1/account", { body: { code: "del" } })).status, 204);
+  const gone = await s.call("GET", "/v1/account", { session: again.json.session });
+  assert.deepEqual([gone.status, gone.json], [401, { error: "signed_out" }]);
+});
+
+test("a session proven by a Google account the service holds no token for needs a fresh proof every 30 days", async () => {
+  const s = setup();
+  s.google.identity("t-ann", "sub-1", "ann@example.com");
+  const ann = (await s.call("POST", "/v1/google/identity", { body: { idToken: "t-ann", device: device("phone-0001") } })).json;
+  s.advance(29 * DAY);
+  assert.equal((await s.call("GET", "/v1/account", { session: ann.session })).status, 200);
+  // Proven again with the same Google account while signed in: 30 more days.
+  assert.equal((await s.call("POST", "/v1/google/identity", { body: { idToken: "t-ann", device: device("phone-0001") }, session: ann.session })).status, 200);
+  s.advance(29 * DAY);
+  assert.equal((await s.call("GET", "/v1/account", { session: ann.session })).status, 200);
+  s.advance(2 * DAY);
+  const late = await s.call("GET", "/v1/account", { session: ann.session });
+  assert.deepEqual([late.status, late.json.reprove], [401, true]);
+  // Ended or expired sessions are kept a month for that answer, then go.
+  s.advance(31 * DAY);
+  await runJob(s.deps);
+  assert.equal(await s.count("sessions"), 0);
+});
+
+test("a session proven by a Google account the service holds a token for is checked by the daily job, not by age", async () => {
+  const s = setup();
+  s.google.person("c1", "sub-1", "ann@example.com");
+  const ann = (await s.signIn("c1", device("phone-0001"))).json;
+  s.advance(90 * DAY);
+  assert.equal((await s.call("GET", "/v1/account", { session: ann.session })).status, 200);
+});
+
+test("a device row moves to another account only with its install's secret", async () => {
+  const s = setup();
+  const SECRET = "s".repeat(43), OTHER = "o".repeat(43);
+  s.google.person("ann", "sub-ann", "ann@example.com");
+  s.google.person("bob", "sub-bob", "bob@example.com");
+  s.google.person("bob2", "sub-bob", "bob@example.com", "refresh-bob-2");
+  s.google.person("bob3", "sub-bob", "bob@example.com", "refresh-bob-3");
+  const ann = (await s.signIn("ann", device("phone-0001", { secret: SECRET }))).json;
+  // Someone who knows only the id (or a wrong secret) can't take the row.
+  for (const [code, dev] of [["bob", device("phone-0001")], ["bob2", device("phone-0001", { secret: OTHER })]]) {
+    const taken = await s.signIn(code, dev);
+    assert.deepEqual([taken.status, taken.json.error], [409, "device_taken"]);
+  }
+  assert.equal((await s.db.first("SELECT account_id FROM devices WHERE id = 'phone-0001'")).account_id, ann.account.id);
+  assert.equal(await s.count("sessions"), 1, "no session for the refused sign-in");
+  // The install itself, signed in as someone else, keeps its row.
+  const bob = await s.signIn("bob3", device("phone-0001", { secret: SECRET }));
+  assert.equal(bob.status, 200);
+  assert.equal((await s.db.first("SELECT account_id FROM devices WHERE id = 'phone-0001'")).account_id, bob.json.account.id);
+  // Only the hash is kept.
+  assert.equal(JSON.stringify(await s.db.all("SELECT * FROM devices")).includes(SECRET), false);
+});
+
+test("a device row from before secrets moves as before, and its owner's next registration gives it one", async () => {
+  const s = setup();
+  s.google.person("ann", "sub-ann", "ann@example.com");
+  s.google.person("bob", "sub-bob", "bob@example.com");
+  const ann = (await s.signIn("ann", device("phone-0001"))).json;
+  assert.equal((await s.db.first("SELECT secret_hash FROM devices")).secret_hash, null);
+  assert.equal((await s.call("PUT", "/v1/devices/phone-0001", { body: device("phone-0001", { secret: "s".repeat(43) }), session: ann.session })).status, 204);
+  assert.notEqual((await s.db.first("SELECT secret_hash FROM devices")).secret_hash, null);
+  assert.equal((await s.signIn("bob", device("phone-0001"))).status, 409);
+  // A bad secret is a bad device.
+  assert.equal((await s.call("PUT", "/v1/devices/phone-0001", { body: device("phone-0001", { secret: "short" }), session: ann.session })).status, 400);
+});

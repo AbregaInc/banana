@@ -38,7 +38,19 @@ service later, so everything here is built to carry it.
   or delete, and the sessions it proved end. A signed-in device can add it back.
 - **A session records the Google account that proved it** (`sessions.google_sub`). Disconnecting
   that Google account, or Google refusing it, ends those sessions while the account's other
-  sessions carry on. Mail comes back only through the Mail consent action.
+  sessions carry on. An ended session answers `401 {"error":"signed_out","reprove":true}` (a
+  deleted account answers without `reprove`): the app signs in again at once, by itself, with a
+  Google account still linked. Nothing to do for the person. Mail comes back only through the
+  Mail consent action.
+- **Google is asked about every session.** About a link the service holds a token for, by the
+  daily check. About a link it holds none for (a sign-in by identity token only), the session
+  needs a fresh proof every 30 days: past that it answers `reprove`, and the app proves itself
+  again with a new identity token. Signed in, proving the session's own Google account again
+  renews it. A session Google keeps saying yes to never ends.
+- **A device row belongs to its install.** The app makes a secret once per install and keeps it
+  in this device's keychain (never synced); the service keeps its hash. A sign-in moves a row to
+  another account only with that secret (`409 device_taken` otherwise: the app takes a new device
+  id). Rows from before carry none and move as before until their device next registers.
 
 ## What the service holds
 
