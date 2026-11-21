@@ -450,7 +450,9 @@ Owner, 19–20 Oct:
   in `sessions`, POSTs checked for `Origin`): the form is prefilled, with "not you?". Nothing is shown
   from their history.
 - **Verified** (Google, or a 6-digit emailed code asked only when they want their history): upcoming
-  times, change from the list, Forget me, and automatic free/busy.
+  times, change from the list and Forget me. Automatic free/busy needs Google: the code proves the
+  address, and what came from Google (a grant, a Banana person's busy times) opens only to the
+  browser that proved that Google account, by its `sub`. An address can change hands; a `sub` cannot.
 - **Google connect.**
   - Scope `calendar.events.freebusy`: primary calendar only, and the page says "your Google calendar".
   - `access_type=offline&prompt=consent` only when no grant is held. Otherwise identity alone.

@@ -546,11 +546,56 @@ test("a guest who is a Banana person: their own calendars count", async () => {
   await s.call("PUT", "/v1/booking", { session: ann.json.session, body: { handle: "ann-lee" } });
   s.advance(11 * MIN);
   await bookingQuarter(s.work);
+  // An emailed code proves the address, not the Google account: her calendar stays closed.
   await s.page("POST", "/b/code", { body: { email: "ann@example.com" } });
   const code = /^(\d{6})/.exec(s.mails("code").at(-1).subject)[1];
   await s.page("POST", "/b/code/verify", { body: { email: "ann@example.com", code } });
+  assert.equal((await s.page("GET", "/noor/meeting/slots")).json.busy, null);
+  // Proving the Google account opens it.
+  await connectAs(s, "sub-ann", "ann@example.com");
   const slots = await s.page("GET", "/noor/meeting/slots");
   assert.deepEqual(slots.json.busy, [{ start: "2026-10-16T14:00:00.000Z", end: "2026-10-16T15:00:00.000Z" }]);
+});
+
+/** The browser proves a Google account on the booking pages (identity only: no free/busy grant). */
+async function connectAs(s, sub, email, options = {}) {
+  const code = `connect-${sub}-${Math.random()}`;
+  s.google.person(code, sub, email, options.refreshToken ?? null, { scopes: options.scopes ?? "openid email", ...(options.extra ?? {}) });
+  const go = new URL((await s.page("GET", "/b/connect?return=/noor/meeting", options.cookies ? { cookies: options.cookies } : undefined)).headers.get("location"));
+  return s.page("GET", `/b/connect/callback?code=${encodeURIComponent(code)}&state=${encodeURIComponent(go.searchParams.get("state"))}`, options.cookies ? { cookies: options.cookies } : undefined);
+}
+
+test("an address that changed hands: the new holder's emailed code or Google account opens nothing of the former holder's", async () => {
+  const s = await hostReady();
+  // Ann, a Banana person, and her busy time.
+  s.google.person("code-ann", "sub-ann", "ann@example.com", "refresh-ann");
+  const ann = await s.signIn("code-ann", device("mac-00000001", { platform: "mac" }));
+  await s.call("PUT", "/v1/booking", { session: ann.json.session, body: { handle: "ann-lee", timeZone: "America/New_York" } });
+  await s.settle();
+  s.google.events.set("primary-refresh-ann", [{ id: "ann1", status: "confirmed", start: { dateTime: "2026-10-16T14:00:00Z" }, end: { dateTime: "2026-10-16T15:00:00Z" } }]);
+  await s.call("PUT", "/v1/booking", { session: ann.json.session, body: { handle: "ann-lee" } });
+  s.advance(11 * MIN);
+  await bookingQuarter(s.work);
+  // Ann connected once as a guest, with a free/busy grant of her own.
+  const annJar = new Map();
+  await connectAs(s, "sub-ann", "ann@example.com", { cookies: annJar, refreshToken: "refresh-guest-ann",
+    scopes: "openid email https://www.googleapis.com/auth/calendar.events.freebusy" });
+  assert.equal(await s.count("guest_grants", "sub = 'sub-ann' AND status = 'ok'"), 1);
+  s.google.freeBusyAnswer = [{ start: "2026-10-17T14:00:00Z", end: "2026-10-17T15:00:00Z" }];
+  // Someone else now receives mail at the address.
+  const jar = new Map();
+  await s.page("POST", "/b/code", { body: { email: "ann@example.com" }, cookies: jar });
+  const code = /^(\d{6})/.exec(s.mails("code").at(-1).subject)[1];
+  assert.equal((await s.page("POST", "/b/code/verify", { body: { email: "ann@example.com", code }, cookies: jar })).status, 204);
+  const refreshes = s.google.calls.refresh.length;
+  assert.equal((await s.page("GET", "/noor/meeting/slots", { cookies: jar })).json.busy, null);
+  assert.equal(s.google.calls.refresh.length, refreshes, "Ann's grant was not spent");
+  // And proves a different Google account at the same address: still nothing of Ann's.
+  await connectAs(s, "sub-other", "ann@example.com", { cookies: jar });
+  assert.equal((await s.page("GET", "/noor/meeting/slots", { cookies: jar })).json.busy, null);
+  assert.equal(s.google.calls.refresh.length, refreshes);
+  assert.equal((await s.db.first("SELECT person_account_id FROM guests WHERE email = 'ann@example.com'")).person_account_id, null,
+    "a Google account that is no Banana person clears the link");
 });
 
 test("the host's link refused or too narrow: not taking bookings, the host told once a day", async () => {
@@ -1123,9 +1168,7 @@ test("a guest's link to a Banana person ends with that person's Google account: 
   await s.call("PUT", "/v1/booking", { session: ann.json.session, body: { handle: "ann-lee" } });
   s.advance(11 * MIN);
   await bookingQuarter(s.work);
-  await s.page("POST", "/b/code", { body: { email: "ann@example.com" } });
-  const code = /^(\d{6})/.exec(s.mails("code").at(-1).subject)[1];
-  await s.page("POST", "/b/code/verify", { body: { email: "ann@example.com", code } });
+  await connectAs(s, "sub-ann", "ann@example.com");
   assert.equal((await s.page("GET", "/noor/meeting/slots")).json.busy.length, 1);
   assert.equal((await s.call("DELETE", "/v1/google", { session: ann.json.session, body: { email: "ann@example.com" } })).status, 204);
   assert.equal((await s.page("GET", "/noor/meeting/slots")).json.busy, null, "the former person's calendar is nobody else's business");
