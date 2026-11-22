@@ -54,7 +54,8 @@ final class VerifyTimelineUITest: XCTestCase {
 
     func testWellnessPhotoConfirmationAndCachedCoachRender() {
         let app = XCUIApplication()
-        app.launchArguments = ["--wellness", "--ui-audit", "-onboardingCompleted", "YES"]
+        app.launchArguments = ["--ui-preview", "--tab", "nutrition", "--wellness", "--store-capture",
+                               "--ui-audit", "--disable-icloud", "-onboardingCompleted", "YES", "-finishSetupDismissed", "YES"]
         app.withoutSpaceSync()
         app.launch()
 
@@ -66,17 +67,21 @@ final class VerifyTimelineUITest: XCTestCase {
         XCTAssertTrue(app.plus("wellness.add").exists)
         keepScreenshot(of: app, named: "Wellness - nutrition overview")
 
-        // The segments carry their counts now ("Taken · 2").
+        let title = app.descendants(matching: .any)["body.title"].firstMatch
+        XCTAssertTrue(title.waitForExistence(timeout: 5))
+        title.tap()
         app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Taken")).firstMatch.tap()
         XCTAssertTrue(app.staticTexts["Vitamin D"].waitForExistence(timeout: 1))
         XCTAssertTrue(app.staticTexts["Magnesium"].exists)
         app.plus("wellness.addSupplement").tap()
-        // From the top bar's + it is picked from the list.
-        if app.buttons["add.supplement"].waitForExistence(timeout: 2) { app.buttons["add.supplement"].tap() }
+        let supplement = app.buttons["add.supplement"]
+        XCTAssertTrue(supplement.waitForExistence(timeout: 5))
+        supplement.tap()
         XCTAssertTrue(app.buttons["wellness.searchSupplementCatalog"].waitForExistence(timeout: 3))
         app.buttons["Cancel"].tap()
         XCTAssertTrue(app.staticTexts["Vitamin D"].waitForExistence(timeout: 3))
         keepScreenshot(of: app, named: "Wellness - supplement schedule")
+        title.tap()
         app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Food")).firstMatch.tap()
 
         app.plus("wellness.add").tap()
@@ -1146,7 +1151,8 @@ final class VerifyTimelineUITest: XCTestCase {
     func testMobileWeekIsSchedulableAndCreatesAFullEvent() {
         let app = XCUIApplication()
         app.launchArguments = [
-            "--week", "--ui-audit",
+            "--ui-preview", "--plan", "--tab", "plan", "--ui-audit", "--disable-icloud",
+            "-finishSetupDismissed", "YES",
             "-planMode", "week",
             "-mobileWeekLayout", "calendar",
             "-onboardingCompleted", "YES"
@@ -1160,20 +1166,13 @@ final class VerifyTimelineUITest: XCTestCase {
         XCTAssertTrue(app.buttons["Previous week"].exists)
         XCTAssertTrue(app.buttons["Next week"].exists)
 
-        // "…" ends with Settings on every page; a reminder is added from + and nowhere else.
+        // The shell's More menu offers Routines. Creation belongs to the Add list.
         app.buttons["mobile.week.more"].tap()
-        XCTAssertTrue(app.buttons["page.more.settings"].waitForExistence(timeout: 2))
+        let routines = app.buttons["page.more.routines"]
+        XCTAssertTrue(routines.waitForExistence(timeout: 4))
         XCTAssertFalse(app.buttons["New task"].exists)
-        // Dismiss the "more" menu without risking a landing on the day grid: any tap on the
-        // grid's background — not just its empty cells, the whole column — opens a new-event
-        // sheet via its tap-to-create gesture (`mobileDayColumn`'s `SpatialTapGesture`), so a
-        // coordinate picked to graze "empty space" is only as safe as the grid's own layout
-        // (gutter width, header height) happens to be that day. The already-selected "Week"
-        // segment is a real, always-present control outside the grid entirely — tapping it
-        // dismisses the menu like any outside tap, and re-selecting the current segment is a
-        // no-op, so it cannot itself change what's on screen.
-        XCTAssertTrue(app.dismissNativeMenu(item: app.buttons["page.more.settings"]),
-                      "More must be dismissed before opening a different menu")
+        XCTAssertTrue(app.dismissNativeMenu(item: routines),
+                      "More must be dismissed before opening the Add list")
         XCTAssertTrue(app.plus("mobile.week.newEvent").isHittable)
 
         app.plus("mobile.week.newEvent").tap()
@@ -1209,13 +1208,11 @@ final class VerifyTimelineUITest: XCTestCase {
         // Alarm authorization may or may not survive an app-identity migration. Either way the
         // returning user lands IN the app — a missing grant is an inline card on Today now, not a
         // screen in front of the product. Replaying unrelated permission pages is still wrong.
-        let planner = app.buttons["Plan"]
-        let deadline = Date().addingTimeInterval(8)
-        while Date() < deadline, !planner.exists {
-            usleep(100_000)
-        }
-        XCTAssertTrue(planner.exists,
-                      "Returning user did not reach the app; a permission is still gating it")
+        XCTAssertTrue(waitUntil(timeout: 8) {
+            app.buttons["shell.switcher"].exists
+                || app.descendants(matching: .any)["shell.rail"].exists
+                || app.buttons["shell.railToggle"].exists
+        }, "Returning user did not reach the app; a permission is still gating it")
         XCTAssertFalse(app.buttons["Get started"].exists)
         keepScreenshot(of: app, named: "Returning user - no repeated onboarding")
     }
