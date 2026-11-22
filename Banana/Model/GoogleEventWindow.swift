@@ -306,9 +306,12 @@ enum GoogleEventWindowBuilder {
     }
 
     /// Looser than a meeting: keeps all-day located events (a hotel stay is exactly the anchor
-    /// for the days you're not flying). Only things with a place count.
+    /// for the days you're not flying). Only things with a place count, and only ones the owner
+    /// made or answered: an invitation nobody answered was written by someone else, and it would
+    /// move the owner's public booking hours to another zone (WhereaboutsBuilder).
     static func qualifiesForTravel(_ event: Normalized) -> Bool {
         event.calendarBlocksTime && !event.isAppWritten && !event.isSharedAvailability && !event.isDeclined && event.location != nil
+            && event.myResponse != "needsAction"
     }
 
     /// Explicitly shared support text. Labels preserve equality only within this report;

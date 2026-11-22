@@ -28,6 +28,7 @@ private func googleEvent(
     transparency: String? = nil,
     status: String? = "confirmed",
     declined: Bool = false,
+    myResponse: String? = nil,
     attendees: Int = 0,
     ownedBy variant: String? = nil,
     itemID: String? = nil,
@@ -55,6 +56,7 @@ private func googleEvent(
     }
     var people: [[String: Any]] = (0..<attendees).map { ["email": "guest\($0)@example.com"] }
     if declined { people.append(["email": "me@example.com", "self": true, "responseStatus": "declined"]) }
+    if let myResponse { people.append(["email": "me@example.com", "self": true, "responseStatus": myResponse]) }
     if !people.isEmpty { json["attendees"] = people }
     if let variant {
         json["extendedProperties"] = ["private": [
@@ -432,6 +434,16 @@ final class GoogleEventWindowTests: XCTestCase {
         XCTAssertEqual(result.travelEvents.count, 1)
         XCTAssertTrue(result.travelEvents[0].isAllDay)
         XCTAssertEqual(result.travelEvents[0].location, "London")
+    }
+
+    /// An invitation the owner hasn't answered is someone else's words: it is not where the owner
+    /// is, so it never moves the booking hours. Answered, it counts.
+    func testAnUnansweredInvitationIsNotTravel() {
+        let flight = { (reply: String) in googleEvent(id: "f-\(reply)", summary: "Flight to Tokyo (NH 7)", location: "SFO",
+                                                    myResponse: reply, attendees: 1) }
+        XCTAssertTrue(window([("me@example.com", flight("needsAction"))]).travelEvents.isEmpty)
+        XCTAssertEqual(window([("me@example.com", flight("accepted"))]).travelEvents.count, 1)
+        XCTAssertEqual(window([("me@example.com", flight("tentative"))]).travelEvents.count, 1)
     }
 
     /// The same invite reaching two of your accounts is one meeting, and the richer copy wins.
