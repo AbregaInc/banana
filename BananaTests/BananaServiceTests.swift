@@ -103,6 +103,8 @@ final class BananaServiceTests: XCTestCase {
         XCTAssertTrue(BananaService.reproves(in: Data(#"{"error":"signed_out","reprove":true}"#.utf8)))
         XCTAssertFalse(BananaService.reproves(in: Data(#"{"error":"signed_out"}"#.utf8)))
         XCTAssertFalse(BananaService.reproves(in: Data()))
+        XCTAssertTrue(BananaService.wasDeleted(in: Data(#"{"error":"signed_out","deleted":true}"#.utf8)))
+        XCTAssertFalse(BananaService.wasDeleted(in: Data(#"{"error":"signed_out","reprove":true}"#.utf8)))
     }
 
     func testAWatchIsConfirmedWithGooglesAnswerInMilliseconds() throws {

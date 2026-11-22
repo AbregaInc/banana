@@ -169,7 +169,7 @@ export function createApp(deps) {
       `SELECT s.account_id, s.created_at, s.last_used_at, s.proven_at, s.ended_at,
          EXISTS (SELECT 1 FROM google_links g WHERE g.sub = s.google_sub AND g.account_id = s.account_id AND g.refresh_token IS NOT NULL) AS checked
        FROM sessions s WHERE s.token_hash = ? AND s.kind = 'person'`, hash);
-    if (!row) return null;
+    if (!row) return (await db.first("SELECT 1 AS x FROM deleted_sessions WHERE token_hash = ?", hash)) ? { deleted: true } : null;
     const t = now();
     // Google is asked daily about a link the service holds a token for; about any other, the app's
     // fresh proof every SESSION_PROOF is what says Google still says yes.
@@ -188,7 +188,7 @@ export function createApp(deps) {
 
   const signedIn = async (c, next) => {
     const state = await sessionState(c);
-    if (!state?.account) return c.json({ error: "signed_out", ...(state?.reprove ? { reprove: true } : {}) }, 401);
+    if (!state?.account) return c.json({ error: "signed_out", ...(state?.reprove ? { reprove: true } : {}), ...(state?.deleted ? { deleted: true } : {}) }, 401);
     c.set("account", state.account);
     c.set("sessionHash", state.hash);
     await next();
@@ -549,7 +549,10 @@ export function createApp(deps) {
     for (const link of links) await forget(deps, vault, link);
     // Authority first (sessions, memberships), then the data (the space empties at once and takes
     // no more writes; its blobs follow to the trash), then the rows.
-    const spaces = await wipeSpaces(deps, account, { first: [{ sql: "DELETE FROM sessions WHERE account_id = ?", params: [account] }] });
+    const spaces = await wipeSpaces(deps, account, { first: [
+      { sql: "INSERT OR IGNORE INTO deleted_sessions (token_hash, deleted_at) SELECT token_hash, ? FROM sessions WHERE account_id = ? AND kind = 'person'", params: [now(), account] },
+      { sql: "DELETE FROM sessions WHERE account_id = ?", params: [account] },
+    ] });
     const mailboxes=await db.all('SELECT google_sub FROM mail_mailboxes WHERE account_id=?',account);
     for(const sub of new Set([...links.map(l=>l.sub),...mailboxes.map(m=>m.google_sub)])){await stopMailWatch(deps,sub);await wipeMailbox(deps,sub);}
     const uploads=await db.all('SELECT DISTINCT operation_id FROM mail_uploads WHERE account_id=?',account);

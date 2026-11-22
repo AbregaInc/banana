@@ -383,7 +383,12 @@ test("an ended session tells the app to prove itself again; a deleted account ju
   s.google.person("del", "sub-1", "ann@example.com", "refresh-del");
   assert.equal((await s.call("DELETE", "/v1/account", { body: { code: "del" } })).status, 204);
   const gone = await s.call("GET", "/v1/account", { session: again.json.session });
-  assert.deepEqual([gone.status, gone.json], [401, { error: "signed_out" }]);
+  assert.deepEqual([gone.status, gone.json], [401, { error: "signed_out", deleted: true }], "told it was deleted: no signing back in by itself");
+  // A month on, only a plain signed out; an unknown token never says more.
+  s.advance(31 * DAY);
+  await runJob(s.deps);
+  assert.deepEqual((await s.call("GET", "/v1/account", { session: again.json.session })).json, { error: "signed_out" });
+  assert.deepEqual((await s.call("GET", "/v1/account", { session: "x".repeat(43) })).json, { error: "signed_out" });
 });
 
 test("a session proven by a Google account the service holds no token for needs a fresh proof every 30 days", async () => {

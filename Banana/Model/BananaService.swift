@@ -455,6 +455,12 @@ enum BananaService {
         ((try? JSONSerialization.jsonObject(with: data) as? [String: Any])?["reprove"] as? Bool) == true
     }
 
+    /// A signed-out answer for an account that was deleted (`{"error":"signed_out","deleted":true}`):
+    /// don't sign in again by yourself.
+    static func wasDeleted(in data: Data) -> Bool {
+        ((try? JSONSerialization.jsonObject(with: data) as? [String: Any])?["deleted"] as? Bool) == true
+    }
+
     /// The service's word for what went wrong (`{"error": "other_account"}`), if it said one.
     static func failure(in data: Data) -> String? {
         (try? JSONSerialization.jsonObject(with: data) as? [String: Any])?["error"] as? String

@@ -65,6 +65,7 @@ export async function runJob(deps) {
     `DELETE FROM sessions WHERE kind = 'person' AND (ended_at < ? OR (COALESCE(proven_at, created_at) < ?
        AND NOT EXISTS (SELECT 1 FROM google_links g WHERE g.sub = sessions.google_sub AND g.account_id = sessions.account_id AND g.refresh_token IS NOT NULL)))`,
     t - KEEP_ENDED_SESSIONS, t - SESSION_PROOF - KEEP_ENDED_SESSIONS);
+  await deps.db.run("DELETE FROM deleted_sessions WHERE deleted_at < ?", t - KEEP_ENDED_SESSIONS);
   // Once a day per working link: does Google still say yes?
   result.checked = 0;
   const stale = await deps.db.all(

@@ -159,6 +159,10 @@ final class BananaAccount: ObservableObject {
     /// sign-in sheet, no button, every account (The author, 18 Oct 2026: "Why is it not just auto
     /// triggered?"). Only the accounts not yet in the Banana account are sent.
     private func signInByIdentity() async {
+        // The account was deleted, here or on another device: nothing signs in again by itself,
+        // which would start a new account and upload this device's data to it. A sign-in the
+        // person makes (googleSignedIn) does.
+        if !isSignedIn && deletedHere { return }
         let google = GoogleCalendarService.shared
         let linked = Set((account?.google ?? []).map { $0.email.lowercased() })
         let missing = BananaService.accountsToLink(connected: google.accounts.map(\.id), linked: linked, signedIn: isSignedIn)
@@ -215,6 +219,7 @@ final class BananaAccount: ObservableObject {
         guard case let (data, status)? = await send(.signIn(code: code, device: device())) else { return }
         switch status {
         case 200:
+            deletedHere = false   // signed in on purpose: joining by itself is fine again
             guard let answer = try? JSONDecoder().decode(BananaService.SignInAnswer.self, from: data) else { return }
             if let new = answer.session { keep(session: new) }
             account = answer.account
@@ -286,6 +291,7 @@ final class BananaAccount: ObservableObject {
         switch status {
         case 204:
             let deleted = account?.id
+            deletedHere = true
             signedOut()
             // The data platform's mirror of the deleted account goes with it.
             if let deleted { SpaceSyncLaunch.forget(account: deleted) }
@@ -707,6 +713,13 @@ final class BananaAccount: ObservableObject {
 
     private var provingAgain = false
 
+    /// The account was deleted (here, or on another device that told this one through the service):
+    /// until the person signs in on purpose, the app doesn't sign in again by itself.
+    private var deletedHere: Bool {
+        get { defaults.bool(forKey: "bananaAccountDeleted") }
+        set { defaults.set(newValue, forKey: "bananaAccountDeleted") }
+    }
+
     /// The session ended while the account stays (its Google account was disconnected or refused,
     /// or its proof is old): sign in again at once, by identity, with a Google account still
     /// linked. Nothing on screen unless none can.
@@ -753,7 +766,11 @@ final class BananaAccount: ObservableObject {
             let (data, response) = try await URLSession.shared.data(for: request)
             let status = (response as? HTTPURLResponse)?.statusCode ?? 0
             if status == 401, let requestSession, session == requestSession, BananaService.failure(in: data) == "signed_out" {
-                if BananaService.reproves(in: data) { proveAgain(after: requestSession) } else { signedOut() }
+                if BananaService.reproves(in: data) { proveAgain(after: requestSession) }
+                else {
+                    if BananaService.wasDeleted(in: data) { deletedHere = true }
+                    signedOut()
+                }
             }
             if status >= 400 {
                 PlaybackDiagnostics.shared.log("☁️ account", "\(request.httpMethod ?? "") \(request.url?.path ?? "") answered \(status) \(BananaService.failureForLog(in: data) ?? "")")

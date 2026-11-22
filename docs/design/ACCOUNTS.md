@@ -47,6 +47,11 @@ service later, so everything here is built to carry it.
   needs a fresh proof every 30 days: past that it answers `reprove`, and the app proves itself
   again with a new identity token. Signed in, proving the session's own Google account again
   renews it. A session Google keeps saying yes to never ends.
+- **After deleting the account nothing signs back in by itself.** The deleted account's session
+  hashes are kept a month (`deleted_sessions`), so another device still holding one is told
+  `{"error":"signed_out","deleted":true}`. A device that deleted the account, or was told, stops
+  joining by identity on its own until the person signs in with Google on purpose: otherwise the
+  connected Google accounts would start a new account at once and upload the device's data to it.
 - **A device row belongs to its install.** The app makes a secret once per install and keeps it
   in this device's keychain (never synced); the service keeps its hash. A sign-in moves a row to
   another account only with that secret (`409 device_taken` otherwise: the app takes a new device
