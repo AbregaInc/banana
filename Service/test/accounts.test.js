@@ -458,3 +458,19 @@ test("a JSON body without Content-Length is read only up to its limit", async ()
   assert.equal(r.status, 413);
   assert.ok(pulled < 10, `read ${pulled} chunks of 64 KiB for a 256 KiB limit`);
 });
+
+test("deleting the account ends its sessions before its data goes, and a write arriving after is refused", async () => {
+  const s = setup();
+  s.google.person("c1", "sub-1", "ann@example.com");
+  const ann = (await s.signIn("c1", device("phone-0001"))).json;
+  const change = (id) => ({ device: "phone-0001", changes: [{ type: "core.smartSettings", id, set: { v: { a: 1 } }, clocks: { v: `${s.now()}.0000.phone-0001` } }] });
+  assert.equal((await s.call("POST", "/v2/sync", { session: ann.session, body: change("smart-settings") })).status, 200);
+  // A write that passed its session check just before the delete reaches a space being wiped.
+  const stub = s.deps.spaces.get(`sp_${ann.account.id}`);
+  s.google.person("del", "sub-1", "ann@example.com", "refresh-del");
+  assert.equal((await s.call("DELETE", "/v1/account", { body: { code: "del" } })).status, 204);
+  await assert.rejects(stub.sync({ account: ann.account.id, device: "phone-0001", platform: "iphone", since: 0, changes: [], now: s.now() }), (e) => e.name === "SpaceClosed");
+  await s.settle();
+  assert.deepEqual(await stub.recordBlob("a".repeat(64), 1, s.now(), "podcast.listen"), { ok: false, reason: "closed" });
+  assert.equal((await s.call("POST", "/v2/sync", { session: ann.session, body: change("x") })).status, 401);
+});

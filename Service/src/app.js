@@ -544,8 +544,9 @@ export function createApp(deps) {
     const links = await db.all("SELECT * FROM google_links WHERE account_id = ?", account);
     for (const link of links) await stopMailWatch(deps, link.sub);   // while the grants still work
     for (const link of links) await forget(deps, vault, link);
-    // The data first (the space empties at once; its blobs follow to the trash), then the rows.
-    const spaces = await wipeSpaces(deps, account);
+    // Authority first (sessions, memberships), then the data (the space empties at once and takes
+    // no more writes; its blobs follow to the trash), then the rows.
+    const spaces = await wipeSpaces(deps, account, { first: [{ sql: "DELETE FROM sessions WHERE account_id = ?", params: [account] }] });
     const mailboxes=await db.all('SELECT google_sub FROM mail_mailboxes WHERE account_id=?',account);
     for(const sub of new Set([...links.map(l=>l.sub),...mailboxes.map(m=>m.google_sub)])){await stopMailWatch(deps,sub);await wipeMailbox(deps,sub);}
     const uploads=await db.all('SELECT DISTINCT operation_id FROM mail_uploads WHERE account_id=?',account);

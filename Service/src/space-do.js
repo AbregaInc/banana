@@ -18,7 +18,11 @@ export class Space extends DurableObject {
     };
   }
 
+  /** Wiped for good (its account deleted): the mark outlives the storage the wipe emptied. */
+  async closed() { return (await this.ctx.storage.get("closed")) != null; }
+
   async sync(request) {
+    if (await this.closed()) throw new space.SpaceClosed();
     const result = space.sync(this.port, request);
     if (result.trashed) await this.arm();
     else if ((await this.ctx.storage.getAlarm()) === null) {
@@ -28,6 +32,7 @@ export class Space extends DurableObject {
     return result;
   }
   async recordBlob(sha, size, at, type, spaceId) {
+    if (await this.closed()) return { ok: false, reason: "closed" };
     const result = space.recordBlob(this.port, sha, size, at, type, spaceId);
     // Bytes wait UNNAMED_GRACE for a record to name them; the alarm looks then.
     if (result.ok && (await this.ctx.storage.getAlarm()) === null) await this.ctx.storage.setAlarm(Number(at) + space.UNNAMED_GRACE);
@@ -68,6 +73,7 @@ export class Space extends DurableObject {
     if (step.wiped) {
       await this.ctx.storage.deleteAll();
       space.reset(this.port);
+      await this.ctx.storage.put("closed", Date.now());
       return;
     }
     // Trash just listed moves at once; else back when the batch or the oldest unnamed bytes are due.

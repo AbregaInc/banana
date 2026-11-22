@@ -326,9 +326,9 @@ test("epoch: the same for the life of a space, new after a wipe", () => {
   assert.match(first.epoch, /^[0-9a-f]{24}$/);
   assert.equal(syncAs(p, [], { since: 1 }).answer.epoch, first.epoch);
   space.wipe(p, { space: "sp_acc", now: NOW });
-  const after = syncAs(p, [], { since: 1 }).answer;
-  assert.notEqual(after.epoch, first.epoch);
-  assert.deepEqual([after.head, after.changes], [0, []]);
+  // A wipe (its account deleted) gives the space a new epoch, and it takes no more syncs.
+  assert.notEqual(rows(p, "SELECT value FROM meta WHERE key = 'epoch'")[0].value, first.epoch);
+  assert.throws(() => syncAs(p, [], { since: 1 }), (e) => e.name === "SpaceClosed");
   assert.notEqual(syncAs(port(), []).answer.epoch, first.epoch, "every space its own");
 });
 
@@ -569,7 +569,7 @@ test("export rows: every record, its history, the blob list and the consents; wi
   space.wipe(p, { space: "sp_acc", now: NOW });
   assert.deepEqual([...space.exportRows(p)], []);
   assert.deepEqual(space.trashList(p, 10), { space: "sp_acc", wiping: NOW, shas: [] });
-  assert.equal(syncAs(p, []).answer.head, 0);
+  assert.throws(() => syncAs(p, []), (e) => e.name === "SpaceClosed");
 });
 
 test("read and list: the service's own reads of T1 records, deleted ones left out, never T2", () => {
@@ -704,4 +704,12 @@ test("a space that only syncs still finds its unnamed bytes: looked at once a da
   assert.deepEqual(space.collectUnnamed(p, NOW + space.UNNAMED_GRACE), { trashed: 0, next: null }, "no id yet: nothing moves");
   syncAs(p, [], { space: "sp_acc", now: NOW + space.UNNAMED_GRACE });
   assert.equal(space.collectUnnamed(p, NOW + space.UNNAMED_GRACE).trashed, 1);
+});
+
+test("a space being wiped takes no sync and no blob; once wiped for good it stays closed", async () => {
+  const p = port();
+  syncAs(p, [listenChange("l1", sha(1), NOW)]);
+  space.wipe(p, { space: "sp_acc", now: NOW });
+  assert.throws(() => syncAs(p, [listenChange("l2", sha(2), NOW)]), (e) => e.name === "SpaceClosed");
+  assert.deepEqual(space.recordBlob(p, sha(3), 3, NOW, "podcast.listen", "sp_acc"), { ok: false, reason: "closed" });
 });

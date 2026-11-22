@@ -48,6 +48,9 @@ const SCHEMA = [
   "CREATE TABLE IF NOT EXISTS trashed (sha TEXT PRIMARY KEY)",
 ];
 
+/** A write to a space that was wiped, or is being wiped: its account is gone. */
+export class SpaceClosed extends Error { constructor() { super("space closed"); this.name = "SpaceClosed"; } }
+
 const prepared = new WeakSet();
 function ready(port) {
   if (prepared.has(port)) return;
@@ -203,6 +206,8 @@ const tooFar = (clock, most) => clock !== null && Number(clock.slice(0, 13)) > m
 export function sync(port, { device, platform, since = 0, changes = [], now, space, pageRecords = PAGE_RECORDS, pageBytes = PAGE_BYTES }) {
   ready(port);
   return port.transaction(() => {
+    // A space being wiped (its account deleted) takes nothing more.
+    if (meta(port, "wiping") !== null) throw new SpaceClosed();
     const consents = consentsOf(port);
     const epoch = epochOf(port);
     const startHead = Number(meta(port, "head") ?? 0);
@@ -321,6 +326,7 @@ export function recordBlob(port, sha, size, at, type, space = null) {
   const entry = CATALOG.get(type);
   if (!SHA.test(sha) || !entry) throw new Error("bad blob");
   return port.transaction(() => {
+    if (meta(port, "wiping") !== null) return { ok: false, reason: "closed" };
     if (entry.tier === "T2" && !consentsOf(port).health) return { ok: false, reason: "consent" };
     // An upload of bytes already here keeps their size and (once a record names them) their date.
     // Bytes no record names yet are dated again: the wait for their record starts over.
