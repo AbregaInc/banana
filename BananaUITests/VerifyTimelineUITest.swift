@@ -1161,7 +1161,8 @@ final class VerifyTimelineUITest: XCTestCase {
         app.launch()
 
         XCTAssertTrue(app.plus("mobile.week.newEvent").waitForExistence(timeout: 8))
-        XCTAssertTrue(app.descendants(matching: .any)["mobile.week.timeGrid"].exists)
+        XCTAssertTrue(app.descendants(matching: .any)["plan.surface.week"].firstMatch.waitForExistence(timeout: 8))
+        XCTAssertNotNil(app.calendarGridViewport(), "Week must have a visible, scrollable calendar")
         XCTAssertTrue(app.buttons["mobile.week.more"].exists)
         XCTAssertTrue(app.buttons["Previous week"].exists)
         XCTAssertTrue(app.buttons["Next week"].exists)

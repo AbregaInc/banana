@@ -1,6 +1,6 @@
 import XCTest
 
-/// Plan is one switch with two positions, Day and Week. What's outstanding — every reminder past
+/// Plan has one period picker with two options, Day and Week. What's outstanding — every reminder past
 /// its time and not done, whenever it was due — is in Day's reminders line, where it can be
 /// ticked. There was a third position, List, which was the only place they were.
 final class PlanModesUITest: XCTestCase {
@@ -14,41 +14,63 @@ final class PlanModesUITest: XCTestCase {
         XCUIDevice.shared.orientation = .portrait
         let app = XCUIApplication()
         // A stored "list" from before: it opens on Day.
-        app.launchArguments = ["--ui-preview", "--tab", "plan", "--modules", "everything", "--plan", "-planMode", "list", "--untimed-reminders", "--outstanding-reminders",
-                               "--disable-icloud", "--no-space-sync", "--ui-audit", "-onboardingCompleted", "YES"] + extra
+        let arguments = ["--ui-preview", "--tab", "plan", "--modules", "everything", "--plan",
+                         "--untimed-reminders", "--outstanding-reminders", "--disable-icloud",
+                         "--no-space-sync", "--ui-audit", "-onboardingCompleted", "YES"] + extra
+        app.launchArguments = arguments + ["-planMode", "list"]
         app.withoutSpaceSync()
         app.launch()
 
-        let day = app.segmentedControls.buttons["Day"]
-        XCTAssertTrue(day.waitForExistence(timeout: 10), app.debugDescription)
-        XCTAssertTrue(day.isSelected, "a stored List opens on Day")
-        XCTAssertTrue(app.segmentedControls.buttons["Week"].exists)
-        XCTAssertFalse(app.segmentedControls.buttons["List"].exists)
+        let picker = app.descendants(matching: .any)["plan.mode"].firstMatch
+        let day = app.descendants(matching: .any)["plan.surface.day"].firstMatch
+        let week = app.descendants(matching: .any)["plan.surface.week"].firstMatch
+        XCTAssertTrue(day.waitForExistence(timeout: 10), "a stored List opens on Day\n\(app.debugDescription)")
+        XCTAssertTrue(picker.exists)
 
-        // Due two days ago and last week: on no part of today, and here all the same.
-        let plumber = app.buttons["Mark Call the plumber done"]
-        XCTAssertTrue(plumber.waitForExistence(timeout: 5), "today's reminders line\n\(app.debugDescription)")
-        XCTAssertTrue(app.buttons["Mark Renew passport done"].exists)
-        XCTAssertTrue(app.buttons["Mark Creatine done"].exists)
-        // The line stops at a few and says how many more; the day's own untimed one is among those.
-        // So is "Take vitamin D", overdue since just after midnight — and it isn't drawn among
-        // the hours as well: what the line holds, the grid doesn't repeat.
-        XCTAssertFalse(app.staticTexts["Take vitamin D"].exists, "an overdue reminder is in the line only")
-        XCTAssertFalse(app.buttons["Mark Water the plants done"].exists)
-        let more = app.buttons["mobile.reminders.more"]
-        XCTAssertTrue(more.exists, app.debugDescription)
-        XCTAssertEqual(more.label, "+2 more")
-        more.tap()
-        XCTAssertTrue(app.buttons["Mark Water the plants done"].waitForExistence(timeout: 3),
-                      "the day's own untimed one, after the overdue")
-        XCTAssertTrue(app.buttons["Mark Take vitamin D done"].exists)
+        // Today's untimed row includes overdue reminders from earlier days.
+        let reminders = app.descendants(matching: .any)["mobile.plan.todo"].firstMatch
+        XCTAssertTrue(reminders.waitForExistence(timeout: 5), "today's reminders row")
+        let plumber = reminders.buttons["Mark Call the plumber done"]
+        XCTAssertTrue(plumber.exists)
+        XCTAssertTrue(reminders.buttons["Mark Renew passport done"].exists)
+        XCTAssertTrue(reminders.buttons["Mark Creatine done"].exists)
+        XCTAssertFalse(app.buttons["mobile.reminders.more"].exists)
+
+        // Scroll the current shell's row to reach the later reminders.
+        let plants = reminders.buttons["Mark Water the plants done"]
+        let window = app.windows.firstMatch
+        func plantsAreVisible() -> Bool {
+            guard let frame = try? plants.snapshot().frame else { return false }
+            return reminders.frame.intersection(window.frame).contains(CGPoint(x: frame.midX, y: frame.midY))
+        }
+        for _ in 0..<8 where !plantsAreVisible() { reminders.swipeLeft() }
+        XCTAssertTrue(plantsAreVisible(), "the day's untimed reminder is reachable")
+        XCTAssertTrue(reminders.buttons["Mark Take vitamin D done"].exists)
         XCTAssertEqual(app.staticTexts.matching(NSPredicate(format: "label == %@", "Take vitamin D")).count, 1,
-                       "once, in the line")
+                       "once, in the reminders row")
 
-        // To Week and back: Day draws again (a Day switched to used to draw nothing).
-        app.segmentedControls.buttons["Week"].tap()
-        XCTAssertTrue(app.segmentedControls.buttons["Week"].isSelected)
-        day.tap()
+        // Relaunch without the argument-domain override so the picker can store a new mode.
+        app.terminate()
+        app.launchArguments = arguments
+        app.launch()
+        XCTAssertTrue(picker.waitForExistence(timeout: 10))
+        if !day.exists {
+            picker.tap()
+            app.buttons["Day"].firstMatch.tap()
+            XCTAssertTrue(day.waitForExistence(timeout: 8))
+        }
+
+        // To Week and back: Day draws again.
+        picker.tap()
+        let weekOption = app.buttons["Week"].firstMatch
+        XCTAssertTrue(weekOption.waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["Day"].firstMatch.exists)
+        XCTAssertFalse(app.buttons["List"].exists)
+        weekOption.tap()
+        XCTAssertTrue(week.waitForExistence(timeout: 8))
+        picker.tap()
+        app.buttons["Day"].firstMatch.tap()
+        XCTAssertTrue(day.waitForExistence(timeout: 8))
         XCTAssertTrue(plumber.waitForExistence(timeout: 5), "Day drew nothing after the switch")
 
         // The forecast is on the day's header, where the List's stripe was the only weather.

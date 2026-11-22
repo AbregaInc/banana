@@ -155,14 +155,16 @@ final class MailTriageUITest: MailUITestCase {
     func testStarFromTheConversationHeader() {
         launch()
         openConversation("receipt")
-        let star = element(MailID.star)
+        let more = app.descendants(matching: .any).matching(NSPredicate(
+            format: "identifier == %@ OR identifier == %@", "mail.pane.more", "mail.reader.more")).firstMatch
+        XCTAssertTrue(more.waitForExistence(timeout: 5))
+        more.tap()
+        let star = menuItem("Star")
         XCTAssertTrue(star.waitForExistence(timeout: 5))
         star.tap()
-        Thread.sleep(forTimeInterval: 0.4)
         snap("00-starred-from-header")
         element(MailID.back).tap()
         show(place: "Starred")
-        Thread.sleep(forTimeInterval: 0.5)
         XCTAssertTrue(row("receipt").waitForExistence(timeout: 3), "starred from the header")
         snap("01-in-starred")
     }

@@ -28,14 +28,21 @@ final class DayBlockHeightUITest: XCTestCase {
             // its adjacent swim is still evicted. Mount both before measuring overlap.
             _ = try revealCalendarButton("Swim,", in: app, referenceLabelPattern: "3\\s*PM")
             let blocker = block(app, "Blocker"), swim = block(app, "Swim")
-            XCTAssertTrue(waitUntil { blocker.exists && swim.exists })
-            XCTAssertTrue(blocker.exists, "no blocker \(zoom)")
-            XCTAssertTrue(swim.exists, "no swim \(zoom)")
+            var previous: (blocker: CGRect, swim: CGRect)?
+            XCTAssertTrue(waitUntil {
+                guard blocker.exists, swim.exists else { return false }
+                let frames = (blocker: blocker.frame, swim: swim.frame)
+                defer { previous = frames }
+                // Capture bounds after the pinch and any scroll needed to mount the two
+                // events have settled. Separate AX queries can otherwise straddle a scroll.
+                return previous?.blocker == frames.blocker && previous?.swim == frames.swim
+            }, "Both event frames must settle \(zoom)")
+            let frames = try XCTUnwrap(previous, "Both events must be visible \(zoom)")
             // Other fixture meetings can put these back-to-back events in different
             // lanes. Require no actual 2-D overlap, rather than comparing Y alone.
-            let overlap = blocker.frame.intersection(swim.frame)
+            let overlap = frames.blocker.intersection(frames.swim)
             XCTAssertTrue(overlap.isNull || overlap.isEmpty || overlap.height <= 1,
-                          "Blocker \(blocker.frame) must not cover Swim \(swim.frame) \(zoom)")
+                          "Blocker \(frames.blocker) must not cover Swim \(frames.swim) \(zoom)")
         }
     }
 }

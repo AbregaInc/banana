@@ -653,7 +653,10 @@ final class ScaleStressUITests: XCTestCase {
                   let value = state[key] as? NSNumber else { return -1 }
             return CGFloat(value.doubleValue)
         }
-        func week() -> String? { app.calendarDaySnapshot(referenceID: "mobile.day.surface.0") }
+        let title = app.staticTexts["mobile.day.title"].firstMatch
+        XCTAssertTrue(title.waitForExistence(timeout: 5))
+        // Scrolling virtualizes the visible cells. The date range identifies the week.
+        func week() -> String? { title.exists ? title.label : nil }
         let original = week()
         XCTAssertNotNil(original)
         // Ordinary swipes still browse the current week's columns before its boundary.
@@ -676,13 +679,18 @@ final class ScaleStressUITests: XCTestCase {
         XCTAssertTrue(waitUntil { abs(number("x") - maximum) < 2 })
         XCTAssertEqual(week(), original, "A short extension springs back into the same week")
         pull(from: 0.85, to: 0.15)
-        XCTAssertTrue(waitUntil { week() != original && abs(number("x")) < 2 })
+        XCTAssertTrue(waitUntil {
+            guard let visibleWeek = week() else { return false }
+            return visibleWeek != original && abs(number("x")) < 2
+        })
         XCTAssertEqual(number("y"), y, accuracy: 3)
         XCTAssertEqual(number("gutterX"), number("x"), accuracy: 1)
         pull(from: 0.15, to: 0.85)
         XCTAssertTrue(waitUntil { week() == original && abs(number("x") - maximum) < 2 })
         XCTAssertEqual(number("y"), y, accuracy: 3)
+        let beforeScroll = number("y")
         viewport.swipeUp()
+        XCTAssertTrue(waitUntil { number("y") > beforeScroll })
         XCTAssertEqual(week(), original, "Vertical scrolling at a week edge never changes weeks")
         capture("native-week-edge-pull")
     }

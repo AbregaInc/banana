@@ -323,32 +323,34 @@ final class MailComposeUITest: MailUITestCase {
             XCTAssertTrue(menuItem(item).waitForExistence(timeout: 3), "\(item) in the paperclip's menu")
         }
         menuItem("Photos").tap()
-        Thread.sleep(forTimeInterval: 3)
+        let cancel = app.buttons["Cancel"].firstMatch
+        XCTAssertTrue(cancel.waitForExistence(timeout: 8), "The photo picker can be dismissed")
         snap("01-photo-picker")
-        let pickerUp = app.navigationBars.firstMatch.exists || app.otherElements["PXGGridLayout-Index:0"].exists
-        note("The photo picker came up: \(pickerUp)")
-        // The picker is the system's: a tap on its first picture, if the test can see one.
-        let firstPhoto = app.images.firstMatch
-        if firstPhoto.waitForExistence(timeout: 5), firstPhoto.isHittable {
+
+        let grid = app.otherElements["PXGGridLayout-Index:0"]
+        let firstPhoto = grid.images.firstMatch
+        if firstPhoto.exists && firstPhoto.isHittable {
             firstPhoto.tap()
             let add = app.buttons["Add"].firstMatch
-            if add.waitForExistence(timeout: 3) { add.tap() }
+            XCTAssertTrue(add.waitForExistence(timeout: 5))
+            add.tap()
             let chip = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", MailID.attachments + ".")).firstMatch
-            let got = chip.waitForExistence(timeout: 10)
-            note("A picture chosen in the photo picker became a chip: \(got)")
+            XCTAssertTrue(chip.waitForExistence(timeout: 10), "A selected picture becomes an attachment")
             snap("02-after-photo")
         } else {
-            note("No picture was reachable in the photo picker from the test; stopped here.")
-            let cancel = app.buttons["Cancel"].firstMatch
-            if cancel.waitForExistence(timeout: 3) { cancel.tap() }
+            cancel.tap()
         }
+
+        XCTAssertTrue(cancel.waitForNonExistence(timeout: 8), "The photo picker must close before reopening the paperclip")
+        XCTAssertTrue(waitUntil(timeout: 5) { attach.isHittable })
         attach.tap()
-        menuItem("Files").tap()
-        Thread.sleep(forTimeInterval: 3)
+        let files = menuItem("Files")
+        XCTAssertTrue(files.waitForExistence(timeout: 5), "The paperclip must reopen after the photo picker")
+        files.tap()
+        XCTAssertTrue(cancel.waitForExistence(timeout: 8), "The document picker can be dismissed")
         snap("03-file-picker")
-        note("The document picker came up: \(app.navigationBars.firstMatch.exists)")
-        let cancel = app.buttons["Cancel"].firstMatch
-        if cancel.waitForExistence(timeout: 3) { cancel.tap() }
+        cancel.tap()
+        XCTAssertTrue(cancel.waitForNonExistence(timeout: 8))
     }
 
     // MARK: Formatting
