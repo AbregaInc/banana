@@ -327,7 +327,7 @@ export function bookPart() {
   function ask(s, det, oneTap, ex) {
     const at = Date.parse(ex.start), when = (x) => K.day(x, zone, loc) + ", " + K.time(x, zone, loc);
     pop('<div class="sh"><header><h2 id="card-t" tabindex="-1">You already have ' + K.esc(ex.title || "a meeting") + " on " + K.esc(when(at)) +
-      '</h2><button type="button" class="x" data-x aria-label="Close">×</button></header><p class="acts">' +
+      '</h2><button type="button" class="x" data-x aria-label="Close">×</button></header><p class="two">' +
       '<button type="button" class="btn" data-mv>Move it to ' + K.esc(when(s)) + '</button><button type="button" class="btn" data-also>Book both</button></p></div>');
     sheet.ask = { s, det, oneTap, ex };
     $("#card-t").focus();
