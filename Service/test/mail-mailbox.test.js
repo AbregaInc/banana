@@ -826,3 +826,17 @@ test("a content pull's budget counts what is stored before reading it: one large
   assert.ok(opened <= 3);
   assert.equal(pull.json.messages.filter((m) => m.message).length, 1, "only one message's bytes were opened into the answer");
 });
+
+test("a content fetch that keeps failing goes behind the rest, and after three tries it is dropped", async () => {
+  const { DatabaseSync } = await import("node:sqlite");
+  const { sqlitePort } = await import("../src/adapters/spaces-sqlite.js");
+  const port = sqlitePort(new DatabaseSync(":memory:"));
+  box.migrate(port);
+  for (const [id, at] of [["bad", 1], ["m2", 2], ["m3", 3]]) port.exec("INSERT INTO fetch (id, prio, at) VALUES (?, 1, ?)", id, at);
+  assert.deepEqual(box.fetchNext(port, 1), ["bad"]);
+  box.fetchFailed(port, "bad", 10);
+  assert.deepEqual(box.fetchNext(port, 3), ["m2", "m3", "bad"], "the others come first now");
+  box.fetchFailed(port, "bad", 11);
+  box.fetchFailed(port, "bad", 12);
+  assert.deepEqual(box.fetchNext(port, 3), ["m2", "m3"]);
+});

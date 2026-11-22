@@ -418,7 +418,15 @@ export function createMailbox({ port, deps, vault, blobs, alarm, destroy }) {
     if (await snoozeStep(who)) return now();
     const fetch = box.fetchNext(port, 4);
     if (fetch.length) {
-      for (const id of fetch) { await content(who, id); box.fetchDone(port, id); }
+      for (const id of fetch) {
+        try { await content(who, id); }
+        catch (error) {
+          if (error instanceof Unauthorized) throw error;
+          box.fetchFailed(port, id, now());   // to the back; a Retry still waits its time
+          throw error;
+        }
+        box.fetchDone(port, id);
+      }
       return now();
     }
     // New mail's content is here: tell the devices (one push for a burst; null once sent).
