@@ -172,7 +172,7 @@ The service reads types from the space, so they work with every device off.
 4. **Limits:**
    - bookings per IP per hour;
    - per handle per day;
-   - one future booking per guest email per type ("You already have a time" with the manage link);
+   - a guest may hold several times with a host; a browser that booked one, or proved the address, is asked "You already have … on …: Move it here / Book both" first;
    - the type's `perDay`.
 5. **The manage page** `/m/<id>.<sig>`.
    - The id is 128 random bits. The signature is HMAC-SHA256 with a key derived from `TOKEN_KEY` (as
@@ -493,8 +493,11 @@ Owner, 19–20 Oct:
 - **Event ids** are 128 bits in lowercase hex (fits `[a-v0-9]`). The client id is only an idempotency
   key, scoped to (email, slot). The manage id is made by the server. On a Google 409, `events.get`
   and carry on.
-- **Rebooking with an email that already has a time:** "We've emailed your existing time", and the
-  link goes only to the email.
+- **Booking again with an email that already has a time:** the page asks "You already have [title] on
+  [day, time]" with **Move it to [new time]** (`POST /m/:ref/move`) or **Book both** (`also: true`),
+  but only for a browser that booked that time or proved the address by code or Google. Anyone else
+  books as usual and learns nothing about the address. Each confirmation email lists the guest's
+  other upcoming times with the host, each with its manage link.
 - **Reminders** are sent from the D1 row when the host's token is refused or Google is down. They are
   skipped only on a definite moved or gone; a time already past at booking is skipped. When the cron
   finds the event moved or cancelled, the guest gets one email.

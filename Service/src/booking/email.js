@@ -62,7 +62,7 @@ ${body}${action}${after ? `<p style="margin:16px 0 0;color:#766f90;font-size:13p
 }
 
 const plain = ({ title, lines, button, after }) =>
-  [title, "", ...lines.map((l) => l.replace(/<[^>]+>/g, "").replace(/&#(\d+);/g, (_, n) => String.fromCharCode(Number(n)))), button ? `\n${button.label}: ${button.url}` : "", after ? `\n${after.replace(/<[^>]+>/g, "")}` : ""]
+  [title, "", ...lines.map((l) => l.replace(/<[^>]+>/g, "").replace(/&#(\d+);/g, (_, n) => String.fromCharCode(Number(n)))), button ? `\n${button.label}: ${button.url}` : "", after ? `\n${after.replace(/<br>/g, "\n").replace(/<a href="([^"]*)">([^<]*)<\/a>/g, "$2: $1").replace(/<[^>]+>/g, "").replace(/&#(\d+);/g, (_, n) => String.fromCharCode(Number(n)))}` : ""]
     .join("\n").trim() + "\n";
 
 /** The place in words, after booking: the Meet link, the number, the address. */
@@ -81,7 +81,7 @@ function placeLine(b) {
 /**
  * One booking email. `b` is the booking row with `hostName`, `hostEmail`, `manageUrl`, `pageUrl`
  * and, for a confirmation, `ics` (the calendar file's text).
- * @param {"confirmed"|"reminder24"|"reminder1"|"moved"|"cancelled"|"taken"|"failed"|"existing"} kind
+ * @param {"confirmed"|"reminder24"|"reminder1"|"moved"|"cancelled"|"taken"|"failed"} kind
  */
 export function bookingEmail(kind, b, { from }) {
   const zone = b.guest_zone || "UTC";
@@ -90,14 +90,13 @@ export function bookingEmail(kind, b, { from }) {
   const change = { label: "Change or cancel", url: b.manageUrl };
   const shapes = {
     confirmed: { subject: `Booked: ${what}, ${when}`, title: "You're booked", lines: [esc(what), esc(when), placeLine(b)], button: change,
-      after: "The invite from Google Calendar is on its way too." },
+      after: "The invite from Google Calendar is on its way too." + othersLine(b.others, zone) },
     reminder24: { subject: `Tomorrow: ${what}`, title: "Tomorrow", lines: [esc(what), esc(when), placeLine(b)], button: change },
     reminder1: { subject: `In an hour: ${what}`, title: "In an hour", lines: [esc(what), esc(when), placeLine(b)], button: change },
     moved: { subject: `Moved: ${what}, ${when}`, title: "Your time moved", lines: [`${esc(b.hostName)} moved it to:`, esc(when), placeLine(b)], button: change },
     cancelled: { subject: `Cancelled: ${what}`, title: "Cancelled", lines: [`${esc(what)}, ${esc(when)}, is off.`], button: b.pageUrl ? { label: "Pick a new time", url: b.pageUrl } : null },
     taken: { subject: `Pick another time: ${what}`, title: "That time just went", lines: [`Someone booked ${esc(when)} a moment before you.`], button: { label: "Pick another time", url: b.pageUrl } },
     failed: { subject: `Not booked: ${what}`, title: "That didn't go through", lines: [`${esc(what)}, ${esc(when)}, couldn't be booked.`], button: { label: "Pick another time", url: b.pageUrl } },
-    existing: { subject: `Your time: ${what}`, title: "You already have a time", lines: [esc(what), esc(when), placeLine(b)], button: change },
   };
   const s = shapes[kind];
   const message = {
@@ -108,6 +107,14 @@ export function bookingEmail(kind, b, { from }) {
     message.attachments = [{ content: base64(b.ics), filename: "invite.ics", type: "text/calendar", disposition: "attachment" }];
   }
   return message;
+}
+
+/** "You also have:" and the guest's other upcoming times with this host, each with its own link. */
+function othersLine(others, zone) {
+  if (!others?.length) return "";
+  const items = others.map(({ row, manageUrl }) =>
+    `<a href="${esc(manageUrl)}">${esc(row.type_title)}, ${esc(whenLine(Number(row.start_at), Number(row.end_at), zone))}</a>`);
+  return `<br><br>You also have:<br>${items.join("<br>")}`;
 }
 
 /** The 6-digit code. */

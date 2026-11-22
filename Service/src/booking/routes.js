@@ -13,7 +13,7 @@ import { typeView } from "./types.js";
 import { zoneOf } from "./whereabouts.js";
 import { cacheAge, cacheable, withFreshNonce } from "./guard.js";
 import {
-  bookingView, cancel, complete, findRetry, icsFor, liveRow, mail, manageRef, move, pushHost, readHost, refusal, reserve, slotsOf, undo,
+  bookingView, cancel, complete, findRetry, icsFor, liveRow, mail, manageRef, move, pushHost, readHost, refusal, reserve, slotsOf, undo, upcomingWith,
 } from "./book.js";
 import { CONNECT_COOKIE, checkCode, endSession, forgetGuest, guestAccount, guestOf, guestView, newCode, rememberProfile, startSession } from "./guests.js";
 import { codeEmail } from "./email.js";
@@ -355,16 +355,17 @@ export function bookingApp(deps, { vault, signer, push }) {
     ]);
     if (Number(byIp?.n) >= 10 || Number(byHost?.n) >= 50) return json(c, { error: "rate" }, 429);
 
+    // A guest who already has a time with this host is asked first (move it here, or book this one
+    // too), but only one who has shown it is them: a browser that proved the email, or the browser
+    // that booked that time. Anyone else who types an address books as anyone does, and the page
+    // says nothing about the address's other times: those go only to the address, in the
+    // confirmation email.
+    if (body.also !== true) {
+      const mine = await ownUpcoming(guest, host, email);
+      if (mine) return json(c, { existing: mine }, 409);
+    }
     const result = await reserve(ctx, host, type, { ...input, guestAccount: null, ipHash });
     if (result.kind === "taken" || result.kind === "full") return json(c, { taken: true, nearest: result.nearest ?? [] }, 409);
-    if (result.kind === "existing") {
-      // The link goes only to the email: whoever typed it may not own it, so it gets one a day.
-      const emailed = emailOn() && (await deps.limit("code", `existing:${email}`))
-        && (await deps.db.run("UPDATE bookings SET existing_mailed_at = ? WHERE id = ? AND (existing_mailed_at IS NULL OR existing_mailed_at < ?)",
-          t, result.row.id, t - DAY)).changes > 0;
-      if (emailed) deps.defer(mail(ctx, "existing", result.row, host));
-      return json(c, { already: true, emailed: emailOn() }, 409);
-    }
     const row = result.row;
     if (result.fresh) {
       // The guest's account only once the time is theirs. Its name and phone change only from a
@@ -381,6 +382,21 @@ export function bookingApp(deps, { vault, signer, push }) {
     else await startSession(deps, c, row.guest_account_id, { profile, verified: false });
     return json(c, { booking: await bookingView(ctx, row) });
   });
+
+  /**
+   * The soonest upcoming time this browser may be told about for `email` with `host`, as
+   * {start, end, title, manage}; null when there is none, or the browser hasn't shown it is the
+   * email's owner (proved it, or booked that time itself).
+   */
+  async function ownUpcoming(guest, host, email) {
+    if (!guest) return null;
+    const proved = Boolean(guest.verifiedAt && guest.guest?.email === email);
+    const times = await upcomingWith(ctx, host.account, email);
+    const shown = times.find(({ row }) => proved || (row.guest_account_id === guest.accountId && guest.profile?.email === email));
+    if (!shown) return null;
+    return { start: new Date(Number(shown.row.start_at)).toISOString(), end: new Date(Number(shown.row.end_at)).toISOString(),
+      title: shown.row.type_title, manage: shown.ref };
+  }
 
   app.post("/b/undo", async (c) => {
     if (!(await deps.limit("book", ipOf(c)))) return json(c, { error: "rate" }, 429);
