@@ -4,6 +4,7 @@
 // address kept. The small facts are a row in D1; the screenshot, the log, a message's HTML and an
 // answer's transcript are objects in R2 under `reports/<id>/<name>`.
 
+import { takeShare } from "./anonymous-shares.js";
 import { CHANNELS, PLATFORMS } from "./usage.js";
 
 /** problem: the Report button; spike: the watchdog or MetricKit; rating: 👍 or 👎 on an answer. */
@@ -29,12 +30,17 @@ export const MOST_BODY = 12 * 1024 * 1024;          // the whole request, base64
 export const MOST_CONTEXT = 32 * 1024;              // the inline facts, as JSON
 export const MOST_NOTE = 4000;
 export const MOST_PER_DAY = 5000;                   // reports a day across everyone
-export const MOST_BYTES_PER_DAY = 2 * 1024 * 1024 * 1024;
+export const MOST_BYTES_PER_DAY = 2 * 1024 * 1024 * 1024;   // R2: the files
+// The database: the row text (facts, note) a day across everyone. Times the 90 days kept: at most
+// 720 MiB of the shared database.
+export const MOST_ROW_TEXT_PER_DAY = 8 * 1024 * 1024;
 export const KEEP = 90 * 24 * 60 * 60 * 1000;
 
 const ID = /^[A-Za-z0-9-]{8,64}$/;
 const SHORT = /^[\x20-\x7E]{1,80}$/;     // printable ASCII: a device model, a numbers key
 const word = (value, list) => (typeof value === "string" && list.includes(value) ? value : null);
+/** Control characters (C0, DEL, C1) and the bidirectional and invisible format marks. */
+const CONTROL = /[\u0000-\u001f\u007f-\u009f\u200b-\u200f\u202a-\u202e\u2066-\u2069\ufeff]/;
 const short = (value) => (typeof value === "string" && SHORT.test(value) ? value : null);
 
 function base64Bytes(text) {
@@ -86,11 +92,12 @@ export function parseReport(body) {
   if (kind !== "spike" && detector) return null;
   const rating = body.rating === undefined || body.rating === null ? null : word(body.rating, ["up", "down"]);
   if ((kind === "rating") !== (rating !== null)) return null;
+  // Printable text only: these are shown to the operator as they are (tools/reports).
   const signature = body.signature === undefined || body.signature === null ? null
-    : (typeof body.signature === "string" && body.signature.length <= 300 ? body.signature : undefined);
+    : (typeof body.signature === "string" && body.signature.length <= 300 && !CONTROL.test(body.signature) ? body.signature : undefined);
   if (signature === undefined) return null;
   const note = body.note === undefined || body.note === null || body.note === "" ? null
-    : (typeof body.note === "string" && body.note.length <= MOST_NOTE ? body.note : undefined);
+    : (typeof body.note === "string" && body.note.length <= MOST_NOTE && !CONTROL.test(body.note.replace(/[\n\t]/g, "")) ? body.note : undefined);
   if (note === undefined) return null;
 
   const numbers = facts(body.numbers);
@@ -136,10 +143,17 @@ export async function keepReport(deps, parsed, now) {
   const { db, blobs } = deps;
   const { row } = parsed;
   if (await db.first("SELECT 1 AS x FROM problem_reports WHERE id = ?", row.id)) return 204;
-  const today = await db.first("SELECT COUNT(*) AS n, COALESCE(SUM(bytes), 0) AS bytes FROM problem_reports WHERE received_at >= ?",
-    now - 24 * 60 * 60 * 1000);
-  const bytes = parsed.blobs.reduce((sum, b) => sum + b.bytes.length, 0) + row.context.length + row.numbers.length + (row.note?.length ?? 0);
-  if (Number(today?.n) + 1 > MOST_PER_DAY || Number(today?.bytes) + bytes > MOST_BYTES_PER_DAY) return 429;
+  const today = await db.first(
+    `SELECT COUNT(*) AS n, COALESCE(SUM(bytes), 0) AS bytes,
+       COALESCE(SUM(LENGTH(CAST(context AS BLOB)) + LENGTH(CAST(numbers AS BLOB)) + COALESCE(LENGTH(CAST(note AS BLOB)), 0)), 0) AS text
+     FROM problem_reports WHERE received_at >= ?`, now - 24 * 60 * 60 * 1000);
+  const encoder = new TextEncoder();
+  const text = encoder.encode(row.context).byteLength + encoder.encode(row.numbers).byteLength + (row.note ? encoder.encode(row.note).byteLength : 0);
+  const bytes = parsed.blobs.reduce((sum, b) => sum + b.bytes.length, 0) + text;
+  if (Number(today?.n) + 1 > MOST_PER_DAY || Number(today?.bytes) + bytes > MOST_BYTES_PER_DAY
+    || Number(today?.text) + text > MOST_ROW_TEXT_PER_DAY) return 429;
+  // One address gets a share of the day, not all of it.
+  if (parsed.address !== undefined && !(await takeShare(deps, "report", parsed.address, 1, bytes))) return 429;
   for (const b of parsed.blobs) {
     // The bytes themselves, not a stream: R2 refuses a stream of unknown length.
     if (!(await blobs.put(blobKey(row.id, b.name), b.bytes, { sha256: await sha256(b.bytes) }))) return 500;
@@ -173,6 +187,6 @@ export function reportRoutes(app, deps, { readJson, TOO_LARGE, BAD, clientIp }) 
     if (body === TOO_LARGE) return c.body(null, 413);
     const parsed = body === BAD ? null : parseReport(body);
     if (!parsed) return c.body(null, 400);
-    return c.body(null, await keepReport(deps, parsed, deps.now()));
+    return c.body(null, await keepReport(deps, { ...parsed, address: clientIp(c) }, deps.now()));
   });
 }

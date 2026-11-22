@@ -20,6 +20,7 @@ import { reportRoutes } from "./reports.js";
 import { GoogleRefused } from "./google.js";
 import { SESSION_PROOF } from "./sessions.js";
 import { readText, TOO_LARGE } from "./body.js";
+import { takeShare } from "./anonymous-shares.js";
 import { constantTimeEqual, createVault, newId, newSecret, newSessionToken, sha256Hex, uuid } from "./crypto.js";
 import { audit, forget, forgetUnwatched, reconcile, WATCH_TTL_SECONDS } from "./calendar.js";
 import { clearAlert, syncCalendar } from "./events.js";
@@ -76,7 +77,10 @@ const DAY = 24 * 60 * 60 * 1000;
 const PUSH_GAP = 3000;
 const MOST_DEVICES = 25;              // device rows per account
 const MOST_DEVICE_WATCHES = 100;      // channels a person's devices may hold open at once
-const MOST_DIAGNOSTIC_BYTES = 128 * 1024 * 1024;   // kept per day across everyone
+// Kept per day across everyone. Times the 90 days kept (src/diagnostics.js KEEP): at most 1.4 GiB
+// of the shared database, well under its 10 GB.
+const MOST_DIAGNOSTIC_BYTES = 16 * 1024 * 1024;
+const utf8Bytes = (text) => new TextEncoder().encode(text).byteLength;
 const MOST_COUNT_ROWS_PER_DAY = 20_000;            // distinct usage rows a day across everyone
 const CALENDAR_PUSH = { aps: { "content-available": 1 }, b: { k: "calendar" } };
 const BAD = Symbol("bad");
@@ -777,6 +781,7 @@ export function createApp(deps) {
     // The table holds daily totals, a small set of rows a day; a flood of made-up versions stops here.
     const rows = await db.first("SELECT COUNT(*) AS n FROM counts WHERE day = ?", day);
     if (Number(rows.n) + add.length > MOST_COUNT_ROWS_PER_DAY) return c.body(null, 429);
+    if (!(await takeShare(deps, "usage", clientIp(c), add.length, utf8Bytes(JSON.stringify(add))))) return c.body(null, 429);
     const statements = [];
     for (const r of add) {
       statements.push({
@@ -807,10 +812,12 @@ export function createApp(deps) {
     const add = body === BAD ? null : reportRows(body);
     if (add === null) return c.body(null, 400);
     const t = now();
-    // A flood stops at a number of reports and at a number of bytes a day.
-    const today = await db.first("SELECT COUNT(*) AS n, COALESCE(SUM(LENGTH(payload)), 0) AS bytes FROM diagnostics WHERE received_at >= ?", t - DAY);
-    const adding = add.reduce((sum, r) => sum + r.payload.length, 0);
+    // A flood stops at a number of reports and at a number of bytes a day (UTF-8 bytes, as the
+    // database holds them), and one address gets a share of that, not all of it.
+    const today = await db.first("SELECT COUNT(*) AS n, COALESCE(SUM(LENGTH(CAST(payload AS BLOB))), 0) AS bytes FROM diagnostics WHERE received_at >= ?", t - DAY);
+    const adding = add.reduce((sum, r) => sum + utf8Bytes(r.payload), 0);
     if (Number(today?.n) + add.length > MOST_PER_DAY || Number(today?.bytes) + adding > MOST_DIAGNOSTIC_BYTES) return c.body(null, 429);
+    if (add.length && !(await takeShare(deps, "diagnostics", clientIp(c), add.length, adding))) return c.body(null, 429);
     if (add.length) {
       await db.batch(add.map((r) => ({
         sql: `INSERT INTO diagnostics (id, received_at, kind, signature, platform, channel, version, os, payload)

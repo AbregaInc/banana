@@ -9,6 +9,7 @@ import { accessToken, addWatch, forgetUnwatched, postpone, stopWatch } from "./c
 import {sweepMailParts} from "./mail-uploads.js";
 import { KEEP as KEEP_DIAGNOSTICS } from "./diagnostics.js";
 import { forgetOldReports } from "./reports.js";
+import { forgetShares } from "./anonymous-shares.js";
 import { SESSION_PROOF } from "./sessions.js";
 
 const RENEW_BEFORE = 24 * 60 * 60 * 1000;
@@ -89,6 +90,7 @@ export async function runJob(deps) {
   await deps.db.run("DELETE FROM devices WHERE push_token IS NULL AND updated_at < ?", t - STALE_DEVICE);
   // Crash and performance reports go after 90 days; usage totals after 400 days.
   await deps.db.run("DELETE FROM diagnostics WHERE received_at < ?", t - KEEP_DIAGNOSTICS);
+  await forgetShares(deps);
   // Problem reports too, with their objects; a failed delete leaves the row for the next sweep.
   try { await forgetOldReports(deps, t); }
   catch { result.reportCleanupFailed = true; }
