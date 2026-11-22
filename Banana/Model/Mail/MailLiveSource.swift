@@ -216,7 +216,7 @@ import GRDB
             }
             return MailAccount(id: account, shortName: account.components(separatedBy: "@").first ?? account,
                 wantsMail: !disabled.contains(account), state: state, health: syncHealth[account] ?? (failures.contains(account) ? .offline : .catchingUp),
-                lastSyncAt: lastSync[account], identities: [MailIdentity(account: account, address: account, name: nil, isDefault: true, hasSignature: false)], keptAfterRemoval: keptCounts[account] ?? 0)
+                lastSyncAt: lastSync[account], identities: [MailIdentity(account: account, address: account, name: nil, isDefault: true, hasSignature: true)], keptAfterRemoval: keptCounts[account] ?? 0)
         }
     }
     func activate() {
@@ -1916,8 +1916,9 @@ extension MailLiveSource {
         }
         let id = MailDraftID(raw: UUID().uuidString.lowercased())
         var draft = MailDraft(id: id, conversation: .init(account: account, thread: "local:" + id.raw), account: account,
-            isReply: false, isForward: false, from: .init(account: account, address: account, name: nil, isDefault: true, hasSignature: false),
-            to: [], cc: [], bcc: [], subject: "", body: .init(blocks: []), signature: nil, quote: nil, attachments: [],
+            isReply: false, isForward: false, from: .init(account: account, address: account, name: nil, isDefault: true, hasSignature: !account.isEmpty),
+            to: [], cc: [], bcc: [], subject: "", body: .init(blocks: []), signature: account.isEmpty ? nil : MailBodyHTML.bananaSignature,
+            quote: nil, attachments: [],
             format: .banana, schedule: nil, remindIfNoReply: nil, delivery: nil, encodedBytes: 0, editedAt: Date())
         var replyID: String?, forwardMessageID: String?
         do {
@@ -1979,16 +1980,16 @@ extension MailLiveSource {
         }) ?? []
     }
 
-    /// From changed to another address of the draft's own account: the draft says it, saved as any
-    /// edit is. The signature goes with the address; the addresses here carry none yet, because
-    /// Gmail's send-as list (aliases and their signatures) is not read. Another account's address is
-    /// not a change of From but of account, which a draft here cannot make: nil, as for an unknown one.
+    /// The account's identity also restores its default signature. Keep any signature already on
+    /// the draft, including one imported from Gmail.
     func changeIdentity(of id: MailDraftID, to address: String) async -> MailDraft? {
         guard var value = await draft(id), draftStates[id] == nil || draftStates[id] == .editing,
               let identity = accounts.first(where: { $0.id == value.account })?.identities
                 .first(where: { $0.address.lowercased() == address.lowercased() }) else { return nil }
         value.from = identity
-        value.signature = nil
+        if value.signature == nil, identity.hasSignature {
+            value.signature = MailBodyHTML.bananaSignature
+        }
         value.editedAt = Date()
         save(value)
         return draftCache[id] ?? value

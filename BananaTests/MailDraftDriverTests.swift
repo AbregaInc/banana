@@ -68,6 +68,28 @@ final class MailDraftDriverTests: XCTestCase {
             parts: attachment ? [body, GmailPart(partId: "file", mimeType: "application/pdf", filename: "notes.pdf", body: GmailPartBody(attachmentId: "file-id", size: 42))] : [body])
         return GmailDraftValue(id: "remote-draft", message: GmailMessage(id: version, threadId: "thread", internalDate: 1000, payload: payload))
     }
+
+    func testBananaSignatureRoundTripsWithTheProductionLinkBeforeTheQuote() throws {
+        var message = draft()
+        message.body = MailPlainText.text("Hello")
+        message.signature = MailBodyHTML.bananaSignature
+        message.quote = MailDraftPart(fragment: MailFragment(html: "<blockquote>Earlier message</blockquote>"),
+            body: .text(MailPlainText.text("> Earlier message"), quoteStartsAt: nil, notices: []))
+        let composed = try GmailDraftComposition(snapshot: .init(message))
+        XCTAssertEqual(composed.plain, "Hello\n\n-- \nSent from Banana (https://bananatheapp.com/)\n\n> Earlier message")
+        XCTAssertEqual(composed.html, #"<p>Hello</p><div class="gmail_signature"><p>Sent from <a href="https://bananatheapp.com/">Banana</a></p></div><blockquote>Earlier message</blockquote>"#)
+
+        let imported = try XCTUnwrap(MailHTMLPreparer.editableDraftHTML(composed.html))
+        XCTAssertEqual(imported.signature?.text, message.signature?.text)
+        XCTAssertFalse(imported.body.contains("Sent from Banana"))
+        XCTAssertNotNil(imported.quote)
+
+        message.signature = nil
+        let removed = try GmailDraftComposition(snapshot: .init(message))
+        XCTAssertFalse(removed.html.contains("bananatheapp.com"))
+        XCTAssertFalse(removed.plain.contains("bananatheapp.com"))
+    }
+
     func testPlainImportedDraftIsEditableAndMarksOnlyItsConversation() async throws {
         let (_, store, api) = try await setup()
         let source = driver(store, api)
